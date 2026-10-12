@@ -165,6 +165,18 @@ export interface StaffLayout {
   topLineDrop: number;
 }
 
+/**
+ * A playhead that moves on its own (the Studio transport): the view reads it
+ * and listens for changes itself, painting its cursor through a ref, so the
+ * host never has to re-render it for a moving tick.
+ */
+export interface PlayheadSubscription {
+  /** The tick now; null for no playhead. */
+  get(): number | null;
+  /** Calls `listener` whenever the tick changes. Returns the unsubscribe. */
+  subscribe(listener: (tick: number) => void): () => void;
+}
+
 export interface StaffViewProps {
   parts: ScorePart[];
   /** Styles by note id. Ids must be unique across parts. */
@@ -173,6 +185,12 @@ export interface StaffViewProps {
   noteOffsets?: ReadonlyMap<string, { x: number; y: number }>;
   /** Tick to draw the playhead at; none when null/undefined. */
   playheadTick?: number | null;
+  /**
+   * A live playhead, painted each time it moves without re-rendering the
+   * view (the Studio). Takes the place of `playheadTick` when given; without
+   * it the view draws `playheadTick` exactly as it always has.
+   */
+  playheadSource?: PlayheadSubscription;
   /** Shrink (down to 70%) so every system fits the height when possible. */
   fitHeight?: boolean;
   /**
@@ -1928,6 +1946,7 @@ export function StaffView({
   noteStyles,
   noteOffsets,
   playheadTick,
+  playheadSource,
   fitHeight = false,
   page,
   printTitleInset,
@@ -2164,7 +2183,9 @@ export function StaffView({
   };
 
   const playhead =
-    rendered && playheadTick != null ? locate(rendered, playheadTick) : null;
+    rendered && playheadTick != null && !playheadSource
+      ? locate(rendered, playheadTick)
+      : null;
 
   // Keep the playhead's system in view.
   const playheadSystem = playhead?.system;
@@ -2180,6 +2201,50 @@ export function StaffView({
       container.scrollTo({ top, behavior: 'smooth' });
     }
   }, [playheadSystem, rendered]);
+
+  // A live playhead (playheadSource): the cursor is moved through a ref on
+  // every change, and the view scrolls only when it reaches another system.
+  const liveCursorRef = useRef<HTMLDivElement>(null);
+  const livePaintRef = useRef<(tick: number | null) => void>(() => {});
+  const liveSystemRef = useRef<{
+    rendered: Rendered | null;
+    system: number | undefined;
+  }>({ rendered: null, system: undefined });
+  livePaintRef.current = (tick) => {
+    const cursor = liveCursorRef.current;
+    if (!cursor || !rendered) return;
+    const at = tick != null ? locate(rendered, tick) : null;
+    if (!at) {
+      if (cursor.style.display !== 'none') cursor.style.display = 'none';
+      liveSystemRef.current = { rendered, system: undefined };
+      return;
+    }
+    if (cursor.style.display) cursor.style.display = '';
+    const transform = `translate(${at.x * rendered.scale}px, ${(at.y + rendered.playheadTop) * rendered.scale}px)`;
+    if (cursor.style.transform !== transform) {
+      cursor.style.transform = transform;
+    }
+    const last = liveSystemRef.current;
+    if (last.rendered === rendered && last.system === at.system) return;
+    liveSystemRef.current = { rendered, system: at.system };
+    const container = containerRef.current;
+    if (!container) return;
+    const top = rendered.systems[at.system].y * rendered.scale;
+    const bottom = top + rendered.systemHeight * rendered.scale;
+    if (
+      top < container.scrollTop ||
+      bottom > container.scrollTop + container.clientHeight
+    ) {
+      container.scrollTo({ top, behavior: 'smooth' });
+    }
+  };
+  useLayoutEffect(() => {
+    if (playheadSource) livePaintRef.current(playheadSource.get());
+  });
+  useEffect(
+    () => playheadSource?.subscribe((tick) => livePaintRef.current(tick)),
+    [playheadSource],
+  );
 
   const pages = rendered?.pages ?? [];
   const goToPage = (index: number) => {
@@ -2253,6 +2318,22 @@ export function StaffView({
               width: 2,
               height: rendered.playheadHeight * rendered.scale,
               transform: `translate(${playhead.x * rendered.scale}px, ${(playhead.y + rendered.playheadTop) * rendered.scale}px)`,
+              background: 'var(--ma-playhead, rgba(126, 207, 207, 0.85))',
+              boxShadow: '0 0 6px rgba(126, 207, 207, 0.6)',
+              willChange: 'transform',
+            }}
+          />
+        )}
+        {rendered && playheadSource && (
+          <div
+            ref={liveCursorRef}
+            className="ma-playhead pointer-events-none"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: 2,
+              height: rendered.playheadHeight * rendered.scale,
               background: 'var(--ma-playhead, rgba(126, 207, 207, 0.85))',
               boxShadow: '0 0 6px rgba(126, 207, 207, 0.6)',
               willChange: 'transform',

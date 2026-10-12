@@ -1543,11 +1543,14 @@ async function refreshWhilePlaying(run) {
     );
     await page.evaluate(() => window.__MA_STORE__.getState().play());
     // The sink arms a two-bar count-in, so the playhead moves only after it.
+    // The live playhead (__MA_PLAYHEAD__, 1.7): the store's position is
+    // parked while playing. An older build (--prev-base) moves the store.
     await page
       .waitForFunction(
         (start) => {
           const s = window.__MA_STORE__.getState();
-          return s.isPlaying && s.position > start + 240;
+          const tick = window.__MA_PLAYHEAD__?.tick?.() ?? s.position;
+          return s.isPlaying && tick > start + 240;
         },
         from,
         { timeout: 30_000, polling: 100 },
@@ -1558,7 +1561,10 @@ async function refreshWhilePlaying(run) {
         // so the transport, at its start: say so rather than time out.
         const at = await page.evaluate(() => {
           const s = window.__MA_STORE__.getState();
-          return { isPlaying: s.isPlaying, position: s.position };
+          return {
+            isPlaying: s.isPlaying,
+            position: window.__MA_PLAYHEAD__?.tick?.() ?? s.position,
+          };
         });
         throw new Error(
           `playback never moved the playhead (isPlaying ${at.isPlaying}, position ${at.position}, from ${from}): if the browser's audio clock does not run on this machine, run with --fake-audio (Chrome's fake audio output)`,

@@ -27,6 +27,7 @@ import { parseNoteId } from '@/daw/model/noteKeys';
 import { SCORE_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { studioPlayheadSource } from '@/daw/engine/studioPlayheadSource';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
 import { useUndoState } from '@/daw/store/useUndoState';
 import type { PaletteAction } from './ScorePalettes';
@@ -134,7 +135,6 @@ export function useScoreEditing({
   chordsAlwaysVisible = false,
 }: ScoreEditingOptions) {
   const tracks = useStore((s) => s.tracks);
-  const position = useStore((s) => s.position);
   // The roadmap lives with the lead sheet's, so edits show up in both views.
   const measuresPerLine = useStore((s) => s.measuresPerLine);
   const measureRowSizes = useStore((s) => s.measureRowSizes);
@@ -2271,7 +2271,9 @@ export function useScoreEditing({
     staff: {
       noteStyles,
       noteOffsets,
-      playheadTick: position,
+      // The staff paints the playhead itself, so neither this hook nor the
+      // views using it re-render as it moves (milestone 1.7, score-05).
+      playheadSource: studioPlayheadSource,
       // The score is engraved onto paper, so a system is the same size
       // whatever the window is doing and what is drawn is what prints.
       page: LETTER_PORTRAIT,

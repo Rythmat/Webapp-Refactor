@@ -44,7 +44,8 @@
  * - playback: play() through the store, 1 s lead-in, 20 s recorded. The demo
  *   is 4 bars and the transport does not stop at its end, so the 4-bar loop
  *   is on (--loop=false turns it off) to keep music playing. Every 250 ms it
- *   reads the master peak and the store's playhead; after the window it
+ *   reads the master peak and the live playhead (window.__MA_PLAYHEAD__,
+ *   the store's position on a build without it); after the window it
  *   pauses and reads the playhead again, since once 1.7 moves the playhead
  *   out of the store, the store learns the position only on pause, stop and
  *   seek. Fails when the transport stopped, the master analysers could not
@@ -557,13 +558,17 @@ function probeProblems(probes) {
 /* ── In-page functions (serialized into the page: self-contained) ────── */
 
 /**
- * Samples the master peak and the store's playhead every 250 ms until
- * stopPeakMeter. The playhead is counted as moves forward and wraps back
- * (the loop's end), and as distinct positions.
+ * Samples the master peak and the playhead every 250 ms until stopPeakMeter.
+ * The playhead is the live one (__MA_PLAYHEAD__, 1.7: the store's position
+ * is parked while playing), or the store's on an older build (--prev-base).
+ * It is counted as moves forward and wraps back (the loop's end), and as
+ * distinct positions.
  */
 function startPeakMeter(audiblePeak) {
   const store = window.__MA_STORE__;
-  const startPosition = store.getState().position;
+  const playhead = () =>
+    Math.round(window.__MA_PLAYHEAD__?.tick?.() ?? store.getState().position);
+  const startPosition = playhead();
   const meter = {
     maxPeak: 0,
     samples: 0,
@@ -574,10 +579,11 @@ function startPeakMeter(audiblePeak) {
     positions: new Set([startPosition]),
     forwardSteps: 0,
     wraps: 0,
+    playhead,
   };
   meter.timer = setInterval(() => {
     meter.samples += 1;
-    const position = store.getState().position;
+    const position = playhead();
     if (position > meter.lastPosition) meter.forwardSteps += 1;
     else if (position < meter.lastPosition) meter.wraps += 1;
     meter.lastPosition = position;
@@ -602,7 +608,7 @@ function stopPeakMeter() {
     audibleSamples: meter.audibleSamples,
     isPlaying: state.isPlaying,
     startPosition: meter.startPosition,
-    endPosition: state.position,
+    endPosition: meter.playhead(),
     distinctPositions: meter.positions.size,
     forwardSteps: meter.forwardSteps,
     wraps: meter.wraps,
@@ -2757,7 +2763,7 @@ function summarize(results, meta, limits) {
     'Stage A exit targets (chromebook): 0 store writes/s; 0 commits/s in ' +
       'DawAppInner, top bar, Timeline, track headers and dock; ≤1 long task ' +
       'per 20 s; p95 frame ≤20 ms. The playhead column counts the distinct ' +
-      'store positions in the 250 ms samples and the loop wraps among them.',
+      'playhead positions in the 250 ms samples and the loop wraps among them.',
   );
   if (of('views').length) {
     add(

@@ -4,14 +4,21 @@ import { useStore } from '@/daw/store';
 import { getPlaybackLoop } from '@/daw/store/transportSlice';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { dropRepeatedTicks } from '@/daw/audio/transportTicks';
+import {
+  endPlayheadRun,
+  notePlayheadSeek,
+  startPlayheadRun,
+} from '@/daw/engine/playheadClock';
 
 // ── seekTo ──────────────────────────────────────────────────────────────
-// Seek playhead to a specific tick position. Syncs both Tone.Transport and
-// the Zustand store so the timeline playhead jumps immediately.
+// Seek playhead to a specific tick position. Syncs Tone.Transport, the
+// playhead clock and the store's parked position, so every playhead jumps
+// immediately.
 
 export function seekTo(tick: number) {
   const t = Math.max(0, Math.round(tick));
   Tone.getTransport().ticks = t;
+  notePlayheadSeek(t);
   useStore.getState().setPosition(t);
   useStore.getState().setLastSeekPosition(t);
 }
@@ -20,13 +27,13 @@ export function seekTo(tick: number) {
 // Two-way sync between Zustand transport state and Tone.Transport.
 //   - BPM changes propagate to Tone.Transport.bpm
 //   - Play / pause toggles Tone.Transport start / pause
-//   - During playback, a rAF loop pushes Transport ticks into the store
-//     at ~60 fps so the Timeline playhead animates smoothly.
+//   - The playhead clock (engine/playheadClock.ts) follows the transport
+//     between start and pause; the store's position is written on pause,
+//     stop and seek only (milestone 1.7).
 
 export function useTransport() {
   const isPlaying = useStore((s) => s.isPlaying);
   const bpm = useStore((s) => s.bpm);
-  const setPosition = useStore((s) => s.setPosition);
   // Loops on the piano roll editor's own loop while that editor is open,
   // otherwise on the project loop.
   const loopEnabled = useStore((s) => getPlaybackLoop(s).enabled);
@@ -63,6 +70,7 @@ export function useTransport() {
       if (transport.state === 'started') transport.pause();
       const s = useStore.getState();
       if (s.isPlaying || s.isCountingIn || s.isRecording) s.pause();
+      endPlayheadRun();
     };
   }, []);
 
@@ -77,40 +85,17 @@ export function useTransport() {
       // At 48 kHz Tone's clock repeats a tick every few seconds, and a note,
       // clip or click on it would play twice: each tick runs once.
       dropRepeatedTicks(transport);
-      transport.ticks = useStore.getState().position;
-      transport.start();
+      const from = useStore.getState().position;
+      transport.ticks = from;
+      const at = Tone.now();
+      startPlayheadRun(from, at);
+      transport.start(at);
     } else {
       transport.pause();
-      // Sync Tone position with store (critical after stop() resets to 0)
+      endPlayheadRun();
+      // The pause or stop action parked the playhead in the store (pause
+      // where it was heard, stop at the last seek): resume from there.
       transport.ticks = useStore.getState().position;
     }
   }, [isPlaying]);
-
-  // Push Tone.Transport ticks → store position during playback (~30fps)
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    let rafId: number;
-    let lastUpdate = 0;
-
-    const updatePosition = (now: number) => {
-      // Throttle to ~30fps (33ms intervals)
-      if (now - lastUpdate >= 33) {
-        const ticks = Math.round(Tone.getTransport().ticks);
-        const state = useStore.getState();
-        // Skip if position hasn't actually changed
-        if (ticks !== state.position) {
-          // Advance the playhead only — the view intentionally does NOT follow
-          // it, so the user can scroll/navigate the timeline freely while audio
-          // is playing.
-          setPosition(ticks);
-        }
-        lastUpdate = now;
-      }
-      rafId = requestAnimationFrame(updatePosition);
-    };
-
-    rafId = requestAnimationFrame(updatePosition);
-    return () => cancelAnimationFrame(rafId);
-  }, [isPlaying, setPosition]);
 }

@@ -27,6 +27,8 @@ import {
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore, type ViewType } from '@/daw/store';
 import { seekTo } from '@/daw/hooks/useTransport';
+import { addFrameTask } from '@/daw/engine/engineClock';
+import { getPlayheadTick, subscribePlayhead } from '@/daw/engine/playheadClock';
 import { projectEndTick } from '@/daw/audio/renderProject';
 import { NOTES } from '@prism/engine';
 import { ALL_GRID_VALUES } from '@/daw/utils/quantize';
@@ -122,19 +124,19 @@ function formatPosition(ticks: number, numerator = 4, denominator = 4): string {
 }
 
 // ── Position Display (its own memoised child) ────────────────────────────
-// The store's playhead position moves ~30 times a second while playing. React
-// renders this span once; a store subscription writes the bar:beat:sixteenth
-// text into it, and only when that text changes, so playback re-renders
-// neither the readout nor the bar around it (shell-17).
+// The playhead moves every frame while playing. React renders this span
+// once; a playhead clock subscription writes the bar:beat:sixteenth text into
+// it, and only when that text changes, so playback re-renders neither the
+// readout nor the bar around it (shell-17, milestone 1.7).
 
-type StoreState = ReturnType<typeof useStore.getState>;
-
-const positionText = (s: StoreState): string =>
-  formatPosition(
-    s.position,
+const positionText = (tick: number): string => {
+  const s = useStore.getState();
+  return formatPosition(
+    tick,
     s.timeSignatureNumerator,
     s.timeSignatureDenominator,
   );
+};
 
 /** FixedDigits' cell widths in em (src/components/common/FixedDigits.tsx):
  *  each digit and colon sits in a cell of its own, so the readout holds
@@ -161,8 +163,24 @@ const PositionDisplay = memo(function PositionDisplay() {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    writeReadout(el, positionText(useStore.getState()));
-    return useStore.subscribe(positionText, (text) => writeReadout(el, text));
+    let shown = '';
+    const show = (tick: number) => {
+      const text = positionText(tick);
+      if (text === shown) return;
+      shown = text;
+      writeReadout(el, text);
+    };
+    show(getPlayheadTick());
+    const offPlayhead = subscribePlayhead(show);
+    // A metre change re-counts the same tick.
+    const offMeter = useStore.subscribe(
+      (s) => `${s.timeSignatureNumerator}/${s.timeSignatureDenominator}`,
+      () => show(getPlayheadTick()),
+    );
+    return () => {
+      offPlayhead();
+      offMeter();
+    };
   }, []);
   return (
     <span
@@ -268,7 +286,8 @@ export const TransportBar = memo(function TransportBar({
   const handleSkipBack = useCallback(
     () =>
       withInit(() => {
-        const pos = useStore.getState().position;
+        // The live playhead: the store's position is parked while playing.
+        const pos = getPlayheadTick();
         const sorted = [...useStore.getState().markers].sort(
           (a, b) => a.tick - b.tick,
         );
@@ -288,7 +307,7 @@ export const TransportBar = memo(function TransportBar({
   const handleSkipForward = useCallback(
     () =>
       withInit(() => {
-        const pos = useStore.getState().position;
+        const pos = getPlayheadTick();
         const sorted = [...useStore.getState().markers].sort(
           (a, b) => a.tick - b.tick,
         );
@@ -739,7 +758,8 @@ export const TransportBar = memo(function TransportBar({
               if (!s.timelineSnapEnabled) {
                 // toggleSnap hasn't applied yet in this tick, so !enabled means it's about to be enabled
                 const gridTicks = ALL_GRID_VALUES[s.timelineGridSize];
-                const snapped = Math.round(s.position / gridTicks) * gridTicks;
+                const snapped =
+                  Math.round(getPlayheadTick() / gridTicks) * gridTicks;
                 seekTo(snapped);
               }
             }}
@@ -983,41 +1003,46 @@ export const TransportBar = memo(function TransportBar({
 // Tracks the current metronome beat index while a click sequence is sounding
 // (playback with the metronome on, or a count-in). The parity of the returned
 // index drives which circle the icon fills. Returns 0 (left) when idle.
-function useMetronomeBeat(animating: boolean): number {
+// Playback follows the playhead clock and a count-in runs as a task on the
+// shared frame loop; either way the icon renders once a beat, and nothing
+// runs while idle.
+const beatTicksFor = (den: number) =>
+  // Beat length matches the metronome/count-in scheduling: eighth-note
+  // meters click twice as fast, half-note meters half as fast.
+  den === 8 ? 240 : den === 2 ? 960 : 480;
+
+function useMetronomeBeat(animating: boolean, countingIn: boolean): number {
   const [beat, setBeat] = useState(0);
   useEffect(() => {
     if (!animating) {
       setBeat(0);
       return;
     }
-    let raf = 0;
-    let countInStart: number | null = null;
-    let startBeat: number | null = null;
-    const tick = () => {
-      const s = useStore.getState();
-      const den = s.timeSignatureDenominator;
-      // Beat length matches the metronome/count-in scheduling: eighth-note
-      // meters click twice as fast, half-note meters half as fast.
-      const beatTicks = den === 8 ? 240 : den === 2 ? 960 : 480;
-      const beatMs = (60 / s.bpm) * (4 / den) * 1000;
-      let next: number;
-      if (s.isCountingIn) {
-        // Transport is paused during count-in — derive beats from elapsed time.
-        if (countInStart === null) countInStart = performance.now();
-        next = Math.floor((performance.now() - countInStart) / beatMs);
-      } else {
-        // Playing — derive from the audio-synced playhead, offset so the first
-        // beat after playback starts fills the left circle.
-        const absBeat = Math.floor(s.position / beatTicks);
-        if (startBeat === null) startBeat = absBeat;
-        next = absBeat - startBeat;
-      }
+    const set = (next: number) =>
       setBeat((prev) => (prev === next ? prev : next));
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [animating]);
+    if (countingIn) {
+      // Transport is paused during count-in — derive beats from elapsed time.
+      const countInStart = performance.now();
+      return addFrameTask(
+        () => {
+          const s = useStore.getState();
+          const den = s.timeSignatureDenominator;
+          const beatMs = (60 / s.bpm) * (4 / den) * 1000;
+          set(Math.floor((performance.now() - countInStart) / beatMs));
+        },
+        { name: 'metronome-count-in' },
+      );
+    }
+    // Playing — derive from the heard playhead, offset so the first beat
+    // after playback starts fills the left circle.
+    const beatOf = (tick: number) =>
+      Math.floor(
+        tick / beatTicksFor(useStore.getState().timeSignatureDenominator),
+      );
+    const startBeat = beatOf(getPlayheadTick());
+    set(0);
+    return subscribePlayhead((tick) => set(beatOf(tick) - startBeat));
+  }, [animating, countingIn]);
   return beat;
 }
 
@@ -1027,7 +1052,7 @@ function MetronomeIcon({ active }: { active: boolean }) {
   // A click sequence is sounding during a count-in, or during playback while
   // the metronome is enabled.
   const animating = isCountingIn || (isPlaying && active);
-  const beat = useMetronomeBeat(animating);
+  const beat = useMetronomeBeat(animating, isCountingIn);
 
   // Sounding → fill one circle, alternating each beat (left first). Idle + on →
   // both filled. Off → both outlined.

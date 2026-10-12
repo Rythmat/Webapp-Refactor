@@ -1032,7 +1032,10 @@ function installPageHelpers() {
     s().setPosition(0);
     s().setLastSeekPosition(0);
     s().play();
-    const moved = await until(() => s().position > 0, 2000, 20);
+    // The live playhead (__MA_PLAYHEAD__, 1.7): the store's position is
+    // parked while playing. An older build (--prev-base) moves the store.
+    const tick = () => window.__MA_PLAYHEAD__?.tick?.() ?? s().position;
+    const moved = await until(() => tick() > 0, 2000, 20);
     s().stop();
     await until(
       () => !s().isPlaying && Tone.getTransport().state !== 'started',

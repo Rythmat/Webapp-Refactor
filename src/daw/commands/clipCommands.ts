@@ -1,6 +1,7 @@
 import { getAudioBuffer, setAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { midiClipLength } from '@/daw/components/Timeline/midiClipCuts';
 import { useStore } from '@/daw/store';
+import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import type { ToolType } from '@/daw/store/uiSlice';
 import { isFormControl, isInKeyWidget } from './keys';
 import { ARRANGE_SCOPE } from './keymaps';
@@ -55,7 +56,10 @@ function copyClip(): boolean {
 
 function pasteClips(): boolean {
   const state = useStore.getState();
-  const { clipboardClips, clipboardAudioClip, position } = state;
+  const { clipboardClips, clipboardAudioClip } = state;
+  // At the playhead where it is heard, also while playing (the store's
+  // position is parked then). Whole ticks, as a seek leaves them.
+  const position = Math.round(getPlayheadTick());
   const targetTrackId = state.selectedClipTrackId || state.tracks[0]?.id;
   if (clipboardAudioClip) {
     if (!targetTrackId) return true;

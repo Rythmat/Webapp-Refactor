@@ -35,7 +35,7 @@ const transport = vi.hoisted(() => ({
   pause: vi.fn(),
 }));
 
-vi.mock('tone', () => ({ getTransport: () => transport }));
+vi.mock('tone', () => ({ getTransport: () => transport, now: () => 0 }));
 
 const ticks = vi.hoisted(() => ({ dropRepeatedTicks: vi.fn() }));
 vi.mock('@/daw/audio/transportTicks', () => ticks);

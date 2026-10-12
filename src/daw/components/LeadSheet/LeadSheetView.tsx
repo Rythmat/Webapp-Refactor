@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { LEAD_SHEET_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { usePlayheadSelector } from '@/daw/engine/playheadClock';
 import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
 import { NOTES } from '@prism/engine';
@@ -92,7 +93,6 @@ function LeadSheetChartView() {
   const renameChordRegion = useStore((s) => s.renameChordRegion);
   const insertChordRegion = useStore((s) => s.insertChordRegion);
   const projectName = useStore((s) => s.projectName);
-  const position = useStore((s) => s.position);
   const isPlaying = useStore((s) => s.isPlaying);
   const moveChordRegion = useStore((s) => s.moveChordRegion);
   const deleteChordRegion = useStore((s) => s.deleteChordRegion);
@@ -186,8 +186,10 @@ function LeadSheetChartView() {
     return result;
   }, [measures, measureRowSizes, MEASURES_PER_LINE]);
 
-  // Playhead position mapped to system index
-  const playheadSystemIdx = useMemo(() => {
+  // The system the playhead is in. Read from the playhead clock, so the
+  // sheet renders when the playhead moves to another system, not on every
+  // frame (leadsheet-12); the line itself is painted by LeadSheetStaff.
+  const playheadSystemIdx = usePlayheadSelector((position) => {
     if (!isPlaying && position === 0) return -1;
     if (systems.length === 0) return -1;
     const measureIdx = Math.floor(position / ticksPerMeasure);
@@ -202,7 +204,7 @@ function LeadSheetChartView() {
       }
     }
     return systems.length - 1;
-  }, [position, isPlaying, systems]);
+  });
 
   // Auto-scroll to keep playhead system visible during playback
   const prevSystemIdx = useRef(-1);
@@ -834,23 +836,6 @@ function LeadSheetChartView() {
 
           {/* Staff systems */}
           {systems.map((system, sysIdx) => {
-            // Compute playhead x for this system
-            let playheadX: number | undefined;
-            if (sysIdx === playheadSystemIdx) {
-              const measureIdx = Math.floor(position / ticksPerMeasure);
-              const measureInSystem = measureIdx - system.startIndex;
-              const ticksInMeasure = position % ticksPerMeasure;
-              const rowSize = system.rowSize;
-              const isFull = system.measures.length === rowSize;
-              const defaultW = system.measures.length * 200;
-              const svgW =
-                isFull && contentWidth && contentWidth > defaultW
-                  ? contentWidth
-                  : defaultW;
-              const mw = svgW / system.measures.length;
-              playheadX =
-                measureInSystem * mw + (ticksInMeasure / ticksPerMeasure) * mw;
-            }
             return (
               <div key={system.startIndex} className="leadsheet-system mb-6">
                 <LeadSheetStaff
@@ -863,7 +848,9 @@ function LeadSheetChartView() {
                   repeats={repeats}
                   showRepeats={showRepeats}
                   availableWidth={contentWidth || undefined}
-                  playheadX={playheadX}
+                  playheadTicksPerMeasure={
+                    sysIdx === playheadSystemIdx ? ticksPerMeasure : undefined
+                  }
                   chordDrag={chordDragState}
                   chordDragMeasureIdx={dragVisual?.measureIdx}
                   onSelectChord={handleSelectChord}

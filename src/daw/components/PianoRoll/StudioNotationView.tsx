@@ -9,11 +9,14 @@ import { CountOff, countOffBeatAtTime } from '@/components/notation/CountOff';
 import { GrandStaff, type NoteStyle } from '@/components/notation/GrandStaff';
 import { parseNoteName } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { useStore } from '@/daw/store';
+import { addFrameTask } from '@/daw/engine/engineClock';
+import { studioPlayheadSource } from '@/daw/engine/studioPlayheadSource';
 import { buildScore, keyFifthsForTonic } from '@/lib/notation';
 
 // ── Studio: a clip on the grand staff ──────────────────────────────────────
 // Read-only notation of the clip being edited, spelled in the project key,
-// barred and numbered as on the song timeline, following the transport.
+// barred and numbered as on the song timeline, following the transport (its
+// cursor is painted by the staff from the playhead clock, not by rendering).
 
 const TICKS_PER_QUARTER = 480;
 const MIN_BARS = 4;
@@ -40,7 +43,6 @@ export function StudioNotationView({
   const mode = useStore((s) => s.mode);
   const numerator = useStore((s) => s.timeSignatureNumerator);
   const denominator = useStore((s) => s.timeSignatureDenominator);
-  const position = useStore((s) => s.position);
   const isCountingIn = useStore((s) => s.isCountingIn);
   const countInBars = useStore((s) => s.countInBars);
   const countInStartedAt = useStore((s) => s.countInStartedAt);
@@ -56,19 +58,19 @@ export function StudioNotationView({
     }
     const beatSeconds = (60 / bpm) * (4 / denominator);
     const totalBeats = countInBars * numerator;
-    let raf = 0;
-    const tick = () => {
-      setCountInBeat(
-        countOffBeatAtTime(
-          Tone.now() - countInStartedAt,
-          beatSeconds,
-          totalBeats,
+    // A task on the shared frame loop, only while the count-in runs; the
+    // state setter bails out between beats, so this renders once a beat.
+    return addFrameTask(
+      () =>
+        setCountInBeat(
+          countOffBeatAtTime(
+            Tone.now() - countInStartedAt,
+            beatSeconds,
+            totalBeats,
+          ),
         ),
-      );
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+      { name: 'notation-count-off' },
+    );
   }, [
     isCountingIn,
     countInStartedAt,
@@ -139,7 +141,7 @@ export function StudioNotationView({
       <GrandStaff
         score={score}
         noteStyles={noteStyles}
-        playheadTick={position}
+        playheadSource={studioPlayheadSource}
         className="size-full px-3 pt-3"
       />
       <CountOff beatIndex={countInBeat} beatsPerBar={numerator} />

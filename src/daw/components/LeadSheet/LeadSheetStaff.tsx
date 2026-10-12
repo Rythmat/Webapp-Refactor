@@ -1,4 +1,5 @@
-import { memo } from 'react';
+import { memo, useRef } from 'react';
+import { usePlayheadEffect } from '@/daw/engine/playheadClock';
 import type { Measure, ChordFormat } from '@/daw/midi/leadSheetUtils';
 import type { LeadSheetRepeat, LeadSheetSection } from '@/daw/store/uiSlice';
 import type { LeadSheetItem } from './leadSheetSelection';
@@ -31,8 +32,12 @@ interface LeadSheetStaffProps {
   showRepeats?: boolean;
   /** Available container width — full systems stretch to fill this */
   availableWidth?: number;
-  /** X position of the playhead line within this system (undefined = not in this system) */
-  playheadX?: number;
+  /**
+   * The playhead is in this system: ticks per bar, to place it. The line is
+   * painted from the playhead clock through a ref, so playback moves it
+   * without rendering the sheet (undefined = not in this system).
+   */
+  playheadTicksPerMeasure?: number;
   /** Drag state for the chord being dragged */
   chordDrag?: ChordDragState | null;
   /** Measure index (global) that the drag tether should appear in */
@@ -75,7 +80,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   repeats,
   showRepeats,
   availableWidth,
-  playheadX,
+  playheadTicksPerMeasure,
   chordDrag,
   chordDragMeasureIdx,
   onSelectChord,
@@ -163,18 +168,45 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
       })}
 
       {/* Playhead line */}
-      {playheadX != null && (
-        <line
-          className="leadsheet-playhead"
-          x1={playheadX}
-          y1={CHORD_AREA_HEIGHT}
-          x2={playheadX}
-          y2={CHORD_AREA_HEIGHT + STAFF_HEIGHT}
-          stroke="#ef4444"
-          strokeWidth={2}
-          style={{ pointerEvents: 'none' }}
+      {playheadTicksPerMeasure != null && (
+        <SystemPlayhead
+          ticksPerMeasure={playheadTicksPerMeasure}
+          startIndex={startIndex}
+          measureWidth={measureWidth}
         />
       )}
     </svg>
   );
 });
+
+/** The playhead line across one system, moved through a ref. */
+function SystemPlayhead({
+  ticksPerMeasure,
+  startIndex,
+  measureWidth,
+}: {
+  ticksPerMeasure: number;
+  startIndex: number;
+  measureWidth: number;
+}) {
+  const lineRef = useRef<SVGLineElement | null>(null);
+  usePlayheadEffect((tick) => {
+    const line = lineRef.current;
+    if (!line) return;
+    const x = String((tick / ticksPerMeasure - startIndex) * measureWidth);
+    if (line.getAttribute('x1') === x) return;
+    line.setAttribute('x1', x);
+    line.setAttribute('x2', x);
+  });
+  return (
+    <line
+      ref={lineRef}
+      className="leadsheet-playhead"
+      y1={CHORD_AREA_HEIGHT}
+      y2={CHORD_AREA_HEIGHT + STAFF_HEIGHT}
+      stroke="#ef4444"
+      strokeWidth={2}
+      style={{ pointerEvents: 'none' }}
+    />
+  );
+}

@@ -13,6 +13,7 @@ import {
 import { DRUMS_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { usePlayheadEffect } from '@/daw/engine/playheadClock';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import {
   DrumMachineEngine,
@@ -123,7 +124,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const setDrumKit = useStore((s) => s.setDrumKit);
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
   const addMidiClip = useStore((s) => s.addMidiClip);
-  const position = useStore((s) => s.position);
   const isPlaying = useStore((s) => s.isPlaying);
 
   // Time signature
@@ -1231,11 +1231,21 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   );
 
   // ── Playhead position ─────────────────────────────────────────────────
-  const playheadPx = useMemo(() => {
-    if (!isPlaying) return -1;
-    const relTick = position - songOffset;
-    return relTick * pixelsPerTick;
-  }, [isPlaying, position, songOffset, pixelsPerTick]);
+  // Painted from the playhead clock through a ref, so playback moves the
+  // line without rendering the drum machine (dock-instruments-06).
+  const playheadRef = useRef<HTMLDivElement | null>(null);
+  usePlayheadEffect((tick) => {
+    const line = playheadRef.current;
+    if (!line) return;
+    const px = (tick - songOffset) * pixelsPerTick;
+    if (px < 0) {
+      if (line.style.display !== 'none') line.style.display = 'none';
+      return;
+    }
+    if (line.style.display) line.style.display = '';
+    const transform = `translateX(${px}px)`;
+    if (line.style.transform !== transform) line.style.transform = transform;
+  });
 
   const currentKitLabel =
     DRUM_KITS.find((k) => k.id === currentKit)?.label ?? currentKit;
@@ -1573,8 +1583,9 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
               />
 
               {/* CSS Playhead */}
-              {isPlaying && playheadPx >= 0 && (
+              {isPlaying && (
                 <div
+                  ref={playheadRef}
                   style={{
                     position: 'absolute',
                     top: 0,
@@ -1582,7 +1593,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
                     width: 1,
                     height: GRID_H,
                     backgroundColor: '#ef4444',
-                    transform: `translateX(${playheadPx}px)`,
                     willChange: 'transform',
                     pointerEvents: 'none',
                     zIndex: 10,

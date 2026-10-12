@@ -17,6 +17,8 @@ export interface GrandStaffProps {
   noteStyles?: ReadonlyMap<string, NoteStyle>;
   /** Tick to draw the playhead at; none when null/undefined. */
   playheadTick?: number | null;
+  /** A live playhead the staff paints itself (see StaffViewProps). */
+  playheadSource?: StaffViewProps['playheadSource'];
   /** Shrink (down to 70%) so every system fits the height when possible. */
   fitHeight?: boolean;
   /** Break to a new system when the next bar will not fit the width. */

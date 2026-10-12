@@ -64,6 +64,11 @@ import {
 import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModal';
 import { RecordGuard } from '@/daw/components/Transport/RecordGuard';
 import { useStore } from '@/daw/store';
+import {
+  endPlayheadRun,
+  setPlayheadSourceForTests,
+  startPlayheadRun,
+} from '@/daw/engine/playheadClock';
 import type { ViewType } from '@/daw/store/uiSlice';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
 import { saveProject } from '@/daw/commands/saveProject';
@@ -710,6 +715,41 @@ describe('the dispatcher: keys stay where the student is working', () => {
 });
 
 // ── Single-key shortcuts can be turned off (WCAG 2.1.4) ────────────────────
+
+describe('at the playhead while playing', () => {
+  afterEach(() => {
+    endPlayheadRun();
+    setPlayheadSourceForTests();
+  });
+
+  it('pastes where the student hears the playhead, not where play began', () => {
+    // 120 bpm: 960 ticks a second, the transport started at 0 from tick 0.
+    const now = { t: 0 };
+    setPlayheadSourceForTests({
+      currentTime: () => now.t,
+      outputLatency: () => 0,
+      ticksAtTime: (time) => time * 960,
+      scheduleTime: () => now.t + 0.1,
+    });
+    useStore.setState({
+      clipboardClips: [structuredClone(keysTrack.midiClips[0])],
+      isPlaying: true,
+    } as never);
+    renderEditor();
+    startPlayheadRun(0, 0);
+    now.t = 4;
+
+    press('KeyV', { metaKey: true });
+
+    const pasted = useStore
+      .getState()
+      .tracks.find((t) => t.id === 'keys')
+      ?.midiClips.find((c) => c.id.startsWith('clip-paste-'));
+    expect(pasted?.startTick).toBe(3840);
+    // The store's position stays parked at the start while playing.
+    expect(useStore.getState().position).toBe(0);
+  });
+});
 
 describe('the single-key switch', () => {
   it('turns off letter, digit and symbol keys, and nothing else', () => {

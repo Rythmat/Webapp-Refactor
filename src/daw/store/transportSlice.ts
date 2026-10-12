@@ -43,7 +43,9 @@ export interface TransportSlice {
   bpm: number;
   timeSignatureNumerator: number; // beats per bar (default: 4)
   timeSignatureDenominator: number; // beat unit (default: 4 = quarter note)
-  position: number; // current tick position (480 ticks/quarter)
+  // The parked playhead (480 ticks/quarter): written on pause, stop and seek
+  // only. While playing, the playhead lives in engine/playheadClock.ts.
+  position: number;
   lastSeekPosition: number; // last manually-placed playhead position
   metronomeEnabled: boolean;
   loopEnabled: boolean;
@@ -91,6 +93,17 @@ export interface TransportSlice {
   clearLiveAudioRecording: () => void;
 }
 
+/**
+ * Reads the running playhead, or null when the transport isn't running.
+ * engine/playheadClock.ts registers it, so pause parks the playhead where
+ * the student heard it without this slice importing the clock.
+ */
+let readLivePlayhead: () => number | null = () => null;
+
+export function setLivePlayheadReader(read: () => number | null): void {
+  readLivePlayhead = read;
+}
+
 export const createTransportSlice: StateCreator<
   AllSlices,
   [['zustand/subscribeWithSelector', never]],
@@ -136,18 +149,22 @@ export const createTransportSlice: StateCreator<
     }),
 
   pause: () =>
-    set({
-      isPlaying: false,
-      isRecording: false,
-      isCountingIn: false,
-      countInIsRecording: false,
-      countInStartedAt: null,
-      liveRecordingNotes: [],
-      liveRecordingTrackId: null,
-      liveRecordingStartTick: 0,
-      liveAudioPeaks: [],
-      liveAudioTrackId: null,
-      liveAudioStartTick: 0,
+    set(() => {
+      const live = readLivePlayhead();
+      return {
+        ...(live !== null ? { position: Math.max(0, Math.round(live)) } : {}),
+        isPlaying: false,
+        isRecording: false,
+        isCountingIn: false,
+        countInIsRecording: false,
+        countInStartedAt: null,
+        liveRecordingNotes: [],
+        liveRecordingTrackId: null,
+        liveRecordingStartTick: 0,
+        liveAudioPeaks: [],
+        liveAudioTrackId: null,
+        liveAudioStartTick: 0,
+      };
     }),
 
   stop: () =>

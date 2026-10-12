@@ -5,6 +5,7 @@ import {
   useLayoutEffect,
   useMemo,
   useState,
+  type RefObject,
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -25,6 +26,7 @@ import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { PIANO_ROLL_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { getPlayheadTick, usePlayheadEffect } from '@/daw/engine/playheadClock';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import {
@@ -154,36 +156,79 @@ interface MarqueeRect {
 }
 
 // ── Playhead ────────────────────────────────────────────────────────────────
-// Subscribes to the transport position itself, so playback's ~30fps position
-// updates repaint just this line rather than the whole editor.
+// Painted through a ref, so playback moves this line without rendering it or
+// the editor (milestone 1.7). In the Studio it follows the playhead clock;
+// with a host (the back office) it follows the host's position instead and
+// does not subscribe to the clock at all.
 // With `handle`, it also draws the grab triangle at the bottom of the ruler
 // (purely visual — the ruler's mouse handler hit-tests it).
-function Playhead({
-  songOffset,
-  pixelsPerTick,
-  maxX,
-  height,
-  handle = false,
-}: {
+interface PlayheadProps {
   songOffset: number;
   pixelsPerTick: number;
   maxX: number;
   height: number;
   handle?: boolean;
-}) {
+}
+
+function Playhead(props: PlayheadProps) {
   const host = usePianoRollHost();
-  const storePosition = useStore((s) => s.position);
-  const position = host ? host.position : storePosition;
+  return host ? (
+    <HostPlayhead {...props} position={host.position} />
+  ) : (
+    <ClockPlayhead {...props} />
+  );
+}
+
+/** Moves the line to `position`, hiding it outside 0..maxX. */
+function paintPlayhead(
+  el: HTMLDivElement | null,
+  position: number,
+  { songOffset, pixelsPerTick, maxX }: PlayheadProps,
+): void {
+  if (!el) return;
   const x = (position - songOffset) * pixelsPerTick;
-  if (x < 0 || x > maxX) return null;
+  if (x < 0 || x > maxX) {
+    if (el.style.display !== 'none') el.style.display = 'none';
+    return;
+  }
+  if (el.style.display) el.style.display = '';
+  const transform = `translateX(${x}px)`;
+  if (el.style.transform !== transform) el.style.transform = transform;
+}
+
+function ClockPlayhead(props: PlayheadProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  usePlayheadEffect((tick) => paintPlayhead(ref.current, tick, props));
+  return (
+    <PlayheadLine lineRef={ref} height={props.height} handle={props.handle} />
+  );
+}
+
+function HostPlayhead({
+  position,
+  ...props
+}: PlayheadProps & { position: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => paintPlayhead(ref.current, position, props));
+  return (
+    <PlayheadLine lineRef={ref} height={props.height} handle={props.handle} />
+  );
+}
+
+function PlayheadLine({
+  lineRef,
+  height,
+  handle = false,
+}: {
+  lineRef: RefObject<HTMLDivElement>;
+  height: number;
+  handle?: boolean;
+}) {
   return (
     <div
+      ref={lineRef}
       className="pointer-events-none absolute left-0 top-0"
-      style={{
-        height,
-        transform: `translateX(${x}px)`,
-        willChange: 'transform',
-      }}
+      style={{ height, willChange: 'transform' }}
     >
       <div style={{ width: 2, height, backgroundColor: PLAYHEAD_COLOR }} />
       {handle && (
@@ -223,7 +268,8 @@ function rulerSnapshot(
 ): LoopState & { position: number } {
   if (host) return { ...host.loop, position: host.position };
   const s = useStore.getState();
-  return { ...readLoop(s, scope), position: s.position };
+  // The live playhead: the store's position is parked while playing.
+  return { ...readLoop(s, scope), position: getPlayheadTick() };
 }
 
 function writeLoop(

@@ -11,6 +11,7 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 import { seekTo } from '@/daw/hooks/useTransport';
+import { getPlayheadTick, usePlayheadEffect } from '@/daw/engine/playheadClock';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import {
   getAudioBuffer,
@@ -345,9 +346,9 @@ function snapTick(tick: number, gridTicks: number): number {
 }
 
 // ── Playhead ────────────────────────────────────────────────────────────
-// Subscribes to the transport position itself, as PianoRoll's Playhead does,
-// so playback's ~30 fps position writes repaint just this line instead of
-// re-rendering the whole Timeline (timeline-23).
+// Painted through a ref from the playhead clock (milestone 1.7): playback
+// moves this line every frame without rendering it or the Timeline
+// (timeline-23). It renders only when the zoom, scroll or width change.
 const TimelinePlayhead = memo(function TimelinePlayhead({
   zoom,
   scrollLeft,
@@ -361,16 +362,27 @@ const TimelinePlayhead = memo(function TimelinePlayhead({
    *  every position update. */
   handleRef: (node: HTMLDivElement | null) => void;
 }) {
-  const position = useStore((s) => s.position);
-  const x = tickToPixel(position, zoom, scrollLeft);
-  if (x < -2 || x > maxX + 2) return null;
+  const lineRef = useRef<HTMLDivElement | null>(null);
+  usePlayheadEffect((tick) => {
+    const line = lineRef.current;
+    if (!line) return;
+    const x = tickToPixel(tick, zoom, scrollLeft);
+    // Out of view it is hidden, not unmounted, so the handle stays pinned.
+    if (x < -2 || x > maxX + 2) {
+      if (line.style.display !== 'none') line.style.display = 'none';
+      return;
+    }
+    if (line.style.display) line.style.display = '';
+    const transform = `translateX(${x}px)`;
+    if (line.style.transform !== transform) line.style.transform = transform;
+  });
   return (
     <div
+      ref={lineRef}
       className="pointer-events-none absolute inset-y-0"
       style={{
         width: 2,
         backgroundColor: PLAYHEAD_COLOR,
-        transform: `translateX(${x}px)`,
         willChange: 'transform',
       }}
     >
@@ -1662,7 +1674,7 @@ export function Timeline() {
             tickToPixel(state.loopStart, currentZoom, currentScrollLeft),
             tickToPixel(state.loopEnd, currentZoom, currentScrollLeft),
             LOOP_STRIP_H,
-            tickToPixel(state.position, currentZoom, currentScrollLeft),
+            tickToPixel(getPlayheadTick(), currentZoom, currentScrollLeft),
           ),
           mode: null,
           startX: x,
@@ -2014,7 +2026,8 @@ export function Timeline() {
     const rightId = splitAudioClipAt(
       ctxMenu.audioTrackId,
       ctxMenu.audioClipId,
-      state.position,
+      // Where the student hears it, also while playing.
+      Math.round(getPlayheadTick()),
     );
     if (rightId) state.setSelectedClip(rightId, ctxMenu.audioTrackId);
     setCtxMenu(null);
@@ -2256,7 +2269,7 @@ export function Timeline() {
             tickToPixel(state.loopStart, currentZoom, currentScrollLeft),
             tickToPixel(state.loopEnd, currentZoom, currentScrollLeft),
             LOOP_STRIP_H,
-            tickToPixel(state.position, currentZoom, currentScrollLeft),
+            tickToPixel(getPlayheadTick(), currentZoom, currentScrollLeft),
           );
           canvas.style.cursor =
             target === 'playhead'

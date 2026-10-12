@@ -4,6 +4,7 @@ import { ALL_MODES, DEGREES, MODE_DISPLAY, noteNameInKey } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyName } from '@/daw/components/Library/chordInKey';
 import { useStore } from '@/daw/store';
+import { usePlayheadSelector } from '@/daw/engine/playheadClock';
 import { PRACTICE_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { requestRecord } from '@/daw/commands/requestRecord';
@@ -86,7 +87,6 @@ export function PracticeTrackView({
   const mode = useStore((s) => s.mode);
   const chordRegions = useStore((s) => s.chordRegions);
   const bpm = useStore((s) => s.bpm);
-  const position = useStore((s) => s.position);
   const isPlaying = useStore((s) => s.isPlaying);
   const isRecording = useStore((s) => s.isRecording);
   const isCountingIn = useStore((s) => s.isCountingIn);
@@ -292,19 +292,25 @@ export function PracticeTrackView({
   }, [cycleVoicings, keyboard]);
 
   /**
+   * Which chord of the cycle the playhead is in (-1 for none). Read from the
+   * playhead clock, so the screen renders when the chord changes, not on
+   * every frame of playback (practice-tutorial-01).
+   */
+  const heardIndex = usePlayheadSelector((tick) => {
+    const withinCycle = cycleTicks > 0 ? tick % cycleTicks : tick;
+    return cycleRegions.findIndex(
+      (r) => withinCycle >= r.startTick && withinCycle < r.endTick,
+    );
+  });
+
+  /**
    * The chord sounding now. Before Play it is the chord the playhead is parked
    * on, so the first chord is lit and waiting.
    */
   const chordNow = useMemo<(KeyboardScale & { tonic: number }) | null>(() => {
     if (!cycleVoicings) return null;
-    const withinCycle = cycleTicks > 0 ? position % cycleTicks : position;
     const now =
-      cycleVoicings.find(
-        (v) =>
-          v !== null &&
-          withinCycle >= v.region.startTick &&
-          withinCycle < v.region.endTick,
-      ) ?? cycleVoicings.find((v) => v !== null);
+      cycleVoicings[heardIndex] ?? cycleVoicings.find((v) => v !== null);
     if (!now) return null;
     const lowest = now.notes[0];
     return {
@@ -315,7 +321,7 @@ export function PracticeTrackView({
       degrees: now.degrees,
       names: now.names,
     };
-  }, [cycleVoicings, cycleTicks, position]);
+  }, [cycleVoicings, heardIndex]);
 
   // Playing the chords makes the chart the thing to read, so its boxes are big;
   // improvising makes it context, and it sits small under the keyboard. Either
@@ -487,8 +493,7 @@ export function PracticeTrackView({
     <div ref={chartRef} className="flex w-full justify-center">
       <ChordChart
         regions={cycleRegions}
-        cycleTicks={cycleTicks}
-        position={position}
+        nowIndex={heardIndex}
         isPlaying={isPlaying}
         large={chartLarge}
         keyRootPc={rootNote}

@@ -4,7 +4,6 @@ import {
   cleanup,
   fireEvent,
   render,
-  renderHook,
   screen,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -39,7 +38,20 @@ vi.mock('@/daw/audio/AudioEngine', () => ({
   },
 }));
 
-import { useKeyboardShortcuts } from '../useKeyboardShortcuts';
+import { useArrangeKeymap } from '../clipCommands';
+import { useGlobalCommands } from '../globalCommands';
+import {
+  LEAD_SHEET_SCOPE,
+  NOTE_EDITOR_SCOPE,
+  PIANO_ROLL_SCOPE,
+  SCORE_SCOPE,
+} from '../keymaps';
+import { useMusicalTypingStore } from '../musicalTypingStore';
+import { useKeymap, type KeymapHandlers } from '../registry';
+import { useMusicalTyping } from '@/daw/hooks/useMusicalTyping';
+import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
+import { useShortcutSheetStore } from '@/daw/shell/help/useShortcutSheetStore';
+import { useRef, type ReactNode } from 'react';
 import {
   getAudioBuffer,
   removeAudioBuffer,
@@ -54,7 +66,7 @@ import { RecordGuard } from '@/daw/components/Transport/RecordGuard';
 import { useStore } from '@/daw/store';
 import type { ViewType } from '@/daw/store/uiSlice';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
-import { registerSaveAuth, saveProject } from '@/daw/commands/saveProject';
+import { saveProject } from '@/daw/commands/saveProject';
 import {
   INITIAL_SESSION_STATE,
   useSessionStore,
@@ -139,6 +151,8 @@ function reset(view: ViewType = 'arrange') {
     prismSuggestOpen: false,
     prismSuggestSets: [],
     prismSuggestActiveIdx: 0,
+    singleKeyShortcuts: true,
+    hwActiveNotes: new Set<number>(),
   } as never);
 }
 
@@ -214,7 +228,8 @@ beforeEach(() => {
   vi.mocked(smartUndo).mockClear();
   vi.mocked(smartRedo).mockClear();
   vi.mocked(saveProject).mockClear();
-  vi.mocked(registerSaveAuth).mockClear();
+  useMusicalTypingStore.setState({ enabled: false, octave: 4, velocity: 100 });
+  useShortcutSheetStore.setState({ isOpen: false });
 });
 
 afterEach(() => {
@@ -224,23 +239,83 @@ afterEach(() => {
   dismissRecordRequest();
 });
 
-// ── The interim guard ──────────────────────────────────────────────────────
+// ── The editor's keyboard ──────────────────────────────────────────────────
 
-describe('useKeyboardShortcuts: keys stay where the student is working', () => {
-  it('makes no store change for Delete in the score view', () => {
+/** The editor's one listener and its global keys, as DawApp mounts them. */
+function Editor({ children }: { children?: ReactNode }) {
+  useGlobalCommands();
+  useMusicalTyping();
+  return <>{children}</>;
+}
+
+/** Create's keys, as the Timeline binds them while it is on screen. */
+function TimelineKeys() {
+  useArrangeKeymap({ width: () => 1200, ticksPerBar: () => 1920 });
+  return null;
+}
+
+/** A view or region scope bound to stub handlers. */
+function Bound({
+  scope,
+  handlers,
+  children,
+  role,
+}: {
+  scope: string;
+  handlers: KeymapHandlers;
+  children?: ReactNode;
+  role?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useKeymap(scope, handlers, { element: ref });
+  return (
+    <div ref={ref} role={role} data-testid={`scope-${scope}`}>
+      {children}
+    </div>
+  );
+}
+
+function renderEditor(extra?: ReactNode) {
+  return render(
+    <Editor>
+      <TimelineKeys />
+      {extra}
+    </Editor>,
+  );
+}
+
+describe('the dispatcher: keys stay where the student is working', () => {
+  it('never deletes a clip from the Score, whatever the Score does with Delete', () => {
     // A clip left selected from Create (as before setCurrentView cleared it).
     reset('score');
-    renderHook(() => useKeyboardShortcuts('token'));
+    const scoreDelete = vi.fn();
+    renderEditor(
+      <Bound
+        scope={SCORE_SCOPE.id}
+        handlers={{ 'score.delete': scoreDelete }}
+      />,
+    );
 
-    expectNoStoreChange(() => {
-      press('Delete');
-      press('Backspace');
-    });
+    press('Delete');
+    press('Backspace');
+    expect(scoreDelete).toHaveBeenCalledTimes(2);
     expect(clip()).toBeDefined();
   });
 
+  it('makes no store change for Delete in the Score when nothing there takes it', () => {
+    reset('score');
+    renderEditor();
+    expectNoStoreChange(() => {
+      press('Delete');
+      press('ArrowRight');
+      press('Digit3');
+    });
+    expect(clip()?.startTick).toBe(1920);
+    expect(useStore.getState().activeTool).toBe('cursor');
+  });
+
   it('makes no store change for Cmd+Z or Ctrl+Z inside a text field', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     const input = focusOn('<input type="text" value="My song" />', 'input');
 
     let meta!: KeyboardEvent;
@@ -255,22 +330,42 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
     expect(ctrl.defaultPrevented).toBe(false);
   });
 
-  it('makes no store change for Alt+R (the Score writes rests on it)', () => {
-    reset('score');
-    renderHook(() => useKeyboardShortcuts('token'));
+  it('never records on Alt+R, in the Score or the lead sheet', () => {
+    for (const view of ['score', 'leadsheet'] as const) {
+      reset(view);
+      const { unmount } = renderEditor();
+      expectNoStoreChange(() => {
+        press('KeyR', { altKey: true });
+      });
+      expect(useStore.getState().isRecording).toBe(false);
+      unmount();
+    }
+  });
 
-    expectNoStoreChange(() => {
-      press('KeyR', { altKey: true });
-    });
+  it('gives the Score its ⌥R (write rests) before anything else', () => {
+    reset('score');
+    const rests = vi.fn();
+    renderEditor(
+      <Bound scope={SCORE_SCOPE.id} handlers={{ 'score.layerRests': rests }} />,
+    );
+    const event = press('KeyR', { altKey: true });
+    expect(rests).toHaveBeenCalledTimes(1);
+    expect(event.defaultPrevented).toBe(true);
     expect(useStore.getState().isRecording).toBe(false);
   });
 
   it('still deletes the selected clip in Create', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     const event = press('Delete');
     expect(event.defaultPrevented).toBe(true);
     expect(clip()).toBeUndefined();
     expect(useStore.getState().selectedClipId).toBeNull();
+  });
+
+  it('takes Backspace for Delete (a Chromebook has no Delete key)', () => {
+    renderEditor();
+    press('Backspace');
+    expect(clip()).toBeUndefined();
   });
 
   it('keeps the audio of a deleted take, so undo brings it back playing', () => {
@@ -281,7 +376,7 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
       selectedClipId: 'take-1',
       selectedClipTrackId: 'vox',
     } as never);
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
 
     try {
       press('Delete');
@@ -296,25 +391,33 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
 
   it('does not stop playback on Escape in Score or Lead Sheet', () => {
     // There Escape clears the view's own note or chord selection.
-    for (const view of ['score', 'leadsheet'] as const) {
+    for (const [view, scope, id] of [
+      ['score', SCORE_SCOPE.id, 'score.escape'],
+      ['leadsheet', LEAD_SHEET_SCOPE.id, 'leadsheet.escape'],
+    ] as const) {
       reset(view);
       useStore.setState({ isPlaying: true });
-      const { unmount } = renderHook(() => useKeyboardShortcuts('token'));
+      const clear = vi.fn();
+      const { unmount } = renderEditor(
+        <Bound scope={scope} handlers={{ [id]: clear }} />,
+      );
       expectNoStoreChange(() => press('Escape'));
+      expect(clear).toHaveBeenCalledTimes(1);
       expect(useStore.getState().isPlaying).toBe(true);
       unmount();
     }
 
-    // Create keeps it as the stop key.
+    // Create keeps it as the stop key, and drops the clip selection.
     reset('arrange');
     useStore.setState({ isPlaying: true });
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     press('Escape');
     expect(useStore.getState().isPlaying).toBe(false);
+    expect(useStore.getState().selectedClipId).toBeNull();
   });
 
   it('leaves Cmd+A in a text field to the field', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     const input = focusOn('<input type="text" value="My song" />', 'input');
 
     let event!: KeyboardEvent;
@@ -325,20 +428,49 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
   });
 
   it('keeps clip keys away from a focused widget with keys of its own', () => {
-    // The docked piano roll's body is a tabIndex=0 div.
-    renderHook(() => useKeyboardShortcuts('token'));
-    const roll = focusOn('<div tabindex="0">piano roll</div>', 'div');
+    // A knob, a slider: a focusable element that isn't a registered region.
+    renderEditor();
+    const knob = focusOn('<div tabindex="0">knob</div>', 'div');
 
     expectNoStoreChange(() => {
-      press('Backspace', {}, roll);
-      press('ArrowRight', {}, roll);
-      press('KeyV', { metaKey: true }, roll);
+      press('Backspace', {}, knob);
+      press('ArrowRight', {}, knob);
+      press('KeyV', { metaKey: true }, knob);
     });
     expect(clip()?.startTick).toBe(1920);
   });
 
+  it('gives the docked piano roll its own keys, and never the clip behind it', () => {
+    const select = vi.fn();
+    const deleteNotes = vi.fn();
+    renderEditor(
+      <Bound
+        scope={PIANO_ROLL_SCOPE.id}
+        handlers={{
+          'pianoRoll.select': select,
+          'pianoRoll.delete': deleteNotes,
+        }}
+      >
+        <div tabIndex={0} data-testid="roll" />
+      </Bound>,
+    );
+    const roll = screen.getByTestId('roll');
+    roll.focus();
+
+    press('Backspace', {}, roll);
+    press('Backspace', {}, roll);
+    expect(deleteNotes).toHaveBeenCalledTimes(2);
+    expect(clip()).toBeDefined();
+
+    // ⌘V is never the Select tool (it used to switch tools as it pasted).
+    press('KeyV', { metaKey: true }, roll);
+    expect(select).not.toHaveBeenCalled();
+    press('KeyV', {}, roll);
+    expect(select).toHaveBeenCalledTimes(1);
+  });
+
   it('leaves keys inside a dialog or menu to it', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     const button = focusOn(
       '<div role="dialog"><button>Cancel</button></div>',
       'button',
@@ -354,27 +486,41 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
       '[role="menuitem"]',
     );
     expectNoStoreChange(() => press('KeyR', {}, item));
+
+    const option = focusOn(
+      '<div role="listbox"><div role="option" tabindex="0">C</div></div>',
+      '[role="option"]',
+    );
+    expectNoStoreChange(() => press('KeyM', {}, option));
   });
 
   it('keeps Space and undo in the modal piano roll, but not clip keys', () => {
-    useStore.setState({
-      editingClipId: 'clip-1',
-      editingClipTrackId: 'keys',
-    });
-    renderHook(() => useKeyboardShortcuts('token'));
-    const roll = focusOn(
-      '<div role="dialog"><div tabindex="0">notes</div></div>',
-      '[tabindex="0"]',
+    useStore.setState({ editingClipId: 'clip-1', editingClipTrackId: 'keys' });
+    const tool = vi.fn();
+    renderEditor(
+      <Bound scope={NOTE_EDITOR_SCOPE.id} handlers={{}} role="dialog">
+        <Bound
+          scope={PIANO_ROLL_SCOPE.id}
+          handlers={{ 'pianoRoll.draw': tool }}
+        >
+          <div tabIndex={0} data-testid="roll" />
+        </Bound>
+      </Bound>,
     );
+    const roll = screen.getByTestId('roll');
+    roll.focus();
 
     expectNoStoreChange(() => {
       press('Delete', {}, roll);
       press('ArrowRight', {}, roll);
       press('KeyD', { metaKey: true }, roll);
       press('KeyR', {}, roll);
+      press('KeyM', {}, roll);
     });
     expect(clip()?.startTick).toBe(1920);
 
+    press('KeyD', {}, roll);
+    expect(tool).toHaveBeenCalledTimes(1);
     press('KeyZ', { metaKey: true }, roll);
     expect(smartUndo).toHaveBeenCalledTimes(1);
     press('Space', {}, roll);
@@ -382,23 +528,22 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
   });
 
   it('never lets Cmd+D open the bookmark dialog over the editor', () => {
-    // In the modal piano roll ⌘D used to duplicate the clip behind it.
     useStore.setState({ editingClipId: 'clip-1', editingClipTrackId: 'keys' });
-    const { unmount } = renderHook(() => useKeyboardShortcuts('token'));
-    const roll = focusOn(
-      '<div role="dialog"><div tabindex="0">notes</div></div>',
-      '[tabindex="0"]',
+    const { unmount } = renderEditor(
+      <Bound scope={NOTE_EDITOR_SCOPE.id} handlers={{}} role="dialog">
+        <div tabIndex={0} data-testid="roll" />
+      </Bound>,
     );
     let inEditor!: KeyboardEvent;
     expectNoStoreChange(() => {
-      inEditor = press('KeyD', { metaKey: true }, roll);
+      inEditor = press('KeyD', { metaKey: true }, screen.getByTestId('roll'));
     });
     expect(inEditor.defaultPrevented).toBe(true);
     unmount();
 
     // Score has no ⌘D of its own, and the clip from Create is hidden there.
     reset('score');
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     let inScore!: KeyboardEvent;
     expectNoStoreChange(() => {
       inScore = press('KeyD', { metaKey: true }, document.body);
@@ -406,50 +551,57 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
     expect(inScore.defaultPrevented).toBe(true);
   });
 
-  it('lets a view that handled a key keep it, even listening after this hook', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
-    // Added later, like the Score's window listeners when Score opens. The
-    // Score takes Space to walk chord entry to the next beat.
-    const scoreSpace = (e: KeyboardEvent) => {
-      if (e.code === 'Space') e.preventDefault();
-    };
-    window.addEventListener('keydown', scoreSpace);
-    try {
-      expectNoStoreChange(() => press('Space'));
-    } finally {
-      window.removeEventListener('keydown', scoreSpace);
-    }
+  it('lets a view take a key before the global scope (the Score walks chords on Space)', () => {
+    reset('score');
+    const walk = vi.fn(() => true);
+    renderEditor(
+      <Bound scope={SCORE_SCOPE.id} handlers={{ 'score.nextBeat': walk }} />,
+    );
+    expectNoStoreChange(() => press('Space'));
+    expect(walk).toHaveBeenCalledTimes(1);
+
+    // Declined (no chord symbol picked): Space plays, as everywhere.
+    walk.mockReturnValue(false);
     press('Space');
     expect(useStore.getState().isPlaying).toBe(true);
   });
 
+  it('answers no key in a view nobody can see', () => {
+    // The Score's handlers are bound (the Score is mounted) but Create shows.
+    const scoreDelete = vi.fn();
+    renderEditor(
+      <Bound
+        scope={SCORE_SCOPE.id}
+        handlers={{ 'score.delete': scoreDelete }}
+      />,
+    );
+    press('Delete');
+    expect(scoreDelete).not.toHaveBeenCalled();
+    expect(clip()).toBeUndefined();
+  });
+
   it('saves on Cmd+S even from a text field', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     const input = focusOn('<input type="text" />', 'input');
     const event = press('KeyS', { metaKey: true }, input);
     expect(event.defaultPrevented).toBe(true);
     expect(saveProject).toHaveBeenCalledWith({ source: 'shortcut' });
   });
 
-  it('saves on Ctrl+S too, with the token registered for saveProject', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+  it('saves on Ctrl+S too, and from inside a dialog', () => {
+    renderEditor();
     const event = press('KeyS', { ctrlKey: true });
     expect(event.defaultPrevented).toBe(true);
-    expect(saveProject).toHaveBeenCalledTimes(1);
-
-    const getToken = vi.mocked(registerSaveAuth).mock.calls[0][0];
-    expect(getToken()).toBe('token');
-  });
-
-  it('saves even when signed out: saveProject says so itself', () => {
-    renderHook(() => useKeyboardShortcuts(null));
-    press('KeyS', { metaKey: true });
-    expect(saveProject).toHaveBeenCalledWith({ source: 'shortcut' });
-    expect(vi.mocked(registerSaveAuth).mock.calls[0][0]()).toBeNull();
+    const button = focusOn(
+      '<div role="dialog"><button>Open</button></div>',
+      'button',
+    );
+    press('KeyS', { metaKey: true }, button);
+    expect(saveProject).toHaveBeenCalledTimes(2);
   });
 
   it('does nothing while a session opens, but still keeps Cmd+S from the browser', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     useSessionStore.setState({ phase: 'preparing' });
 
     let save!: KeyboardEvent;
@@ -469,7 +621,7 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
   });
 
   it('neither undoes nor redoes while recording (the buttons are disabled)', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     useStore.setState({ isRecording: true });
 
     press('KeyZ', { metaKey: true });
@@ -481,35 +633,54 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
     useStore.setState({ isRecording: false });
     press('KeyZ', { metaKey: true });
     expect(smartUndo).toHaveBeenCalledTimes(1);
+    press('KeyZ', { metaKey: true, shiftKey: true });
+    expect(smartRedo).toHaveBeenCalledTimes(1);
   });
 
-  it("leaves Cmd+= to the browser's page zoom", () => {
-    renderHook(() => useKeyboardShortcuts('token'));
-    let event!: KeyboardEvent;
-    expectNoStoreChange(() => {
-      event = press('Equal', { metaKey: true });
-    });
-    expect(event.defaultPrevented).toBe(false);
+  it("leaves Cmd+=, Cmd+− and Cmd+0 to the browser's page zoom", () => {
+    renderEditor();
+    for (const code of ['Equal', 'Minus', 'Digit0']) {
+      let event!: KeyboardEvent;
+      expectNoStoreChange(() => {
+        event = press(code, { metaKey: true });
+      });
+      expect(event.defaultPrevented).toBe(false);
+    }
+  });
+
+  it('zooms the timeline on Alt+= and Alt+−, matched by key position', () => {
+    renderEditor();
+    // Option rewrites the character on a Mac: ⌥= types ≠.
+    press('Equal', { altKey: true, key: '≠' });
+    expect(useStore.getState().timelineZoom).toBeCloseTo(1.25);
+    press('Minus', { altKey: true, key: '–' });
+    expect(useStore.getState().timelineZoom).toBeCloseTo(1);
   });
 
   it('gives the practice screen only its transport keys', () => {
     reset('practice');
-    renderHook(() => useKeyboardShortcuts('token'));
+    const play = vi.fn();
+    renderEditor(
+      <Bound scope="practice" handlers={{ 'practice.playPause': play }} />,
+    );
 
     expectNoStoreChange(() => {
       press('KeyM');
       press('Digit3');
       press('Delete');
       press('KeyZ', { metaKey: true });
+      press('KeyE', { metaKey: true });
     });
     expect(smartUndo).not.toHaveBeenCalled();
 
     press('Space');
-    expect(useStore.getState().isPlaying).toBe(true);
+    expect(play).toHaveBeenCalledTimes(1);
+    press('KeyL');
+    expect(useStore.getState().loopEnabled).toBe(true);
   });
 
   it('acts once while a key is held', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     for (const code of ['Space', 'KeyM', 'KeyL', 'KeyR']) {
       press(code);
       let held!: KeyboardEvent;
@@ -529,6 +700,158 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
     const heldSave = press('KeyS', { metaKey: true, repeat: true });
     expect(heldSave.defaultPrevented).toBe(true);
     expect(saveProject).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the shortcut sheet on ?', () => {
+    renderEditor();
+    press('Slash', { shiftKey: true, key: '?' });
+    expect(useShortcutSheetStore.getState().isOpen).toBe(true);
+  });
+});
+
+// ── Single-key shortcuts can be turned off (WCAG 2.1.4) ────────────────────
+
+describe('the single-key switch', () => {
+  it('turns off letter, digit and symbol keys, and nothing else', () => {
+    useStore.setState({ singleKeyShortcuts: false });
+    renderEditor();
+
+    let r!: KeyboardEvent;
+    expectNoStoreChange(() => {
+      r = press('KeyR');
+      press('KeyM');
+      press('KeyL');
+      press('Digit3');
+      press('Backquote');
+      press('Slash', { shiftKey: true, key: '?' });
+    });
+    // Off means off: the key goes to the page as a plain key would.
+    expect(r.defaultPrevented).toBe(false);
+    expect(useMusicalTypingStore.getState().enabled).toBe(false);
+    expect(useShortcutSheetStore.getState().isOpen).toBe(false);
+
+    press('Space');
+    expect(useStore.getState().isPlaying).toBe(true);
+    press('KeyS', { metaKey: true });
+    expect(saveProject).toHaveBeenCalledTimes(1);
+    press('Delete');
+    expect(clip()).toBeUndefined();
+  });
+});
+
+// ── Musical typing ─────────────────────────────────────────────────────────
+
+describe('musical typing', () => {
+  const engine = { noteOn: vi.fn(), noteOff: vi.fn() };
+
+  beforeEach(() => {
+    engine.noteOn.mockClear();
+    engine.noteOff.mockClear();
+    trackEngineRegistry.set('keys', { trackEngine: engine } as never);
+  });
+
+  afterEach(() => {
+    trackEngineRegistry.delete('keys');
+  });
+
+  function up(code: string, target: EventTarget = document.body) {
+    act(() => {
+      target.dispatchEvent(
+        new KeyboardEvent('keyup', {
+          code,
+          key: KEYS[code] ?? code,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    });
+  }
+
+  it('turns on with the backquote and plays the selected track', () => {
+    renderEditor();
+    press('Backquote', { key: '`' });
+    expect(useMusicalTypingStore.getState().enabled).toBe(true);
+
+    press('KeyA');
+    expect(engine.noteOn).toHaveBeenCalledWith(60, 100);
+    expect(useStore.getState().hwActiveNotes.has(60)).toBe(true);
+    up('KeyA');
+    expect(engine.noteOff).toHaveBeenCalledWith(60);
+    expect(useStore.getState().hwActiveNotes.has(60)).toBe(false);
+  });
+
+  it('never toggles loop or metronome while it plays (L is a D, M rests)', () => {
+    useMusicalTypingStore.setState({ enabled: true });
+    renderEditor();
+    press('KeyL');
+    press('KeyM');
+    press('KeyR');
+    press('Digit2');
+    const s = useStore.getState();
+    expect(s.loopEnabled).toBe(false);
+    expect(s.metronomeEnabled).toBe(false);
+    expect(s.isRecording).toBe(false);
+    expect(s.activeTool).toBe('cursor');
+    expect(engine.noteOn).toHaveBeenCalledWith(74, 100);
+
+    // Space and ⌘S still work.
+    press('Space');
+    expect(useStore.getState().isPlaying).toBe(true);
+  });
+
+  it('beats a view’s letters, and leaves text fields alone', () => {
+    reset('score');
+    useMusicalTypingStore.setState({ enabled: true });
+    const slur = vi.fn();
+    renderEditor(
+      <Bound scope={SCORE_SCOPE.id} handlers={{ 'score.slur': slur }} />,
+    );
+    press('KeyS');
+    expect(slur).not.toHaveBeenCalled();
+    expect(engine.noteOn).toHaveBeenCalledWith(62, 100);
+
+    const input = focusOn('<input type="text" />', 'input');
+    const typed = press('KeyD', {}, input);
+    expect(typed.defaultPrevented).toBe(false);
+    expect(engine.noteOn).toHaveBeenCalledTimes(1);
+  });
+
+  it('shifts octave and velocity, and lets go of the note a key started', () => {
+    useMusicalTypingStore.setState({ enabled: true });
+    renderEditor();
+    press('KeyX');
+    press('KeyV');
+    press('KeyA');
+    expect(engine.noteOn).toHaveBeenLastCalledWith(72, 120);
+    press('KeyZ');
+    up('KeyA');
+    // The C5 it started, not the C4 it would play now.
+    expect(engine.noteOff).toHaveBeenLastCalledWith(72);
+  });
+
+  it('lets every held note go when turned off or the window loses focus', () => {
+    useMusicalTypingStore.setState({ enabled: true });
+    renderEditor();
+    press('KeyA');
+    press('KeyD');
+    act(() => {
+      window.dispatchEvent(new Event('blur'));
+    });
+    expect(engine.noteOff).toHaveBeenCalledWith(60);
+    expect(engine.noteOff).toHaveBeenCalledWith(64);
+
+    press('KeyG');
+    press('Backquote', { key: '`' });
+    expect(useMusicalTypingStore.getState().enabled).toBe(false);
+    expect(engine.noteOff).toHaveBeenCalledWith(67);
+  });
+
+  it('acts once while a key is held', () => {
+    useMusicalTypingStore.setState({ enabled: true });
+    renderEditor();
+    press('KeyA');
+    press('KeyA', { repeat: true });
+    expect(engine.noteOn).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -588,7 +911,7 @@ describe('R and the overwrite guard', () => {
   it('opens the guard instead of recording when a take is under the range', () => {
     armVocals(960);
     render(<RecordGuard />);
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
 
     press('KeyR');
 
@@ -607,7 +930,7 @@ describe('R and the overwrite guard', () => {
   it('records nothing when the student cancels', () => {
     armVocals(960);
     render(<RecordGuard />);
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
 
     press('KeyR');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -618,7 +941,7 @@ describe('R and the overwrite guard', () => {
 
   it('records straight away after the last take', () => {
     armVocals(3840);
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
 
     press('KeyR');
 
@@ -664,7 +987,7 @@ describe('PrismSuggestionModal keys', () => {
   });
 
   it('re-rolls on R without recording, and browses without moving the clip', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     openModal();
 
     press('KeyR');
@@ -679,7 +1002,7 @@ describe('PrismSuggestionModal keys', () => {
   });
 
   it('jumps to a suggestion on its number key, not to a timeline tool', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     openModal(2);
 
     const event = press('Digit2');
@@ -690,7 +1013,7 @@ describe('PrismSuggestionModal keys', () => {
   });
 
   it('leaves Enter on a focused button to that button', () => {
-    renderHook(() => useKeyboardShortcuts('token'));
+    renderEditor();
     openModal();
     const cancel = screen.getByRole('button', { name: 'Cancel' });
     cancel.focus();

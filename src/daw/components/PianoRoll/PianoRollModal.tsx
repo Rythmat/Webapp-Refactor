@@ -1,6 +1,8 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
+import { NOTE_EDITOR_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { DRUM_PADS } from '@/daw/instruments/DrumMachineEngine';
 import { auditionNote } from '@/daw/audio/auditionNote';
@@ -22,6 +24,12 @@ export function PianoRollModal() {
   const tsNum = useStore((s) => s.timeSignatureNumerator);
 
   const isOpen = editingClipId !== null && editingClipTrackId !== null;
+
+  // A dialog in the key precedence (the noteEditor scope): keys pressed in it
+  // reach only the roll inside it, the transport, undo, Save and the
+  // computer keyboard, never the clip behind it.
+  const contentRef = useRef<HTMLDivElement>(null);
+  useKeymap(NOTE_EDITOR_SCOPE.id, {}, { element: contentRef });
 
   // The editor's loop is a tool inside the editor, never the project loop:
   // each session starts with no loop, and it's dropped on close so playback
@@ -115,16 +123,11 @@ export function PianoRollModal() {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
         <Dialog.Content
+          ref={contentRef}
           className="fixed inset-x-[5%] bottom-[10%] top-[5%] z-50 flex flex-col overflow-hidden rounded-2xl outline-none"
           style={{
             backgroundColor: 'var(--color-surface-2)',
             border: '1px solid rgba(255, 255, 255, 0.06)',
-          }}
-          onKeyDown={(e) => {
-            // Prevent Delete/Backspace from propagating to timeline clip delete
-            if (e.code === 'Delete' || e.code === 'Backspace') {
-              e.stopPropagation();
-            }
           }}
         >
           {/* Header */}

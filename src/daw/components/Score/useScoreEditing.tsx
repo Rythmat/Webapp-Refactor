@@ -24,6 +24,8 @@ import {
 } from '@/lib/notation/systemPlan';
 import { LETTER_PORTRAIT } from '@/lib/notation/pageLayout';
 import { parseNoteId } from '@/daw/model/noteKeys';
+import { SCORE_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
 import { useUndoState } from '@/daw/store/useUndoState';
@@ -731,85 +733,6 @@ export function useScoreEditing({
     ],
   );
 
-  // MuseScore's keys: Return breaks the system, Delete clears what's selected,
-  // Up/Down move the selected notes by a staff step (Shift for an octave).
-  useEffect(() => {
-    if (editingSection !== null) return;
-    if (selectedNotes.size > 0) {
-      const onNoteKey = (event: KeyboardEvent) => {
-        const target = event.target as HTMLElement | null;
-        if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-        if (event.key === 'Delete' || event.key === 'Backspace') {
-          event.preventDefault();
-          writeEdit(selectedNotes, { remove: true });
-          setSelectedNotes(new Set());
-        } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-          event.preventDefault();
-          const direction = event.key === 'ArrowUp' ? 1 : -1;
-          const steps = direction * (event.shiftKey ? 7 : 1);
-          setSelectedNotes(new Set(writeEdit(selectedNotes, { steps })));
-        } else if (event.key === 'Escape') {
-          clearSelection();
-        }
-      };
-      window.addEventListener('keydown', onNoteKey);
-      return () => window.removeEventListener('keydown', onNoteKey);
-    }
-    if (selectedCells.size > 0) {
-      const onCellKey = (event: KeyboardEvent) => {
-        const target = event.target as HTMLElement | null;
-        if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-        if (event.key === 'Delete' || event.key === 'Backspace') {
-          event.preventDefault();
-          writeEdit(notesInCells(layout?.notes ?? [], selectedCells), {
-            remove: true,
-          });
-        } else if (event.key === 'Escape') {
-          clearSelection();
-        } else if (event.key === 'Enter' && targetBarline !== null) {
-          event.preventDefault();
-          toggleSystemBreak(targetBarline);
-        }
-      };
-      window.addEventListener('keydown', onCellKey);
-      return () => window.removeEventListener('keydown', onCellKey);
-    }
-    const selected = targetBarline;
-    if (selected === null) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        toggleSystemBreak(selected);
-      } else if (event.key === 'Escape') {
-        clearSelection();
-      } else if (event.key === 'Delete' || event.key === 'Backspace') {
-        event.preventDefault();
-        setRepeats(withoutRepeatAt(repeats, selected));
-        removeSection(selected);
-      } else if ((event.metaKey || event.ctrlKey) && event.key === 'm') {
-        event.preventDefault();
-        apply('text.rehearsalMark');
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [
-    targetBarline,
-    selectedNotes,
-    selectedCells,
-    layout,
-    editingSection,
-    repeats,
-    toggleSystemBreak,
-    setRepeats,
-    removeSection,
-    apply,
-    writeEdit,
-    clearSelection,
-  ]);
-
   // ── Note editor ─────────────────────────────────────────────────────────
   const ticksPerQuarter = parts[0]?.score.ticksPerQuarter ?? 480;
 
@@ -1050,34 +973,6 @@ export function useScoreEditing({
     setSlurs(toggleSlur(slurs, slurEnds.from, slurEnds.to));
   }, [slurEnds, slurs, setSlurs]);
 
-  /**
-   * ⌥N / ⌥R / ⌥H pick the row that numbers write into. Option is used rather
-   * than ⌘, which the browser and macOS keep for themselves (new window,
-   * reload, hide application).
-   */
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (!event.altKey || event.metaKey || event.ctrlKey) return;
-      // Option rewrites the letter on macOS; `code` stays put.
-      const key = event.code.replace('Key', '').toLowerCase();
-      const next: NoteLayer | null =
-        key === 'n'
-          ? 'notes'
-          : key === 'r'
-            ? 'rests'
-            : key === 'h'
-              ? 'slashes'
-              : null;
-      if (!next) return;
-      event.preventDefault();
-      setLayer(next);
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
-
   /** The beat a chord would be written over: the selected note or rest. */
   const chordTarget = useMemo(() => {
     const note = (layout?.notes ?? []).find((n) => selectedNotes.has(n.id));
@@ -1086,54 +981,6 @@ export function useScoreEditing({
     if (rest) return { partIndex: rest.partIndex, tick: rest.tick };
     return null;
   }, [layout, selectedNotes, selectedRests]);
-
-  // The editor's keys work whenever notes are selected.
-  useEffect(() => {
-    if (selectedNotes.size === 0 || editingSection !== null) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      const duration = DURATIONS.find((choice) => choice.key === event.key);
-      if (duration) {
-        event.preventDefault();
-        applyDuration(duration);
-        return;
-      }
-      const articulation = ARTICULATIONS.find(
-        (choice) => choice.key === event.key,
-      );
-      if (articulation) {
-        event.preventDefault();
-        applyArticulation(articulation.kind);
-        return;
-      }
-      if (event.key === 's' || event.key === 'S') {
-        event.preventDefault();
-        applySlur();
-        return;
-      }
-      if (event.key === 't' || event.key === 'T') {
-        event.preventDefault();
-        applyTie();
-        return;
-      }
-      if ((event.key === 'k' || event.key === 'K') && chordTarget) {
-        event.preventDefault();
-        setChordEntry({ ...chordTarget, text: '' });
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [
-    selectedNotes,
-    editingSection,
-    applyDuration,
-    applyArticulation,
-    applySlur,
-    applyTie,
-    chordTarget,
-  ]);
 
   // ── Markings: articulations, slurs and ties ─────────────────────────────
   const chordMarks = useMemo(
@@ -1696,49 +1543,73 @@ export function useScoreEditing({
     followEdit,
   ]);
 
-  // ⌘C / ⌘V work whatever is selected; what they act on is decided above.
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (!(event.metaKey || event.ctrlKey)) return;
-      if (event.key === 'c') {
-        event.preventDefault();
-        handleCopy();
-      } else if (event.key === 'v') {
-        event.preventDefault();
-        handlePaste();
+  // ── Keys (the score scope) ──────────────────────────────────────────────
+  // MuseScore's keys. Delete clears what's selected (notes, the bars picked,
+  // a barline's repeat and rehearsal mark, markings, chord symbols); Up and
+  // Down move the selected notes a staff step (Shift for an octave); 2–7 set
+  // their length, . > - _ ; their articulation, S a slur, T a tie, K a chord
+  // symbol over them. ⌥N / ⌥R / ⌥H pick the row that numbers write into
+  // (Option rather than ⌘, which the browser and macOS keep for themselves:
+  // new window, reload, hide application). Return breaks the system at the
+  // picked barline, ⌘M puts a rehearsal mark there. With a chord symbol
+  // picked, Space walks on to the next beat and types. ⌘C / ⌘V work whatever
+  // is selected; what they act on is decided above. Delete and Escape are
+  // always the Score's here, so neither reaches a clip in Create or stops
+  // the music. A key a command doesn't take goes on to the global keys.
+  const editingNotes = selectedNotes.size > 0 && editingSection === null;
+  const atBarline =
+    editingSection === null &&
+    selectedNotes.size === 0 &&
+    targetBarline !== null;
+  const moveNotes = (steps: number) => {
+    if (!editingNotes) return false;
+    setSelectedNotes(new Set(writeEdit(selectedNotes, { steps })));
+  };
+  useKeymap(SCORE_SCOPE.id, {
+    'score.delete': () => {
+      if (editingSection !== null) return;
+      if (selectedNotes.size > 0) {
+        writeEdit(selectedNotes, { remove: true });
+        setSelectedNotes(new Set());
+      } else if (selectedCells.size > 0) {
+        writeEdit(notesInCells(layout?.notes ?? [], selectedCells), {
+          remove: true,
+        });
+      } else if (targetBarline !== null) {
+        setRepeats(withoutRepeatAt(repeats, targetBarline));
+        removeSection(targetBarline);
       }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleCopy, handlePaste]);
-
-  // Markings answer to Delete and Escape like anything else selected.
-  useEffect(() => {
-    if (selectedMarks.size === 0 || editingSection !== null) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.key === 'Delete' || event.key === 'Backspace') {
-        event.preventDefault();
-        deleteSelectedMarks();
-      } else if (event.key === 'Escape') {
-        setSelectedMarks(new Set());
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedMarks, editingSection, deleteSelectedMarks]);
-
-  // With a chord symbol picked, space walks on to the next beat and types.
-  useEffect(() => {
-    if (selectedChords.size === 0 || chordEntry) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.key !== ' ') return;
-      event.preventDefault();
+      if (selectedMarks.size > 0) deleteSelectedMarks();
+      if (selectedChords.size > 0) hideSelectedChords();
+    },
+    'score.up': () => moveNotes(1),
+    'score.down': () => moveNotes(-1),
+    'score.octaveUp': () => moveNotes(7),
+    'score.octaveDown': () => moveNotes(-7),
+    'score.duration': (e) => {
+      const duration = DURATIONS.find((choice) => choice.key === e.key);
+      if (!editingNotes || !duration) return false;
+      applyDuration(duration);
+    },
+    'score.articulation': (e) => {
+      const articulation = ARTICULATIONS.find((choice) => choice.key === e.key);
+      if (!editingNotes || !articulation) return false;
+      applyArticulation(articulation.kind);
+    },
+    'score.slur': () => {
+      if (!editingNotes) return false;
+      applySlur();
+    },
+    'score.tie': () => {
+      if (!editingNotes) return false;
+      applyTie();
+    },
+    'score.chord': () => {
+      if (!editingNotes || !chordTarget) return false;
+      setChordEntry({ ...chordTarget, text: '' });
+    },
+    'score.nextBeat': () => {
+      if (selectedChords.size === 0 || chordEntry) return false;
       const first = chordPlacements.find((p) => selectedChords.has(p.key));
       if (!first) return;
       const next = nextBeat(beatAnchors, first);
@@ -1746,27 +1617,33 @@ export function useScoreEditing({
         setSelectedChords(new Set());
         setChordEntry({ partIndex: next.partIndex, tick: next.tick, text: '' });
       }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedChords, chordEntry, chordPlacements, beatAnchors]);
-
-  // Chords come off a part with Delete, like anything else selected.
-  useEffect(() => {
-    if (selectedChords.size === 0 || editingSection !== null) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.key === 'Delete' || event.key === 'Backspace') {
-        event.preventDefault();
-        hideSelectedChords();
-      } else if (event.key === 'Escape') {
-        setSelectedChords(new Set());
+    },
+    'score.layerNotes': () => setLayer('notes'),
+    'score.layerRests': () => setLayer('rests'),
+    'score.layerSlashes': () => setLayer('slashes'),
+    'score.systemBreak': () => {
+      if (!atBarline || targetBarline === null) return false;
+      toggleSystemBreak(targetBarline);
+    },
+    'score.rehearsalMark': () => {
+      if (!atBarline || selectedCells.size > 0) return false;
+      apply('text.rehearsalMark');
+    },
+    'score.copy': () => handleCopy(),
+    'score.paste': () => handlePaste(),
+    'score.escape': () => {
+      if (editingSection !== null) return;
+      if (
+        selectedNotes.size > 0 ||
+        selectedCells.size > 0 ||
+        targetBarline !== null
+      ) {
+        clearSelection();
       }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedChords, editingSection, hideSelectedChords]);
+      if (selectedMarks.size > 0) setSelectedMarks(new Set());
+      if (selectedChords.size > 0) setSelectedChords(new Set());
+    },
+  });
 
   /** Runs of empty bars the sheet writes as one multi-bar rest. */
   const multiRests = useMemo(() => {

@@ -1,5 +1,3 @@
-import { useEffect, useRef } from 'react';
-import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useOracleSynthInstance } from '@/daw/hooks/useOracleSynthInstance';
 import { useStoreBridge } from '@/daw/hooks/useStoreBridge';
 import { DawSynthLayout } from './DawSynthLayout';
@@ -11,13 +9,6 @@ import { DawSynthLayout } from './DawSynthLayout';
 
 export function OracleSynthView() {
   const { isVisible, engine, trackId } = useOracleSynthInstance();
-  const engineRef = useRef<SynthEngine | null>(null);
-
-  // Keep ref in sync with engine
-  useEffect(() => {
-    engineRef.current = engine;
-  }, [engine]);
-
   // Bridge Oracle Synth store ↔ engine for the synth track
   useStoreBridge(engine, trackId);
 
@@ -31,5 +22,5 @@ export function OracleSynthView() {
     );
   }
 
-  return <DawSynthLayout engine={engine} engineRef={engineRef} />;
+  return <DawSynthLayout engine={engine} />;
 }

@@ -20,6 +20,8 @@ import {
   Check,
   X,
 } from 'lucide-react';
+import { PRISM_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { SuggestionChordPill } from './SuggestionChordPill';
 import { audioEngine } from '@/daw/audio/AudioEngine';
@@ -352,96 +354,44 @@ export function PrismSuggestionModal({
     stopPreview();
   }, [activeIdx, stopPreview]);
 
-  // Keyboard shortcuts. Capture phase on window, so this runs before the
-  // DAW's global shortcuts (useKeyboardShortcuts, bubble phase), and
-  // stopPropagation keeps every key from reaching the editor behind the
-  // overlay: R re-rolls here and must not also record, the arrows browse
-  // suggestions instead of nudging a clip, Space previews instead of playing
-  // the song, and Delete cannot remove a clip nobody can see. The same
-  // pattern as PopOutOverlay. Save and undo still go through, and browser
-  // shortcuts still work: a modified key is never prevented here.
+  // Keys (the prism scope): a modal dialog in the key precedence, so while
+  // it is up no key reaches the editor behind it: R re-rolls here and never
+  // records, the arrows browse suggestions instead of nudging a clip, Space
+  // previews instead of playing the song, and Delete can't remove a clip
+  // nobody can see. Save and undo still go through, and browser shortcuts
+  // still work: a modified key is never prevented here.
   const overlayRef = useRef<HTMLDivElement>(null);
   const visible = isOpen && activeSuggestion !== null;
-  useEffect(() => {
-    if (!visible) return;
-    const handler = (e: KeyboardEvent) => {
-      // The sound picker keeps its keys.
-      const target = e.target;
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        (target instanceof HTMLElement && target.isContentEditable)
-      )
-        return;
-
-      const isMod = e.metaKey || e.ctrlKey;
-      if (isMod && (e.code === 'KeyS' || e.code === 'KeyZ')) return;
-      e.stopPropagation();
-      if (isMod || e.altKey) return;
-
-      // Enter and Space press the button that has focus (Cancel, Re-roll),
-      // as on any button, rather than committing or previewing.
-      if (
-        (e.key === 'Enter' || e.key === ' ') &&
-        target instanceof HTMLButtonElement &&
-        overlayRef.current?.contains(target)
-      )
-        return;
-
-      switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          prev();
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          next();
-          break;
-        case ' ':
-          e.preventDefault();
-          if (isPreviewPlaying) stopPreview();
-          else playProgression();
-          break;
-        case 'Enter':
-          e.preventDefault();
-          commit();
-          break;
-        case 'Escape':
-          e.preventDefault();
-          close();
-          break;
-        case 'r':
-        case 'R':
-          e.preventDefault();
-          regenerate();
-          break;
-        default:
-          // 1-9 jump to suggestion
-          if (e.key >= '1' && e.key <= '9') {
-            e.preventDefault();
-            const idx = parseInt(e.key) - 1;
-            if (idx < suggestions.length) {
-              useStore.setState({ prismSuggestActiveIdx: idx });
-            }
-          }
-      }
-    };
-    window.addEventListener('keydown', handler, { capture: true });
-    return () =>
-      window.removeEventListener('keydown', handler, { capture: true });
-  }, [
-    visible,
-    isPreviewPlaying,
-    prev,
-    next,
-    commit,
-    close,
-    regenerate,
-    playProgression,
-    stopPreview,
-    suggestions.length,
-  ]);
+  // Enter and Space press the button that has focus (Cancel, Re-roll), as
+  // on any button, rather than committing or previewing.
+  const onOwnButton = (e: KeyboardEvent) =>
+    e.target instanceof HTMLButtonElement &&
+    !!overlayRef.current?.contains(e.target);
+  useKeymap(
+    PRISM_SCOPE.id,
+    {
+      'prism.previous': () => prev(),
+      'prism.next': () => next(),
+      'prism.pick': (e) => {
+        const idx = parseInt(e.key, 10) - 1;
+        if (idx < suggestions.length) {
+          useStore.setState({ prismSuggestActiveIdx: idx });
+        }
+      },
+      'prism.preview': (e) => {
+        if (onOwnButton(e)) return false;
+        if (isPreviewPlaying) stopPreview();
+        else playProgression();
+      },
+      'prism.reroll': () => regenerate(),
+      'prism.commit': (e) => {
+        if (onOwnButton(e)) return false;
+        commit();
+      },
+      'prism.close': () => close(),
+    },
+    { active: visible },
+  );
 
   if (!isOpen || !activeSuggestion) return null;
 

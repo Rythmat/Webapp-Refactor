@@ -38,6 +38,21 @@ import { chordNotationLockTitle } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
 import { requestRecord } from '@/daw/commands/requestRecord';
+import { shortcutKeys } from '@/daw/commands/shortcuts';
+
+/** The transport's keys, for screen readers (the '?' sheet lists them). */
+const TRANSPORT_KEYS: Record<string, string> = Object.fromEntries(
+  [
+    'transport.playPause',
+    'transport.record',
+    'transport.stop',
+    'transport.loop',
+    'transport.metronome',
+  ].map((id) => [id, shortcutKeys(id).aria]),
+);
+
+/** How the timeline zooms: never ⌘+/⌘−, which zoom the page. */
+const ZOOM_HINT = `Ctrl or ⌘ with the scroll wheel, or ${shortcutKeys('timeline.zoomIn').label} / ${shortcutKeys('timeline.zoomOut').label}`;
 
 // ── View Switcher ───────────────────────────────────────────────────────
 
@@ -167,7 +182,7 @@ function ZoomIndicator() {
     <div
       className="flex h-5 items-center rounded px-1.5"
       style={{ backgroundColor: 'var(--color-surface-2)' }}
-      title={`Timeline Zoom: ${Math.round(zoom * 100)}%  (Cmd+Scroll to zoom)`}
+      title={`Timeline Zoom: ${Math.round(zoom * 100)}%  (${ZOOM_HINT})`}
     >
       <span
         className="text-[9px] font-medium tabular-nums"
@@ -676,6 +691,7 @@ export const TransportBar = memo(function TransportBar({
                 : 'var(--color-text-dim)',
             }}
             title="Metronome"
+            aria-keyshortcuts={TRANSPORT_KEYS['transport.metronome']}
           >
             <MetronomeIcon active={metronomeEnabled} />
           </motion.button>
@@ -709,6 +725,7 @@ export const TransportBar = memo(function TransportBar({
                 : 'var(--color-text-dim)',
             }}
             title="Loop"
+            aria-keyshortcuts={TRANSPORT_KEYS['transport.loop']}
           >
             <Repeat size={14} strokeWidth={2} />
           </motion.button>
@@ -777,6 +794,7 @@ export const TransportBar = memo(function TransportBar({
           className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
           style={{ color: 'var(--color-text-dim)' }}
           title="Stop (double-click for start)"
+          aria-keyshortcuts={TRANSPORT_KEYS['transport.stop']}
         >
           <Square size={12} fill="currentColor" strokeWidth={0} />
         </motion.button>
@@ -793,6 +811,7 @@ export const TransportBar = memo(function TransportBar({
               : 'transparent',
           }}
           title={isPlaying ? 'Pause' : 'Play'}
+          aria-keyshortcuts={TRANSPORT_KEYS['transport.playPause']}
         >
           {isPlaying ? (
             <Pause size={14} fill="currentColor" strokeWidth={0} />
@@ -816,6 +835,7 @@ export const TransportBar = memo(function TransportBar({
                 : 'var(--color-text-dim)',
           }}
           title="Record"
+          aria-keyshortcuts={TRANSPORT_KEYS['transport.record']}
         >
           <Circle size={12} fill="currentColor" strokeWidth={0} />
         </motion.button>

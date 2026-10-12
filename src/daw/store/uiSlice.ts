@@ -123,6 +123,13 @@ function clamp(v: number, min: number, max: number): number {
 }
 
 export interface UiSlice {
+  /**
+   * Whether letter, digit and symbol keys with no ⌘ or ⌥ are shortcuts (R,
+   * M, L, 1–4, ?). The student can turn them off (WCAG 2.1.4); the keys'
+   * other shortcuts and the buttons still work. A per-user pref.
+   */
+  singleKeyShortcuts: boolean;
+  setSingleKeyShortcuts: (on: boolean) => void;
   activeTool: ToolType;
   selectedClipId: string | null;
   selectedClipTrackId: string | null;
@@ -305,6 +312,8 @@ export const createUiSlice: StateCreator<
   [],
   UiSlice
 > = (set, get) => ({
+  singleKeyShortcuts: true,
+  setSingleKeyShortcuts: (on) => set({ singleKeyShortcuts: on }),
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,

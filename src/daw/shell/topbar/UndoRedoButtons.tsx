@@ -10,7 +10,7 @@ import {
   subscribeUndo,
 } from '@/daw/store/undoMiddleware';
 import { IconButton } from '@/daw/ui/IconButton';
-import { modShortcut } from './platformKeys';
+import { shortcutKeys } from '@/daw/commands/shortcuts';
 
 // ── Undo and Redo (milestone 1.4) ──────────────────────────────────────────
 //
@@ -23,8 +23,8 @@ import { modShortcut } from './platformKeys';
 // ⌘Z on a Mac, Ctrl+Z on a Chromebook. Milestone 1.9 replaces the undo
 // internals; 2.5 moves these into the editor's own top bar.
 
-const UNDO_KEYS = modShortcut('z');
-const REDO_KEYS = modShortcut('z', { shift: true });
+const UNDO_KEYS = shortcutKeys('edit.undo');
+const REDO_KEYS = shortcutKeys('edit.redo');
 
 const CAN_UNDO = 1;
 const CAN_REDO = 2;

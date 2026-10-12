@@ -4,19 +4,16 @@ import { useMidiDevices } from './useMidiDevices';
 import { useMidiRecording } from './useMidiRecording';
 import { midiDeviceManager } from '@/daw/midi/MidiDeviceManager';
 import { trackEngineRegistry } from './usePlaybackEngine';
-import { studioRealtime } from '@/daw/collab/studioRealtime';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { getActiveSynthTrack } from '@/daw/oracle-synth/synthTrackState';
-
-/** Track ids this user's live MIDI is currently driving (monitored, else selected). */
-function liveMidiTargets(): string[] {
-  const { tracks, selectedTrackId } = useStore.getState();
-  const monitored = tracks
-    .filter((t) => t.monitoring && t.type === 'midi')
-    .map((t) => t.id);
-  if (monitored.length > 0) return monitored;
-  return selectedTrackId ? [selectedTrackId] : [];
-}
+import {
+  captureLiveNoteOff,
+  captureLiveNoteOn,
+  liveMidiTargets,
+  playLiveNote,
+  registerLiveRecorder,
+  releaseLiveNote,
+} from '@/daw/midi/liveNotes';
 
 /**
  * When the Oracle synth panel is open on one of the live tracks, mirror a
@@ -33,8 +30,9 @@ function mirrorToOracleWheels(
 
 // ── useMidiInputRouting ──────────────────────────────────────────────────
 // Subscribes to ALL available MIDI input devices and routes note, CC and
-// pitch-bend events to monitored (or selected) tracks. Also feeds the MidiRecorder when
-// recording is active.
+// pitch-bend events to monitored (or selected) tracks. Notes take the shared
+// live-notes path (midi/liveNotes), which the computer keyboard uses too;
+// this hook's MidiRecorder is the take they are recorded into.
 
 export function useMidiInputRouting() {
   useMidiDevices();
@@ -43,6 +41,16 @@ export function useMidiInputRouting() {
   // Keep recorder in a ref so the effect doesn't re-fire when it changes
   const midiRecorderRef = useRef(midiRecorder);
   midiRecorderRef.current = midiRecorder;
+  useEffect(
+    () =>
+      registerLiveRecorder({
+        captureNoteOn: (note, velocity, timestamp) =>
+          midiRecorderRef.current.captureNoteOn(note, velocity, timestamp),
+        captureNoteOff: (note, timestamp) =>
+          midiRecorderRef.current.captureNoteOff(note, timestamp),
+      }),
+    [],
+  );
 
   const inputs = useStore((s) => s.inputs);
   const unsubsRef = useRef<Array<() => void>>([]);
@@ -69,108 +77,36 @@ export function useMidiInputRouting() {
     let sustainActive = false;
     const sustainHeldNotes = new Set<number>();
 
-    /** Route a noteOff to audio engines and visual feedback. */
-    const releaseNote = (note: number) => {
-      const { tracks, selectedTrackId } = useStore.getState();
-      const monitored = tracks.filter((t) => t.monitoring && t.type === 'midi');
-      if (monitored.length > 0) {
-        for (const t of monitored) {
-          trackEngineRegistry.get(t.id)?.trackEngine.noteOff(note);
-        }
-      } else if (selectedTrackId) {
-        trackEngineRegistry.get(selectedTrackId)?.trackEngine.noteOff(note);
-      }
-      useStore.getState().hwNoteOff(note);
-
-      // Relay to collaborators so they can monitor this user's live playing.
-      if (studioRealtime.shouldBroadcast()) {
-        for (const trackId of liveMidiTargets()) {
-          studioRealtime.send({
-            type: 'studio:note',
-            action: 'off',
-            note,
-            velocity: 0,
-            trackId,
-          });
-        }
-      }
-    };
-
     const onNoteOn = (note: number, velocity: number, timestamp: number) => {
-      const { tracks, selectedTrackId, isRecording } = useStore.getState();
-
       // If re-striking a note held by sustain pedal, remove from pending release
       sustainHeldNotes.delete(note);
 
-      // Audio: play through monitored tracks (or fall back to selected)
-      const monitored = tracks.filter((t) => t.monitoring && t.type === 'midi');
-      if (monitored.length > 0) {
-        for (const t of monitored) {
-          trackEngineRegistry.get(t.id)?.trackEngine.noteOn(note, velocity);
-        }
-        if (noteCount++ < 3) {
-          const instrumentStatus = monitored.map((t) => {
-            const entry = trackEngineRegistry.get(t.id);
-            if (!entry) return 'no-engine';
-            return entry.trackEngine.getInstrument() ? 'ready' : 'loading';
-          });
+      if (noteCount++ < 3) {
+        const targets = liveMidiTargets();
+        const status = targets.map((id) => {
+          const entry = trackEngineRegistry.get(id);
+          if (!entry) return 'no-engine';
+          return entry.trackEngine.getInstrument() ? 'ready' : 'loading';
+        });
+        if (targets.length > 0) {
           console.log(
-            `[MIDI Routing] noteOn ${note} vel=${velocity} → ${monitored.length} monitored track(s) [${instrumentStatus.join(', ')}]`,
+            `[MIDI Routing] noteOn ${note} vel=${velocity} → ${targets.length} track(s) [${status.join(', ')}]`,
           );
-        }
-      } else if (selectedTrackId) {
-        const entry = trackEngineRegistry.get(selectedTrackId);
-        entry?.trackEngine.noteOn(note, velocity);
-        if (noteCount++ < 3) {
-          if (entry) {
-            const hasInstrument = entry.trackEngine.getInstrument() !== null;
-            console.log(
-              `[MIDI Routing] noteOn ${note} vel=${velocity} → selected track (instrument=${hasInstrument ? 'ready' : 'loading...'})`,
-            );
-          } else {
-            console.warn(
-              `[MIDI Routing] noteOn ${note} — no engine for selected track (audio engine not initialized yet?)`,
-            );
-          }
-        }
-      } else {
-        if (noteCount++ < 3)
+        } else {
           console.warn(
             '[MIDI Routing] noteOn — no target (no monitored tracks, no selection)',
           );
-      }
-
-      // Visual: light up keyboard in control section
-      useStore.getState().hwNoteOn(note);
-
-      // Relay to collaborators so they can monitor this user's live playing.
-      if (studioRealtime.shouldBroadcast()) {
-        for (const trackId of liveMidiTargets()) {
-          studioRealtime.send({
-            type: 'studio:note',
-            action: 'on',
-            note,
-            velocity,
-            trackId,
-          });
         }
       }
 
-      // Capture: feed recorder if recording + any MIDI track is armed
-      if (isRecording) {
-        const hasArmed = tracks.some((t) => t.recordArmed && t.type === 'midi');
-        if (hasArmed)
-          midiRecorderRef.current.captureNoteOn(note, velocity, timestamp);
-      }
+      // Sound, keys, collaborators; then the take, when recording.
+      playLiveNote(note, velocity);
+      captureLiveNoteOn(note, velocity, timestamp);
     };
 
     const onNoteOff = (note: number, timestamp: number) => {
       // Record the physical noteOff regardless of sustain state
-      const { isRecording, tracks } = useStore.getState();
-      if (isRecording) {
-        const hasArmed = tracks.some((t) => t.recordArmed && t.type === 'midi');
-        if (hasArmed) midiRecorderRef.current.captureNoteOff(note, timestamp);
-      }
+      captureLiveNoteOff(note, timestamp);
 
       // If sustain pedal is active, defer the release
       if (sustainActive) {
@@ -178,7 +114,7 @@ export function useMidiInputRouting() {
         return;
       }
 
-      releaseNote(note);
+      releaseLiveNote(note);
     };
 
     const onCC = (cc: number, value: number) => {
@@ -210,7 +146,7 @@ export function useMidiInputRouting() {
         sustainActive = false;
         // Release all notes that were deferred while pedal was held
         for (const note of sustainHeldNotes) {
-          releaseNote(note);
+          releaseLiveNote(note);
         }
         sustainHeldNotes.clear();
       }

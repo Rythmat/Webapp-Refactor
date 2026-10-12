@@ -10,6 +10,8 @@ import {
   Pencil,
   Eraser,
 } from 'lucide-react';
+import { DRUMS_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import {
@@ -1115,35 +1117,23 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   }, []);
 
   // ── Keyboard shortcuts ────────────────────────────────────────────────
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'v' || e.key === 'V') {
-        setTool('select');
-        return;
-      }
-      if (e.key === 'd' || e.key === 'D') {
-        setTool('draw');
-        return;
-      }
-      if (e.key === 'e' || e.key === 'E') {
-        setTool('erase');
-        return;
-      }
-
-      if (
-        (e.code === 'Delete' || e.code === 'Backspace') &&
-        selectedIndices.size > 0
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        const newEvents = eventsRef.current.filter(
-          (_, i) => !selectedIndices.has(i),
-        );
-        onChange(newEvents);
+  // ── Keys, while the grid has focus (the drums scope) ──────────────────
+  // Tools on V, D and E (never with ⌘ held: ⌘V pastes), Delete or Backspace
+  // removes the selected hits. Delete stays here with nothing selected, so
+  // it never reaches the clip behind the grid.
+  useKeymap(
+    DRUMS_SCOPE.id,
+    {
+      'drums.select': () => setTool('select'),
+      'drums.draw': () => setTool('draw'),
+      'drums.erase': () => setTool('erase'),
+      'drums.delete': () => {
+        if (selectedIndices.size === 0) return;
+        onChange(eventsRef.current.filter((_, i) => !selectedIndices.has(i)));
         setSelectedIndices(new Set());
-      }
+      },
     },
-    [selectedIndices, onChange],
+    { element: containerRef },
   );
 
   // ── Wheel zoom ────────────────────────────────────────────────────────
@@ -1268,7 +1258,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       data-tutorial-id="drum-machine-view"
       className="flex flex-col h-full overflow-hidden"
       tabIndex={0}
-      onKeyDown={handleKeyDown}
     >
       {/* ── Toolbar ──────────────────────────────────────────────── */}
       <div

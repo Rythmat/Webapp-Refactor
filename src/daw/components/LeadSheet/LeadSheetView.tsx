@@ -1,4 +1,6 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
+import { LEAD_SHEET_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
@@ -101,7 +103,6 @@ function LeadSheetChartView() {
   const setRepeats = useStore((s) => s.setLeadSheetRepeats);
   const addSection = useStore((s) => s.addLeadSheetSection);
   const removeSection = useStore((s) => s.removeLeadSheetSection);
-  const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
 
   // Track which measure is "selected" for insert/delete operations
   const [selectedMeasureIdx, setSelectedMeasureIdx] = useState<number | null>(
@@ -597,70 +598,43 @@ function LeadSheetChartView() {
     ],
   );
 
-  // ── Keys ────────────────────────────────────────────────────────────────
+  // ── Keys (the leadsheet scope) ──────────────────────────────────────────
   // ⌘C / ⌘V always copy and paste, whatever is selected. ⌘K adds a chord
   // symbol at the selection, as it does in MuseScore. Delete clears what is
-  // selected; Escape drops the selection; Return breaks the system.
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const active = document.activeElement;
+  // selected; Escape drops the selection; Return breaks the system. Delete
+  // and Escape are always the chart's here, so neither ever reaches a clip
+  // in Create or stops the music.
+  useKeymap(LEAD_SHEET_SCOPE.id, {
+    'leadsheet.copy': () => handleCopy(),
+    'leadsheet.paste': () => handlePaste(),
+    'leadsheet.rehearsalMark': () => applyPalette('text.rehearsalMark'),
+    'leadsheet.chord': () => {
+      const beats = itemsOfKind(selectedKeys, 'beat');
+      const measuresPicked = itemsOfKind(selectedKeys, 'measure');
+      if (beats.length > 0) {
+        const first = beats.sort(
+          (a, b) => a.measureIndex - b.measureIndex || a.beat - b.beat,
+        )[0];
+        insertChordAt(
+          first.measureIndex * ticksPerMeasure + first.beat * ticksPerBeat,
+        );
+      } else if (measuresPicked.length > 0) {
+        const first = Math.min(...measuresPicked.map((m) => m.measureIndex));
+        insertChordAt(first * ticksPerMeasure);
+      }
+    },
+    'leadsheet.escape': () => clearSelection(),
+    'leadsheet.systemBreak': () => {
+      const kind = selectionKind(selectedKeys);
       if (
-        active &&
-        (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')
+        targetBarline === null ||
+        (kind !== 'measure' && kind !== 'beat' && kind !== 'barline')
       ) {
-        return;
+        return false;
       }
-
-      if (e.metaKey || e.ctrlKey) {
-        if (e.key === 'c') {
-          e.preventDefault();
-          handleCopy();
-        } else if (e.key === 'v') {
-          e.preventDefault();
-          handlePaste();
-        } else if (e.key === 'm') {
-          e.preventDefault();
-          applyPalette('text.rehearsalMark');
-        } else if (e.key === 'k') {
-          e.preventDefault();
-          const beats = itemsOfKind(selectedKeys, 'beat');
-          const measuresPicked = itemsOfKind(selectedKeys, 'measure');
-          if (beats.length > 0) {
-            const first = beats.sort(
-              (a, b) => a.measureIndex - b.measureIndex || a.beat - b.beat,
-            )[0];
-            insertChordAt(
-              first.measureIndex * ticksPerMeasure + first.beat * ticksPerBeat,
-            );
-          } else if (measuresPicked.length > 0) {
-            const first = Math.min(
-              ...measuresPicked.map((m) => m.measureIndex),
-            );
-            insertChordAt(first * ticksPerMeasure);
-          }
-        }
-        return;
-      }
-
-      if (e.key === 'Escape') {
-        clearSelection();
-        return;
-      }
-
-      const kindNow = selectionKind(selectedKeys);
-      if (
-        e.key === 'Enter' &&
-        targetBarline !== null &&
-        (kindNow === 'measure' || kindNow === 'beat' || kindNow === 'barline')
-      ) {
-        e.preventDefault();
-        toggleSystemBreak(targetBarline);
-        return;
-      }
-
-      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
-      e.preventDefault();
-
+      toggleSystemBreak(targetBarline);
+    },
+    'leadsheet.delete': () => {
       const kind = selectionKind(selectedKeys);
       if (kind === 'chord') {
         for (const chord of itemsOfKind(selectedKeys, 'chord')) {
@@ -704,27 +678,8 @@ function LeadSheetChartView() {
         useStore.getState().deleteChordRegion(selectedChordIdx);
         setSelectedChordIdx(null);
       }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [
-    selectedKeys,
-    selectedChordIdx,
-    chordRegions,
-    repeats,
-    targetBarline,
-    handleCopy,
-    handlePaste,
-    insertChordAt,
-    clearSelection,
-    toggleSystemBreak,
-    applyPalette,
-    setChordRegions,
-    setRepeats,
-    removeSection,
-    updateMidiClipEvents,
-    setSelectedChordIdx,
-  ]);
+    },
+  });
 
   // Click background to deselect
   const handleBackgroundClick = useCallback(() => {

@@ -26,7 +26,8 @@ import {
 } from '@/daw/hooks/useAudioEngine';
 import { usePrefsSync } from '@/daw/hooks/usePrefsSync';
 import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
-import { useKeyboardShortcuts } from '@/daw/hooks/useKeyboardShortcuts';
+import { useGlobalCommands } from '@/daw/commands/globalCommands';
+import { useMusicalTyping } from '@/daw/hooks/useMusicalTyping';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { StudioRoutes } from '@/constants/routes';
@@ -61,6 +62,7 @@ import {
 import { isBusyPhase, useSessionStore } from '@/daw/session/sessionStore';
 import { useSessionBoot } from '@/daw/session/useSessionBoot';
 import { OpeningHost } from '@/daw/shell/opening/OpeningHost';
+import { ShortcutSheetHost } from '@/daw/shell/help/ShortcutSheetHost';
 import { ProjectsDialogHost } from '@/daw/shell/projects/ProjectsDialogHost';
 import { SaveConflictDialog } from '@/daw/shell/topbar/SaveConflictDialog';
 import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
@@ -159,7 +161,10 @@ function DawAppInner() {
   const navigate = useNavigate();
   useTransport();
   usePlaybackEngine(isReady, authToken);
-  useKeyboardShortcuts(authToken);
+  // The one keyboard listener and the global keys (milestone 1.6), and the
+  // computer keyboard as a piano while the student has it on.
+  useGlobalCommands();
+  useMusicalTyping();
   // MIDI input before the draft autosave: React cleans up effects in the
   // order they are declared, so a take kept as the editor closes
   // (useMidiRecording) lands while the autosave still listens, and its
@@ -250,8 +255,8 @@ function DawAppInner() {
     notifySessionDepsChanged();
   }, [userId, ownerKnown, authToken, lessonAccessFor]);
 
-  // saveProject (every Save, the chip's Retry, Save & Leave) asks here for
-  // the token; useKeyboardShortcuts registers its own too.
+  // saveProject (every Save, ⌘S, the chip's Retry, Save & Leave) asks here
+  // for the token.
   useEffect(() => registerSaveAuth(() => authRef.current.token), []);
 
   // The account's project list is per user; it goes at sign-out.
@@ -410,6 +415,7 @@ function DawAppInner() {
         <EditorTopRailSlot />
       </DevProfiler>
       <ProjectsDialogHost />
+      <ShortcutSheetHost userId={userId} ownerKnown={ownerKnown} />
       <SaveConflictDialog />
       {/* The Opening overlay, the error panel and the Premium prompt. A
           direct child of .daw-root, left out of the inert toggle above. */}

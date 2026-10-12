@@ -722,6 +722,7 @@ describe('decision D5', () => {
         'timelineGridSize',
         'timelineTripletMode',
         'chordRulerShowNotes',
+        'singleKeyShortcuts',
         'inputDeviceId',
         'inputChannelCountOverride',
       ].sort(),

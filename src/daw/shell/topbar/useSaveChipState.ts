@@ -13,7 +13,7 @@ import {
 import { isBusyPhase, useSessionStore } from '@/daw/session/sessionStore';
 import { useStore } from '@/daw/store';
 import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
-import { modShortcut } from './platformKeys';
+import { shortcutKeys } from '@/daw/commands/shortcuts';
 import {
   deriveSaveChip,
   sameSaveChipView,
@@ -259,7 +259,7 @@ function recompute(): void {
 
 function attach(): void {
   if (detachAll !== null) return;
-  saveShortcut = modShortcut('s').label;
+  saveShortcut = shortcutKeys('project.save').label;
   const onChange = () => {
     recompute();
     scheduleCheck();

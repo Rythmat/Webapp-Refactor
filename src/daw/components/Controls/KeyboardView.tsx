@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
@@ -30,31 +30,6 @@ function displayPresetName(track: Track | undefined): string {
 import type { MidiNoteEvent } from '@prism/engine';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
 
-// QWERTY → MIDI note mapping (C3 = 48)
-const QWERTY_WHITE: Record<string, number> = {
-  a: 48,
-  s: 50,
-  d: 52,
-  f: 53,
-  g: 55,
-  h: 57,
-  j: 59,
-  k: 60,
-  l: 62,
-  ';': 64,
-  "'": 65,
-};
-const QWERTY_BLACK: Record<string, number> = {
-  w: 49,
-  e: 51,
-  t: 54,
-  y: 56,
-  u: 58,
-  o: 61,
-  p: 63,
-};
-const QWERTY_MAP: Record<string, number> = { ...QWERTY_WHITE, ...QWERTY_BLACK };
-
 // ── KeyboardView ────────────────────────────────────────────────────────
 
 type ViewMode = 'keyboard' | 'pianoroll';
@@ -69,7 +44,6 @@ export function KeyboardView({ trackId }: { trackId: string }) {
   const activeColor = useLiveChordColor(mergedNotes);
   const [browserOpen, setBrowserOpen] = useState(false);
   const [mode, setMode] = useState<ViewMode>('keyboard');
-  const heldKeysRef = useRef<Set<string>>(new Set());
 
   // Piano roll data
   const track = useStore((s) => s.tracks.find((t) => t.id === trackId));
@@ -132,44 +106,6 @@ export function KeyboardView({ trackId }: { trackId: string }) {
     },
     [trackId],
   );
-
-  // QWERTY keyboard events
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      )
-        return;
-      const key = e.key.toLowerCase();
-      const midiNote = QWERTY_MAP[key];
-      if (midiNote !== undefined && !heldKeysRef.current.has(key)) {
-        heldKeysRef.current.add(key);
-        handleNoteOn(midiNote, 0.8);
-      }
-    };
-    const onKeyUp = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      const midiNote = QWERTY_MAP[key];
-      if (midiNote !== undefined) {
-        heldKeysRef.current.delete(key);
-        handleNoteOff(midiNote);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      // Release any held notes
-      heldKeysRef.current.forEach((key) => {
-        const note = QWERTY_MAP[key];
-        if (note !== undefined) handleNoteOff(note);
-      });
-      heldKeysRef.current.clear();
-    };
-  }, [handleNoteOn, handleNoteOff]);
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">

@@ -4,6 +4,8 @@ import { ALL_MODES, DEGREES, MODE_DISPLAY, noteNameInKey } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyName } from '@/daw/components/Library/chordInKey';
 import { useStore } from '@/daw/store';
+import { PRACTICE_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { requestRecord } from '@/daw/commands/requestRecord';
 import type { PracticeSession } from '@/daw/store/uiSlice';
 import {
@@ -348,20 +350,15 @@ export function PracticeTrackView({
     else requestRecord(isReady ? undefined : onInit);
   }, [isCountingIn, isRecording, isReady, onInit, stop]);
 
-  // Space plays and pauses, as it does in the full Studio.
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.code !== 'Space') return;
-      const target = event.target as HTMLElement | null;
-      if (target?.closest('input, textarea, select, [contenteditable]')) return;
-      event.preventDefault();
-      // A held Space repeats keydown; it plays or pauses once.
-      if (event.repeat) return;
-      togglePlay();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [togglePlay]);
+  // The practice screen's keys (the practice scope): Space and R run this
+  // screen's transport, which starts the audio first if it isn't yet; R
+  // stops a take as well as starting one. Only Save, loop, Escape (stop),
+  // '?' and the computer keyboard get through from the rest of the editor:
+  // nothing else this screen doesn't show can change.
+  useKeymap(PRACTICE_SCOPE.id, {
+    'practice.playPause': togglePlay,
+    'practice.record': toggleRecord,
+  });
 
   const backToLesson = () => {
     stop();

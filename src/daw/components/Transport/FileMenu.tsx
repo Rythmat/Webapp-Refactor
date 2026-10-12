@@ -12,6 +12,7 @@ import {
   Trash2,
   Sparkles,
   AudioWaveform,
+  Keyboard,
 } from 'lucide-react';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { getAudioBuffer } from '@/daw/audio/AudioBufferStore';
@@ -20,20 +21,21 @@ import {
   useCloudSaveStore,
   whenSavesSettled,
 } from '@/daw/commands/cloudSaveStore';
+import {
+  analyzeProject,
+  exportProjectMidi,
+} from '@/daw/commands/projectCommands';
 import { saveProject } from '@/daw/commands/saveProject';
+import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
-import {
-  importMidiFile,
-  exportMidiFile,
-  downloadMidiBlob,
-} from '@/daw/midi/MidiFileIO';
+import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
 import { openSession } from '@/daw/session/openSession';
 import { getSessionDeps } from '@/daw/session/sessionDeps';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
+import { useShortcutSheetStore } from '@/daw/shell/help/useShortcutSheetStore';
 import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
-import { modShortcut } from '@/daw/shell/topbar/platformKeys';
 import { studioProjectsApi } from '@/lib/studio-projects/api';
 import type { AssetStamp } from '@/lib/studio-assets/upload-pending';
 import { showError, showSuccess } from '@/components/utils/toast';
@@ -120,8 +122,10 @@ export function FileMenu() {
   const inRoom = useStore((s) => s.roomId !== null);
   const saving = useCloudSaveStore((s) => s.phase === 'saving');
   // The modifier the student's keyboard has: ⌘ on a Mac, Ctrl elsewhere.
-  const saveKeys = modShortcut('S').label;
-  const analyzeKeys = modShortcut('U', { shift: true }).label;
+  const saveKeys = shortcutKeys('project.save').label;
+  const analyzeKeys = shortcutKeys('project.analyze').label;
+  const exportMidiKeys = shortcutKeys('project.exportMidi').label;
+  const helpKeys = shortcutKeys('help.shortcuts').label;
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -284,37 +288,6 @@ export function FileMenu() {
     [],
   );
 
-  const handleExport = useCallback(() => {
-    const state = useStore.getState();
-    const sequences = new Map<
-      number,
-      {
-        ticksPerQuarterNote: number;
-        trackName: string;
-        events: MidiNoteEvent[];
-      }
-    >();
-
-    for (let i = 0; i < state.tracks.length; i++) {
-      const track = state.tracks[i];
-      if (track.midiClips.length === 0) continue;
-
-      const allEvents = track.midiClips.flatMap((clip) => clip.events);
-      if (allEvents.length === 0) continue;
-
-      sequences.set(i + 1, {
-        ticksPerQuarterNote: OUR_PPQ,
-        trackName: track.name,
-        events: allEvents,
-      });
-    }
-
-    if (sequences.size === 0) return;
-
-    const blob = exportMidiFile(sequences, state.bpm);
-    downloadMidiBlob(blob, 'prism-session.mid');
-  }, []);
-
   const handleExportLeadSheet = useCallback(() => {
     const state = useStore.getState();
     if (state.chordRegions.length === 0) return;
@@ -328,13 +301,6 @@ export function FileMenu() {
       },
       `${state.projectName}.musicxml`,
     );
-  }, []);
-
-  const handleAnalyze = useCallback(() => {
-    const state = useStore.getState();
-    state.analyzeSession();
-    state.analyzeChords(state.chordAnalysis?.trackIds ?? null);
-    state.setLibraryOpen(true);
   }, []);
 
   const handleExportUnison = useCallback(() => {
@@ -455,10 +421,16 @@ export function FileMenu() {
             <DropdownMenu.Item
               className={itemClass}
               style={itemStyle}
-              onSelect={handleExport}
+              onSelect={exportProjectMidi}
             >
               <FileDown size={13} strokeWidth={2} />
               Export MIDI
+              <span
+                className="ml-auto text-[10px]"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                {exportMidiKeys}
+              </span>
             </DropdownMenu.Item>
 
             <DropdownMenu.Item
@@ -485,7 +457,7 @@ export function FileMenu() {
             <DropdownMenu.Item
               className={itemClass}
               style={itemStyle}
-              onSelect={handleAnalyze}
+              onSelect={analyzeProject}
             >
               <Sparkles size={13} strokeWidth={2} />
               Analyze
@@ -504,6 +476,25 @@ export function FileMenu() {
             >
               <FileDown size={13} strokeWidth={2} />
               Export Analysis JSON
+            </DropdownMenu.Item>
+
+            <div style={separatorStyle} />
+
+            {/* The sheet holds the single-key switch, so it stays reachable
+                with single-key shortcuts (and so ?) turned off. */}
+            <DropdownMenu.Item
+              className={itemClass}
+              style={itemStyle}
+              onSelect={() => useShortcutSheetStore.getState().open()}
+            >
+              <Keyboard size={13} strokeWidth={2} />
+              Keyboard Shortcuts
+              <span
+                className="ml-auto text-[10px]"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                {helpKeys}
+              </span>
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>

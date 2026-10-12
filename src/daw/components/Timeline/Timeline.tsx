@@ -5,6 +5,7 @@ import { ProfileRoutes } from '@/constants/routes';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import { PremiumBadge } from '@/daw/ui/PremiumBadge';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
+import { useArrangeKeymap } from '@/daw/commands/clipCommands';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
@@ -2778,6 +2779,13 @@ export function Timeline() {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  // Create's keys (copy, paste, nudge, tools, zoom), while the timeline is on
+  // screen. Zoom to fit fills the width measured above.
+  useArrangeKeymap({
+    width: () => viewportWidth,
+    ticksPerBar: () => ticksPerBar(tsNum, tsDen),
+  });
 
   const totalContentWidth = (projectLengthTicks / TICKS_PER_BEAT) * ppb;
   const containerWidth = viewportWidth;

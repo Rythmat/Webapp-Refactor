@@ -350,6 +350,7 @@ const STORE_SPECS = {
   timelineGridSize: pref('view', '1/4'),
   timelineSnapEnabled: pref('view', true),
   timelineTripletMode: pref('view', false),
+  singleKeyShortcuts: pref('view', true),
   activeTool: session('view', 'cursor', 'project'),
   selectedClipId: session('view', null, 'project'),
   selectedClipTrackId: session('view', null, 'project'),

@@ -22,6 +22,8 @@ import {
 import { RollViewToggle } from '@/components/notation/RollViewToggle';
 import { mintNoteId } from '@/daw/model/noteIds';
 import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
+import { PIANO_ROLL_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -1490,37 +1492,24 @@ export function PianoRoll({
   }, [handleMouseUp]);
 
   // ── Keyboard: Tool shortcuts + Delete ───────────────────────────────────
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      // Tool shortcuts
-      if (e.key === 'v' || e.key === 'V') {
-        setTool('select');
-        return;
-      }
-      if (e.key === 'd' || e.key === 'D') {
-        setTool('draw');
-        return;
-      }
-      if (e.key === 'e' || e.key === 'E') {
-        setTool('erase');
-        return;
-      }
-
-      // Delete selected note(s)
-      if (
-        (e.code === 'Delete' || e.code === 'Backspace') &&
-        selectedIndices.size > 0
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        const newEvents = eventsRef.current.filter(
-          (_, i) => !selectedIndices.has(i),
-        );
-        onChange(newEvents);
+  // ── Keys, while the roll has focus (the pianoRoll scope) ───────────────
+  // Tools on V, D and E (never with ⌘ held: ⌘V pastes), Delete or Backspace
+  // removes the selected notes. Delete stays here with nothing selected, so
+  // it never reaches the clip behind the roll.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  useKeymap(
+    PIANO_ROLL_SCOPE.id,
+    {
+      'pianoRoll.select': () => setTool('select'),
+      'pianoRoll.draw': () => setTool('draw'),
+      'pianoRoll.erase': () => setTool('erase'),
+      'pianoRoll.delete': () => {
+        if (selectedIndices.size === 0) return;
+        onChange(eventsRef.current.filter((_, i) => !selectedIndices.has(i)));
         setSelectedIndices(new Set());
-      }
+      },
     },
-    [selectedIndices, onChange],
+    { element: bodyRef },
   );
 
   // ── Quantize handler ────────────────────────────────────────────────────
@@ -1905,9 +1894,9 @@ export function PianoRoll({
 
       {/* Piano roll body — synced layout + velocity lane */}
       <div
+        ref={bodyRef}
         className="relative flex flex-1 flex-col overflow-hidden"
         tabIndex={0}
-        onKeyDown={handleKeyDown}
       >
         {/* Notation replaces the roll: the roll below is hidden, not unmounted,
             so its canvases keep their size and redraw on the way back. */}

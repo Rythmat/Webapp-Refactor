@@ -32,7 +32,12 @@
  *   for 2 s with the city's first event expanded (an expanded event is what
  *   makes the card report its width to the globe), and while typing
  *   "louis armstrong" into search (from the first key to 0.5 s after the
- *   last).
+ *   last);
+ * - YouTube requests over the whole run, in which no video is ever played:
+ *   the player's (its API, embed page and scripts on youtube.com and
+ *   googlevideo.com) and the thumbnails' (ytimg.com, img.youtube.com), with
+ *   the thumbnails' bytes. Expanding the city's first event in the drag step
+ *   is what shows a video.
  *
  * The card, drag and search steps run with the CPU slowed down `--cpu`
  * times (4 by default, the studio-perf Chromebook profile's rate;
@@ -270,13 +275,31 @@ async function openGlobe(browser, base) {
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e).slice(0, 300)));
+  // YouTube traffic over the whole run, in which nothing is ever played: the
+  // player (its API, embed page and scripts) and the thumbnails.
+  const youtube = { player: 0, thumbs: 0, thumbBytes: 0 };
+  page.on('requestfinished', async (request) => {
+    const host = new URL(request.url()).hostname;
+    if (/(^|\.)ytimg\.com$|^img\.youtube\.com$/.test(host)) {
+      youtube.thumbs += 1;
+      try {
+        youtube.thumbBytes += (await request.sizes()).responseBodySize;
+      } catch {
+        /* the page closed first */
+      }
+    } else if (
+      /(^|\.)(youtube\.com|youtube-nocookie\.com|googlevideo\.com)$/.test(host)
+    ) {
+      youtube.player += 1;
+    }
+  });
   await page.goto(`${base}/atlas/globe`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(
     () => performance.getEntriesByName('atlas:globe-ready').length > 0,
     null,
     { timeout: 120_000 },
   );
-  return { context, page, errors };
+  return { context, page, errors, youtube };
 }
 
 const tasksNow = (page) =>
@@ -294,7 +317,7 @@ const rendersIn = (page, from, to) =>
 const now = (page) => page.evaluate(() => performance.now());
 
 async function runOnce(browser, base, index) {
-  const { context, page, errors } = await openGlobe(browser, base);
+  const { context, page, errors, youtube } = await openGlobe(browser, base);
   const notes = [];
   const result = { run: index };
 
@@ -468,6 +491,11 @@ async function runOnce(browser, base, index) {
   };
   await page.keyboard.press('Escape');
 
+  result.youtube = {
+    playerRequests: youtube.player,
+    thumbRequests: youtube.thumbs,
+    thumbKB: +(youtube.thumbBytes / 1e3).toFixed(1),
+  };
   result.pageErrors = errors;
   result.notes = notes;
   await context.close();
@@ -502,6 +530,9 @@ function summarizeRuns(runs) {
     searchLongestTaskMs: pick((r) => r.search.longTasks.maxMs),
     searchCommits: pick((r) => r.search.renders.commits),
     searchGlobeRenders: pick((r) => r.search.renders.globeRenders),
+    youtubePlayerRequests: pick((r) => r.youtube?.playerRequests),
+    youtubeThumbRequests: pick((r) => r.youtube?.thumbRequests),
+    youtubeThumbKB: pick((r) => r.youtube?.thumbKB),
   };
 }
 

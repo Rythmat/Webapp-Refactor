@@ -8,6 +8,25 @@ import {
   type TrailEntry,
 } from '@/components/atlas/navigation/useAtlasTrail';
 
+/** Trail steps drawn at once; the rest wait behind "+N earlier / later". */
+export const TRAIL_WINDOW = 16;
+
+/**
+ * Which steps of the trail to draw: the latest TRAIL_WINDOW, unless the
+ * cursor has walked back past them, in which case the window starts just
+ * before the cursor. Pure, for testing.
+ */
+export function trailWindow(
+  length: number,
+  cursorPos: number,
+  size = TRAIL_WINDOW,
+): { start: number; end: number } {
+  if (length <= size) return { start: 0, end: length };
+  let start = length - size;
+  if (cursorPos >= 0 && cursorPos <= start) start = Math.max(0, cursorPos - 1);
+  return { start, end: Math.min(length, start + size) };
+}
+
 const ICON_BUTTON =
   'flex size-8 shrink-0 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:pointer-events-none disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]';
 
@@ -57,6 +76,30 @@ export function AtlasToolbar() {
   const trail = useAtlasTrail();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
+  // An 80-step trail is 80 thumbnails; draw a window of it until asked for
+  // the rest, then scroll toward what was asked for.
+  const [showAll, setShowAll] = useState<'earlier' | 'later' | null>(null);
+  const shownRange = showAll
+    ? { start: 0, end: trail.entries.length }
+    : trailWindow(trail.entries.length, trail.cursorPos);
+  const visible = trail.entries.slice(shownRange.start, shownRange.end);
+  const earlier = shownRange.start;
+  const later = trail.entries.length - shownRange.end;
+
+  useEffect(() => {
+    if (!showAll) return;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    scroller.scrollTo({
+      left: showAll === 'earlier' ? 0 : scroller.scrollWidth,
+      behavior: 'smooth',
+    });
+  }, [showAll]);
+
+  // A cleared trail starts windowed again.
+  useEffect(() => {
+    if (trail.entries.length <= 1) setShowAll(null);
+  }, [trail.entries.length]);
 
   // Keep the current step in view as the trail grows or the user walks it.
   const current = trail.entries[trail.cursorPos];
@@ -120,28 +163,51 @@ export function AtlasToolbar() {
         aria-label="Your path through the globe"
         className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:thin]"
       >
+        {trail.entries.length > 1 && earlier > 0 && (
+          <button
+            className="shrink-0 rounded-md px-1.5 py-1 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+            title="Show the earlier steps of your path"
+            type="button"
+            onClick={() => setShowAll('earlier')}
+          >
+            +{earlier} earlier
+          </button>
+        )}
         {trail.entries.length > 1 &&
-          trail.entries.map((entry, i) => (
-            <div key={entry.idx} className="flex shrink-0 items-center gap-1">
-              {i > 0 && (
-                <ChevronRight
-                  aria-hidden
-                  className="size-3 shrink-0 text-white/25"
+          visible.map((entry, v) => {
+            const i = shownRange.start + v;
+            return (
+              <div key={entry.idx} className="flex shrink-0 items-center gap-1">
+                {v > 0 && (
+                  <ChevronRight
+                    aria-hidden
+                    className="size-3 shrink-0 text-white/25"
+                  />
+                )}
+                <TrailStep
+                  entry={entry}
+                  state={
+                    i < trail.cursorPos
+                      ? 'past'
+                      : i === trail.cursorPos
+                        ? 'current'
+                        : 'future'
+                  }
+                  onJump={trail.jump}
                 />
-              )}
-              <TrailStep
-                entry={entry}
-                state={
-                  i < trail.cursorPos
-                    ? 'past'
-                    : i === trail.cursorPos
-                      ? 'current'
-                      : 'future'
-                }
-                onJump={trail.jump}
-              />
-            </div>
-          ))}
+              </div>
+            );
+          })}
+        {trail.entries.length > 1 && later > 0 && (
+          <button
+            className="shrink-0 rounded-md px-1.5 py-1 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+            title="Show the later steps of your path"
+            type="button"
+            onClick={() => setShowAll('later')}
+          >
+            +{later} later
+          </button>
+        )}
       </nav>
 
       {trail.entries.length > 1 && (

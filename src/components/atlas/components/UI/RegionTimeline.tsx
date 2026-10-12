@@ -1,7 +1,15 @@
 import { ZoomIn, ZoomOut } from 'lucide-react';
-import { useMemo, useEffect, useState, useCallback } from 'react';
-import { CITIES, MUSICAL_ERAS } from '@/components/atlas/data';
+import {
+  useMemo,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
+import { MUSICAL_ERAS } from '@/components/atlas/data';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
+import { getCityById, getCityByName } from '@/components/atlas/data/lookups';
 import type { MusicalEra } from '@/components/atlas/data/musicalEras';
 import {
   useAtlasNavigate,
@@ -15,7 +23,16 @@ import type {
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
+import { clusterDots } from '@/components/atlas/utils/clusterDots';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
+
+/** Timeline zoom tops out here: 16× the full range. */
+const MAX_ZOOM = 16;
+/**
+ * Dots closer than this (px, measured from a cluster's first) merge. At least
+ * as wide as a three-digit cluster marker, so markers never overlap.
+ */
+const CLUSTER_PX = 30;
 
 function filterByEra(
   events: HistoricalEvent[],
@@ -36,9 +53,7 @@ function getDisplayNames(
   if (selectedLocation.type === 'country') {
     if (pinnedEvent) {
       const cityName = pinnedEvent.location.city;
-      const cityData = CITIES.find(
-        (c) => c.name.toLowerCase() === cityName.toLowerCase(),
-      );
+      const cityData = getCityByName(cityName);
       const sub = cityData?.subdivision
         ? `${cityName}, ${cityData.subdivision}`
         : cityName;
@@ -58,7 +73,7 @@ function getDisplayNames(
     return { country: countryName, subtitle: stateName };
   }
   if (selectedLocation.type === 'city') {
-    const city = CITIES.find((c) => c.id === selectedLocation.id);
+    const city = getCityById(selectedLocation.id);
     if (city) {
       const sub = city.subdivision
         ? `${city.name}, ${city.subdivision}`
@@ -137,6 +152,17 @@ export function RegionTimeline() {
   // Zoom state: 1 = fit all, higher = zoomed in
   const [zoom, setZoom] = useState(1);
   const [viewCenter, setViewCenter] = useState((fullStart + fullEnd) / 2);
+  // A year to centre on at the next zoom change, set by clicking a cluster;
+  // otherwise zooming in centres on the pinned event.
+  const zoomTarget = useRef<number | null>(null);
+  // A cluster that zooming cannot pull apart (one year, or fully zoomed),
+  // opened as a list.
+  const [openCluster, setOpenCluster] = useState<{
+    key: string;
+    events: HistoricalEvent[];
+    x: number;
+  } | null>(null);
+  const popoverRef = useRef<HTMLUListElement>(null);
 
   // Reset zoom when events change (location or era switch)
   useEffect(() => {
@@ -148,10 +174,43 @@ export function RegionTimeline() {
   // pin changes AND when zooming in. Without zoom in the dependencies, zooming
   // in kept the old centre and could push the pinned event out of the window.
   useEffect(() => {
+    if (zoomTarget.current !== null) {
+      setViewCenter(zoomTarget.current);
+      zoomTarget.current = null;
+      return;
+    }
     if (relevantPinned && zoom > 1) {
       setViewCenter(relevantPinned.year);
     }
   }, [relevantPinned, zoom]);
+
+  // The open cluster's list belongs to the view it was opened in.
+  useEffect(() => setOpenCluster(null), [events, zoom]);
+
+  // Focus the list when it opens; close it on a click elsewhere.
+  useEffect(() => {
+    if (!openCluster) return;
+    popoverRef.current?.querySelector('button')?.focus();
+    const onPointerDown = (e: PointerEvent) => {
+      if (!popoverRef.current?.contains(e.target as Node)) setOpenCluster(null);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [openCluster]);
+
+  // The track's width in px, which is what decides when dots overlap.
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [trackWidth, setTrackWidth] = useState(0);
+  useLayoutEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const measure = () => setTrackWidth(el.getBoundingClientRect().width);
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [hasEvents]);
 
   // Visible window
   const viewSpan = fullRange / zoom;
@@ -186,11 +245,33 @@ export function RegionTimeline() {
 
   const pct = (year: number) => ((year - viewStart) / viewRange) * 100;
 
-  const canZoomIn = zoom < 16;
+  // Dots that would overlap become one numbered cluster. Measured in % of
+  // the track; before the track has a width, only same-year dots merge.
+  const clusters = clusterDots(
+    visibleEvents,
+    (e) => pct(e.year),
+    trackWidth > 0 ? (CLUSTER_PX / trackWidth) * 100 : 0,
+  );
+
+  // Zoom in far enough to spread a cluster over a few dot widths, centred on
+  // it. Zoom stays a power of two, as the buttons step it.
+  const zoomInto = (cluster: HistoricalEvent[]) => {
+    const first = cluster[0].year;
+    const last = cluster[cluster.length - 1].year;
+    const spanPx =
+      trackWidth > 0 ? ((last - first) / viewRange) * trackWidth : 0;
+    const factor =
+      spanPx > 0 ? 2 ** Math.ceil(Math.log2((CLUSTER_PX * 4) / spanPx)) : 2;
+    zoomTarget.current = (first + last) / 2;
+    setViewCenter((first + last) / 2);
+    setZoom((z) => Math.min(MAX_ZOOM, z * Math.max(2, factor)));
+  };
+
+  const canZoomIn = zoom < MAX_ZOOM;
   const canZoomOut = zoom > 1;
 
   const handleZoomIn = useCallback(() => {
-    setZoom((z) => Math.min(16, z * 2));
+    setZoom((z) => Math.min(MAX_ZOOM, z * 2));
   }, []);
 
   const handleZoomOut = useCallback(() => {
@@ -246,7 +327,11 @@ export function RegionTimeline() {
             </button>
 
             {/* Timeline track */}
-            <div className="relative flex-1" style={{ height: '32px' }}>
+            <div
+              ref={trackRef}
+              className="relative flex-1"
+              style={{ height: '32px' }}
+            >
               {/* Tick labels */}
               <div className="absolute inset-x-0 top-0 h-4">
                 {ticks.map((year) => (
@@ -263,8 +348,46 @@ export function RegionTimeline() {
               {/* Track line */}
               <div className="absolute inset-x-0 top-[22px] h-[2px] rounded-full bg-white/10" />
 
-              {/* Event dots */}
-              {visibleEvents.map((event) => {
+              {/* Event dots, and clusters where they would overlap */}
+              {clusters.map(({ items, x }) => {
+                const event = items[0];
+                if (items.length > 1) {
+                  const last = items[items.length - 1];
+                  const span =
+                    event.year === last.year
+                      ? `${event.year}`
+                      : `${event.year}–${last.year}`;
+                  const separable = canZoomIn && last.year > event.year;
+                  const holdsPinned = items.some(
+                    (e) => e.id === pinnedEvent?.id,
+                  );
+                  return (
+                    <button
+                      key={`cluster:${event.id}`}
+                      aria-expanded={
+                        separable ? undefined : openCluster?.key === event.id
+                      }
+                      aria-label={`${items.length} events, ${span}${separable ? ' — zoom in' : ''}`}
+                      className={`absolute top-[13px] flex h-5 min-w-5 -translate-x-1/2 items-center justify-center rounded-full border px-1 text-xs font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
+                        holdsPinned
+                          ? 'border-[#93c5fd] bg-[#60a5fa] text-black shadow-[0_0_8px_rgba(96,165,250,0.6)]'
+                          : 'border-white/30 bg-white/85 text-black hover:border-[#93c5fd] hover:bg-[#60a5fa]'
+                      }`}
+                      data-cluster-key={event.id}
+                      data-cluster-size={items.length}
+                      style={{ left: `${x}%` }}
+                      title={`${items.length} events, ${span}`}
+                      type="button"
+                      onClick={() => {
+                        if (separable) zoomInto(items);
+                        else
+                          setOpenCluster({ key: event.id, events: items, x });
+                      }}
+                    >
+                      {items.length}
+                    </button>
+                  );
+                }
                 const isPinned = pinnedEvent?.id === event.id;
                 return (
                   <button
@@ -275,11 +398,56 @@ export function RegionTimeline() {
                         ? 'size-3.5 border-[#93c5fd] bg-[#60a5fa] shadow-[0_0_8px_rgba(96,165,250,0.6)]'
                         : 'size-2.5 border-white/30 bg-white/80 hover:border-[#93c5fd] hover:bg-[#60a5fa] hover:shadow-[0_0_6px_rgba(96,165,250,0.4)]'
                     }`}
-                    style={{ left: `${pct(event.year)}%` }}
+                    style={{ left: `${x}%` }}
                     onClick={() => handleSelect(event)}
                   />
                 );
               })}
+
+              {/* A cluster zoom cannot separate, as a list */}
+              {openCluster && (
+                <ul
+                  ref={popoverRef}
+                  aria-label={`${openCluster.events.length} events`}
+                  className="absolute bottom-full z-10 mb-2 max-h-56 w-64 -translate-x-1/2 overflow-y-auto rounded-xl border border-white/10 bg-[#151518]/95 p-1 shadow-2xl"
+                  style={{
+                    left: `${Math.min(80, Math.max(20, openCluster.x))}%`,
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key !== 'Escape') return;
+                    e.stopPropagation();
+                    const key = openCluster.key;
+                    setOpenCluster(null);
+                    trackRef.current
+                      ?.querySelector<HTMLElement>(
+                        `[aria-expanded][data-cluster-key="${key}"]`,
+                      )
+                      ?.focus();
+                  }}
+                >
+                  {openCluster.events.map((e) => (
+                    <li key={e.id}>
+                      <button
+                        className={`flex w-full items-baseline gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
+                          e.id === pinnedEvent?.id
+                            ? 'text-[#93c5fd]'
+                            : 'text-white'
+                        }`}
+                        type="button"
+                        onClick={() => {
+                          setOpenCluster(null);
+                          handleSelect(e);
+                        }}
+                      >
+                        <span className="shrink-0 text-xs text-white/60">
+                          {e.year}
+                        </span>
+                        <span className="truncate">{e.title}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             {/* Zoom in */}

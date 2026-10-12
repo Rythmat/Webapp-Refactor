@@ -18,9 +18,13 @@ import {
 import { EventInfluence } from '@/components/atlas/components/UI/EventInfluence';
 import { EventVideo } from '@/components/atlas/components/UI/EventVideo';
 import { GenreBadge } from '@/components/atlas/components/UI/GenreBadge';
-import { CITIES } from '@/components/atlas/data';
 import type { AtlasArtist } from '@/components/atlas/data/artists';
+import { getCityById } from '@/components/atlas/data/lookups';
 import { songIdForEvent } from '@/components/atlas/data/songEventAliases';
+import {
+  useVirtualRows,
+  VIRTUALIZE_OVER,
+} from '@/components/atlas/hooks/useVirtualRows';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   useAtlasDispatch,
@@ -86,6 +90,37 @@ function EventList({
   onSelectArtist: (artist: AtlasArtist) => void;
   onVideoPlay: () => void;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // While enlarged, only the focused card is in the page; the rest unmount
+  // (a country can list hundreds). The focused card keeps its element and
+  // its place in this same list, and React leaves an element where it is
+  // when its siblings come and go, so the video's <iframe> is never
+  // reparented — a moved iframe reloads, and the video would stop. Only an
+  // expanded card has a video, and Enlarge expands just the one it shows.
+  const shown = useMemo(
+    () => (enlarged ? events.filter((e) => expandedEvents.has(e.id)) : events),
+    [enlarged, events, expandedEvents],
+  );
+  // Expanded cards stay rendered when scrolled away, so a playing video
+  // keeps playing.
+  const keep = useMemo(
+    () => shown.flatMap((e, i) => (expandedEvents.has(e.id) ? [i] : [])),
+    [shown, expandedEvents],
+  );
+  const itemKey = useCallback((i: number) => shown[i]?.id ?? i, [shown]);
+  const list = useVirtualRows({
+    count: shown.length,
+    enabled: !enlarged && shown.length > VIRTUALIZE_OVER,
+    scrollRef,
+    listRef,
+    estimateSize: 66,
+    gap: 8,
+    getItemKey: itemKey,
+    keep,
+  });
+
   if (events.length === 0) {
     return (
       <div className="border-t border-white/10 px-4 py-3">
@@ -95,29 +130,49 @@ function EventList({
   }
 
   return (
-    <div className="overflow-y-auto border-t border-white/10 px-4 pb-3">
+    <div
+      ref={scrollRef}
+      className="relative overflow-y-auto border-t border-white/10 px-4 pb-3"
+    >
       {!enlarged && (
         <p className="mb-2 mt-3 text-sm text-white/40">
           {events.length} event{events.length !== 1 && 's'}
         </p>
       )}
-      <div className={enlarged ? '' : 'mt-3 space-y-2'}>
-        {events.map((event) => {
+      <div
+        ref={listRef}
+        className={
+          enlarged ? '' : list.virtual ? 'relative mt-3' : 'mt-3 space-y-2'
+        }
+        style={list.virtual ? { height: list.totalSize } : undefined}
+        {...list.listProps}
+      >
+        {list.rows.map(({ index, top }) => {
+          const event = shown[index];
           const isExpanded = expandedEvents.has(event.id);
           const focused = enlarged && isExpanded;
           // The pinned event of an active sequence (Pathway / tour step) shows
           // its influence chains inline + open, decoupled from the globe arcs
           // (so the simplified globe stays clean).
           const isPinnedStep = sequenceActive && event.id === pinnedEventId;
-          // While enlarged, only the focused card is shown. NB: hidden via CSS
-          // (not filtered/reordered) so the video's <iframe> is never reparented.
           return (
             <div
               key={event.id}
+              ref={list.measureElement}
               data-event-id={event.id}
-              className={`group w-full rounded-xl text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
-                enlarged && !isExpanded ? 'hidden' : ''
-              } ${focused ? 'p-4' : 'p-2.5'} ${
+              data-index={index}
+              style={
+                list.virtual
+                  ? {
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${top}px)`,
+                    }
+                  : undefined
+              }
+              className={`group w-full rounded-xl text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${focused ? 'p-4' : 'p-2.5'} ${
                 enlarged ? 'cursor-default' : 'cursor-pointer'
               } ${
                 isExpanded
@@ -439,7 +494,7 @@ export function DetailsCard() {
         {/* City header */}
         {selectedLocation.type === 'city' &&
           (() => {
-            const city = CITIES.find((c) => c.id === selectedLocation.id);
+            const city = getCityById(selectedLocation.id);
             if (!city) return <p className="text-white/60">City not found</p>;
             return (
               <>

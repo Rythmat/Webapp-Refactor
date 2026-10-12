@@ -106,6 +106,21 @@ figures.
   including GenreLessonContainerV2 and the guitar data. That is app-wide and
   outside this plan, but it is most of what a cold load of the Globe pays.
 
+### Long tasks with a video on the page
+
+Chrome reports **no long tasks while the page holds a cross-origin iframe**.
+On the slowed page, a 10 px `example.com` iframe added to an idle Globe takes
+it from 31 to 36 long tasks per 2 s (every frame of the globe is one) to 0,
+at the same frame rate; removing the iframe brings them back. The baseline's
+drag and search windows come after the city's first event is expanded,
+which used to mount that event's YouTube player, so their long-task figures
+(11 and 8) undercount. Since prompt 3 the player waits for a click, the
+iframe is gone, and the same windows report about 37 and 50: every frame
+is still a long task, because the globe redraws each frame. Compare those two
+windows by frame rate, or against a run of the same code, not against the
+baseline's long-task counts. Opening the card (before anything is expanded)
+was never affected.
+
 ## Budgets
 
 `scripts/verifyProdBundle.mjs` now checks three things:
@@ -114,13 +129,20 @@ figures.
   (marker `scene-container`) must not appear in an entry chunk or a chunk
   `index.html` preloads, and each marker must still exist somewhere in the
   build. Cortex's renderer already had this rule.
-- **Size.** `assets/atlas-*.js` may be at most 5% over **70,808** bytes. The
-  static route total may be at most 5% over **1,086,089** bytes. Both numbers
+- **Size.** `assets/atlas-*.js` may be at most 5% over **103,658** bytes. The
+  static route total may be at most 5% over **1,120,778** bytes. Both numbers
   are in `GLOBE_BUDGET` in the script. When a change shrinks the page on
   purpose, lower them to the new sizes. When a change grows it on purpose,
-  raise them in the same commit and record why here.
+  raise them in the same commit and record why under "Budget changes".
 - **No measuring hook in production.** `__atlasGlobeDebug`, the dev-only hook
   the measuring script uses, must fold out of production builds.
+
+### Budget changes
+
+| Date        | Change                                  | `routeChunk`      | `routeStatic`       | Why                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------- | --------------------------------------- | ----------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 12 Oct 2026 | Baseline                                | 70,808            | 1,086,089           | The page before the Globe UI work.                                                                                                                                                                                                                                                                                                                                             |
+| 12 Oct 2026 | Prompt 3: video, thumbnails, long lists | 103,658 (+32,850) | 1,120,778 (+34,689) | `@tanstack/react-virtual` (new dependency) is 26.5 kB minified, 7.3 kB gzip, of it; it virtualizes the detail card's event list and the search panel's full groups. The other ~6 kB is the click-to-play video, the timeline's clusters and their list, the trail window and the id lookups. In exchange the page loads no YouTube player until play and draws far fewer rows. |
 
 ## What this baseline added to the page
 

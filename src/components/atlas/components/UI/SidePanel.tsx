@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { StopThumb } from '@/components/atlas/components/UI/StopThumb';
 import type { StopPresentation } from '@/components/atlas/navigation/describeStop';
 
@@ -14,11 +14,14 @@ export function SidePanel({
   subtitle,
   onClose,
   children,
+  bodyRef,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
   onClose: () => void;
   children: ReactNode;
+  /** The scrolling body, for lists that virtualize inside it. */
+  bodyRef?: RefObject<HTMLDivElement>;
 }) {
   return (
     <section className="absolute left-4 top-4 z-[1000] flex max-h-[calc(100%-11rem)] w-[min(440px,calc(100%-2rem))] flex-col rounded-2xl border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md">
@@ -34,7 +37,10 @@ export function SidePanel({
         <h3 className="text-xl font-medium text-white">{title}</h3>
         {subtitle && <p className="mt-0.5 text-sm text-white/50">{subtitle}</p>}
       </header>
-      <div className="overflow-y-auto border-t border-white/10 px-2 py-2">
+      <div
+        ref={bodyRef}
+        className="relative overflow-y-auto border-t border-white/10 px-2 py-2"
+      >
         {children}
       </div>
     </section>

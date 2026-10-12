@@ -177,10 +177,15 @@ const LAZY_ONLY = [
  * `routeChunk` is assets/atlas-*.js; `routeStatic` is it plus every chunk it
  * imports statically that the entry does not already load (data, three.js's
  * WebGL build, icons). react-globe.gl, imported dynamically, is in neither.
+ *
+ * Raised on purpose by Globe UI prompt 3 (from 70,808 and 1,086,089):
+ * @tanstack/react-virtual for the long lists, 26.5 kB of it, and the
+ * click-to-play video, timeline clusters and trail window. See "Budget
+ * changes" in BASELINE.md.
  */
 const GLOBE_BUDGET = {
-  routeChunk: 70_808,
-  routeStatic: 1_086_089,
+  routeChunk: 103_658,
+  routeStatic: 1_120_778,
   headroom: 1.05,
 };
 

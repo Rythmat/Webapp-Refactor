@@ -1,4 +1,5 @@
 import { Pause, Play } from 'lucide-react';
+import { AtlasPillButton } from '@/components/atlas/components/UI/primitives';
 import {
   useAtlasDispatch,
   useAtlasSelector,
@@ -27,12 +28,13 @@ export function GlobeSpinToggle() {
   const dispatch = useAtlasDispatch();
 
   return (
-    <button
-      type="button"
+    <AtlasPillButton
       aria-pressed={globeRotating}
       aria-label={globeRotating ? 'Stop the globe spinning' : 'Spin the globe'}
       title={globeRotating ? 'Stop spinning' : 'Spin the globe'}
-      className="absolute right-4 top-4 z-[1001] flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3.5 py-2.5 text-sm text-white/90 shadow-2xl backdrop-blur-md transition-colors hover:border-white/30 hover:bg-black/55 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+      // An outline pill on the panel surface: over the globe, the pill's own
+      // white/4 fill would leave the label on whatever colour spins past.
+      className="absolute right-4 top-4 z-[1001] h-10 gap-2 bg-atlas-panel/95 px-3.5 shadow-2xl hover:bg-atlas-panel"
       onClick={() =>
         dispatch({ type: 'SET_GLOBE_ROTATING', payload: !globeRotating })
       }
@@ -43,6 +45,6 @@ export function GlobeSpinToggle() {
         <Play aria-hidden className="size-4" />
       )}
       <span>{globeRotating ? 'Stop' : 'Spin'}</span>
-    </button>
+    </AtlasPillButton>
   );
 }

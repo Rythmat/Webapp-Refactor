@@ -1,11 +1,18 @@
 import { X } from 'lucide-react';
 import type { ReactNode, RefObject } from 'react';
 import { StopThumb } from '@/components/atlas/components/UI/StopThumb';
+import {
+  ATLAS_ROW,
+  AtlasChip,
+  AtlasIconButton,
+  AtlasPanel,
+  AtlasPanelBody,
+} from '@/components/atlas/components/UI/primitives';
 import type { StopPresentation } from '@/components/atlas/navigation/describeStop';
 
 /**
- * The left-hand panel shell the artist and search views share — the same glass
- * card, position, and close control as the region DetailsCard, so moving
+ * The left-hand panel shell the artist and search views share — the same
+ * panel, position, and close control as the region DetailsCard, so moving
  * between a place, an artist, and a search feels like one surface changing
  * rather than three different ones.
  */
@@ -24,26 +31,20 @@ export function SidePanel({
   bodyRef?: RefObject<HTMLDivElement>;
 }) {
   return (
-    <section className="absolute left-4 top-4 z-[1000] flex max-h-[calc(100%-11rem)] w-[min(440px,calc(100%-2rem))] flex-col rounded-2xl border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md">
-      <header className="relative shrink-0 p-4 pr-10">
-        <button
-          aria-label="Close"
-          className="absolute right-3 top-3 rounded text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
-          type="button"
-          onClick={onClose}
-        >
-          <X className="size-4" />
-        </button>
-        <h3 className="text-xl font-medium text-white">{title}</h3>
-        {subtitle && <p className="mt-0.5 text-sm text-white/50">{subtitle}</p>}
-      </header>
-      <div
-        ref={bodyRef}
-        className="relative overflow-y-auto border-t border-white/10 px-2 py-2"
-      >
+    <AtlasPanel
+      actions={
+        <AtlasIconButton aria-label="Close" size="sm" onClick={onClose}>
+          <X aria-hidden className="size-4" />
+        </AtlasIconButton>
+      }
+      className="absolute left-4 top-4 z-[1000] max-h-[calc(100%-11rem)] w-[min(440px,calc(100%-2rem))]"
+      subtitle={subtitle}
+      title={title}
+    >
+      <AtlasPanelBody ref={bodyRef} className="px-2 py-2">
         {children}
-      </div>
-    </section>
+      </AtlasPanelBody>
+    </AtlasPanel>
   );
 }
 
@@ -53,17 +54,20 @@ export function PanelRow({
   title,
   subtitle,
   badge,
+  badgeDot,
   onClick,
 }: {
   presentation: StopPresentation;
   title: string;
   subtitle: string;
   badge?: string;
+  /** A CSS colour for the dot leading the badge: its entity kind's. */
+  badgeDot?: string;
   onClick: () => void;
 }) {
   return (
     <button
-      className="flex w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+      className={`flex w-full items-center gap-3 px-2 py-1.5 text-left ${ATLAS_ROW}`}
       type="button"
       onClick={onClick}
     >
@@ -71,16 +75,12 @@ export function PanelRow({
         <StopThumb presentation={presentation} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="line-clamp-2 text-sm leading-snug text-white">
+        <span className="line-clamp-2 text-sm leading-snug text-atlas-text">
           {title}
         </span>
-        <span className="mt-0.5 flex items-center gap-1.5 text-xs text-white/50">
+        <span className="mt-0.5 flex items-center gap-1.5 text-xs text-atlas-text-2">
           {subtitle}
-          {badge && (
-            <span className="rounded-full border border-white/15 px-1.5 text-[10px] uppercase tracking-wide text-white/50">
-              {badge}
-            </span>
-          )}
+          {badge && <AtlasChip dot={badgeDot}>{badge}</AtlasChip>}
         </span>
       </span>
     </button>

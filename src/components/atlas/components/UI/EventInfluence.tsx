@@ -1,5 +1,6 @@
 import { ArrowUpRight, ArrowDownRight, ChevronDown } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
+import { ATLAS_FOCUS } from '@/components/atlas/components/UI/primitives';
 import {
   getUpstreamChain,
   getDownstreamChain,
@@ -29,21 +30,26 @@ const InfluenceTree = memo(function InfluenceTree({
   if (nodes.length === 0) return null;
   const Icon = direction === 'upstream' ? ArrowDownRight : ArrowUpRight;
   return (
-    <div className={depth > 0 ? 'ml-3 mt-1 border-l border-white/10 pl-2' : ''}>
+    <div
+      className={
+        depth > 0 ? 'ml-3 mt-1 border-l border-atlas-panel-border pl-2' : ''
+      }
+    >
       {nodes.map((node) => {
         const hex = getEventCountryColor(node.event);
         const text = getContrastColor(hex, 0.85);
         return (
           <div key={node.event.id} className="mb-1">
             <button
-              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium hover:brightness-110"
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-left text-xs font-medium hover:brightness-110 ${ATLAS_FOCUS}`}
+              // The event's country colour, from the data.
               style={{ backgroundColor: hex, color: text }}
               onClick={(e) => {
                 e.stopPropagation();
                 onNavigate(node.event);
               }}
             >
-              <Icon className="size-3" />
+              <Icon aria-hidden className="size-3 shrink-0" />
               <span>{node.event.title}</span>
               <span className="ml-0.5" style={{ color: text, opacity: 0.75 }}>
                 {node.event.year}
@@ -101,7 +107,7 @@ function CollapsibleInfluence({
   return (
     <div>
       <button
-        className="mb-1 flex items-center gap-1 text-xs font-medium text-white/60 transition-colors hover:text-white"
+        className={`mb-1 flex items-center gap-1 rounded-full text-xs font-bold text-atlas-text-2 transition-colors hover:text-atlas-text ${ATLAS_FOCUS}`}
         onClick={(e) => {
           e.stopPropagation();
           // Toggle the globe arcs. In the modal, just toggle the local
@@ -112,6 +118,7 @@ function CollapsibleInfluence({
         }}
       >
         <ChevronDown
+          aria-hidden
           className={`size-3 transition-transform ${open ? 'rotate-0' : '-rotate-90'}`}
         />
         {label} ({count})
@@ -131,7 +138,7 @@ function EventInfluenceInner({
   onNavigate,
   defaultOpen = false,
   affectsGlobe = true,
-  className = 'mt-3 space-y-2 border-t border-white/10 pt-2',
+  className = 'mt-3 space-y-2 border-t border-atlas-panel-border pt-2',
 }: {
   event: HistoricalEvent;
   onNavigate: (event: HistoricalEvent) => void;

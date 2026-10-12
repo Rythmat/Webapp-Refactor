@@ -8,6 +8,11 @@ import {
   useState,
 } from 'react';
 import { StopThumb } from '@/components/atlas/components/UI/StopThumb';
+import {
+  ATLAS_FOCUS,
+  ATLAS_POPOVER,
+  AtlasEyebrow,
+} from '@/components/atlas/components/UI/primitives';
 import type { AtlasStop } from '@/components/atlas/navigation/atlasStop';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import {
@@ -18,6 +23,7 @@ import {
   searchGlobe,
   type GlobeResult,
 } from '@/components/atlas/search/globeSearch';
+import { atlasVar } from '@/components/atlas/theme/tokens';
 
 /** How many rows each group shows in the dropdown before "See all". */
 const PER_GROUP = 4;
@@ -139,7 +145,7 @@ export function AtlasSearchBar() {
       <div className="relative">
         <Search
           aria-hidden
-          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/50"
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-atlas-text-2"
         />
         <input
           ref={inputRef}
@@ -151,7 +157,7 @@ export function AtlasSearchBar() {
           aria-expanded={showDropdown}
           aria-label="Search the globe"
           autoComplete="off"
-          className="w-full rounded-lg border border-white/15 bg-black/30 py-2 pl-9 pr-16 text-sm text-white backdrop-blur-md transition-colors placeholder:text-white/45 focus:border-[#60a5fa]/60 focus:outline-none focus:ring-1 focus:ring-[#60a5fa]"
+          className="w-full rounded-full border border-white/15 bg-white/[0.04] py-2 pl-9 pr-16 text-sm text-atlas-text transition-colors placeholder:text-atlas-text-2 focus:border-atlas-focus/60 focus:outline-none focus:ring-1 focus:ring-atlas-focus"
           placeholder="Search artists, places, songs, history…"
           role="combobox"
           spellCheck={false}
@@ -168,17 +174,17 @@ export function AtlasSearchBar() {
           {query ? (
             <button
               aria-label="Clear search"
-              className="rounded p-1 text-white/50 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+              className={`rounded-full p-1 text-atlas-text-2 transition-colors hover:text-atlas-text ${ATLAS_FOCUS}`}
               type="button"
               onClick={() => {
                 setQuery('');
                 inputRef.current?.focus();
               }}
             >
-              <X className="size-3.5" />
+              <X aria-hidden className="size-3.5" />
             </button>
           ) : (
-            <kbd className="rounded border border-white/15 px-1.5 py-0.5 font-sans text-[10px] text-white/45">
+            <kbd className="rounded-full border border-white/15 px-2 py-0.5 font-sans text-xs text-atlas-text-2">
               {isMac ? '⌘K' : 'Ctrl K'}
             </kbd>
           )}
@@ -187,25 +193,29 @@ export function AtlasSearchBar() {
 
       {showDropdown && (
         <div
-          className="absolute inset-x-0 top-full z-[1100] mt-1.5 max-h-[min(70vh,560px)] overflow-y-auto rounded-xl border border-white/10 bg-[#0d0b08]/95 py-1.5 shadow-2xl backdrop-blur-md"
+          className={`absolute inset-x-0 top-full z-[1100] mt-1.5 max-h-[min(70vh,560px)] overflow-y-auto py-1.5 ${ATLAS_POPOVER}`}
           id={listboxId}
           role="listbox"
         >
           {groups.length === 0 ? (
-            <p className="px-4 py-3 text-sm text-white/50">
+            <p className="px-4 py-3 text-sm text-atlas-text-2">
               Nothing on the globe matches “{deferred.trim()}”.
             </p>
           ) : (
             groups.map((group) => (
               <div key={group.kind} className="py-1" role="presentation">
-                <p className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                <AtlasEyebrow
+                  as="p"
+                  className="px-3 pb-1 pt-1.5"
+                  dot={atlasVar(group.kind)}
+                >
                   {group.label}
                   {group.total > group.results.length && (
-                    <span className="ml-1 font-normal normal-case tracking-normal">
+                    <span className="font-normal normal-case tracking-normal">
                       · {group.total}
                     </span>
                   )}
-                </p>
+                </AtlasEyebrow>
                 {group.results.map((result) => {
                   rowIndex += 1;
                   const index = rowIndex;
@@ -215,7 +225,9 @@ export function AtlasSearchBar() {
                       key={result.id}
                       aria-selected={index === active}
                       className={`flex w-full items-center gap-3 px-3 py-1.5 text-left transition-colors ${
-                        index === active ? 'bg-white/10' : 'hover:bg-white/5'
+                        index === active
+                          ? 'bg-white/[0.08]'
+                          : 'hover:bg-white/[0.04]'
                       }`}
                       id={`${listboxId}-${index}`}
                       role="option"
@@ -228,10 +240,10 @@ export function AtlasSearchBar() {
                         <StopThumb presentation={presentation} />
                       </span>
                       <span className="min-w-0">
-                        <span className="block truncate text-sm text-white">
+                        <span className="block truncate text-sm text-atlas-text">
                           {result.title}
                         </span>
-                        <span className="block truncate text-xs text-white/50">
+                        <span className="block truncate text-xs text-atlas-text-2">
                           {result.subtitle}
                         </span>
                       </span>
@@ -244,7 +256,7 @@ export function AtlasSearchBar() {
 
           {total > 0 && (
             <button
-              className="mt-1 flex w-full items-center justify-between border-t border-white/10 px-3 py-2 text-left text-sm text-[#60a5fa] transition-colors hover:bg-white/5"
+              className="mt-1 flex w-full items-center justify-between border-t border-atlas-panel-border px-3 py-2 text-left text-sm text-atlas-accent transition-colors hover:bg-white/[0.04]"
               type="button"
               onClick={commit}
             >

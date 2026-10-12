@@ -24,10 +24,12 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import { ATLAS_SCENE, atlasVar } from '@/components/atlas/theme/tokens';
 import type { SelectedLocation } from '@/components/atlas/types';
 import { resolveFocusCities } from '@/components/atlas/utils/resolveFocusCities';
 import { GlobeController } from './GlobeController';
 import {
+  ATMOSPHERE,
   createOceanMaterial,
   makePolygonMaterialAccessors,
 } from './globeVisuals';
@@ -76,17 +78,27 @@ function escapeHtml(text: string): string {
  * once per selection (which is the digest we actually want).
  */
 
+const ARC_DOWNSTREAM: [string, string] = [...ATLAS_SCENE.arcDownstream];
+
 const arcColorAccessor = (d: object): [string, string] => {
   const arc = d as ArcDatum;
-  if (arc.direction === 'downstream') return ['#ffffffe6', '#ffffff66'];
+  if (arc.direction === 'downstream') return ARC_DOWNSTREAM;
   const c = getContrastColor(arc.color);
   return [`${c}e6`, `${c}66`];
 };
 
+/*
+ * Hover labels. globe.gl puts them in its tooltip box, which index.css turns
+ * into a small panel; these set only the text, in the page's tokens.
+ */
+const LABEL_TEXT = `color:${atlasVar('text')};font-size:12px`;
+const LABEL_STRONG = `${LABEL_TEXT};font-weight:700`;
+const LABEL_QUIET = `color:${atlasVar('text-2')};font-size:12px`;
+
 const arcLabelAccessor = (d: object): string => {
   const arc = d as ArcDatum;
   const arrow = arc.direction === 'upstream' ? '→' : '←';
-  return `<span style="color:#fff;font-size:12px">${escapeHtml(arc.label)} ${arrow}</span>`;
+  return `<span style="${LABEL_TEXT}">${escapeHtml(arc.label)} ${arrow}</span>`;
 };
 
 const polygonLabelAccessor = (polygon: object): string => {
@@ -94,20 +106,20 @@ const polygonLabelAccessor = (polygon: object): string => {
   const isState = feat.properties?._layer === 'state';
   const name = feat.properties?.NAME ?? feat.properties?.name ?? '';
   if (isState) {
-    return `<span style="color: #d4d4d8; font-size: 12px;">${name}</span>`;
+    return `<span style="${LABEL_QUIET}">${name}</span>`;
   }
-  return `<span style="color: #fff; font-size: 13px; font-weight: 600;">${name}</span>`;
+  return `<span style="${LABEL_STRONG};font-size:13px">${name}</span>`;
 };
 
 const hexLabelAccessor = (d: object): string => {
   const hex = d as HexBin;
   const names = hex.points.map((p) => p.name).join(', ');
-  return `<span style="color:#fff;font-size:12px;font-weight:600">${names}</span>`;
+  return `<span style="${LABEL_STRONG}">${names}</span>`;
 };
 
 const pointLabelAccessor = (d: object): string => {
   const p = d as PinnedPoint;
-  return `<span style="color:#fff;font-size:12px;font-weight:600">${escapeHtml(p.name)}</span>`;
+  return `<span style="${LABEL_STRONG}">${escapeHtml(p.name)}</span>`;
 };
 
 const pointColorAccessor = (d: object): string => (d as PinnedPoint).color;
@@ -343,7 +355,7 @@ export function BaseGlobe() {
         lng: city.coordinates[1],
         id: city.id,
         name: city.name,
-        color: iso ? getCountryColor(iso) : '#ffffff',
+        color: iso ? getCountryColor(iso) : ATLAS_SCENE.fallback,
       };
     });
   }, [focusCities]);
@@ -360,7 +372,7 @@ export function BaseGlobe() {
       lat: e.location.lat,
       lng: e.location.lng,
       name: `${e.title} · ${e.year}`,
-      color: '#ffffff',
+      color: ATLAS_SCENE.highlight,
       size: 0.45,
       eventId: e.id,
     }));
@@ -528,9 +540,9 @@ export function BaseGlobe() {
   const polygonStrokeColor = useCallback(
     (polygon: object) => {
       const feat = polygon as Feature;
-      if (isSelected(feat)) return 'rgba(255, 210, 140, 0.95)';
-      if (feat.properties?._layer === 'state') return 'rgba(130, 110, 80, 0.6)';
-      return 'rgba(90, 78, 58, 0.85)';
+      if (isSelected(feat)) return ATLAS_SCENE.strokeSelected;
+      if (feat.properties?._layer === 'state') return ATLAS_SCENE.strokeState;
+      return ATLAS_SCENE.strokeCountry;
     },
     [isSelected],
   );
@@ -566,8 +578,8 @@ export function BaseGlobe() {
   const hexSideColor = useCallback(
     (d: object) => {
       const hex = d as HexBin;
-      if (isHexHighlighted(hex.points)) return 'rgba(255, 255, 255, 0.8)';
-      const base = hex.points[0]?.color ?? '#ffffff';
+      if (isHexHighlighted(hex.points)) return ATLAS_SCENE.highlightSide;
+      const base = hex.points[0]?.color ?? ATLAS_SCENE.fallback;
       return `${getContrastColor(base)}cc`;
     },
     [isHexHighlighted],
@@ -576,8 +588,8 @@ export function BaseGlobe() {
   const hexTopColor = useCallback(
     (d: object) => {
       const hex = d as HexBin;
-      if (isHexHighlighted(hex.points)) return '#ffffff';
-      const base = hex.points[0]?.color ?? '#ffffff';
+      if (isHexHighlighted(hex.points)) return ATLAS_SCENE.highlight;
+      const base = hex.points[0]?.color ?? ATLAS_SCENE.fallback;
       return getContrastColor(base);
     },
     [isHexHighlighted],
@@ -619,61 +631,24 @@ export function BaseGlobe() {
   return (
     <div
       ref={containerRef}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: '#000005',
-        overflow: 'hidden',
-      }}
+      className="absolute inset-0 overflow-hidden bg-atlas-canvas"
     >
       {hasError && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <p style={{ color: '#f26255', fontSize: '14px' }}>
+        <div className="absolute inset-0 flex items-center justify-center p-8">
+          <p className="text-sm text-atlas-danger">
             Failed to load globe: {error || globeError}
           </p>
         </div>
       )}
 
       {!ready && !hasError && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
-            }}
-          >
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
             <div
-              style={{
-                width: '40px',
-                height: '40px',
-                border: '3px solid #60a5fa',
-                borderTopColor: 'transparent',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-              }}
+              aria-hidden
+              className="size-10 animate-spin rounded-full border-[3px] border-atlas-accent border-t-transparent"
             />
-            <p style={{ color: '#ffffff', fontSize: '16px', fontWeight: 500 }}>
+            <p className="text-base font-medium text-atlas-text">
               Loading globe...
             </p>
           </div>
@@ -702,7 +677,7 @@ export function BaseGlobe() {
           arcsTransitionDuration={0}
           arcStroke={0.5}
           atmosphereAltitude={0.18}
-          atmosphereColor="#ffffff"
+          atmosphereColor={ATMOSPHERE.color}
           polygonLabel={polygonLabelAccessor}
           // City hexagons
           backgroundColor="rgba(0,0,0,0)"

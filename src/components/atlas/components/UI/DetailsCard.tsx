@@ -18,6 +18,14 @@ import {
 import { EventInfluence } from '@/components/atlas/components/UI/EventInfluence';
 import { EventVideo } from '@/components/atlas/components/UI/EventVideo';
 import { GenreBadge } from '@/components/atlas/components/UI/GenreBadge';
+import {
+  ATLAS_FOCUS,
+  ATLAS_ITEM_TITLE,
+  AtlasEyebrow,
+  AtlasIconButton,
+  AtlasPanel,
+  AtlasPanelBody,
+} from '@/components/atlas/components/UI/primitives';
 import type { AtlasArtist } from '@/components/atlas/data/artists';
 import { getCityById } from '@/components/atlas/data/lookups';
 import { songIdForEvent } from '@/components/atlas/data/songEventAliases';
@@ -50,18 +58,17 @@ const LeadSheetButton = ({ event }: { event: HistoricalEvent }) => {
   const songId = songIdForEvent(event.id);
   if (!songId) return null;
   return (
-    <button
+    <AtlasIconButton
       aria-label="Open the lead sheet"
-      title="Open the lead sheet"
-      className="rounded text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+      size="xs"
       onClick={(e) => {
         // The card's own click handler expands the row; this leaves the globe.
         e.stopPropagation();
         navigate(SongRoutes.song({ songId }));
       }}
     >
-      <FileMusic className="size-3.5" />
-    </button>
+      <FileMusic aria-hidden className="size-3.5" />
+    </AtlasIconButton>
   );
 };
 
@@ -123,21 +130,18 @@ function EventList({
 
   if (events.length === 0) {
     return (
-      <div className="border-t border-white/10 px-4 py-3">
-        <p className="text-xs text-white/40">No events found</p>
+      <div className="border-t border-atlas-panel-border px-4 py-3">
+        <p className="text-sm text-atlas-text-2">No events found</p>
       </div>
     );
   }
 
   return (
-    <div
-      ref={scrollRef}
-      className="relative overflow-y-auto border-t border-white/10 px-4 pb-3"
-    >
+    <AtlasPanelBody ref={scrollRef} className="px-4 pb-3">
       {!enlarged && (
-        <p className="mb-2 mt-3 text-sm text-white/40">
+        <AtlasEyebrow as="p" className="mb-2 mt-3">
           {events.length} event{events.length !== 1 && 's'}
-        </p>
+        </AtlasEyebrow>
       )}
       <div
         ref={listRef}
@@ -172,12 +176,12 @@ function EventList({
                     }
                   : undefined
               }
-              className={`group w-full rounded-xl text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${focused ? 'p-4' : 'p-2.5'} ${
+              className={`group w-full rounded-2xl border text-left transition-colors ${ATLAS_FOCUS} ${focused ? 'p-4' : 'p-2.5'} ${
                 enlarged ? 'cursor-default' : 'cursor-pointer'
               } ${
                 isExpanded
-                  ? 'border border-[#60a5fa66] bg-[#60a5fa1a]'
-                  : 'border border-white/10 bg-white/5 hover:bg-white/10'
+                  ? 'border-atlas-accent/40 bg-atlas-accent/10'
+                  : 'border-atlas-panel-border bg-white/[0.03] hover:bg-white/[0.06]'
               }`}
               role="button"
               tabIndex={0}
@@ -197,19 +201,18 @@ function EventList({
             >
               <div className="flex items-start justify-between gap-2">
                 <h4
-                  className={`font-semibold leading-snug text-white ${focused ? 'text-lg' : 'text-sm'}`}
+                  className={`${ATLAS_ITEM_TITLE} ${focused ? 'text-lg' : ''}`}
                 >
                   <TitleWithArtists
                     event={event}
                     onSelectArtist={onSelectArtist}
                   />
                 </h4>
-                <div className="flex shrink-0 items-center gap-1.5">
+                <div className="-mr-1 -mt-0.5 flex shrink-0 items-center gap-0.5">
                   <LeadSheetButton event={event} />
-                  <button
+                  <AtlasIconButton
                     aria-label={focused ? 'Shrink' : 'Enlarge'}
-                    title={focused ? 'Shrink' : 'Enlarge'}
-                    className="rounded text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+                    size="xs"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (focused) onShrink();
@@ -217,25 +220,26 @@ function EventList({
                     }}
                   >
                     {focused ? (
-                      <Minimize2 className="size-4" />
+                      <Minimize2 aria-hidden className="size-4" />
                     ) : (
-                      <Maximize2 className="size-3.5" />
+                      <Maximize2 aria-hidden className="size-3.5" />
                     )}
-                  </button>
+                  </AtlasIconButton>
                   {!enlarged && (
                     <ChevronDown
                       aria-hidden
-                      className={`size-3.5 text-white/60 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      className={`mx-1 size-3.5 text-atlas-text-2 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                     />
                   )}
                 </div>
               </div>
-              <div className="mt-1 flex items-center gap-3 text-xs text-white/60">
+              <div className="mt-1 flex items-center gap-3 text-xs text-atlas-text-2">
                 <span className="flex items-center gap-1">
-                  <Calendar className="size-3" /> {event.year}
+                  <Calendar aria-hidden className="size-3" /> {event.year}
                 </span>
                 <span className="flex items-center gap-1">
-                  <MapPin className="size-3" /> {event.location.city}
+                  <MapPin aria-hidden className="size-3" />{' '}
+                  {event.location.city}
                 </span>
               </div>
               {isExpanded && (
@@ -247,14 +251,14 @@ function EventList({
                   </div>
                   <ArtistChips event={event} onSelectArtist={onSelectArtist} />
                   <p
-                    className={`mt-2 leading-relaxed text-white/70 ${focused ? 'text-base' : 'text-sm'}`}
+                    className={`mt-2 leading-relaxed text-atlas-text/80 ${focused ? 'text-base' : 'text-sm'}`}
                   >
                     {event.description}
                   </p>
                   <EventVideo
                     event={event}
                     onPlay={onVideoPlay}
-                    className={`rounded-lg border border-white/10 ${focused ? 'mx-auto mt-4 max-w-2xl' : 'mt-3'}`}
+                    className={`rounded-2xl border border-atlas-panel-border ${focused ? 'mx-auto mt-4 max-w-2xl' : 'mt-3'}`}
                   />
                   <EventInfluence
                     event={event}
@@ -263,7 +267,7 @@ function EventList({
                     affectsGlobe={!isPinnedStep}
                     className={
                       focused
-                        ? 'mt-4 grid gap-x-8 gap-y-3 border-t border-white/10 pt-4 sm:grid-cols-2 [&>div]:min-w-0'
+                        ? 'mt-4 grid gap-x-8 gap-y-3 border-t border-atlas-panel-border pt-4 sm:grid-cols-2 [&>div]:min-w-0'
                         : undefined
                     }
                   />
@@ -273,7 +277,7 @@ function EventList({
           );
         })}
       </div>
-    </div>
+    </AtlasPanelBody>
   );
 }
 
@@ -420,10 +424,79 @@ export function DetailsCard() {
     setEnlarged(true);
   };
 
+  const city =
+    selectedLocation.type === 'city'
+      ? getCityById(selectedLocation.id)
+      : undefined;
+  const heading =
+    selectedLocation.type === 'country'
+      ? {
+          title: selectedLocation.name,
+          subtitle: `ISO: ${selectedLocation.iso}`,
+        }
+      : selectedLocation.type === 'state'
+        ? {
+            title: selectedLocation.name,
+            subtitle: selectedLocation.country ?? 'United States',
+          }
+        : city
+          ? { title: city.name, subtitle: city.country }
+          : { title: 'City not found', subtitle: undefined };
+
   return (
-    <div
+    <AtlasPanel
       ref={cardRef}
-      className="absolute left-4 top-4 z-[1000] flex flex-col rounded-2xl border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md"
+      actions={
+        <>
+          {!enlarged && (
+            <AtlasIconButton
+              aria-label={collapsed ? 'Expand details' : 'Collapse details'}
+              size="sm"
+              title={collapsed ? 'Expand' : 'Collapse'}
+              onClick={() => setCollapsed((c) => !c)}
+            >
+              <ChevronRight
+                aria-hidden
+                className={`size-4 transition-transform ${collapsed ? 'rotate-0' : 'rotate-90'}`}
+              />
+            </AtlasIconButton>
+          )}
+          <AtlasIconButton aria-label="Close details" size="sm" onClick={close}>
+            <X aria-hidden className="size-4" />
+          </AtlasIconButton>
+        </>
+      }
+      as="div"
+      className="absolute left-4 top-4 z-[1000]"
+      edge={
+        // Drag-resize handle on the right edge (not while enlarged).
+        !enlarged && (
+          <div
+            className="absolute right-0 top-0 flex h-full w-2 cursor-ew-resize items-center justify-center rounded-r-2xl opacity-0 transition-opacity hover:opacity-100 active:opacity-100"
+            onMouseDown={onDragStart}
+          >
+            <GripVertical aria-hidden className="size-3 text-atlas-text-2" />
+          </div>
+        )
+      }
+      header={
+        city &&
+        !enlarged && (
+          <>
+            <p className="mt-3 text-sm leading-relaxed text-atlas-text/80">
+              {city.description}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {city.genres.map((genre) => (
+                <GenreBadge key={genre} genre={genre} />
+              ))}
+            </div>
+            <p className="mt-3 text-sm text-atlas-text-2">
+              Active: {city.activeDecades.map((d) => `${d}s`).join(', ')}
+            </p>
+          </>
+        )
+      }
       style={{
         width: enlarged ? 'min(66vw, 900px)' : width,
         maxHeight: collapsed
@@ -432,95 +505,9 @@ export function DetailsCard() {
             ? 'calc(100% - 4rem)'
             : 'calc(100% - 11rem)',
       }}
+      subtitle={heading.subtitle}
+      title={heading.title}
     >
-      {/* Drag-resize handle on right edge (disabled while enlarged) */}
-      {!enlarged && (
-        <div
-          className="absolute right-0 top-0 flex h-full w-2 cursor-ew-resize items-center justify-center rounded-r-xl opacity-0 transition-opacity hover:opacity-100 active:opacity-100"
-          onMouseDown={onDragStart}
-        >
-          <GripVertical className="size-3 text-white/40" />
-        </div>
-      )}
-
-      <div className="shrink-0 p-4">
-        {/* Collapse + Close buttons */}
-        <div className="absolute right-3 top-3 flex items-center gap-1">
-          {!enlarged && (
-            <button
-              aria-label={collapsed ? 'Expand details' : 'Collapse details'}
-              className="text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
-              title={collapsed ? 'Expand' : 'Collapse'}
-              onClick={() => setCollapsed((c) => !c)}
-            >
-              <ChevronRight
-                className={`size-4 transition-transform ${collapsed ? 'rotate-0' : 'rotate-90'}`}
-              />
-            </button>
-          )}
-          <button
-            aria-label="Close details"
-            className="text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
-            onClick={close}
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-
-        {/* Country */}
-        {selectedLocation.type === 'country' && (
-          <>
-            <h3 className="text-xl font-medium text-white">
-              {selectedLocation.name}
-            </h3>
-            <p className="mt-0.5 text-sm text-white/40">
-              ISO: {selectedLocation.iso}
-            </p>
-          </>
-        )}
-
-        {/* State / Province */}
-        {selectedLocation.type === 'state' && (
-          <>
-            <h3 className="text-xl font-medium text-white">
-              {selectedLocation.name}
-            </h3>
-            <p className="mt-0.5 text-sm text-white/40">
-              {selectedLocation.country ?? 'United States'}
-            </p>
-          </>
-        )}
-
-        {/* City header */}
-        {selectedLocation.type === 'city' &&
-          (() => {
-            const city = getCityById(selectedLocation.id);
-            if (!city) return <p className="text-white/60">City not found</p>;
-            return (
-              <>
-                <h3 className="text-xl font-medium text-white">{city.name}</h3>
-                <p className="text-sm text-white/40">{city.country}</p>
-                {!enlarged && (
-                  <>
-                    <p className="mt-3 text-sm leading-relaxed text-white/70">
-                      {city.description}
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {city.genres.map((genre) => (
-                        <GenreBadge key={genre} genre={genre} />
-                      ))}
-                    </div>
-                    <div className="mt-3 text-sm text-white/40">
-                      Active:{' '}
-                      {city.activeDecades.map((d) => `${d}s`).join(', ')}
-                    </div>
-                  </>
-                )}
-              </>
-            );
-          })()}
-      </div>
-
       {!collapsed && (
         <EventList
           events={events}
@@ -536,6 +523,6 @@ export function DetailsCard() {
           onVideoPlay={() => dispatch({ type: 'OPEN_INFLUENCE_ARCS' })}
         />
       )}
-    </div>
+    </AtlasPanel>
   );
 }

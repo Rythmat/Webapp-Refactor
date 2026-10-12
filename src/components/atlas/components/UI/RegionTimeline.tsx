@@ -7,6 +7,12 @@ import {
   useState,
   useCallback,
 } from 'react';
+import {
+  ATLAS_FOCUS,
+  ATLAS_POPOVER,
+  ATLAS_SURFACE,
+  AtlasIconButton,
+} from '@/components/atlas/components/UI/primitives';
 import { MUSICAL_ERAS } from '@/components/atlas/data';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { getCityById, getCityByName } from '@/components/atlas/data/lookups';
@@ -33,6 +39,13 @@ const MAX_ZOOM = 16;
  * as wide as a three-digit cluster marker, so markers never overlap.
  */
 const CLUSTER_PX = 30;
+
+/** The pinned event's dot: the accent, ringed, with a soft glow. */
+const PINNED_DOT =
+  'border-atlas-accent-strong bg-atlas-accent shadow-[0_0_8px_rgb(var(--atlas-accent)/0.6)]';
+/** Any other dot: white, turning to the accent on hover. */
+const DOT =
+  'border-white/30 bg-white/80 hover:border-atlas-accent-strong hover:bg-atlas-accent';
 
 function filterByEra(
   events: HistoricalEvent[],
@@ -289,21 +302,19 @@ export function RegionTimeline() {
 
   return (
     <div className="absolute bottom-6 left-1/2 z-[1000] w-[min(90vw,800px)] -translate-x-1/2">
-      <div className="rounded-2xl border border-white/10 bg-black/20 px-6 py-4 shadow-2xl backdrop-blur-md">
+      <div className={`px-6 py-4 ${ATLAS_SURFACE}`}>
         {/* Region header */}
         <div className="mb-2 text-center">
-          <h3 className="text-sm font-medium tracking-wide text-white">
-            {country}
-          </h3>
+          <h3 className="text-sm font-bold text-atlas-text">{country}</h3>
           {subtitle && (
-            <p className="mt-0.5 text-xs text-white/60">{subtitle}</p>
+            <p className="mt-0.5 text-xs text-atlas-text-2">{subtitle}</p>
           )}
         </div>
 
         {/* Selected era label */}
         {activeEra && (
           <p
-            className={`mb-2 text-center text-[11px] font-medium ${activeEra.activeText}`}
+            className={`mb-2 text-center text-xs font-bold ${activeEra.activeText}`}
           >
             {activeEra.label}
           </p>
@@ -313,18 +324,13 @@ export function RegionTimeline() {
         {hasEvents ? (
           <div className="flex items-center gap-2">
             {/* Zoom out */}
-            <button
+            <AtlasIconButton
               aria-label="Zoom out timeline"
-              className={`flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
-                canZoomOut
-                  ? 'text-white/60 hover:bg-white/10 hover:text-white'
-                  : 'cursor-default text-white/20'
-              }`}
               disabled={!canZoomOut}
               onClick={handleZoomOut}
             >
-              <ZoomOut className="size-3.5" />
-            </button>
+              <ZoomOut aria-hidden className="size-3.5" />
+            </AtlasIconButton>
 
             {/* Timeline track */}
             <div
@@ -337,7 +343,7 @@ export function RegionTimeline() {
                 {ticks.map((year) => (
                   <span
                     key={year}
-                    className="absolute -translate-x-1/2 text-[10px] text-white/40"
+                    className="absolute -translate-x-1/2 text-xs leading-none text-atlas-text-2"
                     style={{ left: `${pct(year)}%` }}
                   >
                     {year}
@@ -346,7 +352,7 @@ export function RegionTimeline() {
               </div>
 
               {/* Track line */}
-              <div className="absolute inset-x-0 top-[22px] h-[2px] rounded-full bg-white/10" />
+              <div className="absolute inset-x-0 top-[22px] h-[2px] rounded-full bg-white/[0.12]" />
 
               {/* Event dots, and clusters where they would overlap */}
               {clusters.map(({ items, x }) => {
@@ -368,10 +374,8 @@ export function RegionTimeline() {
                         separable ? undefined : openCluster?.key === event.id
                       }
                       aria-label={`${items.length} events, ${span}${separable ? ' — zoom in' : ''}`}
-                      className={`absolute top-[13px] flex h-5 min-w-5 -translate-x-1/2 items-center justify-center rounded-full border px-1 text-xs font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
-                        holdsPinned
-                          ? 'border-[#93c5fd] bg-[#60a5fa] text-black shadow-[0_0_8px_rgba(96,165,250,0.6)]'
-                          : 'border-white/30 bg-white/85 text-black hover:border-[#93c5fd] hover:bg-[#60a5fa]'
+                      className={`absolute top-[13px] flex h-5 min-w-5 -translate-x-1/2 items-center justify-center rounded-full border px-1 text-xs font-bold leading-none text-atlas-page transition-colors ${ATLAS_FOCUS} ${
+                        holdsPinned ? PINNED_DOT : DOT
                       }`}
                       data-cluster-key={event.id}
                       data-cluster-size={items.length}
@@ -393,10 +397,8 @@ export function RegionTimeline() {
                   <button
                     key={event.id}
                     aria-label={`${event.title} (${event.year})`}
-                    className={`absolute top-[16px] -translate-x-1/2 rounded-full border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
-                      isPinned
-                        ? 'size-3.5 border-[#93c5fd] bg-[#60a5fa] shadow-[0_0_8px_rgba(96,165,250,0.6)]'
-                        : 'size-2.5 border-white/30 bg-white/80 hover:border-[#93c5fd] hover:bg-[#60a5fa] hover:shadow-[0_0_6px_rgba(96,165,250,0.4)]'
+                    className={`absolute top-[16px] -translate-x-1/2 rounded-full border-2 transition-all ${ATLAS_FOCUS} ${
+                      isPinned ? `size-3.5 ${PINNED_DOT}` : `size-2.5 ${DOT}`
                     }`}
                     style={{ left: `${x}%` }}
                     onClick={() => handleSelect(event)}
@@ -409,7 +411,7 @@ export function RegionTimeline() {
                 <ul
                   ref={popoverRef}
                   aria-label={`${openCluster.events.length} events`}
-                  className="absolute bottom-full z-10 mb-2 max-h-56 w-64 -translate-x-1/2 overflow-y-auto rounded-xl border border-white/10 bg-[#151518]/95 p-1 shadow-2xl"
+                  className={`absolute bottom-full z-10 mb-2 max-h-56 w-64 -translate-x-1/2 overflow-y-auto p-1 ${ATLAS_POPOVER}`}
                   style={{
                     left: `${Math.min(80, Math.max(20, openCluster.x))}%`,
                   }}
@@ -428,10 +430,10 @@ export function RegionTimeline() {
                   {openCluster.events.map((e) => (
                     <li key={e.id}>
                       <button
-                        className={`flex w-full items-baseline gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
+                        className={`flex w-full items-baseline gap-2 rounded-2xl px-2 py-1.5 text-left text-sm transition-colors hover:bg-white/[0.06] ${ATLAS_FOCUS} ${
                           e.id === pinnedEvent?.id
-                            ? 'text-[#93c5fd]'
-                            : 'text-white'
+                            ? 'font-bold text-atlas-accent-strong'
+                            : 'text-atlas-text'
                         }`}
                         type="button"
                         onClick={() => {
@@ -439,7 +441,7 @@ export function RegionTimeline() {
                           handleSelect(e);
                         }}
                       >
-                        <span className="shrink-0 text-xs text-white/60">
+                        <span className="shrink-0 text-xs text-atlas-text-2">
                           {e.year}
                         </span>
                         <span className="truncate">{e.title}</span>
@@ -451,21 +453,16 @@ export function RegionTimeline() {
             </div>
 
             {/* Zoom in */}
-            <button
+            <AtlasIconButton
               aria-label="Zoom in timeline"
-              className={`flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
-                canZoomIn
-                  ? 'text-white/60 hover:bg-white/10 hover:text-white'
-                  : 'cursor-default text-white/20'
-              }`}
               disabled={!canZoomIn}
               onClick={handleZoomIn}
             >
-              <ZoomIn className="size-3.5" />
-            </button>
+              <ZoomIn aria-hidden className="size-3.5" />
+            </AtlasIconButton>
           </div>
         ) : (
-          <p className="py-2 text-center text-xs text-white/50">
+          <p className="py-2 text-center text-xs text-atlas-text-2">
             No events{selectedLocation ? ` in ${country}` : ''} for this era
           </p>
         )}

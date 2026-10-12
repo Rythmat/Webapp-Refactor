@@ -2,6 +2,11 @@ import { Check, ChevronLeft, ChevronRight, Link2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AtlasSearchBar } from '@/components/atlas/components/UI/AtlasSearchBar';
 import { StopThumb } from '@/components/atlas/components/UI/StopThumb';
+import {
+  ATLAS_FOCUS,
+  AtlasIconButton,
+  AtlasPillButton,
+} from '@/components/atlas/components/UI/primitives';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import {
   useAtlasTrail,
@@ -27,9 +32,6 @@ export function trailWindow(
   return { start, end: Math.min(length, start + size) };
 }
 
-const ICON_BUTTON =
-  'flex size-8 shrink-0 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:pointer-events-none disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]';
-
 /** One step of the trail: a tiny thumbnail and a short label. */
 function TrailStep({
   entry,
@@ -45,18 +47,22 @@ function TrailStep({
     <button
       aria-current={state === 'current' ? 'step' : undefined}
       aria-label={`${presentation.title} — ${presentation.subtitle}`}
-      className={`group flex w-16 shrink-0 flex-col gap-1 rounded-md p-0.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
+      className={`group flex w-20 shrink-0 flex-col gap-1 rounded-xl border p-1 text-left transition ${ATLAS_FOCUS} ${
         state === 'current'
-          ? 'bg-[#60a5fa]/20 ring-1 ring-[#60a5fa]'
-          : 'hover:bg-white/10'
-      } ${state === 'future' ? 'opacity-45 hover:opacity-100' : ''}`}
+          ? 'border-atlas-accent bg-atlas-accent/20'
+          : state === 'future'
+            ? // Steps ahead, after Back: dimmed, and dashed so the state
+              // does not rest on the dimming alone.
+              'border-dashed border-white/20 opacity-60 hover:bg-white/[0.08] hover:opacity-100'
+            : 'border-transparent hover:bg-white/[0.08]'
+      }`}
       data-trail-idx={entry.idx}
       title={`${presentation.title}\n${presentation.subtitle}`}
       type="button"
       onClick={() => onJump(entry)}
     >
       <StopThumb presentation={presentation} />
-      <span className="truncate px-0.5 text-[10px] leading-tight text-white/70 group-hover:text-white">
+      <span className="truncate px-0.5 text-xs leading-tight text-atlas-text-2 group-hover:text-atlas-text">
         {presentation.title}
       </span>
     </button>
@@ -132,28 +138,24 @@ export function AtlasToolbar() {
   };
 
   return (
-    <div className="relative z-[1200] flex shrink-0 items-center gap-2 border-b border-white/10 bg-black/40 px-3 py-2 backdrop-blur-md">
-      <div className="flex items-center gap-0.5">
-        <button
+    // Above the globe, not over it, so it takes the opaque panel colour and
+    // needs no blur.
+    <div className="relative z-[1200] flex shrink-0 items-center gap-2 border-b border-atlas-panel-border bg-atlas-panel px-3 py-2 text-atlas-text">
+      <div className="flex items-center gap-1">
+        <AtlasIconButton
           aria-label="Back"
-          className={ICON_BUTTON}
           disabled={!trail.canBack}
-          title="Back"
-          type="button"
           onClick={trail.back}
         >
-          <ChevronLeft className="size-4" />
-        </button>
-        <button
+          <ChevronLeft aria-hidden className="size-4" />
+        </AtlasIconButton>
+        <AtlasIconButton
           aria-label="Forward"
-          className={ICON_BUTTON}
           disabled={!trail.canForward}
-          title="Forward"
-          type="button"
           onClick={trail.forward}
         >
-          <ChevronRight className="size-4" />
-        </button>
+          <ChevronRight aria-hidden className="size-4" />
+        </AtlasIconButton>
       </div>
 
       <AtlasSearchBar />
@@ -164,14 +166,13 @@ export function AtlasToolbar() {
         className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:thin]"
       >
         {trail.entries.length > 1 && earlier > 0 && (
-          <button
-            className="shrink-0 rounded-md px-1.5 py-1 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+          <AtlasPillButton
+            size="sm"
             title="Show the earlier steps of your path"
-            type="button"
             onClick={() => setShowAll('earlier')}
           >
             +{earlier} earlier
-          </button>
+          </AtlasPillButton>
         )}
         {trail.entries.length > 1 &&
           visible.map((entry, v) => {
@@ -181,7 +182,7 @@ export function AtlasToolbar() {
                 {v > 0 && (
                   <ChevronRight
                     aria-hidden
-                    className="size-3 shrink-0 text-white/25"
+                    className="size-3 shrink-0 text-atlas-text-3"
                   />
                 )}
                 <TrailStep
@@ -199,32 +200,29 @@ export function AtlasToolbar() {
             );
           })}
         {trail.entries.length > 1 && later > 0 && (
-          <button
-            className="shrink-0 rounded-md px-1.5 py-1 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+          <AtlasPillButton
+            size="sm"
             title="Show the later steps of your path"
-            type="button"
             onClick={() => setShowAll('later')}
           >
             +{later} later
-          </button>
+          </AtlasPillButton>
         )}
       </nav>
 
       {trail.entries.length > 1 && (
-        <button
-          className="shrink-0 rounded-lg px-2 py-1 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+        <AtlasPillButton
+          size="sm"
           title="Start a fresh trail from here"
-          type="button"
           onClick={trail.clear}
         >
           Clear
-        </button>
+        </AtlasPillButton>
       )}
 
-      <button
-        className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+      <AtlasPillButton
+        size="sm"
         title="Copy a link to exactly this view — for a lesson, a presentation, or a bookmark"
-        type="button"
         onClick={copyLink}
       >
         {copied ? (
@@ -235,7 +233,7 @@ export function AtlasToolbar() {
         <span className="hidden sm:inline">
           {copied ? 'Link copied' : 'Copy link'}
         </span>
-      </button>
+      </AtlasPillButton>
     </div>
   );
 }

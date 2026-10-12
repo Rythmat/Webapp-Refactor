@@ -5,6 +5,10 @@ import {
   SidePanel,
 } from '@/components/atlas/components/UI/SidePanel';
 import {
+  AtlasEyebrow,
+  AtlasPillButton,
+} from '@/components/atlas/components/UI/primitives';
+import {
   useVirtualRows,
   VIRTUALIZE_OVER,
 } from '@/components/atlas/hooks/useVirtualRows';
@@ -14,6 +18,7 @@ import {
   searchGlobe,
   type GlobeResultGroup,
 } from '@/components/atlas/search/globeSearch';
+import { atlasVar } from '@/components/atlas/theme/tokens';
 
 /** Rows per group before "Show all". Keeps a broad query like "jazz" usable. */
 const INITIAL_PER_GROUP = 8;
@@ -39,7 +44,7 @@ export function SearchResultsPanel({ query }: { query: string }) {
       onClose={navigate.home}
     >
       {groups.length === 0 ? (
-        <p className="p-2 text-sm text-white/60">
+        <p className="p-2 text-sm text-atlas-text-2">
           Nothing on the globe matches that yet. Try an artist, a city, a genre,
           or a song title.
         </p>
@@ -99,9 +104,13 @@ function ResultGroup({
 
   return (
     <section className="mb-2">
-      <h4 className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-white/40">
+      <AtlasEyebrow
+        as="h4"
+        className="px-2 pb-1 pt-2"
+        dot={atlasVar(group.kind)}
+      >
         {group.label} · {group.total}
-      </h4>
+      </AtlasEyebrow>
       <ul
         ref={listRef}
         className={list.virtual ? 'relative' : 'space-y-0.5'}
@@ -139,15 +148,11 @@ function ResultGroup({
         })}
       </ul>
       {group.results.length > INITIAL_PER_GROUP && (
-        <button
-          className="mt-1 px-2 text-xs text-[#60a5fa] hover:underline"
-          type="button"
-          onClick={onToggle}
-        >
+        <AtlasPillButton className="ml-2 mt-1" size="sm" onClick={onToggle}>
           {open
             ? 'Show fewer'
             : `Show all ${group.total} ${group.label.toLowerCase()}`}
-        </button>
+        </AtlasPillButton>
       )}
     </section>
   );

@@ -1,13 +1,16 @@
 import { Mic2 } from 'lucide-react';
 import { Fragment, useMemo } from 'react';
 import {
+  ATLAS_FOCUS,
+  AtlasChip,
+} from '@/components/atlas/components/UI/primitives';
+import {
   getArtistsForEvent,
   type AtlasArtist,
 } from '@/components/atlas/data/artists';
 import type { HistoricalEvent } from '@/components/atlas/types';
 
-const LINK_CLASS =
-  'rounded-sm underline decoration-white/30 decoration-dotted underline-offset-2 transition-colors hover:bg-white/10 hover:decoration-solid hover:decoration-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60';
+const LINK_CLASS = `rounded-sm underline decoration-white/30 decoration-dotted underline-offset-2 transition-colors hover:bg-white/10 hover:decoration-solid hover:decoration-white ${ATLAS_FOCUS}`;
 
 /**
  * An event title with every artist it names turned into a link to that
@@ -92,22 +95,21 @@ export function ArtistChips({
   return (
     <div className="mt-2 flex flex-wrap items-center gap-1.5">
       {artists.map((artist) => (
-        <button
+        <AtlasChip
           key={artist.slug}
-          className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-xs font-medium text-white/90 transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          className="font-medium"
           title={`Everything on the globe about ${artist.name}`}
-          type="button"
           onClick={(e) => {
             e.stopPropagation();
             onSelectArtist(artist);
           }}
         >
-          <Mic2 aria-hidden className="size-3" />
+          <Mic2 aria-hidden className="size-3 text-atlas-artist" />
           {artist.name}
           {artist.eventIds.length > 1 && (
-            <span className="text-white/50">{artist.eventIds.length}</span>
+            <span className="text-atlas-text-2">{artist.eventIds.length}</span>
           )}
-        </button>
+        </AtlasChip>
       ))}
     </div>
   );

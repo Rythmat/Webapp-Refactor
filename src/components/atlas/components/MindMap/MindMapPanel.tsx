@@ -15,6 +15,13 @@
 import { CheckCircle2, MapPin, Plus, Send, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ATLAS_HEADING,
+  ATLAS_ROW,
+  ATLAS_SURFACE,
+  AtlasEyebrow,
+  AtlasPillButton,
+} from '@/components/atlas/components/UI/primitives';
+import {
   decodePlace,
   type AtlasStop,
 } from '@/components/atlas/navigation/atlasStop';
@@ -40,14 +47,12 @@ import {
 import type { EntityId } from '@/content/graph/types';
 import { readMindMapHandoff } from '@/features/classroom/msp/mindMapHandoff';
 import { useMspModuleCompletion } from '@/features/classroom/msp/useMspModuleCompletion';
+import { cn } from '@/lib/utils';
 
-const PANEL =
-  'absolute inset-x-2 bottom-2 z-[1000] flex max-h-[60%] flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[#151518]/95 text-[#e8e8f0] shadow-2xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-20 sm:max-h-[calc(100%-7rem)] sm:w-[360px]';
-const EYEBROW = 'text-xs font-bold uppercase tracking-[0.14em] text-white/45';
-const PRIMARY =
-  'inline-flex h-9 items-center justify-center gap-2 rounded-full bg-white px-4 text-sm font-bold text-[#101012] transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#151518] disabled:opacity-40';
-const OUTLINE =
-  'inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3 text-sm text-[#e8e8f0] transition-colors hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-40';
+const PANEL = cn(
+  ATLAS_SURFACE,
+  'absolute inset-x-2 bottom-2 z-[1000] flex max-h-[60%] flex-col overflow-hidden sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-20 sm:max-h-[calc(100%-7rem)] sm:w-[360px]',
+);
 
 /** Leads shown at once: enough to choose from, not a list to copy down. */
 const MAX_LEADS = 6;
@@ -165,8 +170,8 @@ export default function MindMapPanel() {
     return (
       <aside className={PANEL} aria-label="Mind map">
         <div className="flex flex-col gap-2 p-4">
-          <span className={EYEBROW}>Mind map</span>
-          <p className="text-sm text-white/55">
+          <AtlasEyebrow>Mind map</AtlasEyebrow>
+          <p className="text-sm text-atlas-text-2">
             Open the mind map from your class&apos;s slide to start building it.
           </p>
         </div>
@@ -199,11 +204,11 @@ export default function MindMapPanel() {
 
   return (
     <aside className={PANEL} aria-label="Mind map">
-      <header className="flex flex-col gap-1 border-b border-white/[0.08] p-4">
-        <span className={EYEBROW}>Mind map</span>
-        <h2 className="text-xl font-bold leading-tight">{focus?.label}</h2>
+      <header className="flex flex-col gap-1 border-b border-atlas-panel-border p-4">
+        <AtlasEyebrow>Mind map</AtlasEyebrow>
+        <h2 className={ATLAS_HEADING}>{focus?.label}</h2>
         {handoff?.question.en && (
-          <p className="text-sm text-white/55">{handoff.question.en}</p>
+          <p className="text-sm text-atlas-text-2">{handoff.question.en}</p>
         )}
         <div className="mt-2 flex items-center gap-2">
           <div
@@ -219,7 +224,7 @@ export default function MindMapPanel() {
               style={{ width: `${(reached / Math.max(1, board.goal)) * 100}%` }}
             />
           </div>
-          <span className="text-xs text-white/55">
+          <span className="text-xs text-atlas-text-2">
             {added.length} of {board.goal}
           </span>
         </div>
@@ -240,8 +245,8 @@ export default function MindMapPanel() {
 
         {!submitted && (
           <section className="flex flex-col gap-2" aria-live="polite">
-            <span className={EYEBROW}>Looking at</span>
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-white/[0.08] p-3">
+            <AtlasEyebrow>Looking at</AtlasEyebrow>
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-atlas-panel-border p-3">
               <span className="inline-flex min-w-0 items-center gap-2 text-sm">
                 {addable && (
                   <span
@@ -250,19 +255,18 @@ export default function MindMapPanel() {
                     aria-hidden
                   />
                 )}
-                <span className={addable ? 'truncate' : 'text-white/55'}>
+                <span className={addable ? 'truncate' : 'text-atlas-text-2'}>
                   {hereStatus.text}
                 </span>
               </span>
               {addable && (
-                <button
-                  type="button"
-                  className={PRIMARY}
+                <AtlasPillButton
+                  variant="primary"
                   onClick={() => update([...added, addable.id])}
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus aria-hidden className="h-4 w-4" />
                   Add
-                </button>
+                </AtlasPillButton>
               )}
             </div>
           </section>
@@ -270,14 +274,14 @@ export default function MindMapPanel() {
 
         {!submitted && leads.length > 0 && (
           <section className="flex flex-col gap-2">
-            <span className={EYEBROW}>Leads to explore</span>
+            <AtlasEyebrow>Leads to explore</AtlasEyebrow>
             <ul className="flex flex-col">
               {leads.map((lead) => (
                 <li key={lead.id}>
                   <button
                     type="button"
                     onClick={() => fly(lead)}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                    className={`flex w-full items-center gap-2 px-2 py-2 text-left ${ATLAS_ROW}`}
                   >
                     <span
                       className="size-2 shrink-0 rounded-full"
@@ -286,11 +290,14 @@ export default function MindMapPanel() {
                     />
                     <span className="flex min-w-0 flex-col">
                       <span className="truncate text-sm">{lead.label}</span>
-                      <span className="truncate text-xs text-white/45">
+                      <span className="truncate text-xs text-atlas-text-2">
                         {leadReason(board, onMap, lead)}
                       </span>
                     </span>
-                    <MapPin className="ml-auto h-4 w-4 shrink-0 text-white/45" />
+                    <MapPin
+                      aria-hidden
+                      className="ml-auto h-4 w-4 shrink-0 text-atlas-text-3"
+                    />
                   </button>
                 </li>
               ))}
@@ -300,15 +307,14 @@ export default function MindMapPanel() {
 
         {added.length > 0 && !submitted && (
           <section className="flex flex-col gap-2">
-            <span className={EYEBROW}>On your map</span>
+            <AtlasEyebrow>On your map</AtlasEyebrow>
             <ul className="flex flex-wrap gap-1.5">
               {added.map((id) => {
                 const node = board.nodes.find((n) => n.id === id);
                 if (!node) return null;
                 return (
                   <li key={id}>
-                    <button
-                      type="button"
+                    <AtlasPillButton
                       onClick={() =>
                         // Removing a node also removes what only it joined.
                         update(
@@ -318,12 +324,14 @@ export default function MindMapPanel() {
                           ),
                         )
                       }
-                      className={OUTLINE}
                       aria-label={`Remove ${node.label}`}
                     >
                       {node.label}
-                      <X className="h-3.5 w-3.5 text-white/45" />
-                    </button>
+                      <X
+                        aria-hidden
+                        className="h-3.5 w-3.5 text-atlas-text-2"
+                      />
+                    </AtlasPillButton>
                   </li>
                 );
               })}
@@ -332,16 +340,16 @@ export default function MindMapPanel() {
         )}
       </div>
 
-      <footer className="border-t border-white/[0.08] p-4">
+      <footer className="border-t border-atlas-panel-border p-4">
         {submitted ? (
           <p className="inline-flex items-center gap-2 text-sm">
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle2 aria-hidden className="h-4 w-4" />
             Sent to your teacher.
           </p>
         ) : (
-          <button
-            type="button"
-            className={`${PRIMARY} w-full`}
+          <AtlasPillButton
+            className="w-full"
+            variant="primary"
             disabled={added.length === 0 || !launchParams}
             onClick={() => {
               reportResult({
@@ -351,9 +359,9 @@ export default function MindMapPanel() {
               setSubmitted(true);
             }}
           >
-            <Send className="h-4 w-4" />
+            <Send aria-hidden className="h-4 w-4" />
             {added.length >= board.goal ? 'Submit map' : 'Submit map so far'}
-          </button>
+          </AtlasPillButton>
         )}
       </footer>
     </aside>

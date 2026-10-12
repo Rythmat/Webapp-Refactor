@@ -1,6 +1,7 @@
 import type { Feature } from 'geojson';
 import { MeshPhongMaterial, MeshLambertMaterial, DoubleSide } from 'three';
 import { getCountryColor } from '@/components/atlas/data/continentColors';
+import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 
 // Shared visual building blocks for the globe (ocean material, country-polygon
 // materials, atmosphere) so BaseGlobe and the decorative HeroGlobe render the
@@ -10,7 +11,10 @@ import { getCountryColor } from '@/components/atlas/data/continentColors';
 export const ICE_COUNTRIES = new Set(['ATA', 'GRL']);
 
 // Atmosphere halo settings used by both globes.
-export const ATMOSPHERE = { color: '#ffffff', altitude: 0.18 } as const;
+export const ATMOSPHERE = {
+  color: ATLAS_SCENE.atmosphere,
+  altitude: 0.18,
+} as const;
 
 // Natural Earth uses -99 for some countries (France, Norway, disputed territories).
 // Prefer ISO_A3_EH, then ADM0_A3, then ISO_A3.

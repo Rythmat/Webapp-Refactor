@@ -10,6 +10,10 @@ import { ModuleProgressBar } from '@/components/atlas/components/UI/ModuleProgre
 import { RegionTimeline } from '@/components/atlas/components/UI/RegionTimeline';
 import { SearchResultsPanel } from '@/components/atlas/components/UI/SearchResultsPanel';
 import {
+  ATLAS_HEADING,
+  ATLAS_SURFACE,
+} from '@/components/atlas/components/UI/primitives';
+import {
   AtlasNavigationProvider,
   useAtlasParams,
   useAtlasStop,
@@ -19,6 +23,7 @@ import {
   AtlasStoreProvider,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import { cn } from '@/lib/utils';
 
 // A Cortex lesson's Promoter mind map (`?mindmap=1`), loaded only when asked.
 const MindMapPanel = lazy(
@@ -36,15 +41,16 @@ class ErrorBoundary extends Component<
   render() {
     if (this.state.error) {
       return (
-        <div className="flex h-screen w-screen items-center justify-center bg-[#0d0b08] p-8 text-white">
-          <div className="max-w-lg rounded-2xl border border-[#f26255]/30 bg-[#f26255]/10 p-6 backdrop-blur-md">
-            <h1 className="mb-3 text-2xl font-medium text-white">
-              Something went wrong
-            </h1>
-            <pre className="whitespace-pre-wrap text-sm text-white/80">
+        // atlas-root for the tokens: this replaces the page that carries them.
+        <div className="atlas-root flex h-screen w-screen items-center justify-center bg-atlas-page p-8 text-atlas-text">
+          <div
+            className={cn(ATLAS_SURFACE, 'max-w-lg border-atlas-danger/40 p-6')}
+          >
+            <h1 className={`mb-3 ${ATLAS_HEADING}`}>Something went wrong</h1>
+            <pre className="whitespace-pre-wrap text-sm text-atlas-danger">
               {this.state.error.message}
             </pre>
-            <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-xs text-white/50">
+            <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-xs text-atlas-text-2">
               {this.state.error.stack}
             </pre>
           </div>
@@ -106,7 +112,7 @@ function AppLayout() {
 
   return (
     <div
-      className="atlas-root flex h-full w-full flex-col overflow-hidden bg-[#0d0b08] text-white"
+      className="atlas-root flex h-full w-full flex-col overflow-hidden bg-atlas-page text-atlas-text"
       data-tab="globe"
     >
       <AtlasToolbar />

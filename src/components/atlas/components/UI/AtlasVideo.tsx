@@ -158,7 +158,7 @@ export function AtlasVideo({
       {!activated && (
         <button
           aria-label={`Play ${title}`}
-          className="group/play absolute inset-0 size-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#60a5fa]"
+          className="group/play absolute inset-0 size-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-atlas-focus"
           type="button"
           onClick={(e) => {
             // Inside an event card, whose own click toggles the card.

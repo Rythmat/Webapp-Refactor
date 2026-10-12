@@ -42,7 +42,7 @@ export function StopThumb({
     return (
       <img
         alt=""
-        className={`aspect-video w-full rounded object-cover ${className}`}
+        className={`aspect-video w-full rounded-lg object-cover ${className}`}
         decoding="async"
         height={90}
         loading="lazy"
@@ -56,7 +56,7 @@ export function StopThumb({
   return (
     <div
       aria-hidden
-      className={`flex aspect-video w-full items-center justify-center rounded bg-white/10 ${className}`}
+      className={`flex aspect-video w-full items-center justify-center rounded-lg bg-white/10 ${className}`}
       style={
         presentation.color
           ? { backgroundColor: `${presentation.color}40` }
@@ -66,7 +66,7 @@ export function StopThumb({
       {presentation.emoji ? (
         <span className="text-base leading-none">{presentation.emoji}</span>
       ) : (
-        <Glyph className="size-4 text-white/70" />
+        <Glyph className="size-4 text-atlas-text" />
       )}
     </div>
   );

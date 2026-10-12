@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useSyncExternalStore } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Maximize2, Zap } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
@@ -19,12 +19,7 @@ import {
 } from './visualizers';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { FxMeter } from './FxMeter';
-import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
-import {
-  getEngineReadyVersion,
-  getTrackAudioState,
-  subscribeEngineReady,
-} from '@/daw/hooks/usePlaybackEngine';
+import { meterSource } from '@/daw/engine/meterBus';
 import { getReverbManifest, getReverbIrMeta } from '@/daw/audio/reverbIR';
 import {
   BAND_COLORS,
@@ -186,21 +181,6 @@ export function EffectsPanel() {
   const removeActiveEffect = useStore((s) => s.removeActiveEffect);
   const track = tracks.find((t) => t.id === selectedTrackId);
 
-  // Moves when engines are made or retired, so a load that replaces the
-  // track's engine under the same id hands the panel the new chain.
-  const engineVersion = useSyncExternalStore(
-    subscribeEngineReady,
-    getEngineReadyVersion,
-  );
-  const effectChain = useMemo(() => {
-    if (!selectedTrackId) return null;
-    return (
-      getTrackAudioState(selectedTrackId)?.trackEngine.getEffectChain() ?? null
-    );
-  }, [selectedTrackId, engineVersion]);
-
-  const { gr, inLevel, outLevel } = useCompressorMeters(effectChain);
-
   const [selectedEffect, setSelectedEffect] = useState<EffectSlotType | null>(
     null,
   );
@@ -260,10 +240,7 @@ export function EffectsPanel() {
                 }}
                 popOutOpen={popOutOpen}
                 onTogglePopOut={() => setPopOutOpen((v) => !v)}
-                gr={gr}
-                inLevel={inLevel}
-                outLevel={outLevel}
-                analyserNode={effectChain?.getPreCompAnalyser() ?? null}
+                meterTarget={track.id}
               />
             ) : (
               <div
@@ -463,10 +440,7 @@ export function FxControlsPanel({
   onRemove,
   popOutOpen,
   onTogglePopOut,
-  gr,
-  inLevel,
-  outLevel,
-  analyserNode,
+  meterTarget = null,
 }: {
   trackId: string;
   selectedEffect: EffectSlotType;
@@ -475,10 +449,9 @@ export function FxControlsPanel({
   onRemove: (slot: EffectSlotType) => void;
   popOutOpen: boolean;
   onTogglePopOut: () => void;
-  gr: number;
-  inLevel: number;
-  outLevel: number;
-  analyserNode?: AnalyserNode | null;
+  /** Whose effect chain the meters read on the meter bus (a track id or
+   *  'master'); null when the rack has no live chain to meter. */
+  meterTarget?: string | null;
 }) {
   const color = FX_COLOR[selectedEffect] ?? '#7ecfcf';
   const category = FX_CATEGORY[selectedEffect] ?? '';
@@ -586,10 +559,7 @@ export function FxControlsPanel({
                 effects={effects}
                 trackId={trackId}
                 onUpdate={onUpdate}
-                gr={gr}
-                inLevel={inLevel}
-                outLevel={outLevel}
-                analyserNode={analyserNode}
+                meterTarget={meterTarget}
                 large
               />
             </div>
@@ -1317,30 +1287,11 @@ export function FxKnobs({
 
 // ── Ducker (sidechain) controls: key-source dropdown + knobs + live GR meter ──
 
-function useDuckReduction(trackId: string): number {
-  const [gr, setGr] = useState(0);
-  useEffect(() => {
-    // Not a real track (mastering/return racks) → no live reduction to read.
-    if (trackId === 'master' || trackId.startsWith('return-')) return;
-    let raf = 0;
-    let last = 0;
-    const tick = () => {
-      raf = requestAnimationFrame(tick);
-      const now = performance.now();
-      if (now - last < 50) return; // ~20fps
-      last = now;
-      const engine = getTrackAudioState(trackId)?.trackEngine;
-      // reduction is ≤ 0 dB; map |dB| over 0–24 to 0–100 for the meter.
-      const db = engine ? Math.abs(engine.getDuckReduction()) : 0;
-      setGr((prev) => {
-        const inst = Math.min(100, (db / 24) * 100);
-        return inst > prev ? inst : prev * 0.9; // peak-hold decay
-      });
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [trackId]);
-  return gr;
+/** The ducker's live gain reduction on the meter bus (real tracks only:
+ *  the mastering and return racks have no ducker to read). */
+function duckSource(trackId: string) {
+  if (trackId === 'master' || trackId.startsWith('return-')) return null;
+  return meterSource(`duck:${trackId}`);
 }
 
 function DuckerControls({
@@ -1369,7 +1320,6 @@ function DuckerControls({
   for (let i = 0; i < keyMeta.length; i += 2) {
     keyTracks.push({ id: keyMeta[i], name: keyMeta[i + 1] });
   }
-  const gr = useDuckReduction(trackId);
   const set = (patch: Partial<DuckerParams>) =>
     onUpdate(trackId, { ducker: { ...ducker, ...patch } });
 
@@ -1453,7 +1403,12 @@ function DuckerControls({
         formatValue={(v) => `${Math.round(v * 1000)}ms`}
         onChange={(v) => set({ release: v })}
       />
-      <FxMeter level={gr} label="GR" color="var(--color-accent)" height={72} />
+      <FxMeter
+        source={duckSource(trackId)}
+        label="GR"
+        color="var(--color-accent)"
+        height={72}
+      />
     </div>
   );
 }
@@ -1465,22 +1420,21 @@ export function FxVisualizer({
   effects,
   trackId,
   onUpdate,
-  gr,
-  inLevel,
-  outLevel,
+  meterTarget = null,
   large,
-  analyserNode,
 }: {
   slot: EffectSlotType;
   effects: TrackEffectState;
   trackId: string;
   onUpdate: (trackId: string, effects: Partial<TrackEffectState>) => void;
-  gr: number;
-  inLevel: number;
-  outLevel: number;
+  /** Whose effect chain the meters read (a track id or 'master'), or null. */
+  meterTarget?: string | null;
   large?: boolean;
-  analyserNode?: AnalyserNode | null;
 }) {
+  // Stable meter bus sources: the meters paint themselves from them.
+  const grSource = meterTarget ? meterSource(`gr:${meterTarget}`) : null;
+  const inSource = meterTarget ? meterSource(`fx-pre:${meterTarget}`) : null;
+  const outSource = meterTarget ? meterSource(`fx-post:${meterTarget}`) : null;
   switch (slot) {
     case 'compressor': {
       const c = effects.compressor;
@@ -1495,19 +1449,19 @@ export function FxVisualizer({
           />
           <div className="flex gap-1">
             <FxMeter
-              level={gr}
+              source={grSource}
               label="GR"
               color="var(--color-accent)"
               height={large ? 200 : 100}
             />
             <FxMeter
-              level={inLevel}
+              source={inSource}
               label="IN"
               color="#e8785a"
               height={large ? 200 : 100}
             />
             <FxMeter
-              level={outLevel}
+              source={outSource}
               label="OUT"
               color="#e8785a"
               height={large ? 200 : 100}
@@ -1534,19 +1488,19 @@ export function FxVisualizer({
               onChange={(bands) =>
                 onUpdate(trackId, { eq: { ...effects.eq, bands } })
               }
-              analyserNode={analyserNode}
+              spectrumKey={meterTarget ? `fx-pre:${meterTarget}` : null}
             />
           </div>
           <div className="flex shrink-0 flex-col items-center gap-2">
             <div className="flex gap-1">
               <FxMeter
-                level={inLevel}
+                source={inSource}
                 label="IN"
                 color="#e8785a"
                 height={large ? 240 : 100}
               />
               <FxMeter
-                level={outLevel}
+                source={outSource}
                 label="OUT"
                 color="#e8785a"
                 height={large ? 240 : 100}

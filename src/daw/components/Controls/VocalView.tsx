@@ -14,6 +14,7 @@ import { ChevronDown, X, Mic, Maximize2, Lock, Unlock } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { RATE_LABELS } from '@/daw/audio/pedals/PhaserPedal';
 import { useStore } from '@/daw/store';
+import { paintInputBar, useMeterPaint } from '@/daw/hooks/useMeterLevel';
 import type { AudioInputChannel } from '@/daw/store/tracksSlice';
 import { TunerDisplay } from './TunerDisplay';
 import { RotaryKnob } from './RotaryKnob';
@@ -495,7 +496,6 @@ export function VocalView({ trackId }: { trackId: string }) {
   // how a student retries an input that failed to open or went away, and it
   // can leave the store unchanged, so the input effect also runs on a pick.
   const [devicePicks, setDevicePicks] = useState(0);
-  const meterRafRef = useRef(0);
   const meterBarRef = useRef<HTMLDivElement>(null);
 
   // Signal chain state
@@ -656,26 +656,13 @@ export function VocalView({ trackId }: { trackId: string }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Input level metering loop
-  useEffect(() => {
-    let lastUpdate = 0;
-    const tick = (now: number) => {
-      if (now - lastUpdate >= 66) {
-        const adapter = getAdapter(trackId);
-        if (adapter && meterBarRef.current) {
-          const rms = adapter.getInputLevel();
-          const pct = Math.min(100, Math.round(rms * 400));
-          meterBarRef.current.style.width = `${pct}%`;
-          meterBarRef.current.style.backgroundColor =
-            pct > 90 ? '#ef4444' : 'var(--color-accent)';
-        }
-        lastUpdate = now;
-      }
-      meterRafRef.current = requestAnimationFrame(tick);
-    };
-    meterRafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(meterRafRef.current);
-  }, [trackId]);
+  // Input level: painted from the meter bus, which reads this input only
+  // while it is monitored or recording, or while it still shows a level
+  // (an idle probe catches a signal). The bar is the true peak in dBFS and
+  // turns red when a sample reaches full scale.
+  useMeterPaint(`input:${trackId}`, (levels) =>
+    paintInputBar(meterBarRef.current, levels),
+  );
 
   // ── Chain manipulation callbacks ──────────────────────────────────────
 

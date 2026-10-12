@@ -1,5 +1,6 @@
 import * as Tone from 'tone';
 import { EffectChain, type TrackEffectState } from './EffectChain';
+import { createMeterTap } from './meterTap';
 
 export class AudioEngine {
   private ctx: AudioContext | null = null;
@@ -52,13 +53,9 @@ export class AudioEngine {
     const splitter = this.ctx.createChannelSplitter(2);
     this.masteringChain.getOutputNode().connect(splitter);
 
-    this.analyserL = this.ctx.createAnalyser();
-    this.analyserL.fftSize = 256;
-    this.analyserL.smoothingTimeConstant = 0;
-
-    this.analyserR = this.ctx.createAnalyser();
-    this.analyserR.fftSize = 256;
-    this.analyserR.smoothingTimeConstant = 0;
+    // Meter taps (meterTap.ts): only the meters read them.
+    this.analyserL = createMeterTap(this.ctx);
+    this.analyserR = createMeterTap(this.ctx);
 
     splitter.connect(this.analyserL, 0);
     splitter.connect(this.analyserR, 1);

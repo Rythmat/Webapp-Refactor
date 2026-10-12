@@ -2,6 +2,7 @@
 /* eslint-disable tailwindcss/enforces-shorthand */
 import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import type { EqBand, EqBandType } from '@/daw/audio/EffectChain';
+import { useSpectrumCanvas } from '@/daw/hooks/useSpectrumCanvas';
 
 // ── Constants ─────────────────────────────────────────────────────────────
 
@@ -231,14 +232,18 @@ function fmtDb(db: number): string {
 interface GraphicEQProps {
   bands: EqBand[];
   onChange: (bands: EqBand[]) => void;
-  analyserNode?: AnalyserNode | null;
+  /** The meter bus source whose spectrum shows behind the curve. */
+  spectrumKey?: string | null;
 }
 
-export function GraphicEQ({ bands, onChange, analyserNode }: GraphicEQProps) {
+export function GraphicEQ({
+  bands,
+  onChange,
+  spectrumKey = null,
+}: GraphicEQProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number>(0);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
@@ -372,113 +377,83 @@ export function GraphicEQ({ bands, onChange, analyserNode }: GraphicEQProps) {
   }, [hoverIdx]);
 
   // ── Real-time spectrum canvas ─────────────────────────────────────
+  // Drawn from its own analyser tapped off the meter bus source, once per
+  // bus frame (so only while there is sound), with the bin positions and
+  // the gradient worked out once per size.
 
-  useEffect(() => {
-    if (!analyserNode) return;
+  const spectrumCache = useRef<{
+    xs: Float32Array;
+    first: number;
+    last: number;
+    grad: CanvasGradient | null;
+    sampleRate: number;
+  } | null>(null);
 
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
+  useSpectrumCanvas(spectrumKey, canvasRef, containerRef, (frame) => {
+    const { ctx, width: w, height: h, data, sampleRate } = frame;
+    ctx.clearRect(0, 0, w, h);
 
-    analyserNode.fftSize = 2048;
-    analyserNode.smoothingTimeConstant = 0.85;
-    const bufferLength = analyserNode.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    const sampleRate = analyserNode.context.sampleRate;
+    // Map SVG coordinate system to canvas pixels
+    const scaleX = w / SVG_W;
+    const scaleY = h / SVG_H;
+    const offsetX = PAD.left * scaleX;
+    const offsetY = PAD.top * scaleY;
+    const graphW = GW * scaleX;
+    const graphH = GH * scaleY;
+    const bottomY = offsetY + graphH;
 
-    function resize() {
-      const rect = container!.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas!.width = rect.width * dpr;
-      canvas!.height = rect.height * dpr;
-      canvas!.style.width = `${rect.width}px`;
-      canvas!.style.height = `${rect.height}px`;
-    }
-
-    resize();
-    const observer = new ResizeObserver(resize);
-    observer.observe(container);
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    function draw() {
-      rafRef.current = requestAnimationFrame(draw);
-      analyserNode!.getByteFrequencyData(dataArray);
-
-      const dpr = window.devicePixelRatio || 1;
-      const w = canvas!.width / dpr;
-      const h = canvas!.height / dpr;
-
-      ctx!.save();
-      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx!.clearRect(0, 0, w, h);
-
-      // Map SVG coordinate system to canvas pixels
-      const scaleX = w / SVG_W;
-      const scaleY = h / SVG_H;
-      const offsetX = PAD.left * scaleX;
-      const offsetY = PAD.top * scaleY;
-      const graphW = GW * scaleX;
-      const graphH = GH * scaleY;
-
-      // Build spectrum path in canvas coordinates
-      const pts: [number, number][] = [];
-      for (let i = 0; i < bufferLength; i++) {
-        const freq = (i / bufferLength) * (sampleRate / 2);
+    let cache = spectrumCache.current;
+    if (
+      !cache ||
+      frame.resized ||
+      cache.xs.length !== data.length ||
+      cache.sampleRate !== sampleRate
+    ) {
+      const xs = new Float32Array(data.length);
+      let first = -1;
+      let last = -1;
+      for (let i = 0; i < data.length; i++) {
+        const freq = (i / data.length) * (sampleRate / 2);
         if (freq < FREQ_MIN || freq > FREQ_MAX) continue;
-        const xNorm = freqToX(freq, GW) / GW; // 0..1 in graph space
-        const x = offsetX + xNorm * graphW;
-        const v = dataArray[i] / 255;
-        const y = offsetY + graphH - v * graphH;
-        pts.push([x, y]);
+        if (first < 0) first = i;
+        last = i;
+        xs[i] = offsetX + (freqToX(freq, GW) / GW) * graphW;
       }
-
-      if (pts.length === 0) {
-        ctx!.restore();
-        return;
-      }
-
-      const bottomY = offsetY + graphH;
-
-      // Gradient fill
-      const grad = ctx!.createLinearGradient(0, bottomY, 0, offsetY);
+      const grad = ctx.createLinearGradient(0, bottomY, 0, offsetY);
       grad.addColorStop(0, 'rgba(126, 207, 207, 0.02)');
       grad.addColorStop(0.5, 'rgba(126, 207, 207, 0.08)');
       grad.addColorStop(1, 'rgba(126, 207, 207, 0.18)');
-
-      ctx!.beginPath();
-      ctx!.moveTo(pts[0][0], bottomY);
-      for (const [x, y] of pts) ctx!.lineTo(x, y);
-      ctx!.lineTo(pts[pts.length - 1][0], bottomY);
-      ctx!.closePath();
-      ctx!.fillStyle = grad;
-      ctx!.fill();
-
-      // Spectrum stroke
-      ctx!.beginPath();
-      ctx!.moveTo(pts[0][0], pts[0][1]);
-      for (let i = 1; i < pts.length; i++) ctx!.lineTo(pts[i][0], pts[i][1]);
-      ctx!.strokeStyle = 'rgba(126, 207, 207, 0.4)';
-      ctx!.lineWidth = 1;
-      ctx!.stroke();
-
-      ctx!.restore();
+      cache = { xs, first, last, grad, sampleRate };
+      spectrumCache.current = cache;
     }
+    const { xs, first, last } = cache;
+    if (first < 0) return;
+    const yAt = (i: number) => offsetY + graphH - (data[i] / 255) * graphH;
 
-    draw();
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      observer.disconnect();
-    };
-  }, [analyserNode, SVG_W, SVG_H, PAD.left, PAD.top, GW, GH]);
+    // Gradient fill
+    ctx.beginPath();
+    ctx.moveTo(xs[first], bottomY);
+    for (let i = first; i <= last; i++) ctx.lineTo(xs[i], yAt(i));
+    ctx.lineTo(xs[last], bottomY);
+    ctx.closePath();
+    ctx.fillStyle = cache.grad!;
+    ctx.fill();
+
+    // Spectrum stroke
+    ctx.beginPath();
+    ctx.moveTo(xs[first], yAt(first));
+    for (let i = first + 1; i <= last; i++) ctx.lineTo(xs[i], yAt(i));
+    ctx.strokeStyle = 'rgba(126, 207, 207, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
 
   // ── Render ─────────────────────────────────────────────────────────
 
   return (
     <div className="flex flex-col gap-1 h-full">
       <div ref={containerRef} className="relative w-full flex-1">
-        {analyserNode && (
+        {spectrumKey && (
           <canvas
             ref={canvasRef}
             className="absolute inset-0 block"

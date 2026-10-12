@@ -24,7 +24,8 @@ const CELL_EM: Record<string, number> = {
 };
 const DIGIT_EM = 0.62;
 
-const cellWidth = (ch: string): number | undefined =>
+/** A character's cell width in em, or undefined for a natural-width one. */
+export const cellWidth = (ch: string): number | undefined =>
   ch >= '0' && ch <= '9' ? DIGIT_EM : CELL_EM[ch];
 
 type FixedDigitsProps = Omit<ComponentPropsWithoutRef<'span'>, 'children'> & {

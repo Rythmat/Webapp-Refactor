@@ -1,23 +1,14 @@
-import React, {
-  useEffect,
-  useRef,
-  useCallback,
-  useState,
-  useSyncExternalStore,
-} from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { Sliders } from 'lucide-react';
 import { useStore, useTrackIds, useTrack, useTrackCount } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
 import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
-import { audioEngine } from '@/daw/audio/AudioEngine';
-import {
-  getTrackAudioState,
-  subscribeEngineReady,
-} from '@/daw/hooks/usePlaybackEngine';
-import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
+import { meterSource, type BusLevels } from '@/daw/engine/meterBus';
+import { paintFixedDigits, useMeterPaint } from '@/daw/hooks/useMeterLevel';
+import { useSpectrumCanvas } from '@/daw/hooks/useSpectrumCanvas';
+import type { MeterSource } from '@/daw/ui/Meter';
 import { FixedDigits } from '@/components/common/FixedDigits';
-import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
 import {
   FxChainRow,
   FxControlsPanel,
@@ -47,134 +38,119 @@ const FREQ_LABELS = [
 const DB_GRID = [-48, -36, -24, -12];
 
 // ── Spectrum Analyzer (Phase 2 — full width, taller, dual gradient) ─────
+// The master's left channel, from its own analyser tapped off the meter bus
+// (the bus's analysers stay tuned for metering). It draws once per bus
+// frame, so only while there is sound, follows its container's size, and
+// works out the bin positions and gradients once per size.
+
+interface SpectrumLayout {
+  xs: Float32Array;
+  first: number;
+  darkGrad: CanvasGradient;
+  brightGrad: CanvasGradient;
+  sampleRate: number;
+}
 
 function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const layoutRef = useRef<SpectrumLayout | null>(null);
 
-  useEffect(() => {
-    if (!isReady) return;
-
-    const [analyserL] = audioEngine.getMasterAnalysers();
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!analyserL || !canvas || !container) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const rect = container.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    canvas.style.width = `${rect.width}px`;
-    canvas.style.height = `${rect.height}px`;
-
-    analyserL.fftSize = 2048;
-    analyserL.smoothingTimeConstant = 0.85;
-    const bufferLength = analyserL.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.scale(dpr, dpr);
-
-    const sampleRate = analyserL.context.sampleRate;
-    const w = rect.width;
-    const h = rect.height;
+  useSpectrumCanvas(isReady ? 'master' : null, canvasRef, containerRef, (f) => {
+    const { ctx, width: w, height: h, data, sampleRate } = f;
     const padBottom = 18;
     const graphH = h - padBottom;
+    const minLog = Math.log10(20);
+    const maxLog = Math.log10(sampleRate / 2);
+    const freqToX = (freq: number) =>
+      ((Math.log10(freq) - minLog) / (maxLog - minLog)) * w;
 
-    function freqToX(freq: number): number {
-      const minLog = Math.log10(20);
-      const maxLog = Math.log10(sampleRate / 2);
-      return ((Math.log10(freq) - minLog) / (maxLog - minLog)) * w;
-    }
-
-    function buildPath(): [number, number][] {
-      const pts: [number, number][] = [];
-      for (let i = 0; i < bufferLength; i++) {
-        const freq = (i / bufferLength) * (sampleRate / 2);
+    let layout = layoutRef.current;
+    if (
+      !layout ||
+      f.resized ||
+      layout.xs.length !== data.length ||
+      layout.sampleRate !== sampleRate
+    ) {
+      const xs = new Float32Array(data.length);
+      let first = -1;
+      for (let i = 0; i < data.length; i++) {
+        const freq = (i / data.length) * (sampleRate / 2);
         if (freq < 20) continue;
-        const x = freqToX(freq);
-        const v = dataArray[i] / 255;
-        const y = graphH - v * graphH;
-        pts.push([x, y]);
+        if (first < 0) first = i;
+        xs[i] = freqToX(freq);
       }
-      return pts;
-    }
-
-    function draw() {
-      rafRef.current = requestAnimationFrame(draw);
-      analyserL.getByteFrequencyData(dataArray);
-      ctx!.clearRect(0, 0, w, h);
-
-      // dB grid lines
-      ctx!.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-      ctx!.lineWidth = 1;
-      for (const db of DB_GRID) {
-        const y = graphH * (1 - (db + 60) / 60);
-        ctx!.beginPath();
-        ctx!.moveTo(0, y);
-        ctx!.lineTo(w, y);
-        ctx!.stroke();
-      }
-
-      const pts = buildPath();
-      if (pts.length === 0) return;
-
       // Dark background fill (deeper layer)
-      const darkGrad = ctx!.createLinearGradient(0, graphH, 0, 0);
+      const darkGrad = ctx.createLinearGradient(0, graphH, 0, 0);
       darkGrad.addColorStop(0, 'rgba(40, 60, 100, 0.02)');
       darkGrad.addColorStop(0.5, 'rgba(40, 60, 100, 0.08)');
       darkGrad.addColorStop(1, 'rgba(40, 60, 100, 0.18)');
-      ctx!.beginPath();
-      ctx!.moveTo(pts[0][0], graphH);
-      for (const [x, y] of pts) ctx!.lineTo(x, y);
-      ctx!.lineTo(pts[pts.length - 1][0], graphH);
-      ctx!.closePath();
-      ctx!.fillStyle = darkGrad;
-      ctx!.fill();
-
       // Bright accent fill (top layer)
-      const brightGrad = ctx!.createLinearGradient(0, graphH, 0, 0);
+      const brightGrad = ctx.createLinearGradient(0, graphH, 0, 0);
       brightGrad.addColorStop(0, 'rgba(126, 207, 207, 0.03)');
       brightGrad.addColorStop(0.5, 'rgba(126, 207, 207, 0.12)');
       brightGrad.addColorStop(1, 'rgba(126, 207, 207, 0.25)');
-      ctx!.beginPath();
-      ctx!.moveTo(pts[0][0], graphH);
-      for (const [x, y] of pts) ctx!.lineTo(x, y);
-      ctx!.lineTo(pts[pts.length - 1][0], graphH);
-      ctx!.closePath();
-      ctx!.fillStyle = brightGrad;
-      ctx!.fill();
-
-      // Spectrum stroke
-      ctx!.beginPath();
-      ctx!.moveTo(pts[0][0], pts[0][1]);
-      for (let i = 1; i < pts.length; i++) ctx!.lineTo(pts[i][0], pts[i][1]);
-      ctx!.strokeStyle = 'rgba(126, 207, 207, 0.6)';
-      ctx!.lineWidth = 1.5;
-      ctx!.stroke();
-
-      // Frequency tick marks & labels
-      ctx!.font = "9px 'Glacial Indifference', system-ui, sans-serif";
-      ctx!.fillStyle = 'rgba(255, 255, 255, 0.3)';
-      ctx!.textAlign = 'center';
-      for (const { freq, label } of FREQ_LABELS) {
-        const x = freqToX(freq);
-        if (x > 8 && x < w - 8) {
-          ctx!.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-          ctx!.lineWidth = 1;
-          ctx!.beginPath();
-          ctx!.moveTo(x, 0);
-          ctx!.lineTo(x, graphH);
-          ctx!.stroke();
-          ctx!.fillText(label, x, h - 4);
-        }
-      }
+      layout = { xs, first, darkGrad, brightGrad, sampleRate };
+      layoutRef.current = layout;
     }
 
-    draw();
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [isReady]);
+    ctx.clearRect(0, 0, w, h);
+
+    // dB grid lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.lineWidth = 1;
+    for (const db of DB_GRID) {
+      const y = graphH * (1 - (db + 60) / 60);
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+
+    const { xs, first } = layout;
+    if (first < 0) return;
+    const last = data.length - 1;
+    const yAt = (i: number) => graphH - (data[i] / 255) * graphH;
+    const outline = () => {
+      ctx.beginPath();
+      ctx.moveTo(xs[first], graphH);
+      for (let i = first; i <= last; i++) ctx.lineTo(xs[i], yAt(i));
+      ctx.lineTo(xs[last], graphH);
+      ctx.closePath();
+    };
+
+    outline();
+    ctx.fillStyle = layout.darkGrad;
+    ctx.fill();
+    outline();
+    ctx.fillStyle = layout.brightGrad;
+    ctx.fill();
+
+    // Spectrum stroke
+    ctx.beginPath();
+    ctx.moveTo(xs[first], yAt(first));
+    for (let i = first + 1; i <= last; i++) ctx.lineTo(xs[i], yAt(i));
+    ctx.strokeStyle = 'rgba(126, 207, 207, 0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Frequency tick marks & labels
+    ctx.font = "9px 'Glacial Indifference', system-ui, sans-serif";
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.textAlign = 'center';
+    for (const { freq, label } of FREQ_LABELS) {
+      const x = freqToX(freq);
+      if (x > 8 && x < w - 8) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, graphH);
+        ctx.stroke();
+        ctx.fillText(label, x, h - 4);
+      }
+    }
+  });
 
   return (
     <div
@@ -195,57 +171,72 @@ function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
 // ── Peak Meter ──────────────────────────────────────────────────────────
 // The master's sample peak in dBFS. It used to read "LUFS", but that number
 // was this same peak rescaled: real loudness needs K-weighting and gating.
-// useMeterLevel is an 8-bit peak in whole percent, so the readout is whole
-// dB: 1 dB steps near the top, coarser below -20 dBFS, nothing above 0 dBFS,
-// and -40 dBFS at the bottom (where a stopped bus's float residue reads
-// too). Float peaks come with 1.7's meter bus.
+// The meter bus reads float samples, so the peak is exact; the readout is
+// whole dB, nothing above 0 dBFS, and '-inf' at or below the bus's −60 dBFS
+// floor. The segments and the readout are painted from the bus through
+// refs: the mastering section never re-renders for a level.
 
 const PEAK_SEGMENTS = 20;
 
-function PeakMeter({ isReady }: { isReady: boolean }) {
-  const [analyserL, analyserR] = isReady
-    ? audioEngine.getMasterAnalysers()
-    : [null, null];
-  const levelL = useMeterLevel(analyserL);
-  const levelR = useMeterLevel(analyserR);
-  // A peak meter reads the louder channel.
-  const peak = Math.max(levelL, levelR);
-  const db = levelToDb(peak);
+function peakSegmentColor(i: number): string {
+  const ratio = i / PEAK_SEGMENTS;
+  return ratio > 0.85
+    ? 'var(--color-meter-red)'
+    : ratio > 0.6
+      ? 'var(--color-meter-yellow)'
+      : 'var(--color-meter-green)';
+}
+
+const SEGMENT_OFF = 'rgba(255, 255, 255, 0.04)';
+
+/** The readout for a peak (linear amplitude): whole dBFS, or '-inf'. */
+function peakText(peak: number): string {
+  const db = gainToDbfs(peak);
   // `|| 0`: a whisker under full scale rounds to -0, shown as "0".
-  const peakText = db === -Infinity ? '-inf' : `${Math.round(db) || 0} dBFS`;
-  const litCount = Math.round((peak / 100) * PEAK_SEGMENTS);
+  return db === -Infinity ? '-inf' : `${Math.round(db) || 0} dBFS`;
+}
+
+function PeakMeter() {
+  const segmentsRef = useRef<HTMLDivElement>(null);
+  const readoutRef = useRef<HTMLSpanElement>(null);
+  const litRef = useRef(-1);
+
+  useMeterPaint(meterSource('master'), (levels) => {
+    // A peak meter reads the louder channel.
+    const peak = levels ? Math.max(levels.peak[0], levels.peak[1]) : 0;
+    paintFixedDigits(readoutRef.current, peakText(peak));
+    const lit = Math.round(Math.min(1, peak) * PEAK_SEGMENTS);
+    const segments = segmentsRef.current?.children;
+    if (!segments || lit === litRef.current) return;
+    litRef.current = lit;
+    for (let i = 0; i < segments.length; i++) {
+      (segments[i] as HTMLElement).style.backgroundColor =
+        i < lit ? peakSegmentColor(i) : SEGMENT_OFF;
+    }
+  });
 
   return (
     <div className="flex flex-col items-center gap-1">
       {/* Segmented meter */}
       <div
+        ref={segmentsRef}
         className="flex flex-col-reverse gap-px"
         style={{ width: 12, height: 80 }}
       >
-        {Array.from({ length: PEAK_SEGMENTS }, (_, i) => {
-          const lit = i < litCount;
-          const ratio = i / PEAK_SEGMENTS;
-          const color =
-            ratio > 0.85
-              ? 'var(--color-meter-red)'
-              : ratio > 0.6
-                ? 'var(--color-meter-yellow)'
-                : 'var(--color-meter-green)';
-          return (
-            <div
-              key={i}
-              className="rounded-[1px]"
-              style={{
-                flex: 1,
-                backgroundColor: lit ? color : 'rgba(255, 255, 255, 0.04)',
-                transition: 'background-color 60ms linear',
-              }}
-            />
-          );
-        })}
+        {Array.from({ length: PEAK_SEGMENTS }, (_, i) => (
+          <div
+            key={i}
+            className="rounded-[1px]"
+            style={{
+              flex: 1,
+              backgroundColor: SEGMENT_OFF,
+              transition: 'background-color 60ms linear',
+            }}
+          />
+        ))}
       </div>
-      <FixedDigits
-        text={peakText}
+      <span
+        ref={readoutRef}
         className="whitespace-nowrap text-[12px] font-bold"
         style={{ color: 'var(--color-text)' }}
       />
@@ -274,10 +265,6 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
     null,
   );
   const [popOutOpen, setPopOutOpen] = useState(false);
-
-  // Compressor meters from mastering chain
-  const masteringChain = isReady ? audioEngine.getMasteringChain() : null;
-  const { gr, inLevel, outLevel } = useCompressorMeters(masteringChain);
 
   // Auto-select first effect; deselect if removed
   useEffect(() => {
@@ -384,7 +371,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
               />
             </div>
             <div className="flex shrink-0 items-center p-3">
-              <PeakMeter isReady={isReady} />
+              <PeakMeter />
             </div>
           </div>
 
@@ -398,10 +385,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
               onRemove={(slot) => removeMasteringFx(slot)}
               popOutOpen={popOutOpen}
               onTogglePopOut={() => setPopOutOpen((v) => !v)}
-              gr={gr}
-              inLevel={inLevel}
-              outLevel={outLevel}
-              analyserNode={masteringChain?.getPreCompAnalyser() ?? null}
+              meterTarget={isReady ? 'master' : null}
             />
           ) : (
             <div
@@ -430,44 +414,100 @@ function levelToDb(level: number): number {
   return 20 * Math.log10(level / 100);
 }
 
+/** Linear amplitude (1 = full scale) in dBFS; silence is −Infinity. */
+function gainToDbfs(gain: number): number {
+  return gain > 0 ? 20 * Math.log10(gain) : -Infinity;
+}
+
 function dbColor(db: number): string {
   if (db > -3) return 'var(--color-meter-red)';
   if (db > -12) return 'var(--color-meter-yellow)';
   return 'var(--color-meter-green)';
 }
 
-function DbReadout({ level }: { level: number }) {
-  const db = levelToDb(level);
-  const text = db === -Infinity ? '-inf' : `${db.toFixed(1)} dB`;
+/** A reading's level: one channel, or the mean of all of them. */
+function readingLevel(levels: BusLevels | null, channel: number | 'mean') {
+  if (!levels) return 0;
+  if (channel !== 'mean') return levels.peak[channel] ?? 0;
+  let sum = 0;
+  for (let ch = 0; ch < levels.peak.length; ch++) sum += levels.peak[ch];
+  return sum / levels.peak.length;
+}
+
+/** A strip's live level in dB, painted from the meter bus through a ref. */
+function DbReadout({
+  source,
+  channel = 'mean',
+}: {
+  source: MeterSource;
+  channel?: number | 'mean';
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useMeterPaint(source, (levels) => {
+    const el = ref.current;
+    if (!el) return;
+    const db = gainToDbfs(Math.min(1, readingLevel(levels, channel)));
+    paintFixedDigits(el, db === -Infinity ? '-inf' : `${db.toFixed(1)} dB`);
+    const color = dbColor(db);
+    if (el.style.color !== color) el.style.color = color;
+  });
   return (
-    <FixedDigits
-      text={text}
+    <span
+      ref={ref}
       className="text-[11px] font-bold"
-      style={{ color: dbColor(db) }}
+      style={{ color: dbColor(-Infinity) }}
     />
   );
 }
 
 // ── MeterBar with peak hold ─────────────────────────────────────────────
+// Painted from the meter bus through refs. The hold marker is the bus's
+// held peak: it holds for a second and then falls at a steady rate, in real
+// time, so it comes to rest when the signal stops (it used to move only
+// when the level changed, and froze once the level settled).
 
-function MeterBar({ level }: { level: number }) {
-  const pct = Math.min(100, Math.max(0, level));
-  const peakRef = useRef(0);
-  const peakDecayRef = useRef(0);
-  const [peakPct, setPeakPct] = useState(0);
+function barFill(pct: number): string {
+  return pct > 85
+    ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow) 60%, var(--color-meter-red))'
+    : pct > 50
+      ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow))'
+      : 'var(--color-meter-green)';
+}
 
-  useEffect(() => {
-    if (pct > peakRef.current) {
-      peakRef.current = pct;
-      peakDecayRef.current = 120; // ~2s at 60fps
+function holdColor(pct: number): string {
+  return pct > 85
+    ? 'var(--color-meter-red)'
+    : pct > 50
+      ? 'var(--color-meter-yellow)'
+      : 'var(--color-meter-green)';
+}
+
+function MeterBar({
+  source,
+  channel = 0,
+}: {
+  source: MeterSource;
+  channel?: number;
+}) {
+  const fillRef = useRef<HTMLDivElement>(null);
+  const holdRef = useRef<HTMLDivElement>(null);
+
+  useMeterPaint(source, (levels) => {
+    const fill = fillRef.current;
+    const hold = holdRef.current;
+    if (!fill || !hold) return;
+    const pct = Math.min(100, Math.round((levels?.peak[channel] ?? 0) * 100));
+    const holdPct = Math.min(100, (levels?.hold[channel] ?? 0) * 100);
+    fill.style.height = `${pct}%`;
+    fill.style.background = barFill(pct);
+    if (holdPct > 2) {
+      hold.style.display = 'block';
+      hold.style.bottom = `${holdPct}%`;
+      hold.style.backgroundColor = holdColor(holdPct);
+    } else {
+      hold.style.display = 'none';
     }
-    if (peakDecayRef.current > 0) {
-      peakDecayRef.current--;
-    } else if (peakRef.current > 0) {
-      peakRef.current = Math.max(0, peakRef.current - 1.5);
-    }
-    setPeakPct(peakRef.current);
-  }, [pct]);
+  });
 
   return (
     <div
@@ -475,34 +515,20 @@ function MeterBar({ level }: { level: number }) {
       style={{ height: '100%', backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
     >
       <div
+        ref={fillRef}
         className="absolute inset-x-0 bottom-0 rounded-sm"
         style={{
-          height: `${pct}%`,
-          background:
-            pct > 85
-              ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow) 60%, var(--color-meter-red))'
-              : pct > 50
-                ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow))'
-                : 'var(--color-meter-green)',
+          height: '0%',
+          background: barFill(0),
           transition: 'height 60ms linear',
         }}
       />
       {/* Peak hold indicator */}
-      {peakPct > 2 && (
-        <div
-          className="absolute inset-x-0"
-          style={{
-            bottom: `${peakPct}%`,
-            height: 2,
-            backgroundColor:
-              peakPct > 85
-                ? 'var(--color-meter-red)'
-                : peakPct > 50
-                  ? 'var(--color-meter-yellow)'
-                  : 'var(--color-meter-green)',
-          }}
-        />
-      )}
+      <div
+        ref={holdRef}
+        className="absolute inset-x-0"
+        style={{ display: 'none', height: 2 }}
+      />
     </div>
   );
 }
@@ -626,13 +652,11 @@ const MixingStrip = React.memo(function MixingStrip({
     returns.push({ id: returnMeta[i], label: returnMeta[i + 1] });
   }
 
-  // Read again whenever engines are made or retired: a load can replace
-  // this track's engine under the same id.
-  const analyser = useSyncExternalStore(
-    subscribeEngineReady,
-    () => getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null,
-  );
-  const liveLevel = useMeterLevel(analyser);
+  // The live level comes from the meter bus by key: the bus finds this
+  // track's analyser itself (again when a load replaces the engine), and
+  // the readout and bars paint through refs, so the strip never re-renders
+  // for a level.
+  const level = meterSource(`track:${trackId}`);
 
   if (!track) return null;
 
@@ -647,7 +671,7 @@ const MixingStrip = React.memo(function MixingStrip({
         backgroundColor: 'var(--color-surface-2)',
       }}
     >
-      <DbReadout level={liveLevel} />
+      <DbReadout source={level} />
 
       <div className="flex gap-1">
         <button
@@ -680,7 +704,7 @@ const MixingStrip = React.memo(function MixingStrip({
 
       <div className="flex w-full flex-1 items-center justify-center gap-2">
         <div className="flex gap-0.5" style={{ height: '100%' }}>
-          <MeterBar level={liveLevel} />
+          <MeterBar source={level} />
         </div>
 
         <Slider.Root
@@ -715,7 +739,7 @@ const MixingStrip = React.memo(function MixingStrip({
         </Slider.Root>
 
         <div className="flex gap-0.5" style={{ height: '100%' }}>
-          <MeterBar level={liveLevel} />
+          <MeterBar source={level} />
         </div>
       </div>
 
@@ -774,12 +798,9 @@ const MixingStrip = React.memo(function MixingStrip({
 
 const MASTER_WIDTH = 100;
 
-function MasterStrip({ isReady }: { isReady: boolean }) {
-  const [analyserL, analyserR] = isReady
-    ? audioEngine.getMasterAnalysers()
-    : [null, null];
-  const masterLevelL = useMeterLevel(analyserL);
-  const masterLevelR = useMeterLevel(analyserR);
+function MasterStrip() {
+  // Stereo master level from the meter bus, painted through refs.
+  const level = meterSource('master');
 
   const tracks = useStore((s) => s.tracks);
   const toggleMute = useStore((s) => s.toggleMute);
@@ -796,8 +817,6 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
     }
   }, [tracks, toggleMute]);
 
-  const avgLevel = (masterLevelL + masterLevelR) / 2;
-
   return (
     <div
       data-tutorial-id="master-strip"
@@ -808,7 +827,7 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
         backgroundColor: 'var(--color-surface-2)',
       }}
     >
-      <DbReadout level={avgLevel} />
+      <DbReadout source={level} />
 
       <button
         className="h-6 cursor-pointer rounded px-2 text-[9px] font-bold uppercase transition-colors"
@@ -824,8 +843,8 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
 
       <div className="flex w-full flex-1 items-center justify-center gap-1.5">
         <div className="flex gap-0.5" style={{ height: '100%' }}>
-          <MeterBar level={masterLevelL} />
-          <MeterBar level={masterLevelR} />
+          <MeterBar source={level} channel={0} />
+          <MeterBar source={level} channel={1} />
         </div>
 
         {/* Master volume fader */}
@@ -977,7 +996,8 @@ function ReturnStrip({
 // ── ReturnFxRack ────────────────────────────────────────────────────────
 // The selected return's effect rack, reusing the mastering FX-rack pattern
 // (FxBrowser + FxChainRow + FxControlsPanel) against the return's own state.
-// Reverb/delay returns have no compressor, so the meter props are inert.
+// The return chains aren't exposed to the meter bus, so its meters stay at
+// rest (no meterTarget).
 
 function ReturnFxRack({ returnId }: { returnId: string }) {
   const ret = useStore((s) => s.returns.find((r) => r.id === returnId));
@@ -1069,10 +1089,6 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
               onRemove={(slot) => removeReturnFx(returnId, slot)}
               popOutOpen={popOutOpen}
               onTogglePopOut={() => setPopOutOpen((v) => !v)}
-              gr={0}
-              inLevel={0}
-              outLevel={0}
-              analyserNode={null}
             />
           ) : (
             <div
@@ -1092,7 +1108,7 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
 
 // ── MixingSection ───────────────────────────────────────────────────────
 
-function MixingSection({ isReady }: { isReady: boolean }) {
+function MixingSection() {
   const trackIds = useTrackIds();
   const trackCount = useTrackCount();
   const returnIds = useStore(useShallow((s) => s.returns.map((r) => r.id)));
@@ -1148,7 +1164,7 @@ function MixingSection({ isReady }: { isReady: boolean }) {
                 }
               />
             ))}
-            <MasterStrip isReady={isReady} />
+            <MasterStrip />
           </div>
         )}
       </div>
@@ -1177,7 +1193,7 @@ export function StudioView({ isReady }: { isReady: boolean }) {
       <MasteringSection isReady={isReady} />
 
       {/* Bottom: Mixing */}
-      <MixingSection isReady={isReady} />
+      <MixingSection />
     </div>
   );
 }

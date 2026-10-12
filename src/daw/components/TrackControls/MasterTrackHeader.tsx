@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import * as Slider from '@radix-ui/react-slider';
 import { Sparkles, Ear, Headphones, Activity } from 'lucide-react';
 import { useStore } from '@/daw/store';
-import { audioEngine } from '@/daw/audio/AudioEngine';
 import { LiveLevelFill } from './LiveLevelFill';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { MasterFxPanel } from '@/daw/components/Effects/MasterFxPanel';
@@ -12,7 +11,6 @@ import {
   useListenMode,
   useStudioListenStore,
 } from '@/daw/collab/studioListenStore';
-import { useRemoteUsers } from '@/daw/collab/presence';
 
 // ── MasterTrackHeader ──────────────────────────────────────────────────────
 // The "Master" track section: master output volume for the whole mix plus
@@ -38,15 +36,11 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
 
   const listenMode = useListenMode();
   const toggleListenMode = useStudioListenStore((s) => s.toggleListenMode);
-  // The listen toggle only matters when collaborators are present.
-  const hasPeers = useRemoteUsers().length > 0;
+  // The listen toggle only matters when collaborators are present. A
+  // boolean, so a peer moving between tracks doesn't re-render the header.
+  const hasPeers = useStore((s) => s.remoteUsers.size > 0);
 
   const [fxOpen, setFxOpen] = useState(false);
-
-  // Live stereo master metering (averaged), same source as the mixer master.
-  const [analyserL, analyserR] = isReady
-    ? audioEngine.getMasterAnalysers()
-    : [null, null];
 
   return (
     <div
@@ -173,7 +167,9 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
             className="relative h-1.5 w-full overflow-hidden rounded-full"
             style={{ backgroundColor: 'var(--color-border)' }}
           >
-            <LiveLevelFill analyser={analyserL} analyserR={analyserR} />
+            {/* Live stereo master level (the mean of L and R), the same
+                source as the mixer's master strip. */}
+            <LiveLevelFill meterKey="master" />
             <Slider.Range
               className="absolute h-full rounded-full"
               style={{ backgroundColor: 'transparent' }}

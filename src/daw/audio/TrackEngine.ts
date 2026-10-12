@@ -1,5 +1,6 @@
 import type { InstrumentAdapter } from '../instruments/InstrumentAdapter';
 import { EffectChain, type TrackEffectState } from './EffectChain';
+import { createMeterTap } from './meterTap';
 
 export class TrackEngine {
   private ctx: AudioContext;
@@ -11,6 +12,9 @@ export class TrackEngine {
   // sends and the meter together.
   private audibleGain: GainNode;
   private analyserNode: AnalyserNode;
+  // The meters' own tap (meterTap.ts); analyserNode stays short for the
+  // ducker key that reads it.
+  private meterAnalyser: AnalyserNode;
   // Post-fader aux sends: pannerNode → sendGain → returnBus input, keyed by
   // return id. `bus` is remembered so a return recreated with a new input node
   // gets rewired instead of silently feeding the stale one.
@@ -29,6 +33,7 @@ export class TrackEngine {
     this.analyserNode = ctx.createAnalyser();
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0;
+    this.meterAnalyser = createMeterTap(ctx);
 
     // Signal chain: instrument → gainNode → effectChain → audibleGain → pannerNode → destination
     this.gainNode.connect(this.effectChain.getInputNode());
@@ -38,6 +43,7 @@ export class TrackEngine {
 
     // Parallel metering tap (dead-end branch — does not alter signal path)
     this.pannerNode.connect(this.analyserNode);
+    this.pannerNode.connect(this.meterAnalyser);
 
     // Start gate polling loop
     this.effectChain.startGateLoop();
@@ -56,6 +62,11 @@ export class TrackEngine {
 
   getAnalyserNode(): AnalyserNode {
     return this.analyserNode;
+  }
+
+  /** The track's meter tap, read by the meter bus. */
+  getMeterAnalyser(): AnalyserNode {
+    return this.meterAnalyser;
   }
 
   getEffectChain(): EffectChain {
@@ -192,6 +203,7 @@ export class TrackEngine {
     this.audibleGain.disconnect();
     this.pannerNode.disconnect();
     this.analyserNode.disconnect();
+    this.meterAnalyser.disconnect();
     for (const { gain } of this.sends.values()) gain.disconnect();
     this.sends.clear();
   }

@@ -8,6 +8,7 @@
 
 import { ensureProcessedIr, getProcessedIr } from './reverbIR';
 import type { AutomationTarget } from './automation';
+import { createMeterTap } from './meterTap';
 
 export type ReverbType = 'hall' | 'room' | 'chamber' | 'plate' | 'spring';
 
@@ -568,12 +569,9 @@ export class EffectChain {
     this.makeupGain.gain.value = 1;
 
     // ── Metering analysers ──────────────────────────────────────────
-    this.preCompAnalyser = ctx.createAnalyser();
-    this.preCompAnalyser.fftSize = 256;
-    this.preCompAnalyser.smoothingTimeConstant = 0;
-    this.postCompAnalyser = ctx.createAnalyser();
-    this.postCompAnalyser.fftSize = 256;
-    this.postCompAnalyser.smoothingTimeConstant = 0;
+    // Meter taps (meterTap.ts): only the FX meters read them.
+    this.preCompAnalyser = createMeterTap(ctx);
+    this.postCompAnalyser = createMeterTap(ctx);
 
     // ── Delay ─────────────────────────────────────────────────────────
     this.delayNode = ctx.createDelay(5);

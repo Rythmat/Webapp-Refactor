@@ -11,6 +11,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useStore } from '@/daw/store';
+import { addFrameTask } from '@/daw/engine/engineClock';
 import { trackEngineRegistry } from './usePlaybackEngine';
 import { studioRealtime } from '@/daw/collab/studioRealtime';
 import { StudioRtcManager } from '@/daw/collab/StudioRtcManager';
@@ -20,6 +21,8 @@ import {
 } from '@/daw/collab/studioListenStore';
 
 const MIDI_PULSE_MS = 260;
+/** The activity pulse only needs to look alive, not follow every frame. */
+const ACTIVITY_FPS = 20;
 
 export function useStudioMonitor(isReady: boolean, token: string | null) {
   const remoteUsers = useStore((s) => s.remoteUsers);
@@ -34,8 +37,13 @@ export function useStudioMonitor(isReady: boolean, token: string | null) {
   const activeNotesRef = useRef<Map<string, Set<number>>>(new Map());
   // trackId → performance.now() of the last remote note (drives the MIDI pulse).
   const lastMidiRef = useRef<Map<string, number>>(new Map());
-  // Latest clientId → trackId map (kept in a ref for the stable RAF loop).
+  // Latest clientId → trackId map (kept in a ref for the activity task).
   const peerTrackRef = useRef<Map<number, string>>(new Map());
+  // Whether any peer drives a track: the activity task runs only then.
+  let peersDriving = false;
+  remoteUsers.forEach((u) => {
+    if (u.selectedTrackId) peersDriving = true;
+  });
 
   // ── Live MIDI receive (independent of WebRTC support) ──────────────────
   useEffect(() => {
@@ -82,6 +90,12 @@ export function useStudioMonitor(isReady: boolean, token: string | null) {
     remoteUsers.forEach((u, clientId) => {
       if (u.selectedTrackId) map.set(clientId, u.selectedTrackId);
     });
+    // A track no peer drives any more stops pulsing.
+    const setActivity = useStudioListenStore.getState().setActivity;
+    const driven = new Set(map.values());
+    for (const trackId of peerTrackRef.current.values()) {
+      if (!driven.has(trackId)) setActivity(trackId, 0);
+    }
     peerTrackRef.current = map;
 
     const mgr = rtcRef.current;
@@ -114,12 +128,12 @@ export function useStudioMonitor(isReady: boolean, token: string | null) {
     return useStudioListenStore.subscribe(apply);
   }, []);
 
-  // ── Activity loop (pulse signal) ───────────────────────────────────────
+  // ── Activity task (pulse signal) ───────────────────────────────────────
+  // A task on the shared frame loop at 20 fps, registered only while some
+  // peer drives a track: a session with nobody else in it runs nothing.
   useEffect(() => {
-    if (!isReady) return;
-    let raf = 0;
+    if (!isReady || !peersDriving) return;
     const tick = () => {
-      raf = requestAnimationFrame(tick);
       const now = performance.now();
       const setActivity = useStudioListenStore.getState().setActivity;
       for (const [clientId, trackId] of peerTrackRef.current) {
@@ -133,7 +147,6 @@ export function useStudioMonitor(isReady: boolean, token: string | null) {
         setActivity(trackId, Math.max(audio, midi));
       }
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [isReady]);
+    return addFrameTask(tick, { fps: ACTIVITY_FPS, name: 'studioActivity' });
+  }, [isReady, peersDriving]);
 }

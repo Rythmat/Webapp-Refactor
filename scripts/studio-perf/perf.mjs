@@ -7,7 +7,8 @@
  * scenario below), or when a baseline run finds the machine busy.
  *
  *   node scripts/studio-perf/perf.mjs --reuse=http://localhost:5263
- *        [--scenario=idle,playback,views,fader-drag,note-drag,load]
+ *        [--scenario=idle,playback,views,fader-drag,note-drag,load,autosave,
+ *          timeline-scroll,score-edit]
  *        [--profile=chromebook|laptop|small|all] [--out=dir] [--repeat=3]
  *        [--audio-timeout=60000] [--loop=false] [--max-load=n] [--quick]
  *
@@ -25,7 +26,8 @@
  * is not a baseline, and a baseline run refuses the flag. Each scenario
  * also checks the editor's own clock after the engine starts.
  *
- * Every scenario except load opens ?demo=demo-midnight-groove in a fresh
+ * Every scenario except load opens ?demo=demo-midnight-groove (the 1.8
+ * scenarios ?template=project-pop, whose tracks they replace) in a fresh
  * browser context, starts the audio engine with a key press (as a person's
  * first gesture would) and waits until no request has been in flight for
  * 1.5 s, so instrument loading is not counted as editor work; a page still
@@ -106,6 +108,35 @@
  *   final volume is the one the draft body holds (finalValueCommitted).
  *   Fails when the window saw no draft write at all, the transport stopped,
  *   or the fader never changed the volume.
+ * - timeline-scroll (milestone 1.8): Timeline draw cost over long audio.
+ *   It opens ?template=project-pop instead and replaces its tracks with 6
+ *   audio tracks, each one 3-minute stereo clip at 48 kHz from bar 1,
+ *   backed by an AudioBuffer made in the page and set in the app's
+ *   AudioBufferStore (imported by its dev-server URL; each clip has an
+ *   asset id, so the draft autosave does not store the audio). It waits
+ *   until one draw shows all 6 waveforms (the peaks worker summarises each
+ *   take), then records --quick 1.5 s / 4 s each of horizontal wheel
+ *   scrolling and Ctrl+wheel zoom over the canvas (60 events a second),
+ *   and a first-track fader drag (the drag window) back at the opening
+ *   view. Per window: the Timeline's DEV ma:timeline:draw measures (count,
+ *   p50 / p95 / max; "unmeasured" on a build without them), frame times,
+ *   long tasks and React commits. Stage A targets: draw p95 ≤4 ms while
+ *   scrolling; 0 Timeline draws during the fader drag. Fails when the
+ *   Timeline did not draw every waveform (or drew "Loading…": it does not
+ *   see the buffers), the wheel never scrolled or zoomed it, or the drag
+ *   never changed the volume.
+ * - score-edit (milestone 1.8): a Score note edit's input to paint. Also on
+ *   ?template=project-pop: 6 Oracle-synth MIDI tracks of 32 bars of 4/4,
+ *   every bar filled with mixed rhythms (735 notes), then
+ *   setCurrentView('score') and a wait until the engraving's DOM has held
+ *   still for 1 s. A click on the first uncovered notehead selects it;
+ *   then 10 (--quick 3) edits, ArrowUp and ArrowDown in turn (score.up /
+ *   score.down), each after a calm spell. Per edit: Event Timing's keydown
+ *   entry (duration = input to next paint, input delay, processing), a
+ *   rAF fallback (keydown timeStamp to the second rAF after the Score's
+ *   SVG changed), long tasks and React commits. Target (laptop): paint
+ *   ≤50 ms at p95. Fails when an edit did not move the note (the store's
+ *   pitches), the page never saw the key, or the Score never changed.
  *
  * Drags are reported per move and per gesture as well as per second: every
  * pointer move waits for the page to take it, so a slow page gets fewer
@@ -157,9 +188,34 @@ export const SCENARIOS = [
   'note-drag',
   'load',
   'autosave',
+  'timeline-scroll',
+  'score-edit',
 ];
 
 const DEMO = '?demo=demo-midnight-groove';
+/** timeline-scroll and score-edit replace this template's empty tracks. */
+const TEMPLATE = '?template=project-pop';
+
+/** timeline-scroll's audio: six 3-minute stereo stems at 48 kHz. */
+const STEMS = { count: 6, seconds: 180, sampleRate: 48_000 };
+
+/** score-edit's score: six parts of 32 bars of 4/4. */
+const SCORE = { parts: 6, bars: 32 };
+
+/**
+ * The app's AudioBufferStore as the dev server serves it: the module
+ * instance the editor imports, so a buffer set through it is the editor's.
+ */
+const BUFFER_STORE_MODULE = '/src/daw/audio/AudioBufferStore.ts';
+
+/** The DEV measure the Timeline emits per canvas draw (milestone 1.8). */
+const TIMELINE_DRAW = 'ma:timeline:draw';
+
+/** Stage A: a Timeline draw at p95 while scrolling the stems. */
+const DRAW_P95_TARGET_MS = 4;
+
+/** A Score note edit's input to paint (laptop). */
+const SCORE_PAINT_TARGET_MS = 50;
 const PRACTICE = '?practiceMode=dorian&practiceRoot=d';
 
 /**
@@ -229,6 +285,8 @@ function windowsFrom(args) {
     viewGapMs: quick ? 500 : 1500,
     audioTimeoutMs: Number(args['audio-timeout'] ?? (quick ? 20_000 : 60_000)),
     silenceMs: quick ? 5000 : 10_000,
+    scrollMs: quick ? 1500 : 4000,
+    edits: quick ? 3 : 10,
   };
 }
 
@@ -444,14 +502,16 @@ function waitForCalm({ calmMs, timeout }) {
 }
 
 /**
- * A fresh page on the demo, the engine started and the network quiet. Every
- * interactive scenario starts here, so none inherits another's state.
+ * A fresh page on the demo (or `query`), the engine started and the network
+ * quiet. Every interactive scenario starts here, so none inherits another's
+ * state. The page's request tracker comes back too, for a scenario that
+ * loads more (new tracks' instruments) and waits for quiet again.
  */
-async function openDemo(browser, base, profile) {
+async function openDemo(browser, base, profile, query = DEMO) {
   const opened = await newPage(browser, profile);
   const requests = trackRequests(opened.page);
   const started = Date.now();
-  await openEditor(opened.page, base, DEMO);
+  await openEditor(opened.page, base, query);
   const openMs = Date.now() - started;
   await startAudio(opened.page);
   const audioMs = Date.now() - started - openMs;
@@ -467,8 +527,9 @@ async function openDemo(browser, base, profile) {
   });
   return {
     ...opened,
+    requests,
     setup: {
-      query: DEMO,
+      query,
       openMs,
       audioMs,
       audioClock: audioClockNow,
@@ -2250,6 +2311,910 @@ async function autosave({ browser, base, profile, windows }) {
   }
 }
 
+/* ── Timeline scroll and zoom over long audio (milestone 1.8) ──────────── */
+
+/**
+ * Percentiles of `values` (others skipped) the probes' way: the value at
+ * floor(p × n) of the sorted list. `n` 0 means nothing was measured.
+ */
+function percentiles(values, digits = 2) {
+  const sorted = values.filter(isNumber).sort((a, b) => a - b);
+  const at = (p) =>
+    sorted.length
+      ? round(
+          sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))],
+          digits,
+        )
+      : null;
+  return {
+    n: sorted.length,
+    p50: at(0.5),
+    p95: at(0.95),
+    max: sorted.length ? round(sorted.at(-1), digits) : null,
+  };
+}
+
+/**
+ * In-page: defines window.__maTimelineCanvas(), the arrange view's canvas
+ * (the one in the track area's scroller), and starts counting the
+ * Timeline's draw measures for the rest of the page's life, so a run can
+ * tell an editor that does not mark its draws (unmeasured) from a window in
+ * which nothing drew (0).
+ */
+function installTimelineHelpers(drawName) {
+  window.__maTimelineCanvas = () =>
+    [...document.querySelectorAll('canvas')].find(
+      (canvas) =>
+        canvas.parentElement?.classList.contains('overflow-x-hidden') &&
+        canvas.closest('.overflow-auto'),
+    ) ?? null;
+  const seen = { count: 0 };
+  window.__maTimelineDraws = seen;
+  try {
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (entry.name === drawName) seen.count += 1;
+      }
+    }).observe({ type: 'measure' });
+  } catch {
+    // No user timing observer: every draw reads as unmeasured.
+  }
+}
+
+/**
+ * In-page: replaces the project's tracks with `count` audio tracks, each
+ * holding one clip of `seconds` of stereo audio at `sampleRate` from bar 1.
+ * Each clip's AudioBuffer is made here: a tone of two partials and a little
+ * noise, tiled under a gain that changes every beat, so the waveform has
+ * shape at every zoom. The buffers go into the app's AudioBufferStore by the
+ * dev server's module URL (the module instance the app imports), before
+ * their clips, so nothing goes looking for them. Each clip has an assetId,
+ * as a cloud project's clips have once opened: without one, the draft
+ * autosave would encode and store ~200 MB of audio (pendingMedia.ts) during
+ * the measured windows. window.__maStems keeps the buffers, so the run can
+ * check the store hands back the same objects.
+ */
+async function injectStems({ count, seconds, sampleRate, bufferStore }) {
+  const audio = await import(bufferStore);
+  const store = window.__MA_STORE__;
+  const actions = store.getState();
+  for (const track of actions.tracks) actions.removeTrack(track.id);
+  actions.setTimelineZoom(1);
+  actions.setTimelineScrollLeft(0);
+  const { bpm } = store.getState();
+  const length = seconds * sampleRate;
+  const beat = Math.round((sampleRate * 60) / bpm);
+  const durationTicks = Math.round((seconds / 60) * bpm * 480);
+  const started = performance.now();
+  const stems = [];
+  for (let i = 0; i < count; i += 1) {
+    let seed = 1 + i * 7919;
+    const random = () => {
+      seed = (Math.imul(seed, 1103515245) + 12345) | 0;
+      return (seed >>> 8) / 16_777_216;
+    };
+    const freq = 55 * (i + 1);
+    const cycle = new Float32Array(sampleRate);
+    for (let j = 0; j < sampleRate; j += 1) {
+      const phase = (2 * Math.PI * freq * j) / sampleRate;
+      cycle[j] =
+        0.6 * Math.sin(phase) +
+        0.25 * Math.sin(2.01 * phase) +
+        0.15 * (2 * random() - 1);
+    }
+    const buffer = new AudioBuffer({ numberOfChannels: 2, length, sampleRate });
+    const left = buffer.getChannelData(0);
+    const right = buffer.getChannelData(1);
+    for (let start = 0; start < length; start += beat) {
+      const gain = 0.2 + 0.8 * random();
+      const end = Math.min(length, start + beat);
+      for (let j = start; j < end; j += 1) {
+        const value =
+          cycle[j % sampleRate] * gain * (1 - (0.7 * (j - start)) / beat);
+        left[j] = value;
+        right[j] = 0.9 * value;
+      }
+    }
+    const trackId = actions.addTrack('audio', 'none', `Stem ${i + 1}`);
+    if (!trackId) {
+      return { reason: `the project refused audio track ${i + 1}` };
+    }
+    const clipId = `perf-stem-${i + 1}`;
+    audio.setAudioBuffer(clipId, buffer);
+    store.getState().addAudioClip(trackId, {
+      id: clipId,
+      startTick: 0,
+      duration: durationTicks,
+      fadeInTicks: 0,
+      fadeOutTicks: 0,
+      assetId: `perf-stem-asset-${i + 1}`,
+    });
+    stems.push({ trackId, clipId, buffer });
+  }
+  window.__maStems = stems;
+  const { tracks } = store.getState();
+  return {
+    count: stems.length,
+    seconds,
+    sampleRate,
+    channels: 2,
+    bpm,
+    durationTicks,
+    buildMs: Math.round(performance.now() - started),
+    tracks: tracks.length,
+    audioClips: tracks.reduce((sum, track) => sum + track.audioClips.length, 0),
+    sameBuffers: stems.every(
+      (stem) => audio.getAudioBuffer(stem.clipId) === stem.buffer,
+    ),
+  };
+}
+
+/**
+ * In-page: what one Timeline draw shows of the stems. It wraps the 2D
+ * context's beginPath, quadraticCurveTo, fill and fillText for the
+ * Timeline's canvas only, nudges the scroll by 1 px so the Timeline draws,
+ * waits three frames and unwraps. A waveform is a filled path of curves
+ * (drawSmoothWaveform); a clip whose buffer the Timeline cannot see draws
+ * "Loading…" (it has an assetId), and one whose peaks are still in the
+ * worker draws a flat line, neither of which is a waveform.
+ */
+async function timelineWaveforms() {
+  const canvas = window.__maTimelineCanvas();
+  if (!canvas) return { reason: 'no Timeline canvas' };
+  const proto = CanvasRenderingContext2D.prototype;
+  const original = {
+    beginPath: proto.beginPath,
+    quadraticCurveTo: proto.quadraticCurveTo,
+    fill: proto.fill,
+    fillText: proto.fillText,
+  };
+  const seen = { curves: 0, waveforms: 0, loading: 0 };
+  proto.beginPath = function (...rest) {
+    if (this.canvas === canvas) seen.curves = 0;
+    return original.beginPath.apply(this, rest);
+  };
+  proto.quadraticCurveTo = function (...rest) {
+    if (this.canvas === canvas) seen.curves += 1;
+    return original.quadraticCurveTo.apply(this, rest);
+  };
+  proto.fill = function (...rest) {
+    if (this.canvas === canvas && seen.curves >= 2) seen.waveforms += 1;
+    return original.fill.apply(this, rest);
+  };
+  proto.fillText = function (text, ...rest) {
+    if (this.canvas === canvas && String(text).startsWith('Loading')) {
+      seen.loading += 1;
+    }
+    return original.fillText.call(this, text, ...rest);
+  };
+  const store = window.__MA_STORE__.getState();
+  const before = store.timelineScrollLeft;
+  try {
+    store.setTimelineScrollLeft(before + 1);
+    for (let i = 0; i < 3; i += 1) {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+  } finally {
+    Object.assign(proto, original);
+    window.__MA_STORE__.getState().setTimelineScrollLeft(before);
+  }
+  return { waveforms: seen.waveforms, loading: seen.loading };
+}
+
+/**
+ * Waits until one Timeline draw shows a waveform for every stem: the peaks
+ * worker summarises each long take, a channel at a time, after its first
+ * draw. Gives up after 60 s and says what the last draw showed.
+ */
+async function waitForWaveforms(page, count, timeout = 60_000) {
+  const started = Date.now();
+  let last = null;
+  while (Date.now() - started < timeout) {
+    last = await page.evaluate(timelineWaveforms);
+    if (last.reason) return { drawn: false, ...last };
+    if (last.waveforms >= count && last.loading === 0) break;
+    await sleep(500);
+  }
+  return {
+    drawn: last.waveforms >= count && last.loading === 0,
+    waveforms: last.waveforms,
+    loading: last.loading,
+    ms: Date.now() - started,
+  };
+}
+
+/** In-page: where to point the wheel, the middle of the visible track area. */
+function timelinePoint() {
+  const canvas = window.__maTimelineCanvas();
+  const scroller = canvas?.closest('.overflow-auto');
+  if (!scroller) return { reason: 'no Timeline canvas' };
+  const box = scroller.getBoundingClientRect();
+  const point = {
+    x: Math.round(box.left + box.width / 2),
+    y: Math.round(box.top + Math.min(box.height / 2, 200)),
+  };
+  if (document.elementFromPoint(point.x, point.y) !== canvas) {
+    return {
+      reason: 'the middle of the track area is not the Timeline',
+      ...point,
+    };
+  }
+  return point;
+}
+
+/**
+ * In-page: starts collecting the Timeline's draw measures (their durations)
+ * until stopDrawMonitor.
+ */
+function startDrawMonitor(drawName) {
+  const monitor = { draws: [] };
+  monitor.observer = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      if (entry.name === drawName) monitor.draws.push(entry.duration);
+    }
+  });
+  monitor.observer.observe({ type: 'measure' });
+  window.__maDrawMonitor = monitor;
+}
+
+function stopDrawMonitor(drawName) {
+  const monitor = window.__maDrawMonitor;
+  for (const entry of monitor.observer.takeRecords()) {
+    if (entry.name === drawName) monitor.draws.push(entry.duration);
+  }
+  monitor.observer.disconnect();
+  return monitor.draws;
+}
+
+/** In-page: watches the Timeline's scroll and zoom until finishTimelineView. */
+function watchTimelineView() {
+  const store = window.__MA_STORE__;
+  const now = store.getState();
+  const track = (value) => ({
+    from: value,
+    to: value,
+    min: value,
+    max: value,
+    writes: 0,
+  });
+  const watch = {
+    scroll: track(now.timelineScrollLeft),
+    zoom: track(now.timelineZoom),
+  };
+  const update = (entry, value) => {
+    entry.writes += 1;
+    entry.to = value;
+    entry.min = Math.min(entry.min, value);
+    entry.max = Math.max(entry.max, value);
+  };
+  watch.unsubscribe = store.subscribe((state, prev) => {
+    if (state.timelineScrollLeft !== prev.timelineScrollLeft) {
+      update(watch.scroll, state.timelineScrollLeft);
+    }
+    if (state.timelineZoom !== prev.timelineZoom) {
+      update(watch.zoom, state.timelineZoom);
+    }
+  });
+  watch.wheels = 0;
+  watch.onWheel = () => {
+    watch.wheels += 1;
+  };
+  window.addEventListener('wheel', watch.onWheel, {
+    capture: true,
+    passive: true,
+  });
+  window.__maViewWatch = watch;
+}
+
+function finishTimelineView() {
+  const watch = window.__maViewWatch;
+  watch.unsubscribe();
+  window.removeEventListener('wheel', watch.onWheel, { capture: true });
+  const rounded = (entry, digits) =>
+    Object.fromEntries(
+      Object.entries(entry).map(([key, value]) => [
+        key,
+        key === 'writes' ? value : Number(value.toFixed(digits)),
+      ]),
+    );
+  return {
+    scroll: rounded(watch.scroll, 0),
+    zoom: rounded(watch.zoom, 3),
+    wheels: watch.wheels,
+  };
+}
+
+/** CDP's modifier bit for Ctrl (Input.dispatchMouseEvent). */
+const CTRL_MODIFIER = 2;
+
+/**
+ * Sends wheel events at `point` for `ms`, one per 16 ms (a trackpad's
+ * rate); `step(ms)` gives each one's deltas. Unlike sweep's moves they do
+ * not wait for the page: Chrome acknowledges a wheel event only frames
+ * later (~50 ms here, which would cap the rate at 20 a second), so they go
+ * out at the device's pace and Chrome coalesces what a busy page has not
+ * taken yet, as it does a real trackpad's. The page counts what it got.
+ */
+async function wheelFor(cdp, point, ms, step, modifiers = 0) {
+  const started = Date.now();
+  const sent = [];
+  for (let t = 0; t < ms; t = Date.now() - started) {
+    const { dx, dy } = step(t);
+    sent.push(
+      cdp.send('Input.dispatchMouseEvent', {
+        type: 'mouseWheel',
+        x: point.x,
+        y: point.y,
+        deltaX: dx,
+        deltaY: dy,
+        modifiers,
+      }),
+    );
+    const wait = sent.length * 16 - (Date.now() - started);
+    if (wait > 0) await sleep(wait);
+  }
+  const seconds = (Date.now() - started) / 1000;
+  const acks = await Promise.allSettled(sent);
+  return {
+    events: sent.length,
+    eventsPerSecond: round(sent.length / seconds),
+    failed: acks.filter((ack) => ack.status === 'rejected').length,
+  };
+}
+
+/**
+ * One wheel window over the Timeline: the probes, the draw measures, the
+ * view's scroll and zoom and the wheel events the page received.
+ */
+async function recordWheel(session, windows, point, step, modifiers = 0) {
+  const { page, cdp } = session;
+  await page.mouse.move(point.x, point.y);
+  await calmDown(page, windows.gestureGapMs);
+  await startRecording(page);
+  await page.evaluate(startDrawMonitor, TIMELINE_DRAW);
+  await page.evaluate(watchTimelineView);
+  const input = await wheelFor(cdp, point, windows.scrollMs, step, modifiers);
+  await drainFrame(page);
+  const view = await page.evaluate(finishTimelineView);
+  const draws = await page.evaluate(stopDrawMonitor, TIMELINE_DRAW);
+  const probes = await stopRecording(page);
+  return { input: { ...input, received: view.wheels }, view, draws, probes };
+}
+
+async function timelineScroll({ browser, base, profile, windows }) {
+  const session = await openDemo(browser, base, profile, TEMPLATE);
+  const { page } = session;
+  try {
+    const problems = [];
+    await page.evaluate(installTimelineHelpers, TIMELINE_DRAW);
+    const stems = await page.evaluate(injectStems, {
+      ...STEMS,
+      bufferStore: BUFFER_STORE_MODULE,
+    });
+    if (stems.reason) throw new Error(stems.reason);
+    if (!stems.sameBuffers) {
+      problems.push(
+        'the AudioBufferStore did not hand back the stems’ buffers',
+      );
+    }
+    const ready = await waitForWaveforms(page, STEMS.count);
+    if (ready.reason) throw new Error(ready.reason);
+    if (ready.loading > 0) {
+      problems.push(
+        `the Timeline drew "Loading…" on ${ready.loading} clips: it does not see the buffers set through /src/daw/audio/AudioBufferStore.ts`,
+      );
+    } else if (!ready.drawn) {
+      problems.push(
+        `after ${round(ready.ms / 1000)} s the Timeline drew ${ready.waveforms} of ${STEMS.count} waveforms`,
+      );
+    }
+    // The stems' summaries and the waveform checks leave work behind.
+    const settled = await calmDown(page, 1500, 15_000);
+    const point = await page.evaluate(timelinePoint);
+    if (point.reason) throw new Error(point.reason);
+    // Scroll: right for a second, left for a second, and so on (a trackpad's
+    // horizontal swipe; the Timeline scrolls by deltaX).
+    const scroll = await recordWheel(session, windows, point, (t) => ({
+      dx: Math.floor(t / 1000) % 2 ? -40 : 40,
+      dy: 0,
+    }));
+    // Zoom: Ctrl+wheel, in for half a second, out for half a second (each
+    // event zooms 3% at the cursor).
+    const zoom = await recordWheel(
+      session,
+      windows,
+      point,
+      (t) => ({ dx: 0, dy: Math.floor(t / 500) % 2 ? 100 : -100 }),
+      CTRL_MODIFIER,
+    );
+    // The fader drag starts from the view the editor opened on.
+    await page.evaluate(() => {
+      const store = window.__MA_STORE__.getState();
+      store.setTimelineZoom(1);
+      store.setTimelineScrollLeft(0);
+    });
+    await nextFrames(page);
+    await calmDown(page, windows.gestureGapMs);
+    const slider = await page.evaluate(findVolumeSlider);
+    if (!slider?.trackId) throw new Error('no track volume slider on screen');
+    const centre = slider.left + slider.width / 2;
+    const reach = slider.width * 0.3;
+    await page.evaluate(startDrawMonitor, TIMELINE_DRAW);
+    const gesture = await recordGesture(
+      page,
+      windows,
+      { x: slider.thumbX, y: slider.y },
+      (t) => ({
+        x: centre + reach * Math.sin((2 * Math.PI * t) / 500),
+        y: slider.y,
+      }),
+      { kind: 'volume', trackId: slider.trackId },
+    );
+    const faderDraws = await page.evaluate(stopDrawMonitor, TIMELINE_DRAW);
+    const instrumented = await page.evaluate(
+      () => window.__maTimelineDraws.count > 0,
+    );
+    problems.push(
+      ...probeProblems(scroll.probes),
+      ...probeProblems(zoom.probes),
+      ...probeProblems(gesture.probes),
+    );
+    if (scroll.view.scroll.writes === 0) {
+      problems.push('the wheel never scrolled the Timeline');
+    }
+    if (zoom.view.zoom.writes === 0) {
+      problems.push('Ctrl+wheel never zoomed the Timeline');
+    }
+    if (!gesture.watch.target.changed) {
+      problems.push(`the fader drag never changed ${slider.track}'s volume`);
+    }
+    // null: the editor does not mark its draws (unmeasured, not missed).
+    const drawStats = (list) => (instrumented ? percentiles(list) : null);
+    const scrollDraws = drawStats(scroll.draws);
+    return {
+      setup: { ...session.setup, settled },
+      stems,
+      ready,
+      instrumented,
+      point,
+      scroll: {
+        input: scroll.input,
+        view: scroll.view.scroll,
+        draws: scrollDraws,
+        probes: scroll.probes,
+      },
+      zoom: {
+        input: zoom.input,
+        view: zoom.view.zoom,
+        scrollView: zoom.view.scroll,
+        draws: drawStats(zoom.draws),
+        probes: zoom.probes,
+      },
+      draws: drawStats([...scroll.draws, ...zoom.draws]),
+      fader: {
+        control: { track: slider.track, trackId: slider.trackId },
+        draws: instrumented ? faderDraws.length : null,
+        drawMs: drawStats(faderDraws),
+        gesture,
+      },
+      targets: {
+        drawP95BudgetMs: DRAW_P95_TARGET_MS,
+        scrollDrawP95Ok:
+          scrollDraws?.n > 0 ? scrollDraws.p95 <= DRAW_P95_TARGET_MS : null,
+        faderNoRedraw: instrumented ? faderDraws.length === 0 : null,
+      },
+      problems,
+      pageErrors: session.errors,
+    };
+  } finally {
+    await session.context.close();
+  }
+}
+
+/* ── Score note edits (milestone 1.8) ──────────────────────────────────── */
+
+/**
+ * In-page: replaces the project's tracks with `parts` MIDI tracks of `bars`
+ * bars of 4/4, every bar filled. Each bar takes one of seven rhythms
+ * (quarters; eighths, a quarter and a half; a whole note; a dotted quarter;
+ * sixteenths; two halves; a mix), each part starting at another one, and
+ * the pitches walk the C major scale in the part's range, so the engraver
+ * meets beams, dots, flags, ledger lines and both clefs. The Piano part adds
+ * a third above every half or whole note. Every part plays the Oracle synth,
+ * which loads no samples.
+ */
+function injectScore({ parts, bars }) {
+  const store = window.__MA_STORE__;
+  const actions = store.getState();
+  for (const track of actions.tracks) actions.removeTrack(track.id);
+  actions.setTimeSignature(4, 4);
+  const barTicks = 1920;
+  const rhythms = [
+    [480, 480, 480, 480],
+    [240, 240, 480, 960],
+    [1920],
+    [720, 240, 480, 480],
+    [120, 120, 240, 480, 960],
+    [960, 960],
+    [480, 240, 240, 240, 240, 480],
+  ];
+  const scale = [0, 2, 4, 5, 7, 9, 11];
+  const voices = [
+    { name: 'Flute', low: 72 },
+    { name: 'Violin', low: 67 },
+    { name: 'Piano', low: 60, thirds: true },
+    { name: 'Horn', low: 53 },
+    { name: 'Cello', low: 43 },
+    { name: 'Bass', low: 33 },
+  ];
+  const pitch = (low, step) =>
+    low + 12 * Math.floor(step / 7) + scale[step % 7];
+  let notes = 0;
+  const made = [];
+  for (let p = 0; p < parts; p += 1) {
+    const voice = voices[p % voices.length];
+    const trackId = actions.addTrack('midi', 'oracle-synth', voice.name);
+    if (!trackId) return { reason: `the project refused MIDI track ${p + 1}` };
+    let seed = 17 + p * 104_729;
+    const random = () => {
+      seed = (Math.imul(seed, 1103515245) + 12345) | 0;
+      return (seed >>> 8) / 16_777_216;
+    };
+    let step = 3 + Math.floor(random() * 5);
+    const events = [];
+    for (let bar = 0; bar < bars; bar += 1) {
+      let tick = bar * barTicks;
+      for (const duration of rhythms[(bar + 2 * p) % rhythms.length]) {
+        step = Math.max(0, Math.min(12, step + Math.floor(random() * 5) - 2));
+        const base = {
+          velocity: 90,
+          startTick: tick,
+          durationTicks: duration,
+          channel: 0,
+        };
+        events.push({ ...base, note: pitch(voice.low, step) });
+        if (voice.thirds && duration >= 960) {
+          events.push({ ...base, note: pitch(voice.low, step + 2) });
+        }
+        tick += duration;
+      }
+    }
+    notes += events.length;
+    actions.addMidiClip(trackId, {
+      id: `perf-score-${p + 1}`,
+      name: voice.name,
+      startTick: 0,
+      durationTicks: bars * barTicks,
+      events,
+    });
+    made.push({ trackId, name: voice.name, notes: events.length });
+  }
+  return {
+    parts: made.length,
+    bars,
+    notes,
+    tracks: store.getState().tracks.length,
+    made,
+  };
+}
+
+/** In-page: the sum of every MIDI note's pitch, to see a transposition. */
+function scorePitchSum() {
+  let sum = 0;
+  for (const track of window.__MA_STORE__.getState().tracks) {
+    for (const clip of track.midiClips) {
+      for (const event of clip.events) sum += event.note;
+    }
+  }
+  return sum;
+}
+
+/**
+ * In-page: resolves once the Score shows noteheads and its DOM has not
+ * changed for `quietMs` (at most `timeout`), timed from the call (the view
+ * switch is made just before it).
+ */
+function waitForEngraving({ quietMs, timeout }) {
+  return new Promise((resolve) => {
+    const started = performance.now();
+    let lastChange = started;
+    const observer = new MutationObserver(() => {
+      lastChange = performance.now();
+    });
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      characterData: true,
+    });
+    const check = () => {
+      const now = performance.now();
+      const stavenotes = document.querySelectorAll('.vf-stavenote').length;
+      const quiet = stavenotes > 0 && now - lastChange >= quietMs;
+      if (quiet || now - started >= timeout) {
+        observer.disconnect();
+        resolve({
+          engraved: quiet,
+          stavenotes,
+          noteheads: document.querySelectorAll('.vf-notehead').length,
+          svgs: new Set(
+            [...document.querySelectorAll('.vf-stavenote')].map((note) =>
+              note.closest('svg'),
+            ),
+          ).size,
+          // From the switch to the last change before the quiet spell.
+          lastChangeMs: Math.round(lastChange - started),
+          ms: Math.round(now - started),
+        });
+      } else setTimeout(check, 100);
+    };
+    setTimeout(check, 100);
+  });
+}
+
+/**
+ * In-page: a notehead to click, the first one on screen that nothing
+ * covers, in page coordinates.
+ */
+function pickScoreNote() {
+  const notes = [...document.querySelectorAll('.vf-stavenote')];
+  for (const [index, note] of notes.entries()) {
+    const head = note.querySelector('.vf-notehead');
+    if (!head) continue;
+    const box = head.getBoundingClientRect();
+    if (box.width <= 0 || box.height <= 0) continue;
+    const x = box.left + box.width / 2;
+    const y = box.top + box.height / 2;
+    if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) {
+      continue;
+    }
+    const hit = document.elementFromPoint(x, y);
+    if (hit && note.contains(hit)) {
+      return { x: Math.round(x), y: Math.round(y), index, of: notes.length };
+    }
+  }
+  return { reason: 'no notehead of the Score is on screen and uncovered' };
+}
+
+/**
+ * In-page: arms one edit's timing before the key is pressed. It notes the
+ * keydown's timeStamp (input time), the first change to the Score's SVG
+ * after it (a MutationObserver: the edit re-engraves in a layout effect)
+ * and the second animation frame after that change, and keeps the Event
+ * Timing entries (durationThreshold 16, buffered) and long tasks. The
+ * observer's callback runs before this keydown listener does (the editor's
+ * dispatcher handles the key first), so any change after arming counts.
+ */
+function armScoreEdit() {
+  const arm = {
+    timeStamp: null,
+    mutatedAt: null,
+    paintedAt: null,
+    entries: [],
+    longTasks: [],
+  };
+  arm.events = new PerformanceObserver((list) =>
+    arm.entries.push(...list.getEntries()),
+  );
+  arm.events.observe({ type: 'event', durationThreshold: 16, buffered: true });
+  try {
+    arm.tasks = new PerformanceObserver((list) =>
+      arm.longTasks.push(...list.getEntries()),
+    );
+    arm.tasks.observe({ type: 'longtask' });
+  } catch {
+    arm.tasks = null;
+  }
+  arm.onKey = (event) => {
+    arm.timeStamp ??= event.timeStamp;
+  };
+  window.addEventListener('keydown', arm.onKey, { capture: true });
+  const inScore = (record) =>
+    record.target instanceof SVGElement ||
+    [...record.addedNodes, ...record.removedNodes].some(
+      (node) => node instanceof SVGElement || node.querySelector?.('svg'),
+    );
+  arm.mutations = new MutationObserver((records) => {
+    if (arm.mutatedAt !== null || !records.some(inScore)) return;
+    arm.mutatedAt = performance.now();
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        arm.paintedAt = performance.now();
+      }),
+    );
+  });
+  arm.mutations.observe(document.body, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    characterData: true,
+  });
+  window.__maEdit = arm;
+}
+
+/**
+ * In-page: waits for the armed edit's second frame (at most `timeout`),
+ * then 150 ms more for its Event Timing entry, and returns its timings from
+ * the keydown's timeStamp: Event Timing's duration (input to the next
+ * paint, rounded to 8 ms; no entry means under its 16 ms threshold), the
+ * input delay (processingStart − startTime), the processing
+ * (processingEnd − processingStart) and the rest to the paint; and, as a
+ * fallback that needs no Event Timing, the Score's first change and the
+ * second rAF after it (the frame after the one that painted it, so up to a
+ * frame late).
+ */
+async function awaitScoreEdit(timeout) {
+  const arm = window.__maEdit;
+  const started = performance.now();
+  while (arm.paintedAt === null && performance.now() - started < timeout) {
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  arm.entries.push(...arm.events.takeRecords());
+  arm.events.disconnect();
+  if (arm.tasks) {
+    arm.longTasks.push(...arm.tasks.takeRecords());
+    arm.tasks.disconnect();
+  }
+  arm.mutations.disconnect();
+  window.removeEventListener('keydown', arm.onKey, { capture: true });
+  const t0 = arm.timeStamp;
+  const ms = (value) => (value === null ? null : Number(value.toFixed(1)));
+  const since = (at) => (at === null || t0 === null ? null : ms(at - t0));
+  const keydown =
+    t0 === null
+      ? null
+      : arm.entries.find(
+          (entry) =>
+            entry.name === 'keydown' && Math.abs(entry.startTime - t0) < 1,
+        );
+  const interaction = keydown?.interactionId
+    ? arm.entries.filter(
+        (entry) => entry.interactionId === keydown.interactionId,
+      )
+    : [];
+  return {
+    sawKey: t0 !== null,
+    eventTiming: keydown
+      ? {
+          durationMs: keydown.duration,
+          inputDelayMs: ms(keydown.processingStart - keydown.startTime),
+          processingMs: ms(keydown.processingEnd - keydown.processingStart),
+          presentationMs: ms(
+            keydown.startTime + keydown.duration - keydown.processingEnd,
+          ),
+          interactionMs: interaction.length
+            ? Math.max(...interaction.map((entry) => entry.duration))
+            : keydown.duration,
+        }
+      : null,
+    mutatedMs: since(arm.mutatedAt),
+    rafMs: since(arm.paintedAt),
+    longTasks: {
+      count: arm.longTasks.length,
+      totalMs: Math.round(
+        arm.longTasks.reduce((sum, entry) => sum + entry.duration, 0),
+      ),
+    },
+  };
+}
+
+async function scoreEdit({ browser, base, profile, windows }) {
+  const session = await openDemo(browser, base, profile, TEMPLATE);
+  const { page } = session;
+  try {
+    const problems = [];
+    const score = await page.evaluate(injectScore, SCORE);
+    if (score.reason) throw new Error(score.reason);
+    // The new tracks' synths load, then the view switches.
+    const loaded = await waitForQuiet(session.requests);
+    await calmDown(page, 1000, 15_000);
+    await page.evaluate(() =>
+      window.__MA_STORE__.getState().setCurrentView('score'),
+    );
+    const engraving = await page.evaluate(waitForEngraving, {
+      quietMs: 1000,
+      timeout: 60_000,
+    });
+    if (!engraving.engraved) {
+      throw new Error(
+        `the Score never settled (${engraving.stavenotes} notes engraved after ${round(engraving.ms / 1000)} s)`,
+      );
+    }
+    const settled = await calmDown(page, 1500, 15_000);
+    const pick = await page.evaluate(pickScoreNote);
+    if (pick.reason) throw new Error(pick.reason);
+    await page.mouse.click(pick.x, pick.y);
+    await nextFrames(page);
+    const edits = [];
+    for (let i = 1; i <= windows.edits; i += 1) {
+      // Up, down, up…: every edit moves the note a step, and it stays put.
+      const key = i % 2 ? 'ArrowUp' : 'ArrowDown';
+      await calmDown(page, windows.gestureGapMs);
+      const before = await page.evaluate(scorePitchSum);
+      await startRecording(page);
+      await page.evaluate(armScoreEdit);
+      await page.keyboard.press(key);
+      const timing = await page.evaluate(awaitScoreEdit, 10_000);
+      const probes = await stopRecording(page);
+      const after = await page.evaluate(scorePitchSum);
+      const changed = key === 'ArrowUp' ? after > before : after < before;
+      edits.push({
+        edit: i,
+        key,
+        changed,
+        pitchSum: { before, after },
+        ...timing,
+        reactCommits: Math.round(probes.reactCommitsPerSecond * probes.seconds),
+        scoreViewCommits: Math.round(
+          (probes.regions.ScoreView?.commitsPerSecond ?? 0) * probes.seconds,
+        ),
+        probes,
+      });
+      problems.push(...probeProblems(probes).map((p) => `edit ${i}: ${p}`));
+      if (!timing.sawKey) problems.push(`edit ${i}: the page never saw ${key}`);
+      if (!changed) {
+        problems.push(`edit ${i} (${key}) did not move the selected note`);
+      } else if (timing.rafMs === null) {
+        problems.push(`edit ${i}: the Score never changed on screen`);
+      }
+    }
+    // An edit without an entry was under Event Timing's 16 ms threshold.
+    const eventMs = edits.map((e) => e.eventTiming?.durationMs ?? null);
+    const paintMs = percentiles(
+      edits.filter((e) => e.sawKey).map((e) => e.eventTiming?.durationMs ?? 16),
+      0,
+    );
+    return {
+      setup: { ...session.setup, loaded, settled },
+      score,
+      engraving,
+      pick,
+      edits,
+      stats: {
+        edits: edits.length,
+        changed: edits.filter((e) => e.changed).length,
+        eventTimingEntries: eventMs.filter(isNumber).length,
+        eventMs: percentiles(eventMs, 0),
+        paintMs,
+        inputDelayMs: percentiles(
+          edits.map((e) => e.eventTiming?.inputDelayMs),
+        ),
+        processingMs: percentiles(
+          edits.map((e) => e.eventTiming?.processingMs),
+        ),
+        mutatedMs: percentiles(
+          edits.map((e) => e.mutatedMs),
+          1,
+        ),
+        rafMs: percentiles(
+          edits.map((e) => e.rafMs),
+          1,
+        ),
+        longTaskMs: spread(edits.map((e) => e.longTasks.totalMs)),
+        reactCommits: spread(edits.map((e) => e.reactCommits)),
+        scoreViewCommits: spread(edits.map((e) => e.scoreViewCommits)),
+      },
+      // Event Timing's input to paint, an edit under its threshold as 16 ms.
+      // The target is the laptop's: other profiles report, not judge.
+      targets: {
+        paintP95BudgetMs: SCORE_PAINT_TARGET_MS,
+        judged: profile === 'laptop',
+        paintOk: paintMs.n > 0 ? paintMs.p95 <= SCORE_PAINT_TARGET_MS : null,
+        rafOk:
+          edits.length && edits.every((e) => isNumber(e.rafMs))
+            ? percentiles(edits.map((e) => e.rafMs)).p95 <=
+              SCORE_PAINT_TARGET_MS
+            : null,
+      },
+      problems,
+      pageErrors: session.errors,
+    };
+  } finally {
+    await session.context.close();
+  }
+}
+
 const RUNNERS = {
   idle,
   playback,
@@ -2258,6 +3223,8 @@ const RUNNERS = {
   'note-drag': noteDrag,
   load,
   autosave,
+  'timeline-scroll': timelineScroll,
+  'score-edit': scoreEdit,
 };
 
 /* ── Summary ───────────────────────────────────────────────────────────── */
@@ -2415,6 +3382,105 @@ function autosaveTable(runs) {
       probes.frameMs.p95,
       probes.regions?.TransportBar?.commitsPerSecond ?? 0,
       missed.length ? `${yes(false)}: ${missed.join(', ')}` : yes(true),
+    ];
+  });
+  return table(headers, rows);
+}
+
+/** "n · p50 / p95 / max" of a percentiles() result; "unmeasured" for null. */
+function drawCell(stats) {
+  if (!stats) return 'unmeasured';
+  if (!stats.n) return '0';
+  return `${stats.n} · ${stats.p50} / ${stats.p95} / ${stats.max}`;
+}
+
+/** The yes/no targets of a run: "yes", or "**no**: the missed ones". */
+function targetsCell(targets) {
+  const missed = Object.entries(targets)
+    .filter(([, value]) => value === false)
+    .map(([key]) => key);
+  const unmeasured = Object.entries(targets)
+    .filter(([, value]) => value === null)
+    .map(([key]) => key);
+  if (missed.length) return `**no**: ${missed.join(', ')}`;
+  return unmeasured.length ? `unmeasured: ${unmeasured.join(', ')}` : 'yes';
+}
+
+function timelineScrollTable(runs) {
+  const headers = [
+    'profile',
+    'draws, scroll (n · p50 / p95 / max ms)',
+    'draws, zoom (n · p50 / p95 / max ms)',
+    'draws, both (n · p50 / p95 / max ms)',
+    'wheel events sent / received (scroll; zoom)',
+    'scroll px (min–max) · zoom (min–max)',
+    'frame p95 (ms, scroll / zoom)',
+    'long tasks (n / ms, scroll; zoom)',
+    'React commits/s (scroll / zoom)',
+    'Timeline commits/s (scroll / zoom)',
+    'fader drag: Timeline draws (target 0)',
+    'targets met',
+  ];
+  const rows = runs.map((run) => {
+    const why = unusable(run);
+    if (why) return [run.profile, why];
+    const { scroll, zoom, fader } = run;
+    const both = (get) => `${get(scroll)} / ${get(zoom)}`;
+    return [
+      run.profile,
+      drawCell(scroll.draws),
+      drawCell(zoom.draws),
+      drawCell(run.draws),
+      `${scroll.input.events} / ${scroll.input.received}; ${zoom.input.events} / ${zoom.input.received}`,
+      `${scroll.view.min}–${scroll.view.max} · ${zoom.view.min}–${zoom.view.max}`,
+      both((w) => w.probes.frameMs.p95),
+      `${longTaskCell(scroll.probes)}; ${longTaskCell(zoom.probes)}`,
+      both((w) => w.probes.reactCommitsPerSecond),
+      both((w) => w.probes.regions.Timeline?.commitsPerSecond ?? 0),
+      fader.draws === null
+        ? 'unmeasured'
+        : `${fader.draws} in ${fader.gesture.moves} moves`,
+      targetsCell(run.targets),
+    ];
+  });
+  return table(headers, rows);
+}
+
+function scoreEditTable(runs) {
+  const headers = [
+    'profile',
+    'score',
+    'engraved after switch (ms)',
+    'edits changed',
+    'Event Timing input → paint p50 / p95 / max (ms, entries)',
+    'input delay / processing p95 (ms)',
+    'rAF fallback p50 / p95 / max (ms)',
+    'long-task ms / edit',
+    'React commits / edit',
+    'ScoreView commits / edit',
+    `paint ≤${SCORE_PAINT_TARGET_MS} ms at p95 (laptop target)`,
+  ];
+  const rows = runs.map((run) => {
+    const why = unusable(run);
+    if (why) return [run.profile, why];
+    const s = run.stats;
+    const triple = (p) => `${cell(p.p50)} / ${cell(p.p95)} / ${cell(p.max)}`;
+    const t = run.targets;
+    const verdict = (ok) => (ok === null ? '–' : ok ? 'yes' : '**no**');
+    return [
+      run.profile,
+      `${run.score.parts} parts × ${run.score.bars} bars, ${run.score.notes} notes`,
+      run.engraving.lastChangeMs,
+      `${s.changed} of ${s.edits}`,
+      `${triple(s.paintMs)} (${s.eventTimingEntries} of ${s.edits})`,
+      `${cell(s.inputDelayMs.p95)} / ${cell(s.processingMs.p95)}`,
+      triple(s.rafMs),
+      spreadCell(s.longTaskMs, 0),
+      spreadCell(s.reactCommits, 0),
+      spreadCell(s.scoreViewCommits, 0),
+      t.judged
+        ? `${verdict(t.paintOk)} (rAF ${verdict(t.rafOk)})`
+        : 'not judged (laptop only)',
     ];
   });
   return table(headers, rows);
@@ -2834,6 +3900,38 @@ function summarize(results, meta, limits) {
       'more DOM-changing frames than flips; 0 writes idle; the fader’s final',
       'volume is in the draft body. A missed target is listed here, not as a',
       'problem; an unmeasured one (null) is neither.',
+    ].join('\n'),
+  );
+  add(
+    'timeline-scroll',
+    `Timeline scroll and zoom (${STEMS.count} × ${STEMS.seconds / 60}-minute stereo stems, ${seconds(windows.scrollMs)} each), then a fader drag (${seconds(windows.dragMs)})`,
+    timelineScrollTable(of('timeline-scroll')),
+    [
+      `Draws are the Timeline's DEV measures ${TIMELINE_DRAW}, one per`,
+      'canvas draw ("unmeasured" on a build without them). Scroll is a',
+      'horizontal trackpad swipe (deltaX 40, direction flipped every',
+      'second) and zoom Ctrl+wheel (in, then out, every half second),',
+      'both at 60 events a second over the canvas; Chrome coalesces what',
+      'a busy page has not taken. The stems are 48 kHz AudioBuffers made',
+      'in the page with cloud-style asset ids, so the draft autosave',
+      'leaves them alone. Stage A targets: a draw at p95',
+      `≤${DRAW_P95_TARGET_MS} ms while scrolling (judged on the scroll`,
+      'window), and a fader drag causes 0 Timeline draws.',
+    ].join('\n'),
+  );
+  add(
+    'score-edit',
+    `Score note edits (${SCORE.parts} parts × ${SCORE.bars} bars of 4/4, ${repeats(windows.edits, 'edit')})`,
+    scoreEditTable(of('score-edit')),
+    [
+      'A notehead clicked in the Score view, then ArrowUp and ArrowDown in',
+      'turn (a step up or down), each after the page has calmed down, and',
+      "each checked against the store's pitches. Input → paint is Event",
+      "Timing's keydown duration (rounded to 8 ms; an edit with no entry",
+      'was under its 16 ms threshold and counts as 16). The rAF fallback',
+      "runs from the keydown's timeStamp to the second animation frame",
+      "after the Score's SVG changed (up to a frame late). Target: a note",
+      `edit paints in ≤${SCORE_PAINT_TARGET_MS} ms on the laptop profile; the chromebook is reported.`,
     ].join('\n'),
   );
   const problems = results.flatMap((run) =>

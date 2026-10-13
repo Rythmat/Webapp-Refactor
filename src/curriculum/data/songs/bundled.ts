@@ -1,5 +1,5 @@
 /**
- * The bundled song library — 646 hand-authored chord charts.
+ * The bundled song library — 651 hand-authored chord charts.
  *
  * No longer the runtime source of truth: published songs are fetched from the
  * CDN by src/content/songStore.ts, which imports this module DYNAMICALLY as its
@@ -45,9 +45,11 @@ import { and_she_was } from './and_she_was';
 import { angel_from_montgomery } from './angel_from_montgomery';
 import { another_day_lidell } from './another_day_lidell';
 import { another_star } from './another_star';
+import { anti_hero } from './anti_hero';
 import { ants_marching } from './ants_marching';
 import { any_man_of_mine } from './any_man_of_mine';
 import { as } from './as';
+import { as_it_was } from './as_it_was';
 import { at_last } from './at_last';
 import { auld_lang_syne } from './auld_lang_syne';
 import { baby_one_more_time } from './baby_one_more_time';
@@ -59,6 +61,7 @@ import { beautiful } from './beautiful';
 import { beauty_and_the_beast } from './beauty_and_the_beast';
 import { beers_ago } from './beers_ago';
 import { best_of_my_love } from './best_of_my_love';
+import { best_part } from './best_part';
 import { between_the_bars } from './between_the_bars';
 import { beyond } from './beyond';
 import { billie_jean } from './billie_jean';
@@ -160,6 +163,7 @@ import { ebony_eyes } from './ebony_eyes';
 import { eight_days_a_week } from './eight_days_a_week';
 import { even_if_it_breaks_your_heart } from './even_if_it_breaks_your_heart';
 import { eventually } from './eventually';
+import { evergreen } from './evergreen';
 import { every_little_thing } from './every_little_thing';
 import { everybody_wants_to_rule_the_world } from './everybody_wants_to_rule_the_world';
 import { faith } from './faith';
@@ -200,6 +204,7 @@ import { give_it_to_me_baby } from './give_it_to_me_baby';
 import { give_me_back_my_name } from './give_me_back_my_name';
 import { give_me_one_reason } from './give_me_one_reason';
 import { glory } from './glory';
+import { go_gina } from './go_gina';
 import { go_your_own_way } from './go_your_own_way';
 import { god_only_knows } from './god_only_knows';
 import { gold_on_the_ceiling } from './gold_on_the_ceiling';
@@ -698,9 +703,11 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   angel_from_montgomery: angel_from_montgomery,
   another_day_lidell: another_day_lidell,
   another_star: another_star,
+  anti_hero: anti_hero,
   ants_marching: ants_marching,
   any_man_of_mine: any_man_of_mine,
   as: as,
+  as_it_was: as_it_was,
   at_last: at_last,
   auld_lang_syne: auld_lang_syne,
   baby_one_more_time: baby_one_more_time,
@@ -712,6 +719,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   beauty_and_the_beast: beauty_and_the_beast,
   beers_ago: beers_ago,
   best_of_my_love: best_of_my_love,
+  best_part: best_part,
   between_the_bars: between_the_bars,
   beyond: beyond,
   billie_jean: billie_jean,
@@ -812,6 +820,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   eight_days_a_week: eight_days_a_week,
   even_if_it_breaks_your_heart: even_if_it_breaks_your_heart,
   eventually: eventually,
+  evergreen: evergreen,
   every_little_thing: every_little_thing,
   everybody_wants_to_rule_the_world: everybody_wants_to_rule_the_world,
   faith: faith,
@@ -853,6 +862,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   give_me_back_my_name: give_me_back_my_name,
   give_me_one_reason: give_me_one_reason,
   glory: glory,
+  go_gina: go_gina,
   go_your_own_way: go_your_own_way,
   god_only_knows: god_only_knows,
   gold_on_the_ceiling: gold_on_the_ceiling,

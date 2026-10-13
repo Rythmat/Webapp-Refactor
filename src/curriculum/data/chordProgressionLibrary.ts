@@ -3707,6 +3707,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'hip-hop'],
     artist: 'Best Part- Daniel Caesar',
     song: '',
+    songIds: ['best_part'],
   },
 
   {
@@ -5991,6 +5992,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: 'As it Was- Harry Styles',
+    songIds: ['as_it_was'],
   },
 
   {
@@ -9786,6 +9788,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'Anti-Hero- Taylor Swift',
+    songIds: ['anti_hero'],
   },
 
   {

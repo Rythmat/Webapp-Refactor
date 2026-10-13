@@ -1950,9 +1950,9 @@ describe('the Atlas graph on the repo data', () => {
     // 41 since the duplicate merge (30 Sep 2026): the Average White Band's
     // Dundee event and "Pick Up The Pieces" now name the same act, so the
     // event's tag finds the song.
-    expect(about.filter((e) => e.to.startsWith('song:'))).toHaveLength(41);
+    expect(about.filter((e) => e.to.startsWith('song:'))).toHaveLength(42);
     expect(new Set(about.map((e) => e.from)).size).toBe(697);
-    expect(about.filter((e) => e.inferred)).toHaveLength(7);
+    expect(about.filter((e) => e.inferred)).toHaveLength(8);
     // Genres through the curated table, drawn solid.
     expect(count('in_genre', 'event')).toBe(2334);
   });
@@ -2072,7 +2072,7 @@ describe('the Atlas graph on the repo data', () => {
     );
     // 569 until the bulk import of 30 September 2026 gave 58 undated songs
     // their year; 628 once the Music Maps charts began (We Shall Overcome).
-    expect(count('from_year', 'song')).toBe(635);
+    expect(count('from_year', 'song')).toBe(640);
     expect(count('in_decade')).toBe(years.size);
     expect(count('from_era')).toBe(
       [...years].filter((y) => eraForYear(y)).length,

@@ -98,6 +98,9 @@ describe('map controls', () => {
     button.focus();
     fireEvent.click(button);
     const popover = await screen.findByRole('dialog', { name: 'Layers' });
+    // jsdom reports no animations; a browser does, for every element
+    // (src/index.css), and Radix would then keep the popover mounted.
+    expect(popover).toHaveClass('animate-none');
     fireEvent.keyDown(popover, { key: 'Escape' });
     await waitFor(() =>
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),

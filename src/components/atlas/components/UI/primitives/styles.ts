@@ -48,3 +48,13 @@ export const ATLAS_LINK = `rounded-sm text-atlas-accent underline-offset-2 hover
  */
 export const ATLAS_MAP_CONTROL =
   'h-10 gap-2 bg-atlas-panel/95 px-3.5 shadow-2xl hover:bg-atlas-panel aria-expanded:border-white/30 aria-expanded:bg-atlas-panel';
+
+/**
+ * For a Radix popover or dialog, which stays mounted while its exit
+ * animation plays. src/index.css gives every element an `animation-name`
+ * (its autofill hook), so Radix takes any closing surface for one that is
+ * animating out and waits for an `animationend` that never comes: the
+ * Layers popover stayed open after Escape. `animation: none` lets it close
+ * at once.
+ */
+export const ATLAS_NO_EXIT_ANIMATION = 'animate-none';

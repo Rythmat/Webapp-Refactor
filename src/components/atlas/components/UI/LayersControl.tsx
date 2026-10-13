@@ -6,6 +6,7 @@ import {
   ATLAS_FOCUS,
   ATLAS_ITEM_TITLE,
   ATLAS_MAP_CONTROL,
+  ATLAS_NO_EXIT_ANIMATION,
   ATLAS_POPOVER,
   AtlasPillButton,
 } from '@/components/atlas/components/UI/primitives';
@@ -155,6 +156,7 @@ export function LayersControl() {
           className={cn(
             ATLAS_POPOVER,
             ATLAS_Z.popovers,
+            ATLAS_NO_EXIT_ANIMATION,
             'w-[min(18rem,calc(100vw-1rem))] p-4 focus:outline-none',
           )}
           collisionPadding={8}

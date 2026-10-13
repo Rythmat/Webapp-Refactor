@@ -23,6 +23,7 @@ import {
 } from 'react';
 import { StopThumb } from '@/components/atlas/components/UI/StopThumb';
 import {
+  ATLAS_NO_EXIT_ANIMATION,
   ATLAS_POPOVER,
   AtlasEyebrow,
 } from '@/components/atlas/components/UI/primitives';
@@ -323,13 +324,18 @@ export default function AtlasCommandPalette({
       <Dialog.Portal container={portal}>
         {/* A plain dim, no blur: the globe keeps animating under it. */}
         <Dialog.Overlay
-          className={cn('fixed inset-0 bg-black/60', ATLAS_Z.popovers)}
+          className={cn(
+            'fixed inset-0 bg-black/60',
+            ATLAS_Z.popovers,
+            ATLAS_NO_EXIT_ANIMATION,
+          )}
         />
         <Dialog.Content
           aria-modal="true"
           className={cn(
             ATLAS_POPOVER,
             ATLAS_Z.popovers,
+            ATLAS_NO_EXIT_ANIMATION,
             // Phones: full width at the top, clear of the keyboard. Larger
             // screens: centred, a little above the middle.
             'fixed inset-x-2 top-2 flex max-h-[calc(100dvh-1rem)] flex-col overflow-hidden focus:outline-none',

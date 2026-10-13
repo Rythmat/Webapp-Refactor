@@ -1,5 +1,5 @@
 /**
- * The bundled song library — 643 hand-authored chord charts.
+ * The bundled song library — 644 hand-authored chord charts.
  *
  * No longer the runtime source of truth: published songs are fetched from the
  * CDN by src/content/songStore.ts, which imports this module DYNAMICALLY as its
@@ -198,6 +198,7 @@ import { girl_crush } from './girl_crush';
 import { give_it_to_me_baby } from './give_it_to_me_baby';
 import { give_me_back_my_name } from './give_me_back_my_name';
 import { give_me_one_reason } from './give_me_one_reason';
+import { glory } from './glory';
 import { go_your_own_way } from './go_your_own_way';
 import { god_only_knows } from './god_only_knows';
 import { gold_on_the_ceiling } from './gold_on_the_ceiling';
@@ -845,6 +846,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   give_it_to_me_baby: give_it_to_me_baby,
   give_me_back_my_name: give_me_back_my_name,
   give_me_one_reason: give_me_one_reason,
+  glory: glory,
   go_your_own_way: go_your_own_way,
   god_only_knows: god_only_knows,
   gold_on_the_ceiling: gold_on_the_ceiling,

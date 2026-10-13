@@ -164,11 +164,11 @@ describe('the seed', () => {
       // review took out two film producers credited on "Dock of the Bay",
       // and its 411 releases 407, less four albums that came out years after
       // the recording (a compilation, a soundtrack).
-      artist: 1910,
+      artist: 1911,
       release: 409,
       // bundled.ts's 638, plus the two charts it leaves out that the store has.
-      song: 642,
-      globe_event: 1725,
+      song: 643,
+      globe_event: 1726,
       activity_flow: expect.any(Number),
       fundamentals_flow: 1,
       artist_location: 349,
@@ -322,7 +322,7 @@ describe('GET /items', () => {
       pages += 1;
     } while (cursor);
     expect(pages).toBe(4);
-    expect(seen.size).toBe(642);
+    expect(seen.size).toBe(643);
   });
 
   it('returns every match with no limit, and filters by search and status', () => {
@@ -331,7 +331,7 @@ describe('GET /items', () => {
     const all = ok<{ items: ContentListItem[]; nextCursor: string | null }>(
       call(server, 'GET', '/items', { query: { kind: 'globe_event' } }),
     );
-    expect(all.items).toHaveLength(1725);
+    expect(all.items).toHaveLength(1726);
     expect(all.nextCursor).toBeNull();
 
     const found = ok<{ items: ContentListItem[] }>(
@@ -960,13 +960,13 @@ describe('releases and the mock CDN', () => {
       kind: 'song',
       version: 2,
       status: 'live',
-      itemCount: 642,
+      itemCount: 643,
     });
     expect(live.objectKeys).toHaveLength(4);
     expect(live.totalBytes).toBeGreaterThan(1_000_000);
 
     const manifest = server.cdnManifest();
-    expect(manifest.kinds.songs).toMatchObject({ version: 2, itemCount: 642 });
+    expect(manifest.kinds.songs).toMatchObject({ version: 2, itemCount: 643 });
     expect(fromCdn(server, 'songs', (b) => b.id === 'africa')?.title).toBe(
       'Africa (v2)',
     );
@@ -1407,8 +1407,8 @@ describe('GET /derivation-health', () => {
       unmatchedArtists: { slug: string; songCount: number }[];
     };
     const before = ok<Health>(call(server, 'GET', '/derivation-health'));
-    expect(before.totalSongs).toBe(642);
-    expect(before.matched + before.defaultedToNewYork).toBe(642);
+    expect(before.totalSongs).toBe(643);
+    expect(before.matched + before.defaultedToNewYork).toBe(643);
     // None until the bulk import of 30 September 2026 gave 332 acts a City:
     // 457 songs were placed by their lead act's then, and 467 since its
     // review billed each song's own act before its guests (Crazy in Love:
@@ -1557,7 +1557,7 @@ describe('legacy mode (today’s API)', () => {
     // Every repo chart through today's check: production's import run was
     // refused on 341 (docs/song-body-schema-gap.md), and so was the mock.
     // 602 since the bulk import of 30 September 2026 gave 261 more charts
-    // (604 with the first Music Maps charts, We Shall Overcome and Stay)
+    // (605 with the Music Maps charts so far)
     // credits, a session or a record, keys today's schema refuses: the
     // repo's charts need song v2 on the server before they import whole.
     const refused = seeds.all.items
@@ -1567,7 +1567,7 @@ describe('legacy mode (today’s API)', () => {
           put(server, { kind: 'song', slug: item.slug, body: item.body })
             .status === 422,
       );
-    expect(refused).toHaveLength(604);
+    expect(refused).toHaveLength(605);
 
     // What the seed holds is what production holds: level-0 copies, all valid.
     const validated = ok<{ ok: boolean; problems: ValidationProblem[] }>(

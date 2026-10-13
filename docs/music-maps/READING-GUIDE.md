@@ -66,6 +66,17 @@ More maps exist under `~/Desktop/Music Bridge Master Folder/CMB/Music Atlas/The 
     `src/curriculum/data/chordProgressionLibrary.ts` has a sheet naming the
     song (`song: 'Stay- Rihanna'`), add `songIds: ['<id>']` to it.
 
+## Learned on Glory (2026-10-13)
+
+17. **A map in C may be a minor song.** The maps write every key as its
+    parent major. Check the published key (sheet music): Glory's map is in
+    C, the song is in A minor, so the chart is `A minor` and Am is `1 min`.
+18. **Rap verses over a loop** get an open repeat (no `repeatTimes`) and a
+    cue such as `'Repeat through the verse'`, rather than a guessed bar count.
+19. **Progression sheets confirm a map.** Search the library for the title;
+    a song can have several sheets (Glory: #589 pre-chorus, #483 bridge).
+    Link each with `songIds`, and say when they agree with the map.
+
 ## Implementation notes (learned on We Shall Overcome)
 
 - **Voicings.** Each keyboard snippet starts on the chord's lowest note.

@@ -7526,6 +7526,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'folk'],
     artist: '',
     song: 'Glory (bridge) John Legend',
+    songIds: ['glory'],
   },
 
   {
@@ -9020,6 +9021,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'folk', 'reggae', 'african'],
     artist: '',
     song: 'Glory- John Legend',
+    songIds: ['glory'],
   },
 
   {

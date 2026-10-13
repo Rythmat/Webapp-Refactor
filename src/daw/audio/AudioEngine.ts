@@ -145,8 +145,11 @@ export class AudioEngine {
     return this.monitorDest?.stream ?? null;
   }
 
-  updateMasteringEffects(state: TrackEffectState): void {
-    this.masteringChain?.update(state);
+  updateMasteringEffects(
+    state: TrackEffectState,
+    opts?: { glide?: boolean; deferIr?: boolean },
+  ): void {
+    this.masteringChain?.update(state, opts);
   }
 
   /** The return bus's EffectChain input node — track sends connect here. */
@@ -158,8 +161,12 @@ export class AudioEngine {
     return Array.from(this.returnBuses.keys());
   }
 
-  updateReturnEffects(id: string, state: TrackEffectState): void {
-    this.returnBuses.get(id)?.update(state);
+  updateReturnEffects(
+    id: string,
+    state: TrackEffectState,
+    opts?: { glide?: boolean; deferIr?: boolean },
+  ): void {
+    this.returnBuses.get(id)?.update(state, opts);
   }
 
   setReturnVolume(id: string, volume: number): void {

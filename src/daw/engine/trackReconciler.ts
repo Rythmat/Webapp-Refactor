@@ -50,6 +50,12 @@ import {
 // session generation changes (needsNewEngine). An instrument loads
 // asynchronously; when it is ready it is wired in only if its engine is
 // still the one registered for the track, and disposed otherwise.
+//
+// A control being dragged previews through previewTrack: the engine plays
+// the track as if the drag's value were in the store, and the reconciler
+// counts it as applied, so the one store write on release finds nothing
+// left to do (milestone 1.9). Changes to a live track glide over a few
+// milliseconds rather than stepping.
 
 /** JSON equality for the small settings objects (effects, sends, pads). */
 function sameValue(a: unknown, b: unknown): boolean {
@@ -76,8 +82,31 @@ interface Applied {
 export interface TrackReconciler {
   /** Brings every engine to the store's tracks now. */
   reconcile(): void;
+  /** Plays a track as if `patch` were in the store (see previewTrack). */
+  preview(trackId: string, patch: Partial<Track>): void;
   /** Stops listening. The engines stay (usePlaybackEngine disposes them). */
   stop(): void;
+}
+
+/** The reconciler running now, which previews go to. */
+let active: TrackReconciler | null = null;
+
+/**
+ * Plays a track as if `patch` were applied, without writing the store: a
+ * control's preview while it moves (useContinuousControl). Parameters glide,
+ * and a reverb's Decay is built once, by the release's store write. Nothing
+ * happens before the engine has started.
+ */
+export function previewTrack(trackId: string, patch: Partial<Track>): void {
+  active?.preview(trackId, patch);
+}
+
+/**
+ * Brings previewed tracks back to the store: after a gesture that changed
+ * nothing, or was cancelled.
+ */
+export function endTrackPreview(): void {
+  active?.reconcile();
 }
 
 /**
@@ -97,9 +126,13 @@ export function startTrackReconciler(
   let passTick: number | null = null;
   const tickNow = () => (passTick ??= Tone.getTransport().ticks);
 
-  function reassert(track: Track, engine: TrackEngine): void {
+  function reassert(
+    track: Track,
+    engine: TrackEngine,
+    opts: { glide?: boolean; deferIr?: boolean } = {},
+  ): void {
     automationScheduler.clearTrack(track.id);
-    applyStaticTrackParams(engine, track);
+    applyStaticTrackParams(engine, track, opts);
     automationScheduler.scheduleTrack(
       track.id,
       engine,
@@ -117,7 +150,11 @@ export function startTrackReconciler(
     instrument?.setMonitoring?.(track.monitoring);
   }
 
-  /** Brings an existing engine from `prev` to `next`, field by field. */
+  /**
+   * Brings an existing engine from `prev` to `next`, field by field. Values
+   * glide (the track is live); a preview also leaves the reverb's impulse
+   * response for the release to build.
+   */
   function update(
     state: TrackAudioState,
     prev: Applied,
@@ -125,26 +162,31 @@ export function startTrackReconciler(
     audible: boolean,
     sendsRewired: boolean,
     playing: boolean,
+    preview = false,
   ): void {
     const engine = state.trackEngine;
     const old = prev.track;
+    const opts = { glide: true, deferIr: preview };
     if (audible !== prev.audible) engine.setAudible(audible);
 
     if (old !== next) {
       const statics = staticChanged(old, next);
       const lanes = !sameValue(old.automation, next.automation);
-      if (playing && (statics || lanes || sendsRewired)) {
+      // A preview frame of a track with no lanes has nothing to hand back,
+      // so it skips the re-assert (a clear and reschedule every frame).
+      const automated = !preview || hasLanes(next);
+      if (playing && automated && (statics || lanes || sendsRewired)) {
         // Static writes stomp an automated param: hand the param back to
         // the lanes, which re-applies the static base first.
-        reassert(next, engine);
+        reassert(next, engine, opts);
       } else {
-        if (old.volume !== next.volume) engine.setVolume(next.volume);
-        if (old.pan !== next.pan) engine.setPan(next.pan);
+        if (old.volume !== next.volume) engine.setVolume(next.volume, true);
+        if (old.pan !== next.pan) engine.setPan(next.pan, true);
         if (!sameValue(old.effects, next.effects)) {
-          engine.updateEffects(next.effects);
+          engine.updateEffects(next.effects, opts);
         }
         if (sendsRewired || !sameValue(old.sends, next.sends)) {
-          applySends(engine, next);
+          applySends(engine, next, true);
         }
       }
       if (old.monitoring !== next.monitoring) applyMonitoring(state, next);
@@ -377,6 +419,44 @@ export function startTrackReconciler(
     }
   }
 
+  function preview(trackId: string, patch: Partial<Track>): void {
+    if (stopped) return;
+    const state = trackEngineRegistry.get(trackId);
+    const prev = applied.get(trackId);
+    if (!state || !prev) return;
+    const next = { ...prev.track, ...patch };
+    passTick = null;
+    try {
+      update(
+        state,
+        prev,
+        next,
+        prev.audible,
+        false,
+        useStore.getState().isPlaying,
+        true,
+      );
+    } catch (err) {
+      console.error('[Audio] track preview failed:', err);
+    }
+    // The chain kept its old impulse response (a preview defers it), so it
+    // counts as applied with the old decay and type: the release's store
+    // write then differs, and builds the new one.
+    const heard = prev.track.effects.reverb;
+    const reverb = next.effects.reverb;
+    const track =
+      reverb.decay === heard.decay && reverb.type === heard.type
+        ? next
+        : {
+            ...next,
+            effects: {
+              ...next.effects,
+              reverb: { ...reverb, decay: heard.decay, type: heard.type },
+            },
+          };
+    applied.set(trackId, { track, audible: prev.audible });
+  }
+
   // Runs inside the store write that changed the tracks. A load bumps the
   // generation, seeds the patch caches and sets the tracks in one
   // synchronous block (sessionGeneration.ts), so the write sees the new
@@ -392,15 +472,24 @@ export function startTrackReconciler(
 
   safeReconcile();
 
-  return {
+  const reconciler: TrackReconciler = {
     reconcile: safeReconcile,
+    preview,
     stop() {
       stopped = true;
       unsubscribeTracks();
       unsubscribeGeneration();
       applied.clear();
+      if (active === reconciler) active = null;
     },
   };
+  active = reconciler;
+  return reconciler;
+}
+
+/** Whether a track has any automation lane. */
+function hasLanes(track: Track): boolean {
+  return Object.keys(track.automation ?? {}).length > 0;
 }
 
 function currentTrack(id: string): Track | undefined {

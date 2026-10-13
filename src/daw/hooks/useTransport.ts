@@ -15,6 +15,14 @@ import {
 // playhead clock and the store's parked position, so every playhead jumps
 // immediately.
 
+/**
+ * The tempo while a tempo slider moves: heard at once through the transport,
+ * and written to the store (which everything else follows) on release.
+ */
+export function previewTempo(bpm: number): void {
+  if (Number.isFinite(bpm)) Tone.getTransport().bpm.value = bpm;
+}
+
 export function seekTo(tick: number) {
   const t = Math.max(0, Math.round(tick));
   Tone.getTransport().ticks = t;

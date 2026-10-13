@@ -250,6 +250,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     if (!isReady) return;
     audioEngine.updateMasteringEffects(
       masteringEffectsForEngine(masteringEffects, masteringBypass),
+      { glide: true },
     );
   }, [isReady, masteringEffects, masteringBypass]);
 
@@ -277,7 +278,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   useEffect(() => {
     if (!isReady) return;
     for (const ret of returns) {
-      audioEngine.updateReturnEffects(ret.id, ret.effects);
+      audioEngine.updateReturnEffects(ret.id, ret.effects, { glide: true });
       audioEngine.setReturnVolume(ret.id, ret.volume);
     }
     // A return added or removed: every track's sends wire to the new set.

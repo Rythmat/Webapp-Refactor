@@ -1,5 +1,9 @@
 import type { InstrumentAdapter } from '../instruments/InstrumentAdapter';
-import { EffectChain, type TrackEffectState } from './EffectChain';
+import {
+  EffectChain,
+  PARAM_GLIDE_S,
+  type TrackEffectState,
+} from './EffectChain';
 import { createMeterTap } from './meterTap';
 
 export class TrackEngine {
@@ -105,9 +109,17 @@ export class TrackEngine {
     this.instrument?.panic();
   }
 
-  setVolume(vol: number): void {
+  /** Sets a parameter: at once, or gliding for a change heard while it
+   *  plays (a drag's preview, an edit to a live track). */
+  private setParam(param: AudioParam, value: number, glide: boolean): void {
+    if (glide)
+      param.setTargetAtTime(value, this.ctx.currentTime, PARAM_GLIDE_S);
+    else param.value = value;
+  }
+
+  setVolume(vol: number, glide = false): void {
     if (!Number.isFinite(vol)) return;
-    this.gainNode.gain.value = Math.max(0, Math.min(2, vol));
+    this.setParam(this.gainNode.gain, Math.max(0, Math.min(2, vol)), glide);
   }
 
   /** Mute/solo gate (see isTrackAudible). Ramps over a few ms so toggling
@@ -120,13 +132,16 @@ export class TrackEngine {
     );
   }
 
-  setPan(pan: number): void {
+  setPan(pan: number, glide = false): void {
     if (!Number.isFinite(pan)) return;
-    this.pannerNode.pan.value = Math.max(-1, Math.min(1, pan));
+    this.setParam(this.pannerNode.pan, Math.max(-1, Math.min(1, pan)), glide);
   }
 
-  updateEffects(state: TrackEffectState): void {
-    this.effectChain.update(state);
+  updateEffects(
+    state: TrackEffectState,
+    opts?: { glide?: boolean; deferIr?: boolean },
+  ): void {
+    this.effectChain.update(state, opts);
   }
 
   // ── Automation seam (Phase 7) ──
@@ -167,7 +182,12 @@ export class TrackEngine {
    * 0–1; a level of 0 keeps the (silent) tap wired, so send 0 == exact
    * previous mix — the send contributes nothing until raised.
    */
-  setSend(returnId: string, level: number, busInput: AudioNode | null): void {
+  setSend(
+    returnId: string,
+    level: number,
+    busInput: AudioNode | null,
+    glide = false,
+  ): void {
     const entry = this.sends.get(returnId);
     if (!busInput) {
       if (entry) {
@@ -193,7 +213,7 @@ export class TrackEngine {
       entry.gain.connect(busInput);
       entry.bus = busInput;
     }
-    entry.gain.gain.value = value;
+    this.setParam(entry.gain.gain, value, glide);
   }
 
   dispose(): void {

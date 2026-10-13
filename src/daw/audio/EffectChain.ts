@@ -382,6 +382,12 @@ function generateImpulseResponse(
 // A NaN/Infinity written to any node on the shared mastering chain latches it
 // (compressor/biquad/convolver/delay) to permanent silence until reload, so
 // every derived AudioParam value on this chain is passed through this guard.
+/**
+ * The time constant of a gliding parameter change (setTargetAtTime): 10 ms,
+ * so a drag's steps settle within about 30 ms without zipper noise.
+ */
+export const PARAM_GLIDE_S = 0.01;
+
 function safeVal(x: number, fallback = 0): number {
   return Number.isFinite(x) ? x : fallback;
 }
@@ -390,8 +396,13 @@ function safeVal(x: number, fallback = 0): number {
 
 const crushCurveCache = new Map<number, Float32Array>();
 
+/** The curve a crush or drive amount (0–1) takes: one per percent. */
+function crushKey(crush: number): number {
+  return Math.round(crush * 100);
+}
+
 function generateCrushCurve(crush: number): Float32Array {
-  const quantized = Math.round(crush * 100);
+  const quantized = crushKey(crush);
   let curve = crushCurveCache.get(quantized);
   if (curve) return curve;
 
@@ -504,6 +515,13 @@ export class EffectChain {
   // Whether update() has run: until then `state` is the constructor's default,
   // not something anyone has heard.
   private hasUpdated = false;
+  // Whether the update under way glides its parameters (see update()).
+  private gliding = false;
+  // The drive each waveshaper's curve was made for (generateCrushCurve's
+  // key), so an update that leaves it alone doesn't swap the curve: Chromium
+  // outputs a silent quantum while a curve is replaced.
+  private crushCurveKey = 0;
+  private saturatorCurveKey = 0;
 
   constructor(ctx: AudioContext) {
     this.ctx = ctx;
@@ -1317,7 +1335,7 @@ export class EffectChain {
   ): void {
     const param = filter.frequency;
     if (!glide) {
-      param.value = hz;
+      this.setParam(param, hz);
       return;
     }
     const now = this.ctx.currentTime;
@@ -1326,9 +1344,34 @@ export class EffectChain {
     param.setTargetAtTime(hz, now, 0.05);
   }
 
+  /** Sets a parameter: at once, or gliding while update() glides. */
+  private setParam(param: AudioParam, value: number): void {
+    if (this.gliding) {
+      param.setTargetAtTime(value, this.ctx.currentTime, PARAM_GLIDE_S);
+    } else {
+      param.value = value;
+    }
+  }
+
   // ── Update parameters ─────────────────────────────────────────────────
 
-  update(newState: TrackEffectState): void {
+  /**
+   * Brings the chain to `newState`. A preview while a control moves
+   * (useContinuousControl) passes `glide`, so parameters move over a few
+   * milliseconds instead of stepping at the pointer's rate, and `deferIr`, so
+   * the reverb's impulse response is rebuilt once on release rather than for
+   * every Decay step: the chain keeps its old IR, and remembers the old decay
+   * and type, so the release's update builds the new one.
+   */
+  update(
+    newState: TrackEffectState,
+    opts: { glide?: boolean; deferIr?: boolean } = {},
+  ): void {
+    // A new chain's first update is not heard yet, and a bounce must start
+    // exact: it never glides.
+    this.gliding = (opts.glide ?? false) && this.hasUpdated;
+    const deferIr = opts.deferIr ?? false;
+    const heardReverb = this.state.reverb;
     // Reverb (true bypass)
     const wantReverbBypass = !newState.reverb.enabled;
     // Enabling the slot must (re)load the IR even when type/decay are unchanged,
@@ -1338,26 +1381,29 @@ export class EffectChain {
       this.wireReverbBypass(wantReverbBypass);
     }
     if (newState.reverb.enabled) {
-      if (
-        reverbJustEnabled ||
+      const irChanged =
         newState.reverb.decay !== this.state.reverb.decay ||
-        newState.reverb.type !== this.state.reverb.type
-      ) {
+        newState.reverb.type !== this.state.reverb.type;
+      if (reverbJustEnabled || (irChanged && !deferIr)) {
         this.applyReverbIr(newState.reverb.type, newState.reverb.decay);
       }
-      this.reverbPreDelay.delayTime.value = safeVal(
-        newState.reverb.preDelay / 1000,
+      this.setParam(
+        this.reverbPreDelay.delayTime,
+        safeVal(newState.reverb.preDelay / 1000),
       );
-      this.reverbHighPass.frequency.value = safeVal(
-        newState.reverb.highPass,
-        20,
+      this.setParam(
+        this.reverbHighPass.frequency,
+        safeVal(newState.reverb.highPass, 20),
       );
-      this.reverbLowPass.frequency.value = safeVal(
-        newState.reverb.lowPass,
-        20000,
+      this.setParam(
+        this.reverbLowPass.frequency,
+        safeVal(newState.reverb.lowPass, 20000),
       );
-      this.reverbWetGain.gain.value = safeVal(newState.reverb.wet);
-      this.reverbDryGain.gain.value = safeVal(1 - newState.reverb.wet, 1);
+      this.setParam(this.reverbWetGain.gain, safeVal(newState.reverb.wet));
+      this.setParam(
+        this.reverbDryGain.gain,
+        safeVal(1 - newState.reverb.wet, 1),
+      );
     }
 
     // EQ (8-band parametric, with cascaded filter groups)
@@ -1390,14 +1436,14 @@ export class EffectChain {
           } else if (band.type === 'highcut') {
             this.setCutoff(filter, 22050, glide);
           } else {
-            filter.frequency.value = band.freq;
-            filter.gain.value = 0;
+            this.setParam(filter.frequency, band.freq);
+            this.setParam(filter.gain, 0);
           }
-          filter.Q.value = band.Q;
+          this.setParam(filter.Q, band.Q);
         } else {
           this.setCutoff(filter, band.freq, glide);
-          filter.gain.value = band.gain;
-          filter.Q.value = band.Q;
+          this.setParam(filter.gain, band.gain);
+          this.setParam(filter.Q, band.Q);
         }
       }
     }
@@ -1407,9 +1453,12 @@ export class EffectChain {
     }
 
     // EQ makeup gain
-    this.eqMakeupGain.gain.value = newState.eq.enabled
-      ? safeVal(Math.pow(10, newState.eq.makeup / 20), 1)
-      : 1;
+    this.setParam(
+      this.eqMakeupGain.gain,
+      newState.eq.enabled
+        ? safeVal(Math.pow(10, newState.eq.makeup / 20), 1)
+        : 1,
+    );
 
     // Gate — params are read by the polling loop in startGateLoop()
     // Just ensure gate gain is 1 when disabled
@@ -1421,23 +1470,26 @@ export class EffectChain {
 
     // Compressor
     if (newState.compressor.enabled) {
-      this.compressor.threshold.value = newState.compressor.threshold;
-      this.compressor.ratio.value = newState.compressor.ratio;
-      this.compressor.knee.value = newState.compressor.knee;
-      this.compressor.attack.value = newState.compressor.attack;
-      this.compressor.release.value = newState.compressor.release;
+      this.setParam(this.compressor.threshold, newState.compressor.threshold);
+      this.setParam(this.compressor.ratio, newState.compressor.ratio);
+      this.setParam(this.compressor.knee, newState.compressor.knee);
+      this.setParam(this.compressor.attack, newState.compressor.attack);
+      this.setParam(this.compressor.release, newState.compressor.release);
     } else {
-      this.compressor.threshold.value = 0;
-      this.compressor.ratio.value = 1;
+      this.setParam(this.compressor.threshold, 0);
+      this.setParam(this.compressor.ratio, 1);
     }
 
     // Crush (saturation)
-    if (newState.compressor.enabled && newState.compressor.crush > 0) {
+    const crush =
+      newState.compressor.enabled && newState.compressor.crush > 0
+        ? newState.compressor.crush
+        : 0;
+    if (crushKey(crush) !== this.crushCurveKey) {
+      this.crushCurveKey = crushKey(crush);
       this.crushNode.curve = generateCrushCurve(
-        newState.compressor.crush,
+        crush,
       ) as Float32Array<ArrayBuffer>;
-    } else {
-      this.crushNode.curve = generateCrushCurve(0) as Float32Array<ArrayBuffer>;
     }
 
     // Makeup gain
@@ -1450,9 +1502,12 @@ export class EffectChain {
         const ratio = Math.max(1, newState.compressor.ratio);
         makeupDb = (-newState.compressor.threshold * (1 - 1 / ratio)) / 2;
       }
-      this.makeupGain.gain.value = safeVal(Math.pow(10, makeupDb / 20), 1);
+      this.setParam(
+        this.makeupGain.gain,
+        safeVal(Math.pow(10, makeupDb / 20), 1),
+      );
     } else {
-      this.makeupGain.gain.value = 1;
+      this.setParam(this.makeupGain.gain, 1);
     }
 
     // Presence (true bypass — peaking EQ boost)
@@ -1461,10 +1516,13 @@ export class EffectChain {
       this.wirePresenceBypass(wantPresenceBypass);
     }
     if (newState.presence.enabled) {
-      this.presenceFilter.frequency.value = newState.presence.frequency;
-      this.presenceFilter.Q.value = newState.presence.bandwidth;
+      this.setParam(this.presenceFilter.frequency, newState.presence.frequency);
+      this.setParam(this.presenceFilter.Q, newState.presence.bandwidth);
       // amount 0–100 maps to gain 0–12 dB
-      this.presenceFilter.gain.value = (newState.presence.amount / 100) * 12;
+      this.setParam(
+        this.presenceFilter.gain,
+        (newState.presence.amount / 100) * 12,
+      );
     }
 
     // De-Esser (true bypass — compressor on full signal, triggered by HF)
@@ -1473,16 +1531,24 @@ export class EffectChain {
       this.wireDeEsserBypass(wantDeEsserBypass);
     }
     if (newState['de-esser'].enabled) {
-      this.deEsserFilter.frequency.value = newState['de-esser'].frequency;
+      this.setParam(
+        this.deEsserFilter.frequency,
+        newState['de-esser'].frequency,
+      );
       // amount 0–100 maps to threshold 0 to -40 dB
-      this.deEsserCompressor.threshold.value =
-        -(newState['de-esser'].amount / 100) * 40;
-      this.deEsserCompressor.ratio.value =
-        4 + (newState['de-esser'].range / 20) * 16; // 4:1 to 20:1
+      this.setParam(
+        this.deEsserCompressor.threshold,
+        -(newState['de-esser'].amount / 100) * 40,
+      );
+      // 4:1 to 20:1
+      this.setParam(
+        this.deEsserCompressor.ratio,
+        4 + (newState['de-esser'].range / 20) * 16,
+      );
       // Wet/dry blend: more amount = more wet (compressed) signal
       const wetAmount = newState['de-esser'].amount / 100;
-      this.deEsserWetGain.gain.value = wetAmount;
-      this.deEsserDryGain.gain.value = 1 - wetAmount;
+      this.setParam(this.deEsserWetGain.gain, wetAmount);
+      this.setParam(this.deEsserDryGain.gain, 1 - wetAmount);
     }
 
     // Delay (true bypass)
@@ -1491,14 +1557,15 @@ export class EffectChain {
       this.wireDelayBypass(wantDelayBypass);
     }
     if (newState.delay.enabled) {
-      this.delayNode.delayTime.value = safeVal(newState.delay.time);
+      this.setParam(this.delayNode.delayTime, safeVal(newState.delay.time));
       // Guard the feedback loop especially: Math.min(0.95, NaN) is NaN, and a
       // NaN in a delay-feedback loop latches it to permanent silence.
-      this.delayFeedback.gain.value = safeVal(
-        Math.min(0.95, newState.delay.feedback),
+      this.setParam(
+        this.delayFeedback.gain,
+        safeVal(Math.min(0.95, newState.delay.feedback)),
       );
-      this.delayWetGain.gain.value = safeVal(newState.delay.wet);
-      this.delayDryGain.gain.value = safeVal(1 - newState.delay.wet, 1);
+      this.setParam(this.delayWetGain.gain, safeVal(newState.delay.wet));
+      this.setParam(this.delayDryGain.gain, safeVal(1 - newState.delay.wet, 1));
     }
 
     // Saturator (true bypass — waveshaper with dry/wet mix and tone)
@@ -1508,16 +1575,22 @@ export class EffectChain {
     }
     if (newState.saturator.enabled) {
       // drive 0–100 maps to crush curve 0–1
-      this.saturatorShaper.curve = generateCrushCurve(
-        newState.saturator.drive / 100,
-      ) as Float32Array<ArrayBuffer>;
+      const drive = newState.saturator.drive / 100;
+      if (crushKey(drive) !== this.saturatorCurveKey) {
+        this.saturatorCurveKey = crushKey(drive);
+        this.saturatorShaper.curve = generateCrushCurve(
+          drive,
+        ) as Float32Array<ArrayBuffer>;
+      }
       // tone 0–100 maps to lowpass freq 2000–20000 Hz
-      this.saturatorToneFilter.frequency.value =
-        2000 + (newState.saturator.tone / 100) * 18000;
+      this.setParam(
+        this.saturatorToneFilter.frequency,
+        2000 + (newState.saturator.tone / 100) * 18000,
+      );
       // mix 0–100 maps to wet/dry blend
       const mix = newState.saturator.mix / 100;
-      this.saturatorWetGain.gain.value = mix;
-      this.saturatorDryGain.gain.value = 1 - mix;
+      this.setParam(this.saturatorWetGain.gain, mix);
+      this.setParam(this.saturatorDryGain.gain, 1 - mix);
     }
 
     // Multiband (OTT, true bypass — 3-band up/down compressor)
@@ -1530,30 +1603,46 @@ export class EffectChain {
       // Crossover frequencies → the cascaded band filters. Band 0 = low (2x
       // LP@low), band 1 = mid (2x HP@low, 2x LP@high), band 2 = high (2x HP@high).
       const [low, mid, high] = this.multibandBands;
-      for (const f of low.filters) f.frequency.value = mb.crossoverLow;
-      mid.filters[0].frequency.value = mb.crossoverLow;
-      mid.filters[1].frequency.value = mb.crossoverLow;
-      mid.filters[2].frequency.value = mb.crossoverHigh;
-      mid.filters[3].frequency.value = mb.crossoverHigh;
-      for (const f of high.filters) f.frequency.value = mb.crossoverHigh;
+      for (const f of low.filters) this.setParam(f.frequency, mb.crossoverLow);
+      this.setParam(mid.filters[0].frequency, mb.crossoverLow);
+      this.setParam(mid.filters[1].frequency, mb.crossoverLow);
+      this.setParam(mid.filters[2].frequency, mb.crossoverHigh);
+      this.setParam(mid.filters[3].frequency, mb.crossoverHigh);
+      for (const f of high.filters)
+        this.setParam(f.frequency, mb.crossoverHigh);
       // time 0–1 → attack 1–51 ms, release 20–320 ms (all bands).
       const attack = 0.001 + mb.time * 0.05;
       const release = 0.02 + mb.time * 0.3;
       for (const band of this.multibandBands) {
-        band.comp.attack.value = attack;
-        band.comp.release.value = release;
+        this.setParam(band.comp.attack, attack);
+        this.setParam(band.comp.release, release);
       }
-      low.userGain.gain.value = safeVal(Math.pow(10, mb.lowGain / 20), 1);
-      mid.userGain.gain.value = safeVal(Math.pow(10, mb.midGain / 20), 1);
-      high.userGain.gain.value = safeVal(Math.pow(10, mb.highGain / 20), 1);
+      this.setParam(
+        low.userGain.gain,
+        safeVal(Math.pow(10, mb.lowGain / 20), 1),
+      );
+      this.setParam(
+        mid.userGain.gain,
+        safeVal(Math.pow(10, mb.midGain / 20), 1),
+      );
+      this.setParam(
+        high.userGain.gain,
+        safeVal(Math.pow(10, mb.highGain / 20), 1),
+      );
       // depth = global dry/wet (Ableton OTT "Depth"). depth 0 ⇒ exact null.
-      this.multibandWetGain.gain.value = safeVal(mb.depth);
-      this.multibandDryGain.gain.value = safeVal(1 - mb.depth, 1);
+      this.setParam(this.multibandWetGain.gain, safeVal(mb.depth));
+      this.setParam(this.multibandDryGain.gain, safeVal(1 - mb.depth, 1));
     }
 
     // Ducker (sidechain) — the loop reads live params from this.state (set
     // below), so we only manage its lifecycle here: run only while enabled.
     this.state = structuredClone(newState);
+    if (deferIr && !reverbJustEnabled) {
+      // Not built yet: the next update without deferIr builds it.
+      this.state.reverb.decay = heardReverb.decay;
+      this.state.reverb.type = heardReverb.type;
+    }
+    this.gliding = false;
     this.hasUpdated = true;
     // Gate loop lifecycle: run the 60Hz polling interval ONLY while the gate is
     // enabled. It's cheap per tick but there is one per track + master + every

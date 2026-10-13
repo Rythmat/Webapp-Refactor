@@ -147,12 +147,17 @@ export function applyDrumPads(engine: DrumMachineEngine, track: Track): void {
 /** Apply a track's post-fader aux send levels to its engine, one per active
  *  return bus. A missing send (or no bus) resolves to a silent tap, so send 0
  *  is exactly the previous mix. */
-export function applySends(engine: TrackEngine, track: Track): void {
+export function applySends(
+  engine: TrackEngine,
+  track: Track,
+  glide = false,
+): void {
   for (const returnId of audioEngine.getReturnIds()) {
     engine.setSend(
       returnId,
       track.sends?.[returnId] ?? 0,
       audioEngine.getReturnBusInput(returnId),
+      glide,
     );
   }
 }
@@ -162,11 +167,13 @@ export function applySends(engine: TrackEngine, track: Track): void {
 export function applyStaticTrackParams(
   engine: TrackEngine,
   track: Track,
+  opts: { glide?: boolean; deferIr?: boolean } = {},
 ): void {
-  engine.setVolume(track.volume);
-  engine.setPan(track.pan);
-  engine.updateEffects(track.effects);
-  applySends(engine, track);
+  const glide = opts.glide ?? false;
+  engine.setVolume(track.volume, glide);
+  engine.setPan(track.pan, glide);
+  engine.updateEffects(track.effects, opts);
+  applySends(engine, track, glide);
 }
 
 /** Re-assert a track's automation while playing, so it re-wins params the static

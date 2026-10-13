@@ -39,8 +39,8 @@ vi.mock('@/daw/audio/TrackEngine', () => ({
     setPan(p: number) {
       calls.log.push(`${this.id}:pan ${p}`);
     }
-    updateEffects() {
-      calls.log.push(`${this.id}:effects`);
+    updateEffects(_state: unknown, opts?: { deferIr?: boolean }) {
+      calls.log.push(`${this.id}:effects${opts?.deferIr ? ' deferIr' : ''}`);
     }
     setSend(id: string, level: number) {
       calls.log.push(`${this.id}:send ${id} ${level}`);
@@ -76,7 +76,12 @@ vi.mock('@/daw/instruments/PianoSampler', () => ({
 import { useStore } from '@/daw/store';
 import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
 import type { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
-import { startTrackReconciler, type TrackReconciler } from '../trackReconciler';
+import {
+  endTrackPreview,
+  previewTrack,
+  startTrackReconciler,
+  type TrackReconciler,
+} from '../trackReconciler';
 import { trackEngineRegistry } from '../trackAudio';
 
 const s = () => useStore.getState();
@@ -214,5 +219,66 @@ describe('the track reconciler', () => {
     reconciler?.stop();
     s().addTrack('midi', 'piano-sampler', 'Late');
     expect(calls.engines).toHaveLength(1);
+  });
+});
+
+// ── Previews (milestone 1.9) ────────────────────────────────────────────────
+// A control being dragged plays through previewTrack without writing the
+// store; the release's one write then finds the engine already there.
+
+describe('previews', () => {
+  it('plays a dragged value without a store write, and the release applies nothing more', () => {
+    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    start();
+    calls.log.length = 0;
+    const tracks = s().tracks;
+
+    previewTrack(id, { volume: 0.4 });
+    previewTrack(id, { volume: 0.3 });
+    expect(calls.log).toEqual(['0:volume 0.4', '0:volume 0.3']);
+    expect(s().tracks).toBe(tracks);
+
+    calls.log.length = 0;
+    s().updateTrack(id, { volume: 0.3 });
+    expect(calls.log).toEqual([]);
+  });
+
+  it("builds a reverb's new impulse response once, on release", () => {
+    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    start();
+    calls.log.length = 0;
+    const effects = s().tracks[0].effects;
+    const longer = {
+      ...effects,
+      reverb: { ...effects.reverb, decay: effects.reverb.decay + 2 },
+    };
+
+    previewTrack(id, { effects: longer });
+    expect(calls.log).toEqual(['0:effects deferIr']);
+
+    calls.log.length = 0;
+    s().updateTrack(id, { effects: longer });
+    expect(calls.log).toEqual(['0:effects']);
+  });
+
+  it('puts the sound back when a gesture changes nothing', () => {
+    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    start();
+    previewTrack(id, { volume: 0.2 });
+    calls.log.length = 0;
+
+    endTrackPreview();
+    expect(calls.log).toEqual(['0:volume 0.8']);
+  });
+
+  it('does not re-assert a track with no lanes on every preview frame while playing', () => {
+    const id = s().addTrack('midi', 'piano-sampler', 'Keys');
+    start();
+    useStore.setState({ isPlaying: true });
+    automation.cleared.length = 0;
+
+    previewTrack(id, { volume: 0.5 });
+    expect(automation.cleared).toEqual([]);
+    expect(calls.log).toContain('0:volume 0.5');
   });
 });

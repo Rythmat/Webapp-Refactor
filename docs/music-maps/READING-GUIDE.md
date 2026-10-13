@@ -88,6 +88,20 @@ More maps exist under `~/Desktop/Music Bridge Master Folder/CMB/Music Atlas/The 
     Commit the chart, then run `golden.test.ts` in a `git worktree` of that
     commit and amend with its digests.
 
+## Learned on the second batch (2026-10-13)
+
+22. **6/9 chords**: `chordName` keeps the map's `D6/9`; the degree token is
+    `maj69` (`4 maj69`), never `maj6/9`, which would read as a slash bass.
+    The quality is wired through the chord library, parser, engine map and
+    guitar grips.
+23. **The keyboards settle 7ths.** Best Part's summary says `1 maj`, its
+    keyboards and progression sheet 236 say Dmaj7: chart the 7th.
+24. **Double-time maps** (Anti-Hero at 194, recorded at 97) keep the map's
+    bars and tempo, so playback lines up with the recording; a section note
+    says so.
+25. **New event cities** (Hobart, Maplewood) move the vocabulary golden's
+    `placeAndGenreNames` digest too.
+
 ## Implementation notes (learned on We Shall Overcome)
 
 - **Voicings.** Each keyboard snippet starts on the chord's lowest note.

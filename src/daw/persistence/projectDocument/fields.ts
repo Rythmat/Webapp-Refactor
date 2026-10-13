@@ -65,9 +65,10 @@ import { guessTrackRole } from '@/daw/utils/trackRole';
 //   false still belongs to the project and is saved with it, but in a room
 //   each collaborator sets their own (mute, solo, the loop region, the key
 //   lock).
-// - undo: part of the project's undo history. Collab and undo say what a
-//   field should do, not what it does today: milestones 1.9 (undo) and 1.14
-//   (sync) build on them.
+// - undo: part of the project's undo history. Undo follows it since
+//   milestone 1.9 (store/history.ts, and collab undo's scope in
+//   collab/undoScope.ts). Collab says what a field should do, not what it
+//   does today: milestone 1.14 (sync) builds on it.
 // - perUser: belongs to the person, not the project, so it never reaches the
 //   cloud copy or a room and never makes the project unsaved. That is the
 //   prefs, stored per user apart from any project, and the track fields that
@@ -194,12 +195,13 @@ const UNSHARED = { collab: false, undo: false } as const;
 
 type Sync = typeof SHARED_UNDO | typeof SHARED | typeof UNSHARED;
 
-function doc<T>(
+/** A doc field keeps its sync flags as types, for UndoKey and CollabUndoKey. */
+function doc<T, S extends Sync = Sync>(
   group: FieldGroup,
   value: Default<T>,
   cloud: CloudFlag,
-  sync: Sync,
-): ScopedSpec<T, 'doc'> {
+  sync: S,
+): ScopedSpec<T, 'doc'> & S {
   return Object.freeze({
     ...SCOPE_FLAGS.doc,
     group,
@@ -454,6 +456,16 @@ type KeysOfScope<S extends FieldScope> = {
 export type DocKey = KeysOfScope<'doc'>;
 export type ViewKey = KeysOfScope<'view'>;
 export type PrefKey = KeysOfScope<'pref'>;
+
+/** The store keys in the project's undo history, as a type. */
+export type UndoKey = {
+  [K in keyof StoreSpecs]: StoreSpecs[K]['undo'] extends true ? K : never;
+}[keyof StoreSpecs];
+
+/** The undo keys shared with collaborators: collab undo's scope, as a type. */
+export type CollabUndoKey = {
+  [K in UndoKey]: StoreSpecs[K]['collab'] extends true ? K : never;
+}[UndoKey];
 
 // ── Tracks ─────────────────────────────────────────────────────────────────
 
@@ -827,6 +839,15 @@ export const SESSION_KEYS: readonly StoreDataKey[] = storeKeysWhere(
 export const DROP_KEYS: readonly StoreDataKey[] = storeKeysWhere(
   (s) => s.scope === 'drop',
 );
+/**
+ * What undo covers (milestone 1.9's history.ts): every key the project's
+ * undo restores, and so every key whose change is an edit to undo.
+ */
+export const UNDO_KEYS = storeKeysWhere((s) => s.undo) as readonly UndoKey[];
+/** What undo covers in a shared session (collab/undoScope.ts). */
+export const COLLAB_UNDO_KEYS = storeKeysWhere(
+  (s) => s.undo && s.collab,
+) as readonly CollabUndoKey[];
 /** What initialProjectState() resets: doc, view and per-project session keys. */
 export const RESET_ON_NEW_KEYS: readonly StoreDataKey[] = storeKeysWhere(
   (s) => s.resetOnNew,

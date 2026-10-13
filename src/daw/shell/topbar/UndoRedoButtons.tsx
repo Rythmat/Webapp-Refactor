@@ -20,8 +20,9 @@ import { shortcutKeys } from '@/daw/commands/shortcuts';
 // canRedo flips (not on every undoable edit). Off while a session opens and
 // while recording (undoing the step that armed or made the record track
 // mid-take would leave the take nowhere to land). Shortcut labels follow the keyboard:
-// ⌘Z on a Mac, Ctrl+Z on a Chromebook. Milestone 1.9 replaces the undo
-// internals; 2.5 moves these into the editor's own top bar.
+// ⌘Z on a Mac, Ctrl+Z on a Chromebook. Since milestone 1.9 each step has a
+// label (smartUndoLabel) for a later history list; 2.5 moves these into the
+// editor's own top bar.
 
 const UNDO_KEYS = shortcutKeys('edit.undo');
 const REDO_KEYS = shortcutKeys('edit.redo');

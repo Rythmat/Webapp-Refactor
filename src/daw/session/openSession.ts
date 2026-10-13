@@ -12,6 +12,7 @@ import {
 } from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
 import { resetUndoHistory } from '@/daw/store/undoMiddleware';
+import { withOrigin } from '@/daw/store/writeContext';
 import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
 import {
   draftHasWork,
@@ -928,7 +929,11 @@ async function executeLate(
   // ── loading ──
   setPhase(run, 'loading');
   try {
-    prepared.apply({ collab: deps.collab, drafts: deps.drafts });
+    // A seed: what the project opens with is no edit to undo, and in a room
+    // it is not this student's change for collab undo either.
+    withOrigin('seed', () =>
+      prepared.apply({ collab: deps.collab, drafts: deps.drafts }),
+    );
   } catch (err) {
     console.error('[open] the session could not be applied', err);
     return failAfterSwitch(
@@ -967,7 +972,7 @@ async function executeLate(
   // ── baselining ──
   setPhase(run, 'baselining');
   markDocumentBaseline({ savedComplete: prepared.savedComplete });
-  // Also cancels the undo captures the apply queued.
+  // What the open left is where the history starts.
   resetUndoHistory();
   const generation = getSessionGeneration();
   const roomId = useStore.getState().roomId;

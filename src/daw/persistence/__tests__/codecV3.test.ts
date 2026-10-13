@@ -32,7 +32,11 @@ import {
 import { useStore, type AllSlices } from '@/daw/store';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { Track } from '@/daw/store/tracksSlice';
-import { canUndo, pushUndo } from '@/daw/store/undoMiddleware';
+import {
+  canUndo,
+  initUndoTracking,
+  withTransaction,
+} from '@/daw/store/undoMiddleware';
 import {
   checkedValue,
   decodeSession,
@@ -804,11 +808,14 @@ describe('loading a draft into the store', () => {
   });
 
   it('starts its own undo history', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
-    pushUndo();
+    const release = initUndoTracking();
+    withTransaction('Add track', () =>
+      s().addTrack('midi', 'piano-sampler', 'Keys'),
+    );
     expect(canUndo()).toBe(true);
     deserializeSession(allFields());
     expect(canUndo()).toBe(false);
+    release();
   });
 
   it('changes nothing when the draft cannot be read', () => {

@@ -354,12 +354,12 @@ export interface TracksSlice {
    * the last project held starts over, the template going in as one store
    * write. An unknown id changes nothing.
    *
-   * The rest of a load is the caller's: open it through seedTemplate
-   * (session/linkSeeds.ts) inside replaceSession, which keeps the outgoing
-   * work first and, once the template is in, resets the undo history and
-   * marks the save-status baseline. The slice can do neither itself, since
-   * undoMiddleware and saveStatusStore load the store; without them Cmd+Z
-   * would bring the last project's tracks back into the template.
+   * The rest of a load is the caller's: open it through openSession (the
+   * template intent), which keeps the outgoing work first, applies the
+   * template as a seed write and, once it is in, resets the undo history
+   * and marks the save-status baseline. The slice can do neither itself,
+   * since the history and saveStatusStore load the store; without them Cmd+Z
+   * would take the template's tracks away.
    *
    * Throws, changing nothing, while a collab room is connected (see the
    * action). Refusing in a room, and while a take is recording, is the

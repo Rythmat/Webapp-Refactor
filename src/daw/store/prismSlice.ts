@@ -293,6 +293,32 @@ function degreeNameToChord(
   return generateChord(bassMidi, quality);
 }
 
+/**
+ * What follows from the key, as setRootNote and setMode leave it: the key
+ * colour, and the builder's chords spelled in the key. Undo restores the key
+ * through this, so the key chip and the builder never stay on the key undone.
+ */
+export function keyDerivedState({
+  rootNote,
+  mode,
+  stringSeq,
+}: {
+  rootNote: number | null;
+  mode: string;
+  stringSeq: readonly string[];
+}): Partial<Pick<PrismSlice, 'rootTrackColor' | 'chordSeq'>> {
+  if (rootNote === null) return { rootTrackColor: null };
+  const derived: Partial<Pick<PrismSlice, 'rootTrackColor' | 'chordSeq'>> = {
+    rootTrackColor: keyColourOf(rootNote, mode),
+  };
+  if (stringSeq.length > 0) {
+    derived.chordSeq = normalizeSequence(
+      stringSeq.map((name) => degreeNameToChord(name, rootNote + 48, mode)),
+    );
+  }
+  return derived;
+}
+
 /** Compute note-letter chord name from a degree-qualified name, e.g. "1 major" → "C maj" */
 function degreeToNoteName(
   degreeName: string,

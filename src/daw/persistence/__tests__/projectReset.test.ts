@@ -15,7 +15,11 @@ import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
 import { useStore } from '@/daw/store';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { defaultReturns } from '@/daw/store/returnsSlice';
-import { pushUndo, canUndo } from '@/daw/store/undoMiddleware';
+import {
+  canUndo,
+  initUndoTracking,
+  withTransaction,
+} from '@/daw/store/undoMiddleware';
 import { resolveTrackRole } from '@/daw/utils/trackRole';
 import {
   dedupeChordRegionIds,
@@ -235,11 +239,14 @@ describe('the live-session marker', () => {
   // the baseline in replaceSession; see studio-projects' replaceSession test.)
   it('a restored session starts with no undo history', () => {
     resetSessionToEmpty();
-    s().addTrack('midi', 'piano-sampler', 'Keys');
-    pushUndo();
+    const release = initUndoTracking();
+    withTransaction('Add track', () =>
+      s().addTrack('midi', 'piano-sampler', 'Keys'),
+    );
     expect(canUndo()).toBe(true);
     deserializeSession(serializeSession());
     expect(canUndo()).toBe(false);
+    release();
   });
 });
 

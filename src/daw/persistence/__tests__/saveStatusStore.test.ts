@@ -33,7 +33,12 @@ import { join, resolve } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getTrackSynthState } from '@/daw/oracle-synth/synthTrackState';
 import { useStore, type AllSlices, type Track } from '@/daw/store';
-import { pushUndo, resetUndoHistory, undo } from '@/daw/store/undoMiddleware';
+import {
+  initUndoTracking,
+  resetUndoHistory,
+  undo,
+  withTransaction,
+} from '@/daw/store/undoMiddleware';
 import {
   DOC_CONTENT_KEYS,
   DOC_KEYS,
@@ -488,11 +493,14 @@ describe('isDocumentDirty', () => {
 
   it('reads clean again after an undo back to the baseline', () => {
     const { keys } = openProject();
-    pushUndo();
-    s().updateTrack(keys, { volume: 0.1 });
-    s().updateMidiClip(keys, 'clip-keys', { startTick: 1920 });
+    const release = initUndoTracking();
+    withTransaction('Edit', () => {
+      s().updateTrack(keys, { volume: 0.1 });
+      s().updateMidiClip(keys, 'clip-keys', { startTick: 1920 });
+    });
     expect(isDocumentDirty()).toBe(true);
     expect(undo()).toBe(true);
+    release();
     expect(status().documentVersion).toBeGreaterThan(status().baselineVersion);
     expect(isDocumentDirty()).toBe(false);
   });
@@ -837,10 +845,13 @@ describe('hasWorkToKeep', () => {
 
   it('has nothing to keep after an undo back to the baseline', () => {
     const { keys } = openProject();
-    pushUndo();
-    s().updateTrack(keys, { volume: 0.1 });
+    const release = initUndoTracking();
+    withTransaction('Change volume', () =>
+      s().updateTrack(keys, { volume: 0.1 }),
+    );
     expect(hasWorkToKeep()).toBe(true);
     undo();
+    release();
     expect(hasWorkToKeep()).toBe(false);
   });
 

@@ -36,6 +36,12 @@ import { useTheme } from '@/daw/hooks/useTheme';
 import { useStore } from '@/daw/store';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { initUndoTracking } from '@/daw/store/undoMiddleware';
+import {
+  flushHistory,
+  historyLabels,
+  historyPushCount,
+  withoutHistory,
+} from '@/daw/store/history';
 import { watchNoteIds } from '@/daw/model/noteIds';
 import { CollabProvider, useCollab } from '@/daw/collab/CollabProvider';
 import { KickedModal } from '@/daw/collab/ui/KickedModal';
@@ -187,8 +193,8 @@ function DawAppInner() {
   const overlay = useSessionStore((s) => s.overlay);
   const busy = useSessionStore((s) => isBusyPhase(s.phase));
 
-  // One set of undo auto-capture listeners however often the editor mounts;
-  // the cleanup releases this mount's claim on them (shell-06).
+  // One undo history listener however often the editor mounts; the cleanup
+  // releases this mount's claim on it (shell-06).
   useEffect(() => initUndoTracking(), []);
 
   // ── What openSession reaches (SessionDeps, milestone 1.4) ──────────────
@@ -297,6 +303,7 @@ function DawAppInner() {
       __MA_SESSION__?: unknown;
       __MA_CLOUD_SAVE__?: unknown;
       __MA_PLAYHEAD__?: unknown;
+      __MA_HISTORY__?: unknown;
     };
     w.__MA_STORE__ = useStore;
     w.__MA_SYNTH_STORE__ = useSynthStore;
@@ -306,6 +313,15 @@ function DawAppInner() {
     // The live playhead: the store's position moves only on pause, stop and
     // seek since milestone 1.7.
     w.__MA_PLAYHEAD__ = { tick: getPlayheadTick };
+    // The undo history: its step labels, oldest first, and a counter of the
+    // steps pushed (the perf harness checks one per gesture).
+    w.__MA_HISTORY__ = {
+      labels: historyLabels,
+      pushed: historyPushCount,
+      flush: flushHistory,
+      // For the harness's own writes (probes), which are no student's edit.
+      withoutHistory,
+    };
     // window.__MA_DRAFTS__: the draft autosave's status, list, flush.
     return installDraftDevHandle();
   }, []);

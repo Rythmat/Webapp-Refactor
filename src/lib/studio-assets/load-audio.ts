@@ -1,14 +1,33 @@
-import { getAudioBuffer, setAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { audioEngine } from '@/daw/audio/AudioEngine';
+import {
+  allAssets,
+  assetOf,
+  fillAsset,
+  linkToAssetId,
+  linkToUrl,
+  setLoad,
+  type AudioAsset,
+} from '@/daw/audio/assets/assetStore';
 import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
 import { studioAssetsApi } from './api';
 
-// Clips whose audio bytes are currently being fetched + decoded, keyed by clip
-// id. Shared across every entry point (project open AND live collab sync) so two
-// callers never download the same asset twice. A clip is removed once its buffer
-// lands in the AudioBufferStore (or the attempt fails).
-const downloadsInFlight = new Set<string>();
+// ── Loading a project's audio ──────────────────────────────────────────────
+//
+// Every clip with an assetId plays the audio of that cloud asset; every
+// Chops sample plays its uploaded asset or its bundled URL. The loader links
+// each to its asset (assets/assetStore.ts) and fetches and decodes what this
+// page doesn't hold yet, once per asset however many clips play it (split
+// halves used to download the same take twice).
+//
+// A failed fetch is tried again after 1 s, 4 s and 16 s, then waits for the
+// student's Retry (or the browser coming back online). It used to be logged
+// and forgotten, so every later edit fetched it again (the loader runs on
+// every change of the tracks) while the clip said "Loading…" for good
+// (engine-hooks-16, timeline-25, live-input-17).
+
+/** Waits before the automatic retries; after the last, only a Retry. */
+export const RETRY_DELAYS_MS: readonly number[] = [1000, 4000, 16000];
 
 // Lazily-created fallback context used only for decoding when the AudioEngine
 // isn't initialised yet (e.g. opening a project before the first play). Once the
@@ -26,130 +45,130 @@ export function getDecodeContext(): AudioContext {
   return fallbackDecodeCtx;
 }
 
-/**
- * Fetch a signed download URL for one clip's asset, download the bytes, decode
- * into an AudioBuffer, and stash it in the AudioBufferStore keyed by the clip id.
- *
- * Idempotent and self-guarding: returns immediately if the buffer is already
- * present or a download for this clip is already in flight, so it's safe to call
- * on every store change.
- */
-async function loadClipAudio(
-  token: string,
-  clipId: string,
-  assetId: string,
+/** The token the last load ran with, for the automatic retries. */
+let lastToken: string | null = null;
+const retryTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function clearRetry(asset: AudioAsset): void {
+  const timer = retryTimers.get(asset.key);
+  if (timer !== undefined) clearTimeout(timer);
+  retryTimers.delete(asset.key);
+}
+
+/** Whether `asset` should be fetched now. */
+function wantsFetch(asset: AudioAsset): boolean {
+  if (asset.buffer) return false;
+  const load = asset.load;
+  if (!load) return true;
+  if (load.state === 'loading') return false;
+  return load.retryAt !== null && load.retryAt <= Date.now();
+}
+
+/** Fetch `url` and decode it into `asset`, recording the outcome. */
+async function fetchInto(
+  asset: AudioAsset,
+  url: () => Promise<string>,
 ): Promise<void> {
-  if (getAudioBuffer(clipId) || downloadsInFlight.has(clipId)) return;
-  downloadsInFlight.add(clipId);
+  clearRetry(asset);
+  const attempts = asset.load?.state === 'failed' ? asset.load.attempts : 0;
+  setLoad(asset, { state: 'loading' });
   try {
+    const response = await fetch(await url());
+    if (!response.ok) {
+      throw new Error(`download ${response.status}`);
+    }
+    const bytes = await response.arrayBuffer();
+    const buffer = await getDecodeContext().decodeAudioData(bytes);
+    fillAsset(asset, buffer);
+  } catch (err) {
+    console.error(
+      `[studio-assets] Failed to load audio (${asset.assetId ?? asset.url})`,
+      err,
+    );
+    const delay = RETRY_DELAYS_MS[attempts];
+    setLoad(asset, {
+      state: 'failed',
+      attempts: attempts + 1,
+      retryAt: delay === undefined ? null : Date.now() + delay,
+    });
+    if (delay !== undefined) {
+      retryTimers.set(
+        asset.key,
+        setTimeout(() => {
+          retryTimers.delete(asset.key);
+          void loadPendingAudio(lastToken);
+        }, delay),
+      );
+    }
+  }
+}
+
+/** Fetch the cloud asset into `asset` (needs a token). */
+function fetchAsset(asset: AudioAsset, token: string): Promise<void> {
+  const assetId = asset.assetId!;
+  return fetchInto(asset, async () => {
     const { url } = await studioAssetsApi.getUrl(token, assetId);
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`download ${response.status}`);
-    }
-    const bytes = await response.arrayBuffer();
-    const buffer = await getDecodeContext().decodeAudioData(bytes);
-    setAudioBuffer(clipId, buffer);
-  } catch (err) {
-    console.error(
-      `[studio-assets] Failed to load audio for clip ${clipId} (asset ${assetId})`,
-      err,
-    );
-  } finally {
-    downloadsInFlight.delete(clipId);
-  }
+    return url;
+  });
 }
 
 /**
- * Walk the current store's tracks and download+decode the audio for every clip
- * that has an `assetId` but no buffer in the store yet. Runs concurrently across
- * clips; per-clip failures are logged and don't block the rest.
- *
- * This is the single incremental loader used both on project open and during a
- * live collab session — when a collaborator's recorded/imported clip syncs in
- * (its `assetId` arrives over Yjs), calling this fetches the bytes so the clip
- * is audible locally instead of stranded as a waveform with no buffer.
+ * Link every clip and sample of the project to its audio, and fetch what
+ * this page doesn't hold. Cheap when nothing is missing, so it runs on
+ * every change of the tracks; a failed asset waits for its retry instead of
+ * being fetched again. Without a token, uploaded audio waits for one (the
+ * caller runs this again when it changes); bundled samples need none.
  */
-export async function loadPendingClipAudio(token: string): Promise<void> {
-  const state = useStore.getState();
-
-  const targets: Array<{ clipId: string; assetId: string }> = [];
-  for (const track of state.tracks) {
-    for (const clip of track.audioClips) {
-      if (clip.assetId && !getAudioBuffer(clip.id)) {
-        targets.push({ clipId: clip.id, assetId: clip.assetId });
-      }
-    }
-  }
-
-  if (targets.length === 0) return;
-
-  await Promise.all(
-    targets.map(({ clipId, assetId }) => loadClipAudio(token, clipId, assetId)),
-  );
-}
-
-/**
- * Fetch a bundled (public-URL) sampler sample — no auth involved. Shares the
- * in-flight guard and decode context with the asset path.
- */
-async function loadSamplerSampleFromUrl(
-  bufferKey: string,
-  url: string,
-): Promise<void> {
-  if (getAudioBuffer(bufferKey) || downloadsInFlight.has(bufferKey)) return;
-  downloadsInFlight.add(bufferKey);
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`download ${response.status}`);
-    }
-    const bytes = await response.arrayBuffer();
-    const buffer = await getDecodeContext().decodeAudioData(bytes);
-    setAudioBuffer(bufferKey, buffer);
-  } catch (err) {
-    console.error(
-      `[studio-assets] Failed to load sampler sample from ${url}`,
-      err,
-    );
-  } finally {
-    downloadsInFlight.delete(bufferKey);
-  }
-}
-
-/**
- * Rehydrate the one-shot for every Chops track whose buffer is missing —
- * bundled samples (sourceUrl) by plain fetch, uploaded ones by assetId (needs
- * a token; skipped silently without one). Same incremental/self-guarding
- * contract as loadPendingClipAudio.
- */
-export async function loadPendingSamplerSamples(
-  token: string | null,
-): Promise<void> {
-  const state = useStore.getState();
-
+export async function loadPendingAudio(token: string | null): Promise<void> {
+  if (token) lastToken = token;
   const jobs: Array<Promise<void>> = [];
-  for (const track of state.tracks) {
+  const started = new Set<AudioAsset>();
+  const fetchOnce = (asset: AudioAsset, start: () => Promise<void>) => {
+    if (started.has(asset) || !wantsFetch(asset)) return;
+    started.add(asset);
+    jobs.push(start());
+  };
+
+  for (const track of useStore.getState().tracks) {
+    for (const clip of track.audioClips) {
+      if (!clip.assetId) continue;
+      const asset = linkToAssetId(clip.id, clip.assetId);
+      if (token) fetchOnce(asset, () => fetchAsset(asset, token));
+    }
     const sample = track.samplerSample;
     if (!sample) continue;
-    // Keyed by the sample's identity (not the track), so a replace — local or
-    // from a collab peer — always misses the cache and refetches.
     const key = samplerBufferKey(sample.sampleId);
-    if (getAudioBuffer(key)) continue;
     if (sample.sourceUrl) {
-      jobs.push(loadSamplerSampleFromUrl(key, sample.sourceUrl));
-    } else if (sample.assetId && token) {
-      jobs.push(loadClipAudio(token, key, sample.assetId));
+      const asset = linkToUrl(key, sample.sourceUrl);
+      const url = sample.sourceUrl;
+      fetchOnce(asset, () => fetchInto(asset, async () => url));
+    } else if (sample.assetId) {
+      const asset = linkToAssetId(key, sample.assetId);
+      if (token) fetchOnce(asset, () => fetchAsset(asset, token));
     }
   }
 
-  if (jobs.length === 0) return;
-  await Promise.all(jobs);
+  if (jobs.length > 0) await Promise.all(jobs);
 }
 
 /**
- * Back-compat alias for the original project-open entry point. Identical to
- * loadPendingClipAudio — kept so existing callers (File → Open, boot) read
- * naturally.
+ * Try the asset clip (or sample key) `key` plays again now: the tile's or
+ * the sampler's Retry, after the automatic retries ran out.
  */
-export const loadCloudProjectAudio = loadPendingClipAudio;
+export function retryAudio(key: string): void {
+  const asset = assetOf(key);
+  if (asset?.load?.state === 'failed') {
+    setLoad(asset, { state: 'failed', attempts: 0, retryAt: Date.now() });
+  }
+  void loadPendingAudio(lastToken);
+}
+
+/** Retry every failed asset now (the browser came back online). */
+export function retryFailedAudio(): void {
+  for (const asset of allAssets()) {
+    if (asset.load?.state === 'failed') {
+      setLoad(asset, { state: 'failed', attempts: 0, retryAt: Date.now() });
+    }
+  }
+  void loadPendingAudio(lastToken);
+}

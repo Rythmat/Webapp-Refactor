@@ -209,17 +209,31 @@ function changedByValue(key: UndoKey, a: unknown, b: unknown): boolean {
 }
 
 let pushed = 0;
+let dropped = 0;
 
 /** How many entries have been recorded since the page loaded. */
 export function historyPushCount(): number {
   return pushed;
 }
 
+/**
+ * How many entries the history has let go of since the page loaded (past
+ * the cap, a redo branch cut off, a reset): what they held may be garbage
+ * now, such as a deleted take's audio (audio/assets/assetGc.ts).
+ */
+export function historyDropCount(): number {
+  return dropped;
+}
+
 /** Puts an entry on the undo stack, dropping the oldest past the cap. */
 function push(entry: HistoryEntry): void {
   pushed += 1;
   undoStack.push(entry);
-  if (undoStack.length > MAX_HISTORY) undoStack.shift();
+  if (undoStack.length > MAX_HISTORY) {
+    undoStack.shift();
+    dropped += 1;
+  }
+  dropped += redoStack.length;
   redoStack.length = 0;
   notifyHistory();
 }
@@ -404,9 +418,32 @@ export function historyLabels(): string[] {
 export function resetHistory(): void {
   clearIdle();
   open = null;
+  dropped += undoStack.length + redoStack.length;
   undoStack.length = 0;
   redoStack.length = 0;
   notifyHistory();
+}
+
+/**
+ * Every value the history holds for `key`, the edit still gathering
+ * included, before and after each edit: what undo or redo could bring back,
+ * such as the audio clips whose recordings must stay in memory
+ * (audio/assets/assetGc.ts). Read only.
+ */
+export function historyValues<K extends UndoKey>(key: K): AllSlices[K][] {
+  const values: AllSlices[K][] = [];
+  const add = (entry: UndoValues) => {
+    if (key in entry) values.push(entry[key] as AllSlices[K]);
+  };
+  for (const entry of [...undoStack, ...redoStack]) {
+    add(entry.before);
+    add(entry.after);
+  }
+  if (open) {
+    add(open.before);
+    add(open.after);
+  }
+  return values;
 }
 
 /**

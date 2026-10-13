@@ -1,3 +1,5 @@
+import { adoptAssetId } from '@/daw/audio/assets/assetStore';
+import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { useStore, type Track } from '@/daw/store';
 import { rewriteHistory, withoutHistory } from '@/daw/store/history';
 
@@ -8,7 +10,9 @@ import { rewriteHistory, withoutHistory } from '@/daw/store/history';
 // out. The undo history's copies of the clip get it too, so undoing or
 // redoing the recording that made a take never brings the take back without
 // its asset, and the first ⌘Z after a recording undoes the recording, not an
-// invisible stamp (state-reload-22).
+// invisible stamp (state-reload-22). The decoded audio learns it as well
+// (assets/assetStore.ts), so it can be found again by it, and freed knowing
+// the cloud keeps a copy.
 
 type AssetId = string | null | undefined;
 
@@ -72,6 +76,7 @@ export function stampClipAsset(
     withoutHistory(() =>
       useStore.getState().updateAudioClip(trackId, clipId, { assetId }),
     );
+    adoptAssetId(clipId, assetId);
   }
   rewriteHistory('tracks', (tracks) =>
     withClipAsset(tracks, clipId, assetId, when),
@@ -101,6 +106,7 @@ export function stampSampleAsset(
     withoutHistory(() =>
       useStore.getState().setSamplerSample(trackId, { ...current, assetId }),
     );
+    adoptAssetId(samplerBufferKey(sampleId), assetId);
   }
   rewriteHistory('tracks', (tracks) =>
     withSampleAsset(tracks, sampleId, assetId, when),

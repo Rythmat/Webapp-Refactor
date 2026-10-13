@@ -7,6 +7,10 @@ import {
 } from 'react';
 import { Loader2, Music4, Upload } from 'lucide-react';
 import { useStore, type Track } from '@/daw/store';
+import {
+  clipAudioStatus,
+  retryClipAudio,
+} from '@/daw/audio/assets/assetStatus';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import {
   getAudioBuffer,
@@ -119,10 +123,18 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
   const [decoding, setDecoding] = useState(false);
   const [activeNotes, setActiveNotes] = useState<Set<number>>(() => new Set());
 
-  // Re-render when the sample buffer lands (drop decode or rehydration fetch).
-  const bufferReady = useSyncExternalStore(subscribeAudioBufferChanges, () =>
-    sample ? !!getAudioBuffer(samplerBufferKey(sample.sampleId)) : false,
+  // Re-render when the sample buffer lands (drop decode or rehydration
+  // fetch), or its load fails: where its audio stands (assetStatus.ts).
+  const audioStatus = useSyncExternalStore(subscribeAudioBufferChanges, () =>
+    sample
+      ? clipAudioStatus(
+          samplerBufferKey(sample.sampleId),
+          sample.assetId,
+          sample.sourceUrl,
+        )
+      : null,
   );
+  const bufferReady = audioStatus === 'ready';
   const buffer = sample
     ? getAudioBuffer(samplerBufferKey(sample.sampleId))
     : undefined;
@@ -291,14 +303,12 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
 
   if (!track) return null;
 
-  // A sample restored from a save that was never uploaded (no assetId, no
-  // sourceUrl) has unrecoverable bytes — say so instead of spinning forever.
-  const unrecoverable =
-    !!sample &&
-    !bufferReady &&
-    !decoding &&
-    !sample.sourceUrl &&
-    !sample.assetId;
+  // Where the sample's audio stands when it isn't here (assetStatus.ts):
+  // still loading (a download, or a restore from the device's drafts), a
+  // failed load to retry, or bytes that were never uploaded and aren't on
+  // this device: say which, instead of spinning forever (live-input-17).
+  const unrecoverable = !decoding && audioStatus === 'missing';
+  const loadFailed = !decoding && audioStatus === 'failed';
 
   const dropHandlers = {
     onDragOver: (e: React.DragEvent) => {
@@ -498,6 +508,37 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
                 >
                   Load a new sample
                 </button>
+              </div>
+            ) : loadFailed && sample ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center">
+                <span
+                  className="text-xs"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  This sample couldn’t load.
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      retryClipAudio(samplerBufferKey(sample.sampleId))
+                    }
+                    className="cursor-pointer rounded-full px-3 py-1 text-xs font-medium"
+                    style={{ backgroundColor: '#fff', color: '#101012' }}
+                  >
+                    Retry
+                  </button>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="cursor-pointer rounded-lg px-3 py-1 text-xs font-medium"
+                    style={{
+                      backgroundColor: 'var(--color-surface-2)',
+                      color: 'var(--color-text)',
+                      border: '1px solid var(--color-border)',
+                    }}
+                  >
+                    Load a new sample
+                  </button>
+                </div>
               </div>
             ) : !bufferReady || !buffer ? (
               <div className="absolute inset-0 flex items-center justify-center gap-2">

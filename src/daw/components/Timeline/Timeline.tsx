@@ -75,6 +75,11 @@ import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
 import { AnimatedBlobs } from '@/components/ui/blobs';
 import type { Track } from '@/daw/store/tracksSlice';
 import { sameTimelineGeometry, timelineNeedsRedraw } from './timelineGeometry';
+import {
+  clipAudioStatus,
+  retryClipAudio,
+  type ClipAudioStatus,
+} from '@/daw/audio/assets/assetStatus';
 
 // ── Constants ───────────────────────────────────────────────────────────
 const TRACK_HEIGHT = 80; // px per track lane
@@ -121,23 +126,17 @@ function inferContentTypeFromUrl(url: string): string | null {
   }
 }
 
-// ── Seeded PRNG (deterministic per clip) ────────────────────────────────
+// ── Audio tiles without their audio ─────────────────────────────────────
 
-function hashStr(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-  }
-  return h >>> 0;
-}
-
-function seededRandom(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 0xffffffff;
-  };
-}
+/** What an audio clip without its audio says, long and short. */
+const AUDIO_TILE_LABELS: Record<
+  Exclude<ClipAudioStatus, 'ready'>,
+  { long: string; short: string }
+> = {
+  loading: { long: 'Loading…', short: 'Loading…' },
+  failed: { long: 'Couldn’t load — click to retry', short: 'Retry' },
+  missing: { long: 'Audio missing — not uploaded', short: 'Missing' },
+};
 
 // ── Piano-roll rendering ─────────────────────────────────────────────────
 
@@ -1118,11 +1117,13 @@ export function Timeline() {
           const maxH = (TRACK_HEIGHT - 8) * 0.42;
 
           const audioBuffer = getAudioBuffer(clip.id);
-          // A clip with an assetId but no buffer yet is mid-download from GCS
-          // (loadCloudProjectAudio in progress). Skip the placeholder waveform
-          // — which would mislead the user into thinking the audio is loaded
-          // — and overlay a "Loading…" label instead.
-          const isLoadingCloudAudio = !audioBuffer && Boolean(clip.assetId);
+          // A clip without its audio says why, instead of drawing a made-up
+          // waveform over silence (timeline-25): loading (a download, or a
+          // restore from the device's drafts), failed (click to retry), or
+          // missing (never uploaded, and not on this device).
+          const status = audioBuffer
+            ? 'ready'
+            : clipAudioStatus(clip.id, clip.assetId);
           // A long take that is decoded and playable, while the peaks worker
           // is still summarising it, is not loading: it draws a flat line
           // until its waveform arrives.
@@ -1135,13 +1136,21 @@ export function Timeline() {
             ctx.moveTo(clipX + 4, centerY);
             ctx.lineTo(clipX + clipWidth - 4, centerY);
             ctx.stroke();
-          } else if (isLoadingCloudAudio) {
-            if (clipWidth > 60) {
-              ctx.fillStyle = 'rgba(255,255,255,0.55)';
-              ctx.font = "11px 'Glacial Indifference', system-ui, sans-serif";
+          } else if (status !== 'ready' || !audioBuffer || !pyramid) {
+            const label =
+              AUDIO_TILE_LABELS[status === 'ready' ? 'loading' : status];
+            ctx.font = "12px 'Glacial Indifference', system-ui, sans-serif";
+            const text =
+              ctx.measureText(label.long).width + 16 <= clipWidth
+                ? label.long
+                : ctx.measureText(label.short).width + 12 <= clipWidth
+                  ? label.short
+                  : null;
+            if (text) {
+              ctx.fillStyle = 'rgba(255,255,255,0.6)';
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
-              ctx.fillText('Loading…', clipX + clipWidth / 2, centerY);
+              ctx.fillText(text, clipX + clipWidth / 2, centerY);
             } else {
               // Too narrow for text — draw a subtle dashed line so the user
               // sees that something's pending.
@@ -1167,25 +1176,16 @@ export function Timeline() {
               firstPoint,
               Math.min(sampleCount - 1, Math.ceil((cw - clipX) / dx) + 1),
             );
-            let amps: number[];
-            if (audioBuffer && pyramid) {
-              const sr = audioBuffer.sampleRate;
-              amps = readPeaks(
-                pyramid,
-                audioBuffer,
-                sampleCount,
-                Math.floor(previewOffsetSec * sr),
-                Math.floor((previewOffsetSec + previewDurationSec) * sr),
-                firstPoint,
-                lastPoint,
-              );
-            } else {
-              const rand = seededRandom(hashStr(clip.id));
-              amps = Array.from(
-                { length: sampleCount },
-                () => rand() * 0.6 + 0.2,
-              ).slice(firstPoint, lastPoint + 1);
-            }
+            const sr = audioBuffer.sampleRate;
+            const amps = readPeaks(
+              pyramid,
+              audioBuffer,
+              sampleCount,
+              Math.floor(previewOffsetSec * sr),
+              Math.floor((previewOffsetSec + previewDurationSec) * sr),
+              firstPoint,
+              lastPoint,
+            );
 
             drawSmoothWaveform(
               ctx,
@@ -1807,6 +1807,18 @@ export function Timeline() {
 
         if (hit) {
           state.setSelectedClip(hit.clipId, hit.trackId);
+
+          // A click on a tile whose audio failed to load tries again.
+          const tile = state.tracks
+            .find((t) => t.id === hit.trackId)
+            ?.audioClips.find((c) => c.id === hit.clipId);
+          if (
+            tile &&
+            !getAudioBuffer(tile.id) &&
+            clipAudioStatus(tile.id, tile.assetId) === 'failed'
+          ) {
+            retryClipAudio(tile.id);
+          }
 
           const mode: DragMode = isNearLeftEdge(x, hit)
             ? 'resize-left'

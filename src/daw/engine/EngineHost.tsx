@@ -1,4 +1,5 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
+import { startAudioGarbageCollection } from '@/daw/audio/assets/assetGc';
 import { useTransport } from '@/daw/hooks/useTransport';
 import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
@@ -32,6 +33,9 @@ export const EngineHost = memo(function EngineHost({
   useDraftAutosave();
   useStudioMonitor(isReady, authToken);
   useCollabAudioLoader(authToken);
+  // Frees the audio no clip plays any more, after a project switch or once
+  // undo can't bring it back (assetGc.ts).
+  useEffect(() => startAudioGarbageCollection(), []);
   useAudioChordDetection();
   useGuitarMidiDetection();
   return null;

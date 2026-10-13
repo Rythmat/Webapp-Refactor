@@ -6,18 +6,19 @@ import type { FlyFrame, SelectedLocation } from '@/components/atlas/types';
  */
 
 /**
- * A city's card frames the city itself, its centre and its suburbs: a
- * street-map zoom. Tours pass their own, wider for a stop with regional
- * context (guidedTours.ts).
+ * A city's card frames the city itself: fitted to its outline, or failing
+ * one at this street-map zoom, its centre and its suburbs. Tours pass their
+ * own zoom and no city, wider for a stop with regional context
+ * (guidedTours.ts).
  */
 export const CITY_MAP_ZOOM = 10;
 
 export const regionFrame = (place: SelectedLocation): FlyFrame =>
   place.type === 'city'
-    ? { kind: 'city', zoom: CITY_MAP_ZOOM }
+    ? { kind: 'city', zoom: CITY_MAP_ZOOM, cityId: place.id }
     : { kind: 'region', place };
 
-export const cityFrame = (zoom: number = CITY_MAP_ZOOM): FlyFrame => ({
-  kind: 'city',
-  zoom,
-});
+export const cityFrame = (
+  zoom: number = CITY_MAP_ZOOM,
+  cityId?: string,
+): FlyFrame => ({ kind: 'city', zoom, ...(cityId ? { cityId } : {}) });

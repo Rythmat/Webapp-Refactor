@@ -49,6 +49,8 @@ export const SOURCE = {
   countries: 'atlas-countries',
   states: 'atlas-states',
   cityPoints: 'atlas-city-points',
+  /** The selected city's outline (data/cityOutlines.ts), or nothing. */
+  cityOutline: 'atlas-city-outline',
   artistPoints: 'atlas-artist-points',
   arcs: 'atlas-arcs',
 } as const;
@@ -58,6 +60,7 @@ export const LAYER = {
   countriesLine: 'atlas-countries-line',
   statesFill: 'atlas-states-fill',
   statesLine: 'atlas-states-line',
+  cityOutline: 'atlas-city-outline',
   arcsCasing: 'atlas-arcs-casing',
   arcsTrace: 'atlas-arcs-trace',
   arcsDash: 'atlas-arcs-dash',
@@ -108,6 +111,7 @@ export function overlaySources(): Record<string, SourceSpecification> {
     [SOURCE.countries]: emptyCollection(),
     [SOURCE.states]: emptyCollection(),
     [SOURCE.cityPoints]: emptyCollection(),
+    [SOURCE.cityOutline]: emptyCollection(),
     [SOURCE.artistPoints]: emptyCollection(),
     [SOURCE.arcs]: emptyCollection(),
   };
@@ -131,8 +135,12 @@ export function countryTintLayer(withBasemap: boolean): LayerSpecification {
   };
 }
 
-/** The layers that sit under the basemap's labels: outlines and arcs. */
+/**
+ * The layers that sit under the basemap's labels: outlines, arcs, the city
+ * dots and an artist's points.
+ */
 export function overlayLayersBelowLabels(): LayerSpecification[] {
+  const highlight: ExpressionSpecification = ['get', 'highlight'];
   return [
     {
       // Clicks only: the states keep their country's colour, as before.
@@ -169,6 +177,18 @@ export function overlayLayersBelowLabels(): LayerSpecification[] {
           ATLAS_SCENE.strokeCountry,
         ],
         'line-width': ['case', selected, 2.25, 0.75],
+      },
+    },
+    {
+      // The selected city's boundary, in the selected country's or state's
+      // bright, warm line.
+      id: LAYER.cityOutline,
+      type: 'line',
+      source: SOURCE.cityOutline,
+      layout: { 'line-join': 'round' },
+      paint: {
+        'line-color': ATLAS_SCENE.strokeSelected,
+        'line-width': 2.25,
       },
     },
     {
@@ -215,13 +235,8 @@ export function overlayLayersBelowLabels(): LayerSpecification[] {
         'line-opacity': 0,
       },
     },
-  ];
-}
-
-/** The layers over everything, the basemap's labels included. */
-export function overlayLayersOnTop(): LayerSpecification[] {
-  const highlight: ExpressionSpecification = ['get', 'highlight'];
-  return [
+    // The marks go last, still under the basemap's labels, so a city's name
+    // reads over its dot rather than under it.
     {
       // A dot on each city at every zoom; the selected one white, larger
       // and on top.
@@ -248,25 +263,6 @@ export function overlayLayersOnTop(): LayerSpecification[] {
       },
     },
     {
-      id: LAYER.cityLabels,
-      type: 'symbol',
-      source: SOURCE.cityPoints,
-      minzoom: CITY_LABELS_FROM,
-      layout: {
-        'text-field': ['get', 'name'],
-        'text-font': ['Noto Sans Medium'],
-        'text-size': 13,
-        'text-offset': [0, 1.1],
-        'text-anchor': 'top',
-        'text-optional': true,
-      },
-      paint: {
-        'text-color': ATLAS_SCENE.label,
-        'text-halo-color': ATLAS_SCENE.labelHalo,
-        'text-halo-width': 1.5,
-      },
-    },
-    {
       id: LAYER.artistPoints,
       type: 'circle',
       source: SOURCE.artistPoints,
@@ -279,6 +275,35 @@ export function overlayLayersOnTop(): LayerSpecification[] {
       },
     },
   ];
+}
+
+/**
+ * The Globe's city names, over everything, only on the plain map without a
+ * basemap. With one, a city's name is the basemap's to show, so a name is
+ * never shown twice.
+ */
+export function overlayLayersOnTop(withBasemap: boolean): LayerSpecification[] {
+  if (withBasemap) return [];
+  const cityLabels: LayerSpecification = {
+    id: LAYER.cityLabels,
+    type: 'symbol',
+    source: SOURCE.cityPoints,
+    minzoom: CITY_LABELS_FROM,
+    layout: {
+      'text-field': ['get', 'name'],
+      'text-font': ['Noto Sans Medium'],
+      'text-size': 13,
+      'text-offset': [0, 1.1],
+      'text-anchor': 'top',
+      'text-optional': true,
+    },
+    paint: {
+      'text-color': ATLAS_SCENE.label,
+      'text-halo-color': ATLAS_SCENE.labelHalo,
+      'text-halo-width': 1.5,
+    },
+  };
+  return [cityLabels];
 }
 
 /* ── The style ───────────────────────────────────────────────────────────── */
@@ -318,7 +343,7 @@ export function buildStyle({
 }: StyleOptions): StyleSpecification {
   const tint = countryTintLayer(basemap !== null);
   const below = overlayLayersBelowLabels();
-  const onTop = overlayLayersOnTop();
+  const onTop = overlayLayersOnTop(basemap !== null);
   let layers: LayerSpecification[];
   if (basemap) {
     const base = basemapLayersFor(lang);

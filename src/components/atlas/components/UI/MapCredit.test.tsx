@@ -24,7 +24,7 @@ function setup() {
   const store = createAtlasStore();
   render(
     <AtlasStoreProvider store={store}>
-      <MapCredit />
+      <MapCredit streetMap />
     </AtlasStoreProvider>,
   );
   const button = screen.getByRole('button', { name: 'Map credits' });
@@ -75,5 +75,15 @@ describe('the map credit', () => {
     expect(credit()).toBeNull();
     touchMap();
     expect(credit()).toBeNull();
+  });
+
+  it('credits OpenStreetMap alone on the plain map without the street map', () => {
+    render(
+      <AtlasStoreProvider store={createAtlasStore()}>
+        <MapCredit streetMap={false} />
+      </AtlasStoreProvider>,
+    );
+    expect(screen.getByText(/©/).textContent).toBe('© OpenStreetMap');
+    expect(screen.queryByRole('link', { name: 'Protomaps' })).toBeNull();
   });
 });

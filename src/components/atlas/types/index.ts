@@ -87,8 +87,11 @@ export interface MapInsets {
 export type FlyFrame =
   /** A country's or a US/Canada state's outline. */
   | { kind: 'region'; place: SelectedLocation }
-  /** A city, at a street-map zoom (navigation/flyFrames.ts). */
-  | { kind: 'city'; zoom: number }
+  /**
+   * A city: fitted to its outline when it has one (`cityId`), else at a
+   * street-map zoom (navigation/flyFrames.ts).
+   */
+  | { kind: 'city'; zoom: number; cityId?: string }
   /** Every one of these points: an artist's events. */
   | { kind: 'points'; points: { lat: number; lng: number }[] };
 

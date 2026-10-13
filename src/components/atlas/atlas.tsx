@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
-import { HAS_STREET_MAP } from '@/components/atlas/components/Globe/basemapConfig';
+import { SHOWS_OSM_DATA } from '@/components/atlas/components/Globe/basemapConfig';
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
 import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
@@ -173,8 +173,8 @@ function useBottomBar(): BottomBarSlot {
 }
 
 const CONTROLS = <MapControls />;
-/** The street map's OpenStreetMap credit, when there is a street map. */
-const CREDIT = HAS_STREET_MAP ? <MapCredit /> : null;
+/** The map's OpenStreetMap credit, when it draws OpenStreetMap's data. */
+const CREDIT = SHOWS_OSM_DATA ? <MapCredit /> : null;
 
 /**
  * Everything over the globe, placed in its zone (layout/AtlasZones.tsx): a

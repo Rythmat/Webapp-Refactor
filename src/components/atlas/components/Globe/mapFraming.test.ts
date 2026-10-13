@@ -6,6 +6,7 @@ import { GEO_FILES } from '@/components/atlas/data/geoFiles';
 import { decodeTopology } from '@/components/atlas/data/geoLoader';
 import type { FlyTarget, SelectedLocation } from '@/components/atlas/types';
 import {
+  CITY_MAX_ZOOM,
   COUNTRY_MAX_ZOOM,
   POINTS_MAX_ZOOM,
   STATE_MAX_ZOOM,
@@ -208,6 +209,44 @@ describe('frameCamera', () => {
       800,
     );
     expect(fit).toHaveBeenLastCalledWith(expect.anything(), POINTS_MAX_ZOOM);
+  });
+
+  it('fits a city to its outline, no closer than its cap', () => {
+    const vienna = {
+      type: 'Feature' as const,
+      properties: {},
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [
+          [
+            [16.18, 48.12],
+            [16.58, 48.12],
+            [16.58, 48.32],
+            [16.18, 48.32],
+            [16.18, 48.12],
+          ],
+        ],
+      },
+    };
+    const camera = frameCamera(
+      {
+        lat: 48.21,
+        lng: 16.37,
+        zoom: 10,
+        frame: { kind: 'city', zoom: 10, cityId: 'vienna' },
+      },
+      { ...OUTLINES, city: (id) => (id === 'vienna' ? vienna : null) },
+      fit,
+      800,
+    );
+    expect(fit).toHaveBeenLastCalledWith(
+      [
+        [16.18, 48.12],
+        [16.58, 48.32],
+      ],
+      CITY_MAX_ZOOM,
+    );
+    expect(camera.zoom).toBe(CITY_MAX_ZOOM);
   });
 
   it('centres a city at its own zoom', () => {

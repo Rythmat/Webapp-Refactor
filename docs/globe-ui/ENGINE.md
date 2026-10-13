@@ -41,8 +41,12 @@ zoom (the Atlas theme):
   every zoom, light with dark halos, so they read on any country's colour.
 - **From zoom 3**, the US and Canadian state outlines appear.
 - **Cities** are dots in a shade of their country's colour. The selected
-  city (or the pinned event's) is white, larger and drawn on top. Names
-  show from zoom 6.
+  city (or the pinned event's) is white, larger and drawn on top.
+- **City names** are the basemap's own labels, so no name shows twice. On
+  the plain map without a tile source, which has no labels, the Globe names
+  its cities itself from zoom 6.
+- **A selected city is outlined** by its boundary, in the same bright, warm
+  line as a selected country or state (see "City outlines" below).
 - **Influence arcs** are dashed great circles on the surface with a slowly
   moving dash and a dark edge. With reduced motion turned on, the dash
   holds still and camera flights cut instead of flying.
@@ -73,9 +77,11 @@ Navigation says what a flight frames (`FlyTarget.frame`,
   holding the most of the place's music cities, so Malaysia frames the
   peninsula with Kuala Lumpur, not the larger Malaysian Borneo. Countries
   come no closer than zoom 7, and states no closer than zoom 8.
-- **A city** is centred at zoom 10: the city and its suburbs. A guided
-  tour's city stops use the tour's own zoom, wider where a stop shows the
-  region around the city.
+- **A city** is fitted to its outline, no closer than zoom 12, so the
+  whole city shows. A city with no outline is centred at zoom 10. A city
+  flight waits up to 0.8 s for the city's outline file before it sets off
+  anyway. A guided tour's city stops use the tour's own zoom, wider where a
+  stop shows the region around the city.
 - **An artist** is fitted to the places their events happened, no closer
   than zoom 9.
 - **Anything else** (a tour's overview stop) flies to its centre, at the
@@ -163,7 +169,8 @@ requires the credit to be visible on the map. The page draws it itself
 (`components/UI/MapCredit.tsx`) in the map's bottom-right corner:
 
 - when the map first appears, it reads "Protomaps © OpenStreetMap", with a
-  link to each;
+  link to each ("© OpenStreetMap" alone on the plain map without a tile
+  source, where the only OpenStreetMap data is a selected city's outline);
 - at the viewer's first press, scroll or key on the map itself, it folds up
   behind an ⓘ button. Camera flights and Spin don't count; the map reports
   the touch as `mapTouched` in the store;
@@ -184,11 +191,40 @@ covers it, open or folded:
   the credit with it.
 
 MapLibre's own corner control is switched off, because it sat under the
-timeline and the phone's sheet. The credit shows only when the build has a
-tile source (`HAS_STREET_MAP` in `basemapConfig.ts`). Without one there is
-no OpenStreetMap data to credit. The country outlines are Natural Earth,
-which is public domain. Keep the credit reachable: removing it, or covering
-it with another control, breaks the licence.
+timeline and the phone's sheet. The credit shows whenever the MapLibre
+engine is in use (`SHOWS_OSM_DATA` in `basemapConfig.ts`), because the city
+outlines are OpenStreetMap's data even without a tile source. The country
+and state outlines are Natural Earth, which is public domain. Keep the
+credit reachable: removing it, or covering it with another control, breaks
+the licence.
+
+## City outlines
+
+Each music city's boundary comes from OpenStreetMap, through Nominatim's
+search, and is built once by `scripts/buildCityOutlines.mjs`:
+
+```sh
+node scripts/buildCityOutlines.mjs                  # build from the cache
+node scripts/buildCityOutlines.mjs --refresh        # ask OpenStreetMap again
+node scripts/buildCityOutlines.mjs --only=london    # try a few, write nothing
+```
+
+The script follows Nominatim's usage policy: one request a second, an
+identifying user agent, and every answer cached in
+`node_modules/.cache/build-city-outlines`, so nothing is asked twice. A
+boundary is kept only if it contains the city's own coordinates
+(`cities.ts`), and the part containing them is city-sized (under
+20,000 km²), so a search that answers with a whole state is refused. Far
+parts of a city (Tokyo's Pacific islands) are dropped. A city that
+OpenStreetMap maps only as a point, or whose coordinates sit outside its
+boundary (Kingston, Jamaica), gets no outline and keeps just its dot.
+
+It writes one small GeoJSON file per city to `public/geo/cities/`, with a
+content hash in the name, and the list of them to
+`src/components/atlas/data/cityOutlineFiles.ts`. Commit both. The page
+fetches a city's file only when that city is selected or flown to
+(`data/cityOutlines.ts`). Re-run the script after adding cities to
+`cities.ts`.
 
 ## Language
 

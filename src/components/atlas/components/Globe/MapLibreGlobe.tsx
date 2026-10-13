@@ -12,10 +12,15 @@ import { Protocol } from 'pmtiles';
 import {
   useEffect,
   useMemo,
+  useReducer,
   useRef,
   useState,
   type MutableRefObject,
 } from 'react';
+import {
+  cityOutline,
+  loadCityOutline,
+} from '@/components/atlas/data/cityOutlines';
 import { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import {
   useIsPhone,
@@ -91,6 +96,11 @@ const START = { lat: 20, lng: 0, altitude: 2.5 };
 const SETTLE_MS = 80;
 /** How long a country or state flight waits for its outlines before going anyway. */
 const OUTLINE_WAIT_MS = 2500;
+/**
+ * How long a city flight waits for the city's outline (one small file)
+ * before going to its centre anyway; the outline is drawn when it comes.
+ */
+const CITY_OUTLINE_WAIT_MS = 800;
 
 /** How often the arcs' dashes step along (MapLibre's line-animation example). */
 const DASH_STEP_MS = 60;
@@ -383,17 +393,49 @@ export default function MapLibreGlobe() {
   const flownBefore = useRef(false);
   const flightTimer = useRef<number | undefined>(undefined);
   const waitingSince = useRef<{ target: object; at: number } | null>(null);
+
+  // A city's outline loads when the city is selected or flown to: drawn
+  // round the selected city, and fitted by a flight to it. Each arrival
+  // bumps the version, which the effects below read the outlines by.
+  const [outlinesVersion, outlineArrived] = useReducer((n: number) => n + 1, 0);
+  const flyCityId =
+    searchFlyTarget?.frame?.kind === 'city'
+      ? searchFlyTarget.frame.cityId
+      : undefined;
+  useEffect(() => {
+    for (const id of [selectedCityId, flyCityId]) {
+      if (id && cityOutline(id) === undefined) {
+        void loadCityOutline(id).then(outlineArrived);
+      }
+    }
+  }, [selectedCityId, flyCityId]);
+  useEffect(() => {
+    if (!map) return;
+    const outline = selectedCityId ? cityOutline(selectedCityId) : null;
+    feed(
+      map,
+      SOURCE.cityOutline,
+      outline ? { type: 'FeatureCollection', features: [outline] } : EMPTY,
+    );
+  }, [map, selectedCityId, outlinesVersion]);
+
   useEffect(() => {
     if (!map || !searchFlyTarget) return;
     const target = searchFlyTarget;
     const outlines: Outlines = {
       countries: countries?.features ?? null,
       states: adminRegions?.features ?? null,
+      city: cityOutline,
     };
     const frame = target.frame;
+    const cityWait =
+      frame?.kind === 'city' &&
+      !!frame.cityId &&
+      cityOutline(frame.cityId) === undefined;
     const loading =
-      frame?.kind === 'region' &&
-      findRegion(frame.place, outlines) === 'loading';
+      cityWait ||
+      (frame?.kind === 'region' &&
+        findRegion(frame.place, outlines) === 'loading');
 
     const fly = () => {
       waitingSince.current = null;
@@ -441,7 +483,8 @@ export default function MapLibreGlobe() {
       if (waitingSince.current?.target !== target) {
         waitingSince.current = { target, at: Date.now() };
       }
-      const left = OUTLINE_WAIT_MS - (Date.now() - waitingSince.current.at);
+      const wait = cityWait ? CITY_OUTLINE_WAIT_MS : OUTLINE_WAIT_MS;
+      const left = wait - (Date.now() - waitingSince.current.at);
       flightTimer.current = window.setTimeout(
         () => {
           dispatch({ type: 'CLEAR_FLY_TARGET' });
@@ -455,7 +498,14 @@ export default function MapLibreGlobe() {
     // A framed flight opens a panel; give it a moment to be on the page and
     // measured, so the flight lands clear of it (landingInsets).
     flightTimer.current = window.setTimeout(fly, frame ? SETTLE_MS : 0);
-  }, [map, searchFlyTarget, countries, adminRegions, dispatch]);
+  }, [
+    map,
+    searchFlyTarget,
+    countries,
+    adminRegions,
+    outlinesVersion,
+    dispatch,
+  ]);
   useEffect(() => () => window.clearTimeout(flightTimer.current), []);
 
   // The viewer's first press, scroll or key on the map itself, which folds

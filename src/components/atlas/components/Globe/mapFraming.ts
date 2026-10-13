@@ -32,6 +32,8 @@ export const COUNTRY_MAX_ZOOM = 7;
 export const STATE_MAX_ZOOM = 8;
 /** An artist whose events are all in one city sees the city. */
 export const POINTS_MAX_ZOOM = 9;
+/** A small city's outline is still seen with its streets around it. */
+export const CITY_MAX_ZOOM = 12;
 /**
  * A part of a country or state joins its main landmass when it lies within
  * this many degrees of what is framed so far: Sicily, Hokkaido and Tasmania
@@ -186,6 +188,11 @@ export function pointsBounds(
 export interface Outlines {
   countries: readonly Feature[] | null;
   states: readonly Feature[] | null;
+  /**
+   * A city's outline (data/cityOutlines.ts): the outline, null when it has
+   * none, undefined while it is on its way.
+   */
+  city?: (cityId: string) => Feature | null | undefined;
 }
 
 /**
@@ -346,7 +353,15 @@ export function frameCamera(
   const frame = target.frame;
   if (!frame) return fallback;
   if (frame.kind === 'city') {
-    return { center: [target.lng, target.lat], zoom: frame.zoom };
+    // The whole city, by its outline; else its centre at the frame's zoom.
+    const outline = frame.cityId ? outlines.city?.(frame.cityId) : null;
+    const bounds = outline && regionBounds(outline.geometry, [target]);
+    return (
+      (bounds && fit(bounds, CITY_MAX_ZOOM)) ?? {
+        center: [target.lng, target.lat],
+        zoom: frame.zoom,
+      }
+    );
   }
   if (frame.kind === 'points') {
     const bounds = pointsBounds(frame.points);

@@ -227,7 +227,7 @@ export function resolveEventRegion(event: HistoricalEvent): ResolvedRegion {
           lat: city.coordinates[0],
           lng: city.coordinates[1],
           zoom: 8,
-          frame: cityFrame(),
+          frame: cityFrame(undefined, city.id),
         },
       };
     }

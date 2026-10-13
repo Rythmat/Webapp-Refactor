@@ -73,9 +73,14 @@ export const MAP_CREDIT = {
   openStreetMap: 'https://www.openstreetmap.org/copyright',
 } as const;
 
-/**
- * Whether this build draws OpenStreetMap's data: the MapLibre engine with a
- * tile source. Then the map must credit it, and the page does (MapCredit).
- */
+/** Whether this build draws Protomaps' street map: MapLibre with a tile source. */
 export const HAS_STREET_MAP =
   GLOBE_ENGINE === 'maplibre' && basemapFromEnv(import.meta.env) !== null;
+
+/**
+ * Whether this build draws OpenStreetMap's data, and so must credit it
+ * (MapCredit): the MapLibre engine always may, since a selected city's
+ * outline comes from OpenStreetMap (scripts/buildCityOutlines.mjs) even on
+ * the plain map without the street map.
+ */
+export const SHOWS_OSM_DATA = GLOBE_ENGINE === 'maplibre';

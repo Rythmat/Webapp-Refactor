@@ -94,7 +94,7 @@ describe('the style with a basemap', () => {
     );
   });
 
-  it('tints the basemap’s land under its sea, and keeps its labels on top of the shapes', () => {
+  it('tints the basemap’s land under its sea, and keeps its labels on top of the shapes and dots', () => {
     const order = ids(style.layers);
     const at = (id: string) => order.indexOf(id);
     // Over the land and land use, under the sea that trims the coast.
@@ -108,13 +108,25 @@ describe('the style with a basemap', () => {
       expect(at(id)).toBeGreaterThan(at('roads_highway'));
       expect(at(id)).toBeLessThan(firstLabel);
     }
-    for (const id of [
-      LAYER.cityCircles,
-      LAYER.cityLabels,
-      LAYER.artistPoints,
-    ]) {
-      expect(at(id)).toBeGreaterThan(firstLabel);
+    // The dots too: a city's name reads over its dot, not under it.
+    for (const id of [LAYER.cityCircles, LAYER.artistPoints]) {
+      expect(at(id)).toBeGreaterThan(at(LAYER.arcsDash));
+      expect(at(id)).toBeLessThan(firstLabel);
     }
+  });
+
+  it('leaves a city’s name to the basemap, so it is never shown twice', () => {
+    expect(ids(style.layers)).not.toContain(LAYER.cityLabels);
+  });
+
+  it('outlines the selected city in the selected region’s line', () => {
+    const outline = style.layers.find((l) => l.id === LAYER.cityOutline);
+    expect(outline?.paint).toMatchObject({
+      'line-color': ATLAS_SCENE.strokeSelected,
+    });
+    expect(ids(style.layers).indexOf(LAYER.cityOutline)).toBeGreaterThan(
+      ids(style.layers).indexOf(LAYER.countriesLine),
+    );
   });
 
   it('labels places at every zoom', () => {

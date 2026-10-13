@@ -14,6 +14,7 @@ import { useIsPremium } from '@/hooks/useIsPremium';
 import { PremiumBadge } from '@/daw/ui/PremiumBadge';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useArrangeKeymap } from '@/daw/commands/clipCommands';
+import { withTransaction } from '@/daw/store/history';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
@@ -514,6 +515,9 @@ export function Timeline() {
   const dragEndTickRef = useRef<number>(0);
   const dragTrackRef = useRef<number>(0);
   const markerDragRef = useRef<string | null>(null);
+  // Where the dragged marker is drawn: the drag writes the store once, on
+  // release (milestone 1.9), so the draw reads its place from here meanwhile.
+  const markerDragTickRef = useRef<number | null>(null);
   // Active press on the top ruler — the same gestures as the piano roll's (see
   // rulerPressTarget): undecided until it moves past RULER_ZOOM_DRAG_THRESHOLD,
   // then a playhead drag, a vertical drag-to-zoom or a horizontal loop drag.
@@ -1241,7 +1245,16 @@ export function Timeline() {
     }
 
     // ── Markers ─────────────────────────────────────────────────────
-    const currentMarkers = useStore.getState().markers;
+    const dragId = markerDragRef.current;
+    const dragTick = markerDragTickRef.current;
+    const currentMarkers =
+      dragId && dragTick !== null
+        ? useStore
+            .getState()
+            .markers.map((m) =>
+              m.id === dragId ? { ...m, tick: dragTick } : m,
+            )
+        : useStore.getState().markers;
     for (const marker of currentMarkers) {
       const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
       if (mx < -60 || mx > cw + 10) continue;
@@ -2243,7 +2256,7 @@ export function Timeline() {
       if (markerDragRef.current) {
         const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
         const snapped = snapTick(rawTick, currentSnapTicks);
-        state.updateMarker(markerDragRef.current, { tick: snapped });
+        markerDragTickRef.current = snapped;
         canvas.style.cursor = 'col-resize';
         requestRedraw();
         return;
@@ -2442,7 +2455,17 @@ export function Timeline() {
       return;
     }
     if (markerDragRef.current) {
+      const id = markerDragRef.current;
+      const tick = markerDragTickRef.current;
       markerDragRef.current = null;
+      markerDragTickRef.current = null;
+      const marker = useStore.getState().markers.find((m) => m.id === id);
+      if (marker && tick !== null && tick !== marker.tick) {
+        withTransaction('Move marker', () =>
+          useStore.getState().updateMarker(id, { tick }),
+        );
+      }
+      requestRedraw();
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
       return;
     }
@@ -2450,132 +2473,140 @@ export function Timeline() {
     const drag = dragRef.current;
     if (!drag) return;
 
-    const state = useStore.getState();
+    // One undo step, and one update to collaborators, however many writes
+    // the move or trim makes.
+    withTransaction(drag.mode === 'move' ? 'Move clip' : 'Trim clip', () => {
+      const state = useStore.getState();
 
-    if (drag.mode === 'move') {
-      const newTick = dragTickRef.current;
-      const newTrackIdx = dragTrackRef.current;
-      const freshTracks = state.tracks;
-      const originTrack = freshTracks[drag.originTrackIndex];
-      const targetTrack = freshTracks[newTrackIdx];
+      if (drag.mode === 'move') {
+        const newTick = dragTickRef.current;
+        const newTrackIdx = dragTrackRef.current;
+        const freshTracks = state.tracks;
+        const originTrack = freshTracks[drag.originTrackIndex];
+        const targetTrack = freshTracks[newTrackIdx];
 
-      if (originTrack && targetTrack) {
-        // Try MIDI clip first
-        const midiClip = originTrack.midiClips.find(
-          (c) => c.id === drag.clipId,
-        );
-        if (midiClip) {
-          const delta = newTick - drag.startTickOrigin;
-          if (originTrack.id === targetTrack.id) {
-            if (delta !== 0) {
-              state.updateMidiClip(originTrack.id, drag.clipId, {
-                startTick: newTick,
-              });
-              state.offsetChordRegions(delta);
-            }
-          } else {
-            state.removeMidiClip(originTrack.id, drag.clipId);
-            state.addMidiClip(targetTrack.id, {
-              ...midiClip,
-              startTick: newTick,
-            });
-            state.setSelectedClip(midiClip.id, targetTrack.id);
-            if (delta !== 0) {
-              state.offsetChordRegions(delta);
-            }
-          }
-        } else {
-          // Audio clip move
-          const audioClip = originTrack.audioClips.find(
+        if (originTrack && targetTrack) {
+          // Try MIDI clip first
+          const midiClip = originTrack.midiClips.find(
             (c) => c.id === drag.clipId,
           );
-          if (audioClip) {
+          if (midiClip) {
+            const delta = newTick - drag.startTickOrigin;
             if (originTrack.id === targetTrack.id) {
-              if (newTick !== drag.startTickOrigin) {
-                state.updateAudioClip(originTrack.id, drag.clipId, {
+              if (delta !== 0) {
+                state.updateMidiClip(originTrack.id, drag.clipId, {
                   startTick: newTick,
                 });
+                state.offsetChordRegions(delta);
               }
             } else {
-              state.removeAudioClip(originTrack.id, drag.clipId);
-              state.addAudioClip(targetTrack.id, {
-                ...audioClip,
+              state.removeMidiClip(originTrack.id, drag.clipId);
+              state.addMidiClip(targetTrack.id, {
+                ...midiClip,
                 startTick: newTick,
               });
-              state.setSelectedClip(audioClip.id, targetTrack.id);
+              state.setSelectedClip(midiClip.id, targetTrack.id);
+              if (delta !== 0) {
+                state.offsetChordRegions(delta);
+              }
+            }
+          } else {
+            // Audio clip move
+            const audioClip = originTrack.audioClips.find(
+              (c) => c.id === drag.clipId,
+            );
+            if (audioClip) {
+              if (originTrack.id === targetTrack.id) {
+                if (newTick !== drag.startTickOrigin) {
+                  state.updateAudioClip(originTrack.id, drag.clipId, {
+                    startTick: newTick,
+                  });
+                }
+              } else {
+                state.removeAudioClip(originTrack.id, drag.clipId);
+                state.addAudioClip(targetTrack.id, {
+                  ...audioClip,
+                  startTick: newTick,
+                });
+                state.setSelectedClip(audioClip.id, targetTrack.id);
+              }
             }
           }
         }
-      }
-    } else if (drag.mode === 'resize-left' || drag.mode === 'resize-right') {
-      const track = state.tracks.find((tr) => tr.id === drag.trackId);
-      const midiClip = track?.midiClips.find((c) => c.id === drag.clipId);
-      const audioClip = track?.audioClips.find((c) => c.id === drag.clipId);
+      } else if (drag.mode === 'resize-left' || drag.mode === 'resize-right') {
+        const track = state.tracks.find((tr) => tr.id === drag.trackId);
+        const midiClip = track?.midiClips.find((c) => c.id === drag.clipId);
+        const audioClip = track?.audioClips.find((c) => c.id === drag.clipId);
 
-      if (midiClip) {
-        // MIDI trims are destructive: drop events outside the new bounds,
-        // clamp those that straddle an edge, and leave durationTicks unset so
-        // the clip box tracks its (now trimmed) content.
-        if (drag.mode === 'resize-left') {
-          const shift = dragTickRef.current - midiClip.startTick; // ticks off front
-          if (shift > 0) {
-            const events = midiClip.events
-              .filter((e) => e.startTick + e.durationTicks > shift)
-              .map((e) => {
-                const rel = e.startTick - shift;
-                return rel < 0
-                  ? { ...e, startTick: 0, durationTicks: e.durationTicks + rel }
-                  : { ...e, startTick: rel };
+        if (midiClip) {
+          // MIDI trims are destructive: drop events outside the new bounds,
+          // clamp those that straddle an edge, and leave durationTicks unset so
+          // the clip box tracks its (now trimmed) content.
+          if (drag.mode === 'resize-left') {
+            const shift = dragTickRef.current - midiClip.startTick; // ticks off front
+            if (shift > 0) {
+              const events = midiClip.events
+                .filter((e) => e.startTick + e.durationTicks > shift)
+                .map((e) => {
+                  const rel = e.startTick - shift;
+                  return rel < 0
+                    ? {
+                        ...e,
+                        startTick: 0,
+                        durationTicks: e.durationTicks + rel,
+                      }
+                    : { ...e, startTick: rel };
+                });
+              const ccEvents = midiClip.ccEvents
+                ?.map((c) => ({ ...c, tick: c.tick - shift }))
+                .filter((c) => c.tick >= 0);
+              state.updateMidiClip(drag.trackId, drag.clipId, {
+                startTick: dragTickRef.current,
+                events,
+                ccEvents: ccEvents?.length ? ccEvents : undefined,
+                durationTicks: undefined,
               });
-            const ccEvents = midiClip.ccEvents
-              ?.map((c) => ({ ...c, tick: c.tick - shift }))
-              .filter((c) => c.tick >= 0);
+            }
+          } else {
+            const newLen = dragEndTickRef.current - midiClip.startTick;
+            const events = midiClip.events
+              .filter((e) => e.startTick < newLen)
+              .map((e) =>
+                e.startTick + e.durationTicks > newLen
+                  ? { ...e, durationTicks: newLen - e.startTick }
+                  : e,
+              );
+            const ccEvents = midiClip.ccEvents?.filter((c) => c.tick < newLen);
             state.updateMidiClip(drag.trackId, drag.clipId, {
-              startTick: dragTickRef.current,
               events,
               ccEvents: ccEvents?.length ? ccEvents : undefined,
               durationTicks: undefined,
             });
           }
-        } else {
-          const newLen = dragEndTickRef.current - midiClip.startTick;
-          const events = midiClip.events
-            .filter((e) => e.startTick < newLen)
-            .map((e) =>
-              e.startTick + e.durationTicks > newLen
-                ? { ...e, durationTicks: newLen - e.startTick }
-                : e,
-            );
-          const ccEvents = midiClip.ccEvents?.filter((c) => c.tick < newLen);
-          state.updateMidiClip(drag.trackId, drag.clipId, {
-            events,
-            ccEvents: ccEvents?.length ? ccEvents : undefined,
-            durationTicks: undefined,
-          });
-        }
-      } else if (audioClip) {
-        // Audio trims are non-destructive: shift the asset read offset and the
-        // played duration; the buffer itself is untouched.
-        const ticksPerSec = (state.bpm * 480) / 60;
-        if (drag.mode === 'resize-left') {
-          const shift = dragTickRef.current - audioClip.startTick;
-          if (shift !== 0) {
+        } else if (audioClip) {
+          // Audio trims are non-destructive: shift the asset read offset and the
+          // played duration; the buffer itself is untouched.
+          const ticksPerSec = (state.bpm * 480) / 60;
+          if (drag.mode === 'resize-left') {
+            const shift = dragTickRef.current - audioClip.startTick;
+            if (shift !== 0) {
+              state.updateAudioClip(drag.trackId, drag.clipId, {
+                startTick: dragTickRef.current,
+                duration: audioClip.duration - shift,
+                offsetSeconds: Math.max(
+                  0,
+                  (audioClip.offsetSeconds ?? 0) + shift / ticksPerSec,
+                ),
+              });
+            }
+          } else {
             state.updateAudioClip(drag.trackId, drag.clipId, {
-              startTick: dragTickRef.current,
-              duration: audioClip.duration - shift,
-              offsetSeconds: Math.max(
-                0,
-                (audioClip.offsetSeconds ?? 0) + shift / ticksPerSec,
-              ),
+              duration: dragEndTickRef.current - audioClip.startTick,
             });
           }
-        } else {
-          state.updateAudioClip(drag.trackId, drag.clipId, {
-            duration: dragEndTickRef.current - audioClip.startTick,
-          });
         }
       }
-    }
+    });
 
     dragRef.current = null;
     if (canvasRef.current) canvasRef.current.style.cursor = 'default';
@@ -2649,6 +2680,7 @@ export function Timeline() {
     const handleGlobalUp = () => {
       if (
         dragRef.current ||
+        markerDragRef.current ||
         rulerPressRef.current ||
         panDragRef.current ||
         noteMarqueeRef.current

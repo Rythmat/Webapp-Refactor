@@ -129,8 +129,10 @@ describe('DrumMachineView grid', () => {
   it('stores a hit drawn on the clip’s first beat at clip tick 0', () => {
     const { container } = render(<DrumMachineView trackId={trackId} />);
 
-    // Grid x = 0 is the clip's first beat, whatever the zoom.
+    // Grid x = 0 is the clip's first beat, whatever the zoom. A press can
+    // paint on as it drags, so the hits are written on release.
     fireEvent.mouseDown(grid(container), { clientX: 0, clientY: RIDE_Y });
+    fireEvent.mouseUp(grid(container), { clientX: 0, clientY: RIDE_Y });
 
     const ride = clipEvents().filter((e) => e.note === RIDE);
     expect(ride.map((e) => e.startTick)).toEqual([0]);

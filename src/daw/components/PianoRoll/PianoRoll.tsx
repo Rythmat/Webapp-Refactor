@@ -26,6 +26,7 @@ import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { PIANO_ROLL_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { withTransaction } from '@/daw/store/history';
 import { getPlayheadTick, usePlayheadEffect } from '@/daw/engine/playheadClock';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -329,7 +330,7 @@ interface PianoRollProps {
 }
 
 export function PianoRoll({
-  events,
+  events: committedEvents,
   clipStartTick,
   timelineStartTick,
   clipColor,
@@ -442,12 +443,39 @@ export function PianoRoll({
     if (scope.clipId === clipId && scope.generation === generation) return;
     selectionScope.current = { clipId, generation };
     setSelectedIndices(new Set());
+    // A drag's draft belongs to the clip it began on.
+    draftRef.current = null;
+    setDraft(null);
   }, [clipId, generation]);
   useEffect(() => {
     onSelectionChange?.([...selectedIndices].sort((a, b) => a - b));
   }, [selectedIndices, onSelectionChange]);
+  // A drag (notes moved or resized, a velocity drawn, the toolbar's velocity
+  // slid) edits a draft the roll draws from, and hands it to onChange once,
+  // on release: one store write, one undo step and one collab update per
+  // gesture instead of one per mouse move (pianoroll-04, collab-07). A click
+  // that draws or erases a note hands it over at once.
+  const [draft, setDraft] = useState<MidiNoteEvent[] | null>(null);
+  const draftRef = useRef<MidiNoteEvent[] | null>(null);
+  const events = draft ?? committedEvents;
   const eventsRef = useRef(events);
   eventsRef.current = events;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+  const editDraft = useCallback((next: MidiNoteEvent[]) => {
+    draftRef.current = next;
+    eventsRef.current = next;
+    setDraft(next);
+  }, []);
+  const commitDraft = useCallback(() => {
+    const next = draftRef.current;
+    if (!next) return;
+    draftRef.current = null;
+    setDraft(null);
+    withTransaction('Edit notes', () => onChangeRef.current(next));
+  }, []);
+  // Unmounted mid-drag: keep what the drag reached.
+  useEffect(() => commitDraft, [commitDraft]);
   const initialScrollDone = useRef(false);
 
   // Zoom (horizontal + vertical)
@@ -1076,10 +1104,10 @@ export function PianoRoll({
         );
         const updated = [...currentEvents];
         updated[targetIdx] = { ...updated[targetIdx], velocity: newVel };
-        onChange(updated);
+        editDraft(updated);
       }
     },
-    [clipStartTick, pixelsPerTick, onChange, selectSingle],
+    [clipStartTick, pixelsPerTick, editDraft, selectSingle],
   );
 
   const handleVelMouseMove = useCallback(
@@ -1098,15 +1126,17 @@ export function PianoRoll({
       );
       const currentEvents = [...eventsRef.current];
       const idx = velDragRef.current.noteIndex;
+      if (currentEvents[idx]?.velocity === newVel) return;
       currentEvents[idx] = { ...currentEvents[idx], velocity: newVel };
-      onChange(currentEvents);
+      editDraft(currentEvents);
     },
-    [onChange],
+    [editDraft],
   );
 
   const handleVelMouseUp = useCallback(() => {
     velDragRef.current = null;
-  }, []);
+    commitDraft();
+  }, [commitDraft]);
 
   // ── Draw all canvases ───────────────────────────────────────────────────
   useEffect(() => {
@@ -1499,7 +1529,7 @@ export function PianoRoll({
         }
       }
 
-      onChange(currentEvents);
+      editDraft(currentEvents);
     },
     [
       tool,
@@ -1509,7 +1539,7 @@ export function PianoRoll({
       pixelsPerTick,
       rowH,
       gridSize,
-      onChange,
+      editDraft,
       onAuditionNote,
     ],
   );
@@ -1519,6 +1549,7 @@ export function PianoRoll({
     dragRef.current = null;
     marqueeRef.current = null;
     setMarqueeRect(null);
+    commitDraft();
     if (gridCanvasRef.current) {
       gridCanvasRef.current.style.cursor =
         tool === 'draw'
@@ -1532,10 +1563,12 @@ export function PianoRoll({
   useEffect(() => {
     const handler = () => {
       if (dragRef.current || marqueeRef.current) handleMouseUp();
+      // A velocity drawn past the lane's edge ends wherever it is let go.
+      if (velDragRef.current) handleVelMouseUp();
     };
     window.addEventListener('mouseup', handler);
     return () => window.removeEventListener('mouseup', handler);
-  }, [handleMouseUp]);
+  }, [handleMouseUp, handleVelMouseUp]);
 
   // ── Keyboard: Tool shortcuts + Delete ───────────────────────────────────
   // ── Keys, while the roll has focus (the pianoRoll scope) ───────────────
@@ -1911,11 +1944,16 @@ export function PianoRoll({
                     updated[idx] = { ...updated[idx], velocity: val };
                   }
                 }
-                onChange(updated);
+                editDraft(updated);
               } else {
                 setVelocity(val);
               }
             }}
+            // The slide is one edit: written when it is let go, or after
+            // each arrow-key step.
+            onPointerUp={commitDraft}
+            onKeyUp={commitDraft}
+            onBlur={commitDraft}
             className="h-1 w-16 accent-white/50"
           />
           <span className="w-6 text-right text-[10px] tabular-nums text-white/40">

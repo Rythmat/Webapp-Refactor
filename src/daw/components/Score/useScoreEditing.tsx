@@ -28,6 +28,7 @@ import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { studioPlayheadSource } from '@/daw/engine/studioPlayheadSource';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
+import { withTransaction } from '@/daw/store/history';
 import { useUndoState } from '@/daw/store/useUndoState';
 import type { PaletteAction } from './ScorePalettes';
 import {
@@ -434,15 +435,19 @@ export function useScoreEditing({
       edit: Parameters<typeof applyNoteEdit>[2],
       adjust?: Parameters<typeof followEdit>[1],
     ) => {
-      const result = applyNoteEdit(
-        tracks,
-        ids,
-        edit,
-        keyFifths,
-        updateMidiClipEvents,
-      );
-      followEdit(result, adjust);
-      return result.ids;
+      // The notes and the marks that follow them are one undo step, and
+      // one update to collaborators.
+      return withTransaction('Edit notes', () => {
+        const result = applyNoteEdit(
+          tracks,
+          ids,
+          edit,
+          keyFifths,
+          updateMidiClipEvents,
+        );
+        followEdit(result, adjust);
+        return result.ids;
+      });
     },
     [tracks, keyFifths, updateMidiClipEvents, followEdit],
   );
@@ -453,14 +458,16 @@ export function useScoreEditing({
       edits: Map<string, Parameters<typeof applyNoteEdit>[2]>,
       adjust?: Parameters<typeof followEdit>[1],
     ) => {
-      const result = applyNoteEdits(
-        tracks,
-        edits,
-        keyFifths,
-        updateMidiClipEvents,
-      );
-      followEdit(result, adjust);
-      return result.ids;
+      return withTransaction('Edit notes', () => {
+        const result = applyNoteEdits(
+          tracks,
+          edits,
+          keyFifths,
+          updateMidiClipEvents,
+        );
+        followEdit(result, adjust);
+        return result.ids;
+      });
     },
     [tracks, keyFifths, updateMidiClipEvents, followEdit],
   );
@@ -2264,11 +2271,15 @@ export function useScoreEditing({
       onAccidental: applyAccidental,
       canUndo,
       canRedo,
+      // Like ⌘Z, never mid-take: undoing the step that made the record
+      // track would leave the take nowhere to land.
       onUndo: () => {
+        if (useStore.getState().isRecording) return;
         smartUndo();
         clearSelection();
       },
       onRedo: () => {
+        if (useStore.getState().isRecording) return;
         smartRedo();
         clearSelection();
       },

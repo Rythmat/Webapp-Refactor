@@ -7919,6 +7919,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'New Light- John Mayer',
+    songIds: ['new_light'],
   },
 
   {
@@ -8234,6 +8235,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'rock', 'hip-hop', 'electronic'],
     artist: '',
     song: 'happy birthday (bridge)- Stevie Wonder',
+    songIds: ['happy_birthday'],
   },
 
   {
@@ -8937,6 +8939,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'flowers- Miley Cyrus',
+    songIds: ['flowers'],
   },
 
   {
@@ -8951,6 +8954,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'flowers- Miley Cyrus',
+    songIds: ['flowers'],
   },
 
   {
@@ -8965,6 +8969,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'flowers- Miley Cyrus',
+    songIds: ['flowers'],
   },
 
   {
@@ -10286,6 +10291,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'happy birthday- Stevie Wonder',
+    songIds: ['happy_birthday'],
   },
 
   {

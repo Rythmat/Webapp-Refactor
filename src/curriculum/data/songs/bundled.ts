@@ -1,5 +1,5 @@
 /**
- * The bundled song library — 644 hand-authored chord charts.
+ * The bundled song library — 646 hand-authored chord charts.
  *
  * No longer the runtime source of truth: published songs are fetched from the
  * CDN by src/content/songStore.ts, which imports this module DYNAMICALLY as its
@@ -173,6 +173,7 @@ import { fire_on_the_bayou } from './fire_on_the_bayou';
 import { firework } from './firework';
 import { five_years } from './five_years';
 import { flash_light } from './flash_light';
+import { flowers } from './flowers';
 import { flowers_on_the_wall } from './flowers_on_the_wall';
 import { fly_like_an_eagle } from './fly_like_an_eagle';
 import { footloose } from './footloose';
@@ -211,6 +212,7 @@ import { graceland } from './graceland';
 import { hallelujah_i_love_her_so } from './hallelujah_i_love_her_so';
 import { handclap } from './handclap';
 import { happy } from './happy';
+import { happy_birthday } from './happy_birthday';
 import { happy_xmas_war_is_over } from './happy_xmas_war_is_over';
 import { hard_rock_cafe } from './hard_rock_cafe';
 import { hard_to_handle } from './hard_to_handle';
@@ -398,6 +400,7 @@ import { my_little_girl } from './my_little_girl';
 import { my_old_man } from './my_old_man';
 import { my_type } from './my_type';
 import { never_gonna_give_you_up } from './never_gonna_give_you_up';
+import { new_light } from './new_light';
 import { new_york_new_york } from './new_york_new_york';
 import { ngiculela_es_una_historia_i_am_singing } from './ngiculela_es_una_historia_i_am_singing';
 import { night_time_is_the_right_time } from './night_time_is_the_right_time';
@@ -493,6 +496,7 @@ import { sing_a_song } from './sing_a_song';
 import { single_ladies } from './single_ladies';
 import { sir_duke } from './sir_duke';
 import { sittin_on_the_dock_of_the_bay } from './sittin_on_the_dock_of_the_bay';
+import { skin_dijon } from './skin_dijon';
 import { sledgehammer } from './sledgehammer';
 import { slippery_people } from './slippery_people';
 import { smackwater_jack } from './smackwater_jack';
@@ -549,6 +553,7 @@ import { the_big_country } from './the_big_country';
 import { the_bones } from './the_bones';
 import { the_book_i_read } from './the_book_i_read';
 import { the_chain } from './the_chain';
+import { the_feels } from './the_feels';
 import { the_gambler } from './the_gambler';
 import { the_great_curve } from './the_great_curve';
 import { the_joker } from './the_joker';
@@ -820,6 +825,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   firework: firework,
   five_years: five_years,
   flash_light: flash_light,
+  flowers: flowers,
   flowers_on_the_wall: flowers_on_the_wall,
   fly_like_an_eagle: fly_like_an_eagle,
   footloose: footloose,
@@ -858,6 +864,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   graceland: graceland,
   hallelujah_i_love_her_so: hallelujah_i_love_her_so,
   handclap: handclap,
+  happy_birthday: happy_birthday,
   happy_xmas_war_is_over: happy_xmas_war_is_over,
   happy: happy,
   hard_rock_cafe: hard_rock_cafe,
@@ -1049,6 +1056,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   my_old_man: my_old_man,
   my_type: my_type,
   never_gonna_give_you_up: never_gonna_give_you_up,
+  new_light: new_light,
   new_york_new_york: new_york_new_york,
   ngiculela_es_una_historia_i_am_singing:
     ngiculela_es_una_historia_i_am_singing,
@@ -1144,6 +1152,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   sing_a_song: sing_a_song,
   single_ladies: single_ladies,
   sir_duke: sir_duke,
+  skin_dijon: skin_dijon,
   sledgehammer: sledgehammer,
   slippery_people: slippery_people,
   smackwater_jack: smackwater_jack,
@@ -1202,6 +1211,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   the_bones: the_bones,
   the_book_i_read: the_book_i_read,
   the_chain: the_chain,
+  the_feels: the_feels,
   the_gambler: the_gambler,
   the_great_curve: the_great_curve,
   the_joker: the_joker,

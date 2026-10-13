@@ -56,7 +56,7 @@ const GOLDEN: Record<string, string> = {
   exports: 'f7774d8035e3707578cc26cd4e6dda7825291bdc22928860d9ae08908b4dc75b',
   // 7 Oct 2026: instrument content (grooves, parts) joined the repo graph —
   // 98 edges onto genre and instrument nodes, nothing else moved.
-  graph: '4848ae39f7abb880098fa4512ab2456fcaf5c64b6e134283564a05546c56bdde',
+  graph: '087320d2dc77ed5e5929c31503f4a00262ddde5e05b342d2a1f42e75e1cbc9b6',
   mapGenre: '8bd762b39a6fba226af4828d3bcd81f8e2b44198abf4a2c2e24c3d5b4af7921a',
   mapInstrument:
     'f694219a31ced971e2bb90549148765b874ac5f533ab3ae11a303696eafa22d0',
@@ -66,7 +66,7 @@ const GOLDEN: Record<string, string> = {
   resolveGenreTag:
     '761075b0a6f5a5bdf91295a92f493232f88daf69d6f9d282dfdde9ca93fa66f7',
   // 7 Oct 2026: the same 13 genre and instrument rows now list those edges.
-  tables: 'ed6f0965d85f7d4132f95cd75cc5a58639b53438ea5eeed55a5e461266ced0f9',
+  tables: 'a5e538dd4791ceb0003376f3c3b14ad98c62dc0806148bf7bae4857c2ccd1cfd',
   vocabularyPage:
     '8c3210c3ab7a49f6ed4bd98ca606443f27260841f432852e72235b8819b26b2e',
 };

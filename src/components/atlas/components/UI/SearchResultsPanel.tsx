@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useRef, useState, type RefObject } from 'react';
-import { resultToStop } from '@/components/atlas/components/UI/AtlasSearchBar';
 import {
   PanelRow,
   SidePanel,
@@ -15,6 +14,7 @@ import {
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
+  resultToStop,
   searchGlobe,
   type GlobeResultGroup,
 } from '@/components/atlas/search/globeSearch';

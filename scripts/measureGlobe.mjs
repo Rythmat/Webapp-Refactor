@@ -477,10 +477,15 @@ async function runOnce(browser, base, index) {
     }
   }
 
-  // 6. Type into search.
+  // 6. Type into search: the command palette since prompt 6, opened from
+  // the top bar's search button. Timing starts once its field is up, so the
+  // palette's first (lazy) load is not counted as typing.
   await page.mouse.move(2, 2);
-  const input = page.getByRole('combobox', { name: 'Search the globe' });
-  await input.click();
+  await page.getByRole('button', { name: /^Search the globe/ }).click();
+  const input = page.getByRole('combobox', {
+    name: 'Search the globe or run a command',
+  });
+  await input.waitFor();
   const typeFrom = await now(page);
   await input.pressSequentially(SEARCH_TEXT, { delay: 90 });
   await page.waitForTimeout(500);

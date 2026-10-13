@@ -11,15 +11,15 @@
 export const ATLAS_LAYER = {
   /** The WebGL globe. */
   canvas: 0,
-  /** Controls floating on the map: Spin, and later Layers and the legend. */
+  /** Controls floating on the map: the legend, Layers and Spin. */
   mapControls: 10,
   /** The left panel, the mind map, and the phone's bottom sheet. */
   panels: 20,
   /** The timeline and the tour and pathway bars. */
   bars: 30,
   /**
-   * Popovers, and the top bar, which holds the search dropdown: it opens over
-   * the panels under it.
+   * Popovers and dialogs (the Layers popover, the command palette), and the
+   * top bar, which sits over the panels under it.
    */
   popovers: 40,
   /** Transient notices. */

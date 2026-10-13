@@ -1,6 +1,13 @@
-import { Check, ChevronLeft, ChevronRight, Link2 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { AtlasSearchBar } from '@/components/atlas/components/UI/AtlasSearchBar';
+import { Check, ChevronLeft, ChevronRight, Link2, Search } from 'lucide-react';
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { StopThumb } from '@/components/atlas/components/UI/StopThumb';
 import {
   ATLAS_FOCUS,
@@ -12,12 +19,22 @@ import {
   usePrefersReducedMotion,
 } from '@/components/atlas/hooks/useMediaQuery';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
+import { useAtlasStopSelector } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   useAtlasTrail,
   type TrailEntry,
 } from '@/components/atlas/navigation/useAtlasTrail';
 import { ATLAS_Z } from '@/components/atlas/theme/layers';
 import { cn } from '@/lib/utils';
+
+// The command palette, fetched the first time someone reaches for it (or
+// hovers the search button), so cmdk is not in the page's first download.
+const loadPalette = () => import('./AtlasCommandPalette');
+const AtlasCommandPalette = lazy(loadPalette);
+
+const isMac =
+  typeof navigator !== 'undefined' &&
+  /Mac|iPhone|iPad/.test(navigator.platform);
 
 /** Trail steps drawn at once; the rest wait behind "+N earlier / later". */
 export const TRAIL_WINDOW = 16;
@@ -76,9 +93,56 @@ function TrailStep({
 }
 
 /**
+ * The search button: looks like a field, so nobody has to know the shortcut
+ * to find search, and says the shortcut, so they learn it. It opens the
+ * command palette. While a search's results are up it shows that search.
+ */
+function SearchButton({
+  buttonRef,
+  committed,
+  onOpen,
+}: {
+  buttonRef: React.RefObject<HTMLButtonElement>;
+  committed: string | null;
+  onOpen: () => void;
+}) {
+  return (
+    <button
+      ref={buttonRef}
+      aria-haspopup="dialog"
+      aria-keyshortcuts="Meta+K Control+K"
+      aria-label={
+        committed ? `Search the globe (now: ${committed})` : 'Search the globe'
+      }
+      className={cn(
+        'flex h-9 w-full min-w-0 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] pl-3 pr-2 text-left text-sm transition-colors hover:border-white/25 hover:bg-white/[0.08] sm:max-w-xs',
+        ATLAS_FOCUS,
+      )}
+      type="button"
+      onClick={onOpen}
+      onFocus={() => void loadPalette()}
+      onPointerEnter={() => void loadPalette()}
+    >
+      <Search aria-hidden className="size-4 shrink-0 text-atlas-text-2" />
+      <span
+        className={cn(
+          'min-w-0 flex-1 truncate',
+          committed ? 'text-atlas-text' : 'text-atlas-text-2',
+        )}
+      >
+        {committed ?? 'Search artists, places, songs…'}
+      </span>
+      <kbd className="shrink-0 rounded-full border border-white/15 px-2 py-0.5 font-sans text-xs text-atlas-text-2">
+        {isMac ? '⌘K' : 'Ctrl K'}
+      </kbd>
+    </button>
+  );
+}
+
+/**
  * The strip across the top of the globe, laid out like a browser's chrome:
- * Back / Forward, the search field, the trail of everywhere this session has
- * been, and a button to copy a link to exactly this view.
+ * Back / Forward, search (the command palette), the trail of everywhere this
+ * session has been, and a button to copy a link to exactly this view.
  *
  * Every step in the trail is a real history entry with its own URL, so the
  * trail, these arrows, and the browser's Back button all walk the same path —
@@ -133,7 +197,7 @@ export function AtlasToolbar() {
     return () => window.clearTimeout(t);
   }, [copied]);
 
-  const copyLink = async () => {
+  const copyLink = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
@@ -142,12 +206,43 @@ export function AtlasToolbar() {
       // bar holds the same link, so point there instead of failing silently.
       window.prompt('Copy this link:', window.location.href);
     }
-  };
+  }, []);
+
+  // The command palette: mounted on first use and kept, so it closes (and
+  // hands focus back) like any dialog.
+  const searchRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [paletteUsed, setPaletteUsed] = useState(false);
+  const committed = useAtlasStopSelector((stop) =>
+    stop.kind === 'search' ? stop.query : null,
+  );
+  const openPalette = useCallback(() => {
+    // Focus goes back where it was; from nowhere (the globe, the page) it
+    // comes to the search button, so a panel the palette opens can take it.
+    const active = document.activeElement as HTMLElement | null;
+    openerRef.current =
+      active && active !== document.body ? active : searchRef.current;
+    setPaletteUsed(true);
+    setPaletteOpen(true);
+  }, []);
+
+  // ⌘K / Ctrl+K from anywhere on the globe opens it, and closes it again.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'k') return;
+      if (e.altKey || e.shiftKey) return;
+      e.preventDefault();
+      if (paletteOpen) setPaletteOpen(false);
+      else openPalette();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [paletteOpen, openPalette]);
 
   return (
     // Above the globe, not over it, so it takes the opaque panel colour and
-    // needs no blur. On the popover layer: the search dropdown opens from
-    // here over the panels below.
+    // needs no blur. On the popover layer, over the panels below it.
     <div
       className={cn(
         'relative flex shrink-0 items-center gap-1.5 border-b border-atlas-panel-border bg-atlas-panel px-2 py-2 text-atlas-text sm:gap-2 sm:px-3',
@@ -173,7 +268,23 @@ export function AtlasToolbar() {
         </AtlasIconButton>
       </div>
 
-      <AtlasSearchBar />
+      <SearchButton
+        buttonRef={searchRef}
+        committed={committed}
+        onOpen={openPalette}
+      />
+      {paletteUsed && (
+        <Suspense fallback={null}>
+          <AtlasCommandPalette
+            initialQuery={committed ?? ''}
+            open={paletteOpen}
+            opener={openerRef}
+            trail={trail}
+            onCopyLink={copyLink}
+            onOpenChange={setPaletteOpen}
+          />
+        </Suspense>
+      )}
 
       <nav
         ref={scrollerRef}

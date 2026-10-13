@@ -77,6 +77,17 @@ More maps exist under `~/Desktop/Music Bridge Master Folder/CMB/Music Atlas/The 
     a song can have several sheets (Glory: #589 pre-chorus, #483 bridge).
     Link each with `songIds`, and say when they agree with the map.
 
+## Learned on the first batch (2026-10-13)
+
+20. **Pushed changes** (a chord that lands on the "and" of 4 and ties over
+    the barline, as in Skin) stay on the downbeat they tie into, with a
+    section `notes` line saying the changes are anticipated. No chart in
+    the corpus places a chord across a barline yet.
+21. **Compute digests on a clean copy.** Other chats edit grooves and parts
+    in this folder; the vocabulary golden (`graph`, `tables`) hashes them.
+    Commit the chart, then run `golden.test.ts` in a `git worktree` of that
+    commit and amend with its digests.
+
 ## Implementation notes (learned on We Shall Overcome)
 
 - **Voicings.** Each keyboard snippet starts on the chord's lowest note.

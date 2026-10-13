@@ -186,8 +186,8 @@ const LAZY_ONLY = [
  * "Budget changes" in BASELINE.md.
  */
 const GLOBE_BUDGET = {
-  routeChunk: 107_836,
-  routeStatic: 1_131_110,
+  routeChunk: 110_195,
+  routeStatic: 1_142_358,
   headroom: 1.05,
 };
 

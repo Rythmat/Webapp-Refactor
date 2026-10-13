@@ -66,7 +66,7 @@ const UNIT_TESTS = [
   'src/daw/persistence/__tests__/fixtures/manifest.test.ts',
   'src/daw/persistence/__tests__/fieldCoverage.test.ts',
   'src/daw/persistence/__tests__/codecV3.test.ts',
-  'src/daw/persistence/__tests__/v3Shape.test.ts',
+  'src/daw/persistence/__tests__/draftShape.test.ts',
   'src/daw/persistence/__tests__/migrations.test.ts',
   'src/daw/persistence/__tests__/quarantine.test.ts',
   'src/daw/persistence/__tests__/cloudOpen.test.ts',
@@ -172,6 +172,20 @@ const UNIT_TESTS = [
   'src/daw/engine/__tests__/trackReconciler.test.ts',
   'src/daw/audio/__tests__/effectChainPreview.test.ts',
   'src/daw/components/PianoRoll/__tests__/PianoRoll.gesture.test.tsx',
+  // Milestone 1.10: the time model and the audio asset model.
+  'src/daw/time/__tests__/timeModel.test.ts',
+  'src/daw/time/__tests__/measureEdits.test.ts',
+  'src/daw/store/__tests__/metreAwareChords.test.ts',
+  'src/daw/store/__tests__/moveClip.test.ts',
+  'src/daw/model/__tests__/editorClip.test.ts',
+  'src/daw/components/PianoRoll/__tests__/rollGrid.test.ts',
+  'src/daw/components/ChannelStrip/__tests__/ChannelStrip.pianoRoll.test.tsx',
+  'src/daw/components/Controls/__tests__/clipRelativeEditors.test.tsx',
+  'src/daw/components/LeadSheet/__tests__/toSetListChart.test.ts',
+  'src/daw/components/LeadSheet/__tests__/leadSheetPlayhead.test.ts',
+  'src/daw/audio/assets/__tests__/assetStore.test.ts',
+  'src/daw/audio/assets/__tests__/assetGc.test.ts',
+  'src/lib/studio-assets/__tests__/loadAudio.test.ts',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */

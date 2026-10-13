@@ -445,7 +445,10 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   // (the Insight panel parses it). Ids come from the store's own counter
   // (setChordRegions tags regions without one): state-reload-05. The first
   // region carries a chord identity whose label is its name (decision D3:
-  // nothing fills one before milestone 1.16a, but every save keeps it).
+  // nothing fills one before milestone 1.16a, but every save keeps it). The
+  // second was read from a clip, as a Prism take's are (sourceClipId,
+  // milestone 1.10): it moves with that clip.
+  const sourceClipId = act().tracks.flatMap((t) => t.midiClips)[0]?.id;
   act().setChordRegions(
     [
       ['1 min7', 'D min7', '1 minor7', [120, 80, 200], [50, 53, 57, 60]],
@@ -462,6 +465,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
       degreeKey,
       midis,
       confidence: 0.9,
+      ...(i === 1 && sourceClipId ? { sourceClipId } : {}),
       ...(i === 0
         ? {
             identity: {
@@ -494,7 +498,8 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   // first note is at 0 although its clip starts at 1920.
   const noteId = (track, clip, start, n) => `${track}:${clip}:${start}:${n}`;
   const firstRegion = act().chordRegions[0].id;
-  store.setState({ measuresPerLine: 3 });
+  // A chart that runs past its last chord (+ Measure at the end, 1.10).
+  store.setState({ measuresPerLine: 3, leadSheetBars: 12 });
   act().setMeasureRowSizes([2, 2, 1]);
   act().setMeasureRestMap({ 4: 2 });
   act().setMeasureFermatas([3]);

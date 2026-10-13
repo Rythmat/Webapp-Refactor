@@ -2247,7 +2247,10 @@ async function autosave({ browser, base, profile, windows }) {
       store.play();
     });
     await sleep(windows.playbackLeadMs);
-    // Playing, while the fader is dragged for the whole window.
+    // Playing, while the student keeps mixing for the whole window: short
+    // fader moves one after another. Since milestone 1.9 a drag writes the
+    // store once, on release, so it takes a run of gestures (each a store
+    // write) to keep the autosave busy the way one long drag used to.
     await startRecording(page);
     await page.evaluate(startDraftMonitor);
     await page.evaluate(watchGesture, {
@@ -2256,13 +2259,23 @@ async function autosave({ browser, base, profile, windows }) {
     });
     const centre = slider.left + slider.width / 2;
     const reach = slider.width * 0.3;
-    await page.mouse.move(slider.thumbX, slider.y);
-    await page.mouse.down();
-    const input = await sweep(page, windows.playbackMs, (t) => ({
-      x: centre + reach * Math.sin((2 * Math.PI * t) / 500),
+    const at = (t) => ({
+      x: centre + reach * Math.sin((2 * Math.PI * t) / 2300),
       y: slider.y,
-    }));
-    await page.mouse.up();
+    });
+    const started = Date.now();
+    const input = { gestures: 0, moves: 0, movesPerSecond: 0 };
+    for (let t = 0; t < windows.playbackMs; t = Date.now() - started) {
+      const from = at(t);
+      await page.mouse.move(from.x, from.y);
+      await page.mouse.down();
+      const moved = await sweep(page, 150, (dt) => at(t + dt));
+      await page.mouse.up();
+      input.gestures += 1;
+      input.moves += moved.moves;
+      await sleep(100);
+    }
+    input.movesPerSecond = round(input.moves / ((Date.now() - started) / 1000));
     await drainFrame(page);
     const gesture = await page.evaluate(finishGesture);
     const playing = await page.evaluate(

@@ -44,6 +44,11 @@
  * sizes; when one grows it on purpose, raise them in the same commit and say
  * why in BASELINE.md.
  *
+ * The data the Globe's first frame doesn't need (the state outlines, the
+ * influence graph, the guided tours) loads on demand through
+ * src/components/atlas/data/loaders.ts. GLOBE_ON_DEMAND keeps it out of the
+ * entry and out of the route's static imports, one marker each.
+ *
  * The folder scanned is `dist/`, or the one named as the first argument
  * (`node scripts/verifyProdBundle.mjs /tmp/build`), so a build made into a
  * scratch folder can be checked without touching the repo's own `dist/`.
@@ -51,7 +56,7 @@
  * Exit 0 = clean, exit 1 = a forbidden marker shipped.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
 const DIST = process.argv[2] ?? 'dist';
 
@@ -172,6 +177,31 @@ const LAZY_ONLY = [
 ];
 
 /**
+ * Data that must load on demand, never with the Globe page or the entry
+ * (src/components/atlas/data/loaders.ts). Each pattern matches a run of that
+ * data that nothing else carries, whichever quotes the minifier picks; it
+ * must also be somewhere in the build, or the check would pass whatever
+ * happened. Regenerated data can change a marker: pick another run.
+ */
+const GLOBE_ON_DEMAND = [
+  {
+    // The start of Alabama's outline.
+    pattern: /-87\.49,30\.38,-87\.62,30\.26/,
+    name: 'the state outlines (data/stateBoundaries.ts)',
+  },
+  {
+    // The first influence edge.
+    pattern: /evt-griot-timbuktu-1500.,\s*to:\s*.evt-appalachia-bristol-1830/,
+    name: 'the influence graph (data/eventConnections.ts)',
+  },
+  {
+    // A Vienna city-tour stop.
+    pattern: /Schoenberg, Berg and Webern/,
+    name: 'the guided tours (data/guidedTours.ts)',
+  },
+];
+
+/**
  * The Globe page's size budget, in raw (minified) bytes, from the baseline
  * of 12 Oct 2026 (docs/globe-ui/BASELINE.md, docs/globe-ui/baseline.json).
  * `routeChunk` is assets/atlas-*.js; `routeStatic` is it plus every chunk it
@@ -182,12 +212,14 @@ const LAZY_ONLY = [
  * @tanstack/react-virtual for the long lists, 26.5 kB of it, and the
  * click-to-play video, timeline clusters and trail window. Raised again by
  * prompt 5 (from 103,658 and 1,120,778): the layout zones, the phone bottom
- * sheet, panel focus and Escape handling, 10 kB minified and 3 kB gzip. See
- * "Budget changes" in BASELINE.md.
+ * sheet, panel focus and Escape handling, 10 kB minified and 3 kB gzip.
+ * Lowered by prompt 7 (from 110,195 and 1,142,358): the state outlines, the
+ * influence graph, the tours and the pathways load on demand. See "Budget
+ * changes" in BASELINE.md.
  */
 const GLOBE_BUDGET = {
-  routeChunk: 110_195,
-  routeStatic: 1_142_358,
+  routeChunk: 111_634,
+  routeStatic: 885_444,
   headroom: 1.05,
 };
 
@@ -354,6 +386,33 @@ if (atlasChunks.length !== 1) {
     }
   }
   globeSizes = `the Globe route chunk is ${sizes.routeChunk} bytes and its static imports ${sizes.routeStatic} (${routeStatic.length} chunks), within budget`;
+
+  // The on-demand data stays on demand.
+  const upFront = new Set([...entryClosure, ...routeStatic]);
+  for (const { pattern, name } of GLOBE_ON_DEMAND) {
+    let found = false;
+    for (const file of files) {
+      const text = readFileSync(file, 'utf8');
+      if (!pattern.test(text)) continue;
+      found = true;
+      const chunk = relative(DIST, file);
+      if (upFront.has(chunk)) {
+        hits.push({
+          file,
+          marker: String(pattern),
+          why: `${name} loads with the Globe page or the entry; it must load on demand (data/loaders.ts)`,
+        });
+      }
+    }
+    if (!found) {
+      hits.push({
+        file: DIST,
+        marker: String(pattern),
+        why: `${name}'s marker is nowhere in the build, so the on-demand check proves nothing (data changed? pick another marker)`,
+      });
+    }
+  }
+  globeSizes += `, and ${GLOBE_ON_DEMAND.length} on-demand data sets load on demand`;
 }
 
 if (hits.length > 0) {

@@ -186,19 +186,95 @@ served from a clean copy of the commit, Metal, 3 runs each (median):
 - Single sets of 3 runs on a busy machine; differences of a few percent are
   noise.
 
+### Prompt 7: data on demand, outlines same-origin
+
+Prompt 7 took the data the first frame doesn't need out of the route and
+replaced the jsDelivr GeoJSON with compact TopoJSON served from the app.
+
+- **On demand** (`src/components/atlas/data/loaders.ts`, one `lazyResource`
+  each: one load shared by every caller, retried after a failure):
+  - the state outlines (104 kB, 36 kB gzip) when a state's list is shown or
+    a US/CA event in a town CITIES doesn't name is resolved;
+  - the influence graph (124 kB, 23 kB gzip) when an event is pinned or its
+    card shows influences;
+  - the guided tours and pathways (30 kB, 12 kB gzip) when one starts, a
+    trail step names one, or the command palette opens.
+- **Waiting.** Navigation that needs that data waits for it
+  (`navigation/pendingNavigation.ts`) and gives way if the user has moved on.
+  The card says "Loading events…" for a state and "Loading influences…" for
+  the chains, with a Try again button if the load fails.
+- **Outlines.** `scripts/buildGeo.mjs` downloads Natural Earth once, applies
+  the French Guiana and Michigan fixes the browser used to apply, keeps the
+  US/CA states and the 3 or 4 properties the code reads, and writes TopoJSON
+  to `public/geo/` with a content hash in each name. The states are
+  simplified with a threshold that moves no edge more than 2.4 km, under a
+  pixel at the closest zoom the Globe flies to. Cache Storage moved to
+  `ma-geo-v2`, and the old 3 MB `ma-geo-v1` is deleted. jsDelivr is only a
+  fallback now.
+- **Checked, not changed: a slim cities index.** CITIES (99 kB) stays in the
+  route. Only the city card reads the descriptions, genres and decades that
+  make up about two thirds of it, but the console's repo tools write
+  `cities.ts` as the single authored source. A second, generated file is a
+  drift risk for about 18 kB gzip, and the backend cutover replaces bundled
+  places with a runtime loader anyway.
+
+Sizes from production builds of `72a8f310` and this change. The outline
+files are compared as jsDelivr and Vercel serve them (brotli); gzip level 9
+is given too.
+
+| What                                                                   | Before                                  | After                                   |
+| ---------------------------------------------------------------------- | --------------------------------------- | --------------------------------------- |
+| Atlas route chunk (`atlas-*.js`)                                       | 110.2 kB (36.2 kB gzip)                 | 111.6 kB (36.7 kB gzip)                 |
+| Route, static (`routeStatic`)                                          | 1,142.4 kB (320.0 kB gzip)              | **885.4 kB (249.4 kB gzip)**            |
+| Country outlines                                                       | 838.7 kB (127.5 kB br, 209.5 kB gzip)   | **113.2 kB (33.6 kB br, 39.8 kB gzip)** |
+| State outlines (in parallel, not blocking)                             | 2,325.7 kB (448.8 kB br, 725.9 kB gzip) | **165.3 kB (50.4 kB br, 56.7 kB gzip)** |
+| Before the first globe frame: route + react-globe.gl + countries, gzip | 888.9 kB                                | **648.6 kB** (−27%)                     |
+| The same plus the entry (886.6 kB gzip, unchanged)                     | 1,775.5 kB                              | **1,535.2 kB** (−14%)                   |
+
+Against the baseline's `routeStatic` of 1,086.1 kB, the route is now 18.5%
+smaller, short of the plan's 30%. What is left is mostly three.js's WebGL
+build (575 kB), which the first frame needs. The next big saving is not data.
+Most of the 1.2 MB react-globe.gl chunk is `three.webgpu.js` (1,077 kB before
+minifying), which three-globe imports only for its heatmap layer. The Globe
+draws no heatmaps.
+
+First globe frame, from the same dev-server set-up, 3 runs each (median),
+the base commit served from a clean `git archive` copy:
+
+| Measure           | Before (`72a8f310`)    | After                      |
+| ----------------- | ---------------------- | -------------------------- |
+| First globe frame | 1,191 ms (1,056–1,289) | **1,040 ms** (1,010–1,141) |
+| Globe ready       | 1,072 ms               | **914 ms**                 |
+
+The globe mounts once the country outlines have loaded, so this includes
+their download. On this Mac's fast connection the gain is about 150 ms. On a
+slow school network, the 94 kB less of country outlines (brotli) and 398 kB
+less of state outlines competing with them should matter more. The other
+measures (spin, card, drag, search, heap) did not move beyond run-to-run
+noise.
+
+Screenshots in [screens/](screens/) as `p7-*`: the world and the closest
+zoom over the US East Coast, before and after. They differ only in
+one-pixel antialiasing along borders (0.03 to 0.07% of pixels). Also a US
+event in a town CITIES doesn't name (Dayton, filed under Ohio) and a guided
+tour, both loading their data on demand.
+
 ## Budgets
 
-`scripts/verifyProdBundle.mjs` now checks three things:
+`scripts/verifyProdBundle.mjs` now checks four things:
 
 - **Lazy-only.** three.js (marker `THREE.WebGLRenderer`) and react-globe.gl
   (marker `scene-container`) must not appear in an entry chunk or a chunk
   `index.html` preloads, and each marker must still exist somewhere in the
   build. Cortex's renderer already had this rule.
-- **Size.** `assets/atlas-*.js` may be at most 5% over **103,658** bytes. The
-  static route total may be at most 5% over **1,120,778** bytes. Both numbers
+- **Size.** `assets/atlas-*.js` may be at most 5% over **111,634** bytes. The
+  static route total may be at most 5% over **885,444** bytes. Both numbers
   are in `GLOBE_BUDGET` in the script. When a change shrinks the page on
   purpose, lower them to the new sizes. When a change grows it on purpose,
   raise them in the same commit and record why under "Budget changes".
+- **On demand.** The state outlines, the influence graph and the guided tours
+  (`GLOBE_ON_DEMAND`, one marker each) must not be in an entry chunk or in the
+  route's static imports, and each marker must still exist in the build.
 - **No measuring hook in production.** `__atlasGlobeDebug`, the dev-only hook
   the measuring script uses, must fold out of production builds.
 
@@ -210,6 +286,7 @@ served from a clean copy of the commit, Metal, 3 runs each (median):
 | 12 Oct 2026 | Prompt 3: video, thumbnails, long lists | 103,658 (+32,850) | 1,120,778 (+34,689) | `@tanstack/react-virtual` (new dependency) is 26.5 kB minified, 7.3 kB gzip, of it; it virtualizes the detail card's event list and the search panel's full groups. The other ~6 kB is the click-to-play video, the timeline's clusters and their list, the trail window and the id lookups. In exchange the page loads no YouTube player until play and draws far fewer rows.                                                                                                      |
 | 12 Oct 2026 | Prompt 5: layout, phones, accessibility | 107,836 (+4,178)  | 1,131,110 (+10,332) | Measured against prompt 4's build (97,779 / 1,120,448; prompt 4 stayed under the prompt 3 budget), the route chunk grew 10,057 B minified, 2,953 B gzip, all of it this prompt's: the zone grid, the phone bottom sheet and its snapping, focus handling for panels, the Escape stack, the reduced-motion and phone media hooks, and the card's keyboard resize. Shared chunks moved 0.6 kB (primitives, lucide's chevron-up).                                                      |
 | 12 Oct 2026 | Prompt 6: palette, legend, Layers       | 110,195 (+2,359)  | 1,142,358 (+11,248) | The legend, the Layers popover and its switches, the map-control cluster, the palette's model, the search button and the per-viewer layer store. The rest of `routeStatic` is mostly re-chunking: `globeSearch` (6.3 kB) and the id lookups (5.2 kB) moved out of the atlas and `hooks` chunks into shared chunks of their own, now that the lazily loaded palette imports them too (`hooks` shrank 3.3 kB). The palette itself (8.8 kB) and cmdk (20.5 kB) load only on first use. |
+| 13 Oct 2026 | Prompt 7: data on demand                | 111,634 (+1,439)  | 885,444 (−256,914)  | Lowered. The state outlines (`hooks` chunk, ~104 kB), the influence graph (128 kB), the guided tours (23 kB) and the pathways (7 kB) now load on first use through `data/loaders.ts`. The atlas chunk grew 1.4 kB for the loaders, their loading and retry lines and the waits in navigation; `topojson-client` (2 kB) joined `geoLoader`.                                                                                                                                          |
 
 ## What this baseline added to the page
 

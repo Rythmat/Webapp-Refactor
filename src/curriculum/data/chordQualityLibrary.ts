@@ -445,6 +445,15 @@ export const CHORD_QUALITY_LIBRARY: ChordQualityEntry[] = [
     // No engine equivalent
   },
   {
+    id: 'maj69',
+    name: 'Major 6/9',
+    rootPosition: [0, 4, 7, 9, 14],
+    noteNames: ['1', '3', '5', '6', '9'],
+    noteCount: 5,
+    category: 'five_note',
+    engineEquivalent: 'major6add9',
+  },
+  {
     id: 'min69',
     name: 'Minor 6/9',
     rootPosition: [0, 3, 7, 9, 14],

@@ -15,6 +15,7 @@ export type SongChordQuality =
   | 'sus4'
   | 'add9'
   | 'maj6'
+  | 'maj69'
   | 'min6'
   | 'maj7'
   | 'dom7'
@@ -54,6 +55,10 @@ export const SONG_QUALITIES: Readonly<
   sus4: { tones: { ...R, 5: '4', 7: '5' }, required: [0, 5, 7] },
   add9: { tones: { ...R, 2: '9', 4: '3', 7: '5' }, required: [0, 2, 4] },
   maj6: { tones: { ...R, 4: '3', 7: '5', 9: '6' }, required: [0, 4, 9] },
+  maj69: {
+    tones: { ...R, 2: '9', 4: '3', 7: '5', 9: '6' },
+    required: [0, 2, 4, 9],
+  },
   min6: { tones: { ...R, 3: '♭3', 7: '5', 9: '6' }, required: [0, 3, 9] },
   maj7: { tones: { ...R, 4: '3', 7: '5', 11: '7' }, required: [0, 4, 11] },
   dom7: { tones: { ...R, 4: '3', 7: '5', 10: '♭7' }, required: [0, 4, 10] },

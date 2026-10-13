@@ -24,6 +24,7 @@ import {
   INITIAL_SESSION_STATE,
   useSessionStore,
 } from '@/daw/session/sessionStore';
+import { CLOUD_DOCUMENT_SCHEMA } from '@/daw/persistence/projectDocument/cloudDocument';
 import { useStore } from '@/daw/store';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
@@ -646,7 +647,7 @@ describe('saveProject against an API with the document field (milestone 1.5)', (
     expect(result).toMatchObject({ status: 'saved', complete: true });
     const sent = api.create.mock.calls[0][1] as CloudProjectInput;
     expect(sent.document).toMatchObject({ chordRegions: [REGION] });
-    expect(sent.documentSchema).toBe(3);
+    expect(sent.documentSchema).toBe(CLOUD_DOCUMENT_SCHEMA);
     expect(sent.tracks[0].settings?.projectDoc).toBeUndefined();
     expect(cloudSave().lastSaved?.revision).toBe(1);
   });

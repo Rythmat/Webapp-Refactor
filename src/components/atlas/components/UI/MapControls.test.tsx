@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
- * The map controls: the legend starts open on larger screens and closed on
- * phones; Layers is a popover of real switches whose choice the store and
+ * The map controls: the legend starts closed on every screen and opens on
+ * request; Layers is a popover of real switches whose choice the store and
  * the viewer's browser keep, and the legend drops what Layers hides.
  */
 import {
@@ -56,18 +56,19 @@ function asPhone() {
 const legend = () => screen.queryByRole('complementary', { name: 'Legend' });
 
 describe('map controls', () => {
-  it('opens the legend on larger screens, explained in words', () => {
+  it('starts with the legend closed, and opens it explained in words', () => {
     setup();
+    const toggle = screen.getByRole('button', { name: 'Legend' });
+    expect(legend()).not.toBeInTheDocument();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(toggle);
     expect(legend()).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Legend' })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    );
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('Countries by continent')).toBeInTheDocument();
     expect(screen.getByText('Music cities')).toBeInTheDocument();
   });
 
-  it('keeps the legend closed on phones until asked', () => {
+  it('keeps the legend closed on phones too, until asked', () => {
     asPhone();
     setup();
     expect(legend()).not.toBeInTheDocument();
@@ -81,6 +82,10 @@ describe('map controls', () => {
   it('switches a layer off, in the store and the legend', async () => {
     const store = createAtlasStore();
     setup(store);
+    fireEvent.click(screen.getByRole('button', { name: 'Legend' }));
+    expect(
+      legend()?.querySelector('[data-legend-entry="cities"]'),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Layers' }));
     const cities = await screen.findByRole('switch', { name: 'Music cities' });
     expect(cities).toHaveAttribute('aria-checked', 'true');

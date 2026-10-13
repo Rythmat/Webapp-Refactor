@@ -26,7 +26,7 @@ export const initialAppState: AppState = {
   globeRotating: false,
   layers: DEFAULT_LAYERS,
   statesInView: false,
-  legendOpen: null,
+  legendOpen: false,
   layersOpen: false,
 };
 

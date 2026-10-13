@@ -139,8 +139,8 @@ export interface AppState {
    * altitude band), so the legend lists them only when they can show.
    */
   statesInView: boolean;
-  /** Whether the legend card is open; null until the viewer chooses (open on desktop, closed on phones). */
-  legendOpen: boolean | null;
+  /** Whether the legend card is open: closed until the viewer opens it. */
+  legendOpen: boolean;
   /** Whether the Layers popover is open. */
   layersOpen: boolean;
 }

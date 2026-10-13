@@ -7,7 +7,6 @@ import {
   ATLAS_MAP_CONTROL,
   AtlasPillButton,
 } from '@/components/atlas/components/UI/primitives';
-import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
 import {
   useAtlasDispatch,
   useAtlasSelector,
@@ -16,14 +15,11 @@ import {
 /**
  * The map-control cluster at the top right (layout/AtlasZones.tsx): Legend,
  * Layers and Spin in a row, and the legend's card under them when open. The
- * legend starts open on larger screens and closed on phones, until the
- * viewer opens or closes it.
+ * legend starts closed, so the globe opens clear, on every screen.
  */
 export function MapControls() {
-  const isPhone = useIsPhone();
-  const stored = useAtlasSelector((s) => s.legendOpen);
+  const legendOpen = useAtlasSelector((s) => s.legendOpen);
   const dispatch = useAtlasDispatch();
-  const legendOpen = stored ?? !isPhone;
   const legendId = useId();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const setLegendOpen = (open: boolean) =>

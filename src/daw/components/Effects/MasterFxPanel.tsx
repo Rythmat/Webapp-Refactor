@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useStore } from '@/daw/store';
 import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
 import { FxBrowser } from './FxBrowser';
+import { previewMasteringEffects } from '@/daw/engine/preview';
 import { FxChainRow, FxControlsPanel } from './EffectsPanel';
 
 // ── MasterFxPanel ─────────────────────────────────────────────────────────
@@ -74,6 +75,7 @@ export function MasterFxPanel({ isReady }: { isReady: boolean }) {
             selectedEffect={selectedEffect}
             effects={mfx}
             onUpdate={wrappedUpdate}
+            onPreview={previewMasteringEffects}
             onRemove={(slot) => removeMasteringFx(slot)}
             popOutOpen={popOutOpen}
             onTogglePopOut={() => setPopOutOpen((v) => !v)}

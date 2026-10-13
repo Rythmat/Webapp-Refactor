@@ -32,6 +32,8 @@ import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
 import { useTrackPresence } from '@/daw/collab/presence';
 import { LiveLevelFill } from './LiveLevelFill';
+import { sliderGestureProps } from '@/daw/hooks/useContinuousControl';
+import { useTrackVolumeControl } from '@/daw/hooks/useMixControls';
 
 // ── Props ────────────────────────────────────────────────────────────────
 interface TrackHeaderProps {
@@ -92,6 +94,8 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
   const lockedStyle = lockedByRemote
     ? ({ pointerEvents: 'none', opacity: 0.6 } as const)
     : undefined;
+  // The fader previews while it moves and writes the store once on release.
+  const volume = useTrackVolumeControl(track);
 
   // Collaborative listen state for a track another user is driving live.
   const listenMode = useListenMode();
@@ -502,8 +506,9 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           min={0}
           max={100}
           step={1}
-          value={[Math.round(track.volume * 100)]}
-          onValueChange={([v]) => updateTrack(track.id, { volume: v / 100 })}
+          value={[Math.round(volume.value * 100)]}
+          onValueChange={([v]) => volume.change(v / 100)}
+          {...sliderGestureProps(volume)}
           onClick={(e) => e.stopPropagation()}
         >
           <Slider.Track
@@ -527,9 +532,9 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
         </Slider.Root>
         <FixedDigits
           text={
-            track.volume === 0
+            volume.value === 0
               ? '-\u221E'
-              : `${(20 * Math.log10(track.volume)).toFixed(1)}`
+              : `${(20 * Math.log10(volume.value)).toFixed(1)}`
           }
           className="ml-0.5 w-8 shrink-0 text-right text-[9px]"
           style={{ color: 'var(--color-text-dim)' }}

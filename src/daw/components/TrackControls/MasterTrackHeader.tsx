@@ -4,6 +4,8 @@ import * as Slider from '@radix-ui/react-slider';
 import { Sparkles, Ear, Headphones, Activity } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { LiveLevelFill } from './LiveLevelFill';
+import { sliderGestureProps } from '@/daw/hooks/useContinuousControl';
+import { useMasterVolumeControl } from '@/daw/hooks/useMixControls';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { MasterFxPanel } from '@/daw/components/Effects/MasterFxPanel';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
@@ -22,8 +24,9 @@ import {
 const MASTER_COLOR = 'var(--color-accent)';
 
 export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
-  const masterVolume = useStore((s) => s.masterVolume);
-  const setMasterVolume = useStore((s) => s.setMasterVolume);
+  // Previews while it moves; one store write on release.
+  const volume = useMasterVolumeControl();
+  const masterVolume = volume.value;
   const fxCount = useStore((s) => s.masteringFxChain.length);
   const automationOpen = useStore(
     (s) => s.automationOpenTrackId === MASTER_AUTOMATION_ID,
@@ -161,7 +164,8 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
           max={100}
           step={1}
           value={[Math.round(masterVolume * 100)]}
-          onValueChange={([v]) => setMasterVolume(v / 100)}
+          onValueChange={([v]) => volume.change(v / 100)}
+          {...sliderGestureProps(volume)}
         >
           <Slider.Track
             className="relative h-1.5 w-full overflow-hidden rounded-full"

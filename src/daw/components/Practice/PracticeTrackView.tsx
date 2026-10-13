@@ -24,6 +24,8 @@ import {
 import { keyboardWindow } from '@/features/practiceTracks/genre/practiceKeyboard';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { PracticeHeader } from '@/daw/shell/topbar/PracticeHeader';
+import { useContinuousControl } from '@/daw/hooks/useContinuousControl';
+import { previewTempo } from '@/daw/hooks/useTransport';
 import { ChordChart } from './ChordChart';
 import { ScaleKeyboard, type KeyboardScale } from './ScaleKeyboard';
 import { SegmentedToggle } from './SegmentedToggle';
@@ -87,6 +89,13 @@ export function PracticeTrackView({
   const mode = useStore((s) => s.mode);
   const chordRegions = useStore((s) => s.chordRegions);
   const bpm = useStore((s) => s.bpm);
+  // The tempo slider is heard as it moves and written once, on release.
+  const tempo = useContinuousControl({
+    value: bpm,
+    preview: previewTempo,
+    commit: (value) => useStore.getState().setBpm(value),
+    label: 'Change tempo',
+  });
   const isPlaying = useStore((s) => s.isPlaying);
   const isRecording = useStore((s) => s.isRecording);
   const isCountingIn = useStore((s) => s.isCountingIn);
@@ -95,8 +104,7 @@ export function PracticeTrackView({
   const openTrack = useStore((s) =>
     s.tracks.find((t) => t.id === s.selectedTrackId),
   );
-  const { play, pause, stop, setBpm, toggleLoop, setCurrentView } =
-    useStore.getState();
+  const { play, pause, stop, toggleLoop, setCurrentView } = useStore.getState();
 
   const genre = session.kind === 'genre' ? session : null;
   const theory = session.kind === 'theory' ? session : null;
@@ -423,11 +431,15 @@ export function PracticeTrackView({
             type="range"
             min={TEMPO_MIN}
             max={TEMPO_MAX}
-            value={bpm}
-            onChange={(e) => setBpm(Number(e.target.value))}
+            value={tempo.value}
+            onChange={(e) => tempo.change(Number(e.target.value))}
+            onPointerDown={tempo.begin}
+            onPointerUp={tempo.end}
             aria-label="Tempo"
           />
-          <span className="w-16 tabular-nums">{Math.round(bpm)} BPM</span>
+          <span className="w-16 tabular-nums">
+            {Math.round(tempo.value)} BPM
+          </span>
         </label>
       </div>
 

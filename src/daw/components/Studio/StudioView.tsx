@@ -1,7 +1,26 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { Sliders } from 'lucide-react';
-import { useStore, useTrackIds, useTrack, useTrackCount } from '@/daw/store';
+import {
+  useStore,
+  useTrackIds,
+  useTrack,
+  useTrackCount,
+  type Track,
+} from '@/daw/store';
+import type { ReturnBus } from '@/daw/store/returnsSlice';
+import { sliderGestureProps } from '@/daw/hooks/useContinuousControl';
+import {
+  previewMasteringEffects,
+  previewReturnEffects,
+} from '@/daw/engine/preview';
+import {
+  useMasterVolumeControl,
+  useReturnVolumeControl,
+  useTrackPanControl,
+  useTrackSendControl,
+  useTrackVolumeControl,
+} from '@/daw/hooks/useMixControls';
 import { useShallow } from 'zustand/react/shallow';
 import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
 import { meterSource, type BusLevels } from '@/daw/engine/meterBus';
@@ -382,6 +401,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
               selectedEffect={selectedEffect}
               effects={mfx}
               onUpdate={wrappedUpdate}
+              onPreview={previewMasteringEffects}
               onRemove={(slot) => removeMasteringFx(slot)}
               popOutOpen={popOutOpen}
               onTogglePopOut={() => setPopOutOpen((v) => !v)}
@@ -538,9 +558,14 @@ function MeterBar({
 function PanKnob({
   value,
   onChange,
+  onChangeStart,
+  onChangeEnd,
 }: {
   value: number;
   onChange: (v: number) => void;
+  /** A drag starts and ends (useContinuousControl's begin and end). */
+  onChangeStart?: () => void;
+  onChangeEnd?: () => void;
 }) {
   const startY = useRef(0);
   const startVal = useRef(0);
@@ -567,8 +592,9 @@ function PanKnob({
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
       startY.current = e.clientY;
       startVal.current = value;
+      onChangeStart?.();
     },
-    [value],
+    [value, onChangeStart],
   );
 
   const onPointerMove = useCallback(
@@ -591,6 +617,9 @@ function PanKnob({
       style={{ width: 32, height: 32 }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
+      onPointerUp={onChangeEnd}
+      onPointerCancel={onChangeEnd}
+      onLostPointerCapture={onChangeEnd}
       onDoubleClick={onDoubleClick}
     >
       <svg width={32} height={32} viewBox="0 0 32 32">
@@ -639,14 +668,12 @@ const MixingStrip = React.memo(function MixingStrip({
   const track = useTrack(trackId);
   const toggleMute = useStore((s) => s.toggleMute);
   const toggleSolo = useStore((s) => s.toggleSolo);
-  const updateTrack = useStore((s) => s.updateTrack);
   // Select only the stable send targets (id + label as flat primitives) so a
   // return fader/FX tweak — which rebuilds the returns array — doesn't
   // re-render every track strip and its send knobs.
   const returnMeta = useStore(
     useShallow((s) => s.returns.flatMap((r) => [r.id, r.label])),
   );
-  const setSend = useStore((s) => s.setSend);
   const returns: Array<{ id: string; label: string }> = [];
   for (let i = 0; i < returnMeta.length; i += 2) {
     returns.push({ id: returnMeta[i], label: returnMeta[i + 1] });
@@ -659,8 +686,6 @@ const MixingStrip = React.memo(function MixingStrip({
   const level = meterSource(`track:${trackId}`);
 
   if (!track) return null;
-
-  const volumePct = Math.round(track.volume * 100);
 
   return (
     <div
@@ -707,46 +732,14 @@ const MixingStrip = React.memo(function MixingStrip({
           <MeterBar source={level} />
         </div>
 
-        <Slider.Root
-          className="relative flex w-4 touch-none select-none flex-col items-center"
-          style={{ height: '100%' }}
-          orientation="vertical"
-          min={0}
-          max={100}
-          step={1}
-          value={[volumePct]}
-          onValueChange={([v]) => updateTrack(track.id, { volume: v / 100 })}
-        >
-          <Slider.Track
-            className="relative h-full w-1.5 rounded-full"
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-          >
-            <Slider.Range
-              className="absolute w-full rounded-full"
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.3)' }}
-            />
-          </Slider.Track>
-          <Slider.Thumb
-            className="block h-4 w-5 rounded-sm shadow-sm focus:outline-none focus:ring-1"
-            style={
-              {
-                backgroundColor: '#e8e8f0',
-                '--tw-ring-color': 'var(--color-accent)',
-              } as React.CSSProperties
-            }
-            aria-label="Volume"
-          />
-        </Slider.Root>
+        <StripVolume track={track} />
 
         <div className="flex gap-0.5" style={{ height: '100%' }}>
           <MeterBar source={level} />
         </div>
       </div>
 
-      <PanKnob
-        value={track.pan}
-        onChange={(v) => updateTrack(track.id, { pan: v })}
-      />
+      <StripPan track={track} />
 
       {/* Aux sends — one knob per return bus */}
       {returns.length > 0 && (
@@ -758,15 +751,7 @@ const MixingStrip = React.memo(function MixingStrip({
               className="flex flex-col items-center"
               title={`Send to ${ret.label}`}
             >
-              <RotaryKnob
-                label={ret.id}
-                value={track.sends?.[ret.id] ?? 0}
-                min={0}
-                max={1}
-                size={26}
-                formatValue={(v) => `${Math.round(v * 100)}`}
-                onChange={(v) => setSend(track.id, ret.id, v)}
-              />
+              <SendKnob track={track} returnId={ret.id} />
             </div>
           ))}
         </div>
@@ -794,6 +779,75 @@ const MixingStrip = React.memo(function MixingStrip({
   );
 });
 
+// The strip's continuous controls: each previews while it moves and writes
+// the store once on release (useMixControls).
+
+function StripVolume({ track }: { track: Track }) {
+  const volume = useTrackVolumeControl(track);
+  return (
+    <Slider.Root
+      className="relative flex w-4 touch-none select-none flex-col items-center"
+      style={{ height: '100%' }}
+      orientation="vertical"
+      min={0}
+      max={100}
+      step={1}
+      value={[Math.round(volume.value * 100)]}
+      onValueChange={([v]) => volume.change(v / 100)}
+      {...sliderGestureProps(volume)}
+    >
+      <Slider.Track
+        className="relative h-full w-1.5 rounded-full"
+        style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+      >
+        <Slider.Range
+          className="absolute w-full rounded-full"
+          style={{ backgroundColor: 'rgba(255, 255, 255, 0.3)' }}
+        />
+      </Slider.Track>
+      <Slider.Thumb
+        className="block h-4 w-5 rounded-sm shadow-sm focus:outline-none focus:ring-1"
+        style={
+          {
+            backgroundColor: '#e8e8f0',
+            '--tw-ring-color': 'var(--color-accent)',
+          } as React.CSSProperties
+        }
+        aria-label="Volume"
+      />
+    </Slider.Root>
+  );
+}
+
+function StripPan({ track }: { track: Track }) {
+  const pan = useTrackPanControl(track);
+  return (
+    <PanKnob
+      value={pan.value}
+      onChange={pan.change}
+      onChangeStart={pan.begin}
+      onChangeEnd={pan.end}
+    />
+  );
+}
+
+function SendKnob({ track, returnId }: { track: Track; returnId: string }) {
+  const send = useTrackSendControl(track, returnId);
+  return (
+    <RotaryKnob
+      label={returnId}
+      value={send.value}
+      min={0}
+      max={1}
+      size={26}
+      formatValue={(v) => `${Math.round(v * 100)}`}
+      onChange={send.change}
+      onChangeStart={send.begin}
+      onChangeEnd={send.end}
+    />
+  );
+}
+
 // ── MasterStrip ─────────────────────────────────────────────────────────
 
 const MASTER_WIDTH = 100;
@@ -804,12 +858,9 @@ function MasterStrip() {
 
   const tracks = useStore((s) => s.tracks);
   const toggleMute = useStore((s) => s.toggleMute);
-  const masterVolume = useStore((s) => Math.round(s.masterVolume * 100));
-  const setMasterVolumeStore = useStore((s) => s.setMasterVolume);
-  const setMasterVolume = useCallback(
-    (v: number) => setMasterVolumeStore(v / 100),
-    [setMasterVolumeStore],
-  );
+  // Previews while it moves; one store write on release.
+  const volume = useMasterVolumeControl();
+  const masterVolume = Math.round(volume.value * 100);
 
   const handleMuteAll = useCallback(() => {
     for (const t of tracks) {
@@ -856,7 +907,8 @@ function MasterStrip() {
           max={100}
           step={1}
           value={[masterVolume]}
-          onValueChange={([v]) => setMasterVolume(v)}
+          onValueChange={([v]) => volume.change(v / 100)}
+          {...sliderGestureProps(volume)}
         >
           <Slider.Track
             className="relative h-full w-1.5 rounded-full"
@@ -916,9 +968,7 @@ function ReturnStrip({
   onSelect: () => void;
 }) {
   const ret = useStore((s) => s.returns.find((r) => r.id === returnId));
-  const setReturnVolume = useStore((s) => s.setReturnVolume);
   if (!ret) return null;
-  const volumePct = Math.round(ret.volume * 100);
 
   return (
     <div
@@ -946,36 +996,7 @@ function ReturnStrip({
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <Slider.Root
-          className="relative flex w-4 touch-none select-none flex-col items-center"
-          style={{ height: '100%' }}
-          orientation="vertical"
-          min={0}
-          max={100}
-          step={1}
-          value={[volumePct]}
-          onValueChange={([v]) => setReturnVolume(returnId, v / 100)}
-        >
-          <Slider.Track
-            className="relative h-full w-1.5 rounded-full"
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-          >
-            <Slider.Range
-              className="absolute w-full rounded-full"
-              style={{ backgroundColor: 'rgba(126, 207, 207, 0.4)' }}
-            />
-          </Slider.Track>
-          <Slider.Thumb
-            className="block h-4 w-5 rounded-sm shadow-sm focus:outline-none focus:ring-1"
-            style={
-              {
-                backgroundColor: 'var(--color-accent)',
-                '--tw-ring-color': 'var(--color-accent)',
-              } as React.CSSProperties
-            }
-            aria-label={`Return ${returnId} volume`}
-          />
-        </Slider.Root>
+        <ReturnFader ret={ret} />
       </div>
 
       <div className="flex w-full items-center justify-center gap-1">
@@ -990,6 +1011,44 @@ function ReturnStrip({
         {ret.fxChain.length} FX
       </span>
     </div>
+  );
+}
+
+/** A return's fader: previews while it moves, one store write on release. */
+function ReturnFader({ ret }: { ret: ReturnBus }) {
+  const volume = useReturnVolumeControl(ret);
+  return (
+    <Slider.Root
+      className="relative flex w-4 touch-none select-none flex-col items-center"
+      style={{ height: '100%' }}
+      orientation="vertical"
+      min={0}
+      max={100}
+      step={1}
+      value={[Math.round(volume.value * 100)]}
+      onValueChange={([v]) => volume.change(v / 100)}
+      {...sliderGestureProps(volume)}
+    >
+      <Slider.Track
+        className="relative h-full w-1.5 rounded-full"
+        style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+      >
+        <Slider.Range
+          className="absolute w-full rounded-full"
+          style={{ backgroundColor: 'rgba(126, 207, 207, 0.4)' }}
+        />
+      </Slider.Track>
+      <Slider.Thumb
+        className="block h-4 w-5 rounded-sm shadow-sm focus:outline-none focus:ring-1"
+        style={
+          {
+            backgroundColor: 'var(--color-accent)',
+            '--tw-ring-color': 'var(--color-accent)',
+          } as React.CSSProperties
+        }
+        aria-label={`Return ${ret.id} volume`}
+      />
+    </Slider.Root>
   );
 }
 
@@ -1086,6 +1145,7 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
               selectedEffect={selectedEffect}
               effects={rfx}
               onUpdate={wrappedUpdate}
+              onPreview={(effects) => previewReturnEffects(returnId, effects)}
               onRemove={(slot) => removeReturnFx(returnId, slot)}
               popOutOpen={popOutOpen}
               onTogglePopOut={() => setPopOutOpen((v) => !v)}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { X, Maximize2, Zap } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
@@ -29,6 +29,11 @@ import {
   FxPowerButton,
 } from './FxShared';
 import { FxBrowser } from './FxBrowser';
+import {
+  ControlGestureContext,
+  useContinuousControl,
+} from '@/daw/hooks/useContinuousControl';
+import { previewTrack } from '@/daw/engine/trackReconciler';
 
 // Effects that have a visualizer component
 // The ducker's GR meter is inline in its FxKnobs controls (DuckerControls), so
@@ -235,6 +240,7 @@ export function EffectsPanel() {
                 selectedEffect={selectedEffect}
                 effects={track.effects}
                 onUpdate={updateTrackEffects}
+                onPreview={(effects) => previewTrack(track.id, { effects })}
                 onRemove={(slot) => {
                   removeActiveEffect(track.id, slot);
                 }}
@@ -435,8 +441,9 @@ export function FxChainRow({
 export function FxControlsPanel({
   trackId,
   selectedEffect,
-  effects,
+  effects: storeEffects,
   onUpdate,
+  onPreview,
   onRemove,
   popOutOpen,
   onTogglePopOut,
@@ -446,6 +453,9 @@ export function FxControlsPanel({
   selectedEffect: EffectSlotType;
   effects: TrackEffectState;
   onUpdate: (trackId: string, effects: Partial<TrackEffectState>) => void;
+  /** Plays the rack's effects without writing the store, while a knob or an
+   *  EQ band moves (the engine/preview.ts functions). */
+  onPreview: (effects: TrackEffectState) => void;
   onRemove: (slot: EffectSlotType) => void;
   popOutOpen: boolean;
   onTogglePopOut: () => void;
@@ -453,6 +463,40 @@ export function FxControlsPanel({
    *  'master'); null when the rack has no live chain to meter. */
   meterTarget?: string | null;
 }) {
+  // One control for the whole rack: a knob or band drag previews and writes
+  // the store once on release; a toggle or a list writes at once. A write
+  // carries only the slots the gesture changed, so a collaborator's edit to
+  // another slot meanwhile stands.
+  const fx = useContinuousControl<TrackEffectState>({
+    value: storeEffects,
+    preview: onPreview,
+    commit: (next, start) => {
+      const changed: Partial<TrackEffectState> = {};
+      for (const key of Object.keys(next) as (keyof TrackEffectState)[]) {
+        if (next[key] !== start[key]) {
+          (changed as Record<string, unknown>)[key] = next[key];
+        }
+      }
+      onUpdate(trackId, changed);
+    },
+    label: 'Change effect',
+  });
+  const effects = fx.value;
+  const latest = useRef(effects);
+  latest.current = effects;
+  const update = useCallback(
+    (_trackId: string, partial: Partial<TrackEffectState>) => {
+      const next = { ...latest.current, ...partial };
+      latest.current = next;
+      fx.change(next);
+    },
+    [fx],
+  );
+  const gesture = useMemo(
+    () => ({ begin: fx.begin, end: fx.end }),
+    [fx.begin, fx.end],
+  );
+
   const color = FX_COLOR[selectedEffect] ?? '#7ecfcf';
   const category = FX_CATEGORY[selectedEffect] ?? '';
   const label = FX_LABEL[selectedEffect] ?? selectedEffect;
@@ -462,111 +506,115 @@ export function FxControlsPanel({
   };
   const enabled = slotState?.enabled ?? false;
   const toggleEnabled = () =>
-    onUpdate(trackId, {
+    update(trackId, {
       [selectedEffect]: { ...slotState, enabled: !enabled },
     });
 
   return (
-    <div
-      className="flex-1 overflow-y-auto"
-      style={{ backgroundColor: 'var(--color-surface)' }}
-    >
-      {/* Header */}
+    <ControlGestureContext.Provider value={gesture}>
       <div
-        className="flex items-center gap-2.5 border-b px-4 py-1.5"
-        style={{ borderColor: 'var(--color-border)' }}
+        className="flex-1 overflow-y-auto"
+        style={{ backgroundColor: 'var(--color-surface)' }}
       >
-        <FxPowerButton
-          enabled={enabled}
-          onToggle={toggleEnabled}
-          effectName={label}
-          size={22}
-          withText
-        />
+        {/* Header */}
         <div
-          className="size-2.5 shrink-0 rounded-full"
-          style={{ backgroundColor: color }}
-        />
-        <span
-          className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          className="flex items-center gap-2.5 border-b px-4 py-1.5"
+          style={{ borderColor: 'var(--color-border)' }}
         >
-          {category}
-        </span>
-        <span
-          className="flex-1 text-[13px] font-medium"
-          style={{ color: 'var(--color-text)' }}
-        >
-          {label}
-        </span>
-        <button
-          onClick={onTogglePopOut}
-          className="cursor-pointer rounded-md p-1"
-          style={{
-            color: popOutOpen ? 'var(--color-accent)' : 'var(--color-text-dim)',
-            background: 'none',
-            border: 'none',
-          }}
-        >
-          <Maximize2 size={14} />
-        </button>
-        <button
-          onClick={() => onRemove(selectedEffect)}
-          className="cursor-pointer rounded-md p-1"
-          style={{
-            color: 'var(--color-text-dim)',
-            background: 'none',
-            border: 'none',
-          }}
-        >
-          <X size={14} />
-        </button>
-      </div>
+          <FxPowerButton
+            enabled={enabled}
+            onToggle={toggleEnabled}
+            effectName={label}
+            size={22}
+            withText
+          />
+          <div
+            className="size-2.5 shrink-0 rounded-full"
+            style={{ backgroundColor: color }}
+          />
+          <span
+            className="text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            {category}
+          </span>
+          <span
+            className="flex-1 text-[13px] font-medium"
+            style={{ color: 'var(--color-text)' }}
+          >
+            {label}
+          </span>
+          <button
+            onClick={onTogglePopOut}
+            className="cursor-pointer rounded-md p-1"
+            style={{
+              color: popOutOpen
+                ? 'var(--color-accent)'
+                : 'var(--color-text-dim)',
+              background: 'none',
+              border: 'none',
+            }}
+          >
+            <Maximize2 size={14} />
+          </button>
+          <button
+            onClick={() => onRemove(selectedEffect)}
+            className="cursor-pointer rounded-md p-1"
+            style={{
+              color: 'var(--color-text-dim)',
+              background: 'none',
+              border: 'none',
+            }}
+          >
+            <X size={14} />
+          </button>
+        </div>
 
-      {/* Knobs */}
-      <div className="flex flex-wrap items-center justify-evenly px-4 py-3">
-        <FxKnobs
-          trackId={trackId}
-          slot={selectedEffect}
-          effects={effects}
-          onUpdate={onUpdate}
-          color={color}
-        />
-      </div>
+        {/* Knobs */}
+        <div className="flex flex-wrap items-center justify-evenly px-4 py-3">
+          <FxKnobs
+            trackId={trackId}
+            slot={selectedEffect}
+            effects={effects}
+            onUpdate={update}
+            color={color}
+          />
+        </div>
 
-      {/* Pop-out overlay */}
-      <PopOutOverlay
-        isOpen={popOutOpen}
-        onClose={onTogglePopOut}
-        title={`${category}  ${label}`}
-        trackColor={color}
-      >
-        <div className="flex h-full flex-col gap-4 p-4">
-          <div className="flex flex-wrap items-center justify-center gap-4 px-4 py-3">
-            <FxKnobs
-              trackId={trackId}
-              slot={selectedEffect}
-              effects={effects}
-              onUpdate={onUpdate}
-              color={color}
-              popOut
-            />
-          </div>
-          {hasViz && (
-            <div className="flex min-h-0 flex-1 items-center justify-center p-3">
-              <FxVisualizer
+        {/* Pop-out overlay */}
+        <PopOutOverlay
+          isOpen={popOutOpen}
+          onClose={onTogglePopOut}
+          title={`${category}  ${label}`}
+          trackColor={color}
+        >
+          <div className="flex h-full flex-col gap-4 p-4">
+            <div className="flex flex-wrap items-center justify-center gap-4 px-4 py-3">
+              <FxKnobs
+                trackId={trackId}
                 slot={selectedEffect}
                 effects={effects}
-                trackId={trackId}
-                onUpdate={onUpdate}
-                meterTarget={meterTarget}
-                large
+                onUpdate={update}
+                color={color}
+                popOut
               />
             </div>
-          )}
-        </div>
-      </PopOutOverlay>
-    </div>
+            {hasViz && (
+              <div className="flex min-h-0 flex-1 items-center justify-center p-3">
+                <FxVisualizer
+                  slot={selectedEffect}
+                  effects={effects}
+                  trackId={trackId}
+                  onUpdate={update}
+                  meterTarget={meterTarget}
+                  large
+                />
+              </div>
+            )}
+          </div>
+        </PopOutOverlay>
+      </div>
+    </ControlGestureContext.Provider>
   );
 }
 

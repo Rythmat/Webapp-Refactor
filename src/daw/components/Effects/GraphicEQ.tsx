@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import type { EqBand, EqBandType } from '@/daw/audio/EffectChain';
 import { useSpectrumCanvas } from '@/daw/hooks/useSpectrumCanvas';
+import { useControlGesture } from '@/daw/hooks/useContinuousControl';
 
 // ── Constants ─────────────────────────────────────────────────────────────
 
@@ -283,14 +284,18 @@ export function GraphicEQ({
 
   // ── Drag handlers ──────────────────────────────────────────────────
 
+  // A band drag is one gesture of the effect rack: previewed while it
+  // moves, written once on release.
+  const gesture = useControlGesture();
   const handlePointerDown = useCallback(
     (idx: number, e: React.PointerEvent) => {
       e.preventDefault();
       e.stopPropagation();
       (e.target as Element).setPointerCapture(e.pointerId);
       setDragIdx(idx);
+      gesture?.begin();
     },
-    [],
+    [gesture],
   );
 
   const handlePointerMove = useCallback(
@@ -316,8 +321,10 @@ export function GraphicEQ({
   );
 
   const handlePointerUp = useCallback(() => {
+    if (dragIdx === null) return;
     setDragIdx(null);
-  }, []);
+    gesture?.end();
+  }, [dragIdx, gesture]);
 
   // ── Wheel → Q adjustment ───────────────────────────────────────────
 

@@ -192,7 +192,7 @@ export default function MapLibreGlobe() {
     artistPoints,
     influenceArcs,
     selectedCityId,
-    pinnedCityName,
+    pinnedCityId,
   } = useGlobeScene();
   const clicks = useGlobeClicks();
   const dispatch = useAtlasDispatch();
@@ -308,9 +308,9 @@ export default function MapLibreGlobe() {
     feed(
       map,
       SOURCE.cityPoints,
-      cityPointCollection(cityPoints, selectedCityId, pinnedCityName),
+      cityPointCollection(cityPoints, selectedCityId, pinnedCityId),
     );
-  }, [map, cityPoints, selectedCityId, pinnedCityName]);
+  }, [map, cityPoints, selectedCityId, pinnedCityId]);
 
   useEffect(() => {
     if (map)

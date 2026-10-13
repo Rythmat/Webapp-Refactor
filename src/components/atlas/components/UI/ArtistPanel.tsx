@@ -13,6 +13,7 @@ import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
 import { atlasVar } from '@/components/atlas/theme/tokens';
+import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 
 /**
  * Everything on the globe about one artist, in the order it happened.
@@ -36,7 +37,8 @@ export function ArtistPanel({ name }: { name: string }) {
   const places = useMemo(() => {
     const seen: string[] = [];
     for (const e of events) {
-      if (!seen.includes(e.location.city)) seen.push(e.location.city);
+      const place = eventPlaceName(e);
+      if (!seen.includes(place)) seen.push(place);
     }
     return seen;
   }, [events]);
@@ -90,7 +92,7 @@ export function ArtistPanel({ name }: { name: string }) {
               badge={event.id.startsWith('song-') ? 'Song' : undefined}
               badgeDot={atlasVar('song')}
               presentation={describeStop({ kind: 'event', eventId: event.id })}
-              subtitle={`${event.year} · ${event.location.city}`}
+              subtitle={`${event.year} · ${eventPlaceName(event)}`}
               title={event.title}
               onClick={() => navigate.toEvent(event)}
             />

@@ -282,7 +282,7 @@ export interface CityProps {
 export function cityPointCollection(
   points: readonly CityPoint[],
   selectedCityId: string | null,
-  pinnedCityName: string | null,
+  pinnedCityId: string | null,
 ): FeatureCollection<Point, CityProps> {
   return {
     type: 'FeatureCollection',
@@ -290,7 +290,7 @@ export function cityPointCollection(
       const highlight = isCityHighlighted(
         [point],
         selectedCityId,
-        pinnedCityName,
+        pinnedCityId,
       );
       return {
         type: 'Feature',

@@ -193,7 +193,7 @@ export function BaseGlobe() {
     artistPoints,
     influenceArcs,
     selectedCityId,
-    pinnedCityName,
+    pinnedCityId,
   } = useGlobeScene();
   const statesInView = useAtlasSelector((s) => s.statesInView);
   const dispatch = useAtlasDispatch();
@@ -420,8 +420,8 @@ export function BaseGlobe() {
   // accessors below change identity once per selection, not once per render.
   const isHexHighlighted = useCallback(
     (points: CityPoint[]): boolean =>
-      isCityHighlighted(points, selectedCityId, pinnedCityName),
-    [selectedCityId, pinnedCityName],
+      isCityHighlighted(points, selectedCityId, pinnedCityId),
+    [selectedCityId, pinnedCityId],
   );
 
   const hexSideColor = useCallback(

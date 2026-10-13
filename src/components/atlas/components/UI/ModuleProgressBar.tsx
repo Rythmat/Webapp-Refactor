@@ -16,6 +16,7 @@ import {
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import type { HistoricalEvent } from '@/components/atlas/types';
+import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 
 export function ModuleProgressBar() {
   const activeModule = useAtlasSelector((s) => s.activeModule);
@@ -80,7 +81,7 @@ export function ModuleProgressBar() {
           <div className="min-w-0">
             <h4 className={`truncate ${ATLAS_ITEM_TITLE}`}>{current.title}</h4>
             <p className="mt-0.5 text-xs text-atlas-text-2">
-              {current.location.city}, {current.location.country} &middot;{' '}
+              {eventPlaceName(current)}, {current.location.country} &middot;{' '}
               {current.year}
             </p>
           </div>

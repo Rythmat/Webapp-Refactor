@@ -56,6 +56,7 @@ import {
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import type { HistoricalEvent } from '@/components/atlas/types';
+import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
 import { SongRoutes } from '@/constants/routes';
 
@@ -105,7 +106,7 @@ function EventMeta({ event, id }: { event: HistoricalEvent; id?: string }) {
         <Calendar aria-hidden className="size-3" /> {event.year}
       </span>
       <span className="flex items-center gap-1">
-        <MapPin aria-hidden className="size-3" /> {event.location.city}
+        <MapPin aria-hidden className="size-3" /> {eventPlaceName(event)}
       </span>
     </span>
   );

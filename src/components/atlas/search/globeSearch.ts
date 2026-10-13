@@ -11,6 +11,7 @@ import type {
   SelectedLocation,
 } from '@/components/atlas/types';
 import { normCountry } from '@/components/atlas/utils/country';
+import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { MUSIC_HISTORY } from '@/content/contentStore';
 import { scoreKeywords } from '@/features/search/match';
 
@@ -237,7 +238,7 @@ export function searchGlobe(query: string, cap = Infinity): GlobeResultGroup[] {
     // "thriller" buried in some other event's tag list.
     const titleScore = scoreKeywords([fold(event.title)], q);
     const tagScore = scoreKeywords(
-      [...event.tags, event.location.city].map(fold),
+      [...event.tags, event.location.city, eventPlaceName(event)].map(fold),
       q,
     );
     const score = Math.max(titleScore, tagScore >= 0 ? tagScore - 15 : -1);
@@ -246,7 +247,7 @@ export function searchGlobe(query: string, cap = Infinity): GlobeResultGroup[] {
         kind: isSong ? 'song' : 'event',
         id: `event:${event.id}`,
         title: event.title,
-        subtitle: `${event.year} · ${event.location.city}`,
+        subtitle: `${event.year} · ${eventPlaceName(event)}`,
         event,
       },
       score,

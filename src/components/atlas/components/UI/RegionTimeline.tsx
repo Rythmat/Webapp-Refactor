@@ -33,6 +33,7 @@ import type {
   SelectedLocation,
 } from '@/components/atlas/types';
 import { clusterDots } from '@/components/atlas/utils/clusterDots';
+import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
 
 /** Timeline zoom tops out here: 16× the full range. */
@@ -68,7 +69,7 @@ function getDisplayNames(
 ): { country: string; subtitle?: string } {
   if (selectedLocation.type === 'country') {
     if (pinnedEvent) {
-      const cityName = pinnedEvent.location.city;
+      const cityName = eventPlaceName(pinnedEvent);
       const cityData = getCityByName(cityName);
       const sub = cityData?.subdivision
         ? `${cityName}, ${cityData.subdivision}`
@@ -83,7 +84,7 @@ function getDisplayNames(
     if (pinnedEvent) {
       return {
         country: countryName,
-        subtitle: `${pinnedEvent.location.city}, ${stateName}`,
+        subtitle: `${eventPlaceName(pinnedEvent)}, ${stateName}`,
       };
     }
     return { country: countryName, subtitle: stateName };
@@ -156,7 +157,7 @@ export function RegionTimeline() {
     ? {
         country: artist.name,
         subtitle: relevantPinned
-          ? `${relevantPinned.location.city} · ${relevantPinned.year}`
+          ? `${eventPlaceName(relevantPinned)} · ${relevantPinned.year}`
           : undefined,
       }
     : selectedLocation

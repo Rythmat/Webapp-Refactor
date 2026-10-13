@@ -4,6 +4,7 @@ import { getCountryColor } from '@/components/atlas/data/continentColors';
 import { guidesData } from '@/components/atlas/data/loaders';
 import { getCityById, getEventById } from '@/components/atlas/data/lookups';
 import type { HistoricalEvent } from '@/components/atlas/types';
+import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { contentGeneration } from '@/content/contentStore';
 import { stopKey, type AtlasStop } from './atlasStop';
 
@@ -93,7 +94,7 @@ function present(stop: AtlasStop): StopPresentation {
       return {
         kind: 'event',
         title: event?.title ?? 'Event',
-        subtitle: event ? `${event.year} · ${event.location.city}` : '',
+        subtitle: event ? `${event.year} · ${eventPlaceName(event)}` : '',
         thumb: eventThumb(event),
       };
     }

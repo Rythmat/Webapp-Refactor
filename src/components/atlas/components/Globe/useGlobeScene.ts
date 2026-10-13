@@ -17,6 +17,7 @@ import {
 } from '@/components/atlas/state/atlasStore';
 import type { SelectedLocation } from '@/components/atlas/types';
 import { eventCities } from '@/components/atlas/utils/eventCities';
+import { matchCity } from '@/components/atlas/utils/resolveEventRegion';
 import { resolveFocusCities } from '@/components/atlas/utils/resolveFocusCities';
 import {
   ARTIST_POINT,
@@ -113,8 +114,10 @@ export function useGlobeScene() {
   // Primitives, so what derives from them changes once per selection.
   const selectedCityId =
     selectedLocation?.type === 'city' ? selectedLocation.id : null;
-  const pinnedCityName = pinnedEvent
-    ? pinnedEvent.location.city.toLowerCase()
+  // The city the pinned event belongs to, by id: its own name may be a short
+  // form ("Washington" for Washington D.C.) that matches no city's name.
+  const pinnedCityId = pinnedEvent
+    ? (matchCity(pinnedEvent)?.id ?? null)
     : null;
 
   return {
@@ -124,7 +127,7 @@ export function useGlobeScene() {
     artistPoints,
     influenceArcs,
     selectedCityId,
-    pinnedCityName,
+    pinnedCityId,
   };
 }
 

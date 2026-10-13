@@ -52,11 +52,10 @@ export interface ArtistPoint {
 export const isCityHighlighted = (
   points: readonly Pick<CityPoint, 'id' | 'name'>[],
   selectedCityId: string | null,
-  pinnedCityName: string | null,
+  pinnedCityId: string | null,
 ): boolean =>
   (selectedCityId !== null && points.some((p) => p.id === selectedCityId)) ||
-  (pinnedCityName !== null &&
-    points.some((p) => p.name.toLowerCase() === pinnedCityName));
+  (pinnedCityId !== null && points.some((p) => p.id === pinnedCityId));
 
 /* ── Colours ─────────────────────────────────────────────────────────────── */
 

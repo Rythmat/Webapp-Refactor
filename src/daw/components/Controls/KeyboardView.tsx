@@ -6,9 +6,8 @@ import { studioRealtime } from '@/daw/collab/studioRealtime';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
 import { auditionNote } from '@/daw/audio/auditionNote';
-import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
-import { TICKS_PER_BEAT } from '@/daw/utils/timelineScale';
-import { PianoRoll } from '../PianoRoll/PianoRoll';
+import { resolveEditorClip } from '@/daw/model/editorClip';
+import { ClipPianoRoll } from '../PianoRoll/ClipPianoRoll';
 import { PresetBrowser } from './PresetBrowser';
 import { PRESETS } from '@/daw/data/instrumentPresets';
 import type { Track } from '@/daw/store/tracksSlice';
@@ -27,7 +26,6 @@ function displayPresetName(track: Track | undefined): string {
     'Studio Grand'
   );
 }
-import type { MidiNoteEvent } from '@prism/engine';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
 
 // ── KeyboardView ────────────────────────────────────────────────────────
@@ -45,20 +43,12 @@ export function KeyboardView({ trackId }: { trackId: string }) {
   const [browserOpen, setBrowserOpen] = useState(false);
   const [mode, setMode] = useState<ViewMode>('keyboard');
 
-  // Piano roll data
+  // Piano roll data: the clip every note editor on this track edits
+  // (editorClip.ts), not always the first one.
   const track = useStore((s) => s.tracks.find((t) => t.id === trackId));
-  const clip = track?.midiClips[0] ?? null;
-  const tsNum = useStore((s) => s.timeSignatureNumerator);
-  const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
+  const clipId = useStore((s) => resolveEditorClip(s, trackId)?.id ?? null);
   const updateTrack = useStore((s) => s.updateTrack);
   const presetName = displayPresetName(track);
-
-  const handlePianoRollChange = useCallback(
-    (newEvents: MidiNoteEvent[]) => {
-      if (clip) updateMidiClipEvents(trackId, clip.id, newEvents);
-    },
-    [trackId, clip?.id, updateMidiClipEvents],
-  );
 
   const handleAuditionNote = useCallback(
     (note: number, velocity: number) => auditionNote(trackId, note, velocity),
@@ -241,20 +231,10 @@ export function KeyboardView({ trackId }: { trackId: string }) {
         </div>
       ) : (
         <div className="flex-1 overflow-hidden">
-          {clip && track ? (
-            <PianoRoll
-              events={clip.events}
-              clipId={clip.id}
-              // Events are clip-relative: the roll starts at the clip's own
-              // tick 0; the clip's song position only places the playhead
-              // and loop.
-              clipStartTick={noteEditorOriginTick(
-                clip.events,
-                TICKS_PER_BEAT * tsNum,
-              )}
-              timelineStartTick={clip.startTick}
-              clipColor={track.color}
-              onChange={handlePianoRollChange}
+          {clipId && track ? (
+            <ClipPianoRoll
+              trackId={trackId}
+              clipId={clipId}
               onAuditionNote={handleAuditionNote}
             />
           ) : (

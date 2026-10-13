@@ -6,10 +6,7 @@ import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { DRUM_PADS } from '@/daw/instruments/DrumMachineEngine';
 import { auditionNote } from '@/daw/audio/auditionNote';
-import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
-import { TICKS_PER_BEAT } from '@/daw/utils/timelineScale';
-import { PianoRoll } from './PianoRoll';
-import type { MidiNoteEvent } from '@prism/engine';
+import { ClipPianoRoll } from './ClipPianoRoll';
 
 // ── PianoRollModal ──────────────────────────────────────────────────────────
 // Opens when a clip is double-clicked on the timeline.
@@ -20,8 +17,6 @@ export function PianoRollModal() {
   const editingClipTrackId = useStore((s) => s.editingClipTrackId);
   const tracks = useStore((s) => s.tracks);
   const setEditingClip = useStore((s) => s.setEditingClip);
-  const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
-  const tsNum = useStore((s) => s.timeSignatureNumerator);
 
   const isOpen = editingClipId !== null && editingClipTrackId !== null;
 
@@ -48,15 +43,6 @@ export function PianoRollModal() {
   const handleClose = useCallback(() => {
     setEditingClip(null, null);
   }, [setEditingClip]);
-
-  const handleChange = useCallback(
-    (newEvents: MidiNoteEvent[]) => {
-      if (editingClipTrackId && editingClipId) {
-        updateMidiClipEvents(editingClipTrackId, editingClipId, newEvents);
-      }
-    },
-    [editingClipTrackId, editingClipId, updateMidiClipEvents],
-  );
 
   // Notes picked with the Select tool can be sent to Insight: they become the
   // main editor's note selection, get analyzed, and the editor closes so the
@@ -94,14 +80,6 @@ export function PianoRollModal() {
     },
     [editingClipTrackId],
   );
-
-  // Events are clip-relative, so the editor starts at the clip's own tick 0
-  // wherever the clip sits in the song (clip.startTick goes in
-  // timelineStartTick only). Mixing the song position into the origin made an
-  // emptied clip after bar 1 store its next note bars late.
-  const pianoRollStartTick = clip
-    ? noteEditorOriginTick(clip.events, TICKS_PER_BEAT * tsNum)
-    : 0;
 
   // Drum tracks: label the key column with the same drum-pad codes (KCK, SNR, …)
   // the track's drum control shows, instead of scale note names.
@@ -193,14 +171,10 @@ export function PianoRollModal() {
           {/* Piano Roll */}
           <div className="flex-1 overflow-hidden">
             {clip && track ? (
-              <PianoRoll
-                events={clip.events}
+              <ClipPianoRoll
+                trackId={track.id}
                 clipId={clip.id}
-                clipStartTick={pianoRollStartTick}
-                timelineStartTick={clip.startTick}
                 loopScope="editor"
-                clipColor={track.color}
-                onChange={handleChange}
                 noteLabels={noteLabels}
                 onAuditionNote={handleAuditionNote}
                 onSelectionChange={setSelectedNoteIndices}

@@ -168,6 +168,10 @@ function drawPianoRoll(
   /** Indices of notes selected for Insight: outlined, with the clip's other
    *  notes dimmed. */
   selectedIndices?: ReadonlySet<number>,
+  /** The song tick of the notes' tick 0: the clip's start for a clip's
+   *  (clip-time) notes, 0 for notes already in song time. Chords are song
+   *  time, so a note's chord colour is looked up there (pianoroll-09). */
+  eventsSongOffset = 0,
 ): NoteBar[] {
   if (events.length === 0 || clipDuration === 0) return [];
 
@@ -208,7 +212,7 @@ function drawPianoRoll(
     if (useChordColors) {
       for (let j = chordRegions.length - 1; j >= 0; j--) {
         if (
-          ev.startTick >=
+          eventsSongOffset + ev.startTick >=
           (chordRegions[j].rawStartTick ?? chordRegions[j].startTick)
         ) {
           [nr, ng, nb] = chordRegions[j].color;
@@ -920,6 +924,7 @@ export function Timeline() {
               marqueeHits
                 ? marqueeHits.get(clip.id)
                 : noteSelection && new Set(noteSelection.noteIndices),
+              clip.startTick,
             );
             // Only notes showing inside the clip box can be hit.
             const boxTop = effectiveY + 2;

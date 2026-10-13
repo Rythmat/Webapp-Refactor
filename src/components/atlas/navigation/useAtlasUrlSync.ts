@@ -2,7 +2,10 @@ import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { MUSIC_HISTORY, MUSICAL_ERAS } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
-import { useStartPathway, useStartTour } from '@/components/atlas/hooks';
+// Each hook by its own file: the hooks barrel also carries three.js's
+// lighting hook, which would then load with the route.
+import { useStartPathway } from '@/components/atlas/hooks/useStartPathway';
+import { useStartTour } from '@/components/atlas/hooks/useStartTour';
 import {
   useAtlasDispatch,
   useAtlasSelector,

@@ -33,11 +33,15 @@
  *
  * THE GLOBE STAYS LAZY, AND WITHIN ITS BUDGET
  *
- * The Atlas Globe page (/atlas/globe) draws with three.js through
- * react-globe.gl, together well over a megabyte. Both get the same
- * lazy-only rule as Cortex, one marker string each (see LAZY_ONLY). The
- * page's own code has a size budget measured from the Globe UI plan's
- * baseline (docs/globe-ui/BASELINE.md): the atlas route chunk
+ * The Atlas Globe page (/atlas/globe) draws with MapLibre GL over a
+ * Protomaps basemap (maplibre-gl, pmtiles, @protomaps/basemaps), or, built
+ * with VITE_ATLAS_ENGINE=three, with three.js through react-globe.gl; each
+ * well over a megabyte. Every one of them gets the same lazy-only rule as
+ * Cortex, one marker string each (see LAZY_ONLY); three.js and
+ * react-globe.gl are still in a default build through the classroom's
+ * decorative HeroGlobe. The page's own code has a size budget measured
+ * from the Globe UI plan's baseline (docs/globe-ui/BASELINE.md): the atlas
+ * route chunk
  * (`assets/atlas-*.js`) and everything it imports statically beyond the
  * entry chunks may each grow at most 5% over the baseline. When a change
  * shrinks the page on purpose, lower the numbers in GLOBE_BUDGET to the new
@@ -174,6 +178,24 @@ const LAZY_ONLY = [
     name: 'react-globe.gl',
     loadsWith: 'the Atlas Globe page',
   },
+  {
+    // MapLibre's name for its shared worker pool (maplibre-gl.mjs).
+    marker: 'maplibre_preloaded_worker_pool',
+    name: 'maplibre-gl',
+    loadsWith: 'the Atlas Globe page (the MapLibre engine)',
+  },
+  {
+    // The error pmtiles throws on a file that is not an archive.
+    marker: 'Wrong magic number for PMTiles archive',
+    name: 'pmtiles',
+    loadsWith: 'the Atlas Globe page (the MapLibre engine)',
+  },
+  {
+    // A Protomaps basemap layer id (@protomaps/basemaps).
+    marker: 'water_label_ocean',
+    name: '@protomaps/basemaps',
+    loadsWith: 'the Atlas Globe page (the MapLibre engine)',
+  },
 ];
 
 /**
@@ -205,8 +227,9 @@ const GLOBE_ON_DEMAND = [
  * The Globe page's size budget, in raw (minified) bytes, from the baseline
  * of 12 Oct 2026 (docs/globe-ui/BASELINE.md, docs/globe-ui/baseline.json).
  * `routeChunk` is assets/atlas-*.js; `routeStatic` is it plus every chunk it
- * imports statically that the entry does not already load (data, three.js's
- * WebGL build, icons). react-globe.gl, imported dynamically, is in neither.
+ * imports statically that the entry does not already load (data, icons;
+ * three.js's WebGL build until prompt 8). The map engine, imported
+ * dynamically, is in neither.
  *
  * Raised on purpose by Globe UI prompt 3 (from 70,808 and 1,086,089):
  * @tanstack/react-virtual for the long lists, 26.5 kB of it, and the
@@ -214,12 +237,14 @@ const GLOBE_ON_DEMAND = [
  * prompt 5 (from 103,658 and 1,120,778): the layout zones, the phone bottom
  * sheet, panel focus and Escape handling, 10 kB minified and 3 kB gzip.
  * Lowered by prompt 7 (from 110,195 and 1,142,358): the state outlines, the
- * influence graph, the tours and the pathways load on demand. See "Budget
- * changes" in BASELINE.md.
+ * influence graph, the tours and the pathways load on demand. Lowered again
+ * by prompt 8 (from 111,634 and 885,444): the map engine (MapLibre, or
+ * three.js with VITE_ATLAS_ENGINE=three) loads lazily, so three.js's WebGL
+ * build left the route's static imports. See "Budget changes" in BASELINE.md.
  */
 const GLOBE_BUDGET = {
-  routeChunk: 111_634,
-  routeStatic: 885_444,
+  routeChunk: 102_904,
+  routeStatic: 298_824,
   headroom: 1.05,
 };
 

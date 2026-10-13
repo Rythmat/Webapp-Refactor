@@ -3,7 +3,8 @@ import { useRef, useMemo, useState, useCallback, useEffect } from 'react';
 import type { GlobeMethods, GlobeProps } from 'react-globe.gl';
 import { MeshLambertMaterial } from 'three';
 import type { ArcDatum } from '@/components/atlas/data';
-import { useGeoData, useGlobeLighting } from '@/components/atlas/hooks';
+import { useGeoData } from '@/components/atlas/hooks/useGeoData';
+import { useGlobeLighting } from '@/components/atlas/hooks/useGlobeLighting';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import {
   useAtlasDispatch,

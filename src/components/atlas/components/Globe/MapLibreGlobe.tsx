@@ -17,7 +17,7 @@ import {
   useState,
   type CSSProperties,
 } from 'react';
-import { useGeoData } from '@/components/atlas/hooks';
+import { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import {
   useAtlasDispatch,

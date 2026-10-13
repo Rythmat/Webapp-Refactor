@@ -9,7 +9,6 @@ import {
   isGlyphMark,
   MARK_STYLES,
   markLabel,
-  marksAt,
   marksBarEnd,
   withMark,
   withMarkText,
@@ -40,12 +39,10 @@ import {
   withSpelling,
   DURATIONS,
   articulationSide,
-  articulationsFor,
   articulationKey,
   durationTicks,
   groupChordArticulations,
   planTie,
-  type TieCandidate,
   type NoteLayer,
   parseSlur,
   slurKey,
@@ -76,8 +73,6 @@ import {
   articulationMarkKey,
   markRange,
   slurMarkKey,
-  tieMarkKey,
-  type ScoreMark,
 } from './scoreMarks';
 import {
   copyMeasures,
@@ -105,6 +100,15 @@ import {
   withoutRepeatAt,
 } from './roadmap';
 import type { ScoreTrackPart } from './scoreParts';
+import {
+  articulationIndex,
+  byBar,
+  clipEventIndex,
+  noteIndex,
+  scoreMarksOf,
+  systemOpeningBars,
+  tieCandidatesOf,
+} from './scoreLookups';
 
 /** A rehearsal mark's own height plus its gap, for stacking one over a
  * chord symbol. */
@@ -905,36 +909,16 @@ export function useScoreEditing({
     [selectedSpelled, keyFifths, writeEdits, setSelectedNotes],
   );
 
-  /**
-   * Every note as the tie logic sees it. The notation engine splits a long
-   * note across the beat and ties the pieces, so one id can be drawn more
-   * than once; the source note is the earliest piece, and its length comes
-   * from the clip event rather than from any one piece.
-   */
-  const tieCandidates = useMemo(() => {
-    const byId = new Map<string, TieCandidate>();
-    for (const info of layout?.notes ?? []) {
-      const ref = parseNoteId(info.id);
-      if (!ref) continue;
-      const event = tracks
-        .find((t) => t.id === ref.trackId)
-        ?.midiClips.find((c) => c.id === ref.clipId)
-        ?.events.find(
-          (e) => e.startTick === ref.startTick && e.note === ref.midi,
-        );
-      if (!event) continue;
-      const existing = byId.get(info.id);
-      if (existing && existing.tick <= info.tick) continue;
-      byId.set(info.id, {
-        id: info.id,
-        partIndex: info.partIndex,
-        tick: info.tick,
-        midi: event.note,
-        durationTicks: event.durationTicks,
-      });
-    }
-    return [...byId.values()];
-  }, [layout, tracks]);
+  /** Each drawn note's clip event, found without searching every clip. */
+  const eventAt = useMemo(() => clipEventIndex(tracks), [tracks]);
+  /** The drawn notes by id and by beat, for the markings and the overlay. */
+  const drawnNotes = useMemo(() => noteIndex(layout?.notes ?? []), [layout]);
+
+  /** Every note as the tie logic sees it (see tieCandidatesOf). */
+  const tieCandidates = useMemo(
+    () => tieCandidatesOf(layout?.notes ?? [], eventAt),
+    [layout, eventAt],
+  );
 
   /** The tie the selection would make, or null when it cannot make one. */
   const tiePlan = useMemo(() => {
@@ -983,69 +967,31 @@ export function useScoreEditing({
   }, [layout, selectedNotes, selectedRests]);
 
   // ── Markings: articulations, slurs and ties ─────────────────────────────
+  /** Each note's articulations, read once rather than once per note. */
+  const articulationsByNote = useMemo(
+    () => articulationIndex(articulations),
+    [articulations],
+  );
   const chordMarks = useMemo(
     () =>
-      groupChordArticulations(layout?.notes ?? [], (id) =>
-        articulationsFor(articulations, id),
+      groupChordArticulations(
+        layout?.notes ?? [],
+        (id) => articulationsByNote.get(id) ?? [],
       ),
-    [layout, articulations],
+    [layout, articulationsByNote],
   );
 
   /** Every marking on the page, as something that can be picked up. */
-  const marks = useMemo(() => {
-    const out: ScoreMark[] = [];
-    for (const chord of chordMarks) {
-      for (const kind of chord.kinds) {
-        out.push({
-          key: articulationMarkKey(chord.note.id, kind),
-          kind: { type: 'articulation', kind },
-          partIndex: chord.note.partIndex,
-          tick: chord.note.tick,
-          // A chord's mark belongs to every note of it that carries the mark.
-          noteIds: (layout?.notes ?? [])
-            .filter(
-              (n) =>
-                n.partIndex === chord.note.partIndex &&
-                n.tick === chord.note.tick &&
-                articulationsFor(articulations, n.id).includes(kind),
-            )
-            .map((n) => n.id),
-        });
-      }
-    }
-    for (const entry of slurs) {
-      const ends = parseSlur(entry);
-      const from = (layout?.notes ?? []).find((n) => n.id === ends?.fromId);
-      if (!ends || !from) continue;
-      out.push({
-        key: slurMarkKey(ends.fromId, ends.toId),
-        kind: { type: 'slur' },
-        partIndex: from.partIndex,
-        tick: from.tick,
-        noteIds: [ends.fromId, ends.toId],
-      });
-    }
-    // A note drawn twice is one note held across a barline: that is a tie.
-    const fragments = new Map<string, NoteInfo[]>();
-    for (const note of layout?.notes ?? []) {
-      fragments.set(note.id, [...(fragments.get(note.id) ?? []), note]);
-    }
-    for (const [id, pieces] of fragments) {
-      if (pieces.length < 2) continue;
-      const ordered = [...pieces].sort((a, b) => a.tick - b.tick);
-      for (let i = 1; i < ordered.length; i++) {
-        out.push({
-          key: tieMarkKey(id, ordered[i].tick),
-          kind: { type: 'tie' },
-          partIndex: ordered[i].partIndex,
-          tick: ordered[i - 1].tick,
-          noteIds: [id],
-          splitTick: ordered[i].tick,
-        });
-      }
-    }
-    return out;
-  }, [chordMarks, layout, articulations, slurs]);
+  const marks = useMemo(
+    () =>
+      scoreMarksOf({
+        chordMarks,
+        notes: drawnNotes,
+        kindsOf: (id) => articulationsByNote.get(id) ?? [],
+        slurs,
+      }),
+    [chordMarks, drawnNotes, articulationsByNote, slurs],
+  );
 
   const handleMarkPointerDown = useCallback(
     (key: string, event: React.PointerEvent) => {
@@ -1156,7 +1102,7 @@ export function useScoreEditing({
         item.space *
           (item.stem === 'up'
             ? 8
-            : articulationsFor(articulations, item.id).length > 0
+            : (articulationsByNote.get(item.id)?.length ?? 0) > 0
               ? 4
               : 1.5),
     });
@@ -1190,7 +1136,7 @@ export function useScoreEditing({
     return [...byBeat.values()].sort(
       (a, b) => a.partIndex - b.partIndex || a.tick - b.tick,
     );
-  }, [layout, articulations]);
+  }, [layout, articulationsByNote]);
 
   const chordPlacements = useMemo(
     () =>
@@ -1693,6 +1639,14 @@ export function useScoreEditing({
     [layout, chordPlacements],
   );
 
+  // What each barline looks up, by bar and by system, built once a layout.
+  const sectionsByBar = useMemo(() => byBar(sections), [sections]);
+  const textMarksByBar = useMemo(() => byBar(textMarks), [textMarks]);
+  const openingBars = useMemo(
+    () => systemOpeningBars(layout?.barlines ?? []),
+    [layout],
+  );
+
   const overlay = layout ? (
     <>
       {layout.measures
@@ -1759,8 +1713,8 @@ export function useScoreEditing({
         })}
         {slurs.map((entry) => {
           const ends = parseSlur(entry);
-          const from = (layout?.notes ?? []).find((n) => n.id === ends?.fromId);
-          const to = (layout?.notes ?? []).find((n) => n.id === ends?.toId);
+          const from = ends ? drawnNotes.byId.get(ends.fromId)?.[0] : undefined;
+          const to = ends ? drawnNotes.byId.get(ends.toId)?.[0] : undefined;
           if (!ends || !from || !to || from.x === to.x) return null;
           const side =
             articulationSide(from) === articulationSide(to)
@@ -1803,9 +1757,9 @@ export function useScoreEditing({
         {marks
           .filter((mark) => mark.kind.type === 'tie')
           .map((mark) => {
-            const fragments = (layout?.notes ?? [])
-              .filter((n) => n.id === mark.noteIds[0])
-              .sort((a, b) => a.tick - b.tick);
+            const fragments = [
+              ...(drawnNotes.byId.get(mark.noteIds[0]) ?? []),
+            ].sort((a, b) => a.tick - b.tick);
             const from = fragments.find((n) => n.tick === mark.tick);
             const to = fragments.find((n) => n.tick === mark.splitTick);
             if (!from || !to) return null;
@@ -1941,22 +1895,18 @@ export function useScoreEditing({
       })}
       {layout.barlines.map((barline) => {
         const isSelected = selected === barline.measureIndex;
-        const section = sections.find(
-          (sec) => sec.measureIdx === barline.measureIndex,
-        );
+        const section = sectionsByBar.get(barline.measureIndex)?.[0];
         // Signs and directives sit above the staff, clear of the rehearsal
         // letter; a jump reads at the end of its bar, so it hangs right.
         const barMarks = barline.atSystemEnd
           ? []
-          : marksAt(textMarks, barline.measureIndex);
+          : (textMarksByBar.get(barline.measureIndex) ?? []);
         const broken = systemBreaks.has(barline.measureIndex);
         const atSystemStart =
           !barline.atSystemEnd &&
-          !layout.barlines.some(
-            (other) =>
-              other.system === barline.system &&
-              !other.atSystemEnd &&
-              other.measureIndex < barline.measureIndex,
+          !(
+            (openingBars.get(barline.system) ?? barline.measureIndex) <
+            barline.measureIndex
           );
         return (
           <div

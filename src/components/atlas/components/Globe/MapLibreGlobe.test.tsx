@@ -69,6 +69,10 @@ const fake = vi.hoisted(() => {
     getZoom() {
       return this.zoom;
     }
+    canvasContainer = document.createElement('div');
+    getCanvasContainer() {
+      return this.canvasContainer;
+    }
     getCanvas() {
       return this.canvas;
     }
@@ -250,6 +254,28 @@ describe('clicks on the MapLibre globe', () => {
     map.features = [];
     act(() => map.emit('click', { point: { x: 1, y: 1 } }));
     expect(search()).toBe('');
+  });
+});
+
+describe('the first touch on the map', () => {
+  it('is reported once, for the credit to fold away', () => {
+    const { map, store } = setup();
+    expect(store.api.getState().mapTouched).toBe(false);
+    act(() => {
+      map.canvasContainer.dispatchEvent(new Event('pointerdown'));
+    });
+    expect(store.api.getState().mapTouched).toBe(true);
+  });
+
+  it('is the viewer’s: a flight to a deep link is not a touch', () => {
+    const { store } = setup(
+      createAtlasStore({
+        ...initialAppState,
+        searchFlyTarget: { lat: 6.5, lng: 3.4, zoom: 8 },
+      }),
+    );
+    expect(store.api.getState().searchFlyTarget).toBeNull();
+    expect(store.api.getState().mapTouched).toBe(false);
   });
 });
 

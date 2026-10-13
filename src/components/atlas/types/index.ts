@@ -143,6 +143,12 @@ export interface AppState {
   legendOpen: boolean;
   /** Whether the Layers popover is open. */
   layersOpen: boolean;
+  /**
+   * True once the viewer has first pressed, scrolled or keyed on the map
+   * itself: the map's credit (MapCredit), open when the map first appears,
+   * folds up then.
+   */
+  mapTouched: boolean;
 }
 
 export type AppAction =
@@ -168,4 +174,5 @@ export type AppAction =
   | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }
   | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
   | { type: 'SET_LEGEND_OPEN'; payload: boolean }
-  | { type: 'SET_LAYERS_OPEN'; payload: boolean };
+  | { type: 'SET_LAYERS_OPEN'; payload: boolean }
+  | { type: 'MAP_TOUCHED' };

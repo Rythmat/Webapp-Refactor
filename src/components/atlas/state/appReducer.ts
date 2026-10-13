@@ -28,6 +28,7 @@ export const initialAppState: AppState = {
   statesInView: false,
   legendOpen: false,
   layersOpen: false,
+  mapTouched: false,
 };
 
 /**
@@ -129,6 +130,8 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return state.layersOpen === action.payload
         ? state
         : { ...state, layersOpen: action.payload };
+    case 'MAP_TOUCHED':
+      return state.mapTouched ? state : { ...state, mapTouched: true };
     default:
       return state;
   }

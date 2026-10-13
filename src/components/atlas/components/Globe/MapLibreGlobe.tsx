@@ -380,6 +380,24 @@ export default function MapLibreGlobe() {
     dispatch({ type: 'CLEAR_FLY_TARGET' });
   }, [map, searchFlyTarget, dispatch]);
 
+  // The viewer's first press, scroll or key on the map itself, which folds
+  // the map's credit (MapCredit) away. Flights and Spin are not the viewer.
+  useEffect(() => {
+    if (!map) return;
+    const target = map.getCanvasContainer();
+    const kinds = ['pointerdown', 'wheel', 'keydown'] as const;
+    const touched = () => {
+      for (const kind of kinds) target.removeEventListener(kind, touched);
+      dispatch({ type: 'MAP_TOUCHED' });
+    };
+    for (const kind of kinds) {
+      target.addEventListener(kind, touched, { passive: true });
+    }
+    return () => {
+      for (const kind of kinds) target.removeEventListener(kind, touched);
+    };
+  }, [map, dispatch]);
+
   // State outlines in view, for the legend: from STATES_MIN_ZOOM, with
   // hysteresis. 'zoom' fires every frame of a flight; only a change is sent.
   const statesInView = useAtlasSelector((s) => s.statesInView);

@@ -40,8 +40,9 @@ export interface AtlasZonesProps {
   bottom: BottomBarSlot | null;
   /**
    * The map's data credit (MapCredit), when the map draws OpenStreetMap's
-   * data. It gets a place of its own that nothing else covers: the foot of
-   * the right column on desktop, above the bottom bar or the sheet on phones.
+   * data. It gets a place of its own that nothing else covers: the
+   * bottom-right corner beside the bottom bar on desktop, above the bottom
+   * bar or the sheet on phones (the bar fills a phone's width).
    */
   credit?: ReactNode | null;
 }
@@ -162,26 +163,32 @@ export function DesktopZones({
             {right}
           </div>
         )}
-        {credit && (
-          <div
-            {...zoneItem('map-credit')}
-            className={cn(
-              'relative mt-auto shrink-0 *:pointer-events-auto',
-              ATLAS_Z.mapControls,
-            )}
-          >
-            {credit}
-          </div>
-        )}
       </div>
-      {bottom && (
+      {(bottom || credit) && (
+        // The bottom row: the bar centred, the credit in the bottom-right
+        // corner. Columns, not overlap: the side columns share what the bar
+        // leaves, and the credit's keeps at least its own width, so an open
+        // credit nudges the bar over rather than going under it.
         <div
           className={cn(
-            'relative col-span-3 row-start-2 flex justify-center',
+            'relative col-span-3 row-start-2 grid items-end gap-4',
             ATLAS_Z.bars,
           )}
+          style={{
+            gridTemplateColumns: `1fr minmax(0, ${bottom?.maxWidth ?? 0}px) 1fr`,
+          }}
         >
-          <BottomBarFrame bar={bottom} />
+          <div className="col-start-2 flex min-w-0 justify-center">
+            {bottom && <BottomBarFrame bar={bottom} />}
+          </div>
+          {credit && (
+            <div
+              {...zoneItem('map-credit')}
+              className="col-start-3 flex justify-end *:pointer-events-auto"
+            >
+              {credit}
+            </div>
+          )}
         </div>
       )}
     </div>

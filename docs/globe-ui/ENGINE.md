@@ -119,23 +119,36 @@ it (with `font-maker`, for example).
 ## Attribution
 
 The basemap's data is © OpenStreetMap contributors under the ODbL, which
-requires the credit to be visible on the map. The page draws it itself:
-"Protomaps © OpenStreetMap", with a link to each, in a small pill
-(`components/UI/MapCredit.tsx`). It is placed in a layout zone of its own
-(`layout/AtlasZones.tsx`), so nothing covers it:
+requires the credit to be visible on the map. The page draws it itself
+(`components/UI/MapCredit.tsx`) in the map's bottom-right corner:
 
-- on desktop, at the foot of the right column, just above the timeline row;
-- on phones, just above the timeline, or above the sheet when the timeline
-  steps aside. A full-height sheet covers the whole map, and the credit
-  with it.
+- when the map first appears, it reads "Protomaps © OpenStreetMap", with a
+  link to each;
+- at the viewer's first press, scroll or key on the map itself, it folds up
+  behind an ⓘ button. Camera flights and Spin don't count; the map reports
+  the touch as `mapTouched` in the store;
+- the ⓘ opens and closes it after that, and the viewer's choice stands.
 
-It is never folded into an icon. MapLibre's own corner control is switched
-off, because it sat under the timeline and the phone's sheet. The pill shows
-only when the build has a tile source (`HAS_STREET_MAP` in
-`basemapConfig.ts`). Without one there is no OpenStreetMap data to credit.
-The country outlines are Natural Earth, which is public domain. Keep the
-credit visible: hiding it, or covering it with another control, breaks the
-licence.
+This is how MapLibre's own compact credit behaves, and it matches what
+OpenStreetMap's attribution guidelines ask of a small or interactive map:
+the credit shows when the map does, then a link to it stays.
+
+It sits in a layout zone of its own (`layout/AtlasZones.tsx`), so nothing
+covers it, open or folded:
+
+- on desktop, in the bottom row's right-hand cell, beside the centred
+  timeline. While it is open on a narrow desktop, the timeline gives up the
+  width rather than sliding under it;
+- on phones, at the right just above the timeline, or above the sheet when
+  the timeline steps aside. A full-height sheet covers the whole map, and
+  the credit with it.
+
+MapLibre's own corner control is switched off, because it sat under the
+timeline and the phone's sheet. The credit shows only when the build has a
+tile source (`HAS_STREET_MAP` in `basemapConfig.ts`). Without one there is
+no OpenStreetMap data to credit. The country outlines are Natural Earth,
+which is public domain. Keep the credit reachable: removing it, or covering
+it with another control, breaks the licence.
 
 ## Language
 

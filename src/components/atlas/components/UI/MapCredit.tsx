@@ -1,5 +1,11 @@
+import { Info } from 'lucide-react';
+import { useId, useState } from 'react';
 import { MAP_CREDIT } from '@/components/atlas/components/Globe/basemapConfig';
-import { ATLAS_FOCUS } from '@/components/atlas/components/UI/primitives';
+import {
+  ATLAS_FOCUS,
+  AtlasIconButton,
+} from '@/components/atlas/components/UI/primitives';
+import { useAtlasSelector } from '@/components/atlas/state/atlasStore';
 import { cn } from '@/lib/utils';
 
 const LINK = cn(
@@ -8,32 +14,54 @@ const LINK = cn(
 );
 
 /**
- * The street map's credit: its data is © OpenStreetMap contributors (ODbL),
- * whose licence asks for the credit to stay visible on the map, drawn as
- * Protomaps' tiles. The page places it in a zone of its own (AtlasZones), so
- * no panel, bar or sheet ever covers it, and never folds it into an icon.
- * Shown only when there is a street map (HAS_STREET_MAP).
+ * The street map's credit, in the map's bottom-right corner: its data is
+ * © OpenStreetMap contributors (ODbL), drawn as Protomaps' tiles. It reads
+ * "Protomaps © OpenStreetMap", with a link to each, when the map first
+ * appears, and folds up behind its ⓘ button at the viewer's first press,
+ * scroll or key on the map (`mapTouched`), as MapLibre's own credit does.
+ * The ⓘ opens and closes it after that, and the viewer's choice stands. The
+ * page places it in a zone of its own (AtlasZones), so no panel, bar or
+ * sheet covers it. Shown only when there is a street map (HAS_STREET_MAP).
  */
 export function MapCredit() {
+  const touched = useAtlasSelector((s) => s.mapTouched);
+  // null until the viewer uses the ⓘ: open until the map is first touched.
+  const [chosen, setChosen] = useState<boolean | null>(null);
+  const open = chosen ?? !touched;
+  const id = useId();
   return (
-    <p className="rounded-full border border-atlas-panel-border bg-atlas-panel/95 px-2.5 py-0.5 text-xs leading-5 text-atlas-text-2 shadow-2xl">
-      <a
-        className={LINK}
-        href={MAP_CREDIT.protomaps}
-        rel="noopener noreferrer"
-        target="_blank"
+    <div className="flex items-center gap-1 rounded-full border border-atlas-panel-border bg-atlas-panel/95 p-0.5 text-xs leading-5 text-atlas-text-2 shadow-2xl">
+      {open && (
+        <p className="whitespace-nowrap pl-2" id={id}>
+          <a
+            className={LINK}
+            href={MAP_CREDIT.protomaps}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Protomaps
+          </a>{' '}
+          ©{' '}
+          <a
+            className={LINK}
+            href={MAP_CREDIT.openStreetMap}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            OpenStreetMap
+          </a>
+        </p>
+      )}
+      <AtlasIconButton
+        aria-controls={open ? id : undefined}
+        aria-expanded={open}
+        aria-label="Map credits"
+        size="xs"
+        title={open ? 'Hide the map credits' : 'Map data © OpenStreetMap'}
+        onClick={() => setChosen(!open)}
       >
-        Protomaps
-      </a>{' '}
-      ©{' '}
-      <a
-        className={LINK}
-        href={MAP_CREDIT.openStreetMap}
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        OpenStreetMap
-      </a>
-    </p>
+        <Info aria-hidden className="size-3.5" />
+      </AtlasIconButton>
+    </div>
   );
 }

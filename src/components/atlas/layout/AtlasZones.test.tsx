@@ -152,13 +152,17 @@ describe('the left panel zone', () => {
     expect(document.activeElement).toBe(opener);
   });
 
-  it('gives the map credit its own place, apart from the bottom bar', () => {
+  it('puts the map credit in the bottom-right corner, beside the bar', () => {
     render(<Harness credit={<p>Map credit</p>} />);
     const zone = screen
       .getByText('Map credit')
-      .closest('[data-atlas-zone-item="map-credit"]');
-    expect(zone).toBeTruthy();
-    expect(zone!.parentElement!.textContent).not.toContain('Timeline');
+      .closest('[data-atlas-zone-item="map-credit"]')!;
+    // Its own cell, the last of the bottom row; the bar has the middle one.
+    expect(zone.textContent).not.toContain('Timeline');
+    const row = zone.parentElement!;
+    expect(row.textContent).toContain('Timeline');
+    expect(row.lastElementChild).toBe(zone);
+    expect(zone.className).toContain('justify-end');
   });
 
   it('shows no credit when the map has nothing to credit', () => {

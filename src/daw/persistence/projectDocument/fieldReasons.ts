@@ -274,6 +274,8 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
       'A label relative to the key, rewritten on a key change: never the chord’s identity.',
     identity:
       'Root, quality and bass (decision D3): filled from milestone 1.16a, kept verbatim, dropped by any write that changes the name, and trusted only while its label equals the name (identityIsCurrent).',
+    sourceClipId:
+      'The clip a Prism take wrote the region from (milestone 1.10): moving that clip moves the region. Collab should share it (1.14); until then a peer’s copy has none, and moving the clip there leaves the lane alone.',
   },
   Marker: {},
   ReturnBus: {

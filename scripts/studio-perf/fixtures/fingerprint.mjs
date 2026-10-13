@@ -526,7 +526,13 @@ export async function fingerprintPage() {
     'harmony.chordRegions',
     ['store.chordRegions'],
     s.chordRegions.map((r) =>
-      Object.fromEntries(regionKeys.map((k) => [k, r[k]])),
+      Object.fromEntries(
+        regionKeys.map((k) => [
+          k,
+          // The clip a region follows, by its place, like every clip id.
+          k === 'sourceClipId' ? refClip(r[k]) : r[k],
+        ]),
+      ),
     ),
   );
 

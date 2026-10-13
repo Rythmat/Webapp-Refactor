@@ -306,6 +306,22 @@ export interface TracksSlice {
     clipId: string,
     updates: Partial<AudioClip>,
   ) => void;
+  /**
+   * Move a MIDI or audio clip to `startTick` (never below 0), on its track or
+   * onto `toTrackId`: the one way a clip changes place (timeline drags,
+   * nudges). One write, so one undo step and one update to collaborators,
+   * with the chord regions read from that clip (sourceClipId) moving the
+   * same distance and the selection following the clip. Refused, with a
+   * toast, when a collaborator holds either track or the target track is
+   * the wrong kind; nothing changes then (timeline-06). Returns whether the
+   * clip moved.
+   */
+  moveClip: (
+    trackId: string,
+    clipId: string,
+    toTrackId: string,
+    startTick: number,
+  ) => boolean;
   reorderTrack: (id: string, newIndex: number) => void;
   addActiveEffect: (trackId: string, effectType: EffectSlotType) => void;
   removeActiveEffect: (trackId: string, effectType: EffectSlotType) => void;
@@ -598,6 +614,91 @@ export const createTracksSlice: StateCreator<
         ),
       })),
     ),
+
+  moveClip: (trackId, clipId, toTrackId, startTick) => {
+    const state = get();
+    const from = state.tracks.find((t) => t.id === trackId);
+    const to = state.tracks.find((t) => t.id === toTrackId);
+    const midi = from?.midiClips.find((c) => c.id === clipId);
+    const audio = midi
+      ? undefined
+      : from?.audioClips.find((c) => c.id === clipId);
+    const clip = midi ?? audio;
+    if (!from || !to || !clip) return false;
+
+    for (const id of new Set([trackId, toTrackId])) {
+      const holder = [...state.remoteUsers.values()].find(
+        (u) => u.selectedTrackId === id,
+      );
+      if (holder) {
+        toast({
+          title: 'Track locked',
+          description: `${holder.userName} is editing this track`,
+          variant: 'destructive',
+        });
+        return false;
+      }
+    }
+    const kind = midi ? 'midi' : 'audio';
+    if (to.type !== kind) {
+      toast({
+        title: "Can't move the clip there",
+        description:
+          kind === 'midi'
+            ? 'MIDI clips go on MIDI tracks.'
+            : 'Audio clips go on audio tracks.',
+      });
+      return false;
+    }
+
+    const tick = Math.max(0, Math.round(startTick));
+    if (tick === clip.startTick && trackId === toTrackId) return false;
+    const delta = tick - clip.startTick;
+    const field = midi ? 'midiClips' : 'audioClips';
+    const moved = { ...clip, startTick: tick };
+    const tracks = state.tracks.map((t) => {
+      if (t.id !== trackId && t.id !== toTrackId) return t;
+      let list: Array<MidiClip | AudioClip> = t[field];
+      if (t.id === trackId) list = list.filter((c) => c.id !== clipId);
+      if (t.id === toTrackId) list = [...list, moved];
+      if (trackId === toTrackId) {
+        // In place, keeping the clip's position in the list.
+        list = t[field].map((c) => (c.id === clipId ? moved : c));
+      }
+      return { ...t, [field]: list };
+    });
+
+    // The chords Prism read from this clip go with it, never below 0; no
+    // other chord moves.
+    let chordRegions = state.chordRegions;
+    if (
+      midi &&
+      delta !== 0 &&
+      chordRegions.some((r) => r.sourceClipId === clipId)
+    ) {
+      chordRegions = chordRegions.map((r) => {
+        if (r.sourceClipId !== clipId) return r;
+        const shift = Math.max(delta, -r.startTick);
+        return {
+          ...r,
+          startTick: r.startTick + shift,
+          endTick: r.endTick + shift,
+          ...(r.rawStartTick !== undefined
+            ? { rawStartTick: Math.max(0, r.rawStartTick + shift) }
+            : {}),
+        };
+      });
+    }
+
+    set({
+      tracks,
+      chordRegions,
+      ...(state.selectedClipId === clipId
+        ? { selectedClipTrackId: toTrackId }
+        : {}),
+    });
+    return true;
+  },
 
   reorderTrack: (id, newIndex) =>
     set((state) => {

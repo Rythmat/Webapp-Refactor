@@ -154,7 +154,6 @@ describe('writes that leave the chord alone keep it', () => {
   it('moving, resizing, shifting and deleting around it', () => {
     s().moveChordRegion('c', 2.5 * BAR);
     s().resizeChordRegion('a', 0.75 * BAR);
-    s().offsetChordRegions(480);
     s().insertMeasures(0);
     s().deleteChordRegion('b'); // the region before it grows into the gap
     expect(s().chordRegions.map((r) => [r.id, r.identity])).toEqual([

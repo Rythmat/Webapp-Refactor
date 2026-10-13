@@ -764,6 +764,7 @@ export const CHORD_REGION_FIELDS: ChordRegionSpecs = Object.freeze({
   degreeKey: regionPart(undefined, 'document'),
   midis: regionPart(undefined, 'document'),
   confidence: regionPart(undefined, 'document'),
+  sourceClipId: regionPart(undefined, 'document'),
   identity: regionPart(undefined, 'document'),
 } satisfies ChordRegionSpecs);
 

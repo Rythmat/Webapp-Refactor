@@ -813,6 +813,7 @@ const CHORD_REGION: Check<ChordRegion> = (raw, repairs) => {
   repairField(region, 'color', isColour, repairs, specDefault(spec.color));
   repairField(region, 'rawStartTick', isFiniteNumber, repairs);
   repairField(region, 'degreeKey', isString, repairs);
+  repairField(region, 'sourceClipId', isString, repairs);
   repairField(region, 'midis', isNumberList, repairs);
   repairField(region, 'confidence', isFiniteNumber, repairs);
   return region as unknown as ChordRegion;

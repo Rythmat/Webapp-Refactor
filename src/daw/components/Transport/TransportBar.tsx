@@ -32,7 +32,6 @@ import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick, subscribePlayhead } from '@/daw/engine/playheadClock';
 import { projectEndTick } from '@/daw/audio/renderProject';
 import { NOTES } from '@prism/engine';
-import { ALL_GRID_VALUES } from '@/daw/utils/quantize';
 import { FileMenu } from './FileMenu';
 import { CircleOfFifths } from '../Prism/CircleOfFifths';
 import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
@@ -750,20 +749,11 @@ export const TransportBar = memo(function TransportBar({
             <Repeat size={14} strokeWidth={2} />
           </motion.button>
 
-          {/* Snap to Grid */}
+          {/* Snap to Grid. Only gestures snap: toggling it never moves the
+              playhead (it used to jump it to the grid, audibly mid-song,
+              when snap was turned off: shell-18). */}
           <motion.button
-            onClick={() => {
-              toggleSnap();
-              // If snap is now being enabled, snap the playhead to the nearest grid line
-              const s = useStore.getState();
-              if (!s.timelineSnapEnabled) {
-                // toggleSnap hasn't applied yet in this tick, so !enabled means it's about to be enabled
-                const gridTicks = ALL_GRID_VALUES[s.timelineGridSize];
-                const snapped =
-                  Math.round(getPlayheadTick() / gridTicks) * gridTicks;
-                seekTo(snapped);
-              }
-            }}
+            onClick={toggleSnap}
             whileTap={{ scale: 0.85 }}
             className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
             style={{

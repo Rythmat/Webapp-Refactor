@@ -1,6 +1,9 @@
 import { getAudioBuffer, setAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { midiClipLength } from '@/daw/components/Timeline/midiClipCuts';
 import { useStore } from '@/daw/store';
+import { withTransaction } from '@/daw/store/history';
+import { ticksPerBeat, timelineSnapGrid } from '@/daw/time/timeModel';
+import { toast } from '@/hooks/use-toast';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import type { ToolType } from '@/daw/store/uiSlice';
 import { isFormControl, isInKeyWidget } from './keys';
@@ -15,8 +18,15 @@ import { useKeymap, type KeymapHandlers } from './registry';
 // its own (a knob, the docked piano roll): its arrows and Delete aren't the
 // timeline's. A key they don't take goes on to the global scope.
 
-// Nudge amount in ticks (1 beat = 480 ticks)
-const NUDGE_TICKS = 480;
+/**
+ * How far an arrow key nudges a clip: one step of the timeline's grid in the
+ * project's metre (a dotted quarter in 6/8), or one beat with snap off.
+ */
+function nudgeTicks(): number {
+  const state = useStore.getState();
+  const grid = timelineSnapGrid(state);
+  return grid.enabled ? grid.step : ticksPerBeat(grid.ts);
+}
 
 /** How much one ⌥= or ⌥− zooms. */
 const ZOOM_STEP = 0.25;
@@ -54,6 +64,17 @@ function copyClip(): boolean {
   return true;
 }
 
+/** Says so when a clip can't go on the track it was pasted to. */
+function wrongTrack(kind: 'midi' | 'audio'): void {
+  toast({
+    title: "Can't paste the clip there",
+    description:
+      kind === 'midi'
+        ? 'MIDI clips go on MIDI tracks.'
+        : 'Audio clips go on audio tracks.',
+  });
+}
+
 function pasteClips(): boolean {
   const state = useStore.getState();
   const { clipboardClips, clipboardAudioClip } = state;
@@ -61,8 +82,13 @@ function pasteClips(): boolean {
   // position is parked then). Whole ticks, as a seek leaves them.
   const position = Math.round(getPlayheadTick());
   const targetTrackId = state.selectedClipTrackId || state.tracks[0]?.id;
+  const target = state.tracks.find((t) => t.id === targetTrackId);
   if (clipboardAudioClip) {
     if (!targetTrackId) return true;
+    if (target?.type !== 'audio') {
+      wrongTrack('audio');
+      return true;
+    }
     const srcBuffer = getAudioBuffer(clipboardAudioClip.bufferId);
     if (srcBuffer) {
       const newId = `clip-paste-${crypto.randomUUID().slice(0, 8)}`;
@@ -78,6 +104,10 @@ function pasteClips(): boolean {
   }
   if (clipboardClips.length === 0) return false;
   if (!targetTrackId) return true;
+  if (target?.type !== 'midi') {
+    wrongTrack('midi');
+    return true;
+  }
   for (const clip of clipboardClips) {
     state.addMidiClip(targetTrackId, {
       ...structuredClone(clip),
@@ -128,19 +158,23 @@ function deleteClip(): boolean {
   return true;
 }
 
-function nudgeClip(delta: number): boolean {
+function nudgeClip(direction: -1 | 1): boolean {
   const clip = selectedClip();
   if (!clip) return false;
-  const state = useStore.getState();
-  if (clip.midi) {
-    state.updateMidiClip(clip.trackId, clip.midi.id, {
-      startTick: Math.max(0, clip.midi.startTick + delta),
-    });
-  } else if (clip.audio) {
-    state.updateAudioClip(clip.trackId, clip.audio.id, {
-      startTick: Math.max(0, clip.audio.startTick + delta),
-    });
-  }
+  const moving = clip.midi ?? clip.audio;
+  if (!moving) return false;
+  // As a drag moves it: one write, the clip's own chords along, refused on
+  // a track a collaborator holds (moveClip).
+  withTransaction('Move clip', () =>
+    useStore
+      .getState()
+      .moveClip(
+        clip.trackId,
+        moving.id,
+        clip.trackId,
+        moving.startTick + direction * nudgeTicks(),
+      ),
+  );
   return true;
 }
 
@@ -190,14 +224,16 @@ export function useArrangeKeymap(viewport: TimelineViewport): void {
   };
   const handlers: KeymapHandlers = {
     'clip.copy': (e) => onTimeline(e) && copyClip(),
-    'clip.paste': (e) => onTimeline(e) && pasteClips(),
+    'clip.paste': (e) =>
+      onTimeline(e) && withTransaction('Paste clip', pasteClips),
     'clip.duplicate': (e) => {
       if (!onTimeline(e)) return false;
-      duplicateClip();
+      withTransaction('Duplicate clip', duplicateClip);
     },
-    'clip.delete': (e) => onTimeline(e) && deleteClip(),
-    'clip.nudgeLeft': (e) => onTimeline(e) && nudgeClip(-NUDGE_TICKS),
-    'clip.nudgeRight': (e) => onTimeline(e) && nudgeClip(NUDGE_TICKS),
+    'clip.delete': (e) =>
+      onTimeline(e) && withTransaction('Delete clip', deleteClip),
+    'clip.nudgeLeft': (e) => onTimeline(e) && nudgeClip(-1),
+    'clip.nudgeRight': (e) => onTimeline(e) && nudgeClip(1),
     'clip.selectFirst': (e) => {
       if (!onTimeline(e)) return false;
       selectFirstClip();

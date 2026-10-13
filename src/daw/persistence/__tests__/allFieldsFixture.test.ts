@@ -343,6 +343,7 @@ function allFieldsProject(): ProjectSnapshot {
         degreeKey: '2 minor7',
         midis: [50, 53, 57, 60],
         confidence: 0.9,
+        sourceClipId: 'clip-keys',
         identity: {
           rootPc: 2,
           quality: 'minor7',

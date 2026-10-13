@@ -133,6 +133,7 @@ const DRAFT_PATHS = [
   'data.chordRegions[].name',
   'data.chordRegions[].noteName',
   'data.chordRegions[].rawStartTick',
+  'data.chordRegions[].sourceClipId',
   'data.chordRegions[].startTick',
   'data.clipColorMode',
   'data.composerName',

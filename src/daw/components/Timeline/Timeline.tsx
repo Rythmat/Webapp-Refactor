@@ -64,6 +64,11 @@ import {
   type DrawnNote,
 } from '@/daw/utils/insightSelection';
 import { ALL_GRID_VALUES, TRIPLET_GRID_VALUES } from '@/daw/utils/quantize';
+import {
+  gridStepTicks,
+  snapTicks,
+  timelineSnapGrid,
+} from '@/daw/time/timeModel';
 import type { MidiNoteEvent } from '@prism/engine';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
@@ -355,11 +360,11 @@ function computeProjectLengthTicks(
   return maxTick + barTicks * PROJECT_PAD_BARS;
 }
 
-// ── Snap helper ─────────────────────────────────────────────────────────
-
-function snapTick(tick: number, gridTicks: number): number {
-  return Math.max(0, Math.round(tick / gridTicks) * gridTicks);
-}
+// ── Snapping ────────────────────────────────────────────────────────────
+// Every gesture snaps to the one grid, the timeline's (timelineSnapGrid), in
+// the project's metre and from each bar line; with snap off every gesture is
+// free. A clip drag used to fall back to a beat, a marker to a bar and a
+// click to a fraction of a tick (timeline-14).
 
 // ── Canvas inputs ───────────────────────────────────────────────────────
 
@@ -616,7 +621,10 @@ export function Timeline() {
 
   // ── Derived ──
   const ppb = pixelsPerBeat(zoom);
-  const snapGridTicks = snapEnabled ? ALL_GRID_VALUES[gridSize] : 1;
+  const snapGrid = useMemo(() => {
+    const ts = { numerator: tsNum, denominator: tsDen };
+    return { enabled: snapEnabled, step: gridStepTicks(gridSize, ts), ts };
+  }, [snapEnabled, gridSize, tsNum, tsDen]);
   const projectLengthTicks = useMemo(
     () => computeProjectLengthTicks(tracks, ticksPerBar(tsNum, tsDen)),
     [tracks, tsNum, tsDen],
@@ -624,9 +632,8 @@ export function Timeline() {
 
   // ── Snap helper with current grid ──
   const doSnap = useCallback(
-    (tick: number) =>
-      snapEnabled ? snapTick(tick, snapGridTicks) : Math.max(0, tick),
-    [snapEnabled, snapGridTicks],
+    (tick: number) => snapTicks(tick, snapGrid),
+    [snapGrid],
   );
 
   // ── Draw ──────────────────────────────────────────────────────────────
@@ -1887,9 +1894,13 @@ export function Timeline() {
         // half's notes moved onto that half's start; an audio clip's halves
         // both keep the recording (no slicing, no eviction), so undo and a
         // reload still find the take. Each returns null for the other kind.
-        const rightId =
-          splitMidiClipAt(hit.trackId, hit.clipId, splitTick) ??
-          splitAudioClipAt(hit.trackId, hit.clipId, splitTick);
+        // One undo step with the chords it hands to the right half.
+        const rightId = withTransaction(
+          'Split clip',
+          () =>
+            splitMidiClipAt(hit.trackId, hit.clipId, splitTick) ??
+            splitAudioClipAt(hit.trackId, hit.clipId, splitTick),
+        );
         if (rightId) state.setSelectedClip(rightId, hit.trackId);
       }
     },
@@ -1937,14 +1948,8 @@ export function Timeline() {
         const state = useStore.getState();
         const currentZoom = state.timelineZoom;
         const currentScrollLeft = state.timelineScrollLeft;
-        const currentSnapTicks = state.timelineSnapEnabled
-          ? ALL_GRID_VALUES[state.timelineGridSize]
-          : ticksPerBar(
-              state.timeSignatureNumerator,
-              state.timeSignatureDenominator,
-            );
         const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-        const snapped = snapTick(rawTick, currentSnapTicks);
+        const snapped = snapTicks(rawTick, timelineSnapGrid(state));
         const nextNum = state.markers.length + 1;
         state.addMarker(snapped, `Marker ${nextNum}`);
         return;
@@ -1975,12 +1980,7 @@ export function Timeline() {
       const state = useStore.getState();
       const currentZoom = state.timelineZoom;
       const currentScrollLeft = state.timelineScrollLeft;
-      const currentSnapTicks = state.timelineSnapEnabled
-        ? ALL_GRID_VALUES[state.timelineGridSize]
-        : ticksPerBar(
-            state.timeSignatureNumerator,
-            state.timeSignatureDenominator,
-          );
+      const grid = timelineSnapGrid(state);
 
       // Check audio clip hit first
       if (y >= st + RULERS_HEIGHT) {
@@ -2009,7 +2009,7 @@ export function Timeline() {
         if (track) {
           e.preventDefault();
           const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-          const snapped = snapTick(rawTick, currentSnapTicks);
+          const snapped = snapTicks(rawTick, grid);
           setCtxMenu({
             x: e.clientX,
             y: e.clientY,
@@ -2037,7 +2037,7 @@ export function Timeline() {
       }
 
       const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-      const snapped = snapTick(rawTick, currentSnapTicks);
+      const snapped = snapTicks(rawTick, grid);
 
       setCtxMenu({
         x: e.clientX,
@@ -2208,12 +2208,12 @@ export function Timeline() {
         }
       }
 
-      const snap = state.timelineSnapEnabled
-        ? ALL_GRID_VALUES[state.timelineGridSize]
-        : TICKS_PER_BEAT;
+      const grid = timelineSnapGrid(state);
+      // The loop's edges step by the grid, or by single ticks with snap off.
+      const snap = grid.enabled ? grid.step : 1;
       const tick = pixelToTick(x, state.timelineZoom, state.timelineScrollLeft);
       if (r.mode === 'playhead') {
-        seekTo(snapTick(tick, snap));
+        seekTo(snapTicks(tick, grid));
         canvas.style.cursor = 'grabbing';
       } else if (r.mode === 'loop') {
         const range = dragLoopRange(
@@ -2253,14 +2253,14 @@ export function Timeline() {
       const state = useStore.getState();
       const currentZoom = state.timelineZoom;
       const currentScrollLeft = state.timelineScrollLeft;
-      const currentSnapTicks = state.timelineSnapEnabled
-        ? ALL_GRID_VALUES[state.timelineGridSize]
-        : TICKS_PER_BEAT;
+      const grid = timelineSnapGrid(state);
+      // The shortest a trim can leave a clip: a grid step, or a tick.
+      const currentSnapTicks = grid.enabled ? grid.step : 1;
 
       // Marker drag
       if (markerDragRef.current) {
         const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-        const snapped = snapTick(rawTick, currentSnapTicks);
+        const snapped = snapTicks(rawTick, grid);
         markerDragTickRef.current = snapped;
         canvas.style.cursor = 'col-resize';
         requestRedraw();
@@ -2313,7 +2313,7 @@ export function Timeline() {
             currentZoom,
             currentScrollLeft,
           );
-          dragTickRef.current = snapTick(rawTick, currentSnapTicks);
+          dragTickRef.current = snapTicks(rawTick, grid);
           const trackIdx = Math.floor((y - RULERS_HEIGHT) / TRACK_HEIGHT);
           dragTrackRef.current = Math.max(
             0,
@@ -2324,7 +2324,7 @@ export function Timeline() {
           // Left edge can travel between its lower bound and one grid step
           // short of the fixed right edge.
           const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-          const snapped = snapTick(rawTick, currentSnapTicks);
+          const snapped = snapTicks(rawTick, grid);
           dragTickRef.current = Math.max(
             drag.minStartTick,
             Math.min(snapped, drag.endTickOrigin - currentSnapTicks),
@@ -2334,7 +2334,7 @@ export function Timeline() {
           // Right edge can travel between one grid step past the fixed left
           // edge and its upper bound.
           const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-          const snapped = snapTick(rawTick, currentSnapTicks);
+          const snapped = snapTicks(rawTick, grid);
           dragEndTickRef.current = Math.min(
             drag.maxEndTick,
             Math.max(snapped, drag.startTickOrigin + currentSnapTicks),
@@ -2490,53 +2490,12 @@ export function Timeline() {
         const originTrack = freshTracks[drag.originTrackIndex];
         const targetTrack = freshTracks[newTrackIdx];
 
+        // One write through moveClip: it refuses (and says so) a track a
+        // collaborator holds or the wrong kind of track, and takes the
+        // chords Prism read from the clip along, no others (timeline-05,
+        // timeline-06).
         if (originTrack && targetTrack) {
-          // Try MIDI clip first
-          const midiClip = originTrack.midiClips.find(
-            (c) => c.id === drag.clipId,
-          );
-          if (midiClip) {
-            const delta = newTick - drag.startTickOrigin;
-            if (originTrack.id === targetTrack.id) {
-              if (delta !== 0) {
-                state.updateMidiClip(originTrack.id, drag.clipId, {
-                  startTick: newTick,
-                });
-                state.offsetChordRegions(delta);
-              }
-            } else {
-              state.removeMidiClip(originTrack.id, drag.clipId);
-              state.addMidiClip(targetTrack.id, {
-                ...midiClip,
-                startTick: newTick,
-              });
-              state.setSelectedClip(midiClip.id, targetTrack.id);
-              if (delta !== 0) {
-                state.offsetChordRegions(delta);
-              }
-            }
-          } else {
-            // Audio clip move
-            const audioClip = originTrack.audioClips.find(
-              (c) => c.id === drag.clipId,
-            );
-            if (audioClip) {
-              if (originTrack.id === targetTrack.id) {
-                if (newTick !== drag.startTickOrigin) {
-                  state.updateAudioClip(originTrack.id, drag.clipId, {
-                    startTick: newTick,
-                  });
-                }
-              } else {
-                state.removeAudioClip(originTrack.id, drag.clipId);
-                state.addAudioClip(targetTrack.id, {
-                  ...audioClip,
-                  startTick: newTick,
-                });
-                state.setSelectedClip(audioClip.id, targetTrack.id);
-              }
-            }
-          }
+          state.moveClip(originTrack.id, drag.clipId, targetTrack.id, newTick);
         }
       } else if (drag.mode === 'resize-left' || drag.mode === 'resize-right') {
         const track = state.tracks.find((tr) => tr.id === drag.trackId);

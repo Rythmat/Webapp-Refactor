@@ -73,6 +73,13 @@ export interface ChordRegion {
   midis?: number[]; // MIDI pitches used for merge-mode recalculation
   confidence?: number; // 0-1 chord confidence score (Phase 9)
   /**
+   * The MIDI clip the region was read from (a Prism Create take): moving
+   * that clip moves the region with it, and moving any other clip leaves it
+   * alone. Unset for chords written on the sheet, seeded or analysed, which
+   * belong to the song and stay where they are (timeline-05).
+   */
+  sourceClipId?: string;
+  /**
    * Which chord the region holds, as pitch classes (decision D3). Milestone
    * 1.16a fills it in; until then it is only kept as it came. Every write
    * that changes the chord or its labels drops it (withoutIdentity), so an
@@ -155,7 +162,6 @@ export interface PrismSlice {
 
   // Actions — chord regions
   setChordRegions: (regions: ChordRegion[], force?: boolean) => void;
-  offsetChordRegions: (deltaTicks: number) => void;
   setMeasureRowSizes: (sizes: number[] | null) => void;
   setMeasureRestMap: (map: Record<number, number> | null) => void;
   setMeasureFermatas: (fermatas: number[] | null) => void;
@@ -1656,13 +1662,14 @@ export const createPrismSlice: StateCreator<
       // ("Existing chords are protected") keeps its chords there and only
       // takes new ones in the gaps. One set() for clips and chords, so undo
       // and collab each see a single change.
+      // Read from this take, they follow it when it moves (moveClip).
       const incoming = deriveChordRegions(
         events,
         rootMidi,
         state.stringSeq,
         state.mode,
         endTick,
-      );
+      ).map((r) => ({ ...r, sourceClipId: clip.id }));
       set({
         tracks: currentState.tracks.map((t) =>
           t.id === trackId ? { ...t, midiClips } : t,
@@ -1731,15 +1738,6 @@ export const createPrismSlice: StateCreator<
       get().setClipColorMode('prism');
     }
   },
-
-  offsetChordRegions: (deltaTicks) =>
-    set((s) => ({
-      chordRegions: s.chordRegions.map((r) => ({
-        ...r,
-        startTick: r.startTick + deltaTicks,
-        endTick: r.endTick + deltaTicks,
-      })),
-    })),
 
   setMeasureRowSizes: (sizes) => set({ measureRowSizes: sizes }),
   setMeasureRestMap: (map) => set({ measureRestMap: map }),

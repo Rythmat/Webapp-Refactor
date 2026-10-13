@@ -15,9 +15,11 @@ import {
 } from '@/components/atlas/components/UI/primitives';
 import { MUSICAL_ERAS } from '@/components/atlas/data';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
+import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { getCityById, getCityByName } from '@/components/atlas/data/lookups';
 import type { MusicalEra } from '@/components/atlas/data/musicalEras';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
+import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import {
   useAtlasNavigate,
   useAtlasStopSelector,
@@ -115,12 +117,22 @@ export function RegionTimeline() {
     [artistName],
   );
 
+  // A state's events wait for the on-demand state outlines (the details card
+  // says so meanwhile). A partial list would auto-pin the wrong lone event.
+  const outlines = useLazyResource(
+    stateBoundariesData,
+    !artist && selectedLocation?.type === 'state',
+  ).status;
+  const awaitingOutlines =
+    !artist && selectedLocation?.type === 'state' && outlines !== 'ready';
   const locationEvents = useMemo(
     () =>
       artist
         ? getEventsForArtist(artist.slug)
-        : getEventsForLocation(selectedLocation),
-    [artist, selectedLocation],
+        : awaitingOutlines
+          ? []
+          : getEventsForLocation(selectedLocation),
+    [artist, awaitingOutlines, selectedLocation],
   );
 
   const events = useMemo(

@@ -36,9 +36,11 @@ import {
   AtlasPanelBody,
 } from '@/components/atlas/components/UI/primitives';
 import type { AtlasArtist } from '@/components/atlas/data/artists';
+import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { getCityById } from '@/components/atlas/data/lookups';
 import { songIdForEvent } from '@/components/atlas/data/songEventAliases';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
+import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import {
   scrollBehavior,
   usePrefersReducedMotion,
@@ -390,11 +392,23 @@ export function DetailsCard() {
   // that for the bundled data, but production reads CDN-published content that
   // no test has seen — and an event missing from its own panel is precisely
   // the "I clicked the pill and nothing happened" bug.
+  //
+  // A state's list places towns CITIES doesn't name by the state outlines,
+  // which load on demand: until they have, the list is null and the card says
+  // it is loading. (Navigating to an event waits for them, so a pinned event
+  // never arrives before its list.)
+  const outlines = useLazyResource(
+    stateBoundariesData,
+    selectedLocation?.type === 'state',
+  );
+  const awaitingOutlines =
+    selectedLocation?.type === 'state' && outlines.status !== 'ready';
   const listed = useMemo(
-    () => getEventsForLocation(selectedLocation),
-    [selectedLocation],
+    () => (awaitingOutlines ? null : getEventsForLocation(selectedLocation)),
+    [awaitingOutlines, selectedLocation],
   );
   const events = useMemo(() => {
+    if (!listed) return [];
     if (!pinnedEvent || listed.some((e) => e.id === pinnedEvent.id)) {
       return listed;
     }
@@ -406,6 +420,7 @@ export function DetailsCard() {
   // changes whenever the pin does, and would collapse the card (and drop out
   // of enlarge mode) on every click inside it.
   useEffect(() => {
+    if (!listed) return;
     setEnlarged(false);
     if (listed.length === 1) {
       setExpandedEvents(new Set([listed[0].id]));
@@ -578,7 +593,27 @@ export function DetailsCard() {
       subtitle={heading.subtitle}
       title={heading.title}
     >
-      {!collapsed && (
+      {!collapsed && awaitingOutlines && (
+        <div className="border-t border-atlas-panel-border px-4 py-3">
+          {outlines.status === 'error' ? (
+            <p className="text-sm text-atlas-text-2" role="alert">
+              This state’s events didn’t load.{' '}
+              <button
+                className={`rounded-full font-bold text-atlas-text underline underline-offset-2 ${ATLAS_FOCUS}`}
+                type="button"
+                onClick={outlines.retry}
+              >
+                Try again
+              </button>
+            </p>
+          ) : (
+            <p className="text-sm text-atlas-text-2" role="status">
+              Loading events…
+            </p>
+          )}
+        </div>
+      )}
+      {!collapsed && !awaitingOutlines && (
         <EventList
           events={events}
           expandedEvents={expandedEvents}

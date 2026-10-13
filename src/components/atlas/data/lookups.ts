@@ -1,11 +1,7 @@
-import type {
-  HistoricalEvent,
-  HistoricalModule,
-} from '@/components/atlas/types';
+import type { HistoricalEvent } from '@/components/atlas/types';
 import { contentGeneration, MUSIC_HISTORY } from '@/content/contentStore';
 import type { PlaceRecord } from '@/content/records/types';
 import { CITIES } from './cities';
-import { HISTORICAL_MODULES } from './historicalModules';
 
 /**
  * Id lookups for the globe's data, so a render asks a Map instead of walking
@@ -14,8 +10,9 @@ import { HISTORICAL_MODULES } from './historicalModules';
  * MUSIC_HISTORY fills in place when content hydrates (see contentStore.ts),
  * so its map rebuilds whenever the content generation moves — and when the
  * array's length does, which catches tests that push into it directly.
- * CITIES and the pathways are bundled and never change, so theirs are built
- * once, on first use rather than at import.
+ * CITIES is bundled and never changes, so its maps are built once, on first
+ * use rather than at import. Pathways are looked up in guides.ts, which loads
+ * on demand.
  */
 let events: Map<string, HistoricalEvent> | null = null;
 let eventsGeneration = -1;
@@ -58,14 +55,4 @@ export function getCityByName(name: string): PlaceRecord | undefined {
     }
   }
   return citiesByName.get(name.toLowerCase());
-}
-
-let modules: Map<string, HistoricalModule> | null = null;
-
-export function getModuleById(
-  id: string | null | undefined,
-): HistoricalModule | undefined {
-  if (!id) return undefined;
-  modules ??= new Map(HISTORICAL_MODULES.map((m) => [m.id, m]));
-  return modules.get(id);
 }

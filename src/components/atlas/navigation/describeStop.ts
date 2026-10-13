@@ -1,11 +1,8 @@
-import { CITY_COUNTRY_TO_ISO, getTour } from '@/components/atlas/data';
+import { CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { getCountryColor } from '@/components/atlas/data/continentColors';
-import {
-  getCityById,
-  getEventById,
-  getModuleById,
-} from '@/components/atlas/data/lookups';
+import { guidesData } from '@/components/atlas/data/loaders';
+import { getCityById, getEventById } from '@/components/atlas/data/lookups';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { contentGeneration } from '@/content/contentStore';
 import { stopKey, type AtlasStop } from './atlasStop';
@@ -71,11 +68,22 @@ export function describeStop(stop: AtlasStop): StopPresentation {
   let presentation = cache.get(key);
   if (!presentation) {
     presentation = present(stop);
+    // A tour or pathway named before the tours have loaded gets a generic
+    // title; don't keep it. Readers that show one subscribe to guidesData.
+    if (isGuideStop(stop) && !guidesData.peek()) {
+      guidesData.load().catch(() => undefined);
+      return presentation;
+    }
     // A long session of searching could otherwise grow this without end.
     if (cache.size >= 2000) cache.clear();
     cache.set(key, presentation);
   }
   return presentation;
+}
+
+/** Stops whose titles come from the on-demand tours and pathways. */
+export function isGuideStop(stop: AtlasStop): boolean {
+  return stop.kind === 'tour' || stop.kind === 'pathway';
 }
 
 function present(stop: AtlasStop): StopPresentation {
@@ -141,7 +149,7 @@ function present(stop: AtlasStop): StopPresentation {
       };
 
     case 'pathway': {
-      const mod = getModuleById(stop.pathwayId);
+      const mod = guidesData.peek()?.getModuleById(stop.pathwayId);
       const first = getEventById(mod?.eventIds[0]);
       return {
         kind: 'pathway',
@@ -153,7 +161,7 @@ function present(stop: AtlasStop): StopPresentation {
     }
 
     case 'tour': {
-      const tour = getTour(stop.tourId);
+      const tour = guidesData.peek()?.getTour(stop.tourId);
       return {
         kind: 'tour',
         title: tour?.title ?? 'Guided tour',

@@ -2,13 +2,9 @@ import { afterEach, describe, expect, it } from 'vitest';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { MUSIC_HISTORY } from '@/content/contentStore';
 import { CITIES } from './cities';
+import { getModuleById } from './guides';
 import { HISTORICAL_MODULES } from './historicalModules';
-import {
-  getCityById,
-  getCityByName,
-  getEventById,
-  getModuleById,
-} from './lookups';
+import { getCityById, getCityByName, getEventById } from './lookups';
 
 const event = (id: string): HistoricalEvent => ({
   id,

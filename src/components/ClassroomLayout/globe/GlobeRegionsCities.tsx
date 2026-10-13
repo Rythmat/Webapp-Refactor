@@ -1,11 +1,7 @@
 import { ArrowRight, MapPinned } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  REGIONS,
-  cityTourId,
-  getTour,
-  regionTourId,
-} from '@/components/atlas/data';
+import { REGIONS, cityTourId, regionTourId } from '@/components/atlas/data';
+import { getTour } from '@/components/atlas/data/guidedTours';
 import { AtlasRoutes } from '@/constants/routes';
 import { GlobeSectionHeader } from './GlobeSectionHeader';
 import { GlobeTile } from './GlobeTile';

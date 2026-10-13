@@ -4,12 +4,13 @@ import type { GlobeMethods, GlobeProps } from 'react-globe.gl';
 import { MeshLambertMaterial } from 'three';
 import {
   CITIES,
-  getRecursiveArcsForEvent,
   CITY_COUNTRY_TO_ISO,
   type ArcDatum,
 } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
+import { connectionsData } from '@/components/atlas/data/loaders';
 import { useGeoData, useGlobeLighting } from '@/components/atlas/hooks';
+import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import { markFlown } from '@/components/atlas/navigation/focusEvent';
@@ -402,11 +403,13 @@ export function BaseGlobe() {
     [layers, pinnedPointData],
   );
 
-  // Influence arcs for pinned event — filtered by which dropdowns are open
+  // Influence arcs for pinned event — filtered by which dropdowns are open.
+  // The influence graph loads with the first pin; the arcs follow it in.
+  const connections = useLazyResource(connectionsData, !!pinnedEvent).data;
   const allArcs = useMemo(() => {
-    if (!pinnedEvent) return [];
-    return getRecursiveArcsForEvent(pinnedEvent.id);
-  }, [pinnedEvent]);
+    if (!pinnedEvent || !connections) return [];
+    return connections.getRecursiveArcsForEvent(pinnedEvent.id);
+  }, [connections, pinnedEvent]);
 
   // Only the directions open in the event card (or Layers), and none with the
   // arcs layer off.

@@ -27,6 +27,8 @@ import {
   ATLAS_POPOVER,
   AtlasEyebrow,
 } from '@/components/atlas/components/UI/primitives';
+import { guidesData } from '@/components/atlas/data/loaders';
+import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import { useAtlasPortal } from '@/components/atlas/layout/portalRoot';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
@@ -263,9 +265,13 @@ export default function AtlasCommandPalette({
     [globeRotating, canClear],
   );
 
+  // Recent tours and pathways take their titles from the on-demand tours,
+  // which this chunk already holds (the Actions list names them).
+  const guides = useLazyResource(guidesData).status;
   const recent = useMemo(
     () => recentStops(trail.entries, trail.cursorPos),
-    [trail.entries, trail.cursorPos],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `guides` re-describes once they load
+    [trail.entries, trail.cursorPos, guides],
   );
   const groups = useMemo(
     () => buildPalette(deferred, { recent, actions }),

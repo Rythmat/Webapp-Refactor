@@ -7,7 +7,9 @@ import {
   AtlasEyebrow,
   AtlasIconButton,
 } from '@/components/atlas/components/UI/primitives';
-import { getEventById, getModuleById } from '@/components/atlas/data/lookups';
+import { guidesData } from '@/components/atlas/data/loaders';
+import { getEventById } from '@/components/atlas/data/lookups';
+import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import { focusEvent } from '@/components/atlas/navigation/focusEvent';
 import {
   useAtlasDispatch,
@@ -19,8 +21,13 @@ export function ModuleProgressBar() {
   const activeModule = useAtlasSelector((s) => s.activeModule);
   const dispatch = useAtlasDispatch();
 
+  // Loaded already: a pathway starts only once the pathways have.
+  const guides = useLazyResource(guidesData, !!activeModule).data;
   const moduleId = activeModule?.moduleId;
-  const mod = useMemo(() => getModuleById(moduleId), [moduleId]);
+  const mod = useMemo(
+    () => guides?.getModuleById(moduleId),
+    [guides, moduleId],
+  );
 
   const events = useMemo(() => {
     if (!mod) return [];

@@ -1,4 +1,5 @@
 import { CITIES, CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
+import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import type {
   City,
   HistoricalEvent,
@@ -109,6 +110,10 @@ export function matchCity(event: HistoricalEvent): City | undefined {
  * not name; guessing from the nearest named city instead put a quarter of them
  * across a border (the Ohio Players' Dayton in Indiana, Buffalo in
  * Pennsylvania). Before either, those events could not be opened at all.
+ *
+ * The outlines load on demand. Until they have, an event that needs them gets
+ * undefined (not remembered, so it resolves once they land): wait for
+ * `stateBoundariesData` first wherever {@link needsStateBoundaries} says so.
  */
 export function eventSubdivision(
   event: HistoricalEvent,
@@ -125,11 +130,22 @@ export function eventSubdivision(
         normCountry(byName.country) === 'CA' ? 'Canada' : 'United States',
     };
   } else {
-    result = stateAt(event.location.lat, event.location.lng);
+    const boundaries = stateBoundariesData.peek();
+    if (!boundaries) return undefined;
+    result = stateAt(boundaries, event.location.lat, event.location.lng);
   }
 
   subdivisionCache.set(event, result ?? null);
   return result;
+}
+
+/**
+ * Whether placing this event needs the state outlines: a US or Canadian
+ * event whose town CITIES doesn't name with a state.
+ */
+export function needsStateBoundaries(event: HistoricalEvent): boolean {
+  if (!hasStates(event.location.country)) return false;
+  return !nearestOf(event, sameNameCities(event))?.subdivision;
 }
 
 /* ── Region resolution ───────────────────────────────────────────────────── */

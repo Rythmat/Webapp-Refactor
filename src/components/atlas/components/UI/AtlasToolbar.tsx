@@ -14,11 +14,16 @@ import {
   AtlasIconButton,
   AtlasPillButton,
 } from '@/components/atlas/components/UI/primitives';
+import { guidesData } from '@/components/atlas/data/loaders';
+import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import {
   scrollBehavior,
   usePrefersReducedMotion,
 } from '@/components/atlas/hooks/useMediaQuery';
-import { describeStop } from '@/components/atlas/navigation/describeStop';
+import {
+  describeStop,
+  isGuideStop,
+} from '@/components/atlas/navigation/describeStop';
 import { useAtlasStopSelector } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   useAtlasTrail,
@@ -65,7 +70,13 @@ function TrailStep({
   state: 'past' | 'current' | 'future';
   onJump: (entry: TrailEntry) => void;
 }) {
-  const presentation = useMemo(() => describeStop(entry.stop), [entry.stop]);
+  // A tour or pathway step takes its title from the on-demand tours.
+  const guides = useLazyResource(guidesData, isGuideStop(entry.stop)).status;
+  const presentation = useMemo(
+    () => describeStop(entry.stop),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `guides` re-describes once they load
+    [entry.stop, guides],
+  );
   return (
     <button
       aria-current={state === 'current' ? 'step' : undefined}

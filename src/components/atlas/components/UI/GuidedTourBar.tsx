@@ -7,7 +7,8 @@ import {
   AtlasEyebrow,
   AtlasIconButton,
 } from '@/components/atlas/components/UI/primitives';
-import { getTour, resolveTourStops } from '@/components/atlas/data';
+import { guidesData } from '@/components/atlas/data/loaders';
+import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import {
   useAtlasDispatch,
   useAtlasSelector,
@@ -24,11 +25,16 @@ export function GuidedTourBar() {
   const activeTour = useAtlasSelector((s) => s.activeTour);
   const dispatch = useAtlasDispatch();
 
+  // Loaded already: a tour starts only once the tours have.
+  const guides = useLazyResource(guidesData, !!activeTour).data;
   const tour = useMemo(
-    () => (activeTour ? getTour(activeTour.tourId) : undefined),
-    [activeTour],
+    () => (activeTour ? guides?.getTour(activeTour.tourId) : undefined),
+    [activeTour, guides],
   );
-  const stops = useMemo(() => (tour ? resolveTourStops(tour) : []), [tour]);
+  const stops = useMemo(
+    () => (tour && guides ? guides.resolveTourStops(tour) : []),
+    [guides, tour],
+  );
 
   if (!activeTour || !tour || stops.length === 0) return null;
 

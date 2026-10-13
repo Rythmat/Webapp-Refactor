@@ -13,7 +13,7 @@ import { ArrowRight, Calendar, MapPin } from 'lucide-react';
 import { Suspense, lazy, useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ROOTS_AND_ROUTES } from '@/components/ClassroomLayout/globe/data/rootsAndRoutes';
-import { HISTORICAL_MODULES } from '@/components/atlas/data';
+import { HISTORICAL_MODULES } from '@/components/atlas/data/historicalModules';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { AtlasRoutes } from '@/constants/routes';
 import { ContentGate } from '@/content/ContentGate';

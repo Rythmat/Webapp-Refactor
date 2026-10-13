@@ -2,12 +2,12 @@ import { ArrowUpRight, ArrowDownRight, ChevronDown } from 'lucide-react';
 import { memo, useId, useMemo, useState } from 'react';
 import { ATLAS_FOCUS } from '@/components/atlas/components/UI/primitives';
 import {
-  getUpstreamChain,
-  getDownstreamChain,
   getEventCountryColor,
   getContrastColor,
 } from '@/components/atlas/data';
 import type { UpstreamChainNode } from '@/components/atlas/data/eventConnections';
+import { connectionsData } from '@/components/atlas/data/loaders';
+import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import {
   useAtlasDispatch,
   useAtlasSelector,
@@ -133,6 +133,9 @@ function CollapsibleInfluence({
  * "Influenced by" (upstream) and "Influenced" (downstream) collapsible influence
  * chains for an event. Renders nothing when the event has no connections.
  * Shared by the region DetailsCard list and the search-results pinned event.
+ *
+ * The influence graph loads on demand with the first card that shows one; a
+ * status line stands in for the chains until it lands.
  */
 function EventInfluenceInner({
   event,
@@ -153,17 +156,42 @@ function EventInfluenceInner({
   // runs to ~495 nodes — so they run once per event. contentGeneration is in
   // the deps because MUSIC_HISTORY is filled in place after the CDN bundle
   // lands (see contentStore.ts), which the event id alone would not reflect.
+  const graph = useLazyResource(connectionsData);
+  const connections = graph.data;
   const { upstreamChain, downstreamChain, upstreamCount, downstreamCount } =
     useMemo(() => {
-      const up = getUpstreamChain(event.id);
-      const down = getDownstreamChain(event.id);
+      const up = connections?.getUpstreamChain(event.id) ?? [];
+      const down = connections?.getDownstreamChain(event.id) ?? [];
       return {
         upstreamChain: up,
         downstreamChain: down,
         upstreamCount: countNodes(up),
         downstreamCount: countNodes(down),
       };
-    }, [event.id, contentGeneration]);
+    }, [connections, event.id, contentGeneration]);
+
+  if (!connections) {
+    return (
+      <div className={className}>
+        {graph.status === 'error' ? (
+          <p className="text-xs text-atlas-text-2" role="alert">
+            Influences didn’t load.{' '}
+            <button
+              className={`rounded-full font-bold text-atlas-text underline underline-offset-2 ${ATLAS_FOCUS}`}
+              type="button"
+              onClick={graph.retry}
+            >
+              Try again
+            </button>
+          </p>
+        ) : (
+          <p className="text-xs text-atlas-text-2" role="status">
+            Loading influences…
+          </p>
+        )}
+      </div>
+    );
+  }
 
   if (upstreamChain.length === 0 && downstreamChain.length === 0) return null;
 

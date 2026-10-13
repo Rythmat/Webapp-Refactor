@@ -1,11 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  HISTORICAL_MODULES,
-  MUSIC_HISTORY,
-  MUSICAL_ERAS,
-  getTour,
-} from '@/components/atlas/data';
+import { MUSIC_HISTORY, MUSICAL_ERAS } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
 import { useStartPathway, useStartTour } from '@/components/atlas/hooks';
 import {
@@ -14,6 +9,7 @@ import {
 } from '@/components/atlas/state/atlasStore';
 import { stopFromSearchParams, stopKey } from './atlasStop';
 import { consumeFlown, flyToFit, focusEvent } from './focusEvent';
+import { cancelPendingNavigation } from './pendingNavigation';
 import { resolvePlaceFly } from './resolvePlaceFly';
 
 /**
@@ -62,6 +58,9 @@ export function useAtlasUrlSync(): void {
   }, [key]);
 
   useEffect(() => {
+    // A navigation still waiting for its data (a tour, the state outlines)
+    // belongs to the stop being left.
+    cancelPendingNavigation();
     switch (stop.kind) {
       case 'event': {
         const event = MUSIC_HISTORY.find((e) => e.id === stop.eventId);
@@ -92,14 +91,13 @@ export function useAtlasUrlSync(): void {
         return;
       }
 
+      // Both load the tours and pathways first, and ignore an unknown id.
       case 'pathway':
-        if (HISTORICAL_MODULES.some((m) => m.id === stop.pathwayId)) {
-          startPathway(stop.pathwayId);
-        }
+        startPathway(stop.pathwayId);
         return;
 
       case 'tour':
-        if (getTour(stop.tourId)) startTour(stop.tourId);
+        startTour(stop.tourId);
         return;
 
       // Both replace the details card with their own view (or nothing).

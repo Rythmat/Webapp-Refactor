@@ -1,11 +1,16 @@
 import type { Dispatch } from 'react';
+import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import type {
   AppAction,
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
-import { resolveEventRegion } from '@/components/atlas/utils/resolveEventRegion';
+import {
+  needsStateBoundaries,
+  resolveEventRegion,
+} from '@/components/atlas/utils/resolveEventRegion';
+import { afterLoad, cancelPendingNavigation } from './pendingNavigation';
 
 /**
  * Select an event's region, pin the event, and fly the camera to it.
@@ -24,11 +29,31 @@ import { resolveEventRegion } from '@/components/atlas/utils/resolveEventRegion'
  *
  * Order matters: SELECT_LOCATION resets `pinnedEvent`, so it must run before
  * PIN_EVENT or the pin (and with it the expanded card) is wiped.
+ *
+ * A US or Canadian event in a town CITIES doesn't name is placed by the state
+ * outlines, which load on demand, and so is a state panel's list: either way
+ * this waits for them (tens of milliseconds, once) before moving anything.
  */
 export function focusEvent(
   dispatch: Dispatch<AppAction>,
   event: HistoricalEvent,
   current: SelectedLocation | null = null,
+): void {
+  if (needsStateBoundaries(event) || current?.type === 'state') {
+    // If the outlines fail to load, the event resolves to its country, whose
+    // panel lists it all the same.
+    afterLoad(stateBoundariesData, () => focusNow(dispatch, event, current));
+    return;
+  }
+  // This one lands now, so nothing still waiting may land after it.
+  cancelPendingNavigation();
+  focusNow(dispatch, event, current);
+}
+
+function focusNow(
+  dispatch: Dispatch<AppAction>,
+  event: HistoricalEvent,
+  current: SelectedLocation | null,
 ): void {
   const alreadyListed =
     current !== null &&

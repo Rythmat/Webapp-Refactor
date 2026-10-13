@@ -1,19 +1,49 @@
 import { beforeAll, describe, expect, it } from 'vitest';
+import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { ensureAtlasContent, MUSIC_HISTORY } from '@/content/contentStore';
 import { sameCountry } from './country';
 import { getEventsForLocation } from './getEventsForLocation';
 import {
   eventSubdivision,
   matchCity,
+  needsStateBoundaries,
   resolveEventRegion,
 } from './resolveEventRegion';
 
 const HYDRATION_TIMEOUT = 60_000;
 const byId = (id: string) => MUSIC_HISTORY.find((e) => e.id === id)!;
 
+// Runs first, while the on-demand state outlines have not loaded yet.
+describe('before the state outlines load', () => {
+  beforeAll(async () => {
+    await ensureAtlasContent();
+  }, HYDRATION_TIMEOUT);
+
+  it('places a town CITIES names without them', () => {
+    const event = MUSIC_HISTORY.find((e) => e.location.city === 'Nashville')!;
+    expect(stateBoundariesData.peek()).toBeUndefined();
+    expect(needsStateBoundaries(event)).toBe(false);
+    expect(eventSubdivision(event)?.name).toBe('Tennessee');
+  });
+
+  it('answers nothing for a town that needs them, and remembers nothing', async () => {
+    const dayton = MUSIC_HISTORY.find((e) => e.location.city === 'Dayton')!;
+    expect(needsStateBoundaries(dayton)).toBe(true);
+    expect(eventSubdivision(dayton)).toBeUndefined();
+    await stateBoundariesData.load();
+    expect(eventSubdivision(dayton)?.name).toBe('Ohio');
+  });
+
+  it('never needs them outside the US and Canada', () => {
+    const event = MUSIC_HISTORY.find((e) => e.location.country === 'UK')!;
+    expect(needsStateBoundaries(event)).toBe(false);
+  });
+});
+
 describe('resolveEventRegion', () => {
   beforeAll(async () => {
     await ensureAtlasContent();
+    await stateBoundariesData.load();
   }, HYDRATION_TIMEOUT);
 
   /**

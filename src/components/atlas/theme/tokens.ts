@@ -148,3 +148,25 @@ export const ATLAS_SCENE = {
   strokeState: 'rgba(130, 110, 80, 0.6)',
   strokeCountry: 'rgba(90, 78, 58, 0.85)',
 } as const;
+
+/**
+ * The street basemap's colours where they differ from Protomaps' `dark`
+ * flavor (the MapLibre engine, components/Globe/mapStyle.ts): land and
+ * background on the page's own darks, a deep teal sea the globe's cyan
+ * fades into, and labels bright enough to read (dark's are #3d3d3d to
+ * #7a7a7a on #1f1f1f). Keys are @protomaps/basemaps Flavor keys.
+ */
+export const ATLAS_BASEMAP = {
+  background: '#101012',
+  earth: '#18181c',
+  water: '#0e2f3a',
+  ocean_label: '#5fa9bd',
+  country_label: '#b4b4c0',
+  state_label: '#8a8a96',
+  state_label_halo: '#101012',
+  city_label: '#c9c9d4',
+  city_label_halo: '#101012',
+  subplace_label: '#8a8a96',
+  roads_label_major: '#9a9aa6',
+  roads_label_minor: '#7a7a86',
+} as const;

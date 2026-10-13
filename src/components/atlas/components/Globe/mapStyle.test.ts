@@ -1,6 +1,6 @@
 import type { LayerSpecification } from 'maplibre-gl';
 import { describe, expect, it } from 'vitest';
-import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
+import { ATLAS_BASEMAP, ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import { BASEMAP_FADE } from './mapGeometry';
 import {
   CLICK_LAYERS,
@@ -113,6 +113,13 @@ describe('the style with a basemap', () => {
     expect(fill?.paint).toMatchObject({
       'fill-opacity': ['interpolate', ['linear'], ['zoom'], 4, 0.86, 6, 0],
     });
+  });
+
+  it('paints the basemap in the Atlas flavor', () => {
+    const earth = style.layers.find((l) => l.id === 'earth');
+    expect(earth?.paint).toMatchObject({ 'fill-color': ATLAS_BASEMAP.earth });
+    const cities = style.layers.find((l) => l.id === 'places_locality');
+    expect(JSON.stringify(cities?.paint)).toContain(ATLAS_BASEMAP.city_label);
   });
 
   it('starts the sea in the Globe’s colour', () => {

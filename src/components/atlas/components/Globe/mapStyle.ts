@@ -5,7 +5,7 @@ import type {
   SourceSpecification,
   StyleSpecification,
 } from 'maplibre-gl';
-import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
+import { ATLAS_BASEMAP, ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import {
   BASEMAP_FADE,
   CITY_HEX_HEIGHT_M,
@@ -371,7 +371,8 @@ const seaFade = (basemapColor: string): ExpressionSpecification => [
  * labels arriving with the street map.
  */
 function basemapLayersFor(lang: 'en' | 'es'): LayerSpecification[] {
-  const flavor = namedFlavor('dark');
+  // The Atlas flavor: Protomaps' dark, on the page's colours (tokens.ts).
+  const flavor = { ...namedFlavor('dark'), ...ATLAS_BASEMAP };
   return (
     basemapLayers(SOURCE.basemap, flavor, { lang }) as LayerSpecification[]
   ).map((layer) => {

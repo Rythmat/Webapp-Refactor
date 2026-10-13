@@ -15,6 +15,7 @@ import {
 import { useStore } from '@/daw/store';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
 import { timeSignatureOf } from '@/daw/time/timeModel';
+import { withTransaction } from '@/daw/store/history';
 import type { LeadSheetChordFormat } from '@/daw/store/uiSlice';
 import type { ChordRecordMode } from '@/daw/store/prismSlice';
 import {
@@ -104,18 +105,22 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   // selected, so a chart can grow past its last chord (leadsheet-07). The
   // melody the sheet shows moves with the bars.
   const handleInsertMeasure = useCallback(() => {
-    insertMeasures(
-      selectedMeasureIdx === null
-        ? Number.POSITIVE_INFINITY
-        : selectedMeasureIdx + 1,
-      1,
-      melodyTrack?.id ?? null,
+    withTransaction('Insert bar', () =>
+      insertMeasures(
+        selectedMeasureIdx === null
+          ? Number.POSITIVE_INFINITY
+          : selectedMeasureIdx + 1,
+        1,
+        melodyTrack?.id ?? null,
+      ),
     );
   }, [selectedMeasureIdx, insertMeasures, melodyTrack]);
 
   const handleDeleteMeasure = useCallback(() => {
     if (selectedMeasureIdx === null) return;
-    deleteMeasures(selectedMeasureIdx, 1, melodyTrack?.id ?? null);
+    withTransaction('Delete bar', () =>
+      deleteMeasures(selectedMeasureIdx, 1, melodyTrack?.id ?? null),
+    );
   }, [selectedMeasureIdx, deleteMeasures, melodyTrack]);
 
   const hasSectionAtSelected =

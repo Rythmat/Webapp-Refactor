@@ -16,7 +16,6 @@ import {
   useStartClassroomSession,
 } from '../../live/useStartClassroomSession';
 import { newBlankDay } from '../../plan/newBlankDay';
-import { defaultUnitIdFor } from '../../plan/useEnsureLessonUnits';
 import { useLocalPlan } from '../../plan/useLocalPlan';
 import { usePublishedDays } from '../../publish/usePublishedDays';
 import type { Day } from '../../types';
@@ -51,8 +50,8 @@ export const LESSON_ATLAS_KEY = ['classroom', 'lesson-atlas'] as const;
  *
  * `?day=<id>` generates onto an existing Day (its planned song and Globe
  * events steer the suggestion, and its deck is replaced); otherwise a new Day
- * is made and put in a Unit (`?unit=<id>`, else the current month's). The
- * Day goes through the same path as Plan's "Start session": saveDay →
+ * is made and scheduled on `?date=<YYYY-MM-DD>`, else the next free school
+ * day. The Day goes through the same path as Plan's "Start session": saveDay →
  * publish → startSession → teacher dashboard.
  */
 export const DeckWizardPage = () => {
@@ -61,7 +60,7 @@ export const DeckWizardPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dayParam = searchParams.get('day');
-  const preUnit = searchParams.get('unit');
+  const preDate = searchParams.get('date');
 
   const { listDays, saveDay } = useLocalPlan(cid);
   const { publishDayToClassroom } = usePublishedDays(cid);
@@ -69,12 +68,7 @@ export const DeckWizardPage = () => {
   const { endSession } = useLocalSessionStore();
   // Viewers may browse the generator but cannot publish or start a session.
   const canEdit = useCanEditClassroom(cid);
-  const {
-    plan: annualPlan,
-    seedFromTemplate,
-    addDayToUnit,
-    suggestDayScheduleInUnit,
-  } = useAnnualPlan(cid);
+  const { suggestLessonDate } = useAnnualPlan(cid);
 
   const days = listDays(cid);
   const plannedDay = dayParam
@@ -175,48 +169,39 @@ export const DeckWizardPage = () => {
     setPerformerRef(undefined);
   };
 
-  // A new Lesson belongs to a Unit (from ?unit, else the current month's),
-  // seeding the canonical Units first if this classroom has none. A Day being
-  // regenerated keeps the Unit and date it has.
-  const assignToUnit = (day: Day) => {
-    const activePlan = annualPlan ?? seedFromTemplate();
-    const units = [
-      ...activePlan.year.semesters.autumn,
-      ...activePlan.year.semesters.spring,
-    ];
-    if (units.some((u) => u.dayIds?.includes(day.id))) return;
-    const uid =
-      preUnit && units.some((u) => u.id === preUnit)
-        ? preUnit
-        : (defaultUnitIdFor(units) ?? units[0]?.id);
-    if (!uid) return;
-    addDayToUnit(uid, day.id);
-    const unit = units.find((u) => u.id === uid);
-    const existing = (unit?.dayIds ?? [])
-      .map((id) => days.find((d) => d.id === id)?.scheduledDate)
-      .filter((d): d is string => Boolean(d));
-    const date = suggestDayScheduleInUnit(uid, existing, existing.length);
-    if (date) saveDay({ ...day, scheduledDate: date });
+  // A new Lesson goes on the calendar (?date, else the next free school day).
+  // A Day being regenerated keeps the date it has.
+  const scheduled = (day: Day): Day => {
+    if (day.scheduledDate) return day;
+    const date =
+      preDate && /^\d{4}-\d{2}-\d{2}$/.test(preDate)
+        ? preDate
+        : suggestLessonDate(
+            days
+              .map((d) => d.scheduledDate)
+              .filter((d): d is string => Boolean(d)),
+          );
+    return date ? { ...day, scheduledDate: date } : day;
   };
 
   const launch = async (mode: 'save' | 'live') => {
     if (!builtDay || busy) return;
     setBusy(true);
     try {
-      saveDay(builtDay);
-      assignToUnit(builtDay);
+      const day = scheduled(builtDay);
+      saveDay(day);
       if (mode === 'save') {
         navigate(TeacherRoutes.plan({ classroomId: cid }));
         return;
       }
       const pd = await publishDayToClassroom({
         classroomId: cid,
-        day: builtDay,
+        day,
       });
       const started = await startClassroomSession({
         classroomId: cid,
         publishedDayId: pd.id,
-        initialPhase: builtDay.deck?.slides[0]?.phase ?? 'connectRegulate',
+        initialPhase: day.deck?.slides[0]?.phase ?? 'connectRegulate',
         initialSlideIndex: 0,
       });
       // NO SILENT MOCKS: a local session is never presented as a real one.

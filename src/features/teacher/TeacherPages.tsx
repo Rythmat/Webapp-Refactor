@@ -85,21 +85,15 @@ const PreviewPage = lazy(() =>
   })),
 );
 
-const AnnualPlanPage = lazy(() =>
-  import('@/features/classroom/annual/AnnualPlanPage').then(
-    ({ AnnualPlanPage }) => ({ default: AnnualPlanPage }),
-  ),
-);
-
-const AnnualUnitPage = lazy(() =>
-  import('@/features/classroom/annual/UnitPage').then(({ UnitPage }) => ({
-    default: UnitPage,
-  })),
-);
-
 const AssignmentsPage = lazy(() =>
   import('@/features/classroom/assignments/AssignmentsPage').then(
     ({ AssignmentsPage }) => ({ default: AssignmentsPage }),
+  ),
+);
+
+const AnnualPlanPage = lazy(() =>
+  import('@/features/classroom/annual/AnnualPlanPage').then(
+    ({ AnnualPlanPage }) => ({ default: AnnualPlanPage }),
   ),
 );
 
@@ -183,9 +177,8 @@ export const teacherPages = () => {
                 element: <PlanPage />,
               },
               {
-                // Calendar tab: the Annual Plan renders inside the workspace
-                // shell (hero + tab bar). Its deep Unit page stays a sibling
-                // below so it renders chrome-free.
+                // Calendar tab: renders inside the workspace shell (hero +
+                // tab bar).
                 path: TeacherRoutes.annualPlan.definition,
                 element: <AnnualPlanPage />,
               },
@@ -205,10 +198,6 @@ export const teacherPages = () => {
               {
                 path: TeacherRoutes.deckWizard.definition,
                 element: <DeckWizardPage />,
-              },
-              {
-                path: TeacherRoutes.annualUnit.definition,
-                element: <AnnualUnitPage />,
               },
               {
                 path: TeacherRoutes.dayEditor.definition,

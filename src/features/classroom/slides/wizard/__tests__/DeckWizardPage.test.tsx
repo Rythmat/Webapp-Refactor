@@ -46,16 +46,7 @@ vi.mock('../../../live/useLocalSessionStore', () => ({
 }));
 vi.mock('@/hooks/data', () => ({ useCanEditClassroom: () => true }));
 vi.mock('../../../annual/useAnnualPlan', () => ({
-  useAnnualPlan: () => ({
-    plan: {
-      year: {
-        semesters: { autumn: [{ id: 'unit-1', dayIds: [] }], spring: [] },
-      },
-    },
-    seedFromTemplate: vi.fn(),
-    addDayToUnit: vi.fn(),
-    suggestDayScheduleInUnit: () => null,
-  }),
+  useAnnualPlan: () => ({ suggestLessonDate: () => null }),
 }));
 // The real slides render in the preview; a projector-sized canvas is not
 // what is under test here.

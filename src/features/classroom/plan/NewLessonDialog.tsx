@@ -1,21 +1,18 @@
 /**
- * NewLessonDialog — the single "New Lesson" flow. The teacher picks the Unit the
- * Lesson belongs to (defaulting to the current month's Unit) and a type (Blank /
- * Generate from Cortex), so every Lesson is assigned to a Unit on create.
- * Blank lessons are created + assigned + scheduled here and open in the editor;
- * Generate carries `?unit=` into the lesson generator, which assigns there.
+ * NewLessonDialog — the single "New Lesson" flow. The teacher picks the date
+ * the Lesson goes on the calendar (defaulting to the next free school day) and
+ * a type (Blank / Generate from Cortex). Blank lessons are created + scheduled
+ * here and open in the editor; Generate carries `?date=` into the lesson
+ * generator, which schedules there.
  */
 import { PlusCircle, Waypoints, X, type LucideIcon } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { TeacherRoutes } from '@/constants/routes';
 import { useCanEditClassroom } from '@/hooks/data';
 import { useAnnualPlan } from '../annual/useAnnualPlan';
-import { useThemeBank } from '../content/hooks';
-import type { Unit } from '../types';
 import { newBlankDay } from './newBlankDay';
-import { defaultUnitIdFor } from './useEnsureLessonUnits';
 import { useLocalPlan } from './useLocalPlan';
 
 type LessonType = 'blank' | 'cortex';
@@ -32,56 +29,41 @@ export const NewLessonDialog = ({
   onOpenChange,
 }: NewLessonDialogProps) => {
   const navigate = useNavigate();
-  const { plan, addDayToUnit, suggestDayScheduleInUnit } =
-    useAnnualPlan(classroomId);
-  const { getDay, saveDay: saveDayRaw } = useLocalPlan(classroomId);
+  const { suggestLessonDate } = useAnnualPlan(classroomId);
+  const { listDays, saveDay: saveDayRaw } = useLocalPlan(classroomId);
   const canEdit = useCanEditClassroom(classroomId);
   const saveDay = canEdit ? saveDayRaw : () => {};
-  const { byId } = useThemeBank();
 
-  const units = useMemo<Unit[]>(
-    () =>
-      plan
-        ? [...plan.year.semesters.autumn, ...plan.year.semesters.spring]
-        : [],
-    [plan],
-  );
-
-  const [unitId, setUnitId] = useState('');
+  const [date, setDate] = useState('');
   const [type, setType] = useState<LessonType>('blank');
 
-  // `defaultUnitIdFor` returns undefined when no Unit covers today's month; the
-  // interactive create-flow still needs a default, so fall back to the first Unit.
-  const effectiveUnitId =
-    unitId || defaultUnitIdFor(units) || units[0]?.id || '';
-  const unitLabel = (u: Unit) =>
-    byId(u.theme?.themeId ?? '')?.title.en ?? u.label;
+  // Until the teacher picks a date, default to the next school day that has
+  // no lesson yet. Cleared → the lesson is created unscheduled.
+  const [touched, setTouched] = useState(false);
+  const suggested = isOpen
+    ? suggestLessonDate(
+        listDays(classroomId)
+          .map((d) => d.scheduledDate)
+          .filter((d): d is string => Boolean(d)),
+      )
+    : null;
+  const effectiveDate = touched ? date : (suggested ?? '');
 
-  const scheduleInUnit = (uid: string, dayId: string) => {
-    const unit = units.find((u) => u.id === uid);
-    const existing = (unit?.dayIds ?? [])
-      .map((id) => getDay(id)?.scheduledDate)
-      .filter((d): d is string => Boolean(d));
-    const date = suggestDayScheduleInUnit(uid, existing, existing.length);
-    if (date) {
-      const day = getDay(dayId);
-      if (day) saveDay({ ...day, scheduledDate: date });
-    }
+  const close = () => {
+    setTouched(false);
+    onOpenChange(false);
   };
 
   const handleCreate = () => {
-    const uid = effectiveUnitId;
-    if (!uid) return;
-    onOpenChange(false);
+    close();
     if (type === 'blank') {
       const day = newBlankDay();
-      saveDay(day);
-      addDayToUnit(uid, day.id);
-      scheduleInUnit(uid, day.id);
+      saveDay({ ...day, scheduledDate: effectiveDate || null });
       navigate(TeacherRoutes.dayEditor({ classroomId, dayId: day.id }));
       return;
     }
-    navigate(`${TeacherRoutes.deckWizard({ classroomId })}?unit=${uid}`);
+    const query = effectiveDate ? `?date=${effectiveDate}` : '';
+    navigate(`${TeacherRoutes.deckWizard({ classroomId })}${query}`);
   };
 
   if (!isOpen) return null;
@@ -92,7 +74,7 @@ export const NewLessonDialog = ({
       aria-modal="true"
       aria-label="New lesson"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      onClick={() => onOpenChange(false)}
+      onClick={close}
     >
       <div
         className="flex w-full max-w-md flex-col gap-5 rounded-2xl border border-white/10 bg-[#141416] p-6 text-white shadow-xl"
@@ -102,7 +84,7 @@ export const NewLessonDialog = ({
           <h2 className="text-lg font-medium">New Lesson</h2>
           <button
             type="button"
-            onClick={() => onOpenChange(false)}
+            onClick={close}
             aria-label="Close"
             className="flex h-8 w-8 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/80"
           >
@@ -111,19 +93,16 @@ export const NewLessonDialog = ({
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm text-white/60">Unit</span>
-          <select
-            value={effectiveUnitId}
-            onChange={(e) => setUnitId(e.target.value)}
+          <span className="text-sm text-white/60">Date</span>
+          <input
+            type="date"
+            value={effectiveDate}
+            onChange={(e) => {
+              setTouched(true);
+              setDate(e.target.value);
+            }}
             className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white [color-scheme:dark] focus:border-white/25 focus:outline-none"
-          >
-            {units.length === 0 && <option value="">No units yet</option>}
-            {units.map((u) => (
-              <option key={u.id} value={u.id}>
-                {unitLabel(u)}
-              </option>
-            ))}
-          </select>
+          />
         </label>
 
         <fieldset className="flex flex-col gap-2">
@@ -147,7 +126,7 @@ export const NewLessonDialog = ({
         <div className="flex justify-end gap-2">
           <button
             type="button"
-            onClick={() => onOpenChange(false)}
+            onClick={close}
             className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white"
           >
             Cancel
@@ -155,7 +134,7 @@ export const NewLessonDialog = ({
           <button
             type="button"
             onClick={handleCreate}
-            disabled={!effectiveUnitId}
+            disabled={!canEdit}
             className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85 disabled:opacity-50"
           >
             Create Lesson

@@ -487,18 +487,10 @@ export const TeacherRoutes = {
     prefix: teacherPrefix,
   }),
 
-  /** Annual Plan — Kanban-style calendar of Units. */
+  /** Calendar — the classroom's scheduled lessons by month / week. */
   annualPlan: createRouteDefinition<{
     classroomId: string;
   }>('/classroom/:classroomId/plan/annual', {
-    prefix: teacherPrefix,
-  }),
-
-  /** A single Unit inside the Annual Plan. */
-  annualUnit: createRouteDefinition<{
-    classroomId: string;
-    unitId: string;
-  }>('/classroom/:classroomId/plan/annual/unit/:unitId', {
     prefix: teacherPrefix,
   }),
 

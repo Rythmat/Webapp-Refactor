@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Unit } from '../types';
 import {
-  assignUnitLanes,
   datesBetween,
   distributeAcrossSchoolDays,
   firstWeekdayWeekAnchor,
@@ -13,21 +11,9 @@ import {
   resolveInitialMonth,
   resolveInitialWeek,
   resolveSchoolYear,
-  resolveUnitDateRange,
-  segmentUnitIntoWeek,
-  segmentUnitIntoWeeks,
   stepMonth,
   stepWeek,
 } from './calendarMath';
-
-const makeUnit = (overrides: Partial<Unit> = {}): Unit => ({
-  id: 'unit-test-abcd',
-  label: 'Test Unit',
-  monthIndex: 9,
-  theme: null,
-  weeks: [],
-  ...overrides,
-});
 
 describe('resolveSchoolYear', () => {
   it('places autumn in the current year for Aug–Dec dates', () => {
@@ -114,157 +100,6 @@ describe('getMonthCalendar', () => {
     // Feb 1, 2026 is a Sunday.
     expect(cal.firstWeekday).toBe(0);
     expect(cal.weeks[0][0].getDate()).toBe(1);
-  });
-});
-
-describe('resolveUnitDateRange', () => {
-  const sy = { autumn: 2025, spring: 2026 };
-
-  it('resolves Hispanic Heritage Month cross-month window (Sept 15 – Oct 15)', () => {
-    const unit = makeUnit({
-      monthIndex: 9,
-      dateWindow: { start: '09-15', end: '10-15' },
-    });
-    const range = resolveUnitDateRange(unit, sy);
-    expect(range.start.getFullYear()).toBe(2025);
-    expect(range.start.getMonth()).toBe(8); // September
-    expect(range.start.getDate()).toBe(15);
-    expect(range.end.getFullYear()).toBe(2025);
-    expect(range.end.getMonth()).toBe(9); // October
-    expect(range.end.getDate()).toBe(15);
-  });
-
-  it('resolves Indigenous+DDLM cross-month window (Oct 12 – Nov 02)', () => {
-    const unit = makeUnit({
-      monthIndex: 10,
-      dateWindow: { start: '10-12', end: '11-02' },
-    });
-    const range = resolveUnitDateRange(unit, sy);
-    expect(range.start.getMonth()).toBe(9); // October
-    expect(range.end.getMonth()).toBe(10); // November
-    expect(range.end.getDate()).toBe(2);
-  });
-
-  it('defaults to the full month when no dateWindow is present (Autumn side)', () => {
-    const unit = makeUnit({ monthIndex: 11 });
-    const range = resolveUnitDateRange(unit, sy);
-    expect(range.start.getFullYear()).toBe(2025);
-    expect(range.start.getMonth()).toBe(10); // November
-    expect(range.start.getDate()).toBe(1);
-    expect(range.end.getMonth()).toBe(10); // November
-    expect(range.end.getDate()).toBe(30);
-  });
-
-  it('defaults to the full month for a Spring-side unit (year+1)', () => {
-    const unit = makeUnit({ monthIndex: 2 });
-    const range = resolveUnitDateRange(unit, sy);
-    expect(range.start.getFullYear()).toBe(2026);
-    expect(range.start.getMonth()).toBe(1); // February
-    expect(range.start.getDate()).toBe(1);
-    expect(range.end.getMonth()).toBe(1);
-    expect(range.end.getDate()).toBe(28); // 2026 is non-leap
-  });
-});
-
-describe('segmentUnitIntoWeeks', () => {
-  const sy = { autumn: 2025, spring: 2026 };
-
-  it('segments HHM correctly inside the September 2025 view', () => {
-    const cal = getMonthCalendar(2025, 9);
-    const unit = makeUnit({
-      monthIndex: 9,
-      dateWindow: { start: '09-15', end: '10-15' },
-    });
-    const range = resolveUnitDateRange(unit, sy);
-    const segs = segmentUnitIntoWeeks(range, cal);
-    // Sept 15, 2025 is a Monday. Weekday-only clamp — every segment covers
-    // Mon–Fri (cols 2–6). Sept view weeks (Sunday-first):
-    //  Wk2: Sep 14 – Sep 20   HHM starts Mon 15 → col 2, span 5 (Mon..Fri)
-    //  Wk3: Sep 21 – Sep 27   full week → col 2, span 5
-    //  Wk4: Sep 28 – Oct 4    full weekday overlap → col 2, span 5
-    expect(segs.length).toBeGreaterThanOrEqual(3);
-    const first = segs[0];
-    expect(first.isFirstSegment).toBe(true);
-    expect(first.startColumn).toBe(2); // Monday
-    expect(first.spanColumns).toBe(5); // Mon..Fri
-    // No segment should cover a weekend column: startColumn >= 2 (Mon) and
-    // startColumn + spanColumns - 1 <= 6 (Fri).
-    for (const s of segs) {
-      expect(s.spanColumns).toBeGreaterThan(0);
-      expect(s.startColumn).toBeGreaterThanOrEqual(2);
-      expect(s.startColumn + s.spanColumns - 1).toBeLessThanOrEqual(6);
-    }
-  });
-
-  it('flags only the first-in-time segment as isFirstSegment', () => {
-    const cal = getMonthCalendar(2025, 10);
-    const unit = makeUnit({
-      monthIndex: 9,
-      dateWindow: { start: '09-15', end: '10-15' },
-    });
-    const range = resolveUnitDateRange(unit, sy);
-    const segs = segmentUnitIntoWeeks(range, cal);
-    // Every segment inside the October view is a *continuation* of HHM
-    // (which started in September) — so none should be marked as the first.
-    for (const s of segs) expect(s.isFirstSegment).toBe(false);
-  });
-
-  it('emits one segment for a single-week unit', () => {
-    const cal = getMonthCalendar(2025, 10);
-    const unit = makeUnit({
-      monthIndex: 10,
-      dateWindow: { start: '10-06', end: '10-10' }, // Mon–Fri, one week
-    });
-    const range = resolveUnitDateRange(unit, sy);
-    const segs = segmentUnitIntoWeeks(range, cal);
-    expect(segs).toHaveLength(1);
-    expect(segs[0].startColumn).toBe(2); // Monday
-    expect(segs[0].spanColumns).toBe(5); // Mon..Fri
-    expect(segs[0].isFirstSegment).toBe(true);
-  });
-
-  it('returns no segments when the unit is entirely outside the visible month', () => {
-    const cal = getMonthCalendar(2026, 2); // Feb 2026
-    const unit = makeUnit({ monthIndex: 8 }); // Aug — no dateWindow, defaults to full month
-    const range = resolveUnitDateRange(unit, sy);
-    const segs = segmentUnitIntoWeeks(range, cal);
-    expect(segs).toEqual([]);
-  });
-
-  it('never renders bars over Sat/Sun cells for a weekend-spanning unit', () => {
-    const cal = getMonthCalendar(2025, 10);
-    // Fri Oct 10 → Mon Oct 13 spans Sat Oct 11 + Sun Oct 12.
-    const range = {
-      start: new Date(2025, 9, 10), // Fri
-      end: new Date(2025, 9, 13), // Mon
-    };
-    const segs = segmentUnitIntoWeeks(range, cal);
-    expect(segs).toHaveLength(2);
-    // Week 1: one Fri-only column (col 6, span 1).
-    expect(segs[0].startColumn).toBe(6);
-    expect(segs[0].spanColumns).toBe(1);
-    expect(segs[0].isFirstSegment).toBe(true);
-    // Week 2: one Mon-only column (col 2, span 1).
-    expect(segs[1].startColumn).toBe(2);
-    expect(segs[1].spanColumns).toBe(1);
-    expect(segs[1].isFirstSegment).toBe(false);
-  });
-
-  it('a 2-week Mon–Fri run emits two Mon–Fri bars, no weekend cells', () => {
-    const cal = getMonthCalendar(2025, 10);
-    // Mon Oct 6 → Fri Oct 17: 10 school days across 2 weeks.
-    const range = {
-      start: new Date(2025, 9, 6),
-      end: new Date(2025, 9, 17),
-    };
-    const segs = segmentUnitIntoWeeks(range, cal);
-    expect(segs).toHaveLength(2);
-    for (const s of segs) {
-      expect(s.startColumn).toBe(2); // Monday
-      expect(s.spanColumns).toBe(5); // Mon..Fri
-    }
-    expect(segs[0].isFirstSegment).toBe(true);
-    expect(segs[1].isFirstSegment).toBe(false);
   });
 });
 
@@ -422,63 +257,6 @@ describe('getNextNSchoolDays', () => {
   });
 });
 
-describe('assignUnitLanes', () => {
-  it('puts non-overlapping units all in lane 0', () => {
-    const lanes = assignUnitLanes([
-      { id: 'a', start: 0, end: 10 },
-      { id: 'b', start: 20, end: 30 },
-      { id: 'c', start: 40, end: 50 },
-    ]);
-    expect(lanes.get('a')).toBe(0);
-    expect(lanes.get('b')).toBe(0);
-    expect(lanes.get('c')).toBe(0);
-  });
-
-  it('splits two overlapping units into lanes 0 and 1', () => {
-    const lanes = assignUnitLanes([
-      { id: 'a', start: 0, end: 20 },
-      { id: 'b', start: 10, end: 30 },
-    ]);
-    expect(lanes.get('a')).toBe(0);
-    expect(lanes.get('b')).toBe(1);
-  });
-
-  it('gives three mutually-overlapping units lanes 0/1/2', () => {
-    const lanes = assignUnitLanes([
-      { id: 'a', start: 0, end: 30 },
-      { id: 'b', start: 10, end: 40 },
-      { id: 'c', start: 20, end: 50 },
-    ]);
-    expect([lanes.get('a'), lanes.get('b'), lanes.get('c')]).toEqual([0, 1, 2]);
-  });
-
-  it('reuses lane 0 once an earlier unit has ended', () => {
-    // a (0-10) and b (20-30) don't overlap → both lane 0; c (5-25) overlaps
-    // both, so it takes lane 1.
-    const lanes = assignUnitLanes([
-      { id: 'a', start: 0, end: 10 },
-      { id: 'b', start: 20, end: 30 },
-      { id: 'c', start: 5, end: 25 },
-    ]);
-    expect(lanes.get('a')).toBe(0);
-    expect(lanes.get('b')).toBe(0);
-    expect(lanes.get('c')).toBe(1);
-  });
-
-  it('treats touching ranges (a.end === b.start) as overlapping', () => {
-    const lanes = assignUnitLanes([
-      { id: 'a', start: 0, end: 10 },
-      { id: 'b', start: 10, end: 20 },
-    ]);
-    expect(lanes.get('a')).toBe(0);
-    expect(lanes.get('b')).toBe(1);
-  });
-
-  it('handles an empty input', () => {
-    expect(assignUnitLanes([]).size).toBe(0);
-  });
-});
-
 describe('getWeekDays', () => {
   it('returns the 7 Sunday-first dates of the containing week', () => {
     // Oct 1, 2025 is a Wednesday; its week runs Sun Sep 28 → Sat Oct 4.
@@ -572,81 +350,6 @@ describe('resolveInitialWeek', () => {
     expect(wk.getFullYear()).toBe(2025);
     expect(wk.getMonth()).toBe(6); // July
     expect(wk.getDate()).toBe(27);
-  });
-});
-
-describe('segmentUnitIntoWeek', () => {
-  it('spans Mon–Fri (cols 2–6) for a full-week unit', () => {
-    const week = getWeekDays(new Date(2025, 9, 8)); // Sun Oct 5 → Sat Oct 11
-    const seg = segmentUnitIntoWeek(
-      { start: new Date(2025, 9, 6), end: new Date(2025, 9, 10) }, // Mon–Fri
-      week,
-    );
-    expect(seg).not.toBeNull();
-    expect(seg?.startColumn).toBe(2);
-    expect(seg?.spanColumns).toBe(5);
-    expect(seg?.isFirstSegment).toBe(true);
-  });
-
-  it('returns null when the unit does not touch the week', () => {
-    const week = getWeekDays(new Date(2025, 9, 8));
-    const seg = segmentUnitIntoWeek(
-      { start: new Date(2025, 10, 3), end: new Date(2025, 10, 7) }, // November
-      week,
-    );
-    expect(seg).toBeNull();
-  });
-
-  it('clamps to a single Fri column for a weekend-spanning unit start', () => {
-    const week = getWeekDays(new Date(2025, 9, 8)); // week of Oct 5
-    // Fri Oct 10 → Mon Oct 13.
-    const range = { start: new Date(2025, 9, 10), end: new Date(2025, 9, 13) };
-    const seg = segmentUnitIntoWeek(range, week);
-    expect(seg?.startColumn).toBe(6); // Friday
-    expect(seg?.spanColumns).toBe(1);
-    expect(seg?.isFirstSegment).toBe(true);
-  });
-
-  it('marks the continuation week as not-first', () => {
-    const week = getWeekDays(new Date(2025, 9, 15)); // week of Oct 12
-    const range = { start: new Date(2025, 9, 10), end: new Date(2025, 9, 13) };
-    const seg = segmentUnitIntoWeek(range, week);
-    expect(seg?.startColumn).toBe(2); // Monday Oct 13
-    expect(seg?.spanColumns).toBe(1);
-    expect(seg?.isFirstSegment).toBe(false);
-  });
-
-  it('flags a Saturday-start unit as first in the following week', () => {
-    // Range starts Sat Oct 11 → Wed Oct 15. The week of Oct 5 returns null
-    // (Sat > Fri); the following week (Oct 12) is the first to render it.
-    const range = { start: new Date(2025, 9, 11), end: new Date(2025, 9, 15) };
-    expect(
-      segmentUnitIntoWeek(range, getWeekDays(new Date(2025, 9, 8))),
-    ).toBeNull();
-    const seg = segmentUnitIntoWeek(range, getWeekDays(new Date(2025, 9, 15)));
-    expect(seg?.startColumn).toBe(2); // clamped to Monday Oct 13
-    expect(seg?.isFirstSegment).toBe(true);
-  });
-
-  it('flags a Sunday-start unit as first in its own week', () => {
-    // Range starts Sun Oct 12 → Wed Oct 15, all inside the week of Oct 12.
-    const range = { start: new Date(2025, 9, 12), end: new Date(2025, 9, 15) };
-    const seg = segmentUnitIntoWeek(range, getWeekDays(new Date(2025, 9, 15)));
-    expect(seg?.startColumn).toBe(2); // clamped to Monday Oct 13
-    expect(seg?.isFirstSegment).toBe(true);
-  });
-
-  it('stays consistent with segmentUnitIntoWeeks across a month', () => {
-    const cal = getMonthCalendar(2025, 10);
-    const range = { start: new Date(2025, 9, 6), end: new Date(2025, 9, 17) };
-    const viaMonth = segmentUnitIntoWeeks(range, cal);
-    const viaWeek = cal.weeks
-      .map((week, weekIndex) => {
-        const seg = segmentUnitIntoWeek(range, week);
-        return seg ? { ...seg, weekIndex } : null;
-      })
-      .filter((s): s is NonNullable<typeof s> => s !== null);
-    expect(viaWeek).toEqual(viaMonth);
   });
 });
 

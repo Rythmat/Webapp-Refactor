@@ -755,9 +755,14 @@ export function probeChordIdCollision() {
   if (before.length === 0) return { regions: 0, newId: null, collides: false };
   const lastEnd = Math.max(...before.map((r) => r.endTick));
   const known = new Set(before.map((r) => r.id));
-  store
-    .getState()
-    .insertChordRegion(lastEnd + 1920, 'Probe', 'Probe', [128, 128, 128]);
+  // The probe is the harness's, not the student's: no undo step
+  // (milestone 1.9's history; older builds have no handle).
+  const unrecorded = window.__MA_HISTORY__?.withoutHistory ?? ((fn) => fn());
+  unrecorded(() =>
+    store
+      .getState()
+      .insertChordRegion(lastEnd + 1920, 'Probe', 'Probe', [128, 128, 128]),
+  );
   const added = store
     .getState()
     .chordRegions.filter((r) => r.name === 'Probe' && r.startTick > lastEnd);

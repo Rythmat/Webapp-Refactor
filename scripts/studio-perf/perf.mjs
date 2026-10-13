@@ -977,8 +977,12 @@ function installPianoHelpers() {
     let root = selectTool.parentElement;
     let grid = null;
     while (root && !grid) {
-      grid = [...root.querySelectorAll('canvas')].find((canvas) =>
-        canvas.parentElement?.classList.contains('overflow-auto'),
+      // The hit surface, not the paint canvas drawn behind it since
+      // milestone 1.8 (aria-hidden, no pointer events).
+      grid = [...root.querySelectorAll('canvas')].find(
+        (canvas) =>
+          canvas.parentElement?.classList.contains('overflow-auto') &&
+          canvas.getAttribute('aria-hidden') !== 'true',
       );
       if (!grid) root = root.parentElement;
     }
@@ -1146,7 +1150,13 @@ function watchGesture(target) {
       .find((t) => t.id === target.trackId)
       ?.midiClips.find((c) => c.id === target.clipId);
   const initial = read(store.getState());
+  // The undo history's steps (milestone 1.9): an edit still settling from
+  // before the gesture is made a step first, so it isn't counted as the
+  // gesture's.
+  const history = window.__MA_HISTORY__;
+  history?.flush();
   const watch = {
+    historyStart: history ? history.pushed() : null,
     writes: 0,
     keys: {},
     targetWrites: 0,
@@ -1204,7 +1214,29 @@ function finishGesture() {
     },
     clipWrites: watch.clipWrites,
     otherTracksChanged: [...watch.otherTracks],
+    undoSteps:
+      watch.historyStart === null
+        ? null
+        : window.__MA_HISTORY__.pushed() - watch.historyStart,
   };
+}
+
+/**
+ * Milestone 1.9's exit check for one gesture: it wrote its target once and
+ * made one undo step. `what` names the target ('volume', 'clip').
+ */
+function gestureTargets(gesture, i, what, targetWrites) {
+  const problems = [];
+  if (targetWrites !== 1) {
+    problems.push(
+      `gesture ${i} wrote the ${what} ${targetWrites} times (target: once, on release)`,
+    );
+  }
+  const steps = gesture.watch.undoSteps;
+  if (steps !== null && steps !== 1) {
+    problems.push(`gesture ${i} made ${steps} undo steps (target: 1)`);
+  }
+  return problems;
 }
 
 /* ── Network accounting for cold loads ─────────────────────────────────── */
@@ -1380,6 +1412,7 @@ function dragStats(gestures) {
     commitsPerSecond: of((g) => g.probes.reactCommitsPerSecond),
     writesPerMove: of((g) => g.perMove.storeWrites),
     writesPerGesture: of((g) => g.storeWrites),
+    undoStepsPerGesture: of((g) => g.watch.undoSteps ?? 0),
     commitsPerMove: of((g) => g.perMove.reactCommits),
     longTaskMsPerMove: of((g) => g.perMove.longTaskMs),
     frameP95: of((g) => g.frameP95),
@@ -1680,6 +1713,9 @@ async function faderDrag({ browser, base, profile, windows }) {
       if (!gesture.watch.target.changed) {
         problems.push(`gesture ${i} never changed ${control.track}'s volume`);
       }
+      problems.push(
+        ...gestureTargets(gesture, i, 'volume', gesture.watch.target.writes),
+      );
     }
     return {
       setup: session.setup,
@@ -1824,6 +1860,9 @@ async function noteDrag({ browser, base, profile, windows }) {
       if (!gesture.watch.target.changed) {
         problems.push(`gesture ${i} never moved the grabbed note`);
       }
+      problems.push(
+        ...gestureTargets(gesture, i, 'clip', gesture.watch.clipWrites),
+      );
     }
     return {
       setup: session.setup,
@@ -3574,6 +3613,7 @@ function dragTable(runs, target) {
     'React commits/s',
     'store writes / move',
     'store writes / gesture',
+    'undo steps / gesture',
     'React commits / move',
     'long-task ms / move',
     'frame p95 (ms)',
@@ -3595,6 +3635,7 @@ function dragTable(runs, target) {
       spreadCell(s.commitsPerSecond),
       spreadCell(s.writesPerMove, 2),
       spreadCell(s.writesPerGesture, 0),
+      s.undoStepsPerGesture ? spreadCell(s.undoStepsPerGesture, 0) : '–',
       spreadCell(s.commitsPerMove, 2),
       spreadCell(s.longTaskMsPerMove),
       spreadCell(s.frameP95),

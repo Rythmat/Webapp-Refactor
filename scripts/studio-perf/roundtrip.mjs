@@ -1690,10 +1690,19 @@ async function spaReturn(run) {
           window.__MA_STORE__.getState().tracks.find((t) => t.id === id)
             ?.volume ?? null;
         const canUndo = history.smartCanUndo();
+        // The steps undo holds, oldest first (milestone 1.9's history).
+        const steps = window.__MA_HISTORY__?.labels() ?? null;
         const undid = canUndo ? history.smartUndo() : false;
         const afterUndo = volume();
         const redid = undid ? history.smartRedo() : false;
-        return { canUndo, undid, afterUndo, redid, afterRedo: volume() };
+        return {
+          canUndo,
+          steps,
+          undid,
+          afterUndo,
+          redid,
+          afterRedo: volume(),
+        };
       },
       { path: UNDO_MODULE, id: sink.trackIds.lead },
     );

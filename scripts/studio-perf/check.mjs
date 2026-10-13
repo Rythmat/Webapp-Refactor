@@ -163,6 +163,15 @@ const UNIT_TESTS = [
   'src/components/songLibrary/__tests__/studentPath.characterization.test.tsx',
   'src/features/admin/content/songEditor/__tests__/SongPageEditor.test.tsx',
   'src/components/ClassroomLayout/studio/__tests__/StudioNewProject.test.tsx',
+  // Milestone 1.9: edit transactions and the undo history.
+  'src/daw/store/__tests__/history.test.ts',
+  'src/daw/store/__tests__/undoMiddleware.test.ts',
+  'src/daw/store/__tests__/undoTracking.test.ts',
+  'src/daw/hooks/__tests__/useContinuousControl.test.tsx',
+  'src/daw/collab/__tests__/collabUndo.test.ts',
+  'src/daw/engine/__tests__/trackReconciler.test.ts',
+  'src/daw/audio/__tests__/effectChainPreview.test.ts',
+  'src/daw/components/PianoRoll/__tests__/PianoRoll.gesture.test.tsx',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */

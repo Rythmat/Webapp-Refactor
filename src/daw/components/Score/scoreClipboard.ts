@@ -1,7 +1,7 @@
 import type { MidiNoteEvent } from '@prism/engine';
 import { mintNoteId } from '@/daw/model/noteIds';
 import { noteKey, parseNoteId } from '@/daw/model/noteKeys';
-import type { Track } from '@/daw/store/tracksSlice';
+import type { MidiClip, Track } from '@/daw/store/tracksSlice';
 import type { ArticulationKind } from './noteEditor';
 
 // ── Copy and paste ─────────────────────────────────────────────────────────
@@ -143,6 +143,12 @@ export interface ClipWrite {
   trackId: string;
   clipId: string;
   events: MidiNoteEvent[];
+  /**
+   * Set for a clip the paste makes: the part had no clip at or before where
+   * the notes land, so they go into a new clip starting there (its song
+   * tick) rather than piling onto the first clip's first tick (score-14).
+   */
+  newClipStartTick?: number;
 }
 
 /**
@@ -160,16 +166,23 @@ export function pasteNotes(
 ): { writes: ClipWrite[]; noteIds: string[]; removedIds: string[] } {
   const byClip = new Map<
     string,
-    { trackId: string; clipId: string; events: MidiNoteEvent[] }
+    {
+      trackId: string;
+      clipId: string;
+      events: MidiNoteEvent[];
+      newClipStartTick?: number;
+    }
   >();
+  /** The clip a paste makes on a track with nothing at or before the target. */
+  const newClips = new Map<string, MidiClip>();
   const noteIds: string[] = [];
   const removedIds: string[] = [];
 
-  const clipFor = (trackId: string, tick: number) => {
+  const clipFor = (trackId: string, tick: number): MidiClip | null => {
     const track = tracks.find((t) => t.id === trackId);
-    if (!track || track.midiClips.length === 0) return null;
+    if (!track) return null;
     // The clip covering the tick, else the last one starting before it, else
-    // the first clip of the track.
+    // a new clip from the paste target on (one per track).
     const covering = track.midiClips.find(
       (c) =>
         tick >= c.startTick &&
@@ -184,7 +197,17 @@ export function pasteNotes(
     const before = [...track.midiClips]
       .filter((c) => c.startTick <= tick)
       .sort((a, b) => b.startTick - a.startTick)[0];
-    return covering ?? before ?? track.midiClips[0];
+    if (covering ?? before) return covering ?? before;
+    let made = newClips.get(trackId);
+    if (!made) {
+      made = {
+        id: `clip-paste-${crypto.randomUUID().slice(0, 8)}`,
+        startTick: Math.max(0, target.tick),
+        events: [],
+      };
+      newClips.set(trackId, made);
+    }
+    return made;
   };
 
   const touch = (trackId: string, clipId: string) => {
@@ -193,10 +216,14 @@ export function pasteNotes(
     if (existing) return existing;
     const track = tracks.find((t) => t.id === trackId);
     const clip = track?.midiClips.find((c) => c.id === clipId);
+    const made = newClips.get(trackId);
     const entry = {
       trackId,
       clipId,
       events: [...(clip?.events ?? [])],
+      ...(!clip && made?.id === clipId
+        ? { newClipStartTick: made.startTick }
+        : {}),
     };
     byClip.set(key, entry);
     return entry;

@@ -22,8 +22,12 @@ const DEFAULT_FULL_SYSTEM_COUNT = 4;
 const MIN_MEASURE_WIDTH = 110;
 
 interface LeadSheetStaffProps {
+  /**
+   * The system's measures, one per chart slot. Each measure's `index` is
+   * its real bar, which every mark is stored by; a multi-bar rest stands for
+   * measureRestMap[index] bars.
+   */
   measures: Measure[];
-  startIndex: number;
   fullSystemCount?: number;
   chordFormat: ChordFormat;
   selectedChordId: string | null;
@@ -72,7 +76,6 @@ interface LeadSheetStaffProps {
  */
 export const LeadSheetStaff = memo(function LeadSheetStaff({
   measures,
-  startIndex,
   fullSystemCount,
   chordFormat,
   selectedChordId,
@@ -125,10 +128,14 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
       style={{ display: 'block', color: 'var(--color-text)' }}
     >
       {measures.map((measure, i) => {
-        const globalIdx = startIndex + i;
+        // The real bar: after a multi-bar rest it is ahead of the slot.
+        const globalIdx = measure.index;
+        const span = Math.max(1, measureRestMap?.[globalIdx] ?? 1);
         const section = sections.find((s) => s.measureIdx === globalIdx);
         const isRepeatStart = repeats.some((r) => r.startMeasure === globalIdx);
-        const isRepeatEnd = repeats.some((r) => r.endMeasure === globalIdx);
+        const isRepeatEnd = repeats.some(
+          (r) => r.endMeasure >= globalIdx && r.endMeasure < globalIdx + span,
+        );
 
         return (
           <LeadSheetMeasure
@@ -161,7 +168,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
             autoEditRegionId={autoEditRegionId}
             isSystemStart={i === 0}
             isLastMeasure={
-              measureCount != null && globalIdx === measureCount - 1
+              measureCount != null && globalIdx + span === measureCount
             }
           />
         );
@@ -171,7 +178,10 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
       {playheadTicksPerMeasure != null && (
         <SystemPlayhead
           ticksPerMeasure={playheadTicksPerMeasure}
-          startIndex={startIndex}
+          slots={measures.map((m) => ({
+            realIndex: m.index,
+            bars: Math.max(1, measureRestMap?.[m.index] ?? 1),
+          }))}
           measureWidth={measureWidth}
         />
       )}
@@ -179,21 +189,43 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   );
 });
 
+/**
+ * Where song tick `tick` sits across a system's slots, in slot widths from
+ * its left edge: through a multi-bar rest the line moves at its bars' pace.
+ */
+export function playheadSlotOffset(
+  tick: number,
+  ticksPerMeasure: number,
+  slots: ReadonlyArray<{ realIndex: number; bars: number }>,
+): number {
+  const bar = tick / ticksPerMeasure;
+  for (let i = 0; i < slots.length; i++) {
+    const s = slots[i];
+    if (bar < s.realIndex + s.bars) {
+      return i + Math.max(0, bar - s.realIndex) / s.bars;
+    }
+  }
+  const last = slots[slots.length - 1];
+  return last ? slots.length + (bar - last.realIndex - last.bars) : 0;
+}
+
 /** The playhead line across one system, moved through a ref. */
 function SystemPlayhead({
   ticksPerMeasure,
-  startIndex,
+  slots,
   measureWidth,
 }: {
   ticksPerMeasure: number;
-  startIndex: number;
+  slots: ReadonlyArray<{ realIndex: number; bars: number }>;
   measureWidth: number;
 }) {
   const lineRef = useRef<SVGLineElement | null>(null);
   usePlayheadEffect((tick) => {
     const line = lineRef.current;
     if (!line) return;
-    const x = String((tick / ticksPerMeasure - startIndex) * measureWidth);
+    const x = String(
+      playheadSlotOffset(tick, ticksPerMeasure, slots) * measureWidth,
+    );
     if (line.getAttribute('x1') === x) return;
     line.setAttribute('x1', x);
     line.setAttribute('x2', x);

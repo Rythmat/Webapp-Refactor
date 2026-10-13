@@ -135,6 +135,68 @@ describe('chartFromStudio', () => {
     expect(bars[2].chords[0].chordName).toBe('G');
   });
 
+  it('reads every mark after a rest at its real bar (leadsheet-05)', () => {
+    // Eight bars, a two-bar rest at bar 1, the Chorus mark on real bar 4 and
+    // a fermata on real bar 5. On the chart the rest is one slot, so bar 4
+    // is the chart's fourth place, not its fifth.
+    const chart = chartFromStudio(
+      source({
+        chordRegions: [
+          region(0, 1, '1 maj', 'G maj'),
+          region(3, 1, '4 maj', 'C maj'),
+          region(4, 1, '5 dom7', 'D dom7'),
+          region(5, 1, '1 maj', 'G maj', 3),
+        ],
+        measureRestMap: { 1: 2 },
+        measureFermatas: [5],
+        leadSheetSections: [{ measureIdx: 4, label: 'Chorus' }],
+        leadSheetRepeats: [{ startMeasure: 4, endMeasure: 5 }],
+      }),
+    );
+    expect(chart.sections.map((sec) => sec.label)).toEqual(['', 'Chorus']);
+    const [verse, chorus] = chart.sections;
+    expect(verse.bars.map((b) => b.restBars ?? b.chords[0]?.chordName)).toEqual(
+      ['G', 2, 'C'],
+    );
+    expect(chorus.bars[0].chords[0].chordName).toBe('D7');
+    expect(chorus.bars[0].repeatStart).toBe(true);
+    expect(chorus.bars[1]).toMatchObject({ fermata: true, repeatEnd: true });
+  });
+
+  it("times the chords in the project's metre: a 3/4 bar is three beats", () => {
+    const BAR_34 = 1440;
+    const chart = chartFromStudio(
+      source({
+        timeSignature: [3, 4],
+        chordRegions: [
+          {
+            ...region(0, 1, '1 maj', 'G maj'),
+            startTick: 0,
+            endTick: BAR_34,
+          },
+          {
+            ...region(1, 1, '4 maj', 'C maj'),
+            startTick: BAR_34,
+            endTick: BAR_34 + 960,
+          },
+          {
+            ...region(1, 3, '5 maj', 'D maj'),
+            startTick: BAR_34 + 960,
+            endTick: 2 * BAR_34,
+          },
+        ],
+      }),
+    );
+    const [first, second] = chart.sections[0].bars;
+    expect(first.chords).toEqual([
+      expect.objectContaining({ beat: 1, duration: 3 }),
+    ]);
+    expect(second.chords.map((c) => [c.beat, c.duration])).toEqual([
+      [1, 2],
+      [3, 1],
+    ]);
+  });
+
   it('keeps a line width the player set throughout a section', () => {
     expect(
       chartFromStudio(source({ measureRowSizes: [2, 2] })).sections[0]

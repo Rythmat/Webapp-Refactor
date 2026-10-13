@@ -31,6 +31,7 @@ import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
+import { timeSignatureOf } from '@/daw/time/timeModel';
 import { openSession } from '@/daw/session/openSession';
 import { getSessionDeps } from '@/daw/session/sessionDeps';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
@@ -298,6 +299,8 @@ export function FileMenu() {
         bpm: state.bpm,
         rootNote: state.rootNote,
         mode: state.mode,
+        timeSignature: timeSignatureOf(state),
+        extraBars: state.leadSheetBars,
       },
       `${state.projectName}.musicxml`,
     );

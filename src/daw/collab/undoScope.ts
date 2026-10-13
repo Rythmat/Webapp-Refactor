@@ -55,6 +55,7 @@ export const COLLAB_UNDO_TYPES: {
   measureRowSizes: null,
   measureRestMap: null,
   measureFermatas: null,
+  leadSheetBars: null,
   scoreSpellings: null,
   scoreSystemBreaks: null,
   scorePageBreaks: null,

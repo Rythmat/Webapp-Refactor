@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand';
 import type { MidiNoteEvent } from '@prism/engine';
 import type { AllSlices } from './index';
+import { midiClipLength } from '@/daw/time/timeModel';
 
 // ── Transport Slice ─────────────────────────────────────────────────────
 // Controls playback state, tempo, position, metronome, and loop region.
@@ -243,14 +244,12 @@ export const createTransportSlice: StateCreator<
           }
           const midiClip = track.midiClips.find((c) => c.id === selectedClipId);
           if (midiClip) {
-            const maxTick = midiClip.events.reduce(
-              (max, ev) => Math.max(max, ev.startTick + ev.durationTicks),
-              0,
-            );
+            // The clip's box, its set length included, as the timeline
+            // draws it.
             return {
               loopEnabled: true,
               loopStart: midiClip.startTick,
-              loopEnd: midiClip.startTick + maxTick,
+              loopEnd: midiClip.startTick + midiClipLength(midiClip),
             };
           }
         }

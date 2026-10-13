@@ -8,6 +8,7 @@
 import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
 import { replaceChordRegionsInRange, type ChordRegion } from './prismSlice';
+import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import {
   analyzeChordStyle,
   extractGraphSeed,
@@ -159,7 +160,9 @@ export const createPrismSuggestionSlice: StateCreator<
     const suggestion = prismSuggestSets[prismSuggestActiveIdx];
     if (!suggestion || suggestion.chords.length === 0) return;
 
-    const ticksPerMeasure = 1920;
+    // Bars of the project's metre: four of them in 3/4 are 5,760 ticks, not
+    // four 4/4 bars landing off the bar lines (prism-ui-06).
+    const ticksPerMeasure = ticksPerBar(timeSignatureOf(get()));
     const totalTicks = prismSuggestMeasures * ticksPerMeasure;
     const ticksPerChord = totalTicks / suggestion.chords.length;
     const insertEnd = prismSuggestInsertTick + totalTicks;

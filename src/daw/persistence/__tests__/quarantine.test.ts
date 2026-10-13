@@ -7,6 +7,7 @@
  * Run: npx vitest run src/daw/persistence/__tests__/quarantine.test.ts
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { SESSION_SCHEMA_VERSION } from '../projectDocument/codec';
 import { migrateSession } from '../projectDocument/migrations';
 import {
   BACKUP_LIFETIME_DAYS,
@@ -46,8 +47,8 @@ const fromLater = (name: string) =>
   JSON.stringify({
     ...serializeSession(),
     timestamp: 1,
-    schema: 4,
-    compat: 4,
+    schema: SESSION_SCHEMA_VERSION + 1,
+    compat: SESSION_SCHEMA_VERSION + 1,
     name,
   });
 
@@ -252,7 +253,11 @@ describe('a quarantined draft this build can read now', () => {
     quarantineDraft(JSON.stringify(draft) + ' ', 'b', later(3));
     const found = recoverableDrafts('a');
     expect(found.map((d) => d.projectName)).toEqual(['Kept One', 'Back Again']);
-    expect(found.every((d) => d.result.ok && d.result.from === 3)).toBe(true);
+    expect(
+      found.every(
+        (d) => d.result.ok && d.result.from === SESSION_SCHEMA_VERSION,
+      ),
+    ).toBe(true);
   });
 
   it('never when it has no owner', () => {

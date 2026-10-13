@@ -26,6 +26,7 @@ import { parseNoteId } from '@/daw/model/noteKeys';
 import { SCORE_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import { studioPlayheadSource } from '@/daw/engine/studioPlayheadSource';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
 import { withTransaction } from '@/daw/store/history';
@@ -1075,7 +1076,9 @@ export function useScoreEditing({
     () => new Map(scoreParts.map((part, index) => [index, part.id])),
     [scoreParts],
   );
-  const measureTicks = parts[0]?.score.ticksPerMeasure ?? 1920;
+  // The project's bar while there are no parts to read it from.
+  const projectBarTicks = useStore((s) => ticksPerBar(timeSignatureOf(s)));
+  const measureTicks = parts[0]?.score.ticksPerMeasure ?? projectBarTicks;
 
   const visibleChordParts = useMemo(
     () =>
@@ -1458,7 +1461,15 @@ export function useScoreEditing({
       trackIdByPart,
     );
     for (const write of writes) {
-      updateMidiClipEvents(write.trackId, write.clipId, write.events);
+      if (write.newClipStartTick !== undefined) {
+        useStore.getState().addMidiClip(write.trackId, {
+          id: write.clipId,
+          startTick: write.newClipStartTick,
+          events: write.events,
+        });
+      } else {
+        updateMidiClipEvents(write.trackId, write.clipId, write.events);
+      }
     }
     // The notes a measure paste cleared take their marks with them, so none
     // carries over to a pasted note that lands where one of them sat.

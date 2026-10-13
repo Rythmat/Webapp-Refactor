@@ -306,6 +306,7 @@ const STORE_SPECS = {
   measureRowSizes: doc('notation', null, 'document', SHARED_UNDO),
   measureRestMap: doc('notation', null, 'document', SHARED_UNDO),
   measureFermatas: doc('notation', null, 'document', SHARED_UNDO),
+  leadSheetBars: doc('notation', null, 'document', SHARED_UNDO),
   leadSheetChordFormat: doc('notation', 'hybrid', 'document', SHARED),
   leadSheetSections: doc('notation', () => [], 'document', SHARED_UNDO),
   leadSheetRepeats: doc('notation', () => [], 'document', SHARED_UNDO),

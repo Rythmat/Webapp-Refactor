@@ -556,6 +556,7 @@ export async function fingerprintPage() {
   notation('measureRowSizes', s.measureRowSizes);
   notation('measureRestMap', s.measureRestMap);
   notation('measureFermatas', s.measureFermatas);
+  notation('leadSheetBars', s.leadSheetBars);
   notation('leadSheetSections', s.leadSheetSections);
   notation('leadSheetRepeats', s.leadSheetRepeats);
   notation('leadSheetChordFormat', s.leadSheetChordFormat);

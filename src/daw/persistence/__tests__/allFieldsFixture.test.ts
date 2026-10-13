@@ -1,13 +1,14 @@
 // @vitest-environment jsdom
 /**
- * Writes fixtures/v3-all-fields/all-fields.json: a v3 draft holding a value
- * other than its default for every local registry field, which codecV3.test
- * and v3Shape.test read (see there for what it must hold).
+ * Writes fixtures/v4-all-fields/all-fields.json: a draft in today's format
+ * (schema 4) holding a value other than its default for every local
+ * registry field, which codecV3.test and draftShape.test read (see there for
+ * what it must hold).
  *
  * Skipped unless WRITE_FIXTURES=1. The fixture is the format, so rewrite it
  * only for a new registry field that needs a value in it, or with a
  * SESSION_SCHEMA_VERSION bump (keeping a copy of the old one for the
- * migration from it).
+ * migration from it: fixtures/v3-all-fields is the v3 one).
  *
  * Run: WRITE_FIXTURES=1 npx vitest run src/daw/persistence/__tests__/allFieldsFixture.test.ts
  */
@@ -30,7 +31,7 @@ import { migrateSession } from '../projectDocument/migrations';
 
 const FILE = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v3-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v4-all-fields/all-fields.json',
 );
 
 const effects = (patch: Record<string, unknown> = {}) =>
@@ -375,6 +376,7 @@ function allFieldsProject(): ProjectSnapshot {
     measureRowSizes: [4, 5, 4],
     measureRestMap: { 12: 2 },
     measureFermatas: [15],
+    leadSheetBars: 24,
     leadSheetChordFormat: 'jazz',
     leadSheetSections: [
       { measureIdx: 0, label: 'A' },

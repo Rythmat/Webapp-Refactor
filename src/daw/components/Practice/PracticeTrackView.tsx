@@ -57,7 +57,6 @@ const TEMPO_MIN = 50;
 const TEMPO_MAX = 160;
 /** A Theory Practice Track always shows C3–B5; a genre one is sized to its part. */
 const THEORY_KEYBOARD = { startC: 4, endC: 6 };
-const BAR_TICKS = 1920;
 const ROOT_POSITION = { id: 'root', label: 'Root Position' };
 /** E2: where bass notes are lit when the student's writing has no bass of its own. */
 const BASS_FLOOR_FALLBACK = 40;
@@ -203,7 +202,9 @@ export function PracticeTrackView({
         : chordRegions,
     [chordRegions, genre],
   );
-  const cycleTicks = cycleRegions.length * BAR_TICKS;
+  // The cycle ends where its last chord does: in the track's own metre,
+  // where one chord to a 4/4 bar would drift in 3/4 or 6/8.
+  const cycleTicks = cycleRegions.at(-1)?.endTick ?? 0;
 
   // ── The chords, when the student plays them ────────────────────────────────
 

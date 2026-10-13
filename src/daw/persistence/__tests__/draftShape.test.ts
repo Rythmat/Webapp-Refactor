@@ -1,22 +1,23 @@
 // @vitest-environment jsdom
 /**
- * The shape of a v3 draft, held still: every key path an encoded all-fields
- * session holds (fixtures/v3-all-fields, re-encoded by today's codec), and
+ * The shape of today's draft, held still: every key path an encoded
+ * all-fields session holds (fixtures/v4-all-fields, re-encoded by today's
+ * codec), and
  * the keys of a draft track, clip and settings blob. A draft that gains,
  * loses or moves a field fails here, and the fix is never to update the
- * lists alone: bump SESSION_SCHEMA_VERSION, add a migration from v3 and new
- * fixtures (allFieldsFixture.test.ts writes the all-fields one), and raise
+ * lists alone: bump SESSION_SCHEMA_VERSION, add a migration and new fixtures
+ * (allFieldsFixture.test.ts writes the all-fields one), and raise
  * SESSION_COMPAT_VERSION too when a field changes what it means. Milestones
  * known to need it: 1.13b (the Oracle patch moves out of the track's
- * settings), 1.16 (the per-project chord-prompt flag), and 1.10 if measure
- * indices change meaning.
+ * settings), 1.16 (the per-project chord-prompt flag). Schema 4 was 1.10's
+ * (leadSheetBars, a chord region's sourceClipId).
  *
  * An array's entries share one path (`[]`). The instrument and effect blobs
  * inside it are their owners' (each loads older versions of itself, and the
  * effects are backfilled from their defaults), so only where they sit is
  * held here.
  *
- * Run: npx vitest run src/daw/persistence/__tests__/v3Shape.test.ts
+ * Run: npx vitest run src/daw/persistence/__tests__/draftShape.test.ts
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -29,7 +30,7 @@ import {
 import { migrateSession } from '../projectDocument/migrations';
 
 const BUMP =
-  'the v3 draft shape changed: bump SESSION_SCHEMA_VERSION, add a migration and fixtures';
+  'the draft shape changed: bump SESSION_SCHEMA_VERSION, add a migration and fixtures';
 
 /** Blobs whose insides are not the draft's format (see the top). */
 const OPAQUE = new Set([
@@ -52,7 +53,7 @@ const OPAQUE = new Set([
 function encodedAllFields(): StoredSession {
   const file = resolve(
     process.cwd(),
-    'src/daw/persistence/__tests__/fixtures/v3-all-fields/all-fields.json',
+    'src/daw/persistence/__tests__/fixtures/v4-all-fields/all-fields.json',
   );
   const migrated = migrateSession(readFileSync(file, 'utf8'));
   if (!migrated.ok) throw new Error(`unreadable: ${migrated.detail}`);
@@ -85,13 +86,13 @@ function collectPaths(value: unknown, path: string, out: Set<string>): void {
 const keysOf = (records: readonly object[]) =>
   [...new Set(records.flatMap((record) => Object.keys(record)))].sort();
 
-describe('the v3 draft shape', () => {
+describe('the draft shape', () => {
   const draft = encodedAllFields();
 
   it('holds exactly these key paths', () => {
     const paths = new Set<string>();
     collectPaths(draft, '', paths);
-    expect([...paths].sort(), BUMP).toEqual(V3_PATHS);
+    expect([...paths].sort(), BUMP).toEqual(DRAFT_PATHS);
   });
 
   it('writes a track, a clip and the settings blob with exactly these keys', () => {
@@ -104,13 +105,13 @@ describe('the v3 draft shape', () => {
         settings: keysOf(tracks.map((t) => t.settings ?? {})),
       },
       BUMP,
-    ).toEqual(V3_RECORDS);
+    ).toEqual(DRAFT_RECORDS);
   });
 });
 
 // ── The snapshot ────────────────────────────────────────────────────────────
 
-const V3_PATHS = [
+const DRAFT_PATHS = [
   'compat',
   'data',
   'data.chordRegions',
@@ -148,6 +149,7 @@ const V3_PATHS = [
   'data.mixer.masteringFxChain',
   'data.mixer.masteringFxChain[]',
   'data.notation',
+  'data.notation.leadSheetBars',
   'data.notation.leadSheetChordFormat',
   'data.notation.leadSheetMelodyTrackId',
   'data.notation.leadSheetRepeats',
@@ -319,7 +321,7 @@ const V3_PATHS = [
   'version',
 ];
 
-const V3_RECORDS = {
+const DRAFT_RECORDS = {
   track: [
     'activeEffects',
     'audioClips',

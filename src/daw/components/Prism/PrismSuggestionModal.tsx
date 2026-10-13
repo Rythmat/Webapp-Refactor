@@ -23,6 +23,7 @@ import {
 import { PRISM_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { PPQ, ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import { SuggestionChordPill } from './SuggestionChordPill';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
@@ -161,6 +162,7 @@ export function PrismSuggestionModal({
   const isPreviewPlaying = useStore((s) => s.prismSuggestPreviewPlaying);
   const trackId = useStore((s) => s.prismSuggestTrackId);
   const bpm = useStore((s) => s.bpm);
+  const barTicks = useStore((s) => ticksPerBar(timeSignatureOf(s)));
 
   const close = useStore((s) => s.closePrismSuggestion);
   const next = useStore((s) => s.nextPrismSuggestion);
@@ -179,7 +181,7 @@ export function PrismSuggestionModal({
   const [previewProgram, setPreviewProgram] = useState(0);
 
   const activeSuggestion = suggestions[activeIdx] ?? null;
-  const insertBar = Math.floor(insertTick / 1920) + 1;
+  const insertBar = Math.floor(insertTick / barTicks) + 1;
 
   // Determine track instrument type
   const trackInfo = useMemo(() => {
@@ -255,8 +257,8 @@ export function PrismSuggestionModal({
     setPreviewPlaying(false);
   }, [setPreviewPlaying]);
 
-  // Whole-note duration in ms
-  const wholeNoteDuration = (4 * 60000) / bpm;
+  // A bar of the project's metre, in ms: what each chord is heard for
+  const wholeNoteDuration = (barTicks / PPQ) * (60000 / bpm);
 
   // Preview a single chord (whole note)
   const previewChord = useCallback(

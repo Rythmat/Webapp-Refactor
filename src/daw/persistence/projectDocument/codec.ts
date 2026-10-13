@@ -68,6 +68,11 @@ import {
 // changes what a v2 field means. Prefs are not in it: prefsStore keeps them
 // per user, apart from any project.
 //
+// v4 (milestone 1.10) adds two fields and changes no meaning: the Lead
+// Sheet's length past its last chord (leadSheetBars) and the clip a chord
+// region was read from (sourceClipId), so the chord lane follows that clip
+// alone. Its compat stays 3.
+//
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
 // know. A later schema that only adds fields keeps it at 3, so after a
@@ -98,12 +103,12 @@ export const SESSION_ENVELOPE_VERSION = 2;
 /**
  * The format inside the envelope (decision D1). A draft without `schema` is
  * v1 or v2, from before 1.3, and goes through migrations.ts first. Any change
- * to what a draft holds bumps it, with a migration and fixtures (v3Shape.test
- * fails until then): 1.13b moving the Oracle patch, 1.16's per-project
- * chord-prompt flag, and 1.10 if measure indices change meaning (which raises
- * SESSION_COMPAT_VERSION too).
+ * to what a draft holds bumps it, with a migration and fixtures (draftShape
+ * .test fails until then): 1.13b moving the Oracle patch, 1.16's per-project
+ * chord-prompt flag. 4 is 1.10's (leadSheetBars, a region's sourceClipId);
+ * its bar indices keep their meaning, every one a real bar of the song.
  */
-export const SESSION_SCHEMA_VERSION = 3;
+export const SESSION_SCHEMA_VERSION = 4;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -296,6 +301,7 @@ const DRAFT_LAYOUT = {
   measureRowSizes: 'notation',
   measureRestMap: 'notation',
   measureFermatas: 'notation',
+  leadSheetBars: 'notation',
   leadSheetChordFormat: 'notation',
   leadSheetSections: 'notation',
   leadSheetRepeats: 'notation',
@@ -1031,6 +1037,7 @@ const KEY_CHECKS: { readonly [K in SectionKey]: Check<AllSlices[K]> } = {
   measureRowSizes: nullable(listOf(valid(integerIn(1, 64)))),
   measureRestMap: nullable(REST_MAP),
   measureFermatas: nullable(BAR_INDICES),
+  leadSheetBars: nullable(valid(integerIn(1, 4096))),
   leadSheetChordFormat: memberOf<LeadSheetChordFormat>({
     jazz: true,
     hybrid: true,

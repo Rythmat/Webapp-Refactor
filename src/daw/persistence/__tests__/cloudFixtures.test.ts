@@ -1,14 +1,15 @@
 // @vitest-environment jsdom
 /**
- * The cloud copy of the all-fields project (fixtures/v3-all-fields), held
- * still as milestone 1.5 writes it: fixtures/cloud-1.5 holds the server's
+ * The cloud copy of the all-fields project (fixtures/v4-all-fields), held
+ * still as today's client writes it: fixtures/cloud-1.10 holds the server's
  * answer for a save in each mode, 'document' (the API's field) and
  * 'interim' (the first track's settings). Opening either must give back
  * every field the cloud keeps, exactly as the draft does; and today's
  * client must write the same document from it, so a change to the
  * document's format fails here until CLOUD_DOCUMENT_SCHEMA (the draft's
  * SESSION_SCHEMA_VERSION) is bumped with new fixtures, keeping these for the
- * decode of what was saved before.
+ * decode of what was saved before. fixtures/cloud-1.5 are milestone 1.5's
+ * (schema 3, from fixtures/v3-all-fields), and still open whole.
  *
  * Fixtures are written only with WRITE_FIXTURES=1.
  *
@@ -35,14 +36,17 @@ import {
 } from '../SessionSerializer';
 
 const DIR = resolve(process.cwd(), 'src/daw/persistence/__tests__/fixtures');
-const ALL_FIELDS = resolve(DIR, 'v3-all-fields/all-fields.json');
-const CLOUD = resolve(DIR, 'cloud-1.5');
+const ALL_FIELDS = resolve(DIR, 'v4-all-fields/all-fields.json');
+const CLOUD = resolve(DIR, 'cloud-1.10');
+/** Milestone 1.5's saves (schema 3), of the v3 all-fields draft. */
+const ALL_FIELDS_V3 = resolve(DIR, 'v3-all-fields/all-fields.json');
+const CLOUD_V3 = resolve(DIR, 'cloud-1.5');
 const MODES: CloudWriteMode[] = ['document', 'interim'];
 
 const s = () => useStore.getState();
 
-function loadAllFields(): void {
-  const outcome = loadSession(readFileSync(ALL_FIELDS, 'utf8'));
+function loadAllFields(file = ALL_FIELDS): void {
+  const outcome = loadSession(readFileSync(file, 'utf8'));
   if (!outcome.ok) throw new Error(`all-fields draft: ${outcome.reason}`);
 }
 
@@ -67,8 +71,8 @@ function answerFor(mode: CloudWriteMode): CloudProjectDetail {
   };
 }
 
-const fixture = (mode: CloudWriteMode): CloudProjectDetail =>
-  JSON.parse(readFileSync(resolve(CLOUD, `${mode}.json`), 'utf8'));
+const fixture = (mode: CloudWriteMode, dir = CLOUD): CloudProjectDetail =>
+  JSON.parse(readFileSync(resolve(dir, `${mode}.json`), 'utf8'));
 
 /** A Track as the cloud keeps it: no per-device fields, no audio clip ids. */
 function cloudTrack(track: Track): Record<string, unknown> {
@@ -136,5 +140,17 @@ describe.each(MODES)('a cloud copy saved in %s mode', (mode) => {
     expect(JSON.parse(JSON.stringify(encodeCloudDocument(s())))).toEqual(
       document,
     );
+  });
+});
+
+describe.each(MODES)('a cloud copy milestone 1.5 saved in %s mode', (mode) => {
+  it('still opens with every field it kept', () => {
+    loadAllFields(ALL_FIELDS_V3);
+    const expected = cloudContent(s());
+    useStore.setState(useStore.getInitialState(), true);
+
+    const report = deserializeCloudProject(fixture(mode, CLOUD_V3));
+    expect(report).toMatchObject({ stale: false, newer: false });
+    expect(cloudContent(s())).toEqual(expected);
   });
 });

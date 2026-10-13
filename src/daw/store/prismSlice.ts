@@ -13,6 +13,16 @@ import {
   nextChordsFor,
 } from '@/daw/persistence/projectDocument/derived';
 import { guessTrackRole } from '@/daw/utils/trackRole';
+import { measureEditPatch } from '@/daw/time/measureEdits';
+import {
+  barStartTick,
+  barsSpanned,
+  ticksPerBar,
+  ticksPerBeat,
+  timeSignatureOf,
+  toSongTick,
+  type TimeSignature,
+} from '@/daw/time/timeModel';
 import { toast } from '@/hooks/use-toast';
 import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import {
@@ -104,6 +114,11 @@ export interface PrismSlice {
   measureRestMap: Record<number, number> | null;
   /** Measure indices that have a fermata. */
   measureFermatas: number[] | null;
+  /**
+   * The chart's length in bars when bars were added past its last chord
+   * (+ Measure at the end); null lets the chords decide (chartBarCount).
+   */
+  leadSheetBars: number | null;
   filterPercent: number;
   selectedTrackId: string | null;
   rootTrackColor: string | null;
@@ -156,8 +171,22 @@ export interface PrismSlice {
   renameChordRegion: (id: string, newName: string, newNoteName: string) => void;
   resizeChordRegion: (id: string, newEndTick: number) => void;
   moveChordRegion: (id: string, newStartTick: number) => void;
-  insertMeasure: (measureIdx: number) => void;
-  deleteMeasure: (measureIdx: number) => void;
+  /**
+   * Insert `count` bars before bar `at`, or delete `count` bars from it:
+   * the chords, the roadmap, the Score's marks, the markers and, given its
+   * id, the melody the sheet shows all move with the bars, in the project's
+   * metre (measureEdits.ts). One write, one undo step.
+   */
+  insertMeasures: (
+    at: number,
+    count?: number,
+    melodyTrackId?: string | null,
+  ) => void;
+  deleteMeasures: (
+    at: number,
+    count?: number,
+    melodyTrackId?: string | null,
+  ) => void;
 
   /** Take a chord out of the lane: the notes it was read from are melody. */
   markAsMelody: (regionId: string) => void;
@@ -339,12 +368,31 @@ function snapToQuarter(tick: number): number {
   return Math.round(tick / SNAP_PPQ) * SNAP_PPQ;
 }
 
-/** Derive chord regions from actual MIDI events (post-hoc from worker output). */
+/**
+ * What Prism Create writes: four bars of the generator's own patterns,
+ * which are 4/4 (prism-engine's rhythm data), whatever the project's metre.
+ */
+const PRISM_TAKE_TICKS = 4 * ticksPerBar({ numerator: 4, denominator: 4 });
+
+/**
+ * The span of a Prism Create take in a project in `ts`: the whole bars of
+ * that metre that hold the generator's four 4/4 bars (four bars in 4/4, six
+ * in 3/4), so the clip and its chords end on a bar line of the project.
+ */
+export function prismTakeSpan(ts: TimeSignature): number {
+  return barsSpanned(PRISM_TAKE_TICKS, ts) * ticksPerBar(ts);
+}
+
+/**
+ * Derive chord regions from actual MIDI events (post-hoc from worker
+ * output). The last chord lasts to `endTick`, the end of the take.
+ */
 function deriveChordRegions(
   events: MidiNoteEvent[],
   rootMidi: number,
   stringSeq: string[],
   mode: string = 'ionian',
+  endTick: number = PRISM_TAKE_TICKS,
 ): ChordRegion[] {
   if (events.length === 0) return [];
 
@@ -415,12 +463,12 @@ function deriveChordRegions(
     }
   }
 
-  // Final region extends to end of 4 bars
+  // The final region lasts to the end of the take
   const knownFinal = collapsed[regionIndex];
   regions.push({
     id: nextChordId(),
     startTick: snapToQuarter(regionStart),
-    endTick: 7680,
+    endTick,
     name: knownFinal
       ? abbreviateSequence(ionianToModeLabel(knownFinal, mode))
       : abbreviateSequence(chordNameInKey(currentNotes, rootMidi % 12, mode)),
@@ -1150,7 +1198,11 @@ export function deriveChordRegionsFromSession(
 
   for (const track of tracks) {
     if (track.type !== 'midi') continue;
-    const events = track.midiClips.flatMap((c) => c.events);
+    // In song time: a clip's notes count from its own start, and the chord
+    // lane is the song's (a clip at bar 5 makes chords at bar 5).
+    const events = track.midiClips.flatMap((c) =>
+      c.events.map((e) => ({ ...e, startTick: toSongTick(c, e.startTick) })),
+    );
     if (events.length === 0) continue;
 
     const role =
@@ -1306,7 +1358,11 @@ export function refineChordRegionsWithMelody(
 
   for (const track of tracks) {
     if (track.type !== 'midi') continue;
-    const events = track.midiClips.flatMap((c) => c.events);
+    // In song time: a clip's notes count from its own start, and the chord
+    // lane is the song's (a clip at bar 5 makes chords at bar 5).
+    const events = track.midiClips.flatMap((c) =>
+      c.events.map((e) => ({ ...e, startTick: toSongTick(c, e.startTick) })),
+    );
     if (events.length === 0) continue;
 
     const role =
@@ -1384,6 +1440,7 @@ export const createPrismSlice: StateCreator<
   measureRowSizes: null,
   measureRestMap: null,
   measureFermatas: null,
+  leadSheetBars: null,
   filterPercent: 1.0,
   selectedTrackId: null,
   rootTrackColor: null,
@@ -1569,11 +1626,12 @@ export const createPrismSlice: StateCreator<
       }
 
       // Create adds a clip and keeps the track's other clips. The
-      // progression still fills bars 1–4, as it always has. The worker's
-      // notes come without ids, so each gets one here: this write sets the
-      // track's clips itself rather than going through addMidiClip.
+      // progression still starts at bar 1, as it always has, and the clip
+      // ends on a bar line of the project's metre (prismTakeSpan). The
+      // worker's notes come without ids, so each gets one here: this write
+      // sets the track's clips itself rather than going through addMidiClip.
       const startTick = 0;
-      const endTick = 7680; // 4 bars (4 × 4 × 480)
+      const endTick = prismTakeSpan(timeSignatureOf(currentState));
       const clip: MidiClip = {
         id: crypto.randomUUID(),
         startTick,
@@ -1603,6 +1661,7 @@ export const createPrismSlice: StateCreator<
         rootMidi,
         state.stringSeq,
         state.mode,
+        endTick,
       );
       set({
         tracks: currentState.tracks.map((t) =>
@@ -1717,11 +1776,17 @@ export const createPrismSlice: StateCreator<
           });
         }
       } else {
-        // No overlapping region — insert with a default 1-beat duration
+        // No region here: the chord lasts until the next one, or to the end
+        // of its bar, in the project's metre (leadsheet-07).
+        const ts = timeSignatureOf(s);
+        const next = regions
+          .filter((r) => r.startTick > tick)
+          .reduce((min, r) => Math.min(min, r.startTick), Infinity);
+        const barEnd = barStartTick(tick, ts) + ticksPerBar(ts);
         regions.push({
           id: nextChordId(),
           startTick: tick,
-          endTick: tick + 480,
+          endTick: Math.min(next, barEnd),
           name,
           noteName,
           color: c,
@@ -1769,13 +1834,14 @@ export const createPrismSlice: StateCreator<
       const regions = [...s.chordRegions];
       const index = regions.findIndex((r) => r.id === id);
       if (index < 0) return s;
-      // Snap to quarter note
-      const snapped = Math.round(newEndTick / 480) * 480;
-      const minEnd = regions[index].startTick + 480; // at least 1 beat
+      // Snap to the metre's beat (an eighth in 6/8), at least a beat long
+      const beat = ticksPerBeat(timeSignatureOf(s));
+      const snapped = Math.round(newEndTick / beat) * beat;
+      const minEnd = regions[index].startTick + beat;
       // Clamp so next region keeps at least 1 beat
       const maxEnd =
         index + 1 < regions.length
-          ? regions[index + 1].endTick - 480
+          ? regions[index + 1].endTick - beat
           : Infinity;
       regions[index] = {
         ...regions[index],
@@ -1797,7 +1863,8 @@ export const createPrismSlice: StateCreator<
       const index = regions.findIndex((r) => r.id === id);
       if (index < 0) return s;
       const region = regions[index];
-      const snapped = Math.max(0, Math.round(newStartTick / 480) * 480);
+      const beat = ticksPerBeat(timeSignatureOf(s));
+      const snapped = Math.max(0, Math.round(newStartTick / beat) * beat);
       if (snapped === region.startTick) return s;
       const duration = region.endTick - region.startTick;
       regions[index] = {
@@ -1815,55 +1882,13 @@ export const createPrismSlice: StateCreator<
       return { chordRegions: respellLeadingChordRegions(sorted) };
     }),
 
-  insertMeasure: (measureIdx) =>
-    set((s) => {
-      const insertTick = measureIdx * 1920;
-      return {
-        chordRegions: s.chordRegions.map((r) => {
-          if (r.startTick >= insertTick) {
-            return {
-              ...r,
-              startTick: r.startTick + 1920,
-              endTick: r.endTick + 1920,
-            };
-          }
-          if (r.endTick > insertTick) {
-            // Region spans the insertion point — extend it
-            return { ...r, endTick: r.endTick + 1920 };
-          }
-          return r;
-        }),
-      };
-    }),
+  insertMeasures: (at, count = 1, melodyTrackId) =>
+    set((s) => measureEditPatch(s, at, Math.max(1, count), melodyTrackId) ?? s),
 
-  deleteMeasure: (measureIdx) =>
-    set((s) => {
-      const delStart = measureIdx * 1920;
-      const delEnd = delStart + 1920;
-      return {
-        chordRegions: s.chordRegions
-          .filter((r) => !(r.startTick >= delStart && r.endTick <= delEnd))
-          .map((r) => {
-            if (r.startTick >= delEnd) {
-              return {
-                ...r,
-                startTick: r.startTick - 1920,
-                endTick: r.endTick - 1920,
-              };
-            }
-            if (r.endTick > delStart && r.startTick < delStart) {
-              // Region spans into the deleted measure — truncate
-              return { ...r, endTick: delStart };
-            }
-            if (r.startTick >= delStart && r.startTick < delEnd) {
-              // Region starts within deleted measure but extends beyond
-              return { ...r, startTick: delStart, endTick: r.endTick - 1920 };
-            }
-            return r;
-          })
-          .filter((r) => r.startTick < r.endTick),
-      };
-    }),
+  deleteMeasures: (at, count = 1, melodyTrackId) =>
+    set(
+      (s) => measureEditPatch(s, at, -Math.max(1, count), melodyTrackId) ?? s,
+    ),
 
   // ── Actions — melody (Phase 10) ──
   // The region just leaves the lane. Its id used to be noted in

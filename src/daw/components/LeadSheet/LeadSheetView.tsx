@@ -5,6 +5,7 @@ import { useStore } from '@/daw/store';
 import { usePlayheadSelector } from '@/daw/engine/playheadClock';
 import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
+import { barSlots, slotOfBar } from '@/daw/time/timeModel';
 import { NOTES } from '@prism/engine';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { ScorePalettes, type PaletteAction } from '../Score/ScorePalettes';
@@ -73,6 +74,7 @@ function LeadSheetChartView() {
   const measureRowSizes = useStore((s) => s.measureRowSizes);
   const measureRestMap = useStore((s) => s.measureRestMap);
   const measureFermatas = useStore((s) => s.measureFermatas);
+  const leadSheetBars = useStore((s) => s.leadSheetBars);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
   const bpm = useStore((s) => s.bpm);
@@ -124,26 +126,24 @@ function LeadSheetChartView() {
     return () => ro.disconnect();
   }, []);
 
-  // Build measures from chord regions
+  // Build measures from chord regions: every real bar of the song
   const rawMeasures = useMemo(
-    () => regionToMeasures(chordRegions, ticksPerMeasure),
-    [chordRegions, ticksPerMeasure],
+    () => regionToMeasures(chordRegions, ticksPerMeasure, leadSheetBars),
+    [chordRegions, ticksPerMeasure, leadSheetBars],
   );
 
-  // Filter out ghost measures consumed by multi-bar rests.
-  // If measureRestMap says index 8 is a 2-bar rest, skip index 9 (the consumed bar).
-  const measures = useMemo(() => {
-    if (!measureRestMap) return rawMeasures;
-    const skipSet = new Set<number>();
-    for (const [idxStr, count] of Object.entries(measureRestMap)) {
-      const idx = Number(idxStr);
-      for (let j = 1; j < count; j++) {
-        skipSet.add(idx + j);
-      }
-    }
-    if (skipSet.size === 0) return rawMeasures;
-    return rawMeasures.filter((m) => !skipSet.has(m.index));
-  }, [rawMeasures, measureRestMap]);
+  // What the chart draws: a slot per bar, a multi-bar rest one slot for its
+  // bars (barSlots). Each measure keeps its real bar as `index`, and that is
+  // the bar every mark, selection and tick uses; a slot's position is layout
+  // only. Mixing the two drew every label after a rest late (leadsheet-05).
+  const slots = useMemo(
+    () => barSlots(rawMeasures.length, measureRestMap),
+    [rawMeasures.length, measureRestMap],
+  );
+  const measures = useMemo(
+    () => slots.map((slot) => rawMeasures[slot.realIndex]),
+    [slots, rawMeasures],
+  );
 
   // Split measures into systems (rows) — uses custom row sizes if available
   const systems = useMemo(() => {
@@ -192,16 +192,13 @@ function LeadSheetChartView() {
   const playheadSystemIdx = usePlayheadSelector((position) => {
     if (!isPlaying && position === 0) return -1;
     if (systems.length === 0) return -1;
-    const measureIdx = Math.floor(position / ticksPerMeasure);
-    // Find which system contains this measure
+    // The real bar under the playhead, then the slot drawing it.
+    const slot = slotOfBar(slots, Math.floor(position / ticksPerMeasure));
+    if (slot < 0) return systems.length - 1;
     for (let si = 0; si < systems.length; si++) {
       const sys = systems[si];
-      if (
-        measureIdx >= sys.startIndex &&
-        measureIdx < sys.startIndex + sys.measures.length
-      ) {
+      if (slot >= sys.startIndex && slot < sys.startIndex + sys.measures.length)
         return si;
-      }
     }
     return systems.length - 1;
   });
@@ -232,8 +229,9 @@ function LeadSheetChartView() {
 
   // ── Selection, copy and paste ───────────────────────────────────────────
   // Bars and beats here are the project's, the same ones `regionToMeasures`
-  // cut the sheet into and the playhead maths below read.
-  const measureCount = measures.length;
+  // cut the sheet into and the playhead maths below read: real bars, so a
+  // bar's index times the bar length is its tick, rests or not.
+  const measureCount = rawMeasures.length;
   const [selectedKeys, setSelectedKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -241,9 +239,24 @@ function LeadSheetChartView() {
   const [clipboard, setClipboard] = useState<LeadSheetClipboard | null>(null);
   const [autoEditRegionId, setAutoEditRegionId] = useState<string | null>(null);
 
-  const systemBreaks = useMemo(
-    () => breaksFromRowSizes(measureRowSizes, MEASURES_PER_LINE, measureCount),
-    [measureRowSizes, MEASURES_PER_LINE, measureCount],
+  // The row sizes count chart slots (a rest is one), as the chart export
+  // writes them; the roadmap's system breaks are barlines of real bars.
+  const systemBreaks = useMemo(() => {
+    const atSlots = breaksFromRowSizes(
+      measureRowSizes,
+      MEASURES_PER_LINE,
+      measures.length,
+    );
+    return new Set([...atSlots].map((pos) => measures[pos].index));
+  }, [measureRowSizes, MEASURES_PER_LINE, measures]);
+  /** Row sizes (in slots) for system breaks at real barlines. */
+  const rowSizesFor = useCallback(
+    (breaks: ReadonlySet<number>) =>
+      rowSizesFromBreaks(
+        new Set([...breaks].map((bar) => slotOfBar(slots, bar))),
+        measures.length,
+      ),
+    [slots, measures.length],
   );
 
   const rangeContext: RangeContext = useMemo(
@@ -254,7 +267,7 @@ function LeadSheetChartView() {
         .map((r) => r.id),
       noteOrder: [],
     }),
-    [chordRegions],
+    [chordRegions, beatsPerMeasure],
   );
 
   const handleSelectItem = useCallback(
@@ -290,7 +303,7 @@ function LeadSheetChartView() {
         setSelectedMeasureIdx(Math.floor(region.startTick / ticksPerMeasure));
       }
     },
-    [setSelectedChordIdx, chordRegions],
+    [setSelectedChordIdx, chordRegions, ticksPerMeasure],
   );
 
   const handleRenameChord = useCallback(
@@ -338,7 +351,7 @@ function LeadSheetChartView() {
         );
       setAutoEditRegionId(added?.id ?? null);
     },
-    [setSelectedChordIdx, insertChordRegion],
+    [setSelectedChordIdx, insertChordRegion, ticksPerMeasure],
   );
 
   const handleClickEmptyBeat = useCallback(
@@ -441,6 +454,9 @@ function LeadSheetChartView() {
     repeats,
     systemBreaks,
     tickOfChord,
+    beatsPerMeasure,
+    ticksPerBeat,
+    ticksPerMeasure,
   ]);
 
   const applyRoadmapEdits = useCallback(
@@ -470,12 +486,13 @@ function LeadSheetChartView() {
         else breaks.delete(edit.measureIndex);
       }
       setRepeats(nextRepeats);
-      setMeasureRowSizes(rowSizesFromBreaks(breaks, measureCount));
+      setMeasureRowSizes(rowSizesFor(breaks));
     },
     [
       repeats,
       systemBreaks,
       measureCount,
+      rowSizesFor,
       setRepeats,
       addSection,
       removeSection,
@@ -529,6 +546,9 @@ function LeadSheetChartView() {
     setChordRegions,
     applyRoadmapEdits,
     tickOfChord,
+    beatsPerMeasure,
+    ticksPerBeat,
+    ticksPerMeasure,
   ]);
 
   // ── Palette ─────────────────────────────────────────────────────────────
@@ -545,7 +565,7 @@ function LeadSheetChartView() {
       () => undefined,
     );
     return touched.length > 0 ? touched[0] : null;
-  }, [selectedKeys, tickOfChord]);
+  }, [selectedKeys, tickOfChord, ticksPerMeasure]);
 
   const toggleSystemBreak = useCallback(
     (barline: number) => {
@@ -553,9 +573,9 @@ function LeadSheetChartView() {
       const next = new Set(systemBreaks);
       if (next.has(barline)) next.delete(barline);
       else next.add(barline);
-      setMeasureRowSizes(rowSizesFromBreaks(next, measureCount));
+      setMeasureRowSizes(rowSizesFor(next));
     },
-    [systemBreaks, measureCount, setMeasureRowSizes],
+    [systemBreaks, measureCount, rowSizesFor, setMeasureRowSizes],
   );
 
   const applyPalette = useCallback(
@@ -731,7 +751,7 @@ function LeadSheetChartView() {
         targetBeat: beat,
       });
     },
-    [chordRegions],
+    [chordRegions, ticksPerMeasure, ticksPerBeat, beatsPerMeasure],
   );
 
   useEffect(() => {
@@ -775,7 +795,13 @@ function LeadSheetChartView() {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [dragVisual, moveChordRegion]);
+  }, [
+    dragVisual,
+    moveChordRegion,
+    ticksPerMeasure,
+    ticksPerBeat,
+    beatsPerMeasure,
+  ]);
 
   // Convert dragVisual to the ChordDragState format for LeadSheetMeasure
   const chordDragState = dragVisual
@@ -831,7 +857,9 @@ function LeadSheetChartView() {
           >
             {keyDisplay && <span>Key: {keyDisplay}</span>}
             <span>Tempo: {bpm} BPM</span>
-            <span>Time: 4/4</span>
+            <span>
+              Time: {beatsPerMeasure}/{beatUnit}
+            </span>
           </div>
 
           {/* Staff systems */}
@@ -840,7 +868,6 @@ function LeadSheetChartView() {
               <div key={system.startIndex} className="leadsheet-system mb-6">
                 <LeadSheetStaff
                   measures={system.measures}
-                  startIndex={system.startIndex}
                   fullSystemCount={system.rowSize}
                   chordFormat={chordFormat}
                   selectedChordId={selectedChordIdx}
@@ -867,6 +894,7 @@ function LeadSheetChartView() {
                   beatsPerMeasure={beatsPerMeasure}
                   ticksPerBeat={ticksPerBeat}
                   autoEditRegionId={autoEditRegionId}
+                  measureCount={measureCount}
                 />
               </div>
             );

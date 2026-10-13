@@ -155,7 +155,7 @@ describe('writes that leave the chord alone keep it', () => {
     s().moveChordRegion('c', 2.5 * BAR);
     s().resizeChordRegion('a', 0.75 * BAR);
     s().offsetChordRegions(480);
-    s().insertMeasure(0);
+    s().insertMeasures(0);
     s().deleteChordRegion('b'); // the region before it grows into the gap
     expect(s().chordRegions.map((r) => [r.id, r.identity])).toEqual([
       ['a', identity('1 maj')],
@@ -174,7 +174,7 @@ describe('writes that leave the chord alone keep it', () => {
   });
 
   it('cutting a measure out of it, or laying chords over part of it', () => {
-    s().deleteMeasure(3); // c loses its second bar
+    s().deleteMeasures(3); // c loses its second bar
     expect(region('c')).toMatchObject({ startTick: 2 * BAR, endTick: 3 * BAR });
     expect(region('c').identity).toEqual(identity('1 maj'));
 

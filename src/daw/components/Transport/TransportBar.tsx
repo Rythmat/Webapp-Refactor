@@ -26,6 +26,7 @@ import {
 
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore, type ViewType } from '@/daw/store';
+import { ticksPerBeat } from '@/daw/time/timeModel';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick, subscribePlayhead } from '@/daw/engine/playheadClock';
@@ -1007,9 +1008,9 @@ export const TransportBar = memo(function TransportBar({
 // shared frame loop; either way the icon renders once a beat, and nothing
 // runs while idle.
 const beatTicksFor = (den: number) =>
-  // Beat length matches the metronome/count-in scheduling: eighth-note
-  // meters click twice as fast, half-note meters half as fast.
-  den === 8 ? 240 : den === 2 ? 960 : 480;
+  // Beat length matches the metronome/count-in scheduling: the note value
+  // the denominator names, a sixteenth in x/16 too.
+  ticksPerBeat({ numerator: 1, denominator: den });
 
 function useMetronomeBeat(animating: boolean, countingIn: boolean): number {
   const [beat, setBeat] = useState(0);

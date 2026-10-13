@@ -4,6 +4,7 @@ import {
 } from '@/curriculum/songLibrary/exportToStudio';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { useStore } from '@/daw/store';
+import { ticksPerBar } from '@/daw/time/timeModel';
 
 /**
  * Apply a song's chart to the project just reset: project metadata,
@@ -61,7 +62,11 @@ export const applySong = (song: Song): void => {
       `${song.title} — Chords`,
     );
     store.addMidiClip(trackId, clip);
-    store.setLoopRange(0, clip.durationTicks ?? 7680);
+    store.setLoopRange(
+      0,
+      clip.durationTicks ??
+        4 * ticksPerBar({ numerator: beats, denominator: unit }),
+    );
   }
   store.setCurrentView('arrange');
 };

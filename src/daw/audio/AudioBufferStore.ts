@@ -25,10 +25,36 @@ const audioStore = new Map<string, ClipAudio>();
 
 // Subscribers notified whenever the store mutates. Used by the timeline so a
 // freshly-loaded audio buffer triggers a waveform redraw without polling.
+//
+// Changes are batched: a project opening with many takes decodes them one
+// after another, and each used to notify (and redraw the timeline) on its
+// own. Every change in a frame now makes one notification. The frame is
+// backed by a short timer, because a hidden tab runs no frames and the draft
+// capture must still see audio that lands there.
 const subscribers = new Set<() => void>();
+const NOTIFY_FALLBACK_MS = 100;
+let notifyFrame = 0;
+let notifyTimer: ReturnType<typeof setTimeout> | null = null;
+
+function flushChange(): void {
+  if (notifyFrame) cancelAnimationFrame(notifyFrame);
+  if (notifyTimer !== null) clearTimeout(notifyTimer);
+  notifyFrame = 0;
+  notifyTimer = null;
+  for (const cb of subscribers) cb();
+}
 
 function emitChange(): void {
-  for (const cb of subscribers) cb();
+  if (notifyTimer !== null) return;
+  notifyTimer = setTimeout(flushChange, NOTIFY_FALLBACK_MS);
+  if (typeof requestAnimationFrame === 'function') {
+    notifyFrame = requestAnimationFrame(flushChange);
+  }
+}
+
+/** Sends a batched change now, for tests that read the store's subscribers. */
+export function flushAudioBufferChanges(): void {
+  if (notifyTimer !== null) flushChange();
 }
 
 export function subscribeAudioBufferChanges(cb: () => void): () => void {

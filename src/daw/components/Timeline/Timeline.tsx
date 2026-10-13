@@ -1,4 +1,12 @@
-import { memo, useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import {
+  memo,
+  useRef,
+  useEffect,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ProfileRoutes } from '@/constants/routes';
@@ -59,6 +67,8 @@ import type { MidiNoteEvent } from '@prism/engine';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
 import { AnimatedBlobs } from '@/components/ui/blobs';
+import type { Track } from '@/daw/store/tracksSlice';
+import { sameTimelineGeometry, timelineNeedsRedraw } from './timelineGeometry';
 
 // ── Constants ───────────────────────────────────────────────────────────
 const TRACK_HEIGHT = 80; // px per track lane
@@ -66,6 +76,7 @@ const RULER_HEIGHT = 42; // px for top ruler: loop strip (LOOP_STRIP_H) + bar nu
 const CHORD_RULER_HEIGHT = 20; // px for chord name ruler
 const RULERS_HEIGHT = RULER_HEIGHT + CHORD_RULER_HEIGHT; // total header height
 const TIME_RULER_HEIGHT = 22; // px for time ruler at bottom
+const H_SCROLLBAR_H = 12; // px for the always-shown scrollbar (h-3) below it
 const RESIZE_EDGE_PX = 6; // px threshold for resize handle
 const PROJECT_MIN_BARS = 8; // minimum visible project length
 const PROJECT_PAD_BARS = 4; // extra bars of padding beyond content
@@ -345,6 +356,50 @@ function snapTick(tick: number, gridTicks: number): number {
   return Math.max(0, Math.round(tick / gridTicks) * gridTicks);
 }
 
+// ── Canvas inputs ───────────────────────────────────────────────────────
+
+/** The theme colours the canvas paints with. */
+interface CanvasTokens {
+  colorBg: string;
+  colorBorder: string;
+  colorGridRgb: string;
+  colorSelRgb: string;
+}
+
+/**
+ * Reads the theme colours from the canvas itself: the DAW tokens live on
+ * `.daw-root`, not `:root`, and custom properties inherit, so the canvas (a
+ * `.daw-root` descendant) resolves them, whereas document.documentElement
+ * would not.
+ */
+function readCanvasTokens(canvas: HTMLCanvasElement): CanvasTokens {
+  const style = getComputedStyle(canvas);
+  const token = (name: string, fallback: string) =>
+    style.getPropertyValue(name).trim() || fallback;
+  return {
+    colorBg: token('--color-bg', '#101012'),
+    colorBorder: token('--color-border', 'rgba(255, 255, 255, 0.08)'),
+    colorGridRgb: token('--color-grid-rgb', '255, 255, 255'),
+    colorSelRgb: token('--color-selection-rgb', '126, 207, 207'),
+  };
+}
+
+/**
+ * The tracks, kept as they were until a change alters what the timeline
+ * draws (sameTimelineGeometry). The timeline's markup and handlers read only
+ * that part of them, and fresh state through useStore.getState().
+ */
+function useTimelineTracks(): Track[] {
+  const kept = useRef<Track[] | null>(null);
+  return useStore((s) => {
+    if (kept.current && sameTimelineGeometry(kept.current, s.tracks)) {
+      return kept.current;
+    }
+    kept.current = s.tracks;
+    return s.tracks;
+  });
+}
+
 // ── Playhead ────────────────────────────────────────────────────────────
 // Painted through a ref from the playhead clock (milestone 1.7): playback
 // moves this line every frame without rendering it or the Timeline
@@ -528,46 +583,21 @@ export function Timeline() {
   // ── Store state ──
   // Not the transport position: TimelinePlayhead subscribes to that itself,
   // so playback doesn't re-render this component (timeline-23).
-  const tracks = useStore((s) => s.tracks);
-  const bpm = useStore((s) => s.bpm);
-  const selectedClipId = useStore((s) => s.selectedClipId);
-  const selectedChordIds = useStore((s) => s.selectedChordIds);
-  const selectedNotes = useStore((s) => s.selectedNotes);
-  const loopEnabled = useStore((s) => s.loopEnabled);
-  const loopStart = useStore((s) => s.loopStart);
-  const loopEnd = useStore((s) => s.loopEnd);
+  // The canvas reads what it draws from the store itself, when it draws, so
+  // this component subscribes only to what its markup and handlers use. The
+  // tracks are taken as they last changed what the canvas draws: a fader
+  // step or a rename doesn't re-render the timeline (timeline-07).
+  const tracks = useTimelineTracks();
   const zoom = useStore((s) => s.timelineZoom);
   const scrollLeft = useStore((s) => s.timelineScrollLeft);
   const gridSize = useStore((s) => s.timelineGridSize);
   const snapEnabled = useStore((s) => s.timelineSnapEnabled);
-  const markers = useStore((s) => s.markers);
-  const chordRulerShowNotes = useStore((s) => s.chordRulerShowNotes);
-  const chordRegions = useStore((s) => s.chordRegions);
   // Chord-lane labels follow the global chord notation (hybrid = the toggle above).
   const chordNotation = useChordNotation();
-  const keyRootPc = useStore((s) => s.rootNote);
-  const keyMode = useStore((s) => s.mode);
-  const clipColorMode = useStore((s) => s.clipColorMode);
+  const chordNotationRef = useRef(chordNotation);
   const renameChordRegion = useStore((s) => s.renameChordRegion);
-  const liveRecordingNotes = useStore((s) => s.liveRecordingNotes);
-  const liveAudioPeaks = useStore((s) => s.liveAudioPeaks);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
-
-  // Bumped whenever the AudioBufferStore mutates so the canvas redraws when a
-  // cloud-loaded audio buffer arrives (without it, "Loading…" overlays would
-  // sit forever even after the bytes decoded), and when the peaks worker
-  // delivers a long take's waveform.
-  const [audioBufferVersion, setAudioBufferVersion] = useState(0);
-  useEffect(() => {
-    const bump = () => setAudioBufferVersion((v) => v + 1);
-    const stopBuffers = subscribeAudioBufferChanges(bump);
-    const stopPeaks = subscribePeakPyramids(bump);
-    return () => {
-      stopBuffers();
-      stopPeaks();
-    };
-  }, []);
 
   const [editingChord, setEditingChord] = useState<{
     id: string;
@@ -593,6 +623,12 @@ export function Timeline() {
 
   // ── Draw ──────────────────────────────────────────────────────────────
 
+  // Theme colours, read from CSS once and again only when the theme's inline
+  // tokens on `.daw-root` change, not on every draw.
+  const canvasTokensRef = useRef<CanvasTokens | null>(null);
+
+  // Draws the whole canvas from the store as it is now. It is stable, so
+  // nothing re-keys on it; callers ask for a draw with requestRedraw.
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -601,16 +637,29 @@ export function Timeline() {
 
     const container = canvas.parentElement;
     if (!container) return;
+    const drawStart = import.meta.env.DEV ? performance.now() : 0;
+
+    const state = useStore.getState();
+    const tracks = state.tracks;
+    const gridSize = state.timelineGridSize;
+    const chordRulerShowNotes = state.chordRulerShowNotes;
+    const tsNum = state.timeSignatureNumerator;
+    const tsDen = state.timeSignatureDenominator;
+    const chordNotation = chordNotationRef.current;
 
     // Scroll parent = the overflow-auto div in TimelineWithHeaders
     const scrollParent = container.parentElement?.parentElement;
     const scrollTop = scrollParent?.scrollTop ?? 0;
     const viewportH = scrollParent?.clientHeight ?? 0;
 
+    // The canvas is sized from the scroll area, not from its own parent: the
+    // parent holds the canvas, so measuring it let the canvas only ever grow,
+    // leaving dead scroll range after the dock opened or a track went
+    // (timeline-11). The always-shown scrollbar (h-3) sits under it.
     const dpr = window.devicePixelRatio || 1;
     const cw = container.clientWidth;
     const ch = Math.max(
-      container.clientHeight,
+      viewportH > 0 ? viewportH - H_SCROLLBAR_H : container.clientHeight,
       tracks.length * TRACK_HEIGHT + RULERS_HEIGHT + TIME_RULER_HEIGHT,
     );
 
@@ -623,7 +672,6 @@ export function Timeline() {
     }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const state = useStore.getState();
     const currentSelectedClipId = state.selectedClipId;
     const currentZoom = state.timelineZoom;
     const currentScrollLeft = state.timelineScrollLeft;
@@ -631,21 +679,9 @@ export function Timeline() {
     const newClipRects: ClipRect[] = [];
     const newDrawnNotes: DrawnNote[] = [];
 
-    // Theme-aware canvas colors (read from CSS variables once per frame).
-    // Read from the canvas itself: the DAW tokens live on `.daw-root`, not
-    // `:root`, and custom properties inherit — so the canvas (a `.daw-root`
-    // descendant) resolves them, whereas document.documentElement would not.
-    const rootStyle = getComputedStyle(canvas);
-    const colorBg =
-      rootStyle.getPropertyValue('--color-bg').trim() || '#101012';
-    const colorBorder =
-      rootStyle.getPropertyValue('--color-border').trim() ||
-      'rgba(255, 255, 255, 0.08)';
-    const colorGridRgb =
-      rootStyle.getPropertyValue('--color-grid-rgb').trim() || '255, 255, 255';
-    const colorSelRgb =
-      rootStyle.getPropertyValue('--color-selection-rgb').trim() ||
-      '126, 207, 207';
+    canvasTokensRef.current ??= readCanvasTokens(canvas);
+    const { colorBg, colorBorder, colorGridRgb, colorSelRgb } =
+      canvasTokensRef.current;
 
     // Visible tick range (with 1 bar buffer on each side)
     const { startTick: visStartRaw, endTick: visEndRaw } = visibleTickRange(
@@ -1244,12 +1280,11 @@ export function Timeline() {
 
     // Scroll-offset positions so rulers stay pinned during vertical scroll
     const rulerY = scrollTop;
-    // The horizontal scrollbar (h-3 = 12px) is always shown, so always reserve
-    // space for it beneath the time ruler.
-    const hScrollbarH = 12;
+    // The horizontal scrollbar is always shown, so always reserve space for
+    // it beneath the time ruler.
     const timeRulerY =
       viewportH > 0
-        ? scrollTop + viewportH - TIME_RULER_HEIGHT - hScrollbarH
+        ? scrollTop + viewportH - TIME_RULER_HEIGHT - H_SCROLLBAR_H
         : ch - TIME_RULER_HEIGHT;
 
     // ── Top ruler (bar/beat numbers) ──────────────────────────────────
@@ -1482,49 +1517,99 @@ export function Timeline() {
 
     clipRectsRef.current = newClipRects;
     drawnNotesRef.current = newDrawnNotes;
-  }, [tracks, gridSize, chordRulerShowNotes, chordNotation, tsNum, tsDen]);
+    // One entry per draw for the perf harness (studio:perf timeline-scroll).
+    if (import.meta.env.DEV) {
+      performance.measure('ma:timeline:draw', { start: drawStart });
+    }
+  }, []);
 
   // ── Redraw triggers ───────────────────────────────────────────────
-  useEffect(() => {
-    draw();
-  }, [
-    tracks,
-    bpm,
-    draw,
-    selectedClipId,
-    selectedChordIds,
-    selectedNotes,
-    loopEnabled,
-    loopStart,
-    loopEnd,
-    zoom,
-    scrollLeft,
-    markers,
-    chordRulerShowNotes,
-    chordRegions,
-    chordNotation,
-    keyRootPc,
-    keyMode,
-    clipColorMode,
-    liveRecordingNotes,
-    liveAudioPeaks,
-    audioBufferVersion,
-  ]);
-
-  // ── Redraw on vertical scroll (sticky rulers) ────────────────────
-  // `draw` changes on every tracks write, so the listeners below read it
-  // through a ref and are attached once: re-keying them on `draw` rebuilt the
-  // ResizeObserver on every edit frame, and each new observer's first
-  // callback queued an extra full canvas draw.
-  const drawRef = useRef(draw);
-  useEffect(() => {
-    drawRef.current = draw;
+  // Everything that changes the canvas asks for a redraw, and the canvas is
+  // drawn at most once a frame, whatever asked and however often
+  // (timeline-07). Drags ask too while the transport plays, so a clip moved
+  // or trimmed over a looping playback follows the pointer (timeline-10).
+  const redrawFrameRef = useRef(0);
+  const requestRedraw = useCallback(() => {
+    if (redrawFrameRef.current) return;
+    redrawFrameRef.current = requestAnimationFrame(() => {
+      redrawFrameRef.current = 0;
+      draw();
+    });
   }, [draw]);
+
+  // The first draw happens before the first paint, so the canvas never shows
+  // a blank frame.
+  useLayoutEffect(() => {
+    draw();
+    return () => {
+      cancelAnimationFrame(redrawFrameRef.current);
+      redrawFrameRef.current = 0;
+    };
+  }, [draw]);
+
+  // Store changes redraw only when they change what the canvas draws: a
+  // fader, FX or automation move leaves it alone.
+  useEffect(
+    () =>
+      useStore.subscribe((next, prev) => {
+        if (timelineNeedsRedraw(next, prev)) requestRedraw();
+      }),
+    [requestRedraw],
+  );
+
+  // A cloud-loaded buffer arriving replaces its "Loading…" label, and the
+  // peaks worker delivering a long take's waveform replaces its flat line.
+  useEffect(() => {
+    const stopBuffers = subscribeAudioBufferChanges(requestRedraw);
+    const stopPeaks = subscribePeakPyramids(requestRedraw);
+    return () => {
+      stopBuffers();
+      stopPeaks();
+    };
+  }, [requestRedraw]);
+
+  useEffect(() => {
+    if (chordNotationRef.current === chordNotation) return;
+    chordNotationRef.current = chordNotation;
+    requestRedraw();
+  }, [chordNotation, requestRedraw]);
+
+  // The theme's tokens are inline styles on `.daw-root` (useTheme): read
+  // them again only when those change.
+  useEffect(() => {
+    const root = canvasRef.current?.closest('.daw-root');
+    if (!root) return;
+    const observer = new MutationObserver(() => {
+      canvasTokensRef.current = null;
+      requestRedraw();
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ['style'] });
+    return () => observer.disconnect();
+  }, [requestRedraw]);
+
+  // Moving the window to a screen with another pixel ratio redraws at it.
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    let query: MediaQueryList | null = null;
+    const watch = () => {
+      query?.removeEventListener('change', onChange);
+      query = window.matchMedia(
+        `(resolution: ${window.devicePixelRatio || 1}dppx)`,
+      );
+      query.addEventListener('change', onChange);
+    };
+    const onChange = () => {
+      watch();
+      requestRedraw();
+    };
+    watch();
+    return () => query?.removeEventListener('change', onChange);
+  }, [requestRedraw]);
+
+  // ── Redraw on vertical scroll (sticky rulers) and on resize ──────────
   useEffect(() => {
     const el = canvasRef.current?.parentElement?.parentElement?.parentElement;
     if (!el) return;
-    let rafId = 0;
-    const redraw = () => drawRef.current();
     const onScroll = () => {
       // Keep the playhead's grab handle on the sticky bar ruler.
       if (playheadHandleRef.current) {
@@ -1532,30 +1617,28 @@ export function Timeline() {
           el.scrollTop + RULER_HEIGHT - PLAYHEAD_HANDLE_H
         }px`;
       }
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(redraw);
+      requestRedraw();
     };
     el.addEventListener('scroll', onScroll, { passive: true });
-    // The seconds ruler is placed from the scroll area's height: redraw when
-    // that changes too (a New project closing the dock), not only on scroll.
-    // Only a real size change redraws: the observer's first callback
-    // reports the size the mount draw already used.
+    // The canvas and the seconds ruler are sized from the scroll area: redraw
+    // when it changes size (a panel opening or closing, the dock, the
+    // window), not only on scroll (timeline-11). Only a real size change
+    // redraws: the observer's first callback reports the size the mount draw
+    // already used.
     let observedW = el.clientWidth;
     let observedH = el.clientHeight;
     const ro = new ResizeObserver(() => {
       if (el.clientWidth === observedW && el.clientHeight === observedH) return;
       observedW = el.clientWidth;
       observedH = el.clientHeight;
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(redraw);
+      requestRedraw();
     });
     ro.observe(el);
     return () => {
       el.removeEventListener('scroll', onScroll);
       ro.disconnect();
-      cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [requestRedraw]);
 
   // ── Mouse coord helper ─────────────────────────────────────────────
 
@@ -2124,7 +2207,7 @@ export function Timeline() {
         );
         state.setLoopRange(range.start, range.end);
         canvas.style.cursor = 'ew-resize';
-        if (!state.isPlaying) draw();
+        requestRedraw();
       } else {
         // Vertical drag → zoom (up = in), anchored at the cursor so the bar
         // under it stays put.
@@ -2140,11 +2223,11 @@ export function Timeline() {
       }
       return true;
     },
-    [draw],
+    [requestRedraw],
   );
 
   const handleCanvasMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
+    (e: React.MouseEvent<HTMLCanvasElement> | MouseEvent) => {
       const { x, y } = getCanvasCoords(e);
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -2162,7 +2245,7 @@ export function Timeline() {
         const snapped = snapTick(rawTick, currentSnapTicks);
         state.updateMarker(markerDragRef.current, { tick: snapped });
         canvas.style.cursor = 'col-resize';
-        if (!state.isPlaying) draw();
+        requestRedraw();
         return;
       }
 
@@ -2170,7 +2253,7 @@ export function Timeline() {
       if (noteMarqueeRef.current) {
         extendNoteMarquee(x, y);
         canvas.style.cursor = 'crosshair';
-        if (!state.isPlaying) draw();
+        requestRedraw();
         return;
       }
 
@@ -2218,9 +2301,7 @@ export function Timeline() {
             0,
             Math.min(tracks.length - 1, trackIdx),
           );
-          if (!state.isPlaying) {
-            draw();
-          }
+          requestRedraw();
         } else if (drag.mode === 'resize-left') {
           // Left edge can travel between its lower bound and one grid step
           // short of the fixed right edge.
@@ -2230,7 +2311,7 @@ export function Timeline() {
             drag.minStartTick,
             Math.min(snapped, drag.endTickOrigin - currentSnapTicks),
           );
-          if (!state.isPlaying) draw();
+          requestRedraw();
         } else if (drag.mode === 'resize-right') {
           // Right edge can travel between one grid step past the fixed left
           // edge and its upper bound.
@@ -2240,7 +2321,7 @@ export function Timeline() {
             drag.maxEndTick,
             Math.max(snapped, drag.startTickOrigin + currentSnapTicks),
           );
-          if (!state.isPlaying) draw();
+          requestRedraw();
         }
         canvas.style.cursor = drag.mode === 'move' ? 'grabbing' : 'col-resize';
         return;
@@ -2306,7 +2387,7 @@ export function Timeline() {
       hitTestClip,
       isNearRightEdge,
       isNearLeftEdge,
-      draw,
+      requestRedraw,
       tracks.length,
       projectLengthTicks,
       moveRulerPress,
@@ -2331,7 +2412,7 @@ export function Timeline() {
         dragged ? notesInMarquee(drawnNotesRef.current, m) : [],
       );
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
-      if (!state.isPlaying) draw();
+      requestRedraw();
       return;
     }
     if (rulerPressRef.current) {
@@ -2499,10 +2580,8 @@ export function Timeline() {
     dragRef.current = null;
     if (canvasRef.current) canvasRef.current.style.cursor = 'default';
 
-    if (!state.isPlaying) {
-      draw();
-    }
-  }, [draw]);
+    requestRedraw();
+  }, [requestRedraw]);
 
   // Global mouseup listener for drag release outside canvas
   // While a ruler zoom-drag or empty-area pan is active, keep processing mouse
@@ -2517,10 +2596,17 @@ export function Timeline() {
       if (noteMarqueeRef.current) {
         const { x, y } = getCanvasCoords(e);
         extendNoteMarquee(x, y);
-        if (!useStore.getState().isPlaying) draw();
+        requestRedraw();
       } else if (rulerPressRef.current) {
         const { x, y } = getCanvasCoords(e);
         moveRulerPress(x, y);
+      } else if (
+        (dragRef.current || markerDragRef.current) &&
+        e.target !== canvasRef.current
+      ) {
+        // A clip or marker drag keeps following the pointer off the canvas
+        // (timeline-10); over the canvas, its own handler moves it.
+        handleCanvasMouseMove(e);
       } else if (panDragRef.current) {
         const { x } = getCanvasCoords(e);
         const p = panDragRef.current;
@@ -2553,7 +2639,8 @@ export function Timeline() {
       getCanvasCoords,
       projectLengthTicks,
       moveRulerPress,
-      draw,
+      handleCanvasMouseMove,
+      requestRedraw,
       extendNoteMarquee,
     ],
   );
@@ -2782,15 +2869,25 @@ export function Timeline() {
   // Track the viewport width reactively so the always-visible scrollbar stays
   // correctly sized as side panels open/close or the window resizes (a plain
   // render-time read of clientWidth is stale on resize and can mis-hide it).
+  // A resize re-renders this component once a frame at most.
   const [viewportWidth, setViewportWidth] = useState(800);
   useEffect(() => {
     const el = canvasRef.current?.parentElement;
     if (!el) return;
-    const measure = () => setViewportWidth(el.clientWidth);
-    measure();
-    const ro = new ResizeObserver(measure);
+    let frame = 0;
+    setViewportWidth(el.clientWidth);
+    const ro = new ResizeObserver(() => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        setViewportWidth(el.clientWidth);
+      });
+    });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      cancelAnimationFrame(frame);
+    };
   }, []);
 
   // Create's keys (copy, paste, nudge, tools, zoom), while the timeline is on

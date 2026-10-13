@@ -161,8 +161,21 @@ class StandInWorker {
   }
 }
 
+/** Frames asked for and not yet run: the timeline draws once a frame. */
+let frames: FrameRequestCallback[] = [];
+function runFrames() {
+  const due = frames;
+  frames = [];
+  for (const cb of due) cb(performance.now());
+}
+
 beforeEach(() => {
   calls = [];
+  frames = [];
+  vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) =>
+    frames.push(cb),
+  );
+  vi.stubGlobal('cancelAnimationFrame', () => {});
   useStore.setState({
     tracks: [],
     bpm: 120,
@@ -210,7 +223,9 @@ describe('audio clip waveforms', () => {
     act(() => worker.reply());
     expect(worker.requests).toHaveLength(1);
     act(() => worker.reply());
-    // The arrival redraws the timeline, now with the waveform.
+    // The arrival redraws the timeline on the next frame, now with the
+    // waveform.
+    act(() => runFrames());
     expect(count('quadraticCurveTo')).toBeGreaterThan(2 * 500);
     expect(flatLines()).toBe(0);
     expect(loadingLabels()).toBe(0);

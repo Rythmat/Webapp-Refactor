@@ -7,7 +7,14 @@
  *                                 [--base=http://localhost:5266]
  *                                 [--skip-bundle] [--skip-browser]
  *                                 [--cpu=4] [--gpu=metal|swiftshader]
+ *                                 [--engine=maplibre|three]
  *                                 [--headed] [--out=file.json]
+ *
+ * `--engine` picks the Globe's map engine (docs/globe-ui/ENGINE.md) for the
+ * dev server and the build it starts; a reused server (`--base`) runs
+ * whichever it was started with. The MapLibre engine draws its street map
+ * only with a tile source in the environment (VITE_BASEMAP_PMTILES_URL or
+ * VITE_PROTOMAPS_API_KEY), which the dev server and the build inherit.
  *
  * Two parts, each skippable:
  *
@@ -18,7 +25,10 @@
  * per run, in a fresh browser context:
  *
  * - first globe frame: from navigation start to the first animation frame
- *   after BaseGlobe's `atlas:globe-ready` mark (react-globe.gl initialised);
+ *   after the engine's `atlas:globe-ready` mark (react-globe.gl initialised,
+ *   or MapLibre's first complete frame, basemap tiles included);
+ * - map bytes: what the page downloads that is not code — tiles, fonts,
+ *   icons, outlines — until 2 s after that mark, by kind;
  * - frame rate with Spin on: frames from requestAnimationFrame over 10 s,
  *   after a 1 s ramp, with the gap between frames (median, p95, max);
  * - JS heap 30 s after navigation start (CDP JSHeapUsedSize, before and
@@ -99,6 +109,8 @@ const HEADED = args.headed === 'true';
 /** CPU slow-down for the interaction steps (card, drag, search); 1 = none. */
 const CPU = Number(args.cpu ?? 4);
 const OUT = resolve(args.out ?? join(DOCS, 'runs/latest.json'));
+/** The Globe's map engine for the server and the build this script starts. */
+const ENGINE = args.engine === 'three' ? 'three' : 'maplibre';
 
 if (PORT === OWNER_PORT) {
   console.error(
@@ -227,7 +239,12 @@ async function openGlobe(browser, base) {
       const stack = [fiber];
       while (stack.length) {
         const node = stack.pop();
-        if (node.type?.name === 'BaseGlobe') return node;
+        if (
+          node.type?.name === 'BaseGlobe' ||
+          node.type?.name === 'MapLibreGlobe'
+        ) {
+          return node;
+        }
         if (node.sibling) stack.push(node.sibling);
         if (node.child) stack.push(node.child);
       }
@@ -278,6 +295,20 @@ async function openGlobe(browser, base) {
   // YouTube traffic over the whole run, in which nothing is ever played: the
   // player (its API, embed page and scripts) and the thumbnails.
   const youtube = { player: 0, thumbs: 0, thumbBytes: 0 };
+  // The map's own downloads (not code), with when each finished.
+  const mapBytes = [];
+  page.on('requestfinished', async (request) => {
+    const kind = mapKind(request.url());
+    if (kind) {
+      const at = Date.now();
+      try {
+        const { responseBodySize } = await request.sizes();
+        mapBytes.push({ kind, at, bytes: responseBodySize });
+      } catch {
+        /* the page closed first */
+      }
+    }
+  });
   page.on('requestfinished', async (request) => {
     const host = new URL(request.url()).hostname;
     if (/(^|\.)ytimg\.com$|^img\.youtube\.com$/.test(host)) {
@@ -299,7 +330,25 @@ async function openGlobe(browser, base) {
     null,
     { timeout: 120_000 },
   );
-  return { context, page, errors, youtube };
+  return { context, page, errors, youtube, mapBytes };
+}
+
+/**
+ * What a request is, if it is the map's data rather than code: basemap
+ * tiles, fonts and icons, or the country and state outlines.
+ */
+function mapKind(url) {
+  const { hostname, pathname } = new URL(url);
+  if (/\.pmtiles$/.test(pathname) || hostname === 'api.protomaps.com') {
+    return 'tiles';
+  }
+  if (/\.pbf$/.test(pathname) || /\/sprites\//.test(pathname)) {
+    return 'fontsAndIcons';
+  }
+  if (/\/geo\/.*\.json$/.test(pathname) || /naturalearth|geojson/i.test(url)) {
+    return 'outlines';
+  }
+  return null;
 }
 
 const tasksNow = (page) =>
@@ -317,7 +366,10 @@ const rendersIn = (page, from, to) =>
 const now = (page) => page.evaluate(() => performance.now());
 
 async function runOnce(browser, base, index) {
-  const { context, page, errors, youtube } = await openGlobe(browser, base);
+  const { context, page, errors, youtube, mapBytes } = await openGlobe(
+    browser,
+    base,
+  );
   const notes = [];
   const result = { run: index };
 
@@ -331,9 +383,22 @@ async function runOnce(browser, base, index) {
       firstFrameMs: frame ? Math.round(frame) : null,
     };
   });
+  // The map's bytes until 2 s after the first frame, by kind.
+  const readyWall = await page.evaluate(
+    () =>
+      performance.timeOrigin +
+      performance.getEntriesByName('atlas:globe-ready')[0].startTime,
+  );
+  await page.waitForTimeout(2000);
+  result.mapKB = { tiles: 0, fontsAndIcons: 0, outlines: 0 };
+  for (const { kind, at, bytes } of mapBytes) {
+    if (at <= readyWall + 2000) result.mapKB[kind] += bytes / 1e3;
+  }
+  for (const kind of Object.keys(result.mapKB)) {
+    result.mapKB[kind] = +result.mapKB[kind].toFixed(1);
+  }
 
   // 2. Spin on for 10 s, after a 1 s ramp.
-  await page.waitForTimeout(1500);
   await page.getByRole('button', { name: 'Spin the globe' }).click();
   await page.waitForTimeout(1000);
   const spinFrom = await now(page);
@@ -538,6 +603,9 @@ function summarizeRuns(runs) {
     youtubePlayerRequests: pick((r) => r.youtube?.playerRequests),
     youtubeThumbRequests: pick((r) => r.youtube?.thumbRequests),
     youtubeThumbKB: pick((r) => r.youtube?.thumbKB),
+    mapTilesKB: pick((r) => r.mapKB?.tiles),
+    mapFontsAndIconsKB: pick((r) => r.mapKB?.fontsAndIcons),
+    mapOutlinesKB: pick((r) => r.mapKB?.outlines),
   };
 }
 
@@ -552,6 +620,7 @@ async function measureBrowser() {
       env: {
         ...PLACEHOLDER_ENV,
         VITE_DEV_AUTH_BYPASS: '1',
+        VITE_ATLAS_ENGINE: ENGINE,
         // Its own dep cache, so it never re-optimizes under the owner's server.
         VITE_CACHE_DIR: join(ROOT, 'node_modules/.vite-measure-globe'),
       },
@@ -577,6 +646,7 @@ async function measureBrowser() {
     }
     return {
       server: args.base ? `reused ${args.base}` : `vite dev on ${PORT}`,
+      engine: args.base ? 'as the reused server runs' : ENGINE,
       browser: `Chrome ${browser.version()}${HEADED ? ' (headed)' : ' (headless)'}`,
       gpu: { mode: GPU, renderer: gpu, ...SCREEN },
       cpuThrottle: CPU,
@@ -598,6 +668,7 @@ function build(tmp) {
   const env = {
     ...process.env,
     ...PLACEHOLDER_ENV,
+    VITE_ATLAS_ENGINE: ENGINE,
     ANALYZE: '1',
     ANALYZE_JSON: join(tmp, 'bundle-raw.json'),
     ANALYZE_OUT: join(tmp, 'bundle.html'),
@@ -641,7 +712,20 @@ const RENDERER_PACKAGES = [
   'react-globe.gl',
   'globe.gl',
   'three-globe',
+  'maplibre-gl',
+  'pmtiles',
+  '@protomaps/basemaps',
 ];
+
+/**
+ * The modules that load with the first render: the build's engine and its
+ * renderer. The bundler keeps the other engine as a lazy chunk too, but
+ * only this one is ever loaded.
+ */
+const FIRST_RENDER =
+  ENGINE === 'three'
+    ? /node_modules\/react-globe\.gl|components\/Globe\/BaseGlobe\.tsx/
+    : /components\/Globe\/MapLibreGlobe\.tsx/;
 
 async function measureBundle() {
   const tmp = mkdtempSync(join(tmpdir(), 'measure-globe-'));
@@ -690,15 +774,25 @@ async function measureBundle() {
         if (!loaded.has(next)) dynamicKeys.add(next);
       }
     }
+    // The engine loads on the first render and loads its renderer in turn
+    // (BaseGlobe → react-globe.gl): that is first render too.
+    for (const key of [...dynamicKeys]) {
+      if (!FIRST_RENDER.test(key)) continue;
+      for (const next of manifest[key].dynamicImports ?? []) {
+        if (FIRST_RENDER.test(next) && !loaded.has(next)) dynamicKeys.add(next);
+      }
+    }
     const dynamic = [...dynamicKeys].map((key) => {
       const adds = [...staticClosure(manifest, key)].filter(
         (k) => !loaded.has(k),
       );
-      const when = key.includes('node_modules/react-globe.gl')
-        ? 'first render (BaseGlobe)'
-        : key.includes('MindMap')
-          ? 'only with ?mindmap=1'
-          : 'on demand';
+      const when = FIRST_RENDER.test(key)
+        ? `first render (${ENGINE} engine)`
+        : /components\/Globe\/(BaseGlobe|MapLibreGlobe)\.tsx/.test(key)
+          ? 'never (the other engine)'
+          : key.includes('MindMap')
+            ? 'only with ?mindmap=1'
+            : 'on demand';
       return { key, when, adds };
     });
 
@@ -754,6 +848,7 @@ async function measureBundle() {
       RENDERER_PACKAGES.map((pkg) => [pkg, Object.keys(homes[pkg])]),
     );
     return {
+      engine: ENGINE,
       routeChunk: {
         file: routeChunk.file,
         rawBytes: routeChunk.rawBytes,

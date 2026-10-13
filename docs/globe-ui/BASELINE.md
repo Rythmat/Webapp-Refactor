@@ -259,16 +259,101 @@ one-pixel antialiasing along borders (0.03 to 0.07% of pixels). Also a US
 event in a town CITIES doesn't name (Dayton, filed under Ohio) and a guided
 tour, both loading their data on demand.
 
+### Prompt 8: the MapLibre engine
+
+Prompt 8 replaced the three.js globe with MapLibre GL 6 (globe projection)
+over a Protomaps vector basemap, so the map zooms from the planet to street
+level with real labels. The three.js globe stays behind
+`VITE_ATLAS_ENGINE=three` as a rollback. [ENGINE.md](ENGINE.md) covers the
+set-up: tiles, fonts, attribution and switching back. On the owner's
+direction, two things changed from the plan:
+
+- **Cities are dots, not hexagonal columns.**
+- **The country colours tint Protomaps' map at every zoom** instead of
+  fading out into a dark basemap. They sit over its land and under its sea,
+  roads and labels, with the globe's cyan sea everywhere (the Atlas theme).
+
+Same dev-server set-up as the rows above (Metal, 4x CPU for card, drag and
+search), 3 runs each (median), each engine served from a clean `git archive`
+copy of the commit. "Tiles" is the MapLibre engine with a basemap; "no
+basemap" is the same engine drawing only the country outlines, which is the
+fair comparison with three.js.
+
+| Measure                            | three.js     | MapLibre, no basemap | MapLibre, tiles |
+| ---------------------------------- | ------------ | -------------------- | --------------- |
+| First globe frame                  | 940 ms       | **858 ms**           | 3,573 ms\*      |
+| Frame rate, Spin on                | 60 fps       | 60 fps               | 60 fps          |
+| JS heap at 30 s, after GC          | 90.4 MB      | **74.3 MB**          | 81.2 MB         |
+| City click to card (4x CPU)        | 408 ms       | **192 ms**           | 221 ms          |
+| Long tasks opening the card        | 21, 1,915 ms | **1, 194 ms**        | 1, 206 ms       |
+| Dragging the card (4x CPU)         | 16.3 fps     | **60 fps**           | **60 fps**      |
+| Long tasks dragging                | 33, 1,999 ms | **0**                | **0**           |
+| Map re-renders while dragging      | 0            | 0                    | 0               |
+| Long tasks typing search           | 37, 2,143 ms | **0**                | **0**           |
+| Basemap tiles to 2 s after frame   | none         | none                 | 663.5 kB        |
+| Fonts and icons to 2 s after frame | none         | none                 | 300.6 kB        |
+
+\* Through a local proxy to Protomaps' build server (it has no CORS
+headers), so every tile request crossed the internet twice. A `.pmtiles`
+file behind a CDN, or the hosted API, should land well under this. MapLibre
+marks its first frame only once the visible tiles have drawn, while the
+three.js globe marked it before its outlines finished. Read the first-frame
+row as "no slower without tiles", and measure the tiled figure again against
+the real tile host.
+
+- **The map no longer competes with the page for the main thread.** With
+  three.js every frame of the globe was a long task on the slowed CPU, which
+  is why dragging and typing stalled. MapLibre draws only when something
+  changes and tiles in a worker, so both windows show no long tasks at all.
+- **No map re-renders while dragging.** The first MapLibre version
+  re-rendered its component 118 times in the 2 s drag, because it read the
+  card's width. That now lives in a small `MapPadding` child.
+- **Fonts are most of the label cost.** Protomaps labels places in English
+  and in their own script ("Moscow Москва"), so the globe view fetches glyph
+  ranges for Cyrillic, Arabic, Devanagari and others: 300 kB at the first
+  frame, against 30 kB when labels started at zoom 4. Labelling in one
+  language only would cut most of it. That is left for now, because local
+  names are part of the map.
+- **Spin is pinned at the display's 60 Hz on Metal** for both engines, as in
+  prompt 4.
+
+Code that loads, from production builds of each engine (gzip level 9):
+
+| What                                       | three.js                 | MapLibre                 |
+| ------------------------------------------ | ------------------------ | ------------------------ |
+| Route, static (`routeStatic`)              | 301.3 kB (101.9 kB gzip) | 301.2 kB (101.8 kB gzip) |
+| Engine, on the first render                | 1,819 kB (512.7 kB gzip) | 1,198 kB (310.7 kB gzip) |
+| MapLibre's worker (own file, loaded by it) | –                        | 508 kB (143.8 kB gzip)   |
+| Engine in all                              | **1,819 kB (512.7 kB)**  | **1,707 kB (454.5 kB)**  |
+
+- **Both engines now load lazily**, which also took three.js's WebGL build
+  (575 kB) out of the route's static imports. That had looked impossible in
+  prompt 7: `routeStatic` went from 885.4 kB to 301.2 kB. Against the
+  baseline's 1,086.1 kB that is **72% smaller**, past the plan's 30% target.
+- **Only the chosen engine ever loads.** The bundler keeps the other as a
+  lazy chunk the page never requests; the measuring script lists it as
+  "never (the other engine)".
+- verifyProdBundle holds maplibre-gl, pmtiles and @protomaps/basemaps to the
+  lazy-only rule, one marker each.
+
+Screenshots in [screens/](screens/) as `p8-*`: the globe view, a city card,
+a clicked country (Brazil), a deep link (Japan), New Orleans' French Quarter
+at street level, an event with its influence arcs, a guided tour and a
+phone viewport.
+
 ## Budgets
 
 `scripts/verifyProdBundle.mjs` now checks four things:
 
-- **Lazy-only.** three.js (marker `THREE.WebGLRenderer`) and react-globe.gl
-  (marker `scene-container`) must not appear in an entry chunk or a chunk
-  `index.html` preloads, and each marker must still exist somewhere in the
-  build. Cortex's renderer already had this rule.
-- **Size.** `assets/atlas-*.js` may be at most 5% over **111,634** bytes. The
-  static route total may be at most 5% over **885,444** bytes. Both numbers
+- **Lazy-only.** three.js (marker `THREE.WebGLRenderer`), react-globe.gl
+  (marker `scene-container`) and, since prompt 8, maplibre-gl
+  (`maplibre_preloaded_worker_pool`), pmtiles (its "Wrong magic number"
+  error) and @protomaps/basemaps (the `water_label_ocean` layer id) must not
+  appear in an entry chunk or a chunk `index.html` preloads, and each marker
+  must still exist somewhere in the build. Cortex's renderer already had
+  this rule.
+- **Size.** `assets/atlas-*.js` may be at most 5% over **102,904** bytes. The
+  static route total may be at most 5% over **298,824** bytes. Both numbers
   are in `GLOBE_BUDGET` in the script. When a change shrinks the page on
   purpose, lower them to the new sizes. When a change grows it on purpose,
   raise them in the same commit and record why under "Budget changes".
@@ -287,16 +372,20 @@ tour, both loading their data on demand.
 | 12 Oct 2026 | Prompt 5: layout, phones, accessibility | 107,836 (+4,178)  | 1,131,110 (+10,332) | Measured against prompt 4's build (97,779 / 1,120,448; prompt 4 stayed under the prompt 3 budget), the route chunk grew 10,057 B minified, 2,953 B gzip, all of it this prompt's: the zone grid, the phone bottom sheet and its snapping, focus handling for panels, the Escape stack, the reduced-motion and phone media hooks, and the card's keyboard resize. Shared chunks moved 0.6 kB (primitives, lucide's chevron-up).                                                      |
 | 12 Oct 2026 | Prompt 6: palette, legend, Layers       | 110,195 (+2,359)  | 1,142,358 (+11,248) | The legend, the Layers popover and its switches, the map-control cluster, the palette's model, the search button and the per-viewer layer store. The rest of `routeStatic` is mostly re-chunking: `globeSearch` (6.3 kB) and the id lookups (5.2 kB) moved out of the atlas and `hooks` chunks into shared chunks of their own, now that the lazily loaded palette imports them too (`hooks` shrank 3.3 kB). The palette itself (8.8 kB) and cmdk (20.5 kB) load only on first use. |
 | 13 Oct 2026 | Prompt 7: data on demand                | 111,634 (+1,439)  | 885,444 (−256,914)  | Lowered. The state outlines (`hooks` chunk, ~104 kB), the influence graph (128 kB), the guided tours (23 kB) and the pathways (7 kB) now load on first use through `data/loaders.ts`. The atlas chunk grew 1.4 kB for the loaders, their loading and retry lines and the waits in navigation; `topojson-client` (2 kB) joined `geoLoader`.                                                                                                                                          |
+| 13 Oct 2026 | Prompt 8: MapLibre engine               | 102,904 (−8,730)  | 298,824 (−586,620)  | Lowered. The map engine now loads lazily (MapLibre by default, three.js with `VITE_ATLAS_ENGINE=three`), so three.js's WebGL build (575 kB) left the route's static imports. To get there, the route had to stop importing the hooks barrel, which re-exports three.js's lighting hook. The atlas chunk lost BaseGlobe's static code. MapLibre itself (1.1 MB, 295 kB gzip, plus a 508 kB worker) loads on the first render, like react-globe.gl did.                               |
 
 ## What this baseline added to the page
 
 These additions don't change what the page looks like or does:
 
-- `performance.mark('atlas:globe-ready')` in BaseGlobe's `onGlobeReady`. It
-  ships, costs nothing and works in production builds too.
+- `performance.mark('atlas:globe-ready')` in BaseGlobe's `onGlobeReady`,
+  and since prompt 8 on the MapLibre engine's `load` (its first complete
+  frame, basemap tiles included). It ships, costs nothing and works in
+  production builds too.
 - `window.__atlasGlobeDebug` with `screenOf(lat, lng, altitude)` and
   `pointOfView(pov, ms)`, which the script uses to aim the camera and click
-  a real city hex. It is installed behind a literal `import.meta.env.DEV`
+  a real city hex. The MapLibre engine installs the same two (altitude
+  becomes a zoom through `altitudeToMapZoom`) plus `map`, the MapLibre map. It is installed behind a literal `import.meta.env.DEV`
   guard, so it folds out of production builds, and verifyProdBundle checks
   that it does.
 
@@ -326,6 +415,10 @@ Other flags:
   Its frame rates only compare with other SwiftShader runs.
 - `--headed` opens a visible window.
 - `--port` and `--out` set the dev server port and the output file.
+- `--engine=three` measures the three.js engine (docs/globe-ui/ENGINE.md);
+  the default is `maplibre`. The MapLibre engine draws its street map only
+  when `VITE_BASEMAP_PMTILES_URL` or `VITE_PROTOMAPS_API_KEY` is set in the
+  environment, which the dev server and the build inherit.
 
 A run writes `docs/globe-ui/runs/latest.json`, which git ignores, and prints
 each median beside this baseline's. Port 5179, the owner's dev server, is

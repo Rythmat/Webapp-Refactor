@@ -39,7 +39,10 @@ export const LAYER_OPTIONS: {
   {
     layer: 'cities',
     label: 'Music cities',
-    detail: `A ${CITY_MARK} on each city with music history.`,
+    detail:
+      CITY_MARK === 'name'
+        ? 'Each city with music history, by its name.'
+        : 'A column on each city with music history.',
   },
   {
     layer: 'artistPoints',

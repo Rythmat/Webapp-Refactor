@@ -3,7 +3,6 @@ import type { ArcDatum } from '@/components/atlas/data';
 import { getCentroid } from './globeLabels';
 import {
   arcColors,
-  cityColumnColors,
   isCityHighlighted,
   regionColor,
   type ArtistPoint,
@@ -266,18 +265,19 @@ export function regionCollection(
 }
 
 export interface CityProps {
-  /** The city a click opens. */
+  /** The city a click on its name opens, and its feature id (hover). */
   cityId: string;
-  /** The city's name: its label from zoom 6, and its hover label. */
+  /** The city's name: what the map shows of it. */
   name: string;
-  /** Its dot: a shade of its country's colour, or white when highlighted. */
-  color: string;
+  /** A town events make a city of, named only closer in (TOWN_NAMES_FROM). */
+  town: boolean;
+  /** Selected, or holding the pinned event: its name is warm. */
   highlight: boolean;
 }
 
 /**
- * Each city as a point: a dot at every zoom, white and on top when it is
- * selected or holds the pinned event.
+ * Each city as a point its name is drawn at: highlighted when it is selected
+ * or holds the pinned event.
  */
 export function cityPointCollection(
   points: readonly CityPoint[],
@@ -298,7 +298,7 @@ export function cityPointCollection(
         properties: {
           cityId: point.id,
           name: point.name,
-          color: cityColumnColors(point.color, highlight).top,
+          town: point.town ?? false,
           highlight,
         },
       };

@@ -52,6 +52,15 @@ function Swatch({ swatch }: { swatch: LegendSwatch }) {
           <circle cx="10" cy="10" fill={swatch.color} r="4" />
         </svg>
       );
+    case 'label':
+      return (
+        <span
+          className="block w-5 text-center text-xs font-bold leading-5"
+          style={{ color: swatch.color }}
+        >
+          Aa
+        </span>
+      );
     case 'outline':
       return (
         <svg className="size-5" viewBox="0 0 20 20">

@@ -21,6 +21,7 @@ import {
   cityOutline,
   loadCityOutline,
 } from '@/components/atlas/data/cityOutlines';
+import { selectableCities } from '@/components/atlas/data/lookups';
 import { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import {
   useIsPhone,
@@ -218,6 +219,8 @@ export default function MapLibreGlobe() {
           basemap,
           lang: basemapLang(document.documentElement.lang),
           assetsUrl: assetsUrlFromEnv(import.meta.env),
+          // The basemap leaves these names to the Globe, which shows them.
+          cityNames: selectableCities().map((c) => c.name),
         }),
         center: [START.lng, START.lat],
         zoom: altitudeToMapZoom(START.altitude, height, START.lat),
@@ -338,13 +341,37 @@ export default function MapLibreGlobe() {
       }) as unknown as PickedFeature[];
       return topFeature(features, regionsClickable(map.getZoom(), withBasemap));
     };
+    // The city name under the pointer turns warm (feature-state 'hover').
+    let hovered: string | null = null;
+    const hover = (cityId: string | null) => {
+      if (cityId === hovered) return;
+      if (hovered) {
+        map.setFeatureState(
+          { source: SOURCE.cityPoints, id: hovered },
+          { hover: false },
+        );
+      }
+      if (cityId) {
+        map.setFeatureState(
+          { source: SOURCE.cityPoints, id: cityId },
+          { hover: true },
+        );
+      }
+      hovered = cityId;
+    };
     const onMove = (e: {
       point: { x: number; y: number };
       lngLat: { lng: number; lat: number };
     }) => {
       const feature = pick(e.point);
+      const target = targetOf(feature);
+      hover(
+        feature?.layer.id === LAYER.cityLabels && target?.kind === 'city'
+          ? target.cityId
+          : null,
+      );
       const label = labelOf(feature);
-      map.getCanvas().style.cursor = targetOf(feature) ? 'pointer' : '';
+      map.getCanvas().style.cursor = target ? 'pointer' : '';
       if (!label) {
         popup.remove();
         return;
@@ -354,6 +381,7 @@ export default function MapLibreGlobe() {
     };
     const onLeave = () => {
       popup.remove();
+      hover(null);
       map.getCanvas().style.cursor = '';
     };
     const onClick = (e: { point: { x: number; y: number } }) => {
@@ -372,6 +400,7 @@ export default function MapLibreGlobe() {
       map.off('mouseout', onLeave);
       map.off('click', onClick);
       popup.remove();
+      hover(null);
     };
   }, [map, basemap, clicks]);
 

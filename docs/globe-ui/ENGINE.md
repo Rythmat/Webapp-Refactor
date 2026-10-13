@@ -40,11 +40,21 @@ zoom (the Atlas theme):
 - **Labels** for countries, places, roads and points of interest show at
   every zoom, light with dark halos, so they read on any country's colour.
 - **From zoom 3**, the US and Canadian state outlines appear.
-- **Cities** are dots in a shade of their country's colour. The selected
-  city (or the pinned event's) is white, larger and drawn on top.
-- **City names** are the basemap's own labels, so no name shows twice. On
-  the plain map without a tile source, which has no labels, the Globe names
-  its cities itself from zoom 6.
+- **Cities are their names.** There is no dot: a city's name is drawn
+  over everything, and clicking it opens the city. A name turns warm while
+  the pointer is on it, and stays warm while the city is selected or holds
+  the pinned event. The basemap skips its own label for any name the Globe
+  shows, so no name is doubled. Where names crowd, the selected city's wins,
+  then the music cities', then the towns'.
+- **Towns events happened in are cities too.** An event placed somewhere no
+  music city claims, such as Aspen ("Take Me Home, Country Roads") or
+  Colorado Springs ("Counting Stars"), makes that town a city of its own
+  (`utils/eventCities.ts`). It gets its name on the map from zoom 5, a card
+  listing its events, a stop in the URL (`place=city:aspen-us`) and a place
+  in search. Nothing about it is authored: its genres and decades are its
+  events', and it appears as soon as published content places an event
+  there. US and Canadian events still open their state's card first, as
+  before; the town's name highlights while the event is pinned.
 - **A selected city is outlined** by its boundary, in the same bright, warm
   line as a selected country or state (see "City outlines" below).
 - **Influence arcs** are dashed great circles on the surface with a slowly
@@ -200,13 +210,15 @@ the licence.
 
 ## City outlines
 
-Each music city's boundary comes from OpenStreetMap, through Nominatim's
-search, and is built once by `scripts/buildCityOutlines.mjs`:
+Each city's boundary, music city or town, comes from OpenStreetMap through
+Nominatim's search, and is built once by `scripts/buildCityOutlines.mjs`.
+It runs under `tsx`, which reads the app's TypeScript, so it can work out
+the towns from the bundled events:
 
 ```sh
-node scripts/buildCityOutlines.mjs                  # build from the cache
-node scripts/buildCityOutlines.mjs --refresh        # ask OpenStreetMap again
-node scripts/buildCityOutlines.mjs --only=london    # try a few, write nothing
+npx tsx scripts/buildCityOutlines.mjs                    # build from the cache
+npx tsx scripts/buildCityOutlines.mjs --refresh          # ask OpenStreetMap again
+npx tsx scripts/buildCityOutlines.mjs --only=aspen-us    # try a few, write nothing
 ```
 
 The script follows Nominatim's usage policy: one request a second, an
@@ -224,7 +236,9 @@ content hash in the name, and the list of them to
 `src/components/atlas/data/cityOutlineFiles.ts`. Commit both. The page
 fetches a city's file only when that city is selected or flown to
 (`data/cityOutlines.ts`). Re-run the script after adding cities to
-`cities.ts`.
+`cities.ts`, or when the bundled events place events in new towns. A town
+only the published content places has no outline until then; selecting it
+still works, at zoom 10.
 
 ## Language
 

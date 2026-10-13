@@ -2,7 +2,7 @@ import type { Feature } from 'geojson';
 import { describe, expect, it } from 'vitest';
 import type { ArcDatum } from '@/components/atlas/data';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
-import { cityColumnColors, regionColor, type CityPoint } from './globeLayers';
+import { regionColor, type CityPoint } from './globeLayers';
 import {
   altitudeToMapZoom,
   arcCollection,
@@ -131,7 +131,7 @@ describe('sources', () => {
     color: '#cc4455',
   });
 
-  it('marks each city with a dot in a shade of its country’s colour', () => {
+  it('places each city’s name at the city', () => {
     const [nola] = cityPointCollection(
       [city('new-orleans', 29.95, -90.07)],
       null,
@@ -141,12 +141,12 @@ describe('sources', () => {
     expect(nola.properties).toEqual({
       cityId: 'new-orleans',
       name: 'new-orleans',
-      color: cityColumnColors('#cc4455').top,
+      town: false,
       highlight: false,
     });
   });
 
-  it('turns the selected city and the pinned event’s city white', () => {
+  it('highlights the selected city and the pinned event’s city', () => {
     const points = [
       city('new-orleans', 29.95, -90.07),
       city('memphis', 35.15, -90.05),
@@ -156,9 +156,6 @@ describe('sources', () => {
       false,
       true,
     ]);
-    expect(bySelection.features[1].properties.color).toBe(
-      ATLAS_SCENE.highlight,
-    );
     const byPin = cityPointCollection(points, null, 'new-orleans');
     expect(byPin.features[0].properties.highlight).toBe(true);
   });

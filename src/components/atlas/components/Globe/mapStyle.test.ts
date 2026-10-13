@@ -108,15 +108,33 @@ describe('the style with a basemap', () => {
       expect(at(id)).toBeGreaterThan(at('roads_highway'));
       expect(at(id)).toBeLessThan(firstLabel);
     }
-    // The dots too: a city's name reads over its dot, not under it.
-    for (const id of [LAYER.cityCircles, LAYER.artistPoints]) {
-      expect(at(id)).toBeGreaterThan(at(LAYER.arcsDash));
-      expect(at(id)).toBeLessThan(firstLabel);
-    }
+    // An artist's points too: a name reads over a point, not under it.
+    expect(at(LAYER.artistPoints)).toBeGreaterThan(at(LAYER.arcsDash));
+    expect(at(LAYER.artistPoints)).toBeLessThan(firstLabel);
+    // The cities' names are over everything.
+    expect(at(LAYER.cityLabels)).toBe(order.length - 1);
   });
 
-  it('leaves a city’s name to the basemap, so it is never shown twice', () => {
-    expect(ids(style.layers)).not.toContain(LAYER.cityLabels);
+  it('names each city once: the basemap skips the names the Globe shows', () => {
+    const named = buildStyle({
+      basemap: { kind: 'pmtiles', url: 'https://tiles.example/world.pmtiles' },
+      lang: 'en',
+      assetsUrl: ASSETS,
+      cityNames: ['Aspen', 'New Orleans'],
+    });
+    const towns = named.layers.find((l) => l.id === 'places_locality');
+    expect(
+      JSON.stringify(towns && 'filter' in towns && towns.filter),
+    ).toContain('"Aspen","New Orleans"');
+    expect(ids(named.layers)).not.toContain('atlas-city-circles');
+  });
+
+  it('marks a city by its name: warm while hovered or selected', () => {
+    const names = style.layers.find((l) => l.id === LAYER.cityLabels);
+    expect(names?.type).toBe('symbol');
+    const paint = JSON.stringify(names?.paint);
+    expect(paint).toContain('feature-state');
+    expect(paint).toContain(ATLAS_SCENE.strokeSelected);
   });
 
   it('outlines the selected city in the selected region’s line', () => {

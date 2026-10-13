@@ -27,7 +27,7 @@ const texas = at(LAYER.statesFill, {
   clat: 31,
   clng: -99,
 });
-const nola = at(LAYER.cityCircles, {
+const nola = at(LAYER.cityLabels, {
   cityId: 'new-orleans',
   name: 'New Orleans',
 });
@@ -64,7 +64,7 @@ describe('what it opens', () => {
     expect(targetOf(point)).toEqual({ kind: 'event', eventId: 'evt-1' });
   });
 
-  it('opens a city from its dot', () => {
+  it('opens a city from its name', () => {
     expect(targetOf(nola)).toEqual({ kind: 'city', cityId: 'new-orleans' });
   });
 
@@ -90,7 +90,8 @@ describe('what it opens', () => {
 describe('hover labels', () => {
   it('say what the three.js globe said, escaped', () => {
     expect(labelOf(arc)).toContain('Bebop &amp; &quot;cool&quot; →');
-    expect(labelOf(nola)).toContain('New Orleans');
+    // A city's name is on the map already: no hover label.
+    expect(labelOf(nola)).toBeNull();
     expect(labelOf(brazil)).toContain('Brazil');
     expect(labelOf(texas)).toContain('Texas');
     expect(labelOf(null)).toBeNull();

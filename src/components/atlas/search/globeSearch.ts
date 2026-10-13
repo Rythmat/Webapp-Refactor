@@ -1,10 +1,12 @@
-import { CITIES, CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
+import { CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
 import {
   getAtlasArtists,
   type AtlasArtist,
 } from '@/components/atlas/data/artists';
+import { selectableCities } from '@/components/atlas/data/lookups';
 import type { AtlasStop } from '@/components/atlas/navigation/atlasStop';
 import type {
+  City,
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
@@ -114,15 +116,21 @@ interface PlaceEntry {
   keywords: string[];
 }
 
-let placeIndex: PlaceEntry[] | null = null;
+let placeIndex: { cities: City[]; entries: PlaceEntry[] } | null = null;
 
+/**
+ * Every place search can find: each selectable city (the music cities and
+ * the towns events make cities of, like Aspen), and the states and
+ * countries they are in. Rebuilt when the towns change (new content).
+ */
 function getPlaceIndex(): PlaceEntry[] {
-  if (placeIndex) return placeIndex;
+  const cities = selectableCities();
+  if (placeIndex?.cities === cities) return placeIndex.entries;
   const entries: PlaceEntry[] = [];
   const states = new Map<string, { name: string; country: string }>();
   const countries = new Map<string, string>();
 
-  for (const city of CITIES) {
+  for (const city of cities) {
     const country = COUNTRY_DISPLAY[city.country] ?? city.country;
     entries.push({
       place: { type: 'city', id: city.id },
@@ -164,7 +172,7 @@ function getPlaceIndex(): PlaceEntry[] {
     });
   }
 
-  placeIndex = entries;
+  placeIndex = { cities, entries };
   return entries;
 }
 

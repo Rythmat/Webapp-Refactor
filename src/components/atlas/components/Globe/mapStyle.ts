@@ -65,7 +65,6 @@ export const LAYER = {
   arcsTrace: 'atlas-arcs-trace',
   arcsDash: 'atlas-arcs-dash',
   arcsHit: 'atlas-arcs-hit',
-  cityCircles: 'atlas-city-circles',
   cityLabels: 'atlas-city-labels',
   artistPoints: 'atlas-artist-points',
 } as const;
@@ -74,15 +73,15 @@ export const LAYER = {
 export const CLICK_LAYERS = [
   LAYER.arcsHit,
   LAYER.artistPoints,
-  LAYER.cityCircles,
+  LAYER.cityLabels,
   LAYER.statesFill,
   LAYER.countriesFill,
 ] as const;
 
 /* ── The Globe's own layers ──────────────────────────────────────────────── */
 
-/** Where the city dots get their names. */
-export const CITY_LABELS_FROM = 6;
+/** Where the towns events make cities of get their names on the map. */
+export const TOWN_NAMES_FROM = 5;
 
 const zoomRamp = (
   ...stops: (readonly [number, number])[]
@@ -110,7 +109,11 @@ export function overlaySources(): Record<string, SourceSpecification> {
   return {
     [SOURCE.countries]: emptyCollection(),
     [SOURCE.states]: emptyCollection(),
-    [SOURCE.cityPoints]: emptyCollection(),
+    // Ids by city, for the hover feature-state on a city's name.
+    [SOURCE.cityPoints]: {
+      ...emptyCollection(),
+      promoteId: 'cityId',
+    } as SourceSpecification,
     [SOURCE.cityOutline]: emptyCollection(),
     [SOURCE.artistPoints]: emptyCollection(),
     [SOURCE.arcs]: emptyCollection(),
@@ -136,11 +139,10 @@ export function countryTintLayer(withBasemap: boolean): LayerSpecification {
 }
 
 /**
- * The layers that sit under the basemap's labels: outlines, arcs, the city
- * dots and an artist's points.
+ * The layers that sit under the basemap's labels: outlines, arcs and an
+ * artist's points.
  */
 export function overlayLayersBelowLabels(): LayerSpecification[] {
-  const highlight: ExpressionSpecification = ['get', 'highlight'];
   return [
     {
       // Clicks only: the states keep their country's colour, as before.
@@ -235,33 +237,8 @@ export function overlayLayersBelowLabels(): LayerSpecification[] {
         'line-opacity': 0,
       },
     },
-    // The marks go last, still under the basemap's labels, so a city's name
-    // reads over its dot rather than under it.
-    {
-      // A dot on each city at every zoom; the selected one white, larger
-      // and on top.
-      id: LAYER.cityCircles,
-      type: 'circle',
-      source: SOURCE.cityPoints,
-      layout: { 'circle-sort-key': ['case', highlight, 1, 0] },
-      paint: {
-        'circle-color': ['get', 'color'],
-        'circle-radius': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          1,
-          ['case', highlight, 5, 2.5],
-          CITY_LABELS_FROM,
-          ['case', highlight, 9, 6],
-          12,
-          ['case', highlight, 11, 8],
-        ],
-        'circle-stroke-color': ATLAS_SCENE.pointRim,
-        'circle-stroke-width': ['case', highlight, 2, 1],
-        'circle-pitch-alignment': 'map',
-      },
-    },
+    // An artist's points go last, still under the basemap's labels, so a
+    // name reads over a point rather than under it.
     {
       id: LAYER.artistPoints,
       type: 'circle',
@@ -278,32 +255,57 @@ export function overlayLayersBelowLabels(): LayerSpecification[] {
 }
 
 /**
- * The Globe's city names, over everything, only on the plain map without a
- * basemap. With one, a city's name is the basemap's to show, so a name is
- * never shown twice.
+ * The cities, as their names: no dot, the name is the city, and it is what
+ * a click selects. Over everything, the basemap's labels included (which
+ * skip the names shown here: basemapLayersFor), so a name is never shown
+ * twice. A name turns warm while hovered, and while its city is selected or
+ * holds the pinned event. Where names crowd, the selected city's wins, then
+ * the music cities', then the towns events make cities of, which appear
+ * only from TOWN_NAMES_FROM.
  */
-export function overlayLayersOnTop(withBasemap: boolean): LayerSpecification[] {
-  if (withBasemap) return [];
-  const cityLabels: LayerSpecification = {
-    id: LAYER.cityLabels,
-    type: 'symbol',
-    source: SOURCE.cityPoints,
-    minzoom: CITY_LABELS_FROM,
-    layout: {
-      'text-field': ['get', 'name'],
-      'text-font': ['Noto Sans Medium'],
-      'text-size': 13,
-      'text-offset': [0, 1.1],
-      'text-anchor': 'top',
-      'text-optional': true,
+export function overlayLayersOnTop(): LayerSpecification[] {
+  const highlight: ExpressionSpecification = [
+    'any',
+    ['boolean', ['get', 'highlight'], false],
+    ['boolean', ['feature-state', 'hover'], false],
+  ];
+  return [
+    {
+      id: LAYER.cityLabels,
+      type: 'symbol',
+      source: SOURCE.cityPoints,
+      filter: [
+        'any',
+        ['!', ['boolean', ['get', 'town'], false]],
+        ['boolean', ['get', 'highlight'], false],
+        ['>=', ['zoom'], TOWN_NAMES_FROM],
+      ],
+      layout: {
+        'text-field': ['get', 'name'],
+        'text-font': ['Noto Sans Medium'],
+        'text-size': zoomRamp([2, 12], [8, 14], [12, 16]),
+        'symbol-sort-key': [
+          'case',
+          ['boolean', ['get', 'highlight'], false],
+          0,
+          ['boolean', ['get', 'town'], false],
+          2,
+          1,
+        ],
+        'text-padding': 4,
+      },
+      paint: {
+        'text-color': [
+          'case',
+          highlight,
+          ATLAS_SCENE.strokeSelected,
+          ATLAS_SCENE.label,
+        ],
+        'text-halo-color': ATLAS_SCENE.labelHalo,
+        'text-halo-width': ['case', highlight, 2, 1.5],
+      },
     },
-    paint: {
-      'text-color': ATLAS_SCENE.label,
-      'text-halo-color': ATLAS_SCENE.labelHalo,
-      'text-halo-width': 1.5,
-    },
-  };
-  return [cityLabels];
+  ];
 }
 
 /* ── The style ───────────────────────────────────────────────────────────── */
@@ -312,41 +314,63 @@ export interface StyleOptions {
   basemap: Basemap;
   lang: 'en' | 'es';
   assetsUrl: string;
+  /** The names the Globe shows for its cities, which the basemap then skips. */
+  cityNames?: readonly string[];
 }
 
 /**
  * The basemap's layers, in the Atlas flavor (ATLAS_BASEMAP in tokens.ts).
  * Some of its labels (countries, places of interest) take their halo from
  * the land colour; on tinted land that halo is lost, so they get the dark
- * label halo too.
+ * label halo too. Its town and city labels skip the names the Globe shows
+ * itself (`cityNames`), whether it names a place in English or in its own
+ * language, so no city's name is shown twice.
  */
-function basemapLayersFor(lang: 'en' | 'es'): LayerSpecification[] {
+function basemapLayersFor(
+  lang: 'en' | 'es',
+  cityNames: readonly string[],
+): LayerSpecification[] {
   const flavor = { ...namedFlavor('dark'), ...ATLAS_BASEMAP };
   const base = basemapLayers(SOURCE.basemap, flavor, {
     lang,
   }) as LayerSpecification[];
-  return base.map((layer) =>
-    layer.type === 'symbol' &&
-    layer.paint?.['text-halo-color'] === ATLAS_BASEMAP.earth
-      ? {
-          ...layer,
-          paint: { ...layer.paint, 'text-halo-color': ATLAS_SCENE.labelHalo },
-        }
-      : layer,
-  );
+  return base.map((layer) => {
+    if (layer.type !== 'symbol') return layer;
+    let out = layer;
+    if (layer.paint?.['text-halo-color'] === ATLAS_BASEMAP.earth) {
+      out = {
+        ...out,
+        paint: { ...layer.paint, 'text-halo-color': ATLAS_SCENE.labelHalo },
+      };
+    }
+    if (layer.id === 'places_locality' && cityNames.length > 0) {
+      const names: ExpressionSpecification = ['literal', [...cityNames]];
+      out = {
+        ...out,
+        filter: [
+          'all',
+          ['==', ['get', 'kind'], 'locality'],
+          ['!', ['in', ['coalesce', ['get', 'name:en'], ''], names]],
+          ['!', ['in', ['coalesce', ['get', 'name'], ''], names]],
+        ],
+      };
+    }
+    return out;
+  });
 }
 
 export function buildStyle({
   basemap,
   lang,
   assetsUrl,
+  cityNames = [],
 }: StyleOptions): StyleSpecification {
   const tint = countryTintLayer(basemap !== null);
   const below = overlayLayersBelowLabels();
-  const onTop = overlayLayersOnTop(basemap !== null);
+  const onTop = overlayLayersOnTop();
   let layers: LayerSpecification[];
   if (basemap) {
-    const base = basemapLayersFor(lang);
+    const base = basemapLayersFor(lang, cityNames);
     // The tint goes over the basemap's land and land use, under its sea;
     // the outlines and arcs between its shapes and its labels.
     const sea = base.findIndex((layer) => layer.id === 'water');

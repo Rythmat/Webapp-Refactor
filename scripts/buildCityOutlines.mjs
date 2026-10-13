@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 /* eslint-env node */
 /**
- * Build the outline of each music city, for the Globe page to draw when a
- * city is selected, as it outlines a selected country or state.
+ * Build the outline of each city the Globe page can select, for it to draw
+ * when the city is selected, as it outlines a selected country or state: the
+ * music cities (cities.ts) and the towns events make cities of (Aspen,
+ * Colorado Springs: utils/deriveEventCities.ts, run on the bundled events).
  *
- *   node scripts/buildCityOutlines.mjs            # build from the cache
- *   node scripts/buildCityOutlines.mjs --refresh  # ask OpenStreetMap again
- *   node scripts/buildCityOutlines.mjs --only=new-orleans,london  # try a few;
- *                                       writes nothing, prints what it found
+ *   npx tsx scripts/buildCityOutlines.mjs            # build from the cache
+ *   npx tsx scripts/buildCityOutlines.mjs --refresh  # ask OpenStreetMap again
+ *   npx tsx scripts/buildCityOutlines.mjs --only=new-orleans,aspen-us  # try a
+ *                                       few; writes nothing, prints them
+ *
+ * It runs under tsx, which reads the app's TypeScript and its path aliases.
+ * Towns only published content places (not in the bundled events) have no
+ * outline until the bundled events catch up and this runs again.
  *
  * Each city's boundary comes from OpenStreetMap (© OpenStreetMap
  * contributors, ODbL; the Globe's map credits it) through Nominatim's search,
@@ -43,7 +49,11 @@ import {
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { format, resolveConfig } from 'prettier';
-import { CITIES } from '../src/components/atlas/data/cities.ts';
+import { CITIES as MUSIC_CITIES } from '../src/components/atlas/data/cities.ts';
+import { BUNDLED_MUSIC_HISTORY } from '../src/components/atlas/data/events/index.ts';
+import { STATE_BOUNDARIES } from '../src/components/atlas/data/stateBoundaries.ts';
+import { deriveEventCities } from '../src/components/atlas/utils/deriveEventCities.ts';
+import { stateAt } from '../src/components/atlas/utils/stateAt.ts';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE = join(ROOT, 'node_modules/.cache/build-city-outlines');
@@ -82,6 +92,15 @@ const NEAR_PART_DEG = 0.5;
 /** How the dataset names a country, as Nominatim reads it. */
 const COUNTRY_NAMES = { US: 'United States', UK: 'United Kingdom' };
 
+/** Every selectable city: the music cities, then the towns events make cities of. */
+const CITIES = [
+  ...MUSIC_CITIES,
+  ...deriveEventCities(
+    BUNDLED_MUSIC_HISTORY,
+    (lat, lng) => stateAt(STATE_BOUNDARIES, lat, lng)?.name,
+  ).cities,
+];
+
 const refresh = process.argv.includes('--refresh');
 const only = process.argv
   .find((arg) => arg.startsWith('--only='))
@@ -116,8 +135,10 @@ async function answersFor(city) {
     answers = JSON.parse(readFileSync(file, 'utf8'));
   } else {
     const queries = [
-      [city.name, city.subdivision, country].filter(Boolean).join(', '),
-      [city.name, country].join(', '),
+      ...new Set([
+        [city.name, city.subdivision, country].filter(Boolean).join(', '),
+        [city.name, country].join(', '),
+      ]),
     ];
     for (const query of queries) {
       const result = await search(query);

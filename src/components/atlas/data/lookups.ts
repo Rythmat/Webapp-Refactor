@@ -1,4 +1,8 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { City, HistoricalEvent } from '@/components/atlas/types';
+import {
+  eventCities,
+  getEventCityById,
+} from '@/components/atlas/utils/eventCities';
 import { contentGeneration, MUSIC_HISTORY } from '@/content/contentStore';
 import type { PlaceRecord } from '@/content/records/types';
 import { CITIES } from './cities';
@@ -37,16 +41,23 @@ export function getEventById(
 let citiesById: Map<string, PlaceRecord> | null = null;
 let citiesByName: Map<string, PlaceRecord> | null = null;
 
+/**
+ * A city by its id: a music city, or a town its events make a city of
+ * (utils/eventCities.ts: Aspen, Colorado Springs).
+ */
 export function getCityById(
   id: string | null | undefined,
-): PlaceRecord | undefined {
+): PlaceRecord | City | undefined {
   if (!id) return undefined;
   citiesById ??= new Map(CITIES.map((c) => [c.id, c]));
-  return citiesById.get(id);
+  return citiesById.get(id) ?? getEventCityById(id);
 }
 
-/** The first city with this name, ignoring case — as `CITIES.find` did. */
-export function getCityByName(name: string): PlaceRecord | undefined {
+/**
+ * The first city with this name, ignoring case — as `CITIES.find` did — or
+ * failing one, the town of that name.
+ */
+export function getCityByName(name: string): PlaceRecord | City | undefined {
   if (!citiesByName) {
     citiesByName = new Map();
     for (const c of CITIES) {
@@ -54,5 +65,23 @@ export function getCityByName(name: string): PlaceRecord | undefined {
       if (!citiesByName.has(key)) citiesByName.set(key, c);
     }
   }
-  return citiesByName.get(name.toLowerCase());
+  const lower = name.toLowerCase();
+  return (
+    citiesByName.get(lower) ??
+    eventCities().find((c) => c.name.toLowerCase() === lower)
+  );
+}
+
+let allCities: { towns: City[]; all: City[] } | null = null;
+
+/**
+ * Every city that can be selected: the music cities, then the towns events
+ * make cities of. Rebuilt when the towns change (new content).
+ */
+export function selectableCities(): City[] {
+  const towns = eventCities();
+  if (allCities?.towns !== towns) {
+    allCities = { towns, all: [...CITIES, ...towns] };
+  }
+  return allCities.all;
 }

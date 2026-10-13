@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from 'react';
-import { CITIES, CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
+import { CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
 import { connectionsData } from '@/components/atlas/data/loaders';
+import { selectableCities } from '@/components/atlas/data/lookups';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import { regionFrame } from '@/components/atlas/navigation/flyFrames';
@@ -15,6 +16,7 @@ import {
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import type { SelectedLocation } from '@/components/atlas/types';
+import { eventCities } from '@/components/atlas/utils/eventCities';
 import { resolveFocusCities } from '@/components/atlas/utils/resolveFocusCities';
 import {
   ARTIST_POINT,
@@ -51,15 +53,18 @@ export function useGlobeScene() {
 
   // City data — all cities, or only the focus set during a sequence.
   const countryColors = layers.countryColors;
+  // Every selectable city: the music cities and the towns events make cities
+  // of (Aspen, Colorado Springs).
   const allCityPoints: CityPoint[] = useMemo(() => {
-    const source = focusCities
-      ? CITIES.filter((c) => focusCities.has(c.id))
-      : CITIES;
+    const all = selectableCities();
+    const towns = new Set(eventCities());
+    const source = focusCities ? all.filter((c) => focusCities.has(c.id)) : all;
     return source.map((city) => ({
       lat: city.coordinates[0],
       lng: city.coordinates[1],
       id: city.id,
       name: city.name,
+      town: towns.has(city),
       color: cityBaseColor(CITY_COUNTRY_TO_ISO[city.country], countryColors),
     }));
   }, [focusCities, countryColors]);

@@ -29,6 +29,11 @@ export interface CityPoint {
   lng: number;
   id: string;
   name: string;
+  /**
+   * A town events make a city of (utils/eventCities.ts), not a music city:
+   * its name gives way to the music cities' where they crowd.
+   */
+  town?: boolean;
   /** The column's base: its country's colour (or the plain land's). */
   color: string;
 }

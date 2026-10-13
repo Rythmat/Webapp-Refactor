@@ -13,9 +13,10 @@ export const GLOBE_ENGINE: GlobeEngine =
   import.meta.env.VITE_ATLAS_ENGINE === 'three' ? 'three' : 'maplibre';
 
 /**
- * How a city is marked: a dot on the MapLibre map, a raised column on the
- * three.js globe. The legend and the Layers popover describe this one.
+ * How a city is marked: by its name on the MapLibre map (select the name to
+ * open it), a raised column on the three.js globe. The legend and the Layers
+ * popover describe this one.
  */
-export type CityMark = 'dot' | 'column';
+export type CityMark = 'name' | 'column';
 
-export const CITY_MARK: CityMark = GLOBE_ENGINE === 'three' ? 'column' : 'dot';
+export const CITY_MARK: CityMark = GLOBE_ENGINE === 'three' ? 'column' : 'name';

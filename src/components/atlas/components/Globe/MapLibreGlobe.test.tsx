@@ -211,10 +211,10 @@ const feature = (
 ): PickedFeature => ({ layer: { id: layer }, properties });
 
 describe('clicks on the MapLibre globe', () => {
-  it('open a city from its dot', () => {
+  it('open a city from its name', () => {
     const { click, search } = setup();
     click(
-      feature(LAYER.cityCircles, {
+      feature(LAYER.cityLabels, {
         cityId: 'new-orleans',
         name: 'New Orleans',
       }),

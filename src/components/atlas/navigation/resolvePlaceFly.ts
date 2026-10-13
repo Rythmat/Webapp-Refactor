@@ -1,4 +1,5 @@
 import { CITIES } from '@/components/atlas/data';
+import { getCityById } from '@/components/atlas/data/lookups';
 import type {
   City,
   FlyFrame,
@@ -42,7 +43,8 @@ export function resolvePlaceFly(place: SelectedLocation): FlyTo | null {
 
 function placeFly(place: SelectedLocation): Omit<FlyTo, 'frame'> | null {
   if (place.type === 'city') {
-    const city = CITIES.find((c) => c.id === place.id);
+    // A music city, or a town its events make a city of (Aspen).
+    const city = getCityById(place.id);
     if (!city) return null;
     return { lat: city.coordinates[0], lng: city.coordinates[1], zoom: 10 };
   }

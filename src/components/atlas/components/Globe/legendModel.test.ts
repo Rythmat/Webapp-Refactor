@@ -152,22 +152,19 @@ describe('legend', () => {
     }
   });
 
-  it('describes dots where the map marks cities with dots', () => {
-    const dots: LegendContext = {
+  it('describes names where the map marks cities by name', () => {
+    const names: LegendContext = {
       ...HOME,
-      cityMark: 'dot',
+      cityMark: 'name',
       cityHighlighted: true,
     };
-    expect(entry(dots, 'cities')).toMatchObject({
-      detail: 'A dot on each city, in a shade of its country’s colour.',
-      swatch: {
-        shape: 'point',
-        color: getContrastColor(getCountryColor('USA')),
-      },
+    expect(entry(names, 'cities')).toMatchObject({
+      detail: expect.stringContaining('select a name to open the city'),
+      swatch: { shape: 'label', color: ATLAS_SCENE.label },
     });
-    expect(entry(dots, 'selected-city')?.swatch).toEqual({
-      shape: 'point',
-      color: ATLAS_SCENE.highlight,
+    expect(entry(names, 'selected-city')).toMatchObject({
+      detail: 'Its name turns warm, and its boundary is outlined.',
+      swatch: { shape: 'label', color: ATLAS_SCENE.strokeSelected },
     });
   });
 });

@@ -24,6 +24,8 @@ export type LegendSwatch =
   | { shape: 'fill'; color: string }
   | { shape: 'column'; top: string; side: string }
   | { shape: 'point'; color: string }
+  /** A sample of a city's name, in the colour the map writes it. */
+  | { shape: 'label'; color: string }
   | { shape: 'outline'; color: string }
   | { shape: 'arc'; colors: [string, string] };
 
@@ -111,27 +113,28 @@ export function legendEntries(ctx: LegendContext): LegendEntry[] {
       cityBaseColor(SAMPLE_COUNTRY, layers.countryColors),
     );
     const selected = cityColumnColors('', true);
-    const dots = ctx.cityMark === 'dot';
-    const mark = dots ? 'dot' : 'column';
+    const names = ctx.cityMark === 'name';
     entries.push({
       id: 'cities',
       label: 'Music cities',
-      detail: layers.countryColors
-        ? `A ${mark} on each city, in a shade of its country’s colour.`
-        : `A ${mark} on each city.`,
-      swatch: dots
-        ? { shape: 'point', color: sample.top }
+      detail: names
+        ? 'Each city by its name: select a name to open the city. Towns with events are named too, closer in.'
+        : layers.countryColors
+          ? 'A column on each city, in a shade of its country’s colour.'
+          : 'A column on each city.',
+      swatch: names
+        ? { shape: 'label', color: ATLAS_SCENE.label }
         : { shape: 'column', ...sample },
     });
     if (ctx.cityHighlighted) {
       entries.push({
         id: 'selected-city',
         label: 'Selected city',
-        detail: dots
-          ? 'Its dot turns white and grows.'
+        detail: names
+          ? 'Its name turns warm, and its boundary is outlined.'
           : 'Its column turns white.',
-        swatch: dots
-          ? { shape: 'point', color: selected.top }
+        swatch: names
+          ? { shape: 'label', color: ATLAS_SCENE.strokeSelected }
           : { shape: 'column', ...selected },
       });
     }

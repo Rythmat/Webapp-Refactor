@@ -571,9 +571,12 @@ export function DetailsCard() {
         city &&
         !enlarged && (
           <>
-            <p className="mt-3 text-sm leading-relaxed text-atlas-text/80">
-              {city.description}
-            </p>
+            {/* A town events make a city of has no description of its own. */}
+            {city.description && (
+              <p className="mt-3 text-sm leading-relaxed text-atlas-text/80">
+                {city.description}
+              </p>
+            )}
             <div className="mt-3 flex flex-wrap gap-1.5">
               {city.genres.map((genre) => (
                 <GenreBadge key={genre} genre={genre} />

@@ -1,7 +1,6 @@
 import type { SelectedLocation } from '@/components/atlas/types';
 import {
   arcLabel,
-  citiesLabel,
   featureName,
   placeOfRegion,
   pointLabel,
@@ -77,7 +76,7 @@ export function targetOf(feature: PickedFeature | null): MapTarget | null {
       const eventId = str(p.eventId);
       return eventId ? { kind: 'event', eventId } : null;
     }
-    case LAYER.cityCircles: {
+    case LAYER.cityLabels: {
       const cityId = str(p.cityId);
       return cityId ? { kind: 'city', cityId } : null;
     }
@@ -108,8 +107,9 @@ export function labelOf(feature: PickedFeature | null): string | null {
       });
     case LAYER.artistPoints:
       return pointLabel(str(p.name) ?? '');
-    case LAYER.cityCircles:
-      return citiesLabel([str(p.name) ?? '']);
+    // A city is its name, already on the map and warm when hovered.
+    case LAYER.cityLabels:
+      return null;
     case LAYER.statesFill:
     case LAYER.countriesFill:
       return regionLabel(featureName({ properties: p }), p._layer === 'state');

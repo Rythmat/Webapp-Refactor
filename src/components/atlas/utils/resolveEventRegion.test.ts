@@ -3,6 +3,7 @@ import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { ensureAtlasContent, MUSIC_HISTORY } from '@/content/contentStore';
 import { sameCountry } from './country';
 import { getEventsForLocation } from './getEventsForLocation';
+import { matchMusicCity } from './musicCityMatch';
 import {
   eventSubdivision,
   matchCity,
@@ -68,7 +69,9 @@ describe('resolveEventRegion', () => {
     // unambiguously Michigan.
     const vulfpeck = byId('song-1612');
     expect(vulfpeck.location.city).toBe('Ann Arbor');
-    expect(matchCity(vulfpeck)).toBeUndefined();
+    // No music city claims it, so it is a town of its own (eventCities.ts).
+    expect(matchMusicCity(vulfpeck)).toBeUndefined();
+    expect(matchCity(vulfpeck)?.id).toBe('ann-arbor-us');
     expect(resolveEventRegion(vulfpeck).region).toEqual({
       type: 'state',
       name: 'Michigan',

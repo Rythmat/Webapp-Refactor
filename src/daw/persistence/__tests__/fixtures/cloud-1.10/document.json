@@ -1861,7 +1861,8 @@
           }
         ],
         "sourceTrackId": "trk-guitar",
-        "trackRole": "auto"
+        "trackRole": "auto",
+        "audioClipIds": ["take-1"]
       },
       "midiClips": [],
       "audioClips": [

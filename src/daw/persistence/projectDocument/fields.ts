@@ -58,9 +58,9 @@ import { guessTrackRole } from '@/daw/utils/trackRole';
 // - local: written to the project's draft on this device (codec v3).
 // - cloud: 'legacy' when today's cloud payload carries it, 'document' when
 //   only milestone 1.5's document field will, false when the cloud copy
-//   doesn't hold it. Two doc fields are false, and the copy loses nothing by
-//   either: projectId, which is the copy's own address, and an audio clip's
-//   id, which every cloud open mints afresh until milestone 1.10.
+//   doesn't hold it. One doc field is false, and the copy loses nothing by
+//   it: projectId, which is the copy's own address. (An audio clip's id was
+//   the other until milestone 1.10; it rides on its track's settings now.)
 // - collab: shared live with everyone in a room. A doc field with collab
 //   false still belongs to the project and is saved with it, but in a room
 //   each collaborator sets their own (mute, solo, the loop region, the key
@@ -736,7 +736,7 @@ export const CC_EVENT_FIELDS: CcEventFields = Object.freeze({
 type AudioClipFields = { [K in keyof AudioClip]-?: FieldSpec<AudioClip[K]> };
 
 export const AUDIO_CLIP_FIELDS: AudioClipFields = Object.freeze({
-  id: trackPart(() => crypto.randomUUID(), false),
+  id: trackPart(() => crypto.randomUUID(), 'legacy'),
   startTick: trackPart(0, 'legacy'),
   duration: trackPart(0, 'legacy'),
   fadeInTicks: trackPart(0, 'legacy'),

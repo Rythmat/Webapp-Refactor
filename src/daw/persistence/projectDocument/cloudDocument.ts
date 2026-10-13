@@ -1,5 +1,5 @@
 import { guessTrackRole } from '@/daw/utils/trackRole';
-import { planCloudTrackIds } from './cloudIds';
+import { isCloudAudioClipId, planCloudTrackIds } from './cloudIds';
 import {
   draftPlaceOf,
   encodeSession,
@@ -303,9 +303,10 @@ function masterAutomationOf(project: CloudPayload): unknown {
  * decodeSession. Each track loads under the id it was saved with
  * (settings.sourceTrackId, or else the document's trackIds when the
  * document isn't stale and the track count still matches); `mint` gives the
- * rest new ones, and audio clips new
- * ids too (until milestone 1.10). Throws nothing itself; decodeSession and
- * migrateSession check what it holds.
+ * rest new ones. Audio clips load under the ids they were saved with
+ * (settings.audioClipIds, since milestone 1.10), and `mint` gives the rest
+ * new ones. Throws nothing itself; decodeSession and migrateSession check
+ * what it holds.
  */
 export function cloudProjectDraft(
   project: CloudPayload,
@@ -336,6 +337,17 @@ export function cloudProjectDraft(
     }),
     mint,
   );
+
+  // Audio clip ids by position in each track's rows, each used once in the
+  // project, else minted (cloudAudioClipId).
+  const audioIdsSeen = new Set<string>();
+  const audioClipId = (trackIndex: number, clipIndex: number): string => {
+    const saved = settingsOf(trackIndex)?.audioClipIds?.[clipIndex];
+    const id =
+      isCloudAudioClipId(saved) && !audioIdsSeen.has(saved) ? saved : mint();
+    audioIdsSeen.add(id);
+    return id;
+  };
 
   const parts = doc && isRecord(doc.clips) ? doc.clips : {};
   let partsSkipped = 0;
@@ -386,7 +398,8 @@ export function cloudProjectDraft(
         midiClip,
       ) as DraftMidiClip[],
       audioClips: (Array.isArray(row.audioClips) ? row.audioClips : []).map(
-        (clip) => (isRecord(clip) ? { ...clip, id: mint() } : clip),
+        (clip, c) =>
+          isRecord(clip) ? { ...clip, id: audioClipId(i, c) } : clip,
       ) as DraftTrack['audioClips'],
     } satisfies Omit<
       DraftTrack,

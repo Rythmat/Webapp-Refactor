@@ -1001,11 +1001,12 @@ describe('the classification, key by key', () => {
     );
   });
 
-  it('keeps only the cloud link and audio clip ids out of the cloud copy', () => {
+  it('keeps only the cloud link out of the cloud copy', () => {
     const notInCloud = ALL_SPECS.filter(
       ([, f]) => f.scope === 'doc' && f.cloud === false,
     ).map(([name]) => name);
-    expect(notInCloud.sort()).toEqual(['AudioClip.id', 'projectId']);
+    // Audio clip ids travel on their track's settings since 1.10.
+    expect(notInCloud.sort()).toEqual(['projectId']);
   });
 
   it('leaves exactly these nested fields to the 1.5 document', () => {
@@ -1173,6 +1174,9 @@ const TRACK_IN_PAYLOAD: Record<string, string> = {
 const SETTINGS_ELSEWHERE = [
   'settings.oracleSynth',
   'settings.masterAutomation',
+  // Its audio clips' ids (the clip rows get the API's own ids): the
+  // AudioClip id field, checked below.
+  'settings.audioClipIds',
   // Milestone 1.5's interim fallback: the cloud document on the first track.
   'settings.projectDoc',
   'settings.projectDocSchema',
@@ -1305,7 +1309,11 @@ describe("the cloud flags match today's legacy payload", () => {
     expect(
       [...seen.events].map((c) => NOTE_COLUMNS[c] ?? `?${c}`).sort(),
     ).toEqual(legacy(NOTE_EVENT_FIELDS));
-    expect([...seen.audioClip].sort()).toEqual(legacy(AUDIO_CLIP_FIELDS));
+    // A clip's id rides on its track's settings (audioClipIds), not its row.
+    expect([...seen.audioClip, 'id'].sort()).toEqual(legacy(AUDIO_CLIP_FIELDS));
+    if (seen.audioClip.size > 0) {
+      expect(seen.track).toContain('settings.audioClipIds');
+    }
     expect([...seen.bus].sort()).toEqual(legacy(RETURN_BUS_FIELDS));
     // Neither CC events nor chord regions nor markers travel today.
     expect(legacy(CC_EVENT_FIELDS)).toEqual([]);

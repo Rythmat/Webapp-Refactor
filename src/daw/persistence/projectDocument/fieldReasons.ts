@@ -264,7 +264,7 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
     tick: FROM_CLIP_START,
   },
   AudioClip: {
-    id: 'It keys the clip’s decoded audio, so a cloud open mints new ones until milestone 1.10 keys audio by asset; the cloud carries it from then. A new id loses nothing but a second download. Within a session it is the clip’s link to its audio, so it counts as content like any other id (the save status fingerprints it): only a load changes it, and the load marks its baseline after that.',
+    id: 'Its link to its audio (audio/assets/assetStore.ts). The cloud rows get the API’s own ids, so it rides on its track’s settings (audioClipIds, milestone 1.10) and an open reuses it. Within a session it counts as content like any other id (the save status fingerprints it): only a load changes it, and the load marks its baseline after that.',
     duration: 'In ticks.',
     assetId:
       'Null until the audio is uploaded; a cloud save leaves such clips out.',

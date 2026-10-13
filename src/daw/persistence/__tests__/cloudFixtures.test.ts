@@ -74,25 +74,36 @@ function answerFor(mode: CloudWriteMode): CloudProjectDetail {
 const fixture = (mode: CloudWriteMode, dir = CLOUD): CloudProjectDetail =>
   JSON.parse(readFileSync(resolve(dir, `${mode}.json`), 'utf8'));
 
-/** A Track as the cloud keeps it: no per-device fields, no audio clip ids. */
-function cloudTrack(track: Track): Record<string, unknown> {
+/**
+ * A Track as the cloud keeps it: no per-device fields, and with
+ * `audioClipIds` its audio clips' ids (since 1.10; 1.5's saves carry none).
+ */
+function cloudTrack(
+  track: Track,
+  audioClipIds: boolean,
+): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const key of Object.keys(TRACK_FIELDS) as (keyof Track)[]) {
     if (TRACK_FIELDS[key].cloud === false) continue;
     out[key] = track[key];
   }
-  out.audioClips = track.audioClips.map(({ id: _id, ...clip }) => clip);
+  if (!audioClipIds) {
+    out.audioClips = track.audioClips.map(({ id: _id, ...clip }) => clip);
+  }
   return JSON.parse(JSON.stringify(out));
 }
 
 /** Every field the cloud keeps, as the store holds it now. */
-function cloudContent(state: AllSlices): Record<string, unknown> {
+function cloudContent(
+  state: AllSlices,
+  audioClipIds = true,
+): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const key of DOC_CONTENT_KEYS) {
     if (STORE_FIELDS[key].cloud === false) continue;
     out[key] =
       key === 'tracks'
-        ? state.tracks.map(cloudTrack)
+        ? state.tracks.map((t) => cloudTrack(t, audioClipIds))
         : JSON.parse(JSON.stringify(state[key] ?? null));
   }
   return out;
@@ -146,11 +157,11 @@ describe.each(MODES)('a cloud copy saved in %s mode', (mode) => {
 describe.each(MODES)('a cloud copy milestone 1.5 saved in %s mode', (mode) => {
   it('still opens with every field it kept', () => {
     loadAllFields(ALL_FIELDS_V3);
-    const expected = cloudContent(s());
+    const expected = cloudContent(s(), false);
     useStore.setState(useStore.getInitialState(), true);
 
     const report = deserializeCloudProject(fixture(mode, CLOUD_V3));
     expect(report).toMatchObject({ stale: false, newer: false });
-    expect(cloudContent(s())).toEqual(expected);
+    expect(cloudContent(s(), false)).toEqual(expected);
   });
 });

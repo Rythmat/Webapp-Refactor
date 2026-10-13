@@ -25,14 +25,13 @@ import type { AudioMidiSource } from '@/daw/store/tracksSlice';
 // (setTrackSynthState) and setting the store in the same synchronous block;
 // this module only decides the ids.
 //
-// Audio clip ids are still minted on every cloud open, until 1.10. The cloud
-// body carries no clip id to reuse, and reusing one safely needs decoded
-// audio keyed by asset: the AudioBufferStore is keyed by clip id alone, and
-// the loader (src/lib/studio-assets/load-audio.ts) skips any clip whose id
-// already has a buffer without checking which asset it holds. 1.10's asset
-// model keys audio by asset. Until then a fresh id costs a second download
-// and decode of the same asset (audit audio-core-08). Clearing the store on a
-// load is no way out either: kept work's un-uploaded takes live only there.
+// Audio clip ids survive too, since milestone 1.10: each track's settings
+// carry its clips' ids (settings.audioClipIds, in the order of its rows),
+// and an open reuses each that is a valid id (isCloudAudioClipId) not
+// already taken. Reuse is safe now that decoded audio belongs to its asset
+// (audio/assets/assetStore.ts): the loader links a clip to the asset its
+// assetId names, so a clip id seen before never plays another take's audio,
+// and a project reopened in this tab finds its audio decoded already.
 
 /**
  * The longest saved id an open reuses. The app mints 36-character UUIDs; the
@@ -40,6 +39,19 @@ import type { AudioMidiSource } from '@/daw/store/tracksSlice';
  * key built from a track id.
  */
 const MAX_TRACK_ID_LENGTH = 64;
+
+/**
+ * Whether a saved audio clip id can be reused: a non-empty string of at most
+ * 64 characters. A clip id keys its audio and, through the clipboard and
+ * the drafts' media, a few maps; it is never built into other keys.
+ */
+export function isCloudAudioClipId(value: unknown): value is string {
+  return (
+    typeof value === 'string' &&
+    value.length > 0 &&
+    value.length <= MAX_TRACK_ID_LENGTH
+  );
+}
 
 /** How many ids planCloudTrackIds asks `mint` for before giving up on one. */
 const MINT_ATTEMPTS = 16;

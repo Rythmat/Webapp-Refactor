@@ -396,6 +396,11 @@ export interface SerializedTrackSettings
   // and its schema. A cloud open finds it on any track (cloudDocument.ts).
   projectDoc?: CloudDocument;
   projectDocSchema?: number;
+  // Cloud saves only (milestone 1.10): the ids of the track's audio clips,
+  // in the order of its audioClips rows. The API gives clips row ids of its
+  // own, so a cloud open loads each clip under the id it was saved with
+  // (cloudProjectDraft) instead of minting one on every open.
+  audioClipIds?: string[];
 }
 
 /** A MIDI clip in the draft: the v2 clip and the columns v3 adds. */

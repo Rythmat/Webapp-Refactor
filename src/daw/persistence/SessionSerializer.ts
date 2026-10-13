@@ -168,11 +168,13 @@ export function serializeSessionForCloud(
 
   const tracks = state.tracks.map((t) => {
     const audioClips: CloudAudioClip[] = [];
+    const audioClipIds: string[] = [];
     for (const c of t.audioClips) {
       if (!c.assetId) {
         droppedAudioClipCount++;
         continue;
       }
+      audioClipIds.push(c.id);
       audioClips.push({
         assetId: c.assetId,
         startTick: c.startTick,
@@ -197,6 +199,8 @@ export function serializeSessionForCloud(
       settings: {
         ...trackSettings(t, getTrackSynthState),
         trackRole: t.trackRole,
+        // The clips' own ids, so an open keeps them (cloudProjectDraft).
+        ...(audioClipIds.length > 0 ? { audioClipIds } : {}),
       },
       midiClips: t.midiClips.map((c) => ({
         id: c.id,
@@ -356,8 +360,8 @@ export interface CloudOpenReport {
  * and the rest come back with it. Its tracks keep the ids they were saved
  * with (settings.sourceTrackId), so everything that names a track by id
  * still finds it; a project saved before ids travelled gets new ones once.
- * Audio clips get new ids until milestone 1.10 keys audio by asset. A
- * project without a document opens what its rows carry, the rest at its
+ * Its audio clips keep theirs too (settings.audioClipIds, milestone 1.10).
+ * A project without a document opens what its rows carry, the rest at its
  * defaults. Throws, changing nothing, when the payload can't be read.
  */
 export function deserializeCloudProject(

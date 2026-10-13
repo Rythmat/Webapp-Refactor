@@ -172,12 +172,29 @@ describe('a cloud project opens', () => {
     expect(second.id).not.toBe(shared);
   });
 
-  it('with new audio clip ids, as decoded audio is still keyed by clip', () => {
+  it('with the audio clip ids it was saved with (since 1.10)', () => {
     buildProject();
     deserializeCloudProject(fromServer(serializeSessionForCloud()));
     const take = byName('Guitar').audioClips[0];
-    expect(take.id).not.toBe('take-1');
+    expect(take.id).toBe('take-1');
     expect(take.assetId).toBe('asset-1');
+  });
+
+  it('with new audio clip ids when the saved ones are missing or taken', () => {
+    buildProject();
+    const body = serializeSessionForCloud();
+    const guitar = body.tracks.find((t) => t.name === 'Guitar')!;
+    // A save from before 1.10 carries none.
+    delete guitar.settings!.audioClipIds;
+    deserializeCloudProject(fromServer(body));
+    expect(byName('Guitar').audioClips[0].id).not.toBe('take-1');
+    // Two clips saved under one id: the second gets a new one.
+    guitar.audioClips.push({ ...guitar.audioClips[0] });
+    guitar.settings!.audioClipIds = ['take-1', 'take-1'];
+    deserializeCloudProject(fromServer(body));
+    const ids = byName('Guitar').audioClips.map((c) => c.id);
+    expect(ids[0]).toBe('take-1');
+    expect(new Set(ids).size).toBe(2);
   });
 
   it('with the same note ids every time it opens', () => {

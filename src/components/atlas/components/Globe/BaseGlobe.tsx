@@ -9,10 +9,6 @@ import {
   type ArcDatum,
 } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
-import {
-  getCountryColor,
-  getContrastColor,
-} from '@/components/atlas/data/continentColors';
 import { useGeoData, useGlobeLighting } from '@/components/atlas/hooks';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
@@ -29,6 +25,16 @@ import { ATLAS_SCENE, atlasVar } from '@/components/atlas/theme/tokens';
 import type { SelectedLocation } from '@/components/atlas/types';
 import { resolveFocusCities } from '@/components/atlas/utils/resolveFocusCities';
 import { GlobeController } from './GlobeController';
+import {
+  ARTIST_POINT,
+  arcColors,
+  cityBaseColor,
+  cityColumnColors,
+  visibleArcs,
+  visibleArtistPoints,
+  visibleCityPoints,
+  visiblePolygons,
+} from './globeLayers';
 import {
   ATMOSPHERE,
   createOceanMaterial,
@@ -79,14 +85,8 @@ function escapeHtml(text: string): string {
  * once per selection (which is the digest we actually want).
  */
 
-const ARC_DOWNSTREAM: [string, string] = [...ATLAS_SCENE.arcDownstream];
-
-const arcColorAccessor = (d: object): [string, string] => {
-  const arc = d as ArcDatum;
-  if (arc.direction === 'downstream') return ARC_DOWNSTREAM;
-  const c = getContrastColor(arc.color);
-  return [`${c}e6`, `${c}66`];
-};
+const arcColorAccessor = (d: object): [string, string] =>
+  arcColors(d as ArcDatum);
 
 /*
  * Hover labels. globe.gl puts them in its tooltip box, which index.css turns
@@ -260,6 +260,8 @@ export function BaseGlobe() {
   const pinnedEvent = useAtlasSelector((s) => s.pinnedEvent);
   const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
   const visibleArcDirections = useAtlasSelector((s) => s.visibleArcDirections);
+  const layers = useAtlasSelector((s) => s.layers);
+  const statesInView = useAtlasSelector((s) => s.statesInView);
   const activeModule = useAtlasSelector((s) => s.activeModule);
   const activeTour = useAtlasSelector((s) => s.activeTour);
   const dispatch = useAtlasDispatch();
@@ -319,9 +321,10 @@ export function BaseGlobe() {
   // Altitude drives exactly one thing: whether state/province polygons show.
   // globe.gl calls onZoom from the OrbitControls 'change' handler, i.e. on
   // EVERY frame while flying, dragging or auto-rotating, so the raw number is
-  // kept in a ref and only the boolean reaches React.
+  // kept in a ref and only the boolean reaches the store (where the legend
+  // reads it too).
   const altitudeRef = useRef(2.5);
-  const [showStates, setShowStates] = useState(false);
+  const statesInViewRef = useRef(statesInView);
 
   // Country polygons and state polygons are memoised SEPARATELY and never
   // rebuilt: three-globe stamps a random `__id` on each feature object and
@@ -347,11 +350,8 @@ export function BaseGlobe() {
   );
 
   const polygonFeatures = useMemo(
-    () =>
-      showStates && stateFeatures.length > 0
-        ? [...countryFeatures, ...stateFeatures]
-        : countryFeatures,
-    [countryFeatures, stateFeatures, showStates],
+    () => visiblePolygons(layers, countryFeatures, stateFeatures, statesInView),
+    [layers, countryFeatures, stateFeatures, statesInView],
   );
 
   // While a guided sequence (Pathway / Region tour / City tour) is active, the
@@ -362,21 +362,23 @@ export function BaseGlobe() {
   );
 
   // City hex data — all cities, or only the focus set during a sequence.
+  const countryColors = layers.countryColors;
   const hexPoints: HexPoint[] = useMemo(() => {
     const source = focusCities
       ? CITIES.filter((c) => focusCities.has(c.id))
       : CITIES;
-    return source.map((city) => {
-      const iso = CITY_COUNTRY_TO_ISO[city.country];
-      return {
-        lat: city.coordinates[0],
-        lng: city.coordinates[1],
-        id: city.id,
-        name: city.name,
-        color: iso ? getCountryColor(iso) : ATLAS_SCENE.fallback,
-      };
-    });
-  }, [focusCities]);
+    return source.map((city) => ({
+      lat: city.coordinates[0],
+      lng: city.coordinates[1],
+      id: city.id,
+      name: city.name,
+      color: cityBaseColor(CITY_COUNTRY_TO_ISO[city.country], countryColors),
+    }));
+  }, [focusCities, countryColors]);
+  const cityPoints = useMemo(
+    () => visibleCityPoints(layers, hexPoints),
+    [layers, hexPoints],
+  );
 
   // Pinned marker removed — the pinned city is shown via its highlighted hex.
   // An artist stop lights up every place that artist's events happened, so the
@@ -390,11 +392,15 @@ export function BaseGlobe() {
       lat: e.location.lat,
       lng: e.location.lng,
       name: `${e.title} · ${e.year}`,
-      color: ATLAS_SCENE.highlight,
-      size: 0.45,
+      color: ARTIST_POINT.color,
+      size: ARTIST_POINT.radius,
       eventId: e.id,
     }));
   }, [artist]);
+  const artistPoints = useMemo(
+    () => visibleArtistPoints(layers, pinnedPointData),
+    [layers, pinnedPointData],
+  );
 
   // Influence arcs for pinned event — filtered by which dropdowns are open
   const allArcs = useMemo(() => {
@@ -402,22 +408,25 @@ export function BaseGlobe() {
     return getRecursiveArcsForEvent(pinnedEvent.id);
   }, [pinnedEvent]);
 
-  const influenceArcs = useMemo(() => {
-    if (visibleArcDirections.size === 0) return []; // No dropdowns open → no arcs
-    return allArcs.filter((arc) => visibleArcDirections.has(arc.direction));
-  }, [allArcs, visibleArcDirections]);
+  // Only the directions open in the event card (or Layers), and none with the
+  // arcs layer off.
+  const influenceArcs = useMemo(
+    () => visibleArcs(layers, allArcs, visibleArcDirections),
+    [layers, allArcs, visibleArcDirections],
+  );
 
   // Altitude tracking — ref-only, plus a hysteresis flip of the states layer.
   const handleZoom = useCallback(
     (pov: { lat: number; lng: number; altitude: number }) => {
       altitudeRef.current = pov.altitude;
-      setShowStates((current) =>
-        current
-          ? pov.altitude <= SHOW_STATES_LEAVE
-          : pov.altitude < SHOW_STATES_ENTER,
-      );
+      const next = statesInViewRef.current
+        ? pov.altitude <= SHOW_STATES_LEAVE
+        : pov.altitude < SHOW_STATES_ENTER;
+      if (next === statesInViewRef.current) return;
+      statesInViewRef.current = next;
+      dispatch({ type: 'SET_STATES_IN_VIEW', payload: next });
     },
-    [],
+    [dispatch],
   );
 
   // Country/state/province polygon click — fly to the polygon's own centroid,
@@ -549,10 +558,16 @@ export function BaseGlobe() {
 
   // Polygon cap/side materials (light-responsive for day/night shading), bound
   // to the per-instance caches above and shared with HeroGlobe via globeVisuals.
+  // Country colours switched off in Layers: new accessors, so the polygon
+  // layer re-paints in place.
   const { polygonCapMaterial, polygonSideMaterial } = useMemo(
     () =>
-      makePolygonMaterialAccessors(capMatCache.current, sideMatCache.current),
-    [],
+      makePolygonMaterialAccessors(
+        capMatCache.current,
+        sideMatCache.current,
+        countryColors,
+      ),
+    [countryColors],
   );
 
   const polygonStrokeColor = useCallback(
@@ -596,9 +611,10 @@ export function BaseGlobe() {
   const hexSideColor = useCallback(
     (d: object) => {
       const hex = d as HexBin;
-      if (isHexHighlighted(hex.points)) return ATLAS_SCENE.highlightSide;
-      const base = hex.points[0]?.color ?? ATLAS_SCENE.fallback;
-      return `${getContrastColor(base)}cc`;
+      return cityColumnColors(
+        hex.points[0]?.color ?? cityBaseColor(undefined, true),
+        isHexHighlighted(hex.points),
+      ).side;
     },
     [isHexHighlighted],
   );
@@ -606,9 +622,10 @@ export function BaseGlobe() {
   const hexTopColor = useCallback(
     (d: object) => {
       const hex = d as HexBin;
-      if (isHexHighlighted(hex.points)) return ATLAS_SCENE.highlight;
-      const base = hex.points[0]?.color ?? ATLAS_SCENE.fallback;
-      return getContrastColor(base);
+      return cityColumnColors(
+        hex.points[0]?.color ?? cityBaseColor(undefined, true),
+        isHexHighlighted(hex.points),
+      ).top;
     },
     [isHexHighlighted],
   );
@@ -707,7 +724,7 @@ export function BaseGlobe() {
           hexBinMerge={false}
           hexBinPointLat="lat"
           hexBinPointLng="lng"
-          hexBinPointsData={hexPoints}
+          hexBinPointsData={cityPoints}
           hexBinPointWeight={1}
           hexBinResolution={4}
           hexLabel={hexLabelAccessor}
@@ -744,7 +761,7 @@ export function BaseGlobe() {
           polygonsData={polygonFeatures}
           onHexClick={handleHexClick}
           // Pinned event point
-          pointsData={pinnedPointData}
+          pointsData={artistPoints}
         />
       )}
 

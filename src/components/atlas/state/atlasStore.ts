@@ -10,6 +10,7 @@ import {
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import type { AppAction, AppState } from '@/components/atlas/types';
 import { appReducer, initialAppState } from './appReducer';
+import { loadLayers, saveLayers } from './layersStorage';
 
 /**
  * The Globe page's state, as a store components subscribe to field by field.
@@ -35,6 +36,18 @@ export function createAtlasStore(initial: AppState = initialAppState) {
   return { api, dispatch } satisfies AtlasStore;
 }
 
+/**
+ * The page's store: the viewer's Layers choices come from localStorage and
+ * go back to it whenever they change.
+ */
+function createPageStore(): AtlasStore {
+  const store = createAtlasStore({ ...initialAppState, layers: loadLayers() });
+  store.api.subscribe((state, prev) => {
+    if (state.layers !== prev.layers) saveLayers(state.layers);
+  });
+  return store;
+}
+
 const AtlasStoreContext = createContext<AtlasStore | null>(null);
 
 /** One store per mounted Globe page, so leaving and coming back starts fresh. */
@@ -46,7 +59,7 @@ export function AtlasStoreProvider({
   /** For tests: a store to share with the test body. */
   store?: AtlasStore;
 }) {
-  const [value] = useState(() => store ?? createAtlasStore());
+  const [value] = useState(() => store ?? createPageStore());
   return createElement(AtlasStoreContext.Provider, { value }, children);
 }
 

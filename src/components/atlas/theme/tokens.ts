@@ -125,6 +125,8 @@ export const ATLAS_SCENE = {
   atmosphere: '#ffffff',
   /** A city with no country colour. */
   fallback: '#ffffff',
+  /** The land with country colours switched off in Layers. */
+  landPlain: '#6b6b74',
   /** The downstream ("influenced") arc, head to tail. */
   arcDownstream: ['#ffffffe6', '#ffffff66'],
   /** Country and state outlines; the selected region's is warm and bright. */

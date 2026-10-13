@@ -152,7 +152,7 @@ describe("the Globe's overlays keep to the tokens", () => {
     for (const [path, text] of files) {
       // globeVisuals colours the ice caps as their country colour.
       const code = path.endsWith('globeVisuals.ts')
-        ? text.replace(/ICE_COUNTRIES\.has\(iso\) \? '#[0-9a-f]+'/g, '')
+        ? text.replace(/ICE_COUNTRIES\.has\(iso\)\s*\?\s*'#[0-9a-f]+'/g, '')
         : text;
       // Comments may name a colour; code may not.
       const stripped = code.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');

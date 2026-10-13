@@ -1,4 +1,17 @@
-import type { AppState, AppAction } from '@/components/atlas/types';
+import type {
+  AppState,
+  AppAction,
+  GlobeLayers,
+} from '@/components/atlas/types';
+
+/** Every layer on: the globe as it has always looked. */
+export const DEFAULT_LAYERS: GlobeLayers = {
+  countryColors: true,
+  states: true,
+  cities: true,
+  artistPoints: true,
+  arcs: true,
+};
 
 export const initialAppState: AppState = {
   selectedLocation: null,
@@ -11,6 +24,10 @@ export const initialAppState: AppState = {
   detailsPanelWidth: null,
   sheetOcclusion: null,
   globeRotating: false,
+  layers: DEFAULT_LAYERS,
+  statesInView: false,
+  legendOpen: null,
+  layersOpen: false,
 };
 
 /**
@@ -94,6 +111,24 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         visibleArcDirections: new Set(['upstream', 'downstream']),
       };
+    case 'SET_LAYER': {
+      const { layer, on } = action.payload;
+      return state.layers[layer] === on
+        ? state
+        : { ...state, layers: { ...state.layers, [layer]: on } };
+    }
+    case 'SET_STATES_IN_VIEW':
+      return state.statesInView === action.payload
+        ? state
+        : { ...state, statesInView: action.payload };
+    case 'SET_LEGEND_OPEN':
+      return state.legendOpen === action.payload
+        ? state
+        : { ...state, legendOpen: action.payload };
+    case 'SET_LAYERS_OPEN':
+      return state.layersOpen === action.payload
+        ? state
+        : { ...state, layersOpen: action.payload };
     default:
       return state;
   }

@@ -92,6 +92,21 @@ export interface TourProgress {
   currentStep: number; // 0-indexed
 }
 
+// --- Globe layers (the Layers control) ---
+/** What the globe draws; each one the viewer can switch off. */
+export interface GlobeLayers {
+  /** Countries in their continent's colours; off, the land is one plain grey. */
+  countryColors: boolean;
+  /** US and Canada state outlines, once the camera is close enough. */
+  states: boolean;
+  /** A column on each music city. */
+  cities: boolean;
+  /** An artist's moments, as points, while their panel is open. */
+  artistPoints: boolean;
+  /** A pinned event's influence arcs (directions as visibleArcDirections). */
+  arcs: boolean;
+}
+
 // --- App State ---
 export interface AppState {
   selectedLocation: SelectedLocation | null;
@@ -117,6 +132,17 @@ export interface AppState {
    * control on the globe page — nothing starts it automatically.
    */
   globeRotating: boolean;
+  /** Which of the globe's layers are drawn. Per viewer, kept in localStorage. */
+  layers: GlobeLayers;
+  /**
+   * True while the camera is close enough for state outlines (BaseGlobe's
+   * altitude band), so the legend lists them only when they can show.
+   */
+  statesInView: boolean;
+  /** Whether the legend card is open; null until the viewer chooses (open on desktop, closed on phones). */
+  legendOpen: boolean | null;
+  /** Whether the Layers popover is open. */
+  layersOpen: boolean;
 }
 
 export type AppAction =
@@ -138,4 +164,8 @@ export type AppAction =
   | { type: 'SET_DETAILS_PANEL_WIDTH'; payload: number | null }
   | { type: 'SET_SHEET_OCCLUSION'; payload: number | null }
   | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
-  | { type: 'OPEN_INFLUENCE_ARCS' };
+  | { type: 'OPEN_INFLUENCE_ARCS' }
+  | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }
+  | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
+  | { type: 'SET_LEGEND_OPEN'; payload: boolean }
+  | { type: 'SET_LAYERS_OPEN'; payload: boolean };

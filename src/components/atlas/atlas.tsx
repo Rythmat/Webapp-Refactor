@@ -5,14 +5,15 @@ import {
   lazy,
   useCallback,
   useMemo,
+  useState,
   type ReactNode,
 } from 'react';
 import { BaseGlobe } from '@/components/atlas/components/Globe';
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
 import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
-import { GlobeSpinToggle } from '@/components/atlas/components/UI/GlobeSpinToggle';
 import { GuidedTourBar } from '@/components/atlas/components/UI/GuidedTourBar';
+import { MapControls } from '@/components/atlas/components/UI/MapControls';
 import { ModuleProgressBar } from '@/components/atlas/components/UI/ModuleProgressBar';
 import { RegionTimeline } from '@/components/atlas/components/UI/RegionTimeline';
 import { SearchResultsPanel } from '@/components/atlas/components/UI/SearchResultsPanel';
@@ -27,6 +28,7 @@ import {
   type BottomBarSlot,
   type LeftPanelSlot,
 } from '@/components/atlas/layout/AtlasZones';
+import { AtlasPortalContext } from '@/components/atlas/layout/portalRoot';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import {
   AtlasNavigationProvider,
@@ -167,7 +169,7 @@ function useBottomBar(): BottomBarSlot {
   return inTour ? TOUR : inModule ? PATHWAY : TIMELINE;
 }
 
-const CONTROLS = <GlobeSpinToggle />;
+const CONTROLS = <MapControls />;
 
 /**
  * Everything over the globe, placed in its zone (layout/AtlasZones.tsx): a
@@ -199,19 +201,24 @@ function AtlasOverlays() {
  * re-renders only the pieces that read it — the globe in particular.
  */
 function AppLayout() {
+  // The root, for the palette's and the popovers' portals (layout/portalRoot).
+  const [root, setRoot] = useState<HTMLDivElement | null>(null);
   return (
     <div
+      ref={setRoot}
       // isolate: the page's z-index layers (theme/layers.ts) order its own
       // pieces and never compete with the app around it.
       className="atlas-root isolate flex h-full w-full flex-col overflow-hidden bg-atlas-page text-atlas-text"
       data-tab="globe"
     >
-      <AtlasToolbar />
-      <div className="relative flex-1">
-        <BaseGlobe />
-        <AtlasOverlays />
-      </div>
-      <AtlasUrlSync />
+      <AtlasPortalContext.Provider value={root}>
+        <AtlasToolbar />
+        <div className="relative flex-1">
+          <BaseGlobe />
+          <AtlasOverlays />
+        </div>
+        <AtlasUrlSync />
+      </AtlasPortalContext.Provider>
     </div>
   );
 }

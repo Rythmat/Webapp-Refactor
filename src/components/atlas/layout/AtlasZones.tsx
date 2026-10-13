@@ -35,7 +35,7 @@ export interface AtlasZonesProps {
   left: LeftPanelSlot | null;
   /** The mind map, when open. */
   right: ReactNode | null;
-  /** The map-control cluster: Spin now, with room for Layers and a legend. */
+  /** The map-control cluster: the legend, Layers and Spin. */
   controls: ReactNode;
   bottom: BottomBarSlot | null;
 }

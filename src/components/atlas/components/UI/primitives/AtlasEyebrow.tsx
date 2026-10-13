@@ -12,7 +12,7 @@ export function AtlasEyebrow({
   className,
   children,
 }: {
-  as?: 'span' | 'p' | 'h4';
+  as?: 'span' | 'p' | 'h2' | 'h4';
   /** A CSS colour for the leading dot, e.g. `atlasVar('artist')`. */
   dot?: string;
   id?: string;

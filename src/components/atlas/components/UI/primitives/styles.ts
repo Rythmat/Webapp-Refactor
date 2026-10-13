@@ -39,3 +39,12 @@ export const ATLAS_ROW = `rounded-2xl transition-colors hover:bg-white/[0.06] ${
  * that reads as a sentence ("Search the globe for …").
  */
 export const ATLAS_LINK = `rounded-sm text-atlas-accent underline-offset-2 hover:underline ${ATLAS_FOCUS}`;
+
+/**
+ * A pill floating on the globe in the map-control cluster (Spin, Layers,
+ * Legend): an outline pill on the panel surface, since over the globe the
+ * pill's own white/4 fill would leave the label on whatever colour spins
+ * past.
+ */
+export const ATLAS_MAP_CONTROL =
+  'h-10 gap-2 bg-atlas-panel/95 px-3.5 shadow-2xl hover:bg-atlas-panel aria-expanded:border-white/30 aria-expanded:bg-atlas-panel';

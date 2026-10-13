@@ -119,12 +119,23 @@ it (with `font-maker`, for example).
 ## Attribution
 
 The basemap's data is © OpenStreetMap contributors under the ODbL, which
-requires the credit to be visible on the map. The MapLibre engine shows
-"Protomaps © OpenStreetMap" in a small pill in the bottom-right corner. On
-phones, the pill sits above the bottom sheet. Keep it visible. Hiding it, or
-covering it with another control, breaks the licence. Without a tile source
-there is no OpenStreetMap data and no pill. The country outlines are Natural
-Earth, which is public domain.
+requires the credit to be visible on the map. The page draws it itself:
+"Protomaps © OpenStreetMap", with a link to each, in a small pill
+(`components/UI/MapCredit.tsx`). It is placed in a layout zone of its own
+(`layout/AtlasZones.tsx`), so nothing covers it:
+
+- on desktop, at the foot of the right column, just above the timeline row;
+- on phones, just above the timeline, or above the sheet when the timeline
+  steps aside. A full-height sheet covers the whole map, and the credit
+  with it.
+
+It is never folded into an icon. MapLibre's own corner control is switched
+off, because it sat under the timeline and the phone's sheet. The pill shows
+only when the build has a tile source (`HAS_STREET_MAP` in
+`basemapConfig.ts`). Without one there is no OpenStreetMap data to credit.
+The country outlines are Natural Earth, which is public domain. Keep the
+credit visible: hiding it, or covering it with another control, breaks the
+licence.
 
 ## Language
 
@@ -148,11 +159,26 @@ To measure either engine, run `node scripts/measureGlobe.mjs --engine=three`
 or `--engine=maplibre`. Set a tile variable in the environment to include
 the basemap. See [BASELINE.md](BASELINE.md).
 
-## Testing without a tile host
+## Seeing the street map on this machine
 
-Protomaps' daily build can't be read from a browser directly because it has
-no CORS headers. For local testing only, a small proxy that forwards `Range`
-requests to `https://build.protomaps.com` and adds
-`Access-Control-Allow-Origin: *` works. Point `VITE_BASEMAP_PMTILES_URL` at
-it, for example `http://localhost:5268/20261013.pmtiles`. That proxy is how
-the screenshots in [screens/](screens/) (`p8-*`) were made.
+Protomaps publishes a planet build every day at `build.protomaps.com`, but
+with no CORS headers, so a browser can't read it from another origin. The
+dev server (and `vite preview`) serves it same-origin instead
+(`scripts/vite/protomapsDevTiles.ts`):
+
+- `/__protomaps/<date>.pmtiles` is forwarded to Protomaps, range requests
+  included;
+- `/__protomaps/latest.pmtiles` redirects to the newest build, so the
+  setting never goes stale when old builds are deleted.
+
+Put this in `.env.local` (git-ignored) and the dev server restarts with the
+street map:
+
+```sh
+VITE_BASEMAP_PMTILES_URL=/__protomaps/latest.pmtiles
+```
+
+This is for development only. A deployed build has no `/__protomaps/`
+route, so production needs one of the tile options above. Delete the line
+to see the map without a basemap. The screenshots in [screens/](screens/)
+(`p8-*`) were made from the same daily build.

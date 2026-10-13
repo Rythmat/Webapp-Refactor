@@ -9,11 +9,13 @@ import {
   type ReactNode,
 } from 'react';
 import { AtlasGlobe } from '@/components/atlas/components/Globe';
+import { HAS_STREET_MAP } from '@/components/atlas/components/Globe/basemapConfig';
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
 import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
 import { GuidedTourBar } from '@/components/atlas/components/UI/GuidedTourBar';
 import { MapControls } from '@/components/atlas/components/UI/MapControls';
+import { MapCredit } from '@/components/atlas/components/UI/MapCredit';
 import { ModuleProgressBar } from '@/components/atlas/components/UI/ModuleProgressBar';
 import { RegionTimeline } from '@/components/atlas/components/UI/RegionTimeline';
 import { SearchResultsPanel } from '@/components/atlas/components/UI/SearchResultsPanel';
@@ -170,6 +172,8 @@ function useBottomBar(): BottomBarSlot {
 }
 
 const CONTROLS = <MapControls />;
+/** The street map's OpenStreetMap credit, when there is a street map. */
+const CREDIT = HAS_STREET_MAP ? <MapCredit /> : null;
 
 /**
  * Everything over the globe, placed in its zone (layout/AtlasZones.tsx): a
@@ -188,6 +192,7 @@ function AtlasOverlays() {
     right: useMindMap(),
     controls: CONTROLS,
     bottom: useBottomBar(),
+    credit: CREDIT,
   };
   return isPhone ? (
     <PhoneZones {...zones} onSheetOcclusion={onSheetOcclusion} />

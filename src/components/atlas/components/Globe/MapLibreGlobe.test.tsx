@@ -253,6 +253,13 @@ describe('clicks on the MapLibre globe', () => {
   });
 });
 
+describe('the OpenStreetMap credit', () => {
+  it('is the page’s (MapCredit), not a control in the map’s corner', () => {
+    const { map } = setup();
+    expect(map.options).toMatchObject({ attributionControl: false });
+  });
+});
+
 describe('the MapLibre camera', () => {
   /** A page opened on a deep link to Lagos. */
   const deepLink = (reduce: boolean) =>

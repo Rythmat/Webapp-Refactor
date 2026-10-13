@@ -16,7 +16,6 @@ import {
   useRef,
   useState,
   type MutableRefObject,
-  type RefObject,
 } from 'react';
 import { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
@@ -106,13 +105,10 @@ const NO_PADDING: PaddingOptions = { top: 0, right: 0, bottom: 0, left: 0 };
 function MapPadding({
   map,
   paddingRef,
-  frameRef,
 }: {
   map: MapLibreMap;
   /** Where flights read the padding to land with. */
   paddingRef: MutableRefObject<PaddingOptions>;
-  /** The map's frame, which carries the sheet's height for the attribution. */
-  frameRef: RefObject<HTMLDivElement | null>;
 }) {
   const detailsPanelWidth = useAtlasSelector((s) => s.detailsPanelWidth);
   const sheetOcclusion = useAtlasSelector((s) => s.sheetOcclusion);
@@ -121,14 +117,6 @@ function MapPadding({
   reducedMotionRef.current = reducedMotion;
   const left = detailsPanelWidth ? 16 + detailsPanelWidth : 0;
   const bottom = sheetOcclusion ?? 0;
-
-  // The map's attribution sits above a phone's bottom sheet.
-  useEffect(() => {
-    frameRef.current?.style.setProperty(
-      '--atlas-map-inset-bottom',
-      `${bottom}px`,
-    );
-  }, [frameRef, bottom]);
 
   useEffect(() => {
     paddingRef.current = { top: 0, right: 0, left, bottom };
@@ -163,7 +151,6 @@ function feed(map: MapLibreMap, id: string, data: FeatureCollection) {
 
 export default function MapLibreGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const frameRef = useRef<HTMLDivElement | null>(null);
   const [map, setMap] = useState<MapLibreMap | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const { countries, adminRegions, loading, error } = useGeoData();
@@ -182,7 +169,10 @@ export default function MapLibreGlobe() {
   // Read when a flight starts; a change of setting alone flies nowhere.
   const reducedMotionRef = useRef(reducedMotion);
   reducedMotionRef.current = reducedMotion;
-  const basemap = useMemo(() => basemapFromEnv(import.meta.env), []);
+  const basemap = useMemo(
+    () => basemapFromEnv(import.meta.env, window.location.href),
+    [],
+  );
 
   // Make the map, once.
   useEffect(() => {
@@ -203,7 +193,10 @@ export default function MapLibreGlobe() {
         zoom: altitudeToMapZoom(START.altitude, height, START.lat),
         maxZoom: MAP_MAX_ZOOM,
         pixelRatio: Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO),
-        attributionControl: { compact: true },
+        // The page draws the OpenStreetMap credit itself (MapCredit), in a
+        // zone nothing covers; MapLibre's corner control sat under the
+        // timeline and the phone's sheet.
+        attributionControl: false,
         // A globe turns by being dragged; tilting and twisting it only
         // disorients, so those gestures are off.
         dragRotate: false,
@@ -506,13 +499,8 @@ export default function MapLibreGlobe() {
   const failure = mapError ?? (basemap === null ? error : null);
 
   return (
-    <div
-      ref={frameRef}
-      className="absolute inset-0 overflow-hidden bg-atlas-canvas"
-    >
-      {map && (
-        <MapPadding frameRef={frameRef} map={map} paddingRef={paddingRef} />
-      )}
+    <div className="absolute inset-0 overflow-hidden bg-atlas-canvas">
+      {map && <MapPadding map={map} paddingRef={paddingRef} />}
       {/* Sized, not positioned: maplibre-gl.css makes the map position:
           relative, which would collapse an inset-0 box to no height. */}
       <div ref={containerRef} className="h-full w-full" />

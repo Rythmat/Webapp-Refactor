@@ -6,68 +6,28 @@ import type {
   StyleSpecification,
 } from 'maplibre-gl';
 import { ATLAS_BASEMAP, ATLAS_SCENE } from '@/components/atlas/theme/tokens';
+import { BASEMAP_ATTRIBUTION, type Basemap } from './basemapConfig';
 import { COUNTRY_TINT, STATES_MIN_ZOOM } from './mapGeometry';
 
 /**
  * The MapLibre engine's style, built in code: a Protomaps vector basemap
  * (when one is configured) with the Globe's own layers on it — the coloured
- * countries, the state outlines, the city columns, an artist's points and
+ * countries, the state outlines, the city dots, an artist's points and
  * the influence arcs. Pure: the same inputs give the same style, and the
  * tests read it without a map.
  */
 
-/* ── Where the basemap comes from ────────────────────────────────────────── */
+/* ── Where the basemap comes from (basemapConfig.ts) ───────────────────── */
 
-/**
- * The basemap's tiles: a self-hosted .pmtiles file, Protomaps' hosted API, or
- * none (the globe then draws its own country outlines on a plain sea).
- */
-export type Basemap =
-  | { kind: 'pmtiles'; url: string }
-  | { kind: 'api'; key: string }
-  | null;
-
-/**
- * import.meta.env, or a test's stand-in: VITE_BASEMAP_PMTILES_URL,
- * VITE_PROTOMAPS_API_KEY and VITE_BASEMAP_ASSETS_URL are read.
- */
-export type BasemapEnv = Readonly<Record<string, unknown>>;
-
-const envString = (env: BasemapEnv, key: string): string => {
-  const value = env[key];
-  return typeof value === 'string' ? value.trim() : '';
-};
-
-/** A self-hosted file wins over the hosted API when both are set. */
-export function basemapFromEnv(env: BasemapEnv): Basemap {
-  const url = envString(env, 'VITE_BASEMAP_PMTILES_URL');
-  if (url) return { kind: 'pmtiles', url };
-  const key = envString(env, 'VITE_PROTOMAPS_API_KEY');
-  if (key) return { kind: 'api', key };
-  return null;
-}
-
-/** Protomaps' fonts and sprites, unless VITE_BASEMAP_ASSETS_URL says otherwise. */
-export const DEFAULT_ASSETS_URL = 'https://protomaps.github.io/basemaps-assets';
-
-export const assetsUrlFromEnv = (env: BasemapEnv): string =>
-  (envString(env, 'VITE_BASEMAP_ASSETS_URL') || DEFAULT_ASSETS_URL).replace(
-    /\/+$/,
-    '',
-  );
-
-/**
- * The language the basemap's labels are in. The app has no language switch
- * of its own outside a classroom's settings, so the page's `<html lang>`
- * decides: Spanish when it is `es…`, English otherwise.
- */
-export const basemapLang = (
-  htmlLang: string | null | undefined,
-): 'en' | 'es' => (/^es\b/i.test(htmlLang ?? '') ? 'es' : 'en');
-
-/** The OpenStreetMap credit the basemap's licence requires on the map. */
-export const BASEMAP_ATTRIBUTION =
-  '<a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a> © <a href="https://openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+export {
+  BASEMAP_ATTRIBUTION,
+  DEFAULT_ASSETS_URL,
+  assetsUrlFromEnv,
+  basemapFromEnv,
+  basemapLang,
+  type Basemap,
+  type BasemapEnv,
+} from './basemapConfig';
 
 export function basemapSource(
   basemap: NonNullable<Basemap>,

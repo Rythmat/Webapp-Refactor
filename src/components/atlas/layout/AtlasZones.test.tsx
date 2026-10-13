@@ -11,7 +11,7 @@ import {
   render,
   screen,
 } from '@testing-library/react';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { SidePanel } from '@/components/atlas/components/UI/SidePanel';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
@@ -33,7 +33,13 @@ function Popover() {
   );
 }
 
-function Harness({ phone = false }: { phone?: boolean }) {
+function Harness({
+  phone = false,
+  credit = null,
+}: {
+  phone?: boolean;
+  credit?: ReactNode;
+}) {
   const [panel, setPanel] = useState<'a' | 'b' | null>(null);
   const close = () => setPanel(null);
   const left: LeftPanelSlot | null = panel && {
@@ -67,6 +73,7 @@ function Harness({ phone = false }: { phone?: boolean }) {
       <Zones
         bottom={{ label: 'timeline', maxWidth: 800, node: <p>Timeline</p> }}
         controls={null}
+        credit={credit}
         left={left}
         right={null}
       />
@@ -145,6 +152,22 @@ describe('the left panel zone', () => {
     expect(document.activeElement).toBe(opener);
   });
 
+  it('gives the map credit its own place, apart from the bottom bar', () => {
+    render(<Harness credit={<p>Map credit</p>} />);
+    const zone = screen
+      .getByText('Map credit')
+      .closest('[data-atlas-zone-item="map-credit"]');
+    expect(zone).toBeTruthy();
+    expect(zone!.parentElement!.textContent).not.toContain('Timeline');
+  });
+
+  it('shows no credit when the map has nothing to credit', () => {
+    render(<Harness />);
+    expect(
+      document.querySelector('[data-atlas-zone-item="map-credit"]'),
+    ).toBeNull();
+  });
+
   it('collapses the bottom bar to a handle and back', () => {
     render(<Harness />);
     press(screen.getByRole('button', { name: 'Hide the timeline' }));
@@ -180,6 +203,26 @@ describe('the phone bottom sheet', () => {
     expect((collapse as HTMLButtonElement).disabled).toBe(true);
     // At peek it rests on the sheet again.
     expect(screen.getByText('Timeline')).toBeTruthy();
+  });
+
+  it('keeps the map credit in view until a full sheet covers the map', () => {
+    render(<Harness phone credit={<p>Map credit</p>} />);
+    const credit = () => screen.queryByText('Map credit');
+    // Above the timeline, in the same stack, so the bar never covers it.
+    const stack = credit()!.closest(
+      '[data-atlas-zone-item="map-credit"]',
+    )!.parentElement!;
+    expect(stack.textContent).toContain('Timeline');
+    expect(stack.style.bottom).toBe('8px');
+
+    press(screen.getByRole('button', { name: 'Open' }));
+    // At half the bar steps aside; the credit stays, on the sheet.
+    expect(screen.queryByText('Timeline')).toBeNull();
+    expect(credit()).toBeTruthy();
+    press(screen.getByRole('button', { name: 'Expand sheet' }));
+    expect(credit()).toBeNull();
+    press(screen.getByRole('button', { name: 'Collapse sheet' }));
+    expect(credit()).toBeTruthy();
   });
 
   it('is non-modal and closes on Escape', () => {

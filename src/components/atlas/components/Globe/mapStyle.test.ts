@@ -29,6 +29,18 @@ describe('where the basemap comes from', () => {
     });
   });
 
+  it('makes a file on this site absolute against the page', () => {
+    expect(
+      basemapFromEnv(
+        { VITE_BASEMAP_PMTILES_URL: '/__protomaps/latest.pmtiles' },
+        'http://localhost:5179/atlas/globe?place=city:new-orleans',
+      ),
+    ).toEqual({
+      kind: 'pmtiles',
+      url: 'http://localhost:5179/__protomaps/latest.pmtiles',
+    });
+  });
+
   it('has none when neither is set', () => {
     expect(basemapFromEnv({})).toBeNull();
     expect(basemapFromEnv({ VITE_BASEMAP_PMTILES_URL: '  ' })).toBeNull();

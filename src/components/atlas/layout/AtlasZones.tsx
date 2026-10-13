@@ -38,6 +38,12 @@ export interface AtlasZonesProps {
   /** The map-control cluster: the legend, Layers and Spin. */
   controls: ReactNode;
   bottom: BottomBarSlot | null;
+  /**
+   * The map's data credit (MapCredit), when the map draws OpenStreetMap's
+   * data. It gets a place of its own that nothing else covers: the foot of
+   * the right column on desktop, above the bottom bar or the sheet on phones.
+   */
+  credit?: ReactNode | null;
 }
 
 /** What each zone tells a test or a screenshot script it is. */
@@ -119,6 +125,7 @@ export function DesktopZones({
   right,
   controls,
   bottom,
+  credit,
 }: AtlasZonesProps) {
   const leftRef = useLeftPanelZone(left);
   return (
@@ -155,6 +162,17 @@ export function DesktopZones({
             {right}
           </div>
         )}
+        {credit && (
+          <div
+            {...zoneItem('map-credit')}
+            className={cn(
+              'relative mt-auto shrink-0 *:pointer-events-auto',
+              ATLAS_Z.mapControls,
+            )}
+          >
+            {credit}
+          </div>
+        )}
       </div>
       {bottom && (
         <div
@@ -182,6 +200,7 @@ export function PhoneZones({
   right,
   controls,
   bottom,
+  credit,
   onSheetOcclusion,
 }: AtlasZonesProps & {
   /**
@@ -220,6 +239,12 @@ export function PhoneZones({
     [snap],
   );
   const barHidden = open && snap !== 'peek';
+  // The sheet's height, for the credit to sit on when the bar steps aside.
+  const [sheetPx, setSheetPx] = useState(SHEET_PEEK_PX);
+  const bar = bottom && !barHidden ? bottom : null;
+  // A full sheet covers the map, and the credit with it.
+  const showCredit = !!credit && !(open && snap === 'full');
+  const stackBottom = !open ? 8 : bar ? SHEET_PEEK_PX + 16 : sheetPx + 8;
 
   // Closed, the sheet covers nothing.
   useEffect(() => {
@@ -238,12 +263,24 @@ export function PhoneZones({
       >
         {controls}
       </div>
-      {bottom && !barHidden && (
+      {(bar || showCredit) && (
         <div
-          className={cn('absolute inset-x-2 flex justify-center', ATLAS_Z.bars)}
-          style={{ bottom: open ? SHEET_PEEK_PX + 16 : 8 }}
+          className={cn(
+            // gap-4: the bar's hide button stands 12 px above it.
+            'absolute inset-x-2 flex flex-col items-center gap-4',
+            ATLAS_Z.bars,
+          )}
+          style={{ bottom: stackBottom }}
         >
-          <BottomBarFrame bar={bottom} />
+          {showCredit && (
+            <div
+              {...zoneItem('map-credit')}
+              className="self-end *:pointer-events-auto"
+            >
+              {credit}
+            </div>
+          )}
+          {bar && <BottomBarFrame bar={bar} />}
         </div>
       )}
       {open && (
@@ -254,7 +291,10 @@ export function PhoneZones({
             label={shown === 'right' ? 'Mind map' : 'Details'}
             snap={snap}
             tabs={items}
-            onHeight={(px) => onSheetOcclusion?.(snap === 'full' ? null : px)}
+            onHeight={(px) => {
+              onSheetOcclusion?.(snap === 'full' ? null : px);
+              if (credit) setSheetPx(px);
+            }}
             onSnap={setSnap}
             onTab={(id) => setTab(id as 'left' | 'right')}
           >

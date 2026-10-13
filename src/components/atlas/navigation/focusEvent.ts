@@ -2,6 +2,7 @@ import type { Dispatch } from 'react';
 import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import type {
   AppAction,
+  FlyTarget,
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
@@ -76,7 +77,7 @@ function focusNow(
  */
 export function flyToFit(
   points: { lat: number; lng: number }[],
-): { lat: number; lng: number; zoom: number } | null {
+): FlyTarget | null {
   if (points.length === 0) return null;
   const lat = points.reduce((s, p) => s + p.lat, 0) / points.length;
   const lng = points.reduce((s, p) => s + p.lng, 0) / points.length;
@@ -87,7 +88,16 @@ export function flyToFit(
   );
   // One city → street level; a coast → regional; continents → whole globe.
   const zoom = spread < 1 ? 8 : spread < 8 ? 6 : spread < 30 ? 4 : 2;
-  return { lat, lng, zoom };
+  // The MapLibre engine fits the points themselves.
+  return {
+    lat,
+    lng,
+    zoom,
+    frame: {
+      kind: 'points',
+      points: points.map((p) => ({ lat: p.lat, lng: p.lng })),
+    },
+  };
 }
 
 /* ── Camera hand-off between a globe click and the URL sync ──────────────────

@@ -7,8 +7,10 @@ import {
 } from '@/components/atlas/components/UI/primitives';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { ATLAS_Z } from '@/components/atlas/theme/layers';
+import type { MapInsets } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
 import { BottomSheet } from './BottomSheet';
+import { CONTROLS_ROW, insetsFrom, useReportInsets } from './mapInsets';
 import { SHEET_PEEK_PX, type SheetSnap } from './sheetSnap';
 import { usePanelFocus } from './usePanelFocus';
 import { AtlasZoneContext, type AtlasZone } from './zoneContext';
@@ -45,6 +47,8 @@ export interface AtlasZonesProps {
    * bar or the sheet on phones (the bar fills a phone's width).
    */
   credit?: ReactNode | null;
+  /** What the zones cover of the map, whenever it changes (MapInsets). */
+  onInsets?: (insets: MapInsets) => void;
 }
 
 /** What each zone tells a test or a screenshot script it is. */
@@ -127,10 +131,44 @@ export function DesktopZones({
   controls,
   bottom,
   credit,
+  onInsets,
 }: AtlasZonesProps) {
   const leftRef = useLeftPanelZone(left);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  useReportInsets(
+    rootRef,
+    () => [
+      leftRef.current,
+      controlsRef.current,
+      rightRef.current,
+      bottomRef.current,
+    ],
+    (root) => {
+      const box = (el: Element | null | undefined) =>
+        el?.getBoundingClientRect() ?? null;
+      const controlsZone = box(controlsRef.current);
+      const row = box(controlsRef.current?.querySelector(CONTROLS_ROW));
+      // Taller than its buttons, the controls zone holds the open legend.
+      const legendOpen =
+        !!controlsZone && !!row && controlsZone.height > row.height + 8;
+      return insetsFrom(root.getBoundingClientRect(), {
+        left: left ? box(leftRef.current) : null,
+        top: row,
+        bottom: [box(bottomRef.current)],
+        right: [box(rightRef.current), legendOpen ? controlsZone : null],
+      });
+    },
+    onInsets,
+    `${left !== null} ${right !== null} ${bottom !== null} ${credit != null}`,
+  );
   return (
-    <div className="pointer-events-none absolute inset-0 grid grid-cols-[minmax(0,max-content)_minmax(0,1fr)_auto] grid-rows-[minmax(0,1fr)_auto] gap-4 p-4">
+    <div
+      ref={rootRef}
+      className="pointer-events-none absolute inset-0 grid grid-cols-[minmax(0,max-content)_minmax(0,1fr)_auto] grid-rows-[minmax(0,1fr)_auto] gap-4 p-4"
+    >
       <div
         ref={leftRef}
         {...zoneItem('left-panel')}
@@ -144,6 +182,7 @@ export function DesktopZones({
       </div>
       <div className="col-start-3 row-start-1 flex min-h-0 flex-col items-end gap-3">
         <div
+          ref={controlsRef}
           {...zoneItem('map-controls')}
           className={cn(
             'relative flex shrink-0 items-start gap-2 *:pointer-events-auto',
@@ -154,6 +193,7 @@ export function DesktopZones({
         </div>
         {right && (
           <div
+            ref={rightRef}
             {...zoneItem('mind-map')}
             className={cn(
               'relative flex min-h-0 flex-col *:pointer-events-auto',
@@ -170,6 +210,7 @@ export function DesktopZones({
         // leaves, and the credit's keeps at least its own width, so an open
         // credit nudges the bar over rather than going under it.
         <div
+          ref={bottomRef}
           className={cn(
             'relative col-span-3 row-start-2 grid items-end gap-4',
             ATLAS_Z.bars,
@@ -208,6 +249,7 @@ export function PhoneZones({
   controls,
   bottom,
   credit,
+  onInsets,
   onSheetOcclusion,
 }: AtlasZonesProps & {
   /**
@@ -259,9 +301,34 @@ export function PhoneZones({
   }, [open]);
   useEffect(() => () => onSheetOcclusion?.(null), []);
 
+  // What covers the map: the controls along the top, and along the bottom
+  // the bar (with the credit) or the sheet, which at full covers it all and
+  // leaves nothing to frame.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
+  const stackRef = useRef<HTMLDivElement>(null);
+  useReportInsets(
+    rootRef,
+    () => [controlsRef.current, stackRef.current, sheetRef.current],
+    (root) => {
+      const box = (el: Element | null | undefined) =>
+        el?.getBoundingClientRect() ?? null;
+      return insetsFrom(root.getBoundingClientRect(), {
+        top: box(controlsRef.current?.querySelector(CONTROLS_ROW)),
+        bottom: [
+          box(stackRef.current),
+          open && snap !== 'full' ? box(sheetRef.current) : null,
+        ],
+      });
+    },
+    onInsets,
+    `${open} ${snap} ${bar !== null} ${showCredit}`,
+  );
+
   return (
-    <div className="pointer-events-none absolute inset-0">
+    <div ref={rootRef} className="pointer-events-none absolute inset-0">
       <div
+        ref={controlsRef}
         {...zoneItem('map-controls')}
         className={cn(
           'absolute right-2 top-2 flex items-start gap-2 *:pointer-events-auto',
@@ -272,6 +339,7 @@ export function PhoneZones({
       </div>
       {(bar || showCredit) && (
         <div
+          ref={stackRef}
           className={cn(
             // gap-4: the bar's hide button stands 12 px above it.
             'absolute inset-x-2 flex flex-col items-center gap-4',

@@ -1,11 +1,18 @@
 import { CITIES } from '@/components/atlas/data';
-import type { City, SelectedLocation } from '@/components/atlas/types';
+import type {
+  City,
+  FlyFrame,
+  SelectedLocation,
+} from '@/components/atlas/types';
 import { normCountry, sameCountry } from '@/components/atlas/utils/country';
+import { regionFrame } from './flyFrames';
 
 export interface FlyTo {
   lat: number;
   lng: number;
   zoom: number;
+  /** What the MapLibre engine frames: the place's outline, or the city. */
+  frame: FlyFrame;
 }
 
 function centroid(cities: City[]): { lat: number; lng: number } {
@@ -29,6 +36,11 @@ function centroid(cities: City[]): { lat: number; lng: number } {
  * where it is rather than throwing it at [0, 0] in the Atlantic.
  */
 export function resolvePlaceFly(place: SelectedLocation): FlyTo | null {
+  const fly = placeFly(place);
+  return fly && { ...fly, frame: regionFrame(place) };
+}
+
+function placeFly(place: SelectedLocation): Omit<FlyTo, 'frame'> | null {
   if (place.type === 'city') {
     const city = CITIES.find((c) => c.id === place.id);
     if (!city) return null;

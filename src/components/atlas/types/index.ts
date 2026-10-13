@@ -65,11 +65,38 @@ export type SelectedLocation =
   | { type: 'state'; name: string; country?: string }
   | { type: 'city'; id: string };
 
+/**
+ * How much of the map, in px from each edge, the page's overlays cover (the
+ * layout measures it: layout/AtlasZones.tsx). The MapLibre engine keeps the
+ * map's centre, and frames its flights, in what is left.
+ */
+export interface MapInsets {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
 // --- Search fly target ---
+/**
+ * What a flight frames, for an engine that can fit it exactly: the MapLibre
+ * engine fits a country's or a state's outline, centres a city at a street-map
+ * zoom, and fits a set of points (components/Globe/mapFraming.ts). The
+ * three.js globe flies to the target's lat/lng/zoom and ignores this.
+ */
+export type FlyFrame =
+  /** A country's or a US/Canada state's outline. */
+  | { kind: 'region'; place: SelectedLocation }
+  /** A city, at a street-map zoom (navigation/flyFrames.ts). */
+  | { kind: 'city'; zoom: number }
+  /** Every one of these points: an artist's events. */
+  | { kind: 'points'; points: { lat: number; lng: number }[] };
+
 export interface FlyTarget {
   lat: number;
   lng: number;
   zoom: number;
+  frame?: FlyFrame;
 }
 
 // --- Historical Pathway Modules ---
@@ -149,6 +176,8 @@ export interface AppState {
    * folds up then.
    */
   mapTouched: boolean;
+  /** What the page's overlays cover of the map (MapInsets). */
+  mapInsets: MapInsets;
 }
 
 export type AppAction =
@@ -156,7 +185,7 @@ export type AppAction =
   | { type: 'PIN_EVENT'; payload: HistoricalEvent | null }
   | {
       type: 'EXECUTE_SEARCH';
-      payload: { lat?: number; lng?: number; zoom?: number };
+      payload: { lat?: number; lng?: number; zoom?: number; frame?: FlyFrame };
     }
   | { type: 'CLEAR_FLY_TARGET' }
   | { type: 'SET_GLOBE_ROTATING'; payload: boolean }
@@ -175,4 +204,5 @@ export type AppAction =
   | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
   | { type: 'SET_LEGEND_OPEN'; payload: boolean }
   | { type: 'SET_LAYERS_OPEN'; payload: boolean }
-  | { type: 'MAP_TOUCHED' };
+  | { type: 'MAP_TOUCHED' }
+  | { type: 'SET_MAP_INSETS'; payload: MapInsets };

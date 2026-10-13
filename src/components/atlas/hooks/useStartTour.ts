@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { guidesData } from '@/components/atlas/data/loaders';
+import { cityFrame } from '@/components/atlas/navigation/flyFrames';
 import { afterLoad } from '@/components/atlas/navigation/pendingNavigation';
 import { useAtlasDispatch } from '@/components/atlas/state/atlasStore';
 import { resolveStopEvent } from '@/components/atlas/utils/resolveStopEvent';
@@ -31,7 +32,12 @@ export function useStartTour() {
         const first = stops[0];
         dispatch({
           type: 'EXECUTE_SEARCH',
-          payload: { lat: first.lat, lng: first.lng, zoom: first.zoom },
+          payload: {
+            lat: first.lat,
+            lng: first.lng,
+            zoom: first.zoom,
+            ...(first.cityId ? { frame: cityFrame(first.zoom) } : {}),
+          },
         });
         dispatch({
           type: 'SELECT_LOCATION',

@@ -29,6 +29,7 @@ export const initialAppState: AppState = {
   legendOpen: false,
   layersOpen: false,
   mapTouched: false,
+  mapInsets: { top: 0, right: 0, bottom: 0, left: 0 },
 };
 
 /**
@@ -66,6 +67,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
                 lat: action.payload.lat,
                 lng: action.payload.lng,
                 zoom: action.payload.zoom ?? 8,
+                ...(action.payload.frame
+                  ? { frame: action.payload.frame }
+                  : {}),
               }
             : null,
       };
@@ -132,6 +136,16 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         : { ...state, layersOpen: action.payload };
     case 'MAP_TOUCHED':
       return state.mapTouched ? state : { ...state, mapTouched: true };
+    case 'SET_MAP_INSETS': {
+      const was = state.mapInsets;
+      const now = action.payload;
+      return was.top === now.top &&
+        was.right === now.right &&
+        was.bottom === now.bottom &&
+        was.left === now.left
+        ? state
+        : { ...state, mapInsets: now };
+    }
     default:
       return state;
   }

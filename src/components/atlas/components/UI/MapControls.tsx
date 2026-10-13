@@ -27,7 +27,8 @@ export function MapControls() {
 
   return (
     <div className="flex flex-col items-end gap-2">
-      <div className="flex items-start gap-2">
+      {/* The layout measures this row for what the controls cover. */}
+      <div data-atlas-controls-row className="flex items-start gap-2">
         <AtlasPillButton
           ref={toggleRef}
           aria-controls={legendOpen ? legendId : undefined}

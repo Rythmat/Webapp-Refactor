@@ -4,6 +4,7 @@ import { getEventsForArtist } from '@/components/atlas/data/artists';
 import { connectionsData } from '@/components/atlas/data/loaders';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
+import { regionFrame } from '@/components/atlas/navigation/flyFrames';
 import { markFlown } from '@/components/atlas/navigation/focusEvent';
 import {
   useAtlasNavigate,
@@ -141,7 +142,12 @@ export function useGlobeClicks() {
       if (centroid) {
         dispatch({
           type: 'EXECUTE_SEARCH',
-          payload: { lat: centroid.lat, lng: centroid.lng, zoom: 10 },
+          payload: {
+            lat: centroid.lat,
+            lng: centroid.lng,
+            zoom: 10,
+            frame: regionFrame(place),
+          },
         });
         markFlown(stopKey({ kind: 'place', place }));
       }

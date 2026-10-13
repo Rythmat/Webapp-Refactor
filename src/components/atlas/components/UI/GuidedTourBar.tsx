@@ -9,6 +9,7 @@ import {
 } from '@/components/atlas/components/UI/primitives';
 import { guidesData } from '@/components/atlas/data/loaders';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
+import { cityFrame } from '@/components/atlas/navigation/flyFrames';
 import {
   useAtlasDispatch,
   useAtlasSelector,
@@ -50,7 +51,13 @@ export function GuidedTourBar() {
     dispatch({ type: 'TOUR_STEP', payload: step });
     dispatch({
       type: 'EXECUTE_SEARCH',
-      payload: { lat: stop.lat, lng: stop.lng, zoom: stop.zoom },
+      payload: {
+        lat: stop.lat,
+        lng: stop.lng,
+        zoom: stop.zoom,
+        // A city stop: MapLibre centres the city at the stop's own zoom.
+        ...(stop.cityId ? { frame: cityFrame(stop.zoom) } : {}),
+      },
     });
     // Highlight the city on a city stop; clear the selection on overview stops.
     dispatch({

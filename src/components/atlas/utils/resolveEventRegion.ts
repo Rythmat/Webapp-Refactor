@@ -1,7 +1,12 @@
 import { CITIES, CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
 import { stateBoundariesData } from '@/components/atlas/data/loaders';
+import {
+  cityFrame,
+  regionFrame,
+} from '@/components/atlas/navigation/flyFrames';
 import type {
   City,
+  FlyFrame,
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
@@ -17,8 +22,11 @@ export interface ResolvedRegion {
    * to its country, so navigating to any event lands on a panel that lists it.
    */
   region: SelectedLocation;
-  /** Where the camera should fly to frame that region (or the event). */
-  fly: { lat: number; lng: number; zoom: number };
+  /**
+   * Where the camera should fly to frame that region (or the event), and
+   * what the MapLibre engine frames there: the region itself.
+   */
+  fly: { lat: number; lng: number; zoom: number; frame: FlyFrame };
 }
 
 /* ── City matching (memoized per event object) ─────────────────────────────
@@ -198,7 +206,16 @@ export function resolveEventRegion(event: HistoricalEvent): ResolvedRegion {
         : { lat: event.location.lat, lng: event.location.lng };
       return {
         region: { type: 'state', name: state.name, country: state.country },
-        fly: { lat: c.lat, lng: c.lng, zoom: 8 },
+        fly: {
+          lat: c.lat,
+          lng: c.lng,
+          zoom: 8,
+          frame: regionFrame({
+            type: 'state',
+            name: state.name,
+            country: state.country,
+          }),
+        },
       };
     }
   } else {
@@ -206,17 +223,20 @@ export function resolveEventRegion(event: HistoricalEvent): ResolvedRegion {
     if (city) {
       return {
         region: { type: 'city', id: city.id },
-        fly: { lat: city.coordinates[0], lng: city.coordinates[1], zoom: 8 },
+        fly: {
+          lat: city.coordinates[0],
+          lng: city.coordinates[1],
+          zoom: 8,
+          frame: cityFrame(),
+        },
       };
     }
   }
 
-  return {
-    region: {
-      type: 'country',
-      name: event.location.country,
-      iso: CITY_COUNTRY_TO_ISO[event.location.country] ?? '',
-    },
-    fly: eventFly,
+  const country: SelectedLocation = {
+    type: 'country',
+    name: event.location.country,
+    iso: CITY_COUNTRY_TO_ISO[event.location.country] ?? '',
   };
+  return { region: country, fly: { ...eventFly, frame: regionFrame(country) } };
 }

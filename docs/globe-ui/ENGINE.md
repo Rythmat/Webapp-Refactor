@@ -59,6 +59,46 @@ are marked work in progress and have no licence, so none are copied in. A
 flavor is just an object of colours, so the Atlas theme can be changed in
 that one place.
 
+## Where the camera goes
+
+Navigation says what a flight frames (`FlyTarget.frame`,
+`navigation/flyFrames.ts`), and the MapLibre engine places the camera for it
+(`components/Globe/mapFraming.ts`):
+
+- **A country or a state** is fitted to its own outline. That means the
+  main landmass, plus every part within 3° of what is framed so far, so
+  nearby islands join (Sicily and Sardinia, Hokkaido, Tasmania, a whole
+  archipelago like Indonesia) and far territories don't (Alaska, Hawaii,
+  Svalbard, the Canaries, the Galápagos). The main landmass is the part
+  holding the most of the place's music cities, so Malaysia frames the
+  peninsula with Kuala Lumpur, not the larger Malaysian Borneo. Countries
+  come no closer than zoom 7, and states no closer than zoom 8.
+- **A city** is centred at zoom 10: the city and its suburbs. A guided
+  tour's city stops use the tour's own zoom, wider where a stop shows the
+  region around the city.
+- **An artist** is fitted to the places their events happened, no closer
+  than zoom 9.
+- **Anything else** (a tour's overview stop) flies to its centre, at the
+  zoom the three.js globe used for it.
+
+Every flight lands in the part of the map the page leaves clear. The layout
+measures what its overlays cover (`MapInsets`, `layout/mapInsets.ts`): the
+left panel, the map controls, the timeline row, the mind map or an open
+legend on the right, and the phone's sheet. The map's padding follows it,
+so its centre is always the middle of what you can see. A place has a
+32 px margin inside that area. A flight opens a panel that may not be on
+the page yet, so it lands as if the card (desktop) or the half-height
+sheet (phone) were already there. When the panel arrives and is measured,
+nothing moves.
+
+The fit is computed in Web Mercator, which matches MapLibre's globe at the
+zooms states and cities are seen from, and gives continent-sized countries
+a little extra room. MapLibre's own `cameraForBounds` sized a region's
+height a third too small under the globe projection, so it isn't used.
+
+The three.js engine keeps its own camera: it flies to each target's
+lat/lng/zoom and ignores the frame.
+
 ## Tiles
 
 Without a tile source, the MapLibre engine still works: it draws the Globe's

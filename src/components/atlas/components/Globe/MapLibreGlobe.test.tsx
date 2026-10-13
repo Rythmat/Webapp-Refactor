@@ -5,7 +5,7 @@
  * details card turns into map padding. The map itself (WebGL, tiles) is
  * mocked; what it draws is covered by the pure tests beside this one.
  */
-import { act, cleanup, render } from '@testing-library/react';
+import { act, cleanup, render, waitFor } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
@@ -77,7 +77,7 @@ const fake = vi.hoisted(() => {
       return this.canvas;
     }
     getContainer() {
-      return { clientHeight: 800 };
+      return { clientHeight: 800, clientWidth: 1280 };
     }
     getCenter() {
       return { lng: 0, lat: 0 };
@@ -109,7 +109,24 @@ const fake = vi.hoisted(() => {
       return false;
     }
   }
-  return { FakeMap, FakePopup };
+  /** Brazil, as a box: what the country outlines hold in this test. */
+  const brazil = {
+    type: 'Feature',
+    properties: { NAME: 'Brazil', ISO_A3: 'BRA' },
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-74, -34],
+          [-34, -34],
+          [-34, 5],
+          [-74, 5],
+          [-74, -34],
+        ],
+      ],
+    },
+  };
+  return { FakeMap, FakePopup, brazil };
 });
 
 vi.mock('maplibre-gl', () => ({
@@ -127,7 +144,7 @@ vi.mock('pmtiles', () => ({
   },
 }));
 vi.mock('@/components/atlas/data/geoLoader', () => ({
-  loadCountries: () => Promise.resolve([]),
+  loadCountries: () => Promise.resolve([fake.brazil]),
   loadAdmin1UsCa: () => Promise.resolve([]),
 }));
 
@@ -218,7 +235,7 @@ describe('clicks on the MapLibre globe', () => {
     expect(search()).toContain('event=evt-blues-clarksdale-1903');
   });
 
-  it('fly to a country’s centre and open it', () => {
+  it('fit a country to its outline and open it', async () => {
     const { map, click, search } = setup();
     click(
       feature(LAYER.countriesFill, {
@@ -230,9 +247,16 @@ describe('clicks on the MapLibre globe', () => {
       }),
     );
     expect(search()).toContain('place=country:Brazil:BRA');
-    expect(map.flyTo).toHaveBeenCalledWith(
-      expect.objectContaining({ center: [-52, -10], essential: false }),
-    );
+    // Fitted to the outline, clear of the details card about to open.
+    await waitFor(() => expect(map.flyTo).toHaveBeenCalled());
+    const flight = map.flyTo.mock.calls.at(-1)![0];
+    expect(flight).toMatchObject({
+      essential: false,
+      padding: expect.objectContaining({ left: 496 }),
+    });
+    expect(flight.center[0]).toBeCloseTo(-54);
+    expect(flight.center[1]).toBeLessThan(-14);
+    expect(flight.zoom).toBeLessThanOrEqual(7);
   });
 
   it('open a state with its country', () => {
@@ -297,33 +321,58 @@ describe('the MapLibre camera', () => {
       reduce,
     );
 
-  it('starts a deep link over its target, then flies in', () => {
+  it('starts a deep link over its target, then flies in', async () => {
     const { map, store } = deepLink(false);
+    await waitFor(() =>
+      expect(map.flyTo).toHaveBeenCalledWith(
+        expect.objectContaining({ center: [3.4, 6.5], duration: 1500 }),
+      ),
+    );
     expect(map.jumpTo).toHaveBeenCalledWith(
       expect.objectContaining({ center: [3.4, 6.5] }),
-    );
-    expect(map.flyTo).toHaveBeenCalledWith(
-      expect.objectContaining({ center: [3.4, 6.5], duration: 1500 }),
     );
     expect(store.api.getState().searchFlyTarget).toBeNull();
   });
 
-  it('cuts instead of flying under reduced motion', () => {
+  it('cuts instead of flying under reduced motion', async () => {
     const { map } = deepLink(true);
-    expect(map.flyTo).toHaveBeenCalledWith(
-      expect.objectContaining({ duration: 0, essential: false }),
+    await waitFor(() =>
+      expect(map.flyTo).toHaveBeenCalledWith(
+        expect.objectContaining({ duration: 0, essential: false }),
+      ),
     );
   });
 
-  it('pads the map clear of an open event card', () => {
-    const { map, store } = setup();
-    act(() =>
-      store.dispatch({ type: 'SET_DETAILS_PANEL_WIDTH', payload: 480 }),
-    );
-    expect(map.easeTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        padding: expect.objectContaining({ left: 496 }),
+  it('centres a city at a street-map zoom, clear of the card it opens', async () => {
+    const { map } = setup(
+      createAtlasStore({
+        ...initialAppState,
+        searchFlyTarget: {
+          lat: 29.95,
+          lng: -90.07,
+          zoom: 10,
+          frame: { kind: 'city', zoom: 10 },
+        },
       }),
+    );
+    await waitFor(() =>
+      expect(map.flyTo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          center: [-90.07, 29.95],
+          zoom: 10,
+          // The card is not measured yet: its width is assumed.
+          padding: expect.objectContaining({ left: 496 }),
+        }),
+      ),
+    );
+  });
+
+  it('keeps the map’s centre clear of what the overlays cover', () => {
+    const { map, store } = setup();
+    const insets = { top: 64, right: 0, bottom: 140, left: 496 };
+    act(() => store.dispatch({ type: 'SET_MAP_INSETS', payload: insets }));
+    expect(map.easeTo).toHaveBeenLastCalledWith(
+      expect.objectContaining({ padding: insets }),
     );
   });
 

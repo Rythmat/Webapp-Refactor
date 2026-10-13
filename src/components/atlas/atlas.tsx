@@ -44,6 +44,7 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import type { MapInsets } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
 
 // A Cortex lesson's Promoter mind map (`?mindmap=1`), loaded only when asked.
@@ -187,12 +188,20 @@ function AtlasOverlays() {
       dispatch({ type: 'SET_SHEET_OCCLUSION', payload: px }),
     [dispatch],
   );
+  // What the overlays cover of the map, for the MapLibre engine's padding
+  // and framing (MapPadding, mapFraming.ts).
+  const onInsets = useCallback(
+    (insets: MapInsets) =>
+      dispatch({ type: 'SET_MAP_INSETS', payload: insets }),
+    [dispatch],
+  );
   const zones = {
     left: useLeftPanel(),
     right: useMindMap(),
     controls: CONTROLS,
     bottom: useBottomBar(),
     credit: CREDIT,
+    onInsets,
   };
   return isPhone ? (
     <PhoneZones {...zones} onSheetOcclusion={onSheetOcclusion} />

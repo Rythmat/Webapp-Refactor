@@ -1,3 +1,4 @@
+import type { Feature } from 'geojson';
 import {
   getContrastColor,
   getCountryColor,
@@ -21,6 +22,37 @@ import type { GlobeLayers } from '@/components/atlas/types';
 const NONE: readonly never[] = Object.freeze([]);
 const none = <T>(): T[] => NONE as unknown as T[];
 
+/* ── What the globe draws ─────────────────────────────────────────────────── */
+
+export interface CityPoint {
+  lat: number;
+  lng: number;
+  id: string;
+  name: string;
+  /** The column's base: its country's colour (or the plain land's). */
+  color: string;
+}
+
+export interface ArtistPoint {
+  lat: number;
+  lng: number;
+  name: string;
+  color: string;
+  size: number;
+  /** The event the point stands for — clicking it opens that event. */
+  eventId: string;
+}
+
+/** Whether a city column holding `points` is drawn white. */
+export const isCityHighlighted = (
+  points: readonly Pick<CityPoint, 'id' | 'name'>[],
+  selectedCityId: string | null,
+  pinnedCityName: string | null,
+): boolean =>
+  (selectedCityId !== null && points.some((p) => p.id === selectedCityId)) ||
+  (pinnedCityName !== null &&
+    points.some((p) => p.name.toLowerCase() === pinnedCityName));
+
 /* ── Colours ─────────────────────────────────────────────────────────────── */
 
 /**
@@ -29,6 +61,42 @@ const none = <T>(): T[] => NONE as unknown as T[];
  */
 export function landColor(iso: string, countryColors: boolean): string {
   return countryColors ? getCountryColor(iso) : ATLAS_SCENE.landPlain;
+}
+
+/** Antarctica and Greenland are painted as ice, not in a continent's hue. */
+export const ICE_COUNTRIES = new Set(['ATA', 'GRL']);
+
+/**
+ * A Natural Earth country's ISO code. Natural Earth uses -99 for some
+ * countries (France, Norway, disputed territories): prefer ISO_A3, then
+ * ISO_A3_EH, then ADM0_A3.
+ */
+export function resolveIso(feat: Pick<Feature, 'properties'>): string {
+  const p = feat.properties;
+  const a3 = p?.ISO_A3 ?? p?.iso_a3 ?? '';
+  if (a3 !== '-99') return a3;
+  return p?.ISO_A3_EH !== '-99' && p?.ISO_A3_EH
+    ? p.ISO_A3_EH
+    : (p?.ADM0_A3 ?? '');
+}
+
+/**
+ * The colour a country or a US/Canada state is filled with (MapLibre's
+ * engine; the three.js globe's materials in globeVisuals.ts agree): a state
+ * takes its country's, the ice caps are white.
+ */
+export function regionColor(
+  feat: Pick<Feature, 'properties'>,
+  countryColors: boolean,
+): string {
+  if (feat.properties?._layer === 'state') {
+    const parentIso = feat.properties?.iso_a2 === 'CA' ? 'CAN' : 'USA';
+    return landColor(parentIso, countryColors);
+  }
+  const iso = resolveIso(feat);
+  return countryColors && ICE_COUNTRIES.has(iso)
+    ? ATLAS_SCENE.ice
+    : landColor(iso, countryColors);
 }
 
 /** A city column's base: its country's colour (or the plain land's). */

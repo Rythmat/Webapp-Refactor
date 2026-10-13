@@ -125,6 +125,20 @@ export const ATLAS_SCENE = {
   atmosphere: '#ffffff',
   /** A city with no country colour. */
   fallback: '#ffffff',
+  /** Antarctica and Greenland, painted as ice (the MapLibre engine). */
+  ice: '#ffffff',
+  /**
+   * The sea seen from orbit: the three.js globe's ocean glow (globeVisuals),
+   * which the MapLibre engine paints until the street basemap takes over.
+   */
+  ocean: '#33d6ff',
+  /** Space around the planet (the `canvas` token, as WebGL needs it). */
+  space: '#000005',
+  /** The dark rim round a city's circle or an artist's point on the map. */
+  pointRim: 'rgba(10, 10, 14, 0.85)',
+  /** City names on the map, and the halo that keeps them legible. */
+  label: '#e8e8f0',
+  labelHalo: 'rgba(16, 16, 18, 0.9)',
   /** The land with country colours switched off in Layers. */
   landPlain: '#6b6b74',
   /** The downstream ("influenced") arc, head to tail. */

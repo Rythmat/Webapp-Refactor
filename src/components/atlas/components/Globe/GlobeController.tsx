@@ -5,6 +5,11 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import {
+  flightDuration,
+  SPIN_DEGREES_PER_SECOND,
+  zoomToAltitude,
+} from './mapGeometry';
 
 interface Props {
   globeRef: React.MutableRefObject<GlobeMethods | undefined>;
@@ -12,20 +17,14 @@ interface Props {
   ready?: boolean;
 }
 
-function zoomToAltitude(zoom: number): number {
-  return Math.max(0.3, 3.5 - zoom * 0.3);
-}
-
-/** A camera flight's length; with reduced motion the camera cuts instead. */
-export const flightDuration = (reducedMotion: boolean): number =>
-  reducedMotion ? 0 : 1500;
+export { flightDuration };
 
 /**
  * Spin speed for OrbitControls' own auto-rotation: the angle per second is
- * `2π/60 × speed`, so 2.3 is a little under 14°/s — roughly 26 seconds for a
- * full turn, the same pace the globe used to drift at.
+ * `2π/60 × speed` (SPIN_DEGREES_PER_SECOND, which the MapLibre engine turns
+ * at too).
  */
-const AUTO_ROTATE_SPEED = 2.3;
+const AUTO_ROTATE_SPEED = (SPIN_DEGREES_PER_SECOND * 60) / 360;
 
 export function GlobeController({ globeRef, ready }: Props) {
   const dispatch = useAtlasDispatch();

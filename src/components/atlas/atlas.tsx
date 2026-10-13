@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { BaseGlobe } from '@/components/atlas/components/Globe';
+import { AtlasGlobe } from '@/components/atlas/components/Globe';
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
 import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
@@ -214,7 +214,7 @@ function AppLayout() {
       <AtlasPortalContext.Provider value={root}>
         <AtlasToolbar />
         <div className="relative flex-1">
-          <BaseGlobe />
+          <AtlasGlobe />
           <AtlasOverlays />
         </div>
         <AtlasUrlSync />

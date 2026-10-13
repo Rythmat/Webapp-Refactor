@@ -2,75 +2,44 @@ import type { Feature } from 'geojson';
 import { useRef, useMemo, useState, useCallback, useEffect } from 'react';
 import type { GlobeMethods, GlobeProps } from 'react-globe.gl';
 import { MeshLambertMaterial } from 'three';
-import {
-  CITIES,
-  CITY_COUNTRY_TO_ISO,
-  type ArcDatum,
-} from '@/components/atlas/data';
-import { getEventsForArtist } from '@/components/atlas/data/artists';
-import { connectionsData } from '@/components/atlas/data/loaders';
+import type { ArcDatum } from '@/components/atlas/data';
 import { useGeoData, useGlobeLighting } from '@/components/atlas/hooks';
-import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
-import { stopKey } from '@/components/atlas/navigation/atlasStop';
-import { markFlown } from '@/components/atlas/navigation/focusEvent';
-import {
-  useAtlasNavigate,
-  useAtlasStopSelector,
-} from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
-import { ATLAS_SCENE, atlasVar } from '@/components/atlas/theme/tokens';
-import type { SelectedLocation } from '@/components/atlas/types';
-import { resolveFocusCities } from '@/components/atlas/utils/resolveFocusCities';
+import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import { GlobeController } from './GlobeController';
+import { GlobeStatus } from './GlobeStatus';
 import {
-  ARTIST_POINT,
+  arcLabel,
+  citiesLabel,
+  featureName,
+  getCentroid,
+  isRegionSelected,
+  placeOfRegion,
+  pointLabel,
+  regionLabel,
+} from './globeLabels';
+import {
   arcColors,
   cityBaseColor,
   cityColumnColors,
-  visibleArcs,
-  visibleArtistPoints,
-  visibleCityPoints,
+  isCityHighlighted,
   visiblePolygons,
+  type ArtistPoint,
+  type CityPoint,
 } from './globeLayers';
 import {
   ATMOSPHERE,
   createOceanMaterial,
   makePolygonMaterialAccessors,
 } from './globeVisuals';
-
-interface HexPoint {
-  lat: number;
-  lng: number;
-  id: string;
-  name: string;
-  color: string;
-}
+import { useGlobeClicks, useGlobeScene } from './useGlobeScene';
 
 interface HexBin {
-  points: HexPoint[];
-}
-
-interface PinnedPoint {
-  lat: number;
-  lng: number;
-  name: string;
-  color: string;
-  size: number;
-  /** The event the point stands for — clicking it opens that event. */
-  eventId: string;
-}
-
-/** Event titles carry quotes and ampersands; globe.gl sets labels as HTML. */
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  points: CityPoint[];
 }
 
 /* ── Stable accessors ───────────────────────────────────────────────────────
@@ -89,65 +58,23 @@ function escapeHtml(text: string): string {
 const arcColorAccessor = (d: object): [string, string] =>
   arcColors(d as ArcDatum);
 
-/*
- * Hover labels. globe.gl puts them in its tooltip box, which index.css turns
- * into a small panel; these set only the text, in the page's tokens.
- */
-const LABEL_TEXT = `color:${atlasVar('text')};font-size:12px`;
-const LABEL_STRONG = `${LABEL_TEXT};font-weight:700`;
-const LABEL_QUIET = `color:${atlasVar('text-2')};font-size:12px`;
-
-const arcLabelAccessor = (d: object): string => {
-  const arc = d as ArcDatum;
-  const arrow = arc.direction === 'upstream' ? '→' : '←';
-  return `<span style="${LABEL_TEXT}">${escapeHtml(arc.label)} ${arrow}</span>`;
-};
+/* Hover labels (globeLabels.ts), shared with the MapLibre engine. globe.gl
+ * puts them in its tooltip box, which index.css turns into a small panel. */
+const arcLabelAccessor = (d: object): string => arcLabel(d as ArcDatum);
 
 const polygonLabelAccessor = (polygon: object): string => {
   const feat = polygon as Feature;
-  const isState = feat.properties?._layer === 'state';
-  const name = feat.properties?.NAME ?? feat.properties?.name ?? '';
-  if (isState) {
-    return `<span style="${LABEL_QUIET}">${name}</span>`;
-  }
-  return `<span style="${LABEL_STRONG};font-size:13px">${name}</span>`;
+  return regionLabel(featureName(feat), feat.properties?._layer === 'state');
 };
 
-const hexLabelAccessor = (d: object): string => {
-  const hex = d as HexBin;
-  const names = hex.points.map((p) => p.name).join(', ');
-  return `<span style="${LABEL_STRONG}">${names}</span>`;
-};
+const hexLabelAccessor = (d: object): string =>
+  citiesLabel((d as HexBin).points.map((p) => p.name));
 
-const pointLabelAccessor = (d: object): string => {
-  const p = d as PinnedPoint;
-  return `<span style="${LABEL_STRONG}">${escapeHtml(p.name)}</span>`;
-};
+const pointLabelAccessor = (d: object): string =>
+  pointLabel((d as ArtistPoint).name);
 
-const pointColorAccessor = (d: object): string => (d as PinnedPoint).color;
-const pointRadiusAccessor = (d: object): number => (d as PinnedPoint).size;
-
-// Rough centroid from GeoJSON feature coordinates
-function getCentroid(feat: Feature): { lat: number; lng: number } | null {
-  const coords: number[][] = [];
-  function collect(arr: unknown) {
-    if (Array.isArray(arr)) {
-      if (typeof arr[0] === 'number') coords.push(arr as number[]);
-      else for (const item of arr) collect(item);
-    }
-  }
-  if (feat.geometry && 'coordinates' in feat.geometry) {
-    collect(feat.geometry.coordinates);
-  }
-  if (coords.length === 0) return null;
-  let sLat = 0,
-    sLng = 0;
-  for (const [lng, lat] of coords) {
-    sLng += lng;
-    sLat += lat;
-  }
-  return { lat: sLat / coords.length, lng: sLng / coords.length };
-}
+const pointColorAccessor = (d: object): string => (d as ArtistPoint).color;
+const pointRadiusAccessor = (d: object): number => (d as ArtistPoint).size;
 
 /**
  * State/province polygons appear below this altitude. Hysteresis: the camera
@@ -258,15 +185,18 @@ export function BaseGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const { countries, adminRegions, loading, error } = useGeoData();
-  const pinnedEvent = useAtlasSelector((s) => s.pinnedEvent);
-  const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
-  const visibleArcDirections = useAtlasSelector((s) => s.visibleArcDirections);
-  const layers = useAtlasSelector((s) => s.layers);
+  const {
+    layers,
+    selectedLocation,
+    cityPoints,
+    artistPoints,
+    influenceArcs,
+    selectedCityId,
+    pinnedCityName,
+  } = useGlobeScene();
   const statesInView = useAtlasSelector((s) => s.statesInView);
-  const activeModule = useAtlasSelector((s) => s.activeModule);
-  const activeTour = useAtlasSelector((s) => s.activeTour);
   const dispatch = useAtlasDispatch();
-  const navigate = useAtlasNavigate();
+  const clicks = useGlobeClicks();
   // Reduced motion: the arc dashes hold still and layers change without
   // tweening (camera flights cut, in GlobeController).
   const reducedMotion = usePrefersReducedMotion();
@@ -355,68 +285,7 @@ export function BaseGlobe() {
     [layers, countryFeatures, stateFeatures, statesInView],
   );
 
-  // While a guided sequence (Pathway / Region tour / City tour) is active, the
-  // globe is simplified to just that selection's cities; otherwise all cities.
-  const focusCities = useMemo(
-    () => resolveFocusCities(activeModule, activeTour),
-    [activeModule, activeTour],
-  );
-
-  // City hex data — all cities, or only the focus set during a sequence.
   const countryColors = layers.countryColors;
-  const hexPoints: HexPoint[] = useMemo(() => {
-    const source = focusCities
-      ? CITIES.filter((c) => focusCities.has(c.id))
-      : CITIES;
-    return source.map((city) => ({
-      lat: city.coordinates[0],
-      lng: city.coordinates[1],
-      id: city.id,
-      name: city.name,
-      color: cityBaseColor(CITY_COUNTRY_TO_ISO[city.country], countryColors),
-    }));
-  }, [focusCities, countryColors]);
-  const cityPoints = useMemo(
-    () => visibleCityPoints(layers, hexPoints),
-    [layers, hexPoints],
-  );
-
-  // Pinned marker removed — the pinned city is shown via its highlighted hex.
-  // An artist stop lights up every place that artist's events happened, so the
-  // globe shows the shape of a career (Wes Montgomery: Indianapolis → New York).
-  const artist = useAtlasStopSelector((stop) =>
-    stop.kind === 'artist' ? stop.artist : null,
-  );
-  const pinnedPointData: PinnedPoint[] = useMemo(() => {
-    if (!artist) return [];
-    return getEventsForArtist(artist).map((e) => ({
-      lat: e.location.lat,
-      lng: e.location.lng,
-      name: `${e.title} · ${e.year}`,
-      color: ARTIST_POINT.color,
-      size: ARTIST_POINT.radius,
-      eventId: e.id,
-    }));
-  }, [artist]);
-  const artistPoints = useMemo(
-    () => visibleArtistPoints(layers, pinnedPointData),
-    [layers, pinnedPointData],
-  );
-
-  // Influence arcs for pinned event — filtered by which dropdowns are open.
-  // The influence graph loads with the first pin; the arcs follow it in.
-  const connections = useLazyResource(connectionsData, !!pinnedEvent).data;
-  const allArcs = useMemo(() => {
-    if (!pinnedEvent || !connections) return [];
-    return connections.getRecursiveArcsForEvent(pinnedEvent.id);
-  }, [connections, pinnedEvent]);
-
-  // Only the directions open in the event card (or Layers), and none with the
-  // arcs layer off.
-  const influenceArcs = useMemo(
-    () => visibleArcs(layers, allArcs, visibleArcDirections),
-    [layers, allArcs, visibleArcDirections],
-  );
 
   // Altitude tracking — ref-only, plus a hysteresis flip of the states layer.
   const handleZoom = useCallback(
@@ -437,56 +306,28 @@ export function BaseGlobe() {
   const handlePolygonClick = useCallback(
     (polygon: object) => {
       const feat = polygon as Feature;
-      const name = feat.properties?.NAME ?? feat.properties?.name ?? 'Unknown';
-      const centroid = getCentroid(feat);
-
-      const place: SelectedLocation =
-        feat.properties?._layer === 'state'
-          ? {
-              type: 'state',
-              name,
-              country:
-                (feat.properties?.iso_a2 ?? '') === 'CA'
-                  ? 'Canada'
-                  : 'United States',
-            }
-          : {
-              type: 'country',
-              name,
-              iso: feat.properties?.ISO_A3 ?? feat.properties?.iso_a3 ?? '',
-            };
-
-      if (centroid) {
-        dispatch({
-          type: 'EXECUTE_SEARCH',
-          payload: { lat: centroid.lat, lng: centroid.lng, zoom: 10 },
-        });
-        markFlown(stopKey({ kind: 'place', place }));
-      }
-      navigate.toPlace(place);
+      clicks.region(placeOfRegion(feat.properties), getCentroid(feat));
     },
-    [dispatch, navigate],
+    [clicks],
   );
 
   // Hex click — open the city
   const handleHexClick = useCallback(
     (hex: object) => {
       const h = hex as HexBin;
-      if (h.points.length > 0) {
-        navigate.toPlace({ type: 'city', id: h.points[0].id });
-      }
+      if (h.points.length > 0) clicks.city(h.points[0].id);
     },
-    [navigate],
+    [clicks],
   );
 
   const handlePointClick = useCallback(
-    (d: object) => navigate.toEvent((d as PinnedPoint).eventId),
-    [navigate],
+    (d: object) => clicks.event((d as ArtistPoint).eventId),
+    [clicks],
   );
 
   const handleArcClick = useCallback(
-    (d: object) => navigate.toEvent((d as ArcDatum).eventId),
-    [navigate],
+    (d: object) => clicks.event((d as ArcDatum).eventId),
+    [clicks],
   );
 
   const handleGlobeReady = useCallback(() => {
@@ -521,28 +362,8 @@ export function BaseGlobe() {
 
   // Check if a polygon feature matches the current selection
   const isSelected = useCallback(
-    (feat: Feature): boolean => {
-      if (!selectedLocation) return false;
-      if (
-        feat.properties?._layer === 'state' &&
-        selectedLocation.type === 'state'
-      ) {
-        return (
-          (feat.properties?.NAME ?? feat.properties?.name) ===
-          selectedLocation.name
-        );
-      }
-      if (
-        feat.properties?._layer !== 'state' &&
-        selectedLocation.type === 'country'
-      ) {
-        return (
-          (feat.properties?.ISO_A3 ?? feat.properties?.iso_a3) ===
-          selectedLocation.iso
-        );
-      }
-      return false;
-    },
+    (feat: Feature): boolean =>
+      isRegionSelected(feat.properties, selectedLocation),
     [selectedLocation],
   );
 
@@ -594,20 +415,11 @@ export function BaseGlobe() {
   );
 
   // A hex is highlighted when it holds the selected city or the pinned event's
-  // city. Derived to primitives so the two colour accessors below change
-  // identity once per selection instead of once per render.
-  const selectedCityId =
-    selectedLocation?.type === 'city' ? selectedLocation.id : null;
-  const pinnedCityName = pinnedEvent
-    ? pinnedEvent.location.city.toLowerCase()
-    : null;
-
+  // city. useGlobeScene derives both to primitives, so the two colour
+  // accessors below change identity once per selection, not once per render.
   const isHexHighlighted = useCallback(
-    (points: HexPoint[]): boolean =>
-      (selectedCityId !== null &&
-        points.some((p) => p.id === selectedCityId)) ||
-      (pinnedCityName !== null &&
-        points.some((p) => p.name.toLowerCase() === pinnedCityName)),
+    (points: CityPoint[]): boolean =>
+      isCityHighlighted(points, selectedCityId, pinnedCityName),
     [selectedCityId, pinnedCityName],
   );
 
@@ -671,27 +483,9 @@ export function BaseGlobe() {
       ref={containerRef}
       className="absolute inset-0 overflow-hidden bg-atlas-canvas"
     >
-      {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center p-8">
-          <p className="text-sm text-atlas-danger">
-            Failed to load globe: {error || globeError}
-          </p>
-        </div>
-      )}
+      {hasError && <GlobeStatus error={error || globeError} />}
 
-      {!ready && !hasError && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <div
-              aria-hidden
-              className="size-10 animate-spin rounded-full border-[3px] border-atlas-accent border-t-transparent"
-            />
-            <p className="text-base font-medium text-atlas-text">
-              Loading globe...
-            </p>
-          </div>
-        </div>
-      )}
+      {!ready && !hasError && <GlobeStatus />}
 
       {ready && (
         <OffsetGlobe

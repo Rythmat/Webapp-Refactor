@@ -1,14 +1,12 @@
 import type { Feature } from 'geojson';
 import { MeshPhongMaterial, MeshLambertMaterial, DoubleSide } from 'three';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
-import { landColor } from './globeLayers';
+import { ICE_COUNTRIES, landColor, resolveIso } from './globeLayers';
 
 // Shared visual building blocks for the globe (ocean material, country-polygon
 // materials, atmosphere) so BaseGlobe and the decorative HeroGlobe render the
 // same planet. Materials are per-instance and disposed by their owner — these
 // are factories/pure functions, never shared singletons.
-
-export const ICE_COUNTRIES = new Set(['ATA', 'GRL']);
 
 // Atmosphere halo settings used by both globes.
 export const ATMOSPHERE = {
@@ -16,16 +14,8 @@ export const ATMOSPHERE = {
   altitude: 0.18,
 } as const;
 
-// Natural Earth uses -99 for some countries (France, Norway, disputed territories).
-// Prefer ISO_A3_EH, then ADM0_A3, then ISO_A3.
-export function resolveIso(feat: Feature): string {
-  const p = feat.properties;
-  const a3 = p?.ISO_A3 ?? p?.iso_a3 ?? '';
-  if (a3 !== '-99') return a3;
-  return p?.ISO_A3_EH !== '-99' && p?.ISO_A3_EH
-    ? p.ISO_A3_EH
-    : (p?.ADM0_A3 ?? '');
-}
+// Re-exported for HeroGlobe and the geo tests, which import them from here.
+export { ICE_COUNTRIES, resolveIso };
 
 // Ocean material — matte black so continents float on a dark sphere. One
 // instance per globe; the caller owns disposal.

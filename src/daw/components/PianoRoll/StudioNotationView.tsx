@@ -142,6 +142,8 @@ export function StudioNotationView({
         score={score}
         noteStyles={noteStyles}
         playheadSource={studioPlayheadSource}
+        // An edit measures only the bars it changed; lessons leave this off.
+        incremental
         className="size-full px-3 pt-3"
       />
       <CountOff beatIndex={countInBeat} beatsPerBar={numerator} />

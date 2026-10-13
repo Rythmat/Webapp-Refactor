@@ -27,6 +27,8 @@ export interface GrandStaffProps {
   onLayout?: StaffViewProps['onLayout'];
   /** Drawn over the staves, scrolling with them — chord symbols, markers. */
   overlay?: ReactNode;
+  /** Engrave incrementally (see StaffViewProps). Off for a lesson's staff. */
+  incremental?: boolean;
   className?: string;
   style?: CSSProperties;
 }

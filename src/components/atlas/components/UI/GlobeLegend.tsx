@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { useId, useMemo } from 'react';
+import { CITY_MARK } from '@/components/atlas/components/Globe/engine';
 import {
   legendEntries,
   type LegendSwatch,
@@ -119,6 +120,7 @@ export function GlobeLegend({
     () =>
       legendEntries({
         layers,
+        cityMark: CITY_MARK,
         statesInView,
         regionSelected,
         cityHighlighted,

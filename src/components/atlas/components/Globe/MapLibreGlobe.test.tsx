@@ -190,14 +190,15 @@ const feature = (
 ): PickedFeature => ({ layer: { id: layer }, properties });
 
 describe('clicks on the MapLibre globe', () => {
-  it('open a city from its column or its circle', () => {
+  it('open a city from its dot', () => {
     const { click, search } = setup();
     click(
-      feature(LAYER.cityHexes, { cityId: 'new-orleans', names: 'New Orleans' }),
+      feature(LAYER.cityCircles, {
+        cityId: 'new-orleans',
+        name: 'New Orleans',
+      }),
     );
     expect(search()).toContain('place=city:new-orleans');
-    click(feature(LAYER.cityCircles, { cityId: 'memphis', names: 'Memphis' }));
-    expect(search()).toContain('place=city:memphis');
   });
 
   it('open an event from an artist’s point or an arc', () => {

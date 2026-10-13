@@ -7,7 +7,7 @@ import {
   pointLabel,
   regionLabel,
 } from './globeLabels';
-import { BASEMAP_FADE } from './mapGeometry';
+import { REGION_CLICK_MAX_ZOOM } from './mapGeometry';
 import { CLICK_LAYERS, LAYER } from './mapStyle';
 
 /**
@@ -37,12 +37,13 @@ const priority = (layerId: string): number => {
 };
 
 /**
- * Countries and states answer clicks while their colours are on the map.
- * With a basemap they fade out by BASEMAP_FADE's end, and a click among the
- * streets should not open the country it is in.
+ * Countries and states answer clicks from orbit down to the country level
+ * (REGION_CLICK_MAX_ZOOM). With a street basemap, a click among the streets
+ * should not open the country it lands in; without one, the outlines are
+ * the whole map and always answer.
  */
 export const regionsClickable = (zoom: number, withBasemap: boolean): boolean =>
-  !withBasemap || zoom < BASEMAP_FADE[1];
+  !withBasemap || zoom < REGION_CLICK_MAX_ZOOM;
 
 /** The feature a click means: the most specific layer's (CLICK_LAYERS). */
 export function topFeature(
@@ -76,8 +77,7 @@ export function targetOf(feature: PickedFeature | null): MapTarget | null {
       const eventId = str(p.eventId);
       return eventId ? { kind: 'event', eventId } : null;
     }
-    case LAYER.cityCircles:
-    case LAYER.cityHexes: {
+    case LAYER.cityCircles: {
       const cityId = str(p.cityId);
       return cityId ? { kind: 'city', cityId } : null;
     }
@@ -109,8 +109,7 @@ export function labelOf(feature: PickedFeature | null): string | null {
     case LAYER.artistPoints:
       return pointLabel(str(p.name) ?? '');
     case LAYER.cityCircles:
-    case LAYER.cityHexes:
-      return citiesLabel((str(p.names) ?? '').split(', '));
+      return citiesLabel([str(p.name) ?? '']);
     case LAYER.statesFill:
     case LAYER.countriesFill:
       return regionLabel(featureName({ properties: p }), p._layer === 'state');

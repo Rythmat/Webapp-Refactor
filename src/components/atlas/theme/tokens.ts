@@ -150,23 +150,42 @@ export const ATLAS_SCENE = {
 } as const;
 
 /**
- * The street basemap's colours where they differ from Protomaps' `dark`
- * flavor (the MapLibre engine, components/Globe/mapStyle.ts): land and
- * background on the page's own darks, a deep teal sea the globe's cyan
- * fades into, and labels bright enough to read (dark's are #3d3d3d to
- * #7a7a7a on #1f1f1f). Keys are @protomaps/basemaps Flavor keys.
+ * The Atlas flavor: the street basemap's colours where they differ from
+ * Protomaps' `dark` flavor (the MapLibre engine, components/Globe/mapStyle.ts).
+ * The country colours tint its land at every zoom, so its own land is the
+ * plain grey they are drawn over (and that shows with them off in Layers);
+ * its sea is the globe's cyan; and its labels are light with dark halos, so
+ * they read on any country's colour. Keys are @protomaps/basemaps Flavor keys.
  */
+const LABEL_HALO = 'rgba(16, 16, 18, 0.85)';
 export const ATLAS_BASEMAP = {
-  background: '#101012',
-  earth: '#18181c',
-  water: '#0e2f3a',
-  ocean_label: '#5fa9bd',
-  country_label: '#b4b4c0',
-  state_label: '#8a8a96',
-  state_label_halo: '#101012',
-  city_label: '#c9c9d4',
-  city_label_halo: '#101012',
-  subplace_label: '#8a8a96',
-  roads_label_major: '#9a9aa6',
-  roads_label_minor: '#7a7a86',
+  background: ATLAS_SCENE.ocean,
+  earth: ATLAS_SCENE.landPlain,
+  water: ATLAS_SCENE.ocean,
+  ocean_label: '#0b4f5f',
+  country_label: '#f2f2f6',
+  state_label: '#e2e2ea',
+  state_label_halo: LABEL_HALO,
+  city_label: '#f2f2f6',
+  city_label_halo: LABEL_HALO,
+  subplace_label: '#d6d6de',
+  subplace_label_halo: LABEL_HALO,
+  roads_label_major: '#e2e2ea',
+  roads_label_major_halo: LABEL_HALO,
+  roads_label_minor: '#d0d0d8',
+  roads_label_minor_halo: LABEL_HALO,
+  address_label: '#d0d0d8',
+  address_label_halo: LABEL_HALO,
+  // Places of interest, in light versions of Protomaps' hues so they read
+  // on tinted land.
+  pois: {
+    blue: '#a9d8ec',
+    green: '#a8ecc6',
+    lapis: '#b9c8ff',
+    pink: '#ffc4ea',
+    red: '#ffbccb',
+    slategray: '#d6d6de',
+    tangerine: '#ffd2bb',
+    turquoise: '#a6f0f6',
+  },
 } as const;

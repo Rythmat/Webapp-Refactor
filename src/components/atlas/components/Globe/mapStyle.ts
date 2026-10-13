@@ -6,11 +6,7 @@ import type {
   StyleSpecification,
 } from 'maplibre-gl';
 import { ATLAS_BASEMAP, ATLAS_SCENE } from '@/components/atlas/theme/tokens';
-import {
-  BASEMAP_FADE,
-  CITY_HEX_HEIGHT_M,
-  STATES_MIN_ZOOM,
-} from './mapGeometry';
+import { COUNTRY_TINT, STATES_MIN_ZOOM } from './mapGeometry';
 
 /**
  * The MapLibre engine's style, built in code: a Protomaps vector basemap
@@ -92,7 +88,6 @@ export const SOURCE = {
   basemap: 'protomaps',
   countries: 'atlas-countries',
   states: 'atlas-states',
-  cityHexes: 'atlas-city-hexes',
   cityPoints: 'atlas-city-points',
   artistPoints: 'atlas-artist-points',
   arcs: 'atlas-arcs',
@@ -103,7 +98,6 @@ export const LAYER = {
   countriesLine: 'atlas-countries-line',
   statesFill: 'atlas-states-fill',
   statesLine: 'atlas-states-line',
-  cityHexes: 'atlas-city-hexes',
   arcsCasing: 'atlas-arcs-casing',
   arcsTrace: 'atlas-arcs-trace',
   arcsDash: 'atlas-arcs-dash',
@@ -118,16 +112,14 @@ export const CLICK_LAYERS = [
   LAYER.arcsHit,
   LAYER.artistPoints,
   LAYER.cityCircles,
-  LAYER.cityHexes,
   LAYER.statesFill,
   LAYER.countriesFill,
 ] as const;
 
 /* ── The Globe's own layers ──────────────────────────────────────────────── */
 
-/** Where the city columns become circles and labels. */
-export const CITY_CIRCLES_FROM = 6;
-const CROSSFADE = 0.75;
+/** Where the city dots get their names. */
+export const CITY_LABELS_FROM = 6;
 
 const zoomRamp = (
   ...stops: (readonly [number, number])[]
@@ -155,7 +147,6 @@ export function overlaySources(): Record<string, SourceSpecification> {
   return {
     [SOURCE.countries]: emptyCollection(),
     [SOURCE.states]: emptyCollection(),
-    [SOURCE.cityHexes]: emptyCollection(),
     [SOURCE.cityPoints]: emptyCollection(),
     [SOURCE.artistPoints]: emptyCollection(),
     [SOURCE.arcs]: emptyCollection(),
@@ -163,23 +154,26 @@ export function overlaySources(): Record<string, SourceSpecification> {
 }
 
 /**
- * The layers that sit under the basemap's labels: land colour, outlines,
- * columns and arcs. With a basemap the country colours fade out over
- * BASEMAP_FADE as its streets and places take over.
+ * The country colours: from orbit the whole land, as on the three.js globe;
+ * with a basemap, a tint on its land at every zoom, drawn just under its sea
+ * (whose detailed coastline trims the coarse outlines) and its roads,
+ * buildings and labels.
  */
-export function overlayLayersBelowLabels(
-  withBasemap: boolean,
-): LayerSpecification[] {
-  const landOpacity = withBasemap
-    ? zoomRamp([BASEMAP_FADE[0], 0.86], [BASEMAP_FADE[1], 0])
-    : 0.86;
-  return [
-    {
-      id: LAYER.countriesFill,
-      type: 'fill',
-      source: SOURCE.countries,
-      paint: { 'fill-color': ['get', 'color'], 'fill-opacity': landOpacity },
+export function countryTintLayer(withBasemap: boolean): LayerSpecification {
+  return {
+    id: LAYER.countriesFill,
+    type: 'fill',
+    source: SOURCE.countries,
+    paint: {
+      'fill-color': ['get', 'color'],
+      'fill-opacity': withBasemap ? zoomRamp(...COUNTRY_TINT) : 0.86,
     },
+  };
+}
+
+/** The layers that sit under the basemap's labels: outlines and arcs. */
+export function overlayLayersBelowLabels(): LayerSpecification[] {
+  return [
     {
       // Clicks only: the states keep their country's colour, as before.
       id: LAYER.statesFill,
@@ -215,21 +209,6 @@ export function overlayLayersBelowLabels(
           ATLAS_SCENE.strokeCountry,
         ],
         'line-width': ['case', selected, 2.25, 0.75],
-      },
-    },
-    {
-      id: LAYER.cityHexes,
-      type: 'fill-extrusion',
-      source: SOURCE.cityHexes,
-      maxzoom: CITY_CIRCLES_FROM + CROSSFADE,
-      paint: {
-        'fill-extrusion-color': ['get', 'color'],
-        'fill-extrusion-height': CITY_HEX_HEIGHT_M,
-        'fill-extrusion-base': 0,
-        'fill-extrusion-opacity': zoomRamp(
-          [CITY_CIRCLES_FROM - CROSSFADE, 0.95],
-          [CITY_CIRCLES_FROM + CROSSFADE, 0],
-        ),
       },
     },
     {
@@ -284,28 +263,27 @@ export function overlayLayersOnTop(): LayerSpecification[] {
   const highlight: ExpressionSpecification = ['get', 'highlight'];
   return [
     {
+      // A dot on each city at every zoom; the selected one white, larger
+      // and on top.
       id: LAYER.cityCircles,
       type: 'circle',
       source: SOURCE.cityPoints,
-      minzoom: CITY_CIRCLES_FROM - CROSSFADE,
+      layout: { 'circle-sort-key': ['case', highlight, 1, 0] },
       paint: {
         'circle-color': ['get', 'color'],
-        'circle-radius': zoomRamp([CITY_CIRCLES_FROM, 6], [12, 9]),
-        'circle-stroke-color': [
-          'case',
-          highlight,
-          ATLAS_SCENE.highlight,
-          ATLAS_SCENE.pointRim,
+        'circle-radius': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          1,
+          ['case', highlight, 5, 2.5],
+          CITY_LABELS_FROM,
+          ['case', highlight, 9, 6],
+          12,
+          ['case', highlight, 11, 8],
         ],
-        'circle-stroke-width': ['case', highlight, 2.5, 1.5],
-        'circle-opacity': zoomRamp(
-          [CITY_CIRCLES_FROM - CROSSFADE, 0],
-          [CITY_CIRCLES_FROM + CROSSFADE, 1],
-        ),
-        'circle-stroke-opacity': zoomRamp(
-          [CITY_CIRCLES_FROM - CROSSFADE, 0],
-          [CITY_CIRCLES_FROM + CROSSFADE, 1],
-        ),
+        'circle-stroke-color': ATLAS_SCENE.pointRim,
+        'circle-stroke-width': ['case', highlight, 2, 1],
         'circle-pitch-alignment': 'map',
       },
     },
@@ -313,7 +291,7 @@ export function overlayLayersOnTop(): LayerSpecification[] {
       id: LAYER.cityLabels,
       type: 'symbol',
       source: SOURCE.cityPoints,
-      minzoom: CITY_CIRCLES_FROM,
+      minzoom: CITY_LABELS_FROM,
       layout: {
         'text-field': ['get', 'name'],
         'text-font': ['Noto Sans Medium'],
@@ -352,52 +330,25 @@ export interface StyleOptions {
 }
 
 /**
- * The sea (and the basemap's land underneath the country colours) in the
- * three.js globe's glow from orbit, turning into the basemap's own colour as
- * the country colours fade.
- */
-const seaFade = (basemapColor: string): ExpressionSpecification => [
-  'interpolate',
-  ['linear'],
-  ['zoom'],
-  BASEMAP_FADE[0],
-  ATLAS_SCENE.ocean,
-  BASEMAP_FADE[1],
-  basemapColor,
-];
-
-/**
- * The basemap's layers, its sea starting out in the Globe's colour and its
- * labels arriving with the street map.
+ * The basemap's layers, in the Atlas flavor (ATLAS_BASEMAP in tokens.ts).
+ * Some of its labels (countries, places of interest) take their halo from
+ * the land colour; on tinted land that halo is lost, so they get the dark
+ * label halo too.
  */
 function basemapLayersFor(lang: 'en' | 'es'): LayerSpecification[] {
-  // The Atlas flavor: Protomaps' dark, on the page's colours (tokens.ts).
   const flavor = { ...namedFlavor('dark'), ...ATLAS_BASEMAP };
-  return (
-    basemapLayers(SOURCE.basemap, flavor, { lang }) as LayerSpecification[]
-  ).map((layer) => {
-    if (layer.id === 'background' && layer.type === 'background') {
-      return {
-        ...layer,
-        paint: { 'background-color': seaFade(flavor.background) },
-      };
-    }
-    if (layer.id === 'water' && layer.type === 'fill') {
-      return {
-        ...layer,
-        paint: { ...layer.paint, 'fill-color': seaFade(flavor.water) },
-      };
-    }
-    // Its labels are drawn for its own dark land; over the country colours
-    // they only clutter, so they arrive as the colours start to go.
-    if (layer.type === 'symbol') {
-      return {
-        ...layer,
-        minzoom: Math.max(layer.minzoom ?? 0, BASEMAP_FADE[0]),
-      };
-    }
-    return layer;
-  });
+  const base = basemapLayers(SOURCE.basemap, flavor, {
+    lang,
+  }) as LayerSpecification[];
+  return base.map((layer) =>
+    layer.type === 'symbol' &&
+    layer.paint?.['text-halo-color'] === ATLAS_BASEMAP.earth
+      ? {
+          ...layer,
+          paint: { ...layer.paint, 'text-halo-color': ATLAS_SCENE.labelHalo },
+        }
+      : layer,
+  );
 }
 
 export function buildStyle({
@@ -405,15 +356,25 @@ export function buildStyle({
   lang,
   assetsUrl,
 }: StyleOptions): StyleSpecification {
-  const below = overlayLayersBelowLabels(basemap !== null);
+  const tint = countryTintLayer(basemap !== null);
+  const below = overlayLayersBelowLabels();
   const onTop = overlayLayersOnTop();
   let layers: LayerSpecification[];
   if (basemap) {
     const base = basemapLayersFor(lang);
-    // Ours go between the basemap's shapes and its labels.
+    // The tint goes over the basemap's land and land use, under its sea;
+    // the outlines and arcs between its shapes and its labels.
+    const sea = base.findIndex((layer) => layer.id === 'water');
     const firstLabel = base.findIndex((layer) => layer.type === 'symbol');
     const cut = firstLabel === -1 ? base.length : firstLabel;
-    layers = [...base.slice(0, cut), ...below, ...base.slice(cut), ...onTop];
+    layers = [
+      ...base.slice(0, sea),
+      tint,
+      ...base.slice(sea, cut),
+      ...below,
+      ...base.slice(cut),
+      ...onTop,
+    ];
   } else {
     layers = [
       {
@@ -421,6 +382,7 @@ export function buildStyle({
         type: 'background',
         paint: { 'background-color': ATLAS_SCENE.ocean },
       },
+      tint,
       ...below,
       ...onTop,
     ];

@@ -2,6 +2,7 @@ import * as Popover from '@radix-ui/react-popover';
 import * as Switch from '@radix-ui/react-switch';
 import { Layers } from 'lucide-react';
 import { useId } from 'react';
+import { CITY_MARK } from '@/components/atlas/components/Globe/engine';
 import {
   ATLAS_FOCUS,
   ATLAS_ITEM_TITLE,
@@ -38,7 +39,7 @@ export const LAYER_OPTIONS: {
   {
     layer: 'cities',
     label: 'Music cities',
-    detail: 'A column on each city with music history.',
+    detail: `A ${CITY_MARK} on each city with music history.`,
   },
   {
     layer: 'artistPoints',

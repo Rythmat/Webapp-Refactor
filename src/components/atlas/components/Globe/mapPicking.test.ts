@@ -27,9 +27,9 @@ const texas = at(LAYER.statesFill, {
   clat: 31,
   clng: -99,
 });
-const nola = at(LAYER.cityHexes, {
+const nola = at(LAYER.cityCircles, {
   cityId: 'new-orleans',
-  names: 'New Orleans, Baton Rouge',
+  name: 'New Orleans',
 });
 const point = at(LAYER.artistPoints, { eventId: 'evt-1', name: 'Hot Five' });
 const arc = at(LAYER.arcsHit, {
@@ -64,7 +64,7 @@ describe('what it opens', () => {
     expect(targetOf(point)).toEqual({ kind: 'event', eventId: 'evt-1' });
   });
 
-  it('opens a column’s first city', () => {
+  it('opens a city from its dot', () => {
     expect(targetOf(nola)).toEqual({ kind: 'city', cityId: 'new-orleans' });
   });
 
@@ -90,7 +90,7 @@ describe('what it opens', () => {
 describe('hover labels', () => {
   it('say what the three.js globe said, escaped', () => {
     expect(labelOf(arc)).toContain('Bebop &amp; &quot;cool&quot; →');
-    expect(labelOf(nola)).toContain('New Orleans, Baton Rouge');
+    expect(labelOf(nola)).toContain('New Orleans');
     expect(labelOf(brazil)).toContain('Brazil');
     expect(labelOf(texas)).toContain('Texas');
     expect(labelOf(null)).toBeNull();

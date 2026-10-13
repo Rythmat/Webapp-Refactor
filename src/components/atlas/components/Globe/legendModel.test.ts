@@ -13,6 +13,8 @@ import { legendEntries, type LegendContext } from './legendModel';
 
 const HOME: LegendContext = {
   layers: DEFAULT_LAYERS,
+  // The three.js globe's columns; the MapLibre map's dots are tested below.
+  cityMark: 'column',
   statesInView: false,
   regionSelected: false,
   cityHighlighted: false,
@@ -148,5 +150,24 @@ describe('legend', () => {
       expect(e.label.length).toBeGreaterThan(3);
       expect(e.detail.length).toBeGreaterThan(10);
     }
+  });
+
+  it('describes dots where the map marks cities with dots', () => {
+    const dots: LegendContext = {
+      ...HOME,
+      cityMark: 'dot',
+      cityHighlighted: true,
+    };
+    expect(entry(dots, 'cities')).toMatchObject({
+      detail: 'A dot on each city, in a shade of its country’s colour.',
+      swatch: {
+        shape: 'point',
+        color: getContrastColor(getCountryColor('USA')),
+      },
+    });
+    expect(entry(dots, 'selected-city')?.swatch).toEqual({
+      shape: 'point',
+      color: ATLAS_SCENE.highlight,
+    });
   });
 });

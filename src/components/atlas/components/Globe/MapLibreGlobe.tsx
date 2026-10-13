@@ -15,7 +15,8 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
+  type MutableRefObject,
+  type RefObject,
 } from 'react';
 import { useGeoData } from '@/components/atlas/hooks/useGeoData';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
@@ -32,8 +33,6 @@ import {
   altitudeToMapZoom,
   arcCollection,
   artistPointCollection,
-  cityColumns,
-  cityHexCollection,
   cityPointCollection,
   flightDuration,
   flyZoom,
@@ -63,7 +62,8 @@ import { useGlobeClicks, useGlobeScene } from './useGlobeScene';
  * The Globe page's map on MapLibre GL (docs/globe-ui/ENGINE.md): a 3-D globe
  * that zooms from the whole planet down to street level over a Protomaps
  * basemap, drawing what BaseGlobe (three.js) drew — coloured countries, the
- * US/Canada states, city columns, an artist's points and influence arcs —
+ * US/Canada states, the music cities (as dots, where three.js raised
+ * columns), an artist's points and influence arcs —
  * from the same state (useGlobeScene) and answering clicks the same way
  * (useGlobeClicks).
  *
@@ -94,6 +94,68 @@ function setUpMapLibre() {
 
 const EMPTY: FeatureCollection = { type: 'FeatureCollection', features: [] };
 
+const NO_PADDING: PaddingOptions = { top: 0, right: 0, bottom: 0, left: 0 };
+
+/**
+ * The details card (desktop) or the bottom sheet (phones) covers part of the
+ * map; padding moves the map's centre into what is left, as the three.js
+ * globe's lens shift did. A component of its own, subscribed to the card's
+ * width and the sheet's height alone, so dragging the card's edge re-renders
+ * this and not the map's owner (the measuring script counts those renders).
+ */
+function MapPadding({
+  map,
+  paddingRef,
+  frameRef,
+}: {
+  map: MapLibreMap;
+  /** Where flights read the padding to land with. */
+  paddingRef: MutableRefObject<PaddingOptions>;
+  /** The map's frame, which carries the sheet's height for the attribution. */
+  frameRef: RefObject<HTMLDivElement | null>;
+}) {
+  const detailsPanelWidth = useAtlasSelector((s) => s.detailsPanelWidth);
+  const sheetOcclusion = useAtlasSelector((s) => s.sheetOcclusion);
+  const reducedMotion = usePrefersReducedMotion();
+  const reducedMotionRef = useRef(reducedMotion);
+  reducedMotionRef.current = reducedMotion;
+  const left = detailsPanelWidth ? 16 + detailsPanelWidth : 0;
+  const bottom = sheetOcclusion ?? 0;
+
+  // The map's attribution sits above a phone's bottom sheet.
+  useEffect(() => {
+    frameRef.current?.style.setProperty(
+      '--atlas-map-inset-bottom',
+      `${bottom}px`,
+    );
+  }, [frameRef, bottom]);
+
+  useEffect(() => {
+    paddingRef.current = { top: 0, right: 0, left, bottom };
+    const apply = () => {
+      const now = map.getPadding();
+      const to = paddingRef.current;
+      if (now.left === to.left && now.bottom === to.bottom) return;
+      map.easeTo({
+        padding: to,
+        duration: reducedMotionRef.current ? 0 : 500,
+        essential: false,
+      });
+    };
+    // A flight in progress carries the padding with it; any change after it
+    // set off is applied once it lands.
+    if (map.isMoving()) {
+      map.once('moveend', apply);
+      return () => {
+        map.off('moveend', apply);
+      };
+    }
+    apply();
+  }, [map, paddingRef, left, bottom]);
+
+  return null;
+}
+
 /** Feed a GeoJSON source, if the map (still) has it. */
 function feed(map: MapLibreMap, id: string, data: FeatureCollection) {
   (map.getSource(id) as GeoJSONSource | undefined)?.setData(data);
@@ -101,6 +163,7 @@ function feed(map: MapLibreMap, id: string, data: FeatureCollection) {
 
 export default function MapLibreGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const frameRef = useRef<HTMLDivElement | null>(null);
   const [map, setMap] = useState<MapLibreMap | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const { countries, adminRegions, loading, error } = useGeoData();
@@ -214,20 +277,14 @@ export default function MapLibreGlobe() {
     mark(SOURCE.states, stateData);
   }, [map, countryData, stateData, selectedLocation]);
 
-  const columns = useMemo(() => cityColumns(cityPoints), [cityPoints]);
   useEffect(() => {
     if (!map) return;
-    feed(
-      map,
-      SOURCE.cityHexes,
-      cityHexCollection(columns, selectedCityId, pinnedCityName),
-    );
     feed(
       map,
       SOURCE.cityPoints,
       cityPointCollection(cityPoints, selectedCityId, pinnedCityName),
     );
-  }, [map, columns, cityPoints, selectedCityId, pinnedCityName]);
+  }, [map, cityPoints, selectedCityId, pinnedCityName]);
 
   useEffect(() => {
     if (map)
@@ -297,44 +354,9 @@ export default function MapLibreGlobe() {
 
   /* ── Camera ──────────────────────────────────────────────────────────── */
 
-  // The details card (desktop) or the bottom sheet (phones) covers part of
-  // the map; padding moves the map's centre into what is left, as the
-  // three.js globe's lens shift did.
-  const detailsPanelWidth = useAtlasSelector((s) => s.detailsPanelWidth);
-  const sheetOcclusion = useAtlasSelector((s) => s.sheetOcclusion);
-  const padding = useMemo<PaddingOptions>(
-    () => ({
-      top: 0,
-      right: 0,
-      left: detailsPanelWidth ? 16 + detailsPanelWidth : 0,
-      bottom: sheetOcclusion ?? 0,
-    }),
-    [detailsPanelWidth, sheetOcclusion],
-  );
-  const paddingRef = useRef(padding);
-  paddingRef.current = padding;
-  useEffect(() => {
-    if (!map) return;
-    const apply = () => {
-      const now = map.getPadding();
-      const to = paddingRef.current;
-      if (now.left === to.left && now.bottom === to.bottom) return;
-      map.easeTo({
-        padding: to,
-        duration: reducedMotionRef.current ? 0 : 500,
-        essential: false,
-      });
-    };
-    // A flight in progress carries the padding with it; any change after it
-    // set off is applied once it lands.
-    if (map.isMoving()) {
-      map.once('moveend', apply);
-      return () => {
-        map.off('moveend', apply);
-      };
-    }
-    apply();
-  }, [map, padding]);
+  // The card or the sheet's padding (MapPadding, below), for flights to
+  // land clear of it.
+  const paddingRef = useRef<PaddingOptions>(NO_PADDING);
 
   // Fly to the search or stop target. Depends on `map` so a target set before
   // the map finished loading (a deep link) is applied once it has.
@@ -485,14 +507,12 @@ export default function MapLibreGlobe() {
 
   return (
     <div
+      ref={frameRef}
       className="absolute inset-0 overflow-hidden bg-atlas-canvas"
-      // The map's attribution sits above a phone's bottom sheet.
-      style={
-        {
-          '--atlas-map-inset-bottom': `${sheetOcclusion ?? 0}px`,
-        } as CSSProperties
-      }
     >
+      {map && (
+        <MapPadding frameRef={frameRef} map={map} paddingRef={paddingRef} />
+      )}
       {/* Sized, not positioned: maplibre-gl.css makes the map position:
           relative, which would collapse an inset-0 box to no height. */}
       <div ref={containerRef} className="h-full w-full" />

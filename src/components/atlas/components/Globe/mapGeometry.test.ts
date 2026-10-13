@@ -2,19 +2,15 @@ import type { Feature } from 'geojson';
 import { describe, expect, it } from 'vitest';
 import type { ArcDatum } from '@/components/atlas/data';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
-import { regionColor, type CityPoint } from './globeLayers';
+import { cityColumnColors, regionColor, type CityPoint } from './globeLayers';
 import {
-  CITY_HEX_RADIUS_KM,
   altitudeToMapZoom,
   arcCollection,
-  cityColumns,
-  cityHexCollection,
   cityPointCollection,
   cssColor,
   distanceKm,
   flyZoom,
   greatCircle,
-  hexagonRing,
   mapZoomToAltitude,
   regionCollection,
   statesInViewAt,
@@ -89,29 +85,6 @@ describe('zoom mapping', () => {
   });
 });
 
-describe('hexagons', () => {
-  it('is a closed ring of six corners, each the radius from the centre', () => {
-    const ring = hexagonRing(29.95, -90.07, 40);
-    expect(ring).toHaveLength(7);
-    expect(ring[6]).toEqual(ring[0]);
-    for (const [lng, lat] of ring.slice(0, 6)) {
-      expect(distanceKm({ lat: 29.95, lng: -90.07 }, { lat, lng })).toBeCloseTo(
-        40,
-        -0.5,
-      );
-    }
-  });
-
-  it('stays a hexagon far north', () => {
-    for (const [lng, lat] of hexagonRing(64.1, -21.9, 40).slice(0, 6)) {
-      expect(distanceKm({ lat: 64.1, lng: -21.9 }, { lat, lng })).toBeCloseTo(
-        40,
-        -0.5,
-      );
-    }
-  });
-});
-
 describe('great circles', () => {
   const lagos = { lat: 6.5, lng: 3.4 };
   const nola = { lat: 29.95, lng: -90.07 };
@@ -158,35 +131,17 @@ describe('sources', () => {
     color: '#cc4455',
   });
 
-  it('groups cities closer than two radii into one column, never overlapping', () => {
-    const points = [
-      city('liverpool', 53.41, -2.98),
-      city('manchester', 53.48, -2.24),
-      city('london', 51.51, -0.13),
-    ];
-    const columns = cityColumns(points);
-    expect(columns.map((c) => c.points.map((p) => p.id))).toEqual([
-      ['liverpool', 'manchester'],
-      ['london'],
-    ]);
-    expect(columns[0].key).toBe('liverpool');
-    expect(distanceKm(columns[0], columns[1])).toBeGreaterThanOrEqual(
-      2 * CITY_HEX_RADIUS_KM,
-    );
-  });
-
-  it('opens a column’s first city and names them all', () => {
-    const hexes = cityHexCollection(
-      cityColumns([
-        city('liverpool', 53.41, -2.98),
-        city('manchester', 53.48, -2.24),
-      ]),
+  it('marks each city with a dot in a shade of its country’s colour', () => {
+    const [nola] = cityPointCollection(
+      [city('new-orleans', 29.95, -90.07)],
       null,
       null,
-    );
-    expect(hexes.features[0].properties).toMatchObject({
-      cityId: 'liverpool',
-      names: 'liverpool, manchester',
+    ).features;
+    expect(nola.geometry.coordinates).toEqual([-90.07, 29.95]);
+    expect(nola.properties).toEqual({
+      cityId: 'new-orleans',
+      name: 'new-orleans',
+      color: cityColumnColors('#cc4455').top,
       highlight: false,
     });
   });
@@ -204,7 +159,7 @@ describe('sources', () => {
     expect(bySelection.features[1].properties.color).toBe(
       ATLAS_SCENE.highlight,
     );
-    const byPin = cityHexCollection(cityColumns(points), null, 'new-orleans');
+    const byPin = cityPointCollection(points, null, 'new-orleans');
     expect(byPin.features[0].properties.highlight).toBe(true);
   });
 

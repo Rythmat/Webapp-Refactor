@@ -1,10 +1,4 @@
-import type {
-  Feature,
-  FeatureCollection,
-  LineString,
-  Point,
-  Polygon,
-} from 'geojson';
+import type { Feature, FeatureCollection, LineString, Point } from 'geojson';
 import type { ArcDatum } from '@/components/atlas/data';
 import { getCentroid } from './globeLabels';
 import {
@@ -18,8 +12,8 @@ import {
 
 /**
  * The MapLibre engine's geometry, as pure functions: how the page's camera
- * altitudes map onto MapLibre zoom levels, the hexagonal city columns, the
- * influence arcs as great circles, and the GeoJSON each source is fed.
+ * altitudes map onto MapLibre zoom levels, the influence arcs as great
+ * circles, and the GeoJSON each source is fed.
  * Nothing here touches MapLibre itself, so all of it is unit-tested.
  */
 
@@ -119,11 +113,22 @@ export function statesInViewAt(zoom: number, wasInView: boolean): boolean {
 }
 
 /**
- * Where the country colours hand over to the street basemap: fully coloured
- * up to the first zoom, gone by the second. Above it the basemap's own land,
- * water and labels carry the map.
+ * How strongly the country colours tint the street basemap's land, by zoom:
+ * as the three.js globe painted them from orbit, lighter among the streets
+ * so parks, roads and buildings read through.
  */
-export const BASEMAP_FADE = [4, 6] as const;
+export const COUNTRY_TINT: readonly (readonly [number, number])[] = [
+  [0, 0.86],
+  [5, 0.86],
+  [9, 0.62],
+  [14, 0.45],
+];
+
+/**
+ * Countries and states answer clicks below this zoom. Further in, a click
+ * among the streets should not open the country it lands in.
+ */
+export const REGION_CLICK_MAX_ZOOM = 6;
 
 /* ── Geometry ────────────────────────────────────────────────────────────── */
 
@@ -141,26 +146,6 @@ export function distanceKm(
     Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
   return (2 * EARTH_RADIUS_M * Math.asin(Math.min(1, Math.sqrt(h)))) / 1000;
-}
-
-/**
- * A hexagon around a point, `radiusKm` from its centre to each corner, as a
- * closed GeoJSON ring of [lng, lat]. Flat-topped, corners due east and west.
- */
-export function hexagonRing(
-  lat: number,
-  lng: number,
-  radiusKm: number,
-): [number, number][] {
-  const dLat = radiusKm / 111.32;
-  const dLng = radiusKm / (111.32 * Math.max(0.01, Math.cos(toRad(lat))));
-  const ring: [number, number][] = [];
-  for (let i = 0; i < 6; i++) {
-    const angle = (Math.PI / 3) * i;
-    ring.push([lng + dLng * Math.cos(angle), lat + dLat * Math.sin(angle)]);
-  }
-  ring.push(ring[0]);
-  return ring;
 }
 
 /**
@@ -280,98 +265,20 @@ export function regionCollection(
   };
 }
 
-/** Cities close enough to share one column. */
-export interface CityColumn {
-  /** The first city's id: what a click opens. */
-  key: string;
-  lat: number;
-  lng: number;
-  points: CityPoint[];
-}
-
-/** A city column's radius, centre to corner, in km. */
-export const CITY_HEX_RADIUS_KM = 40;
-/** How tall the columns stand: the three.js globe's hexAltitude, 0.018 radii. */
-export const CITY_HEX_HEIGHT_M = 0.018 * EARTH_RADIUS_M;
-
-/**
- * Cities grouped into columns that never overlap, the way the three.js globe
- * binned them into hexagonal cells: a city within two radii of a column's
- * first city joins it (Liverpool's column is Liverpool's; Manchester, 50 km
- * on, shares it). The order follows the cities', so a column's key is stable.
- */
-export function cityColumns(
-  points: readonly CityPoint[],
-  radiusKm = CITY_HEX_RADIUS_KM,
-): CityColumn[] {
-  const columns: CityColumn[] = [];
-  for (const point of points) {
-    const home = columns.find((c) => distanceKm(c, point) < 2 * radiusKm);
-    if (home) home.points.push(point);
-    else {
-      columns.push({
-        key: point.id,
-        lat: point.lat,
-        lng: point.lng,
-        points: [point],
-      });
-    }
-  }
-  return columns;
-}
-
 export interface CityProps {
-  /** The city a click opens: the column's first. */
+  /** The city a click opens. */
   cityId: string;
-  /** The column's cities, comma-separated (hover label). */
-  names: string;
-  /** The first city's name (the label from zoom 6). */
+  /** The city's name: its label from zoom 6, and its hover label. */
   name: string;
+  /** Its dot: a shade of its country's colour, or white when highlighted. */
   color: string;
   highlight: boolean;
 }
 
-const cityProps = (
-  column: CityColumn,
-  selectedCityId: string | null,
-  pinnedCityName: string | null,
-): CityProps => {
-  const highlight = isCityHighlighted(
-    column.points,
-    selectedCityId,
-    pinnedCityName,
-  );
-  return {
-    cityId: column.key,
-    names: column.points.map((p) => p.name).join(', '),
-    name: column.points[0].name,
-    color: cityColumnColors(column.points[0].color, highlight).top,
-    highlight,
-  };
-};
-
-/** Each column as a hexagon, extruded on the map at low zoom. */
-export function cityHexCollection(
-  columns: readonly CityColumn[],
-  selectedCityId: string | null,
-  pinnedCityName: string | null,
-): FeatureCollection<Polygon, CityProps> {
-  return {
-    type: 'FeatureCollection',
-    features: columns.map((column) => ({
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [
-          hexagonRing(column.lat, column.lng, CITY_HEX_RADIUS_KM * 0.95),
-        ],
-      },
-      properties: cityProps(column, selectedCityId, pinnedCityName),
-    })),
-  };
-}
-
-/** Each city as a point: the circles and labels from zoom 6. */
+/**
+ * Each city as a point: a dot at every zoom, white and on top when it is
+ * selected or holds the pinned event.
+ */
 export function cityPointCollection(
   points: readonly CityPoint[],
   selectedCityId: string | null,
@@ -379,15 +286,23 @@ export function cityPointCollection(
 ): FeatureCollection<Point, CityProps> {
   return {
     type: 'FeatureCollection',
-    features: points.map((point) => ({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [point.lng, point.lat] },
-      properties: cityProps(
-        { key: point.id, lat: point.lat, lng: point.lng, points: [point] },
+    features: points.map((point) => {
+      const highlight = isCityHighlighted(
+        [point],
         selectedCityId,
         pinnedCityName,
-      ),
-    })),
+      );
+      return {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [point.lng, point.lat] },
+        properties: {
+          cityId: point.id,
+          name: point.name,
+          color: cityColumnColors(point.color, highlight).top,
+          highlight,
+        },
+      };
+    }),
   };
 }
 

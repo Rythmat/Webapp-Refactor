@@ -1,7 +1,7 @@
 import type { LayerSpecification } from 'maplibre-gl';
 import { describe, expect, it } from 'vitest';
 import { ATLAS_BASEMAP, ATLAS_SCENE } from '@/components/atlas/theme/tokens';
-import { BASEMAP_FADE } from './mapGeometry';
+import { COUNTRY_TINT } from './mapGeometry';
 import {
   CLICK_LAYERS,
   DEFAULT_ASSETS_URL,
@@ -82,49 +82,63 @@ describe('the style with a basemap', () => {
     );
   });
 
-  it('puts the Globe’s shapes under the basemap’s labels and its points over them', () => {
+  it('tints the basemap’s land under its sea, and keeps its labels on top of the shapes', () => {
     const order = ids(style.layers);
+    const at = (id: string) => order.indexOf(id);
+    // Over the land and land use, under the sea that trims the coast.
+    expect(at(LAYER.countriesFill)).toBeGreaterThan(at('earth'));
+    expect(at(LAYER.countriesFill)).toBeGreaterThan(at('landuse_park'));
+    expect(at(LAYER.countriesFill)).toBe(at('water') - 1);
     const firstLabel = style.layers.findIndex(
       (l) => l.type === 'symbol' && !l.id.startsWith('atlas-'),
     );
-    for (const id of [LAYER.countriesFill, LAYER.cityHexes, LAYER.arcsDash]) {
-      expect(order.indexOf(id)).toBeLessThan(firstLabel);
-      expect(order.indexOf(id)).toBeGreaterThan(order.indexOf('water'));
+    for (const id of [LAYER.statesLine, LAYER.countriesLine, LAYER.arcsDash]) {
+      expect(at(id)).toBeGreaterThan(at('roads_highway'));
+      expect(at(id)).toBeLessThan(firstLabel);
     }
     for (const id of [
       LAYER.cityCircles,
       LAYER.cityLabels,
       LAYER.artistPoints,
     ]) {
-      expect(order.indexOf(id)).toBeGreaterThan(firstLabel);
+      expect(at(id)).toBeGreaterThan(firstLabel);
     }
   });
 
-  it('holds the basemap’s labels back until the country colours fade', () => {
-    for (const layer of style.layers) {
-      if (layer.type === 'symbol' && !layer.id.startsWith('atlas-')) {
-        expect(layer.minzoom ?? 0).toBeGreaterThanOrEqual(BASEMAP_FADE[0]);
-      }
-    }
+  it('labels places at every zoom', () => {
+    const country = style.layers.find((l) => l.id === 'places_country');
+    expect(country?.minzoom ?? 0).toBeLessThan(3);
   });
 
-  it('fades the country colours out over BASEMAP_FADE', () => {
+  it('tints the land by COUNTRY_TINT, lighter among the streets', () => {
     const fill = style.layers.find((l) => l.id === LAYER.countriesFill);
     expect(fill?.paint).toMatchObject({
-      'fill-opacity': ['interpolate', ['linear'], ['zoom'], 4, 0.86, 6, 0],
+      'fill-opacity': [
+        'interpolate',
+        ['linear'],
+        ['zoom'],
+        ...COUNTRY_TINT.flat(),
+      ],
     });
   });
 
-  it('paints the basemap in the Atlas flavor', () => {
-    const earth = style.layers.find((l) => l.id === 'earth');
-    expect(earth?.paint).toMatchObject({ 'fill-color': ATLAS_BASEMAP.earth });
-    const cities = style.layers.find((l) => l.id === 'places_locality');
-    expect(JSON.stringify(cities?.paint)).toContain(ATLAS_BASEMAP.city_label);
-  });
-
-  it('starts the sea in the Globe’s colour', () => {
-    const water = style.layers.find((l) => l.id === 'water');
-    expect(JSON.stringify(water?.paint)).toContain(ATLAS_SCENE.ocean);
+  it('paints the basemap in the Atlas flavor: the globe’s cyan sea, plain land', () => {
+    const paint = (id: string) => style.layers.find((l) => l.id === id)?.paint;
+    expect(paint('earth')).toMatchObject({
+      'fill-color': ATLAS_SCENE.landPlain,
+    });
+    expect(paint('water')).toMatchObject({ 'fill-color': ATLAS_SCENE.ocean });
+    expect(paint('background')).toMatchObject({
+      'background-color': ATLAS_SCENE.ocean,
+    });
+    expect(JSON.stringify(paint('places_locality'))).toContain(
+      ATLAS_BASEMAP.city_label,
+    );
+    // Labels that would take the land's grey as a halo get the dark one.
+    expect(paint('places_country')).toMatchObject({
+      'text-halo-color': ATLAS_SCENE.labelHalo,
+    });
+    expect(JSON.stringify(paint('pois'))).toContain(ATLAS_BASEMAP.pois.pink);
   });
 
   it('fades the atmosphere out by zoom 7', () => {

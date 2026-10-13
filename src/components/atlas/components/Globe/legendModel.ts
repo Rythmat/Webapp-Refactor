@@ -4,6 +4,7 @@ import {
 } from '@/components/atlas/data/continentColors';
 import { ATLAS_SCENE } from '@/components/atlas/theme/tokens';
 import type { GlobeLayers } from '@/components/atlas/types';
+import type { CityMark } from './engine';
 import {
   ARTIST_POINT,
   arcColors,
@@ -46,11 +47,13 @@ export interface LegendEntry {
 /** What is on the globe, as far as the legend needs to know. */
 export interface LegendContext {
   layers: GlobeLayers;
+  /** How cities are marked by this build's engine: a dot or a column. */
+  cityMark: CityMark;
   /** The camera is close enough for state outlines. */
   statesInView: boolean;
   /** A country or state is selected (its outline is bright). */
   regionSelected: boolean;
-  /** A city's column is white: the selected city, or the pinned event's. */
+  /** A city's mark is white: the selected city, or the pinned event's. */
   cityHighlighted: boolean;
   /** An artist's panel is open, so their moments are points on the globe. */
   artistShown: boolean;
@@ -59,7 +62,7 @@ export interface LegendContext {
 }
 
 /**
- * A sample city column and arc: what a city in the United States looks
+ * A sample city mark and arc: what a city in the United States looks
  * like. Any country would do; the shade rule is the same for all.
  */
 const SAMPLE_COUNTRY = 'USA';
@@ -107,20 +110,29 @@ export function legendEntries(ctx: LegendContext): LegendEntry[] {
     const sample = cityColumnColors(
       cityBaseColor(SAMPLE_COUNTRY, layers.countryColors),
     );
+    const selected = cityColumnColors('', true);
+    const dots = ctx.cityMark === 'dot';
+    const mark = dots ? 'dot' : 'column';
     entries.push({
       id: 'cities',
       label: 'Music cities',
       detail: layers.countryColors
-        ? 'A column on each city, in a shade of its country’s colour.'
-        : 'A column on each city.',
-      swatch: { shape: 'column', ...sample },
+        ? `A ${mark} on each city, in a shade of its country’s colour.`
+        : `A ${mark} on each city.`,
+      swatch: dots
+        ? { shape: 'point', color: sample.top }
+        : { shape: 'column', ...sample },
     });
     if (ctx.cityHighlighted) {
       entries.push({
         id: 'selected-city',
         label: 'Selected city',
-        detail: 'Its column turns white.',
-        swatch: { shape: 'column', ...cityColumnColors('', true) },
+        detail: dots
+          ? 'Its dot turns white and grows.'
+          : 'Its column turns white.',
+        swatch: dots
+          ? { shape: 'point', color: selected.top }
+          : { shape: 'column', ...selected },
       });
     }
   }

@@ -2,7 +2,6 @@ import { memo, useId, useLayoutEffect, useRef } from 'react';
 import { easeInOut, easeOut } from '@/components/atlas/theme/motion';
 import { RIVER } from '@/components/atlas/theme/river';
 import {
-  laneAt,
   lanePaths,
   mix,
   type FanLayout,
@@ -21,11 +20,7 @@ interface LaneNodes {
   fan: SVGPathElement | null;
   run: SVGPathElement | null;
   strand: SVGPathElement | null;
-  dots: (SVGCircleElement | null)[];
 }
-
-/** The fan's dots per lane, at most: events from before the years shown. */
-const FAN_DOTS = 5;
 
 /**
  * A run: flat where it leaves the fan, round at its growing end — Dorot's
@@ -71,9 +66,7 @@ function startOf(
  * The place river's water, Dorot's way: thick bands fanning from one bright
  * source at the left, each shading from its parent's colour into its own at
  * its split and blending with its siblings where they still overlap, then
- * running straight to the right edge in its own two colours. Along the fan,
- * faint dots stand for the lane's events from before the years shown — the
- * earlier history the source gathers up.
+ * running straight to the right edge in its own two colours.
  *
  * Moves are animated straight on the DOM: a lane splitting grows its parts
  * out of it, a merge gathers them back, and the bands grow in from the
@@ -87,7 +80,6 @@ export const PlaceBands = memo(function PlaceBands({
   plotRight,
   right,
   top,
-  earlier,
   active,
   reducedMotion,
 }: {
@@ -100,8 +92,6 @@ export const PlaceBands = memo(function PlaceBands({
   /** Where the runs end: past the right edge, so their round ends hide. */
   right: number;
   top: number;
-  /** Each lane's events from before the years shown. */
-  earlier: ReadonlyMap<string, number>;
   /** Shown (grown in) or not (drawn back). */
   active: boolean;
   reducedMotion: boolean;
@@ -111,13 +101,11 @@ export const PlaceBands = memo(function PlaceBands({
   const drawn = useRef(new Map<string, Drawn>());
   const raf = useRef(0);
   const share = RIVER.sourceShare;
-  const earlierRef = useRef(earlier);
-  earlierRef.current = earlier;
 
   const node = (id: string): LaneNodes => {
     let n = nodes.current.get(id);
     if (!n) {
-      n = { fan: null, run: null, strand: null, dots: [] };
+      n = { fan: null, run: null, strand: null };
       nodes.current.set(id, n);
     }
     return n;
@@ -141,31 +129,6 @@ export const PlaceBands = memo(function PlaceBands({
     n.strand?.setAttribute('opacity', String(d.reveal));
     // The run starts a pixel inside the fan, so no seam shows between them.
     n.run?.setAttribute('d', runPath(end - 1, y, runWidth, d.thickness));
-    // The earlier events, spread along the fan from the source outward.
-    const count = earlierRef.current.get(lane.id) ?? 0;
-    const shown = Math.min(FAN_DOTS, count);
-    n.dots.forEach((dot, i) => {
-      if (!dot) return;
-      if (i >= shown) {
-        dot.setAttribute('r', '0');
-        return;
-      }
-      const x = end * (0.18 + (0.7 * (i + 1)) / (shown + 1));
-      const at = laneAt(
-        d.stops,
-        layout.stages,
-        lane.depth,
-        d.thickness,
-        share,
-        x,
-      );
-      dot.setAttribute('cx', String(x));
-      dot.setAttribute('cy', String(at.y));
-      dot.setAttribute(
-        'r',
-        String(Math.min(6, 1.8 + Math.log2(1 + count / shown)) * d.reveal),
-      );
-    });
     drawn.current.set(lane.id, d);
   };
 
@@ -236,15 +199,6 @@ export const PlaceBands = memo(function PlaceBands({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout, active, right, reducedMotion]);
 
-  // New counts of earlier events redraw the dots where the lanes are.
-  useLayoutEffect(() => {
-    for (const lane of layout.lanes) {
-      const d = drawn.current.get(lane.id);
-      if (d) paint(lane, d);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [earlier]);
-
   return (
     <svg
       aria-hidden
@@ -252,8 +206,8 @@ export const PlaceBands = memo(function PlaceBands({
     >
       <defs>
         <radialGradient id={`${uid}-glow`}>
-          <stop offset={0} stopColor="white" stopOpacity={0.85} />
-          <stop offset={0.35} stopColor="white" stopOpacity={0.25} />
+          <stop offset={0} stopColor="white" stopOpacity={0.6} />
+          <stop offset={0.35} stopColor="white" stopOpacity={0.16} />
           <stop offset={1} stopColor="white" stopOpacity={0} />
         </radialGradient>
         {layout.lanes.map((lane, i) => (
@@ -315,19 +269,6 @@ export const PlaceBands = memo(function PlaceBands({
             strokeOpacity={RIVER.strandAlpha}
             strokeWidth={1.25}
           />
-        ))}
-        {layout.lanes.map((lane) => (
-          <g key={`dots-${lane.id}`} fill="white" fillOpacity={0.55}>
-            {Array.from({ length: FAN_DOTS }, (_, i) => (
-              <circle
-                key={i}
-                ref={(el) => {
-                  node(lane.id).dots[i] = el;
-                }}
-                r={0}
-              />
-            ))}
-          </g>
         ))}
         {/* The source, where every lane begins: a soft glow. */}
         <circle

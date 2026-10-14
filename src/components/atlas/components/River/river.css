@@ -34,6 +34,57 @@
   }
 }
 
+/* The plot fades its markers out at either end instead of cutting them in
+   half: on the left where the fan hands over, on the right under the lane
+   names. */
+.atlas-river-plot {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 24px,
+    black calc(100% - 56px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 24px,
+    black calc(100% - 56px),
+    transparent 100%
+  );
+}
+
+/* A sideways scroller (the genre chips) fades at the end with more to show
+   (TimeRiver's useScrollFade). */
+.atlas-river-scroller[data-fade-end='true'] {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    black calc(100% - 48px),
+    transparent
+  );
+  mask-image: linear-gradient(90deg, black calc(100% - 48px), transparent);
+}
+.atlas-river-scroller[data-fade-start='true'] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 48px);
+  mask-image: linear-gradient(90deg, transparent, black 48px);
+}
+.atlas-river-scroller[data-fade-start='true'][data-fade-end='true'] {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    black 48px,
+    black calc(100% - 48px),
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    black 48px,
+    black calc(100% - 48px),
+    transparent
+  );
+}
+
 /* While the bands grow in or draw back, the markers wait. */
 .atlas-river-items[data-shown='false'] .atlas-river-item {
   opacity: 0;

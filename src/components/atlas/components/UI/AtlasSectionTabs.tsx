@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ATLAS_FOCUS } from '@/components/atlas/components/UI/primitives';
 import {
   ATLAS_SECTIONS,
+  DASHBOARD_TABS,
   sectionOf,
 } from '@/components/atlas/navigation/sections';
 import {
@@ -45,23 +46,35 @@ export function AtlasSectionTabs() {
         />
         <span className="text-lg font-medium lg:text-xl">Globe</span>
       </Link>
-      {ATLAS_SECTIONS.map((section) => (
-        <button
-          key={section.id}
-          aria-current={active === section.id ? 'page' : undefined}
-          className={cn(
-            'shrink-0 whitespace-nowrap rounded-lg text-lg font-medium transition-colors lg:text-xl',
-            active === section.id
-              ? 'text-atlas-text'
-              : 'text-atlas-text-2 hover:text-atlas-text',
-            ATLAS_FOCUS,
-          )}
-          type="button"
-          onClick={() => navigate.toSection(section.id)}
-        >
-          {section.label}
-        </button>
-      ))}
+      {ATLAS_SECTIONS.map((section) => {
+        const className = cn(
+          'shrink-0 whitespace-nowrap rounded-lg text-lg font-medium transition-colors lg:text-xl',
+          active === section.id
+            ? 'text-atlas-text'
+            : 'text-atlas-text-2 hover:text-atlas-text',
+          ATLAS_FOCUS,
+        );
+        const tab = DASHBOARD_TABS[section.id];
+        return tab ? (
+          <Link
+            key={section.id}
+            className={className}
+            to={`${AtlasRoutes.root.definition}?tab=${tab}`}
+          >
+            {section.label}
+          </Link>
+        ) : (
+          <button
+            key={section.id}
+            aria-current={active === section.id ? 'page' : undefined}
+            className={className}
+            type="button"
+            onClick={() => navigate.toSection(section.id)}
+          >
+            {section.label}
+          </button>
+        );
+      })}
     </nav>
   );
 }

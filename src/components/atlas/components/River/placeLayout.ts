@@ -146,6 +146,8 @@ const SAMPLES = 18;
 /**
  * A lane's band, as two paths: the fan (source to its last split, shaded
  * from its parent's colour to its own) and the run (straight to `right`).
+ * Its strand, the centre line, runs through the fan only: along the run it
+ * would cross every picture.
  */
 export function lanePaths(
   g: Pick<LaneGeometry, 'stops' | 'depth' | 'thickness'>,
@@ -174,7 +176,7 @@ export function lanePaths(
   return {
     fan: `M${topEdge.join('L')}L${bottomEdge.join('L')}Z`,
     run: `M${f(end - 1)},${f(y - h)}L${f(right)},${f(y - h)}L${f(right)},${f(y + h)}L${f(end - 1)},${f(y + h)}Z`,
-    strand: `M${pts.map((p) => `${f(p.x)},${f(p.y)}`).join('L')}L${f(right)},${f(y)}`,
+    strand: `M${pts.map((p) => `${f(p.x)},${f(p.y)}`).join('L')}`,
   };
 }
 

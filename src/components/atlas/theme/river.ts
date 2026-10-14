@@ -14,7 +14,7 @@ export const RIVER = {
   /** Between lanes. */
   gap: 12,
   /** A lane's thickness at most and at least: Dorot's are a fifth of the page. */
-  maxLane: 150,
+  maxLane: 200,
   minLane: 26,
   /** Where each split of the fan ends, from the source at the left edge. */
   fanStages: [150, 250, 340] as const,
@@ -22,8 +22,8 @@ export const RIVER = {
   /** The fan's lanes at the source, as a share of their thickness. */
   sourceShare: 0.3,
   /** The bands' fill; lighter in the fan, where siblings overlap and add up. */
-  bandOpacity: 0.82,
-  fanOpacity: 0.5,
+  bandOpacity: 0.68,
+  fanOpacity: 0.42,
   /** The glow at the source, where every lane begins. */
   sourceGlow: 64,
   /** A lane's strand (its centre line). */
@@ -36,20 +36,24 @@ export const RIVER = {
   maxRampYears: 60,
   bandAlpha: [0.34, 0.24] as const,
   /**
-   * Markers: no two in a row of a lane closer than `clusterGapFactor` poster
-   * widths; a band this thick or more carries two rows of them.
+   * Markers: 16:9 frames, the shape of the pictures (YouTube stills), so
+   * nothing is cropped away. No two in a row of a lane closer than
+   * `clusterGapFactor` frame widths; a band this thick or more carries two
+   * rows of them.
    */
-  clusterGapFactor: 2.1,
+  frameAspect: 16 / 9,
+  clusterGapFactor: 1.3,
   twoRowsAt: 96,
-  /** Markers' sizes: a poster at most and least, a count's least and most. */
-  posterMaxPx: 54,
+  /** A frame's height at most (on a phone, less) and least. */
+  posterMaxPx: 64,
+  posterMaxPxNarrow: 40,
   posterMinPx: 22,
-  countMinPx: 26,
-  countMaxPx: 40,
-  /** Pictures in a stack of a cluster's events, at most. */
+  /** Pictures in a cluster's deck, at most, and how far each one behind
+   *  the front sits up and to the right, as a share of the frame's height. */
   stackPosters: 3,
-  /** Markers with pictures at once, at most; the rest are counts or dots. */
-  maxPosters: 40,
+  deckStep: 0.09,
+  /** Markers with pictures at once, at most; the rest show their count. */
+  maxPosters: 80,
   /** How long the view must rest before the page's store hears of it. */
   commitMs: 150,
   /** How far past the view markers are drawn, as a share of its span. */

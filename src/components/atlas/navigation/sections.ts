@@ -72,6 +72,17 @@ export function sectionOf(
   return frame.open.length ? 'regions' : 'eras';
 }
 
+/**
+ * Sections whose lens is still to come: until it lands, their tab opens the
+ * /atlas dashboard's own view of them (`?tab=`), which works today, rather
+ * than a timeline that would look no different from Eras.
+ */
+export const DASHBOARD_TABS: Readonly<Partial<Record<AtlasSectionId, string>>> =
+  {
+    pathways: 'Pathways',
+    instruments: 'Instruments',
+  };
+
 /** The dashboard's old `?tab=` values, and the section each one is now. */
 export const LEGACY_TABS: Readonly<Record<string, AtlasSectionId>> = {
   Explore: 'explore',

@@ -10,6 +10,7 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import { frameFromSearchParams } from './atlasFrame';
 import { stopFromSearchParams, stopKey } from './atlasStop';
 import { consumeFlown, flyToFit, focusEvent } from './focusEvent';
 import { cancelPendingNavigation } from './pendingNavigation';
@@ -52,12 +53,19 @@ export function useAtlasUrlSync(): void {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
+  // An event opened on the timeline shows on its stage there; the hidden
+  // map waits, and goes to it only once it is shown ("Show on the globe"),
+  // rather than being left zoomed in on a moment the user never saw on it.
+  const onTimeline = frameFromSearchParams(params).view === 'timeline';
+  const runKey = stop.kind === 'event' && onTimeline ? `${key}|timeline` : key;
+
   useEffect(() => {
     // A navigation still waiting for its data (a tour, the state outlines)
     // belongs to the stop being left.
     cancelPendingNavigation();
     switch (stop.kind) {
       case 'event': {
+        if (onTimeline) return;
         const event = MUSIC_HISTORY.find((e) => e.id === stop.eventId);
         if (event) focusEvent(dispatch, event, selectedLocation);
         return;
@@ -104,5 +112,5 @@ export function useAtlasUrlSync(): void {
     // Keyed on the stop's identity, not the object: re-running on every render
     // would re-fly the camera out from under the user.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [runKey]);
 }

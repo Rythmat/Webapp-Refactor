@@ -77,8 +77,10 @@ describe('the place river’s fan', () => {
     const paths = lanePaths(fan.lanes[0], fan.stages, 0.35, 1300);
     expect(paths.fan.startsWith('M0.0,')).toBe(true);
     expect(paths.run).toContain('L1300.0,');
-    expect(paths.strand.endsWith(`L1300.0,${fan.lanes[0].y.toFixed(1)}`)).toBe(
+    // The strand stops where the run begins (the first split, at 150).
+    expect(paths.strand.endsWith(`L150.0,${fan.lanes[0].y.toFixed(1)}`)).toBe(
       true,
     );
+    expect(paths.strand).not.toContain('L1300.0');
   });
 });

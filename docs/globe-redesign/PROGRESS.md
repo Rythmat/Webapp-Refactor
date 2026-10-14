@@ -177,3 +177,34 @@ one arrow away.
   budget. TimeRiver 46.7 kB lazy (was 33.8 kB).
 - Screens: `docs/globe-ui/screens/tr-p4-*` (open, hover next, stepped,
   closing, phone open, phone stepped).
+
+## P4b look pass (owner: "events as rectangles"; "cheap and sloppy")
+
+Owner asked for rectangular events (round crops cut off the pictures' text
+and subjects), then for a premium pass. An audit of the river, the stage,
+the tabs and the map found the same few causes: pictures cropped into
+circles, things cut off at edges, decoration competing with the pictures,
+four marker shapes mixed in one row, and two tabs that changed nothing.
+
+- Markers are 16:9 frames, the stills' own shape, so nothing is cropped. A
+  cluster is a small deck (its first still whole in front, two peeking out
+  behind) with a white count; past the picture budget, a plain count pill.
+  Stills fade in over a soft placeholder instead of a black disc.
+- The plot fades its markers out at both ends instead of slicing them in
+  half; the genre chips fade at the end that has more to scroll.
+- Less decoration: no strand through the runs (it crossed every picture),
+  no fan dots, a softer source glow; bands at 0.68 so the pictures lead.
+- Lanes fill the height (max 200 px) instead of floating in empty space.
+- Lane names wrap in balanced lines ("Africa & / Middle East"); counts
+  read "1,153 moments"; phones get smaller frames and shorter labels.
+- The stage card shows the whole 16:9 still; Play runs the video in the
+  same frame, so the words no longer squeeze into a column. "22 of 105"
+  and the picture credit sit with the actions; the next/previous hint
+  sits in the band's margin, clear of the words.
+- Pathways and Instruments tabs open their working /atlas views until
+  their lenses land (P6), instead of showing the Eras river.
+- The hidden map no longer flies to each moment opened on the timeline;
+  it goes there on "Show on the globe".
+- Budget: route chunk 113,165 B, static imports 323,145 B; TimeRiver
+  47.8 kB lazy.
+- Screens: `docs/globe-ui/screens/tr-p4b-*`.

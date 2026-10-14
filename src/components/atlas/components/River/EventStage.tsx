@@ -31,11 +31,11 @@ export interface StageRect {
 
 /**
  * An event opened on the timeline, after Dorot's: its lane's band grows to
- * hold it, and it sits on the band as a stadium-shaped card — its picture a
- * round end, its title large, its year and place, its story. The arrows at
+ * hold it, and it sits on the band as a card — its picture whole (a 16:9
+ * still), its title large, its year and place, its story. The arrows at
  * either side walk the lane, a moment at a time; Escape or the close button
- * fold it back into the river. Pressing the picture plays its video in
- * place.
+ * fold it back into the river. Pressing the picture plays its video in the
+ * same frame.
  *
  * Mounted under AnimatePresence (TimeRiver), so it grows out of its lane
  * and folds back into it.
@@ -132,57 +132,60 @@ export function EventStage({
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const cardHeight = narrow
-    ? stage.height - 24
-    : Math.min(400, stage.height - 56);
-  const disc = narrow ? Math.min(150, cardHeight * 0.42) : cardHeight;
-  const videoWidth = (disc * 16) / 9;
+  // The card on the band: as tall as its picture plus its margin, the
+  // picture a whole 16:9 still (never cropped to a shape), at most this.
+  const pad = narrow ? 12 : 20;
+  const cardMax = narrow ? stage.height - 24 : Math.min(440, stage.height - 56);
+  const mediaMaxWidth = Math.round(((cardMax - 2 * pad) * 16) / 9);
 
   const arrow = (side: 'prev' | 'next') => {
     const to = side === 'prev' ? prev : next;
     const Icon = side === 'prev' ? ChevronLeft : ChevronRight;
     return (
-      <div
-        className={cn('absolute', side === 'prev' ? 'left-5' : 'right-5')}
-        style={{ top: stage.top + stage.height / 2, translate: '0 -50%' }}
-      >
-        <button
-          aria-label={
-            to
-              ? `${side === 'prev' ? 'Earlier' : 'Later'}: ${to.event.title}`
-              : side === 'prev'
-                ? 'No earlier moment here'
-                : 'No later moment here'
-          }
-          className={cn(
-            'flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-white/80 bg-atlas-page/40 text-white transition-[scale,background-color] duration-150 [transition-timing-function:var(--ease-out)] hover:bg-atlas-page/70 active:scale-95 disabled:cursor-not-allowed disabled:border-dashed disabled:border-white/30 disabled:text-white/30',
-            ATLAS_FOCUS,
-          )}
-          disabled={!to}
-          type="button"
-          onBlur={() => setHint(null)}
-          onClick={() => step(to, side === 'prev' ? -1 : 1)}
-          onFocus={() => setHint(side)}
-          onPointerEnter={() => setHint(side)}
-          onPointerLeave={() => setHint(null)}
+      <>
+        <div
+          className={cn('absolute', side === 'prev' ? 'left-5' : 'right-5')}
+          style={{ top: stage.top + stage.height / 2, translate: '0 -50%' }}
         >
-          <Icon aria-hidden className="size-6" />
-        </button>
-        {/* Where the arrow goes, as Dorot shows it: under the arrow, along
-            the band's edge, clear of the card's text. */}
-        {hint === side && to && !narrow && (
+          <button
+            aria-label={
+              to
+                ? `${side === 'prev' ? 'Earlier' : 'Later'}: ${to.event.title}`
+                : side === 'prev'
+                  ? 'No earlier moment here'
+                  : 'No later moment here'
+            }
+            className={cn(
+              'flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-white/80 bg-atlas-page/40 text-white transition-[scale,background-color] duration-150 [transition-timing-function:var(--ease-out)] hover:bg-atlas-page/70 active:scale-95 disabled:cursor-not-allowed disabled:border-dashed disabled:border-white/30 disabled:text-white/30',
+              ATLAS_FOCUS,
+            )}
+            disabled={!to}
+            type="button"
+            onBlur={() => setHint(null)}
+            onClick={() => step(to, side === 'prev' ? -1 : 1)}
+            onFocus={() => setHint(side)}
+            onPointerEnter={() => setHint(side)}
+            onPointerLeave={() => setHint(null)}
+          >
+            <Icon aria-hidden className="size-6" />
+          </button>
+        </div>
+        {/* Where the arrow goes, as Dorot shows it: in the band's margin
+            under the card, on the arrow's side, clear of the card's words. */}
+        {hint === side && to && (
           <span
             aria-hidden
             className={cn(
-              'atlas-river-tooltip absolute top-full mt-3 w-max max-w-56 truncate rounded-full bg-atlas-page/85 px-3 py-1 text-sm font-bold text-white',
-              side === 'prev' ? 'left-0' : 'right-0',
+              'atlas-river-tooltip absolute max-w-72 truncate rounded-full bg-atlas-page/85 px-3 py-1 text-sm font-bold text-white',
+              side === 'prev' ? 'left-5' : 'right-5',
             )}
             data-flip={side === 'next'}
+            style={{ top: stage.top + stage.height - 40 }}
           >
             {to.event.title}
           </span>
         )}
-      </div>
+      </>
     );
   };
 
@@ -194,7 +197,7 @@ export function EventStage({
     >
       {/* The lane's band, grown from where it ran. */}
       <motion.div
-        animate={{ transform: 'translateY(0px) scaleY(1)', opacity: 0.85 }}
+        animate={{ transform: 'translateY(0px) scaleY(1)', opacity: 0.7 }}
         aria-hidden
         className="absolute inset-x-0 origin-top"
         exit={{
@@ -212,7 +215,7 @@ export function EventStage({
           transform: `translateY(${from.top - stage.top}px) scaleY(${
             from.height / stage.height
           })`,
-          opacity: 0.85,
+          opacity: 0.7,
         }}
         style={{
           top: stage.top,
@@ -237,7 +240,8 @@ export function EventStage({
           ease: EASE_OUT,
         }}
       >
-        {/* The card: a stadium on the band. */}
+        {/* The card on the band: the still (or its video) at the left,
+            whole, and the words beside it. */}
         <div
           className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
@@ -245,13 +249,13 @@ export function EventStage({
             width: narrow
               ? 'calc(100% - 24px)'
               : 'min(1120px, calc(100% - 200px))',
-            height: cardHeight,
+            height: narrow ? cardMax : undefined,
           }}
         >
           <div
             className={cn(
-              'relative h-full overflow-hidden border border-white/15 bg-atlas-panel text-atlas-text shadow-2xl',
-              narrow ? 'rounded-[2rem]' : 'rounded-full',
+              'relative overflow-hidden border border-white/10 bg-atlas-panel text-atlas-text shadow-[0_24px_64px_-20px_rgba(0,0,0,0.7)]',
+              narrow ? 'h-full rounded-3xl' : 'rounded-[28px]',
             )}
           >
             <AnimatePresence
@@ -262,10 +266,7 @@ export function EventStage({
               <motion.div
                 key={event.id}
                 animate={{ opacity: 1, transform: 'translateX(0px)' }}
-                className={cn(
-                  'absolute inset-0 flex',
-                  narrow ? 'flex-col items-center p-4 pt-5' : 'items-stretch',
-                )}
+                className={cn('flex', narrow ? 'h-full flex-col' : '')}
                 custom={direction}
                 exit={{
                   opacity: 0,
@@ -276,34 +277,35 @@ export function EventStage({
                   opacity: 0,
                   transform: `translateX(${direction * 24}px)`,
                 }}
+                style={{ padding: pad }}
                 transition={{ duration: 0.22 * time, ease: EASE_OUT }}
               >
-                {/* The picture, the card's round end; pressed, the video. */}
-                <motion.div
+                {/* The still; pressed, its video, in the same frame. Inner
+                    corners follow the card's: its radius less the margin. */}
+                <div
                   className={cn(
                     'relative shrink-0 overflow-hidden bg-black',
-                    playing ? 'rounded-2xl' : 'rounded-full',
-                    narrow ? '' : 'my-auto',
+                    narrow ? 'w-full rounded-xl' : 'rounded-lg',
                   )}
-                  layout
                   style={{
-                    width: playing ? videoWidth : disc,
-                    height: playing
-                      ? narrow
-                        ? (videoWidth * 9) / 16
-                        : disc
-                      : disc,
-                    marginLeft: narrow ? 0 : playing ? 16 : 0,
+                    aspectRatio: '16 / 9',
+                    width: narrow ? undefined : `min(${mediaMaxWidth}px, 58%)`,
                   }}
-                  transition={{ duration: 0.35 * time, ease: EASE_IN_OUT }}
                 >
                   {playing && event.videoId ? (
-                    <AtlasVideo
-                      autoplay
+                    <motion.div
+                      animate={{ opacity: 1 }}
                       className="size-full"
-                      title={event.title}
-                      videoId={event.videoId}
-                    />
+                      initial={{ opacity: 0 }}
+                      transition={{ duration: 0.2 * time, ease: EASE_OUT }}
+                    >
+                      <AtlasVideo
+                        autoplay
+                        className="size-full"
+                        title={event.title}
+                        videoId={event.videoId}
+                      />
+                    </motion.div>
                   ) : (
                     <button
                       aria-label={
@@ -312,7 +314,7 @@ export function EventStage({
                           : event.title
                       }
                       className={cn(
-                        'group/disc relative size-full',
+                        'group/still relative size-full',
                         ATLAS_FOCUS,
                       )}
                       disabled={!event.videoId}
@@ -322,7 +324,7 @@ export function EventStage({
                       {picture ? (
                         <img
                           alt=""
-                          className="size-full scale-[1.34] object-cover transition-transform duration-500 [transition-timing-function:var(--ease-out)] group-hover/disc:scale-[1.4]"
+                          className="size-full object-cover transition-transform duration-500 [transition-timing-function:var(--ease-out)] group-hover/still:scale-[1.03]"
                           src={picture}
                         />
                       ) : (
@@ -331,7 +333,7 @@ export function EventStage({
                       {event.videoId && (
                         <span
                           aria-hidden
-                          className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white opacity-80 transition-[opacity,scale] duration-200 group-hover/disc:scale-110 group-hover/disc:opacity-100"
+                          className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white shadow-[0_4px_16px_rgba(0,0,0,0.35)] transition-[background-color,scale] duration-200 [transition-timing-function:var(--ease-out)] group-hover/still:scale-105 group-hover/still:bg-black/70"
                         >
                           <Play
                             aria-hidden
@@ -341,108 +343,117 @@ export function EventStage({
                       )}
                     </button>
                   )}
-                </motion.div>
+                </div>
 
-                {/* The words. */}
-                <motion.div
+                {/* The words. On a desktop card they take the still's height
+                    and no more, the story scrolling inside. */}
+                <div
                   className={cn(
-                    'flex min-h-0 min-w-0 flex-1 flex-col',
-                    narrow ? 'mt-4 w-full' : 'justify-center py-8 pl-10',
+                    'relative min-h-0 min-w-0 flex-1',
+                    narrow ? 'mt-4' : 'ml-8',
                   )}
-                  layout="position"
-                  style={
-                    narrow ? undefined : { paddingRight: cardHeight * 0.32 }
-                  }
-                  transition={{ duration: 0.35 * time, ease: EASE_IN_OUT }}
                 >
-                  <AtlasEyebrow>
-                    {laneLabel} · {era.label} · {position.index} of{' '}
-                    {position.total}
-                  </AtlasEyebrow>
-                  <h2
-                    ref={titleRef}
-                    className="mt-2 text-2xl font-bold leading-tight tracking-[-0.01em] text-atlas-text outline-none md:text-3xl xl:text-4xl"
-                    id={titleId}
-                    tabIndex={-1}
-                  >
-                    {event.title}
-                  </h2>
-                  <p className="mt-1 text-lg text-atlas-text-2">
-                    {event.year}, {eventPlaceName(event)}
-                  </p>
-                  <div className="atlas-stage-story mt-3 min-h-0 flex-1 overflow-y-auto pr-2 text-sm leading-relaxed text-atlas-text-2 md:text-base">
-                    {event.description}
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {event.genre.slice(0, 4).map((g) => (
-                      <GenreBadge key={g} genre={g} />
-                    ))}
-                  </div>
-                  <div className="mt-4 flex flex-wrap items-center gap-2">
-                    {event.videoId && !playing && (
-                      <AtlasPillButton
-                        variant="primary"
-                        onClick={() => setPlaying(true)}
-                      >
-                        <Play aria-hidden className="size-4 fill-current" />
-                        Play
-                      </AtlasPillButton>
+                  <div
+                    className={cn(
+                      'flex flex-col',
+                      narrow ? 'h-full px-1' : 'absolute inset-0 py-1',
                     )}
-                    <AtlasPillButton onClick={onShowOnGlobe}>
-                      <Earth aria-hidden className="size-4" />
-                      Show on the globe
-                    </AtlasPillButton>
+                  >
+                    <AtlasEyebrow>
+                      {laneLabel} · {era.label}
+                    </AtlasEyebrow>
+                    <h2
+                      ref={titleRef}
+                      className="mt-2 line-clamp-3 text-2xl font-bold leading-tight tracking-[-0.01em] text-atlas-text outline-none [text-wrap:balance] xl:text-3xl"
+                      id={titleId}
+                      tabIndex={-1}
+                    >
+                      {event.title}
+                    </h2>
+                    <p className="mt-1.5 text-base text-atlas-text-2">
+                      {event.year}, {eventPlaceName(event)}
+                    </p>
+                    <div className="atlas-stage-story mt-3 min-h-0 flex-1 overflow-y-auto pr-2 text-sm leading-relaxed text-atlas-text-2">
+                      {event.description}
+                    </div>
+                    {event.genre.length > 0 && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {event.genre.slice(0, 4).map((g) => (
+                          <GenreBadge key={g} genre={g} />
+                        ))}
+                      </div>
+                    )}
+                    <div className="mt-4 flex items-center gap-2">
+                      {event.videoId && !playing && (
+                        <AtlasPillButton
+                          variant="primary"
+                          onClick={() => setPlaying(true)}
+                        >
+                          <Play aria-hidden className="size-4 fill-current" />
+                          Play
+                        </AtlasPillButton>
+                      )}
+                      <AtlasPillButton onClick={onShowOnGlobe}>
+                        <Earth aria-hidden className="size-4" />
+                        Show on the globe
+                      </AtlasPillButton>
+                      <span
+                        className={cn(
+                          'ml-auto whitespace-nowrap text-sm text-atlas-text-2',
+                          narrow && 'sr-only',
+                        )}
+                      >
+                        {position.index} of {position.total}
+                      </span>
+                      {picture && (
+                        <Popover.Root>
+                          <Popover.Trigger asChild>
+                            <button
+                              aria-label="About this picture"
+                              className={cn(
+                                'flex size-8 shrink-0 items-center justify-center rounded-full border border-white/15 text-atlas-text-2 transition-colors hover:border-white/30 hover:text-atlas-text',
+                                ATLAS_FOCUS,
+                              )}
+                              type="button"
+                            >
+                              <Info aria-hidden className="size-4" />
+                            </button>
+                          </Popover.Trigger>
+                          <Popover.Portal container={portal}>
+                            <Popover.Content
+                              className={cn(
+                                ATLAS_POPOVER,
+                                ATLAS_Z.popovers,
+                                ATLAS_NO_EXIT_ANIMATION,
+                                'max-w-64 p-3 text-xs text-atlas-text-2',
+                              )}
+                              collisionPadding={8}
+                              side="top"
+                              sideOffset={6}
+                            >
+                              A still from this moment’s video on YouTube.
+                              {event.videoId && (
+                                <>
+                                  {' '}
+                                  <a
+                                    className="font-bold text-atlas-text underline-offset-2 hover:underline"
+                                    href={`https://www.youtube.com/watch?v=${event.videoId}`}
+                                    rel="noreferrer"
+                                    target="_blank"
+                                  >
+                                    Watch on YouTube
+                                  </a>
+                                </>
+                              )}
+                            </Popover.Content>
+                          </Popover.Portal>
+                        </Popover.Root>
+                      )}
+                    </div>
                   </div>
-                </motion.div>
+                </div>
               </motion.div>
             </AnimatePresence>
-
-            {/* Where the picture comes from. */}
-            {picture && (
-              <Popover.Root>
-                <Popover.Trigger asChild>
-                  <button
-                    aria-label="About this picture"
-                    className={cn(
-                      'absolute flex size-8 items-center justify-center rounded-full border border-white/20 bg-atlas-page/70 text-atlas-text-2 hover:text-atlas-text',
-                      narrow ? 'right-3 top-3' : 'bottom-[18%] right-[6%]',
-                      ATLAS_FOCUS,
-                    )}
-                    type="button"
-                  >
-                    <Info aria-hidden className="size-4" />
-                  </button>
-                </Popover.Trigger>
-                <Popover.Portal container={portal}>
-                  <Popover.Content
-                    className={cn(
-                      ATLAS_POPOVER,
-                      ATLAS_Z.popovers,
-                      ATLAS_NO_EXIT_ANIMATION,
-                      'max-w-64 p-3 text-xs text-atlas-text-2',
-                    )}
-                    collisionPadding={8}
-                    side="top"
-                    sideOffset={6}
-                  >
-                    A still from this moment’s video on YouTube.
-                    {event.videoId && (
-                      <>
-                        {' '}
-                        <a
-                          className="font-bold text-atlas-text underline-offset-2 hover:underline"
-                          href={`https://www.youtube.com/watch?v=${event.videoId}`}
-                          rel="noreferrer"
-                          target="_blank"
-                        >
-                          Watch on YouTube
-                        </a>
-                      </>
-                    )}
-                  </Popover.Content>
-                </Popover.Portal>
-              </Popover.Root>
-            )}
           </div>
         </div>
 

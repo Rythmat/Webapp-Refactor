@@ -54,6 +54,7 @@ import { PlaceBands } from './PlaceBands';
 import {
   RiverMarkers,
   describeCluster,
+  frameWidth,
   posterSize,
   type PlacedMarker,
 } from './RiverMarkers';
@@ -84,6 +85,26 @@ function useSize(ref: React.RefObject<HTMLElement>) {
     return () => ro.disconnect();
   }, [ref]);
   return size;
+}
+
+/**
+ * A row that scrolls sideways fades out at whichever end has more to show,
+ * so a cut-off chip reads as "more this way" rather than as a mistake
+ * (river.css, `.atlas-river-scroller`).
+ */
+function useScrollFade(ref: React.RefObject<HTMLElement>, size: unknown) {
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      el.dataset.fadeStart = String(el.scrollLeft > 1);
+      el.dataset.fadeEnd = String(el.scrollLeft < max - 1);
+    };
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    return () => el.removeEventListener('scroll', update);
+  }, [ref, size]);
 }
 
 /** The view and part of its span again on either side: what is drawn. */
@@ -172,6 +193,8 @@ function placeName(index: readonly TimelineEvent[], id: string): string {
 export default function TimeRiver({ active }: { active: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const size = useSize(rootRef);
+  const chipsRef = useRef<HTMLDivElement>(null);
+  useScrollFade(chipsRef, size);
   const narrow = size.width < 640;
   const gutter = narrow ? RIVER.labelGutterNarrow : RIVER.labelGutter;
   // Phones keep their width for the years (a vertical phone river is a
@@ -268,19 +291,19 @@ export default function TimeRiver({ active }: { active: boolean }) {
     return map;
   }, [index, lanes, genres]);
   // A thick band carries two rows of markers: each row keeps its markers a
-  // stack's width apart, and the rows take turns, so a busy stretch fills
+  // deck's width apart, and the rows take turns, so a busy stretch fills
   // the band instead of crowding its centre line.
   const rows = fan.thickness >= RIVER.twoRowsAt ? 2 : 1;
-  const poster = posterSize(fan.thickness);
+  const frame = frameWidth(posterSize(fan.thickness, narrow));
   const clusters = useMemo(
     () =>
       clusterLanes(
         byLane,
         level,
-        (poster * RIVER.clusterGapFactor) / rows,
+        (frame * RIVER.clusterGapFactor) / rows,
         (t) => t.event.id,
       ),
-    [byLane, level, poster, rows],
+    [byLane, level, frame, rows],
   );
   const rowOf = useMemo(() => {
     const map = new Map<string, number>();
@@ -292,16 +315,6 @@ export default function TimeRiver({ active }: { active: boolean }) {
     }
     return map;
   }, [clusters, rows]);
-  // Each lane's events from before the years shown, for the fan's dots.
-  const earlier = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const [lane, list] of byLane) {
-      let n = 0;
-      while (n < list.length && list[n].year < restView.from) n++;
-      map.set(lane, n);
-    }
-    return map;
-  }, [byLane, restView.from]);
   const posters = useMemo(
     () => posterKeys(clusters, restView, RIVER.maxPosters),
     [clusters, restView],
@@ -315,7 +328,7 @@ export default function TimeRiver({ active }: { active: boolean }) {
           y:
             (laneY.get(cluster.lane) ?? 0) +
             (rows === 2
-              ? ((rowOf.get(cluster.key) ?? 0) - 0.5) * fan.thickness * 0.46
+              ? ((rowOf.get(cluster.key) ?? 0) - 0.5) * fan.thickness * 0.5
               : 0),
           kind: markerKind(cluster, posters.has(cluster.key)),
         })),
@@ -329,6 +342,11 @@ export default function TimeRiver({ active }: { active: boolean }) {
   const toRef = useRef<HTMLSpanElement>(null);
   const live = useRef({ plotLeft, plotWidth, level, range });
   live.current = { plotLeft, plotWidth, level, range };
+  // The pointer's line, and where it is: a zoom under a still pointer
+  // changes the year it reads.
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const cursorYearRef = useRef<HTMLSpanElement>(null);
+  const cursorX = useRef(0);
 
   const write = useCallback(() => {
     const {
@@ -352,6 +370,9 @@ export default function TimeRiver({ active }: { active: boolean }) {
     }
     writeYear(fromRef.current, w.from, { fixed: false });
     writeYear(toRef.current, w.to, { fixed: false });
+    if (cursorRef.current && !cursorRef.current.hidden) {
+      writeYear(cursorYearRef.current, w.from + (cursorX.current - left) / ppy);
+    }
     const nextLevel = levelOf(ppy);
     if (nextLevel !== lvl) setLevel(nextLevel);
     // Redraw the range when the view leaves it, or has zoomed well inside
@@ -388,8 +409,6 @@ export default function TimeRiver({ active }: { active: boolean }) {
 
   /* ── Gestures, the cursor and the tooltip ──────────────────────────── */
 
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const cursorYearRef = useRef<HTMLSpanElement>(null);
   const hideTransient = useCallback(() => {
     hover.set(null);
     if (cursorRef.current) cursorRef.current.hidden = true;
@@ -416,6 +435,7 @@ export default function TimeRiver({ active }: { active: boolean }) {
     cursor.hidden = !inPlot;
     if (!inPlot) return;
     cursor.style.transform = `translateX(${x}px)`;
+    cursorX.current = x;
     const w = camera.get();
     writeYear(
       cursorYearRef.current,
@@ -718,7 +738,6 @@ export default function TimeRiver({ active }: { active: boolean }) {
             <PlaceBands
               active={active}
               ancestors={ancestors}
-              earlier={earlier}
               layout={fan}
               plotLeft={plotLeft}
               plotRight={plotRight}
@@ -746,9 +765,10 @@ export default function TimeRiver({ active }: { active: boolean }) {
             />
           </div>
 
-          {/* The markers, clipped to the years. */}
+          {/* The markers, clipped to the years, fading out at either end
+            rather than cut in half there. */}
           <div
-            className="atlas-river-dim absolute inset-y-0 overflow-hidden"
+            className="atlas-river-dim atlas-river-plot absolute inset-y-0 overflow-hidden"
             style={{ left: plotLeft, width: plotWidth }}
             {...(staged ? { inert: '' } : {})}
           >
@@ -762,6 +782,7 @@ export default function TimeRiver({ active }: { active: boolean }) {
                 focusedKey={focusedKey}
                 laneHeight={fan.thickness}
                 markers={markers}
+                narrow={narrow}
                 top={RIVER.top}
                 onActivate={onActivate}
                 onFocusKey={setFocusedKey}
@@ -777,8 +798,10 @@ export default function TimeRiver({ active }: { active: boolean }) {
               const lane = laneById.get(g.id)!;
               const count = byLane.get(g.id)?.length ?? 0;
               const className = cn(
-                'absolute right-0 flex -translate-y-1/2 items-center justify-end gap-1 rounded-full pl-3 pr-4 text-right font-bold leading-tight text-white transition-[top,opacity] duration-700 ease-in-out',
-                narrow ? 'text-xs' : g.thickness > 60 ? 'text-base' : 'text-sm',
+                'absolute right-0 flex -translate-y-1/2 items-center justify-end gap-1 rounded-full text-right font-bold leading-tight text-white transition-[top,opacity] duration-700 ease-in-out [text-shadow:0_1px_2px_rgba(0,0,0,0.25)]',
+                narrow
+                  ? 'pl-1 pr-2 text-xs'
+                  : cn('pl-3 pr-4', g.thickness > 60 ? 'text-base' : 'text-sm'),
                 active ? 'opacity-100' : 'opacity-0',
               );
               const style = { top: RIVER.top + g.y, maxWidth: gutter };
@@ -787,16 +810,20 @@ export default function TimeRiver({ active }: { active: boolean }) {
                   <span
                     className={cn(
                       'text-right',
-                      // Two lines where a band has room; one, cut short, on a
-                      // thin one, so names never run into their neighbours.
-                      g.thickness >= 40 ? 'line-clamp-2' : 'truncate',
+                      // Two balanced lines where a band has room; one, cut
+                      // short, on a thin one, so names never run into their
+                      // neighbours.
+                      g.thickness >= 40
+                        ? 'line-clamp-2 [text-wrap:balance]'
+                        : 'truncate',
                     )}
                   >
                     {lane.label}
                   </span>
                   {g.thickness > 48 && (
-                    <span className="text-xs font-normal text-white/75">
-                      {count} {count === 1 ? 'moment' : 'moments'}
+                    <span className="whitespace-nowrap text-xs font-normal text-white/80">
+                      {count.toLocaleString('en-US')}
+                      {!narrow && (count === 1 ? ' moment' : ' moments')}
                     </span>
                   )}
                 </span>
@@ -880,9 +907,10 @@ export default function TimeRiver({ active }: { active: boolean }) {
 
         {/* The genres, as Dorot's topic chips: filters, not lanes. */}
         <div
+          ref={chipsRef}
           aria-label="Genres"
           className={cn(
-            'absolute left-1/2 flex -translate-x-1/2 items-center gap-1.5 overflow-x-auto px-1 py-1 transition-opacity duration-300 [scrollbar-width:none]',
+            'atlas-river-scroller absolute left-1/2 flex -translate-x-1/2 items-center gap-1.5 overflow-x-auto px-1 py-1 transition-opacity duration-300 [scrollbar-width:none]',
             !active && 'opacity-0',
             narrow
               ? 'top-[4.5rem] max-w-[calc(100%-1rem)]'

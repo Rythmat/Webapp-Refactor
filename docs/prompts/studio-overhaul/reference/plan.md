@@ -25,6 +25,9 @@ in traditional estimates. Each milestone ships alone as a merge-commit PR after 
 verification; main deploys straight to prod with no CI. **Approving this plan starts Stage A.**
 Stages B and C are re-checked against fresh measurements at each stage boundary.
 
+**Stage D** (added 2026-10-14, decision 15) adds teaching features from the Soundtrap and
+Soundation review: about 11–14 more developer-weeks, plus API work. It runs beside Stage C.
+
 ## Decisions (binding)
 
 **Owner decisions (2026-10-06):**
@@ -70,6 +73,17 @@ Stages B and C are re-checked against fresh measurements at each stage boundary.
     primitives, the 1.7 anchor registry, the new top bar, track list, dock and Mix view, and the
     2.8 Inspector (1.2b absorbs 3.12's coach-card docking). Today's 8 lessons stay as they are
     until then, and every milestone keeps them passing with no failures beyond the known list.
+15. **Stage D, teaching features (2026-10-14, proposed):** the features from the Soundtrap and
+    Soundation review join the program as Stage D, milestones 4.0–4.7:
+
+    - a sharing and comments API contract, and read-only review;
+    - Studio assignments, where each student gets their own copy;
+    - timeline comments and song sections;
+    - chord keys, key changes that move clips, and genre starters.
+
+    It runs beside Stage C, and Stages A–C keep their order. Its own decisions, SD1–SD11, need
+    sign-off before prompts 31–37 run. Design:
+    [`29-D-teaching-features.md`](../29-D-teaching-features.md).
 
 **My defaults (vetoable at review):**
 
@@ -192,6 +206,10 @@ The critic found the three phase designs built 20+ artifacts twice. These rules 
   | Return racks                                                             | Mix view RackDock (2.10)   |
   | Dead-code deletions                                                      | 1.2                        |
   | Lesson overlay (coach card, Show me, intro/completion, launcher preview) | 1.2b                       |
+  | Project sharing and read-only review                                     | 4.1 (API contract in 4.0)  |
+  | Timeline comments                                                        | 4.3                        |
+  | Song sections (Timeline and Lead Sheet)                                  | 4.4                        |
+  | Chord keys on musical typing                                             | 4.5                        |
 
   1.2b builds the lesson overlay after Stage B (decision 14), directly on the 1.7 anchor
   registry, the 2.2 `src/daw/ui` primitives and the 2.8 Inspector, absorbing 3.12's docking.
@@ -319,7 +337,7 @@ resetOnNew}`, plus a coverage test.
 - Projects dialog listing drafts and cloud projects.
 - Practice gets a slim header with the chip.
 
-*1.4 decisions as built (integration, 2026-10-08).* Owner sign-off pending on 1–7 (owner
+_1.4 decisions as built (integration, 2026-10-08)._ Owner sign-off pending on 1–7 (owner
 walk-through):
 
 1. The boot and switch prunes keep the user's newest draft even when it is cloud-equal (it is what
@@ -497,6 +515,19 @@ the UserList and ChatPanel columns, and its state is remembered per view.
 - ESLint for new code (no hex literals, nothing under 11 px, no literal z-index). The ratchet skips
   legacy subtrees marked `data-ds=legacy`.
 
+**Room for Stage D** (2026-10-14). Stage D builds these later into Stage B's files; details are in
+[`29-D-teaching-features.md`](../29-D-teaching-features.md).
+
+- **2.3:** the Projects dialog leaves room for an Assignments group (4.2).
+- **2.5:** the Share menu leaves room for "Assign to a class…" (4.2). The top bar leaves room for
+  the assignment strip and the read-only review banner (4.1).
+- **2.6:** the empty-project tiles use goal wording: Start with a beat, Play an instrument, Start
+  from a genre, Add a track. An assignment copy shows its brief instead.
+  - AddTrackMenu's "Import" makes a MIDI track without opening a file. Relabel it or open Import
+    MIDI.
+- **2.7:** the toolbar leaves room for "+ Section" next to "+ Marker" (4.4).
+- **2.8:** the Inspector's tab strip leaves room for Comments (4.3).
+
 **Stage B exit criteria:**
 
 - Both target screens pass the screenshot and region-budget tests.
@@ -581,6 +612,14 @@ Two tracks, sequenced by dependency. Stage C files target Stage B's `src/daw/she
 | 3.15 | Accessibility close-out          | Against the 2026-09-20 audit                                                                                                                                                  | —         |
 | 3.16 | Ledger close-out and guardrails  | Teacher release notes                                                                                                                                                         | —         |
 
+**Stage D notes for the polish track:**
+
+- **3.3:** builds the Sections lane with 4.4.
+- **3.6:** adds a "Duck to kick" setting and a tempo-synced pump to the Sidechain.
+- **3.8:** Browser items show key, tempo and genre, with a key filter and preview at song tempo.
+  Each effect category gets a one-line purpose.
+- **3.13:** no video calls (SD6).
+
 **Deferred (not in this program):**
 
 - real BS.1770 LUFS;
@@ -589,8 +628,60 @@ Two tracks, sequenced by dependency. Stage C files target Stage B's `src/daw/she
 - an account synth-preset library (needs an API);
 - NAM 48 kHz resampling;
 - audio-file import (storage decision);
-- Versions/Revisions and timeline comments (need an API);
+- a personal clip library, like Soundtrap's "Add to loop library" (needs an API);
+- Versions/Revisions (need an API); timeline comments moved to Stage D (4.3, with the API
+  contract in 4.0);
 - rebuilding the vocal pitch editor or the band generators.
+
+## Stage D: teaching features (added 2026-10-14), ~11–14 developer-weeks
+
+Stage D comes from decision 15 and runs beside Stage C. Each milestone starts once what it waits
+for has shipped. 4.0 is docs and a mock only, so it can run any time.
+
+[`29-D-teaching-features.md`](../29-D-teaching-features.md) holds the rest: the evidence from the
+Soundtrap and Soundation review, owner decisions SD1–SD11, the per-milestone notes and the exit
+criteria. Prompts 30–37 build it, one milestone each.
+
+| #   | Milestone                      | What ships (key points)                                                                                                                                                                  | Waits for                        | Size           |
+| --- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | -------------- |
+| 4.0 | Teaching API contract and mock | `docs/studio-sharing-contract.md`: access roles, assignment copies, submissions, comments. CONTRACT-DELTAS rows, flags, mock modes, a dev user override for teacher and student personas | —                                | 1 wk + API     |
+| 4.1 | Read-only review               | `?project=…&review=1` and `?submission=…` boots that write no draft and no save and join no room. Edits off; a top-bar banner                                                            | 4.0, 2.5                         | 1–1.5 wk       |
+| 4.2 | Studio assignments             | Assign to a class, giving each student their own copy. Turn in. The progress page lists the work. Rides `kind:'atlas'` with module `studio`                                              | 4.0, 4.1, 2.3, Teacher Office P6 | 2–3 wk + API   |
+| 4.3 | Timeline comments              | Pins on clips and the ruler, threads, Resolve, a Comments tab in the Inspector. A server resource, not in the Y.Doc                                                                      | 4.0, 4.1, 2.8                    | 2 wk + API     |
+| 4.4 | Song sections                  | One section model for the Timeline and the Lead Sheet. A Sections lane. Songs open with their form                                                                                       | 2.7, 3.3                         | 1.5–2 wk       |
+| 4.5 | Chord keys                     | Musical typing plays the key's chords, labelled with numerals. Free for every student                                                                                                    | 1.16a, 2.11                      | 1.5 wk         |
+| 4.6 | Change key, move clips         | A key change offers to move MIDI clips and names each interval. Transpose and Match song key on clips                                                                                    | 1.16a, 2.5                       | 1–1.5 wk       |
+| 4.7 | Genre starters                 | Learn → Style starters labelled key · genre · tempo, in 1.2b's launcher                                                                                                                  | 1.2b, 2.6                        | 1 wk + content |
+
+## Findings added on 2026-10-14
+
+The Stage D review checked the code around its features and found these, each verified by hand.
+Each owning milestone picks its findings up. The archive ledger (`phase-map.json`) isn't updated,
+as before.
+
+| #   | Finding                                                   | Evidence                                                                                                                                                                                                                                                                                                                                                      | Owner                                                                                                    |
+| --- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| F1  | A collab "viewer" can still edit                          | The server marks a viewer's connection `readOnly` (`collab/server/party.ts:185`), but y-partykit only honours a room-wide `readOnly` (`node_modules/y-partykit/dist/index.js:797`). A viewer's updates still sync. Nothing asks for the viewer role yet                                                                                                       | 1.14, before Stage D puts teachers in student rooms                                                      |
+| F2  | Rejoining a room may duplicate tracks (unverified)        | An owner who rejoins hydrates the doc, then merges the stored snapshot (`party.ts:211`) and the `collab-<roomId>` IndexedDB copy (`CollabProvider.tsx:472`). `tracksFromDoc` doesn't dedupe by id (`yjsToZustand.ts:183-192`). Likely trigger: a re-clicked pair link with `&host=1`                                                                          | 1.14: write the two-client test first                                                                    |
+| F3  | Collab room storage is never cleaned up                   | Server snapshots never expire (`party.ts:211`), and nothing deletes the `collab-<roomId>` IndexedDB databases (no `deleteDatabase` in `src`). They pile up on shared Chromebooks                                                                                                                                                                              | 1.14                                                                                                     |
+| F4  | A collaborator's colour changes on every rejoin           | The colour is `awareness.clientID % 8` (`CollabProvider.tsx:569`)                                                                                                                                                                                                                                                                                             | 3.13, with the Stage B colour sign-off                                                                   |
+| F5  | Debug logging left in kick                                | `console.log('[kick] …')` at `CollabProvider.tsx:780, 789`                                                                                                                                                                                                                                                                                                    | 1.14                                                                                                     |
+| F6  | The synth's "follow project key" follows the detected key | `hooks/useStoreBridge.ts:103-115` mirrors `detectedKeyRootPc`/`detectedMode`, not the student's key. `applyKeyToSession` (`unisonSlice.ts:269-281`) has no caller                                                                                                                                                                                             | 1.16a (`effectiveKey`)                                                                                   |
+| F7  | Audio clips don't follow tempo changes                    | Buffers play at their own rate while the clip's length is its ticks at the current BPM (`audio/AudioClipScheduler.ts:80-85`, no `playbackRate`). A dropped sample's length is fixed at the BPM of the drop (`Timeline.tsx:2759-2761`). After a tempo change, audio drifts off the grid and is cut short or trails silence. Soundtrap's loops follow the tempo | 1.11: at least warn and offer to keep the tempo. Stretching is the same engine call as SD8's pitch shift |
+| F8  | Pressing a marker's name seeks instead of dragging        | The cursor shows "grab" from −5 to +70 px (`Timeline.tsx:2363-2371`), but only ±10 px starts a drag (`Timeline.tsx:1762-1775`)                                                                                                                                                                                                                                | 3.3                                                                                                      |
+| F9  | `DialogHost` isn't mounted                                | Only the UI gallery mounts it (`ui/__gallery__/DawUiGallery.tsx:242`), so `promptDialog` cancels. Marker and Lead Sheet renames fall back to `window.prompt`                                                                                                                                                                                                  | 2.3                                                                                                      |
+| F10 | Dead MIDI-effect placeholders                             | Arpeggiator, Chord and Scale are `disabled: true` (`data/libraryItems.ts:177-203`) and every mount hides them with `hideMidi`                                                                                                                                                                                                                                 | 1.17b (4.5 replaces Chord)                                                                               |
+| F11 | Library drag payloads are half-built                      | `drum-sample` and `midi-loop` payloads are never created, and the `midi-loop` drop ignores key and BPM (`data/libraryItems.ts:12-31`, `Timeline.tsx:2740-2811`)                                                                                                                                                                                               | 3.8 (4.6 reads the key)                                                                                  |
+| F12 | The cloud contract names the wrong schema                 | `docs/studio-cloud-document-contract.md:35, 52` says `documentSchema` is 3; the code writes 4 (`codec.ts:112`, `cloudDocument.ts:58`)                                                                                                                                                                                                                         | Doc fix now: it's what music-atlas-api is built against                                                  |
+
+**Ideas from the hands-on review, for existing milestones:**
+
+- **1.12b:** a quiet "audio is struggling" indicator. Soundation shows CPU and memory in its status
+  bar; on a Chromebook it would explain glitches.
+- **2.11:** a hover hint line that says what the control under the pointer does, as Soundation's
+  status bar does, and a "Report a problem" item in Help.
+- **3.8:** library suggestions that fit the song. Soundtrap's "Top picks for this project" change
+  with the key and what's already on the timeline.
 
 ## Verification
 
@@ -652,6 +743,9 @@ Two tracks, sequenced by dependency. Stage C files target Stage B's `src/daw/she
 - Shared-device policy: what is cleared at sign-out (1.4 built E17, decision 2 in the 1.4 note).
 - 1.4 owner walk-through: sign off decisions 1–7 under the 1.4 note.
 - Studio dashboard "Project" tab: new blank project vs resume the last session.
+- Stage D: sign off SD1–SD11 in [`29-D-teaching-features.md`](../29-D-teaching-features.md).
+- music-atlas-api: the 4.0 contract (project access roles, assignment copies, submissions,
+  comments).
 
 ## Where the detail lives
 
@@ -659,4 +753,5 @@ The audit and design outputs (per-step files, code to reuse and verification for
 sit in the workflow journals listed in Step 0, and are archived into `docs/studio-audit-2026-10/`
 first. Each milestone starts by reconciling its archived design with this plan's decisions and
 integration rules. Milestone 1.2b's design lives in [`lessons-v2.md`](lessons-v2.md); re-plan it
-against the Stage B shell before building (decision 14).
+against the Stage B shell before building (decision 14). Stage D's design lives in
+[`29-D-teaching-features.md`](../29-D-teaching-features.md).

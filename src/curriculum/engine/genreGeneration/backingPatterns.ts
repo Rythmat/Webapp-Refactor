@@ -14,14 +14,12 @@
  */
 
 import type { ActivityStepV2, BackingStyle } from '../../types/activity.v2';
-import { realizeComping } from '../chordComping/chordComping';
+import type { BandInstrument } from '../band/band';
+import { layerSound, realizeBand } from '../band/realize';
+import { LIVE_ITEMS } from '../band/registry';
 import { buildDesignedDrums } from '../drumGrooves/drumGroove';
 import { getLiveGroove } from '../drumGrooves/registry';
-import {
-  pairedBassNotes,
-  pairedBassVoice,
-  pairedDrumNotes,
-} from '../lessonPairings/pairedBacking';
+import { pairedBassVoice } from '../lessonPairings/pairedBacking';
 import { pairingFor } from '../lessonPairings/registry';
 import {
   barTicks as meterBarTicks,
@@ -64,6 +62,36 @@ export interface BackingNote {
   part: 'drums' | 'bass' | 'chords';
   /** 808 bass: slide into this note from the one given. */
   glideFrom?: number;
+  /**
+   * A band layer that plays on its own instrument rather than the part's
+   * (a second keyboard, a synth, a guitar, a layer at its own level): its
+   * sound and level. Absent, the note plays on the part's lesson voice.
+   */
+  voice?: BackingVoice;
+}
+
+/** The lesson part each band instrument plays in. */
+const BACKING_PART: Record<BandInstrument, BackingNote['part']> = {
+  drums: 'drums',
+  percussion: 'drums',
+  bass: 'bass',
+  keys: 'chords',
+  guitar: 'chords',
+  synth: 'chords',
+  strings: 'chords',
+  horns: 'chords',
+};
+
+/** A band layer's own instrument in the backing (`BackingNote.voice`). */
+export interface BackingVoice {
+  /** The band layer's id: its notes share one instrument. */
+  layer: string;
+  /** Its name, for a Practice Track's Studio track. */
+  name: string;
+  /** A sound string (daw/instruments/soundString.ts). */
+  sound: string;
+  /** 0–1. */
+  volume: number;
 }
 
 // ── Micro-timing jitter ─────────────────────────────────────────────────────
@@ -776,15 +804,24 @@ export function resolveStepGrooveId(
  * The kit a step's drums play on: the step's own (backing_style.kit), else its
  * published designed groove's, else natural.
  */
+/** Where a step sits in its style, for a pairing's exceptions. */
+const placeOf = (
+  step: Partial<Pick<ActivityStepV2, 'section' | 'stepNumber'>>,
+) => ({
+  section: step.section,
+  stepNumber: step.stepNumber,
+});
+
 export function stepDrumKit(
-  step: Pick<ActivityStepV2, 'grooveId' | 'backing_style'>,
+  step: Pick<ActivityStepV2, 'grooveId' | 'backing_style'> &
+    Partial<Pick<ActivityStepV2, 'section' | 'stepNumber'>>,
   styleRef: string | undefined,
   genre: string,
   level: number,
 ): string {
   return (
     // A back-office pairing wins over the step (D-084).
-    pairingFor(genre, level, styleRef)?.drums?.kit ??
+    pairingFor(genre, level, styleRef, placeOf(step))?.drums?.kit ??
     step.backing_style?.kit ??
     getLiveGroove(resolveStepGrooveId({ ...step, styleRef }, genre, level))
       ?.kit ??
@@ -797,12 +834,13 @@ export function stepDrumKit(
  * own (backing_style.bassVoice); undefined means the genre's default.
  */
 export function stepBassVoice(
-  step: Pick<ActivityStepV2, 'backing_style'>,
+  step: Pick<ActivityStepV2, 'backing_style'> &
+    Partial<Pick<ActivityStepV2, 'section' | 'stepNumber'>>,
   styleRef: string | undefined,
   genre: string,
   level: number,
 ): BackingStyle['bassVoice'] {
-  const line = pairingFor(genre, level, styleRef)?.bass;
+  const line = pairingFor(genre, level, styleRef, placeOf(step))?.bass;
   return line ? pairedBassVoice(line) : step.backing_style?.bassVoice;
 }
 
@@ -1373,33 +1411,48 @@ export function buildBackingNotes(
   const chordAt = (tick: number): ChordSymbolTones =>
     chordAtTick(timeline, tick) ?? tonic;
 
-  // A back-office pairing (D-084, D-087) replaces the drums, bass and chords
-  // the step would play. A doubled left hand still wins over paired bass: the student's own
-  // part is what the backing doubles.
-  const pairing = pairingFor(genre, level, styleRef);
+  const pairing = pairingFor(genre, level, styleRef, placeOf(step));
+  // A back-office band (D-084, D-087) replaces the parts it covers: every
+  // playing layer whose instrument is a part the engine plays for this step.
+  // The first layer of a part, on its lesson sound at full level, plays on
+  // the part's voice exactly as a single pairing did; any other layer (a
+  // second keyboard, a guitar, a synth, or one with a sound or level of its
+  // own) carries its own voice.
   const withPairing = (notes: BackingNote[]): BackingNote[] => {
     if (!pairing) return notes;
+    const realized = realizeBand(
+      pairing.band,
+      LIVE_ITEMS,
+      { chordAt, bars: BACKING_BARS, timeSignature: ts },
+      { tonic: ((keyRoot % 12) + 12) % 12 },
+    );
     let out = notes;
-    if (pairing.drums && engineGenerates.includes('drums')) {
+    for (const part of ['drums', 'bass', 'chords'] as const) {
+      if (!engineGenerates.includes(part)) continue;
+      // A doubled left hand still wins over band bass: the student's own
+      // part is what the backing doubles.
+      if (part === 'bass' && doubledLeftHand(step, targetNotes)) continue;
+      const layers = realized.filter(
+        (r) => BACKING_PART[r.layer.instrument] === part,
+      );
+      if (!layers.length) continue;
       out = [
-        ...out.filter((n) => n.part !== 'drums'),
-        ...swung(pairedDrumNotes(pairing.drums, BACKING_BARS, barLength)),
-      ];
-    }
-    if (
-      pairing.bass &&
-      engineGenerates.includes('bass') &&
-      !doubledLeftHand(step, targetNotes)
-    ) {
-      out = [
-        ...out.filter((n) => n.part !== 'bass'),
-        ...swung(pairedBassNotes(pairing.bass, chordAt, BACKING_BARS, ts)),
-      ];
-    }
-    if (pairing.comping && engineGenerates.includes('chords')) {
-      out = [
-        ...out.filter((n) => n.part !== 'chords'),
-        ...swung(realizeComping(pairing.comping, chordAt, BACKING_BARS, ts)),
+        ...out.filter((n) => n.part !== part),
+        ...layers.flatMap(({ layer, notes: own }, i) => {
+          const volume = layer.volume ?? 1;
+          const voice: BackingVoice | null =
+            i > 0 || layer.sound !== undefined || volume !== 1
+              ? {
+                  layer: layer.id,
+                  name: layer.name,
+                  sound: layerSound(layer, LIVE_ITEMS),
+                  volume,
+                }
+              : null;
+          return swung(own).map((n) =>
+            voice ? { ...n, part, voice } : { ...n, part },
+          );
+        }),
       ];
     }
     return out;

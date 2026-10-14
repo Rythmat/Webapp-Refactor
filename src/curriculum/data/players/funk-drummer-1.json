@@ -1,0 +1,66 @@
+{
+  "id": "funk-drummer-1",
+  "name": "Funk-Drummer-1",
+  "instrument": "drums",
+  "genre": "funk",
+  "kind": "placeholder",
+  "order": 170,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "electro_funk_copy"
+    },
+    {
+      "kind": "groove",
+      "id": "funk-16ths"
+    },
+    {
+      "kind": "groove",
+      "id": "go-go-beat"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_funk_01"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_funk_02"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_funk_03"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_funk_04"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_funk_05"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_funk_06"
+    },
+    {
+      "kind": "groove",
+      "id": "heavy-funk"
+    },
+    {
+      "kind": "groove",
+      "id": "purdie-shuffle"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-funk-1"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-funk-2"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-funk-3"
+    }
+  ]
+}

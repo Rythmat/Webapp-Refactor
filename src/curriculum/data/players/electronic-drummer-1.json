@@ -1,0 +1,14 @@
+{
+  "id": "electronic-drummer-1",
+  "name": "Electronic-Drummer-1",
+  "instrument": "drums",
+  "genre": "electronic",
+  "kind": "placeholder",
+  "order": 90,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "drum-n-bass"
+    }
+  ]
+}

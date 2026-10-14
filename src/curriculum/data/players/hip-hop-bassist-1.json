@@ -1,0 +1,74 @@
+{
+  "id": "hip-hop-bassist-1",
+  "name": "Hip-Hop-Bassist-1",
+  "instrument": "bass",
+  "genre": "hip-hop",
+  "kind": "placeholder",
+  "order": 220,
+  "items": [
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-c23-c1-the-trap-bass-pattern"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-c24-c1-the-trap-bass-pattern"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-c25-c1-the-trap-bass-pattern"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-c26-c1-the-trap-bass-pattern"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-c27-c1-the-trap-bass-pattern"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-c28-c2-bass-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-c1-boom-bap-bass"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-c2-c1-boom-bap-bass"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-c3-c1-boom-bap-bass"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-c4-c1-boom-bap-bass"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-c5-c2-bass-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-c1-roots"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-c2-c1-roots"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-c3-c1-roots"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-c4-c1-roots"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-c5-c2-bass-play-along"
+    }
+  ]
+}

@@ -39,6 +39,11 @@ export function getDesignedGroove(id: string): DrumGroove | undefined {
   return BY_ID.get(id);
 }
 
+/** A groove by id, drafts and loaded Studio grooves included — the back office. */
+export function getAnyGroove(id: string | undefined): DrumGroove | undefined {
+  return id ? (BY_ID.get(id) ?? STUDIO_LOADED.get(id)) : undefined;
+}
+
 // ── The Studio's grooves ───────────────────────────────────────────────────
 // The Studio's Grooves-tab performances, imported from its .mid files into
 // data/drumGrooves/studio/. They are real played takes (hundreds of hits with

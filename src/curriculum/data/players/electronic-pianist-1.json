@@ -1,0 +1,9 @@
+{
+  "id": "electronic-pianist-1",
+  "name": "Electronic-Pianist-1",
+  "instrument": "keys",
+  "genre": "electronic",
+  "kind": "placeholder",
+  "order": 110,
+  "items": []
+}

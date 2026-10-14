@@ -98,6 +98,21 @@ const SECTION_PARTS: Record<
 
 // ── Result ───────────────────────────────────────────────────────────────────
 
+/** A band layer's own track in a Practice Track. */
+export interface PracticeLayerClip {
+  /** The band layer's id. */
+  layer: string;
+  /** The track's name: the layer's. */
+  name: string;
+  /** A sound string (daw/instruments/soundString.ts). */
+  sound: string;
+  /** 0–1. */
+  volume: number;
+  /** The lesson part it plays in. */
+  part: EnginePart;
+  clip: MidiClip;
+}
+
 export interface GenrePracticeTrackResult {
   genre: string;
   level: number;
@@ -120,6 +135,12 @@ export interface GenrePracticeTrackResult {
   chordRegions: ChordRegion[];
   /** The engine's parts. A part this section's student plays is absent. */
   clips: Partial<Record<EnginePart, MidiClip>>;
+  /**
+   * The style's band layers that play on instruments of their own (a second
+   * keyboard, a guitar, a synth, a layer with its own sound or level), one
+   * Studio track each, beside the parts' tracks.
+   */
+  layerClips: PracticeLayerClip[];
   studentParts: StudentPart[];
   /**
    * The lowest note this section's own melody writing uses, so the practice
@@ -662,7 +683,9 @@ function toClip(
   loopTicks = LOOP_TICKS,
 ): MidiClip | null {
   const events = notes
-    .filter((note) => note.part === part && note.onset < loopTicks)
+    .filter(
+      (note) => note.part === part && !note.voice && note.onset < loopTicks,
+    )
     .sort((a, b) => a.onset - b.onset)
     .map((note) => ({
       note: note.note + transpose,
@@ -798,6 +821,35 @@ export function buildGenrePracticeTrack(
     if (clip) clips[part] = clip;
   }
 
+  // Band layers on their own instruments: a clip each, the chords' octave
+  // shift applied to the chord-part layers as to the chords.
+  const layerClips: PracticeLayerClip[] = [];
+  for (const part of engine) {
+    const voiced = new Map<string, BackingNote[]>();
+    for (const n of notes)
+      if (n.part === part && n.voice)
+        voiced.set(n.voice.layer, [...(voiced.get(n.voice.layer) ?? []), n]);
+    for (const own of voiced.values()) {
+      const { voice } = own[0];
+      const clip = toClip(
+        own.map(({ voice: _v, ...n }) => n),
+        part,
+        voice!.name,
+        part === 'chords' ? chordShift : 0,
+        loopTicks,
+      );
+      if (clip)
+        layerClips.push({
+          layer: voice!.layer,
+          name: voice!.name,
+          sound: voice!.sound,
+          volume: voice!.volume,
+          part,
+          clip,
+        });
+    }
+  }
+
   const sets =
     sectionId === 'B' || sectionId === 'D'
       ? voicingSets(flow, section, chords)
@@ -817,6 +869,7 @@ export function buildGenrePracticeTrack(
     chordCycle: chords,
     chordRegions: buildChordRegions(chords, keyRootMidi, mode, barLength),
     clips,
+    layerClips,
     studentParts: student,
     melodyFloor: melodyFloor(measured) ?? MELODY_FLOOR_FALLBACK,
     studentRange: studentRange(measured),

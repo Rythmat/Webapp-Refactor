@@ -15,6 +15,11 @@
  *   DELETE /__dev/parts/:id
  *   PUT    /__dev/feels/:id            body: feel profile JSON
  *   PUT    /__dev/synth-patches/:id    body: Oracle Synth preset JSON
+ *   PUT    /__dev/bands/:id            body: band JSON
+ *   DELETE /__dev/bands/:id
+ *   PUT    /__dev/players/:id          body: player JSON
+ *   DELETE /__dev/players/:id
+ *   PUT    /__dev/sample-instruments/:id  body: sampled instrument JSON
  *   DELETE /__dev/drum-kits/:id
  *   GET    /__dev/drum-samples         → { samples: string[] }  (public URLs)
  *   POST   /__dev/drum-samples?name=x  body: raw audio → { url }
@@ -33,6 +38,12 @@ const GROOVE_DIR = path.join(ROOT, 'src/curriculum/data/drumGrooves');
 const KIT_DIR = path.join(ROOT, 'src/daw/instruments/customDrumKits');
 const BASS_LINE_DIR = path.join(ROOT, 'src/curriculum/data/bassLines');
 const CHORD_COMPING_DIR = path.join(ROOT, 'src/curriculum/data/chordComping');
+const BAND_DIR = path.join(ROOT, 'src/curriculum/data/bands');
+const PLAYER_DIR = path.join(ROOT, 'src/curriculum/data/players');
+const SAMPLE_INSTRUMENT_DIR = path.join(
+  ROOT,
+  'src/daw/instruments/sampleInstruments',
+);
 const LESSON_PAIRING_DIR = path.join(
   ROOT,
   'src/curriculum/data/lessonPairings',
@@ -146,6 +157,9 @@ export function devContentWriter(): Plugin {
             'bass-lines': BASS_LINE_DIR,
             'lesson-pairings': LESSON_PAIRING_DIR,
             'chord-comping': CHORD_COMPING_DIR,
+            bands: BAND_DIR,
+            players: PLAYER_DIR,
+            'sample-instruments': SAMPLE_INSTRUMENT_DIR,
             parts: PART_DIR,
             feels: FEEL_DIR,
             'synth-patches': PATCH_DIR,

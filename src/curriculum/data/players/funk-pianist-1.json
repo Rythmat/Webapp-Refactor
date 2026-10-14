@@ -1,0 +1,14 @@
+{
+  "id": "funk-pianist-1",
+  "name": "Funk-Pianist-1",
+  "instrument": "keys",
+  "genre": "funk",
+  "kind": "placeholder",
+  "order": 190,
+  "items": [
+    {
+      "kind": "part",
+      "id": "funk-l1-a1-scale-d-minor-pentatonic"
+    }
+  ]
+}

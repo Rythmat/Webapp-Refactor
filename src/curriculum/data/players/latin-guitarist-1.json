@@ -1,0 +1,9 @@
+{
+  "id": "latin-guitarist-1",
+  "name": "Latin-Guitarist-1",
+  "instrument": "guitar",
+  "genre": "latin",
+  "kind": "placeholder",
+  "order": 360,
+  "items": []
+}

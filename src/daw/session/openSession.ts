@@ -13,6 +13,8 @@ import {
 import { useStore } from '@/daw/store';
 import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 import { withOrigin } from '@/daw/store/writeContext';
+import { reloadAfterSaving } from '@/lib/beforeReload';
+import { chunkReloadPending } from '@/lib/chunkReload';
 import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
 import {
   draftHasWork,
@@ -499,6 +501,9 @@ const isUrlOpen = (run: Run) =>
 function stripConsumedKeys(run: Run): void {
   const deps = getSessionDeps();
   if (!deps || editorGone(run) || typeof window === 'undefined') return;
+  // A reload onto a new build is under way (a chunk failed, 1.12a): it
+  // opens the link again, so the address keeps it.
+  if (chunkReloadPending()) return;
   const search = window.location.search;
   const parsed = parseBootIntent(new URLSearchParams(search));
   if (parsed.consumedKeys.length === 0) {
@@ -1351,13 +1356,18 @@ function refuse(
 ): Promise<OpenOutcome> {
   // A cold page whose resume was refused has no session at all: the panel
   // (Retry, and Back resumes again), never a toast it can't act on.
-  const shown =
+  let shown =
     cold &&
     run.requested.kind === 'resume' &&
     useSessionStore.getState().draftId === null &&
     error.surface === 'toast'
       ? { ...error, surface: 'panel' as const, retryable: true }
       : error;
+  // Retry reloads onto the link (1.12a): its address, before endEarly
+  // strips the link's keys from it.
+  if (shown.reloadToRetry && isUrlOpen(run) && typeof window !== 'undefined') {
+    shown = { ...shown, retrySearch: window.location.search };
+  }
   if (shown.surface === 'toast' && getSessionDeps()) showOpenError(shown);
   return endEarly(
     run,
@@ -1479,6 +1489,22 @@ export function backToMyWork(): Promise<OpenOutcome | null> {
   }
   clearPanel();
   return resumeIfStranded();
+}
+
+/**
+ * The panel's Retry for an open whose chunk didn't load (reloadToRetry): a
+ * module that failed stays failed until the page reloads, so save, put the
+ * link back in the address (`retrySearch`) and reload, which opens it again.
+ */
+export function retryByReload(error: OpenError): Promise<void> {
+  if (error.retrySearch !== undefined && typeof window !== 'undefined') {
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${window.location.pathname}${error.retrySearch}`,
+    );
+  }
+  return reloadAfterSaving();
 }
 
 /** Close the panel; a page with no session carries on with its last one. */

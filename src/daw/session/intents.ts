@@ -28,12 +28,9 @@ import {
   takePracticeTrack,
 } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
 import { applyGenrePracticeTrack } from '@/features/practiceTracks/genre/seedStudioFromGenrePracticeTrack';
-import {
-  applyPracticeModeTrack,
-  preparePracticeModeTrack,
-} from '@/features/practiceTracks/seedStudioFromPracticeTrack';
 import { applySong } from '@/features/songs/seedStudioFromSong';
 import { DEVICE_USER_KEY } from '@/lib/local-store/userScope';
+import { isChunkLoadError } from '@/lib/chunkReload';
 import { urlParamToSemitone } from '@/lib/musicKeyUrl';
 import { draftIsCloudEqual } from '@/lib/studio-projects/drafts/predicates';
 import {
@@ -679,14 +676,36 @@ async function prepareSong(
   intent: Extract<OpenIntent, { kind: 'song' }>,
   ctx: PrepareContext,
 ): Promise<PreparedOpen> {
+  // The editor paints without the song library (milestone 1.12a dropped
+  // the route's content gate); a song link waits for it here, under the
+  // Opening overlay.
+  let libraryFailed: unknown = null;
   try {
     await raceSignal(ensureSongContent(), ctx.signal);
   } catch (err) {
     throwIfAborted(ctx.signal);
-    // The bundled library still answers.
+    // What has loaded still answers.
     console.error('Song library failed to load', err);
+    libraryFailed = err;
   }
   const found = getSong(intent.songId);
+  if (!found && libraryFailed !== null) {
+    // Not "no such song": the library itself didn't arrive. Nothing has
+    // changed, and Retry asks for it again.
+    throw new OpenRefusal(
+      openError(
+        navigator.onLine === false ? 'offline' : 'server',
+        "The song library didn't load. Check your connection, then try again.",
+        {
+          cause: libraryFailed,
+          surface: 'panel',
+          retryable: true,
+          // Its bundled copy is a chunk: only a reload asks for it again.
+          reloadToRetry: isChunkLoadError(libraryFailed),
+        },
+      ),
+    );
+  }
   if (!found) throw new OpenRefusal(notFoundError(NOT_FOUND_MESSAGES.song));
   // The same chart the Song page showed for that transposition.
   const song =
@@ -713,9 +732,17 @@ async function preparePracticeMode(
   // decoded back to a 0-11 semitone from C as LessonContainer does.
   const root = urlParamToSemitone(intent.rootParam ?? undefined);
   let track;
+  let applyPracticeModeTrack;
   try {
+    // The practice generator and its melody libraries load with the first
+    // practice boot, not with the editor (milestone 1.12a).
+    const seeding = await raceSignal(
+      import('@/features/practiceTracks/seedStudioFromPracticeTrack'),
+      ctx.signal,
+    );
+    applyPracticeModeTrack = seeding.applyPracticeModeTrack;
     track = await raceSignal(
-      preparePracticeModeTrack(
+      seeding.preparePracticeModeTrack(
         intent.mode as PracticeMode,
         root,
         intent.openTrack,
@@ -729,9 +756,10 @@ async function preparePracticeMode(
     throw new OpenRefusal(openErrorFromFailure(err, 'practice'));
   }
   const built = track;
+  const applyTrack = applyPracticeModeTrack;
   return seeded(await claimNew(ctx), {
     apply: () => {
-      applyPracticeModeTrack(built, {
+      applyTrack(built, {
         openTrack: intent.openTrack,
         level: intent.level,
       });

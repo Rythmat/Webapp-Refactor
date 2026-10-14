@@ -7,6 +7,7 @@ import {
   backToMyWork,
   cancelOpen,
   dismissUpgradeLesson,
+  retryByReload,
   retryOpen,
 } from '@/daw/session/openSession';
 import { useSessionStore } from '@/daw/session/sessionStore';
@@ -83,7 +84,10 @@ export function OpeningHost() {
   }
 
   const onRetry = useCallback(() => {
-    void retryOpen();
+    // A chunk that didn't load is asked for again only by a reload (1.12a).
+    const failed = useSessionStore.getState().error;
+    if (failed?.reloadToRetry) void retryByReload(failed);
+    else void retryOpen();
   }, []);
   const onBack = useCallback(() => {
     void backToMyWork();

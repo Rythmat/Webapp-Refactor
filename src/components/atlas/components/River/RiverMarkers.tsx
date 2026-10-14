@@ -96,7 +96,9 @@ export const RiverMarkers = memo(function RiverMarkers({
   ) => void;
   onFocusKey: (key: string) => void;
 }) {
-  const poster = Math.max(22, Math.min(RIVER.posterPx, laneHeight - 2));
+  const poster = Math.round(
+    Math.max(RIVER.posterMinPx, Math.min(RIVER.posterMaxPx, laneHeight * 0.36)),
+  );
   const tabKey = focusedKey ?? markers[0]?.cluster.key;
   return (
     <>
@@ -120,7 +122,8 @@ export const RiverMarkers = memo(function RiverMarkers({
             style={
               {
                 '--yr': cluster.year,
-                top: top + y,
+                '--y': `${y}px`,
+                top,
                 width: size,
                 height: size,
               } as CSSProperties

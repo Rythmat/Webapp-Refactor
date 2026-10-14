@@ -4,6 +4,7 @@ import {
   Suspense,
   lazy,
   useCallback,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -45,6 +46,8 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import { RIVER } from '@/components/atlas/theme/river';
+import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import type { MapInsets } from '@/components/atlas/types';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +61,14 @@ const MindMapPanel = lazy(
 // pointer heads for the switch (ViewSwitch.prefetchRiver).
 const TimeRiver = lazy(
   () => import('@/components/atlas/components/River/TimeRiver'),
+);
+
+// The era rail along the bottom: its own small chunk, a moment after the
+// page — the map and the timeline come first.
+const EraRail = lazy(() =>
+  import('@/components/atlas/components/UI/EraRail').then((m) => ({
+    default: m.EraRail,
+  })),
 );
 
 /** Whether the page is showing the timeline rather than the globe. */
@@ -233,25 +244,68 @@ function AtlasOverlays() {
 
 /**
  * The timeline over the globe, once the page has shown it. Kept mounted
- * after, hidden and inert while the globe shows, so switching back and forth
- * keeps its place; the globe stays mounted under it the same way (its spin
- * pauses: MapLibreGlobe).
+ * after, so switching back and forth keeps its place. Leaving it, its bands
+ * draw back while its page fades and the globe comes up behind it; then it
+ * hides (inert). The globe stays mounted under it the same way, its spin
+ * paused (MapLibreGlobe).
  */
 function RiverView() {
   const timeline = useTimelineView();
-  const [shown, setShown] = useState(timeline);
-  if (timeline && !shown) setShown(true);
-  if (!shown) return null;
+  const [mounted, setMounted] = useState(timeline);
+  const [visible, setVisible] = useState(timeline);
+  if (timeline && !mounted) setMounted(true);
+  if (timeline && !visible) setVisible(true);
+  useEffect(() => {
+    if (timeline) return;
+    const t = window.setTimeout(() => setVisible(false), RIVER.drawBackMs);
+    return () => window.clearTimeout(t);
+  }, [timeline]);
+  if (!mounted) return null;
   return (
     <div
       aria-hidden={!timeline}
-      className={cn('absolute inset-0', !timeline && 'invisible')}
+      className={cn(
+        'absolute inset-0',
+        !visible && 'invisible',
+        !timeline && 'pointer-events-none',
+      )}
       {...(timeline ? {} : { inert: '' })}
     >
-      <Suspense fallback={<div className="h-full w-full bg-atlas-page" />}>
+      <Suspense fallback={null}>
         <TimeRiver active={timeline} />
       </Suspense>
     </div>
+  );
+}
+
+/**
+ * The map, fading back and settling to its size as the timeline leaves,
+ * and receding as it comes.
+ */
+function MapStage({ children }: { children: ReactNode }) {
+  const timeline = useTimelineView();
+  return (
+    <div
+      className={cn(
+        'absolute inset-0 transition-[opacity,scale] [transition-timing-function:var(--ease-out)]',
+        timeline ? 'scale-[0.97] opacity-0' : 'scale-100 opacity-100',
+      )}
+      style={{ transitionDuration: `${RIVER.morphMs}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** The era rail: everywhere but a phone's map, whose sheet holds the bottom. */
+function BottomRail() {
+  const timeline = useTimelineView();
+  const isPhone = useIsPhone();
+  if (isPhone && !timeline) return null;
+  return (
+    <Suspense fallback={null}>
+      <EraRail />
+    </Suspense>
   );
 }
 
@@ -273,9 +327,15 @@ function AppLayout() {
       <AtlasPortalContext.Provider value={root}>
         <AtlasToolbar />
         <div className="relative flex-1">
-          <AtlasGlobe />
+          <MapStage>
+            <AtlasGlobe />
+          </MapStage>
           <RiverView />
-          <AtlasOverlays />
+          {/* The zones end above the era rail's strip. */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-3 top-0">
+            <AtlasOverlays />
+          </div>
+          <BottomRail />
         </div>
         <AtlasUrlSync />
       </AtlasPortalContext.Provider>
@@ -288,7 +348,9 @@ export default function App() {
     <ErrorBoundary>
       <AtlasStoreProvider>
         <AtlasNavigationProvider>
-          <AppLayout />
+          <TimeCameraProvider>
+            <AppLayout />
+          </TimeCameraProvider>
         </AtlasNavigationProvider>
       </AtlasStoreProvider>
     </ErrorBoundary>

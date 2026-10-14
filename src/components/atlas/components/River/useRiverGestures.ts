@@ -1,5 +1,10 @@
 import { useEffect, useRef, type RefObject } from 'react';
-import type { RiverCamera } from './riverCamera';
+import type { RiverCamera } from '@/components/atlas/timeline/riverCamera';
+import {
+  panBy,
+  zoomAt,
+  type TimeWindow,
+} from '@/components/atlas/timeline/timeWindow';
 
 /**
  * Scroll and pinch to zoom the river about the pointer, a sideways scroll or
@@ -7,13 +12,16 @@ import type { RiverCamera } from './riverCamera';
  *
  * Listeners live on the element (the wheel one non-passive, to keep the page
  * from scrolling) and, during a drag, on the window: pointer capture made the
- * Globe's other drag handles stutter (Globe UI prompt 5). A drag ends with a
- * little momentum, unless motion is reduced.
+ * Globe's other drag handles stutter (Globe UI prompt 5). The wheel glides to
+ * where it is heading rather than jumping notch by notch, and a drag ends
+ * with a little momentum, unless motion is reduced.
  */
 export function useRiverGestures(
   ref: RefObject<HTMLElement>,
   camera: RiverCamera,
   options: {
+    /** Where the years start, from the element's left edge, in px. */
+    plotLeft: () => number;
     /** The width the years are spread over, in px. */
     plotWidth: () => number;
     reducedMotion: boolean;
@@ -28,14 +36,40 @@ export function useRiverGestures(
     const el = ref.current;
     if (!el) return;
 
-    const ppy = () => {
-      const w = camera.get();
-      return opts.current.plotWidth() / (w.to - w.from || 1);
-    };
-    const yearAt = (clientX: number) => {
+    const ppyOf = (w: TimeWindow) =>
+      opts.current.plotWidth() / (w.to - w.from || 1);
+    const ppy = () => ppyOf(camera.get());
+    const yearIn = (w: TimeWindow, clientX: number) => {
       const rect = el.getBoundingClientRect();
-      const w = camera.get();
-      return w.from + (clientX - rect.left) / ppy();
+      return (
+        w.from + (clientX - rect.left - opts.current.plotLeft()) / ppyOf(w)
+      );
+    };
+    const yearAt = (clientX: number) => yearIn(camera.get(), clientX);
+
+    // The wheel's destination, which the camera eases toward.
+    let target: TimeWindow | null = null;
+    let glide = 0;
+    const glideStep = () => {
+      glide = 0;
+      if (!target) return;
+      const cur = camera.get();
+      const k = opts.current.reducedMotion ? 1 : 0.3;
+      const next = {
+        from: cur.from + (target.from - cur.from) * k,
+        to: cur.to + (target.to - cur.to) * k,
+      };
+      const close =
+        Math.abs(next.from - target.from) + Math.abs(next.to - target.to) <
+        (target.to - target.from) * 0.002;
+      camera.set(close ? target : next, 'gesture');
+      if (close) target = null;
+      else glide = requestAnimationFrame(glideStep);
+    };
+    const stopGlide = () => {
+      if (glide) cancelAnimationFrame(glide);
+      glide = 0;
+      target = null;
     };
 
     const onWheel = (e: WheelEvent) => {
@@ -46,14 +80,16 @@ export function useRiverGestures(
         e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientHeight : 1;
       const dx = e.deltaX * unit;
       const dy = e.deltaY * unit;
+      const base = target ?? camera.get();
       if (e.ctrlKey) {
         // A trackpad pinch arrives as a wheel with ctrlKey.
-        camera.zoomAt(yearAt(e.clientX), Math.exp(dy * 0.01));
+        target = zoomAt(base, yearIn(base, e.clientX), Math.exp(dy * 0.01));
       } else if (Math.abs(dx) > Math.abs(dy)) {
-        camera.panBy(dx / ppy());
+        target = panBy(base, dx / ppyOf(base));
       } else {
-        camera.zoomAt(yearAt(e.clientX), Math.exp(dy * 0.0015));
+        target = zoomAt(base, yearIn(base, e.clientX), Math.exp(dy * 0.002));
       }
+      if (!glide) glide = requestAnimationFrame(glideStep);
     };
 
     // Pointers down on the river itself (not on a marker), by id.
@@ -119,6 +155,7 @@ export function useRiverGestures(
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       if ((e.target as Element).closest('[data-river-item], button, a')) return;
       stopCoast();
+      stopGlide();
       opts.current.onGesture?.();
       if (pointers.size === 0) {
         window.addEventListener('pointermove', onMove);
@@ -136,6 +173,7 @@ export function useRiverGestures(
     el.addEventListener('pointerdown', onDown);
     return () => {
       stopCoast();
+      stopGlide();
       el.removeEventListener('wheel', onWheel);
       el.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointermove', onMove);

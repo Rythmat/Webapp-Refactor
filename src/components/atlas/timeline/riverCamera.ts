@@ -1,3 +1,4 @@
+import { easeOut as ease } from '@/components/atlas/theme/motion';
 import {
   DOMAIN,
   clampWindow,
@@ -28,8 +29,6 @@ export interface RiverCamera {
 
 /** A gesture, an animation, or the page (the URL, the era rail). */
 export type CameraSource = 'gesture' | 'tween' | 'page';
-
-const ease = (t: number) => 1 - (1 - t) ** 3;
 
 export function createRiverCamera(
   initial: TimeWindow,

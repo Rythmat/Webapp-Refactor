@@ -20,7 +20,10 @@ export const levelPxPerYear = (level: number): number => LEVEL_STEP ** level;
 
 /** A marker on a lane: one event, or several too close to draw apart. */
 export interface RiverCluster<T> {
-  /** Stable while the level stands: its lane and first event. */
+  /**
+   * Its first event's key: stable while the level stands, and across a lane
+   * splitting (an event is in one lane), so a marker slides to its new lane.
+   */
   key: string;
   lane: string;
   items: T[];
@@ -46,7 +49,7 @@ export function clusterLanes<T extends { year: number }>(
     for (const cluster of clusterDots(items, (i) => i.year * ppy, gapPx)) {
       const first = cluster.items[0];
       out.push({
-        key: `${lane}:${keyOf(first)}`,
+        key: keyOf(first),
         lane,
         items: cluster.items,
         year: first.year,

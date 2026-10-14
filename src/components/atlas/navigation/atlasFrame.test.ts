@@ -20,25 +20,23 @@ describe('the frame on the URL', () => {
     expect(
       frameFromSearchParams(
         p(
-          'view=timeline&lens=regions&region=west-africa&from=1946&to=1979&lane=jazz',
+          'view=timeline&lens=pathways&open=americas,north-america,americas&from=1946&to=1979&genres=blues-jazz,polka',
         ),
       ),
     ).toEqual({
       view: 'timeline',
-      lens: 'regions',
-      region: 'west-africa',
+      lens: 'pathways',
+      open: ['americas', 'north-america'],
       window: { from: 1946, to: 1979 },
-      lane: 'jazz',
+      genres: ['blues-jazz'],
     });
   });
 
   it('ignores what it cannot read', () => {
     const frame = frameFromSearchParams(
-      p('view=3d&lens=songs&region=Atlantis!&from=x&to=1900&lane=polka'),
+      p('view=3d&lens=songs&open=Atlantis!&from=x&to=1900&genres=polka'),
     );
     expect(frame).toEqual(DEFAULT_FRAME);
-    // A region only means something in the regions lens.
-    expect(frameFromSearchParams(p('region=west-africa')).region).toBeNull();
   });
 
   it('reads an era, by id or by name, as its years', () => {
@@ -80,14 +78,16 @@ describe('the frame on the URL', () => {
     expect(cleared.has('from')).toBe(false);
   });
 
-  it('closes an open region when the lens changes', () => {
-    const regions = p('view=timeline&lens=regions&region=west-africa');
-    expect(
-      applyFrameToSearchParams(regions, { lens: 'pathways' }).has('region'),
-    ).toBe(false);
-    expect(
-      applyFrameToSearchParams(regions, { view: 'map' }).get('region'),
-    ).toBe('west-africa');
+  it('writes the opened places and the genres as lists', () => {
+    const next = applyFrameToSearchParams(p('view=timeline'), {
+      open: ['americas', 'north-america'],
+      genres: ['rock', 'pop'],
+    });
+    expect(next.get('open')).toBe('americas,north-america');
+    expect(next.get('genres')).toBe('rock,pop');
+    expect(applyFrameToSearchParams(next, { open: [] }).has('open')).toBe(
+      false,
+    );
   });
 });
 
@@ -100,14 +100,23 @@ describe('sections', () => {
       'pathways',
       'instruments',
     ] as const) {
-      expect(sectionOf(sectionFrame(id))).toBe(id);
+      expect(sectionOf({ ...DEFAULT_FRAME, ...sectionFrame(id) })).toBe(id);
     }
   });
 
-  it('keeps a lens’s section on either view', () => {
-    expect(sectionOf({ view: 'map', lens: 'regions' })).toBe('regions');
-    expect(sectionOf({ view: 'map', lens: 'lineage' })).toBe('explore');
-    expect(sectionOf({ view: 'timeline', lens: 'lineage' })).toBe('eras');
+  it('tells the sections apart by view, lens and opened places', () => {
+    expect(sectionOf({ view: 'map', lens: 'pathways', open: [] })).toBe(
+      'pathways',
+    );
+    expect(sectionOf({ view: 'map', lens: 'places', open: [] })).toBe(
+      'explore',
+    );
+    expect(sectionOf({ view: 'timeline', lens: 'places', open: [] })).toBe(
+      'eras',
+    );
+    expect(
+      sectionOf({ view: 'timeline', lens: 'places', open: ['americas'] }),
+    ).toBe('regions');
   });
 
   it('knows the dashboard’s old tabs', () => {

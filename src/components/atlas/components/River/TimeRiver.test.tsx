@@ -9,6 +9,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
 import { AtlasStoreProvider } from '@/components/atlas/state/atlasStore';
+import { TimeCameraProvider } from '@/components/atlas/timeline/TimeCamera';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { MUSIC_HISTORY } from '@/content/contentStore';
 import TimeRiver from './TimeRiver';
@@ -66,8 +67,10 @@ function setup() {
     <MemoryRouter initialEntries={['/atlas/globe?view=timeline']}>
       <AtlasStoreProvider>
         <AtlasNavigationProvider>
-          <TimeRiver active />
-          <Where />
+          <TimeCameraProvider>
+            <TimeRiver active />
+            <Where />
+          </TimeCameraProvider>
         </AtlasNavigationProvider>
       </AtlasStoreProvider>
     </MemoryRouter>,
@@ -117,7 +120,7 @@ describe('TimeRiver', () => {
   it('names its years for a screen reader', () => {
     const { getByRole } = setup();
     expect(getByRole('region').getAttribute('aria-label')).toMatch(
-      /^Music's family tree, 1900–present$/,
+      /^Music around the world, 1900–present$/,
     );
   });
 });

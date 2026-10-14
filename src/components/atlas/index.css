@@ -28,6 +28,9 @@
   --atlas-era-postwar: 59 130 246;
   --atlas-era-electronic-hiphop: 6 182 212;
   --atlas-era-global-digital: 20 184 166;
+  /* Motion curves (theme/motion.ts): entering and leaving; moving. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   /* Whole colours, already translucent. */
   --atlas-panel-border: rgb(255 255 255 / 0.08);
   --atlas-text-2: rgb(255 255 255 / 0.55);

@@ -1,4 +1,5 @@
 import './river.css';
+import { ChevronRight, X } from 'lucide-react';
 import {
   useCallback,
   useEffect,
@@ -9,51 +10,51 @@ import {
   useSyncExternalStore,
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
-import { ATLAS_POPOVER } from '@/components/atlas/components/UI/primitives';
+import { GlobeCornerButton } from '@/components/atlas/components/UI/GlobeCornerButton';
+import {
+  ATLAS_FOCUS,
+  ATLAS_POPOVER,
+} from '@/components/atlas/components/UI/primitives';
 import { eventImage } from '@/components/atlas/data/eventImage';
+import type { GenreChipId } from '@/components/atlas/data/genreChipIds';
+import { GENRE_CHIPS, keepsGenres } from '@/components/atlas/data/genreChips';
+import {
+  CONTINENTS,
+  SOURCE_COLOR,
+  placeLaneOf,
+  placeLanes,
+  placePath,
+  type PlaceLane,
+} from '@/components/atlas/data/placeTree';
 import {
   getTimelineIndex,
   type TimelineEvent,
 } from '@/components/atlas/data/timelineIndex';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
-import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
-  useAtlasDispatch,
-  useAtlasSelector,
-} from '@/components/atlas/state/atlasStore';
+  useAtlasFrame,
+  useAtlasNavigate,
+} from '@/components/atlas/navigation/useAtlasNavigate';
 import { RIVER } from '@/components/atlas/theme/river';
+import { useTimeCamera } from '@/components/atlas/timeline/TimeCamera';
 import {
-  DEFAULT_WINDOW,
   DOMAIN,
   ensureVisible,
-  sameWindow,
   windowLabel,
   type TimeWindow,
 } from '@/components/atlas/timeline/timeWindow';
 import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { cn } from '@/lib/utils';
-import { RiverBands } from './RiverBands';
+import { PlaceBands } from './PlaceBands';
 import {
-  ATLAS_FOCUS_ON_BAND,
   RiverMarkers,
   describeCluster,
   type PlacedMarker,
 } from './RiverMarkers';
-import { createRiverCamera } from './riverCamera';
-import { centerAt, fitLaneHeight, halfAt, layoutRiver } from './riverLayout';
-import {
-  clusterLanes,
-  levelOf,
-  levelPxPerYear,
-  type RiverCluster,
-} from './riverLevels';
-import {
-  eventsByLane,
-  lineageSpecs,
-  markerKind,
-  posterKeys,
-} from './riverModel';
+import { layoutFan, type FanLane } from './placeLayout';
+import { clusterLanes, levelOf, type RiverCluster } from './riverLevels';
+import { markerKind, posterKeys } from './riverModel';
 import { useRiverGestures } from './useRiverGestures';
 import { writeYear } from './yearDigits';
 
@@ -80,7 +81,7 @@ function useSize(ref: React.RefObject<HTMLElement>) {
   return size;
 }
 
-/** The view and half its span again on either side: what is drawn. */
+/** The view and part of its span again on either side: what is drawn. */
 const overscan = (w: TimeWindow): TimeWindow => {
   const pad = (w.to - w.from) * RIVER.overscan;
   return { from: w.from - pad, to: w.to + pad };
@@ -117,11 +118,13 @@ function RiverTooltip({ store }: { store: HoverStore }) {
   const { title, detail } = describeCluster(hover.cluster);
   return (
     <div
+      key={hover.cluster.key}
       aria-hidden
       className={cn(
-        'pointer-events-none absolute flex max-w-[22rem] -translate-y-1/2 flex-col rounded-2xl border border-atlas-panel-border bg-atlas-panel px-3.5 py-2 shadow-2xl',
+        'atlas-river-tooltip pointer-events-none absolute flex max-w-[22rem] -translate-y-1/2 flex-col rounded-2xl border border-atlas-panel-border bg-atlas-panel px-3.5 py-2 shadow-2xl',
         hover.flip && '-translate-x-full',
       )}
+      data-flip={hover.flip}
       style={{ left: hover.x, top: hover.y }}
     >
       <span className="truncate text-sm font-bold text-atlas-text">
@@ -132,61 +135,132 @@ function RiverTooltip({ store }: { store: HoverStore }) {
   );
 }
 
+const splitList = (raw: string): string[] => (raw ? raw.split(',') : []);
+
+/** A place's name, whether it is drawn as a lane now or not. */
+function placeName(index: readonly TimelineEvent[], id: string): string {
+  const continent = CONTINENTS.find((c) => c.id === id);
+  if (continent) return continent.label;
+  const path = placePath(id);
+  return (
+    placeLanes(index, new Set(path.slice(0, 1))).find((l) => l.id === id)
+      ?.label ?? id
+  );
+}
+
 /**
- * Music's family tree as a river through time, after Dorot's: lanes that
- * split from one another and merge as genres did, tinted by era, with the
- * events on them as round posters and counts. Scroll or pinch to zoom, drag
- * or scroll sideways to pan; the years at either end follow.
+ * The world's music as a river through time, after Dorot's: the four great
+ * regions flow out of one source at the left as thick bands, each its own
+ * colour, tinted by the eras it runs through. Open a band by its name and it
+ * splits into its regions, open a region and it splits into its cities —
+ * each part a shade of the place it came from. Events ride the bands as
+ * round posters and counts; the genre chips along the top filter them.
+ * Scroll or pinch to zoom about the pointer, drag to pan; the years at
+ * either end follow.
  *
- * The camera (riverCamera.ts) holds the view; a frame writer draws it
- * straight to the DOM — the bands' transform, the markers' two custom
- * properties, the bookends' digits — so a gesture renders nothing. React
- * renders when the zoom crosses a level (re-clustering, re-laying the births)
- * or the view leaves the drawn range, and the page's store hears of the view
- * once it rests.
+ * The page's time camera (timeline/TimeCamera.tsx) holds the view; a frame
+ * writer draws it straight to the DOM — the markers' two custom properties,
+ * the eras' tint, the bookends' digits — so a gesture renders nothing. React
+ * renders when the zoom crosses a level (re-clustering) or the view leaves
+ * the drawn range.
  */
 export default function TimeRiver({ active }: { active: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const size = useSize(rootRef);
-  // Phones keep more of their width for the years (the vertical phone river
-  // is a later step: docs/globe-redesign/PROGRESS.md).
-  const gutter = size.width < 640 ? RIVER.labelGutterNarrow : RIVER.labelGutter;
-  const plotWidth = Math.max(0, size.width - gutter);
+  const narrow = size.width < 640;
+  const gutter = narrow ? RIVER.labelGutterNarrow : RIVER.labelGutter;
+  // Phones keep their width for the years (a vertical phone river is a
+  // later step: docs/globe-redesign/PROGRESS.md).
+  const stages = narrow ? RIVER.fanStagesNarrow : RIVER.fanStages;
   const riverHeight = Math.max(0, size.height - RIVER.top - RIVER.bottom);
 
-  const dispatch = useAtlasDispatch();
   const navigate = useAtlasNavigate();
   const reducedMotion = usePrefersReducedMotion();
-  const storeWindow = useAtlasSelector((s) => s.timeWindow);
-  const [camera] = useState(() =>
-    createRiverCamera(storeWindow ?? DEFAULT_WINDOW, DOMAIN),
-  );
+  const camera = useTimeCamera();
   const [hover] = useState(createHoverStore);
 
-  /* ── What is drawn ─────────────────────────────────────────────────── */
+  const openRaw = useAtlasFrame((f) => f.open.join(','));
+  const genresRaw = useAtlasFrame((f) => f.genres.join(','));
+  const open = useMemo(() => new Set(splitList(openRaw)), [openRaw]);
+  const genres = useMemo(
+    () => splitList(genresRaw) as GenreChipId[],
+    [genresRaw],
+  );
 
-  const specs = useMemo(lineageSpecs, []);
-  const laneHeight = fitLaneHeight(specs, riverHeight, RIVER.gap);
-  const pxPerYear = (w: TimeWindow) => plotWidth / (w.to - w.from || 1);
+  /* ── Lanes ─────────────────────────────────────────────────────────── */
+
+  const index = useMemo(() => getTimelineIndex(), []);
+  const lanes = useMemo(() => placeLanes(index, open), [index, open]);
+  const laneById = useMemo(() => new Map(lanes.map((l) => [l.id, l])), [lanes]);
+  // Each lane's ancestors, continent first: a city's id does not name its
+  // region, so walk the lanes' parents.
+  const ancestors = useMemo(
+    () =>
+      new Map(
+        lanes.map((l) => [
+          l.id,
+          l.parent ? [...placePath(l.parent)] : ([] as string[]),
+        ]),
+      ),
+    [lanes],
+  );
+  const fan = useMemo(() => {
+    // A part shades from the colour of the lane it split from.
+    const regionShades = new Map(
+      placeLanes(index, new Set(CONTINENTS.map((c) => c.id))).map((l) => [
+        l.id,
+        l.color,
+      ]),
+    );
+    const parentColor = (lane: PlaceLane) =>
+      !lane.parent
+        ? SOURCE_COLOR
+        : (CONTINENTS.find((c) => c.id === lane.parent)?.color ??
+          regionShades.get(lane.parent) ??
+          SOURCE_COLOR);
+    const fanLanes: FanLane[] = lanes.map((lane) => ({
+      id: lane.id,
+      depth: lane.depth,
+      ancestors: ancestors.get(lane.id) ?? [],
+      color: lane.color,
+      parentColor: parentColor(lane),
+    }));
+    return layoutFan(fanLanes, {
+      width: size.width,
+      height: riverHeight,
+      gap: RIVER.gap,
+      maxLane: RIVER.maxLane,
+      minLane: RIVER.minLane,
+      stages,
+      sourceShare: RIVER.sourceShare,
+    });
+  }, [index, lanes, ancestors, size.width, riverHeight, stages]);
+  const plotLeft = fan.plotLeft;
+  const plotRight = Math.max(plotLeft + 1, size.width - gutter);
+  const plotWidth = plotRight - plotLeft;
+  const laneY = useMemo(
+    () => new Map(fan.lanes.map((l) => [l.id, l.y])),
+    [fan],
+  );
+
+  /* ── Markers ───────────────────────────────────────────────────────── */
+
   const [level, setLevel] = useState(() => levelOf(1));
   const [range, setRange] = useState(() => overscan(camera.get()));
   const [restView, setRestView] = useState(() => camera.get());
-  const rampYears = Math.min(
-    RIVER.maxRampYears,
-    Math.max(RIVER.minRampYears, RIVER.rampPx / levelPxPerYear(level)),
-  );
-  const layout = useMemo(
-    () =>
-      layoutRiver(specs, {
-        height: riverHeight,
-        laneHeight,
-        gap: RIVER.gap,
-        rampYears,
-        domain: DOMAIN,
-      }),
-    [specs, riverHeight, laneHeight, rampYears],
-  );
-  const byLane = useMemo(() => eventsByLane(getTimelineIndex()), []);
+  const byLane = useMemo(() => {
+    const keep = keepsGenres(genres);
+    const ids = new Set(lanes.map((l) => l.id));
+    const map = new Map<string, TimelineEvent[]>();
+    for (const t of index) {
+      if (!keep(t)) continue;
+      const lane = placeLaneOf(t, ids);
+      const list = map.get(lane);
+      if (list) list.push(t);
+      else map.set(lane, [t]);
+    }
+    return map;
+  }, [index, lanes, genres]);
   const clusters = useMemo(
     () => clusterLanes(byLane, level, RIVER.clusterGapPx, (t) => t.event.id),
     [byLane, level],
@@ -201,46 +275,44 @@ export default function TimeRiver({ active }: { active: boolean }) {
         .filter((c) => c.lastYear >= range.from && c.year <= range.to)
         .map((cluster) => ({
           cluster,
-          y: centerAt(layout, cluster.lane, cluster.year) ?? 0,
+          y: laneY.get(cluster.lane) ?? 0,
           kind: markerKind(cluster, posters.has(cluster.key)),
         })),
-    [clusters, range, layout, posters],
+    [clusters, range, laneY, posters],
   );
 
   /* ── The frame writer ──────────────────────────────────────────────── */
 
-  const bandsRef = useRef<SVGGElement>(null);
+  const eraRef = useRef<SVGGElement | null>(null);
   const itemsRef = useRef<HTMLDivElement>(null);
   const fromRef = useRef<HTMLSpanElement>(null);
   const toRef = useRef<HTMLSpanElement>(null);
-  const labelRefs = useRef(new Map<string, HTMLElement>());
-  const live = useRef({ layout, plotWidth, level, range });
-  live.current = { layout, plotWidth, level, range };
+  const live = useRef({ plotLeft, plotWidth, level, range });
+  live.current = { plotLeft, plotWidth, level, range };
 
   const write = useCallback(() => {
-    const { layout: l, plotWidth: width, level: lvl, range: r } = live.current;
-    if (!width) return;
+    const {
+      plotLeft: left,
+      plotWidth: width,
+      level: lvl,
+      range: r,
+    } = live.current;
+    if (width <= 1) return;
     const w = camera.get();
     const ppy = width / (w.to - w.from);
-    bandsRef.current?.setAttribute(
-      'transform',
-      `matrix(${ppy} 0 0 1 ${-w.from * ppy} 0)`,
-    );
+    const tx = left - w.from * ppy;
+    eraRef.current?.setAttribute('transform', `matrix(${ppy} 0 0 1 ${tx} 0)`);
     const items = itemsRef.current;
     if (items) {
-      items.style.setProperty('--ppy', String(ppy));
-      items.style.setProperty('--tx', String(-w.from * ppy));
+      // A pan only moves the layer; a zoom restyles its markers too.
+      items.style.transform = `translateX(${tx}px)`;
+      if (items.dataset.ppy !== String(ppy)) {
+        items.dataset.ppy = String(ppy);
+        items.style.setProperty('--ppy', String(ppy));
+      }
     }
     writeYear(fromRef.current, w.from, { fixed: false });
     writeYear(toRef.current, w.to, { fixed: false });
-    for (const [id, el] of labelRefs.current) {
-      // A lane still growing out of its parent would sit on its parent's
-      // name; it is named once it has mostly grown.
-      const y = centerAt(l, id, w.to);
-      const half = halfAt(l, id, w.to) ?? 0;
-      el.hidden = y === null || half < l.laneHeight * 0.35;
-      if (y !== null) el.style.transform = `translateY(${y}px)`;
-    }
     const nextLevel = levelOf(ppy);
     if (nextLevel !== lvl) setLevel(nextLevel);
     // Redraw the range when the view leaves it, or has zoomed well inside
@@ -252,46 +324,28 @@ export default function TimeRiver({ active }: { active: boolean }) {
     }
   }, [camera]);
 
-  // Every camera move is one write on the next frame; the store hears once
-  // the view rests, and new posters wait for that too.
-  const committed = useRef<TimeWindow | null>(null);
   useEffect(() => {
     let raf = 0;
-    let commit = 0;
-    const unsubscribe = camera.subscribe((source) => {
+    let rest = 0;
+    const unsubscribe = camera.subscribe(() => {
       if (!raf) {
         raf = requestAnimationFrame(() => {
           raf = 0;
           write();
         });
       }
-      window.clearTimeout(commit);
-      commit = window.setTimeout(() => {
-        const w = camera.get();
-        setRestView(w);
-        if (source === 'page') return;
-        committed.current = w;
-        dispatch({ type: 'SET_WINDOW', payload: w });
-      }, RIVER.commitMs);
+      window.clearTimeout(rest);
+      rest = window.setTimeout(() => setRestView(camera.get()), 150);
     });
     return () => {
       unsubscribe();
       cancelAnimationFrame(raf);
-      window.clearTimeout(commit);
+      window.clearTimeout(rest);
     };
-  }, [camera, dispatch, write]);
+  }, [camera, write]);
 
   // A new layout or size draws at once, before paint.
-  useLayoutEffect(write, [write, layout, plotWidth]);
-
-  // The page moving the window (the URL, the era rail) eases the river there;
-  // its own commits coming back are not news.
-  useEffect(() => {
-    if (!storeWindow) return;
-    if (committed.current && sameWindow(committed.current, storeWindow)) return;
-    if (sameWindow(storeWindow, camera.get())) return;
-    camera.tween(storeWindow, reducedMotion ? 0 : RIVER.tweenMs);
-  }, [storeWindow, camera, reducedMotion]);
+  useLayoutEffect(write, [write, plotLeft, plotWidth, fan]);
 
   /* ── Gestures, the cursor and the tooltip ──────────────────────────── */
 
@@ -302,6 +356,7 @@ export default function TimeRiver({ active }: { active: boolean }) {
     if (cursorRef.current) cursorRef.current.hidden = true;
   }, [hover]);
   useRiverGestures(rootRef, camera, {
+    plotLeft: () => live.current.plotLeft,
     plotWidth: () => live.current.plotWidth,
     reducedMotion,
     onGesture: hideTransient,
@@ -312,12 +367,15 @@ export default function TimeRiver({ active }: { active: boolean }) {
     const cursor = cursorRef.current;
     if (!root || !cursor) return;
     const x = e.clientX - root.getBoundingClientRect().left;
-    const inPlot = x >= 0 && x <= plotWidth;
+    const inPlot = x >= plotLeft && x <= plotRight;
     cursor.hidden = !inPlot;
     if (!inPlot) return;
     cursor.style.transform = `translateX(${x}px)`;
     const w = camera.get();
-    writeYear(cursorYearRef.current, w.from + x / pxPerYear(w));
+    writeYear(
+      cursorYearRef.current,
+      w.from + ((x - plotLeft) / plotWidth) * (w.to - w.from),
+    );
   };
 
   const onHover = useCallback(
@@ -329,7 +387,8 @@ export default function TimeRiver({ active }: { active: boolean }) {
       }
       const box = el.getBoundingClientRect();
       const frame = root.getBoundingClientRect();
-      const flip = box.right - frame.left > live.current.plotWidth - 240;
+      const { plotLeft: left, plotWidth: width } = live.current;
+      const flip = box.right - frame.left > left + width - 260;
       hover.set({
         cluster,
         x: (flip ? box.left - 10 : box.right + 10) - frame.left,
@@ -340,7 +399,37 @@ export default function TimeRiver({ active }: { active: boolean }) {
     [hover],
   );
 
-  /* ── Opening a marker ──────────────────────────────────────────────── */
+  /* ── Opening places, opening markers ───────────────────────────────── */
+
+  const splitLane = (lane: PlaceLane) => {
+    const next = new Set(open);
+    for (const id of placePath(lane.id)) next.add(id);
+    navigate.setFrame({ open: [...next] });
+  };
+  const mergeInto = (place: string) => {
+    // Its regions close with it.
+    const next = [...open].filter((id) => !placePath(id).includes(place));
+    navigate.setFrame({ open: next });
+  };
+  // The splits drawn in the fan, each with a chip to fold it back.
+  const splits = useMemo(() => {
+    const out: { id: string; label: string; depth: number; y: number }[] = [];
+    for (const id of open) {
+      const children = fan.lanes.filter((g) =>
+        (ancestors.get(g.id) ?? []).includes(id),
+      );
+      if (!children.length) continue;
+      const depth = placePath(id).length;
+      const ys = children.map((g) => g.stops[depth]);
+      out.push({
+        id,
+        label: placeName(index, id),
+        depth,
+        y: (Math.min(...ys) + Math.max(...ys)) / 2,
+      });
+    }
+    return out;
+  }, [open, fan, ancestors, index]);
 
   const [list, setList] = useState<{
     cluster: Cluster;
@@ -389,12 +478,12 @@ export default function TimeRiver({ active }: { active: boolean }) {
   /* ── Keyboard: rove the markers, pan and zoom the view ─────────────── */
 
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
-  const laneOrder = useMemo(() => specs.map((s) => s.id), [specs]);
+  const laneOrder = useMemo(() => lanes.map((l) => l.id), [lanes]);
   const byLaneClusters = useMemo(() => {
     const map = new Map<string, Cluster[]>();
     for (const c of clusters) {
-      const list = map.get(c.lane);
-      if (list) list.push(c);
+      const l = map.get(c.lane);
+      if (l) l.push(c);
       else map.set(c.lane, [c]);
     }
     return map;
@@ -427,7 +516,7 @@ export default function TimeRiver({ active }: { active: boolean }) {
     const w = camera.get();
     const span = w.to - w.from;
     const current = clusters.find((c) => c.key === focusedKey);
-    const onMarker = !!current && (e.target as HTMLElement).dataset.riverItem;
+    const onMarker = !!current && !!(e.target as HTMLElement).dataset.riverItem;
     switch (e.key) {
       case 'ArrowLeft':
       case 'ArrowRight': {
@@ -498,28 +587,43 @@ export default function TimeRiver({ active }: { active: boolean }) {
 
   /* ── Drawing ───────────────────────────────────────────────────────── */
 
+  const toggleGenre = (id: GenreChipId) =>
+    navigate.setFrame({
+      genres: genres.includes(id)
+        ? genres.filter((g) => g !== id)
+        : [...genres, id],
+    });
+
   const viewLabel = windowLabel(restView);
+  const ready = plotWidth > 1 && riverHeight > 0;
   return (
     <div
       ref={rootRef}
-      aria-label={`Music's family tree, ${viewLabel}`}
+      aria-label={`Music around the world, ${viewLabel}`}
       aria-roledescription="timeline"
       className={cn(
-        'relative h-full w-full touch-none select-none overflow-hidden bg-atlas-page text-atlas-text outline-none',
-        ATLAS_FOCUS_ON_BAND,
+        'relative h-full w-full touch-none select-none overflow-hidden text-atlas-text outline-none transition-[background-color] [transition-timing-function:var(--ease-out)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/40',
+        // Leaving for the globe, the page fades as the bands draw back.
+        active ? 'bg-atlas-page' : 'bg-transparent',
       )}
+      style={{ transitionDuration: `${RIVER.drawBackMs}ms` }}
       role="region"
       tabIndex={0}
       onKeyDown={onKeyDown}
       onPointerLeave={hideTransient}
       onPointerMove={onPointerMove}
     >
-      {plotWidth > 0 && riverHeight > 0 && (
+      {ready && (
         <>
-          <RiverBands
+          <PlaceBands
+            active={active}
+            ancestors={ancestors}
             domain={DOMAIN}
-            groupRef={bandsRef}
-            layout={layout}
+            eraRef={eraRef}
+            height={riverHeight}
+            layout={fan}
+            reducedMotion={reducedMotion}
+            right={size.width + fan.thickness}
             top={RIVER.top}
           />
 
@@ -531,25 +635,30 @@ export default function TimeRiver({ active }: { active: boolean }) {
             hidden
           >
             <div
-              className="absolute w-px bg-white/25"
-              style={{ top: RIVER.top - 24, bottom: RIVER.bottom - 20 }}
+              className="absolute w-px bg-white/30"
+              style={{ top: RIVER.top - 28, bottom: RIVER.bottom - 22 }}
             />
             <span
               ref={cursorYearRef}
               className="absolute -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-xs font-bold text-atlas-page"
-              style={{ bottom: RIVER.bottom - 34 }}
+              style={{ bottom: RIVER.bottom - 36 }}
             />
           </div>
 
-          {/* The markers, clipped to the years (the gutter holds the names). */}
+          {/* The markers, clipped to the years. */}
           <div
-            className="absolute inset-y-0 left-0 overflow-hidden"
-            style={{ width: plotWidth }}
+            className="absolute inset-y-0 overflow-hidden"
+            style={{ left: plotLeft, width: plotWidth }}
           >
-            <div ref={itemsRef} className="atlas-river-items">
+            <div
+              ref={itemsRef}
+              className="atlas-river-items"
+              data-shown={active}
+              style={{ left: -plotLeft }}
+            >
               <RiverMarkers
                 focusedKey={focusedKey}
-                laneHeight={laneHeight}
+                laneHeight={fan.thickness}
                 markers={markers}
                 top={RIVER.top}
                 onActivate={onActivate}
@@ -559,44 +668,145 @@ export default function TimeRiver({ active }: { active: boolean }) {
             </div>
           </div>
 
-          {/* The lanes' names, at the right edge, on their own lanes. */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute right-0"
-            style={{ top: RIVER.top, width: gutter }}
-          >
-            {layout.lanes.map((lane) => (
-              <span
-                key={lane.id}
-                ref={(el) => {
-                  if (el) labelRefs.current.set(lane.id, el);
-                  else labelRefs.current.delete(lane.id);
-                }}
-                className="absolute left-0 right-0 top-0 -mt-2.5 truncate pl-3 pr-3 text-xs font-bold leading-5 text-atlas-text sm:pl-4 sm:pr-5 sm:text-sm"
-              >
-                {lane.label}
+          {/* The lanes' names, at the right on their bands: open one to
+              split it into its parts. */}
+          {fan.lanes.map((g) => {
+            const lane = laneById.get(g.id)!;
+            const count = byLane.get(g.id)?.length ?? 0;
+            const className = cn(
+              'absolute right-0 flex -translate-y-1/2 items-center justify-end gap-1 rounded-full pl-3 pr-4 text-right font-bold leading-tight text-white transition-[top,opacity] duration-700 ease-in-out',
+              narrow ? 'text-xs' : g.thickness > 60 ? 'text-base' : 'text-sm',
+              active ? 'opacity-100' : 'opacity-0',
+            );
+            const style = { top: RIVER.top + g.y, maxWidth: gutter };
+            const name = (
+              <span className="flex min-w-0 flex-col items-end">
+                <span className="truncate">{lane.label}</span>
+                {g.thickness > 48 && (
+                  <span className="text-xs font-normal text-white/75">
+                    {count} {count === 1 ? 'moment' : 'moments'}
+                  </span>
+                )}
               </span>
-            ))}
-          </div>
+            );
+            return lane.splits ? (
+              <button
+                key={g.id}
+                aria-label={`Open ${lane.label} into its ${
+                  lane.depth === 1 ? 'regions' : 'cities'
+                }`}
+                className={cn(className, 'hover:bg-white/10', ATLAS_FOCUS)}
+                style={style}
+                title={`Open ${lane.label}`}
+                type="button"
+                onClick={() => splitLane(lane)}
+              >
+                {name}
+                <ChevronRight aria-hidden className="size-4 shrink-0" />
+              </button>
+            ) : (
+              <span key={g.id} className={className} style={style}>
+                {name}
+              </span>
+            );
+          })}
+
+          {/* Each split in the fan, with a chip to fold it back. */}
+          {splits.map((s) => (
+            <button
+              key={s.id}
+              aria-label={`Close ${s.label}`}
+              className={cn(
+                'absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 whitespace-nowrap rounded-full border border-white/20 bg-atlas-panel px-2 py-0.5 text-xs font-bold text-atlas-text shadow-lg transition-[top,opacity] duration-700 ease-in-out hover:border-white/40',
+                active ? 'opacity-100' : 'opacity-0',
+                ATLAS_FOCUS,
+              )}
+              style={{
+                left: stages[s.depth - 1],
+                top: RIVER.top + s.y,
+              }}
+              title={`Gather ${s.label} back into one lane`}
+              type="button"
+              onClick={() => mergeInto(s.id)}
+            >
+              {s.label}
+              <X aria-hidden className="size-3" />
+            </button>
+          ))}
         </>
       )}
 
       {/* The years at either end. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-6 top-6 text-atlas-text"
+        className={cn(
+          'pointer-events-none absolute left-6 top-5 text-atlas-text transition-opacity duration-300',
+          !active && 'opacity-0',
+        )}
       >
         <span ref={fromRef} className="atlas-river-bookend" />
       </div>
       <div
         aria-hidden
-        className="pointer-events-none absolute top-6 -translate-x-full text-atlas-text"
-        style={{ left: Math.max(plotWidth - 8, 0) }}
+        className={cn(
+          'pointer-events-none absolute right-6 top-5 text-atlas-text transition-opacity duration-300',
+          !active && 'opacity-0',
+        )}
       >
         <span ref={toRef} className="atlas-river-bookend" />
       </div>
 
+      {/* The genres, as Dorot's topic chips: filters, not lanes. */}
+      <div
+        aria-label="Genres"
+        className={cn(
+          'absolute left-1/2 flex -translate-x-1/2 items-center gap-1.5 overflow-x-auto px-1 py-1 transition-opacity duration-300 [scrollbar-width:none]',
+          !active && 'opacity-0',
+          narrow
+            ? 'top-[4.5rem] max-w-[calc(100%-1rem)]'
+            : 'top-7 max-w-[calc(100%-22rem)]',
+        )}
+        role="group"
+      >
+        {/* First, so it never scrolls out of reach. */}
+        {genres.length > 0 && (
+          <button
+            className={cn(
+              'h-8 shrink-0 rounded-full px-3 text-sm font-bold text-atlas-text underline-offset-2 hover:underline',
+              ATLAS_FOCUS,
+            )}
+            type="button"
+            onClick={() => navigate.setFrame({ genres: [] })}
+          >
+            Reset
+          </button>
+        )}
+        {GENRE_CHIPS.map((chip) => {
+          const on = genres.includes(chip.id);
+          return (
+            <button
+              key={chip.id}
+              aria-pressed={on}
+              className={cn(
+                'h-8 shrink-0 whitespace-nowrap rounded-full border px-3 text-sm transition-colors',
+                on
+                  ? 'border-white bg-white font-bold text-atlas-page'
+                  : 'border-white/15 bg-white/[0.04] text-atlas-text-2 hover:border-white/30 hover:text-atlas-text',
+                ATLAS_FOCUS,
+              )}
+              type="button"
+              onClick={() => toggleGenre(chip.id)}
+            >
+              {chip.label}
+            </button>
+          );
+        })}
+      </div>
+
       <RiverTooltip store={hover} />
+
+      {/* Dorot's little globe, bottom left: the same years on the map. */}
+      <GlobeCornerButton />
 
       {list && (
         <ul

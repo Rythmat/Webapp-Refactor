@@ -90,9 +90,15 @@ describe('useAtlasNavigate', () => {
   it('changes the frame in place, keeping the stop', () => {
     const { navigate, search } = setup('/atlas/globe?event=evt-1');
     act(() => navigate().toSection('regions'));
-    expect(search()).toBe('?event=evt-1&view=timeline&lens=regions');
-    act(() => navigate().setFrame({ view: 'map' }));
-    expect(search()).toBe('?event=evt-1&lens=regions');
+    expect(search()).toBe(
+      '?event=evt-1&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific',
+    );
+    act(() => navigate().toSection('pathways'));
+    expect(search()).toBe(
+      '?event=evt-1&view=timeline&open=americas%2Ceurope%2Cafrica-me%2Casia-pacific&lens=pathways',
+    );
+    act(() => navigate().toSection('eras'));
+    expect(search()).toBe('?event=evt-1&view=timeline');
     act(() => navigate().toSection('explore'));
     expect(search()).toBe('?event=evt-1');
   });

@@ -223,7 +223,7 @@ const GLOBE_ON_DEMAND = [
   },
   {
     // The timeline's name for itself (components/River/TimeRiver.tsx).
-    pattern: /Music's family tree, /,
+    pattern: /Music around the world, /,
     name: 'the timeline (components/River/TimeRiver.tsx)',
   },
 ];

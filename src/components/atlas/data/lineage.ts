@@ -19,9 +19,26 @@ import { MUSICAL_ERAS } from './musicalEras';
  * docs/globe-redesign/lineage-calibration.md, which
  * lineage.calibration.test.ts writes from the bundled events.
  */
+/**
+ * The branches of the tree, each with its hue (owner, 2026-10-14: one colour
+ * per lane family). Lanes of a family are shades of its hue, so neighbours
+ * stay apart and a family still reads as one.
+ */
+export type LaneFamily = 'roots' | 'classical' | 'blues' | 'rock';
+
+export const LANE_FAMILIES: Readonly<Record<LaneFamily, { label: string }>> = {
+  roots: { label: 'Roots' },
+  classical: { label: 'Classical branch' },
+  blues: { label: 'Blues branch' },
+  rock: { label: 'Rock branch' },
+};
+
 export interface Lane {
   id: LaneId;
   label: string;
+  family: LaneFamily;
+  /** Its colour: a shade of its family's hue (Tailwind's 500s). */
+  color: string;
   /** The curriculum courses whose genres flow into this lane. */
   courses: readonly CurriculumCourse[];
   /** Genres that claim an event for this lane whatever its first genre is. */
@@ -45,6 +62,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'pop',
     label: 'Pop',
+    family: 'classical',
+    color: '#d946ef',
     courses: ['Pop'],
     born: 1910,
     from: ['stage-screen'],
@@ -56,6 +75,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'stage-screen',
     label: 'Stage & Screen',
+    family: 'classical',
+    color: '#a855f7',
     courses: ['Film Scoring', 'Musical Theatre', 'Jingles'],
     born: 1875,
     from: ['classical'],
@@ -63,6 +84,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'electronic',
     label: 'Electronic',
+    family: 'classical',
+    color: '#0ea5e9',
     courses: ['Electronic'],
     born: 1950,
     from: ['classical'],
@@ -71,6 +94,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'classical',
     label: 'Classical',
+    family: 'classical',
+    color: '#8b5cf6',
     courses: ['Classical'],
     born: 560,
     from: ['roots'],
@@ -78,6 +103,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'roots',
     label: 'Roots & Folk',
+    family: 'roots',
+    color: '#22c55e',
     courses: ['Folk', 'African'],
     born: SOURCE_YEAR,
     from: [],
@@ -85,6 +112,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'reggae',
     label: 'Reggae',
+    family: 'roots',
+    color: '#10b981',
     courses: ['Reggae'],
     born: 1956,
     from: ['roots', 'rnb'],
@@ -92,6 +121,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'latin',
     label: 'Latin',
+    family: 'roots',
+    color: '#84cc16',
     courses: ['Latin'],
     born: 1900,
     from: ['roots'],
@@ -99,6 +130,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'jazz',
     label: 'Jazz',
+    family: 'blues',
+    color: '#f97316',
     courses: ['Jazz'],
     born: 1910,
     from: ['blues'],
@@ -106,6 +139,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'blues',
     label: 'Blues',
+    family: 'blues',
+    color: '#f59e0b',
     courses: ['Blues'],
     born: 1895,
     from: ['roots'],
@@ -113,6 +148,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'jam-band',
     label: 'Jam Band',
+    family: 'rock',
+    color: '#06b6d4',
     courses: ['Jam Band'],
     born: 1965,
     from: ['rock', 'jazz'],
@@ -120,6 +157,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'rock',
     label: 'Rock',
+    family: 'rock',
+    color: '#3b82f6',
     courses: ['Rock'],
     born: 1950,
     from: ['blues'],
@@ -128,6 +167,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'metal',
     label: 'Metal',
+    family: 'rock',
+    color: '#6366f1',
     courses: [],
     match: /metal/i,
     born: 1968,
@@ -136,6 +177,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'rnb',
     label: 'R&B & Soul',
+    family: 'blues',
+    color: '#ef4444',
     courses: ['R&B'],
     born: 1940,
     from: ['blues'],
@@ -143,6 +186,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'neo-soul',
     label: 'Neo Soul',
+    family: 'blues',
+    color: '#fb7185',
     courses: ['Neo Soul'],
     born: 1994,
     from: ['rnb', 'hip-hop'],
@@ -150,6 +195,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'funk',
     label: 'Funk',
+    family: 'blues',
+    color: '#e11d48',
     courses: ['Funk'],
     born: 1962,
     from: ['rnb'],
@@ -157,6 +204,8 @@ export const LANES: readonly Lane[] = [
   {
     id: 'hip-hop',
     label: 'Hip Hop',
+    family: 'blues',
+    color: '#ec4899',
     courses: ['Hip Hop'],
     born: 1973,
     from: ['funk', 'reggae'],

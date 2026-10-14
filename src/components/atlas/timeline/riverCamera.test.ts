@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createRiverCamera } from './riverCamera';
 import {
   LEVEL_STEP,
   clusterLanes,
   levelOf,
   levelPxPerYear,
-} from './riverLevels';
+} from '@/components/atlas/components/River/riverLevels';
+import { createRiverCamera } from './riverCamera';
 
 const DOMAIN = { from: 500, to: 2026 };
 

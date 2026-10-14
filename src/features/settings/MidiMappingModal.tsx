@@ -1,9 +1,10 @@
 /* eslint-disable react/jsx-sort-props */
 /* eslint-disable tailwindcss/classnames-order */
 import { ArrowLeft } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useMidiNoteListener } from '@/hooks/music/useMidiNoteListener';
 
 type MappingStep = 'detect' | 'first-key' | 'last-key' | 'confirm';
 
@@ -16,53 +17,6 @@ interface MidiMappingModalProps {
     lastNote: number;
     keyCount: number;
   }) => void;
-}
-
-// ---------------------------------------------------------------------------
-// Hook: listen for MIDI note-on events via Web MIDI API
-// ---------------------------------------------------------------------------
-
-function useMidiNoteListener(active: boolean, onNote: (midi: number) => void) {
-  const onNoteRef = useRef(onNote);
-  onNoteRef.current = onNote;
-
-  useEffect(() => {
-    if (!active || !navigator.requestMIDIAccess) return;
-
-    let midiAccess: MIDIAccess | null = null;
-
-    const handleMessage = (event: MIDIMessageEvent) => {
-      if (!event.data) return;
-      const command = event.data[0] & 0xf0;
-      const noteNumber = event.data[1];
-      const velocity = event.data[2];
-      // Note ON with velocity > 0
-      if (command === 0x90 && velocity > 0) {
-        onNoteRef.current(noteNumber);
-      }
-    };
-
-    const attachListeners = (ma: MIDIAccess) => {
-      for (const input of ma.inputs.values()) {
-        input.addEventListener('midimessage', handleMessage);
-      }
-    };
-
-    const detachListeners = (ma: MIDIAccess) => {
-      for (const input of ma.inputs.values()) {
-        input.removeEventListener('midimessage', handleMessage);
-      }
-    };
-
-    navigator.requestMIDIAccess().then((ma) => {
-      midiAccess = ma;
-      attachListeners(ma);
-    });
-
-    return () => {
-      if (midiAccess) detachListeners(midiAccess);
-    };
-  }, [active]);
 }
 
 /** Simple piano keyboard SVG for the mapping visualization. */

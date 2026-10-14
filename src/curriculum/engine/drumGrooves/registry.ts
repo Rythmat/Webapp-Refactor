@@ -31,7 +31,7 @@ export function listDesignedGrooves(): readonly DrumGroove[] {
  */
 export function getLiveGroove(id: string | undefined): DrumGroove | undefined {
   if (!id) return undefined;
-  const groove = BY_ID.get(id);
+  const groove = BY_ID.get(id) ?? STUDIO_LOADED.get(id);
   return groove?.status === 'live' ? groove : undefined;
 }
 
@@ -50,6 +50,25 @@ const studioFiles = import.meta.glob<DrumGroove>(
 );
 
 let studioCache: Promise<DrumGroove[]> | null = null;
+
+/** Studio grooves loaded one by one (preloadStudioGroove), by id. */
+const STUDIO_LOADED = new Map<string, DrumGroove>();
+
+/** The file is named after the groove's id. */
+const studioLoaderFor = (id: string) =>
+  studioFiles[`../../data/drumGrooves/studio/${id}.json`];
+
+/**
+ * Loads one Studio groove so getLiveGroove can return it synchronously. A
+ * lesson pairing (lessonPairings/registry.ts) can name a Studio groove, and
+ * the lesson and Practice Track paths that read it are synchronous.
+ */
+export async function preloadStudioGroove(id: string): Promise<void> {
+  if (BY_ID.has(id) || STUDIO_LOADED.has(id)) return;
+  const load = studioLoaderFor(id);
+  if (!load) return;
+  STUDIO_LOADED.set(id, await load());
+}
 
 /** The Studio's grooves, drafts included. */
 export function loadStudioGrooves(): Promise<DrumGroove[]> {

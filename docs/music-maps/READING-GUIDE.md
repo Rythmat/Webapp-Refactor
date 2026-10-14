@@ -66,6 +66,70 @@ More maps exist under `~/Desktop/Music Bridge Master Folder/CMB/Music Atlas/The 
     `src/curriculum/data/chordProgressionLibrary.ts` has a sheet naming the
     song (`song: 'Stay- Rihanna'`), add `songIds: ['<id>']` to it.
 
+## Learned on Glory (2026-10-13)
+
+17. **A map in C may be a minor song.** The maps write every key as its
+    parent major. Check the published key (sheet music): Glory's map is in
+    C, the song is in A minor, so the chart is `A minor` and Am is `1 min`.
+18. **Rap verses over a loop** get an open repeat (no `repeatTimes`) and a
+    cue such as `'Repeat through the verse'`, rather than a guessed bar count.
+19. **Progression sheets confirm a map.** Search the library for the title;
+    a song can have several sheets (Glory: #589 pre-chorus, #483 bridge).
+    Link each with `songIds`, and say when they agree with the map.
+
+## Learned on the first batch (2026-10-13)
+
+20. **Pushed changes** (a chord that lands on the "and" of 4 and ties over
+    the barline, as in Skin) stay on the downbeat they tie into, with a
+    section `notes` line saying the changes are anticipated. No chart in
+    the corpus places a chord across a barline yet.
+21. **Compute digests on a clean copy.** Other chats edit grooves and parts
+    in this folder; the vocabulary golden (`graph`, `tables`) hashes them.
+    Commit the chart, then run `golden.test.ts` in a `git worktree` of that
+    commit and amend with its digests.
+
+## Learned on the second batch (2026-10-13)
+
+22. **6/9 chords**: `chordName` keeps the map's `D6/9`; the degree token is
+    `maj69` (`4 maj69`), never `maj6/9`, which would read as a slash bass.
+    The quality is wired through the chord library, parser, engine map and
+    guitar grips.
+23. **The keyboards settle 7ths.** Best Part's summary says `1 maj`, its
+    keyboards and progression sheet 236 say Dmaj7: chart the 7th.
+24. **Double-time maps** (Anti-Hero at 194, recorded at 97) keep the map's
+    bars and tempo, so playback lines up with the recording; a section note
+    says so.
+25. **New event cities** (Hobart, Maplewood) move the vocabulary golden's
+    `placeAndGenreNames` digest too.
+
+## Learned on the third batch (2026-10-13)
+
+26. **Find every progression sheet.** Titles with an apostrophe are stored
+    in double quotes (`"Hustlin'- Rick Ross"`), and a song can have several
+    sheets for one section (The Bird's bridge: 451 and 696). After linking,
+    `linking/__tests__/repo.test.ts` should report `sure: 0`; anything else
+    is a sheet still to link.
+27. **Keep the familiar name when the respelling would be odd.** The Bird's
+    E major 7 in D♭ stays `Emaj7`, numbered `♯2 maj7` (the degree must
+    match the name's root); the product owner prefers it to `F♭maj7`
+    (2026-10-14). Respell when the result is an everyday name (A♭m9, G♭maj7).
+28. **A new artist record can connect old events.** Adding Anderson .Paak
+    let the hand-authored Oxnard 2016 event find him by title and tag; check
+    such matches are right before accepting the moved totals.
+
+## Learned on the fourth batch (2026-10-13)
+
+29. **A passing diminished a half step above the tonic** (Kill Bill's A dim
+    in A♭) is `♯1 dim` with its usual spelling. The map's `♭2 dim` would
+    force a B𝄫 spelling. Flag it, since the map and the sheet say ♭2.
+
+## Decided after the first pass (2026-10-14)
+
+30. **Check a map's extensions against the song.** As It Was is plain
+    triads (D, Bm, E, A); its map's 6/9 chords were a slip.
+31. **The seven existing charts** were updated as the overlap report
+    recommends (see `OVERLAP-REPORT.md`, now marked applied).
+
 ## Implementation notes (learned on We Shall Overcome)
 
 - **Voicings.** Each keyboard snippet starts on the chord's lowest note.

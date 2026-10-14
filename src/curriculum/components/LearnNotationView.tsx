@@ -32,6 +32,8 @@ interface LearnNotationViewProps {
   countInTicks?: number;
   /** Ticks in one beat, for counting the lead-in. */
   beatTicks?: number;
+  /** The meter, when it isn't beatsPerBar/4 (6/8, 12/8 — engine/meter.ts). */
+  timeSignature?: [number, number];
   /** Where bar 1 sits on the playhead's scale; 0 unless notes are offset. */
   musicStartTick?: number;
   /**
@@ -49,7 +51,8 @@ interface LearnNotationViewProps {
   clefAnnotation?: '8vb';
   noteHoldMeta?: Record<string, NoteHoldMeta>;
   performanceMeta?: Record<string, { startTick: number; endTick?: number }>;
-  /** Total height, matching the roll it replaces. */
+  /** Height ceiling, matching the roll it replaces. The box hugs the
+   *  music, so a short staff doesn't leave a gap above the keyboard. */
   height: number;
   /** Chord symbols to draw above the staff, one per harmonic change. */
   chordSymbols?: readonly LessonChordSymbol[];
@@ -68,6 +71,7 @@ export function LearnNotationView({
   playheadTick,
   countInTicks = 0,
   beatTicks = 480,
+  timeSignature,
   musicStartTick = 0,
   staves,
   writtenOctaveShift = 0,
@@ -106,13 +110,21 @@ export function LearnNotationView({
     // caller preferred. See lib/notation/handSplit.ts.
     const resolved = resolveStaves(events, staves);
     return buildScore(notes, {
-      timeSignature: [beatsPerBar, 4],
+      timeSignature: timeSignature ?? [beatsPerBar, 4],
       minMeasures: bars,
       ...(keyRoot !== undefined ? { keyTonicPc: keyRoot % 12 } : {}),
       ...(resolved ? { staves: resolved } : {}),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `signature` stands for `events`
-  }, [signature, bars, beatsPerBar, keyRoot, staves, writtenOctaveShift]);
+  }, [
+    signature,
+    bars,
+    beatsPerBar,
+    timeSignature,
+    keyRoot,
+    staves,
+    writtenOctaveShift,
+  ]);
 
   const noteStyles = useMemo(
     () =>
@@ -132,11 +144,21 @@ export function LearnNotationView({
     ? countOffBeatIndex(playheadTick, countInTicks, beatTicks, musicStartTick)
     : null;
 
+  // Header + the staff's pt-2 + the drawn systems + a little breathing room.
+  const huggedHeight = layout?.contentHeight
+    ? Math.min(
+        height,
+        Math.ceil(
+          (showHeader ? HEADER_HEIGHT : 0) + 8 + layout.contentHeight + 12,
+        ),
+      )
+    : height;
+
   return (
     <div
       className="flex w-full flex-col overflow-hidden rounded-xl"
       style={{
-        height,
+        height: huggedHeight,
         background: 'rgba(255,255,255,0.02)',
         border: '1px solid var(--color-border)',
       }}
@@ -167,9 +189,9 @@ export function LearnNotationView({
           // the line, then down and back to the left.
           wrapToFit
           className="min-h-0 flex-1 px-2 pt-2"
+          onLayout={setLayout}
           {...(chordSymbols?.length
             ? {
-                onLayout: setLayout,
                 overlay: (
                   <ChordSymbolOverlay symbols={chordSymbols} layout={layout} />
                 ),

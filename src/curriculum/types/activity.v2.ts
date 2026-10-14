@@ -23,7 +23,17 @@ export type HandConfig =
   | 'lh_rootless_rh_melody'
   | 'open';
 
-export type StyleSubProfile = 'l1a' | 'l1b' | 'l2a' | 'l2b' | 'l3a' | 'l3b';
+/** a, b, c: a level's first, second and third style (Latin teaches three, lessonStyles.ts). */
+export type StyleSubProfile =
+  | 'l1a'
+  | 'l1b'
+  | 'l1c'
+  | 'l2a'
+  | 'l2b'
+  | 'l2c'
+  | 'l3a'
+  | 'l3b'
+  | 'l3c';
 
 export interface InstrumentConfig {
   instrument: 'piano'; // piano only for now
@@ -88,6 +98,12 @@ export interface ActivityFlowParamsV2 extends ActivityFlowParams {
   instrument?: LessonInstrument;
   /** Optional authored backing for this level's Practice Tracks. */
   practiceTrack?: PracticeTrackParams;
+  /**
+   * The level's meter, [top, bottom]: [3, 4], [6, 8], [12, 8]. Omitted = 4/4.
+   * Target-note ticks are 480 per quarter whatever the meter; a bar is
+   * engine/meter.ts barTicks (3/4 = 1440, 12/8 = 2880). Steps may override.
+   */
+  timeSignature?: [number, number];
 }
 
 // Extended ActivityStep for v2 content
@@ -191,6 +207,14 @@ export interface ActivityStepV2 extends ActivityStep {
    * tempo. Steps without one keep whatever tempo is set.
    */
   tempo?: number;
+  /** This step's meter, when it differs from the flow's (engine/meter.ts). */
+  timeSignature?: [number, number];
+  /**
+   * This step's key, when it differs from the flow's `defaultKey` — written
+   * the same way ('G major'). Latin L1's Mariachi steps are in G major in an
+   * E minor level (utils/flowKey.ts stepKeyLabel).
+   */
+  key?: string;
   /** Play-along sound and patterns for this step (Hip Hop). */
   backing_style?: BackingStyle;
   /** Guitar only: the chords to play, for chord-identity scoring and views. */

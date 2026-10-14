@@ -20,7 +20,7 @@ import type { AssessmentType } from '../types/activity';
  * statement about content that does not exist yet rather than a bug. The list
  * is asserted below, so it stays honest as genres get written.
  */
-const AUTHORED_GENRES = ['funk', 'pop', 'hipHop'];
+const AUTHORED_GENRES = ['funk', 'pop', 'hipHop', 'latin'];
 
 const GENRES = [
   'african',

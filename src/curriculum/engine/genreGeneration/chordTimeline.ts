@@ -146,20 +146,28 @@ function matchTargets(
   return timeline;
 }
 
-function perBar(chords: (Chord | null)[], bars: number): TimedChord[] {
+function perBar(
+  chords: (Chord | null)[],
+  bars: number,
+  barLength: number,
+): TimedChord[] {
   const timeline: TimedChord[] = [];
   for (let bar = 0; bar < bars; bar++) {
     const chord = chords[bar % chords.length];
-    if (chord) timeline.push({ ...chord, tick: bar * BAR_TICKS });
+    if (chord) timeline.push({ ...chord, tick: bar * barLength });
   }
   return timeline;
 }
 
-/** The step's chord timeline over `bars` bars; empty without chord symbols. */
+/**
+ * The step's chord timeline over `bars` bars; empty without chord symbols.
+ * `barLength` is the meter's bar in ticks (engine/meter.ts barTicks).
+ */
 export function buildChordTimeline(
   symbols: readonly string[] | undefined,
   targetNotes: readonly GenreNoteEvent[],
   bars: number,
+  barLength = BAR_TICKS,
 ): TimedChord[] {
   if (!symbols?.length) return [];
   const chords = symbols.map((symbol) => {
@@ -167,7 +175,8 @@ export function buildChordTimeline(
     return tones ? { ...tones, symbol } : null;
   });
   return (
-    matchTargets(chords, targetChordHits(targetNotes)) ?? perBar(chords, bars)
+    matchTargets(chords, targetChordHits(targetNotes)) ??
+    perBar(chords, bars, barLength)
   );
 }
 

@@ -1,13 +1,16 @@
 /**
- * Dev-server-only endpoints that let the console's Drum Grooves designer and
- * Parts Library write repo files: groove JSON, custom kit JSON, instrumental
- * part JSON and uploaded drum samples. Commit
+ * Dev-server-only endpoints that let the console's Drum Grooves designer,
+ * Bass Lines editor and Parts Library write repo files: groove JSON, custom
+ * kit JSON, bass line JSON, instrumental part JSON and uploaded drum samples.
+ * Commit
  * the files to ship them. `apply: 'serve'` keeps all of this out of builds, so
  * a deployed console has no way to write and the designer says so.
  *
  *   PUT    /__dev/drum-grooves/:id     body: groove JSON
  *   DELETE /__dev/drum-grooves/:id
  *   PUT    /__dev/drum-kits/:id        body: custom kit JSON
+ *   PUT    /__dev/bass-lines/:id       body: bass line JSON
+ *   DELETE /__dev/bass-lines/:id
  *   PUT    /__dev/parts/:id            body: instrumental part JSON
  *   DELETE /__dev/parts/:id
  *   PUT    /__dev/feels/:id            body: feel profile JSON
@@ -28,6 +31,12 @@ import { refusalFor } from './repoContentPlugin';
 const ROOT = process.cwd();
 const GROOVE_DIR = path.join(ROOT, 'src/curriculum/data/drumGrooves');
 const KIT_DIR = path.join(ROOT, 'src/daw/instruments/customDrumKits');
+const BASS_LINE_DIR = path.join(ROOT, 'src/curriculum/data/bassLines');
+const CHORD_COMPING_DIR = path.join(ROOT, 'src/curriculum/data/chordComping');
+const LESSON_PAIRING_DIR = path.join(
+  ROOT,
+  'src/curriculum/data/lessonPairings',
+);
 const PART_DIR = path.join(ROOT, 'src/curriculum/data/parts');
 const FEEL_DIR = path.join(ROOT, 'src/curriculum/data/feels');
 const PATCH_DIR = path.join(ROOT, 'src/daw/oracle-synth/store/presets/atlas');
@@ -134,6 +143,9 @@ export function devContentWriter(): Plugin {
           const JSON_DIRS: Record<string, string> = {
             'drum-grooves': GROOVE_DIR,
             'drum-kits': KIT_DIR,
+            'bass-lines': BASS_LINE_DIR,
+            'lesson-pairings': LESSON_PAIRING_DIR,
+            'chord-comping': CHORD_COMPING_DIR,
             parts: PART_DIR,
             feels: FEEL_DIR,
             'synth-patches': PATCH_DIR,

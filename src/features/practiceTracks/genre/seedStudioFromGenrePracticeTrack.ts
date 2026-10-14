@@ -88,6 +88,8 @@ export function applyGenrePracticeTrack(
   store.setRootNote(track.keyRootPc);
   store.setMode(track.mode);
   store.setBpm(track.bpm);
+  // The lesson's meter (D-085); a 4/4 track resets one left in 3/4.
+  store.setTimeSignature(...(track.timeSignature ?? [4, 4]));
   store.setChordRegions(track.chordRegions);
 
   for (const [part, instrument] of Object.entries(BACKING_INSTRUMENTS)) {
@@ -120,4 +122,40 @@ export function applyGenrePracticeTrack(
   }
   store.setSelectedTrackId(studentTrackId);
   return studentTrackId;
+}
+
+/**
+ * The groove toggle (D-088): the backing of an open Practice Track swapped for
+ * a rebuilt one — another style's drums, bass and comping, another
+ * progression, and its meter — leaving the student's track and take alone.
+ * The backing tracks are found by the names `applyGenrePracticeTrack` gave
+ * them; one the student has since deleted stays deleted.
+ */
+export function swapGenrePracticeBacking(
+  track: GenrePracticeTrackResult,
+): void {
+  const store = useStore.getState();
+  // A style in another key (Latin L1's Mariachi, G major) brings it along.
+  store.setRootNote(track.keyRootPc);
+  store.setMode(track.mode);
+  store.setTimeSignature(...(track.timeSignature ?? [4, 4]));
+  store.setChordRegions(track.chordRegions);
+  for (const [part, instrument] of Object.entries(BACKING_INSTRUMENTS)) {
+    const clip = track.clips[part as keyof typeof BACKING_INSTRUMENTS];
+    if (!clip) continue;
+    const target = useStore
+      .getState()
+      .tracks.find(
+        (t) =>
+          t.instrument === instrument && t.name === clip.name && !t.recordArmed,
+      );
+    if (!target) continue;
+    for (const old of target.midiClips) store.removeMidiClip(target.id, old.id);
+    store.addMidiClip(target.id, clip);
+    if (instrument === 'drum-machine')
+      store.setDrumKit(target.id, track.drumKit);
+    if (instrument === 'bass-electric')
+      store.updateTrack(target.id, { bassVoice: track.bassVoice });
+  }
+  store.setLoopRange(0, track.loopTicks);
 }

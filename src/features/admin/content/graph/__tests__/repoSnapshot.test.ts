@@ -52,8 +52,10 @@ describe('the repo snapshot', () => {
       // with its state, not the registry entry of that name. 697 rather than
       // 687 since the bulk import of 30 September 2026: the matcher knows the
       // artists it made too (players, writers and producers off the roster),
-      // and finds one or more of them on ten more events.
-      expect(about).toHaveLength(697);
+      // and finds one or more of them on ten more events. 699 with the Music
+      // Maps' artist records: Anderson .Paak (Oxnard 2016) and Ludwig
+      // Göransson and Childish Gambino (the scoring events).
+      expect(about).toHaveLength(699);
       expect(matches.get(bebop!.id)?.artists.map((a) => a.artistId)).toEqual(
         expect.arrayContaining(['charlie-parker', 'dizzy-gillespie']),
       );

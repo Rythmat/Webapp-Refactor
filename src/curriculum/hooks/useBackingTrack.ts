@@ -24,6 +24,7 @@ import { DrumMachineEngine } from '../../daw/instruments/DrumMachineEngine';
 import { SoundFontAdapter } from '../../daw/instruments/SoundFontAdapter';
 import {
   buildBackingNotes,
+  stepBassVoice,
   stepDrumKit,
 } from '../engine/genreGeneration/backingPatterns';
 import {
@@ -41,6 +42,8 @@ import {
   type BassVoiceConfig,
 } from '../engine/genreGeneration/genreBassVoices';
 import type { GenreNoteEvent } from '../engine/genreGeneration/resolveStepContent';
+import { pairingsReady } from '../engine/lessonPairings/registry';
+import { COMMON_TIME, type TimeSignature } from '../engine/meter';
 import type { ActivityStepV2 } from '../types/activity.v2';
 
 // ── Bass sampler config (public/samples/bass-electric/) ─────────────────────
@@ -367,11 +370,14 @@ export function useBackingTrack(tempo: number) {
       genre: string = 'funk',
       countInTicks: number = 0,
       swing: number = 50,
+      timeSignature: TimeSignature = COMMON_TIME,
     ) => {
       Tone.getTransport().stop();
       Tone.getTransport().cancel();
       disposeAll();
       await startTone();
+      // Studio grooves a lesson pairing names load on demand (D-084).
+      await pairingsReady;
       ensureFallbackSynths();
       const usePopPad = genre === 'pop' && ensurePopPad();
 
@@ -380,15 +386,14 @@ export function useBackingTrack(tempo: number) {
 
       const useReal = enginesReady.current;
       const useSF2 = sf2Ready.current;
-      // The step's own kit and bass sound (backing_style), else its designed
-      // groove's kit, else the genre's.
-      const style = step.backing_style;
+      // A back-office pairing's kit and bass sound (D-084), else the step's
+      // own (backing_style), else its designed groove's kit, else the genre's.
       if (useReal && drumEngineRef.current) {
         await drumEngineRef.current.setKit(
           stepDrumKit(step, styleRef, genre, level),
         );
       }
-      const voiceId = style?.bassVoice;
+      const voiceId = stepBassVoice(step, styleRef, genre, level);
       const use808 = useReal && voiceId === '808' && bassBridgeRef.current;
       if (use808 && !eightOhEightRef.current) {
         eightOhEightRef.current = createEightOhEight(bassBridgeRef.current!);
@@ -413,6 +418,7 @@ export function useBackingTrack(tempo: number) {
         genre,
         countInTicks,
         swing,
+        timeSignature,
       );
 
       // Dev verification

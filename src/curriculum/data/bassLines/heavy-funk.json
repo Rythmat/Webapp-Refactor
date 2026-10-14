@@ -1,0 +1,262 @@
+{
+  "id": "heavy-funk",
+  "name": "Heavy Funk",
+  "description": "Slow and wide: long root, octave stabs, fifth and seventh",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 110,
+  "timeSignature": [4, 4],
+  "length": "4m",
+  "gridResolution": "16n",
+  "instrument": "electric",
+  "grooves": ["heavy-funk"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 0.48,
+      "velocity": 0.95
+    },
+    {
+      "time": "0:0:3",
+      "degree": "X",
+      "dur": 0.12,
+      "velocity": 0.45
+    },
+    {
+      "time": "0:0:3",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:1:1",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.72
+    },
+    {
+      "time": "0:1:2",
+      "degree": "7-",
+      "dur": 0.4,
+      "velocity": 0.85
+    },
+    {
+      "time": "0:2:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:2:1",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:3:1",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:3:2",
+      "degree": "W",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:3:3",
+      "degree": "A",
+      "dur": 0.23,
+      "velocity": 0.66
+    },
+    {
+      "time": "1:0:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:0:1",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:0:2",
+      "degree": "7-",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:0:3",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:1:1",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:1:2",
+      "degree": "7",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:2:0",
+      "degree": "8",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:2:1",
+      "degree": "7",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:2:2",
+      "degree": "5",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:2:3",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:3:3",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "2:0:0",
+      "degree": "R",
+      "dur": 0.48,
+      "velocity": 0.8
+    },
+    {
+      "time": "2:0:3",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "2:1:2",
+      "degree": "7-",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "2:2:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "2:2:1",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "2:2:3",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "2:3:1",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "2:3:2",
+      "degree": "A",
+      "dur": 0.48,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:0:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:0:1",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:0:3",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:1:0",
+      "degree": "3",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:1:1",
+      "degree": "3",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:1:3",
+      "degree": "3",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:2:0",
+      "degree": "4",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:2:1",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:2:3",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:3:0",
+      "degree": "5",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:3:1",
+      "degree": "5-",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:3:2",
+      "degree": "A",
+      "dur": 0.48,
+      "velocity": 0.8
+    }
+  ]
+}

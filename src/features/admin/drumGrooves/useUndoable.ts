@@ -23,6 +23,18 @@ export function useUndoable<T>(initial: T) {
     });
   }, []);
 
+  /**
+   * Change the value without a new undo step: the rest of a drag, so the
+   * whole gesture undoes at once.
+   */
+  const replace = useCallback((next: T | ((prev: T) => T)) => {
+    setState((s) => {
+      const value =
+        typeof next === 'function' ? (next as (p: T) => T)(s.present) : next;
+      return value === s.present ? s : { ...s, present: value };
+    });
+  }, []);
+
   const undo = useCallback(() => {
     setState((s) =>
       s.past.length
@@ -50,6 +62,7 @@ export function useUndoable<T>(initial: T) {
   return {
     value: state.present,
     set,
+    replace,
     undo,
     redo,
     canUndo: state.past.length > 0,

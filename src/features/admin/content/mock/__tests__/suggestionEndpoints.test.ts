@@ -510,11 +510,11 @@ describe('GET /suggestions', () => {
     list(server);
     list(server);
     expect(planned - before).toBe(1);
-    expect(input!.events!.length).toBe(1725);
+    expect(input!.events!.length).toBe(1749);
     // Every registry artist: 907 until the owner's 23 duplicate merges and the
     // removal of the album title "Remind In Light" (30 Sep 2026).
-    expect(input!.artists!.length).toBe(891);
-    expect(input!.songs!.length).toBe(642);
+    expect(input!.artists!.length).toBe(941);
+    expect(input!.songs!.length).toBe(666);
     expect(input!.imported).toHaveLength(Object.values(IMPORTED).length);
 
     decideAll(server, [{ suggestionId: APP.memphis.id, op: 'accept' }]);

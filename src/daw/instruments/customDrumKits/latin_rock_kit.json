@@ -1,0 +1,10 @@
+{
+  "id": "latin_rock_kit",
+  "label": "Latin Rock kit",
+  "base": "natural",
+  "samples": {
+    "40": "/daw-assets/samples/drums/uploads/muzrw9k4-stickshot---snares-on---4.mp3",
+    "42": "/daw-assets/samples/drums/uploads/muzss6qa-hihat---foot-close---3.mp3",
+    "51": "/daw-assets/samples/drums/uploads/muzqpup3-ride---5.mp3"
+  }
+}

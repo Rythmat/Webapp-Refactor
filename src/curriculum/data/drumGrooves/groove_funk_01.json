@@ -1,7 +1,7 @@
 {
   "id": "groove_funk_01",
   "name": "Funk 01 — phrase engine",
-  "description": "Imported from the code groove of the same id. Publish to replace it.",
+  "description": "Funk!",
   "genre": "funk",
   "status": "live",
   "timeSignature": [4, 4],
@@ -9,8 +9,8 @@
   "bars": 8,
   "tempo": 98,
   "tempoUnit": "quarter",
-  "swing": 50,
-  "grid": "16n",
+  "swing": 51,
+  "grid": "32n",
   "kit": "custom_custom_natural_01",
   "padGains": {},
   "humanize": {
@@ -321,7 +321,7 @@
     {
       "tick": 8400,
       "note": 42,
-      "velocity": 52
+      "velocity": 96
     },
     {
       "tick": 8520,
@@ -337,11 +337,6 @@
       "tick": 8640,
       "note": 42,
       "velocity": 72
-    },
-    {
-      "tick": 8880,
-      "note": 46,
-      "velocity": 96
     },
     {
       "tick": 9120,
@@ -376,7 +371,7 @@
     {
       "tick": 9840,
       "note": 42,
-      "velocity": 60
+      "velocity": 112
     },
     {
       "tick": 9960,
@@ -441,7 +436,7 @@
     {
       "tick": 11760,
       "note": 42,
-      "velocity": 60
+      "velocity": 112
     },
     {
       "tick": 11880,
@@ -456,12 +451,12 @@
     {
       "tick": 12000,
       "note": 42,
-      "velocity": 60
+      "velocity": 96
     },
     {
       "tick": 12240,
       "note": 42,
-      "velocity": 60
+      "velocity": 96
     },
     {
       "tick": 12480,
@@ -491,22 +486,12 @@
     {
       "tick": 13200,
       "note": 42,
-      "velocity": 60
+      "velocity": 112
     },
     {
       "tick": 13440,
       "note": 36,
       "velocity": 100
-    },
-    {
-      "tick": 13440,
-      "note": 42,
-      "velocity": 72
-    },
-    {
-      "tick": 13680,
-      "note": 42,
-      "velocity": 52
     },
     {
       "tick": 13920,
@@ -539,19 +524,9 @@
       "velocity": 72
     },
     {
-      "tick": 14520,
-      "note": 38,
-      "velocity": 35
-    },
-    {
       "tick": 14640,
       "note": 36,
       "velocity": 77
-    },
-    {
-      "tick": 14760,
-      "note": 38,
-      "velocity": 35
     },
     {
       "tick": 14880,
@@ -624,43 +599,13 @@
       "velocity": 96
     },
     {
-      "tick": 13800,
-      "note": 36,
-      "velocity": 96
-    },
-    {
-      "tick": 15000,
-      "note": 38,
-      "velocity": 38
-    },
-    {
       "tick": 15120,
       "note": 36,
-      "velocity": 96
-    },
-    {
-      "tick": 15120,
-      "note": 46,
-      "velocity": 96
-    },
-    {
-      "tick": 14520,
-      "note": 42,
       "velocity": 96
     },
     {
       "tick": 14640,
       "note": 42,
-      "velocity": 96
-    },
-    {
-      "tick": 14760,
-      "note": 42,
-      "velocity": 96
-    },
-    {
-      "tick": 13800,
-      "note": 46,
       "velocity": 96
     },
     {
@@ -709,11 +654,6 @@
       "velocity": 38
     },
     {
-      "tick": 8520,
-      "note": 46,
-      "velocity": 96
-    },
-    {
       "tick": 8880,
       "note": 36,
       "velocity": 96
@@ -721,7 +661,7 @@
     {
       "tick": 9000,
       "note": 42,
-      "velocity": 96
+      "velocity": 38
     },
     {
       "tick": 9240,
@@ -744,9 +684,114 @@
       "velocity": 38
     },
     {
-      "tick": 15240,
+      "tick": 8880,
       "note": 42,
       "velocity": 96
+    },
+    {
+      "tick": 8760,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 8280,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 14640,
+      "note": 38,
+      "velocity": 112
+    },
+    {
+      "tick": 15000,
+      "note": 36,
+      "velocity": 38
+    },
+    {
+      "tick": 14880,
+      "note": 38,
+      "velocity": 112
+    },
+    {
+      "tick": 9720,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 9960,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 14400,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 11640,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 11880,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 12120,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 12360,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 13320,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 14340,
+      "note": 38,
+      "velocity": 38
+    },
+    {
+      "tick": 13380,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 13080,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 13560,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 13680,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 13800,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 13680,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 13800,
+      "note": 42,
+      "velocity": 38
     }
   ]
 }

@@ -1,0 +1,246 @@
+{
+  "id": "neo_soul_1_copy",
+  "name": "Neo Soul - Gospel",
+  "description": "16th note grid slow soul",
+  "genre": "neo-soul",
+  "style": "Neo Soul",
+  "tags": ["Groove"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 2,
+  "tempo": 64,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "16n",
+  "kit": "custom_custom_natural_01",
+  "padGains": {
+    "49": 0.65
+  },
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 76
+    },
+    {
+      "tick": 480,
+      "note": 40,
+      "velocity": 112
+    },
+    {
+      "tick": 0,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 120,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 240,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 360,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 0,
+      "note": 49,
+      "velocity": 38
+    },
+    {
+      "tick": 360,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 720,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 600,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 720,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 840,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 960,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 1080,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 1560,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 1680,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 1800,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 1200,
+      "note": 46,
+      "velocity": 70
+    },
+    {
+      "tick": 1440,
+      "note": 40,
+      "velocity": 112
+    },
+    {
+      "tick": 1200,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 2760,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 2640,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 2520,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 2400,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 2280,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 2160,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 2040,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 1920,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 2400,
+      "note": 40,
+      "velocity": 112
+    },
+    {
+      "tick": 3000,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 3360,
+      "note": 42,
+      "velocity": 96
+    },
+    {
+      "tick": 3720,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 3480,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "note": 40,
+      "velocity": 112
+    },
+    {
+      "tick": 3120,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 3480,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 3600,
+      "note": 42,
+      "velocity": 112
+    },
+    {
+      "tick": 3120,
+      "note": 46,
+      "velocity": 70
+    },
+    {
+      "tick": 1800,
+      "note": 36,
+      "velocity": 38
+    },
+    {
+      "tick": 2640,
+      "note": 36,
+      "velocity": 96
+    }
+  ]
+}

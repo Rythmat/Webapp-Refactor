@@ -13,9 +13,23 @@
  * Bass and chords follow the step's chord timeline (chordTimeline.ts).
  */
 
-import type { ActivityStepV2 } from '../../types/activity.v2';
+import type { ActivityStepV2, BackingStyle } from '../../types/activity.v2';
+import { realizeComping } from '../chordComping/chordComping';
 import { buildDesignedDrums } from '../drumGrooves/drumGroove';
 import { getLiveGroove } from '../drumGrooves/registry';
+import {
+  pairedBassNotes,
+  pairedBassVoice,
+  pairedDrumNotes,
+} from '../lessonPairings/pairedBacking';
+import { pairingFor } from '../lessonPairings/registry';
+import {
+  barTicks as meterBarTicks,
+  COMMON_TIME,
+  isCommonTime,
+  meterSwing,
+  type TimeSignature,
+} from '../meter';
 import { buildApproachNotes, shouldAddApproach } from './bassApproach';
 import { bassFifthMidi } from './bassFifthRule';
 import { bassPC_toMidi } from './chordBassNote';
@@ -31,6 +45,11 @@ import {
   buildHipHopDrums,
   hipHopDrumPattern,
 } from './hipHop/hipHopBacking';
+import {
+  buildMeterBass,
+  buildMeterChords,
+  buildMeterDrums,
+} from './meterBacking';
 import type { GenreNoteEvent } from './resolveStepContent';
 import { applySwing } from './swing';
 
@@ -764,11 +783,27 @@ export function stepDrumKit(
   level: number,
 ): string {
   return (
+    // A back-office pairing wins over the step (D-084).
+    pairingFor(genre, level, styleRef)?.drums?.kit ??
     step.backing_style?.kit ??
     getLiveGroove(resolveStepGrooveId({ ...step, styleRef }, genre, level))
       ?.kit ??
     'natural'
   );
+}
+
+/**
+ * The bass sound a step plays: a paired bass line's (D-084), else the step's
+ * own (backing_style.bassVoice); undefined means the genre's default.
+ */
+export function stepBassVoice(
+  step: Pick<ActivityStepV2, 'backing_style'>,
+  styleRef: string | undefined,
+  genre: string,
+  level: number,
+): BackingStyle['bassVoice'] {
+  const line = pairingFor(genre, level, styleRef)?.bass;
+  return line ? pairedBassVoice(line) : step.backing_style?.bassVoice;
 }
 
 function buildDrumPatternForGroove(
@@ -1303,7 +1338,13 @@ function doubledLeftHand(
  * all start there, so backing bar N lines up with target bar N. The lead-in
  * plays the groove's last bars (its fill), so the drums still count the student in.
  *
- * `swing` is the 16th-note swing percentage (swing.ts); 50 is straight.
+ * `swing` is the 16th-note swing percentage (swing.ts); 50 is straight. A
+ * compound meter plays straight (meter.ts meterSwing).
+ *
+ * `timeSignature` is the step's meter (meter.ts stepTimeSignature). Outside
+ * 4/4 the genre code patterns, written as 4/4 bars, give way to the step's
+ * designed groove or plain meter-true parts (meterBacking.ts); pairings still
+ * win. Hip Hop is 4/4 only.
  */
 export function buildBackingNotes(
   step: ActivityStepV2,
@@ -1314,31 +1355,94 @@ export function buildBackingNotes(
   genre: string,
   countInTicks = 0,
   swing = 50,
+  timeSignature: TimeSignature = COMMON_TIME,
 ): BackingNote[] {
+  const ts = genre === 'hip-hop' ? COMMON_TIME : timeSignature;
+  const barLength = meterBarTicks(ts);
+  const swing_ = meterSwing(swing, ts);
   const swung = (part: BackingNote[]) =>
-    applySwing(part, swing) as BackingNote[];
+    applySwing(part, swing_) as BackingNote[];
   const engineGenerates = step.backing_parts?.engine_generates ?? [];
   const timeline = buildChordTimeline(
     step.chordSymbols,
     targetNotes,
     BACKING_BARS,
+    barLength,
   );
   const tonic = tonicChord(keyRoot, genre);
   const chordAt = (tick: number): ChordSymbolTones =>
     chordAtTick(timeline, tick) ?? tonic;
 
+  // A back-office pairing (D-084, D-087) replaces the drums, bass and chords
+  // the step would play. A doubled left hand still wins over paired bass: the student's own
+  // part is what the backing doubles.
+  const pairing = pairingFor(genre, level, styleRef);
+  const withPairing = (notes: BackingNote[]): BackingNote[] => {
+    if (!pairing) return notes;
+    let out = notes;
+    if (pairing.drums && engineGenerates.includes('drums')) {
+      out = [
+        ...out.filter((n) => n.part !== 'drums'),
+        ...swung(pairedDrumNotes(pairing.drums, BACKING_BARS, barLength)),
+      ];
+    }
+    if (
+      pairing.bass &&
+      engineGenerates.includes('bass') &&
+      !doubledLeftHand(step, targetNotes)
+    ) {
+      out = [
+        ...out.filter((n) => n.part !== 'bass'),
+        ...swung(pairedBassNotes(pairing.bass, chordAt, BACKING_BARS, ts)),
+      ];
+    }
+    if (pairing.comping && engineGenerates.includes('chords')) {
+      out = [
+        ...out.filter((n) => n.part !== 'chords'),
+        ...swung(realizeComping(pairing.comping, chordAt, BACKING_BARS, ts)),
+      ];
+    }
+    return out;
+  };
+
   if (genre === 'hip-hop') {
     return withEndingAndLeadIn(
-      buildHipHopNotes(
-        step,
-        level,
-        targetNotes,
-        chordAt,
-        engineGenerates,
-        swung,
+      withPairing(
+        buildHipHopNotes(
+          step,
+          level,
+          targetNotes,
+          chordAt,
+          engineGenerates,
+          swung,
+        ),
       ),
       countInTicks,
     );
+  }
+
+  if (!isCommonTime(ts)) {
+    const notes: BackingNote[] = [];
+    if (engineGenerates.includes('drums')) {
+      const designed = getLiveGroove(step.grooveId);
+      notes.push(
+        ...swung(
+          designed
+            ? buildDesignedDrums(designed, BACKING_BARS, barLength)
+            : buildMeterDrums(BACKING_BARS, ts),
+        ),
+      );
+    }
+    if (engineGenerates.includes('bass')) {
+      notes.push(
+        ...(doubledLeftHand(step, targetNotes) ??
+          swung(buildMeterBass(BACKING_BARS, ts, chordAt))),
+      );
+    }
+    if (engineGenerates.includes('chords')) {
+      notes.push(...swung(buildMeterChords(BACKING_BARS, ts, chordAt)));
+    }
+    return withEndingAndLeadIn(withPairing(notes), countInTicks, barLength);
   }
 
   const notes: BackingNote[] = [];
@@ -1366,7 +1470,7 @@ export function buildBackingNotes(
     );
   }
 
-  return withEndingAndLeadIn(notes, countInTicks);
+  return withEndingAndLeadIn(withPairing(notes), countInTicks, barLength);
 }
 
 /**
@@ -1381,8 +1485,9 @@ export function buildBackingNotes(
 function withEndingAndLeadIn(
   notes: BackingNote[],
   countInTicks: number,
+  barLength = BAR_TICKS,
 ): BackingNote[] {
-  const endingTick = BACKING_BARS * BAR_TICKS;
+  const endingTick = BACKING_BARS * barLength;
   const beat1Notes = notes.filter((n) => n.onset < 120 && n.part !== 'drums');
   beat1Notes.forEach((n) => {
     notes.push({ ...n, onset: endingTick + Math.min(n.onset, 10) });

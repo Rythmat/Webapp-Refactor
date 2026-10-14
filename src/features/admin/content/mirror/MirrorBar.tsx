@@ -354,6 +354,12 @@ export const MirrorBar = () => {
             <DropdownMenuItem asChild>
               <Link to={AdminRoutes.drumGrooves()}>Drum Grooves</Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to={AdminRoutes.bassLines()}>Bass Lines</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to={AdminRoutes.chordComping()}>Chord Comping</Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         {admin && (

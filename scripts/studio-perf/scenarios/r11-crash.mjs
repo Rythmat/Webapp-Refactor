@@ -21,8 +21,8 @@
  * Every mode also checks that no copy appeared (crashNoFork: no fork toast,
  * no new draft of origin 'fork').
  *
- * Compared: REOPEN_CLASSES (the project, its view, the ids and the audio;
- * no lesson context, 1.15), with the playhead left out while playing.
+ * Compared: REOPEN_CLASSES (the project, its view, its lesson and practice
+ * context, the ids and the audio), with the playhead left out while playing.
  */
 import { crash, startAudio } from '../harness.mjs';
 import { fullTierOnly, REOPEN_CLASSES } from './_shared.mjs';

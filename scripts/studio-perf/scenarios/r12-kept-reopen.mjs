@@ -15,10 +15,8 @@
  * in turn (pristineNotKept; a jam import opens as the only copy of the jam,
  * so it is kept).
  *
- * Compared: REOPEN_CLASSES (the project, its view, the ids and the audio;
- * no lesson context: 1.15).
- * The reported diffs are the reload's; the flags leave out what the sink's
- * resumed lesson rewrites as it mounts (LESSON_RESUME_FIELDS, 1.15).
+ * Compared: REOPEN_CLASSES (the project, its view, its lesson and practice
+ * context, the ids and the audio). The reported diffs are the reload's.
  *
  * Fast: File ▸ New, a template link, a lesson link, a cloud project link,
  * the Song page's Open in Studio. Full: every other path (a demo, a Theory
@@ -27,12 +25,11 @@
  * their track ids, and each must reopen with its own Oracle patch.
  *
  * The sink's lesson must end at the switch (lessonEndsAtSwitch: the store
- * runs the path's own lesson, or none). Where a path leaves the editor and
- * comes back, the sink's lesson overlay mounts again over the outgoing
- * session before the open keeps it and re-applies its step's precondition
- * (TutorialLayer: the Prism tab), so the kept body already holds that tab
- * (checks.keptView): the same mechanism as R2 and R5 (LOSS_OWNERS, 1.15),
- * not a session-boundary leak.
+ * runs the path's own lesson, or none), and come back with its kept draft
+ * (milestone 1.15). Where a path leaves the editor and comes back, the
+ * sink's lesson overlay mounts again over the outgoing session before the
+ * open keeps it; its step was set up already, so the kept body holds the
+ * sink's own tab (checks.keptView).
  *
  * whileRecording (fast, E10): File ▸ New while a take is being recorded.
  * The open stops the transport and waits for the take's commit (a recorder
@@ -54,7 +51,6 @@ import {
   openSongInStudio,
   projectRows,
   seedRiff,
-  withoutLessonResume,
   workHash,
   REOPEN_CLASSES,
 } from './_shared.mjs';
@@ -334,10 +330,9 @@ async function keptReopen(kit, run, path) {
         reopenedIdenticallyInPage:
           inPage.state === 'ready' &&
           diffsInPage !== null &&
-          withoutLessonResume(diffsInPage).length === 0,
+          diffsInPage.length === 0,
         reopenedIdenticallyAfterReload:
-          withoutLessonResume(diffs).length === 0 &&
-          now.draftId === draft.draftId,
+          diffs.length === 0 && now.draftId === draft.draftId,
         lessonEndsAtSwitch:
           lessons.sink?.lesson != null &&
           lessons.afterPath?.lesson === (path.lesson ?? null),

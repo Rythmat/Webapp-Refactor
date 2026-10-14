@@ -56,7 +56,7 @@ export const FIELD_CLASSES = {
   derived:
     'a session key every load works out again from the project (the key colour)',
   context:
-    'the lesson or practice screen the project was opened for: session state until milestone 1.15',
+    'the lesson or practice screen the project was opened for: never in the body, but its draft’s meta keeps it (DraftContext, milestone 1.15), so a reload or a reopen of the same draft gives it back',
   runtime:
     'whether decoded audio is there: since milestone 1.4 the draft keeps the bytes of a clip or a Chops sample never uploaded',
   media:
@@ -687,6 +687,11 @@ export async function fingerprintPage() {
     },
   );
   put('context.practiceSession', ['store.practiceSession'], s.practiceSession);
+  put(
+    'context.practiceKeyboard',
+    ['store.practiceKeyboard'],
+    s.practiceKeyboard,
+  );
 
   // ── Coverage: every key the draft or the prefs keep is shown ──
   const wanted = [

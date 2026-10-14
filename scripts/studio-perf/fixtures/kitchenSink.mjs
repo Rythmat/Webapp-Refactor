@@ -553,14 +553,17 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   });
 
   // ── Practice context: the session a Theory practice track carries, left
-  // while the student is in the full Studio (currentView is not 'practice').
+  // while the student is in the full Studio (currentView is not 'practice'),
+  // with the track the student plays and the keyboard as they left it.
   act().setPracticeSession({
     kind: 'theory',
     mode: 'dorian',
     rootParam: 'd',
     level: 2,
     openTrack: 'chords',
+    studentTrackId: keys,
   });
+  act().setPracticeKeyboard({ view: 'scales', scaleId: 'dorian' });
 
   // ── View state last: the view of this project (zoom, scroll, panels,
   // the selected track, the automation lane, the playhead), the prefs (grid)

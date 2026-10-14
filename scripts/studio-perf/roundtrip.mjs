@@ -629,11 +629,10 @@ const COMPARE = {
 
 /**
  * What a Restore of kept work must give back (R4's Library click), ids
- * included: what a reload keeps, but the lesson and practice context, which
- * a kept slot, being a draft, holds no more than a draft does until
- * milestone 1.15.
+ * included: what a reload keeps, the lesson and practice context too, which
+ * the kept draft holds as any draft does (its context, milestone 1.15).
  */
-const RESTORE_CLASSES = RELOAD_CLASSES.filter((cls) => cls !== 'context');
+const RESTORE_CLASSES = RELOAD_CLASSES;
 
 /**
  * Losses a later milestone owns: field (or `group:field`, for one scenario
@@ -643,21 +642,8 @@ const RESTORE_CLASSES = RELOAD_CLASSES.filter((cls) => cls !== 'context');
  * nobody's but the open milestone's.)
  */
 const LOSS_OWNERS = {
-  'context.tutorial': '1.15',
-  'context.practiceSession': '1.15',
   // A cloud open mints audio-clip ids until audio is keyed by asset.
   'ids.audioClips': '1.10',
-  // An in-app return, and an in-app bad link that changes nothing, resume
-  // the kitchen sink's lesson, whose overlay applies its step's
-  // preconditions again as it mounts (TutorialLayer), here the Prism tab
-  // over the restored one: how a resumed lesson and the restored view meet
-  // is lesson persistence's.
-  'R2:view.channelStripTab': '1.15',
-  'R5:view.channelStripTab': '1.15',
-  // Every R12 path that leaves the editor: the remounted overlay applies the
-  // outgoing lesson step's preconditions again before openSession keeps the
-  // work, so the kept draft already holds the Prism tab (the same mechanism).
-  'R12:view.channelStripTab': '1.15',
 };
 
 /** Who owns a loss of scenario group `group`, or null. */

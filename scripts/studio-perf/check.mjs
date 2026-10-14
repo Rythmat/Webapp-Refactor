@@ -197,6 +197,12 @@ const UNIT_TESTS = [
   'src/content/songStoreRetry.test.ts',
   'src/daw/midi/__tests__/MidiDeviceManager.test.ts',
   'src/daw/components/Controls/__tests__/TrackControlsPanel.afterLoad.test.tsx',
+  // Milestone 1.15: the lesson and practice context in the draft, the
+  // overlay's preconditions and scoped completion, the practice keys.
+  'src/daw/persistence/drafts/__tests__/draftContext.test.ts',
+  'src/daw/components/Tutorial/__tests__/TutorialLayer.test.tsx',
+  'src/features/classroom/msp/useMspModuleCompletion.test.tsx',
+  'src/daw/midi/__tests__/pointerNotes.test.tsx',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */

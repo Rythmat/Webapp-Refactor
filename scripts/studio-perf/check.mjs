@@ -7,14 +7,15 @@
  *   npm run studio:check        fast tier, before every milestone PR: the
  *                               unit ratchets and the lesson-anchor
  *                               inventory (vitest), the reload round-trips
- *                               (laptop), and the 8 lessons on the
- *                               chromebook profile
+ *                               (laptop), the 8 lessons on the chromebook
+ *                               profile, and the bundle report with its
+ *                               budgets (milestone 1.12a: the boot chunk,
+ *                               the editor's core off other pages)
  *   npm run studio:check:full   the round-trips on both profiles (laptop
  *                               and chromebook, the Stage A exit) and the
  *                               lessons also at 1280×720 (small), and adds
- *                               the perf scenarios (chromebook and laptop),
- *                               the golden renders and timing traces, and
- *                               the bundle report
+ *                               the perf scenarios (chromebook and laptop)
+ *                               and the golden renders and timing traces
  *   npm run studio:baseline     the full tier, written to
  *                               docs/studio-perf/baselines/<date>/
  *
@@ -186,6 +187,16 @@ const UNIT_TESTS = [
   'src/daw/audio/assets/__tests__/assetStore.test.ts',
   'src/daw/audio/assets/__tests__/assetGc.test.ts',
   'src/lib/studio-assets/__tests__/loadAudio.test.ts',
+  // Milestone 1.12a: the split editor, its early fetch, its boundaries and
+  // the reload after a deploy, and the boots that read published content.
+  'src/daw/__tests__/preload.test.ts',
+  'src/daw/shell/__tests__/lazyPart.test.tsx',
+  'src/lib/__tests__/chunkReload.test.ts',
+  'src/daw/session/__tests__/contentBoots.test.ts',
+  'src/features/classroom/__tests__/editorRoute.test.tsx',
+  'src/content/songStoreRetry.test.ts',
+  'src/daw/midi/__tests__/MidiDeviceManager.test.ts',
+  'src/daw/components/Controls/__tests__/TrackControlsPanel.afterLoad.test.tsx',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */
@@ -222,9 +233,10 @@ const SUITES = [
         },
         { name: 'golden', script: 'golden.mjs', args: [] },
         { name: 'golden-trace', script: 'golden.mjs', args: ['--trace'] },
-        { name: 'bundle', script: 'bundle.mjs', args: [], server: false },
       ]
     : []),
+  // Every tier: a production build checked against the budgets (1.12a).
+  { name: 'bundle', script: 'bundle.mjs', args: [], server: false },
 ].filter((suite) => !only || only.has(suite.name));
 
 // A name that is no suite of this tier would run nothing and pass.

@@ -28,6 +28,10 @@ export interface PracticeSessionScale {
   degrees: string[];
   /** Note names in the key: ['A','B','C','D','E','F♯','G']. */
   names: string[];
+  /** Its own tonic, when a level teaches in two keys (Latin L1: E minor, G major). */
+  tonicPc?: number;
+  /** That tonic as a student reads it: 'G'. */
+  tonicLabel?: string;
 }
 
 /**
@@ -90,6 +94,14 @@ export interface GenrePracticeSession {
   prompts: string[];
   /** Back to the lesson this came from. */
   returnTo: string;
+  /**
+   * The groove toggle (D-088): the level's styles (empty when it teaches one)
+   * and the one playing; the level's progressions and the one playing.
+   */
+  styles?: { id: string; name: string }[];
+  styleId?: string | null;
+  progressions?: { id: string; label: string; chords: string[] }[];
+  progressionId?: string;
 }
 
 /** A Practice Track in progress, from either kind of lesson. */

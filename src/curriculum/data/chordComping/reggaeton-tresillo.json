@@ -1,0 +1,17 @@
+{
+  "id": "reggaeton-tresillo",
+  "name": "Reggaeton Tresillo",
+  "description": "Chords on the tresillo, 3+3+2: beat 1, the \"and\" of 2, beat 4",
+  "status": "draft",
+  "order": 100,
+  "timeSignature": [4, 4],
+  "length": "1m",
+  "gridResolution": "8n",
+  "ceiling": 72,
+  "grooves": ["reggaeton_01"],
+  "hits": [
+    { "time": "0:0:0", "dur": 1.25, "velocity": 0.78 },
+    { "time": "0:1:2", "dur": 1.25, "velocity": 0.7 },
+    { "time": "0:3:0", "dur": 0.9, "velocity": 0.72 }
+  ]
+}

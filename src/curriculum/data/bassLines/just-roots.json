@@ -1,0 +1,22 @@
+{
+  "id": "just-roots",
+  "name": "Just Roots",
+  "description": "One long root per chord. The simplest thing that works",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 150,
+  "timeSignature": [4, 4],
+  "length": "1m",
+  "gridResolution": "8n",
+  "instrument": "upright",
+  "grooves": [],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 3.8,
+      "velocity": 0.8
+    }
+  ]
+}

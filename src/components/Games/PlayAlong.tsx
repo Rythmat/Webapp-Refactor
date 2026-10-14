@@ -6,7 +6,6 @@ import {
   triggerPianoAttack,
   triggerPianoRelease,
 } from '@/audio/pianoSampler';
-import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import type { LessonChordSymbol } from '@/curriculum/notation/lessonChordSymbols';
@@ -14,9 +13,14 @@ import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { playClick, resetClickSpacing } from '@/learn/audio/metronomeClick';
 import { playGuideNote } from '@/learn/audio/practiceGuide';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
+import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { PracticeControls } from '@/learn/components/PracticeControls';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
+import {
+  useFitAboveKeyboard,
+  VIEW_KEYBOARD_GAP,
+} from '@/learn/layout/useFitAboveKeyboard';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
 import {
   NoteEvent,
@@ -31,6 +35,9 @@ import {
   WRONG_KEY_COLOR,
 } from './liveFeedback';
 import { gradePlayAlong, type PlayAlongResult } from './playAlongGrade';
+
+/** GenrePianoRoll's bar ruler, on top of `rowHeight`. */
+const ROLL_TIMELINE_HEIGHT = 40;
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
@@ -120,6 +127,13 @@ export const PlayAlong = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const wasPlayingRef = useRef(false);
   const activeMidiSetRef = useRef(new Set<number>());
+  // Roll/notation takes what's left above the keyboard (see
+  // useFitAboveKeyboard), up to the roll's old fixed size.
+  const [viewEl, setViewEl] = useState<HTMLDivElement | null>(null);
+  const [keyboardEl, setKeyboardEl] = useState<HTMLDivElement | null>(null);
+  const viewHeight = useFitAboveKeyboard(viewEl, keyboardEl, {
+    max: 28 * 18 + ROLL_TIMELINE_HEIGHT,
+  });
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
     PlaybackEvent[]
@@ -580,39 +594,42 @@ export const PlayAlong = ({
 
   const gameplayContent = (
     <>
-      <GenrePianoRoll
-        key={playSessionId}
-        inTime
-        activeMidis={activeMidis}
-        bars={requiredBars}
-        beatsPerBar={4}
-        events={resolvedEvents}
-        isPlaying={isPlaying}
-        performanceMeta={performanceMeta}
-        playSpeed={playbackBpm}
-        rowHeight={28 * 18}
-        subdivision={1}
-        keyColor={activityColor}
-        colorActiveLanesByTarget
-        targetMidiSet={targetMidiSet}
-        userNotes={wrongUserNotes}
-        noteSpelling={noteSpelling}
-        onPlayingChange={setIsPlaying}
-        onTickChange={setCurrentTick}
-        chordSymbols={chordSymbols}
-      />
-      <div className="flex items-stretch gap-3">
+      <div ref={setViewEl}>
+        <GenrePianoRoll
+          key={playSessionId}
+          inTime
+          activeMidis={activeMidis}
+          bars={requiredBars}
+          beatsPerBar={4}
+          events={resolvedEvents}
+          isPlaying={isPlaying}
+          performanceMeta={performanceMeta}
+          playSpeed={playbackBpm}
+          rowHeight={viewHeight - ROLL_TIMELINE_HEIGHT}
+          subdivision={1}
+          keyColor={activityColor}
+          colorActiveLanesByTarget
+          targetMidiSet={targetMidiSet}
+          userNotes={wrongUserNotes}
+          noteSpelling={noteSpelling}
+          onPlayingChange={setIsPlaying}
+          onTickChange={setCurrentTick}
+          chordSymbols={chordSymbols}
+        />
+      </div>
+      <div
+        ref={setKeyboardEl}
+        className="flex items-stretch gap-3"
+        style={{ marginTop: VIEW_KEYBOARD_GAP }}
+      >
         <div className="relative flex-1 min-w-0">
           <WrongNoteFlash flash={flash} noteSpelling={noteSpelling} />
-          <PianoKeyboard
-            showOctaveStart
+          <LessonKeyboard
             activeBlackKeyColor={activityColor}
             activeWhiteKeyColor={activityColor}
-            className="mx-auto"
-            endC={6}
             hintNotes={showTargetKeys ? nextTargetKeys : undefined}
             playingNotes={keyboardPlayingNotes}
-            startC={2}
+            targetMidis={targetMidiSet}
           />
         </div>
         <PracticeControls activityBpm={THEORY_ACTIVITY_BPM} />

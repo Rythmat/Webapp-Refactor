@@ -1,0 +1,64 @@
+{
+  "id": "driving-eighths",
+  "name": "Driving Eighths",
+  "description": "Roots on every eighth, an approach on the last",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 80,
+  "timeSignature": [4, 4],
+  "length": "1m",
+  "gridResolution": "8n",
+  "instrument": "electric",
+  "grooves": ["straight-8"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 0.42,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:0:2",
+      "degree": "R",
+      "dur": 0.42,
+      "velocity": 0.62
+    },
+    {
+      "time": "0:1:0",
+      "degree": "R",
+      "dur": 0.42,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:1:2",
+      "degree": "R",
+      "dur": 0.42,
+      "velocity": 0.62
+    },
+    {
+      "time": "0:2:0",
+      "degree": "R",
+      "dur": 0.42,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:2:2",
+      "degree": "R",
+      "dur": 0.42,
+      "velocity": 0.62
+    },
+    {
+      "time": "0:3:0",
+      "degree": "R",
+      "dur": 0.42,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:3:2",
+      "degree": "A",
+      "dur": 0.42,
+      "velocity": 0.66
+    }
+  ]
+}

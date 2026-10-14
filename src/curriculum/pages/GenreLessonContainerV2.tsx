@@ -23,7 +23,6 @@ import {
   triggerPianoRelease,
   startPianoSampler,
 } from '@/audio/pianoSampler';
-import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { ClefToggle } from '@/components/notation/ClefToggle';
 import type { StaffLayout } from '@/components/notation/StaffView';
 import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
@@ -71,6 +70,7 @@ import {
 } from '@/learn/audio/practiceGuide';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
+import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { MetronomeToggle } from '@/learn/components/MetronomeToggle';
 import type { GuitarSetupStep } from '@/learn/components/guitar/GuitarInputSetup';
@@ -97,6 +97,12 @@ import {
   type GenreNoteEvent,
 } from '../engine/genreGeneration/resolveStepContent';
 import { stepSwing } from '../engine/genreGeneration/swing';
+import {
+  barTicks,
+  beatsPerBar,
+  beatTicks,
+  stepTimeSignature,
+} from '../engine/meter';
 import {
   guitarResultHeading,
   hasMarkedMistakes,
@@ -137,6 +143,7 @@ import type {
   StyleSubProfile,
 } from '../types/activity.v2';
 import { flowInstrument } from '../utils/flowInstrument';
+import { stepMode } from '../utils/flowKey';
 import { formatAccidentalsForDisplay } from '../utils/formatAccidentals';
 
 // The guitar input setup (tuner, checks) loads when first opened.
@@ -410,42 +417,40 @@ function GenreLessonContainerV2Inner({
   const guitarKey = useMemo(() => flowGuitarCenterId(flow), [flow]);
   const guitarCenter = getGuitarCenter(guitarKey);
 
-  // Key from flow params — no GCM dependency
-  const keyRoot = useMemo(() => {
-    const keyName = flow.params.defaultKey.split(' ')[0];
-    return parseKeyRoot(keyName);
-  }, [flow.params.defaultKey]);
+  // Key from flow params — no GCM dependency. A step in another key than its
+  // flow names it (Latin L1's Mariachi steps: key 'G major').
+  const ownKey = (currentStep as ActivityStepV2).key;
+  const stepScaleId = (currentStep as ActivityStepV2).scaleId;
+  const keyName = (ownKey ?? flow.params.defaultKey).split(' ')[0];
+  const keyRoot = useMemo(() => parseKeyRoot(keyName), [keyName]);
+  const keyModeSlug = ownKey
+    ? stepMode(flow, { key: ownKey, scaleId: stepScaleId })
+    : (SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? null);
 
   // Chord symbols follow the chord notation setting; Roman numbers from the key.
   const chordNotation = useChordNotation();
   const chordContext = useMemo<ChordContext>(
     () => ({
       keyRootPc: keyRoot % 12,
-      mode: SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? null,
+      mode: keyModeSlug,
     }),
-    [keyRoot, flow.params.defaultScaleId],
+    [keyRoot, keyModeSlug],
   );
 
   // Key color from app's color system — mode-shifted to match Music Atlas key center colors
   const keyColor = useMemo(() => {
-    const keyName = flow.params.defaultKey.split(' ')[0];
     // Guitar follows the Atlas rule — keys are colours — so a major key
     // takes its own (ionian) colour, as on the key picker, and a mode its
     // mode's. Piano's 'major' scale id has no entry here and keeps its
     // existing fallback.
     const modeSlug = isGuitar
       ? guitarScaleEntry(guitarCenter.mode).slug
-      : (SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? 'dorian');
+      : (keyModeSlug ?? 'dorian');
     return colorForKeyMode(
       keyName,
       modeSlug as Parameters<typeof colorForKeyMode>[1],
     );
-  }, [
-    flow.params.defaultKey,
-    flow.params.defaultScaleId,
-    isGuitar,
-    guitarCenter,
-  ]);
+  }, [keyName, keyModeSlug, isGuitar, guitarCenter]);
 
   // Demo playback hook
   const { playDemo, stopDemo, demoHighlightMidis, isPlayingDemo } =
@@ -516,13 +521,18 @@ function GenreLessonContainerV2Inner({
     );
   }
   const swing = stepSwing(resolvedStep as ActivityStepV2, flow.params.swing);
+  // The step's meter (D-085): bar length, felt beats and count-in follow it.
+  const timeSignature = stepTimeSignature(resolvedStep as ActivityStepV2, flow);
+  const barLength = barTicks(timeSignature);
+  const meterBeats = beatsPerBar(timeSignature);
+  const meterBeatTicks = beatTicks(timeSignature);
   const lessonTargetNotes = useMemo(
     () =>
       resolveStepContent(resolvedStep, {
         section: activeSection,
         keyRoot,
         tempo,
-        timeSignature: [4, 4],
+        timeSignature,
         tpb: 480,
         defaultScale: flow.params.defaultScale,
         genre: flow.genre,
@@ -546,13 +556,17 @@ function GenreLessonContainerV2Inner({
   // lives only in practice: the run plays the looped bars and restarts with a
   // count-in after each pass, which is scored silently for the speed trainer
   // and never recorded. Play Now always grades the whole step at its tempo.
-  const barsInStep = stepBarCount({
-    targetNotes: lessonTargetNotes,
-    chordTargets: resolvedStep.chordTargets,
-  });
+  const barsInStep = stepBarCount(
+    {
+      targetNotes: lessonTargetNotes,
+      chordTargets: resolvedStep.chordTargets,
+    },
+    barLength,
+  );
   const practice = useLessonPracticeTools({
     baseTempo: tempo,
     barsInStep,
+    ticksPerBar: barLength,
     chordTargets: resolvedStep.chordTargets,
     passes: resolvedStep.guitar?.musicMap?.passes,
     assessment: currentStep.assessment ?? 'pitch_only',
@@ -574,13 +588,14 @@ function GenreLessonContainerV2Inner({
               chordSymbols: currentStep.chordSymbols,
             },
             practice.loop,
-            { padBars: practice.padBars },
+            { padBars: practice.padBars, ticksPerBar: barLength },
           )
         : null,
     [
       isGuitar,
       practice.loop,
       practice.padBars,
+      barLength,
       lessonTargetNotes,
       resolvedStep.chordTargets,
       currentStep.chordSymbols,
@@ -622,7 +637,7 @@ function GenreLessonContainerV2Inner({
   );
 
   // For IT activities, offset all notes by 1 bar to create a genuine count-in
-  const COUNT_IN_OFFSET = 1920; // one bar at 4/4
+  const COUNT_IN_OFFSET = barLength; // one bar of the step's meter
   /** Lead time given to every transport start, so the graph is ready. */
   const TRANSPORT_LEAD_SEC = 0.1;
   /** A little past the start, so the first read is a real tick, not a null. */
@@ -650,12 +665,12 @@ function GenreLessonContainerV2Inner({
     const maxTick = Math.max(...targetNotes.map((n) => n.onset + n.duration));
     // A looped bar can end in rests; it still takes its whole bar.
     const contentBars = Math.max(
-      Math.ceil(maxTick / 1920),
+      Math.ceil(maxTick / barLength),
       loopSlice?.bars ?? 0,
     );
     // IT gets +1 bar for the count-in offset
     return Math.max(2, contentBars + (isIT ? 1 : 0));
-  }, [targetNotes, isIT, loopSlice]);
+  }, [targetNotes, isIT, loopSlice, barLength]);
 
   // Which clef the notation view writes on. A melody reads in the treble clef
   // whatever register it dips into — letting the grand-staff split decide from
@@ -726,10 +741,6 @@ function GenreLessonContainerV2Inner({
 
     return { min: paddedMin, max: paddedMax };
   }, [targetNotes, activeSection]);
-
-  // Convert MIDI range to octave numbers for PianoKeyboard
-  const startOctave = Math.floor(noteRange.min / 12) - 1;
-  const endOctave = Math.floor(noteRange.max / 12) - 1;
 
   // Piano roll height — MEASURED, not estimated.
   //
@@ -1021,6 +1032,7 @@ function GenreLessonContainerV2Inner({
 
   const { setBpm, prepare: prepareMetronome } = useMetronome({
     bpm: tempo,
+    timeSignature,
     // Disable metronome in Play Now (performance) mode when a backing track is running —
     // the drum track provides the pulse. Practice mode always gets the metronome.
     enabled:
@@ -1424,10 +1436,10 @@ function GenreLessonContainerV2Inner({
 
   // Max tick = end of last note (with COUNT_IN_OFFSET for IT)
   const maxContentTick = useMemo(() => {
-    if (!targetNotes.length) return 1920;
+    if (!targetNotes.length) return barLength;
     const maxRaw = Math.max(...targetNotes.map((n) => n.onset + n.duration));
     return isIT ? maxRaw + COUNT_IN_OFFSET : maxRaw;
-  }, [targetNotes, isIT]);
+  }, [targetNotes, isIT, barLength, COUNT_IN_OFFSET]);
 
   // Chord symbols above the staff, from the step's own symbols. They sit on
   // the same timeline as the notes, so in time they carry the count-in offset
@@ -1449,7 +1461,7 @@ function GenreLessonContainerV2Inner({
     return lessonChordSymbols(
       placeLessonChords(labels, {
         bars: contentBars,
-        ticksPerBar: 1920,
+        ticksPerBar: barLength,
         onsets,
         ...(contentEndTick !== undefined ? { contentEndTick } : {}),
         startTick: isIT ? COUNT_IN_OFFSET : 0,
@@ -1457,7 +1469,7 @@ function GenreLessonContainerV2Inner({
       chordNotation,
       chordContext,
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- COUNT_IN_OFFSET is a module-level constant
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- COUNT_IN_OFFSET follows the step's meter, which these deps already track
   }, [
     currentStep,
     loopSlice,
@@ -1718,7 +1730,7 @@ function GenreLessonContainerV2Inner({
     }
 
     // Calculate content duration in ms
-    const contentTicks = maxContentTick + 1920; // +1 bar for PianoRoll's built-in count-in
+    const contentTicks = maxContentTick + barLength; // +1 bar for PianoRoll's built-in count-in
     const msPerTick = (60 / runTempo / 480) * 1000;
     const totalMs = contentTicks * msPerTick + guitarGraceMs;
 
@@ -1749,7 +1761,7 @@ function GenreLessonContainerV2Inner({
         itTimerRef.current = null;
       }
     };
-  }, [activityState, isIT, maxContentTick, runTempo, guitarGraceMs]); // NO handleComplete in deps
+  }, [activityState, isIT, maxContentTick, runTempo, guitarGraceMs, barLength]); // NO handleComplete in deps
 
   // ── Keyboard shortcuts for step navigation ──────────────────────────────
 
@@ -2135,7 +2147,11 @@ function GenreLessonContainerV2Inner({
   const guitarNextStep = useMemo(
     () =>
       isGuitar && lastResult
-        ? nextStepSuggestion(lastResult, { bars: barsInStep, tempoPct: 100 })
+        ? nextStepSuggestion(lastResult, {
+            bars: barsInStep,
+            tempoPct: 100,
+            ticksPerBar: barLength,
+          })
         : null,
     [isGuitar, lastResult, barsInStep],
   );
@@ -2245,6 +2261,7 @@ function GenreLessonContainerV2Inner({
             padBars={practice.padBars}
             onPadChange={setPracticePad}
             countInOffset={isIT ? COUNT_IN_OFFSET : 0}
+            ticksPerBar={barLength}
             showChip={false}
           />
         )}
@@ -2253,6 +2270,7 @@ function GenreLessonContainerV2Inner({
             layout={layout}
             outcomes={lastOutcomes}
             countInOffset={isIT ? COUNT_IN_OFFSET : 0}
+            ticksPerBar={barLength}
             onLoopBar={(bar) =>
               practiceLoop({ startBar: bar, endBar: bar }, undefined, 1)
             }
@@ -2260,7 +2278,7 @@ function GenreLessonContainerV2Inner({
         )}
       </>
     ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- COUNT_IN_OFFSET is a module-level constant
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- COUNT_IN_OFFSET follows the step's meter, which these deps already track
     [
       tabTheoryLayers,
       musicMap,
@@ -2330,6 +2348,7 @@ function GenreLessonContainerV2Inner({
         flow.genre,
         isIT ? LEAD_IN_TICKS : 0, // backing bar 1 = the student's bar 1
         swing,
+        timeSignature,
       );
 
       // startBacking starts the transport itself; record the same lead so
@@ -2586,7 +2605,9 @@ function GenreLessonContainerV2Inner({
               tabOverlay={renderGuitarTabOverlay}
               events={pianoRollEvents}
               bars={requiredBars}
-              beatsPerBar={4}
+              beatsPerBar={meterBeats}
+              beatTicks={meterBeatTicks}
+              timeSignature={timeSignature}
               leadInTicks={LEAD_IN_TICKS}
               staves={notationStaves}
               notationToggle={clefToggle}
@@ -3077,7 +3098,9 @@ function GenreLessonContainerV2Inner({
               containerHeight={pianoRollMaxHeight}
               events={pianoRollEvents}
               bars={requiredBars}
-              beatsPerBar={4}
+              beatsPerBar={meterBeats}
+              beatTicks={meterBeatTicks}
+              timeSignature={timeSignature}
               leadInTicks={LEAD_IN_TICKS}
               staves={notationStaves}
               notationToggle={clefToggle}
@@ -3104,7 +3127,9 @@ function GenreLessonContainerV2Inner({
               instrument="piano"
               events={pianoRollEvents}
               bars={requiredBars}
-              beatsPerBar={4}
+              beatsPerBar={meterBeats}
+              beatTicks={meterBeatTicks}
+              timeSignature={timeSignature}
               leadInTicks={LEAD_IN_TICKS}
               staves={notationStaves}
               notationToggle={clefToggle}
@@ -3130,13 +3155,13 @@ function GenreLessonContainerV2Inner({
           )}
         </div>
 
-        {/* Piano Keyboard — fixed height, range matches piano roll.
-            Volume dial sits alongside on the right so it's always within
-            reach during practice without crowding the header. */}
+        {/* Piano Keyboard — fills the width and mirrors the player's own
+            keyboard (LessonKeyboard). Volume dial sits alongside on the right
+            so it's always within reach during practice without crowding the
+            header. */}
         <div
           style={{
             marginTop: '8px',
-            height: '120px',
             flexShrink: 0,
             display: 'flex',
             alignItems: 'stretch',
@@ -3144,12 +3169,10 @@ function GenreLessonContainerV2Inner({
           }}
         >
           <div style={{ flex: 1, minWidth: 0 }}>
-            <PianoKeyboard
-              showOctaveStart
+            <LessonKeyboard
               activeWhiteKeyColor={keyboardActiveColor ?? keyColor}
               activeBlackKeyColor={keyboardActiveColor ?? keyColor}
-              endC={endOctave + 1}
-              startC={startOctave}
+              targetMidis={targetMidiSet}
               playingNotes={
                 // Priority: demo > user MIDI > practice Tone.Part > static preview
                 // When demo is playing, ONLY show demo highlights (gaps = empty keyboard)

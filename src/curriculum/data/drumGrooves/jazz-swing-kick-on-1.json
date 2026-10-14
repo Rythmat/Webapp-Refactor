@@ -59,7 +59,7 @@
       "tick": 1680,
       "note": 51,
       "velocity": 51,
-      "offset": 80
+      "offset": 104
     },
     {
       "tick": 1920,
@@ -85,7 +85,7 @@
       "tick": 2640,
       "note": 51,
       "velocity": 51,
-      "offset": 80
+      "offset": 104
     },
     {
       "tick": 2880,
@@ -106,7 +106,7 @@
       "tick": 3600,
       "note": 51,
       "velocity": 51,
-      "offset": 80
+      "offset": 104
     },
     {
       "tick": 3840,
@@ -132,7 +132,7 @@
       "tick": 4560,
       "note": 51,
       "velocity": 51,
-      "offset": 80
+      "offset": 104
     },
     {
       "tick": 4800,
@@ -173,7 +173,7 @@
       "tick": 6480,
       "note": 51,
       "velocity": 51,
-      "offset": 80
+      "offset": 104
     },
     {
       "tick": 6720,
@@ -194,7 +194,7 @@
       "tick": 7440,
       "note": 51,
       "velocity": 51,
-      "offset": 80
+      "offset": 104
     }
   ]
 }

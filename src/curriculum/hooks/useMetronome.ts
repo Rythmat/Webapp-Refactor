@@ -2,6 +2,13 @@ import { useEffect, useRef, useCallback } from 'react';
 import * as Tone from 'tone';
 import { audioEngine } from '@/audio/AudioEngine';
 import { startTone } from '@/audio/core/toneBridge';
+import {
+  barClicks,
+  isCommonTime,
+  PPQ,
+  type Click,
+  type TimeSignature,
+} from '../engine/meter';
 
 interface UseMetronomeOptions {
   bpm: number;
@@ -9,6 +16,11 @@ interface UseMetronomeOptions {
   beatsPerBar?: number; // default 4
   accentBeat1?: boolean; // default true — louder click on beat 1
   volumeDb?: number; // default 0 — synth output level in decibels
+  /**
+   * The lesson's meter (engine/meter.ts). Outside 4/4 it replaces
+   * beatsPerBar: felt beats click loud, the eighths between soft (D-086).
+   */
+  timeSignature?: TimeSignature;
 }
 
 export function useMetronome({
@@ -17,6 +29,7 @@ export function useMetronome({
   beatsPerBar = 4,
   accentBeat1 = true,
   volumeDb = 0,
+  timeSignature,
 }: UseMetronomeOptions) {
   const synthRef = useRef<Tone.MembraneSynth | null>(null);
   const loopRef = useRef<Tone.Sequence | null>(null);
@@ -40,7 +53,27 @@ export function useMetronome({
     }
   }, [volumeDb]);
 
+  const meterKey = timeSignature ? timeSignature.join('/') : '';
   const ensureSequence = useCallback(() => {
+    if (!loopRef.current && timeSignature && !isCommonTime(timeSignature)) {
+      // One bar of clicks on the eighth grid (meter.ts barClicks).
+      const clicks = barClicks(timeSignature);
+      const sub = clicks.length > 1 ? clicks[1].tick : PPQ;
+      const level: Record<Click['accent'], [string, number]> = {
+        downbeat: ['C5', accentBeat1 ? 0.9 : 0.5],
+        beat: ['C6', 0.5],
+        sub: ['C6', 0.18],
+      };
+      loopRef.current = new Tone.Sequence(
+        (time, click) => {
+          const [note, velocity] = level[click.accent];
+          synthRef.current?.triggerAttackRelease(note, '32n', time, velocity);
+        },
+        clicks,
+        sub === PPQ / 2 ? '8n' : '4n',
+      );
+      return;
+    }
     if (!loopRef.current) {
       const beats = Array.from({ length: beatsPerBar }, (_, i) => i);
       loopRef.current = new Tone.Sequence(
@@ -57,7 +90,8 @@ export function useMetronome({
         '4n',
       );
     }
-  }, [beatsPerBar, accentBeat1]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- meterKey stands for timeSignature
+  }, [beatsPerBar, accentBeat1, meterKey]);
 
   // prepare: sets up synth + a FRESH sequence + schedules loop at position 0, but
   // does NOT start the Transport. Always disposes the old sequence first so that

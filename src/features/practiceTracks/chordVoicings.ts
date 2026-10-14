@@ -194,12 +194,16 @@ function spells(symbol: string, voicing: readonly number[]): boolean {
  * Each distinct chord a bar sounds, in order: the notes sounding at each of its
  * onsets, two or more of them.
  */
-function barChords(notes: readonly TargetNote[], bar: number): number[][] {
-  const start = bar * BAR_TICKS;
+function barChords(
+  notes: readonly TargetNote[],
+  bar: number,
+  barLength = BAR_TICKS,
+): number[][] {
+  const start = bar * barLength;
   const onsets = [
     ...new Set(
       notes
-        .filter((n) => n.onset >= start && n.onset < start + BAR_TICKS)
+        .filter((n) => n.onset >= start && n.onset < start + barLength)
         .map((n) => n.onset),
     ),
   ].sort((a, b) => a - b);
@@ -228,9 +232,13 @@ function barChords(notes: readonly TargetNote[], bar: number): number[][] {
  * left-hand root struck on the downbeat stays part of a right-hand chord
  * pushed on beat two.
  */
-function barVoicing(notes: readonly TargetNote[], bar: number): number[] {
-  const start = bar * BAR_TICKS;
-  const end = start + BAR_TICKS;
+function barVoicing(
+  notes: readonly TargetNote[],
+  bar: number,
+  barLength = BAR_TICKS,
+): number[] {
+  const start = bar * barLength;
+  const end = start + barLength;
   const onsets = [
     ...new Set(
       notes
@@ -270,19 +278,21 @@ export interface VoicedActivity {
 export function stylisticVoicings(
   progression: readonly string[],
   activities: readonly VoicedActivity[],
+  /** The activities' bar in ticks (engine/meter.ts barTicks). */
+  barLength = BAR_TICKS,
 ): (number[] | null)[] {
   const found = new Map<string, number[]>();
   for (const { notes, chordSymbols } of activities) {
     if (chordSymbols.length === 0 || notes.length === 0) continue;
     let bars = Math.ceil(
-      Math.max(...notes.map((n) => n.onset + 1)) / BAR_TICKS,
+      Math.max(...notes.map((n) => n.onset + 1)) / barLength,
     );
     // A last bar that is one hit on its downbeat, on notes that aren't the
     // chord the list gives that bar, is the phrase landing back home, not a bar
     // of the progression: Funk L1's D2.3 plays a bar of Dm7 and lands on Dm7's
     // D-F-C, which its chord list, read bar by bar, would file as G7.
     const lastBar = bars - 1;
-    const lastBarStart = lastBar * BAR_TICKS;
+    const lastBarStart = lastBar * barLength;
     const lastTones = chordSymbolTones(
       chordSymbols[lastBar % chordSymbols.length],
     );
@@ -301,7 +311,7 @@ export function stylisticVoicings(
     for (let bar = 0; bar < bars; bar++) {
       const symbol = chordSymbols[bar % chordSymbols.length];
       const key = chordKey(symbol);
-      const chords = barChords(notes, bar);
+      const chords = barChords(notes, bar, barLength);
       // A bar can hold more than one chord — Hip Hop L2's sus2 groove plays
       // Am sus2 then Am in one bar — so each chord it sounds is filed under
       // the symbol its notes spell, not just the bar's own.
@@ -323,7 +333,7 @@ export function stylisticVoicings(
       const own = chords
         .filter((voicing) => spells(symbol, voicing))
         .sort((a, b) => b.length - a.length)[0];
-      const voicing = own ?? barVoicing(notes, bar);
+      const voicing = own ?? barVoicing(notes, bar, barLength);
       if (voicing.length > 1) found.set(key, voicing);
     }
   }

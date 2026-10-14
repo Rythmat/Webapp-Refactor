@@ -214,9 +214,10 @@ const DualStaffPianoRoll: React.FC<DualStaffPianoRollProps> = ({
   const rhRowHeight = rhParams.laneCount * laneHeight;
   const lhRowHeight = lhParams.laneCount * laneHeight;
 
-  // Notation is already a grand staff: one roll, hands tagged onto the staves.
+  // Notation is already a grand staff: one roll, hands tagged onto the
+  // staves. The cascade falls into one keyboard, so it's one picture too.
   const [view] = useRollView('learn');
-  if (view === 'notation') {
+  if (view !== 'roll') {
     return (
       <GenrePianoRoll
         {...rest}

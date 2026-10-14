@@ -143,6 +143,7 @@ export function consoleAppPath(pathname: string): string | null {
   // Instrument content is what the Studio's Grooves and Parts tabs play.
   if (
     pathname.startsWith('/console/grooves') ||
+    pathname.startsWith('/console/bass-lines') ||
     pathname.startsWith('/console/parts')
   )
     return '/studio';

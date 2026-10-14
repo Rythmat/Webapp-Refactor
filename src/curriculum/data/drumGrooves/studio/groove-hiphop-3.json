@@ -1,6 +1,6 @@
 {
   "id": "groove-hiphop-3",
-  "name": "Hip Hop 3",
+  "name": "Swung Hip Hop 3",
   "description": "The Studio's \"Hip Hop 3\" groove (hiphop-3-90bpm.mid). Edits reach the Studio's Grooves tab once published.",
   "genre": "hip-hop",
   "style": "Hip Hop",
@@ -11,9 +11,9 @@
   "bars": 16,
   "tempo": 90,
   "tempoUnit": "quarter",
-  "swing": 50,
+  "swing": 55,
   "grid": "16n",
-  "kit": "natural",
+  "kit": "custom_custom_natural_01",
   "padGains": {},
   "humanize": {
     "timing": 0,

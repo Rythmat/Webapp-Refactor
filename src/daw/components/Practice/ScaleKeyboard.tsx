@@ -63,6 +63,10 @@ export interface KeyboardScale {
   intervals: number[];
   degrees: string[];
   names: string[];
+  /** Its own tonic, when a level teaches in two keys (Latin L1: E minor, G major). */
+  tonicPc?: number;
+  /** That tonic as a student reads it: 'G'. */
+  tonicLabel?: string;
 }
 
 interface ScaleKeyboardProps {

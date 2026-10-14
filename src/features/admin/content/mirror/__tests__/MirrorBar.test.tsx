@@ -173,6 +173,8 @@ describe('the Records menu', () => {
       // Instrument content, in its own group.
       ['Parts Library', '/console/parts'],
       ['Drum Grooves', '/console/grooves'],
+      ['Bass Lines', '/console/bass-lines'],
+      ['Chord Comping', '/console/comping'],
     ]);
     expect(
       within(screen.getByRole('menu')).getAllByRole('separator'),

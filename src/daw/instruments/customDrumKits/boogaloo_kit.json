@@ -1,0 +1,10 @@
+{
+  "id": "boogaloo_kit",
+  "label": "Boogaloo kit",
+  "base": "natural",
+  "samples": {
+    "44": "/daw-assets/samples/drums/uploads/muzss6qa-hihat---foot-close---3.mp3",
+    "48": "/daw-assets/samples/drums/uploads/muzqp9o6-rack-tom---snares-on---4.mp3",
+    "51": "/daw-assets/samples/drums/uploads/muzqpup3-ride---5.mp3"
+  }
+}

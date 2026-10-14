@@ -1,0 +1,64 @@
+{
+  "id": "half-time-shuffle",
+  "name": "Half-Time Shuffle",
+  "description": "12/8: each dotted-quarter pulse with a triplet pickup",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 140,
+  "timeSignature": [12, 8],
+  "length": "1m",
+  "gridResolution": "8n",
+  "instrument": "electric",
+  "grooves": ["purdie-shuffle"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 0.9,
+      "velocity": 0.9
+    },
+    {
+      "time": "0:1:0",
+      "degree": "R",
+      "dur": 0.4,
+      "velocity": 0.6
+    },
+    {
+      "time": "0:1:2",
+      "degree": "5",
+      "dur": 0.9,
+      "velocity": 0.78
+    },
+    {
+      "time": "0:2:2",
+      "degree": "5",
+      "dur": 0.4,
+      "velocity": 0.58
+    },
+    {
+      "time": "0:3:0",
+      "degree": "8",
+      "dur": 0.9,
+      "velocity": 0.84
+    },
+    {
+      "time": "0:4:0",
+      "degree": "8",
+      "dur": 0.4,
+      "velocity": 0.6
+    },
+    {
+      "time": "0:4:2",
+      "degree": "5",
+      "dur": 0.9,
+      "velocity": 0.76
+    },
+    {
+      "time": "0:5:2",
+      "degree": "A",
+      "dur": 0.45,
+      "velocity": 0.66
+    }
+  ]
+}

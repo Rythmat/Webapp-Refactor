@@ -1,0 +1,184 @@
+{
+  "id": "boogaloo",
+  "name": "Boogaloo",
+  "description": "Funky jazzy groove, related to New Orleans but straight eighths. From ICP Studio.",
+  "genre": "jazz",
+  "style": "Boogaloo",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 2,
+  "tempo": 164,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "boogaloo_kit",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 121
+    },
+    {
+      "tick": 0,
+      "note": 51,
+      "velocity": 121
+    },
+    {
+      "tick": 480,
+      "note": 38,
+      "velocity": 121
+    },
+    {
+      "tick": 480,
+      "note": 44,
+      "velocity": 89
+    },
+    {
+      "tick": 480,
+      "note": 51,
+      "velocity": 121
+    },
+    {
+      "tick": 960,
+      "note": 38,
+      "velocity": 121
+    },
+    {
+      "tick": 960,
+      "note": 51,
+      "velocity": 89
+    },
+    {
+      "tick": 1200,
+      "note": 51,
+      "velocity": 10
+    },
+    {
+      "tick": 1440,
+      "note": 36,
+      "velocity": 38
+    },
+    {
+      "tick": 1440,
+      "note": 44,
+      "velocity": 89
+    },
+    {
+      "tick": 1440,
+      "note": 51,
+      "velocity": 10
+    },
+    {
+      "tick": 1680,
+      "note": 38,
+      "velocity": 121
+    },
+    {
+      "tick": 1680,
+      "note": 51,
+      "velocity": 121
+    },
+    {
+      "tick": 1920,
+      "note": 51,
+      "velocity": 10
+    },
+    {
+      "tick": 2160,
+      "note": 38,
+      "velocity": 89
+    },
+    {
+      "tick": 2160,
+      "note": 51,
+      "velocity": 89
+    },
+    {
+      "tick": 2400,
+      "note": 44,
+      "velocity": 89
+    },
+    {
+      "tick": 2400,
+      "note": 48,
+      "velocity": 10
+    },
+    {
+      "tick": 2400,
+      "note": 51,
+      "velocity": 38
+    },
+    {
+      "tick": 2640,
+      "note": 36,
+      "velocity": 89
+    },
+    {
+      "tick": 2640,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 2640,
+      "note": 51,
+      "velocity": 89
+    },
+    {
+      "tick": 2880,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 2880,
+      "note": 51,
+      "velocity": 38
+    },
+    {
+      "tick": 3120,
+      "note": 36,
+      "velocity": 10
+    },
+    {
+      "tick": 3120,
+      "note": 51,
+      "velocity": 89
+    },
+    {
+      "tick": 3360,
+      "note": 38,
+      "velocity": 121
+    },
+    {
+      "tick": 3360,
+      "note": 44,
+      "velocity": 89
+    },
+    {
+      "tick": 3360,
+      "note": 48,
+      "velocity": 10
+    },
+    {
+      "tick": 3360,
+      "note": 51,
+      "velocity": 121
+    },
+    {
+      "tick": 3600,
+      "note": 36,
+      "velocity": 10
+    },
+    {
+      "tick": 3600,
+      "note": 48,
+      "velocity": 89
+    }
+  ]
+}

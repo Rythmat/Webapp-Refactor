@@ -39,6 +39,7 @@ import {
   type CustomDrumKitFile,
 } from '@/daw/instruments/drumKits';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
+import { UseInLessons } from '../lessonPairings/UseInLessons';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
 import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../ui/styles';
@@ -337,6 +338,12 @@ export const DrumGrooveEditor: FC<Props> = ({
         aria-label="Description"
       />
 
+      <UseInLessons
+        kind="drums"
+        itemId={draft.id}
+        live={draft.status === 'live'}
+      />
+
       {/* ── transport and shape ── */}
       <section
         className={cn(
@@ -547,10 +554,11 @@ export const DrumGrooveEditor: FC<Props> = ({
       </p>
 
       {draft.timeSignature.join('/') !== '4/4' && (
-        <ConsoleCallout tone="warning">
-          Activity play-alongs are written in 4/4; a{' '}
-          {draft.timeSignature.join('/')} groove will loop across their bar
-          lines.
+        <ConsoleCallout tone="info">
+          Lessons play in their own meter. Use this{' '}
+          {draft.timeSignature.join('/')} groove in a lesson style written in{' '}
+          {draft.timeSignature.join('/')}; in a lesson in another meter it loops
+          across the bar lines.
         </ConsoleCallout>
       )}
       {offGrid.length > 0 && (

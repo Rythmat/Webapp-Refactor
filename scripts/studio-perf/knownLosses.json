@@ -2,7 +2,7 @@
   "about": "Today's round-trip results per profile and scenario (scripts/studio-perf/roundtrip.mjs; what each scenario compares comes from the project document registry since milestone 1.3, and the session lives in the device drafts since milestone 1.4). losses: field -> number of keys lost per kind (a tracks[] or clips[] field counts one key per track or clip, and a track or clip that is gone altogether counts once, as 'tracks[] (whole track)' or '... (whole clip)'); flags: the scenario's yes/no checks; pageErrors: uncaught page errors. A run fails on more keys of a kind than listed, a flag moving away from its goal, or more page errors. Rewrite with --update-known once a fix lands.",
   "format": 2,
   "updatedAt": "2026-10-14",
-  "commit": "580729bd",
+  "commit": "8671e0b0",
   "profiles": {
     "chromebook": {
       "R1-refresh-while-playing": {
@@ -12,10 +12,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R11-crash:inDebounce": {
         "flags": {
@@ -65,7 +62,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:draft": {
         "flags": {
@@ -78,7 +75,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:fileNew": {
         "flags": {
@@ -104,7 +101,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:libraryTemplate": {
         "flags": {
@@ -130,7 +127,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:practiceMode": {
         "flags": {
@@ -143,7 +140,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:project": {
         "flags": {
@@ -156,7 +153,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:sameIdReopen": {
         "flags": { "noteIdsWhole": true, "sameIdReopen": true },
@@ -174,7 +171,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:template": {
         "flags": {
@@ -187,7 +184,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:tutorial": {
         "flags": {
@@ -200,7 +197,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:whileRecording": {
         "flags": {
@@ -413,7 +410,7 @@
           "undoKeptOnReturn": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R20-song-page:coldPage": {
         "flags": {
@@ -553,6 +550,19 @@
           "sheetListsCommands": true,
           "typingChipFits": true,
           "typingKeepsTransport": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R27-lesson-practice": {
+        "flags": {
+          "lessonRefreshResumes": true,
+          "lessonResumedToast": true,
+          "otherOpenEndsLesson": true,
+          "practiceKeysRecordTake": true,
+          "practiceRefreshRestores": true,
+          "restoreResumesLesson": true,
+          "twoTabsOwnLessons": true
         },
         "pageErrors": 0,
         "losses": {}
@@ -735,10 +745,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:collab:spa": {
         "flags": {
@@ -749,7 +756,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:demo:cold": {
         "flags": {
@@ -761,10 +768,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:demo:spa": {
         "flags": {
@@ -775,7 +779,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:draft:cold": {
         "flags": {
@@ -787,10 +791,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:draft:spa": {
         "flags": {
@@ -801,7 +802,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:jam:cold": {
         "flags": {
@@ -813,10 +814,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:jam:spa": {
         "flags": {
@@ -827,7 +825,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:practiceGenre:cold": {
         "flags": {
@@ -839,10 +837,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:practiceGenre:spa": {
         "flags": {
@@ -853,7 +848,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:practiceMode:cold": {
         "flags": {
@@ -865,10 +860,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:practiceMode:spa": {
         "flags": {
@@ -879,7 +871,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:project500:cold": {
         "flags": {
@@ -891,10 +883,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:project500:spa": {
         "flags": {
@@ -905,7 +894,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:project:cold": {
         "flags": {
@@ -917,10 +906,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:project:spa": {
         "flags": {
@@ -931,7 +917,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:song:cold": {
         "flags": {
@@ -943,10 +929,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:song:spa": {
         "flags": {
@@ -957,7 +940,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:template:cold": {
         "flags": {
@@ -969,10 +952,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:template:spa": {
         "flags": {
@@ -983,7 +963,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:tutorial:cold": {
         "flags": {
@@ -995,10 +975,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:tutorial:spa": {
         "flags": {
@@ -1009,7 +986,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R6-synth-edit-refresh": {
         "flags": { "draftWrittenAfterSynthEdit": true, "noteIdsWhole": true },
@@ -1019,10 +996,7 @@
       "R7-tab-close": {
         "flags": { "draftFlushedOnClose": true, "noteIdsWhole": true },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R7-tab-close:idbSlow": {
         "flags": {
@@ -1031,26 +1005,17 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R7-tab-close:idbSlowReleased": {
         "flags": { "inFlightWriteKeptNewest": true, "noteIdsWhole": true },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R7-tab-close:idbStalled": {
         "flags": { "mirrorWinsWhenNewer": true, "noteIdsWhole": true },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R7-tab-close:idbStalledLockHeld": {
         "flags": {
@@ -1059,10 +1024,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       }
     },
     "laptop": {
@@ -1073,10 +1035,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R11-crash:inDebounce": {
         "flags": {
@@ -1126,7 +1085,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:draft": {
         "flags": {
@@ -1139,7 +1098,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:fileNew": {
         "flags": {
@@ -1165,7 +1124,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:libraryTemplate": {
         "flags": {
@@ -1191,7 +1150,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:practiceMode": {
         "flags": {
@@ -1204,7 +1163,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:project": {
         "flags": {
@@ -1217,7 +1176,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:sameIdReopen": {
         "flags": { "noteIdsWhole": true, "sameIdReopen": true },
@@ -1235,7 +1194,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:template": {
         "flags": {
@@ -1248,7 +1207,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:tutorial": {
         "flags": {
@@ -1261,7 +1220,7 @@
           "reopenedIdenticallyInPage": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R12-kept-reopen:whileRecording": {
         "flags": {
@@ -1474,7 +1433,7 @@
           "undoKeptOnReturn": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R20-song-page:coldPage": {
         "flags": {
@@ -1614,6 +1573,19 @@
           "sheetListsCommands": true,
           "typingChipFits": true,
           "typingKeepsTransport": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R27-lesson-practice": {
+        "flags": {
+          "lessonRefreshResumes": true,
+          "lessonResumedToast": true,
+          "otherOpenEndsLesson": true,
+          "practiceKeysRecordTake": true,
+          "practiceRefreshRestores": true,
+          "restoreResumesLesson": true,
+          "twoTabsOwnLessons": true
         },
         "pageErrors": 0,
         "losses": {}
@@ -1796,10 +1768,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:collab:spa": {
         "flags": {
@@ -1810,7 +1779,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:demo:cold": {
         "flags": {
@@ -1822,10 +1791,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:demo:spa": {
         "flags": {
@@ -1836,7 +1802,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:draft:cold": {
         "flags": {
@@ -1848,10 +1814,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:draft:spa": {
         "flags": {
@@ -1862,7 +1825,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:jam:cold": {
         "flags": {
@@ -1874,10 +1837,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:jam:spa": {
         "flags": {
@@ -1888,7 +1848,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:practiceGenre:cold": {
         "flags": {
@@ -1900,10 +1860,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:practiceGenre:spa": {
         "flags": {
@@ -1914,7 +1871,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:practiceMode:cold": {
         "flags": {
@@ -1926,10 +1883,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:practiceMode:spa": {
         "flags": {
@@ -1940,7 +1894,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:project500:cold": {
         "flags": {
@@ -1952,10 +1906,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:project500:spa": {
         "flags": {
@@ -1966,7 +1917,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:project:cold": {
         "flags": {
@@ -1978,10 +1929,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:project:spa": {
         "flags": {
@@ -1992,7 +1940,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:song:cold": {
         "flags": {
@@ -2004,10 +1952,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:song:spa": {
         "flags": {
@@ -2018,7 +1963,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:template:cold": {
         "flags": {
@@ -2030,10 +1975,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:template:spa": {
         "flags": {
@@ -2044,7 +1986,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R5-bad-link:tutorial:cold": {
         "flags": {
@@ -2056,10 +1998,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:tutorial:spa": {
         "flags": {
@@ -2070,7 +2009,7 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
       },
       "R6-synth-edit-refresh": {
         "flags": { "draftWrittenAfterSynthEdit": true, "noteIdsWhole": true },
@@ -2080,10 +2019,7 @@
       "R7-tab-close": {
         "flags": { "draftFlushedOnClose": true, "noteIdsWhole": true },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R7-tab-close:idbSlow": {
         "flags": {
@@ -2092,26 +2028,17 @@
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R7-tab-close:idbSlowReleased": {
         "flags": { "inFlightWriteKeptNewest": true, "noteIdsWhole": true },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R7-tab-close:idbStalled": {
         "flags": { "mirrorWinsWhenNewer": true, "noteIdsWhole": true },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       },
       "R7-tab-close:idbStalledLockHeld": {
         "flags": {
@@ -2120,10 +2047,7 @@
           "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 }
-        }
+        "losses": {}
       }
     }
   }

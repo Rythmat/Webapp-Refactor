@@ -4,31 +4,19 @@ import {
   lazy,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
-import { StopThumb } from '@/components/atlas/components/UI/StopThumb';
+import { AtlasSectionTabs } from '@/components/atlas/components/UI/AtlasSectionTabs';
+import { TrailPopover } from '@/components/atlas/components/UI/TrailPopover';
+import { ViewSwitch } from '@/components/atlas/components/UI/ViewSwitch';
 import {
   ATLAS_FOCUS,
   AtlasIconButton,
   AtlasPillButton,
 } from '@/components/atlas/components/UI/primitives';
-import { guidesData } from '@/components/atlas/data/loaders';
-import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
-import {
-  scrollBehavior,
-  usePrefersReducedMotion,
-} from '@/components/atlas/hooks/useMediaQuery';
-import {
-  describeStop,
-  isGuideStop,
-} from '@/components/atlas/navigation/describeStop';
 import { useAtlasStopSelector } from '@/components/atlas/navigation/useAtlasNavigate';
-import {
-  useAtlasTrail,
-  type TrailEntry,
-} from '@/components/atlas/navigation/useAtlasTrail';
+import { useAtlasTrail } from '@/components/atlas/navigation/useAtlasTrail';
 import { ATLAS_Z } from '@/components/atlas/theme/layers';
 import { cn } from '@/lib/utils';
 
@@ -40,68 +28,6 @@ const AtlasCommandPalette = lazy(loadPalette);
 const isMac =
   typeof navigator !== 'undefined' &&
   /Mac|iPhone|iPad/.test(navigator.platform);
-
-/** Trail steps drawn at once; the rest wait behind "+N earlier / later". */
-export const TRAIL_WINDOW = 16;
-
-/**
- * Which steps of the trail to draw: the latest TRAIL_WINDOW, unless the
- * cursor has walked back past them, in which case the window starts just
- * before the cursor. Pure, for testing.
- */
-export function trailWindow(
-  length: number,
-  cursorPos: number,
-  size = TRAIL_WINDOW,
-): { start: number; end: number } {
-  if (length <= size) return { start: 0, end: length };
-  let start = length - size;
-  if (cursorPos >= 0 && cursorPos <= start) start = Math.max(0, cursorPos - 1);
-  return { start, end: Math.min(length, start + size) };
-}
-
-/** One step of the trail: a tiny thumbnail and a short label. */
-function TrailStep({
-  entry,
-  state,
-  onJump,
-}: {
-  entry: TrailEntry;
-  state: 'past' | 'current' | 'future';
-  onJump: (entry: TrailEntry) => void;
-}) {
-  // A tour or pathway step takes its title from the on-demand tours.
-  const guides = useLazyResource(guidesData, isGuideStop(entry.stop)).status;
-  const presentation = useMemo(
-    () => describeStop(entry.stop),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `guides` re-describes once they load
-    [entry.stop, guides],
-  );
-  return (
-    <button
-      aria-current={state === 'current' ? 'step' : undefined}
-      aria-label={`${presentation.title} — ${presentation.subtitle}`}
-      className={`group flex w-20 shrink-0 flex-col gap-1 rounded-xl border p-1 text-left transition ${ATLAS_FOCUS} ${
-        state === 'current'
-          ? 'border-atlas-accent bg-atlas-accent/20'
-          : state === 'future'
-            ? // Steps ahead, after Back: dimmed, and dashed so the state
-              // does not rest on the dimming alone.
-              'border-dashed border-white/20 opacity-60 hover:bg-white/[0.08] hover:opacity-100'
-            : 'border-transparent hover:bg-white/[0.08]'
-      }`}
-      data-trail-idx={entry.idx}
-      title={`${presentation.title}\n${presentation.subtitle}`}
-      type="button"
-      onClick={() => onJump(entry)}
-    >
-      <StopThumb presentation={presentation} />
-      <span className="truncate px-0.5 text-xs leading-tight text-atlas-text-2 group-hover:text-atlas-text">
-        {presentation.title}
-      </span>
-    </button>
-  );
-}
 
 /**
  * The search button: looks like a field, so nobody has to know the shortcut
@@ -126,7 +52,9 @@ function SearchButton({
         committed ? `Search the globe (now: ${committed})` : 'Search the globe'
       }
       className={cn(
-        'flex h-9 w-full min-w-0 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] pl-3 pr-2 text-left text-sm transition-colors hover:border-white/25 hover:bg-white/[0.08] sm:max-w-xs',
+        // A field from xl up; below, the section tabs need the room and it
+        // is a round button (the shortcut still works).
+        'flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] text-left text-sm transition-colors hover:border-white/25 hover:bg-white/[0.08] xl:w-60 xl:justify-start xl:pl-3 xl:pr-2',
         ATLAS_FOCUS,
       )}
       type="button"
@@ -137,13 +65,13 @@ function SearchButton({
       <Search aria-hidden className="size-4 shrink-0 text-atlas-text-2" />
       <span
         className={cn(
-          'min-w-0 flex-1 truncate',
+          'hidden min-w-0 flex-1 truncate xl:inline',
           committed ? 'text-atlas-text' : 'text-atlas-text-2',
         )}
       >
         {committed ?? 'Search artists, places, songs…'}
       </span>
-      <kbd className="shrink-0 rounded-full border border-white/15 px-2 py-0.5 font-sans text-xs text-atlas-text-2">
+      <kbd className="hidden shrink-0 rounded-full border border-white/15 px-2 py-0.5 font-sans text-xs text-atlas-text-2 xl:inline">
         {isMac ? '⌘K' : 'Ctrl K'}
       </kbd>
     </button>
@@ -151,9 +79,10 @@ function SearchButton({
 }
 
 /**
- * The strip across the top of the globe, laid out like a browser's chrome:
- * Back / Forward, search (the command palette), the trail of everywhere this
- * session has been, and a button to copy a link to exactly this view.
+ * The Globe's header: Back / Forward, the five sections (AtlasSectionTabs),
+ * search (the command palette), the trail of everywhere this session has
+ * been, a button to copy a link to exactly this view, and the switch between
+ * the globe and the timeline.
  *
  * Every step in the trail is a real history entry with its own URL, so the
  * trail, these arrows, and the browser's Back button all walk the same path —
@@ -161,46 +90,7 @@ function SearchButton({
  */
 export function AtlasToolbar() {
   const trail = useAtlasTrail();
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
-  const reducedMotion = usePrefersReducedMotion();
-  // An 80-step trail is 80 thumbnails; draw a window of it until asked for
-  // the rest, then scroll toward what was asked for.
-  const [showAll, setShowAll] = useState<'earlier' | 'later' | null>(null);
-  const shownRange = showAll
-    ? { start: 0, end: trail.entries.length }
-    : trailWindow(trail.entries.length, trail.cursorPos);
-  const visible = trail.entries.slice(shownRange.start, shownRange.end);
-  const earlier = shownRange.start;
-  const later = trail.entries.length - shownRange.end;
-
-  useEffect(() => {
-    if (!showAll) return;
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    scroller.scrollTo({
-      left: showAll === 'earlier' ? 0 : scroller.scrollWidth,
-      behavior: scrollBehavior(reducedMotion),
-    });
-  }, [showAll]);
-
-  // A cleared trail starts windowed again.
-  useEffect(() => {
-    if (trail.entries.length <= 1) setShowAll(null);
-  }, [trail.entries.length]);
-
-  // Keep the current step in view as the trail grows or the user walks it.
-  const current = trail.entries[trail.cursorPos];
-  useEffect(() => {
-    if (!current) return;
-    scrollerRef.current
-      ?.querySelector(`[data-trail-idx="${current.idx}"]`)
-      ?.scrollIntoView({
-        block: 'nearest',
-        inline: 'nearest',
-        behavior: scrollBehavior(reducedMotion),
-      });
-  }, [current]);
 
   useEffect(() => {
     if (!copied) return;
@@ -279,6 +169,8 @@ export function AtlasToolbar() {
         </AtlasIconButton>
       </div>
 
+      <AtlasSectionTabs />
+
       <SearchButton
         buttonRef={searchRef}
         committed={committed}
@@ -297,69 +189,9 @@ export function AtlasToolbar() {
         </Suspense>
       )}
 
-      <nav
-        ref={scrollerRef}
-        aria-label="Your path through the globe"
-        // Hidden on phones, where the search field needs the width; Back and
-        // Forward still walk it.
-        className="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:thin] sm:flex"
-        data-atlas-keep-focus
-      >
-        {trail.entries.length > 1 && earlier > 0 && (
-          <AtlasPillButton
-            size="sm"
-            title="Show the earlier steps of your path"
-            onClick={() => setShowAll('earlier')}
-          >
-            +{earlier} earlier
-          </AtlasPillButton>
-        )}
-        {trail.entries.length > 1 &&
-          visible.map((entry, v) => {
-            const i = shownRange.start + v;
-            return (
-              <div key={entry.idx} className="flex shrink-0 items-center gap-1">
-                {v > 0 && (
-                  <ChevronRight
-                    aria-hidden
-                    className="size-3 shrink-0 text-atlas-text-3"
-                  />
-                )}
-                <TrailStep
-                  entry={entry}
-                  state={
-                    i < trail.cursorPos
-                      ? 'past'
-                      : i === trail.cursorPos
-                        ? 'current'
-                        : 'future'
-                  }
-                  onJump={trail.jump}
-                />
-              </div>
-            );
-          })}
-        {trail.entries.length > 1 && later > 0 && (
-          <AtlasPillButton
-            size="sm"
-            title="Show the later steps of your path"
-            onClick={() => setShowAll('later')}
-          >
-            +{later} later
-          </AtlasPillButton>
-        )}
-      </nav>
-
-      {trail.entries.length > 1 && (
-        <AtlasPillButton
-          className="hidden sm:inline-flex"
-          size="sm"
-          title="Start a fresh trail from here"
-          onClick={trail.clear}
-        >
-          Clear
-        </AtlasPillButton>
-      )}
+      <div className="hidden sm:contents">
+        <TrailPopover trail={trail} />
+      </div>
 
       <AtlasPillButton
         // The label hides on phones, so the name cannot rest on it.
@@ -373,10 +205,11 @@ export function AtlasToolbar() {
         ) : (
           <Link2 aria-hidden className="size-3.5" />
         )}
-        <span aria-hidden className="hidden sm:inline">
+        <span aria-hidden className="hidden 2xl:inline">
           {copied ? 'Link copied' : 'Copy link'}
         </span>
       </AtlasPillButton>
+      <ViewSwitch />
       {/* Said once, politely, whatever the screen width. */}
       <span aria-live="polite" className="sr-only" role="status">
         {copied ? 'Link copied' : ''}

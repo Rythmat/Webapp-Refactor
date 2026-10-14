@@ -1,6 +1,5 @@
 import { isLaneId, type LaneId } from '@/components/atlas/data/laneIds';
 import { findEra, eraWindow } from '@/components/atlas/data/musicalEras';
-import { REGIONS } from '@/components/atlas/data/regions';
 import {
   clampWindow,
   roundWindow,
@@ -63,7 +62,11 @@ const LENSES: readonly AtlasLens[] = [
   'pathways',
   'instruments',
 ];
-const REGION_IDS = new Set<string>(REGIONS.map((r) => r.id));
+/**
+ * A region id's shape. The regions lens checks it against data/regions.ts;
+ * reading that table here would put it in the page's first download.
+ */
+const REGION_ID = /^[a-z]+(?:-[a-z]+)*$/;
 
 const isLens = (v: string | null): v is AtlasLens =>
   !!v && (LENSES as readonly string[]).includes(v);
@@ -95,7 +98,7 @@ export function frameFromSearchParams(params: URLSearchParams): AtlasFrame {
   const lens = isLens(lensRaw) ? lensRaw : 'lineage';
   const regionRaw = params.get('region');
   const region =
-    lens === 'regions' && regionRaw && REGION_IDS.has(regionRaw)
+    lens === 'regions' && regionRaw && REGION_ID.test(regionRaw)
       ? (regionRaw as RegionId)
       : null;
   const laneRaw = params.get('lane');

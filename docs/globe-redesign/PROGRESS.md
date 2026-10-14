@@ -12,7 +12,7 @@ built in phases with screenshot checkpoints.
 | --- | --- | --- |
 | P0 | Baseline screens (`docs/globe-ui/screens/tr-p0-*`) and numbers (below) | done |
 | P1 | Data, state and URL foundations; no visible change | done |
-| P2 | The river in the Eras view | — |
+| P2 | The river in the Eras view | done — look check pending |
 | P3 | Era rail, stream chips, window shared with the map | — |
 | P4 | Event stage | — |
 | P5 | Map bubbles and the place lens | — |
@@ -60,3 +60,27 @@ pieces join the route.
   `navigation/useWindowSync.ts` keeps it and `from`/`to` in step and reads
   `?era=` links as years.
 - The trail keeps its forward steps when the URL is replaced.
+
+## P2 the river (Eras view)
+
+- `components/River/`: `TimeRiver` (lazy chunk, 22.3 kB), `riverLayout` (the
+  family tree as a delta in year space: lanes grow out of their parents and
+  only flowing lanes take room), `riverCamera` (the view, outside React),
+  `riverLevels` (√2 zoom levels; clusters per lane per level never overlap),
+  `RiverBands` (era-tinted bands, strands, dashed inflows), `RiverMarkers`
+  (posters, posters with counts, counts, dots), `useRiverGestures` (wheel,
+  pinch, drag with momentum, two-finger pinch), `yearDigits`.
+- Header (`AtlasToolbar`): the five section tabs (`AtlasSectionTabs`, the
+  dashboard tab bar's look), search, the trail in a popover (`TrailPopover`;
+  the thumbnail strip left), Copy link, and the globe / timeline switch
+  (`ViewSwitch`). Timeline view hides the map's card, bottom bar, controls
+  and credit; the map stays mounted under it with its motion paused.
+- Until the event stage (P4), opening an event in the river shows it on the
+  map in its card.
+- Budget raised and recorded (`docs/globe-ui/BASELINE.md`, Budget changes):
+  route chunk 110,237 B, static imports 316,812 B. The timeline is checked to
+  stay lazy (`GLOBE_ON_DEMAND`).
+- River at 4× CPU (scratch measurement, dev server): drag ~58 fps and zoom out
+  ~53 fps with no long tasks, zoom in ~45 fps with 2; 60 fps at 1×. A river
+  pass for `scripts/measureGlobe.mjs` is P7.
+- Screens: `docs/globe-ui/screens/tr-p2-*`.

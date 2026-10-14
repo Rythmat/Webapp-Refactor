@@ -27,6 +27,7 @@ import {
   useIsPhone,
   usePrefersReducedMotion,
 } from '@/components/atlas/hooks/useMediaQuery';
+import { useAtlasFrame } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   useAtlasDispatch,
   useAtlasSelector,
@@ -176,6 +177,27 @@ function MapPadding({
 }
 
 /** Feed a GeoJSON source, if the map (still) has it. */
+/**
+ * Whether the timeline covers the map (the page keeps the map mounted under
+ * it), told to the map's motion through a ref so the map never re-renders
+ * for it; drawn again as it comes back into view.
+ */
+function MapCovered({
+  map,
+  coveredRef,
+}: {
+  map: MapLibreMap;
+  coveredRef: MutableRefObject<boolean>;
+}) {
+  const covered = useAtlasFrame((frame) => frame.view === 'timeline');
+  useEffect(() => {
+    const uncovered = coveredRef.current && !covered;
+    coveredRef.current = covered;
+    if (uncovered) map.triggerRepaint();
+  }, [covered, map, coveredRef]);
+  return null;
+}
+
 function feed(map: MapLibreMap, id: string, data: FeatureCollection) {
   (map.getSource(id) as GeoJSONSource | undefined)?.setData(data);
 }
@@ -580,6 +602,8 @@ export default function MapLibreGlobe() {
   // ours: Spin and the dashes. Both stop while the tab is hidden or the map
   // is scrolled out of view.
   const onScreenRef = useRef(true);
+  const coveredRef = useRef(false);
+  const moving = () => onScreenRef.current && !coveredRef.current;
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -613,7 +637,7 @@ export default function MapLibreGlobe() {
     const tick = (now: number) => {
       const dt = last === null ? 0 : Math.min(0.1, (now - last) / 1000);
       last = now;
-      if (onScreenRef.current && !map.isMoving()) {
+      if (moving() && !map.isMoving()) {
         const center = map.getCenter();
         map.jumpTo({
           center: [center.lng - SPIN_DEGREES_PER_SECOND * dt, center.lat],
@@ -631,7 +655,7 @@ export default function MapLibreGlobe() {
     if (!map || !hasArcs || reducedMotion) return;
     let step = 0;
     const timer = window.setInterval(() => {
-      if (!onScreenRef.current) return;
+      if (!moving()) return;
       step = (step + 1) % ARC_DASH_STEPS.length;
       map.setPaintProperty(LAYER.arcsDash, 'line-dasharray', [
         ...ARC_DASH_STEPS[step],
@@ -676,6 +700,7 @@ export default function MapLibreGlobe() {
   return (
     <div className="absolute inset-0 overflow-hidden bg-atlas-canvas">
       {map && <MapPadding map={map} paddingRef={paddingRef} />}
+      {map && <MapCovered coveredRef={coveredRef} map={map} />}
       {/* Sized, not positioned: maplibre-gl.css makes the map position:
           relative, which would collapse an inset-0 box to no height. */}
       <div ref={containerRef} className="h-full w-full" />

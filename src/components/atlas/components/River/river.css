@@ -1,0 +1,41 @@
+/* The Time River (TimeRiver.tsx). Loaded with the river's own chunk.
+
+   The frame writer sets two custom properties on the items layer every frame
+   of a gesture: --ppy (pixels per year) and --tx (the offset of year 0). Each
+   marker carries its year as --yr, so moving the river restyles the layer
+   without React rendering anything. */
+
+.atlas-river-items {
+  position: absolute;
+  inset: 0;
+  --ppy: 1;
+  --tx: 0;
+}
+
+.atlas-river-item {
+  position: absolute;
+  left: 0;
+  transform: translate(
+    calc(var(--yr) * var(--ppy) * 1px + var(--tx) * 1px - 50%),
+    -50%
+  );
+  will-change: transform;
+}
+
+/* The years at either end: Glacial Bold at display size. Glacial has no
+   italic face, and the browser must never fake one. */
+.atlas-river-bookend {
+  font-size: clamp(2.25rem, 1.2rem + 2.6vw, 4rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-synthesis: none;
+}
+
+/* A year's digit cells (yearDigits.ts): one width for every digit. */
+.atlas-river-digit {
+  display: inline-block;
+  width: 0.62em;
+  text-align: center;
+  letter-spacing: 0;
+}

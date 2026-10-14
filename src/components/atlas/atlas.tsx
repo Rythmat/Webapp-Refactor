@@ -34,6 +34,7 @@ import { AtlasPortalContext } from '@/components/atlas/layout/portalRoot';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import {
   AtlasNavigationProvider,
+  useAtlasFrame,
   useAtlasNavigate,
   useAtlasParams,
   useAtlasStop,
@@ -51,6 +52,17 @@ import { cn } from '@/lib/utils';
 const MindMapPanel = lazy(
   () => import('@/components/atlas/components/MindMap/MindMapPanel'),
 );
+
+// The timeline (the Eras section and every lens's timeline view): its own
+// chunk, fetched the first time the page shows it — or sooner, when the
+// pointer heads for the switch (ViewSwitch.prefetchRiver).
+const TimeRiver = lazy(
+  () => import('@/components/atlas/components/River/TimeRiver'),
+);
+
+/** Whether the page is showing the timeline rather than the globe. */
+const useTimelineView = () =>
+  useAtlasFrame((frame) => frame.view === 'timeline');
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -103,6 +115,7 @@ function AtlasUrlSync() {
 function useLeftPanel(): LeftPanelSlot | null {
   const navigate = useAtlasNavigate();
   const stop = useAtlasStop();
+  const timeline = useTimelineView();
   const place = useAtlasSelector((s) =>
     s.selectedLocation !== null &&
     (s.activeTour === null || s.pinnedEvent !== null)
@@ -125,13 +138,14 @@ function useLeftPanel(): LeftPanelSlot | null {
         onClose,
       };
     }
-    if (!place) return null;
+    // The timeline shows a place's events itself.
+    if (!place || timeline) return null;
     return {
       key: stopKey({ kind: 'place', place }),
       node: <DetailsCard />,
       onClose,
     };
-  }, [navigate, stop, place]);
+  }, [navigate, stop, place, timeline]);
 }
 
 /** A Cortex lesson's mind map, when the URL asks for it. */
@@ -165,10 +179,15 @@ const TOUR: BottomBarSlot = {
   node: <GuidedTourBar />,
 };
 
-/** The bottom bar: a pathway's or a tour's progress, else the timeline. */
-function useBottomBar(): BottomBarSlot {
+/**
+ * The bottom bar: a pathway's or a tour's progress, else the place's
+ * timeline — on the globe; the timeline view is a timeline already.
+ */
+function useBottomBar(): BottomBarSlot | null {
   const inModule = useAtlasSelector((s) => s.activeModule !== null);
   const inTour = useAtlasSelector((s) => s.activeTour !== null);
+  const timeline = useTimelineView();
+  if (timeline) return null;
   return inTour ? TOUR : inModule ? PATHWAY : TIMELINE;
 }
 
@@ -195,18 +214,44 @@ function AtlasOverlays() {
       dispatch({ type: 'SET_MAP_INSETS', payload: insets }),
     [dispatch],
   );
+  // The map's own controls and credit leave with the map.
+  const timeline = useTimelineView();
   const zones = {
     left: useLeftPanel(),
     right: useMindMap(),
-    controls: CONTROLS,
+    controls: timeline ? null : CONTROLS,
     bottom: useBottomBar(),
-    credit: CREDIT,
+    credit: timeline ? null : CREDIT,
     onInsets,
   };
   return isPhone ? (
     <PhoneZones {...zones} onSheetOcclusion={onSheetOcclusion} />
   ) : (
     <DesktopZones {...zones} />
+  );
+}
+
+/**
+ * The timeline over the globe, once the page has shown it. Kept mounted
+ * after, hidden and inert while the globe shows, so switching back and forth
+ * keeps its place; the globe stays mounted under it the same way (its spin
+ * pauses: MapLibreGlobe).
+ */
+function RiverView() {
+  const timeline = useTimelineView();
+  const [shown, setShown] = useState(timeline);
+  if (timeline && !shown) setShown(true);
+  if (!shown) return null;
+  return (
+    <div
+      aria-hidden={!timeline}
+      className={cn('absolute inset-0', !timeline && 'invisible')}
+      {...(timeline ? {} : { inert: '' })}
+    >
+      <Suspense fallback={<div className="h-full w-full bg-atlas-page" />}>
+        <TimeRiver active={timeline} />
+      </Suspense>
+    </div>
   );
 }
 
@@ -229,6 +274,7 @@ function AppLayout() {
         <AtlasToolbar />
         <div className="relative flex-1">
           <AtlasGlobe />
+          <RiverView />
           <AtlasOverlays />
         </div>
         <AtlasUrlSync />

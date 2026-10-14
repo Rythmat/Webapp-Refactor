@@ -34,7 +34,7 @@ describe('the frame on the URL', () => {
 
   it('ignores what it cannot read', () => {
     const frame = frameFromSearchParams(
-      p('view=3d&lens=songs&region=atlantis&from=x&to=1900&lane=polka'),
+      p('view=3d&lens=songs&region=Atlantis!&from=x&to=1900&lane=polka'),
     );
     expect(frame).toEqual(DEFAULT_FRAME);
     // A region only means something in the regions lens.

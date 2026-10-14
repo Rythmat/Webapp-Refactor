@@ -221,6 +221,11 @@ const GLOBE_ON_DEMAND = [
     pattern: /Schoenberg, Berg and Webern/,
     name: 'the guided tours (data/guidedTours.ts)',
   },
+  {
+    // The timeline's name for itself (components/River/TimeRiver.tsx).
+    pattern: /Music's family tree, /,
+    name: 'the timeline (components/River/TimeRiver.tsx)',
+  },
 ];
 
 /**
@@ -240,11 +245,15 @@ const GLOBE_ON_DEMAND = [
  * influence graph, the tours and the pathways load on demand. Lowered again
  * by prompt 8 (from 111,634 and 885,444): the map engine (MapLibre, or
  * three.js with VITE_ATLAS_ENGINE=three) loads lazily, so three.js's WebGL
- * build left the route's static imports. See "Budget changes" in BASELINE.md.
+ * build left the route's static imports. Raised by the Time River redesign's
+ * P2 (from 102,904 and 298,824): the Globe's header (its section tabs, the
+ * globe / timeline switch, the trail popover) and the frame and time-window
+ * code every view shares; the timeline itself is a lazy chunk. See "Budget
+ * changes" in BASELINE.md.
  */
 const GLOBE_BUDGET = {
-  routeChunk: 102_904,
-  routeStatic: 298_824,
+  routeChunk: 110_237,
+  routeStatic: 316_812,
   headroom: 1.05,
 };
 

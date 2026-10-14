@@ -79,6 +79,9 @@ const SURFACE: Readonly<Record<string, SongChordQuality>> = {
   '9': 'dom9',
   '13': 'dom13',
   maj9: 'maj9',
+  min9: 'min9',
+  m9: 'min9',
+  '-9': 'min9',
   'maj7♯11': 'maj7#11',
 };
 

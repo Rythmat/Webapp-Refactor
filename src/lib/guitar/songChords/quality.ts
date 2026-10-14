@@ -31,6 +31,7 @@ export type SongChordQuality =
   | 'dom9'
   | 'dom13'
   | 'maj9'
+  | 'min9'
   | 'maj7#11';
 
 export interface SongQualitySpec {
@@ -104,6 +105,10 @@ export const SONG_QUALITIES: Readonly<
   maj9: {
     tones: { ...R, 2: '9', 4: '3', 7: '5', 11: '7' },
     required: [0, 2, 4, 11],
+  },
+  min9: {
+    tones: { ...R, 2: '9', 3: '♭3', 7: '5', 10: '♭7' },
+    required: [0, 2, 3, 10],
   },
   'maj7#11': {
     tones: { ...R, 4: '3', 6: '♯11', 7: '5', 11: '7' },

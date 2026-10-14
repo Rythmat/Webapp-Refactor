@@ -102,6 +102,19 @@ More maps exist under `~/Desktop/Music Bridge Master Folder/CMB/Music Atlas/The 
 25. **New event cities** (Hobart, Maplewood) move the vocabulary golden's
     `placeAndGenreNames` digest too.
 
+## Learned on the third batch (2026-10-13)
+
+26. **Find every progression sheet.** Titles with an apostrophe are stored
+    in double quotes (`"Hustlin'- Rick Ross"`), and a song can have several
+    sheets for one section (The Bird's bridge: 451 and 696). After linking,
+    `linking/__tests__/repo.test.ts` should report `sure: 0`; anything else
+    is a sheet still to link.
+27. **Respell to the flat side even when it looks odd.** The Bird's E major 7
+    in D♭ is `F♭maj7` (`♭3 maj7`); written as E it would read `♯2`.
+28. **A new artist record can connect old events.** Adding Anderson .Paak
+    let the hand-authored Oxnard 2016 event find him by title and tag; check
+    such matches are right before accepting the moved totals.
+
 ## Implementation notes (learned on We Shall Overcome)
 
 - **Voicings.** Each keyboard snippet starts on the chord's lowest note.

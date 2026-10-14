@@ -1,0 +1,30 @@
+{
+  "id": "pop-drummer-1",
+  "name": "Pop-Drummer-1",
+  "instrument": "drums",
+  "genre": "pop",
+  "kind": "placeholder",
+  "order": 410,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "dance-pop"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_ballad_01"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_pop_01"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_pop_02"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_pop_03"
+    }
+  ]
+}

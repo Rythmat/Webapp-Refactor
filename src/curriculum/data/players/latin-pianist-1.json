@@ -1,0 +1,22 @@
+{
+  "id": "latin-pianist-1",
+  "name": "Latin-Pianist-1",
+  "instrument": "keys",
+  "genre": "latin",
+  "kind": "placeholder",
+  "order": 350,
+  "items": [
+    {
+      "kind": "comping",
+      "id": "cumbia-offbeats"
+    },
+    {
+      "kind": "comping",
+      "id": "mariachi-vals"
+    },
+    {
+      "kind": "comping",
+      "id": "reggaeton-tresillo"
+    }
+  ]
+}

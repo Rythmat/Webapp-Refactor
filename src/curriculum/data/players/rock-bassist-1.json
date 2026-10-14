@@ -1,0 +1,14 @@
+{
+  "id": "rock-bassist-1",
+  "name": "Rock-Bassist-1",
+  "instrument": "bass",
+  "genre": "rock",
+  "kind": "placeholder",
+  "order": 540,
+  "items": [
+    {
+      "kind": "bassLine",
+      "id": "driving-eighths"
+    }
+  ]
+}

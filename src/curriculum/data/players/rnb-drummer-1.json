@@ -1,0 +1,26 @@
+{
+  "id": "rnb-drummer-1",
+  "name": "R&B-Drummer-1",
+  "instrument": "drums",
+  "genre": "rnb",
+  "kind": "placeholder",
+  "order": 450,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "groove_neosoul_01"
+    },
+    {
+      "kind": "groove",
+      "id": "groove_rnb_01"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rnb-1"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rnb-2"
+    }
+  ]
+}

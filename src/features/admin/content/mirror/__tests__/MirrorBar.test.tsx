@@ -171,6 +171,8 @@ describe('the Records menu', () => {
       ['Vocabulary', '/console/content/records/vocabulary'],
       ['Import songs', '/console/content/publishing/import'],
       // Instrument content, in its own group.
+      ['Bands', '/console/bands'],
+      ['Players', '/console/players'],
       ['Parts Library', '/console/parts'],
       ['Drum Grooves', '/console/grooves'],
       ['Bass Lines', '/console/bass-lines'],

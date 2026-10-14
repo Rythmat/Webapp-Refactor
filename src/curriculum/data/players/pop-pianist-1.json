@@ -1,0 +1,9 @@
+{
+  "id": "pop-pianist-1",
+  "name": "Pop-Pianist-1",
+  "instrument": "keys",
+  "genre": "pop",
+  "kind": "placeholder",
+  "order": 430,
+  "items": []
+}

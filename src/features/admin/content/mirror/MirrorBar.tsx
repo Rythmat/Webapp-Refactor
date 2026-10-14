@@ -349,6 +349,12 @@ export const MirrorBar = () => {
             {/* Instrument content: grooves and parts the lessons and the
                 Studio play. */}
             <DropdownMenuItem asChild>
+              <Link to={AdminRoutes.bands()}>Bands</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to={AdminRoutes.players()}>Players</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link to={AdminRoutes.parts()}>Parts Library</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>

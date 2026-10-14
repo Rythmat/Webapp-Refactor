@@ -1,0 +1,9 @@
+{
+  "id": "pop-guitarist-1",
+  "name": "Pop-Guitarist-1",
+  "instrument": "guitar",
+  "genre": "pop",
+  "kind": "placeholder",
+  "order": 440,
+  "items": []
+}

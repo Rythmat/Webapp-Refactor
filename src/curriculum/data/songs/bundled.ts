@@ -1,5 +1,5 @@
 /**
- * The bundled song library — 661 hand-authored chord charts.
+ * The bundled song library — 664 hand-authored chord charts.
  *
  * No longer the runtime source of truth: published songs are fetched from the
  * CDN by src/content/songStore.ts, which imports this module DYNAMICALLY as its
@@ -38,6 +38,7 @@ import { all_my_loving } from './all_my_loving';
 import { all_night_long } from './all_night_long';
 import { all_of_me } from './all_of_me';
 import { all_the_small_things } from './all_the_small_things';
+import { alright } from './alright';
 import { always_be_my_baby } from './always_be_my_baby';
 import { american_girl } from './american_girl';
 import { and_i_love_her } from './and_i_love_her';
@@ -231,6 +232,7 @@ import { have_a_good_time } from './have_a_good_time';
 import { have_a_talk_with_god } from './have_a_talk_with_god';
 import { have_you_ever_seen_the_rain } from './have_you_ever_seen_the_rain';
 import { havent_met_you_yet } from './havent_met_you_yet';
+import { heather } from './heather';
 import { heaven } from './heaven';
 import { hello_walls } from './hello_walls';
 import { here_comes_the_sun } from './here_comes_the_sun';
@@ -516,6 +518,7 @@ import { smells_like_teen_spirit } from './smells_like_teen_spirit';
 import { smooth_operator } from './smooth_operator';
 import { sneakin_sally_through_the_alley } from './sneakin_sally_through_the_alley';
 import { so_far_away } from './so_far_away';
+import { sober_childish_gambino } from './sober_childish_gambino';
 import { solsbury_hill } from './solsbury_hill';
 import { somethin_for_ya } from './somethin_for_ya';
 import { something } from './something';
@@ -706,6 +709,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   all_night_long: all_night_long,
   all_of_me: all_of_me,
   all_the_small_things: all_the_small_things,
+  alright: alright,
   always_be_my_baby: always_be_my_baby,
   american_girl: american_girl,
   and_i_love_her: and_i_love_her,
@@ -899,6 +903,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   have_a_talk_with_god: have_a_talk_with_god,
   have_you_ever_seen_the_rain: have_you_ever_seen_the_rain,
   havent_met_you_yet: havent_met_you_yet,
+  heather: heather,
   heaven: heaven,
   hello_walls: hello_walls,
   here_comes_the_sun: here_comes_the_sun,
@@ -1187,6 +1192,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   smooth_operator: smooth_operator,
   sneakin_sally_through_the_alley: sneakin_sally_through_the_alley,
   so_far_away: so_far_away,
+  sober_childish_gambino: sober_childish_gambino,
   solsbury_hill: solsbury_hill,
   somethin_for_ya: somethin_for_ya,
   something_just_like_this: something_just_like_this,

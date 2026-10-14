@@ -2337,6 +2337,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: 'Heather- Conan Gray',
     song: '',
+    songIds: ['heather'],
   },
 
   {

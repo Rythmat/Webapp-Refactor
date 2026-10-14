@@ -20,8 +20,8 @@ exports[`the song list a student sees > renders every published song, in the sam
 
 exports[`the song list a student sees > renders every published song, in the same order and markup > full list 1`] = `
 {
-  "hash": "e468bf1127dd0e5e",
-  "songLinks": 1323,
+  "hash": "67723cdceb3984cf",
+  "songLinks": 1329,
 }
 `;
 

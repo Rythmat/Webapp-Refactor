@@ -1939,8 +1939,8 @@ describe('integrity on the repo data', () => {
     );
     expect(credits).toMatchObject({
       items: songs.length,
-      set: 588,
-      linked: 192,
+      set: 591,
+      linked: 195,
       inferred: 396,
     });
   });
@@ -2029,7 +2029,7 @@ describe('integrity on the repo data', () => {
       linked: 693,
     });
     expect(events('title')).toMatchObject({ items: 1083, set: 3 });
-    expect(events('tags[]')).toMatchObject({ items: 1083, set: 4 });
+    expect(events('tags[]')).toMatchObject({ items: 1083, set: 5 });
     expect(events('genre[]')).toMatchObject({
       set: 1071,
       linked: 1071,

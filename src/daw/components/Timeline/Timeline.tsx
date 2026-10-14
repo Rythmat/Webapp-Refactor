@@ -21,7 +21,6 @@ import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { getPlayheadTick, usePlayheadEffect } from '@/daw/engine/playheadClock';
-import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import {
   getAudioBuffer,
   setAudioBuffer,
@@ -2779,6 +2778,8 @@ export function Timeline() {
           if (!resp.ok)
             throw new Error(`Failed to fetch MIDI loop: ${resp.status}`);
           const arrayBuf = await resp.arrayBuffer();
+          // The MIDI reader loads with the first drop, not with the editor.
+          const { importMidiFile } = await import('@/daw/midi/MidiFileIO');
           const sequences = importMidiFile(arrayBuf);
           const OUR_PPQ = 480;
           for (let i = 0; i < sequences.length; i++) {
@@ -2827,6 +2828,7 @@ export function Timeline() {
 
     const OUR_PPQ = 480;
     const arrayBuffer = await file.arrayBuffer();
+    const { importMidiFile } = await import('@/daw/midi/MidiFileIO');
     const sequences = importMidiFile(arrayBuffer);
     const state = useStore.getState();
     const COLORS = [

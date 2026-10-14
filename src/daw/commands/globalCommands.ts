@@ -44,7 +44,9 @@ export const GLOBAL_HANDLERS: KeymapHandlers = {
   },
   'edit.undo': () => undoOrRedo(false),
   'edit.redo': () => undoOrRedo(true),
-  'project.exportMidi': exportProjectMidi,
+  'project.exportMidi': () => {
+    void exportProjectMidi();
+  },
   'project.analyze': analyzeProject,
   'typing.on': () => useMusicalTypingStore.getState().setEnabled(true),
   'help.shortcuts': () => useShortcutSheetStore.getState().open(),

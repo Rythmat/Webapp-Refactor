@@ -7,7 +7,7 @@ import { LiveLevelFill } from './LiveLevelFill';
 import { sliderGestureProps } from '@/daw/hooks/useContinuousControl';
 import { useMasterVolumeControl } from '@/daw/hooks/useMixControls';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
-import { MasterFxPanel } from '@/daw/components/Effects/MasterFxPanel';
+import { MasterFxPanelPart } from '@/daw/shell/lazyParts';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import {
   useListenMode,
@@ -202,7 +202,7 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
         title="Master  Mix Effects"
         trackColor={MASTER_COLOR}
       >
-        <MasterFxPanel isReady={isReady} />
+        <MasterFxPanelPart isReady={isReady} />
       </PopOutOverlay>
     </div>
   );

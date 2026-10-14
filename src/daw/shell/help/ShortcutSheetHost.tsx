@@ -1,9 +1,10 @@
-import { ShortcutSheet } from './ShortcutSheet';
+import { ShortcutSheetPart } from '@/daw/shell/lazyParts';
 import { useShortcutsNotice } from './shortcutsNotice';
 import { useShortcutSheetStore } from './useShortcutSheetStore';
 
 // DawApp mounts this once. '?' (help.shortcuts) and the notice's Show
-// shortcuts open the sheet; the sheet is mounted only while open.
+// shortcuts open the sheet; the sheet is mounted only while open, and its
+// code loads when first opened (milestone 1.12a).
 
 export interface ShortcutSheetHostProps {
   userId: string | null;
@@ -20,7 +21,7 @@ export function ShortcutSheetHost({
   useShortcutsNotice(userId, ownerKnown);
   if (!isOpen) return null;
   return (
-    <ShortcutSheet
+    <ShortcutSheetPart
       open
       onOpenChange={(open) => {
         if (!open) close();

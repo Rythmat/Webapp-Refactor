@@ -16,14 +16,18 @@ import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import { LockedFeatureOverlay } from '@/components/ui/LockedFeatureOverlay';
 import { TrackControlsPanel } from '@/daw/components/Controls/TrackControlsPanel';
-import { EffectsPanel } from '@/daw/components/Effects/EffectsPanel';
-import { PrismPanel } from '@/daw/components/Prism/PrismPanel';
 import { auditionNote } from '@/daw/audio/auditionNote';
-import { ClipPianoRoll } from '@/daw/components/PianoRoll/ClipPianoRoll';
 import { editorTrackId, resolveEditorClip } from '@/daw/model/editorClip';
 import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
-import { GroovesBrowser } from '@/daw/components/Controls/GroovesBrowser';
-import { PartsBrowser } from '@/daw/components/Controls/PartsBrowser';
+import {
+  ClipPianoRollPart,
+  EffectsPanelPart,
+  GroovesBrowserPart,
+  PartsBrowserPart,
+  PrismPanelPart,
+  preloadDockTab,
+  preloadInstrumentViews,
+} from '@/daw/shell/lazyParts';
 import { isChannelStripTabId } from './channelStripTabs';
 
 // ── PrismLogo ────────────────────────────────────────────────────────────
@@ -193,6 +197,18 @@ export function ChannelStrip() {
     [activeTab, setActiveTab],
   );
 
+  // Each tab's content is its own chunk (1.12a): a pointer over or a focus
+  // on the tab fetches it, so a click usually finds it there.
+  const instrument = track?.instrument;
+  const preloadTab = useCallback(
+    (id: TabId) => {
+      if (id === 'controls') {
+        if (instrument) preloadInstrumentViews([instrument]);
+      } else preloadDockTab(id);
+    },
+    [instrument],
+  );
+
   // Grooves is a drum machine's tab, Parts and the piano roll a melodic
   // instrument's, and Prism neither a drum machine's nor a live input's.
   const tabApplies = (id: TabId) =>
@@ -234,6 +250,8 @@ export function ChannelStrip() {
                 key={tab.id}
                 data-tutorial-id={`chanstrip-tab-${tab.id}`}
                 onClick={() => handleTabClick(tab.id)}
+                onPointerEnter={() => preloadTab(tab.id)}
+                onFocus={() => preloadTab(tab.id)}
                 className="flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider cursor-pointer"
                 style={{
                   backgroundColor: active
@@ -321,21 +339,21 @@ export function ChannelStrip() {
               style={{ height: '33vh' }}
             >
               {activeTab === 'controls' && <TrackControlsPanel />}
-              {activeTab === 'fx' && <EffectsPanel />}
+              {activeTab === 'fx' && <EffectsPanelPart />}
               {activeTab === 'grooves' && track && (
-                <GroovesBrowser trackId={track.id} />
+                <GroovesBrowserPart trackId={track.id} />
               )}
               {activeTab === 'parts' && track && (
-                <PartsBrowser trackId={track.id} />
+                <PartsBrowserPart trackId={track.id} />
               )}
               {activeTab === 'prism' && (
                 <LockedFeatureOverlay locked={!isPremium}>
-                  <PrismPanel />
+                  <PrismPanelPart />
                 </LockedFeatureOverlay>
               )}
               {activeTab === 'piano-roll' &&
                 (rollTrackId && (rollClipId || isMidiInstrument) ? (
-                  <ClipPianoRoll
+                  <ClipPianoRollPart
                     trackId={rollTrackId}
                     clipId={rollClipId}
                     blankStartTick={blankStartTick}

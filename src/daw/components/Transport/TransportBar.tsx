@@ -41,6 +41,7 @@ import { useChordNotation } from '@/lib/chordNotation';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
 import { requestRecord } from '@/daw/commands/requestRecord';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
+import { preloadView } from '@/daw/shell/lazyParts';
 
 /** The transport's keys, for screen readers (the '?' sheet lists them). */
 const TRANSPORT_KEYS: Record<string, string> = Object.fromEntries(
@@ -86,6 +87,10 @@ function ViewSwitcher() {
             key={v.id}
             data-tutorial-id={`view-switch-${v.id}`}
             onClick={() => setCurrentView(v.id)}
+            // Each view but Create is its own chunk (1.12a): fetched on a
+            // pointer over or a focus, so a click usually finds it there.
+            onPointerEnter={() => preloadView(v.id)}
+            onFocus={() => preloadView(v.id)}
             className="h-5 shrink-0 cursor-pointer whitespace-nowrap px-2.5 text-[10px] font-semibold uppercase tracking-wide transition-colors"
             style={{
               backgroundColor: active

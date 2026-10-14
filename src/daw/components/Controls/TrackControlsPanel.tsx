@@ -3,16 +3,18 @@ import { Maximize2 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
-import { KeyboardView } from './KeyboardView';
-import { GuitarBassView } from './GuitarBassView';
+import {
+  DrumMachineViewPart,
+  GuitarBassViewPart,
+  KeyboardViewPart,
+  OracleSynthInlinePart,
+  OracleSynthViewPart,
+  OrganViewPart,
+  SamplerChopsViewPart,
+  SoundFontViewPart,
+  VocalViewPart,
+} from '@/daw/shell/lazyParts';
 import { AudioMidiSourcePanel } from './AudioMidiSourcePanel';
-import { OracleSynthView } from './OracleSynthView';
-import { OracleSynthInline } from './OracleSynthInline';
-import { DrumMachineView } from './DrumMachineView';
-import { SoundFontView } from './SoundFontView';
-import { VocalView } from './VocalView';
-import { OrganView } from './OrganView';
-import { SamplerChopsView } from './SamplerChopsView';
 
 // ── Instrument label for overlay title ───────────────────────────────────
 
@@ -126,7 +128,7 @@ export function TrackControlsPanel() {
             fullScreen={track.instrument === 'oracle-synth'}
           >
             {track.instrument === 'oracle-synth' ? (
-              <OracleSynthView />
+              <OracleSynthViewPart />
             ) : (
               renderView(track)
             )}
@@ -140,6 +142,7 @@ export function TrackControlsPanel() {
 }
 
 // ── View Router ─────────────────────────────────────────────────────────
+// Each instrument's view is its own chunk (lazyParts, milestone 1.12a).
 
 function renderView(track: { id: string; instrument: string }) {
   switch (track.instrument) {
@@ -148,27 +151,27 @@ function renderView(track: { id: string; instrument: string }) {
     case 'bass-electric':
     case 'cello':
     case 'organ':
-      return <KeyboardView trackId={track.id} />;
+      return <KeyboardViewPart trackId={track.id} />;
     case 'tonewheel-organ':
-      return <OrganView trackId={track.id} />;
+      return <OrganViewPart trackId={track.id} />;
     case 'guitar-fx':
     case 'bass-fx':
       return (
-        <GuitarBassView
+        <GuitarBassViewPart
           trackId={track.id}
           instrument={track.instrument as 'guitar-fx' | 'bass-fx'}
         />
       );
     case 'oracle-synth':
-      return <OracleSynthInline />;
+      return <OracleSynthInlinePart />;
     case 'soundfont':
-      return <SoundFontView trackId={track.id} />;
+      return <SoundFontViewPart trackId={track.id} />;
     case 'drum-machine':
-      return <DrumMachineView trackId={track.id} />;
+      return <DrumMachineViewPart trackId={track.id} />;
     case 'sampler':
-      return <SamplerChopsView trackId={track.id} />;
+      return <SamplerChopsViewPart trackId={track.id} />;
     case 'vocal-fx':
-      return <VocalView trackId={track.id} />;
+      return <VocalViewPart trackId={track.id} />;
     default:
       return (
         <DefaultView message="No controls available for this track type" />

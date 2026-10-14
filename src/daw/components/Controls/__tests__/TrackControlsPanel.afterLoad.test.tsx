@@ -131,6 +131,17 @@ import {
   serializeSession,
   type SessionData,
 } from '@/daw/persistence/SessionSerializer';
+import {
+  DrumMachineViewPart,
+  GuitarBassViewPart,
+  KeyboardViewPart,
+  OracleSynthInlinePart,
+  OracleSynthViewPart,
+  OrganViewPart,
+  SamplerChopsViewPart,
+  SoundFontViewPart,
+  VocalViewPart,
+} from '@/daw/shell/lazyParts';
 import { useStore } from '@/daw/store';
 import type { InstrumentType, Track } from '@/daw/store/tracksSlice';
 import { TrackControlsPanel } from '../TrackControlsPanel';
@@ -266,12 +277,27 @@ const toEngine = (chain: Chain) =>
     namModelId,
   }));
 
-beforeAll(() => {
+beforeAll(async () => {
   // jsdom has no media devices; the views listen for device changes.
   Object.defineProperty(navigator, 'mediaDevices', {
     configurable: true,
     value: { addEventListener() {}, removeEventListener() {} },
   });
+  // Each instrument view is its own chunk (milestone 1.12a); loaded here,
+  // the panel renders them at once, as after a preload in the editor.
+  await Promise.all(
+    [
+      KeyboardViewPart,
+      OrganViewPart,
+      GuitarBassViewPart,
+      OracleSynthInlinePart,
+      OracleSynthViewPart,
+      SoundFontViewPart,
+      DrumMachineViewPart,
+      SamplerChopsViewPart,
+      VocalViewPart,
+    ].map((part) => part.preload()),
+  );
 });
 
 beforeEach(() => {

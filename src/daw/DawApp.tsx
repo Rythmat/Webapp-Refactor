@@ -5,19 +5,10 @@ import { registerBeforeSignOut } from '@/auth/beforeSignOut';
 import './daw.css';
 import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
 import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
-import { PianoRollModal } from '@/daw/components/PianoRoll/PianoRollModal';
-import { ChordAnalysisPrompt } from '@/daw/components/Library/ChordAnalysisPrompt';
-import { LeadSheetView } from '@/daw/components/LeadSheet/LeadSheetView';
 import { SetListUpdatePrompt } from '@/daw/components/LeadSheet/SendToSetList';
-import { ScoreView } from '@/daw/components/Score/ScoreView';
-import { PracticeTrackView } from '@/daw/components/Practice/PracticeTrackView';
-import { StudioView } from '@/daw/components/Studio/StudioView';
 import { TimelineWithHeaders } from '@/daw/components/Timeline/TimelineWithHeaders';
-import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModal';
-import { SettingsModal } from '@/daw/components/Transport/SettingsModal';
 import { RecordingLimitModal } from '@/daw/components/Transport/RecordingLimitModal';
 import { RecordGuard } from '@/daw/components/Transport/RecordGuard';
-import { TutorialLayer } from '@/daw/components/Tutorial/TutorialLayer';
 import { useLessonAccess } from '@/daw/components/Tutorial/useLessonAccess';
 import { TransportBar } from '@/daw/components/Transport/TransportBar';
 import {
@@ -59,6 +50,18 @@ import {
 } from '@/daw/session/sessionDeps';
 import { isBusyPhase, useSessionStore } from '@/daw/session/sessionStore';
 import { useSessionBoot } from '@/daw/session/useSessionBoot';
+import { DawErrorBoundary } from '@/daw/shell/errors/DawErrorBoundary';
+import {
+  ChordAnalysisPromptHost,
+  LeadSheetViewPart,
+  PianoRollModalHost,
+  PracticeTrackViewPart,
+  PrismSuggestionModalHost,
+  ScoreViewPart,
+  SettingsModalHost,
+  StudioViewPart,
+  TutorialLayerHost,
+} from '@/daw/shell/lazyParts';
 import { OpeningHost } from '@/daw/shell/opening/OpeningHost';
 import { ShortcutSheetHost } from '@/daw/shell/help/ShortcutSheetHost';
 import { ProjectsDialogHost } from '@/daw/shell/projects/ProjectsDialogHost';
@@ -346,7 +349,7 @@ function DawAppInner() {
       <EngineHost isReady={isReady} authToken={authToken} />
       {currentView === 'practice' && practiceSession ? (
         <DevProfiler id="PracticeTrackView">
-          <PracticeTrackView
+          <PracticeTrackViewPart
             session={practiceSession}
             isReady={isReady}
             onInit={initEngine}
@@ -379,20 +382,20 @@ function DawAppInner() {
           <DevProfiler id="ChannelStrip">
             <ChannelStrip />
           </DevProfiler>
-          <PianoRollModal />
+          <PianoRollModalHost />
         </>
       ) : currentView === 'leadsheet' ? (
         <DevProfiler id="LeadSheetView">
-          <LeadSheetView />
+          <LeadSheetViewPart />
         </DevProfiler>
       ) : currentView === 'score' ? (
         <DevProfiler id="ScoreView">
-          <ScoreView />
+          <ScoreViewPart />
         </DevProfiler>
       ) : (
         <div className="flex flex-1 overflow-hidden">
           <DevProfiler id="StudioView">
-            <StudioView isReady={isReady} />
+            <StudioViewPart isReady={isReady} />
           </DevProfiler>
           <DevProfiler id="LibraryPanel">
             <LibraryPanel />
@@ -405,13 +408,13 @@ function DawAppInner() {
           )}
         </div>
       )}
-      <ChordAnalysisPrompt />
+      <ChordAnalysisPromptHost />
       <SetListUpdatePrompt />
-      <SettingsModal />
-      <PrismSuggestionModal audioReady={isReady} />
+      <SettingsModalHost />
+      <PrismSuggestionModalHost audioReady={isReady} />
       <RecordingLimitModal />
       <RecordGuard />
-      <TutorialLayer />
+      <TutorialLayerHost />
       {/* Collab's prompts portal to <body>; mounted here, not in the
           TransportBar, so they show in Practice too. */}
       <LeaveSavePrompt />
@@ -435,7 +438,10 @@ export function DawApp() {
     // One tooltip timing for the whole editor (src/daw/ui's Tooltip).
     <TooltipGroup>
       <CollabProvider>
-        <DawAppInner />
+        {/* A crash saves the draft and offers Reload editor (1.12a). */}
+        <DawErrorBoundary>
+          <DawAppInner />
+        </DawErrorBoundary>
       </CollabProvider>
     </TooltipGroup>
   );

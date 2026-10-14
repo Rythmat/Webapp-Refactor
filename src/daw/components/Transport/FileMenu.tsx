@@ -29,8 +29,6 @@ import { saveProject } from '@/daw/commands/saveProject';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
-import { importMidiFile } from '@/daw/midi/MidiFileIO';
-import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
 import { timeSignatureOf } from '@/daw/time/timeModel';
 import { openSession } from '@/daw/session/openSession';
 import { getSessionDeps } from '@/daw/session/sessionDeps';
@@ -40,11 +38,8 @@ import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogSt
 import { studioProjectsApi } from '@/lib/studio-projects/api';
 import type { AssetStamp } from '@/lib/studio-assets/upload-pending';
 import { showError, showSuccess } from '@/components/utils/toast';
-import {
-  DEFAULT_EXPORT_CHOICES,
-  ExportAudioDialog,
-  type ExportChoices,
-} from './ExportAudioDialog';
+import { ExportAudioDialogPart } from '@/daw/shell/lazyParts';
+import { DEFAULT_EXPORT_CHOICES, type ExportChoices } from './exportChoices';
 import type { MidiNoteEvent } from '@prism/engine';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -256,6 +251,8 @@ export function FileMenu() {
       if (!file) return;
 
       const arrayBuffer = await file.arrayBuffer();
+      // The MIDI reader loads with the first import, not with the editor.
+      const { importMidiFile } = await import('@/daw/midi/MidiFileIO');
       const sequences = importMidiFile(arrayBuffer);
 
       const state = useStore.getState();
@@ -289,9 +286,11 @@ export function FileMenu() {
     [],
   );
 
-  const handleExportLeadSheet = useCallback(() => {
+  const handleExportLeadSheet = useCallback(async () => {
     const state = useStore.getState();
     if (state.chordRegions.length === 0) return;
+    // The MusicXML writer loads with the first export.
+    const { downloadLeadSheet } = await import('@/daw/midi/MusicXmlExport');
     downloadLeadSheet(
       state.chordRegions,
       {
@@ -424,7 +423,7 @@ export function FileMenu() {
             <DropdownMenu.Item
               className={itemClass}
               style={itemStyle}
-              onSelect={exportProjectMidi}
+              onSelect={() => void exportProjectMidi()}
             >
               <FileDown size={13} strokeWidth={2} />
               Export MIDI
@@ -508,7 +507,7 @@ export function FileMenu() {
           every track edit (shell-17). The student's format, bit depth and
           range live here instead, so they carry over to the next export. */}
       {exportAudioOpen && (
-        <ExportAudioDialog
+        <ExportAudioDialogPart
           open
           onOpenChange={setExportAudioOpen}
           choices={exportChoices}

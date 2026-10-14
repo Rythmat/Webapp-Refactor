@@ -1,5 +1,13 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  beforeEach,
+  afterEach,
+} from 'vitest';
 import { act, cleanup, render } from '@testing-library/react';
 import type { MidiNoteEvent } from '@prism/engine';
 
@@ -42,6 +50,7 @@ vi.mock('@/hooks/useIsPremium', () => ({
 }));
 vi.mock('@/daw/audio/auditionNote', () => ({ auditionNote: vi.fn() }));
 
+import { ClipPianoRollPart } from '@/daw/shell/lazyParts';
 import { useStore } from '@/daw/store';
 import { ChannelStrip } from '../ChannelStrip';
 
@@ -56,6 +65,12 @@ const note = (startTick: number): MidiNoteEvent => ({
 });
 
 let trackId = '';
+
+// The roll is its own chunk (milestone 1.12a); loaded here, the dock renders
+// it at once, as after a preload in the editor.
+beforeAll(async () => {
+  await ClipPianoRollPart.preload();
+});
 
 beforeEach(() => {
   roll.props = null;

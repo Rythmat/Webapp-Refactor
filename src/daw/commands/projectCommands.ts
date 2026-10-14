@@ -1,4 +1,3 @@
-import { downloadMidiBlob, exportMidiFile } from '@/daw/midi/MidiFileIO';
 import { useStore } from '@/daw/store';
 import { toSongTick } from '@/daw/time/timeModel';
 import type { MidiSequence } from '@prism/engine';
@@ -14,9 +13,10 @@ const OUR_PPQ = 480;
  * Downloads the project's MIDI tracks as one file, one MIDI track per
  * editor track that has notes, in song time (each clip's notes at its
  * place) and in the project's metre. Milestone 1.11 fills in the rest of
- * the content (tempo map, controllers).
+ * the content (tempo map, controllers). The project is read at once; the
+ * MIDI writer loads with the first export, not with the editor (1.12a).
  */
-export function exportProjectMidi(): void {
+export function exportProjectMidi(): Promise<void> {
   const state = useStore.getState();
   const sequences = new Map<number, MidiSequence>();
   for (let i = 0; i < state.tracks.length; i++) {
@@ -36,13 +36,17 @@ export function exportProjectMidi(): void {
       events,
     });
   }
-  if (sequences.size === 0) return;
-  downloadMidiBlob(
-    exportMidiFile(sequences, state.bpm, [
-      state.timeSignatureNumerator,
-      state.timeSignatureDenominator,
-    ]),
-    'prism-session.mid',
+  if (sequences.size === 0) return Promise.resolve();
+  const metre: [number, number] = [
+    state.timeSignatureNumerator,
+    state.timeSignatureDenominator,
+  ];
+  return import('@/daw/midi/MidiFileIO').then(
+    ({ downloadMidiBlob, exportMidiFile }) =>
+      downloadMidiBlob(
+        exportMidiFile(sequences, state.bpm, metre),
+        'prism-session.mid',
+      ),
   );
 }
 

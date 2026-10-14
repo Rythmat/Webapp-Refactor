@@ -6,6 +6,7 @@ const lane = (id: string, ancestors: string[] = []): FanLane => ({
   depth: ancestors.length + 1,
   ancestors,
   color: '#ffffff',
+  colorEnd: '#eeeeee',
   parentColor: '#000000',
 });
 
@@ -31,6 +32,17 @@ describe('the place river’s fan', () => {
     expect((ys[0] + ys[3]) / 2).toBeCloseTo(250);
     // No split deeper than the first: the years start after it.
     expect(fan.plotLeft).toBe(162);
+  });
+
+  it('never spills over its height, closing gaps and then thinning lanes', () => {
+    const many = Array.from({ length: 30 }, (_, i) => lane(`l${i}`));
+    const fan = layoutFan(many, OPTIONS);
+    const first = fan.lanes[0];
+    const last = fan.lanes.at(-1)!;
+    expect(first.y - fan.thickness / 2).toBeGreaterThanOrEqual(-0.001);
+    expect(last.y + fan.thickness / 2).toBeLessThanOrEqual(
+      OPTIONS.height + 0.001,
+    );
   });
 
   it('caps a lane’s thickness', () => {

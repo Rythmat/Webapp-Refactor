@@ -5,7 +5,7 @@
  */
 export const RIVER = {
   /** Above the lanes: the year bookends and the genre chips. */
-  top: 148,
+  top: 104,
   /** Below the lanes: the corner globe, the cursor's year and the era rail. */
   bottom: 100,
   /** The right-hand strip that holds the lane names; narrower on phones. */
@@ -21,10 +21,11 @@ export const RIVER = {
   fanStagesNarrow: [56, 92, 124] as const,
   /** The fan's lanes at the source, as a share of their thickness. */
   sourceShare: 0.3,
-  /** The bands' fill. */
-  bandOpacity: 0.8,
-  /** How strongly the eras tint the bands along the years. */
-  eraTint: 0.32,
+  /** The bands' fill; lighter in the fan, where siblings overlap and add up. */
+  bandOpacity: 0.82,
+  fanOpacity: 0.5,
+  /** The glow at the source, where every lane begins. */
+  sourceGlow: 64,
   /** A lane's strand (its centre line). */
   strandAlpha: 0.55,
   /** The thin curves of lanes flowing into others (the family tree). */
@@ -34,15 +35,21 @@ export const RIVER = {
   minRampYears: 2,
   maxRampYears: 60,
   bandAlpha: [0.34, 0.24] as const,
-  /** No two markers on a lane closer than this. */
-  clusterGapPx: 48,
+  /**
+   * Markers: no two in a row of a lane closer than `clusterGapFactor` poster
+   * widths; a band this thick or more carries two rows of them.
+   */
+  clusterGapFactor: 2.1,
+  twoRowsAt: 96,
   /** Markers' sizes: a poster at most and least, a count's least and most. */
-  posterMaxPx: 44,
-  posterMinPx: 24,
+  posterMaxPx: 54,
+  posterMinPx: 22,
   countMinPx: 26,
   countMaxPx: 40,
-  /** Posters loaded at once, at most; the rest of the markers are counts or dots. */
-  maxPosters: 56,
+  /** Pictures in a stack of a cluster's events, at most. */
+  stackPosters: 3,
+  /** Markers with pictures at once, at most; the rest are counts or dots. */
+  maxPosters: 40,
   /** How long the view must rest before the page's store hears of it. */
   commitMs: 150,
   /** How far past the view markers are drawn, as a share of its span. */

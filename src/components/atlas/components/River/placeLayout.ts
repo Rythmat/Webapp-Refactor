@@ -12,8 +12,10 @@ export interface FanLane {
   depth: number;
   /** The lanes it split from, continent first (its own id excluded). */
   ancestors: readonly string[];
-  /** Its own colour, and its parent's (the fan shades from one to the other). */
+  /** Its own colours along its run, and its parent's (the fan shades from
+   *  the parent's into its own). */
   color: string;
+  colorEnd: string;
   parentColor: string;
 }
 
@@ -39,6 +41,7 @@ export interface LaneGeometry {
   y: number;
   thickness: number;
   color: string;
+  colorEnd: string;
   parentColor: string;
 }
 
@@ -53,16 +56,25 @@ export interface FanLayout {
 
 export function layoutFan(lanes: readonly FanLane[], o: FanOptions): FanLayout {
   const n = Math.max(lanes.length, 1);
-  const thickness = Math.max(
+  let gap = o.gap;
+  let thickness = Math.max(
     o.minLane,
-    Math.min(o.maxLane, (o.height - o.gap * (n - 1)) / n),
+    Math.min(o.maxLane, (o.height - gap * (n - 1)) / n),
   );
-  const total = n * thickness + (n - 1) * o.gap;
+  // Too many lanes for the height: close the gaps first, then thin the
+  // lanes, so the river never spills over what is above and below it.
+  if (n * thickness + (n - 1) * gap > o.height && n > 1) {
+    gap = Math.max(2, (o.height - n * thickness) / (n - 1));
+    if (n * thickness + (n - 1) * gap > o.height) {
+      thickness = Math.max(4, (o.height - (n - 1) * gap) / n);
+    }
+  }
+  const total = n * thickness + (n - 1) * gap;
   const top = (o.height - total) / 2;
   const sourceY = o.height / 2;
   const y = new Map<string, number>();
   lanes.forEach((lane, i) =>
-    y.set(lane.id, top + i * (thickness + o.gap) + thickness / 2),
+    y.set(lane.id, top + i * (thickness + gap) + thickness / 2),
   );
   // A split place's height is the middle of its lanes'.
   const span = new Map<string, [number, number]>();
@@ -92,6 +104,7 @@ export function layoutFan(lanes: readonly FanLane[], o: FanOptions): FanLayout {
         y: own,
         thickness,
         color: lane.color,
+        colorEnd: lane.colorEnd,
         parentColor: lane.parentColor,
       };
     }),

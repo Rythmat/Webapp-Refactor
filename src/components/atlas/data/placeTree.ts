@@ -14,8 +14,13 @@ export type ContinentId = 'americas' | 'europe' | 'africa-me' | 'asia-pacific';
 export interface Continent {
   id: ContinentId;
   label: string;
-  /** Its hue; its regions and cities are shades of it. */
+  /**
+   * Its two colours, Dorot's way: each band runs from one into the next
+   * along its length (coral into peach, violet into blue). Its regions and
+   * cities are shades of both.
+   */
   color: string;
+  colorEnd: string;
   /** Its regions, top to bottom. */
   regions: readonly RegionId[];
 }
@@ -25,18 +30,21 @@ export const CONTINENTS: readonly Continent[] = [
     id: 'americas',
     label: 'Americas',
     color: '#fb7185',
+    colorEnd: '#fdba74',
     regions: ['north-america', 'central-america', 'south-america'],
   },
   {
     id: 'europe',
     label: 'Europe',
     color: '#a78bfa',
+    colorEnd: '#38bdf8',
     regions: ['north-europe', 'west-europe', 'east-europe'],
   },
   {
     id: 'africa-me',
     label: 'Africa & Middle East',
     color: '#fb923c',
+    colorEnd: '#ef4444',
     regions: [
       'west-asia',
       'north-africa',
@@ -49,7 +57,8 @@ export const CONTINENTS: readonly Continent[] = [
   {
     id: 'asia-pacific',
     label: 'Asia & Pacific',
-    color: '#2dd4bf',
+    color: '#34d399',
+    colorEnd: '#22d3ee',
     regions: [
       'north-asia',
       'central-asia',
@@ -109,7 +118,9 @@ export interface PlaceLane {
   depth: 1 | 2 | 3;
   /** The lane it split from; null for a continent. */
   parent: string | null;
+  /** Its colours along its length: a shade of its parent's two. */
   color: string;
+  colorEnd: string;
   /** Whether opening it splits it further. */
   splits: boolean;
 }
@@ -213,12 +224,14 @@ export function placeLanes(
         depth: 1,
         parent: null,
         color: continent.color,
+        colorEnd: continent.colorEnd,
         splits: regions.length > 1,
       });
       continue;
     }
     regions.forEach((region, i) => {
       const color = shadeOf(continent.color, i, regions.length, 16);
+      const colorEnd = shadeOf(continent.colorEnd, i, regions.length, 16);
       const top = (cities.get(region) ?? []).slice(0, CITY_LANES);
       const total = index.filter((t) => t.regionId === region).length;
       const inTop = top.reduce((sum, [, n]) => sum + n, 0);
@@ -230,6 +243,7 @@ export function placeLanes(
           depth: 2,
           parent: continent.id,
           color,
+          colorEnd,
           splits,
         });
         return;
@@ -242,6 +256,7 @@ export function placeLanes(
           depth: 3,
           parent: region,
           color: shadeOf(color, j, parts, 9),
+          colorEnd: shadeOf(colorEnd, j, parts, 9),
           splits: false,
         }),
       );
@@ -252,6 +267,7 @@ export function placeLanes(
           depth: 3,
           parent: region,
           color: shadeOf(color, parts - 1, parts, 9),
+          colorEnd: shadeOf(colorEnd, parts - 1, parts, 9),
           splits: false,
         });
       }

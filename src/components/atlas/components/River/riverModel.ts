@@ -47,6 +47,13 @@ export const coverOf = (
 ): TimelineEvent | undefined =>
   cluster.items.find((t) => eventImage(t.event, 'lane'));
 
+/** Up to `max` of a cluster's events with pictures, for a stack. */
+export const coversOf = (
+  cluster: RiverCluster<TimelineEvent>,
+  max: number,
+): TimelineEvent[] =>
+  cluster.items.filter((t) => eventImage(t.event, 'lane')).slice(0, max);
+
 export function markerKind(
   cluster: RiverCluster<TimelineEvent>,
   withPoster: boolean,

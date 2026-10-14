@@ -50,6 +50,7 @@ import { PlaceBands } from './PlaceBands';
 import {
   RiverMarkers,
   describeCluster,
+  posterSize,
   type PlacedMarker,
 } from './RiverMarkers';
 import { layoutFan, type FanLane } from './placeLayout';
@@ -223,6 +224,7 @@ export default function TimeRiver({ active }: { active: boolean }) {
       depth: lane.depth,
       ancestors: ancestors.get(lane.id) ?? [],
       color: lane.color,
+      colorEnd: lane.colorEnd,
       parentColor: parentColor(lane),
     }));
     return layoutFan(fanLanes, {
@@ -261,10 +263,41 @@ export default function TimeRiver({ active }: { active: boolean }) {
     }
     return map;
   }, [index, lanes, genres]);
+  // A thick band carries two rows of markers: each row keeps its markers a
+  // stack's width apart, and the rows take turns, so a busy stretch fills
+  // the band instead of crowding its centre line.
+  const rows = fan.thickness >= RIVER.twoRowsAt ? 2 : 1;
+  const poster = posterSize(fan.thickness);
   const clusters = useMemo(
-    () => clusterLanes(byLane, level, RIVER.clusterGapPx, (t) => t.event.id),
-    [byLane, level],
+    () =>
+      clusterLanes(
+        byLane,
+        level,
+        (poster * RIVER.clusterGapFactor) / rows,
+        (t) => t.event.id,
+      ),
+    [byLane, level, poster, rows],
   );
+  const rowOf = useMemo(() => {
+    const map = new Map<string, number>();
+    const seen = new Map<string, number>();
+    for (const c of clusters) {
+      const i = seen.get(c.lane) ?? 0;
+      map.set(c.key, i % rows);
+      seen.set(c.lane, i + 1);
+    }
+    return map;
+  }, [clusters, rows]);
+  // Each lane's events from before the years shown, for the fan's dots.
+  const earlier = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const [lane, list] of byLane) {
+      let n = 0;
+      while (n < list.length && list[n].year < restView.from) n++;
+      map.set(lane, n);
+    }
+    return map;
+  }, [byLane, restView.from]);
   const posters = useMemo(
     () => posterKeys(clusters, restView, RIVER.maxPosters),
     [clusters, restView],
@@ -275,15 +308,18 @@ export default function TimeRiver({ active }: { active: boolean }) {
         .filter((c) => c.lastYear >= range.from && c.year <= range.to)
         .map((cluster) => ({
           cluster,
-          y: laneY.get(cluster.lane) ?? 0,
+          y:
+            (laneY.get(cluster.lane) ?? 0) +
+            (rows === 2
+              ? ((rowOf.get(cluster.key) ?? 0) - 0.5) * fan.thickness * 0.46
+              : 0),
           kind: markerKind(cluster, posters.has(cluster.key)),
         })),
-    [clusters, range, laneY, posters],
+    [clusters, range, laneY, posters, rows, rowOf, fan.thickness],
   );
 
   /* ── The frame writer ──────────────────────────────────────────────── */
 
-  const eraRef = useRef<SVGGElement | null>(null);
   const itemsRef = useRef<HTMLDivElement>(null);
   const fromRef = useRef<HTMLSpanElement>(null);
   const toRef = useRef<HTMLSpanElement>(null);
@@ -301,7 +337,6 @@ export default function TimeRiver({ active }: { active: boolean }) {
     const w = camera.get();
     const ppy = width / (w.to - w.from);
     const tx = left - w.from * ppy;
-    eraRef.current?.setAttribute('transform', `matrix(${ppy} 0 0 1 ${tx} 0)`);
     const items = itemsRef.current;
     if (items) {
       // A pan only moves the layer; a zoom restyles its markers too.
@@ -618,10 +653,10 @@ export default function TimeRiver({ active }: { active: boolean }) {
           <PlaceBands
             active={active}
             ancestors={ancestors}
-            domain={DOMAIN}
-            eraRef={eraRef}
-            height={riverHeight}
+            earlier={earlier}
             layout={fan}
+            plotLeft={plotLeft}
+            plotRight={plotRight}
             reducedMotion={reducedMotion}
             right={size.width + fan.thickness}
             top={RIVER.top}
@@ -681,7 +716,16 @@ export default function TimeRiver({ active }: { active: boolean }) {
             const style = { top: RIVER.top + g.y, maxWidth: gutter };
             const name = (
               <span className="flex min-w-0 flex-col items-end">
-                <span className="truncate">{lane.label}</span>
+                <span
+                  className={cn(
+                    'text-right',
+                    // Two lines where a band has room; one, cut short, on a
+                    // thin one, so names never run into their neighbours.
+                    g.thickness >= 40 ? 'line-clamp-2' : 'truncate',
+                  )}
+                >
+                  {lane.label}
+                </span>
                 {g.thickness > 48 && (
                   <span className="text-xs font-normal text-white/75">
                     {count} {count === 1 ? 'moment' : 'moments'}
@@ -711,27 +755,35 @@ export default function TimeRiver({ active }: { active: boolean }) {
             );
           })}
 
-          {/* Each split in the fan, with a chip to fold it back. */}
+          {/* Each split in the fan: a node on its strand, and a chip to
+              fold it back. */}
           {splits.map((s) => (
-            <button
+            <div
               key={s.id}
-              aria-label={`Close ${s.label}`}
               className={cn(
-                'absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 whitespace-nowrap rounded-full border border-white/20 bg-atlas-panel px-2 py-0.5 text-xs font-bold text-atlas-text shadow-lg transition-[top,opacity] duration-700 ease-in-out hover:border-white/40',
+                'absolute transition-[top,opacity] duration-500 [transition-timing-function:var(--ease-in-out)]',
                 active ? 'opacity-100' : 'opacity-0',
-                ATLAS_FOCUS,
               )}
-              style={{
-                left: stages[s.depth - 1],
-                top: RIVER.top + s.y,
-              }}
-              title={`Gather ${s.label} back into one lane`}
-              type="button"
-              onClick={() => mergeInto(s.id)}
+              style={{ left: stages[s.depth - 1], top: RIVER.top + s.y }}
             >
-              {s.label}
-              <X aria-hidden className="size-3" />
-            </button>
+              <span
+                aria-hidden
+                className="absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+              />
+              <button
+                aria-label={`Close ${s.label}`}
+                className={cn(
+                  'absolute left-1.5 top-0 flex -translate-y-[130%] items-center gap-1 whitespace-nowrap rounded-full border border-white/25 bg-atlas-page/80 px-2 py-0.5 text-xs font-bold text-white transition-colors hover:border-white/50 hover:bg-atlas-page',
+                  ATLAS_FOCUS,
+                )}
+                title={`Gather ${s.label} back into one lane`}
+                type="button"
+                onClick={() => mergeInto(s.id)}
+              >
+                {s.label}
+                <X aria-hidden className="size-3 opacity-70" />
+              </button>
+            </div>
           ))}
         </>
       )}

@@ -17,7 +17,8 @@ Pathways lens. The canvas stays dark.
 | P0 | Baseline screens (`docs/globe-ui/screens/tr-p0-*`) and numbers (below) | done |
 | P1 | Data, state and URL foundations; no visible change | done |
 | P2 | The river in the Eras view (genre lanes) | done, then redone as P2b |
-| P2b | Dorot pass: place lanes that split, era rail, corner globe, motion | done — look check pending |
+| P2b | Dorot pass: place lanes that split, era rail, corner globe, motion | done |
+| P2c | Polish: vivid two-tone bands, richer fan, fuller bands, tighter layout | done — look check pending |
 | P3 | Era rail, stream chips, window shared with the map | — |
 | P4 | Event stage | — |
 | P5 | Map bubbles and the place lens | — |
@@ -122,3 +123,27 @@ regions that split; stay dark.
   budget. Lazy: TimeRiver 33.8 kB, EraRail 5.3 kB, cobe 13.4 kB.
 - Screens: `docs/globe-ui/screens/tr-p2-*` (eras, regions, cities, splitting,
   morph to globe, era rail hover, genres, phone).
+
+## P2c polish
+
+Owner asked for all four: colours had turned muddy, the bands looked empty,
+space was wasted, and the fan wanted to be richer.
+
+- Colours: no era tint over the bands any more (it mixed them toward olive
+  and grey). Each continent runs between two colours of its own, Dorot's
+  way — Americas coral → peach, Europe violet → blue, Africa & Middle East
+  orange → red, Asia & Pacific green → cyan — and its regions and cities are
+  shades of both. Eras keep their colours on the era rail.
+- Fan: a soft glow at the source; strand nodes and restyled chips at each
+  split; up to five faint dots along each lane's fan for its events from
+  before the years shown. Fans are lighter than runs, so overlapping
+  siblings brighten without blowing out.
+- Bands: bigger posters; clusters show up to three overlapping pictures
+  with a count (Dorot's stacks); a band 96 px or thicker carries two rows of
+  markers. YouTube's grey "video unavailable" placeholder counts as a failed
+  picture.
+- Layout: the lanes start right under the years and chips; many lanes close
+  their gaps, then thin, rather than spill; names wrap on thick bands and
+  are cut short on thin ones.
+- River at 4× CPU (dev): drag ~59 fps, zoom out ~48 fps, zoom in ~33 fps
+  (stacks mount more pictures as levels change; a perf pass is P7).

@@ -5,14 +5,17 @@ import { RIVER } from '@/components/atlas/theme/river';
 import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { cn } from '@/lib/utils';
 import type { RiverCluster } from './riverLevels';
-import { countLabel, coverOf, type MarkerKind } from './riverModel';
+import { countLabel, coversOf, type MarkerKind } from './riverModel';
 
 export interface PlacedMarker {
   cluster: RiverCluster<TimelineEvent>;
-  /** Its lane's centre line in its year, px from the lanes' top. */
+  /** Its height, px from the lanes' top: its lane's, or a row of it. */
   y: number;
   kind: MarkerKind;
 }
+
+/** How far each picture of a stack sits from the one before, in sizes. */
+const STACK_STEP = 0.5;
 
 /** Keyboard focus on a coloured band: white, which no era colour hides. */
 export const ATLAS_FOCUS_ON_BAND =
@@ -37,12 +40,40 @@ export function describeCluster(cluster: RiverCluster<TimelineEvent>): {
   return { title: `${cluster.items.length} events`, detail: years };
 }
 
+/** A poster's size on a lane this thick: smaller where it carries two rows. */
+export function posterSize(laneHeight: number): number {
+  const share = laneHeight >= RIVER.twoRowsAt ? 0.4 : 0.78;
+  return Math.round(
+    Math.max(
+      RIVER.posterMinPx,
+      Math.min(RIVER.posterMaxPx, laneHeight * share),
+    ),
+  );
+}
+
 const countSize = (n: number) =>
   Math.min(RIVER.countMaxPx, RIVER.countMinPx + Math.log2(n) * 3);
 
-function Poster({ src, size }: { src: string; size: number }) {
-  // A poster that fails to load falls back to a dot.
+function Poster({
+  src,
+  size,
+  inStack = false,
+}: {
+  src: string;
+  size: number;
+  /** In a stack, a failed picture keeps its place as a plain disc. */
+  inStack?: boolean;
+}) {
+  // A poster that fails to load falls back to a dot (a disc in a stack).
   const [failed, setFailed] = useState(false);
+  if (failed && inStack) {
+    return (
+      <span
+        className="block rounded-full bg-atlas-panel ring-2 ring-atlas-page"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
   if (failed) return <Dot />;
   return (
     <span
@@ -59,6 +90,11 @@ function Poster({ src, size }: { src: string; size: number }) {
         src={src}
         width={size}
         onError={() => setFailed(true)}
+        // YouTube answers a removed video with a 120×90 grey placeholder
+        // rather than an error.
+        onLoad={(e) => {
+          if (e.currentTarget.naturalWidth <= 120) setFailed(true);
+        }}
       />
     </span>
   );
@@ -96,20 +132,24 @@ export const RiverMarkers = memo(function RiverMarkers({
   ) => void;
   onFocusKey: (key: string) => void;
 }) {
-  const poster = Math.round(
-    Math.max(RIVER.posterMinPx, Math.min(RIVER.posterMaxPx, laneHeight * 0.36)),
-  );
+  const poster = posterSize(laneHeight);
   const tabKey = focusedKey ?? markers[0]?.cluster.key;
   return (
     <>
       {markers.map(({ cluster, y, kind }) => {
         const { title, detail } = describeCluster(cluster);
+        const covers =
+          kind === 'stack' ? coversOf(cluster, RIVER.stackPosters) : [];
         const size =
           kind === 'count'
             ? countSize(cluster.items.length)
             : kind === 'poster' || kind === 'stack'
               ? poster
               : 24;
+        const width =
+          kind === 'stack'
+            ? size * (1 + STACK_STEP * (covers.length - 1))
+            : size;
         return (
           <button
             key={cluster.key}
@@ -124,7 +164,7 @@ export const RiverMarkers = memo(function RiverMarkers({
                 '--yr': cluster.year,
                 '--y': `${y}px`,
                 top,
-                width: size,
+                width,
                 height: size,
               } as CSSProperties
             }
@@ -143,17 +183,29 @@ export const RiverMarkers = memo(function RiverMarkers({
               <span className="flex size-full items-center justify-center rounded-full bg-white text-xs font-bold text-atlas-page shadow-md transition-transform group-hover:scale-110">
                 {countLabel(cluster.items.length)}
               </span>
-            ) : kind === 'poster' || kind === 'stack' ? (
+            ) : kind === 'poster' ? (
+              <Poster
+                size={size}
+                src={eventImage(cluster.items[0].event, 'lane')!}
+              />
+            ) : kind === 'stack' ? (
               <>
-                <Poster
-                  size={size}
-                  src={eventImage(coverOf(cluster)!.event, 'lane')!}
-                />
-                {kind === 'stack' && (
-                  <span className="absolute -bottom-1.5 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-xs font-bold leading-none text-atlas-page ring-2 ring-atlas-page">
-                    {countLabel(cluster.items.length)}
+                {covers.map((t, i) => (
+                  <span
+                    key={t.event.id}
+                    className="absolute top-0"
+                    style={{ left: i * size * STACK_STEP }}
+                  >
+                    <Poster
+                      inStack
+                      size={size}
+                      src={eventImage(t.event, 'lane')!}
+                    />
                   </span>
-                )}
+                ))}
+                <span className="absolute -bottom-1.5 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-xs font-bold leading-none text-atlas-page ring-2 ring-atlas-page">
+                  {countLabel(cluster.items.length)}
+                </span>
               </>
             ) : (
               <Dot />

@@ -319,7 +319,7 @@ resetOnNew}`, plus a coverage test.
 - Projects dialog listing drafts and cloud projects.
 - Practice gets a slim header with the chip.
 
-*1.4 decisions as built (integration, 2026-10-08).* Owner sign-off pending on 1–7 (owner
+_1.4 decisions as built (integration, 2026-10-08)._ Owner sign-off pending on 1–7 (owner
 walk-through):
 
 1. The boot and switch prunes keep the user's newest draft even when it is cloud-equal (it is what

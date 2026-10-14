@@ -210,7 +210,9 @@ const SINGLE_REFS = [
  *
  * Pure: returns `input` itself when nothing changes, and otherwise copies
  * only what does, so the payload a loader was handed never changes under it.
- * A new field that names a track (1.15's studentTrackId) belongs here.
+ * A new field of the project that names a track belongs here. (The practice
+ * screen's student track doesn't: it rides in the draft's context, never in
+ * a payload, and is checked against the tracks when it is restored.)
  */
 export function rewriteTrackRefs<P extends TrackRefs>(
   input: P,

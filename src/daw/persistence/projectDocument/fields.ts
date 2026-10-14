@@ -361,10 +361,12 @@ const STORE_SPECS = {
 
   // ── lesson and practice context ──
   practiceSession: session('context', null, 'project'),
+  practiceKeyboard: session('context', null, 'project'),
   activeTutorialId: session('context', null, 'project'),
   tutorialStepIndex: session('context', 0, 'project'),
   tutorialStepStatus: session('tutorial', 'waiting', 'project'),
   tutorialStepCelebrate: session('tutorial', true, 'project'),
+  tutorialStepPrepared: session('tutorial', false, 'project'),
 
   // ── analysis (the music-intelligence bus) ──
   detectedKeyRootPc: session('analysis', null, 'project'),
@@ -836,6 +838,16 @@ export const USER_PREF_KEYS: readonly StoreDataKey[] = storeKeysWhere(
 );
 export const SESSION_KEYS: readonly StoreDataKey[] = storeKeysWhere(
   (s) => s.scope === 'session',
+);
+/**
+ * The lesson and practice context (milestone 1.15): session keys the body
+ * never holds, which the draft's meta keeps instead (DraftContext,
+ * drafts/draftContext.ts), so reopening the same draft resumes them. A
+ * change to one starts a write, but isn't an edit: it never makes the
+ * project unsaved.
+ */
+export const CONTEXT_KEYS: readonly StoreDataKey[] = storeKeysWhere(
+  (s) => s.scope === 'session' && s.group === 'context',
 );
 /** Keys on their way out of the store: none since milestone 1.3. */
 export const DROP_KEYS: readonly StoreDataKey[] = storeKeysWhere(

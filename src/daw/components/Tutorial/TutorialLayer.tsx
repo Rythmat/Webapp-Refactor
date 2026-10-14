@@ -16,9 +16,10 @@ import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 // ── TutorialLayer ───────────────────────────────────────────────────────────
 // Global overlay that drives a running lesson: applies each step's
-// preconditions, spotlights its target region, detects the correct adjustment,
-// celebrates, and auto-advances. Mounted once in DawApp. Renders nothing when
-// no tutorial is active.
+// preconditions as it arrives, spotlights its target region, detects the
+// correct adjustment, celebrates, and auto-advances. Mounted once in DawApp.
+// Renders nothing when no tutorial is active. A lesson resumed with its draft
+// (milestone 1.15) carries on at its step, over the view the draft kept.
 
 // Both pulses animate opacity only (the spotlight's is the wider glow over
 // its ring), so they run on the compositor. Neither is defined, nor used,
@@ -39,6 +40,8 @@ export function TutorialLayer() {
   const stepIndex = useStore((s) => s.tutorialStepIndex);
   const status = useStore((s) => s.tutorialStepStatus);
   const celebrate = useStore((s) => s.tutorialStepCelebrate);
+  const prepared = useStore((s) => s.tutorialStepPrepared);
+  const markPrepared = useStore((s) => s.markTutorialStepPrepared);
   const goTo = useStore((s) => s.goToTutorialStep);
   const complete = useStore((s) => s.completeTutorialStep);
   const quit = useStore((s) => s.quitTutorial);
@@ -76,31 +79,37 @@ export function TutorialLayer() {
   // A new lesson (or none) never inherits a burst from the last one.
   useEffect(() => setConfettiKey(null), [activeId]);
 
-  // Apply the step's preconditions when it becomes active.
+  // Apply the step's preconditions once, as it arrives. Not again when the
+  // layer mounts over a step already set up (a return to the editor) or a
+  // step resumed with its draft: the student's view since then stays.
   useEffect(() => {
-    const r = step?.requires;
-    if (!r) return;
+    if (!step || prepared) return;
     // Only the step that is running: StrictMode runs this effect again after
     // a boot has reset the project (resetProjectState), and the old step
     // would put its preconditions on the new project.
     const live = useStore.getState();
     if (
       live.activeTutorialId !== activeId ||
-      live.tutorialStepIndex !== stepIndex
+      live.tutorialStepIndex !== stepIndex ||
+      live.tutorialStepPrepared
     )
       return;
-    if (r.view !== undefined) setCurrentView(r.view);
-    if (r.libraryOpen !== undefined) setLibraryOpen(r.libraryOpen);
-    if (r.channelStripTab !== undefined) setChannelStripTab(r.channelStripTab);
-    if (r.automationParam !== undefined)
+    const r = step.requires;
+    if (r?.view !== undefined) setCurrentView(r.view);
+    if (r?.libraryOpen !== undefined) setLibraryOpen(r.libraryOpen);
+    if (r?.channelStripTab !== undefined) setChannelStripTab(r.channelStripTab);
+    if (r?.automationParam !== undefined)
       setAutomationParamId(r.automationParam);
-    if (r.clearClipSelection) {
+    if (r?.clearClipSelection) {
       useStore.getState().setSelectedClip(null, null);
     }
+    markPrepared();
   }, [
     activeId,
     stepIndex,
     step,
+    prepared,
+    markPrepared,
     setCurrentView,
     setLibraryOpen,
     setChannelStripTab,

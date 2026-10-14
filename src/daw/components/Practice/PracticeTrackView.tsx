@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { ALL_MODES, DEGREES, MODE_DISPLAY, noteNameInKey } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
@@ -8,7 +8,10 @@ import { usePlayheadSelector } from '@/daw/engine/playheadClock';
 import { PRACTICE_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { requestRecord } from '@/daw/commands/requestRecord';
-import type { PracticeSession } from '@/daw/store/uiSlice';
+import type {
+  PracticeKeyboardView,
+  PracticeSession,
+} from '@/daw/store/uiSlice';
 import {
   displayAccidentals,
   displayDegree,
@@ -45,6 +48,9 @@ import { SegmentedToggle } from './SegmentedToggle';
  * its scales, prompts and keyboard already worked out, because its backing was
  * generated once and cannot be re-derived. What the screen does with either is
  * the same, so the two differ only in where the answers come from.
+ *
+ * The session, the keyboard's view and scale, and the screen itself come
+ * back after a refresh with the draft (milestone 1.15).
  */
 interface PracticeTrackViewProps {
   session: PracticeSession;
@@ -62,7 +68,7 @@ const ROOT_POSITION = { id: 'root', label: 'Root Position' };
 const BASS_FLOOR_FALLBACK = 40;
 
 /** What the keyboard lights. */
-type KeyboardView = 'chords' | 'bass' | 'scales';
+type KeyboardView = PracticeKeyboardView;
 const BASS_TRACK_VIEWS = [
   { id: 'bass', label: 'Bass Notes' },
   { id: 'scales', label: 'Scales' },
@@ -103,7 +109,9 @@ export function PracticeTrackView({
   const openTrack = useStore((s) =>
     s.tracks.find((t) => t.id === s.selectedTrackId),
   );
-  const { play, pause, stop, toggleLoop, setCurrentView } = useStore.getState();
+  const practiceKeyboard = useStore((s) => s.practiceKeyboard);
+  const { play, pause, stop, toggleLoop, setCurrentView, setPracticeKeyboard } =
+    useStore.getState();
 
   const genre = session.kind === 'genre' ? session : null;
   const theory = session.kind === 'theory' ? session : null;
@@ -140,9 +148,10 @@ export function PracticeTrackView({
     ];
   }, [genre, theory, mode, rootNote, tonic]);
 
-  const [activeScaleId, setActiveScaleId] = useState(scales[0]?.id ?? '');
-  useEffect(() => setActiveScaleId(scales[0]?.id ?? ''), [scales]);
-  const activeScale = scales.find((s) => s.id === activeScaleId) ?? scales[0];
+  // The student's pick, kept in the store so a trip to the Studio or a
+  // refresh keeps it; else the level's default.
+  const activeScale =
+    scales.find((s) => s.id === practiceKeyboard?.scaleId) ?? scales[0];
 
   const keyboard = genre?.keyboard ?? THEORY_KEYBOARD;
   const scaleTonic = genre?.scaleTonic ?? practiceMelodyTonic(rootNote);
@@ -171,8 +180,13 @@ export function PracticeTrackView({
       : (genre ? genre.studentParts[0] === 'chords' : !playsMelody)
         ? 'chords'
         : 'scales';
-  const [view, setView] = useState<KeyboardView>(defaultView);
-  useEffect(() => setView(defaultView), [defaultView]);
+  const picked = practiceKeyboard?.view ?? null;
+  const view: KeyboardView =
+    picked !== null &&
+    (views ? views.some((option) => option.id === picked) : false)
+      ? picked
+      : defaultView;
+  const setView = (next: KeyboardView) => setPracticeKeyboard({ view: next });
 
   const task = useMemo(() => {
     if (!genre) {
@@ -375,16 +389,22 @@ export function PracticeTrackView({
     'practice.record': toggleRecord,
   });
 
+  // Leaving for the lesson ends the practice screen: the draft keeps the
+  // tracks, and the editor opens on Create next time, as Quit does for a
+  // Studio lesson.
   const backToLesson = () => {
     stop();
-    navigate(
+    const lesson =
       session.kind === 'genre'
         ? session.returnTo
         : LearnRoutes.lesson({
             mode: session.mode,
             key: session.rootParam,
-          }),
-    );
+          });
+    const store = useStore.getState();
+    store.setPracticeSession(null);
+    store.setCurrentView('arrange');
+    navigate(lesson);
   };
 
   const transport = (
@@ -497,7 +517,7 @@ export function PracticeTrackView({
       heldNotes={hwActiveNotes}
       fitWithin={rootRef}
       fitAnchor={chartRef}
-      onScaleChange={(next) => setActiveScaleId(next.id)}
+      onScaleChange={(next) => setPracticeKeyboard({ scaleId: next.id })}
       controls={viewSwitch}
     />
   ) : null;

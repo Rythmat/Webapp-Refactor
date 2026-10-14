@@ -93,6 +93,14 @@ export function announceKept(
   });
 }
 
+/**
+ * A reopened draft brought its lesson back (milestone 1.15): where the
+ * student is in it. `stepIndex` counts from 0.
+ */
+export function announceLessonResumed(stepIndex: number, steps: number): void {
+  showNotice(`Lesson resumed at step ${stepIndex + 1} of ${steps}`);
+}
+
 /** This tab opened a copy: the draft is open in another tab. */
 export function announceFork(): void {
   showNotice('This project is open in another tab — this tab has a copy');

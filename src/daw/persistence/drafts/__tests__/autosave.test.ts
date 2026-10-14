@@ -9,7 +9,7 @@
  * while playing is written within maxWait, a synth-only edit is written,
  * every Oracle patch field counts, unmount, pagehide and hidden flush, view
  * changes ride the next write or a flush, and the registry decides what
- * reaches the draft. The rest pins the controller's own contract: paused
+ * reaches the draft (the lesson and practice context too, milestone 1.15). The rest pins the controller's own contract: paused
  * writes, the session generation, identical bodies, the mirror on hide and
  * its writeSeq, a write stalled when the page dies, quota, conflicts, the
  * persist() call and the cloud record.
@@ -41,6 +41,7 @@ import { useStoreBridge } from '@/daw/hooks/useStoreBridge';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { captureSynthState } from '@/daw/oracle-synth/synthTrackState';
 import {
+  CONTEXT_KEYS,
   DOC_KEYS,
   LOCAL_KEYS,
   PREF_KEYS,
@@ -615,15 +616,29 @@ describe('what reaches the draft, by the registry', () => {
   });
 
   it('a pref or session key never reaches the draft', async () => {
-    const keys = [...PREF_KEYS, ...SESSION_KEYS];
+    const keys = [...PREF_KEYS, ...SESSION_KEYS].filter(
+      (key) => !CONTEXT_KEYS.includes(key),
+    );
     expect(await notTreatedAs('never', keys, writeKey)).toEqual([]);
   });
 
-  it('reaches the draft for exactly the keys the draft holds (LOCAL_KEYS)', async () => {
+  it('a lesson or practice context key starts a write (milestone 1.15)', async () => {
+    expect(CONTEXT_KEYS).toEqual(
+      expect.arrayContaining([
+        'activeTutorialId',
+        'tutorialStepIndex',
+        'practiceSession',
+        'practiceKeyboard',
+      ]),
+    );
+    expect(await notTreatedAs('scheduled', CONTEXT_KEYS, writeKey)).toEqual([]);
+  });
+
+  it('reaches the draft for exactly the keys the draft holds (LOCAL_KEYS and the context)', async () => {
     const keys = (Object.keys(STORE_FIELDS) as StoreDataKey[]).filter(
       (key) => key !== 'tracks',
     );
-    const local = new Set(LOCAL_KEYS);
+    const local = new Set([...LOCAL_KEYS, ...CONTEXT_KEYS]);
     renderHook(() => useDraftAutosave());
     const wrong: string[] = [];
     for (const key of keys) {

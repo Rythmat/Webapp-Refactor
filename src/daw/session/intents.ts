@@ -46,6 +46,7 @@ import { NOT_FOUND_MESSAGES, notFoundError } from './parseBootIntent';
 import { openError, openErrorFromFailure, signedOutError } from './openErrors';
 import {
   announceCloudDocumentReport,
+  announceLessonResumed,
   announceOpenedProjectDraft,
   announceProjectDraftKept,
 } from './sessionNotices';
@@ -365,11 +366,16 @@ function seeded(
   };
 }
 
-/** A session that reopens a draft as it was stored. */
+/**
+ * A session that reopens a draft as it was stored, with the lesson or
+ * practice screen it was on (its context, restored by the port's apply).
+ * A lesson resumed says at which step.
+ */
 function fromDraft(
   prepared: PreparedDraft,
   extra: Partial<PreparedOpen> = {},
 ): PreparedOpen {
+  const { afterReady = noExtras, ...rest } = extra;
   return {
     claim: prepared.claim,
     draft: prepared,
@@ -388,8 +394,14 @@ function fromDraft(
           ),
     collabWait: null,
     claimDevice: prepared.meta.userKey === DEVICE_USER_KEY,
-    afterReady: noExtras,
-    ...extra,
+    afterReady: (args) => {
+      afterReady(args);
+      if (!args.stillCurrent()) return;
+      const { activeTutorialId, tutorialStepIndex } = useStore.getState();
+      const lesson = getTutorial(activeTutorialId);
+      if (lesson) announceLessonResumed(tutorialStepIndex, lesson.steps.length);
+    },
+    ...rest,
   };
 }
 
@@ -759,7 +771,7 @@ async function preparePracticeMode(
   const applyTrack = applyPracticeModeTrack;
   return seeded(await claimNew(ctx), {
     apply: () => {
-      applyTrack(built, {
+      const studentTrackId = applyTrack(built, {
         openTrack: intent.openTrack,
         level: intent.level,
       });
@@ -770,6 +782,7 @@ async function preparePracticeMode(
         rootParam: intent.rootParam ?? 'c',
         level: intent.level,
         openTrack: intent.openTrack,
+        studentTrackId,
       });
       // A backing track to play over: loop it from the start.
       store.setLoopEnabled(true);
@@ -807,15 +820,19 @@ async function preparePracticeGenre(
   const practice = resolved;
   return seeded(await claimNew(ctx), {
     apply: () => {
-      applyGenrePracticeTrack(practice.track, practice.genreLabel);
+      const studentTrackId = applyGenrePracticeTrack(
+        practice.track,
+        practice.genreLabel,
+      );
       const store = useStore.getState();
-      store.setPracticeSession(
-        practiceSessionFor(
+      store.setPracticeSession({
+        ...practiceSessionFor(
           practice.track,
           practice.genreLabel,
           practice.returnTo,
         ),
-      );
+        studentTrackId,
+      });
       store.setCurrentView('practice');
     },
     baseline: {

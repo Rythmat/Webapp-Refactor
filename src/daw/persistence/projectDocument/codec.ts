@@ -884,8 +884,10 @@ const memberOf = <T extends string>(
   valid((v) => isString(v) && Object.prototype.hasOwnProperty.call(members, v));
 
 /**
- * Whether a draft saved on each view opens on it. Practice needs the lesson
- * context milestone 1.15 saves; until then such a draft opens on Create.
+ * Whether a draft saved on each view opens on it. Practice can't come back
+ * from the body alone: it opens on Create, and the draft's context
+ * (draftContext.ts, milestone 1.15) brings the practice screen back with its
+ * session.
  */
 const RESTORES_VIEW: Readonly<Record<ViewType, boolean>> = {
   arrange: true,
@@ -1514,9 +1516,9 @@ export function decodeSession(
     ),
   );
 
-  // A view a draft can't reopen (practice, until milestone 1.15 saves its
-  // lesson) opens on Create, with the library open as switching there opens
-  // it.
+  // A view the body can't reopen by itself (practice, which the draft's
+  // context restores) opens on Create, with the library open as switching
+  // there opens it.
   if (!RESTORES_VIEW[project.currentView as ViewType]) {
     project.currentView = 'arrange';
     project.libraryOpen = true;

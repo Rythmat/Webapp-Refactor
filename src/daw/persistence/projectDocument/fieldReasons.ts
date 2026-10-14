@@ -42,7 +42,7 @@ const ANALYSIS =
 const SUGGESTION =
   'The Prism suggestion dialog, opened on the previous project.';
 const LESSON =
-  'The lesson running on this project. Milestone 1.15 saves it with the draft.';
+  'The lesson running on this project: never in the body, but its draft’s meta keeps it (DraftContext, milestone 1.15), and reopening that draft resumes it.';
 const STEP = 'Whether the running lesson has seen its current step done.';
 const DEVICES = 'What this computer has connected: no part of a project.';
 const PANELS =
@@ -126,7 +126,7 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   clipColorMode:
     'A project field. A draft from before 1.3 opens as prism when it has chord regions, as the editor showed it.',
   currentView:
-    'Restored for every view but practice, which needs the lesson context milestone 1.15 saves.',
+    'Restored for every view but practice, which the body alone can’t rebuild: the draft’s context brings the practice screen back with its session (milestone 1.15).',
   activeTool: 'The editing tool: every project opens with the cursor.',
   selectedClipId: SELECTION,
   selectedClipTrackId: SELECTION,
@@ -135,11 +135,15 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
 
   // ── lesson and practice context ──
   practiceSession:
-    'The practice screen this project was opened for. Milestone 1.15 saves it with the draft.',
+    'The practice screen this project was opened for: never in the body or the cloud copy (another person opening the project would land on it), but its draft’s meta keeps it (DraftContext, milestone 1.15).',
+  practiceKeyboard:
+    'What the practice keyboard shows, kept beside its practice session in the draft’s meta (milestone 1.15).',
   activeTutorialId: LESSON,
   tutorialStepIndex: LESSON,
   tutorialStepStatus: STEP,
   tutorialStepCelebrate: STEP,
+  tutorialStepPrepared:
+    'Whether the running step’s preconditions are in place; a resumed lesson finds them in its draft’s view.',
 
   // ── analysis (the music-intelligence bus) ──
   detectedKeyRootPc: ANALYSIS,

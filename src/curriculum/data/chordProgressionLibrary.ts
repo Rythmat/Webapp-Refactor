@@ -5597,6 +5597,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: 'I KNOW? Travis Scott',
+    songIds: ['i_know_travis_scott'],
   },
 
   {
@@ -6099,6 +6100,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: 'Earfquake- Tyler, The Creator',
+    songIds: ['earfquake'],
   },
 
   {
@@ -6998,6 +7000,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam-band'],
     artist: '',
     song: 'The Bird- Anderson .Paak',
+    songIds: ['the_bird'],
   },
 
   {
@@ -7020,6 +7023,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam-band'],
     artist: '',
     song: 'The Bird (bridge)- Anderson .Paak',
+    songIds: ['the_bird'],
   },
 
   {
@@ -8927,6 +8931,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'hip-hop', 'electronic'],
     artist: '',
     song: "Hustlin'- Rick Ross",
+    songIds: ['hustlin'],
   },
 
   {
@@ -9000,6 +9005,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'hip-hop', 'electronic'],
     artist: '',
     song: 'Still Dre- Dr. Dre',
+    songIds: ['still_dre'],
   },
 
   {
@@ -10527,6 +10533,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'The Bird (bridge)- Anderson .Paak',
+    songIds: ['the_bird'],
   },
 
   {

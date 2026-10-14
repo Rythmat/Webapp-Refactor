@@ -53,7 +53,7 @@ describe('the globe artist index', () => {
     const index = getAtlasArtists().map((a) => [a.name, a.slug, a.eventIds]);
     expect(index).toHaveLength(858);
     expect(sha(index)).toBe(
-      '84acdf44ab7593998a33fe3544bc73a3460a6afa7d60dcbea6f4dac68e4a6d65',
+      '296a5628571fbcbb48f564a1238fcd7afb446fbfe6d2bfb07f1a96932e89c657',
     );
   });
 
@@ -62,9 +62,9 @@ describe('the globe artist index', () => {
       event.id,
       getArtistsForEvent(event).map((a) => [a.name, a.slug]),
     ]);
-    expect(MUSIC_HISTORY).toHaveLength(1736);
+    expect(MUSIC_HISTORY).toHaveLength(1741);
     expect(sha(chips)).toBe(
-      '306a1962df7bb34d7f06330a4fd11dd8142e88d16fdc7803545285ad474fe2b7',
+      'd1d6182e94c526822410ab3581c0c70b3a87ad4933ac6863712b3cd3e86c024b',
     );
   });
 
@@ -79,7 +79,7 @@ describe('the globe artist index', () => {
       .sort()
       .map((name) => [name, getArtist(name)?.slug ?? null]);
     expect(sha(resolved)).toBe(
-      '994c27d6993becd28881a8168fd62d23376c0e78f7f90b6c832d2470c4b77bc3',
+      '742114373e8fd4a5a0fcd2ee2a080ed9a1dab6b23cd37c10492e1fdbc7d35465',
     );
   });
 });

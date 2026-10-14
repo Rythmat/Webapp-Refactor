@@ -1939,8 +1939,8 @@ describe('integrity on the repo data', () => {
     );
     expect(credits).toMatchObject({
       items: songs.length,
-      set: 578,
-      linked: 182,
+      set: 583,
+      linked: 187,
       inferred: 396,
     });
   });
@@ -1986,7 +1986,7 @@ describe('integrity on the repo data', () => {
     const orphans = report.rows.filter((r) => r.check === 'orphan');
     const byKind: Record<string, number> = {};
     for (const r of orphans) byKind[r.kind] = (byKind[r.kind] ?? 0) + 1;
-    expect(byKind).toEqual({ artist: 2, progression: 96 });
+    expect(byKind).toEqual({ artist: 2, progression: 95 });
     expect(orphans.filter((r) => r.kind === 'artist').map((r) => r.id)).toEqual(
       ['artist:michael-jackson-and-justin-timberlake', 'artist:unknown-artist'],
     );
@@ -2029,7 +2029,7 @@ describe('integrity on the repo data', () => {
       linked: 693,
     });
     expect(events('title')).toMatchObject({ items: 1083, set: 3 });
-    expect(events('tags[]')).toMatchObject({ items: 1083, set: 3 });
+    expect(events('tags[]')).toMatchObject({ items: 1083, set: 4 });
     expect(events('genre[]')).toMatchObject({
       set: 1071,
       linked: 1071,

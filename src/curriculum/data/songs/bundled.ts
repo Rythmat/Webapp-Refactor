@@ -1,5 +1,5 @@
 /**
- * The bundled song library — 651 hand-authored chord charts.
+ * The bundled song library — 656 hand-authored chord charts.
  *
  * No longer the runtime source of truth: published songs are fetched from the
  * CDN by src/content/songStore.ts, which imports this module DYNAMICALLY as its
@@ -156,6 +156,7 @@ import { down_under } from './down_under';
 import { dreams } from './dreams';
 import { drink_in_my_hand } from './drink_in_my_hand';
 import { dynamite } from './dynamite';
+import { earfquake } from './earfquake';
 import { earth_angel } from './earth_angel';
 import { easy } from './easy';
 import { easy_goin_evening_my_mamas_call } from './easy_goin_evening_my_mamas_call';
@@ -251,6 +252,7 @@ import { hot_n_cold } from './hot_n_cold';
 import { houses_in_motion } from './houses_in_motion';
 import { how_come_you_dont_call_me } from './how_come_you_dont_call_me';
 import { how_sweet_it_is_to_be_loved_by_you } from './how_sweet_it_is_to_be_loved_by_you';
+import { hustlin } from './hustlin';
 import { i_and_love_and_you } from './i_and_love_and_you';
 import { i_believe_in_a_thing_called_love } from './i_believe_in_a_thing_called_love';
 import { i_cant_go_for_that_no_can_do } from './i_cant_go_for_that_no_can_do';
@@ -265,6 +267,7 @@ import { i_gotta_feeling } from './i_gotta_feeling';
 import { i_heard_it_through_the_grapevine } from './i_heard_it_through_the_grapevine';
 import { i_hope_you_dance } from './i_hope_you_dance';
 import { i_kissed_a_girl } from './i_kissed_a_girl';
+import { i_know_travis_scott } from './i_know_travis_scott';
 import { i_love_rock_n_roll } from './i_love_rock_n_roll';
 import { i_loved_her_first } from './i_loved_her_first';
 import { i_shot_the_sheriff } from './i_shot_the_sheriff';
@@ -523,6 +526,7 @@ import { stay } from './stay';
 import { stay_with_me } from './stay_with_me';
 import { stay_with_you } from './stay_with_you';
 import { steal_my_kisses } from './steal_my_kisses';
+import { still_dre } from './still_dre';
 import { still_the_one } from './still_the_one';
 import { stir_it_up } from './stir_it_up';
 import { stop_making_sense_girlfriend_is_better } from './stop_making_sense_girlfriend_is_better';
@@ -555,6 +559,7 @@ import { thank_you_falettinme_be_mice_elf_again } from './thank_you_falettinme_b
 import { thats_the_way_i_like_it } from './thats_the_way_i_like_it';
 import { thats_what_i_like } from './thats_what_i_like';
 import { the_big_country } from './the_big_country';
+import { the_bird } from './the_bird';
 import { the_bones } from './the_bones';
 import { the_book_i_read } from './the_book_i_read';
 import { the_chain } from './the_chain';
@@ -813,6 +818,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   dreams: dreams,
   drink_in_my_hand: drink_in_my_hand,
   dynamite: dynamite,
+  earfquake: earfquake,
   earth_angel: earth_angel,
   easy_goin_evening_my_mamas_call: easy_goin_evening_my_mamas_call,
   easy: easy,
@@ -909,6 +915,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   houses_in_motion: houses_in_motion,
   how_come_you_dont_call_me: how_come_you_dont_call_me,
   how_sweet_it_is_to_be_loved_by_you: how_sweet_it_is_to_be_loved_by_you,
+  hustlin: hustlin,
   i_and_love_and_you: i_and_love_and_you,
   i_believe_in_a_thing_called_love: i_believe_in_a_thing_called_love,
   i_cant_go_for_that_no_can_do: i_cant_go_for_that_no_can_do,
@@ -924,6 +931,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   i_heard_it_through_the_grapevine: i_heard_it_through_the_grapevine,
   i_hope_you_dance: i_hope_you_dance,
   i_kissed_a_girl: i_kissed_a_girl,
+  i_know_travis_scott: i_know_travis_scott,
   i_love_rock_n_roll: i_love_rock_n_roll,
   i_loved_her_first: i_loved_her_first,
   i_shot_the_sheriff: i_shot_the_sheriff,
@@ -1184,6 +1192,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   stay_with_me: stay_with_me,
   stay_with_you: stay_with_you,
   steal_my_kisses: steal_my_kisses,
+  still_dre: still_dre,
   still_the_one: still_the_one,
   stir_it_up: stir_it_up,
   stop_making_sense_girlfriend_is_better:
@@ -1218,6 +1227,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   thats_the_way_i_like_it: thats_the_way_i_like_it,
   thats_what_i_like: thats_what_i_like,
   the_big_country: the_big_country,
+  the_bird: the_bird,
   the_bones: the_bones,
   the_book_i_read: the_book_i_read,
   the_chain: the_chain,

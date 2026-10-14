@@ -6008,6 +6008,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: 'Sweater Weather- The Neighbourhood',
+    songIds: ['sweater_weather'],
   },
 
   {
@@ -6318,6 +6319,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'latin'],
     artist: '',
     song: 'Say It- Maggie Rogers',
+    songIds: ['say_it_maggie_rogers'],
   },
 
   {
@@ -7940,6 +7942,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'Kill Bill- SZA',
+    songIds: ['kill_bill'],
   },
 
   {
@@ -8917,6 +8920,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'folk', 'african'],
     artist: '',
     song: 'Goodie Bag-Still Woozy',
+    songIds: ['goodie_bag'],
   },
 
   {

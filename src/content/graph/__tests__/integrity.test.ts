@@ -1939,8 +1939,8 @@ describe('integrity on the repo data', () => {
     );
     expect(credits).toMatchObject({
       items: songs.length,
-      set: 583,
-      linked: 187,
+      set: 588,
+      linked: 192,
       inferred: 396,
     });
   });

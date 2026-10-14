@@ -242,10 +242,10 @@ describe('the persisted state', () => {
     expect(pending(after)).toEqual(pending(before));
   });
 
-  it('keeps the songs under 1 MB after an editor batch-edits all 658 songs', () => {
+  it('keeps the songs under 1 MB after an editor batch-edits all 663 songs', () => {
     const server = makeServer();
     const songs = seed.items.filter((item) => item.kind === 'song');
-    expect(songs).toHaveLength(658);
+    expect(songs).toHaveLength(663);
     for (const song of songs) {
       // An admin fix to the live body (nearly every song ships at 50)…
       put(server, {
@@ -289,7 +289,7 @@ describe('the persisted state', () => {
     // Each admin save also re-derives the song's globe event. The whole state
     // was under 1 MB until the bulk import of 30 September 2026: since then a
     // derived event carries its song's credits, records and studios, about
-    // 1 MB more for all 658. It stays far inside localStorage's 5 MB, the
+    // 1 MB more for all 663. It stays far inside localStorage's 5 MB, the
     // limit of the fallback store.
     expect(new TextEncoder().encode(text).length).toBeLessThan(2_000_000);
     // Both halves really were stored, as patches. (The admin saves also
@@ -297,8 +297,8 @@ describe('the persisted state', () => {
     const songRows = state.items.filter(
       (item) => (item as { kind?: string }).kind === 'song',
     );
-    expect(songRows.filter((item) => item.body)).toHaveLength(658);
-    expect(songRows.filter((item) => item.pendingBody)).toHaveLength(658);
+    expect(songRows.filter((item) => item.body)).toHaveLength(663);
+    expect(songRows.filter((item) => item.pendingBody)).toHaveLength(663);
 
     const restored = makeServer();
     restored.restore(createMockStateCodec(restored).decode(JSON.parse(text)));

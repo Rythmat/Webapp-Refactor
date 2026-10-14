@@ -1,5 +1,5 @@
 /**
- * The bundled song library — 656 hand-authored chord charts.
+ * The bundled song library — 661 hand-authored chord charts.
  *
  * No longer the runtime source of truth: published songs are fetched from the
  * CDN by src/content/songStore.ts, which imports this module DYNAMICALLY as its
@@ -213,6 +213,7 @@ import { golden } from './golden';
 import { golden_lady } from './golden_lady';
 import { gone_country } from './gone_country';
 import { good_times } from './good_times';
+import { goodie_bag } from './goodie_bag';
 import { got_to_give_it_up } from './got_to_give_it_up';
 import { graceland } from './graceland';
 import { hallelujah_i_love_her_so } from './hallelujah_i_love_her_so';
@@ -308,6 +309,7 @@ import { its_not_unusual } from './its_not_unusual';
 import { its_too_late } from './its_too_late';
 import { its_your_thing } from './its_your_thing';
 import { jack_diane } from './jack_diane';
+import { japanese_denim } from './japanese_denim';
 import { jessies_girl } from './jessies_girl';
 import { jesus_children } from './jesus_children';
 import { jesus_etc } from './jesus_etc';
@@ -329,6 +331,7 @@ import { just_the_two_of_us } from './just_the_two_of_us';
 import { karma_police } from './karma_police';
 import { kashmir } from './kashmir';
 import { keep_your_soul_together } from './keep_your_soul_together';
+import { kill_bill } from './kill_bill';
 import { killing_me_softly_flack } from './killing_me_softly_flack';
 import { kiss } from './kiss';
 import { kiss_from_a_rose } from './kiss_from_a_rose';
@@ -479,6 +482,7 @@ import { saturday_in_the_park } from './saturday_in_the_park';
 import { saturn } from './saturn';
 import { saving_all_my_love_for_you } from './saving_all_my_love_for_you';
 import { say_it_aint_so } from './say_it_aint_so';
+import { say_it_maggie_rogers } from './say_it_maggie_rogers';
 import { say_something_timberlake } from './say_something_timberlake';
 import { seen_and_not_seen } from './seen_and_not_seen';
 import { semi_charmed_life } from './semi_charmed_life';
@@ -537,6 +541,7 @@ import { suit_tie } from './suit_tie';
 import { summer_soft } from './summer_soft';
 import { sunday_morning } from './sunday_morning';
 import { superstition } from './superstition';
+import { sweater_weather } from './sweater_weather';
 import { sweet_caroline } from './sweet_caroline';
 import { sweet_child_o_mine } from './sweet_child_o_mine';
 import { sweet_dreams } from './sweet_dreams';
@@ -876,6 +881,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   golden: golden,
   gone_country: gone_country,
   good_times: good_times,
+  goodie_bag: goodie_bag,
   got_to_give_it_up: got_to_give_it_up,
   graceland: graceland,
   hallelujah_i_love_her_so: hallelujah_i_love_her_so,
@@ -973,6 +979,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   its_too_late: its_too_late,
   its_your_thing: its_your_thing,
   jack_diane: jack_diane,
+  japanese_denim: japanese_denim,
   jessies_girl: jessies_girl,
   jesus_children: jesus_children,
   jesus_etc: jesus_etc,
@@ -995,6 +1002,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   karma_police: karma_police,
   kashmir: kashmir,
   keep_your_soul_together: keep_your_soul_together,
+  kill_bill: kill_bill,
   killing_me_softly_flack: killing_me_softly_flack,
   kiss_from_a_rose: kiss_from_a_rose,
   kiss_me: kiss_me,
@@ -1146,6 +1154,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   saturn: saturn,
   saving_all_my_love_for_you: saving_all_my_love_for_you,
   say_it_aint_so: say_it_aint_so,
+  say_it_maggie_rogers: say_it_maggie_rogers,
   say_something_timberlake: say_something_timberlake,
   seen_and_not_seen: seen_and_not_seen,
   semi_charmed_life: semi_charmed_life,
@@ -1204,6 +1213,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   summer_soft: summer_soft,
   sunday_morning: sunday_morning,
   superstition: superstition,
+  sweater_weather: sweater_weather,
   sweet_caroline: sweet_caroline,
   sweet_child_o_mine: sweet_child_o_mine,
   sweet_dreams: sweet_dreams,

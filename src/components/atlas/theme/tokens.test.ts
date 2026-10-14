@@ -122,6 +122,15 @@ describe("the Globe's overlays keep to the tokens", () => {
     expect(files.length).toBeGreaterThan(20);
   });
 
+  it('sets nothing in italic: Glacial Indifference has no italic face', () => {
+    for (const [path, text] of files) {
+      const code = text.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
+      expect(code, path).not.toMatch(
+        /\bitalic\b|font-style:\s*(italic|oblique)/,
+      );
+    }
+  });
+
   it('puts no backdrop blur over the WebGL globe', () => {
     for (const [path, text] of files) {
       expect(text, path).not.toMatch(/backdrop-blur|backdrop-filter/);

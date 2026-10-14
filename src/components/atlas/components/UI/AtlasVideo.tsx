@@ -1,5 +1,6 @@
 import { Play } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { posterUrl } from '@/components/atlas/data/eventImage';
 
 // Minimal typing for the YouTube IFrame API globals we use.
 type YTPlayer = {
@@ -37,7 +38,7 @@ function ensureYouTubeApi(): Promise<void> {
 
 /** The poster shown until play is pressed: 480×360, letterboxed to 4:3. */
 export function youtubePoster(videoId: string): string {
-  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  return posterUrl(videoId, 'stage');
 }
 
 // Warm the connection the player will need, once, when someone shows intent

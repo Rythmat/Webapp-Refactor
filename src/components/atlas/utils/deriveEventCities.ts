@@ -58,7 +58,7 @@ function mostCommon(values: string[], max: number): string[] {
 }
 
 /** The region (regions.ts) of the music city nearest a point. */
-function nearestRegion(lat: number, lng: number): RegionId {
+export function nearestRegion(lat: number, lng: number): RegionId {
   let best = CITIES[0];
   let bestDist = Infinity;
   for (const c of CITIES) {

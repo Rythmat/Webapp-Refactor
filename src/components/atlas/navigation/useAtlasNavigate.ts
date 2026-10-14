@@ -14,21 +14,49 @@ import type {
   SelectedLocation,
 } from '@/components/atlas/types';
 import {
+  applyFrameToSearchParams,
+  frameFromSearchParams,
+  type AtlasFrame,
+} from './atlasFrame';
+import {
   applyStopToSearchParams,
   stopFromSearchParams,
   type AtlasStop,
 } from './atlasStop';
+import { sectionFrame, type AtlasSectionId } from './sections';
 
 type SetSearchParams = ReturnType<typeof useSearchParams>[1];
 
 function buildNavigate(setSearchParams: SetSearchParams) {
-  const go = (stop: AtlasStop, options?: { replace?: boolean }) =>
-    setSearchParams((prev) => applyStopToSearchParams(prev, stop), {
-      replace: options?.replace,
+  /** Go to a stop (a step of its own), optionally changing the frame too. */
+  const go = (
+    stop: AtlasStop,
+    options?: { replace?: boolean; frame?: Partial<AtlasFrame> },
+  ) =>
+    setSearchParams(
+      (prev) => {
+        const next = applyStopToSearchParams(prev, stop);
+        return options?.frame
+          ? applyFrameToSearchParams(next, options.frame)
+          : next;
+      },
+      { replace: options?.replace },
+    );
+
+  /**
+   * Change how the page looks at the stop — view, lens, years, streams —
+   * without adding a step to Back or the trail.
+   */
+  const setFrame = (patch: Partial<AtlasFrame>) =>
+    setSearchParams((prev) => applyFrameToSearchParams(prev, patch), {
+      replace: true,
     });
 
   return {
     go,
+    setFrame,
+    /** Open one of the five sections (navigation/sections.ts). */
+    toSection: (id: AtlasSectionId) => setFrame(sectionFrame(id)),
     toEvent: (event: HistoricalEvent | string) =>
       go({
         kind: 'event',
@@ -147,6 +175,20 @@ const sameStop = (a: AtlasStop, b: AtlasStop) =>
 /** The stop the current URL addresses. Re-renders only when it changes. */
 export function useAtlasStop(): AtlasStop {
   return useAtlasParams(stopFromSearchParams, sameStop);
+}
+
+/**
+ * One value derived from the frame (navigation/atlasFrame.ts): the view, the
+ * lens, the years. Re-renders only when that value changes.
+ */
+export function useAtlasFrame<T>(
+  select: (frame: AtlasFrame) => T,
+  equality?: (a: T, b: T) => boolean,
+): T {
+  return useAtlasParams(
+    (params) => select(frameFromSearchParams(params)),
+    equality,
+  );
 }
 
 /** One value derived from the current stop, e.g. the artist on an artist stop. */

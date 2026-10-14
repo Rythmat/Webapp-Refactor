@@ -44,7 +44,7 @@ describe('atlas reducer — globe rotation', () => {
       { type: 'EXECUTE_SEARCH', payload: { lat: 0, lng: 0, zoom: 6 } },
       { type: 'START_MODULE', payload: { moduleId: 'jazz-chain' } },
       { type: 'START_TOUR', payload: { tourId: 'region-north-america' } },
-      { type: 'SET_ERA', payload: 'early-modern' },
+      { type: 'SET_WINDOW', payload: { from: 1900, to: 1945 } },
     ];
     const state = actions.reduce(appReducer, initialAppState);
     expect(state.globeRotating).toBe(false);
@@ -114,5 +114,40 @@ describe('atlas reducer — phone sheet occlusion', () => {
       appReducer(covered, { type: 'SET_SHEET_OCCLUSION', payload: null })
         .sheetOcclusion,
     ).toBeNull();
+  });
+});
+
+describe('atlas reducer — the time window', () => {
+  it('starts on all of time', () => {
+    expect(initialAppState.timeWindow).toBeNull();
+  });
+
+  it('keeps the pinned event when the window moves', () => {
+    const pinned = appReducer(initialAppState, {
+      type: 'PIN_EVENT',
+      payload: event,
+    });
+    const moved = appReducer(pinned, {
+      type: 'SET_WINDOW',
+      payload: { from: 1946, to: 1979 },
+    });
+    expect(moved.timeWindow).toEqual({ from: 1946, to: 1979 });
+    expect(moved.pinnedEvent).toBe(event);
+  });
+
+  it('keeps the state when the window has not changed', () => {
+    const once = appReducer(initialAppState, {
+      type: 'SET_WINDOW',
+      payload: { from: 1946, to: 1979 },
+    });
+    expect(
+      appReducer(once, {
+        type: 'SET_WINDOW',
+        payload: { from: 1946, to: 1979 },
+      }),
+    ).toBe(once);
+    expect(
+      appReducer(initialAppState, { type: 'SET_WINDOW', payload: null }),
+    ).toBe(initialAppState);
   });
 });

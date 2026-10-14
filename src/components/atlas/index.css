@@ -21,6 +21,13 @@
   --atlas-place: 187 62 3;
   --atlas-event: 148 210 189;
   --atlas-song: 238 155 0;
+  --atlas-era-ancient: 245 158 11;
+  --atlas-era-renaissance: 249 115 22;
+  --atlas-era-classical-romantic: 244 63 94;
+  --atlas-era-early-modern: 139 92 246;
+  --atlas-era-postwar: 59 130 246;
+  --atlas-era-electronic-hiphop: 6 182 212;
+  --atlas-era-global-digital: 20 184 166;
   /* Whole colours, already translucent. */
   --atlas-panel-border: rgb(255 255 255 / 0.08);
   --atlas-text-2: rgb(255 255 255 / 0.55);

@@ -13,11 +13,9 @@ import {
   ATLAS_SURFACE,
   AtlasIconButton,
 } from '@/components/atlas/components/UI/primitives';
-import { MUSICAL_ERAS } from '@/components/atlas/data';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { stateBoundariesData } from '@/components/atlas/data/loaders';
 import { getCityById, getCityByName } from '@/components/atlas/data/lookups';
-import type { MusicalEra } from '@/components/atlas/data/musicalEras';
 import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
 import {
@@ -28,6 +26,12 @@ import {
   useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
+import {
+  eraOfWindow,
+  inWindow,
+  windowLabel,
+  type TimeWindow,
+} from '@/components/atlas/timeline/timeWindow';
 import type {
   HistoricalEvent,
   SelectedLocation,
@@ -51,14 +55,12 @@ const PINNED_DOT =
 const DOT =
   'border-white/30 bg-white/80 hover:border-atlas-accent-strong hover:bg-atlas-accent';
 
-function filterByEra(
+function filterByWindow(
   events: HistoricalEvent[],
-  eraId: string | null,
+  window: TimeWindow | null,
 ): HistoricalEvent[] {
-  if (!eraId) return events;
-  const era = MUSICAL_ERAS.find((e) => e.id === eraId);
-  if (!era) return events;
-  return events.filter((e) => e.year >= era.yearStart && e.year <= era.yearEnd);
+  if (!window) return events;
+  return events.filter((e) => inWindow(window, e.year));
 }
 
 // Resolve display names: { country, subtitle? }
@@ -105,7 +107,7 @@ function getDisplayNames(
 export function RegionTimeline() {
   const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
   const pinnedEvent = useAtlasSelector((s) => s.pinnedEvent);
-  const selectedEra = useAtlasSelector((s) => s.selectedEra);
+  const timeWindow = useAtlasSelector((s) => s.timeWindow);
   const dispatch = useAtlasDispatch();
   const navigate = useAtlasNavigate();
   // On an artist stop the timeline becomes that artist's career, so the bar
@@ -137,8 +139,8 @@ export function RegionTimeline() {
   );
 
   const events = useMemo(
-    () => filterByEra(locationEvents, selectedEra),
-    [locationEvents, selectedEra],
+    () => filterByWindow(locationEvents, timeWindow),
+    [locationEvents, timeWindow],
   );
 
   // Auto-pin if only one event
@@ -164,9 +166,9 @@ export function RegionTimeline() {
       ? getDisplayNames(selectedLocation, relevantPinned)
       : { country: 'Earth', subtitle: undefined };
 
-  const activeEra: MusicalEra | undefined = selectedEra
-    ? MUSICAL_ERAS.find((e) => e.id === selectedEra)
-    : undefined;
+  // The years in view: an era's name when they are exactly one (the era
+  // rail's presets, an era link), else the years themselves.
+  const activeEra = eraOfWindow(timeWindow);
   const hasEvents = events.length > 0;
 
   // Full range of events (snapped to decades)
@@ -337,13 +339,19 @@ export function RegionTimeline() {
           )}
         </div>
 
-        {/* Selected era label */}
-        {activeEra && (
+        {/* The years in view */}
+        {activeEra ? (
           <p
             className={`mb-2 text-center text-xs font-bold ${activeEra.activeText}`}
           >
             {activeEra.label}
           </p>
+        ) : (
+          timeWindow && (
+            <p className="mb-2 text-center text-xs font-bold text-atlas-text-2">
+              {windowLabel(timeWindow)}
+            </p>
+          )
         )}
 
         {/* Timeline or empty state */}
@@ -478,7 +486,8 @@ export function RegionTimeline() {
           </div>
         ) : (
           <p className="py-2 text-center text-xs text-atlas-text-2">
-            No events{selectedLocation ? ` in ${country}` : ''} for this era
+            No events{selectedLocation ? ` in ${country}` : ''}
+            {activeEra || !timeWindow ? ' for this era' : ' in these years'}
           </p>
         )}
       </div>

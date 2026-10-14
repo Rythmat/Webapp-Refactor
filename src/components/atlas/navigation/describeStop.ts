@@ -1,6 +1,7 @@
 import { CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { getCountryColor } from '@/components/atlas/data/continentColors';
+import { eventImage, posterUrl } from '@/components/atlas/data/eventImage';
 import { guidesData } from '@/components/atlas/data/loaders';
 import { getCityById, getEventById } from '@/components/atlas/data/lookups';
 import type { HistoricalEvent } from '@/components/atlas/types';
@@ -35,11 +36,11 @@ export interface StopPresentation {
  * gain.
  */
 export function youtubeThumb(videoId: string): string {
-  return `https://i.ytimg.com/vi/${videoId}/default.jpg`;
+  return posterUrl(videoId, 'thumb');
 }
 
 function eventThumb(event: HistoricalEvent | undefined): string | undefined {
-  return event?.videoId ? youtubeThumb(event.videoId) : undefined;
+  return eventImage(event, 'thumb');
 }
 
 const COUNTRY_DISPLAY: Record<string, string> = {

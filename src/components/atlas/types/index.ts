@@ -1,3 +1,5 @@
+import type { TimeWindow } from '@/components/atlas/timeline/timeWindow';
+
 // --- Region IDs (18 regions) ---
 export type RegionId =
   | 'north-america'
@@ -143,7 +145,12 @@ export interface AppState {
   pinnedEvent: HistoricalEvent | null;
   activeModule: ModuleProgress | null;
   activeTour: TourProgress | null;
-  selectedEra: string | null;
+  /**
+   * The years in view (timeline/timeWindow.ts): the timeline's window and the
+   * filter the map and its bottom bar apply. Null is all of time. Mirrored to
+   * the URL's `from`/`to` (navigation/useWindowSync.ts).
+   */
+  timeWindow: TimeWindow | null;
   searchFlyTarget: FlyTarget | null;
   /** Which influence arc directions are visible on the globe */
   visibleArcDirections: Set<'upstream' | 'downstream'>;
@@ -198,7 +205,7 @@ export type AppAction =
   | { type: 'START_TOUR'; payload: { tourId: string } }
   | { type: 'TOUR_STEP'; payload: number }
   | { type: 'EXIT_TOUR' }
-  | { type: 'SET_ERA'; payload: string | null }
+  | { type: 'SET_WINDOW'; payload: TimeWindow | null }
   | { type: 'SET_DETAILS_PANEL_WIDTH'; payload: number | null }
   | { type: 'SET_SHEET_OCCLUSION'; payload: number | null }
   | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }

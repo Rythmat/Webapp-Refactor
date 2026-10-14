@@ -18,7 +18,7 @@ export const initialAppState: AppState = {
   pinnedEvent: null,
   activeModule: null,
   activeTour: null,
-  selectedEra: null,
+  timeWindow: null,
   searchFlyTarget: null,
   visibleArcDirections: new Set(),
   detailsPanelWidth: null,
@@ -103,8 +103,21 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       };
     case 'EXIT_TOUR':
       return { ...state, activeTour: null };
-    case 'SET_ERA':
-      return { ...state, selectedEra: action.payload, pinnedEvent: null };
+    case 'SET_WINDOW': {
+      // Every frame of a timeline gesture lands here, so an unchanged window
+      // keeps the state (and every subscriber) as it was. Unlike the era
+      // filter this replaced, it leaves the pin alone: a pinned event outside
+      // the window simply is not drawn on the timeline.
+      const was = state.timeWindow;
+      const now = action.payload;
+      return was === now ||
+        (was !== null &&
+          now !== null &&
+          was.from === now.from &&
+          was.to === now.to)
+        ? state
+        : { ...state, timeWindow: now };
+    }
     case 'TOGGLE_ARC_DIRECTION': {
       const next = new Set(state.visibleArcDirections);
       if (next.has(action.payload)) next.delete(action.payload);

@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { MUSIC_HISTORY, MUSICAL_ERAS } from '@/components/atlas/data';
+import { MUSIC_HISTORY } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
 // Each hook by its own file: the hooks barrel also carries three.js's
 // lighting hook, which would then load with the route.
@@ -14,6 +14,7 @@ import { stopFromSearchParams, stopKey } from './atlasStop';
 import { consumeFlown, flyToFit, focusEvent } from './focusEvent';
 import { cancelPendingNavigation } from './pendingNavigation';
 import { resolvePlaceFly } from './resolvePlaceFly';
+import { useWindowSync } from './useWindowSync';
 
 /**
  * Drive the globe's reducer state from the URL.
@@ -31,25 +32,16 @@ export function useAtlasUrlSync(): void {
   const [params] = useSearchParams();
   const stop = useMemo(() => stopFromSearchParams(params), [params]);
   const key = stopKey(stop);
-  const eraId = params.get('era');
   const inModule = useAtlasSelector((s) => s.activeModule !== null);
   const inTour = useAtlasSelector((s) => s.activeTour !== null);
-  const selectedEra = useAtlasSelector((s) => s.selectedEra);
   const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
   const dispatch = useAtlasDispatch();
   const startPathway = useStartPathway();
   const startTour = useStartTour();
 
-  // The era filter rides alongside whatever stop is showing. Declared FIRST and
-  // guarded against no-ops because SET_ERA also clears `pinnedEvent`: run after
-  // the stop effect — or unconditionally on mount — it would wipe the pin that
-  // effect had just set, and a deep-linked event would open collapsed.
-  useEffect(() => {
-    const valid = !!eraId && MUSICAL_ERAS.some((e) => e.id === eraId);
-    const next = valid ? eraId : null;
-    if (next !== selectedEra) dispatch({ type: 'SET_ERA', payload: next });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eraId]);
+  // The time window rides alongside whatever stop is showing (an `?era=` link
+  // included), and the timeline's gestures write it back to the URL.
+  useWindowSync(params);
 
   // Leaving a sequence: any stop that is not the running pathway or tour ends
   // it, exactly as if the user had pressed its Exit button.

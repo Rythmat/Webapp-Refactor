@@ -87,6 +87,27 @@ describe('useAtlasNavigate', () => {
     expect(renders.artist).toBe(2);
   });
 
+  it('changes the frame in place, keeping the stop', () => {
+    const { navigate, search } = setup('/atlas/globe?event=evt-1');
+    act(() => navigate().toSection('regions'));
+    expect(search()).toBe('?event=evt-1&view=timeline&lens=regions');
+    act(() => navigate().setFrame({ view: 'map' }));
+    expect(search()).toBe('?event=evt-1&lens=regions');
+    act(() => navigate().toSection('explore'));
+    expect(search()).toBe('?event=evt-1');
+  });
+
+  it('goes to a stop and a frame in one step', () => {
+    const { navigate, search } = setup('/atlas/globe');
+    act(() =>
+      navigate().go(
+        { kind: 'place', place: { type: 'city', id: 'memphis' } },
+        { frame: { view: 'timeline' } },
+      ),
+    );
+    expect(search()).toBe('?place=city%3Amemphis&view=timeline');
+  });
+
   it('reads the latest URL when two navigations follow each other', () => {
     const { navigate, search } = setup();
     act(() => navigate().toEvent('evt-1'));

@@ -17,6 +17,7 @@
  * no path aliases and no side effects when it loads.
  */
 import { cortexColor } from '../../../content/graph/cortexPalette';
+import { ERA_HEX } from '../data/musicalEras';
 
 /**
  * A colour token. `channels` tokens hold the colour's channels, so Tailwind's
@@ -84,6 +85,15 @@ export const ATLAS_COLOR = tokens({
   place: rgb(cortexColor('Location')),
   event: rgb(cortexColor('Events')),
   song: rgb(cortexColor('Songs')),
+  // The eras' colours (data/musicalEras.ts). The timeline's bands, the era
+  // rail and the event stage tint by them: colour there means "when".
+  'era-ancient': rgb(ERA_HEX.ancient),
+  'era-renaissance': rgb(ERA_HEX.renaissance),
+  'era-classical-romantic': rgb(ERA_HEX['classical-romantic']),
+  'era-early-modern': rgb(ERA_HEX['early-modern']),
+  'era-postwar': rgb(ERA_HEX.postwar),
+  'era-electronic-hiphop': rgb(ERA_HEX['electronic-hiphop']),
+  'era-global-digital': rgb(ERA_HEX['global-digital']),
 });
 
 export type AtlasColorName = keyof typeof ATLAS_COLOR;

@@ -5,7 +5,7 @@
  *   - 1 owned classroom   → redirect straight to that classroom's dashboard
  *   - 2+ owned classrooms → redirect to the classrooms selector
  *
- * The selection is encoded in the URL (`/teacher/classroom/:cid`), not in
+ * The selection is encoded in the URL (`/office/:cid`), not in
  * hidden state. Bookmarks, back-button behavior, and shared links all
  * resolve to the intended classroom without a hook mediating them.
  */

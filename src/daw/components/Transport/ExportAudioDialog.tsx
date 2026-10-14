@@ -19,6 +19,7 @@ import { projectEndTick } from '@/daw/audio/renderProject';
 import { ticksPerBar } from '@/daw/utils/timelineScale';
 import { isOpusEncodingSupported } from '@/lib/studio-assets/encode-opus';
 import { showError, showSuccess } from '@/components/utils/toast';
+import type { ExportChoices, RangeChoice } from './exportChoices';
 
 const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
   { id: 'wav', label: 'WAV', hint: 'Uncompressed · DAW-ready' },
@@ -26,24 +27,7 @@ const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
 ];
 const BIT_DEPTHS: WavBitDepth[] = [16, 24];
 
-type RangeChoice = 'project' | 'loop' | 'custom';
-
-/**
- * The format, bit depth and range the student picked. FileMenu holds them,
- * since the dialog is mounted only while open, so the next export starts from
- * the last one's choices.
- */
-export interface ExportChoices {
-  format: AudioExportFormat;
-  bitDepth: WavBitDepth;
-  range: RangeChoice;
-}
-
-export const DEFAULT_EXPORT_CHOICES: ExportChoices = {
-  format: 'wav',
-  bitDepth: 16,
-  range: 'project',
-};
+export { DEFAULT_EXPORT_CHOICES, type ExportChoices } from './exportChoices';
 
 /** A typed bar number, or null when it isn't a whole number ≥ 1. */
 function parseBar(text: string): number | null {

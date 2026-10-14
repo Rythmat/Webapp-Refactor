@@ -1,12 +1,13 @@
 /**
  * ClassroomWorkspaceLayout — the tabbed workspace shell for a single classroom
- * (`/teacher/classroom/:classroomId`). Renders the inline tab bar
- * (Overview · Classwork · Calendar · People · Grades — mirrors the
+ * (`/office/:classroomId`). Renders the inline tab bar
+ * (Overview · Lessons · Calendar · People — mirrors the
  * Learn/Studio/Globe/Arcade dashboards), then the active tab page into its
- * <Outlet/>. The Calendar tab is the Annual Plan (`/plan/annual`). The class
- * name, join code, and Customize action live inside the tab bar itself.
+ * <Outlet/>. The Calendar tab is the Annual Plan (`/plan/annual`); People also
+ * holds the Gradebook (the old Grades tab). The class name, join code, and
+ * Customize action live inside the tab bar itself.
  *
- * Owns the ownership guard for all five tabs (moved here from
+ * Owns the ownership guard for all the tabs (moved here from
  * TeacherDashboardPage). Deeper pages (plan, the Annual Plan's Unit page,
  * present, sessions, assignment progress) are registered as route SIBLINGS, not
  * under this layout, so they render chrome-free.
@@ -34,7 +35,7 @@ export const ClassroomWorkspaceLayout = () => {
 
   // Guard: URL tampering, or a classroom this teacher has no role in. Bounce
   // back to `/teacher` so the landing decides where they should be. Protects
-  // all five tab pages at once.
+  // every tab page at once.
   // Only bounce on a CONFIDENT "no". A failed `/classrooms` request also
   // yields role === null, and ejecting a teacher from their own classroom on a
   // transient network error is far worse than briefly showing a classroom they

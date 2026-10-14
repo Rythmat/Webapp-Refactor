@@ -71,13 +71,18 @@ export function prevBaseOrSkip(run) {
  * What R11–R25 compare when the same work comes back (spec: the classes
  * doc and view, and the ids, which compareFingerprints always compares),
  * plus the decoded audio and its bytes (runtime, media) where the class
- * exists: the media proof. Not the lesson or practice context (1.15), and
- * not this person's track inputs (track-local: a selected track re-arms as
- * the editor loads, see the report).
+ * exists: the media proof. The lesson and practice context too, which the
+ * draft keeps since milestone 1.15. Not this person's track inputs
+ * (track-local: a selected track re-arms as the editor loads, see the
+ * report).
  */
-export const REOPEN_CLASSES = ['doc', 'view', 'runtime', 'media'].filter(
-  (cls) => cls in FIELD_CLASSES,
-);
+export const REOPEN_CLASSES = [
+  'doc',
+  'view',
+  'context',
+  'runtime',
+  'media',
+].filter((cls) => cls in FIELD_CLASSES);
 
 /** The raw id fields a new project mints afresh (never a leak). */
 export const ID_FIELDS = ID_KINDS.map((kind) => `ids.${kind}`);
@@ -556,20 +561,6 @@ export const dismissChordPrompt = (page) =>
     const s = window.__MA_STORE__?.getState();
     if (s?.chordAnalysisPromptOpen) s.closeChordAnalysisPrompt();
   });
-
-/**
- * Fields a resumed lesson rewrites as its overlay mounts (TutorialLayer
- * applies its step's preconditions again, here the channel strip tab):
- * the kitchen sink holds a lesson, and how a resumed lesson meets the
- * restored view is lesson persistence's (milestone 1.15, roundtrip.mjs
- * LOSS_OWNERS has R2's and R5's). Reported as diffs, left out of the
- * yes/no flags of the scenarios here.
- */
-export const LESSON_RESUME_FIELDS = ['view.channelStripTab'];
-
-/** `diffs` without the lesson-resume fields (LESSON_RESUME_FIELDS). */
-export const withoutLessonResume = (diffs) =>
-  (diffs ?? []).filter((d) => !LESSON_RESUME_FIELDS.includes(d.field));
 
 /**
  * The lesson the store runs and the channel strip tab, for the report: a

@@ -1,35 +1,28 @@
-import { ensureProjectNoteIds } from '@/daw/model/noteIds';
 import {
   getTrackSynthState,
   setTrackSynthState,
-  type SynthTrackState,
 } from '@/daw/oracle-synth/synthTrackState';
 import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore, type AllSlices } from '@/daw/store';
 import type { ReturnBus } from '@/daw/store/returnsSlice';
-import type { Track } from '@/daw/store/tracksSlice';
 import { resetUndoHistory } from '@/daw/store/undoMiddleware';
-import { guessTrackRole } from '@/daw/utils/trackRole';
-import type { AutomationLanes } from '@/daw/audio/automation';
 import {
-  planCloudTrackIds,
-  rewriteTrackRefs,
-} from './projectDocument/cloudIds';
+  CLOUD_DOCUMENT_SCHEMA,
+  cloudProjectDraft,
+  encodeCloudDocument,
+  findCloudDocument,
+  type CloudDocument,
+} from './projectDocument/cloudDocument';
 import {
-  applyTrackSettings,
-  checkedValue,
-  decodeMidiEvents,
   decodeSession,
   encodeMidiEvents,
   encodeSession,
-  restoreReturns,
   trackSettings,
   type DecodedSession,
   type MidiClipColumnar,
   type SerializedTrackSettings,
   type StoredSession,
 } from './projectDocument/codec';
-import { keyColourFor } from './projectDocument/derived';
 import {
   initialProjectState,
   resetProjectState,
@@ -91,7 +84,9 @@ export function serializeSession(): SessionData {
 // AudioAsset rows; only clips with a persisted assetId round-trip. Clips with
 // assetId=null (just-recorded / just-imported, bytes not yet uploaded) are
 // dropped with a console warning — the upload-and-finalize flow needs to run
-// first. Milestone 1.5's document field carries the rest of the project.
+// first. The cloud document (milestone 1.5, projectDocument/cloudDocument.ts)
+// carries the rest of the project: in the API's `document` field once it has
+// one, and until then on the first track's settings (the interim fallback).
 
 export interface CloudAudioClip {
   id?: string;
@@ -103,6 +98,13 @@ export interface CloudAudioClip {
   fadeInTicks: number;
   fadeOutTicks: number;
 }
+
+/**
+ * Where a cloud save puts the cloud document: the API's `document` field
+ * ('document'), or the first track's settings ('interim', until the API has
+ * the field; see cloudDocumentSupport.ts).
+ */
+export type CloudWriteMode = 'document' | 'interim';
 
 export interface CloudProjectInput {
   name: string;
@@ -129,30 +131,50 @@ export interface CloudProjectInput {
     midiClips: MidiClipColumnar[];
     audioClips: CloudAudioClip[];
   }>;
+  /** The cloud document, in 'document' mode. */
+  document?: CloudDocument;
+  /** Its schema (CLOUD_DOCUMENT_SCHEMA), in 'document' mode. */
+  documentSchema?: number;
 }
 
-export interface CloudProjectDetail extends CloudProjectInput {
+export interface CloudProjectDetail
+  extends Omit<CloudProjectInput, 'document' | 'documentSchema'> {
   id: string;
   createdAt: Date;
   updatedAt: Date;
   tracks: Array<
     CloudProjectInput['tracks'][number] & { id: string; ordinal: number }
   >;
+  /** From an API with the document field: null when none was saved. */
+  document?: unknown;
+  documentSchema?: number | null;
+  /** Bumped by every write of the project (milestone 1.5's contract). */
+  revision?: number;
+  /** The revision the document was last written at. */
+  writtenAtRevision?: number | null;
 }
 
+/**
+ * The live session as a cloud save sends it, with the cloud document where
+ * `mode` puts it. In 'interim' mode a project without tracks has nowhere to
+ * put it: the save leaves it out, and says so (cloudGapMode).
+ */
 export function serializeSessionForCloud(
   nameOverride?: string,
+  mode: CloudWriteMode = 'interim',
 ): CloudProjectInput {
   const state = useStore.getState();
   let droppedAudioClipCount = 0;
 
   const tracks = state.tracks.map((t) => {
     const audioClips: CloudAudioClip[] = [];
+    const audioClipIds: string[] = [];
     for (const c of t.audioClips) {
       if (!c.assetId) {
         droppedAudioClipCount++;
         continue;
       }
+      audioClipIds.push(c.id);
       audioClips.push({
         assetId: c.assetId,
         startTick: c.startTick,
@@ -177,6 +199,8 @@ export function serializeSessionForCloud(
       settings: {
         ...trackSettings(t, getTrackSynthState),
         trackRole: t.trackRole,
+        // The clips' own ids, so an open keeps them (cloudProjectDraft).
+        ...(audioClipIds.length > 0 ? { audioClipIds } : {}),
       },
       midiClips: t.midiClips.map((c) => ({
         id: c.id,
@@ -195,6 +219,15 @@ export function serializeSessionForCloud(
     tracks[0].settings = {
       ...tracks[0].settings,
       masterAutomation: state.masterAutomation,
+    };
+  }
+
+  const document = encodeCloudDocument(state);
+  if (mode === 'interim' && tracks.length > 0) {
+    tracks[0].settings = {
+      ...tracks[0].settings,
+      projectDoc: document,
+      projectDocSchema: CLOUD_DOCUMENT_SCHEMA,
     };
   }
 
@@ -218,6 +251,9 @@ export function serializeSessionForCloud(
     },
     returns: state.returns,
     tracks,
+    ...(mode === 'document'
+      ? { document, documentSchema: CLOUD_DOCUMENT_SCHEMA }
+      : {}),
   };
 }
 
@@ -305,133 +341,66 @@ export function isPristineSession(
 
 // ── Opening a cloud project ────────────────────────────────────────────────
 
+/** What a cloud open made of the project's document. */
+export interface CloudOpenReport {
+  /** Where the document came from; null when the project had none. */
+  document: 'field' | 'interim' | null;
+  /** An app from before 1.5 saved the project after its document. */
+  stale: boolean;
+  /** The document is from a later schema, which this build left out. */
+  newer: boolean;
+  /** Clips whose notes changed since the document: their parts left out. */
+  partsSkipped: number;
+}
+
 /**
- * Open a project from the cloud as the live session. Its tracks keep the ids
- * they were saved with (settings.sourceTrackId), so everything that names a
- * track by id still finds it; a project saved before ids travelled gets new
- * ones once. Audio clips get new ids until milestone 1.10 keys audio by
- * asset. What the cloud payload doesn't carry yet (the chord lane, the
- * mode, the metre, …) opens at its default until milestone 1.5.
+ * Open a project from the cloud as the live session: its rows and its cloud
+ * document (projectDocument/cloudDocument.ts) merged into one v3 draft and
+ * decoded as a draft is, so the chord lane, the mode, the metre, the Score
+ * and the rest come back with it. Its tracks keep the ids they were saved
+ * with (settings.sourceTrackId), so everything that names a track by id
+ * still finds it; a project saved before ids travelled gets new ones once.
+ * Its audio clips keep theirs too (settings.audioClipIds, milestone 1.10).
+ * A project without a document opens what its rows carry, the rest at its
+ * defaults. Throws, changing nothing, when the payload can't be read.
  */
-export function deserializeCloudProject(project: CloudProjectDetail): void {
+export function deserializeCloudProject(
+  project: CloudProjectDetail,
+): CloudOpenReport {
   // First everything that can throw, with nothing changed yet: once the
   // generation moves, the open project's patches are gone from the cache.
-  const { ids, remap } = planCloudTrackIds(
-    project.tracks.map((t) => t.settings?.sourceTrackId),
-    () => crypto.randomUUID(),
-  );
-  const synthPatches: [string, SynthTrackState][] = [];
-  const decoded = project.tracks.map((t, i): Track => {
-    const id = ids[i];
-    if (t.instrument === 'oracle-synth' && t.settings?.oracleSynth) {
-      synthPatches.push([id, t.settings.oracleSynth]);
-    }
-    return {
-      id,
-      name: t.name,
-      type: t.type,
-      instrument: t.instrument as Track['instrument'],
-      color: t.color,
-      mute: t.mute,
-      solo: t.solo,
-      volume: t.volume,
-      pan: t.pan,
-      // This person's input on this device never travels: re-defaulted.
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      // Instrument voice and effect config (effects re-default when a save
-      // predates this field).
-      ...applyTrackSettings(t.settings),
-      activeEffects: (t.activeEffects ?? []) as Track['activeEffects'],
-      midiClips: (t.midiClips ?? []).map((c) => ({
-        id: c.id,
-        name: c.name,
-        startTick: c.startTick,
-        events: decodeMidiEvents(c.events),
-      })),
-      audioClips: (t.audioClips ?? []).map((c) => ({
-        // Track-local clip id. The AudioBufferStore is keyed on this; bytes
-        // for this clip will be fetched + decoded asynchronously by the
-        // caller (loadCloudProjectAudio).
-        id: crypto.randomUUID(),
-        assetId: c.assetId,
-        startTick: c.startTick,
-        duration: c.duration,
-        offsetSeconds: c.offsetSeconds,
-        gain: c.gain,
-        fadeInTicks: c.fadeInTicks,
-        fadeOutTicks: c.fadeOutTicks,
-      })),
-      // Saves from before the role was carried guess it from the name.
-      trackRole: t.settings?.trackRole ?? guessTrackRole(t.name, t.instrument),
-    };
+  const found = findCloudDocument(project);
+  const draft = cloudProjectDraft(project, found, () => crypto.randomUUID());
+  const migrated = migrateSession(draft.session);
+  if (!migrated.ok) {
+    throw new Error(
+      `cloud project ${project.id} can't be read (${migrated.reason}): ${migrated.detail}`,
+    );
+  }
+  const decoded = decodeSession(migrated.session, {
+    trackIds: draft.trackIds,
   });
 
-  // A MIDI keyboard plays the first MIDI track.
-  const firstMidi = decoded.find((t) => t.type === 'midi');
-  if (firstMidi) {
-    firstMidi.monitoring = true;
-    firstMidi.recordArmed = true;
-  }
-
-  // Notes saved without ids (the cloud carries none until 1.5) get their
-  // legacy ids, the same on every open. Every reference to a track points
-  // at the id it loaded under; one to a track not in the payload is cleared.
-  const tracks = rewriteTrackRefs(
-    { tracks: ensureProjectNoteIds(decoded) },
-    remap,
-  ).tracks;
-  // The values the payload shares with a draft load as a draft's do: one of
-  // the wrong type opens at its default.
-  const prism: Partial<CloudProjectInput['prism']> = project.prism ?? {};
-  const rootNote = checkedValue('rootNote', prism.rootNote);
-  const initial = initialProjectState();
-  const opened: Partial<AllSlices> = {
-    ...initial,
-    projectId: project.id,
-    projectName: checkedValue('projectName', project.name),
-    composerName: checkedValue('composerName', project.composerName ?? ''),
-    bpm: checkedValue('bpm', project.bpm),
-    tracks,
-    nextColorIndex: tracks.length,
-    selectedTrackId: firstMidi?.id ?? null,
-    rootNote,
-    // The payload has no mode yet, so the key colour is the default mode's.
-    rootTrackColor: keyColourFor(rootNote, initial.mode ?? 'ionian'),
-    rhythmName: checkedValue('rhythmName', prism.rhythmName),
-    genre: checkedValue('genre', prism.genre),
-    swing: checkedValue('swing', prism.swing),
-    returns: restoreReturns(project.returns),
-    masterAutomation: checkedValue(
-      'masterAutomation',
-      masterAutomationFromCloud(project),
-    ),
-  };
-
   bumpSessionGeneration('cloud-open');
-  for (const [trackId, patch] of synthPatches) {
+  for (const [trackId, patch] of decoded.synthPatches) {
     setTrackSynthState(trackId, patch);
   }
-  useStore.setState(opened);
+  useStore.setState({
+    ...initialProjectState(),
+    ...decoded.project,
+    lastSeekPosition: decoded.project.position,
+  });
   resetUndoHistory();
   markSessionLoaded();
   // The cloud holds this project as it opened, so until it changes there is
   // no work in it for a link to keep.
   markDocumentBaseline({ savedComplete: true });
-}
-
-/** The Master automation a cloud save carried on a track's settings (the
- *  first track at save time; searched for, so track order can't lose it). */
-function masterAutomationFromCloud(
-  project: CloudProjectDetail,
-): AutomationLanes {
-  return (
-    project.tracks.find((t) => t.settings?.masterAutomation)?.settings
-      ?.masterAutomation ?? {}
-  );
+  return {
+    document: found.document ? found.source : null,
+    stale: found.document !== null && found.stale,
+    newer: found.newer,
+    partsSkipped: draft.partsSkipped,
+  };
 }
 
 // ── Starting empty ─────────────────────────────────────────────────────────

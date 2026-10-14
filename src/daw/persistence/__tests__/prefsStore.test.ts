@@ -50,6 +50,7 @@ const CHOSEN = {
   timelineGridSize: '1/8T',
   timelineTripletMode: true,
   chordRulerShowNotes: true,
+  singleKeyShortcuts: false,
 } as const;
 
 const DEFAULTS = Object.fromEntries(

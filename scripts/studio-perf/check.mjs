@@ -7,14 +7,15 @@
  *   npm run studio:check        fast tier, before every milestone PR: the
  *                               unit ratchets and the lesson-anchor
  *                               inventory (vitest), the reload round-trips
- *                               (laptop), and the 8 lessons on the
- *                               chromebook profile
+ *                               (laptop), the 8 lessons on the chromebook
+ *                               profile, and the bundle report with its
+ *                               budgets (milestone 1.12a: the boot chunk,
+ *                               the editor's core off other pages)
  *   npm run studio:check:full   the round-trips on both profiles (laptop
  *                               and chromebook, the Stage A exit) and the
  *                               lessons also at 1280×720 (small), and adds
- *                               the perf scenarios (chromebook and laptop),
- *                               the golden renders and timing traces, and
- *                               the bundle report
+ *                               the perf scenarios (chromebook and laptop)
+ *                               and the golden renders and timing traces
  *   npm run studio:baseline     the full tier, written to
  *                               docs/studio-perf/baselines/<date>/
  *
@@ -56,7 +57,8 @@ const outRoot = baseline
  * draft store, its lock, pointer and mirror, the legacy import, the
  * autosave and its media, openSession and its boot links, the save path and
  * its chip, the Opening overlay and the Projects dialog, the per-user
- * stores and the sign-out hook. A path that is gone fails the tier (a test
+ * stores and the sign-out hook; and milestone 1.5's cloud document and the
+ * mock API's two modes. A path that is gone fails the tier (a test
  * that moved or was renamed must be listed again, not dropped).
  */
 const UNIT_TESTS = [
@@ -65,10 +67,13 @@ const UNIT_TESTS = [
   'src/daw/persistence/__tests__/fixtures/manifest.test.ts',
   'src/daw/persistence/__tests__/fieldCoverage.test.ts',
   'src/daw/persistence/__tests__/codecV3.test.ts',
-  'src/daw/persistence/__tests__/v3Shape.test.ts',
+  'src/daw/persistence/__tests__/draftShape.test.ts',
   'src/daw/persistence/__tests__/migrations.test.ts',
   'src/daw/persistence/__tests__/quarantine.test.ts',
   'src/daw/persistence/__tests__/cloudOpen.test.ts',
+  'src/daw/persistence/__tests__/cloudDocument.test.ts',
+  'src/daw/persistence/__tests__/cloudFixtures.test.ts',
+  'scripts/studio-perf/__tests__/mockStudioApi.test.mjs',
   'src/daw/persistence/__tests__/sessionSize.test.ts',
   'src/daw/persistence/__tests__/sessionFingerprint.test.ts',
   'src/daw/persistence/__tests__/legacyPrefs.test.ts',
@@ -137,7 +142,8 @@ const UNIT_TESTS = [
   'src/daw/commands/__tests__/RecordGuard.test.tsx',
   'src/daw/collab/__tests__/CollabToolbar.join.test.tsx',
   'src/daw/components/Library/__tests__/LibraryPanel.templateClick.test.tsx',
-  'src/daw/hooks/__tests__/useKeyboardShortcuts.test.tsx',
+  'src/daw/commands/__tests__/keyboardCommands.test.tsx',
+  'src/daw/commands/__tests__/registry.test.ts',
   'src/daw/components/Transport/__tests__/TransportBar.test.tsx',
   'src/daw/components/Timeline/__tests__/splitDuringUpload.test.ts',
   'src/daw/components/LeadSheet/__tests__/SendToSetList.test.tsx',
@@ -158,6 +164,45 @@ const UNIT_TESTS = [
   'src/components/songLibrary/__tests__/studentPath.characterization.test.tsx',
   'src/features/admin/content/songEditor/__tests__/SongPageEditor.test.tsx',
   'src/components/ClassroomLayout/studio/__tests__/StudioNewProject.test.tsx',
+  // Milestone 1.9: edit transactions and the undo history.
+  'src/daw/store/__tests__/history.test.ts',
+  'src/daw/store/__tests__/undoMiddleware.test.ts',
+  'src/daw/store/__tests__/undoTracking.test.ts',
+  'src/daw/hooks/__tests__/useContinuousControl.test.tsx',
+  'src/daw/collab/__tests__/collabUndo.test.ts',
+  'src/daw/engine/__tests__/trackReconciler.test.ts',
+  'src/daw/audio/__tests__/effectChainPreview.test.ts',
+  'src/daw/components/PianoRoll/__tests__/PianoRoll.gesture.test.tsx',
+  // Milestone 1.10: the time model and the audio asset model.
+  'src/daw/time/__tests__/timeModel.test.ts',
+  'src/daw/time/__tests__/measureEdits.test.ts',
+  'src/daw/store/__tests__/metreAwareChords.test.ts',
+  'src/daw/store/__tests__/moveClip.test.ts',
+  'src/daw/model/__tests__/editorClip.test.ts',
+  'src/daw/components/PianoRoll/__tests__/rollGrid.test.ts',
+  'src/daw/components/ChannelStrip/__tests__/ChannelStrip.pianoRoll.test.tsx',
+  'src/daw/components/Controls/__tests__/clipRelativeEditors.test.tsx',
+  'src/daw/components/LeadSheet/__tests__/toSetListChart.test.ts',
+  'src/daw/components/LeadSheet/__tests__/leadSheetPlayhead.test.ts',
+  'src/daw/audio/assets/__tests__/assetStore.test.ts',
+  'src/daw/audio/assets/__tests__/assetGc.test.ts',
+  'src/lib/studio-assets/__tests__/loadAudio.test.ts',
+  // Milestone 1.12a: the split editor, its early fetch, its boundaries and
+  // the reload after a deploy, and the boots that read published content.
+  'src/daw/__tests__/preload.test.ts',
+  'src/daw/shell/__tests__/lazyPart.test.tsx',
+  'src/lib/__tests__/chunkReload.test.ts',
+  'src/daw/session/__tests__/contentBoots.test.ts',
+  'src/features/classroom/__tests__/editorRoute.test.tsx',
+  'src/content/songStoreRetry.test.ts',
+  'src/daw/midi/__tests__/MidiDeviceManager.test.ts',
+  'src/daw/components/Controls/__tests__/TrackControlsPanel.afterLoad.test.tsx',
+  // Milestone 1.15: the lesson and practice context in the draft, the
+  // overlay's preconditions and scoped completion, the practice keys.
+  'src/daw/persistence/drafts/__tests__/draftContext.test.ts',
+  'src/daw/components/Tutorial/__tests__/TutorialLayer.test.tsx',
+  'src/features/classroom/msp/useMspModuleCompletion.test.tsx',
+  'src/daw/midi/__tests__/pointerNotes.test.tsx',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */
@@ -194,9 +239,10 @@ const SUITES = [
         },
         { name: 'golden', script: 'golden.mjs', args: [] },
         { name: 'golden-trace', script: 'golden.mjs', args: ['--trace'] },
-        { name: 'bundle', script: 'bundle.mjs', args: [], server: false },
       ]
     : []),
+  // Every tier: a production build checked against the budgets (1.12a).
+  { name: 'bundle', script: 'bundle.mjs', args: [], server: false },
 ].filter((suite) => !only || only.has(suite.name));
 
 // A name that is no suite of this tier would run nothing and pass.

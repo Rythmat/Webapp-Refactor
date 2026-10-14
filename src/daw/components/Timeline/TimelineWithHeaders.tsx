@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Reorder } from 'framer-motion';
 import { Plus } from 'lucide-react';
-import { useStore } from '@/daw/store';
+import { useStore, useTrackIds } from '@/daw/store';
 import { TrackHeader } from '../TrackControls/TrackHeader';
 import { MasterTrackHeader } from '../TrackControls/MasterTrackHeader';
 import { AddTrackMenu } from '../Mixer/AddTrackMenu';
@@ -16,7 +16,8 @@ import {
 import { AutomationLaneEditor } from './AutomationLaneEditor';
 
 export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
-  const tracks = useStore((s) => s.tracks);
+  // Ids only: a track edit re-renders its own header, not this column.
+  const trackIds = useTrackIds();
   const reorderTrack = useStore((s) => s.reorderTrack);
   const [menuOpen, setMenuOpen] = useState(false);
   const headersRef = useRef<HTMLDivElement>(null);
@@ -51,14 +52,14 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
     (newOrder: string[]) => {
       // Find what changed
       for (let i = 0; i < newOrder.length; i++) {
-        if (tracks[i]?.id !== newOrder[i]) {
+        if (trackIds[i] !== newOrder[i]) {
           const trackId = newOrder[i];
           reorderTrack(trackId, i);
           break;
         }
       }
     },
-    [tracks, reorderTrack],
+    [trackIds, reorderTrack],
   );
 
   return (
@@ -91,20 +92,20 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
 
           <Reorder.Group
             axis="y"
-            values={tracks.map((t) => t.id)}
+            values={trackIds}
             onReorder={handleReorder}
             className="flex flex-col"
             style={{ listStyle: 'none', margin: 0, padding: 0 }}
           >
-            {tracks.map((track, i) => (
+            {trackIds.map((id, i) => (
               <Reorder.Item
-                key={track.id}
-                value={track.id}
+                key={id}
+                value={id}
                 style={{ height: TRACK_HEIGHT, minHeight: TRACK_HEIGHT }}
                 dragListener={true}
                 className="cursor-grab active:cursor-grabbing"
               >
-                <TrackHeader track={track} index={i} />
+                <TrackHeader trackId={id} index={i} />
               </Reorder.Item>
             ))}
           </Reorder.Group>

@@ -6,7 +6,7 @@
  * so the raw slug never renders, and recover the id where a caller wants it.
  *
  * Applied on BOTH student read paths — `buildStudentView` (Presentation Mode,
- * local Day) and `publishDay`/`fromPlannedDay` (published live-session + deck
+ * local Day) and `publishDay` (published live-session + deck
  * surfaces) — so every surface agrees. No-op on prompts that never carried it
  * (all new Days: the materializer now writes the structured field).
  */

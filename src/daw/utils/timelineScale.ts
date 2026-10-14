@@ -17,10 +17,6 @@ export function ticksPerBar(numerator: number, denominator: number): number {
   return numerator * ticksPerBeatUnit(denominator);
 }
 
-// Legacy constants — kept for backward compatibility during migration
-export const BEATS_PER_BAR = 4;
-export const TICKS_PER_BAR = TICKS_PER_BEAT * BEATS_PER_BAR;
-
 // ── Core conversions ─────────────────────────────────────────────────────
 
 export function pixelsPerBeat(zoom: number): number {
@@ -72,8 +68,8 @@ export interface SubdivisionLevel {
 
 export function visibleSubdivisions(
   zoom: number,
-  numerator = 4,
-  denominator = 4,
+  numerator: number,
+  denominator: number,
 ): SubdivisionLevel[] {
   const ppb = pixelsPerBeat(zoom);
   const barTicks = ticksPerBar(numerator, denominator);
@@ -126,8 +122,8 @@ export interface RulerLevel {
 export function rulerMarkings(
   zoom: number,
   _bpm: number,
-  numerator = 4,
-  denominator = 4,
+  numerator: number,
+  denominator: number,
 ): RulerLevel[] {
   const ppb = pixelsPerBeat(zoom);
   const barTicks = ticksPerBar(numerator, denominator);

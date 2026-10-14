@@ -9,9 +9,11 @@ export type AtlasExpects = 'completion' | 'score' | 'artifact';
 
 export const MODULE_CAPABILITIES = {
   learn: { embeddable: true, expects: ['completion', 'score', 'artifact'] },
-  studio: { embeddable: false, expects: ['artifact'] },
+  // A Studio tutorial reports completion when its last step is done.
+  studio: { embeddable: false, expects: ['artifact', 'completion'] },
   arcade: { embeddable: false, expects: ['completion', 'score'] },
-  globe: { embeddable: false, expects: ['completion'] },
+  // The Globe's mind map hands in the map itself.
+  globe: { embeddable: false, expects: ['completion', 'artifact'] },
 } satisfies Record<
   AtlasModule,
   { embeddable: boolean; expects: readonly AtlasExpects[] }

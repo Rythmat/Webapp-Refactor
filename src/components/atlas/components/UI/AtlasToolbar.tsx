@@ -1,53 +1,88 @@
-import { Check, ChevronLeft, ChevronRight, Link2 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { AtlasSearchBar } from '@/components/atlas/components/UI/AtlasSearchBar';
-import { StopThumb } from '@/components/atlas/components/UI/StopThumb';
-import { describeStop } from '@/components/atlas/navigation/describeStop';
+import { Check, ChevronLeft, ChevronRight, Link2, Search } from 'lucide-react';
 import {
-  useAtlasTrail,
-  type TrailEntry,
-} from '@/components/atlas/navigation/useAtlasTrail';
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { AtlasSectionTabs } from '@/components/atlas/components/UI/AtlasSectionTabs';
+import { TrailPopover } from '@/components/atlas/components/UI/TrailPopover';
+import { ViewSwitch } from '@/components/atlas/components/UI/ViewSwitch';
+import {
+  ATLAS_FOCUS,
+  AtlasIconButton,
+  AtlasPillButton,
+} from '@/components/atlas/components/UI/primitives';
+import { useAtlasStopSelector } from '@/components/atlas/navigation/useAtlasNavigate';
+import { useAtlasTrail } from '@/components/atlas/navigation/useAtlasTrail';
+import { ATLAS_Z } from '@/components/atlas/theme/layers';
+import { cn } from '@/lib/utils';
 
-const ICON_BUTTON =
-  'flex size-8 shrink-0 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:pointer-events-none disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]';
+// The command palette, fetched the first time someone reaches for it (or
+// hovers the search button), so cmdk is not in the page's first download.
+const loadPalette = () => import('./AtlasCommandPalette');
+const AtlasCommandPalette = lazy(loadPalette);
 
-/** One step of the trail: a tiny thumbnail and a short label. */
-function TrailStep({
-  entry,
-  state,
-  onJump,
+const isMac =
+  typeof navigator !== 'undefined' &&
+  /Mac|iPhone|iPad/.test(navigator.platform);
+
+/**
+ * The search button: looks like a field, so nobody has to know the shortcut
+ * to find search, and says the shortcut, so they learn it. It opens the
+ * command palette. While a search's results are up it shows that search.
+ */
+function SearchButton({
+  buttonRef,
+  committed,
+  onOpen,
 }: {
-  entry: TrailEntry;
-  state: 'past' | 'current' | 'future';
-  onJump: (entry: TrailEntry) => void;
+  buttonRef: React.RefObject<HTMLButtonElement>;
+  committed: string | null;
+  onOpen: () => void;
 }) {
-  const presentation = useMemo(() => describeStop(entry.stop), [entry.stop]);
   return (
     <button
-      aria-current={state === 'current' ? 'step' : undefined}
-      aria-label={`${presentation.title} — ${presentation.subtitle}`}
-      className={`group flex w-16 shrink-0 flex-col gap-1 rounded-md p-0.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
-        state === 'current'
-          ? 'bg-[#60a5fa]/20 ring-1 ring-[#60a5fa]'
-          : 'hover:bg-white/10'
-      } ${state === 'future' ? 'opacity-45 hover:opacity-100' : ''}`}
-      data-trail-idx={entry.idx}
-      title={`${presentation.title}\n${presentation.subtitle}`}
+      ref={buttonRef}
+      aria-haspopup="dialog"
+      aria-keyshortcuts="Meta+K Control+K"
+      aria-label={
+        committed ? `Search the globe (now: ${committed})` : 'Search the globe'
+      }
+      className={cn(
+        // A field from xl up; below, the section tabs need the room and it
+        // is a round button (the shortcut still works).
+        'flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] text-left text-sm transition-colors hover:border-white/25 hover:bg-white/[0.08] xl:w-60 xl:justify-start xl:pl-3 xl:pr-2',
+        ATLAS_FOCUS,
+      )}
       type="button"
-      onClick={() => onJump(entry)}
+      onClick={onOpen}
+      onFocus={() => void loadPalette()}
+      onPointerEnter={() => void loadPalette()}
     >
-      <StopThumb presentation={presentation} />
-      <span className="truncate px-0.5 text-[10px] leading-tight text-white/70 group-hover:text-white">
-        {presentation.title}
+      <Search aria-hidden className="size-4 shrink-0 text-atlas-text-2" />
+      <span
+        className={cn(
+          'hidden min-w-0 flex-1 truncate xl:inline',
+          committed ? 'text-atlas-text' : 'text-atlas-text-2',
+        )}
+      >
+        {committed ?? 'Search artists, places, songs…'}
       </span>
+      <kbd className="hidden shrink-0 rounded-full border border-white/15 px-2 py-0.5 font-sans text-xs text-atlas-text-2 xl:inline">
+        {isMac ? '⌘K' : 'Ctrl K'}
+      </kbd>
     </button>
   );
 }
 
 /**
- * The strip across the top of the globe, laid out like a browser's chrome:
- * Back / Forward, the search field, the trail of everywhere this session has
- * been, and a button to copy a link to exactly this view.
+ * The Globe's header: Back / Forward, the five sections (AtlasSectionTabs),
+ * search (the command palette), the trail of everywhere this session has
+ * been, a button to copy a link to exactly this view, and the switch between
+ * the globe and the timeline.
  *
  * Every step in the trail is a real history entry with its own URL, so the
  * trail, these arrows, and the browser's Back button all walk the same path —
@@ -55,21 +90,7 @@ function TrailStep({
  */
 export function AtlasToolbar() {
   const trail = useAtlasTrail();
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
-
-  // Keep the current step in view as the trail grows or the user walks it.
-  const current = trail.entries[trail.cursorPos];
-  useEffect(() => {
-    if (!current) return;
-    scrollerRef.current
-      ?.querySelector(`[data-trail-idx="${current.idx}"]`)
-      ?.scrollIntoView({
-        block: 'nearest',
-        inline: 'nearest',
-        behavior: 'smooth',
-      });
-  }, [current]);
 
   useEffect(() => {
     if (!copied) return;
@@ -77,7 +98,7 @@ export function AtlasToolbar() {
     return () => window.clearTimeout(t);
   }, [copied]);
 
-  const copyLink = async () => {
+  const copyLink = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
@@ -86,79 +107,97 @@ export function AtlasToolbar() {
       // bar holds the same link, so point there instead of failing silently.
       window.prompt('Copy this link:', window.location.href);
     }
-  };
+  }, []);
+
+  // The command palette: mounted on first use and kept, so it closes (and
+  // hands focus back) like any dialog.
+  const searchRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [paletteUsed, setPaletteUsed] = useState(false);
+  const committed = useAtlasStopSelector((stop) =>
+    stop.kind === 'search' ? stop.query : null,
+  );
+  const openPalette = useCallback(() => {
+    // Focus goes back where it was; from nowhere (the globe, the page) it
+    // comes to the search button, so a panel the palette opens can take it.
+    const active = document.activeElement as HTMLElement | null;
+    openerRef.current =
+      active && active !== document.body ? active : searchRef.current;
+    setPaletteUsed(true);
+    setPaletteOpen(true);
+  }, []);
+
+  // ⌘K / Ctrl+K from anywhere on the globe opens it, and closes it again.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'k') return;
+      if (e.altKey || e.shiftKey) return;
+      e.preventDefault();
+      if (paletteOpen) setPaletteOpen(false);
+      else openPalette();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [paletteOpen, openPalette]);
 
   return (
-    <div className="relative z-[1200] flex shrink-0 items-center gap-2 border-b border-white/10 bg-black/40 px-3 py-2 backdrop-blur-md">
-      <div className="flex items-center gap-0.5">
-        <button
+    // Above the globe, not over it, so it takes the opaque panel colour and
+    // needs no blur. On the popover layer, over the panels below it.
+    <div
+      className={cn(
+        'relative flex shrink-0 items-center gap-1.5 border-b border-atlas-panel-border bg-atlas-panel px-2 py-2 text-atlas-text sm:gap-2 sm:px-3',
+        ATLAS_Z.popovers,
+      )}
+    >
+      {/* Walking the trail opens panels; focus stays here while it does
+          (layout/usePanelFocus). */}
+      <div className="flex shrink-0 items-center gap-1" data-atlas-keep-focus>
+        <AtlasIconButton
           aria-label="Back"
-          className={ICON_BUTTON}
           disabled={!trail.canBack}
-          title="Back"
-          type="button"
           onClick={trail.back}
         >
-          <ChevronLeft className="size-4" />
-        </button>
-        <button
+          <ChevronLeft aria-hidden className="size-4" />
+        </AtlasIconButton>
+        <AtlasIconButton
           aria-label="Forward"
-          className={ICON_BUTTON}
           disabled={!trail.canForward}
-          title="Forward"
-          type="button"
           onClick={trail.forward}
         >
-          <ChevronRight className="size-4" />
-        </button>
+          <ChevronRight aria-hidden className="size-4" />
+        </AtlasIconButton>
       </div>
 
-      <AtlasSearchBar />
+      <AtlasSectionTabs />
 
-      <nav
-        ref={scrollerRef}
-        aria-label="Your path through the globe"
-        className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:thin]"
-      >
-        {trail.entries.length > 1 &&
-          trail.entries.map((entry, i) => (
-            <div key={entry.idx} className="flex shrink-0 items-center gap-1">
-              {i > 0 && (
-                <ChevronRight
-                  aria-hidden
-                  className="size-3 shrink-0 text-white/25"
-                />
-              )}
-              <TrailStep
-                entry={entry}
-                state={
-                  i < trail.cursorPos
-                    ? 'past'
-                    : i === trail.cursorPos
-                      ? 'current'
-                      : 'future'
-                }
-                onJump={trail.jump}
-              />
-            </div>
-          ))}
-      </nav>
-
-      {trail.entries.length > 1 && (
-        <button
-          className="shrink-0 rounded-lg px-2 py-1 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
-          title="Start a fresh trail from here"
-          type="button"
-          onClick={trail.clear}
-        >
-          Clear
-        </button>
+      <SearchButton
+        buttonRef={searchRef}
+        committed={committed}
+        onOpen={openPalette}
+      />
+      {paletteUsed && (
+        <Suspense fallback={null}>
+          <AtlasCommandPalette
+            initialQuery={committed ?? ''}
+            open={paletteOpen}
+            opener={openerRef}
+            trail={trail}
+            onCopyLink={copyLink}
+            onOpenChange={setPaletteOpen}
+          />
+        </Suspense>
       )}
 
-      <button
-        className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+      <div className="hidden sm:contents">
+        <TrailPopover trail={trail} />
+      </div>
+
+      <AtlasPillButton
+        // The label hides on phones, so the name cannot rest on it.
+        aria-label="Copy link"
+        size="sm"
         title="Copy a link to exactly this view — for a lesson, a presentation, or a bookmark"
-        type="button"
         onClick={copyLink}
       >
         {copied ? (
@@ -166,10 +205,15 @@ export function AtlasToolbar() {
         ) : (
           <Link2 aria-hidden className="size-3.5" />
         )}
-        <span className="hidden sm:inline">
+        <span aria-hidden className="hidden 2xl:inline">
           {copied ? 'Link copied' : 'Copy link'}
         </span>
-      </button>
+      </AtlasPillButton>
+      <ViewSwitch />
+      {/* Said once, politely, whatever the screen width. */}
+      <span aria-live="polite" className="sr-only" role="status">
+        {copied ? 'Link copied' : ''}
+      </span>
     </div>
   );
 }

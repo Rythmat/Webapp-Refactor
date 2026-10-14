@@ -19,6 +19,8 @@ import {
 } from '@/daw/data/groovesLibrary';
 import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
 import { useStore } from '@/daw/store';
+import { getPlayheadTick } from '@/daw/engine/playheadClock';
+import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 
 // ── Constants ──────────────────────────────────────────────────────────
@@ -210,11 +212,19 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
       const events = await loadGrooveEvents(groove.id);
       if (!events) return;
 
+      // One new clip at the bar the playhead is in (live, also while
+      // playing), selected so the drum grid shows it: it used to land on
+      // bar 1 on top of the beat already there, while the grid kept showing
+      // the old pattern (dock-instruments-03).
+      const state = useStore.getState();
       const clipId = `clip-groove-${crypto.randomUUID().slice(0, 8)}`;
       addMidiClip(trackId, {
         id: clipId,
         name: groove.name,
-        startTick: 0,
+        startTick: barStartTick(
+          Math.round(getPlayheadTick()),
+          timeSignatureOf(state),
+        ),
         events,
       });
       setSelectedClip(clipId, trackId);

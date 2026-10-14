@@ -77,6 +77,8 @@ export type OpenIntent =
       host: boolean;
       jamImport: boolean;
       awaitHost: boolean;
+      /** A teacher-made classroom pair's partner: waits for its host longer. */
+      classPair?: true;
     }
   | { kind: 'rejoin'; roomId: string; role: CollabRole };
 
@@ -133,6 +135,14 @@ export interface OpenError {
   retryable: boolean;
   surface: 'toast' | 'panel';
   cause?: unknown;
+  /**
+   * Part of the Studio's code or content didn't load (a chunk). The browser
+   * keeps a module that failed failed until the page reloads, so Retry
+   * saves and reloads instead (milestone 1.12a), back onto `retrySearch`,
+   * the link's address, when a link asked for the open.
+   */
+  reloadToRetry?: boolean;
+  retrySearch?: string;
 }
 
 export type OpenOutcome =
@@ -272,5 +282,5 @@ export interface CollabPort {
     roomCode?: string,
   ): void;
   joinRoomById(roomId: string, role?: CollabRole): void;
-  joinRoomAwaitingHost(roomId: string): void;
+  joinRoomAwaitingHost(roomId: string, timeoutMs?: number): void;
 }

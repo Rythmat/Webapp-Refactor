@@ -8,6 +8,11 @@ import {
   wouldRecordOverTake,
 } from '../requestRecord';
 import { useStore } from '@/daw/store';
+import {
+  endPlayheadRun,
+  setPlayheadSourceForTests,
+  startPlayheadRun,
+} from '@/daw/engine/playheadClock';
 
 function audioTrack(
   id: string,
@@ -93,6 +98,29 @@ describe('wouldRecordOverTake', () => {
       0,
     );
     expect(wouldRecordOverTake()).toBe(false);
+  });
+
+  it('reads the live playhead while playing, not the parked one', () => {
+    // 120 bpm: 960 ticks a second, the transport started at 0 from tick 0.
+    const now = { t: 0 };
+    setPlayheadSourceForTests({
+      currentTime: () => now.t,
+      outputLatency: () => 0,
+      ticksAtTime: (time) => time * 960,
+      scheduleTime: () => now.t + 0.1,
+    });
+    try {
+      setup([audioTrack('vox', true, [[0, 3840]])], 0, { isPlaying: true });
+      startPlayheadRun(0, 0);
+      now.t = 1;
+      expect(wouldRecordOverTake()).toBe(true);
+      // Past the take: the store still says 0, the student is at 4800.
+      now.t = 5;
+      expect(wouldRecordOverTake()).toBe(false);
+    } finally {
+      endPlayheadRun();
+      setPlayheadSourceForTests();
+    }
   });
 
   it('is false while already recording or counting in', () => {

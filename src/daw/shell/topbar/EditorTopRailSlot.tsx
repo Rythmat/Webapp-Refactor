@@ -3,11 +3,13 @@ import { useTopRailSlot } from '@/components/ClassroomLayout/topRailSlot';
 import { useStore } from '@/daw/store';
 import { TooltipGroup } from '@/daw/ui/Tooltip';
 import { SaveChipAnnouncer, SaveStatusChip } from './SaveStatusChip';
+import { MusicalTypingChip } from './MusicalTypingChip';
 import { UndoRedoButtons } from './UndoRedoButtons';
 
 // ── The editor's part of the TopRail (milestone 1.4, Stage A) ──────────────
 //
-// Save chip · Undo · Redo, portaled into the app TopRail's leading slot
+// Save chip · Undo · Redo · the computer keyboard's switch (1.6), portaled
+// into the app TopRail's leading slot
 // while the editor is mounted, so the TransportBar keeps every control
 // where it is (lesson anchors included). The practice screen has its own
 // header with the chip (PracticeHeader), so nothing shows here then; Undo
@@ -39,6 +41,7 @@ export function EditorTopRailSlot() {
           >
             <SaveStatusChip announce={false} />
             {practiceView ? null : <UndoRedoButtons />}
+            <MusicalTypingChip />
           </div>
         </TooltipGroup>,
         slot,

@@ -164,7 +164,7 @@ describe('useSaveChipState', () => {
     expect(chip.state()).toBe('local');
     expect(chip.attr('data-reason')).toBe('partial');
     expect(chip.attr('data-tip')).toBe(
-      'Saved to your account. Markers stay on this device until an update.',
+      'Saved to your account. Markers stay on this device until the project has a track.',
     );
   });
 

@@ -18,6 +18,8 @@ import {
 import { ContentGate } from '@/content/ContentGate';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
+import { isEditorPath, preloadDaw } from '@/daw/preload';
+import { EditorRouteBoundary } from '@/daw/shell/errors/EditorRouteBoundary';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
@@ -189,10 +191,16 @@ const SignalFlowPage = lazy(() =>
 );
 
 const DawApp = lazy(() =>
-  import('@/daw/DawApp').then(({ DawApp }) => ({
+  preloadDaw().then(({ DawApp }) => ({
     default: DawApp,
   })),
 );
+
+// A boot straight onto the editor (a link, a refresh) fetches its chunk now,
+// beside sign-in, instead of once the route first renders behind it.
+if (typeof window !== 'undefined' && isEditorPath(window.location.pathname)) {
+  preloadDaw().catch(() => {});
+}
 
 const StudioInlet = lazy(() =>
   import('@/components/ClassroomLayout/studio/StudioInlet').then(
@@ -440,11 +448,12 @@ export const studioPages = () => {
       },
       {
         path: 'editor',
-        // DawApp resolves a song by id when opened with ?song=.
+        // No content gate: the editor paints at once, and a ?song= open
+        // waits for the song library itself (openSession's prepareSong).
         element: (
-          <ContentGate needs={['songs']}>
+          <EditorRouteBoundary>
             <DawApp />
-          </ContentGate>
+          </EditorRouteBoundary>
         ),
       },
     ],

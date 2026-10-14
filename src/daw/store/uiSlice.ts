@@ -36,7 +36,8 @@ export interface PracticeSessionScale {
 
 /**
  * A Practice Track opened from a Theory lesson (Learn ▸ Theory): a mode and a
- * key, from which the whole track is reproducible. Session-only.
+ * key, from which the whole track is reproducible. Saved with its draft
+ * (milestone 1.15), so a refresh comes back to the practice screen.
  */
 export interface TheoryPracticeSession {
   kind: 'theory';
@@ -46,6 +47,8 @@ export interface TheoryPracticeSession {
   rootParam: string;
   level: 1 | 2 | 3;
   openTrack: 'melody' | 'chords';
+  /** The track the student plays and records on (see practiceStudentTrack). */
+  studentTrackId?: string;
 }
 
 /**
@@ -94,6 +97,8 @@ export interface GenrePracticeSession {
   prompts: string[];
   /** Back to the lesson this came from. */
   returnTo: string;
+  /** The track the student plays and records on (see practiceStudentTrack). */
+  studentTrackId?: string;
   /**
    * The groove toggle (D-088): the level's styles (empty when it teaches one)
    * and the one playing; the level's progressions and the one playing.
@@ -106,6 +111,18 @@ export interface GenrePracticeSession {
 
 /** A Practice Track in progress, from either kind of lesson. */
 export type PracticeSession = TheoryPracticeSession | GenrePracticeSession;
+
+/** What the practice keyboard lights: the scale, the chord now, the bass note. */
+export type PracticeKeyboardView = 'scales' | 'chords' | 'bass';
+
+/**
+ * The student's choices on the practice keyboard, kept while the screen is
+ * away (the Studio, a refresh). null fields are the track's own defaults.
+ */
+export interface PracticeKeyboard {
+  view: PracticeKeyboardView | null;
+  scaleId: string | null;
+}
 /** Tabs of the bottom Channel Strip. Kept here (not in ChannelStrip.tsx) so
  *  the tutorial system can read/open a specific tab from the store. */
 export type ChannelStripTabId =
@@ -135,6 +152,13 @@ function clamp(v: number, min: number, max: number): number {
 }
 
 export interface UiSlice {
+  /**
+   * Whether letter, digit and symbol keys with no ⌘ or ⌥ are shortcuts (R,
+   * M, L, 1–4, ?). The student can turn them off (WCAG 2.1.4); the keys'
+   * other shortcuts and the buttons still work. A per-user pref.
+   */
+  singleKeyShortcuts: boolean;
+  setSingleKeyShortcuts: (on: boolean) => void;
   activeTool: ToolType;
   selectedClipId: string | null;
   selectedClipTrackId: string | null;
@@ -182,6 +206,9 @@ export interface UiSlice {
   parkedClipSelection: { clipId: string; trackId: string } | null;
   practiceSession: PracticeSession | null;
   setPracticeSession: (session: PracticeSession | null) => void;
+  /** The practice keyboard's view and scale; null until the student picks. */
+  practiceKeyboard: PracticeKeyboard | null;
+  setPracticeKeyboard: (patch: Partial<PracticeKeyboard>) => void;
 
   // ── Library sidebar ──
   libraryOpen: boolean;
@@ -317,6 +344,8 @@ export const createUiSlice: StateCreator<
   [],
   UiSlice
 > = (set, get) => ({
+  singleKeyShortcuts: true,
+  setSingleKeyShortcuts: (on) => set({ singleKeyShortcuts: on }),
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,
@@ -392,6 +421,15 @@ export const createUiSlice: StateCreator<
   currentView: 'arrange' as ViewType,
   practiceSession: null,
   setPracticeSession: (session) => set({ practiceSession: session }),
+  practiceKeyboard: null,
+  setPracticeKeyboard: (patch) =>
+    set((s) => ({
+      practiceKeyboard: {
+        view: s.practiceKeyboard?.view ?? null,
+        scaleId: s.practiceKeyboard?.scaleId ?? null,
+        ...patch,
+      },
+    })),
   setCurrentView: (view) =>
     set((s) => {
       const next: Partial<UiSlice> = {

@@ -1,27 +1,20 @@
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 import { showError } from '@/components/utils/toast';
-import { useStore, type InstrumentType, type Track } from '@/daw/store';
-import type { StudioBassVoice } from '@/daw/store/tracksSlice';
+import { useStore } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
-import { isTrackAudible } from '@/daw/audio/trackAudibility';
 import { getPlaybackLoop } from '@/daw/store/transportSlice';
 import { masteringEffectsForEngine } from '@/daw/store/masteringSlice';
-import { TrackEngine } from '@/daw/audio/TrackEngine';
 import { MidiScheduler } from '@/daw/audio/MidiScheduler';
 import { AudioClipScheduler } from '@/daw/audio/AudioClipScheduler';
 import { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
-import {
-  MASTER_AUTOMATION_ID,
-  resolveMasterAutomationTargets,
-} from '@/daw/audio/automationParams';
+import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import { MetronomeEngine, clickPitch } from '@/daw/audio/MetronomeEngine';
 import { AudioRecorder } from '@/daw/audio/AudioRecorder';
 import {
   setAudioBuffer,
   setOriginalAudio,
   getAudioBuffer,
-  sliceBuffer,
   subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
 import {
@@ -31,300 +24,36 @@ import {
 } from '@/daw/audio/recordingLimit';
 import { overwriteAudioRegion } from '@/daw/audio/overwriteAudioRegion';
 import { seekTo } from '@/daw/hooks/useTransport';
-import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import {
-  getTrackSynthState,
-  applySynthStateToEngine,
-  defaultSynthTrackState,
-} from '@/daw/oracle-synth/synthTrackState';
-import { getSessionGeneration } from '@/daw/session/sessionGeneration';
+  applySamplerState,
+  applyStaticMasterVolume,
+  applyStaticTrackParams,
+  scheduleMasterAutomation,
+  trackEngineRegistry,
+} from '@/daw/engine/trackAudio';
+import { addFrameTask } from '@/daw/engine/engineClock';
+import { getPlayheadTick } from '@/daw/engine/playheadClock';
+import {
+  startTrackReconciler,
+  type TrackReconciler,
+} from '@/daw/engine/trackReconciler';
 import { beginTake } from '@/daw/session/takesInFlight';
-import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
-import { PianoSampler } from '@/daw/instruments/PianoSampler';
-import { SamplerInstrument } from '@/daw/instruments/SamplerInstrument';
-import {
-  BASS_ELECTRIC_CONFIG,
-  ELECTRIC_PIANO_CONFIG,
-  CELLO_CONFIG,
-  ORGAN_CONFIG,
-  bassVoiceSamplerConfig,
-} from '@/daw/instruments/sampleConfigs';
-import { EightOhEightInstrument } from '@/daw/instruments/EightOhEightInstrument';
-import {
-  DrumMachineEngine,
-  DRUM_PADS,
-} from '@/daw/instruments/DrumMachineEngine';
-import type { DrumKitId } from '@/daw/instruments/drumKits';
 import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
-import {
-  DEFAULT_SAMPLER_FILTER_HZ,
-  isValidRootNote,
-  samplerBufferKey,
-  samplerSampleSignature,
-  samplerTrimRange,
-} from '@/daw/instruments/samplerChops';
-import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
-import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
-import type { InstrumentAdapter } from '@/daw/instruments/InstrumentAdapter';
 
-// ── Types ────────────────────────────────────────────────────────────────
-
-export interface TrackAudioState {
-  trackEngine: TrackEngine;
-  instrument: InstrumentAdapter | null;
-  instrumentType: InstrumentType;
-  /** The bass voice the instrument was made with (bass tracks only). */
-  bassVoice?: StudioBassVoice;
-  /** The session generation the engine was made in (see sessionGeneration). */
-  generation: number;
-}
-
-// ── Module-level registry ────────────────────────────────────────────────
-// Singleton map so other hooks (MIDI input routing, Oracle Synth panel)
-// can access TrackEngine instances without prop-drilling.
-
-export const trackEngineRegistry = new Map<string, TrackAudioState>();
-
-export function getTrackAudioState(
-  trackId: string,
-): TrackAudioState | undefined {
-  return trackEngineRegistry.get(trackId);
-}
-
-// ── Engine-ready notification ─────────────────────────────────────────
-// Allows React components to re-render when an instrument finishes async init.
-
-let engineReadyVersion = 0;
-const engineReadyListeners = new Set<() => void>();
-
-export function getEngineReadyVersion(): number {
-  return engineReadyVersion;
-}
-
-export function subscribeEngineReady(cb: () => void): () => void {
-  engineReadyListeners.add(cb);
-  return () => {
-    engineReadyListeners.delete(cb);
-  };
-}
-
-/** Tell the readers of the registry that an engine or instrument changed. */
-function notifyEngineReady(): void {
-  engineReadyVersion++;
-  engineReadyListeners.forEach((cb) => cb());
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────
-
-export function createInstrument(
-  type: InstrumentType,
-  gmProgram?: number,
-  drumKit?: DrumKitId,
-  bassVoice?: StudioBassVoice,
-): InstrumentAdapter | null {
-  switch (type) {
-    case 'oracle-synth':
-      return new OracleSynthAdapter();
-    case 'piano-sampler':
-      return new PianoSampler();
-    case 'electric-piano':
-      return new SamplerInstrument(ELECTRIC_PIANO_CONFIG);
-    case 'bass-electric':
-      if (bassVoice === '808') return new EightOhEightInstrument();
-      return new SamplerInstrument(
-        bassVoice ? bassVoiceSamplerConfig(bassVoice) : BASS_ELECTRIC_CONFIG,
-      );
-    case 'cello':
-      return new SamplerInstrument(CELLO_CONFIG);
-    case 'organ':
-      return new SamplerInstrument(ORGAN_CONFIG);
-    case 'tonewheel-organ':
-      return new TonewheelOrganEngine();
-    case 'drum-machine':
-      return new DrumMachineEngine(drumKit);
-    case 'sampler':
-      return new ChopsSampler();
-    case 'soundfont':
-      return new SoundFontAdapter(gmProgram ?? 0);
-    case 'guitar-fx':
-    case 'bass-fx':
-      return new GuitarFxAdapter();
-    case 'vocal-fx':
-      return new VocalFxAdapter();
-    default:
-      return null;
-  }
-}
-
-/** Apply a track's saved per-pad mix (or kit defaults) to its drum engine.
- *  Needed after kit loads too, since loadKit resets pans to the kit defaults. */
-export function applyDrumPads(engine: DrumMachineEngine, track: Track): void {
-  for (const pad of DRUM_PADS) {
-    const padState = track.drumPads?.[pad.note];
-    engine.setPadVolume(pad.note, padState?.volume ?? 0.8);
-    engine.setPadPan(pad.note, padState?.pan ?? engine.getDefaultPan(pad.note));
-  }
-}
-
-/** Apply a track's post-fader aux send levels to its engine, one per active
- *  return bus. A missing send (or no bus) resolves to a silent tap, so send 0
- *  is exactly the previous mix. */
-export function applySends(engine: TrackEngine, track: Track): void {
-  for (const returnId of audioEngine.getReturnIds()) {
-    engine.setSend(
-      returnId,
-      track.sends?.[returnId] ?? 0,
-      audioEngine.getReturnBusInput(returnId),
-    );
-  }
-}
-
-/** Re-apply a track's static mixer/FX values (the fader/knob positions). Used
- *  to hand automated params back to the store values when playback stops. */
-export function applyStaticTrackParams(
-  engine: TrackEngine,
-  track: Track,
-): void {
-  engine.setVolume(track.volume);
-  engine.setPan(track.pan);
-  engine.updateEffects(track.effects);
-  applySends(engine, track);
-}
-
-/** Re-assert a track's automation while playing, so it re-wins params the static
- *  track-sync writes just stomped. Order matters: clear the old ramps FIRST, then
- *  re-apply the static base (so a DELETED lane snaps back cleanly rather than
- *  freezing at its last automated value), then schedule the present lanes over
- *  it. No-op when stopped — static values are what you hear then. */
-function reassertAutomationIfPlaying(
-  automationScheduler: AutomationScheduler,
-  track: Track,
-  engine: TrackEngine,
-): void {
-  const s = useStore.getState();
-  if (!s.isPlaying) return;
-  automationScheduler.clearTrack(track.id);
-  applyStaticTrackParams(engine, track);
-  // Anchor on the live transport tick, not the ~30fps-lagged store position.
-  automationScheduler.scheduleTrack(
-    track.id,
-    engine,
-    track.automation,
-    Tone.getTransport().ticks,
-    s.bpm,
-  );
-}
-
-/** Bring an organ engine to the track's saved settings, if they differ. */
-function applyOrganState(engine: TonewheelOrganEngine, track: Track): void {
-  if (!track.organState) return;
-  if (JSON.stringify(engine.getState()) === JSON.stringify(track.organState))
-    return;
-  engine.setState(track.organState);
-}
-
-/** Ride the Master bus automation lanes on the master gain from `tick`. */
-function scheduleMasterAutomation(
-  automationScheduler: AutomationScheduler,
-  tick: number,
-  bpm: number,
-): void {
-  const masterGain = audioEngine.getMasterGain();
-  automationScheduler.scheduleLanes(
-    MASTER_AUTOMATION_ID,
-    useStore.getState().masterAutomation,
-    (paramId) => resolveMasterAutomationTargets(paramId, masterGain),
-    tick,
-    bpm,
-  );
-}
-
-/** Set the master gain to the Master fader's (static) value. */
-function applyStaticMasterVolume(masterVolume: number): void {
-  const gain = audioEngine.getMasterGain();
-  // setTargetAtTime throws on a non-finite target and would leave the master
-  // gain unset; coerce a bad masterVolume (its store clamp lets NaN through)
-  // to unity so the master can never be silenced by a corrupt value.
-  const vol = Number.isFinite(masterVolume) ? masterVolume : 1;
-  gain.gain.setTargetAtTime(vol, gain.context.currentTime, 0.01);
-}
-
-/** Apply a Chops track's sample + envelope to its engine. Idempotent (the
- *  engine no-ops on an unchanged signature) and tolerant of the buffer not
- *  having been decoded yet — the AudioBufferStore subscription below re-applies
- *  when it lands. */
-export function applySamplerState(engine: ChopsSampler, track: Track): void {
-  const sample = track.samplerSample;
-  if (!sample) return;
-  engine.setEnvelope(sample.attack, sample.release);
-  engine.setMode(sample.mode ?? 'classic');
-  engine.setGain(sample.gain ?? 1);
-  engine.setFilter(
-    sample.filterOn ?? false,
-    sample.filterHz ?? DEFAULT_SAMPLER_FILTER_HZ,
-    sample.filterRes ?? 0,
-  );
-  // Rebuild only when the identity (sample/root/trim) actually changed — the
-  // trim slice below allocates a fresh buffer, so skip it when idempotent.
-  const signature = samplerSampleSignature(sample);
-  if (engine.getAppliedSignature() === signature) return;
-  const buffer = getAudioBuffer(samplerBufferKey(sample.sampleId));
-  if (!buffer) return;
-  // A corrupt save / rogue peer could carry a malformed root note; Tone.Sampler
-  // throws on those, and this runs inside the buffer-store notify loop.
-  const rootNote = isValidRootNote(sample.rootNote) ? sample.rootNote : 'C4';
-  try {
-    const { startFrame, endFrame } = samplerTrimRange(
-      buffer.length,
-      sample.startPct,
-      sample.lengthPct,
-    );
-    const playBuffer =
-      startFrame === 0 && endFrame === buffer.length
-        ? buffer
-        : sliceBuffer(audioEngine.getContext(), buffer, startFrame, endFrame);
-    engine.setSample(signature, playBuffer, rootNote);
-  } catch (err) {
-    console.error('[Audio] Sampler sample apply failed:', err);
-  }
-}
-
-/**
- * Whether a track's engine must be made again rather than updated in place:
- * its instrument changed, or its bass voice (picked when the instrument is
- * made), or it was made in an earlier session generation. A load or reset can
- * reuse a track id (kept work restored, a project reopened), and the Oracle
- * patch and the bass voice reach an engine only when it is made, so an engine
- * kept across the load would go on playing the previous project's sound.
- */
-function needsNewEngine(
-  state: TrackAudioState,
-  track: Track,
-  generation: number,
-): boolean {
-  return (
-    state.generation !== generation ||
-    state.instrumentType !== track.instrument ||
-    (track.instrument === 'bass-electric' &&
-      state.bassVoice !== track.bassVoice)
-  );
-}
-
-/** Silence and dispose a track's engine and take it out of the registry. */
-function retireTrackAudio(
-  trackId: string,
-  state: TrackAudioState,
-  automationScheduler: AutomationScheduler,
-): void {
-  state.trackEngine.allNotesOff();
-  // Clear any scheduled automation so its transport events don't keep
-  // firing on the disposed engine's params.
-  automationScheduler.clearTrack(trackId);
-  state.trackEngine.dispose();
-  trackEngineRegistry.delete(trackId);
-}
+export {
+  applyDrumPads,
+  applySamplerState,
+  applySends,
+  applyStaticTrackParams,
+  createInstrument,
+  getEngineReadyVersion,
+  getTrackAudioState,
+  subscribeEngineReady,
+  trackEngineRegistry,
+  type TrackAudioState,
+} from '@/daw/engine/trackAudio';
 
 // ── Hook ─────────────────────────────────────────────────────────────────
 // Manages the lifecycle of TrackEngine instances, instrument adapters,
@@ -461,13 +190,12 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   );
   const liveAudioAnalyserRef = useRef<AnalyserNode | null>(null);
   const liveAudioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const liveAudioRafRef = useRef<number>(0);
+  const liveAudioTaskRef = useRef<(() => void) | null>(null);
   const liveAudioPeaksRef = useRef<number[]>([]);
 
   const countInTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countInSynthRef = useRef<Tone.MembraneSynth | null>(null);
 
-  const tracks = useStore((s) => s.tracks);
   const isPlaying = useStore((s) => s.isPlaying);
   const isRecording = useStore((s) => s.isRecording);
   const isCountingIn = useStore((s) => s.isCountingIn);
@@ -482,217 +210,21 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const masterVolume = useStore((s) => s.masterVolume);
   const masterAutomation = useStore((s) => s.masterAutomation);
   const returns = useStore((s) => s.returns);
-  // Moves on with every load or reset of the project (sessionGeneration.ts).
-  const generation = useSessionGeneration();
 
-  // ── Sync TrackEngine instances with store tracks ───────────────────────
+  // ── Track engines follow the store's tracks ──────────────────────────
+  // The reconciler listens to the store itself and applies only what
+  // changed, track by track (engine/trackReconciler.ts), so the editor
+  // doesn't re-render on a track edit to do it.
+  const reconcilerRef = useRef<TrackReconciler | null>(null);
   useEffect(() => {
     if (!isReady) return;
-    // A load or reset started after this render: the render it scheduled
-    // reconciles the new project's tracks, so build nothing for these.
-    if (generation !== getSessionGeneration()) return;
-
-    const ctx = audioEngine.getContext();
-    const masterGain = audioEngine.getMasterGain();
-    const audioMap = trackAudioRef.current;
-    const currentIds = new Set(tracks.map((t) => t.id));
-    // Whether this pass made or let go of an engine (see the end).
-    let enginesChanged = false;
-
-    // Remove TrackEngines for deleted tracks
-    for (const [id, state] of audioMap) {
-      if (!currentIds.has(id)) {
-        retireTrackAudio(id, state, automationSchedulerRef.current);
-        enginesChanged = true;
-      }
-    }
-
-    // Create / update TrackEngines for tracks
-    for (const track of tracks) {
-      const existing = audioMap.get(track.id);
-
-      if (existing) {
-        // A new instrument, bass voice or session: tear down and recreate
-        if (needsNewEngine(existing, track, generation)) {
-          retireTrackAudio(track.id, existing, automationSchedulerRef.current);
-          enginesChanged = true;
-          // Fall through to creation below
-        } else {
-          // Just update volume/pan/effects on existing track
-          existing.trackEngine.setVolume(track.volume);
-          existing.trackEngine.setAudible(isTrackAudible(track, tracks));
-          existing.trackEngine.setPan(track.pan);
-          existing.trackEngine.updateEffects(track.effects);
-          // Kit changes from the store (view, project load, collab peer)
-          // land here; setKit is idempotent and last-wins under races.
-          if (existing.instrument instanceof DrumMachineEngine) {
-            const drumEngine = existing.instrument;
-            const kitId = track.drumKit ?? 'natural';
-            if (drumEngine.getKit() !== kitId) {
-              drumEngine
-                .setKit(kitId)
-                .then(() => {
-                  const current = useStore
-                    .getState()
-                    .tracks.find((t) => t.id === track.id);
-                  applyDrumPads(drumEngine, current ?? track);
-                })
-                .catch((err) => {
-                  console.error('[Audio] Drum kit load failed:', err);
-                });
-            }
-          }
-          // The track is the source of truth for the GM sound and the organ
-          // settings, so undo, project load and collab peers land here too.
-          if (existing.instrument instanceof SoundFontAdapter) {
-            const program = track.gmProgram ?? 0;
-            if (existing.instrument.getProgram() !== program) {
-              existing.instrument.setProgram(program);
-            }
-          }
-          if (existing.instrument instanceof TonewheelOrganEngine) {
-            applyOrganState(existing.instrument, track);
-          }
-          // Sampler sample/root/envelope changes likewise sync in place.
-          if (existing.instrument instanceof ChopsSampler) {
-            applySamplerState(existing.instrument, track);
-          }
-          // Aux send levels (store/view/collab) sync in place too.
-          applySends(existing.trackEngine, track);
-          // If a lane edit / collab change landed mid-playback, the static
-          // writes above just stomped any automated param — re-assert the lanes
-          // so automation keeps winning while playing.
-          reassertAutomationIfPlaying(
-            automationSchedulerRef.current,
-            track,
-            existing.trackEngine,
-          );
-          continue;
-        }
-      }
-
-      const trackEngine = new TrackEngine(ctx, masterGain);
-      trackEngine.setVolume(track.volume);
-      trackEngine.setAudible(isTrackAudible(track, tracks));
-      trackEngine.setPan(track.pan);
-      trackEngine.updateEffects(track.effects);
-      applySends(trackEngine, track);
-      reassertAutomationIfPlaying(
-        automationSchedulerRef.current,
-        track,
-        trackEngine,
-      );
-      // Ducker key source: resolve any OTHER track's analyser by id from the
-      // registry. Returns null for self (no feedback) or a missing key (fail
-      // silent), and re-resolves live so key deletion/creation is handled.
-      const ownId = track.id;
-      trackEngine.setKeySourceResolver((keyId) =>
-        keyId === ownId
-          ? null
-          : (getTrackAudioState(keyId)?.trackEngine.getAnalyserNode() ?? null),
-      );
-
-      const instrument = createInstrument(
-        track.instrument,
-        track.gmProgram,
-        track.drumKit,
-        track.bassVoice,
-      );
-
-      if (instrument) {
-        // Initialize instrument async — fires and connects when ready
-        console.log(
-          `[Audio] Initializing ${track.instrument} for track "${track.name}"...`,
-        );
-        instrument
-          .init(ctx, trackEngine.getInputNode())
-          .then(() => {
-            // The track's engine was made again (a load, a new instrument) or
-            // removed while this loaded: let the instrument go rather than
-            // wire it into a disposed engine, where it would keep running
-            // (and holding a SoundFont channel) unheard.
-            if (audioMap.get(track.id)?.trackEngine !== trackEngine) {
-              instrument.dispose();
-              return;
-            }
-            trackEngine.setInstrument(instrument);
-            console.log(`[Audio] Instrument ready for track "${track.name}"`);
-            // Apply the track's saved Oracle Synth patch to its fresh engine so
-            // a loaded project plays with the right sound even before the synth
-            // panel (which would otherwise be the first thing to sync it) opens.
-            // A track with no patch of its own plays the default patch its
-            // panel shows. The engine's own starting sound differs from it
-            // (filter 1 at 20 kHz, not 13.4), so the track used to change
-            // sound when its panel first opened, and change back on a reload.
-            if (instrument instanceof OracleSynthAdapter) {
-              const synthEngine = instrument.getEngine();
-              if (synthEngine) {
-                applySynthStateToEngine(
-                  synthEngine,
-                  getTrackSynthState(track.id) ?? defaultSynthTrackState(),
-                  { projectBpm: useStore.getState().bpm },
-                );
-              }
-            }
-            // Same for saved drum pad mixes (the kit itself was passed to the
-            // constructor, so init() already loaded the right samples).
-            if (instrument instanceof DrumMachineEngine) {
-              applyDrumPads(instrument, track);
-            }
-            // …and saved organ settings (drawbars, Leslie, percussion, …).
-            if (instrument instanceof TonewheelOrganEngine) {
-              const current = useStore
-                .getState()
-                .tracks.find((t) => t.id === track.id);
-              applyOrganState(instrument, current ?? track);
-            }
-            // Chops: the sample buffer may already be decoded (drop/demo) or
-            // still fetching (project load) — apply what's available now, the
-            // buffer-store subscription re-applies on arrival.
-            if (instrument instanceof ChopsSampler) {
-              const current = useStore
-                .getState()
-                .tracks.find((t) => t.id === track.id);
-              applySamplerState(instrument, current ?? track);
-            }
-            // Tap audio-input adapters into the live-monitor send bus so this
-            // user's mic / instrument FX can be streamed to collaborators.
-            const monitorBus = audioEngine.getMonitorBus();
-            const getTap = (
-              instrument as { getMonitorOutputNode?: () => AudioNode | null }
-            ).getMonitorOutputNode;
-            if (monitorBus && typeof getTap === 'function') {
-              try {
-                getTap.call(instrument)?.connect(monitorBus);
-              } catch (err) {
-                console.warn('[Audio] monitor tap connect failed:', err);
-              }
-            }
-            notifyEngineReady();
-          })
-          .catch((err) => {
-            console.error(
-              `[Audio] Instrument init FAILED for track "${track.name}":`,
-              err,
-            );
-          });
-      }
-
-      audioMap.set(track.id, {
-        trackEngine,
-        instrument,
-        instrumentType: track.instrument,
-        bassVoice: track.bassVoice,
-        generation,
-      });
-      enginesChanged = true;
-    }
-
-    // Readers that hold a track's engine (the meters, the instrument panels)
-    // re-read on this. A load now makes every engine again under the same
-    // track ids, so a reader keyed on the id alone kept the disposed engine.
-    if (enginesChanged) notifyEngineReady();
-  }, [isReady, tracks, generation]);
+    const reconciler = startTrackReconciler(automationSchedulerRef.current);
+    reconcilerRef.current = reconciler;
+    return () => {
+      reconciler.stop();
+      if (reconcilerRef.current === reconciler) reconcilerRef.current = null;
+    };
+  }, [isReady]);
 
   // ── Apply sampler buffers as they finish decoding ─────────────────────
   // Sample bytes arrive asynchronously (file drop decode, asset rehydration
@@ -712,25 +244,13 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     });
   }, [isReady]);
 
-  // ── Sync monitoring state to adapters for all tracks ──────────────────
-  useEffect(() => {
-    if (!isReady) return;
-    const audioMap = trackAudioRef.current;
-    for (const track of tracks) {
-      const state = audioMap.get(track.id);
-      if (!state?.instrument) continue;
-      if ('setMonitoring' in state.instrument) {
-        (state.instrument as any).setMonitoring(track.monitoring);
-      }
-    }
-  }, [isReady, tracks]);
-
   // ── Sync mastering effects with audio engine ─────────────────────────
   // Bypass switches every slot off in the engine only (the stored chain stays).
   useEffect(() => {
     if (!isReady) return;
     audioEngine.updateMasteringEffects(
       masteringEffectsForEngine(masteringEffects, masteringBypass),
+      { glide: true },
     );
   }, [isReady, masteringEffects, masteringBypass]);
 
@@ -758,9 +278,11 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   useEffect(() => {
     if (!isReady) return;
     for (const ret of returns) {
-      audioEngine.updateReturnEffects(ret.id, ret.effects);
+      audioEngine.updateReturnEffects(ret.id, ret.effects, { glide: true });
       audioEngine.setReturnVolume(ret.id, ret.volume);
     }
+    // A return added or removed: every track's sends wire to the new set.
+    reconcilerRef.current?.reconcile();
   }, [isReady, returns]);
 
   // ── Schedule / cancel MIDI + audio clips on play/stop ───────────────────
@@ -1012,18 +534,20 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   useEffect(() => {
     if (!isReady) return;
 
-    const recordArmedAudioTrack = tracks.find(
-      (t) => t.type === 'audio' && t.recordArmed,
-    );
+    // Read when the take starts: the effect doesn't follow track edits, so
+    // a collab sync or a clip added mid-take no longer re-runs it.
+    const recordArmedAudioTrack = useStore
+      .getState()
+      .tracks.find((t) => t.type === 'audio' && t.recordArmed);
 
-    // Tear down all live-recording artifacts (waveform RAF, analyser nodes, the
-    // 5-minute cap timer, and the on-screen live peaks). Idempotent and safe to
-    // call on any effect run — this is what keeps a stale RAF/timer from
-    // surviving when the effect re-runs for unrelated reasons. In a collab
-    // session `tracks` changes constantly, re-running this effect mid-take, so
-    // cleanup must NOT be conditional on the recorder still "recording".
+    // Tear down all live-recording artifacts (waveform task, analyser nodes,
+    // the 5-minute cap timer, and the on-screen live peaks). Idempotent and
+    // safe to call on any effect run, so a stale task or timer can't survive
+    // a stop; cleanup must NOT be conditional on the recorder still
+    // "recording".
     const cleanupLiveRecordingArtifacts = () => {
-      cancelAnimationFrame(liveAudioRafRef.current);
+      liveAudioTaskRef.current?.();
+      liveAudioTaskRef.current = null;
       liveAudioSourceRef.current?.disconnect();
       liveAudioAnalyserRef.current?.disconnect();
       liveAudioSourceRef.current = null;
@@ -1037,8 +561,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     };
 
     if (isPlaying && isRecording && recordArmedAudioTrack) {
-      // Guard: don't re-create recorder if already recording (effect re-runs
-      // when `tracks` changes during recording, e.g. MIDI clips added)
+      // Guard: don't re-create the recorder if already recording.
       if (isActivelyRecordingRef.current) return;
       // Clear anything a previous take left behind before starting fresh, so a
       // leaked RAF/timer from a botched teardown can't keep running.
@@ -1049,7 +572,8 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       // is the remaining budget, walked forward from the playhead (time spent
       // over existing audio is free — it just overwrites). If there's no budget
       // and nothing to overwrite at the start, refuse to record.
-      const startTickForLimit = useStore.getState().position;
+      // The live playhead: recording can start while already playing.
+      const startTickForLimit = Math.round(getPlayheadTick());
       const bpmForLimit = useStore.getState().bpm;
       const maxRecordSeconds = computeMaxRecordSeconds(
         audioClipIntervalsSeconds(recordArmedAudioTrack, bpmForLimit),
@@ -1106,10 +630,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
 
           const buf = new Float32Array(analyser.fftSize);
           const startTick = recordStartTickRef.current;
-          let lastUpdate = 0;
-
-          const poll = (now: number) => {
-            if (now - lastUpdate >= 66) {
+          // The take's waveform grows about 15 times a second, on the
+          // editor's frame loop.
+          liveAudioTaskRef.current = addFrameTask(
+            () => {
               analyser.getFloatTimeDomainData(buf);
               let peak = 0;
               for (let i = 0; i < buf.length; i++) {
@@ -1124,11 +648,9 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
                   [...liveAudioPeaksRef.current],
                   startTick,
                 );
-              lastUpdate = now;
-            }
-            liveAudioRafRef.current = requestAnimationFrame(poll);
-          };
-          liveAudioRafRef.current = requestAnimationFrame(poll);
+            },
+            { fps: 15, name: 'record-waveform' },
+          );
         } catch (err) {
           console.warn('[usePlaybackEngine] Live audio analyser failed:', err);
         }
@@ -1195,7 +717,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       }
       settleStart?.();
     }
-  }, [isReady, isPlaying, isRecording, tracks]);
+  }, [isReady, isPlaying, isRecording]);
 
   // ── Cleanup on unmount ────────────────────────────────────────────────
   useEffect(() => {
@@ -1223,7 +745,8 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       automationSchedulerRef.current.cancelAll();
 
       // Clean up any active audio recording resources
-      cancelAnimationFrame(liveAudioRafRef.current);
+      liveAudioTaskRef.current?.();
+      liveAudioTaskRef.current = null;
       liveAudioSourceRef.current?.disconnect();
       liveAudioAnalyserRef.current?.disconnect();
       liveAudioSourceRef.current = null;

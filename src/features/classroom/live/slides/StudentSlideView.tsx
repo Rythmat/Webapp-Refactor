@@ -115,6 +115,7 @@ export const StudentSlideView = ({
         grouping={slide.grouping}
         pairs={state.pairs}
         myEnrollmentId={enrollmentId}
+        sessionId={sessionId}
         classroomId={classroomId}
         language={language}
         disabled={state.status === 'ended'}

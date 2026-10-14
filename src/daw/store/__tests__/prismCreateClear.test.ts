@@ -344,7 +344,7 @@ describe('Create again', () => {
     expect(clips[3]).toMatchObject({ startTick: 0, durationTicks: 7680 });
   });
 
-  it('swaps a take that undo brought back as a copy', () => {
+  it('swaps a take that came back as a copy (collab undo, a reload)', () => {
     const first = firstTake();
     vi.advanceTimersByTime(300);
     useStore.setState({ rhythmName: 'Quarters' });
@@ -353,6 +353,9 @@ describe('Create again', () => {
     vi.advanceTimersByTime(300);
 
     undo();
+    // The project history brings the take back as it was; collab undo and a
+    // reload bring back a copy of it.
+    useStore.setState({ tracks: structuredClone(st().tracks) });
     const restored = trackById(keys).midiClips[2];
     expect(restored).not.toBe(first);
     expect(restored).toEqual(first);

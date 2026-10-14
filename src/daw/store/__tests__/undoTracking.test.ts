@@ -11,8 +11,9 @@ import {
 // Every editor mount used to add another 15 store listeners and none were
 // ever removed, and each listener serialised the whole project before its
 // cheap reference check, so every fader or clip-drag move paid for a full
-// JSON.stringify once per visit to the editor. Tracking is now one set of
-// listeners with a release, and the JSON is built once the edits settle.
+// JSON.stringify once per visit to the editor. Tracking is now one store
+// listener with a release, and (milestone 1.9) an edit is recorded by
+// reference, with no JSON at all.
 
 const s = () => useStore.getState();
 /** Past the 300 ms debounce, so a settled edit has been captured. */
@@ -110,19 +111,17 @@ describe('one set of listeners', () => {
 });
 
 describe('what an edit costs', () => {
-  it('a drag serialises the project once, after it settles', () => {
+  it('a drag never serialises the project (state-reload-07, milestone 1.9)', () => {
     track();
     const stringify = vi.spyOn(JSON, 'stringify');
 
-    // A fader drag: one tracks write per pointer move.
+    // A control not yet on useContinuousControl: one tracks write per move.
     for (let i = 1; i <= 30; i++) {
       s().updateTrack(keys, { volume: i / 40 });
       vi.advanceTimersByTime(16);
     }
-    expect(stringify).not.toHaveBeenCalled();
-
     settle();
-    expect(stringify).toHaveBeenCalledTimes(1);
+    expect(stringify).not.toHaveBeenCalled();
     // The whole gesture is one step.
     expect(undo()).toBe(true);
     expect(canUndo()).toBe(false);

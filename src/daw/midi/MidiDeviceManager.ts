@@ -1,4 +1,4 @@
-import { WebMidi } from 'webmidi';
+import type { WebMidi as WebMidiApi } from 'webmidi';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -21,9 +21,11 @@ interface MidiPitchBendEvent {
 
 /**
  * Manages MIDI device enumeration and live note subscriptions
- * using the WebMidi.js 3.x library.
+ * using the WebMidi.js 3.x library, which loads with the first init() and
+ * not with the editor (milestone 1.12a): until then there are no devices.
  */
 export class MidiDeviceManager {
+  private webMidi: typeof WebMidiApi | null = null;
   private initialized = false;
   private initPromise: Promise<boolean> | null = null;
   private onChangeCallbacks: Array<() => void> = [];
@@ -37,7 +39,9 @@ export class MidiDeviceManager {
 
     this.initPromise = (async () => {
       try {
+        const { WebMidi } = await import('webmidi');
         await WebMidi.enable({ sysex: false });
+        this.webMidi = WebMidi;
         this.initialized = true;
 
         WebMidi.addListener('connected', () => this.notifyChange());
@@ -55,7 +59,7 @@ export class MidiDeviceManager {
 
   /** List all currently connected MIDI input devices. */
   getInputs(): MidiDeviceInfo[] {
-    return WebMidi.inputs.map((i) => ({
+    return (this.webMidi?.inputs ?? []).map((i) => ({
       id: i.id,
       name: i.name,
       type: 'input' as const,
@@ -64,7 +68,7 @@ export class MidiDeviceManager {
 
   /** List all currently connected MIDI output devices. */
   getOutputs(): MidiDeviceInfo[] {
-    return WebMidi.outputs.map((o) => ({
+    return (this.webMidi?.outputs ?? []).map((o) => ({
       id: o.id,
       name: o.name,
       type: 'output' as const,
@@ -100,7 +104,7 @@ export class MidiDeviceManager {
     onCC?: (cc: number, value: number) => void,
     onPitchBend?: (value: number) => void,
   ): () => void {
-    const input = WebMidi.getInputById(inputId);
+    const input = this.webMidi?.getInputById(inputId);
     if (!input) {
       return () => {};
     }
@@ -146,8 +150,8 @@ export class MidiDeviceManager {
 
   dispose(): void {
     this.onChangeCallbacks = [];
-    if (this.initialized) {
-      WebMidi.disable();
+    if (this.initialized && this.webMidi) {
+      void this.webMidi.disable();
       this.initialized = false;
     }
   }

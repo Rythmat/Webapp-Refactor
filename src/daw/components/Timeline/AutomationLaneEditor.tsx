@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { tickToPixel, pixelToTick } from '@/daw/utils/timelineScale';
@@ -10,6 +10,7 @@ import {
   getAutomationParamDef,
 } from '@/daw/audio/automationParams';
 import type { AutomationPoint } from '@/daw/audio/automation';
+import { withTransaction } from '@/daw/store/history';
 
 // Docked breakpoint editor for the arrange view. Renders the open track's
 // selected-param lane over the full timeline width, horizontally scroll-synced
@@ -23,6 +24,7 @@ const CANVAS_H = LANE_H - 4; // drawing area
 const PAD = 10; // vertical inset so points at min/max aren't clipped
 const HEADER_W = 200; // matches the track-header column width
 const HIT_R = 7;
+const NO_POINTS: AutomationPoint[] = [];
 
 export function AutomationLaneEditor() {
   const openTrackId = useStore((s) => s.automationOpenTrackId);
@@ -47,6 +49,11 @@ export function AutomationLaneEditor() {
   // The tick of the point being dragged (value-only). State (not a ref) so the
   // window drag-listener effect re-binds the moment a drag begins.
   const [dragTick, setDragTick] = useState<number | null>(null);
+  // The dragged point's value: drawn from here while it moves, and written
+  // to the lane once, on release (milestone 1.9). Null for a press that
+  // hasn't moved an existing point.
+  const [dragValue, setDragValue] = useState<number | null>(null);
+  const dragValueRef = useRef<number | null>(null);
 
   const isMaster = openTrackId === MASTER_AUTOMATION_ID;
   const track = isMaster
@@ -66,10 +73,20 @@ export function AutomationLaneEditor() {
     ? paramId
     : 'volume';
   const def = getAutomationParamDef(activeParamId) ?? AUTOMATION_PARAMS[0];
-  const points: AutomationPoint[] =
+  const storedPoints: AutomationPoint[] =
     (isMaster
       ? masterAutomation[activeParamId]
-      : track?.automation?.[activeParamId]) ?? [];
+      : track?.automation?.[activeParamId]) ?? NO_POINTS;
+  const points = useMemo(
+    () =>
+      dragTick === null || dragValue === null
+        ? storedPoints
+        : [
+            ...storedPoints.filter((p) => p.tick !== dragTick),
+            { tick: dragTick, value: dragValue },
+          ].sort((a, b) => a.tick - b.tick),
+    [storedPoints, dragTick, dragValue],
+  );
 
   // One write path for both kinds of lane; the callers below stay lane-agnostic.
   const upsertPoint = useCallback(
@@ -207,14 +224,16 @@ export function AutomationLaneEditor() {
       if (hit) {
         // Drag a point's VALUE (vertical). Tick stays fixed — reposition in time
         // by deleting and re-adding.
+        dragValueRef.current = null;
+        setDragValue(null);
         setDragTick(hit.tick);
       } else {
-        // Click empty space → add a breakpoint at the snapped tick.
+        // Click empty space → add a breakpoint at the snapped tick, written
+        // with wherever the drag that may follow leaves it.
         const tick = snap(pixelToTick(mx, zoom, scrollLeft));
-        upsertPoint(openTrackId, activeParamId, {
-          tick,
-          value: valueFromY(my),
-        });
+        const value = valueFromY(my);
+        dragValueRef.current = value;
+        setDragValue(value);
         setDragTick(tick);
       }
     },
@@ -226,7 +245,6 @@ export function AutomationLaneEditor() {
       snap,
       zoom,
       scrollLeft,
-      upsertPoint,
       valueFromY,
     ],
   );
@@ -237,13 +255,20 @@ export function AutomationLaneEditor() {
     const onMove = (e: MouseEvent) => {
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
-      const my = e.clientY - rect.top;
-      upsertPoint(openTrackId, activeParamId, {
-        tick: dragTick,
-        value: valueFromY(my),
-      });
+      const value = valueFromY(e.clientY - rect.top);
+      dragValueRef.current = value;
+      setDragValue(value);
     };
-    const onUp = () => setDragTick(null);
+    const onUp = () => {
+      const value = dragValueRef.current;
+      dragValueRef.current = null;
+      setDragTick(null);
+      setDragValue(null);
+      if (value === null) return;
+      withTransaction('Edit automation', () =>
+        upsertPoint(openTrackId, activeParamId, { tick: dragTick, value }),
+      );
+    };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     return () => {

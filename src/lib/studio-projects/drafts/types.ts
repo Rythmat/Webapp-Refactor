@@ -101,11 +101,26 @@ export interface DraftMediaRef {
   samplerSampleIds: string[];
 }
 
-/** Where a lesson or practice screen stood (milestone 1.15). */
+/**
+ * Where a lesson or practice screen stood (milestone 1.15). Every write of
+ * the live draft records it from the session (draftContext.ts), and only
+ * opening this same draft again puts it back: a refresh, a resume, Restore
+ * of kept work, the draft from Projects. Every other open starts without
+ * one. Never in the body or the cloud copy, so nobody else who opens the
+ * project lands in this student's lesson.
+ */
 export interface DraftContext {
+  /** The lesson running, at its step. */
   tutorial?: { id: string; stepIndex: number };
+  /**
+   * The practice screen's session (the editor's PracticeSession, the
+   * student's track id inside it), checked again when it is restored.
+   */
   practiceSession?: unknown;
-  studentTrackId?: string;
+  /** What the practice keyboard showed (the editor's PracticeKeyboard). */
+  practiceKeyboard?: unknown;
+  /** The view the body can't reopen by itself: 'practice'. */
+  view?: string;
 }
 
 /** What a writer stamps on each write: its build and its writer document. */

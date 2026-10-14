@@ -6,6 +6,7 @@ import { ResilientAuth0Cache } from './auth/resilientAuth0Cache.ts';
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx';
 import { Env } from './constants/env.ts';
 import { AuthRoutes } from './constants/routes.ts';
+import { installChunkReload } from './lib/chunkReload.ts';
 import './index.css';
 import './styles/appTheme.css';
 
@@ -46,6 +47,9 @@ try {
   renderStartupError(message);
   throw caught;
 }
+
+// A lazy part that fails to load after a deploy: save open work, reload once.
+installChunkReload();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

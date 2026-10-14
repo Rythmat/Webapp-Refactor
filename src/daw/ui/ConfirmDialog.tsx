@@ -24,6 +24,11 @@ export interface ConfirmDialogProps {
   onConfirm(): void;
   /** Cancel, Escape or closing any other way. */
   onCancel?(): void;
+  /**
+   * A second way through, between Cancel and the action ('Overwrite' beside
+   * 'Save as a copy'): a secondary button that closes the dialog too.
+   */
+  alternative?: { label: string; onSelect(): void };
 }
 
 /**
@@ -44,6 +49,7 @@ export function ConfirmDialog({
   danger = false,
   onConfirm,
   onCancel,
+  alternative,
 }: ConfirmDialogProps) {
   const confirmRef = useRef<HTMLButtonElement>(null);
   // Set when the action is chosen, so the close that follows is not also
@@ -89,10 +95,23 @@ export function ConfirmDialog({
           >
             {description}
           </AlertDialogPrimitive.Description>
-          <div className="mt-5 flex justify-end gap-2">
+          <div className="mt-5 flex flex-wrap justify-end gap-2">
             <AlertDialogPrimitive.Cancel asChild>
               <Button variant="secondary">{cancelLabel}</Button>
             </AlertDialogPrimitive.Cancel>
+            {alternative ? (
+              <AlertDialogPrimitive.Action asChild>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    confirmed.current = true;
+                    alternative.onSelect();
+                  }}
+                >
+                  {alternative.label}
+                </Button>
+              </AlertDialogPrimitive.Action>
+            ) : null}
             <AlertDialogPrimitive.Action asChild>
               <Button
                 ref={confirmRef}

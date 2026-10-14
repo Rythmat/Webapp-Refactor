@@ -5,7 +5,8 @@
  * pre-populated with the right blocks (media / side-media / launch-tile pill)
  * and a layout tuned for that content type.
  *
- * Pure + React-free (like `songSession.ts`) so it unit-tests without a tree.
+ * Pure + React-free (like the Cortex lesson builder, `cortex/buildDeck.ts`)
+ * so it unit-tests without a tree.
  *
  * Derived body copy is no longer filtered line-by-line: the publish firewall
  * matches teacher-only object KEYS exactly, so a content VALUE can never make

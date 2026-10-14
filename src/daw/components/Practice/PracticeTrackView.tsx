@@ -4,8 +4,16 @@ import { ALL_MODES, DEGREES, MODE_DISPLAY, noteNameInKey } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyName } from '@/daw/components/Library/chordInKey';
 import { useStore } from '@/daw/store';
+import { usePlayheadSelector } from '@/daw/engine/playheadClock';
+import { PRACTICE_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { requestRecord } from '@/daw/commands/requestRecord';
-import type { PracticeSession } from '@/daw/store/uiSlice';
+import { setPracticeLiveTrack } from '@/daw/midi/liveTarget';
+import { usePointerNotes } from '@/daw/midi/usePointerNotes';
+import type {
+  PracticeKeyboardView,
+  PracticeSession,
+} from '@/daw/store/uiSlice';
 import {
   displayAccidentals,
   displayDegree,
@@ -23,7 +31,10 @@ import { switchGenrePracticeTrack } from '@/features/practiceTracks/genre/openGe
 import { keyboardWindow } from '@/features/practiceTracks/genre/practiceKeyboard';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { PracticeHeader } from '@/daw/shell/topbar/PracticeHeader';
+import { useContinuousControl } from '@/daw/hooks/useContinuousControl';
+import { previewTempo } from '@/daw/hooks/useTransport';
 import { ChordChart } from './ChordChart';
+import { practiceStudentTrack } from './practiceStudentTrack';
 import { ScaleKeyboard, type KeyboardScale } from './ScaleKeyboard';
 import { SegmentedToggle } from './SegmentedToggle';
 
@@ -42,6 +53,12 @@ import { SegmentedToggle } from './SegmentedToggle';
  * its scales, prompts and keyboard already worked out, because its backing was
  * generated once and cannot be re-derived. What the screen does with either is
  * the same, so the two differ only in where the answers come from.
+ *
+ * Everything the student plays here — the keys on screen, the computer
+ * keyboard, a MIDI keyboard — sounds on and records into the session's own
+ * student track (liveTarget.ts), and the take feedback reads that track. The
+ * session, the keyboard's view and scale, and the screen itself come back
+ * after a refresh with the draft (milestone 1.15).
  */
 interface PracticeTrackViewProps {
   session: PracticeSession;
@@ -59,7 +76,7 @@ const ROOT_POSITION = { id: 'root', label: 'Root Position' };
 const BASS_FLOOR_FALLBACK = 40;
 
 /** What the keyboard lights. */
-type KeyboardView = 'chords' | 'bass' | 'scales';
+type KeyboardView = PracticeKeyboardView;
 const BASS_TRACK_VIEWS = [
   { id: 'bass', label: 'Bass Notes' },
   { id: 'scales', label: 'Scales' },
@@ -85,17 +102,31 @@ export function PracticeTrackView({
   const mode = useStore((s) => s.mode);
   const chordRegions = useStore((s) => s.chordRegions);
   const bpm = useStore((s) => s.bpm);
-  const position = useStore((s) => s.position);
+  // The tempo slider is heard as it moves and written once, on release.
+  const tempo = useContinuousControl({
+    value: bpm,
+    preview: previewTempo,
+    commit: (value) => useStore.getState().setBpm(value),
+    label: 'Change tempo',
+  });
   const isPlaying = useStore((s) => s.isPlaying);
   const isRecording = useStore((s) => s.isRecording);
   const isCountingIn = useStore((s) => s.isCountingIn);
   const loopEnabled = useStore((s) => s.loopEnabled);
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
-  const openTrack = useStore((s) =>
-    s.tracks.find((t) => t.id === s.selectedTrackId),
-  );
-  const { play, pause, stop, setBpm, toggleLoop, setCurrentView } =
+  // The student's own track, whatever the Studio has selected since.
+  const studentTrack = useStore((s) => practiceStudentTrack(s, session));
+  const studentTrackId = studentTrack?.id ?? null;
+  const practiceKeyboard = useStore((s) => s.practiceKeyboard);
+  const { play, pause, stop, toggleLoop, setCurrentView, setPracticeKeyboard } =
     useStore.getState();
+
+  // While the screen shows, every live note and take goes to that track.
+  useEffect(() => {
+    setPracticeLiveTrack(studentTrackId);
+    return () => setPracticeLiveTrack(null);
+  }, [studentTrackId]);
+  const pressKey = usePointerNotes();
 
   const genre = session.kind === 'genre' ? session : null;
 
@@ -149,9 +180,10 @@ export function PracticeTrackView({
     ];
   }, [genre, theory, mode, rootNote, tonic]);
 
-  const [activeScaleId, setActiveScaleId] = useState(scales[0]?.id ?? '');
-  useEffect(() => setActiveScaleId(scales[0]?.id ?? ''), [scales]);
-  const activeScale = scales.find((s) => s.id === activeScaleId) ?? scales[0];
+  // The student's pick, kept in the store so a trip to the Studio or a
+  // refresh keeps it; else the level's default.
+  const activeScale =
+    scales.find((s) => s.id === practiceKeyboard?.scaleId) ?? scales[0];
 
   const keyboard = genre?.keyboard ?? THEORY_KEYBOARD;
   // A scale on its own tonic (Latin L1's G major in an E minor level) lights
@@ -190,8 +222,13 @@ export function PracticeTrackView({
       : (genre ? genre.studentParts[0] === 'chords' : !playsMelody)
         ? 'chords'
         : 'scales';
-  const [view, setView] = useState<KeyboardView>(defaultView);
-  useEffect(() => setView(defaultView), [defaultView]);
+  const picked = practiceKeyboard?.view ?? null;
+  const view: KeyboardView =
+    picked !== null &&
+    (views ? views.some((option) => option.id === picked) : false)
+      ? picked
+      : defaultView;
+  const setView = (next: KeyboardView) => setPracticeKeyboard({ view: next });
 
   const task = useMemo(() => {
     if (!genre) {
@@ -321,19 +358,25 @@ export function PracticeTrackView({
   }, [cycleVoicings, keyboard]);
 
   /**
+   * Which chord of the cycle the playhead is in (-1 for none). Read from the
+   * playhead clock, so the screen renders when the chord changes, not on
+   * every frame of playback (practice-tutorial-01).
+   */
+  const heardIndex = usePlayheadSelector((tick) => {
+    const withinCycle = cycleTicks > 0 ? tick % cycleTicks : tick;
+    return cycleRegions.findIndex(
+      (r) => withinCycle >= r.startTick && withinCycle < r.endTick,
+    );
+  });
+
+  /**
    * The chord sounding now. Before Play it is the chord the playhead is parked
    * on, so the first chord is lit and waiting.
    */
   const chordNow = useMemo<(KeyboardScale & { tonic: number }) | null>(() => {
     if (!cycleVoicings) return null;
-    const withinCycle = cycleTicks > 0 ? position % cycleTicks : position;
     const now =
-      cycleVoicings.find(
-        (v) =>
-          v !== null &&
-          withinCycle >= v.region.startTick &&
-          withinCycle < v.region.endTick,
-      ) ?? cycleVoicings.find((v) => v !== null);
+      cycleVoicings[heardIndex] ?? cycleVoicings.find((v) => v !== null);
     if (!now) return null;
     const lowest = now.notes[0];
     return {
@@ -344,7 +387,7 @@ export function PracticeTrackView({
       degrees: now.degrees,
       names: now.names,
     };
-  }, [cycleVoicings, cycleTicks, position]);
+  }, [cycleVoicings, heardIndex]);
 
   // Playing the chords makes the chart the thing to read, so its boxes are big;
   // improvising makes it context, and it sits small under the keyboard. Either
@@ -352,11 +395,12 @@ export function PracticeTrackView({
   // moves, because the keys are what a player always has to be able to see.
   const chartLarge = genre ? !playsMelody || twoHands : !playsMelody;
 
-  const takeNotes = (openTrack?.midiClips ?? []).reduce(
+  const takeNotes = (studentTrack?.midiClips ?? []).reduce(
     (count, clip) => count + clip.events.length,
     0,
   );
-  const openTrackLabel = openTrack?.name ?? (playsMelody ? 'Melody' : 'Chords');
+  const studentTrackLabel =
+    studentTrack?.name ?? (playsMelody ? 'Melody' : 'Chords');
 
   // ── Transport ─────────────────────────────────────────────────────────────
 
@@ -379,31 +423,32 @@ export function PracticeTrackView({
     else requestRecord(isReady ? undefined : onInit);
   }, [isCountingIn, isRecording, isReady, onInit, stop]);
 
-  // Space plays and pauses, as it does in the full Studio.
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.code !== 'Space') return;
-      const target = event.target as HTMLElement | null;
-      if (target?.closest('input, textarea, select, [contenteditable]')) return;
-      event.preventDefault();
-      // A held Space repeats keydown; it plays or pauses once.
-      if (event.repeat) return;
-      togglePlay();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [togglePlay]);
+  // The practice screen's keys (the practice scope): Space and R run this
+  // screen's transport, which starts the audio first if it isn't yet; R
+  // stops a take as well as starting one. Only Save, loop, Escape (stop),
+  // '?' and the computer keyboard get through from the rest of the editor:
+  // nothing else this screen doesn't show can change.
+  useKeymap(PRACTICE_SCOPE.id, {
+    'practice.playPause': togglePlay,
+    'practice.record': toggleRecord,
+  });
 
+  // Leaving for the lesson ends the practice screen: the draft keeps the
+  // tracks, and the editor opens on Create next time, as Quit does for a
+  // Studio lesson.
   const backToLesson = () => {
     stop();
-    navigate(
+    const lesson =
       session.kind === 'genre'
         ? session.returnTo
         : LearnRoutes.lesson({
             mode: session.mode,
             key: session.rootParam,
-          }),
-    );
+          });
+    const store = useStore.getState();
+    store.setPracticeSession(null);
+    store.setCurrentView('arrange');
+    navigate(lesson);
   };
 
   const transport = (
@@ -451,11 +496,15 @@ export function PracticeTrackView({
             type="range"
             min={TEMPO_MIN}
             max={TEMPO_MAX}
-            value={bpm}
-            onChange={(e) => setBpm(Number(e.target.value))}
+            value={tempo.value}
+            onChange={(e) => tempo.change(Number(e.target.value))}
+            onPointerDown={tempo.begin}
+            onPointerUp={tempo.end}
             aria-label="Tempo"
           />
-          <span className="w-16 tabular-nums">{Math.round(bpm)} BPM</span>
+          <span className="w-16 tabular-nums">
+            {Math.round(tempo.value)} BPM
+          </span>
         </label>
         {genre?.styles && genre.styles.length > 1 && (
           <label className="flex items-center gap-2 text-sm">
@@ -501,8 +550,8 @@ export function PracticeTrackView({
 
       <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
         {takeNotes > 0 && !isRecording
-          ? `Your take is on the ${openTrackLabel} track. Take it to the Studio to hear or edit it.`
-          : `Play along on your MIDI keyboard; the ${view === 'bass' ? 'bass note is lit on the keyboard' : view === 'chords' ? 'chord to play is lit on the keyboard' : 'scale notes are lit on the keyboard'}.`}
+          ? `Your take is on the ${studentTrackLabel} track. Take it to the Studio to hear or edit it.`
+          : `Play along on these keys, your computer keyboard or a MIDI keyboard; the ${view === 'bass' ? 'bass note is lit on the keyboard' : view === 'chords' ? 'chord to play is lit on the keyboard' : 'scale notes are lit on the keyboard'}.`}
       </p>
     </>
   );
@@ -525,6 +574,7 @@ export function PracticeTrackView({
       startC={chordKeyboard?.startC ?? keyboard.startC}
       endC={chordKeyboard?.endC ?? keyboard.endC}
       heldNotes={hwActiveNotes}
+      onKeyPointerDown={pressKey}
       fitWithin={rootRef}
       fitAnchor={chartRef}
       onScaleChange={() => {}}
@@ -550,9 +600,10 @@ export function PracticeTrackView({
       startC={keyboard.startC}
       endC={keyboard.endC}
       heldNotes={hwActiveNotes}
+      onKeyPointerDown={pressKey}
       fitWithin={rootRef}
       fitAnchor={chartRef}
-      onScaleChange={(next) => setActiveScaleId(next.id)}
+      onScaleChange={(next) => setPracticeKeyboard({ scaleId: next.id })}
       controls={viewSwitch}
     />
   ) : null;
@@ -561,8 +612,7 @@ export function PracticeTrackView({
     <div ref={chartRef} className="flex w-full justify-center">
       <ChordChart
         regions={cycleRegions}
-        cycleTicks={cycleTicks}
-        position={position}
+        nowIndex={heardIndex}
         isPlaying={isPlaying}
         large={chartLarge}
         keyRootPc={rootNote}

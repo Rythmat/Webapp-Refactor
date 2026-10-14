@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { ProjectsDialog } from './ProjectsDialog';
+import { ProjectsDialogPart } from '@/daw/shell/lazyParts';
+import { useOpenedOnce } from '@/daw/shell/lazyPart';
 import { useProjectsDialogStore } from './useProjectsDialogStore';
 
 // ── Where the Projects dialog lives (milestone 1.4) ────────────────────────
@@ -14,7 +15,8 @@ import { useProjectsDialogStore } from './useProjectsDialogStore';
 // (components/ui/dialog.tsx). Focus goes back to that trigger on close.
 // A Radix menu can stay mounted (state 'closed') past that tick with focus
 // still on its item, so the dialog would hand focus back to a dead menu
-// item: the menu's trigger takes focus first (menuOpener).
+// item: the menu's trigger takes focus first (menuOpener). The dialog's
+// code loads when it is first opened (milestone 1.12a).
 
 /**
  * When focus sits in a Radix menu, that menu's trigger (named by the
@@ -60,8 +62,10 @@ export function ProjectsDialogHost() {
     [close],
   );
 
+  const opened = useOpenedOnce(open);
+  if (!opened) return null;
   return (
-    <ProjectsDialog
+    <ProjectsDialogPart
       open={open && shown}
       onOpenChange={onOpenChange}
       sortBy={sortBy}

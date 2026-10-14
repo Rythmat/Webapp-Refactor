@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { useStore, type AllSlices } from '@/daw/store';
+import { getPlayheadTick } from '@/daw/engine/playheadClock';
 
 // ── requestRecord ───────────────────────────────────────────────────────────
 // The one way to start a recording: the Record button and the R key both call
@@ -42,17 +43,18 @@ function startTake(beforeStart?: () => void) {
  * Whether a take started now could record over existing audio: the armed
  * audio track (the first one, as the recorder picks it) has a clip that ends
  * after the playhead, where the take would begin. While recording or counting
- * in, nothing new starts, so there is nothing to ask.
+ * in, nothing new starts, so there is nothing to ask. `at` is where the take
+ * would begin: the live playhead, which while playing is past the store's
+ * parked position.
  */
 export function wouldRecordOverTake(
   state: AllSlices = useStore.getState(),
+  at: number = getPlayheadTick(),
 ): boolean {
   if (state.isRecording || state.isCountingIn) return false;
   const armed = armedAudioTrack(state);
   if (!armed) return false;
-  return armed.audioClips.some(
-    (clip) => clip.startTick + clip.duration > state.position,
-  );
+  return armed.audioClips.some((clip) => clip.startTick + clip.duration > at);
 }
 
 /**

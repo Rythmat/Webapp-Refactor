@@ -14,9 +14,15 @@ import { ChevronDown, X, Mic, Maximize2, Lock, Unlock } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { RATE_LABELS } from '@/daw/audio/pedals/PhaserPedal';
 import { useStore } from '@/daw/store';
+import { paintInputBar, useMeterPaint } from '@/daw/hooks/useMeterLevel';
 import type { AudioInputChannel } from '@/daw/store/tracksSlice';
 import { TunerDisplay } from './TunerDisplay';
 import { RotaryKnob } from './RotaryKnob';
+import {
+  ControlGestureContext,
+  useSaveOnRelease,
+} from '@/daw/hooks/useContinuousControl';
+import { withoutHistory } from '@/daw/store/history';
 import { PitchMeter } from './PitchMeter';
 import {
   retuneMs,
@@ -461,6 +467,15 @@ const DEFAULT_INPUT_CHANNEL: AudioInputChannel = { mode: 'mono', channel: 0 };
 // The engine registers a track's adapter before its init resolves and hands
 // it to the track engine after, right before it notifies engine-ready, so
 // reading it from the track engine means built and ready.
+/** The chain as the track stores it: the view's blocks without their ids. */
+function storedVocalChain(chain: PedalBlock[]) {
+  return chain.map((b) => ({
+    type: b.type,
+    enabled: b.enabled,
+    params: b.params,
+  }));
+}
+
 function getAdapter(trackId: string): VocalFxAdapter | null {
   const instrument = getTrackAudioState(trackId)?.trackEngine.getInstrument();
   return instrument instanceof VocalFxAdapter ? instrument : null;
@@ -495,7 +510,6 @@ export function VocalView({ trackId }: { trackId: string }) {
   // how a student retries an input that failed to open or went away, and it
   // can leave the store unchanged, so the input effect also runs on a pick.
   const [devicePicks, setDevicePicks] = useState(0);
-  const meterRafRef = useRef(0);
   const meterBarRef = useRef<HTMLDivElement>(null);
 
   // Signal chain state
@@ -586,17 +600,29 @@ export function VocalView({ trackId }: { trackId: string }) {
     }
   }, [adapter, chain, bpm]);
 
-  // Persist chain to store so it survives VocalView unmount/remount
-  useEffect(() => {
-    useStore.getState().setVocalChain(
-      trackId,
-      chain.map((b) => ({
-        type: b.type,
-        enabled: b.enabled,
-        params: b.params,
-      })),
-    );
-  }, [chain, trackId]);
+  // Persist chain to store so it survives VocalView unmount/remount: at once
+  // after a click, and once on release after a knob or slider drag, which
+  // the pedals follow as it moves.
+  const chainGesture = useSaveOnRelease({
+    value: chain,
+    isSaved: (c) =>
+      JSON.stringify(storedVocalChain(c)) ===
+      JSON.stringify(
+        useStore.getState().tracks.find((t) => t.id === trackId)?.vocalChain,
+      ),
+    save: (c) => {
+      const write = () =>
+        useStore.getState().setVocalChain(trackId, storedVocalChain(c));
+      // A track that never had a chain gets the view's first one: filling
+      // it in is bookkeeping, not an edit to undo.
+      const had = useStore
+        .getState()
+        .tracks.find((t) => t.id === trackId)?.vocalChain;
+      if (had === undefined) withoutHistory(write);
+      else write();
+    },
+    label: 'Change vocal effect',
+  });
 
   // Sync global rootNote → pitch correction block's rootNote param
   // pcBlockId in deps ensures sync fires when a PC block is added after the root is already set
@@ -656,26 +682,13 @@ export function VocalView({ trackId }: { trackId: string }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Input level metering loop
-  useEffect(() => {
-    let lastUpdate = 0;
-    const tick = (now: number) => {
-      if (now - lastUpdate >= 66) {
-        const adapter = getAdapter(trackId);
-        if (adapter && meterBarRef.current) {
-          const rms = adapter.getInputLevel();
-          const pct = Math.min(100, Math.round(rms * 400));
-          meterBarRef.current.style.width = `${pct}%`;
-          meterBarRef.current.style.backgroundColor =
-            pct > 90 ? '#ef4444' : 'var(--color-accent)';
-        }
-        lastUpdate = now;
-      }
-      meterRafRef.current = requestAnimationFrame(tick);
-    };
-    meterRafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(meterRafRef.current);
-  }, [trackId]);
+  // Input level: painted from the meter bus, which reads this input only
+  // while it is monitored or recording, or while it still shows a level
+  // (an idle probe catches a signal). The bar is the true peak in dBFS and
+  // turns red when a sample reaches full scale.
+  useMeterPaint(`input:${trackId}`, (levels) =>
+    paintInputBar(meterBarRef.current, levels),
+  );
 
   // ── Chain manipulation callbacks ──────────────────────────────────────
 
@@ -837,92 +850,43 @@ export function VocalView({ trackId }: { trackId: string }) {
         : modeGradBlack(pitchRootNote, pitchModeKey);
 
   return (
-    <div className="flex h-full">
-      {/* ── Input Section ──────────────────────────────────── */}
-      <div
-        className="w-[240px] shrink-0 p-4 flex flex-col gap-3 border-r"
-        style={{ borderColor: 'var(--color-border)' }}
-      >
-        <span
-          className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+    <ControlGestureContext.Provider value={chainGesture}>
+      <div className="flex h-full">
+        {/* ── Input Section ──────────────────────────────────── */}
+        <div
+          className="w-[240px] shrink-0 p-4 flex flex-col gap-3 border-r"
+          style={{ borderColor: 'var(--color-border)' }}
         >
-          Input
-        </span>
-
-        {/* Device dropdown */}
-        <div style={{ position: 'relative' }}>
-          <div
-            onClick={() => setShowDeviceMenu((v) => !v)}
-            className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
-            style={{
-              backgroundColor: 'var(--color-surface-2)',
-              border: '1px solid var(--color-border)',
-            }}
+          <span
+            className="text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--color-text-dim)' }}
           >
-            <span
-              className="text-xs truncate"
-              style={{ color: 'var(--color-text)' }}
-            >
-              {selectedDeviceLabel}
-            </span>
-            <ChevronDown
-              size={14}
-              className="shrink-0 ml-2"
-              style={{ color: 'var(--color-text-dim)' }}
-            />
-          </div>
-          {showDeviceMenu && (
-            <div
-              className="absolute left-0 right-0 rounded-lg overflow-hidden z-50"
-              style={{
-                top: '100%',
-                marginTop: 2,
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
-                maxHeight: 200,
-                overflowY: 'auto',
-              }}
-            >
-              {devices.map((d) => (
-                <div
-                  key={d.id}
-                  onClick={() => handleSelectDevice(d.id)}
-                  className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10 truncate"
-                  style={{
-                    color:
-                      d.id === globalInputDeviceId
-                        ? 'var(--color-accent)'
-                        : 'var(--color-text)',
-                  }}
-                >
-                  {d.label}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+            Input
+          </span>
 
-        {/* Channel dropdown */}
-        {globalInputDeviceId && (
+          {/* Device dropdown */}
           <div style={{ position: 'relative' }}>
             <div
-              onClick={() => setShowChannelMenu((v) => !v)}
+              onClick={() => setShowDeviceMenu((v) => !v)}
               className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
               style={{
                 backgroundColor: 'var(--color-surface-2)',
                 border: '1px solid var(--color-border)',
               }}
             >
-              <span className="text-xs" style={{ color: 'var(--color-text)' }}>
-                {channelLabel}
+              <span
+                className="text-xs truncate"
+                style={{ color: 'var(--color-text)' }}
+              >
+                {selectedDeviceLabel}
               </span>
               <ChevronDown
                 size={14}
+                className="shrink-0 ml-2"
                 style={{ color: 'var(--color-text-dim)' }}
               />
             </div>
-            {showChannelMenu && (
+            {showDeviceMenu && (
               <div
                 className="absolute left-0 right-0 rounded-lg overflow-hidden z-50"
                 style={{
@@ -930,351 +894,482 @@ export function VocalView({ trackId }: { trackId: string }) {
                   marginTop: 2,
                   backgroundColor: 'var(--color-surface-2)',
                   border: '1px solid var(--color-border)',
+                  maxHeight: 200,
+                  overflowY: 'auto',
                 }}
               >
-                {channelOptions.map((opt) => (
+                {devices.map((d) => (
                   <div
-                    key={opt.label}
-                    onClick={() => handleSelectChannel(opt.config)}
-                    className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10"
+                    key={d.id}
+                    onClick={() => handleSelectDevice(d.id)}
+                    className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10 truncate"
                     style={{
-                      color: configsMatch(opt.config, inputChannel)
-                        ? 'var(--color-accent)'
-                        : 'var(--color-text)',
+                      color:
+                        d.id === globalInputDeviceId
+                          ? 'var(--color-accent)'
+                          : 'var(--color-text)',
                     }}
                   >
-                    {opt.label}
+                    {d.label}
                   </div>
                 ))}
               </div>
             )}
           </div>
-        )}
 
-        {/* Input level */}
-        <div className="flex items-center gap-3">
-          <span
-            className="text-[10px] shrink-0"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            Input Level
-          </span>
-          <div
-            className="flex-1 h-1.5 rounded-full"
-            style={{ backgroundColor: 'var(--color-surface-3)' }}
-          >
+          {/* Channel dropdown */}
+          {globalInputDeviceId && (
+            <div style={{ position: 'relative' }}>
+              <div
+                onClick={() => setShowChannelMenu((v) => !v)}
+                className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
+                style={{
+                  backgroundColor: 'var(--color-surface-2)',
+                  border: '1px solid var(--color-border)',
+                }}
+              >
+                <span
+                  className="text-xs"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  {channelLabel}
+                </span>
+                <ChevronDown
+                  size={14}
+                  style={{ color: 'var(--color-text-dim)' }}
+                />
+              </div>
+              {showChannelMenu && (
+                <div
+                  className="absolute left-0 right-0 rounded-lg overflow-hidden z-50"
+                  style={{
+                    top: '100%',
+                    marginTop: 2,
+                    backgroundColor: 'var(--color-surface-2)',
+                    border: '1px solid var(--color-border)',
+                  }}
+                >
+                  {channelOptions.map((opt) => (
+                    <div
+                      key={opt.label}
+                      onClick={() => handleSelectChannel(opt.config)}
+                      className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10"
+                      style={{
+                        color: configsMatch(opt.config, inputChannel)
+                          ? 'var(--color-accent)'
+                          : 'var(--color-text)',
+                      }}
+                    >
+                      {opt.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Input level */}
+          <div className="flex items-center gap-3">
+            <span
+              className="text-[10px] shrink-0"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              Input Level
+            </span>
             <div
-              ref={meterBarRef}
-              className="h-full rounded-full"
-              style={{ width: '0%', backgroundColor: 'var(--color-accent)' }}
-            />
+              className="flex-1 h-1.5 rounded-full"
+              style={{ backgroundColor: 'var(--color-surface-3)' }}
+            >
+              <div
+                ref={meterBarRef}
+                className="h-full rounded-full"
+                style={{ width: '0%', backgroundColor: 'var(--color-accent)' }}
+              />
+            </div>
+          </div>
+
+          {/* Tuner */}
+          <TunerDisplay deviceId={globalInputDeviceId} />
+        </div>
+
+        {/* ── Pedals Column ──────────────────────────────────── */}
+        <div
+          className="w-[130px] shrink-0 flex flex-col border-r"
+          style={{ borderColor: 'var(--color-border)' }}
+        >
+          <div
+            className="px-3 py-2 shrink-0 border-b"
+            style={{ borderColor: 'var(--color-border)' }}
+          >
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              Pedals
+            </span>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {(() => {
+              const categories = new Map<string, PedalDef[]>();
+              for (const def of PEDAL_CATALOG) {
+                const list = categories.get(def.category) ?? [];
+                list.push(def);
+                categories.set(def.category, list);
+              }
+              return Array.from(categories.entries()).map(
+                ([category, defs], ci) => (
+                  <div key={category}>
+                    {ci > 0 && (
+                      <div
+                        className="mx-3"
+                        style={{ borderTop: '1px solid var(--color-border)' }}
+                      />
+                    )}
+                    <div
+                      className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--color-text-dim)' }}
+                    >
+                      {category}
+                    </div>
+                    {defs.map((def) => (
+                      <button
+                        key={def.type}
+                        onClick={() => addBlock(def.type)}
+                        className="flex items-center gap-2 w-full text-left px-3 py-1.5 cursor-pointer hover:bg-white/10"
+                        style={{ border: 'none', background: 'none' }}
+                      >
+                        <div
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ backgroundColor: def.color }}
+                        />
+                        <span
+                          className="text-[11px]"
+                          style={{ color: 'var(--color-text)' }}
+                        >
+                          {def.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ),
+              );
+            })()}
           </div>
         </div>
 
-        {/* Tuner */}
-        <TunerDisplay deviceId={globalInputDeviceId} />
-      </div>
-
-      {/* ── Pedals Column ──────────────────────────────────── */}
-      <div
-        className="w-[130px] shrink-0 flex flex-col border-r"
-        style={{ borderColor: 'var(--color-border)' }}
-      >
-        <div
-          className="px-3 py-2 shrink-0 border-b"
-          style={{ borderColor: 'var(--color-border)' }}
-        >
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            Pedals
-          </span>
-        </div>
-        <div className="flex-1 overflow-y-auto">
+        {/* ── Signal Chain ─────────────────────────────────────── */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Chain row */}
           {(() => {
-            const categories = new Map<string, PedalDef[]>();
-            for (const def of PEDAL_CATALOG) {
-              const list = categories.get(def.category) ?? [];
-              list.push(def);
-              categories.set(def.category, list);
-            }
-            return Array.from(categories.entries()).map(
-              ([category, defs], ci) => (
-                <div key={category}>
-                  {ci > 0 && (
-                    <div
-                      className="mx-3"
-                      style={{ borderTop: '1px solid var(--color-border)' }}
-                    />
-                  )}
-                  <div
-                    className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
+            // Empty slot for inserting a pedal at a specific chain index
+            const EmptySlot = ({ chainIdx }: { chainIdx: number }) => (
+              <div
+                onClick={() =>
+                  setInsertSlotIndex((prev) =>
+                    prev === chainIdx ? null : chainIdx,
+                  )
+                }
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOverSlot(chainIdx);
+                }}
+                onDragLeave={() => setDragOverSlot(null)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOverSlot(null);
+                  if (!draggedBlockId) return;
+                  const fromIdx = chain.findIndex(
+                    (b) => b.id === draggedBlockId,
+                  );
+                  if (fromIdx < 0) return;
+                  const toIdx = chainIdx > fromIdx ? chainIdx - 1 : chainIdx;
+                  if (fromIdx !== toIdx) reorderBlock(fromIdx, toIdx);
+                  setDraggedBlockId(null);
+                }}
+                className="relative flex items-center justify-center shrink-0 cursor-pointer rounded-xl"
+                style={{
+                  width: 40,
+                  height: 68,
+                  border:
+                    insertSlotIndex === chainIdx || dragOverSlot === chainIdx
+                      ? '2px solid var(--color-accent)'
+                      : '2px dashed rgba(255,255,255,0.15)',
+                  backgroundColor:
+                    dragOverSlot === chainIdx
+                      ? 'rgba(126,207,207,0.08)'
+                      : 'transparent',
+                  transition:
+                    'border-color 150ms ease, background-color 150ms ease',
+                  zIndex: 1,
+                }}
+              >
+                <span
+                  style={{
+                    color:
+                      insertSlotIndex === chainIdx
+                        ? 'var(--color-accent)'
+                        : 'rgba(255,255,255,0.25)',
+                    fontSize: 18,
+                  }}
+                >
+                  +
+                </span>
+              </div>
+            );
+
+            return (
+              <div
+                className="relative flex items-center border-b flex-1 min-h-0"
+                style={{ borderColor: 'var(--color-border)' }}
+              >
+                {/* Continuous line from In to Out */}
+                <div
+                  className="absolute"
+                  style={{
+                    top: '50%',
+                    left: 16,
+                    right: 16,
+                    height: 1,
+                    backgroundColor: 'rgba(255,255,255,0.12)',
+                    zIndex: 0,
+                  }}
+                />
+
+                {/* In: Mic icon + label */}
+                <div
+                  className="flex flex-col items-center gap-0.5 shrink-0 pl-4 relative"
+                  style={{ zIndex: 1 }}
+                >
+                  <Mic
+                    size={22}
+                    strokeWidth={1.5}
+                    style={{ color: 'var(--color-text-dim)' }}
+                  />
+                  <span
+                    className="text-[9px] font-semibold uppercase tracking-wider"
                     style={{ color: 'var(--color-text-dim)' }}
                   >
-                    {category}
-                  </div>
-                  {defs.map((def) => (
-                    <button
-                      key={def.type}
-                      onClick={() => addBlock(def.type)}
-                      className="flex items-center gap-2 w-full text-left px-3 py-1.5 cursor-pointer hover:bg-white/10"
-                      style={{ border: 'none', background: 'none' }}
-                    >
-                      <div
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: def.color }}
-                      />
-                      <span
-                        className="text-[11px]"
-                        style={{ color: 'var(--color-text)' }}
-                      >
-                        {def.name}
-                      </span>
-                    </button>
-                  ))}
+                    In
+                  </span>
                 </div>
-              ),
+
+                {/* Scrollable pedals section — centered */}
+                <div
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-5 overflow-x-auto"
+                  style={{ zIndex: 1 }}
+                >
+                  {/* First empty slot */}
+                  <EmptySlot chainIdx={0} />
+
+                  {chain.map((block) => {
+                    const def = getPedalDef(block.type);
+                    const blockColor =
+                      block.type === 'pitch-correction'
+                        ? (block.params.rootNote ?? -1) === -1
+                          ? '#ffffff'
+                          : rootNoteColor(block.params.rootNote ?? 0)
+                        : def.color;
+                    const isSelected = block.id === selectedBlockId;
+                    const isDragged = block.id === draggedBlockId;
+                    const chainIdx = chain.indexOf(block);
+                    return (
+                      <Fragment key={block.id}>
+                        <div
+                          draggable
+                          onDragStart={() => setDraggedBlockId(block.id)}
+                          onDragEnd={() => {
+                            setDraggedBlockId(null);
+                            setDragOverSlot(null);
+                          }}
+                          onClick={() => setSelectedBlockId(block.id)}
+                          className="relative flex flex-col items-center justify-center shrink-0 cursor-grab rounded-xl"
+                          style={{
+                            width: 68,
+                            height: 68,
+                            backgroundColor: 'rgba(255,255,255,0.03)',
+                            border: `2px solid ${blockColor}`,
+                            opacity: isDragged ? 0.4 : block.enabled ? 1 : 0.35,
+                            boxShadow: isSelected
+                              ? `0 0 10px ${blockColor}40`
+                              : 'none',
+                            transition:
+                              'opacity 150ms ease, box-shadow 150ms ease',
+                            zIndex: 1,
+                          }}
+                        >
+                          <PedalIcon
+                            type={block.type}
+                            size={28}
+                            color={blockColor}
+                          />
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleBlock(block.id);
+                            }}
+                            className="absolute cursor-pointer rounded-full"
+                            style={{
+                              bottom: 5,
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              width: 7,
+                              height: 7,
+                              backgroundColor: block.enabled
+                                ? '#22c55e'
+                                : 'rgba(255,255,255,0.12)',
+                              boxShadow: block.enabled
+                                ? '0 0 4px #22c55e80'
+                                : 'none',
+                            }}
+                          />
+                        </div>
+                        {/* Empty slot after this pedal */}
+                        <EmptySlot chainIdx={chainIdx + 1} />
+                      </Fragment>
+                    );
+                  })}
+                </div>
+
+                {/* Out label */}
+                <div
+                  className="flex items-center shrink-0 pr-4 py-5"
+                  style={{ zIndex: 1 }}
+                >
+                  <span
+                    className="text-[9px] font-semibold uppercase tracking-wider shrink-0"
+                    style={{ color: 'var(--color-text-dim)' }}
+                  >
+                    Out
+                  </span>
+                </div>
+              </div>
             );
           })()}
-        </div>
-      </div>
 
-      {/* ── Signal Chain ─────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Chain row */}
-        {(() => {
-          // Empty slot for inserting a pedal at a specific chain index
-          const EmptySlot = ({ chainIdx }: { chainIdx: number }) => (
+          {/* Controls panel for selected block */}
+          {selectedBlock && selectedDef && (
             <div
-              onClick={() =>
-                setInsertSlotIndex((prev) =>
-                  prev === chainIdx ? null : chainIdx,
-                )
-              }
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragOverSlot(chainIdx);
-              }}
-              onDragLeave={() => setDragOverSlot(null)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setDragOverSlot(null);
-                if (!draggedBlockId) return;
-                const fromIdx = chain.findIndex((b) => b.id === draggedBlockId);
-                if (fromIdx < 0) return;
-                const toIdx = chainIdx > fromIdx ? chainIdx - 1 : chainIdx;
-                if (fromIdx !== toIdx) reorderBlock(fromIdx, toIdx);
-                setDraggedBlockId(null);
-              }}
-              className="relative flex items-center justify-center shrink-0 cursor-pointer rounded-xl"
-              style={{
-                width: 40,
-                height: 68,
-                border:
-                  insertSlotIndex === chainIdx || dragOverSlot === chainIdx
-                    ? '2px solid var(--color-accent)'
-                    : '2px dashed rgba(255,255,255,0.15)',
-                backgroundColor:
-                  dragOverSlot === chainIdx
-                    ? 'rgba(126,207,207,0.08)'
-                    : 'transparent',
-                transition:
-                  'border-color 150ms ease, background-color 150ms ease',
-                zIndex: 1,
-              }}
+              className="flex-1 overflow-y-auto"
+              style={{ backgroundColor: 'var(--color-surface)' }}
             >
-              <span
-                style={{
-                  color:
-                    insertSlotIndex === chainIdx
-                      ? 'var(--color-accent)'
-                      : 'rgba(255,255,255,0.25)',
-                  fontSize: 18,
-                }}
-              >
-                +
-              </span>
-            </div>
-          );
-
-          return (
-            <div
-              className="relative flex items-center border-b flex-1 min-h-0"
-              style={{ borderColor: 'var(--color-border)' }}
-            >
-              {/* Continuous line from In to Out */}
+              {/* Header */}
               <div
-                className="absolute"
-                style={{
-                  top: '50%',
-                  left: 16,
-                  right: 16,
-                  height: 1,
-                  backgroundColor: 'rgba(255,255,255,0.12)',
-                  zIndex: 0,
-                }}
-              />
-
-              {/* In: Mic icon + label */}
-              <div
-                className="flex flex-col items-center gap-0.5 shrink-0 pl-4 relative"
-                style={{ zIndex: 1 }}
+                className="flex items-center gap-2.5 px-4 py-1.5 border-b"
+                style={{ borderColor: 'var(--color-border)' }}
               >
-                <Mic
-                  size={22}
-                  strokeWidth={1.5}
-                  style={{ color: 'var(--color-text-dim)' }}
+                <div
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: selectedColor }}
                 />
                 <span
-                  className="text-[9px] font-semibold uppercase tracking-wider"
+                  className="text-[10px] font-semibold uppercase tracking-wider"
                   style={{ color: 'var(--color-text-dim)' }}
                 >
-                  In
+                  {selectedDef.category}
                 </span>
+                <span
+                  className="text-[13px] font-medium flex-1"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  {selectedDef.name}
+                </span>
+                <button
+                  onClick={() => removeBlock(selectedBlock.id)}
+                  className="p-1 cursor-pointer rounded-md"
+                  style={{
+                    color: 'var(--color-text-dim)',
+                    background: 'none',
+                    border: 'none',
+                  }}
+                >
+                  <X size={14} />
+                </button>
               </div>
 
-              {/* Scrollable pedals section — centered */}
-              <div
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-5 overflow-x-auto"
-                style={{ zIndex: 1 }}
-              >
-                {/* First empty slot */}
-                <EmptySlot chainIdx={0} />
-
-                {chain.map((block) => {
-                  const def = getPedalDef(block.type);
-                  const blockColor =
-                    block.type === 'pitch-correction'
-                      ? (block.params.rootNote ?? -1) === -1
-                        ? '#ffffff'
-                        : rootNoteColor(block.params.rootNote ?? 0)
-                      : def.color;
-                  const isSelected = block.id === selectedBlockId;
-                  const isDragged = block.id === draggedBlockId;
-                  const chainIdx = chain.indexOf(block);
-                  return (
-                    <Fragment key={block.id}>
-                      <div
-                        draggable
-                        onDragStart={() => setDraggedBlockId(block.id)}
-                        onDragEnd={() => {
-                          setDraggedBlockId(null);
-                          setDragOverSlot(null);
+              {/* Knobs / Controls */}
+              <div className="flex items-center justify-evenly flex-wrap px-4 py-3 flex-1">
+                {selectedBlock.type === 'pitch-correction' ? (
+                  /* ── Pitch Correction — Simple View + Expand ──── */
+                  <div className="flex items-center gap-4 w-full">
+                    {/* Root dropdown + lock */}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1">
+                        <span
+                          className="text-[9px] font-semibold uppercase tracking-wider"
+                          style={{
+                            color: 'var(--color-text-dim)',
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          Root
+                        </span>
+                        {(selectedBlock.params.rootNote ?? -1) >= 0 && (
+                          <button
+                            onClick={toggleRootLock}
+                            className="flex items-center justify-center cursor-pointer"
+                            style={{
+                              color: rootLocked
+                                ? 'var(--color-accent)'
+                                : 'var(--color-text-dim)',
+                              border: 'none',
+                              background: 'none',
+                              padding: 0,
+                            }}
+                            title={
+                              rootLocked ? 'Unlock root note' : 'Lock root note'
+                            }
+                          >
+                            {rootLocked ? (
+                              <Lock size={9} />
+                            ) : (
+                              <Unlock size={9} />
+                            )}
+                          </button>
+                        )}
+                      </div>
+                      <select
+                        value={selectedBlock.params.rootNote ?? -1}
+                        disabled={rootLocked}
+                        onChange={(e) => {
+                          const root = Number(e.target.value);
+                          updateBlockParam(selectedBlock.id, 'rootNote', root);
+                          if (root >= 0) {
+                            updateBlockParam(
+                              selectedBlock.id,
+                              'activeNotes',
+                              scaleToNotesBitmask(
+                                root,
+                                selectedBlock.params.scaleType ?? 0,
+                              ),
+                            );
+                            setGlobalRootNote(root);
+                          } else {
+                            updateBlockParam(selectedBlock.id, 'scaleType', 0);
+                            updateBlockParam(
+                              selectedBlock.id,
+                              'activeNotes',
+                              4095,
+                            );
+                          }
                         }}
-                        onClick={() => setSelectedBlockId(block.id)}
-                        className="relative flex flex-col items-center justify-center shrink-0 cursor-grab rounded-xl"
+                        className="text-[10px] rounded px-2 py-1"
                         style={{
-                          width: 68,
-                          height: 68,
-                          backgroundColor: 'rgba(255,255,255,0.03)',
-                          border: `2px solid ${blockColor}`,
-                          opacity: isDragged ? 0.4 : block.enabled ? 1 : 0.35,
-                          boxShadow: isSelected
-                            ? `0 0 10px ${blockColor}40`
-                            : 'none',
-                          transition:
-                            'opacity 150ms ease, box-shadow 150ms ease',
-                          zIndex: 1,
+                          backgroundColor: 'var(--color-surface-3)',
+                          color: 'var(--color-text)',
+                          border: '1px solid var(--color-border)',
+                          cursor: rootLocked ? 'not-allowed' : 'pointer',
+                          opacity: rootLocked ? 0.5 : 1,
                         }}
                       >
-                        <PedalIcon
-                          type={block.type}
-                          size={28}
-                          color={blockColor}
-                        />
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleBlock(block.id);
-                          }}
-                          className="absolute cursor-pointer rounded-full"
-                          style={{
-                            bottom: 5,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: 7,
-                            height: 7,
-                            backgroundColor: block.enabled
-                              ? '#22c55e'
-                              : 'rgba(255,255,255,0.12)',
-                            boxShadow: block.enabled
-                              ? '0 0 4px #22c55e80'
-                              : 'none',
-                          }}
-                        />
-                      </div>
-                      {/* Empty slot after this pedal */}
-                      <EmptySlot chainIdx={chainIdx + 1} />
-                    </Fragment>
-                  );
-                })}
-              </div>
-
-              {/* Out label */}
-              <div
-                className="flex items-center shrink-0 pr-4 py-5"
-                style={{ zIndex: 1 }}
-              >
-                <span
-                  className="text-[9px] font-semibold uppercase tracking-wider shrink-0"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  Out
-                </span>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Controls panel for selected block */}
-        {selectedBlock && selectedDef && (
-          <div
-            className="flex-1 overflow-y-auto"
-            style={{ backgroundColor: 'var(--color-surface)' }}
-          >
-            {/* Header */}
-            <div
-              className="flex items-center gap-2.5 px-4 py-1.5 border-b"
-              style={{ borderColor: 'var(--color-border)' }}
-            >
-              <div
-                className="w-2.5 h-2.5 rounded-full shrink-0"
-                style={{ backgroundColor: selectedColor }}
-              />
-              <span
-                className="text-[10px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                {selectedDef.category}
-              </span>
-              <span
-                className="text-[13px] font-medium flex-1"
-                style={{ color: 'var(--color-text)' }}
-              >
-                {selectedDef.name}
-              </span>
-              <button
-                onClick={() => removeBlock(selectedBlock.id)}
-                className="p-1 cursor-pointer rounded-md"
-                style={{
-                  color: 'var(--color-text-dim)',
-                  background: 'none',
-                  border: 'none',
-                }}
-              >
-                <X size={14} />
-              </button>
-            </div>
-
-            {/* Knobs / Controls */}
-            <div className="flex items-center justify-evenly flex-wrap px-4 py-3 flex-1">
-              {selectedBlock.type === 'pitch-correction' ? (
-                /* ── Pitch Correction — Simple View + Expand ──── */
-                <div className="flex items-center gap-4 w-full">
-                  {/* Root dropdown + lock */}
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-1">
+                        {COF_ROOT_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {/* Scale dropdown */}
+                    <div className="flex flex-col gap-1">
                       <span
                         className="text-[9px] font-semibold uppercase tracking-wider"
                         style={{
@@ -1282,1185 +1377,1129 @@ export function VocalView({ trackId }: { trackId: string }) {
                           letterSpacing: '1px',
                         }}
                       >
-                        Root
+                        Scale
                       </span>
-                      {(selectedBlock.params.rootNote ?? -1) >= 0 && (
+                      <div className="relative" ref={scaleDropdownRef}>
                         <button
-                          onClick={toggleRootLock}
-                          className="flex items-center justify-center cursor-pointer"
+                          onClick={() => setScaleDropdownOpen((v) => !v)}
+                          className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-white/10"
                           style={{
-                            color: rootLocked
-                              ? 'var(--color-accent)'
-                              : 'var(--color-text-dim)',
-                            border: 'none',
-                            background: 'none',
-                            padding: 0,
-                          }}
-                          title={
-                            rootLocked ? 'Unlock root note' : 'Lock root note'
-                          }
-                        >
-                          {rootLocked ? <Lock size={9} /> : <Unlock size={9} />}
-                        </button>
-                      )}
-                    </div>
-                    <select
-                      value={selectedBlock.params.rootNote ?? -1}
-                      disabled={rootLocked}
-                      onChange={(e) => {
-                        const root = Number(e.target.value);
-                        updateBlockParam(selectedBlock.id, 'rootNote', root);
-                        if (root >= 0) {
-                          updateBlockParam(
-                            selectedBlock.id,
-                            'activeNotes',
-                            scaleToNotesBitmask(
-                              root,
-                              selectedBlock.params.scaleType ?? 0,
-                            ),
-                          );
-                          setGlobalRootNote(root);
-                        } else {
-                          updateBlockParam(selectedBlock.id, 'scaleType', 0);
-                          updateBlockParam(
-                            selectedBlock.id,
-                            'activeNotes',
-                            4095,
-                          );
-                        }
-                      }}
-                      className="text-[10px] rounded px-2 py-1"
-                      style={{
-                        backgroundColor: 'var(--color-surface-3)',
-                        color: 'var(--color-text)',
-                        border: '1px solid var(--color-border)',
-                        cursor: rootLocked ? 'not-allowed' : 'pointer',
-                        opacity: rootLocked ? 0.5 : 1,
-                      }}
-                    >
-                      {COF_ROOT_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  {/* Scale dropdown */}
-                  <div className="flex flex-col gap-1">
-                    <span
-                      className="text-[9px] font-semibold uppercase tracking-wider"
-                      style={{
-                        color: 'var(--color-text-dim)',
-                        letterSpacing: '1px',
-                      }}
-                    >
-                      Scale
-                    </span>
-                    <div className="relative" ref={scaleDropdownRef}>
-                      <button
-                        onClick={() => setScaleDropdownOpen((v) => !v)}
-                        className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-white/10"
-                        style={{
-                          backgroundColor: 'var(--color-surface-3)',
-                          color: 'var(--color-text)',
-                          border: '1px solid var(--color-border)',
-                          minWidth: 90,
-                        }}
-                      >
-                        {(() => {
-                          const modeKey =
-                            SCALE_TYPES[selectedBlock.params.scaleType ?? 0];
-                          return modeKey === 'chromatic'
-                            ? 'Chromatic'
-                            : (MODE_DISPLAY[modeKey] ?? modeKey);
-                        })()}
-                        <ChevronDown
-                          size={10}
-                          strokeWidth={2}
-                          style={{
-                            marginLeft: 'auto',
-                            transform: scaleDropdownOpen
-                              ? 'rotate(180deg)'
-                              : undefined,
-                            transition: 'transform 0.15s',
-                          }}
-                        />
-                      </button>
-                      {scaleDropdownOpen && (
-                        <div
-                          className="absolute left-0 z-50 mt-1 overflow-y-auto rounded-md border"
-                          style={{
-                            maxHeight: 260,
-                            width: 200,
-                            backgroundColor: 'var(--color-surface-2, #1e1e2e)',
-                            borderColor:
-                              'var(--color-border, rgba(255,255,255,0.08))',
-                            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                            backgroundColor: 'var(--color-surface-3)',
+                            color: 'var(--color-text)',
+                            border: '1px solid var(--color-border)',
+                            minWidth: 90,
                           }}
                         >
-                          {/* Chromatic option */}
-                          <button
-                            onClick={() => {
-                              updateBlockParam(
-                                selectedBlock.id,
-                                'scaleType',
-                                0,
-                              );
-                              updateBlockParam(
-                                selectedBlock.id,
-                                'activeNotes',
-                                4095,
-                              );
-                              setScaleDropdownOpen(false);
-                            }}
-                            className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
+                          {(() => {
+                            const modeKey =
+                              SCALE_TYPES[selectedBlock.params.scaleType ?? 0];
+                            return modeKey === 'chromatic'
+                              ? 'Chromatic'
+                              : (MODE_DISPLAY[modeKey] ?? modeKey);
+                          })()}
+                          <ChevronDown
+                            size={10}
+                            strokeWidth={2}
                             style={{
-                              color:
-                                (selectedBlock.params.scaleType ?? 0) === 0
-                                  ? '#fff'
-                                  : 'var(--color-text-secondary, #a0a0b0)',
-                              background:
-                                (selectedBlock.params.scaleType ?? 0) === 0
-                                  ? 'rgba(255,255,255,0.08)'
-                                  : 'none',
-                              border: 'none',
-                              fontWeight:
-                                (selectedBlock.params.scaleType ?? 0) === 0
-                                  ? 600
-                                  : 400,
+                              marginLeft: 'auto',
+                              transform: scaleDropdownOpen
+                                ? 'rotate(180deg)'
+                                : undefined,
+                              transition: 'transform 0.15s',
+                            }}
+                          />
+                        </button>
+                        {scaleDropdownOpen && (
+                          <div
+                            className="absolute left-0 z-50 mt-1 overflow-y-auto rounded-md border"
+                            style={{
+                              maxHeight: 260,
+                              width: 200,
+                              backgroundColor:
+                                'var(--color-surface-2, #1e1e2e)',
+                              borderColor:
+                                'var(--color-border, rgba(255,255,255,0.08))',
+                              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
                             }}
                           >
-                            Chromatic
-                          </button>
-                          {MODE_GROUPS.map((group) => (
-                            <div key={group.label}>
-                              <div
-                                className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
-                                style={{
-                                  color: 'var(--color-text-dim, #6b6b80)',
-                                  backgroundColor:
-                                    'var(--color-surface-2, #1e1e2e)',
-                                }}
-                              >
-                                {group.label}
-                              </div>
-                              {group.modes.map((modeKey) => {
-                                const modeIdx = SCALE_TYPES.indexOf(
-                                  modeKey as (typeof SCALE_TYPES)[number],
-                                );
-                                const isActive =
-                                  (selectedBlock.params.scaleType ?? 0) ===
-                                  modeIdx;
-                                return (
-                                  <button
-                                    key={modeKey}
-                                    onClick={() => {
-                                      updateBlockParam(
-                                        selectedBlock.id,
-                                        'scaleType',
-                                        modeIdx,
-                                      );
-                                      const newMask = scaleToNotesBitmask(
-                                        selectedBlock.params.rootNote ?? 0,
-                                        modeIdx,
-                                      );
-                                      updateBlockParam(
-                                        selectedBlock.id,
-                                        'activeNotes',
-                                        newMask,
-                                      );
-                                      setGlobalMode(modeKey);
-                                      setScaleDropdownOpen(false);
-                                    }}
-                                    className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
-                                    style={{
-                                      color: isActive
-                                        ? '#fff'
-                                        : 'var(--color-text-secondary, #a0a0b0)',
-                                      background: isActive
-                                        ? 'rgba(255,255,255,0.08)'
-                                        : 'none',
-                                      border: 'none',
-                                      fontWeight: isActive ? 600 : 400,
-                                    }}
-                                  >
-                                    {MODE_DISPLAY[modeKey] ?? modeKey}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {/* Strength knob */}
-                  <RotaryKnob
-                    label="STRENGTH"
-                    value={(selectedBlock.params.correction ?? 80) / 100}
-                    min={0}
-                    max={1}
-                    size={52}
-                    arcColor={pitchAccentColor}
-                    formatValue={(v) => `${Math.round(v * 100)}%`}
-                    onChange={(v) =>
-                      updateBlockParam(
-                        selectedBlock.id,
-                        'correction',
-                        Math.round(v * 100),
-                      )
-                    }
-                  />
-                  {/* Smooth knob: up = a slower, more natural retune */}
-                  <RotaryKnob
-                    label="SMOOTH"
-                    value={pitchSmooth / 100}
-                    min={0}
-                    max={1}
-                    size={52}
-                    arcColor={pitchAccentColor}
-                    formatValue={(v) => `${retuneMs(v * 100).toFixed(0)} ms`}
-                    onChange={(v) =>
-                      updateBlockParam(
-                        selectedBlock.id,
-                        'speed',
-                        speedFromSmooth(Math.round(v * 100)),
-                      )
-                    }
-                  />
-                  {/* Humanize knob */}
-                  <RotaryKnob
-                    label="HUMAN"
-                    value={(selectedBlock.params.humanize ?? 0) / 100}
-                    min={0}
-                    max={1}
-                    size={52}
-                    arcColor={pitchAccentColor}
-                    formatValue={(v) => `${Math.round(v * 100)}%`}
-                    onChange={(v) =>
-                      updateBlockParam(
-                        selectedBlock.id,
-                        'humanize',
-                        Math.round(v * 100),
-                      )
-                    }
-                  />
-                  {/* Expand button */}
-                  <button
-                    onClick={() => setPitchExpanded(true)}
-                    className="ml-auto p-1.5 rounded-md cursor-pointer hover:bg-white/10"
-                    style={{
-                      color: 'var(--color-text-dim)',
-                      border: 'none',
-                      background: 'none',
-                    }}
-                    aria-label="Expand pitch correction"
-                  >
-                    <Maximize2 size={16} />
-                  </button>
-                  {/* ── Expanded Dialog ──── */}
-                  <Dialog.Root
-                    open={pitchExpanded}
-                    onOpenChange={setPitchExpanded}
-                  >
-                    <Dialog.Portal>
-                      <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-                      <Dialog.Content
-                        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md rounded-2xl z-50 outline-none flex flex-col"
-                        style={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                          border: '1px solid rgba(255, 255, 255, 0.12)',
-                          backdropFilter: 'blur(32px)',
-                          WebkitBackdropFilter: 'blur(32px)',
-                          boxShadow:
-                            '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-                        }}
-                      >
-                        {/* Dialog header */}
-                        <div
-                          className="flex items-center gap-2.5 px-5 py-3 border-b"
-                          style={{ borderColor: 'rgba(255,255,255,0.08)' }}
-                        >
-                          <div
-                            className="w-2.5 h-2.5 rounded-full shrink-0"
-                            style={{ backgroundColor: '#ffffff' }}
-                          />
-                          <Dialog.Title
-                            className="text-[13px] font-medium flex-1 m-0"
-                            style={{ color: 'var(--color-text)' }}
-                          >
-                            Pitch Correction
-                          </Dialog.Title>
-                          <Dialog.Close asChild>
+                            {/* Chromatic option */}
                             <button
-                              className="p-1 cursor-pointer rounded-md hover:bg-white/10"
+                              onClick={() => {
+                                updateBlockParam(
+                                  selectedBlock.id,
+                                  'scaleType',
+                                  0,
+                                );
+                                updateBlockParam(
+                                  selectedBlock.id,
+                                  'activeNotes',
+                                  4095,
+                                );
+                                setScaleDropdownOpen(false);
+                              }}
+                              className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
                               style={{
-                                color: 'var(--color-text-dim)',
-                                background: 'none',
+                                color:
+                                  (selectedBlock.params.scaleType ?? 0) === 0
+                                    ? '#fff'
+                                    : 'var(--color-text-secondary, #a0a0b0)',
+                                background:
+                                  (selectedBlock.params.scaleType ?? 0) === 0
+                                    ? 'rgba(255,255,255,0.08)'
+                                    : 'none',
                                 border: 'none',
+                                fontWeight:
+                                  (selectedBlock.params.scaleType ?? 0) === 0
+                                    ? 600
+                                    : 400,
                               }}
                             >
-                              <X size={14} />
+                              Chromatic
                             </button>
-                          </Dialog.Close>
-                        </div>
-                        {/* Dialog body */}
-                        <div className="flex flex-col gap-4 px-5 py-4">
-                          {/* PitchMeter */}
-                          <PitchMeter
-                            pitchInfo={pitchInfo}
-                            enabled={selectedBlock.enabled}
-                          />
-
-                          {/* Strength + Smooth sliders */}
-                          <div className="flex items-center gap-6">
-                            <div className="flex flex-col gap-1 flex-1">
-                              <div className="flex items-center justify-between">
-                                <span
-                                  className="text-[9px] font-semibold uppercase tracking-wider"
-                                  style={{
-                                    color: 'var(--color-text-dim)',
-                                    letterSpacing: '1px',
-                                  }}
-                                >
-                                  Strength
-                                </span>
-                                <span
-                                  className="text-[10px] font-medium"
-                                  style={{
-                                    color: 'var(--color-text)',
-                                    fontVariantNumeric: 'tabular-nums',
-                                  }}
-                                >
-                                  {Math.round(
-                                    selectedBlock.params.correction ?? 80,
-                                  )}{' '}
-                                  %
-                                </span>
-                              </div>
-                              <input
-                                type="range"
-                                min={0}
-                                max={100}
-                                value={selectedBlock.params.correction ?? 80}
-                                onChange={(e) =>
-                                  updateBlockParam(
-                                    selectedBlock.id,
-                                    'correction',
-                                    Number(e.target.value),
-                                  )
-                                }
-                                className="w-full h-1 rounded-full appearance-none cursor-pointer"
-                                style={{
-                                  background: `linear-gradient(to right, ${pitchAccentColor} ${selectedBlock.params.correction ?? 80}%, rgba(255,255,255,0.08) ${selectedBlock.params.correction ?? 80}%)`,
-                                  accentColor: pitchAccentColor,
-                                }}
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1 flex-1">
-                              <div className="flex items-center justify-between">
-                                <span
-                                  className="text-[9px] font-semibold uppercase tracking-wider"
-                                  style={{
-                                    color: 'var(--color-text-dim)',
-                                    letterSpacing: '1px',
-                                  }}
-                                >
-                                  Smooth
-                                </span>
-                                <span
-                                  className="text-[10px] font-medium"
-                                  style={{
-                                    color: 'var(--color-text)',
-                                    fontVariantNumeric: 'tabular-nums',
-                                  }}
-                                >
-                                  {retuneMs(pitchSmooth).toFixed(1)} ms
-                                </span>
-                              </div>
-                              <input
-                                type="range"
-                                aria-label="Smooth"
-                                min={0}
-                                max={100}
-                                value={pitchSmooth}
-                                onChange={(e) =>
-                                  updateBlockParam(
-                                    selectedBlock.id,
-                                    'speed',
-                                    speedFromSmooth(Number(e.target.value)),
-                                  )
-                                }
-                                className="w-full h-1 rounded-full appearance-none cursor-pointer"
-                                style={{
-                                  background: `linear-gradient(to right, ${pitchAccentColor} ${pitchSmooth}%, rgba(255,255,255,0.08) ${pitchSmooth}%)`,
-                                  accentColor: pitchAccentColor,
-                                }}
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1 flex-1">
-                              <div className="flex items-center justify-between">
-                                <span
-                                  className="text-[9px] font-semibold uppercase tracking-wider"
-                                  style={{
-                                    color: 'var(--color-text-dim)',
-                                    letterSpacing: '1px',
-                                  }}
-                                >
-                                  Humanize
-                                </span>
-                                <span
-                                  className="text-[10px] font-medium"
-                                  style={{
-                                    color: 'var(--color-text)',
-                                    fontVariantNumeric: 'tabular-nums',
-                                  }}
-                                >
-                                  {Math.round(
-                                    selectedBlock.params.humanize ?? 0,
-                                  )}{' '}
-                                  %
-                                </span>
-                              </div>
-                              <input
-                                type="range"
-                                min={0}
-                                max={100}
-                                value={selectedBlock.params.humanize ?? 0}
-                                onChange={(e) =>
-                                  updateBlockParam(
-                                    selectedBlock.id,
-                                    'humanize',
-                                    Number(e.target.value),
-                                  )
-                                }
-                                className="w-full h-1 rounded-full appearance-none cursor-pointer"
-                                style={{
-                                  background: `linear-gradient(to right, ${pitchAccentColor} ${selectedBlock.params.humanize ?? 0}%, rgba(255,255,255,0.08) ${selectedBlock.params.humanize ?? 0}%)`,
-                                  accentColor: pitchAccentColor,
-                                }}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Piano keyboard — Oracle Synth style */}
-                          <div
-                            style={{
-                              position: 'relative',
-                              display: 'flex',
-                              height: 100,
-                              userSelect: 'none',
-                            }}
-                          >
-                            {/* White keys */}
-                            {WHITE_KEYS.map((note) => {
-                              const isActive =
-                                (pitchActiveNotes & (1 << note)) !== 0;
-                              return (
+                            {MODE_GROUPS.map((group) => (
+                              <div key={group.label}>
                                 <div
-                                  key={note}
-                                  onClick={() =>
-                                    updateBlockParam(
-                                      selectedBlock.id,
-                                      'activeNotes',
-                                      pitchActiveNotes ^ (1 << note),
-                                    )
-                                  }
+                                  className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
                                   style={{
-                                    flex: 1,
-                                    height: '100%',
-                                    background: isActive
-                                      ? pitchWhiteGrad
-                                      : 'linear-gradient(to bottom, #e8e8e8, #fff)',
-                                    border: '1px solid #444',
-                                    borderRadius: '0 0 4px 4px',
-                                    cursor: 'pointer',
-                                    transition: 'background 0.05s',
-                                    display: 'flex',
-                                    alignItems: 'flex-end',
-                                    justifyContent: 'center',
-                                    paddingBottom: 6,
-                                    minWidth: 0,
+                                    color: 'var(--color-text-dim, #6b6b80)',
+                                    backgroundColor:
+                                      'var(--color-surface-2, #1e1e2e)',
                                   }}
                                 >
-                                  <span
-                                    style={{
-                                      fontSize: 9,
-                                      fontWeight: 600,
-                                      color: isActive ? '#1a1a1a' : '#666',
-                                      pointerEvents: 'none',
-                                    }}
-                                  >
-                                    {displayAccidentals(
-                                      noteNameInKey(
-                                        note,
-                                        globalRootNote ?? 0,
-                                        globalRootNote != null
-                                          ? globalMode
-                                          : undefined,
-                                      ),
-                                    )}
-                                  </span>
+                                  {group.label}
                                 </div>
-                              );
-                            })}
-                            {/* Black keys */}
-                            {BLACK_KEYS.map((note) => {
-                              const isActive =
-                                (pitchActiveNotes & (1 << note)) !== 0;
-                              const whiteIdx =
-                                WHITE_KEYS.findIndex((w) => w > note) - 1;
-                              const offset =
-                                (
-                                  {
-                                    1: 0.65,
-                                    3: 0.75,
-                                    6: 0.6,
-                                    8: 0.7,
-                                    10: 0.8,
-                                  } as Record<number, number>
-                                )[note] ?? 0.7;
-                              const whiteKeyWidth = 100 / 7;
-                              const left = (whiteIdx + offset) * whiteKeyWidth;
-                              return (
-                                <div
-                                  key={note}
-                                  onClick={() =>
-                                    updateBlockParam(
-                                      selectedBlock.id,
-                                      'activeNotes',
-                                      pitchActiveNotes ^ (1 << note),
-                                    )
-                                  }
-                                  style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: `${left}%`,
-                                    width: `${whiteKeyWidth * 0.65}%`,
-                                    height: '62%',
-                                    background: isActive
-                                      ? pitchBlackGrad
-                                      : 'linear-gradient(to bottom, #333, #1a1a1a)',
-                                    border: '1px solid #000',
-                                    borderRadius: '0 0 3px 3px',
-                                    cursor: 'pointer',
-                                    transition: 'background 0.05s',
-                                    zIndex: 2,
-                                    display: 'flex',
-                                    alignItems: 'flex-end',
-                                    justifyContent: 'center',
-                                    paddingBottom: 4,
-                                  }}
-                                >
-                                  <span
-                                    style={{
-                                      fontSize: 7,
-                                      fontWeight: 600,
-                                      color: isActive
-                                        ? '#1a1a1a'
-                                        : 'rgba(255,255,255,0.5)',
-                                      pointerEvents: 'none',
-                                    }}
-                                  >
-                                    {displayAccidentals(
-                                      noteNameInKey(
-                                        note,
-                                        globalRootNote ?? 0,
-                                        globalRootNote != null
-                                          ? globalMode
-                                          : undefined,
-                                      ),
-                                    )}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          {/* Root + Scale + Shift */}
-                          <div className="flex items-center gap-4">
-                            <div className="flex flex-col gap-1">
-                              <div className="flex items-center gap-1">
-                                <span
-                                  className="text-[9px] font-semibold uppercase tracking-wider"
-                                  style={{
-                                    color: 'var(--color-text-dim)',
-                                    letterSpacing: '1px',
-                                  }}
-                                >
-                                  Root
-                                </span>
-                                {(selectedBlock.params.rootNote ?? -1) >= 0 && (
-                                  <button
-                                    onClick={toggleRootLock}
-                                    className="flex items-center justify-center cursor-pointer"
-                                    style={{
-                                      color: rootLocked
-                                        ? 'var(--color-accent)'
-                                        : 'var(--color-text-dim)',
-                                      border: 'none',
-                                      background: 'none',
-                                      padding: 0,
-                                    }}
-                                    title={
-                                      rootLocked
-                                        ? 'Unlock root note'
-                                        : 'Lock root note'
-                                    }
-                                  >
-                                    {rootLocked ? (
-                                      <Lock size={9} />
-                                    ) : (
-                                      <Unlock size={9} />
-                                    )}
-                                  </button>
-                                )}
-                              </div>
-                              <select
-                                value={selectedBlock.params.rootNote ?? -1}
-                                disabled={rootLocked}
-                                onChange={(e) => {
-                                  const root = Number(e.target.value);
-                                  updateBlockParam(
-                                    selectedBlock.id,
-                                    'rootNote',
-                                    root,
+                                {group.modes.map((modeKey) => {
+                                  const modeIdx = SCALE_TYPES.indexOf(
+                                    modeKey as (typeof SCALE_TYPES)[number],
                                   );
-                                  if (root >= 0) {
-                                    updateBlockParam(
-                                      selectedBlock.id,
-                                      'activeNotes',
-                                      scaleToNotesBitmask(
-                                        root,
-                                        selectedBlock.params.scaleType ?? 0,
-                                      ),
-                                    );
-                                    setGlobalRootNote(root);
-                                  } else {
-                                    updateBlockParam(
-                                      selectedBlock.id,
-                                      'scaleType',
-                                      0,
-                                    );
-                                    updateBlockParam(
-                                      selectedBlock.id,
-                                      'activeNotes',
-                                      4095,
-                                    );
-                                  }
-                                }}
-                                className="text-[10px] rounded px-2 py-1"
-                                style={{
-                                  backgroundColor: 'var(--color-surface-3)',
-                                  color: 'var(--color-text)',
-                                  border: '1px solid var(--color-border)',
-                                  cursor: rootLocked
-                                    ? 'not-allowed'
-                                    : 'pointer',
-                                  opacity: rootLocked ? 0.5 : 1,
-                                }}
-                              >
-                                {COF_ROOT_OPTIONS.map((opt) => (
-                                  <option key={opt.value} value={opt.value}>
-                                    {opt.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <span
-                                className="text-[9px] font-semibold uppercase tracking-wider"
-                                style={{
-                                  color: 'var(--color-text-dim)',
-                                  letterSpacing: '1px',
-                                }}
-                              >
-                                Scale
-                              </span>
-                              <div
-                                className="relative"
-                                ref={scaleDropdownExpandedRef}
-                              >
-                                <button
-                                  onClick={() =>
-                                    setScaleDropdownOpenExpanded((v) => !v)
-                                  }
-                                  className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-white/10"
-                                  style={{
-                                    backgroundColor: 'var(--color-surface-3)',
-                                    color: 'var(--color-text)',
-                                    border: '1px solid var(--color-border)',
-                                    minWidth: 90,
-                                  }}
-                                >
-                                  {(() => {
-                                    const modeKey =
-                                      SCALE_TYPES[
-                                        selectedBlock.params.scaleType ?? 0
-                                      ];
-                                    return modeKey === 'chromatic'
-                                      ? 'Chromatic'
-                                      : (MODE_DISPLAY[modeKey] ?? modeKey);
-                                  })()}
-                                  <ChevronDown
-                                    size={10}
-                                    strokeWidth={2}
-                                    style={{
-                                      marginLeft: 'auto',
-                                      transform: scaleDropdownOpenExpanded
-                                        ? 'rotate(180deg)'
-                                        : undefined,
-                                      transition: 'transform 0.15s',
-                                    }}
-                                  />
-                                </button>
-                                {scaleDropdownOpenExpanded && (
-                                  <div
-                                    className="absolute left-0 z-50 mt-1 overflow-y-auto rounded-md border"
-                                    style={{
-                                      maxHeight: 260,
-                                      width: 200,
-                                      backgroundColor:
-                                        'var(--color-surface-2, #1e1e2e)',
-                                      borderColor:
-                                        'var(--color-border, rgba(255,255,255,0.08))',
-                                      boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-                                    }}
-                                  >
+                                  const isActive =
+                                    (selectedBlock.params.scaleType ?? 0) ===
+                                    modeIdx;
+                                  return (
                                     <button
+                                      key={modeKey}
                                       onClick={() => {
                                         updateBlockParam(
                                           selectedBlock.id,
                                           'scaleType',
-                                          0,
+                                          modeIdx,
+                                        );
+                                        const newMask = scaleToNotesBitmask(
+                                          selectedBlock.params.rootNote ?? 0,
+                                          modeIdx,
                                         );
                                         updateBlockParam(
                                           selectedBlock.id,
                                           'activeNotes',
-                                          4095,
+                                          newMask,
                                         );
-                                        setScaleDropdownOpenExpanded(false);
+                                        setGlobalMode(modeKey);
+                                        setScaleDropdownOpen(false);
                                       }}
                                       className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
                                       style={{
-                                        color:
-                                          (selectedBlock.params.scaleType ??
-                                            0) === 0
-                                            ? '#fff'
-                                            : 'var(--color-text-secondary, #a0a0b0)',
-                                        background:
-                                          (selectedBlock.params.scaleType ??
-                                            0) === 0
-                                            ? 'rgba(255,255,255,0.08)'
-                                            : 'none',
+                                        color: isActive
+                                          ? '#fff'
+                                          : 'var(--color-text-secondary, #a0a0b0)',
+                                        background: isActive
+                                          ? 'rgba(255,255,255,0.08)'
+                                          : 'none',
                                         border: 'none',
-                                        fontWeight:
-                                          (selectedBlock.params.scaleType ??
-                                            0) === 0
-                                            ? 600
-                                            : 400,
+                                        fontWeight: isActive ? 600 : 400,
                                       }}
                                     >
-                                      Chromatic
+                                      {MODE_DISPLAY[modeKey] ?? modeKey}
                                     </button>
-                                    {MODE_GROUPS.map((group) => (
-                                      <div key={group.label}>
-                                        <div
-                                          className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
-                                          style={{
-                                            color:
-                                              'var(--color-text-dim, #6b6b80)',
-                                            backgroundColor:
-                                              'var(--color-surface-2, #1e1e2e)',
-                                          }}
-                                        >
-                                          {group.label}
-                                        </div>
-                                        {group.modes.map((modeKey) => {
-                                          const modeIdx = SCALE_TYPES.indexOf(
-                                            modeKey as (typeof SCALE_TYPES)[number],
-                                          );
-                                          const isActive =
-                                            (selectedBlock.params.scaleType ??
-                                              0) === modeIdx;
-                                          return (
-                                            <button
-                                              key={modeKey}
-                                              onClick={() => {
-                                                updateBlockParam(
-                                                  selectedBlock.id,
-                                                  'scaleType',
-                                                  modeIdx,
-                                                );
-                                                const newMask =
-                                                  scaleToNotesBitmask(
-                                                    selectedBlock.params
-                                                      .rootNote ?? 0,
-                                                    modeIdx,
-                                                  );
-                                                updateBlockParam(
-                                                  selectedBlock.id,
-                                                  'activeNotes',
-                                                  newMask,
-                                                );
-                                                setGlobalMode(modeKey);
-                                                setScaleDropdownOpenExpanded(
-                                                  false,
-                                                );
-                                              }}
-                                              className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
-                                              style={{
-                                                color: isActive
-                                                  ? '#fff'
-                                                  : 'var(--color-text-secondary, #a0a0b0)',
-                                                background: isActive
-                                                  ? 'rgba(255,255,255,0.08)'
-                                                  : 'none',
-                                                border: 'none',
-                                                fontWeight: isActive
-                                                  ? 600
-                                                  : 400,
-                                              }}
-                                            >
-                                              {MODE_DISPLAY[modeKey] ?? modeKey}
-                                            </button>
-                                          );
-                                        })}
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
+                                  );
+                                })}
                               </div>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <span
-                                className="text-[9px] font-semibold uppercase tracking-wider"
-                                style={{
-                                  color: 'var(--color-text-dim)',
-                                  letterSpacing: '1px',
-                                }}
-                              >
-                                Shift
-                              </span>
-                              <span
-                                className="text-[10px] font-medium px-2 py-1"
-                                style={{
-                                  color: 'var(--color-text)',
-                                  fontVariantNumeric: 'tabular-nums',
-                                }}
-                              >
-                                {Math.round(
-                                  (selectedBlock.params.shift ?? 0.5) * 48 - 24,
-                                )}{' '}
-                                st
-                              </span>
-                            </div>
+                            ))}
                           </div>
-
-                          {/* Knobs */}
-                          <div className="flex items-center justify-evenly gap-2">
-                            <RotaryKnob
-                              label="SHIFT"
-                              value={selectedBlock.params.shift ?? 0.5}
-                              min={0}
-                              max={1}
-                              size={48}
-                              arcColor={pitchAccentColor}
-                              formatValue={(v) =>
-                                `${Math.round(v * 48 - 24)} st`
-                              }
-                              onChange={(v) =>
-                                updateBlockParam(selectedBlock.id, 'shift', v)
-                              }
-                            />
-                            <RotaryKnob
-                              label="FINE"
-                              value={selectedBlock.params.fine ?? 0.5}
-                              min={0}
-                              max={1}
-                              size={48}
-                              arcColor={pitchAccentColor}
-                              formatValue={(v) =>
-                                `${Math.round(v * 200 - 100)} ct`
-                              }
-                              onChange={(v) =>
-                                updateBlockParam(selectedBlock.id, 'fine', v)
-                              }
-                            />
-                            <RotaryKnob
-                              label="FORMANT"
-                              value={(selectedBlock.params.formant ?? 0) / 100}
-                              min={0}
-                              max={1}
-                              size={48}
-                              arcColor={pitchAccentColor}
-                              formatValue={(v) => `${Math.round(v * 100)}%`}
-                              onChange={(v) =>
-                                updateBlockParam(
-                                  selectedBlock.id,
-                                  'formant',
-                                  Math.round(v * 100),
-                                )
-                              }
-                            />
-                            <RotaryKnob
-                              label="F. FOLLOW"
-                              value={
-                                (selectedBlock.params.formantFollow ?? 0) / 100
-                              }
-                              min={0}
-                              max={1}
-                              size={48}
-                              arcColor={pitchAccentColor}
-                              formatValue={(v) => `${Math.round(v * 100)}%`}
-                              onChange={(v) =>
-                                updateBlockParam(
-                                  selectedBlock.id,
-                                  'formantFollow',
-                                  Math.round(v * 100),
-                                )
-                              }
-                            />
-                            <RotaryKnob
-                              label="MIX"
-                              value={(selectedBlock.params.mix ?? 100) / 100}
-                              min={0}
-                              max={1}
-                              size={48}
-                              arcColor={pitchAccentColor}
-                              formatValue={(v) => `${Math.round(v * 100)}%`}
-                              onChange={(v) =>
-                                updateBlockParam(
-                                  selectedBlock.id,
-                                  'mix',
-                                  Math.round(v * 100),
-                                )
-                              }
-                            />
-                          </div>
-                        </div>
-                      </Dialog.Content>
-                    </Dialog.Portal>
-                  </Dialog.Root>
-                </div>
-              ) : selectedBlock.type === 'phaser' ? (
-                <>
-                  {/* Hz / Rate toggle pill */}
-                  <div
-                    className="flex flex-col items-center gap-1.5"
-                    style={{ minWidth: 72 }}
-                  >
-                    <span
-                      className="text-[9px] font-semibold uppercase tracking-wider"
-                      style={{
-                        color: 'var(--color-text-dim)',
-                        letterSpacing: '1px',
-                      }}
-                    >
-                      Mode
-                    </span>
-                    <div
-                      className="flex rounded-md overflow-hidden"
-                      style={{ border: '1px solid var(--color-border)' }}
-                    >
-                      {['Hz', 'Rate'].map((label, idx) => (
-                        <button
-                          key={label}
-                          onClick={() =>
-                            updateBlockParam(selectedBlock.id, 'rateMode', idx)
-                          }
-                          className="px-3 py-1 text-[10px] font-semibold cursor-pointer"
-                          style={{
-                            background:
-                              (selectedBlock.params.rateMode ?? 0) === idx
-                                ? selectedColor
-                                : 'transparent',
-                            color:
-                              (selectedBlock.params.rateMode ?? 0) === idx
-                                ? '#000'
-                                : 'var(--color-text-dim)',
-                            border: 'none',
-                            transition:
-                              'background 150ms ease, color 150ms ease',
-                          }}
-                        >
-                          {label}
-                        </button>
-                      ))}
+                        )}
+                      </div>
                     </div>
-                  </div>
-
-                  {(selectedBlock.params.rateMode ?? 0) === 0 ? (
+                    {/* Strength knob */}
                     <RotaryKnob
-                      key="rate"
-                      label="Hz"
-                      value={selectedBlock.params.rate ?? 0.3}
+                      label="STRENGTH"
+                      value={(selectedBlock.params.correction ?? 80) / 100}
                       min={0}
                       max={1}
-                      onChange={(v) =>
-                        updateBlockParam(selectedBlock.id, 'rate', v)
-                      }
                       size={52}
-                      arcColor={selectedColor}
-                      formatValue={(v) => (0.01 + v * 39.99).toFixed(2)}
-                    />
-                  ) : (
-                    <RotaryKnob
-                      key="rateIdx"
-                      label="Rate"
-                      value={(selectedBlock.params.rateIdx ?? 10) / 21}
-                      min={0}
-                      max={1}
+                      arcColor={pitchAccentColor}
+                      formatValue={(v) => `${Math.round(v * 100)}%`}
                       onChange={(v) =>
                         updateBlockParam(
                           selectedBlock.id,
-                          'rateIdx',
-                          Math.round(v * 21),
+                          'correction',
+                          Math.round(v * 100),
                         )
                       }
+                    />
+                    {/* Smooth knob: up = a slower, more natural retune */}
+                    <RotaryKnob
+                      label="SMOOTH"
+                      value={pitchSmooth / 100}
+                      min={0}
+                      max={1}
                       size={52}
-                      arcColor={selectedColor}
-                      formatValue={(v) =>
-                        RATE_LABELS[Math.round(v * 21)] ?? '1/3'
+                      arcColor={pitchAccentColor}
+                      formatValue={(v) => `${retuneMs(v * 100).toFixed(0)} ms`}
+                      onChange={(v) =>
+                        updateBlockParam(
+                          selectedBlock.id,
+                          'speed',
+                          speedFromSmooth(Math.round(v * 100)),
+                        )
                       }
                     />
-                  )}
-
-                  <RotaryKnob
-                    key="depth"
-                    label="Depth"
-                    value={selectedBlock.params.depth ?? 0.5}
-                    min={0}
-                    max={1}
-                    onChange={(v) =>
-                      updateBlockParam(selectedBlock.id, 'depth', v)
-                    }
-                    size={52}
-                    arcColor={selectedColor}
-                    formatValue={(v) => v.toFixed(2)}
-                  />
-                  <RotaryKnob
-                    key="mix"
-                    label="Mix"
-                    value={selectedBlock.params.mix ?? 0.5}
-                    min={0}
-                    max={1}
-                    onChange={(v) =>
-                      updateBlockParam(selectedBlock.id, 'mix', v)
-                    }
-                    size={52}
-                    arcColor={selectedColor}
-                    formatValue={(v) => v.toFixed(2)}
-                  />
-                </>
-              ) : selectedBlock.type === 'wah' ? (
-                <>
-                  {/* LP / BP / HP toggle pill */}
-                  <div
-                    className="flex flex-col items-center gap-1.5"
-                    style={{ minWidth: 72 }}
-                  >
-                    <span
-                      className="text-[9px] font-semibold uppercase tracking-wider"
+                    {/* Humanize knob */}
+                    <RotaryKnob
+                      label="HUMAN"
+                      value={(selectedBlock.params.humanize ?? 0) / 100}
+                      min={0}
+                      max={1}
+                      size={52}
+                      arcColor={pitchAccentColor}
+                      formatValue={(v) => `${Math.round(v * 100)}%`}
+                      onChange={(v) =>
+                        updateBlockParam(
+                          selectedBlock.id,
+                          'humanize',
+                          Math.round(v * 100),
+                        )
+                      }
+                    />
+                    {/* Expand button */}
+                    <button
+                      onClick={() => setPitchExpanded(true)}
+                      className="ml-auto p-1.5 rounded-md cursor-pointer hover:bg-white/10"
                       style={{
                         color: 'var(--color-text-dim)',
-                        letterSpacing: '1px',
+                        border: 'none',
+                        background: 'none',
                       }}
+                      aria-label="Expand pitch correction"
                     >
-                      Filter
-                    </span>
-                    <div
-                      className="flex rounded-md overflow-hidden"
-                      style={{ border: '1px solid var(--color-border)' }}
+                      <Maximize2 size={16} />
+                    </button>
+                    {/* ── Expanded Dialog ──── */}
+                    <Dialog.Root
+                      open={pitchExpanded}
+                      onOpenChange={setPitchExpanded}
                     >
-                      {['LP', 'BP', 'HP'].map((label, idx) => (
-                        <button
-                          key={label}
-                          onClick={() =>
-                            updateBlockParam(
-                              selectedBlock.id,
-                              'filterType',
-                              idx,
-                            )
-                          }
-                          className="px-2.5 py-1 text-[10px] font-semibold cursor-pointer"
+                      <Dialog.Portal>
+                        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+                        <Dialog.Content
+                          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md rounded-2xl z-50 outline-none flex flex-col"
                           style={{
-                            background:
-                              Math.round(
-                                selectedBlock.params.filterType ?? 1,
-                              ) === idx
-                                ? selectedColor
-                                : 'transparent',
-                            color:
-                              Math.round(
-                                selectedBlock.params.filterType ?? 1,
-                              ) === idx
-                                ? '#000'
-                                : 'var(--color-text-dim)',
-                            border: 'none',
-                            transition:
-                              'background 150ms ease, color 150ms ease',
+                            backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid rgba(255, 255, 255, 0.12)',
+                            backdropFilter: 'blur(32px)',
+                            WebkitBackdropFilter: 'blur(32px)',
+                            boxShadow:
+                              '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
                           }}
                         >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                          {/* Dialog header */}
+                          <div
+                            className="flex items-center gap-2.5 px-5 py-3 border-b"
+                            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+                          >
+                            <div
+                              className="w-2.5 h-2.5 rounded-full shrink-0"
+                              style={{ backgroundColor: '#ffffff' }}
+                            />
+                            <Dialog.Title
+                              className="text-[13px] font-medium flex-1 m-0"
+                              style={{ color: 'var(--color-text)' }}
+                            >
+                              Pitch Correction
+                            </Dialog.Title>
+                            <Dialog.Close asChild>
+                              <button
+                                className="p-1 cursor-pointer rounded-md hover:bg-white/10"
+                                style={{
+                                  color: 'var(--color-text-dim)',
+                                  background: 'none',
+                                  border: 'none',
+                                }}
+                              >
+                                <X size={14} />
+                              </button>
+                            </Dialog.Close>
+                          </div>
+                          {/* Dialog body */}
+                          <div className="flex flex-col gap-4 px-5 py-4">
+                            {/* PitchMeter */}
+                            <PitchMeter
+                              pitchInfo={pitchInfo}
+                              enabled={selectedBlock.enabled}
+                            />
 
-                  {selectedDef.params
-                    .filter((p) => p.key !== 'filterType')
-                    .map((p) => (
+                            {/* Strength + Smooth sliders */}
+                            <div className="flex items-center gap-6">
+                              <div className="flex flex-col gap-1 flex-1">
+                                <div className="flex items-center justify-between">
+                                  <span
+                                    className="text-[9px] font-semibold uppercase tracking-wider"
+                                    style={{
+                                      color: 'var(--color-text-dim)',
+                                      letterSpacing: '1px',
+                                    }}
+                                  >
+                                    Strength
+                                  </span>
+                                  <span
+                                    className="text-[10px] font-medium"
+                                    style={{
+                                      color: 'var(--color-text)',
+                                      fontVariantNumeric: 'tabular-nums',
+                                    }}
+                                  >
+                                    {Math.round(
+                                      selectedBlock.params.correction ?? 80,
+                                    )}{' '}
+                                    %
+                                  </span>
+                                </div>
+                                <input
+                                  type="range"
+                                  onPointerDown={chainGesture.begin}
+                                  min={0}
+                                  max={100}
+                                  value={selectedBlock.params.correction ?? 80}
+                                  onChange={(e) =>
+                                    updateBlockParam(
+                                      selectedBlock.id,
+                                      'correction',
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  className="w-full h-1 rounded-full appearance-none cursor-pointer"
+                                  style={{
+                                    background: `linear-gradient(to right, ${pitchAccentColor} ${selectedBlock.params.correction ?? 80}%, rgba(255,255,255,0.08) ${selectedBlock.params.correction ?? 80}%)`,
+                                    accentColor: pitchAccentColor,
+                                  }}
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1 flex-1">
+                                <div className="flex items-center justify-between">
+                                  <span
+                                    className="text-[9px] font-semibold uppercase tracking-wider"
+                                    style={{
+                                      color: 'var(--color-text-dim)',
+                                      letterSpacing: '1px',
+                                    }}
+                                  >
+                                    Smooth
+                                  </span>
+                                  <span
+                                    className="text-[10px] font-medium"
+                                    style={{
+                                      color: 'var(--color-text)',
+                                      fontVariantNumeric: 'tabular-nums',
+                                    }}
+                                  >
+                                    {retuneMs(pitchSmooth).toFixed(1)} ms
+                                  </span>
+                                </div>
+                                <input
+                                  type="range"
+                                  onPointerDown={chainGesture.begin}
+                                  aria-label="Smooth"
+                                  min={0}
+                                  max={100}
+                                  value={pitchSmooth}
+                                  onChange={(e) =>
+                                    updateBlockParam(
+                                      selectedBlock.id,
+                                      'speed',
+                                      speedFromSmooth(Number(e.target.value)),
+                                    )
+                                  }
+                                  className="w-full h-1 rounded-full appearance-none cursor-pointer"
+                                  style={{
+                                    background: `linear-gradient(to right, ${pitchAccentColor} ${pitchSmooth}%, rgba(255,255,255,0.08) ${pitchSmooth}%)`,
+                                    accentColor: pitchAccentColor,
+                                  }}
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1 flex-1">
+                                <div className="flex items-center justify-between">
+                                  <span
+                                    className="text-[9px] font-semibold uppercase tracking-wider"
+                                    style={{
+                                      color: 'var(--color-text-dim)',
+                                      letterSpacing: '1px',
+                                    }}
+                                  >
+                                    Humanize
+                                  </span>
+                                  <span
+                                    className="text-[10px] font-medium"
+                                    style={{
+                                      color: 'var(--color-text)',
+                                      fontVariantNumeric: 'tabular-nums',
+                                    }}
+                                  >
+                                    {Math.round(
+                                      selectedBlock.params.humanize ?? 0,
+                                    )}{' '}
+                                    %
+                                  </span>
+                                </div>
+                                <input
+                                  type="range"
+                                  onPointerDown={chainGesture.begin}
+                                  min={0}
+                                  max={100}
+                                  value={selectedBlock.params.humanize ?? 0}
+                                  onChange={(e) =>
+                                    updateBlockParam(
+                                      selectedBlock.id,
+                                      'humanize',
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  className="w-full h-1 rounded-full appearance-none cursor-pointer"
+                                  style={{
+                                    background: `linear-gradient(to right, ${pitchAccentColor} ${selectedBlock.params.humanize ?? 0}%, rgba(255,255,255,0.08) ${selectedBlock.params.humanize ?? 0}%)`,
+                                    accentColor: pitchAccentColor,
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Piano keyboard — Oracle Synth style */}
+                            <div
+                              style={{
+                                position: 'relative',
+                                display: 'flex',
+                                height: 100,
+                                userSelect: 'none',
+                              }}
+                            >
+                              {/* White keys */}
+                              {WHITE_KEYS.map((note) => {
+                                const isActive =
+                                  (pitchActiveNotes & (1 << note)) !== 0;
+                                return (
+                                  <div
+                                    key={note}
+                                    onClick={() =>
+                                      updateBlockParam(
+                                        selectedBlock.id,
+                                        'activeNotes',
+                                        pitchActiveNotes ^ (1 << note),
+                                      )
+                                    }
+                                    style={{
+                                      flex: 1,
+                                      height: '100%',
+                                      background: isActive
+                                        ? pitchWhiteGrad
+                                        : 'linear-gradient(to bottom, #e8e8e8, #fff)',
+                                      border: '1px solid #444',
+                                      borderRadius: '0 0 4px 4px',
+                                      cursor: 'pointer',
+                                      transition: 'background 0.05s',
+                                      display: 'flex',
+                                      alignItems: 'flex-end',
+                                      justifyContent: 'center',
+                                      paddingBottom: 6,
+                                      minWidth: 0,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        fontSize: 9,
+                                        fontWeight: 600,
+                                        color: isActive ? '#1a1a1a' : '#666',
+                                        pointerEvents: 'none',
+                                      }}
+                                    >
+                                      {displayAccidentals(
+                                        noteNameInKey(
+                                          note,
+                                          globalRootNote ?? 0,
+                                          globalRootNote != null
+                                            ? globalMode
+                                            : undefined,
+                                        ),
+                                      )}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                              {/* Black keys */}
+                              {BLACK_KEYS.map((note) => {
+                                const isActive =
+                                  (pitchActiveNotes & (1 << note)) !== 0;
+                                const whiteIdx =
+                                  WHITE_KEYS.findIndex((w) => w > note) - 1;
+                                const offset =
+                                  (
+                                    {
+                                      1: 0.65,
+                                      3: 0.75,
+                                      6: 0.6,
+                                      8: 0.7,
+                                      10: 0.8,
+                                    } as Record<number, number>
+                                  )[note] ?? 0.7;
+                                const whiteKeyWidth = 100 / 7;
+                                const left =
+                                  (whiteIdx + offset) * whiteKeyWidth;
+                                return (
+                                  <div
+                                    key={note}
+                                    onClick={() =>
+                                      updateBlockParam(
+                                        selectedBlock.id,
+                                        'activeNotes',
+                                        pitchActiveNotes ^ (1 << note),
+                                      )
+                                    }
+                                    style={{
+                                      position: 'absolute',
+                                      top: 0,
+                                      left: `${left}%`,
+                                      width: `${whiteKeyWidth * 0.65}%`,
+                                      height: '62%',
+                                      background: isActive
+                                        ? pitchBlackGrad
+                                        : 'linear-gradient(to bottom, #333, #1a1a1a)',
+                                      border: '1px solid #000',
+                                      borderRadius: '0 0 3px 3px',
+                                      cursor: 'pointer',
+                                      transition: 'background 0.05s',
+                                      zIndex: 2,
+                                      display: 'flex',
+                                      alignItems: 'flex-end',
+                                      justifyContent: 'center',
+                                      paddingBottom: 4,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        fontSize: 7,
+                                        fontWeight: 600,
+                                        color: isActive
+                                          ? '#1a1a1a'
+                                          : 'rgba(255,255,255,0.5)',
+                                        pointerEvents: 'none',
+                                      }}
+                                    >
+                                      {displayAccidentals(
+                                        noteNameInKey(
+                                          note,
+                                          globalRootNote ?? 0,
+                                          globalRootNote != null
+                                            ? globalMode
+                                            : undefined,
+                                        ),
+                                      )}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* Root + Scale + Shift */}
+                            <div className="flex items-center gap-4">
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-1">
+                                  <span
+                                    className="text-[9px] font-semibold uppercase tracking-wider"
+                                    style={{
+                                      color: 'var(--color-text-dim)',
+                                      letterSpacing: '1px',
+                                    }}
+                                  >
+                                    Root
+                                  </span>
+                                  {(selectedBlock.params.rootNote ?? -1) >=
+                                    0 && (
+                                    <button
+                                      onClick={toggleRootLock}
+                                      className="flex items-center justify-center cursor-pointer"
+                                      style={{
+                                        color: rootLocked
+                                          ? 'var(--color-accent)'
+                                          : 'var(--color-text-dim)',
+                                        border: 'none',
+                                        background: 'none',
+                                        padding: 0,
+                                      }}
+                                      title={
+                                        rootLocked
+                                          ? 'Unlock root note'
+                                          : 'Lock root note'
+                                      }
+                                    >
+                                      {rootLocked ? (
+                                        <Lock size={9} />
+                                      ) : (
+                                        <Unlock size={9} />
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                                <select
+                                  value={selectedBlock.params.rootNote ?? -1}
+                                  disabled={rootLocked}
+                                  onChange={(e) => {
+                                    const root = Number(e.target.value);
+                                    updateBlockParam(
+                                      selectedBlock.id,
+                                      'rootNote',
+                                      root,
+                                    );
+                                    if (root >= 0) {
+                                      updateBlockParam(
+                                        selectedBlock.id,
+                                        'activeNotes',
+                                        scaleToNotesBitmask(
+                                          root,
+                                          selectedBlock.params.scaleType ?? 0,
+                                        ),
+                                      );
+                                      setGlobalRootNote(root);
+                                    } else {
+                                      updateBlockParam(
+                                        selectedBlock.id,
+                                        'scaleType',
+                                        0,
+                                      );
+                                      updateBlockParam(
+                                        selectedBlock.id,
+                                        'activeNotes',
+                                        4095,
+                                      );
+                                    }
+                                  }}
+                                  className="text-[10px] rounded px-2 py-1"
+                                  style={{
+                                    backgroundColor: 'var(--color-surface-3)',
+                                    color: 'var(--color-text)',
+                                    border: '1px solid var(--color-border)',
+                                    cursor: rootLocked
+                                      ? 'not-allowed'
+                                      : 'pointer',
+                                    opacity: rootLocked ? 0.5 : 1,
+                                  }}
+                                >
+                                  {COF_ROOT_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                      {opt.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <span
+                                  className="text-[9px] font-semibold uppercase tracking-wider"
+                                  style={{
+                                    color: 'var(--color-text-dim)',
+                                    letterSpacing: '1px',
+                                  }}
+                                >
+                                  Scale
+                                </span>
+                                <div
+                                  className="relative"
+                                  ref={scaleDropdownExpandedRef}
+                                >
+                                  <button
+                                    onClick={() =>
+                                      setScaleDropdownOpenExpanded((v) => !v)
+                                    }
+                                    className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-white/10"
+                                    style={{
+                                      backgroundColor: 'var(--color-surface-3)',
+                                      color: 'var(--color-text)',
+                                      border: '1px solid var(--color-border)',
+                                      minWidth: 90,
+                                    }}
+                                  >
+                                    {(() => {
+                                      const modeKey =
+                                        SCALE_TYPES[
+                                          selectedBlock.params.scaleType ?? 0
+                                        ];
+                                      return modeKey === 'chromatic'
+                                        ? 'Chromatic'
+                                        : (MODE_DISPLAY[modeKey] ?? modeKey);
+                                    })()}
+                                    <ChevronDown
+                                      size={10}
+                                      strokeWidth={2}
+                                      style={{
+                                        marginLeft: 'auto',
+                                        transform: scaleDropdownOpenExpanded
+                                          ? 'rotate(180deg)'
+                                          : undefined,
+                                        transition: 'transform 0.15s',
+                                      }}
+                                    />
+                                  </button>
+                                  {scaleDropdownOpenExpanded && (
+                                    <div
+                                      className="absolute left-0 z-50 mt-1 overflow-y-auto rounded-md border"
+                                      style={{
+                                        maxHeight: 260,
+                                        width: 200,
+                                        backgroundColor:
+                                          'var(--color-surface-2, #1e1e2e)',
+                                        borderColor:
+                                          'var(--color-border, rgba(255,255,255,0.08))',
+                                        boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                                      }}
+                                    >
+                                      <button
+                                        onClick={() => {
+                                          updateBlockParam(
+                                            selectedBlock.id,
+                                            'scaleType',
+                                            0,
+                                          );
+                                          updateBlockParam(
+                                            selectedBlock.id,
+                                            'activeNotes',
+                                            4095,
+                                          );
+                                          setScaleDropdownOpenExpanded(false);
+                                        }}
+                                        className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
+                                        style={{
+                                          color:
+                                            (selectedBlock.params.scaleType ??
+                                              0) === 0
+                                              ? '#fff'
+                                              : 'var(--color-text-secondary, #a0a0b0)',
+                                          background:
+                                            (selectedBlock.params.scaleType ??
+                                              0) === 0
+                                              ? 'rgba(255,255,255,0.08)'
+                                              : 'none',
+                                          border: 'none',
+                                          fontWeight:
+                                            (selectedBlock.params.scaleType ??
+                                              0) === 0
+                                              ? 600
+                                              : 400,
+                                        }}
+                                      >
+                                        Chromatic
+                                      </button>
+                                      {MODE_GROUPS.map((group) => (
+                                        <div key={group.label}>
+                                          <div
+                                            className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
+                                            style={{
+                                              color:
+                                                'var(--color-text-dim, #6b6b80)',
+                                              backgroundColor:
+                                                'var(--color-surface-2, #1e1e2e)',
+                                            }}
+                                          >
+                                            {group.label}
+                                          </div>
+                                          {group.modes.map((modeKey) => {
+                                            const modeIdx = SCALE_TYPES.indexOf(
+                                              modeKey as (typeof SCALE_TYPES)[number],
+                                            );
+                                            const isActive =
+                                              (selectedBlock.params.scaleType ??
+                                                0) === modeIdx;
+                                            return (
+                                              <button
+                                                key={modeKey}
+                                                onClick={() => {
+                                                  updateBlockParam(
+                                                    selectedBlock.id,
+                                                    'scaleType',
+                                                    modeIdx,
+                                                  );
+                                                  const newMask =
+                                                    scaleToNotesBitmask(
+                                                      selectedBlock.params
+                                                        .rootNote ?? 0,
+                                                      modeIdx,
+                                                    );
+                                                  updateBlockParam(
+                                                    selectedBlock.id,
+                                                    'activeNotes',
+                                                    newMask,
+                                                  );
+                                                  setGlobalMode(modeKey);
+                                                  setScaleDropdownOpenExpanded(
+                                                    false,
+                                                  );
+                                                }}
+                                                className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
+                                                style={{
+                                                  color: isActive
+                                                    ? '#fff'
+                                                    : 'var(--color-text-secondary, #a0a0b0)',
+                                                  background: isActive
+                                                    ? 'rgba(255,255,255,0.08)'
+                                                    : 'none',
+                                                  border: 'none',
+                                                  fontWeight: isActive
+                                                    ? 600
+                                                    : 400,
+                                                }}
+                                              >
+                                                {MODE_DISPLAY[modeKey] ??
+                                                  modeKey}
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <span
+                                  className="text-[9px] font-semibold uppercase tracking-wider"
+                                  style={{
+                                    color: 'var(--color-text-dim)',
+                                    letterSpacing: '1px',
+                                  }}
+                                >
+                                  Shift
+                                </span>
+                                <span
+                                  className="text-[10px] font-medium px-2 py-1"
+                                  style={{
+                                    color: 'var(--color-text)',
+                                    fontVariantNumeric: 'tabular-nums',
+                                  }}
+                                >
+                                  {Math.round(
+                                    (selectedBlock.params.shift ?? 0.5) * 48 -
+                                      24,
+                                  )}{' '}
+                                  st
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Knobs */}
+                            <div className="flex items-center justify-evenly gap-2">
+                              <RotaryKnob
+                                label="SHIFT"
+                                value={selectedBlock.params.shift ?? 0.5}
+                                min={0}
+                                max={1}
+                                size={48}
+                                arcColor={pitchAccentColor}
+                                formatValue={(v) =>
+                                  `${Math.round(v * 48 - 24)} st`
+                                }
+                                onChange={(v) =>
+                                  updateBlockParam(selectedBlock.id, 'shift', v)
+                                }
+                              />
+                              <RotaryKnob
+                                label="FINE"
+                                value={selectedBlock.params.fine ?? 0.5}
+                                min={0}
+                                max={1}
+                                size={48}
+                                arcColor={pitchAccentColor}
+                                formatValue={(v) =>
+                                  `${Math.round(v * 200 - 100)} ct`
+                                }
+                                onChange={(v) =>
+                                  updateBlockParam(selectedBlock.id, 'fine', v)
+                                }
+                              />
+                              <RotaryKnob
+                                label="FORMANT"
+                                value={
+                                  (selectedBlock.params.formant ?? 0) / 100
+                                }
+                                min={0}
+                                max={1}
+                                size={48}
+                                arcColor={pitchAccentColor}
+                                formatValue={(v) => `${Math.round(v * 100)}%`}
+                                onChange={(v) =>
+                                  updateBlockParam(
+                                    selectedBlock.id,
+                                    'formant',
+                                    Math.round(v * 100),
+                                  )
+                                }
+                              />
+                              <RotaryKnob
+                                label="F. FOLLOW"
+                                value={
+                                  (selectedBlock.params.formantFollow ?? 0) /
+                                  100
+                                }
+                                min={0}
+                                max={1}
+                                size={48}
+                                arcColor={pitchAccentColor}
+                                formatValue={(v) => `${Math.round(v * 100)}%`}
+                                onChange={(v) =>
+                                  updateBlockParam(
+                                    selectedBlock.id,
+                                    'formantFollow',
+                                    Math.round(v * 100),
+                                  )
+                                }
+                              />
+                              <RotaryKnob
+                                label="MIX"
+                                value={(selectedBlock.params.mix ?? 100) / 100}
+                                min={0}
+                                max={1}
+                                size={48}
+                                arcColor={pitchAccentColor}
+                                formatValue={(v) => `${Math.round(v * 100)}%`}
+                                onChange={(v) =>
+                                  updateBlockParam(
+                                    selectedBlock.id,
+                                    'mix',
+                                    Math.round(v * 100),
+                                  )
+                                }
+                              />
+                            </div>
+                          </div>
+                        </Dialog.Content>
+                      </Dialog.Portal>
+                    </Dialog.Root>
+                  </div>
+                ) : selectedBlock.type === 'phaser' ? (
+                  <>
+                    {/* Hz / Rate toggle pill */}
+                    <div
+                      className="flex flex-col items-center gap-1.5"
+                      style={{ minWidth: 72 }}
+                    >
+                      <span
+                        className="text-[9px] font-semibold uppercase tracking-wider"
+                        style={{
+                          color: 'var(--color-text-dim)',
+                          letterSpacing: '1px',
+                        }}
+                      >
+                        Mode
+                      </span>
+                      <div
+                        className="flex rounded-md overflow-hidden"
+                        style={{ border: '1px solid var(--color-border)' }}
+                      >
+                        {['Hz', 'Rate'].map((label, idx) => (
+                          <button
+                            key={label}
+                            onClick={() =>
+                              updateBlockParam(
+                                selectedBlock.id,
+                                'rateMode',
+                                idx,
+                              )
+                            }
+                            className="px-3 py-1 text-[10px] font-semibold cursor-pointer"
+                            style={{
+                              background:
+                                (selectedBlock.params.rateMode ?? 0) === idx
+                                  ? selectedColor
+                                  : 'transparent',
+                              color:
+                                (selectedBlock.params.rateMode ?? 0) === idx
+                                  ? '#000'
+                                  : 'var(--color-text-dim)',
+                              border: 'none',
+                              transition:
+                                'background 150ms ease, color 150ms ease',
+                            }}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {(selectedBlock.params.rateMode ?? 0) === 0 ? (
                       <RotaryKnob
-                        key={p.key}
-                        label={p.label}
-                        value={selectedBlock.params[p.key] ?? p.default}
+                        key="rate"
+                        label="Hz"
+                        value={selectedBlock.params.rate ?? 0.3}
                         min={0}
                         max={1}
                         onChange={(v) =>
-                          updateBlockParam(selectedBlock.id, p.key, v)
+                          updateBlockParam(selectedBlock.id, 'rate', v)
                         }
                         size={52}
                         arcColor={selectedColor}
-                        formatValue={(v) => v.toFixed(2)}
+                        formatValue={(v) => (0.01 + v * 39.99).toFixed(2)}
                       />
-                    ))}
-                </>
-              ) : (
-                selectedDef.params.map((p) => (
-                  <RotaryKnob
-                    key={p.key}
-                    label={p.label}
-                    value={selectedBlock.params[p.key] ?? p.default}
-                    min={0}
-                    max={1}
-                    onChange={(v) =>
-                      updateBlockParam(selectedBlock.id, p.key, v)
-                    }
-                    size={52}
-                    arcColor={selectedColor}
-                    formatValue={(v) => v.toFixed(2)}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        )}
+                    ) : (
+                      <RotaryKnob
+                        key="rateIdx"
+                        label="Rate"
+                        value={(selectedBlock.params.rateIdx ?? 10) / 21}
+                        min={0}
+                        max={1}
+                        onChange={(v) =>
+                          updateBlockParam(
+                            selectedBlock.id,
+                            'rateIdx',
+                            Math.round(v * 21),
+                          )
+                        }
+                        size={52}
+                        arcColor={selectedColor}
+                        formatValue={(v) =>
+                          RATE_LABELS[Math.round(v * 21)] ?? '1/3'
+                        }
+                      />
+                    )}
 
-        {/* Empty state */}
-        {!selectedBlock && (
-          <div className="flex-1 flex items-center justify-center">
-            <span
-              className="text-[11px]"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
-              {chain.length === 0
-                ? 'Add your first effect'
-                : 'Select a block to edit'}
-            </span>
-          </div>
-        )}
+                    <RotaryKnob
+                      key="depth"
+                      label="Depth"
+                      value={selectedBlock.params.depth ?? 0.5}
+                      min={0}
+                      max={1}
+                      onChange={(v) =>
+                        updateBlockParam(selectedBlock.id, 'depth', v)
+                      }
+                      size={52}
+                      arcColor={selectedColor}
+                      formatValue={(v) => v.toFixed(2)}
+                    />
+                    <RotaryKnob
+                      key="mix"
+                      label="Mix"
+                      value={selectedBlock.params.mix ?? 0.5}
+                      min={0}
+                      max={1}
+                      onChange={(v) =>
+                        updateBlockParam(selectedBlock.id, 'mix', v)
+                      }
+                      size={52}
+                      arcColor={selectedColor}
+                      formatValue={(v) => v.toFixed(2)}
+                    />
+                  </>
+                ) : selectedBlock.type === 'wah' ? (
+                  <>
+                    {/* LP / BP / HP toggle pill */}
+                    <div
+                      className="flex flex-col items-center gap-1.5"
+                      style={{ minWidth: 72 }}
+                    >
+                      <span
+                        className="text-[9px] font-semibold uppercase tracking-wider"
+                        style={{
+                          color: 'var(--color-text-dim)',
+                          letterSpacing: '1px',
+                        }}
+                      >
+                        Filter
+                      </span>
+                      <div
+                        className="flex rounded-md overflow-hidden"
+                        style={{ border: '1px solid var(--color-border)' }}
+                      >
+                        {['LP', 'BP', 'HP'].map((label, idx) => (
+                          <button
+                            key={label}
+                            onClick={() =>
+                              updateBlockParam(
+                                selectedBlock.id,
+                                'filterType',
+                                idx,
+                              )
+                            }
+                            className="px-2.5 py-1 text-[10px] font-semibold cursor-pointer"
+                            style={{
+                              background:
+                                Math.round(
+                                  selectedBlock.params.filterType ?? 1,
+                                ) === idx
+                                  ? selectedColor
+                                  : 'transparent',
+                              color:
+                                Math.round(
+                                  selectedBlock.params.filterType ?? 1,
+                                ) === idx
+                                  ? '#000'
+                                  : 'var(--color-text-dim)',
+                              border: 'none',
+                              transition:
+                                'background 150ms ease, color 150ms ease',
+                            }}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {selectedDef.params
+                      .filter((p) => p.key !== 'filterType')
+                      .map((p) => (
+                        <RotaryKnob
+                          key={p.key}
+                          label={p.label}
+                          value={selectedBlock.params[p.key] ?? p.default}
+                          min={0}
+                          max={1}
+                          onChange={(v) =>
+                            updateBlockParam(selectedBlock.id, p.key, v)
+                          }
+                          size={52}
+                          arcColor={selectedColor}
+                          formatValue={(v) => v.toFixed(2)}
+                        />
+                      ))}
+                  </>
+                ) : (
+                  selectedDef.params.map((p) => (
+                    <RotaryKnob
+                      key={p.key}
+                      label={p.label}
+                      value={selectedBlock.params[p.key] ?? p.default}
+                      min={0}
+                      max={1}
+                      onChange={(v) =>
+                        updateBlockParam(selectedBlock.id, p.key, v)
+                      }
+                      size={52}
+                      arcColor={selectedColor}
+                      formatValue={(v) => v.toFixed(2)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!selectedBlock && (
+            <div className="flex-1 flex items-center justify-center">
+              <span
+                className="text-[11px]"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                {chain.length === 0
+                  ? 'Add your first effect'
+                  : 'Select a block to edit'}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </ControlGestureContext.Provider>
   );
 }

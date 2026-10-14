@@ -15,6 +15,7 @@
 import 'fake-indexeddb/auto';
 import { IDBFactory } from 'fake-indexeddb';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { RETIRED_CURRICULUM_MARKERS } from '../../persistence/retiredCurriculum';
 
 const CID = 'class-a';
 
@@ -39,6 +40,11 @@ const clearIndexedDb = (): void => {
 
 beforeEach(() => {
   window.localStorage.clear();
+  // A device that already ran the one-time retired-curriculum purge — this
+  // file is about backups, and the purge would empty the stores it seeds.
+  for (const marker of Object.values(RETIRED_CURRICULUM_MARKERS)) {
+    window.localStorage.setItem(marker, '2026-10-13T00:00:00.000Z');
+  }
   clearIndexedDb();
   vi.resetModules();
 });

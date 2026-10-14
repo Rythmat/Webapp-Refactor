@@ -341,6 +341,11 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     this.pedalChain?.syncChain(blocks);
   }
 
+  /** Fast-path param update: skips audio graph rewiring when only params changed. */
+  updateChainParams(blocks: PedalBlockDescriptor[]): boolean {
+    return this.pedalChain?.updateProcessorParams(blocks) ?? false;
+  }
+
   updateOverdrive(params: Partial<OverdriveParams>): void {
     this.pedalChain?.updateOverdrive(params);
   }

@@ -3,7 +3,7 @@ import {
   useCloudSaveStore,
   type LastSaved,
 } from '@/daw/commands/cloudSaveStore';
-import { groupsFromGaps } from '@/daw/commands/lastSaved';
+import { cloudGapMode, groupsFromGaps } from '@/daw/commands/lastSaved';
 import { useDraftStatusStore } from '@/daw/persistence/drafts/draftStatusStore';
 import {
   cloudSaveGaps,
@@ -13,7 +13,7 @@ import {
 import { isBusyPhase, useSessionStore } from '@/daw/session/sessionStore';
 import { useStore } from '@/daw/store';
 import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
-import { modShortcut } from './platformKeys';
+import { shortcutKeys } from '@/daw/commands/shortcuts';
 import {
   deriveSaveChip,
   sameSaveChipView,
@@ -55,6 +55,8 @@ interface MatchRecord {
   groups: string[] | null;
   /** The incomplete save left audio out (an upload that failed). */
   audio: boolean;
+  /** What it left out needs a track to ride on (cloudGapMode 'legacy'). */
+  untilTrack: boolean;
 }
 
 /** cloudSaveGaps names of audio a save couldn't upload. */
@@ -147,6 +149,7 @@ function readInputs(): SaveChipInputs {
     matchesLastSaved: known?.value ?? null,
     gapGroups: known?.groups ?? null,
     audioNotUploaded: known?.audio ?? false,
+    untilTrack: known?.untilTrack ?? false,
     saveShortcut,
   };
 }
@@ -219,12 +222,16 @@ function runCheck(): void {
   let value: boolean;
   let groups: string[] | null = null;
   let audio = false;
+  let untilTrack = false;
   try {
     value =
       version === saved.version ||
       hashFingerprint(documentFingerprint()) === saved.fingerprint;
     if (value && !saved.complete) {
-      const gaps = cloudSaveGaps(useStore.getState(), 'legacy');
+      const state = useStore.getState();
+      const mode = cloudGapMode(state);
+      const gaps = cloudSaveGaps(state, mode);
+      untilTrack = mode === 'legacy';
       groups = groupsFromGaps(gaps);
       audio = gaps.some((gap) => AUDIO_GAP_KEYS.has(gap));
     }
@@ -233,7 +240,7 @@ function runCheck(): void {
     console.error('[save chip] fingerprint check failed:', err);
     value = false;
   }
-  match = { version, saved, projectId, value, groups, audio };
+  match = { version, saved, projectId, value, groups, audio, untilTrack };
   recompute();
 }
 
@@ -252,7 +259,7 @@ function recompute(): void {
 
 function attach(): void {
   if (detachAll !== null) return;
-  saveShortcut = modShortcut('s').label;
+  saveShortcut = shortcutKeys('project.save').label;
   const onChange = () => {
     recompute();
     scheduleCheck();

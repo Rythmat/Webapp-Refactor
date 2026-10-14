@@ -7,7 +7,6 @@ import {
 import { loadLiveGroove } from '@/curriculum/engine/drumGrooves/registry';
 import { applySwing } from '@/curriculum/engine/genreGeneration/swing';
 import { GROOVES } from '@/daw/data/groovesLibrary';
-import { importMidiFile } from '@/daw/midi/MidiFileIO';
 
 /** Studio's tick resolution (ticks per quarter note). */
 const PPQ = 480;
@@ -51,6 +50,8 @@ export async function loadGrooveEvents(
   try {
     const resp = await fetch(groove.url);
     if (!resp.ok) return null;
+    // The MIDI reader loads with the first groove, not with the editor.
+    const { importMidiFile } = await import('@/daw/midi/MidiFileIO');
     const sequences = importMidiFile(await resp.arrayBuffer());
     if (sequences.length === 0) return null;
 

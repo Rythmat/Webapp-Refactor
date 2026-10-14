@@ -1,14 +1,13 @@
-import {
-  CITIES,
-  CITY_COUNTRY_TO_ISO,
-  HISTORICAL_MODULES,
-  MUSIC_HISTORY,
-  getTour,
-} from '@/components/atlas/data';
+import { CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { getCountryColor } from '@/components/atlas/data/continentColors';
+import { eventImage, posterUrl } from '@/components/atlas/data/eventImage';
+import { guidesData } from '@/components/atlas/data/loaders';
+import { getCityById, getEventById } from '@/components/atlas/data/lookups';
 import type { HistoricalEvent } from '@/components/atlas/types';
-import type { AtlasStop } from './atlasStop';
+import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
+import { contentGeneration } from '@/content/contentStore';
+import { stopKey, type AtlasStop } from './atlasStop';
 
 /**
  * How a stop presents itself in the trail strip and in search results: a
@@ -31,12 +30,17 @@ export interface StopPresentation {
   emoji?: string;
 }
 
+/**
+ * A video's smallest thumbnail (120×90): thumbnails show at 56–80 px, and the
+ * 320×180 one they used to load is several times the bytes for no visible
+ * gain.
+ */
 export function youtubeThumb(videoId: string): string {
-  return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+  return posterUrl(videoId, 'thumb');
 }
 
 function eventThumb(event: HistoricalEvent | undefined): string | undefined {
-  return event?.videoId ? youtubeThumb(event.videoId) : undefined;
+  return eventImage(event, 'thumb');
 }
 
 const COUNTRY_DISPLAY: Record<string, string> = {
@@ -45,14 +49,53 @@ const COUNTRY_DISPLAY: Record<string, string> = {
   CA: 'Canada',
 };
 
+// The trail and the search lists describe the same stops on every render;
+// remember each one until the content changes.
+const cache = new Map<string, StopPresentation>();
+let cacheGeneration = contentGeneration;
+
+/** stopKey, but keeping the case the title shows. */
+function presentationKey(stop: AtlasStop): string {
+  if (stop.kind === 'artist') return `artist:${stop.artist}`;
+  if (stop.kind === 'search') return `search:${stop.query}`;
+  return stopKey(stop);
+}
+
 export function describeStop(stop: AtlasStop): StopPresentation {
+  if (cacheGeneration !== contentGeneration) {
+    cache.clear();
+    cacheGeneration = contentGeneration;
+  }
+  const key = presentationKey(stop);
+  let presentation = cache.get(key);
+  if (!presentation) {
+    presentation = present(stop);
+    // A tour or pathway named before the tours have loaded gets a generic
+    // title; don't keep it. Readers that show one subscribe to guidesData.
+    if (isGuideStop(stop) && !guidesData.peek()) {
+      guidesData.load().catch(() => undefined);
+      return presentation;
+    }
+    // A long session of searching could otherwise grow this without end.
+    if (cache.size >= 2000) cache.clear();
+    cache.set(key, presentation);
+  }
+  return presentation;
+}
+
+/** Stops whose titles come from the on-demand tours and pathways. */
+export function isGuideStop(stop: AtlasStop): boolean {
+  return stop.kind === 'tour' || stop.kind === 'pathway';
+}
+
+function present(stop: AtlasStop): StopPresentation {
   switch (stop.kind) {
     case 'event': {
-      const event = MUSIC_HISTORY.find((e) => e.id === stop.eventId);
+      const event = getEventById(stop.eventId);
       return {
         kind: 'event',
         title: event?.title ?? 'Event',
-        subtitle: event ? `${event.year} · ${event.location.city}` : '',
+        subtitle: event ? `${event.year} · ${eventPlaceName(event)}` : '',
         thumb: eventThumb(event),
       };
     }
@@ -72,7 +115,7 @@ export function describeStop(stop: AtlasStop): StopPresentation {
     case 'place': {
       const { place } = stop;
       if (place.type === 'city') {
-        const city = CITIES.find((c) => c.id === place.id);
+        const city = getCityById(place.id);
         return {
           kind: 'place',
           title: city?.name ?? place.id,
@@ -108,8 +151,8 @@ export function describeStop(stop: AtlasStop): StopPresentation {
       };
 
     case 'pathway': {
-      const mod = HISTORICAL_MODULES.find((m) => m.id === stop.pathwayId);
-      const first = MUSIC_HISTORY.find((e) => e.id === mod?.eventIds[0]);
+      const mod = guidesData.peek()?.getModuleById(stop.pathwayId);
+      const first = getEventById(mod?.eventIds[0]);
       return {
         kind: 'pathway',
         title: mod?.title ?? 'Pathway',
@@ -120,7 +163,7 @@ export function describeStop(stop: AtlasStop): StopPresentation {
     }
 
     case 'tour': {
-      const tour = getTour(stop.tourId);
+      const tour = guidesData.peek()?.getTour(stop.tourId);
       return {
         kind: 'tour',
         title: tour?.title ?? 'Guided tour',

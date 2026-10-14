@@ -3,16 +3,16 @@ import { motion } from 'framer-motion';
 import * as Slider from '@radix-ui/react-slider';
 import { Sparkles, Ear, Headphones, Activity } from 'lucide-react';
 import { useStore } from '@/daw/store';
-import { audioEngine } from '@/daw/audio/AudioEngine';
 import { LiveLevelFill } from './LiveLevelFill';
+import { sliderGestureProps } from '@/daw/hooks/useContinuousControl';
+import { useMasterVolumeControl } from '@/daw/hooks/useMixControls';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
-import { MasterFxPanel } from '@/daw/components/Effects/MasterFxPanel';
+import { MasterFxPanelPart } from '@/daw/shell/lazyParts';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import {
   useListenMode,
   useStudioListenStore,
 } from '@/daw/collab/studioListenStore';
-import { useRemoteUsers } from '@/daw/collab/presence';
 
 // ── MasterTrackHeader ──────────────────────────────────────────────────────
 // The "Master" track section: master output volume for the whole mix plus
@@ -24,8 +24,9 @@ import { useRemoteUsers } from '@/daw/collab/presence';
 const MASTER_COLOR = 'var(--color-accent)';
 
 export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
-  const masterVolume = useStore((s) => s.masterVolume);
-  const setMasterVolume = useStore((s) => s.setMasterVolume);
+  // Previews while it moves; one store write on release.
+  const volume = useMasterVolumeControl();
+  const masterVolume = volume.value;
   const fxCount = useStore((s) => s.masteringFxChain.length);
   const automationOpen = useStore(
     (s) => s.automationOpenTrackId === MASTER_AUTOMATION_ID,
@@ -38,15 +39,11 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
 
   const listenMode = useListenMode();
   const toggleListenMode = useStudioListenStore((s) => s.toggleListenMode);
-  // The listen toggle only matters when collaborators are present.
-  const hasPeers = useRemoteUsers().length > 0;
+  // The listen toggle only matters when collaborators are present. A
+  // boolean, so a peer moving between tracks doesn't re-render the header.
+  const hasPeers = useStore((s) => s.remoteUsers.size > 0);
 
   const [fxOpen, setFxOpen] = useState(false);
-
-  // Live stereo master metering (averaged), same source as the mixer master.
-  const [analyserL, analyserR] = isReady
-    ? audioEngine.getMasterAnalysers()
-    : [null, null];
 
   return (
     <div
@@ -167,13 +164,16 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
           max={100}
           step={1}
           value={[Math.round(masterVolume * 100)]}
-          onValueChange={([v]) => setMasterVolume(v / 100)}
+          onValueChange={([v]) => volume.change(v / 100)}
+          {...sliderGestureProps(volume)}
         >
           <Slider.Track
             className="relative h-1.5 w-full overflow-hidden rounded-full"
             style={{ backgroundColor: 'var(--color-border)' }}
           >
-            <LiveLevelFill analyser={analyserL} analyserR={analyserR} />
+            {/* Live stereo master level (the mean of L and R), the same
+                source as the mixer's master strip. */}
+            <LiveLevelFill meterKey="master" />
             <Slider.Range
               className="absolute h-full rounded-full"
               style={{ backgroundColor: 'transparent' }}
@@ -202,7 +202,7 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
         title="Master  Mix Effects"
         trackColor={MASTER_COLOR}
       >
-        <MasterFxPanel isReady={isReady} />
+        <MasterFxPanelPart isReady={isReady} />
       </PopOutOverlay>
     </div>
   );

@@ -13,6 +13,7 @@
  * feature. Adding a field on the wrong side is what the firewall test at
  * `buildStudentView.test.ts` exists to prevent.
  */
+import type { MindMapBoard } from '@/content/graph/mindMapBoard';
 import type { PhaseKey } from './phases';
 import type { SlideDeck } from './slides/types';
 
@@ -114,6 +115,12 @@ export interface Interaction {
     module: 'globe' | 'learn' | 'studio' | 'arcade';
     activityRef: string;
     expects: 'completion' | 'score' | 'artifact';
+    /**
+     * A Promoter's mind-map board (`globe:mindmap`): the artists, cities,
+     * events and songs around the lesson's focus and how they connect,
+     * handed to the student's Globe. Ids, names and edge kinds only.
+     */
+    board?: MindMapBoard;
   };
 }
 

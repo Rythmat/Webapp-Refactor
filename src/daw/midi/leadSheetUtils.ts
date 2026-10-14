@@ -5,10 +5,9 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 export const PPQ = 480;
 
-/** @deprecated Use ticksPerBar(numerator, denominator) from timelineScale.ts */
-export const BEATS_PER_MEASURE = 4;
-/** @deprecated Use ticksPerBar(numerator, denominator) from timelineScale.ts */
-export const TICKS_PER_MEASURE = PPQ * BEATS_PER_MEASURE; // 1920
+// Bars come from the project's metre (ticksPerBar in src/daw/time/timeModel.ts)
+// and every function here takes the bar length: a 4/4 default applied
+// wherever a caller forgot it, and sent 3/4 charts out as 4/4 (leadsheet-19).
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -56,7 +55,9 @@ const MIN_CONFIDENCE = 0.5;
 
 export function regionToMeasures(
   regions: ChordRegion[],
-  ticksPerMeasure = TICKS_PER_MEASURE,
+  ticksPerMeasure: number,
+  /** Bars added past the last chord (leadSheetBars); null when none. */
+  extraBars: number | null = null,
 ): Measure[] {
   // Phase 9: Filter out low-confidence regions before building measures.
   // Regions without a confidence score (e.g., manually inserted) always pass.
@@ -65,8 +66,8 @@ export function regionToMeasures(
   );
 
   if (filtered.length === 0) {
-    // Return 4 empty measures as a blank lead sheet
-    return Array.from({ length: 4 }, (_, i) => ({
+    // A blank lead sheet: four empty measures, or as many as were added
+    return Array.from({ length: Math.max(4, extraBars ?? 0) }, (_, i) => ({
       index: i,
       startTick: i * ticksPerMeasure,
       chords: [],
@@ -75,7 +76,11 @@ export function regionToMeasures(
   }
 
   const maxTick = Math.max(...filtered.map((r) => r.endTick));
-  const totalMeasures = Math.max(4, Math.ceil(maxTick / ticksPerMeasure));
+  const totalMeasures = Math.max(
+    4,
+    Math.ceil(maxTick / ticksPerMeasure),
+    extraBars ?? 0,
+  );
   const measures: Measure[] = [];
 
   for (let m = 0; m < totalMeasures; m++) {
@@ -349,7 +354,7 @@ export function splitDuration(ticks: number): number[] {
  */
 export function measureSegments(
   measure: Measure,
-  ticksPerMeasure = TICKS_PER_MEASURE,
+  ticksPerMeasure: number,
 ): { offsetTicks: number; durationTicks: number; chord?: MeasureChord }[] {
   const segments: {
     offsetTicks: number;

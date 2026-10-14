@@ -15,6 +15,8 @@ const summarize = (payload: MspResultPayload): string => {
   if (payload.kind === 'completion') return 'Completed';
   if (payload.kind === 'score')
     return `Score ${payload.score} / ${payload.max}`;
+  if (payload.kind === 'mindMap')
+    return `Mind map · ${payload.map.nodeIds.length} found`;
   return `Artifact · ${payload.artifactRef.module}`;
 };
 

@@ -9,6 +9,7 @@ import SuperJSON from 'superjson';
 import { authFetch } from '@/auth/authFetch';
 import { Env } from '@/constants/env';
 import type { MidiClipColumnar } from '@/daw/persistence/SessionSerializer';
+import { noteCloudDocumentSupport } from './cloudDocumentSupport';
 import { PROJECT_DELETED_EVENT } from './projectEvents';
 import { isAbortLike, StudioApiError } from './studioApiError';
 
@@ -64,6 +65,15 @@ export interface StudioProjectInput {
     swing: number;
   };
   tracks: StudioProjectTrackInput[];
+  /**
+   * Milestone 1.5 (docs/studio-cloud-document-contract.md), sent only to an
+   * API that has the field (cloudDocumentSupport.ts): the cloud document,
+   * stored as it is; its schema; and on PUT the revision the save is based
+   * on, which the API answers with a 409 when the project has moved on.
+   */
+  document?: unknown;
+  documentSchema?: number;
+  baseRevision?: number;
 }
 
 /**
@@ -86,6 +96,10 @@ export interface StudioProjectSummary extends StudioProjectLibraryMeta {
   bpm: number;
   createdAt: Date;
   updatedAt: Date;
+  /** Milestone 1.5's list fields, from an API with the document field. */
+  revision?: number;
+  documentSchema?: number | null;
+  trackCount?: number;
 }
 
 export interface StudioProjectTrack extends StudioProjectTrackInput {
@@ -97,6 +111,19 @@ export interface StudioProjectTrack extends StudioProjectTrackInput {
 export interface StudioProjectDetail extends StudioProjectSummary {
   prism: StudioProjectInput['prism'];
   tracks: StudioProjectTrack[];
+  /**
+   * Milestone 1.5: present (null when nothing was saved there) from an API
+   * with the document field, absent from one without it.
+   */
+  document?: unknown;
+  /** The revision the document was last written at. */
+  writtenAtRevision?: number | null;
+}
+
+/** Learn from a project whether the API has the document field. */
+function noted<T>(project: T): T {
+  noteCloudDocumentSupport(project);
+  return project;
 }
 
 /**
@@ -178,12 +205,16 @@ async function request<T>(
   if (!response.ok) {
     let message: string;
     let code: string | null = null;
+    let body: Record<string, unknown> | null = null;
     try {
       const parsed = JSON.parse(text) as {
         error?: unknown;
         message?: unknown;
         code?: unknown;
       };
+      if (typeof parsed === 'object' && parsed !== null) {
+        body = parsed as Record<string, unknown>;
+      }
       const said =
         typeof parsed.error === 'string'
           ? parsed.error
@@ -198,6 +229,7 @@ async function request<T>(
     throw new StudioApiError({
       status: response.status,
       code,
+      body,
       method,
       path,
       message: `${method} ${path} failed (${response.status}): ${message}`,
@@ -225,7 +257,7 @@ export const studioProjectsApi = {
     request<StudioProjectDetail>(projectsPath(`/${id}`), {
       token,
       signal: opts.signal,
-    }),
+    }).then(noted),
 
   create: (
     token: string,
@@ -237,7 +269,7 @@ export const studioProjectsApi = {
       method: 'POST',
       body,
       signal: opts.signal,
-    }),
+    }).then(noted),
 
   update: (
     token: string,
@@ -250,7 +282,7 @@ export const studioProjectsApi = {
       method: 'PUT',
       body,
       signal: opts.signal,
-    }),
+    }).then(noted),
 
   /**
    * Update only the Library filing tags. Touches four scalar columns and no

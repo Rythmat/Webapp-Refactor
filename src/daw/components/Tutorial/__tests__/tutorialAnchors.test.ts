@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest';
 import { FX_CATALOG } from '@/daw/data/libraryItems';
 import { defaultReturns } from '@/daw/store/returnsSlice';
 import { TUTORIALS } from '../tutorials';
+import { ANCHOR_ALIASES, currentAnchorId } from '../anchorRegistry';
 
 /**
  * Anchor inventory for the Studio lessons (milestone 1.0 baseline). Every id
@@ -27,7 +28,13 @@ import { TUTORIALS } from '../tutorials';
  * - a template literal (`chanstrip-tab-${tab.id}`) is rendered for every
  *   value of the data that feeds it, which TEMPLATE_SOURCES names (the dock's
  *   tab list, the FX catalog, the return buses, …), so `chanstrip-tab-prism`
- *   passes and a typo such as `chanstrip-tab-prsim` does not.
+ *   passes and a typo such as `chanstrip-tab-prsim` does not;
+ * - a string literal passed to `useTutorialAnchor(…)` or `registerAnchor(…)`
+ *   (anchorRegistry.ts) is an exact id too.
+ *
+ * A step's id is looked up through ANCHOR_ALIASES (renamed anchors), and
+ * each alias must point at an id the editor renders, from one it no longer
+ * does.
  *
  * A file that renders an id must also be reachable from the editor: the
  * test follows the imports (static and dynamic) from src/daw/DawApp.tsx, so
@@ -114,9 +121,24 @@ function collectValue(node: ts.Expression, file: string, anchors: Anchors) {
 function collectAnchors(files: string[]): Anchors {
   const anchors: Anchors = { exact: new Map(), templates: new Map() };
   for (const path of files) {
-    if (!readFileSync(path, 'utf8').includes('data-tutorial-id')) continue;
+    const text = readFileSync(path, 'utf8');
+    if (
+      !text.includes('data-tutorial-id') &&
+      !text.includes('useTutorialAnchor(') &&
+      !text.includes('registerAnchor(')
+    )
+      continue;
     const source = parse(path);
     const visit = (node: ts.Node) => {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        (node.expression.text === 'useTutorialAnchor' ||
+          node.expression.text === 'registerAnchor') &&
+        node.arguments.length > 0
+      ) {
+        collectValue(node.arguments[0], path, anchors);
+      }
       if (
         ts.isJsxAttribute(node) &&
         node.name.getText(source) === 'data-tutorial-id' &&
@@ -374,6 +396,37 @@ describe('tutorial anchor inventory', () => {
     },
   );
 
+  describe('ANCHOR_ALIASES', () => {
+    it('maps old ids the editor no longer renders to ids it does', () => {
+      for (const [from, to] of Object.entries(ANCHOR_ALIASES)) {
+        expect(ANCHORS.exact.has(from), `${from} is still rendered`).toBe(
+          false,
+        );
+        const found = rendererOf(currentAnchorId(to));
+        if ('error' in found) expect.fail(`${from} → ${to}: ${found.error}`);
+      }
+    });
+  });
+
+  it('names a rack only on fx-add-* steps, and only a rack that exists', () => {
+    const racks = new Set([
+      'track',
+      'master',
+      ...RETURN_IDS.map((id) => `return:${id}`),
+    ]);
+    for (const lesson of TUTORIALS) {
+      for (const step of lesson.steps) {
+        if (!step.rack) continue;
+        const where = `${lesson.id}/${step.id}`;
+        expect(racks.has(step.rack), where).toBe(true);
+        expect(
+          targetsOf(step.target).some((id) => id.startsWith('fx-add-')),
+          where,
+        ).toBe(true);
+      }
+    }
+  });
+
   for (const lesson of TUTORIALS) {
     describe(lesson.id, () => {
       for (const step of lesson.steps) {
@@ -382,7 +435,7 @@ describe('tutorial anchor inventory', () => {
           const finding = KNOWN_MISSING[key];
           const test = finding ? it.fails : it;
           test(`${step.id} → ${id}${finding ? ` (${finding})` : ''}`, () => {
-            const found = rendererOf(id);
+            const found = rendererOf(currentAnchorId(id));
             if ('error' in found) expect.fail(found.error);
             const mounted = found.files.filter((file) => REACHABLE.has(file));
             expect(

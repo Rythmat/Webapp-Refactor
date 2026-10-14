@@ -5,6 +5,7 @@ import {
   useLayoutEffect,
   useMemo,
   useState,
+  type RefObject,
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -22,15 +23,21 @@ import {
 import { RollViewToggle } from '@/components/notation/RollViewToggle';
 import { mintNoteId } from '@/daw/model/noteIds';
 import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
+import { PIANO_ROLL_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { withTransaction } from '@/daw/store/history';
+import { getPlayheadTick, usePlayheadEffect } from '@/daw/engine/playheadClock';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { ChordRegion } from '@/daw/store/prismSlice';
+import { GRID_VALUES, type GridSize } from '@/daw/utils/quantize';
 import {
-  GRID_VALUES,
-  quantizeEvents,
-  snapToGrid,
-  type GridSize,
-} from '@/daw/utils/quantize';
+  gridStepTicks,
+  snapTicks,
+  ticksPerBar,
+  ticksPerBeat,
+} from '@/daw/time/timeModel';
+import { rollBeatLines } from './rollGrid';
 import {
   PIANO_ROLL_LANE_COLORS,
   pianoRollLabelFontSize,
@@ -70,8 +77,14 @@ function hexToRgb(hex: string): [number, number, number] {
   ];
 }
 
+/**
+ * A note's colour: the chord sounding at `songTick` in Prism colour mode,
+ * else the clip's. Chords are song time and notes clip time, so the caller
+ * passes the note's song tick (clip start + its tick): comparing the clip
+ * tick tinted a clip at bar 9 with bar 1's chords (pianoroll-09).
+ */
 function resolveNoteColor(
-  ev: { startTick: number },
+  songTick: number,
   clipColor: string,
   chordRegions: ChordRegion[],
   useChordColors: boolean,
@@ -80,8 +93,7 @@ function resolveNoteColor(
   if (!useChordColors) return [r, g, b];
   for (let j = chordRegions.length - 1; j >= 0; j--) {
     if (
-      ev.startTick >=
-      (chordRegions[j].rawStartTick ?? chordRegions[j].startTick)
+      songTick >= (chordRegions[j].rawStartTick ?? chordRegions[j].startTick)
     ) {
       return chordRegions[j].color;
     }
@@ -152,36 +164,79 @@ interface MarqueeRect {
 }
 
 // ── Playhead ────────────────────────────────────────────────────────────────
-// Subscribes to the transport position itself, so playback's ~30fps position
-// updates repaint just this line rather than the whole editor.
+// Painted through a ref, so playback moves this line without rendering it or
+// the editor (milestone 1.7). In the Studio it follows the playhead clock;
+// with a host (the back office) it follows the host's position instead and
+// does not subscribe to the clock at all.
 // With `handle`, it also draws the grab triangle at the bottom of the ruler
 // (purely visual — the ruler's mouse handler hit-tests it).
-function Playhead({
-  songOffset,
-  pixelsPerTick,
-  maxX,
-  height,
-  handle = false,
-}: {
+interface PlayheadProps {
   songOffset: number;
   pixelsPerTick: number;
   maxX: number;
   height: number;
   handle?: boolean;
-}) {
+}
+
+function Playhead(props: PlayheadProps) {
   const host = usePianoRollHost();
-  const storePosition = useStore((s) => s.position);
-  const position = host ? host.position : storePosition;
+  return host ? (
+    <HostPlayhead {...props} position={host.position} />
+  ) : (
+    <ClockPlayhead {...props} />
+  );
+}
+
+/** Moves the line to `position`, hiding it outside 0..maxX. */
+function paintPlayhead(
+  el: HTMLDivElement | null,
+  position: number,
+  { songOffset, pixelsPerTick, maxX }: PlayheadProps,
+): void {
+  if (!el) return;
   const x = (position - songOffset) * pixelsPerTick;
-  if (x < 0 || x > maxX) return null;
+  if (x < 0 || x > maxX) {
+    if (el.style.display !== 'none') el.style.display = 'none';
+    return;
+  }
+  if (el.style.display) el.style.display = '';
+  const transform = `translateX(${x}px)`;
+  if (el.style.transform !== transform) el.style.transform = transform;
+}
+
+function ClockPlayhead(props: PlayheadProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  usePlayheadEffect((tick) => paintPlayhead(ref.current, tick, props));
+  return (
+    <PlayheadLine lineRef={ref} height={props.height} handle={props.handle} />
+  );
+}
+
+function HostPlayhead({
+  position,
+  ...props
+}: PlayheadProps & { position: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => paintPlayhead(ref.current, position, props));
+  return (
+    <PlayheadLine lineRef={ref} height={props.height} handle={props.handle} />
+  );
+}
+
+function PlayheadLine({
+  lineRef,
+  height,
+  handle = false,
+}: {
+  lineRef: RefObject<HTMLDivElement>;
+  height: number;
+  handle?: boolean;
+}) {
   return (
     <div
+      ref={lineRef}
       className="pointer-events-none absolute left-0 top-0"
-      style={{
-        height,
-        transform: `translateX(${x}px)`,
-        willChange: 'transform',
-      }}
+      style={{ height, willChange: 'transform' }}
     >
       <div style={{ width: 2, height, backgroundColor: PLAYHEAD_COLOR }} />
       {handle && (
@@ -221,7 +276,8 @@ function rulerSnapshot(
 ): LoopState & { position: number } {
   if (host) return { ...host.loop, position: host.position };
   const s = useStore.getState();
-  return { ...readLoop(s, scope), position: s.position };
+  // The live playhead: the store's position is parked while playing.
+  return { ...readLoop(s, scope), position: getPlayheadTick() };
 }
 
 function writeLoop(
@@ -245,7 +301,7 @@ function writeLoop(
 }
 
 // ── Props ───────────────────────────────────────────────────────────────────
-interface PianoRollProps {
+export interface PianoRollProps {
   events: MidiNoteEvent[];
   clipStartTick: number;
   /** The clip's start on the song timeline. Event ticks are clip-relative, so
@@ -281,7 +337,7 @@ interface PianoRollProps {
 }
 
 export function PianoRoll({
-  events,
+  events: committedEvents,
   clipStartTick,
   timelineStartTick,
   clipColor,
@@ -299,6 +355,7 @@ export function PianoRoll({
   const storeRootNote = useStore((s) => s.rootNote);
   const storeMode = useStore((s) => s.mode);
   const storeTsNum = useStore((s) => s.timeSignatureNumerator);
+  const storeTsDen = useStore((s) => s.timeSignatureDenominator);
   const storeChordRegions = useStore((s) => s.chordRegions);
   const clipColorMode = useStore((s) => s.clipColorMode);
   const storeLoopEnabled = useStore((s) => readLoop(s, loopScope).enabled);
@@ -307,6 +364,8 @@ export function PianoRoll({
   const rootNote = host ? host.rootNote : storeRootNote;
   const mode = host ? host.mode : storeMode;
   const tsNum = host ? host.beatsPerBar : storeTsNum;
+  // A host counts quarter-note beats.
+  const tsDen = host ? 4 : storeTsDen;
   const chordRegions = host
     ? (host.chordRegions ?? NO_REGIONS)
     : storeChordRegions;
@@ -319,7 +378,12 @@ export function PianoRoll({
     [],
   );
 
-  const beatsPerBar = tsNum;
+  // The project's metre: bars and beats come from it, never from 4/4.
+  const ts = useMemo(
+    () => ({ numerator: tsNum, denominator: tsDen }),
+    [tsNum, tsDen],
+  );
+  const barTicks = ticksPerBar(ts);
   // Notation overlays the roll (read-only). A drum clip — the one case that
   // arrives with row labels — is written on a drumset staff instead of a
   // grand staff, placed by instrument rather than by pitch.
@@ -394,12 +458,39 @@ export function PianoRoll({
     if (scope.clipId === clipId && scope.generation === generation) return;
     selectionScope.current = { clipId, generation };
     setSelectedIndices(new Set());
+    // A drag's draft belongs to the clip it began on.
+    draftRef.current = null;
+    setDraft(null);
   }, [clipId, generation]);
   useEffect(() => {
     onSelectionChange?.([...selectedIndices].sort((a, b) => a - b));
   }, [selectedIndices, onSelectionChange]);
+  // A drag (notes moved or resized, a velocity drawn, the toolbar's velocity
+  // slid) edits a draft the roll draws from, and hands it to onChange once,
+  // on release: one store write, one undo step and one collab update per
+  // gesture instead of one per mouse move (pianoroll-04, collab-07). A click
+  // that draws or erases a note hands it over at once.
+  const [draft, setDraft] = useState<MidiNoteEvent[] | null>(null);
+  const draftRef = useRef<MidiNoteEvent[] | null>(null);
+  const events = draft ?? committedEvents;
   const eventsRef = useRef(events);
   eventsRef.current = events;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+  const editDraft = useCallback((next: MidiNoteEvent[]) => {
+    draftRef.current = next;
+    eventsRef.current = next;
+    setDraft(next);
+  }, []);
+  const commitDraft = useCallback(() => {
+    const next = draftRef.current;
+    if (!next) return;
+    draftRef.current = null;
+    setDraft(null);
+    withTransaction('Edit notes', () => onChangeRef.current(next));
+  }, []);
+  // Unmounted mid-drag: keep what the drag reached.
+  useEffect(() => commitDraft, [commitDraft]);
   const initialScrollDone = useRef(false);
 
   // Zoom (horizontal + vertical)
@@ -410,12 +501,12 @@ export function PianoRoll({
   const MAX_V_ZOOM = 4;
 
   // Compute horizontal extent from events (16-bar minimum)
-  const MIN_TICKS = TICKS_PER_BEAT * beatsPerBar * 16;
+  const MIN_TICKS = barTicks * 16;
   const maxTick = events.reduce(
     (max, e) => Math.max(max, e.startTick + e.durationTicks),
     clipStartTick + MIN_TICKS,
   );
-  const totalTicks = maxTick - clipStartTick + TICKS_PER_BEAT * 4;
+  const totalTicks = maxTick - clipStartTick + barTicks;
 
   // Dynamic MIN_ZOOM: stop zoom-out when content fills the viewport
   const containerW = gridScrollRef.current?.clientWidth ?? 800;
@@ -434,6 +525,23 @@ export function PianoRoll({
   // Song tick at x = 0 of the ruler/grid canvases. Event ticks are relative to
   // the clip, so it's the clip's timeline start plus the editor's origin tick.
   const songOffset = timelineStartTick + clipStartTick;
+  // The grid's step and snapping are the song's: a clip tick snaps to the
+  // grid counted from the song's bar lines, so a clip that starts off a bar
+  // line still lands notes on the song's beats (pianoroll-10). Never left
+  // of the roll's edge.
+  const gridStep = gridStepTicks(gridSize, ts);
+  const snapClipTick = useCallback(
+    (clipTick: number) =>
+      Math.max(
+        clipStartTick,
+        snapTicks(clipTick + timelineStartTick, {
+          enabled: true,
+          step: gridStep,
+          ts,
+        }) - timelineStartTick,
+      ),
+    [clipStartTick, timelineStartTick, gridStep, ts],
+  );
 
   // Pitches with a selected note — their rows light up in the key column, so a
   // row picked there (see handleKeysMouseDown) reads as selected.
@@ -616,19 +724,20 @@ export function PianoRoll({
     ctx.lineTo(w, LOOP_STRIP_H - 0.5);
     ctx.stroke();
 
-    // Bar-number lane
-    const laneH = h - LOOP_STRIP_H;
-    const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
+    // Bar-number lane: the song's bars, from wherever the clip starts.
     // Only the beats in the painted window, starting a little to its left so
     // the number of a bar that opens just off it still runs into view.
-    const beatPx = TICKS_PER_BEAT * pixelsPerTick;
-    const firstBeat = Math.max(0, Math.floor((win.x - 40) / beatPx));
-    const lastBeat = Math.min(totalBeats, Math.ceil((win.x + win.w) / beatPx));
+    const laneH = h - LOOP_STRIP_H;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    for (let beat = firstBeat; beat <= lastBeat; beat++) {
-      const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % beatsPerBar === 0;
+    for (const line of rollBeatLines(
+      songOffset,
+      pixelsPerTick,
+      Math.max(0, win.x - 40),
+      Math.min(gridW, win.x + win.w),
+      ts,
+    )) {
+      const { x, bar: isBar } = line;
 
       // Tick mark
       ctx.strokeStyle = isBar
@@ -641,7 +750,7 @@ export function PianoRoll({
       ctx.stroke();
 
       if (isBar) {
-        const barNum = beat / beatsPerBar + 1;
+        const barNum = line.barNumber;
         ctx.fillStyle = colors.textDim;
         ctx.font = "10px 'Glacial Indifference', system-ui, sans-serif";
         ctx.fillText(String(barNum), x + 4, LOOP_STRIP_H + laneH / 2);
@@ -663,6 +772,7 @@ export function PianoRoll({
     loopStart,
     loopEnd,
     songOffset,
+    ts,
   ]);
 
   // ── Draw Grid + Notes ───────────────────────────────────────────────────
@@ -713,21 +823,19 @@ export function PianoRoll({
       ctx.fillRect(0, rowY + rowH - 1, w, 1);
     }
 
-    // ── Vertical grid lines (beats + bars) ─────────────────────────────
-    const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
-    const beatPx = TICKS_PER_BEAT * pixelsPerTick;
-    const firstBeat = Math.max(0, Math.floor(win.x / beatPx) - 1);
-    const lastBeat = Math.min(
-      totalBeats,
-      Math.ceil((win.x + win.w) / beatPx) + 1,
-    );
-    for (let beat = firstBeat; beat <= lastBeat; beat++) {
-      const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % beatsPerBar === 0;
+    // ── Vertical grid lines (the song's beats + bars) ──────────────────
+    for (const line of rollBeatLines(
+      songOffset,
+      pixelsPerTick,
+      Math.max(0, win.x - 2 * pixelsPerTick * TICKS_PER_BEAT),
+      Math.min(totalTicks * pixelsPerTick, win.x + win.w + 2),
+      ts,
+    )) {
+      const { x, bar: isBar } = line;
 
       ctx.strokeStyle = !isBar
         ? PIANO_ROLL_LANE_COLORS.beatLine
-        : beat === 0
+        : line.atClipStart
           ? PIANO_ROLL_LANE_COLORS.firstBarLine
           : PIANO_ROLL_LANE_COLORS.barLine;
       ctx.lineWidth = isBar ? 2 : 1;
@@ -737,22 +845,23 @@ export function PianoRoll({
       ctx.stroke();
     }
 
-    // Sub-grid lines
-    const gridTicks = GRID_VALUES[gridSize];
-    if (gridTicks < TICKS_PER_BEAT) {
-      const totalGridLines = Math.ceil(totalTicks / gridTicks);
-      const linePx = gridTicks * pixelsPerTick;
-      const firstLine = Math.max(0, Math.floor(win.x / linePx) - 1);
-      const lastLine = Math.min(
-        totalGridLines,
-        Math.ceil((win.x + win.w) / linePx) + 1,
+    // Sub-grid lines, on the song's grid like the beats
+    const beatTicks = ticksPerBeat(ts);
+    if (gridStep < beatTicks) {
+      const firstTick =
+        Math.max(
+          0,
+          Math.floor((songOffset + win.x / pixelsPerTick) / gridStep) - 1,
+        ) * gridStep;
+      const lastTick = Math.min(
+        songOffset + totalTicks,
+        songOffset + (win.x + win.w) / pixelsPerTick + gridStep,
       );
       ctx.strokeStyle = PIANO_ROLL_LANE_COLORS.subLine;
       ctx.lineWidth = 1;
-      for (let g = firstLine; g <= lastLine; g++) {
-        const tick = g * gridTicks;
-        if (tick % TICKS_PER_BEAT === 0) continue;
-        const x = tick * pixelsPerTick;
+      for (let tick = firstTick; tick <= lastTick; tick += gridStep) {
+        if (tick % beatTicks === 0 || tick < songOffset) continue;
+        const x = (tick - songOffset) * pixelsPerTick;
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, h);
@@ -787,7 +896,7 @@ export function PianoRoll({
       const useChordColors =
         clipColorMode === 'prism' && chordRegions.length > 0;
       const [nr, ng, nb] = resolveNoteColor(
-        ev,
+        timelineStartTick + ev.startTick,
         clipColor,
         chordRegions,
         useChordColors,
@@ -841,7 +950,10 @@ export function PianoRoll({
     clipColorMode,
     rootNote,
     mode,
-    gridSize,
+    gridStep,
+    ts,
+    songOffset,
+    timelineStartTick,
     selectedIndices,
     marqueeRect,
     gridW,
@@ -929,7 +1041,7 @@ export function PianoRoll({
         const useChordColors =
           clipColorMode === 'prism' && chordRegions.length > 0;
         const [nr, ng, nb] = resolveNoteColor(
-          ev,
+          timelineStartTick + ev.startTick,
           clipColor,
           chordRegions,
           useChordColors,
@@ -967,6 +1079,7 @@ export function PianoRoll({
   }, [
     events,
     clipStartTick,
+    timelineStartTick,
     clipColor,
     chordRegions,
     clipColorMode,
@@ -1028,10 +1141,10 @@ export function PianoRoll({
         );
         const updated = [...currentEvents];
         updated[targetIdx] = { ...updated[targetIdx], velocity: newVel };
-        onChange(updated);
+        editDraft(updated);
       }
     },
-    [clipStartTick, pixelsPerTick, onChange, selectSingle],
+    [clipStartTick, pixelsPerTick, editDraft, selectSingle],
   );
 
   const handleVelMouseMove = useCallback(
@@ -1050,15 +1163,17 @@ export function PianoRoll({
       );
       const currentEvents = [...eventsRef.current];
       const idx = velDragRef.current.noteIndex;
+      if (currentEvents[idx]?.velocity === newVel) return;
       currentEvents[idx] = { ...currentEvents[idx], velocity: newVel };
-      onChange(currentEvents);
+      editDraft(currentEvents);
     },
-    [onChange],
+    [editDraft],
   );
 
   const handleVelMouseUp = useCallback(() => {
     velDragRef.current = null;
-  }, []);
+    commitDraft();
+  }, [commitDraft]);
 
   // ── Draw all canvases ───────────────────────────────────────────────────
   useEffect(() => {
@@ -1230,9 +1345,9 @@ export function PianoRoll({
             return;
           }
           selectSingle(null);
-          const gridTicks = GRID_VALUES[gridSize];
+          const gridTicks = gridStep;
           const clickTick = x / pixelsPerTick + clipStartTick;
-          const snappedTick = snapToGrid(clickTick, gridSize);
+          const snappedTick = snapClipTick(clickTick);
           const pitch = VIEW_MAX - Math.floor(y / rowH);
 
           if (pitch >= VIEW_MIN && pitch <= VIEW_MAX) {
@@ -1314,7 +1429,8 @@ export function PianoRoll({
       hitTestNote,
       clipStartTick,
       pixelsPerTick,
-      gridSize,
+      gridStep,
+      snapClipTick,
       onChange,
       selectSingle,
       selectedIndices,
@@ -1399,7 +1515,7 @@ export function PianoRoll({
       if (drag.mode === 'move') {
         // Derive the anchor's snapped delta, then shift the whole group by it.
         const rawTick = x / pixelsPerTick + clipStartTick - drag.grabTickOffset;
-        const snappedTick = snapToGrid(rawTick, gridSize);
+        const snappedTick = snapClipTick(rawTick);
         let tickDelta = snappedTick - anchorOrig.startTick;
         const pitch = VIEW_MAX - Math.floor(y / rowH);
         let pitchDelta = pitch - anchorOrig.note;
@@ -1433,9 +1549,9 @@ export function PianoRoll({
         // Derive the anchor's snapped duration delta, then stretch every
         // selected note by the same amount (clamped to the grid minimum).
         const endTick = x / pixelsPerTick + clipStartTick;
-        const snappedEnd = snapToGrid(endTick, gridSize);
+        const snappedEnd = snapClipTick(endTick);
         const newAnchorDur = Math.max(
-          GRID_VALUES[gridSize],
+          gridStep,
           snappedEnd - anchorOrig.startTick,
         );
         const durDelta = newAnchorDur - anchorOrig.durationTicks;
@@ -1443,15 +1559,12 @@ export function PianoRoll({
         for (const [idx, o] of drag.originals) {
           currentEvents[idx] = {
             ...currentEvents[idx],
-            durationTicks: Math.max(
-              GRID_VALUES[gridSize],
-              o.durationTicks + durDelta,
-            ),
+            durationTicks: Math.max(gridStep, o.durationTicks + durDelta),
           };
         }
       }
 
-      onChange(currentEvents);
+      editDraft(currentEvents);
     },
     [
       tool,
@@ -1460,8 +1573,9 @@ export function PianoRoll({
       clipStartTick,
       pixelsPerTick,
       rowH,
-      gridSize,
-      onChange,
+      gridStep,
+      snapClipTick,
+      editDraft,
       onAuditionNote,
     ],
   );
@@ -1471,6 +1585,7 @@ export function PianoRoll({
     dragRef.current = null;
     marqueeRef.current = null;
     setMarqueeRect(null);
+    commitDraft();
     if (gridCanvasRef.current) {
       gridCanvasRef.current.style.cursor =
         tool === 'draw'
@@ -1484,49 +1599,44 @@ export function PianoRoll({
   useEffect(() => {
     const handler = () => {
       if (dragRef.current || marqueeRef.current) handleMouseUp();
+      // A velocity drawn past the lane's edge ends wherever it is let go.
+      if (velDragRef.current) handleVelMouseUp();
     };
     window.addEventListener('mouseup', handler);
     return () => window.removeEventListener('mouseup', handler);
-  }, [handleMouseUp]);
+  }, [handleMouseUp, handleVelMouseUp]);
 
   // ── Keyboard: Tool shortcuts + Delete ───────────────────────────────────
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      // Tool shortcuts
-      if (e.key === 'v' || e.key === 'V') {
-        setTool('select');
-        return;
-      }
-      if (e.key === 'd' || e.key === 'D') {
-        setTool('draw');
-        return;
-      }
-      if (e.key === 'e' || e.key === 'E') {
-        setTool('erase');
-        return;
-      }
-
-      // Delete selected note(s)
-      if (
-        (e.code === 'Delete' || e.code === 'Backspace') &&
-        selectedIndices.size > 0
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        const newEvents = eventsRef.current.filter(
-          (_, i) => !selectedIndices.has(i),
-        );
-        onChange(newEvents);
+  // ── Keys, while the roll has focus (the pianoRoll scope) ───────────────
+  // Tools on V, D and E (never with ⌘ held: ⌘V pastes), Delete or Backspace
+  // removes the selected notes. Delete stays here with nothing selected, so
+  // it never reaches the clip behind the roll.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  useKeymap(
+    PIANO_ROLL_SCOPE.id,
+    {
+      'pianoRoll.select': () => setTool('select'),
+      'pianoRoll.draw': () => setTool('draw'),
+      'pianoRoll.erase': () => setTool('erase'),
+      'pianoRoll.delete': () => {
+        if (selectedIndices.size === 0) return;
+        onChange(eventsRef.current.filter((_, i) => !selectedIndices.has(i)));
         setSelectedIndices(new Set());
-      }
+      },
     },
-    [selectedIndices, onChange],
+    { element: bodyRef },
   );
 
   // ── Quantize handler ────────────────────────────────────────────────────
+  // On the song's grid, as drawing and dragging snap.
   const handleQuantize = useCallback(() => {
-    onChange(quantizeEvents(eventsRef.current, gridSize));
-  }, [gridSize, onChange]);
+    onChange(
+      eventsRef.current.map((ev) => ({
+        ...ev,
+        startTick: snapClipTick(ev.startTick),
+      })),
+    );
+  }, [snapClipTick, onChange]);
 
   // ── Wheel zoom: Cmd/Ctrl = horizontal, Alt = vertical ──────────────
   useEffect(() => {
@@ -1603,8 +1713,7 @@ export function PianoRoll({
       const tickAt = (clientX: number) =>
         songOffset + (clientX - rect.left) / pixelsPerTick;
       const snapped = (tick: number) =>
-        Math.max(0, Math.round(tick / snap) * snap);
-      const snap = GRID_VALUES[gridSize];
+        snapTicks(tick, { enabled: true, step: gridStep, ts });
       const { start, end, position } = rulerSnapshot(
         hostRef.current,
         loopScope,
@@ -1668,7 +1777,7 @@ export function PianoRoll({
             original,
             pressTick,
             tickAt(me.clientX),
-            snap,
+            gridStep,
           );
           writeLoop(loopScope, range, hostRef.current);
           return;
@@ -1720,7 +1829,7 @@ export function PianoRoll({
       window.addEventListener('mousemove', onMove);
       window.addEventListener('mouseup', onUp);
     },
-    [MAX_ZOOM, gridSize, pixelsPerTick, songOffset, loopScope, seek],
+    [MAX_ZOOM, gridStep, ts, pixelsPerTick, songOffset, loopScope, seek],
   );
 
   // Cursor hint: a grab hand on the playhead handle, resize arrows on a loop
@@ -1876,11 +1985,16 @@ export function PianoRoll({
                     updated[idx] = { ...updated[idx], velocity: val };
                   }
                 }
-                onChange(updated);
+                editDraft(updated);
               } else {
                 setVelocity(val);
               }
             }}
+            // The slide is one edit: written when it is let go, or after
+            // each arrow-key step.
+            onPointerUp={commitDraft}
+            onKeyUp={commitDraft}
+            onBlur={commitDraft}
             className="h-1 w-16 accent-white/50"
           />
           <span className="w-6 text-right text-[10px] tabular-nums text-white/40">
@@ -1905,9 +2019,9 @@ export function PianoRoll({
 
       {/* Piano roll body — synced layout + velocity lane */}
       <div
+        ref={bodyRef}
         className="relative flex flex-1 flex-col overflow-hidden"
         tabIndex={0}
-        onKeyDown={handleKeyDown}
       >
         {/* Notation replaces the roll: the roll below is hidden, not unmounted,
             so its canvases keep their size and redraw on the way back. */}

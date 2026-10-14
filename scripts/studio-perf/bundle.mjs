@@ -28,8 +28,19 @@
  * copied from public/ (vendored worklets) are listed apart from the chunks.
  *
  * The audit's June figure for the DawApp chunk was about 1.13 MB raw and
- * 286 KB gzip; Stage A (1.12a) budgets the boot chunk at 150 KB gzip. Both
- * are reported for comparison, never enforced.
+ * 286 KB gzip, reported for comparison. Milestone 1.12a split the editor
+ * (src/daw/shell/lazyParts.tsx) and enforces two budgets:
+ *
+ * - the boot chunk: the DawApp chunk is at most 150 kB gzip;
+ * - the editor stays out of other pages: no chunk the entry loads (every
+ *   page) and none the Studio dashboard loads holds the editor's store, its
+ *   codec, registry or save status, or Yjs (bundle-load-15; 1.3 had put
+ *   them on the dashboard and every page with demo or project tiles).
+ *
+ * It also reports what the editor really downloads on top of the page it
+ * opens from: the DawApp chunk and every chunk it imports statically that
+ * the entry hasn't loaded (its boot closure), and the size of each lazily
+ * loaded part (a view, a dock tab, an instrument view, a dialog).
  *
  * Output (docs/studio-perf/runs/bundle/ unless --out): bundle.json and
  * summary.md (formatted by Prettier, so a baseline committed by check.mjs
@@ -37,8 +48,8 @@
  * `--treemap` also copies the visualizer's treemap as bundle.html (3–4 MB,
  * so not into a committed baseline); `--keep` leaves the temp directory
  * (the built files, the raw data, the treemap and the build log) for a
- * closer look. It exits 1 when the build fails or no DawApp chunk comes out
- * of it.
+ * closer look. It exits 1 when the build fails, no DawApp chunk comes out
+ * of it, or a budget is broken.
  */
 import { execFileSync, spawn } from 'node:child_process';
 import {
@@ -63,6 +74,21 @@ const JUNE_DAWAPP = { rawBytes: 1_130_000, gzipBytes: 286_000 };
 /** Stage A's budget for the editor's boot chunk (1.12a), gzip. */
 const BOOT_BUDGET_GZIP = 150_000;
 const TOP_MODULES = 25;
+
+/**
+ * The editor's core, which no page but the editor may load (1.12a): the
+ * store, the project codec and registry, the save status and Yjs.
+ */
+const EDITOR_CORE = [
+  /\/src\/daw\/store\/index\.ts$/,
+  /\/src\/daw\/persistence\/projectDocument\/(codec|fields)\.ts$/,
+  /\/src\/daw\/persistence\/saveStatusStore\.ts$/,
+  /\/node_modules\/yjs\//,
+];
+/** The Studio dashboard's chunk (/studio), checked like the entry. */
+const DASHBOARD_CHUNK = /^StudioInlet-[\w-]+\.js$/;
+/** Where the editor's lazily loaded parts are listed. */
+const LAZY_PARTS = 'src/daw/shell/lazyParts.tsx';
 
 const kb = (bytes) => `${(bytes / 1000).toFixed(1)} kB`;
 /** kB with one decimal, for table cells. */
@@ -255,6 +281,62 @@ function moduleReport(raw, dawChunk) {
   };
 }
 
+/**
+ * The chunks a built chunk imports statically: its `import … from "./x.js"`,
+ * `import "./x.js"` and `export … from "./x.js"`, not its import() calls.
+ */
+function staticImportsOf(source, known) {
+  const found = new Set();
+  for (const match of source.matchAll(
+    /(?:^|[;\n}])\s*import\s*(?:[^'"()]*?from\s*)?["']\.\/([^"']+\.js)["']/g,
+  )) {
+    found.add(`assets/${match[1]}`);
+  }
+  for (const match of source.matchAll(
+    /export\s*[^'";]*?from\s*["']\.\/([^"']+\.js)["']/g,
+  )) {
+    found.add(`assets/${match[1]}`);
+  }
+  return [...found].filter((file) => known.has(file));
+}
+
+/** Every chunk `roots` load with them, themselves included. */
+function closureOf(roots, importsOf) {
+  const seen = new Set();
+  const stack = [...roots];
+  while (stack.length > 0) {
+    const file = stack.pop();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    stack.push(...importsOf(file));
+  }
+  return seen;
+}
+
+/** The modules each output chunk holds, from the visualizer's raw data. */
+function modulesByChunk(raw) {
+  const byChunk = new Map();
+  for (const meta of Object.values(raw.nodeMetas)) {
+    for (const chunk of Object.keys(meta.moduleParts ?? {})) {
+      const file = `assets/${basename(chunk)}`;
+      if (!byChunk.has(file)) byChunk.set(file, []);
+      byChunk.get(file).push(meta.id);
+    }
+  }
+  return byChunk;
+}
+
+/**
+ * The src paths lazyParts.tsx imports with import(), each a lazily loaded
+ * part of the editor.
+ */
+function lazyPartModules() {
+  const source = readFileSync(join(ROOT, LAZY_PARTS), 'utf8');
+  return [...source.matchAll(/import\('@\/([^']+)'\)/g)].map(
+    ([, path]) => `/src/${path}`,
+  );
+}
+
 function table(headers, rows) {
   return [
     `| ${headers.join(' | ')} |`,
@@ -316,13 +398,57 @@ function summarize(report) {
       `${kb(JUNE_DAWAPP.gzipBytes)} gzip): ` +
       `${signedKb(dawApp.changeSinceJune.rawBytes)} raw, ` +
       `${signedKb(dawApp.changeSinceJune.gzipBytes)} gzip. Stage A's boot ` +
-      `chunk budget (1.12a) is ${kb(BOOT_BUDGET_GZIP)} gzip, and this chunk ` +
-      `is ${kb(Math.abs(dawApp.overBootBudgetGzipBytes))} ` +
+      `chunk budget (1.12a, enforced) is ${kb(BOOT_BUDGET_GZIP)} gzip, and ` +
+      `this chunk is ${kb(Math.abs(dawApp.overBootBudgetGzipBytes))} ` +
       `${dawApp.overBootBudgetGzipBytes > 0 ? 'over' : 'under'} it.` +
       (reported
         ? ` Vite's own log: ${kb(reported.rawBytes)} raw, ` +
           `${kb(reported.gzipBytes)} gzip.`
         : ''),
+    '',
+    '## Budgets',
+    '',
+    table(
+      ['budget', 'result', ''],
+      report.budgets.map((budget) => [
+        budget.name,
+        budget.pass ? 'pass' : 'FAIL',
+        budget.detail,
+      ]),
+    ),
+    '',
+    `## The editor's boot closure`,
+    '',
+    `What opening the editor downloads on top of the page it opens from: the ` +
+      `DawApp chunk and the ${report.bootClosure.chunks.length - 1} chunks it ` +
+      `imports statically that the entry hasn't loaded, ` +
+      `${kb(report.bootClosure.gzipBytes)} gzip in all ` +
+      `(${kb(report.bootClosure.rawBytes)} raw). The largest:`,
+    '',
+    table(
+      ['chunk', 'gzip kB'],
+      report.bootClosure.chunks
+        .slice(0, 12)
+        .map((chunk) => [chunk.file, k(chunk.gzipBytes)]),
+    ),
+    '',
+    `The Studio dashboard (/studio) loads ` +
+      `${kb(report.dashboard.gzipBytes)} gzip on top of the entry, in ` +
+      `${report.dashboard.chunks} chunks.`,
+    '',
+    '## Lazily loaded parts',
+    '',
+    `Each loads on first use (${LAZY_PARTS}); its own chunk, gzip, without ` +
+      'the shared chunks it may import.',
+    '',
+    table(
+      ['part', 'chunk', 'gzip kB'],
+      report.lazyParts.map((part) => [
+        part.module,
+        part.file ?? 'not found',
+        k(part.gzipBytes),
+      ]),
+    ),
     '',
     '## What the DawApp chunk is made of',
     '',
@@ -423,6 +549,53 @@ export async function runBundle(argv = process.argv.slice(2)) {
     const rawData = JSON.parse(
       readFileSync(join(tmp, 'bundle-raw.json'), 'utf8'),
     );
+    const known = new Set(scripts);
+    const importCache = new Map();
+    const importsOf = (file) => {
+      if (!importCache.has(file)) {
+        importCache.set(
+          file,
+          staticImportsOf(code(file).toString('utf8'), known),
+        );
+      }
+      return importCache.get(file);
+    };
+    const pageClosure = entry ? closureOf([entry], importsOf) : new Set();
+    const beyondPage = (roots) =>
+      [...closureOf(roots, importsOf)]
+        .filter((file) => !pageClosure.has(file))
+        .map((file) => ({ file, ...gzipOnly(file) }))
+        .sort((a, b) => b.gzipBytes - a.gzipBytes);
+    const boot = beyondPage([dawFile]);
+    const dashboardFile = scripts.find((file) =>
+      DASHBOARD_CHUNK.test(basename(file)),
+    );
+    const dashboard = dashboardFile ? beyondPage([dashboardFile]) : [];
+    const chunkModules = modulesByChunk(rawData);
+    const coreIn = (files) =>
+      [
+        ...new Set(
+          files.flatMap((file) =>
+            (chunkModules.get(file) ?? []).filter((id) =>
+              EDITOR_CORE.some((pattern) => pattern.test(id)),
+            ),
+          ),
+        ),
+      ].map((id) => id.replace(/^.*?\/(src|node_modules)\//, '$1/'));
+    const coreOnPages = coreIn([...pageClosure]);
+    const coreOnDashboard = coreIn(dashboard.map((chunk) => chunk.file));
+    const withoutExtension = (id) => id.replace(/\.[cm]?[jt]sx?$/, '');
+    const lazyParts = lazyPartModules().map((module) => {
+      const file =
+        [...chunkModules.entries()].find(([, ids]) =>
+          ids.some((id) => withoutExtension(id).endsWith(module)),
+        )?.[0] ?? null;
+      return {
+        module: module.slice(1),
+        file,
+        gzipBytes: file ? gzipOnly(file).gzipBytes : null,
+      };
+    });
     const vitePackage = JSON.parse(
       readFileSync(join(ROOT, 'node_modules/vite/package.json'), 'utf8'),
     );
@@ -463,6 +636,36 @@ export async function runBundle(argv = process.argv.slice(2)) {
           0,
         ),
       },
+      bootClosure: {
+        chunks: boot,
+        rawBytes: sum(boot, 'rawBytes'),
+        gzipBytes: sum(boot, 'gzipBytes'),
+      },
+      dashboard: {
+        file: dashboardFile ?? null,
+        chunks: dashboard.length,
+        gzipBytes: sum(dashboard, 'gzipBytes'),
+      },
+      lazyParts,
+      budgets: [
+        {
+          name: 'boot chunk',
+          pass: daw.gzipBytes <= BOOT_BUDGET_GZIP,
+          detail: `DawApp ${kb(daw.gzipBytes)} gzip, budget ${kb(BOOT_BUDGET_GZIP)}`,
+        },
+        {
+          name: 'editor core off other pages',
+          pass:
+            coreOnPages.length === 0 &&
+            coreOnDashboard.length === 0 &&
+            Boolean(dashboardFile),
+          detail: !dashboardFile
+            ? 'no StudioInlet chunk in the build'
+            : coreOnPages.length + coreOnDashboard.length === 0
+              ? 'none in the entry or the Studio dashboard'
+              : `every page: ${coreOnPages.join(', ') || 'none'}; dashboard: ${coreOnDashboard.join(', ') || 'none'}`,
+        },
+      ],
       ...moduleReport(rawData, dawFile),
     };
     writeJson(outDir, 'bundle', report);
@@ -476,9 +679,20 @@ export async function runBundle(argv = process.argv.slice(2)) {
         `${kb(JUNE_DAWAPP.gzipBytes)} gzip; budget ${kb(BOOT_BUDGET_GZIP)} gzip)`,
     );
     console.log(
+      `bundle: the editor's boot closure is ${kb(report.bootClosure.gzipBytes)} ` +
+        `gzip in ${boot.length} chunks; the Studio dashboard adds ` +
+        `${kb(report.dashboard.gzipBytes)} gzip`,
+    );
+    console.log(
       `bundle: total JS ${kb(report.totalJs.rawBytes)} raw in ` +
         `${scripts.length} files; wrote ${join(outDir, 'bundle.json')}`,
     );
+    for (const budget of report.budgets) {
+      console.log(
+        `bundle: ${budget.pass ? 'pass' : 'FAIL'} ${budget.name}: ${budget.detail}`,
+      );
+    }
+    if (report.budgets.some((budget) => !budget.pass)) process.exitCode = 1;
     return report;
   } catch (error) {
     console.error(`bundle: ${error.message}`);

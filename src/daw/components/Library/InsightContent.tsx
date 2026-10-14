@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, ChevronDown, Lightbulb } from 'lucide-react';
+import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '@/daw/store';
 import {
   NOTES,
@@ -55,14 +56,21 @@ export function InsightContent() {
   const unisonDoc = useStore((s) => s.unisonDoc);
   const unisonError = useStore((s) => s.unisonError);
   const chordRegions = useStore((s) => s.chordRegions);
-  const tracks = useStore((s) => s.tracks);
+  // The harmony's fingerprint: the note lists of the MIDI clips. A fader,
+  // a mute or a rename keeps them, so it neither re-renders the panel nor
+  // re-runs the analysis (insight-09).
+  const midiNotes = useStore(
+    useShallow((s) =>
+      s.tracks.flatMap((t) =>
+        t.type === 'midi' ? t.midiClips.map((c) => c.events) : [],
+      ),
+    ),
+  );
   const analyzeSession = useStore((s) => s.analyzeSession);
 
   // Auto-analyze when inputs change (debounced 500ms)
   useEffect(() => {
-    const hasMidi = tracks.some(
-      (t) => t.type === 'midi' && t.midiClips.some((c) => c.events.length > 0),
-    );
+    const hasMidi = midiNotes.some((events) => events.length > 0);
     if (!hasMidi && chordRegions.length === 0) return;
 
     const timer = setTimeout(() => {
@@ -70,7 +78,7 @@ export function InsightContent() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [chordRegions, rootNote, mode, tracks, analyzeSession]);
+  }, [chordRegions, rootNote, mode, midiNotes, analyzeSession]);
 
   const [showLiveAlts, setShowLiveAlts] = useState(false);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());

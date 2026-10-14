@@ -2,7 +2,8 @@
  * ClassroomHomePage — the **student-facing** classroom home at `/classrooms/:cid`.
  *
  * As of the Teacher Dashboard sprint, all teacher management (Plan Days,
- * Assignments authoring, Reports, Roster, Annual Plan) moved to `/teacher`.
+ * Assignments authoring, Reports, Roster, Annual Plan) moved to the Office
+ * (`/office/:cid`).
  * Teachers can still open a classroom as a student via `?viewAs=student`
  * from the classroom picker — this page shows exactly what a student sees.
  */

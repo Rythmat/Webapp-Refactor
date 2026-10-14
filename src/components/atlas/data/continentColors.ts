@@ -421,3 +421,37 @@ for (const [continent, countries] of Object.entries(CONTINENT_COUNTRIES)) {
 export function getCountryColor(iso: string): string {
   return COUNTRY_COLORS[iso] ?? FALLBACK_COLOR;
 }
+
+// --- The legend's view of the palette ---
+
+const CONTINENT_LABELS: Record<string, string> = {
+  northAmerica: 'North America',
+  southAmerica: 'South America',
+  europe: 'Europe',
+  africa: 'Africa',
+  asia: 'Asia',
+  oceania: 'Oceania',
+};
+
+export interface ContinentSwatch {
+  id: string;
+  label: string;
+  /** Its first, middle and last countries' colours, in the palette's order. */
+  colors: [string, string, string];
+}
+
+/**
+ * One swatch per continent, sampled from the colours the globe paints, so
+ * the legend shows what is on the globe and cannot drift from it.
+ */
+export function getContinentSwatches(): ContinentSwatch[] {
+  return Object.entries(CONTINENT_COUNTRIES).map(([id, countries]) => ({
+    id,
+    label: CONTINENT_LABELS[id] ?? id,
+    colors: [
+      getCountryColor(countries[0]),
+      getCountryColor(countries[Math.floor(countries.length / 2)]),
+      getCountryColor(countries[countries.length - 1]),
+    ],
+  }));
+}

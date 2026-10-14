@@ -1,90 +1,649 @@
 {
-  "about": "Today's round-trip results per profile and scenario (scripts/studio-perf/roundtrip.mjs; what each scenario compares comes from the project document registry since milestone 1.3). losses: field -> number of keys lost per kind (a tracks[] or clips[] field counts one key per track or clip, and a track or clip that is gone altogether counts once, as 'tracks[] (whole track)' or '... (whole clip)'); flags: the scenario's yes/no checks; pageErrors: uncaught page errors. A run fails on more keys of a kind than listed, a flag moving away from its goal, or more page errors. Rewrite with --update-known once a fix lands.",
+  "about": "Today's round-trip results per profile and scenario (scripts/studio-perf/roundtrip.mjs; what each scenario compares comes from the project document registry since milestone 1.3, and the session lives in the device drafts since milestone 1.4). losses: field -> number of keys lost per kind (a tracks[] or clips[] field counts one key per track or clip, and a track or clip that is gone altogether counts once, as 'tracks[] (whole track)' or '... (whole clip)'); flags: the scenario's yes/no checks; pageErrors: uncaught page errors. A run fails on more keys of a kind than listed, a flag moving away from its goal, or more page errors. Rewrite with --update-known once a fix lands.",
   "format": 2,
-  "updatedAt": "2026-10-08",
-  "commit": "6250e969",
+  "updatedAt": "2026-10-14",
+  "commit": "8671e0b0",
   "profiles": {
     "chromebook": {
       "R1-refresh-while-playing": {
         "flags": {
-          "autosaveWrittenDuringPlayback": true,
+          "draftWrittenDuringPlayback": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R11-crash:inDebounce": {
+        "flags": {
+          "crashLossOnlyLastEdit": true,
+          "crashNoFork": true,
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
+        "losses": {}
+      },
+      "R11-crash:playing": {
+        "flags": {
+          "crashLossOnlyLastEdit": true,
+          "crashNoFork": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R11-crash:reloadAfterCrash": {
+        "flags": {
+          "crashNoFork": true,
+          "crashReloadSameDraft": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R11-crash:settled": {
+        "flags": {
+          "crashNoFork": true,
+          "crashNoKeptToast": true,
+          "crashRestoredLatest": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:demo": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:draft": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:fileNew": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:jam": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:libraryTemplate": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:practiceGenre": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:practiceMode": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:project": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:sameIdReopen": {
+        "flags": { "noteIdsWhole": true, "sameIdReopen": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:song": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:template": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:tutorial": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:whileRecording": {
+        "flags": {
+          "noteIdsWhole": true,
+          "stuckTakeRefusesOpen": true,
+          "takeCommittedBeforeKeep": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R13-two-tabs": {
+        "flags": {
+          "duplicatedTabForks": true,
+          "eachTabReopensOwnDraft": true,
+          "forkHasSameContent": true,
+          "forkToastShown": true,
+          "mirrorDoesNotCrossDrafts": true,
+          "newTabPicksNewest": true,
+          "noteIdsWhole": true,
+          "secondTabForked": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R14-old-tab:firstBoot": {
+        "flags": {
+          "firstBootKeptSlotsImported": true,
+          "firstBootResumesLastSession": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R14-old-tab:real": {
+        "flags": { "noteIdsWhole": true, "oldTabCannotClobberDraft": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R14-old-tab:simulated": {
+        "flags": {
+          "bothSessionsRecoverable": true,
+          "legacyKeptSlotMigrated": true,
+          "legacyKeyUntouched": true,
+          "legacyMigratedAgain": true,
+          "liveTabUnaffected": true,
+          "noteIdsWhole": true,
+          "oldTabRewritesDoNotPileUp": true,
+          "ownDraftWinsOnReload": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R15-revert": {
+        "flags": {
+          "draftsUntouchedByOldBuild": true,
+          "noDuplicateBeyondOne": true,
+          "noteIdsWhole": true,
+          "oldBuildOpens": true,
+          "rollForwardRecoversAll": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R16-quota:media": {
+        "flags": { "chipWarnsAudioNotSaved": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R16-quota:quotaReload": {
+        "flags": {
+          "noteIdsWhole": true,
+          "quotaReloadKeepsNewestWork": true,
+          "quotaReopenHonest": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R16-quota:session": {
+        "flags": {
+          "linkRefusedWhenCannotKeep": true,
+          "noDraftDropped": true,
+          "noteIdsWhole": true,
+          "quotaErrorShown": true,
+          "recoversWhenRoomFreed": true,
+          "sessionStillOpen": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:legacyIncomplete": {
+        "flags": {
+          "chipHonestAfterLegacySave": true,
+          "noteIdsWhole": true,
+          "savedToast": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:offline": {
+        "flags": {
+          "noFalseSaved": true,
+          "noteIdsWhole": true,
+          "retrySaved": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:overlap": {
+        "flags": { "noteIdsWhole": true, "savesSerialized": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:paths": {
+        "flags": { "noteIdsWhole": true, "savedFromEveryPath": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:remoteDelete": {
+        "flags": { "noteIdsWhole": true, "recreatedAfterRemoteDelete": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:serverErrors": {
+        "flags": {
+          "noteIdsWhole": true,
+          "plainErrorText": true,
+          "retryButtonSaves": true,
+          "serverErrorRetriedOnce": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:slowEdit": {
+        "flags": { "editDuringSaveStaysUnsaved": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R18-projects-dialog": {
+        "flags": {
+          "changesOnDeviceTagged": true,
+          "cloudListFetchedOnce": true,
+          "deleteConfirmedInDialog": true,
+          "deleteRefusedForOpenAndLocked": true,
+          "deletedProjectDraftOpens": true,
+          "draftsListedWhenApiDown": true,
+          "escClosesFocusReturns": true,
+          "listsDraftsAndCloud": true,
+          "noteIdsWhole": true,
+          "openedFromFileMenu": true,
+          "openedFromToast": true,
+          "quarantineListed": true,
+          "reopenIdentical": true,
+          "searchFilters": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:badPayload": {
+        "flags": { "failAfterResetRestores": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:collabStub": {
+        "flags": {
+          "joinFailureRestores": true,
+          "keptBeforeJoin": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:params": {
+        "flags": { "onlyConsumedParamsStripped": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:practiceModeGrooveFails": {
+        "flags": { "grooveFailLosesNothing": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:project500": {
+        "flags": {
+          "backToMyWorkIdentical": true,
+          "errorPanelShown": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:projectSlow": {
+        "flags": {
+          "noteIdsWhole": true,
+          "overlayBlocksInput": true,
+          "overlayGoneWhenReady": true,
+          "overlayShown": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:staleCompletion": {
+        "flags": { "noteIdsWhole": true, "staleOpenNeverApplied": true },
+        "pageErrors": 0,
+        "losses": {}
       },
       "R2-spa-return": {
-        "flags": { "noteIdsWhole": true },
+        "flags": {
+          "noteIdsWhole": true,
+          "sameDraftOnReturn": true,
+          "undoKeptOnReturn": true
+        },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
+      },
+      "R20-song-page:coldPage": {
+        "flags": {
+          "noteIdsWhole": true,
+          "priorWorkNoticedOnce": true,
+          "priorWorkStaysCold": true,
+          "refreshKeepsSong": true,
+          "songTransposed": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R20-song-page:inApp": {
+        "flags": {
+          "keptPriorWork": true,
+          "keptToastOnce": true,
+          "noteIdsWhole": true,
+          "refreshKeepsSong": true,
+          "songTransposed": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R20-song-page:seededLink": {
+        "flags": { "noteIdsWhole": true, "seededResumes": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R21-file-new": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "newDraftId": true,
+          "noConfirm": true,
+          "noReload": true,
+          "noteIdsWhole": true,
+          "refreshOpensNewProject": true,
+          "undoEmpty": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R22-shared-device": {
+        "flags": {
+          "draftIsolatedByUser": true,
+          "mirrorIsolatedByUser": true,
+          "noteIdsWhole": true,
+          "prefsIsolatedByUser": true,
+          "presetsIsolatedByUser": true,
+          "progressIsolatedByUser": true,
+          "projectsListIsolated": true,
+          "userAIntact": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R22-shared-device:legacyOwner": {
+        "flags": {
+          "deviceDraftClaimedOnOpen": true,
+          "deviceDraftFoundByBoth": true,
+          "keptSlotsStayWithOwner": true,
+          "legacyOwnerSingleUser": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R22-shared-device:signOut": {
+        "flags": {
+          "noteIdsWhole": true,
+          "signOutKeepsUnsaved": true,
+          "signOutLeavesOtherUsers": true,
+          "signOutProtectsLocked": true,
+          "signOutRemovesCloudEqual": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:dropNoProject": {
+        "flags": { "noProjectMintedByDrop": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:editDuringRestore": {
+        "flags": {
+          "mediaRefsSurviveEditDuringRestore": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:failedUpload": {
+        "flags": { "mediaKeptAfterFailedUpload": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:imported": {
+        "flags": { "noteIdsWhole": true, "pendingMediaRestored": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:keptDraftMedia": {
+        "flags": { "keptDraftMediaRestored": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:mediaWrittenOnce": {
+        "flags": { "mediaWrittenOnce": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:sampler": {
+        "flags": { "noteIdsWhole": true, "samplerBufferRestored": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R25-ui-smoke": {
+        "flags": {
+          "chipFits": true,
+          "chipType": true,
+          "ctrlZInTextField": true,
+          "neutralColours": true,
+          "practiceHeaderChip": true,
+          "targetsAtLeast24": true,
+          "undoRedoWork": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R26-keys": {
+        "flags": {
+          "altRInLeadSheet": true,
+          "deleteInScoreKeepsClip": true,
+          "noticeOnce": true,
+          "pageZoomFree": true,
+          "recordGuardBothWays": true,
+          "sheetListsCommands": true,
+          "typingChipFits": true,
+          "typingKeepsTransport": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R27-lesson-practice": {
+        "flags": {
+          "lessonRefreshResumes": true,
+          "lessonResumedToast": true,
+          "otherOpenEndsLesson": true,
+          "practiceKeysRecordTake": true,
+          "practiceRefreshRestores": true,
+          "restoreResumesLesson": true,
+          "twoTabsOwnLessons": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R3-cloud-save-open:document": {
+        "flags": {
+          "chipSavedWhenComplete": true,
+          "documentWhereExpected": true,
+          "noteIdsWhole": true,
+          "olderAppKeepsDocument": true,
+          "olderAppNoticeShown": true,
+          "savedToast": true,
+          "uploadedPendingAudio": true
+        },
+        "pageErrors": 0,
+        "losses": {}
       },
       "R3-cloud-save-open:legacy": {
         "flags": {
+          "chipSavedWhenComplete": true,
+          "documentWhereExpected": true,
           "noteIdsWhole": true,
           "savedToast": true,
           "uploadedPendingAudio": true
         },
         "pageErrors": 0,
-        "losses": {
-          "harmony.chordRegions": { "lost": 1 },
-          "harmony.keyColour": { "changed": 1 },
-          "harmony.keyLock": { "lost": 1 },
-          "harmony.mode": { "lost": 1 },
-          "ids.audioClips": { "changed": 1 },
-          "ids.notes": { "changed": 1 },
-          "markers": { "lost": 1 },
-          "mixer.masterVolume": { "lost": 1 },
-          "mixer.masteringEffects": { "lost": 1 },
-          "mixer.masteringFxChain": { "lost": 1 },
-          "notation.leadSheetChordFormat": { "lost": 1 },
-          "notation.leadSheetMelodyTrack": { "lost": 1 },
-          "notation.leadSheetRepeats": { "lost": 1 },
-          "notation.leadSheetSections": { "lost": 1 },
-          "notation.leadSheetShowMelody": { "lost": 1 },
-          "notation.leadSheetShowRepeats": { "lost": 1 },
-          "notation.measureFermatas": { "lost": 1 },
-          "notation.measureRestMap": { "lost": 1 },
-          "notation.measureRowSizes": { "lost": 1 },
-          "notation.measuresPerLine": { "lost": 1 },
-          "notation.scoreArticulations": { "lost": 1 },
-          "notation.scoreChordHidden": { "lost": 1 },
-          "notation.scoreChordTracks": { "lost": 1 },
-          "notation.scorePageBreaks": { "lost": 1 },
-          "notation.scoreSlashNotes": { "lost": 1 },
-          "notation.scoreSlurs": { "lost": 1 },
-          "notation.scoreSpellings": { "lost": 1 },
-          "notation.scoreSystemBreaks": { "lost": 1 },
-          "notation.scoreSystemRuns": { "lost": 1 },
-          "notation.scoreTextMarks": { "lost": 1 },
-          "prism.chordRecordMode": { "lost": 1 },
-          "prism.filterPercent": { "lost": 1 },
-          "prism.progression": { "lost": 1 },
-          "prism.strum": { "lost": 1 },
-          "prism.tilt": { "lost": 1 },
-          "tracks[].midiClips[].ccEvents": { "lost": 1 },
-          "tracks[].midiClips[].durationTicks": { "lost": 1 },
-          "transport.loopRange": { "lost": 1 },
-          "transport.timeSignature": { "lost": 1 },
-          "view.clipColorMode": { "lost": 1 }
-        }
+        "losses": {}
+      },
+      "R3-cloud-save-open:sameDevice": {
+        "flags": {
+          "cloudNewerPreferred": true,
+          "newerDraftPreferred": true,
+          "noteIdsWhole": true,
+          "savedVersionOpens": true
+        },
+        "pageErrors": 0,
+        "losses": {}
       },
       "R4-leak:demo": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:fileNew": {
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:jam": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:libraryTemplate": {
         "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
           "noteIdsWhole": true,
+          "openedClean": true,
           "prefsCarried": true,
           "workKept": true,
           "workRestored": true
@@ -93,288 +652,1021 @@
         "losses": {}
       },
       "R4-leak:new": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:practiceGenre": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:practiceMode": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:project": {
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:song": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:template": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:tutorial": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:collab:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:collab:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R5-bad-link:demo:cold": {
         "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:demo:spa": {
         "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:practiceGenre:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:practiceGenre:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:practiceMode:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:practiceMode:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:project:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:project:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:song:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:song:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:template:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:template:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:tutorial:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:tutorial:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R6-synth-edit-refresh": {
-        "flags": {
-          "autosaveWrittenAfterSynthEdit": true,
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
           "noteIdsWhole": true
         },
         "pageErrors": 0,
         "losses": {}
       },
-      "R7-tab-close": {
-        "flags": { "autosaveFlushedOnClose": true, "noteIdsWhole": true },
+      "R5-bad-link:draft:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
+        "losses": {}
+      },
+      "R5-bad-link:draft:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:jam:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:jam:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:practiceGenre:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:practiceGenre:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:practiceMode:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:practiceMode:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:project500:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:project500:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:project:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:project:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:song:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:song:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:template:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:template:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:tutorial:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:tutorial:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R6-synth-edit-refresh": {
+        "flags": { "draftWrittenAfterSynthEdit": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close": {
+        "flags": { "draftFlushedOnClose": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close:idbSlow": {
+        "flags": {
+          "inFlightWriteKeptNewest": true,
+          "mirrorWinsWhenNewer": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close:idbSlowReleased": {
+        "flags": { "inFlightWriteKeptNewest": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close:idbStalled": {
+        "flags": { "mirrorWinsWhenNewer": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close:idbStalledLockHeld": {
+        "flags": {
+          "mirrorWinsWhenNewer": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
       }
     },
     "laptop": {
       "R1-refresh-while-playing": {
         "flags": {
-          "autosaveWrittenDuringPlayback": true,
+          "draftWrittenDuringPlayback": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R11-crash:inDebounce": {
+        "flags": {
+          "crashLossOnlyLastEdit": true,
+          "crashNoFork": true,
           "noteIdsWhole": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
+        "losses": {}
+      },
+      "R11-crash:playing": {
+        "flags": {
+          "crashLossOnlyLastEdit": true,
+          "crashNoFork": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R11-crash:reloadAfterCrash": {
+        "flags": {
+          "crashNoFork": true,
+          "crashReloadSameDraft": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R11-crash:settled": {
+        "flags": {
+          "crashNoFork": true,
+          "crashNoKeptToast": true,
+          "crashRestoredLatest": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:demo": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:draft": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:fileNew": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:jam": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:libraryTemplate": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:practiceGenre": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:practiceMode": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:project": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:sameIdReopen": {
+        "flags": { "noteIdsWhole": true, "sameIdReopen": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:song": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:template": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:tutorial": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "lessonEndsAtSwitch": true,
+          "noteIdsWhole": true,
+          "pristineNotKept": true,
+          "reopenedIdenticallyAfterReload": true,
+          "reopenedIdenticallyInPage": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R12-kept-reopen:whileRecording": {
+        "flags": {
+          "noteIdsWhole": true,
+          "stuckTakeRefusesOpen": true,
+          "takeCommittedBeforeKeep": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R13-two-tabs": {
+        "flags": {
+          "duplicatedTabForks": true,
+          "eachTabReopensOwnDraft": true,
+          "forkHasSameContent": true,
+          "forkToastShown": true,
+          "mirrorDoesNotCrossDrafts": true,
+          "newTabPicksNewest": true,
+          "noteIdsWhole": true,
+          "secondTabForked": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R14-old-tab:firstBoot": {
+        "flags": {
+          "firstBootKeptSlotsImported": true,
+          "firstBootResumesLastSession": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R14-old-tab:real": {
+        "flags": { "noteIdsWhole": true, "oldTabCannotClobberDraft": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R14-old-tab:simulated": {
+        "flags": {
+          "bothSessionsRecoverable": true,
+          "legacyKeptSlotMigrated": true,
+          "legacyKeyUntouched": true,
+          "legacyMigratedAgain": true,
+          "liveTabUnaffected": true,
+          "noteIdsWhole": true,
+          "oldTabRewritesDoNotPileUp": true,
+          "ownDraftWinsOnReload": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R15-revert": {
+        "flags": {
+          "draftsUntouchedByOldBuild": true,
+          "noDuplicateBeyondOne": true,
+          "noteIdsWhole": true,
+          "oldBuildOpens": true,
+          "rollForwardRecoversAll": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R16-quota:media": {
+        "flags": { "chipWarnsAudioNotSaved": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R16-quota:quotaReload": {
+        "flags": {
+          "noteIdsWhole": true,
+          "quotaReloadKeepsNewestWork": true,
+          "quotaReopenHonest": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R16-quota:session": {
+        "flags": {
+          "linkRefusedWhenCannotKeep": true,
+          "noDraftDropped": true,
+          "noteIdsWhole": true,
+          "quotaErrorShown": true,
+          "recoversWhenRoomFreed": true,
+          "sessionStillOpen": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:legacyIncomplete": {
+        "flags": {
+          "chipHonestAfterLegacySave": true,
+          "noteIdsWhole": true,
+          "savedToast": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:offline": {
+        "flags": {
+          "noFalseSaved": true,
+          "noteIdsWhole": true,
+          "retrySaved": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:overlap": {
+        "flags": { "noteIdsWhole": true, "savesSerialized": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:paths": {
+        "flags": { "noteIdsWhole": true, "savedFromEveryPath": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:remoteDelete": {
+        "flags": { "noteIdsWhole": true, "recreatedAfterRemoteDelete": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:serverErrors": {
+        "flags": {
+          "noteIdsWhole": true,
+          "plainErrorText": true,
+          "retryButtonSaves": true,
+          "serverErrorRetriedOnce": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R17-save:slowEdit": {
+        "flags": { "editDuringSaveStaysUnsaved": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R18-projects-dialog": {
+        "flags": {
+          "changesOnDeviceTagged": true,
+          "cloudListFetchedOnce": true,
+          "deleteConfirmedInDialog": true,
+          "deleteRefusedForOpenAndLocked": true,
+          "deletedProjectDraftOpens": true,
+          "draftsListedWhenApiDown": true,
+          "escClosesFocusReturns": true,
+          "listsDraftsAndCloud": true,
+          "noteIdsWhole": true,
+          "openedFromFileMenu": true,
+          "openedFromToast": true,
+          "quarantineListed": true,
+          "reopenIdentical": true,
+          "searchFilters": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:badPayload": {
+        "flags": { "failAfterResetRestores": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:collabStub": {
+        "flags": {
+          "joinFailureRestores": true,
+          "keptBeforeJoin": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:params": {
+        "flags": { "onlyConsumedParamsStripped": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:practiceModeGrooveFails": {
+        "flags": { "grooveFailLosesNothing": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:project500": {
+        "flags": {
+          "backToMyWorkIdentical": true,
+          "errorPanelShown": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:projectSlow": {
+        "flags": {
+          "noteIdsWhole": true,
+          "overlayBlocksInput": true,
+          "overlayGoneWhenReady": true,
+          "overlayShown": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R19-boot-errors:staleCompletion": {
+        "flags": { "noteIdsWhole": true, "staleOpenNeverApplied": true },
+        "pageErrors": 0,
+        "losses": {}
       },
       "R2-spa-return": {
-        "flags": { "noteIdsWhole": true },
+        "flags": {
+          "noteIdsWhole": true,
+          "sameDraftOnReturn": true,
+          "undoKeptOnReturn": true
+        },
         "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
+        "losses": {}
+      },
+      "R20-song-page:coldPage": {
+        "flags": {
+          "noteIdsWhole": true,
+          "priorWorkNoticedOnce": true,
+          "priorWorkStaysCold": true,
+          "refreshKeepsSong": true,
+          "songTransposed": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R20-song-page:inApp": {
+        "flags": {
+          "keptPriorWork": true,
+          "keptToastOnce": true,
+          "noteIdsWhole": true,
+          "refreshKeepsSong": true,
+          "songTransposed": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R20-song-page:seededLink": {
+        "flags": { "noteIdsWhole": true, "seededResumes": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R21-file-new": {
+        "flags": {
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "newDraftId": true,
+          "noConfirm": true,
+          "noReload": true,
+          "noteIdsWhole": true,
+          "refreshOpensNewProject": true,
+          "undoEmpty": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R22-shared-device": {
+        "flags": {
+          "draftIsolatedByUser": true,
+          "mirrorIsolatedByUser": true,
+          "noteIdsWhole": true,
+          "prefsIsolatedByUser": true,
+          "presetsIsolatedByUser": true,
+          "progressIsolatedByUser": true,
+          "projectsListIsolated": true,
+          "userAIntact": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R22-shared-device:legacyOwner": {
+        "flags": {
+          "deviceDraftClaimedOnOpen": true,
+          "deviceDraftFoundByBoth": true,
+          "keptSlotsStayWithOwner": true,
+          "legacyOwnerSingleUser": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R22-shared-device:signOut": {
+        "flags": {
+          "noteIdsWhole": true,
+          "signOutKeepsUnsaved": true,
+          "signOutLeavesOtherUsers": true,
+          "signOutProtectsLocked": true,
+          "signOutRemovesCloudEqual": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:dropNoProject": {
+        "flags": { "noProjectMintedByDrop": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:editDuringRestore": {
+        "flags": {
+          "mediaRefsSurviveEditDuringRestore": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:failedUpload": {
+        "flags": { "mediaKeptAfterFailedUpload": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:imported": {
+        "flags": { "noteIdsWhole": true, "pendingMediaRestored": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:keptDraftMedia": {
+        "flags": { "keptDraftMediaRestored": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:mediaWrittenOnce": {
+        "flags": { "mediaWrittenOnce": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R23-media:sampler": {
+        "flags": { "noteIdsWhole": true, "samplerBufferRestored": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R25-ui-smoke": {
+        "flags": {
+          "chipFits": true,
+          "chipType": true,
+          "ctrlZInTextField": true,
+          "neutralColours": true,
+          "practiceHeaderChip": true,
+          "targetsAtLeast24": true,
+          "undoRedoWork": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R26-keys": {
+        "flags": {
+          "altRInLeadSheet": true,
+          "deleteInScoreKeepsClip": true,
+          "noticeOnce": true,
+          "pageZoomFree": true,
+          "recordGuardBothWays": true,
+          "sheetListsCommands": true,
+          "typingChipFits": true,
+          "typingKeepsTransport": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R27-lesson-practice": {
+        "flags": {
+          "lessonRefreshResumes": true,
+          "lessonResumedToast": true,
+          "otherOpenEndsLesson": true,
+          "practiceKeysRecordTake": true,
+          "practiceRefreshRestores": true,
+          "restoreResumesLesson": true,
+          "twoTabsOwnLessons": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R3-cloud-save-open:document": {
+        "flags": {
+          "chipSavedWhenComplete": true,
+          "documentWhereExpected": true,
+          "noteIdsWhole": true,
+          "olderAppKeepsDocument": true,
+          "olderAppNoticeShown": true,
+          "savedToast": true,
+          "uploadedPendingAudio": true
+        },
+        "pageErrors": 0,
+        "losses": {}
       },
       "R3-cloud-save-open:legacy": {
         "flags": {
+          "chipSavedWhenComplete": true,
+          "documentWhereExpected": true,
           "noteIdsWhole": true,
           "savedToast": true,
           "uploadedPendingAudio": true
         },
         "pageErrors": 0,
-        "losses": {
-          "harmony.chordRegions": { "lost": 1 },
-          "harmony.keyColour": { "changed": 1 },
-          "harmony.keyLock": { "lost": 1 },
-          "harmony.mode": { "lost": 1 },
-          "ids.audioClips": { "changed": 1 },
-          "ids.notes": { "changed": 1 },
-          "markers": { "lost": 1 },
-          "mixer.masterVolume": { "lost": 1 },
-          "mixer.masteringEffects": { "lost": 1 },
-          "mixer.masteringFxChain": { "lost": 1 },
-          "notation.leadSheetChordFormat": { "lost": 1 },
-          "notation.leadSheetMelodyTrack": { "lost": 1 },
-          "notation.leadSheetRepeats": { "lost": 1 },
-          "notation.leadSheetSections": { "lost": 1 },
-          "notation.leadSheetShowMelody": { "lost": 1 },
-          "notation.leadSheetShowRepeats": { "lost": 1 },
-          "notation.measureFermatas": { "lost": 1 },
-          "notation.measureRestMap": { "lost": 1 },
-          "notation.measureRowSizes": { "lost": 1 },
-          "notation.measuresPerLine": { "lost": 1 },
-          "notation.scoreArticulations": { "lost": 1 },
-          "notation.scoreChordHidden": { "lost": 1 },
-          "notation.scoreChordTracks": { "lost": 1 },
-          "notation.scorePageBreaks": { "lost": 1 },
-          "notation.scoreSlashNotes": { "lost": 1 },
-          "notation.scoreSlurs": { "lost": 1 },
-          "notation.scoreSpellings": { "lost": 1 },
-          "notation.scoreSystemBreaks": { "lost": 1 },
-          "notation.scoreSystemRuns": { "lost": 1 },
-          "notation.scoreTextMarks": { "lost": 1 },
-          "prism.chordRecordMode": { "lost": 1 },
-          "prism.filterPercent": { "lost": 1 },
-          "prism.progression": { "lost": 1 },
-          "prism.strum": { "lost": 1 },
-          "prism.tilt": { "lost": 1 },
-          "tracks[].midiClips[].ccEvents": { "lost": 1 },
-          "tracks[].midiClips[].durationTicks": { "lost": 1 },
-          "transport.loopRange": { "lost": 1 },
-          "transport.timeSignature": { "lost": 1 },
-          "view.clipColorMode": { "lost": 1 }
-        }
+        "losses": {}
+      },
+      "R3-cloud-save-open:sameDevice": {
+        "flags": {
+          "cloudNewerPreferred": true,
+          "newerDraftPreferred": true,
+          "noteIdsWhole": true,
+          "savedVersionOpens": true
+        },
+        "pageErrors": 0,
+        "losses": {}
       },
       "R4-leak:demo": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:fileNew": {
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:jam": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:libraryTemplate": {
         "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
           "noteIdsWhole": true,
+          "openedClean": true,
           "prefsCarried": true,
           "workKept": true,
           "workRestored": true
@@ -383,205 +1675,379 @@
         "losses": {}
       },
       "R4-leak:new": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:practiceGenre": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:practiceMode": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:project": {
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:song": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:template": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R4-leak:tutorial": {
-        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "flags": {
+          "generationBumped": true,
+          "keptOnce": true,
+          "keptToastWithView": true,
+          "noteIdsWhole": true,
+          "openedClean": true,
+          "prefsCarried": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:collab:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:collab:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
         "pageErrors": 0,
         "losses": {}
       },
       "R5-bad-link:demo:cold": {
         "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
         },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
+        "losses": {}
       },
       "R5-bad-link:demo:spa": {
         "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:practiceGenre:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:practiceGenre:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:practiceMode:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:practiceMode:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:project:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:project:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:song:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:song:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:template:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:template:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R5-bad-link:tutorial:cold": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
-      },
-      "R5-bad-link:tutorial:spa": {
-        "flags": {
-          "autosaveKept": true,
-          "errorToast": true,
-          "noteIdsWhole": true
-        },
-        "pageErrors": 0,
-        "losses": { "view.channelStripTab": { "changed": 1 } }
-      },
-      "R6-synth-edit-refresh": {
-        "flags": {
-          "autosaveWrittenAfterSynthEdit": true,
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
           "noteIdsWhole": true
         },
         "pageErrors": 0,
         "losses": {}
       },
-      "R7-tab-close": {
-        "flags": { "autosaveFlushedOnClose": true, "noteIdsWhole": true },
+      "R5-bad-link:draft:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
         "pageErrors": 0,
-        "losses": {
-          "context.practiceSession": { "lost": 1 },
-          "context.tutorial": { "lost": 1 },
-          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
-        }
+        "losses": {}
+      },
+      "R5-bad-link:draft:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:jam:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:jam:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:practiceGenre:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:practiceGenre:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:practiceMode:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:practiceMode:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:project500:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:project500:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:project:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:project:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:song:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:song:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:template:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:template:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:tutorial:cold": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:tutorial:spa": {
+        "flags": {
+          "draftUntouched": true,
+          "errorShown": true,
+          "linkStripped": true,
+          "noDraftCreated": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R6-synth-edit-refresh": {
+        "flags": { "draftWrittenAfterSynthEdit": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close": {
+        "flags": { "draftFlushedOnClose": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close:idbSlow": {
+        "flags": {
+          "inFlightWriteKeptNewest": true,
+          "mirrorWinsWhenNewer": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close:idbSlowReleased": {
+        "flags": { "inFlightWriteKeptNewest": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close:idbStalled": {
+        "flags": { "mirrorWinsWhenNewer": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close:idbStalledLockHeld": {
+        "flags": {
+          "mirrorWinsWhenNewer": true,
+          "noteIdsWhole": true,
+          "refreshKeepsDraftId": true
+        },
+        "pageErrors": 0,
+        "losses": {}
       }
     }
   }

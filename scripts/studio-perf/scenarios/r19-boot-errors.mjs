@@ -42,12 +42,7 @@
  *   server, which this check does not run.
  */
 import SuperJSON from 'superjson';
-import {
-  fullTierOnly,
-  REOPEN_CLASSES,
-  withoutLessonResume,
-  workHash,
-} from './_shared.mjs';
+import { fullTierOnly, REOPEN_CLASSES, workHash } from './_shared.mjs';
 
 export const flags = {
   overlayShown: { goal: true, text: 'a slow open showed the Opening overlay' },
@@ -129,7 +124,7 @@ async function sameAsSink(kit, run, page, { draft, snapshot }) {
     got,
     diffs,
     same:
-      withoutLessonResume(diffs).length === 0 &&
+      diffs.length === 0 &&
       now.draftId === draft.draftId &&
       workHash(text) === workHash(draft.text),
     draftId: now.draftId,

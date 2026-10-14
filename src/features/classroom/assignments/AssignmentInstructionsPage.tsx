@@ -2,8 +2,8 @@ import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ClassroomRoutes } from '@/constants/routes';
 import {
-  useLocalEnrollmentId,
   useMyAssignmentProgress,
+  useStudentEnrollmentId,
 } from './useAssignmentProgress';
 import { useAssignments } from './useAssignments';
 
@@ -17,7 +17,9 @@ export const AssignmentInstructionsPage = () => {
   const navigate = useNavigate();
 
   const { getAssignment } = useAssignments(cid);
-  const enrollmentId = useLocalEnrollmentId();
+  // Undefined until the student's enrollment resolves; the progress row is
+  // found by it, so Mark Done waits for it.
+  const enrollmentId = useStudentEnrollmentId(cid);
   const { myProgress, setMyProgress } = useMyAssignmentProgress(
     aid,
     enrollmentId,
@@ -75,7 +77,8 @@ export const AssignmentInstructionsPage = () => {
           <button
             type="button"
             onClick={handleMarkDone}
-            className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
+            disabled={enrollmentId === undefined}
+            className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85 disabled:cursor-wait disabled:opacity-50"
           >
             <CheckCircle2 className="h-4 w-4" />
             Mark Done

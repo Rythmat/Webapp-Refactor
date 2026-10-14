@@ -1,8 +1,5 @@
-import {
-  MUSIC_HISTORY,
-  type GuidedTour,
-  type ResolvedTourStop,
-} from '@/components/atlas/data';
+import type { GuidedTour, ResolvedTourStop } from '@/components/atlas/data';
+import { getEventById } from '@/components/atlas/data/lookups';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { getEventsForLocation } from './getEventsForLocation';
 
@@ -20,7 +17,7 @@ export function resolveStopEvent(
   index: number,
 ): HistoricalEvent | null {
   if (stop.eventId) {
-    return MUSIC_HISTORY.find((e) => e.id === stop.eventId) ?? null;
+    return getEventById(stop.eventId) ?? null;
   }
   if (!stop.cityId) return null;
   const cityEvents = getEventsForLocation({ type: 'city', id: stop.cityId });

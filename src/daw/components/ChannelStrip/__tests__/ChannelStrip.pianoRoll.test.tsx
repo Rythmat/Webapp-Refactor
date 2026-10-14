@@ -1,5 +1,13 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  beforeEach,
+  afterEach,
+} from 'vitest';
 import { act, cleanup, render } from '@testing-library/react';
 import type { MidiNoteEvent } from '@prism/engine';
 
@@ -42,6 +50,7 @@ vi.mock('@/hooks/useIsPremium', () => ({
 }));
 vi.mock('@/daw/audio/auditionNote', () => ({ auditionNote: vi.fn() }));
 
+import { ClipPianoRollPart } from '@/daw/shell/lazyParts';
 import { useStore } from '@/daw/store';
 import { ChannelStrip } from '../ChannelStrip';
 
@@ -56,6 +65,12 @@ const note = (startTick: number): MidiNoteEvent => ({
 });
 
 let trackId = '';
+
+// The roll is its own chunk (milestone 1.12a); loaded here, the dock renders
+// it at once, as after a preload in the editor.
+beforeAll(async () => {
+  await ClipPianoRollPart.preload();
+});
 
 beforeEach(() => {
   roll.props = null;
@@ -109,5 +124,54 @@ describe('ChannelStrip PIANO ROLL tab', () => {
       .tracks.find((t) => t.id === trackId)!.midiClips;
     expect(clip.startTick).toBe(0);
     expect(clip.events.map((e) => e.startTick)).toEqual([480]);
+  });
+
+  it("opens on the track's clip with nothing selected, not an empty roll", () => {
+    // A chord track with its clip at bar 5; the student selects the track,
+    // not the clip, and opens the piano roll (dock-instruments-10).
+    useStore.getState().addMidiClip(trackId, {
+      id: 'chords',
+      startTick: 4 * BAR,
+      events: [note(0)],
+    });
+    render(<ChannelStrip />);
+
+    expect(roll.props!.events).toHaveLength(1);
+    expect(roll.props!.timelineStartTick).toBe(4 * BAR);
+    // A note drawn there joins that clip: no second clip on bar 1.
+    act(() => roll.props!.onChange([note(0), note(960)]));
+    const clips = useStore
+      .getState()
+      .tracks.find((t) => t.id === trackId)!.midiClips;
+    expect(clips).toHaveLength(1);
+    expect(clips[0].events.map((e) => e.startTick)).toEqual([0, 960]);
+  });
+
+  it('edits the clip under the playhead when the track has several', () => {
+    for (const [id, bar] of [
+      ['verse', 0],
+      ['chorus', 8],
+    ] as const) {
+      useStore.getState().addMidiClip(trackId, {
+        id,
+        startTick: bar * BAR,
+        durationTicks: 8 * BAR,
+        events: [note(0)],
+      });
+    }
+    useStore.setState({ position: 9 * BAR });
+    render(<ChannelStrip />);
+    expect(roll.props!.timelineStartTick).toBe(8 * BAR);
+  });
+
+  it("starts a blank roll at the playhead's bar", () => {
+    useStore.setState({ position: 5 * BAR + 300 });
+    render(<ChannelStrip />);
+    expect(roll.props!.timelineStartTick).toBe(5 * BAR);
+    act(() => roll.props!.onChange([note(0)]));
+    const [clip] = useStore
+      .getState()
+      .tracks.find((t) => t.id === trackId)!.midiClips;
+    expect(clip.startTick).toBe(5 * BAR);
   });
 });

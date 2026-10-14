@@ -56,7 +56,9 @@
  * The context lessons.mjs passes (see makeDriverContext there):
  *
  *   ctx.page                          the Playwright page
- *   ctx.clickAnchor(id, label?)       real click on [data-tutorial-id=id]
+ *   ctx.clickAnchor(id, label?, { rack? })  real click on [data-tutorial-id=id]
+ *                                     (an fx-add-* row in `rack`'s FX list,
+ *                                     the track dock's by default)
  *   ctx.click(locator, label)         real click on any locator
  *   ctx.clickAt(locator, fx, fy, label)  real click at a fraction of a box,
  *                                     after checking nothing covers the point
@@ -401,7 +403,7 @@ const NEXT = {
   run: (ctx) => ctx.next(),
 };
 
-/** A row of the dock's FX list (the first fx-add-* anchor in the page). */
+/** A row of the track dock's FX list (its fx-add-* rows say rack "track"). */
 function addFx(type) {
   return {
     how: 'click',
@@ -767,13 +769,14 @@ function tweakReturn(returnId) {
   };
 }
 
-/** The mastering rack's FX list is the first fx-add-* anchor in MASTER view. */
+/** A row of the mastering rack's FX list (its fx-add-* rows say rack "master"). */
 function addMasteringFx(type) {
   return {
     how: 'click',
     describe: `click fx-add-${type} in mastering-section`,
     related: ['fx-mixer-19'],
-    run: (ctx) => ctx.clickAnchor(`fx-add-${type}`),
+    run: (ctx) =>
+      ctx.clickAnchor(`fx-add-${type}`, `fx-add-${type}`, { rack: 'master' }),
     fallback: (ctx) =>
       ctx.act(
         `addMasteringFx(${type})`,
@@ -1028,10 +1031,6 @@ export function driverFor(lessonId, stepId) {
  * prism-ui-23: the four Prism lessons are gated for a free student now.)
  */
 export const KNOWN_FAILURES = {
-  '*/*/edm-design-the-drop/saturate':
-    'practice-tutorial-20: fx-add-saturator is scrolled out of the dock’s FX list, so the spotlight points below the list',
-  '*/*/house-make-it-pump/add-ducker':
-    'practice-tutorial-20: fx-add-ducker is scrolled out of the dock’s FX list, so the spotlight points below the list',
   'chromebook/*/rnb-mix-and-polish/balance-fader':
     'ia-flows-12, fx-mixer-04: mixer-section has a 0 px tall box in MASTER at 1366×655',
   'chromebook|small/*/rnb-mix-and-polish/use-send':

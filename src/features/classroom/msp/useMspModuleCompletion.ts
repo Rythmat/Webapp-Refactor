@@ -15,20 +15,41 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useMe } from '@/hooks/data';
 import {
   fallbackInboxToken,
+  launchIsFor,
   readMspLaunchParams,
   readStashedMspLaunchParams,
   stashMspLaunchParams,
+  type MspActivity,
   type MspLaunchParams,
 } from './mspLaunchParams';
-import { recordMspResponseForUser } from './mspResponseInbox';
+import {
+  recordMspResponseForUser,
+  type MspResultPayload,
+} from './mspResponseInbox';
 
 const isBrowser = typeof window !== 'undefined';
 
 export interface UseMspModuleCompletion {
   /** True when this module view was opened from a classroom app-route slide. */
   armed: boolean;
-  /** Report completion back to the classroom (idempotent per launch). */
-  reportCompletion: (result?: { score?: number; max?: number }) => void;
+  /**
+   * Report completion back to the classroom (idempotent per launch). With
+   * `activity`, only when the launch was for that activity: a Studio lesson
+   * finished in a tab that a slide once opened for another one reports
+   * nothing (practice-tutorial-09).
+   */
+  reportCompletion: (
+    result?: { score?: number; max?: number },
+    activity?: MspActivity,
+  ) => void;
+  /**
+   * Report any result — the Globe's mind map hands in the map itself.
+   * Idempotent per launch, like `reportCompletion`, and scoped the same way
+   * by `activity`.
+   */
+  reportResult: (payload: MspResultPayload, activity?: MspActivity) => void;
+  /** The launch this module view was opened for, once read. */
+  launch: () => MspLaunchParams | null;
 }
 
 export const useMspModuleCompletion = (): UseMspModuleCompletion => {
@@ -51,10 +72,11 @@ export const useMspModuleCompletion = (): UseMspModuleCompletion => {
     }
   }, []);
 
-  const reportCompletion = useCallback(
-    (result?: { score?: number; max?: number }) => {
+  const reportResult = useCallback(
+    (payload: MspResultPayload, activity?: MspActivity) => {
       const p = paramsRef.current;
       if (!p || firedRef.current) return;
+      if (activity && !launchIsFor(p, activity)) return;
       firedRef.current = true;
       const token =
         p.token ?? fallbackInboxToken(p.interactionId, p.enrollmentId);
@@ -64,14 +86,37 @@ export const useMspModuleCompletion = (): UseMspModuleCompletion => {
         participant: { enrollmentId: p.enrollmentId },
         module: p.module,
         activityRef: p.activityRef,
-        payload:
-          typeof result?.score === 'number' && typeof result?.max === 'number'
-            ? { kind: 'score', score: result.score, max: result.max }
-            : { kind: 'completion', completed: true },
+        payload,
       });
     },
     [userId],
   );
 
-  return { armed: paramsRef.current !== null, reportCompletion };
+  const reportCompletion = useCallback(
+    (result?: { score?: number; max?: number }, activity?: MspActivity) =>
+      reportResult(
+        typeof result?.score === 'number' && typeof result?.max === 'number'
+          ? { kind: 'score', score: result.score, max: result.max }
+          : { kind: 'completion', completed: true },
+        activity,
+      ),
+    [reportResult],
+  );
+
+  const launch = useCallback(
+    () =>
+      paramsRef.current ??
+      (isBrowser
+        ? (readMspLaunchParams(window.location.search) ??
+          readStashedMspLaunchParams())
+        : null),
+    [],
+  );
+
+  return {
+    armed: paramsRef.current !== null,
+    reportCompletion,
+    reportResult,
+    launch,
+  };
 };

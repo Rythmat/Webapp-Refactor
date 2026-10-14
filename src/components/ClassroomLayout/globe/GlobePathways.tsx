@@ -1,7 +1,7 @@
 import { ArrowRight, Compass, Play } from 'lucide-react';
 import { Fragment, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { HISTORICAL_MODULES } from '@/components/atlas/data';
+import { HISTORICAL_MODULES } from '@/components/atlas/data/historicalModules';
 import { AtlasRoutes } from '@/constants/routes';
 import { GlobeSectionHeader } from './GlobeSectionHeader';
 import { ROOTS_AND_ROUTES } from './data/rootsAndRoutes';

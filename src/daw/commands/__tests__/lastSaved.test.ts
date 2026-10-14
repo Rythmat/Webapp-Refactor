@@ -9,8 +9,14 @@ import { useStore } from '@/daw/store';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
 import {
+  noteCloudDocumentSupport,
+  resetCloudDocumentSupport,
+} from '@/lib/studio-projects/cloudDocumentSupport';
+import {
+  cloudGapMode,
   cloudOpenedRecord,
   cloudRecordFromLastSaved,
+  cloudWriteMode,
   documentOnlyGroups,
   formatGroups,
   groupsFromGaps,
@@ -20,8 +26,10 @@ import {
   stayVerb,
 } from '../lastSaved';
 
-// What today's cloud copy holds of the project, for the chip and the save
-// toast (decision D7): 1.3's cloudSaveGaps, in words a student reads.
+// What the cloud copy holds of the project, for the chip and the save toast
+// (decision D7): 1.3's cloudSaveGaps in the mode a save writes (milestone
+// 1.5: the cloud document in the API's field, or on the first track until
+// the API has one), in words a student reads.
 
 const s = () => useStore.getState();
 
@@ -53,8 +61,38 @@ function notesOnly(): void {
   });
 }
 
+/** Everything only the cloud document carries, in a few kinds. */
+function documentContent(): void {
+  s().setChordRegions([REGION], true);
+  s().addMarker(1920, 'Chorus');
+  s().setTimeSignature(3, 4);
+  s().setMode('dorian');
+}
+
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
+  resetCloudDocumentSupport();
+});
+
+describe('where a save puts the cloud document', () => {
+  it('on the first track until a project comes back with the field', () => {
+    expect(cloudWriteMode()).toBe('interim');
+    noteCloudDocumentSupport({ id: 'p1', tracks: [] });
+    expect(cloudWriteMode()).toBe('interim');
+    noteCloudDocumentSupport({ id: 'p1', tracks: [], document: null });
+    expect(cloudWriteMode()).toBe('document');
+    // A summary says nothing.
+    noteCloudDocumentSupport({ id: 'p1', name: 'Song' });
+    expect(cloudWriteMode()).toBe('document');
+  });
+
+  it('holds all of it, unless the fallback has no track to ride on', () => {
+    resetSessionToEmpty();
+    expect(cloudGapMode(s(), 'interim')).toBe('legacy');
+    expect(cloudGapMode(s(), 'document')).toBe('document');
+    notesOnly();
+    expect(cloudGapMode(s(), 'interim')).toBe('document');
+  });
 });
 
 describe('projectHoldsDocumentOnlyData', () => {
@@ -64,12 +102,16 @@ describe('projectHoldsDocumentOnlyData', () => {
     expect(documentOnlyGroups()).toEqual([]);
   });
 
-  it('is true once the project has what only 1.5 carries', () => {
+  it('is false for what only the cloud document carries, with a track to carry it', () => {
     notesOnly();
-    s().setChordRegions([REGION], true);
-    s().addMarker(1920, 'Chorus');
-    s().setTimeSignature(3, 4);
-    s().setMode('dorian');
+    documentContent();
+    expect(projectHoldsDocumentOnlyData()).toBe(false);
+    expect(documentOnlyGroups()).toEqual([]);
+  });
+
+  it('is true for it in a project with no track, until the API has the field', () => {
+    resetSessionToEmpty();
+    documentContent();
     expect(projectHoldsDocumentOnlyData()).toBe(true);
     expect(documentOnlyGroups()).toEqual([
       'chord symbols',
@@ -77,6 +119,8 @@ describe('projectHoldsDocumentOnlyData', () => {
       'time signature',
       'mode',
     ]);
+    noteCloudDocumentSupport({ id: 'p1', tracks: [], document: null });
+    expect(projectHoldsDocumentOnlyData()).toBe(false);
   });
 
   it('counts audio not uploaded, which the groups leave to their own warning', () => {
@@ -151,6 +195,7 @@ describe('cloudOpenedRecord', () => {
     const record = cloudOpenedRecord({
       id: 'p1',
       updatedAt: new Date('2026-10-08T09:00:00Z'),
+      revision: 7,
     });
     expect(record).toMatchObject({
       projectId: 'p1',
@@ -158,9 +203,14 @@ describe('cloudOpenedRecord', () => {
       version: useSaveStatusStore.getState().documentVersion,
       complete: true,
       updatedAt: '2026-10-08T09:00:00.000Z',
+      revision: 7,
       generation: getSessionGeneration(),
     });
+    expect(cloudOpenedRecord({ id: 'p1', updatedAt: null }).revision).toBe(
+      null,
+    );
 
+    resetSessionToEmpty();
     s().setChordRegions([REGION], true);
     expect(cloudOpenedRecord({ id: 'p1', updatedAt: null }).complete).toBe(
       false,
@@ -188,6 +238,13 @@ describe('lastSavedFromDraft', () => {
       at: 1234,
     });
     expect(cloudRecordFromLastSaved(record!)).toEqual(cloud);
+  });
+
+  it('carries the revision a save is based on, both ways', () => {
+    const withRevision = { ...cloud, revision: 4 };
+    const record = lastSavedFromDraft(withRevision, 'p1');
+    expect(record?.revision).toBe(4);
+    expect(cloudRecordFromLastSaved(record!)).toEqual(withRevision);
   });
 
   it('is nothing without a record, or for another project', () => {

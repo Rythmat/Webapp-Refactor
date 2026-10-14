@@ -56,7 +56,7 @@ export const FIELD_CLASSES = {
   derived:
     'a session key every load works out again from the project (the key colour)',
   context:
-    'the lesson or practice screen the project was opened for: session state until milestone 1.15',
+    'the lesson or practice screen the project was opened for: never in the body, but its draft’s meta keeps it (DraftContext, milestone 1.15), so a reload or a reopen of the same draft gives it back',
   runtime:
     'whether decoded audio is there: since milestone 1.4 the draft keeps the bytes of a clip or a Chops sample never uploaded',
   media:
@@ -526,7 +526,13 @@ export async function fingerprintPage() {
     'harmony.chordRegions',
     ['store.chordRegions'],
     s.chordRegions.map((r) =>
-      Object.fromEntries(regionKeys.map((k) => [k, r[k]])),
+      Object.fromEntries(
+        regionKeys.map((k) => [
+          k,
+          // The clip a region follows, by its place, like every clip id.
+          k === 'sourceClipId' ? refClip(r[k]) : r[k],
+        ]),
+      ),
     ),
   );
 
@@ -556,6 +562,7 @@ export async function fingerprintPage() {
   notation('measureRowSizes', s.measureRowSizes);
   notation('measureRestMap', s.measureRestMap);
   notation('measureFermatas', s.measureFermatas);
+  notation('leadSheetBars', s.leadSheetBars);
   notation('leadSheetSections', s.leadSheetSections);
   notation('leadSheetRepeats', s.leadSheetRepeats);
   notation('leadSheetChordFormat', s.leadSheetChordFormat);
@@ -645,6 +652,11 @@ export async function fingerprintPage() {
   );
   put('view.activeTool', ['store.activeTool'], s.activeTool);
   put(
+    'view.singleKeyShortcuts',
+    ['store.singleKeyShortcuts'],
+    s.singleKeyShortcuts,
+  );
+  put(
     'view.selectedTrack',
     ['store.selectedTrackId'],
     refTrack(s.selectedTrackId),
@@ -675,6 +687,11 @@ export async function fingerprintPage() {
     },
   );
   put('context.practiceSession', ['store.practiceSession'], s.practiceSession);
+  put(
+    'context.practiceKeyboard',
+    ['store.practiceKeyboard'],
+    s.practiceKeyboard,
+  );
 
   // ── Coverage: every key the draft or the prefs keep is shown ──
   const wanted = [
@@ -750,9 +767,14 @@ export function probeChordIdCollision() {
   if (before.length === 0) return { regions: 0, newId: null, collides: false };
   const lastEnd = Math.max(...before.map((r) => r.endTick));
   const known = new Set(before.map((r) => r.id));
-  store
-    .getState()
-    .insertChordRegion(lastEnd + 1920, 'Probe', 'Probe', [128, 128, 128]);
+  // The probe is the harness's, not the student's: no undo step
+  // (milestone 1.9's history; older builds have no handle).
+  const unrecorded = window.__MA_HISTORY__?.withoutHistory ?? ((fn) => fn());
+  unrecorded(() =>
+    store
+      .getState()
+      .insertChordRegion(lastEnd + 1920, 'Probe', 'Probe', [128, 128, 128]),
+  );
   const added = store
     .getState()
     .chordRegions.filter((r) => r.name === 'Probe' && r.startTick > lastEnd);

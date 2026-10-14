@@ -5,9 +5,11 @@ import { splitMidiClip } from './midiClipCuts';
  * Split the MIDI clip `clipId` on `trackId` at song tick `splitTick`: the
  * scissors tool. The cut lands at the clip tick under the cursor and the
  * right half's notes move onto its own start (see midiClipCuts.ts). The left
- * half keeps the clip's id, so Score marks on its notes stay put. One store
- * write, one undo step. Returns the right half's id, or null when nothing was
- * split (no such clip, the tick isn't inside it, or the track is locked).
+ * half keeps the clip's id, so Score marks on its notes stay put, and the
+ * chords Prism read from the clip after the cut follow the right half from
+ * now on (sourceClipId). One undo step. Returns the right half's id, or null
+ * when nothing was split (no such clip, the tick isn't inside it, or the
+ * track is locked).
  */
 export function splitMidiClipAt(
   trackId: string,
@@ -33,6 +35,22 @@ export function splitMidiClipAt(
       (t) => t.id === trackId && t.midiClips.some((c) => c.id === rightId),
     );
   if (!landed) return null;
+
+  // The chords read from the clip that start in the right half go with it.
+  const { chordRegions } = useStore.getState();
+  if (
+    chordRegions.some(
+      (r) => r.sourceClipId === clip.id && r.startTick >= splitTick,
+    )
+  ) {
+    useStore.setState({
+      chordRegions: chordRegions.map((r) =>
+        r.sourceClipId === clip.id && r.startTick >= splitTick
+          ? { ...r, sourceClipId: rightId }
+          : r,
+      ),
+    });
+  }
 
   // Selected notes are indices into the clip's events, which the cut
   // renumbers: drop the selection rather than point it at other notes.

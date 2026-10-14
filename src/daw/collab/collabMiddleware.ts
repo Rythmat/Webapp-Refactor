@@ -8,6 +8,7 @@
 
 import type { ZustandYjsBridge } from './ZustandYjsBridge';
 import type { AllSlices } from '@/daw/store/index';
+import { inTransaction, onTransactionEnd } from '@/daw/store/writeContext';
 
 // ── Module-level bridge reference ───────────────────────────────────────
 // Set by CollabProvider when a session starts; cleared when it ends.
@@ -94,6 +95,19 @@ export const collabMiddleware =
       ) => () => void;
     },
   ): AllSlices => {
+    // A transaction (one undoable edit, such as a gesture's commit) reaches
+    // the shared document as one update when it ends, however many writes
+    // it made: the state before its first write, diffed against the state
+    // it left.
+    let transactionPrev: AllSlices | null = null;
+    onTransactionEnd(() => {
+      const prev = transactionPrev;
+      transactionPrev = null;
+      if (!prev || !_bridge || _bridge.suppressStoreToYjs) return;
+      const next = get();
+      if (prev !== next) _bridge.syncToYjs(prev, next);
+    });
+
     const collabSet: typeof set = (partial, replace) => {
       const prev = get();
       set(partial, replace);
@@ -101,6 +115,10 @@ export const collabMiddleware =
       // If the bridge is active and the change didn't come FROM Yjs,
       // propagate to the shared document.
       if (_bridge && !_bridge.suppressStoreToYjs) {
+        if (inTransaction()) {
+          transactionPrev ??= prev;
+          return;
+        }
         const next = get();
         if (prev !== next) {
           _bridge.syncToYjs(prev, next);

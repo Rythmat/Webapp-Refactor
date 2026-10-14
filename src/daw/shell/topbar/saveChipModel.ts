@@ -19,7 +19,10 @@ import type { DraftErrorKind } from '@/lib/studio-projects/drafts/types';
 //      written on this device (any draft error but a conflict, which the
 //      writer resolves itself: reason 'device'). A cloud error's tooltip
 //      says the work is on this device only when the device holds all of it;
-//      deviceFailing tells Retry to retry the device write too;
+//      deviceFailing tells Retry to retry the device write too. Its button
+//      (fix) retries, asks again what to do about a project changed
+//      elsewhere ('resolve'), or, when a newer app saved the project
+//      ('outdated', milestone 1.5), reloads to update: 'Reload';
 //   4. audio-pending: audio couldn't be stored on this device, or its bytes
 //      have been only in memory for over a second (the hook holds that
 //      second back: it passes pendingInMemory as 0 until then);
@@ -31,7 +34,9 @@ import type { DraftErrorKind } from '@/lib/studio-projects/drafts/types';
 //      fingerprint check says it matches: undo back to it reads 'Saved');
 //   7. local: everything else, a pristine new project included. When the
 //      document is what an incomplete save sent, reason 'partial': the
-//      account has it, but not all of it (1.5 adds the rest).
+//      account has it, but not all of it (audio that didn't upload, or the
+//      chord lane and the rest of the cloud document in a project with no
+//      track to carry it, until music-atlas-api has the document field).
 
 export type SaveChipState =
   | 'saved'
@@ -70,9 +75,20 @@ export interface SaveChipInputs {
   audioNotUploaded?: boolean;
   /** The save shortcut as this keyboard writes it ('Ctrl+S' or '⌘S'). */
   saveShortcut?: string;
+  /**
+   * What the incomplete save left out needs a track to ride on (the
+   * interim fallback, milestone 1.5). Optional.
+   */
+  untilTrack?: boolean;
 }
 
 export type SaveChipReason = 'cloud' | 'device' | 'partial' | null;
+
+/**
+ * What the error state's button does: save again, ask again what to do
+ * about a project changed elsewhere, or reload to update the app.
+ */
+export type SaveChipFix = 'retry' | 'resolve' | 'reload';
 
 export interface SaveChipView {
   state: SaveChipState;
@@ -82,8 +98,10 @@ export interface SaveChipView {
    * account holds this document in part. Otherwise null.
    */
   reason: SaveChipReason;
-  /** Show the Retry button. */
+  /** Show the button (Retry, or Reload: fix). */
   retry: boolean;
+  /** What the button does; null outside the error state. */
+  fix: SaveChipFix | null;
   tooltip: string;
   /** What the live region says on entering this state; null = nothing. */
   announce: string | null;
@@ -106,6 +124,22 @@ export const SAVE_CHIP_LABELS: Readonly<Record<SaveChipState, string>> = {
 /** The visible text before the Retry button in the error state. */
 export const SAVE_CHIP_ERROR_LEAD = "Couldn't save –";
 
+/**
+ * The lead before the Reload button: shorter than SAVE_CHIP_ERROR_LEAD, as
+ * 'Reload' is wider than 'Retry' and the chip's width is fixed.
+ */
+export const SAVE_CHIP_RELOAD_LEAD = "Can't save –";
+
+/** The error state's label when the fix is a reload. */
+export const SAVE_CHIP_RELOAD_LABEL = `${SAVE_CHIP_RELOAD_LEAD} Reload`;
+
+/** The button's text for each fix. */
+export const SAVE_CHIP_FIX_LABELS: Readonly<Record<SaveChipFix, string>> = {
+  retry: 'Retry',
+  resolve: 'Retry',
+  reload: 'Reload',
+};
+
 const DEFAULT_SHORTCUT = 'Ctrl+S (⌘S)';
 
 function view(
@@ -113,13 +147,18 @@ function view(
   tooltip: string,
   reason: SaveChipReason = null,
   deviceFailing = false,
+  fix: SaveChipFix = 'retry',
 ): SaveChipView {
   return {
     deviceFailing,
     state,
-    label: SAVE_CHIP_LABELS[state],
+    label:
+      state === 'error' && fix === 'reload'
+        ? SAVE_CHIP_RELOAD_LABEL
+        : SAVE_CHIP_LABELS[state],
     reason,
     retry: state === 'error',
+    fix: state === 'error' ? fix : null,
     tooltip,
     announce:
       state === 'saved'
@@ -203,7 +242,18 @@ export function deriveSaveChip(
         : deviceFailing
           ? "Storage on this device isn't available right now."
           : 'Your latest changes are still being kept on this device.';
-    return view('error', `${reason} ${device}`, 'cloud', deviceFailing);
+    const kind = cloud.error?.kind;
+    return view(
+      'error',
+      `${reason} ${device}`,
+      'cloud',
+      deviceFailing,
+      kind === 'outdated'
+        ? 'reload'
+        : kind === 'conflict'
+          ? 'resolve'
+          : 'retry',
+    );
   }
 
   if (deviceFailing) {
@@ -253,14 +303,17 @@ export function deriveSaveChip(
 
   if (sameDocument) {
     const stay = groupsStay(inputs.gapGroups ?? []);
-    const rest = stay ? ` ${stay} on this device until an update.` : '';
+    const until = inputs.untilTrack
+      ? 'until the project has a track'
+      : 'for now';
+    const rest = stay ? ` ${stay} on this device ${until}.` : '';
     return view(
       'local',
       inputs.audioNotUploaded
         ? `Saved to your account except some audio. Press ${shortcut} to upload it.${rest}`
         : stay
           ? `Saved to your account.${rest}`
-          : 'Saved to your account. Some parts stay on this device until an update.',
+          : 'Saved to your account. Some parts stay on this device for now.',
       'partial',
     );
   }
@@ -278,6 +331,7 @@ export function sameSaveChipView(a: SaveChipView, b: SaveChipView): boolean {
     a.label === b.label &&
     a.reason === b.reason &&
     a.retry === b.retry &&
+    a.fix === b.fix &&
     a.tooltip === b.tooltip &&
     a.announce === b.announce &&
     a.deviceFailing === b.deviceFailing

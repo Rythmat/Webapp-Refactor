@@ -21,13 +21,13 @@ export const pickLocalized = (
 /**
  * When rendering `language === 'both'`, callers show two stacked strings:
  * the English on top and the Spanish underneath. Returns null for the
- * Spanish line when no translation exists so the caller can skip the
- * empty row.
+ * Spanish line when no translation exists, or when it is the same as the
+ * English (a name), so the caller can skip the row.
  */
 export const secondaryLine = (
   text: LocalizedText,
   language: StudentLanguage,
 ): string | null => {
-  if (language === 'both' && text.es) return text.es;
+  if (language === 'both' && text.es && text.es !== text.en) return text.es;
   return null;
 };

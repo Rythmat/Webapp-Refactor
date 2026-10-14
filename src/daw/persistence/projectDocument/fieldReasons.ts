@@ -42,7 +42,7 @@ const ANALYSIS =
 const SUGGESTION =
   'The Prism suggestion dialog, opened on the previous project.';
 const LESSON =
-  'The lesson running on this project. Milestone 1.15 saves it with the draft.';
+  'The lesson running on this project: never in the body, but its draft’s meta keeps it (DraftContext, milestone 1.15), and reopening that draft resumes it.';
 const STEP = 'Whether the running lesson has seen its current step done.';
 const DEVICES = 'What this computer has connected: no part of a project.';
 const PANELS =
@@ -126,7 +126,7 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   clipColorMode:
     'A project field. A draft from before 1.3 opens as prism when it has chord regions, as the editor showed it.',
   currentView:
-    'Restored for every view but practice, which needs the lesson context milestone 1.15 saves.',
+    'Restored for every view but practice, which the body alone can’t rebuild: the draft’s context brings the practice screen back with its session (milestone 1.15).',
   activeTool: 'The editing tool: every project opens with the cursor.',
   selectedClipId: SELECTION,
   selectedClipTrackId: SELECTION,
@@ -135,11 +135,15 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
 
   // ── lesson and practice context ──
   practiceSession:
-    'The practice screen this project was opened for. Milestone 1.15 saves it with the draft.',
+    'The practice screen this project was opened for: never in the body or the cloud copy (another person opening the project would land on it), but its draft’s meta keeps it (DraftContext, milestone 1.15).',
+  practiceKeyboard:
+    'What the practice keyboard shows, kept beside its practice session in the draft’s meta (milestone 1.15).',
   activeTutorialId: LESSON,
   tutorialStepIndex: LESSON,
   tutorialStepStatus: STEP,
   tutorialStepCelebrate: STEP,
+  tutorialStepPrepared:
+    'Whether the running step’s preconditions are in place; a resumed lesson finds them in its draft’s view.',
 
   // ── analysis (the music-intelligence bus) ──
   detectedKeyRootPc: ANALYSIS,
@@ -264,7 +268,7 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
     tick: FROM_CLIP_START,
   },
   AudioClip: {
-    id: 'It keys the clip’s decoded audio, so a cloud open mints new ones until milestone 1.10 keys audio by asset; the cloud carries it from then. A new id loses nothing but a second download. Within a session it is the clip’s link to its audio, so it counts as content like any other id (the save status fingerprints it): only a load changes it, and the load marks its baseline after that.',
+    id: 'Its link to its audio (audio/assets/assetStore.ts). The cloud rows get the API’s own ids, so it rides on its track’s settings (audioClipIds, milestone 1.10) and an open reuses it. Within a session it counts as content like any other id (the save status fingerprints it): only a load changes it, and the load marks its baseline after that.',
     duration: 'In ticks.',
     assetId:
       'Null until the audio is uploaded; a cloud save leaves such clips out.',
@@ -274,6 +278,8 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
       'A label relative to the key, rewritten on a key change: never the chord’s identity.',
     identity:
       'Root, quality and bass (decision D3): filled from milestone 1.16a, kept verbatim, dropped by any write that changes the name, and trusted only while its label equals the name (identityIsCurrent).',
+    sourceClipId:
+      'The clip a Prism take wrote the region from (milestone 1.10): moving that clip moves the region. Collab should share it (1.14); until then a peer’s copy has none, and moving the clip there leaves the lane alone.',
   },
   Marker: {},
   ReturnBus: {

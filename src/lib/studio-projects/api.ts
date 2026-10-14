@@ -1,10 +1,17 @@
 import { showWarning } from '@/components/utils/toast';
 import { useCloudSaveStore } from '@/daw/commands/cloudSaveStore';
 import {
+  cloudGapMode,
+  cloudWriteMode,
+  revisionOf,
+} from '@/daw/commands/lastSaved';
+import {
   serializeSessionForCloud,
   type CloudProjectInput,
+  type CloudWriteMode,
 } from '@/daw/persistence/SessionSerializer';
 import {
+  canonicalJson,
   cloudSaveGaps,
   documentFingerprint,
   documentSnapshot,
@@ -64,6 +71,11 @@ export interface FencedSaveOptions {
    * As) sends nothing: it would bring a deleted project back.
    */
   expectProjectId?: string | null;
+  /**
+   * Overwrite (milestone 1.5): the project's revision a conflict reported,
+   * which the PUT says it is based on instead of the session's own.
+   */
+  overwriteRevision?: number;
 }
 
 /**
@@ -101,6 +113,13 @@ export interface CloudSaveDone {
   snapshot: { fingerprint: string; version: number };
   /** The server's updatedAt, ISO. */
   updatedAt: string | null;
+  /** The project's revision after the save, from an API with the field. */
+  revision: number | null;
+  /**
+   * The cloud document had nowhere to go: the interim fallback rides on the
+   * first track, and the project has none.
+   */
+  untilTrack: boolean;
   generation: number;
 }
 
@@ -132,11 +151,13 @@ export function activeDraftIdForSave(): string | null {
 /** The payload and the document it holds, captured in one synchronous step. */
 interface SaveSnapshot {
   payload: CloudProjectInput;
+  /** Where the payload puts the cloud document (cloudWriteMode). */
+  write: CloudWriteMode;
   /** The payload as JSON, made on first use (only a first save compares). */
   readonly json: string;
   /** The document as it will stand once the save succeeds. */
   doc: DocumentSnapshot;
-  /** What the payload leaves out of the document (cloudSaveGaps, legacy). */
+  /** What the payload leaves out of the document (cloudSaveGaps). */
   gaps: readonly string[];
   /** Nothing in it is left out of the payload. */
   complete: boolean;
@@ -154,7 +175,8 @@ function captureSnapshot(
   renameTo?: string,
 ): SaveSnapshot {
   const state = useStore.getState();
-  const payload = serializeSessionForCloud(nameOverride);
+  const write = cloudWriteMode();
+  const payload = serializeSessionForCloud(nameOverride, write);
   const doc: DocumentSnapshot =
     renameTo === undefined || renameTo === state.projectName
       ? documentSnapshot()
@@ -163,10 +185,11 @@ function captureSnapshot(
           fingerprint: documentFingerprint({ ...state, projectName: renameTo }),
           projectId: state.projectId,
         };
-  const gaps = cloudSaveGaps(state, 'legacy');
+  const gaps = cloudSaveGaps(state, cloudGapMode(state, write));
   let json: string | null = null;
   return {
     payload,
+    write,
     get json() {
       return (json ??= JSON.stringify(payload));
     },
@@ -196,6 +219,7 @@ function withoutAudio(snapshot: SaveSnapshot): SaveSnapshot {
   let json: string | null = null;
   return {
     payload,
+    write: snapshot.write,
     get json() {
       return (json ??= JSON.stringify(payload));
     },
@@ -220,7 +244,21 @@ function cloudRecord(
     savedFingerprint: hashFingerprint(snapshot.doc.fingerprint),
     savedComplete: snapshot.complete && echoMatches(snapshot.payload, project),
     savedAt: Date.now(),
+    ...revisionRecord(project),
   };
+}
+
+/** The revision and document schema a draft keeps of a cloud row, if any. */
+function revisionRecord(
+  project: StudioProjectDetail,
+): Pick<DraftCloudRecord, 'revision' | 'documentSchema'> {
+  const record: Pick<DraftCloudRecord, 'revision' | 'documentSchema'> = {};
+  const revision = revisionOf(project.revision);
+  if (revision !== null) record.revision = revision;
+  if (typeof project.documentSchema === 'number') {
+    record.documentSchema = project.documentSchema;
+  }
+  return record;
 }
 
 /**
@@ -468,6 +506,7 @@ interface SaveRequest {
   fence: SaveFence;
   /** The cloud link when it was asked; null for a first save. */
   projectId: string | null;
+  overwriteRevision?: number;
 }
 
 // The save running now, or the last one to finish. Cmd-S, File ▸ Save, Save
@@ -528,6 +567,7 @@ export function saveCurrentProjectToCloud(
       options.expectProjectId !== undefined
         ? options.expectProjectId
         : useStore.getState().projectId,
+    overwriteRevision: options.overwriteRevision,
   };
   const promise = saveQueue.then(() => saveNow(request));
   saveQueue = promise.catch(() => undefined);
@@ -687,6 +727,23 @@ async function saveNow(request: SaveRequest): Promise<FencedSaveOutcome> {
     const stillOpen = () => inSession() && (asCopy || link() === projectId);
     // The fence of an upload's stamps: this session, linked as it is now.
     const uploadFence = () => ({ generation, projectId: link() });
+    // The revision the PUT says it is based on (milestone 1.5): a project
+    // this save made is at the revision its create returned; otherwise an
+    // Overwrite's, or the session's last save or open of this project.
+    // Unknown (a session restored without one): none, and the API keeps
+    // today's last-write-wins.
+    const baseRevision = (): number | undefined => {
+      if (created !== null && created.detail.id === projectId) {
+        return revisionOf(created.detail.revision) ?? undefined;
+      }
+      if (request.overwriteRevision !== undefined) {
+        return request.overwriteRevision;
+      }
+      const saved = useCloudSaveStore.getState().lastSaved;
+      return saved?.projectId === projectId && saved.generation === generation
+        ? (saved.revision ?? undefined)
+        : undefined;
+    };
 
     let recreated: RecreateReason | null = null;
     let unrecoverable = 0;
@@ -815,7 +872,10 @@ async function saveNow(request: SaveRequest): Promise<FencedSaveOutcome> {
         result = await putWithRetry(
           token,
           projectId,
-          snapshot.payload,
+          // Only an API with the document field knows baseRevision.
+          snapshot.write === 'document'
+            ? withBaseRevision(snapshot.payload, baseRevision())
+            : snapshot.payload,
           stillOpen,
         );
         sent = snapshot;
@@ -859,6 +919,11 @@ async function saveNow(request: SaveRequest): Promise<FencedSaveOutcome> {
           version: sent.doc.version,
         },
         updatedAt: serverTimeIso(result.updatedAt),
+        revision: revisionOf(result.revision),
+        untilTrack:
+          sent.write === 'interim' &&
+          sent.payload.tracks.length === 0 &&
+          sent.gaps.length > 0,
         generation,
       };
     };
@@ -934,9 +999,19 @@ export function warnAudioLeftOut(clips: number, samples: number): void {
   }
 }
 
+/** `payload` with the revision it is based on, when there is one. */
+function withBaseRevision(
+  payload: CloudProjectInput,
+  baseRevision: number | undefined,
+): CloudProjectInput & { baseRevision?: number } {
+  return baseRevision === undefined ? payload : { ...payload, baseRevision };
+}
+
 /**
  * PUT, retried once on a 5xx (the same payload: one snapshot). Each try
- * times out (SAVE_REQUEST_TIMEOUT_MS).
+ * times out (SAVE_REQUEST_TIMEOUT_MS). A retry of a PUT that reached the
+ * server before its answer was lost meets its own revision bump: a 409,
+ * which the student resolves with Overwrite.
  */
 async function putWithRetry(
   token: string,
@@ -972,12 +1047,20 @@ const sameList = (a: readonly string[], b: readonly string[]) =>
 
 /**
  * Whether the server's answer holds what was sent: as many tracks, each
- * with the same settings keys and the same assetIds. An answer without
- * tracks says nothing and passes (the owner's contract (c) has the PUT echo
- * them; checked at runtime until confirmed).
+ * with the same settings keys and the same assetIds, and the cloud document
+ * as it was sent (keys in any order: the server stores JSONB). An answer
+ * without tracks says nothing and passes (the owner's contract (c) has the
+ * PUT echo them; checked at runtime until confirmed).
  */
 export function echoMatches(sent: CloudProjectInput, answer: unknown): boolean {
   if (!answer || typeof answer !== 'object') return true;
+  if (
+    sent.document !== undefined &&
+    canonicalJson((answer as { document?: unknown }).document) !==
+      canonicalJson(sent.document)
+  ) {
+    return false;
+  }
   const tracks = (answer as { tracks?: unknown }).tracks;
   if (!Array.isArray(tracks)) return true;
   if (tracks.length !== sent.tracks.length) return false;

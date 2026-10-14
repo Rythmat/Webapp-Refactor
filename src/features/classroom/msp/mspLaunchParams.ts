@@ -88,6 +88,29 @@ export const clearStashedMspLaunchParams = (): void => {
   }
 };
 
+/** The activity one launch was for. */
+export interface MspActivity {
+  module: AtlasModule;
+  activityRef: string;
+}
+
+/**
+ * Whether `p` launched `activity`. The stash outlives its module (a tab that
+ * opened one slide's activity goes on to others), so a module that can finish
+ * more than one activity reports only the one it was launched for.
+ */
+export const launchIsFor = (
+  p: MspLaunchParams | null,
+  activity: MspActivity,
+): boolean =>
+  p !== null &&
+  p.module === activity.module &&
+  p.activityRef === activity.activityRef;
+
+/** The activityRef a slide launches a Studio lesson with (resolveContentHref). */
+export const studioTutorialActivityRef = (tutorialId: string): string =>
+  `studio:tutorial:${tutorialId}`;
+
 /** Deterministic fallback inbox token when no minted `msp` token exists (offline). */
 export const fallbackInboxToken = (
   interactionId: string,

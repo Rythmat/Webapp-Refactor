@@ -1092,6 +1092,33 @@ export function draftMediaRestoring(): boolean {
   return activeRestores > 0;
 }
 
+/**
+ * Where the draft media of item `key` (a clip id or a sampler key) stands on
+ * this page: its bytes stored in the drafts, being restored from them,
+ * listed but not readable now, being written, or failed to store; null when
+ * this page knows nothing of it. The editor shows a restoring clip as
+ * loading, and frees a recording only while its bytes are stored
+ * (audio/assets/assetGc.ts).
+ */
+export function pendingMediaState(
+  key: string,
+): 'stored' | 'restoring' | 'unrestored' | 'writing' | 'failed' | null {
+  return entries.get(key)?.status ?? null;
+}
+
+/**
+ * Stop holding the decoded audio of stored items `keys`: the editor freed
+ * it, and the drafts keep the bytes. What is stored about them stays.
+ */
+export function releaseStoredMediaBuffers(keys: Iterable<string>): void {
+  for (const key of keys) {
+    const entry = entries.get(key);
+    if (entry?.status === 'stored' && entry.buffer) {
+      entries.set(key, { ...entry, buffer: null });
+    }
+  }
+}
+
 async function restoreRefs(
   refs: readonly DraftMediaRef[],
   userKey: UserKey,

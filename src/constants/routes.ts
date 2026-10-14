@@ -436,9 +436,13 @@ export const AdminRoutes = {
 };
 
 /**
- * The routes for the teacher.
+ * The routes for the teacher. `root`/`classrooms` keep the `/teacher` prefix;
+ * every per-classroom page lives under the Office, keyed by classroom id
+ * (`/office/:classroomId/...`), so the Office and its classrooms share one URL
+ * space.
  */
 const teacherPrefix = '/teacher';
+const officePrefix = '/office';
 
 export const TeacherRoutes = {
   /**
@@ -460,129 +464,131 @@ export const TeacherRoutes = {
   }),
 
   /**
-   * Per-classroom teacher dashboard. Teachers navigate here from a card on
-   * the classrooms selector (or directly if they own exactly one classroom).
+   * Retired per-classroom URL space (`/teacher/classroom/:classroomId/*`).
+   * Router-only: it redirects to the same page under `/office/:classroomId`.
    */
-  classroomDashboard: createRouteDefinition<{
+  legacyClassroom: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId', {
+  }>('/classroom/:classroomId/*', {
     prefix: teacherPrefix,
   }),
 
   /**
-   * The route to the student page.
+   * Per-classroom teacher dashboard. Teachers navigate here from a card on
+   * the Office (or directly if they own exactly one classroom).
+   */
+  classroomDashboard: createRouteDefinition<{
+    classroomId: string;
+  }>('/:classroomId', {
+    prefix: officePrefix,
+  }),
+
+  /**
+   * The People tab — Teachers, Students, and the Gradebook.
    */
   students: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/students', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/students', {
+    prefix: officePrefix,
   }),
 
   /** Plan Days overview — the teacher's list of authored Days. */
   plan: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/plan', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan', {
+    prefix: officePrefix,
   }),
 
   /** Interactive-session deck wizard — template-first slide deck setup.
    *  Static segment outranks dayEditor's `:dayId` param in route matching. */
   deckWizard: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/plan/live-deck', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan/live-deck', {
+    prefix: officePrefix,
   }),
 
   /** Day editor — authoring surface for a single Day. */
   dayEditor: createRouteDefinition<{
     classroomId: string;
     dayId: string;
-  }>('/classroom/:classroomId/plan/:dayId', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan/:dayId', {
+    prefix: officePrefix,
   }),
 
   /** Preview a Day as a student would see it. */
   dayPreview: createRouteDefinition<{
     classroomId: string;
     dayId: string;
-  }>('/classroom/:classroomId/plan/:dayId/preview', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan/:dayId/preview', {
+    prefix: officePrefix,
   }),
 
-  /** Annual Plan — Kanban-style calendar of Units. */
+  /** Calendar — the classroom's scheduled lessons by month / week. */
   annualPlan: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/plan/annual', {
-    prefix: teacherPrefix,
-  }),
-
-  /** A single Unit inside the Annual Plan. */
-  annualUnit: createRouteDefinition<{
-    classroomId: string;
-    unitId: string;
-  }>('/classroom/:classroomId/plan/annual/unit/:unitId', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan/annual', {
+    prefix: officePrefix,
   }),
 
   /** Presentation Mode — the projected board for a Day. */
   present: createRouteDefinition<{
     classroomId: string;
     dayId: string;
-  }>('/classroom/:classroomId/present/:dayId', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/present/:dayId', {
+    prefix: officePrefix,
   }),
 
   /** Teacher's assignments list for a classroom. */
   assignments: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/assignments', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/assignments', {
+    prefix: officePrefix,
   }),
 
   /** Teacher progress grid for a single assignment. */
   assignmentProgress: createRouteDefinition<{
     classroomId: string;
     assignmentId: string;
-  }>('/classroom/:classroomId/assignments/:assignmentId/progress', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/assignments/:assignmentId/progress', {
+    prefix: officePrefix,
   }),
 
-  /** Grades tab of the classroom workspace — thin gradebook over assignments. */
+  /** Retired Grades tab — redirects to the Gradebook section of `students`. */
   grades: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/grades', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/grades', {
+    prefix: officePrefix,
   }),
 
   /** Teacher live-session dashboard. */
   session: createRouteDefinition<{
     classroomId: string;
     sessionId: string;
-  }>('/classroom/:classroomId/sessions/:sessionId', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/sessions/:sessionId', {
+    prefix: officePrefix,
   }),
 
   /** Anonymized projector overlay during a live session. */
   projector: createRouteDefinition<{
     classroomId: string;
     sessionId: string;
-  }>('/classroom/:classroomId/sessions/:sessionId/projector', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/sessions/:sessionId/projector', {
+    prefix: officePrefix,
   }),
 
   /** Teacher-only post-session report. */
   report: createRouteDefinition<{
     classroomId: string;
     sessionId: string;
-  }>('/classroom/:classroomId/sessions/:sessionId/report', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/sessions/:sessionId/report', {
+    prefix: officePrefix,
   }),
 
   /** Teacher-only index of ended-session reports. */
   reports: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/reports', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/reports', {
+    prefix: officePrefix,
   }),
 };
 
@@ -591,7 +597,7 @@ export const TeacherRoutes = {
  * top-level URL (no `/teacher` prefix).
  */
 export const OfficeRoutes = {
-  root: createRouteDefinition('/office'),
+  root: createRouteDefinition(officePrefix),
 };
 
 /**

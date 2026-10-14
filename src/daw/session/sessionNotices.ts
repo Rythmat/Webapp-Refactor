@@ -93,6 +93,14 @@ export function announceKept(
   });
 }
 
+/**
+ * A reopened draft brought its lesson back (milestone 1.15): where the
+ * student is in it. `stepIndex` counts from 0.
+ */
+export function announceLessonResumed(stepIndex: number, steps: number): void {
+  showNotice(`Lesson resumed at step ${stepIndex + 1} of ${steps}`);
+}
+
 /** This tab opened a copy: the draft is open in another tab. */
 export function announceFork(): void {
   showNotice('This project is open in another tab — this tab has a copy');
@@ -294,6 +302,26 @@ export function announceProjectDraftKept(draftId: string): void {
   showNotice('Changes on this device weren’t saved — kept', {
     action: { label: 'View', onClick: () => viewInProjects(draftId) },
   });
+}
+
+/**
+ * What a cloud open couldn't use of the project's cloud document (milestone
+ * 1.5, deserializeCloudProject's report): a document from a newer app, or
+ * one an older app saved the project over since.
+ */
+export function announceCloudDocumentReport(report: {
+  stale: boolean;
+  newer: boolean;
+}): void {
+  if (report.newer) {
+    showNotice(
+      'A newer version of Music Atlas saved this project. Reload to see all of it.',
+    );
+  } else if (report.stale) {
+    showNotice(
+      'An older version of Music Atlas saved this project last, so some chord symbols or notation may be from an earlier save.',
+    );
+  }
 }
 
 /** A rejoin found the room gone: the project stays as it is. */

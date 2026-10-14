@@ -430,9 +430,9 @@ describe('resolveElementRects', () => {
 
 describe('regressions the P2 mapping caught', () => {
   it('the footer holds the exit poll\u2019s TWO interactions', () => {
-    // Both shipping templates emit `interactionIds: [exitText, exitCheckIn]`
-    // (songSession.ts:302, genreLesson.ts:272). A single-flow footer rejected
-    // every exit-poll slide the product ships.
+    // The Cortex lesson's check-in stacks its mood poll, and saved decks
+    // from the old templates stack `[exitText, exitCheckIn]`. A single-flow
+    // footer rejected every one of those slides.
     expect(SLIDE_GRID.footer.flow).toBe('row');
     expect(SLIDE_GRID.footer.max).toBe(2);
     expect(

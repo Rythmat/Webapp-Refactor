@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '@/daw/store';
 import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
-import { useMspModuleCompletion } from '@/features/classroom/msp';
+import {
+  studioTutorialActivityRef,
+  useMspModuleCompletion,
+} from '@/features/classroom/msp';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 import { getTutorial } from './tutorials';
 import { Spotlight } from './Spotlight';
@@ -44,8 +47,10 @@ export function TutorialLayer() {
   const setChannelStripTab = useStore((s) => s.setChannelStripTab);
   const setAutomationParamId = useStore((s) => s.setAutomationParamId);
   const markComplete = useTutorialProgressStore((s) => s.markComplete);
-  // Classroom app-route bridge: inert unless this tutorial was opened from a
-  // live slide. Fires once when the tutorial completes.
+  // Classroom app-route bridge: a lesson a live slide opened reports its
+  // completion there, once. Only that lesson: the tab keeps the slide's
+  // launch, and any other lesson finished in it reports nothing
+  // (practice-tutorial-09).
   const { reportCompletion } = useMspModuleCompletion();
   // The overlay portals to <body>, outside .daw-root. It holds the DAW tokens
   // there itself (daw.css aliases them onto body.daw-active), so the coach
@@ -102,6 +107,16 @@ export function TutorialLayer() {
     setAutomationParamId,
   ]);
 
+  // Completion for the slide that opened this lesson, if one did.
+  const reportLesson = useCallback(
+    (id: string) =>
+      reportCompletion(undefined, {
+        module: 'studio',
+        activityRef: studioTutorialActivityRef(id),
+      }),
+    [reportCompletion],
+  );
+
   // Detect the correct adjustment for validated steps.
   useTutorialDetection(step, !!tutorial && status === 'waiting', complete);
 
@@ -113,7 +128,7 @@ export function TutorialLayer() {
     const id = window.setTimeout(() => {
       if (isLast) {
         markComplete(tutorial.id);
-        reportCompletion();
+        reportLesson(tutorial.id);
         quit();
       } else {
         goTo(stepIndex + 1);
@@ -129,7 +144,7 @@ export function TutorialLayer() {
     goTo,
     quit,
     markComplete,
-    reportCompletion,
+    reportLesson,
     burst,
   ]);
 
@@ -137,7 +152,7 @@ export function TutorialLayer() {
 
   const finishNow = () => {
     markComplete(tutorial.id);
-    reportCompletion();
+    reportLesson(tutorial.id);
     quit();
   };
   const onBack = () => {

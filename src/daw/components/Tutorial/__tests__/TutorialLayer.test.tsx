@@ -10,13 +10,20 @@ import {
   vi,
 } from 'vitest';
 
-vi.mock('@/features/classroom/msp', () => ({
-  useMspModuleCompletion: () => ({ reportCompletion: () => {} }),
+const reportCompletion = vi.hoisted(() => vi.fn());
+vi.mock('@/features/classroom/msp', async () => ({
+  studioTutorialActivityRef: (
+    await vi.importActual<typeof import('@/features/classroom/msp')>(
+      '@/features/classroom/msp',
+    )
+  ).studioTutorialActivityRef,
+  useMspModuleCompletion: () => ({ reportCompletion }),
 }));
 
 import { installDawCss, resolvedBackground } from '@/daw/__tests__/dawTokens';
 import { useStore } from '@/daw/store';
 import { TutorialLayer } from '../TutorialLayer';
+import { getTutorial } from '../tutorials';
 
 // ── The lesson overlay inherits the DAW tokens (practice-tutorial-24) ───────
 // The overlay portals to <body>. It used to copy seven --color-* values from
@@ -33,6 +40,8 @@ afterAll(() => removeCss());
 afterEach(() => {
   act(() => useStore.getState().quitTutorial());
   cleanup();
+  reportCompletion.mockClear();
+  vi.useRealTimers();
 });
 
 describe('TutorialLayer', () => {
@@ -64,5 +73,32 @@ describe('TutorialLayer', () => {
     unmount();
     expect(document.body).not.toHaveClass('daw-active');
     dawRoot.remove();
+  });
+});
+
+const LESSON = 'make-first-track';
+const s = () => useStore.getState();
+
+// ── Completion, for the slide's own lesson (practice-tutorial-09) ──────────
+
+describe('TutorialLayer completion', () => {
+  it('reports completion for its own lesson only (practice-tutorial-09)', async () => {
+    vi.useFakeTimers();
+    const last = getTutorial(LESSON)!.steps.length - 1;
+    act(() => {
+      s().startTutorial(LESSON);
+      s().goToTutorialStep(last);
+    });
+    render(<TutorialLayer />);
+    act(() => s().completeTutorialStep(false));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+    expect(reportCompletion).toHaveBeenCalledTimes(1);
+    expect(reportCompletion).toHaveBeenCalledWith(undefined, {
+      module: 'studio',
+      activityRef: `studio:tutorial:${LESSON}`,
+    });
+    expect(s().activeTutorialId).toBeNull();
   });
 });

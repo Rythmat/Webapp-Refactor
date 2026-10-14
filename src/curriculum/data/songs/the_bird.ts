@@ -79,12 +79,12 @@ export const the_bird: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -126,12 +126,12 @@ export const the_bird: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
           repeatEnd: true,
           repeatTimes: 2,
@@ -174,12 +174,12 @@ export const the_bird: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -221,12 +221,12 @@ export const the_bird: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
           repeatEnd: true,
           repeatTimes: 2,
@@ -269,12 +269,12 @@ export const the_bird: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -367,12 +367,12 @@ export const the_bird: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 maj7', chordName: 'F♭maj7', beat: 1, duration: 4 },
+            { degree: '♯2 maj7', chordName: 'Emaj7', beat: 1, duration: 4 },
           ],
           repeatEnd: true,
           cue: 'Repeat and Fade',

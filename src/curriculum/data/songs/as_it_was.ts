@@ -40,15 +40,11 @@ export const as_it_was: Song = {
       label: 'Verse 1',
       bars: [
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
           repeatStart: true,
         },
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -63,14 +59,10 @@ export const as_it_was: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
           repeatEnd: true,
           repeatTimes: 2,
         },
@@ -81,15 +73,11 @@ export const as_it_was: Song = {
       label: 'Chorus 1',
       bars: [
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
           repeatStart: true,
         },
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -104,14 +92,10 @@ export const as_it_was: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
           repeatEnd: true,
           repeatTimes: 2,
         },
@@ -122,15 +106,11 @@ export const as_it_was: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
           repeatStart: true,
         },
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -145,14 +125,10 @@ export const as_it_was: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
           repeatEnd: true,
           repeatTimes: 2,
         },
@@ -163,15 +139,11 @@ export const as_it_was: Song = {
       label: 'Chorus 2',
       bars: [
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
           repeatStart: true,
         },
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -186,14 +158,10 @@ export const as_it_was: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
           repeatEnd: true,
           repeatTimes: 2,
         },
@@ -204,15 +172,11 @@ export const as_it_was: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
           repeatStart: true,
         },
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -227,14 +191,10 @@ export const as_it_was: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
           repeatEnd: true,
           repeatTimes: 2,
         },
@@ -245,15 +205,11 @@ export const as_it_was: Song = {
       label: 'Chorus 3',
       bars: [
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
           repeatStart: true,
         },
         {
-          chords: [
-            { degree: '4 maj69', chordName: 'D6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -268,14 +224,10 @@ export const as_it_was: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [
-            { degree: '1 maj69', chordName: 'A6/9', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
           repeatEnd: true,
           repeatTimes: 2,
         },

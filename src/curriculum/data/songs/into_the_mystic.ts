@@ -109,10 +109,14 @@ export const into_the_mystic: Song = {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
         },
       ],
     },

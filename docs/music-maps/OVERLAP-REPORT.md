@@ -4,6 +4,9 @@ Seven of the Music Maps are songs that already have a chart. These charts were
 not changed. This report lists where each map and chart disagree, with a
 recommendation, for the product owner to decide. Written 13 October 2026.
 
+**Applied 14 October 2026:** the product owner accepted every recommendation.
+Creep keeps the chart's B7 and Cm7, and Havana takes the map's plain Gm.
+
 Degrees below are in the chart's own key.
 
 ## 1. Can't Stop the Feeling! (Justin Timberlake)

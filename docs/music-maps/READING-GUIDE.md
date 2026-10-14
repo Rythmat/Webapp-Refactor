@@ -109,8 +109,10 @@ More maps exist under `~/Desktop/Music Bridge Master Folder/CMB/Music Atlas/The 
     sheets for one section (The Bird's bridge: 451 and 696). After linking,
     `linking/__tests__/repo.test.ts` should report `sure: 0`; anything else
     is a sheet still to link.
-27. **Respell to the flat side even when it looks odd.** The Bird's E major 7
-    in D♭ is `F♭maj7` (`♭3 maj7`); written as E it would read `♯2`.
+27. **Keep the familiar name when the respelling would be odd.** The Bird's
+    E major 7 in D♭ stays `Emaj7`, numbered `♯2 maj7` (the degree must
+    match the name's root); the product owner prefers it to `F♭maj7`
+    (2026-10-14). Respell when the result is an everyday name (A♭m9, G♭maj7).
 28. **A new artist record can connect old events.** Adding Anderson .Paak
     let the hand-authored Oxnard 2016 event find him by title and tag; check
     such matches are right before accepting the moved totals.
@@ -120,6 +122,13 @@ More maps exist under `~/Desktop/Music Bridge Master Folder/CMB/Music Atlas/The 
 29. **A passing diminished a half step above the tonic** (Kill Bill's A dim
     in A♭) is `♯1 dim` with its usual spelling. The map's `♭2 dim` would
     force a B𝄫 spelling. Flag it, since the map and the sheet say ♭2.
+
+## Decided after the first pass (2026-10-14)
+
+30. **Check a map's extensions against the song.** As It Was is plain
+    triads (D, Bm, E, A); its map's 6/9 chords were a slip.
+31. **The seven existing charts** were updated as the overlap report
+    recommends (see `OVERLAP-REPORT.md`, now marked applied).
 
 ## Implementation notes (learned on We Shall Overcome)
 

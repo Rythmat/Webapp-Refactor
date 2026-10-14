@@ -10,7 +10,7 @@ export const cant_stop_the_feeling: Song = {
   key: 'C major',
   keyRoot: 60,
   mode: 'major',
-  tempo: 112,
+  tempo: 113,
   timeSignature: [4, 4],
 
   difficulty: 2,
@@ -89,16 +89,73 @@ export const cant_stop_the_feeling: Song = {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj7', chordName: 'Fmaj7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+          repeatEnd: true,
+          repeatTimes: 2,
+        },
+      ],
+    },
+    {
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
+      notes:
+        "The C, B♭ and C chords are anticipated: each lands on the 'and' of 4 and ties over the barline.",
+      bars: [
+        {
+          chords: [
+            { degree: '1 dom9sus4', chordName: 'B♭/C', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            {
+              degree: '1 dom13sus4',
+              chordName: 'B♭maj7/C',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            {
+              degree: '♭7 dom13sus4',
+              chordName: 'A♭/B♭',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min9', chordName: 'Fmin9', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom9sus4', chordName: 'A♭/B♭', beat: 1, duration: 3 },
           ],
         },
       ],
@@ -108,56 +165,25 @@ export const cant_stop_the_feeling: Song = {
       label: 'Chorus 1',
       bars: [
         {
-          chords: [
-            { degree: '1 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
-        {
-          chords: [
-            { degree: '1 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
-        {
-          chords: [
-            { degree: '♭7 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_3',
-      label: 'Verse 3',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj7', chordName: 'Fmaj7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
+          repeatEnd: true,
+          repeatTimes: 2,
         },
       ],
     },
@@ -168,19 +194,76 @@ export const cant_stop_the_feeling: Song = {
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'verse_4',
-      label: 'Verse 4',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj7', chordName: 'Fmaj7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+          repeatEnd: true,
+          repeatTimes: 2,
+        },
+      ],
+    },
+    {
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
+      notes:
+        "The C, B♭ and C chords are anticipated: each lands on the 'and' of 4 and ties over the barline.",
+      bars: [
+        {
+          chords: [
+            { degree: '1 dom9sus4', chordName: 'B♭/C', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            {
+              degree: '1 dom13sus4',
+              chordName: 'B♭maj7/C',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            {
+              degree: '♭7 dom13sus4',
+              chordName: 'A♭/B♭',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min9', chordName: 'Fmin9', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom9sus4', chordName: 'A♭/B♭', beat: 1, duration: 3 },
           ],
         },
       ],
@@ -190,38 +273,25 @@ export const cant_stop_the_feeling: Song = {
       label: 'Chorus 2',
       bars: [
         {
+          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
+        {
           chords: [
-            { degree: '1 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '4 maj7', chordName: 'Fmaj7', beat: 1, duration: 4 },
           ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_5',
-      label: 'Verse 5',
-      bars: [
-        {
-          chords: [
-            { degree: '♭7 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 2,
         },
       ],
     },
@@ -235,7 +305,11 @@ export const cant_stop_the_feeling: Song = {
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj7', chordName: 'Fmaj7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -245,20 +319,29 @@ export const cant_stop_the_feeling: Song = {
       ],
     },
     {
-      id: 'verse_6',
-      label: 'Verse 6',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj7', chordName: 'Fmaj7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
+          repeatEnd: true,
+          repeatTimes: 2,
         },
       ],
     },

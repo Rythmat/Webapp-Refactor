@@ -23,6 +23,7 @@ import { getSessionDeps } from '@/daw/session/sessionDeps';
 import { adoptActiveDraft, useSessionStore } from '@/daw/session/sessionStore';
 import type { DraftClaim, PreparedDraft } from '@/daw/session/types';
 import { useStore, type AllSlices } from '@/daw/store';
+import { registerBeforeReload } from '@/lib/beforeReload';
 import type { UserKey } from '@/lib/local-store/userScope';
 import {
   writeActiveDraft,
@@ -222,6 +223,7 @@ interface ControllerState {
   toldError: DraftErrorKind | null;
   persistAsked: boolean;
   signOutRegistered: boolean;
+  reloadRegistered: boolean;
   starts: number;
   teardown: (() => void) | null;
   /** The save status's draftVersion when the controller last stopped. */
@@ -257,6 +259,7 @@ const s: ControllerState = (() => {
     toldError: null,
     persistAsked: false,
     signOutRegistered: false,
+    reloadRegistered: false,
     starts: 0,
     teardown: null,
     versionAtStop: null,
@@ -1182,6 +1185,10 @@ export function startDraftAutosave(): () => void {
     s.signOutRegistered = true;
     registerBeforeSignOut(runSignOutCleanup);
   }
+  if (!s.reloadRegistered) {
+    s.reloadRegistered = true;
+    registerBeforeReload(flushLiveDraft);
+  }
   s.teardown = () => {
     s.versionAtStop = useSaveStatusStore.getState().draftVersion;
     for (const unsubscribe of unsubscribers) unsubscribe();
@@ -1244,6 +1251,30 @@ export function useDraftAutosave(): void {
 }
 
 /** E17: before sign-out, flush the open draft and clear what the cloud holds. */
+/**
+ * Write the live session strictly, as leaving the editor does: once a take
+ * still being stored has its bytes in, and only when memory is ahead of the
+ * stored draft. Before a reload the app asks for (beforeReload: a part that
+ * failed to load after a deploy, Reload editor) and when the editor crashes
+ * (DawErrorBoundary), milestone 1.12a. Resolves when written or skipped.
+ */
+export async function flushLiveDraft(): Promise<void> {
+  const live = s.live;
+  if (
+    live === null ||
+    live.generation === null ||
+    live.generation !== getSessionGeneration() ||
+    s.retiring
+  )
+    return;
+  clearTimers();
+  await whenMediaWritesSettled(UNMOUNT_MEDIA_WAIT_MS);
+  if (s.live !== live) return;
+  if (memoryAhead() || manifestDiffers(live)) {
+    await flushDraftNow({ force: true });
+  }
+}
+
 async function runSignOutCleanup(signal: AbortSignal): Promise<void> {
   const live = s.live;
   const flushable =

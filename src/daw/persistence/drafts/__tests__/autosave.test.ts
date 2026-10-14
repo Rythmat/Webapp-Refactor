@@ -89,6 +89,7 @@ import {
 import { MemoryStorage } from '@/lib/studio-projects/drafts/__tests__/draftTestUtils';
 import { showNotice } from '@/util/toast';
 import { runBeforeSignOut } from '@/auth/beforeSignOut';
+import { runBeforeReload } from '@/lib/beforeReload';
 import {
   DRAFT_CHAIN_STALL_MS,
   DRAFT_DEBOUNCE_MS,
@@ -96,6 +97,7 @@ import {
   DRAFT_MAX_WAIT_MS,
   DRAFT_RETIRE_TIMEOUT_MS,
   flushDraftNow,
+  flushLiveDraft,
   resetDraftAutosaveForTests,
   setDraftStoreForTests,
   startDraftAutosave,
@@ -1226,6 +1228,44 @@ describe('signing out', () => {
     await done;
     expect(savedPitches()).toEqual([60]);
     expect(await real.getMeta(draftId)).not.toBeNull();
+  });
+});
+
+// Milestone 1.12a: a part that failed to load after a deploy reloads the
+// page, and Reload editor does too; the edit made just before is written
+// first, without waiting for the debounce. So is a crash's (DawErrorBoundary).
+describe('before a reload the app asks for', () => {
+  it('writes the edit in flight', async () => {
+    renderHook(() => useDraftAutosave());
+    drawNote();
+    expect(writes).not.toHaveBeenCalled();
+    const done = runBeforeReload(1500);
+    await vi.advanceTimersByTimeAsync(0);
+    await settle();
+    await done;
+    expect(savedPitches()).toEqual([60]);
+  });
+
+  it('writes it when the editor crashes', async () => {
+    renderHook(() => useDraftAutosave());
+    drawNote();
+    const flushed = flushLiveDraft();
+    await vi.advanceTimersByTimeAsync(0);
+    await settle();
+    await flushed;
+    expect(savedPitches()).toEqual([60]);
+  });
+
+  it('writes nothing when nothing changed', async () => {
+    renderHook(() => useDraftAutosave());
+    drawNote();
+    await advance(DRAFT_DEBOUNCE_MS);
+    clearCounts();
+    const done = runBeforeReload(1500);
+    await vi.advanceTimersByTimeAsync(0);
+    await settle();
+    await done;
+    expect(writes).not.toHaveBeenCalled();
   });
 });
 

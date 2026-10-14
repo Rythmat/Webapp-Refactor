@@ -35,7 +35,7 @@ public/daw-assets/spessasynth_processor.min.js
 public/geo/
 src/components/atlas/data/__tests__/fixtures/geoReference.json
 
-# The music-stream calibration report, written by
-# src/components/atlas/data/streams.calibration.test.ts: reformatting it
+# The music lineage calibration report, written by
+# src/components/atlas/data/lineage.calibration.test.ts: reformatting it
 # breaks the comparison
-docs/globe-redesign/streams-calibration.md
+docs/globe-redesign/lineage-calibration.md

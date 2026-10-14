@@ -32,7 +32,7 @@ describe('the timeline index', () => {
     expect(getTimelineIndex()).toEqual([]);
   });
 
-  it('orders events by year and places each in a stream, region and city', () => {
+  it('orders events by year and places each in a lane, region and city', () => {
     MUSIC_HISTORY.push(
       event('b', 1960, 'Memphis', ['Soul', 'Rock'], [35.15, -90.05]),
       event('a', 1917, 'New Orleans', ['Jazz']),
@@ -40,11 +40,11 @@ describe('the timeline index', () => {
     const index = getTimelineIndex();
     expect(index.map((t) => t.event.id)).toEqual(['a', 'b']);
     expect(index[0]).toMatchObject({
-      stream: 'blues-jazz-soul',
+      lane: 'jazz',
       regionId: 'north-america',
       cityId: 'new-orleans',
     });
-    expect(index[1].streams).toEqual(['blues-jazz-soul', 'rock-pop']);
+    expect(index[1].lanes).toEqual(['rnb', 'rock']);
     expect(getTimelineEvent('b')?.cityId).toBe('memphis');
   });
 
@@ -53,7 +53,7 @@ describe('the timeline index', () => {
     expect(getTimelineIndex()).toHaveLength(1);
     MUSIC_HISTORY.push(event('c', 1990, 'New Orleans', ['Hip Hop']));
     expect(getTimelineIndex()).toHaveLength(2);
-    expect(getTimelineEvent('c')?.stream).toBe('beats');
+    expect(getTimelineEvent('c')?.lane).toBe('hip-hop');
   });
 });
 

@@ -2,21 +2,21 @@ import type { HistoricalEvent, RegionId } from '@/components/atlas/types';
 import { nearestRegion } from '@/components/atlas/utils/deriveEventCities';
 import { matchCity } from '@/components/atlas/utils/resolveEventRegion';
 import { contentGeneration, MUSIC_HISTORY } from '@/content/contentStore';
-import type { StreamId } from './streamIds';
-import { primaryStream, streamsOf } from './streams';
+import type { LaneId } from './laneIds';
+import { laneOf, lanesOf } from './lineage';
 
 /**
- * Every event as the timeline places it: in year order, with the stream it is
- * drawn in, the region and city it belongs to — worked out once per content
- * load rather than on every frame of a gesture.
+ * Every event as the timeline places it: in year order, with the lane of
+ * music's family tree it is drawn in, the region and city it belongs to —
+ * worked out once per content load rather than on every frame of a gesture.
  */
 export interface TimelineEvent {
   event: HistoricalEvent;
   year: number;
-  /** The lane it is drawn in. */
-  stream: StreamId;
-  /** Every stream its genres touch (a stream filter keeps it for any). */
-  streams: StreamId[];
+  /** The lane it is drawn in (data/lineage.ts laneOf). */
+  lane: LaneId;
+  /** Every lane its genres touch. */
+  lanes: LaneId[];
   regionId: RegionId;
   /** Its music city or town (lookups.getCityById), when it has one. */
   cityId: string | null;
@@ -37,8 +37,8 @@ function build(): TimelineEvent[] {
     return {
       event,
       year: event.year,
-      stream: primaryStream(event),
-      streams: streamsOf(event),
+      lane: laneOf(event),
+      lanes: lanesOf(event),
       regionId:
         city?.region ?? nearestRegion(event.location.lat, event.location.lng),
       cityId: city?.id ?? null,

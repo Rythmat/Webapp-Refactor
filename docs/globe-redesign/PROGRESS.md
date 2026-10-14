@@ -3,9 +3,10 @@
 The Globe section rebuilt after Dorot (dorot.tali.org.il/en): one immersive
 page at `/atlas/globe` where Explore is the map, Eras the timeline ("river"),
 and Regions & Cities, Pathways and Instruments are lenses that regroup the
-river's lanes. Owner decisions of 2026-10-14: one immersive Atlas; lanes are
-music streams; YouTube posters now, a curated image field later; built in
-phases with screenshot checkpoints.
+river's lanes. Owner decisions of 2026-10-14: one immersive Atlas; the lanes
+are music's family tree, splitting and merging over time (16 lanes, approved
+after the P1 checkpoint); YouTube posters now, a curated image field later;
+built in phases with screenshot checkpoints.
 
 | Phase | What | State |
 | --- | --- | --- |
@@ -42,15 +43,19 @@ pieces join the route.
 
 ## P1 foundations
 
-- `data/streams.ts` (+ `streamIds.ts`): five streams built on the curriculum
-  courses (`utils/genreMapping.ts`); `streams-calibration.md` is the owner's
-  sign-off sheet, rewritten by `streams.calibration.test.ts`.
+- `data/lineage.ts` (+ `laneIds.ts`): music's family tree, 16 lanes that split
+  and merge (Roots → Classical and Blues; Blues → Jazz, R&B, Rock; Rock +
+  Classical → Metal…), built on the curriculum courses
+  (`utils/genreMapping.ts`). An event older than its lane sits on the nearest
+  ancestor flowing then. `lineage-calibration.md` is the owner's sheet,
+  rewritten by `lineage.calibration.test.ts`. (P1 first shipped five flat
+  streams; at the checkpoint the owner asked for lanes that split and merge.)
 - `data/eventImage.ts`: one place for posters (`thumb` / `lane` / `stage`) and,
   later, a curated `image`.
 - `data/timelineIndex.ts`: events in year order with stream, region and city.
 - `timeline/timeWindow.ts`: the window maths and the era rail's scale.
 - `navigation/atlasFrame.ts`, `sections.ts`, `atlasHref.ts`: the frame params
-  (`view`, `lens`, `region`, `from`, `to`, `streams`) and the five sections.
+  (`view`, `lens`, `region`, `from`, `to`, `lane`) and the five sections.
 - The store's `selectedEra` is now `timeWindow` (`SET_WINDOW`, keeps the pin);
   `navigation/useWindowSync.ts` keeps it and `from`/`to` in step and reads
   `?era=` links as years.

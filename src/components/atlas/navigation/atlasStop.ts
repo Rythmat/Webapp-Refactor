@@ -21,7 +21,7 @@ export type AtlasStop =
 /**
  * Query-string keys a stop owns — replaced wholesale on every navigation.
  *
- * The frame's keys (view, lens, years, streams: navigation/atlasFrame.ts) and
+ * The frame's keys (view, lens, years, lane: navigation/atlasFrame.ts) and
  * a legacy `era` are deliberately absent. They are how the page looks at
  * whatever the stop shows, so they survive a click from one place to the next
  * rather than being wiped by it.

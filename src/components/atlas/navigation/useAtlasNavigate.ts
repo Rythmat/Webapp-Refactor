@@ -44,7 +44,7 @@ function buildNavigate(setSearchParams: SetSearchParams) {
     );
 
   /**
-   * Change how the page looks at the stop — view, lens, years, streams —
+   * Change how the page looks at the stop — view, lens, years, lane —
    * without adding a step to Back or the trail.
    */
   const setFrame = (patch: Partial<AtlasFrame>) =>

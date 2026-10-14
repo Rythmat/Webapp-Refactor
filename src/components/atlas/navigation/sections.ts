@@ -3,7 +3,7 @@ import type { AtlasFrame, AtlasLens, AtlasView } from './atlasFrame';
 /**
  * The Globe's five sections, and the frame each one is (navigation/
  * atlasFrame.ts). One page shows them all: Explore is the map and Eras the
- * timeline of the music streams; Regions & Cities, Pathways and Instruments
+ * timeline of music's family tree; Regions & Cities, Pathways and Instruments
  * are lenses that regroup the timeline's lanes.
  *
  * The /atlas dashboard's tab bar and the Globe page's own read this list, so
@@ -24,8 +24,8 @@ export interface AtlasSection {
 }
 
 export const ATLAS_SECTIONS: readonly AtlasSection[] = [
-  { id: 'explore', label: 'Explore', view: 'map', lens: 'streams' },
-  { id: 'eras', label: 'Eras', view: 'timeline', lens: 'streams' },
+  { id: 'explore', label: 'Explore', view: 'map', lens: 'lineage' },
+  { id: 'eras', label: 'Eras', view: 'timeline', lens: 'lineage' },
   {
     id: 'regions',
     label: 'Regions & Cities',
@@ -53,13 +53,13 @@ export const sectionFrame = (
 };
 
 /**
- * The section a frame shows: its lens, or for the streams lens its view —
+ * The section a frame shows: its lens, or for the lineage lens its view —
  * the map is Explore and the timeline Eras.
  */
 export function sectionOf(
   frame: Pick<AtlasFrame, 'view' | 'lens'>,
 ): AtlasSectionId {
-  if (frame.lens !== 'streams') return frame.lens;
+  if (frame.lens !== 'lineage') return frame.lens;
   return frame.view === 'map' ? 'explore' : 'eras';
 }
 

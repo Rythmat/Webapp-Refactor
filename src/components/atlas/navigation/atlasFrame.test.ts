@@ -20,7 +20,7 @@ describe('the frame on the URL', () => {
     expect(
       frameFromSearchParams(
         p(
-          'view=timeline&lens=regions&region=west-africa&from=1946&to=1979&streams=roots,beats,roots,nope',
+          'view=timeline&lens=regions&region=west-africa&from=1946&to=1979&lane=jazz',
         ),
       ),
     ).toEqual({
@@ -28,13 +28,13 @@ describe('the frame on the URL', () => {
       lens: 'regions',
       region: 'west-africa',
       window: { from: 1946, to: 1979 },
-      streams: ['roots', 'beats'],
+      lane: 'jazz',
     });
   });
 
   it('ignores what it cannot read', () => {
     const frame = frameFromSearchParams(
-      p('view=3d&lens=songs&region=atlantis&from=x&to=1900'),
+      p('view=3d&lens=songs&region=atlantis&from=x&to=1900&lane=polka'),
     );
     expect(frame).toEqual(DEFAULT_FRAME);
     // A region only means something in the regions lens.
@@ -106,8 +106,8 @@ describe('sections', () => {
 
   it('keeps a lens’s section on either view', () => {
     expect(sectionOf({ view: 'map', lens: 'regions' })).toBe('regions');
-    expect(sectionOf({ view: 'map', lens: 'streams' })).toBe('explore');
-    expect(sectionOf({ view: 'timeline', lens: 'streams' })).toBe('eras');
+    expect(sectionOf({ view: 'map', lens: 'lineage' })).toBe('explore');
+    expect(sectionOf({ view: 'timeline', lens: 'lineage' })).toBe('eras');
   });
 
   it('knows the dashboard’s old tabs', () => {

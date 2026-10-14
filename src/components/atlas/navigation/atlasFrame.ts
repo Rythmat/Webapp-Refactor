@@ -1,6 +1,6 @@
+import { isLaneId, type LaneId } from '@/components/atlas/data/laneIds';
 import { findEra, eraWindow } from '@/components/atlas/data/musicalEras';
 import { REGIONS } from '@/components/atlas/data/regions';
-import { isStreamId, type StreamId } from '@/components/atlas/data/streamIds';
 import {
   clampWindow,
   roundWindow,
@@ -11,20 +11,20 @@ import type { RegionId } from '@/components/atlas/types';
 /**
  * How the Globe page is looking at things, as opposed to what it is looking
  * at (the stop, navigation/atlasStop.ts): which view, which lens, which years
- * and which streams.
+ * and which branch of music's family tree.
  *
  * Frame params ride along with every stop — a click from one event to the
  * next keeps the view and the years — and change with `replace`, so moving the
  * timeline or switching a tab never adds a step to Back or the trail.
  *
- *   ?view=timeline&lens=regions&region=west-africa&from=1946&to=1979&streams=roots,beats
+ *   ?view=timeline&lens=regions&region=west-africa&from=1946&to=1979&lane=jazz
  *
  * Anything at its default stays off the URL. `?era=<id>` (lesson links, the
  * dashboard's era cards, slides) is read as that era's years and rewritten as
  * `from`/`to` (useWindowSync).
  */
 export type AtlasView = 'map' | 'timeline';
-export type AtlasLens = 'streams' | 'regions' | 'pathways' | 'instruments';
+export type AtlasLens = 'lineage' | 'regions' | 'pathways' | 'instruments';
 
 export interface AtlasFrame {
   view: AtlasView;
@@ -33,16 +33,19 @@ export interface AtlasFrame {
   region: RegionId | null;
   /** The years shown; null is all of time (no filter). */
   window: TimeWindow | null;
-  /** The streams kept; empty is all of them. */
-  streams: StreamId[];
+  /**
+   * The lane whose family is picked out (data/lineage.ts: it, what it came
+   * from and what it became); null picks out none.
+   */
+  lane: LaneId | null;
 }
 
 export const DEFAULT_FRAME: AtlasFrame = {
   view: 'map',
-  lens: 'streams',
+  lens: 'lineage',
   region: null,
   window: null,
-  streams: [],
+  lane: null,
 };
 
 export const FRAME_PARAM_KEYS = [
@@ -51,11 +54,11 @@ export const FRAME_PARAM_KEYS = [
   'region',
   'from',
   'to',
-  'streams',
+  'lane',
 ] as const;
 
 const LENSES: readonly AtlasLens[] = [
-  'streams',
+  'lineage',
   'regions',
   'pathways',
   'instruments',
@@ -89,22 +92,19 @@ export function frameFromSearchParams(params: URLSearchParams): AtlasFrame {
   const view: AtlasView =
     params.get('view') === 'timeline' ? 'timeline' : 'map';
   const lensRaw = params.get('lens');
-  const lens = isLens(lensRaw) ? lensRaw : 'streams';
+  const lens = isLens(lensRaw) ? lensRaw : 'lineage';
   const regionRaw = params.get('region');
   const region =
     lens === 'regions' && regionRaw && REGION_IDS.has(regionRaw)
       ? (regionRaw as RegionId)
       : null;
-  const streams = (params.get('streams') ?? '')
-    .split(',')
-    .filter(isStreamId)
-    .filter((s, i, all) => all.indexOf(s) === i);
+  const laneRaw = params.get('lane');
   return {
     view,
     lens,
     region,
     window: windowFromSearchParams(params),
-    streams,
+    lane: laneRaw && isLaneId(laneRaw) ? laneRaw : null,
   };
 }
 
@@ -138,6 +138,6 @@ export function applyFrameToSearchParams(
     set('to', w ? String(w.to) : null);
     next.delete('era');
   }
-  set('streams', frame.streams.length ? frame.streams.join(',') : null);
+  set('lane', frame.lane);
   return next;
 }

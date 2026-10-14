@@ -68,11 +68,17 @@ export function AtlasVideo({
   videoId,
   title,
   onPlay,
+  autoplay = false,
   className = '',
 }: {
   videoId: string;
   title: string;
   onPlay?: () => void;
+  /**
+   * Start as the player, not the poster: for a place that drew its own
+   * poster and its own play button (the timeline's event stage).
+   */
+  autoplay?: boolean;
   className?: string;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -81,13 +87,13 @@ export function AtlasVideo({
   onPlayRef.current = onPlay;
   const titleRef = useRef(title);
   titleRef.current = title;
-  const [activated, setActivated] = useState(false);
+  const [activated, setActivated] = useState(autoplay);
 
   // A different video in the same slot starts as a poster again.
   const [shownId, setShownId] = useState(videoId);
   if (shownId !== videoId) {
     setShownId(videoId);
-    setActivated(false);
+    setActivated(autoplay);
   }
 
   useEffect(() => {

@@ -12,36 +12,36 @@ the world's four great regions, which split into regions and cities (P2b).
 Genres became Dorot-style filter chips; the family tree waits for the
 Pathways lens. The canvas stays dark.
 
-| Phase | What | State |
-| --- | --- | --- |
-| P0 | Baseline screens (`docs/globe-ui/screens/tr-p0-*`) and numbers (below) | done |
-| P1 | Data, state and URL foundations; no visible change | done |
-| P2 | The river in the Eras view (genre lanes) | done, then redone as P2b |
-| P2b | Dorot pass: place lanes that split, era rail, corner globe, motion | done |
-| P2c | Polish: vivid two-tone bands, richer fan, fuller bands, tighter layout | done — look check pending |
-| P3 | Era rail, stream chips, window shared with the map | — |
-| P4 | Event stage | — |
-| P5 | Map bubbles and the place lens | — |
-| P6 | Regions, Pathways and Instruments lenses; dashboard links | — |
-| P7 | Morph, phone river, accessibility, budgets | — |
-| P8 | Curated event image (content contract; needs the backend) | — |
+| Phase | What                                                                   | State                     |
+| ----- | ---------------------------------------------------------------------- | ------------------------- |
+| P0    | Baseline screens (`docs/globe-ui/screens/tr-p0-*`) and numbers (below) | done                      |
+| P1    | Data, state and URL foundations; no visible change                     | done                      |
+| P2    | The river in the Eras view (genre lanes)                               | done, then redone as P2b  |
+| P2b   | Dorot pass: place lanes that split, era rail, corner globe, motion     | done                      |
+| P2c   | Polish: vivid two-tone bands, richer fan, fuller bands, tighter layout | done — look check pending |
+| P3    | Era rail, stream chips, window shared with the map                     | done in P2b               |
+| P4    | Event stage                                                            | done                      |
+| P5    | Map bubbles and the place lens                                         | —                         |
+| P6    | Regions, Pathways and Instruments lenses; dashboard links              | —                         |
+| P7    | Morph, phone river, accessibility, budgets                             | —                         |
+| P8    | Curated event image (content contract; needs the backend)              | —                         |
 
 ## P0 baseline (2026-10-14)
 
 `node scripts/measureGlobe.mjs --base=http://localhost:5266 --runs=3`, this
 checkout (other sessions' work in progress included), MacBook, Metal GPU.
 
-| Measure | Value |
-| --- | --- |
-| First globe frame | 5,921 ms (dev server, street-map tiles on) |
-| City click to card | 182 ms |
-| Card open, long tasks (4× CPU) | 1 (176 ms) |
-| Drag, fps / long tasks / globe renders | 60 / 0 / 0 |
-| Search, long tasks / globe renders | 0 / 0 |
-| YouTube thumbnails | 48 requests, 97.9 kB |
-| Map tiles / fonts and icons / outlines | 663.5 / 320.6 / 278.5 kB |
-| Route chunk | 107.1 kB raw, 35.0 kB gzip |
-| Page total | 1,365.4 kB gzip |
+| Measure                                | Value                                      |
+| -------------------------------------- | ------------------------------------------ |
+| First globe frame                      | 5,921 ms (dev server, street-map tiles on) |
+| City click to card                     | 182 ms                                     |
+| Card open, long tasks (4× CPU)         | 1 (176 ms)                                 |
+| Drag, fps / long tasks / globe renders | 60 / 0 / 0                                 |
+| Search, long tasks / globe renders     | 0 / 0                                      |
+| YouTube thumbnails                     | 48 requests, 97.9 kB                       |
+| Map tiles / fonts and icons / outlines | 663.5 / 320.6 / 278.5 kB                   |
+| Route chunk                            | 107.1 kB raw, 35.0 kB gzip                 |
+| Page total                             | 1,365.4 kB gzip                            |
 
 The route chunk sits close to its budget (`GLOBE_BUDGET.routeChunk` 102,904 B
 +5% = 108,049 B), so the river ships as a lazy chunk and only small shared
@@ -147,3 +147,33 @@ space was wasted, and the fan wanted to be richer.
   are cut short on thin ones.
 - River at 4× CPU (dev): drag ~59 fps, zoom out ~48 fps, zoom in ~33 fps
   (stacks mount more pictures as levels change; a perf pass is P7).
+
+## P4 event stage
+
+Dorot's stage: clicking a moment on the river grows its lane to fill the
+canvas and opens the moment on a card, with the moments before and after it
+one arrow away.
+
+- `components/River/EventStage.tsx` (in the lazy river chunk): the lane's
+  band grows from where it ran (ease-in-out, 450 ms) while the rest of the
+  river fades; the card fades in after it. A stadium card on desktop, a
+  rounded card on phones: a round picture, "Lane · Era · 22 of 105", the
+  title at display size, "1962, Apia", the story (faded at its foot), genre
+  badges, Play and "Show on the globe", and an ⓘ popover with the picture's
+  credit and a YouTube link.
+- Play morphs the round picture into the 16:9 video (framer `layout`) and
+  starts it (`AtlasVideo` has a new `autoplay` prop).
+- Stepping: 56 px arrows either side, or ← / →, walk the lane by year; the
+  content slides the way you went. Hovering an arrow names the moment it
+  leads to, under the arrow and clear of the card's text. On a phone the
+  arrows sit beside Close. Each step is a stop, so Back walks back.
+- Closing: Close, Escape or Back draws the band back into its lane and
+  returns focus to the marker. The river is `inert` and its gestures off
+  while the stage is open; its pointer line hides (and never shows after a
+  tap).
+- The stage stays in the timeline (`?view=timeline&event=…`); "Show on the
+  globe" switches to the map with the same moment pinned.
+- Budget: route chunk 112,956 B, static imports 322,841 B — inside the P2
+  budget. TimeRiver 46.7 kB lazy (was 33.8 kB).
+- Screens: `docs/globe-ui/screens/tr-p4-*` (open, hover next, stepped,
+  closing, phone open, phone stepped).

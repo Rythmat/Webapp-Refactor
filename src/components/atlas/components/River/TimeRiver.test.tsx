@@ -108,13 +108,20 @@ describe('TimeRiver', () => {
     expect(byLabel('Event j2').tabIndex).toBe(0);
   });
 
-  it('opens an event on the map', () => {
-    const { container, where } = setup();
+  it('opens an event on its stage, and walks its lane', async () => {
+    const { container, where, findByRole } = setup();
     const j2 = markers(container).find((m) =>
       m.getAttribute('aria-label')?.startsWith('Event j2'),
     )!;
     fireEvent.click(j2);
-    expect(where.search).toBe('?event=j2');
+    expect(where.search).toBe('?view=timeline&event=j2');
+    const stage = await findByRole('dialog');
+    expect(stage).toHaveAccessibleName('Event j2');
+    // All four are in New Orleans, one lane: after 1955 comes the 1970 one.
+    fireEvent.click(await findByRole('button', { name: 'Later: Event r1' }));
+    expect(where.search).toBe('?view=timeline&event=r1');
+    fireEvent.click(await findByRole('button', { name: 'Close' }));
+    expect(where.search).toBe('?view=timeline');
   });
 
   it('names its years for a screen reader', () => {

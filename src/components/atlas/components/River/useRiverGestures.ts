@@ -25,6 +25,8 @@ export function useRiverGestures(
     /** The width the years are spread over, in px. */
     plotWidth: () => number;
     reducedMotion: boolean;
+    /** True while something else holds the river (an event's stage). */
+    disabled?: () => boolean;
     /** Called as a gesture starts, to hide what a still view shows. */
     onGesture?: () => void;
   },
@@ -73,6 +75,7 @@ export function useRiverGestures(
     };
 
     const onWheel = (e: WheelEvent) => {
+      if (opts.current.disabled?.()) return;
       e.preventDefault();
       opts.current.onGesture?.();
       // Lines (Firefox) and pages as pixels.
@@ -153,6 +156,7 @@ export function useRiverGestures(
 
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (opts.current.disabled?.()) return;
       if ((e.target as Element).closest('[data-river-item], button, a')) return;
       stopCoast();
       stopGlide();

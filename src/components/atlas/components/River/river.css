@@ -72,3 +72,18 @@
   text-align: center;
   letter-spacing: 0;
 }
+
+/* While an event is open on its stage, the rest of the river steps back. */
+.atlas-river-dim {
+  transition: opacity 250ms var(--ease-out);
+}
+[data-staged='true'] .atlas-river-dim {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* A long story scrolls, fading out at its foot. */
+.atlas-stage-story {
+  mask-image: linear-gradient(to bottom, black 80%, transparent);
+  overscroll-behavior: contain;
+}

@@ -1,4 +1,5 @@
 import './river.css';
+import { AnimatePresence } from 'framer-motion';
 import { ChevronRight, X } from 'lucide-react';
 import {
   useCallback,
@@ -27,6 +28,7 @@ import {
   type PlaceLane,
 } from '@/components/atlas/data/placeTree';
 import {
+  getTimelineEvent,
   getTimelineIndex,
   type TimelineEvent,
 } from '@/components/atlas/data/timelineIndex';
@@ -35,6 +37,7 @@ import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery'
 import {
   useAtlasFrame,
   useAtlasNavigate,
+  useAtlasStopSelector,
 } from '@/components/atlas/navigation/useAtlasNavigate';
 import { RIVER } from '@/components/atlas/theme/river';
 import { useTimeCamera } from '@/components/atlas/timeline/TimeCamera';
@@ -46,6 +49,7 @@ import {
 } from '@/components/atlas/timeline/timeWindow';
 import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { cn } from '@/lib/utils';
+import { EventStage } from './EventStage';
 import { PlaceBands } from './PlaceBands';
 import {
   RiverMarkers,
@@ -391,6 +395,7 @@ export default function TimeRiver({ active }: { active: boolean }) {
     if (cursorRef.current) cursorRef.current.hidden = true;
   }, [hover]);
   useRiverGestures(rootRef, camera, {
+    disabled: () => stagedRef.current,
     plotLeft: () => live.current.plotLeft,
     plotWidth: () => live.current.plotWidth,
     reducedMotion,
@@ -401,6 +406,11 @@ export default function TimeRiver({ active }: { active: boolean }) {
     const root = rootRef.current;
     const cursor = cursorRef.current;
     if (!root || !cursor) return;
+    // A tap leaves no pointer to follow, and the stage hides the years.
+    if (e.pointerType === 'touch' || stagedRef.current) {
+      cursor.hidden = true;
+      return;
+    }
     const x = e.clientX - root.getBoundingClientRect().left;
     const inPlot = x >= plotLeft && x <= plotRight;
     cursor.hidden = !inPlot;
@@ -473,15 +483,66 @@ export default function TimeRiver({ active }: { active: boolean }) {
   } | null>(null);
   useEscapeLayer(list !== null, () => setList(null));
 
+  // An event opens on its stage, here on the timeline: a step of its own,
+  // so Back closes it.
   const openEvent = useCallback(
-    (t: TimelineEvent) =>
-      // Until the event stage lands, an event opens on the map, in its card.
-      navigate.go(
-        { kind: 'event', eventId: t.event.id },
-        { frame: { view: 'map' } },
-      ),
+    (t: TimelineEvent) => navigate.go({ kind: 'event', eventId: t.event.id }),
     [navigate],
   );
+
+  /* ── The event stage ───────────────────────────────────────────────── */
+
+  const stageId = useAtlasStopSelector((stop) =>
+    stop.kind === 'event' ? stop.eventId : null,
+  );
+  const stageInfo = useMemo(() => {
+    if (!stageId) return null;
+    const t = getTimelineEvent(stageId);
+    if (!t) return null;
+    const ids = new Set(lanes.map((l) => l.id));
+    const laneId = placeLaneOf(t, ids);
+    // Its lane as filtered — or, if the chips filter it out, all of it.
+    const filtered = byLane.get(laneId) ?? [];
+    const list = filtered.some((x) => x.event.id === stageId)
+      ? filtered
+      : index.filter((x) => placeLaneOf(x, ids) === laneId);
+    const i = list.findIndex((x) => x.event.id === stageId);
+    return {
+      t,
+      lane: laneById.get(laneId),
+      laneId,
+      prev: list[i - 1],
+      next: list[i + 1],
+      position: { index: i + 1, total: list.length },
+    };
+  }, [stageId, lanes, byLane, index, laneById]);
+  const staged = stageInfo !== null && active;
+  const stagedRef = useRef(staged);
+  stagedRef.current = staged;
+
+  // The river behind keeps the event in view, for when the stage closes.
+  useEffect(() => {
+    if (!stageInfo) return;
+    const view = camera.get();
+    const next = ensureVisible(view, stageInfo.t.year, 0.2, DOMAIN);
+    if (next !== view) camera.tween(next, reducedMotion ? 0 : RIVER.tweenMs);
+    // On a new event only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stageInfo?.t.event.id]);
+
+  const closeStage = useCallback(() => {
+    const id = stageInfo?.t.event.id;
+    navigate.home();
+    // Focus goes back to the event's marker, or the river.
+    window.setTimeout(() => {
+      const marker = id
+        ? itemsRef.current?.querySelector<HTMLElement>(
+            `[data-river-item="${CSS.escape(id)}"]`,
+          )
+        : null;
+      (marker ?? rootRef.current)?.focus({ preventScroll: true });
+    }, 0);
+  }, [navigate, stageInfo]);
 
   const onActivate = useCallback(
     (cluster: Cluster, el: HTMLElement) => {
@@ -548,6 +609,8 @@ export default function TimeRiver({ active }: { active: boolean }) {
   }, [focusedKey, markers]);
 
   const onKeyDown = (e: ReactKeyboardEvent) => {
+    // The stage walks its lane with the same keys.
+    if (stagedRef.current) return;
     const w = camera.get();
     const span = w.to - w.from;
     const current = clusters.find((c) => c.key === focusedKey);
@@ -641,6 +704,7 @@ export default function TimeRiver({ active }: { active: boolean }) {
         // Leaving for the globe, the page fades as the bands draw back.
         active ? 'bg-atlas-page' : 'bg-transparent',
       )}
+      data-staged={staged}
       style={{ transitionDuration: `${RIVER.drawBackMs}ms` }}
       role="region"
       tabIndex={0}
@@ -650,23 +714,25 @@ export default function TimeRiver({ active }: { active: boolean }) {
     >
       {ready && (
         <>
-          <PlaceBands
-            active={active}
-            ancestors={ancestors}
-            earlier={earlier}
-            layout={fan}
-            plotLeft={plotLeft}
-            plotRight={plotRight}
-            reducedMotion={reducedMotion}
-            right={size.width + fan.thickness}
-            top={RIVER.top}
-          />
+          <div className="atlas-river-dim absolute inset-0">
+            <PlaceBands
+              active={active}
+              ancestors={ancestors}
+              earlier={earlier}
+              layout={fan}
+              plotLeft={plotLeft}
+              plotRight={plotRight}
+              reducedMotion={reducedMotion}
+              right={size.width + fan.thickness}
+              top={RIVER.top}
+            />
+          </div>
 
           {/* The cursor: a hairline at the pointer, its year at the foot. */}
           <div
             ref={cursorRef}
             aria-hidden
-            className="pointer-events-none absolute inset-y-0 left-0 w-0"
+            className="atlas-river-dim pointer-events-none absolute inset-y-0 left-0 w-0"
             hidden
           >
             <div
@@ -682,8 +748,9 @@ export default function TimeRiver({ active }: { active: boolean }) {
 
           {/* The markers, clipped to the years. */}
           <div
-            className="absolute inset-y-0 overflow-hidden"
+            className="atlas-river-dim absolute inset-y-0 overflow-hidden"
             style={{ left: plotLeft, width: plotWidth }}
+            {...(staged ? { inert: '' } : {})}
           >
             <div
               ref={itemsRef}
@@ -703,159 +770,199 @@ export default function TimeRiver({ active }: { active: boolean }) {
             </div>
           </div>
 
-          {/* The lanes' names, at the right on their bands: open one to
+          <div className="atlas-river-dim" {...(staged ? { inert: '' } : {})}>
+            {/* The lanes' names, at the right on their bands: open one to
               split it into its parts. */}
-          {fan.lanes.map((g) => {
-            const lane = laneById.get(g.id)!;
-            const count = byLane.get(g.id)?.length ?? 0;
-            const className = cn(
-              'absolute right-0 flex -translate-y-1/2 items-center justify-end gap-1 rounded-full pl-3 pr-4 text-right font-bold leading-tight text-white transition-[top,opacity] duration-700 ease-in-out',
-              narrow ? 'text-xs' : g.thickness > 60 ? 'text-base' : 'text-sm',
-              active ? 'opacity-100' : 'opacity-0',
-            );
-            const style = { top: RIVER.top + g.y, maxWidth: gutter };
-            const name = (
-              <span className="flex min-w-0 flex-col items-end">
-                <span
-                  className={cn(
-                    'text-right',
-                    // Two lines where a band has room; one, cut short, on a
-                    // thin one, so names never run into their neighbours.
-                    g.thickness >= 40 ? 'line-clamp-2' : 'truncate',
-                  )}
-                >
-                  {lane.label}
-                </span>
-                {g.thickness > 48 && (
-                  <span className="text-xs font-normal text-white/75">
-                    {count} {count === 1 ? 'moment' : 'moments'}
-                  </span>
-                )}
-              </span>
-            );
-            return lane.splits ? (
-              <button
-                key={g.id}
-                aria-label={`Open ${lane.label} into its ${
-                  lane.depth === 1 ? 'regions' : 'cities'
-                }`}
-                className={cn(className, 'hover:bg-white/10', ATLAS_FOCUS)}
-                style={style}
-                title={`Open ${lane.label}`}
-                type="button"
-                onClick={() => splitLane(lane)}
-              >
-                {name}
-                <ChevronRight aria-hidden className="size-4 shrink-0" />
-              </button>
-            ) : (
-              <span key={g.id} className={className} style={style}>
-                {name}
-              </span>
-            );
-          })}
-
-          {/* Each split in the fan: a node on its strand, and a chip to
-              fold it back. */}
-          {splits.map((s) => (
-            <div
-              key={s.id}
-              className={cn(
-                'absolute transition-[top,opacity] duration-500 [transition-timing-function:var(--ease-in-out)]',
+            {fan.lanes.map((g) => {
+              const lane = laneById.get(g.id)!;
+              const count = byLane.get(g.id)?.length ?? 0;
+              const className = cn(
+                'absolute right-0 flex -translate-y-1/2 items-center justify-end gap-1 rounded-full pl-3 pr-4 text-right font-bold leading-tight text-white transition-[top,opacity] duration-700 ease-in-out',
+                narrow ? 'text-xs' : g.thickness > 60 ? 'text-base' : 'text-sm',
                 active ? 'opacity-100' : 'opacity-0',
-              )}
-              style={{ left: stages[s.depth - 1], top: RIVER.top + s.y }}
-            >
-              <span
-                aria-hidden
-                className="absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
-              />
-              <button
-                aria-label={`Close ${s.label}`}
+              );
+              const style = { top: RIVER.top + g.y, maxWidth: gutter };
+              const name = (
+                <span className="flex min-w-0 flex-col items-end">
+                  <span
+                    className={cn(
+                      'text-right',
+                      // Two lines where a band has room; one, cut short, on a
+                      // thin one, so names never run into their neighbours.
+                      g.thickness >= 40 ? 'line-clamp-2' : 'truncate',
+                    )}
+                  >
+                    {lane.label}
+                  </span>
+                  {g.thickness > 48 && (
+                    <span className="text-xs font-normal text-white/75">
+                      {count} {count === 1 ? 'moment' : 'moments'}
+                    </span>
+                  )}
+                </span>
+              );
+              return lane.splits ? (
+                <button
+                  key={g.id}
+                  aria-label={`Open ${lane.label} into its ${
+                    lane.depth === 1 ? 'regions' : 'cities'
+                  }`}
+                  className={cn(className, 'hover:bg-white/10', ATLAS_FOCUS)}
+                  style={style}
+                  title={`Open ${lane.label}`}
+                  type="button"
+                  onClick={() => splitLane(lane)}
+                >
+                  {name}
+                  <ChevronRight aria-hidden className="size-4 shrink-0" />
+                </button>
+              ) : (
+                <span key={g.id} className={className} style={style}>
+                  {name}
+                </span>
+              );
+            })}
+
+            {/* Each split in the fan: a node on its strand, and a chip to
+              fold it back. */}
+            {splits.map((s) => (
+              <div
+                key={s.id}
                 className={cn(
-                  'absolute left-1.5 top-0 flex -translate-y-[130%] items-center gap-1 whitespace-nowrap rounded-full border border-white/25 bg-atlas-page/80 px-2 py-0.5 text-xs font-bold text-white transition-colors hover:border-white/50 hover:bg-atlas-page',
-                  ATLAS_FOCUS,
+                  'absolute transition-[top,opacity] duration-500 [transition-timing-function:var(--ease-in-out)]',
+                  active ? 'opacity-100' : 'opacity-0',
                 )}
-                title={`Gather ${s.label} back into one lane`}
-                type="button"
-                onClick={() => mergeInto(s.id)}
+                style={{ left: stages[s.depth - 1], top: RIVER.top + s.y }}
               >
-                {s.label}
-                <X aria-hidden className="size-3 opacity-70" />
-              </button>
-            </div>
-          ))}
+                <span
+                  aria-hidden
+                  className="absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+                />
+                <button
+                  aria-label={`Close ${s.label}`}
+                  className={cn(
+                    'absolute left-1.5 top-0 flex -translate-y-[130%] items-center gap-1 whitespace-nowrap rounded-full border border-white/25 bg-atlas-page/80 px-2 py-0.5 text-xs font-bold text-white transition-colors hover:border-white/50 hover:bg-atlas-page',
+                    ATLAS_FOCUS,
+                  )}
+                  title={`Gather ${s.label} back into one lane`}
+                  type="button"
+                  onClick={() => mergeInto(s.id)}
+                >
+                  {s.label}
+                  <X aria-hidden className="size-3 opacity-70" />
+                </button>
+              </div>
+            ))}
+          </div>
         </>
       )}
 
-      {/* The years at either end. */}
-      <div
-        aria-hidden
-        className={cn(
-          'pointer-events-none absolute left-6 top-5 text-atlas-text transition-opacity duration-300',
-          !active && 'opacity-0',
-        )}
-      >
-        <span ref={fromRef} className="atlas-river-bookend" />
-      </div>
-      <div
-        aria-hidden
-        className={cn(
-          'pointer-events-none absolute right-6 top-5 text-atlas-text transition-opacity duration-300',
-          !active && 'opacity-0',
-        )}
-      >
-        <span ref={toRef} className="atlas-river-bookend" />
-      </div>
+      <div className="atlas-river-dim" {...(staged ? { inert: '' } : {})}>
+        {/* The years at either end. */}
+        <div
+          aria-hidden
+          className={cn(
+            'pointer-events-none absolute left-6 top-5 text-atlas-text transition-opacity duration-300',
+            !active && 'opacity-0',
+          )}
+        >
+          <span ref={fromRef} className="atlas-river-bookend" />
+        </div>
+        <div
+          aria-hidden
+          className={cn(
+            'pointer-events-none absolute right-6 top-5 text-atlas-text transition-opacity duration-300',
+            !active && 'opacity-0',
+          )}
+        >
+          <span ref={toRef} className="atlas-river-bookend" />
+        </div>
 
-      {/* The genres, as Dorot's topic chips: filters, not lanes. */}
-      <div
-        aria-label="Genres"
-        className={cn(
-          'absolute left-1/2 flex -translate-x-1/2 items-center gap-1.5 overflow-x-auto px-1 py-1 transition-opacity duration-300 [scrollbar-width:none]',
-          !active && 'opacity-0',
-          narrow
-            ? 'top-[4.5rem] max-w-[calc(100%-1rem)]'
-            : 'top-7 max-w-[calc(100%-22rem)]',
-        )}
-        role="group"
-      >
-        {/* First, so it never scrolls out of reach. */}
-        {genres.length > 0 && (
-          <button
-            className={cn(
-              'h-8 shrink-0 rounded-full px-3 text-sm font-bold text-atlas-text underline-offset-2 hover:underline',
-              ATLAS_FOCUS,
-            )}
-            type="button"
-            onClick={() => navigate.setFrame({ genres: [] })}
-          >
-            Reset
-          </button>
-        )}
-        {GENRE_CHIPS.map((chip) => {
-          const on = genres.includes(chip.id);
-          return (
+        {/* The genres, as Dorot's topic chips: filters, not lanes. */}
+        <div
+          aria-label="Genres"
+          className={cn(
+            'absolute left-1/2 flex -translate-x-1/2 items-center gap-1.5 overflow-x-auto px-1 py-1 transition-opacity duration-300 [scrollbar-width:none]',
+            !active && 'opacity-0',
+            narrow
+              ? 'top-[4.5rem] max-w-[calc(100%-1rem)]'
+              : 'top-7 max-w-[calc(100%-22rem)]',
+          )}
+          role="group"
+        >
+          {/* First, so it never scrolls out of reach. */}
+          {genres.length > 0 && (
             <button
-              key={chip.id}
-              aria-pressed={on}
               className={cn(
-                'h-8 shrink-0 whitespace-nowrap rounded-full border px-3 text-sm transition-colors',
-                on
-                  ? 'border-white bg-white font-bold text-atlas-page'
-                  : 'border-white/15 bg-white/[0.04] text-atlas-text-2 hover:border-white/30 hover:text-atlas-text',
+                'h-8 shrink-0 rounded-full px-3 text-sm font-bold text-atlas-text underline-offset-2 hover:underline',
                 ATLAS_FOCUS,
               )}
               type="button"
-              onClick={() => toggleGenre(chip.id)}
+              onClick={() => navigate.setFrame({ genres: [] })}
             >
-              {chip.label}
+              Reset
             </button>
-          );
-        })}
+          )}
+          {GENRE_CHIPS.map((chip) => {
+            const on = genres.includes(chip.id);
+            return (
+              <button
+                key={chip.id}
+                aria-pressed={on}
+                className={cn(
+                  'h-8 shrink-0 whitespace-nowrap rounded-full border px-3 text-sm transition-colors',
+                  on
+                    ? 'border-white bg-white font-bold text-atlas-page'
+                    : 'border-white/15 bg-white/[0.04] text-atlas-text-2 hover:border-white/30 hover:text-atlas-text',
+                  ATLAS_FOCUS,
+                )}
+                type="button"
+                onClick={() => toggleGenre(chip.id)}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <RiverTooltip store={hover} />
+
+      <AnimatePresence>
+        {staged && ready && stageInfo.lane && (
+          <EventStage
+            key="stage"
+            colors={[stageInfo.lane.color, stageInfo.lane.colorEnd]}
+            from={{
+              top:
+                RIVER.top +
+                (laneY.get(stageInfo.laneId) ?? riverHeight / 2) -
+                fan.thickness / 2,
+              height: fan.thickness,
+            }}
+            item={stageInfo.t}
+            laneLabel={stageInfo.lane.label}
+            narrow={narrow}
+            next={stageInfo.next}
+            position={stageInfo.position}
+            prev={stageInfo.prev}
+            reducedMotion={reducedMotion}
+            stage={
+              narrow
+                ? { top: 72, height: Math.max(320, size.height - 72 - 150) }
+                : {
+                    top: RIVER.top + riverHeight * 0.03,
+                    height: riverHeight * 0.88,
+                  }
+            }
+            onClose={closeStage}
+            onShowOnGlobe={() => navigate.setFrame({ view: 'map' })}
+            onStep={(to) =>
+              navigate.go({ kind: 'event', eventId: to.event.id })
+            }
+          />
+        )}
+      </AnimatePresence>
 
       {/* Dorot's little globe, bottom left: the same years on the map. */}
       <GlobeCornerButton />

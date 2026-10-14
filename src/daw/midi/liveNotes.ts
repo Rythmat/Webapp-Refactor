@@ -1,15 +1,18 @@
 import { studioRealtime } from '@/daw/collab/studioRealtime';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { useStore } from '@/daw/store';
+import { practiceLiveTrackId, recordTargetTrackId } from './liveTarget';
 
 // ── Live notes: what the student plays right now ───────────────────────────
 //
 // One path for every live note, whatever it comes from: a MIDI keyboard
-// (useMidiInputRouting) or the computer keyboard (useMusicalTyping, 1.6).
-// A note sounds on the monitored MIDI tracks (else the selected track),
-// lights the on-screen keys and Insight's Now Playing (hwActiveNotes),
-// reaches collaborators, and goes into the take while recording onto an
-// armed MIDI track.
+// (useMidiInputRouting), the computer keyboard (useMusicalTyping, 1.6) or
+// the practice screen's keys (usePointerNotes, 1.15). A note sounds on the
+// monitored MIDI tracks (else the selected track), lights the on-screen keys
+// and Insight's Now Playing (hwActiveNotes), reaches collaborators, and goes
+// into the take while recording onto an armed MIDI track. While the
+// practice screen shows, its student's track takes every note and take
+// instead (liveTarget.ts).
 
 /** What the take in progress is fed with; useMidiInputRouting's recorder. */
 export interface LiveRecorder {
@@ -27,9 +30,15 @@ export function registerLiveRecorder(next: LiveRecorder): () => void {
   };
 }
 
-/** Track ids this user's live MIDI is driving (monitored, else selected). */
+/**
+ * Track ids this user's live MIDI is driving: the practice screen's track,
+ * else the monitored MIDI tracks, else the selected one.
+ */
 export function liveMidiTargets(): string[] {
-  const { tracks, selectedTrackId } = useStore.getState();
+  const state = useStore.getState();
+  const practice = practiceLiveTrackId(state);
+  if (practice !== null) return [practice];
+  const { tracks, selectedTrackId } = state;
   const monitored = tracks
     .filter((t) => t.monitoring && t.type === 'midi')
     .map((t) => t.id);
@@ -51,8 +60,8 @@ function relay(action: 'on' | 'off', note: number, velocity: number): void {
 }
 
 function recordingArmedMidi(): boolean {
-  const { isRecording, tracks } = useStore.getState();
-  return isRecording && tracks.some((t) => t.recordArmed && t.type === 'midi');
+  const state = useStore.getState();
+  return state.isRecording && recordTargetTrackId(state) !== null;
 }
 
 /** Sounds a note (velocity 0–127) and shows it. */

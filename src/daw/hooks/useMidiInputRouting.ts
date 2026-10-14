@@ -14,6 +14,7 @@ import {
   registerLiveRecorder,
   releaseLiveNote,
 } from '@/daw/midi/liveNotes';
+import { recordTargetTrackId } from '@/daw/midi/liveTarget';
 
 /**
  * When the Oracle synth panel is open on one of the live tracks, mirror a
@@ -119,10 +120,9 @@ export function useMidiInputRouting() {
 
     const onCC = (cc: number, value: number) => {
       // Record CC event if recording
-      const { isRecording, tracks } = useStore.getState();
-      if (isRecording) {
-        const hasArmed = tracks.some((t) => t.recordArmed && t.type === 'midi');
-        if (hasArmed) midiRecorderRef.current.captureCC(cc, value);
+      const state = useStore.getState();
+      if (state.isRecording && recordTargetTrackId(state) !== null) {
+        midiRecorderRef.current.captureCC(cc, value);
       }
 
       // Everything but sustain goes straight to the live instruments (mod

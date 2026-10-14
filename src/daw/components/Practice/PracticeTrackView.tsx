@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { ALL_MODES, DEGREES, MODE_DISPLAY, noteNameInKey } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
@@ -8,6 +8,8 @@ import { usePlayheadSelector } from '@/daw/engine/playheadClock';
 import { PRACTICE_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { requestRecord } from '@/daw/commands/requestRecord';
+import { setPracticeLiveTrack } from '@/daw/midi/liveTarget';
+import { usePointerNotes } from '@/daw/midi/usePointerNotes';
 import type {
   PracticeKeyboardView,
   PracticeSession,
@@ -30,6 +32,7 @@ import { PracticeHeader } from '@/daw/shell/topbar/PracticeHeader';
 import { useContinuousControl } from '@/daw/hooks/useContinuousControl';
 import { previewTempo } from '@/daw/hooks/useTransport';
 import { ChordChart } from './ChordChart';
+import { practiceStudentTrack } from './practiceStudentTrack';
 import { ScaleKeyboard, type KeyboardScale } from './ScaleKeyboard';
 import { SegmentedToggle } from './SegmentedToggle';
 
@@ -49,8 +52,11 @@ import { SegmentedToggle } from './SegmentedToggle';
  * generated once and cannot be re-derived. What the screen does with either is
  * the same, so the two differ only in where the answers come from.
  *
- * The session, the keyboard's view and scale, and the screen itself come
- * back after a refresh with the draft (milestone 1.15).
+ * Everything the student plays here — the keys on screen, the computer
+ * keyboard, a MIDI keyboard — sounds on and records into the session's own
+ * student track (liveTarget.ts), and the take feedback reads that track. The
+ * session, the keyboard's view and scale, and the screen itself come back
+ * after a refresh with the draft (milestone 1.15).
  */
 interface PracticeTrackViewProps {
   session: PracticeSession;
@@ -106,12 +112,19 @@ export function PracticeTrackView({
   const isCountingIn = useStore((s) => s.isCountingIn);
   const loopEnabled = useStore((s) => s.loopEnabled);
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
-  const openTrack = useStore((s) =>
-    s.tracks.find((t) => t.id === s.selectedTrackId),
-  );
+  // The student's own track, whatever the Studio has selected since.
+  const studentTrack = useStore((s) => practiceStudentTrack(s, session));
+  const studentTrackId = studentTrack?.id ?? null;
   const practiceKeyboard = useStore((s) => s.practiceKeyboard);
   const { play, pause, stop, toggleLoop, setCurrentView, setPracticeKeyboard } =
     useStore.getState();
+
+  // While the screen shows, every live note and take goes to that track.
+  useEffect(() => {
+    setPracticeLiveTrack(studentTrackId);
+    return () => setPracticeLiveTrack(null);
+  }, [studentTrackId]);
+  const pressKey = usePointerNotes();
 
   const genre = session.kind === 'genre' ? session : null;
   const theory = session.kind === 'theory' ? session : null;
@@ -352,11 +365,12 @@ export function PracticeTrackView({
   // moves, because the keys are what a player always has to be able to see.
   const chartLarge = genre ? !playsMelody || twoHands : !playsMelody;
 
-  const takeNotes = (openTrack?.midiClips ?? []).reduce(
+  const takeNotes = (studentTrack?.midiClips ?? []).reduce(
     (count, clip) => count + clip.events.length,
     0,
   );
-  const openTrackLabel = openTrack?.name ?? (playsMelody ? 'Melody' : 'Chords');
+  const studentTrackLabel =
+    studentTrack?.name ?? (playsMelody ? 'Melody' : 'Chords');
 
   // ── Transport ─────────────────────────────────────────────────────────────
 
@@ -466,8 +480,8 @@ export function PracticeTrackView({
 
       <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
         {takeNotes > 0 && !isRecording
-          ? `Your take is on the ${openTrackLabel} track. Take it to the Studio to hear or edit it.`
-          : `Play along on your MIDI keyboard; the ${view === 'bass' ? 'bass note is lit on the keyboard' : view === 'chords' ? 'chord to play is lit on the keyboard' : 'scale notes are lit on the keyboard'}.`}
+          ? `Your take is on the ${studentTrackLabel} track. Take it to the Studio to hear or edit it.`
+          : `Play along on these keys, your computer keyboard or a MIDI keyboard; the ${view === 'bass' ? 'bass note is lit on the keyboard' : view === 'chords' ? 'chord to play is lit on the keyboard' : 'scale notes are lit on the keyboard'}.`}
       </p>
     </>
   );
@@ -490,6 +504,7 @@ export function PracticeTrackView({
       startC={chordKeyboard?.startC ?? keyboard.startC}
       endC={chordKeyboard?.endC ?? keyboard.endC}
       heldNotes={hwActiveNotes}
+      onKeyPointerDown={pressKey}
       fitWithin={rootRef}
       fitAnchor={chartRef}
       onScaleChange={() => {}}
@@ -515,6 +530,7 @@ export function PracticeTrackView({
       startC={keyboard.startC}
       endC={keyboard.endC}
       heldNotes={hwActiveNotes}
+      onKeyPointerDown={pressKey}
       fitWithin={rootRef}
       fitAnchor={chartRef}
       onScaleChange={(next) => setPracticeKeyboard({ scaleId: next.id })}

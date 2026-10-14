@@ -29,6 +29,7 @@ import {
   type DraftStore,
 } from '@/lib/studio-projects/drafts/draftStore';
 import { MemoryStorage } from '@/lib/studio-projects/drafts/__tests__/draftTestUtils';
+import { setPracticeLiveTrack } from '@/daw/midi/liveTarget';
 import { useMidiRecording } from '../useMidiRecording';
 import { useTransport } from '../useTransport';
 
@@ -167,6 +168,56 @@ describe('useMidiRecording when the editor closes', () => {
     act(() => useStore.setState({ position: 1920, isRecording: true }));
     empty.unmount();
     expect(keysClips()).toHaveLength(0);
+  });
+});
+
+// ── Where a take lands (milestone 1.15) ─────────────────────────────────────
+// The practice screen records the student's track, whatever the Studio has
+// armed since (practice-tutorial-11); a take lands on the track it started
+// on, even if the screen goes before it stops.
+
+describe('useMidiRecording on the practice screen', () => {
+  const melody = {
+    ...structuredClone(armedKeys),
+    id: 'melody',
+    name: 'Melody',
+    recordArmed: false,
+  };
+  const clipsOf = (id: string) =>
+    useStore.getState().tracks.find((t) => t.id === id)?.midiClips ?? [];
+
+  beforeEach(() => {
+    useStore.setState({
+      tracks: [structuredClone(armedKeys), structuredClone(melody)] as never,
+    });
+  });
+  afterEach(() => setPracticeLiveTrack(null));
+
+  it('records onto the practice screen’s track, not the armed one', () => {
+    setPracticeLiveTrack('melody');
+    const { result } = mountEditorHooks();
+    recordTake(result.current);
+    act(() => useStore.getState().pause());
+    expect(clipsOf('melody')).toHaveLength(1);
+    expect(clipsOf('keys')).toHaveLength(0);
+  });
+
+  it('keeps the track a take started on when the screen goes mid-take', () => {
+    setPracticeLiveTrack('melody');
+    const { result } = mountEditorHooks();
+    recordTake(result.current);
+    setPracticeLiveTrack(null);
+    act(() => useStore.getState().pause());
+    expect(clipsOf('melody')).toHaveLength(1);
+    expect(clipsOf('keys')).toHaveLength(0);
+  });
+
+  it('records onto the armed track when the practice track has gone', () => {
+    setPracticeLiveTrack('gone');
+    const { result } = mountEditorHooks();
+    recordTake(result.current);
+    act(() => useStore.getState().pause());
+    expect(clipsOf('keys')).toHaveLength(1);
   });
 });
 

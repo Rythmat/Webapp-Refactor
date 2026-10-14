@@ -1,17 +1,31 @@
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
-import { useStore } from '@/daw/store';
+import { useStore, type AllSlices } from '@/daw/store';
 import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import { MidiRecorder } from '@/daw/audio/MidiRecorder';
 import { buildRecordedClip } from '@/daw/audio/recordedClip';
 import { beginTake } from '@/daw/session/takesInFlight';
+import { recordTargetTrackId } from '@/daw/midi/liveTarget';
 
 // ── useMidiRecording ────────────────────────────────────────────────────
 // Manages the MIDI recording lifecycle:
 //   - When isRecording flips to true  -> start capturing note events
 //   - When isRecording flips to false -> stop, convert to a MidiClip,
-//     and add it to the first record-armed MIDI track.
+//     and add it to the track it was recording onto: the record target
+//     when it started (the practice screen's track, else the first
+//     record-armed MIDI track), or the target now if that one has gone.
+
+/** Where a take that started on `startedOn` lands now. */
+function takeTrackId(state: AllSlices, startedOn: string | null) {
+  if (
+    startedOn !== null &&
+    state.tracks.some((t) => t.id === startedOn && t.type === 'midi')
+  ) {
+    return startedOn;
+  }
+  return recordTargetTrackId(state);
+}
 
 export function useMidiRecording() {
   const isRecording = useStore((s) => s.isRecording);
@@ -23,6 +37,8 @@ export function useMidiRecording() {
   // The take in progress, counted for openSession (takesInFlight): an open
   // that replaces the session waits for it to be committed into it.
   const settleTakeRef = useRef<(() => void) | null>(null);
+  // The track the take started on (recordTargetTrackId at punch-in).
+  const targetRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (isRecording) {
@@ -34,6 +50,7 @@ export function useMidiRecording() {
       // The live playhead: a punch-in while playing is past the store's
       // parked position.
       punchInTickRef.current = Math.round(getPlayheadTick());
+      targetRef.current = recordTargetTrackId();
       recorderRef.current.startRecording();
       settleTakeRef.current?.();
       const recorder = recorderRef.current;
@@ -47,15 +64,12 @@ export function useMidiRecording() {
       try {
         const { notes, ccEvents } = recorderRef.current.stopRecording();
         if (notes.length > 0) {
-          // Find the first record-armed MIDI track
-          const armedTrack = useStore
-            .getState()
-            .tracks.find((t) => t.recordArmed && t.type === 'midi');
-          if (armedTrack) {
+          const trackId = takeTrackId(useStore.getState(), targetRef.current);
+          if (trackId) {
             // Anchored to punch-in, so a take that came in after the downbeat
             // keeps that rest at the front of the clip instead of sliding up
             // to it. See buildRecordedClip.
-            addMidiClip(armedTrack.id, {
+            addMidiClip(trackId, {
               id: crypto.randomUUID(),
               ...buildRecordedClip(notes, ccEvents, punchInTickRef.current),
             });
@@ -83,6 +97,7 @@ export function useMidiRecording() {
   useEffect(() => {
     const recorder = recorderRef.current;
     const settleRef = settleTakeRef;
+    const target = targetRef;
     return () => {
       const settle = settleRef.current;
       settleRef.current = null;
@@ -91,11 +106,9 @@ export function useMidiRecording() {
         const { notes, ccEvents } = recorder.stopRecording();
         if (notes.length === 0) return;
         const state = useStore.getState();
-        const armedTrack = state.tracks.find(
-          (t) => t.recordArmed && t.type === 'midi',
-        );
-        if (!armedTrack) return;
-        state.addMidiClip(armedTrack.id, {
+        const trackId = takeTrackId(state, target.current);
+        if (!trackId) return;
+        state.addMidiClip(trackId, {
           id: crypto.randomUUID(),
           ...buildRecordedClip(notes, ccEvents, punchInTickRef.current),
         });
@@ -109,10 +122,8 @@ export function useMidiRecording() {
   // times a second, on the editor's frame loop.
   useEffect(() => {
     if (!isRecording) return;
-    const armedTrack = useStore
-      .getState()
-      .tracks.find((t) => t.recordArmed && t.type === 'midi');
-    if (!armedTrack) return;
+    const trackId = recordTargetTrackId();
+    if (!trackId) return;
 
     const stopTask = addFrameTask(
       () => {
@@ -125,7 +136,7 @@ export function useMidiRecording() {
           useStore
             .getState()
             .setLiveRecording(
-              armedTrack.id,
+              trackId,
               snapshot,
               Math.min(punchInTickRef.current, snapshot[0].startTick),
             );

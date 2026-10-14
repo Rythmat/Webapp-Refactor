@@ -18,6 +18,7 @@ import {
   pianoRollLaneBackground,
 } from '@/lib/pianoRollLanes';
 import type { LessonChordSymbol } from '../notation/lessonChordSymbols';
+import { LearnCascadeView } from './LearnCascadeView';
 import { LearnNotationView } from './LearnNotationView';
 import { LearnTabView } from './LearnTabView';
 import { advancePlayhead, initialClockState } from './playheadClock';
@@ -47,6 +48,13 @@ export interface PianoRollProps {
   events: NoteEvent[];
   bars: number;
   beatsPerBar?: number;
+  /**
+   * Ticks per felt beat (engine/meter.ts beatTicks): 480, or 720 for a dotted
+   * quarter in 6/8 and 12/8. The playhead still runs at 480 per quarter.
+   */
+  beatTicks?: number;
+  /** The meter, for the notation and TAB views' time signature. */
+  timeSignature?: [number, number];
   subdivision?: number; // grid lines per beat (default 1 => quarter). Use 2 for 8ths, 4 for 16ths
   rowHeight?: number; // base lane height unit; lanes scale to fit a static box
   /** Playback control */
@@ -134,7 +142,14 @@ export interface PianoRollProps {
 
 // ===== Helpers =====
 
-const beatTicks = 480;
+const cascadeMidiOf = (e: NoteEvent) =>
+  e.midi ?? pitchNameToMidi(e.pitchName) ?? undefined;
+// Just the note name: the keyboard right under it already shows the octave.
+const cascadeLabelOf = (e: NoteEvent) =>
+  formatAccidentalsForDisplay(e.pitchName.replace(/-?\d+$/, ''));
+
+/** Tempo is quarter-note bpm, so the playhead runs at this many per beat of it. */
+const QUARTER_TICKS = 480;
 
 // Note names (A#4, B♭4, C♭5, E𝄫4 …) → MIDI via the enharmonic engine, so every
 // spelling it emits maps back to the right key.
@@ -259,6 +274,7 @@ function barBeatLabels(
   bars: number,
   beatsPerBar: number,
   showCountIn: boolean,
+  beatTicks: number,
 ) {
   const labels: { tick: number; label: string }[] = [];
   for (let barIndex = -(showCountIn ? 1 : 0); barIndex < bars; barIndex++) {
@@ -279,6 +295,8 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   events,
   bars,
   beatsPerBar = 4,
+  beatTicks = QUARTER_TICKS,
+  timeSignature,
   subdivision = 1,
   rowHeight = 36 * 24,
   inTime = false,
@@ -332,7 +350,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   const timelineEndTick = bars * ticksPerBar;
   const safeSubdivision = subdivision <= 0 ? 1 : subdivision;
   const beatsPerSecond = Math.max(playSpeed, 0) / 60;
-  const playheadTicksPerSecond = beatsPerSecond * beatTicks;
+  const playheadTicksPerSecond = beatsPerSecond * QUARTER_TICKS;
 
   const [playheadTick, setPlayheadTick] = useState(-countInTicks);
   const visibleBars = 1;
@@ -457,7 +475,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   // Notation view: the lesson clock above keeps running; only the drawing changes.
   const [view, setView] = useRollView('learn');
   const [guitarView, setGuitarView] = useGuitarView();
-  const viewToggle = <RollViewToggle view={view} onChange={setView} />;
+  const viewToggle = <RollViewToggle view={view} onChange={setView} cascade />;
   const notationHeader = (
     <>
       {viewToggle}
@@ -477,6 +495,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
       playheadTick,
       countInTicks: countOffTicks,
       beatTicks,
+      ...(timeSignature ? { timeSignature } : {}),
       musicStartTick,
       noteHoldMeta,
       performanceMeta,
@@ -507,6 +526,27 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
       />
     );
   }
+  if (view === 'cascade') {
+    return (
+      <LearnCascadeView
+        events={events}
+        midiOf={cascadeMidiOf}
+        labelOf={cascadeLabelOf}
+        beatsPerBar={beatsPerBar}
+        beatTicks={beatTicks}
+        inTime={inTime}
+        playheadTick={playheadTick}
+        countInTicks={countOffTicks}
+        musicStartTick={musicStartTick}
+        noteHoldMeta={noteHoldMeta}
+        performanceMeta={performanceMeta}
+        activeMidis={activeMidis}
+        keyColor={keyColor}
+        height={rowHeight + (showTimeline ? 40 : 0)}
+        toggle={viewToggle}
+      />
+    );
+  }
   if (view === 'notation') {
     return (
       <LearnNotationView
@@ -519,6 +559,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
         playheadTick={playheadTick}
         countInTicks={countOffTicks}
         beatTicks={beatTicks}
+        timeSignature={timeSignature}
         musicStartTick={musicStartTick}
         staves={staves}
         noteHoldMeta={noteHoldMeta}
@@ -554,7 +595,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     ticksPerBar,
   );
 
-  const labels = barBeatLabels(bars, beatsPerBar, inTime);
+  const labels = barBeatLabels(bars, beatsPerBar, inTime, beatTicks);
   const visibleLabels = inTime
     ? labels.filter(
         ({ tick }) => tick >= displayStartTick && tick <= displayEndTick,

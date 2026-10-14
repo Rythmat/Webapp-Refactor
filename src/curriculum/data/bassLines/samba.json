@@ -1,0 +1,58 @@
+{
+  "id": "samba",
+  "name": "Samba",
+  "description": "Surdo-style: root on 1, fifth below on 2, sixteenth pickups",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 60,
+  "timeSignature": [2, 4],
+  "length": "2m",
+  "gridResolution": "16n",
+  "instrument": "electric",
+  "grooves": ["samba"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.3
+    },
+    {
+      "time": "0:0:3",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.95
+    },
+    {
+      "time": "0:1:0",
+      "degree": "5-",
+      "dur": 0.7,
+      "velocity": 0.9
+    },
+    {
+      "time": "1:0:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.3
+    },
+    {
+      "time": "1:0:3",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.3
+    },
+    {
+      "time": "1:0:3",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:1:0",
+      "degree": "5-",
+      "dur": 0.73,
+      "velocity": 0.95
+    }
+  ]
+}

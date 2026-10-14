@@ -1,0 +1,20 @@
+{
+  "id": "afrobeat_1_fela",
+  "name": "Afrobeat 1 - Fela",
+  "status": "draft",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 1,
+  "tempo": 100,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "16n",
+  "kit": "natural",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [],
+  "description": "Fela Kuit style Afrobeat groove"
+}

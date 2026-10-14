@@ -1,0 +1,47 @@
+/**
+ * Bass lines are repo files for now, like drum grooves: the dev server writes
+ * them (scripts/vite/devContentWriter.ts), then they're committed. A deployed
+ * console can't write, so it gets Export instead.
+ */
+
+import type { BassLine } from '@/curriculum/engine/bassLines/bassLine';
+import { CAN_WRITE_FILES } from '../drumGrooves/devFiles';
+import { rememberDeleted, rememberSaved } from './bassLineSession';
+
+export { CAN_WRITE_FILES };
+
+async function call(url: string, init: RequestInit) {
+  const res = await fetch(url, init);
+  const body = (await res.json().catch(() => ({}))) as { error?: string };
+  if (!res.ok) throw new Error(body.error ?? `${res.status} ${res.statusText}`);
+}
+
+export async function saveBassLine(line: BassLine) {
+  await call(`/__dev/bass-lines/${line.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(line),
+  });
+  rememberSaved(line);
+}
+
+export async function deleteBassLine(id: string) {
+  // The writer's transport check wants every write marked JSON, deletes too.
+  await call(`/__dev/bass-lines/${id}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  rememberDeleted(id);
+}
+
+/** The line as a .json download, for a console that can't write files. */
+export function downloadBassLine(line: BassLine) {
+  const blob = new Blob([`${JSON.stringify(line, null, 2)}\n`], {
+    type: 'application/json',
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${line.id}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}

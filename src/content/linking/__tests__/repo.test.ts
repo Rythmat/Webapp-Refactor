@@ -110,8 +110,8 @@ describe('Stage 1 on the repo data', () => {
   });
 
   it('offers the songs those events name, all sure', () => {
-    expect(plan.eventSongs.report).toMatchObject({ matched: 38, pairs: 41 });
-    expect(tiers(plan.eventSongs.planned)).toEqual({ sure: 38 });
+    expect(plan.eventSongs.report).toMatchObject({ matched: 39, pairs: 42 });
+    expect(tiers(plan.eventSongs.planned)).toEqual({ sure: 39 });
   });
 
   it('places every hand-authored event, and makes the cities that are none of ours', () => {
@@ -215,11 +215,11 @@ describe('Stage 1 on the repo data', () => {
     expect(plan.progressionSongs.report).toMatchObject({
       withText: 76,
       named: 80,
-      linked: 22,
+      linked: 45,
       sure: 0,
       likely: 1,
     });
-    expect(plan.progressionSongs.report.unmatched).toHaveLength(54);
+    expect(plan.progressionSongs.report.unmatched).toHaveLength(32);
     expect(plan.progressionSongs.report.disagree).toEqual([
       expect.objectContaining({ progression: 528, songId: 'changes' }),
     ]);
@@ -253,7 +253,7 @@ describe('Stage 1 on the repo data', () => {
     // 464 event artist lists, 38 song lists, 943 places. (And 10 progression
     // songs, 1,455 in all, until the bulk import of 30 September 2026 linked
     // them.)
-    expect(bulk).toHaveLength(1445);
+    expect(bulk).toHaveLength(1446);
     expect(
       bulk.some(({ suggestion }) =>
         ['basedInPlaceId', 'born.placeId', 'year'].includes(suggestion.path),
@@ -306,9 +306,9 @@ describe('Stage 1 on the repo data', () => {
     // 328 Cities from song pins (the import wrote its Cities into the
     // console's artist records, which these lists leave out) and the
     // Hallelujah progression it knows is wrong.
-    expect(states).toEqual({ applied: 1748, conflict: 57, empty: 332 });
+    expect(states).toEqual({ applied: 1748, conflict: 57, empty: 333 });
     // The progression songs and the years it wrote are planned no more.
-    expect(plan.planned).toHaveLength(687 + 38 + 1083 + 328 + 1 + 0);
+    expect(plan.planned).toHaveLength(687 + 39 + 1083 + 328 + 1 + 0);
   });
 
   it('plans the same suggestions, with the same ids, every time', () => {

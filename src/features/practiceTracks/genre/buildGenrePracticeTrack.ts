@@ -21,8 +21,14 @@
 
 import { CHORDS, getChordColorFromNotes } from '@prism/engine';
 import {
+  getLessonStyle,
+  lessonStyleFor,
+  lessonStylesForLevel,
+} from '@/curriculum/data/lessonStyles';
+import {
   buildBackingNotes,
   getGrooveForStyleRef,
+  stepBassVoice,
   stepDrumKit,
   type BackingNote,
 } from '@/curriculum/engine/genreGeneration/backingPatterns';
@@ -30,6 +36,11 @@ import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbo
 import { genreBassVoice } from '@/curriculum/engine/genreGeneration/genreBassVoices';
 import { resolveStepContent } from '@/curriculum/engine/genreGeneration/resolveStepContent';
 import { swingPercent } from '@/curriculum/engine/genreGeneration/swing';
+import { pairingForStyle } from '@/curriculum/engine/lessonPairings/registry';
+import {
+  barTicks as meterBarTicks,
+  stepTimeSignature,
+} from '@/curriculum/engine/meter';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type {
   ActivityFlowV2,
@@ -37,9 +48,10 @@ import type {
   ActivityStepV2,
 } from '@/curriculum/types/activity.v2';
 import {
-  flowKeyLabel,
   flowKeyRoot,
-  flowMode,
+  stepKeyLabel,
+  stepKeyRoot,
+  stepMode,
 } from '@/curriculum/utils/flowKey';
 import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
 import type { DrumKitId } from '@/daw/instruments/drumKits';
@@ -51,6 +63,7 @@ import { flowPracticeScales, type PracticeScale } from './practiceScales';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
+/** A 4/4 bar; a level in another meter uses meter.ts barTicks. */
 const BAR_TICKS = 1920;
 /**
  * Where a melody is assumed to start when a section writes none of its own:
@@ -99,6 +112,8 @@ export interface GenrePracticeTrackResult {
   mode: string;
   bpm: number;
   loopTicks: number;
+  /** The loop's meter (D-085); the Studio opens in it. */
+  timeSignature: [number, number];
   /** Chord symbols, one per bar, as the chart draws them. */
   chordCycle: string[];
   /** One region per bar across the whole loop — the Studio's chord lane. */
@@ -135,6 +150,38 @@ export interface GenrePracticeTrackResult {
   /** The source step's own instruction, as the first improvisation prompt. */
   sourceDirection: string | null;
   grooveId: string;
+  /**
+   * The level's styles, for the groove toggle (D-088) — empty when the level
+   * teaches one. Switching swaps drums, bass and comping to that style's
+   * pairing (D-084), and its groove's meter.
+   */
+  styles: PracticeStyleOption[];
+  /** The style playing, or null when the level has one. */
+  styleId: string | null;
+  /** Every progression the level teaches, for the progression switch. */
+  progressions: PracticeProgressionOption[];
+  /** The one playing: its chords joined by spaces. */
+  progressionId: string;
+}
+
+export interface PracticeStyleOption {
+  id: string;
+  name: string;
+}
+
+export interface PracticeProgressionOption {
+  id: string;
+  /** As the switch reads: 'Cumbia · Em – Am – B7 – Em'. */
+  label: string;
+  chords: string[];
+}
+
+export interface GenrePracticeTrackOptions {
+  bpm?: number;
+  /** A lesson style id (lessonStyles.ts) to play instead of the section's. */
+  styleId?: string;
+  /** Chord symbols to loop instead of the section's. */
+  chords?: string[];
 }
 
 // ── Content gate ─────────────────────────────────────────────────────────────
@@ -203,19 +250,22 @@ function tonicSymbol(keyLabel: string, mode: string, genre: string): string {
 }
 
 /**
- * The kit and bass sound the lesson's play-along used: the source step's own
- * (Hip Hop names them per step), else the genre's bass (Pop Fretless, Funk
+ * The kit and bass sound the lesson's play-along used: a back-office pairing's
+ * (D-084), else the source step's own (Hip Hop names them per step), else the
+ * genre's bass (Pop Fretless, Funk
  * Finger electric — genreBassVoices.ts).
  */
 function lessonSounds(
   flow: ActivityFlowV2,
   step: ActivityStepV2 | null,
   backingStep: ActivityStepV2,
+  styleRef: string | undefined,
 ): Pick<GenrePracticeTrackResult, 'drumKit' | 'bassVoice'> {
-  const style = step?.backing_style;
-  const voice = style?.bassVoice ?? genreBassVoice(flow.genre)?.id;
+  const voice =
+    stepBassVoice(step ?? backingStep, styleRef, flow.genre, flow.level) ??
+    genreBassVoice(flow.genre)?.id;
   return {
-    drumKit: stepDrumKit(backingStep, step?.styleRef, flow.genre, flow.level),
+    drumKit: stepDrumKit(backingStep, styleRef, flow.genre, flow.level),
     bassVoice: voice === 'electric' ? undefined : voice,
   };
 }
@@ -283,6 +333,40 @@ function resolveLoop(
   };
 }
 
+/**
+ * Every progression the level teaches, one per distinct loop, for the
+ * Practice Track's progression switch (D-088): the authored Practice Track
+ * chords first, then each step's chords in lesson order. In a level that
+ * teaches several styles, each is labelled with the style it came from.
+ */
+function levelProgressions(flow: ActivityFlowV2): PracticeProgressionOption[] {
+  const styles = lessonStylesForLevel(flow.genre, flow.level);
+  const options: PracticeProgressionOption[] = [];
+  const add = (chords: readonly string[], styleRef?: string) => {
+    const loop = loopChords(chords).filter((c) => chordSymbolTones(c) !== null);
+    // A chord-learning step's one chord is not a progression to jam over.
+    if (new Set(loop).size < 2) return;
+    const id = loop.join(' ');
+    if (options.some((o) => o.id === id)) return;
+    const style =
+      styles.length > 1
+        ? lessonStyleFor(flow.genre, flow.level, styleRef)
+        : undefined;
+    const chart = loop.map(formatAccidentalsForDisplay).join(' – ');
+    options.push({
+      id,
+      label: style ? `${style.name} · ${chart}` : chart,
+      chords: loop,
+    });
+  };
+  if (flow.params.practiceTrack?.chords?.length)
+    add(flow.params.practiceTrack.chords);
+  for (const section of flow.sections)
+    for (const step of section.steps)
+      if (step.chordSymbols?.length) add(step.chordSymbols, step.styleRef);
+  return options;
+}
+
 // ── Chord regions ────────────────────────────────────────────────────────────
 
 /**
@@ -329,6 +413,7 @@ function buildChordRegions(
   chordCycle: string[],
   keyRootMidi: number,
   mode: string,
+  barLength = BAR_TICKS,
 ): ChordRegion[] {
   const regions: ChordRegion[] = [];
   for (let bar = 0; bar < LOOP_BARS; bar++) {
@@ -342,8 +427,8 @@ function buildChordRegions(
     const midis = tones.intervals.map((interval) => rootMidi + interval);
     regions.push({
       id: nextChordId(),
-      startTick: bar * BAR_TICKS,
-      endTick: (bar + 1) * BAR_TICKS,
+      startTick: bar * barLength,
+      endTick: (bar + 1) * barLength,
       name: degreeLabel(symbol, keyRootMidi, mode),
       noteName: formatAccidentalsForDisplay(symbol),
       color: getChordColorFromNotes(midis, keyRootMidi, mode),
@@ -467,7 +552,7 @@ function sectionVoicings(
     section: section.id,
     keyRoot: flowKeyRoot(flow),
     tempo: flow.params.tempoRange[0],
-    timeSignature: [4, 4] as [number, number],
+    timeSignature: stepTimeSignature(null, flow),
     tpb: 480,
     defaultScale: flow.params.defaultScale,
     genre: flow.genre,
@@ -507,7 +592,11 @@ function sectionVoicings(
         },
       ];
     });
-  return stylisticVoicings(chords, activities);
+  return stylisticVoicings(
+    chords,
+    activities,
+    meterBarTicks(stepTimeSignature(null, flow)),
+  );
 }
 
 /**
@@ -570,9 +659,10 @@ function toClip(
   part: EnginePart,
   name: string,
   transpose = 0,
+  loopTicks = LOOP_TICKS,
 ): MidiClip | null {
   const events = notes
-    .filter((note) => note.part === part && note.onset < LOOP_TICKS)
+    .filter((note) => note.part === part && note.onset < loopTicks)
     .sort((a, b) => a.onset - b.onset)
     .map((note) => ({
       note: note.note + transpose,
@@ -580,7 +670,7 @@ function toClip(
       startTick: note.onset,
       durationTicks: Math.max(
         1,
-        Math.min(note.duration, LOOP_TICKS - note.onset),
+        Math.min(note.duration, loopTicks - note.onset),
       ),
       channel: 0,
     }));
@@ -589,7 +679,7 @@ function toClip(
     id: crypto.randomUUID(),
     name,
     startTick: 0,
-    durationTicks: LOOP_TICKS,
+    durationTicks: loopTicks,
     events,
   };
 }
@@ -603,17 +693,45 @@ function toClip(
 export function buildGenrePracticeTrack(
   flow: ActivityFlowV2,
   sectionId: ActivitySectionId,
-  options: { bpm?: number } = {},
+  options: GenrePracticeTrackOptions = {},
 ): GenrePracticeTrackResult | null {
   const section = flow.sections.find((s) => s.id === sectionId);
   if (!section || !sectionHasContent(section)) return null;
 
   const step = sourceStep(section);
-  const keyRootMidi = flowKeyRoot(flow);
-  const keyLabel = flowKeyLabel(flow);
-  const mode = flowMode(flow);
-  const { chords, grooveId } = resolveLoop(flow, step, keyLabel, mode);
+  // The groove toggle (D-088): a level of several styles plays the chosen
+  // one's pairing, else the section's own style.
+  const levelStyles = lessonStylesForLevel(flow.genre, flow.level);
+  const style =
+    (options.styleId ? getLessonStyle(options.styleId) : undefined) ??
+    lessonStyleFor(flow.genre, flow.level, step?.styleRef);
+  const styleRef = style?.styleRefs?.[0] ?? step?.styleRef ?? 'l1a';
+  // The style's key: a level in two keys (Latin L1's Mariachi is in G major)
+  // names it on that style's steps (stepKeyLabel), and the track follows.
+  const keyStep =
+    (style?.styleRefs &&
+      flow.sections
+        .flatMap((s) => s.steps)
+        .find((s) => style.styleRefs!.includes(s.styleRef))) ||
+    step;
+  const keyRootMidi = stepKeyRoot(flow, keyStep);
+  const keyLabel = stepKeyLabel(flow, keyStep);
+  const mode = stepMode(flow, keyStep);
+  const loop = resolveLoop(flow, step, keyLabel, mode);
+  const { grooveId } = loop;
+  const chosenChords = options.chords?.filter(
+    (symbol) => chordSymbolTones(symbol) !== null,
+  );
+  const chords = chosenChords?.length ? chosenChords : loop.chords;
   const { engine, student } = SECTION_PARTS[sectionId];
+  // The meter (D-085): a style's paired groove brings its own (a mariachi
+  // vals turns the track into 3/4), else the level's. The loop is LOOP_BARS
+  // of its bars.
+  const pairedDrums = style ? pairingForStyle(style)?.drums : undefined;
+  const timeSignature: [number, number] =
+    pairedDrums?.timeSignature ?? stepTimeSignature(step, flow);
+  const barLength = meterBarTicks(timeSignature);
+  const loopTicks = LOOP_BARS * barLength;
   /**
    * Which writing the register and keyboard are measured from: the source step
    * alone where it has notes, else the whole section.
@@ -652,13 +770,14 @@ export function buildGenrePracticeTrack(
     backingStep,
     keyRootMidi,
     flow.level,
-    step?.styleRef ?? 'l1a',
+    styleRef,
     [],
     flow.genre,
     0,
     swingPercent(
       flow.params.practiceTrack?.swing ?? step?.swing ?? flow.params.swing,
     ),
+    timeSignature,
   );
 
   const clips: Partial<Record<EnginePart, MidiClip>> = {};
@@ -674,6 +793,7 @@ export function buildGenrePracticeTrack(
       part,
       names[part],
       part === 'chords' ? chordShift : 0,
+      loopTicks,
     );
     if (clip) clips[part] = clip;
   }
@@ -692,14 +812,15 @@ export function buildGenrePracticeTrack(
     keyRootPc: ((keyRootMidi % 12) + 12) % 12,
     mode,
     bpm,
-    loopTicks: LOOP_TICKS,
+    loopTicks,
+    timeSignature,
     chordCycle: chords,
-    chordRegions: buildChordRegions(chords, keyRootMidi, mode),
+    chordRegions: buildChordRegions(chords, keyRootMidi, mode, barLength),
     clips,
     studentParts: student,
     melodyFloor: melodyFloor(measured) ?? MELODY_FLOOR_FALLBACK,
     studentRange: studentRange(measured),
-    scales: flowPracticeScales(flow),
+    scales: flowPracticeScales(flow, style?.styleRefs),
     voicingSets: sets,
     bassFloor: bassFloor(measured, sectionId),
     defaultVoicing: sets
@@ -714,6 +835,26 @@ export function buildGenrePracticeTrack(
       step?.direction ??
       null,
     grooveId,
-    ...lessonSounds(flow, step, backingStep),
+    styles:
+      levelStyles.length > 1
+        ? levelStyles.map(({ id, name }) => ({ id, name }))
+        : [],
+    styleId: levelStyles.length > 1 ? (style?.id ?? null) : null,
+    progressions: (() => {
+      const all = levelProgressions(flow);
+      const id = chords.join(' ');
+      return all.some((p) => p.id === id)
+        ? all
+        : [
+            {
+              id,
+              label: chords.map(formatAccidentalsForDisplay).join(' – '),
+              chords,
+            },
+            ...all,
+          ];
+    })(),
+    progressionId: chords.join(' '),
+    ...lessonSounds(flow, step, backingStep, styleRef),
   };
 }

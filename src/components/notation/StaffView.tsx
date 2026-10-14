@@ -152,6 +152,9 @@ export interface StaffLayout {
   scale: number;
   /** Height of one system, scaled. */
   systemHeight: number;
+  /** Height of everything drawn (all systems), scaled — what a box needs to
+   *  hug the music. */
+  contentHeight?: number;
   /** Vertical distance of one staff step (a line to its next space). */
   stepPx: number;
   /**
@@ -2063,6 +2066,7 @@ export function StaffView({
             rests: rendered.rests,
             scale: rendered.scale,
             systemHeight: rendered.systemHeight * rendered.scale,
+            contentHeight: rendered.height,
             stepPx: STAFF_STEP * rendered.scale,
             topLineDrop: TOP_LINE_DROP * rendered.scale,
           }

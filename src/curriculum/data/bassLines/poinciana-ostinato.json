@@ -1,0 +1,82 @@
+{
+  "id": "poinciana-ostinato",
+  "name": "Poinciana Ostinato",
+  "description": "Root and fifth, hanging off the \"and\" of 2",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 40,
+  "timeSignature": [4, 4],
+  "length": "2m",
+  "gridResolution": "16n",
+  "instrument": "upright",
+  "grooves": ["poinciana"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 0.73,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:0:3",
+      "degree": "5",
+      "dur": 0.73,
+      "velocity": 0.66
+    },
+    {
+      "time": "0:1:2",
+      "degree": "8",
+      "dur": 1.23,
+      "velocity": 0.74
+    },
+    {
+      "time": "0:2:3",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:3:0",
+      "degree": "5",
+      "dur": 0.48,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:3:2",
+      "degree": "A",
+      "dur": 0.48,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:0:0",
+      "degree": "R",
+      "dur": 0.73,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:0:3",
+      "degree": "5",
+      "dur": 0.73,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:1:2",
+      "degree": "8",
+      "dur": 0.98,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:3:0",
+      "degree": "5",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:3:2",
+      "degree": "A",
+      "dur": 0.48,
+      "velocity": 0.8
+    }
+  ]
+}

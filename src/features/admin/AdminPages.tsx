@@ -104,6 +104,30 @@ const AdminDrumGrooveEditPage = lazy(() =>
   ),
 );
 
+const AdminBassLinesPage = lazy(() =>
+  import('./bassLines/AdminBassLinesPage').then(({ AdminBassLinesPage }) => ({
+    default: AdminBassLinesPage,
+  })),
+);
+
+const AdminBassLineEditPage = lazy(() =>
+  import('./bassLines/AdminBassLineEditPage').then(
+    ({ AdminBassLineEditPage }) => ({ default: AdminBassLineEditPage }),
+  ),
+);
+
+const AdminChordCompingsPage = lazy(() =>
+  import('./chordComping/AdminChordCompingsPage').then(
+    ({ AdminChordCompingsPage }) => ({ default: AdminChordCompingsPage }),
+  ),
+);
+
+const AdminChordCompingEditPage = lazy(() =>
+  import('./chordComping/AdminChordCompingEditPage').then(
+    ({ AdminChordCompingEditPage }) => ({ default: AdminChordCompingEditPage }),
+  ),
+);
+
 const AdminPartsLibraryPage = lazy(() =>
   import('./parts/AdminPartsLibraryPage').then(({ AdminPartsLibraryPage }) => ({
     default: AdminPartsLibraryPage,
@@ -480,6 +504,22 @@ export const adminPages = () => {
                   {
                     path: AdminRoutes.drumGroove.definition,
                     element: <AdminDrumGrooveEditPage />,
+                  },
+                  {
+                    path: AdminRoutes.bassLines.definition,
+                    element: <AdminBassLinesPage />,
+                  },
+                  {
+                    path: AdminRoutes.bassLine.definition,
+                    element: <AdminBassLineEditPage />,
+                  },
+                  {
+                    path: AdminRoutes.chordComping.definition,
+                    element: <AdminChordCompingsPage />,
+                  },
+                  {
+                    path: AdminRoutes.chordCompingPattern.definition,
+                    element: <AdminChordCompingEditPage />,
                   },
                   {
                     path: AdminRoutes.parts.definition,

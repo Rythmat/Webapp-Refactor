@@ -83,6 +83,15 @@ const SURFACE_TO_ID: Record<string, string> = {
   m6: 'min6',
 
   // Add chords
+  '6/9': 'maj69',
+  '69': 'maj69',
+  'maj6/9': 'maj69',
+  maj69: 'maj69',
+  'm6/9': 'min69',
+  'min6/9': 'min69',
+  m69: 'min69',
+  min69: 'min69',
+
   add2: 'add2',
   add9: 'add2', // same pitch-class set
   add4: 'add4',

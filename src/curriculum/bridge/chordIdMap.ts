@@ -52,6 +52,7 @@ export const CURRICULUM_TO_ENGINE_CHORD: Record<string, string> = {
   dom7s9: 'dominant7#9',
   maj9: 'major9',
   min9: 'minor9',
+  maj69: 'major6add9',
   min69: 'minor6add9',
 
   // ── Six-note ────────────────────────────────────────────────

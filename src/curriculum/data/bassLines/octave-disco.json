@@ -1,0 +1,64 @@
+{
+  "id": "octave-disco",
+  "name": "Octave Disco",
+  "description": "Root on the beat, octave on the \"and\"",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 120,
+  "timeSignature": [4, 4],
+  "length": "1m",
+  "gridResolution": "8n",
+  "instrument": "electric",
+  "grooves": ["dance-pop"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 0.4,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:0:2",
+      "degree": "8",
+      "dur": 0.35,
+      "velocity": 0.7
+    },
+    {
+      "time": "0:1:0",
+      "degree": "R",
+      "dur": 0.4,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:1:2",
+      "degree": "8",
+      "dur": 0.35,
+      "velocity": 0.7
+    },
+    {
+      "time": "0:2:0",
+      "degree": "R",
+      "dur": 0.4,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:2:2",
+      "degree": "8",
+      "dur": 0.35,
+      "velocity": 0.7
+    },
+    {
+      "time": "0:3:0",
+      "degree": "R",
+      "dur": 0.4,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:3:2",
+      "degree": "8",
+      "dur": 0.35,
+      "velocity": 0.7
+    }
+  ]
+}

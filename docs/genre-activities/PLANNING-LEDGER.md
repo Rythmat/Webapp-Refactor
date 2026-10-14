@@ -3,8 +3,8 @@
 The running record for the Genre activity-flow planning effort. Maintained by
 `/genre-sync`; edit by hand freely — the command merges, it doesn't overwrite.
 
-**Last synced:** 2026-10-07 12:15
-**Current focus:** Latin — L1 outline sign-off (latin-L1-outline.md)
+**Last synced:** 2026-10-14 00:41
+**Current focus:** Latin L1 — listen and sign off (outline drafts, comping drafts); then L2
 
 ---
 
@@ -24,25 +24,28 @@ general, promote it here.
 - **Per genre, decide the musical content for target notes across all 3 levels: scales, progressions, chord voicings, bass patterns.** (D-006)
 - **Existing style DNA is a starting point; flows may be restructured and must follow the rules set while refining Pop and Funk.** (D-009, D-010)
 - **Per genre, confirm the generated play-along drum, bass and chord patterns are true to the genre.** (D-007)
+- **Play-along drums and bass are published from the back office: pair a groove / bass line with a lesson style; the pairing wins.** (D-084)
+- **Lessons and Practice Tracks support 3/4, 6/8 and 12/8; count-in clicks the felt beats loud, the eighths soft.** (D-085, D-086)
+- **Drums, bass and chord comping are each designed in the back office and paired to lesson styles.** (D-084, D-087)
 
 ## Genre status
 
-| Genre      | Status       | Current focus / next step                                    | Notes                              |
-| ---------- | ------------ | ------------------------------------------------------------ | ---------------------------------- |
-| African    | not reviewed |                                                              |                                    |
-| Blues      | not reviewed |                                                              |                                    |
-| Electronic | not reviewed |                                                              |                                    |
-| Folk       | not reviewed |                                                              |                                    |
-| Funk       | planning     | New blues melody for Funk L3 (Q-018)                         | Section A reordered; finger bass   |
-| Hip-hop    | done         | Flows, Overview and style DNA done; republish to CDN (T-024) | 89 steps; L1–L3 built              |
-| Jam band   | not reviewed |                                                              |                                    |
-| Jazz       | not reviewed |                                                              |                                    |
-| Latin      | planning     | L1 outline drafted (latin-L1-outline.md) — sign-off          | 3 styles per level (D-075)         |
-| Neo-soul   | not reviewed |                                                              |                                    |
-| Pop        | planning     | New melodies for Pop L2 Aeolian, L3 Dorian + Aeolian (Q-018) | Section A reordered; fretless bass |
-| Reggae     | not reviewed |                                                              |                                    |
-| R&B        | not reviewed |                                                              |                                    |
-| Rock       | not reviewed |                                                              |                                    |
+| Genre      | Status       | Current focus / next step                                       | Notes                              |
+| ---------- | ------------ | --------------------------------------------------------------- | ---------------------------------- |
+| African    | not reviewed |                                                                 |                                    |
+| Blues      | not reviewed |                                                                 |                                    |
+| Electronic | not reviewed |                                                                 |                                    |
+| Folk       | not reviewed |                                                                 |                                    |
+| Funk       | planning     | New blues melody for Funk L3 (Q-018)                            | Section A reordered; finger bass   |
+| Hip-hop    | done         | Flows, Overview and style DNA done; republish to CDN (T-024)    | 89 steps; L1–L3 built              |
+| Jam band   | not reviewed |                                                                 |                                    |
+| Jazz       | not reviewed |                                                                 |                                    |
+| Latin      | building     | L1 built (44 steps, 3 styles, Mariachi in 3/4); sign-off by ear | L2/L3 stubs                        |
+| Neo-soul   | not reviewed |                                                                 |                                    |
+| Pop        | planning     | New melodies for Pop L2 Aeolian, L3 Dorian + Aeolian (Q-018)    | Section A reordered; fretless bass |
+| Reggae     | not reviewed |                                                                 |                                    |
+| R&B        | not reviewed |                                                                 |                                    |
+| Rock       | not reviewed |                                                                 |                                    |
 
 Status values: `not reviewed` → `planning` → `plan agreed` → `building` → `done`.
 
@@ -158,6 +161,13 @@ supersedes it and mark the old one `~~struck~~ → D-xxx`.
 | D-080     | 2026-10-07 | Latin     | One Practice Track per level with a groove toggle: each style's drum beat + bass pattern; the chord progressions work under all of them (supersedes D-071)                                                                                                                              | no need for 3 tracks                                  |
 | D-081     | 2026-10-07 | Latin     | L1 style order: Reggaeton → Cumbia → Mariachi (for now)                                                                                                                                                                                                                                 | simplest first; 3/4 last                              |
 | D-082     | 2026-10-07 | Latin     | Latin Pop has no slot of its own: it is diffused into Afro-Cuban, Reggaeton, Bolero etc.                                                                                                                                                                                                | Aaron                                                 |
+| D-083     | 2026-10-13 | Latin     | L1 grooves are Aaron's console designs: drums Reggaeton 01 (reggaeton_01), Latin 1 - Cumbia (groove-latin-1), Latin - Mariachi (groove-latin-2, 3/4); bass lines Cumbia 1, Cumbia 2 (advanced feel), Mariachi                                                                           | made by ear in the console                            |
+| D-084     | 2026-10-13 | all       | Back office "Use in lessons": a drum groove / bass line pairs with a lesson style (genre · level · style); covers every play-along step + the Practice Track in that style; pairing wins over the step's own groove and bass; unpaired styles keep their current settings               | publish from the back office, not step by step        |
+| D-085     | 2026-10-13 | all       | Build meter support now: 3/4, 6/8 and 12/8 in lessons and Practice Tracks (no 4/4 Mariachi workaround)                                                                                                                                                                                  | Mariachi; Jazz and African need 3/4 + 6/8, Blues 12/8 |
+| D-086     | 2026-10-13 | all       | Count-in + metronome in 3/4, 6/8, 12/8: loud click on each felt beat, soft clicks on the eighths between                                                                                                                                                                                | most information for students                         |
+| D-087     | 2026-10-13 | all       | Build a Chord Comping editor in the back office now, beside Drum Grooves and Bass Lines, pairable to lesson styles like them                                                                                                                                                            | comping is the most stylistic part                    |
+| D-088     | 2026-10-13 | all       | Practice Track toggle: switching style swaps drums, bass and comping together; students also pick any of the level's progressions; a 3/4 groove turns the track into 3/4                                                                                                                | resolves Q-031–Q-033                                  |
+| D-089     | 2026-10-14 | all       | A style in another key than its level shows that key everywhere: its steps name it (`key: 'G major'`), and its Practice Track takes that key's chord numbers, scale (spelled and lit from its own tonic) and Studio key                                                                 | Latin L1 Mariachi is G major in an E minor level      |
 | ~~D-069~~ | 2026-10-07 | Latin     | ~~Levels: L1 Cumbia, Reggaeton, Mariachi; L2 Merengue + Latin Pop incl. basic Salsa; L3 Samba, Bossa, other advanced~~ → D-075                                                                                                                                                          | Aaron                                                 |
 
 ## Open questions
@@ -171,31 +181,34 @@ Remove a question once it is answered (the answer becomes a decision).
 | Q-021 | 2026-09-29 | Hip-hop   | 808 "1 s decay": built as a fade to silence over 1 s — or decay to a held level?                                                         | no           | Aaron, by ear |
 | Q-022 | 2026-09-29 | Hip-hop   | L2 sus2 bass (R q, 5 d8th, ♭7 d8th): built as one bar with the last 1½ beats empty, root again next bar — right?                         | no           | Aaron, by ear |
 | Q-024 | 2026-10-07 | Latin     | D-065 said there is "no separate Latin section" — does the Latin genre's Overview retell the Latin hip hop story, or just point to it?   | no           | Aaron         |
-| Q-031 | 2026-10-07 | Latin     | Groove toggle: does the chord comping change with the groove too (tresillo / offbeats / vals), or only drums + bass?                     | blocks T-041 | Aaron         |
-| Q-032 | 2026-10-07 | Latin     | Mariachi groove is 3/4: switching to it turns the Practice Track's 4/4 bars into 3/4 (one chord per bar) — OK?                           | blocks T-041 | Aaron         |
-| Q-033 | 2026-10-07 | Latin     | Practice Track progression: fixed per level, or also selectable (any style's progression under any groove)?                              | blocks T-041 | Aaron         |
 
 ## To-do
 
-| ID    | Scope              | Task                                                                                                                                                                                                                                    | Status  |
-| ----- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| T-005 | all                | Engine: per-genre kit + instrument choice in useBackingTrack and the Practice Track Studio seed                                                                                                                                         | todo    |
-| T-007 | Pop                | Bug: Pop L3 grooveIds groove_rnb_01 / groove_neosoul_01 silently play funk_01                                                                                                                                                           | todo    |
-| T-008 | Funk               | Tidy: funk_v2 L2/L3 section consts are swapped vs the shipped levels                                                                                                                                                                    | todo    |
-| T-035 | Hip-hop            | Artist list shaped by Aaron (D-059–D-063); L1 Metro Boomin, Southside, Lex Luger still Claude's picks                                                                                                                                   | todo    |
-| T-025 | Pop, Funk          | Until T-023's melodies exist, these scales end their block with no phrases: Pop L2 E Aeolian, Pop L3 Dorian + Aeolian, Funk L3 C minor blues                                                                                            | blocked |
-| T-026 | all                | Flaky tests: melodyPipeline.test.ts "the 4 over a major chord"; landing lissajous.test.ts "stays inside its box"; Games melodyPhrases.test.ts "builds the long phrase from new material" — all fail now and then, unrelated to flows    | todo    |
-| T-028 | Pop, Funk, Hip-hop | Practice Tracks carry the lesson's kit + bass into the Studio: Track.bassVoice (saved + synced like drumKit), EightOhEightInstrument, GM bass sample sets; checked live (Hip Hop 808 kit + 808, Pop Fretless, Funk Finger)              | done    |
-| T-023 | Pop, Funk          | New melodies the reorder needs: Pop L2 Aeolian, Pop L3 Dorian + Aeolian, Funk L3 blues (no sequence steps needed after D-043)                                                                                                           | blocked |
-| T-024 | all                | Republish the CDN lesson bundle after flow edits (prod reads the CDN, not the TS files)                                                                                                                                                 | todo    |
-| T-030 | Hip-hop            | L1 "Trap" authored in hipHop_v2.ts (32 steps, generated from the outline); tests mark Hip Hop L1 authored; walked in the app (808 kit, high chords, two-hand split)                                                                     | done    |
-| T-036 | Hip-hop            | Featured hit still missing: Southside (no clean official upload of any hit — keep the card without a video, or swap the artist?) and Cypress Hill (official "Insane in the Brain" may not be the edited audio — needs a listen)         | blocked |
-| T-037 | all                | Watch the flagged featured hits before classroom use (artistHits.ts `review`): Eminem, Snoop Dogg, Kendrick Lamar, Mos Def, Tupac, Lex Luger, Wu-Tang Clan, Metro Boomin; Prince is Purple Rain (Kiss/Sign O the Times not school-safe) | todo    |
-| T-009 | Hip-hop            | AUTHORED_GENRES includes hipHop; step-count floor skips still-stubbed levels; practiceTrackCoverage lists hip-hop L1                                                                                                                    | done    |
-| T-038 | Latin              | Latin grooves audition page (like /\_\_hiphop-grooves): new drum/bass/comping for cumbia, reggaeton (dembow), mariachi waltz, merengue, bachata, cha-cha-chá, bolero, tango, Afro-Cuban; salsa, bossa, samba grooves exist              | todo    |
-| T-039 | Latin              | Latin L1 outline (latin-L1-outline.md): drafted, awaiting Aaron's sign-off                                                                                                                                                              | doing   |
-| T-040 | Latin              | Fix: old latin.ts references groove_latin_01, which doesn't exist                                                                                                                                                                       | todo    |
-| T-041 | Latin              | Practice Track groove toggle: switch drum beat + bass pattern per style (Reggaeton / Cumbia / Mariachi in L1)                                                                                                                           | todo    |
+| ID    | Scope              | Task                                                                                                                                                                                                                                                                                        | Status  |
+| ----- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| T-005 | all                | Engine: per-genre kit + instrument choice in useBackingTrack and the Practice Track Studio seed                                                                                                                                                                                             | todo    |
+| T-007 | Pop                | Bug: Pop L3 grooveIds groove_rnb_01 / groove_neosoul_01 silently play funk_01                                                                                                                                                                                                               | todo    |
+| T-008 | Funk               | Tidy: funk_v2 L2/L3 section consts are swapped vs the shipped levels                                                                                                                                                                                                                        | todo    |
+| T-035 | Hip-hop            | Artist list shaped by Aaron (D-059–D-063); L1 Metro Boomin, Southside, Lex Luger still Claude's picks                                                                                                                                                                                       | todo    |
+| T-025 | Pop, Funk          | Until T-023's melodies exist, these scales end their block with no phrases: Pop L2 E Aeolian, Pop L3 Dorian + Aeolian, Funk L3 C minor blues                                                                                                                                                | blocked |
+| T-026 | all                | Flaky tests: melodyPipeline.test.ts "the 4 over a major chord"; landing lissajous.test.ts "stays inside its box"; Games melodyPhrases.test.ts "builds the long phrase from new material" — all fail now and then, unrelated to flows                                                        | todo    |
+| T-028 | Pop, Funk, Hip-hop | Practice Tracks carry the lesson's kit + bass into the Studio: Track.bassVoice (saved + synced like drumKit), EightOhEightInstrument, GM bass sample sets; checked live (Hip Hop 808 kit + 808, Pop Fretless, Funk Finger)                                                                  | done    |
+| T-023 | Pop, Funk          | New melodies the reorder needs: Pop L2 Aeolian, Pop L3 Dorian + Aeolian, Funk L3 blues (no sequence steps needed after D-043)                                                                                                                                                               | blocked |
+| T-024 | all                | Republish the CDN lesson bundle after flow edits (prod reads the CDN, not the TS files)                                                                                                                                                                                                     | todo    |
+| T-030 | Hip-hop            | L1 "Trap" authored in hipHop_v2.ts (32 steps, generated from the outline); tests mark Hip Hop L1 authored; walked in the app (808 kit, high chords, two-hand split)                                                                                                                         | done    |
+| T-036 | Hip-hop            | Featured hit still missing: Southside (no clean official upload of any hit — keep the card without a video, or swap the artist?) and Cypress Hill (official "Insane in the Brain" may not be the edited audio — needs a listen)                                                             | blocked |
+| T-037 | all                | Watch the flagged featured hits before classroom use (artistHits.ts `review`): Eminem, Snoop Dogg, Kendrick Lamar, Mos Def, Tupac, Lex Luger, Wu-Tang Clan, Metro Boomin; Prince is Purple Rain (Kiss/Sign O the Times not school-safe)                                                     | todo    |
+| T-009 | Hip-hop            | AUTHORED_GENRES includes hipHop; step-count floor skips still-stubbed levels; practiceTrackCoverage lists hip-hop L1                                                                                                                                                                        | done    |
+| T-038 | Latin              | ~~Latin grooves audition page~~ — replaced by the console Drum Grooves + Bass Lines editors (D-083)                                                                                                                                                                                         | done    |
+| T-039 | Latin              | Latin L1 outline sign-off: melodies, voicings, bass parts are still drafts (latin-L1-outline.md)                                                                                                                                                                                            | todo    |
+| T-040 | Latin              | Fix: old latin.ts references groove_latin_01, which doesn't exist                                                                                                                                                                                                                           | todo    |
+| T-041 | all                | Practice Track Groove + Progression switches (D-088): style swaps drums, bass, comping and meter; any of the level's progressions; Studio backing swapped in place                                                                                                                          | done    |
+| T-042 | all                | Lessons + Practice Tracks can play the Studio's designed grooves (data/drumGrooves/studio/, loaded on demand; getLiveGroove only sees the top folder)                                                                                                                                       | todo    |
+| T-043 | all                | Lessons + Practice Tracks play console Bass Lines over the step's chords (nothing student-facing reads them yet)                                                                                                                                                                            | todo    |
+| T-044 | all                | Meters in lessons + Practice Tracks (D-085, D-086): engine/meter.ts; flow/step `timeSignature`; engine, count-in, metronome (felt beats loud, eighths soft), piano roll, notation, loop tools, Practice Track → Studio meter. Live check waits for the first 3/4 lesson (Latin L1 Mariachi) | done    |
+| T-045 | Latin              | Latin L1 authored in latin_v2.ts from latin-L1-outline.md (44 steps; Mariachi steps in 3/4); melodies, voicings and bass parts are the outline's drafts until Aaron signs off. Walked: B3.3 vals plays in 3/4                                                                               | done    |
+| T-046 | all                | Back office "Use in lessons" picker in Drum Grooves + Bass Lines; lesson pairing list by genre · level · style (D-084)                                                                                                                                                                      | doing   |
+| T-047 | all                | Chord Comping editor (/console/comping): 3-row hit grid (full / upper / top), any meter, ceiling, previews over drums + bass, Use in lessons. Drafts: Reggaeton Tresillo, Cumbia Offbeats, Mariachi Vals, paired to Latin L1                                                                | done    |
 
 Status values: `todo`, `doing`, `blocked`, `done` (done items move to the
 session log at the next sync).
@@ -204,6 +217,7 @@ session log at the next sync).
 
 One short entry per sync, newest first.
 
+- **2026-10-14** — Back office now publishes lesson grooves: "Use in lessons" pairs drum grooves, bass lines and chord comping with lesson styles (D-084, D-087); new Chord Comping editor. Meters 3/4, 6/8, 12/8 in lessons + Practice Tracks (D-085, D-086). Practice Track Groove + Progression switches (D-088). Latin L1 authored (44 steps). Done: T-038, T-041–T-047.
 - **2026-10-07** — Resume after a 6-day break. Since the last sync: Overview artist cards → Globe card with featured hit committed (7bf9aed5). Done: T-034 (two chords a bar, committed in 39080ca7).
 - **2026-10-01 10:57** — Hip Hop L2/L3 built; all Hip Hop work committed (8 commits); Overview + style DNA written; artists added at Aaron's request (Wu-Tang, N.W.A, Queen Latifah, Jay-Z, Eminem, Snoop Dogg, Tupac → L3, Cardi B, Missy Elliott); Funk L2 Practice Track loops D3.1; Practice Track voicings fixed for two chords a bar (uncommitted, in the other chat's file). Done: T-003, T-015, T-031, T-032, T-033.
 - **2026-09-30 20:58** — Hip Hop engine support built (hipHopPatterns/hipHopBacking, per-step kit + bass voice, shared 808, nearest-step bass); L1 outline written and signed off (D-054). Done: T-004, T-006, T-011, T-017, T-021, T-029.

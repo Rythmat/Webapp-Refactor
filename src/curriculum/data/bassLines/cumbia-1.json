@@ -1,0 +1,57 @@
+{
+  "id": "cumbia-1",
+  "name": "Cumbia 1",
+  "status": "live",
+  "timeSignature": [4, 4],
+  "length": "1m",
+  "gridResolution": "16n",
+  "instrument": "electric",
+  "grooves": ["groove-latin-1"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 0.96,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:1:0",
+      "degree": "3",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:1:2",
+      "degree": "5",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:2:0",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:2:0",
+      "degree": "R",
+      "dur": 0.98,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:3:0",
+      "degree": "3",
+      "dur": 0.23,
+      "velocity": 0.8
+    },
+    {
+      "time": "0:3:2",
+      "degree": "5",
+      "dur": 0.23,
+      "velocity": 0.8
+    }
+  ],
+  "order": 180,
+  "description": "Cumbia basic"
+}

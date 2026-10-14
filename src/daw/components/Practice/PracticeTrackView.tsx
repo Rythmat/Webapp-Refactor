@@ -20,12 +20,14 @@ import {
 } from '@/daw/utils/displayAccidentals';
 import { getScaleLesson, spellScaleLesson } from '@/lib/learn/scaleLessons';
 import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
+import { barTicks } from '@/curriculum/engine/meter';
 import { practiceMelodyTonic } from '@/features/practiceTracks/generatePracticeTrack';
 import {
   chordTones,
   rootPositionVoicing,
   spellVoicing,
 } from '@/features/practiceTracks/chordVoicings';
+import { switchGenrePracticeTrack } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
 import { keyboardWindow } from '@/features/practiceTracks/genre/practiceKeyboard';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { PracticeHeader } from '@/daw/shell/topbar/PracticeHeader';
@@ -127,6 +129,23 @@ export function PracticeTrackView({
   const pressKey = usePointerNotes();
 
   const genre = session.kind === 'genre' ? session : null;
+
+  // The groove toggle (D-088): another style's drums, bass and comping, or
+  // another of the level's progressions, swapped in under the student.
+  const [switching, setSwitching] = useState(false);
+  const switchTrack = useCallback(
+    async (choice: { styleId?: string; progressionId?: string }) => {
+      if (!genre) return;
+      setSwitching(true);
+      try {
+        const next = await switchGenrePracticeTrack(genre, choice, bpm);
+        if (next) useStore.getState().setPracticeSession(next);
+      } finally {
+        setSwitching(false);
+      }
+    },
+    [genre, bpm],
+  );
   const theory = session.kind === 'theory' ? session : null;
   const tonic = displayAccidentals(noteNameInKey(rootNote, rootNote, mode));
 
@@ -167,8 +186,18 @@ export function PracticeTrackView({
     scales.find((s) => s.id === practiceKeyboard?.scaleId) ?? scales[0];
 
   const keyboard = genre?.keyboard ?? THEORY_KEYBOARD;
-  const scaleTonic = genre?.scaleTonic ?? practiceMelodyTonic(rootNote);
-  const keyLabel = genre?.keyLabel ?? tonic;
+  // A scale on its own tonic (Latin L1's G major in an E minor level) lights
+  // from that tonic, the nearest one to where the level's is lit.
+  const levelTonic = genre?.scaleTonic ?? practiceMelodyTonic(rootNote);
+  const scaleTonic = useMemo(() => {
+    const pc = activeScale?.tonicPc;
+    if (pc === undefined) return levelTonic;
+    let t = levelTonic - (((levelTonic % 12) + 12) % 12) + pc;
+    if (t - levelTonic > 6) t -= 12;
+    if (levelTonic - t > 6) t += 12;
+    return t;
+  }, [activeScale, levelTonic]);
+  const keyLabel = activeScale?.tonicLabel ?? genre?.keyLabel ?? tonic;
 
   /** The part the student plays, as the screen talks about it. */
   const playsMelody = genre
@@ -229,9 +258,10 @@ export function PracticeTrackView({
         : chordRegions,
     [chordRegions, genre],
   );
-  // The cycle ends where its last chord does: in the track's own metre,
-  // where one chord to a 4/4 bar would drift in 3/4 or 6/8.
-  const cycleTicks = cycleRegions.at(-1)?.endTick ?? 0;
+  // A bar of the track's meter: a Practice Track can be in 3/4 (D-085).
+  const meterTop = useStore((s) => s.timeSignatureNumerator);
+  const meterBottom = useStore((s) => s.timeSignatureDenominator);
+  const cycleTicks = cycleRegions.length * barTicks([meterTop, meterBottom]);
 
   // ── The chords, when the student plays them ────────────────────────────────
 
@@ -476,6 +506,46 @@ export function PracticeTrackView({
             {Math.round(tempo.value)} BPM
           </span>
         </label>
+        {genre?.styles && genre.styles.length > 1 && (
+          <label className="flex items-center gap-2 text-sm">
+            <span style={{ color: 'var(--color-text-dim)' }}>Groove</span>
+            <select
+              value={genre.styleId ?? ''}
+              disabled={switching || isRecording}
+              onChange={(e) => void switchTrack({ styleId: e.target.value })}
+              className="rounded-full bg-transparent px-3 py-2"
+              style={{ border: '1px solid var(--color-border)' }}
+              aria-label="Groove"
+            >
+              {genre.styles.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {genre?.progressions && genre.progressions.length > 1 && (
+          <label className="flex items-center gap-2 text-sm">
+            <span style={{ color: 'var(--color-text-dim)' }}>Progression</span>
+            <select
+              value={genre.progressionId ?? ''}
+              disabled={switching || isRecording}
+              onChange={(e) =>
+                void switchTrack({ progressionId: e.target.value })
+              }
+              className="max-w-72 rounded-full bg-transparent px-3 py-2"
+              style={{ border: '1px solid var(--color-border)' }}
+              aria-label="Progression"
+            >
+              {genre.progressions.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
       </div>
 
       <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>

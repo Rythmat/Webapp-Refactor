@@ -27,6 +27,7 @@ import {
 } from './buildGenrePracticeTrack';
 import { keyboardWindow, scaleTonicIn } from './practiceKeyboard';
 import { practicePrompts } from './practicePrompts';
+import { swapGenrePracticeBacking } from './seedStudioFromGenrePracticeTrack';
 
 // ── The hand-off box ─────────────────────────────────────────────────────────
 
@@ -123,6 +124,60 @@ export function practiceSessionFor(
     scaleTonic: scaleTonicIn(keyboard, track.keyRootPc, widest),
     prompts: practicePrompts(track.studentParts, track.sourceDirection),
     returnTo,
+    styles: track.styles,
+    styleId: track.styleId,
+    progressions: track.progressions,
+    progressionId: track.progressionId,
+  };
+}
+
+/**
+ * The groove toggle (D-088): rebuild an open Practice Track with another
+ * style or progression and swap its backing in the Studio. The keyboard,
+ * scales and prompts stay; the chord cycle and voicings follow the new loop.
+ */
+export async function switchGenrePracticeTrack(
+  session: GenrePracticeSession,
+  choice: { styleId?: string | null; progressionId?: string },
+  bpm: number,
+): Promise<GenrePracticeSession | null> {
+  const flow = await getActivityFlow(session.genre, session.level);
+  if (
+    !flow ||
+    !('version' in flow) ||
+    (flow as ActivityFlowV2).version !== 'v2'
+  )
+    return null;
+  const styleId = choice.styleId ?? session.styleId ?? undefined;
+  const progressionId = choice.progressionId ?? session.progressionId;
+  const chords = session.progressions?.find(
+    (p) => p.id === progressionId,
+  )?.chords;
+  const track = buildGenrePracticeTrack(
+    flow as ActivityFlowV2,
+    session.section,
+    {
+      bpm,
+      styleId: styleId ?? undefined,
+      chords,
+    },
+  );
+  if (!track) return null;
+  swapGenrePracticeBacking(track);
+  const widest = Math.max(
+    ...track.scales.map((scale) => scale.intervals[scale.intervals.length - 1]),
+    11,
+  );
+  return {
+    ...session,
+    keyLabel: track.keyLabel,
+    scales: track.scales,
+    scaleTonic: scaleTonicIn(session.keyboard, track.keyRootPc, widest),
+    chordCycle: track.chordCycle,
+    voicingSets: track.voicingSets,
+    defaultVoicing: track.defaultVoicing,
+    styleId: track.styleId,
+    progressionId: track.progressionId,
   };
 }
 

@@ -1,0 +1,129 @@
+{
+  "id": "salsa-3-2",
+  "name": "Salsa 3-2",
+  "description": "3-2 Son Clave. From ICP Studio.",
+  "genre": "latin",
+  "style": "Salsa",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 2,
+  "tempo": 174,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "salsa_kit",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 38,
+      "velocity": 121
+    },
+    {
+      "tick": 0,
+      "note": 42,
+      "velocity": 89
+    },
+    {
+      "tick": 0,
+      "note": 51,
+      "velocity": 121
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 121
+    },
+    {
+      "tick": 720,
+      "note": 36,
+      "velocity": 38
+    },
+    {
+      "tick": 720,
+      "note": 38,
+      "velocity": 89
+    },
+    {
+      "tick": 720,
+      "note": 42,
+      "velocity": 89
+    },
+    {
+      "tick": 1200,
+      "note": 42,
+      "velocity": 121
+    },
+    {
+      "tick": 1440,
+      "note": 36,
+      "velocity": 121
+    },
+    {
+      "tick": 1440,
+      "note": 38,
+      "velocity": 89
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1680,
+      "note": 42,
+      "velocity": 121
+    },
+    {
+      "tick": 1920,
+      "note": 42,
+      "velocity": 121
+    },
+    {
+      "tick": 2400,
+      "note": 38,
+      "velocity": 89
+    },
+    {
+      "tick": 2400,
+      "note": 42,
+      "velocity": 121
+    },
+    {
+      "tick": 2640,
+      "note": 36,
+      "velocity": 38
+    },
+    {
+      "tick": 2880,
+      "note": 38,
+      "velocity": 89
+    },
+    {
+      "tick": 2880,
+      "note": 42,
+      "velocity": 89
+    },
+    {
+      "tick": 3120,
+      "note": 42,
+      "velocity": 121
+    },
+    {
+      "tick": 3360,
+      "note": 36,
+      "velocity": 121
+    },
+    {
+      "tick": 3600,
+      "note": 42,
+      "velocity": 38
+    }
+  ]
+}

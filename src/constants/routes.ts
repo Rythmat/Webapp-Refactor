@@ -392,6 +392,28 @@ export const AdminRoutes = {
   }),
 
   /**
+   * Bass Lines — chord-relative bass line templates (from ICP Studio), heard
+   * over a chart and a drum groove. Saving writes repo files (dev server only).
+   */
+  bassLines: createRouteDefinition('/bass-lines', { prefix: adminPrefix }),
+
+  /** Bass Lines — one line's editor. */
+  bassLine: createRouteDefinition<{ id: string }>('/bass-lines/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Chord Comping — rhythms of chord hits, voiced over any progression and
+   * heard with a drum groove. Saving writes repo files (dev server only).
+   */
+  chordComping: createRouteDefinition('/comping', { prefix: adminPrefix }),
+
+  /** Chord Comping — one pattern's editor. */
+  chordCompingPattern: createRouteDefinition<{ id: string }>('/comping/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /**
    * Parts Library — instrumental parts (piano, bass, guitar…) lessons and the
    * Studio draw on, drum grooves listed alongside. Saving writes repo files
    * (dev server only).

@@ -115,6 +115,12 @@ More maps exist under `~/Desktop/Music Bridge Master Folder/CMB/Music Atlas/The 
     let the hand-authored Oxnard 2016 event find him by title and tag; check
     such matches are right before accepting the moved totals.
 
+## Learned on the fourth batch (2026-10-13)
+
+29. **A passing diminished a half step above the tonic** (Kill Bill's A dim
+    in A♭) is `♯1 dim` with its usual spelling. The map's `♭2 dim` would
+    force a B𝄫 spelling. Flag it, since the map and the sheet say ♭2.
+
 ## Implementation notes (learned on We Shall Overcome)
 
 - **Voicings.** Each keyboard snippet starts on the chord's lowest note.

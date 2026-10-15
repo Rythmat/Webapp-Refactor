@@ -33,7 +33,7 @@ describe('the progression crosscheck on the repo’s data', () => {
       0,
     );
     // Today: a few chart typos ('4 c♯min7' in Look What I Found), listed in
-    // docs/progression-crosscheck/data-issues.md.
+    // claude-ref/docs/progression-crosscheck/data-issues.md.
     expect(index.unread.length / labels).toBeLessThan(0.005);
   });
 

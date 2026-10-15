@@ -13,13 +13,13 @@ import { degreeToPc, parseDegreeChord } from '../chordClass';
 import { corpusFlows, corpusInput, corpusSongs } from './corpus';
 
 /**
- * Writes the progression crosscheck report to docs/progression-crosscheck/.
+ * Writes the progression crosscheck report to claude-ref/docs/progression-crosscheck/.
  * Off unless asked for, since it writes files:
  *
  *   HARMONY_REPORT=1 npx vitest run src/content/harmony/__tests__/crosscheckReport.test.ts
  */
 
-const OUT = 'docs/progression-crosscheck';
+const OUT = 'claude-ref/docs/progression-crosscheck';
 const run = process.env.HARMONY_REPORT ? describe : describe.skip;
 
 const library = new Map(CHORD_PROGRESSION_LIBRARY.map((p) => [p.id, p]));

@@ -162,7 +162,7 @@ export async function loadSeed(mode: ContentMockMode): Promise<MockSeed> {
       body: plain({ id: name, ...place }),
     });
 
-  // Today's server holds no globe cities (docs/songs-wiring-inventory.md), and
+  // Today's server holds no globe cities (claude-ref/docs/songs-wiring-inventory.md, local notes), and
   // the legacy mode is a rehearsal of today's server. The places are the
   // globe's cities, then the ones it draws no pin for (places.json).
   if (cities && compose && placeRows) {

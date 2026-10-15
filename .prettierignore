@@ -39,3 +39,6 @@ src/components/atlas/data/__tests__/fixtures/geoReference.json
 # src/components/atlas/data/lineage.calibration.test.ts: reformatting it
 # breaks the comparison
 docs/globe-redesign/lineage-calibration.md
+
+# Claude reference notes and one-shot scripts (git-ignored, local only)
+claude-ref/

@@ -9,7 +9,7 @@ import {
 import { showSuccess } from '@/components/utils/toast';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore, type AllSlices } from '@/daw/store';
-import { Button } from '@/daw/ui';
+import { Button } from '@/daw/ui/Button';
 import { roleList, setListOptions } from '@/features/setlists/setListsStore';
 import {
   useProjectSetListEntries,

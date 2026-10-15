@@ -1,6 +1,12 @@
 import type { CSSProperties } from 'react';
-import { dawVar } from '@/daw/ui/tokens';
 import { CHORD_INPUT_HINT } from './chordInput';
+
+// The design tokens' custom properties (src/daw/ui/tokens.ts), named here
+// rather than through dawVar so the editor's first load doesn't take the
+// whole token table for three colours.
+const WARNING = 'var(--daw-warning)';
+const OUTLINE = 'var(--daw-outline)';
+const POPOVER = 'var(--daw-popover)';
 
 /**
  * A chord box's outline: neutral while typing, the warning colour once it
@@ -8,7 +14,7 @@ import { CHORD_INPUT_HINT } from './chordInput';
  * chord ruler share it, so a refused chord looks the same in each.
  */
 export const chordBoxBorder = (refused: boolean): string =>
-  `1px solid ${refused ? dawVar('warning') : dawVar('outline')}`;
+  `1px solid ${refused ? WARNING : OUTLINE}`;
 
 /**
  * The line under a chord box that refused what was typed: "Not a chord we
@@ -28,9 +34,9 @@ export function ChordInputHint({ style }: { style?: CSSProperties }) {
         whiteSpace: 'nowrap',
         pointerEvents: 'none',
         fontFamily: "'Glacial Indifference', system-ui, sans-serif",
-        color: dawVar('warning'),
-        background: dawVar('popover'),
-        border: `1px solid ${dawVar('warning')}`,
+        color: WARNING,
+        background: POPOVER,
+        border: `1px solid ${WARNING}`,
         ...style,
       }}
     >

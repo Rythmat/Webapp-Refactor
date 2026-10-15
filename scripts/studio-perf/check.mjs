@@ -224,6 +224,25 @@ const UNIT_TESTS = [
   'src/daw/components/LeadSheet/__tests__/chordSymbolEntry.test.tsx',
   'src/daw/components/LeadSheet/__tests__/leadSheetClipboard.test.ts',
   'src/daw/components/LeadSheet/__tests__/leadSheetClipboardKeeps.test.ts',
+  // Milestone 1.17a: controls that say what they do. The master's readouts
+  // and Bypass, the FX lists (click-only, the cap, a chosen effect, the
+  // synth's preset effects), the filter, de-esser, Grooves, presets and
+  // instrument views, Pitch Correction's Smooth, the sampler's trim, and
+  // Insight's played chord.
+  'src/daw/components/Studio/__tests__/masterHonesty.test.tsx',
+  'src/daw/components/Effects/__tests__/fxBrowser.test.tsx',
+  'src/daw/components/Effects/__tests__/deEsserKnobs.test.tsx',
+  'src/daw/oracle-synth/components/fx/FXSlot.test.tsx',
+  'src/daw/components/Controls/__tests__/oracleFilterModule.test.tsx',
+  'src/daw/components/Controls/__tests__/groovesBrowserHonesty.test.tsx',
+  'src/daw/components/Controls/__tests__/instrumentViewsHonesty.test.tsx',
+  'src/daw/components/Controls/__tests__/keyboardPresets.test.tsx',
+  'src/daw/data/__tests__/instrumentPresets.test.ts',
+  'src/daw/components/Controls/__tests__/pitchCorrectionSmooth.test.tsx',
+  'src/daw/components/Controls/__tests__/samplerWaveform.test.tsx',
+  'src/daw/components/Controls/__tests__/samplerTrimFields.test.tsx',
+  'src/daw/components/Library/__tests__/buildLiveChord.test.ts',
+  'src/daw/components/Library/__tests__/nowPlaying.test.tsx',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */

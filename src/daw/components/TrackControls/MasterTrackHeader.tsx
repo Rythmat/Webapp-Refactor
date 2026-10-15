@@ -9,6 +9,7 @@ import { useMasterVolumeControl } from '@/daw/hooks/useMixControls';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { MasterFxPanelPart } from '@/daw/shell/lazyParts';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
+import { formatGain } from '@/daw/ui/format';
 import {
   useListenMode,
   useStudioListenStore,
@@ -189,9 +190,7 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
           className="ml-0.5 w-8 shrink-0 text-right text-[9px] tabular-nums"
           style={{ color: 'var(--color-text-dim)' }}
         >
-          {masterVolume === 0
-            ? '-∞'
-            : `${(20 * Math.log10(masterVolume)).toFixed(1)}`}
+          {formatGain(masterVolume, { unit: '' })}
         </span>
       </div>
 

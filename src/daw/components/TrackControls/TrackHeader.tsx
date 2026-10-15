@@ -27,6 +27,7 @@ import {
 } from '@/daw/collab/studioListenStore';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { FixedDigits } from '@/components/common/FixedDigits';
+import { formatGain } from '@/daw/ui/format';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
@@ -531,11 +532,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           />
         </Slider.Root>
         <FixedDigits
-          text={
-            volume.value === 0
-              ? '-\u221E'
-              : `${(20 * Math.log10(volume.value)).toFixed(1)}`
-          }
+          text={formatGain(volume.value, { unit: '' })}
           className="ml-0.5 w-8 shrink-0 text-right text-[9px]"
           style={{ color: 'var(--color-text-dim)' }}
         />

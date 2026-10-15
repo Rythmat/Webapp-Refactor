@@ -22,6 +22,8 @@ interface FxBrowserProps {
   trackId: string;
   activeEffects: EffectSlotType[];
   onAddEffect: (trackId: string, effectType: EffectSlotType) => void;
+  /** Shows the controls of an effect already in the chain. */
+  onSelectEffect?: (effectType: EffectSlotType) => void;
   hideMidi?: boolean;
 }
 
@@ -29,6 +31,7 @@ export function FxBrowser({
   trackId,
   activeEffects,
   onAddEffect,
+  onSelectEffect,
   hideMidi,
 }: FxBrowserProps) {
   const atMax = activeEffects.length >= MAX_EFFECTS;
@@ -123,6 +126,7 @@ export function FxBrowser({
                 }
                 atMax={atMax}
                 onAddEffect={onAddEffect}
+                onSelectEffect={onSelectEffect}
               />
             ))}
           </div>
@@ -139,6 +143,7 @@ function FxRow({
   isActive,
   atMax,
   onAddEffect,
+  onSelectEffect,
 }: {
   item: LibraryItem;
   trackId: string;
@@ -146,17 +151,25 @@ function FxRow({
   isActive: boolean;
   atMax: boolean;
   onAddEffect: (trackId: string, effectType: EffectSlotType) => void;
+  onSelectEffect?: (effectType: EffectSlotType) => void;
 }) {
   const disabled = item.disabled || (atMax && !isActive);
 
-  // Clicking adds the effect. Rows aren't draggable: no rack, track header or
-  // the timeline accepts a dropped effect, so a drag only ever bounced back.
+  // Clicking adds the effect, or shows the controls of one already in the
+  // chain. Rows aren't draggable: no rack, track header or the timeline
+  // accepts a dropped effect, so a drag only ever bounced back.
   const handleClick = useCallback(() => {
-    if (disabled || isActive) return;
-    if (item.dragPayload.kind === 'audio-effect') {
-      onAddEffect(trackId, item.dragPayload.effectType);
-    }
-  }, [disabled, isActive, item.dragPayload, trackId, onAddEffect]);
+    if (disabled || item.dragPayload.kind !== 'audio-effect') return;
+    if (isActive) onSelectEffect?.(item.dragPayload.effectType);
+    else onAddEffect(trackId, item.dragPayload.effectType);
+  }, [
+    disabled,
+    isActive,
+    item.dragPayload,
+    trackId,
+    onAddEffect,
+    onSelectEffect,
+  ]);
 
   return (
     <button

@@ -27,6 +27,7 @@ import { meterSource, type BusLevels } from '@/daw/engine/meterBus';
 import { paintFixedDigits, useMeterPaint } from '@/daw/hooks/useMeterLevel';
 import { useSpectrumCanvas } from '@/daw/hooks/useSpectrumCanvas';
 import type { MeterSource } from '@/daw/ui/Meter';
+import { formatDb, formatGain, gainToDb } from '@/daw/ui/format';
 import { FixedDigits } from '@/components/common/FixedDigits';
 import {
   FxChainRow,
@@ -191,9 +192,10 @@ function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
 // The master's sample peak in dBFS. It used to read "LUFS", but that number
 // was this same peak rescaled: real loudness needs K-weighting and gating.
 // The meter bus reads float samples, so the peak is exact; the readout is
-// whole dB, nothing above 0 dBFS, and '-inf' at or below the bus's −60 dBFS
-// floor. The segments and the readout are painted from the bus through
-// refs: the mastering section never re-renders for a level.
+// the editor's one dB format (formatDb), nothing above 0 dBFS, and −∞ at or
+// below the bus's −60 dBFS floor. The segments and the readout are painted
+// from the bus through refs: the mastering section never re-renders for a
+// level.
 
 const PEAK_SEGMENTS = 20;
 
@@ -208,11 +210,9 @@ function peakSegmentColor(i: number): string {
 
 const SEGMENT_OFF = 'rgba(255, 255, 255, 0.04)';
 
-/** The readout for a peak (linear amplitude): whole dBFS, or '-inf'. */
+/** The readout for a peak (linear amplitude), in dBFS. */
 function peakText(peak: number): string {
-  const db = gainToDbfs(peak);
-  // `|| 0`: a whisker under full scale rounds to -0, shown as "0".
-  return db === -Infinity ? '-inf' : `${Math.round(db) || 0} dBFS`;
+  return formatGain(Math.min(1, peak), { unit: 'dBFS', floor: -60 });
 }
 
 function PeakMeter() {
@@ -363,6 +363,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
           trackId="master"
           activeEffects={fxChain}
           onAddEffect={wrappedAdd}
+          onSelectEffect={setSelectedEffect}
           hideMidi
         />
 
@@ -429,16 +430,6 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-function levelToDb(level: number): number {
-  if (level <= 0) return -Infinity;
-  return 20 * Math.log10(level / 100);
-}
-
-/** Linear amplitude (1 = full scale) in dBFS; silence is −Infinity. */
-function gainToDbfs(gain: number): number {
-  return gain > 0 ? 20 * Math.log10(gain) : -Infinity;
-}
-
 function dbColor(db: number): string {
   if (db > -3) return 'var(--color-meter-red)';
   if (db > -12) return 'var(--color-meter-yellow)';
@@ -466,8 +457,8 @@ function DbReadout({
   useMeterPaint(source, (levels) => {
     const el = ref.current;
     if (!el) return;
-    const db = gainToDbfs(Math.min(1, readingLevel(levels, channel)));
-    paintFixedDigits(el, db === -Infinity ? '-inf' : `${db.toFixed(1)} dB`);
+    const db = gainToDb(Math.min(1, readingLevel(levels, channel)));
+    paintFixedDigits(el, formatDb(db));
     const color = dbColor(db);
     if (el.style.color !== color) el.style.color = color;
   });
@@ -932,12 +923,10 @@ function MasterStrip() {
         </Slider.Root>
       </div>
 
+      {/* The fader's gain as it is: the default 80 % is −1.9 dB, as the
+          Create view's master header says (fx-mixer-13). */}
       <FixedDigits
-        text={
-          masterVolume === 80
-            ? '0 dB'
-            : `${(levelToDb(masterVolume) + 1.9).toFixed(1)} dB`
-        }
+        text={formatGain(volume.value)}
         className="text-[10px] font-medium"
         style={{ color: 'var(--color-text-dim)' }}
       />
@@ -1119,6 +1108,7 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
           trackId={`return-${returnId}`}
           activeEffects={fxChain}
           onAddEffect={wrappedAdd}
+          onSelectEffect={setSelectedEffect}
           hideMidi
         />
         <div className="flex flex-1 flex-col overflow-hidden">

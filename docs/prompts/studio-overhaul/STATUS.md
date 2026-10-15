@@ -418,3 +418,68 @@ Each prompt appends an entry: milestone, commits, pushed or not, verification nu
   - **The set-list offer isn't made for a shorter chart.** A student who meant to shorten one sends it again from the Set List button.
   - **Cleared Lead Sheet bars stay empty** instead of the chord before them running on.
   - **No key, no prior:** chord detection with no key set no longer assumes C major.
+
+## 11 — 1.17a honesty remainder and Stage A exit (2026-10-15)
+
+- **Branch:** `aaron`, started at `c37f49f8` (1.16a) with a clean tree, level with `origin/aaron`.
+- **Commits:**
+  - `801e76ed` the synth FX panel lists every effect that is on or routed, in the chain's order (synth-ui-09);
+  - `4fd5132d` clicking an effect already in the chain opens its controls (fx-mixer-19);
+  - `1cb72852` Insight's Now Playing draws a played chord with the chord cards' parts; its lesson links carry the song (insight-21, markup);
+  - `68135cad` the sampler's Start and Length are typed fields (live-input-22);
+  - `6d6fd46f` faders, live levels, the Peak meter and the sampler's Gain read through 2.2's `formatDb`/`formatGain` (fx-mixer-13, design-system-15);
+  - `92688392` the fast tier runs the honesty tests;
+  - `89cc43c1` the editor store is off other pages again (bundle-load-15; another session's `b61bbd77` had made the practice-track swap a static import);
+  - `536643d6` the audit ledger with every finding's status;
+  - `677e24db` the Stage A exit report.
+- **Pushed:** yes, to `aaron` (fast-forward).
+- **What changed:**
+  - **Synth FX panel** (`oracle-synth/components/fx/fxSlots.ts`). A row shows for every effect that is on or routed, in FXChain's order (drive, chorus, phaser, delay, reverb, compressor). Most pack presets switch an effect on with no route, so the panel used to say "No effects" while drive played.
+    - An unrouted effect's row needs no store write, so opening a preset doesn't make the project unsaved.
+    - Its first edit makes the route: switching it off keeps the row, × switches it off, and the menu swaps it.
+    - - ADD skips an effect that is already on, and new route ids skip the patch's own.
+  - **FX lists** (track rack, Master view, Master track, returns): a click on an effect already in the chain selects it and opens its controls.
+  - **Now Playing:** `ChordTones`, `ChordLessonLinks` and `ChordAlternatives` are shared with ChordCard. A played chord gets "Learn this sound", the song's-key and parent-scale links with the song and chord in the address, and the same "Also found in" list (with `aria-expanded`). One `plural` helper replaces the three in the Insight panel.
+  - **Sampler trim:** Start and Length are number fields, 24 px tall, 12 px text, 11 px uppercase labels.
+    - A typed value saves once, on Enter or blur, like a marker drag. Escape puts the value back.
+    - Start keeps the end, as its marker does. Values are clamped (minimum length 1 %) and rounded to hundredths.
+  - **One dB format:** the master fader reads −1.9 dB at the default 80 % in both Master and Create, and unity reads 0.0 dB. Before, the Master view called 80 % "0 dB" and added 1.9 dB to everything else.
+    - Track headers, the strips' live levels, the Peak meter (dBFS, −60 floor) and the sampler's Gain use the same formatter, so the Peak meter now shows one decimal under 10 dB.
+- **Verification:**
+  - `npx yarn lint` passes.
+  - `npx vitest run`: 15,651 pass. The failures are the ones 1.16a recorded on `origin/aaron`: the 4 song-data suites (local `_generated_index.ts`), `studentPath.characterization` (4 snapshots, which also fail on a `git archive` of `c37f49f8`), `lineage.calibration` and `landing/music.test.ts`.
+  - New tests: FX panel 6, FX list 1, Now Playing 3, sampler trim fields 4, master readouts +4 (the Peak format, now 5 levels; the fader in both views, 3 levels).
+  - **`studio:check:full`** (both profiles; `git archive` of `92688392` on :5263; the 1.3 build `e10ac4db` on :5264):
+    - unit fails only on `studentPath.characterization`;
+    - round-trips: 202 scenarios ok, R14 real and R15 included, 0 lost fields, 0 page errors, 0 regressions. `knownLosses.json` already allows no loss anywhere and is unchanged;
+    - lessons pass: 141/156 steps, 15 failing (all known), 24/24 complete, 8/8 Premium gated for free;
+    - perf: every scenario ok, note-drag included (1.8 skipped it). Numbers are in the exit report;
+    - golden: all 10 cases identical at 44.1 and 48 kHz. golden-trace passes;
+    - bundle passes: DawApp 94.6 kB gzip, boot closure 362.0 kB, dashboard 23.2 kB, editor core off other pages.
+  - **Browser** (a scratch script on the frozen server, 1366×655 and 1440×787):
+    - a preset with drive and delay on and no routes shows two rows and no "No effects";
+    - typing 12.5 in Start gives start 12.5 / length 87.5;
+    - the Master strip reads "−1.9 dB" and Peak "−∞ dBFS";
+    - D–F–A in C major shows "Learn this sound · D Dorian" linking to `/learn/dorian/d?from=studio&song=…&chord=D+min`;
+    - no page errors.
+- **Stage A exit:** `docs/studio-perf/stage-a-exit.md`. 22 of 25 criteria are met. Not met:
+  1. **Long tasks:** 14 per 20 s of Chromebook playback (1,038 ms, baseline 1,553), from per-note audio node creation (1.7's profile). Belongs to 1.11/1.13, Stage C.
+  2. **Idle rAF:** 240 calls a second while idle, all from `react-globe.gl`. Every page warms the Globe up from `AppContext.tsx:35`. Handed to the Globe session in 1.7 and still there.
+  3. **Collab join:** a live join isn't tested. The harness closes PartyKit sockets; what it can check (kept before join, restored on failure, bad link) passes.
+- **Audit ledger:** `reference/phase-map.json` (beside the plan copy; the original is on the unmerged PR #188 branch). 255 fixed, 50 partly fixed, 317 open; critical 22 / 0 / 3, the 3 being Stage C engine work.
+- **Open issues:**
+  1. **The sampler's waveform is hidden at the default dock height** on both profiles. Its row collapses to 0 px and the 64 px waveform overflows under the 77 px param row, which the Gain knob sets. This predates 1.17a (the new fields are 43 px). It belongs to the dock work in Stage B (B4).
+  2. **Effect parameters' own dB labels** (EQ gains, thresholds; 15 in all) still format themselves. They move with the rack work.
+  3. **insight-21 rest:** the dead slice state (`applyKeyToSession`, `unisonLoading`, `clearDetectedKey`, `keyConfidence`, `activeNotesBitmask`, `liveAnalysis`, all registry-classified), the `isDrumTrack` and `LIBRARY_ITEMS` copies, and LibraryPanel's unreachable ICON_MAP are left for 3.7.
+  4. **design-system-15 rest:** Mute All only mutes, and Test Sound logs to the console.
+  5. **Idle commits:** an idle editor makes 0.3 React commits a second outside every profiled region (0 at baseline). Not traced.
+  6. **Timing:** audio clips still start 69–100 ms early and the count-in downbeat is 38–45 ms late. This is 1.11's scheduler; Stage A had no timing criterion.
+  7. The synth FX panel keeps its teal accent and 9–11 px labels (synth polish, 3.11).
+- **Owner sign-offs:**
+  - **The master fader reads its real level:** −1.9 dB at the default 80 %, where the Master view said 0 dB. Teachers may notice.
+  - **The Peak meter shows a decimal under 10 dB** ("−6.0 dBFS"), so it matches every other level. 1.2 had chosen whole dB.
+  - **Preset effects appear in the synth's FX panel** in chain order. A preset's saved routes change only when the student edits one of those rows.
+  - **Clicking an effect already in the chain selects it** (it did nothing before).
+  - **This prompt changed another session's file** (`features/practiceTracks/genre/openGenrePracticeTrack.ts`) to put the bundle budget back. The behaviour is the same: the switch already awaited before the swap.
+  - **The ledger lives beside the plan copy,** not in `docs/studio-audit-2026-10/`, until PR #188 merges.
+  - **Stage A exit:** accept the three unmet criteria as owned by Stage C, the Globe session and the manual walk-through, and go on to Stage B (prompt 12). Gating the Globe warm-up off the editor route would close the idle-rAF criterion.

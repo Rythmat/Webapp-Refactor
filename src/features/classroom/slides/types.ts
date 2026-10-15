@@ -346,6 +346,16 @@ export interface SlideDeckTemplateRef {
   dayStubSlug?: string;
   gcmKey?: string;
   themeId?: string;
+  /**
+   * A Cortex lesson's focus (`artist:<slug>` / `place:<slug>`): what its
+   * Showcase is about, and what the generator avoids suggesting again soon.
+   * Absent on the ungenerated default deck.
+   */
+  focusId?: string;
+  /** A Cortex lesson's Group Project role. */
+  role?: 'promoter' | 'producer' | 'performer';
+  /** The focus suggestion's shuffle position, for regenerating it. */
+  seed?: number;
 }
 
 export interface SlideDeck {

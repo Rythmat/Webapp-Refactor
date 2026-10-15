@@ -1,0 +1,69 @@
+{
+  "id": "funk-l1-a1-scale-d-minor-pentatonic",
+  "name": "Funk L1 · A1 Scale (D Minor Pentatonic)",
+  "instrument": "piano",
+  "role": "melody",
+  "level": 1,
+  "tags": [],
+  "status": "draft",
+  "key": {
+    "tonic": 2,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 92,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 460,
+      "midi": 62,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "duration": 460,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 960,
+      "duration": 460,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "tick": 1440,
+      "duration": 460,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 460,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 2400,
+      "duration": 460,
+      "midi": 74,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 1,
+    "section": "A",
+    "stepNumber": 1,
+    "title": "A1: Scale (D Minor Pentatonic)",
+    "tag": "funk:minor_pentatonic_ascending_oot | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Play the D minor pentatonic scale going up.",
+  "genre": "funk"
+}

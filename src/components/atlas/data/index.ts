@@ -1,11 +1,6 @@
 export { REGIONS } from './regions';
 export { CITIES } from './cities';
-export {
-  SIDEBAR_ITEMS,
-  CATEGORY_TABS,
-  DECADES,
-  GEOJSON_URLS,
-} from './menuItems';
+export { GEOJSON_URLS } from './menuItems';
 export { MUSIC_HISTORY } from './musicHistory';
 export {
   COUNTRY_FLAG_COLORS,
@@ -14,28 +9,15 @@ export {
   CITY_COUNTRY_TO_ISO,
 } from './flagColors';
 export { getCountryColor, getContrastColor } from './continentColors';
-export {
-  getArcsForEvent,
-  getConnectionsForEvent,
-  getUpstreamChain,
-  getDownstreamChain,
-  getRecursiveArcsForEvent,
-  getEventCountryColor,
-} from './eventConnections';
+export { getEventCountryColor } from './eventColor';
+// The influence graph, the tours and the pathways are not re-exported: they
+// load on demand through loaders.ts, and a value export here would put them
+// back in the Globe's route chunk. Import them from their own modules.
 export type {
   ArcDatum,
   EventConnectionInfo,
   UpstreamChainNode,
 } from './eventConnections';
-export { HISTORICAL_MODULES } from './historicalModules';
 export { MUSICAL_ERAS, type MusicalEra } from './musicalEras';
-export {
-  GUIDED_TOURS,
-  getTour,
-  resolveTourStops,
-  regionTourId,
-  cityTourId,
-  type GuidedTour,
-  type TourStop,
-  type ResolvedTourStop,
-} from './guidedTours';
+export { regionTourId, cityTourId } from './tourIds';
+export type { GuidedTour, TourStop, ResolvedTourStop } from './guidedTours';

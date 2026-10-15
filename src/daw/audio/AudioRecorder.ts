@@ -44,6 +44,9 @@ export class AudioRecorder {
         this.recording = false;
         const originalContentType = this.mediaRecorder!.mimeType;
         const blob = new Blob(this.chunks, { type: originalContentType });
+        // The take's bytes are in the blob now: the chunks needn't wait for
+        // the next take to be let go (audio-core-08).
+        this.chunks = [];
         const arrayBuffer = await blob.arrayBuffer();
         // decodeAudioData may neuter its input in some browsers; clone first
         // so we still have the original bytes to upload later.

@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useStore } from '@/daw/store';
 import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
-import { audioEngine } from '@/daw/audio/AudioEngine';
-import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
 import { FxBrowser } from './FxBrowser';
+import { previewMasteringEffects } from '@/daw/engine/preview';
 import { FxChainRow, FxControlsPanel } from './EffectsPanel';
 
 // ── MasterFxPanel ─────────────────────────────────────────────────────────
@@ -23,9 +22,6 @@ export function MasterFxPanel({ isReady }: { isReady: boolean }) {
     null,
   );
   const [popOutOpen, setPopOutOpen] = useState(false);
-
-  const masteringChain = isReady ? audioEngine.getMasteringChain() : null;
-  const { gr, inLevel, outLevel } = useCompressorMeters(masteringChain);
 
   // Auto-select first effect; deselect if removed
   useEffect(() => {
@@ -79,13 +75,11 @@ export function MasterFxPanel({ isReady }: { isReady: boolean }) {
             selectedEffect={selectedEffect}
             effects={mfx}
             onUpdate={wrappedUpdate}
+            onPreview={previewMasteringEffects}
             onRemove={(slot) => removeMasteringFx(slot)}
             popOutOpen={popOutOpen}
             onTogglePopOut={() => setPopOutOpen((v) => !v)}
-            gr={gr}
-            inLevel={inLevel}
-            outLevel={outLevel}
-            analyserNode={masteringChain?.getPreCompAnalyser() ?? null}
+            meterTarget={isReady ? 'master' : null}
           />
         ) : (
           <div

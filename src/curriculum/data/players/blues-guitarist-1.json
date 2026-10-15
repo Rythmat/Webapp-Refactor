@@ -1,0 +1,9 @@
+{
+  "id": "blues-guitarist-1",
+  "name": "Blues-Guitarist-1",
+  "instrument": "guitar",
+  "genre": "blues",
+  "kind": "placeholder",
+  "order": 80,
+  "items": []
+}

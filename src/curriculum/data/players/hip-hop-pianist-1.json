@@ -1,0 +1,62 @@
+{
+  "id": "hip-hop-pianist-1",
+  "name": "Hip-Hop-Pianist-1",
+  "instrument": "keys",
+  "genre": "hip-hop",
+  "kind": "placeholder",
+  "order": 230,
+  "items": [
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-b16-b1-root-position"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-b20-b2-1st-inversion"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-d3-d2-sus2-groove"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-d1-1-cm-vamp-whole-notes"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-d1-2-cm-vamp-8th-note-chunking"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-d2-1-jam-cm-1st-inversion-fm"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-d2-2-jam-cm-g-1st-inversion"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-d1-1-parallel-jam-two-hands"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-d1-2-sus4-resolution-two-hands"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-d1-1-em9-a-b-two-hands"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-d1-2-am7-b7-9-em9-two-hands"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l3-d2-1-phrygian-jam-two-hands"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-b22-b3-two-chord-jams"
+    }
+  ]
+}

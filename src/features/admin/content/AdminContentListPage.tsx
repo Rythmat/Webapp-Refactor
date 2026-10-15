@@ -42,6 +42,7 @@ import { ConsoleCallout } from '../ui/ConsoleCallout';
 import { ConsolePageHeader } from '../ui/ConsolePageHeader';
 import { ConsoleTabs } from '../ui/ConsoleTabs';
 import { CONSOLE_TABLE_HEAD } from '../ui/styles';
+import { INSTRUMENT_PAGES, isInstrumentPageKind } from './instrumentPages';
 import { CONTENT_KINDS } from './kinds';
 import {
   isOtherRecordKind,
@@ -77,6 +78,9 @@ const lessonCourseLink = (slug: string) => {
  */
 export const AdminContentListPage = () => {
   const { kind } = useParams();
+  // Grooves and parts list on their own pages.
+  if (isInstrumentPageKind(kind))
+    return <Navigate replace to={INSTRUMENT_PAGES[kind].list()} />;
   if (!isOtherRecordKind(kind))
     return <Navigate replace to={firstTableHref()} />;
   return <OtherRecords kind={kind} />;

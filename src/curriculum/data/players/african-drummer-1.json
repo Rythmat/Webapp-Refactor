@@ -1,0 +1,14 @@
+{
+  "id": "african-drummer-1",
+  "name": "African-Drummer-1",
+  "instrument": "drums",
+  "genre": "african",
+  "kind": "placeholder",
+  "order": 10,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "afrobeat_1_fela"
+    }
+  ]
+}

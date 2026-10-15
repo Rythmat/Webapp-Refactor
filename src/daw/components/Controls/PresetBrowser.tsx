@@ -1,7 +1,7 @@
 /* eslint-disable tailwindcss/classnames-order */
 /* eslint-disable tailwindcss/enforces-shorthand */
 import { useState, useMemo } from 'react';
-import { Search, Play } from 'lucide-react';
+import { Search } from 'lucide-react';
 import {
   PRESET_CATEGORIES,
   getPresetsByCategory,
@@ -144,19 +144,9 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
                       'transparent';
                   }}
                 >
-                  {/* Play preview button */}
-                  <div
-                    className="w-8 h-8 rounded-md flex items-center justify-center shrink-0"
-                    style={{
-                      backgroundColor: 'var(--color-surface-3)',
-                      border: '1px solid var(--color-border)',
-                    }}
-                  >
-                    <Play
-                      size={12}
-                      style={{ color: 'var(--color-text-dim)' }}
-                    />
-                  </div>
+                  {/* Clicking the row picks the preset. There is no preview,
+                      so the row no longer starts with a Play tile that did
+                      nothing. */}
                   <span
                     className="text-sm"
                     style={{ color: 'var(--color-text)' }}

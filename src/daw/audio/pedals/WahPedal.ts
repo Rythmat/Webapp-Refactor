@@ -1,8 +1,12 @@
 // ── WahPedal ──────────────────────────────────────────────────────────────
 // Envelope-follower auto-wah with selectable filter type (LP/BP/HP),
 // envelope-modulated frequency and resonance, and wet/dry mix.
+//
+// The envelope follower runs on the editor's shared frame loop (engineClock)
+// while the pedal is on, and stops while it is bypassed or disposed.
 
 import type { PedalProcessor } from './PedalProcessor';
+import { addFrameTask } from '@/daw/engine/engineClock';
 
 const FILTER_TYPES: BiquadFilterType[] = ['lowpass', 'bandpass', 'highpass'];
 
@@ -29,7 +33,7 @@ export class WahPedal implements PedalProcessor {
   private baseQ = 5;
   private resEnvAmt = 0;
   private envelope = 0; // current envelope value 0–1
-  private rafId = 0;
+  private stopFollower: (() => void) | null = null;
 
   constructor(ctx: AudioContext) {
     this.inputNode = ctx.createGain();
@@ -62,7 +66,7 @@ export class WahPedal implements PedalProcessor {
     this.decayCoeff = this.computeCoeff(0.01 + 0.5 * 0.99);
 
     this.wireEnabled();
-    this.startEnvelopeFollower();
+    this.syncEnvelopeFollower();
   }
 
   getInputNode(): AudioNode {
@@ -82,6 +86,7 @@ export class WahPedal implements PedalProcessor {
     this.wetGain.disconnect();
     this.levelGain.disconnect();
     this.wireEnabled();
+    this.syncEnvelopeFollower();
   }
 
   updateParams(params: Record<string, number>): void {
@@ -127,7 +132,8 @@ export class WahPedal implements PedalProcessor {
   }
 
   dispose(): void {
-    cancelAnimationFrame(this.rafId);
+    this.stopFollower?.();
+    this.stopFollower = null;
     this.inputNode.disconnect();
     this.outputNode.disconnect();
     this.bypassNode.disconnect();
@@ -146,8 +152,16 @@ export class WahPedal implements PedalProcessor {
     return 1 - Math.exp(-1 / (timeSec * framesPerSec));
   }
 
-  private startEnvelopeFollower(): void {
-    this.rafId = requestAnimationFrame(this.tick);
+  /** Runs the envelope follower only while the pedal is on. */
+  private syncEnvelopeFollower(): void {
+    if (this.enabled && !this.stopFollower) {
+      this.stopFollower = addFrameTask(this.tick, { name: 'wah-envelope' });
+    } else if (!this.enabled && this.stopFollower) {
+      this.stopFollower();
+      this.stopFollower = null;
+      // Back on, the sweep starts from rest rather than a stale level.
+      this.envelope = 0;
+    }
   }
 
   private tick = (): void => {
@@ -173,8 +187,6 @@ export class WahPedal implements PedalProcessor {
     this.filter.frequency.value =
       this.baseFreq + this.envelope * this.freqEnvAmt;
     this.filter.Q.value = this.baseQ + this.envelope * this.resEnvAmt;
-
-    this.rafId = requestAnimationFrame(this.tick);
   };
 
   private wireEnabled(): void {

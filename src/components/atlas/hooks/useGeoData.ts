@@ -11,7 +11,7 @@ import {
  * The fetching, the Michigan fix and the French Guiana split all moved to
  * `data/geoLoader.ts`, which memoises both files at module scope — this hook is
  * now just the React binding, so two globes mounted at once share one download
- * rather than racing for the same 3 MB.
+ * rather than racing for the same file.
  *
  * The two files resolve independently: `countries` appears as soon as it lands
  * instead of waiting on the much larger admin-1 file, so land is drawn ~1s

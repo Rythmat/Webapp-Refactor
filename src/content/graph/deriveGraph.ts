@@ -32,7 +32,7 @@ import {
   TAG_TO_GENRE,
   TAG_TO_SUBGENRE,
 } from './genreTags';
-import { GENRES } from './genres';
+import { GENRES, getGenre, PROGRESSION_STYLE_TO_GENRE } from './genres';
 import { canonicalId, SLUG_PATTERN } from './ids';
 import { TYPICAL_IN_PATH, type TypicalGenre } from './instrumentGenres';
 import { resolvePlaceName } from './places';
@@ -40,11 +40,13 @@ import { artistSlug } from './slugs';
 import { decadeOf, decadesBetween, edgesForYear, yearOf } from './time';
 import {
   CODE_OWNERS,
+  type CodeOwner,
   type Edge,
   type EdgeKind,
   type EdgeVia,
   type EntityId,
   type EntityKind,
+  entityId,
   type GraphEdge,
   type GraphNode,
   isValidEdge,
@@ -953,6 +955,218 @@ export type ProgressionInput = Parameters<typeof edgesForProgression>[0] & {
  * comes from (repo, API, or both with the API winning per id); every list may
  * be left out, which only means the graph has none of that kind.
  */
+/* ── Instrument content (code-owned) ─────────────────────────────────── */
+
+/**
+ * A drum groove as the graph reads it. The registry's own shape is the
+ * console's (drumGroove.ts); the snapshot builder hands the graph only what it
+ * links, already in vocabulary ids, so this module never imports the engine.
+ */
+export interface GrooveInput {
+  id: string;
+  name: string;
+  /** A genre id ('funk', 'hip-hop'). */
+  genre?: string;
+  /** Free text finer than the genre ('Trap', 'Bossa Nova'). */
+  style?: string;
+  /** Instrument vocabulary id: 'drum-kit', or 'drum-machine' on an electronic kit. */
+  instrument?: string;
+  kit?: string;
+  feel?: string;
+  artistIds?: readonly string[];
+}
+
+/** An instrumental part as the graph reads it (see GrooveInput). */
+export interface PartInput {
+  id: string;
+  name: string;
+  /** Instrument vocabulary id ('piano', 'electric-bass', 'synth-bass'). */
+  instrument?: string;
+  genre?: string;
+  style?: string;
+  /** The tonic as written, accidental spelled ('E♭' → `key:e-flat`). */
+  key?: string;
+  mode?: string;
+  feel?: string;
+  /** A synth patch id, when the part is voiced on one. */
+  patch?: string;
+  artistIds?: readonly string[];
+  songId?: string;
+  /** Library progressions its chords matched — a guess (`inferred`). */
+  progressionIds?: readonly string[];
+  /** The lesson level it was taken from (`funk-l2`). */
+  lessonId?: string;
+}
+
+/** A genre lesson level and the grooves its play-alongs play over. */
+export interface LessonInput {
+  /** The flow's key, `<genre>-l<level>`. */
+  id: string;
+  name: string;
+  grooveIds: readonly string[];
+}
+
+/** A lesson level's grooves, each stated by its steps. */
+export function edgesForLesson(lesson: LessonInput): Edge[] {
+  const self = ref('lesson', lesson.id);
+  return [...new Set(lesson.grooveIds.filter(present))].map((groove) => ({
+    from: self,
+    kind: 'uses_groove',
+    to: ref('groove', groove),
+    via: {
+      item: self,
+      path: 'sections[].steps[].grooveId',
+      code: CODE_OWNERS.lessons,
+    },
+  }));
+}
+
+/** A feel profile, synth patch or drum kit: a name the graph can show. */
+export interface NamedInput {
+  id: string;
+  name: string;
+}
+
+/** A genre id and a style string → the genre and subgenre nodes they name. */
+function genreTargets(genre?: string, style?: string): EntityId[] {
+  const out = new Set<EntityId>();
+  if (present(genre)) {
+    const g = PROGRESSION_STYLE_TO_GENRE[genre] ?? genre;
+    if (getGenre(g)) out.add(ref('genre', g));
+  }
+  if (present(style)) {
+    const resolved =
+      resolveGenreTag(style) ?? resolveGenreTag(style.toLowerCase());
+    if (resolved) {
+      out.add(
+        resolved.subgenre
+          ? ref('subgenre', resolved.subgenre)
+          : ref('genre', resolved.genre),
+      );
+    }
+  }
+  return [...out];
+}
+
+/** The links a code-owned groove or part states, filed under it. */
+function instrumentContentEdges(
+  self: EntityId,
+  code: CodeOwner,
+  item: {
+    genre?: string;
+    style?: string;
+    instrument?: string;
+    feel?: string;
+    artistIds?: readonly string[];
+  },
+): Edge[] {
+  const via = (path: string): EdgeVia => ({ item: self, path, code });
+  const edges: Edge[] = [];
+  for (const to of genreTargets(item.genre, item.style)) {
+    const path =
+      to.startsWith('subgenre:') || !present(item.genre) ? 'style' : 'genre';
+    edges.push({ from: self, kind: 'in_genre', to, via: via(path) });
+  }
+  if (present(item.instrument)) {
+    edges.push({
+      from: self,
+      kind: 'plays_instrument',
+      to: ref('instrument', item.instrument),
+      via: via('instrument'),
+    });
+  }
+  if (present(item.feel)) {
+    edges.push({
+      from: self,
+      kind: 'has_feel',
+      to: ref('feel', item.feel),
+      via: via('feel'),
+    });
+  }
+  for (const artist of (item.artistIds ?? []).filter(present)) {
+    edges.push({
+      from: self,
+      kind: 'in_style_of',
+      to: ref('artist', artistSlug(artist)),
+      via: via('artistIds[]'),
+    });
+  }
+  return edges;
+}
+
+/** A drum groove's links: genre, instrument, kit, feel, style of. */
+export function edgesForGroove(groove: GrooveInput): Edge[] {
+  const self = ref('groove', groove.id);
+  const edges = instrumentContentEdges(self, CODE_OWNERS.grooves, groove);
+  if (present(groove.kit)) {
+    edges.push({
+      from: self,
+      kind: 'played_on',
+      to: ref('kit', groove.kit),
+      via: { item: self, path: 'kit', code: CODE_OWNERS.grooves },
+    });
+  }
+  return edges;
+}
+
+/** A part's links: genre, key, mode, instrument, patch, feel, song, style of. */
+export function edgesForPart(part: PartInput): Edge[] {
+  const self = ref('part', part.id);
+  const code = CODE_OWNERS.parts;
+  const via = (path: string): EdgeVia => ({ item: self, path, code });
+  const edges = instrumentContentEdges(self, code, part);
+  if (present(part.key)) {
+    edges.push({
+      from: self,
+      kind: 'in_key',
+      to: entityId('key', part.key),
+      via: via('key.tonic'),
+    });
+  }
+  if (present(part.mode)) {
+    edges.push({
+      from: self,
+      kind: 'in_mode',
+      to: entityId('mode', part.mode),
+      via: via('key.mode'),
+    });
+  }
+  if (present(part.patch)) {
+    edges.push({
+      from: self,
+      kind: 'played_on',
+      to: ref('patch', part.patch),
+      via: via('sound'),
+    });
+  }
+  if (present(part.lessonId)) {
+    edges.push({
+      from: self,
+      kind: 'taken_from',
+      to: ref('lesson', part.lessonId),
+      via: via('source'),
+    });
+  }
+  if (present(part.songId)) {
+    edges.push({
+      from: self,
+      kind: 'excerpt_of',
+      to: ref('song', part.songId),
+      via: via('songId'),
+    });
+  }
+  for (const progression of (part.progressionIds ?? []).filter(present)) {
+    edges.push({
+      from: self,
+      kind: 'uses_progression',
+      to: ref('progression', progression),
+      via: via('chordSymbols'),
+      inferred: true,
+    });
+  }
+  return edges;
+}
+
 export interface GraphSnapshot {
   songs?: readonly Song[];
   progressions?: readonly ProgressionInput[];
@@ -974,6 +1188,13 @@ export interface GraphSnapshot {
   >[];
   pathways?: readonly Pick<HistoricalModule, 'id' | 'title' | 'eventIds'>[];
   influenceArcs?: readonly InfluenceArc[];
+  /** Instrument content, code-owned (CODE_OWNERS.grooves … drumKits). */
+  grooves?: readonly GrooveInput[];
+  parts?: readonly PartInput[];
+  feels?: readonly NamedInput[];
+  patches?: readonly NamedInput[];
+  kits?: readonly NamedInput[];
+  lessons?: readonly LessonInput[];
   /**
    * The owner-reviewed instrument → genre table (`INSTRUMENT_GENRES`). Passed
    * in, like the pathways and arcs, so a snapshot that leaves it out has no
@@ -1042,6 +1263,12 @@ const IDENTITY: Record<
   artistLocations: ['artist', 'id', artistSlug],
   dayStubs: ['teach_day', 'slug'],
   pathways: ['pathway', 'id'],
+  grooves: ['groove', 'id'],
+  parts: ['part', 'id'],
+  feels: ['feel', 'id'],
+  patches: ['patch', 'id'],
+  kits: ['kit', 'id'],
+  lessons: ['lesson', 'id'],
 };
 
 /**
@@ -1158,6 +1385,9 @@ export function deriveSnapshotEdges(
   each('places', s.places, edgesForPlace);
   each('dayStubs', s.dayStubs, edgesForDayStub);
   each('pathways', s.pathways, edgesForPathway);
+  each('grooves', s.grooves, edgesForGroove);
+  each('parts', s.parts, edgesForPart);
+  each('lessons', s.lessons, edgesForLesson);
   each('influenceArcs', s.influenceArcs, (arc) => edgesForInfluenceArcs([arc]));
   each('events', s.events, (event) =>
     edgesForEvent(event, s.eventMatches?.get(event.id)),
@@ -1344,6 +1574,12 @@ export function snapshotNodes(
   each('places', s.places, (p) => put(ownId('place', p.id), p.name));
   each('dayStubs', s.dayStubs, (d) => put(ownId('teach_day', d.slug), d.label));
   each('pathways', s.pathways, (p) => put(ownId('pathway', p.id), p.title));
+  each('grooves', s.grooves, (g) => put(ownId('groove', g.id), g.name));
+  each('parts', s.parts, (p) => put(ownId('part', p.id), p.name));
+  each('feels', s.feels, (f) => put(ownId('feel', f.id), f.name));
+  each('patches', s.patches, (p) => put(ownId('patch', p.id), p.name));
+  each('kits', s.kits, (k) => put(ownId('kit', k.id), k.name));
+  each('lessons', s.lessons, (l) => put(ownId('lesson', l.id), l.name));
   // Events last, so a song's event lands on the song rather than naming it.
   // A `song-<id>` event whose song the library lacks is a missing song, not
   // an event: the globe points at a recording that is not there.

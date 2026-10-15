@@ -1,0 +1,9 @@
+{
+  "id": "salsa_kit",
+  "label": "Salsa kit",
+  "base": "natural",
+  "samples": {
+    "38": "/daw-assets/samples/drums/uploads/muzrw9k4-stickshot---snares-on---4.mp3",
+    "51": "/daw-assets/samples/drums/uploads/muydux96-ride.wav"
+  }
+}

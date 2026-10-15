@@ -139,8 +139,8 @@ components:
                 `slides/resolveContentHref.ts`: `song:<id>:lesson|chart`,
                 `learn:<mode>:<key>[:activity]`,
                 `curriculum:<GENRE>:<L#>[:A|B|C|D]`,
-                `globe:event:<id>|pathway:<id>`,
-                `studio:song:<id>|template:<id>`. Legacy Launch tiles may carry
+                `globe:event:<id>|pathway:<id>|mindmap`,
+                `studio:song:<id>|template:<id>|tutorial:<id>|library`. Legacy Launch tiles may carry
                 a bare id (interpreted via `module`).
             expects:
               type: string

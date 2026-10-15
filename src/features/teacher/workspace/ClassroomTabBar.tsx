@@ -33,11 +33,11 @@ export const ClassroomTabBar = ({ classroomId }: ClassroomTabBarProps) => {
       end: false,
     },
     {
+      // People also holds the Gradebook (the former Grades tab).
       label: 'People',
       to: TeacherRoutes.students({ classroomId }),
       end: false,
     },
-    { label: 'Grades', to: TeacherRoutes.grades({ classroomId }), end: false },
   ];
 
   return (

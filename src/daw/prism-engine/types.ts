@@ -1,3 +1,5 @@
+import type { NoteId } from '../model/noteIds';
+
 /** MIDI note number 0-127 */
 export type MidiNote = number;
 
@@ -60,6 +62,12 @@ export enum VelocityTilt {
 
 /** A single MIDI event (note-level) */
 export interface MidiNoteEvent {
+  /**
+   * The note's own id (src/daw/model/noteIds.ts). Optional here because the
+   * engine, Learn and the landing tour make events without one; every note
+   * the Studio stores has one, given when the note is created or loaded.
+   */
+  id?: NoteId;
   note: MidiNote;
   velocity: number;
   startTick: Tick;

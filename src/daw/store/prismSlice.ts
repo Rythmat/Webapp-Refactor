@@ -1,51 +1,62 @@
 import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
+import { genreSettings } from './genreSettings';
+import { isTrackLockedByRemote } from './trackLock';
 import type { MidiClip, Track } from './tracksSlice';
+import {
+  withoutIdentity,
+  type ChordRegionIdentity,
+} from '@/daw/harmony/chordIdentity';
+import { withNoteIds } from '@/daw/model/noteIds';
+import {
+  keyColourOf,
+  nextChordsFor,
+} from '@/daw/persistence/projectDocument/derived';
 import { guessTrackRole } from '@/daw/utils/trackRole';
-import { DEFAULT_EFFECTS, type EffectSlotType } from '@/daw/audio/EffectChain';
-import { GROOVES, type GrooveItem } from '@/daw/data/groovesLibrary';
-import { importMidiFile } from '@/daw/midi/MidiFileIO';
-import { TRACK_PALETTES } from '@/daw/constants/trackColors';
+import { measureEditPatch } from '@/daw/time/measureEdits';
+import {
+  barStartTick,
+  barsSpanned,
+  ticksPerBar,
+  ticksPerBeat,
+  timeSignatureOf,
+  toSongTick,
+  type TimeSignature,
+} from '@/daw/time/timeModel';
 import { toast } from '@/hooks/use-toast';
 import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import {
   StrumMode,
   VelocityTilt,
-  InstrumentChannel,
   type MidiNoteEvent,
-  type SuggestionChord,
   getFirstChords,
-  getOptions,
-  graphToken,
   degreeMidi,
   unstepChord,
   generateChord,
   normalizeSequence,
   chordName,
   abbreviateSequence,
-  GENRE_MAP,
-  GENRE_SWING,
-  GENRE_STRUM,
   getChordColorFromNotes,
   getChordColor,
-  KEY_COLORS,
-  ALL_MODES,
   noteNameInKey,
   CHORDS,
   detectChordWithInversion,
   getModeOffset,
   ionianToModeLabel,
   resolveDegreeKey,
-  orchestrate,
   respellLeadingChords,
 } from '@prism/engine';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
-let _chordIdCounter = 0;
-/** Generate a stable unique ID for a ChordRegion. */
+/**
+ * Generate a stable unique ID for a ChordRegion. Random rather than counted:
+ * a counter restarts on every page load and on every collaborator's page,
+ * while restored and synced regions keep their ids, so it handed out
+ * duplicates that later edits then hit instead.
+ */
 export function nextChordId(): string {
-  return `cr-${++_chordIdCounter}`;
+  return crypto.randomUUID();
 }
 
 export type ChordRecordMode = 'replace' | 'locked' | 'merge';
@@ -61,6 +72,21 @@ export interface ChordRegion {
   degreeKey?: string;
   midis?: number[]; // MIDI pitches used for merge-mode recalculation
   confidence?: number; // 0-1 chord confidence score (Phase 9)
+  /**
+   * The MIDI clip the region was read from (a Prism Create take): moving
+   * that clip moves the region with it, and moving any other clip leaves it
+   * alone. Unset for chords written on the sheet, seeded or analysed, which
+   * belong to the song and stay where they are (timeline-05).
+   */
+  sourceClipId?: string;
+  /**
+   * Which chord the region holds, as pitch classes (decision D3). Milestone
+   * 1.16a fills it in; until then it is only kept as it came. Every write
+   * that changes the chord or its labels drops it (withoutIdentity), so an
+   * identity never outlives the label it was made for; edits that only move
+   * or resize a region keep it.
+   */
+  identity?: ChordRegionIdentity;
 }
 
 export interface PrismSlice {
@@ -95,14 +121,17 @@ export interface PrismSlice {
   measureRestMap: Record<number, number> | null;
   /** Measure indices that have a fermata. */
   measureFermatas: number[] | null;
+  /**
+   * The chart's length in bars when bars were added past its last chord
+   * (+ Measure at the end); null lets the chords decide (chartBarCount).
+   */
+  leadSheetBars: number | null;
   filterPercent: number;
   selectedTrackId: string | null;
   rootTrackColor: string | null;
   rootLocked: boolean;
   chordRulerShowNotes: boolean;
   chordRecordMode: ChordRecordMode;
-  /** Region IDs the user has marked as melody (excluded from lead sheet display) */
-  melodyOverrides: string[];
 
   // Actions — parameters
   setRootNote: (root: number | null) => void;
@@ -127,22 +156,15 @@ export interface PrismSlice {
 
   // Actions — generation
   generateToTracks: () => void;
-  loadProgression: (chords: SuggestionChord[]) => void;
-  generateOrchestration: () => Promise<void>;
 
   // Actions — track selection
   setSelectedTrackId: (id: string | null) => void;
 
   // Actions — chord regions
   setChordRegions: (regions: ChordRegion[], force?: boolean) => void;
-  offsetChordRegions: (deltaTicks: number) => void;
   setMeasureRowSizes: (sizes: number[] | null) => void;
   setMeasureRestMap: (map: Record<number, number> | null) => void;
   setMeasureFermatas: (fermatas: number[] | null) => void;
-  refineWithMelody: (
-    melodyTrackId: string,
-    pitchRange: { low: number; high: number },
-  ) => void;
 
   // Actions — lead sheet chord editing
   insertChordRegion: (
@@ -155,99 +177,28 @@ export interface PrismSlice {
   renameChordRegion: (id: string, newName: string, newNoteName: string) => void;
   resizeChordRegion: (id: string, newEndTick: number) => void;
   moveChordRegion: (id: string, newStartTick: number) => void;
-  insertMeasure: (measureIdx: number) => void;
-  deleteMeasure: (measureIdx: number) => void;
+  /**
+   * Insert `count` bars before bar `at`, or delete `count` bars from it:
+   * the chords, the roadmap, the Score's marks, the markers and, given its
+   * id, the melody the sheet shows all move with the bars, in the project's
+   * metre (measureEdits.ts). One write, one undo step.
+   */
+  insertMeasures: (
+    at: number,
+    count?: number,
+    melodyTrackId?: string | null,
+  ) => void;
+  deleteMeasures: (
+    at: number,
+    count?: number,
+    melodyTrackId?: string | null,
+  ) => void;
 
-  // Actions — melody overrides (Phase 10)
+  /** Take a chord out of the lane: the notes it was read from are melody. */
   markAsMelody: (regionId: string) => void;
-  unmarkAsMelody: (regionId: string) => void;
-  clearMelodyOverrides: () => void;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
-
-// Maps chromatic root (0-11) to KEY_COLORS index (circle of fifths)
-const ROOT_TO_KEY_INDEX = [1, 8, 3, 10, 5, 12, 7, 2, 9, 4, 11, 6];
-
-function rgbToHex(r: number, g: number, b: number): string {
-  return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
-}
-
-/** Scale-degree order for each mode family (used for parent root offset) */
-const FAMILY_DEGREE_ORDER: Record<string, string[]> = {
-  Diatonic: [
-    'ionian',
-    'dorian',
-    'phrygian',
-    'lydian',
-    'mixolydian',
-    'aeolian',
-    'locrian',
-  ],
-  'Harmonic Minor': [
-    'harmonicMinor',
-    'locrianNat6',
-    'ionianSharp5',
-    'dorianSharp4',
-    'phrygianDominant',
-    'lydianSharp2',
-    'alteredDiminished',
-  ],
-  'Melodic Minor': [
-    'melodicMinor',
-    'dorianFlat2',
-    'lydianAugmented',
-    'lydianDominant',
-    'mixolydianFlat6',
-    'locrianNat2',
-    'altered',
-  ],
-  'Harmonic Major': [
-    'harmonicMajor',
-    'dorianFlat5',
-    'alteredDominantNat5',
-    'melodicMinorSharp4',
-    'mixolydianFlat2',
-    'lydianAugmentedSharp2',
-    'locrianDoubleFlat7',
-  ],
-  'Double Harmonic': [
-    'doubleHarmonicMajor',
-    'lydianSharp2Sharp6',
-    'ultraphrygian',
-    'doubleHarmonicMinor',
-    'oriental',
-    'ionianSharp2Sharp5',
-    'locrianDoubleFlat3DoubleFlat7',
-  ],
-};
-
-const FAMILY_FIXED_COLOR: Record<string, number> = {
-  'Melodic Minor': 13,
-  'Harmonic Minor': 14,
-  'Harmonic Major': 15,
-  'Double Harmonic': 16,
-};
-
-/** Compute track color hex from rootNote + mode (parent key center logic) */
-function getModeTrackColor(rootNote: number, mode: string): string {
-  for (const [family, modes] of Object.entries(FAMILY_DEGREE_ORDER)) {
-    const pos = modes.indexOf(mode);
-    if (pos === -1) continue;
-
-    const fixedIdx = FAMILY_FIXED_COLOR[family];
-    if (fixedIdx != null) {
-      const [r, g, b] = KEY_COLORS[fixedIdx];
-      return rgbToHex(r, g, b);
-    }
-    const offset = ALL_MODES.ionian[pos];
-    const parentRoot = (rootNote - offset + 12) % 12;
-    const [r, g, b] = KEY_COLORS[ROOT_TO_KEY_INDEX[parentRoot]];
-    return rgbToHex(r, g, b);
-  }
-  const [r, g, b] = KEY_COLORS[ROOT_TO_KEY_INDEX[rootNote]];
-  return rgbToHex(r, g, b);
-}
 
 /** Un-abbreviate quality from abbreviated noteName form back to long form */
 const UNABBREV: Record<string, string> = {
@@ -302,7 +253,9 @@ function parseNoteNameChord(
 
 /**
  * Re-derive degreeKey, name, noteName, and color for all chord regions
- * when the key (rootNote/mode) changes.
+ * when the key (rootNote/mode) changes. The chords stay the same, so a
+ * region keeps its identity unless its name (the label the identity
+ * describes) changes with the key.
  */
 function rederiveChordRegions(
   regions: ChordRegion[],
@@ -328,7 +281,7 @@ function rederiveChordRegions(
 
     const newName = newDegreeKey ? abbreviateSequence(newDegreeKey) : r.name;
 
-    return {
+    const next: ChordRegion = {
       ...r,
       degreeKey: newDegreeKey,
       name: newName,
@@ -337,6 +290,7 @@ function rederiveChordRegions(
         ? getChordColor(newDegreeKey, rootMidi, mode)
         : r.color,
     };
+    return newName === r.name ? next : withoutIdentity(next);
   });
   return respellLeadingChordRegions(rederived);
 }
@@ -363,103 +317,6 @@ function respellLeadingChordRegions(regions: ChordRegion[]): ChordRegion[] {
   return result;
 }
 
-/** Map STUDIO_GENRES to GENRE_MAP genre names for rhythm lookup */
-const GENRE_RHYTHM_ALIAS: Record<string, string[]> = {
-  Rock: ['Rock'],
-  Folk: ['Folk'],
-  EDM: ['Electronic', 'Pop'],
-  'R&B': ['R&B', 'Neo Soul'],
-  'Hip Hop': ['Hip Hop'],
-  Reggae: ['Reggae'],
-  Indie: ['Pop', 'Rock'],
-  Latin: ['Salsa', 'Bossa', 'Samba'],
-};
-
-/** Extra weight for certain rhythms (added N extra times to the pool) */
-const RHYTHM_WEIGHT: Record<string, number> = {
-  'Whole Notes': 4,
-};
-
-function findRandomRhythmForGenre(genre: string): string | undefined {
-  // Collect all rhythms matching this genre or its aliases
-  const targets = GENRE_RHYTHM_ALIAS[genre] ?? [genre];
-  const pool: string[] = [];
-  for (const [rhythm, g] of Object.entries(GENRE_MAP)) {
-    if (targets.includes(g)) pool.push(rhythm);
-  }
-  if (pool.length === 0) return undefined;
-  // Always include Whole Notes as a weighted option for any genre
-  const extra = RHYTHM_WEIGHT['Whole Notes'] ?? 0;
-  for (let i = 0; i < extra; i++) pool.push('Whole Notes');
-  return pool[Math.floor(Math.random() * pool.length)];
-}
-
-/** Map STUDIO_GENRES to groove genre names for matching */
-const GENRE_GROOVE_ALIAS: Record<string, string[]> = {
-  Pop: ['Pop'],
-  Rock: ['Rock', 'Punk'],
-  Jazz: ['Jazz', 'Neo Soul'],
-  Funk: ['Funk'],
-  Folk: ['Rock', 'Indie'],
-  EDM: ['House'],
-  'Hip Hop': ['Hip Hop', 'Trap'],
-  'R&B': ['R&B', 'Neo Soul'],
-  Reggae: ['Latin'],
-  Latin: ['Latin'],
-  Indie: ['Indie', 'Rock'],
-};
-
-/** Find a matching groove by genre and closest BPM */
-function findGrooveForGenreBpm(genre: string, bpm: number): GrooveItem | null {
-  const targets = GENRE_GROOVE_ALIAS[genre] ?? [genre];
-  const matches = GROOVES.filter((g) => targets.includes(g.genre));
-  if (matches.length === 0) return null;
-
-  // Sort by BPM proximity, then pick randomly among the closest tier
-  const sorted = [...matches].sort(
-    (a, b) => Math.abs(a.bpm - bpm) - Math.abs(b.bpm - bpm),
-  );
-  const closestDist = Math.abs(sorted[0].bpm - bpm);
-  const closestTier = sorted.filter(
-    (g) => Math.abs(g.bpm - bpm) === closestDist,
-  );
-  return closestTier[Math.floor(Math.random() * closestTier.length)];
-}
-
-const OUR_PPQ = 480;
-
-/** Fetch a groove MIDI file and return normalized events, or null on failure */
-async function fetchGrooveEvents(
-  groove: GrooveItem,
-): Promise<MidiNoteEvent[] | null> {
-  try {
-    const resp = await fetch(groove.url);
-    if (!resp.ok) return null;
-    const buf = await resp.arrayBuffer();
-    const sequences = importMidiFile(buf);
-    if (sequences.length === 0) return null;
-
-    const seq = sequences[0];
-    const ppq = seq.ticksPerQuarterNote;
-    return seq.events.map((evt) => ({
-      ...evt,
-      startTick: Math.round((evt.startTick / ppq) * OUR_PPQ),
-      durationTicks: Math.round((evt.durationTicks / ppq) * OUR_PPQ),
-    }));
-  } catch {
-    return null;
-  }
-}
-
-function computeNextChords(
-  stringSeq: string[],
-  filterPercent: number,
-): string[] {
-  if (stringSeq.length === 0) return [];
-  const token = graphToken(stringSeq);
-  return getOptions(filterPercent, token);
-}
-
 function degreeNameToChord(
   chordName: string,
   rootMidi: number,
@@ -469,6 +326,32 @@ function degreeNameToChord(
   const bassMidi = degreeMidi(parentRoot, chordName);
   const quality = unstepChord(chordName);
   return generateChord(bassMidi, quality);
+}
+
+/**
+ * What follows from the key, as setRootNote and setMode leave it: the key
+ * colour, and the builder's chords spelled in the key. Undo restores the key
+ * through this, so the key chip and the builder never stay on the key undone.
+ */
+export function keyDerivedState({
+  rootNote,
+  mode,
+  stringSeq,
+}: {
+  rootNote: number | null;
+  mode: string;
+  stringSeq: readonly string[];
+}): Partial<Pick<PrismSlice, 'rootTrackColor' | 'chordSeq'>> {
+  if (rootNote === null) return { rootTrackColor: null };
+  const derived: Partial<Pick<PrismSlice, 'rootTrackColor' | 'chordSeq'>> = {
+    rootTrackColor: keyColourOf(rootNote, mode),
+  };
+  if (stringSeq.length > 0) {
+    derived.chordSeq = normalizeSequence(
+      stringSeq.map((name) => degreeNameToChord(name, rootNote + 48, mode)),
+    );
+  }
+  return derived;
 }
 
 /** Compute note-letter chord name from a degree-qualified name, e.g. "1 major" → "C maj" */
@@ -491,12 +374,31 @@ function snapToQuarter(tick: number): number {
   return Math.round(tick / SNAP_PPQ) * SNAP_PPQ;
 }
 
-/** Derive chord regions from actual MIDI events (post-hoc from worker output). */
+/**
+ * What Prism Create writes: four bars of the generator's own patterns,
+ * which are 4/4 (prism-engine's rhythm data), whatever the project's metre.
+ */
+const PRISM_TAKE_TICKS = 4 * ticksPerBar({ numerator: 4, denominator: 4 });
+
+/**
+ * The span of a Prism Create take in a project in `ts`: the whole bars of
+ * that metre that hold the generator's four 4/4 bars (four bars in 4/4, six
+ * in 3/4), so the clip and its chords end on a bar line of the project.
+ */
+export function prismTakeSpan(ts: TimeSignature): number {
+  return barsSpanned(PRISM_TAKE_TICKS, ts) * ticksPerBar(ts);
+}
+
+/**
+ * Derive chord regions from actual MIDI events (post-hoc from worker
+ * output). The last chord lasts to `endTick`, the end of the take.
+ */
 function deriveChordRegions(
   events: MidiNoteEvent[],
   rootMidi: number,
   stringSeq: string[],
   mode: string = 'ionian',
+  endTick: number = PRISM_TAKE_TICKS,
 ): ChordRegion[] {
   if (events.length === 0) return [];
 
@@ -567,12 +469,12 @@ function deriveChordRegions(
     }
   }
 
-  // Final region extends to end of 4 bars
+  // The final region lasts to the end of the take
   const knownFinal = collapsed[regionIndex];
   regions.push({
     id: nextChordId(),
     startTick: snapToQuarter(regionStart),
-    endTick: 7680,
+    endTick,
     name: knownFinal
       ? abbreviateSequence(ionianToModeLabel(knownFinal, mode))
       : abbreviateSequence(chordNameInKey(currentNotes, rootMidi % 12, mode)),
@@ -587,6 +489,24 @@ function deriveChordRegions(
   });
 
   return respellLeadingChordRegions(regions);
+}
+
+/**
+ * `region` with the labels the student wrote over it (a rename, or another
+ * chord entered on its first beat). A name alone doesn't always say the
+ * chord (the lead sheet's new chord is named 'maj', with its root only in
+ * noteName), so the identity stays only when neither label changes.
+ */
+function relabelChordRegion(
+  region: ChordRegion,
+  name: string,
+  noteName: string,
+  extra?: Partial<ChordRegion>,
+): ChordRegion {
+  const next = { ...region, name, noteName, ...extra };
+  return name === region.name && noteName === region.noteName
+    ? next
+    : withoutIdentity(next);
 }
 
 // ── Shared label helpers (used by derivation and reconcile logic) ─────────
@@ -752,6 +672,113 @@ function reconcileChordRegions(
   return respellLeadingChordRegions(
     result.sort((a, b) => a.startTick - b.startTick),
   );
+}
+
+/**
+ * Lay `incoming` over the chord lane across [rangeStart, rangeEnd): regions
+ * inside the range give way, regions outside it stay as they are, and a
+ * region crossing an edge keeps the part outside. Always a new array.
+ */
+export function replaceChordRegionsInRange(
+  existing: ChordRegion[],
+  incoming: ChordRegion[],
+  rangeStart: number,
+  rangeEnd: number,
+): ChordRegion[] {
+  const kept: ChordRegion[] = [];
+  for (const region of existing) {
+    if (region.endTick <= rangeStart || region.startTick >= rangeEnd) {
+      kept.push(region);
+      continue;
+    }
+    if (region.startTick < rangeStart) {
+      kept.push({ ...region, endTick: rangeStart });
+    }
+    if (region.endTick > rangeEnd) {
+      const tail: ChordRegion = {
+        ...region,
+        // A region spanning the whole range keeps its id on the head, so
+        // the tail needs one of its own.
+        id: region.startTick < rangeStart ? nextChordId() : region.id,
+        startTick: rangeEnd,
+      };
+      // The hit that started the chord is now before the tail, where it
+      // would colour notes the tail no longer covers.
+      if (tail.rawStartTick !== undefined && tail.rawStartTick < rangeEnd) {
+        delete tail.rawStartTick;
+      }
+      kept.push(tail);
+    }
+  }
+  return respellLeadingChordRegions(
+    [...kept, ...incoming].sort((a, b) => a.startTick - b.startTick),
+  );
+}
+
+// ── Prism takes ──────────────────────────────────────────────────────────
+// While the student tries variations, pressing Create again swaps out the
+// take it wrote last time rather than stacking another on the same bars.
+// Once a take is edited, moved or trimmed it is the student's, and Create
+// keeps it. Matched by id and content, not object identity, because undo and
+// redo bring clips back as copies.
+
+/** Clip id → the content Create wrote. */
+const prismTakes = new Map<string, string>();
+/** Roughly as far back as undo reaches. */
+const MAX_PRISM_TAKES = 50;
+
+/** A clip's content, comparable across copies (undo, collab sync). */
+function clipContent(clip: MidiClip): string {
+  return JSON.stringify([
+    clip.startTick,
+    clip.durationTicks ?? 0,
+    clip.name ?? '',
+    clip.events.map((e) => [
+      e.note,
+      e.velocity,
+      e.startTick,
+      e.durationTicks,
+      e.channel,
+    ]),
+    (clip.ccEvents ?? []).map((c) => [
+      c.tick,
+      c.controller,
+      c.value,
+      c.channel,
+    ]),
+  ]);
+}
+
+function rememberPrismTake(clip: MidiClip): void {
+  prismTakes.set(clip.id, clipContent(clip));
+  if (prismTakes.size > MAX_PRISM_TAKES) {
+    const oldest = prismTakes.keys().next().value;
+    if (oldest !== undefined) prismTakes.delete(oldest);
+  }
+}
+
+/**
+ * The newest of `clips` that Create wrote inside [rangeStart, rangeEnd) and
+ * nobody has touched since.
+ */
+function untouchedPrismTake(
+  clips: MidiClip[],
+  rangeStart: number,
+  rangeEnd: number,
+): MidiClip | undefined {
+  for (let i = clips.length - 1; i >= 0; i--) {
+    const clip = clips[i];
+    const written = prismTakes.get(clip.id);
+    if (
+      written !== undefined &&
+      clip.startTick >= rangeStart &&
+      clip.startTick + (clip.durationTicks ?? 0) <= rangeEnd &&
+      written === clipContent(clip)
+    ) {
+      return clip;
+    }
+  }
+  return undefined;
 }
 
 // ── Phase 9: Chord confidence scoring ────────────────────────────────────
@@ -1177,7 +1204,11 @@ export function deriveChordRegionsFromSession(
 
   for (const track of tracks) {
     if (track.type !== 'midi') continue;
-    const events = track.midiClips.flatMap((c) => c.events);
+    // In song time: a clip's notes count from its own start, and the chord
+    // lane is the song's (a clip at bar 5 makes chords at bar 5).
+    const events = track.midiClips.flatMap((c) =>
+      c.events.map((e) => ({ ...e, startTick: toSongTick(c, e.startTick) })),
+    );
     if (events.length === 0) continue;
 
     const role =
@@ -1252,8 +1283,13 @@ function qualityFromBassRoot(
  * (e.g., C maj → C maj/E for first inversion) — unless the bass isn't in the
  * voicing at all and names a chord from below, as it does under a rootless /
  * upper-structure voicing: F-A-C-E over D is D min9, not F maj7/D.
+ *
+ * Either way the region now holds a different chord from the one its
+ * identity describes, so the identity goes. Exported for its tests: the
+ * regions it gets come fresh from note analysis, so nothing else can hand
+ * it an identity yet.
  */
-function enrichWithBass(
+export function enrichWithBass(
   regions: ChordRegion[],
   bassEvents: MidiNoteEvent[],
   rootMidi: number,
@@ -1287,7 +1323,7 @@ function enrichWithBass(
         const noteName = abbreviateSequence(
           `${noteNameInKey(bassPc, keyPc, mode)} ${quality}`,
         );
-        return {
+        return withoutIdentity({
           ...region,
           noteName,
           name: degreeKey ? abbreviateSequence(degreeKey) : noteName,
@@ -1295,16 +1331,16 @@ function enrichWithBass(
           color: degreeKey
             ? getChordColor(degreeKey, rootMidi, mode)
             : region.color,
-        };
+        });
       }
     }
 
     // Bass differs from chord root → slash chord
     const bassLetter = noteNameInKey(bassPc, keyPc, mode);
-    return {
+    return withoutIdentity({
       ...region,
       noteName: `${region.noteName}/${bassLetter}`,
-    };
+    });
   });
 }
 
@@ -1328,7 +1364,11 @@ export function refineChordRegionsWithMelody(
 
   for (const track of tracks) {
     if (track.type !== 'midi') continue;
-    const events = track.midiClips.flatMap((c) => c.events);
+    // In song time: a clip's notes count from its own start, and the chord
+    // lane is the song's (a clip at bar 5 makes chords at bar 5).
+    const events = track.midiClips.flatMap((c) =>
+      c.events.map((e) => ({ ...e, startTick: toSongTick(c, e.startTick) })),
+    );
     if (events.length === 0) continue;
 
     const role =
@@ -1406,13 +1446,13 @@ export const createPrismSlice: StateCreator<
   measureRowSizes: null,
   measureRestMap: null,
   measureFermatas: null,
+  leadSheetBars: null,
   filterPercent: 1.0,
-  selectedTrackId: 'demo-chords',
+  selectedTrackId: null,
   rootTrackColor: null,
   rootLocked: false,
   chordRulerShowNotes: false,
   chordRecordMode: 'replace',
-  melodyOverrides: [] as string[],
 
   // ── Actions — parameters ──
 
@@ -1425,7 +1465,7 @@ export const createPrismSlice: StateCreator<
 
     const clamped = Math.max(0, Math.min(11, root));
     const { stringSeq, tracks, mode: currentMode, chordRegions } = get();
-    const hex = getModeTrackColor(clamped, currentMode);
+    const hex = keyColourOf(clamped, currentMode);
 
     // Batch all updates into a single set() to avoid cascading re-renders
     const updates: Record<string, unknown> = {
@@ -1465,7 +1505,7 @@ export const createPrismSlice: StateCreator<
       set({ mode });
       return;
     }
-    const hex = getModeTrackColor(rootNote, mode);
+    const hex = keyColourOf(rootNote, mode);
     const updates: Record<string, unknown> = {
       mode,
       rootTrackColor: hex,
@@ -1492,18 +1532,7 @@ export const createPrismSlice: StateCreator<
 
   setRhythm: (name) => set({ rhythmName: name }),
 
-  selectGenre: (genre) => {
-    const rhythm = findRandomRhythmForGenre(genre);
-    const swing = GENRE_SWING[genre as keyof typeof GENRE_SWING] ?? 0;
-    const strum = GENRE_STRUM[genre] ?? { mode: 0, amount: 0 };
-    set({
-      genre,
-      swing,
-      strumMode: strum.mode,
-      strumAmount: strum.amount,
-      ...(rhythm ? { rhythmName: rhythm } : {}),
-    });
-  },
+  selectGenre: (genre) => set(genreSettings(genre)),
 
   setSwing: (swing) => set({ swing: Math.max(0, Math.min(60, swing)) }),
   setStrumMode: (mode) => set({ strumMode: mode }),
@@ -1516,7 +1545,7 @@ export const createPrismSlice: StateCreator<
     const { stringSeq } = get();
     set({
       filterPercent: clamped,
-      availableNextChords: computeNextChords(stringSeq, clamped),
+      availableNextChords: nextChordsFor(stringSeq, clamped),
     });
   },
 
@@ -1533,7 +1562,7 @@ export const createPrismSlice: StateCreator<
     set({
       chordSeq: newChordSeq,
       stringSeq: newStringSeq,
-      availableNextChords: computeNextChords(newStringSeq, filterPercent),
+      availableNextChords: nextChordsFor(newStringSeq, filterPercent),
     });
   },
 
@@ -1547,20 +1576,17 @@ export const createPrismSlice: StateCreator<
     set({
       chordSeq: newChordSeq,
       stringSeq: newStringSeq,
-      availableNextChords: computeNextChords(newStringSeq, filterPercent),
+      availableNextChords: nextChordsFor(newStringSeq, filterPercent),
     });
   },
 
+  // Clears only the progression being built. The chord lane and the lead
+  // sheet layout belong to the song, so starting a new idea leaves them be.
   clearSequence: () =>
     set({
       chordSeq: [],
       stringSeq: [],
       availableNextChords: [],
-      chordRegions: [],
-      measuresPerLine: 4,
-      measureRowSizes: null,
-      measureRestMap: null,
-      measureFermatas: null,
     }),
 
   // ── Actions — generation (offloaded to Web Worker) ──
@@ -1593,226 +1619,79 @@ export const createPrismSlice: StateCreator<
     });
 
     worker.onmessage = (e) => {
-      const { events } = e.data;
+      const { events } = e.data as { events: MidiNoteEvent[] };
+      worker.terminate();
+      if (events.length === 0) return;
+
       const currentState = get();
+      const target = currentState.tracks.find((t) => t.id === trackId);
+      // The track can be deleted, or taken by a collaborator, while the
+      // worker runs; then nothing is written, chords included.
+      if (!target || isTrackLockedByRemote(currentState.remoteUsers, trackId)) {
+        return;
+      }
 
-      currentState.clearMidiClips(trackId);
-
+      // Create adds a clip and keeps the track's other clips. The
+      // progression still starts at bar 1, as it always has, and the clip
+      // ends on a bar line of the project's metre (prismTakeSpan). The
+      // worker's notes come without ids, so each gets one here: this write
+      // sets the track's clips itself rather than going through addMidiClip.
+      const startTick = 0;
+      const endTick = prismTakeSpan(timeSignatureOf(currentState));
       const clip: MidiClip = {
         id: crypto.randomUUID(),
-        startTick: 0,
-        durationTicks: 7680, // 4 bars (4 × 4 × 480)
-        events,
+        startTick,
+        durationTicks: endTick - startTick,
+        events: withNoteIds(events),
       };
+      // Only a take Create wrote here and nobody has touched gives way. The
+      // new clip goes last, where collab peers put it.
+      const previousTake = untouchedPrismTake(
+        target.midiClips,
+        startTick,
+        endTick,
+      );
+      const midiClips = [
+        ...target.midiClips.filter((c) => c !== previousTake),
+        clip,
+      ];
+      rememberPrismTake(clip);
 
-      currentState.addMidiClip(trackId, clip);
-
-      // Derive chord regions using known chord names from stringSeq
+      // Derive chord regions using known chord names from stringSeq. They
+      // replace the chord lane only across the clip's bars; a locked lane
+      // ("Existing chords are protected") keeps its chords there and only
+      // takes new ones in the gaps. One set() for clips and chords, so undo
+      // and collab each see a single change.
+      // Read from this take, they follow it when it moves (moveClip).
+      const incoming = deriveChordRegions(
+        events,
+        rootMidi,
+        state.stringSeq,
+        state.mode,
+        endTick,
+      ).map((r) => ({ ...r, sourceClipId: clip.id }));
       set({
-        chordRegions: deriveChordRegions(
-          events,
-          rootMidi,
-          state.stringSeq,
-          state.mode,
+        tracks: currentState.tracks.map((t) =>
+          t.id === trackId ? { ...t, midiClips } : t,
         ),
+        chordRegions:
+          currentState.chordRecordMode === 'locked'
+            ? reconcileChordRegions(
+                currentState.chordRegions,
+                incoming,
+                'locked',
+                rootMidi,
+                state.mode,
+              )
+            : replaceChordRegionsInRange(
+                currentState.chordRegions,
+                incoming,
+                startTick,
+                endTick,
+              ),
       });
       currentState.setClipColorMode('prism');
-
-      worker.terminate();
     };
-  },
-
-  // ── Actions — bulk load a chord progression from suggestion engine ──
-
-  loadProgression: (chords) => {
-    const { rootNote, mode, filterPercent } = get();
-    const rootMidi = (rootNote ?? 0) + 48;
-
-    const chordSeq = normalizeSequence(chords.map((c) => c.midi));
-    const stringSeq = chords.map((c) => c.degree);
-
-    set({
-      chordSeq,
-      stringSeq,
-      availableNextChords: computeNextChords(stringSeq, filterPercent),
-      chordRegions: deriveChordRegions(
-        // We need chord MIDI events for deriveChordRegions — generate a
-        // simple one-hit-per-chord sequence so regions can be derived.
-        chordSeq.flatMap((notes, i) =>
-          notes.map((note) => ({
-            note,
-            velocity: 80,
-            startTick: i * 1920, // 1 bar per chord
-            durationTicks: 1920,
-            channel: 1,
-          })),
-        ),
-        rootMidi,
-        stringSeq,
-        mode,
-      ),
-    });
-  },
-
-  // ── Actions — orchestrate chords + drums and create tracks ──
-
-  generateOrchestration: async () => {
-    const state = get();
-    if (state.chordSeq.length === 0) return;
-
-    const rootMidi = (state.rootNote ?? 0) + 48;
-    const bpm = state.bpm ?? 120;
-
-    // Try to find a matching groove from the grooves library
-    const groove = findGrooveForGenreBpm(state.genre, bpm);
-    const grooveEvents = groove ? await fetchGrooveEvents(groove) : null;
-
-    // Run orchestrator for chords (and procedural drums as fallback)
-    const result = orchestrate({
-      chordSeq: state.chordSeq,
-      stringSeq: state.stringSeq,
-      root: rootMidi,
-      rhythmName: state.rhythmName,
-      swing: state.swing,
-      strum: state.strumMode,
-      strumAmount: state.strumAmount,
-      tilt: state.tiltMode,
-      tiltAmount: state.tiltAmount,
-      enableChords: true,
-      enableDrums: !grooveEvents, // skip procedural drums if groove loaded
-      enableBass: false,
-      enablePad: false,
-      enableMelody: false,
-    });
-
-    // Clear existing tracks (same pattern as loadProjectTemplate)
-    set({ tracks: [], nextColorIndex: 0, pitchData: {} });
-
-    // Helper to create a track (mirrors loadProjectTemplate in tracksSlice)
-    const makeDrumDefaults = () => {
-      const effects = structuredClone(DEFAULT_EFFECTS);
-      effects.compressor = { ...effects.compressor, enabled: true };
-      return { effects, activeEffects: ['compressor'] as EffectSlotType[] };
-    };
-
-    // Electric Piano 1 (GM program 4) for Jazz and R&B, Acoustic Grand Piano (0) otherwise
-    const useElectricPiano = state.genre === 'Jazz' || state.genre === 'R&B';
-    const chordsGmProgram = useElectricPiano ? 4 : 0;
-
-    // ── Create Chords track ──
-    const chordsColor =
-      TRACK_PALETTES[get().nextColorIndex % TRACK_PALETTES.length];
-    const chordsId = crypto.randomUUID();
-    const chordsTrack: Track = {
-      id: chordsId,
-      name: 'Chords',
-      type: 'midi',
-      instrument: 'soundfont' as Track['instrument'],
-      gmProgram: chordsGmProgram,
-      color: chordsColor,
-      mute: false,
-      solo: false,
-      volume: 0.8,
-      pan: 0,
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      effects: structuredClone(DEFAULT_EFFECTS),
-      activeEffects: [] as EffectSlotType[],
-      midiClips: [],
-      audioClips: [],
-      trackRole: guessTrackRole('Chords', 'soundfont'),
-    };
-    set((s) => ({
-      tracks: [...s.tracks, chordsTrack],
-      nextColorIndex: s.nextColorIndex + 1,
-    }));
-
-    const chordSeq = result.get(InstrumentChannel.Chords);
-    if (chordSeq && chordSeq.events.length > 0) {
-      get().addMidiClip(chordsId, {
-        id: crypto.randomUUID(),
-        startTick: 0,
-        durationTicks: 7680,
-        events: chordSeq.events,
-      });
-    }
-
-    // ── Create Drums track ──
-    const drumsColor =
-      TRACK_PALETTES[get().nextColorIndex % TRACK_PALETTES.length];
-    const drumsId = crypto.randomUUID();
-    const drumsTrack: Track = {
-      id: drumsId,
-      name: 'Drums',
-      type: 'midi',
-      instrument: 'drum-machine' as Track['instrument'],
-      color: drumsColor,
-      mute: false,
-      solo: false,
-      volume: 0.8,
-      pan: 0,
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      ...makeDrumDefaults(),
-      midiClips: [],
-      audioClips: [],
-      trackRole: guessTrackRole('Drums', 'drum-machine'),
-    };
-    set((s) => ({
-      tracks: [...s.tracks, drumsTrack],
-      nextColorIndex: s.nextColorIndex + 1,
-    }));
-
-    if (grooveEvents && grooveEvents.length > 0) {
-      // Use the pre-recorded groove MIDI
-      const maxTick = Math.max(
-        ...grooveEvents.map((e) => e.startTick + e.durationTicks),
-      );
-      get().addMidiClip(drumsId, {
-        id: crypto.randomUUID(),
-        startTick: 0,
-        durationTicks: Math.max(7680, maxTick),
-        events: grooveEvents,
-      });
-    } else {
-      // Fallback: use procedural drum pattern from orchestrator
-      const drumSeq = result.get(InstrumentChannel.Drums);
-      if (drumSeq && drumSeq.events.length > 0) {
-        get().addMidiClip(drumsId, {
-          id: crypto.randomUUID(),
-          startTick: 0,
-          durationTicks: 7680,
-          events: drumSeq.events,
-        });
-      }
-    }
-
-    // Derive chord regions from the chord track events
-    if (chordSeq) {
-      set({
-        chordRegions: deriveChordRegions(
-          chordSeq.events,
-          rootMidi,
-          state.stringSeq,
-          state.mode,
-        ),
-      });
-    }
-
-    // Select first track and set Prism color mode
-    set((s) => ({
-      tracks: s.tracks.map((t) =>
-        t.id === chordsId ? { ...t, monitoring: true, recordArmed: true } : t,
-      ),
-      selectedTrackId: chordsId,
-    }));
-    get().setClipColorMode('prism');
   },
 
   // ── Actions — track selection ──
@@ -1860,48 +1739,9 @@ export const createPrismSlice: StateCreator<
     }
   },
 
-  offsetChordRegions: (deltaTicks) =>
-    set((s) => ({
-      chordRegions: s.chordRegions.map((r) => ({
-        ...r,
-        startTick: r.startTick + deltaTicks,
-        endTick: r.endTick + deltaTicks,
-      })),
-    })),
-
   setMeasureRowSizes: (sizes) => set({ measureRowSizes: sizes }),
   setMeasureRestMap: (map) => set({ measureRestMap: map }),
   setMeasureFermatas: (fermatas) => set({ measureFermatas: fermatas }),
-
-  refineWithMelody: (melodyTrackId, pitchRange) => {
-    const state = get();
-    const rootMidi = (state.rootNote ?? 0) + 48;
-    const regions = refineChordRegionsWithMelody(
-      state.tracks,
-      rootMidi,
-      state.mode,
-      melodyTrackId,
-      pitchRange,
-    );
-    if (regions.length === 0) return;
-
-    // Only update if the refined regions differ from current ones
-    // (prevents infinite loop with auto-analyze in InsightContent)
-    const current = state.chordRegions;
-    if (
-      regions.length === current.length &&
-      regions.every(
-        (r, i) =>
-          r.startTick === current[i].startTick &&
-          r.endTick === current[i].endTick &&
-          r.noteName === current[i].noteName,
-      )
-    ) {
-      return; // No change — skip update to avoid re-triggering analysis
-    }
-
-    set({ chordRegions: regions });
-  },
 
   // ── Actions — lead sheet chord editing ──
 
@@ -1917,7 +1757,9 @@ export const createPrismSlice: StateCreator<
         const existing = regions[idx];
         if (tick === existing.startTick) {
           // Replace the existing region at this exact position
-          regions[idx] = { ...existing, name, noteName, color: c };
+          regions[idx] = relabelChordRegion(existing, name, noteName, {
+            color: c,
+          });
         } else {
           // Truncate the existing region at the insertion point
           regions[idx] = { ...existing, endTick: tick };
@@ -1932,11 +1774,17 @@ export const createPrismSlice: StateCreator<
           });
         }
       } else {
-        // No overlapping region — insert with a default 1-beat duration
+        // No region here: the chord lasts until the next one, or to the end
+        // of its bar, in the project's metre (leadsheet-07).
+        const ts = timeSignatureOf(s);
+        const next = regions
+          .filter((r) => r.startTick > tick)
+          .reduce((min, r) => Math.min(min, r.startTick), Infinity);
+        const barEnd = barStartTick(tick, ts) + ticksPerBar(ts);
         regions.push({
           id: nextChordId(),
           startTick: tick,
-          endTick: tick + 480,
+          endTick: Math.min(next, barEnd),
           name,
           noteName,
           color: c,
@@ -1975,11 +1823,7 @@ export const createPrismSlice: StateCreator<
       const regions = [...s.chordRegions];
       const index = regions.findIndex((r) => r.id === id);
       if (index < 0) return s;
-      regions[index] = {
-        ...regions[index],
-        name: newName,
-        noteName: newNoteName,
-      };
+      regions[index] = relabelChordRegion(regions[index], newName, newNoteName);
       return { chordRegions: regions };
     }),
 
@@ -1988,13 +1832,14 @@ export const createPrismSlice: StateCreator<
       const regions = [...s.chordRegions];
       const index = regions.findIndex((r) => r.id === id);
       if (index < 0) return s;
-      // Snap to quarter note
-      const snapped = Math.round(newEndTick / 480) * 480;
-      const minEnd = regions[index].startTick + 480; // at least 1 beat
+      // Snap to the metre's beat (an eighth in 6/8), at least a beat long
+      const beat = ticksPerBeat(timeSignatureOf(s));
+      const snapped = Math.round(newEndTick / beat) * beat;
+      const minEnd = regions[index].startTick + beat;
       // Clamp so next region keeps at least 1 beat
       const maxEnd =
         index + 1 < regions.length
-          ? regions[index + 1].endTick - 480
+          ? regions[index + 1].endTick - beat
           : Infinity;
       regions[index] = {
         ...regions[index],
@@ -2016,7 +1861,8 @@ export const createPrismSlice: StateCreator<
       const index = regions.findIndex((r) => r.id === id);
       if (index < 0) return s;
       const region = regions[index];
-      const snapped = Math.max(0, Math.round(newStartTick / 480) * 480);
+      const beat = ticksPerBeat(timeSignatureOf(s));
+      const snapped = Math.max(0, Math.round(newStartTick / beat) * beat);
       if (snapped === region.startTick) return s;
       const duration = region.endTick - region.startTick;
       regions[index] = {
@@ -2034,73 +1880,25 @@ export const createPrismSlice: StateCreator<
       return { chordRegions: respellLeadingChordRegions(sorted) };
     }),
 
-  insertMeasure: (measureIdx) =>
-    set((s) => {
-      const insertTick = measureIdx * 1920;
-      return {
-        chordRegions: s.chordRegions.map((r) => {
-          if (r.startTick >= insertTick) {
-            return {
-              ...r,
-              startTick: r.startTick + 1920,
-              endTick: r.endTick + 1920,
-            };
-          }
-          if (r.endTick > insertTick) {
-            // Region spans the insertion point — extend it
-            return { ...r, endTick: r.endTick + 1920 };
-          }
-          return r;
-        }),
-      };
-    }),
+  insertMeasures: (at, count = 1, melodyTrackId) =>
+    set((s) => measureEditPatch(s, at, Math.max(1, count), melodyTrackId) ?? s),
 
-  deleteMeasure: (measureIdx) =>
-    set((s) => {
-      const delStart = measureIdx * 1920;
-      const delEnd = delStart + 1920;
-      return {
-        chordRegions: s.chordRegions
-          .filter((r) => !(r.startTick >= delStart && r.endTick <= delEnd))
-          .map((r) => {
-            if (r.startTick >= delEnd) {
-              return {
-                ...r,
-                startTick: r.startTick - 1920,
-                endTick: r.endTick - 1920,
-              };
-            }
-            if (r.endTick > delStart && r.startTick < delStart) {
-              // Region spans into the deleted measure — truncate
-              return { ...r, endTick: delStart };
-            }
-            if (r.startTick >= delStart && r.startTick < delEnd) {
-              // Region starts within deleted measure but extends beyond
-              return { ...r, startTick: delStart, endTick: r.endTick - 1920 };
-            }
-            return r;
-          })
-          .filter((r) => r.startTick < r.endTick),
-      };
-    }),
+  deleteMeasures: (at, count = 1, melodyTrackId) =>
+    set(
+      (s) => measureEditPatch(s, at, -Math.max(1, count), melodyTrackId) ?? s,
+    ),
 
-  // ── Actions — melody overrides (Phase 10) ──
+  // ── Actions — melody (Phase 10) ──
+  // The region just leaves the lane. Its id used to be noted in
+  // melodyOverrides as well, which nothing ever read.
 
   markAsMelody: (regionId) =>
     set((s) => {
-      if (s.melodyOverrides.includes(regionId)) return {};
+      if (!s.chordRegions.some((r) => r.id === regionId)) return s;
       return {
-        melodyOverrides: [...s.melodyOverrides, regionId],
         chordRegions: respellLeadingChordRegions(
           s.chordRegions.filter((r) => r.id !== regionId),
         ),
       };
     }),
-
-  unmarkAsMelody: (regionId) =>
-    set((s) => ({
-      melodyOverrides: s.melodyOverrides.filter((id) => id !== regionId),
-    })),
-
-  clearMelodyOverrides: () => set({ melodyOverrides: [] }),
 });

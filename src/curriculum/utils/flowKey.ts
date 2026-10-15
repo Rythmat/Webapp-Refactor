@@ -11,6 +11,10 @@
 
 import { ALL_MODES } from '@prism/engine';
 import {
+  guitarScaleEntry,
+  isGuitarScaleKey,
+} from '../data/guitar/theoryCatalog';
+import {
   spellScale,
   buildSpellingMap,
 } from '../engine/genreGeneration/enharmonicEngine';
@@ -87,12 +91,48 @@ const SCALE_TO_MODE: Record<string, string> = {
 
 /** The Prism mode a scale id is coloured and spelled in. */
 export function modeForScaleId(scaleId: string | undefined): string {
-  return SCALE_TO_MODE[scaleId ?? ''] ?? 'dorian';
+  const mode = SCALE_TO_MODE[scaleId ?? ''];
+  if (mode) return mode;
+  // The rest of Theory on guitar: its nearest diatonic mode.
+  return isGuitarScaleKey(scaleId)
+    ? guitarScaleEntry(scaleId).colourMode
+    : 'dorian';
 }
 
 /** The Prism mode this flow is coloured and spelled in. */
 export function flowMode(flow: ActivityFlowV2): string {
   return modeForScaleId(flow.params.defaultScaleId);
+}
+
+// ── A step's own key ─────────────────────────────────────────────────────────
+
+/**
+ * A level that teaches in more than one key names the odd one out on its
+ * steps: Latin L1 is in E minor, and its Mariachi steps are in G major
+ * (`key: 'G major'`). Without one, a step is in its flow's key.
+ */
+type KeyedStep = { key?: string; scaleId?: string } | null | undefined;
+
+/** The note letter a step is in. */
+export function stepKeyLabel(flow: ActivityFlowV2, step: KeyedStep): string {
+  return (step?.key ?? flow.params.defaultKey).split(' ')[0];
+}
+
+/** A step's tonic as a MIDI note in the octave above middle C. */
+export function stepKeyRoot(flow: ActivityFlowV2, step: KeyedStep): number {
+  return parseKeyRoot(stepKeyLabel(flow, step));
+}
+
+/**
+ * The mode a step is coloured and spelled in: its scale's, else what its own
+ * key says (major → Ionian, minor → Aeolian), else its flow's.
+ */
+export function stepMode(flow: ActivityFlowV2, step: KeyedStep): string {
+  if (!step?.key) return flowMode(flow);
+  if (step.scaleId) return modeForScaleId(step.scaleId);
+  if (/major/i.test(step.key)) return 'ionian';
+  if (/minor/i.test(step.key)) return 'aeolian';
+  return flowMode(flow);
 }
 
 // ── Scale names ──────────────────────────────────────────────────────────────
@@ -111,6 +151,7 @@ const SCALE_TITLES: Record<string, string> = {
 export function scaleTitle(scaleId: string): string {
   return (
     SCALE_TITLES[scaleId] ??
+    (isGuitarScaleKey(scaleId) ? guitarScaleEntry(scaleId).title : null) ??
     scaleId
       .split('_')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

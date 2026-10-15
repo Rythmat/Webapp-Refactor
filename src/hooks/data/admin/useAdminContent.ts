@@ -48,10 +48,21 @@ export type RecordContentKind =
  */
 export type VocabularyContentKind = 'genre' | 'subgenre' | 'instrument';
 
+/**
+ * Instrument content (docs/instrument-content-kinds.md): the console's drum
+ * grooves, Parts Library parts and feel profiles. The dev repo content server
+ * serves them now; the API joins when it adds the kinds.
+ */
+export type InstrumentContentKind =
+  | 'drum_groove'
+  | 'instrument_part'
+  | 'feel_profile';
+
 export type ContentKind =
   | LegacyContentKind
   | RecordContentKind
-  | VocabularyContentKind;
+  | VocabularyContentKind
+  | InstrumentContentKind;
 
 export type ContentStatus = 'draft' | 'published' | 'archived';
 

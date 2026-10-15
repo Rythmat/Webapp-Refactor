@@ -1,7 +1,8 @@
 import { ArrowRight, Clock, Globe, Guitar } from 'lucide-react';
 import { type FC, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { HISTORICAL_MODULES, MUSICAL_ERAS } from '@/components/atlas/data';
+import { MUSICAL_ERAS } from '@/components/atlas/data';
+import { HISTORICAL_MODULES } from '@/components/atlas/data/historicalModules';
 import { eraRangeLabel } from '@/components/atlas/data/musicalEras';
 import { GlobeSectionHeader } from './GlobeSectionHeader';
 import { GlobeTile } from './GlobeTile';

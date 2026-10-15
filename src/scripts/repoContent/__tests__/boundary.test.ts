@@ -128,6 +128,9 @@ const CONSOLE: Record<string, () => Promise<unknown>> = {
     import('@/features/admin/content/publishing/PublishingOverview'),
   'the repo snapshot (graph/repoSnapshot.ts)': () =>
     import('@/features/admin/content/graph/repoSnapshot'),
+  // The same loader, where the classroom's lesson generator reaches it.
+  'the shared repo graph (content/graph/repoGraph.ts)': () =>
+    import('@/content/graph/repoGraph'),
   'the mock’s seed (mock/seed.ts)': () =>
     import('@/features/admin/content/mock/seed'),
   // Repo mode's console side: it fetches the dev server, and never loads

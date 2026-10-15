@@ -18,10 +18,13 @@ import {
 import { ContentGate } from '@/content/ContentGate';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
+import { isEditorPath, preloadDaw } from '@/daw/preload';
+import { EditorRouteBoundary } from '@/daw/shell/errors/EditorRouteBoundary';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnInlet } from '@/components/learn/LearnInlet';
+import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
 import { SettingsHub } from '@/features/settings/SettingsHub';
@@ -188,10 +191,16 @@ const SignalFlowPage = lazy(() =>
 );
 
 const DawApp = lazy(() =>
-  import('@/daw/DawApp').then(({ DawApp }) => ({
+  preloadDaw().then(({ DawApp }) => ({
     default: DawApp,
   })),
 );
+
+// A boot straight onto the editor (a link, a refresh) fetches its chunk now,
+// beside sign-in, instead of once the route first renders behind it.
+if (typeof window !== 'undefined' && isEditorPath(window.location.pathname)) {
+  preloadDaw().catch(() => {});
+}
 
 const StudioInlet = lazy(() =>
   import('@/components/ClassroomLayout/studio/StudioInlet').then(
@@ -432,13 +441,19 @@ export const studioPages = () => {
         element: <StudioInlet />,
         index: true,
       },
+      // The Production tab: the dashboard shell, showing the DAW lessons.
+      {
+        path: 'production',
+        element: <StudioInlet />,
+      },
       {
         path: 'editor',
-        // DawApp resolves a song by id when opened with ?song=.
+        // No content gate: the editor paints at once, and a ?song= open
+        // waits for the song library itself (openSession's prepareSong).
         element: (
-          <ContentGate needs={['songs']}>
+          <EditorRouteBoundary>
             <DawApp />
-          </ContentGate>
+          </EditorRouteBoundary>
         ),
       },
     ],
@@ -550,12 +565,26 @@ const OverviewRoute = () => {
 
 const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
 
+// Guitar teaches the Theory families its catalog has live (the diatonic
+// modes, Ionian from The Guitar Atlas: Book One, first); the Theory tab marks
+// the rest as coming soon, and their links go back to it, ungated.
+const isGuitarTheoryMode = isGuitarTheorySlug;
+
+const GuitarOverviewRoute = () => {
+  const { mode } = useParams<{ mode: string }>();
+  if (!isGuitarTheoryMode(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  // As on piano, free users can access the Ionian overview only
+  const inner = <GuitarModeOverview />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
 const GuitarLessonRoute = () => {
   const { mode, key: keyParam } = useParams<{ mode: string; key: string }>();
-  // Guitar has Ionian (The Guitar Atlas: Book One) and nothing else yet; the
-  // Theory tab marks the other modes as coming soon.
-  if (mode !== 'ionian') return <Navigate replace to={THEORY_TAB_ROUTE} />;
-
+  if (!isGuitarTheoryMode(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
   // As on piano, free users can access C Ionian only
   const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
   const inner = <GuitarModeLesson />;
@@ -604,17 +633,15 @@ export const learnPages = () => {
           </RequirePremium>
         ),
       },
-      // Guitar: Theory → Ionian (Major). Static 'guitar' segment, so these
-      // outrank '/:mode' and '/:mode/:key'.
+      // Guitar: Theory → the diatonic modes. Static 'guitar' segment, so
+      // these outrank '/:mode' and '/:mode/:key'.
       {
         path: LearnRoutes.guitar.definition,
         element: <Navigate replace to={THEORY_TAB_ROUTE} />,
       },
       {
-        // Free, like the piano Ionian overview; the page sends any other mode
-        // back to Theory.
         path: LearnRoutes.guitarOverview.definition,
-        element: <GuitarModeOverview />,
+        element: <GuitarOverviewRoute />,
       },
       {
         path: LearnRoutes.guitarLesson.definition,

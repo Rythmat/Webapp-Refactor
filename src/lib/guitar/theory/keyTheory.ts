@@ -9,8 +9,13 @@ import {
   keyPitchClass,
   keyScaleSpelling,
 } from '@/curriculum/data/guitar/bookOne';
+import {
+  degreeAccidental,
+  diatonicTriads,
+} from '@/curriculum/data/guitar/centers';
 import type {
   BookChordQuality,
+  GuitarCenter,
   GuitarKeyCenter,
   GuitarKeyName,
 } from '@/curriculum/data/guitar/types';
@@ -111,16 +116,44 @@ const ROMAN_SUFFIX: Readonly<Record<DiatonicQuality, string>> = {
   min7: '7',
   min7b5: 'ø7',
   dim: '°',
+  aug: '+',
+  majb5: '(♭5)',
+  sus2b5: 'sus2(♭5)',
+  dim7: '°7',
+  minMaj7: '(maj7)',
+  'maj7#5': '+maj7',
+  dom7b5: '7♭5',
+  min6: '6',
+  sus2b5add6: 'sus2(♭5)add6',
 };
 
-/** Uppercase for major-type chords, lowercase for minor-type: ii7, viiø7. */
+/** Uppercase numerals: chords with a major 3rd, and the sus2(♭5) chords. */
+const UPPER_CASE: ReadonlySet<DiatonicQuality> = new Set<DiatonicQuality>([
+  'maj',
+  'aug',
+  'majb5',
+  'sus2b5',
+  'maj7',
+  'dom7',
+  'maj7#5',
+  'dom7b5',
+  'sus2b5add6',
+]);
+
+/**
+ * Uppercase for major-type chords, lowercase for minor-type: ii7, viiø7. In a
+ * mode, a degree that differs from major takes its accidental: Dorian's 3 is
+ * ♭III.
+ */
 export function romanNumeral(
+  center: GuitarCenter,
   degree: KeyDegree,
   quality: DiatonicQuality,
 ): string {
   const numeral = NUMERALS[degree - 1];
-  const major = quality === 'maj' || quality === 'maj7' || quality === 'dom7';
-  return `${major ? numeral : numeral.toLowerCase()}${ROMAN_SUFFIX[quality]}`;
+  const major = UPPER_CASE.has(quality);
+  const accidental = degreeAccidental(center, degree);
+  return `${accidental}${major ? numeral : numeral.toLowerCase()}${ROMAN_SUFFIX[quality]}`;
 }
 
 /** Other ways charts write the chord. Dom7 has none (it uses `aliases.dom7`). */
@@ -131,25 +164,36 @@ export function chordAliases(
   const suffixes: Record<BookChordQuality, string[]> = {
     maj: ['maj', 'M'],
     min: ['min', '−'],
+    dim: ['°', 'o'],
     maj7: ['M7', 'Δ7', 'Δ'],
     min7: ['min7', '−7'],
     min7b5: ['ø7', 'ø', '−7♭5', 'min7(♭5)'],
     dom7: [],
+    aug: ['+', '(♯5)'],
+    majb5: ['(♭5)'],
+    sus2b5: [],
+    dim7: ['°7', 'o7'],
+    minMaj7: ['−(maj7)', 'mΔ7', 'min(maj7)'],
+    'maj7#5': ['+maj7', 'Δ7(♯5)', 'maj7(♯5)'],
+    dom7b5: ['7(♭5)'],
+    min6: ['−6', 'min6'],
+    sus2b5add6: [],
   };
   return suffixes[quality].map((suffix) => `${root}${suffix}`);
 }
 
 /**
  * The triad left when a 7th chord loses its root: the triad two degrees up
- * (Cmaj7 without C = E minor, chord 3). Null on 5, whose leftover triad is
- * diminished and not taught.
+ * (Cmaj7 without C = E minor, chord 3). In Book One null on 5, whose leftover
+ * triad is diminished and not taught; the modes teach every triad.
  */
 export function hiddenTriad(
+  center: GuitarCenter,
   degree: KeyDegree,
-): { degree: KeyDegree; quality: 'maj' | 'min' } | null {
+): { degree: KeyDegree; quality: BookChordQuality } | null {
   const hidden = (((degree + 1) % 7) + 1) as KeyDegree;
-  const quality = DIATONIC_TRIADS[hidden - 1];
-  return quality === 'maj' || quality === 'min'
-    ? { degree: hidden, quality }
-    : null;
+  const quality = diatonicTriads(center)[hidden - 1];
+  return quality === 'dim' && center.mode === 'ionian'
+    ? null
+    : { degree: hidden, quality };
 }

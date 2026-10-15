@@ -1,7 +1,4 @@
-import {
-  STATE_BOUNDARIES,
-  type StateBoundary,
-} from '@/components/atlas/data/stateBoundaries';
+import type { StateBoundary } from '@/components/atlas/data/stateBoundaries';
 
 export interface Subdivision {
   name: string;
@@ -14,11 +11,14 @@ interface Indexed {
   boxes: [number, number, number, number][];
 }
 
-let index: Indexed[] | null = null;
+// The outlines load on demand (stateBoundariesData in data/loaders.ts), so the
+// index is built for whichever array the caller passes, once.
+const indexes = new WeakMap<readonly StateBoundary[], Indexed[]>();
 
-function getIndex(): Indexed[] {
-  if (index) return index;
-  index = STATE_BOUNDARIES.map((boundary) => ({
+function getIndex(boundaries: readonly StateBoundary[]): Indexed[] {
+  const known = indexes.get(boundaries);
+  if (known) return known;
+  const index: Indexed[] = boundaries.map((boundary) => ({
     boundary,
     boxes: boundary.rings.map((ring) => {
       let minLng = Infinity;
@@ -34,6 +34,7 @@ function getIndex(): Indexed[] {
       return [minLng, minLat, maxLng, maxLat];
     }),
   }));
+  indexes.set(boundaries, index);
   return index;
 }
 
@@ -64,9 +65,16 @@ const SHORE_DIST_SQ = 0.3 * 0.3;
  * Coastal and island towns (Nantucket, Virginia Beach) can sit just outside an
  * outline simplified to ~4km, so a point inside none of them takes the state
  * with the nearest vertex — within ~30km, so a point out at sea stays unknown.
+ *
+ * `boundaries` is STATE_BOUNDARIES, which loads on demand:
+ * `await stateBoundariesData.load()` (data/loaders.ts) first.
  */
-export function stateAt(lat: number, lng: number): Subdivision | undefined {
-  const regions = getIndex();
+export function stateAt(
+  boundaries: readonly StateBoundary[],
+  lat: number,
+  lng: number,
+): Subdivision | undefined {
+  const regions = getIndex(boundaries);
   for (const { boundary, boxes } of regions) {
     for (let r = 0; r < boundary.rings.length; r++) {
       const [minLng, minLat, maxLng, maxLat] = boxes[r];

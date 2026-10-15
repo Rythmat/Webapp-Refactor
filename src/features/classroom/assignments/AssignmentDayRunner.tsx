@@ -12,8 +12,8 @@ import type {
   StudentLanguage,
 } from '../types';
 import {
-  useLocalEnrollmentId,
   useMyAssignmentProgress,
+  useStudentEnrollmentId,
 } from './useAssignmentProgress';
 import { useAssignments } from './useAssignments';
 
@@ -34,7 +34,10 @@ export const AssignmentDayRunner = () => {
 
   const { getAssignment } = useAssignments(cid);
   const { getPublishedDay } = usePublishedDays(cid);
-  const enrollmentId = useLocalEnrollmentId();
+  // Undefined until the student's enrollment resolves. Answers and MSP mints
+  // are keyed by it, so the runner waits for it rather than file them under a
+  // stand-in.
+  const enrollmentId = useStudentEnrollmentId(cid);
   const { myProgress, myResponses, setMyProgress, recordMyResponse } =
     useMyAssignmentProgress(aid, enrollmentId, cid);
 
@@ -66,6 +69,16 @@ export const AssignmentDayRunner = () => {
         >
           Back to Assignments
         </button>
+      </div>
+    );
+  }
+
+  if (enrollmentId === undefined) {
+    return (
+      <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-10">
+        <p className="text-sm text-white/60" role="status">
+          Loading your assignment…
+        </p>
       </div>
     );
   }

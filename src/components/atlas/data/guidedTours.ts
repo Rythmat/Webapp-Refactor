@@ -11,6 +11,9 @@
 import type { RegionId } from '@/components/atlas/types';
 import { CITIES } from './cities';
 import { REGIONS } from './regions';
+import { cityTourId, regionTourId } from './tourIds';
+
+export { cityTourId, regionTourId };
 
 export interface TourStop {
   /** Stop heading (a city, scene, or era). */
@@ -52,10 +55,6 @@ export interface ResolvedTourStop {
   cityId?: string;
   eventId?: string;
 }
-
-export const regionTourId = (regionId: RegionId | string) =>
-  `region-${regionId}`;
-export const cityTourId = (cityId: string) => `city-${cityId}`;
 
 const REGION_STOP_ZOOM = 7; // frames a city with some regional context
 const CITY_STOP_BASE_ZOOM = 7.5; // city tours gently push in per stop

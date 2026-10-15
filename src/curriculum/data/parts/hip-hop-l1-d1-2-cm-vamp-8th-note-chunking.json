@@ -1,0 +1,398 @@
+{
+  "id": "hip-hop-l1-d1-2-cm-vamp-8th-note-chunking",
+  "name": "Hip Hop L1 · D1.2: Cm Vamp — 8th-Note Chunking",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 76,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1150,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 240,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 240,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 240,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 700,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1200,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1680,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1680,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1680,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1150,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2160,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2160,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2160,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 700,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3120,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3600,
+      "duration": 90,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3600,
+      "duration": 90,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3600,
+      "duration": 90,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 30,
+    "title": "D1: Cm Vamp",
+    "tag": "hiphop:l1_perf_vamp_eighths | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Same left hand. Right hand plays C minor an octave up, in short 8th notes.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Cm"]
+}

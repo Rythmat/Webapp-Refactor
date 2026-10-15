@@ -7,6 +7,10 @@ import {
   LibraryRoutes,
   StudioRoutes,
 } from '@/constants/routes';
+import {
+  GUITAR_THEORY_CATALOG,
+  isGuitarTheorySlug,
+} from '@/curriculum/data/guitar/theoryCatalog';
 import { isGuitarLearnEnabled } from '@/features/learn/useInstrumentStore';
 import type { ActivityEntry, MatchResult } from './types';
 
@@ -166,21 +170,21 @@ const ACTIVITY_CATALOG: ActivityEntry[] = [
   {
     label: 'Melodic Minor',
     description: 'Scale & Mode',
-    route: LearnRoutes.overview({ mode: 'melodicMinor' }),
+    route: LearnRoutes.overview({ mode: 'melodicminor' }),
     keywords: ['melodic minor', 'melodic'],
     category: 'mode',
   },
   {
     label: 'Harmonic Minor',
     description: 'Scale & Mode',
-    route: LearnRoutes.overview({ mode: 'harmonicMinor' }),
+    route: LearnRoutes.overview({ mode: 'harmonicminor' }),
     keywords: ['harmonic minor', 'harmonic'],
     category: 'mode',
   },
   {
     label: 'Harmonic Major',
     description: 'Scale & Mode',
-    route: LearnRoutes.overview({ mode: 'harmonicMajor' }),
+    route: LearnRoutes.overview({ mode: 'harmonicmajor' }),
     keywords: ['harmonic major'],
     category: 'mode',
   },
@@ -334,7 +338,8 @@ const ACTIVITY_CATALOG: ActivityEntry[] = [
 
 /**
  * Guitar (The Guitar Atlas): its key centers are Theory → Ionian (Major) on
- * guitar. Offered while its rollout flag is on.
+ * guitar; GUITAR_THEORY_ACTIVITIES are the other tiles guitar teaches.
+ * Offered while its rollout flag is on.
  */
 const GUITAR_ACTIVITY: ActivityEntry = {
   label: 'Guitar: Ionian (Major)',
@@ -351,6 +356,17 @@ const GUITAR_ACTIVITY: ActivityEntry = {
   ],
   category: 'mode',
 };
+
+/** Theory's other live guitar tiles, each named with "guitar". */
+const GUITAR_THEORY_ACTIVITIES: ActivityEntry[] = GUITAR_THEORY_CATALOG.filter(
+  (e) => e.key !== 'ionian' && isGuitarTheorySlug(e.slug),
+).map((e) => ({
+  label: `Guitar: ${e.title}`,
+  description: 'Theory · Guitar',
+  route: LearnRoutes.guitarOverview({ mode: e.slug }),
+  keywords: [`guitar ${e.name.toLowerCase()}`],
+  category: 'mode',
+}));
 
 // ── Intent words that boost specific categories ──
 
@@ -422,7 +438,7 @@ export function useAssistantMatcher() {
     if (tokens.length === 0) return [];
 
     const catalog = isGuitarLearnEnabled()
-      ? [...ACTIVITY_CATALOG, GUITAR_ACTIVITY]
+      ? [...ACTIVITY_CATALOG, GUITAR_ACTIVITY, ...GUITAR_THEORY_ACTIVITIES]
       : ACTIVITY_CATALOG;
     return catalog
       .map((entry) => ({

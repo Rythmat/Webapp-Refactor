@@ -1301,6 +1301,16 @@ it whenever suits, before Phase 4. Its identity is `id`, a number, so
 
 ---
 
+### 5c. Instrument content: `drum_groove`, `instrument_part`, `feel_profile`
+
+Three new kinds for the console's drum grooves, Parts Library parts and feel
+profiles, each with `id` as its identity and one bundle (see CDN bundles).
+Their bodies, slug patterns, references, publish order and import are in
+[instrument-content-kinds.md](instrument-content-kinds.md); the zod bodies
+are `src/content/instrument/schemas.ts` and the slug patterns are in
+`slugPatterns.generated.json` (draft 4). Repo mode and the mock serve them
+already.
+
 ## Derivation changes
 
 All in `music-atlas-api/src/services/content/derive/song-to-globe-event.ts`.
@@ -1468,17 +1478,20 @@ The names and format are fixed now, because each new kind's import ends with
 a release (priority 4) and the publish checks read live releases
 (priority 7). What the app reads from them, and when, is Later.
 
-| Kind                | Bundle         |
-| ------------------- | -------------- |
-| `artist`            | `artists`      |
-| `release`           | `releases`     |
-| `studio`            | `studios`      |
-| `label`             | `labels`       |
-| `globe_city`        | `places`       |
-| `chord_progression` | `progressions` |
-| `genre`             | `genres`       |
-| `subgenre`          | `subgenres`    |
-| `instrument`        | `instruments`  |
+| Kind                | Bundle             |
+| ------------------- | ------------------ |
+| `artist`            | `artists`          |
+| `release`           | `releases`         |
+| `studio`            | `studios`          |
+| `label`             | `labels`           |
+| `globe_city`        | `places`           |
+| `chord_progression` | `progressions`     |
+| `genre`             | `genres`           |
+| `subgenre`          | `subgenres`        |
+| `instrument`        | `instruments`      |
+| `drum_groove`       | `drum-grooves`     |
+| `instrument_part`   | `instrument-parts` |
+| `feel_profile`      | `feel-profiles`    |
 
 The last four are from `console-backend-integration.md` §4.4. The Teach
 kinds follow later. If `globe_city` already

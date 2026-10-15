@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "timestamp": 1745000000000,
+  "data": {
+    "transport": {
+      "bpm": 104,
+      "position": 1920,
+      "metronomeEnabled": true,
+      "loopEnabled": true,
+      "loopStart": 0,
+      "loopEnd": 7680
+    },
+    "tracks": [
+      {
+        "id": "v1-keys",
+        "name": "Keys",
+        "type": "midi",
+        "instrument": "piano-sampler",
+        "color": "#d2404a",
+        "mute": false,
+        "solo": false,
+        "volume": 0.7,
+        "pan": -0.2,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [
+          {
+            "id": "v1-clip-chords",
+            "name": "Chords",
+            "startTick": 0,
+            "events": [
+              {
+                "note": 67,
+                "velocity": 80,
+                "startTick": 960,
+                "durationTicks": 960,
+                "channel": 0
+              },
+              {
+                "note": 60,
+                "velocity": 90,
+                "startTick": 0,
+                "durationTicks": 960,
+                "channel": 0
+              },
+              {
+                "note": 64,
+                "velocity": 85,
+                "startTick": 0,
+                "durationTicks": 960,
+                "channel": 0
+              },
+              {
+                "note": 60,
+                "velocity": 70,
+                "startTick": 0,
+                "durationTicks": 480,
+                "channel": 0
+              },
+              {
+                "note": 55,
+                "velocity": 75,
+                "startTick": 960,
+                "durationTicks": 960,
+                "channel": 0
+              }
+            ]
+          },
+          {
+            "id": "v1-clip-tag",
+            "startTick": 3840,
+            "events": [
+              {
+                "note": 72,
+                "velocity": 100,
+                "startTick": 240,
+                "durationTicks": 240,
+                "channel": 0
+              },
+              {
+                "note": 71,
+                "velocity": 100,
+                "startTick": 0,
+                "durationTicks": 240,
+                "channel": 0
+              }
+            ]
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": ["reverb"]
+      },
+      {
+        "id": "v1-drums",
+        "name": "Drums",
+        "type": "midi",
+        "instrument": "drum-machine",
+        "color": "#28a69a",
+        "mute": false,
+        "solo": true,
+        "volume": 0.9,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [
+          {
+            "id": "v1-clip-beat",
+            "name": "Beat",
+            "startTick": 0,
+            "events": [
+              {
+                "note": 36,
+                "velocity": 110,
+                "startTick": 0,
+                "durationTicks": 120,
+                "channel": 9
+              },
+              {
+                "note": 42,
+                "velocity": 70,
+                "startTick": 0,
+                "durationTicks": 60,
+                "channel": 9
+              },
+              {
+                "note": 38,
+                "velocity": 100,
+                "startTick": 960,
+                "durationTicks": 120,
+                "channel": 9
+              },
+              {
+                "note": 42,
+                "velocity": 70,
+                "startTick": 480,
+                "durationTicks": 60,
+                "channel": 9
+              }
+            ]
+          }
+        ],
+        "audioClips": []
+      },
+      {
+        "id": "v1-vox",
+        "name": "Vox",
+        "type": "audio",
+        "instrument": "vocal-fx",
+        "color": "#9d7fce",
+        "mute": true,
+        "solo": false,
+        "volume": 0.6,
+        "pan": 0.25,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [],
+        "audioClips": [
+          { "id": "v1-take-1", "startTick": 1920, "duration": 3840 },
+          {
+            "id": "v1-take-2",
+            "startTick": 7680,
+            "duration": 1920,
+            "fadeInTicks": 60,
+            "fadeOutTicks": 120
+          }
+        ],
+        "activeEffects": []
+      }
+    ],
+    "prism": {
+      "rootNote": 9,
+      "rhythmName": "Quarters",
+      "genre": "Pop",
+      "swing": 10
+    }
+  }
+}

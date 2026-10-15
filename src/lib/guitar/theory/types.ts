@@ -10,12 +10,23 @@ import type {
 } from '@/lib/guitar/types';
 
 /** Rendered with ♭ via toneLabelText; 'R', never '1', so it can't read as finger 1. */
-export type ChordToneLabel = 'R' | '3' | 'b3' | '5' | 'b5' | '7' | 'b7';
+export type ChordToneLabel =
+  | 'R'
+  | '2'
+  | '3'
+  | 'b3'
+  | '5'
+  | 'b5'
+  | '#5'
+  | '6'
+  | '7'
+  | 'b7'
+  | 'bb7';
 export type ChordToneRole = 'root' | 'third' | 'fifth' | 'seventh';
 /** Scale degree in a major key. */
 export type KeyDegree = 7 | 6 | 5 | 4 | 3 | 2 | 1;
 export type LabelMode = 'fingers' | 'notes' | 'keyNumbers' | 'chordTones';
-/** Book qualities plus the diminished triad on 7, which the book never prints. */
+/** Book qualities, the diminished triad included. */
 export type DiatonicQuality = BookChordQuality | 'dim';
 export type SeventhQuality = Extract<
   BookChordQuality,
@@ -111,6 +122,7 @@ export interface ChangeInfo {
 
 export interface MusicMapAnalysis {
   degrees: KeyDegree[];
+  /** Each bar's job (home, away, tension); empty in a mode's maps. */
   functions: FunctionGroup[];
   patterns: MapPattern[];
   changes: ChangeInfo[];
@@ -127,6 +139,8 @@ export type GuitarSubsectionPrefix =
   | 'A2'
   | 'A3'
   | 'A4'
+  /** A mode's second pentatonic; its notes are A4's. */
+  | 'A5'
   | 'B'
   | 'B1'
   | 'B2'
@@ -148,6 +162,8 @@ export type TheoryNoteCondition =
   | 'isFirstKey'
   | 'notFirstKeyNoRespell'
   | 'isFlatSwitch'
+  | 'modeSpelledLikeParent'
+  | 'modeRespelled'
   | 'scaleHasOpenStrings'
   | 'inTimeStep'
   | 'staccatoStep'
@@ -162,7 +178,7 @@ export type TheoryNoteCondition =
   | 'familyDrop3'
   | 'familyOpenSeventh'
   | 'firstDrop3StepInKey'
-  | 'degreeIsNot5'
+  | 'hasHiddenTriad'
   | 'degreeIs7'
   // change
   | 'changeHasAnchor'
@@ -181,7 +197,38 @@ export type TheoryNoteCondition =
   | 'hasTopLineRun'
   | 'octaveIsSameShape'
   | 'octaveIsNewShape'
-  | 'octaveNotHigher';
+  | 'octaveNotHigher'
+  // The rest of Theory
+  | 'handStill'
+  | 'positionNeedsStretch'
+  | 'octaveTwoOverTwoUp'
+  | 'modeIsFamilyParent'
+  | 'modeIsFamilyMode'
+  | 'scaleHasAugmentedSecond'
+  | 'scaleHasBlueNote'
+  | 'hasAugTriad'
+  | 'hasTwoDimTriads'
+  | 'hasMajFlat5Triad'
+  | 'hasSus2Flat5Triad'
+  | 'stepChordsHaveThird'
+  | 'chordTopIsSeventh'
+  | 'chordIsMinMaj7'
+  | 'chordIsAugMaj7'
+  | 'chordIsDim7'
+  | 'chordIsHalfDim'
+  | 'chordIsMin6'
+  | 'chordIsDom7b5'
+  | 'chordIsSus2b5add6';
+
+/** A note's lessons: see GuitarTheoryNote.modes. */
+export type TheoryNoteScope =
+  | 'ionian'
+  | 'modal'
+  | 'pentatonic-blues'
+  | 'harmonic-minor'
+  | 'melodic-minor'
+  | 'harmonic-major'
+  | 'double-harmonic';
 
 export interface GuitarTheoryNote {
   /** Stable, e.g. 'b7.drop3mute'. */
@@ -191,6 +238,12 @@ export interface GuitarTheoryNote {
   placement: 'intro' | 'info' | 'popover';
   kind: 'theory' | 'technique' | 'listening' | 'practice';
   when: TheoryNoteCondition;
+  /**
+   * Which lessons the note belongs to: 'ionian' (Book One's major keys),
+   * 'modal' (the other diatonic modes) or a family from the rest of Theory,
+   * alone or as a list. Absent: every lesson.
+   */
+  modes?: TheoryNoteScope | readonly TheoryNoteScope[];
   /** ≤ 5 words. */
   title: string;
   /** 1–4 sentences, ≤ 20 words each; {tokens} are resolved per key and step. */

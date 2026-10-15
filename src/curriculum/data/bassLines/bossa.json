@@ -1,0 +1,40 @@
+{
+  "id": "bossa",
+  "name": "Bossa",
+  "description": "Root and fifth in the dotted-quarter bossa rhythm",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 50,
+  "timeSignature": [4, 4],
+  "length": "1m",
+  "gridResolution": "8n",
+  "instrument": "upright",
+  "grooves": ["bossa-nova"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 1.45,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:1:2",
+      "degree": "5",
+      "dur": 0.45,
+      "velocity": 0.62
+    },
+    {
+      "time": "0:2:0",
+      "degree": "5",
+      "dur": 1.45,
+      "velocity": 0.76
+    },
+    {
+      "time": "0:3:2",
+      "degree": "R",
+      "dur": 0.6,
+      "velocity": 0.62
+    }
+  ]
+}

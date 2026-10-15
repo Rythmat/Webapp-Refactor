@@ -1,4 +1,5 @@
 import { Eye, EyeOff } from 'lucide-react';
+import type { MindMapSubmission } from '@/content/graph/mindMapBoard';
 import { InteractionResponseDashboard } from '../../assignments/InteractionResponseDashboard';
 import type { ResponseAggregate } from '../../assignments/buildResponseAggregate';
 import type { Slide } from '../../slides/types';
@@ -24,6 +25,7 @@ interface CurrentSlidePanelProps {
       enrollmentId: string;
       displayName: string;
       state: SlideProgressState;
+      mindMap?: MindMapSubmission;
     }>;
     counts: SlideProgress['counts'];
   };
@@ -65,6 +67,7 @@ export const CurrentSlidePanel = ({
         <AppRouteProgressStrip
           rows={appRouteProgress.rows}
           counts={appRouteProgress.counts}
+          board={interactions[0]?.atlas?.board}
         />
       ) : interactions.length === 0 ? (
         <p className="text-sm text-white/50">

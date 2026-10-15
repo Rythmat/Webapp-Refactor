@@ -1,0 +1,238 @@
+{
+  "id": "funk-l3-d1-2-lh-bass-rh-stabs-variant-1",
+  "name": "Funk L3 · D1.2: LH Bass + RH Stabs · Variant 1",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 3,
+  "tempo": 98,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 380,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 240,
+      "duration": 120,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 380,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1360,
+      "duration": 120,
+      "midi": 40,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 380,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2160,
+      "duration": 120,
+      "midi": 29,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 380,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3280,
+      "duration": 120,
+      "midi": 35,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 3,
+    "section": "D",
+    "stepNumber": 143,
+    "title": "D1: LH Bass + RH Chords",
+    "tag": "funk:performance_lh_bass_rh_chords_l2_it | funk",
+    "variant": 0,
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Play the same bass and voicings in time with the click.",
+  "genre": "funk",
+  "chordSymbols": ["Cm9", "F13"]
+}

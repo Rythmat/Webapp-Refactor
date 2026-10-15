@@ -1,0 +1,52 @@
+{
+  "id": "funk-l1-b22-b2-chord-voicings",
+  "name": "Funk L1 · B22 B2: Chord Voicings",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "draft",
+  "key": {
+    "tonic": 2,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 92,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 1920,
+      "midi": 72,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 1,
+    "section": "B",
+    "stepNumber": 22,
+    "title": "B2: Chord Voicings",
+    "tag": "funk:dm7_shell_oot | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Play the Dm7 shell voicing: D, F, C. Root, minor 3rd, flat 7th — the essential skeleton.",
+  "genre": "funk",
+  "chordSymbols": ["Dm7"]
+}

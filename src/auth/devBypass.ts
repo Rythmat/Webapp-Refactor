@@ -20,7 +20,10 @@ import type { SubscriptionStatus } from '@/features/settings/subscription/subscr
 //
 // Enable it for a local session by starting Vite with the flag, e.g.:
 //   VITE_DEV_AUTH_BYPASS=1 npx vite
-// Leave it unset for normal development (real Auth0 login).
+// Leave it unset for normal development (real Auth0 login). Add
+// `VITE_DEV_AUTH_BYPASS_PLAN=free` to sign in as a free account instead, to
+// see the premium gates (the Prism lock, the Premium lessons) as a free
+// student meets them.
 export const DEV_AUTH_BYPASS =
   import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_BYPASS === '1';
 
@@ -74,17 +77,33 @@ export const DEV_BYPASS_AUTH_DATA: AuthContextData | null =
       }
     : null;
 
-/** Active paid subscription → getBillingUiState() === 'active' →
- *  isActivePaidState() === true → useIsPremium().isPremium === true.
- *  `null` in prod. */
+/** `VITE_DEV_AUTH_BYPASS_PLAN=free`: the bypass user has a free account.
+ *  (scripts/studio-perf/lessons.mjs serves this module with the flag read as
+ *  'free' or 'premium' to sign a page in as each persona.) */
+const DEV_BYPASS_FREE_PLAN =
+  import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_BYPASS_PLAN === 'free';
+
+/** By default an active paid subscription → getBillingUiState() === 'active'
+ *  → isActivePaidState() === true → useIsPremium().isPremium === true. With
+ *  the free plan, a free account's (no paid access, never subscribed) →
+ *  'free' → isPremium === false. `null` in prod. */
 export const DEV_BYPASS_SUBSCRIPTION: SubscriptionStatus | null = import.meta
   .env.DEV
-  ? {
-      hasPaidAccess: true,
-      subscriptionStatus: 'active',
-      cancelAtPeriodEnd: false,
-      currentPeriodStart: Math.floor(Date.now() / 1000),
-      currentPeriodEnd: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
-      lastInvoiceStatus: 'paid',
-    }
+  ? DEV_BYPASS_FREE_PLAN
+    ? {
+        hasPaidAccess: false,
+        subscriptionStatus: null,
+        cancelAtPeriodEnd: false,
+        currentPeriodStart: null,
+        currentPeriodEnd: null,
+        lastInvoiceStatus: null,
+      }
+    : {
+        hasPaidAccess: true,
+        subscriptionStatus: 'active',
+        cancelAtPeriodEnd: false,
+        currentPeriodStart: Math.floor(Date.now() / 1000),
+        currentPeriodEnd: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
+        lastInvoiceStatus: 'paid',
+      }
   : null;

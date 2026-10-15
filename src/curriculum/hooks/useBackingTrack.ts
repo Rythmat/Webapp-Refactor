@@ -21,8 +21,19 @@ import * as Tone from 'tone';
 import { startTone } from '@/audio/core/toneBridge';
 import { DrumMachineEngine } from '../../daw/instruments/DrumMachineEngine';
 // Bass uses direct Tone.Sampler for triggerAttackRelease (self-contained per note)
+import type { InstrumentAdapter } from '../../daw/instruments/InstrumentAdapter';
 import { SoundFontAdapter } from '../../daw/instruments/SoundFontAdapter';
-import { buildBackingNotes } from '../engine/genreGeneration/backingPatterns';
+import {
+  applySynthSound,
+  createSoundInstrument,
+} from '../../daw/instruments/soundString';
+import {
+  type BackingNote,
+  type BackingVoice,
+  buildBackingNotes,
+  stepBassVoice,
+  stepDrumKit,
+} from '../engine/genreGeneration/backingPatterns';
 import {
   createEightOhEight,
   play808,
@@ -38,6 +49,8 @@ import {
   type BassVoiceConfig,
 } from '../engine/genreGeneration/genreBassVoices';
 import type { GenreNoteEvent } from '../engine/genreGeneration/resolveStepContent';
+import { pairingsReady } from '../engine/lessonPairings/registry';
+import { COMMON_TIME, type TimeSignature } from '../engine/meter';
 import type { ActivityStepV2 } from '../types/activity.v2';
 
 // ── Bass sampler config (public/samples/bass-electric/) ─────────────────────
@@ -92,6 +105,14 @@ export function useBackingTrack(tempo: number) {
   const eightOhEightRef = useRef<EightOhEight | null>(null);
   const drumBridgeRef = useRef<Tone.Gain | null>(null);
   const enginesReady = useRef(false);
+  // Band layers on instruments of their own (BackingNote.voice), by layer and
+  // sound, kept across plays so a restart doesn't reload their samples.
+  const layerVoicesRef = useRef(
+    new Map<
+      string,
+      { adapter: InstrumentAdapter; gain: Tone.Gain; sounding: Set<number> }
+    >(),
+  );
   const enginesLoading = useRef(false);
 
   // SF2 fallback
@@ -288,6 +309,11 @@ export function useBackingTrack(tempo: number) {
 
   useEffect(() => {
     return () => {
+      layerVoicesRef.current.forEach((v) => {
+        v.adapter.dispose?.();
+        v.gain.dispose();
+      });
+      layerVoicesRef.current.clear();
       drumEngineRef.current?.dispose();
       bassSamplerRef.current?.dispose();
       loadedGenreBassRef.current.forEach((sampler) => sampler.dispose());
@@ -341,6 +367,10 @@ export function useBackingTrack(tempo: number) {
     sf2BassRef.current?.allNotesOff();
     sf2ChordsRef.current?.allNotesOff();
     popPadSynthRef.current?.releaseAll();
+    layerVoicesRef.current.forEach((v) => {
+      v.sounding.forEach((n) => v.adapter.noteOff(n));
+      v.sounding.clear();
+    });
   }, []);
 
   const stopBacking = useCallback(() => {
@@ -350,6 +380,72 @@ export function useBackingTrack(tempo: number) {
     Tone.getTransport().loop = false;
     disposeAll();
   }, [disposeAll]);
+
+  /** A band layer's instrument, made once per layer and sound. */
+  const layerVoice = useCallback(async (voice: BackingVoice) => {
+    const key = `${voice.layer}|${voice.sound}`;
+    const cached = layerVoicesRef.current.get(key);
+    if (cached) {
+      cached.gain.gain.value = voice.volume;
+      return cached;
+    }
+    const adapter = createSoundInstrument(voice.sound);
+    if (!adapter) return null;
+    const gain = new Tone.Gain(voice.volume).toDestination();
+    try {
+      await adapter.init(
+        Tone.getContext().rawContext as AudioContext,
+        gain.input as unknown as AudioNode,
+      );
+    } catch (err) {
+      // A layer whose samples don't load sits out; the rest still play.
+      console.warn(`[backing] ${voice.name} (${voice.sound}) didn't load`, err);
+      adapter.dispose?.();
+      gain.dispose();
+      return null;
+    }
+    applySynthSound(adapter, voice.sound);
+    const made = { adapter, gain, sounding: new Set<number>() };
+    layerVoicesRef.current.set(key, made);
+    return made;
+  }, []);
+
+  /** Schedules every voiced band layer on its own instrument. */
+  const scheduleLayerVoices = useCallback(
+    async (notes: readonly BackingNote[], spt: number) => {
+      const byLayer = new Map<string, BackingNote[]>();
+      for (const n of notes)
+        if (n.voice)
+          byLayer.set(n.voice.layer, [
+            ...(byLayer.get(n.voice.layer) ?? []),
+            n,
+          ]);
+      for (const [layer, own] of byLayer) {
+        const v = await layerVoice(own[0].voice!);
+        if (!v) continue;
+        const part = new Tone.Part(
+          (time, n: { note: number; velocity: number; dur: number }) => {
+            v.adapter.noteOn(n.note, n.velocity, time);
+            v.sounding.add(n.note);
+            v.adapter.noteOff(n.note, time + n.dur);
+          },
+          own.map((n) => ({
+            time: n.onset * spt,
+            note: n.note,
+            velocity: n.velocity,
+            dur: Math.max(0.03, n.duration * spt),
+          })),
+        );
+        part.start(0);
+        partsRef.current[`layer:${layer}`] = part;
+        if (import.meta.env.DEV)
+          console.log(
+            `[backing] band layer ${own[0].voice!.name} on ${own[0].voice!.sound}: ${own.length} notes`,
+          );
+      }
+    },
+    [layerVoice],
+  );
 
   // ── startBacking ──────────────────────────────────────────────────────────
 
@@ -364,11 +460,14 @@ export function useBackingTrack(tempo: number) {
       genre: string = 'funk',
       countInTicks: number = 0,
       swing: number = 50,
+      timeSignature: TimeSignature = COMMON_TIME,
     ) => {
       Tone.getTransport().stop();
       Tone.getTransport().cancel();
       disposeAll();
       await startTone();
+      // Studio grooves a lesson pairing names load on demand (D-084).
+      await pairingsReady;
       ensureFallbackSynths();
       const usePopPad = genre === 'pop' && ensurePopPad();
 
@@ -377,12 +476,14 @@ export function useBackingTrack(tempo: number) {
 
       const useReal = enginesReady.current;
       const useSF2 = sf2Ready.current;
-      // The step's own kit and bass sound (backing_style), else the genre's.
-      const style = step.backing_style;
+      // A back-office pairing's kit and bass sound (D-084), else the step's
+      // own (backing_style), else its designed groove's kit, else the genre's.
       if (useReal && drumEngineRef.current) {
-        await drumEngineRef.current.setKit(style?.kit ?? 'natural');
+        await drumEngineRef.current.setKit(
+          stepDrumKit(step, styleRef, genre, level),
+        );
       }
-      const voiceId = style?.bassVoice;
+      const voiceId = stepBassVoice(step, styleRef, genre, level);
       const use808 = useReal && voiceId === '808' && bassBridgeRef.current;
       if (use808 && !eightOhEightRef.current) {
         eightOhEightRef.current = createEightOhEight(bassBridgeRef.current!);
@@ -407,12 +508,14 @@ export function useBackingTrack(tempo: number) {
         genre,
         countInTicks,
         swing,
+        timeSignature,
       );
 
       // Dev verification
       if (import.meta.env.DEV) {
+        // The part's own drums: a band's second drum layer has kicks of its own.
         const kicks = allNotes
-          .filter((n) => n.note === 36)
+          .filter((n) => n.note === 36 && n.part === 'drums' && !n.voice)
           .map((n) => n.onset)
           .sort((a, b) => a - b);
         let maxRun = 1,
@@ -429,7 +532,7 @@ export function useBackingTrack(tempo: number) {
 
       // ── Drums ─────────────────────────────────────────────────────────────
       const drumEvents = allNotes
-        .filter((n) => n.part === 'drums')
+        .filter((n) => n.part === 'drums' && !n.voice)
         .map((n) => ({
           time: n.onset * spt,
           note: n.note,
@@ -477,7 +580,7 @@ export function useBackingTrack(tempo: number) {
       //   - This is how a real bass player works: new pluck kills old vibration
       // For notes with space after them: normal noteOff for clean cutoff.
       const rawBass = allNotes
-        .filter((n) => n.part === 'bass')
+        .filter((n) => n.part === 'bass' && !n.voice)
         .sort((a, b) => a.onset - b.onset);
 
       // For each bass note, compute the duration it should actually sound.
@@ -558,7 +661,7 @@ export function useBackingTrack(tempo: number) {
 
       // ── Chords ────────────────────────────────────────────────────────────
       const chordEvents = allNotes
-        .filter((n) => n.part === 'chords')
+        .filter((n) => n.part === 'chords' && !n.voice)
         .map((n) => ({
           time: n.onset * spt,
           note: n.note,
@@ -617,11 +720,20 @@ export function useBackingTrack(tempo: number) {
         partsRef.current.chords = chordPart;
       }
 
+      // ── Band layers on their own instruments ────────────────────────────────
+      await scheduleLayerVoices(allNotes, spt);
+
       if (preStartCallback) await preStartCallback();
       Tone.getTransport().start(`+${BACKING_LEAD_SEC}`);
       isPlayingRef.current = true;
     },
-    [tempo, disposeAll, ensureFallbackSynths, loadGenreBass],
+    [
+      tempo,
+      disposeAll,
+      ensureFallbackSynths,
+      loadGenreBass,
+      scheduleLayerVoices,
+    ],
   );
 
   return {

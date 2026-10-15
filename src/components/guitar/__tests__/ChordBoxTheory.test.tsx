@@ -7,12 +7,12 @@ import {
   within,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { hybridLabel } from '@/curriculum/data/guitar/bookOne';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
   chordName,
   chordRootPc,
-  hybridLabel,
-} from '@/curriculum/data/guitar/bookOne';
+  getGuitarCenter,
+} from '@/curriculum/data/guitar/centers';
 import type {
   GuitarChordShape,
   GuitarKeyName,
@@ -30,14 +30,14 @@ const RED = '#D2404A';
 
 /** Book One shapes by id, with the name and label the lesson gives them. */
 function book(key: GuitarKeyName, kind: 'triads' | 'sevenths', n: number) {
-  const shape: GuitarChordShape = GUITAR_ATLAS_BOOK_ONE[key][kind][n - 1];
+  const shape: GuitarChordShape = getGuitarCenter(key)[kind][n - 1];
   return {
     shape,
     name: formatAccidentalsForDisplay(
-      chordName(key, shape.degree, shape.quality),
+      chordName(getGuitarCenter(key), shape.degree, shape.quality),
     ).replace('(b5)', '(♭5)'),
     hybridLabel: hybridLabel(shape.degree, shape.quality),
-    rootPc: chordRootPc(key, shape.degree),
+    rootPc: chordRootPc(getGuitarCenter(key), shape.degree),
   };
 }
 
@@ -381,5 +381,62 @@ describe('ChordBox (i) popover', () => {
     expect(dialog.textContent).toContain(
       'Low to high, this shape plays R, 3, 5, R, 3. R is the root.',
     );
+  });
+});
+
+describe('chord-tone labels given by the caller', () => {
+  afterEach(cleanup);
+
+  // A song's E7sus4, open: 0-2-0-2-0-0 (no Book One quality).
+  const E7SUS4: GuitarShapeDiagram = {
+    frets: '0-2-0-2-0-0',
+    diagramStartFret: 1,
+    fingering: [
+      { finger: 2, string: 5, fret: 2 },
+      { finger: 3, string: 3, fret: 2 },
+    ],
+  };
+  const tones = new Map([
+    [6, 'R'],
+    [5, '5'],
+    [4, '♭7'],
+    [3, '4'],
+    [2, '5'],
+    [1, 'R'],
+  ] as const);
+
+  it('labels a chord with no theory layer from toneLabels', () => {
+    const host = render(
+      <ChordBox
+        shape={E7SUS4}
+        name="E7sus4"
+        rootPc={4}
+        keyColor={RED}
+        labelMode="chordTones"
+        toneLabels={tones}
+      />,
+    ).container;
+    expect(labelsByString(host)).toEqual({
+      6: 'R',
+      5: '5',
+      4: '♭7',
+      3: '4',
+      2: '5',
+      1: 'R',
+    });
+  });
+
+  it('keeps fingers without them, or in finger mode', () => {
+    const fingers = render(
+      <ChordBox
+        shape={E7SUS4}
+        name="E7sus4"
+        rootPc={4}
+        keyColor={RED}
+        labelMode="fingers"
+        toneLabels={tones}
+      />,
+    ).container;
+    expect(labelsByString(fingers)).toMatchObject({ 5: '2', 3: '3' });
   });
 });

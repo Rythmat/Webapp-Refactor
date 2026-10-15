@@ -1,0 +1,181 @@
+{
+ "mode": "compare",
+ "profile": "small",
+ "blockedHosts": [],
+ "cases": [
+  {
+   "case": "demo-sunset-keys@44100",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.89 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "File > Export Audio (WAV) works on a 44100 Hz device: 16-bit 44100 Hz, 13.2941 s, peak -6.37 dB, 38 onsets",
+    "the exported file holds the same audio as renderProject at 44100 Hz",
+    "stem \"Bass\" (soundfont) renders silent",
+    "GM SoundFont bass stem is silent in the bounce: true",
+    "the page logged: [renderProject] instrument init failed for \"Bass\": InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+   ],
+   "pageErrors": []
+  },
+  {
+   "case": "demo-sunset-keys@48000",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.67 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "File > Export Audio (WAV) fails on a 48000 Hz device: NotSupportedError: Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz.",
+    "Tone's global context is left on the dead offline context afterwards",
+    "after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload",
+    "stem \"Bass\" (soundfont) renders silent",
+    "GM SoundFont bass stem is silent in the bounce: true",
+    "the page logged: [renderProject] instrument init failed for \"Bass\": InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+   ],
+   "pageErrors": []
+  },
+  {
+   "case": "loop-range@44100",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.89 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "File > Export Audio (WAV) works on a 44100 Hz device: 16-bit 44100 Hz, 5 s, peak -0.98 dB, 16 onsets",
+    "the exported file holds the same audio as renderProject at 44100 Hz",
+    "bass note started before the loop start is heard in the first loop bar: -120",
+    "drums: the first loop downbeat (bar 2) opens the render, at 0 s plus the chains latency: true"
+   ],
+   "pageErrors": []
+  },
+  {
+   "case": "loop-range@48000",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.67 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "File > Export Audio (WAV) fails on a 48000 Hz device: NotSupportedError: Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz.",
+    "Tone's global context is left on the dead offline context afterwards",
+    "after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload",
+    "bass note started before the loop start is heard in the first loop bar: -120",
+    "drums: the first loop downbeat (bar 2) opens the render, at 0 s plus the chains latency: true"
+   ],
+   "pageErrors": []
+  },
+  {
+   "case": "metronome-countin@44100",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.89 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "Lead (oracle-synth) renders differently from run to run (synth-engine-01: Oracle voices are freed by wall-clock timers while the offline render runs faster than real time, so which notes sound, and where their releases are cut, depends on how fast the machine renders); this mix is compared with loose tolerances, and its stem on status, rate and length only",
+    "File > Export Audio (WAV) works on a 44100 Hz device: 16-bit 44100 Hz, 6 s, peak 0 dB, 14 onsets",
+    "the exported file holds the same audio as renderProject at 44100 Hz in this run (the mix varies from run to run)",
+    "stem \"Sample\" (none) renders silent",
+    "the page logged: [AudioClipScheduler] startSource failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+   ],
+   "pageErrors": []
+  },
+  {
+   "case": "metronome-countin@48000",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.67 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "Lead (oracle-synth) renders differently from run to run (synth-engine-01: Oracle voices are freed by wall-clock timers while the offline render runs faster than real time, so which notes sound, and where their releases are cut, depends on how fast the machine renders); this mix is compared with loose tolerances, and its stem on status, rate and length only",
+    "File > Export Audio (WAV) fails on a 48000 Hz device: NotSupportedError: Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz.",
+    "Tone's global context is left on the dead offline context afterwards",
+    "after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload",
+    "stem \"Sample\" (none) renders silent",
+    "the page logged: [AudioClipScheduler] startSource failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context.",
+    "the page logged: [AudioClipScheduler] startSourceNow failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+   ],
+   "pageErrors": []
+  },
+  {
+   "case": "oracle-two-notes@44100",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.89 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "Lead (oracle-synth) renders differently from run to run (synth-engine-01: Oracle voices are freed by wall-clock timers while the offline render runs faster than real time, so which notes sound, and where their releases are cut, depends on how fast the machine renders); this mix is compared on its status, rate and length only",
+    "File > Export Audio (WAV) works on a 44100 Hz device: 16-bit 44100 Hz, 3.5 s, peak -6.11 dB, 1 onsets",
+    "the exported file holds the same audio as renderProject at 44100 Hz in this run (the mix varies from run to run)",
+    "note 1 (C4) sounds from 0.0 s (plus the chains latency): false",
+    "note 2 (G4) sounds from 1.0 s (plus the chains latency): true",
+    "level while note 1 holds: -120",
+    "level while note 2 holds: -15.6",
+    "level after both notes released (release 0.3 s): -85.3"
+   ],
+   "pageErrors": []
+  },
+  {
+   "case": "oracle-two-notes@48000",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.67 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "Lead (oracle-synth) renders differently from run to run (synth-engine-01: Oracle voices are freed by wall-clock timers while the offline render runs faster than real time, so which notes sound, and where their releases are cut, depends on how fast the machine renders); this mix is compared on its status, rate and length only",
+    "File > Export Audio (WAV) fails on a 48000 Hz device: NotSupportedError: Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz.",
+    "Tone's global context is left on the dead offline context afterwards",
+    "after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload",
+    "note 1 (C4) sounds from 0.0 s (plus the chains latency): false",
+    "note 2 (G4) sounds from 1.0 s (plus the chains latency): true",
+    "level while note 1 holds: -120",
+    "level while note 2 holds: -15.6",
+    "level after both notes released (release 0.3 s): -15.7"
+   ],
+   "pageErrors": []
+  },
+  {
+   "case": "trimmed-audio@44100",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.89 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "the whole bounce is silent",
+    "File > Export Audio (WAV) works on a 44100 Hz device: 16-bit 44100 Hz, 7.5 s, silent",
+    "the exported file holds the same audio as renderProject at 44100 Hz",
+    "clip-trimmed plays, offsetSeconds honoured: first beep at 1.25 s (1.00 s if ignored), plus the chains latency: null (no onsets)",
+    "clip-trimmed gain 0.5: its beep level minus clip-faded full-level beep (-6 dB when applied): null (both silent)",
+    "clip-faded fade-in: its first beep minus its second (negative when the fade is applied): null (both silent)",
+    "the page logged: [AudioClipScheduler] startSource failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+   ],
+   "pageErrors": []
+  },
+  {
+   "case": "trimmed-audio@48000",
+   "pass": true,
+   "diffs": [],
+   "notReady": null,
+   "warnings": [],
+   "facts": [
+    "an EffectChain with every effect off delays the signal 8.67 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "the whole bounce is silent",
+    "File > Export Audio (WAV) fails on a 48000 Hz device: NotSupportedError: Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz.",
+    "Tone's global context is left on the dead offline context afterwards",
+    "after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload",
+    "clip-trimmed plays, offsetSeconds honoured: first beep at 1.25 s (1.00 s if ignored), plus the chains latency: null (no onsets)",
+    "clip-trimmed gain 0.5: its beep level minus clip-faded full-level beep (-6 dB when applied): null (both silent)",
+    "clip-faded fade-in: its first beep minus its second (negative when the fade is applied): null (both silent)",
+    "the page logged: [AudioClipScheduler] startSource failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+   ],
+   "pageErrors": []
+  }
+ ]
+}

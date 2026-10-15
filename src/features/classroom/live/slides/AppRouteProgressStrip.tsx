@@ -5,17 +5,28 @@
  * surface, Rule 2); this component is never mounted on the projector.
  */
 import { motion, useReducedMotion } from 'framer-motion';
+import { Waypoints } from 'lucide-react';
+import { useState } from 'react';
+import type {
+  MindMapBoard,
+  MindMapSubmission,
+} from '@/content/graph/mindMapBoard';
 import type { SlideProgress, SlideProgressState } from '../buildSlideProgress';
+import { MindMapDialog } from './MindMapDialog';
 
 interface Row {
   enrollmentId: string;
   displayName: string;
   state: SlideProgressState;
+  /** A Promoter's submitted mind map. */
+  mindMap?: MindMapSubmission;
 }
 
 export interface AppRouteProgressStripProps {
   rows: Row[];
   counts: SlideProgress['counts'];
+  /** The slide's mind-map board, so a submitted map can be opened. */
+  board?: MindMapBoard;
 }
 
 const RANK: Record<SlideProgressState, number> = {
@@ -50,8 +61,10 @@ const Pill = ({
 export const AppRouteProgressStrip = ({
   rows,
   counts,
+  board,
 }: AppRouteProgressStripProps) => {
   const reducedMotion = useReducedMotion();
+  const [viewing, setViewing] = useState<Row | null>(null);
   const sorted = [...rows].sort((a, b) => {
     const rd = RANK[a.state] - RANK[b.state];
     return rd !== 0 ? rd : a.displayName.localeCompare(b.displayName);
@@ -78,16 +91,39 @@ export const AppRouteProgressStrip = ({
       </div>
       {sorted.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {sorted.map((r) => (
-            <motion.span
-              key={r.enrollmentId}
-              layout={!reducedMotion}
-              className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs ${CHIP[r.state]}`}
-            >
-              {r.displayName}
-            </motion.span>
-          ))}
+          {sorted.map((r) =>
+            board && r.mindMap ? (
+              <motion.button
+                key={r.enrollmentId}
+                type="button"
+                layout={!reducedMotion}
+                onClick={() => setViewing(r)}
+                aria-label={`View ${r.displayName}'s mind map`}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs hover:brightness-125 ${CHIP[r.state]}`}
+              >
+                <Waypoints className="h-3.5 w-3.5" />
+                {r.displayName}
+              </motion.button>
+            ) : (
+              <motion.span
+                key={r.enrollmentId}
+                layout={!reducedMotion}
+                className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs ${CHIP[r.state]}`}
+              >
+                {r.displayName}
+              </motion.span>
+            ),
+          )}
         </div>
+      )}
+      {board && viewing?.mindMap && (
+        <MindMapDialog
+          open
+          onOpenChange={(open) => !open && setViewing(null)}
+          studentName={viewing.displayName}
+          board={board}
+          map={viewing.mindMap}
+        />
       )}
     </div>
   );

@@ -1,15 +1,7 @@
-import {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  type FC,
-  type RefObject,
-} from 'react';
+import { useCallback, useMemo, useRef, useState, type FC } from 'react';
 import { useStore } from '@/daw/store';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useSynthStore } from '@/daw/oracle-synth/store';
-import { useKeyboardShortcuts } from '@/daw/oracle-synth/hooks/useKeyboardShortcuts';
 import { SourceRow } from '@/daw/oracle-synth/components/layout/SourceRow';
 import { LFOArea } from '@/daw/oracle-synth/components/layout/LFOArea';
 import { RightSidebar } from '@/daw/oracle-synth/components/layout/RightSidebar';
@@ -30,18 +22,14 @@ import { useContainerScale } from '@/daw/hooks/useContainerScale';
 import styles from '@/daw/oracle-synth/components/layout/SynthLayout.module.css';
 
 // ── DawSynthLayout ────────────────────────────────────────────────────────
-// Mirrors oracle-synth's SynthLayout but with container-based scaling
-// (ResizeObserver) instead of viewport-based scaling (window dimensions).
+// The Oracle synth panel: the fixed 1440×932 grid in SynthLayout.module.css,
+// scaled to fit its container (useContainerScale, a ResizeObserver).
 
 interface DawSynthLayoutProps {
   engine: SynthEngine;
-  engineRef: RefObject<SynthEngine | null>;
 }
 
-export const DawSynthLayout: FC<DawSynthLayoutProps> = ({
-  engine,
-  engineRef,
-}) => {
+export const DawSynthLayout: FC<DawSynthLayoutProps> = ({ engine }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scale, offsetX, offsetY } = useContainerScale(containerRef);
 
@@ -96,18 +84,6 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({
       });
     },
     [engine],
-  );
-
-  // QWERTY keyboard shortcuts for playing notes
-  useKeyboardShortcuts(
-    engineRef,
-    (note) => setActiveNotes((prev) => new Set(prev).add(note)),
-    (note) =>
-      setActiveNotes((prev) => {
-        const next = new Set(prev);
-        next.delete(note);
-        return next;
-      }),
   );
 
   return (

@@ -307,6 +307,35 @@ export interface ChordMatch {
   inversion: number;
 }
 
+/** A 12-bit set of pitch classes measured from a root (bit n = n semitones). */
+function pitchClassMask(intervals: Iterable<number>): number {
+  let mask = 0;
+  for (const v of intervals) mask |= 1 << ((v % 12) + 12) % 12;
+  return mask;
+}
+
+/**
+ * The detectable chords keyed by their pitch-class set, built once from the
+ * static CHORDS table. detectChordWithInversion runs on every live note change
+ * in each mounted instrument view and once per region in session analysis, so
+ * it looks a candidate root's set up here instead of re-normalizing every
+ * definition per call. When several qualities share a set, the first in CHORDS
+ * order wins, as the old in-order scan did. Slash chords are voicing variants,
+ * not for detection.
+ */
+const DETECTABLE_CHORDS: ReadonlyMap<
+  number,
+  { name: string; def: readonly number[] }
+> = (() => {
+  const byMask = new Map<number, { name: string; def: readonly number[] }>();
+  for (const [name, def] of Object.entries(CHORDS)) {
+    if (name.includes('/')) continue;
+    const mask = pitchClassMask(def);
+    if (!byMask.has(mask)) byMask.set(mask, { name, def });
+  }
+  return byMask;
+})();
+
 /**
  * Given sorted MIDI notes, detects the chord quality and inversion.
  * Tries each pitch class as a potential root to recognize inversions.
@@ -331,54 +360,42 @@ export function detectChordWithInversion(
   let bestMatch: ChordMatch | null = null;
 
   for (const candidate of candidates) {
-    const intervals = pcs
-      .map((pc) => (pc - candidate + 12) % 12)
-      .sort((a, b) => a - b);
+    // The held pitch classes measured from this candidate root.
+    const found = DETECTABLE_CHORDS.get(
+      pitchClassMask(pcs.map((pc) => pc - candidate)),
+    );
+    if (!found) continue;
+    const { name, def } = found;
 
-    for (const [name, def] of Object.entries(CHORDS)) {
-      // Skip slash chord entries (voicing variants, not for detection)
-      if (name.includes('/')) continue;
+    // Determine inversion from bass note position
+    const bassInterval = (bassPc - candidate + 12) % 12;
+    let inversion = 0;
+    for (let j = 1; j < def.length; j++) {
+      if (def[j] % 12 === bassInterval) {
+        inversion = j;
+        break;
+      }
+    }
 
-      // Normalize definition to mod 12 for pitch-class comparison
-      const normDef = [...new Set(def.map((v) => v % 12))].sort(
-        (a, b) => a - b,
-      );
-      if (
-        normDef.length === intervals.length &&
-        normDef.every((v, i) => v === intervals[i])
-      ) {
-        // Determine inversion from bass note position
-        const bassInterval = (bassPc - candidate + 12) % 12;
-        let inversion = 0;
-        for (let j = 1; j < def.length; j++) {
-          if (def[j] % 12 === bassInterval) {
-            inversion = j;
-            break;
-          }
-        }
+    const match: ChordMatch = {
+      quality: name,
+      rootPc: candidate,
+      bassNote,
+      inversion,
+    };
 
-        const match: ChordMatch = {
-          quality: name,
-          rootPc: candidate,
-          bassNote,
-          inversion,
-        };
+    // Root position → return immediately
+    if (candidate === bassPc) return match;
 
-        // Root position → return immediately
-        if (candidate === bassPc) return match;
-
-        // Non-root: prefer 7th chords over 6th chords
-        if (!bestMatch) {
-          bestMatch = match;
-        } else {
-          const bestIs6th =
-            bestMatch.quality === 'major6' || bestMatch.quality === 'minor6';
-          const currentIs6th = name === 'major6' || name === 'minor6';
-          if (bestIs6th && !currentIs6th) {
-            bestMatch = match;
-          }
-        }
-        break; // one match per candidate
+    // Non-root: prefer 7th chords over 6th chords
+    if (!bestMatch) {
+      bestMatch = match;
+    } else {
+      const bestIs6th =
+        bestMatch.quality === 'major6' || bestMatch.quality === 'minor6';
+      const currentIs6th = name === 'major6' || name === 'minor6';
+      if (bestIs6th && !currentIs6th) {
+        bestMatch = match;
       }
     }
   }

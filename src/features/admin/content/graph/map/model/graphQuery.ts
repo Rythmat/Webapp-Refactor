@@ -140,6 +140,12 @@ const KIND_NAMES: Record<EntityKind, readonly string[]> = {
   pathway: ['Pathway', 'Pathways'],
   year: ['Year', 'Years'],
   decade: ['Decade', 'Decades'],
+  groove: ['Groove', 'Grooves', 'Drum groove', 'Drum grooves'],
+  part: ['Part', 'Parts'],
+  feel: ['Feel', 'Feels'],
+  patch: ['Synth patch', 'Synth patches', 'Patch', 'Patches'],
+  kit: ['Drum kit', 'Drum kits', 'Kit', 'Kits'],
+  lesson: ['Lesson', 'Lessons'],
 };
 
 const hasOwn = (o: object, key: string) =>

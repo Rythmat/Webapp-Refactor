@@ -2,3 +2,6 @@ node_modules
 dist
 public
 src/curriculum/data/songs/_generated_index.ts
+
+# Claude reference notes and one-shot scripts (git-ignored, local only)
+claude-ref

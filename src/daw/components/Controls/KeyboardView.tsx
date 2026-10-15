@@ -1,59 +1,32 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { useState, useCallback, useMemo } from 'react';
+import { Search } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { studioRealtime } from '@/daw/collab/studioRealtime';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
 import { auditionNote } from '@/daw/audio/auditionNote';
-import { PianoRoll } from '../PianoRoll/PianoRoll';
+import { resolveEditorClip } from '@/daw/model/editorClip';
+import { ClipPianoRoll } from '../PianoRoll/ClipPianoRoll';
 import { PresetBrowser } from './PresetBrowser';
 import { PRESETS } from '@/daw/data/instrumentPresets';
 import type { Track } from '@/daw/store/tracksSlice';
 
 /** The preset name to show: the saved one while it still matches the track's
- *  instrument, else the first preset for that instrument. */
+ *  instrument, else the first preset for that instrument. A name the catalog
+ *  no longer lists (a preset that only relabelled the track) falls back too,
+ *  so the label always names what the track plays. */
 function displayPresetName(track: Track | undefined): string {
   if (!track) return 'Studio Grand';
   const saved = PRESETS.find((p) => p.name === track.presetName);
-  if (
-    saved &&
-    (!saved.instrumentType || saved.instrumentType === track.instrument)
-  )
-    return saved.name;
+  if (saved && saved.instrumentType === track.instrument) return saved.name;
   if (track.instrument === 'piano-sampler') return 'Studio Grand';
   return (
     PRESETS.find((p) => p.instrumentType === track.instrument)?.name ??
     'Studio Grand'
   );
 }
-import type { MidiNoteEvent } from '@prism/engine';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
-
-// QWERTY → MIDI note mapping (C3 = 48)
-const QWERTY_WHITE: Record<string, number> = {
-  a: 48,
-  s: 50,
-  d: 52,
-  f: 53,
-  g: 55,
-  h: 57,
-  j: 59,
-  k: 60,
-  l: 62,
-  ';': 64,
-  "'": 65,
-};
-const QWERTY_BLACK: Record<string, number> = {
-  w: 49,
-  e: 51,
-  t: 54,
-  y: 56,
-  u: 58,
-  o: 61,
-  p: 63,
-};
-const QWERTY_MAP: Record<string, number> = { ...QWERTY_WHITE, ...QWERTY_BLACK };
 
 // ── KeyboardView ────────────────────────────────────────────────────────
 
@@ -69,21 +42,13 @@ export function KeyboardView({ trackId }: { trackId: string }) {
   const activeColor = useLiveChordColor(mergedNotes);
   const [browserOpen, setBrowserOpen] = useState(false);
   const [mode, setMode] = useState<ViewMode>('keyboard');
-  const heldKeysRef = useRef<Set<string>>(new Set());
 
-  // Piano roll data
+  // Piano roll data: the clip every note editor on this track edits
+  // (editorClip.ts), not always the first one.
   const track = useStore((s) => s.tracks.find((t) => t.id === trackId));
-  const clip = track?.midiClips[0] ?? null;
-  const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
+  const clipId = useStore((s) => resolveEditorClip(s, trackId)?.id ?? null);
   const updateTrack = useStore((s) => s.updateTrack);
   const presetName = displayPresetName(track);
-
-  const handlePianoRollChange = useCallback(
-    (newEvents: MidiNoteEvent[]) => {
-      if (clip) updateMidiClipEvents(trackId, clip.id, newEvents);
-    },
-    [trackId, clip?.id, updateMidiClipEvents],
-  );
 
   const handleAuditionNote = useCallback(
     (note: number, velocity: number) => auditionNote(trackId, note, velocity),
@@ -132,44 +97,6 @@ export function KeyboardView({ trackId }: { trackId: string }) {
     [trackId],
   );
 
-  // QWERTY keyboard events
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      )
-        return;
-      const key = e.key.toLowerCase();
-      const midiNote = QWERTY_MAP[key];
-      if (midiNote !== undefined && !heldKeysRef.current.has(key)) {
-        heldKeysRef.current.add(key);
-        handleNoteOn(midiNote, 0.8);
-      }
-    };
-    const onKeyUp = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      const midiNote = QWERTY_MAP[key];
-      if (midiNote !== undefined) {
-        heldKeysRef.current.delete(key);
-        handleNoteOff(midiNote);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      // Release any held notes
-      heldKeysRef.current.forEach((key) => {
-        const note = QWERTY_MAP[key];
-        if (note !== undefined) handleNoteOff(note);
-      });
-      heldKeysRef.current.clear();
-    };
-  }, [handleNoteOn, handleNoteOff]);
-
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* Top bar */}
@@ -184,7 +111,8 @@ export function KeyboardView({ trackId }: { trackId: string }) {
           Instrument
         </span>
 
-        {/* Preset selector */}
+        {/* Current preset. Browse is the way to change it: the arrows that
+            sat either side of the name had no handler. */}
         <div
           className="flex items-center gap-1 rounded-lg px-3 py-1"
           style={{
@@ -192,32 +120,12 @@ export function KeyboardView({ trackId }: { trackId: string }) {
             border: '1px solid var(--color-border)',
           }}
         >
-          <button
-            className="cursor-pointer p-0.5"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            <ChevronLeft size={14} />
-          </button>
           <span
             className="min-w-[100px] text-center text-xs font-medium"
             style={{ color: 'var(--color-text)' }}
           >
             {presetName}
           </span>
-          <button
-            className="cursor-pointer p-0.5"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            <ChevronRight size={14} />
-          </button>
         </div>
 
         {/* Browse button */}
@@ -302,9 +210,7 @@ export function KeyboardView({ trackId }: { trackId: string }) {
                   // Saved on the track so the name (and sound) reload.
                   updateTrack(trackId, {
                     presetName: preset.name,
-                    ...(preset.instrumentType && {
-                      instrument: preset.instrumentType,
-                    }),
+                    instrument: preset.instrumentType,
                     ...(preset.gmProgram !== undefined && {
                       gmProgram: preset.gmProgram,
                     }),
@@ -325,13 +231,10 @@ export function KeyboardView({ trackId }: { trackId: string }) {
         </div>
       ) : (
         <div className="flex-1 overflow-hidden">
-          {clip && track ? (
-            <PianoRoll
-              events={clip.events}
-              clipStartTick={clip.startTick}
-              timelineStartTick={clip.startTick}
-              clipColor={track.color}
-              onChange={handlePianoRollChange}
+          {clipId && track ? (
+            <ClipPianoRoll
+              trackId={trackId}
+              clipId={clipId}
               onAuditionNote={handleAuditionNote}
             />
           ) : (

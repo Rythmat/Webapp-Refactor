@@ -1,0 +1,18 @@
+{
+  "id": "pop-bassist-1",
+  "name": "Pop-Bassist-1",
+  "instrument": "bass",
+  "genre": "pop",
+  "kind": "placeholder",
+  "order": 420,
+  "items": [
+    {
+      "kind": "bassLine",
+      "id": "just-roots"
+    },
+    {
+      "kind": "bassLine",
+      "id": "octave-disco"
+    }
+  ]
+}

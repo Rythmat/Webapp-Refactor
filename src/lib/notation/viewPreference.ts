@@ -6,7 +6,8 @@ import { useCallback, useSyncExternalStore } from 'react';
 // so turning notation on for lessons shouldn't take away the note editor, and
 // the chord popup in Songs is a different question again.
 
-export type RollView = 'roll' | 'notation';
+/** 'cascade' — notes falling into the keyboard — is Learn's alone. */
+export type RollView = 'roll' | 'notation' | 'cascade';
 export type RollViewScope = 'learn' | 'studio' | 'songs';
 
 const KEY_PREFIX = 'musicAtlas:rollView:';
@@ -14,9 +15,10 @@ const EVENT = 'roll-view-pref-change';
 
 export function getRollView(scope: RollViewScope): RollView {
   try {
-    return localStorage.getItem(KEY_PREFIX + scope) === 'notation'
-      ? 'notation'
-      : 'roll';
+    const stored = localStorage.getItem(KEY_PREFIX + scope);
+    if (stored === 'notation') return 'notation';
+    if (stored === 'cascade' && scope === 'learn') return 'cascade';
+    return 'roll';
   } catch {
     return 'roll';
   }

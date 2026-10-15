@@ -5,6 +5,7 @@ import type { InteractionResponsePayload } from '../types';
 import {
   buildSlideProgress,
   isAtlasResultComplete,
+  submittedMindMap,
 } from './buildSlideProgress';
 
 const appRouteSlide = (interactionId: string): Slide => ({
@@ -24,6 +25,56 @@ const atlas = (
   module: 'learn',
   activityRef: 'learn:ionian:c',
   result,
+});
+
+describe('submittedMindMap', () => {
+  const map = {
+    focus: 'artist:ana-lux' as const,
+    nodeIds: ['place:motor-city' as const],
+    edgeCount: 1,
+  };
+
+  it("reads a student's map from their response", () => {
+    expect(
+      submittedMindMap(
+        {
+          ix: {
+            kind: 'atlas',
+            module: 'globe',
+            activityRef: 'globe:mindmap',
+            result: { kind: 'mindMap', map, source: 'module' },
+          },
+        },
+        [],
+        'ix',
+        'enr-1',
+      ),
+    ).toEqual(map);
+  });
+
+  it('reads it from the inbox when the live tab was closed', () => {
+    expect(
+      submittedMindMap(
+        undefined,
+        [
+          {
+            token: 't',
+            interactionId: 'ix',
+            participant: { enrollmentId: 'enr-1' },
+            payload: { kind: 'mindMap', map },
+            createdAt: '2026-10-08T00:00:00.000Z',
+          },
+        ],
+        'ix',
+        'enr-1',
+      ),
+    ).toEqual(map);
+    expect(submittedMindMap(undefined, [], 'ix', 'enr-1')).toBeUndefined();
+  });
+
+  it('counts a submitted map as done', () => {
+    expect(isAtlasResultComplete({ kind: 'mindMap', map })).toBe(true);
+  });
 });
 
 describe('isAtlasResultComplete', () => {

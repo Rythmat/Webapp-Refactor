@@ -54,16 +54,20 @@ vi.mock('@/content/contentStore', () => ({
  */
 const GOLDEN: Record<string, string> = {
   exports: 'f7774d8035e3707578cc26cd4e6dda7825291bdc22928860d9ae08908b4dc75b',
-  graph: 'ff0449e04ebf2d2098c16c582b40246a0b3a1ff60828a3d712ecb7221f50afdd',
+  // 7 Oct 2026: instrument content (grooves, parts) joined the repo graph —
+  // 98 edges onto genre and instrument nodes, nothing else moved. Taken
+  // again 14 Oct 2026 for the new parts, players and bands (content only).
+  graph: 'edb592881d4a824dcfc04d236dc28feeb4f7539bb89e82f40a924dfc60a62c4c',
   mapGenre: '8bd762b39a6fba226af4828d3bcd81f8e2b44198abf4a2c2e24c3d5b4af7921a',
   mapInstrument:
     'f694219a31ced971e2bb90549148765b874ac5f533ab3ae11a303696eafa22d0',
   pickers: 'dad698660b582175e90534ed62c0af974a4b686fd102a7ce98acd16c71d2aaed',
   placeAndGenreNames:
-    'a11c56170e14a67b14d3e901a17dd3875d4f1bc1887c24b6541903e80761a41d',
+    '8f129419d4695714608aceae504ce276ae3834468ac39e06c03b4ae3394ca247',
   resolveGenreTag:
     '761075b0a6f5a5bdf91295a92f493232f88daf69d6f9d282dfdde9ca93fa66f7',
-  tables: 'ed08f72f84885e6607f5823847ecc277183e6412d9b39c8abde37bf3dab674f0',
+  // 7 Oct 2026: the same 13 genre and instrument rows now list those edges.
+  tables: '831641f0421de6ee388b5bb0f7eb4f8ec498065c98c5f110e6690e0b4d20f1a7',
   vocabularyPage:
     '8c3210c3ab7a49f6ed4bd98ca606443f27260841f432852e72235b8819b26b2e',
 };

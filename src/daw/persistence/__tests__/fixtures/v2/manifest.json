@@ -1,0 +1,230 @@
+{
+  "about": "Real v2 Studio autosaves (localStorage 'musicAtlas:daw:autosave') captured by scripts/studio-perf/roundtrip.mjs --capture-fixtures, for the codec v3 migration tests. Each file is the stored string pretty-printed; JSON.stringify(JSON.parse(file)) reproduces it byte for byte, and sha256 is the hash of that string (manifest.test.ts checks both). A lesson's steps say how each step was passed: by its walkthrough driver, its fallback, by itself, or forced on as Next would.",
+  "storageKey": "musicAtlas:daw:autosave",
+  "sessionSchemaVersion": 2,
+  "capturedAt": "2026-10-07T00:19:50.259Z",
+  "commit": "f96b3ecc",
+  "fixtures": [
+    {
+      "file": "new-project.json",
+      "boot": "?new=1",
+      "tracks": 0,
+      "bytes": 3320,
+      "sha256": "ac9919c6e563b4d2ea2ec7308f3be37da2612927072068ba9b896145654aa4ef"
+    },
+    {
+      "file": "demo-sunset-keys.json",
+      "boot": "?demo=demo-sunset-keys",
+      "tracks": 3,
+      "bytes": 10728,
+      "sha256": "2a5f1a816e9c98e28cd345c7714b797dbe59d0f312c6f5c30a9378d290b3af32"
+    },
+    {
+      "file": "demo-midnight-groove.json",
+      "boot": "?demo=demo-midnight-groove",
+      "tracks": 4,
+      "bytes": 19419,
+      "sha256": "8b27b452db15ee3247d4b042c4ec68a16da8b8044fcb86908d2923802c3cc240"
+    },
+    {
+      "file": "demo-first-light.json",
+      "boot": "?demo=demo-first-light",
+      "tracks": 3,
+      "bytes": 10785,
+      "sha256": "d5e99c8da7114baef0fd77351e85f4615c92275622addcff40e4a4971694219e"
+    },
+    {
+      "file": "template-project-rock.json",
+      "boot": "?template=project-rock",
+      "tracks": 4,
+      "bytes": 10431,
+      "sha256": "c818d4405a2d81c7cda71d1cd12c9f824b9807b0c58552ce769e86e8dc39e868"
+    },
+    {
+      "file": "template-project-rnb.json",
+      "boot": "?template=project-rnb",
+      "tracks": 5,
+      "bytes": 12203,
+      "sha256": "db867d7ed4b1787c59e62ce6d18fdbfa0775011f4537385c6cc8786a97f98444"
+    },
+    {
+      "file": "template-project-pop.json",
+      "boot": "?template=project-pop",
+      "tracks": 5,
+      "bytes": 12201,
+      "sha256": "1424607bb0362d280669377ffbfaf3ca6e82ce972e7db04f8490f4b5bb71d515"
+    },
+    {
+      "file": "template-project-indie.json",
+      "boot": "?template=project-indie",
+      "tracks": 5,
+      "bytes": 12208,
+      "sha256": "441f2e675fe317c718ba68393565377ffc15b112aa5ca5fc503464e5d1c2fe56"
+    },
+    {
+      "file": "song-a_thousand_years.json",
+      "boot": "?song=a_thousand_years",
+      "tracks": 1,
+      "bytes": 20700,
+      "sha256": "29e95645741dc11eeb7cee4be464d74c7e0875c51c3ad3c4aa8ddfaca2d55e2b"
+    },
+    {
+      "file": "practice-dorian-d.json",
+      "boot": "?practiceMode=dorian&practiceRoot=d",
+      "tracks": 4,
+      "bytes": 13337,
+      "sha256": "bf9062ba7860738481d21d0eb25e2e58e7b6d312b854ff32607888fe38eee3ba"
+    },
+    {
+      "file": "practice-funk-1-a.json",
+      "boot": "?practiceGenre=funk&practiceLevel=1&practiceSection=A",
+      "tracks": 4,
+      "bytes": 21336,
+      "sha256": "9576122c2e92e065df82094a3d2303ae569a7c24bde50ecfed7f18456ba86a83"
+    },
+    {
+      "file": "jam-import.json",
+      "boot": "?jam=1",
+      "tracks": 3,
+      "bytes": 9372,
+      "sha256": "ee886f7b5ed38e6352b3bd850738acdc4a73a82a86892378e869101794d4ba38"
+    },
+    {
+      "file": "lesson-end-make-first-track.json",
+      "boot": "?tutorial=make-first-track, played to its end by lessonDrivers.mjs",
+      "steps": {
+        "add-track": "driver",
+        "open-prism": "by itself",
+        "pick-key": "driver",
+        "add-chords": "driver",
+        "pick-genre": "driver",
+        "add-swing": "driver",
+        "experiment": "driver",
+        "create": "driver"
+      },
+      "tracks": 1,
+      "bytes": 13067,
+      "sha256": "bb73dec8a36436221deec86939d131051462897c2443cf768991af66c68321b1"
+    },
+    {
+      "file": "lesson-end-jazz-color-your-chords.json",
+      "boot": "?tutorial=jazz-color-your-chords, played to its end by lessonDrivers.mjs",
+      "steps": {
+        "select-track": "driver",
+        "genre-jazz": "driver",
+        "mode-dorian": "driver",
+        "seventh-chord": "driver",
+        "four-chords": "driver",
+        "jazz-rhythm": "driver",
+        "swing": "driver",
+        "create": "driver"
+      },
+      "tracks": 1,
+      "bytes": 12761,
+      "sha256": "e89c92821e98f4550c2dfd3801ad0de3ac968d8caaf743cfc0585f59d65ee1c2"
+    },
+    {
+      "file": "lesson-end-hiphop-build-the-beat.json",
+      "boot": "?tutorial=hiphop-build-the-beat, played to its end by lessonDrivers.mjs",
+      "steps": {
+        "add-drums": "driver",
+        "open-sequencer": "by itself",
+        "swap-kit": "driver",
+        "program-hits": "driver",
+        "slow-bpm": "driver",
+        "load-groove": "driver",
+        "pad-mix": "driver"
+      },
+      "tracks": 1,
+      "bytes": 9138,
+      "sha256": "406bca39d33c66c095211a79d31c1f199f293ab7700c356b93875cdcefac4136"
+    },
+    {
+      "file": "lesson-end-pop-flip-a-sample.json",
+      "boot": "?tutorial=pop-flip-a-sample, played to its end by lessonDrivers.mjs",
+      "steps": {
+        "add-chops": "driver",
+        "load-sample": "driver",
+        "play-notes": "driver",
+        "space-it-out": "driver"
+      },
+      "tracks": 1,
+      "bytes": 5620,
+      "sha256": "6834a01f8e5ee2d5c78961fe27af9ee3ed9e689e085734981ba0973b848b060e"
+    },
+    {
+      "file": "lesson-end-edm-design-the-drop.json",
+      "boot": "?tutorial=edm-design-the-drop, played to its end by lessonDrivers.mjs",
+      "steps": {
+        "add-synth": "driver",
+        "open-synth": "by itself",
+        "load-wobble": "driver",
+        "tweak-wobble": "driver",
+        "genre-edm": "driver",
+        "minor-mode": "driver",
+        "riff-chords": "driver",
+        "create": "driver",
+        "saturate": "driver",
+        "add-ott": "driver",
+        "push-depth": "driver"
+      },
+      "tracks": 1,
+      "bytes": 16006,
+      "sha256": "d40419dc424de56886a00b9e08f712fa8e1da6ee971a2e25971edb78b996689f"
+    },
+    {
+      "file": "lesson-end-house-make-it-pump.json",
+      "boot": "?tutorial=house-make-it-pump, played to its end by lessonDrivers.mjs",
+      "steps": {
+        "add-drums": "driver",
+        "add-bass": "driver",
+        "add-ducker": "driver",
+        "set-key": "driver",
+        "raise-amount": "driver"
+      },
+      "tracks": 2,
+      "bytes": 13347,
+      "sha256": "2e3e7935f9ab90df2d5c71d9e8e537c1b89c393c7ef93a51729f7ba9ff0421b9"
+    },
+    {
+      "file": "lesson-end-rnb-mix-and-polish.json",
+      "boot": "?tutorial=rnb-mix-and-polish, played to its end by lessonDrivers.mjs",
+      "steps": {
+        "select-track": "driver",
+        "genre-rnb": "driver",
+        "add-reverb": "driver",
+        "tweak-reverb": "driver",
+        "goto-master": "driver",
+        "balance-fader": "driver",
+        "use-send": "driver",
+        "tweak-return": "driver",
+        "mastering-fx": "driver",
+        "master-volume": "driver",
+        "bounce-mixdown": "fallback"
+      },
+      "tracks": 1,
+      "bytes": 11562,
+      "sha256": "cff79ec3970eb936bc2b875362c939b17e8fda48eb5fb6afb06e031df41dd313"
+    },
+    {
+      "file": "lesson-end-indie-movement-and-dynamics.json",
+      "boot": "?tutorial=indie-movement-and-dynamics, played to its end by lessonDrivers.mjs",
+      "steps": {
+        "open-automation": "driver",
+        "draw-volume": "driver",
+        "hear-it": "driver",
+        "second-lane": "driver"
+      },
+      "tracks": 1,
+      "bytes": 11721,
+      "sha256": "a6b6e2ab1d4582d8f16aa78b8e4e807f30bdf65a394121ac3f2f0f46a1a79d0c"
+    },
+    {
+      "file": "kitchen-sink.json",
+      "boot": "?new=1 + scripts/studio-perf/fixtures/kitchenSink.mjs",
+      "tracks": 9,
+      "bytes": 28740,
+      "sha256": "0026182044698c68671d585eac74eca2360b39b0f99ccd7f5f40b1eaab64b218"
+    }
+  ]
+}

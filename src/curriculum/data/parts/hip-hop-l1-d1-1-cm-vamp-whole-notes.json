@@ -1,0 +1,104 @@
+{
+  "id": "hip-hop-l1-d1-1-cm-vamp-whole-notes",
+  "name": "Hip Hop L1 · D1.1: Cm Vamp — Whole Notes",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 76,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1150,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 75,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 79,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 700,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1150,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 75,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 79,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 700,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 29,
+    "title": "D1: Cm Vamp",
+    "tag": "hiphop:l1_perf_vamp_whole | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Left hand plays the trap foundation (C and G); right hand holds C minor.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Cm"]
+}

@@ -8,18 +8,27 @@ import {
   ChevronUp,
   Piano,
   Disc3,
+  Library,
 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import type { ChannelStripTabId } from '@/daw/store/uiSlice';
+import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import { LockedFeatureOverlay } from '@/components/ui/LockedFeatureOverlay';
 import { TrackControlsPanel } from '@/daw/components/Controls/TrackControlsPanel';
-import { EffectsPanel } from '@/daw/components/Effects/EffectsPanel';
-import { PrismPanel } from '@/daw/components/Prism/PrismPanel';
 import { auditionNote } from '@/daw/audio/auditionNote';
-import { PianoRoll } from '@/daw/components/PianoRoll/PianoRoll';
-import { GroovesBrowser } from '@/daw/components/Controls/GroovesBrowser';
-import type { MidiNoteEvent } from '@prism/engine';
+import { editorTrackId, resolveEditorClip } from '@/daw/model/editorClip';
+import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
+import {
+  ClipPianoRollPart,
+  EffectsPanelPart,
+  GroovesBrowserPart,
+  PartsBrowserPart,
+  PrismPanelPart,
+  preloadDockTab,
+  preloadInstrumentViews,
+} from '@/daw/shell/lazyParts';
+import { isChannelStripTabId } from './channelStripTabs';
 
 // ── PrismLogo ────────────────────────────────────────────────────────────
 
@@ -60,6 +69,11 @@ const TABS: TabDef[] = [
     id: 'grooves',
     label: 'Grooves',
     icon: <Disc3 size={14} strokeWidth={1.5} />,
+  },
+  {
+    id: 'parts',
+    label: 'Parts',
+    icon: <Library size={14} strokeWidth={1.5} />,
   },
   { id: 'prism', label: 'Prism', icon: <PrismLogo size={14} /> },
   {
@@ -111,30 +125,52 @@ export function ChannelStrip() {
   const prevTrackCount = useRef(0);
   const { isPremium } = useIsPremium();
 
-  const selectedTrackId = useStore((s) => s.selectedTrackId);
-  const tracks = useStore((s) => s.tracks);
-  const selectedClipId = useStore((s) => s.selectedClipId);
-  const selectedClipTrackId = useStore((s) => s.selectedClipTrackId);
-  const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
-  const addMidiClip = useStore((s) => s.addMidiClip);
-  const setSelectedClip = useStore((s) => s.setSelectedClip);
+  // The selected track and the selected clip's track only, not the whole
+  // tracks array: an edit to another track re-renders nothing here.
+  const track = useStore((s) =>
+    s.tracks.find((t) => t.id === s.selectedTrackId),
+  );
+  const trackCount = useStore((s) => s.tracks.length);
 
-  // Auto-open when a track is added
+  // The session generation moves on with every load and reset of the
+  // project (sessionGeneration.ts). A project opened in place of another goes
+  // from some tracks straight to others, and only the generation tells that
+  // apart from an edit.
+  const generation = useSessionGeneration();
+  // The generation of the last project the strip saw.
+  const seenGeneration = useRef(generation);
+
+  // Open on Controls when a project's tracks arrive with the strip closed:
+  // the student added the first track, a project opened in place of another,
+  // or the strip mounted over one (it mounts empty before the boot restores
+  // the draft, and again on every return to Create). A load resets the tab
+  // (initialProjectState), so a new project opens on Controls. The tab a
+  // restored draft was left on stays, and so does an open tab when the strip
+  // mounts again over the same project.
   useEffect(() => {
+    const firstTrack = prevTrackCount.current === 0;
+    const opened = generation !== seenGeneration.current;
     if (
-      tracks.length > prevTrackCount.current &&
-      prevTrackCount.current === 0
+      trackCount > 0 &&
+      (firstTrack || opened) &&
+      !isChannelStripTabId(activeTab)
     ) {
       setActiveTab('controls');
     }
-    prevTrackCount.current = tracks.length;
-  }, [tracks.length, setActiveTab]);
-  const track = tracks.find((t) => t.id === selectedTrackId);
+    seenGeneration.current = generation;
+    prevTrackCount.current = trackCount;
+  }, [trackCount, generation, activeTab, setActiveTab]);
 
-  // Piano roll: find selected clip
-  const selectedClipTrack = tracks.find((t) => t.id === selectedClipTrackId);
-  const selectedClip = selectedClipTrack?.midiClips.find(
-    (c) => c.id === selectedClipId,
+  // Piano roll: the clip the dock edits (editorClip.ts). The selected
+  // clip's track when a MIDI clip is selected, else the selected track; on
+  // it, the selected clip, the clip under the playhead, or the first one.
+  // Only a track with no clips opens a blank roll, at the playhead's bar.
+  const rollTrackId = useStore(editorTrackId);
+  const rollClipId = useStore(
+    (s) => resolveEditorClip(s, rollTrackId)?.id ?? null,
+  );
+  const blankStartTick = useStore((s) =>
+    barStartTick(s.position, timeSignatureOf(s)),
   );
 
   const isGuitarBass =
@@ -145,43 +181,13 @@ export function ChannelStrip() {
   const isMidiInstrument =
     !!track && !isAudioInput && track.instrument !== 'none';
 
-  // Piano roll notes audition on the track being edited: the selected clip's
-  // track, or the selected track while drawing into a blank roll.
-  const auditionTrackId = selectedClip
-    ? selectedClipTrackId
-    : (track?.id ?? null);
+  // Piano roll notes audition on the track being edited.
+  const auditionTrackId = rollTrackId;
   const handleAuditionNote = useCallback(
     (note: number, velocity: number) => {
       if (auditionTrackId) auditionNote(auditionTrackId, note, velocity);
     },
     [auditionTrackId],
-  );
-
-  const handlePianoRollChange = useCallback(
-    (newEvents: MidiNoteEvent[]) => {
-      if (selectedClipTrackId && selectedClipId) {
-        updateMidiClipEvents(selectedClipTrackId, selectedClipId, newEvents);
-      } else if (track && isMidiInstrument && newEvents.length > 0) {
-        // Blank mode: create a new clip on the first note draw
-        const clipId = `clip-${crypto.randomUUID().slice(0, 8)}`;
-        addMidiClip(track.id, {
-          id: clipId,
-          name: 'Untitled',
-          startTick: 0,
-          events: newEvents,
-        });
-        setSelectedClip(clipId, track.id);
-      }
-    },
-    [
-      selectedClipTrackId,
-      selectedClipId,
-      track,
-      isMidiInstrument,
-      updateMidiClipEvents,
-      addMidiClip,
-      setSelectedClip,
-    ],
   );
 
   const handleTabClick = useCallback(
@@ -191,24 +197,37 @@ export function ChannelStrip() {
     [activeTab, setActiveTab],
   );
 
-  const visibleTabs = TABS.filter((tab) => {
-    return !(
-      (tab.id === 'grooves' && !isDrumMachine) ||
-      (tab.id === 'prism' && (isAudioInput || isDrumMachine)) ||
-      (tab.id === 'piano-roll' && (!isMidiInstrument || isDrumMachine))
-    );
-  });
+  // Each tab's content is its own chunk (1.12a): a pointer over or a focus
+  // on the tab fetches it, so a click usually finds it there.
+  const instrument = track?.instrument;
+  const preloadTab = useCallback(
+    (id: TabId) => {
+      if (id === 'controls') {
+        if (instrument) preloadInstrumentViews([instrument]);
+      } else preloadDockTab(id);
+    },
+    [instrument],
+  );
 
-  // Reset to controls if the active tab is hidden for this track type.
+  // Grooves is a drum machine's tab, Parts and the piano roll a melodic
+  // instrument's, and Prism neither a drum machine's nor a live input's.
+  const tabApplies = (id: TabId) =>
+    !(
+      (id === 'grooves' && !isDrumMachine) ||
+      (id === 'parts' && (!isMidiInstrument || isDrumMachine)) ||
+      (id === 'prism' && (isAudioInput || isDrumMachine)) ||
+      (id === 'piano-roll' && (!isMidiInstrument || isDrumMachine))
+    );
+  const visibleTabs = TABS.filter((tab) => tabApplies(tab.id));
+
+  // Fall back to Controls when the open tab is hidden for this track, or
+  // isn't one of the strip's tabs at all.
+  const openTabMisfits =
+    activeTab !== null &&
+    !(isChannelStripTabId(activeTab) && tabApplies(activeTab));
   useEffect(() => {
-    if (
-      (!isDrumMachine && activeTab === 'grooves') ||
-      ((isAudioInput || isDrumMachine) && activeTab === 'prism') ||
-      ((!isMidiInstrument || isDrumMachine) && activeTab === 'piano-roll')
-    ) {
-      setActiveTab('controls');
-    }
-  }, [activeTab, isDrumMachine, isAudioInput, isMidiInstrument, setActiveTab]);
+    if (openTabMisfits) setActiveTab('controls');
+  }, [openTabMisfits, setActiveTab]);
 
   const isOpen = activeTab !== null;
 
@@ -231,6 +250,8 @@ export function ChannelStrip() {
                 key={tab.id}
                 data-tutorial-id={`chanstrip-tab-${tab.id}`}
                 onClick={() => handleTabClick(tab.id)}
+                onPointerEnter={() => preloadTab(tab.id)}
+                onFocus={() => preloadTab(tab.id)}
                 className="flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider cursor-pointer"
                 style={{
                   backgroundColor: active
@@ -318,25 +339,24 @@ export function ChannelStrip() {
               style={{ height: '33vh' }}
             >
               {activeTab === 'controls' && <TrackControlsPanel />}
-              {activeTab === 'fx' && <EffectsPanel />}
+              {activeTab === 'fx' && <EffectsPanelPart />}
               {activeTab === 'grooves' && track && (
-                <GroovesBrowser trackId={track.id} />
+                <GroovesBrowserPart trackId={track.id} />
+              )}
+              {activeTab === 'parts' && track && (
+                <PartsBrowserPart trackId={track.id} />
               )}
               {activeTab === 'prism' && (
                 <LockedFeatureOverlay locked={!isPremium}>
-                  <PrismPanel />
+                  <PrismPanelPart />
                 </LockedFeatureOverlay>
               )}
               {activeTab === 'piano-roll' &&
-                ((selectedClip && selectedClipTrack) || isMidiInstrument ? (
-                  <PianoRoll
-                    events={selectedClip?.events ?? []}
-                    clipStartTick={selectedClip?.startTick ?? 0}
-                    timelineStartTick={selectedClip?.startTick ?? 0}
-                    clipColor={
-                      selectedClipTrack?.color ?? track?.color ?? '#888'
-                    }
-                    onChange={handlePianoRollChange}
+                (rollTrackId && (rollClipId || isMidiInstrument) ? (
+                  <ClipPianoRollPart
+                    trackId={rollTrackId}
+                    clipId={rollClipId}
+                    blankStartTick={blankStartTick}
                     onAuditionNote={handleAuditionNote}
                   />
                 ) : (

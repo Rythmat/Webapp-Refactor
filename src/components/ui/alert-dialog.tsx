@@ -5,9 +5,13 @@ import { cn } from '../utilities';
 
 const AlertDialog = (props: AlertDialogPrimitive.AlertDialogProps) => {
   React.useEffect(() => {
+    // The body the listener is on, held rather than looked up again: the
+    // interval runs on for a second after a click, and a test's page can be
+    // gone by then (no `document` left to read).
+    const { body } = document;
     const handleClick = () => {
       const interval = setInterval(() => {
-        document.body.style.pointerEvents = '';
+        body.style.pointerEvents = '';
       }, 100);
 
       setTimeout(() => {
@@ -15,9 +19,9 @@ const AlertDialog = (props: AlertDialogPrimitive.AlertDialogProps) => {
       }, 1000);
     };
 
-    document.body.addEventListener('click', handleClick);
+    body.addEventListener('click', handleClick);
     return () => {
-      document.body.removeEventListener('click', handleClick);
+      body.removeEventListener('click', handleClick);
     };
   }, []);
 

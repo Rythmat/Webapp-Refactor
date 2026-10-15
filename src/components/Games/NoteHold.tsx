@@ -6,13 +6,17 @@ import {
   triggerPianoAttack,
   triggerPianoRelease,
 } from '@/audio/pianoSampler';
-import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import type { LessonChordSymbol } from '@/curriculum/notation/lessonChordSymbols';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
+import {
+  useFitAboveKeyboard,
+  VIEW_KEYBOARD_GAP,
+} from '@/learn/layout/useFitAboveKeyboard';
 import {
   pitchNameToMidi,
   THEORY_ACTIVITY_BPM,
@@ -21,6 +25,9 @@ import {
 } from './PianoRollPlay';
 import { useWrongNoteFlash, WrongNoteFlash } from './WrongNoteFlash';
 import { WRONG_KEY_COLOR } from './liveFeedback';
+
+/** GenrePianoRoll's bar ruler, on top of `rowHeight`. */
+const ROLL_TIMELINE_HEIGHT = 40;
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
@@ -71,6 +78,13 @@ export const NoteHold = ({
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const activeMidiSetRef = useRef(new Set<number>());
+  // Roll/notation takes what's left above the keyboard (see
+  // useFitAboveKeyboard), up to the roll's old fixed size.
+  const [viewEl, setViewEl] = useState<HTMLDivElement | null>(null);
+  const [keyboardEl, setKeyboardEl] = useState<HTMLDivElement | null>(null);
+  const viewHeight = useFitAboveKeyboard(viewEl, keyboardEl, {
+    max: 28 * 18 + ROLL_TIMELINE_HEIGHT,
+  });
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
     PlaybackEvent[]
@@ -457,36 +471,39 @@ export const NoteHold = ({
             border: '1px solid var(--color-border)',
           }}
         >
-          <GenrePianoRoll
-            activeMidis={activeMidis}
-            bars={requiredBars}
-            beatsPerBar={4}
-            chordSymbols={chordSymbols}
-            events={resolvedEvents}
-            inTime={false}
-            isPlaying={isPlaying}
-            noteHoldMeta={noteHoldMeta}
-            playSpeed={THEORY_ACTIVITY_BPM}
-            rowHeight={28 * 18}
-            subdivision={1}
-            keyColor={activityColor}
-            colorActiveLanesByTarget
-            targetMidiSet={targetMidiSet}
-            noteSpelling={noteSpelling}
-            onPlayingChange={setIsPlaying}
-          />
-          <div className="flex items-stretch gap-3">
+          <div ref={setViewEl}>
+            <GenrePianoRoll
+              activeMidis={activeMidis}
+              bars={requiredBars}
+              beatsPerBar={4}
+              chordSymbols={chordSymbols}
+              events={resolvedEvents}
+              inTime={false}
+              isPlaying={isPlaying}
+              noteHoldMeta={noteHoldMeta}
+              playSpeed={THEORY_ACTIVITY_BPM}
+              rowHeight={viewHeight - ROLL_TIMELINE_HEIGHT}
+              subdivision={1}
+              keyColor={activityColor}
+              colorActiveLanesByTarget
+              targetMidiSet={targetMidiSet}
+              noteSpelling={noteSpelling}
+              onPlayingChange={setIsPlaying}
+            />
+          </div>
+          <div
+            ref={setKeyboardEl}
+            className="flex items-stretch gap-3"
+            style={{ marginTop: VIEW_KEYBOARD_GAP }}
+          >
             <div className="relative flex-1 min-w-0">
               <WrongNoteFlash flash={flash} noteSpelling={noteSpelling} />
-              <PianoKeyboard
-                showOctaveStart
+              <LessonKeyboard
                 activeBlackKeyColor={activityColor}
                 activeWhiteKeyColor={activityColor}
-                className="mx-auto"
-                endC={6}
                 hintNotes={showTargetKeys ? nextTargetKeys : undefined}
                 playingNotes={keyboardPlayingNotes}
-                startC={2}
+                targetMidis={targetMidiSet}
               />
             </div>
             <LessonVolumeDial />

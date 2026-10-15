@@ -1,0 +1,82 @@
+{
+  "id": "hip-hop-l1-c28-c2-bass-play-along",
+  "name": "Hip Hop L1 · C28 C2: Bass Play-Along",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 76,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1150,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 700,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 1150,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 700,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 1150,
+      "midi": 41,
+      "velocity": 96
+    },
+    {
+      "tick": 5040,
+      "duration": 700,
+      "midi": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 5760,
+      "duration": 1150,
+      "midi": 41,
+      "velocity": 96
+    },
+    {
+      "tick": 6960,
+      "duration": 700,
+      "midi": 48,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 1,
+    "section": "C",
+    "stepNumber": 28,
+    "title": "C2: Bass Play-Along",
+    "tag": "hiphop:l1_bass_playalong_cm_fm | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "The foundation under each chord: C and G for Cm, F and C for Fm.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Cm", "Cm", "Fm", "Fm"]
+}

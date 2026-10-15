@@ -108,7 +108,11 @@ export const SlideBody = ({
   return (
     <div className="flex flex-col gap-2">
       <p
-        className={cn('text-white/75', style?.bold && 'font-bold')}
+        className={cn(
+          // Keep the author's line breaks (a showcase lists one fact a line).
+          'whitespace-pre-line text-white/75',
+          style?.bold && 'font-bold',
+        )}
         style={{
           fontSize: scaledFz('var(--slide-body-fz)', style?.fontScale),
           lineHeight: 1.5,
@@ -119,7 +123,10 @@ export const SlideBody = ({
       </p>
       {alt && (
         <p
-          className={cn('text-white/40', style?.bold && 'font-bold')}
+          className={cn(
+            'whitespace-pre-line text-white/40',
+            style?.bold && 'font-bold',
+          )}
           style={{
             fontSize: scaledFz('var(--slide-body-fz)', style?.fontScale, 0.85),
             lineHeight: 1.5,

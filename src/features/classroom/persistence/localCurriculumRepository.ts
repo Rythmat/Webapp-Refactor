@@ -19,6 +19,10 @@ import type {
   CurriculumRepository,
   TeacherLibrary,
 } from './CurriculumRepository';
+import {
+  RETIRED_CURRICULUM_MARKERS,
+  runRetiredCurriculumPurge,
+} from './retiredCurriculum';
 
 export const PLAN_KEY = 'ma-teacher:plan:v1';
 export const PLAN_SCHEMA_VERSION = 2;
@@ -196,7 +200,7 @@ export const localCurriculumRepository: CurriculumRepository = {
       // rescue the unassigned ones, so an unrelated reset must not destroy them.
       if (day.classroomId !== classroomId) days[id] = day;
     }
-    planMirror.write({ schemaVersion: PLAN_SCHEMA_VERSION, days });
+    planMirror.write({ ...current, days });
   },
 
   getAnnualPlan: (classroomId) => annual?.read().plans[classroomId],
@@ -242,7 +246,16 @@ export const localCurriculumRepository: CurriculumRepository = {
 
 // `ready` resolving is the only honest signal that a synchronous read is
 // authoritative rather than a pre-hydration empty.
+//
+// Every lesson authored before the curriculum was retired goes, once per
+// device, before anything reads the hydrated store — in every classroom and
+// the unassigned tray, along with the saved-lesson bookmarks that point at
+// them. See `retiredCurriculum`.
 let hydrated = !isBrowser;
 void localCurriculumRepository.ready().then(() => {
+  runRetiredCurriculumPurge(RETIRED_CURRICULUM_MARKERS.days, () => {
+    planMirror.write({ ...readPlan(), days: {} });
+    savedMirror.write({ schemaVersion: SAVED_SCHEMA_VERSION, ids: [] });
+  });
   hydrated = true;
 });

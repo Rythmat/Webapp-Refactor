@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { DashboardFooter } from '@/components/ClassroomLayout/dashboard/DashboardFooter';
 import { cn } from '@/components/utilities';
+import { GoogleOneTap } from '../authentication/components/GoogleOneTap';
 import { MarketingNav } from '../marketing/components/MarketingNav';
 import { LANDING_FRAME } from './frame';
 import '@/components/ClassroomLayout/dashboard/dashboard.css';
@@ -15,6 +16,8 @@ import './landing.css';
  *
  * Layout (Attio-style): one framed column with hairline rails holding the
  * nav bar and the page's sections, then the app's footer at the same width.
+ *
+ * Signed-out visitors also get Google One Tap here (see GoogleOneTap).
  */
 export const LandingShell = ({ children }: { children: ReactNode }) => {
   return (
@@ -22,6 +25,8 @@ export const LandingShell = ({ children }: { children: ReactNode }) => {
       className="dashboard-root landing-root min-h-screen w-full overflow-x-clip"
       data-tab="home"
     >
+      <GoogleOneTap />
+
       <a
         href="#main"
         className="sr-only z-[60] rounded-full bg-white px-4 py-2 text-sm text-black focus:not-sr-only focus:fixed focus:left-4 focus:top-4"

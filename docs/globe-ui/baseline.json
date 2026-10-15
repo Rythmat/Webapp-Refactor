@@ -1,0 +1,2282 @@
+{
+  "date": "2026-10-12T20:05:28.241Z",
+  "commit": "e4a4d7b8",
+  "dirty": true,
+  "machine": {
+    "platform": "darwin arm64",
+    "cpu": "Apple M3 Max",
+    "cores": 14,
+    "memoryGB": 36,
+    "node": "v24.13.1"
+  },
+  "runs": 3,
+  "browser": {
+    "server": "vite dev on 5266",
+    "browser": "Chrome 153.0.8010.12 (headless)",
+    "gpu": {
+      "mode": "metal",
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3 Max, Unspecified Version)",
+      "viewport": { "width": 1440, "height": 900 },
+      "deviceScaleFactor": 2
+    },
+    "cpuThrottle": 4,
+    "median": {
+      "firstGlobeFrameMs": 1140,
+      "globeReadyMs": 1019,
+      "spinFps": 60,
+      "spinGapP95Ms": 16.8,
+      "spinGapMaxMs": 16.8,
+      "heapMB": 138.8,
+      "heapAfterGcMB": 92.4,
+      "cityToCardMs": 483,
+      "openCardLongTasks": 21,
+      "openCardLongTaskMs": 1957,
+      "openCardLongestTaskMs": 132,
+      "openCardCommits": 5,
+      "openCardGlobeRenders": 3,
+      "dragLongTasks": 11,
+      "dragLongTaskMs": 632,
+      "dragLongestTaskMs": 81,
+      "dragFps": 12.4,
+      "dragCommits": 20,
+      "dragGlobeRenders": 16,
+      "searchLongTasks": 8,
+      "searchLongTaskMs": 439,
+      "searchLongestTaskMs": 61,
+      "searchCommits": 19,
+      "searchGlobeRenders": 0
+    },
+    "runs": [
+      {
+        "run": 1,
+        "firstFrame": { "globeReadyMs": 842, "firstFrameMs": 957 },
+        "spin": {
+          "fps": 60,
+          "gapMedianMs": 16.7,
+          "gapP95Ms": 16.8,
+          "gapMaxMs": 16.8
+        },
+        "heap": { "usedMB": 118.2, "usedAfterGcMB": 91.3 },
+        "cityToCardMs": 468,
+        "longTasksOpeningCard": { "count": 21, "totalMs": 1957, "maxMs": 129 },
+        "rendersOpeningCard": { "commits": 5, "globeRenders": 3 },
+        "drag": {
+          "moves": 10,
+          "widthBefore": 480,
+          "widthMax": 627,
+          "renders": { "commits": 19, "globeRenders": 16 },
+          "longTasks": { "count": 10, "totalMs": 576, "maxMs": 81 },
+          "frames": {
+            "fps": 11.9,
+            "gapMedianMs": 83.3,
+            "gapP95Ms": 100.1,
+            "gapMaxMs": 116.7
+          }
+        },
+        "search": {
+          "longTasks": { "count": 8, "totalMs": 439, "maxMs": 56 },
+          "renders": { "commits": 19, "globeRenders": 0 }
+        },
+        "pageErrors": [],
+        "notes": []
+      },
+      {
+        "run": 2,
+        "firstFrame": { "globeReadyMs": 1019, "firstFrameMs": 1140 },
+        "spin": {
+          "fps": 60,
+          "gapMedianMs": 16.7,
+          "gapP95Ms": 16.8,
+          "gapMaxMs": 16.8
+        },
+        "heap": { "usedMB": 384.3, "usedAfterGcMB": 93 },
+        "cityToCardMs": 486,
+        "longTasksOpeningCard": { "count": 21, "totalMs": 1987, "maxMs": 133 },
+        "rendersOpeningCard": { "commits": 5, "globeRenders": 3 },
+        "drag": {
+          "moves": 10,
+          "widthBefore": 480,
+          "widthMax": 635,
+          "renders": { "commits": 21, "globeRenders": 16 },
+          "longTasks": { "count": 11, "totalMs": 632, "maxMs": 80 },
+          "frames": {
+            "fps": 12.4,
+            "gapMedianMs": 83.3,
+            "gapP95Ms": 100.1,
+            "gapMaxMs": 100.1
+          }
+        },
+        "search": {
+          "longTasks": { "count": 9, "totalMs": 584, "maxMs": 127 },
+          "renders": { "commits": 19, "globeRenders": 0 }
+        },
+        "pageErrors": [],
+        "notes": []
+      },
+      {
+        "run": 3,
+        "firstFrame": { "globeReadyMs": 1089, "firstFrameMs": 1212 },
+        "spin": {
+          "fps": 60,
+          "gapMedianMs": 16.7,
+          "gapP95Ms": 16.8,
+          "gapMaxMs": 16.8
+        },
+        "heap": { "usedMB": 138.8, "usedAfterGcMB": 92.4 },
+        "cityToCardMs": 483,
+        "longTasksOpeningCard": { "count": 20, "totalMs": 1951, "maxMs": 132 },
+        "rendersOpeningCard": { "commits": 5, "globeRenders": 3 },
+        "drag": {
+          "moves": 10,
+          "widthBefore": 480,
+          "widthMax": 633,
+          "renders": { "commits": 20, "globeRenders": 16 },
+          "longTasks": { "count": 11, "totalMs": 633, "maxMs": 81 },
+          "frames": {
+            "fps": 12.4,
+            "gapMedianMs": 83.3,
+            "gapP95Ms": 100,
+            "gapMaxMs": 116.7
+          }
+        },
+        "search": {
+          "longTasks": { "count": 7, "totalMs": 393, "maxMs": 61 },
+          "renders": { "commits": 19, "globeRenders": 0 }
+        },
+        "pageErrors": [],
+        "notes": []
+      }
+    ]
+  },
+  "bundle": {
+    "routeChunk": {
+      "file": "assets/atlas-BbFyEG8K.js",
+      "rawBytes": 70808,
+      "gzipBytes": 22929
+    },
+    "pageTotal": {
+      "rawBytes": 5612891,
+      "gzipBytes": 1587169,
+      "chunks": 224,
+      "note": "entry + route + first-render chunks, JS and CSS"
+    },
+    "routeOnlyTotal": { "rawBytes": 2311355, "gzipBytes": 658623 },
+    "rendererChunks": {
+      "three": [
+        "assets/react-globe.gl-CQVMCwQN.js",
+        "assets/three.module-HRZ034tX.js"
+      ],
+      "react-globe.gl": ["assets/react-globe.gl-CQVMCwQN.js"],
+      "globe.gl": ["assets/react-globe.gl-CQVMCwQN.js"],
+      "three-globe": ["assets/react-globe.gl-CQVMCwQN.js"]
+    },
+    "chunks": [
+      {
+        "group": "entry",
+        "file": "assets/index-IV-6FoU7.js",
+        "source": "index.html",
+        "rawBytes": 689174,
+        "gzipBytes": 181085,
+        "css": [
+          {
+            "file": "assets/index-Dqv7cnH2.css",
+            "rawBytes": 225568,
+            "gzipBytes": 36868
+          },
+          {
+            "file": "assets/dashboard-B8_8HSdz.css",
+            "rawBytes": 5338,
+            "gzipBytes": 1627
+          },
+          {
+            "file": "assets/learn-DYYND4HQ.css",
+            "rawBytes": 2528,
+            "gzipBytes": 1008
+          }
+        ],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/chunk-BEqpzyXh.js",
+        "source": "chunk",
+        "rawBytes": 817,
+        "gzipBytes": 467,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/preload-helper-DgFuoWHe.js",
+        "source": "preload-helper",
+        "rawBytes": 1193,
+        "gzipBytes": 681,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useAuthContext-BgtCwnDH.js",
+        "source": "useAuthContext",
+        "rawBytes": 255625,
+        "gzipBytes": 74812,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-Nm0izuVE.js",
+        "source": "dist",
+        "rawBytes": 66810,
+        "gzipBytes": 21829,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/react-dom-Ce6KqdVF.js",
+        "source": "react-dom",
+        "rawBytes": 132717,
+        "gzipBytes": 42461,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/react-D-Ueu8eg.js",
+        "source": "react",
+        "rawBytes": 6496,
+        "gzipBytes": 2566,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-BVgfpLZh.js",
+        "source": "dist",
+        "rawBytes": 10603,
+        "gzipBytes": 3774,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/jsx-runtime-CB8ITjZP.js",
+        "source": "jsx-runtime",
+        "rawBytes": 700,
+        "gzipBytes": 454,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/authFetch-Bygir94W.js",
+        "source": "authFetch",
+        "rawBytes": 28714,
+        "gzipBytes": 8438,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/AudioEngine-oEYIUGWC.js",
+        "source": "AudioEngine",
+        "rawBytes": 9667,
+        "gzipBytes": 3362,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/AudioContextOwner-PPDfjGV-.js",
+        "source": "AudioContextOwner",
+        "rawBytes": 1056,
+        "gzipBytes": 421,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/Mixer-CeTaevK5.js",
+        "source": "Mixer",
+        "rawBytes": 805,
+        "gzipBytes": 382,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/env-Bigm8Ee6.js",
+        "source": "env",
+        "rawBytes": 756,
+        "gzipBytes": 470,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/routes-Cm0ysyRa.js",
+        "source": "routes",
+        "rawBytes": 6794,
+        "gzipBytes": 2061,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/userScope-GJCjzI-Q.js",
+        "source": "userScope",
+        "rawBytes": 1363,
+        "gzipBytes": 707,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/esm-h4cA41my.js",
+        "source": "esm",
+        "rawBytes": 339361,
+        "gzipBytes": 78138,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/tslib.es6-CRcuQruN.js",
+        "source": "tslib.es6",
+        "rawBytes": 1463,
+        "gzipBytes": 707,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/UserWidget-3N10s3Rb.js",
+        "source": "UserWidget",
+        "rawBytes": 6333,
+        "gzipBytes": 2438,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-KQRmf4Yk.js",
+        "source": "dist",
+        "rawBytes": 7695,
+        "gzipBytes": 2880,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-B52atYh_.js",
+        "source": "dist",
+        "rawBytes": 631,
+        "gzipBytes": 431,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-CFXclz3W.js",
+        "source": "dist",
+        "rawBytes": 1548,
+        "gzipBytes": 737,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/tooltip-jBKjvVv-.js",
+        "source": "tooltip",
+        "rawBytes": 15606,
+        "gzipBytes": 5856,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/floating-ui.react-dom-oOcPmwzs.js",
+        "source": "floating-ui.react-dom",
+        "rawBytes": 21619,
+        "gzipBytes": 8316,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-BTeVQrSU.js",
+        "source": "dist",
+        "rawBytes": 138,
+        "gzipBytes": 127,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-D5RWv00D.js",
+        "source": "dist",
+        "rawBytes": 580,
+        "gzipBytes": 370,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-uirlYFHR.js",
+        "source": "dist",
+        "rawBytes": 465,
+        "gzipBytes": 343,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/utilities-DWK0Vqk4.js",
+        "source": "utilities",
+        "rawBytes": 20096,
+        "gzipBytes": 6747,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/MusicAtlasContext-BYyHtGCG.js",
+        "source": "MusicAtlasContext",
+        "rawBytes": 8869,
+        "gzipBytes": 3117,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/mutation-CaaCZ8gG.js",
+        "source": "mutation",
+        "rawBytes": 3108,
+        "gzipBytes": 1058,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useAuthToken-Cw8UYera.js",
+        "source": "useAuthToken",
+        "rawBytes": 181,
+        "gzipBytes": 157,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useMutation-Bs5Ikwd3.js",
+        "source": "useMutation",
+        "rawBytes": 2097,
+        "gzipBytes": 903,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/avatarHexGrid-CEl7DN5F.js",
+        "source": "avatarHexGrid",
+        "rawBytes": 28131,
+        "gzipBytes": 11877,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/loader-circle-CD-iWN1m.js",
+        "source": "loader-circle",
+        "rawBytes": 144,
+        "gzipBytes": 155,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/createLucideIcon-C8gGtu4R.js",
+        "source": "createLucideIcon",
+        "rawBytes": 1217,
+        "gzipBytes": 704,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/log-out-DhWAUBp_.js",
+        "source": "log-out",
+        "rawBytes": 230,
+        "gzipBytes": 191,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/AuthContext-DvO3zVaG.js",
+        "source": "AuthContext",
+        "rawBytes": 2117,
+        "gzipBytes": 1062,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/x-BQlfgygC.js",
+        "source": "x",
+        "rawBytes": 154,
+        "gzipBytes": 152,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/FullScreenLoading-cdMV9GuP.js",
+        "source": "FullScreenLoading",
+        "rawBytes": 6086,
+        "gzipBytes": 3045,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/button-BmgW-hLh.js",
+        "source": "button",
+        "rawBytes": 1726,
+        "gzipBytes": 752,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-acxUfdWu.js",
+        "source": "dist",
+        "rawBytes": 945,
+        "gzipBytes": 505,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/consoleRoles-CmQ3xvZ9.js",
+        "source": "consoleRoles",
+        "rawBytes": 184,
+        "gzipBytes": 155,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/mirrorPaths-xRSBVU3o.js",
+        "source": "mirrorPaths",
+        "rawBytes": 1299,
+        "gzipBytes": 629,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/data-BfI4HL4v.js",
+        "source": "data",
+        "rawBytes": 94552,
+        "gzipBytes": 21355,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/theme-CaUjN0eA.js",
+        "source": "theme",
+        "rawBytes": 1979,
+        "gzipBytes": 823,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/colord-D1MTDDqi.js",
+        "source": "colord",
+        "rawBytes": 5558,
+        "gzipBytes": 1919,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/songStore-q91YQSpW.js",
+        "source": "songStore",
+        "rawBytes": 984,
+        "gzipBytes": 599,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/manifest-CIPi4Q5Q.js",
+        "source": "manifest",
+        "rawBytes": 1123,
+        "gzipBytes": 573,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/learnTileImages-ZfyEhxZw.js",
+        "source": "learnTileImages",
+        "rawBytes": 2755,
+        "gzipBytes": 779,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/musicKeyUrl-BjP7tFKk.js",
+        "source": "musicKeyUrl",
+        "rawBytes": 1191,
+        "gzipBytes": 638,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/middleware-Dd3OXmlg.js",
+        "source": "middleware",
+        "rawBytes": 2147,
+        "gzipBytes": 1070,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/react-BB7TWCfI.js",
+        "source": "react",
+        "rawBytes": 673,
+        "gzipBytes": 412,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useViewedSongsStore-CgqsYCfe.js",
+        "source": "useViewedSongsStore",
+        "rawBytes": 320,
+        "gzipBytes": 251,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useMe-7CPSrhGW.js",
+        "source": "useMe",
+        "rawBytes": 276,
+        "gzipBytes": 230,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/usePrismRhythms-6j-dHIES.js",
+        "source": "usePrismRhythms",
+        "rawBytes": 226,
+        "gzipBytes": 189,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/scaleLessons-85Vb5SUl.js",
+        "source": "scaleLessons",
+        "rawBytes": 1973,
+        "gzipBytes": 845,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/projectsClient-C16Za1H0.js",
+        "source": "projectsClient",
+        "rawBytes": 3019,
+        "gzipBytes": 1375,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/HexAvatarSVG-DRHKbOI4.js",
+        "source": "HexAvatarSVG",
+        "rawBytes": 776,
+        "gzipBytes": 496,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/skeleton-BII4T4Nn.js",
+        "source": "skeleton",
+        "rawBytes": 227,
+        "gzipBytes": 196,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-BonAL_Xy.js",
+        "source": "dist",
+        "rawBytes": 7264,
+        "gzipBytes": 2761,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/es2015-DWe3ABlo.js",
+        "source": "es2015",
+        "rawBytes": 17427,
+        "gzipBytes": 6561,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-BL9ZQXQW.js",
+        "source": "dist",
+        "rawBytes": 4548,
+        "gzipBytes": 1740,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/react-icons.esm-CPiV-sBU.js",
+        "source": "react-icons.esm",
+        "rawBytes": 6462,
+        "gzipBytes": 1823,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-DnBTuNBm.js",
+        "source": "dist",
+        "rawBytes": 7664,
+        "gzipBytes": 3045,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-DaF6thn4.js",
+        "source": "dist",
+        "rawBytes": 68,
+        "gzipBytes": 83,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-C4y8-hpW.js",
+        "source": "dist",
+        "rawBytes": 2276,
+        "gzipBytes": 1027,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-p5jIw5gA.js",
+        "source": "dist",
+        "rawBytes": 279,
+        "gzipBytes": 204,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/switch-B6QG39o8.js",
+        "source": "switch",
+        "rawBytes": 2670,
+        "gzipBytes": 1304,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/en-US-Bosty360.js",
+        "source": "en-US",
+        "rawBytes": 6901,
+        "gzipBytes": 2307,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/normalizeDates-DOqhc3-W.js",
+        "source": "normalizeDates",
+        "rawBytes": 654,
+        "gzipBytes": 393,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/proxy-BHeHhF6D.js",
+        "source": "proxy",
+        "rawBytes": 118022,
+        "gzipBytes": 38140,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/use-transform-BPMJIzHD.js",
+        "source": "use-transform",
+        "rawBytes": 1357,
+        "gzipBytes": 708,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/PianoKeyboard--SOLVsOX.js",
+        "source": "PianoKeyboard",
+        "rawBytes": 78768,
+        "gzipBytes": 28879,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/pianoSampler-sSkKPvTf.js",
+        "source": "pianoSampler",
+        "rawBytes": 1549,
+        "gzipBytes": 812,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/toneBridge-DKYikF2I.js",
+        "source": "toneBridge",
+        "rawBytes": 444,
+        "gzipBytes": 316,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useTelemetryAudio-DyBKsyMT.js",
+        "source": "useTelemetryAudio",
+        "rawBytes": 612,
+        "gzipBytes": 355,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/types-WYWjXLRM.js",
+        "source": "types",
+        "rawBytes": 2732,
+        "gzipBytes": 1323,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/activity-Bk6pFCdJ.js",
+        "source": "activity",
+        "rawBytes": 234,
+        "gzipBytes": 199,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/arrow-left-BQ49Kqy7.js",
+        "source": "arrow-left",
+        "rawBytes": 165,
+        "gzipBytes": 162,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/arrow-right-DOYTSEcx.js",
+        "source": "arrow-right",
+        "rawBytes": 165,
+        "gzipBytes": 162,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/book-open-CE3Uyspl.js",
+        "source": "book-open",
+        "rawBytes": 279,
+        "gzipBytes": 206,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/check-x6bHqT8k.js",
+        "source": "check",
+        "rawBytes": 124,
+        "gzipBytes": 140,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/chevron-down-C1LkxOoP.js",
+        "source": "chevron-down",
+        "rawBytes": 128,
+        "gzipBytes": 141,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/chevron-right-D552JDwR.js",
+        "source": "chevron-right",
+        "rawBytes": 130,
+        "gzipBytes": 142,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/DashboardLayout-C87uQQGY.js",
+        "source": "DashboardLayout",
+        "rawBytes": 8679,
+        "gzipBytes": 3030,
+        "css": [
+          {
+            "file": "assets/DashboardLayout-Bf3yfdg9.css",
+            "rawBytes": 137,
+            "gzipBytes": 119
+          },
+          {
+            "file": "assets/dashboard-B8_8HSdz.css",
+            "rawBytes": 5338,
+            "gzipBytes": 1627
+          }
+        ],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/graduation-cap-CbhzWtCy.js",
+        "source": "graduation-cap",
+        "rawBytes": 332,
+        "gzipBytes": 247,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/house-D9QTB6mm.js",
+        "source": "house",
+        "rawBytes": 281,
+        "gzipBytes": 216,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/laptop-D5WSXt4t.js",
+        "source": "laptop",
+        "rawBytes": 304,
+        "gzipBytes": 232,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/search-8LQEaX-k.js",
+        "source": "search",
+        "rawBytes": 174,
+        "gzipBytes": 167,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/settings-b3Crnziy.js",
+        "source": "settings",
+        "rawBytes": 487,
+        "gzipBytes": 259,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/users-DhgtG2j_.js",
+        "source": "users",
+        "rawBytes": 306,
+        "gzipBytes": 224,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/tablePaths-9AZidiUf.js",
+        "source": "tablePaths",
+        "rawBytes": 3088,
+        "gzipBytes": 1191,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/slugs-I8HmDhpZ.js",
+        "source": "slugs",
+        "rawBytes": 738,
+        "gzipBytes": 430,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/DashboardFooter-D6WwPhtP.js",
+        "source": "DashboardFooter",
+        "rawBytes": 3232,
+        "gzipBytes": 1327,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/youtube-DOYJnZww.js",
+        "source": "youtube",
+        "rawBytes": 328,
+        "gzipBytes": 222,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/hand-BFv19p25.js",
+        "source": "hand",
+        "rawBytes": 406,
+        "gzipBytes": 254,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/info-CGwfRcPc.js",
+        "source": "info",
+        "rawBytes": 204,
+        "gzipBytes": 178,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/lock-BzZfHlP_.js",
+        "source": "lock",
+        "rawBytes": 206,
+        "gzipBytes": 194,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/music-D0YKp5sF.js",
+        "source": "music",
+        "rawBytes": 219,
+        "gzipBytes": 185,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/play-BIWXydPW.js",
+        "source": "play",
+        "rawBytes": 190,
+        "gzipBytes": 180,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/plus-DVWF_xui.js",
+        "source": "plus",
+        "rawBytes": 153,
+        "gzipBytes": 151,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useSettingsStore-DtBsCmt0.js",
+        "source": "useSettingsStore",
+        "rawBytes": 13178,
+        "gzipBytes": 5431,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/flowStore-Bm3NBAyR.js",
+        "source": "flowStore",
+        "rawBytes": 1501,
+        "gzipBytes": 793,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/backingPatterns-CdUiw39C.js",
+        "source": "backingPatterns",
+        "rawBytes": 20556,
+        "gzipBytes": 6839,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/registry-CAu57BEq.js",
+        "source": "registry",
+        "rawBytes": 98022,
+        "gzipBytes": 11063,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/drumGroove-7yZLNVg_.js",
+        "source": "drumGroove",
+        "rawBytes": 2063,
+        "gzipBytes": 1048,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/hipHopPatterns-BNkcvQUA.js",
+        "source": "hipHopPatterns",
+        "rawBytes": 5324,
+        "gzipBytes": 1833,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/swing-BJZQOhBb.js",
+        "source": "swing",
+        "rawBytes": 344,
+        "gzipBytes": 238,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/genreBassVoices-Bq-WFRC9.js",
+        "source": "genreBassVoices",
+        "rawBytes": 3884,
+        "gzipBytes": 1804,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/enharmonicEngine-BIMEzKHc.js",
+        "source": "enharmonicEngine",
+        "rawBytes": 3754,
+        "gzipBytes": 1516,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/resolveStepContent-DAy5Zo7r.js",
+        "source": "resolveStepContent",
+        "rawBytes": 5002,
+        "gzipBytes": 1887,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/flowKey-CAgN5zln.js",
+        "source": "flowKey",
+        "rawBytes": 1348,
+        "gzipBytes": 667,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/theoryCatalog-DI_WS847.js",
+        "source": "theoryCatalog",
+        "rawBytes": 3414,
+        "gzipBytes": 1195,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/prism-engine-B92Tg8M0.js",
+        "source": "prism-engine",
+        "rawBytes": 62082,
+        "gzipBytes": 12311,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/chords-C8mSv2wz.js",
+        "source": "chords",
+        "rawBytes": 1647,
+        "gzipBytes": 529,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/modes-BJhFXwhE.js",
+        "source": "modes",
+        "rawBytes": 6133,
+        "gzipBytes": 1308,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/formatAccidentals-D2wTgunq.js",
+        "source": "formatAccidentals",
+        "rawBytes": 146,
+        "gzipBytes": 99,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/prismSlice-CUrkFW7F.js",
+        "source": "prismSlice",
+        "rawBytes": 22504,
+        "gzipBytes": 7996,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/displayAccidentals-Mi1h6CIY.js",
+        "source": "displayAccidentals",
+        "rawBytes": 312,
+        "gzipBytes": 221,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/chordNotation-DEybwVHX.js",
+        "source": "chordNotation",
+        "rawBytes": 9052,
+        "gzipBytes": 3756,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/insightConstants-D_re-aZS.js",
+        "source": "insightConstants",
+        "rawBytes": 8234,
+        "gzipBytes": 2573,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/volume-2-By7JI7EW.js",
+        "source": "volume-2",
+        "rawBytes": 390,
+        "gzipBytes": 271,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/prop-types-C35E0iXu.js",
+        "source": "prop-types",
+        "rawBytes": 804,
+        "gzipBytes": 501,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/epSampler-pxiuHMBD.js",
+        "source": "epSampler",
+        "rawBytes": 1127,
+        "gzipBytes": 625,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/HeaderBar-husGbNrm.js",
+        "source": "HeaderBar",
+        "rawBytes": 1104,
+        "gzipBytes": 542,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/chevron-left-DgaAtCVP.js",
+        "source": "chevron-left",
+        "rawBytes": 130,
+        "gzipBytes": 145,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/PianoRollPlay-BVVurP27.js",
+        "source": "PianoRollPlay",
+        "rawBytes": 1963,
+        "gzipBytes": 1038,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/PianoKeyboard-Cpz4HLM4.js",
+        "source": "PianoKeyboard",
+        "rawBytes": 483,
+        "gzipBytes": 319,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/YouTubePlayer-4I5UGjFB.js",
+        "source": "YouTubePlayer",
+        "rawBytes": 608,
+        "gzipBytes": 453,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/noteSpellingLookup-Dd8nzwK4.js",
+        "source": "noteSpellingLookup",
+        "rawBytes": 18898,
+        "gzipBytes": 2697,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/modeStepsFallback-wbd-OQUR.js",
+        "source": "modeStepsFallback",
+        "rawBytes": 843,
+        "gzipBytes": 437,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/songLessonRoute-Bu4CMMy-.js",
+        "source": "songLessonRoute",
+        "rawBytes": 1406,
+        "gzipBytes": 780,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/GenreLessonContainerV2-16HL_5Ea.js",
+        "source": "GenreLessonContainerV2",
+        "rawBytes": 187357,
+        "gzipBytes": 57214,
+        "css": [
+          {
+            "file": "assets/GenreLessonContainerV2-Ig8cS0Z-.css",
+            "rawBytes": 1673,
+            "gzipBytes": 510
+          }
+        ],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-Bor0a-gd.js",
+        "source": "dist",
+        "rawBytes": 29428,
+        "gzipBytes": 9057,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-CvqcD1zV.js",
+        "source": "dist",
+        "rawBytes": 11046,
+        "gzipBytes": 4234,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/GrandStaff-DMuyUOLN.js",
+        "source": "GrandStaff",
+        "rawBytes": 39955,
+        "gzipBytes": 15075,
+        "css": [
+          {
+            "file": "assets/GrandStaff-fe024CRi.css",
+            "rawBytes": 1114,
+            "gzipBytes": 443
+          }
+        ],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/guitar-CmncteIU.js",
+        "source": "guitar",
+        "rawBytes": 530,
+        "gzipBytes": 316,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/GuitarInputChip-CeRGm9AT.js",
+        "source": "GuitarInputChip",
+        "rawBytes": 3295,
+        "gzipBytes": 1608,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/AudioChordDetector-BGP_NFHJ.js",
+        "source": "AudioChordDetector",
+        "rawBytes": 8712,
+        "gzipBytes": 3081,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/minus-Dqagis-6.js",
+        "source": "minus",
+        "rawBytes": 117,
+        "gzipBytes": 133,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/repeat-ci_b3KDM.js",
+        "source": "repeat",
+        "rawBytes": 272,
+        "gzipBytes": 201,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/square-BCAAxjbh.js",
+        "source": "square",
+        "rawBytes": 147,
+        "gzipBytes": 152,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/FixedDigits-C__L4XW_.js",
+        "source": "FixedDigits",
+        "rawBytes": 1149,
+        "gzipBytes": 693,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/use-motion-value-event-YgrgF5_u.js",
+        "source": "use-motion-value-event",
+        "rawBytes": 171,
+        "gzipBytes": 159,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/guitar-DZx5LKJb.js",
+        "source": "guitar",
+        "rawBytes": 77789,
+        "gzipBytes": 24614,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/popover-a7bp2fw-.js",
+        "source": "popover",
+        "rawBytes": 964,
+        "gzipBytes": 509,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/centers-DxqpVLAY.js",
+        "source": "centers",
+        "rawBytes": 105789,
+        "gzipBytes": 14984,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/fretboard-DWijWxEV.js",
+        "source": "fretboard",
+        "rawBytes": 1576,
+        "gzipBytes": 779,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/MetronomeToggle-CzEYXEcv.js",
+        "source": "MetronomeToggle",
+        "rawBytes": 52507,
+        "gzipBytes": 18365,
+        "css": [
+          {
+            "file": "assets/MetronomeToggle-BJyO5BM6.css",
+            "rawBytes": 770,
+            "gzipBytes": 300
+          }
+        ],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/CountOff-DxIrQ1TK.js",
+        "source": "CountOff",
+        "rawBytes": 1084,
+        "gzipBytes": 613,
+        "css": [
+          {
+            "file": "assets/CountOff-GFltWzRk.css",
+            "rawBytes": 997,
+            "gzipBytes": 447
+          }
+        ],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/ProbabilisticOrchestrator-C3MognpK.js",
+        "source": "ProbabilisticOrchestrator",
+        "rawBytes": 33837,
+        "gzipBytes": 9912,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/YinCore-DTDPvGKO.js",
+        "source": "YinCore",
+        "rawBytes": 3302,
+        "gzipBytes": 1245,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/chordIdentity-Ce0FCTM_.js",
+        "source": "chordIdentity",
+        "rawBytes": 1615,
+        "gzipBytes": 836,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/lessonVolumeStore-apS8WdlA.js",
+        "source": "lessonVolumeStore",
+        "rawBytes": 570,
+        "gzipBytes": 353,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dropdown-menu-D0RbMCaB.js",
+        "source": "dropdown-menu",
+        "rawBytes": 3876,
+        "gzipBytes": 1123,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/guitarVisualModel-Dsa1trC5.js",
+        "source": "guitarVisualModel",
+        "rawBytes": 3679,
+        "gzipBytes": 1808,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/guitarAppliedTheoryFundamentals-CY7hFsjS.js",
+        "source": "guitarAppliedTheoryFundamentals",
+        "rawBytes": 33437,
+        "gzipBytes": 8091,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/settingsControls-Dv1aC28D.js",
+        "source": "settingsControls",
+        "rawBytes": 11178,
+        "gzipBytes": 4532,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/jamSoundFont-V8mmP5oz.js",
+        "source": "jamSoundFont",
+        "rawBytes": 681,
+        "gzipBytes": 347,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/sheet-BsP14fcL.js",
+        "source": "sheet",
+        "rawBytes": 2589,
+        "gzipBytes": 996,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useMediaQuery-6qGj5_z_.js",
+        "source": "useMediaQuery",
+        "rawBytes": 416,
+        "gzipBytes": 272,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/guitarTonePrefs-BviwqA2S.js",
+        "source": "guitarTonePrefs",
+        "rawBytes": 1124,
+        "gzipBytes": 609,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/NamModelStore-CD5uzrMC.js",
+        "source": "NamModelStore",
+        "rawBytes": 4610,
+        "gzipBytes": 890,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/NamModelParser-C_KZRiKq.js",
+        "source": "NamModelParser",
+        "rawBytes": 2695,
+        "gzipBytes": 1093,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/practiceGuide-BWSqZq7a.js",
+        "source": "practiceGuide",
+        "rawBytes": 210,
+        "gzipBytes": 185,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/DrumMachineEngine-TdH-lRyQ.js",
+        "source": "DrumMachineEngine",
+        "rawBytes": 2928,
+        "gzipBytes": 1180,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/drumKits-CcYBSPx4.js",
+        "source": "drumKits",
+        "rawBytes": 6135,
+        "gzipBytes": 1503,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/msp-DjfmTUyJ.js",
+        "source": "msp",
+        "rawBytes": 783,
+        "gzipBytes": 430,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/mspResponseInbox-BmxDpve8.js",
+        "source": "mspResponseInbox",
+        "rawBytes": 956,
+        "gzipBytes": 515,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useMspReport-4Gq0HWIy.js",
+        "source": "useMspReport",
+        "rawBytes": 2988,
+        "gzipBytes": 1350,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/capabilities-DpaefrjE.js",
+        "source": "capabilities",
+        "rawBytes": 590,
+        "gzipBytes": 340,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useMspModuleCompletion-DFlsGeMD.js",
+        "source": "useMspModuleCompletion",
+        "rawBytes": 1076,
+        "gzipBytes": 588,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/mspLaunchParams-CfC9g9Mm.js",
+        "source": "mspLaunchParams",
+        "rawBytes": 882,
+        "gzipBytes": 458,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useInstrumentStore-CD0xB2ci.js",
+        "source": "useInstrumentStore",
+        "rawBytes": 886,
+        "gzipBytes": 453,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/alert-dialog-2UilsEf5.js",
+        "source": "alert-dialog",
+        "rawBytes": 2483,
+        "gzipBytes": 948,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/dist-pf06B_AU.js",
+        "source": "dist",
+        "rawBytes": 10219,
+        "gzipBytes": 3487,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/hex-wave-background-YP_anztv.js",
+        "source": "hex-wave-background",
+        "rawBytes": 6074,
+        "gzipBytes": 2913,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/hosts-CvgjSu1z.js",
+        "source": "hosts",
+        "rawBytes": 238,
+        "gzipBytes": 174,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/contentStore-YpML8p-o.js",
+        "source": "contentStore",
+        "rawBytes": 845,
+        "gzipBytes": 531,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/kindLabels-Dm-2GZCj.js",
+        "source": "kindLabels",
+        "rawBytes": 422,
+        "gzipBytes": 266,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/publishRun-C4rHv8OQ.js",
+        "source": "publishRun",
+        "rawBytes": 1361,
+        "gzipBytes": 764,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useAdminContent-BHmxkm0W.js",
+        "source": "useAdminContent",
+        "rawBytes": 3930,
+        "gzipBytes": 1360,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useRepoMode-B8ynidQ2.js",
+        "source": "useRepoMode",
+        "rawBytes": 137,
+        "gzipBytes": 140,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useCapabilities-Dg014vT8.js",
+        "source": "useCapabilities",
+        "rawBytes": 3142,
+        "gzipBytes": 1207,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/styles-CLKgu2sq.js",
+        "source": "styles",
+        "rawBytes": 637,
+        "gzipBytes": 336,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useUISound-DX7UEtqG.js",
+        "source": "useUISound",
+        "rawBytes": 922,
+        "gzipBytes": 519,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useUserBioPreferences-B249HhUB.js",
+        "source": "useUserBioPreferences",
+        "rawBytes": 2483,
+        "gzipBytes": 1117,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/api-DjWIAq50.js",
+        "source": "api",
+        "rawBytes": 1141,
+        "gzipBytes": 642,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "entry",
+        "file": "assets/useTelemetryProduct-RTfyM38z.js",
+        "source": "useTelemetryProduct",
+        "rawBytes": 1511,
+        "gzipBytes": 490,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/atlas-BbFyEG8K.js",
+        "source": "src/components/atlas/atlas.tsx",
+        "rawBytes": 70808,
+        "gzipBytes": 22929,
+        "css": [
+          {
+            "file": "assets/atlas-DxwqS2AS.css",
+            "rawBytes": 269,
+            "gzipBytes": 161
+          }
+        ],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/calendar-Ck51LdDp.js",
+        "source": "calendar",
+        "rawBytes": 257,
+        "gzipBytes": 201,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/circle-play-ClJZtJga.js",
+        "source": "circle-play",
+        "rawBytes": 256,
+        "gzipBytes": 209,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/compass-CuU5jWnS.js",
+        "source": "compass",
+        "rawBytes": 251,
+        "gzipBytes": 206,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/corner-down-left-D8tP_KOa.js",
+        "source": "corner-down-left",
+        "rawBytes": 185,
+        "gzipBytes": 175,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/file-music-BYqv8UDc.js",
+        "source": "file-music",
+        "rawBytes": 365,
+        "gzipBytes": 269,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/grip-vertical-BGsP5WY2.js",
+        "source": "grip-vertical",
+        "rawBytes": 371,
+        "gzipBytes": 196,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/link-2-a6qv430q.js",
+        "source": "link-2",
+        "rawBytes": 242,
+        "gzipBytes": 208,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/map-pin-iNzECdSu.js",
+        "source": "map-pin",
+        "rawBytes": 259,
+        "gzipBytes": 225,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/maximize-2-BBAkhkGS.js",
+        "source": "maximize-2",
+        "rawBytes": 238,
+        "gzipBytes": 188,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/minimize-2-BYZbJn2I.js",
+        "source": "minimize-2",
+        "rawBytes": 240,
+        "gzipBytes": 189,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/pause-By7-znRJ.js",
+        "source": "pause",
+        "rawBytes": 211,
+        "gzipBytes": 167,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/route-DJhLuY3k.js",
+        "source": "route",
+        "rawBytes": 254,
+        "gzipBytes": 199,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/hooks-Be4JHAgn.js",
+        "source": "hooks",
+        "rawBytes": 113754,
+        "gzipBytes": 39972,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/three.module-HRZ034tX.js",
+        "source": "three.module",
+        "rawBytes": 574897,
+        "gzipBytes": 144268,
+        "css": [],
+        "holds": ["three"]
+      },
+      {
+        "group": "route",
+        "file": "assets/cities-w_5A_RmO.js",
+        "source": "cities",
+        "rawBytes": 99031,
+        "gzipBytes": 28108,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/continentColors-Ds3j3gFl.js",
+        "source": "continentColors",
+        "rawBytes": 3069,
+        "gzipBytes": 1699,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/eventConnections-eeAk8F5W.js",
+        "source": "eventConnections",
+        "rawBytes": 127657,
+        "gzipBytes": 25318,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/geoLoader-D5ZYKy13.js",
+        "source": "geoLoader",
+        "rawBytes": 4063,
+        "gzipBytes": 1734,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/menuItems-Wx-h_61u.js",
+        "source": "menuItems",
+        "rawBytes": 262,
+        "gzipBytes": 156,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/data-CTJXrO0_.js",
+        "source": "data",
+        "rawBytes": 22792,
+        "gzipBytes": 9340,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/regions-CfQIW-pR.js",
+        "source": "regions",
+        "rawBytes": 1379,
+        "gzipBytes": 359,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/historicalModules-BeDtbt6u.js",
+        "source": "historicalModules",
+        "rawBytes": 7186,
+        "gzipBytes": 2744,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/country-jBOzpbWg.js",
+        "source": "country",
+        "rawBytes": 914,
+        "gzipBytes": 495,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/AtlasVideo-BSfUgrwQ.js",
+        "source": "AtlasVideo",
+        "rawBytes": 1265,
+        "gzipBytes": 732,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/GenreBadge-B5JVzCIC.js",
+        "source": "GenreBadge",
+        "rawBytes": 12281,
+        "gzipBytes": 4143,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/artistRegistry-D14fwoAC.js",
+        "source": "artistRegistry",
+        "rawBytes": 37546,
+        "gzipBytes": 11958,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/musicalEras-bDaZatnx.js",
+        "source": "musicalEras",
+        "rawBytes": 1278,
+        "gzipBytes": 476,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/useAtlasNavigate-BkYmDMFU.js",
+        "source": "useAtlasNavigate",
+        "rawBytes": 2085,
+        "gzipBytes": 849,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/eventMatches-C6jUgMyR.js",
+        "source": "eventMatches",
+        "rawBytes": 2479,
+        "gzipBytes": 1176,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "route",
+        "file": "assets/match-xuxfdUXl.js",
+        "source": "match",
+        "rawBytes": 214,
+        "gzipBytes": 181,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "first render",
+        "file": "assets/react-globe.gl-CQVMCwQN.js",
+        "source": "node_modules/react-globe.gl/dist/react-globe.gl.mjs",
+        "rawBytes": 1204387,
+        "gzipBytes": 350863,
+        "css": [],
+        "holds": ["three", "react-globe.gl", "globe.gl", "three-globe"]
+      },
+      {
+        "group": "first render",
+        "file": "assets/inheritsLoose-MfDEgxtO.js",
+        "source": "inheritsLoose",
+        "rawBytes": 357,
+        "gzipBytes": 222,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "first render",
+        "file": "assets/extends-DjxZEWvo.js",
+        "source": "extends",
+        "rawBytes": 231,
+        "gzipBytes": 182,
+        "css": [],
+        "holds": []
+      },
+      {
+        "group": "first render",
+        "file": "assets/quantize-DUlBi5fJ.js",
+        "source": "quantize",
+        "rawBytes": 20022,
+        "gzipBytes": 8126,
+        "css": [],
+        "holds": []
+      }
+    ],
+    "onDemand": [
+      {
+        "source": "src/components/atlas/components/MindMap/MindMapPanel.tsx",
+        "when": "only with ?mindmap=1",
+        "chunks": [
+          {
+            "file": "assets/MindMapPanel-Cwa0Z8bd.js",
+            "rawBytes": 7429,
+            "gzipBytes": 2794
+          },
+          {
+            "file": "assets/MindMapView-B1CVne0Z.js",
+            "rawBytes": 6121,
+            "gzipBytes": 2911
+          },
+          {
+            "file": "assets/cortexPalette-sCbE3Aio.js",
+            "rawBytes": 687,
+            "gzipBytes": 441
+          },
+          {
+            "file": "assets/types-BkIrywjW.js",
+            "rawBytes": 7607,
+            "gzipBytes": 2420
+          },
+          {
+            "file": "assets/mindMapHandoff-CvphsfUN.js",
+            "rawBytes": 432,
+            "gzipBytes": 285
+          }
+        ]
+      }
+    ]
+  }
+}

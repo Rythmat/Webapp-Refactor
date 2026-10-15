@@ -2337,6 +2337,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: 'Heather- Conan Gray',
     song: '',
+    songIds: ['heather'],
   },
 
   {
@@ -3707,6 +3708,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'hip-hop'],
     artist: 'Best Part- Daniel Caesar',
     song: '',
+    songIds: ['best_part'],
   },
 
   {
@@ -5596,6 +5598,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: 'I KNOW? Travis Scott',
+    songIds: ['i_know_travis_scott'],
   },
 
   {
@@ -5991,6 +5994,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: 'As it Was- Harry Styles',
+    songIds: ['as_it_was'],
   },
 
   {
@@ -6005,6 +6009,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: 'Sweater Weather- The Neighbourhood',
+    songIds: ['sweater_weather'],
   },
 
   {
@@ -6097,6 +6102,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: 'Earfquake- Tyler, The Creator',
+    songIds: ['earfquake'],
   },
 
   {
@@ -6314,6 +6320,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'latin'],
     artist: '',
     song: 'Say It- Maggie Rogers',
+    songIds: ['say_it_maggie_rogers'],
   },
 
   {
@@ -6996,6 +7003,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam-band'],
     artist: '',
     song: 'The Bird- Anderson .Paak',
+    songIds: ['the_bird'],
   },
 
   {
@@ -7018,6 +7026,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam-band'],
     artist: '',
     song: 'The Bird (bridge)- Anderson .Paak',
+    songIds: ['the_bird'],
   },
 
   {
@@ -7526,6 +7535,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'folk'],
     artist: '',
     song: 'Glory (bridge) John Legend',
+    songIds: ['glory'],
   },
 
   {
@@ -7918,6 +7928,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'New Light- John Mayer',
+    songIds: ['new_light'],
   },
 
   {
@@ -7932,6 +7943,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'Kill Bill- SZA',
+    songIds: ['kill_bill'],
   },
 
   {
@@ -8233,6 +8245,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'rock', 'hip-hop', 'electronic'],
     artist: '',
     song: 'happy birthday (bridge)- Stevie Wonder',
+    songIds: ['happy_birthday'],
   },
 
   {
@@ -8908,6 +8921,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'folk', 'african'],
     artist: '',
     song: 'Goodie Bag-Still Woozy',
+    songIds: ['goodie_bag'],
   },
 
   {
@@ -8922,6 +8936,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'hip-hop', 'electronic'],
     artist: '',
     song: "Hustlin'- Rick Ross",
+    songIds: ['hustlin'],
   },
 
   {
@@ -8936,6 +8951,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'flowers- Miley Cyrus',
+    songIds: ['flowers'],
   },
 
   {
@@ -8950,6 +8966,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'flowers- Miley Cyrus',
+    songIds: ['flowers'],
   },
 
   {
@@ -8964,6 +8981,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop'],
     artist: '',
     song: 'flowers- Miley Cyrus',
+    songIds: ['flowers'],
   },
 
   {
@@ -8992,6 +9010,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'hip-hop', 'electronic'],
     artist: '',
     song: 'Still Dre- Dr. Dre',
+    songIds: ['still_dre'],
   },
 
   {
@@ -9020,6 +9039,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'folk', 'reggae', 'african'],
     artist: '',
     song: 'Glory- John Legend',
+    songIds: ['glory'],
   },
 
   {
@@ -9398,6 +9418,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'Stay- Rihanna',
+    songIds: ['stay'],
   },
 
   {
@@ -9778,6 +9799,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'Anti-Hero- Taylor Swift',
+    songIds: ['anti_hero'],
   },
 
   {
@@ -10283,6 +10305,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'happy birthday- Stevie Wonder',
+    songIds: ['happy_birthday'],
   },
 
   {
@@ -10515,6 +10538,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'The Bird (bridge)- Anderson .Paak',
+    songIds: ['the_bird'],
   },
 
   {

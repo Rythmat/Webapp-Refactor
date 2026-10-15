@@ -16,6 +16,7 @@ export const OTHER_RECORD_KINDS = [
   'activity_flow',
   'fundamentals_flow',
   'artist_location',
+  'feel_profile',
 ] as const satisfies readonly ContentKind[];
 
 export type OtherRecordKind = (typeof OTHER_RECORD_KINDS)[number];

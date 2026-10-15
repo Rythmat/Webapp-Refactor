@@ -1,0 +1,272 @@
+{
+  "id": "funk-l3-d146-d3-full-groove",
+  "name": "Funk L3 · D146 D3: Full Groove",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 3,
+  "tempo": 98,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "hand": "lh",
+      "tick": 0,
+      "duration": 360,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 100
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 100
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 100
+    },
+    {
+      "hand": "lh",
+      "tick": 960,
+      "duration": 360,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 48,
+      "velocity": 100
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 100
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 100
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 100
+    },
+    {
+      "tick": 1920,
+      "duration": 360,
+      "midi": 29,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1920,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1920,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1920,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 41,
+      "velocity": 100
+    },
+    {
+      "hand": "rh",
+      "tick": 2280,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 100
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 100
+    },
+    {
+      "tick": 2880,
+      "duration": 360,
+      "midi": 29,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2880,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2880,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2880,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 41,
+      "velocity": 100
+    },
+    {
+      "hand": "rh",
+      "tick": 3240,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 3240,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 3240,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 3,
+    "section": "D",
+    "stepNumber": 146,
+    "title": "D3: Full Groove",
+    "tag": "funk:performance_cm9_f13_playon_l3_it | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Level 3 capstone part 1: LH plays octave pop on C and F. RH comps Cm9 (Eb-Bb-D) then F13 (Eb-A-D) — feel the Drop the Sizzle as Bb moves to A.",
+  "genre": "funk",
+  "chordSymbols": ["Cm9", "F13"]
+}

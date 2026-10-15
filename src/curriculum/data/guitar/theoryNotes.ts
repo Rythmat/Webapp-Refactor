@@ -10,6 +10,7 @@ import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidental
 import type {
   GuitarSubsectionPrefix,
   GuitarTheoryNote,
+  TheoryNoteScope,
   VoicingFamily,
   VoicingInfo,
 } from '@/lib/guitar/theory';
@@ -22,6 +23,20 @@ import {
   type TheoryNoteContext,
   type TheoryToken,
 } from './theoryConditions';
+import type { GuitarCenter } from './types';
+
+/** Book One's keys and the modes built on them. */
+const DIATONIC = ['ionian', 'modal'] as const;
+/** The seven-note families of the rest of Theory. */
+const FAMILIES = [
+  'harmonic-minor',
+  'melodic-minor',
+  'harmonic-major',
+  'double-harmonic',
+] as const;
+const MODAL_AND_FAMILIES = ['modal', ...FAMILIES] as const;
+/** The rest of Theory: the seven-note families and pentatonic/blues. */
+const REST_OF_THEORY = [...FAMILIES, 'pentatonic-blues'] as const;
 
 export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
   {
@@ -30,6 +45,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'intro',
     kind: 'theory',
     when: 'isFirstKey',
+    modes: 'ionian',
     title: 'Start with C',
     body: 'C major has no sharps or flats. Each key after it changes just one note.',
   },
@@ -39,6 +55,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'intro',
     kind: 'theory',
     when: 'notFirstKeyNoRespell',
+    modes: 'ionian',
     title: 'One new note',
     body: '{key} major is {prevKey} major with one note changed. {oldNote} becomes {newNote}. Find {newNote} in your scale shape.',
   },
@@ -48,6 +65,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'intro',
     kind: 'theory',
     when: 'isFlatSwitch',
+    modes: 'ionian',
     title: 'One new note',
     body: '{key} major sounds like {prevKey} major with one note changed. {oldNote} becomes {newNote}. The other notes keep their sound but take flat names.',
   },
@@ -57,6 +75,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'isFlatSwitch',
+    modes: 'ionian',
     title: 'Now with flats',
     body: 'From this key on, notes are written with flats. A flat (♭) means one fret lower.',
   },
@@ -66,6 +85,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Why this order?',
     body: 'Each key starts on note 5 of the key before it. Musicians call this order the circle of fifths.',
   },
@@ -75,6 +95,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Its minor partner',
     body: '{relMinor} minor uses the same notes as {key} major. It starts on note 6 instead of note 1.',
   },
@@ -84,6 +105,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'intro',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Whole and half steps',
     body: 'A whole step is 2 frets. A half step is 1 fret. The major scale has half steps in two places: from 3 to 4, and from 7 to 1.',
   },
@@ -92,7 +114,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     subsectionPrefix: 'A1',
     placement: 'info',
     kind: 'theory',
-    when: 'always',
+    when: 'octaveTwoOverTwoUp',
     title: 'Two roots',
     body: 'The low and high {tonic} are the same note, one octave apart. The high one is two strings over and two frets up.',
   },
@@ -101,7 +123,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     subsectionPrefix: 'A1',
     placement: 'intro',
     kind: 'technique',
-    when: 'always',
+    when: 'handStill',
     title: 'One finger per fret',
     body: 'Put finger 1 on fret {startFret}. Each finger then covers the next fret. Keep your hand still and let your fingers reach.',
   },
@@ -120,6 +142,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'listening',
     when: 'always',
+    modes: 'ionian',
     title: 'The restless notes',
     body: 'Notes 4 and 7 sound unsettled. 7 leans up to 1. 4 leans down to 3. Listen for this near the top of the scale.',
   },
@@ -129,6 +152,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Names for the numbers',
     body: '1 is the tonic, the home note. 5 is the dominant. 7 is the leading tone, because it leads back to 1.',
   },
@@ -138,6 +162,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'popover',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'What is Ionian?',
     body: 'Ionian is another name for the major scale. Starting the same notes from another note makes a new sound, called a mode. Modes come in Book Two.',
   },
@@ -201,6 +226,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'intro',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Five notes',
     body: 'Pentatonic means five notes. This scale is the major scale without notes 4 and 7. That leaves 1, 2, 3, 5 and 6.',
   },
@@ -210,6 +236,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'No clashing notes',
     body: 'Notes 4 and 7 make the half steps. Without them, these five notes rarely clash.',
   },
@@ -219,6 +246,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Missing notes',
     body: 'Faint outlines show where 4 and 7 would be. The pentatonic skips them.',
   },
@@ -237,6 +265,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Root to root',
     body: 'The high {tonic} is two strings over and three frets up. It is one fret further than in the major scale shape, because of the B string.',
   },
@@ -246,6 +275,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Did you know?',
     body: 'These five notes also make the {relMinor} minor pentatonic. Only the home note changes.',
   },
@@ -264,6 +294,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'intro',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Same pattern, every key',
     body: 'In every major key the chords follow one pattern. 1 major, 2 minor, 3 minor, 4 major, 5 major, 6 minor, 7 diminished.',
   },
@@ -273,6 +304,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Where is chord 7?',
     body: 'The triad on 7 is diminished. You will play it later as a 7th chord: 7 min7(♭5).',
   },
@@ -317,7 +349,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     subsectionPrefix: ['B1', 'B5'],
     placement: 'info',
     kind: 'listening',
-    when: 'always',
+    when: 'stepChordsHaveThird',
     title: 'Listen for the 3',
     body: 'The note marked 3 sets the mood. Major sounds bright. Minor sounds darker.',
   },
@@ -380,7 +412,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     subsectionPrefix: ['B7', 'B8'],
     placement: 'intro',
     kind: 'theory',
-    when: 'always',
+    when: 'chordTopIsSeventh',
     title: 'Triad plus one',
     body: 'A 7th chord is a triad with one more note on top. That note is the 7th.',
   },
@@ -389,7 +421,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     subsectionPrefix: ['B7', 'B8'],
     placement: 'popover',
     kind: 'theory',
-    when: 'degreeIsNot5',
+    when: 'hasHiddenTriad',
     title: 'A chord inside a chord',
     body: 'Take away the root of {chord} and {hiddenTriad} is left. You already know it as chord {hiddenDegree}.',
   },
@@ -399,6 +431,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: DIATONIC,
     title: 'Four kinds of 7th chord',
     body: 'Major 7: R 3 5 7. Dominant 7: R 3 5 ♭7. Minor 7: R ♭3 5 ♭7. Minor 7(♭5): R ♭3 ♭5 ♭7.',
   },
@@ -408,6 +441,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'listening',
     when: 'always',
+    modes: DIATONIC,
     title: 'How they sound',
     body: 'Major 7 sounds soft. Dominant 7 sounds bluesy and wants to move. Minor 7 sounds mellow. Minor 7(♭5) sounds tense.',
   },
@@ -417,6 +451,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: DIATONIC,
     title: 'One note apart',
     body: 'Lower the 7 by one fret and major 7 becomes dominant 7. Then lower the 3 and it becomes minor 7. Then lower the 5 and it becomes minor 7(♭5).',
   },
@@ -472,6 +507,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'popover',
     kind: 'theory',
     when: 'degreeIs7',
+    modes: 'ionian',
     title: 'Half-diminished',
     body: 'Chord 7 is minor 7(♭5). Many charts call it half-diminished and write ø.',
   },
@@ -544,6 +580,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'theory',
     when: 'always',
+    modes: 'ionian',
     title: 'Chord jobs',
     body: 'Home chords (1, 3, 6) feel settled. Away chords (2, 4) move away from home. Tension chords (5, 7) pull back home.',
   },
@@ -553,6 +590,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'popover',
     kind: 'listening',
     when: 'mapHasFiveToOne',
+    modes: 'ionian',
     title: '5 to 1',
     body: 'The 5 chord builds tension. The 1 chord releases it. This is the strongest way to arrive home.',
   },
@@ -562,6 +600,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'popover',
     kind: 'listening',
     when: 'mapHasTwoFiveOne',
+    modes: 'ionian',
     title: '2-5-1',
     body: 'The 2 chord leads to the 5 chord. The 5 chord leads home to 1. You will hear this move in many songs.',
   },
@@ -571,6 +610,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'popover',
     kind: 'listening',
     when: 'twoFiveOneWraps',
+    modes: 'ionian',
     title: '2-5-1',
     body: 'Here the 2-5-1 happens across the repeat. The map lands on 1 when it starts again.',
   },
@@ -580,6 +620,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'popover',
     kind: 'listening',
     when: 'mapHasTurnaround',
+    modes: 'ionian',
     title: 'Turnaround',
     body: '1, 6, 2, 5 leads back to 1. That is why this map loops so smoothly.',
   },
@@ -589,6 +630,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'listening',
     when: 'mapStartsOnSix',
+    modes: 'ionian',
     title: 'Starting on 6',
     body: 'This map starts on chord 6, the relative minor. The notes are the same, but the mood is darker.',
   },
@@ -598,6 +640,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'popover',
     kind: 'theory',
     when: 'mapHasSevenChord',
+    modes: 'ionian',
     title: 'Chord 7',
     body: 'Chord 7 shares three notes with the 5 dom7 chord. So it has a similar pull toward 1.',
   },
@@ -625,6 +668,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'listening',
     when: 'mapHasDom7ToOne',
+    modes: 'ionian',
     title: 'Why 5 pulls to 1',
     body: 'In {dom7Chord}, {seventhNote} wants to step down to {tonicThird}. {thirdNote} wants to step up to {tonic}. Those small steps make 1 sound like home.',
   },
@@ -652,8 +696,352 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     placement: 'info',
     kind: 'practice',
     when: 'always',
+    modes: DIATONIC,
     title: 'Make it your own',
     body: 'Loop this map and play the pentatonic scale over it. Try ending each idea on a note from the current chord.',
+  },
+  // ── The modes (Dorian … Locrian; Book One's notes above say 'major') ──
+  {
+    id: 'key.modeParent',
+    subsectionPrefix: 'KEY',
+    placement: 'intro',
+    kind: 'theory',
+    when: 'modeSpelledLikeParent',
+    modes: 'modal',
+    title: 'Notes from {parentKey} major',
+    body: '{key} {mode} uses the same notes as {parentKey} major. It starts on note {parentDegree} instead of note 1, so {key} is home.',
+  },
+  {
+    id: 'key.modeParentRespelled',
+    subsectionPrefix: 'KEY',
+    placement: 'intro',
+    kind: 'theory',
+    when: 'modeRespelled',
+    modes: 'modal',
+    title: 'Sounds like {parentKey} major',
+    body: '{key} {mode} sounds like {parentKey} major played from its note {parentDegree}, so {key} is home. Here its notes are spelled differently.',
+  },
+  {
+    id: 'key.modeColour',
+    subsectionPrefix: 'KEY',
+    placement: 'intro',
+    kind: 'listening',
+    when: 'always',
+    modes: MODAL_AND_FAMILIES,
+    title: 'The note to listen for',
+    body: '{colourText} In {key} {mode} that note is {colourNote}, the {colourDegree}.',
+  },
+  {
+    id: 'a1.modeSteps',
+    subsectionPrefix: 'A1',
+    placement: 'intro',
+    kind: 'theory',
+    when: 'always',
+    modes: 'modal',
+    title: 'Whole and half steps',
+    body: 'A whole step is 2 frets. A half step is 1 fret. This scale has half steps in two places: {halfSteps}.',
+  },
+  {
+    id: 'a1.mode',
+    subsectionPrefix: 'A1',
+    placement: 'popover',
+    kind: 'theory',
+    when: 'always',
+    modes: 'modal',
+    title: 'What is {mode}?',
+    body: 'A mode plays the notes of a major scale from another starting note. Play {parentKey} major from its note {parentDegree} and you get {key} {mode}.',
+  },
+  {
+    id: 'a4.modeWhat',
+    subsectionPrefix: 'A4',
+    placement: 'intro',
+    kind: 'theory',
+    when: 'always',
+    modes: 'modal',
+    title: 'Five notes',
+    body: 'Pentatonic means five notes. This one takes {pentDegrees} from {key} {mode}.',
+  },
+  {
+    id: 'a4.modeGhost',
+    subsectionPrefix: 'A4',
+    placement: 'info',
+    kind: 'theory',
+    when: 'always',
+    modes: 'modal',
+    title: 'Missing notes',
+    body: 'Faint outlines show where {skipped} would be. This pentatonic leaves them out.',
+  },
+  {
+    id: 'b.modePattern',
+    subsectionPrefix: 'B',
+    placement: 'intro',
+    kind: 'theory',
+    when: 'always',
+    modes: MODAL_AND_FAMILIES,
+    title: 'The {mode} pattern',
+    body: 'Every {mode} key follows one chord pattern. {triadPattern}.',
+  },
+  {
+    id: 'b.dim',
+    subsectionPrefix: 'B',
+    placement: 'info',
+    kind: 'theory',
+    when: 'always',
+    modes: 'modal',
+    title: 'The diminished chord',
+    body: 'Chord {dimDegree} is diminished: R ♭3 ♭5. Its two stacked minor thirds make it sound tense.',
+  },
+  {
+    id: 'd3.modeColour',
+    subsectionPrefix: 'D3',
+    placement: 'intro',
+    kind: 'listening',
+    when: 'always',
+    modes: MODAL_AND_FAMILIES,
+    title: 'The {mode} sound',
+    body: 'These maps lean on chord 1 and chord {colourChord}. Rocking between them is a classic {mode} sound.',
+  },
+  // ── The rest of Theory: the harmonic, melodic and double harmonic
+  // families (FAMILIES) and the pentatonic and blues scales ──
+  {
+    id: 'key.familyParent',
+    subsectionPrefix: 'KEY',
+    placement: 'intro',
+    kind: 'theory',
+    when: 'modeIsFamilyParent',
+    modes: FAMILIES,
+    title: 'First of its family',
+    body: '{key} {mode} is the first scale of its family. Each of its notes starts another mode, with a sound of its own.',
+  },
+  {
+    id: 'key.familyMode',
+    subsectionPrefix: 'KEY',
+    placement: 'intro',
+    kind: 'theory',
+    when: 'modeIsFamilyMode',
+    modes: FAMILIES,
+    title: 'Notes from {familyParentKey} {familyName}',
+    body: '{key} {mode} uses the notes of {familyParentKey} {familyName}. It starts on note {familyDegree} instead, so {key} is home.',
+  },
+  {
+    id: 'key.scaleIntro',
+    subsectionPrefix: 'KEY',
+    placement: 'intro',
+    kind: 'theory',
+    when: 'always',
+    modes: 'pentatonic-blues',
+    title: 'A {noteCount}-note scale',
+    body: '{key} {mode} has {noteCount} notes: {scaleDegrees}. In this key they are {scaleNoteNames}.',
+  },
+  {
+    id: 'key.scaleSound',
+    subsectionPrefix: 'KEY',
+    placement: 'intro',
+    kind: 'listening',
+    when: 'always',
+    modes: 'pentatonic-blues',
+    title: 'How it sounds',
+    body: '{scaleCharacter}.',
+  },
+  {
+    id: 'key.scalePartner',
+    subsectionPrefix: 'KEY',
+    placement: 'info',
+    kind: 'theory',
+    when: 'always',
+    modes: 'pentatonic-blues',
+    title: 'Its partner scale',
+    body: '{partnerKey} {partnerName} uses the same notes as {key} {mode}. Only the home note changes.',
+  },
+  {
+    id: 'a1.familySteps',
+    subsectionPrefix: 'A1',
+    placement: 'intro',
+    kind: 'theory',
+    when: 'always',
+    modes: FAMILIES,
+    title: 'Whole and half steps',
+    body: 'A whole step is 2 frets. A half step is 1 fret. This scale has {halfStepCount} half steps: {halfStepList}.',
+  },
+  {
+    id: 'a1.augSecond',
+    subsectionPrefix: 'A1',
+    placement: 'info',
+    kind: 'listening',
+    when: 'scaleHasAugmentedSecond',
+    modes: FAMILIES,
+    title: 'A step and a half',
+    body: 'Between {augSecondPairs} is a step and a half: three frets on one string. That wide gap gives {key} {mode} its exotic sound.',
+  },
+  {
+    id: 'a1.stretch',
+    subsectionPrefix: 'A1',
+    placement: 'intro',
+    kind: 'technique',
+    when: 'positionNeedsStretch',
+    modes: REST_OF_THEORY,
+    title: 'Reach back one fret',
+    body: 'This shape covers five frets. Rest finger 1 on fret {stretchFret}. On strings with a note on fret {lowFret}, reach back for it with finger 1.',
+  },
+  {
+    id: 'a1.gaps',
+    subsectionPrefix: 'A1',
+    placement: 'info',
+    kind: 'theory',
+    when: 'always',
+    modes: 'pentatonic-blues',
+    title: 'Gaps in the scale',
+    body: 'Some neighbouring notes are a step and a half apart: three frets on one string. The notes left out are the ones most likely to clash.',
+  },
+  {
+    id: 'a1.blueNote',
+    subsectionPrefix: 'A1',
+    placement: 'info',
+    kind: 'listening',
+    when: 'scaleHasBlueNote',
+    modes: 'pentatonic-blues',
+    title: 'The blue note',
+    body: '{blueNote}, the {blueDegree}, is the blue note. Pass through it on the way to a neighbour rather than resting on it.',
+  },
+  {
+    id: 'b.aug',
+    subsectionPrefix: 'B',
+    placement: 'info',
+    kind: 'theory',
+    when: 'hasAugTriad',
+    modes: FAMILIES,
+    title: 'The augmented chord',
+    body: 'Chord {augDegree} is augmented: R 3 ♯5. Two stacked major thirds make it sound unresolved.',
+  },
+  {
+    id: 'b.dimPair',
+    subsectionPrefix: 'B',
+    placement: 'info',
+    kind: 'theory',
+    when: 'hasTwoDimTriads',
+    modes: FAMILIES,
+    title: 'Two diminished chords',
+    body: 'Chords {dimDegrees} are diminished: R ♭3 ♭5. Both sound tense and lean toward the next chord.',
+  },
+  {
+    id: 'b.majFlat5',
+    subsectionPrefix: 'B',
+    placement: 'info',
+    kind: 'theory',
+    when: 'hasMajFlat5Triad',
+    modes: 'double-harmonic',
+    title: 'Major with a flat 5',
+    body: 'Chord {majb5Degree} is major with a lowered 5: R 3 ♭5. The ♭5 makes it sound strained and restless.',
+  },
+  {
+    id: 'b.sus2Flat5',
+    subsectionPrefix: 'B',
+    placement: 'info',
+    kind: 'theory',
+    when: 'hasSus2Flat5Triad',
+    modes: 'double-harmonic',
+    title: 'A chord without a 3',
+    body: 'Chord {sus2b5Degree} has a 2 where the 3 would be: R 2 ♭5. Without a 3 it is neither major nor minor.',
+  },
+  {
+    id: 'b7.kindsFamily',
+    subsectionPrefix: ['B7', 'B8'],
+    placement: 'info',
+    kind: 'theory',
+    when: 'always',
+    modes: FAMILIES,
+    title: 'Its four-note chords',
+    body: '{key} {mode} builds {seventhKindCount} kinds of four-note chord. They are {seventhKinds}.',
+  },
+  {
+    id: 'b7.minMaj7',
+    subsectionPrefix: ['B7', 'B8'],
+    placement: 'popover',
+    kind: 'theory',
+    when: 'chordIsMinMaj7',
+    modes: FAMILIES,
+    title: 'Minor with a major 7',
+    body: '{chord} is a minor triad with a major 7 on top. The 7 sits a half step below the root, which sounds dark and tense.',
+  },
+  {
+    id: 'b7.augMaj7',
+    subsectionPrefix: ['B7', 'B8'],
+    placement: 'popover',
+    kind: 'theory',
+    when: 'chordIsAugMaj7',
+    modes: FAMILIES,
+    title: 'Major 7, sharp 5',
+    body: '{chord} is a major 7 chord with its 5 raised a half step. The ♯5 makes it bright but unsettled.',
+  },
+  {
+    id: 'b7.dim7',
+    subsectionPrefix: ['B7', 'B8'],
+    placement: 'popover',
+    kind: 'theory',
+    when: 'chordIsDim7',
+    modes: FAMILIES,
+    title: 'Diminished 7',
+    body: '{chord} stacks three minor thirds: R ♭3 ♭5 𝄫7. Move this shape three frets and the notes stay the same.',
+  },
+  {
+    id: 'b7.halfDimFamily',
+    subsectionPrefix: ['B7', 'B8'],
+    placement: 'popover',
+    kind: 'theory',
+    when: 'chordIsHalfDim',
+    modes: FAMILIES,
+    title: 'Half-diminished',
+    body: '{chord} is minor 7(♭5). Many charts call it half-diminished and write ø.',
+  },
+  {
+    id: 'b7.min6',
+    subsectionPrefix: ['B7', 'B8'],
+    placement: 'popover',
+    kind: 'theory',
+    when: 'chordIsMin6',
+    modes: 'double-harmonic',
+    title: 'Minor 6',
+    body: '{chord} is a minor triad with a 6 on top instead of a 7: R ♭3 5 6.',
+  },
+  {
+    id: 'b7.dom7b5',
+    subsectionPrefix: ['B7', 'B8'],
+    placement: 'popover',
+    kind: 'theory',
+    when: 'chordIsDom7b5',
+    modes: 'double-harmonic',
+    title: 'Dominant 7, flat 5',
+    body: '{chord} is a dominant 7 chord with its 5 lowered a half step: R 3 ♭5 ♭7. It pulls hard toward the next chord.',
+  },
+  {
+    id: 'b7.sus2Flat5Add6',
+    subsectionPrefix: ['B7', 'B8'],
+    placement: 'popover',
+    kind: 'theory',
+    when: 'chordIsSus2b5add6',
+    modes: 'double-harmonic',
+    title: 'A 6 on sus2(♭5)',
+    body: '{chord} adds a 6 to sus2(♭5): R 2 ♭5 6. It has the same notes as a dominant 7 chord built on its 2.',
+  },
+  {
+    id: 'd1.band',
+    subsectionPrefix: 'D1',
+    placement: 'intro',
+    kind: 'listening',
+    when: 'always',
+    modes: 'pentatonic-blues',
+    title: 'Play over the band',
+    body: 'The band plays the chords while you play the phrase. Your notes stay the same as the chords change under them. Listen to how each chord colours them.',
+  },
+  {
+    id: 'd3.jamFamily',
+    subsectionPrefix: 'D3',
+    placement: 'info',
+    kind: 'practice',
+    when: 'always',
+    modes: REST_OF_THEORY,
+    title: 'Make it your own',
+    body: 'Loop this map and play the {key} {mode} scale over it. Try ending each idea on a note from the current chord.',
   },
   {
     id: 'pt.focus',
@@ -696,10 +1084,20 @@ export type GuitarTheoryStringId =
   | 'badge.openStrings'
   | 'formula.maj'
   | 'formula.min'
+  | 'formula.dim'
+  | 'formula.aug'
+  | 'formula.majb5'
+  | 'formula.sus2b5'
   | 'formula.maj7'
   | 'formula.dom7'
   | 'formula.min7'
   | 'formula.min7b5'
+  | 'formula.dim7'
+  | 'formula.minMaj7'
+  | 'formula.maj7#5'
+  | 'formula.dom7b5'
+  | 'formula.min6'
+  | 'formula.sus2b5add6'
   | 'nickname.min7b5'
   | 'chordbox.minorNote'
   | 'aliases'
@@ -761,10 +1159,20 @@ export const GUITAR_THEORY_STRINGS: Readonly<
   'badge.openStrings': 'Uses open strings',
   'formula.maj': 'R 3 5',
   'formula.min': 'R ♭3 5',
+  'formula.dim': 'R ♭3 ♭5',
+  'formula.aug': 'R 3 ♯5',
+  'formula.majb5': 'R 3 ♭5',
+  'formula.sus2b5': 'R 2 ♭5',
   'formula.maj7': 'R 3 5 7',
   'formula.dom7': 'R 3 5 ♭7',
   'formula.min7': 'R ♭3 5 ♭7',
   'formula.min7b5': 'R ♭3 ♭5 ♭7',
+  'formula.dim7': 'R ♭3 ♭5 𝄫7',
+  'formula.minMaj7': 'R ♭3 5 7',
+  'formula.maj7#5': 'R 3 ♯5 7',
+  'formula.dom7b5': 'R 3 ♭5 ♭7',
+  'formula.min6': 'R ♭3 5 6',
+  'formula.sus2b5add6': 'R 2 ♭5 6',
   'nickname.min7b5': 'half-diminished (ø)',
   'chordbox.minorNote': 'Minor lowers the 3 by one fret.',
   aliases: 'Also written as {aliases}. They all mean the same chord.',
@@ -823,6 +1231,7 @@ export const GUITAR_SUBSECTION_PREFIXES: readonly GuitarSubsectionPrefix[] = [
   'A2',
   'A3',
   'A4',
+  'A5',
   'B',
   'B1',
   'B2',
@@ -846,8 +1255,10 @@ export function stepPrefix(stepId: string): GuitarSubsectionPrefix | null {
 
 export function noteHasPrefix(
   note: GuitarTheoryNote,
-  prefix: GuitarSubsectionPrefix,
+  subsection: GuitarSubsectionPrefix,
 ): boolean {
+  // A5, a mode's second pentatonic, has A4's notes.
+  const prefix = subsection === 'A5' ? 'A4' : subsection;
   const prefixes = note.subsectionPrefix;
   // A single prefix is a string: 'B3'.includes('B') must not match 'B'.
   return typeof prefixes === 'string'
@@ -863,12 +1274,31 @@ export interface ResolvedTheoryNote {
   body: string;
 }
 
+/** Which of GuitarTheoryNote.modes a center's lessons are. */
+export function noteScopeOf(center: GuitarCenter): TheoryNoteScope {
+  if (center.mode === 'ionian') return 'ionian';
+  return center.family === 'diatonic' ? 'modal' : center.family;
+}
+
+/** Whether a note belongs to a center's lessons (see GuitarTheoryNote.modes). */
+export function noteAppliesTo(
+  note: GuitarTheoryNote,
+  center: GuitarCenter,
+): boolean {
+  if (!note.modes) return true;
+  const scope = noteScopeOf(center);
+  return typeof note.modes === 'string'
+    ? note.modes === scope
+    : note.modes.includes(scope);
+}
+
 const TOKEN = /\{(\w+)\}/g;
 
 function resolveWith(
   note: GuitarTheoryNote,
   d: DerivedTheoryContext,
 ): ResolvedTheoryNote | null {
+  if (!noteAppliesTo(note, d.center)) return null;
   if (!THEORY_CONDITIONS[note.when](d)) return null;
   const unicode = d.settings?.accidentals === 'unicode';
   let complete = true;

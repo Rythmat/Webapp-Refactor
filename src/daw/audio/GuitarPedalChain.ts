@@ -1,6 +1,8 @@
 // ── GuitarPedalChain ────────────────────────────────────────────────────
-// Dynamic pedal chain for guitar/bass tracks. Supports arbitrary ordering
-// of pedal processors via syncChain().
+// Dynamic pedal chain for guitar/bass and vocal tracks. Supports arbitrary
+// ordering of pedal processors via syncChain(). The chain always holds one
+// processor per block, in block order, so a knob edit can take the
+// updateProcessorParams fast path instead of rewiring.
 
 import type {
   PedalProcessor,
@@ -15,6 +17,8 @@ import { PhaserPedal } from './pedals/PhaserPedal';
 import { FlangerPedal } from './pedals/FlangerPedal';
 import { WahPedal } from './pedals/WahPedal';
 import { PitchCorrectionPedal } from './pedals/PitchCorrectionPedal';
+import { DelayPedal } from './pedals/DelayPedal';
+import { ReverbPedal } from './pedals/ReverbPedal';
 import type { NamModelFile } from './nam/NamModelParser';
 
 // Param interfaces used by GuitarFxAdapter
@@ -43,10 +47,35 @@ export type AmpSimMode = 'classic' | 'nam';
 
 // ── Factory ─────────────────────────────────────────────────────────────
 
-function createProcessor(
-  type: string,
-  ctx: AudioContext,
-): PedalProcessor | null {
+/**
+ * Stands in for a block type this build has no processor for (one saved by
+ * a newer client, say): the signal passes through untouched. Blocks and
+ * processors stay index-aligned, which syncChain's reuse by index and the
+ * updateProcessorParams fast path both rely on.
+ */
+class PassThroughPedal implements PedalProcessor {
+  readonly type: string;
+  private node: GainNode;
+
+  constructor(type: string, ctx: AudioContext) {
+    this.type = type;
+    this.node = ctx.createGain();
+  }
+
+  getInputNode(): AudioNode {
+    return this.node;
+  }
+  getOutputNode(): AudioNode {
+    return this.node;
+  }
+  setEnabled(): void {}
+  updateParams(): void {}
+  dispose(): void {
+    this.node.disconnect();
+  }
+}
+
+function createProcessor(type: string, ctx: AudioContext): PedalProcessor {
   switch (type) {
     case 'overdrive':
       return new OverdrivePedal(ctx);
@@ -64,10 +93,14 @@ function createProcessor(
       return new FlangerPedal(ctx);
     case 'wah':
       return new WahPedal(ctx);
+    case 'delay':
+      return new DelayPedal(ctx);
+    case 'reverb':
+      return new ReverbPedal(ctx);
     case 'pitch-correction':
       return new PitchCorrectionPedal(ctx);
     default:
-      return null;
+      return new PassThroughPedal(type, ctx);
   }
 }
 
@@ -113,18 +146,13 @@ export class GuitarPedalChain {
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
 
-      // Try to reuse an existing processor of the same type at the same index
+      // Reuse the processor of the same type at the same index; a changed
+      // type or a new block gets a fresh one.
       const existing = this.processors[i];
-      let proc: PedalProcessor | null;
-
-      if (existing && existing.type === block.type) {
-        proc = existing;
-      } else {
-        // Type changed or new block — create fresh
-        proc = createProcessor(block.type, this.nativeCtx);
-      }
-
-      if (!proc) continue;
+      const proc =
+        existing && existing.type === block.type
+          ? existing
+          : createProcessor(block.type, this.nativeCtx);
 
       proc.setEnabled(block.enabled);
       proc.updateParams(block.params);

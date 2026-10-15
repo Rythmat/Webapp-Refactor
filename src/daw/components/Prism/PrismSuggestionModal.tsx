@@ -20,7 +20,10 @@ import {
   Check,
   X,
 } from 'lucide-react';
+import { PRISM_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { PPQ, ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import { SuggestionChordPill } from './SuggestionChordPill';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
@@ -139,7 +142,17 @@ function defaultGmProgram(
 
 // ── Main Modal ─────────────────────────────────────────────────────────────
 
-export function PrismSuggestionModal() {
+/**
+ * `audioReady` is the editor's audio-started flag (useAudioEngine's isReady).
+ * The modal can open before the first audio gesture, for example when a
+ * student's first action is right-clicking the timeline, so the preview
+ * player waits for it rather than asking an engine that doesn't exist yet.
+ */
+export function PrismSuggestionModal({
+  audioReady = true,
+}: {
+  audioReady?: boolean;
+}) {
   const isOpen = useStore((s) => s.prismSuggestOpen);
   const suggestions = useStore((s) => s.prismSuggestSets);
   const activeIdx = useStore((s) => s.prismSuggestActiveIdx);
@@ -149,6 +162,7 @@ export function PrismSuggestionModal() {
   const isPreviewPlaying = useStore((s) => s.prismSuggestPreviewPlaying);
   const trackId = useStore((s) => s.prismSuggestTrackId);
   const bpm = useStore((s) => s.bpm);
+  const barTicks = useStore((s) => ticksPerBar(timeSignatureOf(s)));
 
   const close = useStore((s) => s.closePrismSuggestion);
   const next = useStore((s) => s.nextPrismSuggestion);
@@ -167,7 +181,7 @@ export function PrismSuggestionModal() {
   const [previewProgram, setPreviewProgram] = useState(0);
 
   const activeSuggestion = suggestions[activeIdx] ?? null;
-  const insertBar = Math.floor(insertTick / 1920) + 1;
+  const insertBar = Math.floor(insertTick / barTicks) + 1;
 
   // Determine track instrument type
   const trackInfo = useMemo(() => {
@@ -188,9 +202,13 @@ export function PrismSuggestionModal() {
         ? BASS_PROGRAMS
         : [];
 
-  // Initialize standalone SoundFontAdapter when modal opens
+  // Initialize standalone SoundFontAdapter when modal opens. Before the first
+  // audio gesture there is no engine: getContext() would throw and the route
+  // error page would replace the editor. The effect runs again once audio
+  // starts. (Don't init the engine from here: init() isn't idempotent and
+  // would build a second master chain.)
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !audioReady || !audioEngine.getIsInitialized()) return;
 
     const program = defaultGmProgram(trackInfo.instrument, trackInfo.gmProgram);
     setPreviewProgram(program);
@@ -211,7 +229,7 @@ export function PrismSuggestionModal() {
         previewAdapterRef.current = null;
       }
     };
-  }, [isOpen, trackInfo.instrument, trackInfo.gmProgram]);
+  }, [isOpen, audioReady, trackInfo.instrument, trackInfo.gmProgram]);
 
   // Handle sound picker change
   const handleSoundChange = useCallback((newProgram: number) => {
@@ -239,8 +257,8 @@ export function PrismSuggestionModal() {
     setPreviewPlaying(false);
   }, [setPreviewPlaying]);
 
-  // Whole-note duration in ms
-  const wholeNoteDuration = (4 * 60000) / bpm;
+  // A bar of the project's metre, in ms: what each chord is heard for
+  const wholeNoteDuration = (barTicks / PPQ) * (60000 / bpm);
 
   // Preview a single chord (whole note)
   const previewChord = useCallback(
@@ -338,76 +356,50 @@ export function PrismSuggestionModal() {
     stopPreview();
   }, [activeIdx, stopPreview]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      // Don't handle if an input/select is focused
-      const active = document.activeElement;
-      if (
-        active &&
-        (active.tagName === 'INPUT' ||
-          active.tagName === 'TEXTAREA' ||
-          active.tagName === 'SELECT')
-      )
-        return;
-
-      switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          prev();
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          next();
-          break;
-        case ' ':
-          e.preventDefault();
-          if (isPreviewPlaying) stopPreview();
-          else playProgression();
-          break;
-        case 'Enter':
-          e.preventDefault();
-          commit();
-          break;
-        case 'Escape':
-          e.preventDefault();
-          close();
-          break;
-        case 'r':
-        case 'R':
-          e.preventDefault();
-          regenerate();
-          break;
-        default:
-          // 1-9 jump to suggestion
-          if (e.key >= '1' && e.key <= '9') {
-            const idx = parseInt(e.key) - 1;
-            if (idx < suggestions.length) {
-              useStore.setState({ prismSuggestActiveIdx: idx });
-            }
-          }
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [
-    isOpen,
-    isPreviewPlaying,
-    prev,
-    next,
-    commit,
-    close,
-    regenerate,
-    playProgression,
-    stopPreview,
-    suggestions.length,
-  ]);
+  // Keys (the prism scope): a modal dialog in the key precedence, so while
+  // it is up no key reaches the editor behind it: R re-rolls here and never
+  // records, the arrows browse suggestions instead of nudging a clip, Space
+  // previews instead of playing the song, and Delete can't remove a clip
+  // nobody can see. Save and undo still go through, and browser shortcuts
+  // still work: a modified key is never prevented here.
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const visible = isOpen && activeSuggestion !== null;
+  // Enter and Space press the button that has focus (Cancel, Re-roll), as
+  // on any button, rather than committing or previewing.
+  const onOwnButton = (e: KeyboardEvent) =>
+    e.target instanceof HTMLButtonElement &&
+    !!overlayRef.current?.contains(e.target);
+  useKeymap(
+    PRISM_SCOPE.id,
+    {
+      'prism.previous': () => prev(),
+      'prism.next': () => next(),
+      'prism.pick': (e) => {
+        const idx = parseInt(e.key, 10) - 1;
+        if (idx < suggestions.length) {
+          useStore.setState({ prismSuggestActiveIdx: idx });
+        }
+      },
+      'prism.preview': (e) => {
+        if (onOwnButton(e)) return false;
+        if (isPreviewPlaying) stopPreview();
+        else playProgression();
+      },
+      'prism.reroll': () => regenerate(),
+      'prism.commit': (e) => {
+        if (onOwnButton(e)) return false;
+        commit();
+      },
+      'prism.close': () => close(),
+    },
+    { active: visible },
+  );
 
   if (!isOpen || !activeSuggestion) return null;
 
   return (
     <div
+      ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{
         backgroundColor: 'rgba(0, 0, 0, 0.5)',

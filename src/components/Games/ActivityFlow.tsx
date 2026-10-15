@@ -30,14 +30,10 @@ import {
   type NoteEvent,
 } from './PianoRollPlay';
 import {
-  chordArpegiateEvents,
-  chordGroupOnsets,
+  chordArpeggioThenHold,
   chordsInOrder,
-  midiSequenceToEighthNotes,
   midiSequenceToEvents,
-  midiSequenceToHalfNotes,
   midiSequenceToMixedArticulation,
-  midiSequenceToQuarterNotes,
   midiSequenceToStoccatoEvents,
   midiSequenceToWholeNotes,
   timedSequenceToEvents,
@@ -45,10 +41,15 @@ import {
   timedSequenceToStoccatoEvents,
 } from './content/noteSequences';
 import {
+  progressionChart,
+  THEORY_BAR_TICKS,
+  theoryProgressionsFor,
+} from '@/lib/learn/theoryChordProgressions';
+import {
   getBluesPhrases,
   transposeBluesPhrase,
 } from '@/lib/learn/bluesPhrases';
-import { getScaleLesson } from '@/lib/learn/scaleLessons';
+import { getScaleLesson, spellScaleChord } from '@/lib/learn/scaleLessons';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
   selectMelodyPhrases,
@@ -210,6 +211,17 @@ const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
   </div>
 );
 
+/**
+ * A chord figure moves as one unit, down an octave while its top note is
+ * above C6 — the 5–7 chords of a high key would otherwise climb past it
+ * (chord-bass register rule).
+ */
+const inChordRegister = (figure: number[][]): number[][] => {
+  const top = Math.max(...figure.flat());
+  const shift = top > 84 ? -12 * Math.ceil((top - 84) / 12) : 0;
+  return shift ? figure.map((chord) => chord.map((m) => m + shift)) : figure;
+};
+
 const isNumberArray = (value: unknown): value is number[] =>
   Array.isArray(value) &&
   value.every((n) => typeof n === 'number' && Number.isFinite(n));
@@ -315,10 +327,11 @@ export const ActivityFlow = ({
     return raw.map((arr) => arr.map((i) => i + rootMidi));
   }, [chordResponse, rootMidi]);
 
-  const generateStepTriad = (step: number) => {
-    const baseChord = triads[step - 1];
-    return baseChord ? baseChord : undefined;
-  };
+  const tetrads = useMemo(() => {
+    const raw = chordResponse?.chords?.tetrads;
+    if (!raw || !Array.isArray(raw)) return [];
+    return raw.map((arr) => arr.map((i) => i + rootMidi));
+  }, [chordResponse, rootMidi]);
 
   // Chord symbols for the staff. The mode's chord-scale table already names
   // every degree the way the formatter reads it ("1 maj", "6 min"), so the
@@ -331,40 +344,25 @@ export const ActivityFlow = ({
   };
   const degreeLabels = getChordScales(mode as string)?.triads;
 
-  /** Symbols for a built chord sequence, one per harmonic change. */
-  const symbolsFor = (
-    seq: NoteEvent[],
-    groups: number[][],
-    degreeOfGroup: number[],
-  ): LessonChordSymbol[] | undefined => {
-    if (!degreeLabels?.length) return undefined;
-    const chords = chordGroupOnsets(seq, groups).flatMap(
-      ({ groupIndex, startTick }) => {
-        const entry = degreeLabels[degreeOfGroup[groupIndex]];
-        return entry
-          ? [{ label: `${entry.degree} ${entry.quality}`, startTick }]
-          : [];
-      },
-    );
-    if (chords.length === 0) return undefined;
-    return lessonChordSymbols(chords, chordNotation, chordContext);
-  };
-
   const buildFlowDefinitions = (
     scale: number[],
     phrases?: MelodyPhrases | null,
     chordTriads: number[][] = [],
     includeChordPlaceholder = false,
+    chordSevenths: number[][] = [],
   ): ActivityDefinition[] => {
     const scopeId = (id: string) => `${lessonKeyScope}:${id}`;
-    const applyActivityColor = (seq: NoteEvent[]) =>
+    const applyActivityColor = (
+      seq: NoteEvent[],
+      spelling: Map<number, string> = pcSpellingMap,
+    ) =>
       seq.map((event) => {
         const midi = pitchNameToMidi(event.pitchName);
         return {
           ...event,
           pitchName:
             typeof midi === 'number'
-              ? spelledMidiNoteName(midi, pcSpellingMap)
+              ? spelledMidiNoteName(midi, spelling)
               : event.pitchName,
           id: event.id.startsWith(`${lessonKeyScope}:`)
             ? event.id
@@ -551,265 +549,126 @@ export const ActivityFlow = ({
         },
       );
     }
-    /////////// ACTIVITIES FOR 5
-    for (let i = 0; i < 4; i++) {
-      const chordNotes = generateStepTriad(i + 1);
-      if (isNumberArray(chordNotes)) {
-        const entry = degreeLabels?.[i];
-        const arpSymbols = entry
-          ? lessonChordSymbols(
-              [{ label: `${entry.degree} ${entry.quality}`, startTick: 0 }],
-              chordNotation,
-              chordContext,
-            )
-          : undefined;
-        sequences.push(
-          {
-            key: `arpeggiate-${i + 1}-nh`,
-            label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Hold`,
-            Component: NoteHold,
-            seq: applyActivityColor(
-              chordArpegiateEvents(
-                chordNotes ?? [scale[0], scale[2], scale[4]],
-                `arpeggiate-${i + 1}-nh`,
-              ),
-            ),
-            direction: `Play the notes of the ${i + 1} chord one at a time going up (to the right) and then play the chord.`,
-            section: 'B' as SectionId,
-            chordSymbols: arpSymbols,
-          },
-          {
-            key: `arpeggiate-${i + 1}-pa`,
-            label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Play Along`,
-            Component: PlayAlong,
-            seq: applyActivityColor(
-              chordArpegiateEvents(
-                chordNotes ?? [scale[0], scale[2], scale[4]],
-                `arpeggiate-${i + 1}-pa`,
-              ),
-            ),
-            direction:
-              'In a steady tempo, play an arpeggio of the chord going up and then play the chord.',
-            section: 'B' as SectionId,
-            chordSymbols: arpSymbols,
-          },
+    // ── Chords chapter ──────────────────────────────────────────────────
+    // Every chord activity is in time: Demo and Practice let the student
+    // prepare, Play Now is graded in time. Rules (no diminished chord in a
+    // progression, one chord per bar, nothing shorter than a quarter) live in
+    // lib/learn/theoryChordProgressions.ts.
+    const progressions = theoryProgressionsFor(mode as string);
+    const sevenths = getChordScales(mode as string)?.sevenths;
+
+    /** One quality per chord type for a degree: "1 maj", "5 dom7". */
+    const chordLabel = (kind: 'triad' | 'seventh', degree: number) => {
+      const entry = (kind === 'triad' ? degreeLabels : sevenths)?.[degree - 1];
+      return entry ? `${entry.degree} ${entry.quality}` : undefined;
+    };
+    const symbolsAtBars = (kind: 'triad' | 'seventh', degrees: number[]) => {
+      const chords = degrees.flatMap((degree, bar) => {
+        const label = chordLabel(kind, degree);
+        return label ? [{ label, startTick: bar * THEORY_BAR_TICKS }] : [];
+      });
+      return chords.length
+        ? lessonChordSymbols(chords, chordNotation, chordContext)
+        : undefined;
+    };
+
+    const chordActivities = (
+      kind: 'triad' | 'seventh',
+      chords: number[][],
+      chordProgressions: number[][],
+    ) => {
+      const noun = kind === 'triad' ? 'Chord' : '7th Chord';
+      const tones = kind === 'triad' ? '1, 3 and 5' : '1, 3, 5 and 7';
+      // Stand-alone chords: every degree, the diminished one included —
+      // going through the chords of the scale is the one place it belongs.
+      chords.forEach((chord, i) => {
+        if (!isNumberArray(chord)) return;
+        const degree = i + 1;
+        const key = `${kind}-${degree}-arp-pa`;
+        // "5 dom7", in the app's hybrid numbering; the bare degree if the
+        // mode has no table.
+        const name = chordLabel(kind, degree) ?? String(degree);
+        sequences.push({
+          key,
+          label: `${rootKey} ${modeTitle} ${name} ${noun} • Arpeggio & Hold`,
+          Component: PlayAlong,
+          seq: applyActivityColor(
+            chordArpeggioThenHold(inChordRegister([chord])[0], key),
+          ),
+          direction: `In a steady tempo, play the ${tones} of the ${name} chord one at a time going up, then play the chord and hold it for the bar.`,
+          section: 'B' as SectionId,
+          chordSymbols: symbolsAtBars(kind, [degree, degree]),
+        });
+      });
+      chordProgressions.forEach((degrees, p) => {
+        const figure = chordsInOrder(
+          chords,
+          degrees.map((d) => d - 1),
         );
-      }
-    }
-    if (triads.length > 4) {
-      ////////////////ACTIVITES FOR 6
-      // NoteEvent {
-      //   id: string;
-      //   pitchName: string;
-      //   midi?: Midi;
-      //   startTicks: number;
-      //   durationTicks: number;
-      //   velocity?: number;
-      //   color?: string;
-      // }
-      const oneToFourChords = [triads[0], triads[1], triads[2], triads[3]];
-      const oneToFourDegrees = [0, 1, 2, 3];
-      const symbolsForOneToFour = (seq: NoteEvent[]) =>
-        symbolsFor(seq, oneToFourChords, oneToFourDegrees);
-      sequences.push(
-        {
-          key: `chords-1-nh`,
-          label: `${rootKey} ${modeTitle} Chords • Hold`,
-          Component: NoteHold,
-          seq: applyActivityColor(
-            midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
-          ),
-          chordSymbols: symbolsForOneToFour(
-            midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
-          ),
-          direction: `Play the notes of the 1 through the four chord for ${rootKey} ${modeTitle}, holding down the notes of each chord as you go.`,
-          section: 'B' as SectionId,
-        },
-        {
-          key: `chords-1-pa`,
-          label: `${rootKey} ${modeTitle} Chords (Whole) • Play Along`,
+        if (figure.length !== degrees.length) return;
+        const key = `${kind}-progression-${p + 1}-pa`;
+        sequences.push({
+          key,
+          label: `${rootKey} ${modeTitle} ${noun} Progression ${progressionChart(degrees)} • Play Along`,
           Component: PlayAlong,
           seq: applyActivityColor(
-            midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`),
+            midiSequenceToWholeNotes(inChordRegister(figure), key),
           ),
-          chordSymbols: symbolsForOneToFour(
-            midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`),
-          ),
-          direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in whole notes.`,
+          direction: `In a steady tempo, play ${progressionChart(degrees)}, one ${noun.toLowerCase()} per bar.`,
           section: 'B' as SectionId,
-        },
-        {
-          key: `chords-2-pa`,
-          label: `${rootKey} ${modeTitle} Chords (Half) • Play Along`,
-          Component: PlayAlong,
-          seq: applyActivityColor(
-            midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`),
-          ),
-          chordSymbols: symbolsForOneToFour(
-            midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`),
-          ),
-          direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in half notes.`,
-          section: 'B' as SectionId,
-        },
-        {
-          key: `chords-3-pa`,
-          label: `${rootKey} ${modeTitle} Chords (Quarter) • Play Along`,
-          Component: PlayAlong,
-          seq: applyActivityColor(
-            midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`),
-          ),
-          chordSymbols: symbolsForOneToFour(
-            midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`),
-          ),
-          direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in quarter notes.`,
-          section: 'B' as SectionId,
-        },
+          chordSymbols: symbolsAtBars(kind, degrees),
+        });
+      });
+    };
+
+    chordActivities('triad', chordTriads, progressions.triads);
+    chordActivities('seventh', chordSevenths, progressions.sevenths);
+
+    // Pentatonic and blues scales have no chord on every degree: their
+    // Chords chapter is the tonic chords chosen for each, in set voicings
+    // (lib/learn/scaleLessons.ts), with no progressions.
+    scaleLesson?.chords.forEach((scaleChord, i) => {
+      const key = `scale-chord-${i + 1}-arp-pa`;
+      const name = `1 ${scaleChord.quality}`;
+      const notes = scaleChord.offsets.map((o) => o + rootMidi);
+      const tones = scaleChord.tones;
+      // The chord spells its own notes (C dom7(♯9): E – B♭ – D♯), over the
+      // scale's spelling for anything it doesn't name.
+      const chordSpelling = new Map(pcSpellingMap);
+      const tonic = spelledMidiNoteName(rootMidi, pcSpellingMap).replace(
+        /-?\d+$/,
+        '',
       );
-
-      //////////ACTIVITES FOR 7
-      const indices = [0, 1, 2, 3];
-      let shuffled = indices.sort(() => Math.random() - 0.5);
+      spellScaleChord(scaleChord, tonic).forEach((name, t) =>
+        chordSpelling.set(
+          (((rootMidi + scaleChord.offsets[t]) % 12) + 12) % 12,
+          name,
+        ),
+      );
+      const toneList =
+        tones.length > 1
+          ? `${tones.slice(0, -1).join(', ')} and ${tones[tones.length - 1]}`
+          : tones.join('');
       sequences.push({
-        key: `chords-4-pa`,
-        label: `${rootKey} ${modeTitle} Two Chords (Staccato) • Play Along`,
+        key,
+        label: `${rootKey} ${modeTitle} ${name} Chord • Arpeggio & Hold`,
         Component: PlayAlong,
         seq: applyActivityColor(
-          midiSequenceToStoccatoEvents(
-            chordsInOrder(triads, [shuffled[0], shuffled[1]]),
-            `chords-4-pa`,
-          ),
+          chordArpeggioThenHold(inChordRegister([notes])[0], key),
+          chordSpelling,
         ),
-        chordSymbols: symbolsFor(
-          midiSequenceToStoccatoEvents(
-            chordsInOrder(triads, [shuffled[0], shuffled[1]]),
-            `chords-4-pa`,
-          ),
-          chordsInOrder(triads, [shuffled[0], shuffled[1]]),
-          [shuffled[0], shuffled[1]],
-        ),
-        direction: `Play chord ${shuffled[0] + 1} and ${shuffled[1] + 1} in a steady tempo, with short articulations (“staccato”).`,
+        direction: `In a steady tempo, play the ${toneList} of the ${name} chord one at a time going up, then play the chord and hold it for the bar.`,
         section: 'B' as SectionId,
+        chordSymbols: lessonChordSymbols(
+          [0, THEORY_BAR_TICKS].map((startTick) => ({
+            label: name,
+            startTick,
+          })),
+          chordNotation,
+          chordContext,
+        ),
       });
-      shuffled = shuffled.sort(() => Math.random() - 0.5);
-      sequences.push({
-        key: `chords-5-pa`,
-        label: `${rootKey} ${modeTitle} Two Chords (Legato) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToEvents(
-            chordsInOrder(triads, [shuffled[0], shuffled[1]]),
-            `chords-5-pa`,
-          ),
-        ),
-        chordSymbols: symbolsFor(
-          midiSequenceToEvents(
-            chordsInOrder(triads, [shuffled[0], shuffled[1]]),
-            `chords-5-pa`,
-          ),
-          chordsInOrder(triads, [shuffled[0], shuffled[1]]),
-          [shuffled[0], shuffled[1]],
-        ),
-        direction: `Play chord ${shuffled[0] + 1} and ${shuffled[1] + 1} in a steady tempo, with long articulations (“legato”).`,
-        section: 'B' as SectionId,
-      });
-
-      /////////ACTIVITES FOR 8
-      shuffled = shuffled.sort(() => Math.random() - 0.5);
-      sequences.push({
-        key: `chords-2-nh`,
-        label: `${rootKey} ${modeTitle} First Four Chords • Hold`,
-        Component: NoteHold,
-        seq: applyActivityColor(
-          midiSequenceToEvents(chordsInOrder(triads, shuffled), `chords-2-nh`),
-        ),
-        chordSymbols: symbolsFor(
-          midiSequenceToEvents(chordsInOrder(triads, shuffled), `chords-2-nh`),
-          chordsInOrder(triads, shuffled),
-          shuffled,
-        ),
-        direction: `Play the first four chords in a mixed order, holding down each chord one by one.`,
-        section: 'B' as SectionId,
-      });
-      sequences.push({
-        key: `chords-7-pa`,
-        label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToHalfNotes(
-            chordsInOrder(triads, shuffled),
-            `chords-7-pa`,
-          ),
-        ),
-        chordSymbols: symbolsFor(
-          midiSequenceToHalfNotes(
-            chordsInOrder(triads, shuffled),
-            `chords-7-pa`,
-          ),
-          chordsInOrder(triads, shuffled),
-          shuffled,
-        ),
-        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`,
-        section: 'B' as SectionId,
-      });
-      sequences.push({
-        key: `chords-8-pa`,
-        label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToQuarterNotes(
-            chordsInOrder(triads, shuffled),
-            `chords-8-pa`,
-          ),
-        ),
-        chordSymbols: symbolsFor(
-          midiSequenceToQuarterNotes(
-            chordsInOrder(triads, shuffled),
-            `chords-8-pa`,
-          ),
-          chordsInOrder(triads, shuffled),
-          shuffled,
-        ),
-        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`,
-        section: 'B' as SectionId,
-      });
-      sequences.push({
-        key: `chords-9-pa`,
-        label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToEighthNotes(
-            chordsInOrder(triads, shuffled),
-            `chords-9-pa`,
-          ),
-        ),
-        chordSymbols: symbolsFor(
-          midiSequenceToEighthNotes(
-            chordsInOrder(triads, shuffled),
-            `chords-9-pa`,
-          ),
-          chordsInOrder(triads, shuffled),
-          shuffled,
-        ),
-        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`,
-        section: 'B' as SectionId,
-      });
-      shuffled = shuffled.sort(() => Math.random() - 0.5);
-      sequences.push({
-        key: `chords-6-pa`,
-        label: `${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToEvents(chordsInOrder(triads, shuffled), `chords-6-pa`),
-        ),
-        chordSymbols: symbolsFor(
-          midiSequenceToEvents(chordsInOrder(triads, shuffled), `chords-6-pa`),
-          chordsInOrder(triads, shuffled),
-          shuffled,
-        ),
-        direction: `Play the four chords in a steady tempo, with mixed articulations.`,
-        section: 'B' as SectionId,
-      });
-    }
+    });
 
     if (includeChordPlaceholder && chordTriads.length === 0) {
       sequences.push({
@@ -871,6 +730,7 @@ export const ActivityFlow = ({
       melodyPhrases,
       triads,
       chordsPending && triads.length === 0,
+      tetrads,
     );
   }, [
     scaleMidis,
@@ -878,6 +738,7 @@ export const ActivityFlow = ({
     writtenPhrases,
     rootMidi,
     triads,
+    tetrads,
     chordsPending,
     activityColor,
     lessonKeyScope,

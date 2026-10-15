@@ -11,6 +11,11 @@
 
 export type DeleteApiAdminContentItemsByIdData = any;
 
+export interface DeleteApiAdminContentItemsByIdParams {
+  force?: string;
+  id: string;
+}
+
 export type DeleteApiAdminFreeAccessByIdData = any;
 
 export interface DeleteApiStudioProjectsByIdData {
@@ -59,15 +64,78 @@ export interface DeleteTeachersInvitationsByIdData {
   revoked: boolean;
 }
 
+export type GetApiAdminContentCapabilitiesData = any;
+
 export type GetApiAdminContentDerivationHealthData = any;
+
+export type GetApiAdminContentExportData = any;
+
+export interface GetApiAdminContentExportParams {
+  cursor?: string;
+  kind:
+    | 'globe_event'
+    | 'globe_city'
+    | 'song'
+    | 'artist_location'
+    | 'activity_flow'
+    | 'fundamentals_flow'
+    | 'artist'
+    | 'release'
+    | 'studio'
+    | 'label'
+    | 'genre'
+    | 'subgenre'
+    | 'instrument'
+    | 'chord_progression';
+  limit?: string;
+  omit?: string;
+  view?: string;
+}
 
 export type GetApiAdminContentItemsByIdData = any;
 
 export type GetApiAdminContentItemsData = any;
 
+export type GetApiAdminContentItemsLookupData = any;
+
+export interface GetApiAdminContentItemsLookupParams {
+  kind:
+    | 'globe_event'
+    | 'globe_city'
+    | 'song'
+    | 'artist_location'
+    | 'activity_flow'
+    | 'fundamentals_flow'
+    | 'artist'
+    | 'release'
+    | 'studio'
+    | 'label'
+    | 'genre'
+    | 'subgenre'
+    | 'instrument'
+    | 'chord_progression';
+  /** @minLength 1 */
+  slug: string;
+}
+
 export interface GetApiAdminContentItemsParams {
   cursor?: string;
-  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  kind:
+    | 'globe_event'
+    | 'globe_city'
+    | 'song'
+    | 'artist_location'
+    | 'activity_flow'
+    | 'fundamentals_flow'
+    | 'artist'
+    | 'release'
+    | 'studio'
+    | 'label'
+    | 'genre'
+    | 'subgenre'
+    | 'instrument'
+    | 'chord_progression';
+  /** @pattern ^[1-9][0-9]*$ */
   limit?: string;
   search?: string;
   status?: 'draft' | 'published' | 'archived';
@@ -78,19 +146,61 @@ export type GetApiAdminContentOverviewData = any;
 export type GetApiAdminContentPendingData = any;
 
 export interface GetApiAdminContentPendingParams {
-  kind?: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  kind?:
+    | 'globe_event'
+    | 'globe_city'
+    | 'song'
+    | 'artist_location'
+    | 'activity_flow'
+    | 'fundamentals_flow'
+    | 'artist'
+    | 'release'
+    | 'studio'
+    | 'label'
+    | 'genre'
+    | 'subgenre'
+    | 'instrument'
+    | 'chord_progression';
 }
 
 export type GetApiAdminContentReleasesData = any;
 
 export interface GetApiAdminContentReleasesParams {
-  kind?: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  kind?:
+    | 'globe_event'
+    | 'globe_city'
+    | 'song'
+    | 'artist_location'
+    | 'activity_flow'
+    | 'fundamentals_flow'
+    | 'artist'
+    | 'release'
+    | 'studio'
+    | 'label'
+    | 'genre'
+    | 'subgenre'
+    | 'instrument'
+    | 'chord_progression';
 }
 
 export type GetApiAdminContentTemplateByKindData = any;
 
 export interface GetApiAdminContentTemplateByKindParams {
-  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  kind:
+    | 'globe_event'
+    | 'globe_city'
+    | 'song'
+    | 'artist_location'
+    | 'activity_flow'
+    | 'fundamentals_flow'
+    | 'artist'
+    | 'release'
+    | 'studio'
+    | 'label'
+    | 'genre'
+    | 'subgenre'
+    | 'instrument'
+    | 'chord_progression';
   slug?: string;
 }
 
@@ -882,13 +992,41 @@ export type PostApiAdminContentReleasesByIdPartsByPartData = any;
 export type PostApiAdminContentReleasesData = any;
 
 export interface PostApiAdminContentReleasesPayload {
-  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  kind:
+    | 'globe_event'
+    | 'globe_city'
+    | 'song'
+    | 'artist_location'
+    | 'activity_flow'
+    | 'fundamentals_flow'
+    | 'artist'
+    | 'release'
+    | 'studio'
+    | 'label'
+    | 'genre'
+    | 'subgenre'
+    | 'instrument'
+    | 'chord_progression';
 }
 
 export type PostApiAdminContentRollbackData = any;
 
 export interface PostApiAdminContentRollbackPayload {
-  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  kind:
+    | 'globe_event'
+    | 'globe_city'
+    | 'song'
+    | 'artist_location'
+    | 'activity_flow'
+    | 'fundamentals_flow'
+    | 'artist'
+    | 'release'
+    | 'studio'
+    | 'label'
+    | 'genre'
+    | 'subgenre'
+    | 'instrument'
+    | 'chord_progression';
   version: number;
 }
 
@@ -1541,7 +1679,24 @@ export type PutApiAdminContentItemsData = any;
 
 export interface PutApiAdminContentItemsPayload {
   body: any;
-  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  create?: boolean;
+  /** @min 0 */
+  expectedRevision?: string | number;
+  kind:
+    | 'globe_event'
+    | 'globe_city'
+    | 'song'
+    | 'artist_location'
+    | 'activity_flow'
+    | 'fundamentals_flow'
+    | 'artist'
+    | 'release'
+    | 'studio'
+    | 'label'
+    | 'genre'
+    | 'subgenre'
+    | 'instrument'
+    | 'chord_progression';
   note?: string;
   overrides?: any;
   /** @minLength 1 */
@@ -2375,10 +2530,27 @@ export namespace Content {
     export type RequestParams = {
       id: string;
     };
-    export type RequestQuery = {};
+    export type RequestQuery = {
+      force?: string;
+    };
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = DeleteApiAdminContentItemsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentCapabilities
+   * @request GET:/api/admin/content/capabilities
+   * @response `200` `GetApiAdminContentCapabilitiesData`
+   */
+  export namespace GetApiAdminContentCapabilities {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentCapabilitiesData;
   }
 
   /**
@@ -2399,6 +2571,41 @@ export namespace Content {
   /**
    * No description
    * @tags Content
+   * @name GetApiAdminContentExport
+   * @request GET:/api/admin/content/export
+   * @response `200` `GetApiAdminContentExportData`
+   */
+  export namespace GetApiAdminContentExport {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      cursor?: string;
+      kind:
+        | 'globe_event'
+        | 'globe_city'
+        | 'song'
+        | 'artist_location'
+        | 'activity_flow'
+        | 'fundamentals_flow'
+        | 'artist'
+        | 'release'
+        | 'studio'
+        | 'label'
+        | 'genre'
+        | 'subgenre'
+        | 'instrument'
+        | 'chord_progression';
+      limit?: string;
+      omit?: string;
+      view?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentExportData;
+  }
+
+  /**
+   * No description
+   * @tags Content
    * @name GetApiAdminContentItems
    * @request GET:/api/admin/content/items
    * @response `200` `GetApiAdminContentItemsData`
@@ -2407,7 +2614,22 @@ export namespace Content {
     export type RequestParams = {};
     export type RequestQuery = {
       cursor?: string;
-      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+      kind:
+        | 'globe_event'
+        | 'globe_city'
+        | 'song'
+        | 'artist_location'
+        | 'activity_flow'
+        | 'fundamentals_flow'
+        | 'artist'
+        | 'release'
+        | 'studio'
+        | 'label'
+        | 'genre'
+        | 'subgenre'
+        | 'instrument'
+        | 'chord_progression';
+      /** @pattern ^[1-9][0-9]*$ */
       limit?: string;
       search?: string;
       status?: 'draft' | 'published' | 'archived';
@@ -2437,6 +2659,39 @@ export namespace Content {
   /**
    * No description
    * @tags Content
+   * @name GetApiAdminContentItemsLookup
+   * @request GET:/api/admin/content/items/lookup
+   * @response `200` `GetApiAdminContentItemsLookupData`
+   */
+  export namespace GetApiAdminContentItemsLookup {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      kind:
+        | 'globe_event'
+        | 'globe_city'
+        | 'song'
+        | 'artist_location'
+        | 'activity_flow'
+        | 'fundamentals_flow'
+        | 'artist'
+        | 'release'
+        | 'studio'
+        | 'label'
+        | 'genre'
+        | 'subgenre'
+        | 'instrument'
+        | 'chord_progression';
+      /** @minLength 1 */
+      slug: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentItemsLookupData;
+  }
+
+  /**
+   * No description
+   * @tags Content
    * @name GetApiAdminContentOverview
    * @request GET:/api/admin/content/overview
    * @response `200` `GetApiAdminContentOverviewData`
@@ -2459,7 +2714,21 @@ export namespace Content {
   export namespace GetApiAdminContentPending {
     export type RequestParams = {};
     export type RequestQuery = {
-      kind?: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+      kind?:
+        | 'globe_event'
+        | 'globe_city'
+        | 'song'
+        | 'artist_location'
+        | 'activity_flow'
+        | 'fundamentals_flow'
+        | 'artist'
+        | 'release'
+        | 'studio'
+        | 'label'
+        | 'genre'
+        | 'subgenre'
+        | 'instrument'
+        | 'chord_progression';
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -2476,7 +2745,21 @@ export namespace Content {
   export namespace GetApiAdminContentReleases {
     export type RequestParams = {};
     export type RequestQuery = {
-      kind?: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+      kind?:
+        | 'globe_event'
+        | 'globe_city'
+        | 'song'
+        | 'artist_location'
+        | 'activity_flow'
+        | 'fundamentals_flow'
+        | 'artist'
+        | 'release'
+        | 'studio'
+        | 'label'
+        | 'genre'
+        | 'subgenre'
+        | 'instrument'
+        | 'chord_progression';
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -2492,7 +2775,21 @@ export namespace Content {
    */
   export namespace GetApiAdminContentTemplateByKind {
     export type RequestParams = {
-      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+      kind:
+        | 'globe_event'
+        | 'globe_city'
+        | 'song'
+        | 'artist_location'
+        | 'activity_flow'
+        | 'fundamentals_flow'
+        | 'artist'
+        | 'release'
+        | 'studio'
+        | 'label'
+        | 'genre'
+        | 'subgenre'
+        | 'instrument'
+        | 'chord_progression';
     };
     export type RequestQuery = {
       slug?: string;
@@ -2511,7 +2808,21 @@ export namespace Content {
    */
   export namespace GetApiAdminContentValidateByKind {
     export type RequestParams = {
-      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+      kind:
+        | 'globe_event'
+        | 'globe_city'
+        | 'song'
+        | 'artist_location'
+        | 'activity_flow'
+        | 'fundamentals_flow'
+        | 'artist'
+        | 'release'
+        | 'studio'
+        | 'label'
+        | 'genre'
+        | 'subgenre'
+        | 'instrument'
+        | 'chord_progression';
     };
     export type RequestQuery = {};
     export type RequestBody = never;
@@ -5529,10 +5840,29 @@ export class Api<SecurityDataType extends unknown> {
      * @request DELETE:/api/admin/content/items/{id}
      * @response `200` `DeleteApiAdminContentItemsByIdData`
      */
-    deleteApiAdminContentItemsById: (id: string, params: RequestParams = {}) =>
+    deleteApiAdminContentItemsById: (
+      { id, ...query }: DeleteApiAdminContentItemsByIdParams,
+      params: RequestParams = {},
+    ) =>
       this.http.request<DeleteApiAdminContentItemsByIdData, any>({
         path: `/api/admin/content/items/${id}`,
         method: 'DELETE',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentCapabilities
+     * @request GET:/api/admin/content/capabilities
+     * @response `200` `GetApiAdminContentCapabilitiesData`
+     */
+    getApiAdminContentCapabilities: (params: RequestParams = {}) =>
+      this.http.request<GetApiAdminContentCapabilitiesData, any>({
+        path: `/api/admin/content/capabilities`,
+        method: 'GET',
         ...params,
       }),
 
@@ -5548,6 +5878,22 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<GetApiAdminContentDerivationHealthData, any>({
         path: `/api/admin/content/derivation-health`,
         method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentExport
+     * @request GET:/api/admin/content/export
+     * @response `200` `GetApiAdminContentExportData`
+     */
+    getApiAdminContentExport: (query: GetApiAdminContentExportParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminContentExportData, any>({
+        path: `/api/admin/content/export`,
+        method: 'GET',
+        query: query,
         ...params,
       }),
 
@@ -5579,6 +5925,22 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<GetApiAdminContentItemsByIdData, any>({
         path: `/api/admin/content/items/${id}`,
         method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentItemsLookup
+     * @request GET:/api/admin/content/items/lookup
+     * @response `200` `GetApiAdminContentItemsLookupData`
+     */
+    getApiAdminContentItemsLookup: (query: GetApiAdminContentItemsLookupParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminContentItemsLookupData, any>({
+        path: `/api/admin/content/items/lookup`,
+        method: 'GET',
+        query: query,
         ...params,
       }),
 
@@ -5657,7 +6019,21 @@ export class Api<SecurityDataType extends unknown> {
      * @response `200` `GetApiAdminContentValidateByKindData`
      */
     getApiAdminContentValidateByKind: (
-      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow',
+      kind:
+        | 'globe_event'
+        | 'globe_city'
+        | 'song'
+        | 'artist_location'
+        | 'activity_flow'
+        | 'fundamentals_flow'
+        | 'artist'
+        | 'release'
+        | 'studio'
+        | 'label'
+        | 'genre'
+        | 'subgenre'
+        | 'instrument'
+        | 'chord_progression',
       params: RequestParams = {},
     ) =>
       this.http.request<GetApiAdminContentValidateByKindData, any>({

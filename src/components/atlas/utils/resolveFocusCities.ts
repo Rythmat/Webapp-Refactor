@@ -1,9 +1,6 @@
-import {
-  CITIES,
-  HISTORICAL_MODULES,
-  MUSIC_HISTORY,
-  getTour,
-} from '@/components/atlas/data';
+import { CITIES } from '@/components/atlas/data';
+import { guidesData } from '@/components/atlas/data/loaders';
+import { getEventById } from '@/components/atlas/data/lookups';
 import type { ModuleProgress, TourProgress } from '@/components/atlas/types';
 import { matchCity } from './resolveEventRegion';
 
@@ -15,17 +12,20 @@ import { matchCity } from './resolveEventRegion';
  *  - City tour: just that city.
  * Returns `null` when nothing is active (show all cities), and also falls back
  * to `null` if a pathway resolves to zero known cities (never blank the globe).
+ *
+ * The tours and pathways have loaded by then: a sequence starts only once they
+ * have (useStartTour, useStartPathway).
  */
 export function resolveFocusCities(
   activeModule: ModuleProgress | null,
   activeTour: TourProgress | null,
 ): Set<string> | null {
   if (activeModule) {
-    const mod = HISTORICAL_MODULES.find((m) => m.id === activeModule.moduleId);
+    const mod = guidesData.peek()?.getModuleById(activeModule.moduleId);
     if (!mod) return null;
     const ids = new Set<string>();
     for (const eventId of mod.eventIds) {
-      const ev = MUSIC_HISTORY.find((e) => e.id === eventId);
+      const ev = getEventById(eventId);
       if (!ev) continue;
       // Same matcher the panels use, so a pathway step lights the city its
       // event is actually in (Portland, Maine — not Portland, Oregon).
@@ -36,7 +36,7 @@ export function resolveFocusCities(
   }
 
   if (activeTour) {
-    const tour = getTour(activeTour.tourId);
+    const tour = guidesData.peek()?.getTour(activeTour.tourId);
     if (!tour) return null;
     if (tour.kind === 'city') return new Set([tour.placeId]);
     // Region tour → every city in the region.

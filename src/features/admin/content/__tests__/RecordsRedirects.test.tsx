@@ -16,6 +16,7 @@ import {
 } from '@/features/admin/content/otherRecords';
 import { TABLE_FOR_CONTENT_KIND } from '@/features/admin/table/tableIds';
 import type { ContentKind } from '@/hooks/data/admin/useAdminContent';
+import { isInstrumentPageKind } from '../instrumentPages';
 
 /**
  * The content area's old per-kind lists, now that the Table holds eight of
@@ -111,6 +112,9 @@ describe('the content kinds', () => {
       genre: true,
       subgenre: true,
       instrument: true,
+      drum_groove: true,
+      instrument_part: true,
+      feel_profile: true,
     } satisfies Record<ContentKind, true>;
     // The vocabulary kinds, which only the dev repo content server serves:
     // their rows are the Genres and Instruments tables' (TABLE_FOR_NODE_KIND),
@@ -119,6 +123,13 @@ describe('the content kinds', () => {
     // are never among the other records.
     const vocabulary = new Set(['genre', 'subgenre', 'instrument']);
     for (const kind of Object.keys(all)) {
+      // Grooves and parts have pages of their own (instrumentPages.ts),
+      // which their records URLs hand over to: in neither list.
+      if (isInstrumentPageKind(kind)) {
+        expect(kind in TABLE_FOR_CONTENT_KIND, kind).toBe(false);
+        expect(isOtherRecordKind(kind), kind).toBe(false);
+        continue;
+      }
       const inTable = kind in TABLE_FOR_CONTENT_KIND;
       if (vocabulary.has(kind) && !inTable) {
         expect(isOtherRecordKind(kind), kind).toBe(false);
@@ -160,7 +171,7 @@ describe('records/:kind', () => {
           .filter((a) => a.getAttribute('href')?.includes('/records/'))
           .filter((a) => a.closest('nav:not([aria-label])'))
           .map((a) => a.textContent),
-      ).toEqual(['Lessons', 'Fundamentals', 'Artist locations']);
+      ).toEqual(['Lessons', 'Fundamentals', 'Artist locations', 'Feels']);
       expect(
         screen
           .getByRole('link', { name: 'Everything else is in the Table' })

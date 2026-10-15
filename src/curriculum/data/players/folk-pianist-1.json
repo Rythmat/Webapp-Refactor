@@ -1,0 +1,9 @@
+{
+  "id": "folk-pianist-1",
+  "name": "Folk-Pianist-1",
+  "instrument": "keys",
+  "genre": "folk",
+  "kind": "placeholder",
+  "order": 150,
+  "items": []
+}

@@ -39,6 +39,12 @@ const EXPECTED: Record<EntityKind, string> = {
   instrument: 'tag:instruments',
   teach_day: 'curriculum',
   pathway: 'curriculum',
+  groove: 'note',
+  part: 'note',
+  feel: 'tag:theory',
+  patch: 'tag:instruments',
+  kit: 'tag:instruments',
+  lesson: 'curriculum',
 };
 
 describe('node roles', () => {

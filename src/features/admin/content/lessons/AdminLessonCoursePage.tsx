@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-sort-props */
 import { Braces, Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -122,6 +122,7 @@ export const AdminLessonCoursePage = () => {
 const LessonCourse = () => {
   const params = useParams();
   const [search, setSearch] = useSearchParams();
+  const navigate = useNavigate();
   const genre = params.genre ?? '';
 
   const { role } = useAuthContext();
@@ -436,7 +437,25 @@ const LessonCourse = () => {
         </div>
       ) : draft ? (
         <>
-          <LessonLevelEditor flow={draft} onChange={edit} />
+          <LessonLevelEditor
+            flow={draft}
+            onChange={edit}
+            onEditNotes={(section, index, hands) => {
+              if (
+                dirty &&
+                !window.confirm(
+                  'This level has unsaved changes, and opening the notes editor discards them. Cancel to stay and save first.',
+                )
+              )
+                return;
+              navigate(
+                AdminRoutes.lessonPart(
+                  { genre, level: String(draft.level) },
+                  { section, index: String(index), hands },
+                ),
+              );
+            }}
+          />
           {showJson && (
             <div>
               <p className="mb-1.5 text-xs text-muted-foreground">

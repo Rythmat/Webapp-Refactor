@@ -1,0 +1,62 @@
+{
+  "id": "jazz-drummer-1",
+  "name": "Jazz-Drummer-1",
+  "instrument": "drums",
+  "genre": "jazz",
+  "kind": "placeholder",
+  "order": 290,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "boogaloo"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-ballad-brushes"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-swing-feathered-jimmy-cobb"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-swing-feathered"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-swing-kick-on-1-jimmy-cobb"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-swing-kick-on-1"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-swing-kick-on-4-jimmy-cobb"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-swing-kick-on-4"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-swing-modern-4-bar-jimmy-cobb"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-swing-modern-4-bar"
+    },
+    {
+      "kind": "groove",
+      "id": "jazz-waltz"
+    },
+    {
+      "kind": "groove",
+      "id": "new-orleans-second-line"
+    },
+    {
+      "kind": "groove",
+      "id": "poinciana"
+    }
+  ]
+}

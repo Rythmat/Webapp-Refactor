@@ -1,0 +1,183 @@
+{
+  "id": "latin-rock",
+  "name": "Latin Rock",
+  "description": "A la Oye Como Va. From ICP Studio.",
+  "genre": "latin",
+  "style": "Latin rock",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 2,
+  "tempo": 132,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "latin_rock_kit",
+  "padGains": {
+    "40": 0.85,
+    "42": 0.65,
+    "51": 1.1
+  },
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 121
+    },
+    {
+      "tick": 0,
+      "note": 40,
+      "velocity": 89
+    },
+    {
+      "tick": 0,
+      "note": 51,
+      "velocity": 121
+    },
+    {
+      "tick": 480,
+      "note": 36,
+      "velocity": 121
+    },
+    {
+      "tick": 480,
+      "note": 40,
+      "velocity": 89
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 480,
+      "note": 51,
+      "velocity": 89
+    },
+    {
+      "tick": 720,
+      "note": 51,
+      "velocity": 10
+    },
+    {
+      "tick": 960,
+      "note": 40,
+      "velocity": 89
+    },
+    {
+      "tick": 960,
+      "note": 51,
+      "velocity": 89
+    },
+    {
+      "tick": 1200,
+      "note": 36,
+      "velocity": 121
+    },
+    {
+      "tick": 1440,
+      "note": 40,
+      "velocity": 89
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1440,
+      "note": 51,
+      "velocity": 38
+    },
+    {
+      "tick": 1680,
+      "note": 36,
+      "velocity": 121
+    },
+    {
+      "tick": 1680,
+      "note": 51,
+      "velocity": 10
+    },
+    {
+      "tick": 1920,
+      "note": 40,
+      "velocity": 89
+    },
+    {
+      "tick": 1920,
+      "note": 51,
+      "velocity": 121
+    },
+    {
+      "tick": 2400,
+      "note": 40,
+      "velocity": 89
+    },
+    {
+      "tick": 2400,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 2400,
+      "note": 51,
+      "velocity": 89
+    },
+    {
+      "tick": 2640,
+      "note": 36,
+      "velocity": 10
+    },
+    {
+      "tick": 2640,
+      "note": 51,
+      "velocity": 10
+    },
+    {
+      "tick": 2880,
+      "note": 36,
+      "velocity": 121
+    },
+    {
+      "tick": 2880,
+      "note": 40,
+      "velocity": 89
+    },
+    {
+      "tick": 2880,
+      "note": 51,
+      "velocity": 89
+    },
+    {
+      "tick": 3360,
+      "note": 36,
+      "velocity": 121
+    },
+    {
+      "tick": 3360,
+      "note": 40,
+      "velocity": 89
+    },
+    {
+      "tick": 3360,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 3360,
+      "note": 51,
+      "velocity": 89
+    },
+    {
+      "tick": 3600,
+      "note": 51,
+      "velocity": 10
+    }
+  ]
+}

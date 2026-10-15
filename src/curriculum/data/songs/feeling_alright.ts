@@ -62,42 +62,8 @@ export const feeling_alright: Song = {
         },
         {
           chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 4,
         },
       ],
     },
@@ -107,42 +73,7 @@ export const feeling_alright: Song = {
       bars: [
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
@@ -153,6 +84,49 @@ export const feeling_alright: Song = {
         {
           chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
           repeatEnd: true,
+          repeatTimes: 4,
+        },
+      ],
+    },
+    {
+      id: 'verse_2',
+      label: 'Verse 2',
+      bars: [
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 4,
+        },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 4,
         },
       ],
     },
@@ -163,6 +137,7 @@ export const feeling_alright: Song = {
       bars: [
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
@@ -172,18 +147,7 @@ export const feeling_alright: Song = {
         },
         {
           chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+          repeatEnd: true,
         },
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
@@ -196,10 +160,11 @@ export const feeling_alright: Song = {
     },
     {
       id: 'verse_3',
-      label: 'Verse 2',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
@@ -209,51 +174,18 @@ export const feeling_alright: Song = {
         },
         {
           chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 4,
         },
       ],
     },
     {
       id: 'chorus_3',
-      label: 'Chorus 2',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
@@ -263,42 +195,8 @@ export const feeling_alright: Song = {
         },
         {
           chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 4,
         },
       ],
     },
@@ -309,6 +207,7 @@ export const feeling_alright: Song = {
       bars: [
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
@@ -318,66 +217,8 @@ export const feeling_alright: Song = {
         },
         {
           chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 6,
         },
       ],
     },
@@ -387,6 +228,7 @@ export const feeling_alright: Song = {
       bars: [
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
@@ -396,42 +238,8 @@ export const feeling_alright: Song = {
         },
         {
           chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 4,
         },
       ],
     },

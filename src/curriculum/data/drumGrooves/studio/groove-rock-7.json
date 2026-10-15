@@ -1,0 +1,639 @@
+{
+  "id": "groove-rock-7",
+  "name": "Rock 7",
+  "description": "The Studio's \"Rock 7\" groove (rock-7-120bpm.mid). Edits reach the Studio's Grooves tab once published.",
+  "genre": "rock",
+  "style": "Rock",
+  "tags": ["Uptempo"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 8,
+  "tempo": 120,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "32n",
+  "kit": "natural",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 108
+    },
+    {
+      "tick": 0,
+      "note": 49,
+      "velocity": 101,
+      "offset": 5
+    },
+    {
+      "tick": 240,
+      "note": 42,
+      "velocity": 65,
+      "offset": -10
+    },
+    {
+      "tick": 480,
+      "note": 38,
+      "velocity": 127,
+      "offset": 5
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 96,
+      "offset": 15
+    },
+    {
+      "tick": 720,
+      "note": 42,
+      "velocity": 56,
+      "offset": 25
+    },
+    {
+      "tick": 960,
+      "note": 36,
+      "velocity": 77,
+      "offset": 20
+    },
+    {
+      "tick": 960,
+      "note": 42,
+      "velocity": 91,
+      "offset": 25
+    },
+    {
+      "tick": 1200,
+      "note": 36,
+      "velocity": 103,
+      "offset": 5
+    },
+    {
+      "tick": 1200,
+      "note": 42,
+      "velocity": 64,
+      "offset": 30
+    },
+    {
+      "tick": 1440,
+      "note": 38,
+      "velocity": 127,
+      "offset": 25
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 101,
+      "offset": 25
+    },
+    {
+      "tick": 1680,
+      "note": 42,
+      "velocity": 66,
+      "offset": 15
+    },
+    {
+      "tick": 1920,
+      "note": 36,
+      "velocity": 102,
+      "offset": 20
+    },
+    {
+      "tick": 1920,
+      "note": 42,
+      "velocity": 98,
+      "offset": 20
+    },
+    {
+      "tick": 2160,
+      "note": 42,
+      "velocity": 65,
+      "offset": 20
+    },
+    {
+      "tick": 2400,
+      "note": 38,
+      "velocity": 127,
+      "offset": 20
+    },
+    {
+      "tick": 2400,
+      "note": 42,
+      "velocity": 106,
+      "offset": 25
+    },
+    {
+      "tick": 2640,
+      "note": 42,
+      "velocity": 66,
+      "offset": 25
+    },
+    {
+      "tick": 2880,
+      "note": 36,
+      "velocity": 83,
+      "offset": 30
+    },
+    {
+      "tick": 2880,
+      "note": 42,
+      "velocity": 93,
+      "offset": 20
+    },
+    {
+      "tick": 3120,
+      "note": 36,
+      "velocity": 97,
+      "offset": 5
+    },
+    {
+      "tick": 3120,
+      "note": 42,
+      "velocity": 75,
+      "offset": 25
+    },
+    {
+      "tick": 3360,
+      "note": 38,
+      "velocity": 127,
+      "offset": 20
+    },
+    {
+      "tick": 3360,
+      "note": 42,
+      "velocity": 99,
+      "offset": 25
+    },
+    {
+      "tick": 3600,
+      "note": 42,
+      "velocity": 67,
+      "offset": 25
+    },
+    {
+      "tick": 3840,
+      "note": 42,
+      "velocity": 98,
+      "offset": 25
+    },
+    {
+      "tick": 3900,
+      "note": 36,
+      "velocity": 103,
+      "offset": -25
+    },
+    {
+      "tick": 4080,
+      "note": 42,
+      "velocity": 70,
+      "offset": 25
+    },
+    {
+      "tick": 4320,
+      "note": 38,
+      "velocity": 127,
+      "offset": 25
+    },
+    {
+      "tick": 4320,
+      "note": 42,
+      "velocity": 100,
+      "offset": 30
+    },
+    {
+      "tick": 4560,
+      "note": 42,
+      "velocity": 67,
+      "offset": 20
+    },
+    {
+      "tick": 4800,
+      "note": 36,
+      "velocity": 91,
+      "offset": 15
+    },
+    {
+      "tick": 4800,
+      "note": 42,
+      "velocity": 96,
+      "offset": 20
+    },
+    {
+      "tick": 5040,
+      "note": 36,
+      "velocity": 103,
+      "offset": -5
+    },
+    {
+      "tick": 5040,
+      "note": 42,
+      "velocity": 73,
+      "offset": 15
+    },
+    {
+      "tick": 5280,
+      "note": 38,
+      "velocity": 127,
+      "offset": 15
+    },
+    {
+      "tick": 5280,
+      "note": 42,
+      "velocity": 101,
+      "offset": 15
+    },
+    {
+      "tick": 5520,
+      "note": 42,
+      "velocity": 66,
+      "offset": 15
+    },
+    {
+      "tick": 5760,
+      "note": 36,
+      "velocity": 105,
+      "offset": 20
+    },
+    {
+      "tick": 5760,
+      "note": 42,
+      "velocity": 91,
+      "offset": 15
+    },
+    {
+      "tick": 6000,
+      "note": 42,
+      "velocity": 67,
+      "offset": 15
+    },
+    {
+      "tick": 6240,
+      "note": 38,
+      "velocity": 127,
+      "offset": 10
+    },
+    {
+      "tick": 6240,
+      "note": 42,
+      "velocity": 100,
+      "offset": 20
+    },
+    {
+      "tick": 6480,
+      "note": 42,
+      "velocity": 67,
+      "offset": 10
+    },
+    {
+      "tick": 6720,
+      "note": 36,
+      "velocity": 93,
+      "offset": 5
+    },
+    {
+      "tick": 6720,
+      "note": 42,
+      "velocity": 97,
+      "offset": 5
+    },
+    {
+      "tick": 6960,
+      "note": 36,
+      "velocity": 96,
+      "offset": 5
+    },
+    {
+      "tick": 6960,
+      "note": 42,
+      "velocity": 66,
+      "offset": 10
+    },
+    {
+      "tick": 7200,
+      "note": 38,
+      "velocity": 127,
+      "offset": 5
+    },
+    {
+      "tick": 7200,
+      "note": 46,
+      "velocity": 127,
+      "offset": 10
+    },
+    {
+      "tick": 7680,
+      "note": 36,
+      "velocity": 122,
+      "offset": 5
+    },
+    {
+      "tick": 7680,
+      "note": 44,
+      "velocity": 127
+    },
+    {
+      "tick": 7680,
+      "note": 49,
+      "velocity": 127,
+      "offset": 10
+    },
+    {
+      "tick": 8160,
+      "note": 38,
+      "velocity": 127,
+      "offset": -15
+    },
+    {
+      "tick": 8160,
+      "note": 42,
+      "velocity": 124,
+      "offset": -5
+    },
+    {
+      "tick": 8400,
+      "note": 42,
+      "velocity": 73,
+      "offset": -10
+    },
+    {
+      "tick": 8640,
+      "note": 36,
+      "velocity": 83,
+      "offset": -10
+    },
+    {
+      "tick": 8640,
+      "note": 42,
+      "velocity": 99,
+      "offset": -15
+    },
+    {
+      "tick": 8880,
+      "note": 36,
+      "velocity": 97,
+      "offset": -30
+    },
+    {
+      "tick": 8880,
+      "note": 42,
+      "velocity": 72,
+      "offset": -10
+    },
+    {
+      "tick": 9120,
+      "note": 38,
+      "velocity": 127,
+      "offset": -10
+    },
+    {
+      "tick": 9120,
+      "note": 42,
+      "velocity": 107,
+      "offset": -10
+    },
+    {
+      "tick": 9360,
+      "note": 42,
+      "velocity": 67,
+      "offset": -10
+    },
+    {
+      "tick": 9600,
+      "note": 36,
+      "velocity": 98
+    },
+    {
+      "tick": 9600,
+      "note": 42,
+      "velocity": 99,
+      "offset": -5
+    },
+    {
+      "tick": 9840,
+      "note": 42,
+      "velocity": 75,
+      "offset": 5
+    },
+    {
+      "tick": 10080,
+      "note": 38,
+      "velocity": 127,
+      "offset": 10
+    },
+    {
+      "tick": 10080,
+      "note": 42,
+      "velocity": 101,
+      "offset": 10
+    },
+    {
+      "tick": 10320,
+      "note": 42,
+      "velocity": 70,
+      "offset": 15
+    },
+    {
+      "tick": 10560,
+      "note": 36,
+      "velocity": 89,
+      "offset": 15
+    },
+    {
+      "tick": 10560,
+      "note": 42,
+      "velocity": 95,
+      "offset": 15
+    },
+    {
+      "tick": 10800,
+      "note": 36,
+      "velocity": 97,
+      "offset": 5
+    },
+    {
+      "tick": 10800,
+      "note": 42,
+      "velocity": 72,
+      "offset": 15
+    },
+    {
+      "tick": 11040,
+      "note": 38,
+      "velocity": 127,
+      "offset": 20
+    },
+    {
+      "tick": 11040,
+      "note": 42,
+      "velocity": 101,
+      "offset": 25
+    },
+    {
+      "tick": 11280,
+      "note": 42,
+      "velocity": 70,
+      "offset": 30
+    },
+    {
+      "tick": 11520,
+      "note": 36,
+      "velocity": 98,
+      "offset": 25
+    },
+    {
+      "tick": 11520,
+      "note": 42,
+      "velocity": 96,
+      "offset": 30
+    },
+    {
+      "tick": 11760,
+      "note": 42,
+      "velocity": 72,
+      "offset": 20
+    },
+    {
+      "tick": 12000,
+      "note": 38,
+      "velocity": 127,
+      "offset": 30
+    },
+    {
+      "tick": 12060,
+      "note": 42,
+      "velocity": 97,
+      "offset": -25
+    },
+    {
+      "tick": 12240,
+      "note": 42,
+      "velocity": 74,
+      "offset": 30
+    },
+    {
+      "tick": 12480,
+      "note": 36,
+      "velocity": 89,
+      "offset": 15
+    },
+    {
+      "tick": 12480,
+      "note": 42,
+      "velocity": 96,
+      "offset": 20
+    },
+    {
+      "tick": 12720,
+      "note": 36,
+      "velocity": 92,
+      "offset": 10
+    },
+    {
+      "tick": 12720,
+      "note": 42,
+      "velocity": 75,
+      "offset": 15
+    },
+    {
+      "tick": 12960,
+      "note": 38,
+      "velocity": 127,
+      "offset": 15
+    },
+    {
+      "tick": 12960,
+      "note": 42,
+      "velocity": 102,
+      "offset": 20
+    },
+    {
+      "tick": 13200,
+      "note": 42,
+      "velocity": 70,
+      "offset": 15
+    },
+    {
+      "tick": 13440,
+      "note": 36,
+      "velocity": 103,
+      "offset": 10
+    },
+    {
+      "tick": 13440,
+      "note": 42,
+      "velocity": 99,
+      "offset": 15
+    },
+    {
+      "tick": 13680,
+      "note": 42,
+      "velocity": 72,
+      "offset": 15
+    },
+    {
+      "tick": 13920,
+      "note": 38,
+      "velocity": 127,
+      "offset": 20
+    },
+    {
+      "tick": 13920,
+      "note": 42,
+      "velocity": 99,
+      "offset": 25
+    },
+    {
+      "tick": 14160,
+      "note": 42,
+      "velocity": 75,
+      "offset": 25
+    },
+    {
+      "tick": 14400,
+      "note": 36,
+      "velocity": 96,
+      "offset": 15
+    },
+    {
+      "tick": 14400,
+      "note": 42,
+      "velocity": 99,
+      "offset": 20
+    },
+    {
+      "tick": 14640,
+      "note": 36,
+      "velocity": 96,
+      "offset": 15
+    },
+    {
+      "tick": 14640,
+      "note": 42,
+      "velocity": 70,
+      "offset": 15
+    },
+    {
+      "tick": 14880,
+      "note": 38,
+      "velocity": 127,
+      "offset": 15
+    },
+    {
+      "tick": 14880,
+      "note": 46,
+      "velocity": 127,
+      "offset": 15
+    },
+    {
+      "tick": 15360,
+      "note": 44,
+      "velocity": 127,
+      "offset": -10
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "hip-hop-l3-c2-c1-roots",
+  "name": "Hip Hop L3 · C2 C1: Roots",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "phrygian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 81,
+  "swing": 66,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 220,
+      "midi": 40,
+      "velocity": 96
+    },
+    {
+      "tick": 240,
+      "duration": 940,
+      "midi": 40,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 700,
+      "midi": 40,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 220,
+      "midi": 35,
+      "velocity": 96
+    },
+    {
+      "tick": 2160,
+      "duration": 940,
+      "midi": 35,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 340,
+      "midi": 35,
+      "velocity": 96
+    },
+    {
+      "tick": 3480,
+      "duration": 340,
+      "midi": 35,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 3,
+    "section": "C",
+    "stepNumber": 2,
+    "title": "C1: Roots",
+    "tag": "hiphop:l3_bass_e_b | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "E under Em9, then B under A/B.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Em9", "A/B"]
+}

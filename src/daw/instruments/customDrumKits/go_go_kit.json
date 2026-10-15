@@ -1,0 +1,11 @@
+{
+  "id": "go_go_kit",
+  "label": "Go Go kit",
+  "base": "natural",
+  "samples": {
+    "44": "/daw-assets/samples/drums/uploads/mv3co0db-hihat---closed-side---2.mp3",
+    "45": "/daw-assets/samples/drums/uploads/mv3cd125-bongo1.mp3",
+    "46": "/daw-assets/samples/drums/uploads/muzrxgp7-hihat---opened-3---4.mp3",
+    "48": "/daw-assets/samples/drums/uploads/mv3ccqb0-bongo0.mp3"
+  }
+}

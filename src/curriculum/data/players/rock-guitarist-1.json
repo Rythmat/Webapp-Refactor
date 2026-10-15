@@ -1,0 +1,9 @@
+{
+  "id": "rock-guitarist-1",
+  "name": "Rock-Guitarist-1",
+  "instrument": "guitar",
+  "genre": "rock",
+  "kind": "placeholder",
+  "order": 560,
+  "items": []
+}

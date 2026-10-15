@@ -35,7 +35,20 @@ export type MockKind =
   | 'studio'
   | 'label'
   | 'chord_progression'
-  | VocabularyKind;
+  | VocabularyKind
+  | InstrumentKind;
+
+/** Instrument content (docs/instrument-content-kinds.md). */
+export type InstrumentKind = 'drum_groove' | 'instrument_part' | 'feel_profile';
+
+/**
+ * In publishing order: a feel before the parts and grooves that name it.
+ */
+export const INSTRUMENT_KINDS: readonly InstrumentKind[] = [
+  'feel_profile',
+  'drum_groove',
+  'instrument_part',
+];
 
 export { VOCABULARY_KINDS };
 
@@ -69,6 +82,7 @@ export const ALL_KINDS: readonly MockKind[] = [
   'fundamentals_flow',
   'artist_location',
   'chord_progression',
+  ...INSTRUMENT_KINDS,
 ];
 
 /**
@@ -90,6 +104,7 @@ export const REPO_KINDS: readonly MockKind[] = [
   'artist_location',
   'chord_progression',
   ...VOCABULARY_KINDS,
+  ...INSTRUMENT_KINDS,
 ];
 
 export const kindsFor = (mode: ContentMockMode): readonly MockKind[] =>
@@ -143,6 +158,10 @@ export const BUNDLE: Record<MockKind, string | null> = {
   genre: null,
   subgenre: null,
   instrument: null,
+  // Lessons, Practice Tracks and the Studio's Parts tab read these.
+  drum_groove: 'drum-grooves',
+  instrument_part: 'instrument-parts',
+  feel_profile: 'feel-profiles',
 };
 
 /**
@@ -166,6 +185,11 @@ export const AUTHORITATIVE: Record<MockKind, boolean> = {
   genre: true,
   subgenre: true,
   instrument: true,
+  // The repo's files are the whole set; a content-only kind has no code
+  // registry to merge in.
+  drum_groove: true,
+  instrument_part: true,
+  feel_profile: true,
 };
 
 /**
@@ -256,6 +280,12 @@ export function project(kind: string, body: Body | null, slug: string) {
       return row(b.name, b.parent, null, b.tags);
     case 'instrument':
       return row(b.name, b.section, null, b.typicalIn);
+    case 'drum_groove':
+      return row(b.name, b.style ?? b.genre, null, b.tags);
+    case 'instrument_part':
+      return row(b.name, b.instrument, null, b.tags);
+    case 'feel_profile':
+      return row(b.name, b.source, null, []);
     default:
       return row(b.title ?? b.name, null, null, []);
   }
@@ -282,6 +312,12 @@ const TEMPLATE_HINTS: Record<MockKind, string> = {
     'The id is kebab-case, never changes, and is no genre’s id. The parent is the genre it sits under.',
   instrument:
     'The id is kebab-case and never changes: song credits name it. Students see the name and section on song pages.',
+  drum_groove:
+    'The id is what lesson steps name in grooveId: lowercase letters, digits, "_" and "-". A published groove with a code groove’s id replaces it.',
+  instrument_part:
+    'The id is kebab-case. Write the notes in the Parts Library editor rather than here.',
+  feel_profile:
+    'The id is kebab-case. Measure a feel from a played part in the Parts Library (Save feel).',
 };
 
 export function templateFor(kind: MockKind, slug: string, nextId: number) {
@@ -364,6 +400,46 @@ export function templateFor(kind: MockKind, slug: string, nextId: number) {
     genre: { id: slug, name: '', taught: false, tags: [] },
     subgenre: { id: slug, name: '', parent: '', tags: [] },
     instrument: { id: slug, name: '', section: 'other', typicalIn: [] },
+    drum_groove: {
+      id: slug,
+      name: '',
+      status: 'draft',
+      timeSignature: [4, 4],
+      feltBeats: 4,
+      bars: 1,
+      tempo: 100,
+      tempoUnit: 'quarter',
+      swing: 50,
+      grid: '16n',
+      kit: 'natural',
+      padGains: {},
+      humanize: { timing: 0, velocity: 0 },
+      hits: [],
+    },
+    instrument_part: {
+      id: slug,
+      name: '',
+      instrument: 'piano',
+      role: 'comping',
+      level: 1,
+      tags: [],
+      status: 'draft',
+      key: { tonic: 0, mode: 'ionian' },
+      timeSignature: [4, 4],
+      bars: 2,
+      tempo: 100,
+      swing: 50,
+      sound: 'piano-sampler',
+      notes: [],
+      source: { kind: 'scratch' },
+    },
+    feel_profile: {
+      id: slug,
+      name: '',
+      step: 120,
+      positions: 4,
+      offsets: [0, 0, 0, 0],
+    },
   };
   const body = bodies[kind];
   return {

@@ -1,0 +1,30 @@
+{
+  "id": "funk-bassist-1",
+  "name": "Funk-Bassist-1",
+  "instrument": "bass",
+  "genre": "funk",
+  "kind": "placeholder",
+  "order": 180,
+  "items": [
+    {
+      "kind": "bassLine",
+      "id": "four-on-the-flour-funk"
+    },
+    {
+      "kind": "bassLine",
+      "id": "funk"
+    },
+    {
+      "kind": "bassLine",
+      "id": "half-time-shuffle"
+    },
+    {
+      "kind": "bassLine",
+      "id": "heavy-funk-copy"
+    },
+    {
+      "kind": "bassLine",
+      "id": "heavy-funk"
+    }
+  ]
+}

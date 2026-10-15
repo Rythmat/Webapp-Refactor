@@ -1,4 +1,5 @@
-import { memo } from 'react';
+import { memo, useRef } from 'react';
+import { usePlayheadEffect } from '@/daw/engine/playheadClock';
 import type { Measure, ChordFormat } from '@/daw/midi/leadSheetUtils';
 import type { LeadSheetRepeat, LeadSheetSection } from '@/daw/store/uiSlice';
 import type { LeadSheetItem } from './leadSheetSelection';
@@ -21,8 +22,12 @@ const DEFAULT_FULL_SYSTEM_COUNT = 4;
 const MIN_MEASURE_WIDTH = 110;
 
 interface LeadSheetStaffProps {
+  /**
+   * The system's measures, one per chart slot. Each measure's `index` is
+   * its real bar, which every mark is stored by; a multi-bar rest stands for
+   * measureRestMap[index] bars.
+   */
   measures: Measure[];
-  startIndex: number;
   fullSystemCount?: number;
   chordFormat: ChordFormat;
   selectedChordId: string | null;
@@ -31,8 +36,12 @@ interface LeadSheetStaffProps {
   showRepeats?: boolean;
   /** Available container width — full systems stretch to fill this */
   availableWidth?: number;
-  /** X position of the playhead line within this system (undefined = not in this system) */
-  playheadX?: number;
+  /**
+   * The playhead is in this system: ticks per bar, to place it. The line is
+   * painted from the playhead clock through a ref, so playback moves it
+   * without rendering the sheet (undefined = not in this system).
+   */
+  playheadTicksPerMeasure?: number;
   /** Drag state for the chord being dragged */
   chordDrag?: ChordDragState | null;
   /** Measure index (global) that the drag tether should appear in */
@@ -67,7 +76,6 @@ interface LeadSheetStaffProps {
  */
 export const LeadSheetStaff = memo(function LeadSheetStaff({
   measures,
-  startIndex,
   fullSystemCount,
   chordFormat,
   selectedChordId,
@@ -75,7 +83,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   repeats,
   showRepeats,
   availableWidth,
-  playheadX,
+  playheadTicksPerMeasure,
   chordDrag,
   chordDragMeasureIdx,
   onSelectChord,
@@ -120,10 +128,14 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
       style={{ display: 'block', color: 'var(--color-text)' }}
     >
       {measures.map((measure, i) => {
-        const globalIdx = startIndex + i;
+        // The real bar: after a multi-bar rest it is ahead of the slot.
+        const globalIdx = measure.index;
+        const span = Math.max(1, measureRestMap?.[globalIdx] ?? 1);
         const section = sections.find((s) => s.measureIdx === globalIdx);
         const isRepeatStart = repeats.some((r) => r.startMeasure === globalIdx);
-        const isRepeatEnd = repeats.some((r) => r.endMeasure === globalIdx);
+        const isRepeatEnd = repeats.some(
+          (r) => r.endMeasure >= globalIdx && r.endMeasure < globalIdx + span,
+        );
 
         return (
           <LeadSheetMeasure
@@ -156,25 +168,77 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
             autoEditRegionId={autoEditRegionId}
             isSystemStart={i === 0}
             isLastMeasure={
-              measureCount != null && globalIdx === measureCount - 1
+              measureCount != null && globalIdx + span === measureCount
             }
           />
         );
       })}
 
       {/* Playhead line */}
-      {playheadX != null && (
-        <line
-          className="leadsheet-playhead"
-          x1={playheadX}
-          y1={CHORD_AREA_HEIGHT}
-          x2={playheadX}
-          y2={CHORD_AREA_HEIGHT + STAFF_HEIGHT}
-          stroke="#ef4444"
-          strokeWidth={2}
-          style={{ pointerEvents: 'none' }}
+      {playheadTicksPerMeasure != null && (
+        <SystemPlayhead
+          ticksPerMeasure={playheadTicksPerMeasure}
+          slots={measures.map((m) => ({
+            realIndex: m.index,
+            bars: Math.max(1, measureRestMap?.[m.index] ?? 1),
+          }))}
+          measureWidth={measureWidth}
         />
       )}
     </svg>
   );
 });
+
+/**
+ * Where song tick `tick` sits across a system's slots, in slot widths from
+ * its left edge: through a multi-bar rest the line moves at its bars' pace.
+ */
+export function playheadSlotOffset(
+  tick: number,
+  ticksPerMeasure: number,
+  slots: ReadonlyArray<{ realIndex: number; bars: number }>,
+): number {
+  const bar = tick / ticksPerMeasure;
+  for (let i = 0; i < slots.length; i++) {
+    const s = slots[i];
+    if (bar < s.realIndex + s.bars) {
+      return i + Math.max(0, bar - s.realIndex) / s.bars;
+    }
+  }
+  const last = slots[slots.length - 1];
+  return last ? slots.length + (bar - last.realIndex - last.bars) : 0;
+}
+
+/** The playhead line across one system, moved through a ref. */
+function SystemPlayhead({
+  ticksPerMeasure,
+  slots,
+  measureWidth,
+}: {
+  ticksPerMeasure: number;
+  slots: ReadonlyArray<{ realIndex: number; bars: number }>;
+  measureWidth: number;
+}) {
+  const lineRef = useRef<SVGLineElement | null>(null);
+  usePlayheadEffect((tick) => {
+    const line = lineRef.current;
+    if (!line) return;
+    const x = String(
+      playheadSlotOffset(tick, ticksPerMeasure, slots) * measureWidth,
+    );
+    if (line.getAttribute('x1') === x) return;
+    line.setAttribute('x1', x);
+    line.setAttribute('x2', x);
+  });
+  return (
+    <line
+      ref={lineRef}
+      className="leadsheet-playhead"
+      y1={CHORD_AREA_HEIGHT}
+      y2={CHORD_AREA_HEIGHT + STAFF_HEIGHT}
+      stroke="#ef4444"
+      strokeWidth={2}
+      style={{ pointerEvents: 'none' }}
+    />
+  );
+}

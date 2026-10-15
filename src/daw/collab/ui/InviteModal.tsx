@@ -84,7 +84,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                   <UserPlus
                     size={14}
                     strokeWidth={2}
-                    style={{ color: 'var(--color-accent)' }}
+                    style={{ color: 'var(--color-text)' }}
                   />
                   <span
                     className="text-sm font-semibold"

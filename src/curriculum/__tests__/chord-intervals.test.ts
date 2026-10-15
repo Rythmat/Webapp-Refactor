@@ -58,6 +58,7 @@ const CURRICULUM_CHORD_INTERVALS: Record<string, number[]> = {
   dom7s9: [0, 4, 7, 10, 15],
   maj9: [0, 4, 7, 11, 14],
   min9: [0, 3, 7, 10, 14],
+  maj69: [0, 4, 7, 9, 14],
   min69: [0, 3, 7, 9, 14],
   dom7s11: [0, 4, 7, 10, 14, 18],
   maj7s11: [0, 4, 7, 11, 14, 18],

@@ -1,0 +1,194 @@
+{
+  "id": "purdie-shuffle",
+  "name": "Purdie Shuffle",
+  "description": "12/8 half-time shuffle — ghost triplet snares, backbeat on 3. From ICP Studio.",
+  "genre": "funk",
+  "style": "Purdie shuffle",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [12, 8],
+  "feltBeats": 4,
+  "bars": 2,
+  "tempo": 234,
+  "tempoUnit": "dotted-quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "natural",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 76
+    },
+    {
+      "tick": 0,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 240,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 720,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 960,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 1200,
+      "note": 36,
+      "velocity": 76
+    },
+    {
+      "tick": 1200,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1440,
+      "note": 38,
+      "velocity": 95
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 1680,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 1680,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1920,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 2160,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 2400,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 2640,
+      "note": 36,
+      "velocity": 76
+    },
+    {
+      "tick": 2640,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 2880,
+      "note": 36,
+      "velocity": 76
+    },
+    {
+      "tick": 2880,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 3120,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 3360,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 3600,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 3840,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 4080,
+      "note": 36,
+      "velocity": 76
+    },
+    {
+      "tick": 4080,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 4320,
+      "note": 38,
+      "velocity": 95
+    },
+    {
+      "tick": 4320,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 4560,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 4800,
+      "note": 36,
+      "velocity": 76
+    },
+    {
+      "tick": 4800,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 5040,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 5280,
+      "note": 38,
+      "velocity": 10
+    },
+    {
+      "tick": 5520,
+      "note": 36,
+      "velocity": 76
+    },
+    {
+      "tick": 5520,
+      "note": 42,
+      "velocity": 10
+    }
+  ]
+}

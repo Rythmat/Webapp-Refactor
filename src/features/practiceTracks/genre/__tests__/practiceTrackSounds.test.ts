@@ -13,14 +13,21 @@ import { popL1 } from '@/curriculum/data/activityFlows/pop_v2';
 import { buildGenrePracticeTrack } from '../buildGenrePracticeTrack';
 
 describe('Practice Track sounds', () => {
-  it('gives Pop its Fretless bass on the natural kit', () => {
+  // The kits are the designed grooves' own (console → Drum Grooves).
+  it('gives Pop its Fretless bass on its groove’s kit', () => {
     const track = buildGenrePracticeTrack(popL1, 'A')!;
-    expect(track).toMatchObject({ drumKit: 'natural', bassVoice: 'fretless' });
+    expect(track).toMatchObject({
+      drumKit: 'custom_808_01',
+      bassVoice: 'fretless',
+    });
   });
 
   it('gives Funk its Finger electric bass', () => {
     const track = buildGenrePracticeTrack(funkL1, 'C')!;
-    expect(track).toMatchObject({ drumKit: 'natural', bassVoice: 'finger' });
+    expect(track).toMatchObject({
+      drumKit: 'custom_custom_natural_01',
+      bassVoice: 'finger',
+    });
   });
 
   it('gives every Hip Hop L1 section the 808 kit and 808 bass', () => {

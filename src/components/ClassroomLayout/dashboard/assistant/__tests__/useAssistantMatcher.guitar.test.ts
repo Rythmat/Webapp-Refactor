@@ -35,4 +35,13 @@ describe('assistant: guitar', () => {
     expect(labels).toContain('Guitar: Ionian (Major)');
     expect(labels).not.toContain('Guitar: Applied Theory Fundamentals');
   });
+
+  it('offers the other guitar Theory tiles by name', () => {
+    flag.on = true;
+    const { result } = renderHook(() => useAssistantMatcher());
+    const routes = result.current
+      .match('guitar dorian')
+      .map((r) => r.entry.route);
+    expect(routes).toContain('/learn/guitar/dorian');
+  });
 });

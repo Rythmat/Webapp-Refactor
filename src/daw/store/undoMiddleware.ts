@@ -1,301 +1,138 @@
 import * as Y from 'yjs';
-import { UndoManager } from 'yjs';
-import { useStore } from './index';
-import type { ChordRegion } from './prismSlice';
-import type { Track } from './tracksSlice';
-import type { AutomationLanes } from '@/daw/audio/automation';
-import type { LeadSheetRepeat, LeadSheetSection } from './uiSlice';
-import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
+import { Item, UndoManager, isParentOf, iterateDeletedStructs } from 'yjs';
 import { ORIGIN_LOCAL } from '@/daw/collab/types';
+import {
+  UNDOABLE_META,
+  collabLabelFor,
+  collabUndoScope,
+} from '@/daw/collab/undoScope';
+import {
+  IDLE_MS,
+  MAX_HISTORY,
+  canRedo,
+  canUndo,
+  notifyHistory,
+  redo,
+  redoLabel,
+  setHistoryPaused,
+  undo,
+  undoLabel,
+} from './history';
 
-// ── Undo/Redo Middleware ────────────────────────────────────────────────────
-// Dual-mode undo system:
-// - Solo mode: Snapshot-based (captures full tracks + chord regions)
-// - Collab mode: Yjs UndoManager (per-user, conflict-free)
-// High-frequency updates (position, volume drags) are excluded.
+// ── Undo and redo ───────────────────────────────────────────────────────────
+// Two histories, one at a time:
+// - Working alone, a student's edits go to the project history (history.ts):
+//   labelled entries of what each edit changed, over the registry's undo
+//   fields.
+// - In a shared session, the Yjs undo manager below stands in for it. It
+//   undoes only this student's changes to the shared document, leaving
+//   everyone else's, over the same registry fields (collab/undoScope.ts).
+// smartUndo and smartRedo are the entry points: they pick the one in use.
 
-/**
- * Score markings and layout. Writing a slur, a repeat or a system break is an
- * edit like any other, so undo has to carry them alongside the notes — without
- * this, undo after a tie or a rehearsal mark appeared to do nothing.
- */
-export interface ScoreMarkSnapshot {
-  scoreArticulations: string[];
-  scoreSlurs: string[];
-  scoreSpellings: string[];
-  scoreSystemBreaks: number[];
-  scorePageBreaks: number[];
-  scoreSystemRuns: Array<[number, number]>;
-  scoreTextMarks: ScoreTextMark[];
-  scoreChordHidden: string[];
-  leadSheetSections: LeadSheetSection[];
-  leadSheetRepeats: LeadSheetRepeat[];
-  measureRowSizes: number[] | null;
-  measureFermatas: number[] | null;
-  masterAutomation: AutomationLanes;
-}
+export {
+  startHistory as initUndoTracking,
+  resetHistory as resetUndoHistory,
+  subscribeHistory as subscribeUndo,
+  historyVersion as undoVersion,
+  canRedo,
+  canUndo,
+  flushHistory,
+  redo,
+  rewriteHistory,
+  undo,
+  withTransaction,
+  withoutHistory,
+} from './history';
 
-export interface UndoSnapshot {
-  tracks: Track[];
-  chordRegions: ChordRegion[];
-  marks: ScoreMarkSnapshot;
-  timestamp: number;
-}
-
-const MARK_KEYS = [
-  'scoreArticulations',
-  'scoreSlurs',
-  'scoreSpellings',
-  'scoreSystemBreaks',
-  'scorePageBreaks',
-  'scoreSystemRuns',
-  'scoreTextMarks',
-  'scoreChordHidden',
-  'leadSheetSections',
-  'leadSheetRepeats',
-  'measureRowSizes',
-  'measureFermatas',
-  // Not a score mark, but restored the same way: Master volume automation.
-  'masterAutomation',
-] as const;
-
-function readMarks(): ScoreMarkSnapshot {
-  const state = useStore.getState();
-  return structuredClone({
-    scoreArticulations: state.scoreArticulations,
-    scoreSlurs: state.scoreSlurs,
-    scoreSpellings: state.scoreSpellings,
-    scoreSystemBreaks: state.scoreSystemBreaks,
-    scorePageBreaks: state.scorePageBreaks,
-    scoreSystemRuns: state.scoreSystemRuns,
-    scoreTextMarks: state.scoreTextMarks,
-    scoreChordHidden: state.scoreChordHidden,
-    leadSheetSections: state.leadSheetSections,
-    leadSheetRepeats: state.leadSheetRepeats,
-    measureRowSizes: state.measureRowSizes,
-    measureFermatas: state.measureFermatas,
-    masterAutomation: state.masterAutomation,
-  });
-}
-
-// ── Letting the buttons know ────────────────────────────────────────────
-// The stacks are plain arrays, so anything drawing an undo button has to be
-// told when they change.
-
-const listeners = new Set<() => void>();
-let version = 0;
-
-function changed(): void {
-  version += 1;
-  for (const listener of listeners) listener();
-}
-
-/** Subscribe to undo/redo availability; returns the unsubscribe. */
-export function subscribeUndo(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
-/** Changes whenever the stacks do, for `useSyncExternalStore`. */
-export function undoVersion(): number {
-  return version;
-}
-
-const MAX_UNDO_STACK = 50;
-const undoStack: UndoSnapshot[] = [];
-const redoStack: UndoSnapshot[] = [];
-
-/** Everything undo restores, as it stands now. */
-function capture(): UndoSnapshot {
-  const state = useStore.getState();
-  return {
-    tracks: structuredClone(state.tracks),
-    chordRegions: structuredClone(state.chordRegions),
-    marks: readMarks(),
-    timestamp: Date.now(),
-  };
-}
-
-function restore(snapshot: UndoSnapshot): void {
-  useStore.setState({
-    tracks: snapshot.tracks,
-    chordRegions: snapshot.chordRegions,
-    ...snapshot.marks,
-  });
-}
-
-/** Take a snapshot of the current state for undo. */
-export function pushUndo(): void {
-  undoStack.push(capture());
-  if (undoStack.length > MAX_UNDO_STACK) {
-    undoStack.shift();
-  }
-  // Clear redo stack whenever a new action is performed
-  redoStack.length = 0;
-  changed();
-}
-
-/** Undo: restore the previous state, push current to redo. */
-export function undo(): boolean {
-  if (undoStack.length === 0) return false;
-  redoStack.push(capture());
-  const snapshot = undoStack.pop()!;
-  restore(snapshot);
-  // The restore is a store change like any other; keep auto-capture from
-  // reading it back as a fresh edit and burying the redo.
-  rebaseline();
-  changed();
-  return true;
-}
-
-/** Redo: restore the next state, push current to undo. */
-export function redo(): boolean {
-  if (redoStack.length === 0) return false;
-  undoStack.push(capture());
-  const snapshot = redoStack.pop()!;
-  restore(snapshot);
-  rebaseline();
-  changed();
-  return true;
-}
-
-/** Check if undo/redo are available. */
-export function canUndo(): boolean {
-  return undoStack.length > 0;
-}
-
-export function canRedo(): boolean {
-  return redoStack.length > 0;
-}
-
-/**
- * Forget undo/redo history — when a different project loads, so undo can't
- * bring back the previous project. Auto-capture re-baselines on the store as
- * it is now.
- */
-export function resetUndoHistory(): void {
-  undoStack.length = 0;
-  redoStack.length = 0;
-  rebaseline();
-  changed();
-}
-
-// ── Auto-capture on significant store changes ───────────────────────────
-// Subscribe to store and push undo snapshots when the score changes. We
-// debounce to avoid capturing every micro-change during drags.
-
-let lastJson = '';
-let lastRefs: unknown[] = [];
-let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-/** What the watched state looks like right now, for change detection. */
-function watched(): { refs: unknown[]; json: string } {
-  const state = useStore.getState() as unknown as Record<string, unknown>;
-  const refs: unknown[] = [state.tracks, state.chordRegions];
-  for (const key of MARK_KEYS) refs.push(state[key]);
-  return {
-    refs,
-    json: JSON.stringify({
-      tracks: state.tracks,
-      chordRegions: state.chordRegions,
-      marks: readMarks(),
-    }),
-  };
-}
-
-/** Treat the store as it stands as the baseline, capturing nothing. */
-function rebaseline(): void {
-  if (debounceTimer) {
-    clearTimeout(debounceTimer);
-    debounceTimer = null;
-  }
-  const now = watched();
-  lastJson = now.json;
-  lastRefs = now.refs;
-}
-
-export function initUndoTracking(): void {
-  rebaseline();
-
-  const handleChange = () => {
-    const now = watched();
-    // Cheap identity check: skip if nothing was replaced.
-    if (
-      now.refs.length === lastRefs.length &&
-      now.refs.every((ref, i) => ref === lastRefs[i])
-    ) {
-      return;
-    }
-    lastRefs = now.refs;
-
-    // Debounce: only capture after 300ms of no changes.
-    if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      const settled = watched();
-      if (settled.json === lastJson) return;
-      const previous = lastJson;
-      lastJson = settled.json;
-      lastRefs = settled.refs;
-      try {
-        const before = JSON.parse(previous) as {
-          tracks: Track[];
-          chordRegions: ChordRegion[];
-          marks: ScoreMarkSnapshot;
-        };
-        undoStack.push({ ...before, timestamp: Date.now() });
-        if (undoStack.length > MAX_UNDO_STACK) undoStack.shift();
-        redoStack.length = 0;
-        changed();
-      } catch {
-        // Ignore parse errors
-      }
-    }, 300);
-  };
-
-  useStore.subscribe((state) => state.tracks, handleChange);
-  useStore.subscribe((state) => state.chordRegions, handleChange);
-  for (const key of MARK_KEYS) {
-    useStore.subscribe(
-      (state) => (state as unknown as Record<string, unknown>)[key],
-      handleChange,
-    );
-  }
-}
-
-// ── Collab-mode Undo (Yjs UndoManager) ──────────────────────────────────
-// When collaboration is active, undo/redo is handled by Yjs's built-in
-// UndoManager which only tracks the local user's changes, allowing
-// User A to undo without affecting User B's concurrent edits.
+// ── Collab-mode undo (Yjs UndoManager) ──────────────────────────────────
 
 let _yjsUndoManager: UndoManager | null = null;
+/** The label the next stack item takes (a labelled edit, or an undo's). */
+let nextLabel: string | null = null;
+
+/** The scope type a change belongs to, by its name in the document. */
+function scopeNames(
+  um: UndoManager,
+  changed: ReadonlyMap<unknown, unknown>,
+): string[] {
+  const names = new Map<unknown, string>();
+  for (const [name, type] of um.doc.share) names.set(type, name);
+  const found = new Set<string>();
+  for (const type of changed.keys()) {
+    let root: Y.AbstractType<unknown> = type as Y.AbstractType<unknown>;
+    while (root._item) root = root._item.parent as Y.AbstractType<unknown>;
+    const name = names.get(root);
+    if (name) found.add(name);
+  }
+  return [...found];
+}
 
 /**
- * Initialize Yjs-based undo for collaborative mode.
- * Call after the Y.Doc is synced and shared types are populated.
+ * Drops the oldest steps past the cap, and lets the document forget what
+ * they kept alive for undo (the Yjs undo manager has no cap of its own, and
+ * keeps every deleted note it could bring back).
+ */
+function trim(um: UndoManager): void {
+  if (um.undoStack.length <= MAX_HISTORY) return;
+  const dropped = um.undoStack.splice(0, um.undoStack.length - MAX_HISTORY);
+  um.doc.transact((tr) => {
+    for (const item of dropped) {
+      iterateDeletedStructs(tr, item.deletions, (struct) => {
+        if (
+          !(struct instanceof Item) ||
+          !um.scope.some((type) =>
+            isParentOf(type as Y.AbstractType<unknown>, struct),
+          )
+        ) {
+          return;
+        }
+        let kept: Item | null = struct;
+        while (kept && kept.keep) {
+          kept.keep = false;
+          kept = (kept.parent as Y.AbstractType<unknown>)._item;
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Initialize Yjs-based undo for collab mode: the project history pauses (it
+ * held the solo session's steps) until destroyCollabUndo.
  */
 export function initCollabUndo(doc: Y.Doc): void {
   destroyCollabUndo();
-  const yTracks = doc.getArray('tracks');
-  const yChordRegions = doc.getArray('chordRegions');
-  const yMarkers = doc.getArray('markers');
-
-  _yjsUndoManager = new UndoManager([yTracks, yChordRegions, yMarkers], {
+  setHistoryPaused(true);
+  const um = new UndoManager(collabUndoScope(doc), {
     trackedOrigins: new Set([ORIGIN_LOCAL]),
-    captureTimeout: 300,
+    // Writes outside a labelled edit gather as solo undo's do; a labelled
+    // edit is its own step (beginCollabEdit).
+    captureTimeout: IDLE_MS,
+    captureTransaction: (tr) => tr.meta.get(UNDOABLE_META) !== false,
   });
-  // Keep the buttons in step with Yjs's own stacks.
-  _yjsUndoManager.on('stack-item-added', changed);
-  _yjsUndoManager.on('stack-item-popped', changed);
-  changed();
+  um.on('stack-item-added', ({ stackItem, type, changedParentTypes }) => {
+    if (!stackItem.meta.has('label')) {
+      stackItem.meta.set(
+        'label',
+        nextLabel ?? collabLabelFor(scopeNames(um, changedParentTypes)),
+      );
+    }
+    // The cap waits for the transaction that grew the stack to finish.
+    if (type === 'undo') queueMicrotask(() => trim(um));
+    notifyHistory();
+  });
+  um.on('stack-item-popped', notifyHistory);
+  _yjsUndoManager = um;
+  notifyHistory();
 }
 
-/** Tear down the collab undo manager. */
+/** Tear down the collab undo manager; the project history resumes. */
 export function destroyCollabUndo(): void {
-  _yjsUndoManager?.destroy();
+  if (!_yjsUndoManager) return;
+  _yjsUndoManager.destroy();
   _yjsUndoManager = null;
-  changed();
+  setHistoryPaused(false);
+  notifyHistory();
 }
 
 /** Check if collab undo is active. */
@@ -304,32 +141,52 @@ export function isCollabUndoActive(): boolean {
 }
 
 /**
- * Smart undo: uses Yjs UndoManager in collab mode, snapshot undo in solo mode.
+ * Around a labelled edit's one update to the shared document (the bridge
+ * calls these): the edit becomes its own undo step with its label, rather
+ * than joining a change made just before or after it.
+ */
+export function beginCollabEdit(label: string): void {
+  if (!_yjsUndoManager) return;
+  _yjsUndoManager.stopCapturing();
+  nextLabel = label;
+}
+
+export function endCollabEdit(): void {
+  if (!_yjsUndoManager) return;
+  _yjsUndoManager.stopCapturing();
+  nextLabel = null;
+}
+
+/** Runs an undo or redo, handing the step's label to the one it makes. */
+function step(um: UndoManager, stack: 'undoStack' | 'redoStack'): boolean {
+  const items = um[stack];
+  if (items.length === 0) return false;
+  nextLabel = (items[items.length - 1].meta.get('label') as string) ?? null;
+  try {
+    if (stack === 'undoStack') um.undo();
+    else um.redo();
+  } finally {
+    nextLabel = null;
+  }
+  notifyHistory();
+  return true;
+}
+
+/**
+ * Smart undo: uses Yjs UndoManager in collab mode, the project history in
+ * solo mode.
  */
 export function smartUndo(): boolean {
-  if (_yjsUndoManager) {
-    if (_yjsUndoManager.canUndo()) {
-      _yjsUndoManager.undo();
-      changed();
-      return true;
-    }
-    return false;
-  }
+  if (_yjsUndoManager) return step(_yjsUndoManager, 'undoStack');
   return undo();
 }
 
 /**
- * Smart redo: uses Yjs UndoManager in collab mode, snapshot redo in solo mode.
+ * Smart redo: uses Yjs UndoManager in collab mode, the project history in
+ * solo mode.
  */
 export function smartRedo(): boolean {
-  if (_yjsUndoManager) {
-    if (_yjsUndoManager.canRedo()) {
-      _yjsUndoManager.redo();
-      changed();
-      return true;
-    }
-    return false;
-  }
+  if (_yjsUndoManager) return step(_yjsUndoManager, 'redoStack');
   return redo();
 }
 
@@ -341,4 +198,22 @@ export function smartCanUndo(): boolean {
 export function smartCanRedo(): boolean {
   if (_yjsUndoManager) return _yjsUndoManager.canRedo();
   return canRedo();
+}
+
+/** What Undo would undo, in words ('Change volume'); null when nothing. */
+export function smartUndoLabel(): string | null {
+  if (_yjsUndoManager) {
+    const item = _yjsUndoManager.undoStack.at(-1);
+    return (item?.meta.get('label') as string | undefined) ?? null;
+  }
+  return undoLabel();
+}
+
+/** What Redo would redo, in words; null when nothing. */
+export function smartRedoLabel(): string | null {
+  if (_yjsUndoManager) {
+    const item = _yjsUndoManager.redoStack.at(-1);
+    return (item?.meta.get('label') as string | undefined) ?? null;
+  }
+  return redoLabel();
 }

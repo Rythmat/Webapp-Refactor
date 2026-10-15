@@ -10,23 +10,42 @@ import {
   Pencil,
   Eraser,
 } from 'lucide-react';
-import { useStore } from '@/daw/store';
+import { DRUMS_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
+import { useStore, type Track } from '@/daw/store';
+import { usePlayheadEffect } from '@/daw/engine/playheadClock';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import {
   DrumMachineEngine,
   DRUM_KITS,
   DRUM_KIT_CONFIGS,
   DRUM_PADS,
+  canonicalPadNote,
   type DrumKitId,
 } from '@/daw/instruments/DrumMachineEngine';
 import type { MidiNoteEvent } from '@prism/engine';
-import {
-  GRID_VALUES,
-  snapToGrid,
-  quantizeEvents,
-  type GridSize,
-} from '@/daw/utils/quantize';
+import { GRID_VALUES, type GridSize } from '@/daw/utils/quantize';
 import { alternatingBarGroup } from '@/daw/utils/timelineScale';
+import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
+import { resolveEditorClip } from '@/daw/model/editorClip';
+import {
+  barStartTick,
+  gridStepTicks,
+  snapTicks,
+  ticksPerBar,
+  ticksPerBeat,
+  timeSignatureOf,
+} from '@/daw/time/timeModel';
+import { rollBeatLines } from '../PianoRoll/rollGrid';
+import {
+  ControlGestureContext,
+  useContinuousControl,
+  useControlGesture,
+} from '@/daw/hooks/useContinuousControl';
+import { previewTrack } from '@/daw/engine/trackReconciler';
+import { withTransaction } from '@/daw/store/history';
+
+type DrumPads = NonNullable<Track['drumPads']>;
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -88,49 +107,9 @@ function padIndexToRow(padIdx: number): number {
   return NUM_PADS - 1 - padIdx;
 }
 
-/** Map any MIDI note to canonical pad note */
-function canonicalNote(note: number): number {
-  switch (note) {
-    case 35:
-    case 36:
-      return 36;
-    case 37:
-    case 38:
-    case 39:
-      return 38;
-    case 40:
-      return 40;
-    case 42:
-      return 42;
-    case 44:
-      return 44;
-    case 46:
-      return 46;
-    case 48:
-    case 50:
-      return 48;
-    case 45:
-    case 47:
-      return 45;
-    case 41:
-    case 43:
-      return 41;
-    case 49:
-    case 52:
-    case 55:
-    case 57:
-      return 49;
-    case 51:
-    case 53:
-      return 51;
-    default:
-      return 36;
-  }
-}
-
 /** Find DRUM_PADS index for a MIDI note */
 function padIndexForNote(note: number): number {
-  const cn = canonicalNote(note);
+  const cn = canonicalPadNote(note);
   return DRUM_PADS.findIndex((p) => p.note === cn);
 }
 
@@ -157,20 +136,82 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const track = useStore((s) => s.tracks.find((t) => t.id === trackId));
   const updateDrumPad = useStore((s) => s.updateDrumPad);
   const setDrumKit = useStore((s) => s.setDrumKit);
+
+  // The pads' mix knobs: the kit follows a drag through the track's engine,
+  // and the release saves the pads it changed, as one undo step.
+  const padMix = useContinuousControl<DrumPads | undefined>({
+    value: track?.drumPads,
+    preview: (drumPads) => previewTrack(trackId, { drumPads }),
+    commit: (next, start) => {
+      if (!next) return;
+      for (const [note, pad] of Object.entries(next)) {
+        if (pad !== start?.[Number(note)]) {
+          updateDrumPad(trackId, Number(note), pad);
+        }
+      }
+    },
+    label: 'Change drum mix',
+  });
+  const padMixRef = useRef(padMix.value);
+  padMixRef.current = padMix.value;
+  const changePadMix = padMix.change;
+  const setPadMix = useCallback(
+    (note: number, params: Partial<DrumPads[number]>) => {
+      const current = padMixRef.current;
+      const prev = current?.[note] ?? { volume: 0.8, pan: 0 };
+      const next = { ...current, [note]: { ...prev, ...params } };
+      padMixRef.current = next;
+      changePadMix(next);
+    },
+    [changePadMix],
+  );
+  const padGesture = useMemo(
+    () => ({ begin: padMix.begin, end: padMix.end }),
+    [padMix.begin, padMix.end],
+  );
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
   const addMidiClip = useStore((s) => s.addMidiClip);
-  const position = useStore((s) => s.position);
   const isPlaying = useStore((s) => s.isPlaying);
 
-  // Time signature
+  // The project's metre: bars and beats come from it, never from 4/4.
   const tsNum = useStore((s) => s.timeSignatureNumerator);
-  const beatsPerBar = tsNum;
+  const tsDen = useStore((s) => s.timeSignatureDenominator);
+  const ts = useMemo(
+    () => ({ numerator: tsNum, denominator: tsDen }),
+    [tsNum, tsDen],
+  );
+  const barTicks = ticksPerBar(ts);
 
-  const clip = track?.midiClips[0];
-  const clipStartTick = clip?.startTick ?? 0;
-  const events = useMemo(() => clip?.events ?? [], [clip?.events]);
+  // The clip every note editor on this track edits (editorClip.ts): the
+  // selected one, the one under the playhead, or the first. It used to be
+  // the first always, so a second groove was edited blind
+  // (dock-instruments-03).
+  const clip = useStore((s) => resolveEditorClip(s, trackId)) ?? undefined;
+  const committedEvents = useMemo(() => clip?.events ?? [], [clip?.events]);
+  // A drag on the grid or the velocity lane (hits painted or erased, notes
+  // moved or resized, velocities drawn) edits a draft the view draws from,
+  // and is written once, on release (dock-instruments-13).
+  const [draft, setDraft] = useState<MidiNoteEvent[] | null>(null);
+  const draftRef = useRef<MidiNoteEvent[] | null>(null);
+  const events = draft ?? committedEvents;
   const eventsRef = useRef(events);
   eventsRef.current = events;
+  const editDraft = useCallback((next: MidiNoteEvent[]) => {
+    draftRef.current = next;
+    eventsRef.current = next;
+    setDraft(next);
+  }, []);
+  // Events are clip-relative (playback adds clip.startTick), so the grid starts
+  // at the clip's own tick 0 and new hits are stored relative to it. Only the
+  // playhead, which runs in song ticks, needs where the clip sits in the song.
+  const originTick = noteEditorOriginTick(events, barTicks);
+  // A track with no clips draws from the playhead's bar, where its first hit
+  // makes the clip.
+  const blankStartTick = useStore((s) =>
+    barStartTick(s.position, timeSignatureOf(s)),
+  );
+  const clipStart = clip?.startTick ?? blankStartTick;
+  const songOffset = clipStart + originTick;
 
   // Kit selection lives in the store (persisted + collab-synced)
   const currentKit: DrumKitId = track?.drumKit ?? 'natural';
@@ -179,7 +220,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedPad, setSelectedPad] = useState<number>(36);
-  const [sampleEditorOpen, setSampleEditorOpen] = useState(false);
   const [velLaneOpen, setVelLaneOpen] = useState(false);
 
   const [tool, setTool] = useState<Tool>('draw');
@@ -195,6 +235,12 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const selectSingle = useCallback((i: number | null) => {
     setSelectedIndices(i === null ? new Set() : new Set([i]));
   }, []);
+  // The selection is indices into the clip's notes: let it go when the grid
+  // moves to another clip, or it would pick the same places in that one.
+  const clipKey = clip?.id ?? null;
+  useEffect(() => {
+    setSelectedIndices(new Set());
+  }, [clipKey]);
 
   // ── Refs ──────────────────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
@@ -224,12 +270,24 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const minZoomRef = useRef(0.15);
 
   // ── Computed layout ───────────────────────────────────────────────────
-  const MIN_TICKS = TICKS_PER_BEAT * beatsPerBar * 4;
+  const MIN_TICKS = barTicks * 4;
   const maxTick = events.reduce(
     (max, e) => Math.max(max, e.startTick + e.durationTicks),
-    clipStartTick + MIN_TICKS,
+    originTick + MIN_TICKS,
   );
-  const totalTicks = maxTick - clipStartTick + TICKS_PER_BEAT * 4;
+  const totalTicks = maxTick - originTick + barTicks;
+  // The grid's step and snapping are the song's, counted from its bar lines
+  // (as in the piano roll), never left of the grid's edge.
+  const gridStep = gridStepTicks(gridSize, ts);
+  const snapClipTick = useCallback(
+    (clipTick: number) =>
+      Math.max(
+        originTick,
+        snapTicks(clipTick + clipStart, { enabled: true, step: gridStep, ts }) -
+          clipStart,
+      ),
+    [originTick, clipStart, gridStep, ts],
+  );
 
   const containerW = gridScrollRef.current?.clientWidth ?? 600;
   const MIN_ZOOM = Math.max(
@@ -246,7 +304,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     if (initialZoomSet.current) return;
     const container = gridScrollRef.current;
     if (!container) return;
-    const fourBarPx = 4 * beatsPerBar * 40;
+    const fourBarPx = ((4 * barTicks) / TICKS_PER_BEAT) * 40;
     const fitZoom = container.clientWidth / fourBarPx;
     setZoom(Math.max(0.15, fitZoom));
     initialZoomSet.current = true;
@@ -261,13 +319,24 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         addMidiClip(trackId, {
           id: `clip-drums-${crypto.randomUUID().slice(0, 8)}`,
           name: 'Drum Pattern',
-          startTick: 0,
+          startTick: blankStartTick,
           events: newEvents,
         });
       }
     },
-    [clip, trackId, updateMidiClipEvents, addMidiClip],
+    [clip, trackId, blankStartTick, updateMidiClipEvents, addMidiClip],
   );
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+  const commitDraft = useCallback(() => {
+    const next = draftRef.current;
+    if (!next) return;
+    draftRef.current = null;
+    setDraft(null);
+    withTransaction('Edit drums', () => onChangeRef.current(next));
+  }, []);
+  // Unmounted mid-drag: keep what the drag reached.
+  useEffect(() => commitDraft, [commitDraft]);
 
   // ── Kit management ────────────────────────────────────────────────────
   useEffect(() => {
@@ -322,9 +391,15 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     [trackId],
   );
 
+  // On the song's grid, as painting and dragging snap.
   const handleQuantize = useCallback(() => {
-    onChange(quantizeEvents(eventsRef.current, gridSize));
-  }, [gridSize, onChange]);
+    onChange(
+      eventsRef.current.map((ev) => ({
+        ...ev,
+        startTick: snapClipTick(ev.startTick),
+      })),
+    );
+  }, [snapClipTick, onChange]);
 
   // ── Draw Ruler ────────────────────────────────────────────────────────
   const drawRuler = useCallback(() => {
@@ -356,12 +431,11 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     ctx.fillStyle = 'rgba(255,255,255,0.02)';
     ctx.fillRect(0, 0, w, h);
 
-    const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
+    // The song's bars and beats, wherever the clip starts.
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    for (let beat = 0; beat <= totalBeats; beat++) {
-      const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % beatsPerBar === 0;
+    for (const line of rollBeatLines(songOffset, pixelsPerTick, 0, w, ts)) {
+      const { x, bar: isBar } = line;
 
       ctx.strokeStyle = isBar
         ? 'rgba(255,255,255,0.15)'
@@ -372,8 +446,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       ctx.lineTo(x, h);
       ctx.stroke();
 
-      const bar = Math.floor(beat / beatsPerBar) + 1;
-      const beatInBar = beat % beatsPerBar;
+      const bar = line.barNumber;
+      const beatInBar = line.beatInBar;
       ctx.fillStyle = colors.textDim;
       ctx.font = isBar
         ? "10px 'Glacial Indifference', system-ui, sans-serif"
@@ -388,7 +462,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     ctx.moveTo(0, h - 0.5);
     ctx.lineTo(w, h - 0.5);
     ctx.stroke();
-  }, [gridW, totalTicks, pixelsPerTick]);
+  }, [gridW, totalTicks, pixelsPerTick, songOffset, ts]);
 
   // ── Draw Grid + Notes ─────────────────────────────────────────────────
   const drawGrid = useCallback(() => {
@@ -444,23 +518,21 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       ctx.stroke();
     }
 
-    // Alternating bar shading
+    // Alternating bar shading, by the song's bars
     const barGroup = alternatingBarGroup(zoom);
-    const barGroupTicks = barGroup * beatsPerBar * TICKS_PER_BEAT;
+    const barGroupTicks = barGroup * barTicks;
     ctx.fillStyle = 'rgba(255,255,255,0.025)';
-    const totalBarGroups = Math.ceil(totalTicks / barGroupTicks);
-    for (let g = 0; g <= totalBarGroups; g++) {
+    const lastGroup = Math.ceil((songOffset + totalTicks) / barGroupTicks);
+    for (let g = Math.floor(songOffset / barGroupTicks); g <= lastGroup; g++) {
       if (g % 2 === 0) continue;
-      const x1 = g * barGroupTicks * pixelsPerTick;
-      const x2 = (g + 1) * barGroupTicks * pixelsPerTick;
+      const x1 = (g * barGroupTicks - songOffset) * pixelsPerTick;
+      const x2 = ((g + 1) * barGroupTicks - songOffset) * pixelsPerTick;
       ctx.fillRect(x1, 0, x2 - x1, h);
     }
 
-    // Vertical grid lines: bars + beats
-    const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
-    for (let beat = 0; beat <= totalBeats; beat++) {
-      const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % beatsPerBar === 0;
+    // Vertical grid lines: the song's bars + beats
+    for (const line of rollBeatLines(songOffset, pixelsPerTick, 0, w, ts)) {
+      const { x, bar: isBar } = line;
 
       ctx.strokeStyle = isBar
         ? 'rgba(255,255,255,0.14)'
@@ -472,16 +544,19 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       ctx.stroke();
     }
 
-    // Sub-grid lines
-    const gridTicks = GRID_VALUES[gridSize];
-    if (gridTicks < TICKS_PER_BEAT) {
-      const totalGridLines = Math.ceil(totalTicks / gridTicks);
+    // Sub-grid lines, on the song's grid like the beats
+    const beatTicks = ticksPerBeat(ts);
+    if (gridStep < beatTicks) {
       ctx.strokeStyle = 'rgba(255,255,255,0.03)';
       ctx.lineWidth = 0.5;
-      for (let g = 0; g <= totalGridLines; g++) {
-        const tick = g * gridTicks;
-        if (tick % TICKS_PER_BEAT === 0) continue;
-        const x = tick * pixelsPerTick;
+      const lastTick = songOffset + totalTicks;
+      for (
+        let tick = Math.ceil(songOffset / gridStep) * gridStep;
+        tick <= lastTick;
+        tick += gridStep
+      ) {
+        if (tick % beatTicks === 0) continue;
+        const x = (tick - songOffset) * pixelsPerTick;
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, h);
@@ -499,7 +574,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       if (padIdx < 0) continue;
 
       const row = padIndexToRow(padIdx);
-      const relTick = ev.startTick - clipStartTick;
+      const relTick = ev.startTick - originTick;
       const x = relTick * pixelsPerTick;
       const noteW = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
       const noteY = row * PAD_ROW_H;
@@ -536,13 +611,15 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     }
   }, [
     events,
-    clipStartTick,
+    originTick,
     selectedIndices,
     marqueeRect,
     gridW,
     totalTicks,
     pixelsPerTick,
-    gridSize,
+    gridStep,
+    ts,
+    songOffset,
     selectedPad,
     track?.color,
   ]);
@@ -604,7 +681,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         if ((pass === 0 && isSelected) || (pass === 1 && !isSelected)) continue;
 
         const ev = currentEvents[i];
-        const relTick = ev.startTick - clipStartTick;
+        const relTick = ev.startTick - originTick;
         const x =
           relTick * pixelsPerTick + (ev.durationTicks * pixelsPerTick) / 2;
         const stemH = (ev.velocity / 127) * maxStemH;
@@ -645,7 +722,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     }
   }, [
     events,
-    clipStartTick,
+    originTick,
     selectedIndices,
     gridW,
     pixelsPerTick,
@@ -692,7 +769,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         const padIdx = padIndexForNote(ev.note);
         if (padIdx < 0) continue;
         const row = padIndexToRow(padIdx);
-        const relTick = ev.startTick - clipStartTick;
+        const relTick = ev.startTick - originTick;
         const x = relTick * pixelsPerTick;
         const w = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
         const noteY = row * PAD_ROW_H;
@@ -703,7 +780,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       }
       return null;
     },
-    [clipStartTick, pixelsPerTick],
+    [originTick, pixelsPerTick],
   );
 
   // ── Audition note ─────────────────────────────────────────────────────
@@ -739,9 +816,9 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           selectSingle(null);
           setSelectedPad(pad.note);
 
-          const gridTicks = GRID_VALUES[gridSize];
-          const clickTick = x / pixelsPerTick + clipStartTick;
-          const snappedTick = snapToGrid(clickTick, gridSize);
+          const gridTicks = gridStep;
+          const clickTick = x / pixelsPerTick + originTick;
+          const snappedTick = snapClipTick(clickTick);
 
           const newNote: MidiNoteEvent = {
             note: pad.note,
@@ -753,7 +830,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           const newEvents = [...currentEvents, newNote].sort(
             (a, b) => a.startTick - b.startTick,
           );
-          onChange(newEvents);
+          editDraft(newEvents);
           audition(pad.note, velocity);
 
           // Track paint position for drag-paint
@@ -782,8 +859,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             }
 
             const ev = currentEvents[noteIdx];
-            setSelectedPad(canonicalNote(ev.note));
-            const relTick = ev.startTick - clipStartTick;
+            setSelectedPad(canonicalPadNote(ev.note));
+            const relTick = ev.startTick - originTick;
             const noteX = relTick * pixelsPerTick;
             const noteW = Math.max(
               MIN_NOTE_W,
@@ -814,7 +891,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         case 'erase': {
           if (noteIdx !== null) {
             const newEvents = currentEvents.filter((_, i) => i !== noteIdx);
-            onChange(newEvents);
+            editDraft(newEvents);
             selectSingle(null);
           }
           paintRef.current = { padIdx, tick: -1 }; // enable drag-erase
@@ -827,10 +904,11 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       velocity,
       getCanvasCoords,
       hitTestNote,
-      clipStartTick,
+      originTick,
       pixelsPerTick,
-      gridSize,
-      onChange,
+      gridStep,
+      snapClipTick,
+      editDraft,
       audition,
       selectSingle,
       selectedIndices,
@@ -860,7 +938,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           const padIdx = padIndexForNote(ev.note);
           if (padIdx < 0) continue;
           const nrow = padIndexToRow(padIdx);
-          const nx = (ev.startTick - clipStartTick) * pixelsPerTick;
+          const nx = (ev.startTick - originTick) * pixelsPerTick;
           const nw = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
           const ny = nrow * PAD_ROW_H;
           if (
@@ -893,7 +971,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             const noteIdx = hitTestNote(x, y);
             if (noteIdx !== null) {
               const ev = eventsRef.current[noteIdx];
-              const relTick = ev.startTick - clipStartTick;
+              const relTick = ev.startTick - originTick;
               const noteX = relTick * pixelsPerTick;
               const noteW = Math.max(
                 MIN_NOTE_W,
@@ -916,9 +994,9 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         if (row < 0 || row >= NUM_PADS) return;
         const padIdx = rowToPadIndex(row);
         const pad = DRUM_PADS[padIdx];
-        const gridTicks = GRID_VALUES[gridSize];
-        const clickTick = x / pixelsPerTick + clipStartTick;
-        const snappedTick = snapToGrid(clickTick, gridSize);
+        const gridTicks = gridStep;
+        const clickTick = x / pixelsPerTick + originTick;
+        const snappedTick = snapClipTick(clickTick);
 
         if (
           paintRef.current.padIdx !== padIdx ||
@@ -928,7 +1006,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           const currentEvents = eventsRef.current;
           const exists = currentEvents.some(
             (ev) =>
-              canonicalNote(ev.note) === pad.note &&
+              canonicalPadNote(ev.note) === pad.note &&
               ev.startTick === snappedTick,
           );
           if (!exists) {
@@ -939,7 +1017,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
               durationTicks: gridTicks,
               channel: 10,
             };
-            onChange(
+            editDraft(
               [...currentEvents, newNote].sort(
                 (a, b) => a.startTick - b.startTick,
               ),
@@ -956,7 +1034,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         const noteIdx = hitTestNote(x, y);
         if (noteIdx !== null) {
           const currentEvents = eventsRef.current;
-          onChange(currentEvents.filter((_, i) => i !== noteIdx));
+          editDraft(currentEvents.filter((_, i) => i !== noteIdx));
         }
         return;
       }
@@ -969,9 +1047,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
         if (drag.mode === 'move') {
           // Derive the anchor's snapped tick + row delta, then shift the group.
-          const rawTick =
-            x / pixelsPerTick + clipStartTick - drag.grabTickOffset;
-          const snappedTick = snapToGrid(rawTick, gridSize);
+          const rawTick = x / pixelsPerTick + originTick - drag.grabTickOffset;
+          const snappedTick = snapClipTick(rawTick);
           let tickDelta = snappedTick - anchorOrig.startTick;
 
           const row = Math.max(
@@ -1005,35 +1082,33 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             };
           }
         } else if (drag.mode === 'resize') {
-          const endTick = x / pixelsPerTick + clipStartTick;
-          const snappedEnd = snapToGrid(endTick, gridSize);
+          const endTick = x / pixelsPerTick + originTick;
+          const snappedEnd = snapClipTick(endTick);
           const newAnchorDur = Math.max(
-            GRID_VALUES[gridSize],
+            gridStep,
             snappedEnd - anchorOrig.startTick,
           );
           const durDelta = newAnchorDur - anchorOrig.durationTicks;
           for (const [idx, o] of drag.originals) {
             currentEvents[idx] = {
               ...currentEvents[idx],
-              durationTicks: Math.max(
-                GRID_VALUES[gridSize],
-                o.durationTicks + durDelta,
-              ),
+              durationTicks: Math.max(gridStep, o.durationTicks + durDelta),
             };
           }
         }
 
-        onChange(currentEvents);
+        editDraft(currentEvents);
       }
     },
     [
       tool,
       getCanvasCoords,
       hitTestNote,
-      clipStartTick,
+      originTick,
       pixelsPerTick,
-      gridSize,
-      onChange,
+      gridStep,
+      snapClipTick,
+      editDraft,
       velocity,
       audition,
     ],
@@ -1045,6 +1120,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     paintRef.current = null;
     marqueeRef.current = null;
     setMarqueeRect(null);
+    commitDraft();
     if (gridCanvasRef.current) {
       gridCanvasRef.current.style.cursor =
         tool === 'draw'
@@ -1083,7 +1159,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
       for (let i = 0; i < currentEvents.length; i++) {
         const ev = currentEvents[i];
-        const relTick = ev.startTick - clipStartTick;
+        const relTick = ev.startTick - originTick;
         const cx =
           relTick * pixelsPerTick + (ev.durationTicks * pixelsPerTick) / 2;
         const stemH = (ev.velocity / 127) * maxStemH;
@@ -1115,10 +1191,10 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         );
         const updated = [...currentEvents];
         updated[targetIdx] = { ...updated[targetIdx], velocity: newVel };
-        onChange(updated);
+        editDraft(updated);
       }
     },
-    [clipStartTick, pixelsPerTick, onChange, selectSingle],
+    [originTick, pixelsPerTick, editDraft, selectSingle],
   );
 
   const handleVelMouseMove = useCallback(
@@ -1141,45 +1217,43 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         ...currentEvents[idx],
         velocity: newVel,
       };
-      onChange(currentEvents);
+      editDraft(currentEvents);
     },
-    [onChange],
+    [editDraft],
   );
 
   const handleVelMouseUp = useCallback(() => {
     velDragRef.current = null;
-  }, []);
+    commitDraft();
+  }, [commitDraft]);
+
+  // A velocity drawn past the lane's edge ends wherever it is let go.
+  useEffect(() => {
+    const handler = () => {
+      if (velDragRef.current) handleVelMouseUp();
+    };
+    window.addEventListener('mouseup', handler);
+    return () => window.removeEventListener('mouseup', handler);
+  }, [handleVelMouseUp]);
 
   // ── Keyboard shortcuts ────────────────────────────────────────────────
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'v' || e.key === 'V') {
-        setTool('select');
-        return;
-      }
-      if (e.key === 'd' || e.key === 'D') {
-        setTool('draw');
-        return;
-      }
-      if (e.key === 'e' || e.key === 'E') {
-        setTool('erase');
-        return;
-      }
-
-      if (
-        (e.code === 'Delete' || e.code === 'Backspace') &&
-        selectedIndices.size > 0
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        const newEvents = eventsRef.current.filter(
-          (_, i) => !selectedIndices.has(i),
-        );
-        onChange(newEvents);
+  // ── Keys, while the grid has focus (the drums scope) ──────────────────
+  // Tools on V, D and E (never with ⌘ held: ⌘V pastes), Delete or Backspace
+  // removes the selected hits. Delete stays here with nothing selected, so
+  // it never reaches the clip behind the grid.
+  useKeymap(
+    DRUMS_SCOPE.id,
+    {
+      'drums.select': () => setTool('select'),
+      'drums.draw': () => setTool('draw'),
+      'drums.erase': () => setTool('erase'),
+      'drums.delete': () => {
+        if (selectedIndices.size === 0) return;
+        onChange(eventsRef.current.filter((_, i) => !selectedIndices.has(i)));
         setSelectedIndices(new Set());
-      }
+      },
     },
-    [selectedIndices, onChange],
+    { element: containerRef },
   );
 
   // ── Wheel zoom ────────────────────────────────────────────────────────
@@ -1277,11 +1351,21 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   );
 
   // ── Playhead position ─────────────────────────────────────────────────
-  const playheadPx = useMemo(() => {
-    if (!isPlaying) return -1;
-    const relTick = position - clipStartTick;
-    return relTick * pixelsPerTick;
-  }, [isPlaying, position, clipStartTick, pixelsPerTick]);
+  // Painted from the playhead clock through a ref, so playback moves the
+  // line without rendering the drum machine (dock-instruments-06).
+  const playheadRef = useRef<HTMLDivElement | null>(null);
+  usePlayheadEffect((tick) => {
+    const line = playheadRef.current;
+    if (!line) return;
+    const px = (tick - songOffset) * pixelsPerTick;
+    if (px < 0) {
+      if (line.style.display !== 'none') line.style.display = 'none';
+      return;
+    }
+    if (line.style.display) line.style.display = '';
+    const transform = `translateX(${px}px)`;
+    if (line.style.transform !== transform) line.style.transform = transform;
+  });
 
   const currentKitLabel =
     DRUM_KITS.find((k) => k.id === currentKit)?.label ?? currentKit;
@@ -1304,7 +1388,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       data-tutorial-id="drum-machine-view"
       className="flex flex-col h-full overflow-hidden"
       tabIndex={0}
-      onKeyDown={handleKeyDown}
     >
       {/* ── Toolbar ──────────────────────────────────────────────── */}
       <div
@@ -1488,11 +1571,16 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
                     updated[idx] = { ...updated[idx], velocity: val };
                   }
                 }
-                onChange(updated);
+                editDraft(updated);
               } else {
                 setVelocity(val);
               }
             }}
+            // The slide is one edit: written when it is let go, or after
+            // each arrow-key step.
+            onPointerUp={commitDraft}
+            onKeyUp={commitDraft}
+            onBlur={commitDraft}
             className="w-16 h-1 accent-white/50"
           />
           <span className="text-[10px] tabular-nums text-white/40 w-6 text-right">
@@ -1559,28 +1647,26 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
                 scrollbarWidth: 'none',
               }}
             >
-              {[...DRUM_PADS].reverse().map((pad) => (
-                <DrumRowLabel
-                  key={pad.note}
-                  pad={pad}
-                  selected={selectedPad === pad.note}
-                  onSelect={() => setSelectedPad(pad.note)}
-                  onTrigger={() => handlePadTrigger(pad.note)}
-                  volume={track.drumPads?.[pad.note]?.volume ?? 0.8}
-                  pan={
-                    track.drumPads?.[pad.note]?.pan ??
-                    DRUM_KIT_CONFIGS.find((c) => c.id === currentKit)
-                      ?.defaultPan?.[pad.note] ??
-                    0
-                  }
-                  onVolumeChange={(v) =>
-                    updateDrumPad(trackId, pad.note, { volume: v })
-                  }
-                  onPanChange={(v) =>
-                    updateDrumPad(trackId, pad.note, { pan: v })
-                  }
-                />
-              ))}
+              <ControlGestureContext.Provider value={padGesture}>
+                {[...DRUM_PADS].reverse().map((pad) => (
+                  <DrumRowLabel
+                    key={pad.note}
+                    pad={pad}
+                    selected={selectedPad === pad.note}
+                    onSelect={() => setSelectedPad(pad.note)}
+                    onTrigger={() => handlePadTrigger(pad.note)}
+                    volume={padMix.value?.[pad.note]?.volume ?? 0.8}
+                    pan={
+                      padMix.value?.[pad.note]?.pan ??
+                      DRUM_KIT_CONFIGS.find((c) => c.id === currentKit)
+                        ?.defaultPan?.[pad.note] ??
+                      0
+                    }
+                    onVolumeChange={(v) => setPadMix(pad.note, { volume: v })}
+                    onPanChange={(v) => setPadMix(pad.note, { pan: v })}
+                  />
+                ))}
+              </ControlGestureContext.Provider>
             </div>
           </div>
 
@@ -1620,8 +1706,9 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
               />
 
               {/* CSS Playhead */}
-              {isPlaying && playheadPx >= 0 && (
+              {isPlaying && (
                 <div
+                  ref={playheadRef}
                   style={{
                     position: 'absolute',
                     top: 0,
@@ -1629,7 +1716,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
                     width: 1,
                     height: GRID_H,
                     backgroundColor: '#ef4444',
-                    transform: `translateX(${playheadPx}px)`,
                     willChange: 'transform',
                     pointerEvents: 'none',
                     zIndex: 10,
@@ -1690,48 +1776,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           </AnimatePresence>
         </div>
       </div>
-
-      {/* ── Collapsible Sample Editor ────────────────────────────── */}
-      <div
-        className="shrink-0 border-t"
-        style={{ borderColor: 'var(--color-border)' }}
-      >
-        <button
-          onClick={() => setSampleEditorOpen((o) => !o)}
-          className="flex items-center gap-1.5 w-full px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-          style={{
-            color: 'var(--color-text-dim)',
-            background: 'none',
-            border: 'none',
-          }}
-        >
-          {sampleEditorOpen ? (
-            <ChevronDown size={10} />
-          ) : (
-            <ChevronRight size={10} />
-          )}
-          Sample
-          <span
-            className="font-normal normal-case"
-            style={{ color: 'var(--color-text-dim)', opacity: 0.6 }}
-          >
-            — {DRUM_PADS.find((p) => p.note === selectedPad)?.label ?? 'Kick'}
-          </span>
-        </button>
-        <AnimatePresence>
-          {sampleEditorOpen && (
-            <motion.div
-              initial={{ height: 0 }}
-              animate={{ height: 80 }}
-              exit={{ height: 0 }}
-              transition={SPRING}
-              className="overflow-hidden"
-            >
-              <SampleWaveformPreview padNote={selectedPad} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      {/* No "Sample" section under the grid: it drew the same made-up
+          envelope for every pad, not the pad's sample. */}
     </div>
   );
 }
@@ -1842,6 +1888,7 @@ function MiniKnob({
   isBipolar,
 }: MiniKnobProps) {
   const dragRef = useRef<{ startY: number; startVal: number } | null>(null);
+  const gesture = useControlGesture();
   const SIZE = 18;
   const cx = SIZE / 2;
   const cy = SIZE / 2;
@@ -1861,8 +1908,9 @@ function MiniKnob({
       e.stopPropagation();
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
       dragRef.current = { startY: e.clientY, startVal: value };
+      gesture?.begin();
     },
-    [value],
+    [value, gesture],
   );
 
   const handlePointerMove = useCallback(
@@ -1877,8 +1925,10 @@ function MiniKnob({
   );
 
   const handlePointerUp = useCallback(() => {
+    if (!dragRef.current) return;
     dragRef.current = null;
-  }, []);
+    gesture?.end();
+  }, [gesture]);
 
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent) => {
@@ -1920,79 +1970,5 @@ function MiniKnob({
         strokeLinecap="round"
       />
     </svg>
-  );
-}
-
-// ── Sample Waveform Preview ─────────────────────────────────────────────
-
-function SampleWaveformPreview({ padNote }: { padNote: number }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const padDef = DRUM_PADS.find((p) => p.note === padNote);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.scale(dpr, dpr);
-
-    ctx.fillStyle = 'rgba(255,255,255,0.02)';
-    ctx.fillRect(0, 0, w, h);
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, h / 2);
-    ctx.lineTo(w, h / 2);
-    ctx.stroke();
-
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.beginPath();
-    ctx.moveTo(0, h / 2);
-    for (let x = 0; x < w; x++) {
-      const t = x / w;
-      const env = Math.exp(-t * 6);
-      const noise =
-        Math.sin(t * 80) * 0.5 +
-        Math.sin(t * 200) * 0.3 +
-        Math.sin(t * 40) * 0.2;
-      const amp = env * noise * (h / 2) * 0.8;
-      ctx.lineTo(x, h / 2 - amp);
-    }
-    for (let x = w - 1; x >= 0; x--) {
-      const t = x / w;
-      const env = Math.exp(-t * 6);
-      const noise =
-        Math.sin(t * 80) * 0.5 +
-        Math.sin(t * 200) * 0.3 +
-        Math.sin(t * 40) * 0.2;
-      const amp = env * noise * (h / 2) * 0.8;
-      ctx.lineTo(x, h / 2 + amp);
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.font = "10px 'Glacial Indifference', system-ui, sans-serif";
-    ctx.fillText(padDef?.label ?? 'Sample', 8, 14);
-  }, [padNote, padDef]);
-
-  return (
-    <div className="px-3 pb-2" style={{ height: 72 }}>
-      <canvas
-        ref={canvasRef}
-        className="w-full rounded"
-        style={{
-          height: 64,
-          border: '1px solid var(--color-border)',
-        }}
-      />
-    </div>
   );
 }

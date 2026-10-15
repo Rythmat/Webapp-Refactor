@@ -1,90 +1,191 @@
 import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DEV_AUTH_BYPASS } from '@/auth/devBypass';
+import { registerBeforeSignOut } from '@/auth/beforeSignOut';
 import './daw.css';
 import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
 import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
-import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
-import { PianoRollModal } from '@/daw/components/PianoRoll/PianoRollModal';
-import { ChordAnalysisPrompt } from '@/daw/components/Library/ChordAnalysisPrompt';
-import { PitchEditorModal } from '@/daw/components/PitchEditor/PitchEditorModal';
-import { LeadSheetView } from '@/daw/components/LeadSheet/LeadSheetView';
 import { SetListUpdatePrompt } from '@/daw/components/LeadSheet/SendToSetList';
-import { ScoreView } from '@/daw/components/Score/ScoreView';
-import { PracticeTrackView } from '@/daw/components/Practice/PracticeTrackView';
-import { StudioView } from '@/daw/components/Studio/StudioView';
 import { TimelineWithHeaders } from '@/daw/components/Timeline/TimelineWithHeaders';
-import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModal';
-import { SettingsModal } from '@/daw/components/Transport/SettingsModal';
 import { RecordingLimitModal } from '@/daw/components/Transport/RecordingLimitModal';
-import { TutorialLayer } from '@/daw/components/Tutorial/TutorialLayer';
+import { RecordGuard } from '@/daw/components/Transport/RecordGuard';
+import { useLessonAccess } from '@/daw/components/Tutorial/useLessonAccess';
 import { TransportBar } from '@/daw/components/Transport/TransportBar';
-import { useAudioEngine } from '@/daw/hooks/useAudioEngine';
-import { useAutosave } from '@/daw/hooks/useAutosave';
-import { useKeyboardShortcuts } from '@/daw/hooks/useKeyboardShortcuts';
+import {
+  useAudioEngine,
+  useStartAudioOnGesture,
+} from '@/daw/hooks/useAudioEngine';
+import { usePrefsSync } from '@/daw/hooks/usePrefsSync';
+import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
+import { useGlobalCommands } from '@/daw/commands/globalCommands';
+import { useMusicalTyping } from '@/daw/hooks/useMusicalTyping';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
-import {
-  clearLocalSession,
-  restoreLocalSessionIfPresent,
-} from '@/lib/studio-projects/localSession';
-import { studioProjectsApi } from '@/lib/studio-projects/api';
-import {
-  deserializeCloudProject,
-  resetSessionToEmpty,
-} from '@/daw/persistence/SessionSerializer';
-import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
-import { importPendingJamSession } from '@/daw/jam-import/importJamSession';
 import { StudioRoutes } from '@/constants/routes';
-import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
-import { useGuitarMidiDetection } from '@/daw/hooks/useGuitarMidiDetection';
-import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
-import { useStudioMonitor } from '@/daw/hooks/useStudioMonitor';
-import { useCollabAudioLoader } from '@/daw/hooks/useCollabAudioLoader';
-import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
+import { useStudioCurrentProjectNote } from '@/daw/hooks/useStudioCurrentProjectNote';
 import { useTheme } from '@/daw/hooks/useTheme';
-import { useTransport } from '@/daw/hooks/useTransport';
 import { useStore } from '@/daw/store';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { initUndoTracking } from '@/daw/store/undoMiddleware';
+import {
+  flushHistory,
+  historyLabels,
+  historyPushCount,
+  withoutHistory,
+} from '@/daw/store/history';
+import { watchNoteIds } from '@/daw/model/noteIds';
 import { CollabProvider, useCollab } from '@/daw/collab/CollabProvider';
+import { KickedModal } from '@/daw/collab/ui/KickedModal';
+import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
+import { TooltipGroup } from '@/daw/ui/Tooltip';
 import { UserList } from '@/daw/collab/ui/UserList';
 import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
-import { getDemoProject } from '@/daw/data/demoProjects';
-import { applyDemoDrums } from '@/daw/data/applyDemoDrums';
-import { withDemoSynthPresets } from '@/daw/data/demoSynthPresets';
-import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
-import { getSong } from '@/curriculum/data/songs';
-import { seedStudioFromSong } from '@/features/songs/seedStudioFromSong';
-import { seedStudioFromPracticeTrack } from '@/features/practiceTracks/seedStudioFromPracticeTrack';
+import { registerSaveAuth } from '@/daw/commands/saveProject';
+import { useCloudSaveStore } from '@/daw/commands/cloudSaveStore';
+import { getDraftSessionPort } from '@/daw/persistence/drafts/draftSessionPort';
+import { installDraftDevHandle } from '@/daw/persistence/drafts/devHandle';
 import {
-  practiceSessionFor,
-  resolvePracticeTrack,
-} from '@/features/practiceTracks/genre/openGenrePracticeTrack';
-import { seedStudioFromGenrePracticeTrack } from '@/features/practiceTracks/genre/seedStudioFromGenrePracticeTrack';
-import type { ActivitySectionId } from '@/curriculum/types/activity';
-import { urlParamToSemitone } from '@/lib/musicKeyUrl';
-import type {
-  PracticeLevel,
-  PracticeMode,
-} from '@/features/practiceTracks/generatePracticeTrack';
-import { isScaleLesson } from '@/lib/learn/scaleLessons';
-import { isDiatonicMode } from '@prism/engine';
-import { showError } from '@/util/toast';
+  notifySessionDepsChanged,
+  registerSessionDeps,
+} from '@/daw/session/sessionDeps';
+import { isBusyPhase, useSessionStore } from '@/daw/session/sessionStore';
+import { useSessionBoot } from '@/daw/session/useSessionBoot';
+import { DawErrorBoundary } from '@/daw/shell/errors/DawErrorBoundary';
+import {
+  ChordAnalysisPromptHost,
+  LeadSheetViewPart,
+  PianoRollModalHost,
+  PracticeTrackViewPart,
+  PrismSuggestionModalHost,
+  ScoreViewPart,
+  SettingsModalHost,
+  StudioViewPart,
+  TutorialLayerHost,
+} from '@/daw/shell/lazyParts';
+import { OpeningHost } from '@/daw/shell/opening/OpeningHost';
+import { ShortcutSheetHost } from '@/daw/shell/help/ShortcutSheetHost';
+import { ProjectsDialogHost } from '@/daw/shell/projects/ProjectsDialogHost';
+import { SaveConflictDialog } from '@/daw/shell/topbar/SaveConflictDialog';
+import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
+import { clearCloudProjectCache } from '@/daw/shell/projects/cloudProjectList';
+import { EditorTopRailSlot } from '@/daw/shell/topbar/EditorTopRailSlot';
+import { userKeyOf } from '@/lib/local-store/userScope';
+import { audioEngine } from '@/daw/audio/AudioEngine';
+import { EngineHost } from '@/daw/engine/EngineHost';
+import { getPlayheadTick } from '@/daw/engine/playheadClock';
+import { DevProfiler, devMark, useDevCommitCount } from '@/daw/dev/DevProfiler';
+
+// Dev-only: when the editor chunk finished evaluating (scripts/studio-perf).
+devMark('module');
+
+/** The Opening overlay (OpeningHost), which inert must never reach. */
+const OVERLAY_SELECTOR = '[data-testid=opening-overlay]';
+
+/**
+ * While the Opening overlay is up, every direct child of .daw-root but the
+ * overlay itself is inert: no clicks, no focus, no keys reach the editor
+ * underneath (E14). React 18 has no inert prop, so the attribute is set here
+ * and on any child mounted meanwhile, and only the ones set here are cleared.
+ * No wrapper div: leadsheet-print.css hides every direct child of .daw-root
+ * but the lead sheet when printing, and a wrapper would hide the sheet too.
+ * The TopRail's chip and Undo/Redo, the Projects dialog and the error panel
+ * live outside .daw-root and disable themselves while an open is busy.
+ */
+function useInertWhileOpening(
+  rootRef: React.RefObject<HTMLDivElement>,
+  covered: boolean,
+): void {
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!covered || !root) return;
+    const marked = new Set<Element>();
+    const apply = () => {
+      for (const child of Array.from(root.children)) {
+        if (child.matches(OVERLAY_SELECTOR) || child.hasAttribute('inert')) {
+          continue;
+        }
+        child.setAttribute('inert', '');
+        marked.add(child);
+      }
+    };
+    apply();
+    const observer = new MutationObserver(apply);
+    observer.observe(root, { childList: true });
+    return () => {
+      observer.disconnect();
+      for (const child of marked) child.removeAttribute('inert');
+    };
+  }, [rootRef, covered]);
+}
+
+/**
+ * Every Save loads upload-pending lazily (it carries the Opus encoder and
+ * the assets API, kept out of the editor's entry chunk). Fetch it once the
+ * editor is idle, while the connection is still there: a module that
+ * failed to load stays failed for the life of the page, so a first Save
+ * made offline would otherwise fail again after the connection comes back,
+ * its retry included.
+ */
+function useWarmSavePath(): void {
+  useEffect(() => {
+    const warm = () => {
+      import('@/lib/studio-assets/upload-pending').catch(() => {});
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(warm, { timeout: 5000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const timer = window.setTimeout(warm, 2000);
+    return () => window.clearTimeout(timer);
+  }, []);
+}
 
 function DawAppInner() {
   const { isReady, initEngine } = useAudioEngine();
   const authToken = useAuthToken();
-  const { joinRoom, joinRoomById, joinRoomAwaitingHost, createAndJoinRoom } =
-    useCollab();
-  useTransport();
-  usePlaybackEngine(isReady, authToken);
-  useKeyboardShortcuts(authToken);
-  useAutosave();
-  useMidiInputRouting();
-  useStudioMonitor(isReady, authToken);
-  useCollabAudioLoader(authToken);
-  useAudioChordDetection();
-  useGuitarMidiDetection();
+  // Drafts are filed per user, since a school Chromebook is shared, so an
+  // open waits until auth knows who that is: the user, or that nobody is
+  // signed in (openSession's 'owner' wait reads it through SessionDeps).
+  // A student Auth0 has signed in whose profile hasn't loaded (a failed
+  // /auth/me sets auth.error but keeps the session) is not known yet: their
+  // work must never be filed under 'anon', where the next signed-out user
+  // of the device would see it. The same rule as AuthContext's
+  // setLocalStoreUser, which publishes only a user or a confirmed sign-out.
+  const auth = useAuthContext();
+  const userId = auth.userId;
+  const signedOutForSure = !auth.isAuth0Loading && !auth.isAuth0Authenticated;
+  const ownerKnown =
+    userId !== null ||
+    (signedOutForSure && (auth.error !== null || !auth.isBootstrapLoading));
+  // A Prism lesson needs Premium (owner decision 8): its link waits until the
+  // student's plan is known, then a free student gets the upgrade prompt.
+  const lessonAccessFor = useLessonAccess();
+  const collab = useCollab();
+  const navigate = useNavigate();
+  // The audio side (transport, track engines, MIDI input, draft autosave,
+  // collab audio, live analysis) lives in EngineHost below, so a play or a
+  // track edit doesn't re-render the editor shell (milestone 1.7).
+  // The one keyboard listener and the global keys (milestone 1.6), and the
+  // computer keyboard as a piano while the student has it on.
+  useGlobalCommands();
+  useMusicalTyping();
+  // The student's own editor settings (metronome, count-in, snap, grid,
+  // triplets, chord-ruler note names), kept per user apart from any project.
+  // Held off until auth knows who the student is.
+  usePrefsSync(userId, ownerKnown);
+  useStudioCurrentProjectNote(userId);
+  useDevCommitCount('DawAppInner');
+
+  // Dev-only load-timeline marks for scripts/studio-perf.
+  useEffect(() => devMark('mounted'), []);
+  useEffect(() => {
+    if (isReady) devMark('engine-ready');
+  }, [isReady]);
   useTheme();
+  // Portaled dialogs and popovers read the DAW palette from body.daw-active
+  // (daw.css) while the editor is mounted. Interim: 2.1 moves the tokens to
+  // :root and deletes the hook.
+  useDawBodyTokens();
   const currentView = useStore((s) => s.currentView);
   const practiceSession = useStore((s) => s.practiceSession);
   const userListOpen = useStore((s) => s.userListOpen);
@@ -92,343 +193,88 @@ function DawAppInner() {
   const chatPanelOpen = useStore((s) => s.chatPanelOpen);
   const toggleChatPanel = useStore((s) => s.toggleChatPanel);
   const isCollabActive = useStore((s) => s.isCollabActive);
+  const overlay = useSessionStore((s) => s.overlay);
+  const busy = useSessionStore((s) => isBusyPhase(s.phase));
+
+  // One undo history listener however often the editor mounts; the cleanup
+  // releases this mount's claim on it (shell-06).
+  useEffect(() => initUndoTracking(), []);
+
+  // ── What openSession reaches (SessionDeps, milestone 1.4) ──────────────
+  // Registered ONCE per mount, with methods that read refs: openSession
+  // takes a new registration for the editor having gone and come back, so
+  // re-registering as auth resolves would cancel the boot's own open. A
+  // change of user, token or plan is announced instead, so a waiting open
+  // looks again.
+  const authRef = useRef({ userId, ownerKnown, token: authToken });
+  authRef.current = { userId, ownerKnown, token: authToken };
+  const lessonAccessRef = useRef(lessonAccessFor);
+  lessonAccessRef.current = lessonAccessFor;
+  const collabRef = useRef(collab);
+  collabRef.current = collab;
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
 
   useEffect(() => {
-    initUndoTracking();
+    const editorPath = StudioRoutes.editor.definition;
+    return registerSessionDeps({
+      user: () => {
+        const { userId: id, ownerKnown: known } = authRef.current;
+        return known ? { userId: id, userKey: userKeyOf(id) } : null;
+      },
+      token: () => authRef.current.token,
+      lessonAccess: (tutorialId) => lessonAccessRef.current(tutorialId),
+      collab: {
+        leaveRoom: () => collabRef.current.leaveRoom(),
+        createAndJoinRoom: () => collabRef.current.createAndJoinRoom(),
+        joinRoom: (...args) => collabRef.current.joinRoom(...args),
+        joinRoomById: (roomId, role) =>
+          collabRef.current.joinRoomById(roomId, role),
+        joinRoomAwaitingHost: (roomId, timeoutMs) =>
+          collabRef.current.joinRoomAwaitingHost(roomId, timeoutMs),
+      },
+      drafts: getDraftSessionPort(),
+      // Only while the student is still in the editor: an open that ends
+      // after they left must not pull them back or rewrite another page.
+      navigate: (search, { replace }) => {
+        if (window.location.pathname !== editorPath) return;
+        navigateRef.current({ pathname: editorPath, search }, { replace });
+      },
+      openProjectsDialog: (opts) =>
+        useProjectsDialogStore.getState().openDialog(opts),
+    });
   }, []);
 
-  // Decide what to load when the studio boots. The home page routes here with
-  // `?project=<id>` to open a saved project, or `?new=1` to start fresh; absent
-  // either, we fall back to crash-recovery restore from localStorage. The store
-  // is a module singleton that survives SPA navigation, so an explicit New
-  // Project must reset it — a stale project would otherwise bleed through.
-  const bootedRef = useRef(false);
   useEffect(() => {
-    if (bootedRef.current) return;
+    notifySessionDepsChanged();
+  }, [userId, ownerKnown, authToken, lessonAccessFor]);
 
-    const params = new URLSearchParams(window.location.search);
-    const projectParam = params.get('project');
-    const isNew = params.get('new') === '1';
-    const isJamImport = params.get('jam') === '1';
+  // saveProject (every Save, ⌘S, the chip's Retry, Save & Leave) asks here
+  // for the token.
+  useEffect(() => registerSaveAuth(() => authRef.current.token), []);
 
-    // Strip the boot intent from the URL so a later refresh just restores the
-    // (now-current) local session instead of re-running this. Stays on the
-    // editor route (`/studio/editor`) — `/studio` is now the Studio Dashboard.
-    const clearQuery = () =>
-      window.history.replaceState({}, '', StudioRoutes.editor.definition);
+  // The account's project list is per user; it goes at sign-out.
+  useEffect(
+    () =>
+      registerBeforeSignOut(() => {
+        clearCloudProjectCache();
+      }),
+    [],
+  );
 
-    // The caller seeded the store before navigating here — a Song page's "Open
-    // in Studio", which carries the reader's transposition and so cannot be
-    // re-seeded from an id below. Consume the boot without restoring anything:
-    // the default path would put the last autosaved session over the song.
-    if (params.get('seeded') === '1') {
-      bootedRef.current = true;
-      clearQuery();
-      return;
-    }
+  // Opens what the URL names (a link, a return to the editor, a cold
+  // resume), a tick after the deps above are registered.
+  useSessionBoot();
 
-    if (projectParam) {
-      // Opening a cloud project needs a token; wait for it to resolve rather
-      // than consuming the boot intent prematurely.
-      if (!authToken) return;
-      bootedRef.current = true;
-      void (async () => {
-        try {
-          const project = await studioProjectsApi.get(authToken, projectParam);
-          deserializeCloudProject(project);
-          useStore.getState().offerChordAnalysis();
-          // Audio buffers download + decode in the background; clips appear in
-          // the timeline immediately and become playable as bytes arrive.
-          void loadCloudProjectAudio(authToken).catch((err) => {
-            console.error('Audio asset load failed', err);
-          });
-        } catch (err) {
-          console.error('Failed to open project from home', err);
-          // Fall back to whatever in-progress session exists locally.
-          restoreLocalSessionIfPresent();
-        } finally {
-          clearQuery();
-        }
-      })();
-      return;
-    }
+  // The editor under the Opening overlay takes no input (E14).
+  const rootRef = useRef<HTMLDivElement>(null);
+  useInertWhileOpening(rootRef, overlay !== 'none');
 
-    // Studio Dashboard "Project Templates" tile: start a fresh session preloaded
-    // with a genre template's tracks/BPM. Leaves projectId null so the first Save
-    // mints a brand-new cloud project.
-    const templateParam = params.get('template');
-    if (templateParam) {
-      bootedRef.current = true;
-      clearLocalSession();
-      resetSessionToEmpty();
-      useStore.getState().loadProjectTemplate(templateParam);
-      clearQuery();
-      return;
-    }
+  useWarmSavePath();
 
-    // Studio Dashboard "Demo Projects" tile: open a curated demo as an editable
-    // copy — hydrate from the bundled project, then null the projectId + retitle
-    // so Save writes a new project and the demo original is never overwritten.
-    const demoParam = params.get('demo');
-    if (demoParam) {
-      bootedRef.current = true;
-      clearLocalSession();
-      resetSessionToEmpty();
-      const demo = getDemoProject(demoParam);
-      if (demo) {
-        deserializeCloudProject(
-          withDemoSynthPresets(demo.bundle, demo.synthPresets),
-        );
-        useStore.getState().setProjectId(null);
-        useStore.getState().setProjectName(demo.label);
-        // Chord regions aren't part of a project bundle, so derive them from
-        // the demo's MIDI (as a clip paste does) to give Insight its analysis.
-        const { tracks, rootNote, mode, setChordRegions } = useStore.getState();
-        if (rootNote !== null) {
-          setChordRegions(
-            deriveChordRegionsFromSession(tracks, rootNote + 48, mode),
-            true,
-          );
-        }
-        if (demo.drumGrooveId) {
-          void applyDemoDrums(demo.drumGrooveId, demo.label);
-        }
-      } else {
-        showError('That demo could not be found.');
-      }
-      clearQuery();
-      return;
-    }
-
-    // Handed off from a classroom app-route slide (`studio:song:<id>`) or a Song
-    // page: seed the editor with a specific song's chart in a fresh session, no
-    // cloud project — the first Save mints a new one.
-    const songParam = params.get('song');
-    if (songParam) {
-      bootedRef.current = true;
-      clearLocalSession();
-      resetSessionToEmpty();
-      const song = getSong(songParam);
-      if (song) {
-        seedStudioFromSong(song);
-      } else {
-        showError('That song could not be found.');
-      }
-      clearQuery();
-      return;
-    }
-
-    // Graduated from a genre activity flow's section (Learn > a genre level)
-    // into its Practice Track: the section's own groove looped, with the part
-    // that section taught left empty for the student to play.
-    //
-    // The clips normally arrive through the module hand-off box rather than
-    // being rebuilt from these parameters — the genre backing engine is not
-    // reproducible, so rebuilding would put the student over a different
-    // performance from the one they just heard. `resolvePracticeTrack` takes the
-    // handed-over track when there is one and rebuilds only for a cold deep link.
-    const practiceGenreParam = params.get('practiceGenre');
-    const practiceSectionParam = params.get('practiceSection');
-    if (practiceGenreParam) {
-      bootedRef.current = true;
-      clearLocalSession();
-      resetSessionToEmpty();
-      const genreLevel = Number(params.get('practiceLevel'));
-      const section = (practiceSectionParam ?? 'A') as ActivitySectionId;
-      void (async () => {
-        try {
-          const resolved = await resolvePracticeTrack(
-            practiceGenreParam,
-            Number.isFinite(genreLevel) && genreLevel > 0 ? genreLevel : 1,
-            ['A', 'B', 'C', 'D'].includes(section) ? section : 'A',
-          );
-          if (!resolved) {
-            showError('That practice track could not be found.');
-            return;
-          }
-          seedStudioFromGenrePracticeTrack(resolved.track, resolved.genreLabel);
-          const store = useStore.getState();
-          store.setPracticeSession(
-            practiceSessionFor(
-              resolved.track,
-              resolved.genreLabel,
-              resolved.returnTo,
-            ),
-          );
-          store.setCurrentView('practice');
-        } finally {
-          clearQuery();
-        }
-      })();
-      return;
-    }
-
-    // Graduated from a Theory mode/lesson (Learn > Theory) into a pre-seeded
-    // Practice Track: generated chords/bass/beat plus one open track (melody
-    // or chords, whichever the student didn't just practice) for them to fill
-    // in themselves. `practiceOpen` defaults to `melody` when missing/invalid
-    // (e.g. the evergreen sidebar entry, which can't know which section the
-    // student most recently finished).
-    const practiceModeParam = params.get('practiceMode');
-    if (practiceModeParam) {
-      bootedRef.current = true;
-      clearLocalSession();
-      resetSessionToEmpty();
-      if (
-        isDiatonicMode(practiceModeParam) ||
-        isScaleLesson(practiceModeParam)
-      ) {
-        // `practiceRoot` is a letter-based key param (e.g. "d", "dsharp"),
-        // written by `keyLabelToUrlParam` — decode it back to a 0-11
-        // semitone-from-C the same way `LessonContainer` resolves `key`.
-        const root = urlParamToSemitone(
-          params.get('practiceRoot') ?? undefined,
-        );
-        const openParam = params.get('practiceOpen');
-        const openTrack: 'melody' | 'chords' =
-          openParam === 'chords' ? 'chords' : 'melody';
-        const levelParam = Number(params.get('practiceLevel'));
-        const level: PracticeLevel =
-          levelParam === 2 || levelParam === 3 ? levelParam : 1;
-        // seedStudioFromPracticeTrack fetches + parses the fixed Drums
-        // groove's .mid file, so it's async — await it the same way the
-        // `project` branch above awaits its cloud fetch.
-        void (async () => {
-          try {
-            await seedStudioFromPracticeTrack(
-              practiceModeParam as PracticeMode,
-              root,
-              openTrack,
-              level,
-            );
-            // Land on the one-purpose practice screen; the full Studio is
-            // one click away and shares the same project.
-            const store = useStore.getState();
-            store.setPracticeSession({
-              kind: 'theory',
-              mode: practiceModeParam,
-              rootParam: params.get('practiceRoot') ?? 'c',
-              level,
-              openTrack,
-            });
-            // A backing track to play over: loop it from the start.
-            store.setLoopEnabled(true);
-            store.setCurrentView('practice');
-          } finally {
-            clearQuery();
-          }
-        })();
-      } else {
-        showError('That practice track mode could not be found.');
-        clearQuery();
-      }
-      return;
-    }
-
-    // Handed off from a jam room into a collaborative Studio session. The host
-    // arrives with `?jam=1&collab=<code>&host=1` (carries the jam tracks in and
-    // creates the room); invited players arrive with `?collab=<code>` and join.
-    // The Studio Dashboard "Start a Session" flow arrives with `?collab=new`:
-    // mint a fresh room and surface its code.
-    // Connecting to PartyKit needs an auth token, so wait for it like a project.
-    const collabCode = params.get('collab');
-    if (collabCode) {
-      if (!authToken) return;
-      bootedRef.current = true;
-
-      if (collabCode === 'new') {
-        clearLocalSession();
-        resetSessionToEmpty();
-        createAndJoinRoom();
-        // Surface the room code + let the host invite more people (the single
-        // Invite modal is owned by CollabToolbar).
-        useStore.getState()._setInviteRequested(true);
-        clearQuery();
-        return;
-      }
-
-      const isCollabHost = params.get('host') === '1';
-      clearLocalSession();
-      resetSessionToEmpty();
-      // The host imports the recorded jam, then seeds the shared doc with it on
-      // create; joiners receive those tracks via the initial Yjs sync.
-      if (isJamImport) importPendingJamSession();
-      if (isCollabHost) {
-        joinRoom(
-          collabCode,
-          'owner',
-          undefined,
-          `studio-${collabCode}`,
-          collabCode,
-        );
-      } else {
-        // Joiners may beat the host to PartyKit; retry until the room exists.
-        joinRoomAwaitingHost(collabCode);
-      }
-      clearQuery();
-      return;
-    }
-
-    // No boot intent in the URL, yet the store still holds a collab room
-    // identity: this is an SPA back/forward navigation. Going back unmounted the
-    // studio route, which ran teardown() — the socket closed, so peers saw us
-    // leave — but the store is a module singleton, so roomId/role survived (a
-    // real Leave clears them via _clearCollab; this does not). Reconnect to the
-    // same room so peers see us return and we share their live document instead
-    // of drifting on a frozen local copy. PartyKit needs the auth token, so wait
-    // for it like a project. Hosts are excluded: a host leaving closes the room
-    // for everyone, so there is nothing to rejoin.
-    const { roomId: activeRoomId, collabRole } = useStore.getState();
-    if (activeRoomId && collabRole !== 'owner') {
-      if (!authToken) return;
-      bootedRef.current = true;
-      joinRoomById(activeRoomId, collabRole);
-      return;
-    }
-
-    bootedRef.current = true;
-    if (isJamImport) {
-      // Arrived from a jam room: start a fresh project, then add the recorded
-      // jam as one MIDI track per participant.
-      clearLocalSession();
-      resetSessionToEmpty();
-      importPendingJamSession();
-      useStore.getState().offerChordAnalysis();
-      clearQuery();
-      return;
-    }
-    if (isNew) {
-      // Drop the local autosave so nothing restores the project we're leaving.
-      clearLocalSession();
-      resetSessionToEmpty();
-      clearQuery();
-      return;
-    }
-
-    // Default: restore the last in-progress session from localStorage, if any.
-    // Cloud remains the source of truth for explicit saves; this is crash
-    // recovery.
-    restoreLocalSessionIfPresent();
-  }, [
-    authToken,
-    joinRoom,
-    joinRoomById,
-    joinRoomAwaitingHost,
-    createAndJoinRoom,
-  ]);
-
-  useEffect(() => {
-    if (isReady) return;
-    const handler = () => {
-      initEngine();
-    };
-    document.addEventListener('click', handler, { once: true });
-    document.addEventListener('keydown', handler, { once: true });
-    return () => {
-      document.removeEventListener('click', handler);
-      document.removeEventListener('keydown', handler);
-    };
-  }, [isReady, initEngine]);
+  // Start audio on the first click or key press; a start that fails is logged
+  // and retried on the next one (engine-hooks-23).
+  useStartAudioOnGesture(isReady, initEngine);
 
   // ── Disable trackpad swipe-to-navigate inside the DAW ───────────────────
   // A two-finger horizontal swipe on a Mac trackpad triggers the browser's
@@ -456,34 +302,76 @@ function DawAppInner() {
     const w = window as unknown as {
       __MA_STORE__?: unknown;
       __MA_SYNTH_STORE__?: unknown;
+      __MA_AUDIO_ENGINE__?: unknown;
+      __MA_SESSION__?: unknown;
+      __MA_CLOUD_SAVE__?: unknown;
+      __MA_PLAYHEAD__?: unknown;
+      __MA_HISTORY__?: unknown;
     };
     w.__MA_STORE__ = useStore;
     w.__MA_SYNTH_STORE__ = useSynthStore;
+    w.__MA_AUDIO_ENGINE__ = audioEngine;
+    w.__MA_SESSION__ = useSessionStore;
+    w.__MA_CLOUD_SAVE__ = useCloudSaveStore;
+    // The live playhead: the store's position moves only on pause, stop and
+    // seek since milestone 1.7.
+    w.__MA_PLAYHEAD__ = { tick: getPlayheadTick };
+    // The undo history: its step labels, oldest first, and a counter of the
+    // steps pushed (the perf harness checks one per gesture).
+    w.__MA_HISTORY__ = {
+      labels: historyLabels,
+      pushed: historyPushCount,
+      flush: flushHistory,
+      // For the harness's own writes (probes), which are no student's edit.
+      withoutHistory,
+    };
+    // window.__MA_DRAFTS__: the draft autosave's status, list, flush.
+    return installDraftDevHandle();
+  }, []);
+
+  // DEV-only: decision D2's check that every note keeps an id of its own.
+  // It warns in the console when a load or a write leaves one without.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    return watchNoteIds(
+      (listener) => useStore.subscribe(listener),
+      () => useStore.getState().tracks,
+    );
   }, []);
 
   return (
     <div
-      className="daw-root flex-1 min-h-0 w-full flex flex-col overflow-hidden"
+      ref={rootRef}
+      className="daw-root relative flex-1 min-h-0 w-full flex flex-col overflow-hidden"
       style={{ backgroundColor: 'var(--color-bg)' }}
+      aria-busy={busy ? 'true' : undefined}
     >
-      <MeshGradientBg />
+      <EngineHost isReady={isReady} authToken={authToken} />
       {currentView === 'practice' && practiceSession ? (
-        <PracticeTrackView
-          session={practiceSession}
-          isReady={isReady}
-          onInit={initEngine}
-        />
+        <DevProfiler id="PracticeTrackView">
+          <PracticeTrackViewPart
+            session={practiceSession}
+            isReady={isReady}
+            onInit={initEngine}
+          />
+        </DevProfiler>
       ) : (
-        <TransportBar onInit={initEngine} isReady={isReady} />
+        <DevProfiler id="TransportBar">
+          <TransportBar onInit={initEngine} isReady={isReady} />
+        </DevProfiler>
       )}
       {currentView === 'practice' && practiceSession ? null : currentView ===
           'arrange' || currentView === 'practice' ? (
         <>
           <div className="flex flex-1 overflow-hidden">
             <div className="flex flex-1 flex-col overflow-hidden">
-              <TimelineWithHeaders isReady={isReady} />
+              <DevProfiler id="TimelineWithHeaders">
+                <TimelineWithHeaders isReady={isReady} />
+              </DevProfiler>
             </div>
-            <LibraryPanel />
+            <DevProfiler id="LibraryPanel">
+              <LibraryPanel />
+            </DevProfiler>
             {isCollabActive && (
               <>
                 <UserList open={userListOpen} onClose={toggleUserList} />
@@ -491,18 +379,27 @@ function DawAppInner() {
               </>
             )}
           </div>
-          <ChannelStrip />
-          <PianoRollModal />
-          <PitchEditorModal />
+          <DevProfiler id="ChannelStrip">
+            <ChannelStrip />
+          </DevProfiler>
+          <PianoRollModalHost />
         </>
       ) : currentView === 'leadsheet' ? (
-        <LeadSheetView />
+        <DevProfiler id="LeadSheetView">
+          <LeadSheetViewPart />
+        </DevProfiler>
       ) : currentView === 'score' ? (
-        <ScoreView />
+        <DevProfiler id="ScoreView">
+          <ScoreViewPart />
+        </DevProfiler>
       ) : (
         <div className="flex flex-1 overflow-hidden">
-          <StudioView isReady={isReady} />
-          <LibraryPanel />
+          <DevProfiler id="StudioView">
+            <StudioViewPart isReady={isReady} />
+          </DevProfiler>
+          <DevProfiler id="LibraryPanel">
+            <LibraryPanel />
+          </DevProfiler>
           {isCollabActive && (
             <>
               <UserList open={userListOpen} onClose={toggleUserList} />
@@ -511,20 +408,41 @@ function DawAppInner() {
           )}
         </div>
       )}
-      <ChordAnalysisPrompt />
+      <ChordAnalysisPromptHost />
       <SetListUpdatePrompt />
-      <SettingsModal />
-      <PrismSuggestionModal />
+      <SettingsModalHost />
+      <PrismSuggestionModalHost audioReady={isReady} />
       <RecordingLimitModal />
-      <TutorialLayer />
+      <RecordGuard />
+      <TutorialLayerHost />
+      {/* Collab's prompts portal to <body>; mounted here, not in the
+          TransportBar, so they show in Practice too. */}
+      <LeaveSavePrompt />
+      <KickedModal />
+      {/* Save chip · Undo · Redo, portaled into the app TopRail. */}
+      <DevProfiler id="EditorTopRailSlot">
+        <EditorTopRailSlot />
+      </DevProfiler>
+      <ProjectsDialogHost />
+      <ShortcutSheetHost userId={userId} ownerKnown={ownerKnown} />
+      <SaveConflictDialog />
+      {/* The Opening overlay, the error panel and the Premium prompt. A
+          direct child of .daw-root, left out of the inert toggle above. */}
+      <OpeningHost />
     </div>
   );
 }
 
 export function DawApp() {
   return (
-    <CollabProvider>
-      <DawAppInner />
-    </CollabProvider>
+    // One tooltip timing for the whole editor (src/daw/ui's Tooltip).
+    <TooltipGroup>
+      <CollabProvider>
+        {/* A crash saves the draft and offers Reload editor (1.12a). */}
+        <DawErrorBoundary>
+          <DawAppInner />
+        </DawErrorBoundary>
+      </CollabProvider>
+    </TooltipGroup>
   );
 }

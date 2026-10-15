@@ -1,11 +1,12 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
+import { NOTE_EDITOR_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { DRUM_PADS } from '@/daw/instruments/DrumMachineEngine';
 import { auditionNote } from '@/daw/audio/auditionNote';
-import { PianoRoll } from './PianoRoll';
-import type { MidiNoteEvent } from '@prism/engine';
+import { ClipPianoRoll } from './ClipPianoRoll';
 
 // ── PianoRollModal ──────────────────────────────────────────────────────────
 // Opens when a clip is double-clicked on the timeline.
@@ -16,9 +17,14 @@ export function PianoRollModal() {
   const editingClipTrackId = useStore((s) => s.editingClipTrackId);
   const tracks = useStore((s) => s.tracks);
   const setEditingClip = useStore((s) => s.setEditingClip);
-  const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
 
   const isOpen = editingClipId !== null && editingClipTrackId !== null;
+
+  // A dialog in the key precedence (the noteEditor scope): keys pressed in it
+  // reach only the roll inside it, the transport, undo, Save and the
+  // computer keyboard, never the clip behind it.
+  const contentRef = useRef<HTMLDivElement>(null);
+  useKeymap(NOTE_EDITOR_SCOPE.id, {}, { element: contentRef });
 
   // The editor's loop is a tool inside the editor, never the project loop:
   // each session starts with no loop, and it's dropped on close so playback
@@ -37,15 +43,6 @@ export function PianoRollModal() {
   const handleClose = useCallback(() => {
     setEditingClip(null, null);
   }, [setEditingClip]);
-
-  const handleChange = useCallback(
-    (newEvents: MidiNoteEvent[]) => {
-      if (editingClipTrackId && editingClipId) {
-        updateMidiClipEvents(editingClipTrackId, editingClipId, newEvents);
-      }
-    },
-    [editingClipTrackId, editingClipId, updateMidiClipEvents],
-  );
 
   // Notes picked with the Select tool can be sent to Insight: they become the
   // main editor's note selection, get analyzed, and the editor closes so the
@@ -84,13 +81,6 @@ export function PianoRollModal() {
     [editingClipTrackId],
   );
 
-  // Events are clip-relative; after a front-trim the clip sits at a non-zero
-  // startTick while its events still start near tick 0. Anchor the editor at
-  // whichever is smaller so notes never render off the left edge.
-  const pianoRollStartTick = clip
-    ? clip.events.reduce((min, e) => Math.min(min, e.startTick), clip.startTick)
-    : 0;
-
   // Drum tracks: label the key column with the same drum-pad codes (KCK, SNR, …)
   // the track's drum control shows, instead of scale note names.
   const noteLabels = useMemo(
@@ -111,16 +101,11 @@ export function PianoRollModal() {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
         <Dialog.Content
+          ref={contentRef}
           className="fixed inset-x-[5%] bottom-[10%] top-[5%] z-50 flex flex-col overflow-hidden rounded-2xl outline-none"
           style={{
             backgroundColor: 'var(--color-surface-2)',
             border: '1px solid rgba(255, 255, 255, 0.06)',
-          }}
-          onKeyDown={(e) => {
-            // Prevent Delete/Backspace from propagating to timeline clip delete
-            if (e.code === 'Delete' || e.code === 'Backspace') {
-              e.stopPropagation();
-            }
           }}
         >
           {/* Header */}
@@ -186,13 +171,10 @@ export function PianoRollModal() {
           {/* Piano Roll */}
           <div className="flex-1 overflow-hidden">
             {clip && track ? (
-              <PianoRoll
-                events={clip.events}
-                clipStartTick={pianoRollStartTick}
-                timelineStartTick={clip.startTick}
+              <ClipPianoRoll
+                trackId={track.id}
+                clipId={clip.id}
                 loopScope="editor"
-                clipColor={track.color}
-                onChange={handleChange}
                 noteLabels={noteLabels}
                 onAuditionNote={handleAuditionNote}
                 onSelectionChange={setSelectedNoteIndices}

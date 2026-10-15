@@ -1,5 +1,7 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import {
+  Suspense,
+  lazy,
   useState,
   useEffect,
   useRef,
@@ -8,7 +10,14 @@ import {
   type ReactNode,
 } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Gauge, Clock, Signal, Star } from 'lucide-react';
+import {
+  ChevronLeft,
+  Gauge,
+  Clock,
+  Signal,
+  Star,
+  Maximize,
+} from 'lucide-react';
 import {
   getKeyColor,
   prettyGenre,
@@ -31,6 +40,12 @@ import {
 import { useBeatGrid } from '@/curriculum/songLibrary/useBeatGrid';
 import { useSongActions } from '@/features/songs/useSongActions';
 import { SongCredits } from './SongCredits';
+import { SongFullPage } from './SongFullPage';
+import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
+
+// On guitar, the song's chords as guitar boxes, above the chart. Loaded on
+// demand, so the guitar code stays out of the piano page.
+const SongGuitarChords = lazy(() => import('./guitar/SongGuitarChords'));
 import type { Song } from '@/curriculum/types/songLibrary';
 
 /** The song list: Learn's Songs tab. */
@@ -106,7 +121,10 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
   // chart, the key line and the Studio hand-off all read `displaySong`, while
   // the recording, the beat grid and the song's id stay with the original.
   const [semitones, setSemitones] = useState(0);
+  const onGuitar = useLearnInstrument() === 'guitar';
   const [savingVersion, setSavingVersion] = useState(false);
+  /** The chart on the whole screen, fitted a page at a time. */
+  const [fullPage, setFullPage] = useState(false);
   useEffect(() => setSemitones(0), [song.id]);
   const displaySong = useMemo(
     () => transposeSong(song, semitones),
@@ -211,7 +229,7 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
       style={{ background: '#101012' }}
     >
       {/* ── Header: artwork-anchored hero ── */}
-      <header className="relative overflow-hidden flex-shrink-0 px-6 md:px-10 py-4">
+      <header className="relative overflow-hidden flex-shrink-0 px-6 md:px-10 py-3">
         {/* Subtle key-color tint behind the header content. */}
         <div
           aria-hidden
@@ -221,13 +239,10 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
           }}
         />
 
-        <div
-          className={
-            page
-              ? 'relative z-10 flex items-stretch gap-4 md:gap-5 h-36 md:h-40'
-              : 'relative z-10 flex items-start gap-4 md:gap-5 min-h-36 md:min-h-40'
-          }
-        >
+        {/* Kept short, so the chart below has most of the page: fixed-size
+            artwork and video, credits folded into pills, and the stats and
+            actions on one row. */}
+        <div className="relative z-10 flex items-start gap-4 md:gap-5">
           {/* Back to the song list — the Songs tab of Learn, which is where
               the list actually lives ('/songs' itself only holds this page). */}
           <div className="flex flex-shrink-0 flex-col items-center self-start">
@@ -246,17 +261,11 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
             </button>
           </div>
 
-          {/* Artwork anchor — fills the header height */}
+          {/* Artwork anchor */}
           {slots.artwork ?? <SongArtwork song={song} />}
 
           {/* Identity + metadata + actions */}
-          <div
-            className={
-              page
-                ? 'flex h-full flex-1 flex-col justify-center gap-2 min-w-0'
-                : 'flex flex-1 flex-col justify-center gap-2 min-w-0'
-            }
-          >
+          <div className="flex flex-1 flex-col gap-1.5 min-w-0">
             <h2
               className="text-white truncate"
               style={{
@@ -286,80 +295,96 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
 
             {slots.credits ?? <SongCredits song={song} />}
 
-            {/* Metadata stat row */}
-            {slots.stats ?? (
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
-                <TransposeKeyButton
-                  song={song}
-                  displaySong={displaySong ?? song}
-                  semitones={semitones}
-                  onChange={setSemitones}
-                  color={[kr, kg, kb]}
-                />
-                <StatDivider />
-                <span className="inline-flex items-center gap-1.5 text-white/50">
-                  <Gauge size={15} />
-                  <span className="text-white/90">
-                    {song.tempo}
-                    <span className="text-white/50"> BPM</span>
+            {/* Stats and actions share one row */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              {slots.stats ?? (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
+                  <TransposeKeyButton
+                    song={song}
+                    displaySong={displaySong ?? song}
+                    semitones={semitones}
+                    onChange={setSemitones}
+                    color={[kr, kg, kb]}
+                  />
+                  <StatDivider />
+                  <span className="inline-flex items-center gap-1.5 text-white/50">
+                    <Gauge size={15} />
+                    <span className="text-white/90">
+                      {song.tempo}
+                      <span className="text-white/50"> BPM</span>
+                    </span>
                   </span>
-                </span>
-                <StatDivider />
-                <span className="inline-flex items-center gap-1.5 text-white/50">
-                  <Clock size={15} />
-                  <span className="text-white/90">
-                    {ts0}/{ts1}
+                  <StatDivider />
+                  <span className="inline-flex items-center gap-1.5 text-white/50">
+                    <Clock size={15} />
+                    <span className="text-white/90">
+                      {ts0}/{ts1}
+                    </span>
                   </span>
-                </span>
-                <StatDivider />
-                <span className="inline-flex items-center gap-1.5 text-white/50">
-                  <Signal size={15} />
-                  <span className="text-white/90">Lvl. {song.difficulty}</span>
-                </span>
-                {song.genreTags[0] && (
-                  <span className="ml-1">
-                    <GenreBadge genre={genreLabel} />
+                  <StatDivider />
+                  <span className="inline-flex items-center gap-1.5 text-white/50">
+                    <Signal size={15} />
+                    <span className="text-white/90">
+                      Lvl. {song.difficulty}
+                    </span>
                   </span>
-                )}
-              </div>
-            )}
-
-            {/* Action icons — placed below the metadata row */}
-            {slots.actions ?? (
-              <div className="flex items-center gap-2 pt-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <SongActionPills song={displaySong ?? song} />
-                  <FavoriteStar songId={song.id} />
-                  <ChartNotationSwitch />
-                  <button
-                    type="button"
-                    onClick={() => setSavingVersion(true)}
-                    className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
-                      semitones === 0
-                        ? 'border-white/15 text-white/70 hover:border-white/30'
-                        : 'border-[#7ecfcf] bg-[#7ecfcf]/10 text-[#7ecfcf]'
-                    }`}
-                    title="Save this version to a set list"
-                  >
-                    Save version
-                  </button>
+                  {song.genreTags[0] && (
+                    <span className="ml-1">
+                      <GenreBadge genre={genreLabel} />
+                    </span>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+
+              {/* Action icons */}
+              {slots.actions ?? (
+                <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFullPage(true)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#7ecfcf]/60 bg-[#7ecfcf]/10 px-3 py-1.5 text-xs font-medium text-[#7ecfcf] transition-colors hover:bg-[#7ecfcf]/20"
+                      title="Full page: the chart fitted to the screen, a page at a time"
+                    >
+                      <Maximize size={14} />
+                      Full page
+                    </button>
+                    <SongActionPills
+                      song={displaySong ?? song}
+                      transpose={semitones}
+                    />
+                    <FavoriteStar songId={song.id} />
+                    <ChartNotationSwitch />
+                    <button
+                      type="button"
+                      onClick={() => setSavingVersion(true)}
+                      className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                        semitones === 0
+                          ? 'border-white/15 text-white/70 hover:border-white/30'
+                          : 'border-[#7ecfcf] bg-[#7ecfcf]/10 text-[#7ecfcf]'
+                      }`}
+                      title="Save this version to a set list"
+                    >
+                      Save version
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {slots.video ?? (
             <>
-              {/* Video player — fills the header height. The ref div stays mounted
+              {/* Video player. The ref div stays mounted
               (display toggled, never unmounted) so the YouTube player survives. */}
               <div
-                className="aspect-video h-full flex-shrink-0 overflow-hidden rounded-lg bg-black/40"
+                className="aspect-video h-24 md:h-28 flex-shrink-0 overflow-hidden rounded-lg bg-black/40"
                 style={{ display: videoId ? 'block' : 'none' }}
               >
                 <div ref={ytContainerRef} className="w-full h-full" />
               </div>
               {!videoId && (
-                <div className="aspect-video h-full flex flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/20 text-xs">
+                <div className="aspect-video h-24 md:h-28 flex flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/20 text-xs">
                   No video
                 </div>
               )}
@@ -367,6 +392,13 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
           )}
         </div>
       </header>
+
+      {fullPage && (
+        <SongFullPage
+          song={displaySong ?? song}
+          onClose={() => setFullPage(false)}
+        />
+      )}
 
       {!slots.actions && (
         <SaveVersionDialog
@@ -380,7 +412,7 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
       {/* ── Chord Chart (scrollable) ── */}
       {slots.chart ?? (
         <div
-          className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-6 md:px-10 pb-4 pt-4"
+          className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-6 md:px-10 pb-4 pt-3"
           style={{ background: '#101012' }}
         >
           <ChordChart
@@ -388,6 +420,13 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
             // is open, and that chord belongs to the copy it came from.
             key={semitones}
             song={displaySong ?? song}
+            leading={
+              onGuitar ? (
+                <Suspense fallback={null}>
+                  <SongGuitarChords song={displaySong ?? song} />
+                </Suspense>
+              ) : undefined
+            }
             loopSection={loopSection}
             onToggleLoop={(si) =>
               setLoopSection(loopSection === si ? null : si)
@@ -443,9 +482,18 @@ const FavoriteStar: FC<{ songId: string }> = ({ songId }) => {
   );
 };
 
-const SongActionPills: FC<{ song: Song }> = ({ song }) => {
-  const { openInLesson, openInStudio, openInGlobe, studioPrompt } =
-    useSongActions(song);
+/**
+ * `song` is the chart as shown (transposed or not), so a lesson opens in the
+ * key on the screen; `transpose` carries that offset into the Studio link,
+ * which rebuilds the same chart from the song's id.
+ */
+const SongActionPills: FC<{ song: Song; transpose: number }> = ({
+  song,
+  transpose,
+}) => {
+  const { openInLesson, openInStudio, openInGlobe } = useSongActions(song, {
+    transpose,
+  });
   const pills: { label: string; iconSrc: string; onClick: () => void }[] = [
     {
       label: 'Open in Lesson',
@@ -477,7 +525,6 @@ const SongActionPills: FC<{ song: Song }> = ({ song }) => {
           <img src={iconSrc} alt="" draggable={false} width={28} height={28} />
         </button>
       ))}
-      {studioPrompt}
     </>
   );
 };
@@ -514,7 +561,7 @@ const SongArtwork: FC<{ song: Song }> = ({ song }) => {
   );
 
   return (
-    <div className="relative aspect-square h-full flex-shrink-0 overflow-hidden rounded-2xl">
+    <div className="relative aspect-square h-24 md:h-28 flex-shrink-0 overflow-hidden rounded-2xl">
       {hasArtistImage ? (
         <img
           src={song.artistImageRef}

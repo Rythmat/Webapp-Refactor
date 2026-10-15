@@ -44,13 +44,22 @@ const NOTE_TO_PC: Record<string, number> = {
 
 /**
  * Parse a note name from the start of a string.
- * Handles: 'D', 'Bb', 'F#', 'Eb', 'C#', etc.
+ * Handles: 'D', 'Bb', 'F#', 'Eb', 'C#', and doubled 'Ebb', 'F##' etc.
  * Returns the pitch class (0-11) or null if unrecognized.
  */
 export function parseNoteName(s: string): number | null {
   if (!s || s.length === 0) return null;
   const letter = s[0].toUpperCase();
   if (letter < 'A' || letter > 'G') return null;
+
+  // A double accidental (third char repeats the second): 'Ebbm' is E𝄫 minor.
+  const flat = (c: string) => c === 'b' || c === '♭';
+  const sharp = (c: string) => c === '#' || c === '♯';
+  if (s.length >= 3) {
+    const plain = NOTE_TO_PC[letter];
+    if (flat(s[1]) && flat(s[2])) return (plain + 10) % 12;
+    if (sharp(s[1]) && sharp(s[2])) return (plain + 2) % 12;
+  }
 
   // Check for accidental (second char)
   if (s.length >= 2) {

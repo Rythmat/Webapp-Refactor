@@ -1,14 +1,15 @@
 /**
  * seedStudioFromGenrePracticeTrack.ts — Load a genre Practice Track into the
- * Studio: key, tempo, chord lane, the backing tracks, and one empty track for
- * the student, armed and monitored so a MIDI keyboard plays into it and Record
- * captures the take.
+ * Studio as a new project: key, tempo, chord lane, the backing tracks, and one
+ * empty track for the student, armed and monitored so a MIDI keyboard plays
+ * into it and Record captures the take.
  *
- * Mirrors `seedStudioFromPracticeTrack` (its Theory counterpart) and
- * `seedStudioFromSong`. Synchronous, unlike the Theory one: the genre backing
- * arrives already generated in ticks, with no `.mid` file to fetch.
+ * Mirrors `applyPracticeModeTrack` (its Theory counterpart) and `applySong`.
+ * The genre backing arrives already generated in ticks, with no `.mid` file
+ * to fetch.
  */
 
+import { trackSound } from '@/daw/instruments/trackSound';
 import { useStore } from '@/daw/store';
 import type { InstrumentType } from '@/daw/store/tracksSlice';
 import type {
@@ -60,6 +61,29 @@ function applyLessonSound(
   }
 }
 
+/**
+ * A band layer's track name: the layer's, marked so the style switch can find
+ * the band's own tracks again (`swapGenrePracticeBacking`).
+ */
+const BAND_MARK = ' (band)';
+const layerTrackName = (name: string) => `${name}${BAND_MARK}`;
+
+/** The style's band layers on tracks of their own, each on its sound and level. */
+function addLayerTracks(track: GenrePracticeTrackResult): void {
+  const store = useStore.getState();
+  for (const layer of track.layerClips) {
+    const trackId = store.addTrack(
+      'midi',
+      'electric-piano',
+      layerTrackName(layer.name),
+    );
+    const { settings, drumKit } = trackSound(trackId, layer.sound, track.bpm);
+    store.updateTrack(trackId, { ...settings, volume: layer.volume });
+    if (drumKit) store.setDrumKit(trackId, drumKit);
+    store.addMidiClip(trackId, { ...layer.clip, name: layer.name });
+  }
+}
+
 /** What the student's track is called, by what the section asked them to play. */
 function studentTrackName(parts: StudentPart[], sectionName: string): string {
   if (parts.length > 1) return `${sectionName} — Rhodes`;
@@ -68,10 +92,15 @@ function studentTrackName(parts: StudentPart[], sectionName: string): string {
 }
 
 /**
- * Seed the Studio from a built genre Practice Track. Resolves to the id of the
- * student's track — the one selected, armed and monitored.
+ * Apply a built genre Practice Track to the project just reset. Resolves to
+ * the id of the student's track — the one selected, armed and monitored.
+ *
+ * Synchronous, and nothing but the practice track's writes (1.4 CONTRACTS):
+ * no reset, no baseline and no undo reset, which are the opener's
+ * (openSession's 'practiceGenre' intent: switching, then baselining). The
+ * track must land on a new project, never on top of the one before.
  */
-export function seedStudioFromGenrePracticeTrack(
+export function applyGenrePracticeTrack(
   track: GenrePracticeTrackResult,
   genreLabel: string,
 ): string {
@@ -83,6 +112,8 @@ export function seedStudioFromGenrePracticeTrack(
   store.setRootNote(track.keyRootPc);
   store.setMode(track.mode);
   store.setBpm(track.bpm);
+  // The lesson's meter (D-085); a 4/4 track resets one left in 3/4.
+  store.setTimeSignature(...(track.timeSignature ?? [4, 4]));
   store.setChordRegions(track.chordRegions);
 
   for (const [part, instrument] of Object.entries(BACKING_INSTRUMENTS)) {
@@ -92,6 +123,8 @@ export function seedStudioFromGenrePracticeTrack(
     store.addMidiClip(trackId, clip);
     applyLessonSound(trackId, instrument, track);
   }
+
+  addLayerTracks(track);
 
   // The student's part: an empty track, which is the whole invitation.
   const studentPart = track.studentParts[0];
@@ -115,4 +148,44 @@ export function seedStudioFromGenrePracticeTrack(
   }
   store.setSelectedTrackId(studentTrackId);
   return studentTrackId;
+}
+
+/**
+ * The groove toggle (D-088): the backing of an open Practice Track swapped for
+ * a rebuilt one — another style's drums, bass and comping, another
+ * progression, and its meter — leaving the student's track and take alone.
+ * The backing tracks are found by the names `applyGenrePracticeTrack` gave
+ * them; one the student has since deleted stays deleted.
+ */
+export function swapGenrePracticeBacking(
+  track: GenrePracticeTrackResult,
+): void {
+  const store = useStore.getState();
+  // A style in another key (Latin L1's Mariachi, G major) brings it along.
+  store.setRootNote(track.keyRootPc);
+  store.setMode(track.mode);
+  store.setTimeSignature(...(track.timeSignature ?? [4, 4]));
+  store.setChordRegions(track.chordRegions);
+  for (const [part, instrument] of Object.entries(BACKING_INSTRUMENTS)) {
+    const clip = track.clips[part as keyof typeof BACKING_INSTRUMENTS];
+    if (!clip) continue;
+    const target = useStore
+      .getState()
+      .tracks.find(
+        (t) =>
+          t.instrument === instrument && t.name === clip.name && !t.recordArmed,
+      );
+    if (!target) continue;
+    for (const old of target.midiClips) store.removeMidiClip(target.id, old.id);
+    store.addMidiClip(target.id, clip);
+    if (instrument === 'drum-machine')
+      store.setDrumKit(target.id, track.drumKit);
+    if (instrument === 'bass-electric')
+      store.updateTrack(target.id, { bassVoice: track.bassVoice });
+  }
+  // The band's own layers: the old style's go, the new style's come in.
+  for (const t of useStore.getState().tracks)
+    if (t.name.endsWith(BAND_MARK) && !t.recordArmed) store.removeTrack(t.id);
+  addLayerTracks(track);
+  store.setLoopRange(0, track.loopTicks);
 }

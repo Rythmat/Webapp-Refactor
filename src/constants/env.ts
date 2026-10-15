@@ -16,6 +16,12 @@ const ENV_KEYS = [
   // loader falls back to the bundled .ts data, which is what keeps local dev
   // and the rollback path working.
   'VITE_CONTENT_CDN_URL',
+  // Google Identity Services (One Tap + the "Sign in with Google" button).
+  // Always read with { nullable: true }: unset means Google sign-in falls back
+  // to the plain Auth0 redirect button (see src/auth/google/config.ts).
+  'VITE_GOOGLE_CLIENT_ID',
+  // Extra comma-separated origins allowed to load GIS (staging, test ports).
+  'VITE_GOOGLE_ALLOWED_ORIGINS',
 ] as const;
 
 type EnvKey = (typeof ENV_KEYS)[number];
@@ -36,6 +42,8 @@ const BUILD_TIME_ENV_VALUES: EnvValues = {
     .VITE_TELEMETRY_ROUTING_ENABLED,
   VITE_TELEMETRY_SAMPLING_RATE: import.meta.env.VITE_TELEMETRY_SAMPLING_RATE,
   VITE_CONTENT_CDN_URL: import.meta.env.VITE_CONTENT_CDN_URL,
+  VITE_GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+  VITE_GOOGLE_ALLOWED_ORIGINS: import.meta.env.VITE_GOOGLE_ALLOWED_ORIGINS,
 };
 
 export class Env {

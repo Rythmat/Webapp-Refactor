@@ -5,7 +5,7 @@
  * its city. cobe has no per-arc height, so a single global `arcHeight` is picked
  * from the longest hop. Pure + React-free so it is unit-testable.
  */
-import { getEventCountryColor } from '@/components/atlas/data/eventConnections';
+import { getEventCountryColor } from '@/components/atlas/data/eventColor';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import type { GlobeArc, GlobeMarker } from '@/components/ui/cobe-globe-cdn';
 import {

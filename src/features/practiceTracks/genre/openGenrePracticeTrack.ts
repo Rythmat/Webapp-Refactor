@@ -27,6 +27,7 @@ import {
 } from './buildGenrePracticeTrack';
 import { keyboardWindow, scaleTonicIn } from './practiceKeyboard';
 import { practicePrompts } from './practicePrompts';
+import { swapGenrePracticeBacking } from './seedStudioFromGenrePracticeTrack';
 
 // ── The hand-off box ─────────────────────────────────────────────────────────
 
@@ -47,6 +48,25 @@ export function stashPracticeTrack(next: PendingPracticeTrack): void {
 }
 
 /**
+ * The pending Practice Track if it is the one the parameters asked for,
+ * left in the box. The Studio reads it this way while it opens the track,
+ * so an open that is refused, cancelled or superseded leaves it for the
+ * next try; it takes it (takePracticeTrack) once the track is open.
+ */
+export function peekPracticeTrack(
+  genre: string,
+  level: number,
+  section: ActivitySectionId,
+): PendingPracticeTrack | null {
+  return pending &&
+    pending.genre === genre &&
+    pending.level === level &&
+    pending.section === section
+    ? pending
+    : null;
+}
+
+/**
  * Take the pending Practice Track if it is the one the parameters asked for.
  * Reading it clears it, so a later refresh rebuilds rather than replaying a
  * track from a navigation that has already happened.
@@ -56,13 +76,7 @@ export function takePracticeTrack(
   level: number,
   section: ActivitySectionId,
 ): PendingPracticeTrack | null {
-  const found =
-    pending &&
-    pending.genre === genre &&
-    pending.level === level &&
-    pending.section === section
-      ? pending
-      : null;
+  const found = peekPracticeTrack(genre, level, section);
   pending = null;
   return found;
 }
@@ -110,6 +124,60 @@ export function practiceSessionFor(
     scaleTonic: scaleTonicIn(keyboard, track.keyRootPc, widest),
     prompts: practicePrompts(track.studentParts, track.sourceDirection),
     returnTo,
+    styles: track.styles,
+    styleId: track.styleId,
+    progressions: track.progressions,
+    progressionId: track.progressionId,
+  };
+}
+
+/**
+ * The groove toggle (D-088): rebuild an open Practice Track with another
+ * style or progression and swap its backing in the Studio. The keyboard,
+ * scales and prompts stay; the chord cycle and voicings follow the new loop.
+ */
+export async function switchGenrePracticeTrack(
+  session: GenrePracticeSession,
+  choice: { styleId?: string | null; progressionId?: string },
+  bpm: number,
+): Promise<GenrePracticeSession | null> {
+  const flow = await getActivityFlow(session.genre, session.level);
+  if (
+    !flow ||
+    !('version' in flow) ||
+    (flow as ActivityFlowV2).version !== 'v2'
+  )
+    return null;
+  const styleId = choice.styleId ?? session.styleId ?? undefined;
+  const progressionId = choice.progressionId ?? session.progressionId;
+  const chords = session.progressions?.find(
+    (p) => p.id === progressionId,
+  )?.chords;
+  const track = buildGenrePracticeTrack(
+    flow as ActivityFlowV2,
+    session.section,
+    {
+      bpm,
+      styleId: styleId ?? undefined,
+      chords,
+    },
+  );
+  if (!track) return null;
+  swapGenrePracticeBacking(track);
+  const widest = Math.max(
+    ...track.scales.map((scale) => scale.intervals[scale.intervals.length - 1]),
+    11,
+  );
+  return {
+    ...session,
+    keyLabel: track.keyLabel,
+    scales: track.scales,
+    scaleTonic: scaleTonicIn(session.keyboard, track.keyRootPc, widest),
+    chordCycle: track.chordCycle,
+    voicingSets: track.voicingSets,
+    defaultVoicing: track.defaultVoicing,
+    styleId: track.styleId,
+    progressionId: track.progressionId,
   };
 }
 
@@ -147,21 +215,32 @@ export function openGenrePracticeTrack(
   return practiceTrackUrl(flow.genre, flow.level, section);
 }
 
+/** A genre Practice Track as the Studio opens it (resolvePracticeTrack). */
+export interface ResolvedPracticeTrack {
+  track: GenrePracticeTrackResult;
+  genreLabel: string;
+  returnTo: string;
+}
+
 /**
  * The Studio's side: the track the URL names, from the box if the lesson just
  * left one there, else rebuilt from the flow. Null when the parameters name
  * nothing real.
+ *
+ * Reads the box without emptying it by default: this is openSession's
+ * prepare step, which changes nothing, and the open takes the track
+ * (takePracticeTrack) only once it is ready. `consume: true` empties the box
+ * as it reads, as the pre-1.4 boot did.
  */
 export async function resolvePracticeTrack(
   genre: string,
   level: number,
   section: ActivitySectionId,
-): Promise<{
-  track: GenrePracticeTrackResult;
-  genreLabel: string;
-  returnTo: string;
-} | null> {
-  const handed = takePracticeTrack(genre, level, section);
+  opts: { consume?: boolean } = {},
+): Promise<ResolvedPracticeTrack | null> {
+  const handed = opts.consume
+    ? takePracticeTrack(genre, level, section)
+    : peekPracticeTrack(genre, level, section);
   if (handed) {
     return {
       track: handed.track,

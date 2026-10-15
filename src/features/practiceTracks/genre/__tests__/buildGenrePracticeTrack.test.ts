@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll } from 'vitest';
 import {
   funkL1,
   funkL2,
@@ -7,6 +7,10 @@ import {
 import { popL2 } from '@/curriculum/data/activityFlows/pop_v2';
 import { reggaeL1 } from '@/curriculum/data/activityFlows/reggae_v2';
 import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
+import {
+  listPairings,
+  rememberPairing,
+} from '@/curriculum/engine/lessonPairings/registry';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
 import {
@@ -16,6 +20,12 @@ import {
   loopChords,
   sectionHasContent,
 } from '../buildGenrePracticeTrack';
+
+// What the lesson's own engine plays: a band paired to a style would replace
+// it, so every pairing sits out here.
+const pairings = listPairings();
+pairings.forEach((p) => rememberPairing({ id: p.id }));
+afterAll(() => pairings.forEach((p) => rememberPairing(p)));
 
 const SECTIONS: ActivitySectionId[] = ['A', 'B', 'C', 'D'];
 const LOOP_TICKS = 16 * 1920;

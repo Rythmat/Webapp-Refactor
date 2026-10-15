@@ -186,7 +186,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
       // silently renews it after that, so a reconnect an hour into a session
       // still presents a token the server accepts. The dev bypass has no Auth0
       // session; its placeholder token is accepted only by a local
-      // `partykit dev` (see server/auth.ts).
+      // `wrangler dev` (see server/auth.ts).
       if (!DEV_AUTH_BYPASS) {
         try {
           return await getAccessTokenSilently(

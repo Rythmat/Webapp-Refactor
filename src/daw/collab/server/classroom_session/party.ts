@@ -1,8 +1,8 @@
-// ── Classroom Session — PartyKit server ───────────────────────────────────
-// Realtime fan-out for a live classroom session (one room per sessionId, party
-// name `classroom_session` — underscore, not hyphen; PartyKit's codegen
-// `import <name>Party` breaks on hyphens and rejects uppercase). This is the
-// transport half of Classroom v2:
+// ── Classroom Session — PartyServer Durable Object ────────────────────────
+// Realtime fan-out for a live classroom session (one room per sessionId).
+// Served at /parties/classroom-session/<sessionId>; the web app and the API
+// still address the PartyKit-era /parties/classroom_session/…, which index.ts
+// rewrites. This is the transport half of Classroom v2:
 //
 //   • Teacher state (nav / lock / share / mode / end) and student responses are
 //     persisted by the Music Atlas API over REST, then POSTed to this party's
@@ -12,12 +12,18 @@
 //     projectors see identifier-stripped events, and only for the currently
 //     shared interaction; students never receive peer responses.
 //
-// Deploy: `npx partykit deploy` from src/daw/collab/server (registered as a
-// secondary party in partykit.json). Auth is resolved server-side via the API
-// (see auth.ts) — the socket `role` param is only a request.
+// Deploy: `npm run collab:deploy` (bound as ClassroomSession in
+// ../wrangler.jsonc). Auth is resolved server-side via the API (see auth.ts) —
+// the socket `role` param is only a request.
 
-import type * as Party from 'partykit/server';
+import {
+  Server,
+  type Connection,
+  type ConnectionContext,
+  type WSMessage,
+} from 'partyserver';
 
+import '../env';
 import { authorizeClassroomConnection, type Role } from './auth';
 import { stripForProjector, type ResponseBroadcast } from './firewall';
 
@@ -72,16 +78,18 @@ const PRESENCE_TICK_MS = 5_000;
 const ACTIVE_WINDOW_MS = 15_000;
 const IDLE_TIMEOUT_MS = 60_000;
 
-export default class ClassroomSessionServer implements Party.Server {
+export default class ClassroomSessionServer extends Server {
+  // Session state (roles, presence, the presence timer) lives in memory, so
+  // the room must never hibernate.
+  static options = { hibernate: false };
+
   private meta = new Map<string, ConnMeta>();
   private currentShare: { interactionId: string; on: boolean } | null = null;
   private ended = false;
   private presenceTimer: ReturnType<typeof setInterval> | null = null;
 
-  constructor(public room: Party.Room) {}
-
   // ── HTTP: server→party fan-out + status ────────────────────────────────
-  async onRequest(req: Party.Request) {
+  async onRequest(req: Request) {
     if (req.method === 'GET') {
       return this.json({ active: !this.ended, connections: this.meta.size });
     }
@@ -89,7 +97,7 @@ export default class ClassroomSessionServer implements Party.Server {
       return new Response('Method not allowed', { status: 405 });
     }
 
-    const secret = this.room.env.PARTYKIT_WEBHOOK_SECRET as string | undefined;
+    const secret = this.env.PARTYKIT_WEBHOOK_SECRET;
     const provided = req.headers.get('authorization')?.replace('Bearer ', '');
     if (!secret || provided !== secret) {
       return new Response('Unauthorized', { status: 401 });
@@ -110,23 +118,23 @@ export default class ClassroomSessionServer implements Party.Server {
     switch (msg.type) {
       case 'share':
         this.currentShare = { interactionId: msg.interactionId, on: msg.on };
-        this.broadcast(msg, ['teacher', 'student', 'projector']);
+        this.broadcastTo(msg, ['teacher', 'student', 'projector']);
         break;
       case 'nav':
       case 'lock':
       case 'mode':
-        this.broadcast(msg, ['teacher', 'student', 'projector']);
+        this.broadcastTo(msg, ['teacher', 'student', 'projector']);
         break;
       case 'pairs':
         // Rule 2: pairs carry enrollment ids — never to the projector.
-        this.broadcast(msg, ['teacher', 'student']);
+        this.broadcastTo(msg, ['teacher', 'student']);
         break;
       case 'showcase':
       case 'timer':
       case 'media':
         // Deliberate all-role broadcasts (featured project, countdown, video
         // control) — no identified data.
-        this.broadcast(msg, ['teacher', 'student', 'projector']);
+        this.broadcastTo(msg, ['teacher', 'student', 'projector']);
         break;
       case 'end':
         this.handleEnd();
@@ -142,7 +150,7 @@ export default class ClassroomSessionServer implements Party.Server {
   /** Rule 2 response fan-out. */
   private async routeResponse(msg: ResponseBroadcast): Promise<void> {
     // Teachers get the full, identified event.
-    this.broadcast(msg, ['teacher']);
+    this.broadcastTo(msg, ['teacher']);
 
     // Projectors get an identifier-stripped copy, but only while this exact
     // interaction is actively shared.
@@ -151,7 +159,7 @@ export default class ClassroomSessionServer implements Party.Server {
       this.currentShare.interactionId === msg.interactionId;
     if (shared && this.hasRole('projector')) {
       const stripped = await stripForProjector(msg);
-      this.broadcast(stripped, ['projector']);
+      this.broadcastTo(stripped, ['projector']);
     }
 
     // Students never receive peer responses — nothing sent here.
@@ -159,8 +167,8 @@ export default class ClassroomSessionServer implements Party.Server {
 
   private handleEnd(): void {
     this.ended = true;
-    this.broadcast({ type: 'end' }, ['teacher', 'student', 'projector']);
-    for (const conn of this.room.getConnections()) {
+    this.broadcastTo({ type: 'end' }, ['teacher', 'student', 'projector']);
+    for (const conn of this.getConnections()) {
       conn.close(4002, 'session ended');
     }
     this.meta.clear();
@@ -168,16 +176,16 @@ export default class ClassroomSessionServer implements Party.Server {
   }
 
   // ── WebSocket lifecycle ────────────────────────────────────────────────
-  async onConnect(conn: Party.Connection) {
+  async onConnect(conn: Connection, ctx: ConnectionContext) {
     if (this.ended) {
       conn.close(4002, 'session ended');
       return;
     }
 
     const result = await authorizeClassroomConnection({
-      url: conn.uri,
-      sessionId: this.room.id,
-      env: this.room.env,
+      url: ctx.request.url,
+      sessionId: this.name,
+      env: this.env,
     });
 
     if (!result.ok) {
@@ -229,7 +237,7 @@ export default class ClassroomSessionServer implements Party.Server {
     this.startPresence();
   }
 
-  onMessage(message: string, sender: Party.Connection) {
+  onMessage(sender: Connection, message: WSMessage) {
     if (typeof message !== 'string') return;
     const meta = this.meta.get(sender.id);
     if (!meta) return;
@@ -263,11 +271,11 @@ export default class ClassroomSessionServer implements Party.Server {
         typeof data.slideIndex === 'number'
       ) {
         // Rule 2: per-student position is identified — teacher only.
-        this.broadcast(
+        this.broadcastTo(
           {
             type: 'position',
             at: this.nowIso(),
-            sessionId: this.room.id,
+            sessionId: this.name,
             enrollmentId: meta.enrollmentId,
             slideIndex: data.slideIndex,
           },
@@ -279,7 +287,7 @@ export default class ClassroomSessionServer implements Party.Server {
     }
   }
 
-  onClose(conn: Party.Connection) {
+  onClose(conn: Connection) {
     const meta = this.meta.get(conn.id);
     this.meta.delete(conn.id);
     if (meta?.enrollmentId) {
@@ -308,7 +316,7 @@ export default class ClassroomSessionServer implements Party.Server {
     const now = Date.now();
     const deltas: { enrollmentId: string; state: PresenceState }[] = [];
 
-    for (const conn of this.room.getConnections()) {
+    for (const conn of this.getConnections()) {
       const meta = this.meta.get(conn.id);
       if (!meta) continue;
       const age = now - meta.lastSeen;
@@ -345,8 +353,10 @@ export default class ClassroomSessionServer implements Party.Server {
   private emitPresence(
     delta: { enrollmentId: string; state: PresenceState }[],
   ) {
-    this.broadcast({ type: 'presence', at: this.nowIso(), delta }, ['teacher']);
-    this.broadcast(
+    this.broadcastTo({ type: 'presence', at: this.nowIso(), delta }, [
+      'teacher',
+    ]);
+    this.broadcastTo(
       { type: 'presenceCount', at: this.nowIso(), ...this.presenceCounts() },
       ['student', 'projector'],
     );
@@ -358,7 +368,7 @@ export default class ClassroomSessionServer implements Party.Server {
   private presenceCounts(): { joined: number; active: number } {
     let joined = 0;
     let active = 0;
-    for (const conn of this.room.getConnections()) {
+    for (const conn of this.getConnections()) {
       const meta = this.meta.get(conn.id);
       if (!meta?.enrollmentId) continue;
       joined++;
@@ -375,9 +385,9 @@ export default class ClassroomSessionServer implements Party.Server {
     return false;
   }
 
-  private broadcast(payload: unknown, roles: Role[]) {
+  private broadcastTo(payload: unknown, roles: Role[]) {
     const text = JSON.stringify(payload);
-    for (const conn of this.room.getConnections()) {
+    for (const conn of this.getConnections()) {
       const meta = this.meta.get(conn.id);
       if (meta && roles.includes(meta.role)) conn.send(text);
     }

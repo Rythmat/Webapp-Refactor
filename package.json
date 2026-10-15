@@ -5,6 +5,8 @@
   "scripts": {
     "analyze": "ANALYZE=1 vite build",
     "build": "tsc -b && vite build",
+    "collab:deploy": "wrangler deploy --config src/daw/collab/server/wrangler.jsonc",
+    "collab:dev": "wrangler dev --config src/daw/collab/server/wrangler.jsonc",
     "coverage": "vitest run --coverage",
     "depcheck": "depcheck --skip-missing=true",
     "dev": "vite",
@@ -12,8 +14,6 @@
     "generate:api": "tsx -r dotenv/config .swagger/generate.ts",
     "knip": "knip",
     "lint": "no-hats package.json && prettier . --check && eslint . --max-warnings 0 && tsc -b",
-    "partykit:deploy": "partykit deploy --config src/daw/collab/server/partykit.json",
-    "partykit:dev": "partykit dev --config src/daw/collab/server/partykit.json",
     "predev": "stay-fresh check --install && npm run generate:api",
     "prepare": "node .husky/install.mjs",
     "preview": "vite preview",
@@ -92,6 +92,7 @@
     "next-themes": "0.3.0",
     "nice-color-palettes": "4.0.0",
     "object-hash": "3.0.0",
+    "partyserver": "0.5.10",
     "partysocket": "1.1.16",
     "pmtiles": "4.5.0",
     "react": "18.3.1",
@@ -132,6 +133,7 @@
     "webmidi": "3.1.14",
     "y-indexeddb": "9.0.12",
     "y-partykit": "0.0.33",
+    "y-partyserver": "2.2.0",
     "y-protocols": "1.0.7",
     "yjs": "13.6.30",
     "zod": "3.23.8",
@@ -139,6 +141,7 @@
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "0.95.0",
+    "@cloudflare/workers-types": "4.20260702.1",
     "@flasd/no-hats": "1.0.3",
     "@flasd/pretty-package": "1.0.3",
     "@flasd/stay-fresh": "2.0.2",
@@ -185,7 +188,6 @@
     "knip": "6.16.1",
     "lint-staged": "15.2.7",
     "msw": "2.15.0",
-    "partykit": "0.0.115",
     "pdf-parse": "2.4.5",
     "pdfjs-dist": "5.7.284",
     "playwright-core": "1.63.0",
@@ -205,6 +207,7 @@
     "vite": "8.0.2",
     "vite-tsconfig-paths": "4.3.2",
     "vitest": "4.1.1",
+    "wrangler": "4.151.0",
     "youtube-search-api": "2.0.1"
   },
   "overrides": {

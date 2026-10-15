@@ -27,5 +27,9 @@
     }
   },
   "include": ["src"],
-  "exclude": ["src/curriculum/data/songs/_generated_index.ts"]
+  /* The collab worker compiles under tsconfig.worker.json (Workers types). */
+  "exclude": [
+    "src/curriculum/data/songs/_generated_index.ts",
+    "src/daw/collab/server"
+  ]
 }

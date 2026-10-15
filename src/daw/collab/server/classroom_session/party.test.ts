@@ -6,10 +6,11 @@
  * `stripForProjector` exists to remove from responses, sent to the one screen
  * the whole class is looking at. This pins the fix.
  *
- * There is no PartyKit test harness in the repo, so the room, connections and
- * auth are faked here. The fakes are deliberately thin — they model only what
- * the party actually touches (`room.id`, `room.env`, `room.getConnections()`,
- * `conn.id`, `conn.uri`, `conn.send`, `conn.close`).
+ * There is no PartyServer test harness in the repo, so partyserver's Server,
+ * the connections and auth are faked here. The fakes are deliberately thin —
+ * they model only what the party actually touches (`name`, `env`,
+ * `getConnections()`, `conn.id`, `conn.send`, `conn.close`, and the upgrade
+ * request's URL).
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Role } from './auth';
@@ -18,6 +19,22 @@ const authorizeClassroomConnection = vi.fn();
 vi.mock('./auth', () => ({
   authorizeClassroomConnection: (...args: unknown[]) =>
     authorizeClassroomConnection(...args),
+}));
+
+// The sockets connected to the party under test.
+let connected: FakeConn[] = [];
+
+vi.mock('partyserver', () => ({
+  Server: class {
+    env = {};
+    constructor(readonly ctx: { id: { name: string } }) {}
+    get name() {
+      return this.ctx.id.name;
+    }
+    getConnections() {
+      return connected;
+    }
+  },
 }));
 
 const { default: ClassroomSessionServer } = await import('./party');
@@ -65,13 +82,13 @@ const messagesOf = (conn: FakeConn, type: string): Record<string, unknown>[] =>
 
 /** Boot a party with the given connections already authorized + connected. */
 const bootParty = async (conns: FakeConn[]) => {
-  const room = {
-    id: 'sess-1',
-    env: {},
-    getConnections: () => conns,
-  };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const party = new ClassroomSessionServer(room as any);
+  connected = conns;
+  const party = new ClassroomSessionServer(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { id: { name: 'sess-1' } } as any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    {} as any,
+  );
 
   for (const conn of conns) {
     authorizeClassroomConnection.mockResolvedValueOnce({
@@ -85,7 +102,7 @@ const bootParty = async (conns: FakeConn[]) => {
       },
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await party.onConnect(conn as any);
+    await party.onConnect(conn as any, { request: { url: conn.uri } } as any);
   }
   return party;
 };

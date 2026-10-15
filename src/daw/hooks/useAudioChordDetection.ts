@@ -12,6 +12,7 @@
 
 import { useEffect } from 'react';
 import { useStore } from '@/daw/store';
+import { selectEffectiveKey } from '@/daw/harmony/effectiveKey';
 import { subscribeEngineReady, trackEngineRegistry } from './usePlaybackEngine';
 import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
@@ -151,20 +152,16 @@ export function useAudioChordDetection(): void {
       }
       lastSource = source;
 
-      // Update key context: prefer MusicIntelligenceBus (UNISON-detected key),
-      // fall back to manually-set session key from prism store
-      const { rootNote, mode, detectedKeyRootPc, detectedMode } =
-        useStore.getState();
-      const effectiveRoot = detectedKeyRootPc ?? rootNote;
-      const effectiveMode = detectedMode ?? mode;
-      const keyStr =
-        effectiveRoot !== null ? `${effectiveRoot}:${effectiveMode}` : null;
+      // Key context: the student's key, else a detected one while none is
+      // set (effectiveKey); no key, no prior. The detected key used to win.
+      const key = selectEffectiveKey(useStore.getState());
+      const keyStr = key ? `${key.rootPc}:${key.mode}` : null;
       if (keyStr !== lastKey) {
         lastKey = keyStr;
-        if (effectiveRoot !== null && effectiveMode) {
-          const intervals = ALL_MODES[effectiveMode];
+        if (key) {
+          const intervals = ALL_MODES[key.mode];
           if (intervals) {
-            detector.setKeyContext(effectiveRoot, intervals);
+            detector.setKeyContext(key.rootPc, intervals);
           } else {
             detector.clearKeyContext();
           }
@@ -273,12 +270,15 @@ export function useAudioChordDetection(): void {
             const audioBuffer = getAudioBuffer(lastClip.id);
             if (!audioBuffer) return;
             const { rootNote: rn, mode: m } = useStore.getState();
+            // The chords are named in C when no key is set, as the proposal
+            // above names them, but the analysis gets no key prior then: it
+            // used to assume C major and favour its roots.
             const effectiveRoot = rn ?? 0;
-            const modeIntervals = m ? ALL_MODES[m] : undefined;
+            const key = selectEffectiveKey(useStore.getState());
             const offlineFrames = analyzeChords(
               audioBuffer,
-              effectiveRoot,
-              modeIntervals,
+              key?.rootPc,
+              key ? ALL_MODES[key.mode] : undefined,
               capturedBpm,
             );
             if (offlineFrames.length === 0) return;
@@ -305,8 +305,8 @@ export function useAudioChordDetection(): void {
             if (useStore.getState().unisonDoc) {
               useStore.getState().analyzeAudio(audioBuffer, {
                 bpm: capturedBpm,
-                keyRootPc: effectiveRoot,
-                modeIntervals,
+                keyRootPc: key?.rootPc,
+                modeIntervals: key ? ALL_MODES[key.mode] : undefined,
               });
             }
           }, 500); // wait for AudioBuffer to be stored

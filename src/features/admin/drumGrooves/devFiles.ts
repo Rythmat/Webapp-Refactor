@@ -32,14 +32,20 @@ export const deleteGrooveFile = (id: string) =>
 export const saveKitFile = (kit: CustomDrumKitFile) =>
   call(`/__dev/drum-kits/${kit.id}`, json(kit));
 
-export const listUploadedSamples = () =>
-  call<{ samples: string[] }>('/__dev/drum-samples', { method: 'GET' }).then(
+/** Drum hits, or pitched recordings for a sampled instrument. */
+type SampleFolder = 'drum-samples' | 'instrument-samples';
+
+export const listUploadedSamples = (folder: SampleFolder = 'drum-samples') =>
+  call<{ samples: string[] }>(`/__dev/${folder}`, { method: 'GET' }).then(
     (r) => r.samples,
   );
 
-export const uploadSample = (file: File) =>
+export const uploadSample = (
+  file: File,
+  folder: SampleFolder = 'drum-samples',
+) =>
   call<{ url: string }>(
-    `/__dev/drum-samples?name=${encodeURIComponent(file.name)}`,
+    `/__dev/${folder}?name=${encodeURIComponent(file.name)}`,
     {
       method: 'POST',
       // The writer only takes audio here; a file the browser can't type

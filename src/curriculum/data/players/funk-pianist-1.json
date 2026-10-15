@@ -20,10 +20,6 @@
     },
     {
       "kind": "part",
-      "id": "funk-l1-d46-d1-lh-bass-rh-chords"
-    },
-    {
-      "kind": "part",
       "id": "funk-l3-d146-d3-full-groove"
     },
     {
@@ -36,19 +32,7 @@
     },
     {
       "kind": "part",
-      "id": "funk-l1-d1-4-lh-octave-pop-rh-funk9"
-    },
-    {
-      "kind": "part",
       "id": "funk-l1-d2-1-lh-root-groove-rh-pentatonic-phrase"
-    },
-    {
-      "kind": "part",
-      "id": "funk-l1-d2-2-lh-dm7-g7-shell-rh-pentatonic-melody"
-    },
-    {
-      "kind": "part",
-      "id": "funk-l1-d2-3-lh-dm7-g7-shell-rh-blues-melody"
     },
     {
       "kind": "part",
@@ -89,6 +73,30 @@
     {
       "kind": "part",
       "id": "funk-l3-d3-3-full-capstone-cm9-f13-ab13-g7alt-cm9"
+    },
+    {
+      "kind": "comping",
+      "id": "reggaeton-tresillo"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d46-d1-lh-bass-rh-chords-2"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d46-d2-lh-chords-rh-melody"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d47-d1-lh-bass-rh-chords"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d46-d2-lh-chords-rh-melody-3"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l2-d93-d1-lh-bass-rh-chords-headhunters"
     }
   ]
 }

@@ -3,7 +3,9 @@
  * One band: its layers stacked like tracks in a DAW, each drawn as the notes
  * it plays over the chart, all heard together on one transport. Click a
  * layer to open it below — what it plays, the sound it plays on, and the
- * item's own editor, in place. Assign the band to lesson styles at the foot.
+ * item's own editor, in place: the pencil on a lane (or a double-click on
+ * its notes) goes straight to that editor. A sampled sound reopens the same
+ * way, to add samples. Assign the band to lesson styles at the foot.
  *
  * What it plays over (the preview chart and key) is saved with the band for
  * the next session, but lessons play their own chords.
@@ -15,14 +17,16 @@ import {
   ChevronUp,
   Copy,
   Download,
+  ExternalLink,
   Loader2,
+  Pencil,
   Play,
   Plus,
   Save,
   Square,
   Trash2,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
@@ -49,6 +53,7 @@ import {
 import { compingBars } from '@/curriculum/engine/chordComping/chordComping';
 import { preloadStudioGroove } from '@/curriculum/engine/drumGrooves/registry';
 import { barTicks } from '@/curriculum/engine/meter';
+import { getSampleInstrument } from '@/daw/instruments/sampleInstruments';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useBassLineList } from '../bassLines/bassLineSession';
 import { previewHarmony } from '../chordComping/compingGrid';
@@ -65,7 +70,12 @@ import { LayerItemEditor } from './LayerItemEditor';
 import { SampleInstrumentMaker } from './SampleInstrumentMaker';
 import { SynthLayerPanel } from './SynthLayerPanel';
 import { CAN_WRITE_FILES, downloadBand, saveBand } from './bandFiles';
-import { SYNTH_PREFIX, soundGroups, soundLabel } from './bandSounds';
+import {
+  SAMPLE_PREFIX,
+  SYNTH_PREFIX,
+  soundGroups,
+  soundLabel,
+} from './bandSounds';
 import { type PlayerLayer, useBandPlayer } from './useBandPlayer';
 
 const METERS: [number, number][] = [
@@ -93,6 +103,14 @@ const SOURCE_LABEL: Record<BandSource['kind'], string> = {
   bassLine: 'Bass line',
   comping: 'Comping pattern',
   part: 'Part',
+};
+
+/** Where each kind of item is edited on its own. */
+const LIBRARY_HREF: Record<BandSource['kind'], (id: string) => string> = {
+  groove: (id) => AdminRoutes.drumGroove({ id }),
+  bassLine: (id) => AdminRoutes.bassLine({ id }),
+  comping: (id) => AdminRoutes.chordCompingPattern({ id }),
+  part: (id) => AdminRoutes.part({ id }),
 };
 
 const isDrums = (layer: Pick<BandLayer, 'instrument'>) =>
@@ -125,8 +143,13 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     initial.layers[0]?.id ?? null,
   );
   const [editingItem, setEditingItem] = useState(false);
-  /** The layer a sound is being sampled for. */
-  const [sampling, setSampling] = useState<string | null>(null);
+  /** The layer a sound is being sampled for, and whether it edits its own. */
+  const [sampling, setSampling] = useState<{
+    layerId: string;
+    edit: boolean;
+  } | null>(null);
+  /** The open layer's panel, scrolled to when its editor opens. */
+  const panelRef = useRef<HTMLDivElement>(null);
   /** The open synth layer's live engine, while its synth panel is open. */
   const [synth, setSynth] = useState<{
     layerId: string;
@@ -307,7 +330,6 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     }
   };
 
-  const layer = draft.layers.find((l) => l.id === selected) ?? null;
   const itemsFor = (kind: BandSource['kind']) =>
     kind === 'groove'
       ? grooves.map((g) => ({ id: g.id, name: g.name, status: g.status }))
@@ -316,6 +338,28 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         : kind === 'comping'
           ? patterns.map((c) => ({ id: c.id, name: c.name, status: c.status }))
           : parts.map((p) => ({ id: p.id, name: p.name, status: p.status }));
+  const layer = draft.layers.find((l) => l.id === selected) ?? null;
+
+  const itemName = layer
+    ? itemsFor(layer.source.kind).find((i) => i.id === layer.source.id)?.name
+    : undefined;
+  /** The open layer's sampled sound, which "Edit the sound" reopens. */
+  const sampleSound = layer?.sound?.startsWith(SAMPLE_PREFIX)
+    ? getSampleInstrument(layer.sound.slice(SAMPLE_PREFIX.length))
+    : undefined;
+
+  /** Opens a layer's item in its own editor, below, and goes there. */
+  const editLayer = (id: string) => {
+    setSelected(id);
+    setSynth(null);
+    setSampling(null);
+    // The item's editor previews on its own transport.
+    player.stop();
+    setEditingItem(true);
+    requestAnimationFrame(() =>
+      panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    );
+  };
   const input =
     'rounded-md border border-white/10 bg-white/5 px-2 py-1 text-sm';
   const playhead = player.playing
@@ -586,9 +630,14 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                     className="w-24"
                     aria-label={`${l.name} level`}
                   />
-                  <span className="ml-auto truncate text-[11px] text-muted-foreground">
-                    {SOURCE_LABEL[l.source.kind]}
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => editLayer(l.id)}
+                    className="ml-auto flex shrink-0 items-center gap-1 rounded bg-white/10 px-1.5 text-[11px] font-semibold hover:bg-white/20"
+                    title={`Edit the notes of this ${SOURCE_LABEL[l.source.kind].toLowerCase()}`}
+                  >
+                    <Pencil className="size-3" /> Edit
+                  </button>
                 </div>
               </div>
               <button
@@ -598,6 +647,8 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                   setSelected(l.id);
                   setEditingItem(false);
                 }}
+                onDoubleClick={() => editLayer(l.id)}
+                title="Click to open · double-click to edit its notes"
                 aria-label={`Open ${l.name}`}
               >
                 <LaneStrip
@@ -636,7 +687,10 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
 
       {/* ── the open layer ── */}
       {layer && (
-        <div className={cn(CONSOLE_PANEL, 'flex flex-col gap-3 p-3')}>
+        <div
+          ref={panelRef}
+          className={cn(CONSOLE_PANEL, 'flex scroll-mt-4 flex-col gap-3 p-3')}
+        >
           <div className="flex flex-wrap items-end gap-4">
             <label className="flex flex-col gap-1">
               <span className={CONSOLE_LABEL}>Layer</span>
@@ -836,16 +890,15 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
             </div>
           ) : (
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => {
-                  // The item's editor previews on its own transport.
-                  player.stop();
-                  setEditingItem(true);
-                }}
-              >
-                Edit the {SOURCE_LABEL[layer.source.kind].toLowerCase()}
+              <Button size="sm" onClick={() => editLayer(layer.id)}>
+                <Pencil /> Edit the{' '}
+                {SOURCE_LABEL[layer.source.kind].toLowerCase()}
+                {itemName ? `: ${itemName}` : ''}
+              </Button>
+              <Button size="sm" variant="ghost" asChild>
+                <Link to={LIBRARY_HREF[layer.source.kind](layer.source.id)}>
+                  <ExternalLink /> Open in its library
+                </Link>
               </Button>
               {layer.sound?.startsWith(SYNTH_PREFIX) ? (
                 <Button
@@ -874,20 +927,40 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                   pick the kit as the sound.
                 </span>
               ) : (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setSampling(layer.id)}
-                >
-                  Make a sound from samples
-                </Button>
+                <>
+                  {sampleSound && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() =>
+                        setSampling({ layerId: layer.id, edit: true })
+                      }
+                    >
+                      <Pencil /> Edit the sound: {sampleSound.name} (
+                      {Object.keys(sampleSound.samples).length} samples)
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      setSampling({ layerId: layer.id, edit: false })
+                    }
+                  >
+                    <Plus /> New sound from samples
+                  </Button>
+                </>
               )}
             </div>
           )}
-          {sampling === layer.id && (
+          {sampling?.layerId === layer.id && (
             <SampleInstrumentMaker
+              // Editing one sound, then making another, starts fresh.
+              key={`${layer.id}:${sampling.edit}`}
               instrument={layer.instrument}
+              editing={sampling.edit ? sampleSound : undefined}
               onMade={(sound) => {
+                if (sound === layer.sound) player.reloadSound(sound);
                 setLayer(layer.id, { sound });
                 setSampling(null);
               }}

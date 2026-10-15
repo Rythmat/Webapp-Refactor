@@ -40,7 +40,9 @@ describe('a pairing as a band', () => {
     // Drums humanize with Math.random: hold it still for the comparison.
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
     for (const pairing of listPairings()) {
-      const band = legacyBand(pairing)!;
+      // Only the pairings still written as three items.
+      const band = legacyBand(pairing);
+      if (!band) continue;
       const ts = band.timeSignature;
       const ctx = { chordAt, bars: 4, timeSignature: ts };
       const byLayer = new Map(

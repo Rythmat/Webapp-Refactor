@@ -14,231 +14,225 @@
   "bars": 3,
   "tempo": 92,
   "swing": 50,
-  "sound": "piano-sampler",
+  "sound": "electric-piano",
   "notes": [
     {
+      "hand": "lh",
       "tick": 0,
       "duration": 460,
       "midi": 38,
-      "velocity": 96,
-      "hand": "lh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 0,
       "duration": 120,
       "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 0,
       "duration": 120,
       "midi": 65,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 0,
       "duration": 120,
       "midi": 69,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 360,
       "duration": 120,
       "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 360,
       "duration": 120,
       "midi": 65,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 360,
       "duration": 120,
       "midi": 69,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "lh",
       "tick": 960,
       "duration": 460,
       "midi": 38,
-      "velocity": 96,
-      "hand": "lh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 960,
       "duration": 120,
       "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 960,
       "duration": 120,
       "midi": 65,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 960,
       "duration": 120,
       "midi": 69,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
-      "tick": 1200,
+      "tick": 1320,
       "duration": 120,
       "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
-      "tick": 1200,
+      "tick": 1320,
       "duration": 120,
       "midi": 65,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
-      "tick": 1200,
+      "tick": 1320,
       "duration": 120,
       "midi": 69,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "lh",
       "tick": 1920,
       "duration": 460,
       "midi": 38,
-      "velocity": 96,
-      "hand": "lh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 1920,
       "duration": 120,
       "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 1920,
       "duration": 120,
       "midi": 65,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 1920,
       "duration": 120,
       "midi": 69,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 2280,
       "duration": 120,
       "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 2280,
       "duration": 120,
       "midi": 65,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 2280,
       "duration": 120,
       "midi": 69,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "lh",
       "tick": 2880,
       "duration": 460,
       "midi": 38,
-      "velocity": 96,
-      "hand": "lh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 2880,
       "duration": 120,
       "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 2880,
       "duration": 120,
       "midi": 65,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 2880,
       "duration": 120,
       "midi": 69,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
-      "tick": 3120,
+      "tick": 3240,
       "duration": 120,
       "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
-      "tick": 3120,
+      "tick": 3240,
       "duration": 120,
       "midi": 65,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
-      "tick": 3120,
+      "tick": 3240,
       "duration": 120,
       "midi": 69,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "lh",
       "tick": 3840,
       "duration": 120,
       "midi": 38,
-      "velocity": 96,
-      "hand": "lh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 3840,
       "duration": 120,
       "midi": 60,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 3840,
       "duration": 120,
       "midi": 65,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     },
     {
+      "hand": "rh",
       "tick": 3840,
       "duration": 120,
       "midi": 69,
-      "velocity": 96,
-      "hand": "rh"
+      "velocity": 96
     }
   ],
   "source": {

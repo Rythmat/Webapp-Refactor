@@ -242,6 +242,20 @@ export function useBandPlayer() {
     if (voice) voice.sound = sound;
   }, []);
 
+  /**
+   * A sound changed under the same name (a sampled sound given more
+   * samples): stop, and let the next play load it again.
+   */
+  const reloadSound = useCallback(
+    (sound: string) => {
+      stop();
+      [...voices.current.entries()]
+        .filter(([, voice]) => voice.sound === sound)
+        .forEach(([id]) => disposeVoice(id));
+    },
+    [stop, disposeVoice],
+  );
+
   // Follow the transport for the playhead while playing.
   useEffect(() => {
     if (!playing) return;
@@ -275,6 +289,7 @@ export function useBandPlayer() {
     audition,
     synthEngine,
     renameSound,
+    reloadSound,
     position,
     playing,
     loading,

@@ -246,6 +246,16 @@ export function writePartToStep(
         : {}),
     }));
 
+  // A note added in the editor without a hand, among notes that have one,
+  // takes the hand of the nearest note by pitch.
+  const handed = written.filter((n) => n.hand);
+  if (handed.length && handed.length < written.length)
+    for (const n of written)
+      if (!n.hand)
+        n.hand = handed.reduce((best, h) =>
+          Math.abs(h.midi - n.midi) < Math.abs(best.midi - n.midi) ? h : best,
+        ).hand;
+
   const merge = (existing: TargetNote[] | undefined) => {
     const kept =
       hands === 'both'

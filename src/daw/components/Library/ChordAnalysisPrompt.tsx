@@ -4,10 +4,10 @@ import { Check, Sparkles } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackRole, type ChordAnalysis } from '@/daw/utils/chordAnalysis';
 import { ChordSymbolChips, KeyLabel } from './ChordSymbolsSection';
+import { plural } from './insightNotation';
 
 const dim = { color: 'var(--color-text-dim)' };
 const text = { color: 'var(--color-text)' };
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 // How each role's notes are read. A track left on 'auto' that its name and
 // instrument don't place is read as harmony, so it's labeled Chords.
 const ROLE_LABEL: Record<string, string> = {

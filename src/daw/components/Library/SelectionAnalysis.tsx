@@ -21,10 +21,9 @@ import {
   analyzedChordSpec,
   chordLabelSymbol,
   keyContext,
+  plural,
 } from './insightNotation';
 import { UnisonSections } from './UnisonSections';
-
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 const sectionStyle = { borderColor: 'var(--color-border)' };
 const labelStyle = { color: 'var(--color-text-dim)' };

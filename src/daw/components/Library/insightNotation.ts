@@ -115,3 +115,7 @@ export function chordCardLabels(
     detail: null,
   };
 }
+
+/** "1 chord", "3 chords": the Insight panel's counts. */
+export const plural = (n: number, word: string) =>
+  `${n} ${word}${n === 1 ? '' : 's'}`;

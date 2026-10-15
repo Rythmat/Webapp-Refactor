@@ -33,7 +33,7 @@ const noop = () => {};
 const RESERVED_COLUMN_HEIGHT = 'clamp(320px, calc(19cqw + 140px), 480px)';
 
 export const ThisWeekSection = ({ classroomId }: ThisWeekSectionProps) => {
-  const { plan, nonSchoolMap } = useAnnualPlan(classroomId);
+  const { nonSchoolMap } = useAnnualPlan(classroomId);
   // Current week by default; chevrons page it. Anchors are start-of-day Sundays,
   // so getTime() compares them exactly.
   const currentWeekAnchor = useMemo(() => resolveInitialWeek(new Date()), []);
@@ -43,7 +43,7 @@ export const ThisWeekSection = ({ classroomId }: ThisWeekSectionProps) => {
     [weekAnchor],
   );
   const isCurrentWeek = weekAnchor.getTime() === currentWeekAnchor.getTime();
-  const data = useWeekGridData(classroomId, plan);
+  const data = useWeekGridData(classroomId);
 
   const goPrev = () => setWeekAnchor((a) => stepWeek(a, -1));
   const goNext = () => setWeekAnchor((a) => stepWeek(a, 1));
@@ -96,37 +96,23 @@ export const ThisWeekSection = ({ classroomId }: ThisWeekSectionProps) => {
         </Link>
       </div>
 
-      {plan ? (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 [container-type:inline-size]">
-          <WeekView
-            classroomId={classroomId}
-            weekAnchor={weekAnchor}
-            language="en"
-            nonSchoolMap={nonSchoolMap}
-            dropIso={null}
-            onCellDragOver={noop}
-            onCellDrop={noop}
-            draggableCards={false}
-            reserveBandRow
-            columnMinHeight={RESERVED_COLUMN_HEIGHT}
-            allUnits={data.allUnits}
-            unitRanges={data.unitRanges}
-            unitByDayId={data.unitByDayId}
-            getDay={data.getDay}
-            hiddenDayIds={data.hiddenDayIds}
-            todayIso={data.todayIso}
-            countryFeatures={data.countryFeatures}
-            songsReady={data.songsReady}
-            statusFor={data.statusFor}
-          />
-        </div>
-      ) : (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
-          <p className="text-base text-white/50 md:text-lg">
-            Set up your year plan to see your week here.
-          </p>
-        </div>
-      )}
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 [container-type:inline-size]">
+        <WeekView
+          classroomId={classroomId}
+          weekAnchor={weekAnchor}
+          nonSchoolMap={nonSchoolMap}
+          dropIso={null}
+          onCellDragOver={noop}
+          onCellDrop={noop}
+          draggableCards={false}
+          columnMinHeight={RESERVED_COLUMN_HEIGHT}
+          scheduledDays={data.scheduledDays}
+          todayIso={data.todayIso}
+          countryFeatures={data.countryFeatures}
+          songsReady={data.songsReady}
+          statusFor={data.statusFor}
+        />
+      </div>
     </section>
   );
 };

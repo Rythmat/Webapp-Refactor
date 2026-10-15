@@ -1,0 +1,140 @@
+/* The Time River (TimeRiver.tsx). Loaded with the river's own chunk.
+
+   The frame writer moves the whole items layer with one transform while the
+   view pans (compositor only), and sets --ppy (pixels per year) on it only
+   when the zoom changes. Each marker carries its year as --yr, so a pan
+   restyles nothing and a zoom restyles only the markers. */
+
+.atlas-river-items {
+  position: absolute;
+  inset: 0;
+  --ppy: 1;
+  will-change: transform;
+}
+
+.atlas-river-item {
+  position: absolute;
+  left: 0;
+  transform: translate(calc(var(--yr) * var(--ppy) * 1px - 50%), -50%);
+  /* Its lane's height, as the individual `translate` property: a lane
+     splitting or merging slides its markers with it (PlaceBands' tween has
+     the same length and curve), while the transform above follows every
+     frame of a gesture untransitioned. */
+  translate: 0 var(--y);
+  transition:
+    translate 450ms var(--ease-in-out),
+    opacity 200ms var(--ease-out);
+  animation: atlas-river-item-in 200ms var(--ease-out) both;
+}
+
+@keyframes atlas-river-item-in {
+  from {
+    opacity: 0;
+    scale: 0.95;
+  }
+}
+
+/* The plot fades its markers out at either end instead of cutting them in
+   half: on the left where the fan hands over, on the right under the lane
+   names. */
+.atlas-river-plot {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 24px,
+    black calc(100% - 56px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    black 24px,
+    black calc(100% - 56px),
+    transparent 100%
+  );
+}
+
+/* A sideways scroller (the genre chips) fades at the end with more to show
+   (TimeRiver's useScrollFade). */
+.atlas-river-scroller[data-fade-end='true'] {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    black calc(100% - 48px),
+    transparent
+  );
+  mask-image: linear-gradient(90deg, black calc(100% - 48px), transparent);
+}
+.atlas-river-scroller[data-fade-start='true'] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 48px);
+  mask-image: linear-gradient(90deg, transparent, black 48px);
+}
+.atlas-river-scroller[data-fade-start='true'][data-fade-end='true'] {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    black 48px,
+    black calc(100% - 48px),
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    black 48px,
+    black calc(100% - 48px),
+    transparent
+  );
+}
+
+/* While the bands grow in or draw back, the markers wait. */
+.atlas-river-items[data-shown='false'] .atlas-river-item {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The tooltip slides out of its marker, as Dorot's does. */
+.atlas-river-tooltip {
+  animation: atlas-river-tooltip-in 160ms var(--ease-out) both;
+  transform-origin: left center;
+}
+.atlas-river-tooltip[data-flip='true'] {
+  transform-origin: right center;
+}
+@keyframes atlas-river-tooltip-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+/* The years at either end: Glacial Bold at display size. Glacial has no
+   italic face, and the browser must never fake one. */
+.atlas-river-bookend {
+  font-size: clamp(2.25rem, 1.2rem + 2.6vw, 4rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-synthesis: none;
+}
+
+/* A year's digit cells (yearDigits.ts): one width for every digit. */
+.atlas-river-digit {
+  display: inline-block;
+  width: 0.62em;
+  text-align: center;
+  letter-spacing: 0;
+}
+
+/* While an event is open on its stage, the rest of the river steps back. */
+.atlas-river-dim {
+  transition: opacity 250ms var(--ease-out);
+}
+[data-staged='true'] .atlas-river-dim {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* A long story scrolls, fading out at its foot. */
+.atlas-stage-story {
+  mask-image: linear-gradient(to bottom, black 80%, transparent);
+  overscroll-behavior: contain;
+}

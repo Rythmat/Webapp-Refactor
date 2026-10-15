@@ -5,7 +5,6 @@ import {
   useCallback,
   useRef,
   useState,
-  useSyncExternalStore,
 } from 'react';
 import { motion } from 'framer-motion';
 import * as Popover from '@radix-ui/react-popover';
@@ -19,27 +18,30 @@ import {
   EarOff,
   Activity,
 } from 'lucide-react';
-import { useStore, type Track } from '@/daw/store';
+import { useStore, useTrack, type Track } from '@/daw/store';
 import {
   useListenMode,
   useStudioListenStore,
   useRemoteTrackAudible,
-  useRemoteTrackActivity,
+  useRemoteTrackActive,
 } from '@/daw/collab/studioListenStore';
-import {
-  trackEngineRegistry,
-  getTrackAudioState,
-  subscribeEngineReady,
-} from '@/daw/hooks/usePlaybackEngine';
+import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { FixedDigits } from '@/components/common/FixedDigits';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
 import { useTrackPresence } from '@/daw/collab/presence';
 import { LiveLevelFill } from './LiveLevelFill';
+import { sliderGestureProps } from '@/daw/hooks/useContinuousControl';
+import { useTrackVolumeControl } from '@/daw/hooks/useMixControls';
 
 // ── Props ────────────────────────────────────────────────────────────────
 interface TrackHeaderProps {
+  trackId: string;
+  index: number;
+}
+
+interface TrackHeaderRowProps {
   track: Track;
   index: number;
 }
@@ -50,10 +52,21 @@ interface TrackHeaderProps {
 //   1  CHANNEL 1 ▾
 //   M  S  ░░░░░░░░  (level meter bar)
 
+// Each header reads its own track by id (useTrack), so an edit to one track
+// re-renders that header alone, and the column re-renders only when tracks
+// are added, removed or reordered (milestone 1.7).
 export const TrackHeader = memo(function TrackHeader({
+  trackId,
+  index,
+}: TrackHeaderProps) {
+  const track = useTrack(trackId);
+  return track ? <TrackHeaderRow track={track} index={index} /> : null;
+});
+
+const TrackHeaderRow = memo(function TrackHeaderRow({
   track,
   index: _index,
-}: TrackHeaderProps) {
+}: TrackHeaderRowProps) {
   const nameRef = useRef<HTMLInputElement>(null);
   const [colorOpen, setColorOpen] = useState(false);
 
@@ -66,9 +79,10 @@ export const TrackHeader = memo(function TrackHeader({
   const automationOpen = useStore((s) => s.automationOpenTrackId === track.id);
   const setAutomationOpen = useStore((s) => s.setAutomationOpenTrackId);
 
-  const selectedTrackId = useStore((s) => s.selectedTrackId);
+  // Only this header's own selected state, so a selection change re-renders
+  // the two headers it moves between, not every header.
+  const isSelected = useStore((s) => s.selectedTrackId === track.id);
   const setSelectedTrackId = useStore((s) => s.setSelectedTrackId);
-  const isSelected = selectedTrackId === track.id;
 
   // The remote collaborator (if any) who currently has this track selected.
   // Their selection locks the track: it's bordered in their presence colour
@@ -80,22 +94,16 @@ export const TrackHeader = memo(function TrackHeader({
   const lockedStyle = lockedByRemote
     ? ({ pointerEvents: 'none', opacity: 0.6 } as const)
     : undefined;
+  // The fader previews while it moves and writes the store once on release.
+  const volume = useTrackVolumeControl(track);
 
   // Collaborative listen state for a track another user is driving live.
   const listenMode = useListenMode();
   const remoteAudible = useRemoteTrackAudible(track.id);
-  const remoteActivity = useRemoteTrackActivity(track.id);
+  const remoteActive = useRemoteTrackActive(track.id);
   const toggleTrackAudible = useStudioListenStore((s) => s.toggleTrackAudible);
   // Pulse the remote owner's border while their live signal is audibly flowing.
-  const pulsing = lockedByRemote && remoteAudible && remoteActivity > 0.08;
-
-  // Live audio metering. Read again whenever engines are made or retired: a
-  // load can replace this track's engine under the same id. The level itself
-  // is painted by LiveLevelFill, so this header never re-renders for it.
-  const analyser = useSyncExternalStore(
-    subscribeEngineReady,
-    () => getTrackAudioState(track.id)?.trackEngine.getAnalyserNode() ?? null,
-  );
+  const pulsing = lockedByRemote && remoteAudible && remoteActive;
 
   const handleRoleChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -498,15 +506,19 @@ export const TrackHeader = memo(function TrackHeader({
           min={0}
           max={100}
           step={1}
-          value={[Math.round(track.volume * 100)]}
-          onValueChange={([v]) => updateTrack(track.id, { volume: v / 100 })}
+          value={[Math.round(volume.value * 100)]}
+          onValueChange={([v]) => volume.change(v / 100)}
+          {...sliderGestureProps(volume)}
           onClick={(e) => e.stopPropagation()}
         >
           <Slider.Track
             className="relative h-1.5 w-full overflow-hidden rounded-full"
             style={{ backgroundColor: 'var(--color-border)' }}
           >
-            <LiveLevelFill analyser={analyser} />
+            {/* Painted from the meter bus by key, which finds this track's
+                engine again after a rebuild: the header never re-renders
+                for the level. */}
+            <LiveLevelFill meterKey={`track:${track.id}`} />
             <Slider.Range
               className="absolute h-full rounded-full"
               style={{ backgroundColor: 'transparent' }}
@@ -520,9 +532,9 @@ export const TrackHeader = memo(function TrackHeader({
         </Slider.Root>
         <FixedDigits
           text={
-            track.volume === 0
+            volume.value === 0
               ? '-\u221E'
-              : `${(20 * Math.log10(track.volume)).toFixed(1)}`
+              : `${(20 * Math.log10(volume.value)).toFixed(1)}`
           }
           className="ml-0.5 w-8 shrink-0 text-right text-[9px]"
           style={{ color: 'var(--color-text-dim)' }}

@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { HexWaveBackground } from '@/components/ui/hex-wave-background';
 import { StudioRoutes } from '@/constants/routes';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+// The REST client alone: api.ts is the editor's save path, with the store.
 import {
   studioProjectsApi,
   type StudioProjectSummary,
-} from '@/lib/studio-projects/api';
+} from '@/lib/studio-projects/projectsClient';
 import { generateStudioTileSvg } from '@/lib/studioProjectTile';
 
 const MAX_PROJECTS = 8;

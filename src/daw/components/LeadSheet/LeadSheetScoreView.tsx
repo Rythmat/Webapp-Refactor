@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
 import { useStore } from '@/daw/store';
@@ -8,7 +8,7 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { Track } from '@/daw/store/tracksSlice';
 import { NoteEditorBar } from '../Score/NoteEditorBar';
 import { ScorePalettes } from '../Score/ScorePalettes';
-import { buildScoreParts } from '../Score/scoreParts';
+import { buildScoreParts, ScorePartsCache } from '../Score/scoreParts';
 import { useScoreEditing } from '../Score/useScoreEditing';
 import { ComposerLine } from './ComposerLine';
 import { LeadSheetToolbar } from './LeadSheetToolbar';
@@ -52,6 +52,10 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
   );
 
   const slashSet = useMemo(() => new Set(slashNotes), [slashNotes]);
+  // The part is kept between builds, as the Score keeps its parts: a change
+  // to the track that leaves its notes alone (a fader move) hands back the
+  // same part, so the staff has nothing to engrave.
+  const [partsCache] = useState(() => new ScorePartsCache());
   const scoreParts = useMemo(
     () =>
       buildScoreParts({
@@ -61,8 +65,9 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
         timeSignature,
         slashNotes: slashSet,
         minMeasures: measureCount,
+        cache: partsCache,
       }),
-    [track, rootNote, mode, timeSignature, slashSet, measureCount],
+    [track, rootNote, mode, timeSignature, slashSet, measureCount, partsCache],
   );
   const parts: ScorePart[] = useMemo(
     () => scoreParts.map(({ id, name, score }) => ({ id, name, score })),
@@ -160,7 +165,12 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
               turn Melody off to go back to the chord chart.
             </div>
           ) : (
-            <StaffView parts={parts} {...editing.staff} />
+            <StaffView
+              parts={parts}
+              // An edit redraws only the systems it changed, as in the Score.
+              incremental
+              {...editing.staff}
+            />
           )}
         </div>
       </div>

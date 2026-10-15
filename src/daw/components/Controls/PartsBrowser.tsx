@@ -23,6 +23,7 @@ import {
   synthTrackStateFromPreset,
 } from '@/daw/oracle-synth/synthTrackState';
 import { useStore } from '@/daw/store';
+import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import type {
   InstrumentType,
   StudioBassVoice,
@@ -95,7 +96,6 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
   const track = useStore((s) => s.tracks.find((t) => t.id === trackId));
   const rootNote = useStore((s) => s.rootNote);
   const projectBpm = useStore((s) => s.bpm);
-  const position = useStore((s) => s.position);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
   const addMidiClip = useStore((s) => s.addMidiClip);
@@ -180,8 +180,9 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
       addMidiClip(trackId, {
         id: clipId,
         name: part.name,
-        // The bar the playhead is in, so a part never starts mid-bar.
-        startTick: Math.floor(position / barTicks) * barTicks,
+        // The bar the playhead is in (live, also while playing), so a part
+        // never starts mid-bar.
+        startTick: Math.floor(getPlayheadTick() / barTicks) * barTicks,
         durationTicks: partTicks(part),
         events: toMidiEvents(prepared(part, target)),
       });
@@ -192,7 +193,6 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
       useSound,
       tsNum,
       tsDen,
-      position,
       target,
       addMidiClip,
       setSelectedClip,

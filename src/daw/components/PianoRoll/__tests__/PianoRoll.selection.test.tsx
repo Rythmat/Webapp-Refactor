@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import {
   afterAll,
   afterEach,
+  beforeEach,
   beforeAll,
   describe,
   expect,
@@ -11,6 +12,7 @@ import {
 } from 'vitest';
 import type { MidiNoteEvent } from '@prism/engine';
 import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
+import { installKeyDispatcher } from '@/daw/commands/dispatcher';
 import { PianoRoll } from '../PianoRoll';
 
 // ── The roll's selection belongs to one clip ──────────────────────────────
@@ -41,7 +43,15 @@ beforeAll(() => {
 afterAll(() => {
   HTMLCanvasElement.prototype.getContext = getContext;
 });
-afterEach(cleanup);
+// The roll's keys come through the editor's one keyboard listener.
+let uninstallKeys: () => void = () => {};
+beforeEach(() => {
+  uninstallKeys = installKeyDispatcher();
+});
+afterEach(() => {
+  cleanup();
+  uninstallKeys();
+});
 
 function renderRoll(clipId: string | null, events: MidiNoteEvent[]) {
   const onChange = vi.fn<(events: MidiNoteEvent[]) => void>();

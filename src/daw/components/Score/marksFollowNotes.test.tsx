@@ -10,6 +10,7 @@ import {
   resetUndoHistory,
   undo,
 } from '@/daw/store/undoMiddleware';
+import { installKeyDispatcher } from '@/daw/commands/dispatcher';
 import { DURATIONS } from './noteEditor';
 import { buildScoreParts } from './scoreParts';
 import { useScoreEditing } from './useScoreEditing';
@@ -91,8 +92,13 @@ function press(id: string, tick: number, withMeta: boolean) {
   });
 }
 
+// The Score's keys come through the editor's one keyboard listener.
+let uninstallKeys: () => void = () => {};
+
 beforeEach(() => {
+  uninstallKeys = installKeyDispatcher();
   useStore.setState({
+    currentView: 'score',
     tracks: [],
     scoreArticulations: [],
     scoreSlurs: [],
@@ -148,11 +154,17 @@ beforeEach(() => {
   expect([...editing.selection.notes]).toEqual([key(480, 76), key(0, 72)]);
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  uninstallKeys();
+});
 
+/** A key press as the browser sends it: the key and where it sits. */
 const keyDown = (init: KeyboardEventInit) =>
   act(() => {
-    window.dispatchEvent(new KeyboardEvent('keydown', init));
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', { code: init.key, ...init }),
+    );
   });
 
 const pitches = () => st().tracks[0].midiClips[0].events.map((e) => e.note);

@@ -30,13 +30,10 @@ import {
   takePracticeTrack,
 } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
 import { applyGenrePracticeTrack } from '@/features/practiceTracks/genre/seedStudioFromGenrePracticeTrack';
-import {
-  applyPracticeModeTrack,
-  preparePracticeModeTrack,
-} from '@/features/practiceTracks/seedStudioFromPracticeTrack';
 import { progressionChart } from '@/features/songs/progressionChart';
 import { applySong } from '@/features/songs/seedStudioFromSong';
 import { DEVICE_USER_KEY } from '@/lib/local-store/userScope';
+import { isChunkLoadError } from '@/lib/chunkReload';
 import { urlParamToSemitone } from '@/lib/musicKeyUrl';
 import { draftIsCloudEqual } from '@/lib/studio-projects/drafts/predicates';
 import {
@@ -51,6 +48,8 @@ import { classifyStudioFailure } from '@/lib/studio-projects/studioApiError';
 import { NOT_FOUND_MESSAGES, notFoundError } from './parseBootIntent';
 import { openError, openErrorFromFailure, signedOutError } from './openErrors';
 import {
+  announceCloudDocumentReport,
+  announceLessonResumed,
   announceOpenedProjectDraft,
   announceProjectDraftKept,
 } from './sessionNotices';
@@ -119,7 +118,12 @@ export interface PreparedOpen {
   /** The save chip's record of the cloud copy, after the baseline. */
   lastSaved(): LastSaved | null;
   /** A joiner waits for the room's first sync after the apply. */
-  collabWait: { roomId: string; awaitHost: boolean } | null;
+  collabWait: {
+    roomId: string;
+    awaitHost: boolean;
+    /** How long the provider waits for the host, when not its default. */
+    hostWaitMs?: number;
+  } | null;
   /** A '~device' draft moves to this user as it opens. */
   claimDevice: boolean;
   /** Generation-guarded steps and toasts once ready (editor still mounted). */
@@ -365,11 +369,16 @@ function seeded(
   };
 }
 
-/** A session that reopens a draft as it was stored. */
+/**
+ * A session that reopens a draft as it was stored, with the lesson or
+ * practice screen it was on (its context, restored by the port's apply).
+ * A lesson resumed says at which step.
+ */
 function fromDraft(
   prepared: PreparedDraft,
   extra: Partial<PreparedOpen> = {},
 ): PreparedOpen {
+  const { afterReady = noExtras, ...rest } = extra;
   return {
     claim: prepared.claim,
     draft: prepared,
@@ -388,8 +397,14 @@ function fromDraft(
           ),
     collabWait: null,
     claimDevice: prepared.meta.userKey === DEVICE_USER_KEY,
-    afterReady: noExtras,
-    ...extra,
+    afterReady: (args) => {
+      afterReady(args);
+      if (!args.stillCurrent()) return;
+      const { activeTutorialId, tutorialStepIndex } = useStore.getState();
+      const lesson = getTutorial(activeTutorialId);
+      if (lesson) announceLessonResumed(tutorialStepIndex, lesson.steps.length);
+    },
+    ...rest,
   };
 }
 
@@ -653,18 +668,22 @@ function cloudProject(
   claim: DraftClaim,
   notice?: () => void,
 ): PreparedOpen {
+  let report: ReturnType<typeof deserializeCloudProject> | null = null;
   return seeded(claim, {
     name: project.name || null,
-    // Stable track ids (1.3); a decode that throws fails the open.
-    apply: () =>
-      deserializeCloudProject(
+    // Stable track ids (1.3) and the cloud document (1.5); a decode that
+    // throws fails the open.
+    apply: () => {
+      report = deserializeCloudProject(
         project as unknown as Parameters<typeof deserializeCloudProject>[0],
-      ),
+      );
+    },
     baseline: { source: 'project', ref: project.id, reopenable: true },
     lastSaved: () => cloudOpenedRecord(project),
     afterReady: ({ stillCurrent }) => {
       if (!stillCurrent()) return;
       useStore.getState().offerChordAnalysis();
+      if (report) announceCloudDocumentReport(report);
       notice?.();
     },
   });
@@ -674,14 +693,36 @@ async function prepareSong(
   intent: Extract<OpenIntent, { kind: 'song' }>,
   ctx: PrepareContext,
 ): Promise<PreparedOpen> {
+  // The editor paints without the song library (milestone 1.12a dropped
+  // the route's content gate); a song link waits for it here, under the
+  // Opening overlay.
+  let libraryFailed: unknown = null;
   try {
     await raceSignal(ensureSongContent(), ctx.signal);
   } catch (err) {
     throwIfAborted(ctx.signal);
-    // The bundled library still answers.
+    // What has loaded still answers.
     console.error('Song library failed to load', err);
+    libraryFailed = err;
   }
   const found = getSong(intent.songId);
+  if (!found && libraryFailed !== null) {
+    // Not "no such song": the library itself didn't arrive. Nothing has
+    // changed, and Retry asks for it again.
+    throw new OpenRefusal(
+      openError(
+        navigator.onLine === false ? 'offline' : 'server',
+        "The song library didn't load. Check your connection, then try again.",
+        {
+          cause: libraryFailed,
+          surface: 'panel',
+          retryable: true,
+          // Its bundled copy is a chunk: only a reload asks for it again.
+          reloadToRetry: isChunkLoadError(libraryFailed),
+        },
+      ),
+    );
+  }
   if (!found) throw new OpenRefusal(notFoundError(NOT_FOUND_MESSAGES.song));
   // The same chart the Song page showed for that transposition.
   const song =
@@ -750,9 +791,17 @@ async function preparePracticeMode(
   // decoded back to a 0-11 semitone from C as LessonContainer does.
   const root = urlParamToSemitone(intent.rootParam ?? undefined);
   let track;
+  let applyPracticeModeTrack;
   try {
+    // The practice generator and its melody libraries load with the first
+    // practice boot, not with the editor (milestone 1.12a).
+    const seeding = await raceSignal(
+      import('@/features/practiceTracks/seedStudioFromPracticeTrack'),
+      ctx.signal,
+    );
+    applyPracticeModeTrack = seeding.applyPracticeModeTrack;
     track = await raceSignal(
-      preparePracticeModeTrack(
+      seeding.preparePracticeModeTrack(
         intent.mode as PracticeMode,
         root,
         intent.openTrack,
@@ -766,9 +815,10 @@ async function preparePracticeMode(
     throw new OpenRefusal(openErrorFromFailure(err, 'practice'));
   }
   const built = track;
+  const applyTrack = applyPracticeModeTrack;
   return seeded(await claimNew(ctx), {
     apply: () => {
-      applyPracticeModeTrack(built, {
+      const studentTrackId = applyTrack(built, {
         openTrack: intent.openTrack,
         level: intent.level,
       });
@@ -779,6 +829,7 @@ async function preparePracticeMode(
         rootParam: intent.rootParam ?? 'c',
         level: intent.level,
         openTrack: intent.openTrack,
+        studentTrackId,
       });
       // A backing track to play over: loop it from the start.
       store.setLoopEnabled(true);
@@ -816,15 +867,19 @@ async function preparePracticeGenre(
   const practice = resolved;
   return seeded(await claimNew(ctx), {
     apply: () => {
-      applyGenrePracticeTrack(practice.track, practice.genreLabel);
+      const studentTrackId = applyGenrePracticeTrack(
+        practice.track,
+        practice.genreLabel,
+      );
       const store = useStore.getState();
-      store.setPracticeSession(
-        practiceSessionFor(
+      store.setPracticeSession({
+        ...practiceSessionFor(
           practice.track,
           practice.genreLabel,
           practice.returnTo,
         ),
-      );
+        studentTrackId,
+      });
       store.setCurrentView('practice');
     },
     baseline: {
@@ -839,6 +894,13 @@ async function preparePracticeGenre(
   });
 }
 
+/**
+ * How long a classroom partner waits for the pair's host. A teacher-made pair
+ * opens the Studio from a slide (StudioCollabAction), and the partner may well
+ * click before the host does, so the jam hand-off's 20 s is far too short.
+ */
+export const CLASS_PAIR_AWAIT_HOST_MS = 5 * 60_000;
+
 async function prepareCollab(
   intent: Extract<OpenIntent, { kind: 'collab' }>,
   ctx: PrepareContext,
@@ -851,6 +913,7 @@ async function prepareCollab(
   const code = intent.code;
   const joinerId = code.trim().toLowerCase();
   const joiner = code !== 'new' && !intent.host;
+  const hostWaitMs = intent.classPair ? CLASS_PAIR_AWAIT_HOST_MS : undefined;
   return seeded(claim, {
     apply: ({ collab }) => {
       if (code === 'new') {
@@ -863,8 +926,10 @@ async function prepareCollab(
         collab.joinRoom(code, 'owner', undefined, `studio-${code}`, code);
         return;
       }
-      if (intent.awaitHost) collab.joinRoomAwaitingHost(code);
-      else collab.joinRoomById(code);
+      if (intent.awaitHost) {
+        if (hostWaitMs) collab.joinRoomAwaitingHost(code, hostWaitMs);
+        else collab.joinRoomAwaitingHost(code);
+      } else collab.joinRoomById(code);
     },
     // A room is its own only copy: work to keep.
     savedComplete: false,
@@ -874,7 +939,11 @@ async function prepareCollab(
       reopenable: false,
     },
     collabWait: joiner
-      ? { roomId: joinerId, awaitHost: intent.awaitHost }
+      ? {
+          roomId: joinerId,
+          awaitHost: intent.awaitHost,
+          ...(hostWaitMs ? { hostWaitMs } : {}),
+        }
       : null,
     afterReady: ({ stillCurrent, draftWritten }) => {
       if (!stillCurrent()) return;

@@ -2,6 +2,7 @@ import {
   classifyStudioFailure,
   type StudioFailureKind,
 } from '@/lib/studio-projects/studioApiError';
+import { isChunkLoadError } from '@/lib/chunkReload';
 import { isDraftStorageError } from '@/lib/studio-projects/drafts/types';
 import type { OpenError, OpenErrorKind, OpenIntent } from './types';
 
@@ -50,6 +51,7 @@ export function openError(
     cause?: unknown;
     surface?: 'toast' | 'panel';
     retryable?: boolean;
+    reloadToRetry?: boolean;
   } = {},
 ): OpenError {
   const error: OpenError = {
@@ -59,6 +61,7 @@ export function openError(
     surface: extra.surface ?? (PANEL_KINDS.has(kind) ? 'panel' : 'toast'),
   };
   if (extra.cause !== undefined) error.cause = extra.cause;
+  if (extra.reloadToRetry) error.reloadToRetry = true;
   return error;
 }
 
@@ -97,8 +100,17 @@ export function openErrorFromFailure(
   subject: OpenSubject,
 ): OpenError {
   if (isDraftStorageError(error)) return draftOpenError(error, subject);
-  const kind: StudioFailureKind = classifyStudioFailure(error);
   const noun = NOUN[subject];
+  // A chunk of the Studio that didn't arrive (milestone 1.12a): the panel,
+  // and a Retry that reloads, since a module that failed stays failed.
+  if (isChunkLoadError(error)) {
+    return openError(
+      navigator.onLine === false ? 'offline' : 'server',
+      `${noun} couldn't load. Check your connection, then try again.`,
+      { cause: error, surface: 'panel', retryable: true, reloadToRetry: true },
+    );
+  }
+  const kind: StudioFailureKind = classifyStudioFailure(error);
   switch (kind) {
     case 'offline':
       return openError('offline', OFFLINE, { cause: error });

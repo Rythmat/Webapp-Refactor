@@ -1,13 +1,29 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import type { ComponentProps } from 'react';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   alphaOf,
   installDawCss,
   resolvedBackground,
 } from '@/daw/__tests__/dawTokens';
+import { frameTaskNames } from '@/daw/engine/engineClock';
 import { CoachCard } from '../CoachCard';
+import {
+  anchorEl,
+  flushFrame,
+  setBox,
+  stubFrames,
+  stubReducedMotion,
+} from './anchorTestUtils';
 
 // ── The lesson coach card (design-system-02, ia-flows-32) ───────────────────
 // Next is the step's main action, so it is the app's white pill: #101012 on
@@ -24,6 +40,8 @@ afterAll(() => removeCss());
 afterEach(() => {
   cleanup();
   document.body.classList.remove('daw-active');
+  document.body.innerHTML = '';
+  vi.unstubAllGlobals();
 });
 
 const noop = () => {};
@@ -83,5 +101,62 @@ describe('CoachCard', () => {
     expect(card.closest('.daw-root')).toBeNull();
     expect(resolvedBackground(card)).toBe('#1a1a1a');
     expect(alphaOf(resolvedBackground(card))).toBe(1);
+  });
+});
+
+// ── Where the card sits (practice-tutorial-16) ──────────────────────────────
+// The card keeps clear of the spotlighted target, placed from the anchor
+// registry's measurements instead of a 150 ms layout poll. jsdom's window is
+// 1024×768, and the card measures as its default 380×220 there.
+
+describe('CoachCard position', () => {
+  const card = () => screen.getByTestId('tutorial-coach-card');
+
+  it('moves clear of the target each time the registry reports it', () => {
+    stubFrames();
+    Element.prototype.scrollIntoView = vi.fn();
+    const el = anchorEl('target', {
+      top: 100,
+      left: 500,
+      width: 100,
+      height: 40,
+    });
+    renderCard({ target: 'target' });
+    // Before the first measurement: low and centred.
+    expect(card().style.top).toBe('461px');
+    expect(card().style.left).toBe('322px');
+
+    act(() => flushFrame());
+    // Below the target, centred on it.
+    expect(card().style.top).toBe('156px');
+    expect(card().style.left).toBe('360px');
+
+    // The target scrolls down the page: the card goes above it.
+    setBox(el, { top: 500, left: 500, width: 100, height: 40 });
+    act(() => {
+      document.dispatchEvent(new Event('scroll'));
+    });
+    act(() => flushFrame());
+    expect(card().style.top).toBe('264px');
+
+    // And nothing polls once it is still.
+    act(() => flushFrame());
+    expect(frameTaskNames()).toEqual([]);
+  });
+
+  it('glides and fades in, except under reduced motion', () => {
+    stubReducedMotion(false);
+    renderCard({ isValidated: true });
+    expect(card().style.transition).toContain('top 0.3s');
+    expect(
+      card().querySelector<HTMLElement>('[style*="tutorialDot"]'),
+    ).not.toBeNull();
+    cleanup();
+
+    stubReducedMotion(true);
+    renderCard({ isValidated: true });
+    expect(card().style.transition).toBe('none');
+    expect(card().style.opacity).not.toBe('0');
+    expect(card().querySelector('[style*="tutorialDot"]')).toBeNull();
   });
 });

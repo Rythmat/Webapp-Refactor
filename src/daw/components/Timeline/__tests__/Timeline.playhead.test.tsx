@@ -23,7 +23,9 @@ import {
 // The Timeline subscribed to the transport position at its top level, so the
 // whole 3,000-line component re-rendered with every playback tick (~30 a
 // second) to move one line, and its inline handle ref re-measured the scroll
-// each time. The playhead is now a child that subscribes itself.
+// each time. The playhead is now a child that subscribes itself, and since
+// 1.7 it is painted through a ref from the playhead clock: playback moves it
+// without rendering even that child, and without writing the store.
 //
 // Prism is part of Premium: the context menu's Suggest Chords item shows a
 // free student the lock instead of opening the suggestion modal.
@@ -50,6 +52,11 @@ vi.mock('react-router-dom', () => ({
 }));
 
 import { ProfileRoutes } from '@/constants/routes';
+import {
+  endPlayheadRun,
+  setPlayheadSourceForTests,
+  startPlayheadRun,
+} from '@/daw/engine/playheadClock';
 import { useStore } from '@/daw/store';
 import { tickToPixel } from '@/daw/utils/timelineScale';
 import {
@@ -107,12 +114,14 @@ function renderTimeline() {
   return { ...view, scrollTopReads: () => scrollTopReads };
 }
 
+/** The playhead line, while it is shown. */
 const playhead = () =>
   [...document.querySelectorAll<HTMLDivElement>('div')].find(
     (el) =>
       el.style.backgroundColor !== '' &&
       el.style.transform.startsWith('translateX(') &&
-      el.style.width === '2px',
+      el.style.width === '2px' &&
+      el.style.display !== 'none',
   );
 
 beforeEach(() => {
@@ -165,6 +174,74 @@ describe('playback', () => {
     expect(playhead()).toBeUndefined();
     act(() => s().setPosition(0));
     expect(playhead()).toBeTruthy();
+  });
+});
+
+describe('playback through the playhead clock', () => {
+  // 120 bpm: 960 ticks a second, the transport started at 0 from tick 0.
+  const now = { t: 0 };
+  let frames: FrameRequestCallback[] = [];
+  const runFrame = () => {
+    const due = frames;
+    frames = [];
+    for (const cb of due) act(() => cb(performance.now()));
+  };
+
+  beforeEach(() => {
+    now.t = 0;
+    frames = [];
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      frames.push(cb);
+      return frames.length;
+    });
+    vi.stubGlobal('cancelAnimationFrame', () => {
+      frames = [];
+    });
+    setPlayheadSourceForTests({
+      currentTime: () => now.t,
+      outputLatency: () => 0,
+      ticksAtTime: (time) => time * 960,
+      scheduleTime: () => now.t + 0.1,
+    });
+  });
+  afterEach(() => {
+    endPlayheadRun();
+    setPlayheadSourceForTests();
+    vi.unstubAllGlobals();
+  });
+
+  it('moves the line every frame, rendering nothing and writing no store', () => {
+    renderTimeline();
+    const committed = h.commits.Timeline;
+    let writes = 0;
+    const off = useStore.subscribe(() => (writes += 1));
+    startPlayheadRun(0, 0);
+
+    for (let i = 1; i <= 30; i++) {
+      now.t = i / 30;
+      runFrame();
+    }
+    off();
+
+    expect(playhead()!.style.transform).toBe(
+      `translateX(${tickToPixel(960, 1, 0)}px)`,
+    );
+    expect(h.commits.Timeline).toBe(committed);
+    expect(writes).toBe(0);
+    expect(s().position).toBe(0);
+  });
+
+  it('hit-tests the ruler against the line where it is heard', () => {
+    // Pressing where the line is now (two seconds in) grabs it rather than
+    // seeking, though the store still holds the tick play began from.
+    renderTimeline();
+    startPlayheadRun(0, 0);
+    now.t = 2;
+    runFrame();
+    const canvas = document.querySelector('canvas')!;
+    const x = tickToPixel(1920, 1, 0);
+    fireEvent.mouseMove(canvas, { clientX: x, clientY: RULER_HEIGHT - 2 });
+    expect(canvas.style.cursor).toBe('grab');
   });
 });
 

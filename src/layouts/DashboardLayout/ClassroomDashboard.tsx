@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router';
 import { MobileChordNotationBar } from '@/components/ClassroomLayout/ChordNotationSwitcher';
 import { TopRail } from '@/components/ClassroomLayout/TopRail';
 import { cn } from '@/components/utilities';
+import { DawSkeleton } from '@/daw/shell/DawSkeleton';
 import { useProgressBootstrap } from '@/hooks/data';
 import { useStampEarnedAwards } from '@/hooks/data/useAwards';
 import { useStreakPing } from '@/hooks/data/useStreak';
@@ -40,7 +41,10 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
               : 'overflow-y-auto overflow-x-hidden rounded-xl bg-[#101012] p-2',
           )}
         >
-          <Suspense fallback={props.fallback}>
+          {/* The editor shows its own shape while its chunk loads (1.12a). */}
+          <Suspense
+            fallback={isStudioEditor ? <DawSkeleton /> : props.fallback}
+          >
             <Outlet />
           </Suspense>
         </div>

@@ -9,6 +9,7 @@ import {
   PPQ,
 } from './leadSheetUtils';
 import { parseNoteName } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
+import { ticksPerBar, type TimeSignature } from '@/daw/time/timeModel';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -17,8 +18,10 @@ export interface LeadSheetOptions {
   bpm: number;
   rootNote: number | null; // 0–11, null defaults to C
   mode?: string; // 'ionian', 'aeolian', etc.
-  beatsPerMeasure?: number; // default 4
-  beatType?: number; // default 4
+  /** The project's metre: every bar, and the time signature written. */
+  timeSignature: TimeSignature;
+  /** Bars added past the last chord (leadSheetBars). */
+  extraBars?: number | null;
 }
 
 // ── Root → MusicXML fifths ───────────────────────────────────────────────
@@ -223,12 +226,16 @@ export function buildLeadSheetXml(
     bpm,
     rootNote,
     mode,
-    beatsPerMeasure = 4,
-    beatType = 4,
+    timeSignature,
+    extraBars = null,
   } = options;
+  const beatsPerMeasure = timeSignature.numerator;
+  const beatType = timeSignature.denominator;
 
-  const ticksPerMeasure = beatsPerMeasure * PPQ;
-  const measures = regionToMeasures(regions, ticksPerMeasure);
+  // The bar is the metre's, denominator included: 6/8 is 1,440 ticks, not
+  // six quarter notes (ia-flows-34).
+  const ticksPerMeasure = ticksPerBar(timeSignature);
+  const measures = regionToMeasures(regions, ticksPerMeasure, extraBars);
   const fifths = rootToFifths(rootNote);
   const modeStr = modeToMusicXml(mode);
 

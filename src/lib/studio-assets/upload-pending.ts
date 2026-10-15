@@ -4,6 +4,7 @@ import { useDraftStatusStore } from '@/daw/persistence/drafts/draftStatusStore';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore } from '@/daw/store';
 import { studioAssetsApi, uploadAndFinalizeAsset } from './api';
+import { stampClipAsset, stampSampleAsset } from './assetStamps';
 import { audioBufferToOpusWebm, isOpusEncodingSupported } from './encode-opus';
 import { audioBufferToWav } from './encode-wav';
 
@@ -134,19 +135,12 @@ export function revertAssetStamps(
   for (const stamp of stamps) {
     const track = state.tracks.find((t) => t.id === stamp.trackId);
     if (!track) continue;
+    const stamped = (current: string | null | undefined) =>
+      current === stamp.assetId;
     if (stamp.kind === 'clip') {
-      const clip = track.audioClips.find((c) => c.id === stamp.clipId);
-      if (clip?.assetId === stamp.assetId) {
-        state.updateAudioClip(track.id, clip.id, { assetId: null });
-      }
+      stampClipAsset(track.id, stamp.clipId, null, stamped);
     } else {
-      const current = track.samplerSample;
-      if (
-        current?.sampleId === stamp.sampleId &&
-        current.assetId === stamp.assetId
-      ) {
-        state.setSamplerSample(track.id, { ...current, assetId: null });
-      }
+      stampSampleAsset(track.id, stamp.sampleId, null, stamped);
     }
   }
 }
@@ -220,7 +214,7 @@ function stampAssetOnClipsPlaying(
   for (const track of state.tracks) {
     for (const clip of track.audioClips) {
       if (!clip.assetId && getAudioBuffer(clip.id) === buffer) {
-        state.updateAudioClip(track.id, clip.id, { assetId });
+        stampClipAsset(track.id, clip.id, assetId, (current) => !current);
         onStamp?.({
           kind: 'clip',
           trackId: track.id,
@@ -414,14 +408,12 @@ export async function uploadSamplerSample(
     // mints a new sampleId, so the stale stamp is refused exactly — and only
     // in the session it was dropped into.
     if (!fenceHolds(fence)) return 'superseded';
-    const current = useStore
-      .getState()
-      .tracks.find((t) => t.id === trackId)?.samplerSample;
-    if (current?.sampleId === startSample.sampleId && !current.assetId) {
-      useStore
-        .getState()
-        .setSamplerSample(trackId, { ...current, assetId: asset.id });
-    }
+    stampSampleAsset(
+      trackId,
+      startSample.sampleId,
+      asset.id,
+      (current) => !current,
+    );
     return 'uploaded';
   })();
 
@@ -561,13 +553,9 @@ export async function uploadPendingAudioClips(
       // mints a new sampleId, and stamping the old asset onto the new sample
       // would permanently point it at the wrong audio.
       if (!fenceHolds(fence)) return;
-      const current = useStore
-        .getState()
-        .tracks.find((t) => t.id === trackId)?.samplerSample;
-      if (current?.sampleId === sampleId && !current.assetId) {
-        useStore
-          .getState()
-          .setSamplerSample(trackId, { ...current, assetId: asset.id });
+      if (
+        stampSampleAsset(trackId, sampleId, asset.id, (current) => !current)
+      ) {
         onStamp?.({ kind: 'sample', trackId, sampleId, assetId: asset.id });
       }
     }),
@@ -704,13 +692,21 @@ export async function reconcileMissingAssets(
 
   // Every store change below is for this session only: once another project
   // has opened, a clip with the same id is that project's.
+  // Replaces a missing asset id (`missingId`) on a clip, in the project and
+  // its undo history.
   const setClipAsset = (
     trackId: string,
     clipId: string,
+    missingId: string,
     assetId: string | null,
   ) => {
     if (!fenceHolds(fence)) return;
-    useStore.getState().updateAudioClip(trackId, clipId, { assetId });
+    stampClipAsset(
+      trackId,
+      clipId,
+      assetId,
+      (current) => current === missingId,
+    );
     if (assetId) onStamp?.({ kind: 'clip', trackId, clipId, assetId });
   };
 
@@ -726,7 +722,7 @@ export async function reconcileMissingAssets(
     if (!buffer) {
       // No local bytes to re-upload — drop the dangling reference so the save
       // succeeds without it; the caller alerts the user.
-      setClipAsset(trackId, clipId, null);
+      setClipAsset(trackId, clipId, assetId, null);
       unrecoverable++;
       continue;
     }
@@ -742,7 +738,7 @@ export async function reconcileMissingAssets(
         sampleRate: buffer.sampleRate,
         channels: buffer.numberOfChannels,
       });
-      setClipAsset(trackId, clipId, asset.id);
+      setClipAsset(trackId, clipId, assetId, asset.id);
       reuploaded++;
     } catch (err) {
       console.error(
@@ -750,7 +746,7 @@ export async function reconcileMissingAssets(
         err,
       );
       // The bytes are still here: pending again, not lost.
-      setClipAsset(trackId, clipId, null);
+      setClipAsset(trackId, clipId, assetId, null);
       reuploadFailed++;
     }
   }
@@ -760,14 +756,12 @@ export async function reconcileMissingAssets(
 
     const clearAssetId = () => {
       if (!fenceHolds(fence)) return;
-      const current = useStore
-        .getState()
-        .tracks.find((t) => t.id === trackId)?.samplerSample;
-      if (current?.assetId === assetId) {
-        useStore
-          .getState()
-          .setSamplerSample(trackId, { ...current, assetId: null });
-      }
+      stampSampleAsset(
+        trackId,
+        sampleId,
+        null,
+        (current) => current === assetId,
+      );
     };
 
     const buffer = getAudioBuffer(samplerBufferKey(sampleId));
@@ -789,13 +783,15 @@ export async function reconcileMissingAssets(
         sampleRate: buffer.sampleRate,
         channels: buffer.numberOfChannels,
       });
-      const current = useStore
-        .getState()
-        .tracks.find((t) => t.id === trackId)?.samplerSample;
-      if (fenceHolds(fence) && current?.assetId === assetId) {
-        useStore
-          .getState()
-          .setSamplerSample(trackId, { ...current, assetId: asset.id });
+      if (
+        fenceHolds(fence) &&
+        stampSampleAsset(
+          trackId,
+          sampleId,
+          asset.id,
+          (current) => current === assetId,
+        )
+      ) {
         onStamp?.({ kind: 'sample', trackId, sampleId, assetId: asset.id });
       }
       reuploaded++;

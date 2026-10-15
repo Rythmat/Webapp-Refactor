@@ -594,9 +594,10 @@ describe('a save of a linked project', () => {
   });
 });
 
-describe('a project today’s cloud holds only in part', () => {
-  it('saves incomplete (D7)', async () => {
-    trackProject('Night Drive');
+describe('a project the cloud holds only in part', () => {
+  it('saves incomplete (D7): no track for the cloud document to ride on', async () => {
+    resetSessionToEmpty();
+    s().setProjectName('Night Drive');
     s().setChordRegions([REGION], true);
     s().setMode('dorian');
     const done = saved(await save());

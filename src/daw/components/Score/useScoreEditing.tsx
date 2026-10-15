@@ -9,7 +9,6 @@ import {
   isGlyphMark,
   MARK_STYLES,
   markLabel,
-  marksAt,
   marksBarEnd,
   withMark,
   withMarkText,
@@ -24,8 +23,13 @@ import {
 } from '@/lib/notation/systemPlan';
 import { LETTER_PORTRAIT } from '@/lib/notation/pageLayout';
 import { parseNoteId } from '@/daw/model/noteKeys';
+import { SCORE_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
+import { studioPlayheadSource } from '@/daw/engine/studioPlayheadSource';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
+import { withTransaction } from '@/daw/store/history';
 import { useUndoState } from '@/daw/store/useUndoState';
 import type { PaletteAction } from './ScorePalettes';
 import {
@@ -37,12 +41,10 @@ import {
   withSpelling,
   DURATIONS,
   articulationSide,
-  articulationsFor,
   articulationKey,
   durationTicks,
   groupChordArticulations,
   planTie,
-  type TieCandidate,
   type NoteLayer,
   parseSlur,
   slurKey,
@@ -73,8 +75,6 @@ import {
   articulationMarkKey,
   markRange,
   slurMarkKey,
-  tieMarkKey,
-  type ScoreMark,
 } from './scoreMarks';
 import {
   copyMeasures,
@@ -102,6 +102,15 @@ import {
   withoutRepeatAt,
 } from './roadmap';
 import type { ScoreTrackPart } from './scoreParts';
+import {
+  articulationIndex,
+  byBar,
+  clipEventIndex,
+  noteIndex,
+  scoreMarksOf,
+  systemOpeningBars,
+  tieCandidatesOf,
+} from './scoreLookups';
 
 /** A rehearsal mark's own height plus its gap, for stacking one over a
  * chord symbol. */
@@ -132,7 +141,6 @@ export function useScoreEditing({
   chordsAlwaysVisible = false,
 }: ScoreEditingOptions) {
   const tracks = useStore((s) => s.tracks);
-  const position = useStore((s) => s.position);
   // The roadmap lives with the lead sheet's, so edits show up in both views.
   const measuresPerLine = useStore((s) => s.measuresPerLine);
   const measureRowSizes = useStore((s) => s.measureRowSizes);
@@ -428,15 +436,19 @@ export function useScoreEditing({
       edit: Parameters<typeof applyNoteEdit>[2],
       adjust?: Parameters<typeof followEdit>[1],
     ) => {
-      const result = applyNoteEdit(
-        tracks,
-        ids,
-        edit,
-        keyFifths,
-        updateMidiClipEvents,
-      );
-      followEdit(result, adjust);
-      return result.ids;
+      // The notes and the marks that follow them are one undo step, and
+      // one update to collaborators.
+      return withTransaction('Edit notes', () => {
+        const result = applyNoteEdit(
+          tracks,
+          ids,
+          edit,
+          keyFifths,
+          updateMidiClipEvents,
+        );
+        followEdit(result, adjust);
+        return result.ids;
+      });
     },
     [tracks, keyFifths, updateMidiClipEvents, followEdit],
   );
@@ -447,14 +459,16 @@ export function useScoreEditing({
       edits: Map<string, Parameters<typeof applyNoteEdit>[2]>,
       adjust?: Parameters<typeof followEdit>[1],
     ) => {
-      const result = applyNoteEdits(
-        tracks,
-        edits,
-        keyFifths,
-        updateMidiClipEvents,
-      );
-      followEdit(result, adjust);
-      return result.ids;
+      return withTransaction('Edit notes', () => {
+        const result = applyNoteEdits(
+          tracks,
+          edits,
+          keyFifths,
+          updateMidiClipEvents,
+        );
+        followEdit(result, adjust);
+        return result.ids;
+      });
     },
     [tracks, keyFifths, updateMidiClipEvents, followEdit],
   );
@@ -731,85 +745,6 @@ export function useScoreEditing({
     ],
   );
 
-  // MuseScore's keys: Return breaks the system, Delete clears what's selected,
-  // Up/Down move the selected notes by a staff step (Shift for an octave).
-  useEffect(() => {
-    if (editingSection !== null) return;
-    if (selectedNotes.size > 0) {
-      const onNoteKey = (event: KeyboardEvent) => {
-        const target = event.target as HTMLElement | null;
-        if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-        if (event.key === 'Delete' || event.key === 'Backspace') {
-          event.preventDefault();
-          writeEdit(selectedNotes, { remove: true });
-          setSelectedNotes(new Set());
-        } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-          event.preventDefault();
-          const direction = event.key === 'ArrowUp' ? 1 : -1;
-          const steps = direction * (event.shiftKey ? 7 : 1);
-          setSelectedNotes(new Set(writeEdit(selectedNotes, { steps })));
-        } else if (event.key === 'Escape') {
-          clearSelection();
-        }
-      };
-      window.addEventListener('keydown', onNoteKey);
-      return () => window.removeEventListener('keydown', onNoteKey);
-    }
-    if (selectedCells.size > 0) {
-      const onCellKey = (event: KeyboardEvent) => {
-        const target = event.target as HTMLElement | null;
-        if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-        if (event.key === 'Delete' || event.key === 'Backspace') {
-          event.preventDefault();
-          writeEdit(notesInCells(layout?.notes ?? [], selectedCells), {
-            remove: true,
-          });
-        } else if (event.key === 'Escape') {
-          clearSelection();
-        } else if (event.key === 'Enter' && targetBarline !== null) {
-          event.preventDefault();
-          toggleSystemBreak(targetBarline);
-        }
-      };
-      window.addEventListener('keydown', onCellKey);
-      return () => window.removeEventListener('keydown', onCellKey);
-    }
-    const selected = targetBarline;
-    if (selected === null) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        toggleSystemBreak(selected);
-      } else if (event.key === 'Escape') {
-        clearSelection();
-      } else if (event.key === 'Delete' || event.key === 'Backspace') {
-        event.preventDefault();
-        setRepeats(withoutRepeatAt(repeats, selected));
-        removeSection(selected);
-      } else if ((event.metaKey || event.ctrlKey) && event.key === 'm') {
-        event.preventDefault();
-        apply('text.rehearsalMark');
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [
-    targetBarline,
-    selectedNotes,
-    selectedCells,
-    layout,
-    editingSection,
-    repeats,
-    toggleSystemBreak,
-    setRepeats,
-    removeSection,
-    apply,
-    writeEdit,
-    clearSelection,
-  ]);
-
   // ── Note editor ─────────────────────────────────────────────────────────
   const ticksPerQuarter = parts[0]?.score.ticksPerQuarter ?? 480;
 
@@ -982,36 +917,16 @@ export function useScoreEditing({
     [selectedSpelled, keyFifths, writeEdits, setSelectedNotes],
   );
 
-  /**
-   * Every note as the tie logic sees it. The notation engine splits a long
-   * note across the beat and ties the pieces, so one id can be drawn more
-   * than once; the source note is the earliest piece, and its length comes
-   * from the clip event rather than from any one piece.
-   */
-  const tieCandidates = useMemo(() => {
-    const byId = new Map<string, TieCandidate>();
-    for (const info of layout?.notes ?? []) {
-      const ref = parseNoteId(info.id);
-      if (!ref) continue;
-      const event = tracks
-        .find((t) => t.id === ref.trackId)
-        ?.midiClips.find((c) => c.id === ref.clipId)
-        ?.events.find(
-          (e) => e.startTick === ref.startTick && e.note === ref.midi,
-        );
-      if (!event) continue;
-      const existing = byId.get(info.id);
-      if (existing && existing.tick <= info.tick) continue;
-      byId.set(info.id, {
-        id: info.id,
-        partIndex: info.partIndex,
-        tick: info.tick,
-        midi: event.note,
-        durationTicks: event.durationTicks,
-      });
-    }
-    return [...byId.values()];
-  }, [layout, tracks]);
+  /** Each drawn note's clip event, found without searching every clip. */
+  const eventAt = useMemo(() => clipEventIndex(tracks), [tracks]);
+  /** The drawn notes by id and by beat, for the markings and the overlay. */
+  const drawnNotes = useMemo(() => noteIndex(layout?.notes ?? []), [layout]);
+
+  /** Every note as the tie logic sees it (see tieCandidatesOf). */
+  const tieCandidates = useMemo(
+    () => tieCandidatesOf(layout?.notes ?? [], eventAt),
+    [layout, eventAt],
+  );
 
   /** The tie the selection would make, or null when it cannot make one. */
   const tiePlan = useMemo(() => {
@@ -1050,34 +965,6 @@ export function useScoreEditing({
     setSlurs(toggleSlur(slurs, slurEnds.from, slurEnds.to));
   }, [slurEnds, slurs, setSlurs]);
 
-  /**
-   * ⌥N / ⌥R / ⌥H pick the row that numbers write into. Option is used rather
-   * than ⌘, which the browser and macOS keep for themselves (new window,
-   * reload, hide application).
-   */
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (!event.altKey || event.metaKey || event.ctrlKey) return;
-      // Option rewrites the letter on macOS; `code` stays put.
-      const key = event.code.replace('Key', '').toLowerCase();
-      const next: NoteLayer | null =
-        key === 'n'
-          ? 'notes'
-          : key === 'r'
-            ? 'rests'
-            : key === 'h'
-              ? 'slashes'
-              : null;
-      if (!next) return;
-      event.preventDefault();
-      setLayer(next);
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
-
   /** The beat a chord would be written over: the selected note or rest. */
   const chordTarget = useMemo(() => {
     const note = (layout?.notes ?? []).find((n) => selectedNotes.has(n.id));
@@ -1087,118 +974,32 @@ export function useScoreEditing({
     return null;
   }, [layout, selectedNotes, selectedRests]);
 
-  // The editor's keys work whenever notes are selected.
-  useEffect(() => {
-    if (selectedNotes.size === 0 || editingSection !== null) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      const duration = DURATIONS.find((choice) => choice.key === event.key);
-      if (duration) {
-        event.preventDefault();
-        applyDuration(duration);
-        return;
-      }
-      const articulation = ARTICULATIONS.find(
-        (choice) => choice.key === event.key,
-      );
-      if (articulation) {
-        event.preventDefault();
-        applyArticulation(articulation.kind);
-        return;
-      }
-      if (event.key === 's' || event.key === 'S') {
-        event.preventDefault();
-        applySlur();
-        return;
-      }
-      if (event.key === 't' || event.key === 'T') {
-        event.preventDefault();
-        applyTie();
-        return;
-      }
-      if ((event.key === 'k' || event.key === 'K') && chordTarget) {
-        event.preventDefault();
-        setChordEntry({ ...chordTarget, text: '' });
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [
-    selectedNotes,
-    editingSection,
-    applyDuration,
-    applyArticulation,
-    applySlur,
-    applyTie,
-    chordTarget,
-  ]);
-
   // ── Markings: articulations, slurs and ties ─────────────────────────────
+  /** Each note's articulations, read once rather than once per note. */
+  const articulationsByNote = useMemo(
+    () => articulationIndex(articulations),
+    [articulations],
+  );
   const chordMarks = useMemo(
     () =>
-      groupChordArticulations(layout?.notes ?? [], (id) =>
-        articulationsFor(articulations, id),
+      groupChordArticulations(
+        layout?.notes ?? [],
+        (id) => articulationsByNote.get(id) ?? [],
       ),
-    [layout, articulations],
+    [layout, articulationsByNote],
   );
 
   /** Every marking on the page, as something that can be picked up. */
-  const marks = useMemo(() => {
-    const out: ScoreMark[] = [];
-    for (const chord of chordMarks) {
-      for (const kind of chord.kinds) {
-        out.push({
-          key: articulationMarkKey(chord.note.id, kind),
-          kind: { type: 'articulation', kind },
-          partIndex: chord.note.partIndex,
-          tick: chord.note.tick,
-          // A chord's mark belongs to every note of it that carries the mark.
-          noteIds: (layout?.notes ?? [])
-            .filter(
-              (n) =>
-                n.partIndex === chord.note.partIndex &&
-                n.tick === chord.note.tick &&
-                articulationsFor(articulations, n.id).includes(kind),
-            )
-            .map((n) => n.id),
-        });
-      }
-    }
-    for (const entry of slurs) {
-      const ends = parseSlur(entry);
-      const from = (layout?.notes ?? []).find((n) => n.id === ends?.fromId);
-      if (!ends || !from) continue;
-      out.push({
-        key: slurMarkKey(ends.fromId, ends.toId),
-        kind: { type: 'slur' },
-        partIndex: from.partIndex,
-        tick: from.tick,
-        noteIds: [ends.fromId, ends.toId],
-      });
-    }
-    // A note drawn twice is one note held across a barline: that is a tie.
-    const fragments = new Map<string, NoteInfo[]>();
-    for (const note of layout?.notes ?? []) {
-      fragments.set(note.id, [...(fragments.get(note.id) ?? []), note]);
-    }
-    for (const [id, pieces] of fragments) {
-      if (pieces.length < 2) continue;
-      const ordered = [...pieces].sort((a, b) => a.tick - b.tick);
-      for (let i = 1; i < ordered.length; i++) {
-        out.push({
-          key: tieMarkKey(id, ordered[i].tick),
-          kind: { type: 'tie' },
-          partIndex: ordered[i].partIndex,
-          tick: ordered[i - 1].tick,
-          noteIds: [id],
-          splitTick: ordered[i].tick,
-        });
-      }
-    }
-    return out;
-  }, [chordMarks, layout, articulations, slurs]);
+  const marks = useMemo(
+    () =>
+      scoreMarksOf({
+        chordMarks,
+        notes: drawnNotes,
+        kindsOf: (id) => articulationsByNote.get(id) ?? [],
+        slurs,
+      }),
+    [chordMarks, drawnNotes, articulationsByNote, slurs],
+  );
 
   const handleMarkPointerDown = useCallback(
     (key: string, event: React.PointerEvent) => {
@@ -1275,7 +1076,9 @@ export function useScoreEditing({
     () => new Map(scoreParts.map((part, index) => [index, part.id])),
     [scoreParts],
   );
-  const measureTicks = parts[0]?.score.ticksPerMeasure ?? 1920;
+  // The project's bar while there are no parts to read it from.
+  const projectBarTicks = useStore((s) => ticksPerBar(timeSignatureOf(s)));
+  const measureTicks = parts[0]?.score.ticksPerMeasure ?? projectBarTicks;
 
   const visibleChordParts = useMemo(
     () =>
@@ -1309,7 +1112,7 @@ export function useScoreEditing({
         item.space *
           (item.stem === 'up'
             ? 8
-            : articulationsFor(articulations, item.id).length > 0
+            : (articulationsByNote.get(item.id)?.length ?? 0) > 0
               ? 4
               : 1.5),
     });
@@ -1343,7 +1146,7 @@ export function useScoreEditing({
     return [...byBeat.values()].sort(
       (a, b) => a.partIndex - b.partIndex || a.tick - b.tick,
     );
-  }, [layout, articulations]);
+  }, [layout, articulationsByNote]);
 
   const chordPlacements = useMemo(
     () =>
@@ -1658,7 +1461,15 @@ export function useScoreEditing({
       trackIdByPart,
     );
     for (const write of writes) {
-      updateMidiClipEvents(write.trackId, write.clipId, write.events);
+      if (write.newClipStartTick !== undefined) {
+        useStore.getState().addMidiClip(write.trackId, {
+          id: write.clipId,
+          startTick: write.newClipStartTick,
+          events: write.events,
+        });
+      } else {
+        updateMidiClipEvents(write.trackId, write.clipId, write.events);
+      }
     }
     // The notes a measure paste cleared take their marks with them, so none
     // carries over to a pasted note that lands where one of them sat.
@@ -1696,49 +1507,73 @@ export function useScoreEditing({
     followEdit,
   ]);
 
-  // ⌘C / ⌘V work whatever is selected; what they act on is decided above.
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (!(event.metaKey || event.ctrlKey)) return;
-      if (event.key === 'c') {
-        event.preventDefault();
-        handleCopy();
-      } else if (event.key === 'v') {
-        event.preventDefault();
-        handlePaste();
+  // ── Keys (the score scope) ──────────────────────────────────────────────
+  // MuseScore's keys. Delete clears what's selected (notes, the bars picked,
+  // a barline's repeat and rehearsal mark, markings, chord symbols); Up and
+  // Down move the selected notes a staff step (Shift for an octave); 2–7 set
+  // their length, . > - _ ; their articulation, S a slur, T a tie, K a chord
+  // symbol over them. ⌥N / ⌥R / ⌥H pick the row that numbers write into
+  // (Option rather than ⌘, which the browser and macOS keep for themselves:
+  // new window, reload, hide application). Return breaks the system at the
+  // picked barline, ⌘M puts a rehearsal mark there. With a chord symbol
+  // picked, Space walks on to the next beat and types. ⌘C / ⌘V work whatever
+  // is selected; what they act on is decided above. Delete and Escape are
+  // always the Score's here, so neither reaches a clip in Create or stops
+  // the music. A key a command doesn't take goes on to the global keys.
+  const editingNotes = selectedNotes.size > 0 && editingSection === null;
+  const atBarline =
+    editingSection === null &&
+    selectedNotes.size === 0 &&
+    targetBarline !== null;
+  const moveNotes = (steps: number) => {
+    if (!editingNotes) return false;
+    setSelectedNotes(new Set(writeEdit(selectedNotes, { steps })));
+  };
+  useKeymap(SCORE_SCOPE.id, {
+    'score.delete': () => {
+      if (editingSection !== null) return;
+      if (selectedNotes.size > 0) {
+        writeEdit(selectedNotes, { remove: true });
+        setSelectedNotes(new Set());
+      } else if (selectedCells.size > 0) {
+        writeEdit(notesInCells(layout?.notes ?? [], selectedCells), {
+          remove: true,
+        });
+      } else if (targetBarline !== null) {
+        setRepeats(withoutRepeatAt(repeats, targetBarline));
+        removeSection(targetBarline);
       }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleCopy, handlePaste]);
-
-  // Markings answer to Delete and Escape like anything else selected.
-  useEffect(() => {
-    if (selectedMarks.size === 0 || editingSection !== null) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.key === 'Delete' || event.key === 'Backspace') {
-        event.preventDefault();
-        deleteSelectedMarks();
-      } else if (event.key === 'Escape') {
-        setSelectedMarks(new Set());
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedMarks, editingSection, deleteSelectedMarks]);
-
-  // With a chord symbol picked, space walks on to the next beat and types.
-  useEffect(() => {
-    if (selectedChords.size === 0 || chordEntry) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.key !== ' ') return;
-      event.preventDefault();
+      if (selectedMarks.size > 0) deleteSelectedMarks();
+      if (selectedChords.size > 0) hideSelectedChords();
+    },
+    'score.up': () => moveNotes(1),
+    'score.down': () => moveNotes(-1),
+    'score.octaveUp': () => moveNotes(7),
+    'score.octaveDown': () => moveNotes(-7),
+    'score.duration': (e) => {
+      const duration = DURATIONS.find((choice) => choice.key === e.key);
+      if (!editingNotes || !duration) return false;
+      applyDuration(duration);
+    },
+    'score.articulation': (e) => {
+      const articulation = ARTICULATIONS.find((choice) => choice.key === e.key);
+      if (!editingNotes || !articulation) return false;
+      applyArticulation(articulation.kind);
+    },
+    'score.slur': () => {
+      if (!editingNotes) return false;
+      applySlur();
+    },
+    'score.tie': () => {
+      if (!editingNotes) return false;
+      applyTie();
+    },
+    'score.chord': () => {
+      if (!editingNotes || !chordTarget) return false;
+      setChordEntry({ ...chordTarget, text: '' });
+    },
+    'score.nextBeat': () => {
+      if (selectedChords.size === 0 || chordEntry) return false;
       const first = chordPlacements.find((p) => selectedChords.has(p.key));
       if (!first) return;
       const next = nextBeat(beatAnchors, first);
@@ -1746,27 +1581,33 @@ export function useScoreEditing({
         setSelectedChords(new Set());
         setChordEntry({ partIndex: next.partIndex, tick: next.tick, text: '' });
       }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedChords, chordEntry, chordPlacements, beatAnchors]);
-
-  // Chords come off a part with Delete, like anything else selected.
-  useEffect(() => {
-    if (selectedChords.size === 0 || editingSection !== null) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) return;
-      if (event.key === 'Delete' || event.key === 'Backspace') {
-        event.preventDefault();
-        hideSelectedChords();
-      } else if (event.key === 'Escape') {
-        setSelectedChords(new Set());
+    },
+    'score.layerNotes': () => setLayer('notes'),
+    'score.layerRests': () => setLayer('rests'),
+    'score.layerSlashes': () => setLayer('slashes'),
+    'score.systemBreak': () => {
+      if (!atBarline || targetBarline === null) return false;
+      toggleSystemBreak(targetBarline);
+    },
+    'score.rehearsalMark': () => {
+      if (!atBarline || selectedCells.size > 0) return false;
+      apply('text.rehearsalMark');
+    },
+    'score.copy': () => handleCopy(),
+    'score.paste': () => handlePaste(),
+    'score.escape': () => {
+      if (editingSection !== null) return;
+      if (
+        selectedNotes.size > 0 ||
+        selectedCells.size > 0 ||
+        targetBarline !== null
+      ) {
+        clearSelection();
       }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedChords, editingSection, hideSelectedChords]);
+      if (selectedMarks.size > 0) setSelectedMarks(new Set());
+      if (selectedChords.size > 0) setSelectedChords(new Set());
+    },
+  });
 
   /** Runs of empty bars the sheet writes as one multi-bar rest. */
   const multiRests = useMemo(() => {
@@ -1814,6 +1655,14 @@ export function useScoreEditing({
       );
     },
     [layout, chordPlacements],
+  );
+
+  // What each barline looks up, by bar and by system, built once a layout.
+  const sectionsByBar = useMemo(() => byBar(sections), [sections]);
+  const textMarksByBar = useMemo(() => byBar(textMarks), [textMarks]);
+  const openingBars = useMemo(
+    () => systemOpeningBars(layout?.barlines ?? []),
+    [layout],
   );
 
   const overlay = layout ? (
@@ -1882,8 +1731,8 @@ export function useScoreEditing({
         })}
         {slurs.map((entry) => {
           const ends = parseSlur(entry);
-          const from = (layout?.notes ?? []).find((n) => n.id === ends?.fromId);
-          const to = (layout?.notes ?? []).find((n) => n.id === ends?.toId);
+          const from = ends ? drawnNotes.byId.get(ends.fromId)?.[0] : undefined;
+          const to = ends ? drawnNotes.byId.get(ends.toId)?.[0] : undefined;
           if (!ends || !from || !to || from.x === to.x) return null;
           const side =
             articulationSide(from) === articulationSide(to)
@@ -1926,9 +1775,9 @@ export function useScoreEditing({
         {marks
           .filter((mark) => mark.kind.type === 'tie')
           .map((mark) => {
-            const fragments = (layout?.notes ?? [])
-              .filter((n) => n.id === mark.noteIds[0])
-              .sort((a, b) => a.tick - b.tick);
+            const fragments = [
+              ...(drawnNotes.byId.get(mark.noteIds[0]) ?? []),
+            ].sort((a, b) => a.tick - b.tick);
             const from = fragments.find((n) => n.tick === mark.tick);
             const to = fragments.find((n) => n.tick === mark.splitTick);
             if (!from || !to) return null;
@@ -2064,22 +1913,18 @@ export function useScoreEditing({
       })}
       {layout.barlines.map((barline) => {
         const isSelected = selected === barline.measureIndex;
-        const section = sections.find(
-          (sec) => sec.measureIdx === barline.measureIndex,
-        );
+        const section = sectionsByBar.get(barline.measureIndex)?.[0];
         // Signs and directives sit above the staff, clear of the rehearsal
         // letter; a jump reads at the end of its bar, so it hangs right.
         const barMarks = barline.atSystemEnd
           ? []
-          : marksAt(textMarks, barline.measureIndex);
+          : (textMarksByBar.get(barline.measureIndex) ?? []);
         const broken = systemBreaks.has(barline.measureIndex);
         const atSystemStart =
           !barline.atSystemEnd &&
-          !layout.barlines.some(
-            (other) =>
-              other.system === barline.system &&
-              !other.atSystemEnd &&
-              other.measureIndex < barline.measureIndex,
+          !(
+            (openingBars.get(barline.system) ?? barline.measureIndex) <
+            barline.measureIndex
           );
         return (
           <div
@@ -2394,7 +2239,9 @@ export function useScoreEditing({
     staff: {
       noteStyles,
       noteOffsets,
-      playheadTick: position,
+      // The staff paints the playhead itself, so neither this hook nor the
+      // views using it re-render as it moves (milestone 1.7, score-05).
+      playheadSource: studioPlayheadSource,
       // The score is engraved onto paper, so a system is the same size
       // whatever the window is doing and what is drawn is what prints.
       page: LETTER_PORTRAIT,
@@ -2435,11 +2282,15 @@ export function useScoreEditing({
       onAccidental: applyAccidental,
       canUndo,
       canRedo,
+      // Like ⌘Z, never mid-take: undoing the step that made the record
+      // track would leave the take nowhere to land.
       onUndo: () => {
+        if (useStore.getState().isRecording) return;
         smartUndo();
         clearSelection();
       },
       onRedo: () => {
+        if (useStore.getState().isRecording) return;
         smartRedo();
         clearSelection();
       },

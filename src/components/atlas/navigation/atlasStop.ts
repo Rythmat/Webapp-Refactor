@@ -21,9 +21,10 @@ export type AtlasStop =
 /**
  * Query-string keys a stop owns — replaced wholesale on every navigation.
  *
- * `era` is deliberately absent. It is a filter over whatever the stop shows
- * (the dashboard arms it, the timeline narrows to it), so it has to survive a
- * click from one place to the next rather than being wiped by it.
+ * The frame's keys (view, lens, years, lane: navigation/atlasFrame.ts) and
+ * a legacy `era` are deliberately absent. They are how the page looks at
+ * whatever the stop shows, so they survive a click from one place to the next
+ * rather than being wiped by it.
  */
 export const STOP_PARAM_KEYS = [
   'event',

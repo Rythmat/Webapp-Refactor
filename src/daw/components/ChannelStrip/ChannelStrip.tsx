@@ -16,15 +16,18 @@ import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import { LockedFeatureOverlay } from '@/components/ui/LockedFeatureOverlay';
 import { TrackControlsPanel } from '@/daw/components/Controls/TrackControlsPanel';
-import { EffectsPanel } from '@/daw/components/Effects/EffectsPanel';
-import { PrismPanel } from '@/daw/components/Prism/PrismPanel';
 import { auditionNote } from '@/daw/audio/auditionNote';
-import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
-import { TICKS_PER_BEAT } from '@/daw/utils/timelineScale';
-import { PianoRoll } from '@/daw/components/PianoRoll/PianoRoll';
-import { GroovesBrowser } from '@/daw/components/Controls/GroovesBrowser';
-import { PartsBrowser } from '@/daw/components/Controls/PartsBrowser';
-import type { MidiNoteEvent } from '@prism/engine';
+import { editorTrackId, resolveEditorClip } from '@/daw/model/editorClip';
+import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
+import {
+  ClipPianoRollPart,
+  EffectsPanelPart,
+  GroovesBrowserPart,
+  PartsBrowserPart,
+  PrismPanelPart,
+  preloadDockTab,
+  preloadInstrumentViews,
+} from '@/daw/shell/lazyParts';
 import { isChannelStripTabId } from './channelStripTabs';
 
 // ── PrismLogo ────────────────────────────────────────────────────────────
@@ -122,14 +125,12 @@ export function ChannelStrip() {
   const prevTrackCount = useRef(0);
   const { isPremium } = useIsPremium();
 
-  const selectedTrackId = useStore((s) => s.selectedTrackId);
-  const tracks = useStore((s) => s.tracks);
-  const selectedClipId = useStore((s) => s.selectedClipId);
-  const selectedClipTrackId = useStore((s) => s.selectedClipTrackId);
-  const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
-  const addMidiClip = useStore((s) => s.addMidiClip);
-  const setSelectedClip = useStore((s) => s.setSelectedClip);
-  const tsNum = useStore((s) => s.timeSignatureNumerator);
+  // The selected track and the selected clip's track only, not the whole
+  // tracks array: an edit to another track re-renders nothing here.
+  const track = useStore((s) =>
+    s.tracks.find((t) => t.id === s.selectedTrackId),
+  );
+  const trackCount = useStore((s) => s.tracks.length);
 
   // The session generation moves on with every load and reset of the
   // project (sessionGeneration.ts). A project opened in place of another goes
@@ -150,21 +151,26 @@ export function ChannelStrip() {
     const firstTrack = prevTrackCount.current === 0;
     const opened = generation !== seenGeneration.current;
     if (
-      tracks.length > 0 &&
+      trackCount > 0 &&
       (firstTrack || opened) &&
       !isChannelStripTabId(activeTab)
     ) {
       setActiveTab('controls');
     }
     seenGeneration.current = generation;
-    prevTrackCount.current = tracks.length;
-  }, [tracks.length, generation, activeTab, setActiveTab]);
-  const track = tracks.find((t) => t.id === selectedTrackId);
+    prevTrackCount.current = trackCount;
+  }, [trackCount, generation, activeTab, setActiveTab]);
 
-  // Piano roll: find selected clip
-  const selectedClipTrack = tracks.find((t) => t.id === selectedClipTrackId);
-  const selectedClip = selectedClipTrack?.midiClips.find(
-    (c) => c.id === selectedClipId,
+  // Piano roll: the clip the dock edits (editorClip.ts). The selected
+  // clip's track when a MIDI clip is selected, else the selected track; on
+  // it, the selected clip, the clip under the playhead, or the first one.
+  // Only a track with no clips opens a blank roll, at the playhead's bar.
+  const rollTrackId = useStore(editorTrackId);
+  const rollClipId = useStore(
+    (s) => resolveEditorClip(s, rollTrackId)?.id ?? null,
+  );
+  const blankStartTick = useStore((s) =>
+    barStartTick(s.position, timeSignatureOf(s)),
   );
 
   const isGuitarBass =
@@ -175,11 +181,8 @@ export function ChannelStrip() {
   const isMidiInstrument =
     !!track && !isAudioInput && track.instrument !== 'none';
 
-  // Piano roll notes audition on the track being edited: the selected clip's
-  // track, or the selected track while drawing into a blank roll.
-  const auditionTrackId = selectedClip
-    ? selectedClipTrackId
-    : (track?.id ?? null);
+  // Piano roll notes audition on the track being edited.
+  const auditionTrackId = rollTrackId;
   const handleAuditionNote = useCallback(
     (note: number, velocity: number) => {
       if (auditionTrackId) auditionNote(auditionTrackId, note, velocity);
@@ -187,38 +190,23 @@ export function ChannelStrip() {
     [auditionTrackId],
   );
 
-  const handlePianoRollChange = useCallback(
-    (newEvents: MidiNoteEvent[]) => {
-      if (selectedClipTrackId && selectedClipId) {
-        updateMidiClipEvents(selectedClipTrackId, selectedClipId, newEvents);
-      } else if (track && isMidiInstrument && newEvents.length > 0) {
-        // Blank mode: create a new clip on the first note draw
-        const clipId = `clip-${crypto.randomUUID().slice(0, 8)}`;
-        addMidiClip(track.id, {
-          id: clipId,
-          name: 'Untitled',
-          startTick: 0,
-          events: newEvents,
-        });
-        setSelectedClip(clipId, track.id);
-      }
-    },
-    [
-      selectedClipTrackId,
-      selectedClipId,
-      track,
-      isMidiInstrument,
-      updateMidiClipEvents,
-      addMidiClip,
-      setSelectedClip,
-    ],
-  );
-
   const handleTabClick = useCallback(
     (id: TabId) => {
       setActiveTab(activeTab === id ? null : id);
     },
     [activeTab, setActiveTab],
+  );
+
+  // Each tab's content is its own chunk (1.12a): a pointer over or a focus
+  // on the tab fetches it, so a click usually finds it there.
+  const instrument = track?.instrument;
+  const preloadTab = useCallback(
+    (id: TabId) => {
+      if (id === 'controls') {
+        if (instrument) preloadInstrumentViews([instrument]);
+      } else preloadDockTab(id);
+    },
+    [instrument],
   );
 
   // Grooves is a drum machine's tab, Parts and the piano roll a melodic
@@ -262,6 +250,8 @@ export function ChannelStrip() {
                 key={tab.id}
                 data-tutorial-id={`chanstrip-tab-${tab.id}`}
                 onClick={() => handleTabClick(tab.id)}
+                onPointerEnter={() => preloadTab(tab.id)}
+                onFocus={() => preloadTab(tab.id)}
                 className="flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider cursor-pointer"
                 style={{
                   backgroundColor: active
@@ -349,39 +339,24 @@ export function ChannelStrip() {
               style={{ height: '33vh' }}
             >
               {activeTab === 'controls' && <TrackControlsPanel />}
-              {activeTab === 'fx' && <EffectsPanel />}
+              {activeTab === 'fx' && <EffectsPanelPart />}
               {activeTab === 'grooves' && track && (
-                <GroovesBrowser trackId={track.id} />
+                <GroovesBrowserPart trackId={track.id} />
               )}
               {activeTab === 'parts' && track && (
-                <PartsBrowser trackId={track.id} />
+                <PartsBrowserPart trackId={track.id} />
               )}
               {activeTab === 'prism' && (
                 <LockedFeatureOverlay locked={!isPremium}>
-                  <PrismPanel />
+                  <PrismPanelPart />
                 </LockedFeatureOverlay>
               )}
               {activeTab === 'piano-roll' &&
-                ((selectedClip && selectedClipTrack) || isMidiInstrument ? (
-                  <PianoRoll
-                    events={selectedClip?.events ?? []}
-                    clipId={selectedClip?.id ?? null}
-                    // Events are clip-relative: the roll starts at the clip's
-                    // own tick 0, and only its song-time overlays (playhead,
-                    // loop) use where the clip sits in the song.
-                    clipStartTick={
-                      selectedClip
-                        ? noteEditorOriginTick(
-                            selectedClip.events,
-                            TICKS_PER_BEAT * tsNum,
-                          )
-                        : 0
-                    }
-                    timelineStartTick={selectedClip?.startTick ?? 0}
-                    clipColor={
-                      selectedClipTrack?.color ?? track?.color ?? '#888'
-                    }
-                    onChange={handlePianoRollChange}
+                (rollTrackId && (rollClipId || isMidiInstrument) ? (
+                  <ClipPianoRollPart
+                    trackId={rollTrackId}
+                    clipId={rollClipId}
+                    blankStartTick={blankStartTick}
                     onAuditionNote={handleAuditionNote}
                   />
                 ) : (

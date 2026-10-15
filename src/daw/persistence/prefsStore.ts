@@ -11,8 +11,9 @@ import { ALL_GRID_VALUES, type AllGridSize } from '@/daw/utils/quantize';
 // ── Per-user editor preferences ────────────────────────────────────────────
 //
 // A few editor settings belong to the student rather than to a project: the
-// metronome, the count-in, the timeline's snap, grid and triplets, and
-// whether the chord ruler shows note names (the registry's 'pref' scope,
+// metronome, the count-in, the timeline's snap, grid and triplets, whether
+// the chord ruler shows note names, and whether single-key shortcuts are on
+// (the registry's 'pref' scope,
 // decision D5). They follow the student from project to project, so a new
 // project, a template or a restored draft leaves them as they are. Each
 // user's are kept under their own key, so on a shared school Chromebook
@@ -73,6 +74,7 @@ const IS_VALID: {
     Object.prototype.hasOwnProperty.call(ALL_GRID_VALUES, value),
   timelineTripletMode: isBoolean,
   chordRulerShowNotes: isBoolean,
+  singleKeyShortcuts: isBoolean,
 };
 
 /**

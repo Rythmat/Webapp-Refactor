@@ -134,6 +134,27 @@ describe('parseBootIntent', () => {
       },
     ],
     [
+      '?collab=cls0123456789ab&pair=1',
+      {
+        kind: 'collab',
+        code: 'cls0123456789ab',
+        host: false,
+        jamImport: false,
+        awaitHost: true,
+        classPair: true,
+      },
+    ],
+    [
+      '?collab=cls0123456789ab&host=1&pair=1',
+      {
+        kind: 'collab',
+        code: 'cls0123456789ab',
+        host: true,
+        jamImport: false,
+        awaitHost: false,
+      },
+    ],
+    [
       '?jam=1&collab=abcd1234&host=1',
       {
         kind: 'collab',

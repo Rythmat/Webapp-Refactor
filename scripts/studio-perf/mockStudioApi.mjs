@@ -107,13 +107,33 @@
  * A faulted request is logged with `fault: true` (and `aborted` or its
  * status) and never counts as a write.
  *
- * Mode 'document' is the milestone 1.5 contract (plan.md 1.5: a `document`
- * JSONB field with `documentSchema`, `revision` and `writtenAtRevision`,
- * unknown fields preserved on PUT, 409 on an older schema or a revision
- * conflict). It is designed in 1.5 together with music-atlas-api, so it is
- * deliberately not guessed here: asking for it throws
- * MockModeNotImplemented, which roundtrip.mjs reports as a skipped scenario.
- * Implement it by adding a `document` entry to ROUTES.
+ * Mode 'document' is milestone 1.5's contract for music-atlas-api
+ * (docs/studio-cloud-document-contract.md), on top of everything above:
+ *
+ * - every project has a `revision` (1 on create, +1 on every POST or PUT;
+ *   PATCH /meta leaves it), a `document` (the client's JSON, stored as it
+ *   is; null until one is sent), its `documentSchema` and
+ *   `writtenAtRevision` (the revision of the last write that carried a
+ *   document). GET, POST and PUT return all four, the `document` key always
+ *   present: that is how the client tells this API from the legacy one. The
+ *   list adds `revision`, `documentSchema` and `trackCount`;
+ * - a PUT without `document` keeps the stored one as it was (an app from
+ *   before 1.5 can't erase it), and its writtenAtRevision with it, so the
+ *   client can tell the rows moved on without it; `document: null` clears
+ *   it;
+ * - a PUT with `baseRevision` other than the stored revision answers 409
+ *   { error, code: 'revision_conflict', revision, updatedAt }, and one
+ *   whose `documentSchema` is below the stored one 409 { error, code:
+ *   'document_schema_too_old', documentSchema }, both writing nothing;
+ * - a document over MAX_DOCUMENT_BYTES (2 MiB as JSON) answers 413 { code:
+ *   'document_too_large' }, and a body over MAX_BODY_BYTES (8 MiB) 413 {
+ *   code: 'body_too_large' }.
+ *
+ * In mode 'legacy' a body's `document`, `documentSchema` and `baseRevision`
+ * are ignored, as an API that doesn't know them would (the client sends them
+ * only to an API that has shown it has the field). The interim fallback,
+ * `settings.projectDoc` on the first track, rides in the settings blob,
+ * which both modes keep as sent (and `strictShape` drops).
  */
 import { randomUUID } from 'node:crypto';
 import SuperJSON from 'superjson';
@@ -125,13 +145,17 @@ export const STORAGE_ORIGIN = 'https://storage.studio-perf.invalid';
 
 const API_PREFIX = '/api/studio';
 const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+/** The contract's limits: the document as JSON, and a whole project body. */
+export const MAX_DOCUMENT_BYTES = 2 * 1024 * 1024;
+export const MAX_BODY_BYTES = 8 * 1024 * 1024;
 
-/** Thrown for a mode whose contract does not exist yet. */
+/**
+ * Thrown for a mode whose contract does not exist yet. Every mode in
+ * API_MODES exists since milestone 1.5; kept for the runner's skip path.
+ */
 export class MockModeNotImplemented extends Error {
   constructor(mode) {
-    super(
-      `mock Studio API mode "${mode}" is the milestone 1.5 contract and is not implemented yet`,
-    );
+    super(`mock Studio API mode "${mode}" is not implemented`);
     this.name = 'MockModeNotImplemented';
     this.mode = mode;
   }
@@ -158,11 +182,16 @@ export function ownerOfToken(authorization) {
 }
 
 class HttpError extends Error {
-  constructor(status, message) {
+  /** `extra`: more fields of the JSON error body (a 409's code, revision). */
+  constructor(status, message, extra = {}) {
     super(message);
     this.status = status;
+    this.extra = extra;
   }
 }
+
+const byteLength = (value) =>
+  value === undefined ? 0 : Buffer.byteLength(JSON.stringify(value));
 
 const pick = (source, keys) =>
   Object.fromEntries(keys.map((key) => [key, source?.[key] ?? null]));
@@ -218,12 +247,15 @@ function corsHeaders() {
 }
 
 /**
- * The legacy (today's) contract: route table over the shared state. With
- * `strictShape`, a write keeps only what api.ts declares; with
- * `rejectAssetsForDeletedProjects`, assets follow their project's life (see
- * the header).
+ * The route table over the shared state: the legacy contract, and with
+ * `documentMode` milestone 1.5's (see the header). With `strictShape`, a
+ * write keeps only what api.ts declares; with
+ * `rejectAssetsForDeletedProjects`, assets follow their project's life.
  */
-function legacyRoutes(state, { strictShape, rejectAssetsForDeletedProjects }) {
+function projectRoutes(
+  state,
+  { strictShape, rejectAssetsForDeletedProjects, documentMode },
+) {
   const { projects, assets } = state;
 
   // Another owner's project is as missing as a deleted one (no leak of
@@ -247,6 +279,13 @@ function legacyRoutes(state, { strictShape, rejectAssetsForDeletedProjects }) {
     libraryStatus: p.libraryStatus,
     libraryInstruments: p.libraryInstruments,
     collaborators: p.collaborators,
+    ...(documentMode
+      ? {
+          revision: p.revision,
+          documentSchema: p.documentSchema,
+          trackCount: p.tracks.length,
+        }
+      : {}),
   });
 
   const detail = (p) => ({
@@ -254,7 +293,80 @@ function legacyRoutes(state, { strictShape, rejectAssetsForDeletedProjects }) {
     prism: p.prism,
     ...(Object.hasOwn(p, 'returns') ? { returns: p.returns } : {}),
     tracks: p.tracks,
+    ...(documentMode
+      ? {
+          document: p.document,
+          documentSchema: p.documentSchema,
+          writtenAtRevision: p.writtenAtRevision,
+        }
+      : {}),
   });
+
+  /**
+   * The document fields of a write (document mode), or a refusal: a
+   * conflict, an older schema, a document or body too large. Checked
+   * before anything is written.
+   */
+  const documentWrite = (input, existing) => {
+    if (byteLength(input) > MAX_BODY_BYTES) {
+      throw new HttpError(413, 'Project body too large', {
+        code: 'body_too_large',
+      });
+    }
+    if (
+      existing &&
+      input.baseRevision !== undefined &&
+      input.baseRevision !== existing.revision
+    ) {
+      throw new HttpError(409, 'The project changed since this save began', {
+        code: 'revision_conflict',
+        revision: existing.revision,
+        updatedAt: existing.updatedAt,
+      });
+    }
+    const stored = existing?.documentSchema ?? null;
+    if (
+      input.documentSchema !== undefined &&
+      stored !== null &&
+      !(input.documentSchema >= stored)
+    ) {
+      throw new HttpError(409, 'A newer app saved this project', {
+        code: 'document_schema_too_old',
+        documentSchema: stored,
+      });
+    }
+    if (
+      input.document !== undefined &&
+      input.document !== null &&
+      (typeof input.document !== 'object' || Array.isArray(input.document))
+    ) {
+      throw new HttpError(400, 'document must be an object or null');
+    }
+    if (byteLength(input.document) > MAX_DOCUMENT_BYTES) {
+      throw new HttpError(413, 'Document too large', {
+        code: 'document_too_large',
+      });
+    }
+    const revision = (existing?.revision ?? 0) + 1;
+    if (input.document === undefined) {
+      // An app from before 1.5: the document stays, and says how old it is.
+      return {
+        revision,
+        document: existing?.document ?? null,
+        documentSchema: existing?.documentSchema ?? null,
+        writtenAtRevision: existing?.writtenAtRevision ?? null,
+      };
+    }
+    return {
+      revision,
+      document: input.document,
+      documentSchema:
+        input.document === null
+          ? null
+          : Math.max(input.documentSchema ?? 0, stored ?? 0) || null,
+      writtenAtRevision: revision,
+    };
+  };
 
   const assertAssetsReady = (input) => {
     for (const track of input.tracks ?? []) {
@@ -272,9 +384,11 @@ function legacyRoutes(state, { strictShape, rejectAssetsForDeletedProjects }) {
     if (!input || typeof input.name !== 'string' || !input.tracks) {
       throw new HttpError(400, 'Invalid project body');
     }
+    const documentFields = documentMode ? documentWrite(input, existing) : {};
     assertAssetsReady(input);
     const now = new Date();
     return {
+      ...documentFields,
       id: existing?.id ?? randomUUID(),
       owner: existing?.owner ?? owner,
       name: input.name,
@@ -518,12 +632,17 @@ function legacyRoutes(state, { strictShape, rejectAssetsForDeletedProjects }) {
   }));
 }
 
-/** Route tables per mode; `document` arrives with milestone 1.5. */
-const ROUTES = { legacy: legacyRoutes };
+/** Route tables per mode. */
+const ROUTES = {
+  legacy: (state, options) =>
+    projectRoutes(state, { ...options, documentMode: false }),
+  document: (state, options) =>
+    projectRoutes(state, { ...options, documentMode: true }),
+};
 
 /**
- * A fresh mock. `mode` is 'legacy' (today's contract) or 'document' (not
- * implemented yet: throws MockModeNotImplemented). `strictShape` keeps only
+ * A fresh mock. `mode` is 'legacy' (today's contract) or 'document'
+ * (milestone 1.5's: see the header). `strictShape` keeps only
  * what api.ts declares of a project, and `rejectAssetsForDeletedProjects`
  * refuses an asset for a project that is gone and reclaims a deleted
  * project's assets (see the header).
@@ -681,11 +800,12 @@ export function createMockStudioApi({
         });
       } catch (error) {
         const status = error instanceof HttpError ? error.status : 500;
-        record({ method, path, status, owner, error: error.message });
+        const extra = error instanceof HttpError ? error.extra : {};
+        record({ method, path, status, owner, error: error.message, ...extra });
         return route.fulfill({
           status,
           headers: { ...corsHeaders(), 'content-type': 'application/json' },
-          body: JSON.stringify({ error: error.message }),
+          body: JSON.stringify({ error: error.message, ...extra }),
         });
       }
     }
@@ -774,7 +894,9 @@ export function createMockStudioApi({
     /**
      * Another device's save of project `id`: the stored project with
      * `changes` (fields of the stored row, e.g. a name or a bpm) and a new
-     * updatedAt, as a PUT from elsewhere leaves it. No request is logged.
+     * updatedAt, as a PUT from elsewhere leaves it. In document mode the
+     * revision moves on too, and the document with it (an app from 1.5 on
+     * writes one every time). No request is logged.
      */
     touchProject(id, changes = {}) {
       const project = state.projects.get(id);
@@ -786,7 +908,45 @@ export function createMockStudioApi({
           Math.max(Date.now(), project.updatedAt.getTime() + 1),
         ),
       });
+      if (mode === 'document') {
+        project.revision += 1;
+        project.writtenAtRevision = project.revision;
+      }
       return project.updatedAt;
+    },
+
+    /**
+     * An app from before 1.5 saves project `id`: it opened the rows (the
+     * detail, without the document), `edit` changes that body in place,
+     * and it PUTs it back without `document`, `documentSchema` or
+     * `baseRevision`, through the same route as any PUT. Returns the stored
+     * project. No request is logged.
+     */
+    saveAsOlderApp(id, edit = () => {}) {
+      const project = state.projects.get(id);
+      if (!project || project.deletedAt) {
+        throw new Error(`mock: no live project ${id}`);
+      }
+      const body = structuredClone({
+        name: project.name,
+        composerName: project.composerName,
+        bpm: project.bpm,
+        prism: project.prism,
+        returns: project.returns,
+        tracks: project.tracks.map(
+          ({ id: _row, ordinal: _ordinal, ...track }) => ({
+            ...track,
+            audioClips: track.audioClips.map(({ id: _clip, ...clip }) => clip),
+          }),
+        ),
+      });
+      edit(body);
+      const put = routes.find(
+        (r) =>
+          r.method === 'PUT' && r.pattern.test(`${API_PREFIX}/projects/${id}`),
+      );
+      put.handle({ params: [id], body, owner: project.owner });
+      return state.projects.get(id);
     },
 
     /**

@@ -129,8 +129,10 @@ describe('DrumMachineView grid', () => {
   it('stores a hit drawn on the clip’s first beat at clip tick 0', () => {
     const { container } = render(<DrumMachineView trackId={trackId} />);
 
-    // Grid x = 0 is the clip's first beat, whatever the zoom.
+    // Grid x = 0 is the clip's first beat, whatever the zoom. A press can
+    // paint on as it drags, so the hits are written on release.
     fireEvent.mouseDown(grid(container), { clientX: 0, clientY: RIDE_Y });
+    fireEvent.mouseUp(grid(container), { clientX: 0, clientY: RIDE_Y });
 
     const ride = clipEvents().filter((e) => e.note === RIDE);
     expect(ride.map((e) => e.startTick)).toEqual([0]);
@@ -144,6 +146,30 @@ describe('DrumMachineView grid', () => {
     fireEvent.mouseDown(grid(container), { clientX: 0, clientY: KICK_Y });
 
     expect(clipEvents()).toMatchObject([hit(KICK, 0)]);
+  });
+
+  it('edits the selected groove, not always the track’s first clip', () => {
+    // A second groove later in the song, selected on the timeline: the grid
+    // shows and edits it (dock-instruments-03).
+    useStore.getState().addMidiClip(trackId, {
+      id: 'fill',
+      name: 'Fill',
+      startTick: 12 * BAR,
+      events: [],
+    });
+    useStore.getState().setSelectedClip('fill', trackId);
+    const { container } = render(<DrumMachineView trackId={trackId} />);
+
+    fireEvent.mouseDown(grid(container), { clientX: 0, clientY: RIDE_Y });
+    fireEvent.mouseUp(grid(container), { clientX: 0, clientY: RIDE_Y });
+
+    const clips = useStore
+      .getState()
+      .tracks.find((t) => t.id === trackId)!.midiClips;
+    expect(clips.find((c) => c.id === 'fill')!.events).toMatchObject([
+      { note: RIDE, startTick: 0 },
+    ]);
+    expect(clips.find((c) => c.id === 'beat')!.events).toHaveLength(1);
   });
 
   it('keeps the playhead in song time: at the clip start it is at x = 0', () => {

@@ -11,9 +11,12 @@ export {
   type UseAssignments,
 } from './useAssignments';
 export {
+  LOCAL_ENROLLMENT_ID,
+  findMyProgress,
+  resolveStudentEnrollmentId,
   useAssignmentProgress,
-  useLocalEnrollmentId,
   useMyAssignmentProgress,
+  useStudentEnrollmentId,
   type ArtifactRef,
   type AssignmentProgress,
   type AssignmentProgressStatus,

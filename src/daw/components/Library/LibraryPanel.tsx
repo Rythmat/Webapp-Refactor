@@ -62,6 +62,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
+const PANEL_WIDTH = 200;
+const FADE = { duration: 0.12, ease: 'easeOut' as const };
 
 // ── LibraryPanel ────────────────────────────────────────────────────────
 
@@ -84,16 +86,20 @@ export function LibraryPanel() {
     [searchQuery],
   );
 
+  // The column takes its width in one step and only its content fades in.
+  // Animating the width beside the timeline re-laid out the timeline and its
+  // canvas every frame of the spring (insight-04). Closing removes it at
+  // once, and returning to Create shows it without a fade.
   return (
-    <AnimatePresence>
+    <AnimatePresence initial={false}>
       {libraryOpen && (
         <motion.div
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 200, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={SPRING}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={FADE}
           className="shrink-0 flex flex-col overflow-hidden border-l"
           style={{
+            width: PANEL_WIDTH,
             backgroundColor: 'var(--color-surface)',
             borderColor: 'var(--color-border)',
           }}

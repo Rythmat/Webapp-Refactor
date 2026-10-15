@@ -7,13 +7,29 @@ import { StudioView } from '../StudioView';
 // ── The MASTER view says what the audio does (fx-mixer-02/03, ia-flows-35) ─
 // Bypass is a real pressed/unpressed toggle (playback follows it), Gain
 // Match had no handler and is hidden, and the meter that read "LUFS" was a
-// rescaled peak, so it now says Peak and reads dBFS, in whole dB: its source
-// is an 8-bit peak in whole percent.
+// rescaled peak, so it now says Peak and reads dBFS, in whole dB. Its source
+// is the meter bus's master peak (linear, float), painted through a ref.
 
 const meter = vi.hoisted(() => ({ level: 0 }));
-vi.mock('@/daw/hooks/useMeterLevel', () => ({
-  useMeterLevel: () => meter.level,
-}));
+vi.mock('@/daw/engine/meterBus', async (importOriginal) => {
+  const bus = await importOriginal<typeof import('@/daw/engine/meterBus')>();
+  // Every source reads `meter.level` percent of full scale on each channel.
+  return {
+    ...bus,
+    meterSource: () => ({
+      subscribe(cb: (levels: unknown) => void) {
+        const gain = meter.level / 100;
+        cb({
+          peak: new Float32Array([gain, gain]),
+          hold: new Float32Array([gain, gain]),
+          rms: null,
+          clipped: false,
+        });
+        return () => {};
+      },
+    }),
+  };
+});
 
 /** The master Peak meter's readout. */
 const peakReadout = () =>

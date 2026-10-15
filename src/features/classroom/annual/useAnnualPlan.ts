@@ -1,14 +1,12 @@
 /**
- * `useAnnualPlan(classroomId)` — local-first persistence for the teacher's
- * per-classroom year-view curriculum (Semester → Unit → dayId references)
- * plus per-classroom school-calendar exceptions.
+ * `useAnnualPlan(classroomId)` — local-first persistence for a classroom's
+ * school calendar: the per-classroom exceptions (added / removed non-school
+ * days) layered over the default holidays and breaks.
  *
- * Modeled on `plan/useLocalPlan` (same schemaVersion + storage-event pattern,
- * same same-tab broadcast) but scoped by classroomId and holding the *tree*
- * — not raw Days. Days themselves still live in `useLocalPlan`; the annual
- * plan only stores `unit.dayIds` cross-references. This preserves the firewall
- * (no `CellPresentation` in the tree) and lets a Day belong to a Unit without
- * duplication.
+ * Lessons are not referenced here: a Day sits on the calendar by its own
+ * `scheduledDate`. The stored plan still carries the `Year → Unit` tree shape
+ * (kept for stored-data and backup compatibility), but Units are retired and
+ * always empty.
  *
  * When Ryan ships `/classrooms/:cid/annual-plan`, swap `readStore`/`writeStore`
  * for React Query the same way Sprint 7 swapped `useEnrollments` /
@@ -20,17 +18,12 @@ import {
   setAnnualAccess,
   setAnnualStoreReader,
 } from '../persistence/localCurriculumRepository';
-import type { Semester, Unit, Year } from '../types';
 import {
-  getNextNSchoolDays,
-  resolveSchoolYear,
-  resolveUnitDateRange,
-} from './calendarMath';
-import {
-  type AnnualPlanTemplate,
-  CANONICAL_ANNUAL_TEMPLATE,
-  type UnitTemplate,
-} from './curriculumTemplate';
+  RETIRED_CURRICULUM_MARKERS,
+  runRetiredCurriculumPurge,
+} from '../persistence/retiredCurriculum';
+import type { Year } from '../types';
+import { getNextNSchoolDays, resolveSchoolYear } from './calendarMath';
 import {
   EMPTY_EXCEPTIONS,
   getNonSchoolDatesForSchoolYear,
@@ -149,13 +142,6 @@ export const readAnnualPlanStore = (): AnnualPlanStore =>
 export const writeAnnualPlanStore = (store: AnnualPlanStore): void =>
   annualPlanMirror.write(store);
 
-const generateUnitId = (slug: string): string => {
-  const rand = Math.floor(Math.random() * 1e6)
-    .toString(36)
-    .padStart(4, '0');
-  return `unit-${slug}-${rand}`;
-};
-
 const generateYearId = (): string => {
   const rand = Math.floor(Math.random() * 1e6)
     .toString(36)
@@ -163,87 +149,52 @@ const generateYearId = (): string => {
   return `year-${Date.now().toString(36)}-${rand}`;
 };
 
-const unitFromTemplate = (t: UnitTemplate): Unit => ({
-  id: generateUnitId(t.slug),
-  label: t.label,
-  monthIndex: t.monthIndex,
-  theme: { themeId: t.themeId },
-  weeks: [],
-  dateWindow: t.dateWindow ?? null,
-  dayIds: [],
-});
-
-export const cloneTemplate = (
-  classroomId: string,
-  template: AnnualPlanTemplate,
-): ClassroomAnnualPlan => {
-  const year: Year = {
-    id: generateYearId(),
-    label: template.label,
-    semesters: {
-      autumn: template.autumn.units.map(unitFromTemplate),
-      spring: template.spring.units.map(unitFromTemplate),
-    },
-  };
+/** A plan with no Units — just the school-calendar exceptions. Created on the
+ *  first exception write; the calendar renders without a plan. */
+const emptyPlan = (classroomId: string): ClassroomAnnualPlan => {
   const nowIso = new Date().toISOString();
   return {
     classroomId,
-    year,
-    seededFromTemplateAt: nowIso,
+    year: {
+      id: generateYearId(),
+      label: 'School year',
+      semesters: { autumn: [], spring: [] },
+    },
+    seededFromTemplateAt: null,
     updatedAt: nowIso,
     exceptions: { additions: [], removals: [] },
   };
 };
 
+// The retired canonical curriculum lived in each plan's Units. Empty them once
+// per device (keeping each classroom's school-calendar exceptions) after the
+// store hydrates. See `persistence/retiredCurriculum`.
+void annualPlanMirror.ready.then(() =>
+  runRetiredCurriculumPurge(RETIRED_CURRICULUM_MARKERS.units, () => {
+    const current = annualPlanMirror.read();
+    const plans: Record<string, ClassroomAnnualPlan> = {};
+    for (const [cid, p] of Object.entries(current.plans)) {
+      plans[cid] = {
+        ...p,
+        year: { ...p.year, semesters: { autumn: [], spring: [] } },
+        seededFromTemplateAt: null,
+      };
+    }
+    annualPlanMirror.write({ ...current, plans });
+  }),
+);
+
 export interface UseAnnualPlan {
   plan: ClassroomAnnualPlan | null;
   /** Live non-school Map for the whole school year, honoring `exceptions`. */
   nonSchoolMap: Map<string, NonSchoolDay>;
-  seedFromTemplate: () => ClassroomAnnualPlan;
-  resetToTemplate: () => ClassroomAnnualPlan;
-  clearPlan: () => void;
-  addDayToUnit: (unitId: string, dayId: string) => void;
-  removeDayFromUnit: (unitId: string, dayId: string) => void;
-  addCustomUnit: (semester: Semester, unit: Unit) => void;
-  renameUnit: (unitId: string, label: string) => void;
-  /** "Use this theme for the unit" — copies the theme's focus / essential
-   *  questions into editable unit-level metadata. Teacher-facing. */
-  setUnitMeta: (
-    unitId: string,
-    meta: { overview?: string; essentialQuestions?: string[] },
-  ) => void;
-  /** Re-anchor a Unit's schedule (its fallback range + auto-populate ordering).
-   *  `monthIndex` is 1-12. Used when a Unit is dragged to a new calendar date. */
-  setUnitSchedule: (
-    unitId: string,
-    schedule: {
-      monthIndex?: number;
-      dateWindow?: { start: string; end: string } | null;
-    },
-  ) => void;
-  deleteUnit: (unitId: string) => void;
-  getUnit: (unitId: string) => { unit: Unit; semester: Semester } | null;
-  /** Returns a suggested YYYY-MM-DD for the next Day in a unit, or null. */
-  suggestDayScheduleInUnit: (
-    unitId: string,
-    existingScheduledDates: string[],
-    totalPlanned: number,
-  ) => string | null;
+  /** The first school day from today on that isn't in `takenDates`
+   *  (YYYY-MM-DD), or null when the next 60 school days are all taken. */
+  suggestLessonDate: (takenDates: string[]) => string | null;
   addNonSchoolDate: (date: string, label: string) => void;
   removeNonSchoolDate: (date: string) => void;
   restoreDefaultNonSchoolDate: (date: string) => void;
 }
-
-export const findUnitLocation = (
-  year: Year,
-  unitId: string,
-): { semester: Semester; index: number } | null => {
-  for (const s of ['autumn', 'spring'] as const) {
-    const idx = year.semesters[s].findIndex((u) => u.id === unitId);
-    if (idx !== -1) return { semester: s, index: idx };
-  }
-  return null;
-};
 
 export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
   const [store, setStore] = useState<AnnualPlanStore>(() =>
@@ -288,212 +239,24 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
     setStore(next);
   }, []);
 
-  const seedFromTemplate = useCallback((): ClassroomAnnualPlan => {
-    const seeded = cloneTemplate(classroomId, CANONICAL_ANNUAL_TEMPLATE);
-    persistPlan(seeded);
-    return seeded;
-  }, [classroomId, persistPlan]);
-
-  const resetToTemplate = useCallback((): ClassroomAnnualPlan => {
-    const reseeded = cloneTemplate(classroomId, CANONICAL_ANNUAL_TEMPLATE);
-    persistPlan(reseeded);
-    return reseeded;
-  }, [classroomId, persistPlan]);
-
-  const clearPlan = useCallback((): void => {
-    const current = readAnnualPlanStore();
-    if (!(classroomId in current.plans)) return;
-    const nextPlans = { ...current.plans };
-    delete nextPlans[classroomId];
-    const next: AnnualPlanStore = { ...current, plans: nextPlans };
-    writeAnnualPlanStore(next);
-    setStore(next);
-  }, [classroomId]);
-
-  const mutateUnit = useCallback(
-    (unitId: string, updater: (u: Unit) => Unit): void => {
-      const current = readAnnualPlanStore();
-      const existing = current.plans[classroomId];
-      if (!existing) return;
-      const loc = findUnitLocation(existing.year, unitId);
-      if (!loc) return;
-      const semUnits = existing.year.semesters[loc.semester].slice();
-      semUnits[loc.index] = updater(semUnits[loc.index]);
-      const nextPlan: ClassroomAnnualPlan = {
-        ...existing,
-        year: {
-          ...existing.year,
-          semesters: {
-            ...existing.year.semesters,
-            [loc.semester]: semUnits,
-          },
-        },
-        updatedAt: new Date().toISOString(),
-      };
-      persistPlan(nextPlan);
-    },
-    [classroomId, persistPlan],
-  );
-
-  const addDayToUnit = useCallback(
-    (unitId: string, dayId: string): void => {
-      mutateUnit(unitId, (u) => {
-        const existing = u.dayIds ?? [];
-        if (existing.includes(dayId)) return u;
-        return { ...u, dayIds: [...existing, dayId] };
-      });
-    },
-    [mutateUnit],
-  );
-
-  const removeDayFromUnit = useCallback(
-    (unitId: string, dayId: string): void => {
-      mutateUnit(unitId, (u) => {
-        const existing = u.dayIds ?? [];
-        if (!existing.includes(dayId)) return u;
-        return { ...u, dayIds: existing.filter((id) => id !== dayId) };
-      });
-    },
-    [mutateUnit],
-  );
-
-  const addCustomUnit = useCallback(
-    (semester: Semester, unit: Unit): void => {
-      const current = readAnnualPlanStore();
-      const existing = current.plans[classroomId];
-      if (!existing) return;
-      const nextPlan: ClassroomAnnualPlan = {
-        ...existing,
-        year: {
-          ...existing.year,
-          semesters: {
-            ...existing.year.semesters,
-            [semester]: [...existing.year.semesters[semester], unit],
-          },
-        },
-        updatedAt: new Date().toISOString(),
-      };
-      persistPlan(nextPlan);
-    },
-    [classroomId, persistPlan],
-  );
-
-  const renameUnit = useCallback(
-    (unitId: string, label: string): void => {
-      mutateUnit(unitId, (u) => ({ ...u, label }));
-    },
-    [mutateUnit],
-  );
-
-  const setUnitMeta = useCallback(
-    (
-      unitId: string,
-      meta: { overview?: string; essentialQuestions?: string[] },
-    ): void => {
-      mutateUnit(unitId, (u) => ({ ...u, ...meta }));
-    },
-    [mutateUnit],
-  );
-
-  const setUnitSchedule = useCallback(
-    (
-      unitId: string,
-      schedule: {
-        monthIndex?: number;
-        dateWindow?: { start: string; end: string } | null;
-      },
-    ): void => {
-      mutateUnit(unitId, (u) => ({ ...u, ...schedule }));
-    },
-    [mutateUnit],
-  );
-
-  const deleteUnit = useCallback(
-    (unitId: string): void => {
-      const current = readAnnualPlanStore();
-      const existing = current.plans[classroomId];
-      if (!existing) return;
-      const loc = findUnitLocation(existing.year, unitId);
-      if (!loc) return;
-      const semUnits = existing.year.semesters[loc.semester]
-        .slice()
-        .filter((u) => u.id !== unitId);
-      const nextPlan: ClassroomAnnualPlan = {
-        ...existing,
-        year: {
-          ...existing.year,
-          semesters: {
-            ...existing.year.semesters,
-            [loc.semester]: semUnits,
-          },
-        },
-        updatedAt: new Date().toISOString(),
-      };
-      persistPlan(nextPlan);
-    },
-    [classroomId, persistPlan],
-  );
-
-  const getUnit = useCallback(
-    (unitId: string): { unit: Unit; semester: Semester } | null => {
-      if (!plan) return null;
-      const loc = findUnitLocation(plan.year, unitId);
-      if (!loc) return null;
-      return {
-        unit: plan.year.semesters[loc.semester][loc.index],
-        semester: loc.semester,
-      };
-    },
-    [plan],
-  );
-
-  const suggestDayScheduleInUnit = useCallback(
-    (
-      unitId: string,
-      existingScheduledDates: string[],
-      _totalPlanned: number,
-    ): string | null => {
-      if (!plan) return null;
-      const loc = findUnitLocation(plan.year, unitId);
-      if (!loc) return null;
-      const unit = plan.year.semesters[loc.semester][loc.index];
-      const today = new Date();
-      const schoolYear = resolveSchoolYear(today);
-
-      // Chained-sequential semantics: a Unit is a run of consecutive school
-      // days. The next Day should chain after the LATEST existing scheduled
-      // date. If nothing exists yet, anchor at the Unit's natural start.
-      const taken = new Set(existingScheduledDates);
-      const parse = (iso: string): Date => {
-        const [y, m, d] = iso.split('-').map(Number);
-        return new Date(y, m - 1, d);
-      };
-      const sorted = [...existingScheduledDates].sort();
-      const anchor =
-        sorted.length > 0
-          ? (() => {
-              const last = parse(sorted[sorted.length - 1]);
-              last.setDate(last.getDate() + 1);
-              return last;
-            })()
-          : resolveUnitDateRange(unit, schoolYear).start;
-
-      // Walk forward from anchor and pick the first school day not already
-      // taken. Bounded to 30 candidates so a fully-booked Unit fails fast.
-      const candidates = getNextNSchoolDays(anchor, 30, nonSchoolMap);
-      const next = candidates.find((d) => !taken.has(toIsoDate(d)));
+  const suggestLessonDate = useCallback(
+    (takenDates: string[]): string | null => {
+      const taken = new Set(takenDates);
+      const next = getNextNSchoolDays(new Date(), 60, nonSchoolMap).find(
+        (d) => !taken.has(toIsoDate(d)),
+      );
       return next ? toIsoDate(next) : null;
     },
-    [plan, nonSchoolMap],
+    [nonSchoolMap],
   );
 
   const mutateExceptions = useCallback(
     (
       updater: (e: SchoolCalendarExceptions) => SchoolCalendarExceptions,
     ): void => {
+      if (!classroomId) return;
       const current = readAnnualPlanStore();
-      const existing = current.plans[classroomId];
-      if (!existing) return;
+      const existing = current.plans[classroomId] ?? emptyPlan(classroomId);
       const nextPlan: ClassroomAnnualPlan = {
         ...existing,
         exceptions: updater(existing.exceptions),
@@ -552,18 +315,7 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
   return {
     plan,
     nonSchoolMap,
-    seedFromTemplate,
-    resetToTemplate,
-    clearPlan,
-    addDayToUnit,
-    removeDayFromUnit,
-    addCustomUnit,
-    renameUnit,
-    setUnitMeta,
-    setUnitSchedule,
-    deleteUnit,
-    getUnit,
-    suggestDayScheduleInUnit,
+    suggestLessonDate,
     addNonSchoolDate,
     removeNonSchoolDate,
     restoreDefaultNonSchoolDate,

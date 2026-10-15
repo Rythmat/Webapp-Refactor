@@ -191,7 +191,10 @@ describe('the mastering chain', () => {
   it('runs every slot off under Bypass, and the stored chain after', () => {
     renderHook(() => usePlaybackEngine(true, null));
     const stored = s().masteringEffects;
-    expect(engine.updateMasteringEffects).toHaveBeenLastCalledWith(stored);
+    // A live chain glides to new values (milestone 1.9).
+    expect(engine.updateMasteringEffects).toHaveBeenLastCalledWith(stored, {
+      glide: true,
+    });
 
     act(() => s().toggleMasteringBypass());
     const [bypassed] = engine.updateMasteringEffects.mock.lastCall!;
@@ -202,7 +205,9 @@ describe('the mastering chain', () => {
     expect(s().masteringEffects).toBe(stored);
 
     act(() => s().toggleMasteringBypass());
-    expect(engine.updateMasteringEffects).toHaveBeenLastCalledWith(stored);
+    expect(engine.updateMasteringEffects).toHaveBeenLastCalledWith(stored, {
+      glide: true,
+    });
   });
 });
 

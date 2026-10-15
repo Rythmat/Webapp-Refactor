@@ -25,7 +25,8 @@ import {
   type SaveResult,
   type SaveSource,
 } from './cloudSaveStore';
-import { groupsFromGaps, stayOnDevicePhrase } from './lastSaved';
+import { groupsFromGaps, revisionOf, stayOnDevicePhrase } from './lastSaved';
+import { askSaveConflict } from './saveConflict';
 
 // ── saveProject: the one way the Studio saves to the cloud (milestone 1.4) ──
 //
@@ -40,8 +41,12 @@ import { groupsFromGaps, stayOnDevicePhrase } from './lastSaved';
 // - fences each save to the session it was asked in (saveCurrentProjectToCloud
 //   with a fence): a save that outlives its session touches nothing open now;
 // - tells the student in plain words, for menu and shortcut alike: 'Project
-//   saved', and which parts stay on this device for now when today's cloud
-//   can't hold them;
+//   saved', and which parts stay on this device for now when the cloud copy
+//   can't hold them (a project without tracks, until music-atlas-api has
+//   milestone 1.5's document field);
+// - when the project changed elsewhere since this session opened or saved it
+//   (a 409 revision_conflict, milestone 1.5), asks what to do: save this
+//   version as a copy, or overwrite the saved one (SaveConflictDialog);
 // - records the result in useCloudSaveStore for the chip: phase, error, the
 //   last save (its snapshot's hash and version) and savedCount;
 // - after an offline failure, tries once more when the browser is back
@@ -90,6 +95,8 @@ export const SAVE_ERROR_MESSAGES: Readonly<Record<SaveErrorKind, string>> = {
   'too-large':
     "Couldn't save: this project is too big to save to your account.",
   conflict: "Couldn't save: this project was changed somewhere else.",
+  outdated:
+    "Couldn't save: a newer version of Music Atlas saved this project. Reload to update.",
   superseded: 'The save stopped because another project opened.',
   unknown: "Couldn't save. Try again.",
 };
@@ -106,7 +113,8 @@ const TIMED_OUT_MESSAGE =
 /**
  * ' — chord symbols and notation stay on this device for now', or ''. From
  * what the save's own snapshot left out (done.gaps), not the document as it
- * stands now; an incomplete save never reads as a clean one.
+ * stands now; an incomplete save never reads as a clean one. A project with
+ * no track for the interim fallback to ride on says what would fix it.
  */
 function caveat(done: CloudSaveDone): string {
   if (done.complete) return '';
@@ -114,7 +122,10 @@ function caveat(done: CloudSaveDone): string {
   if (groups.length === 0) {
     groups.push(done.echoMismatch ? 'track settings' : 'some settings');
   }
-  return stayOnDevicePhrase(groups);
+  return stayOnDevicePhrase(
+    groups,
+    done.untilTrack ? 'until the project has a track' : 'for now',
+  );
 }
 
 // ── Errors ─────────────────────────────────────────────────────────────────
@@ -159,12 +170,23 @@ export function toSaveError(err: unknown, mode: SaveMode = 'save'): SaveError {
     });
   }
   const status = isStudioApiError(err) ? err.status : undefined;
+  if (
+    isStudioApiError(err) &&
+    err.status === 409 &&
+    err.code === 'document_schema_too_old'
+  ) {
+    return make('outdated', { status });
+  }
   const failure = classifyStudioFailure(err);
   let kind = failureKind[failure];
   if ((kind === 'unknown' || kind === 'server') && isOffline()) {
     kind = 'offline';
   }
   const error = make(kind, status === undefined ? {} : { status });
+  if (kind === 'conflict' && isStudioApiError(err)) {
+    const revision = revisionOf(err.body?.revision);
+    if (revision !== null) error.revision = revision;
+  }
   if (failure === 'timeout' && kind === 'server') {
     error.message = TIMED_OUT_MESSAGE;
   }
@@ -176,6 +198,8 @@ export function toSaveError(err: unknown, mode: SaveMode = 'save'): SaveError {
 interface SaveEntry {
   mode: SaveMode;
   nameOverride?: string;
+  /** Overwrite: the revision the conflict reported. */
+  overwriteRevision?: number;
   source: SaveSource;
   generation: number;
   draftId: string | null;
@@ -230,6 +254,11 @@ export function saveProject(opts: {
   source: SaveSource;
   saveAs?: { name: string };
   asNewProject?: boolean;
+  /**
+   * Overwrite the cloud copy that changed elsewhere (a conflict's choice):
+   * a plain save based on the revision the conflict reported.
+   */
+  overwrite?: { revision: number | undefined };
 }): Promise<SaveResult> {
   if (isOpening()) {
     return Promise.resolve(failed(toSaveError(new SaveSupersededError())));
@@ -245,6 +274,7 @@ export function saveProject(opts: {
   const waiting = waitingPlain;
   if (
     mode === 'save' &&
+    !opts.overwrite &&
     waiting !== null &&
     !waiting.started &&
     waiting.generation === generation
@@ -258,6 +288,7 @@ export function saveProject(opts: {
   const entry: SaveEntry = {
     mode,
     nameOverride: opts.saveAs?.name.trim() || undefined,
+    overwriteRevision: opts.overwrite?.revision,
     source: opts.source,
     generation,
     draftId: activeDraftIdForSave(),
@@ -289,7 +320,7 @@ export function saveProject(opts: {
       return result;
     });
   chain = entry.promise;
-  if (mode === 'save') waitingPlain = entry;
+  if (mode === 'save' && !opts.overwrite) waitingPlain = entry;
   return entry.promise;
 }
 
@@ -358,6 +389,7 @@ async function run(entry: SaveEntry): Promise<SaveResult> {
       nameOverride: entry.nameOverride,
       mode,
       expectProjectId: mode === 'save' ? entry.projectId : undefined,
+      overwriteRevision: entry.overwriteRevision,
     });
     if (outcome.status === 'superseded') {
       return failed(toSaveError(new SaveSupersededError()));
@@ -382,6 +414,12 @@ function fail(entry: SaveEntry, error: SaveError): SaveResult {
   if (getSessionGeneration() !== entry.generation) return failed(error);
   if (error.kind === 'superseded') return failed(error);
   useCloudSaveStore.setState({ error });
+  // A project changed elsewhere: the student chooses (the dialog says why).
+  // The leave flow words its own outcome.
+  if (error.kind === 'conflict' && entry.source !== 'leave') {
+    askSaveConflict({ revision: error.revision, source: entry.source });
+    return failed(error);
+  }
   showError(error.message);
   if (error.kind === 'offline' && entry.mode === 'save') {
     armOnlineRetry(entry);
@@ -411,6 +449,7 @@ function succeed(entry: SaveEntry, done: CloudSaveDone): void {
     version,
     complete: done.complete,
     updatedAt: done.updatedAt,
+    revision: done.revision,
     at: Date.now(),
     generation: done.generation,
   };

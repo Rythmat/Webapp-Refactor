@@ -3,7 +3,12 @@ import type { MidiNoteEvent } from '@prism/engine';
 import { useStore } from '@/daw/store';
 import type { AudioClip, MidiClip } from '@/daw/store/tracksSlice';
 import type { UserPresence } from '@/daw/collab/types';
-import { pushUndo, resetUndoHistory, undo } from '@/daw/store/undoMiddleware';
+import {
+  initUndoTracking,
+  resetUndoHistory,
+  undo,
+  withTransaction,
+} from '@/daw/store/undoMiddleware';
 import { splitMidiClipAt } from '../splitMidiClipAt';
 
 // ── Scissors on a MIDI clip ─────────────────────────────────────────────────
@@ -74,7 +79,7 @@ describe('splitMidiClipAt', () => {
   });
 
   it('is one store write, and undo brings the clip back whole', () => {
-    pushUndo(); // what auto-capture records before the edit
+    const release = initUndoTracking();
     let writes = 0;
     const stop = useStore.subscribe(
       (s) => s.tracks,
@@ -83,11 +88,14 @@ describe('splitMidiClipAt', () => {
       },
     );
 
-    splitMidiClipAt(trackId, 'verse', 5 * BAR);
+    withTransaction('Split clip', () =>
+      splitMidiClipAt(trackId, 'verse', 5 * BAR),
+    );
     stop();
     expect(writes).toBe(1);
 
     undo();
+    release();
     expect(track().midiClips).toEqual([intro, verse, chorus]);
   });
 

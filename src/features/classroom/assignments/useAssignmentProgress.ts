@@ -20,14 +20,20 @@
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
 import { useMe } from '@/hooks/data';
+import { useEnrollments } from '../enrollments';
 import type { InteractionResponsePayload } from '../types';
 
 export const STORAGE_KEY = 'ma-teacher:progress:v1';
 export const SCHEMA_VERSION = 1;
 
-const LOCAL_ENROLLMENT_ID = 'local-preview';
+/**
+ * The enrollment id used when there is no real one: offline, in dev, and when
+ * a teacher previews an assignment they are not enrolled in.
+ */
+export const LOCAL_ENROLLMENT_ID = 'local-preview';
 
 export type AssignmentProgressStatus =
   | 'not_started'
@@ -102,8 +108,45 @@ const writeStore = (
   }
 };
 
-/** In offline mode there is no real enrollment — return the synthetic id. */
-export const useLocalEnrollmentId = (): string => LOCAL_ENROLLMENT_ID;
+/**
+ * The enrollment id a student page files progress, responses and MSP mints
+ * under. The student's own enrollment once it is known. Nothing while it is
+ * still being looked up, so no answer is filed under an id a later render
+ * would abandon. The synthetic id only once both lookups have finished
+ * without a match.
+ */
+export const resolveStudentEnrollmentId = (input: {
+  myEnrollmentId: string | undefined;
+  /** Both the signed-in user and the roster have finished loading. */
+  settled: boolean;
+}): string | undefined =>
+  input.myEnrollmentId ?? (input.settled ? LOCAL_ENROLLMENT_ID : undefined);
+
+/**
+ * The signed-in student's enrollment in a classroom, found the way the live
+ * session finds it (`LiveSessionPage`): the roster row whose account is the
+ * signed-in user. `undefined` while the user or the roster is loading.
+ *
+ * Progress rows from `GET /progress` carry the server's enrollment id, so a
+ * page that looked its row up by the synthetic id never found it.
+ */
+export const useStudentEnrollmentId = (
+  classroomId: string,
+): string | undefined => {
+  const { token, isBootstrapLoading } = useAuthContext();
+  const me = useMe();
+  const { myEnrollment, isLoading: rosterLoading } =
+    useEnrollments(classroomId);
+  // `useMe` is disabled without a token; signed out and done bootstrapping,
+  // there is no user to wait for.
+  const meSettled =
+    me.isSuccess || me.isError || (!token && !isBootstrapLoading);
+  const rosterSettled = Boolean(classroomId) && !rosterLoading;
+  return resolveStudentEnrollmentId({
+    myEnrollmentId: myEnrollment?.id,
+    settled: meSettled && rosterSettled,
+  });
+};
 
 // -----------------------------------------------------------------------------
 // DEV-ONLY sim harness helpers
@@ -308,6 +351,17 @@ export const useAssignmentProgress = (
   };
 };
 
+/** One enrollment's progress row, or undefined while the id is unknown. */
+export const findMyProgress = (
+  rows: readonly AssignmentProgress[],
+  enrollmentId: string | undefined,
+): AssignmentProgress | undefined =>
+  enrollmentId === undefined
+    ? undefined
+    : rows.find((p) => p.enrollmentId === enrollmentId);
+
+const NO_RESPONSES: Record<string, InteractionResponsePayload> = {};
+
 export interface UseMyAssignmentProgress {
   myProgress: AssignmentProgress | undefined;
   myResponses: Record<string, InteractionResponsePayload>;
@@ -319,10 +373,14 @@ export interface UseMyAssignmentProgress {
  * Student-side hook. `setMyProgress` hits POST /progress. `recordMyResponse`
  * still writes localStorage — Ryan's async response endpoint isn't shipped
  * yet, so per-interaction answers persist locally only.
+ *
+ * `enrollmentId` comes from `useStudentEnrollmentId` and is undefined until
+ * the student's enrollment resolves. Until then there is no row to show and
+ * nothing is recorded.
  */
 export const useMyAssignmentProgress = (
   assignmentId: string,
-  enrollmentId: string,
+  enrollmentId: string | undefined,
   classroomId?: string,
 ): UseMyAssignmentProgress => {
   const musicAtlas = useMusicAtlas();
@@ -353,8 +411,11 @@ export const useMyAssignmentProgress = (
     enabled: Boolean(classroomId && assignmentId),
   });
 
-  const myProgress = progressList.find((p) => p.enrollmentId === enrollmentId);
-  const myResponses = store.responses[assignmentId]?.[enrollmentId] ?? {};
+  const myProgress = findMyProgress(progressList, enrollmentId);
+  const myResponses =
+    (enrollmentId !== undefined
+      ? store.responses[assignmentId]?.[enrollmentId]
+      : undefined) ?? NO_RESPONSES;
 
   const setMyProgressMutation = useMutation({
     mutationFn: async (input: SetMyProgressInput) => {
@@ -394,6 +455,9 @@ export const useMyAssignmentProgress = (
 
   const recordMyResponse = useCallback(
     (input: RecordMyResponseInput) => {
+      // Not until the enrollment is known: an answer filed under a stand-in
+      // id would be orphaned the moment the real one arrives.
+      if (enrollmentId === undefined) return;
       // Responses stay client-side — no async response endpoint on the
       // backend (per the classroom-v2 contract audit).
       recordMyResponseForUser(userId, {

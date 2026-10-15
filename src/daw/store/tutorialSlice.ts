@@ -22,10 +22,19 @@ export interface TutorialSlice {
    *  step's precondition was already satisfied on arrival, so we advance
    *  quietly instead of firing confetti for something the user didn't do. */
   tutorialStepCelebrate: boolean;
+  /** Whether the current step's preconditions (its view, panel, tab) are in
+   *  place: the layer applies them once, as the step arrives. A remounted
+   *  layer, or a lesson resumed with its draft (milestone 1.15), finds them
+   *  there and leaves the student's view as it is. */
+  tutorialStepPrepared: boolean;
 
   startTutorial: (id: string) => void;
   goToTutorialStep: (index: number) => void;
   completeTutorialStep: (celebrate?: boolean) => void;
+  markTutorialStepPrepared: () => void;
+  /** Carry on with a lesson where its draft left it: at `stepIndex`, its
+   *  preconditions already in place (the draft's view holds them). */
+  resumeTutorial: (id: string, stepIndex: number) => void;
   quitTutorial: () => void;
 }
 
@@ -33,6 +42,7 @@ const RESET = {
   tutorialStepIndex: 0,
   tutorialStepStatus: 'waiting' as TutorialStepStatus,
   tutorialStepCelebrate: true,
+  tutorialStepPrepared: false,
 };
 
 export const createTutorialSlice: StateCreator<
@@ -51,6 +61,7 @@ export const createTutorialSlice: StateCreator<
       tutorialStepIndex: Math.max(0, index),
       tutorialStepStatus: 'waiting',
       tutorialStepCelebrate: true,
+      tutorialStepPrepared: false,
     }),
 
   completeTutorialStep: (celebrate = true) =>
@@ -59,6 +70,17 @@ export const createTutorialSlice: StateCreator<
         ? s
         : { tutorialStepStatus: 'done', tutorialStepCelebrate: celebrate },
     ),
+
+  markTutorialStepPrepared: () =>
+    set((s) => (s.tutorialStepPrepared ? s : { tutorialStepPrepared: true })),
+
+  resumeTutorial: (id, stepIndex) =>
+    set({
+      activeTutorialId: id,
+      ...RESET,
+      tutorialStepIndex: Math.max(0, stepIndex),
+      tutorialStepPrepared: true,
+    }),
 
   quitTutorial: () => set({ activeTutorialId: null, ...RESET }),
 });

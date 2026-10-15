@@ -19,6 +19,7 @@ import { describe, expect, it } from 'vitest';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { Track } from '@/daw/store/tracksSlice';
 import {
+  SESSION_SCHEMA_VERSION,
   decodeSession,
   encodeSession,
   type StoredSession,
@@ -57,7 +58,11 @@ function jsonFiles(dir: string): { name: string; session: any }[] {
 const V2 = jsonFiles(join(FIXTURES, 'v2'));
 const V2_12 = jsonFiles(join(FIXTURES, 'v2-1.2'));
 const V1 = jsonFiles(join(FIXTURES, 'v1'));
-const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v3-all-fields'))[0].session;
+/** Today's format (schema 4), and the v3 one it migrates from. */
+const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v4-all-fields'))[0].session;
+const ALL_FIELDS_V3 = jsonFiles(join(FIXTURES, 'v3-all-fields'))[0].session;
+/** A schema after this build's. */
+const NEXT = SESSION_SCHEMA_VERSION + 1;
 
 function migrated(stored: unknown) {
   const result = migrateSession(stored);
@@ -291,7 +296,7 @@ describe('a v1 draft', () => {
 
     it(`${name} becomes the columns v2 wrote, and v3's ids`, () => {
       const v3 = reencoded(session);
-      expect([v3.version, v3.schema]).toEqual([2, 3]);
+      expect([v3.version, v3.schema]).toEqual([2, SESSION_SCHEMA_VERSION]);
       const chords = v3.data.tracks[0].midiClips[0].events;
       expect(chords.notes).toEqual([60, 60, 64, 55, 67]);
       expect(chords.velocities).toEqual([90, 70, 85, 75, 80]);
@@ -432,15 +437,15 @@ describe('a draft that can’t be read', () => {
     ['JSON but no object', '[1, 2]', 'malformed'],
     ['no version', { data: {} }, 'malformed'],
     ['a newer envelope', { ...valid(), version: 3 }, 'future-version'],
-    ['a newer schema', { ...valid(), schema: 4 }, 'future-version'],
+    ['a newer schema', { ...valid(), schema: NEXT }, 'future-version'],
     [
       'a newer schema that changed what a field means',
-      { ...valid(), schema: 4, compat: 4 },
+      { ...valid(), schema: NEXT, compat: NEXT },
       'future-version',
     ],
     [
       'a newer schema with a compat that is no schema',
-      { ...valid(), schema: 4, compat: '3' },
+      { ...valid(), schema: NEXT, compat: '3' },
       'future-version',
     ],
     ['a schema on v1', { ...valid(), version: 1, schema: 3 }, 'malformed'],
@@ -495,7 +500,7 @@ describe('a draft from a later schema', () => {
   /** ALL_FIELDS as a later build that only added fields would write it. */
   const later = (compat: unknown) => ({
     ...structuredClone(ALL_FIELDS),
-    schema: 4,
+    schema: NEXT,
     compat,
     data: {
       ...structuredClone(ALL_FIELDS.data),
@@ -504,11 +509,15 @@ describe('a draft from a later schema', () => {
     },
   });
 
-  it('loads as v3 when its compat says this build may read it', () => {
+  it("loads as this build's schema when its compat says it may", () => {
     const result = migrated(later(3));
-    expect([result.from, result.repaired]).toEqual([4, 0]);
-    expect(result.session).toMatchObject({ version: 2, schema: 3, compat: 3 });
-    // What this build doesn't know is left out; the rest loads as v3 does.
+    expect([result.from, result.repaired]).toEqual([NEXT, 0]);
+    expect(result.session).toMatchObject({
+      version: 2,
+      schema: SESSION_SCHEMA_VERSION,
+      compat: 3,
+    });
+    // What this build doesn't know is left out; the rest loads as ours does.
     const ours = decode(later(3));
     expect(ours.project).toEqual(decode(ALL_FIELDS).project);
     expect(JSON.stringify(reencoded(later(3)))).not.toMatch(
@@ -517,11 +526,11 @@ describe('a draft from a later schema', () => {
   });
 
   it('is set aside when its compat is newer than this build, or missing', () => {
-    for (const compat of [4, undefined, 2.5]) {
+    for (const compat of [NEXT, undefined, 2.5]) {
       expect(migrateSession(later(compat))).toMatchObject({
         ok: false,
         reason: 'future-version',
-        version: 4,
+        version: NEXT,
       });
     }
   });
@@ -551,11 +560,19 @@ describe('migrating', () => {
     }
   });
 
-  it('passes a v3 draft through as it is', () => {
+  it('passes a draft in this format through as it is', () => {
     const result = migrated(ALL_FIELDS);
-    expect(result.from).toBe(3);
-    expect(result.session.data).toBe(result.session.data);
+    expect(result.from).toBe(SESSION_SCHEMA_VERSION);
     expect(result.legacyPrefs).toEqual({});
     expect(result.session.data.tracks).toEqual(ALL_FIELDS.data.tracks);
+  });
+
+  it('reads a v3 draft as v4, with no bars past its chords', () => {
+    const result = migrated(ALL_FIELDS_V3);
+    expect(result.from).toBe(3);
+    expect(result.session).toMatchObject({ schema: 4, compat: 3 });
+    // Schema 4 only added fields, so the v3 data passes through untouched.
+    expect(result.session.data).toEqual(ALL_FIELDS_V3.data);
+    expect(decode(ALL_FIELDS_V3).project.leadSheetBars).toBeNull();
   });
 });

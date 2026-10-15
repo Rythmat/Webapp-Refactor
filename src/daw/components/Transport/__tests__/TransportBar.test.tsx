@@ -40,6 +40,11 @@ vi.mock('@/daw/collab/ui/CollabToolbar', () => ({ CollabToolbar: () => null }));
 vi.mock('@/daw/commands/requestRecord', () => ({ requestRecord: vi.fn() }));
 
 import { useStore } from '@/daw/store';
+import {
+  endPlayheadRun,
+  setPlayheadSourceForTests,
+  startPlayheadRun,
+} from '@/daw/engine/playheadClock';
 import { TransportBar } from '../TransportBar';
 
 const s = () => useStore.getState();
@@ -118,6 +123,73 @@ describe('the position readout', () => {
       '0.62em',
     ]);
     expect(cells.every((c) => c.style.display === 'inline-block')).toBe(true);
+  });
+});
+
+describe('the readout while playing', () => {
+  // 120 bpm: 960 ticks a second, the transport started at 0 from tick 0.
+  const now = { t: 0 };
+  let frames: FrameRequestCallback[] = [];
+  const runFrame = () => {
+    const due = frames;
+    frames = [];
+    for (const cb of due) act(() => cb(performance.now()));
+  };
+
+  beforeEach(() => {
+    now.t = 0;
+    frames = [];
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      frames.push(cb);
+      return frames.length;
+    });
+    vi.stubGlobal('cancelAnimationFrame', () => {
+      frames = [];
+    });
+    setPlayheadSourceForTests({
+      currentTime: () => now.t,
+      outputLatency: () => 0,
+      ticksAtTime: (time) => time * 960,
+      scheduleTime: () => now.t + 0.1,
+    });
+  });
+  afterEach(() => {
+    endPlayheadRun();
+    setPlayheadSourceForTests();
+    vi.unstubAllGlobals();
+  });
+
+  it('counts from the playhead clock, with no store write and no commit', () => {
+    renderBar();
+    const committed = barCommits;
+    let writes = 0;
+    const off = useStore.subscribe(() => (writes += 1));
+    startPlayheadRun(0, 0);
+    // Four seconds at 30 frames a second: bar 3.
+    for (let i = 1; i <= 120; i++) {
+      now.t = i / 30;
+      runFrame();
+    }
+    off();
+    expect(readout().textContent).toBe('3:1:1');
+    expect(writes).toBe(0);
+    expect(barCommits).toBe(committed);
+  });
+
+  it('skips to the marker after where the student hears the playhead', () => {
+    useStore.setState({
+      markers: [
+        { id: 'm1', tick: BAR, name: 'Verse', color: '#fff' },
+        { id: 'm2', tick: 3 * BAR, name: 'Chorus', color: '#fff' },
+      ],
+    } as never);
+    renderBar();
+    startPlayheadRun(0, 0);
+    now.t = 3; // 2880, past the verse
+    fireEvent.click(screen.getByTitle('Skip Forward'));
+    expect(h.seekTo).toHaveBeenLastCalledWith(3 * BAR);
+    fireEvent.click(screen.getByTitle('Skip Back'));
+    expect(h.seekTo).toHaveBeenLastCalledWith(BAR);
   });
 });
 

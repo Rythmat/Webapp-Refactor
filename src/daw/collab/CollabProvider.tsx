@@ -56,8 +56,12 @@ interface CollabContextValue {
   createAndJoinRoom: () => void;
   /** Join an existing room by ID. */
   joinRoomById: (roomId: string, role?: CollabRole) => void;
-  /** Join by ID as an editor, retrying until the host creates the room. */
-  joinRoomAwaitingHost: (roomId: string) => void;
+  /**
+   * Join by ID as an editor, retrying until the host creates the room — for
+   * `timeoutMs` (20 s unless given; a classroom pair waits longer, see
+   * `CLASS_PAIR_AWAIT_HOST_MS` in session/intents).
+   */
+  joinRoomAwaitingHost: (roomId: string, timeoutMs?: number) => void;
   /** Join using pre-fetched room info (partykitHost + partykitRoom). */
   joinRoom: (
     roomId: string,
@@ -665,11 +669,12 @@ export function CollabProvider({ children }: CollabProviderProps) {
   );
 
   // ── Join, waiting for the host to create the room ────────────────────
-  // Used when a jam-room player accepts a "moved to studio" invite: they may
-  // beat the host to PartyKit, so retry the join until the room exists.
+  // Used when a jam-room player accepts a "moved to studio" invite, and when
+  // a classroom partner opens their pair's room: either may beat the host to
+  // PartyKit, so retry the join until the room exists.
 
   const joinRoomAwaitingHost = useCallback(
-    (roomId: string) => {
+    (roomId: string, timeoutMs: number = AWAIT_HOST_TIMEOUT_MS) => {
       const id = roomId.trim().toLowerCase();
       stopAwaitingHost();
       awaitHostRef.current = true;
@@ -683,7 +688,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
         const store = useStore.getState();
         store._clearCollab();
         store._setRoomError(ROOM_NOT_ACTIVE_MESSAGE);
-      }, AWAIT_HOST_TIMEOUT_MS);
+      }, timeoutMs);
       useStore.getState()._setRoomError(null);
       useStore.getState()._setAwaitingSession(true);
       // Re-run on retry without resetting the deadline.

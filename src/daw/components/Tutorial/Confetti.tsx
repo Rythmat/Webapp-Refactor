@@ -1,12 +1,19 @@
 import { useEffect, useRef } from 'react';
+import { addFrameTask } from '@/daw/engine/engineClock';
 
 // ── Confetti ────────────────────────────────────────────────────────────────
 // Self-contained celebratory burst (no external dependency). Fires once on
-// mount and cleans itself up. Remount with a new `key` to replay.
+// mount, drawn as a task on the editor's frame loop, and calls `onDone` when
+// it has finished so its owner can unmount the full-screen canvas. Remount
+// with a new `key` to replay. Drawn at 1 device pixel per CSS pixel: small
+// squares in flight need no more, and the backing store stays a quarter of
+// a 2× one. The owner skips it under prefers-reduced-motion.
 
 interface ConfettiProps {
   /** Burst origin in viewport px. Defaults to horizontal center, upper third. */
   origin?: { x: number; y: number };
+  /** Called once the burst has finished. */
+  onDone?: () => void;
 }
 
 const COLORS = [
@@ -18,8 +25,10 @@ const COLORS = [
   '#fb923c',
 ];
 
-export function Confetti({ origin }: ConfettiProps) {
+export function Confetti({ origin, onDone }: ConfettiProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -27,12 +36,10 @@ export function Confetti({ origin }: ConfettiProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
     const W = window.innerWidth;
     const H = window.innerHeight;
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    ctx.scale(dpr, dpr);
+    canvas.width = W;
+    canvas.height = H;
 
     const ox = origin?.x ?? W / 2;
     const oy = origin?.y ?? H * 0.32;
@@ -52,11 +59,12 @@ export function Confetti({ origin }: ConfettiProps) {
       };
     });
 
-    const start = performance.now();
     const DURATION = 1100;
-    let raf = 0;
+    let start = -1;
+    let remove: (() => void) | null = null;
 
     const tick = (now: number) => {
+      if (start < 0) start = now;
       const t = now - start;
       ctx.clearRect(0, 0, W, H);
       const life = 1 - t / DURATION;
@@ -74,11 +82,15 @@ export function Confetti({ origin }: ConfettiProps) {
         ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
         ctx.restore();
       }
-      if (t < DURATION) raf = requestAnimationFrame(tick);
-      else ctx.clearRect(0, 0, W, H);
+      if (t >= DURATION) {
+        ctx.clearRect(0, 0, W, H);
+        remove?.();
+        remove = null;
+        onDoneRef.current?.();
+      }
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    remove = addFrameTask(tick, { name: 'tutorial-confetti' });
+    return () => remove?.();
   }, [origin]);
 
   return (

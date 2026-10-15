@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { memo, useCallback, useId } from 'react';
 import { cn } from '@/components/utilities';
+import { useCloudSaveStore } from '@/daw/commands/cloudSaveStore';
+import { askSaveConflict } from '@/daw/commands/saveConflict';
 import { saveProject } from '@/daw/commands/saveProject';
 import { useDraftStatusStore } from '@/daw/persistence/drafts/draftStatusStore';
 import { isBusyPhase, useSessionStore } from '@/daw/session/sessionStore';
@@ -17,7 +19,10 @@ import { FOCUS_RING } from '@/daw/ui/styles';
 import { Tooltip } from '@/daw/ui/Tooltip';
 import {
   SAVE_CHIP_ERROR_LEAD,
+  SAVE_CHIP_FIX_LABELS,
+  SAVE_CHIP_RELOAD_LEAD,
   SAVE_CHIP_WIDTH_PX,
+  type SaveChipFix,
   type SaveChipState,
 } from './saveChipModel';
 import { useSaveChipState } from './useSaveChipState';
@@ -36,8 +41,11 @@ import { useSaveChipState } from './useSaveChipState';
 //
 // Retry: a device failure retries the draft write (and, with no writer
 // retry registered, falls back to saving to the account, as the tooltip
-// advises); a cloud failure saves again. Both when both failed. Off while
-// a session opens (the chip shows its frozen previous state then).
+// advises); a cloud failure saves again. Both when both failed. A project
+// changed elsewhere asks again what to do (SaveConflictDialog), and a
+// project a newer app saved shows Reload instead, which reloads the page
+// to update (the draft is flushed as the page hides). Off while a session
+// opens (the chip shows its frozen previous state then).
 //
 // Stage A mounts it in the TopRail's leading slot and in the Practice
 // header; milestone 2.5 moves it into the editor's own top bar. The TopRail
@@ -57,12 +65,23 @@ const ICON: Readonly<Record<SaveChipState, LucideIcon>> = {
 export function retrySave(
   reason: 'cloud' | 'device' | 'partial' | null,
   deviceFailing: boolean,
+  fix: SaveChipFix | null = 'retry',
 ): void {
+  if (fix === 'reload') {
+    window.location.reload();
+    return;
+  }
   const deviceRetry = useDraftStatusStore.getState().retry;
   if (deviceFailing && deviceRetry !== null) deviceRetry();
-  if (reason !== 'device' || deviceRetry === null) {
-    void saveProject({ source: 'chip' });
+  if (reason === 'device' && deviceRetry !== null) return;
+  if (fix === 'resolve') {
+    askSaveConflict({
+      revision: useCloudSaveStore.getState().error?.revision,
+      source: 'chip',
+    });
+    return;
   }
+  void saveProject({ source: 'chip' });
 }
 
 /**
@@ -97,12 +116,12 @@ export const SaveStatusChip = memo(function SaveStatusChip({
   const reasonId = useId();
   const Icon = ICON[chip.state];
   const warning = chip.state === 'error' || chip.state === 'audio-pending';
-  const { reason, deviceFailing } = chip;
+  const { reason, deviceFailing, fix } = chip;
 
   const retry = useCallback(() => {
     if (isBusyPhase(useSessionStore.getState().phase)) return;
-    retrySave(reason, deviceFailing);
-  }, [reason, deviceFailing]);
+    retrySave(reason, deviceFailing, fix);
+  }, [reason, deviceFailing, fix]);
 
   return (
     <>
@@ -128,10 +147,16 @@ export const SaveStatusChip = memo(function SaveStatusChip({
           />
           {chip.retry ? (
             <>
-              <span className="min-w-0 truncate">{SAVE_CHIP_ERROR_LEAD}</span>
+              <span className="min-w-0 truncate">
+                {fix === 'reload'
+                  ? SAVE_CHIP_RELOAD_LEAD
+                  : SAVE_CHIP_ERROR_LEAD}
+              </span>
               <button
                 type="button"
-                aria-label="Retry save"
+                aria-label={
+                  fix === 'reload' ? 'Reload to update' : 'Retry save'
+                }
                 aria-describedby={reasonId}
                 disabled={opening}
                 onClick={retry}
@@ -141,7 +166,7 @@ export const SaveStatusChip = memo(function SaveStatusChip({
                   'focus-visible:outline-offset-0',
                 )}
               >
-                Retry
+                {SAVE_CHIP_FIX_LABELS[fix ?? 'retry']}
               </button>
               <span id={reasonId} className="sr-only">
                 {chip.tooltip}

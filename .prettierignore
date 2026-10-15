@@ -29,3 +29,13 @@ docs/studio-perf/**/*.json
 public/daw-assets/spessasynth_processor.min.js
 # Generated DOM snapshots; reformatting them breaks the comparison
 **/__snapshots__/**/*.html
+
+# The Globe's outlines and their test reference (scripts/buildGeo.mjs):
+# minified TopoJSON, and one feature per line
+public/geo/
+src/components/atlas/data/__tests__/fixtures/geoReference.json
+
+# The music lineage calibration report, written by
+# src/components/atlas/data/lineage.calibration.test.ts: reformatting it
+# breaks the comparison
+docs/globe-redesign/lineage-calibration.md

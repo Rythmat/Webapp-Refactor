@@ -77,6 +77,21 @@ function computeActiveNotesBitmask(rootPc: number, mode: string): number {
   return bitmask;
 }
 
+/** Whether two live analyses show the same thing (the parts are kept by identity). */
+function sameLiveAnalysis(
+  a: LiveAnalysisResult | null,
+  b: LiveAnalysisResult | null,
+): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return (
+    a.key === b.key &&
+    a.enrichedChords === b.enrichedChords &&
+    a.progressionMatch === b.progressionMatch &&
+    a.windowSize === b.windowSize
+  );
+}
+
 // ── Slice ────────────────────────────────────────────────────────────────
 
 export const createMusicIntelligenceSlice: StateCreator<
@@ -84,7 +99,7 @@ export const createMusicIntelligenceSlice: StateCreator<
   [['zustand/subscribeWithSelector', never]],
   [],
   MusicIntelligenceSlice
-> = (set) => ({
+> = (set, get) => ({
   detectedKeyRootPc: null,
   detectedMode: null,
   keyConfidence: 0,
@@ -116,6 +131,17 @@ export const createMusicIntelligenceSlice: StateCreator<
   },
 
   pushLiveChord: (chord) => {
+    // The stream holds chord changes, not frames: the same chord heard
+    // again is not a new entry (and not a store write).
+    const stream = get().liveChordStream;
+    const last = stream[stream.length - 1];
+    if (
+      last &&
+      last.rootPc === chord.rootPc &&
+      last.quality === chord.quality
+    ) {
+      return;
+    }
     set((state) => {
       const entry: LiveChordEntry = {
         ...chord,
@@ -131,10 +157,13 @@ export const createMusicIntelligenceSlice: StateCreator<
   },
 
   setGlobalTuningCents: (cents) => {
+    if (Object.is(get().globalTuningCents, cents)) return;
     set({ globalTuningCents: cents });
   },
 
   setLiveAnalysis: (result) => {
+    // The analyzer hands back a new object for the same analysis.
+    if (sameLiveAnalysis(get().liveAnalysis, result)) return;
     set({ liveAnalysis: result });
   },
 });

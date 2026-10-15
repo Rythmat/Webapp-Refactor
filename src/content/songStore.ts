@@ -68,7 +68,16 @@ const hydrate = () =>
   });
 
 export const ensureSongContent = (): Promise<void> => {
-  hydration ??= hydrate();
+  if (!hydration) {
+    const attempt = hydrate();
+    hydration = attempt;
+    // Failed outright (the bundled fallback didn't load either): the next
+    // caller tries again, as the Studio's Retry on a song link does.
+    // ContentGate remembers the failure for its own subtree.
+    attempt.catch(() => {
+      if (hydration === attempt) hydration = null;
+    });
+  }
   return hydration;
 };
 

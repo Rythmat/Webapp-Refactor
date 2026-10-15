@@ -19,9 +19,11 @@ import { useChordNotation } from '@/lib/chordNotation';
 interface ChordChartProps {
   /** One turn of the progression — the loop's regions, cut to the cycle. */
   regions: ChordRegion[];
-  /** Ticks in one turn, so the playhead can wrap inside it. */
-  cycleTicks: number;
-  position: number;
+  /**
+   * The region the playhead is in, within the cycle (-1 for none); lit while
+   * playing.
+   */
+  nowIndex: number;
   isPlaying: boolean;
   /** Playing the chords makes the chart the task; improvising makes it context. */
   large: boolean;
@@ -33,15 +35,13 @@ const ACCENT = '#7ecfcf';
 
 export function ChordChart({
   regions,
-  cycleTicks,
-  position,
+  nowIndex,
   isPlaying,
   large,
   keyRootPc,
   mode,
 }: ChordChartProps) {
   const notation = useChordNotation();
-  const withinCycle = cycleTicks > 0 ? position % cycleTicks : position;
 
   return (
     <div
@@ -50,11 +50,8 @@ export function ChordChart({
         gridTemplateColumns: `repeat(${Math.max(1, Math.min(regions.length, 8))}, minmax(0, 1fr))`,
       }}
     >
-      {regions.map((region) => {
-        const now =
-          isPlaying &&
-          withinCycle >= region.startTick &&
-          withinCycle < region.endTick;
+      {regions.map((region, i) => {
+        const now = isPlaying && i === nowIndex;
         const letter = displayAccidentals(region.noteName);
         const symbol = formatChordRegion(
           region,

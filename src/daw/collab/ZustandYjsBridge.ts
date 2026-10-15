@@ -4,7 +4,15 @@
 
 import * as Y from 'yjs';
 import type { AllSlices } from '@/daw/store/index';
+import { undoKeysChanged } from '@/daw/store/history';
+import { beginCollabEdit, endCollabEdit } from '@/daw/store/undoMiddleware';
+import {
+  currentOrigin,
+  transactionLabel,
+  withOrigin,
+} from '@/daw/store/writeContext';
 import { diffAndApply } from './diffEngine';
+import { UNDOABLE_META } from './undoScope';
 import {
   observeYjsAndPushToStore,
   pullDocIntoStore,
@@ -71,7 +79,10 @@ export class ZustandYjsBridge {
     this.hasPulled = true;
     this.suppressStoreToYjs = true;
     try {
-      pullDocIntoStore(this.doc, this.setState, this.getState);
+      // The room's project, as a load: not an edit to undo.
+      withOrigin('seed', () =>
+        pullDocIntoStore(this.doc, this.setState, this.getState),
+      );
     } finally {
       this.suppressStoreToYjs = false;
     }
@@ -89,7 +100,7 @@ export class ZustandYjsBridge {
       (partial) => {
         this.suppressStoreToYjs = true;
         try {
-          this.setState(partial);
+          withOrigin('remote', () => this.setState(partial));
         } finally {
           this.suppressStoreToYjs = false;
         }
@@ -116,13 +127,23 @@ export class ZustandYjsBridge {
   syncToYjs(prev: AllSlices, next: AllSlices): void {
     if (this.suppressStoreToYjs) return;
 
+    // Collab undo captures the student's own edits to undoable keys only: a
+    // seed, the editor's bookkeeping and a change to, say, the genre alone
+    // are marked so it leaves them out (undoScope.ts).
+    const undoable =
+      currentOrigin() === 'user' && undoKeysChanged(prev, next).length > 0;
+    // A labelled edit (a gesture's commit) is one undo step of its own.
+    const label = undoable ? transactionLabel() : null;
+    if (label) beginCollabEdit(label);
     this.suppressYjsToStore = true;
     try {
-      this.doc.transact(() => {
+      this.doc.transact((tr) => {
+        if (!undoable) tr.meta.set(UNDOABLE_META, false);
         diffAndApply(this.doc, prev, next);
       }, ORIGIN_LOCAL);
     } finally {
       this.suppressYjsToStore = false;
+      if (label) endCollabEdit();
     }
   }
 

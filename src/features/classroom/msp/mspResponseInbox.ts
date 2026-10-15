@@ -10,6 +10,7 @@
  * CustomEvent so `useMspReport` subscribers receive the entry regardless
  * of which channel delivered it.
  */
+import type { MindMapSubmission } from '@/content/graph/mindMapBoard';
 import type { ArtifactRef } from '../assignments/useAssignmentProgress';
 import type { AtlasModule } from './capabilities';
 
@@ -20,7 +21,9 @@ export const INBOX_EVENT = 'msp:inbox';
 export type MspResultPayload =
   | { kind: 'completion'; completed: true }
   | { kind: 'score'; score: number; max: number }
-  | { kind: 'artifact'; artifactRef: ArtifactRef };
+  | { kind: 'artifact'; artifactRef: ArtifactRef }
+  /** A Promoter's mind map from the Globe (`globe:mindmap`). */
+  | { kind: 'mindMap'; map: MindMapSubmission };
 
 export interface MspParticipant {
   enrollmentId: string;

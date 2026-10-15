@@ -9,13 +9,14 @@ import {
 } from './codec';
 import { NOTE_EVENT_FIELDS } from './fields';
 
-// ── Bringing older drafts up to v3 ─────────────────────────────────────────
+// ── Bringing older drafts up to date ───────────────────────────────────────
 //
 // Every draft this build reads goes through migrateSession first: the
 // autosave, kept work, a quarantined draft being tried again. It answers
 // three questions. Can the draft be read at all (JSON, an envelope this build
 // knows, the shape every version shares)? Which format was it written in? And
-// what is it as v3? decodeSession (codec.ts) then reads v3 only.
+// what is it in this build's format? decodeSession (codec.ts) then reads
+// that format only.
 //
 // The formats:
 // - v1 (builds of 2026-03-04 to 05-28): version 1, each clip's notes an array
@@ -26,9 +27,13 @@ import { NOTE_EVENT_FIELDS } from './fields';
 //   version bump. Every v2 addition is optional, and a field a draft lacks
 //   loads as its registry default ('auto', no input channel).
 // - v3 (1.3 on): the same envelope, version 2, with schema 3 (codec.ts).
+// - v4 (1.10 on): v3 plus the Lead Sheet's leadSheetBars and each chord
+//   region's sourceClipId. A v3 draft is a v4 draft without them (no bars
+//   past the last chord, no region tied to a clip), so nothing translates:
+//   the codec reads the missing fields as their defaults.
 // - Later schemas: a draft whose `compat` is 3 or lower only adds fields to
-//   v3, so it is read as v3 and the fields this build doesn't know are left
-//   out. `from` says it was newer, and the caller keeps a copy of it before
+//   v3, so it is read as this build's schema and the fields this build
+//   doesn't know are left out. `from` says it was newer, and the caller keeps a copy of it before
 //   writing over it (quarantine.ts, backupBeforeMigration). A higher compat
 //   means a field changed its meaning: the draft is set aside, unread.
 //
@@ -67,7 +72,7 @@ export interface LegacyPrefs {
 export type MigrationResult =
   | {
       ok: true;
-      /** The draft as v3: `version` 2, `schema` 3. */
+      /** The draft in this build's format: `version` 2, `schema` 4. */
       session: StoredSession;
       /**
        * The format it was written in: 1, 2, 3, or a later schema read as 3.
@@ -96,7 +101,8 @@ class MalformedDraft extends Error {}
 
 /**
  * The draft `input` (the raw string storage holds, or a parsed object) as
- * v3, or why it can't be read. Never throws, and never changes `input`.
+ * this build's format, or why it can't be read. Never throws, and never
+ * changes `input`.
  */
 export function migrateSession(input: unknown): MigrationResult {
   let parsed: unknown = input;

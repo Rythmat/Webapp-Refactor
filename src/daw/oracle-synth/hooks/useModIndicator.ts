@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { addFrameTask } from '@/daw/engine/engineClock';
 import { SynthEngine } from '../audio/SynthEngine';
 import { computeGainOffset, getModRange } from '../audio/modMath';
 import { shapeValue } from '../audio/ModCurves';
@@ -20,23 +21,49 @@ export interface ModIndicator {
 
 // The engine currently bound to the UI (registered by useSyncStoreToEngine).
 // A module-level slot mirrors the singleton-store architecture and spares
-// every knob module an engine prop. Refcounted because the DAW can mount
-// TWO views on the same engine at once (inline strip + full-screen pop-out):
-// closing one must not null the slot out from under the other.
+// every knob module an engine prop. Refcounted per engine because the DAW
+// can mount TWO views on the same engine at once (inline strip + full-screen
+// pop-out): closing one must not null the slot out from under the other.
+// Knob modules subscribe to it: the parent registers the engine after its
+// children's effects ran, and a track switch or reload swaps it.
 let currentEngine: SynthEngine | null = null;
-let engineRefs = 0;
+const engineRefs = new Map<SynthEngine, number>();
+const engineListeners = new Set<() => void>();
+
+function setCurrentEngine(engine: SynthEngine | null): void {
+  if (engine === currentEngine) return;
+  currentEngine = engine;
+  engineListeners.forEach((cb) => cb());
+}
 
 export function acquireModIndicatorEngine(engine: SynthEngine): void {
-  currentEngine = engine;
-  engineRefs++;
+  engineRefs.set(engine, (engineRefs.get(engine) ?? 0) + 1);
+  setCurrentEngine(engine);
 }
 
 export function releaseModIndicatorEngine(engine: SynthEngine): void {
-  engineRefs = Math.max(0, engineRefs - 1);
-  if (engineRefs === 0 && currentEngine === engine) {
-    currentEngine = null;
+  const refs = (engineRefs.get(engine) ?? 0) - 1;
+  if (refs > 0) {
+    engineRefs.set(engine, refs);
+    return;
+  }
+  engineRefs.delete(engine);
+  if (currentEngine === engine) {
+    // Fall back to an engine another view still holds, if any.
+    let held: SynthEngine | null = null;
+    for (const e of engineRefs.keys()) held = e;
+    setCurrentEngine(held);
   }
 }
+
+function subscribeEngine(cb: () => void): () => void {
+  engineListeners.add(cb);
+  return () => {
+    engineListeners.delete(cb);
+  };
+}
+
+const getEngine = () => currentEngine;
 
 function isSourceBipolar(route: ModRoute): boolean {
   return route.source.type === 'audio';
@@ -62,6 +89,8 @@ function routeExtremes(route: ModRoute): [number, number] {
 }
 
 const LIVE_FPS = 30;
+/** The live dot moves when the offset changes by this share of its range. */
+const LIVE_STEP = 0.005;
 
 export function useModIndicator(
   targetSource: ModTarget['source'],
@@ -99,13 +128,14 @@ export function useModIndicator(
     [matching],
   );
   const [liveOffset, setLiveOffset] = useState<number | null>(null);
+  const engine = useSyncExternalStore(subscribeEngine, getEngine, getEngine);
 
   useEffect(() => {
-    if (!lfoRoute || !currentEngine) {
+    if (!lfoRoute || !engine) {
       setLiveOffset(null);
       return;
     }
-    const analyser = currentEngine.getLFOAnalyser(lfoRoute.source.index);
+    const analyser = engine.getLFOAnalyser(lfoRoute.source.index);
     if (!analyser) {
       setLiveOffset(null);
       return;
@@ -123,27 +153,31 @@ export function useModIndicator(
       range,
       legacyCutoff,
     );
+    // Smaller moves than this don't show on the ring: no render for them.
+    const [lo, hi] = routeExtremes(lfoRoute);
+    const step = Math.abs(hi - lo) * LIVE_STEP;
 
     // The audible chain shapes the source through the route's curve BEFORE
     // the scaler; the dot must mirror that or it lies for exp/log/scurve.
     const curve = lfoRoute.curve ?? 'linear';
 
-    let raf = 0;
-    let last = 0;
-    const tick = (t: number) => {
-      raf = requestAnimationFrame(tick);
-      if (t - last < 1000 / LIVE_FPS) return;
-      last = t;
-      analyser.getFloatTimeDomainData(buf as Float32Array<ArrayBuffer>);
-      const v = shapeValue(curve, buf[buf.length - 1]);
-      setLiveOffset(v * gain + offset);
-    };
-    raf = requestAnimationFrame(tick);
+    let shown: number | null = null;
+    const stopTask = addFrameTask(
+      () => {
+        analyser.getFloatTimeDomainData(buf as Float32Array<ArrayBuffer>);
+        const v = shapeValue(curve, buf[buf.length - 1]);
+        const next = v * gain + offset;
+        if (shown !== null && Math.abs(next - shown) <= step) return;
+        shown = next;
+        setLiveOffset(next);
+      },
+      { fps: LIVE_FPS, name: 'mod-indicator' },
+    );
     return () => {
-      cancelAnimationFrame(raf);
+      stopTask();
       setLiveOffset(null);
     };
-  }, [lfoRoute]);
+  }, [lfoRoute, engine]);
 
   if (!staticRange) return null;
   return { loOffset: staticRange.lo, hiOffset: staticRange.hi, liveOffset };

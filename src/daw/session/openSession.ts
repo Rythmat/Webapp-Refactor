@@ -12,6 +12,9 @@ import {
 } from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
 import { resetUndoHistory } from '@/daw/store/undoMiddleware';
+import { withOrigin } from '@/daw/store/writeContext';
+import { reloadAfterSaving } from '@/lib/beforeReload';
+import { chunkReloadPending } from '@/lib/chunkReload';
 import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
 import {
   draftHasWork,
@@ -128,6 +131,8 @@ import type {
 const WAIT_TIMEOUT_MS = 15_000;
 const WAIT_POLL_MS = 250;
 const COLLAB_LOAD_TIMEOUT_MS = 25_000;
+// The load's margin over the provider's host wait (20 s by default).
+const COLLAB_LOAD_MARGIN_MS = 5_000;
 const OVERLAY_DELAY_MS = 250;
 const CANCEL_AFTER_MS = 3_000;
 const TAKE_WAIT_MS = 10_000;
@@ -422,9 +427,14 @@ type RoomWait =
 /**
  * A joiner's load: connected to `roomId`, plus one macrotask (the pull from
  * the room runs right after the status write). Fails when the provider
- * clears the room (its roomError says why), or after 25 s.
+ * clears the room (its roomError says why), or after 25 s (a classroom
+ * pair's longer host wait, `hostWaitMs`, plus 5 s).
  */
-function waitForRoom(run: Run, roomId: string): Promise<RoomWait> {
+function waitForRoom(
+  run: Run,
+  roomId: string,
+  hostWaitMs?: number,
+): Promise<RoomWait> {
   const controller = new AbortController();
   run.collabWait = controller;
   return new Promise<RoomWait>((resolve) => {
@@ -465,7 +475,9 @@ function waitForRoom(run: Run, roomId: string): Promise<RoomWait> {
     };
     const timer = setTimeout(
       () => finish(() => ({ status: 'failed', error: JOIN_TIMEOUT }), false),
-      COLLAB_LOAD_TIMEOUT_MS,
+      hostWaitMs === undefined
+        ? COLLAB_LOAD_TIMEOUT_MS
+        : hostWaitMs + COLLAB_LOAD_MARGIN_MS,
     );
     const unsubscribe = useStore.subscribe(check);
     controller.signal.addEventListener('abort', onAbort, { once: true });
@@ -489,6 +501,9 @@ const isUrlOpen = (run: Run) =>
 function stripConsumedKeys(run: Run): void {
   const deps = getSessionDeps();
   if (!deps || editorGone(run) || typeof window === 'undefined') return;
+  // A reload onto a new build is under way (a chunk failed, 1.12a): it
+  // opens the link again, so the address keeps it.
+  if (chunkReloadPending()) return;
   const search = window.location.search;
   const parsed = parseBootIntent(new URLSearchParams(search));
   if (parsed.consumedKeys.length === 0) {
@@ -919,7 +934,11 @@ async function executeLate(
   // ── loading ──
   setPhase(run, 'loading');
   try {
-    prepared.apply({ collab: deps.collab, drafts: deps.drafts });
+    // A seed: what the project opens with is no edit to undo, and in a room
+    // it is not this student's change for collab undo either.
+    withOrigin('seed', () =>
+      prepared.apply({ collab: deps.collab, drafts: deps.drafts }),
+    );
   } catch (err) {
     console.error('[open] the session could not be applied', err);
     return failAfterSwitch(
@@ -937,7 +956,11 @@ async function executeLate(
   }
   if (prepared.collabWait) {
     if (prepared.collabWait.awaitHost) setWaiting(run, 'host');
-    const result = await waitForRoom(run, prepared.collabWait.roomId);
+    const result = await waitForRoom(
+      run,
+      prepared.collabWait.roomId,
+      prepared.collabWait.hostWaitMs,
+    );
     setWaiting(run, null);
     if (result.status === 'aborted') {
       if (result.reason === 'back') {
@@ -954,7 +977,7 @@ async function executeLate(
   // ── baselining ──
   setPhase(run, 'baselining');
   markDocumentBaseline({ savedComplete: prepared.savedComplete });
-  // Also cancels the undo captures the apply queued.
+  // What the open left is where the history starts.
   resetUndoHistory();
   const generation = getSessionGeneration();
   const roomId = useStore.getState().roomId;
@@ -1333,13 +1356,18 @@ function refuse(
 ): Promise<OpenOutcome> {
   // A cold page whose resume was refused has no session at all: the panel
   // (Retry, and Back resumes again), never a toast it can't act on.
-  const shown =
+  let shown =
     cold &&
     run.requested.kind === 'resume' &&
     useSessionStore.getState().draftId === null &&
     error.surface === 'toast'
       ? { ...error, surface: 'panel' as const, retryable: true }
       : error;
+  // Retry reloads onto the link (1.12a): its address, before endEarly
+  // strips the link's keys from it.
+  if (shown.reloadToRetry && isUrlOpen(run) && typeof window !== 'undefined') {
+    shown = { ...shown, retrySearch: window.location.search };
+  }
   if (shown.surface === 'toast' && getSessionDeps()) showOpenError(shown);
   return endEarly(
     run,
@@ -1461,6 +1489,22 @@ export function backToMyWork(): Promise<OpenOutcome | null> {
   }
   clearPanel();
   return resumeIfStranded();
+}
+
+/**
+ * The panel's Retry for an open whose chunk didn't load (reloadToRetry): a
+ * module that failed stays failed until the page reloads, so save, put the
+ * link back in the address (`retrySearch`) and reload, which opens it again.
+ */
+export function retryByReload(error: OpenError): Promise<void> {
+  if (error.retrySearch !== undefined && typeof window !== 'undefined') {
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${window.location.pathname}${error.retrySearch}`,
+    );
+  }
+  return reloadAfterSaving();
 }
 
 /** Close the panel; a page with no session carries on with its last one. */

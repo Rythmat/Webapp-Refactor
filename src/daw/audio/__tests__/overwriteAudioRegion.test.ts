@@ -2,7 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useStore } from '@/daw/store';
 import type { AudioClip, MidiClip } from '@/daw/store/tracksSlice';
 import type { UserPresence } from '@/daw/collab/types';
-import { resetUndoHistory, pushUndo, undo } from '@/daw/store/undoMiddleware';
+import {
+  initUndoTracking,
+  resetUndoHistory,
+  undo,
+  withTransaction,
+} from '@/daw/store/undoMiddleware';
 import {
   getAudioBuffer,
   getOriginalAudio,
@@ -128,12 +133,15 @@ describe('overwriteAudioRegion', () => {
     const buffer = fakeBuffer(10);
     setAudioBuffer('earlier', buffer);
     recordOver();
-    pushUndo(); // what the take's recording stop captures
+    const release = initUndoTracking();
 
-    overwriteAudioRegion(trackId, 0, 8 * SEC, ctx, BPM, 'take');
+    withTransaction('Record', () =>
+      overwriteAudioRegion(trackId, 0, 8 * SEC, ctx, BPM, 'take'),
+    );
     expect(track().audioClips.map((c) => c.id)).toEqual(['take']);
 
     undo();
+    release();
     const earlier = track().audioClips.find((c) => c.id === 'earlier');
     expect(earlier?.duration).toBe(8 * SEC);
     expect(getAudioBuffer('earlier')).toBe(buffer);

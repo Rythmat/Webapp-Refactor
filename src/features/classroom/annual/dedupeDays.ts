@@ -10,9 +10,8 @@ interface DayLike {
  * per (date, label) is kept; later ones are flagged. Unscheduled Days (no
  * `scheduledDate`) are never flagged.
  *
- * Used to collapse accidental duplicate Lesson records — e.g. old Days that
- * get re-adopted onto their original dates after a "Reset to template" — so
- * they render, and count, once on the calendar. Same date + same label is a
+ * Used to collapse accidental duplicate Lesson records (e.g. the same backup
+ * restored twice) so they render once on the calendar. Same date + same label is a
  * genuine accidental duplicate; two intentionally distinct lessons on one day
  * carry different labels and are left untouched.
  */

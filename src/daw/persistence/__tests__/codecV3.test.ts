@@ -3,15 +3,16 @@
  * Codec v3: the project draft written on this device (the autosave, kept
  * work) and read back (projectDocument/codec.ts, through SessionSerializer).
  *
- * fixtures/v3-all-fields/all-fields.json is a v3 draft holding a value other
- * than its default for every local registry field: every doc and view store
+ * fixtures/v4-all-fields/all-fields.json is a draft in today's format (v3's
+ * codec at schema 4) holding a value other than its default for every local
+ * registry field: every doc and view store
  * key, every Track field and every nested field (clips, notes, controller
  * events, audio clips, chord regions, markers, return buses), an Oracle
  * patch and every kind of Score mark. Reading it back and writing it again
  * must give the same draft, so a field that stops round-tripping fails here.
  * The fixture is the format: changing what the codec writes means bumping
  * SESSION_SCHEMA_VERSION, adding a migration and new fixtures
- * (allFieldsFixture.test.ts writes it; v3Shape.test.ts holds its shape).
+ * (allFieldsFixture.test.ts writes it; draftShape.test.ts holds its shape).
  *
  * Run: npx vitest run src/daw/persistence/__tests__/codecV3.test.ts
  */
@@ -32,7 +33,11 @@ import {
 import { useStore, type AllSlices } from '@/daw/store';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { Track } from '@/daw/store/tracksSlice';
-import { canUndo, pushUndo } from '@/daw/store/undoMiddleware';
+import {
+  canUndo,
+  initUndoTracking,
+  withTransaction,
+} from '@/daw/store/undoMiddleware';
 import {
   checkedValue,
   decodeSession,
@@ -77,7 +82,7 @@ const s = () => useStore.getState();
 
 const ALL_FIELDS = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v3-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v4-all-fields/all-fields.json',
 );
 const allFields = (): StoredSession =>
   JSON.parse(readFileSync(ALL_FIELDS, 'utf8')) as StoredSession;
@@ -311,14 +316,15 @@ describe('the all-fields draft', () => {
     );
   });
 
-  it('is written in the v2 envelope with the v3 schema', () => {
+  it('is written in the v2 envelope with the v4 schema', () => {
     const stored = allFields();
     expect([stored.version, stored.schema, stored.compat]).toEqual([
       2,
       SESSION_SCHEMA_VERSION,
       SESSION_COMPAT_VERSION,
     ]);
-    expect([SESSION_SCHEMA_VERSION, SESSION_COMPAT_VERSION]).toEqual([3, 3]);
+    // Schema 4 (1.10) only added fields, so a 1.3 build still reads it.
+    expect([SESSION_SCHEMA_VERSION, SESSION_COMPAT_VERSION]).toEqual([4, 3]);
     // Prefs are kept per user, apart from any project.
     expect(stored.data.transport).not.toHaveProperty('metronomeEnabled');
     expect(JSON.stringify(stored.data)).not.toMatch(
@@ -804,11 +810,14 @@ describe('loading a draft into the store', () => {
   });
 
   it('starts its own undo history', () => {
-    s().addTrack('midi', 'piano-sampler', 'Keys');
-    pushUndo();
+    const release = initUndoTracking();
+    withTransaction('Add track', () =>
+      s().addTrack('midi', 'piano-sampler', 'Keys'),
+    );
     expect(canUndo()).toBe(true);
     deserializeSession(allFields());
     expect(canUndo()).toBe(false);
+    release();
   });
 
   it('changes nothing when the draft cannot be read', () => {
@@ -860,7 +869,11 @@ describe('loading a draft into the store', () => {
       .midiClips;
     (stored.data.tracks[0].midiClips[0].events.velocities as unknown[])[1] =
       null;
-    expect(loadSession(stored)).toEqual({ ok: true, from: 3, repaired: 1 });
+    expect(loadSession(stored)).toEqual({
+      ok: true,
+      from: SESSION_SCHEMA_VERSION,
+      repaired: 1,
+    });
     expect(s().tracks[2].midiClips).toEqual([]);
   });
 });

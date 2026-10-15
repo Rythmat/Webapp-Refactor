@@ -28,6 +28,7 @@ import type {
 } from '@/daw/store/tracksSlice';
 import type { LeadSheetChordFormat, ViewType } from '@/daw/store/uiSlice';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
+import type { CloudDocument } from './cloudDocument';
 import { planCloudTrackIds, rewriteTrackRefs } from './cloudIds';
 import { keyColourFor, nextChordsFor } from './derived';
 import {
@@ -41,6 +42,7 @@ import {
   type DocKey,
   type ViewKey,
 } from './fields';
+import { encodeNoteColumns, type DraftNoteColumns } from './midiColumns';
 import {
   decodeNoteMarks,
   encodeNoteMarks,
@@ -66,6 +68,11 @@ import {
 // layout, clip lengths, controller data, note ids and the view. It never
 // changes what a v2 field means. Prefs are not in it: prefsStore keeps them
 // per user, apart from any project.
+//
+// v4 (milestone 1.10) adds two fields and changes no meaning: the Lead
+// Sheet's length past its last chord (leadSheetBars) and the clip a chord
+// region was read from (sourceClipId), so the chord lane follows that clip
+// alone. Its compat stays 3.
 //
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
@@ -97,12 +104,12 @@ export const SESSION_ENVELOPE_VERSION = 2;
 /**
  * The format inside the envelope (decision D1). A draft without `schema` is
  * v1 or v2, from before 1.3, and goes through migrations.ts first. Any change
- * to what a draft holds bumps it, with a migration and fixtures (v3Shape.test
- * fails until then): 1.13b moving the Oracle patch, 1.16's per-project
- * chord-prompt flag, and 1.10 if measure indices change meaning (which raises
- * SESSION_COMPAT_VERSION too).
+ * to what a draft holds bumps it, with a migration and fixtures (draftShape
+ * .test fails until then): 1.13b moving the Oracle patch, 1.16's per-project
+ * chord-prompt flag. 4 is 1.10's (leadSheetBars, a region's sourceClipId);
+ * its bar indices keep their meaning, every one a real bar of the song.
  */
-export const SESSION_SCHEMA_VERSION = 3;
+export const SESSION_SCHEMA_VERSION = 4;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -111,119 +118,22 @@ export const SESSION_SCHEMA_VERSION = 3;
  */
 export const SESSION_COMPAT_VERSION = 3;
 
-// ── MIDI columns ───────────────────────────────────────────────────────────
-//
-// A clip's notes are five parallel arrays. startTickDeltas[0] is the
-// absolute start of the first note and the rest are deltas from the note
-// before. Notes are sorted by (startTick, note) on encode, so every delta is
-// zero or more and long runs compress well.
+// ── MIDI columns (midiColumns.ts) ─────────────────────────────────────────
 
-export interface MidiClipEvents {
-  notes: number[];
-  velocities: number[];
-  startTickDeltas: number[];
-  durations: number[];
-  channels: number[];
-}
-
-/**
- * A MIDI clip as the cloud payload and the demo bundles carry it. The local
- * draft writes DraftMidiClip, which adds columns, so this stays exactly what
- * music-atlas-api is sent until milestone 1.5's document field.
- */
-export interface MidiClipColumnar {
-  id: string;
-  name?: string;
-  startTick: number;
-  events: MidiClipEvents;
-}
-
-/** Notes in (startTick, note) order; ties keep their order in the clip. */
-function sortedOrder(events: readonly MidiNoteEvent[]): number[] {
-  const order = events.map((_, i) => i);
-  order.sort(
-    (a, b) =>
-      events[a].startTick - events[b].startTick ||
-      events[a].note - events[b].note ||
-      a - b,
-  );
-  return order;
-}
-
-export function encodeMidiEvents(events: MidiNoteEvent[]): MidiClipEvents {
-  return encodeNoteColumns(events, false);
-}
-
-export function decodeMidiEvents(columnar: MidiClipEvents): MidiNoteEvent[] {
-  const len = columnar.notes.length;
-  const out = new Array<MidiNoteEvent>(len);
-  let tick = 0;
-  for (let i = 0; i < len; i++) {
-    tick += columnar.startTickDeltas[i];
-    out[i] = {
-      note: columnar.notes[i],
-      velocity: columnar.velocities[i],
-      startTick: tick,
-      durationTicks: columnar.durations[i],
-      channel: columnar.channels[i],
-    };
-  }
-  return out;
-}
-
-/** A clip's notes in the draft: the five v2 columns and, from v3, their ids. */
-interface DraftNoteColumns extends MidiClipEvents {
-  /** Each note's id, in the columns' (sorted) order. */
-  ids?: string[];
-}
-
-/**
- * The columns of `events`, with their ids when `withIds`. The ids are put in
- * the same sorted order as the notes, so each id stays with its own note.
- */
-function encodeNoteColumns(
-  events: readonly MidiNoteEvent[],
-  withIds: true,
-): DraftNoteColumns;
-function encodeNoteColumns(
-  events: readonly MidiNoteEvent[],
-  withIds: false,
-): MidiClipEvents;
-function encodeNoteColumns(
-  events: readonly MidiNoteEvent[],
-  withIds: boolean,
-): DraftNoteColumns {
-  const order = sortedOrder(events);
-  const len = order.length;
-  const columns: DraftNoteColumns = {
-    notes: new Array<number>(len),
-    velocities: new Array<number>(len),
-    startTickDeltas: new Array<number>(len),
-    durations: new Array<number>(len),
-    channels: new Array<number>(len),
-  };
-  const ids = withIds ? new Array<string>(len) : null;
-  let previousTick = 0;
-  for (let i = 0; i < len; i++) {
-    const event = events[order[i]];
-    columns.notes[i] = event.note;
-    columns.velocities[i] = event.velocity;
-    columns.startTickDeltas[i] = event.startTick - previousTick;
-    columns.durations[i] = event.durationTicks;
-    columns.channels[i] = event.channel;
-    if (ids) ids[i] = event.id ?? '';
-    previousTick = event.startTick;
-  }
-  if (ids) columns.ids = ids;
-  return columns;
-}
+export {
+  decodeMidiEvents,
+  encodeMidiEvents,
+  type DraftNoteColumns,
+  type MidiClipColumnar,
+  type MidiClipEvents,
+} from './midiColumns';
 
 /**
  * A clip's controller events (the sustain pedal, the mod wheel), columnar
  * like its notes. Sorted by tick only, keeping the order of events on one
  * tick: the last value written on a tick is the one that holds.
  */
-interface DraftCcColumns {
+export interface DraftCcColumns {
   tickDeltas: number[];
   controllers: number[];
   values: number[];
@@ -295,6 +205,7 @@ const DRAFT_LAYOUT = {
   measureRowSizes: 'notation',
   measureRestMap: 'notation',
   measureFermatas: 'notation',
+  leadSheetBars: 'notation',
   leadSheetChordFormat: 'notation',
   leadSheetSections: 'notation',
   leadSheetRepeats: 'notation',
@@ -384,10 +295,20 @@ export interface SerializedTrackSettings
   // Cloud saves only: the role the student picked for chord analysis. The
   // API has no column for it either; a save without it re-guesses it.
   trackRole?: DawTrackRole;
+  // Cloud saves only, on the first track, until music-atlas-api has its
+  // document field (milestone 1.5's interim fallback): the cloud document
+  // and its schema. A cloud open finds it on any track (cloudDocument.ts).
+  projectDoc?: CloudDocument;
+  projectDocSchema?: number;
+  // Cloud saves only (milestone 1.10): the ids of the track's audio clips,
+  // in the order of its audioClips rows. The API gives clips row ids of its
+  // own, so a cloud open loads each clip under the id it was saved with
+  // (cloudProjectDraft) instead of minting one on every open.
+  audioClipIds?: string[];
 }
 
 /** A MIDI clip in the draft: the v2 clip and the columns v3 adds. */
-interface DraftMidiClip {
+export interface DraftMidiClip {
   id: string;
   name?: string;
   startTick: number;
@@ -410,7 +331,7 @@ interface DraftAudioClip {
 }
 
 /** A track in the draft: the Track's top-level fields and its settings. */
-interface DraftTrack {
+export interface DraftTrack {
   id: string;
   name: string;
   type: TrackType;
@@ -801,6 +722,7 @@ const CHORD_REGION: Check<ChordRegion> = (raw, repairs) => {
   repairField(region, 'color', isColour, repairs, specDefault(spec.color));
   repairField(region, 'rawStartTick', isFiniteNumber, repairs);
   repairField(region, 'degreeKey', isString, repairs);
+  repairField(region, 'sourceClipId', isString, repairs);
   repairField(region, 'midis', isNumberList, repairs);
   repairField(region, 'confidence', isFiniteNumber, repairs);
   return region as unknown as ChordRegion;
@@ -962,8 +884,10 @@ const memberOf = <T extends string>(
   valid((v) => isString(v) && Object.prototype.hasOwnProperty.call(members, v));
 
 /**
- * Whether a draft saved on each view opens on it. Practice needs the lesson
- * context milestone 1.15 saves; until then such a draft opens on Create.
+ * Whether a draft saved on each view opens on it. Practice can't come back
+ * from the body alone: it opens on Create, and the draft's context
+ * (draftContext.ts, milestone 1.15) brings the practice screen back with its
+ * session.
  */
 const RESTORES_VIEW: Readonly<Record<ViewType, boolean>> = {
   arrange: true,
@@ -1025,6 +949,7 @@ const KEY_CHECKS: { readonly [K in SectionKey]: Check<AllSlices[K]> } = {
   measureRowSizes: nullable(listOf(valid(integerIn(1, 64)))),
   measureRestMap: nullable(REST_MAP),
   measureFermatas: nullable(BAR_INDICES),
+  leadSheetBars: nullable(valid(integerIn(1, 4096))),
   leadSheetChordFormat: memberOf<LeadSheetChordFormat>({
     jazz: true,
     hybrid: true,
@@ -1353,11 +1278,22 @@ function decodeAudioClip(
   return clip;
 }
 
+/**
+ * Track ids a caller planned itself (planCloudTrackIds): the id each track
+ * loads under, in order, and every saved id → the id it loads under. The
+ * cloud open plans them from the ids its payload saved, minting fresh ones
+ * where it must.
+ */
+export interface PlannedTrackIds {
+  ids: readonly string[];
+  remap: ReadonlyMap<string, string>;
+}
+
 /** Decoded tracks, with the patches to seed and the saved → loaded ids. */
 interface DecodedTracks {
   tracks: Track[];
   synthPatches: [string, SynthTrackState][];
-  remap: Map<string, string>;
+  remap: ReadonlyMap<string, string>;
 }
 
 /**
@@ -1370,15 +1306,18 @@ interface DecodedTracks {
 function decodeTracks(
   raws: readonly DraftTrack[],
   repairs: Repairs,
+  planned?: PlannedTrackIds,
 ): DecodedTracks {
   // A draft written by the app never repeats a track id; one that does (or
   // holds an id no track may have) gets `track-<n>`, so loading it twice
   // still gives the same ids.
   let minted = 0;
-  const { ids, remap } = planCloudTrackIds(
-    raws.map((raw) => raw.id),
-    () => `track-${++minted}`,
-  );
+  const { ids, remap } =
+    planned ??
+    planCloudTrackIds(
+      raws.map((raw) => raw.id),
+      () => `track-${++minted}`,
+    );
   const synthPatches: [string, SynthTrackState][] = [];
   const tracks = raws.map((raw, t): Track => {
     const id = ids[t];
@@ -1508,8 +1447,15 @@ export interface DecodedSession {
  * project, note ids included, and nothing is minted. A repeated track or
  * chord id, which only a damaged draft holds, gets one derived from its
  * place.
+ *
+ * `trackIds`: ids the caller planned (the cloud open, cloudDocument.ts),
+ * used in place of the draft's own; references to tracks are written in the
+ * saved ids its remap maps.
  */
-export function decodeSession(session: StoredSession): DecodedSession {
+export function decodeSession(
+  session: StoredSession,
+  { trackIds }: { trackIds?: PlannedTrackIds } = {},
+): DecodedSession {
   const repairs: Repairs = { count: 0 };
   const data = session.data;
   const sections: Record<DraftSectionName, Record<string, unknown>> = {
@@ -1534,7 +1480,7 @@ export function decodeSession(session: StoredSession): DecodedSession {
 
   // The tracks have no default to fall back on: one that can't be read
   // throws, and the draft is kept aside whole (see the top of this file).
-  const decoded = decodeTracks(data.tracks, repairs);
+  const decoded = decodeTracks(data.tracks, repairs, trackIds);
   // Every note leaves with a whole id: the id it was saved with, or for one
   // saved without (any v1 or v2 draft), legacyNoteId of its clip and place.
   const withIds = ensureProjectNoteIds(decoded.tracks);
@@ -1570,9 +1516,9 @@ export function decodeSession(session: StoredSession): DecodedSession {
     ),
   );
 
-  // A view a draft can't reopen (practice, until milestone 1.15 saves its
-  // lesson) opens on Create, with the library open as switching there opens
-  // it.
+  // A view the body can't reopen by itself (practice, which the draft's
+  // context restores) opens on Create, with the library open as switching
+  // there opens it.
   if (!RESTORES_VIEW[project.currentView as ViewType]) {
     project.currentView = 'arrange';
     project.libraryOpen = true;
@@ -1660,8 +1606,9 @@ function checkedKey<K extends SectionKey>(
 
 /**
  * `raw` as `key` loads from a draft: the value when it checks out, else the
- * key's registry default. The cloud open reads the keys its payload shares
- * with the draft through this, so both load them alike. Never throws.
+ * key's registry default. Never throws. (The cloud open, which read its
+ * payload's keys through this, decodes a whole draft since milestone 1.5:
+ * cloudDocument.ts.)
  */
 export function checkedValue<K extends SectionKey>(
   key: K,

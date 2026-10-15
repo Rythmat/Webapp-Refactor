@@ -1,14 +1,6 @@
-import {
-  ArrowLeft,
-  CalendarDays,
-  Check,
-  Music,
-  Radio,
-  Save,
-  Sparkles,
-  Zap,
-} from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowLeft, Radio, Save, Waypoints } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import {
   Link,
   useNavigate,
@@ -16,17 +8,6 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
-import {
-  CURRICULUM_GENRE_SLUGS,
-  type CurriculumGenreId,
-} from '@/curriculum/bridge/genreIdMap';
-import { getModesForGenreLevel } from '@/curriculum/bridge/learnCurriculumLinks';
-import { getActivityFlow } from '@/curriculum/data/activityFlows';
-import { getGenreProfile } from '@/curriculum/data/genreProfiles';
-import { getSong } from '@/curriculum/data/songs';
-import type { ActivityFlow } from '@/curriculum/types/activity';
-import type { GCMKey, CurriculumLevelId } from '@/curriculum/types/curriculum';
-import type { Song } from '@/curriculum/types/songLibrary';
 import { useCanEditClassroom } from '@/hooks/data';
 import { useAnnualPlan } from '../../annual/useAnnualPlan';
 import { useLocalSessionStore } from '../../live/useLocalSessionStore';
@@ -34,208 +15,193 @@ import {
   confirmPracticeSession,
   useStartClassroomSession,
 } from '../../live/useStartClassroomSession';
-import { defaultUnitIdFor } from '../../plan/useEnsureLessonUnits';
+import { newBlankDay } from '../../plan/newBlankDay';
 import { useLocalPlan } from '../../plan/useLocalPlan';
 import { usePublishedDays } from '../../publish/usePublishedDays';
 import type { Day } from '../../types';
-import { enrichDayWithSongSessionDeck } from '../templates/fromPlannedDay';
+import { applyCortexLessonToDay, roleAvailable } from '../cortex/buildDeck';
+import { loadLessonAtlas } from '../cortex/loadLessonAtlas';
+import { planCortexLesson } from '../cortex/planLesson';
+import { suggestFocus } from '../cortex/suggestFocus';
 import {
-  DEFAULT_GENRE_LESSON_PARAMS,
-  buildGenreLessonDay,
-} from '../templates/genreLesson';
-import {
-  buildSongSessionDay,
-  DEFAULT_SONG_SESSION_PARAMS,
-  type SongSessionParams,
-} from '../templates/songSession';
+  DEFAULT_CORTEX_CHOICES,
+  GROUP_ROLES,
+  type CortexLessonChoices,
+  type GroupRole,
+  type LessonFocus,
+} from '../cortex/types';
+import { CortexFocusStep } from './CortexFocusStep';
+import { CortexOptions, type CortexOptionValues } from './CortexOptions';
+import { CortexRoleStep } from './CortexRoleStep';
 import { DeckPreview } from './DeckPreview';
-import { GenreLevelPicker } from './GenreLevelPicker';
-import { PollTextEditor } from './PollTextEditor';
-import { SongPickerDialog } from './SongPickerDialog';
+import { focusContextForDay, recentFocusIds } from './cortexContext';
+import { EYEBROW, OUTLINE_PILL, PANEL, PRIMARY_PILL } from './wizardStyles';
 
-const STEPS = ['Template', 'Content', 'Questions', 'Go Live'] as const;
+const STEPS = ['Focus', 'Group Project', 'Preview'] as const;
 
-type DeckSource = 'song' | 'plannedDay' | 'genre';
-
-const genreOf = (gcmKey: GCMKey): CurriculumGenreId =>
-  gcmKey.slice(0, gcmKey.lastIndexOf(':')) as CurriculumGenreId;
-
-/** Find the song id planned into a Day. Prefers the structured
- *  `presentation.song` reference the annual-plan materializer now writes;
- *  falls back to scraping a legacy `/songs/<id>` slug from the prompts of Days
- *  materialized before that field existed. */
-const songIdFromDay = (day: Day): string | null => {
-  for (const cell of Object.values(day.cells)) {
-    const id = cell.presentation.song?.id;
-    if (id) return id;
-  }
-  const serialized = JSON.stringify(day.cells);
-  const match = /\/songs\/([A-Za-z0-9_-]+)/.exec(serialized);
-  return match ? match[1] : null;
-};
+/** One query for the page load: the graph is several megabytes. */
+export const LESSON_ATLAS_KEY = ['classroom', 'lesson-atlas'] as const;
 
 /**
- * Template-first deck setup: pick the template → pick content (today's
- * planned Day or a song) → tweak the poll texts → preview → Go Live. The
- * generated Day flows through the EXACT same path as PlanPage's "Start
- * session": saveDay → publish → startSession → teacher dashboard. It also
- * lands in Plan Days, editable later like any other Day.
+ * Generate a lesson from the Atlas — the connections the console's Cortex
+ * draws. Pick the Showcase's focus (suggested from today's plan or the
+ * best-connected artists and cities; accept, shuffle or search), pick the
+ * Group Project role, preview, then Save to Plan or Go Live.
+ *
+ * `?day=<id>` generates onto an existing Day (its planned song and Globe
+ * events steer the suggestion, and its deck is replaced); otherwise a new Day
+ * is made and scheduled on `?date=<YYYY-MM-DD>`, else the next free school
+ * day. The Day goes through the same path as Plan's "Start session": saveDay →
+ * publish → startSession → teacher dashboard.
  */
 export const DeckWizardPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
   const cid = classroomId ?? '';
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const dayParam = searchParams.get('day');
+  const preDate = searchParams.get('date');
 
   const { listDays, saveDay } = useLocalPlan(cid);
   const { publishDayToClassroom } = usePublishedDays(cid);
   const startClassroomSession = useStartClassroomSession();
   const { endSession } = useLocalSessionStore();
-  // Viewers may browse the wizard but cannot publish or start a session.
+  // Viewers may browse the generator but cannot publish or start a session.
   const canEdit = useCanEditClassroom(cid);
-  const { plan, seedFromTemplate, addDayToUnit, suggestDayScheduleInUnit } =
-    useAnnualPlan(cid);
-
-  // "New Lesson → Song/Genre" deep-links here preselected to a template + Unit;
-  // skip the Template step and land on the matching Content picker.
-  const [searchParams] = useSearchParams();
-  const preTemplate = searchParams.get('template');
-  const preUnit = searchParams.get('unit');
-  const [step, setStep] = useState(() =>
-    preTemplate === 'song' || preTemplate === 'genre' ? 1 : 0,
-  );
-  const [source, setSource] = useState<DeckSource>(
-    preTemplate === 'genre' ? 'genre' : 'song',
-  );
-  const [song, setSong] = useState<Song | null>(null);
-  const [plannedDayId, setPlannedDayId] = useState<string | null>(null);
-  const [params, setParams] = useState<SongSessionParams>(
-    DEFAULT_SONG_SESSION_PARAMS,
-  );
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  // Genre-lesson source state. The ActivityFlow fetch is async, so it's loaded
-  // into state on pick — keeping `builtDay` a synchronous memo.
-  const [gcmKey, setGcmKey] = useState<GCMKey | null>(null);
-  const [genreFlow, setGenreFlow] = useState<ActivityFlow | null>(null);
-  const [flowLoading, setFlowLoading] = useState(false);
-  const [theoryMode, setTheoryMode] = useState<string | undefined>(undefined);
-  const genreReqRef = useRef<GCMKey | null>(null);
+  const { suggestLessonDate } = useAnnualPlan(cid);
 
   const days = listDays(cid);
-  const plannedDay = plannedDayId
-    ? (days.find((d) => d.id === plannedDayId) ?? null)
+  const plannedDay = dayParam
+    ? (days.find((d) => d.id === dayParam) ?? null)
+    : null;
+  // Keyed by value, so a re-render with equal Days doesn't re-plan.
+  const recentKey = recentFocusIds(days, plannedDay?.id).join('|');
+  const context = useMemo(
+    () => focusContextForDay(plannedDay, recentKey ? recentKey.split('|') : []),
+    [plannedDay, recentKey],
+  );
+
+  const atlas = useQuery({
+    queryKey: LESSON_ATLAS_KEY,
+    queryFn: loadLessonAtlas,
+    staleTime: Infinity,
+    gcTime: Infinity,
+    retry: 1,
+  });
+
+  const [step, setStep] = useState(0);
+  const [seed, setSeed] = useState(0);
+  const [picked, setPicked] = useState<LessonFocus | null>(null);
+  const [role, setRole] = useState<GroupRole | null>(null);
+  const [tutorialId, setTutorialId] = useState<string>();
+  const [performerRef, setPerformerRef] = useState<string>();
+  const [options, setOptions] = useState<CortexOptionValues>({
+    checkInStyle: DEFAULT_CORTEX_CHOICES.checkInStyle,
+    vibePoll: DEFAULT_CORTEX_CHOICES.vibePoll,
+    projectMinutes: DEFAULT_CORTEX_CHOICES.projectMinutes,
+  });
+  const [busy, setBusy] = useState(false);
+  // A new Day's id, made once, so the preview's ids hold still.
+  const [draft] = useState(() => newBlankDay());
+  const [token] = useState(() =>
+    Math.floor(Math.random() * 36 ** 4)
+      .toString(36)
+      .padStart(4, '0'),
+  );
+
+  const lessonAtlas = atlas.data;
+  const focus = useMemo(
+    () =>
+      lessonAtlas
+        ? (picked ??
+          suggestFocus(lessonAtlas.graph, lessonAtlas.catalog, context, seed))
+        : null,
+    [lessonAtlas, picked, context, seed],
+  );
+  const plan = useMemo(
+    () =>
+      lessonAtlas && focus
+        ? planCortexLesson(lessonAtlas.graph, lessonAtlas.catalog, focus)
+        : null,
+    [lessonAtlas, focus],
+  );
+  // The chosen role while the focus supports it, else the first it does.
+  const activeRole: GroupRole | null = plan
+    ? role && roleAvailable(plan, role)
+      ? role
+      : (GROUP_ROLES.find((r) => roleAvailable(plan, r)) ?? null)
     : null;
 
-  const contentReady =
-    source === 'genre'
-      ? genreFlow !== null
-      : source === 'song'
-        ? song !== null
-        : plannedDay !== null;
-
   const builtDay = useMemo<Day | null>(() => {
-    if (source === 'genre' && gcmKey && genreFlow) {
-      const profile = getGenreProfile(CURRICULUM_GENRE_SLUGS[genreOf(gcmKey)]);
-      if (profile)
-        return buildGenreLessonDay({
-          gcmKey,
-          profile,
-          flow: genreFlow,
-          theoryMode,
-          params,
-        });
-      return null;
-    }
-    if (source === 'plannedDay' && plannedDay) {
-      return enrichDayWithSongSessionDeck(plannedDay, {
-        song: song ?? undefined,
-        params,
-        dayStubSlug: plannedDay.label,
-      });
-    }
-    if (song) return buildSongSessionDay({ song, params });
-    return null;
-  }, [source, gcmKey, genreFlow, theoryMode, plannedDay, song, params]);
+    if (!plan || !focus || !activeRole) return null;
+    const choices: CortexLessonChoices = {
+      ...DEFAULT_CORTEX_CHOICES,
+      ...options,
+      role: activeRole,
+      seed,
+      ...(tutorialId ? { tutorialId } : {}),
+      ...(performerRef ? { performerRef } : {}),
+    };
+    const base = plannedDay ?? { ...draft, label: focus.label };
+    return applyCortexLessonToDay(base, plan, choices, token);
+  }, [
+    plan,
+    focus,
+    activeRole,
+    options,
+    seed,
+    tutorialId,
+    performerRef,
+    plannedDay,
+    draft,
+    token,
+  ]);
 
-  const handlePickGenre = (key: GCMKey) => {
-    setSource('genre');
-    setGcmKey(key);
-    setGenreFlow(null);
-    setFlowLoading(true);
-    genreReqRef.current = key;
-    const genreId = genreOf(key);
-    const levelId = key.slice(key.lastIndexOf(':') + 1) as CurriculumLevelId;
-    const levelNum = Number(levelId.replace(/^L/i, ''));
-    setTheoryMode(getModesForGenreLevel(genreId, levelId)[0]?.mode);
-    void getActivityFlow(CURRICULUM_GENRE_SLUGS[genreId], levelNum)
-      .then((flow) => {
-        if (genreReqRef.current !== key) return; // stale select — ignore
-        setGenreFlow(flow);
-        setFlowLoading(false);
-      })
-      .catch(() => {
-        if (genreReqRef.current !== key) return;
-        setFlowLoading(false);
-      });
+  const shuffle = () => {
+    setPicked(null);
+    setSeed((s) => s + 1);
+    setTutorialId(undefined);
+    setPerformerRef(undefined);
+  };
+  const pick = (next: LessonFocus) => {
+    setPicked(next);
+    setTutorialId(undefined);
+    setPerformerRef(undefined);
   };
 
-  const handlePickPlannedDay = (day: Day) => {
-    setPlannedDayId(day.id);
-    setSource('plannedDay');
-    // Prefill the song from the Day's "song of the day" reference if the
-    // teacher hasn't picked one yet.
-    if (!song) {
-      const songId = songIdFromDay(day);
-      if (songId) setSong(getSong(songId));
-    }
-  };
-
-  // Assign the built Day to a Unit (from ?unit, else the current-month Unit),
-  // seeding the canonical Units first if this classroom has none — so every
-  // Lesson the wizard produces belongs to a Unit.
-  const assignToUnit = (day: Day) => {
-    const activePlan = plan ?? seedFromTemplate();
-    const units = [
-      ...activePlan.year.semesters.autumn,
-      ...activePlan.year.semesters.spring,
-    ];
-    // Every wizard-produced Lesson must belong to a Unit; `defaultUnitIdFor` can
-    // return undefined (no Unit for today's month), so fall back to the first Unit.
-    const uid =
-      preUnit && units.some((u) => u.id === preUnit)
-        ? preUnit
-        : (defaultUnitIdFor(units) ?? units[0]?.id);
-    if (!uid) return;
-    addDayToUnit(uid, day.id);
-    const unit = units.find((u) => u.id === uid);
-    const existing = (unit?.dayIds ?? [])
-      .map((id) => days.find((d) => d.id === id)?.scheduledDate)
-      .filter((d): d is string => Boolean(d));
-    const date = suggestDayScheduleInUnit(uid, existing, existing.length);
-    if (date) saveDay({ ...day, scheduledDate: date });
+  // A new Lesson goes on the calendar (?date, else the next free school day).
+  // A Day being regenerated keeps the date it has.
+  const scheduled = (day: Day): Day => {
+    if (day.scheduledDate) return day;
+    const date =
+      preDate && /^\d{4}-\d{2}-\d{2}$/.test(preDate)
+        ? preDate
+        : suggestLessonDate(
+            days
+              .map((d) => d.scheduledDate)
+              .filter((d): d is string => Boolean(d)),
+          );
+    return date ? { ...day, scheduledDate: date } : day;
   };
 
   const launch = async (mode: 'save' | 'live') => {
     if (!builtDay || busy) return;
     setBusy(true);
     try {
-      saveDay(builtDay);
-      assignToUnit(builtDay);
+      const day = scheduled(builtDay);
+      saveDay(day);
       if (mode === 'save') {
         navigate(TeacherRoutes.plan({ classroomId: cid }));
         return;
       }
       const pd = await publishDayToClassroom({
         classroomId: cid,
-        day: builtDay,
+        day,
       });
-      const firstSlidePhase =
-        builtDay.deck?.slides[0]?.phase ?? 'connectRegulate';
       const started = await startClassroomSession({
         classroomId: cid,
         publishedDayId: pd.id,
-        initialPhase: firstSlidePhase,
+        initialPhase: day.deck?.slides[0]?.phase ?? 'connectRegulate',
         initialSlideIndex: 0,
       });
       // NO SILENT MOCKS: a local session is never presented as a real one.
@@ -259,217 +225,131 @@ export const DeckWizardPage = () => {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[900px] flex-col gap-6 px-6 py-6 text-white md:gap-8 md:px-10 md:py-10">
+    <div className="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-4 py-6 text-[#e8e8f0] md:gap-8 md:px-10 md:py-10">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
           to={TeacherRoutes.plan({ classroomId: cid })}
-          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
+          className="inline-flex items-center gap-2 text-sm text-white/55 transition-colors hover:text-[#e8e8f0]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Lessons
         </Link>
-        <div className="flex items-center gap-2">
-          <Zap className="h-5 w-5 text-[#7ecfcf]" />
-          <h1 className="text-lg font-medium md:text-xl">
-            Interactive Session
+        <div className="flex flex-col items-end">
+          <h1 className="inline-flex items-center gap-2 text-2xl font-bold tracking-[-0.01em]">
+            <Waypoints className="h-5 w-5" />
+            {plannedDay ? 'Generate this lesson' : 'Generate a lesson'}
           </h1>
+          <span className="text-sm text-white/55">
+            {plannedDay
+              ? plannedDay.label
+              : 'From the connections in the Atlas'}
+          </span>
         </div>
       </header>
 
-      <Stepper step={step} onStep={setStep} contentReady={contentReady} />
+      <Stepper step={step} onStep={setStep} ready={Boolean(builtDay)} />
 
-      {step === 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {atlas.isPending && (
+        <p className={`${PANEL} p-5 text-sm text-white/55`} role="status">
+          Loading the Atlas…
+        </p>
+      )}
+      {atlas.isError && (
+        <div className={`${PANEL} flex flex-col gap-3 p-5`} role="alert">
+          <p className="text-sm">The Atlas could not be loaded.</p>
           <button
             type="button"
-            onClick={() => {
-              setSource('song');
-              setParams(DEFAULT_SONG_SESSION_PARAMS);
-              setStep(1);
-            }}
-            className="flex flex-col gap-2 rounded-2xl border border-[#7ecfcf]/40 bg-[#7ecfcf]/[0.06] p-5 text-left transition-colors hover:border-[#7ecfcf]/70"
+            className={`${OUTLINE_PILL} w-fit`}
+            onClick={() => void atlas.refetch()}
           >
-            <span className="inline-flex items-center gap-2 text-sm font-medium">
-              <Sparkles className="h-4 w-4 text-[#7ecfcf]" />
-              Song Session
-              {source !== 'genre' && (
-                <Check className="ml-auto h-4 w-4 text-[#7ecfcf]" />
-              )}
-            </span>
-            <span className="text-xs text-white/60">
-              Welcome + emotional check-in → listen to a song → respond → exit
-              reflection. Polls live on student devices, reveal on the
-              projector.
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setSource('genre');
-              setParams(DEFAULT_GENRE_LESSON_PARAMS);
-              setStep(1);
-            }}
-            className="flex flex-col gap-2 rounded-2xl border border-[#7ecfcf]/40 bg-[#7ecfcf]/[0.06] p-5 text-left transition-colors hover:border-[#7ecfcf]/70"
-          >
-            <span className="inline-flex items-center gap-2 text-sm font-medium">
-              <Sparkles className="h-4 w-4 text-[#7ecfcf]" />
-              Genre Lesson
-              {source === 'genre' && (
-                <Check className="ml-auto h-4 w-4 text-[#7ecfcf]" />
-              )}
-            </span>
-            <span className="text-xs text-white/60">
-              Built from the genre curriculum — overview → warm-up theory →
-              Melody/Chords/Bass/Play-Along stations students complete in the
-              real modules.
-            </span>
+            Try again
           </button>
         </div>
       )}
-
-      {step === 1 && source === 'genre' && (
-        <div className="flex flex-col gap-4">
-          <GenreLevelPicker
-            selected={gcmKey}
-            loading={flowLoading}
-            onSelect={handlePickGenre}
-          />
-          {gcmKey && genreFlow && (
-            <p className="text-sm text-white/70">
-              Selected: <span className="text-white">{gcmKey}</span>
-            </p>
-          )}
-          {gcmKey && flowLoading && (
-            <p className="text-sm text-white/50">Loading curriculum…</p>
-          )}
-          {gcmKey && !flowLoading && !genreFlow && (
-            <p className="text-sm text-amber-300/80">
-              That level has no interactive curriculum yet — pick another.
-            </p>
-          )}
-          <NextButton
-            disabled={!contentReady}
-            onClick={() => setStep(2)}
-            label="Questions"
-          />
-        </div>
+      {lessonAtlas && !focus && (
+        <p className={`${PANEL} p-5 text-sm text-white/55`}>
+          The Atlas has no artist or city to suggest yet.
+        </p>
       )}
 
-      {step === 1 && source !== 'genre' && (
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <SourceCard
-              active={source === 'plannedDay'}
-              icon={<CalendarDays className="h-4 w-4" />}
-              title="From today's plan"
-              hint={
-                days.length === 0
-                  ? 'No planned Days yet — pick a song instead.'
-                  : 'Present a Day you already planned, upgraded with interactive slides.'
-              }
-            >
-              {days.length > 0 && (
-                <ul className="mt-1 flex max-h-40 flex-col gap-1 overflow-y-auto">
-                  {days.map((d) => (
-                    <li key={d.id}>
-                      <button
-                        type="button"
-                        onClick={() => handlePickPlannedDay(d)}
-                        className={
-                          'w-full truncate rounded-lg px-2.5 py-1.5 text-left text-xs transition-colors ' +
-                          (plannedDayId === d.id && source === 'plannedDay'
-                            ? 'bg-white text-black'
-                            : 'text-white/70 hover:bg-white/[0.06] hover:text-white')
-                        }
-                      >
-                        {d.label}
-                        {d.scheduledDate ? ` · ${d.scheduledDate}` : ''}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </SourceCard>
-            <SourceCard
-              active={source === 'song'}
-              icon={<Music className="h-4 w-4" />}
-              title="Pick a song"
-              hint="An ad-hoc session built around one song from the library."
-            >
+      {lessonAtlas && focus && plan && (
+        <>
+          {step === 0 && (
+            <CortexFocusStep
+              graph={lessonAtlas.graph}
+              catalog={lessonAtlas.catalog}
+              focus={focus}
+              plan={plan}
+              onShuffle={shuffle}
+              onPick={pick}
+              onAccept={() => setStep(1)}
+            />
+          )}
+
+          {step === 1 && (
+            <div className="flex flex-col gap-4">
+              <CortexRoleStep
+                plan={plan}
+                role={activeRole}
+                tutorialId={tutorialId}
+                performerRef={performerRef}
+                onRole={setRole}
+                onTutorial={setTutorialId}
+                onPerformer={setPerformerRef}
+              />
               <button
                 type="button"
-                onClick={() => {
-                  setSource('song');
-                  setPickerOpen(true);
-                }}
-                className="mt-1 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:border-white/25 hover:text-white"
+                className={`${PRIMARY_PILL} self-end`}
+                disabled={!activeRole}
+                onClick={() => setStep(2)}
               >
-                <Music className="h-3.5 w-3.5" />
-                {song ? 'Change song' : 'Browse songs'}
+                Next: Preview
               </button>
-            </SourceCard>
-          </div>
-
-          {song && (
-            <p className="text-sm text-white/70">
-              Song: <span className="text-white">{song.title}</span>
-              <span className="text-white/50"> — {song.artist}</span>
-            </p>
+            </div>
           )}
 
-          <NextButton
-            disabled={!contentReady}
-            onClick={() => setStep(2)}
-            label="Questions"
-          />
-        </div>
+          {step === 2 && builtDay && (
+            <div className="flex flex-col gap-5">
+              <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
+                <div className="flex flex-col gap-2">
+                  <span className={EYEBROW}>
+                    {builtDay.deck?.slides.length} slides
+                  </span>
+                  <DeckPreview day={builtDay} />
+                </div>
+                <CortexOptions
+                  value={options}
+                  onChange={setOptions}
+                  vibes={plan.vibes}
+                />
+              </div>
+              <div className="flex flex-wrap items-center justify-end gap-3">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => launch('save')}
+                  className={OUTLINE_PILL}
+                >
+                  <Save className="h-4 w-4" />
+                  Save to Plan
+                </button>
+                <button
+                  type="button"
+                  disabled={busy || !canEdit}
+                  title={
+                    canEdit ? undefined : 'Viewers cannot start a live session'
+                  }
+                  onClick={() => launch('live')}
+                  className={PRIMARY_PILL}
+                >
+                  <Radio className="h-4 w-4" />
+                  {busy ? 'Starting…' : 'Go Live'}
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
-
-      {step === 2 && (
-        <div className="flex flex-col gap-4">
-          <PollTextEditor
-            params={params}
-            onChange={setParams}
-            variant={source === 'genre' ? 'genre' : 'song'}
-          />
-          <NextButton onClick={() => setStep(3)} label="Preview" />
-        </div>
-      )}
-
-      {step === 3 && builtDay && (
-        <div className="flex flex-col gap-5">
-          <DeckPreview day={builtDay} />
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => launch('save')}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white disabled:opacity-50"
-            >
-              <Save className="h-4 w-4" />
-              Save to Plan
-            </button>
-            <button
-              type="button"
-              disabled={busy || !canEdit}
-              title={
-                canEdit ? undefined : 'Viewers cannot start a live session'
-              }
-              onClick={() => launch('live')}
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-emerald-300 disabled:opacity-50"
-            >
-              <Radio className="h-4 w-4" />
-              {busy ? 'Starting…' : 'Go Live'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      <SongPickerDialog
-        open={pickerOpen}
-        onOpenChange={setPickerOpen}
-        onSelect={setSong}
-      />
     </div>
   );
 };
@@ -477,31 +357,30 @@ export const DeckWizardPage = () => {
 const Stepper = ({
   step,
   onStep,
-  contentReady,
+  ready,
 }: {
   step: number;
   onStep: (s: number) => void;
-  contentReady: boolean;
+  ready: boolean;
 }) => (
   <ol className="flex flex-wrap items-center gap-2">
     {STEPS.map((label, i) => {
-      const reachable =
-        i <= step || (i === step + 1 && (i !== 3 || contentReady));
+      const reachable = ready && i <= step + 1;
       return (
         <li key={label} className="flex items-center gap-2">
           {i > 0 && <span className="h-px w-4 bg-white/15" />}
           <button
             type="button"
-            disabled={!reachable}
-            onClick={() => reachable && onStep(i)}
-            className={
-              'rounded-full px-3 py-1 text-xs transition-colors ' +
-              (i === step
-                ? 'bg-white text-black'
+            disabled={!reachable && i !== step}
+            aria-current={i === step ? 'step' : undefined}
+            onClick={() => onStep(i)}
+            className={`h-8 rounded-full px-3 text-sm transition-colors ${
+              i === step
+                ? 'bg-white text-[#101012]'
                 : reachable
-                  ? 'border border-white/10 text-white/70 hover:border-white/25 hover:text-white'
-                  : 'border border-white/[0.06] text-white/30')
-            }
+                  ? 'border border-white/15 bg-white/[0.04] text-[#e8e8f0] hover:bg-white/[0.08]'
+                  : 'border border-white/[0.08] text-white/45'
+            }`}
           >
             {i + 1}. {label}
           </button>
@@ -509,53 +388,4 @@ const Stepper = ({
       );
     })}
   </ol>
-);
-
-const SourceCard = ({
-  active,
-  icon,
-  title,
-  hint,
-  children,
-}: {
-  active: boolean;
-  icon: React.ReactNode;
-  title: string;
-  hint: string;
-  children?: React.ReactNode;
-}) => (
-  <div
-    className={
-      'flex flex-col gap-2 rounded-2xl border p-5 transition-colors ' +
-      (active
-        ? 'border-[#7ecfcf]/50 bg-[#7ecfcf]/[0.05]'
-        : 'border-white/10 bg-white/[0.02]')
-    }
-  >
-    <span className="inline-flex items-center gap-2 text-sm font-medium">
-      {icon}
-      {title}
-    </span>
-    <span className="text-xs text-white/55">{hint}</span>
-    {children}
-  </div>
-);
-
-const NextButton = ({
-  onClick,
-  label,
-  disabled,
-}: {
-  onClick: () => void;
-  label: string;
-  disabled?: boolean;
-}) => (
-  <button
-    type="button"
-    disabled={disabled}
-    onClick={onClick}
-    className="inline-flex w-fit items-center gap-2 self-end rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85 disabled:cursor-not-allowed disabled:opacity-40"
-  >
-    Next: {label}
-  </button>
 );

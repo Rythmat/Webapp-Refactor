@@ -1,10 +1,10 @@
 // ── Shortcut labels for the student's keyboard (milestone 1.4) ─────────────
 //
-// The editor's shortcuts take either modifier (useKeyboardShortcuts reads
+// The editor's shortcuts take either modifier (the dispatcher reads
 // metaKey || ctrlKey), but a label should name the key the student has:
 // ⌘ on a Mac, Ctrl on a Chromebook or a Windows laptop. Tooltips and
-// aria-keyshortcuts read these. Milestone 1.6's shortcut sheet takes this
-// over with the command registry.
+// aria-keyshortcuts get theirs from the command registry
+// (commands/shortcuts.ts), which asks this which keyboard it is.
 
 interface NavigatorLike {
   platform?: string;
@@ -33,24 +33,4 @@ export interface ShortcutKeys {
   label: string;
   /** The aria-keyshortcuts value: 'Meta+Z', 'Control+Shift+Z'. */
   aria: string;
-}
-
-/** The label and aria value of mod (+ Shift) + `key` on this platform. */
-export function modShortcut(
-  key: string,
-  opts: { shift?: boolean; apple?: boolean } = {},
-): ShortcutKeys {
-  const apple = opts.apple ?? isApplePlatform();
-  const shift = opts.shift === true;
-  const upper = key.toUpperCase();
-  if (apple) {
-    return {
-      label: `${shift ? '⇧' : ''}⌘${upper}`,
-      aria: `Meta+${shift ? 'Shift+' : ''}${upper}`,
-    };
-  }
-  return {
-    label: `Ctrl+${shift ? 'Shift+' : ''}${upper}`,
-    aria: `Control+${shift ? 'Shift+' : ''}${upper}`,
-  };
 }

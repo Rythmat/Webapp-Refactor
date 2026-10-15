@@ -58,16 +58,17 @@ import { guessTrackRole } from '@/daw/utils/trackRole';
 // - local: written to the project's draft on this device (codec v3).
 // - cloud: 'legacy' when today's cloud payload carries it, 'document' when
 //   only milestone 1.5's document field will, false when the cloud copy
-//   doesn't hold it. Two doc fields are false, and the copy loses nothing by
-//   either: projectId, which is the copy's own address, and an audio clip's
-//   id, which every cloud open mints afresh until milestone 1.10.
+//   doesn't hold it. One doc field is false, and the copy loses nothing by
+//   it: projectId, which is the copy's own address. (An audio clip's id was
+//   the other until milestone 1.10; it rides on its track's settings now.)
 // - collab: shared live with everyone in a room. A doc field with collab
 //   false still belongs to the project and is saved with it, but in a room
 //   each collaborator sets their own (mute, solo, the loop region, the key
 //   lock).
-// - undo: part of the project's undo history. Collab and undo say what a
-//   field should do, not what it does today: milestones 1.9 (undo) and 1.14
-//   (sync) build on them.
+// - undo: part of the project's undo history. Undo follows it since
+//   milestone 1.9 (store/history.ts, and collab undo's scope in
+//   collab/undoScope.ts). Collab says what a field should do, not what it
+//   does today: milestone 1.14 (sync) builds on it.
 // - perUser: belongs to the person, not the project, so it never reaches the
 //   cloud copy or a room and never makes the project unsaved. That is the
 //   prefs, stored per user apart from any project, and the track fields that
@@ -194,12 +195,13 @@ const UNSHARED = { collab: false, undo: false } as const;
 
 type Sync = typeof SHARED_UNDO | typeof SHARED | typeof UNSHARED;
 
-function doc<T>(
+/** A doc field keeps its sync flags as types, for UndoKey and CollabUndoKey. */
+function doc<T, S extends Sync = Sync>(
   group: FieldGroup,
   value: Default<T>,
   cloud: CloudFlag,
-  sync: Sync,
-): ScopedSpec<T, 'doc'> {
+  sync: S,
+): ScopedSpec<T, 'doc'> & S {
   return Object.freeze({
     ...SCOPE_FLAGS.doc,
     group,
@@ -304,6 +306,7 @@ const STORE_SPECS = {
   measureRowSizes: doc('notation', null, 'document', SHARED_UNDO),
   measureRestMap: doc('notation', null, 'document', SHARED_UNDO),
   measureFermatas: doc('notation', null, 'document', SHARED_UNDO),
+  leadSheetBars: doc('notation', null, 'document', SHARED_UNDO),
   leadSheetChordFormat: doc('notation', 'hybrid', 'document', SHARED),
   leadSheetSections: doc('notation', () => [], 'document', SHARED_UNDO),
   leadSheetRepeats: doc('notation', () => [], 'document', SHARED_UNDO),
@@ -350,6 +353,7 @@ const STORE_SPECS = {
   timelineGridSize: pref('view', '1/4'),
   timelineSnapEnabled: pref('view', true),
   timelineTripletMode: pref('view', false),
+  singleKeyShortcuts: pref('view', true),
   activeTool: session('view', 'cursor', 'project'),
   selectedClipId: session('view', null, 'project'),
   selectedClipTrackId: session('view', null, 'project'),
@@ -357,10 +361,12 @@ const STORE_SPECS = {
 
   // ── lesson and practice context ──
   practiceSession: session('context', null, 'project'),
+  practiceKeyboard: session('context', null, 'project'),
   activeTutorialId: session('context', null, 'project'),
   tutorialStepIndex: session('context', 0, 'project'),
   tutorialStepStatus: session('tutorial', 'waiting', 'project'),
   tutorialStepCelebrate: session('tutorial', true, 'project'),
+  tutorialStepPrepared: session('tutorial', false, 'project'),
 
   // ── analysis (the music-intelligence bus) ──
   detectedKeyRootPc: session('analysis', null, 'project'),
@@ -453,6 +459,16 @@ type KeysOfScope<S extends FieldScope> = {
 export type DocKey = KeysOfScope<'doc'>;
 export type ViewKey = KeysOfScope<'view'>;
 export type PrefKey = KeysOfScope<'pref'>;
+
+/** The store keys in the project's undo history, as a type. */
+export type UndoKey = {
+  [K in keyof StoreSpecs]: StoreSpecs[K]['undo'] extends true ? K : never;
+}[keyof StoreSpecs];
+
+/** The undo keys shared with collaborators: collab undo's scope, as a type. */
+export type CollabUndoKey = {
+  [K in UndoKey]: StoreSpecs[K]['collab'] extends true ? K : never;
+}[UndoKey];
 
 // ── Tracks ─────────────────────────────────────────────────────────────────
 
@@ -722,7 +738,7 @@ export const CC_EVENT_FIELDS: CcEventFields = Object.freeze({
 type AudioClipFields = { [K in keyof AudioClip]-?: FieldSpec<AudioClip[K]> };
 
 export const AUDIO_CLIP_FIELDS: AudioClipFields = Object.freeze({
-  id: trackPart(() => crypto.randomUUID(), false),
+  id: trackPart(() => crypto.randomUUID(), 'legacy'),
   startTick: trackPart(0, 'legacy'),
   duration: trackPart(0, 'legacy'),
   fadeInTicks: trackPart(0, 'legacy'),
@@ -750,6 +766,7 @@ export const CHORD_REGION_FIELDS: ChordRegionSpecs = Object.freeze({
   degreeKey: regionPart(undefined, 'document'),
   midis: regionPart(undefined, 'document'),
   confidence: regionPart(undefined, 'document'),
+  sourceClipId: regionPart(undefined, 'document'),
   identity: regionPart(undefined, 'document'),
 } satisfies ChordRegionSpecs);
 
@@ -822,10 +839,29 @@ export const USER_PREF_KEYS: readonly StoreDataKey[] = storeKeysWhere(
 export const SESSION_KEYS: readonly StoreDataKey[] = storeKeysWhere(
   (s) => s.scope === 'session',
 );
+/**
+ * The lesson and practice context (milestone 1.15): session keys the body
+ * never holds, which the draft's meta keeps instead (DraftContext,
+ * drafts/draftContext.ts), so reopening the same draft resumes them. A
+ * change to one starts a write, but isn't an edit: it never makes the
+ * project unsaved.
+ */
+export const CONTEXT_KEYS: readonly StoreDataKey[] = storeKeysWhere(
+  (s) => s.scope === 'session' && s.group === 'context',
+);
 /** Keys on their way out of the store: none since milestone 1.3. */
 export const DROP_KEYS: readonly StoreDataKey[] = storeKeysWhere(
   (s) => s.scope === 'drop',
 );
+/**
+ * What undo covers (milestone 1.9's history.ts): every key the project's
+ * undo restores, and so every key whose change is an edit to undo.
+ */
+export const UNDO_KEYS = storeKeysWhere((s) => s.undo) as readonly UndoKey[];
+/** What undo covers in a shared session (collab/undoScope.ts). */
+export const COLLAB_UNDO_KEYS = storeKeysWhere(
+  (s) => s.undo && s.collab,
+) as readonly CollabUndoKey[];
 /** What initialProjectState() resets: doc, view and per-project session keys. */
 export const RESET_ON_NEW_KEYS: readonly StoreDataKey[] = storeKeysWhere(
   (s) => s.resetOnNew,

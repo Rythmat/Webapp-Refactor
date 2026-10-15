@@ -1,3 +1,4 @@
+import { ATLAS_TAILWIND_COLORS } from './src/components/atlas/theme/tokens';
 import { theme } from './src/constants/theme';
 import {
   DAW_TAILWIND_COLORS,
@@ -10,7 +11,8 @@ export default {
   darkMode: ['class'],
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   // The app's theme plus the Studio editor's token keys (bg-daw-surface-1,
-  // text-daw-text-3, duration-daw-fast…; src/daw/ui/tokens.ts). New keys
+  // text-daw-text-3, duration-daw-fast…; src/daw/ui/tokens.ts) and the Atlas
+  // Globe's (bg-atlas-panel/95; src/components/atlas/theme/tokens.ts). New keys
   // only. They are added here, not in src/constants/theme.ts, because the
   // app imports theme.ts at run time and would carry the token module in its
   // boot chunk; this file only runs at build time.
@@ -21,6 +23,7 @@ export default {
       colors: {
         ...(theme?.extend?.colors as Record<string, unknown>),
         daw: DAW_TAILWIND_COLORS,
+        atlas: ATLAS_TAILWIND_COLORS,
       },
       transitionDuration: DAW_TAILWIND_DURATIONS,
       transitionTimingFunction: DAW_TAILWIND_EASING,

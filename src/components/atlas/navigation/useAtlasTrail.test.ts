@@ -65,6 +65,28 @@ describe('trail history semantics', () => {
     expect(searches(state)).toEqual(['?q=wes montgomery']);
   });
 
+  it('keeps the forward steps when the current URL is replaced', () => {
+    // Moving the timeline rewrites the URL with replace; Forward must survive.
+    const visited = walk(
+      [0, '?q=wes'],
+      [1, '?artist=Wes Montgomery'],
+      [2, '?event=evt-bebop-nyc-1945'],
+    );
+    const back = arrive(visited, 1, '?artist=Wes Montgomery');
+    const replaced = arrive(
+      back,
+      1,
+      '?artist=Wes Montgomery&from=1946&to=1979',
+      'REPLACE',
+    );
+    expect(searches(replaced)).toEqual([
+      '?q=wes',
+      '?artist=Wes Montgomery&from=1946&to=1979',
+      '?event=evt-bebop-nyc-1945',
+    ]);
+    expect(replaced.cursor).toBe(1);
+  });
+
   it('records the parsed stop, so the strip can describe it', () => {
     const state = walk([0, '?artist=Wes Montgomery&era=postwar']);
     expect(state.entries[0].stop).toEqual({

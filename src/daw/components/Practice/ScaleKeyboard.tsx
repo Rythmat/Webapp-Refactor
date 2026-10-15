@@ -12,6 +12,11 @@
  * A student playing the chords is shown a chord instead: its own voicing lit,
  * key for key, rather than a scale across every octave, and numbered by chord
  * tone. The screen hands it the chord sounding now as a one-entry `scales`.
+ *
+ * The keys play: a press sounds on the student's track and goes into a take,
+ * as a MIDI keyboard's notes do (`onKeyPointerDown`, the screen's
+ * usePointerNotes). Never the lesson piano: that would sound another
+ * instrument and record nothing (practice-tutorial-04).
  */
 
 import {
@@ -19,6 +24,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type PointerEvent,
   type ReactNode,
   type RefObject,
 } from 'react';
@@ -78,8 +84,10 @@ interface ScaleKeyboardProps {
   scaleTonic: number;
   startC: number;
   endC: number;
-  /** Notes currently held on the student's MIDI keyboard. */
+  /** Notes sounding now: the MIDI keyboard's, the computer keyboard's, these keys'. */
   heldNotes: ReadonlySet<number>;
+  /** A key pressed on screen; its note lasts until the pointer lets go. */
+  onKeyPointerDown?: (note: number, event: PointerEvent) => void;
   /** The screen's own scroll box — what the keyboard has to fit inside. */
   fitWithin: RefObject<HTMLElement | null>;
   /** The last thing that has to stay on screen: the chord chart. */
@@ -101,6 +109,7 @@ export function ScaleKeyboard({
   startC,
   endC,
   heldNotes,
+  onKeyPointerDown,
   fitWithin,
   fitAnchor,
   onScaleChange,
@@ -294,6 +303,9 @@ export function ScaleKeyboard({
                 endC={endC}
                 hintNotes={litKeys}
                 playingNotes={playedKeys}
+                enableClick={false}
+                useContextNotes={false}
+                onKeyPointerDown={onKeyPointerDown}
               />
               {octaveCs.map((midi) => {
                 const x = keyCenters.get(midi);

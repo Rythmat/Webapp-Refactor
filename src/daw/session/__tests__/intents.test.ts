@@ -27,6 +27,7 @@ import { serializeSession } from '@/daw/persistence/SessionSerializer';
 import { useStore } from '@/daw/store';
 import { DraftStorageError } from '@/lib/studio-projects/drafts/types';
 import {
+  CLASS_PAIR_AWAIT_HOST_MS,
   intentLabel,
   needsToken,
   OpenRefusal,
@@ -438,6 +439,27 @@ describe('prepare changes nothing; apply writes the session', () => {
     expect(prepared.collabWait).toEqual({ roomId: 'room42', awaitHost: false });
     apply(prepared);
     expect(env.collab.joinRoomById).toHaveBeenCalledWith('Room42');
+  });
+
+  it("a classroom pair's partner waits for its host the long wait", async () => {
+    const prepared = await prepare({
+      kind: 'collab',
+      code: 'cls0123456789ab',
+      host: false,
+      jamImport: false,
+      awaitHost: true,
+      classPair: true,
+    });
+    expect(prepared.collabWait).toEqual({
+      roomId: 'cls0123456789ab',
+      awaitHost: true,
+      hostWaitMs: CLASS_PAIR_AWAIT_HOST_MS,
+    });
+    apply(prepared);
+    expect(env.collab.joinRoomAwaitingHost).toHaveBeenCalledWith(
+      'cls0123456789ab',
+      CLASS_PAIR_AWAIT_HOST_MS,
+    );
   });
 });
 

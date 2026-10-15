@@ -1375,65 +1375,46 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   // track, dock tab and the mastering bypass); and what belongs to the
   // student rather than the project: the prefs (metronome, count-in, grid,
   // chord-ruler labels), record arm, monitoring, input devices and the exact
-  // input channel. The rows still failing below wait for milestone 1.5's
-  // document field.
+  // input channel.
+  //
+  // Milestone 1.5's cloud document carries the rest (the loop range, the
+  // metre, the mode, Prism's builder, the chord lane, the Lead Sheet, the
+  // Score's marks and layout, markers, mastering, note ids, clip lengths
+  // and controller data), each lost here before it: audit findings
+  // state-reload-04 and -13, shell-03, insight-01, prism-engine-03,
+  // leadsheet-01, timeline-02, fx-mixer-01 and design-system-11. With no
+  // `document` in the echo it rides as the interim fallback, on the first
+  // track's settings.
 
   it('the project name and composer', kept(probes.identity));
   it('the tempo', kept(probes.tempo));
-  // state-reload-04: the cloud payload carries no loop range.
-  it.fails('the loop range', kept(probes.loopRange));
-  // shell-03: the cloud payload carries no time signature.
-  it.fails('the time signature', kept(probes.timeSignature));
+  it('the loop range', kept(probes.loopRange));
+  it('the time signature', kept(probes.timeSignature));
   it('the key, rhythm, genre and swing', kept(probes.keyAndFeel));
-  // insight-01: the cloud prism block has no mode; it reopens as Ionian.
-  it.fails('the mode', kept(probes.mode));
-  // prism-engine-03
-  it.fails('Prism strum and tilt', kept(probes.strumAndTilt));
-  // prism-engine-03
-  it.fails('the Prism progression being built', kept(probes.prismProgression));
-  // insight-01: deserializeCloudProject opens with no chord symbols.
-  it.fails('the chord lane', kept(probes.chordLane));
-  // insight-01: no chord lane, so no identity either.
-  it.fails('a chord identity', kept(probes.chordIdentity));
-  // design-system-11
-  it.fails('clip colouring by harmony', kept(probes.clipColorMode));
-  // leadsheet-01: the cloud payload carries no lead sheet.
-  it.fails('lead-sheet sections', kept(probes.leadSheetSections));
-  // leadsheet-01
-  it.fails('lead-sheet repeats', kept(probes.leadSheetRepeats));
-  // leadsheet-01
-  it.fails('lead-sheet row sizes', kept(probes.measureRowSizes));
-  // leadsheet-01
-  it.fails('multi-bar rests', kept(probes.multiBarRests));
-  // leadsheet-01
-  it.fails('fermatas', kept(probes.fermatas));
-  // leadsheet-01
-  it.fails('the lead-sheet chord format', kept(probes.chordFormat));
-  // leadsheet-01
-  it.fails('the lead-sheet melody toggle', kept(probes.leadSheetMelody));
-  // shell-03: the cloud copy drops Score marks and layout.
-  it.fails('Score articulations', kept(probes.articulations));
-  // shell-03
-  it.fails('Score slurs', kept(probes.slurs));
-  // shell-03
-  it.fails('pinned Score spellings', kept(probes.pinnedSpellings));
-  // shell-03
-  it.fails('Score slash notes', kept(probes.slashNotes));
-  // shell-03
-  it.fails('Score system and page breaks', kept(probes.scoreLayout));
-  // shell-03
-  it.fails('Score text, segno and coda marks', kept(probes.textMarks));
-  // shell-03
-  it.fails('chord symbols shown on a part', kept(probes.chordSymbolsOnPart));
-  // shell-03 + insight-01: the mark names a chord, so it also needs the chord
-  // lane, which the cloud drops too. It flips only once both are fixed.
-  it.fails('chords hidden on a part', kept(probes.chordHiddenOnPart));
-  // timeline-02
-  it.fails('timeline markers', kept(probes.markers));
-  // fx-mixer-01: the cloud payload carries no mastering.
-  it.fails('the mastering FX chain', kept(probes.masteringChain));
-  // fx-mixer-01
-  it.fails('the master volume', kept(probes.masterVolume));
+  it('the mode', kept(probes.mode));
+  it('Prism strum and tilt', kept(probes.strumAndTilt));
+  it('the Prism progression being built', kept(probes.prismProgression));
+  it('the chord lane', kept(probes.chordLane));
+  it('a chord identity', kept(probes.chordIdentity));
+  it('clip colouring by harmony', kept(probes.clipColorMode));
+  it('lead-sheet sections', kept(probes.leadSheetSections));
+  it('lead-sheet repeats', kept(probes.leadSheetRepeats));
+  it('lead-sheet row sizes', kept(probes.measureRowSizes));
+  it('multi-bar rests', kept(probes.multiBarRests));
+  it('fermatas', kept(probes.fermatas));
+  it('the lead-sheet chord format', kept(probes.chordFormat));
+  it('the lead-sheet melody toggle', kept(probes.leadSheetMelody));
+  it('Score articulations', kept(probes.articulations));
+  it('Score slurs', kept(probes.slurs));
+  it('pinned Score spellings', kept(probes.pinnedSpellings));
+  it('Score slash notes', kept(probes.slashNotes));
+  it('Score system and page breaks', kept(probes.scoreLayout));
+  it('Score text, segno and coda marks', kept(probes.textMarks));
+  it('chord symbols shown on a part', kept(probes.chordSymbolsOnPart));
+  it('chords hidden on a part', kept(probes.chordHiddenOnPart));
+  it('timeline markers', kept(probes.markers));
+  it('the mastering FX chain', kept(probes.masteringChain));
+  it('the master volume', kept(probes.masterVolume));
   it('master automation', kept(probes.masterAutomation));
   it('the return buses', kept(probes.returnBuses));
   // Fixed in 1.3: each track loads under the id it was saved with
@@ -1461,13 +1442,9 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   // the input views read null as mono input 1 instead (see the probe).
   it.fails('a live input channel', kept(probes.inputChannelPresent));
   it('MIDI clip notes, name and position', kept(probes.midiNotes));
-  // Milestone 1.5: the legacy payload carries no note ids, so a cloud open
-  // gives each note a derived one (the same on every open).
-  it.fails('note ids', kept(probes.noteIds));
-  // state-reload-13
-  it.fails('MIDI clip length', kept(probes.midiClipLength));
-  // state-reload-13
-  it.fails('MIDI controller data (sustain pedal)', kept(probes.sustainPedal));
+  it('note ids', kept(probes.noteIds));
+  it('MIDI clip length', kept(probes.midiClipLength));
+  it('MIDI controller data (sustain pedal)', kept(probes.sustainPedal));
   it('an uploaded audio take', kept(probes.audioTake));
 });
 

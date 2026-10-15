@@ -1,8 +1,12 @@
 import { useRef, useCallback } from 'react';
+import { useControlGesture } from '@/daw/hooks/useContinuousControl';
 
 // ── RotaryKnob ──────────────────────────────────────────────────────────
 // SVG rotary knob with vertical drag interaction.
 // Rotation range: 225° (from -225/2 to +225/2, i.e. ~7 o'clock to ~5 o'clock).
+// A drag is one gesture: it starts on press and ends on release, through
+// onChangeStart/onChangeEnd and the panel's ControlGestureContext, so the
+// owner previews the moves and writes the store once (useContinuousControl).
 
 interface RotaryKnobProps {
   value: number;
@@ -15,6 +19,10 @@ interface RotaryKnobProps {
   step?: number;
   arcColor?: string;
   log?: boolean; // logarithmic mapping (for frequency knobs)
+  /** A drag starts. */
+  onChangeStart?: () => void;
+  /** A drag ends: the moment to write the store. */
+  onChangeEnd?: () => void;
 }
 
 const ARC_RANGE = 270; // degrees of rotation
@@ -78,16 +86,21 @@ export function RotaryKnob({
   step,
   arcColor,
   log,
+  onChangeStart,
+  onChangeEnd,
 }: RotaryKnobProps) {
   const dragRef = useRef<{ startY: number; startValue: number } | null>(null);
+  const gesture = useControlGesture();
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
       dragRef.current = { startY: e.clientY, startValue: value };
+      gesture?.begin();
+      onChangeStart?.();
     },
-    [value],
+    [value, gesture, onChangeStart],
   );
 
   const handlePointerMove = useCallback(
@@ -109,8 +122,11 @@ export function RotaryKnob({
   );
 
   const handlePointerUp = useCallback(() => {
+    if (!dragRef.current) return;
     dragRef.current = null;
-  }, []);
+    gesture?.end();
+    onChangeEnd?.();
+  }, [gesture, onChangeEnd]);
 
   const cx = size / 2;
   const cy = size / 2;
@@ -144,6 +160,7 @@ export function RotaryKnob({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onLostPointerCapture={handlePointerUp}
       >
         {/* Background circle */}
         <circle

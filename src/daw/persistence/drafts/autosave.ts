@@ -23,6 +23,7 @@ import { getSessionDeps } from '@/daw/session/sessionDeps';
 import { adoptActiveDraft, useSessionStore } from '@/daw/session/sessionStore';
 import type { DraftClaim, PreparedDraft } from '@/daw/session/types';
 import { useStore, type AllSlices } from '@/daw/store';
+import { registerBeforeReload } from '@/lib/beforeReload';
 import type { UserKey } from '@/lib/local-store/userScope';
 import {
   writeActiveDraft,
@@ -53,7 +54,6 @@ import {
   isDraftStorageError,
   type DraftBaseline,
   type DraftCloudRecord,
-  type DraftContext,
   type DraftErrorKind,
   type DraftLock,
   type DraftMeta,
@@ -61,6 +61,11 @@ import {
   type DraftWrite,
 } from '@/lib/studio-projects/drafts/types';
 import { showNotice } from '@/util/toast';
+import {
+  draftContextChanged,
+  draftContextOf,
+  restoreDraftContext,
+} from './draftContext';
 import { useDraftStatusStore, type DraftStatus } from './draftStatusStore';
 import { claimDeviceDraft } from './legacyImport';
 import {
@@ -89,7 +94,9 @@ import {
 //   loop switch, an Oracle patch edit through noteSynthPatchChange), plus
 //   pendingMedia's manifest changes (a take's bytes landing after its edit).
 //   A view key alone (playhead, zoom, scroll) only marks the view dirty: it
-//   rides the next write or a flush (decision D8).
+//   rides the next write or a flush (decision D8). A lesson step or the
+//   practice screen changing (draftContext.ts) is written on the same
+//   debounce, but isn't an edit: the save chip doesn't count it.
 // - Debounced 1000 ms, at most 5000 ms after the first unwritten change.
 // - Flushed on hidden, pagehide and freeze (a synchronous localStorage
 //   mirror of the same snapshot, then a strict IndexedDB write), on unmount,
@@ -140,7 +147,6 @@ interface Carry {
   baseline: DraftBaseline;
   cloud?: DraftCloudRecord;
   keptAt?: number;
-  context?: DraftContext;
   forkedFrom?: string;
   claimedFrom?: UserKey;
   /**
@@ -222,6 +228,7 @@ interface ControllerState {
   toldError: DraftErrorKind | null;
   persistAsked: boolean;
   signOutRegistered: boolean;
+  reloadRegistered: boolean;
   starts: number;
   teardown: (() => void) | null;
   /** The save status's draftVersion when the controller last stopped. */
@@ -257,6 +264,7 @@ const s: ControllerState = (() => {
     toldError: null,
     persistAsked: false,
     signOutRegistered: false,
+    reloadRegistered: false,
     starts: 0,
     teardown: null,
     versionAtStop: null,
@@ -358,6 +366,19 @@ function onView(): void {
   if (s.live) s.viewDirty = true;
 }
 
+/**
+ * The lesson or practice context moved (a step, the practice screen): write
+ * it with the view on the debounce, without counting an edit (pendingSeq),
+ * so a step reached is kept even if the page then dies without a hide.
+ */
+function onContext(): void {
+  const live = s.live;
+  if (!live) return;
+  s.viewDirty = true;
+  if (s.paused || live.generation === null) return;
+  armTimers();
+}
+
 /** Whether memory is ahead of the last committed write. */
 function memoryAhead(): boolean {
   const st = status();
@@ -404,7 +425,9 @@ function buildMeta(live: LiveDraft, snap: LiveSnapshot): DraftWrite['meta'] {
   if (snap.roomId) meta.roomId = snap.roomId;
   if (cloud && !carry.noProject) meta.cloud = cloud;
   if (carry.keptAt !== undefined) meta.keptAt = carry.keptAt;
-  if (carry.context !== undefined) meta.context = carry.context;
+  // The lesson and practice context as the session stands now (1.15).
+  const context = draftContextOf();
+  if (context !== undefined) meta.context = context;
   if (carry.forkedFrom !== undefined) meta.forkedFrom = carry.forkedFrom;
   if (carry.claimedFrom !== undefined) meta.claimedFrom = carry.claimedFrom;
   return meta;
@@ -436,7 +459,6 @@ function carryOf(meta: DraftMeta): Carry {
   };
   if (meta.cloud) carry.cloud = meta.cloud;
   if (meta.keptAt !== undefined) carry.keptAt = meta.keptAt;
-  if (meta.context !== undefined) carry.context = meta.context;
   if (meta.forkedFrom !== undefined) carry.forkedFrom = meta.forkedFrom;
   if (meta.claimedFrom !== undefined) carry.claimedFrom = meta.claimedFrom;
   return carry;
@@ -819,7 +841,6 @@ async function forkOnConflict(
       createdAt: Date.now(),
       baseline: live.carry.baseline,
       forkedFrom: live.draftId,
-      ...(live.carry.context ? { context: live.carry.context } : {}),
       ...(inRoom ? { nameOverride: copyName, noProject: true } : {}),
     },
     writeSeq: null,
@@ -1162,7 +1183,8 @@ export function startDraftAutosave(): () => void {
       if (st.draftVersion !== prev.draftVersion) schedule();
     }),
     useStore.subscribe((st, prev) => {
-      if (viewChanged(st, prev)) onView();
+      if (draftContextChanged(st, prev)) onContext();
+      else if (viewChanged(st, prev)) onView();
     }),
     useSynthStore.subscribe(synthPatchFields, () => noteSynthPatchChange(), {
       equalityFn: shallow,
@@ -1181,6 +1203,10 @@ export function startDraftAutosave(): () => void {
   if (!s.signOutRegistered) {
     s.signOutRegistered = true;
     registerBeforeSignOut(runSignOutCleanup);
+  }
+  if (!s.reloadRegistered) {
+    s.reloadRegistered = true;
+    registerBeforeReload(flushLiveDraft);
   }
   s.teardown = () => {
     s.versionAtStop = useSaveStatusStore.getState().draftVersion;
@@ -1244,6 +1270,30 @@ export function useDraftAutosave(): void {
 }
 
 /** E17: before sign-out, flush the open draft and clear what the cloud holds. */
+/**
+ * Write the live session strictly, as leaving the editor does: once a take
+ * still being stored has its bytes in, and only when memory is ahead of the
+ * stored draft. Before a reload the app asks for (beforeReload: a part that
+ * failed to load after a deploy, Reload editor) and when the editor crashes
+ * (DawErrorBoundary), milestone 1.12a. Resolves when written or skipped.
+ */
+export async function flushLiveDraft(): Promise<void> {
+  const live = s.live;
+  if (
+    live === null ||
+    live.generation === null ||
+    live.generation !== getSessionGeneration() ||
+    s.retiring
+  )
+    return;
+  clearTimers();
+  await whenMediaWritesSettled(UNMOUNT_MEDIA_WAIT_MS);
+  if (s.live !== live) return;
+  if (memoryAhead() || manifestDiffers(live)) {
+    await flushDraftNow({ force: true });
+  }
+}
+
 async function runSignOutCleanup(signal: AbortSignal): Promise<void> {
   const live = s.live;
   const flushable =
@@ -1435,7 +1485,8 @@ type RetireResult =
  * Bounded by DRAFT_RETIRE_TIMEOUT_MS: a store that doesn't answer leaves
  * the record as it is (it has work, so prunes keep it) and resolves null.
  * When the store fails, nothing changed: the live draft stays live, writes
- * resume, and it throws (the open is refused).
+ * resume, and it throws. openSession goes on with the flushed draft (still
+ * a session draft) as the kept work, and activate lets it go.
  */
 export async function retireOutgoingDraft(
   policy: 'auto' | 'discard',
@@ -1662,8 +1713,10 @@ export function activateDraft(claim: DraftClaim): void {
 /**
  * apply: load the prepared draft into the store (after the reset). The
  * meta's projectId wins over the body's; a fork becomes '<name> (copy)'
- * with no project. Seeds pending media from the meta before writes resume.
- * Throws DraftStorageError 'corrupt' (after quarantining) when it can't load.
+ * with no project. The lesson and practice screen the draft was on come
+ * back with it (its context, milestone 1.15), a copy's too. Seeds pending
+ * media from the meta before writes resume. Throws DraftStorageError
+ * 'corrupt' (after quarantining) when it can't load.
  */
 export function applyPreparedDraft(prepared: PreparedDraft): void {
   const live = s.live;
@@ -1688,6 +1741,7 @@ export function applyPreparedDraft(prepared: PreparedDraft): void {
   } else {
     state.setProjectId(prepared.meta.projectId ?? null);
   }
+  restoreDraftContext(prepared.meta.context);
   registerDraftMedia(prepared.meta.media ?? [], prepared.meta.userKey);
   if (live && live.draftId === prepared.claim.draftId) live.prepared = prepared;
 }
@@ -1802,7 +1856,6 @@ export async function beginDraft(
         fingerprint: null,
       },
       forkedFrom: source.draftId,
-      ...(source.context ? { context: source.context } : {}),
     };
   } else {
     // A project open set its cloud record (setLastSaved) before begin:

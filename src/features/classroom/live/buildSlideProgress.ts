@@ -12,6 +12,7 @@
  * Non-app-route slides have no launch markers, so they degrade to a binary
  * not_started/done and callers don't need to branch.
  */
+import type { MindMapSubmission } from '@/content/graph/mindMapBoard';
 import type { Enrollment } from '../enrollments/enrollmentsStore';
 import type { MspResponseEntry } from '../msp/mspResponseInbox';
 import { slideInteractionIds } from '../slides/deck';
@@ -43,9 +44,39 @@ export const isAtlasResultComplete = (result: unknown): boolean => {
     r.completion === true ||
     r.completed === true ||
     r.kind === 'completion' ||
+    r.kind === 'mindMap' ||
     typeof r.score === 'number' ||
     'artifactRef' in r
   );
+};
+
+/**
+ * A student's submitted mind map for an interaction (a Promoter slide): from
+ * their response, or from the inbox when it arrived while their live tab was
+ * closed.
+ */
+export const submittedMindMap = (
+  responses: Record<string, InteractionResponsePayload> | undefined,
+  inbox: ReadonlyArray<MspResponseEntry>,
+  interactionId: string,
+  enrollmentId: string,
+): MindMapSubmission | undefined => {
+  const payload = responses?.[interactionId];
+  if (payload?.kind === 'atlas') {
+    const result = payload.result as {
+      kind?: unknown;
+      map?: MindMapSubmission;
+    };
+    if (result?.kind === 'mindMap' && result.map) return result.map;
+  }
+  for (const entry of inbox)
+    if (
+      entry.interactionId === interactionId &&
+      entry.participant.enrollmentId === enrollmentId &&
+      entry.payload.kind === 'mindMap'
+    )
+      return entry.payload.map;
+  return undefined;
 };
 
 const hasInboxCompletion = (
@@ -59,7 +90,8 @@ const hasInboxCompletion = (
       e.participant.enrollmentId === enrollmentId &&
       (e.payload.kind === 'completion' ||
         e.payload.kind === 'score' ||
-        e.payload.kind === 'artifact'),
+        e.payload.kind === 'artifact' ||
+        e.payload.kind === 'mindMap'),
   );
 
 export const buildSlideProgress = (

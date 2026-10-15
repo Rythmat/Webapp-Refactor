@@ -1,5 +1,6 @@
 import { ExternalLink, PlayCircle } from 'lucide-react';
 import { AtlasVideo } from '@/components/atlas/components/UI/AtlasVideo';
+import { ATLAS_FOCUS } from '@/components/atlas/components/UI/primitives';
 import type { HistoricalEvent } from '@/components/atlas/types';
 
 /**
@@ -50,15 +51,15 @@ export function EventVideo({
 
   return (
     <a
-      className={`flex aspect-video flex-col items-center justify-center gap-2 bg-white/5 text-center transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${className}`}
+      className={`flex aspect-video flex-col items-center justify-center gap-2 bg-white/[0.04] text-center transition-colors hover:bg-white/[0.08] ${ATLAS_FOCUS} ${className}`}
       href={href}
       rel="noopener noreferrer"
       target="_blank"
       onClick={(e) => e.stopPropagation()}
     >
-      <PlayCircle aria-hidden className="size-8 text-white/40" />
-      <span className="text-sm text-white/60">No video attached yet</span>
-      <span className="inline-flex items-center gap-1 text-sm font-medium text-[#60a5fa]">
+      <PlayCircle aria-hidden className="size-8 text-atlas-text-3" />
+      <span className="text-sm text-atlas-text-2">No video attached yet</span>
+      <span className="inline-flex items-center gap-1 text-sm font-medium text-atlas-accent">
         Find on YouTube
         <ExternalLink aria-hidden className="size-3.5" />
       </span>

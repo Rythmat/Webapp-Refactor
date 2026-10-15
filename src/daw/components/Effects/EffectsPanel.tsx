@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useSyncExternalStore } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { X, Maximize2, Zap } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
@@ -19,12 +19,7 @@ import {
 } from './visualizers';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { FxMeter } from './FxMeter';
-import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
-import {
-  getEngineReadyVersion,
-  getTrackAudioState,
-  subscribeEngineReady,
-} from '@/daw/hooks/usePlaybackEngine';
+import { meterSource } from '@/daw/engine/meterBus';
 import { getReverbManifest, getReverbIrMeta } from '@/daw/audio/reverbIR';
 import {
   BAND_COLORS,
@@ -34,6 +29,11 @@ import {
   FxPowerButton,
 } from './FxShared';
 import { FxBrowser } from './FxBrowser';
+import {
+  ControlGestureContext,
+  useContinuousControl,
+} from '@/daw/hooks/useContinuousControl';
+import { previewTrack } from '@/daw/engine/trackReconciler';
 
 // Effects that have a visualizer component
 // The ducker's GR meter is inline in its FxKnobs controls (DuckerControls), so
@@ -186,21 +186,6 @@ export function EffectsPanel() {
   const removeActiveEffect = useStore((s) => s.removeActiveEffect);
   const track = tracks.find((t) => t.id === selectedTrackId);
 
-  // Moves when engines are made or retired, so a load that replaces the
-  // track's engine under the same id hands the panel the new chain.
-  const engineVersion = useSyncExternalStore(
-    subscribeEngineReady,
-    getEngineReadyVersion,
-  );
-  const effectChain = useMemo(() => {
-    if (!selectedTrackId) return null;
-    return (
-      getTrackAudioState(selectedTrackId)?.trackEngine.getEffectChain() ?? null
-    );
-  }, [selectedTrackId, engineVersion]);
-
-  const { gr, inLevel, outLevel } = useCompressorMeters(effectChain);
-
   const [selectedEffect, setSelectedEffect] = useState<EffectSlotType | null>(
     null,
   );
@@ -255,15 +240,13 @@ export function EffectsPanel() {
                 selectedEffect={selectedEffect}
                 effects={track.effects}
                 onUpdate={updateTrackEffects}
+                onPreview={(effects) => previewTrack(track.id, { effects })}
                 onRemove={(slot) => {
                   removeActiveEffect(track.id, slot);
                 }}
                 popOutOpen={popOutOpen}
                 onTogglePopOut={() => setPopOutOpen((v) => !v)}
-                gr={gr}
-                inLevel={inLevel}
-                outLevel={outLevel}
-                analyserNode={effectChain?.getPreCompAnalyser() ?? null}
+                meterTarget={track.id}
               />
             ) : (
               <div
@@ -458,28 +441,62 @@ export function FxChainRow({
 export function FxControlsPanel({
   trackId,
   selectedEffect,
-  effects,
+  effects: storeEffects,
   onUpdate,
+  onPreview,
   onRemove,
   popOutOpen,
   onTogglePopOut,
-  gr,
-  inLevel,
-  outLevel,
-  analyserNode,
+  meterTarget = null,
 }: {
   trackId: string;
   selectedEffect: EffectSlotType;
   effects: TrackEffectState;
   onUpdate: (trackId: string, effects: Partial<TrackEffectState>) => void;
+  /** Plays the rack's effects without writing the store, while a knob or an
+   *  EQ band moves (the engine/preview.ts functions). */
+  onPreview: (effects: TrackEffectState) => void;
   onRemove: (slot: EffectSlotType) => void;
   popOutOpen: boolean;
   onTogglePopOut: () => void;
-  gr: number;
-  inLevel: number;
-  outLevel: number;
-  analyserNode?: AnalyserNode | null;
+  /** Whose effect chain the meters read on the meter bus (a track id or
+   *  'master'); null when the rack has no live chain to meter. */
+  meterTarget?: string | null;
 }) {
+  // One control for the whole rack: a knob or band drag previews and writes
+  // the store once on release; a toggle or a list writes at once. A write
+  // carries only the slots the gesture changed, so a collaborator's edit to
+  // another slot meanwhile stands.
+  const fx = useContinuousControl<TrackEffectState>({
+    value: storeEffects,
+    preview: onPreview,
+    commit: (next, start) => {
+      const changed: Partial<TrackEffectState> = {};
+      for (const key of Object.keys(next) as (keyof TrackEffectState)[]) {
+        if (next[key] !== start[key]) {
+          (changed as Record<string, unknown>)[key] = next[key];
+        }
+      }
+      onUpdate(trackId, changed);
+    },
+    label: 'Change effect',
+  });
+  const effects = fx.value;
+  const latest = useRef(effects);
+  latest.current = effects;
+  const update = useCallback(
+    (_trackId: string, partial: Partial<TrackEffectState>) => {
+      const next = { ...latest.current, ...partial };
+      latest.current = next;
+      fx.change(next);
+    },
+    [fx],
+  );
+  const gesture = useMemo(
+    () => ({ begin: fx.begin, end: fx.end }),
+    [fx.begin, fx.end],
+  );
+
   const color = FX_COLOR[selectedEffect] ?? '#7ecfcf';
   const category = FX_CATEGORY[selectedEffect] ?? '';
   const label = FX_LABEL[selectedEffect] ?? selectedEffect;
@@ -489,114 +506,115 @@ export function FxControlsPanel({
   };
   const enabled = slotState?.enabled ?? false;
   const toggleEnabled = () =>
-    onUpdate(trackId, {
+    update(trackId, {
       [selectedEffect]: { ...slotState, enabled: !enabled },
     });
 
   return (
-    <div
-      className="flex-1 overflow-y-auto"
-      style={{ backgroundColor: 'var(--color-surface)' }}
-    >
-      {/* Header */}
+    <ControlGestureContext.Provider value={gesture}>
       <div
-        className="flex items-center gap-2.5 border-b px-4 py-1.5"
-        style={{ borderColor: 'var(--color-border)' }}
+        className="flex-1 overflow-y-auto"
+        style={{ backgroundColor: 'var(--color-surface)' }}
       >
-        <FxPowerButton
-          enabled={enabled}
-          onToggle={toggleEnabled}
-          effectName={label}
-          size={22}
-          withText
-        />
+        {/* Header */}
         <div
-          className="size-2.5 shrink-0 rounded-full"
-          style={{ backgroundColor: color }}
-        />
-        <span
-          className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          className="flex items-center gap-2.5 border-b px-4 py-1.5"
+          style={{ borderColor: 'var(--color-border)' }}
         >
-          {category}
-        </span>
-        <span
-          className="flex-1 text-[13px] font-medium"
-          style={{ color: 'var(--color-text)' }}
-        >
-          {label}
-        </span>
-        <button
-          onClick={onTogglePopOut}
-          className="cursor-pointer rounded-md p-1"
-          style={{
-            color: popOutOpen ? 'var(--color-accent)' : 'var(--color-text-dim)',
-            background: 'none',
-            border: 'none',
-          }}
-        >
-          <Maximize2 size={14} />
-        </button>
-        <button
-          onClick={() => onRemove(selectedEffect)}
-          className="cursor-pointer rounded-md p-1"
-          style={{
-            color: 'var(--color-text-dim)',
-            background: 'none',
-            border: 'none',
-          }}
-        >
-          <X size={14} />
-        </button>
-      </div>
+          <FxPowerButton
+            enabled={enabled}
+            onToggle={toggleEnabled}
+            effectName={label}
+            size={22}
+            withText
+          />
+          <div
+            className="size-2.5 shrink-0 rounded-full"
+            style={{ backgroundColor: color }}
+          />
+          <span
+            className="text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            {category}
+          </span>
+          <span
+            className="flex-1 text-[13px] font-medium"
+            style={{ color: 'var(--color-text)' }}
+          >
+            {label}
+          </span>
+          <button
+            onClick={onTogglePopOut}
+            className="cursor-pointer rounded-md p-1"
+            style={{
+              color: popOutOpen
+                ? 'var(--color-accent)'
+                : 'var(--color-text-dim)',
+              background: 'none',
+              border: 'none',
+            }}
+          >
+            <Maximize2 size={14} />
+          </button>
+          <button
+            onClick={() => onRemove(selectedEffect)}
+            className="cursor-pointer rounded-md p-1"
+            style={{
+              color: 'var(--color-text-dim)',
+              background: 'none',
+              border: 'none',
+            }}
+          >
+            <X size={14} />
+          </button>
+        </div>
 
-      {/* Knobs */}
-      <div className="flex flex-wrap items-center justify-evenly px-4 py-3">
-        <FxKnobs
-          trackId={trackId}
-          slot={selectedEffect}
-          effects={effects}
-          onUpdate={onUpdate}
-          color={color}
-        />
-      </div>
+        {/* Knobs */}
+        <div className="flex flex-wrap items-center justify-evenly px-4 py-3">
+          <FxKnobs
+            trackId={trackId}
+            slot={selectedEffect}
+            effects={effects}
+            onUpdate={update}
+            color={color}
+          />
+        </div>
 
-      {/* Pop-out overlay */}
-      <PopOutOverlay
-        isOpen={popOutOpen}
-        onClose={onTogglePopOut}
-        title={`${category}  ${label}`}
-        trackColor={color}
-      >
-        <div className="flex h-full flex-col gap-4 p-4">
-          <div className="flex flex-wrap items-center justify-center gap-4 px-4 py-3">
-            <FxKnobs
-              trackId={trackId}
-              slot={selectedEffect}
-              effects={effects}
-              onUpdate={onUpdate}
-              color={color}
-              popOut
-            />
-          </div>
-          {hasViz && (
-            <div className="flex min-h-0 flex-1 items-center justify-center p-3">
-              <FxVisualizer
+        {/* Pop-out overlay */}
+        <PopOutOverlay
+          isOpen={popOutOpen}
+          onClose={onTogglePopOut}
+          title={`${category}  ${label}`}
+          trackColor={color}
+        >
+          <div className="flex h-full flex-col gap-4 p-4">
+            <div className="flex flex-wrap items-center justify-center gap-4 px-4 py-3">
+              <FxKnobs
+                trackId={trackId}
                 slot={selectedEffect}
                 effects={effects}
-                trackId={trackId}
-                onUpdate={onUpdate}
-                gr={gr}
-                inLevel={inLevel}
-                outLevel={outLevel}
-                analyserNode={analyserNode}
-                large
+                onUpdate={update}
+                color={color}
+                popOut
               />
             </div>
-          )}
-        </div>
-      </PopOutOverlay>
-    </div>
+            {hasViz && (
+              <div className="flex min-h-0 flex-1 items-center justify-center p-3">
+                <FxVisualizer
+                  slot={selectedEffect}
+                  effects={effects}
+                  trackId={trackId}
+                  onUpdate={update}
+                  meterTarget={meterTarget}
+                  large
+                />
+              </div>
+            )}
+          </div>
+        </PopOutOverlay>
+      </div>
+    </ControlGestureContext.Provider>
   );
 }
 
@@ -1317,30 +1335,11 @@ export function FxKnobs({
 
 // ── Ducker (sidechain) controls: key-source dropdown + knobs + live GR meter ──
 
-function useDuckReduction(trackId: string): number {
-  const [gr, setGr] = useState(0);
-  useEffect(() => {
-    // Not a real track (mastering/return racks) → no live reduction to read.
-    if (trackId === 'master' || trackId.startsWith('return-')) return;
-    let raf = 0;
-    let last = 0;
-    const tick = () => {
-      raf = requestAnimationFrame(tick);
-      const now = performance.now();
-      if (now - last < 50) return; // ~20fps
-      last = now;
-      const engine = getTrackAudioState(trackId)?.trackEngine;
-      // reduction is ≤ 0 dB; map |dB| over 0–24 to 0–100 for the meter.
-      const db = engine ? Math.abs(engine.getDuckReduction()) : 0;
-      setGr((prev) => {
-        const inst = Math.min(100, (db / 24) * 100);
-        return inst > prev ? inst : prev * 0.9; // peak-hold decay
-      });
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [trackId]);
-  return gr;
+/** The ducker's live gain reduction on the meter bus (real tracks only:
+ *  the mastering and return racks have no ducker to read). */
+function duckSource(trackId: string) {
+  if (trackId === 'master' || trackId.startsWith('return-')) return null;
+  return meterSource(`duck:${trackId}`);
 }
 
 function DuckerControls({
@@ -1369,7 +1368,6 @@ function DuckerControls({
   for (let i = 0; i < keyMeta.length; i += 2) {
     keyTracks.push({ id: keyMeta[i], name: keyMeta[i + 1] });
   }
-  const gr = useDuckReduction(trackId);
   const set = (patch: Partial<DuckerParams>) =>
     onUpdate(trackId, { ducker: { ...ducker, ...patch } });
 
@@ -1453,7 +1451,12 @@ function DuckerControls({
         formatValue={(v) => `${Math.round(v * 1000)}ms`}
         onChange={(v) => set({ release: v })}
       />
-      <FxMeter level={gr} label="GR" color="var(--color-accent)" height={72} />
+      <FxMeter
+        source={duckSource(trackId)}
+        label="GR"
+        color="var(--color-accent)"
+        height={72}
+      />
     </div>
   );
 }
@@ -1465,22 +1468,21 @@ export function FxVisualizer({
   effects,
   trackId,
   onUpdate,
-  gr,
-  inLevel,
-  outLevel,
+  meterTarget = null,
   large,
-  analyserNode,
 }: {
   slot: EffectSlotType;
   effects: TrackEffectState;
   trackId: string;
   onUpdate: (trackId: string, effects: Partial<TrackEffectState>) => void;
-  gr: number;
-  inLevel: number;
-  outLevel: number;
+  /** Whose effect chain the meters read (a track id or 'master'), or null. */
+  meterTarget?: string | null;
   large?: boolean;
-  analyserNode?: AnalyserNode | null;
 }) {
+  // Stable meter bus sources: the meters paint themselves from them.
+  const grSource = meterTarget ? meterSource(`gr:${meterTarget}`) : null;
+  const inSource = meterTarget ? meterSource(`fx-pre:${meterTarget}`) : null;
+  const outSource = meterTarget ? meterSource(`fx-post:${meterTarget}`) : null;
   switch (slot) {
     case 'compressor': {
       const c = effects.compressor;
@@ -1495,19 +1497,19 @@ export function FxVisualizer({
           />
           <div className="flex gap-1">
             <FxMeter
-              level={gr}
+              source={grSource}
               label="GR"
               color="var(--color-accent)"
               height={large ? 200 : 100}
             />
             <FxMeter
-              level={inLevel}
+              source={inSource}
               label="IN"
               color="#e8785a"
               height={large ? 200 : 100}
             />
             <FxMeter
-              level={outLevel}
+              source={outSource}
               label="OUT"
               color="#e8785a"
               height={large ? 200 : 100}
@@ -1534,19 +1536,19 @@ export function FxVisualizer({
               onChange={(bands) =>
                 onUpdate(trackId, { eq: { ...effects.eq, bands } })
               }
-              analyserNode={analyserNode}
+              spectrumKey={meterTarget ? `fx-pre:${meterTarget}` : null}
             />
           </div>
           <div className="flex shrink-0 flex-col items-center gap-2">
             <div className="flex gap-1">
               <FxMeter
-                level={inLevel}
+                source={inSource}
                 label="IN"
                 color="#e8785a"
                 height={large ? 240 : 100}
               />
               <FxMeter
-                level={outLevel}
+                source={outSource}
                 label="OUT"
                 color="#e8785a"
                 height={large ? 240 : 100}

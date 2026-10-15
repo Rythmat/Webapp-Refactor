@@ -1,12 +1,19 @@
 /**
  * ShowcaseInput — the student's "offer to share" affordance for a `showcase`
- * interaction. Reads the current Studio project from the DAW store (lazy import
- * so the store stays out of the live-session chunk) and rides the normal
- * response pipeline as a `{kind:'showcase'}` offer. Rule 2: offers are
- * teacher-only (buildProjectorView hard-refuses 'showcase').
+ * interaction. Rides the normal response pipeline as a `{kind:'showcase'}`
+ * offer. Rule 2: offers are teacher-only (buildProjectorView hard-refuses
+ * 'showcase').
+ *
+ * Which project: slides open the Studio in a new tab, so the Studio's own
+ * note of its current project comes first (`lib/studioCurrentProject.ts`).
+ * Without one — the Studio was never opened, or ran in this very tab before
+ * the note existed — it falls back to this tab's DAW store (lazy import so the
+ * store stays out of the live-session chunk).
  */
 import { CheckCircle2, Share2 } from 'lucide-react';
 import { useState } from 'react';
+import { useMe } from '@/hooks/data';
+import { readStudioCurrentProject } from '@/lib/studioCurrentProject';
 import { pickLocalized, secondaryLine } from '../../presentation/localized';
 import type { LocalizedText, StudentLanguage } from '../../types';
 import type { InteractionInputProps } from './types';
@@ -49,11 +56,24 @@ export const ShowcaseInput = ({
   disabled,
 }: InteractionInputProps) => {
   const [busy, setBusy] = useState(false);
+  const { data: me } = useMe();
   const offered = submittedPayload?.kind === 'showcase';
 
   const handleOffer = async () => {
     setBusy(true);
     try {
+      const note = readStudioCurrentProject(me?.id ?? null);
+      if (note && (note.projectId || note.roomId)) {
+        onSubmit({
+          kind: 'showcase',
+          artifact: {
+            projectId: note.projectId ?? note.roomId ?? 'local',
+            ...(note.roomId ? { roomId: note.roomId } : {}),
+            name: note.name || 'My Project',
+          },
+        });
+        return;
+      }
       const { useStore } = await import('@/daw/store');
       const s = useStore.getState();
       onSubmit({

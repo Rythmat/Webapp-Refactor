@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { stopFromSearchParams, stopKey, type AtlasStop } from './atlasStop';
 
 /**
@@ -63,11 +63,19 @@ function save(state: TrailState): void {
   }
 }
 
-/** Fold an arrival at (idx, search) into the trail. Pure, for testing. */
+/**
+ * Fold an arrival at (idx, search) into the trail. Pure, for testing.
+ *
+ * A `REPLACE` rewrites the entry in place and keeps the ones after it, as the
+ * browser keeps its forward stack: the timeline's window and the view change
+ * that way (navigation/atlasFrame.ts), and must not cut off where Forward
+ * would go.
+ */
 export function arrive(
   state: TrailState,
   idx: number,
   search: string,
+  type: 'PUSH' | 'POP' | 'REPLACE' = 'PUSH',
 ): TrailState {
   const existing = state.entries.find((e) => e.idx === idx);
   if (existing && existing.search === search) {
@@ -75,15 +83,21 @@ export function arrive(
   }
 
   const stop = stopFromSearchParams(new URLSearchParams(search));
+  const entry = { idx, search, key: stopKey(stop), stop };
+  if (existing && type === 'REPLACE') {
+    return {
+      entries: state.entries.map((e) => (e.idx === idx ? entry : e)),
+      cursor: idx,
+    };
+  }
   const kept = state.entries.filter((e) => e.idx < idx);
-  const entries = [...kept, { idx, search, key: stopKey(stop), stop }].slice(
-    -MAX_ENTRIES,
-  );
+  const entries = [...kept, entry].slice(-MAX_ENTRIES);
   return { entries, cursor: idx };
 }
 
 export function useAtlasTrail() {
   const location = useLocation();
+  const navigationType = useNavigationType();
   const navigate = useNavigate();
   const [state, setState] = useState<TrailState>(load);
 
@@ -91,7 +105,7 @@ export function useAtlasTrail() {
     const idx = historyIdx();
     if (idx === null) return;
     setState((prev) => {
-      const next = arrive(prev, idx, location.search);
+      const next = arrive(prev, idx, location.search, navigationType);
       if (next !== prev) save(next);
       return next;
     });

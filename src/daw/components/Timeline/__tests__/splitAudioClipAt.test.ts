@@ -2,7 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useStore } from '@/daw/store';
 import type { AudioClip, MidiClip } from '@/daw/store/tracksSlice';
 import type { UserPresence } from '@/daw/collab/types';
-import { pushUndo, resetUndoHistory, undo } from '@/daw/store/undoMiddleware';
+import {
+  initUndoTracking,
+  resetUndoHistory,
+  undo,
+  withTransaction,
+} from '@/daw/store/undoMiddleware';
 import {
   getAudioBuffer,
   getOriginalAudio,
@@ -95,10 +100,13 @@ describe('splitAudioClipAt', () => {
   it('undo brings back the whole clip, still playing', () => {
     const buffer = fakeBuffer();
     setAudioBuffer('take', buffer);
-    pushUndo(); // what auto-capture records before the edit
+    const release = initUndoTracking();
 
-    splitAudioClipAt(trackId, 'take', 5 * SEC);
+    withTransaction('Split clip', () =>
+      splitAudioClipAt(trackId, 'take', 5 * SEC),
+    );
     undo();
+    release();
 
     expect(track().audioClips).toEqual([recorded]);
     expect(getAudioBuffer('take')).toBe(buffer);

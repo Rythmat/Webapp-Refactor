@@ -1,6 +1,7 @@
 // ── AudioBufferStore ────────────────────────────────────────────────────────
-// Module-level per-clip audio store. Holds two things per clip id, both
-// optional and set independently:
+// The editor's face of the audio asset store (assets/assetStore.ts): the
+// audio a clip (or a Chops sample, by samplerBufferKey) plays, by its id.
+// Holds two things per clip, both optional and set independently:
 //
 //   - `buffer`:   decoded PCM (AudioBuffer) used for playback + waveform render.
 //   - `original`: the bytes the audio arrived as (e.g. audio/webm Opus from
@@ -8,58 +9,53 @@
 //                 at cloud-save time to upload without re-encoding to WAV —
 //                 Opus is ~10x smaller than WAV at equivalent quality.
 //
-// Neither survives a page refresh; for cloud-saved clips the bytes live in GCS
-// and are re-fetched on Open via loadCloudProjectAudio.
+// Since milestone 1.10 both belong to the recording, not the clip: clips cut
+// from one recording (split halves, record-over remainders) and its pastes
+// and duplicates play the same asset, so it is held, uploaded and drawn
+// once. A cut, a delete or an overwrite never frees it (undo can bring the
+// clip back); assets/assetGc.ts frees what nothing plays any more.
 //
-// Clips cut from one recording (split halves, record-over remainders) play
-// windows of the same audio, so they share its entry's buffer and bytes under
-// their own ids (shareClipAudio). A cut never evicts the clip it was cut
-// from: undo can bring that clip back, and it must still play.
+// For cloud-saved clips the bytes live in GCS and are fetched again on open
+// (lib/studio-assets/load-audio.ts); a take never uploaded lives in the
+// device's drafts (persistence/drafts/pendingMedia.ts).
 
-interface ClipAudio {
-  buffer?: AudioBuffer;
-  original?: { bytes: ArrayBuffer; contentType: string };
+import {
+  bufferOf,
+  clearAssets,
+  flushAssetChanges,
+  originalOf,
+  setBuffer,
+  setOriginal,
+  share,
+  subscribeAssetChanges,
+  unlink,
+} from './assets/assetStore';
+
+/** Sends a batched change now, for tests that read the store's subscribers. */
+export function flushAudioBufferChanges(): void {
+  flushAssetChanges();
 }
 
-const audioStore = new Map<string, ClipAudio>();
-
-// Subscribers notified whenever the store mutates. Used by the timeline so a
-// freshly-loaded audio buffer triggers a waveform redraw without polling.
-const subscribers = new Set<() => void>();
-
-function emitChange(): void {
-  for (const cb of subscribers) cb();
-}
-
+/**
+ * Called whenever audio, or a clip's load status, changes: at most once a
+ * frame (a short timer in a hidden tab).
+ */
 export function subscribeAudioBufferChanges(cb: () => void): () => void {
-  subscribers.add(cb);
-  return () => {
-    subscribers.delete(cb);
-  };
-}
-
-function getOrCreate(clipId: string): ClipAudio {
-  let entry = audioStore.get(clipId);
-  if (!entry) {
-    entry = {};
-    audioStore.set(clipId, entry);
-  }
-  return entry;
+  return subscribeAssetChanges(cb);
 }
 
 export function getAudioBuffer(clipId: string): AudioBuffer | undefined {
-  return audioStore.get(clipId)?.buffer;
+  return bufferOf(clipId);
 }
 
 export function setAudioBuffer(clipId: string, buffer: AudioBuffer): void {
-  getOrCreate(clipId).buffer = buffer;
-  emitChange();
+  setBuffer(clipId, buffer);
 }
 
 export function getOriginalAudio(
   clipId: string,
 ): { bytes: ArrayBuffer; contentType: string } | undefined {
-  return audioStore.get(clipId)?.original;
+  return originalOf(clipId);
 }
 
 export function setOriginalAudio(
@@ -67,33 +63,29 @@ export function setOriginalAudio(
   bytes: ArrayBuffer,
   contentType: string,
 ): void {
-  getOrCreate(clipId).original = { bytes, contentType };
-  emitChange();
+  setOriginal(clipId, bytes, contentType);
 }
 
 /**
- * Let `toClipId` play the audio stored for `fromClipId`: its entry points at
- * the same decoded buffer and original bytes (shared, not copied), for a clip
- * that plays a window of the same recording through its offsetSeconds. Later
- * writes to either id stay with that id. Returns false when `fromClipId` has
- * nothing stored yet (a cloud clip still downloading loads by its assetId).
+ * Let `toClipId` play the audio `fromClipId` plays: the same recording, for
+ * a clip that plays a window of it through its offsetSeconds. Returns false
+ * when `fromClipId` plays nothing yet (a cloud clip still downloading loads
+ * by its assetId).
  */
 export function shareClipAudio(fromClipId: string, toClipId: string): boolean {
-  const source = audioStore.get(fromClipId);
-  if (!source?.buffer && !source?.original) return false;
-  audioStore.set(toClipId, { ...source });
-  emitChange();
-  return true;
+  return share(fromClipId, toClipId);
 }
 
+/**
+ * `clipId` stops playing its audio. The recording itself is freed only once
+ * nothing plays it, not even through undo (assets/assetGc.ts).
+ */
 export function removeAudioBuffer(clipId: string): void {
-  audioStore.delete(clipId);
-  emitChange();
+  unlink(clipId);
 }
 
 export function clearAudioBuffers(): void {
-  audioStore.clear();
-  emitChange();
+  clearAssets();
 }
 
 /** Slice an AudioBuffer from startSample to endSample (exclusive). */

@@ -32,7 +32,7 @@ import { CurriculumCoveragePanel } from './CurriculumCoveragePanel';
 import { PhaseNavigator } from './PhaseNavigator';
 import { RosterPanel } from './RosterPanel';
 import { SessionPresentView } from './SessionPresentView';
-import { buildSlideProgress } from './buildSlideProgress';
+import { buildSlideProgress, submittedMindMap } from './buildSlideProgress';
 import { CurrentSlidePanel } from './slides/CurrentSlidePanel';
 import { MediaRemote } from './slides/MediaRemote';
 import { PairingPanel } from './slides/PairingPanel';
@@ -219,20 +219,36 @@ export const TeacherSessionDashboard = () => {
         : null,
     [currentSlide, activeEnrollments, responsesByEnrollment, mspInboxEntries],
   );
-  const appRouteProgress = useMemo(
-    () =>
-      slideProgress
-        ? {
-            rows: activeEnrollments.map((e) => ({
-              enrollmentId: e.id,
-              displayName: e.displayName,
-              state: slideProgress.perStudent[e.id] ?? 'not_started',
-            })),
-            counts: slideProgress.counts,
-          }
-        : undefined,
-    [slideProgress, activeEnrollments],
-  );
+  const appRouteProgress = useMemo(() => {
+    if (!slideProgress) return undefined;
+    // A Promoter slide: each student's submitted mind map, to open.
+    const mapInteraction = currentSlideInteractions.find((i) => i.atlas?.board);
+    return {
+      rows: activeEnrollments.map((e) => {
+        const mindMap = mapInteraction
+          ? submittedMindMap(
+              responsesByEnrollment[e.id],
+              mspInboxEntries,
+              mapInteraction.id,
+              e.id,
+            )
+          : undefined;
+        return {
+          enrollmentId: e.id,
+          displayName: e.displayName,
+          state: slideProgress.perStudent[e.id] ?? 'not_started',
+          ...(mindMap ? { mindMap } : {}),
+        };
+      }),
+      counts: slideProgress.counts,
+    };
+  }, [
+    slideProgress,
+    activeEnrollments,
+    currentSlideInteractions,
+    responsesByEnrollment,
+    mspInboxEntries,
+  ]);
 
   // Timer auto-advance: the TEACHER client (this one) is the only client that
   // fires the advancing nav at zero — the server never schedules. Fires the

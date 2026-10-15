@@ -485,6 +485,14 @@ function writeTracks(
   out += ']';
 }
 
+/**
+ * `value` as canonical JSON (keys sorted), for comparing what a server sent
+ * back with what was sent; undefined when JSON would leave it out.
+ */
+export function canonicalJson(value: unknown): string | undefined {
+  return canonical(value);
+}
+
 /** `value` as canonical JSON; undefined when JSON would leave it out. */
 function canonical(value: unknown): string | undefined {
   if (isOmitted(value)) return undefined;

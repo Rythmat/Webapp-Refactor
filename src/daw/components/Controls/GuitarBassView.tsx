@@ -10,9 +10,15 @@ import {
 import { ChevronDown, X } from 'lucide-react';
 import { RATE_LABELS } from '@/daw/audio/pedals/PhaserPedal';
 import { useStore } from '@/daw/store';
+import { paintInputBar, useMeterPaint } from '@/daw/hooks/useMeterLevel';
 import type { AudioInputChannel } from '@/daw/store/tracksSlice';
 import { TunerDisplay } from './TunerDisplay';
 import { RotaryKnob } from './RotaryKnob';
+import {
+  ControlGestureContext,
+  useSaveOnRelease,
+} from '@/daw/hooks/useContinuousControl';
+import { withoutHistory } from '@/daw/store/history';
 import {
   BUNDLED_MODELS,
   fetchBundledModel,
@@ -394,6 +400,16 @@ const DEFAULT_CHAIN: PedalBlock[] = [
 // The engine registers a track's adapter before its init resolves and hands
 // it to the track engine after, right before it notifies engine-ready, so
 // reading it from the track engine means built and ready.
+/** The chain as the track stores it: the view's blocks without their ids. */
+function storedGuitarChain(chain: PedalBlock[]) {
+  return chain.map((b) => ({
+    type: b.type,
+    enabled: b.enabled,
+    params: b.params,
+    namModelId: b.namModelId,
+  }));
+}
+
 function getAdapter(trackId: string): GuitarFxAdapter | null {
   const instrument = getTrackAudioState(trackId)?.trackEngine.getInstrument();
   return instrument instanceof GuitarFxAdapter ? instrument : null;
@@ -432,7 +448,6 @@ export function GuitarBassView({
   // how a student retries an input that failed to open or went away, and it
   // can leave the store unchanged, so the input effect also runs on a pick.
   const [devicePicks, setDevicePicks] = useState(0);
-  const meterRafRef = useRef(0);
   const meterBarRef = useRef<HTMLDivElement>(null);
   const [tunerActive, setTunerActive] = useState(false);
 
@@ -545,18 +560,35 @@ export function GuitarBassView({
       });
   }, [adapter, chain, instrumentFilter, filteredModels]);
 
-  // Sync full pedal chain to audio engine
+  // Sync the pedal chain to the audio engine. A change to parameters only (a
+  // knob's every move) updates the pedals in place; a pedal added, removed,
+  // moved or given another amp model rebuilds the chain (live-input-05).
+  const syncedStructure = useRef<{
+    adapter: GuitarFxAdapter;
+    structure: string;
+  } | null>(null);
   useEffect(() => {
     if (!adapter) return;
 
-    adapter.syncChain(
-      chain.map((b) => ({
-        type: b.type,
-        enabled: b.enabled,
-        params: b.type === 'phaser' ? { ...b.params, bpm } : b.params,
-        namModelId: b.namModelId,
-      })),
-    );
+    const blocks = chain.map((b) => ({
+      type: b.type,
+      enabled: b.enabled,
+      params: b.type === 'phaser' ? { ...b.params, bpm } : b.params,
+      namModelId: b.namModelId,
+    }));
+    const structure = chain
+      .map((b) => `${b.type}:${b.namModelId ?? ''}`)
+      .join('|');
+    const synced = syncedStructure.current;
+    if (
+      synced?.adapter === adapter &&
+      synced.structure === structure &&
+      adapter.updateChainParams(blocks)
+    ) {
+      return;
+    }
+    adapter.syncChain(blocks);
+    syncedStructure.current = { adapter, structure };
   }, [adapter, chain, bpm]);
 
   // Restore persisted NAM model when engine becomes ready. It runs after the
@@ -594,39 +626,37 @@ export function GuitarBassView({
       });
   }, [adapter, chain]);
 
-  // Persist chain to store so it survives GuitarBassView unmount/remount
-  useEffect(() => {
-    useStore.getState().setGuitarChain(
-      trackId,
-      chain.map((b) => ({
-        type: b.type,
-        enabled: b.enabled,
-        params: b.params,
-        namModelId: b.namModelId,
-      })),
-    );
-  }, [chain, trackId]);
+  // Persist chain to store so it survives GuitarBassView unmount/remount: at
+  // once after a click, and once on release after a knob drag, which the
+  // pedals follow as it moves.
+  const chainGesture = useSaveOnRelease({
+    value: chain,
+    isSaved: (c) =>
+      JSON.stringify(storedGuitarChain(c)) ===
+      JSON.stringify(
+        useStore.getState().tracks.find((t) => t.id === trackId)?.guitarChain,
+      ),
+    save: (c) => {
+      const write = () =>
+        useStore.getState().setGuitarChain(trackId, storedGuitarChain(c));
+      // A track that never had a chain gets the view's first one: filling
+      // it in is bookkeeping, not an edit to undo.
+      const had = useStore
+        .getState()
+        .tracks.find((t) => t.id === trackId)?.guitarChain;
+      if (had === undefined) withoutHistory(write);
+      else write();
+    },
+    label: 'Change pedal',
+  });
 
-  // Input level metering loop — direct DOM updates, throttled to ~15fps
-  useEffect(() => {
-    let lastUpdate = 0;
-    const tick = (now: number) => {
-      if (now - lastUpdate >= 66) {
-        const adapter = getAdapter(trackId);
-        if (adapter && meterBarRef.current) {
-          const rms = adapter.getInputLevel();
-          const pct = Math.min(100, Math.round(rms * 400));
-          meterBarRef.current.style.width = `${pct}%`;
-          meterBarRef.current.style.backgroundColor =
-            pct > 90 ? '#ef4444' : 'var(--color-accent)';
-        }
-        lastUpdate = now;
-      }
-      meterRafRef.current = requestAnimationFrame(tick);
-    };
-    meterRafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(meterRafRef.current);
-  }, [trackId]);
+  // Input level: painted from the meter bus, which reads this input only
+  // while it is monitored or recording, or while it still shows a level
+  // (an idle probe catches a signal). The bar is the true peak in dBFS and
+  // turns red when a sample reaches full scale.
+  useMeterPaint(`input:${trackId}`, (levels) =>
+    paintInputBar(meterBarRef.current, levels),
+  );
 
   // ── Chain manipulation callbacks ──────────────────────────────────────
 
@@ -773,92 +803,43 @@ export function GuitarBassView({
       : (selectedDef?.color ?? '#60a5fa');
 
   return (
-    <div className="flex h-full">
-      {/* ── Input Section ──────────────────────────────────── */}
-      <div
-        className="w-[240px] shrink-0 p-4 flex flex-col gap-3 border-r"
-        style={{ borderColor: 'var(--color-border)' }}
-      >
-        <span
-          className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+    <ControlGestureContext.Provider value={chainGesture}>
+      <div className="flex h-full">
+        {/* ── Input Section ──────────────────────────────────── */}
+        <div
+          className="w-[240px] shrink-0 p-4 flex flex-col gap-3 border-r"
+          style={{ borderColor: 'var(--color-border)' }}
         >
-          Input
-        </span>
-
-        {/* Device dropdown */}
-        <div style={{ position: 'relative' }}>
-          <div
-            onClick={() => setShowDeviceMenu((v) => !v)}
-            className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
-            style={{
-              backgroundColor: 'var(--color-surface-2)',
-              border: '1px solid var(--color-border)',
-            }}
+          <span
+            className="text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--color-text-dim)' }}
           >
-            <span
-              className="text-xs truncate"
-              style={{ color: 'var(--color-text)' }}
-            >
-              {selectedDeviceLabel}
-            </span>
-            <ChevronDown
-              size={14}
-              className="shrink-0 ml-2"
-              style={{ color: 'var(--color-text-dim)' }}
-            />
-          </div>
-          {showDeviceMenu && (
-            <div
-              className="absolute left-0 right-0 rounded-lg overflow-hidden z-50"
-              style={{
-                top: '100%',
-                marginTop: 2,
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
-                maxHeight: 200,
-                overflowY: 'auto',
-              }}
-            >
-              {devices.map((d) => (
-                <div
-                  key={d.id}
-                  onClick={() => handleSelectDevice(d.id)}
-                  className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10 truncate"
-                  style={{
-                    color:
-                      d.id === globalInputDeviceId
-                        ? 'var(--color-accent)'
-                        : 'var(--color-text)',
-                  }}
-                >
-                  {d.label}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+            Input
+          </span>
 
-        {/* Channel dropdown */}
-        {globalInputDeviceId && (
+          {/* Device dropdown */}
           <div style={{ position: 'relative' }}>
             <div
-              onClick={() => setShowChannelMenu((v) => !v)}
+              onClick={() => setShowDeviceMenu((v) => !v)}
               className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
               style={{
                 backgroundColor: 'var(--color-surface-2)',
                 border: '1px solid var(--color-border)',
               }}
             >
-              <span className="text-xs" style={{ color: 'var(--color-text)' }}>
-                {channelLabel}
+              <span
+                className="text-xs truncate"
+                style={{ color: 'var(--color-text)' }}
+              >
+                {selectedDeviceLabel}
               </span>
               <ChevronDown
                 size={14}
+                className="shrink-0 ml-2"
                 style={{ color: 'var(--color-text-dim)' }}
               />
             </div>
-            {showChannelMenu && (
+            {showDeviceMenu && (
               <div
                 className="absolute left-0 right-0 rounded-lg overflow-hidden z-50"
                 style={{
@@ -866,162 +847,137 @@ export function GuitarBassView({
                   marginTop: 2,
                   backgroundColor: 'var(--color-surface-2)',
                   border: '1px solid var(--color-border)',
+                  maxHeight: 200,
+                  overflowY: 'auto',
                 }}
               >
-                {channelOptions.map((opt) => (
+                {devices.map((d) => (
                   <div
-                    key={opt.label}
-                    onClick={() => handleSelectChannel(opt.config)}
-                    className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10"
+                    key={d.id}
+                    onClick={() => handleSelectDevice(d.id)}
+                    className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10 truncate"
                     style={{
-                      color: configsMatch(opt.config, inputChannel)
-                        ? 'var(--color-accent)'
-                        : 'var(--color-text)',
+                      color:
+                        d.id === globalInputDeviceId
+                          ? 'var(--color-accent)'
+                          : 'var(--color-text)',
                     }}
                   >
-                    {opt.label}
+                    {d.label}
                   </div>
                 ))}
               </div>
             )}
           </div>
-        )}
 
-        {/* Input level */}
-        <div className="flex items-center gap-3">
-          <span
-            className="text-[10px] shrink-0"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            Input Level
-          </span>
-          <div
-            className="flex-1 h-1.5 rounded-full"
-            style={{ backgroundColor: 'var(--color-surface-3)' }}
-          >
-            <div
-              ref={meterBarRef}
-              className="h-full rounded-full"
-              style={{ width: '0%', backgroundColor: 'var(--color-accent)' }}
-            />
-          </div>
-        </div>
-
-        {/* Tuner */}
-        <TunerDisplay
-          deviceId={globalInputDeviceId}
-          instrumentType={instrument === 'bass-fx' ? 'bass' : 'guitar'}
-          onActiveChange={setTunerActive}
-        />
-      </div>
-
-      {/* ── Amps Column ────────────────────────────────────── */}
-      <div
-        className="w-[150px] shrink-0 flex flex-col border-r"
-        style={{ borderColor: 'var(--color-border)' }}
-      >
-        <div
-          className="px-3 py-2 shrink-0 border-b"
-          style={{ borderColor: 'var(--color-border)' }}
-        >
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            Amps
-          </span>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          {(() => {
-            const ampBlock = chain.find((b) => b.type === 'nam-amp');
-            const selectedModelId = ampBlock?.namModelId ?? null;
-            const groups = new Map<string, typeof filteredModels>();
-            for (const entry of filteredModels) {
-              const list = groups.get(entry.toneType) ?? [];
-              list.push(entry);
-              groups.set(entry.toneType, list);
-            }
-            return Array.from(groups.entries()).map(([tone, entries], gi) => (
-              <div key={tone}>
-                {gi > 0 && (
-                  <div
-                    className="mx-3"
-                    style={{ borderTop: '1px solid var(--color-border)' }}
-                  />
-                )}
-                <div
-                  className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-dim)' }}
+          {/* Channel dropdown */}
+          {globalInputDeviceId && (
+            <div style={{ position: 'relative' }}>
+              <div
+                onClick={() => setShowChannelMenu((v) => !v)}
+                className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
+                style={{
+                  backgroundColor: 'var(--color-surface-2)',
+                  border: '1px solid var(--color-border)',
+                }}
+              >
+                <span
+                  className="text-xs"
+                  style={{ color: 'var(--color-text)' }}
                 >
-                  {AMP_CATEGORY_LABELS[tone] ?? tone}
-                </div>
-                {entries.map((entry) => (
-                  <button
-                    key={entry.id}
-                    onClick={() => {
-                      const amp = chain.find((b) => b.type === 'nam-amp');
-                      if (amp) {
-                        handleSelectNamModel(entry, amp.id);
-                        setSelectedBlockId(amp.id);
-                      }
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-1.5 cursor-pointer hover:bg-white/10"
-                    style={{ border: 'none', background: 'none' }}
-                  >
-                    <PedalIcon
-                      type="nam-amp"
-                      size={16}
-                      color={GEM_COLORS[entry.id] ?? '#60a5fa'}
-                      namModelId={entry.id}
-                    />
-                    <span
-                      className="text-[11px]"
+                  {channelLabel}
+                </span>
+                <ChevronDown
+                  size={14}
+                  style={{ color: 'var(--color-text-dim)' }}
+                />
+              </div>
+              {showChannelMenu && (
+                <div
+                  className="absolute left-0 right-0 rounded-lg overflow-hidden z-50"
+                  style={{
+                    top: '100%',
+                    marginTop: 2,
+                    backgroundColor: 'var(--color-surface-2)',
+                    border: '1px solid var(--color-border)',
+                  }}
+                >
+                  {channelOptions.map((opt) => (
+                    <div
+                      key={opt.label}
+                      onClick={() => handleSelectChannel(opt.config)}
+                      className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10"
                       style={{
-                        color:
-                          entry.id === selectedModelId
-                            ? 'var(--color-accent)'
-                            : 'var(--color-text)',
+                        color: configsMatch(opt.config, inputChannel)
+                          ? 'var(--color-accent)'
+                          : 'var(--color-text)',
                       }}
                     >
-                      {entry.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            ));
-          })()}
-        </div>
-      </div>
+                      {opt.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-      {/* ── Pedals Column ──────────────────────────────────── */}
-      <div
-        className="w-[130px] shrink-0 flex flex-col border-r"
-        style={{ borderColor: 'var(--color-border)' }}
-      >
+          {/* Input level */}
+          <div className="flex items-center gap-3">
+            <span
+              className="text-[10px] shrink-0"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              Input Level
+            </span>
+            <div
+              className="flex-1 h-1.5 rounded-full"
+              style={{ backgroundColor: 'var(--color-surface-3)' }}
+            >
+              <div
+                ref={meterBarRef}
+                className="h-full rounded-full"
+                style={{ width: '0%', backgroundColor: 'var(--color-accent)' }}
+              />
+            </div>
+          </div>
+
+          {/* Tuner */}
+          <TunerDisplay
+            deviceId={globalInputDeviceId}
+            instrumentType={instrument === 'bass-fx' ? 'bass' : 'guitar'}
+            onActiveChange={setTunerActive}
+          />
+        </div>
+
+        {/* ── Amps Column ────────────────────────────────────── */}
         <div
-          className="px-3 py-2 shrink-0 border-b"
+          className="w-[150px] shrink-0 flex flex-col border-r"
           style={{ borderColor: 'var(--color-border)' }}
         >
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+          <div
+            className="px-3 py-2 shrink-0 border-b"
+            style={{ borderColor: 'var(--color-border)' }}
           >
-            Pedals
-          </span>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          {(() => {
-            const categories = new Map<string, PedalDef[]>();
-            for (const def of PEDAL_CATALOG) {
-              if (def.type === 'nam-amp') continue;
-              const list = categories.get(def.category) ?? [];
-              list.push(def);
-              categories.set(def.category, list);
-            }
-            return Array.from(categories.entries()).map(
-              ([category, defs], ci) => (
-                <div key={category}>
-                  {ci > 0 && (
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              Amps
+            </span>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {(() => {
+              const ampBlock = chain.find((b) => b.type === 'nam-amp');
+              const selectedModelId = ampBlock?.namModelId ?? null;
+              const groups = new Map<string, typeof filteredModels>();
+              for (const entry of filteredModels) {
+                const list = groups.get(entry.toneType) ?? [];
+                list.push(entry);
+                groups.set(entry.toneType, list);
+              }
+              return Array.from(groups.entries()).map(([tone, entries], gi) => (
+                <div key={tone}>
+                  {gi > 0 && (
                     <div
                       className="mx-3"
                       style={{ borderTop: '1px solid var(--color-border)' }}
@@ -1031,555 +987,640 @@ export function GuitarBassView({
                     className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
                     style={{ color: 'var(--color-text-dim)' }}
                   >
-                    {category}
+                    {AMP_CATEGORY_LABELS[tone] ?? tone}
                   </div>
-                  {defs.map((def) => (
+                  {entries.map((entry) => (
                     <button
-                      key={def.type}
-                      onClick={() => addBlock(def.type)}
+                      key={entry.id}
+                      onClick={() => {
+                        const amp = chain.find((b) => b.type === 'nam-amp');
+                        if (amp) {
+                          handleSelectNamModel(entry, amp.id);
+                          setSelectedBlockId(amp.id);
+                        }
+                      }}
                       className="flex items-center gap-2 w-full text-left px-3 py-1.5 cursor-pointer hover:bg-white/10"
                       style={{ border: 'none', background: 'none' }}
                     >
-                      <div
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: def.color }}
+                      <PedalIcon
+                        type="nam-amp"
+                        size={16}
+                        color={GEM_COLORS[entry.id] ?? '#60a5fa'}
+                        namModelId={entry.id}
                       />
                       <span
                         className="text-[11px]"
-                        style={{ color: 'var(--color-text)' }}
+                        style={{
+                          color:
+                            entry.id === selectedModelId
+                              ? 'var(--color-accent)'
+                              : 'var(--color-text)',
+                        }}
                       >
-                        {def.name}
+                        {entry.name}
                       </span>
                     </button>
                   ))}
                 </div>
-              ),
-            );
-          })()}
+              ));
+            })()}
+          </div>
         </div>
-      </div>
 
-      {/* ── Signal Chain ─────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Chain row */}
-        {(() => {
-          const pedalBlocks = chain.filter((b) => b.type !== 'nam-amp');
-          const ampBlock = chain.find((b) => b.type === 'nam-amp') ?? null;
-          const ampDef = ampBlock ? getPedalDef(ampBlock.type) : null;
-          const ampColor =
-            GEM_COLORS[ampBlock?.namModelId ?? ''] ??
-            ampDef?.color ??
-            '#60a5fa';
-          const ampSelected = ampBlock?.id === selectedBlockId;
-          const ampChainIdx = chain.findIndex((b) => b.type === 'nam-amp');
-
-          // Empty slot for inserting a pedal at a specific chain index
-          const EmptySlot = ({ chainIdx }: { chainIdx: number }) => (
-            <div
-              onClick={() =>
-                setInsertSlotIndex((prev) =>
-                  prev === chainIdx ? null : chainIdx,
-                )
+        {/* ── Pedals Column ──────────────────────────────────── */}
+        <div
+          className="w-[130px] shrink-0 flex flex-col border-r"
+          style={{ borderColor: 'var(--color-border)' }}
+        >
+          <div
+            className="px-3 py-2 shrink-0 border-b"
+            style={{ borderColor: 'var(--color-border)' }}
+          >
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              Pedals
+            </span>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {(() => {
+              const categories = new Map<string, PedalDef[]>();
+              for (const def of PEDAL_CATALOG) {
+                if (def.type === 'nam-amp') continue;
+                const list = categories.get(def.category) ?? [];
+                list.push(def);
+                categories.set(def.category, list);
               }
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragOverSlot(chainIdx);
-              }}
-              onDragLeave={() => setDragOverSlot(null)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setDragOverSlot(null);
-                if (!draggedBlockId) return;
-                const fromIdx = chain.findIndex((b) => b.id === draggedBlockId);
-                if (fromIdx < 0) return;
-                const toIdx = chainIdx > fromIdx ? chainIdx - 1 : chainIdx;
-                if (fromIdx !== toIdx) reorderBlock(fromIdx, toIdx);
-                setDraggedBlockId(null);
-              }}
-              className="relative flex items-center justify-center shrink-0 cursor-pointer rounded-xl"
-              style={{
-                width: 40,
-                height: 68,
-                border:
-                  insertSlotIndex === chainIdx || dragOverSlot === chainIdx
-                    ? '2px solid var(--color-accent)'
-                    : '2px dashed rgba(255,255,255,0.15)',
-                backgroundColor:
-                  dragOverSlot === chainIdx
-                    ? 'rgba(126,207,207,0.08)'
-                    : 'transparent',
-                transition:
-                  'border-color 150ms ease, background-color 150ms ease',
-                zIndex: 1,
-              }}
-            >
-              <span
+              return Array.from(categories.entries()).map(
+                ([category, defs], ci) => (
+                  <div key={category}>
+                    {ci > 0 && (
+                      <div
+                        className="mx-3"
+                        style={{ borderTop: '1px solid var(--color-border)' }}
+                      />
+                    )}
+                    <div
+                      className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--color-text-dim)' }}
+                    >
+                      {category}
+                    </div>
+                    {defs.map((def) => (
+                      <button
+                        key={def.type}
+                        onClick={() => addBlock(def.type)}
+                        className="flex items-center gap-2 w-full text-left px-3 py-1.5 cursor-pointer hover:bg-white/10"
+                        style={{ border: 'none', background: 'none' }}
+                      >
+                        <div
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ backgroundColor: def.color }}
+                        />
+                        <span
+                          className="text-[11px]"
+                          style={{ color: 'var(--color-text)' }}
+                        >
+                          {def.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ),
+              );
+            })()}
+          </div>
+        </div>
+
+        {/* ── Signal Chain ─────────────────────────────────────── */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Chain row */}
+          {(() => {
+            const pedalBlocks = chain.filter((b) => b.type !== 'nam-amp');
+            const ampBlock = chain.find((b) => b.type === 'nam-amp') ?? null;
+            const ampDef = ampBlock ? getPedalDef(ampBlock.type) : null;
+            const ampColor =
+              GEM_COLORS[ampBlock?.namModelId ?? ''] ??
+              ampDef?.color ??
+              '#60a5fa';
+            const ampSelected = ampBlock?.id === selectedBlockId;
+            const ampChainIdx = chain.findIndex((b) => b.type === 'nam-amp');
+
+            // Empty slot for inserting a pedal at a specific chain index
+            const EmptySlot = ({ chainIdx }: { chainIdx: number }) => (
+              <div
+                onClick={() =>
+                  setInsertSlotIndex((prev) =>
+                    prev === chainIdx ? null : chainIdx,
+                  )
+                }
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOverSlot(chainIdx);
+                }}
+                onDragLeave={() => setDragOverSlot(null)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOverSlot(null);
+                  if (!draggedBlockId) return;
+                  const fromIdx = chain.findIndex(
+                    (b) => b.id === draggedBlockId,
+                  );
+                  if (fromIdx < 0) return;
+                  const toIdx = chainIdx > fromIdx ? chainIdx - 1 : chainIdx;
+                  if (fromIdx !== toIdx) reorderBlock(fromIdx, toIdx);
+                  setDraggedBlockId(null);
+                }}
+                className="relative flex items-center justify-center shrink-0 cursor-pointer rounded-xl"
                 style={{
-                  color:
-                    insertSlotIndex === chainIdx
-                      ? 'var(--color-accent)'
-                      : 'rgba(255,255,255,0.25)',
-                  fontSize: 18,
+                  width: 40,
+                  height: 68,
+                  border:
+                    insertSlotIndex === chainIdx || dragOverSlot === chainIdx
+                      ? '2px solid var(--color-accent)'
+                      : '2px dashed rgba(255,255,255,0.15)',
+                  backgroundColor:
+                    dragOverSlot === chainIdx
+                      ? 'rgba(126,207,207,0.08)'
+                      : 'transparent',
+                  transition:
+                    'border-color 150ms ease, background-color 150ms ease',
+                  zIndex: 1,
                 }}
               >
-                +
-              </span>
-            </div>
-          );
-
-          return (
-            <div
-              className="relative flex items-center border-b flex-1 min-h-0"
-              style={{ borderColor: 'var(--color-border)' }}
-            >
-              {/* Continuous line from In to Out */}
-              <div
-                className="absolute"
-                style={{
-                  top: '50%',
-                  left: 16,
-                  right: 16,
-                  height: 1,
-                  backgroundColor: 'rgba(255,255,255,0.12)',
-                  zIndex: 0,
-                }}
-              />
-
-              {/* In: Guitar icon in a block matching pedal style */}
-              <div
-                className="flex flex-col items-center shrink-0 pl-4 relative"
-                style={{ zIndex: 1 }}
-              >
-                <div
-                  className="flex flex-col items-center justify-center rounded-xl"
+                <span
                   style={{
-                    width: 68,
-                    height: 68,
-                    backgroundColor: 'rgba(255,255,255,0.03)',
-                    border: '2px solid rgba(255,255,255,0.15)',
+                    color:
+                      insertSlotIndex === chainIdx
+                        ? 'var(--color-accent)'
+                        : 'rgba(255,255,255,0.25)',
+                    fontSize: 18,
                   }}
                 >
-                  <InputIcon size={28} />
-                </div>
-                <span
-                  className="text-[9px] font-semibold uppercase tracking-wider mt-1"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  In
+                  +
                 </span>
               </div>
+            );
 
-              {/* Scrollable pedals section — centered */}
+            return (
               <div
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-5 overflow-x-auto"
-                style={{ zIndex: 1 }}
+                className="relative flex items-center border-b flex-1 min-h-0"
+                style={{ borderColor: 'var(--color-border)' }}
               >
-                {/* First empty slot */}
-                <EmptySlot
-                  chainIdx={
-                    pedalBlocks.length === 0
-                      ? ampChainIdx >= 0
-                        ? ampChainIdx
-                        : chain.length
-                      : chain.indexOf(pedalBlocks[0])
-                  }
+                {/* Continuous line from In to Out */}
+                <div
+                  className="absolute"
+                  style={{
+                    top: '50%',
+                    left: 16,
+                    right: 16,
+                    height: 1,
+                    backgroundColor: 'rgba(255,255,255,0.12)',
+                    zIndex: 0,
+                  }}
                 />
 
-                {pedalBlocks.map((block) => {
-                  const def = getPedalDef(block.type);
-                  const isSelected = block.id === selectedBlockId;
-                  const isDragged = block.id === draggedBlockId;
-                  const chainIdx = chain.indexOf(block);
-                  return (
-                    <Fragment key={block.id}>
-                      <div
-                        draggable
-                        onDragStart={() => setDraggedBlockId(block.id)}
-                        onDragEnd={() => {
-                          setDraggedBlockId(null);
-                          setDragOverSlot(null);
-                        }}
-                        onClick={() => setSelectedBlockId(block.id)}
-                        className="relative flex flex-col items-center justify-center shrink-0 cursor-grab rounded-xl"
-                        style={{
-                          width: 68,
-                          height: 68,
-                          backgroundColor: 'rgba(255,255,255,0.03)',
-                          border: `2px solid ${def.color}`,
-                          opacity: isDragged ? 0.4 : block.enabled ? 1 : 0.35,
-                          boxShadow: isSelected
-                            ? `0 0 10px ${def.color}40`
-                            : 'none',
-                          transition:
-                            'opacity 150ms ease, box-shadow 150ms ease',
-                          zIndex: 1,
-                        }}
-                      >
-                        <PedalIcon
-                          type={block.type}
-                          size={28}
-                          color={def.color}
-                        />
-                        <div
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleBlock(block.id);
-                          }}
-                          className="absolute cursor-pointer rounded-full"
-                          style={{
-                            bottom: 5,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: 7,
-                            height: 7,
-                            backgroundColor: block.enabled
-                              ? '#22c55e'
-                              : 'rgba(255,255,255,0.12)',
-                            boxShadow: block.enabled
-                              ? '0 0 4px #22c55e80'
-                              : 'none',
-                          }}
-                        />
-                      </div>
-                      {/* Empty slot after this pedal */}
-                      <EmptySlot chainIdx={chainIdx + 1} />
-                    </Fragment>
-                  );
-                })}
-              </div>
-
-              {/* Sticky amp + out */}
-              <div
-                className="flex items-center gap-2 shrink-0 pr-4 py-5"
-                style={{ zIndex: 1 }}
-              >
-                {/* Amp tile */}
-                {ampBlock && ampDef && (
+                {/* In: Guitar icon in a block matching pedal style */}
+                <div
+                  className="flex flex-col items-center shrink-0 pl-4 relative"
+                  style={{ zIndex: 1 }}
+                >
                   <div
-                    onClick={() => setSelectedBlockId(ampBlock.id)}
-                    className="relative flex flex-col items-center justify-center shrink-0 cursor-pointer rounded-xl"
+                    className="flex flex-col items-center justify-center rounded-xl"
                     style={{
                       width: 68,
                       height: 68,
                       backgroundColor: 'rgba(255,255,255,0.03)',
-                      border: `2px solid ${ampColor}`,
-                      opacity: ampBlock.enabled ? 1 : 0.35,
-                      boxShadow: ampSelected
-                        ? `0 0 10px ${ampColor}40`
-                        : 'none',
-                      transition: 'opacity 150ms ease, box-shadow 150ms ease',
-                      zIndex: 1,
+                      border: '2px solid rgba(255,255,255,0.15)',
                     }}
                   >
-                    <PedalIcon
-                      type={ampBlock.type}
-                      size={28}
-                      color={ampColor}
-                      namModelId={ampBlock.namModelId ?? undefined}
-                    />
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleBlock(ampBlock.id);
-                      }}
-                      className="absolute cursor-pointer rounded-full"
-                      style={{
-                        bottom: 5,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: 7,
-                        height: 7,
-                        backgroundColor: ampBlock.enabled
-                          ? '#22c55e'
-                          : 'rgba(255,255,255,0.12)',
-                        boxShadow: ampBlock.enabled
-                          ? '0 0 4px #22c55e80'
-                          : 'none',
-                      }}
-                    />
+                    <InputIcon size={28} />
                   </div>
-                )}
-                {/* Out label */}
+                  <span
+                    className="text-[9px] font-semibold uppercase tracking-wider mt-1"
+                    style={{ color: 'var(--color-text-dim)' }}
+                  >
+                    In
+                  </span>
+                </div>
+
+                {/* Scrollable pedals section — centered */}
+                <div
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-5 overflow-x-auto"
+                  style={{ zIndex: 1 }}
+                >
+                  {/* First empty slot */}
+                  <EmptySlot
+                    chainIdx={
+                      pedalBlocks.length === 0
+                        ? ampChainIdx >= 0
+                          ? ampChainIdx
+                          : chain.length
+                        : chain.indexOf(pedalBlocks[0])
+                    }
+                  />
+
+                  {pedalBlocks.map((block) => {
+                    const def = getPedalDef(block.type);
+                    const isSelected = block.id === selectedBlockId;
+                    const isDragged = block.id === draggedBlockId;
+                    const chainIdx = chain.indexOf(block);
+                    return (
+                      <Fragment key={block.id}>
+                        <div
+                          draggable
+                          onDragStart={() => setDraggedBlockId(block.id)}
+                          onDragEnd={() => {
+                            setDraggedBlockId(null);
+                            setDragOverSlot(null);
+                          }}
+                          onClick={() => setSelectedBlockId(block.id)}
+                          className="relative flex flex-col items-center justify-center shrink-0 cursor-grab rounded-xl"
+                          style={{
+                            width: 68,
+                            height: 68,
+                            backgroundColor: 'rgba(255,255,255,0.03)',
+                            border: `2px solid ${def.color}`,
+                            opacity: isDragged ? 0.4 : block.enabled ? 1 : 0.35,
+                            boxShadow: isSelected
+                              ? `0 0 10px ${def.color}40`
+                              : 'none',
+                            transition:
+                              'opacity 150ms ease, box-shadow 150ms ease',
+                            zIndex: 1,
+                          }}
+                        >
+                          <PedalIcon
+                            type={block.type}
+                            size={28}
+                            color={def.color}
+                          />
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleBlock(block.id);
+                            }}
+                            className="absolute cursor-pointer rounded-full"
+                            style={{
+                              bottom: 5,
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              width: 7,
+                              height: 7,
+                              backgroundColor: block.enabled
+                                ? '#22c55e'
+                                : 'rgba(255,255,255,0.12)',
+                              boxShadow: block.enabled
+                                ? '0 0 4px #22c55e80'
+                                : 'none',
+                            }}
+                          />
+                        </div>
+                        {/* Empty slot after this pedal */}
+                        <EmptySlot chainIdx={chainIdx + 1} />
+                      </Fragment>
+                    );
+                  })}
+                </div>
+
+                {/* Sticky amp + out */}
+                <div
+                  className="flex items-center gap-2 shrink-0 pr-4 py-5"
+                  style={{ zIndex: 1 }}
+                >
+                  {/* Amp tile */}
+                  {ampBlock && ampDef && (
+                    <div
+                      onClick={() => setSelectedBlockId(ampBlock.id)}
+                      className="relative flex flex-col items-center justify-center shrink-0 cursor-pointer rounded-xl"
+                      style={{
+                        width: 68,
+                        height: 68,
+                        backgroundColor: 'rgba(255,255,255,0.03)',
+                        border: `2px solid ${ampColor}`,
+                        opacity: ampBlock.enabled ? 1 : 0.35,
+                        boxShadow: ampSelected
+                          ? `0 0 10px ${ampColor}40`
+                          : 'none',
+                        transition: 'opacity 150ms ease, box-shadow 150ms ease',
+                        zIndex: 1,
+                      }}
+                    >
+                      <PedalIcon
+                        type={ampBlock.type}
+                        size={28}
+                        color={ampColor}
+                        namModelId={ampBlock.namModelId ?? undefined}
+                      />
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleBlock(ampBlock.id);
+                        }}
+                        className="absolute cursor-pointer rounded-full"
+                        style={{
+                          bottom: 5,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          width: 7,
+                          height: 7,
+                          backgroundColor: ampBlock.enabled
+                            ? '#22c55e'
+                            : 'rgba(255,255,255,0.12)',
+                          boxShadow: ampBlock.enabled
+                            ? '0 0 4px #22c55e80'
+                            : 'none',
+                        }}
+                      />
+                    </div>
+                  )}
+                  {/* Out label */}
+                  <span
+                    className="text-[9px] font-semibold uppercase tracking-wider shrink-0"
+                    style={{ color: 'var(--color-text-dim)' }}
+                  >
+                    Out
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Controls panel for selected block */}
+          {selectedBlock && selectedDef && (
+            <div
+              className="flex-1 overflow-y-auto"
+              style={{ backgroundColor: 'var(--color-surface)' }}
+            >
+              {/* Header */}
+              <div
+                className="flex items-center gap-2.5 px-4 py-1.5 border-b"
+                style={{ borderColor: 'var(--color-border)' }}
+              >
+                <div
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: selectedColor }}
+                />
                 <span
-                  className="text-[9px] font-semibold uppercase tracking-wider shrink-0"
+                  className="text-[10px] font-semibold uppercase tracking-wider"
                   style={{ color: 'var(--color-text-dim)' }}
                 >
-                  Out
+                  {selectedDef.category}
                 </span>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Controls panel for selected block */}
-        {selectedBlock && selectedDef && (
-          <div
-            className="flex-1 overflow-y-auto"
-            style={{ backgroundColor: 'var(--color-surface)' }}
-          >
-            {/* Header */}
-            <div
-              className="flex items-center gap-2.5 px-4 py-1.5 border-b"
-              style={{ borderColor: 'var(--color-border)' }}
-            >
-              <div
-                className="w-2.5 h-2.5 rounded-full shrink-0"
-                style={{ backgroundColor: selectedColor }}
-              />
-              <span
-                className="text-[10px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                {selectedDef.category}
-              </span>
-              <span
-                className="text-[13px] font-medium flex-1"
-                style={{ color: 'var(--color-text)' }}
-              >
-                {selectedBlock.type === 'nam-amp'
-                  ? (BUNDLED_MODELS.find(
-                      (m) => m.id === selectedBlock.namModelId,
-                    )?.name ?? 'Amp')
-                  : selectedDef.name}
-              </span>
-              {selectedBlock.type !== 'nam-amp' && (
-                <button
-                  onClick={() => removeBlock(selectedBlock.id)}
-                  className="p-1 cursor-pointer rounded-md"
-                  style={{
-                    color: 'var(--color-text-dim)',
-                    background: 'none',
-                    border: 'none',
-                  }}
+                <span
+                  className="text-[13px] font-medium flex-1"
+                  style={{ color: 'var(--color-text)' }}
                 >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-
-            {/* Knobs */}
-            <div className="flex items-center justify-evenly flex-wrap px-4 py-3 flex-1">
-              {selectedBlock.type === 'phaser' ? (
-                <>
-                  {/* Hz / Rate toggle pill */}
-                  <div
-                    className="flex flex-col items-center gap-1.5"
-                    style={{ minWidth: 72 }}
+                  {selectedBlock.type === 'nam-amp'
+                    ? (BUNDLED_MODELS.find(
+                        (m) => m.id === selectedBlock.namModelId,
+                      )?.name ?? 'Amp')
+                    : selectedDef.name}
+                </span>
+                {selectedBlock.type !== 'nam-amp' && (
+                  <button
+                    onClick={() => removeBlock(selectedBlock.id)}
+                    className="p-1 cursor-pointer rounded-md"
+                    style={{
+                      color: 'var(--color-text-dim)',
+                      background: 'none',
+                      border: 'none',
+                    }}
                   >
-                    <span
-                      className="text-[9px] font-semibold uppercase tracking-wider"
-                      style={{
-                        color: 'var(--color-text-dim)',
-                        letterSpacing: '1px',
-                      }}
-                    >
-                      Mode
-                    </span>
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+
+              {/* Knobs */}
+              <div className="flex items-center justify-evenly flex-wrap px-4 py-3 flex-1">
+                {selectedBlock.type === 'phaser' ? (
+                  <>
+                    {/* Hz / Rate toggle pill */}
                     <div
-                      className="flex rounded-md overflow-hidden"
-                      style={{ border: '1px solid var(--color-border)' }}
+                      className="flex flex-col items-center gap-1.5"
+                      style={{ minWidth: 72 }}
                     >
-                      {['Hz', 'Rate'].map((label, idx) => (
-                        <button
-                          key={label}
-                          onClick={() =>
-                            updateBlockParam(selectedBlock.id, 'rateMode', idx)
-                          }
-                          className="px-3 py-1 text-[10px] font-semibold cursor-pointer"
-                          style={{
-                            background:
-                              (selectedBlock.params.rateMode ?? 0) === idx
-                                ? selectedColor
-                                : 'transparent',
-                            color:
-                              (selectedBlock.params.rateMode ?? 0) === idx
-                                ? '#000'
-                                : 'var(--color-text-dim)',
-                            border: 'none',
-                            transition:
-                              'background 150ms ease, color 150ms ease',
-                          }}
-                        >
-                          {label}
-                        </button>
-                      ))}
+                      <span
+                        className="text-[9px] font-semibold uppercase tracking-wider"
+                        style={{
+                          color: 'var(--color-text-dim)',
+                          letterSpacing: '1px',
+                        }}
+                      >
+                        Mode
+                      </span>
+                      <div
+                        className="flex rounded-md overflow-hidden"
+                        style={{ border: '1px solid var(--color-border)' }}
+                      >
+                        {['Hz', 'Rate'].map((label, idx) => (
+                          <button
+                            key={label}
+                            onClick={() =>
+                              updateBlockParam(
+                                selectedBlock.id,
+                                'rateMode',
+                                idx,
+                              )
+                            }
+                            className="px-3 py-1 text-[10px] font-semibold cursor-pointer"
+                            style={{
+                              background:
+                                (selectedBlock.params.rateMode ?? 0) === idx
+                                  ? selectedColor
+                                  : 'transparent',
+                              color:
+                                (selectedBlock.params.rateMode ?? 0) === idx
+                                  ? '#000'
+                                  : 'var(--color-text-dim)',
+                              border: 'none',
+                              transition:
+                                'background 150ms ease, color 150ms ease',
+                            }}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Conditional: Hz knob or Rate selector */}
-                  {(selectedBlock.params.rateMode ?? 0) === 0 ? (
-                    <RotaryKnob
-                      key="rate"
-                      label="Hz"
-                      value={selectedBlock.params.rate ?? 0.3}
-                      min={0}
-                      max={1}
-                      onChange={(v) =>
-                        updateBlockParam(selectedBlock.id, 'rate', v)
-                      }
-                      size={52}
-                      arcColor={selectedColor}
-                      formatValue={(v) => (0.01 + v * 39.99).toFixed(2)}
-                    />
-                  ) : (
-                    <RotaryKnob
-                      key="rateIdx"
-                      label="Rate"
-                      value={(selectedBlock.params.rateIdx ?? 10) / 21}
-                      min={0}
-                      max={1}
-                      onChange={(v) =>
-                        updateBlockParam(
-                          selectedBlock.id,
-                          'rateIdx',
-                          Math.round(v * 21),
-                        )
-                      }
-                      size={52}
-                      arcColor={selectedColor}
-                      formatValue={(v) =>
-                        RATE_LABELS[Math.round(v * 21)] ?? '1/3'
-                      }
-                    />
-                  )}
-
-                  {/* Depth + Mix knobs (always shown) */}
-                  <RotaryKnob
-                    key="depth"
-                    label="Depth"
-                    value={selectedBlock.params.depth ?? 0.5}
-                    min={0}
-                    max={1}
-                    onChange={(v) =>
-                      updateBlockParam(selectedBlock.id, 'depth', v)
-                    }
-                    size={52}
-                    arcColor={selectedColor}
-                    formatValue={(v) => v.toFixed(2)}
-                  />
-                  <RotaryKnob
-                    key="mix"
-                    label="Mix"
-                    value={selectedBlock.params.mix ?? 0.5}
-                    min={0}
-                    max={1}
-                    onChange={(v) =>
-                      updateBlockParam(selectedBlock.id, 'mix', v)
-                    }
-                    size={52}
-                    arcColor={selectedColor}
-                    formatValue={(v) => v.toFixed(2)}
-                  />
-                </>
-              ) : selectedBlock.type === 'wah' ? (
-                <>
-                  {/* LP / BP / HP toggle pill */}
-                  <div
-                    className="flex flex-col items-center gap-1.5"
-                    style={{ minWidth: 72 }}
-                  >
-                    <span
-                      className="text-[9px] font-semibold uppercase tracking-wider"
-                      style={{
-                        color: 'var(--color-text-dim)',
-                        letterSpacing: '1px',
-                      }}
-                    >
-                      Filter
-                    </span>
-                    <div
-                      className="flex rounded-md overflow-hidden"
-                      style={{ border: '1px solid var(--color-border)' }}
-                    >
-                      {['LP', 'BP', 'HP'].map((label, idx) => (
-                        <button
-                          key={label}
-                          onClick={() =>
-                            updateBlockParam(
-                              selectedBlock.id,
-                              'filterType',
-                              idx,
-                            )
-                          }
-                          className="px-2.5 py-1 text-[10px] font-semibold cursor-pointer"
-                          style={{
-                            background:
-                              Math.round(
-                                selectedBlock.params.filterType ?? 1,
-                              ) === idx
-                                ? selectedColor
-                                : 'transparent',
-                            color:
-                              Math.round(
-                                selectedBlock.params.filterType ?? 1,
-                              ) === idx
-                                ? '#000'
-                                : 'var(--color-text-dim)',
-                            border: 'none',
-                            transition:
-                              'background 150ms ease, color 150ms ease',
-                          }}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* All other wah knobs */}
-                  {selectedDef.params
-                    .filter((p) => p.key !== 'filterType')
-                    .map((p) => (
+                    {/* Conditional: Hz knob or Rate selector */}
+                    {(selectedBlock.params.rateMode ?? 0) === 0 ? (
                       <RotaryKnob
-                        key={p.key}
-                        label={p.label}
-                        value={selectedBlock.params[p.key] ?? p.default}
+                        key="rate"
+                        label="Hz"
+                        value={selectedBlock.params.rate ?? 0.3}
                         min={0}
                         max={1}
                         onChange={(v) =>
-                          updateBlockParam(selectedBlock.id, p.key, v)
+                          updateBlockParam(selectedBlock.id, 'rate', v)
                         }
                         size={52}
                         arcColor={selectedColor}
-                        formatValue={(v) => v.toFixed(2)}
+                        formatValue={(v) => (0.01 + v * 39.99).toFixed(2)}
                       />
-                    ))}
-                </>
-              ) : (
-                selectedDef.params.map((p) => (
-                  <RotaryKnob
-                    key={p.key}
-                    label={p.label}
-                    value={selectedBlock.params[p.key] ?? p.default}
-                    min={0}
-                    max={1}
-                    onChange={(v) =>
-                      updateBlockParam(selectedBlock.id, p.key, v)
-                    }
-                    size={52}
-                    arcColor={selectedColor}
-                    formatValue={(v) => v.toFixed(2)}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        )}
+                    ) : (
+                      <RotaryKnob
+                        key="rateIdx"
+                        label="Rate"
+                        value={(selectedBlock.params.rateIdx ?? 10) / 21}
+                        min={0}
+                        max={1}
+                        onChange={(v) =>
+                          updateBlockParam(
+                            selectedBlock.id,
+                            'rateIdx',
+                            Math.round(v * 21),
+                          )
+                        }
+                        size={52}
+                        arcColor={selectedColor}
+                        formatValue={(v) =>
+                          RATE_LABELS[Math.round(v * 21)] ?? '1/3'
+                        }
+                      />
+                    )}
 
-        {/* Empty state */}
-        {!selectedBlock && (
-          <div className="flex-1 flex items-center justify-center">
-            <span
-              className="text-[11px]"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
-              {chain.length === 0
-                ? 'Add your first effect'
-                : 'Select a block to edit'}
-            </span>
-          </div>
-        )}
+                    {/* Depth + Mix knobs (always shown) */}
+                    <RotaryKnob
+                      key="depth"
+                      label="Depth"
+                      value={selectedBlock.params.depth ?? 0.5}
+                      min={0}
+                      max={1}
+                      onChange={(v) =>
+                        updateBlockParam(selectedBlock.id, 'depth', v)
+                      }
+                      size={52}
+                      arcColor={selectedColor}
+                      formatValue={(v) => v.toFixed(2)}
+                    />
+                    <RotaryKnob
+                      key="mix"
+                      label="Mix"
+                      value={selectedBlock.params.mix ?? 0.5}
+                      min={0}
+                      max={1}
+                      onChange={(v) =>
+                        updateBlockParam(selectedBlock.id, 'mix', v)
+                      }
+                      size={52}
+                      arcColor={selectedColor}
+                      formatValue={(v) => v.toFixed(2)}
+                    />
+                  </>
+                ) : selectedBlock.type === 'wah' ? (
+                  <>
+                    {/* LP / BP / HP toggle pill */}
+                    <div
+                      className="flex flex-col items-center gap-1.5"
+                      style={{ minWidth: 72 }}
+                    >
+                      <span
+                        className="text-[9px] font-semibold uppercase tracking-wider"
+                        style={{
+                          color: 'var(--color-text-dim)',
+                          letterSpacing: '1px',
+                        }}
+                      >
+                        Filter
+                      </span>
+                      <div
+                        className="flex rounded-md overflow-hidden"
+                        style={{ border: '1px solid var(--color-border)' }}
+                      >
+                        {['LP', 'BP', 'HP'].map((label, idx) => (
+                          <button
+                            key={label}
+                            onClick={() =>
+                              updateBlockParam(
+                                selectedBlock.id,
+                                'filterType',
+                                idx,
+                              )
+                            }
+                            className="px-2.5 py-1 text-[10px] font-semibold cursor-pointer"
+                            style={{
+                              background:
+                                Math.round(
+                                  selectedBlock.params.filterType ?? 1,
+                                ) === idx
+                                  ? selectedColor
+                                  : 'transparent',
+                              color:
+                                Math.round(
+                                  selectedBlock.params.filterType ?? 1,
+                                ) === idx
+                                  ? '#000'
+                                  : 'var(--color-text-dim)',
+                              border: 'none',
+                              transition:
+                                'background 150ms ease, color 150ms ease',
+                            }}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* All other wah knobs */}
+                    {selectedDef.params
+                      .filter((p) => p.key !== 'filterType')
+                      .map((p) => (
+                        <RotaryKnob
+                          key={p.key}
+                          label={p.label}
+                          value={selectedBlock.params[p.key] ?? p.default}
+                          min={0}
+                          max={1}
+                          onChange={(v) =>
+                            updateBlockParam(selectedBlock.id, p.key, v)
+                          }
+                          size={52}
+                          arcColor={selectedColor}
+                          formatValue={(v) => v.toFixed(2)}
+                        />
+                      ))}
+                  </>
+                ) : (
+                  selectedDef.params.map((p) => (
+                    <RotaryKnob
+                      key={p.key}
+                      label={p.label}
+                      value={selectedBlock.params[p.key] ?? p.default}
+                      min={0}
+                      max={1}
+                      onChange={(v) =>
+                        updateBlockParam(selectedBlock.id, p.key, v)
+                      }
+                      size={52}
+                      arcColor={selectedColor}
+                      formatValue={(v) => v.toFixed(2)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!selectedBlock && (
+            <div className="flex-1 flex items-center justify-center">
+              <span
+                className="text-[11px]"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                {chain.length === 0
+                  ? 'Add your first effect'
+                  : 'Select a block to edit'}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </ControlGestureContext.Provider>
   );
 }

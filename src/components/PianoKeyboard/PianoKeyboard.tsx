@@ -1,5 +1,11 @@
 import { sortBy } from 'lodash';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useState,
+  type PointerEvent,
+} from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { cn } from '@/components/utilities';
 // import { Env } from '@/constants/env';
@@ -41,6 +47,9 @@ type PianoKeyboardProps = {
    *  takes its full active color, so presses stay visible over the hint. */
   hintNotes?: ReadonlyMap<number, string>;
   onKeyClick?: (midiNumber: number) => void;
+  /** A key pressed (pointer down), for keys that hold their note until let
+   *  go, as the Studio's practice keyboard plays them. */
+  onKeyPointerDown?: (midiNumber: number, event: PointerEvent) => void;
   onMidiInput?: (event: MidiNoteEvent) => void;
   enableMidiInterface?: boolean;
   /** Fill mode: stretch the keys to the full width of the container and show
@@ -69,6 +78,7 @@ export function PianoKeyboard({
   blackKeyClassName = '',
   blackKeyContainerClassName = '',
   onKeyClick,
+  onKeyPointerDown,
   showOctaveStart = false,
   activeWhiteKeyColor,
   activeBlackKeyColor,
@@ -261,6 +271,9 @@ export function PianoKeyboard({
         )}
         style={whiteKeyStyle(activeNote, hintColor)}
         onClick={() => handleKeyClick(note)}
+        onPointerDown={
+          onKeyPointerDown ? (e) => onKeyPointerDown(note, e) : undefined
+        }
       >
         {showOctaveStart && !gaming && note % 12 === 0 && (
           <div className={octaveLabelClass}>C{Math.floor(note / 12) - 1}</div>
@@ -277,6 +290,9 @@ export function PianoKeyboard({
       <div
         className={blackKeyContainerClass}
         onClick={() => handleKeyClick(note)}
+        onPointerDown={
+          onKeyPointerDown ? (e) => onKeyPointerDown(note, e) : undefined
+        }
       >
         <div
           key={activeNote?.id}

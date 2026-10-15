@@ -15,7 +15,7 @@ import {
   type InstrumentPart,
 } from '@/curriculum/engine/parts/part';
 import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
-import { flowKeyRoot } from '@/curriculum/utils/flowKey';
+import { stepKeyRoot } from '@/curriculum/utils/flowKey';
 import {
   useContentItem,
   useContentItems,
@@ -126,7 +126,11 @@ export const AdminLessonPartPage = () => {
         'This step moved or changed in the lesson since you opened it. Reopen it from the lesson editor and try again.',
       );
     }
-    const updated = writePartToStep(edited, current, flowKeyRoot(flow) % 12);
+    const updated = writePartToStep(
+      edited,
+      current,
+      stepKeyRoot(flow, current) % 12,
+    );
     const body = {
       ...flow,
       sections: flow.sections.map((s) =>

@@ -1,0 +1,454 @@
+{
+  "id": "latin-l1-d2-2-cumbia-full-groove-play-along",
+  "name": "Latin L1 · D2.2: Cumbia — Full Groove (Play-Along)",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 96,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 900,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 240,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 240,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 240,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 900,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1200,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1680,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1680,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1680,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 900,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2160,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2160,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2160,
+      "duration": 200,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 200,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 900,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3120,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 200,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3600,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3600,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3600,
+      "duration": 200,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 900,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4080,
+      "duration": 200,
+      "midi": 63,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4080,
+      "duration": 200,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4080,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4080,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 63,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 900,
+      "midi": 54,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5040,
+      "duration": 200,
+      "midi": 63,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5040,
+      "duration": 200,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5040,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5040,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5520,
+      "duration": 200,
+      "midi": 63,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5520,
+      "duration": 200,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5520,
+      "duration": 200,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5520,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 900,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6000,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6000,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6000,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6480,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 900,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6960,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6960,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6960,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7440,
+      "duration": 200,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7440,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7440,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "latin",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 41,
+    "title": "D2: Cumbia Performance",
+    "tag": "latin:l1_perf_cumbia_play | latin",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Left hand on 1 and 3 (root, 5); right hand on every \"and\".",
+  "genre": "latin",
+  "chordSymbols": ["Em", "Am", "B7", "Em"]
+}

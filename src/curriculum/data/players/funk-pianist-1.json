@@ -25,6 +25,70 @@
     {
       "kind": "part",
       "id": "funk-l3-d146-d3-full-groove"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d1-1-lh-root-pattern-rh-funk-stab-1"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d1-2-lh-root-pattern-rh-funk9"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d1-4-lh-octave-pop-rh-funk9"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d2-1-lh-root-groove-rh-pentatonic-phrase"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d2-2-lh-dm7-g7-shell-rh-pentatonic-melody"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d2-3-lh-dm7-g7-shell-rh-blues-melody"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l2-d1-2-lh-bass-rh-funk-stabs"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l2-d2-2-lh-funk9-approach-rh-motivic-melody"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l2-d3-1-integrated-performance-lh-bass-rh-chords"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l2-d3-2-integrated-performance-two-bar-call-and-answer"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l3-d1-2-lh-bass-rh-stabs-variant-1"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l3-d1-2-lh-bass-rh-stabs-variant-2"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l3-d1-2-lh-bass-rh-stabs-variant-3"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l3-d2-2-lh-rootless-voicings-rh-motivic-phrase"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l3-d3-2-ab13-g7alt-cm9-play-along-lh-1-5-8-rh-voicings"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l3-d3-3-full-capstone-cm9-f13-ab13-g7alt-cm9"
     }
   ]
 }

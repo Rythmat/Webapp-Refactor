@@ -5,5 +5,62 @@
   "genre": "pop",
   "kind": "placeholder",
   "order": 430,
-  "items": []
+  "items": [
+    {
+      "kind": "part",
+      "id": "pop-l1-d1-2-lh-bass-rh-chords"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l1-d1-3-full-pop-performance-with-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l1-d2-1-4-bar-power-chord-jam-note-chunking-moving-bass"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l1-d2-2-8-bar-power-chord-jam-3-3-2-chunking-moving-bass"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l2-d1-2-lh-bass-rh-1st-inversion-chords"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l2-d1-3-full-pop-performance-with-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l2-d2-2-two-hand-1st-inversion-chords-g-am-bm-c"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l2-d2-3-two-hand-chord-groove-with-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l2-d3-2-lh-1st-inv-chords-rh-melody"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l2-d3-3-full-pop-performance-with-play-along-lh-chords-melody"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l3-d1-2-lh-bass-rh-chords"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l3-d1-3-full-pop-performance-with-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l3-d1-5-lh-bass-rh-chords"
+    },
+    {
+      "kind": "part",
+      "id": "pop-l3-d1-6-full-pop-performance-with-play-along"
+    }
+  ]
 }

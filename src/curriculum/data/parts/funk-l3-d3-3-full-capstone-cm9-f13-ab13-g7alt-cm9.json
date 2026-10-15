@@ -1,0 +1,433 @@
+{
+  "id": "funk-l3-d3-3-full-capstone-cm9-f13-ab13-g7alt-cm9",
+  "name": "Funk L3 · D3.3: Full Capstone — Cm9→F13→Ab13→G7alt→Cm9",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 6,
+  "tempo": 98,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 120,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 120,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 44,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 54,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 56,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 53,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 63,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 480,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 1920,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 1920,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 1920,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 8160,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 8640,
+      "duration": 480,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 9120,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 9600,
+      "duration": 120,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 9600,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 9600,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 9600,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 3,
+    "section": "D",
+    "stepNumber": 148,
+    "title": "D3: Full Groove",
+    "tag": "funk:performance_capstone_l3_it | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Level 3 capstone: the full progression. LH alternates octave pop (Cm, F) and 1-5-8 (Ab, G). RH plays the voicings through all five chords. Five chords, full groove — this is the complete Funk L3 feel.",
+  "genre": "funk",
+  "chordSymbols": ["Cm9", "F13", "Ab13", "G7alt", "Cm9"]
+}

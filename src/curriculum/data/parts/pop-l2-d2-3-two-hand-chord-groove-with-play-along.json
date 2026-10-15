@@ -1,0 +1,748 @@
+{
+  "id": "pop-l2-d2-3-two-hand-chord-groove-with-play-along",
+  "name": "Pop L2 · D2.3: Two-Hand Chord Groove with Play-Along",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 7,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 5,
+  "tempo": 105,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 54,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 54,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 54,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 54,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "pop",
+    "level": 2,
+    "section": "D",
+    "stepNumber": 54,
+    "title": "D2: Two-Hand Chords",
+    "tag": "pop:two_hand_chord_playalong_l2 | pop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Play along with the full band. Both hands comp the 1st inversion chord together.",
+  "genre": "pop",
+  "chordSymbols": ["G", "Am", "Bm", "C"]
+}

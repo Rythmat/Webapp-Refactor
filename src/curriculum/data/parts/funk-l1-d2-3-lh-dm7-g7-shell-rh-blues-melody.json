@@ -1,0 +1,202 @@
+{
+  "id": "funk-l1-d2-3-lh-dm7-g7-shell-rh-blues-melody",
+  "name": "Funk L1 · D2.3: LH Dm7→G7 Shell + RH Blues Melody",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 2,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 92,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 68,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 120,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 240,
+      "duration": 120,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 360,
+      "duration": 360,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 68,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1080,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1320,
+      "duration": 360,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 74,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 46,
+    "title": "D2: LH Chords + RH Melody",
+    "tag": "funk:performance_lh_chords_rh_blues_melody_it | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Left hand: Dm7 shell (D3-F3-C4) stabs for bar 1. Right hand plays the D blues melody — Ab→G→F→D twice, one on beat 1 and one on beat 3. Drop the Sizzle lands on beat 1 of bar 2: LH switches to G7 (D3-F3-B3) as RH hits D5. Drums provided.",
+  "genre": "funk",
+  "chordSymbols": ["Dm7", "G7"]
+}

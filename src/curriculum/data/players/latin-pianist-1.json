@@ -17,6 +17,26 @@
     {
       "kind": "comping",
       "id": "reggaeton-tresillo"
+    },
+    {
+      "kind": "part",
+      "id": "latin-l1-d1-2-reggaeton-full-groove-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "latin-l1-d2-2-cumbia-full-groove-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "latin-l1-d3-1-mariachi-bass-chord-chord-lh-alone"
+    },
+    {
+      "kind": "part",
+      "id": "latin-l1-d3-2-mariachi-lh-vals-through-the-progression"
+    },
+    {
+      "kind": "part",
+      "id": "latin-l1-d3-3-mariachi-lh-vals-rh-melody-play-along"
     }
   ]
 }

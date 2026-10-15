@@ -1,0 +1,412 @@
+{
+  "id": "pop-l2-d2-2-two-hand-1st-inversion-chords-g-am-bm-c",
+  "name": "Pop L2 · D2.2: Two-Hand 1st Inversion Chords — G–Am–Bm–C",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 7,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 5,
+  "tempo": 105,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 960,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 960,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 960,
+      "midi": 57,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 960,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 960,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 960,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 960,
+      "midi": 54,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 960,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 960,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 960,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 960,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 960,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 960,
+      "midi": 54,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 960,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 960,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 960,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 960,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 960,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 960,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 960,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 960,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 960,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 55,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 59,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "pop",
+    "level": 2,
+    "section": "D",
+    "stepNumber": 53,
+    "title": "D2: Two-Hand Chords",
+    "tag": "pop:two_hand_chord_perf_it_l2 | pop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Play two half-note two-hand chord hits per bar — beats 1 and 3.",
+  "genre": "pop",
+  "chordSymbols": ["G", "Am", "Bm", "C"]
+}

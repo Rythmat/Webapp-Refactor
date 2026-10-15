@@ -42,6 +42,12 @@ export function usePartPlayer() {
   const clickRef = useRef<Tone.Synth | null>(null);
   const unclickRef = useRef<(() => void) | null>(null);
   const sounding = useRef(new Set<number>());
+  /**
+   * Keys held on the MIDI keyboard. Kept apart from the part's own notes: a
+   * replay (every captured note is one) lets go of those, never of a key
+   * still down.
+   */
+  const held = useRef(new Set<number>());
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [position, setPosition] = useState(0);
@@ -155,10 +161,16 @@ export function usePartPlayer() {
       disposePart();
       releaseAll();
       const tonePart = new Tone.Part<PartEvent>((time, ev) => {
+        // A key held live on the same pitch wins over the part's own note.
+        if (held.current.has(ev.midi)) return;
         adapter.noteOn(ev.midi, ev.velocity, time);
         sounding.current.add(ev.midi);
         const off = time + Tone.Time(ev.duration).toSeconds();
-        adapter.noteOff(ev.midi, off);
+        // Released just ahead of time, unless that key went down live since.
+        const wait = Math.max(0, (off - Tone.now() - 0.05) * 1000);
+        window.setTimeout(() => {
+          if (!held.current.has(ev.midi)) adapter.noteOff(ev.midi, off);
+        }, wait);
       }, events);
       transport.bpm.value = part.tempo;
       transport.swing = 0;
@@ -225,13 +237,13 @@ export function usePartPlayer() {
     async (sound: string, midi: number, velocity: number) => {
       const adapter = await ensureInstrument(sound);
       adapter.noteOn(midi, velocity);
-      sounding.current.add(midi);
+      held.current.add(midi);
     },
     [ensureInstrument],
   );
   const liveOff = useCallback((midi: number) => {
     instrumentRef.current?.adapter.noteOff(midi);
-    sounding.current.delete(midi);
+    held.current.delete(midi);
   }, []);
 
   /** Where the transport is, in part ticks. */

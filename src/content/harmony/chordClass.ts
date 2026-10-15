@@ -162,6 +162,8 @@ const QUALITY_ALIASES: Record<string, string> = {
   '7sus': 'dom7sus4',
   dom9sus4: 'dom9sus4',
   '9sus4': 'dom9sus4',
+  dom13sus4: 'dom13sus4',
+  '13sus4': 'dom13sus4',
   sus4: 'sus4',
   sus: 'sus4',
   sus2: 'sus2',

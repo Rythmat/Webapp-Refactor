@@ -160,6 +160,8 @@ function sourcePhrase(meta: DraftMeta): string | null {
     }
     case 'song':
       return 'From a song';
+    case 'progression':
+      return 'From a chord progression';
     case 'practiceMode':
     case 'practiceGenre':
       return 'Practice track';

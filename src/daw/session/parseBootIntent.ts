@@ -46,6 +46,11 @@ export const BOOT_KEYS: readonly string[] = Object.freeze([
   'tutorial',
   'song',
   'transpose',
+  'progression',
+  'progressionKey',
+  'progressionRelative',
+  'progressionSong',
+  'progressionSection',
   'practiceGenre',
   'practiceLevel',
   'practiceSection',
@@ -123,6 +128,19 @@ export function parseBootIntent(params: URLSearchParams): ParsedBoot {
       kind: 'song',
       songId,
       transpose: readTranspose(get('transpose')),
+    });
+  }
+
+  const progression = Number(get('progression'));
+  if (get('progression') !== null && Number.isInteger(progression)) {
+    const text = (name: string) => get(name)?.trim() || null;
+    return parsed({
+      kind: 'progression',
+      progressionId: progression,
+      key: text('progressionKey'),
+      relative: get('progressionRelative') === '1',
+      songId: text('progressionSong'),
+      section: text('progressionSection'),
     });
   }
 
@@ -227,6 +245,7 @@ export const NOT_FOUND_MESSAGES = Object.freeze({
   jam: 'That jam could not be found.',
   draft: "That draft couldn't be found.",
   song: 'That song could not be found.',
+  progression: 'That chord progression could not be found.',
   project: 'That project could not be found.',
 });
 

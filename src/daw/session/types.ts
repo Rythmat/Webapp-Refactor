@@ -57,6 +57,22 @@ export type OpenIntent =
   | { kind: 'tutorial'; tutorialId: string }
   | { kind: 'song'; songId: string; transpose: number /* integer -11..11 */ }
   | {
+      /**
+       * A library chord progression as a new project (`progressionChart`):
+       * in C, or in the key it was heard in.
+       */
+      kind: 'progression';
+      progressionId: number;
+      /** A key name ('A♭ major', 'A minor'); C major when null. */
+      key: string | null;
+      /** Its degrees count from the parent major of `key`'s mode. */
+      relative: boolean;
+      /** The song it was heard in: its title, tempo and, without `key`, key. */
+      songId: string | null;
+      /** The section it was heard in ('Chorus'). */
+      section: string | null;
+    }
+  | {
       kind: 'practiceMode';
       mode: string;
       rootParam: string | null;

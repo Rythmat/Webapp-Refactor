@@ -105,6 +105,10 @@ describe('reading a chord', () => {
     expect(parseLetterChord('CM7', 0)).toMatchObject({ quality: 'maj7' });
     expect(parseLetterChord('Cm', 0)).toMatchObject({ quality: 'min' });
     expect(canonicalQuality('6/9')).toBe('maj69');
+    expect(parseDegreeChord('♭7 dom13sus4')).toMatchObject({
+      pc: 10,
+      family: 'dom',
+    });
   });
 
   it('compares at three strengths', () => {

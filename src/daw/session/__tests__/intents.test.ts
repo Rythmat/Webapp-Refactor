@@ -263,6 +263,56 @@ describe('prepare changes nothing; apply writes the session', () => {
     expect(up.baseline).toMatchObject({ source: 'song', ref: 'africa@2' });
   });
 
+  it('opens a library progression in the key it was heard in', async () => {
+    const prepared = await prepare({
+      kind: 'progression',
+      progressionId: 662,
+      key: 'E major',
+      relative: false,
+      songId: null,
+      section: null,
+    });
+    apply(prepared);
+    expect(s().rootNote).toBe(4);
+    expect(s().chordRegions).toHaveLength(8);
+    expect(
+      s()
+        .chordRegions.slice(0, 4)
+        .map((r) => r.noteName),
+    ).toEqual(['E', 'B', 'C♯min', 'A']);
+    expect(prepared.baseline).toMatchObject({
+      source: 'progression',
+      ref: '662',
+    });
+  });
+
+  it('opens a retired progression id as the one that took its place', async () => {
+    const prepared = await prepare({
+      kind: 'progression',
+      progressionId: 152,
+      key: null,
+      relative: false,
+      songId: null,
+      section: null,
+    });
+    expect(prepared.baseline).toMatchObject({ ref: '151' });
+  });
+
+  it('refuses a progression that is not there', async () => {
+    await expect(
+      prepare({
+        kind: 'progression',
+        progressionId: 99999,
+        key: null,
+        relative: false,
+        songId: null,
+        section: null,
+      }),
+    ).rejects.toMatchObject({
+      error: { message: 'That chord progression could not be found.' },
+    });
+  });
+
   it('refuses a song that is not there', async () => {
     await expect(
       prepare({ kind: 'song', songId: 'no-such-song', transpose: 0 }),

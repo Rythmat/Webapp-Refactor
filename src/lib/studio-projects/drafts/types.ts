@@ -56,6 +56,7 @@ export type DraftSourceKind =
   | 'demo'
   | 'tutorial'
   | 'song'
+  | 'progression'
   | 'practiceMode'
   | 'practiceGenre'
   | 'jam'

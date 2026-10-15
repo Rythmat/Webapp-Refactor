@@ -1,5 +1,7 @@
 import { getSong } from '@/curriculum/data/songs';
+import { parseKeyName } from '@/curriculum/songLibrary/performance';
 import { transposeSong } from '@/curriculum/songLibrary/transpose';
+import type { Song } from '@/curriculum/types/songLibrary';
 import { ensureSongContent } from '@/content/songStore';
 import { getTutorial } from '@/daw/components/Tutorial/tutorials';
 import { applyDemo, prepareDemo } from '@/daw/data/demoSeed';
@@ -32,6 +34,7 @@ import {
   applyPracticeModeTrack,
   preparePracticeModeTrack,
 } from '@/features/practiceTracks/seedStudioFromPracticeTrack';
+import { progressionChart } from '@/features/songs/progressionChart';
 import { applySong } from '@/features/songs/seedStudioFromSong';
 import { DEVICE_USER_KEY } from '@/lib/local-store/userScope';
 import { urlParamToSemitone } from '@/lib/musicKeyUrl';
@@ -465,6 +468,8 @@ export async function prepareIntent(
       });
     case 'song':
       return prepareSong(intent, ctx);
+    case 'progression':
+      return prepareProgression(intent, ctx);
     case 'practiceMode':
       return preparePracticeMode(intent, ctx);
     case 'practiceGenre':
@@ -692,6 +697,48 @@ async function prepareSong(
           : `${intent.songId}@${intent.transpose}`,
       reopenable: true,
     },
+  });
+}
+
+async function prepareProgression(
+  intent: Extract<OpenIntent, { kind: 'progression' }>,
+  ctx: PrepareContext,
+): Promise<PreparedOpen> {
+  const [{ default: library }, { resolveProgressionId }] = await raceSignal(
+    Promise.all([
+      import('@/curriculum/data/chordProgressionLibrary'),
+      import('@/curriculum/data/retiredProgressionIds'),
+    ]),
+    ctx.signal,
+  );
+  // A link made before two entries were merged opens the one kept.
+  const id = resolveProgressionId(intent.progressionId);
+  const entry = library.find((p) => p.id === id);
+  if (!entry)
+    throw new OpenRefusal(notFoundError(NOT_FOUND_MESSAGES.progression));
+  let heard: Song | null = null;
+  if (intent.songId) {
+    try {
+      await raceSignal(ensureSongContent(), ctx.signal);
+    } catch (err) {
+      throwIfAborted(ctx.signal);
+      console.error('Song library failed to load', err);
+    }
+    heard = getSong(intent.songId) ?? null;
+  }
+  const key = parseKeyName(intent.key ?? heard?.key ?? '');
+  const song = progressionChart(entry, {
+    ...(key ? { tonicPc: key.tonicPc, mode: key.mode } : {}),
+    relative: intent.relative,
+    ...(heard ? { bpm: heard.tempo, heardIn: heard.title } : {}),
+    ...(intent.section ? { sectionLabel: intent.section } : {}),
+  });
+  if (!song)
+    throw new OpenRefusal(notFoundError(NOT_FOUND_MESSAGES.progression));
+  return seeded(await claimNew(ctx), {
+    name: song.title,
+    apply: () => applySong(song),
+    baseline: { source: 'progression', ref: String(id), reopenable: true },
   });
 }
 

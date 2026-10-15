@@ -52,6 +52,30 @@ describe('parseBootIntent', () => {
     ['?song=a&transpose=x', { kind: 'song', songId: 'a', transpose: 0 }],
     ['?song=a&transpose=-0', { kind: 'song', songId: 'a', transpose: 0 }],
     [
+      '?progression=662',
+      {
+        kind: 'progression',
+        progressionId: 662,
+        key: null,
+        relative: false,
+        songId: null,
+        section: null,
+      },
+    ],
+    [
+      '?progression=447&progressionKey=A%20minor&progressionRelative=1&progressionSong=i_will_survive&progressionSection=Chorus',
+      {
+        kind: 'progression',
+        progressionId: 447,
+        key: 'A minor',
+        relative: true,
+        songId: 'i_will_survive',
+        section: 'Chorus',
+      },
+    ],
+    // Not a progression id: the link names nothing to open.
+    ['?progression=abc', { kind: 'resume' }],
+    [
       '?practiceGenre=funk&practiceLevel=2&practiceSection=C',
       { kind: 'practiceGenre', genre: 'funk', level: 2, section: 'C' },
     ],

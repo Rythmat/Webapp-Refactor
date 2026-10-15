@@ -31,7 +31,9 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { StrumMode } from '@prism/engine';
 import { getTrackSynthState } from '@/daw/oracle-synth/synthTrackState';
+import { formerGenreStrumMode } from '@/daw/store/genreSettings';
 import { useStore, type AllSlices, type Track } from '@/daw/store';
 import {
   initUndoTracking,
@@ -1055,6 +1057,11 @@ describe('cloudSaveGaps', () => {
     }
     s().selectGenre('Reggae');
     expect(cloudSaveGaps()).toEqual([]);
+    // A project saved before 1.16a holds the mode a genre pick wrote then,
+    // one below its own: still the genre's strum, not the student's.
+    s().setStrumMode(formerGenreStrumMode('Reggae') as StrumMode);
+    expect(cloudSaveGaps()).toEqual([]);
+    s().selectGenre('Reggae');
     // Reggae strums up: changed, the strum is the student's, mode and all,
     // and a cloud reopen would give neither back.
     s().setStrumAmount(45);

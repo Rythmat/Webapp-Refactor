@@ -94,7 +94,10 @@ describe('loading a project starts from a clean harmonic slate', () => {
     previousProject();
     useStore.setState({ chordRegions: [], mode: 'ionian' });
     deserializeSession(saved);
-    expect(s().chordRegions).toEqual([chord]);
+    // With the identity a load reads from its labels (milestone 1.16a).
+    expect(s().chordRegions).toEqual([
+      { ...chord, identity: expect.objectContaining({ source: 'derived' }) },
+    ]);
     expect(s().mode).toBe('dorian');
     expect(s().stringSeq).toEqual([]);
   });

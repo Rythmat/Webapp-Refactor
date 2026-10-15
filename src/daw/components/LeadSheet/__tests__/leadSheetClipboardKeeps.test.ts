@@ -1,6 +1,6 @@
 /**
- * A chord paste rebuilds the lane from where each chord starts, and a chord
- * it keeps is the same chord on the same beat: only where it ends may move.
+ * A chord paste changes only the span it pastes over, and a chord it keeps
+ * is the same chord on the same beat: only where it ends may move.
  * It used to come back with its name, colour and id alone, losing the notes
  * it was read from, its detection confidence, its raw hit time and (decision
  * D3) its identity. A pasted chord carries only what the clipboard holds,
@@ -19,6 +19,7 @@ import {
 } from '../leadSheetClipboard';
 
 const BAR = 1920;
+const TS = { numerator: 4, denominator: 4 };
 
 const identity = (label: string, rootPc: number): ChordRegionIdentity => ({
   rootPc,
@@ -77,7 +78,7 @@ const byId = (regions: ChordRegion[], id: string) => {
 
 describe('a chord the paste keeps', () => {
   it('stays whole when a bar is pasted beside it', () => {
-    const next = pasteChords(lane(), buildClipboard(copyBar()), BAR);
+    const next = pasteChords(lane(), buildClipboard(copyBar()), BAR, TS);
     // F's bar took the copy; C and G stay as they were.
     expect(byId(next, 'c')).toEqual(lane()[0]);
     expect(byId(next, 'g')).toEqual(lane()[2]);
@@ -93,14 +94,14 @@ describe('a chord the paste keeps', () => {
         startTick: 2 * BAR,
       }),
     );
-    const next = pasteChords(lane(), loose, BAR + 960);
+    const next = pasteChords(lane(), loose, BAR + 960, TS);
     expect(byId(next, 'f')).toEqual({ ...lane()[1], endTick: BAR + 960 });
   });
 });
 
 describe('a pasted chord', () => {
   it('carries what the clipboard holds and nothing of the copied region', () => {
-    const next = pasteChords(lane(), buildClipboard(copyBar()), BAR);
+    const next = pasteChords(lane(), buildClipboard(copyBar()), BAR, TS);
     const pasted = next.find((r) => r.startTick === BAR);
     expect(pasted).toEqual({
       id: '',
@@ -110,6 +111,8 @@ describe('a pasted chord', () => {
       noteName: 'C',
       color: [10, 20, 30],
       degreeKey: '1 major',
+      // The copied chord's identity: it names the same chord by the same name.
+      identity: identity('C', 0),
     });
   });
 
@@ -126,6 +129,7 @@ describe('a pasted chord', () => {
       lane(),
       buildClipboard(copyBar({ chords: [plain] })),
       BAR,
+      TS,
     );
     const pasted = next.find((r) => r.startTick === BAR);
     expect(pasted && 'degreeKey' in pasted).toBe(false);
@@ -142,16 +146,17 @@ describe('through the store', () => {
     const { chordRegions, setChordRegions } = useStore.getState();
     // What the lead sheet does on ⌘V.
     setChordRegions(
-      pasteChords(chordRegions, buildClipboard(copyBar()), BAR),
+      pasteChords(chordRegions, buildClipboard(copyBar()), BAR, TS),
       true,
     );
     const after = useStore.getState().chordRegions;
     expect(after.every((r) => r.id !== '')).toBe(true);
     expect(new Set(after.map((r) => r.id)).size).toBe(after.length);
-    expect(after.map((r) => r.identity?.label ?? null)).toEqual([
-      'C',
-      null,
-      'G',
+    // The pasted C carries the copied one's.
+    expect(after.map((r) => [r.identity?.label, r.identity?.source])).toEqual([
+      ['C', 'detected'],
+      ['C', 'detected'],
+      ['G', 'detected'],
     ]);
   });
 });

@@ -203,6 +203,27 @@ const UNIT_TESTS = [
   'src/daw/components/Tutorial/__tests__/TutorialLayer.test.tsx',
   'src/features/classroom/msp/useMspModuleCompletion.test.tsx',
   'src/daw/midi/__tests__/pointerNotes.test.tsx',
+  // Milestone 1.16a: the harmony core (chord identity read and written,
+  // the key frame, the effective key, typed chords), the engine's slash
+  // chords and genre strums, and the generators' range-safety: paste and
+  // clear on the Lead Sheet, the set-list update guard.
+  'src/daw/harmony/__tests__/chordIdentityRead.test.ts',
+  'src/daw/harmony/__tests__/chordLabels.test.ts',
+  'src/daw/harmony/__tests__/keyFrame.test.ts',
+  'src/daw/harmony/__tests__/effectiveKey.test.ts',
+  'src/daw/harmony/__tests__/chordInput.test.ts',
+  'src/daw/store/__tests__/chordIdentityWrites.test.ts',
+  'src/daw/store/__tests__/prismCreateClear.test.ts',
+  'src/daw/store/__tests__/prismSuggestionCommit.test.ts',
+  'src/daw/store/__tests__/genreSettings.test.ts',
+  'src/daw/prism-engine/engine/__tests__/naming.test.ts',
+  'src/daw/prism-engine/engine/__tests__/suggestionEngine.test.ts',
+  'src/daw/prism-engine/data/__tests__/progressionGraph.test.ts',
+  'src/daw/utils/chordRegionNotation.test.ts',
+  'src/daw/hooks/__tests__/useStoreBridge.test.tsx',
+  'src/daw/components/LeadSheet/__tests__/chordSymbolEntry.test.tsx',
+  'src/daw/components/LeadSheet/__tests__/leadSheetClipboard.test.ts',
+  'src/daw/components/LeadSheet/__tests__/leadSheetClipboardKeeps.test.ts',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */

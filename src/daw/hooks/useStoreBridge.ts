@@ -15,6 +15,7 @@ import { useSynthStore } from '@/daw/oracle-synth/store';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { useStore } from '@/daw/store';
+import { useEffectiveKey } from '@/daw/harmony/effectiveKey';
 
 // ── Hook ─────────────────────────────────────────────────────────────────
 
@@ -100,25 +101,24 @@ export function useStoreBridge(
 
   // ── Music-intelligence bus → Oracle ──────────────────────────────────────
 
-  // Follow-project-key: when enabled, mirror the project's detected key into
-  // the synth's Key/Scale (the store→engine sync hook pushes it onward).
-  const detectedKeyRootPc = useStore((s) => s.detectedKeyRootPc);
-  const detectedMode = useStore((s) => s.detectedMode);
+  // Follow-project-key: when enabled, mirror the project's key into the
+  // synth's Key/Scale (the store→engine sync hook pushes it onward). The
+  // student's key, or the detected one while none is set (effectiveKey):
+  // it used to follow the detected key even over the student's.
+  const projectKey = useEffectiveKey();
   const followProjectKey = useSynthStore((s) => s.keyScale.followProjectKey);
 
   useEffect(() => {
-    if (!followProjectKey || detectedKeyRootPc == null || !detectedMode) return;
+    if (!followProjectKey || !projectKey) return;
+    const { rootPc, mode } = projectKey;
     const { keyScale, isDirty, setKeyScale } = useSynthStore.getState();
-    if (
-      keyScale.rootPc !== detectedKeyRootPc ||
-      keyScale.mode !== detectedMode
-    ) {
+    if (keyScale.rootPc !== rootPc || keyScale.mode !== mode) {
       // The app's write, not the student's: a track still on its untouched
       // default patch keeps having none of its own, so opening its panel in
-      // a project with a detected key doesn't edit the project. A track with
-      // a patch of its own still takes the key into it (1.16 decides).
+      // a project with a key doesn't edit the project. A track with a patch
+      // of its own takes the key into it, which is what following it means.
       writeLivePatchAsSystem(() => {
-        setKeyScale({ rootPc: detectedKeyRootPc, mode: detectedMode });
+        setKeyScale({ rootPc, mode });
         // Machine-driven mirror, not a user edit — don't leave the preset
         // marked dirty just because key detection resolved.
         if (!isDirty) {
@@ -126,7 +126,7 @@ export function useStoreBridge(
         }
       });
     }
-  }, [followProjectKey, detectedKeyRootPc, detectedMode]);
+  }, [followProjectKey, projectKey]);
 
   // Chord-aware arp: feed the live-detected chord's pitch classes to the
   // arpeggiator. Held notes remain the seed, so a lagging bus only delays

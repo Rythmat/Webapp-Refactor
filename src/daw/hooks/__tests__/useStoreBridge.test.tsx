@@ -19,10 +19,12 @@ import { useStore } from '@/daw/store';
 
 const synth = () => useSynthStore.getState();
 
-// No detected key unless a test sets one: the follow-key mirror would
-// otherwise write it into every patch a panel shows.
+// No key unless a test sets one: the follow-key mirror would otherwise
+// write it into every patch a panel shows.
 beforeEach(() => {
   useStore.setState({
+    rootNote: null,
+    mode: 'ionian',
     detectedKeyRootPc: null,
     detectedMode: null,
     selectedTrackId: null,
@@ -315,6 +317,25 @@ describe('useStoreBridge following the project key', () => {
     expect(setKeyScale).toHaveBeenCalledTimes(1);
     expect(synth().keyScale).toMatchObject({ rootPc: 7, mode: 'mixolydian' });
     expect(synth().isDirty).toBe(false);
+  });
+
+  it("follows the student's key, not a detected one (F6)", () => {
+    openPanel('t1');
+    act(() => {
+      useStore.setState({
+        rootNote: 9,
+        mode: 'aeolian',
+        detectedKeyRootPc: 7,
+        detectedMode: 'mixolydian',
+      });
+    });
+    expect(synth().keyScale).toMatchObject({ rootPc: 9, mode: 'aeolian' });
+
+    // Detection moving under the student's key leaves the synth on it.
+    act(() => {
+      useStore.setState({ detectedKeyRootPc: 4, detectedMode: 'phrygian' });
+    });
+    expect(synth().keyScale).toMatchObject({ rootPc: 9, mode: 'aeolian' });
   });
 });
 

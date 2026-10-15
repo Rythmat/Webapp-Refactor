@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState, type FC } from 'react';
 import { useStore } from '@/daw/store';
+import { useEffectiveKey } from '@/daw/harmony/effectiveKey';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { SourceRow } from '@/daw/oracle-synth/components/layout/SourceRow';
@@ -41,16 +42,15 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({ engine }) => {
   );
   const chordColor = useLiveChordColor(mergedNotes);
 
-  // Project key from the music-intelligence bus → "snap to song key"
-  const detectedKeyRootPc = useStore((s) => s.detectedKeyRootPc);
-  const detectedMode = useStore((s) => s.detectedMode);
+  // The song's key → "snap to song key": the student's, else a detected one
+  const effectiveKey = useEffectiveKey();
   const analyzeSession = useStore((s) => s.analyzeSession);
   const songKey = useMemo(
     () =>
-      detectedKeyRootPc != null && detectedMode
-        ? { rootPc: detectedKeyRootPc, mode: detectedMode }
+      effectiveKey
+        ? { rootPc: effectiveKey.rootPc, mode: effectiveKey.mode }
         : null,
-    [detectedKeyRootPc, detectedMode],
+    [effectiveKey],
   );
 
   // Store reads

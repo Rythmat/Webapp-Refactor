@@ -18,6 +18,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { withoutIdentity } from '@/daw/harmony/chordIdentity';
 import { useStore, type AllSlices } from '@/daw/store';
 import type { Track } from '@/daw/store/tracksSlice';
 import { encodeCloudDocument } from '../projectDocument/cloudDocument';
@@ -148,9 +149,16 @@ describe.each(MODES)('a cloud copy saved in %s mode', (mode) => {
         ? saved.document
         : saved.tracks[0].settings?.projectDoc;
     deserializeCloudProject(saved);
-    expect(JSON.parse(JSON.stringify(encodeCloudDocument(s())))).toEqual(
-      document,
-    );
+    // A chord saved without an identity gets one read from its labels when
+    // it opens (source 'derived', milestone 1.16a): a value in a field the
+    // format already had, not a new format.
+    const again = JSON.parse(JSON.stringify(encodeCloudDocument(s())));
+    again.chordRegions = again.chordRegions.map((region: any) => {
+      return region.identity?.source === 'derived'
+        ? withoutIdentity(region)
+        : region;
+    });
+    expect(again).toEqual(document);
   });
 });
 

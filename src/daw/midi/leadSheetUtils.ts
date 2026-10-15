@@ -1,3 +1,4 @@
+import type { ChordRegionIdentity } from '@/daw/harmony/chordIdentity';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
@@ -22,6 +23,8 @@ export interface MeasureChord {
   noteName: string;
   /** The region's long degree key (e.g., "1 major7"), when it has one */
   degreeKey?: string;
+  /** The region's chord as pitch classes, when it has one (harmony/chordIdentity) */
+  identity?: ChordRegionIdentity;
 }
 
 export interface Measure {
@@ -99,6 +102,7 @@ export function regionToMeasures(
           name: r.name,
           noteName: r.noteName,
           ...(r.degreeKey ? { degreeKey: r.degreeKey } : {}),
+          ...(r.identity ? { identity: r.identity } : {}),
         });
       }
       // Chord started before this measure but is still active at beat 1
@@ -112,6 +116,7 @@ export function regionToMeasures(
             name: r.name,
             noteName: r.noteName,
             ...(r.degreeKey ? { degreeKey: r.degreeKey } : {}),
+            ...(r.identity ? { identity: r.identity } : {}),
           });
         }
       }

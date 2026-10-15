@@ -10,6 +10,11 @@ import type { AllSlices } from './index';
 import { replaceChordRegionsInRange, type ChordRegion } from './prismSlice';
 import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import {
+  identityRelabelled,
+  pitchesOfDegreeName,
+  withIdentity,
+} from '@/daw/harmony/chordIdentity';
+import {
   analyzeChordStyle,
   extractGraphSeed,
   generateSuggestions,
@@ -155,6 +160,7 @@ export const createPrismSuggestionSlice: StateCreator<
       prismSuggestInsertTick,
       prismSuggestMeasures,
       chordRegions,
+      rootNote,
     } = get();
 
     const suggestion = prismSuggestSets[prismSuggestActiveIdx];
@@ -167,16 +173,22 @@ export const createPrismSuggestionSlice: StateCreator<
     const ticksPerChord = totalTicks / suggestion.chords.length;
     const insertEnd = prismSuggestInsertTick + totalTicks;
 
-    const newRegions: ChordRegion[] = suggestion.chords.map((chord, i) => ({
-      id: crypto.randomUUID(),
-      startTick: prismSuggestInsertTick + i * ticksPerChord,
-      endTick: prismSuggestInsertTick + (i + 1) * ticksPerChord,
-      name: chord.noteName,
-      noteName: chord.noteName,
-      color: chord.color as [number, number, number],
-      // Counted from the key's tonic, like every other region's degreeKey.
-      degreeKey: chord.degree,
-    }));
+    const newRegions: ChordRegion[] = suggestion.chords.map((chord, i) => {
+      const region: ChordRegion = {
+        id: crypto.randomUUID(),
+        startTick: prismSuggestInsertTick + i * ticksPerChord,
+        endTick: prismSuggestInsertTick + (i + 1) * ticksPerChord,
+        name: chord.noteName,
+        noteName: chord.noteName,
+        color: chord.color as [number, number, number],
+        // Counted from the key's tonic, like every other region's degreeKey.
+        degreeKey: chord.degree,
+      };
+      // The student chose it: the chord the suggestion voiced, from the
+      // tonic the suggestions were made in.
+      const pitches = pitchesOfDegreeName(chord.degree, rootNote ?? 0);
+      return pitches ? withIdentity(region, pitches, 'given') : region;
+    });
 
     // Chords crossing the window's edges keep their parts outside it, rather
     // than being deleted whole for touching it.
@@ -190,7 +202,11 @@ export const createPrismSuggestionSlice: StateCreator<
       // A suggestion's name is its spelled chord, so it follows a respelling
       // of the last chord toward whatever now comes after it.
       written.has(r.id) && r.name !== r.noteName
-        ? { ...r, name: r.noteName }
+        ? {
+            ...r,
+            name: r.noteName,
+            identity: identityRelabelled(r, r.noteName),
+          }
         : r,
     );
 

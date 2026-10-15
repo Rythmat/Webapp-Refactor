@@ -45,7 +45,8 @@ export const applySong = (song: Song): void => {
   // gets four-beat bars drawn over correctly-placed ticks.
   const [beats, unit] = song.timeSignature ?? [4, 4];
   store.setTimeSignature(beats, unit);
-  store.setChordRegions(regions);
+  // The chart names its chords.
+  store.setChordRegions(regions, false, 'given');
   if (rowSizes) store.setMeasureRowSizes(rowSizes);
   // The Studio plays the roadmap out bar by bar, so it gets the performed
   // sections and no repeats of its own.

@@ -64,7 +64,10 @@ import {
   type MidiCCEvent,
   type MidiNoteEvent,
 } from '@prism/engine';
-import type { ChordRegionIdentity } from '@/daw/harmony/chordIdentity';
+import {
+  ensureChordIdentity,
+  type ChordRegionIdentity,
+} from '@/daw/harmony/chordIdentity';
 import type { OrganState } from '@/daw/instruments/TonewheelOrganEngine';
 import type { SamplerSampleRef } from '@/daw/instruments/samplerChops';
 import type * as SynthStoreModule from '@/daw/oracle-synth/store';
@@ -360,6 +363,15 @@ const IDENTITY: ChordRegionIdentity = {
   label: CHORDS[0].name,
 };
 
+/**
+ * A chord region without its id and without the identity a load reads from
+ * its labels (milestone 1.16a; the chordIdentity probe checks those).
+ */
+function chordContent({ identity, ...region }: ChordRegion) {
+  const kept = identity && identity.source !== 'derived' ? { identity } : {};
+  return { ...withoutId(region as ChordRegion), ...kept };
+}
+
 /** Drop the id, for records a fixed codec could legitimately re-mint. */
 function withoutId<T extends { id: string }>(record: T): Omit<T, 'id'> {
   const copy: Partial<T> = { ...record };
@@ -617,18 +629,30 @@ const probes = {
   chordLane: {
     write: (p) => p.store.setState({ chordRegions: CHORDS }),
     check: (p) =>
-      expect(st(p).chordRegions.map(withoutId)).toEqual(CHORDS.map(withoutId)),
+      expect(st(p).chordRegions.map(chordContent)).toEqual(
+        CHORDS.map(withoutId),
+      ),
   },
-  // A chord's identity (decision D3), kept as it was saved: nothing fills
-  // one before milestone 1.16a.
+  // A chord's identity (decision D3), kept as it was saved: the one a chart
+  // gave, and the one the lane read from 'G7' (milestone 1.16a; the codec
+  // tests read one for a chord saved without).
   chordIdentity: {
     write: (p) =>
       p.store.setState({
-        chordRegions: [{ ...CHORDS[0], identity: IDENTITY }, CHORDS[1]],
+        chordRegions: [
+          { ...CHORDS[0], identity: IDENTITY },
+          ensureChordIdentity(CHORDS[1], null),
+        ],
       }),
     check: (p) => {
       expect(chordAt(p, 0).identity).toEqual(IDENTITY);
-      expect(chordAt(p, 1920).identity).toBeUndefined();
+      expect(chordAt(p, 1920).identity).toEqual({
+        rootPc: 7,
+        quality: 'dominant7',
+        bassPc: 7,
+        source: 'derived',
+        label: '5 major',
+      });
     },
   },
   clipColorMode: {

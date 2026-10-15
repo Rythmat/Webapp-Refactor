@@ -1,3 +1,4 @@
+import type { TypedChord } from '@/daw/harmony/chordInput';
 import { memo, useRef } from 'react';
 import { usePlayheadEffect } from '@/daw/engine/playheadClock';
 import type { Measure, ChordFormat } from '@/daw/midi/leadSheetUtils';
@@ -47,7 +48,9 @@ interface LeadSheetStaffProps {
   /** Measure index (global) that the drag tether should appear in */
   chordDragMeasureIdx?: number;
   onSelectChord: (regionId: string) => void;
-  onRenameChord: (regionId: string, newNoteName: string) => void;
+  onRenameChord: (regionId: string, chord: TypedChord) => void;
+  /** A chord edit closed without a chord (ChordSymbol's onCancelEdit). */
+  onCancelChordEdit?: (regionId: string) => void;
   onClickEmptyBeat: (tick: number) => void;
   onChordDragStart?: (
     regionId: string,
@@ -88,6 +91,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   chordDragMeasureIdx,
   onSelectChord,
   onRenameChord,
+  onCancelChordEdit,
   onClickEmptyBeat,
   onChordDragStart,
   onMarkAsMelody,
@@ -154,6 +158,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
             chordDrag={chordDragMeasureIdx === globalIdx ? chordDrag : null}
             onSelectChord={onSelectChord}
             onRenameChord={onRenameChord}
+            onCancelChordEdit={onCancelChordEdit}
             onClickEmptyBeat={onClickEmptyBeat}
             onChordDragStart={onChordDragStart}
             onMarkAsMelody={onMarkAsMelody}

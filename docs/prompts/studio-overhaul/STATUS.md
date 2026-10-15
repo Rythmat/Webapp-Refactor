@@ -361,3 +361,60 @@ Each prompt appends an entry: milestone, commits, pushed or not, verification nu
   - **Back to lesson ends the practice screen.** A browser Back afterwards lands on Create with the tracks.
   - **The practice screen records the student's track only,** even if another track is armed in the Studio.
   - **No schema bump.** The context lives in the draft's meta (an optional field both draft stores keep since 1.4), the body and the Y.Doc are unchanged, and the cloud never sees it.
+
+## 10 — 1.16a harmony core (2026-10-15)
+
+- **Branch:** `aaron`, started at `80161645` with a clean tree. While it ran, `origin/aaron` moved to `b88cb9c9` (20 commits from other sessions: Music Maps, 6/9 chords, the back office, a merge of `main`). The milestone's commits were rebased onto it; the one conflict (`seedStudioFromGenrePracticeTrack.ts`) kept both sides.
+- **Owner decisions (2026-10-15):** fix the genre strum numbering (yes); keep `firstChordsFor` tonic-first in modes (yes, after a worked comparison: A minor opens and restarts on Am, not C).
+- **Commits:**
+  - `0a28481e` engine data: `'major/1'` voices F/C (it was B♭m/F); a slash chord's engine quality survives mode conversion (E/G♯ in A minor was stored as `'5 major/5'`, read as E/B); suggestions read a lane's style from canonical qualities (prism-engine-01); E/G♯ and E sus4 colours (prism-engine-15).
+  - `46d8a7d1` chord identity filled everywhere a chord is made, and at load.
+  - `cb3ab1cc` `effectiveKey`.
+  - `d44ac832` validated chord entry.
+  - `029a8477` Lead Sheet paste and clear local to their span.
+  - `1779ec49` set-list update guard.
+  - `be6c1873` genre strum numbering.
+  - `b0e7ed6f` first-load weight back down (see bundle).
+  - `c870a06a` the fast tier runs 1.16a's tests.
+  - `fb8ca5fc` formatting of `PianoKeyboard.tsx`, which the incoming merge left unformatted (layout only; the pre-push lint stopped on it).
+- **Pushed:** yes, to `aaron` (fast-forward from `b88cb9c9`). The bundle tier's every-page failure comes with `origin/aaron` (see Verification).
+- **What changed:**
+  - **Chord identity** (`src/daw/harmony/chordIdentity.ts`, decision D3). `{rootPc, quality, bassPc, source, label}` is filled:
+    - by Prism Create (the built chords, `given`; past the sequence, from the notes, `detected`) and Suggest Chords (`given`);
+    - by analysis, merge-mode recording and a bass under a chord (`detected`);
+    - by seeds through `setChordRegions` (songs, practice tracks: `given`; anything else: `derived`);
+    - by a typed or relabelled chord (`given`), which also drops the degreeKey that described the old chord.
+    - At load, the codec's `decodeSession` runs `ensureChordIdentities` (`derived`): idempotent, the letter name first (a song's degrees can count from a local key), a slash degree read as the engine's inversion unless the degreeKey has no slash (the practice tracks' `'2 maj/1'` is D/C). Every chord of the 42 captured drafts gets one.
+    - A key change carries each identity to the chord's new name and relabels the chord from it (`chordLabels`), slash chords included.
+    - Readers: `formatChordRegion` (Timeline ruler, Lead Sheet, practice chart) writes Jazz and Roman from a current identity, keeping the region's own spelling; Suggest's style reads it.
+  - **`keyFrame.ts`** (tonic, mode, parent key; lane ↔ graph degrees; degrees ↔ pitch classes) and **`chordLabels.ts`** (the labels a known chord is stored with).
+  - **`effectiveKey.ts`**: the student's key, else a detected one marked `detected`, else none. The synth's "follow project key" (F6), "snap to song key", vocal pitch correction and the live chord detector read it; with no key, the offline and UNISON audio analyses get no prior (they assumed C major).
+  - **Validated chord entry** (`harmony/chordInput.ts`, moved from the Score): Lead Sheet, Score and the Timeline ruler. A known chord is stored in the lane's dialect with its identity; text that names none stays in the box on Enter/Space with "Not a chord we know. Try Cmaj7, Dm7b5" (amber outline, 12 px), or is dropped with a toast when the box loses focus. Rename opens on the chord (`D−7`). A new Lead Sheet chord is pending until it names a chord, so Escape leaves no C behind. Escape in the Score closes the chord menu. The store's rule for a chord on a beat is one helper, `laneWithChordAt`.
+  - **Paste and clear** (leadsheet-08, chord part): a block paste replaces chords across its span only, each as long as it was copied; clearing leaves the bars empty; loose chords go in as typed chords do; every chord outside the span is the same object.
+  - **Set-list guard** (leadsheet-04, -27): no offer for a chart with no chords or fewer bars or sections than the set's copy; the dialog shows both ("6 bars · 1 section · C major"); "Keep the old one" is the white pill with focus; an update keeps the entry's title; the chart is built when a save asks. The Send dialog's buttons are the Studio's pills (no teal).
+  - **Genre strum:** `GENRE_STRUM` holds `StrumMode` values. Jazz, R&B, Neo Soul, Bossa, Jam Band and Indie strum Human (were Up), Reggae Up (was Down), Rock and friends show Down (sounded Down, showed Synchronized). The D7 check also accepts the old numbering, so projects saved before don't count their genre's strum as the student's.
+- **Verification** (on the rebased tree unless noted):
+  - `npx yarn lint` passes.
+  - `npx vitest run`: 15,624 pass. Failures are all on `origin/aaron` without these commits: the 4 song-data suites (local `_generated_index.ts`), the `studentPath.characterization` header snapshots, and two from the incoming work, `lineage.calibration` (Atlas) and `features/landing/music.test.ts` (`songDemoChart`). Checked by running them on a `git archive` of `b88cb9c9`.
+  - New tests: harmony (`chordIdentityRead` 23, `chordLabels` 6, `keyFrame` 7, `effectiveKey` 4, `chordInput` 16), `chordIdentityWrites` (rewritten for 1.16a, 19), engine (slash conversion, `'major/1'`, every graph chord coloured and voiced root first, style from canonical qualities), Create and Suggest identities, `chordSymbolEntry` 6, paste locality 3, set-list offer 4 + guard helpers 2, genre strums, D7 with the old numbering, F6.
+  - Persistence tests that compared a load with the stored draft now set aside the identities a load reads (`source: 'derived'`) and check them separately; a decode → encode → decode round trip is stable.
+  - `studio:check` (before the rebase): unit only the known snapshot; round-trips every fast scenario ok, 0 new, 0 fixed, `knownLosses.json` unchanged; lessons 69/78 steps, the 9 failing all known (as 1.15), 12/12 complete, 4/4 Premium gated for free; bundle pass. After the rebase: round-trips the same (every fast scenario ok, 0 new, 0 fixed) and lessons the same (69/78, 9 known, 12/12, 4/4 gated). The unit tier also hit 5 s timeouts in the song-link tests (`contentBoots`, `intents`, `openSession`, `SongDetailView.openInStudio`, `useSongActions`) and `editorRoute` while the machine was loaded (35 s for the tier, 13 s before); all 6 files pass alone (105/105). The bundle tier fails, and fails the same way on `origin/aaron` without these commits: the editor store and `fields.ts` are on every page. Cause: `b61bbd77` (back office, Learn keyboard) made `features/practiceTracks/genre/openGenrePracticeTrack.ts` import `swapGenrePracticeBacking` statically from `seedStudioFromGenrePracticeTrack.ts`, which imports the store; a dynamic import there would fix it. Not changed here (another session's file).
+  - **Bundle:** DawApp 94.6 kB gzip (94.2 before). The boot closure first came out at 386 kB (358.0 before): the always-mounted set-list offer took its buttons from the `src/daw/ui` barrel, which brought the kit's menu, select and dialog chunks. Fixed in `b0e7ed6f`: 360.9 kB (+2.9 kB: typed-chord reading and the key selector), dashboard 23.2 kB, unchanged. On the rebased tree: 313.5 kB against `origin/aaron`'s 310.7 (the store moved into the every-page entry there).
+  - **Browser** (a scratch script on the harness, `?song=a_thousand_years`, chromebook and laptop): 87/87 chords with a current identity, F/A read as F over A, identities kept through a key change, rename opens on the chord, `xyz` + Enter shows the hint, `F#m7b5` stored as `b6 min7b5` / `F# min7b5` with its identity, a refresh keeps all 87 identities, no page errors. Screenshot checked at 1366×655.
+- **Open issues:**
+  1. The identity isn't in the Y.Doc: a collaborator's new chord arrives without one (readers fall back to its labels; a reload reads one). Carrying it bumps `COLLAB_DOC_SCHEMA_VERSION`: 1.14. The diff engine also doesn't sync a degreeKey change (pre-existing).
+  2. Pitch Correction's own root and scale pickers still set the project key (live-input-12's "Follow project key" toggle is 3.5's).
+  3. `'5 major/7'`, which the graph and curriculum mean as G/B ("G – G/B – C"), plays G/F♯: `CHORDS['major/7']` is the chord's major seventh below. Same family as `'major/1'`; left as it is for the owner.
+  4. Set-list Send and Update still report success before the save lands (leadsheet-20).
+  5. Insight still names a keyless audio analysis "in C Major" (its labels count from C; only the priors changed).
+  6. For 3.2/3.7/3.8: Insight's key name (insight-16), suggestion label format (prism-engine-10), Create's labels for 2- and 3-chord loops and its per-click worker (prism-engine-04, -06), Synchronized/Balanced ignoring the amount (rest of prism-engine-07).
+  7. The audit ledger (`phase-map.json`) is not updated, as before.
+  8. Inherited: `studio:check`'s bundle tier fails on `origin/aaron` (the store on every page, from `b61bbd77`), and two vitest files from the incoming work fail on it too (`lineage.calibration`, `landing/music.test.ts`).
+- **Owner sign-offs:**
+  - **A key change relabels chords in the lane's own words.** A song's `F/A` reads `F maj/A` in Hybrid after a key change (Jazz and Roman still write F/A and V/7, from the identity). Before, song chords kept their chart text, but their degree names stayed in the old key.
+  - **Typed chords are stored as chords, not text:** a typed `F#m7b5` shows `F# min7b5` in Hybrid letters and its degree in Numbers.
+  - **Leaving a chord box with text that names no chord drops it**, with a toast; Enter and Space keep it in the box with the hint.
+  - **Drafts carry identities:** up to 110 characters a chord (an 87-chord song draft grows by about 7.6k, about a third). No schema bump: identity has been a region field since schema 3, and older builds keep it as they find it.
+  - **The set-list offer isn't made for a shorter chart.** A student who meant to shorten one sends it again from the Set List button.
+  - **Cleared Lead Sheet bars stay empty** instead of the chord before them running on.
+  - **No key, no prior:** chord detection with no key set no longer assumes C major.

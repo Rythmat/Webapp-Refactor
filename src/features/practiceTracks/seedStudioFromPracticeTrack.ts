@@ -67,7 +67,7 @@ export function applyPracticeModeTrack(
   store.setRootNote(result.rootNote);
   store.setMode(result.mode);
   store.setBpm(result.bpm);
-  store.setChordRegions(result.chordRegions);
+  store.setChordRegions(result.chordRegions, false, 'given');
 
   // 'soundfont' + GM program 33 (Electric Bass finger) — a real electric
   // bass guitar timbre, as opposed to 'oracle-synth' (its `BASS` preset is

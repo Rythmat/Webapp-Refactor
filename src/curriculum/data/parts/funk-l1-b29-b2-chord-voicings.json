@@ -1,0 +1,160 @@
+{
+  "id": "funk-l1-b29-b2-chord-voicings",
+  "name": "Funk L1 · B29 B2: Chord Voicings",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "draft",
+  "key": {
+    "tonic": 2,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 3,
+  "tempo": 92,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 125
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 65,
+      "velocity": 127
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 125
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 59,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 59,
+      "velocity": 125
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 65,
+      "velocity": 127
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 127
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 59,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 1,
+    "section": "B",
+    "stepNumber": 29,
+    "title": "B2: Chord Voicings",
+    "tag": "funk:dm7_gdom9_sizzle_735_it | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Two bars: Dm7 (C4-F4-A4) then Gdom9 (B3-F4-A4). Only the C moves — down a half step to B. Same rhythm as before.",
+  "genre": "funk",
+  "chordSymbols": ["Dm7", "G9"]
+}

@@ -242,6 +242,34 @@ export const chordArpegiateEvents = (
 };
 
 /**
+ * A chord's notes one at a time going up in quarter notes, then the whole
+ * chord struck on the next bar's downbeat and held for the bar. Triads and
+ * 7ths both land the chord on bar 2 (a triad's arpeggio rests on beat 4), so
+ * it obeys Theory's one-chord-per-bar rule (lib/learn/theoryChordProgressions).
+ */
+export const chordArpeggioThenHold = (
+  chord: number[],
+  prefix: string,
+): NoteEvent[] => {
+  const barTicks = 4 * NOTE_DURATION_TICKS;
+  const chordStart = Math.ceil(chord.length / 4) * barTicks;
+  return [
+    ...chord.map((note, idx) => ({
+      id: `${prefix}-${idx}-${note}`,
+      pitchName: Tone.Frequency(note, 'midi').toNote(),
+      startTicks: idx * NOTE_DURATION_TICKS,
+      durationTicks: NOTE_DURATION_TICKS,
+    })),
+    ...chord.map((note, idx) => ({
+      id: `${prefix}Joined-${idx}-${note}`,
+      pitchName: Tone.Frequency(note, 'midi').toNote(),
+      startTicks: chordStart,
+      durationTicks: barTicks,
+    })),
+  ];
+};
+
+/**
  * Where each chord group first sounds in a built sequence.
  *
  * Builder-agnostic: it matches the pitches sounding at each onset back to the

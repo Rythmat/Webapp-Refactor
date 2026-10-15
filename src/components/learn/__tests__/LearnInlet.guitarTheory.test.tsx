@@ -427,7 +427,7 @@ describe('Learn → Theory on piano (unchanged)', () => {
     expect(guitarTheoryChapters).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByText('Chords'));
-    expect(location()).toBe('/learn/ionian/c?activity=arpeggiate-1-nh');
+    expect(location()).toBe('/learn/ionian/c?activity=triad-1-arp-pa');
   });
 
   it('opens Dorian on piano', () => {

@@ -84,10 +84,12 @@ import { useCompingList } from '../chordComping/compingSession';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
 import { useGrooveList } from '../drumGrooves/grooveSession';
 import { useInstrumentStore } from '../drumGrooves/instrumentStore';
+import { useUndoable } from '../drumGrooves/useUndoable';
 import { usePartList } from '../parts/partFiles';
 import { fileItem } from '../players/playerFiles';
 import { usePlayerList } from '../players/playerSession';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
+import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL } from '../ui/styles';
 import { BandAssignments } from './BandAssignments';
 import { BandCapture, type Take } from './BandCapture';
@@ -193,7 +195,10 @@ interface Props {
 }
 
 export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
-  const [draft, setDraft] = useState<Band>(initial);
+  // Every change is a step Undo and Redo walk back and forth through.
+  const history = useUndoable<Band>(initial);
+  const draft = history.value;
+  const setDraft = history.set;
   const [saved, setSaved] = useState<Band>(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -201,6 +206,9 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     initial.layers[0]?.id ?? null,
   );
   const [editingItem, setEditingItem] = useState(false);
+  const editingRef = useRef(editingItem);
+  editingRef.current = editingItem;
+  const saveRef = useRef<() => Promise<void>>(async () => undefined);
   /** The layer a sound is being sampled for, and whether it edits its own. */
   const [sampling, setSampling] = useState<{
     layerId: string;
@@ -225,6 +233,27 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   const pairings = usePairingList();
 
   const set = (patch: Partial<Band>) => setDraft((b) => ({ ...b, ...patch }));
+
+  // ⌘Z / ⌘⇧Z undo and redo the band, ⌘S saves it. While a layer's own
+  // editor is open below, its keys are its own.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName)) return;
+      if (!(e.metaKey || e.ctrlKey) || editingRef.current) return;
+      const key = e.key.toLowerCase();
+      if (key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) history.redo();
+        else history.undo();
+      } else if (key === 's' && CAN_WRITE_FILES) {
+        e.preventDefault();
+        void saveRef.current();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [history]);
   const setLayer = (id: string, patch: Partial<BandMember>) =>
     setDraft((b) => ({
       ...b,
@@ -569,6 +598,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
       setSaving(false);
     }
   };
+  saveRef.current = save;
 
   const itemsFor = (kind: BandSource['kind']) =>
     kind === 'groove'
@@ -640,15 +670,21 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         <Button size="sm" variant="ghost" onClick={() => onDuplicate(draft)}>
           <Copy /> Duplicate
         </Button>
-        {CAN_WRITE_FILES ? (
-          <Button
-            size="sm"
-            onClick={() => void save()}
-            disabled={!dirty || saving}
-          >
-            {saving ? <Loader2 className="animate-spin" /> : <Save />} Save
-          </Button>
-        ) : (
+        <UndoRedo history={history} />
+        <Button
+          size="sm"
+          onClick={() => void save()}
+          disabled={!CAN_WRITE_FILES || !dirty || saving}
+          title={
+            CAN_WRITE_FILES
+              ? 'Save (⌘S)'
+              : 'Bands are repo files until the content API holds them: save on your local console, or Export'
+          }
+        >
+          {saving ? <Loader2 className="animate-spin" /> : <Save />}
+          {dirty ? 'Save' : 'Saved'}
+        </Button>
+        {!CAN_WRITE_FILES && (
           <Button
             size="sm"
             variant="secondary"
@@ -659,6 +695,13 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         )}
       </div>
       {error && <p className="text-sm text-red-300">{error}</p>}
+      {!CAN_WRITE_FILES && (
+        <p className="text-xs text-amber-200/80">
+          The live console can&rsquo;t save bands yet: they&rsquo;re files in
+          the repo until the content API holds them. Edit and save on your local
+          console, or Export this band&rsquo;s file.
+        </p>
+      )}
 
       {/* ── what it is, and what it plays over ── */}
       <div className={cn(CONSOLE_PANEL, 'flex flex-wrap items-end gap-4 p-3')}>

@@ -40,6 +40,8 @@ export interface FXSlice {
   ) => void;
   setFXParams: (fx: FXParams) => void;
   addFXRoute: () => void;
+  /** The id of `type`'s route, adding one (its effect left as it is) if none. */
+  ensureFXRoute: (type: FXType) => string;
   removeFXRoute: (id: string) => void;
   updateFXRoute: (id: string, updates: Partial<FXRoute>) => void;
   setFXRoutes: (routes: FXRoute[]) => void;
@@ -70,6 +72,14 @@ const FX_TYPES: FXType[] = [
 ];
 
 let fxRouteId = 0;
+
+// Loaded patches carry their own `fx-<n>` ids, so a new id skips any the
+// patch already uses.
+function newRouteId(routes: readonly FXRoute[]): string {
+  let id = `fx-${++fxRouteId}`;
+  while (routes.some((r) => r.id === id)) id = `fx-${++fxRouteId}`;
+  return id;
+}
 
 export const createFXSlice: StateCreator<FXSlice, [], [], FXSlice> = (
   set,
@@ -112,10 +122,14 @@ export const createFXSlice: StateCreator<FXSlice, [], [], FXSlice> = (
 
   addFXRoute: () => {
     const state = get();
+    // An effect that is on already shows in the panel, routed or not, so a
+    // new slot never "adds" one the student can already hear.
     const usedTypes = new Set(state.fxRoutes.map((r) => r.type));
-    const availableType = FX_TYPES.find((t) => !usedTypes.has(t));
+    const availableType = FX_TYPES.find(
+      (t) => !usedTypes.has(t) && !state.fx[t].enabled,
+    );
     if (!availableType) return; // all 6 types in use
-    const id = `fx-${++fxRouteId}`;
+    const id = newRouteId(state.fxRoutes);
     const newRoute: FXRoute = { id, type: availableType, target: 'master' };
     set((s) => ({
       fxRoutes: [...s.fxRoutes, newRoute],
@@ -124,6 +138,15 @@ export const createFXSlice: StateCreator<FXSlice, [], [], FXSlice> = (
         [availableType]: { ...s.fx[availableType], enabled: true },
       },
     }));
+  },
+
+  ensureFXRoute: (type) => {
+    const { fxRoutes } = get();
+    const existing = fxRoutes.find((r) => r.type === type);
+    if (existing) return existing.id;
+    const id = newRouteId(fxRoutes);
+    set((s) => ({ fxRoutes: [...s.fxRoutes, { id, type, target: 'master' }] }));
+    return id;
   },
 
   removeFXRoute: (id) => {

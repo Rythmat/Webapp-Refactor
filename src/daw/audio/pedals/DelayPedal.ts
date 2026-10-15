@@ -1,7 +1,14 @@
 // ── DelayPedal ────────────────────────────────────────────────────────────
-// Mono delay with feedback and wet/dry mix.
+// Feedback delay with wet/dry mix, for the vocal pedal chain.
 
 import type { PedalProcessor } from './PedalProcessor';
+
+/** A knob value, or undefined for a missing or non-finite one. */
+function knob(value: number | undefined): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? Math.min(1, Math.max(0, value))
+    : undefined;
+}
 
 export class DelayPedal implements PedalProcessor {
   readonly type = 'delay';
@@ -56,18 +63,23 @@ export class DelayPedal implements PedalProcessor {
     this.wireEnabled();
   }
 
+  // Knobs are clamped to 0-1: a feedback value past about 1.1 would take the
+  // loop past unity, where the echoes grow until the track clips.
   updateParams(params: Record<string, number>): void {
-    if (params.time !== undefined) {
+    const time = knob(params.time);
+    if (time !== undefined) {
       // 0-1 → 0 to 1s
-      this.delay.delayTime.value = params.time;
+      this.delay.delayTime.value = time;
     }
-    if (params.feedback !== undefined) {
+    const feedback = knob(params.feedback);
+    if (feedback !== undefined) {
       // 0-1 → 0 to 0.9 (capped to prevent instability)
-      this.feedback.gain.value = params.feedback * 0.9;
+      this.feedback.gain.value = feedback * 0.9;
     }
-    if (params.mix !== undefined) {
-      this.dryGain.gain.value = 1 - params.mix;
-      this.wetGain.gain.value = params.mix;
+    const mix = knob(params.mix);
+    if (mix !== undefined) {
+      this.dryGain.gain.value = 1 - mix;
+      this.wetGain.gain.value = mix;
     }
   }
 

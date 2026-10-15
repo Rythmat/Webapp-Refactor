@@ -2,16 +2,19 @@ import React, { useState, useCallback } from 'react';
 import { Maximize2 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
-import { KeyboardView } from './KeyboardView';
-import { GuitarBassView } from './GuitarBassView';
+import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
+import {
+  DrumMachineViewPart,
+  GuitarBassViewPart,
+  KeyboardViewPart,
+  OracleSynthInlinePart,
+  OracleSynthViewPart,
+  OrganViewPart,
+  SamplerChopsViewPart,
+  SoundFontViewPart,
+  VocalViewPart,
+} from '@/daw/shell/lazyParts';
 import { AudioMidiSourcePanel } from './AudioMidiSourcePanel';
-import { OracleSynthView } from './OracleSynthView';
-import { OracleSynthInline } from './OracleSynthInline';
-import { DrumMachineView } from './DrumMachineView';
-import { SoundFontView } from './SoundFontView';
-import { VocalView } from './VocalView';
-import { OrganView } from './OrganView';
-import { SamplerChopsView } from './SamplerChopsView';
 
 // ── Instrument label for overlay title ───────────────────────────────────
 
@@ -63,9 +66,11 @@ const POP_OUT_BUTTON_INSTRUMENTS = new Set([
 // ── TrackControlsPanel ──────────────────────────────────────────────────
 
 export function TrackControlsPanel() {
-  const selectedTrackId = useStore((s) => s.selectedTrackId);
-  const tracks = useStore((s) => s.tracks);
-  const track = tracks.find((t) => t.id === selectedTrackId);
+  // The selected track only: an edit to another track re-renders nothing.
+  const track = useStore((s) =>
+    s.tracks.find((t) => t.id === s.selectedTrackId),
+  );
+  const generation = useSessionGeneration();
   const [popOut, setPopOut] = useState(false);
   const openPopOut = useCallback(() => setPopOut(true), []);
   const closePopOut = useCallback(() => setPopOut(false), []);
@@ -76,7 +81,14 @@ export function TrackControlsPanel() {
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
       {track ? (
-        <React.Fragment key={track.id}>
+        // The views below, the pop-out's included, copy some of the track
+        // into their own state as they mount: the guitar and vocal pedal
+        // chains, the drum grid's note selection, the organ's preset. So
+        // they mount again for every track, and for every project loaded
+        // over this one (useSessionGeneration): a project that reuses the
+        // track's id must not get the last one's chain played and saved
+        // into it.
+        <React.Fragment key={`${track.id}:${generation}`}>
           {/* Guitar/Bass-to-MIDI binding — MIDI/synth tracks only */}
           {track.type === 'midi' && <AudioMidiSourcePanel trackId={track.id} />}
 
@@ -116,7 +128,7 @@ export function TrackControlsPanel() {
             fullScreen={track.instrument === 'oracle-synth'}
           >
             {track.instrument === 'oracle-synth' ? (
-              <OracleSynthView />
+              <OracleSynthViewPart />
             ) : (
               renderView(track)
             )}
@@ -130,6 +142,7 @@ export function TrackControlsPanel() {
 }
 
 // ── View Router ─────────────────────────────────────────────────────────
+// Each instrument's view is its own chunk (lazyParts, milestone 1.12a).
 
 function renderView(track: { id: string; instrument: string }) {
   switch (track.instrument) {
@@ -138,27 +151,27 @@ function renderView(track: { id: string; instrument: string }) {
     case 'bass-electric':
     case 'cello':
     case 'organ':
-      return <KeyboardView trackId={track.id} />;
+      return <KeyboardViewPart trackId={track.id} />;
     case 'tonewheel-organ':
-      return <OrganView trackId={track.id} />;
+      return <OrganViewPart trackId={track.id} />;
     case 'guitar-fx':
     case 'bass-fx':
       return (
-        <GuitarBassView
+        <GuitarBassViewPart
           trackId={track.id}
           instrument={track.instrument as 'guitar-fx' | 'bass-fx'}
         />
       );
     case 'oracle-synth':
-      return <OracleSynthInline />;
+      return <OracleSynthInlinePart />;
     case 'soundfont':
-      return <SoundFontView trackId={track.id} />;
+      return <SoundFontViewPart trackId={track.id} />;
     case 'drum-machine':
-      return <DrumMachineView trackId={track.id} />;
+      return <DrumMachineViewPart trackId={track.id} />;
     case 'sampler':
-      return <SamplerChopsView trackId={track.id} />;
+      return <SamplerChopsViewPart trackId={track.id} />;
     case 'vocal-fx':
-      return <VocalView trackId={track.id} />;
+      return <VocalViewPart trackId={track.id} />;
     default:
       return (
         <DefaultView message="No controls available for this track type" />

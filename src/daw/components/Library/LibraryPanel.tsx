@@ -37,7 +37,7 @@ import {
   type LibraryCategory,
 } from '@/daw/data/libraryItems';
 import { InsightContent } from './InsightContent';
-import { LessonPicker } from '@/daw/components/Tutorial/LessonPicker';
+import { openSession } from '@/daw/session/openSession';
 
 // ── Icon lookup ─────────────────────────────────────────────────────────
 
@@ -62,6 +62,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
+const PANEL_WIDTH = 200;
+const FADE = { duration: 0.12, ease: 'easeOut' as const };
 
 // ── LibraryPanel ────────────────────────────────────────────────────────
 
@@ -84,16 +86,20 @@ export function LibraryPanel() {
     [searchQuery],
   );
 
+  // The column takes its width in one step and only its content fades in.
+  // Animating the width beside the timeline re-laid out the timeline and its
+  // canvas every frame of the spring (insight-04). Closing removes it at
+  // once, and returning to Create shows it without a fade.
   return (
-    <AnimatePresence>
+    <AnimatePresence initial={false}>
       {libraryOpen && (
         <motion.div
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 200, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={SPRING}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={FADE}
           className="shrink-0 flex flex-col overflow-hidden border-l"
           style={{
+            width: PANEL_WIDTH,
             backgroundColor: 'var(--color-surface)',
             borderColor: 'var(--color-border)',
           }}
@@ -222,9 +228,6 @@ export function LibraryPanel() {
                 className="flex-1 overflow-y-auto"
                 style={{ scrollbarWidth: 'none' }}
               >
-                {/* Step-by-step Studio tutorials, above Templates. */}
-                {!searchQuery && <LessonPicker />}
-
                 {LIBRARY_CATEGORIES.map((cat) => {
                   const items = filteredLibraryItems.filter(
                     (i) => i.category === cat,
@@ -273,19 +276,6 @@ function CategorySection({
   items: LibraryItem[];
 }) {
   const [open, setOpen] = useState(true);
-  const [confirmTemplateId, setConfirmTemplateId] = useState<string | null>(
-    null,
-  );
-  const loadProjectTemplate = useStore((s) => s.loadProjectTemplate);
-
-  const confirmLabel = confirmTemplateId
-    ? (items.find(
-        (i) =>
-          i.dragPayload.kind === 'project-template' &&
-          (i.dragPayload as { templateId: string }).templateId ===
-            confirmTemplateId,
-      )?.label ?? '')
-    : '';
 
   return (
     <div className="border-b" style={{ borderColor: 'var(--color-border)' }}>
@@ -311,24 +301,8 @@ function CategorySection({
             className="overflow-hidden"
           >
             {items.map((item) => (
-              <LibraryItemRow
-                key={item.id}
-                item={item}
-                onRequestConfirm={(templateId) =>
-                  setConfirmTemplateId(templateId)
-                }
-              />
+              <LibraryItemRow key={item.id} item={item} />
             ))}
-            {confirmTemplateId && (
-              <ConfirmReplaceDialog
-                templateLabel={confirmLabel}
-                onConfirm={() => {
-                  loadProjectTemplate(confirmTemplateId);
-                  setConfirmTemplateId(null);
-                }}
-                onCancel={() => setConfirmTemplateId(null)}
-              />
-            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -336,87 +310,34 @@ function CategorySection({
   );
 }
 
-// ── Confirmation Dialog ─────────────────────────────────────────────────
-
-function ConfirmReplaceDialog({
-  templateLabel,
-  onConfirm,
-  onCancel,
-}: {
-  templateLabel: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div
-      className="px-3 py-2 mx-2 mb-2 rounded-lg"
-      style={{
-        backgroundColor: 'var(--color-surface-2)',
-        border: '1px solid var(--color-border)',
-      }}
-    >
-      <p className="text-[10px] mb-2" style={{ color: 'var(--color-text)' }}>
-        Replace current project with <strong>{templateLabel}</strong> template?
-      </p>
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={onConfirm}
-          className="flex-1 py-1 rounded text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-          style={{
-            backgroundColor: 'var(--color-accent)',
-            color: '#000',
-            border: 'none',
-          }}
-        >
-          Replace
-        </button>
-        <button
-          onClick={onCancel}
-          className="flex-1 py-1 rounded text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-          style={{
-            backgroundColor: 'transparent',
-            color: 'var(--color-text-dim)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ── Library Item Row ────────────────────────────────────────────────────
 
-function LibraryItemRow({
-  item,
-  onRequestConfirm,
-}: {
-  item: LibraryItem;
-  onRequestConfirm?: (templateId: string) => void;
-}) {
-  const tracks = useStore((s) => s.tracks);
-  const loadProjectTemplate = useStore((s) => s.loadProjectTemplate);
+/**
+ * Open a template in place of the project, as the dashboard's template tile
+ * does (decision D10), through openSession: no question first (owner
+ * decision 6), the work it replaces is kept with a Restore, a take still
+ * recording is stopped and kept first, and the template is a new project,
+ * so a Save makes a new cloud project rather than writing over the one it
+ * replaced. Never in a shared session (E15: membership is the room id),
+ * where it would replace the room's project for everyone.
+ */
+function openTemplate(templateId: string): void {
+  if (useStore.getState().roomId !== null) return;
+  void openSession({ kind: 'template', templateId }, { source: 'library' });
+}
 
+function LibraryItemRow({ item }: { item: LibraryItem }) {
   const isProjectTemplate = item.dragPayload.kind === 'project-template';
+  const inRoom = useStore((s) => isProjectTemplate && s.roomId !== null);
+  const disabled = item.disabled || inRoom;
 
   const handleClick = useCallback(() => {
     if (!isProjectTemplate) return;
     const templateId = (
       item.dragPayload as { kind: 'project-template'; templateId: string }
     ).templateId;
-    if (tracks.length > 0 && onRequestConfirm) {
-      onRequestConfirm(templateId);
-    } else {
-      loadProjectTemplate(templateId);
-    }
-  }, [
-    isProjectTemplate,
-    item.dragPayload,
-    tracks.length,
-    onRequestConfirm,
-    loadProjectTemplate,
-  ]);
+    openTemplate(templateId);
+  }, [isProjectTemplate, item.dragPayload]);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent) => {
@@ -438,19 +359,17 @@ function LibraryItemRow({
       onDragStart={
         item.disabled || isProjectTemplate ? undefined : handleDragStart
       }
-      onClick={isProjectTemplate ? handleClick : undefined}
+      onClick={isProjectTemplate && !disabled ? handleClick : undefined}
+      aria-disabled={isProjectTemplate && disabled ? true : undefined}
+      title={inRoom ? 'Leave the shared session to open a template' : undefined}
       className="flex items-center gap-2 px-4 py-1 text-[11px] transition-colors"
       style={{
-        color: item.disabled ? 'var(--color-text-dim)' : 'var(--color-text)',
-        opacity: item.disabled ? 0.5 : 1,
-        cursor: item.disabled
-          ? 'default'
-          : isProjectTemplate
-            ? 'pointer'
-            : 'grab',
+        color: disabled ? 'var(--color-text-dim)' : 'var(--color-text)',
+        opacity: disabled ? 0.5 : 1,
+        cursor: disabled ? 'default' : isProjectTemplate ? 'pointer' : 'grab',
       }}
       onMouseEnter={(e) => {
-        if (!item.disabled)
+        if (!disabled)
           e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
       }}
       onMouseLeave={(e) => {

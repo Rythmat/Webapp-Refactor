@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { Scissors, Lock, Unlock } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { formatChord, useChordNotation } from '@/lib/chordNotation';
@@ -74,13 +74,12 @@ export function PrismStudio() {
   const generateToTracks = useStore((s) => s.generateToTracks);
 
   // ── Track validation ──
-  const selectedTrackId = useStore((s) => s.selectedTrackId);
-  const tracks = useStore((s) => s.tracks);
-  const selectedTrack = useMemo(
-    () => tracks.find((t) => t.id === selectedTrackId),
-    [tracks, selectedTrackId],
+  // A boolean, not the tracks array: a fader drag writes tracks on every
+  // move, and Prism only needs to know whether Create has a MIDI track to
+  // write to (prism-ui-20).
+  const isMidiTrack = useStore(
+    (s) => s.tracks.find((t) => t.id === s.selectedTrackId)?.type === 'midi',
   );
-  const isMidiTrack = selectedTrack?.type === 'midi';
 
   // ── Derived ──
   const chordOptions =
@@ -203,21 +202,17 @@ export function PrismStudio() {
           />
         </div>
 
+        {/* The primary action: the white pill. Unavailable, it drops to the
+            neutral surface rather than a dimmed pill. */}
         <button
           data-tutorial-id="prism-create"
           onClick={handleGenerate}
           disabled={!canGenerate}
-          className="h-8 rounded-lg text-xs font-semibold transition-colors"
-          style={{
-            width: '100%',
-            backgroundColor: canGenerate
-              ? 'var(--color-accent)'
-              : 'var(--color-surface-2)',
-            color: canGenerate ? '#fff' : 'var(--color-text-dim)',
-            border: 'none',
-            opacity: canGenerate ? 1 : 0.5,
-            cursor: canGenerate ? 'pointer' : 'not-allowed',
-          }}
+          className={`h-8 w-full rounded-full border-none text-xs font-semibold transition-colors ${
+            canGenerate
+              ? 'cursor-pointer bg-white text-[#101012] hover:bg-white/90 active:bg-white/80'
+              : 'cursor-not-allowed bg-[var(--color-surface-2)] text-[var(--color-text-dim)] opacity-50'
+          }`}
         >
           {!isMidiTrack ? 'Select a MIDI track' : 'Create'}
         </button>

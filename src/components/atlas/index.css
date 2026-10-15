@@ -1,12 +1,53 @@
 /* Atlas Globe local styles.
-   Tailwind utilities come from the main app pipeline; this file scopes the
-   page's accent + surface tokens so the chrome matches the app design system.
-   The globe's per-country colors are unaffected (handled in BaseGlobe). */
+   Tailwind utilities come from the main app pipeline; this file declares the
+   page's colour tokens, which the overlays read as `atlas-*` Tailwind colours
+   (bg-atlas-panel/95, text-atlas-text-2). theme/tokens.ts is their source and
+   a test holds this block to it. The surfaces and text alias the app's --ui-*
+   tokens (src/styles/appTheme.css); the entity kinds are Cortex's colours.
+   The globe's per-country colours are unaffected (handled in BaseGlobe). */
 
 .atlas-root {
-  /* The app's per-tab Globe accent (dashboard.css data-tab='globe'). */
-  --atlas-accent: #60a5fa;
-  --atlas-accent-dim: rgba(96, 165, 250, 0.2);
+  /* Channels (hsl or rgb), so Tailwind's opacity modifier works on them. */
+  --atlas-page: var(--ui-background);
+  --atlas-panel: var(--ui-card);
+  --atlas-text: var(--ui-foreground);
+  --atlas-accent: 96 165 250;
+  --atlas-accent-strong: 147 197 253;
+  --atlas-focus: 96 165 250;
+  --atlas-tour: 126 207 207;
+  --atlas-danger: 242 98 85;
+  --atlas-canvas: 0 0 5;
+  --atlas-artist: 10 147 150;
+  --atlas-place: 187 62 3;
+  --atlas-event: 148 210 189;
+  --atlas-song: 238 155 0;
+  --atlas-era-ancient: 245 158 11;
+  --atlas-era-renaissance: 249 115 22;
+  --atlas-era-classical-romantic: 244 63 94;
+  --atlas-era-early-modern: 139 92 246;
+  --atlas-era-postwar: 59 130 246;
+  --atlas-era-electronic-hiphop: 6 182 212;
+  --atlas-era-global-digital: 20 184 166;
+  /* Motion curves (theme/motion.ts): entering and leaving; moving. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  /* Whole colours, already translucent. */
+  --atlas-panel-border: rgb(255 255 255 / 0.08);
+  --atlas-text-2: rgb(255 255 255 / 0.55);
+  --atlas-text-3: rgb(255 255 255 / 0.45);
+}
+
+/* The globe's hover labels (float-tooltip, under react-globe.gl): a small
+   panel in the page's look instead of the library's grey box. */
+.atlas-root .float-tooltip-kap {
+  padding: 6px 10px;
+  border: 1px solid var(--atlas-panel-border);
+  border-radius: 1rem;
+  background: hsl(var(--atlas-panel) / 0.95);
+  color: hsl(var(--atlas-text));
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 /* Respect reduced-motion for the page's own animations. */
@@ -18,4 +59,24 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* The MapLibre engine's hover labels: the same small panel as above. */
+.atlas-root .atlas-map-label .maplibregl-popup-content {
+  padding: 6px 10px;
+  border: 1px solid var(--atlas-panel-border);
+  border-radius: 1rem;
+  background: hsl(var(--atlas-panel) / 0.95);
+  box-shadow: none;
+  color: hsl(var(--atlas-text));
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+.atlas-root .atlas-map-label .maplibregl-popup-tip {
+  display: none;
+}
+.atlas-root .atlas-map-label {
+  pointer-events: none;
 }

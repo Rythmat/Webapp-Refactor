@@ -1,5 +1,14 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
-import { useMemo, useRef, useState, type FC } from 'react';
+import {
+  Suspense,
+  lazy,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FC,
+  type ReactNode,
+} from 'react';
 import {
   ChevronDown,
   ChevronUp,
@@ -15,6 +24,8 @@ import type {
   ChordHit,
 } from '@/curriculum/types/songLibrary';
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
+import { isNoChord } from '@/curriculum/songLibrary/hybridDegree';
+import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import { useChartNotation } from './chartNotationPreference';
 import {
   opensPage,
@@ -51,6 +62,11 @@ import {
   songKeyMap,
   type DisplayMode,
 } from './chordLabel';
+
+// On guitar a clicked chord opens its guitar box instead of the keyboard:
+// loaded on demand, so the guitar code stays out of the piano page.
+const loadGuitarChordCard = () => import('./guitar/GuitarChordCard');
+const GuitarChordCard = lazy(loadGuitarChordCard);
 
 /* ── Types ───────────────────────────────────────────────────────────── */
 
@@ -109,6 +125,8 @@ interface ChordChartProps {
    * number of staves whatever the sections do. Unset: one continuous chart.
    */
   systemsPerPage?: number;
+  /** Drawn above the first section, inside the chart's scroller. */
+  leading?: ReactNode;
 }
 
 /* ── Staff layout constants (matching LeadSheetMeasure) ──────────────── */
@@ -121,6 +139,8 @@ export const TOTAL_HEIGHT = CHORD_AREA_HEIGHT + STAFF_HEIGHT + 16;
 export const MEASURES_PER_ROW = 4;
 /** Room a time signature takes at the head of the bar it opens. */
 const METER_WIDTH = 22;
+/** Room a start-repeat sign takes when it follows a time signature. */
+const REPEAT_SIGN_WIDTH = 14;
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -188,7 +208,9 @@ export const StaffMeasure: FC<{
   // A metre is engraved on the staff, stacked like a fraction, and the bars
   // it opens start after it — the same room a printed chart gives it.
   const meter = bar.timeSignature ?? openingMeter;
-  const inset = meter ? METER_WIDTH : 0;
+  // A start repeat comes after the metre, as in print: |  4/4  ‖:  ♪
+  const repeatX = meter ? METER_WIDTH : 0;
+  const inset = repeatX + (meter && hasRepeatStart ? REPEAT_SIGN_WIDTH : 0);
   const cellW = (width - inset) / beatsPerBar;
 
   const isMultiBarRest = bar.restBars != null && bar.restBars > 0;
@@ -363,10 +385,18 @@ export const StaffMeasure: FC<{
           style={{ fontFamily: 'serif', fontWeight: 700 }}
           textAnchor="middle"
         >
-          <text x={inset / 2} y={staffTop + LINE_SPACING * 1.72} fontSize={26}>
+          <text
+            x={METER_WIDTH / 2}
+            y={staffTop + LINE_SPACING * 1.72}
+            fontSize={26}
+          >
             {meter[0]}
           </text>
-          <text x={inset / 2} y={staffTop + LINE_SPACING * 3.72} fontSize={26}>
+          <text
+            x={METER_WIDTH / 2}
+            y={staffTop + LINE_SPACING * 3.72}
+            fontSize={26}
+          >
             {meter[1]}
           </text>
         </g>
@@ -490,7 +520,9 @@ export const StaffMeasure: FC<{
         </>
       )}
 
-      {/* Left bar line (first measure gets thicker) */}
+      {/* Left bar line (first measure gets thicker). With a metre in front
+          of the repeat it stays a plain opening line; the repeat's own thick
+          line moves to after the metre. */}
       {(isFirst || hasRepeatStart) && (
         <line
           x1={0}
@@ -498,14 +530,25 @@ export const StaffMeasure: FC<{
           x2={0}
           y2={staffTop + STAFF_HEIGHT}
           stroke="currentColor"
-          strokeWidth={hasRepeatStart ? 2.5 : 2}
-          opacity={hasRepeatStart ? 0.8 : 0.5}
+          strokeWidth={hasRepeatStart && !meter ? 2.5 : 2}
+          opacity={hasRepeatStart && !meter ? 0.8 : 0.5}
         />
       )}
 
       {/* Repeat start sign |: */}
       {hasRepeatStart && (
-        <>
+        <g transform={`translate(${repeatX}, 0)`}>
+          {meter != null && (
+            <line
+              x1={0}
+              y1={staffTop}
+              x2={0}
+              y2={staffTop + STAFF_HEIGHT}
+              stroke="currentColor"
+              strokeWidth={2.5}
+              opacity={0.8}
+            />
+          )}
           <line
             x1={3}
             y1={staffTop}
@@ -526,7 +569,7 @@ export const StaffMeasure: FC<{
             r={2.5}
             fill="currentColor"
           />
-        </>
+        </g>
       )}
 
       {/* Right bar line */}
@@ -1175,6 +1218,7 @@ export const ChordChart: FC<ChordChartProps> = ({
   barSelection,
   onPickBar,
   systemsPerPage,
+  leading,
 }) => {
   // Letters or numbers, as the reader chose. The editor is pinned to the
   // chart's own labels so it always edits what is stored.
@@ -1229,6 +1273,13 @@ export const ChordChart: FC<ChordChartProps> = ({
     rgb: ChordRgb | null;
   } | null>(null);
   const { play } = useUISound();
+  // The student's chart on guitar: a chord opens its guitar box. The editor
+  // keeps its own popup.
+  const guitarPopup =
+    useLearnInstrument() === 'guitar' && !onSelectChord && !editable;
+  useEffect(() => {
+    if (guitarPopup) void loadGuitarChordCard();
+  }, [guitarPopup]);
 
   // Map each unique chord name → its Studio key-color RGB tuple. Routed
   // through MIDI (via chordNameToMidi) so we don't have to translate the
@@ -1236,7 +1287,8 @@ export const ChordChart: FC<ChordChartProps> = ({
   const handleChordClick = (hit: ChordHit) => {
     play('click');
     const midi = chordNameToMidi(hit.chordName);
-    if (midi.length === 0) return;
+    // Guitar boxes cover chords the keyboard can't spell (F7(no 3)).
+    if (guitarPopup ? isNoChord(hit.chordName) : midi.length === 0) return;
     const key = keyOfHit.get(hit);
     const rgb = key
       ? chordRgbFor(hit.chordName, 60 + key.tonicPc, key.mode)
@@ -1257,6 +1309,7 @@ export const ChordChart: FC<ChordChartProps> = ({
         className="flex-1 overflow-y-auto custom-scrollbar"
         style={{ scrollBehavior: 'smooth' }}
       >
+        {leading}
         {song.sections.map((section, si) => (
           <SectionStaff
             key={section.id + '_' + si}
@@ -1303,34 +1356,57 @@ export const ChordChart: FC<ChordChartProps> = ({
           onClick={() => setSelectedChord(null)}
         >
           <div className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-            <ChordDiagramCard
-              midi={selectedChord.midi}
-              rgb={selectedChord.rgb}
-              // The bar's own key, so a chord after a key change is spelled
-              // and signed in the key it actually sounds in.
-              keyTonicPc={
-                keyOfHit.get(selectedChord.hit)?.tonicPc ?? song.keyRoot % 12
-              }
-              mode={keyOfHit.get(selectedChord.hit)?.mode ?? song.mode}
-              header={
-                <>
-                  <h3
-                    className="text-white font-bold text-xl"
-                    style={{ fontFamily: 'serif' }}
-                  >
-                    {selectedSymbol ?? selectedChord.hit.chordName}
-                  </h3>
-                  {selectedSymbol === null && (
-                    <p
-                      className="text-white/40 text-sm"
+            {guitarPopup ? (
+              <Suspense
+                fallback={
+                  <div className="h-72 w-full rounded-2xl bg-white/[0.04]" />
+                }
+              >
+                <GuitarChordCard
+                  song={song}
+                  chordName={selectedChord.hit.chordName}
+                  title={selectedSymbol ?? selectedChord.hit.chordName}
+                  degree={
+                    selectedSymbol === null
+                      ? selectedChord.hit.degree
+                      : undefined
+                  }
+                  keyColor={(() => {
+                    const [r, g, b] = selectedChord.rgb ?? [126, 207, 207];
+                    return `rgb(${r}, ${g}, ${b})`;
+                  })()}
+                />
+              </Suspense>
+            ) : (
+              <ChordDiagramCard
+                midi={selectedChord.midi}
+                rgb={selectedChord.rgb}
+                // The bar's own key, so a chord after a key change is spelled
+                // and signed in the key it actually sounds in.
+                keyTonicPc={
+                  keyOfHit.get(selectedChord.hit)?.tonicPc ?? song.keyRoot % 12
+                }
+                mode={keyOfHit.get(selectedChord.hit)?.mode ?? song.mode}
+                header={
+                  <>
+                    <h3
+                      className="text-white font-bold text-xl"
                       style={{ fontFamily: 'serif' }}
                     >
-                      {selectedChord.hit.degree}
-                    </p>
-                  )}
-                </>
-              }
-            />
+                      {selectedSymbol ?? selectedChord.hit.chordName}
+                    </h3>
+                    {selectedSymbol === null && (
+                      <p
+                        className="text-white/40 text-sm"
+                        style={{ fontFamily: 'serif' }}
+                      >
+                        {selectedChord.hit.degree}
+                      </p>
+                    )}
+                  </>
+                }
+              />
+            )}
           </div>
         </div>
       )}

@@ -13,10 +13,16 @@ import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
 import {
   flowKeyLabel,
   flowMode,
+  parseKeyRoot,
   scaleTitle,
   spellScaleNames,
+  stepKeyLabel,
+  stepMode,
 } from '@/curriculum/utils/flowKey';
-import { displayDegree } from '@/daw/utils/displayAccidentals';
+import {
+  displayAccidentals,
+  displayDegree,
+} from '@/daw/utils/displayAccidentals';
 
 export interface PracticeScale {
   /** The flow's own id for it, e.g. 'dorian', 'minor_blues'. */
@@ -29,6 +35,10 @@ export interface PracticeScale {
   degrees: string[];
   /** Note names in the flow's key: ['A','B','C','D','E','F♯','G']. */
   names: string[];
+  /** The scale's tonic as a pitch class — its own step's key (stepKeyLabel). */
+  tonicPc: number;
+  /** As a student reads it: 'G', 'B♭'. */
+  tonicLabel: string;
 }
 
 /** Distinct steps within one octave, ascending — the form two scales compare in. */
@@ -77,36 +87,65 @@ function isScale(intervals: readonly number[]): boolean {
  * Deduplicated by the notes, not the id: a step calling [0,2,3,5,7,9,10]
  * 'dorian' and the flow default calling the same notes 'minor' are one scale.
  */
-export function flowPracticeScales(flow: ActivityFlowV2): PracticeScale[] {
-  const rootLabel = flowKeyLabel(flow);
-  const mode = flowMode(flow);
+export function flowPracticeScales(
+  flow: ActivityFlowV2,
+  /**
+   * Lead with the scales these steps teach — a Practice Track playing one of
+   * a level's styles (Latin L1's Mariachi) opens on that style's scale.
+   */
+  preferStyleRefs?: readonly string[],
+): PracticeScale[] {
   const seen = new Set<string>();
   const scales: PracticeScale[] = [];
 
-  const add = (id: string, intervals: readonly number[]) => {
+  // A scale is its notes on its tonic: a level in two keys (Latin L1, E minor
+  // and G major) spells and lights each from its own (stepKeyLabel).
+  const add = (
+    id: string,
+    intervals: readonly number[],
+    rootLabel: string,
+    mode: string,
+  ) => {
     const steps = normalize(intervals);
     if (steps.length === 0) return;
-    const signature = steps.join(',');
+    const tonicPc = parseKeyRoot(rootLabel) % 12;
+    const signature = `${tonicPc}:${steps.join(',')}`;
     if (seen.has(signature)) return;
     seen.add(signature);
     scales.push({
-      id,
+      id: scales.some((sc) => sc.id === id) ? `${id}_${rootLabel}` : id,
       title: scaleTitle(id),
       intervals: steps,
       degrees: steps.map((step) =>
         displayDegree(DEGREES[step] ?? String(step)),
       ),
       names: spellScaleNames(rootLabel, steps, mode),
+      tonicPc,
+      tonicLabel: displayAccidentals(rootLabel),
     });
   };
-
-  add(flow.params.defaultScaleId ?? 'scale', flow.params.defaultScale ?? []);
-  for (const section of flow.sections) {
-    for (const step of section.steps) {
-      if (step.scaleId && isScale(normalize(step.scaleIntervals ?? []))) {
-        add(step.scaleId, step.scaleIntervals!);
-      }
+  const steps = flow.sections.flatMap((section) => section.steps);
+  const addStep = (step: (typeof steps)[number]) => {
+    if (step.scaleId && isScale(normalize(step.scaleIntervals ?? []))) {
+      add(
+        step.scaleId,
+        step.scaleIntervals!,
+        stepKeyLabel(flow, step),
+        stepMode(flow, step),
+      );
     }
-  }
+  };
+
+  if (preferStyleRefs?.length)
+    steps
+      .filter((step) => preferStyleRefs.includes(step.styleRef))
+      .forEach(addStep);
+  add(
+    flow.params.defaultScaleId ?? 'scale',
+    flow.params.defaultScale ?? [],
+    flowKeyLabel(flow),
+    flowMode(flow),
+  );
+  steps.forEach(addStep);
   return scales;
 }

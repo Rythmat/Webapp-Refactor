@@ -17,7 +17,12 @@ import {
   getCurrentAppSessionId,
   setCurrentAppSessionId,
 } from '@/auth/app-session-store';
+import { runBeforeSignOut } from '@/auth/beforeSignOut';
 import { DEV_AUTH_BYPASS, DEV_BYPASS_AUTH_DATA } from '@/auth/devBypass';
+import {
+  clearGoogleAutoSelectSuppression,
+  suppressGoogleAutoSelect,
+} from '@/auth/google/autoSelect';
 import {
   onSessionError,
   type SessionErrorPayload,
@@ -35,6 +40,7 @@ import {
   hasPlayedLoginSound,
   markLoginSoundPlayed,
 } from '@/hooks/useLoginSoundEnabled';
+import { setLocalStoreUser } from '@/lib/local-store/userScope';
 import { showError } from '@/util/toast';
 import { useGlobalMusicAtlas } from '../MusicAtlasContext/api';
 import {
@@ -138,6 +144,7 @@ export const AuthContext = createContext<AuthContextValue>({
   signInWithEmailAndPassword: async () => {},
   signInWithUsernameAndPassword: async () => {},
   signInWithProvider: async () => {},
+  signInWithGoogleHint: async () => {},
   signUp: async () => {},
   signUpAsTeacher: async () => {},
   signUpAsStudent: async () => {},
@@ -233,17 +240,28 @@ export const AuthContextProvider = ({
   const hardLogout = useCallback(
     async (message?: string) => {
       if (isSessionLogoutInProgressRef.current) return;
+      // Set before the wait below: a burst of 401s during it must not start
+      // another logout (and another flush).
       isSessionLogoutInProgressRef.current = true;
 
-      clearSession();
-      setToken(null);
-      setAppUser(null);
-
-      if (message) {
-        showError(message);
-      }
-
       try {
+        // The device's next user must not inherit this one's unsaved work:
+        // the Studio flushes its open draft first (at most 1 s; never throws).
+        await runBeforeSignOut(1000);
+        // Only now does device storage stop belonging to them.
+        setLocalStoreUser(null);
+
+        clearSession();
+        setToken(null);
+        setAppUser(null);
+
+        if (message) {
+          showError(message);
+        }
+
+        // Otherwise Google auto sign-in could sign straight back in (and two
+        // devices could keep replacing each other's session).
+        await suppressGoogleAutoSelect();
         await logout({
           logoutParams: {
             returnTo: window.location.origin,
@@ -346,6 +364,7 @@ export const AuthContextProvider = ({
       params?: {
         screen_hint?: 'signup' | 'login';
         connection?: 'google-oauth2' | 'apple';
+        login_hint?: string;
       },
       overrideReturnTo?: string,
     ) => {
@@ -360,6 +379,7 @@ export const AuthContextProvider = ({
         authorizationParams: {
           ...(params?.screen_hint ? { screen_hint: params.screen_hint } : {}),
           ...(params?.connection ? { connection: params.connection } : {}),
+          ...(params?.login_hint ? { login_hint: params.login_hint } : {}),
         },
       });
     },
@@ -516,6 +536,7 @@ export const AuthContextProvider = ({
 
   const signInWithProvider = useCallback(
     async (provider: 'google' | 'apple') => {
+      if (provider === 'google') clearGoogleAutoSelectSuppression();
       try {
         await startAuthLogin({
           screen_hint: 'login',
@@ -523,6 +544,26 @@ export const AuthContextProvider = ({
         });
       } catch {
         setError('Login attempt failed. Please try again.');
+      }
+    },
+    [startAuthLogin],
+  );
+
+  /**
+   * Google sign-in after One Tap / the GIS button picked the account: the same
+   * Auth0 Google login, with the picked email as `login_hint` so Google can
+   * skip its account chooser (Auth0 forwards the hint for @gmail.com only).
+   */
+  const signInWithGoogleHint = useCallback(
+    async (email: string, options?: { returnTo?: string }) => {
+      clearGoogleAutoSelectSuppression();
+      try {
+        await startAuthLogin(
+          { connection: 'google-oauth2', login_hint: email },
+          options?.returnTo,
+        );
+      } catch {
+        setError('Google sign-in failed. Please try again.');
       }
     },
     [startAuthLogin],
@@ -643,10 +684,17 @@ export const AuthContextProvider = ({
   );
 
   const signOut = useCallback(async () => {
+    // Settle what the Studio holds for this user (its open draft) while they
+    // are still signed in: at most 1 s, and never throws.
+    await runBeforeSignOut(1000);
+    // Only now does device storage stop belonging to them.
+    setLocalStoreUser(null);
     clearSession();
     setToken(null);
     setAppUser(null);
 
+    // Keep Google auto sign-in from signing straight back in.
+    await suppressGoogleAutoSelect();
     await logout({
       logoutParams: {
         returnTo: window.location.origin,
@@ -686,6 +734,7 @@ export const AuthContextProvider = ({
       signInWithEmailAndPassword,
       signInWithUsernameAndPassword,
       signInWithProvider,
+      signInWithGoogleHint,
       signUp,
       signUpAsTeacher,
       signUpAsStudent,
@@ -696,6 +745,7 @@ export const AuthContextProvider = ({
     signInWithEmailAndPassword,
     signInWithUsernameAndPassword,
     signInWithProvider,
+    signInWithGoogleHint,
     signOut,
     signUp,
     signUpAsTeacher,
@@ -712,6 +762,21 @@ export const AuthContextProvider = ({
         : value,
     [value],
   );
+
+  // Whom device storage belongs to (per-user drafts, tutorial progress,
+  // Oracle presets): the user the app sees, the dev-bypass user included.
+  // Only a user, or a sign-out Auth0 has confirmed, is published: while auth
+  // is still loading, or the profile is briefly missing (a token blip, a
+  // failed /auth/me), the scope stays as it is, so nothing is written under
+  // 'anon' during boot and the sign-out tasks still see the outgoing user
+  // (signOut and hardLogout publish null themselves, after them).
+  const localStoreUserId = providedValue.appUser?.id ?? null;
+  const signedOutForSure =
+    !providedValue.isAuth0Loading && !providedValue.isAuth0Authenticated;
+  useEffect(() => {
+    if (localStoreUserId !== null) setLocalStoreUser(localStoreUserId);
+    else if (signedOutForSure) setLocalStoreUser(null);
+  }, [localStoreUserId, signedOutForSure]);
 
   return (
     <AuthContext.Provider value={providedValue}>

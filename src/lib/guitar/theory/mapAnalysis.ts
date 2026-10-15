@@ -4,9 +4,10 @@
 // top line. Maps play twice (repeat signs), so the last bar also leads back
 // to the first.
 
-import { chordRootPc } from '@/curriculum/data/guitar/bookOne';
+import { chordRootPc } from '@/curriculum/data/guitar/centers';
 import type {
-  GuitarKeyCenter,
+  GuitarCenter,
+  GuitarScaleKey,
   GuitarMusicMap,
 } from '@/curriculum/data/guitar/types';
 import {
@@ -16,6 +17,7 @@ import {
   shapePitchClasses,
   shapePositions,
 } from '@/lib/guitar/fretboard';
+import { isTriadQuality } from './chordTones';
 import { FUNCTION_OF_DEGREE } from './keyTheory';
 import type {
   BookShape,
@@ -99,15 +101,24 @@ export function analyzeChange(
   };
 }
 
-export function analyzeMusicMap(map: GuitarMusicMap): MusicMapAnalysis {
+/**
+ * A map's patterns, chord jobs and changes. The named patterns (2-5-1, the
+ * turnaround, 5 → 1) and chord jobs are major-key ideas: a mode's maps get
+ * their changes only.
+ */
+export function analyzeMusicMap(
+  map: GuitarMusicMap,
+  mode: GuitarScaleKey,
+): MusicMapAnalysis {
   const { bars } = map;
   const n = bars.length;
   const degrees = bars.map((b) => b.degree);
   const at = (i: number) => degrees[i % n];
 
+  const major = mode === 'ionian';
   const patterns: MapPattern[] = [];
   const insideTwoFiveOne = new Set<number>();
-  if (n >= 3) {
+  if (major && n >= 3) {
     for (let i = 0; i < n; i++) {
       if (at(i) === 2 && at(i + 1) === 5 && at(i + 2) === 1) {
         patterns.push({
@@ -120,7 +131,7 @@ export function analyzeMusicMap(map: GuitarMusicMap): MusicMapAnalysis {
       }
     }
   }
-  if (n === 4 && degrees.join() === '1,6,2,5') {
+  if (major && n === 4 && degrees.join() === '1,6,2,5') {
     patterns.push({
       id: 'turnaround-1625',
       startBar: 0,
@@ -134,7 +145,7 @@ export function analyzeMusicMap(map: GuitarMusicMap): MusicMapAnalysis {
     for (let i = 0; i < n; i++) {
       const next = (i + 1) % n;
       const wraps = next === 0;
-      if (at(i) === 5 && at(next) === 1) {
+      if (major && at(i) === 5 && at(next) === 1) {
         if (!insideTwoFiveOne.has(i)) {
           patterns.push({
             id: 'five-to-one',
@@ -151,16 +162,14 @@ export function analyzeMusicMap(map: GuitarMusicMap): MusicMapAnalysis {
 
   return {
     degrees,
-    functions: degrees.map((d) => FUNCTION_OF_DEGREE[d]),
+    functions: major ? degrees.map((d) => FUNCTION_OF_DEGREE[d]) : [],
     patterns,
     changes,
-    startsOnSix: degrees[0] === 6,
-    hasSevenChord: degrees.includes(7),
+    startsOnSix: major && degrees[0] === 6,
+    hasSevenChord: major && degrees.includes(7),
     triadBarsIn7thMap:
       map.example >= 4
-        ? bars.flatMap((b, i) =>
-            b.quality === 'maj' || b.quality === 'min' ? [i] : [],
-          )
+        ? bars.flatMap((b, i) => (isTriadQuality(b.quality) ? [i] : []))
         : [],
     dom7ToOne,
   };
@@ -179,11 +188,11 @@ export interface TopLineRun {
  * keep one family while the top string climbs a scale step (1-2 semitones)
  * each chord.
  */
-export function topLineRuns(center: GuitarKeyCenter): TopLineRun[] {
+export function topLineRuns(center: GuitarCenter): TopLineRun[] {
   const boxes = center.sevenths.map((shape) => {
     const voicing = classifyVoicing(
       shape,
-      chordRootPc(center.key, shape.degree),
+      chordRootPc(center, shape.degree),
       shape.quality,
     );
     const notes = shapeNotes(shape.frets);
@@ -213,7 +222,7 @@ export function topLineRuns(center: GuitarKeyCenter): TopLineRun[] {
 export type OctaveReturnKind = 'same-shape' | 'new-shape' | 'not-higher';
 
 /** How the page's closing "1" relates to box 1. */
-export function octaveReturnKind(center: GuitarKeyCenter): OctaveReturnKind {
+export function octaveReturnKind(center: GuitarCenter): OctaveReturnKind {
   const first = center.sevenths[0].frets;
   const last = center.sevenths[center.sevenths.length - 1].frets;
   const a = parseShape(first);

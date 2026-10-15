@@ -268,6 +268,11 @@ export type FXType =
 export interface FXRoute {
   id: string;
   type: FXType;
+  /**
+   * Always 'master' for new routes. Saved presets and sessions carry it, but
+   * nothing reads it: every effect runs on the synth's output (FXChain), and
+   * the FX panel no longer offers a target.
+   */
   target: string;
 }
 

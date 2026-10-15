@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { AtlasChip } from '@/components/atlas/components/UI/primitives';
 import { mapGenreToCourse } from '@/components/atlas/utils/genreMapping';
 
 const NON_CURRICULUM_GENRES = [
@@ -20,8 +21,7 @@ export function GenreBadge({ genre }: { genre: string }) {
 
   if (course && !NON_CURRICULUM_GENRES.includes(course)) {
     return (
-      <button
-        className="inline-flex cursor-pointer items-center gap-0.5 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+      <AtlasChip
         title={`Explore ${course} in Learn`}
         onClick={(e) => {
           e.stopPropagation();
@@ -29,14 +29,10 @@ export function GenreBadge({ genre }: { genre: string }) {
         }}
       >
         {genre}
-        <ArrowUpRight className="size-2.5 opacity-60" />
-      </button>
+        <ArrowUpRight aria-hidden className="size-3 text-atlas-text-2" />
+      </AtlasChip>
     );
   }
 
-  return (
-    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-white/70">
-      {genre}
-    </span>
-  );
+  return <AtlasChip>{genre}</AtlasChip>;
 }

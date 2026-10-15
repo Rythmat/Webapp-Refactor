@@ -23,14 +23,6 @@ const FX_TYPE_OPTIONS: { value: FXType; label: string }[] = [
   { value: 'compressor', label: 'COMP' },
 ];
 
-const TARGET_OPTIONS = [
-  { value: 'master', label: 'MASTER' },
-  { value: 'osc1', label: 'OSC 1' },
-  { value: 'osc2', label: 'OSC 2' },
-  { value: 'flt1', label: 'FILTER 1' },
-  { value: 'flt2', label: 'FILTER 2' },
-];
-
 const ACCENT = '#7ecfcf'; // teal — matches --color-accent
 
 export const FXSlot: React.FC<FXSlotProps> = React.memo(
@@ -47,6 +39,9 @@ export const FXSlot: React.FC<FXSlotProps> = React.memo(
     const enabled = fx[route.type].enabled;
     const params = fx[route.type];
 
+    // No target picker: every effect runs in one fixed chain on the synth's
+    // output (FXChain), so the old TARGET menu (Master, Osc 1/2, Filter 1/2)
+    // changed nothing (synth-ui-09). A route's saved `target` stays, unread.
     return (
       <div className={styles.slot}>
         <div className={styles.row}>
@@ -58,12 +53,6 @@ export const FXSlot: React.FC<FXSlotProps> = React.memo(
             value={route.type}
             options={typeOptions}
             onChange={(v) => onUpdate(route.id, { type: v as FXType })}
-          />
-          <span className={styles.arrow}>→</span>
-          <Dropdown
-            value={route.target}
-            options={TARGET_OPTIONS}
-            onChange={(v) => onUpdate(route.id, { target: v })}
           />
         </div>
 

@@ -1,0 +1,290 @@
+[
+ {
+  "case": "metronome-countin@default-chromebook",
+  "sampleRate": 44100,
+  "host": {
+   "cores": 14,
+   "loadAvg1m": [
+    5.1,
+    4.5
+   ]
+  },
+  "checksPassed": true,
+  "failedChecks": [],
+  "liveTrackPeakDb": {
+   "Take": -6.04,
+   "Sample": -120,
+   "Drums": -4.43,
+   "Lead": -6.52
+  },
+  "clipStartErrorMs": {
+   "play": -100,
+   "resume": -100,
+   "loop": -78.5,
+   "scheduled": 0
+  },
+  "clipOffsetErrorMs": {
+   "play": 0,
+   "resume": 0,
+   "loop": -500
+  },
+  "clipEndErrorMs": {
+   "loopSeam": -96.4,
+   "pause": -97.1,
+   "stop": -100,
+   "clipEnd": 0
+  },
+  "clipCancelErrorMs": {
+   "loopSeam": -78.5,
+   "pause": -97.1,
+   "stop": -100
+  },
+  "noteReleaseErrorMs": {
+   "loopSeam": -78.5,
+   "pause": -97.1,
+   "stop": -100
+  },
+  "resumeRewindMs": -37.6,
+  "metronomeMedianErrorMs": {
+   "play": 18.2,
+   "resume": 207.4,
+   "loopLaps": 207.4
+  },
+  "metronomeMissedBeatsPerLap": [
+   0,
+   2,
+   8,
+   5
+  ],
+  "metronomeAccentsOffBarLine": 3,
+  "countInDownbeatErrorMs": 49.2,
+  "startsBeforeCurrentTime": 0,
+  "countIn": {
+   "clicks": 4,
+   "expectedClicks": 4,
+   "maxGridErrorMs": 0,
+   "accentsOnBeatOne": true,
+   "downbeatErrorMs": 49.2,
+   "timerLateMs": 43.2
+  },
+  "midi": {
+   "Drums": {
+    "instrument": "drum-machine",
+    "noteOns": 57,
+    "maxGridErrorMs": 0,
+    "minAheadMs": 44,
+    "medianAheadMs": 65.9,
+    "late": 0
+   },
+   "Lead": {
+    "instrument": "oracle-synth",
+    "noteOns": 10,
+    "maxGridErrorMs": 0,
+    "minAheadMs": 42.1,
+    "medianAheadMs": 61.9,
+    "late": 0
+   }
+  },
+  "adapters": {
+   "drum-machine": {
+    "notes": 57,
+    "gateErrorMs": null,
+    "releaseErrorMs": null,
+    "envelopeCalls": 0,
+    "sourcesStarted": {
+     "atNoteTime": 57,
+     "atOnce": 0,
+     "other": 0
+    },
+    "cutAtOnceInNoteOn": {
+     "count": 0,
+     "medianAheadMs": null
+    },
+    "pitchAtOnceInNoteOn": {
+     "count": 0,
+     "medianAheadMs": null
+    },
+    "sourcesStopped": {
+     "atOnceInNoteOn": 0,
+     "atOnceInOtherCalls": 0,
+     "scheduledInCalls": 0,
+     "atOnceLater": 0,
+     "scheduledLater": 56,
+     "notStopped": 1
+    }
+   },
+   "oracle-synth": {
+    "notes": 10,
+    "gateErrorMs": 0,
+    "releaseErrorMs": 0,
+    "envelopeCalls": 116,
+    "sourcesStarted": {
+     "atNoteTime": 0,
+     "atOnce": 24,
+     "other": 0
+    },
+    "cutAtOnceInNoteOn": {
+     "count": 0,
+     "medianAheadMs": null
+    },
+    "pitchAtOnceInNoteOn": {
+     "count": 60,
+     "medianAheadMs": 58.4
+    },
+    "sourcesStopped": {
+     "atOnceInNoteOn": 0,
+     "atOnceInOtherCalls": 0,
+     "scheduledInCalls": 0,
+     "atOnceLater": 20,
+     "scheduledLater": 0,
+     "notStopped": 4
+    }
+   }
+  },
+  "lateStarts": {}
+ },
+ {
+  "case": "metronome-countin@48000-chromebook",
+  "sampleRate": 48000,
+  "host": {
+   "cores": 14,
+   "loadAvg1m": [
+    4.3,
+    4
+   ]
+  },
+  "checksPassed": true,
+  "failedChecks": [],
+  "liveTrackPeakDb": {
+   "Take": -6.04,
+   "Sample": -120,
+   "Drums": -4.2,
+   "Lead": -7.15
+  },
+  "clipStartErrorMs": {
+   "play": -97.3,
+   "resume": -94.7,
+   "loop": -86.6,
+   "scheduled": 0
+  },
+  "clipOffsetErrorMs": {
+   "play": 0,
+   "resume": 0,
+   "loop": -500
+  },
+  "clipEndErrorMs": {
+   "loopSeam": -91.9,
+   "pause": -100,
+   "stop": -94.7,
+   "clipEnd": 0
+  },
+  "clipCancelErrorMs": {
+   "loopSeam": -86.6,
+   "pause": -100,
+   "stop": -94.7
+  },
+  "noteReleaseErrorMs": {
+   "loopSeam": -86.6,
+   "pause": -94.7,
+   "stop": -94.7
+  },
+  "resumeRewindMs": -53.2,
+  "metronomeMedianErrorMs": {
+   "play": 16.4,
+   "resume": 199.6,
+   "loopLaps": 199.6
+  },
+  "metronomeMissedBeatsPerLap": [
+   0,
+   2,
+   8,
+   5
+  ],
+  "metronomeAccentsOffBarLine": 3,
+  "countInDownbeatErrorMs": 37.3,
+  "startsBeforeCurrentTime": 0,
+  "countIn": {
+   "clicks": 4,
+   "expectedClicks": 4,
+   "maxGridErrorMs": 0,
+   "accentsOnBeatOne": true,
+   "downbeatErrorMs": 37.3,
+   "timerLateMs": 43.8
+  },
+  "midi": {
+   "Drums": {
+    "instrument": "drum-machine",
+    "noteOns": 57,
+    "maxGridErrorMs": 0,
+    "minAheadMs": 41.9,
+    "medianAheadMs": 67.2,
+    "late": 0
+   },
+   "Lead": {
+    "instrument": "oracle-synth",
+    "noteOns": 10,
+    "maxGridErrorMs": 0,
+    "minAheadMs": 65.3,
+    "medianAheadMs": 83.9,
+    "late": 0
+   }
+  },
+  "adapters": {
+   "drum-machine": {
+    "notes": 57,
+    "gateErrorMs": null,
+    "releaseErrorMs": null,
+    "envelopeCalls": 0,
+    "sourcesStarted": {
+     "atNoteTime": 57,
+     "atOnce": 0,
+     "other": 0
+    },
+    "cutAtOnceInNoteOn": {
+     "count": 0,
+     "medianAheadMs": null
+    },
+    "pitchAtOnceInNoteOn": {
+     "count": 0,
+     "medianAheadMs": null
+    },
+    "sourcesStopped": {
+     "atOnceInNoteOn": 0,
+     "atOnceInOtherCalls": 0,
+     "scheduledInCalls": 0,
+     "atOnceLater": 0,
+     "scheduledLater": 56,
+     "notStopped": 1
+    }
+   },
+   "oracle-synth": {
+    "notes": 10,
+    "gateErrorMs": 0,
+    "releaseErrorMs": 0,
+    "envelopeCalls": 116,
+    "sourcesStarted": {
+     "atNoteTime": 0,
+     "atOnce": 24,
+     "other": 0
+    },
+    "cutAtOnceInNoteOn": {
+     "count": 0,
+     "medianAheadMs": null
+    },
+    "pitchAtOnceInNoteOn": {
+     "count": 60,
+     "medianAheadMs": 78.6
+    },
+    "sourcesStopped": {
+     "atOnceInNoteOn": 0,
+     "atOnceInOtherCalls": 0,
+     "scheduledInCalls": 0,
+     "atOnceLater": 20,
+     "scheduledLater": 0,
+     "notStopped": 4
+    }
+   }
+  },
+  "lateStarts": {}
+ }
+]

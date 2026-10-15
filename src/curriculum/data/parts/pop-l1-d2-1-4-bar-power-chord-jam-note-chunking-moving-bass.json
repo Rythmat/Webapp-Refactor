@@ -1,0 +1,391 @@
+{
+  "id": "pop-l1-d2-1-4-bar-power-chord-jam-note-chunking-moving-bass",
+  "name": "Pop L1 · D2.1: 4-Bar Power Chord Jam — ¼ Note Chunking + Moving Bass",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 5,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 700,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 220,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 700,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1680,
+      "duration": 220,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 700,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 220,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 700,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3600,
+      "duration": 220,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 700,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4320,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 220,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 700,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5520,
+      "duration": 220,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 700,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6240,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6480,
+      "duration": 220,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 700,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 480,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7440,
+      "duration": 220,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 36,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "pop",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 43,
+    "title": "D2: Power Chord Jams",
+    "tag": "pop:power_jam_4bar_quarter_it | pop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "LH plays a dotted-quarter + eighth bass rhythm on the root of each chord. RH chunks the power chord in quarter notes.",
+  "genre": "pop",
+  "chordSymbols": ["C", "G", "Am", "F"]
+}

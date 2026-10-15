@@ -1,1 +1,1 @@
-export { BaseGlobe } from './BaseGlobe';
+export { AtlasGlobe } from './AtlasGlobe';

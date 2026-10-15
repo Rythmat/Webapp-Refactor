@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
+import { timeSignatureOf } from '@/daw/time/timeModel';
+import { withTransaction } from '@/daw/store/history';
 import type { LeadSheetChordFormat } from '@/daw/store/uiSlice';
 import type { ChordRecordMode } from '@/daw/store/prismSlice';
 import {
@@ -40,8 +42,8 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const bpm = useStore((s) => s.bpm);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
-  const insertMeasure = useStore((s) => s.insertMeasure);
-  const deleteMeasure = useStore((s) => s.deleteMeasure);
+  const insertMeasures = useStore((s) => s.insertMeasures);
+  const deleteMeasures = useStore((s) => s.deleteMeasures);
   const showRepeats = useStore((s) => s.leadSheetShowRepeats);
   const setShowRepeats = useStore((s) => s.setLeadSheetShowRepeats);
   const projectName = useStore((s) => s.projectName);
@@ -60,11 +62,15 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
   const handleExportMusicXml = useCallback(() => {
     if (chordRegions.length === 0) return;
+    const state = useStore.getState();
     downloadLeadSheet(chordRegions, {
       title: projectName,
       bpm,
       rootNote,
       mode,
+      // Written in the project's metre, not 4/4 (ia-flows-34).
+      timeSignature: timeSignatureOf(state),
+      extraBars: state.leadSheetBars,
     });
   }, [chordRegions, bpm, rootNote, mode, projectName]);
 
@@ -95,15 +101,27 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
     setChordFormat(cycle[chordFormat]);
   }, [chordFormat, setChordFormat]);
 
+  // A bar goes in after the selected one, or at the end with nothing
+  // selected, so a chart can grow past its last chord (leadsheet-07). The
+  // melody the sheet shows moves with the bars.
   const handleInsertMeasure = useCallback(() => {
-    const idx = selectedMeasureIdx ?? 0;
-    insertMeasure(idx + 1);
-  }, [selectedMeasureIdx, insertMeasure]);
+    withTransaction('Insert bar', () =>
+      insertMeasures(
+        selectedMeasureIdx === null
+          ? Number.POSITIVE_INFINITY
+          : selectedMeasureIdx + 1,
+        1,
+        melodyTrack?.id ?? null,
+      ),
+    );
+  }, [selectedMeasureIdx, insertMeasures, melodyTrack]);
 
   const handleDeleteMeasure = useCallback(() => {
     if (selectedMeasureIdx === null) return;
-    deleteMeasure(selectedMeasureIdx);
-  }, [selectedMeasureIdx, deleteMeasure]);
+    withTransaction('Delete bar', () =>
+      deleteMeasures(selectedMeasureIdx, 1, melodyTrack?.id ?? null),
+    );
+  }, [selectedMeasureIdx, deleteMeasures, melodyTrack]);
 
   const hasSectionAtSelected =
     selectedMeasureIdx !== null &&

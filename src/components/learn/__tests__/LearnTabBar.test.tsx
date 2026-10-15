@@ -120,4 +120,14 @@ describe('LearnTabBar', () => {
     pick('Piano');
     expect(location()).toBe('/learn?tab=Technique');
   });
+
+  it('stays on Songs when switching instrument either way', () => {
+    renderAt('/learn?tab=Songs', 'piano');
+    pick('Guitar');
+    expect(location()).toBe('/learn?tab=Songs');
+    expect(useInstrumentStore.getState().instrument).toBe('guitar');
+    pick('Piano');
+    expect(location()).toBe('/learn?tab=Songs');
+    expect(useInstrumentStore.getState().instrument).toBe('piano');
+  });
 });

@@ -1946,13 +1946,13 @@ describe('the Atlas graph on the repo data', () => {
     // stated now: 894 artists on 697 events, the seven the matcher alone
     // finds (on events that store no artists) still guesses.
     const about = graph.edges.filter((e) => e.kind === 'about');
-    expect(about.filter((e) => e.to.startsWith('artist:'))).toHaveLength(894);
+    expect(about.filter((e) => e.to.startsWith('artist:'))).toHaveLength(897);
     // 41 since the duplicate merge (30 Sep 2026): the Average White Band's
     // Dundee event and "Pick Up The Pieces" now name the same act, so the
     // event's tag finds the song.
-    expect(about.filter((e) => e.to.startsWith('song:'))).toHaveLength(41);
-    expect(new Set(about.map((e) => e.from)).size).toBe(697);
-    expect(about.filter((e) => e.inferred)).toHaveLength(7);
+    expect(about.filter((e) => e.to.startsWith('song:'))).toHaveLength(42);
+    expect(new Set(about.map((e) => e.from)).size).toBe(699);
+    expect(about.filter((e) => e.inferred)).toHaveLength(11);
     // Genres through the curated table, drawn solid.
     expect(count('in_genre', 'event')).toBe(2334);
   });
@@ -2071,8 +2071,8 @@ describe('the Atlas graph on the repo data', () => {
       songs.filter((s) => yearOf(s.year)).length,
     );
     // 569 until the bulk import of 30 September 2026 gave 58 undated songs
-    // their year.
-    expect(count('from_year', 'song')).toBe(627);
+    // their year; 628 once the Music Maps charts began (We Shall Overcome).
+    expect(count('from_year', 'song')).toBe(653);
     expect(count('in_decade')).toBe(years.size);
     expect(count('from_era')).toBe(
       [...years].filter((y) => eraForYear(y)).length,

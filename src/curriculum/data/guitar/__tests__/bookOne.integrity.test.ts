@@ -23,8 +23,6 @@ import type { GuitarShapeDiagram } from '@/lib/guitar/types';
 import {
   GUITAR_ATLAS_BOOK_ONE,
   GUITAR_KEY_ORDER,
-  chordName,
-  chordRootPc,
   keyPitchClass,
   keyScaleSpelling,
   mapLabel,
@@ -32,6 +30,7 @@ import {
   toBookKey,
 } from '../bookOne';
 import { GUITAR_ATLAS_BOOK_ONE_ERRATA, getErratum } from '../bookOneErrata';
+import { chordName, chordRootPc, getGuitarCenter } from '../centers';
 import type {
   BookChordQuality,
   GuitarChordShape,
@@ -109,10 +108,20 @@ const SEVENTH_QUALITIES: BookChordQuality[] = [
 const ENGINE_QUALITY: Record<BookChordQuality, string> = {
   maj: 'major',
   min: 'minor',
+  dim: 'diminished',
+  aug: 'augmented',
+  majb5: 'majorb5',
+  sus2b5: 'sus2b5',
   maj7: 'major7',
   min7: 'minor7',
   dom7: 'dominant7',
   min7b5: 'minor7b5',
+  dim7: 'diminished7',
+  minMaj7: 'minormajor7',
+  'maj7#5': 'major7#5',
+  dom7b5: 'dominant7b5',
+  min6: 'minor6',
+  sus2b5add6: 'sus2b5add6',
 };
 const RHYTHM_TICKS: Record<MusicMapRhythm, number> = {
   whole: 1920,
@@ -187,7 +196,7 @@ function expectSoundsChord(
   frets: string,
   where: string,
 ) {
-  const root = chordRootPc(key, degree);
+  const root = chordRootPc(getGuitarCenter(key), degree);
   expect(shapePitchClasses(frets), where).toEqual(chordPcs(root, quality));
   expect(shapeLowestMidi(frets) % 12, `${where}: root lowest`).toBe(root);
 }
@@ -361,7 +370,11 @@ describe('The Guitar Atlas: Book One data', () => {
               !printed.barre.startsWith('diagram draws'));
           if (differs) expect(cites(shape.erratumIds), where).toBe(true);
 
-          const name = chordName(key, shape.degree, shape.quality);
+          const name = chordName(
+            getGuitarCenter(key),
+            shape.degree,
+            shape.quality,
+          );
           if (normalizeName(name) !== normalizeName(printed.name)) {
             expect(cites(shape.erratumIds), `${where} name`).toBe(true);
           }
@@ -394,7 +407,11 @@ describe('The Guitar Atlas: Book One data', () => {
               expect(cites(map.erratumIds), at).toBe(true);
             }
             expect([...bar.rhythm], at).toEqual(printed.rhythmPerBar[b]);
-            const name = chordName(key, bar.degree, bar.quality);
+            const name = chordName(
+              getGuitarCenter(key),
+              bar.degree,
+              bar.quality,
+            );
             if (normalizeName(name) !== normalizeName(printed.chords[b])) {
               const nameErratum = bar.erratumIds
                 ?.map(getErratum)

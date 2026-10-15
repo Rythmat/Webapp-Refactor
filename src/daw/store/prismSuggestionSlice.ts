@@ -7,6 +7,8 @@
 
 import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
+import { replaceChordRegionsInRange, type ChordRegion } from './prismSlice';
+import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import {
   analyzeChordStyle,
   extractGraphSeed,
@@ -158,28 +160,38 @@ export const createPrismSuggestionSlice: StateCreator<
     const suggestion = prismSuggestSets[prismSuggestActiveIdx];
     if (!suggestion || suggestion.chords.length === 0) return;
 
-    const ticksPerMeasure = 1920;
+    // Bars of the project's metre: four of them in 3/4 are 5,760 ticks, not
+    // four 4/4 bars landing off the bar lines (prism-ui-06).
+    const ticksPerMeasure = ticksPerBar(timeSignatureOf(get()));
     const totalTicks = prismSuggestMeasures * ticksPerMeasure;
     const ticksPerChord = totalTicks / suggestion.chords.length;
     const insertEnd = prismSuggestInsertTick + totalTicks;
 
-    const newRegions = suggestion.chords.map((chord, i) => ({
+    const newRegions: ChordRegion[] = suggestion.chords.map((chord, i) => ({
       id: crypto.randomUUID(),
       startTick: prismSuggestInsertTick + i * ticksPerChord,
       endTick: prismSuggestInsertTick + (i + 1) * ticksPerChord,
       name: chord.noteName,
       noteName: chord.noteName,
       color: chord.color as [number, number, number],
+      // Counted from the key's tonic, like every other region's degreeKey.
       degreeKey: chord.degree,
     }));
 
-    // Merge: keep regions outside the insertion range
-    const kept = chordRegions.filter(
-      (r) => r.endTick <= prismSuggestInsertTick || r.startTick >= insertEnd,
-    );
-
-    const merged = [...kept, ...newRegions].sort(
-      (a, b) => a.startTick - b.startTick,
+    // Chords crossing the window's edges keep their parts outside it, rather
+    // than being deleted whole for touching it.
+    const written = new Set(newRegions.map((r) => r.id));
+    const merged = replaceChordRegionsInRange(
+      chordRegions,
+      newRegions,
+      prismSuggestInsertTick,
+      insertEnd,
+    ).map((r) =>
+      // A suggestion's name is its spelled chord, so it follows a respelling
+      // of the last chord toward whatever now comes after it.
+      written.has(r.id) && r.name !== r.noteName
+        ? { ...r, name: r.noteName }
+        : r,
     );
 
     set({ chordRegions: merged });

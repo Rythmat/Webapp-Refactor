@@ -1,0 +1,45 @@
+{
+  "id": "mariachi",
+  "name": "Mariachi",
+  "status": "live",
+  "timeSignature": [3, 4],
+  "length": "4m",
+  "gridResolution": "8n",
+  "instrument": "upright",
+  "grooves": ["groove-latin-2"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:0",
+      "degree": "R",
+      "dur": 1.96,
+      "velocity": 0.8
+    },
+    {
+      "time": "1:0:0",
+      "degree": "5-",
+      "dur": 1.96,
+      "velocity": 0.8
+    },
+    {
+      "time": "2:0:0",
+      "degree": "R",
+      "dur": 1.96,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:0:0",
+      "degree": "5-",
+      "dur": 1.46,
+      "velocity": 0.8
+    },
+    {
+      "time": "3:2:0",
+      "degree": "5-",
+      "dur": 0.46,
+      "velocity": 0.8
+    }
+  ],
+  "order": 200,
+  "description": "3/4 Simple Bass line"
+}

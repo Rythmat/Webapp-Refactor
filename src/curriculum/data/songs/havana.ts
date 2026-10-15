@@ -84,28 +84,20 @@ export const havana: Song = {
     {
       id: 'verse',
       label: 'Verse',
+      notes:
+        "The piano riff: G minor for two beats, E♭, then D7 anticipated on the 'and' of 4 and held through the next bar.",
       bars: [
         {
           chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '1 min', chordName: 'Gmin', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 3,
         },
         { chords: [], restBars: 8 },
       ],
@@ -116,48 +108,28 @@ export const havana: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '1 min', chordName: 'Gmin', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 3,
         },
         { chords: [], restBars: 4 },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '1 min', chordName: 'Gmin', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 3,
         },
         { chords: [], restBars: 4 },
       ],
@@ -168,25 +140,15 @@ export const havana: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '1 min', chordName: 'Gmin', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 3,
         },
         { chords: [] },
       ],

@@ -12,6 +12,10 @@ import {
 } from '@prism/engine';
 import { ChordSequenceDisplay } from './ChordSequenceDisplay';
 import { RhythmSelector } from './RhythmSelector';
+import {
+  sliderGestureProps,
+  useContinuousControl,
+} from '@/daw/hooks/useContinuousControl';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -33,7 +37,7 @@ const TILT_OPTIONS: Record<number, string> = {
 
 function SliderControl({
   label,
-  value,
+  value: storeValue,
   max,
   onChange,
 }: {
@@ -42,9 +46,19 @@ function SliderControl({
   max: number;
   onChange: (v: number) => void;
 }) {
+  // A slide is drawn as it moves and written once, on release (nothing is
+  // heard until the next Create, so there is nothing to preview).
+  const control = useContinuousControl({
+    value: storeValue,
+    preview: () => {},
+    commit: onChange,
+    label: `Change ${label.toLowerCase()}`,
+  });
+  const value = control.value;
+  const change = control.change;
   const handleChange = useCallback(
-    (vals: number[]) => onChange(vals[0]),
-    [onChange],
+    (vals: number[]) => change(vals[0]),
+    [change],
   );
   return (
     <div className="flex flex-col gap-1.5">
@@ -69,6 +83,7 @@ function SliderControl({
         max={max}
         step={1}
         onValueChange={handleChange}
+        {...sliderGestureProps(control)}
       >
         <Slider.Track
           className="relative h-1.5 grow rounded-full"

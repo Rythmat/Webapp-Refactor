@@ -99,8 +99,6 @@ export type {
   InstrumentType,
   MidiClip,
   AudioClip,
-  PitchEdit,
-  AudioClipPitchData,
   AudioInputChannel,
   AudioMidiSource,
 } from './tracksSlice';
@@ -119,11 +117,7 @@ export type {
   LeadSheetSection,
   LeadSheetRepeat,
 } from './uiSlice';
-export type {
-  MasteringSlice,
-  MasteringStyle,
-  StereoFieldMode,
-} from './masteringSlice';
+export type { MasteringSlice } from './masteringSlice';
 export type { ReturnsSlice, ReturnBus } from './returnsSlice';
 export type { MarkersSlice, Marker } from './markersSlice';
 export type { AudioIOSlice } from './audioIOSlice';

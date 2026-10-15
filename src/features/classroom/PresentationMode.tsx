@@ -19,9 +19,9 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { useCanEditClassroom } from '@/hooks/data';
 import { buildStudentView } from './buildStudentView';
-import { DEMO_DAY_ID, demoDay } from './fixtures/demoDay';
 import { useSessionSync } from './live/useSessionSync';
 import { PHASES } from './phases';
+import { newBlankDay } from './plan/newBlankDay';
 import { useLocalPlan } from './plan/useLocalPlan';
 import { Focus } from './presentation/Focus';
 import { SegmentedControl } from './presentation/SegmentedControl';
@@ -52,7 +52,7 @@ export const PresentationMode = () => {
   }>();
   const cid = classroomId ?? '';
   const navigate = useNavigate();
-  const { getDay } = useLocalPlan();
+  const { getDay, isHydrated } = useLocalPlan();
   const canEdit = useCanEditClassroom(cid);
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('sessionId') ?? '';
@@ -62,16 +62,12 @@ export const PresentationMode = () => {
     cid,
   );
 
-  // Resolve the Day: locally-authored Days come from `useLocalPlan`; a
-  // dedicated `DEMO_DAY_ID` still shows the fresh-build demo. Anything else
-  // falls back to the demo so an outdated bookmark still renders.
-  const day = useMemo(() => {
-    if (dayId && dayId !== DEMO_DAY_ID) {
-      const stored = getDay(dayId);
-      if (stored) return stored;
-    }
-    return demoDay;
-  }, [dayId, getDay]);
+  // Resolve the Day from `useLocalPlan`. A missing Day (deleted, or an old
+  // bookmark) gets a "not found" screen below; the blank placeholder only keeps
+  // the hooks in between running in a stable order.
+  const storedDay = dayId ? getDay(dayId) : undefined;
+  const [placeholderDay] = useState(() => newBlankDay());
+  const day = storedDay ?? placeholderDay;
 
   const [language, setLanguage] = useState<StudentLanguage>('en');
   // Per-section age preset. This used to be hard-coded 'high' while
@@ -191,6 +187,29 @@ export const PresentationMode = () => {
     document.addEventListener('fullscreenchange', onChange);
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);
+
+  if (!storedDay) {
+    return (
+      <div className="flex h-full min-h-0 w-full flex-col items-center justify-center gap-4 p-6 text-center">
+        {isHydrated ? (
+          <>
+            <p className="text-lg text-white/80">
+              This lesson doesn&apos;t exist anymore.
+            </p>
+            <button
+              type="button"
+              onClick={exitToClassroom}
+              className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
+            >
+              Back to classroom
+            </button>
+          </>
+        ) : (
+          <p className="text-sm text-white/50">Loading lesson…</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div

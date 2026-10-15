@@ -1,3 +1,5 @@
+import type { TimeWindow } from '@/components/atlas/timeline/timeWindow';
+
 // --- Region IDs (18 regions) ---
 export type RegionId =
   | 'north-america'
@@ -59,32 +61,47 @@ export interface HistoricalEvent {
   videoId?: string;
 }
 
-// --- UI types ---
-export type CategoryTab =
-  | 'Region'
-  | 'Decade'
-  | 'City'
-  | 'Genre'
-  | 'Culture'
-  | 'Musicians';
-
-export interface MenuItem {
-  id: string;
-  label: string;
-  icon: string;
-}
-
 // --- Selection (discriminated union) ---
 export type SelectedLocation =
   | { type: 'country'; name: string; iso: string }
   | { type: 'state'; name: string; country?: string }
   | { type: 'city'; id: string };
 
+/**
+ * How much of the map, in px from each edge, the page's overlays cover (the
+ * layout measures it: layout/AtlasZones.tsx). The MapLibre engine keeps the
+ * map's centre, and frames its flights, in what is left.
+ */
+export interface MapInsets {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
 // --- Search fly target ---
+/**
+ * What a flight frames, for an engine that can fit it exactly: the MapLibre
+ * engine fits a country's or a state's outline, centres a city at a street-map
+ * zoom, and fits a set of points (components/Globe/mapFraming.ts). The
+ * three.js globe flies to the target's lat/lng/zoom and ignores this.
+ */
+export type FlyFrame =
+  /** A country's or a US/Canada state's outline. */
+  | { kind: 'region'; place: SelectedLocation }
+  /**
+   * A city: fitted to its outline when it has one (`cityId`), else at a
+   * street-map zoom (navigation/flyFrames.ts).
+   */
+  | { kind: 'city'; zoom: number; cityId?: string }
+  /** Every one of these points: an artist's events. */
+  | { kind: 'points'; points: { lat: number; lng: number }[] };
+
 export interface FlyTarget {
   lat: number;
   lng: number;
   zoom: number;
+  frame?: FlyFrame;
 }
 
 // --- Historical Pathway Modules ---
@@ -107,23 +124,33 @@ export interface TourProgress {
   currentStep: number; // 0-indexed
 }
 
+// --- Globe layers (the Layers control) ---
+/** What the globe draws; each one the viewer can switch off. */
+export interface GlobeLayers {
+  /** Countries in their continent's colours; off, the land is one plain grey. */
+  countryColors: boolean;
+  /** US and Canada state outlines, once the camera is close enough. */
+  states: boolean;
+  /** A column on each music city. */
+  cities: boolean;
+  /** An artist's moments, as points, while their panel is open. */
+  artistPoints: boolean;
+  /** A pinned event's influence arcs (directions as visibleArcDirections). */
+  arcs: boolean;
+}
+
 // --- App State ---
 export interface AppState {
-  currentYear: number;
-  selectedDecades: number[];
-  selectedRegions: RegionId[];
-  selectedNations: string[];
-  selectedSubdivisions: string[];
-  selectedCities: string[];
   selectedLocation: SelectedLocation | null;
-  activeTab: CategoryTab;
-  searchQuery: string;
-  isSearchOpen: boolean;
-  searchResults: HistoricalEvent[];
   pinnedEvent: HistoricalEvent | null;
   activeModule: ModuleProgress | null;
   activeTour: TourProgress | null;
-  selectedEra: string | null;
+  /**
+   * The years in view (timeline/timeWindow.ts): the timeline's window and the
+   * filter the map and its bottom bar apply. Null is all of time. Mirrored to
+   * the URL's `from`/`to` (navigation/useWindowSync.ts).
+   */
+  timeWindow: TimeWindow | null;
   searchFlyTarget: FlyTarget | null;
   /** Which influence arc directions are visible on the globe */
   visibleArcDirections: Set<'upstream' | 'downstream'>;
@@ -133,28 +160,42 @@ export interface AppState {
    */
   detailsPanelWidth: number | null;
   /**
+   * Height (px) of the phone bottom sheet over the globe's lower part, or
+   * null. The globe shifts up by half of this so the region clears the sheet.
+   */
+  sheetOcclusion: number | null;
+  /**
    * True while the globe is spinning. Only ever set by the user, from the spin
    * control on the globe page — nothing starts it automatically.
    */
   globeRotating: boolean;
+  /** Which of the globe's layers are drawn. Per viewer, kept in localStorage. */
+  layers: GlobeLayers;
+  /**
+   * True while the camera is close enough for state outlines (BaseGlobe's
+   * altitude band), so the legend lists them only when they can show.
+   */
+  statesInView: boolean;
+  /** Whether the legend card is open: closed until the viewer opens it. */
+  legendOpen: boolean;
+  /** Whether the Layers popover is open. */
+  layersOpen: boolean;
+  /**
+   * True once the viewer has first pressed, scrolled or keyed on the map
+   * itself: the map's credit (MapCredit), open when the map first appears,
+   * folds up then.
+   */
+  mapTouched: boolean;
+  /** What the page's overlays cover of the map (MapInsets). */
+  mapInsets: MapInsets;
 }
 
 export type AppAction =
-  | { type: 'SET_YEAR'; payload: number }
-  | { type: 'TOGGLE_DECADE'; payload: number }
-  | { type: 'TOGGLE_REGION'; payload: RegionId }
-  | { type: 'TOGGLE_NATION'; payload: string }
-  | { type: 'TOGGLE_SUBDIVISION'; payload: string }
-  | { type: 'TOGGLE_CITY'; payload: string }
   | { type: 'SELECT_LOCATION'; payload: SelectedLocation | null }
-  | { type: 'SET_TAB'; payload: CategoryTab }
-  | { type: 'SET_SEARCH'; payload: string }
-  | { type: 'SET_SEARCH_OPEN'; payload: boolean }
-  | { type: 'SET_SEARCH_RESULTS'; payload: HistoricalEvent[] }
   | { type: 'PIN_EVENT'; payload: HistoricalEvent | null }
   | {
       type: 'EXECUTE_SEARCH';
-      payload: { year?: number; lat?: number; lng?: number; zoom?: number };
+      payload: { lat?: number; lng?: number; zoom?: number; frame?: FlyFrame };
     }
   | { type: 'CLEAR_FLY_TARGET' }
   | { type: 'SET_GLOBE_ROTATING'; payload: boolean }
@@ -164,7 +205,14 @@ export type AppAction =
   | { type: 'START_TOUR'; payload: { tourId: string } }
   | { type: 'TOUR_STEP'; payload: number }
   | { type: 'EXIT_TOUR' }
-  | { type: 'SET_ERA'; payload: string | null }
+  | { type: 'SET_WINDOW'; payload: TimeWindow | null }
   | { type: 'SET_DETAILS_PANEL_WIDTH'; payload: number | null }
+  | { type: 'SET_SHEET_OCCLUSION'; payload: number | null }
   | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
-  | { type: 'OPEN_INFLUENCE_ARCS' };
+  | { type: 'OPEN_INFLUENCE_ARCS' }
+  | { type: 'SET_LAYER'; payload: { layer: keyof GlobeLayers; on: boolean } }
+  | { type: 'SET_STATES_IN_VIEW'; payload: boolean }
+  | { type: 'SET_LEGEND_OPEN'; payload: boolean }
+  | { type: 'SET_LAYERS_OPEN'; payload: boolean }
+  | { type: 'MAP_TOUCHED' }
+  | { type: 'SET_MAP_INSETS'; payload: MapInsets };

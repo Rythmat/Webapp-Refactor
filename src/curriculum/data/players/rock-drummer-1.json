@@ -1,0 +1,78 @@
+{
+  "id": "rock-drummer-1",
+  "name": "Rock-Drummer-1",
+  "instrument": "drums",
+  "genre": "rock",
+  "kind": "placeholder",
+  "order": 530,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "straight-8"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-indie-1"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-indie-2"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-indie-3"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-punk-1"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-punk-2"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rock-10"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rock-2"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rock-3"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rock-4"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rock-5"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rock-6"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rock-7"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rock-8"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-rock-9"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-train-1"
+    },
+    {
+      "kind": "groove",
+      "id": "train_1_copy"
+    }
+  ]
+}

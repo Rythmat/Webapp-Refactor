@@ -378,12 +378,94 @@ export const AdminRoutes = {
     '/table/:table/:row',
     { prefix: adminPrefix },
   ),
+
+  /**
+   * Drum Grooves designer — the step-sequenced grooves activity backing tracks,
+   * Practice Tracks and the Studio's Grooves tab play. Saving writes repo
+   * files (dev server only).
+   */
+  drumGrooves: createRouteDefinition('/grooves', { prefix: adminPrefix }),
+
+  /** Drum Grooves designer — one groove. */
+  drumGroove: createRouteDefinition<{ id: string }>('/grooves/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Bass Lines — chord-relative bass line templates (from ICP Studio), heard
+   * over a chart and a drum groove. Saving writes repo files (dev server only).
+   */
+  bassLines: createRouteDefinition('/bass-lines', { prefix: adminPrefix }),
+
+  /** Bass Lines — one line's editor. */
+  bassLine: createRouteDefinition<{ id: string }>('/bass-lines/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Chord Comping — rhythms of chord hits, voiced over any progression and
+   * heard with a drum groove. Saving writes repo files (dev server only).
+   */
+  chordComping: createRouteDefinition('/comping', { prefix: adminPrefix }),
+
+  /**
+   * Bands — a lesson style's rhythm section as one item: drums, bass,
+   * comping and any keyboard or guitar layers, heard layered over a chart and
+   * paired with lesson styles. Saving writes repo files (dev server only).
+   */
+  bands: createRouteDefinition('/bands', { prefix: adminPrefix }),
+
+  /**
+   * Players — the people in the bands, one per instrument per genre to start,
+   * each with the grooves, lines, patterns and parts they play.
+   */
+  players: createRouteDefinition('/players', { prefix: adminPrefix }),
+
+  /** Players — one player. */
+  player: createRouteDefinition<{ id: string }>('/players/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /** Bands — one band's editor. */
+  band: createRouteDefinition<{ id: string }>('/bands/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /** Chord Comping — one pattern's editor. */
+  chordCompingPattern: createRouteDefinition<{ id: string }>('/comping/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Parts Library — instrumental parts (piano, bass, guitar…) lessons and the
+   * Studio draw on, drum grooves listed alongside. Saving writes repo files
+   * (dev server only).
+   */
+  parts: createRouteDefinition('/parts', { prefix: adminPrefix }),
+
+  /** Parts Library — one part's editor. */
+  part: createRouteDefinition<{ id: string }>('/parts/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Parts editor on a lesson step's notes: piano roll / staff, then commit
+   * back to the lesson. `index` is the step's position in its section.
+   */
+  lessonPart: createRouteDefinition<
+    { genre: string; level: string },
+    { section?: string; index?: string; hands?: string; variant?: string }
+  >('/parts/lesson/:genre/:level', { prefix: adminPrefix }),
 };
 
 /**
- * The routes for the teacher.
+ * The routes for the teacher. `root`/`classrooms` keep the `/teacher` prefix;
+ * every per-classroom page lives under the Office, keyed by classroom id
+ * (`/office/:classroomId/...`), so the Office and its classrooms share one URL
+ * space.
  */
 const teacherPrefix = '/teacher';
+const officePrefix = '/office';
 
 export const TeacherRoutes = {
   /**
@@ -405,129 +487,131 @@ export const TeacherRoutes = {
   }),
 
   /**
-   * Per-classroom teacher dashboard. Teachers navigate here from a card on
-   * the classrooms selector (or directly if they own exactly one classroom).
+   * Retired per-classroom URL space (`/teacher/classroom/:classroomId/*`).
+   * Router-only: it redirects to the same page under `/office/:classroomId`.
    */
-  classroomDashboard: createRouteDefinition<{
+  legacyClassroom: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId', {
+  }>('/classroom/:classroomId/*', {
     prefix: teacherPrefix,
   }),
 
   /**
-   * The route to the student page.
+   * Per-classroom teacher dashboard. Teachers navigate here from a card on
+   * the Office (or directly if they own exactly one classroom).
+   */
+  classroomDashboard: createRouteDefinition<{
+    classroomId: string;
+  }>('/:classroomId', {
+    prefix: officePrefix,
+  }),
+
+  /**
+   * The People tab — Teachers, Students, and the Gradebook.
    */
   students: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/students', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/students', {
+    prefix: officePrefix,
   }),
 
   /** Plan Days overview — the teacher's list of authored Days. */
   plan: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/plan', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan', {
+    prefix: officePrefix,
   }),
 
   /** Interactive-session deck wizard — template-first slide deck setup.
    *  Static segment outranks dayEditor's `:dayId` param in route matching. */
   deckWizard: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/plan/live-deck', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan/live-deck', {
+    prefix: officePrefix,
   }),
 
   /** Day editor — authoring surface for a single Day. */
   dayEditor: createRouteDefinition<{
     classroomId: string;
     dayId: string;
-  }>('/classroom/:classroomId/plan/:dayId', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan/:dayId', {
+    prefix: officePrefix,
   }),
 
   /** Preview a Day as a student would see it. */
   dayPreview: createRouteDefinition<{
     classroomId: string;
     dayId: string;
-  }>('/classroom/:classroomId/plan/:dayId/preview', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan/:dayId/preview', {
+    prefix: officePrefix,
   }),
 
-  /** Annual Plan — Kanban-style calendar of Units. */
+  /** Calendar — the classroom's scheduled lessons by month / week. */
   annualPlan: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/plan/annual', {
-    prefix: teacherPrefix,
-  }),
-
-  /** A single Unit inside the Annual Plan. */
-  annualUnit: createRouteDefinition<{
-    classroomId: string;
-    unitId: string;
-  }>('/classroom/:classroomId/plan/annual/unit/:unitId', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/plan/annual', {
+    prefix: officePrefix,
   }),
 
   /** Presentation Mode — the projected board for a Day. */
   present: createRouteDefinition<{
     classroomId: string;
     dayId: string;
-  }>('/classroom/:classroomId/present/:dayId', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/present/:dayId', {
+    prefix: officePrefix,
   }),
 
   /** Teacher's assignments list for a classroom. */
   assignments: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/assignments', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/assignments', {
+    prefix: officePrefix,
   }),
 
   /** Teacher progress grid for a single assignment. */
   assignmentProgress: createRouteDefinition<{
     classroomId: string;
     assignmentId: string;
-  }>('/classroom/:classroomId/assignments/:assignmentId/progress', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/assignments/:assignmentId/progress', {
+    prefix: officePrefix,
   }),
 
-  /** Grades tab of the classroom workspace — thin gradebook over assignments. */
+  /** Retired Grades tab — redirects to the Gradebook section of `students`. */
   grades: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/grades', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/grades', {
+    prefix: officePrefix,
   }),
 
   /** Teacher live-session dashboard. */
   session: createRouteDefinition<{
     classroomId: string;
     sessionId: string;
-  }>('/classroom/:classroomId/sessions/:sessionId', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/sessions/:sessionId', {
+    prefix: officePrefix,
   }),
 
   /** Anonymized projector overlay during a live session. */
   projector: createRouteDefinition<{
     classroomId: string;
     sessionId: string;
-  }>('/classroom/:classroomId/sessions/:sessionId/projector', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/sessions/:sessionId/projector', {
+    prefix: officePrefix,
   }),
 
   /** Teacher-only post-session report. */
   report: createRouteDefinition<{
     classroomId: string;
     sessionId: string;
-  }>('/classroom/:classroomId/sessions/:sessionId/report', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/sessions/:sessionId/report', {
+    prefix: officePrefix,
   }),
 
   /** Teacher-only index of ended-session reports. */
   reports: createRouteDefinition<{
     classroomId: string;
-  }>('/classroom/:classroomId/reports', {
-    prefix: teacherPrefix,
+  }>('/:classroomId/reports', {
+    prefix: officePrefix,
   }),
 };
 
@@ -536,7 +620,7 @@ export const TeacherRoutes = {
  * top-level URL (no `/teacher` prefix).
  */
 export const OfficeRoutes = {
-  root: createRouteDefinition('/office'),
+  root: createRouteDefinition(officePrefix),
 };
 
 /**
@@ -662,6 +746,9 @@ export const StudioRoutes = {
 
   /** The DAW editor. The `/studio` index now shows the Studio Dashboard. */
   editor: createRouteDefinition('/editor', { prefix: studioPrefix }),
+
+  /** The Production tab — step-by-step DAW lessons, each opening the editor. */
+  production: createRouteDefinition('/production', { prefix: studioPrefix }),
 };
 
 const gamesPrefix = '/arcade';
@@ -773,12 +860,13 @@ export const LearnRoutes = {
     key: string;
   }>('/parallel/:key', { prefix: learnPrefix }),
 
-  // Guitar (The Guitar Atlas): its key centers are Theory → Ionian (Major) on
-  // guitar. Static first segment, so these outrank '/:mode' and '/:mode/:key'.
+  // Guitar: Theory's tiles on guitar, by their slug ('ionian', 'ionian#5',
+  // encoded here). Static first segment, so these outrank '/:mode' and
+  // '/:mode/:key'.
   /** Bare '/learn/guitar': not a page; sends the student to Theory. */
   guitar: createRouteDefinition('/guitar', { prefix: learnPrefix }),
 
-  /** A mode's guitar overview: the keys, the book's scale box. */
+  /** A Theory tile's guitar overview: the keys, the scale box. */
   guitarOverview: createRouteDefinition<{
     mode: string;
   }>('/guitar/:mode', { prefix: learnPrefix }),

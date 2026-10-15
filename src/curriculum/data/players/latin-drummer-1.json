@@ -1,0 +1,58 @@
+{
+  "id": "latin-drummer-1",
+  "name": "Latin-Drummer-1",
+  "instrument": "drums",
+  "genre": "latin",
+  "kind": "placeholder",
+  "order": 330,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "bossa-nova"
+    },
+    {
+      "kind": "groove",
+      "id": "latin-rock"
+    },
+    {
+      "kind": "groove",
+      "id": "latin_1_copy"
+    },
+    {
+      "kind": "groove",
+      "id": "latin_mariachi_copy"
+    },
+    {
+      "kind": "groove",
+      "id": "partido-alto"
+    },
+    {
+      "kind": "groove",
+      "id": "reggaeton_01"
+    },
+    {
+      "kind": "groove",
+      "id": "salsa-2-3"
+    },
+    {
+      "kind": "groove",
+      "id": "salsa-3-2"
+    },
+    {
+      "kind": "groove",
+      "id": "samba"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-bossa-1"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-latin-1"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-latin-2"
+    }
+  ]
+}

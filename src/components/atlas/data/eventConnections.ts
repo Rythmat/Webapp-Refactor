@@ -1,8 +1,8 @@
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { contentGeneration, MUSIC_HISTORY } from '@/content/contentStore';
-import { CITIES } from './cities';
-import { getCountryColor } from './continentColors';
-import { CITY_COUNTRY_TO_ISO } from './flagColors';
+import { getEventCountryColor } from './eventColor';
+
+export { getEventCountryColor };
 
 // Directed pair: `from` influenced `to` (chronological flow)
 export interface EventConnection {
@@ -3974,7 +3974,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 const EVENT_MAP = new Map<string, HistoricalEvent>();
 const UPSTREAM_MAP = new Map<string, string[]>(); // to → [from, from, ...]
 const DOWNSTREAM_MAP = new Map<string, string[]>(); // from → [to, to, ...]
-const CITY_COUNTRY_COLOR_MAP = new Map<string, string>();
 
 let builtGeneration = -1;
 
@@ -3987,8 +3986,8 @@ function ensureMaps(): void {
     EVENT_MAP.set(event.id, event);
   }
 
-  // EVENT_CONNECTIONS and CITIES are still static bundled data, so these two
-  // only need building once — but rebuilding them costs microseconds and keeps
+  // EVENT_CONNECTIONS is still static bundled data, so these two only need
+  // building once — but rebuilding them costs microseconds and keeps
   // the invalidation rule to a single generation check.
   UPSTREAM_MAP.clear();
   DOWNSTREAM_MAP.clear();
@@ -4001,21 +4000,6 @@ function ensureMaps(): void {
     if (downs) downs.push(conn.to);
     else DOWNSTREAM_MAP.set(conn.from, [conn.to]);
   }
-
-  CITY_COUNTRY_COLOR_MAP.clear();
-  for (const city of CITIES) {
-    const iso = CITY_COUNTRY_TO_ISO[city.country];
-    if (iso) {
-      CITY_COUNTRY_COLOR_MAP.set(city.name.toLowerCase(), getCountryColor(iso));
-    }
-  }
-}
-
-export function getEventCountryColor(event: HistoricalEvent): string {
-  ensureMaps();
-  return (
-    CITY_COUNTRY_COLOR_MAP.get(event.location.city.toLowerCase()) ?? '#a1a1aa'
-  );
 }
 
 export interface EventConnectionInfo {

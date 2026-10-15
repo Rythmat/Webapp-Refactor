@@ -5,6 +5,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
+import { LegacyClassroomRedirect } from './workspace/LegacyClassroomRedirect';
 
 const TeacherLanding = lazy(() =>
   import('./TeacherLanding').then(({ TeacherLanding }) => ({
@@ -47,10 +48,10 @@ const ClassroomDeepPageLayout = lazy(() =>
   ),
 );
 
-const ClassroomGradesPage = lazy(() =>
-  import('@/features/classroom/grades/ClassroomGradesPage').then(
-    ({ ClassroomGradesPage }) => ({ default: ClassroomGradesPage }),
-  ),
+const GradesRedirect = lazy(() =>
+  import('./workspace/GradesRedirect').then(({ GradesRedirect }) => ({
+    default: GradesRedirect,
+  })),
 );
 
 // Teacher-facing deep pages — reused from src/features/classroom/ but
@@ -85,21 +86,15 @@ const PreviewPage = lazy(() =>
   })),
 );
 
-const AnnualPlanPage = lazy(() =>
-  import('@/features/classroom/annual/AnnualPlanPage').then(
-    ({ AnnualPlanPage }) => ({ default: AnnualPlanPage }),
-  ),
-);
-
-const AnnualUnitPage = lazy(() =>
-  import('@/features/classroom/annual/UnitPage').then(({ UnitPage }) => ({
-    default: UnitPage,
-  })),
-);
-
 const AssignmentsPage = lazy(() =>
   import('@/features/classroom/assignments/AssignmentsPage').then(
     ({ AssignmentsPage }) => ({ default: AssignmentsPage }),
+  ),
+);
+
+const AnnualPlanPage = lazy(() =>
+  import('@/features/classroom/annual/AnnualPlanPage').then(
+    ({ AnnualPlanPage }) => ({ default: AnnualPlanPage }),
   ),
 );
 
@@ -160,8 +155,44 @@ export const teacherPages = () => {
             path: TeacherRoutes.classrooms.definition,
             element: <Navigate to={OfficeRoutes.root()} replace />,
           },
+        ],
+      },
+      {
+        // Back-compat: classrooms moved from /teacher/classroom/:id/* to
+        // /office/:id/* (see officePages); old links land on the same page.
+        path: TeacherRoutes.legacyClassroom.definition,
+        element: <LegacyClassroomRedirect />,
+      },
+    ],
+  };
+};
+
+/**
+ * The teacher "Office" — the classroom picker/home at `/office`, plus every
+ * classroom under it at `/office/:classroomId/...`. It reproduces the same
+ * guard + dashboard shell `/teacher` has (AppContext → ProtectedPage
+ * teacherOnly → ClassroomDashboard), since React Router can't nest an absolute
+ * `/office` child under the `/teacher` parent.
+ */
+export const officePages = () => {
+  return {
+    path: OfficeRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage teacherOnly>
+          <Suspense>
+            <Outlet />
+          </Suspense>
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      {
+        element: <ClassroomDashboard fallback={<DashboardContentSkeleton />} />,
+        children: [
+          { index: true, element: <ClassroomSelectionPage /> },
           {
-            // GC-style workspace: the four tab pages nest under one layout
+            // GC-style workspace: the tab pages nest under one layout
             // (hero + tabs). Child paths are absolute and begin with the
             // workspace path, so React Router keeps them here; the deep pages
             // below stay siblings and render chrome-free.
@@ -183,15 +214,16 @@ export const teacherPages = () => {
                 element: <PlanPage />,
               },
               {
-                // Calendar tab: the Annual Plan renders inside the workspace
-                // shell (hero + tab bar). Its deep Unit page stays a sibling
-                // below so it renders chrome-free.
+                // Calendar tab: renders inside the workspace shell (hero +
+                // tab bar).
                 path: TeacherRoutes.annualPlan.definition,
                 element: <AnnualPlanPage />,
               },
               {
+                // The Grades tab was folded into People (Gradebook section);
+                // keep the old URL working by landing on that section.
                 path: TeacherRoutes.grades.definition,
-                element: <ClassroomGradesPage />,
+                element: <GradesRedirect />,
               },
             ],
           },
@@ -205,10 +237,6 @@ export const teacherPages = () => {
               {
                 path: TeacherRoutes.deckWizard.definition,
                 element: <DeckWizardPage />,
-              },
-              {
-                path: TeacherRoutes.annualUnit.definition,
-                element: <AnnualUnitPage />,
               },
               {
                 path: TeacherRoutes.dayEditor.definition,
@@ -254,34 +282,6 @@ export const teacherPages = () => {
             element: <ProjectorPage />,
           },
         ],
-      },
-    ],
-  };
-};
-
-/**
- * The teacher "Office" — the classroom picker/home, promoted to a top-level
- * `/office` URL. It reproduces the same guard + dashboard shell the picker had
- * as a child of `/teacher` (AppContext → ProtectedPage teacherOnly →
- * ClassroomDashboard), since React Router can't nest an absolute `/office`
- * child under the `/teacher` parent.
- */
-export const officePages = () => {
-  return {
-    path: OfficeRoutes.root.definition,
-    element: (
-      <AppContext>
-        <ProtectedPage teacherOnly>
-          <Suspense>
-            <Outlet />
-          </Suspense>
-        </ProtectedPage>
-      </AppContext>
-    ),
-    children: [
-      {
-        element: <ClassroomDashboard fallback={<DashboardContentSkeleton />} />,
-        children: [{ index: true, element: <ClassroomSelectionPage /> }],
       },
     ],
   };

@@ -2,6 +2,8 @@ import React, { useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useSynthStore } from '../../store';
 import styles from './PresetSelector.module.css';
+import { saveAtlasPatch } from '../../store/presets/atlasPatches';
+import type { PresetData } from '../../store/presets/PresetData';
 
 /**
  * Flip-aware fixed placement for the dropdown/save dialog, anchored to the
@@ -82,6 +84,22 @@ export const PresetSelector: React.FC = React.memo(() => {
     },
     [loadPreset],
   );
+
+  /** Save to this browser and as a Music Atlas patch everyone gets. */
+  const handleSaveShared = useCallback(async () => {
+    const name = saveName.trim().toUpperCase();
+    if (!name) return;
+    savePreset(name);
+    try {
+      await saveAtlasPatch(JSON.parse(exportPreset()) as PresetData);
+      setShowSaveDialog(false);
+      setSaveName('');
+    } catch (err) {
+      window.alert(
+        `Saved in this browser, but not for everyone: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }, [saveName, savePreset, exportPreset]);
 
   const handleSave = useCallback(() => {
     if (saveName.trim()) {
@@ -248,6 +266,17 @@ export const PresetSelector: React.FC = React.memo(() => {
                 >
                   SAVE
                 </button>
+                {/* Dev server only: writes a repo file every user gets once
+                    committed (store/presets/atlas). */}
+                {import.meta.env.DEV && (
+                  <button
+                    className={`${styles.actionButton} ${styles.primary}`}
+                    onClick={() => void handleSaveShared()}
+                    title="Save as a Music Atlas patch — in every preset menu, template and part once committed"
+                  >
+                    SAVE FOR EVERYONE
+                  </button>
+                )}
               </div>
             </div>
           </>,

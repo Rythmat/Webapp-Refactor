@@ -1,21 +1,21 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  useAppDispatch,
-  useAppState,
-} from '@/components/atlas/context/AppContext';
-import {
-  HISTORICAL_MODULES,
-  MUSIC_HISTORY,
-  MUSICAL_ERAS,
-  getTour,
-} from '@/components/atlas/data';
+import { MUSIC_HISTORY } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
-import { useStartPathway, useStartTour } from '@/components/atlas/hooks';
-import { stopKey } from './atlasStop';
+// Each hook by its own file: the hooks barrel also carries three.js's
+// lighting hook, which would then load with the route.
+import { useStartPathway } from '@/components/atlas/hooks/useStartPathway';
+import { useStartTour } from '@/components/atlas/hooks/useStartTour';
+import {
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
+import { frameFromSearchParams } from './atlasFrame';
+import { stopFromSearchParams, stopKey } from './atlasStop';
 import { consumeFlown, flyToFit, focusEvent } from './focusEvent';
+import { cancelPendingNavigation } from './pendingNavigation';
 import { resolvePlaceFly } from './resolvePlaceFly';
-import { useAtlasStop } from './useAtlasNavigate';
+import { useWindowSync } from './useWindowSync';
 
 /**
  * Drive the globe's reducer state from the URL.
@@ -28,41 +28,44 @@ import { useAtlasStop } from './useAtlasNavigate';
  * ignored the rest.
  */
 export function useAtlasUrlSync(): void {
-  const stop = useAtlasStop();
-  const key = stopKey(stop);
+  // Read straight from the router, not useAtlasStop: these effects must see a
+  // new URL in the same commit it lands, in the order declared below.
   const [params] = useSearchParams();
-  const eraId = params.get('era');
-  const { activeModule, activeTour, selectedEra, selectedLocation } =
-    useAppState();
-  const dispatch = useAppDispatch();
+  const stop = useMemo(() => stopFromSearchParams(params), [params]);
+  const key = stopKey(stop);
+  const inModule = useAtlasSelector((s) => s.activeModule !== null);
+  const inTour = useAtlasSelector((s) => s.activeTour !== null);
+  const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
+  const dispatch = useAtlasDispatch();
   const startPathway = useStartPathway();
   const startTour = useStartTour();
 
-  // The era filter rides alongside whatever stop is showing. Declared FIRST and
-  // guarded against no-ops because SET_ERA also clears `pinnedEvent`: run after
-  // the stop effect — or unconditionally on mount — it would wipe the pin that
-  // effect had just set, and a deep-linked event would open collapsed.
-  useEffect(() => {
-    const valid = !!eraId && MUSICAL_ERAS.some((e) => e.id === eraId);
-    const next = valid ? eraId : null;
-    if (next !== selectedEra) dispatch({ type: 'SET_ERA', payload: next });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eraId]);
+  // The time window rides alongside whatever stop is showing (an `?era=` link
+  // included), and the timeline's gestures write it back to the URL.
+  useWindowSync(params);
 
   // Leaving a sequence: any stop that is not the running pathway or tour ends
   // it, exactly as if the user had pressed its Exit button.
   useEffect(() => {
-    if (stop.kind !== 'pathway' && activeModule) {
-      dispatch({ type: 'EXIT_MODULE' });
-    }
-    if (stop.kind !== 'tour' && activeTour) dispatch({ type: 'EXIT_TOUR' });
+    if (stop.kind !== 'pathway' && inModule) dispatch({ type: 'EXIT_MODULE' });
+    if (stop.kind !== 'tour' && inTour) dispatch({ type: 'EXIT_TOUR' });
     // Only on stop changes — the sequence bars manage their own steps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
+  // An event opened on the timeline shows on its stage there; the hidden
+  // map waits, and goes to it only once it is shown ("Show on the globe"),
+  // rather than being left zoomed in on a moment the user never saw on it.
+  const onTimeline = frameFromSearchParams(params).view === 'timeline';
+  const runKey = stop.kind === 'event' && onTimeline ? `${key}|timeline` : key;
+
   useEffect(() => {
+    // A navigation still waiting for its data (a tour, the state outlines)
+    // belongs to the stop being left.
+    cancelPendingNavigation();
     switch (stop.kind) {
       case 'event': {
+        if (onTimeline) return;
         const event = MUSIC_HISTORY.find((e) => e.id === stop.eventId);
         if (event) focusEvent(dispatch, event, selectedLocation);
         return;
@@ -91,14 +94,13 @@ export function useAtlasUrlSync(): void {
         return;
       }
 
+      // Both load the tours and pathways first, and ignore an unknown id.
       case 'pathway':
-        if (HISTORICAL_MODULES.some((m) => m.id === stop.pathwayId)) {
-          startPathway(stop.pathwayId);
-        }
+        startPathway(stop.pathwayId);
         return;
 
       case 'tour':
-        if (getTour(stop.tourId)) startTour(stop.tourId);
+        startTour(stop.tourId);
         return;
 
       // Both replace the details card with their own view (or nothing).
@@ -110,5 +112,5 @@ export function useAtlasUrlSync(): void {
     // Keyed on the stop's identity, not the object: re-running on every render
     // would re-fly the camera out from under the user.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [runKey]);
 }

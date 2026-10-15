@@ -20,6 +20,7 @@ import {
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
+import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
@@ -48,7 +49,7 @@ import { LearnTabBar } from './LearnTabBar';
 import { WorldHarmony } from './WorldHarmony';
 import {
   COMING_SOON_FOR_GUITAR,
-  guitarIonianLessonRoute,
+  guitarLessonRoute,
   guitarTheoryChapters,
   isTheoryItemOnGuitar,
 } from './guitarTheory';
@@ -170,6 +171,9 @@ interface ContentSubItem {
   route: string;
   genre?: string;
   level?: number;
+  /** A Relative / Parallel mode: its slug and key, for its guitar lesson. */
+  mode?: string;
+  keyLabel?: string;
 }
 
 interface ContentItem {
@@ -260,7 +264,7 @@ function getTileCompletion(
 const THEORY_SECTIONS = [
   { id: 'O', name: 'Overview', activity: 'lesson-overview' },
   { id: 'A', name: 'Melody', activity: 'asc-nh' },
-  { id: 'B', name: 'Chords', activity: 'arpeggiate-1-nh' },
+  { id: 'B', name: 'Chords', activity: 'triad-1-arp-pa' },
   { id: 'D', name: 'Practice Track' },
 ];
 
@@ -327,6 +331,8 @@ function buildRelativeSubItems(keyLabel: string): ContentSubItem[] {
         mode: mode.slug,
         key: keyLabelToUrlParam(note),
       }),
+      mode: mode.slug,
+      keyLabel: note,
     };
   });
 }
@@ -339,6 +345,8 @@ function buildParallelSubItems(keyLabel: string): ContentSubItem[] {
       mode: mode.slug,
       key: keyLabelToUrlParam(keyLabel),
     }),
+    mode: mode.slug,
+    keyLabel,
   }));
 }
 
@@ -1089,7 +1097,7 @@ const CardItem: React.FC<CardItemProps> = ({
   const toggleSavedItem = useSavedItemsStore((s) => s.toggleSaved);
 
   return (
-    <LockedFeatureOverlay locked={!!locked && !unavailable}>
+    <LockedFeatureOverlay locked={!!locked && !unavailable} label={title}>
       <div
         ref={highlightRef}
         role={unavailable ? 'group' : undefined}
@@ -1231,7 +1239,7 @@ const ListItem: React.FC<CardItemProps> = ({
   const toggleSavedItem = useSavedItemsStore((s) => s.toggleSaved);
 
   return (
-    <LockedFeatureOverlay locked={!!locked && !unavailable}>
+    <LockedFeatureOverlay locked={!!locked && !unavailable} label={title}>
       <button
         type="button"
         onClick={unavailable ? undefined : onSelect}
@@ -1343,8 +1351,8 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           ? initialTab
           : 'Home';
   const [selectedTab, setSubTab] = useState(defaultTab);
-  // The instrument picker decides what Learn shows. Guitar's lessons (The
-  // Guitar Atlas's key centers) are Theory → Ionian (Major); it has no
+  // The instrument picker decides what Learn shows. Guitar's lessons are
+  // Theory's seven diatonic modes (Ionian from The Guitar Atlas); it has no
   // Technique tiles, so its Technique tab is hidden and opens Theory instead.
   const learnInstrument = useLearnInstrument();
   const onGuitar = learnInstrument === 'guitar';
@@ -1407,14 +1415,25 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const savedLearnItems = useSavedItemsStore((s) => s.saved);
 
   const theorySections = useMemo(() => {
-    // On guitar only Ionian (Major) has lessons so far; the rest say so.
+    // On guitar, the families the guitar catalog has live have lessons and
+    // the rest say so. A Relative / Parallel tile's modes open their guitar
+    // lessons.
     const forInstrument = (items: ContentItem[]): ContentItem[] =>
       onGuitar
-        ? items.map((item) =>
-            isTheoryItemOnGuitar(item)
-              ? item
-              : { ...item, comingSoon: COMING_SOON_FOR_GUITAR },
-          )
+        ? items.map((item) => {
+            if (!isTheoryItemOnGuitar(item)) {
+              return { ...item, comingSoon: COMING_SOON_FOR_GUITAR };
+            }
+            if (item.mode || !item.subItems) return item;
+            return {
+              ...item,
+              subItems: item.subItems.map((sub) =>
+                sub.mode && sub.keyLabel
+                  ? { ...sub, route: guitarLessonRoute(sub.mode, sub.keyLabel) }
+                  : sub,
+              ),
+            };
+          })
         : items;
     const all = [
       {
@@ -1558,12 +1577,12 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     // Guitar: the key's Guitar Atlas lesson. Its chapters come from the book,
     // loaded on demand; if keys are clicked quickly, the last one wins. No
     // percentages: the server's progress is the piano lessons'.
-    if (onGuitar && isTheoryItemOnGuitar({ mode })) {
+    if (onGuitar && isGuitarTheorySlug(mode)) {
       const request = ++guitarChaptersRequest.current;
       const label = `${keyLabel} ${modeTitle}`;
-      const route = guitarIonianLessonRoute(keyLabel);
+      const route = guitarLessonRoute(mode, keyLabel);
       setSelectedSubItem({ label, route, completionPct: 0, sections: [] });
-      guitarTheoryChapters(keyLabel)
+      guitarTheoryChapters(mode, keyLabel)
         .then((sections) => {
           if (request !== guitarChaptersRequest.current) return;
           setSelectedSubItem({ label, route, completionPct: 0, sections });
@@ -1582,20 +1601,23 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     );
     // Practice Track is offered for the 7 diatonic modes (DIATONIC_MODES
     // above enumerates exactly those slugs) and the pentatonic and blues
-    // scales, whose lessons are melody only — no Chords chapter.
+    // scales.
     const isDiatonicMode = DIATONIC_MODES.some((m) => m.slug === mode);
     const isScale = isScaleLesson(mode);
     const keyParam = keyLabelToUrlParam(keyLabel);
     const sections = THEORY_SECTIONS.filter(
-      (section) =>
-        (isDiatonicMode || isScale || section.id !== 'D') &&
-        !(isScale && section.id === 'B'),
-    ).map(({ activity, ...section }) => ({
-      ...section,
-      route: activity
-        ? LearnRoutes.lesson({ mode, key: keyParam }, { activity })
-        : `${StudioRoutes.editor.definition}?practiceMode=${mode}&practiceRoot=${keyParam}&practiceOpen=melody`,
-    }));
+      (section) => isDiatonicMode || isScale || section.id !== 'D',
+    ).map(({ activity: chapterStart, ...section }) => {
+      // A scale's Chords chapter is its own tonic chords (scaleLessons.ts).
+      const activity =
+        isScale && section.id === 'B' ? 'scale-chord-1-arp-pa' : chapterStart;
+      return {
+        ...section,
+        route: activity
+          ? LearnRoutes.lesson({ mode, key: keyParam }, { activity })
+          : `${StudioRoutes.editor.definition}?practiceMode=${mode}&practiceRoot=${keyParam}&practiceOpen=melody`,
+      };
+    });
     setSelectedSubItem({
       label: `${keyLabel} ${modeTitle}`,
       route: LearnRoutes.lesson({ mode, key: keyParam }),
@@ -1607,11 +1629,22 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   // Auto-select the first key/level when a tile is expanded
   useEffect(() => {
     if (!expandedMode) return;
+    // Every guitar Theory tile opens on its first key (the others can't open).
+    const theoryData = onGuitar
+      ? [
+          ...THEORY_DATA,
+          ...PENTATONIC_BLUES_DATA,
+          ...HARMONIC_MINOR_DATA,
+          ...MELODIC_MINOR_DATA,
+          ...HARMONIC_MAJOR_DATA,
+          ...DOUBLE_HARMONIC_DATA,
+        ]
+      : [...THEORY_DATA, ...PENTATONIC_BLUES_DATA];
     const data =
       subTab === 'Genre'
         ? COURSES_DATA
         : subTab === 'Theory'
-          ? [...THEORY_DATA, ...PENTATONIC_BLUES_DATA]
+          ? theoryData
           : techniqueData;
     const item = data.find((d) => (d.expandId ?? d.mode) === expandedMode);
     if (item?.mode) {
@@ -1742,7 +1775,11 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             className="mb-2 text-xs font-semibold uppercase tracking-wider"
             style={{ color: 'var(--color-text-dim)' }}
           >
-            {expandedItem.mode ? 'Keys' : 'Levels'}
+            {expandedItem.mode
+              ? 'Keys'
+              : /^(relative|parallel):/.test(expandedItem.expandId ?? '')
+                ? 'Modes'
+                : 'Levels'}
           </h4>
           {(() => {
             const items: React.ReactNode[] = [];

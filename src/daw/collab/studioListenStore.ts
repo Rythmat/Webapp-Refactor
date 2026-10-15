@@ -16,13 +16,21 @@ import { create } from 'zustand';
 
 export type ListenMode = 'all' | 'solo';
 
+/** A remote track counts as active above ON and quiet again below OFF. */
+export const ACTIVITY_ON = 0.08;
+export const ACTIVITY_OFF = 0.04;
+
 interface StudioListenState {
   listenMode: ListenMode;
   /** trackId → true when muted in Listen-All mode. */
   allMuted: Record<string, boolean>;
   /** trackId → true when unlistened in Solo-Listen mode. */
   soloUnlistened: Record<string, boolean>;
-  /** trackId → recent live-signal level (0..1) from that remote user. */
+  /**
+   * trackId → that remote user's live-signal level (0..1), as of the last
+   * time it crossed the activity threshold: it changes only when the track
+   * starts or stops being active (see setActivity), not with every level.
+   */
   activity: Record<string, number>;
 
   toggleListenMode: () => void;
@@ -55,8 +63,12 @@ export const useStudioListenStore = create<StudioListenState>((set) => ({
 
   setActivity: (trackId, level) =>
     set((s) => {
-      // Avoid churn when the value is effectively unchanged.
-      if (Math.abs((s.activity[trackId] ?? 0) - level) < 0.02) return s;
+      // Write only when the track turns active or quiet, with hysteresis, so
+      // a live signal doesn't rewrite the store (and re-render track
+      // headers) on every frame.
+      const was = (s.activity[trackId] ?? 0) > ACTIVITY_ON;
+      const now = was ? level >= ACTIVITY_OFF : level > ACTIVITY_ON;
+      if (now === was) return s;
       return { activity: { ...s.activity, [trackId]: level } };
     }),
 }));
@@ -90,4 +102,9 @@ export function useRemoteTrackAudible(trackId: string): boolean {
 
 export function useRemoteTrackActivity(trackId: string): number {
   return useStudioListenStore((s) => s.activity[trackId] ?? 0);
+}
+
+/** Whether a remote user's live signal on the track is active now. */
+export function useRemoteTrackActive(trackId: string): boolean {
+  return useStudioListenStore((s) => (s.activity[trackId] ?? 0) > ACTIVITY_ON);
 }

@@ -1,0 +1,1365 @@
+{
+  "version": 2,
+  "timestamp": 1791413540512,
+  "data": {
+    "projectId": null,
+    "projectName": "A Thousand Years",
+    "composerName": "Christina Perri",
+    "transport": {
+      "bpm": 142,
+      "position": 0,
+      "metronomeEnabled": false,
+      "loopEnabled": false,
+      "loopStart": 0,
+      "loopEnd": 221760
+    },
+    "tracks": [
+      {
+        "id": "fdd5bee7-2826-438d-8cbb-77e50a87ede3",
+        "name": "A Thousand Years — Chords",
+        "type": "midi",
+        "instrument": "piano-sampler",
+        "color": "#c785d3",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "audioInputChannel": null,
+        "trackRole": "chords",
+        "midiClips": [
+          {
+            "id": "2805a6e3-a587-4b49-a1d3-7b6643a750af",
+            "name": "Chords",
+            "startTick": 0,
+            "events": {
+              "notes": [
+                70, 74, 77, 65, 69, 72, 67, 70, 74, 77, 65, 69, 72, 63, 67, 70,
+                65, 69, 72, 63, 67, 70, 63, 67, 70, 70, 74, 77, 70, 74, 77, 67,
+                70, 74, 77, 65, 69, 72, 70, 74, 77, 63, 67, 70, 63, 67, 70, 70,
+                74, 77, 70, 74, 77, 67, 70, 74, 77, 65, 69, 72, 70, 74, 77, 60,
+                63, 67, 70, 60, 63, 67, 70, 67, 70, 74, 77, 65, 69, 72, 70, 74,
+                77, 70, 74, 77, 65, 69, 72, 67, 70, 74, 77, 67, 70, 74, 77, 65,
+                69, 72, 63, 67, 70, 65, 69, 72, 65, 69, 72, 63, 67, 70, 63, 67,
+                70, 63, 67, 70, 63, 67, 70, 70, 74, 77, 70, 74, 77, 67, 70, 74,
+                77, 65, 69, 72, 70, 74, 77, 63, 67, 70, 63, 67, 70, 70, 74, 77,
+                70, 74, 77, 67, 70, 74, 77, 65, 69, 72, 70, 74, 77, 60, 63, 67,
+                70, 65, 69, 72, 67, 70, 74, 77, 65, 69, 72, 70, 74, 77, 70, 74,
+                77, 65, 69, 72, 67, 70, 74, 77, 67, 70, 74, 77, 65, 69, 72, 63,
+                67, 70, 65, 69, 72, 60, 63, 67, 70, 60, 63, 67, 70, 67, 70, 74,
+                77, 65, 69, 72, 60, 63, 67, 70, 60, 63, 67, 70, 65, 69, 72, 67,
+                70, 74, 77, 65, 69, 72, 70, 74, 77, 70, 74, 77, 65, 69, 72, 67,
+                70, 74, 77, 67, 70, 74, 77, 65, 69, 72, 63, 67, 70, 65, 69, 72,
+                63, 67, 70, 63, 67, 70, 70, 74, 77, 70, 74, 77, 63, 67, 70, 63,
+                67, 70, 67, 70, 74, 77, 65, 69, 72, 63, 67, 70
+              ],
+              "velocities": [
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80
+              ],
+              "startTickDeltas": [
+                0, 0, 0, 2880, 0, 0, 1440, 0, 0, 0, 1440, 0, 0, 1440, 0, 0,
+                1440, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 0, 2880, 0, 0, 1440, 0, 0, 1440, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 1440, 0, 0,
+                1440, 0, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 2880,
+                0, 0, 2880, 0, 0, 2880, 0, 0, 1440, 0, 0, 0, 1440, 0, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 0, 2880, 0, 0, 1440, 0, 0, 1440, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 1440, 0, 0,
+                1440, 0, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 2880, 0,
+                0, 2880, 0, 0, 2880, 0, 0, 1440, 0, 0, 0, 1440, 0, 0, 0, 2880,
+                0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 0,
+                2880, 0, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 0, 2880,
+                0, 0, 2880, 0, 0, 0, 1440, 0, 0, 1440, 0, 0, 2880, 0, 0, 2880,
+                0, 0, 1440, 0, 0, 0, 1440, 0, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 2880, 0, 0
+              ],
+              "durations": [
+                2880, 2880, 2880, 1440, 1440, 1440, 1440, 1440, 1440, 1440,
+                1440, 1440, 1440, 1440, 1440, 1440, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 1440, 1440, 1440, 1440, 1440,
+                1440, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 1440, 1440, 1440,
+                1440, 1440, 1440, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 1440, 1440, 1440, 1440, 1440, 1440,
+                1440, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 1440,
+                1440, 1440, 1440, 1440, 1440, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 1440, 1440, 1440, 1440, 1440, 1440, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 1440, 1440, 1440,
+                1440, 1440, 1440, 1440, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 1440, 1440, 1440, 1440, 1440, 1440, 1440,
+                2880, 2880, 2880, 2880, 2880, 2880, 1440, 1440, 1440, 1440,
+                1440, 1440, 1440, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880
+              ],
+              "channels": [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+              ]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": [],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "fdd5bee7-2826-438d-8cbb-77e50a87ede3"
+        }
+      }
+    ],
+    "prism": {
+      "rootNote": 10,
+      "rhythmName": "Quarters",
+      "genre": "Pop",
+      "swing": 0,
+      "mode": "ionian"
+    },
+    "chordRegions": [
+      {
+        "id": "338febfe-89a6-48b4-9015-edbb1e1f69c3",
+        "startTick": 0,
+        "endTick": 2880,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "87310586-3791-429b-b39a-22b3e3f97c15",
+        "startTick": 2880,
+        "endTick": 4320,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "ae2daac8-43b0-4566-a0b6-684972300dae",
+        "startTick": 4320,
+        "endTick": 5760,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "c8d95dd8-090f-481c-8179-1c57b63a27ef",
+        "startTick": 5760,
+        "endTick": 7200,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "93a5d5b9-deba-4829-91e8-e2cb2aebed91",
+        "startTick": 7200,
+        "endTick": 8640,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "dfc1a3d9-4c80-4673-93ac-60dfe644e84f",
+        "startTick": 8640,
+        "endTick": 11520,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "2798e25a-a788-4af7-b44d-610a5f7d188f",
+        "startTick": 11520,
+        "endTick": 14400,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "8a08bb27-58af-4271-bbca-e32283781002",
+        "startTick": 14400,
+        "endTick": 17280,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "84d5398a-e439-4a69-899f-7a5782b45eab",
+        "startTick": 17280,
+        "endTick": 20160,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "ac2a76be-f8e6-4b40-a7e4-ff9f01e5ac1f",
+        "startTick": 20160,
+        "endTick": 23040,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "d4eca43a-1e96-4cc0-a122-697a3fe55ef8",
+        "startTick": 23040,
+        "endTick": 25920,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "553bca33-4e22-40c3-ac8d-b60ab944d764",
+        "startTick": 25920,
+        "endTick": 27360,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "b790fa87-cd79-477d-884f-de8814ee3c38",
+        "startTick": 27360,
+        "endTick": 28800,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "d66bedb7-326c-4d3d-9059-c7d94fc9a275",
+        "startTick": 28800,
+        "endTick": 31680,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "26f57e9d-2fde-464a-ba34-f0fc50af031a",
+        "startTick": 31680,
+        "endTick": 34560,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "2aa17ac2-52de-435f-ae82-3664fc19d595",
+        "startTick": 34560,
+        "endTick": 37440,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "adbcdf34-0d4d-4b3d-88ac-72a351d27505",
+        "startTick": 37440,
+        "endTick": 40320,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "78a34ec7-a135-4d40-b0c7-3e1b9e756b9e",
+        "startTick": 40320,
+        "endTick": 43200,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "d8161666-9573-4c85-8e17-da7936c04e8b",
+        "startTick": 43200,
+        "endTick": 44640,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "1e82e12f-924a-4e01-8fb9-0635e1039984",
+        "startTick": 44640,
+        "endTick": 46080,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "302afaf6-5dbf-4340-873c-58774b1985d0",
+        "startTick": 46080,
+        "endTick": 48960,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "001f6a5c-361a-4d0d-a3b6-5d22511973c5",
+        "startTick": 48960,
+        "endTick": 51840,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "fc27abdf-e190-4beb-9945-06e6c8dfbebd",
+        "startTick": 51840,
+        "endTick": 54720,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "c6148854-f038-4372-9a7a-5987eab1429d",
+        "startTick": 54720,
+        "endTick": 57600,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "478d31f1-5cf3-42c9-bf1f-29c90faba784",
+        "startTick": 57600,
+        "endTick": 60480,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "ba43c27b-e4d5-4d1f-a36c-b9fa7ca54f96",
+        "startTick": 60480,
+        "endTick": 63360,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "a2bc7249-96fb-476b-876c-b847bb2d97fd",
+        "startTick": 63360,
+        "endTick": 64800,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "0c19e857-1041-4b61-8022-b7dc08a0baaf",
+        "startTick": 64800,
+        "endTick": 66240,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "ce9f8bbf-9eeb-4bd1-b21f-5d501e844a4f",
+        "startTick": 66240,
+        "endTick": 69120,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "5f4cb8bb-acb3-4ad5-b578-62953c9919ef",
+        "startTick": 69120,
+        "endTick": 72000,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "9c63e278-9dd6-4deb-afe3-1e464acace9d",
+        "startTick": 72000,
+        "endTick": 74880,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "fb0663d5-31c7-441a-ba9a-b398e2cd9e1f",
+        "startTick": 74880,
+        "endTick": 77760,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "8ccd098c-e525-4086-a6b2-996a5a494668",
+        "startTick": 77760,
+        "endTick": 80640,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "19f8761b-08a0-437d-b21a-de8507418d27",
+        "startTick": 80640,
+        "endTick": 83520,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "4b1e4b64-e53a-4413-8d92-c6edbedac5c0",
+        "startTick": 83520,
+        "endTick": 86400,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "01621657-9205-455e-b616-69c34ea5b557",
+        "startTick": 86400,
+        "endTick": 89280,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "31112274-4415-4e1d-8fd4-8001b29670f3",
+        "startTick": 89280,
+        "endTick": 92160,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "38bb04d6-0195-457e-97ca-6efc89f7f34c",
+        "startTick": 92160,
+        "endTick": 95040,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "7c4bf86a-0ffe-432c-862a-67e55f6463e0",
+        "startTick": 95040,
+        "endTick": 97920,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "7f79f42d-dd2d-40de-b7fa-6b25c35d2f9e",
+        "startTick": 97920,
+        "endTick": 100800,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "36391aa5-7766-43e0-a85b-1b2ea9c174df",
+        "startTick": 100800,
+        "endTick": 102240,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "ff7fa92e-4fba-45dc-98bb-d7f7c4f418a0",
+        "startTick": 102240,
+        "endTick": 103680,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "4bd51fdf-2bf9-4384-bff9-3368b492b6e1",
+        "startTick": 103680,
+        "endTick": 106560,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "ae78d274-561f-426c-95f0-d39404e1a3bd",
+        "startTick": 106560,
+        "endTick": 109440,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "1879074f-7519-44d4-875c-e29af5e52419",
+        "startTick": 109440,
+        "endTick": 112320,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "e1c5894f-b62f-4054-9a8a-cd5e8abb7092",
+        "startTick": 112320,
+        "endTick": 115200,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "3477d1bb-936b-47e9-8fda-68c92738b058",
+        "startTick": 115200,
+        "endTick": 118080,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "9a57447d-55e9-4e8e-aa39-9f040263946e",
+        "startTick": 118080,
+        "endTick": 119520,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "ca716aec-fadf-4c53-9c0b-0dbe177b666c",
+        "startTick": 119520,
+        "endTick": 120960,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "d5f9ec49-ece9-48f6-8024-030ac3613369",
+        "startTick": 120960,
+        "endTick": 123840,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "c62a7dfc-cf64-4b40-84c7-1b661110c355",
+        "startTick": 123840,
+        "endTick": 126720,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "2e1d0c11-844f-424d-90b9-b4b846d68295",
+        "startTick": 126720,
+        "endTick": 129600,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "2bf286a4-151b-42cc-aa16-6657fa0d8b13",
+        "startTick": 129600,
+        "endTick": 132480,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "5428dcf3-2a24-4ba8-b3ab-8e10e9eb0f16",
+        "startTick": 132480,
+        "endTick": 135360,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "77ee7073-43ce-4c9d-b64b-8fb5eaf601eb",
+        "startTick": 135360,
+        "endTick": 138240,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "4f564ed4-61bb-4edb-a54a-2338bd21d605",
+        "startTick": 138240,
+        "endTick": 139680,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "75ef9551-f0d0-4eb1-a976-1a91d92f5980",
+        "startTick": 139680,
+        "endTick": 141120,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "fee1a93b-acb8-4a0f-bdb5-42270aa26a04",
+        "startTick": 141120,
+        "endTick": 144000,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "25578af8-2917-42aa-94a5-7fd0f1b220f9",
+        "startTick": 144000,
+        "endTick": 146880,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "e1308e28-c79e-4add-a063-6000bae386b2",
+        "startTick": 146880,
+        "endTick": 149760,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "fda1e7da-5a2b-44aa-a462-a1aef14ddb6f",
+        "startTick": 149760,
+        "endTick": 152640,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "60334bd9-7987-4854-a587-aa33a787b05f",
+        "startTick": 152640,
+        "endTick": 155520,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "8f566d15-7e02-482b-accf-38ef6d90e8cd",
+        "startTick": 155520,
+        "endTick": 158400,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "a0b4b9cf-c22a-4ae8-adea-f1fdbaeb9c55",
+        "startTick": 158400,
+        "endTick": 161280,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "36ea6be1-7b3d-477a-90ba-954089e3d069",
+        "startTick": 161280,
+        "endTick": 164160,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "34ffe1bf-7ad0-4550-b206-02368b7c891c",
+        "startTick": 164160,
+        "endTick": 167040,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "566ee5cd-018b-4c04-a752-e748d7062f20",
+        "startTick": 167040,
+        "endTick": 169920,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "eee06705-f916-41e2-ae7c-6cc6435f6a50",
+        "startTick": 169920,
+        "endTick": 172800,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "882c90f9-e761-40b8-bf1a-9c7946e1fae4",
+        "startTick": 172800,
+        "endTick": 174240,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "d7581742-d55a-4c50-9c4b-d0d379913c3b",
+        "startTick": 174240,
+        "endTick": 175680,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "527acb4d-866e-4b8d-b992-06b13e9b1f8c",
+        "startTick": 175680,
+        "endTick": 178560,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "1d747f77-a6f9-4e2e-aa46-a673314553e2",
+        "startTick": 178560,
+        "endTick": 181440,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cbf9640a-76b0-4c60-93bd-dab6d7663cb2",
+        "startTick": 181440,
+        "endTick": 182880,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "fb29f32c-554f-4178-b7d7-f8daa21c8a55",
+        "startTick": 182880,
+        "endTick": 184320,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "aed8ed31-47d4-4498-882c-d13d44ab255f",
+        "startTick": 184320,
+        "endTick": 187200,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "0a1a3d88-ce98-4639-af18-cd5fa3a4426e",
+        "startTick": 187200,
+        "endTick": 190080,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "070fd110-802f-4bf6-ae03-53ca064075ff",
+        "startTick": 190080,
+        "endTick": 192960,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "f2519b98-174e-4d93-aa5f-e5ce4f8304a1",
+        "startTick": 192960,
+        "endTick": 195840,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "2ac0ce1f-bb35-47a2-b3ec-f19cdf87e3ba",
+        "startTick": 195840,
+        "endTick": 198720,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "1ae359df-4dee-47f2-ac13-0c1f05c89bef",
+        "startTick": 198720,
+        "endTick": 201600,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "bb97e130-2d53-4717-b2c5-f0f9640cf7f0",
+        "startTick": 201600,
+        "endTick": 204480,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "156c858f-fc05-4bf4-bc46-8ec77a357687",
+        "startTick": 204480,
+        "endTick": 207360,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "d363339c-a82d-4d32-b852-4ec471a096cf",
+        "startTick": 207360,
+        "endTick": 210240,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "041668a9-76eb-487e-b1ff-991fc2e3174b",
+        "startTick": 210240,
+        "endTick": 213120,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "f74490e4-8a07-4146-bb12-9c8a76c1cc8b",
+        "startTick": 213120,
+        "endTick": 216000,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "da75aeed-c1f0-4590-9682-1e8f174d30d1",
+        "startTick": 216000,
+        "endTick": 218880,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "a5a3ddea-28d1-44e4-849e-5e9cbd09647b",
+        "startTick": 218880,
+        "endTick": 221760,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      }
+    ],
+    "returns": [
+      {
+        "id": "A",
+        "label": "Reverb",
+        "volume": 0.8,
+        "fxChain": ["reverb"],
+        "effects": {
+          "reverb": {
+            "enabled": true,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 1
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": false,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 0.25
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      },
+      {
+        "id": "B",
+        "label": "Delay",
+        "volume": 0.8,
+        "fxChain": ["delay"],
+        "effects": {
+          "reverb": {
+            "enabled": false,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 0.3
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": true,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 1
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      }
+    ],
+    "masterAutomation": {}
+  }
+}

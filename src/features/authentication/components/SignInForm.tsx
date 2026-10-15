@@ -1,146 +1,220 @@
-import { useCallback, useState } from 'react';
-import { ErrorBox } from '@/components/ErrorBox';
-import { Button } from '@/components/ui/button';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { triggerHexDrain } from '@/components/ui/hex-wave-background';
+  isAutoSelection,
+  isGoogleAutoSelectSuppressed,
+  markAutoAttempt,
+  shouldBlockAutoRetry,
+} from '@/auth/google/autoSelect';
+import {
+  GOOGLE_CLIENT_ID,
+  isGoogleIdentityEnabled,
+} from '@/auth/google/config';
+import { emailFromCredential } from '@/auth/google/credential';
+import { cancelOneTap, type GisCredentialResponse } from '@/auth/google/gis';
+import { useGoogleIdentity } from '@/auth/google/useGoogleIdentity';
 import { cn } from '@/components/utilities';
-import {
-  EmailMelody,
-  SuccessProgression,
-  FailureProgression,
-} from '@/constants/musicalConstants';
-import { useAuthActions } from '@/contexts/AuthContext';
+import { FailureProgression } from '@/constants/musicalConstants';
+import { LegalRoutes } from '@/constants/routes';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useMusicalForm } from '@/hooks/useMusicalForm';
+import { AuthAlert } from '@/layouts/AuthLayout/AuthAlert';
+import {
+  AUTH_GHOST_BUTTON,
+  AUTH_TEXT_LINK,
+} from '@/layouts/AuthLayout/authStyles';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
+type Pending = 'google' | 'email' | 'signup';
+
+/**
+ * The sign-in page: Google first (One Tap prompts on arrival and signs a
+ * returning user straight in; the official button is always there, since One
+ * Tap can be dismissed or turned off), then email/password and sign-up on
+ * Auth0's page for accounts that aren't Google.
+ *
+ * A Google pick never signs in by itself: its email goes to Auth0's Google
+ * login as `login_hint` (see signInWithGoogleHint), so every sign-in still
+ * ends at /auth/callback with Auth0 tokens.
+ */
 export const SignInForm = () => {
-  const { signInWithEmailAndPassword, signInWithProvider, signUp, error } =
-    useAuthActions();
+  const {
+    signInWithEmailAndPassword,
+    signInWithProvider,
+    signInWithGoogleHint,
+    signUp,
+    error,
+    isAuth0Authenticated,
+  } = useAuthContext();
 
-  // Flipped when a sign-in option is chosen (same moment the hexes drain), so
-  // the title darkens to stay legible as the background fades to cream.
-  const [drained, setDrained] = useState(false);
+  const [pending, setPending] = useState<Pending | null>(null);
+  /** An automatic pick arrived too soon after the last one, so it wasn't followed. */
+  const [autoRetryStopped, setAutoRetryStopped] = useState(false);
+  const [autoSelectAllowed] = useState(
+    () => !isGoogleAutoSelectSuppressed() && !shouldBlockAutoRetry(),
+  );
+  /** One credential at a time (One Tap and the button can both answer). */
+  const handledRef = useRef(false);
+  /** Only play the failure chord for errors that follow a click here. */
+  const actedRef = useRef(false);
 
-  const actionForm = useMusicalForm({
-    typingMelody: EmailMelody,
-    successProgression: SuccessProgression,
+  const { playFailureProgression } = useMusicalForm({
     failureProgression: FailureProgression,
   });
-
-  const providerForm = useMusicalForm({
-    typingMelody: EmailMelody,
-    successProgression: SuccessProgression,
-    failureProgression: FailureProgression,
+  const playFailureRef = useRef(playFailureProgression);
+  useEffect(() => {
+    playFailureRef.current = playFailureProgression;
   });
 
-  const onSignIn = useCallback(async () => {
-    triggerHexDrain();
-    setDrained(true);
-    try {
-      await signInWithEmailAndPassword('ui', 'ui');
-    } catch (err) {
-      actionForm.playFailureProgression();
-      console.error('Sign in failed:', err);
-    }
-  }, [signInWithEmailAndPassword, actionForm]);
-
-  const onSignUp = useCallback(async () => {
-    try {
-      await signUp();
-    } catch (err) {
-      actionForm.playFailureProgression();
-      console.error('Sign up failed:', err);
-    }
-  }, [actionForm, signUp]);
-
-  const onProviderSignIn = useCallback(
-    async (provider: 'google') => {
-      triggerHexDrain();
-      setDrained(true);
-      try {
-        await signInWithProvider(provider);
-      } catch (err) {
-        providerForm.playFailureProgression();
-        console.error('Provider sign in failed:', err);
+  const onCredential = useCallback(
+    (response: GisCredentialResponse) => {
+      if (handledRef.current) return;
+      if (isAutoSelection(response.select_by)) {
+        if (shouldBlockAutoRetry()) {
+          setAutoRetryStopped(true);
+          return;
+        }
+        markAutoAttempt();
       }
+      handledRef.current = true;
+      actedRef.current = true;
+      cancelOneTap();
+      setPending('google');
+      const email = emailFromCredential(response.credential, GOOGLE_CLIENT_ID);
+      void (email ? signInWithGoogleHint(email) : signInWithProvider('google'));
     },
-    [providerForm, signInWithProvider],
+    [signInWithGoogleHint, signInWithProvider],
   );
 
+  const status = useGoogleIdentity({
+    // Signed in to Auth0 but the profile failed to load: no auto-select loop.
+    enabled: isGoogleIdentityEnabled() && !isAuth0Authenticated,
+    load: 'now',
+    oneTap: !pending,
+    promptDelayMs: 150,
+    autoSelect: autoSelectAllowed && !autoRetryStopped && !error,
+    context: 'signin',
+    itpSupport: true,
+    cancelOnTapOutside: false,
+    onCredential,
+  });
+
+  // Back from Auth0/Google via the back button (page restored from bfcache),
+  // or the attempt failed: let the user choose again.
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      setPending(null);
+      handledRef.current = false;
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
+
+  useEffect(() => {
+    if (!error) return;
+    setPending(null);
+    handledRef.current = false;
+    if (actedRef.current) playFailureRef.current();
+  }, [error]);
+
+  const start = (kind: Pending, action: () => Promise<void>) => {
+    actedRef.current = true;
+    setPending(kind);
+    void action();
+  };
+
+  const onGoogleFallback = () =>
+    start('google', () => signInWithProvider('google'));
+  const onEmail = () =>
+    // The arguments are unused: Auth0's page collects the credentials.
+    start('email', () => signInWithEmailAndPassword('', ''));
+  const onSignUp = () => start('signup', signUp);
+
+  const message = pending
+    ? 'Redirecting…'
+    : autoRetryStopped
+      ? 'Automatic sign-in didn’t finish. Choose an option above.'
+      : '';
+
   return (
-    <div className="animate-fade-in-bottom">
-      <CardHeader>
-        <CardTitle
-          className={cn(
-            'text-4xl font-normal transition-colors duration-700',
-            drained && 'text-black',
-          )}
-        >
-          Music Atlas
-        </CardTitle>
-        {!drained && <CardDescription>Sign in to your account</CardDescription>}
-      </CardHeader>
-      <CardContent className="flex flex-col space-y-4">
-        {/* OAuth buttons */}
-        <Button
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#3a3535] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#726969] hover:text-white"
-          onClick={() => {
-            void onProviderSignIn('google');
-          }}
-          type="button"
-          variant="ghost"
-        >
-          <svg className="size-5" viewBox="0 0 24 24">
-            <path
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-              fill="#4285F4"
-            />
-            <path
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              fill="#34A853"
-            />
-            <path
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              fill="#FBBC05"
-            />
-            <path
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              fill="#EA4335"
-            />
-          </svg>
-          Continue with Google
-        </Button>
+    <div className="flex animate-fade-in-bottom flex-col items-center px-2 py-2 text-center sm:px-4 sm:py-4">
+      <h1 className="text-4xl font-normal leading-none tracking-[-0.03em] text-white sm:text-5xl">
+        Music Atlas
+      </h1>
+      <p className="mt-3 text-base text-white/55">
+        Sign in or create your free account.
+      </p>
 
-        {/* Divider line */}
-        <div className="my-2 border-t" />
+      <div className="mt-8 flex w-full max-w-[400px] flex-col items-center gap-3">
+        <GoogleSignInButton
+          status={status}
+          disabled={Boolean(pending)}
+          onFallbackClick={onGoogleFallback}
+          onGisClick={cancelOneTap}
+        />
 
-        <Button
-          className="w-full bg-[#4d3a49] text-white hover:bg-[#5c4657]"
-          onClick={onSignIn}
+        <div
+          aria-hidden
+          className="flex w-full items-center gap-3 text-xs uppercase tracking-[0.14em] text-white/35"
+        >
+          <span className="h-px flex-1 bg-white/[0.08]" />
+          or
+          <span className="h-px flex-1 bg-white/[0.08]" />
+        </div>
+
+        <button
           type="button"
+          className={AUTH_GHOST_BUTTON}
+          disabled={Boolean(pending)}
+          onClick={onEmail}
         >
           Continue with email
-        </Button>
+        </button>
 
-        <Button
-          className="w-full border-0 bg-[#3a3535] text-white hover:bg-[#726969]"
-          variant="outline"
-          onClick={onSignUp}
+        <p className="mt-1 text-sm text-white/55">
+          New to Music Atlas?{' '}
+          <button
+            type="button"
+            className={AUTH_TEXT_LINK}
+            disabled={Boolean(pending)}
+            onClick={onSignUp}
+          >
+            Create an account
+          </button>
+        </p>
+      </div>
+
+      <p aria-live="polite" className="mt-4 min-h-5 text-sm text-white/55">
+        {message}
+      </p>
+
+      {error && (
+        <AuthAlert className="mt-2 w-full max-w-[400px]">{error}</AuthAlert>
+      )}
+
+      {status === 'ready' && (
+        <button
           type="button"
+          className={cn(AUTH_TEXT_LINK, 'mt-3 text-xs text-white/55')}
+          disabled={Boolean(pending)}
+          onClick={onGoogleFallback}
         >
-          Create account
-        </Button>
+          Trouble with Google? Try another way
+        </button>
+      )}
 
-        {error && (
-          <div className="my-4">
-            <ErrorBox message={error} />
-          </div>
-        )}
-      </CardContent>
+      <p className="mt-8 max-w-[340px] text-xs leading-relaxed text-white/40">
+        By continuing, you agree to our{' '}
+        <Link className={AUTH_TEXT_LINK} to={LegalRoutes.termsOfService()}>
+          Terms
+        </Link>{' '}
+        and{' '}
+        <Link className={AUTH_TEXT_LINK} to={LegalRoutes.privacyPolicy()}>
+          Privacy Policy
+        </Link>
+        .
+      </p>
     </div>
   );
 };

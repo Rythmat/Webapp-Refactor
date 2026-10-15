@@ -1,383 +1,92 @@
 import {
-  DEFAULT_EFFECTS,
-  type TrackEffectState,
-} from '@/daw/audio/EffectChain';
-import { ensureSamplerSampleId } from '@/daw/instruments/samplerChops';
-import { useStore } from '@/daw/store';
-import type { Track } from '@/daw/store/tracksSlice';
-import type { ChordRegion } from '@/daw/store/prismSlice';
-import { resetUndoHistory } from '@/daw/store/undoMiddleware';
-import { defaultReturns, type ReturnBus } from '@/daw/store/returnsSlice';
-import type { MidiNoteEvent } from '@/daw/prism-engine/types';
-import { guessTrackRole } from '@/daw/utils/trackRole';
-import type { AutomationLanes } from '@/daw/audio/automation';
-import {
   getTrackSynthState,
   setTrackSynthState,
-  type SynthTrackState,
 } from '@/daw/oracle-synth/synthTrackState';
+import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
+import { useStore, type AllSlices } from '@/daw/store';
+import type { ReturnBus } from '@/daw/store/returnsSlice';
+import { resetUndoHistory } from '@/daw/store/undoMiddleware';
+import {
+  CLOUD_DOCUMENT_SCHEMA,
+  cloudProjectDraft,
+  encodeCloudDocument,
+  findCloudDocument,
+  type CloudDocument,
+} from './projectDocument/cloudDocument';
+import {
+  decodeSession,
+  encodeMidiEvents,
+  encodeSession,
+  trackSettings,
+  type DecodedSession,
+  type MidiClipColumnar,
+  type SerializedTrackSettings,
+  type StoredSession,
+} from './projectDocument/codec';
+import {
+  initialProjectState,
+  resetProjectState,
+} from './projectDocument/initialState';
+import {
+  migrateSession,
+  type LegacyPrefs,
+  type UnreadableReason,
+} from './projectDocument/migrations';
+import { adoptLegacyPrefs } from './prefsStore';
+import { documentFingerprint, markDocumentBaseline } from './saveStatusStore';
 
-// Instrument + effect configuration persisted alongside a track so the
-// instrument voice (gmProgram), effect rack (effects), pedal chains, and drum
-// pad mix survive leaving and returning to a project. Stored as one opaque blob
-// (`settings_json` column on the DB) — additive, so older saves load fine.
-export interface SerializedTrackSettings {
-  gmProgram?: number;
-  effects?: Track['effects'];
-  vocalChain?: Track['vocalChain'];
-  guitarChain?: Track['guitarChain'];
-  drumPads?: Track['drumPads'];
-  automation?: Track['automation'];
-  drumKit?: Track['drumKit'];
-  bassVoice?: Track['bassVoice'];
-  samplerSample?: Track['samplerSample'];
-  organState?: Track['organState'];
-  presetName?: Track['presetName'];
-  sends?: Track['sends'];
-  // The track's own id at save time, so cross-track references inside effects
-  // (the ducker's keyTrackId) can be remapped when deserialize remints ids
-  // (cloud load). Local load keeps ids, so this is a no-op there.
-  sourceTrackId?: string;
-  // Full Oracle Synth patch for oracle-synth tracks. The synth params live in a
-  // shared store + per-track cache (see synthTrackState.ts), not on the Track,
-  // so this is pulled from there at save time and seeded back on load.
-  oracleSynth?: SynthTrackState;
-  // Cloud saves only: the Master bus automation lanes. The API stores this
-  // settings blob opaquely but has no project-level field for them, so they
-  // ride on the first track's settings (see masterAutomationFromCloud).
-  masterAutomation?: AutomationLanes;
-}
-
-/** Build the persisted settings blob from a track (undefined fields are dropped on JSON encode). */
-function trackSettings(t: Track): SerializedTrackSettings {
-  return {
-    gmProgram: t.gmProgram,
-    effects: t.effects,
-    vocalChain: t.vocalChain,
-    guitarChain: t.guitarChain,
-    drumPads: t.drumPads,
-    automation: t.automation,
-    drumKit: t.drumKit,
-    bassVoice: t.bassVoice,
-    samplerSample: t.samplerSample,
-    organState: t.organState,
-    presetName: t.presetName,
-    sends: t.sends,
-    sourceTrackId: t.id,
-    oracleSynth:
-      t.instrument === 'oracle-synth' ? getTrackSynthState(t.id) : undefined,
-  };
-}
-
-/** Spread the saved settings back onto a deserialized track (effects re-defaulted when absent). */
-function applyTrackSettings(
-  settings: SerializedTrackSettings | undefined,
-): Pick<
-  Track,
-  | 'gmProgram'
-  | 'effects'
-  | 'vocalChain'
-  | 'guitarChain'
-  | 'drumPads'
-  | 'drumKit'
-  | 'bassVoice'
-  | 'samplerSample'
-  | 'organState'
-  | 'presetName'
-  | 'sends'
-  | 'automation'
-> {
-  return {
-    gmProgram: settings?.gmProgram,
-    // Merge over defaults so effect slots added after a save was written
-    // (e.g. multiband) are backfilled instead of arriving `undefined` and
-    // crashing EffectChain.update / lesson checks on the first access.
-    effects: settings?.effects
-      ? { ...structuredClone(DEFAULT_EFFECTS), ...settings.effects }
-      : structuredClone(DEFAULT_EFFECTS),
-    vocalChain: settings?.vocalChain,
-    guitarChain: settings?.guitarChain,
-    drumPads: settings?.drumPads,
-    automation: settings?.automation,
-    drumKit: settings?.drumKit,
-    bassVoice: settings?.bassVoice,
-    // ensure: saves written before sampleId existed get a deterministic one.
-    samplerSample: settings?.samplerSample
-      ? ensureSamplerSampleId(settings.samplerSample)
-      : undefined,
-    organState: settings?.organState,
-    presetName: settings?.presetName,
-    sends: settings?.sends,
-  };
-}
-
-// ── MIDI Event Codec (columnar + delta-encoded ticks) ────────────────────
+// ── The Studio session's codec ─────────────────────────────────────────────
 //
-// Stored shape (per clip) is five parallel arrays. startTickDeltas[0] is the
-// absolute start of the first event; subsequent entries are deltas from the
-// previous event's startTick. Events are sorted by (startTick, note) on encode
-// so deltas are always non-negative and gzip / TOAST compresses runs well.
+// The doors in and out of the editor store for a whole project: the draft on
+// this device (codec v3, projectDocument/codec.ts, with older drafts brought
+// up to date by projectDocument/migrations.ts), the cloud payload, a reset
+// to an empty project, and the marks of the live session (loaded, pristine).
+// Everything else that saves or opens a project goes through here.
+//
+// Every load and reset starts the project afresh: a new session generation
+// first (bumpSessionGeneration), which lets go of every cache keyed by track
+// id, then the patches seeded, then one store write of initialProjectState()
+// under whatever was decoded, so nothing of the previous project carries over
+// (the registry says what belongs to a project). Whatever can refuse or
+// throw (reading, migrating, decoding) runs before any of that.
 
-export interface MidiClipEvents {
-  notes: number[];
-  velocities: number[];
-  startTickDeltas: number[];
-  durations: number[];
-  channels: number[];
-}
-
-export interface MidiClipColumnar {
-  id: string;
-  name?: string;
-  startTick: number;
-  events: MidiClipEvents;
-}
-
-export function encodeMidiEvents(events: MidiNoteEvent[]): MidiClipEvents {
-  const sorted = [...events].sort(
-    (a, b) => a.startTick - b.startTick || a.note - b.note,
-  );
-  const len = sorted.length;
-  const notes = new Array<number>(len);
-  const velocities = new Array<number>(len);
-  const startTickDeltas = new Array<number>(len);
-  const durations = new Array<number>(len);
-  const channels = new Array<number>(len);
-
-  let prevTick = 0;
-  for (let i = 0; i < len; i++) {
-    const e = sorted[i];
-    notes[i] = e.note;
-    velocities[i] = e.velocity;
-    startTickDeltas[i] = e.startTick - prevTick;
-    durations[i] = e.durationTicks;
-    channels[i] = e.channel;
-    prevTick = e.startTick;
-  }
-
-  return { notes, velocities, startTickDeltas, durations, channels };
-}
-
-export function decodeMidiEvents(columnar: MidiClipEvents): MidiNoteEvent[] {
-  const len = columnar.notes.length;
-  const out = new Array<MidiNoteEvent>(len);
-  let tick = 0;
-  for (let i = 0; i < len; i++) {
-    tick += columnar.startTickDeltas[i];
-    out[i] = {
-      note: columnar.notes[i],
-      velocity: columnar.velocities[i],
-      startTick: tick,
-      durationTicks: columnar.durations[i],
-      channel: columnar.channels[i],
-    };
-  }
-  return out;
-}
-
-// ── Session Data Schema ──────────────────────────────────────────────────
-
-export const SESSION_SCHEMA_VERSION = 2;
-
-export interface SessionData {
-  // Always written as SESSION_SCHEMA_VERSION; may be lower on legacy reads
-  version: number;
-  timestamp: number;
-  data: {
-    // Cloud project id, when this autosave came from a project loaded from
-    // (or saved to) the cloud. Restored on boot so subsequent saves PUT to the
-    // same row instead of creating a duplicate.
-    projectId?: string | null;
-    projectName?: string;
-    composerName?: string;
-    transport: {
-      bpm: number;
-      position: number;
-      metronomeEnabled: boolean;
-      loopEnabled: boolean;
-      loopStart: number;
-      loopEnd: number;
-    };
-    tracks: Array<{
-      id: string;
-      name: string;
-      type: 'midi' | 'audio';
-      instrument: string;
-      color: string;
-      mute: boolean;
-      solo: boolean;
-      volume: number;
-      pan: number;
-      recordArmed: boolean;
-      monitoring: boolean;
-      midiInputId: string | null;
-      audioInputId: string | null;
-      midiClips: MidiClipColumnar[];
-      audioClips: Array<{
-        id: string;
-        startTick: number;
-        duration: number;
-        fadeInTicks: number;
-        fadeOutTicks: number;
-        // Carried through autosave so a refresh after Save doesn't re-upload
-        // already-uploaded clips as fresh AudioAssets.
-        assetId?: string | null;
-        offsetSeconds?: number;
-        gain?: number;
-      }>;
-      activeEffects?: string[];
-      settings?: SerializedTrackSettings;
-    }>;
-    prism: {
-      rootNote: number | null;
-      rhythmName: string;
-      genre: string;
-      swing: number;
-      // Optional — older saves predate it and load as Ionian.
-      mode?: string;
-    };
-    // The project's chord symbols (the chord lane). Optional — older saves
-    // predate it and load with none.
-    chordRegions?: ChordRegion[];
-    // Global aux return buses (Phase 4). Optional — older saves predate it and
-    // fall back to defaultReturns() on load.
-    returns?: ReturnBus[];
-    // Master bus automation lanes. Optional — older saves load with none.
-    masterAutomation?: AutomationLanes;
-  };
-}
-
-// Legacy v1 shape — events stored as an array of objects per clip
-interface LegacyMidiClip {
-  id: string;
-  name?: string;
-  startTick: number;
-  events: Array<{
-    note: number;
-    velocity: number;
-    startTick: number;
-    durationTicks: number;
-    channel: number;
-  }>;
-}
-
-function isLegacyMidiClip(clip: unknown): clip is LegacyMidiClip {
-  return (
-    typeof clip === 'object' &&
-    clip !== null &&
-    Array.isArray((clip as { events?: unknown }).events)
-  );
-}
-
-// ── Serialize ────────────────────────────────────────────────────────────
-
-export function serializeSession(): SessionData {
-  const state = useStore.getState();
-
-  return {
-    version: SESSION_SCHEMA_VERSION,
-    timestamp: Date.now(),
-    data: {
-      projectId: state.projectId,
-      projectName: state.projectName,
-      composerName: state.composerName,
-      transport: {
-        bpm: state.bpm,
-        position: state.position,
-        metronomeEnabled: state.metronomeEnabled,
-        loopEnabled: state.loopEnabled,
-        loopStart: state.loopStart,
-        loopEnd: state.loopEnd,
-      },
-      tracks: state.tracks.map((t) => ({
-        id: t.id,
-        name: t.name,
-        type: t.type,
-        instrument: t.instrument,
-        color: t.color,
-        mute: t.mute,
-        solo: t.solo,
-        volume: t.volume,
-        pan: t.pan,
-        recordArmed: t.recordArmed,
-        monitoring: t.monitoring,
-        midiInputId: t.midiInputId,
-        audioInputId: t.audioInputId,
-        midiClips: t.midiClips.map((c) => ({
-          id: c.id,
-          name: c.name,
-          startTick: c.startTick,
-          events: encodeMidiEvents(c.events),
-        })),
-        audioClips: t.audioClips.map((c) => ({
-          id: c.id,
-          startTick: c.startTick,
-          duration: c.duration,
-          fadeInTicks: c.fadeInTicks ?? 0,
-          fadeOutTicks: c.fadeOutTicks ?? 0,
-          assetId: c.assetId ?? null,
-          offsetSeconds: c.offsetSeconds,
-          gain: c.gain,
-        })),
-        activeEffects: t.activeEffects,
-        settings: trackSettings(t),
-      })),
-      prism: {
-        rootNote: state.rootNote,
-        rhythmName: state.rhythmName,
-        genre: state.genre,
-        swing: state.swing,
-        mode: state.mode,
-      },
-      chordRegions: state.chordRegions,
-      returns: state.returns,
-      masterAutomation: state.masterAutomation,
-    },
-  };
-}
+export {
+  dedupeChordRegionIds,
+  decodeMidiEvents,
+  encodeMidiEvents,
+  restoreReturns,
+  SESSION_ENVELOPE_VERSION,
+  SESSION_SCHEMA_VERSION,
+} from './projectDocument/codec';
+export type {
+  MidiClipColumnar,
+  MidiClipEvents,
+  SerializedTrackSettings,
+} from './projectDocument/codec';
+export type { UnreadableReason } from './projectDocument/migrations';
 
 /**
- * Rewrite each track's ducker `keyTrackId` to point at the correct track after
- * deserialize. `oldToNew` maps a saved track's `sourceTrackId` to its live id.
- * A key that maps nowhere (deleted track, or a cloud load where the source is
- * absent) is nulled so the ducker fails silent and the UI shows "None".
- * Mutates the freshly-built track objects in place (pre-setState).
+ * A draft as storage holds it: the autosave, a kept session. Written as v3
+ * in the v2 envelope; drafts written before 1.3 still load (migrations.ts).
  */
-function remapDuckerKeys(
-  tracks: Array<{ effects?: TrackEffectState }>,
-  oldToNew: Map<string, string>,
-): void {
-  for (const track of tracks) {
-    const ducker = track.effects?.ducker;
-    if (ducker?.keyTrackId) {
-      // Replace the ducker object rather than mutate in place: the shallow
-      // effects merge in applyTrackSettings aliases this from the input blob,
-      // so mutating it would corrupt the caller's project argument.
-      track.effects!.ducker = {
-        ...ducker,
-        keyTrackId: oldToNew.get(ducker.keyTrackId) ?? null,
-      };
-    }
-  }
+export type SessionData = StoredSession;
+
+// ── Serialize ──────────────────────────────────────────────────────────────
+
+/** The live session as a draft (codec v3). */
+export function serializeSession(): SessionData {
+  return encodeSession(useStore.getState(), getTrackSynthState, Date.now());
 }
 
-/** Restore returns from a save, backfilling effect slots and falling back to
- *  the defaults when a save predates the feature. */
-export function restoreReturns(saved: ReturnBus[] | undefined): ReturnBus[] {
-  if (!saved || saved.length === 0) return defaultReturns();
-  return saved.map((r) => ({
-    ...r,
-    effects: { ...structuredClone(DEFAULT_EFFECTS), ...r.effects },
-  }));
-}
-
-// ── Cloud serialize / deserialize ────────────────────────────────────────
+// ── Cloud serialize / deserialize ──────────────────────────────────────────
 //
 // MIDI clips travel inline (columnar in midiClipsJson). Audio clips reference
 // AudioAsset rows; only clips with a persisted assetId round-trip. Clips with
 // assetId=null (just-recorded / just-imported, bytes not yet uploaded) are
 // dropped with a console warning — the upload-and-finalize flow needs to run
-// first.
+// first. The cloud document (milestone 1.5, projectDocument/cloudDocument.ts)
+// carries the rest of the project: in the API's `document` field once it has
+// one, and until then on the first track's settings (the interim fallback).
 
 export interface CloudAudioClip {
   id?: string;
@@ -389,6 +98,13 @@ export interface CloudAudioClip {
   fadeInTicks: number;
   fadeOutTicks: number;
 }
+
+/**
+ * Where a cloud save puts the cloud document: the API's `document` field
+ * ('document'), or the first track's settings ('interim', until the API has
+ * the field; see cloudDocumentSupport.ts).
+ */
+export type CloudWriteMode = 'document' | 'interim';
 
 export interface CloudProjectInput {
   name: string;
@@ -415,30 +131,50 @@ export interface CloudProjectInput {
     midiClips: MidiClipColumnar[];
     audioClips: CloudAudioClip[];
   }>;
+  /** The cloud document, in 'document' mode. */
+  document?: CloudDocument;
+  /** Its schema (CLOUD_DOCUMENT_SCHEMA), in 'document' mode. */
+  documentSchema?: number;
 }
 
-export interface CloudProjectDetail extends CloudProjectInput {
+export interface CloudProjectDetail
+  extends Omit<CloudProjectInput, 'document' | 'documentSchema'> {
   id: string;
   createdAt: Date;
   updatedAt: Date;
   tracks: Array<
     CloudProjectInput['tracks'][number] & { id: string; ordinal: number }
   >;
+  /** From an API with the document field: null when none was saved. */
+  document?: unknown;
+  documentSchema?: number | null;
+  /** Bumped by every write of the project (milestone 1.5's contract). */
+  revision?: number;
+  /** The revision the document was last written at. */
+  writtenAtRevision?: number | null;
 }
 
+/**
+ * The live session as a cloud save sends it, with the cloud document where
+ * `mode` puts it. In 'interim' mode a project without tracks has nowhere to
+ * put it: the save leaves it out, and says so (cloudGapMode).
+ */
 export function serializeSessionForCloud(
   nameOverride?: string,
+  mode: CloudWriteMode = 'interim',
 ): CloudProjectInput {
   const state = useStore.getState();
   let droppedAudioClipCount = 0;
 
   const tracks = state.tracks.map((t) => {
     const audioClips: CloudAudioClip[] = [];
+    const audioClipIds: string[] = [];
     for (const c of t.audioClips) {
       if (!c.assetId) {
         droppedAudioClipCount++;
         continue;
       }
+      audioClipIds.push(c.id);
       audioClips.push({
         assetId: c.assetId,
         startTick: c.startTick,
@@ -460,7 +196,12 @@ export function serializeSessionForCloud(
       volume: t.volume,
       pan: t.pan,
       activeEffects: t.activeEffects ?? [],
-      settings: trackSettings(t),
+      settings: {
+        ...trackSettings(t, getTrackSynthState),
+        trackRole: t.trackRole,
+        // The clips' own ids, so an open keeps them (cloudProjectDraft).
+        ...(audioClipIds.length > 0 ? { audioClipIds } : {}),
+      },
       midiClips: t.midiClips.map((c) => ({
         id: c.id,
         name: c.name,
@@ -478,6 +219,15 @@ export function serializeSessionForCloud(
     tracks[0].settings = {
       ...tracks[0].settings,
       masterAutomation: state.masterAutomation,
+    };
+  }
+
+  const document = encodeCloudDocument(state);
+  if (mode === 'interim' && tracks.length > 0) {
+    tracks[0].settings = {
+      ...tracks[0].settings,
+      projectDoc: document,
+      projectDocSchema: CLOUD_DOCUMENT_SCHEMA,
     };
   }
 
@@ -501,295 +251,269 @@ export function serializeSessionForCloud(
     },
     returns: state.returns,
     tracks,
+    ...(mode === 'document'
+      ? { document, documentSchema: CLOUD_DOCUMENT_SCHEMA }
+      : {}),
   };
 }
 
+// ── The live session ───────────────────────────────────────────────────────
+//
+// The store is a module singleton that outlives the editor route: leaving for
+// the dashboard and coming back finds the session still in memory. This marks
+// when the page last loaded, reset or seeded it, so the editor's boot knows
+// the store holds the live session (restoring the autosave over it would put
+// an older copy over newer work) and the autosave knows there is a session
+// worth writing. It lives here, beside every load below that sets it (the
+// draft autosave and openSession read it; 1.4 retired 1.3's localSession.ts).
+
+let loadedAt: number | null = null;
+// The session as it stood when markSessionPristine noted it.
+let pristine: string | null = null;
+
+/** When this page last loaded, reset or seeded the session; null until then. */
+export function sessionLoadedAt(): number | null {
+  return loadedAt;
+}
+
+/** Mark the store as holding the live session (every load and reset does). */
+export function markSessionLoaded(): void {
+  loadedAt = Date.now();
+  pristine = null;
+}
+
 /**
- * State that belongs to one project's harmony: its chord lane, Prism
- * progression, analyses, selections and lead sheet layout. Every load starts
- * from this, so none of it carries over from the previous project.
+ * The store no longer holds a session worth writing: File ▸ New Project
+ * drops the autosave and reloads, and nothing may write the old project
+ * back in between. The next load or reset marks it again.
  */
-function freshProjectHarmony() {
-  return {
-    chordRegions: [],
-    chordSeq: [],
-    stringSeq: [],
-    availableNextChords: [],
-    measuresPerLine: 4,
-    measureRowSizes: null,
-    measureRestMap: null,
-    measureFermatas: null,
-    melodyOverrides: [],
-    mode: 'ionian',
-    unisonDoc: null,
-    unisonError: null,
-    selectionAnalysis: null,
-    chordAnalysis: null,
-    chordAnalysisPromptOpen: false,
-    selectedChordIds: [],
-    selectedNotes: [],
-    selectedClipId: null,
-    selectedClipTrackId: null,
-    editingClipId: null,
-    editingClipTrackId: null,
-    leadSheetSelectedChordIdx: null,
-    leadSheetSections: [],
-    scoreChordTracks: [],
-    scoreChordHidden: [],
-    scoreArticulations: [],
-    scoreSlurs: [],
-    scoreSlashNotes: [],
-    leadSheetRepeats: [],
-  } satisfies Partial<ReturnType<typeof useStore.getState>>;
+export function forgetLiveSession(): void {
+  loadedAt = null;
+  pristine = null;
 }
 
-export function deserializeCloudProject(project: CloudProjectDetail): void {
-  // Cloud load remints track ids, so build a saved-id → new-id map to remap
-  // cross-track references (ducker keyTrackId) below.
-  const cloudMap = new Map<string, string>();
-  const tracks = project.tracks.map((t) => {
-    const id = crypto.randomUUID();
-    if (t.settings?.sourceTrackId) cloudMap.set(t.settings.sourceTrackId, id);
-    // Seed the per-track synth patch so the panel restores it on open and the
-    // engine is configured at instrument init (keyed by the freshly minted id).
-    if (t.instrument === 'oracle-synth' && t.settings?.oracleSynth) {
-      setTrackSynthState(id, t.settings.oracleSynth);
+/**
+ * A session's project, for telling whether two sessions hold the same work:
+ * its cloud link and its content as the save status fingerprints it (the
+ * registry's doc fields and each Oracle patch). How it was last seen (the
+ * playhead, zoom, the view), arming and inputs, and prefs are not work, so
+ * they are not in it. Drafts of any version compare by what they load as,
+ * so a v2 slot and the v3 session restored from it agree. Deterministic.
+ */
+export function sessionFingerprint(session: SessionData): string {
+  const migrated = migrateSession(session);
+  if (migrated.ok) {
+    try {
+      const { project, synthPatches } = decodeSession(migrated.session);
+      return `${JSON.stringify(project.projectId)}|${documentFingerprint(
+        project as unknown as AllSlices,
+        Object.fromEntries(synthPatches),
+      )}`;
+    } catch {
+      // No load can read it either: it is compared word for word below.
     }
-    return {
-      id,
-      name: t.name,
-      type: t.type,
-      instrument: t.instrument,
-      color: t.color,
-      mute: t.mute,
-      solo: t.solo,
-      volume: t.volume,
-      pan: t.pan,
-      // Local-only state — re-defaulted on load
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      // Instrument voice + effect config (effects re-default when a save predates
-      // this field).
-      ...applyTrackSettings(t.settings),
-      activeEffects: t.activeEffects,
-      midiClips: t.midiClips.map((c) => ({
-        id: c.id,
-        name: c.name,
-        startTick: c.startTick,
-        events: decodeMidiEvents(c.events),
-      })),
-      audioClips: t.audioClips.map((c) => ({
-        // Track-local clip id. The AudioBufferStore is keyed on this; bytes
-        // for this clip will be fetched + decoded asynchronously by the
-        // caller (loadCloudProjectAudio).
-        id: crypto.randomUUID(),
-        assetId: c.assetId,
-        startTick: c.startTick,
-        duration: c.duration,
-        offsetSeconds: c.offsetSeconds,
-        gain: c.gain,
-        fadeInTicks: c.fadeInTicks,
-        fadeOutTicks: c.fadeOutTicks,
-      })),
-      trackRole: guessTrackRole(t.name, t.instrument),
-    };
-  }) as unknown as ReturnType<typeof useStore.getState>['tracks'];
-
-  // Ensure at least one MIDI track has monitoring ON for MIDI input to work
-  const firstMidi = tracks.find((t) => t.type === 'midi');
-  if (firstMidi) {
-    firstMidi.monitoring = true;
-    firstMidi.recordArmed = true;
   }
-
-  // Remap ducker key references onto the freshly minted track ids.
-  remapDuckerKeys(tracks, cloudMap);
-
-  useStore.setState({
-    // Chord symbols aren't part of a cloud project yet, so it opens with none.
-    ...freshProjectHarmony(),
-    projectId: project.id,
-    projectName: project.name,
-    composerName: project.composerName ?? '',
-    bpm: project.bpm,
-    isPlaying: false,
-    isRecording: false,
-    tracks,
-    rootNote: project.prism.rootNote,
-    rhythmName: project.prism.rhythmName,
-    genre: project.prism.genre,
-    swing: project.prism.swing,
-    returns: restoreReturns(project.returns),
-    masterAutomation: masterAutomationFromCloud(project),
-  });
-  resetUndoHistory();
+  return `unreadable:${JSON.stringify(session)}`;
 }
 
-/** The Master automation a cloud save carried on a track's settings (the
- *  first track at save time; searched for, so track order can't lose it). */
-function masterAutomationFromCloud(
+/**
+ * Note the session as just opened: a template, demo, song, practice track or
+ * cloud project nobody has changed yet, which can be opened again from where
+ * it came. No load calls it since milestone 1.3: whether a session holds
+ * work is the save status's call (hasWorkToKeep, isDocumentDirty), which
+ * costs no serialization per load. It stays for milestone 1.4's drafts.
+ *
+ * A caller passes the session it serialized when the moment to compare
+ * against has passed: a save's, taken before its request.
+ */
+export function markSessionPristine(
+  session: SessionData = serializeSession(),
+): void {
+  pristine = sessionFingerprint(session);
+}
+
+/** Whether `session` is the live one as it was opened (markSessionPristine). */
+export function isPristineSession(
+  session: SessionData = serializeSession(),
+): boolean {
+  return pristine !== null && sessionFingerprint(session) === pristine;
+}
+
+// ── Opening a cloud project ────────────────────────────────────────────────
+
+/** What a cloud open made of the project's document. */
+export interface CloudOpenReport {
+  /** Where the document came from; null when the project had none. */
+  document: 'field' | 'interim' | null;
+  /** An app from before 1.5 saved the project after its document. */
+  stale: boolean;
+  /** The document is from a later schema, which this build left out. */
+  newer: boolean;
+  /** Clips whose notes changed since the document: their parts left out. */
+  partsSkipped: number;
+}
+
+/**
+ * Open a project from the cloud as the live session: its rows and its cloud
+ * document (projectDocument/cloudDocument.ts) merged into one v3 draft and
+ * decoded as a draft is, so the chord lane, the mode, the metre, the Score
+ * and the rest come back with it. Its tracks keep the ids they were saved
+ * with (settings.sourceTrackId), so everything that names a track by id
+ * still finds it; a project saved before ids travelled gets new ones once.
+ * Its audio clips keep theirs too (settings.audioClipIds, milestone 1.10).
+ * A project without a document opens what its rows carry, the rest at its
+ * defaults. Throws, changing nothing, when the payload can't be read.
+ */
+export function deserializeCloudProject(
   project: CloudProjectDetail,
-): AutomationLanes {
-  return (
-    project.tracks.find((t) => t.settings?.masterAutomation)?.settings
-      ?.masterAutomation ?? {}
-  );
+): CloudOpenReport {
+  // First everything that can throw, with nothing changed yet: once the
+  // generation moves, the open project's patches are gone from the cache.
+  const found = findCloudDocument(project);
+  const draft = cloudProjectDraft(project, found, () => crypto.randomUUID());
+  const migrated = migrateSession(draft.session);
+  if (!migrated.ok) {
+    throw new Error(
+      `cloud project ${project.id} can't be read (${migrated.reason}): ${migrated.detail}`,
+    );
+  }
+  const decoded = decodeSession(migrated.session, {
+    trackIds: draft.trackIds,
+  });
+
+  bumpSessionGeneration('cloud-open');
+  for (const [trackId, patch] of decoded.synthPatches) {
+    setTrackSynthState(trackId, patch);
+  }
+  useStore.setState({
+    ...initialProjectState(),
+    ...decoded.project,
+    lastSeekPosition: decoded.project.position,
+  });
+  resetUndoHistory();
+  markSessionLoaded();
+  // The cloud holds this project as it opened, so until it changes there is
+  // no work in it for a link to keep.
+  markDocumentBaseline({ savedComplete: true });
+  return {
+    document: found.document ? found.source : null,
+    stale: found.document !== null && found.stale,
+    newer: found.newer,
+    partsSkipped: draft.partsSkipped,
+  };
+}
+
+// ── Starting empty ─────────────────────────────────────────────────────────
+
+/**
+ * Reset the store to an empty project: what a fresh page shows, without
+ * reloading. Used when the user starts a new project (the home page's
+ * "Create New Project" tile) and before every link seeds the one it opens
+ * (replaceSession), so no project left in the store from an earlier session
+ * bleeds through. `reason` names the reset for the session generation's
+ * listeners ('new', 'template', …).
+ */
+export function resetSessionToEmpty(reason = 'new'): void {
+  resetProjectState(reason);
+  resetUndoHistory();
+  markSessionLoaded();
+  markDocumentBaseline();
+}
+
+// ── Opening a draft ────────────────────────────────────────────────────────
+
+/** Whether this build can load `session` (a draft of any version it reads). */
+export function isLoadableSession(session: SessionData | string): boolean {
+  return migrateSession(session).ok;
+}
+
+/** What loadSession did with a draft. */
+export type LoadOutcome =
+  | {
+      ok: true;
+      /**
+       * The format it was written in: 1, 2, 3, or a later schema this build
+       * reads as 3 (its `compat` allows it). Unless it is
+       * SESSION_SCHEMA_VERSION, the next write over the draft loses its
+       * original, so the caller backs it up first (backupBeforeMigration).
+       */
+      from: number;
+      /** Values that were missing or broken and loaded as their default. */
+      repaired: number;
+    }
+  | {
+      ok: false;
+      reason: UnreadableReason;
+      detail: string;
+      version?: number;
+    };
+
+/**
+ * Load a draft (the autosave, kept work) as the live session. `stored` is
+ * the draft as storage holds it, best read raw before any JSON.parse so an
+ * unreadable one can be quarantined whole (projectDocument/quarantine.ts),
+ * or already parsed. A draft written before 1.3 is brought up to v3 first.
+ * When it can't be read nothing changes, and the outcome says why. Never
+ * throws for the draft's sake.
+ */
+export function loadSession(stored: SessionData | string): LoadOutcome {
+  let migrated: ReturnType<typeof migrateSession>;
+  let decoded: DecodedSession;
+  try {
+    migrated = migrateSession(stored);
+    if (!migrated.ok) {
+      const { reason, detail, version } = migrated;
+      return { ok: false, reason, detail, version };
+    }
+    decoded = decodeSession(migrated.session);
+  } catch (err) {
+    return { ok: false, reason: 'migration-failed', detail: String(err) };
+  }
+  applyDraft(decoded, migrated.legacyPrefs);
+  return {
+    ok: true,
+    from: migrated.from,
+    repaired: migrated.repaired + decoded.repaired,
+  };
+}
+
+/** Load a local session (the autosave, or kept work); false if unreadable. */
+export function deserializeSession(session: SessionData | string): boolean {
+  const outcome = loadSession(session);
+  if (!outcome.ok) {
+    console.warn(
+      `[session] Draft not loaded (${outcome.reason}): ${outcome.detail}`,
+    );
+  }
+  return outcome.ok;
 }
 
 /**
- * Reset the store to a pristine, empty project — the same clean slate a fresh
- * page load yields, but without reloading. Used when the user explicitly starts
- * a new project (e.g. the home page "Create New Project" tile) so any project
- * left in the (module-singleton) store from a previous studio session doesn't
- * bleed through. Mirrors the slice initial-state defaults.
+ * Put a decoded draft in the store as the live session, in the order every
+ * load keeps (see sessionGeneration.ts): the new generation lets go of every
+ * cache keyed by track id, the Oracle patches go in, then the project as one
+ * store write.
  */
-export function resetSessionToEmpty(): void {
-  useStore.setState({
-    // Project identity
-    projectId: null,
-    projectName: 'Untitled Project',
-    composerName: '',
-    // A Practice Track landing sets its own session after this reset.
-    practiceSession: null,
-
-    // Transport
-    bpm: 120,
-    position: 0,
-    isPlaying: false,
-    isRecording: false,
-
-    // Tracks
-    tracks: [],
-    nextColorIndex: 0,
-    pitchData: {},
-    masterAutomation: {},
-
-    // Prism
-    ...freshProjectHarmony(),
-    rootNote: null,
-    rhythmName: 'Quarters',
-    genre: 'Pop',
-    swing: 0,
-  });
-  resetUndoHistory();
-}
-
-// ── Deserialize ──────────────────────────────────────────────────────────
-
-export function deserializeSession(session: SessionData): void {
-  if (session.version !== 1 && session.version !== SESSION_SCHEMA_VERSION) {
-    console.warn('Unknown session version:', session.version);
-    return;
+function applyDraft(decoded: DecodedSession, legacyPrefs: LegacyPrefs): void {
+  bumpSessionGeneration('restore');
+  for (const [trackId, patch] of decoded.synthPatches) {
+    setTrackSynthState(trackId, patch);
   }
-
-  const d = session.data;
-
-  const tracks = d.tracks.map((t) => {
-    // Cast through unknown so v1 (array-of-objects) and v2 (columnar) clip
-    // shapes can be discriminated at runtime by isLegacyMidiClip.
-    const rawClips = (t.midiClips ?? []) as unknown[];
-    const midiClips = rawClips.map((raw) => {
-      if (isLegacyMidiClip(raw)) {
-        return {
-          id: raw.id,
-          name: raw.name,
-          startTick: raw.startTick,
-          events: raw.events.map((e) => ({
-            note: e.note,
-            velocity: e.velocity,
-            startTick: e.startTick,
-            durationTicks: e.durationTicks,
-            channel: e.channel,
-          })),
-        };
-      }
-      const c = raw as MidiClipColumnar;
-      return {
-        id: c.id,
-        name: c.name,
-        startTick: c.startTick,
-        events: decodeMidiEvents(c.events),
-      };
-    });
-
-    // Seed the per-track synth patch so the panel restores it on open and the
-    // engine is configured at instrument init.
-    if (t.instrument === 'oracle-synth' && t.settings?.oracleSynth) {
-      setTrackSynthState(t.id, t.settings.oracleSynth);
-    }
-
-    // Drop the raw settings blob so it doesn't leak onto the store Track (it's
-    // re-derived from applyTrackSettings; a stray `settings` would bloat the
-    // store and carry internal fields like sourceTrackId).
-    const trackFields = { ...t };
-    delete (trackFields as { settings?: unknown }).settings;
-    return {
-      ...trackFields,
-      // Restore the instrument voice + effect config (effects re-default when a
-      // save predates this field).
-      ...applyTrackSettings(t.settings),
-      activeEffects: t.activeEffects ?? [],
-      midiClips,
-      audioClips: (t.audioClips ?? []).map((c) => ({
-        ...c,
-        fadeInTicks: c.fadeInTicks ?? 0,
-        fadeOutTicks: c.fadeOutTicks ?? 0,
-      })),
-    };
-  }) as ReturnType<typeof useStore.getState>['tracks'];
-
-  // Ensure at least one MIDI track has monitoring ON for MIDI input to work
-  const hasMonitored = tracks.some((t) => t.monitoring && t.type === 'midi');
-  if (!hasMonitored) {
-    const firstMidi = tracks.find((t) => t.type === 'midi');
-    if (firstMidi) {
-      firstMidi.monitoring = true;
-      firstMidi.recordArmed = true;
-    }
-  }
-
-  // Remap ducker key references. Local load keeps ids, so this is an identity
-  // map (only nulls a key pointing at a track that no longer exists).
-  const localMap = new Map<string, string>();
-  d.tracks.forEach((t, i) => {
-    localMap.set(t.settings?.sourceTrackId ?? t.id, tracks[i].id);
-  });
-  remapDuckerKeys(tracks, localMap);
-
   useStore.setState({
-    // Project
-    projectId: d.projectId ?? null,
-    projectName: d.projectName ?? 'Untitled Project',
-    composerName: d.composerName ?? '',
-
-    // Transport
-    bpm: d.transport.bpm,
-    position: d.transport.position,
-    metronomeEnabled: d.transport.metronomeEnabled,
-    loopEnabled: d.transport.loopEnabled,
-    loopStart: d.transport.loopStart,
-    loopEnd: d.transport.loopEnd,
-    isPlaying: false,
-    isRecording: false,
-
-    // Tracks
-    tracks,
-
-    // Prism (partial — only restore serialized fields) and chord symbols
-    ...freshProjectHarmony(),
-    rootNote: d.prism.rootNote,
-    mode: d.prism.mode ?? 'ionian',
-    rhythmName: d.prism.rhythmName,
-    genre: d.prism.genre,
-    swing: d.prism.swing,
-    chordRegions: d.chordRegions ?? [],
-
-    // Aux return buses
-    returns: restoreReturns(d.returns),
-    masterAutomation: d.masterAutomation ?? {},
+    ...initialProjectState(),
+    ...decoded.project,
+    // Stop returns to where the draft left the playhead.
+    lastSeekPosition: decoded.project.position,
   });
+  // A draft from before 1.3 carries the metronome, a pref now. It becomes
+  // the student's only while they have none (prefsStore): a student with
+  // prefs restoring an old draft, an old tab's autosave or a rolled-back
+  // build's keeps their own.
+  adoptLegacyPrefs(legacyPrefs);
   resetUndoHistory();
+  markSessionLoaded();
+  // A draft is the only copy of what it holds: a cloud copy, if there is
+  // one, may be older. So it is never complete elsewhere, and replacing it
+  // keeps it.
+  markDocumentBaseline({ savedComplete: false });
 }

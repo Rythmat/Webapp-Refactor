@@ -1,9 +1,9 @@
 // ── Import Jam Session ───────────────────────────────────────────────────
-// Converts a finalized jam recording (from localStorage) into studio tracks:
-// one MIDI (SoundFont) track per participant who played piano, plus a single
-// drum-machine track from the importing user's own drum hits. Note timing is
-// mapped ms → ticks at the jam's drum-machine BPM, with note starts quantized
-// to a 1/16 grid.
+// Converts a finalized jam recording (from localStorage) into a new studio
+// project: one MIDI (SoundFont) track per participant who played piano, plus a
+// single drum-machine track from the importing user's own drum hits. Note
+// timing is mapped ms → ticks at the jam's drum-machine BPM, with note starts
+// quantized to a 1/16 grid, and the project takes that tempo.
 
 import type { MidiNoteEvent } from '@prism/engine';
 import { useStore } from '@/daw/store';
@@ -11,7 +11,7 @@ import type { MidiClip } from '@/daw/store/tracksSlice';
 import { GM_PROGRAMS } from '@/daw/instruments/gmPrograms';
 import {
   loadJamSession,
-  clearJamSession,
+  type JamSession,
   type JamSessionNote,
 } from './jamSession';
 
@@ -20,15 +20,27 @@ const GRID_TICKS = PPQ / 4; // 1/16 note
 const MIN_DURATION_TICKS = PPQ / 8; // 1/32 note floor
 
 /**
- * Import the pending jam session (if any) into the current studio project as
- * per-participant MIDI tracks. Consumes the saved session. Returns the number
- * of tracks created.
+ * The jam recording waiting to be opened, or null when there is none (or it
+ * is unreadable, or holds no notes). Never clears it: the jam stays to open
+ * again until an open has put it in a project (openSession clears it after
+ * ready, clearJamSession).
  */
-export function importPendingJamSession(): number {
+export function readPendingJam(): JamSession | null {
   const session = loadJamSession();
-  clearJamSession();
-  if (!session || session.notes.length === 0) return 0;
+  if (!session || !Array.isArray(session.notes) || session.notes.length === 0)
+    return null;
+  return session;
+}
 
+/**
+ * Write a jam recording into the (just reset) project: the jam's tempo, then
+ * one MIDI track per participant and instrument, plus one drum track.
+ * Returns the number of tracks created. The apply step of openSession's
+ * 'jam' intent, and of a collab host bringing a jam into its room: no reset,
+ * no baseline, no undo reset and no clear of the hand-off, which are all the
+ * opener's.
+ */
+export function applyJamSession(session: JamSession): number {
   const bpm = session.bpm > 0 ? session.bpm : 120;
   const ticksPerMs = (PPQ * bpm) / 60000;
   const quantize = (tick: number) =>
@@ -64,7 +76,10 @@ export function importPendingJamSession(): number {
     return { events, lengthTicks };
   };
 
+  // The project takes the jam's tempo. The ticks above count that tempo, so
+  // the notes play back as they were played and sit on the project's grid.
   const store = useStore.getState();
+  store.setBpm(bpm);
   let created = 0;
 
   // ── Melodic: one SoundFont track per (participant × GM instrument) ──

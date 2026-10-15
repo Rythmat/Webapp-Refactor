@@ -7,7 +7,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { CurriculumRoutes } from '@/constants/routes';
 import { usePlayNote } from '@/contexts/PianoContext';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
@@ -23,6 +22,7 @@ import type {
   FundamentalsFlow,
   FundamentalsSection,
 } from '@/curriculum/types/fundamentals';
+import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import {
   LearnInputProvider,
@@ -257,6 +257,30 @@ function FundamentalsLessonContainerInner({
     [highlightNotes],
   );
   const canDemo = demoTargetMidis.length > 0;
+
+  // Every note the step could ask for, so the keyboard shows all of it: the
+  // exact targets, or the ends of the zone a range step plays in.
+  const keyboardTargets = useMemo(() => {
+    const rule = currentStep?.midiEval;
+    if (!rule) return demoTargetMidis;
+    switch (rule.type) {
+      case 'exact_midi':
+      case 'simultaneous':
+        return rule.midi;
+      case 'sequence':
+        return rule.octaveAware ? rule.notes : demoTargetMidis;
+      case 'range':
+        return [rule.min, rule.max];
+      case 'multi_zone':
+        return rule.zones.flatMap((z) => [z.min, z.max]);
+      case 'ordered_ranges':
+        return rule.phases.flatMap((p) => [p.min, p.max]);
+      case 'quiz':
+        return rule.notePool;
+      default:
+        return demoTargetMidis;
+    }
+  }, [currentStep, demoTargetMidis]);
 
   // Piano Roll — reuses the genre lesson's roll to preview the target note(s)
   // for this step. Fundamentals has no note-timeline/tempo data, so this is a
@@ -748,9 +772,9 @@ function FundamentalsLessonContainerInner({
             style={{ alignItems: 'stretch' }}
           >
             <div className="flex-1 min-w-0">
-              <PianoKeyboard
-                startC={startC}
-                endC={endC}
+              <LessonKeyboard
+                minHeight={238}
+                targetMidis={keyboardTargets}
                 enableClick
                 enableMidiInterface={false}
                 onKeyClick={handleKeyClick}
@@ -765,7 +789,6 @@ function FundamentalsLessonContainerInner({
                 }
                 activeWhiteKeyColor={accentColor}
                 activeBlackKeyColor={accentColor}
-                gaming
               />
             </div>
             <LessonVolumeDial />

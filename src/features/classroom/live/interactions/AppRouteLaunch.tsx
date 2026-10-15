@@ -17,6 +17,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { CheckCircle2, ExternalLink, Rocket } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { getSong } from '@/curriculum/data/songs';
+import { writeMindMapHandoff } from '../../msp/mindMapHandoff';
 import { appendMspLaunchParams } from '../../msp/mspLaunchParams';
 import type { MspResultPayload } from '../../msp/mspResponseInbox';
 import { useMspReport } from '../../msp/useMspReport';
@@ -148,10 +149,21 @@ export const AppRouteLaunch = ({
       return;
     }
     setLaunchUrl(url);
-    const opened = window.open(url, '_blank', 'noopener');
-    if (!opened) setPopupBlocked(true);
+    // A Promoter's board goes ahead of the Globe tab, which reads it back by
+    // this interaction's id (see msp/mindMapHandoff).
+    if (atlas?.board)
+      writeMindMapHandoff({
+        interactionId: interaction.id,
+        board: atlas.board,
+        question: interaction.question,
+      });
+    // No 'noopener' feature: with it `window.open` always returns null, so a
+    // blocked tab could never be told apart. Cut the opener link instead.
+    const opened = window.open(url, '_blank');
+    if (opened) opened.opener = null;
+    else setPopupBlocked(true);
     submitResult({ status: 'launched' });
-  }, [buildLaunchUrl, submitResult]);
+  }, [atlas, buildLaunchUrl, interaction, submitResult]);
 
   if (!atlas || !href) {
     return (

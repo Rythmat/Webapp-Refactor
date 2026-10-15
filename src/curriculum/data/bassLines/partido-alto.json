@@ -1,0 +1,58 @@
+{
+  "id": "partido-alto",
+  "name": "Partido Alto",
+  "description": "Two-bar syncopated phrase, octave pops",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "order": 70,
+  "timeSignature": [2, 4],
+  "length": "2m",
+  "gridResolution": "16n",
+  "instrument": "electric",
+  "grooves": ["partido-alto"],
+  "anchorOnChange": true,
+  "notes": [
+    {
+      "time": "0:0:1",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.82
+    },
+    {
+      "time": "0:0:3",
+      "degree": "X",
+      "dur": 0.23,
+      "velocity": 0.5
+    },
+    {
+      "time": "0:1:0",
+      "degree": "7-",
+      "dur": 0.22,
+      "velocity": 0.68
+    },
+    {
+      "time": "0:1:2",
+      "degree": "A",
+      "dur": 0.23,
+      "velocity": 0.72
+    },
+    {
+      "time": "1:0:0",
+      "degree": "R",
+      "dur": 0.22,
+      "velocity": 0.75
+    },
+    {
+      "time": "1:1:1",
+      "degree": "7-",
+      "dur": 0.22,
+      "velocity": 0.7
+    },
+    {
+      "time": "1:1:3",
+      "degree": "R",
+      "dur": 0.23,
+      "velocity": 0.75
+    }
+  ]
+}

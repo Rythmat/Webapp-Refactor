@@ -1,0 +1,9 @@
+{
+  "id": "rock-pianist-1",
+  "name": "Rock-Pianist-1",
+  "instrument": "keys",
+  "genre": "rock",
+  "kind": "placeholder",
+  "order": 550,
+  "items": []
+}

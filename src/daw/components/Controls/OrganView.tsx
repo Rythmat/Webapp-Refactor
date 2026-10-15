@@ -17,7 +17,7 @@ import {
   subscribeEngineReady,
   getEngineReadyVersion,
 } from '@/daw/hooks/usePlaybackEngine';
-import { useStore } from '@/daw/store';
+import { useStore, type Track } from '@/daw/store';
 import {
   DRAWBAR_LABELS,
   LeslieSpeed,
@@ -27,7 +27,14 @@ import {
 } from '@/daw/instruments/TonewheelOrganEngine';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
+import {
+  ControlGestureContext,
+  useContinuousControl,
+  useControlGesture,
+} from '@/daw/hooks/useContinuousControl';
 import styles from './OrganView.module.css';
+
+type OrganState = NonNullable<Track['organState']>;
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -113,6 +120,7 @@ const Knob: FC<KnobProps> = memo(
   }) => {
     const startY = useRef<number | null>(null);
     const startVal = useRef(0);
+    const gesture = useControlGesture();
     const norm = clamp((value - min) / (max - min), 0, 1);
     const angle = START_ANGLE + norm * SWEEP;
     const cx = size / 2,
@@ -132,8 +140,9 @@ const Knob: FC<KnobProps> = memo(
         (e.target as HTMLElement).setPointerCapture(e.pointerId);
         startY.current = e.clientY;
         startVal.current = value;
+        gesture?.begin();
       },
-      [value],
+      [value, gesture],
     );
 
     const onMove = useCallback(
@@ -147,8 +156,10 @@ const Knob: FC<KnobProps> = memo(
     );
 
     const onUp = useCallback(() => {
+      if (startY.current === null) return;
       startY.current = null;
-    }, []);
+      gesture?.end();
+    }, [gesture]);
 
     const display = formatValue
       ? formatValue(clamp(value, min, max))
@@ -164,6 +175,7 @@ const Knob: FC<KnobProps> = memo(
           onPointerDown={onDown}
           onPointerMove={onMove}
           onPointerUp={onUp}
+          onPointerCancel={onUp}
         >
           <path className={styles.knobTrack} d={trackPath} strokeWidth={3} />
           {arcPath && (
@@ -205,6 +217,7 @@ interface DrawbarProps {
 
 const DrawbarSlider: FC<DrawbarProps> = memo(({ index, value, onChange }) => {
   const trackRef = useRef<HTMLDivElement>(null);
+  const gesture = useControlGesture();
   const color = DRAWBAR_COLORS[index];
   const norm = value / 8;
 
@@ -222,9 +235,10 @@ const DrawbarSlider: FC<DrawbarProps> = memo(({ index, value, onChange }) => {
     (e: PointerEvent) => {
       e.preventDefault();
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      gesture?.begin();
       update(e.clientY);
     },
-    [update],
+    [update, gesture],
   );
 
   const onMove = useCallback(
@@ -242,6 +256,8 @@ const DrawbarSlider: FC<DrawbarProps> = memo(({ index, value, onChange }) => {
         className={styles.drawbarTrack}
         onPointerDown={onDown}
         onPointerMove={onMove}
+        onPointerUp={gesture?.end}
+        onPointerCancel={gesture?.end}
       >
         <div className={styles.drawbarCap} style={{ background: color }} />
         <div
@@ -344,6 +360,21 @@ export function OrganView({ trackId }: OrganViewProps) {
     (s) => s.tracks.find((t) => t.id === trackId)?.organState,
   );
   const updateTrack = useStore((s) => s.updateTrack);
+  // A knob or drawbar drag plays through the engine as it moves (its setters
+  // ramp) and saves the organ on the track once, on release; a switch or a
+  // preset saves at once.
+  const organControl = useContinuousControl<OrganState | undefined>({
+    value: savedOrgan,
+    preview: () => {},
+    commit: (organState) => {
+      if (organState) updateTrack(trackId, { organState });
+    },
+    label: 'Change organ',
+  });
+  const gesture = useMemo(
+    () => ({ begin: organControl.begin, end: organControl.end }),
+    [organControl.begin, organControl.end],
+  );
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
@@ -386,7 +417,7 @@ export function OrganView({ trackId }: OrganViewProps) {
     );
   }
 
-  const organ = savedOrgan ?? engine.getState();
+  const organ = organControl.value ?? engine.getState();
   const drawbars = organ.drawbars;
   const percEnabled = organ.percEnabled;
   const percHarmonic = organ.percHarmonic;
@@ -395,18 +426,23 @@ export function OrganView({ trackId }: OrganViewProps) {
   const vibratoMode = organ.vibratoMode;
   const leslieSpeed = organ.leslieSpeed;
   const leslieEnabled = organ.leslieEnabled;
+  // The rotor dots mirror what's heard: still when the Leslie is switched off
+  // (the engine then mutes its rotating path), not only at speed "stop".
+  const rotorsStill = !leslieEnabled || leslieSpeed === 'stop';
   const clickLevel = organ.clickLevel;
   const overdrive = organ.overdrive;
   const swellLevel = organ.swellLevel;
 
   // After any engine edit: save the organ's settings on the track (that's what
-  // reloads with the project) and repaint.
+  // reloads with the project), on release during a drag, and repaint.
   const commit = () => {
-    if (trackId) updateTrack(trackId, { organState: engine.getState() });
+    organControl.change(engine.getState());
     forceRender();
   };
 
   const handleDrawbar = (index: number, value: number) => {
+    // A drag reports every move; only a new stop is an edit.
+    if (engine.getState().drawbars[index] === value) return;
     engine.setDrawbar(index, value);
     setActivePreset(null);
     commit();
@@ -424,235 +460,239 @@ export function OrganView({ trackId }: OrganViewProps) {
     }) as CSSProperties;
 
   return (
-    <div className={styles.organRoot}>
-      {/* ── PRESETS (full-height left column) ──────────────────────── */}
-      <div className={styles.presetsCol} style={moduleAccent(ACCENT.presets)}>
-        <h4 className={styles.presetsTitle}>Presets</h4>
-        {ORGAN_PRESETS.map((preset) => (
-          <button
-            key={preset.name}
-            className={styles.segmentBtn}
-            data-active={activePreset === preset.name}
-            style={
-              {
-                '--seg-accent': ACCENT.presets,
-                textAlign: 'left',
-                width: '100%',
-              } as CSSProperties
-            }
-            onClick={() => handleLoadPreset(preset)}
-          >
-            {preset.name}
-          </button>
-        ))}
-      </div>
+    <ControlGestureContext.Provider value={gesture}>
+      <div className={styles.organRoot}>
+        {/* ── PRESETS (full-height left column) ──────────────────────── */}
+        <div className={styles.presetsCol} style={moduleAccent(ACCENT.presets)}>
+          <h4 className={styles.presetsTitle}>Presets</h4>
+          {ORGAN_PRESETS.map((preset) => (
+            <button
+              key={preset.name}
+              className={styles.segmentBtn}
+              data-active={activePreset === preset.name}
+              style={
+                {
+                  '--seg-accent': ACCENT.presets,
+                  textAlign: 'left',
+                  width: '100%',
+                } as CSSProperties
+              }
+              onClick={() => handleLoadPreset(preset)}
+            >
+              {preset.name}
+            </button>
+          ))}
+        </div>
 
-      {/* ── MAIN AREA (controls row + keyboard) ───────────────────── */}
-      <div className={styles.mainArea}>
-        {/* ── CONTROLS ROW (single row) ──────────────────────────── */}
-        <div className={styles.controlsRow}>
-          {/* Leslie */}
-          <div className={styles.module} style={moduleAccent(ACCENT.leslie)}>
-            <h4 className={styles.moduleTitle}>Leslie</h4>
-            <Toggle
-              label="Enabled"
-              active={leslieEnabled}
-              accent={ACCENT.leslie}
-              onChange={(v) => {
-                engine.setLeslieEnabled(v);
-                commit();
-              }}
-            />
-            <Segmented<LeslieSpeed>
-              options={['stop', 'slow', 'fast']}
-              value={leslieSpeed}
-              accent={ACCENT.leslie}
-              className={styles.leslieSpeed}
-              onChange={(v) => {
-                engine.setLeslieSpeed(v);
-                commit();
-              }}
-            />
-            <div className={styles.leslieIndicators}>
-              <div className={styles.leslieRotor}>
-                <div
-                  className={styles.leslieRotorDot}
-                  data-stopped={leslieSpeed === 'stop'}
-                >
+        {/* ── MAIN AREA (controls row + keyboard) ───────────────────── */}
+        <div className={styles.mainArea}>
+          {/* ── CONTROLS ROW (single row) ──────────────────────────── */}
+          <div className={styles.controlsRow}>
+            {/* Leslie */}
+            <div className={styles.module} style={moduleAccent(ACCENT.leslie)}>
+              <h4 className={styles.moduleTitle}>Leslie</h4>
+              <Toggle
+                label="Enabled"
+                active={leslieEnabled}
+                accent={ACCENT.leslie}
+                onChange={(v) => {
+                  engine.setLeslieEnabled(v);
+                  commit();
+                }}
+              />
+              <Segmented<LeslieSpeed>
+                options={['stop', 'slow', 'fast']}
+                value={leslieSpeed}
+                accent={ACCENT.leslie}
+                className={styles.leslieSpeed}
+                onChange={(v) => {
+                  engine.setLeslieSpeed(v);
+                  commit();
+                }}
+              />
+              <div className={styles.leslieIndicators}>
+                <div className={styles.leslieRotor}>
                   <div
-                    className={styles.leslieRotorInner}
-                    style={
-                      {
-                        '--rotor-speed': leslieAnimDuration(
-                          leslieSpeed,
-                          'horn',
-                        ),
-                        animationPlayState:
-                          leslieSpeed === 'stop' ? 'paused' : 'running',
-                      } as CSSProperties
-                    }
-                  />
+                    className={styles.leslieRotorDot}
+                    data-stopped={rotorsStill}
+                  >
+                    <div
+                      className={styles.leslieRotorInner}
+                      style={
+                        {
+                          '--rotor-speed': leslieAnimDuration(
+                            leslieSpeed,
+                            'horn',
+                          ),
+                          animationPlayState: rotorsStill
+                            ? 'paused'
+                            : 'running',
+                        } as CSSProperties
+                      }
+                    />
+                  </div>
+                  <span className={styles.leslieRotorLabel}>Horn</span>
                 </div>
-                <span className={styles.leslieRotorLabel}>Horn</span>
-              </div>
-              <div className={styles.leslieRotor}>
-                <div
-                  className={styles.leslieRotorDot}
-                  data-stopped={leslieSpeed === 'stop'}
-                >
+                <div className={styles.leslieRotor}>
                   <div
-                    className={styles.leslieRotorInner}
-                    style={
-                      {
-                        '--rotor-speed': leslieAnimDuration(
-                          leslieSpeed,
-                          'drum',
-                        ),
-                        animationPlayState:
-                          leslieSpeed === 'stop' ? 'paused' : 'running',
-                      } as CSSProperties
-                    }
-                  />
+                    className={styles.leslieRotorDot}
+                    data-stopped={rotorsStill}
+                  >
+                    <div
+                      className={styles.leslieRotorInner}
+                      style={
+                        {
+                          '--rotor-speed': leslieAnimDuration(
+                            leslieSpeed,
+                            'drum',
+                          ),
+                          animationPlayState: rotorsStill
+                            ? 'paused'
+                            : 'running',
+                        } as CSSProperties
+                      }
+                    />
+                  </div>
+                  <span className={styles.leslieRotorLabel}>Drum</span>
                 </div>
-                <span className={styles.leslieRotorLabel}>Drum</span>
               </div>
             </div>
-          </div>
 
-          {/* Vibrato */}
-          <div className={styles.module} style={moduleAccent(ACCENT.vibrato)}>
-            <h4 className={styles.moduleTitle}>Vibrato</h4>
-            <Segmented<VibratoMode>
-              options={['off', 'V1', 'V2', 'V3', 'C1', 'C2', 'C3']}
-              value={vibratoMode}
-              accent={ACCENT.vibrato}
-              onChange={(v) => {
-                engine.setVibratoMode(v);
-                commit();
-              }}
-            />
-          </div>
+            {/* Vibrato */}
+            <div className={styles.module} style={moduleAccent(ACCENT.vibrato)}>
+              <h4 className={styles.moduleTitle}>Vibrato</h4>
+              <Segmented<VibratoMode>
+                options={['off', 'V1', 'V2', 'V3', 'C1', 'C2', 'C3']}
+                value={vibratoMode}
+                accent={ACCENT.vibrato}
+                onChange={(v) => {
+                  engine.setVibratoMode(v);
+                  commit();
+                }}
+              />
+            </div>
 
-          {/* Drawbars (flex: 1 to fill space) */}
-          <div
-            className={`${styles.module} ${styles.moduleExpand}`}
-            style={moduleAccent(ACCENT.drawbars)}
-          >
-            <h4 className={styles.moduleTitle}>Drawbars</h4>
-            <div className={styles.drawbarRow}>
-              {drawbars.map((val, i) => (
-                <DrawbarSlider
-                  key={i}
-                  index={i}
-                  value={val}
-                  onChange={handleDrawbar}
+            {/* Drawbars (flex: 1 to fill space) */}
+            <div
+              className={`${styles.module} ${styles.moduleExpand}`}
+              style={moduleAccent(ACCENT.drawbars)}
+            >
+              <h4 className={styles.moduleTitle}>Drawbars</h4>
+              <div className={styles.drawbarRow}>
+                {drawbars.map((val, i) => (
+                  <DrawbarSlider
+                    key={i}
+                    index={i}
+                    value={val}
+                    onChange={handleDrawbar}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Percussion */}
+            <div
+              className={styles.module}
+              style={moduleAccent(ACCENT.percussion)}
+            >
+              <h4 className={styles.moduleTitle}>Percussion</h4>
+              <Toggle
+                label="On/Off"
+                active={percEnabled}
+                accent={ACCENT.percussion}
+                onChange={(v) => {
+                  engine.setPercEnabled(v);
+                  commit();
+                }}
+              />
+              <Toggle
+                label={percHarmonic === '2nd' ? '2nd' : '3rd'}
+                active={percHarmonic === '3rd'}
+                accent={ACCENT.percussion}
+                onChange={(v) => {
+                  engine.setPercHarmonic(v ? '3rd' : '2nd');
+                  commit();
+                }}
+              />
+              <Toggle
+                label={percVolume === 'normal' ? 'Nml' : 'Soft'}
+                active={percVolume === 'soft'}
+                accent={ACCENT.percussion}
+                onChange={(v) => {
+                  engine.setPercVolume(v ? 'soft' : 'normal');
+                  commit();
+                }}
+              />
+              <Toggle
+                label={percDecay === 'fast' ? 'Fast' : 'Slow'}
+                active={percDecay === 'slow'}
+                accent={ACCENT.percussion}
+                onChange={(v) => {
+                  engine.setPercDecay(v ? 'slow' : 'fast');
+                  commit();
+                }}
+              />
+            </div>
+
+            {/* Mix */}
+            <div className={styles.module} style={moduleAccent(ACCENT.mix)}>
+              <h4 className={styles.moduleTitle}>Mix</h4>
+              <div className={styles.knobRow}>
+                <Knob
+                  value={clickLevel}
+                  min={0}
+                  max={1}
+                  label="Click"
+                  accent={ACCENT.mix}
+                  size={40}
+                  onChange={(v) => {
+                    engine.setClickLevel(v);
+                    commit();
+                  }}
                 />
-              ))}
+                <Knob
+                  value={overdrive}
+                  min={0}
+                  max={1}
+                  label="Drive"
+                  accent={ACCENT.mix}
+                  size={40}
+                  onChange={(v) => {
+                    engine.setOverdrive(v);
+                    commit();
+                  }}
+                />
+                <Knob
+                  value={swellLevel}
+                  min={0}
+                  max={1}
+                  label="Swell"
+                  accent={ACCENT.mix}
+                  size={40}
+                  onChange={(v) => {
+                    engine.setSwellLevel(v);
+                    commit();
+                  }}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Percussion */}
-          <div
-            className={styles.module}
-            style={moduleAccent(ACCENT.percussion)}
-          >
-            <h4 className={styles.moduleTitle}>Percussion</h4>
-            <Toggle
-              label="On/Off"
-              active={percEnabled}
-              accent={ACCENT.percussion}
-              onChange={(v) => {
-                engine.setPercEnabled(v);
-                commit();
-              }}
-            />
-            <Toggle
-              label={percHarmonic === '2nd' ? '2nd' : '3rd'}
-              active={percHarmonic === '3rd'}
-              accent={ACCENT.percussion}
-              onChange={(v) => {
-                engine.setPercHarmonic(v ? '3rd' : '2nd');
-                commit();
-              }}
-            />
-            <Toggle
-              label={percVolume === 'normal' ? 'Nml' : 'Soft'}
-              active={percVolume === 'soft'}
-              accent={ACCENT.percussion}
-              onChange={(v) => {
-                engine.setPercVolume(v ? 'soft' : 'normal');
-                commit();
-              }}
-            />
-            <Toggle
-              label={percDecay === 'fast' ? 'Fast' : 'Slow'}
-              active={percDecay === 'slow'}
-              accent={ACCENT.percussion}
-              onChange={(v) => {
-                engine.setPercDecay(v ? 'slow' : 'fast');
-                commit();
-              }}
-            />
-          </div>
-
-          {/* Mix */}
-          <div className={styles.module} style={moduleAccent(ACCENT.mix)}>
-            <h4 className={styles.moduleTitle}>Mix</h4>
-            <div className={styles.knobRow}>
-              <Knob
-                value={clickLevel}
-                min={0}
-                max={1}
-                label="Click"
-                accent={ACCENT.mix}
-                size={40}
-                onChange={(v) => {
-                  engine.setClickLevel(v);
-                  commit();
-                }}
-              />
-              <Knob
-                value={overdrive}
-                min={0}
-                max={1}
-                label="Drive"
-                accent={ACCENT.mix}
-                size={40}
-                onChange={(v) => {
-                  engine.setOverdrive(v);
-                  commit();
-                }}
-              />
-              <Knob
-                value={swellLevel}
-                min={0}
-                max={1}
-                label="Swell"
-                accent={ACCENT.mix}
-                size={40}
-                onChange={(v) => {
-                  engine.setSwellLevel(v);
-                  commit();
-                }}
+          {/* ── KEYBOARD (bottom of main area) ─────────────────────── */}
+          <div className={styles.keyboardWrapper}>
+            <div style={{ position: 'absolute', inset: 0 }}>
+              <PianoKeyboard
+                startNote={36}
+                endNote={96}
+                activeNotes={mergedNotes}
+                activeColor={chordColor ?? undefined}
+                onNoteOn={handleNoteOn}
+                onNoteOff={handleNoteOff}
               />
             </div>
-          </div>
-        </div>
-
-        {/* ── KEYBOARD (bottom of main area) ─────────────────────── */}
-        <div className={styles.keyboardWrapper}>
-          <div style={{ position: 'absolute', inset: 0 }}>
-            <PianoKeyboard
-              startNote={36}
-              endNote={96}
-              activeNotes={mergedNotes}
-              activeColor={chordColor ?? undefined}
-              onNoteOn={handleNoteOn}
-              onNoteOff={handleNoteOff}
-            />
           </div>
         </div>
       </div>
-    </div>
+    </ControlGestureContext.Provider>
   );
 }

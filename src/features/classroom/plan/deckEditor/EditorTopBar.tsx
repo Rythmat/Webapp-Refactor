@@ -24,6 +24,8 @@ interface EditorTopBarProps {
   textTool?: ReactNode;
   /** The "+ Choose content" control — rendered only for content slides. */
   chooseContent?: ReactNode;
+  /** "Generate from Cortex" / "Regenerate": opens the lesson generator. */
+  generate?: ReactNode;
 }
 
 export const EditorTopBar = ({
@@ -35,6 +37,7 @@ export const EditorTopBar = ({
   onLanguageChange,
   textTool,
   chooseContent,
+  generate,
 }: EditorTopBarProps) => (
   <header className="flex flex-wrap items-center gap-3 border-b border-white/[0.06] px-6 py-3">
     <Link
@@ -69,5 +72,7 @@ export const EditorTopBar = ({
     {textTool}
 
     {chooseContent}
+
+    {generate}
   </header>
 );

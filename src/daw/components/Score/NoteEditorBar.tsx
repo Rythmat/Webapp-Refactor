@@ -106,8 +106,14 @@ export interface NoteEditorBarProps {
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
-  onDuration: (choice: DurationChoice) => void;
-  onToggleDot: () => void;
+  /**
+   * Apply a length in `layer`'s row. The row is passed along with it because
+   * a cell click also makes its row live, and that change has not reached the
+   * caller yet when the length is applied.
+   */
+  onDuration: (choice: DurationChoice, layer: NoteLayer) => void;
+  /** Toggle the dot on `layer`'s lengths, for the same reason as onDuration. */
+  onToggleDot: (layer: NoteLayer) => void;
   onArticulation: (kind: ArticulationKind) => void;
   onSlur: () => void;
 }
@@ -166,6 +172,11 @@ export function NoteEditorBar({
         fontSize: size,
         lineHeight: 1,
         transform: `translateY(${lift}px)`,
+        // A music font's ascent and descent make the glyph's text box over
+        // two rows tall, and the row below, drawn later, took the clicks
+        // aimed at this one: a click on a note value wrote a rest. The click
+        // belongs to the cell under the pointer.
+        pointerEvents: 'none',
       }}
     >
       {text}
@@ -216,7 +227,7 @@ export function NoteEditorBar({
                     onClick={() => {
                       if (!hasNotes) return;
                       onLayer(id);
-                      onDuration(choice);
+                      onDuration(choice, id);
                     }}
                     title={`${choice.name} ${name.toLowerCase()} (${choice.key})`}
                     className="flex h-7 min-w-8 items-center justify-center rounded border px-1 transition-colors hover:bg-white/10"
@@ -233,7 +244,16 @@ export function NoteEditorBar({
                 ))}
                 {id === 'notes' && (
                   <button
-                    onClick={() => hasNotes && onToggleDot()}
+                    onClick={() => {
+                      if (!hasNotes) return;
+                      // The dot follows the live row, so a slash stays a
+                      // slash. Rests are the exception: a dotted rest there
+                      // would delete the selected notes, so with Rests live
+                      // the dot goes to the notes, the row it sits in.
+                      const into = layer === 'rests' ? 'notes' : layer;
+                      onLayer(into);
+                      onToggleDot(into);
+                    }}
                     title="Augmentation dot"
                     className="flex h-7 min-w-8 items-center justify-center rounded border px-1 text-xs font-semibold transition-colors hover:bg-white/10"
                     style={cellStyle(dotted)}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
@@ -11,31 +11,6 @@ import {
 } from '@/daw/instruments/gmPrograms';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
-
-// QWERTY → MIDI note mapping (C3 = 48)
-const QWERTY_WHITE: Record<string, number> = {
-  a: 48,
-  s: 50,
-  d: 52,
-  f: 53,
-  g: 55,
-  h: 57,
-  j: 59,
-  k: 60,
-  l: 62,
-  ';': 64,
-  "'": 65,
-};
-const QWERTY_BLACK: Record<string, number> = {
-  w: 49,
-  e: 51,
-  t: 54,
-  y: 56,
-  u: 58,
-  o: 61,
-  p: 63,
-};
-const QWERTY_MAP: Record<string, number> = { ...QWERTY_WHITE, ...QWERTY_BLACK };
 
 // ── SoundFontView ────────────────────────────────────────────────────
 
@@ -61,7 +36,6 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
   );
   const chordColor = useLiveChordColor(mergedNotes);
   const [loading, setLoading] = useState(true);
-  const heldKeysRef = useRef<Set<string>>(new Set());
 
   // Sync program from adapter on mount — wait for init to actually complete
   // (trackEngine.getInstrument() is only set after async init resolves)
@@ -131,43 +105,6 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
     },
     [trackId],
   );
-
-  // QWERTY keyboard events
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      )
-        return;
-      const key = e.key.toLowerCase();
-      const midiNote = QWERTY_MAP[key];
-      if (midiNote !== undefined && !heldKeysRef.current.has(key)) {
-        heldKeysRef.current.add(key);
-        handleNoteOn(midiNote, 0.8);
-      }
-    };
-    const onKeyUp = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      const midiNote = QWERTY_MAP[key];
-      if (midiNote !== undefined) {
-        heldKeysRef.current.delete(key);
-        handleNoteOff(midiNote);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      heldKeysRef.current.forEach((key) => {
-        const note = QWERTY_MAP[key];
-        if (note !== undefined) handleNoteOff(note);
-      });
-      heldKeysRef.current.clear();
-    };
-  }, [handleNoteOn, handleNoteOff]);
 
   const currentProgramName =
     GM_PROGRAMS.find((p) => p.number === currentProgram)?.name ?? 'Unknown';

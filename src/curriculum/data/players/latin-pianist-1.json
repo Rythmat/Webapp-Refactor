@@ -1,0 +1,34 @@
+{
+  "id": "latin-pianist-1",
+  "name": "Latin-Pianist-1",
+  "instrument": "keys",
+  "genre": "latin",
+  "kind": "placeholder",
+  "order": 350,
+  "items": [
+    {
+      "kind": "comping",
+      "id": "cumbia-offbeats"
+    },
+    {
+      "kind": "comping",
+      "id": "mariachi-vals"
+    },
+    {
+      "kind": "part",
+      "id": "latin-l1-d1-2-reggaeton-full-groove-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "latin-l1-d3-1-mariachi-bass-chord-chord-lh-alone"
+    },
+    {
+      "kind": "part",
+      "id": "latin-l1-d3-2-mariachi-lh-vals-through-the-progression"
+    },
+    {
+      "kind": "part",
+      "id": "latin-l1-d3-3-mariachi-lh-vals-rh-melody-play-along"
+    }
+  ]
+}

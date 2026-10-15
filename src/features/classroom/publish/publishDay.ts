@@ -13,6 +13,7 @@
  * `postPublishedDay(classroomId, snapshot)` wrapper will POST this shape.
  * For now, `publishDay` is a pure transform.
  */
+import type { MindMapBoard } from '@/content/graph/mindMapBoard';
 import { stripLegacySongSlug } from '../legacySongSlug';
 import { PHASES, type PhaseKey } from '../phases';
 import { deckFromCells } from '../slides/deckFromCells';
@@ -87,6 +88,40 @@ const projectLaunchTile = (tile: LaunchTile): LaunchTile => ({
   ...(tile.label !== undefined ? { label: tile.label } : {}),
 });
 
+/**
+ * A Promoter's mind-map board, field by field: ids, names, edge kinds and the
+ * Globe address of each node. Nothing else on a board can ride through.
+ */
+const projectMindMapBoard = (board: MindMapBoard): MindMapBoard => ({
+  focus: board.focus,
+  goal: board.goal,
+  nodes: board.nodes.map((node) => ({
+    id: node.id,
+    kind: node.kind,
+    label: node.label,
+    stop:
+      'event' in node.stop
+        ? { event: node.stop.event }
+        : 'artist' in node.stop
+          ? { artist: node.stop.artist }
+          : { place: node.stop.place },
+  })),
+  edges: board.edges.map((edge) => ({
+    from: edge.from,
+    to: edge.to,
+    kind: edge.kind,
+  })),
+});
+
+const projectAtlas = (
+  atlas: NonNullable<Interaction['atlas']>,
+): NonNullable<Interaction['atlas']> => ({
+  module: atlas.module,
+  activityRef: atlas.activityRef,
+  expects: atlas.expects,
+  ...(atlas.board ? { board: projectMindMapBoard(atlas.board) } : {}),
+});
+
 const projectInteraction = (interaction: Interaction): Interaction => {
   // Whitelist copy — do NOT spread `interaction` in case future extensions
   // sneak teacher-only fields onto the Interaction type. Every field the
@@ -103,7 +138,7 @@ const projectInteraction = (interaction: Interaction): Interaction => {
   if (interaction.text) out.text = interaction.text;
   if (interaction.draw) out.draw = interaction.draw;
   if (interaction.checkIn) out.checkIn = interaction.checkIn;
-  if (interaction.atlas) out.atlas = interaction.atlas;
+  if (interaction.atlas) out.atlas = projectAtlas(interaction.atlas);
   return out;
 };
 
@@ -418,6 +453,15 @@ export const projectDeck = (deck: SlideDeck): SlideDeck => ({
             : {}),
           ...(deck.templateRef.themeId !== undefined
             ? { themeId: deck.templateRef.themeId }
+            : {}),
+          ...(deck.templateRef.focusId !== undefined
+            ? { focusId: deck.templateRef.focusId }
+            : {}),
+          ...(deck.templateRef.role !== undefined
+            ? { role: deck.templateRef.role }
+            : {}),
+          ...(deck.templateRef.seed !== undefined
+            ? { seed: deck.templateRef.seed }
             : {}),
         },
       }

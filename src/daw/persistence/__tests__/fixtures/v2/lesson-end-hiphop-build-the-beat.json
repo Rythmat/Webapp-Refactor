@@ -1,0 +1,576 @@
+{
+  "version": 2,
+  "timestamp": 1791332299065,
+  "data": {
+    "projectId": null,
+    "projectName": "Untitled Project",
+    "composerName": "",
+    "transport": {
+      "bpm": 90,
+      "position": 0,
+      "metronomeEnabled": false,
+      "loopEnabled": false,
+      "loopStart": 0,
+      "loopEnd": 7680
+    },
+    "tracks": [
+      {
+        "id": "93012a1e-5080-4642-beb8-e26f8f3aed73",
+        "name": "Drums",
+        "type": "midi",
+        "instrument": "drum-machine",
+        "color": "#f94144",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [
+          {
+            "id": "clip-drums-lessons-1791332292545",
+            "name": "Drum Pattern",
+            "startTick": 0,
+            "events": {
+              "notes": [36, 38, 36, 38],
+              "velocities": [100, 100, 100, 100],
+              "startTickDeltas": [0, 480, 480, 480],
+              "durations": [120, 120, 120, 120],
+              "channels": [10, 10, 10, 10]
+            }
+          },
+          {
+            "id": "clip-groove-fc5a0cd6",
+            "name": "Hip Hop 1",
+            "startTick": 0,
+            "events": {
+              "notes": [
+                36, 49, 44, 42, 42, 38, 46, 44, 42, 42, 46, 44, 42, 42, 46, 38,
+                38, 44, 42, 42, 36, 46, 42, 44, 42, 38, 46, 36, 44, 42, 42, 46,
+                44, 42, 42, 38, 46, 38, 44, 46, 42, 36, 46, 44, 42, 42, 38, 46,
+                36, 44, 42, 42, 46, 44, 42, 42, 38, 46, 38, 44, 42, 36, 46, 44,
+                42, 42, 38, 46, 36, 44, 42, 42, 46, 38, 42, 44, 42, 38, 46, 48,
+                45, 43, 36, 44, 49, 42, 42, 38, 46, 44, 42, 42, 46, 36, 44, 42,
+                42, 38, 46, 38, 46, 44, 36, 42, 36, 46, 42, 44, 42, 38, 46, 36,
+                42, 44, 42, 46, 38, 46, 44, 42, 38, 46, 38, 42, 44, 36, 42, 46,
+                36, 44, 42, 42, 38, 46, 44, 42, 42, 46, 44, 36, 42, 42, 38, 46,
+                38, 44, 42, 36, 42, 36, 46, 44, 42, 36, 42, 38, 46, 48, 45, 36,
+                36, 38, 46, 36, 48, 38, 38, 45, 43, 36, 36, 44, 49, 42, 42, 38,
+                46, 44, 42, 42, 46, 44, 42, 42, 38, 46, 38, 44, 36, 42, 36, 46,
+                44, 42, 42, 38, 46, 44, 36, 42, 42, 46, 38, 42, 44, 42, 38, 46,
+                38, 46, 44, 36, 42, 36, 46, 44, 42, 42, 38, 46, 44, 36, 42, 42,
+                46, 44, 42, 42, 38, 46, 38, 42, 44, 42, 36, 46, 42, 44, 42, 38,
+                46, 48, 42, 44, 42, 46, 38, 42, 44, 42, 38, 46, 48, 44, 45, 43
+              ],
+              "velocities": [
+                127, 127, 127, 89, 56, 127, 104, 127, 89, 56, 120, 127, 91, 65,
+                127, 127, 123, 127, 99, 60, 108, 104, 100, 127, 74, 127, 106,
+                109, 127, 98, 73, 101, 127, 91, 70, 127, 120, 127, 127, 107, 74,
+                105, 110, 127, 101, 70, 127, 127, 104, 127, 97, 70, 101, 127,
+                100, 72, 127, 127, 116, 127, 74, 105, 109, 127, 94, 70, 127,
+                107, 104, 127, 97, 67, 108, 127, 102, 127, 77, 127, 124, 127,
+                127, 127, 127, 127, 127, 84, 70, 127, 106, 127, 91, 66, 104,
+                100, 127, 91, 64, 127, 103, 123, 109, 127, 80, 76, 124, 105, 98,
+                127, 67, 127, 122, 110, 91, 127, 73, 101, 116, 97, 127, 76, 125,
+                112, 122, 124, 127, 85, 76, 103, 127, 127, 98, 70, 127, 103,
+                127, 93, 67, 108, 127, 103, 90, 70, 127, 106, 123, 127, 101, 77,
+                64, 127, 108, 127, 105, 116, 65, 127, 120, 127, 127, 84, 104,
+                127, 127, 109, 127, 117, 127, 127, 127, 82, 127, 127, 127, 100,
+                72, 127, 104, 127, 98, 72, 107, 127, 106, 66, 127, 127, 127,
+                127, 73, 70, 127, 127, 127, 118, 65, 127, 107, 127, 114, 96, 70,
+                124, 127, 102, 127, 74, 127, 118, 127, 108, 127, 74, 72, 127,
+                127, 127, 110, 75, 127, 127, 127, 108, 102, 76, 109, 127, 105,
+                73, 127, 127, 127, 109, 127, 75, 104, 127, 127, 127, 65, 127,
+                127, 127, 106, 127, 74, 112, 127, 116, 127, 79, 127, 124, 127,
+                127, 127, 127
+              ],
+              "startTickDeltas": [
+                10, 10, 265, 15, 110, 85, 5, 215, 15, 110, 120, 240, 5, 125,
+                115, 5, 115, 120, 5, 125, 105, 5, 235, 0, 125, 120, 0, 235, 0,
+                5, 110, 120, 245, 10, 115, 115, 5, 125, 125, 0, 125, 110, 5,
+                230, 10, 120, 120, 0, 235, 0, 5, 110, 120, 235, 10, 125, 110, 5,
+                120, 130, 120, 120, 0, 225, 5, 120, 115, 5, 225, 10, 5, 115,
+                115, 120, 125, 0, 125, 110, 5, 115, 115, 125, 120, 0, 5, 230,
+                120, 120, 0, 240, 5, 125, 115, 235, 0, 10, 120, 105, 10, 125,
+                125, 5, 120, 0, 115, 5, 225, 0, 130, 115, 0, 245, 0, 0, 120,
+                110, 125, 130, 5, 120, 110, 5, 120, 120, 0, 115, 15, 110, 5,
+                230, 5, 120, 115, 0, 225, 15, 115, 115, 240, 10, 0, 120, 110, 5,
+                120, 120, 5, 125, 5, 115, 0, 230, 10, 110, 5, 110, 10, 115, 120,
+                125, 110, 120, 0, 130, 115, 115, 15, 105, 120, 130, 120, 0, 5,
+                230, 120, 120, 0, 235, 10, 115, 125, 230, 5, 120, 120, 0, 120,
+                135, 110, 10, 120, 0, 235, 5, 115, 110, 5, 225, 5, 0, 120, 115,
+                120, 125, 0, 125, 110, 5, 115, 130, 5, 120, 0, 115, 0, 235, 5,
+                120, 110, 5, 235, 5, 0, 120, 115, 245, 5, 125, 110, 5, 115, 130,
+                0, 130, 115, 0, 240, 0, 115, 115, 5, 120, 125, 0, 125, 105, 115,
+                130, 0, 115, 115, 0, 120, 120, 5, 120
+              ],
+              "durations": [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0
+              ],
+              "channels": [
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1
+              ]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": ["compressor"],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": true,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "drumPads": { "36": { "volume": 0.6, "pan": 0 } },
+          "drumKit": "808",
+          "sourceTrackId": "93012a1e-5080-4642-beb8-e26f8f3aed73"
+        }
+      }
+    ],
+    "prism": {
+      "rootNote": null,
+      "rhythmName": "Quarters",
+      "genre": "Pop",
+      "swing": 0,
+      "mode": "ionian"
+    },
+    "chordRegions": [],
+    "returns": [
+      {
+        "id": "A",
+        "label": "Reverb",
+        "volume": 0.8,
+        "fxChain": ["reverb"],
+        "effects": {
+          "reverb": {
+            "enabled": true,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 1
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": false,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 0.25
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      },
+      {
+        "id": "B",
+        "label": "Delay",
+        "volume": 0.8,
+        "fxChain": ["delay"],
+        "effects": {
+          "reverb": {
+            "enabled": false,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 0.3
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": true,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 1
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      }
+    ],
+    "masterAutomation": {}
+  }
+}

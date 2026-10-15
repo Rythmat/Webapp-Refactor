@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { POP_OUT_SCOPE } from '@/daw/commands/keymaps';
+import { useKeymap } from '@/daw/commands/registry';
 import { THEMES } from '@/daw/constants/themes';
 
 // ── PopOutOverlay ────────────────────────────────────────────────────────
@@ -29,37 +30,18 @@ export function PopOutOverlay({
   children,
 }: PopOutOverlayProps) {
   // ── Esc closes the overlay ──────────────────────────────────────────────
-  // Capture phase on window so we run *before* the DAW's global shortcut
-  // handler (useKeyboardShortcuts, bubble phase on window), whose Escape case
-  // stops the transport and clears the clip selection.  stopPropagation there
-  // keeps closing a pop-out from also killing playback.
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-
-      // Let nested Escape consumers (preset save dialog, rename inputs) handle
-      // it first — capturing at window would otherwise stop the event before
-      // it ever reaches React's root container.
-      const target = e.target;
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        (target instanceof HTMLElement && target.isContentEditable)
-      )
-        return;
-
-      e.preventDefault();
-      e.stopPropagation();
-      onClose();
-    };
-
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () =>
-      window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [isOpen, onClose]);
+  // A dialog in the key precedence (the popOut scope), so Escape closes it
+  // rather than stopping the music. A field, a menu or a dialog inside it
+  // (the preset save dialog, a rename) gets Escape first. Every other key
+  // still reaches the editor: the transport and the computer keyboard work
+  // over the synth.
+  useKeymap(
+    POP_OUT_SCOPE.id,
+    { 'popOut.close': () => onClose() },
+    {
+      active: isOpen,
+    },
+  );
 
   if (!isOpen) return null;
 

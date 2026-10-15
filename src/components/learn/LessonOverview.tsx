@@ -88,6 +88,19 @@ const normalizeSteps = (steps?: number[]) => {
   return Array.from(unique).sort((a, b) => a - b);
 };
 
+/**
+ * PianoKeyboard octaves (N = MIDI N·12 … N·12+11) for a chord card: C3–B6,
+ * widened when a voicing reaches past it — a high key's 7 chord an octave up
+ * tops out near F7, and every note shown has to be on the keys.
+ */
+const octavesFor = (notes: readonly { midi: number }[]) => {
+  const midis = notes.map((n) => n.midi);
+  return {
+    startC: Math.min(4, ...midis.map((m) => Math.floor(m / 12))),
+    endC: Math.max(7, ...midis.map((m) => Math.floor(m / 12))),
+  };
+};
+
 const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
 
@@ -228,9 +241,9 @@ function ChordDetailDialog({
             activeBlackKeyColor={activeKeyColor}
             activeWhiteKeyColor={activeKeyColor}
             enableClick={false}
-            endC={7}
+            endC={octavesFor(playingNotes).endC}
             playingNotes={playingNotes}
-            startC={4}
+            startC={octavesFor(playingNotes).startC}
             useContextNotes={false}
           />
         </ScaledPiano>
@@ -375,9 +388,9 @@ function ChordCard({
             activeBlackKeyColor={activeKeyColor}
             activeWhiteKeyColor={activeKeyColor}
             enableClick={false}
-            endC={7}
+            endC={octavesFor(playingNotes).endC}
             playingNotes={playingNotes}
-            startC={4}
+            startC={octavesFor(playingNotes).startC}
             useContextNotes={false}
           />
         </ScaledPiano>
@@ -514,9 +527,9 @@ function InversionCard({
             activeBlackKeyColor={activeKeyColor}
             activeWhiteKeyColor={activeKeyColor}
             enableClick={false}
-            endC={7}
+            endC={octavesFor(playingNotes).endC}
             playingNotes={playingNotes}
-            startC={4}
+            startC={octavesFor(playingNotes).startC}
             useContextNotes={false}
           />
         </ScaledPiano>

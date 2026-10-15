@@ -67,12 +67,14 @@ export const LearnTabBar = () => {
         </Link>
       ))}
 
-      {/* Instrument selector, pushed to the far right. Switching opens a tab
-          with that instrument's lessons: guitar lives in Theory → Ionian
-          (Major); piano stays on Theory, or else opens Technique. */}
+      {/* Instrument selector, pushed to the far right. Songs serve both
+          instruments, so switching there stays put; elsewhere it opens a tab
+          with that instrument's lessons: guitar lives in Theory; piano stays
+          on Theory, or else opens Technique. */}
       <div className="ml-auto">
         <InstrumentSelector
           onChange={(next) => {
+            if (active === 'Songs') return;
             const tab =
               next === 'guitar' || active === 'Theory' ? 'Theory' : 'Technique';
             if (active !== tab) navigate(`?tab=${tab}`);

@@ -12,7 +12,14 @@
 import type * as Party from 'partykit/server';
 import { onConnect } from 'y-partykit';
 
-import type { CollabRole, TransportCommand } from '../types';
+import {
+  COLLAB_CLOSE,
+  COLLAB_DOC_SCHEMA_PARAM,
+  COLLAB_DOC_SCHEMA_VERSION,
+  versionMismatchReason,
+  type CollabRole,
+  type TransportCommand,
+} from '../types';
 import { validateConnection } from './auth';
 
 // Track connection metadata (role, userId)
@@ -21,6 +28,21 @@ const connectionMeta = new Map<string, { userId: string; role: string }>();
 // Maximum distinct users allowed in a room. Caps collaboration cost (PartyKit
 // message fan-out) and keeps the WebRTC audio mesh within a workable size.
 const MAX_ROOM_USERS = 5;
+
+// Clients from before the version handshake send no version. They lay the
+// document out as version 1, so they are read as that rather than shut out.
+// Fixed forever: it describes those old builds, not the current schema.
+const PRE_HANDSHAKE_DOC_SCHEMA_VERSION = 1;
+
+/** The studio doc schema version a connection URL asks for (NaN if garbled). */
+function docSchemaVersionOf(uri: string): number {
+  try {
+    const raw = new URL(uri).searchParams.get(COLLAB_DOC_SCHEMA_PARAM);
+    return raw === null ? PRE_HANDSHAKE_DOC_SCHEMA_VERSION : Number(raw);
+  } catch {
+    return NaN;
+  }
+}
 
 export default class CollabServer implements Party.Server {
   // The connection ID of the room host (first 'owner' to connect)
@@ -73,10 +95,28 @@ export default class CollabServer implements Party.Server {
 
   /**
    * Handle a new WebSocket connection.
-   * Validates auth, tags viewer connections, then hands off to y-partykit
-   * for Yjs sync and awareness protocol.
+   * Checks the client's doc schema version and auth, tags viewer connections,
+   * then hands off to y-partykit for Yjs sync and awareness protocol.
    */
   async onConnect(conn: Party.Connection) {
+    const isJamRoom = this.room.id.startsWith('jam-');
+
+    // Version handshake, before any Yjs sync: a build that lays the studio
+    // document out differently must not edit this room. Jam rooms are exempt —
+    // they use the socket for presence and relays and never sync a document.
+    // Checked before auth so an out-of-date app is told to update, not to sign
+    // in again.
+    if (!isJamRoom) {
+      const clientVersion = docSchemaVersionOf(conn.uri);
+      if (clientVersion !== COLLAB_DOC_SCHEMA_VERSION) {
+        conn.close(
+          COLLAB_CLOSE.versionMismatch,
+          versionMismatchReason(clientVersion, COLLAB_DOC_SCHEMA_VERSION),
+        );
+        return;
+      }
+    }
+
     // Validate auth token from connection URL (pass env for JWKS config)
     const auth = await validateConnection(conn.uri, this.room.env);
     // DEBUG (temporary): what identity did this connection get?
@@ -86,68 +126,86 @@ export default class CollabServer implements Party.Server {
       role: auth?.role,
       hostConnectionId: this.hostConnectionId,
     });
-    if (auth) {
-      // Reject users the host has kicked from this room.
-      if (this.bannedUserIds.has(auth.userId)) {
-        conn.send(JSON.stringify({ type: 'kicked', reason: 'banned' }));
-        conn.close(4403, 'You have been removed from this room');
-        return;
-      }
+    if (!auth) {
+      // Jam rooms keep the old path for now: an unverified socket goes
+      // straight to the sync, past the checks below. JamRoomProvider still
+      // reconnects with the token it joined with, through y-partykit's own
+      // loop, so once that token expired a 4401 here would reopen the socket
+      // about ten times a second. Close this gap once it fetches a fresh
+      // token per connect and stops after repeated 4401s, as CollabProvider
+      // does.
+      if (isJamRoom) return this.syncDocument(conn);
+      // Fail closed: a socket without a verified identity never reaches the
+      // Yjs sync, so a room code alone can't read or write a session, and bans
+      // and the user cap apply to everyone. The client reconnects with a fresh
+      // token.
+      conn.close(COLLAB_CLOSE.unauthorized, 'Unauthorized');
+      return;
+    }
 
-      // Authoritative role — the client's requested role is NOT trusted for
-      // 'owner'. Only the room host is owner: the user who already owns the
-      // room, or (before any host exists) the first connection claiming owner,
-      // which is the room's creator. Everyone else is clamped to editor/viewer
-      // so a joiner can't self-assign owner. (Fine-grained editor-vs-viewer
-      // enforcement per invite needs backend membership records — a follow-up.)
-      const isHost =
-        auth.userId === this.hostUserId ||
-        (!this.hostConnectionId && auth.role === 'owner');
-      const role: CollabRole = isHost
-        ? 'owner'
-        : auth.role === 'viewer'
-          ? 'viewer'
-          : 'editor';
+    // Reject users the host has kicked from this room.
+    if (this.bannedUserIds.has(auth.userId)) {
+      conn.send(JSON.stringify({ type: 'kicked', reason: 'banned' }));
+      conn.close(COLLAB_CLOSE.kicked, 'You have been removed from this room');
+      return;
+    }
 
-      // Enforce room capacity (distinct users). The host is always admitted —
-      // the room can't exist without them — and a reconnect / second tab from a
-      // user who is already present does not consume an additional slot.
-      if (role !== 'owner') {
-        const users = new Set<string>();
-        for (const [, m] of connectionMeta) users.add(m.userId);
-        if (!users.has(auth.userId) && users.size >= MAX_ROOM_USERS) {
-          conn.send(JSON.stringify({ type: 'room:full', reason: 'capacity' }));
-          conn.close(4408, 'Room is full');
-          return;
-        }
-      }
+    // Authoritative role — the client's requested role is NOT trusted for
+    // 'owner'. Only the room host is owner: the user who already owns the
+    // room, or (before any host exists) the first connection claiming owner,
+    // which is the room's creator. Everyone else is clamped to editor/viewer
+    // so a joiner can't self-assign owner. (Fine-grained editor-vs-viewer
+    // enforcement per invite needs backend membership records — a follow-up.)
+    const isHost =
+      auth.userId === this.hostUserId ||
+      (!this.hostConnectionId && auth.role === 'owner');
+    const role: CollabRole = isHost
+      ? 'owner'
+      : auth.role === 'viewer'
+        ? 'viewer'
+        : 'editor';
 
-      connectionMeta.set(conn.id, { userId: auth.userId, role });
-
-      // Tag viewer connections so we can filter Yjs updates
-      if (role === 'viewer') {
-        conn.setState({ readOnly: true });
-      }
-
-      // Track the host connection (first owner to connect)
-      if (role === 'owner' && !this.hostConnectionId) {
-        this.hostConnectionId = conn.id;
-        this.hostUserId = auth.userId;
-        // Record this running room (+ host) in the backend, best-effort.
-        void this.registerBackendRoom(auth.userId);
-      }
-
-      // Reject non-owner connections when there is no host
-      if (role !== 'owner' && !this.hostConnectionId) {
-        conn.send(
-          JSON.stringify({ type: 'room:not-found', reason: 'no_host' }),
-        );
-        conn.close(4404, 'Room does not exist');
-        connectionMeta.delete(conn.id);
+    // Enforce room capacity (distinct users). The host is always admitted —
+    // the room can't exist without them — and a reconnect / second tab from a
+    // user who is already present does not consume an additional slot.
+    if (role !== 'owner') {
+      const users = new Set<string>();
+      for (const [, m] of connectionMeta) users.add(m.userId);
+      if (!users.has(auth.userId) && users.size >= MAX_ROOM_USERS) {
+        conn.send(JSON.stringify({ type: 'room:full', reason: 'capacity' }));
+        conn.close(COLLAB_CLOSE.full, 'Room is full');
         return;
       }
     }
 
+    connectionMeta.set(conn.id, { userId: auth.userId, role });
+
+    // Tag viewer connections so we can filter Yjs updates
+    if (role === 'viewer') {
+      conn.setState({ readOnly: true });
+    }
+
+    // Track the host connection (first owner to connect)
+    if (role === 'owner' && !this.hostConnectionId) {
+      this.hostConnectionId = conn.id;
+      this.hostUserId = auth.userId;
+      // Record this running room (+ host) in the backend, best-effort.
+      void this.registerBackendRoom(auth.userId);
+    }
+
+    // Reject non-owner connections when there is no host
+    if (role !== 'owner' && !this.hostConnectionId) {
+      conn.send(JSON.stringify({ type: 'room:not-found', reason: 'no_host' }));
+      conn.close(COLLAB_CLOSE.notFound, 'Room does not exist');
+      connectionMeta.delete(conn.id);
+      return;
+    }
+
+    return this.syncDocument(conn);
+  }
+
+  /** Hand an admitted socket to y-partykit for the Yjs sync and awareness. */
+  private syncDocument(conn: Party.Connection) {
     return onConnect(conn, this.room, {
       // Persist the Yjs document to Cloudflare Durable Objects.
       persist: { mode: 'snapshot' },
@@ -207,7 +265,7 @@ export default class CollabServer implements Party.Server {
     });
     for (const conn of this.room.getConnections()) {
       conn.send(closingMsg);
-      conn.close(4410, 'Host disconnected');
+      conn.close(COLLAB_CLOSE.hostLeft, 'Host disconnected');
     }
     connectionMeta.clear();
   }
@@ -312,7 +370,7 @@ export default class CollabServer implements Party.Server {
         for (const conn of this.room.getConnections()) {
           if (connectionMeta.get(conn.id)?.userId === targetUserId) {
             conn.send(JSON.stringify({ type: 'kicked', reason: 'kicked' }));
-            conn.close(4403, 'Kicked by host');
+            conn.close(COLLAB_CLOSE.kicked, 'Kicked by host');
             connectionMeta.delete(conn.id);
             closed += 1;
           }

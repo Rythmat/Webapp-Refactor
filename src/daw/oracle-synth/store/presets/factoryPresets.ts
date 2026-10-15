@@ -8,6 +8,7 @@ import {
   ArpParams,
 } from '../../audio/types';
 import { LFOWaveformBuilder } from '../../audio/LFOWaveformBuilder';
+import { ATLAS_PATCHES } from './atlasPatches';
 
 // 4-peak triangle for default 1/4 rate (4 cycles per bar)
 const triangleNodes4 = (): LFONode[] =>
@@ -1565,6 +1566,8 @@ export const STAB: PresetData = {
   arp: { enabled: true, rate: '1/8t', style: 'up', distance: 12, step: 1 },
 };
 
+// Music Atlas patches (saved "for everyone" from the Studio) follow the
+// built-ins, so they load and list exactly like them.
 export const FACTORY_PRESETS: PresetData[] = [
   INITIALIZE,
   PAD,
@@ -1577,4 +1580,5 @@ export const FACTORY_PRESETS: PresetData[] = [
   SEQUENCE,
   CHORDS,
   STAB,
+  ...ATLAS_PATCHES,
 ];

@@ -45,11 +45,16 @@ export function activityPayoff({
   let headline: string;
   let detail: string | null = null;
 
-  const arpeggio = /^arpeggiate-(\d+)/.exec(activityKey);
+  // Chords chapter keys: `triad-4-arp-pa`, `seventh-progression-1-pa`.
+  const arpeggio = /^(triad|seventh)-(\d+)-arp/.exec(activityKey);
   if (arpeggio) {
     const symbol = symbols.find(namesMoreThanDegree);
-    headline = `That's the ${arpeggio[1]} chord of ${scale}${symbol ? `: ${symbol}` : ''}.`;
-  } else if (activityKey.startsWith('chords-')) {
+    const noun = arpeggio[1] === 'seventh' ? '7th chord' : 'chord';
+    headline = `That's the ${arpeggio[2]} ${noun} of ${scale}${symbol ? `: ${symbol}` : ''}.`;
+  } else if (activityKey.startsWith('scale-chord-')) {
+    const symbol = symbols.find(namesMoreThanDegree);
+    headline = `That's a ${scale} chord${symbol ? `: ${symbol}` : ''}.`;
+  } else if (/^(triad|seventh)-progression-/.test(activityKey)) {
     headline = `Those are chords from ${scale}${symbols.length ? `: ${symbols.join(' – ')}` : ''}.`;
   } else {
     const character = modeCharacter(modeSlug);

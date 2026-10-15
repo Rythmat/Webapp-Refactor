@@ -1,0 +1,32 @@
+{
+  "id": "acoustic-guitar",
+  "name": "Acoustic Guitar",
+  "family": "guitar",
+  "samples": {
+    "A2": "/daw-assets/samples/instruments/uploads/mv8z1rx7-a2.mp3",
+    "A3": "/daw-assets/samples/instruments/uploads/mv8z2cbe-a3.mp3",
+    "A4": "/daw-assets/samples/instruments/uploads/mv8z2r16-a4.mp3",
+    "B2": "/daw-assets/samples/instruments/uploads/mv8z42sd-b2.mp3",
+    "C3": "/daw-assets/samples/instruments/uploads/mv8z4hfg-c3.mp3",
+    "B3": "/daw-assets/samples/instruments/uploads/mv8z4tma-b3.mp3",
+    "B4": "/daw-assets/samples/instruments/uploads/mv8z51so-b4.mp3",
+    "C4": "/daw-assets/samples/instruments/uploads/mv8z5bok-c4.mp3",
+    "C5": "/daw-assets/samples/instruments/uploads/mv8z5ica-c5.mp3",
+    "D5": "/daw-assets/samples/instruments/uploads/mv8z5wk7-d5.mp3",
+    "D4": "/daw-assets/samples/instruments/uploads/mv8z681b-d4.mp3",
+    "D3": "/daw-assets/samples/instruments/uploads/mv8z6hi1-d3.mp3",
+    "D2": "/daw-assets/samples/instruments/uploads/mv8z6vbv-d2.mp3",
+    "E4": "/daw-assets/samples/instruments/uploads/mv8z7qvg-e4.mp3",
+    "E3": "/daw-assets/samples/instruments/uploads/mv8z80v9-e3.mp3",
+    "E2": "/daw-assets/samples/instruments/uploads/mv8z8ig0-e2.mp3",
+    "F4": "/daw-assets/samples/instruments/uploads/mv8z9dl7-f4.mp3",
+    "F3": "/daw-assets/samples/instruments/uploads/mv8z9rr9-f3.mp3",
+    "F2": "/daw-assets/samples/instruments/uploads/mv8za4d0-f2.mp3",
+    "G4": "/daw-assets/samples/instruments/uploads/mv8zalye-g4.wav",
+    "G3": "/daw-assets/samples/instruments/uploads/mv8zb1cg-g3.mp3",
+    "G2": "/daw-assets/samples/instruments/uploads/mv8zbefc-g2.mp3",
+    "D#2": "/daw-assets/samples/instruments/uploads/mv8zcth8-ds2.mp3",
+    "D#3": "/daw-assets/samples/instruments/uploads/mv8zd6nf-ds3.mp3",
+    "D#4": "/daw-assets/samples/instruments/uploads/mv8zdjow-ds4.mp3"
+  }
+}

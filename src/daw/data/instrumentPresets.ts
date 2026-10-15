@@ -1,5 +1,14 @@
 // ── Instrument Preset Catalog ────────────────────────────────────────────
 // Static catalog of instrument presets organized by category.
+//
+// Every preset names a sound of its own: picking it switches the track's
+// instrument (and GM program), and no two presets share one. Presets that only
+// renamed the track are not listed until they map to a real sound — the 808s,
+// Natural, the Drum Pads, Hyperbrite and Lofi Piano, the Leads, the Pads and
+// the Percussion — nor are those that duplicated another preset's sound: Grand
+// Piano (Studio Grand), Rhodes and Wurlitzer (Mellow EP), Hammond B3 and Jazz
+// Organ (Church Organ). Tracks saved with one of those names show their
+// instrument's preset instead (KeyboardView's displayPresetName).
 
 import type { InstrumentType } from '@/daw/store/tracksSlice';
 
@@ -7,35 +16,13 @@ export interface Preset {
   id: string;
   name: string;
   category: string;
-  /** When set, selecting this preset switches the track to this instrument. */
-  instrumentType?: InstrumentType;
+  /** The instrument selecting this preset switches the track to. */
+  instrumentType: InstrumentType;
   /** GM program number (0-127) for SoundFont presets. */
   gmProgram?: number;
 }
 
-export const PRESET_CATEGORIES = [
-  '808s',
-  'Brass',
-  'Drum Kits',
-  'Drum Pads',
-  'Electric Basses',
-  'Guitars',
-  'Keyboards',
-  'Leads',
-  'Organs',
-  'Pads',
-  'Percussion',
-  'Strings',
-] as const;
-
-export type PresetCategory = (typeof PRESET_CATEGORIES)[number];
-
 export const PRESETS: Preset[] = [
-  // 808s
-  { id: '808-boom', name: '808 Boom', category: '808s' },
-  { id: '808-sub', name: '808 Sub Bass', category: '808s' },
-  { id: '808-trap', name: '808 Trap Kit', category: '808s' },
-
   // Brass
   {
     id: 'brass-ensemble',
@@ -65,14 +52,6 @@ export const PRESETS: Preset[] = [
     instrumentType: 'soundfont',
     gmProgram: 57,
   },
-
-  // Drum Kits
-  { id: 'natural', name: 'Natural', category: 'Drum Kits' },
-
-  // Drum Pads
-  { id: 'finger-drums', name: 'Finger Drums', category: 'Drum Pads' },
-  { id: 'lo-fi-pads', name: 'Lo-Fi Pads', category: 'Drum Pads' },
-  { id: 'perc-pads', name: 'Percussion Pads', category: 'Drum Pads' },
 
   // Electric Basses
   {
@@ -144,12 +123,6 @@ export const PRESETS: Preset[] = [
 
   // Keyboards
   {
-    id: 'grand-piano',
-    name: 'Grand Piano',
-    category: 'Keyboards',
-    instrumentType: 'piano-sampler',
-  },
-  {
     id: 'studio-grand',
     name: 'Studio Grand',
     category: 'Keyboards',
@@ -169,32 +142,12 @@ export const PRESETS: Preset[] = [
     instrumentType: 'soundfont',
     gmProgram: 3,
   },
-  { id: 'hyperbrite-piano', name: 'Hyperbrite Piano', category: 'Keyboards' },
-  { id: 'lofi-piano', name: 'Lofi Piano', category: 'Keyboards' },
   {
     id: 'mellow-ep',
     name: 'Mellow EP',
     category: 'Keyboards',
     instrumentType: 'electric-piano',
   },
-  {
-    id: 'rhodes',
-    name: 'Rhodes',
-    category: 'Keyboards',
-    instrumentType: 'electric-piano',
-  },
-  {
-    id: 'wurlitzer',
-    name: 'Wurlitzer',
-    category: 'Keyboards',
-    instrumentType: 'electric-piano',
-  },
-
-  // Leads
-  { id: 'analog-lead', name: 'Analog Lead', category: 'Leads' },
-  { id: 'bright-lead', name: 'Bright Lead', category: 'Leads' },
-  { id: 'pluck-lead', name: 'Pluck Lead', category: 'Leads' },
-  { id: 'square-lead', name: 'Square Lead', category: 'Leads' },
 
   // Organs
   {
@@ -203,30 +156,6 @@ export const PRESETS: Preset[] = [
     category: 'Organs',
     instrumentType: 'organ',
   },
-  {
-    id: 'hammond-b3',
-    name: 'Hammond B3',
-    category: 'Organs',
-    instrumentType: 'organ',
-  },
-  {
-    id: 'jazz-organ',
-    name: 'Jazz Organ',
-    category: 'Organs',
-    instrumentType: 'organ',
-  },
-
-  // Pads
-  { id: 'ambient-pad', name: 'Ambient Pad', category: 'Pads' },
-  { id: 'choir-pad', name: 'Choir Pad', category: 'Pads' },
-  { id: 'warm-pad', name: 'Warm Pad', category: 'Pads' },
-  { id: 'shimmer-pad', name: 'Shimmer Pad', category: 'Pads' },
-
-  // Percussion
-  { id: 'bongos', name: 'Bongos', category: 'Percussion' },
-  { id: 'congas', name: 'Congas', category: 'Percussion' },
-  { id: 'shaker', name: 'Shaker', category: 'Percussion' },
-  { id: 'tambourine', name: 'Tambourine', category: 'Percussion' },
 
   // Strings
   { id: 'cello', name: 'Cello', category: 'Strings', instrumentType: 'cello' },
@@ -252,6 +181,14 @@ export const PRESETS: Preset[] = [
     gmProgram: 45,
   },
 ];
+
+/**
+ * The browser's categories, A to Z: built from the presets so it never offers
+ * an empty category.
+ */
+export const PRESET_CATEGORIES: readonly string[] = [
+  ...new Set(PRESETS.map((p) => p.category)),
+].sort((a, b) => a.localeCompare(b));
 
 /** Get presets filtered by category */
 export function getPresetsByCategory(category: string): Preset[] {

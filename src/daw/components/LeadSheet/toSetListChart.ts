@@ -6,6 +6,7 @@ import {
   type Measure,
 } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
+import { barSlots, slotOfBar } from '@/daw/time/timeModel';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { LeadSheetRepeat, LeadSheetSection } from '@/daw/store/uiSlice';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
@@ -45,6 +46,8 @@ export interface StudioChartSource {
   measureRowSizes: number[] | null;
   measureRestMap: Record<number, number> | null;
   measureFermatas: number[] | null;
+  /** Bars added past the last chord; null or absent when none. */
+  leadSheetBars?: number | null;
   leadSheetSections: LeadSheetSection[];
   leadSheetRepeats: LeadSheetRepeat[];
   timeSignature: [number, number];
@@ -76,31 +79,32 @@ export function chartChordName(noteName: string): string {
   return displayAccidentals(root + suffix);
 }
 
-/** The measures the staff actually draws: ghost bars swallowed by a multi-bar
- *  rest are dropped, exactly as LeadSheetChartView drops them. */
+const barTicksOf = (source: StudioChartSource) =>
+  ticksPerBar(source.timeSignature[0], source.timeSignature[1]);
+
+/**
+ * The measures the staff actually draws, one per chart slot: the bars a
+ * multi-bar rest swallows are dropped, exactly as LeadSheetChartView drops
+ * them (barSlots). Each keeps its real bar as `index`, which every mark is
+ * stored by (leadsheet-05).
+ */
 function visibleMeasures(source: StudioChartSource): Measure[] {
   const raw = regionToMeasures(
     source.chordRegions,
-    ticksPerBar(source.timeSignature[0], source.timeSignature[1]),
+    barTicksOf(source),
+    source.leadSheetBars ?? null,
   );
-  const rest = source.measureRestMap;
-  if (!rest) return raw;
-  const skip = new Set<number>();
-  for (const [key, count] of Object.entries(rest)) {
-    const idx = Number(key);
-    for (let j = 1; j < count; j++) skip.add(idx + j);
-  }
-  return skip.size === 0 ? raw : raw.filter((m) => !skip.has(m.index));
+  return barSlots(raw.length, source.measureRestMap).map(
+    (slot) => raw[slot.realIndex],
+  );
 }
 
-function barFrom(
-  measure: Measure,
-  idx: number,
-  source: StudioChartSource,
-): ChordBar {
+function barFrom(measure: Measure, source: StudioChartSource): ChordBar {
   // Beats are counted in the metre's own beat: an eighth in 6/8.
   const beatTicks = ticksPerBeatUnit(source.timeSignature[1]);
-  const chords: ChordHit[] = measureSegments(measure)
+  // Marks are stored by real bar, not by place on the chart.
+  const idx = measure.index;
+  const chords: ChordHit[] = measureSegments(measure, barTicksOf(source))
     .filter((segment) => segment.chord)
     .map((segment) => ({
       degree: displayAccidentals(segment.chord?.name ?? ''),
@@ -121,16 +125,23 @@ function barFrom(
 }
 
 /**
- * Where the player put section marks, in order, always starting at bar 0 so
- * every bar belongs to a section. A chart with no marks is one section.
+ * Where the player put section marks, as places on the chart (a section
+ * stored at real bar 9 after a rest starts at the slot holding bar 9), in
+ * order, always starting at the first slot so every bar belongs to a
+ * section. A chart with no marks is one section.
  */
 function sectionStarts(
   source: StudioChartSource,
-  barCount: number,
+  measures: readonly Measure[],
 ): { at: number; label: string }[] {
+  const slots = measures.map((m) => ({
+    realIndex: m.index,
+    bars: Math.max(1, source.measureRestMap?.[m.index] ?? 1),
+    rest: false,
+  }));
   const marks = source.leadSheetSections
-    .filter((s) => s.measureIdx >= 0 && s.measureIdx < barCount)
-    .map((s) => ({ at: s.measureIdx, label: s.label.trim() }))
+    .map((s) => ({ at: slotOfBar(slots, s.measureIdx), label: s.label.trim() }))
+    .filter((s) => s.at >= 0)
     .sort((a, b) => a.at - b.at);
   if (marks.length === 0 || marks[0].at !== 0)
     marks.unshift({ at: 0, label: '' });
@@ -160,8 +171,8 @@ function rowSizeFor(
 
 export function chartFromStudio(source: StudioChartSource): StoredChart {
   const measures = visibleMeasures(source);
-  const bars = measures.map((measure, idx) => barFrom(measure, idx, source));
-  const starts = sectionStarts(source, bars.length);
+  const bars = measures.map((measure) => barFrom(measure, source));
+  const starts = sectionStarts(source, measures);
 
   const sections: SongSection[] = starts.map((start, i) => {
     const end = starts[i + 1]?.at ?? bars.length;

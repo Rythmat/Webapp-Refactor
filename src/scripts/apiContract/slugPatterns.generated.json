@@ -42,5 +42,29 @@
   "artist_location": {
     "identity": "id",
     "pattern": null
+  },
+  "genre": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "subgenre": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "instrument": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "drum_groove": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+([_-][a-z0-9]+)*$"
+  },
+  "instrument_part": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "feel_profile": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
   }
 }

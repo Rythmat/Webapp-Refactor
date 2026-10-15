@@ -1,0 +1,146 @@
+{
+  "id": "hip-hop-l1-d2-1-jam-cm-1st-inversion-fm",
+  "name": "Hip Hop L1 · D2.1: Jam — Cm 1st Inversion ↔ Fm",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 76,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 75,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 79,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 77,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 80,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 75,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 79,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 41,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 77,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 80,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 31,
+    "title": "D2: Inversion Jams",
+    "tag": "hiphop:l1_perf_jam_cm1_fm | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Left hand plays the roots, C and F. Right hand holds the inversion pair.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Cm", "Fm", "Cm", "Fm"]
+}

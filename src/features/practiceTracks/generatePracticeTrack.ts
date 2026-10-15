@@ -8,7 +8,11 @@ import {
   abbreviateSequence,
 } from '@prism/engine';
 import { getGCMEntry } from '@/curriculum/data/gcmHelpers';
+import { THEORY_PRACTICE_GROOVE_ID } from '@/curriculum/engine/drumGrooves/codeGrooves';
+import { buildDesignedDrums } from '@/curriculum/engine/drumGrooves/drumGroove';
+import { getLiveGroove } from '@/curriculum/engine/drumGrooves/registry';
 import { applyRegisterRules } from '@/curriculum/engine/genreGeneration/registerRules';
+import { applySwing } from '@/curriculum/engine/genreGeneration/swing';
 import {
   generateCurriculumMelody,
   type MidiNoteEvent,
@@ -68,6 +72,8 @@ export interface PracticeTrackResult {
   chordsClip: MidiClip | null;
   bassClip: MidiClip;
   beatClip: MidiClip;
+  /** The drums' kit when a designed groove sets one; undefined = natural. */
+  drumKit?: string;
   /** Only populated when openTrack === 'chords' (melody is generated). */
   melodyClip: MidiClip | null;
 }
@@ -284,6 +290,7 @@ const PROGRESSIONS: Record<DiatonicMode, Record<PracticeLevel, ChordSpec[]>> = {
  * entirely.
  */
 const PRACTICE_TRACK_GROOVE_ID = 'groove-rock-2';
+// A published designed groove THEORY_PRACTICE_GROOVE_ID replaces it (buildBeatClip).
 
 // ── Internal shape: one built chord per bar ────────────────────────────
 
@@ -432,6 +439,28 @@ function buildBassClip(barChords: BarChord[], rootMidi: number): MidiClip {
  * bars of the performance ever play.
  */
 async function buildBeatClip(barCount: number): Promise<MidiClip> {
+  const designed = getLiveGroove(THEORY_PRACTICE_GROOVE_ID);
+  if (designed) {
+    // A Theory track has no lesson swing to share, so the groove's own applies.
+    const notes = applySwing(
+      buildDesignedDrums(designed, barCount, TICKS_PER_BAR),
+      designed.swing,
+    );
+    return {
+      id: crypto.randomUUID(),
+      name: 'Drums',
+      startTick: 0,
+      durationTicks: barCount * TICKS_PER_BAR,
+      events: notes.map((n) => ({
+        note: n.note,
+        velocity: n.velocity,
+        startTick: n.onset,
+        durationTicks: n.duration,
+        channel: 0,
+      })),
+    };
+  }
+
   const fallbackClip: MidiClip = {
     id: crypto.randomUUID(),
     name: 'Drums',
@@ -780,17 +809,19 @@ export async function generatePracticeTrack(
     openTrack === 'melody' ? chordRegionsToMidiClip(chordRegions) : null;
   const bassClip = buildBassClip(barChords, rootMidi);
   const beatClip = await buildBeatClip(barCount);
+  const theoryGroove = getLiveGroove(THEORY_PRACTICE_GROOVE_ID);
 
   return {
     rootNote: clampedRoot,
     mode: colorMode,
     scaleTitle: scale?.title ?? null,
-    bpm: BPM,
+    bpm: theoryGroove?.tempo ?? BPM,
     openTrack,
     chordRegions,
     chordsClip,
     bassClip,
     beatClip,
+    drumKit: theoryGroove?.kit,
     melodyClip,
   };
 }

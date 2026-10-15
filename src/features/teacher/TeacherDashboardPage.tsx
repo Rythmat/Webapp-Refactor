@@ -1,6 +1,6 @@
 /**
  * TeacherDashboardPage — the Overview tab of the classroom workspace
- * (`/teacher/classroom/:classroomId`).
+ * (`/office/:classroomId`).
  *
  * A single-column stack of full-width sections mirroring the live Home
  * Dashboard: a "Quick Start" launcher, then "Due This Week" and "Recent

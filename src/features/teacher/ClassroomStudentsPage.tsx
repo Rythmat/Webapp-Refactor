@@ -1,15 +1,20 @@
 /**
  * ClassroomStudentsPage — the People tab of the classroom workspace.
  *
- * Two GC-style sections: Teachers (the classroom owner, plus an Invite Teachers
- * action that invites another Teacher User to co-teach this classroom — the
- * accepted-co-teacher membership lands once the backend contract ships) and
- * Students (the existing search + RosterTabs + invite flow). The class
- * title/header now lives in the workspace hero, so this page is header-free.
+ * Three GC-style sections: Teachers (the classroom owner, plus an Invite
+ * Teachers action that invites another Teacher User to co-teach this classroom
+ * — the accepted-co-teacher membership lands once the backend contract ships),
+ * Students (the existing search + RosterTabs + invite flow), and Gradebook (the
+ * former Grades tab, folded in here). The class title/header now lives in the
+ * workspace hero, so this page is header-free.
  */
 import { Search, UserPlus, Users, X } from 'lucide-react';
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+import {
+  ClassroomGradebook,
+  GRADEBOOK_SECTION_ID,
+} from '@/features/classroom/grades/ClassroomGradebook';
 import {
   useCanManageClassroom,
   useClassroom,
@@ -23,6 +28,16 @@ import { RosterTabs } from './components/RosterTabs';
 export const ClassroomStudentsPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
   const { data: classroom } = useClassroom(classroomId);
+  const { hash } = useLocation();
+
+  // `/grades` (the old Grades tab) redirects here with `#grades`; the router
+  // doesn't scroll to hashes, so bring the Gradebook section into view.
+  useEffect(() => {
+    if (hash !== `#${GRADEBOOK_SECTION_ID}`) return;
+    document
+      .getElementById(GRADEBOOK_SECTION_ID)
+      ?.scrollIntoView({ block: 'start' });
+  }, [hash]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
@@ -107,6 +122,8 @@ export const ClassroomStudentsPage = () => {
           </div>
         )}
       </section>
+
+      {classroomId && <ClassroomGradebook classroomId={classroomId} />}
 
       {classroom?.code && classroomId && (
         <InviteStudentDialog

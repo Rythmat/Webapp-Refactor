@@ -9,6 +9,7 @@ import {
   type ChordSpec,
 } from '@/lib/chordNotation';
 import type { UnisonChordRegion } from '@/unison/types/schema';
+import { INVERSION_LABELS } from './insightConstants';
 
 // ── Insight chord symbols in the chosen notation ───────────────────────────
 // Hybrid keeps each site's current text; jazz and Roman write one symbol per
@@ -55,13 +56,6 @@ export function analyzedChordSpec(
     ...(spelled && named!.bass ? { bass: named!.bass } : {}),
   };
 }
-
-const INVERSION_LABELS = [
-  '',
-  '1st Inversion',
-  '2nd Inversion',
-  '3rd Inversion',
-];
 
 /**
  * Now Playing's chord: in hybrid the letter label plus the hybrid number (as

@@ -1,0 +1,110 @@
+{
+ "scenario": "idle",
+ "profile": "laptop",
+ "meta": {
+  "date": "2026-10-07T01:08:08.330Z",
+  "base": "http://localhost:5263",
+  "commit": "f96b3ecc",
+  "dirty": true,
+  "chrome": "153.0.8010.12",
+  "gpu": "metal",
+  "windows": {
+   "quick": false,
+   "repeat": 3,
+   "idleMs": 10000,
+   "playbackLeadMs": 1000,
+   "playbackMs": 20000,
+   "dragMs": 4000,
+   "gestureGapMs": 1000,
+   "viewGapMs": 1500,
+   "audioTimeoutMs": 60000,
+   "silenceMs": 10000
+  },
+  "loop": true,
+  "loadLimits": {
+   "cores": 14,
+   "busyAbove": 4.7,
+   "baseline": true,
+   "maxLoad": 4.7
+  },
+  "profileSettings": {
+   "viewport": {
+    "width": 1440,
+    "height": 787
+   },
+   "deviceScaleFactor": 2,
+   "cpuThrottle": 1,
+   "network": null
+  }
+ },
+ "runSeconds": 14.3,
+ "machine": {
+  "cores": 14,
+  "load1mStart": 4.1,
+  "load1mEnd": 4.1,
+  "cpuBusy": 0.21
+ },
+ "setup": {
+  "query": "?demo=demo-midnight-groove",
+  "openMs": 972,
+  "audioMs": 373,
+  "settle": {
+   "quiet": true,
+   "ms": 1716
+  },
+  "pageCheckMs": 24.8,
+  "calm": {
+   "calm": true,
+   "ms": 1011
+  }
+ },
+ "probes": {
+  "seconds": 10,
+  "frames": 600,
+  "frameMs": {
+   "p50": 16.7,
+   "p95": 16.7,
+   "max": 16.80000000000109
+  },
+  "longTasks": {
+   "count": 0,
+   "totalMs": 0
+  },
+  "longAnimationFrames": {
+   "count": 0,
+   "blockingMs": 0
+  },
+  "appRafCallsPerSecond": 599.92,
+  "reactCommitsPerSecond": 0,
+  "storeWritesPerSecond": 0,
+  "storeKeys": [],
+  "regions": {
+   "TransportBar": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "TimelineWithHeaders": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "LibraryPanel": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "ChannelStrip": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "Timeline": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "DawAppInner": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   }
+  }
+ },
+ "problems": [],
+ "pageErrors": []
+}

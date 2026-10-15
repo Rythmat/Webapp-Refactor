@@ -33,6 +33,8 @@ export class OverdrivePedal implements PedalProcessor {
   private tone: BiquadFilterNode;
   private volume: GainNode;
   private enabled = true;
+  /** The drive the shaper's curve was made for. */
+  private curveDrive: number | null = null;
 
   constructor(ctx: AudioContext) {
     this.inputNode = ctx.createGain();
@@ -74,7 +76,10 @@ export class OverdrivePedal implements PedalProcessor {
   }
 
   updateParams(params: Record<string, number>): void {
-    if (params.drive !== undefined) {
+    if (params.drive !== undefined && params.drive !== this.curveDrive) {
+      // Every update passes every param; the curve is replaced only when the
+      // drive moved, since Chromium outputs a silent quantum while it is.
+      this.curveDrive = params.drive;
       this.preGain.gain.value = 1 + params.drive * 10;
       this.shaper.curve = makeSoftClipCurve(
         params.drive,

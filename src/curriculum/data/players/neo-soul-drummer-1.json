@@ -1,0 +1,22 @@
+{
+  "id": "neo-soul-drummer-1",
+  "name": "Neo-Soul-Drummer-1",
+  "instrument": "drums",
+  "genre": "neo-soul",
+  "kind": "placeholder",
+  "order": 370,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "neo_soul_1_copy"
+    },
+    {
+      "kind": "groove",
+      "id": "neo_soul_gospel_copy"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-neosoul-1"
+    }
+  ]
+}

@@ -4,13 +4,14 @@
 // key's chord family as chips, and the labels for Music Map pattern chips.
 // All copy comes from theoryNotes.ts; nothing here writes theory prose.
 
+import { hybridLabel } from '@/curriculum/data/guitar/bookOne';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
   chordName,
   chordRootName,
   chordSymbol,
-  hybridLabel,
-} from '@/curriculum/data/guitar/bookOne';
+  diatonicTriads,
+  getGuitarCenter,
+} from '@/curriculum/data/guitar/centers';
 import {
   theoryStepsFor,
   type TheoryStep,
@@ -24,7 +25,7 @@ import {
   type ResolvedTheoryNote,
 } from '@/curriculum/data/guitar/theoryNotes';
 import type {
-  GuitarKeyName,
+  GuitarCenterId,
   ScaleDegree,
 } from '@/curriculum/data/guitar/types';
 import type {
@@ -33,7 +34,6 @@ import type {
 } from '@/curriculum/types/activity.v2';
 import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
 import {
-  DIATONIC_TRIADS,
   romanNumeral,
   type DiatonicQuality,
   type GuitarSubsectionPrefix,
@@ -65,19 +65,19 @@ const PER_KEY_CONDITIONS: ReadonlySet<TheoryNoteCondition> = new Set([
  * drop-3 muting tips belong to one step in every key, so they are remembered
  * per key ('b.barreCare@G').
  */
-export function noteSeenId(noteId: string, key: GuitarKeyName): string {
+export function noteSeenId(noteId: string, key: GuitarCenterId): string {
   const when = NOTE_CONDITION.get(noteId);
   return when && PER_KEY_CONDITIONS.has(when) ? `${noteId}@${key}` : noteId;
 }
 
 /** The Section B entry card is shown once per key. */
-export function sectionBCardSeenId(key: GuitarKeyName): string {
+export function sectionBCardSeenId(key: GuitarCenterId): string {
   return `card.sectionB@${key}`;
 }
 
 /** Whether the Section B card is still due for this key on this device. */
 export function isSectionBCardDue(
-  key: GuitarKeyName,
+  key: GuitarCenterId,
   dismissedNotes: readonly string[],
 ): boolean {
   return !dismissedNotes.includes(sectionBCardSeenId(key));
@@ -92,7 +92,7 @@ export function isSectionBCardDue(
  */
 export function sectionBCardBarreCare(
   flow: ActivityFlowV2,
-  key: GuitarKeyName,
+  key: GuitarCenterId,
 ): ResolvedTheoryNote | null {
   const entry = flow.sections.find((s) => s.id === 'B')?.steps[0];
   if (!entry) return null;
@@ -102,7 +102,7 @@ export function sectionBCardBarreCare(
   if (!step || !prefix) return null;
   return (
     notesFor(prefix, {
-      center: GUITAR_ATLAS_BOOK_ONE[key],
+      center: getGuitarCenter(key),
       step,
       steps,
       settings: { accidentals: 'unicode' },
@@ -117,7 +117,7 @@ export function sectionBCardBarreCare(
 export function markSectionBCardSeen(
   dismissNote: (id: string) => void,
   flow: ActivityFlowV2,
-  key: GuitarKeyName,
+  key: GuitarCenterId,
 ): void {
   dismissNote(sectionBCardSeenId(key));
   const barreCare = sectionBCardBarreCare(flow, key);
@@ -183,14 +183,14 @@ export interface StepTheoryNotes {
 export function stepTheoryNotes(
   flow: ActivityFlowV2,
   step: ActivityStepV2,
-  key: GuitarKeyName,
+  key: GuitarCenterId,
   showRomanNumerals = false,
 ): StepTheoryNotes {
   const steps = theoryStepsFor(flow);
   const theoryStep = toTheoryStep(flow, steps, step);
   const prefix = stepPrefix(theoryStep.id);
   if (!prefix) return { prefix, theoryStep, intro: [], info: [], practice: [] };
-  const center = GUITAR_ATLAS_BOOK_ONE[key];
+  const center = getGuitarCenter(key);
   const settings = { showRomanNumerals, accidentals: 'unicode' as const };
   const own = notesFor(prefix, { center, step: theoryStep, steps, settings });
   const practice = notesFor('PRACTICE', { center, settings });
@@ -220,13 +220,29 @@ export interface FamilyChip {
   later: boolean;
 }
 
-/** Chips 1-7 of the key's chord family, as the Section B strip shows them. */
-export function familyChips(key: GuitarKeyName): FamilyChip[] {
-  return DIATONIC_TRIADS.map((quality, i) => {
+/**
+ * Chips 1-7 of the key's chord family, as the Section B strip shows them. In
+ * Book One the diminished 7 waits for the 7th chords; a mode plays it.
+ */
+export function familyChips(key: GuitarCenterId): FamilyChip[] {
+  const center = getGuitarCenter(key);
+  return diatonicTriads(center).map((quality, i) => {
     const degree = (i + 1) as ScaleDegree;
-    const roman = romanNumeral(degree, quality);
+    const roman = romanNumeral(center, degree, quality);
+    if (quality === 'dim' && center.mode !== 'ionian') {
+      const root = displayText(chordRootName(center, degree));
+      return {
+        degree,
+        quality,
+        symbol: `${root}°`,
+        hybrid: hybridLabel(degree, quality),
+        roman,
+        ariaLabel: `Chord ${degree}: ${root} diminished`,
+        later: false,
+      };
+    }
     if (quality === 'dim') {
-      const root = displayText(chordRootName(key, degree));
+      const root = displayText(chordRootName(center, degree));
       const hybrid = `later as ${displayText(hybridLabel(degree, 'min7b5'))}`;
       return {
         degree,
@@ -241,10 +257,10 @@ export function familyChips(key: GuitarKeyName): FamilyChip[] {
     return {
       degree,
       quality,
-      symbol: displayText(chordSymbol(key, degree, quality)),
+      symbol: displayText(chordSymbol(center, degree, quality)),
       hybrid: hybridLabel(degree, quality),
       roman,
-      ariaLabel: `Chord ${degree}: ${displayText(chordName(key, degree, quality))}`,
+      ariaLabel: `Chord ${degree}: ${displayText(chordName(center, degree, quality))}`,
       later: false,
     };
   });

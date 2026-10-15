@@ -11,6 +11,7 @@ import type {
   StyleSubProfile,
   TargetNote,
 } from '@/curriculum/types/activity.v2';
+import { GroovePicker } from '../../drumGrooves/GroovePicker';
 import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../../ui/styles';
 import {
   DetailCell,
@@ -79,7 +80,9 @@ const tickLabel = (ticks: number) => {
 export const StepEditor: FC<{
   step: ActivityStepV2;
   onChange: (step: ActivityStepV2) => void;
-}> = ({ step, onChange }) => {
+  /** Open these notes in the Parts editor (piano roll / staff / capture). */
+  onEditNotes?: (hands: 'both' | 'rh' | 'lh') => void;
+}> = ({ step, onChange, onEditNotes }) => {
   const patch = (next: Partial<ActivityStepV2>) =>
     onChange({ ...step, ...next });
 
@@ -226,19 +229,44 @@ export const StepEditor: FC<{
               ariaLabel="Chord symbols"
             />
           </DetailCell>
-          <DetailCell label="Groove override">
-            <InlineText
+          <DetailCell label="Groove">
+            <GroovePicker
               value={step.grooveId}
-              onChange={(value) =>
-                patch({ grooveId: value.trim() || undefined })
-              }
-              placeholder="inherit"
-              ariaLabel="Groove id"
-              className="text-xs"
+              onChange={(grooveId) => patch({ grooveId })}
             />
           </DetailCell>
         </div>
 
+        {onEditNotes && notes.length > 0 && (
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onEditNotes('both')}
+              className={consoleTabClass(true, 'sm')}
+            >
+              Edit notes in piano roll / staff
+            </button>
+            {notes.some((n) => n.hand === 'lh') &&
+              notes.some((n) => (n.hand ?? 'rh') === 'rh') && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onEditNotes('rh')}
+                    className={consoleTabClass(false, 'sm')}
+                  >
+                    Right hand only
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onEditNotes('lh')}
+                    className={consoleTabClass(false, 'sm')}
+                  >
+                    Left hand only
+                  </button>
+                </>
+              )}
+          </div>
+        )}
         <TargetNoteEditor
           notes={notes}
           onChange={(next) =>

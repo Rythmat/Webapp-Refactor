@@ -2,7 +2,6 @@ import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
 import type { MidiClip, AudioClip } from './tracksSlice';
 import type { AllGridSize } from '@/daw/utils/quantize';
-import type { ThemeId } from '@/daw/constants/themes';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
 import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
 
@@ -29,11 +28,16 @@ export interface PracticeSessionScale {
   degrees: string[];
   /** Note names in the key: ['A','B','C','D','E','F♯','G']. */
   names: string[];
+  /** Its own tonic, when a level teaches in two keys (Latin L1: E minor, G major). */
+  tonicPc?: number;
+  /** That tonic as a student reads it: 'G'. */
+  tonicLabel?: string;
 }
 
 /**
  * A Practice Track opened from a Theory lesson (Learn ▸ Theory): a mode and a
- * key, from which the whole track is reproducible. Session-only.
+ * key, from which the whole track is reproducible. Saved with its draft
+ * (milestone 1.15), so a refresh comes back to the practice screen.
  */
 export interface TheoryPracticeSession {
   kind: 'theory';
@@ -43,6 +47,8 @@ export interface TheoryPracticeSession {
   rootParam: string;
   level: 1 | 2 | 3;
   openTrack: 'melody' | 'chords';
+  /** The track the student plays and records on (see practiceStudentTrack). */
+  studentTrackId?: string;
 }
 
 /**
@@ -91,10 +97,32 @@ export interface GenrePracticeSession {
   prompts: string[];
   /** Back to the lesson this came from. */
   returnTo: string;
+  /** The track the student plays and records on (see practiceStudentTrack). */
+  studentTrackId?: string;
+  /**
+   * The groove toggle (D-088): the level's styles (empty when it teaches one)
+   * and the one playing; the level's progressions and the one playing.
+   */
+  styles?: { id: string; name: string }[];
+  styleId?: string | null;
+  progressions?: { id: string; label: string; chords: string[] }[];
+  progressionId?: string;
 }
 
 /** A Practice Track in progress, from either kind of lesson. */
 export type PracticeSession = TheoryPracticeSession | GenrePracticeSession;
+
+/** What the practice keyboard lights: the scale, the chord now, the bass note. */
+export type PracticeKeyboardView = 'scales' | 'chords' | 'bass';
+
+/**
+ * The student's choices on the practice keyboard, kept while the screen is
+ * away (the Studio, a refresh). null fields are the track's own defaults.
+ */
+export interface PracticeKeyboard {
+  view: PracticeKeyboardView | null;
+  scaleId: string | null;
+}
 /** Tabs of the bottom Channel Strip. Kept here (not in ChannelStrip.tsx) so
  *  the tutorial system can read/open a specific tab from the store. */
 export type ChannelStripTabId =
@@ -102,7 +130,8 @@ export type ChannelStripTabId =
   | 'fx'
   | 'prism'
   | 'piano-roll'
-  | 'grooves';
+  | 'grooves'
+  | 'parts';
 export type LeadSheetChordFormat = 'jazz' | 'hybrid' | 'numbers';
 
 export interface LeadSheetSection {
@@ -123,13 +152,18 @@ function clamp(v: number, min: number, max: number): number {
 }
 
 export interface UiSlice {
+  /**
+   * Whether letter, digit and symbol keys with no ⌘ or ⌥ are shortcuts (R,
+   * M, L, 1–4, ?). The student can turn them off (WCAG 2.1.4); the keys'
+   * other shortcuts and the buttons still work. A per-user pref.
+   */
+  singleKeyShortcuts: boolean;
+  setSingleKeyShortcuts: (on: boolean) => void;
   activeTool: ToolType;
   selectedClipId: string | null;
   selectedClipTrackId: string | null;
   editingClipId: string | null;
   editingClipTrackId: string | null;
-  editingAudioClipId: string | null;
-  editingAudioClipTrackId: string | null;
   clipboardClips: MidiClip[];
   clipboardAudioClip: { clip: AudioClip; bufferId: string } | null;
 
@@ -143,7 +177,6 @@ export interface UiSlice {
   setActiveTool: (tool: ToolType) => void;
   setSelectedClip: (clipId: string | null, trackId: string | null) => void;
   setEditingClip: (clipId: string | null, trackId: string | null) => void;
-  setEditingAudioClip: (clipId: string | null, trackId: string | null) => void;
   setClipboard: (clips: MidiClip[]) => void;
   setAudioClipboard: (clip: AudioClip, bufferId: string) => void;
 
@@ -160,9 +193,22 @@ export interface UiSlice {
 
   // ── View switcher ──
   currentView: ViewType;
+  /**
+   * Switching to another view puts the clip selection, which only Create
+   * shows, away in `parkedClipSelection`, and coming back to Create restores
+   * it. The selected track stays.
+   */
   setCurrentView: (view: ViewType) => void;
+  /**
+   * The clip selected in Create while another view is showing. Selecting or
+   * clearing a clip meanwhile drops it.
+   */
+  parkedClipSelection: { clipId: string; trackId: string } | null;
   practiceSession: PracticeSession | null;
   setPracticeSession: (session: PracticeSession | null) => void;
+  /** The practice keyboard's view and scale; null until the student picks. */
+  practiceKeyboard: PracticeKeyboard | null;
+  setPracticeKeyboard: (patch: Partial<PracticeKeyboard>) => void;
 
   // ── Library sidebar ──
   libraryOpen: boolean;
@@ -194,10 +240,6 @@ export interface UiSlice {
   recordingLimitModalOpen: boolean;
   setRecordingLimitModalOpen: (open: boolean) => void;
 
-  // ── Theme ──
-  theme: ThemeId;
-  setTheme: (theme: ThemeId) => void;
-
   // ── Project ──
   // Set when the project has been saved to the cloud; null for unsaved or
   // local-only projects. First save calls POST; subsequent saves call PUT.
@@ -213,9 +255,10 @@ export interface UiSlice {
   lastAudioExportAt: number | null;
   markAudioExported: () => void;
   // Which track's automation lane is disclosed in the arrange timeline (null =
-  // none), and which paramId that lane is editing. Session-only view state, like
-  // channelStripTab — NOT persisted or collab-synced. MASTER_AUTOMATION_ID
-  // (automationParams.ts) opens the Master bus lane.
+  // none), and which paramId that lane is editing. Per-project view state,
+  // like channelStripTab: the draft keeps it (decision D5), never the cloud
+  // copy or collab. MASTER_AUTOMATION_ID (automationParams.ts) opens the
+  // Master bus lane.
   automationOpenTrackId: string | null;
   automationParamId: string;
   setAutomationOpenTrackId: (trackId: string | null) => void;
@@ -301,13 +344,13 @@ export const createUiSlice: StateCreator<
   [],
   UiSlice
 > = (set, get) => ({
+  singleKeyShortcuts: true,
+  setSingleKeyShortcuts: (on) => set({ singleKeyShortcuts: on }),
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,
   editingClipId: null,
   editingClipTrackId: null,
-  editingAudioClipId: null,
-  editingAudioClipTrackId: null,
   clipboardClips: [],
   clipboardAudioClip: null,
 
@@ -320,14 +363,17 @@ export const createUiSlice: StateCreator<
 
   setActiveTool: (tool) => set({ activeTool: tool }),
 
+  // A selection made (or cleared) while away from Create replaces the one
+  // parked there.
   setSelectedClip: (clipId, trackId) =>
-    set({ selectedClipId: clipId, selectedClipTrackId: trackId }),
+    set({
+      selectedClipId: clipId,
+      selectedClipTrackId: trackId,
+      parkedClipSelection: null,
+    }),
 
   setEditingClip: (clipId, trackId) =>
     set({ editingClipId: clipId, editingClipTrackId: trackId }),
-
-  setEditingAudioClip: (clipId, trackId) =>
-    set({ editingAudioClipId: clipId, editingAudioClipTrackId: trackId }),
 
   setClipboard: (clips) => set({ clipboardClips: clips }),
 
@@ -375,11 +421,56 @@ export const createUiSlice: StateCreator<
   currentView: 'arrange' as ViewType,
   practiceSession: null,
   setPracticeSession: (session) => set({ practiceSession: session }),
+  practiceKeyboard: null,
+  setPracticeKeyboard: (patch) =>
+    set((s) => ({
+      practiceKeyboard: {
+        view: s.practiceKeyboard?.view ?? null,
+        scaleId: s.practiceKeyboard?.scaleId ?? null,
+        ...patch,
+      },
+    })),
   setCurrentView: (view) =>
-    set({
-      currentView: view,
-      libraryOpen: view === 'arrange',
+    set((s) => {
+      const next: Partial<UiSlice> = {
+        currentView: view,
+        libraryOpen: view === 'arrange',
+      };
+      // Lesson steps re-assert the view they are already on: not a switch.
+      if (view === s.currentView) return next;
+      if (view !== 'arrange') {
+        // A clip selected in Create is out of sight in the other views, so
+        // nothing done there may act on it: it is parked until the student
+        // comes back. selectedTrackId stays, since lessons and Prism follow
+        // the selected track across views.
+        next.selectedClipId = null;
+        next.selectedClipTrackId = null;
+        if (s.currentView === 'arrange') {
+          next.parkedClipSelection =
+            s.selectedClipId && s.selectedClipTrackId
+              ? { clipId: s.selectedClipId, trackId: s.selectedClipTrackId }
+              : null;
+        }
+        return next;
+      }
+      // Back in Create, the timeline and the docked editor pick up the clip
+      // they had, unless it has been deleted meanwhile (or a clip is
+      // selected already).
+      const parked = s.parkedClipSelection;
+      if (parked && s.selectedClipId === null) {
+        const track = s.tracks.find((t) => t.id === parked.trackId);
+        const stillThere =
+          track?.midiClips.some((c) => c.id === parked.clipId) ||
+          track?.audioClips.some((c) => c.id === parked.clipId);
+        if (stillThere) {
+          next.selectedClipId = parked.clipId;
+          next.selectedClipTrackId = parked.trackId;
+        }
+      }
+      next.parkedClipSelection = null;
+      return next;
     }),
+  parkedClipSelection: null,
 
   // ── Library sidebar ──
   libraryOpen: true,
@@ -406,10 +497,6 @@ export const createUiSlice: StateCreator<
 
   recordingLimitModalOpen: false,
   setRecordingLimitModalOpen: (open) => set({ recordingLimitModalOpen: open }),
-
-  // ── Theme ──
-  theme: 'dark' as ThemeId,
-  setTheme: (theme) => set({ theme }),
 
   // ── Project ──
   projectId: null,

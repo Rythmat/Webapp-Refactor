@@ -4,6 +4,7 @@ import {
   PanelRow,
   SidePanel,
 } from '@/components/atlas/components/UI/SidePanel';
+import { AtlasPillButton } from '@/components/atlas/components/UI/primitives';
 import {
   getArtistHit,
   type ArtistHit,
@@ -11,6 +12,8 @@ import {
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
+import { atlasVar } from '@/components/atlas/theme/tokens';
+import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 
 /**
  * Everything on the globe about one artist, in the order it happened.
@@ -34,7 +37,8 @@ export function ArtistPanel({ name }: { name: string }) {
   const places = useMemo(() => {
     const seen: string[] = [];
     for (const e of events) {
-      if (!seen.includes(e.location.city)) seen.push(e.location.city);
+      const place = eventPlaceName(e);
+      if (!seen.includes(place)) seen.push(place);
     }
     return seen;
   }, [events]);
@@ -43,7 +47,7 @@ export function ArtistPanel({ name }: { name: string }) {
     return (
       <SidePanel title={hit.artist} onClose={navigate.home}>
         <FeaturedHit hit={hit} />
-        <p className="p-2 text-sm text-white/60">
+        <p className="p-2 text-sm text-atlas-text-2">
           No moments on the globe for {hit.artist} yet.
         </p>
       </SidePanel>
@@ -53,15 +57,11 @@ export function ArtistPanel({ name }: { name: string }) {
   if (!artist) {
     return (
       <SidePanel title={name} onClose={navigate.home}>
-        <div className="space-y-3 p-2 text-sm text-white/60">
+        <div className="space-y-3 p-2 text-sm text-atlas-text-2">
           <p>No artist by that name is on the globe yet.</p>
-          <button
-            className="text-[#60a5fa] hover:underline"
-            type="button"
-            onClick={() => navigate.toSearch(name)}
-          >
+          <AtlasPillButton onClick={() => navigate.toSearch(name)}>
             Search the globe for “{name}”
-          </button>
+          </AtlasPillButton>
         </div>
       </SidePanel>
     );
@@ -90,8 +90,9 @@ export function ArtistPanel({ name }: { name: string }) {
           <li key={event.id}>
             <PanelRow
               badge={event.id.startsWith('song-') ? 'Song' : undefined}
+              badgeDot={atlasVar('song')}
               presentation={describeStop({ kind: 'event', eventId: event.id })}
-              subtitle={`${event.year} · ${event.location.city}`}
+              subtitle={`${event.year} · ${eventPlaceName(event)}`}
               title={event.title}
               onClick={() => navigate.toEvent(event)}
             />
@@ -106,8 +107,12 @@ export function ArtistPanel({ name }: { name: string }) {
 function FeaturedHit({ hit }: { hit: ArtistHit }) {
   return (
     <div className="mb-3 space-y-1.5">
-      <AtlasVideo title={hit.song} videoId={hit.videoId} />
-      <p className="px-1 text-xs text-white/60">{hit.song}</p>
+      <AtlasVideo
+        className="rounded-2xl"
+        title={hit.song}
+        videoId={hit.videoId}
+      />
+      <p className="px-1 text-xs text-atlas-text-2">{hit.song}</p>
     </div>
   );
 }

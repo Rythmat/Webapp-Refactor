@@ -100,6 +100,11 @@ describe('resolveActivityRefHref — globe', () => {
       '/atlas/globe?era=postwar',
     );
   });
+  it("opens the Globe's mind map for a Promoter", () => {
+    expect(resolveActivityRefHref('globe', 'globe:mindmap')).toBe(
+      '/atlas/globe?mindmap=1',
+    );
+  });
   it('treats a legacy bare globe ref as an event id', () => {
     expect(resolveActivityRefHref('globe', 'evt-funk-la-1975')).toBe(
       '/atlas/globe?event=evt-funk-la-1975',
@@ -114,6 +119,14 @@ describe('resolveActivityRefHref — studio', () => {
     );
     expect(resolveActivityRefHref('studio', 'studio:song:s1')).toBe(
       '/studio/editor?song=s1',
+    );
+  });
+  it('opens a tutorial in the editor, and the project library', () => {
+    expect(
+      resolveActivityRefHref('studio', 'studio:tutorial:house-make-it-pump'),
+    ).toBe('/studio/editor?tutorial=house-make-it-pump');
+    expect(resolveActivityRefHref('studio', 'studio:library')).toBe(
+      '/studio?tab=Library',
     );
   });
 });

@@ -1,13 +1,17 @@
-import { CITIES, CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
+import { CITY_COUNTRY_TO_ISO } from '@/components/atlas/data';
 import {
   getAtlasArtists,
   type AtlasArtist,
 } from '@/components/atlas/data/artists';
+import { selectableCities } from '@/components/atlas/data/lookups';
+import type { AtlasStop } from '@/components/atlas/navigation/atlasStop';
 import type {
+  City,
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
 import { normCountry } from '@/components/atlas/utils/country';
+import { eventPlaceName } from '@/components/atlas/utils/eventPlace';
 import { MUSIC_HISTORY } from '@/content/contentStore';
 import { scoreKeywords } from '@/features/search/match';
 
@@ -74,6 +78,30 @@ function fold(text: string): string {
     .toLowerCase();
 }
 
+/**
+ * How well any of `keywords` matches `query`, by the same rule the globe's
+ * search ranks with (case- and accent-insensitive); -1 for no match. For the
+ * command palette's actions, tours and pathways.
+ */
+export function matchScore(keywords: string[], query: string): number {
+  const q = fold(query.trim());
+  if (!q) return 0;
+  return scoreKeywords(keywords.map(fold), q);
+}
+
+/** The stop a result opens: the palette and the full results panel share it. */
+export function resultToStop(result: GlobeResult): AtlasStop {
+  switch (result.kind) {
+    case 'artist':
+      return { kind: 'artist', artist: result.artist.name };
+    case 'place':
+      return { kind: 'place', place: result.place };
+    case 'event':
+    case 'song':
+      return { kind: 'event', eventId: result.event.id };
+  }
+}
+
 /* ── Places (static, so built once) ──────────────────────────────────────── */
 
 const COUNTRY_DISPLAY: Record<string, string> = {
@@ -89,15 +117,21 @@ interface PlaceEntry {
   keywords: string[];
 }
 
-let placeIndex: PlaceEntry[] | null = null;
+let placeIndex: { cities: City[]; entries: PlaceEntry[] } | null = null;
 
+/**
+ * Every place search can find: each selectable city (the music cities and
+ * the towns events make cities of, like Aspen), and the states and
+ * countries they are in. Rebuilt when the towns change (new content).
+ */
 function getPlaceIndex(): PlaceEntry[] {
-  if (placeIndex) return placeIndex;
+  const cities = selectableCities();
+  if (placeIndex?.cities === cities) return placeIndex.entries;
   const entries: PlaceEntry[] = [];
   const states = new Map<string, { name: string; country: string }>();
   const countries = new Map<string, string>();
 
-  for (const city of CITIES) {
+  for (const city of cities) {
     const country = COUNTRY_DISPLAY[city.country] ?? city.country;
     entries.push({
       place: { type: 'city', id: city.id },
@@ -139,7 +173,7 @@ function getPlaceIndex(): PlaceEntry[] {
     });
   }
 
-  placeIndex = entries;
+  placeIndex = { cities, entries };
   return entries;
 }
 
@@ -204,7 +238,7 @@ export function searchGlobe(query: string, cap = Infinity): GlobeResultGroup[] {
     // "thriller" buried in some other event's tag list.
     const titleScore = scoreKeywords([fold(event.title)], q);
     const tagScore = scoreKeywords(
-      [...event.tags, event.location.city].map(fold),
+      [...event.tags, event.location.city, eventPlaceName(event)].map(fold),
       q,
     );
     const score = Math.max(titleScore, tagScore >= 0 ? tagScore - 15 : -1);
@@ -213,7 +247,7 @@ export function searchGlobe(query: string, cap = Infinity): GlobeResultGroup[] {
         kind: isSong ? 'song' : 'event',
         id: `event:${event.id}`,
         title: event.title,
-        subtitle: `${event.year} · ${event.location.city}`,
+        subtitle: `${event.year} · ${eventPlaceName(event)}`,
         event,
       },
       score,

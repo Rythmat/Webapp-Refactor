@@ -1,10 +1,19 @@
 import { ChevronLeft, ChevronRight, MapPin, X } from 'lucide-react';
 import { useMemo } from 'react';
 import {
-  useAppState,
-  useAppDispatch,
-} from '@/components/atlas/context/AppContext';
-import { getTour, resolveTourStops } from '@/components/atlas/data';
+  ATLAS_FOCUS,
+  ATLAS_ITEM_TITLE,
+  ATLAS_SURFACE,
+  AtlasEyebrow,
+  AtlasIconButton,
+} from '@/components/atlas/components/UI/primitives';
+import { guidesData } from '@/components/atlas/data/loaders';
+import { useLazyResource } from '@/components/atlas/hooks/useLazyResource';
+import { cityFrame } from '@/components/atlas/navigation/flyFrames';
+import {
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 import { resolveStopEvent } from '@/components/atlas/utils/resolveStopEvent';
 
 /**
@@ -14,14 +23,19 @@ import { resolveStopEvent } from '@/components/atlas/utils/resolveStopEvent';
  * EXECUTE_SEARCH / SELECT_LOCATION actions the rest of the globe uses.
  */
 export function GuidedTourBar() {
-  const { activeTour } = useAppState();
-  const dispatch = useAppDispatch();
+  const activeTour = useAtlasSelector((s) => s.activeTour);
+  const dispatch = useAtlasDispatch();
 
+  // Loaded already: a tour starts only once the tours have.
+  const guides = useLazyResource(guidesData, !!activeTour).data;
   const tour = useMemo(
-    () => (activeTour ? getTour(activeTour.tourId) : undefined),
-    [activeTour],
+    () => (activeTour ? guides?.getTour(activeTour.tourId) : undefined),
+    [activeTour, guides],
   );
-  const stops = useMemo(() => (tour ? resolveTourStops(tour) : []), [tour]);
+  const stops = useMemo(
+    () => (tour && guides ? guides.resolveTourStops(tour) : []),
+    [guides, tour],
+  );
 
   if (!activeTour || !tour || stops.length === 0) return null;
 
@@ -37,7 +51,13 @@ export function GuidedTourBar() {
     dispatch({ type: 'TOUR_STEP', payload: step });
     dispatch({
       type: 'EXECUTE_SEARCH',
-      payload: { lat: stop.lat, lng: stop.lng, zoom: stop.zoom },
+      payload: {
+        lat: stop.lat,
+        lng: stop.lng,
+        zoom: stop.zoom,
+        // A city stop: MapLibre centres the city at the stop's own zoom.
+        ...(stop.cityId ? { frame: cityFrame(stop.zoom) } : {}),
+      },
     });
     // Highlight the city on a city stop; clear the selection on overview stops.
     dispatch({
@@ -53,59 +73,54 @@ export function GuidedTourBar() {
   const exit = () => dispatch({ type: 'EXIT_TOUR' });
 
   return (
-    <div className="absolute bottom-4 left-1/2 z-[1000] w-[min(640px,calc(100%-2rem))] -translate-x-1/2">
-      <div className="rounded-2xl border border-[#7ecfcf66] bg-black/20 px-4 py-3 shadow-2xl backdrop-blur-md">
+    // The bottom zone places it (layout/AtlasZones.tsx).
+    <div className="w-full">
+      <div className={`px-4 py-3 ${ATLAS_SURFACE}`}>
         {/* Header row: tour title + step info + exit */}
         <div className="mb-2 flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <MapPin className="size-3.5 shrink-0 text-[#7ecfcf]" />
-            <span className="truncate text-[10px] font-medium text-[#7ecfcf]/80">
+          <AtlasEyebrow className="min-w-0 text-atlas-tour">
+            <MapPin aria-hidden className="size-3.5 shrink-0" />
+            <span className="truncate">
               {tour.title}
-              <span className="text-[#7ecfcf]/50"> · {tour.subtitle}</span>
+              <span className="font-normal normal-case tracking-normal text-atlas-text-2">
+                {' '}
+                · {tour.subtitle}
+              </span>
             </span>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <span className="text-[10px] text-white/40">
+          </AtlasEyebrow>
+          <div className="-mr-1.5 flex shrink-0 items-center gap-1">
+            <span className="text-xs text-atlas-text-2">
               Stop {currentStep + 1} of {total}
             </span>
-            <button
-              aria-label="Exit tour"
-              className="p-0.5 text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ecfcf]"
-              title="Exit tour"
-              onClick={exit}
-            >
-              <X className="size-3.5" />
-            </button>
+            <AtlasIconButton aria-label="Exit tour" size="sm" onClick={exit}>
+              <X aria-hidden className="size-3.5" />
+            </AtlasIconButton>
           </div>
         </div>
 
         {/* Current stop: title + authored insight */}
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h4 className="text-sm font-semibold text-white">
-              {current.title}
-            </h4>
-            <p className="mt-1 text-xs leading-snug text-white/70">
+            <h4 className={ATLAS_ITEM_TITLE}>{current.title}</h4>
+            <p className="mt-1 text-xs leading-snug text-atlas-text/80">
               {current.blurb}
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-1 pt-0.5">
-            <button
+          <div className="flex shrink-0 items-center gap-1">
+            <AtlasIconButton
               aria-label="Previous stop"
-              className="rounded-md p-1 text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ecfcf] disabled:cursor-not-allowed disabled:opacity-30"
               disabled={currentStep === 0}
               onClick={() => goToStep(currentStep - 1)}
             >
-              <ChevronLeft className="size-4" />
-            </button>
-            <button
+              <ChevronLeft aria-hidden className="size-4" />
+            </AtlasIconButton>
+            <AtlasIconButton
               aria-label="Next stop"
-              className="rounded-md p-1 text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ecfcf] disabled:cursor-not-allowed disabled:opacity-30"
               disabled={currentStep === total - 1}
               onClick={() => goToStep(currentStep + 1)}
             >
-              <ChevronRight className="size-4" />
-            </button>
+              <ChevronRight aria-hidden className="size-4" />
+            </AtlasIconButton>
           </div>
         </div>
 
@@ -115,12 +130,13 @@ export function GuidedTourBar() {
             <button
               key={i}
               aria-label={`Go to stop ${i + 1}: ${stop.title}`}
-              className={`rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ecfcf] ${
+              // Current: larger and glowing. Visited: filled. Ahead: hollow.
+              className={`rounded-full transition-all ${ATLAS_FOCUS} ${
                 i === currentStep
-                  ? 'size-2.5 bg-[#7ecfcf] shadow-[0_0_6px_rgba(126,207,207,0.5)]'
+                  ? 'size-2.5 bg-atlas-tour shadow-[0_0_6px_rgb(var(--atlas-tour)/0.5)]'
                   : i < currentStep
-                    ? 'size-2 bg-[#7ecfcf]/70 hover:bg-[#7ecfcf]'
-                    : 'size-2 bg-white/20 hover:bg-white/30'
+                    ? 'size-2 bg-atlas-tour/70 hover:bg-atlas-tour'
+                    : 'size-2 border border-white/40 hover:border-white/70'
               }`}
               title={stop.title}
               onClick={() => goToStep(i)}

@@ -13,7 +13,21 @@
  * Bass and chords follow the step's chord timeline (chordTimeline.ts).
  */
 
-import type { ActivityStepV2 } from '../../types/activity.v2';
+import type { ActivityStepV2, BackingStyle } from '../../types/activity.v2';
+import type { BandInstrument } from '../band/band';
+import { layerSound, realizeBand } from '../band/realize';
+import { LIVE_ITEMS } from '../band/registry';
+import { buildDesignedDrums } from '../drumGrooves/drumGroove';
+import { getLiveGroove } from '../drumGrooves/registry';
+import { pairedBassVoice } from '../lessonPairings/pairedBacking';
+import { pairingFor } from '../lessonPairings/registry';
+import {
+  barTicks as meterBarTicks,
+  COMMON_TIME,
+  isCommonTime,
+  meterSwing,
+  type TimeSignature,
+} from '../meter';
 import { buildApproachNotes, shouldAddApproach } from './bassApproach';
 import { bassFifthMidi } from './bassFifthRule';
 import { bassPC_toMidi } from './chordBassNote';
@@ -29,6 +43,11 @@ import {
   buildHipHopDrums,
   hipHopDrumPattern,
 } from './hipHop/hipHopBacking';
+import {
+  buildMeterBass,
+  buildMeterChords,
+  buildMeterDrums,
+} from './meterBacking';
 import type { GenreNoteEvent } from './resolveStepContent';
 import { applySwing } from './swing';
 
@@ -43,6 +62,36 @@ export interface BackingNote {
   part: 'drums' | 'bass' | 'chords';
   /** 808 bass: slide into this note from the one given. */
   glideFrom?: number;
+  /**
+   * A band layer that plays on its own instrument rather than the part's
+   * (a second keyboard, a synth, a guitar, a layer at its own level): its
+   * sound and level. Absent, the note plays on the part's lesson voice.
+   */
+  voice?: BackingVoice;
+}
+
+/** The lesson part each band instrument plays in. */
+const BACKING_PART: Record<BandInstrument, BackingNote['part']> = {
+  drums: 'drums',
+  percussion: 'drums',
+  bass: 'bass',
+  keys: 'chords',
+  guitar: 'chords',
+  synth: 'chords',
+  strings: 'chords',
+  horns: 'chords',
+};
+
+/** A band layer's own instrument in the backing (`BackingNote.voice`). */
+export interface BackingVoice {
+  /** The band layer's id: its notes share one instrument. */
+  layer: string;
+  /** Its name, for a Practice Track's Studio track. */
+  name: string;
+  /** A sound string (daw/instruments/soundString.ts). */
+  sound: string;
+  /** 0–1. */
+  volume: number;
 }
 
 // ── Micro-timing jitter ─────────────────────────────────────────────────────
@@ -738,10 +787,71 @@ export function getGrooveForStyleRef(
   }
 }
 
+/**
+ * The groove id a step actually plays: its own `grooveId`, else its style's.
+ * Hip Hop's default comes from the level (hipHopDrumPattern).
+ */
+export function resolveStepGrooveId(
+  step: Pick<ActivityStepV2, 'grooveId'> & { styleRef?: string },
+  genre: string,
+  level: number,
+): string {
+  if (genre === 'hip-hop') return hipHopDrumPattern(step.grooveId, level).id;
+  return step.grooveId ?? getGrooveForStyleRef(step.styleRef, genre);
+}
+
+/**
+ * The kit a step's drums play on: the step's own (backing_style.kit), else its
+ * published designed groove's, else natural.
+ */
+/** Where a step sits in its style, for a pairing's exceptions. */
+const placeOf = (
+  step: Partial<Pick<ActivityStepV2, 'section' | 'stepNumber'>>,
+) => ({
+  section: step.section,
+  stepNumber: step.stepNumber,
+});
+
+export function stepDrumKit(
+  step: Pick<ActivityStepV2, 'grooveId' | 'backing_style'> &
+    Partial<Pick<ActivityStepV2, 'section' | 'stepNumber'>>,
+  styleRef: string | undefined,
+  genre: string,
+  level: number,
+): string {
+  return (
+    // A back-office pairing wins over the step (D-084).
+    pairingFor(genre, level, styleRef, placeOf(step))?.drums?.kit ??
+    step.backing_style?.kit ??
+    getLiveGroove(resolveStepGrooveId({ ...step, styleRef }, genre, level))
+      ?.kit ??
+    'natural'
+  );
+}
+
+/**
+ * The bass sound a step plays: a paired bass line's (D-084), else the step's
+ * own (backing_style.bassVoice); undefined means the genre's default.
+ */
+export function stepBassVoice(
+  step: Pick<ActivityStepV2, 'backing_style'> &
+    Partial<Pick<ActivityStepV2, 'section' | 'stepNumber'>>,
+  styleRef: string | undefined,
+  genre: string,
+  level: number,
+): BackingStyle['bassVoice'] {
+  const line = pairingFor(genre, level, styleRef, placeOf(step))?.bass;
+  return line ? pairedBassVoice(line) : step.backing_style?.bassVoice;
+}
+
 function buildDrumPatternForGroove(
   bars: number,
   grooveId: GrooveId = 'groove_funk_01',
 ): BackingNote[] {
+  // A published designed groove (console → Drum Grooves) wins over the code
+  // that shares its id; an unknown id falls through to funk_01 as before.
+  const designed = getLiveGroove(grooveId);
+  if (designed) return buildDesignedDrums(designed, bars, BAR_TICKS);
   switch (grooveId) {
     case 'groove_funk_02':
       return buildDrumPattern_02(bars);
@@ -1266,7 +1376,13 @@ function doubledLeftHand(
  * all start there, so backing bar N lines up with target bar N. The lead-in
  * plays the groove's last bars (its fill), so the drums still count the student in.
  *
- * `swing` is the 16th-note swing percentage (swing.ts); 50 is straight.
+ * `swing` is the 16th-note swing percentage (swing.ts); 50 is straight. A
+ * compound meter plays straight (meter.ts meterSwing).
+ *
+ * `timeSignature` is the step's meter (meter.ts stepTimeSignature). Outside
+ * 4/4 the genre code patterns, written as 4/4 bars, give way to the step's
+ * designed groove or plain meter-true parts (meterBacking.ts); pairings still
+ * win. Hip Hop is 4/4 only.
  */
 export function buildBackingNotes(
   step: ActivityStepV2,
@@ -1277,31 +1393,109 @@ export function buildBackingNotes(
   genre: string,
   countInTicks = 0,
   swing = 50,
+  timeSignature: TimeSignature = COMMON_TIME,
 ): BackingNote[] {
+  const ts = genre === 'hip-hop' ? COMMON_TIME : timeSignature;
+  const barLength = meterBarTicks(ts);
+  const swing_ = meterSwing(swing, ts);
   const swung = (part: BackingNote[]) =>
-    applySwing(part, swing) as BackingNote[];
+    applySwing(part, swing_) as BackingNote[];
   const engineGenerates = step.backing_parts?.engine_generates ?? [];
   const timeline = buildChordTimeline(
     step.chordSymbols,
     targetNotes,
     BACKING_BARS,
+    barLength,
   );
   const tonic = tonicChord(keyRoot, genre);
   const chordAt = (tick: number): ChordSymbolTones =>
     chordAtTick(timeline, tick) ?? tonic;
 
+  const pairing = pairingFor(genre, level, styleRef, placeOf(step));
+  // A back-office band (D-084, D-087) replaces the parts it covers: every
+  // playing layer whose instrument is a part the engine plays for this step.
+  // The first layer of a part, on its lesson sound at full level, plays on
+  // the part's voice exactly as a single pairing did; any other layer (a
+  // second keyboard, a guitar, a synth, or one with a sound or level of its
+  // own) carries its own voice.
+  const withPairing = (notes: BackingNote[]): BackingNote[] => {
+    if (!pairing) return notes;
+    const realized = realizeBand(
+      pairing.band,
+      LIVE_ITEMS,
+      { chordAt, bars: BACKING_BARS, timeSignature: ts },
+      { tonic: ((keyRoot % 12) + 12) % 12 },
+    );
+    let out = notes;
+    for (const part of ['drums', 'bass', 'chords'] as const) {
+      if (!engineGenerates.includes(part)) continue;
+      // A doubled left hand still wins over band bass: the student's own
+      // part is what the backing doubles.
+      if (part === 'bass' && doubledLeftHand(step, targetNotes)) continue;
+      const layers = realized.filter(
+        (r) => BACKING_PART[r.layer.instrument] === part,
+      );
+      if (!layers.length) continue;
+      out = [
+        ...out.filter((n) => n.part !== part),
+        ...layers.flatMap(({ layer, notes: own }, i) => {
+          const volume = layer.volume ?? 1;
+          const voice: BackingVoice | null =
+            i > 0 || layer.sound !== undefined || volume !== 1
+              ? {
+                  layer: layer.id,
+                  name: layer.name,
+                  sound: layerSound(layer, LIVE_ITEMS),
+                  volume,
+                }
+              : null;
+          return swung(own).map((n) =>
+            voice ? { ...n, part, voice } : { ...n, part },
+          );
+        }),
+      ];
+    }
+    return out;
+  };
+
   if (genre === 'hip-hop') {
     return withEndingAndLeadIn(
-      buildHipHopNotes(
-        step,
-        level,
-        targetNotes,
-        chordAt,
-        engineGenerates,
-        swung,
+      withPairing(
+        buildHipHopNotes(
+          step,
+          level,
+          targetNotes,
+          chordAt,
+          engineGenerates,
+          swung,
+        ),
       ),
       countInTicks,
     );
+  }
+
+  if (!isCommonTime(ts)) {
+    const notes: BackingNote[] = [];
+    if (engineGenerates.includes('drums')) {
+      const designed = getLiveGroove(step.grooveId);
+      notes.push(
+        ...swung(
+          designed
+            ? buildDesignedDrums(designed, BACKING_BARS, barLength)
+            : buildMeterDrums(BACKING_BARS, ts),
+        ),
+      );
+    }
+    if (engineGenerates.includes('bass')) {
+      notes.push(
+        ...(doubledLeftHand(step, targetNotes) ??
+          swung(buildMeterBass(BACKING_BARS, ts, chordAt))),
+      );
+    }
+    if (engineGenerates.includes('chords')) {
+      notes.push(...swung(buildMeterChords(BACKING_BARS, ts, chordAt)));
+    }
+    return withEndingAndLeadIn(withPairing(notes), countInTicks, barLength);
   }
 
   const notes: BackingNote[] = [];
@@ -1329,7 +1523,7 @@ export function buildBackingNotes(
     );
   }
 
-  return withEndingAndLeadIn(notes, countInTicks);
+  return withEndingAndLeadIn(withPairing(notes), countInTicks, barLength);
 }
 
 /**
@@ -1344,8 +1538,9 @@ export function buildBackingNotes(
 function withEndingAndLeadIn(
   notes: BackingNote[],
   countInTicks: number,
+  barLength = BAR_TICKS,
 ): BackingNote[] {
-  const endingTick = BACKING_BARS * BAR_TICKS;
+  const endingTick = BACKING_BARS * barLength;
   const beat1Notes = notes.filter((n) => n.onset < 120 && n.part !== 'drums');
   beat1Notes.forEach((n) => {
     notes.push({ ...n, onset: endingTick + Math.min(n.onset, 10) });
@@ -1377,10 +1572,20 @@ function buildHipHopNotes(
   swung: (part: BackingNote[]) => BackingNote[],
 ): BackingNote[] {
   const style = step.backing_style ?? {};
+  // A designed groove may name a step directly; otherwise the hip-hop pattern
+  // the step resolves to (it still drives follow_kick bass below).
+  const designed = getLiveGroove(step.grooveId);
   const drums = hipHopDrumPattern(step.grooveId, level);
+  const designedDrums = designed ?? getLiveGroove(drums.id);
   const notes: BackingNote[] = [];
   if (engineGenerates.includes('drums')) {
-    notes.push(...swung(buildHipHopDrums(BACKING_BARS, drums)));
+    notes.push(
+      ...swung(
+        designedDrums
+          ? buildDesignedDrums(designedDrums, BACKING_BARS, BAR_TICKS)
+          : buildHipHopDrums(BACKING_BARS, drums),
+      ),
+    );
   }
   if (engineGenerates.includes('bass')) {
     notes.push(

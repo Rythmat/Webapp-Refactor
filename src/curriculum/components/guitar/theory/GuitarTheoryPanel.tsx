@@ -2,9 +2,9 @@ import { Info } from 'lucide-react';
 import { memo, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/utilities';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
+  getGuitarCenter,
   getGuitarShape,
-} from '@/curriculum/data/guitar/bookOne';
+} from '@/curriculum/data/guitar/centers';
 import {
   theoryStepsFor,
   type TheoryStep,
@@ -14,14 +14,14 @@ import {
   stepPrefix,
   type ResolvedTheoryNote,
 } from '@/curriculum/data/guitar/theoryNotes';
-import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
+import type { GuitarCenterId } from '@/curriculum/data/guitar/types';
 import type {
   ActivityFlowV2,
   ActivityStepV2,
 } from '@/curriculum/types/activity.v2';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { GuitarTheoryToggles } from './GuitarTheoryToggles';
-import { SameRootCompare } from './SameRootCompare';
+import { SameRootCompare, sameRootCompareFits } from './SameRootCompare';
 import { InfoItem, NoteCard } from './noteParts';
 import {
   CHANGE_PREFIXES,
@@ -49,7 +49,7 @@ export interface GuitarTheoryPanelProps {
   flow: ActivityFlowV2;
   /** The step on screen. */
   step: ActivityStepV2;
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   /**
    * This key's steps in flow order, for the "first barre / drop 3 step in
    * this key" notes. Defaults to the flow's steps.
@@ -88,7 +88,7 @@ export const GuitarTheoryPanel = memo(function GuitarTheoryPanel({
     (s) => s.showRomanNumerals,
   );
 
-  const center = GUITAR_ATLAS_BOOK_ONE[keyCenter];
+  const center = getGuitarCenter(keyCenter);
   const steps = useMemo(
     () => sectionSteps ?? theoryStepsFor(flow),
     [flow, sectionSteps],
@@ -202,7 +202,10 @@ export const GuitarTheoryPanel = memo(function GuitarTheoryPanel({
 
   if (!prefix) return null;
   const hasToggles = isMap || changes || allowRomanToggle;
-  const compare = shape && onHearShape ? shape : undefined;
+  const compare =
+    shape && onHearShape && sameRootCompareFits(shape, keyCenter)
+      ? shape
+      : undefined;
   if (
     notes.intro.length === 0 &&
     notes.info.length === 0 &&

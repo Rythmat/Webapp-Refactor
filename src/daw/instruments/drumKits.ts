@@ -9,6 +9,33 @@ export interface DrumKitConfig {
   samples: Record<number, string>;
   ext: string;
   defaultPan?: Record<number, number>;
+  /**
+   * Pads whose sample is a file of its own rather than baseUrl + name + ext —
+   * a custom kit's uploads (absolute paths under /daw-assets/).
+   */
+  urls?: Record<number, string>;
+}
+
+/** Where a kit's pad sample is fetched from. */
+export function padSampleUrl(config: DrumKitConfig, note: number): string {
+  return (
+    config.urls?.[note] ??
+    `${config.baseUrl}${config.samples[note]}${config.ext}`
+  );
+}
+
+/**
+ * A kit built in the console's Drum Grooves designer: a stock kit with some
+ * pads swapped for uploaded samples. Stored as JSON in ./customDrumKits/
+ * (written by the dev server — scripts/vite/devContentWriter.ts).
+ */
+export interface CustomDrumKitFile {
+  id: string;
+  label: string;
+  /** The stock kit every pad not in `samples` comes from. */
+  base: string;
+  /** Pad note → absolute sample path, e.g. /daw-assets/samples/drums/uploads/x.wav */
+  samples: Record<number, string>;
 }
 
 export const DRUM_KIT_CONFIGS: DrumKitConfig[] = [
@@ -99,6 +126,28 @@ export const DRUM_KIT_CONFIGS: DrumKitConfig[] = [
   },
 ];
 
+const customKitFiles = import.meta.glob<CustomDrumKitFile>(
+  './customDrumKits/*.json',
+  { eager: true, import: 'default' },
+);
+
+/** A custom kit as a full config: its base kit, uploaded pads overriding. */
+export function resolveCustomKit(file: CustomDrumKitFile): DrumKitConfig {
+  const base =
+    DRUM_KIT_CONFIGS.find((c) => c.id === file.base) ?? DRUM_KIT_CONFIGS[0];
+  return { ...base, id: file.id, label: file.label, urls: { ...file.samples } };
+}
+
+/** The custom kit files as written — the designer edits these. */
+export const CUSTOM_DRUM_KITS: readonly CustomDrumKitFile[] =
+  Object.values(customKitFiles);
+
+for (const file of CUSTOM_DRUM_KITS) {
+  if (!DRUM_KIT_CONFIGS.some((c) => c.id === file.id)) {
+    DRUM_KIT_CONFIGS.push(resolveCustomKit(file));
+  }
+}
+
 export const DRUM_KITS = DRUM_KIT_CONFIGS.map((c) => ({
   id: c.id,
   label: c.label,
@@ -107,6 +156,12 @@ export type DrumKitId = string;
 
 // ── Drum pad definitions ────────────────────────────────────────────────
 // 11 pads, ordered bottom-to-top for display (Kick at bottom, Ride at top).
+
+/** A pad's name on a kit: electronic kits put a clap on the sidestick pad. */
+export function padLabel(note: number, kitBase: string): string {
+  if (note === 40 && kitBase !== 'natural') return 'Clap';
+  return DRUM_PADS.find((p) => p.note === note)?.label ?? `Note ${note}`;
+}
 
 export interface DrumPadDef {
   note: number;

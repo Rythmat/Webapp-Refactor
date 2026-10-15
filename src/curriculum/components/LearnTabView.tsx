@@ -222,6 +222,8 @@ interface LearnTabViewProps {
   countInTicks?: number;
   /** Ticks in one beat, for counting the lead-in. */
   beatTicks?: number;
+  /** The meter, when it isn't beatsPerBar/4 (6/8, 12/8 — engine/meter.ts). */
+  timeSignature?: [number, number];
   /** Where bar 1 sits on the playhead's scale; 0 unless notes are offset. */
   musicStartTick?: number;
   noteHoldMeta?: Record<string, NoteHoldMeta>;
@@ -269,6 +271,7 @@ export function LearnTabView({
   playheadTick,
   countInTicks = 0,
   beatTicks = 480,
+  timeSignature,
   musicStartTick = 0,
   noteHoldMeta,
   performanceMeta,
@@ -318,11 +321,11 @@ export function LearnTabView({
       });
     }
     return buildTab(notes, {
-      timeSignature: [beatsPerBar, 4],
+      timeSignature: timeSignature ?? [beatsPerBar, 4],
       minMeasures: bars,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `signature` stands for `events`
-  }, [signature, bars, beatsPerBar]);
+  }, [signature, bars, beatsPerBar, timeSignature]);
 
   const noteStyles = useMemo(() => {
     const styles = learnNoteStyles(events, {

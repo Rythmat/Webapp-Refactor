@@ -92,6 +92,80 @@ const AdminContentEditPage = lazy(() =>
   })),
 );
 
+const AdminDrumGroovesPage = lazy(() =>
+  import('./drumGrooves/AdminDrumGroovesPage').then(
+    ({ AdminDrumGroovesPage }) => ({ default: AdminDrumGroovesPage }),
+  ),
+);
+
+const AdminDrumGrooveEditPage = lazy(() =>
+  import('./drumGrooves/AdminDrumGrooveEditPage').then(
+    ({ AdminDrumGrooveEditPage }) => ({ default: AdminDrumGrooveEditPage }),
+  ),
+);
+
+const AdminBassLinesPage = lazy(() =>
+  import('./bassLines/AdminBassLinesPage').then(({ AdminBassLinesPage }) => ({
+    default: AdminBassLinesPage,
+  })),
+);
+
+const AdminBassLineEditPage = lazy(() =>
+  import('./bassLines/AdminBassLineEditPage').then(
+    ({ AdminBassLineEditPage }) => ({ default: AdminBassLineEditPage }),
+  ),
+);
+
+const AdminChordCompingsPage = lazy(() =>
+  import('./chordComping/AdminChordCompingsPage').then(
+    ({ AdminChordCompingsPage }) => ({ default: AdminChordCompingsPage }),
+  ),
+);
+
+const AdminBandsPage = lazy(() =>
+  import('./band/AdminBandsPage').then(({ AdminBandsPage }) => ({
+    default: AdminBandsPage,
+  })),
+);
+const AdminPlayersPage = lazy(() =>
+  import('./players/AdminPlayersPage').then(({ AdminPlayersPage }) => ({
+    default: AdminPlayersPage,
+  })),
+);
+const AdminPlayerPage = lazy(() =>
+  import('./players/AdminPlayerPage').then(({ AdminPlayerPage }) => ({
+    default: AdminPlayerPage,
+  })),
+);
+const AdminBandEditPage = lazy(() =>
+  import('./band/AdminBandEditPage').then(({ AdminBandEditPage }) => ({
+    default: AdminBandEditPage,
+  })),
+);
+const AdminChordCompingEditPage = lazy(() =>
+  import('./chordComping/AdminChordCompingEditPage').then(
+    ({ AdminChordCompingEditPage }) => ({ default: AdminChordCompingEditPage }),
+  ),
+);
+
+const AdminPartsLibraryPage = lazy(() =>
+  import('./parts/AdminPartsLibraryPage').then(({ AdminPartsLibraryPage }) => ({
+    default: AdminPartsLibraryPage,
+  })),
+);
+
+const AdminPartEditPage = lazy(() =>
+  import('./parts/AdminPartEditPage').then(({ AdminPartEditPage }) => ({
+    default: AdminPartEditPage,
+  })),
+);
+
+const AdminLessonPartPage = lazy(() =>
+  import('./parts/AdminLessonPartPage').then(({ AdminLessonPartPage }) => ({
+    default: AdminLessonPartPage,
+  })),
+);
+
 const AdminLessonCoursePage = lazy(() =>
   import('./content/lessons/AdminLessonCoursePage').then(
     ({ AdminLessonCoursePage }) => ({
@@ -439,6 +513,61 @@ export const adminPages = () => {
                   {
                     path: AdminRoutes.lessonCourse.definition,
                     element: <AdminLessonCoursePage />,
+                  },
+                  // Instrument content: drum grooves and the Parts Library,
+                  // reached from the MirrorBar's Records menu. Console pages
+                  // like the lesson course — outside the mirrored app paths.
+                  {
+                    path: AdminRoutes.drumGrooves.definition,
+                    element: <AdminDrumGroovesPage />,
+                  },
+                  {
+                    path: AdminRoutes.drumGroove.definition,
+                    element: <AdminDrumGrooveEditPage />,
+                  },
+                  {
+                    path: AdminRoutes.bassLines.definition,
+                    element: <AdminBassLinesPage />,
+                  },
+                  {
+                    path: AdminRoutes.bassLine.definition,
+                    element: <AdminBassLineEditPage />,
+                  },
+                  {
+                    path: AdminRoutes.bands.definition,
+                    element: <AdminBandsPage />,
+                  },
+                  {
+                    path: AdminRoutes.band.definition,
+                    element: <AdminBandEditPage />,
+                  },
+                  {
+                    path: AdminRoutes.players.definition,
+                    element: <AdminPlayersPage />,
+                  },
+                  {
+                    path: AdminRoutes.player.definition,
+                    element: <AdminPlayerPage />,
+                  },
+                  {
+                    path: AdminRoutes.chordComping.definition,
+                    element: <AdminChordCompingsPage />,
+                  },
+                  {
+                    path: AdminRoutes.chordCompingPattern.definition,
+                    element: <AdminChordCompingEditPage />,
+                  },
+                  {
+                    path: AdminRoutes.parts.definition,
+                    element: <AdminPartsLibraryPage />,
+                  },
+                  {
+                    path: AdminRoutes.lessonPart.definition,
+                    element: <AdminLessonPartPage />,
+                  },
+                  {
+                    path: AdminRoutes.part.definition,
+                    element: <AdminPartEditPage />,
                   },
                 ],
               },

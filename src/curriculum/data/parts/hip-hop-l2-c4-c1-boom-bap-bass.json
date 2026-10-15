@@ -1,0 +1,88 @@
+{
+  "id": "hip-hop-l2-c4-c1-boom-bap-bass",
+  "name": "Hip Hop L2 · C4 C1: Boom Bap Bass",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 9,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 460,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "duration": 340,
+      "midi": 40,
+      "velocity": 96
+    },
+    {
+      "tick": 840,
+      "duration": 240,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 480,
+      "midi": 45,
+      "velocity": 100
+    },
+    {
+      "tick": 1680,
+      "duration": 120,
+      "midi": 40,
+      "velocity": 100
+    },
+    {
+      "tick": 1920,
+      "duration": 460,
+      "midi": 38,
+      "velocity": 96
+    },
+    {
+      "tick": 2400,
+      "duration": 340,
+      "midi": 45,
+      "velocity": 96
+    },
+    {
+      "tick": 2760,
+      "duration": 240,
+      "midi": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 480,
+      "midi": 50,
+      "velocity": 100
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 2,
+    "section": "C",
+    "stepNumber": 4,
+    "title": "C1: Boom Bap Bass",
+    "tag": "hiphop:l2_bass_r5b7_am_dm | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "A–E–G over A minor, then D–A–C over D minor.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Am", "Dm"]
+}

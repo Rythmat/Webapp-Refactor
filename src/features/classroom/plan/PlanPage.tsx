@@ -8,7 +8,7 @@ import {
   Radio,
   Trash2,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Link,
   useNavigate,
@@ -23,17 +23,14 @@ import {
 import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { TeacherRoutes } from '@/constants/routes';
 import { useCanEditClassroom } from '@/hooks/data';
-import { useAnnualPlan } from '../annual/useAnnualPlan';
 import { useAssignments } from '../assignments/useAssignments';
-import { useThemeBank } from '../content/hooks';
-import { topicOf, type ThemeTopic } from '../content/themeTopic';
 import { useLocalSessionStore } from '../live/useLocalSessionStore';
 import {
   confirmPracticeSession,
   useStartClassroomSession,
 } from '../live/useStartClassroomSession';
 import { usePublishedDays } from '../publish/usePublishedDays';
-import type { Day, Unit } from '../types';
+import type { Day } from '../types';
 import { LessonThumb } from './LessonThumb';
 import { NewLessonDialog } from './NewLessonDialog';
 import { UnassignedDaysTray } from './UnassignedDaysTray';
@@ -42,7 +39,6 @@ import {
   StatusChip,
   type LessonStatus,
 } from './lessonStatus';
-import { useEnsureLessonUnits } from './useEnsureLessonUnits';
 import { useLocalPlan } from './useLocalPlan';
 import { useSavedLessons } from './useSavedLessons';
 import { useSongsReady } from './useSongsReady';
@@ -57,20 +53,20 @@ const STATUS_OPTIONS: FilterOption<LessonStatus | 'all'>[] = [
   { value: 'live', label: 'Live now' },
 ];
 
-const TOPIC_OPTIONS: FilterOption<ThemeTopic | 'all'>[] = [
-  { value: 'all', label: 'All topics' },
-  { value: 'seasonal', label: 'Seasonal' },
-  { value: 'genre', label: 'Genre' },
-  { value: 'location', label: 'Location' },
-];
-
 const SAVED_OPTIONS: FilterOption<SavedFilter>[] = [
   { value: 'all', label: 'All' },
   { value: 'saved', label: 'Saved only' },
   { value: 'unsaved', label: 'Unsaved only' },
 ];
 
-const NO_UNIT_ID = '__no-unit';
+const UNSCHEDULED_ID = '__unscheduled';
+
+const monthTitle = (iso: string): string =>
+  new Date(
+    Number(iso.slice(0, 4)),
+    Number(iso.slice(5, 7)) - 1,
+    1,
+  ).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
 /** A day paired with the assignment (for the Progress link + due date) and its
  *  derived status, so grouping/filtering/rendering share one computation. */
@@ -82,16 +78,16 @@ interface LessonEntry {
 
 interface LessonSection {
   id: string;
-  /** Unit title; null renders an unheaded section (no annual plan). */
-  title: string | null;
+  /** Month title ("October 2026") or "Unscheduled". */
+  title: string;
   items: LessonEntry[];
 }
 
 /**
  * Lessons — the merged lesson-plan list for a classroom (the workspace "Lessons"
- * tab). Lists the teacher's authored Days grouped by their curriculum Unit (with
- * the Unit title as each section header), filterable by Status / Topic
- * (Seasonal · Genre · Location) / Saved plus a search box — reusing the Learn
+ * tab). Lists the teacher's authored Days grouped by the month they are
+ * scheduled in (unscheduled ones last), filterable by Status / Saved plus a
+ * search box — reusing the Learn
  * page's `FilterDropdown` + `SearchInput`. Lessons can be bookmarked from the
  * card (`useSavedLessons`). Editing + assigning happen in the lesson editor.
  */
@@ -109,16 +105,11 @@ export const PlanPage = () => {
   const { assignments } = useAssignments(cid);
   const { getActiveSessionForClassroom, endSession } = useLocalSessionStore();
   const startClassroomSession = useStartClassroomSession();
-  const { plan } = useAnnualPlan(cid);
-  const { byId } = useThemeBank();
   const {
     saved: savedSet,
     toggle: toggleSaved,
     remove: removeSaved,
   } = useSavedLessons();
-
-  // Guarantee the canonical Units exist + adopt any orphan Lessons into a Unit.
-  useEnsureLessonUnits(cid);
 
   // Card thumbnails: shared globe country features (one fetch for the whole list,
   // fed to every location polygon) + song-library readiness for artist images.
@@ -126,7 +117,6 @@ export const PlanPage = () => {
   const songsReady = useSongsReady();
 
   const [status, setStatus] = useState<LessonStatus | 'all'>('all');
-  const [topic, setTopic] = useState<ThemeTopic | 'all'>('all');
   const [saved, setSaved] = useState<SavedFilter>('all');
   const [search, setSearch] = useState('');
   const [newOpen, setNewOpen] = useState(false);
@@ -192,63 +182,47 @@ export const PlanPage = () => {
     }
   };
 
-  // Units for this classroom, autumn→spring (already chronological / monthIndex).
-  const allUnits = useMemo<Unit[]>(
-    () =>
-      plan
-        ? [...plan.year.semesters.autumn, ...plan.year.semesters.spring]
-        : [],
-    [plan],
-  );
-  // Reverse-lookup: dayId → owning unit id (see CalendarView).
-  const unitByDayId = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const u of allUnits)
-      for (const id of u.dayIds ?? []) map.set(id, u.id);
-    return map;
-  }, [allUnits]);
-  const unitTitle = (u: Unit): string =>
-    byId(u.theme?.themeId ?? '')?.title.en ?? u.label;
-  // dayId → its unit's theme topic (seasonal / genre / location), for the Topic
-  // filter. Days with no unit or a non-canonical theme have no topic.
-  const topicByDayId = useMemo(() => {
-    const map = new Map<string, ThemeTopic>();
-    for (const u of allUnits) {
-      const t = topicOf(u.theme?.themeId);
-      if (!t) continue;
-      for (const id of u.dayIds ?? []) map.set(id, t);
-    }
-    return map;
-  }, [allUnits]);
-
   // Derive status once per day, then apply every active filter (AND).
   const query = search.trim().toLowerCase();
   const visible: LessonEntry[] = days.map(entryFor).filter((entry) => {
     const isSavedItem = savedSet.has(entry.day.id);
     const matchesStatus = status === 'all' || entry.status === status;
-    const matchesTopic =
-      topic === 'all' || topicByDayId.get(entry.day.id) === topic;
     const matchesSaved =
       saved === 'all' || (saved === 'saved' ? isSavedItem : !isSavedItem);
     const matchesSearch =
       !query || entry.day.label.toLowerCase().includes(query);
-    return matchesStatus && matchesTopic && matchesSaved && matchesSearch;
+    return matchesStatus && matchesSaved && matchesSearch;
   });
 
-  // Group into Unit sections (+ a "No unit" bucket). With no annual plan, fall
-  // back to a single unheaded section so the flat list doesn't regress.
+  // Group by scheduled month, chronologically, then an "Unscheduled" bucket.
   const sections: LessonSection[] = [];
-  if (allUnits.length === 0) {
-    sections.push({ id: '__all', title: null, items: visible });
-  } else {
-    for (const u of allUnits) {
-      const items = visible.filter((e) => unitByDayId.get(e.day.id) === u.id);
-      if (items.length) sections.push({ id: u.id, title: unitTitle(u), items });
+  const byMonth = new Map<string, LessonEntry[]>();
+  const unscheduled: LessonEntry[] = [];
+  const sorted = [...visible].sort(
+    (a, b) =>
+      (a.day.scheduledDate ?? '').localeCompare(b.day.scheduledDate ?? '') ||
+      a.day.label.localeCompare(b.day.label),
+  );
+  for (const entry of sorted) {
+    const iso = entry.day.scheduledDate;
+    if (!iso) {
+      unscheduled.push(entry);
+      continue;
     }
-    const noUnit = visible.filter((e) => !unitByDayId.has(e.day.id));
-    if (noUnit.length)
-      sections.push({ id: NO_UNIT_ID, title: 'No unit', items: noUnit });
+    const key = iso.slice(0, 7);
+    const items = byMonth.get(key) ?? [];
+    items.push(entry);
+    byMonth.set(key, items);
   }
+  for (const [key, items] of byMonth) {
+    sections.push({ id: key, title: monthTitle(`${key}-01`), items });
+  }
+  if (unscheduled.length)
+    sections.push({
+      id: UNSCHEDULED_ID,
+      title: 'Unscheduled',
+      items: unscheduled,
+    });
 
   return (
     <div className="flex w-full flex-col gap-8">
@@ -298,13 +272,6 @@ export const PlanPage = () => {
               onChange={setStatus}
             />
             <FilterDropdown
-              label="Topic"
-              ariaLabel="Filter lessons by topic"
-              value={topic}
-              options={TOPIC_OPTIONS}
-              onChange={setTopic}
-            />
-            <FilterDropdown
               label="Saved"
               ariaLabel="Filter lessons by saved"
               value={saved}
@@ -329,17 +296,15 @@ export const PlanPage = () => {
             <div className="flex flex-col gap-8">
               {sections.map((section) => (
                 <section key={section.id} className="flex flex-col gap-4">
-                  {section.title && (
-                    <div className="flex items-center gap-3">
-                      <h2 className="text-lg font-medium text-white">
-                        {section.title}
-                      </h2>
-                      <span className="text-xs text-white/40">
-                        {section.items.length} lesson
-                        {section.items.length === 1 ? '' : 's'}
-                      </span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-lg font-medium text-white">
+                      {section.title}
+                    </h2>
+                    <span className="text-xs text-white/40">
+                      {section.items.length} lesson
+                      {section.items.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
                   <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {section.items.map((entry) => (
                       <LessonCard
@@ -509,8 +474,8 @@ const EmptyState = ({ onNew }: EmptyStateProps) => (
     <BookOpen className="h-16 w-16 text-white/40" />
     <h2 className="text-xl font-medium text-white">No lessons yet</h2>
     <p className="max-w-md text-base text-white/60">
-      Create your first lesson and drop in the five phases — Connect, Practice,
-      Create, Share, Reflect — then present it, assign it, or go live.
+      Generate your first lesson from Cortex or start from a blank one, then
+      present it, assign it, or go live.
     </p>
     <button
       type="button"

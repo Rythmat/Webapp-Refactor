@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
   GUITAR_KEY_ORDER,
   MAJOR_SCALE_STEPS,
   keyPitchClass,
 } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import { fretToMidi } from '@/lib/guitar/fretboard';
 import {
   octavePairs,
@@ -13,7 +13,7 @@ import {
   suggestedFingers,
 } from '../scaleTheory';
 
-const centers = GUITAR_KEY_ORDER.map((key) => GUITAR_ATLAS_BOOK_ONE[key]);
+const centers = GUITAR_KEY_ORDER.map((key) => getGuitarCenter(key));
 
 describe('scale theory', () => {
   it('steps W W H W W W H, each half step on one string', () => {
@@ -29,7 +29,7 @@ describe('scale theory', () => {
       expect(steps[2].from.string).toBe(5);
       expect(steps[6].from.string).toBe(4);
     }
-    const pentatonic = stepSizes(GUITAR_ATLAS_BOOK_ONE.C.pentatonic.playOrder);
+    const pentatonic = stepSizes(getGuitarCenter('C').pentatonic.playOrder);
     expect(pentatonic.map((s) => s.size)).toEqual(['W', 'W', null, 'W', null]);
   });
 
@@ -54,25 +54,52 @@ describe('scale theory', () => {
         });
       }
     }
-    expect(suggestedFingers(GUITAR_ATLAS_BOOK_ONE.C.majorScale)).toEqual({
+    expect(suggestedFingers(getGuitarCenter('C').majorScale)).toEqual({
       anchor: 7,
       fingers: [2, 4, 1, 2, 4, 1, 3, 4],
     });
     // F: frets 1-2-3 → fingers 1-2-3, and open strings get none.
-    expect(suggestedFingers(GUITAR_ATLAS_BOOK_ONE.F.majorScale)).toEqual({
+    expect(suggestedFingers(getGuitarCenter('F').majorScale)).toEqual({
       anchor: 1,
       fingers: [1, 3, null, 1, 3, null, 2, 3],
     });
     // G pentatonic keeps fingers 2-3 on frets 2-3.
-    expect(suggestedFingers(GUITAR_ATLAS_BOOK_ONE.G.pentatonic)).toEqual({
+    expect(suggestedFingers(getGuitarCenter('G').pentatonic)).toEqual({
       anchor: 1,
       fingers: [null, 2, null, 3, null, 3],
     });
     // A pentatonic: frets 2-4-5 → fingers 1-3-4.
-    expect(suggestedFingers(GUITAR_ATLAS_BOOK_ONE.A.pentatonic)).toEqual({
+    expect(suggestedFingers(getGuitarCenter('A').pentatonic)).toEqual({
       anchor: 2,
       fingers: [1, 3, 1, 4, 1, 4],
     });
+  });
+
+  it('fingers a five-fret mode position with a stretch', () => {
+    // D Dorian: frets 9, 10, 12, 13 (11 unused) → fingers 1-4.
+    const dorian = getGuitarCenter('D:dorian').majorScale;
+    expect(dorian.playOrder.map((p) => p.fret)).toEqual([
+      10, 12, 13, 10, 12, 9, 10, 12,
+    ]);
+    expect(suggestedFingers(dorian)).toEqual({
+      anchor: 9,
+      fingers: [2, 3, 4, 2, 3, 1, 2, 3],
+    });
+  });
+
+  it('ghosts the notes a mode’s pentatonic leaves out', () => {
+    // C Lydian pentatonic is D E F♯ A B: its ghosts are C and G.
+    const lydian = getGuitarCenter('C:lydian');
+    for (const g of pentatonicGhosts(lydian, lydian.pentatonic)) {
+      expect([0, 7]).toContain(fretToMidi(g) % 12);
+    }
+    // D Dorian's second pentatonic, 1 2 ♭3 5 6, leaves out G and C.
+    const dorian = getGuitarCenter('D:dorian');
+    const second = dorian.pentatonics[1].position;
+    expect(second.id).toBe('pentatonic2');
+    const ghosts = pentatonicGhosts(dorian, second);
+    expect(ghosts.length).toBeGreaterThan(0);
+    for (const g of ghosts) expect([7, 0]).toContain(fretToMidi(g) % 12);
   });
 
   it('ghosts only degrees 4 and 7 inside the window', () => {
@@ -90,10 +117,7 @@ describe('scale theory', () => {
       }
     }
     expect(
-      pentatonicGhosts(
-        GUITAR_ATLAS_BOOK_ONE.G,
-        GUITAR_ATLAS_BOOK_ONE.G.pentatonic,
-      ),
+      pentatonicGhosts(getGuitarCenter('G'), getGuitarCenter('G').pentatonic),
     ).toEqual([
       { string: 3, fret: 5 },
       { string: 2, fret: 1 },

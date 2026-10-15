@@ -25,6 +25,7 @@ export const QUALITY_DISPLAY: Record<string, string> = {
   susb2: 'sus(\u266D2)',
   susb2b5: 'sus(\u266D2\u266D5)',
   sus2b5: 'sus2(\u266D5)',
+  majorb5: 'maj(\u266D5)',
   major4: 'maj4',
   minor4: 'min4',
   Add2: 'add2',
@@ -32,6 +33,7 @@ export const QUALITY_DISPLAY: Record<string, string> = {
   // 6th chords
   major6: 'maj6',
   minor6: 'min6',
+  sus2b5add6: 'sus2(\u266D5)add6',
   major6add9: 'maj6/9',
   // 7th chords
   major7: 'maj7',
@@ -144,6 +146,14 @@ export function intervalsToString(intervals: number[]): string {
 export function rgbString(r: number, g: number, b: number): string {
   return `rgb(${r},${g},${b})`;
 }
+
+/** A detected chord's inversion as words, by inversion number (0 = root). */
+export const INVERSION_LABELS: readonly string[] = [
+  '',
+  '1st Inversion',
+  '2nd Inversion',
+  '3rd Inversion',
+];
 
 /** MIDI → "B♭4" spelled for the session key (C's names when there is none). */
 export function midiToNoteName(

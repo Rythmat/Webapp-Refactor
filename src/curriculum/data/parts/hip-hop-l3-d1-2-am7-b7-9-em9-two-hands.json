@@ -1,0 +1,174 @@
+{
+  "id": "hip-hop-l3-d1-2-am7-b7-9-em9-two-hands",
+  "name": "Hip Hop L3 · D1.2: Am7 → B7♭9 → Em9, Two Hands",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "phrygian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 81,
+  "swing": 66,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 81,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 88,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 91,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 47,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 81,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 87,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 1860,
+      "midi": 90,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 40,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 79,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 83,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 86,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 90,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 40,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 79,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 83,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 86,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 1860,
+      "midi": 90,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 3,
+    "section": "D",
+    "stepNumber": 2,
+    "title": "D1: Two-Hand Colours",
+    "tag": "hiphop:l3_perf_jazz | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Left hand A, B, E. Right hand the jazz voicings.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Am7", "B7b9", "Em9", "Em9"]
+}

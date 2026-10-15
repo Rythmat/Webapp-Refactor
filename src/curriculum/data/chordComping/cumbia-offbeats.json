@@ -1,0 +1,34 @@
+{
+  "id": "cumbia-offbeats",
+  "name": "Cumbia Offbeats",
+  "description": "Staccato chords on every \"and\", like the accordion and guitar",
+  "status": "live",
+  "order": 110,
+  "timeSignature": [4, 4],
+  "length": "1m",
+  "gridResolution": "8n",
+  "ceiling": 72,
+  "grooves": ["groove-latin-1"],
+  "hits": [
+    {
+      "time": "0:0:2",
+      "dur": 0.25,
+      "velocity": 0.72
+    },
+    {
+      "time": "0:1:2",
+      "dur": 0.25,
+      "velocity": 0.66
+    },
+    {
+      "time": "0:2:2",
+      "dur": 0.25,
+      "velocity": 0.72
+    },
+    {
+      "time": "0:3:2",
+      "dur": 0.25,
+      "velocity": 0.66
+    }
+  ]
+}

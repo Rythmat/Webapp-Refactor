@@ -126,9 +126,26 @@ describe('the vocabulary through the live repo store', () => {
     expect(read(CONTRACT)).not.toBe(before[CONTRACT]);
     expect(read(CONTRACT)).toContain('"name": "Jam Bands"');
     expect(recordedHash()).toBe(sha256(read(CONTRACT)));
-    expect(changedLines(before[MANIFEST], read(MANIFEST))).toEqual([
-      `      "sha256": "${sha256(read(CONTRACT))}",`,
-    ]);
+    // Its one changed line is that copy's hash, and, when every file was as
+    // last handed over, the draft that hash opens.
+    const manifestBefore = JSON.parse(before[MANIFEST]) as {
+      artifactsVersion: number;
+      draftVersion?: number;
+    };
+    const opensDraft = manifestBefore.draftVersion === undefined;
+    const manifestAfter = read(MANIFEST);
+    expect(
+      changedLines(
+        before[MANIFEST],
+        opensDraft
+          ? manifestAfter.replace(/\n {2}"draftVersion": \d+,/, '')
+          : manifestAfter,
+      ),
+    ).toEqual([`      "sha256": "${sha256(read(CONTRACT))}",`]);
+    if (opensDraft)
+      expect(
+        (JSON.parse(manifestAfter) as { draftVersion?: number }).draftVersion,
+      ).toBe(manifestBefore.artifactsVersion + 1);
     // What the store holds is what the disk holds.
     expect(live.store.item('genre', 'jam-band')?.body.name).toBe('Jam Bands');
     expect((await detail('genre', 'jam-band')).revision).toBe(revision + 1);

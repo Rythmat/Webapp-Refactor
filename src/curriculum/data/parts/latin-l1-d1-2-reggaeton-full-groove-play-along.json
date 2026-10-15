@@ -1,0 +1,370 @@
+{
+  "id": "latin-l1-d1-2-reggaeton-full-groove-play-along",
+  "name": "Latin L1 · D1.2: Reggaeton — Full Groove (Play-Along)",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 92,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 680,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 600,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 680,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 720,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 600,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 600,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 440,
+      "midi": 52,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1440,
+      "duration": 400,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 400,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 400,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 680,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 600,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 600,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 680,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2640,
+      "duration": 600,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 600,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 600,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 440,
+      "midi": 48,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3360,
+      "duration": 400,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 400,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3360,
+      "duration": 400,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 680,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 600,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 600,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 600,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 680,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4560,
+      "duration": 600,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 600,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4560,
+      "duration": 600,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 440,
+      "midi": 43,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5280,
+      "duration": 400,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 400,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5280,
+      "duration": 400,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 680,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 600,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 600,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 600,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6480,
+      "duration": 680,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6480,
+      "duration": 600,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6480,
+      "duration": 600,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6480,
+      "duration": 600,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 440,
+      "midi": 50,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7200,
+      "duration": 400,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 400,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7200,
+      "duration": 400,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "latin",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 39,
+    "title": "D1: Reggaeton Performance",
+    "tag": "latin:l1_perf_reggaeton_play | latin",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Both hands on the tresillo — roots in the left, the loop in the right.",
+  "genre": "latin",
+  "chordSymbols": ["Em", "C", "G", "D"]
+}

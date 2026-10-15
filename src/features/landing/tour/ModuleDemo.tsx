@@ -27,6 +27,10 @@ const DESIGN = {
 };
 const COMPACT_BELOW = 640;
 const MAX_SCALE = 1.15;
+/** Room a bleed window leaves on screen: the sticky nav bar plus a little air. */
+const BLEED_TOP_PX = 64 + 16;
+/** A short window never shrinks a bleed demo below this share of its column. */
+const BLEED_MIN_FILL = 0.6;
 
 /**
  * One module's guided demo ("the product is the demo"): the live scene inside
@@ -40,9 +44,10 @@ const MAX_SCALE = 1.15;
  * under the window shows it and mutes it: muted, clicks leave it off until
  * the toggle, a Play or a played note turns it back on.
  *
- * `bleed`: the window fills its column edge to edge (flush, no scale cap) and
+ * `bleed`: the window fills its column edge to edge (flush, no width cap) and
  * the steps become a hairline row of bento boxes, the active one carrying the
- * step's progress.
+ * step's progress. It never grows taller than the screen under the nav: on a
+ * short, wide window it is centred in its column between hairlines instead.
  */
 export const ModuleDemo = ({
   tab,
@@ -83,6 +88,16 @@ export const ModuleDemo = ({
 
   // ── Stage scaling ──────────────────────────────────────────────────────
   const [width, setWidth] = useState(DESIGN.desktop.w);
+  const [viewportHeight, setViewportHeight] = useState(() =>
+    typeof window === 'undefined' ? Infinity : window.innerHeight,
+  );
+  useEffect(() => {
+    if (!bleed) return;
+    const onResize = () => setViewportHeight(window.innerHeight);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [bleed]);
   useLayoutEffect(() => {
     const el = wrapperRef.current;
     if (!el) return;
@@ -95,11 +110,20 @@ export const ModuleDemo = ({
   const compact = width < COMPACT_BELOW;
   const design = compact ? DESIGN.compact : DESIGN.desktop;
   // Fills its column: shrinks freely, grows a little past the design size
-  // (the TOC column leaves ~1110px on a full-width page). Bleed always fills
-  // it — the landing frame bounds the column at ~1190px.
+  // (the TOC column leaves ~1110px on a full-width page). Bleed fills it too
+  // (up to ~1720px in the landing frame), but no taller than the screen.
+  const fill = width / design.w;
   const scale = bleed
-    ? width / design.w
-    : Math.min(MAX_SCALE, width / design.w);
+    ? Math.min(
+        fill,
+        Math.max(
+          fill * BLEED_MIN_FILL,
+          (viewportHeight - BLEED_TOP_PX) / design.h,
+        ),
+      )
+    : Math.min(MAX_SCALE, fill);
+  /** Bleed only: the side gap when the screen's height, not the column, sets the size. */
+  const inset = bleed ? Math.max(0, (width - design.w * scale) / 2) : 0;
 
   // ── Cursor target ──────────────────────────────────────────────────────
   // The callout anchors to the step's target; the cursor also follows it
@@ -277,10 +301,19 @@ export const ModuleDemo = ({
         className="relative w-full"
         style={{ height: design.h * scale }}
       >
+        {inset > 0 && (
+          // Hairlines mark the window's edges when it doesn't reach the column's.
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 border-x border-white/[0.08]"
+            style={{ left: inset - 1, right: inset - 1 }}
+          />
+        )}
         <div
           ref={stageRef}
-          className="absolute left-0 top-0 origin-top-left"
+          className="absolute top-0 origin-top-left"
           style={{
+            left: inset,
             width: design.w,
             height: design.h,
             transform: `scale(${scale})`,

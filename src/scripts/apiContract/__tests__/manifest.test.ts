@@ -71,6 +71,8 @@ describe('the contract manifest', () => {
   it('lists the files the API copies', () => {
     expect(manifest.files.map((f) => f.file).sort()).toEqual([
       '../../content/graph/slugs.ts',
+      'progressionBodySchema.ts',
+      'progressionRules.generated.json',
       'recordBodySchemas.ts',
       'refPaths.ts',
       'slugPatterns.generated.json',
@@ -79,6 +81,7 @@ describe('the contract manifest', () => {
       'songBodySchema.v2.ts',
       'suggestionSchema.ts',
       'vocabulary.generated.json',
+      'vocabularyRecordSchemas.ts',
     ]);
   });
 });

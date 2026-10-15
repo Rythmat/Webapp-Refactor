@@ -64,8 +64,6 @@ export { MELODY_RHYTHMS } from './data/melodyRhythms';
 export { MELODY_CONTOURS } from './data/melodyContours';
 export { PROGRESSION_GRAPH } from './data/progressionGraph';
 export { DRUM_PATTERNS } from './data/drumPatterns';
-export { BASS_PATTERNS } from './data/bassPatterns';
-export { PAD_PATTERNS } from './data/padPatterns';
 export { GENRE_MAP, GENRE_SWING, GENRE_STRUM } from './data/genreMap';
 
 // Engine — chord utilities
@@ -123,15 +121,6 @@ export {
 
 // Engine — drums
 export { generateDrumMidi } from './engine/drumGenerator';
-
-// Engine — bass
-export { generateBassMidi } from './engine/bassGenerator';
-
-// Engine — pad
-export { generatePadMidi } from './engine/padGenerator';
-
-// Engine — orchestrator
-export { orchestrate } from './engine/orchestrator';
 
 // Engine — suggestion
 export {

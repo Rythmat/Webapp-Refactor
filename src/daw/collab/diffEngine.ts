@@ -275,10 +275,11 @@ function diffMidiClips(
     if (prevClip.durationTicks !== nextClip.durationTicks)
       yClip.set('durationTicks', nextClip.durationTicks ?? 0);
 
-    // MIDI events — replace the entire events array when changed.
-    // Per-note diffing by _cid is possible but adds complexity; this is
-    // sufficient for the initial implementation since MIDI edits typically
-    // replace the full clip events array in Zustand.
+    // MIDI events — replace the entire events array when changed, since MIDI
+    // edits replace the clip's whole events array in Zustand. Each note's
+    // `_cid` is its stored id (midiEventToYMap), so a note keeps one identity
+    // in the doc across these rewrites instead of a fresh one per edit, which
+    // is what a per-note diff keyed on `_cid` would need.
     if (prevClip.events !== nextClip.events) {
       const yEvents = yClip.get('events') as Y.Array<Y.Map<unknown>>;
       if (yEvents) {
@@ -447,26 +448,14 @@ function diffMarkers(
 
 // ── Mastering diff ──────────────────────────────────────────────────────
 
+// The doc's eight retired macro keys (style, eq, dynamics, loudness,
+// stereoField, amount, presence, deEsser) have no store state behind them
+// any more: the hydrate writes them once for older peers, and nothing here
+// changes them (YjsDocManager's LEGACY_MASTERING_MACROS).
 function diffMastering(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
   const yM = getYMastering(doc);
-  if (prev.masteringStyle !== next.masteringStyle)
-    yM.set('style', next.masteringStyle);
-  if (prev.masteringEq !== next.masteringEq)
-    yM.set('eq', JSON.stringify(next.masteringEq));
-  if (prev.masteringDynamics !== next.masteringDynamics)
-    yM.set('dynamics', JSON.stringify(next.masteringDynamics));
-  if (prev.masteringLoudness !== next.masteringLoudness)
-    yM.set('loudness', next.masteringLoudness);
-  if (prev.masteringStereoField !== next.masteringStereoField)
-    yM.set('stereoField', next.masteringStereoField);
   if (prev.masteringBypass !== next.masteringBypass)
     yM.set('bypass', next.masteringBypass);
-  if (prev.masteringAmount !== next.masteringAmount)
-    yM.set('amount', next.masteringAmount);
-  if (prev.masteringPresence !== next.masteringPresence)
-    yM.set('presence', next.masteringPresence);
-  if (prev.masteringDeEsser !== next.masteringDeEsser)
-    yM.set('deEsser', JSON.stringify(next.masteringDeEsser));
   if (prev.masteringFxChain !== next.masteringFxChain)
     yM.set('fxChain', JSON.stringify(next.masteringFxChain));
   if (prev.masteringEffects !== next.masteringEffects)

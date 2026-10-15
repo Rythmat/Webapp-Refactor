@@ -41,9 +41,20 @@ export interface CollabSlice {
   awaitingSessionCreation: boolean;
   /** True once the local user has saved this collab session to their account.
    *  Gates the "delete the unsaved draft project on leave" cleanup — we only
-   *  reclaim the auto-created draft + its assets when NO save was made. Reset on
-   *  each room join. */
+   *  reclaim the auto-created draft + its assets when NO save was made. Reset
+   *  when a new session starts. */
   sessionSaved: boolean;
+  /** Whether the open project held no tracks or chord regions when this
+   *  session started. Only then is everything in it session work: a host's
+   *  room is seeded from their own project, and a joiner's project is their own
+   *  until the first sync, so a session that began with work may be holding
+   *  the student's earlier work, saved or not. */
+  sessionStartedEmpty: boolean;
+  /** The draft project this session minted (ensureProjectId creates one on the
+   *  first record-stop or upload when no project is open). The only project the
+   *  leave prompt may delete: only if the session started empty and nothing
+   *  was saved. */
+  sessionDraftProjectId: string | null;
 
   /** When true, an external flow (e.g. the Studio Dashboard "Start a Session")
    *  has requested the Invite Collaborators modal be opened. CollabToolbar owns
@@ -57,7 +68,10 @@ export interface CollabSlice {
   // ── Actions ──
   /** Called by CollabProvider when the WebSocket connects. */
   _setConnectionStatus: (status: ConnectionStatus) => void;
-  /** Called by CollabProvider when joining a room. */
+  /** Called by CollabProvider when joining a room. Joining a different room
+   *  starts a new session (see sessionStartedEmpty); joining the room we
+   *  already belong to — an SPA return or an await-host retry — continues the
+   *  current one. */
   _setRoomInfo: (roomId: string, role: CollabRole, roomCode?: string) => void;
   /** Called by CollabProvider on disconnect or leave. */
   _clearCollab: () => void;
@@ -73,6 +87,8 @@ export interface CollabSlice {
   _setAwaitingSession: (waiting: boolean) => void;
   /** Record that the local user has saved this session (see sessionSaved). */
   _markSessionSaved: () => void;
+  /** Record the draft project this session minted (see sessionDraftProjectId). */
+  _setSessionDraftProjectId: (projectId: string) => void;
   /** Append a chat message (from local send or remote receive). */
   _appendChatMessage: (msg: ChatMessage) => void;
   /** Reset unread count (user opened chat panel). */
@@ -101,6 +117,8 @@ export const createCollabSlice: StateCreator<
   kickedNotice: false,
   awaitingSessionCreation: false,
   sessionSaved: false,
+  sessionStartedEmpty: false,
+  sessionDraftProjectId: null,
   inviteRequested: false,
   chatMessages: [],
   unreadChatCount: 0,
@@ -114,14 +132,24 @@ export const createCollabSlice: StateCreator<
     }),
 
   _setRoomInfo: (roomId, role, roomCode) =>
-    set({
+    set((s) => ({
       roomId,
       localRole: role,
       collabRole: role,
       roomCode: roomCode ?? null,
-      // Fresh session — no save has happened yet.
-      sessionSaved: false,
-    }),
+      // A new session: no save yet, no draft yet, and whatever the open
+      // project holds now predates it. Rejoining the same room keeps all
+      // three: by then a joiner's project is the room's, and a draft saved
+      // before an SPA round trip must not become deletable again.
+      ...(s.roomId === roomId
+        ? {}
+        : {
+            sessionSaved: false,
+            sessionStartedEmpty:
+              s.tracks.length === 0 && s.chordRegions.length === 0,
+            sessionDraftProjectId: null,
+          }),
+    })),
 
   _clearCollab: () =>
     set({
@@ -137,6 +165,8 @@ export const createCollabSlice: StateCreator<
       kickedNotice: false,
       awaitingSessionCreation: false,
       sessionSaved: false,
+      sessionStartedEmpty: false,
+      sessionDraftProjectId: null,
       inviteRequested: false,
       chatMessages: [],
       unreadChatCount: 0,
@@ -153,6 +183,9 @@ export const createCollabSlice: StateCreator<
   _setAwaitingSession: (waiting) => set({ awaitingSessionCreation: waiting }),
 
   _markSessionSaved: () => set({ sessionSaved: true }),
+
+  _setSessionDraftProjectId: (projectId) =>
+    set({ sessionDraftProjectId: projectId }),
 
   _appendChatMessage: (msg) =>
     set((s) => ({

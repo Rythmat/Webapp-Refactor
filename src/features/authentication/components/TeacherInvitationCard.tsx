@@ -1,10 +1,9 @@
 import { format } from 'date-fns';
-import { AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/components/utilities';
 import { GetTeachersInvitationsByCodeData } from '@/contexts/MusicAtlasContext';
 import { useTeacherInvitationDetails } from '@/hooks/data';
+import { AuthAlert } from '@/layouts/AuthLayout/AuthAlert';
 
 interface TeacherInvitationCardProps {
   code: string;
@@ -68,14 +67,11 @@ export const TeacherInvitationCard = ({
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="size-4" />
-        <AlertDescription>
-          {error instanceof Error
-            ? error.message
-            : 'Failed to load invitation details'}
-        </AlertDescription>
-      </Alert>
+      <AuthAlert>
+        {error instanceof Error
+          ? error.message
+          : 'Failed to load invitation details'}
+      </AuthAlert>
     );
   }
 
@@ -132,8 +128,8 @@ export const TeacherInvitationCard = ({
               </div>
               <div
                 className={cn(
-                  'text-xs font-medium text-zinc-800',
-                  isExpiringSoon && 'text-red-600',
+                  'text-xs font-medium text-white/80',
+                  isExpiringSoon && 'text-danger-light',
                 )}
               >
                 {format(expiryDate, 'MMM do, yyyy')}

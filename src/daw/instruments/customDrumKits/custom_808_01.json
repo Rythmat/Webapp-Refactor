@@ -1,0 +1,9 @@
+{
+  "id": "custom_808_01",
+  "label": "Reggaeton 01",
+  "base": "808",
+  "samples": {
+    "36": "/daw-assets/samples/drums/uploads/muyi3q6u-attack-kick-05.wav",
+    "38": "/daw-assets/samples/drums/uploads/muyhz75r-dilla-snare015.wav"
+  }
+}

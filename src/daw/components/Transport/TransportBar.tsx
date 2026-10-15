@@ -1,4 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
@@ -17,11 +24,14 @@ import {
   Hash,
 } from 'lucide-react';
 
+import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore, type ViewType } from '@/daw/store';
+import { ticksPerBeat } from '@/daw/time/timeModel';
 import { seekTo } from '@/daw/hooks/useTransport';
-import { FixedDigits } from '@/components/common/FixedDigits';
+import { addFrameTask } from '@/daw/engine/engineClock';
+import { getPlayheadTick, subscribePlayhead } from '@/daw/engine/playheadClock';
+import { projectEndTick } from '@/daw/audio/renderProject';
 import { NOTES } from '@prism/engine';
-import { ALL_GRID_VALUES } from '@/daw/utils/quantize';
 import { FileMenu } from './FileMenu';
 import { CircleOfFifths } from '../Prism/CircleOfFifths';
 import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
@@ -29,10 +39,23 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { chordNotationLockTitle } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
-import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
-import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
-import { KickedModal } from '@/daw/collab/ui/KickedModal';
-import { WaitingForSessionModal } from '@/daw/collab/ui/WaitingForSessionModal';
+import { requestRecord } from '@/daw/commands/requestRecord';
+import { shortcutKeys } from '@/daw/commands/shortcuts';
+import { preloadView } from '@/daw/shell/lazyParts';
+
+/** The transport's keys, for screen readers (the '?' sheet lists them). */
+const TRANSPORT_KEYS: Record<string, string> = Object.fromEntries(
+  [
+    'transport.playPause',
+    'transport.record',
+    'transport.stop',
+    'transport.loop',
+    'transport.metronome',
+  ].map((id) => [id, shortcutKeys(id).aria]),
+);
+
+/** How the timeline zooms: never ⌘+/⌘−, which zoom the page. */
+const ZOOM_HINT = `Ctrl or ⌘ with the scroll wheel, or ${shortcutKeys('timeline.zoomIn').label} / ${shortcutKeys('timeline.zoomOut').label}`;
 
 // ── View Switcher ───────────────────────────────────────────────────────
 
@@ -64,6 +87,10 @@ function ViewSwitcher() {
             key={v.id}
             data-tutorial-id={`view-switch-${v.id}`}
             onClick={() => setCurrentView(v.id)}
+            // Each view but Create is its own chunk (1.12a): fetched on a
+            // pointer over or a focus, so a click usually finds it there.
+            onPointerEnter={() => preloadView(v.id)}
+            onFocus={() => preloadView(v.id)}
             className="h-5 shrink-0 cursor-pointer whitespace-nowrap px-2.5 text-[10px] font-semibold uppercase tracking-wide transition-colors"
             style={{
               backgroundColor: active
@@ -101,21 +128,74 @@ function formatPosition(ticks: number, numerator = 4, denominator = 4): string {
   return `${bar}:${beat}:${sixteenth}`;
 }
 
-// ── Position Display (isolated 60fps subscriber) ─────────────────────────
+// ── Position Display (its own memoised child) ────────────────────────────
+// The playhead moves every frame while playing. React renders this span
+// once; a playhead clock subscription writes the bar:beat:sixteenth text into
+// it, and only when that text changes, so playback re-renders neither the
+// readout nor the bar around it (shell-17, milestone 1.7).
 
-function PositionDisplay() {
-  const position = useStore((s) => s.position);
-  const tsNum = useStore((s) => s.timeSignatureNumerator);
-  const tsDen = useStore((s) => s.timeSignatureDenominator);
+const positionText = (tick: number): string => {
+  const s = useStore.getState();
+  return formatPosition(
+    tick,
+    s.timeSignatureNumerator,
+    s.timeSignatureDenominator,
+  );
+};
+
+/** FixedDigits' cell widths in em (src/components/common/FixedDigits.tsx):
+ *  each digit and colon sits in a cell of its own, so the readout holds
+ *  still while it counts. */
+const DIGIT_CELL_EM = 0.62;
+const COLON_CELL_EM = 0.32;
+
+/** The text in FixedDigits' cells. formatPosition writes digits and colons. */
+function writeReadout(el: HTMLElement, text: string): void {
+  el.replaceChildren(
+    ...Array.from(text, (ch) => {
+      const cell = document.createElement('span');
+      cell.textContent = ch;
+      const em = ch === ':' ? COLON_CELL_EM : DIGIT_CELL_EM;
+      // Centred, and free of inherited letter-spacing, as in FixedDigits.
+      cell.style.cssText = `display:inline-block;width:${em}em;text-align:center;letter-spacing:0`;
+      return cell;
+    }),
+  );
+}
+
+const PositionDisplay = memo(function PositionDisplay() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let shown = '';
+    const show = (tick: number) => {
+      const text = positionText(tick);
+      if (text === shown) return;
+      shown = text;
+      writeReadout(el, text);
+    };
+    show(getPlayheadTick());
+    const offPlayhead = subscribePlayhead(show);
+    // A metre change re-counts the same tick.
+    const offMeter = useStore.subscribe(
+      (s) => `${s.timeSignatureNumerator}/${s.timeSignatureDenominator}`,
+      () => show(getPlayheadTick()),
+    );
+    return () => {
+      offPlayhead();
+      offMeter();
+    };
+  }, []);
   return (
-    <FixedDigits
-      text={formatPosition(position, tsNum, tsDen)}
+    <span
+      ref={ref}
       className="block min-w-14 text-center text-xs"
       style={{ color: 'var(--color-text)' }}
       title="Bar : Beat : Sixteenth"
     />
   );
-}
+});
 
 // ── Zoom indicator ───────────────────────────────────────────────────────
 
@@ -125,7 +205,7 @@ function ZoomIndicator() {
     <div
       className="flex h-5 items-center rounded px-1.5"
       style={{ backgroundColor: 'var(--color-surface-2)' }}
-      title={`Timeline Zoom: ${Math.round(zoom * 100)}%  (Cmd+Scroll to zoom)`}
+      title={`Timeline Zoom: ${Math.round(zoom * 100)}%  (${ZOOM_HINT})`}
     >
       <span
         className="text-[9px] font-medium tabular-nums"
@@ -143,6 +223,7 @@ export const TransportBar = memo(function TransportBar({
   onInit,
   isReady,
 }: TransportBarProps) {
+  useDevCommitCount('TransportBar');
   const isPlaying = useStore((s) => s.isPlaying);
   const isRecording = useStore((s) => s.isRecording);
   const isCountingIn = useStore((s) => s.isCountingIn);
@@ -164,7 +245,6 @@ export const TransportBar = memo(function TransportBar({
   const play = useStore((s) => s.play);
   const pause = useStore((s) => s.pause);
   const stop = useStore((s) => s.stop);
-  const record = useStore((s) => s.record);
   const setCountInBars = useStore((s) => s.setCountInBars);
   const setBpm = useStore((s) => s.setBpm);
   const toggleMetronome = useStore((s) => s.toggleMetronome);
@@ -198,8 +278,6 @@ export const TransportBar = memo(function TransportBar({
     [isReady, onInit],
   );
 
-  const tracks = useStore((s) => s.tracks);
-
   const handleStop = useCallback(() => withInit(stop), [withInit, stop]);
   const handleStopToZero = useCallback(
     () =>
@@ -213,7 +291,8 @@ export const TransportBar = memo(function TransportBar({
   const handleSkipBack = useCallback(
     () =>
       withInit(() => {
-        const pos = useStore.getState().position;
+        // The live playhead: the store's position is parked while playing.
+        const pos = getPlayheadTick();
         const sorted = [...useStore.getState().markers].sort(
           (a, b) => a.tick - b.tick,
         );
@@ -233,7 +312,7 @@ export const TransportBar = memo(function TransportBar({
   const handleSkipForward = useCallback(
     () =>
       withInit(() => {
-        const pos = useStore.getState().position;
+        const pos = getPlayheadTick();
         const sorted = [...useStore.getState().markers].sort(
           (a, b) => a.tick - b.tick,
         );
@@ -244,41 +323,23 @@ export const TransportBar = memo(function TransportBar({
             return;
           }
         }
-        // Fallback: seek to end of content
-        let lastTick = 0;
-        for (const t of tracks) {
-          for (const clip of t.midiClips) {
-            for (const ev of clip.events) {
-              const end = clip.startTick + ev.startTick + ev.durationTicks;
-              if (end > lastTick) lastTick = end;
-            }
-          }
-        }
+        // Fallback: seek to the end of the content, audio clips included.
+        // Read here rather than subscribed: the bar would otherwise re-render
+        // on every track edit for this one button (shell-17).
+        const lastTick = projectEndTick(useStore.getState());
         if (lastTick > pos) seekTo(lastTick);
       }),
-    [withInit, tracks],
+    [withInit],
   );
   const handlePlayPause = useCallback(
     () => withInit(isPlaying ? pause : play),
     [withInit, isPlaying, pause, play],
   );
-  // Recording onto an audio track that already has a take overwrites whatever
-  // the new take rolls over in time — warn before starting.
-  const [overwriteConfirmOpen, setOverwriteConfirmOpen] = useState(false);
-  const startRecording = useCallback(
-    () => withInit(record),
-    [withInit, record],
-  );
+  // The same command as the R key: a take that would record over existing
+  // audio waits for RecordGuard's confirm, mounted at the editor root.
   const handleRecord = useCallback(() => {
-    const armedAudio = useStore
-      .getState()
-      .tracks.find((t) => t.type === 'audio' && t.recordArmed);
-    if (armedAudio && armedAudio.audioClips.length > 0) {
-      setOverwriteConfirmOpen(true);
-      return;
-    }
-    startRecording();
-  }, [startRecording]);
+    requestRecord(isReady ? undefined : onInit);
+  }, [isReady, onInit]);
 
   // Local state so the user can freely clear / type without the controlled
   // value snapping back on every keystroke.
@@ -436,7 +497,7 @@ export const TransportBar = memo(function TransportBar({
                   8,
                 left: keyButtonRef.current?.getBoundingClientRect().left ?? 0,
                 backgroundColor: 'var(--color-surface-2)',
-                border: 'var(--glass-border)',
+                border: '1px solid var(--color-border)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
               }}
@@ -491,7 +552,7 @@ export const TransportBar = memo(function TransportBar({
                     left:
                       tsButtonRef.current?.getBoundingClientRect().left ?? 0,
                     backgroundColor: 'var(--color-surface-2)',
-                    border: 'var(--glass-border)',
+                    border: '1px solid var(--color-border)',
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
                   }}
@@ -524,9 +585,9 @@ export const TransportBar = memo(function TransportBar({
                           className="flex h-6 w-10 cursor-pointer items-center justify-center rounded text-[10px] font-medium tabular-nums transition-colors hover:bg-white/10"
                           style={{
                             backgroundColor: isActive
-                              ? 'var(--color-accent)'
-                              : 'transparent',
-                            color: isActive ? '#000' : 'var(--color-text)',
+                              ? 'rgba(255, 255, 255, 0.10)'
+                              : undefined,
+                            color: 'var(--color-text)',
                             border: 'none',
                           }}
                         >
@@ -592,10 +653,10 @@ export const TransportBar = memo(function TransportBar({
                           setTsOpen(false);
                         }
                       }}
-                      className="ml-auto flex h-5 cursor-pointer items-center rounded px-1.5 text-[9px] font-medium uppercase transition-colors hover:bg-white/10"
+                      className="ml-auto flex h-6 cursor-pointer items-center rounded-full px-2.5 text-xs font-semibold transition-[filter] hover:brightness-90"
                       style={{
-                        backgroundColor: 'var(--color-accent)',
-                        color: '#000',
+                        backgroundColor: '#fff',
+                        color: '#101012',
                         border: 'none',
                       }}
                     >
@@ -654,6 +715,7 @@ export const TransportBar = memo(function TransportBar({
                 : 'var(--color-text-dim)',
             }}
             title="Metronome"
+            aria-keyshortcuts={TRANSPORT_KEYS['transport.metronome']}
           >
             <MetronomeIcon active={metronomeEnabled} />
           </motion.button>
@@ -687,23 +749,16 @@ export const TransportBar = memo(function TransportBar({
                 : 'var(--color-text-dim)',
             }}
             title="Loop"
+            aria-keyshortcuts={TRANSPORT_KEYS['transport.loop']}
           >
             <Repeat size={14} strokeWidth={2} />
           </motion.button>
 
-          {/* Snap to Grid */}
+          {/* Snap to Grid. Only gestures snap: toggling it never moves the
+              playhead (it used to jump it to the grid, audibly mid-song,
+              when snap was turned off: shell-18). */}
           <motion.button
-            onClick={() => {
-              toggleSnap();
-              // If snap is now being enabled, snap the playhead to the nearest grid line
-              const s = useStore.getState();
-              if (!s.timelineSnapEnabled) {
-                // toggleSnap hasn't applied yet in this tick, so !enabled means it's about to be enabled
-                const gridTicks = ALL_GRID_VALUES[s.timelineGridSize];
-                const snapped = Math.round(s.position / gridTicks) * gridTicks;
-                seekTo(snapped);
-              }
-            }}
+            onClick={toggleSnap}
             whileTap={{ scale: 0.85 }}
             className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
             style={{
@@ -755,6 +810,7 @@ export const TransportBar = memo(function TransportBar({
           className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
           style={{ color: 'var(--color-text-dim)' }}
           title="Stop (double-click for start)"
+          aria-keyshortcuts={TRANSPORT_KEYS['transport.stop']}
         >
           <Square size={12} fill="currentColor" strokeWidth={0} />
         </motion.button>
@@ -771,6 +827,7 @@ export const TransportBar = memo(function TransportBar({
               : 'transparent',
           }}
           title={isPlaying ? 'Pause' : 'Play'}
+          aria-keyshortcuts={TRANSPORT_KEYS['transport.playPause']}
         >
           {isPlaying ? (
             <Pause size={14} fill="currentColor" strokeWidth={0} />
@@ -794,6 +851,7 @@ export const TransportBar = memo(function TransportBar({
                 : 'var(--color-text-dim)',
           }}
           title="Record"
+          aria-keyshortcuts={TRANSPORT_KEYS['transport.record']}
         >
           <Circle size={12} fill="currentColor" strokeWidth={0} />
         </motion.button>
@@ -893,14 +951,9 @@ export const TransportBar = memo(function TransportBar({
             chatPanelOpen={chatPanelOpen}
           />
 
-          {/* Save-before-leaving prompt (collab) */}
-          <LeaveSavePrompt />
-
-          {/* "You have been kicked" popup (collab) */}
-          <KickedModal />
-
-          {/* "Waiting on session creation" popup (jam→studio handoff) */}
-          <WaitingForSessionModal />
+          {/* The collab prompts (leave, kicked) mount at the DawApp root,
+              so they show in Practice too; the Opening overlay's host wait
+              replaced "Waiting on session creation" (milestone 1.4). */}
 
           {/* Library toggle */}
           <motion.button
@@ -937,17 +990,6 @@ export const TransportBar = memo(function TransportBar({
           </motion.button>
         </div>
       </div>
-
-      <ConfirmModal
-        open={overwriteConfirmOpen}
-        onOpenChange={setOverwriteConfirmOpen}
-        title="Overwrite existing recording?"
-        description="This track already has a recording. Starting a new recording will overwrite any audio it rolls over in time."
-        confirmLabel="Continue"
-        cancelLabel="Cancel"
-        destructive
-        onConfirm={startRecording}
-      />
     </div>
   );
 });
@@ -957,41 +999,46 @@ export const TransportBar = memo(function TransportBar({
 // Tracks the current metronome beat index while a click sequence is sounding
 // (playback with the metronome on, or a count-in). The parity of the returned
 // index drives which circle the icon fills. Returns 0 (left) when idle.
-function useMetronomeBeat(animating: boolean): number {
+// Playback follows the playhead clock and a count-in runs as a task on the
+// shared frame loop; either way the icon renders once a beat, and nothing
+// runs while idle.
+const beatTicksFor = (den: number) =>
+  // Beat length matches the metronome/count-in scheduling: the note value
+  // the denominator names, a sixteenth in x/16 too.
+  ticksPerBeat({ numerator: 1, denominator: den });
+
+function useMetronomeBeat(animating: boolean, countingIn: boolean): number {
   const [beat, setBeat] = useState(0);
   useEffect(() => {
     if (!animating) {
       setBeat(0);
       return;
     }
-    let raf = 0;
-    let countInStart: number | null = null;
-    let startBeat: number | null = null;
-    const tick = () => {
-      const s = useStore.getState();
-      const den = s.timeSignatureDenominator;
-      // Beat length matches the metronome/count-in scheduling: eighth-note
-      // meters click twice as fast, half-note meters half as fast.
-      const beatTicks = den === 8 ? 240 : den === 2 ? 960 : 480;
-      const beatMs = (60 / s.bpm) * (4 / den) * 1000;
-      let next: number;
-      if (s.isCountingIn) {
-        // Transport is paused during count-in — derive beats from elapsed time.
-        if (countInStart === null) countInStart = performance.now();
-        next = Math.floor((performance.now() - countInStart) / beatMs);
-      } else {
-        // Playing — derive from the audio-synced playhead, offset so the first
-        // beat after playback starts fills the left circle.
-        const absBeat = Math.floor(s.position / beatTicks);
-        if (startBeat === null) startBeat = absBeat;
-        next = absBeat - startBeat;
-      }
+    const set = (next: number) =>
       setBeat((prev) => (prev === next ? prev : next));
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [animating]);
+    if (countingIn) {
+      // Transport is paused during count-in — derive beats from elapsed time.
+      const countInStart = performance.now();
+      return addFrameTask(
+        () => {
+          const s = useStore.getState();
+          const den = s.timeSignatureDenominator;
+          const beatMs = (60 / s.bpm) * (4 / den) * 1000;
+          set(Math.floor((performance.now() - countInStart) / beatMs));
+        },
+        { name: 'metronome-count-in' },
+      );
+    }
+    // Playing — derive from the heard playhead, offset so the first beat
+    // after playback starts fills the left circle.
+    const beatOf = (tick: number) =>
+      Math.floor(
+        tick / beatTicksFor(useStore.getState().timeSignatureDenominator),
+      );
+    const startBeat = beatOf(getPlayheadTick());
+    set(0);
+    return subscribePlayhead((tick) => set(beatOf(tick) - startBeat));
+  }, [animating, countingIn]);
   return beat;
 }
 
@@ -1001,7 +1048,7 @@ function MetronomeIcon({ active }: { active: boolean }) {
   // A click sequence is sounding during a count-in, or during playback while
   // the metronome is enabled.
   const animating = isCountingIn || (isPlaying && active);
-  const beat = useMetronomeBeat(animating);
+  const beat = useMetronomeBeat(animating, isCountingIn);
 
   // Sounding → fill one circle, alternating each beat (left first). Idle + on →
   // both filled. Off → both outlined.

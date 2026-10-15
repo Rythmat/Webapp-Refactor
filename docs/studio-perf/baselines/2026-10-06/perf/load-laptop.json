@@ -1,0 +1,759 @@
+{
+ "scenario": "load",
+ "profile": "laptop",
+ "meta": {
+  "date": "2026-10-07T01:08:08.330Z",
+  "base": "http://localhost:5263",
+  "commit": "f96b3ecc",
+  "dirty": true,
+  "chrome": "153.0.8010.12",
+  "gpu": "metal",
+  "windows": {
+   "quick": false,
+   "repeat": 3,
+   "idleMs": 10000,
+   "playbackLeadMs": 1000,
+   "playbackMs": 20000,
+   "dragMs": 4000,
+   "gestureGapMs": 1000,
+   "viewGapMs": 1500,
+   "audioTimeoutMs": 60000,
+   "silenceMs": 10000
+  },
+  "loop": true,
+  "loadLimits": {
+   "cores": 14,
+   "busyAbove": 4.7,
+   "baseline": true,
+   "maxLoad": 4.7
+  },
+  "profileSettings": {
+   "viewport": {
+    "width": 1440,
+    "height": 787
+   },
+   "deviceScaleFactor": 2,
+   "cpuThrottle": 1,
+   "network": null
+  }
+ },
+ "runSeconds": 13.3,
+ "machine": {
+  "cores": 14,
+  "load1mStart": 4.11,
+  "load1mEnd": 4.02,
+  "cpuBusy": 0.23
+ },
+ "network": "not throttled",
+ "runs": [
+  {
+   "target": "demo-sunset-keys",
+   "query": "?demo=demo-sunset-keys",
+   "expectSound": true,
+   "addTrackVisibleMs": 910.4,
+   "marks": {
+    "module": {
+     "firstMs": 816,
+     "count": 1
+    },
+    "mounted": {
+     "firstMs": 874.9,
+     "count": 2
+    },
+    "engine-ready": {
+     "firstMs": 1105.9,
+     "count": 1
+    }
+   },
+   "dawApp": {
+    "url": "/src/daw/DawApp.tsx",
+    "startMs": 657.5,
+    "requestStartMs": 657.8,
+    "responseEndMs": 669.9,
+    "transferSize": 88948,
+    "encodedBodySize": 88648
+   },
+   "resourceEntries": 2232,
+   "longTasks": {
+    "count": 2,
+    "totalMs": 157,
+    "maxMs": 80
+   },
+   "longAnimationFrames": {
+    "count": 5,
+    "totalMs": 93,
+    "maxMs": 113
+   },
+   "play": {
+    "clickMs": 1029.8,
+    "heard": true,
+    "endedBy": "sound",
+    "firstNonZeroMs": 1911.8,
+    "playToFirstNonZeroMs": 882,
+    "peakAtFirstNonZero": 1.42e-9,
+    "firstAudibleMs": 1918.2,
+    "playToFirstAudibleMs": 888.4,
+    "silentForMs": null
+   },
+   "bytes": {
+    "beforePlay": {
+     "selfCode": {
+      "bytes": 77990314,
+      "requests": 2165
+     },
+     "selfAssets": {
+      "bytes": 128790,
+      "requests": 10
+     },
+     "thirdParty": {
+      "bytes": 858101,
+      "requests": 19
+     },
+     "hosts": [
+      {
+       "host": "localhost:5263",
+       "bytes": 78119104,
+       "requests": 2175,
+       "largest": [
+        {
+         "path": "/node_modules/.vite-studio-perf/deps/react-globe__gl.js",
+         "bytes": 2928733
+        },
+        {
+         "path": "/node_modules/.vite-studio-perf/deps/three.module-CQp7vtiM.js",
+         "bytes": 1813055
+        },
+        {
+         "path": "/src/components/atlas/data/events/songLibrary.ts",
+         "bytes": 1388271
+        }
+       ]
+      },
+      {
+       "host": "cdn.jsdelivr.net",
+       "bytes": 851739,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_1_states_provinces.geojson",
+         "bytes": 657869
+        },
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson",
+         "bytes": 193870
+        }
+       ]
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "bytes": 5541,
+       "requests": 15,
+       "largest": [
+        {
+         "path": "/api/challenges/list",
+         "bytes": 1448
+        },
+        {
+         "path": "/auth/me",
+         "bytes": 1420
+        },
+        {
+         "path": "/api/progress/summary",
+         "bytes": 1307
+        }
+       ]
+      },
+      {
+       "host": "fonts.googleapis.com",
+       "bytes": 821,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/css2",
+         "bytes": 821
+        },
+        {
+         "path": "/css2",
+         "bytes": 0
+        }
+       ]
+      }
+     ],
+     "inFlight": [
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/api/studio/projects",
+       "bytes": 0
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/api/game-options",
+       "bytes": 0
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/api/studio/projects",
+       "bytes": 0
+      }
+     ]
+    },
+    "beforeFirstAudio": {
+     "selfCode": {
+      "bytes": 78761327,
+      "requests": 2166
+     },
+     "selfAssets": {
+      "bytes": 51530525,
+      "requests": 24
+     },
+     "thirdParty": {
+      "bytes": 1439008,
+      "requests": 51
+     },
+     "hosts": [
+      {
+       "host": "localhost:5263",
+       "bytes": 130291852,
+       "requests": 2190,
+       "largest": [
+        {
+         "path": "/daw-assets/GeneralUser_GS.sf2",
+         "bytes": 31281450
+        },
+        {
+         "path": "/node_modules/.vite-studio-perf/deps/react-globe__gl.js",
+         "bytes": 2928733
+        },
+        {
+         "path": "/daw-assets/samples/drums/natural/ride.wav",
+         "bytes": 2512863
+        }
+       ]
+      },
+      {
+       "host": "cdn.jsdelivr.net",
+       "bytes": 851739,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_1_states_provinces.geojson",
+         "bytes": 657869
+        },
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson",
+         "bytes": 193870
+        }
+       ]
+      },
+      {
+       "host": "gleitz.github.io",
+       "bytes": 578186,
+       "requests": 30,
+       "largest": [
+        {
+         "path": "/midi-js-soundfonts/FluidR3_GM/electric_piano_1-mp3/A3.mp3",
+         "bytes": 23917
+        },
+        {
+         "path": "/midi-js-soundfonts/FluidR3_GM/electric_piano_1-mp3/A1.mp3",
+         "bytes": 22979
+        },
+        {
+         "path": "/midi-js-soundfonts/FluidR3_GM/electric_piano_1-mp3/Gb1.mp3",
+         "bytes": 22969
+        }
+       ]
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "bytes": 8262,
+       "requests": 17,
+       "largest": [
+        {
+         "path": "/api/challenges/list",
+         "bytes": 1448
+        },
+        {
+         "path": "/auth/me",
+         "bytes": 1420
+        },
+        {
+         "path": "/api/progress/summary",
+         "bytes": 1307
+        }
+       ]
+      },
+      {
+       "host": "fonts.googleapis.com",
+       "bytes": 821,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/css2",
+         "bytes": 821
+        },
+        {
+         "path": "/css2",
+         "bytes": 0
+        }
+       ]
+      }
+     ],
+     "inFlight": []
+    },
+    "total": {
+     "selfCode": {
+      "bytes": 78761327,
+      "requests": 2166
+     },
+     "selfAssets": {
+      "bytes": 51530525,
+      "requests": 24
+     },
+     "thirdParty": {
+      "bytes": 1439008,
+      "requests": 51
+     },
+     "hosts": [
+      {
+       "host": "localhost:5263",
+       "bytes": 130291852,
+       "requests": 2190,
+       "largest": [
+        {
+         "path": "/daw-assets/GeneralUser_GS.sf2",
+         "bytes": 31281450
+        },
+        {
+         "path": "/node_modules/.vite-studio-perf/deps/react-globe__gl.js",
+         "bytes": 2928733
+        },
+        {
+         "path": "/daw-assets/samples/drums/natural/ride.wav",
+         "bytes": 2512863
+        }
+       ]
+      },
+      {
+       "host": "cdn.jsdelivr.net",
+       "bytes": 851739,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_1_states_provinces.geojson",
+         "bytes": 657869
+        },
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson",
+         "bytes": 193870
+        }
+       ]
+      },
+      {
+       "host": "gleitz.github.io",
+       "bytes": 578186,
+       "requests": 30,
+       "largest": [
+        {
+         "path": "/midi-js-soundfonts/FluidR3_GM/electric_piano_1-mp3/A3.mp3",
+         "bytes": 23917
+        },
+        {
+         "path": "/midi-js-soundfonts/FluidR3_GM/electric_piano_1-mp3/A1.mp3",
+         "bytes": 22979
+        },
+        {
+         "path": "/midi-js-soundfonts/FluidR3_GM/electric_piano_1-mp3/Gb1.mp3",
+         "bytes": 22969
+        }
+       ]
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "bytes": 8262,
+       "requests": 17,
+       "largest": [
+        {
+         "path": "/api/challenges/list",
+         "bytes": 1448
+        },
+        {
+         "path": "/auth/me",
+         "bytes": 1420
+        },
+        {
+         "path": "/api/progress/summary",
+         "bytes": 1307
+        }
+       ]
+      },
+      {
+       "host": "fonts.googleapis.com",
+       "bytes": 821,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/css2",
+         "bytes": 821
+        },
+        {
+         "path": "/css2",
+         "bytes": 0
+        }
+       ]
+      }
+     ],
+     "inFlight": []
+    }
+   },
+   "problems": [],
+   "pageErrors": []
+  },
+  {
+   "target": "template project-pop",
+   "query": "?template=project-pop",
+   "expectSound": false,
+   "addTrackVisibleMs": 945.9,
+   "marks": {
+    "module": {
+     "firstMs": 828.7,
+     "count": 1
+    },
+    "mounted": {
+     "firstMs": 902.2,
+     "count": 2
+    },
+    "engine-ready": {
+     "firstMs": 1193.5,
+     "count": 1
+    }
+   },
+   "dawApp": {
+    "url": "/src/daw/DawApp.tsx",
+    "startMs": 668.2,
+    "requestStartMs": 668.5,
+    "responseEndMs": 671.2,
+    "transferSize": 88948,
+    "encodedBodySize": 88648
+   },
+   "resourceEntries": 2199,
+   "longTasks": {
+    "count": 3,
+    "totalMs": 313,
+    "maxMs": 180
+   },
+   "longAnimationFrames": {
+    "count": 4,
+    "totalMs": 203,
+    "maxMs": 220
+   },
+   "play": {
+    "clickMs": 1015.5,
+    "heard": false,
+    "endedBy": "network quiet",
+    "firstNonZeroMs": null,
+    "playToFirstNonZeroMs": null,
+    "peakAtFirstNonZero": null,
+    "firstAudibleMs": null,
+    "playToFirstAudibleMs": null,
+    "silentForMs": 10237.9
+   },
+   "bytes": {
+    "beforePlay": {
+     "selfCode": {
+      "bytes": 77990314,
+      "requests": 2165
+     },
+     "selfAssets": {
+      "bytes": 127430,
+      "requests": 9
+     },
+     "thirdParty": {
+      "bytes": 856839,
+      "requests": 19
+     },
+     "hosts": [
+      {
+       "host": "localhost:5263",
+       "bytes": 78117744,
+       "requests": 2174,
+       "largest": [
+        {
+         "path": "/node_modules/.vite-studio-perf/deps/react-globe__gl.js",
+         "bytes": 2928733
+        },
+        {
+         "path": "/node_modules/.vite-studio-perf/deps/three.module-CQp7vtiM.js",
+         "bytes": 1813055
+        },
+        {
+         "path": "/src/components/atlas/data/events/songLibrary.ts",
+         "bytes": 1388271
+        }
+       ]
+      },
+      {
+       "host": "cdn.jsdelivr.net",
+       "bytes": 851721,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_1_states_provinces.geojson",
+         "bytes": 657535
+        },
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson",
+         "bytes": 194186
+        }
+       ]
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "bytes": 4115,
+       "requests": 15,
+       "largest": [
+        {
+         "path": "/api/challenges/list",
+         "bytes": 1475
+        },
+        {
+         "path": "/auth/me",
+         "bytes": 1279
+        },
+        {
+         "path": "/api/experience/summary",
+         "bytes": 1255
+        }
+       ]
+      },
+      {
+       "host": "fonts.googleapis.com",
+       "bytes": 1003,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/css2",
+         "bytes": 1003
+        },
+        {
+         "path": "/css2",
+         "bytes": 0
+        }
+       ]
+      }
+     ],
+     "inFlight": [
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/api/studio/projects",
+       "bytes": 0
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/api/game-options",
+       "bytes": 0
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/api/studio/projects",
+       "bytes": 0
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/api/studio/projects",
+       "bytes": 0
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/api/game-options",
+       "bytes": 0
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/api/studio/projects",
+       "bytes": 0
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "path": "/auth/me",
+       "bytes": 0
+      }
+     ]
+    },
+    "beforeFirstAudio": {
+     "selfCode": {
+      "bytes": 77990314,
+      "requests": 2165
+     },
+     "selfAssets": {
+      "bytes": 20247715,
+      "requests": 22
+     },
+     "thirdParty": {
+      "bytes": 859867,
+      "requests": 21
+     },
+     "hosts": [
+      {
+       "host": "localhost:5263",
+       "bytes": 98238029,
+       "requests": 2187,
+       "largest": [
+        {
+         "path": "/node_modules/.vite-studio-perf/deps/react-globe__gl.js",
+         "bytes": 2928733
+        },
+        {
+         "path": "/daw-assets/samples/drums/natural/ride.wav",
+         "bytes": 2512863
+        },
+        {
+         "path": "/daw-assets/samples/drums/natural/crash.wav",
+         "bytes": 2304351
+        }
+       ]
+      },
+      {
+       "host": "cdn.jsdelivr.net",
+       "bytes": 851721,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_1_states_provinces.geojson",
+         "bytes": 657535
+        },
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson",
+         "bytes": 194186
+        }
+       ]
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "bytes": 7143,
+       "requests": 17,
+       "largest": [
+        {
+         "path": "/api/challenges/list",
+         "bytes": 1475
+        },
+        {
+         "path": "/api/studio/projects",
+         "bytes": 1404
+        },
+        {
+         "path": "/auth/me",
+         "bytes": 1279
+        }
+       ]
+      },
+      {
+       "host": "fonts.googleapis.com",
+       "bytes": 1003,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/css2",
+         "bytes": 1003
+        },
+        {
+         "path": "/css2",
+         "bytes": 0
+        }
+       ]
+      }
+     ],
+     "inFlight": []
+    },
+    "total": {
+     "selfCode": {
+      "bytes": 77990314,
+      "requests": 2165
+     },
+     "selfAssets": {
+      "bytes": 20247715,
+      "requests": 22
+     },
+     "thirdParty": {
+      "bytes": 859867,
+      "requests": 21
+     },
+     "hosts": [
+      {
+       "host": "localhost:5263",
+       "bytes": 98238029,
+       "requests": 2187,
+       "largest": [
+        {
+         "path": "/node_modules/.vite-studio-perf/deps/react-globe__gl.js",
+         "bytes": 2928733
+        },
+        {
+         "path": "/daw-assets/samples/drums/natural/ride.wav",
+         "bytes": 2512863
+        },
+        {
+         "path": "/daw-assets/samples/drums/natural/crash.wav",
+         "bytes": 2304351
+        }
+       ]
+      },
+      {
+       "host": "cdn.jsdelivr.net",
+       "bytes": 851721,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_1_states_provinces.geojson",
+         "bytes": 657535
+        },
+        {
+         "path": "/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson",
+         "bytes": 194186
+        }
+       ]
+      },
+      {
+       "host": "api-refactor.vercel.app",
+       "bytes": 7143,
+       "requests": 17,
+       "largest": [
+        {
+         "path": "/api/challenges/list",
+         "bytes": 1475
+        },
+        {
+         "path": "/api/studio/projects",
+         "bytes": 1404
+        },
+        {
+         "path": "/auth/me",
+         "bytes": 1279
+        }
+       ]
+      },
+      {
+       "host": "fonts.googleapis.com",
+       "bytes": 1003,
+       "requests": 2,
+       "largest": [
+        {
+         "path": "/css2",
+         "bytes": 1003
+        },
+        {
+         "path": "/css2",
+         "bytes": 0
+        }
+       ]
+      }
+     ],
+     "inFlight": []
+    }
+   },
+   "problems": [],
+   "pageErrors": []
+  }
+ ],
+ "problems": []
+}

@@ -5,11 +5,13 @@ import {
   chordName,
   chordRootName,
   chordRootPc,
-} from '@/curriculum/data/guitar/bookOne';
+  getGuitarCenter,
+} from '@/curriculum/data/guitar/centers';
 import { theoryString } from '@/curriculum/data/guitar/theoryNotes';
 import type {
   GuitarChordShape,
-  GuitarKeyName,
+  GuitarCenter,
+  GuitarCenterId,
 } from '@/curriculum/data/guitar/types';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
 import {
@@ -36,7 +38,7 @@ import { displayText } from './theoryUi';
 export interface SameRootCompareProps {
   /** The current 7th chord's box: its root and grip pick the four shapes. */
   chordShape: GuitarChordShape;
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   /** Defaults to the string of the shape's lowest note. */
   rootString?: 5 | 6;
   /** Defaults to the fret of the shape's lowest note (0 moves up 12). */
@@ -58,11 +60,11 @@ interface CompareBox extends CompareShape {
 /** The root string and fret of a shape, when compareShapes can build on it. */
 function rootOf(
   shape: GuitarChordShape,
-  key: GuitarKeyName,
+  center: GuitarCenter,
 ): { string: 5 | 6; fret: number } | null {
   const voicing = classifyVoicing(
     shape,
-    chordRootPc(key, shape.degree),
+    chordRootPc(center, shape.degree),
     shape.quality,
   );
   const string = voicing.rootString;
@@ -71,6 +73,28 @@ function rootOf(
     GUITAR_STRINGS_LOW_TO_HIGH.indexOf(string)
   ];
   return fret === null ? null : { string, fret };
+}
+
+const LADDER_QUALITIES = new Set(['maj7', 'dom7', 'min7', 'min7b5']);
+
+/**
+ * Whether the comparison speaks for this box. The rest of Theory's chords
+ * join it only when they are one of the four kinds on the grip the ladder
+ * uses (drop 2 on string 5, drop 3 on string 6); a mode's always do.
+ */
+export function sameRootCompareFits(
+  shape: GuitarChordShape,
+  keyCenter: GuitarCenterId,
+): boolean {
+  const center = getGuitarCenter(keyCenter);
+  if (center.family === 'diatonic') return true;
+  if (!LADDER_QUALITIES.has(shape.quality)) return false;
+  const voicing = classifyVoicing(
+    shape,
+    chordRootPc(center, shape.degree),
+    shape.quality,
+  );
+  return voicing.family === (voicing.rootString === 5 ? 'drop2' : 'drop3');
 }
 
 export const SameRootCompare = memo(function SameRootCompare({
@@ -88,17 +112,18 @@ export const SameRootCompare = memo(function SameRootCompare({
   const regionId = useId();
 
   const model = useMemo(() => {
-    const root = rootOf(chordShape, keyCenter);
+    const center = getGuitarCenter(keyCenter);
+    const root = rootOf(chordShape, center);
     const string = rootString ?? root?.string;
     const fret = rootFret ?? root?.fret;
     if (string === undefined || fret === undefined) return null;
-    const rootName = displayText(chordRootName(keyCenter, chordShape.degree));
+    const rootName = displayText(chordRootName(center, chordShape.degree));
     const played = fret === 0 ? 12 : fret;
     const rootPc = (GUITAR_STANDARD_TUNING[string] + played) % 12;
     const boxes: CompareBox[] = compareShapes(string, fret).map((shape) => ({
       ...shape,
       // Same root and degree; only the quality changes.
-      name: displayText(chordName(keyCenter, chordShape.degree, shape.quality)),
+      name: displayText(chordName(center, chordShape.degree, shape.quality)),
       movedText: shape.moved
         ? theoryString('compare.moved', {
             from: toneLabelText(shape.moved.from),

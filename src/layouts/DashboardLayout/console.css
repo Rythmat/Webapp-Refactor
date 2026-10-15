@@ -11,8 +11,17 @@
 
    Except inside `.console-mirror`, the console's view of the app as students
    see it: there the app's own type applies, so the song chart keeps its serif
-   notation exactly as it does in the app (owner, 29 Sep 2026). */
+   notation exactly as it does in the app (owner, 29 Sep 2026).
+
+   And except notation: VexFlow draws noteheads, clefs, rests and time
+   signatures as text in a music font (Bravura) — set on the <svg> or on each
+   glyph — and the Score's palettes set it inline. Forced to Glacial they draw
+   as nothing: the Parts Library's Staff view lost every glyph. So SVGs and
+   anything asking for Bravura keep their own font; other SVG text still
+   inherits Glacial from the page around it. */
 html.console-theme body,
-html.console-theme body *:not(.console-mirror *) {
+html.console-theme
+  body
+  *:not(.console-mirror *):not(svg):not(svg *):not([style*='Bravura']) {
   font-family: 'Glacial Indifference', system-ui, sans-serif !important;
 }

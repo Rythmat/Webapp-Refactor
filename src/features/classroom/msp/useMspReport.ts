@@ -34,7 +34,12 @@ const isValidEnvelope = (data: unknown): data is MspEnvelope => {
   if (typeof d.participant.enrollmentId !== 'string') return false;
   if (!d.payload || typeof d.payload !== 'object') return false;
   const kind = (d.payload as { kind?: string }).kind;
-  return kind === 'completion' || kind === 'score' || kind === 'artifact';
+  return (
+    kind === 'completion' ||
+    kind === 'score' ||
+    kind === 'artifact' ||
+    kind === 'mindMap'
+  );
 };
 
 const isBrowser = typeof window !== 'undefined';

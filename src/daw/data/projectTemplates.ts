@@ -7,6 +7,12 @@ export interface ProjectTemplateTrack {
   type: TrackType;
   instrument: InstrumentType;
   color: string;
+  /**
+   * Oracle Synth tracks: the patch to open with — a factory preset or a Music
+   * Atlas patch saved "for everyone" (e.g. 'DRIFT'). Applied by
+   * seedTemplateSynthPatches.
+   */
+  synthPreset?: string;
 }
 
 export interface ProjectTemplate {

@@ -20,3 +20,17 @@ export function guessTrackRole(name: string, instrument: string): DawTrackRole {
     return 'chords';
   return 'auto';
 }
+
+/**
+ * A track's role with 'auto' resolved from its name and instrument. No role
+ * at all (a save or a collaborator's doc from before roles were kept) counts
+ * as 'auto' too, instead of matching no role and dropping out of analysis.
+ */
+export function resolveTrackRole(track: {
+  trackRole?: DawTrackRole | null;
+  name: string;
+  instrument: string;
+}): DawTrackRole {
+  const role = track.trackRole ?? 'auto';
+  return role === 'auto' ? guessTrackRole(track.name, track.instrument) : role;
+}

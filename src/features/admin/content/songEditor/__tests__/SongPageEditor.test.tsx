@@ -38,7 +38,6 @@ vi.mock('@/features/songs/useSongActions', () => ({
     openInLesson: () => {},
     openInStudio: () => {},
     openInGlobe: () => {},
-    studioPrompt: null,
   }),
 }));
 
@@ -126,7 +125,9 @@ describe('the song page editor', () => {
   it('shows the credits line students see, drawn from the draft', () => {
     const africa = getSong('africa')!;
     renderEditor({ ...africa });
-    // SongCredits' own labels, above the credits form.
+    // SongCredits' own pills, above the credits form: the names wait
+    // behind each group's pill until it is opened.
+    fireEvent.click(screen.getByRole('button', { name: /Written by/ }));
     expect(screen.getAllByText('Jeff Porcaro').length).toBeGreaterThan(0);
   });
 });

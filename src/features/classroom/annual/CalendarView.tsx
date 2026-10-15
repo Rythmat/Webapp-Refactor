@@ -2,10 +2,9 @@
  * CalendarView — the Annual Plan calendar shell.
  *
  * Owns the shared toolbar (Month/Week switcher, prev/next nav, Today,
- * Autumn/Spring quick-jumps, Settings) and the shared per-Unit memos, then
- * renders either the **Month** grid (a Kanban-style timeline: colored Unit
- * bars spanning the days they cover, with scheduled-Day pills beneath) or the
- * **Week** day-column view (`WeekView`). Both live inside one container-query
+ * Autumn/Spring quick-jumps, Settings), then renders either the **Month** grid
+ * (each scheduled lesson as a pill inside its date's cell) or the **Week**
+ * day-column view (`WeekView`). Both live inside one container-query
  * card so their cells and text scale fluidly with the panel width. Non-school
  * days (weekends, holidays, breaks) are dimmed/hatched; today is accented.
  */
@@ -14,33 +13,26 @@ import { useCallback, useMemo, useState } from 'react';
 import { useCanEditClassroom } from '@/hooks/data';
 import { useLocalPlan } from '../plan/useLocalPlan';
 import { SegmentedControl } from '../presentation/SegmentedControl';
-import type { Day, StudentLanguage, Unit } from '../types';
+import type { Day } from '../types';
 import { DayBar } from './DayBar';
-import { UnitBar } from './UnitBar';
 import { WeekView } from './WeekView';
 import {
-  computeUnitReschedule,
   hasDragItem,
   readDragItem,
   type CalendarDragItem,
 } from './calendarDnd';
 import {
-  assignUnitLanes,
   firstWeekdayWeekAnchor,
   getMonthCalendar,
   getWeekCalendar,
   resolveInitialMonth,
   resolveInitialWeek,
-  segmentUnitIntoWeeks,
   stepMonth,
   stepWeek,
-  type UnitWeekSegment,
   type ViewMonth,
 } from './calendarMath';
 import { CAL_FONT, CAL_METRIC } from './calendarSizing';
 import { toIsoDate, type NonSchoolDay } from './schoolCalendar';
-import { suggestedCountFor } from './unitCoverage';
-import { useAnnualPlan, type ClassroomAnnualPlan } from './useAnnualPlan';
 import { useWeekGridData } from './useWeekGridData';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -57,8 +49,6 @@ const TODAY_ACCENT = '#7ecfcf';
 
 interface CalendarViewProps {
   classroomId: string;
-  plan: ClassroomAnnualPlan;
-  language: StudentLanguage;
   nonSchoolMap: Map<string, NonSchoolDay>;
   /** Open the classroom-settings dialog (button sits beside the semester chips). */
   onOpenSettings: () => void;
@@ -66,8 +56,6 @@ interface CalendarViewProps {
 
 export const CalendarView = ({
   classroomId,
-  plan,
-  language,
   nonSchoolMap,
   onOpenSettings,
 }: CalendarViewProps) => {
@@ -78,19 +66,15 @@ export const CalendarView = ({
     todayIso,
     schoolYear,
     getDay,
-    allUnits,
-    unitByDayId,
-    hiddenDayIds,
-    unitRanges,
+    scheduledDays,
     countryFeatures,
     songsReady,
     statusFor,
-  } = useWeekGridData(classroomId, plan);
+  } = useWeekGridData(classroomId);
   const { saveDay: saveDayRaw } = useLocalPlan(classroomId);
   const canEdit = useCanEditClassroom(classroomId);
   // Drag-to-schedule is a write; viewers get a read-only calendar.
   const saveDay = canEdit ? saveDayRaw : () => {};
-  const { setUnitSchedule } = useAnnualPlan(classroomId);
   const [mode, setMode] = useState<CalendarMode>('month');
   const [view, setView] = useState<ViewMonth>(() => resolveInitialMonth(today));
   const [weekAnchor, setWeekAnchor] = useState<Date>(() =>
@@ -104,116 +88,36 @@ export const CalendarView = ({
   );
   const weekCal = useMemo(() => getWeekCalendar(weekAnchor), [weekAnchor]);
 
-  /** Unit → lane, so overlapping Units render in distinct vertical bands
-   *  (each Unit's bar + its Day pills share a lane) instead of piling up. */
-  const unitLane = useMemo(() => {
-    const ranged = allUnits.map((u) => {
-      const r = unitRanges.get(u.id);
-      return {
-        id: u.id,
-        start: r ? r.start.getTime() : 0,
-        end: r ? r.end.getTime() : 0,
-      };
-    });
-    return assignUnitLanes(ranged);
-  }, [allUnits, unitRanges]);
-
-  /** For each week, the ordered list of unit segments to render (with lane).
-   *
-   *  The visual bar hugs the Unit's ACTUAL scheduled Day dates (min/max) so
-   *  the bar and the pills stay aligned even when the chained-sequential
-   *  auto-populate has pushed a Unit past its declared window. Units with
-   *  no scheduled Days yet fall back to the declared window so seeded-but-
-   *  empty Units are still drawn where the teacher expects them. */
-  const weekSegments = useMemo(() => {
-    const rows: Array<
-      Array<{ unit: Unit; segment: UnitWeekSegment; lane: number }>
-    > = calendar.weeks.map(() => []);
-    for (const unit of allUnits) {
-      const range = unitRanges.get(unit.id);
-      if (!range) continue;
-      const lane = unitLane.get(unit.id) ?? 0;
-      for (const seg of segmentUnitIntoWeeks(range, calendar)) {
-        rows[seg.weekIndex].push({ unit, segment: seg, lane });
-      }
-    }
-    for (const row of rows) {
-      row.sort(
-        (a, b) =>
-          a.segment.startColumn - b.segment.startColumn ||
-          a.unit.monthIndex - b.unit.monthIndex,
-      );
-    }
-    return rows;
-  }, [allUnits, calendar, unitRanges, unitLane]);
-
-  /** For each week, the list of scheduled Day pills (Day + start column +
-   *  lane, so a Day sits in its parent Unit's lane). */
+  /** For each week, its scheduled lesson pills: the date's column, and a lane
+   *  so lessons sharing a date stack inside that cell. */
   const weekDayPills = useMemo(() => {
     const rows: Array<Array<{ day: Day; startColumn: number; lane: number }>> =
       calendar.weeks.map(() => []);
-    // Collect every scheduled Day referenced by a Unit (skipping duplicates).
-    for (const [dayId, unitId] of unitByDayId) {
-      if (hiddenDayIds.has(dayId)) continue;
-      const day = getDay(dayId);
-      if (!day || !day.scheduledDate) continue;
-      const lane = unitLane.get(unitId) ?? 0;
-      // Find which week + column this Day lands in.
-      for (let wi = 0; wi < calendar.weeks.length; wi++) {
-        const week = calendar.weeks[wi];
-        const col = week.findIndex((d) => toIsoDate(d) === day.scheduledDate);
-        if (col >= 0) {
-          rows[wi].push({ day, startColumn: col + 1, lane });
-          break;
-        }
-      }
+    const colByIso = new Map<string, { week: number; col: number }>();
+    calendar.weeks.forEach((week, wi) =>
+      week.forEach((d, ci) =>
+        colByIso.set(toIsoDate(d), { week: wi, col: ci }),
+      ),
+    );
+    const lanesUsed = new Map<string, number>();
+    for (const day of scheduledDays) {
+      const iso = day.scheduledDate;
+      const at = iso ? colByIso.get(iso) : undefined;
+      if (!iso || !at) continue;
+      const lane = lanesUsed.get(iso) ?? 0;
+      lanesUsed.set(iso, lane + 1);
+      rows[at.week].push({ day, startColumn: at.col + 1, lane });
     }
-    for (const row of rows) row.sort((a, b) => a.startColumn - b.startColumn);
     return rows;
-  }, [calendar.weeks, getDay, unitByDayId, unitLane, hiddenDayIds]);
+  }, [calendar.weeks, scheduledDays]);
 
-  // Drop a dragged Day or Unit onto a calendar date-cell.
+  // Drop a dragged lesson onto a calendar date-cell to reschedule it.
   const handleDropOnDate = useCallback(
     (iso: string, item: CalendarDragItem) => {
-      if (item.kind === 'day') {
-        // Just reschedule — the Day keeps its Unit membership (dayIds).
-        const day = getDay(item.id);
-        if (day) saveDay({ ...day, scheduledDate: iso });
-        return;
-      }
-      // Unit: shift its whole block of lessons to the drop date, keeping the
-      // school-day gaps between them.
-      const unit = allUnits.find((u) => u.id === item.id);
-      if (!unit) return;
-      const scheduled = (unit.dayIds ?? [])
-        .map((id) => getDay(id))
-        .flatMap((d) =>
-          d && d.scheduledDate ? [{ day: d, iso: d.scheduledDate }] : [],
-        )
-        .sort((a, b) => a.iso.localeCompare(b.iso));
-      if (scheduled.length > 0) {
-        // The bar hugs its Days' dates, so moving the Days moves the Unit.
-        // Leave `monthIndex` alone — it's only a fallback for empty Units.
-        const newIsos = computeUnitReschedule(
-          scheduled.map((s) => s.iso),
-          iso,
-          nonSchoolMap,
-        );
-        scheduled.forEach(({ day }, i) => {
-          if (newIsos[i] && newIsos[i] !== day.scheduledDate) {
-            saveDay({ ...day, scheduledDate: newIsos[i] });
-          }
-        });
-      } else {
-        // Empty Unit — its bar is driven by the declared window, so re-anchor
-        // the month (1-12; the cell is a real date, so this is its month).
-        setUnitSchedule(unit.id, {
-          monthIndex: Number(iso.slice(5, 7)),
-          dateWindow: null,
-        });
-      }
+      const day = getDay(item.id);
+      if (day) saveDay({ ...day, scheduledDate: iso });
     },
-    [allUnits, getDay, saveDay, nonSchoolMap, setUnitSchedule],
+    [getDay, saveDay],
   );
 
   const handleCellDrop = useCallback(
@@ -381,13 +285,9 @@ export const CalendarView = ({
                   key={weekIndex}
                   week={week}
                   viewMonth={view.month}
-                  segments={weekSegments[weekIndex]}
                   dayPills={weekDayPills[weekIndex]}
-                  unitByDayId={unitByDayId}
-                  hiddenDayIds={hiddenDayIds}
                   nonSchoolMap={nonSchoolMap}
                   classroomId={classroomId}
-                  language={language}
                   dropIso={dropIso}
                   todayIso={todayIso}
                   onCellDragOver={setDropIso}
@@ -400,12 +300,7 @@ export const CalendarView = ({
           <WeekView
             classroomId={classroomId}
             weekAnchor={weekAnchor}
-            language={language}
-            allUnits={allUnits}
-            unitRanges={unitRanges}
-            unitByDayId={unitByDayId}
-            getDay={getDay}
-            hiddenDayIds={hiddenDayIds}
+            scheduledDays={scheduledDays}
             nonSchoolMap={nonSchoolMap}
             todayIso={todayIso}
             dropIso={dropIso}
@@ -424,13 +319,9 @@ export const CalendarView = ({
 interface WeekRowProps {
   week: Date[];
   viewMonth: number; // 1-12
-  segments: Array<{ unit: Unit; segment: UnitWeekSegment; lane: number }>;
   dayPills: Array<{ day: Day; startColumn: number; lane: number }>;
-  unitByDayId: Map<string, string>;
-  hiddenDayIds: Set<string>;
   nonSchoolMap: Map<string, NonSchoolDay>;
   classroomId: string;
-  language: StudentLanguage;
   dropIso: string | null;
   todayIso: string;
   onCellDragOver: (iso: string) => void;
@@ -440,29 +331,21 @@ interface WeekRowProps {
 const WeekRow = ({
   week,
   viewMonth,
-  segments,
   dayPills,
-  unitByDayId,
-  hiddenDayIds,
   nonSchoolMap,
   classroomId,
-  language,
   dropIso,
   todayIso,
   onCellDragOver,
   onCellDrop,
 }: WeekRowProps) => {
-  // The whole week is ONE 7-column grid so Units/Lessons layer *inside* the day
+  // The whole week is ONE 7-column grid so lessons layer *inside* the day
   // cells (Google-Calendar style) instead of in a band beneath them. Row 1 is
-  // the date header; each lane L uses two rows — its Unit bar on `2L+2`, its Day
-  // pills on `2L+3`. `maxRow` is the largest row any event occupies (1 = empty
-  // week). Cells span every row (`1 / -1`) as the backdrop; the bars/pills are
-  // separate grid items on top, so multi-day bars stay continuous across days.
-  const maxRow = Math.max(
-    1,
-    ...segments.map(({ lane }) => 2 * lane + 2),
-    ...dayPills.map(({ lane }) => 2 * lane + 3),
-  );
+  // the date header; lane L (the Lth lesson on a date) sits on row `L+2`.
+  // `maxRow` is the largest row any lesson occupies (1 = empty week). Cells
+  // span every row (`1 / -1`) as the backdrop; the pills are separate grid
+  // items on top.
+  const maxRow = Math.max(1, ...dayPills.map(({ lane }) => lane + 2));
   const gridTemplateRows =
     maxRow === 1
       ? // Empty week — one tall row keeps bare cells at calendar height.
@@ -504,7 +387,7 @@ const WeekRow = ({
             }}
             style={{
               // Span the full week-row height so the cell is the backdrop the
-              // Unit bars / Day pills sit inside, and stays the drop target.
+              // lesson pills sit inside, and stays the drop target.
               gridColumn: i + 1,
               gridRow: '1 / -1',
               minHeight: CAL_METRIC.cellMinHeight,
@@ -563,30 +446,13 @@ const WeekRow = ({
         );
       })}
 
-      {segments.map(({ unit, segment, lane }) => (
-        <UnitBar
-          key={`unit-${unit.id}-${segment.weekIndex}-${segment.startColumn}`}
-          classroomId={classroomId}
-          unit={unit}
-          language={language}
-          startColumn={segment.startColumn}
-          spanColumns={segment.spanColumns}
-          isFirstSegment={segment.isFirstSegment}
-          daysPlanned={
-            (unit.dayIds ?? []).filter((id) => !hiddenDayIds.has(id)).length
-          }
-          suggestedDayCount={suggestedCountFor(unit.id)}
-          gridRow={2 * lane + 2}
-        />
-      ))}
       {dayPills.map(({ day, startColumn, lane }) => (
         <DayBar
           key={`day-${day.id}`}
           classroomId={classroomId}
           day={day}
-          parentUnitId={unitByDayId.get(day.id) ?? null}
           startColumn={startColumn}
-          gridRow={2 * lane + 3}
+          gridRow={lane + 2}
         />
       ))}
     </div>

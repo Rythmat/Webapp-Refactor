@@ -57,16 +57,22 @@ export function importMidiFile(arrayBuffer: ArrayBuffer): MidiSequence[] {
  *
  * @param sequences - Map from channel number to MidiSequence
  * @param bpm - Tempo in beats per minute
+ * @param timeSignature - The metre to write, [numerator, denominator]; a
+ *   file without one is read as 4/4 by every other program (ia-flows-34)
  */
 export function exportMidiFile(
   sequences: Map<number, MidiSequence>,
   bpm: number,
+  timeSignature?: [number, number],
 ): Blob {
   const tracks: MidiWriter.Track[] = [];
 
   for (const [channel, seq] of sequences) {
     const track = new MidiWriter.Track();
     track.setTempo(bpm, 0);
+    if (timeSignature) {
+      track.setTimeSignature(timeSignature[0], timeSignature[1]);
+    }
     if (seq.trackName) {
       track.addTrackName(seq.trackName);
     }

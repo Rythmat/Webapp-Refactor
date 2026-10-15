@@ -1,0 +1,1899 @@
+{
+  "version": 2,
+  "timestamp": 1791328553131,
+  "data": {
+    "projectId": null,
+    "projectName": "golden: metronome-countin",
+    "composerName": "",
+    "transport": {
+      "bpm": 120,
+      "position": 0,
+      "metronomeEnabled": true,
+      "loopEnabled": true,
+      "loopStart": 0,
+      "loopEnd": 3840
+    },
+    "tracks": [
+      {
+        "id": "trk-take",
+        "name": "Take",
+        "type": "audio",
+        "instrument": "vocal-fx",
+        "color": "#f94144",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [],
+        "audioClips": [
+          {
+            "id": "clip-take",
+            "startTick": 0,
+            "duration": 3840,
+            "fadeInTicks": 0,
+            "fadeOutTicks": 0,
+            "assetId": null,
+            "offsetSeconds": 0.5,
+            "gain": 1
+          }
+        ],
+        "activeEffects": [],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "trk-take"
+        }
+      },
+      {
+        "id": "trk-sample",
+        "name": "Sample",
+        "type": "audio",
+        "instrument": "none",
+        "color": "#f3722c",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [],
+        "audioClips": [
+          {
+            "id": "clip-sample",
+            "startTick": 1920,
+            "duration": 480,
+            "fadeInTicks": 0,
+            "fadeOutTicks": 0,
+            "assetId": null,
+            "offsetSeconds": 0,
+            "gain": 1
+          }
+        ],
+        "activeEffects": [],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "trk-sample"
+        }
+      },
+      {
+        "id": "trk-drums",
+        "name": "Drums",
+        "type": "midi",
+        "instrument": "drum-machine",
+        "color": "#f8961e",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [
+          {
+            "id": "clip-drums",
+            "name": "Drums",
+            "startTick": 0,
+            "events": {
+              "notes": [
+                36, 42, 42, 38, 42, 42, 36, 42, 42, 38, 42, 42, 36, 42, 42, 38,
+                42, 42, 36, 42, 42, 38, 42, 42
+              ],
+              "velocities": [
+                110, 80, 70, 110, 80, 70, 110, 80, 70, 110, 80, 70, 110, 80, 70,
+                110, 80, 70, 110, 80, 70, 110, 80, 70
+              ],
+              "startTickDeltas": [
+                0, 0, 240, 240, 0, 240, 240, 0, 240, 240, 0, 240, 240, 0, 240,
+                240, 0, 240, 240, 0, 240, 240, 0, 240
+              ],
+              "durations": [
+                120, 60, 60, 120, 60, 60, 120, 60, 60, 120, 60, 60, 120, 60, 60,
+                120, 60, 60, 120, 60, 60, 120, 60, 60
+              ],
+              "channels": [
+                9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+                9, 9, 9
+              ]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": ["compressor"],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": true,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "drumKit": "808",
+          "sourceTrackId": "trk-drums"
+        }
+      },
+      {
+        "id": "trk-lead",
+        "name": "Lead",
+        "type": "midi",
+        "instrument": "oracle-synth",
+        "color": "#f9844a",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [
+          {
+            "id": "clip-lead",
+            "name": "Lead",
+            "startTick": 0,
+            "events": {
+              "notes": [60, 64, 67, 72],
+              "velocities": [90, 90, 90, 90],
+              "startTickDeltas": [0, 960, 960, 960],
+              "durations": [480, 480, 480, 480],
+              "channels": [0, 0, 0, 0]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": [],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "trk-lead",
+          "oracleSynth": {
+            "oscillators": [
+              {
+                "waveform": "sawtooth",
+                "wavetable": "SAWTOOTH",
+                "octave": 0,
+                "semitone": 0,
+                "fine": 0,
+                "wtPosition": 0,
+                "pan": 0,
+                "level": 0.7,
+                "unisonVoices": 1,
+                "unisonDetune": 0,
+                "unisonBlend": 0.1,
+                "warpMode": "none",
+                "warpAmount": 0,
+                "enabled": true
+              },
+              {
+                "waveform": "sawtooth",
+                "wavetable": "SAWTOOTH",
+                "octave": 0,
+                "semitone": 0,
+                "fine": 0,
+                "wtPosition": 0,
+                "pan": 0,
+                "level": 0.7,
+                "unisonVoices": 1,
+                "unisonDetune": 0,
+                "unisonBlend": 0.1,
+                "warpMode": "none",
+                "warpAmount": 0,
+                "enabled": false
+              }
+            ],
+            "subOscillator": {
+              "waveform": "sine",
+              "octave": -1,
+              "semitone": 0,
+              "fine": 0,
+              "level": 0.5,
+              "pan": 0,
+              "enabled": false
+            },
+            "noise": {
+              "type": "pink",
+              "level": 0.3,
+              "pan": 0,
+              "enabled": false
+            },
+            "filters": [
+              {
+                "type": "lowpass",
+                "cutoff": 13400,
+                "resonance": 0,
+                "pan": 0,
+                "gain": 0,
+                "mix": 1,
+                "enabled": true
+              },
+              {
+                "type": "lowpass",
+                "cutoff": 20000,
+                "resonance": 0,
+                "pan": 0,
+                "gain": 0,
+                "mix": 1,
+                "enabled": false
+              }
+            ],
+            "envelopes": [
+              {
+                "attack": 0.01,
+                "decay": 0.1,
+                "sustain": 0.7,
+                "release": 0.3
+              },
+              {
+                "attack": 0.01,
+                "decay": 0.5,
+                "sustain": 0.5,
+                "release": 0.5
+              }
+            ],
+            "lfos": [
+              {
+                "rateDivs": [
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0, 0, 0, 0],
+                "sync": false,
+                "bars": [
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ]
+                ]
+              },
+              {
+                "rateDivs": [
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0, 0, 0, 0],
+                "sync": false,
+                "bars": [
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ]
+                ]
+              },
+              {
+                "rateDivs": [
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0, 0, 0, 0],
+                "sync": false,
+                "bars": [
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ]
+                ]
+              },
+              {
+                "rateDivs": [
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0, 0, 0, 0],
+                "sync": false,
+                "bars": [
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ],
+                  [
+                    {
+                      "time": 0,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.125,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.25,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.375,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.5,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.625,
+                      "value": 1
+                    },
+                    {
+                      "time": 0.75,
+                      "value": 0
+                    },
+                    {
+                      "time": 0.875,
+                      "value": 1
+                    },
+                    {
+                      "time": 1,
+                      "value": 0
+                    }
+                  ]
+                ]
+              }
+            ],
+            "modRoutes": [],
+            "voiceMode": "poly",
+            "voiceCount": 8,
+            "glide": 0,
+            "spread": 0,
+            "masterVolume": 0.8,
+            "fx": {
+              "chorus": {
+                "enabled": false,
+                "rate": 1.5,
+                "depth": 0.5,
+                "mix": 0.5
+              },
+              "delay": {
+                "enabled": false,
+                "time": 0.3,
+                "feedback": 0.3,
+                "mix": 0.3
+              },
+              "phaser": {
+                "enabled": false,
+                "rate": 0.5,
+                "depth": 0.5,
+                "mix": 0.5
+              },
+              "compressor": {
+                "enabled": false,
+                "threshold": -24,
+                "ratio": 4,
+                "attack": 0.003,
+                "release": 0.25
+              },
+              "drive": {
+                "enabled": false,
+                "amount": 0.3,
+                "mix": 0.5
+              },
+              "reverb": {
+                "enabled": false,
+                "size": 0.5,
+                "decay": 0.5,
+                "damping": 0.3,
+                "mix": 0.3
+              }
+            },
+            "fxRoutes": [],
+            "routing": {
+              "filterRouting": {
+                "filter1Sources": ["osc1", "osc2", "sub", "noise"],
+                "filter2Sources": []
+              },
+              "envelopeRouting": {
+                "env1Sources": ["osc1", "osc2", "sub", "noise"],
+                "env2Sources": []
+              }
+            },
+            "arp": {
+              "enabled": false,
+              "rate": "1/8",
+              "style": "up",
+              "distance": 12,
+              "step": 1,
+              "chordAware": false
+            },
+            "macros": [
+              {
+                "name": "MACRO 1",
+                "value": 0
+              },
+              {
+                "name": "MACRO 2",
+                "value": 0
+              },
+              {
+                "name": "MACRO 3",
+                "value": 0
+              },
+              {
+                "name": "MACRO 4",
+                "value": 0
+              },
+              {
+                "name": "MACRO 5",
+                "value": 0
+              },
+              {
+                "name": "MACRO 6",
+                "value": 0
+              },
+              {
+                "name": "MACRO 7",
+                "value": 0
+              },
+              {
+                "name": "MACRO 8",
+                "value": 0
+              }
+            ],
+            "keyScale": {
+              "enabled": false,
+              "followProjectKey": true,
+              "rootPc": 0,
+              "mode": "ionian",
+              "snapMode": "nearest"
+            },
+            "presetName": "INITIALIZE",
+            "pitchBendRange": 2,
+            "bpm": 120
+          }
+        }
+      }
+    ],
+    "prism": {
+      "rootNote": null,
+      "rhythmName": "Quarters",
+      "genre": "Pop",
+      "swing": 0,
+      "mode": "ionian"
+    },
+    "chordRegions": [],
+    "returns": [
+      {
+        "id": "A",
+        "label": "Reverb",
+        "volume": 0.8,
+        "fxChain": ["reverb"],
+        "effects": {
+          "reverb": {
+            "enabled": true,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 1
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": false,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 0.25
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": {
+            "enabled": false,
+            "drive": 0,
+            "mix": 50,
+            "tone": 50
+          },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      },
+      {
+        "id": "B",
+        "label": "Delay",
+        "volume": 0.8,
+        "fxChain": ["delay"],
+        "effects": {
+          "reverb": {
+            "enabled": false,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 0.3
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": true,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 1
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": {
+            "enabled": false,
+            "drive": 0,
+            "mix": 50,
+            "tone": 50
+          },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      }
+    ],
+    "masterAutomation": {}
+  },
+  "golden": {
+    "about": "The live-trace session: metronome on, 2-bar loop at 120 BPM; a recorded take (Vocals track, beep train trimmed by 0.5 s) across the loop, a dropped library sample (instrument-less audio track) on bar 2, 808 drums and an Oracle synth line on beats 1 and 3. Offline it shows the bounce has no metronome, with a stem per track.",
+    "range": "project",
+    "stems": true,
+    "audio": {
+      "clip-take": {
+        "kind": "beeps",
+        "seconds": 5,
+        "every": 0.5,
+        "beepSeconds": 0.1,
+        "baseHz": 400,
+        "stepHz": 100,
+        "amplitude": 0.5
+      },
+      "clip-sample": {
+        "kind": "beeps",
+        "seconds": 1,
+        "every": 0.5,
+        "beepSeconds": 0.1,
+        "baseHz": 400,
+        "stepHz": 100,
+        "amplitude": 0.5
+      }
+    },
+    "trace": {
+      "playFromTick": 960,
+      "countInBars": 1,
+      "pauseAtTick": 2600,
+      "pauseMs": 600,
+      "seconds": 12
+    }
+  }
+}

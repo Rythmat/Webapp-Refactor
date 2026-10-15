@@ -32,7 +32,8 @@ export function chordSymbolTones(symbol: string): ChordSymbolTones | null {
   const slash = slashAt >= 0 ? trimmed.slice(slashAt + 1) : undefined;
   const rootPc = parseNoteName(main);
   if (rootPc === null) return null;
-  const q = main.slice(/^[A-Ga-g][#b♯♭]/.test(main) ? 2 : 1).toLowerCase();
+  const rootLength = /^[A-Ga-g](bb|##|♭♭|♯♯|[#b♯♭])?/.exec(main)?.[0].length;
+  const q = main.slice(rootLength).toLowerCase();
   const has = (s: string) => q.includes(s);
 
   const power = q === '5';

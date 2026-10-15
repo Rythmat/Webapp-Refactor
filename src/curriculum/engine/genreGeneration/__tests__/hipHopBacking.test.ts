@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { ActivityStepV2, BackingStyle } from '../../../types/activity.v2';
+import { getPairing, rememberPairing } from '../../lessonPairings/registry';
 import { buildBackingNotes } from '../backingPatterns';
 
 const step = (
@@ -21,6 +22,13 @@ const part = (notes: ReturnType<typeof buildBackingNotes>, p: string) =>
   notes.filter((n) => n.part === p).sort((a, b) => a.onset - b.onset);
 
 describe('Hip Hop play-along backing', () => {
+  // The code patterns themselves: a band paired to Trap would replace them.
+  const trap = getPairing('hip-hop-l1-trap');
+  beforeAll(() => rememberPairing({ id: 'hip-hop-l1-trap' }));
+  afterAll(() => {
+    if (trap) rememberPairing(trap);
+  });
+
   it('plays the named drum pattern', () => {
     const notes = buildBackingNotes(
       step(['Cm'], 'trap_a', {}),

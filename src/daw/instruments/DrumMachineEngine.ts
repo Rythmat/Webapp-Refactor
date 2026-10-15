@@ -1,14 +1,21 @@
 import * as Tone from 'tone';
 import type { InstrumentAdapter } from './InstrumentAdapter';
-import { DRUM_KIT_CONFIGS, DRUM_PADS, type DrumKitId } from './drumKits';
+import {
+  DRUM_KIT_CONFIGS,
+  DRUM_PADS,
+  padSampleUrl,
+  type DrumKitConfig,
+  type DrumKitId,
+} from './drumKits';
 
 // Kit/pad data lives in the tone-free ./drumKits module; re-export so
 // existing importers of this file keep working.
 export { DRUM_KIT_CONFIGS, DRUM_KITS, DRUM_PADS } from './drumKits';
 export type { DrumKitConfig, DrumKitId, DrumPadDef } from './drumKits';
 
-// Map any MIDI note to its canonical pad note (for routing through pad chain)
-function canonicalPadNote(note: number): number {
+// Map any MIDI note to its canonical pad note (for routing through pad chain).
+// The drum grid places notes on its rows with it too, so both agree.
+export function canonicalPadNote(note: number): number {
   switch (note) {
     case 35:
     case 36:
@@ -153,10 +160,26 @@ export class DrumMachineEngine implements InstrumentAdapter {
   // ── Private ─────────────────────────────────────────────────────────
 
   private async loadKit(kitId: DrumKitId): Promise<void> {
+    const config = DRUM_KIT_CONFIGS.find((c) => c.id === kitId);
+    return this.loadConfig(config, kitId);
+  }
+
+  /**
+   * Load a kit that isn't registered yet — the Drum Grooves designer auditions
+   * a custom kit while it is being built, before its file exists.
+   */
+  async loadKitConfig(config: DrumKitConfig): Promise<void> {
+    this.currentKit = config.id;
+    return this.loadConfig(config, config.id);
+  }
+
+  private async loadConfig(
+    config: DrumKitConfig | undefined,
+    kitId: DrumKitId,
+  ): Promise<void> {
     const seq = ++this.loadSeq;
     this.loaded = false;
 
-    const config = DRUM_KIT_CONFIGS.find((c) => c.id === kitId);
     if (!config) {
       console.warn(`[DrumMachineEngine] Unknown kit: ${kitId}`);
       return;
@@ -166,9 +189,9 @@ export class DrumMachineEngine implements InstrumentAdapter {
     // commits (overlapping loads resolve last-wins, losers are discarded).
     const newPlayers = new Map<number, Tone.Player>();
     await Promise.all(
-      Object.entries(config.samples).map(async ([noteStr, filename]) => {
+      Object.keys(config.samples).map(async (noteStr) => {
         const padNote = Number(noteStr);
-        const url = `${config.baseUrl}${filename}${config.ext}`;
+        const url = padSampleUrl(config, padNote);
         const player = new Tone.Player(url);
         await Tone.loaded();
         newPlayers.set(padNote, player);
@@ -200,7 +223,9 @@ export class DrumMachineEngine implements InstrumentAdapter {
   }
 
   noteOn(note: number, velocity: number, time?: number): void {
-    const t = time ?? Tone.now();
+    // Live playing passes no time; Tone.now() would add the ~100 ms lookAhead.
+    // The choke and velocity writes below share `t`.
+    const t = time ?? Tone.immediate();
     const canonical = canonicalPadNote(note);
     const velGain = Math.max(0, Math.min(1, velocity / 127));
 

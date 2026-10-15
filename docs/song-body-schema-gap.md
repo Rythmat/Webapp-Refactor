@@ -12,6 +12,16 @@ The schema is written for you. It exists in the webapp repo in two forms and
 they are the same thing — one is the output of the other — so there is nothing
 to reconcile between them.
 
+> **Update, 8 October 2026: deploy v2, which you already have.** > `src/scripts/apiContract/songBodySchema.v2.ts` came to you in the contract
+> version 4 hand-off (`manifest.json`). It is v1 plus optional graph id fields
+> (`releases`, `subgenreIds`, session ids, `source` on credits and related
+> recordings). Take v2 rather than v1: most charts now carry `releases`, so v1
+> alone would still refuse them. The repo → store import of 7 October 2026 was
+> refused for 603 of 615 songs, on `repeatStart`/`repeatEnd`/`cue`/`fine`,
+> `instrumental`, `credits`, `composer`, `session`, `releases` and
+> `relatedRecordings`, so the server is still on the old schema. Once v2 is
+> live, the import is re-run from `/console/content/publishing/import`.
+
 > **Update, 29 September 2026:** copy `src/scripts/apiContract/songBodySchema.v1.ts`.
 > It is today's generated schema frozen under a name, recorded with its hash in
 > `src/scripts/apiContract/manifest.json`. `songBodySchema.ts` keeps being

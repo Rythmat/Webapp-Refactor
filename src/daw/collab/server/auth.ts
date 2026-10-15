@@ -14,6 +14,40 @@ interface ConnectionAuth {
 let cachedJWKS: ReturnType<typeof createRemoteJWKSet> | null = null;
 let cachedDomain: string | null = null;
 
+// ── DEV ONLY: sign-in for local `partykit dev` ──────────────────────────────
+// The web app's dev auth bypass (VITE_DEV_AUTH_BYPASS=1, src/auth/devBypass.ts)
+// signs in with a fixed placeholder token that no Auth0 key can verify, so the
+// server would close every local collab socket with 4401. Starting the local
+// server with PARTYKIT_DEV_AUTH=1 accepts that token as the bypass user, which
+// is what local two-client tests need:
+//
+//   npm run partykit:dev -- --var PARTYKIT_DEV_AUTH=1
+//
+// or put the line in .env.local, which only `partykit dev` reads. NEVER set it
+// anywhere a deploy can pick it up: partykit.json, .env (a deploy bakes .env
+// into the bundle's process.env), `partykit env`, or `--var` on deploy. The
+// flag is read from the room's vars only, never process.env, and as a second
+// lock it only works for sockets opened to a loopback host, so even a leaked
+// variable cannot open a deployed room. Both local clients sign in as the same
+// user, so the server treats the second like a second tab of the first (no
+// capacity slot, host-level identity).
+const DEV_AUTH_FLAG = 'PARTYKIT_DEV_AUTH';
+// Mirror DEV_BYPASS_AUTH_DATA in src/auth/devBypass.ts. That module reads
+// import.meta.env, which does not exist in the PartyKit runtime.
+const DEV_BYPASS_TOKEN = 'dev-bypass-token';
+const DEV_BYPASS_USER_ID = 'dev-bypass-user';
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
+function devBypassUserId(
+  url: URL,
+  token: string | null,
+  env?: Record<string, unknown>,
+): string | null {
+  if (env?.[DEV_AUTH_FLAG] !== '1') return null;
+  if (!LOOPBACK_HOSTS.has(url.hostname)) return null;
+  return token === DEV_BYPASS_TOKEN ? DEV_BYPASS_USER_ID : null;
+}
+
 function getJWKS(domain: string) {
   if (cachedJWKS && cachedDomain === domain) return cachedJWKS;
   cachedDomain = domain;
@@ -37,16 +71,21 @@ function getJWKS(domain: string) {
  *
  * REQUIRES `AUTH0_DOMAIN` + `AUTH0_AUDIENCE` in the PartyKit environment,
  * matching the client's `VITE_AUTH0_DOMAIN` / `VITE_AUTH0_AUDIENCE`. Local
- * `partykit dev` must set them too, or collab connections are rejected.
+ * `partykit dev` must set them too, or collab connections are rejected —
+ * unless it runs with the DEV-only PARTYKIT_DEV_AUTH path above.
  */
 export async function validateConnection(
   url: string,
   env?: Record<string, unknown>,
 ): Promise<ConnectionAuth | null> {
   try {
-    const params = new URL(url).searchParams;
+    const parsedUrl = new URL(url);
+    const params = parsedUrl.searchParams;
     const token = params.get('token');
     const role = (params.get('role') as CollabRole) ?? 'editor';
+
+    const devUserId = devBypassUserId(parsedUrl, token, env);
+    if (devUserId) return { userId: devUserId, role };
 
     const auth0Domain =
       (env?.AUTH0_DOMAIN as string) ?? globalThis.process?.env?.AUTH0_DOMAIN;

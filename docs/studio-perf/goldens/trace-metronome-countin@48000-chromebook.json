@@ -1,0 +1,658 @@
+{
+  "note": "Measured live schedule trace (golden.mjs --trace --update); kept for reference, never compared.",
+  "fixture": "metronome-countin",
+  "profile": "chromebook",
+  "rate": "48000",
+  "plan": {
+    "playFromTick": 960,
+    "countInBars": 1,
+    "pauseAtTick": 2600,
+    "pauseMs": 600,
+    "seconds": 12
+  },
+  "host": {
+    "cores": 14,
+    "loadAvg1m": [7.4, 7.2]
+  },
+  "ready": {
+    "complete": true,
+    "irs": [
+      {
+        "bus": "A",
+        "type": "hall",
+        "rate": 48000
+      }
+    ],
+    "instruments": [
+      {
+        "name": "Take",
+        "instrument": "vocal-fx",
+        "state": "ready"
+      },
+      {
+        "name": "Sample",
+        "instrument": "none",
+        "state": "none"
+      },
+      {
+        "name": "Drums",
+        "instrument": "drum-machine",
+        "state": "ready"
+      },
+      {
+        "name": "Lead",
+        "instrument": "oracle-synth",
+        "state": "ready"
+      }
+    ],
+    "waitedMs": 207
+  },
+  "checks": [
+    {
+      "name": "live instruments ready before the run",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "playhead reached the pause point",
+      "pass": true,
+      "detail": "tick 2600"
+    },
+    {
+      "name": "transport started for Play and for the resume",
+      "pass": true,
+      "detail": "play → pause → resume → loop → loop → stop"
+    },
+    {
+      "name": "transport looped",
+      "pass": true,
+      "detail": "play → pause → resume → loop → loop → stop"
+    },
+    {
+      "name": "transport paused for Pause and for Stop",
+      "pass": true,
+      "detail": "play → pause → resume → loop → loop → stop"
+    },
+    {
+      "name": "count-in clicked every beat",
+      "pass": true,
+      "detail": "4 of 4"
+    },
+    {
+      "name": "metronome clicked",
+      "pass": true,
+      "detail": "10 clicks"
+    },
+    {
+      "name": "clip clip-take started",
+      "pass": true,
+      "detail": "4 starts"
+    },
+    {
+      "name": "clip clip-sample started",
+      "pass": true,
+      "detail": "3 starts"
+    },
+    {
+      "name": "clip scheduler cancels logged",
+      "pass": true,
+      "detail": "6 cancels"
+    },
+    {
+      "name": "every live instrument wrapped",
+      "pass": true,
+      "detail": "Take, Drums, Lead of Take, Drums, Lead"
+    },
+    {
+      "name": "Drums got noteOns",
+      "pass": true,
+      "detail": "56 noteOns"
+    },
+    {
+      "name": "Lead got noteOns",
+      "pass": true,
+      "detail": "10 noteOns"
+    },
+    {
+      "name": "Oracle envelope gates logged",
+      "pass": true,
+      "detail": "116 envelope calls; wrapped trigger, release, forceStop"
+    },
+    {
+      "name": "no uncaught page errors",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "info": {
+    "sampleRate": 48000,
+    "lookAhead": 0.1,
+    "updateInterval": 0.05,
+    "baseLatency": 0.0058125,
+    "outputLatency": 0.032,
+    "bpm": 120,
+    "ppq": 480,
+    "tsNum": 4,
+    "tsDen": 4,
+    "loop": {
+      "enabled": true,
+      "start": 0,
+      "end": 3840
+    },
+    "countInBars": 1
+  },
+  "reachedPause": true,
+  "transport": [
+    {
+      "kind": "start",
+      "cause": "play",
+      "t": 6.3427,
+      "tick": 960
+    },
+    {
+      "kind": "pause",
+      "cause": "pause",
+      "t": 8.0947,
+      "tick": 2641.9,
+      "eventTick": 2568
+    },
+    {
+      "kind": "start",
+      "cause": "resume",
+      "t": 8.6867,
+      "tick": 2568
+    },
+    {
+      "kind": "loop",
+      "cause": "loop",
+      "t": 10.0117,
+      "tick": 0
+    },
+    {
+      "kind": "loop",
+      "cause": "loop",
+      "t": 14.0117,
+      "tick": 0
+    },
+    {
+      "kind": "pause",
+      "cause": "stop",
+      "t": 16.2947,
+      "tick": 2191.7,
+      "eventTick": 960
+    }
+  ],
+  "summary": {
+    "liveTrackPeakDb": {
+      "Take": -6.04,
+      "Sample": -120,
+      "Drums": -4.71,
+      "Lead": -6.46
+    },
+    "clipStartErrorMs": {
+      "play": -92,
+      "resume": -100,
+      "loop": -54.3,
+      "scheduled": 0
+    },
+    "clipOffsetErrorMs": {
+      "play": 0,
+      "resume": 0,
+      "loop": -500
+    },
+    "clipEndErrorMs": {
+      "loopSeam": -79.8,
+      "pause": -94.7,
+      "stop": -100,
+      "clipEnd": 0
+    },
+    "clipCancelErrorMs": {
+      "loopSeam": -54.3,
+      "pause": -94.7,
+      "stop": -100
+    },
+    "noteReleaseErrorMs": {
+      "loopSeam": -54.3,
+      "pause": -94.7,
+      "stop": -100
+    },
+    "resumeRewindMs": -77,
+    "metronomeMedianErrorMs": {
+      "play": 24,
+      "resume": 180.5,
+      "loopLaps": 180.5
+    },
+    "metronomeMissedBeatsPerLap": [0, 2, 8, 5],
+    "metronomeAccentsOffBarLine": 3,
+    "countInDownbeatErrorMs": 40,
+    "startsBeforeCurrentTime": 0
+  },
+  "clipStarts": [
+    {
+      "clip": "clip-take",
+      "cause": "play",
+      "atTick": 960,
+      "when": 6.2507,
+      "now": 6.2507,
+      "offset": 1.5,
+      "expectedOffset": 1.5,
+      "timeErrorMs": -92,
+      "offsetErrorMs": 0,
+      "late": false,
+      "endedBy": "stop()",
+      "endCause": "pause",
+      "endErrorMs": -94.7
+    },
+    {
+      "clip": "clip-sample",
+      "cause": "scheduled",
+      "atTick": 1920,
+      "when": 7.3427,
+      "now": 7.2667,
+      "offset": 0,
+      "expectedOffset": 0,
+      "timeErrorMs": 0,
+      "offsetErrorMs": 0,
+      "late": false,
+      "endedBy": "its own end",
+      "endCause": "clipEnd",
+      "endErrorMs": 0
+    },
+    {
+      "clip": "clip-take",
+      "cause": "resume",
+      "atTick": 2568,
+      "when": 8.5867,
+      "now": 8.5867,
+      "offset": 3.175,
+      "expectedOffset": 3.175,
+      "timeErrorMs": -100,
+      "offsetErrorMs": 0,
+      "late": false,
+      "endedBy": "its own end",
+      "endCause": "loopSeam",
+      "endErrorMs": -100
+    },
+    {
+      "clip": "clip-take",
+      "cause": "loop",
+      "atTick": 0,
+      "when": 9.952,
+      "now": 9.952,
+      "offset": 0,
+      "expectedOffset": 0.5,
+      "timeErrorMs": -59.7,
+      "offsetErrorMs": -500,
+      "late": false,
+      "endedBy": "its own end",
+      "endCause": "loopSeam",
+      "endErrorMs": -59.7
+    },
+    {
+      "clip": "clip-sample",
+      "cause": "scheduled",
+      "atTick": 1920,
+      "when": 12.0117,
+      "now": 11.9227,
+      "offset": 0,
+      "expectedOffset": 0,
+      "timeErrorMs": 0,
+      "offsetErrorMs": 0,
+      "late": false,
+      "endedBy": "its own end",
+      "endCause": "clipEnd",
+      "endErrorMs": 0
+    },
+    {
+      "clip": "clip-take",
+      "cause": "loop",
+      "atTick": 0,
+      "when": 13.9627,
+      "now": 13.9627,
+      "offset": 0,
+      "expectedOffset": 0.5,
+      "timeErrorMs": -49,
+      "offsetErrorMs": -500,
+      "late": false,
+      "endedBy": "stop()",
+      "endCause": "stop",
+      "endErrorMs": -100
+    },
+    {
+      "clip": "clip-sample",
+      "cause": "scheduled",
+      "atTick": 1920,
+      "when": 16.0117,
+      "now": 15.9227,
+      "offset": 0,
+      "expectedOffset": 0,
+      "timeErrorMs": 0,
+      "offsetErrorMs": 0,
+      "late": false,
+      "endedBy": "stop()",
+      "endCause": "stop",
+      "endErrorMs": -100
+    }
+  ],
+  "clipCancels": [
+    {
+      "cause": "play",
+      "errorMs": -92
+    },
+    {
+      "cause": "pause",
+      "errorMs": -94.7
+    },
+    {
+      "cause": "resume",
+      "errorMs": -100
+    },
+    {
+      "cause": "loopSeam",
+      "errorMs": -59.7
+    },
+    {
+      "cause": "loopSeam",
+      "errorMs": -49
+    },
+    {
+      "cause": "stop",
+      "errorMs": -100
+    }
+  ],
+  "metronome": {
+    "clicks": [
+      {
+        "time": 6.3667,
+        "tick": 983.1,
+        "errorMs": 24,
+        "accent": true,
+        "onBarLine": false,
+        "run": "play"
+      },
+      {
+        "time": 6.8667,
+        "tick": 1463.1,
+        "errorMs": 24,
+        "accent": false,
+        "onBarLine": false,
+        "run": "play"
+      },
+      {
+        "time": 7.3667,
+        "tick": 1943.1,
+        "errorMs": 24,
+        "accent": false,
+        "onBarLine": false,
+        "run": "play"
+      },
+      {
+        "time": 7.8667,
+        "tick": 2423.1,
+        "errorMs": 24,
+        "accent": false,
+        "onBarLine": false,
+        "run": "play"
+      },
+      {
+        "time": 8.6921,
+        "tick": 2573.2,
+        "errorMs": 180.5,
+        "accent": true,
+        "onBarLine": false,
+        "run": "resume"
+      },
+      {
+        "time": 9.1921,
+        "tick": 3053.2,
+        "errorMs": 180.5,
+        "accent": false,
+        "onBarLine": false,
+        "run": "resume"
+      },
+      {
+        "time": 9.6921,
+        "tick": 3533.2,
+        "errorMs": 180.5,
+        "accent": false,
+        "onBarLine": false,
+        "run": "resume"
+      },
+      {
+        "time": 12.6921,
+        "tick": 2573.2,
+        "errorMs": 180.5,
+        "accent": false,
+        "onBarLine": false,
+        "run": "loop"
+      },
+      {
+        "time": 13.1921,
+        "tick": 3053.2,
+        "errorMs": 180.5,
+        "accent": true,
+        "onBarLine": false,
+        "run": "loop"
+      },
+      {
+        "time": 13.6921,
+        "tick": 3533.2,
+        "errorMs": 180.5,
+        "accent": false,
+        "onBarLine": false,
+        "run": "loop"
+      }
+    ],
+    "laps": [
+      {
+        "from": "play",
+        "to": "pause",
+        "fromTick": 960,
+        "toTick": 2641.9,
+        "beats": 4,
+        "clicks": 4,
+        "clicksOnBeat": 4,
+        "missedBeats": 0,
+        "medianErrorMs": 24
+      },
+      {
+        "from": "resume",
+        "to": "loopSeam",
+        "fromTick": 2568,
+        "toTick": 3840,
+        "beats": 2,
+        "clicks": 3,
+        "clicksOnBeat": 0,
+        "missedBeats": 2,
+        "medianErrorMs": 180.5
+      },
+      {
+        "from": "loop",
+        "to": "loopSeam",
+        "fromTick": 0,
+        "toTick": 3840,
+        "beats": 8,
+        "clicks": 3,
+        "clicksOnBeat": 0,
+        "missedBeats": 8,
+        "medianErrorMs": 180.5
+      },
+      {
+        "from": "loop",
+        "to": "stop",
+        "fromTick": 0,
+        "toTick": 2191.7,
+        "beats": 5,
+        "clicks": 0,
+        "clicksOnBeat": 0,
+        "missedBeats": 5,
+        "medianErrorMs": null
+      }
+    ]
+  },
+  "countIn": {
+    "clicks": 4,
+    "expectedClicks": 4,
+    "maxGridErrorMs": 0,
+    "accentsOnBeatOne": true,
+    "downbeatErrorMs": 40,
+    "timerLateMs": 51.9
+  },
+  "midi": {
+    "Drums": {
+      "instrument": "drum-machine",
+      "noteOns": 56,
+      "maxGridErrorMs": 0,
+      "minAheadMs": 26.3,
+      "medianAheadMs": 67,
+      "late": 0
+    },
+    "Lead": {
+      "instrument": "oracle-synth",
+      "noteOns": 10,
+      "maxGridErrorMs": 0,
+      "minAheadMs": 43.7,
+      "medianAheadMs": 77.2,
+      "late": 0
+    }
+  },
+  "releases": [
+    {
+      "track": "Take",
+      "fn": "panic",
+      "cause": "pause",
+      "errorMs": -94.7
+    },
+    {
+      "track": "Drums",
+      "fn": "panic",
+      "cause": "pause",
+      "errorMs": -94.7
+    },
+    {
+      "track": "Lead",
+      "fn": "panic",
+      "cause": "pause",
+      "errorMs": -94.7
+    },
+    {
+      "track": "Take",
+      "fn": "allNotesOff",
+      "cause": "loopSeam",
+      "errorMs": -59.7
+    },
+    {
+      "track": "Drums",
+      "fn": "allNotesOff",
+      "cause": "loopSeam",
+      "errorMs": -59.7
+    },
+    {
+      "track": "Lead",
+      "fn": "allNotesOff",
+      "cause": "loopSeam",
+      "errorMs": -59.7
+    },
+    {
+      "track": "Take",
+      "fn": "allNotesOff",
+      "cause": "loopSeam",
+      "errorMs": -49
+    },
+    {
+      "track": "Drums",
+      "fn": "allNotesOff",
+      "cause": "loopSeam",
+      "errorMs": -49
+    },
+    {
+      "track": "Lead",
+      "fn": "allNotesOff",
+      "cause": "loopSeam",
+      "errorMs": -49
+    },
+    {
+      "track": "Take",
+      "fn": "panic",
+      "cause": "stop",
+      "errorMs": -100
+    },
+    {
+      "track": "Drums",
+      "fn": "panic",
+      "cause": "stop",
+      "errorMs": -100
+    },
+    {
+      "track": "Lead",
+      "fn": "panic",
+      "cause": "stop",
+      "errorMs": -100
+    }
+  ],
+  "adapters": {
+    "drum-machine": {
+      "notes": 56,
+      "gateErrorMs": null,
+      "releaseErrorMs": null,
+      "envelopeCalls": 0,
+      "sourcesStarted": {
+        "atNoteTime": 56,
+        "atOnce": 0,
+        "other": 0
+      },
+      "cutAtOnceInNoteOn": {
+        "count": 0,
+        "medianAheadMs": null
+      },
+      "pitchAtOnceInNoteOn": {
+        "count": 0,
+        "medianAheadMs": null
+      },
+      "sourcesStopped": {
+        "atOnceInNoteOn": 0,
+        "atOnceInOtherCalls": 0,
+        "scheduledInCalls": 0,
+        "atOnceLater": 0,
+        "scheduledLater": 55,
+        "notStopped": 1
+      }
+    },
+    "oracle-synth": {
+      "notes": 10,
+      "gateErrorMs": 0,
+      "releaseErrorMs": 0,
+      "envelopeCalls": 116,
+      "sourcesStarted": {
+        "atNoteTime": 0,
+        "atOnce": 24,
+        "other": 0
+      },
+      "cutAtOnceInNoteOn": {
+        "count": 0,
+        "medianAheadMs": null
+      },
+      "pitchAtOnceInNoteOn": {
+        "count": 60,
+        "medianAheadMs": 74.5
+      },
+      "sourcesStopped": {
+        "atOnceInNoteOn": 0,
+        "atOnceInOtherCalls": 0,
+        "scheduledInCalls": 0,
+        "atOnceLater": 20,
+        "scheduledLater": 0,
+        "notStopped": 4
+      }
+    }
+  },
+  "lateStarts": {},
+  "immediateStarts": {
+    "other:ConstantSourceNode": 5,
+    "clip": 4,
+    "adapter:oracle-synth": 24
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "warnings": []
+}

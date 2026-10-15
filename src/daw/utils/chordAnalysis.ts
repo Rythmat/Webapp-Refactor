@@ -5,7 +5,7 @@ import {
   type ChordRegion,
 } from '@/daw/store/prismSlice';
 import type { Track } from '@/daw/store/tracksSlice';
-import { guessTrackRole, type DawTrackRole } from '@/daw/utils/trackRole';
+import { resolveTrackRole, type DawTrackRole } from '@/daw/utils/trackRole';
 import type { MelodyAnalysis } from '@/unison/types/schema';
 import { detectKey } from '@/unison/engine/keyDetector';
 
@@ -29,13 +29,11 @@ export interface ChordAnalysis {
   source: 'notes' | 'audio';
 }
 
-/** A track's role, with 'auto' resolved from its name and instrument. */
-export const trackRole = (
-  track: Pick<Track, 'trackRole' | 'name' | 'instrument'>,
-): DawTrackRole =>
-  track.trackRole === 'auto'
-    ? guessTrackRole(track.name, track.instrument)
-    : track.trackRole;
+/**
+ * A track's role, with 'auto' resolved from its name and instrument; a track
+ * with no role saved counts as 'auto' too.
+ */
+export const trackRole = resolveTrackRole;
 
 // Roles whose notes make up the chords: harmony, voiced over the bass.
 const CHORD_ROLES = new Set<DawTrackRole>(['chords', 'auto', 'bass']);

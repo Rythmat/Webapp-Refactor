@@ -34,9 +34,12 @@ export {
   appendMspLaunchParams,
   clearStashedMspLaunchParams,
   fallbackInboxToken,
+  launchIsFor,
   readMspLaunchParams,
   readStashedMspLaunchParams,
   stashMspLaunchParams,
+  studioTutorialActivityRef,
+  type MspActivity,
   type MspLaunchParams,
 } from './mspLaunchParams';
 export { useMspTokenMint, type UseMspTokenMint } from './useMspTokenMint';

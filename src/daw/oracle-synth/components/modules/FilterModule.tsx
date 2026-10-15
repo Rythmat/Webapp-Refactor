@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSynthStore } from '../../store';
 import { Filter } from '../../audio/Filter';
+import type { FilterType } from '../../audio/types';
 import { useModIndicator } from '../../hooks/useModIndicator';
 import { Knob, KnobModArc } from '../controls/Knob';
 import { Dropdown } from '../controls/Dropdown';
-import { Toggle } from '../controls/Toggle';
 import { FilterResponseVisualizer } from '../visualizers/FilterResponseVisualizer';
 import styles from './FilterModule.module.css';
 
@@ -24,6 +24,17 @@ const FILTER_TYPE_OPTIONS = [
   { value: 'lowshelf', label: 'LOW SHELF' },
   { value: 'highshelf', label: 'HIGH SHELF' },
 ];
+
+// A biquad applies its gain only to peaking and shelf filters, so GAIN is shown
+// only for those types; on the others it would turn without a sound change.
+// The filter's ON/OFF switch and PAN aren't shown at all until the engine
+// implements them: Filter.setParams keeps `enabled` without applying it and
+// never reads `pan`, so the filter always runs, centred.
+const GAIN_FILTER_TYPES: ReadonlySet<FilterType> = new Set([
+  'peaking',
+  'lowshelf',
+  'highshelf',
+]);
 
 const MIN_FREQ = 20;
 const MAX_FREQ = 20000;
@@ -89,11 +100,6 @@ export const FilterModule: React.FC<FilterModuleProps> = React.memo(
     return (
       <div className={styles.module}>
         <div className={styles.header}>
-          <Toggle
-            value={filter.enabled}
-            accent={accent}
-            onChange={(v) => setParam(index, 'enabled', v)}
-          />
           <span className={styles.title} style={{ color: accent }}>
             {label}
           </span>
@@ -136,32 +142,18 @@ export const FilterModule: React.FC<FilterModuleProps> = React.memo(
         </div>
 
         <div className={styles.knobRow}>
-          <Knob
-            label="PAN"
-            value={filter.pan}
-            min={-1}
-            max={1}
-            defaultValue={0}
-            accent={accent}
-            formatValue={(v) =>
-              v === 0
-                ? 'C'
-                : v < 0
-                  ? `L${Math.round(-v * 100)}`
-                  : `R${Math.round(v * 100)}`
-            }
-            onChange={(v) => setParam(index, 'pan', v)}
-          />
-          <Knob
-            label="GAIN"
-            value={filter.gain}
-            min={-24}
-            max={24}
-            defaultValue={0}
-            accent={accent}
-            formatValue={(v) => `${v > 0 ? '+' : ''}${v.toFixed(1)}dB`}
-            onChange={(v) => setParam(index, 'gain', v)}
-          />
+          {GAIN_FILTER_TYPES.has(filter.type) && (
+            <Knob
+              label="GAIN"
+              value={filter.gain}
+              min={-24}
+              max={24}
+              defaultValue={0}
+              accent={accent}
+              formatValue={(v) => `${v > 0 ? '+' : ''}${v.toFixed(1)}dB`}
+              onChange={(v) => setParam(index, 'gain', v)}
+            />
+          )}
           <Knob
             label="MIX"
             value={filter.mix}

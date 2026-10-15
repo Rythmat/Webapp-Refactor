@@ -421,18 +421,26 @@ export function ModeOverview({ mode, variant }: ModeOverviewProps) {
           style={{ color: 'var(--color-text)' }}
         >
           Scale degrees:{' '}
-          {scaleSteps
-            .map((i) => {
-              return mode == 'lydian'
-                ? chromaticSharpInterval[i]
-                : chromaticFlatInterval[i];
-            })
-            .join(', ')}
+          {/* On guitar, as the scale writes them (♯5, ♯2, 𝄫7, a blues ♯4). */}
+          {(variant && getChordScales(mode)?.intervals) ||
+            scaleSteps
+              .map((i) => {
+                return mode == 'lydian'
+                  ? chromaticSharpInterval[i]
+                  : chromaticFlatInterval[i];
+              })
+              .join(', ')}
         </p>
 
         {(() => {
           const cs = getChordScales(mode);
-          if (!cs) return null;
+          // Pentatonic and blues scales have no chord scales to show.
+          if (
+            !cs ||
+            cs.triads.length + cs.sevenths.length + cs.ninths.length === 0
+          ) {
+            return null;
+          }
           return (
             <div className="w-full max-w-3xl mb-4">
               <button

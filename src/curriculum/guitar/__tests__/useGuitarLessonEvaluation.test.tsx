@@ -1,14 +1,19 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildGuitarAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/guitarAppliedTheoryFundamentals';
+import {
+  buildGuitarAppliedTheoryFundamentalsFlow,
+  buildGuitarScaleFlow,
+} from '@/curriculum/data/activityFlows/guitarAppliedTheoryFundamentals';
 import {
   toPianoRollEvents,
   type LessonNoteEvent,
 } from '@/curriculum/engine/genreGeneration/resolveStepContent';
 import {
   classifyGuitarStep,
+  chromaPitchClasses,
   heardPitchClasses,
+  isNameableChord,
   useGuitarLessonEvaluation,
   type GuitarLessonEvaluationInput,
 } from '@/curriculum/guitar/useGuitarLessonEvaluation';
@@ -284,6 +289,55 @@ describe('useGuitarLessonEvaluation', () => {
     // A clean strum of that chord afterwards clears it.
     act(() => chords.emit(chord(2, C)));
     expect(hook.result.current.buildPolicy().unclearTargetIndexes).toEqual([]);
+  });
+
+  it('reads a chord the detector has no name for from its chroma', () => {
+    // C major(♭5): C E G♭, the Oriental mode's chord 1.
+    const target = [0, 4, 6];
+    expect(isNameableChord(target)).toBe(false);
+    expect(isNameableChord(C)).toBe(true);
+    const chroma = new Float64Array(12).fill(0.05);
+    chroma[0] = 1;
+    chroma[4] = 0.7;
+    chroma[6] = 0.5;
+    chroma[7] = 0.2; // an overtone, quieter than the chord's tones
+    expect(chromaPitchClasses(chroma, target)).toEqual([0, 4, 6]);
+    expect(heardPitchClasses({ pcs: [0, 4, 7], chroma }, target)).toEqual([
+      0, 4, 6,
+    ]);
+    // A loud stray string counts against it.
+    chroma[9] = 0.9;
+    expect(chromaPitchClasses(chroma, target)).toEqual([0, 4, 6, 9]);
+    // A silent chroma leaves the detector's name.
+    expect(
+      heardPitchClasses(
+        { pcs: [0, 4, 7], chroma: new Float64Array(12) },
+        target,
+      ),
+    ).toEqual([0, 4, 7]);
+  });
+
+  it('scores an unclear strum of a chord the detector cannot name', () => {
+    const oriental = buildGuitarScaleFlow('C', 'oriental');
+    const step = oriental.sections[1].steps.find((s) =>
+      s.activity.startsWith('B2.1'),
+    )!;
+    expect(step.chordTargets![0].quality).toBe('majorb5');
+    const { chords, hook } = setup(step);
+    const chroma = new Float64Array(12).fill(0.05);
+    chroma[0] = 1;
+    chroma[4] = 0.7;
+    chroma[6] = 0.5;
+    act(() =>
+      chords.emit(
+        chord(1, [], { unclear: true, rootPc: 0, quality: '', chroma }),
+      ),
+    );
+    expect(hook.result.current.unclearCount).toBe(0);
+    expect(hook.result.current.heardChord).toMatchObject({
+      label: 'Cmaj(b5)',
+      matchesCurrent: true,
+    });
   });
 
   it('matches exactly from MIDI and octave-tolerantly from the microphone', () => {

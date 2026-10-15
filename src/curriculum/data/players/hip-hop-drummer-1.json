@@ -1,0 +1,54 @@
+{
+  "id": "hip-hop-drummer-1",
+  "name": "Hip-Hop-Drummer-1",
+  "instrument": "drums",
+  "genre": "hip-hop",
+  "kind": "placeholder",
+  "order": 210,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "boombap_a"
+    },
+    {
+      "kind": "groove",
+      "id": "boombap_b"
+    },
+    {
+      "kind": "groove",
+      "id": "boombap_studio"
+    },
+    {
+      "kind": "groove",
+      "id": "laid_back"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-hiphop-1"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-hiphop-2"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-hiphop-3"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-trap-1"
+    },
+    {
+      "kind": "groove",
+      "id": "groove-trap-2"
+    },
+    {
+      "kind": "groove",
+      "id": "trap_a"
+    },
+    {
+      "kind": "groove",
+      "id": "trap_b"
+    }
+  ]
+}

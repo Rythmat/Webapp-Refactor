@@ -1,5 +1,10 @@
 import { type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { AtlasRoutes } from '@/constants/routes';
 import { getInstrument } from '@/curriculum/data/instruments';
 import type { Credit, Song } from '@/curriculum/types/songLibrary';
@@ -17,6 +22,11 @@ import type { Credit, Song } from '@/curriculum/types/songLibrary';
  * `unverified` credits render muted and italic. They are shown rather than
  * hidden, because a credit nobody has confirmed is still the best lead anyone
  * has — but it should never look like a fact.
+ *
+ * The billed artists sit in the row itself; every other group (Sidemen,
+ * Instruments, Written by, Studio, Recorded, Also recorded by) is one pill
+ * with its count, opening onto its names, so a song with a long session
+ * sheet still leaves the chart most of the page.
  */
 
 // `/atlas` is the Globe Dashboard and drops these params silently; the full
@@ -79,16 +89,38 @@ const Pill: FC<{
   );
 };
 
-const Group: FC<{ heading: string; children: React.ReactNode }> = ({
-  heading,
-  children,
-}) => (
-  <div className="flex flex-wrap items-center gap-1.5">
-    <span className="text-[11px] uppercase tracking-wide text-white/30">
-      {heading}
-    </span>
-    {children}
-  </div>
+/** A group folded into one pill: its heading and count, opening onto its
+ *  names (each still its own pill, linking where the Globe can follow). */
+const Group: FC<{
+  heading: string;
+  count: number;
+  children: React.ReactNode;
+}> = ({ heading, count, children }) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <button
+        type="button"
+        className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-2.5 py-1 text-xs text-white/70 transition-colors hover:border-white/30 hover:text-white data-[state=open]:border-[#7ecfcf]/60 data-[state=open]:text-[#7ecfcf]"
+      >
+        {heading}
+        <span className="tabular-nums text-white/40">{count}</span>
+      </button>
+    </PopoverTrigger>
+    <PopoverContent
+      align="start"
+      className="w-auto max-w-sm rounded-xl border-0 p-3"
+      style={{
+        background: 'var(--color-surface-2)',
+        border: '1px solid var(--glass-border)',
+        backdropFilter: 'blur(24px)',
+      }}
+    >
+      <p className="mb-2 text-[11px] uppercase tracking-wide text-white/40">
+        {heading}
+      </p>
+      <div className="flex flex-wrap gap-1.5">{children}</div>
+    </PopoverContent>
+  </Popover>
 );
 
 /** What a credit says they did: the instrument, else the role. */
@@ -170,50 +202,60 @@ export const SongCredits: FC<{ song: Song }> = ({ song }) => {
     .map((id) => getInstrument(id as string))
     .filter(Boolean);
 
-  return (
-    <div className="flex flex-col gap-2 border-t border-white/5 pt-3">
-      {billed.length > 0 && (
-        <Group heading="Artists">
-          {billed.map((c) => (
-            <CreditPill key={`primary-${c.name}`} credits={[c]} />
-          ))}
-        </Group>
-      )}
+  const sidemen = byPerson(players);
+  const writtenBy = byPerson(writers);
+  const studio = byPerson(desk);
 
-      {players.length > 0 && (
-        <Group heading="Sidemen">
-          {byPerson(players).map((held) => (
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {billed.map((c) => (
+        <CreditPill key={`primary-${c.name}`} credits={[c]} />
+      ))}
+
+      {sidemen.length > 0 && (
+        <Group heading="Sidemen" count={sidemen.length}>
+          {sidemen.map((held) => (
             <CreditPill key={`${held[0].name}-p`} credits={held} />
           ))}
         </Group>
       )}
 
       {instruments.length > 0 && (
-        <Group heading="Instruments">
+        <Group heading="Instruments" count={instruments.length}>
           {instruments.map((i) => (
             <Pill key={i!.id} label={i!.name} title={i!.section} />
           ))}
         </Group>
       )}
 
-      {writers.length > 0 && (
-        <Group heading="Written by">
-          {byPerson(writers).map((held) => (
+      {writtenBy.length > 0 && (
+        <Group heading="Written by" count={writtenBy.length}>
+          {writtenBy.map((held) => (
             <CreditPill key={`${held[0].name}-w`} credits={held} />
           ))}
         </Group>
       )}
 
-      {desk.length > 0 && (
-        <Group heading="Studio">
-          {byPerson(desk).map((held) => (
+      {studio.length > 0 && (
+        <Group heading="Studio" count={studio.length}>
+          {studio.map((held) => (
             <CreditPill key={`${held[0].name}-d`} credits={held} />
           ))}
         </Group>
       )}
 
       {recorded && (
-        <Group heading="Recorded">
+        <Group
+          heading="Recorded"
+          count={
+            [
+              recorded.studio,
+              recorded.city,
+              recorded.label,
+              recorded.recordedYear,
+            ].filter(Boolean).length
+          }
+        >
           {recorded.studio && <Pill label={recorded.studio} />}
           {recorded.city && (
             <Pill label={recorded.city} href={atlas.place(recorded.city)} />
@@ -232,7 +274,7 @@ export const SongCredits: FC<{ song: Song }> = ({ song }) => {
       )}
 
       {relatedRecordings.length > 0 && (
-        <Group heading="Also recorded by">
+        <Group heading="Also recorded by" count={relatedRecordings.length}>
           {relatedRecordings.map((r, i) => (
             <Pill
               key={`${r.artist}-${i}`}

@@ -1,9 +1,5 @@
-import {
-  CITIES,
-  getTour,
-  regionTourId,
-  resolveTourStops,
-} from '@/components/atlas/data';
+import { CITIES, regionTourId } from '@/components/atlas/data';
+import { getTour, resolveTourStops } from '@/components/atlas/data/guidedTours';
 import type { City } from '@/components/atlas/types';
 import { FEATURED_CITY_IDS } from './featured';
 

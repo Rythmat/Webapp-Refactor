@@ -2,7 +2,7 @@
   "id": "mariachi-vals",
   "name": "Mariachi Vals",
   "description": "Ranchera vals: \"chord, chord\" on beats 2 and 3 (the bass takes 1)",
-  "status": "draft",
+  "status": "live",
   "order": 120,
   "timeSignature": [3, 4],
   "length": "1m",
@@ -10,7 +10,17 @@
   "ceiling": 72,
   "grooves": ["groove-latin-2"],
   "hits": [
-    { "time": "0:1:0", "dur": 0.5, "velocity": 0.7, "tones": "upper" },
-    { "time": "0:2:0", "dur": 0.5, "velocity": 0.66, "tones": "upper" }
+    {
+      "time": "0:1:0",
+      "dur": 0.5,
+      "velocity": 0.7,
+      "tones": "upper"
+    },
+    {
+      "time": "0:2:0",
+      "dur": 0.5,
+      "velocity": 0.66,
+      "tones": "upper"
+    }
   ]
 }

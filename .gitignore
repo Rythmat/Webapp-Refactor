@@ -11,7 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
-.partykit/
+# Wrangler state and local secrets for the collab worker
+.wrangler/
+.dev.vars*
 
 # Build caches / coverage / deploy metadata
 *.tsbuildinfo

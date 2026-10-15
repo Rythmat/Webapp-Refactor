@@ -133,7 +133,7 @@ export const ORIGIN_REMOTE = 'remote-yjs' as const;
  * its own, so two builds that lay the document out differently never edit the
  * same room. Bump it with every Y.Doc shape change.
  *
- * Shipping a bump: deploy the web app first, then `npm run partykit:deploy`
+ * Shipping a bump: deploy the web app first, then `npm run collab:deploy`
  * straight after. In between, the old server turns updated tabs away and
  * they say the session server is being updated (the 4426 reason names the
  * server's version), while older tabs carry on. Once the new server is live,

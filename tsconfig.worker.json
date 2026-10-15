@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    /* The Workers runtime, not the DOM (and not Node). */
+    "types": ["@cloudflare/workers-types"],
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true
+  },
+  /* The collab worker (src/daw/collab/server/wrangler.jsonc). Kept out of
+     tsconfig.app.json: Cloudflare's types and the DOM's can't share a program. */
+  "include": ["src/daw/collab/server"]
+}

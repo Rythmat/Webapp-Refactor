@@ -1,16 +1,17 @@
-// ── PartyKit Collaboration Server ─────────────────────────────────────────
-// Minimal PartyKit server that syncs a Yjs document between connected
-// clients and handles ephemeral transport commands.
+// ── Collaboration Server (PartyServer) ────────────────────────────────────
+// Minimal PartyServer Durable Object that syncs a Yjs document between
+// connected clients (y-partyserver) and handles ephemeral transport commands.
+// Served as the `main` party: /parties/main/<room> (see index.ts).
 //
 // The room persists only while the host is connected. When the host
 // disconnects, all remaining clients are notified and the room is closed
 // via the Music Atlas API webhook.
 //
-// Deploy: `npx partykit deploy` from this directory.
-// Dev:    `npx partykit dev` for local testing.
+// Deploy: `npm run collab:deploy` (wrangler.jsonc in this directory).
+// Dev:    `npm run collab:dev` for local testing.
 
-import type * as Party from 'partykit/server';
-import { onConnect } from 'y-partykit';
+import type { Connection, ConnectionContext, WSMessage } from 'partyserver';
+import { YServer } from 'y-partyserver';
 
 import {
   COLLAB_CLOSE,
@@ -21,11 +22,13 @@ import {
   type TransportCommand,
 } from '../types';
 import { validateConnection } from './auth';
+import { createChunkedReader, isBatchMarker } from './chunking';
+import './env';
 
 // Track connection metadata (role, userId)
 const connectionMeta = new Map<string, { userId: string; role: string }>();
 
-// Maximum distinct users allowed in a room. Caps collaboration cost (PartyKit
+// Maximum distinct users allowed in a room. Caps collaboration cost (socket
 // message fan-out) and keeps the WebRTC audio mesh within a workable size.
 const MAX_ROOM_USERS = 5;
 
@@ -44,7 +47,11 @@ function docSchemaVersionOf(uri: string): number {
   }
 }
 
-export default class CollabServer implements Party.Server {
+export default class CollabServer extends YServer {
+  // Room state (host, bans, connection roles) lives in memory, so the room
+  // must never hibernate — waking would forget the host and every ban.
+  static options = { hibernate: false };
+
   // The connection ID of the room host (first 'owner' to connect)
   private hostConnectionId: string | null = null;
   private hostUserId: string | null = null;
@@ -59,13 +66,28 @@ export default class CollabServer implements Party.Server {
   private backendRoomId: string | null = null;
   private roomRegistered = false;
 
-  constructor(public room: Party.Room) {}
+  // Sockets handed to the Yjs sync, each with the reader that reassembles its
+  // chunked messages (see ./chunking).
+  private syncing = new Map<string, (message: WSMessage) => void>();
+
+  /**
+   * Only sockets handed to the Yjs sync count as connected. y-partyserver
+   * sends every document and awareness update to getConnections(), and
+   * partyserver lists a socket from before onConnect runs — so without this,
+   * one still waiting on auth, or about to be turned away, would receive the
+   * room's edits. (y-partykit only ever sent to the sockets it was handed.)
+   */
+  getConnections<TState = unknown>(tag?: string): Iterable<Connection<TState>> {
+    return [...super.getConnections<TState>(tag)].filter((conn) =>
+      this.syncing.has(conn.id),
+    );
+  }
 
   /**
    * HTTP endpoint for room status checks.
    * GET → { active: boolean, connections: number }
    */
-  async onRequest(req: Party.Request) {
+  async onRequest(req: Request) {
     if (req.method === 'GET') {
       return new Response(
         JSON.stringify({
@@ -96,10 +118,11 @@ export default class CollabServer implements Party.Server {
   /**
    * Handle a new WebSocket connection.
    * Checks the client's doc schema version and auth, tags viewer connections,
-   * then hands off to y-partykit for Yjs sync and awareness protocol.
+   * then hands off to y-partyserver for Yjs sync and awareness protocol.
    */
-  async onConnect(conn: Party.Connection) {
-    const isJamRoom = this.room.id.startsWith('jam-');
+  async onConnect(conn: Connection, ctx: ConnectionContext) {
+    const isJamRoom = this.name.startsWith('jam-');
+    const uri = ctx.request.url;
 
     // Version handshake, before any Yjs sync: a build that lays the studio
     // document out differently must not edit this room. Jam rooms are exempt —
@@ -107,7 +130,7 @@ export default class CollabServer implements Party.Server {
     // Checked before auth so an out-of-date app is told to update, not to sign
     // in again.
     if (!isJamRoom) {
-      const clientVersion = docSchemaVersionOf(conn.uri);
+      const clientVersion = docSchemaVersionOf(uri);
       if (clientVersion !== COLLAB_DOC_SCHEMA_VERSION) {
         conn.close(
           COLLAB_CLOSE.versionMismatch,
@@ -118,7 +141,7 @@ export default class CollabServer implements Party.Server {
     }
 
     // Validate auth token from connection URL (pass env for JWKS config)
-    const auth = await validateConnection(conn.uri, this.room.env);
+    const auth = await validateConnection(uri, this.env);
     // DEBUG (temporary): what identity did this connection get?
     console.log('[collab] onConnect', {
       connId: conn.id,
@@ -134,7 +157,7 @@ export default class CollabServer implements Party.Server {
       // about ten times a second. Close this gap once it fetches a fresh
       // token per connect and stops after repeated 4401s, as CollabProvider
       // does.
-      if (isJamRoom) return this.syncDocument(conn);
+      if (isJamRoom) return this.syncDocument(conn, ctx);
       // Fail closed: a socket without a verified identity never reaches the
       // Yjs sync, so a room code alone can't read or write a session, and bans
       // and the user cap apply to everyone. The client reconnects with a fresh
@@ -201,30 +224,34 @@ export default class CollabServer implements Party.Server {
       return;
     }
 
-    return this.syncDocument(conn);
+    return this.syncDocument(conn, ctx);
   }
 
-  /** Hand an admitted socket to y-partykit for the Yjs sync and awareness. */
-  private syncDocument(conn: Party.Connection) {
-    return onConnect(conn, this.room, {
-      // Persist the Yjs document to Cloudflare Durable Objects.
-      persist: { mode: 'snapshot' },
-      // Callback to intercept Yjs update messages from viewers
-      callback: {
-        handler: async (yDoc) => {
-          // No-op — we don't need to process Yjs updates server-side.
-          // Viewer filtering is handled in onMessage below.
-          void yDoc;
-        },
-      },
-    });
+  /**
+   * Hand an admitted socket to y-partyserver for the Yjs sync and awareness.
+   *
+   * The document lives in memory only (no onLoad/onSave). y-partykit also kept
+   * a snapshot in room storage, but a room ends when its host leaves and the
+   * host seeds the document from their own copy on every join, so storage was
+   * never the source of truth.
+   */
+  private syncDocument(conn: Connection, ctx: ConnectionContext) {
+    this.syncing.set(
+      conn.id,
+      createChunkedReader((message) => this.handleMessage(conn, message)),
+    );
+    return super.onConnect(conn, ctx);
   }
 
   /**
    * Handle disconnect — clean up metadata.
    * If the host disconnects, notify all clients and close the room via API.
    */
-  onClose(conn: Party.Connection) {
+  onClose(conn: Connection, code: number, reason: string, wasClean: boolean) {
+    this.syncing.delete(conn.id);
+    // Drops the socket's awareness states (its cursor and presence).
+    super.onClose(conn, code, reason, wasClean);
+
     const meta = connectionMeta.get(conn.id);
     connectionMeta.delete(conn.id);
 
@@ -263,7 +290,7 @@ export default class CollabServer implements Party.Server {
       type: 'room:closing',
       reason: 'host_disconnected',
     });
-    for (const conn of this.room.getConnections()) {
+    for (const conn of this.getConnections()) {
       conn.send(closingMsg);
       conn.close(COLLAB_CLOSE.hostLeft, 'Host disconnected');
     }
@@ -280,11 +307,11 @@ export default class CollabServer implements Party.Server {
     if (this.roomRegistered) return;
     this.roomRegistered = true;
 
-    const apiUrl = this.room.env.MUSIC_ATLAS_API_URL as string | undefined;
-    const secret = this.room.env.PARTYKIT_WEBHOOK_SECRET as string | undefined;
+    const apiUrl = this.env.MUSIC_ATLAS_API_URL;
+    const secret = this.env.PARTYKIT_WEBHOOK_SECRET;
     if (!apiUrl || !secret) return;
 
-    const type = this.room.id.startsWith('jam-') ? 'jam' : 'daw';
+    const type = this.name.startsWith('jam-') ? 'jam' : 'daw';
 
     try {
       const res = await fetch(`${apiUrl}/rooms/register`, {
@@ -293,7 +320,7 @@ export default class CollabServer implements Party.Server {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${secret}`,
         },
-        body: JSON.stringify({ roomKey: this.room.id, hostId, type }),
+        body: JSON.stringify({ roomKey: this.name, hostId, type }),
       });
       if (res.ok) {
         // API responses are SuperJSON-wrapped ({ json, meta }).
@@ -314,8 +341,8 @@ export default class CollabServer implements Party.Server {
     if (!roomId) return;
     this.backendRoomId = null;
 
-    const apiUrl = this.room.env.MUSIC_ATLAS_API_URL as string | undefined;
-    const secret = this.room.env.PARTYKIT_WEBHOOK_SECRET as string | undefined;
+    const apiUrl = this.env.MUSIC_ATLAS_API_URL;
+    const secret = this.env.PARTYKIT_WEBHOOK_SECRET;
     if (!apiUrl || !secret) return;
 
     try {
@@ -334,12 +361,15 @@ export default class CollabServer implements Party.Server {
 
   /**
    * Handle non-Yjs messages (transport commands, chat, etc.).
-   * Yjs sync messages are binary and handled internally by y-partykit;
-   * our custom messages are JSON strings.
+   * Yjs sync messages are binary (plus y-partykit's chunk markers) and go to
+   * y-partyserver, from admitted sockets only; our custom messages are JSON
+   * strings.
    */
-  async onMessage(message: string, sender: Party.Connection) {
-    // Only process string messages (Yjs binary messages are handled by y-partykit)
-    if (typeof message !== 'string') return;
+  async onMessage(sender: Connection, message: WSMessage) {
+    if (typeof message !== 'string' || isBatchMarker(message)) {
+      this.syncing.get(sender.id)?.(message);
+      return;
+    }
 
     // Viewers cannot send transport commands
     const meta = connectionMeta.get(sender.id);
@@ -355,7 +385,7 @@ export default class CollabServer implements Party.Server {
           hostConnectionId: this.hostConnectionId,
           isHost: sender.id === this.hostConnectionId,
           targetUserId: data.targetUserId,
-          connections: [...this.room.getConnections()].map((c) => ({
+          connections: [...this.getConnections()].map((c) => ({
             id: c.id,
             userId: connectionMeta.get(c.id)?.userId,
           })),
@@ -367,7 +397,7 @@ export default class CollabServer implements Party.Server {
         this.bannedUserIds.add(targetUserId);
         // Close every connection belonging to the kicked user.
         let closed = 0;
-        for (const conn of this.room.getConnections()) {
+        for (const conn of this.getConnections()) {
           if (connectionMeta.get(conn.id)?.userId === targetUserId) {
             conn.send(JSON.stringify({ type: 'kicked', reason: 'kicked' }));
             conn.close(COLLAB_CLOSE.kicked, 'Kicked by host');
@@ -386,7 +416,7 @@ export default class CollabServer implements Party.Server {
           serverTimestamp: Date.now(),
         };
         // Broadcast to all OTHER clients (sender already applied locally)
-        for (const conn of this.room.getConnections()) {
+        for (const conn of this.getConnections()) {
           if (conn.id !== sender.id) {
             conn.send(JSON.stringify(cmd));
           }
@@ -407,7 +437,7 @@ export default class CollabServer implements Party.Server {
         data.type === 'jam:drum-transport' ||
         data.type === 'jam:studio-invite'
       ) {
-        for (const conn of this.room.getConnections()) {
+        for (const conn of this.getConnections()) {
           if (conn.id !== sender.id) {
             conn.send(JSON.stringify(data));
           }
@@ -422,7 +452,7 @@ export default class CollabServer implements Party.Server {
         typeof data.type === 'string' &&
         (data.type as string).startsWith('studio:')
       ) {
-        for (const conn of this.room.getConnections()) {
+        for (const conn of this.getConnections()) {
           if (conn.id !== sender.id) {
             conn.send(JSON.stringify(data));
           }

@@ -213,6 +213,7 @@ export function EffectsPanel() {
             trackId={track.id}
             activeEffects={track.activeEffects}
             onAddEffect={addActiveEffect}
+            onSelectEffect={setSelectedEffect}
             hideMidi
           />
           <div className="flex flex-1 flex-col overflow-hidden">

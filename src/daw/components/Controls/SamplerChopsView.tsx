@@ -583,27 +583,29 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
             }
             onChange={(v) => updateSample({ gain: v })}
           />
-          {(
-            [
-              ['Start', startPct],
-              ['Length', lengthPct],
-            ] as const
-          ).map(([label, value]) => (
-            <div key={label} className="flex flex-col items-center">
-              <span
-                className="text-[9px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                {label}
-              </span>
-              <span
-                className="text-[11px] tabular-nums"
-                style={{ color: 'var(--color-accent)' }}
-              >
-                {value.toFixed(2)}%
-              </span>
-            </div>
-          ))}
+          {/* Start and Length, typed; the waveform's markers drag them.
+              Start moves the start and keeps the end, as its marker does. */}
+          <TrimField
+            label="Start"
+            value={startPct}
+            min={0}
+            max={startPct + lengthPct - MIN_TRIM_PCT}
+            disabled={!sample}
+            onCommit={(start) =>
+              updateSample({
+                startPct: start,
+                lengthPct: roundPct(startPct + lengthPct - start),
+              })
+            }
+          />
+          <TrimField
+            label="Length"
+            value={lengthPct}
+            min={MIN_TRIM_PCT}
+            max={100 - startPct}
+            disabled={!sample}
+            onCommit={(length) => updateSample({ lengthPct: length })}
+          />
           <label
             className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider"
             style={{ color: 'var(--color-text-dim)' }}
@@ -720,5 +722,98 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
         </div>
       </div>
     </ControlGestureContext.Provider>
+  );
+}
+
+// ── Trim fields ─────────────────────────────────────────────────────────
+
+/** The shortest trim, in % of the sample: the waveform markers keep this gap. */
+const MIN_TRIM_PCT = 1;
+
+/** Trim values are kept to hundredths of a percent, as a marker drag keeps them. */
+const roundPct = (pct: number) => Math.round(pct * 100) / 100;
+
+/**
+ * Start or Length as a number the student can type (live-input-22: they were
+ * read-only text). Like a marker drag on the waveform, it saves once, on
+ * Enter or on leaving the box, since a new trim re-slices the sample; Escape
+ * puts the value back. Out-of-range values are brought into range.
+ */
+function TrimField({
+  label,
+  value,
+  min,
+  max,
+  disabled,
+  onCommit,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  disabled: boolean;
+  onCommit: (value: number) => void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+  // The blur that Enter and Escape cause reads these, not the render's draft.
+  const draftRef = useRef<string | null>(null);
+  draftRef.current = draft;
+  const cancelRef = useRef(false);
+
+  const commit = () => {
+    const text = draftRef.current;
+    setDraft(null);
+    if (cancelRef.current) {
+      cancelRef.current = false;
+      return;
+    }
+    if (text === null || text.trim() === '') return;
+    const typed = Number(text);
+    if (!Number.isFinite(typed)) return;
+    const next = roundPct(Math.min(max, Math.max(min, typed)));
+    if (next !== roundPct(value)) onCommit(next);
+  };
+
+  return (
+    <label className="flex flex-col items-center gap-0.5">
+      <span
+        className="text-[11px] font-semibold uppercase tracking-wider"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
+        {label}
+      </span>
+      <span className="flex items-center gap-0.5">
+        <input
+          type="number"
+          inputMode="decimal"
+          min={min}
+          max={max}
+          step={0.1}
+          disabled={disabled}
+          value={draft ?? value.toFixed(2)}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur();
+            else if (e.key === 'Escape') {
+              cancelRef.current = true;
+              e.currentTarget.blur();
+            }
+          }}
+          className="h-6 w-16 rounded px-1 text-right text-[12px] tabular-nums disabled:opacity-40"
+          style={{
+            backgroundColor: 'var(--color-surface-3)',
+            color: 'var(--color-text)',
+            border: '1px solid var(--color-border)',
+          }}
+        />
+        <span
+          className="text-[12px]"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
+          %
+        </span>
+      </span>
+    </label>
   );
 }

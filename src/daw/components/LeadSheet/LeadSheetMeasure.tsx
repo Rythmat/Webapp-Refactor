@@ -1,3 +1,4 @@
+import type { TypedChord } from '@/daw/harmony/chordInput';
 import { memo, useCallback } from 'react';
 import { PPQ, type Measure, type ChordFormat } from '@/daw/midi/leadSheetUtils';
 import type { LeadSheetSection } from '@/daw/store/uiSlice';
@@ -45,7 +46,9 @@ interface LeadSheetMeasureProps {
   /** Drag state for the chord being dragged (if it's in this measure) */
   chordDrag?: ChordDragState | null;
   onSelectChord: (regionId: string) => void;
-  onRenameChord: (regionId: string, newNoteName: string) => void;
+  onRenameChord: (regionId: string, chord: TypedChord) => void;
+  /** A chord edit closed without a chord (ChordSymbol's onCancelEdit). */
+  onCancelChordEdit?: (regionId: string) => void;
   onClickEmptyBeat: (tick: number) => void;
   onChordDragStart?: (
     regionId: string,
@@ -99,6 +102,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
   chordDrag,
   onSelectChord,
   onRenameChord,
+  onCancelChordEdit,
   onClickEmptyBeat,
   onChordDragStart,
   onMarkAsMelody,
@@ -268,6 +272,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
                 regionId={chord.regionId}
                 onSelect={onSelectChord}
                 onRename={onRenameChord}
+                onCancelEdit={onCancelChordEdit}
                 onDragStart={
                   onChordDragStart
                     ? (id, clientX) =>

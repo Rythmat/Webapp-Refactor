@@ -1,7 +1,16 @@
 import { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { formatChordSymbol, type ChordFormat } from '@/daw/midi/leadSheetUtils';
+import { showWarning } from '@/components/utils/toast';
 import type { ChordRegionIdentity } from '@/daw/harmony/chordIdentity';
+import {
+  CHORD_INPUT_HINT,
+  chordInputText,
+  typedChord,
+  type TypedChord,
+} from '@/daw/harmony/chordInput';
+import { ChordInputHint, chordBoxBorder } from '@/daw/harmony/ChordInputHint';
+import { keyFrameOf } from '@/daw/harmony/keyFrame';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
 import type { ChordNotation } from '@/lib/chordNotation';
 import type { LeadSheetItem } from './leadSheetSelection';
@@ -25,7 +34,11 @@ interface ChordSymbolProps {
   regionId: string;
   isDragging?: boolean;
   onSelect: (regionId: string) => void;
-  onRename: (regionId: string, newNoteName: string) => void;
+  /** Write the chord typed over this one (harmony/chordInput reads it). */
+  onRename: (regionId: string, chord: TypedChord) => void;
+  /** The edit box closed without a chord: Escape, nothing typed, or text
+   * that names no chord. A chord that was only pending goes. */
+  onCancelEdit?: (regionId: string) => void;
   onDragStart?: (regionId: string, startClientX: number) => void;
   onMarkAsMelody?: (regionId: string) => void;
   onDelete?: (regionId: string) => void;
@@ -56,6 +69,7 @@ export const ChordSymbol = memo(function ChordSymbol({
   isDragging,
   onSelect,
   onRename,
+  onCancelEdit,
   onDragStart,
   onMarkAsMelody,
   onDelete,
@@ -64,6 +78,8 @@ export const ChordSymbol = memo(function ChordSymbol({
 }: ChordSymbolProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
+  // The last Enter found no chord in the text: the box stays and says so.
+  const [refused, setRefused] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -140,32 +156,79 @@ export const ChordSymbol = memo(function ChordSymbol({
     e.stopPropagation();
   }, []);
 
+  const frame = keyFrameOf(keyRootPc, keyMode);
+  // What a rename opens on: the chord as a symbol the box reads back.
+  const currentText = chordInputText(
+    { name: degreeName ?? noteName, noteName, degreeKey, identity },
+    frame,
+  );
+
+  const startEditing = useCallback((text: string) => {
+    setEditValue(text);
+    setRefused(false);
+    setIsEditing(true);
+  }, []);
+
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      setEditValue(noteName);
-      setIsEditing(true);
+      startEditing(currentText);
     },
-    [noteName],
+    [currentText, startEditing],
   );
 
-  const commitEdit = useCallback(() => {
-    const trimmed = editValue.trim();
-    if (trimmed && trimmed !== noteName) {
-      onRename(regionId, trimmed);
-    }
+  const stopEditing = useCallback(() => {
     setIsEditing(false);
-  }, [editValue, noteName, onRename, regionId]);
+    setRefused(false);
+  }, []);
+
+  /**
+   * Write the typed chord. Text that names no chord stays in the box with
+   * the hint (`leaving` false, Enter), or goes with a toast that says why
+   * (`leaving`, the box lost focus). Empty or unchanged text writes nothing.
+   */
+  const commitEdit = useCallback(
+    (leaving: boolean) => {
+      const trimmed = editValue.trim();
+      if (!trimmed || (trimmed === currentText && !autoEdit)) {
+        stopEditing();
+        if (!trimmed) onCancelEdit?.(regionId);
+        return;
+      }
+      const chord = typedChord(trimmed, frame);
+      if (chord) {
+        onRename(regionId, chord);
+        stopEditing();
+      } else if (!leaving) {
+        setRefused(true);
+      } else {
+        showWarning(`"${trimmed}": ${CHORD_INPUT_HINT}`);
+        stopEditing();
+        onCancelEdit?.(regionId);
+      }
+    },
+    [
+      editValue,
+      currentText,
+      autoEdit,
+      frame,
+      onRename,
+      onCancelEdit,
+      regionId,
+      stopEditing,
+    ],
+  );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
-        commitEdit();
+        commitEdit(false);
       } else if (e.key === 'Escape') {
-        setIsEditing(false);
+        stopEditing();
+        onCancelEdit?.(regionId);
       }
     },
-    [commitEdit],
+    [commitEdit, stopEditing, onCancelEdit, regionId],
   );
 
   useEffect(() => {
@@ -175,42 +238,57 @@ export const ChordSymbol = memo(function ChordSymbol({
     }
   }, [isEditing]);
 
-  // A chord just added by double-click or ⌘K opens ready to be typed over.
+  // A chord just added by double-click or ⌘K opens empty, ready to type;
+  // nothing is written until it names a chord.
   const openedRef = useRef(false);
   useEffect(() => {
     if (autoEdit && !openedRef.current) {
       openedRef.current = true;
-      setEditValue(noteName);
-      setIsEditing(true);
+      startEditing('');
     }
     if (!autoEdit) openedRef.current = false;
-  }, [autoEdit, noteName]);
+  }, [autoEdit, startEditing]);
 
   if (isEditing) {
     return (
-      <foreignObject x={x - 4} y={y - 20} width={120} height={24}>
-        <input
-          ref={inputRef}
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onBlur={commitEdit}
-          onKeyDown={handleKeyDown}
-          style={{
-            width: '100%',
-            height: '100%',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            fontFamily:
-              "'Glacial Indifference', 'Haskoy', system-ui, sans-serif",
-            background: 'var(--color-surface-2)',
-            color: 'var(--color-text)',
-            border: '1px solid var(--color-accent, #8b5cf6)',
-            borderRadius: '3px',
-            padding: '0 4px',
-            outline: 'none',
-          }}
-        />
-      </foreignObject>
+      <>
+        <foreignObject x={x - 4} y={y - 20} width={120} height={24}>
+          <input
+            ref={inputRef}
+            value={editValue}
+            placeholder="_"
+            aria-label="Chord symbol"
+            aria-invalid={refused || undefined}
+            onChange={(e) => {
+              setEditValue(e.target.value);
+              setRefused(false);
+            }}
+            onBlur={() => commitEdit(true)}
+            onKeyDown={handleKeyDown}
+            style={{
+              width: '100%',
+              height: '100%',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              fontFamily:
+                "'Glacial Indifference', 'Haskoy', system-ui, sans-serif",
+              background: 'var(--color-surface-2)',
+              color: 'var(--color-text)',
+              border: chordBoxBorder(refused),
+              borderRadius: '3px',
+              padding: '0 4px',
+              outline: 'none',
+            }}
+          />
+        </foreignObject>
+        {refused && (
+          <foreignObject x={x - 4} y={y + 8} width={300} height={24}>
+            <ChordInputHint
+              style={{ position: 'static', display: 'inline-block' }}
+            />
+          </foreignObject>
+        )}
+      </>
     );
   }
 
@@ -295,8 +373,7 @@ export const ChordSymbol = memo(function ChordSymbol({
             )}
             <button
               onClick={() => {
-                setEditValue(noteName);
-                setIsEditing(true);
+                startEditing(currentText);
                 setContextMenu(null);
               }}
               style={{

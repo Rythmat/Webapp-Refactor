@@ -25,6 +25,7 @@ import { LETTER_PORTRAIT } from '@/lib/notation/pageLayout';
 import { parseNoteId } from '@/daw/model/noteKeys';
 import { SCORE_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
+import { showWarning } from '@/components/utils/toast';
 import { useStore } from '@/daw/store';
 import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import { studioPlayheadSource } from '@/daw/engine/studioPlayheadSource';
@@ -53,7 +54,14 @@ import {
   type ArticulationKind,
   type DurationChoice,
 } from './noteEditor';
-import { nextBeat, readChordInput } from './chordInput';
+import {
+  CHORD_INPUT_HINT,
+  chordInputText,
+  nextBeat,
+  typedChord,
+} from '@/daw/harmony/chordInput';
+import { keyFrameOf } from '@/daw/harmony/keyFrame';
+import { ChordInputHint, chordBoxBorder } from '@/daw/harmony/ChordInputHint';
 import {
   CHORD_FONT_SIZE,
   chordRange,
@@ -215,11 +223,15 @@ export function useScoreEditing({
     () => new Set(),
   );
   const chordAnchor = useRef<string | null>(null);
-  /** Where a chord is being typed, and what has been typed so far. */
+  /**
+   * Where a chord is being typed, what has been typed so far, and whether
+   * the last try to write it named no chord (the box then says so).
+   */
   const [chordEntry, setChordEntry] = useState<{
     partIndex: number;
     tick: number;
     text: string;
+    refused?: boolean;
   } | null>(null);
   /** A chord symbol being dragged to another beat. */
   const chordDragRef = useRef<{
@@ -1173,16 +1185,29 @@ export function useScoreEditing({
     ],
   );
 
-  /** Write what has been typed, and say whether it was a chord. */
+  /**
+   * Write what has been typed, and say whether it was a chord. It is stored
+   * as the lane stores chords (a degree name in a key, the letter name, the
+   * degreeKey) with its identity, never as the typed text.
+   */
   const commitChordEntry = useCallback(
     (entry: { partIndex: number; tick: number; text: string }) => {
-      const chord = readChordInput(entry.text);
+      const { rootNote, mode } = useStore.getState();
+      const chord = typedChord(entry.text, keyFrameOf(rootNote, mode));
       if (!chord) return false;
+      const { name, noteName, color, degreeKey, identity } = chord;
       const existing = chordRegions.find((r) => r.startTick === entry.tick);
       if (existing) {
-        renameChordRegion(existing.id, chord.label, chord.label);
+        renameChordRegion(existing.id, name, noteName, {
+          color,
+          degreeKey,
+          identity,
+        });
       } else {
-        insertChordRegion(entry.tick, chord.label, chord.label);
+        insertChordRegion(entry.tick, name, noteName, color, {
+          degreeKey,
+          identity,
+        });
       }
       // A part has to be showing chords for what was just typed to appear.
       const trackId = trackIdByPart.get(entry.partIndex);
@@ -1206,10 +1231,16 @@ export function useScoreEditing({
     ],
   );
 
-  /** Space writes this chord and walks on to the next beat. */
+  /**
+   * Space writes this chord and walks on to the next beat; text that names
+   * no chord stays, and the box says so.
+   */
   const advanceChordEntry = useCallback(() => {
     if (!chordEntry) return;
-    if (chordEntry.text.trim()) commitChordEntry(chordEntry);
+    if (chordEntry.text.trim() && !commitChordEntry(chordEntry)) {
+      setChordEntry({ ...chordEntry, refused: true });
+      return;
+    }
     const next = nextBeat(beatAnchors, chordEntry);
     setChordEntry(
       next ? { partIndex: next.partIndex, tick: next.tick, text: '' } : null,
@@ -1606,6 +1637,8 @@ export function useScoreEditing({
       }
       if (selectedMarks.size > 0) setSelectedMarks(new Set());
       if (selectedChords.size > 0) setSelectedChords(new Set());
+      // The chord menu goes with the selection it was opened on (score-26).
+      setChordMenu(null);
     },
   });
 
@@ -1825,47 +1858,74 @@ export function useScoreEditing({
           );
           if (!box) return null;
           const scale = layout.scale;
+          const left = (beat?.x ?? box.x) - 2;
+          const top = box.y - 22 * scale;
           return (
-            <input
-              autoFocus
-              value={chordEntry.text}
-              placeholder="_"
-              onChange={(event) =>
-                setChordEntry({ ...chordEntry, text: event.target.value })
-              }
-              onBlur={() => {
-                if (chordEntry.text.trim()) commitChordEntry(chordEntry);
-                setChordEntry(null);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === ' ') {
-                  event.preventDefault();
-                  advanceChordEntry();
-                } else if (event.key === 'Enter') {
-                  event.preventDefault();
-                  if (chordEntry.text.trim()) commitChordEntry(chordEntry);
-                  setChordEntry(null);
-                } else if (event.key === 'Escape') {
-                  event.preventDefault();
-                  setChordEntry(null);
+            <>
+              <input
+                autoFocus
+                value={chordEntry.text}
+                placeholder="_"
+                aria-label="Chord symbol"
+                aria-invalid={chordEntry.refused || undefined}
+                onChange={(event) =>
+                  setChordEntry({
+                    ...chordEntry,
+                    text: event.target.value,
+                    refused: false,
+                  })
                 }
-                event.stopPropagation();
-              }}
-              className="absolute rounded-sm px-0.5 outline-none"
-              style={{
-                left: (beat?.x ?? box.x) - 2,
-                top: box.y - 22 * scale,
-                width: 72 * scale,
-                fontFamily: "'Glacial Indifference', system-ui, sans-serif",
-                fontWeight: 700,
-                fontSize: CHORD_FONT_SIZE * scale,
-                lineHeight: 1,
-                color: 'var(--color-text)',
-                background: 'var(--color-surface-2)',
-                border: '1px solid var(--color-accent, #7ecfcf)',
-                zIndex: 6,
-              }}
-            />
+                onBlur={() => {
+                  // Leaving the box writes what it holds; text that names no
+                  // chord is dropped, and a toast says why.
+                  if (chordEntry.text.trim() && !commitChordEntry(chordEntry)) {
+                    showWarning(
+                      `"${chordEntry.text.trim()}": ${CHORD_INPUT_HINT}`,
+                    );
+                  }
+                  setChordEntry(null);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === ' ') {
+                    event.preventDefault();
+                    advanceChordEntry();
+                  } else if (event.key === 'Enter') {
+                    event.preventDefault();
+                    if (
+                      chordEntry.text.trim() &&
+                      !commitChordEntry(chordEntry)
+                    ) {
+                      setChordEntry({ ...chordEntry, refused: true });
+                    } else {
+                      setChordEntry(null);
+                    }
+                  } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    setChordEntry(null);
+                  }
+                  event.stopPropagation();
+                }}
+                className="absolute rounded-sm px-0.5 outline-none"
+                style={{
+                  left,
+                  top,
+                  width: 72 * scale,
+                  fontFamily: "'Glacial Indifference', system-ui, sans-serif",
+                  fontWeight: 700,
+                  fontSize: CHORD_FONT_SIZE * scale,
+                  lineHeight: 1,
+                  color: 'var(--color-text)',
+                  background: 'var(--color-surface-2)',
+                  border: chordBoxBorder(!!chordEntry.refused),
+                  zIndex: 6,
+                }}
+              />
+              {chordEntry.refused && (
+                <ChordInputHint
+                  style={{ left, top: top + CHORD_FONT_SIZE * scale + 6 }}
+                />
+              )}
+            </>
           );
         })()}
       {chordPlacements.map((chord) => {
@@ -2175,11 +2235,18 @@ export function useScoreEditing({
                 const chord = chordPlacements.find(
                   (c) => c.key === chordMenu.key,
                 );
+                const region = chordRegions.find(
+                  (r) => r.id === chordMenu.regionId,
+                );
                 if (chord) {
+                  // Opens on the chord it renames, ready to edit.
+                  const { rootNote, mode } = useStore.getState();
                   setChordEntry({
                     partIndex: chord.partIndex,
                     tick: chord.tick,
-                    text: '',
+                    text: region
+                      ? chordInputText(region, keyFrameOf(rootNote, mode))
+                      : '',
                   });
                 }
               },

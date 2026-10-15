@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { LEAD_SHEET_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
+import { laneWithChordAt } from '@/daw/store/prismSlice';
+import type { TypedChord } from '@/daw/harmony/chordInput';
 import { usePlayheadSelector } from '@/daw/engine/playheadClock';
 import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
@@ -42,6 +44,9 @@ import {
 } from './leadSheetSelection';
 import './leadsheet-print.css';
 import { useLeadSheetPrint } from './useLeadSheetPrint';
+
+/** The chord being typed on a beat: drawn with its box open, not yet stored. */
+const PENDING_CHORD = { id: 'pending-chord', name: '', noteName: '' } as const;
 
 /** Default number of measures per system (row) */
 const DEFAULT_MEASURES_PER_LINE = 4;
@@ -126,10 +131,34 @@ function LeadSheetChartView() {
     return () => ro.disconnect();
   }, []);
 
+  // A chord being typed on a beat that had none: drawn as an empty chord
+  // with its edit box open, and written only once it names a chord. The old
+  // placeholder stored a C there first, which a cancelled box left behind
+  // (leadsheet-17).
+  const [pendingChordTick, setPendingChordTick] = useState<number | null>(null);
+  const shownRegions = useMemo(
+    () =>
+      pendingChordTick === null
+        ? chordRegions
+        : laneWithChordAt(
+            chordRegions,
+            pendingChordTick,
+            { numerator: beatsPerMeasure, denominator: beatUnit },
+            (existing) => ({ ...existing, ...PENDING_CHORD }),
+            (startTick, endTick) => ({
+              ...PENDING_CHORD,
+              startTick,
+              endTick,
+              color: [128, 128, 128],
+            }),
+          ),
+    [chordRegions, pendingChordTick, beatsPerMeasure, beatUnit],
+  );
+
   // Build measures from chord regions: every real bar of the song
   const rawMeasures = useMemo(
-    () => regionToMeasures(chordRegions, ticksPerMeasure, leadSheetBars),
-    [chordRegions, ticksPerMeasure, leadSheetBars],
+    () => regionToMeasures(shownRegions, ticksPerMeasure, leadSheetBars),
+    [shownRegions, ticksPerMeasure, leadSheetBars],
   );
 
   // What the chart draws: a slot per bar, a multi-bar rest one slot for its
@@ -306,14 +335,39 @@ function LeadSheetChartView() {
     [setSelectedChordIdx, chordRegions, ticksPerMeasure],
   );
 
+  /**
+   * Write a typed chord, as the lane stores chords: over the region it was
+   * typed on, or, for the pending chord, on its beat.
+   */
   const handleRenameChord = useCallback(
-    (regionId: string, newNoteName: string) => {
-      // Use the spelled name as both name and noteName for simplicity
-      // The degree name would need recalculation from the root, which is complex
-      renameChordRegion(regionId, newNoteName, newNoteName);
+    (regionId: string, chord: TypedChord) => {
+      const { name, noteName, color, degreeKey, identity } = chord;
+      if (regionId === PENDING_CHORD.id) {
+        if (pendingChordTick !== null) {
+          insertChordRegion(pendingChordTick, name, noteName, color, {
+            degreeKey,
+            identity,
+          });
+        }
+        setPendingChordTick(null);
+        setAutoEditRegionId(null);
+        return;
+      }
+      renameChordRegion(regionId, name, noteName, {
+        color,
+        degreeKey,
+        identity,
+      });
     },
-    [renameChordRegion],
+    [renameChordRegion, insertChordRegion, pendingChordTick],
   );
+
+  /** An edit box closed without a chord: a pending chord goes. */
+  const handleCancelChordEdit = useCallback((regionId: string) => {
+    if (regionId !== PENDING_CHORD.id) return;
+    setPendingChordTick(null);
+    setAutoEditRegionId(null);
+  }, []);
 
   const handleMarkAsMelody = useCallback(
     (regionId: string) => {
@@ -332,26 +386,18 @@ function LeadSheetChartView() {
   );
 
   /**
-   * Add a chord at a beat and open its edit box straight away, so it can be
-   * typed over instead of being left as a literal "C". Reached by
-   * double-clicking a beat, or ⌘K with a beat selected.
+   * Open an edit box for a new chord on a beat. Nothing is written until
+   * what is typed names a chord; Escape or an empty box leaves the beat as
+   * it was. Reached by double-clicking a beat, or ⌘K with a beat selected.
    */
   const insertChordAt = useCallback(
     (tick: number) => {
       setSelectedChordIdx(null);
       setSelectedMeasureIdx(Math.floor(tick / ticksPerMeasure));
-      const before = new Set(
-        useStore.getState().chordRegions.map((region) => region.id),
-      );
-      insertChordRegion(tick, 'maj', 'C');
-      const added = useStore
-        .getState()
-        .chordRegions.find(
-          (region) => !before.has(region.id) || region.startTick === tick,
-        );
-      setAutoEditRegionId(added?.id ?? null);
+      setPendingChordTick(tick);
+      setAutoEditRegionId(PENDING_CHORD.id);
     },
-    [setSelectedChordIdx, insertChordRegion, ticksPerMeasure],
+    [setSelectedChordIdx, ticksPerMeasure],
   );
 
   const handleClickEmptyBeat = useCallback(
@@ -882,6 +928,7 @@ function LeadSheetChartView() {
                   chordDragMeasureIdx={dragVisual?.measureIdx}
                   onSelectChord={handleSelectChord}
                   onRenameChord={handleRenameChord}
+                  onCancelChordEdit={handleCancelChordEdit}
                   onClickEmptyBeat={handleClickEmptyBeat}
                   onChordDragStart={handleChordDragStart}
                   onMarkAsMelody={handleMarkAsMelody}

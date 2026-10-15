@@ -741,6 +741,41 @@ function reconcileChordRegions(
 }
 
 /**
+ * The lane with a chord written on `tick`, as the lead sheet and the Score
+ * write one: over a chord that starts there, in its place (`over`); inside
+ * one, splitting it, the new chord running to its end; in a gap, to the next
+ * chord or the end of the bar, in the project's metre (leadsheet-07).
+ * `fresh` makes the new region for the span it gets. Always a new array,
+ * in time order; the other regions are the same objects.
+ */
+export function laneWithChordAt(
+  regions: readonly ChordRegion[],
+  tick: number,
+  ts: TimeSignature,
+  over: (existing: ChordRegion) => ChordRegion,
+  fresh: (startTick: number, endTick: number) => ChordRegion,
+): ChordRegion[] {
+  const lane = [...regions];
+  const index = lane.findIndex((r) => r.startTick <= tick && r.endTick > tick);
+  if (index >= 0) {
+    const existing = lane[index];
+    if (tick === existing.startTick) {
+      lane[index] = over(existing);
+    } else {
+      lane[index] = { ...existing, endTick: tick };
+      lane.splice(index + 1, 0, fresh(tick, existing.endTick));
+    }
+  } else {
+    const next = lane
+      .filter((r) => r.startTick > tick)
+      .reduce((min, r) => Math.min(min, r.startTick), Infinity);
+    const barEnd = barStartTick(tick, ts) + ticksPerBar(ts);
+    lane.push(fresh(tick, Math.min(next, barEnd)));
+  }
+  return lane.sort((a, b) => a.startTick - b.startTick);
+}
+
+/**
  * Lay `incoming` over the chord lane across [rangeStart, rangeEnd): regions
  * inside the range give way, regions outside it stay as they are, and a
  * region crossing an edge keeps the part outside. Always a new array.
@@ -1837,67 +1872,38 @@ export const createPrismSlice: StateCreator<
 
   insertChordRegion: (tick, name, noteName, color, extra = {}) =>
     set((s) => {
-      const regions = [...s.chordRegions];
       const c: [number, number, number] = color ?? [128, 128, 128];
       const frame = keyFrameOf(s.rootNote, s.mode);
-      // A new region holds the chord `extra` names, else the one its labels do.
-      const made = (region: ChordRegion): ChordRegion =>
-        extra.identity
-          ? { ...region, ...extra }
-          : ensureChordIdentity({ ...region, ...extra }, frame, 'given');
-      // Find the region that contains this tick and split it
-      const idx = regions.findIndex(
-        (r) => r.startTick <= tick && r.endTick > tick,
-      );
-      if (idx >= 0) {
-        const existing = regions[idx];
-        if (tick === existing.startTick) {
-          // Replace the existing region at this exact position
-          regions[idx] = relabelChordRegion(
-            existing,
-            name,
-            noteName,
-            { color: c, ...extra },
-            frame,
-          );
-        } else {
-          // Truncate the existing region at the insertion point
-          regions[idx] = { ...existing, endTick: tick };
-          // Insert the new region from tick to the original endTick
-          regions.splice(
-            idx + 1,
-            0,
-            made({
+      return {
+        chordRegions: laneWithChordAt(
+          s.chordRegions,
+          tick,
+          timeSignatureOf(s),
+          (existing) =>
+            relabelChordRegion(
+              existing,
+              name,
+              noteName,
+              { color: c, ...extra },
+              frame,
+            ),
+          (startTick, endTick) => {
+            const region: ChordRegion = {
               id: nextChordId(),
-              startTick: tick,
-              endTick: existing.endTick,
+              startTick,
+              endTick,
               name,
               noteName,
               color: c,
-            }),
-          );
-        }
-      } else {
-        // No region here: the chord lasts until the next one, or to the end
-        // of its bar, in the project's metre (leadsheet-07).
-        const ts = timeSignatureOf(s);
-        const next = regions
-          .filter((r) => r.startTick > tick)
-          .reduce((min, r) => Math.min(min, r.startTick), Infinity);
-        const barEnd = barStartTick(tick, ts) + ticksPerBar(ts);
-        regions.push(
-          made({
-            id: nextChordId(),
-            startTick: tick,
-            endTick: Math.min(next, barEnd),
-            name,
-            noteName,
-            color: c,
-          }),
-        );
-      }
-      regions.sort((a, b) => a.startTick - b.startTick);
-      return { chordRegions: regions };
+              ...extra,
+            };
+            // The chord `extra` names, else the one its labels do.
+            return extra.identity
+              ? region
+              : ensureChordIdentity(region, frame, 'given');
+          },
+        ),
+      };
     }),
 
   deleteChordRegion: (id) =>

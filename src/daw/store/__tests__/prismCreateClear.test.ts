@@ -15,6 +15,7 @@ import {
   type MidiNoteEvent,
 } from '@prism/engine';
 import type { MidiWorkerRequest } from '@/daw/workers/midiWorker';
+import { identityIsCurrent } from '@/daw/harmony/chordIdentity';
 import { useStore, type AllSlices } from '../index';
 import {
   nextChordId,
@@ -284,6 +285,31 @@ describe('Create', () => {
 
     expect(trackById(keys)).toBe(track);
     expect(st().chordRegions).toBe(lane);
+  });
+});
+
+describe('Create names the chords it writes', () => {
+  it('with the chords the student built, in the key', () => {
+    st().setRootNote(9);
+    st().setMode('aeolian');
+    st().generateToTracks();
+    finishCreate();
+    const written = st().chordRegions.filter((r) => r.sourceClipId);
+    // I–IV–V–vi of the parent major, in A minor: C, F, G, Am.
+    expect(
+      written.map((r) => [
+        r.identity?.rootPc,
+        r.identity?.quality,
+        r.identity?.bassPc,
+        r.identity?.source,
+      ]),
+    ).toEqual([
+      [0, 'major', 0, 'given'],
+      [5, 'major', 5, 'given'],
+      [7, 'major', 7, 'given'],
+      [9, 'minor', 9, 'given'],
+    ]);
+    expect(written.every(identityIsCurrent)).toBe(true);
   });
 });
 

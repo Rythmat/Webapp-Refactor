@@ -148,10 +148,11 @@ describe('through the store', () => {
     const after = useStore.getState().chordRegions;
     expect(after.every((r) => r.id !== '')).toBe(true);
     expect(new Set(after.map((r) => r.id)).size).toBe(after.length);
-    expect(after.map((r) => r.identity?.label ?? null)).toEqual([
-      'C',
-      null,
-      'G',
+    // The pasted C gets one read from its labels (milestone 1.16a).
+    expect(after.map((r) => [r.identity?.label, r.identity?.source])).toEqual([
+      ['C', 'detected'],
+      ['C', 'derived'],
+      ['G', 'detected'],
     ]);
   });
 });

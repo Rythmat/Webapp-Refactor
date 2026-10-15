@@ -256,6 +256,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
                 noteName={chord.noteName}
                 degreeName={chord.name}
                 degreeKey={chord.degreeKey}
+                identity={chord.identity}
                 format={chordFormat}
                 notation={chordNotation}
                 keyRootPc={keyRootPc}

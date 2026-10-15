@@ -138,7 +138,7 @@ export const createUnisonSlice: StateCreator<
       setRootNote(chordAnalysis.rootNote);
       setMode(chordAnalysis.mode);
     }
-    setChordRegions(chordAnalysis.regions, true);
+    setChordRegions(chordAnalysis.regions, true, 'detected');
   },
 
   offerChordAnalysis: () => {

@@ -1,6 +1,7 @@
 import { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { formatChordSymbol, type ChordFormat } from '@/daw/midi/leadSheetUtils';
+import type { ChordRegionIdentity } from '@/daw/harmony/chordIdentity';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
 import type { ChordNotation } from '@/lib/chordNotation';
 import type { LeadSheetItem } from './leadSheetSelection';
@@ -10,6 +11,8 @@ interface ChordSymbolProps {
   degreeName?: string;
   /** Long degree key of the region ("2 minor7"), when it has one. */
   degreeKey?: string;
+  /** The region's chord as pitch classes, when it has one. */
+  identity?: ChordRegionIdentity;
   format: ChordFormat;
   /** Global chord notation; jazz / roman override `format`. Default hybrid. */
   notation?: ChordNotation;
@@ -41,6 +44,7 @@ export const ChordSymbol = memo(function ChordSymbol({
   noteName,
   degreeName,
   degreeKey,
+  identity,
   format,
   notation = 'hybrid',
   keyRootPc,
@@ -90,7 +94,7 @@ export const ChordSymbol = memo(function ChordSymbol({
     notation === 'hybrid'
       ? formattedText
       : formatChordRegion(
-          { name: degreeName ?? noteName, noteName, degreeKey },
+          { name: degreeName ?? noteName, noteName, degreeKey, identity },
           notation,
           { keyRootPc, mode: keyMode },
           formattedText,

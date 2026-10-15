@@ -90,7 +90,7 @@ export function applyGenrePracticeTrack(
   store.setBpm(track.bpm);
   // The lesson's meter (D-085); a 4/4 track resets one left in 3/4.
   store.setTimeSignature(...(track.timeSignature ?? [4, 4]));
-  store.setChordRegions(track.chordRegions);
+  store.setChordRegions(track.chordRegions, false, 'given');
 
   for (const [part, instrument] of Object.entries(BACKING_INSTRUMENTS)) {
     const clip = track.clips[part as keyof typeof BACKING_INSTRUMENTS];

@@ -92,6 +92,12 @@ describe('Suggest Chords in A minor', () => {
     for (const r of written) {
       expect(rootOf(r.noteName)).toBe(fromA(r.degreeKey!));
       expect(r.name).toBe(r.noteName);
+      // The chord the suggestion voiced, as the student chose it.
+      expect(r.identity).toMatchObject({
+        rootPc: fromA(r.degreeKey!),
+        source: 'given',
+        label: r.name,
+      });
       expect(r.id).toMatch(UUID);
     }
     expect(st().prismSuggestOpen).toBe(false);

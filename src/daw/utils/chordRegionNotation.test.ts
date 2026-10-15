@@ -150,3 +150,58 @@ describe('chordNotationLockTitle', () => {
     );
   });
 });
+
+describe('formatChordRegion — from the identity', () => {
+  const Bb = { keyRootPc: 10, mode: 'ionian' };
+  const fOverA = {
+    rootPc: 5,
+    quality: 'major',
+    bassPc: 9,
+    source: 'given' as const,
+  };
+
+  it('writes the chord the identity names, whatever the labels say', () => {
+    // A song's F/A in B♭: '5 maj/7' alone reads as the engine's F/E.
+    expect(
+      both(
+        {
+          name: '5 maj/7',
+          noteName: '5 maj/7',
+          identity: { ...fOverA, label: '5 maj/7' },
+        },
+        Bb,
+      ),
+    ).toEqual(['F/A', 'V/7']);
+  });
+
+  it("keeps the region's own spelling where it names the same notes", () => {
+    expect(
+      formatChordRegion(
+        {
+          name: '2 min',
+          noteName: 'A# min',
+          identity: {
+            rootPc: 10,
+            quality: 'minor',
+            bassPc: 10,
+            source: 'derived',
+            label: '2 min',
+          },
+        },
+        'jazz',
+        { keyRootPc: 8, mode: 'ionian' },
+        FALLBACK,
+      ),
+    ).toBe('A♯−');
+  });
+
+  it('ignores an identity that no longer describes the region', () => {
+    expect(
+      both({
+        name: 'G dom7',
+        noteName: 'G dom7',
+        identity: { ...fOverA, label: 'something else' },
+      }),
+    ).toEqual(['G7', 'V7']);
+  });
+});

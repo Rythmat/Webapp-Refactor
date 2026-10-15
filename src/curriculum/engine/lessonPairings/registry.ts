@@ -6,6 +6,10 @@
  * gives a section, or a run of steps, a different band where the lesson
  * genuinely changes within the style.
  *
+ * A band with variations plays, for a style, the variation the pairing
+ * names, else the one made for that style (bandVariation). A member that
+ * variation gives nothing leaves that part to the lesson.
+ *
  * A pairing wins over the steps' own groove and bass; an unpaired style
  * keeps them. Only a published band (and published items inside it) reaches
  * students — a pairing to a draft waits.
@@ -23,7 +27,14 @@ import {
   lessonStyleFor,
   type LessonStyle,
 } from '../../data/lessonStyles';
-import type { Band, BandLayer, BandSourceKind } from '../band/band';
+import {
+  type BandLayer,
+  type BandSourceKind,
+  bandSources,
+  bandVariation,
+  type PlayableBand,
+  variationForStyle,
+} from '../band/band';
 import { getBand, getLiveBand, LIVE_ITEMS } from '../band/registry';
 import type { BassLine } from '../bassLines/bassLine';
 import type { ChordComping } from '../chordComping/chordComping';
@@ -40,6 +51,8 @@ export interface PairingOverride {
   /** Step numbers it covers; every step of the section when left out. */
   steps?: number[];
   band: string;
+  /** The band's variation; the one made for the style when left out. */
+  variation?: string;
 }
 
 export interface LessonPairing {
@@ -47,6 +60,8 @@ export interface LessonPairing {
   id: string;
   /** The Band the style plays. */
   band?: string;
+  /** Its variation; the one made for the style when left out. */
+  variation?: string;
   /** Narrower chunks that play another band; the first that fits wins. */
   overrides?: PairingOverride[];
   /** Legacy: a drum groove id, read as a band layer. */
@@ -88,7 +103,7 @@ export function getPairing(styleId: string): LessonPairing | undefined {
  * The band a legacy pairing's three items make. Live as a band; each item in
  * it still has to be published to play.
  */
-export function legacyBand(pairing: LessonPairing): Band | undefined {
+export function legacyBand(pairing: LessonPairing): PlayableBand | undefined {
   const layer = (
     id: string | undefined,
     kind: BandSourceKind,
@@ -121,27 +136,47 @@ export function legacyBand(pairing: LessonPairing): Band | undefined {
   };
 }
 
-/** The band id a pairing gives a place in its style. */
-export function bandIdAt(
-  pairing: LessonPairing,
-  place: PairingPlace = {},
-): string | undefined {
-  const override = pairing.overrides?.find(
+/** The override a place falls under, if any. */
+const overrideAt = (pairing: LessonPairing, place: PairingPlace) =>
+  pairing.overrides?.find(
     (o) =>
       (!o.section || o.section === place.section) &&
       (!o.steps?.length ||
         (place.stepNumber !== undefined && o.steps.includes(place.stepNumber))),
   );
-  return override?.band ?? pairing.band;
+
+/** The band id a pairing gives a place in its style. */
+export function bandIdAt(
+  pairing: LessonPairing,
+  place: PairingPlace = {},
+): string | undefined {
+  return overrideAt(pairing, place)?.band ?? pairing.band;
+}
+
+/**
+ * The variation id a pairing gives a place: the override's, else the
+ * pairing's, else the one the band made for the style.
+ */
+export function variationIdAt(
+  pairing: LessonPairing,
+  place: PairingPlace = {},
+): string | undefined {
+  const override = overrideAt(pairing, place);
+  const named = override ? override.variation : pairing.variation;
+  if (named) return named;
+  const band = getBand(override?.band ?? pairing.band);
+  return band ? variationForStyle(band, pairing.id)?.id : undefined;
 }
 
 /** The band a pairing plays at a place: published bands only. */
 function bandAt(
   pairing: LessonPairing,
   place: PairingPlace = {},
-): Band | undefined {
+): PlayableBand | undefined {
   const id = bandIdAt(pairing, place);
-  return id ? getLiveBand(id) : legacyBand(pairing);
+  if (!id) return legacyBand(pairing);
+  const band = getLiveBand(id);
+  return band && bandVariation(band, variationIdAt(pairing, place));
 }
 
 /**
@@ -173,11 +208,13 @@ export function stylesUsing(kind: PairingKind, itemId: string): LessonStyle[] {
     .filter(
       (p) =>
         p[kind] === itemId ||
-        bandIdsOf(p).some((id) =>
-          getBand(id)?.layers.some(
-            (l) => l.source.kind === source && l.source.id === itemId,
-          ),
-        ),
+        bandIdsOf(p).some((id) => {
+          const band = getBand(id);
+          return (
+            !!band &&
+            bandSources(band).some((s) => s.kind === source && s.id === itemId)
+          );
+        }),
     )
     .map((p) => getLessonStyle(p.id))
     .filter((s): s is LessonStyle => !!s);
@@ -195,11 +232,14 @@ export function stylesUsingBand(bandId: string): LessonStyle[] {
 function preloadPairing(pairing: LessonPairing): Promise<unknown> {
   const grooves = [
     pairing.drums,
-    ...bandIdsOf(pairing).flatMap((id) =>
-      (getBand(id)?.layers ?? [])
-        .filter((l) => l.source.kind === 'groove')
-        .map((l) => l.source.id),
-    ),
+    ...bandIdsOf(pairing).flatMap((id) => {
+      const band = getBand(id);
+      return band
+        ? bandSources(band)
+            .filter((s) => s.kind === 'groove')
+            .map((s) => s.id)
+        : [];
+    }),
   ].filter((id): id is string => !!id);
   return Promise.all(grooves.map((id) => preloadStudioGroove(id)));
 }
@@ -215,8 +255,8 @@ export const pairingsReady: Promise<void> = Promise.all(
 
 export interface ResolvedPairing {
   style: LessonStyle;
-  /** The band the place plays. */
-  band: Band;
+  /** The band the place plays, as its variation for the place. */
+  band: PlayableBand;
   /** Its drums: the first playing groove layer, published. */
   drums?: DrumGroove;
   /** Its bass: the first playing bass-line layer, published. */
@@ -226,7 +266,7 @@ export interface ResolvedPairing {
 }
 
 /** A band's first playing layer of a kind. */
-const firstOf = (band: Band, kind: BandSourceKind) =>
+const firstOf = (band: PlayableBand, kind: BandSourceKind) =>
   band.layers.find((l) => !l.muted && l.source.kind === kind)?.source.id;
 
 /** What a step's place in its style is paired with, published items only. */

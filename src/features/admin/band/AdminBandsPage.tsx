@@ -140,6 +140,8 @@ export const AdminBandsPage = () => {
                           )
                           .join(', ')
                       : 'no layers yet'}
+                    {!!band.variations?.length &&
+                      ` · ${band.variations.length} variation${band.variations.length === 1 ? '' : 's'}`}
                     {styles.length > 0 &&
                       ` · plays in ${styles.map(lessonStyleLabel).join(', ')}`}
                   </div>

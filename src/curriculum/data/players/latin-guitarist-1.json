@@ -5,5 +5,10 @@
   "genre": "latin",
   "kind": "placeholder",
   "order": 360,
-  "items": []
+  "items": [
+    {
+      "kind": "part",
+      "id": "latin-l1-d2-2-cumbia-full-groove-play-along"
+    }
+  ]
 }

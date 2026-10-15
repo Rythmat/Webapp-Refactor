@@ -16,10 +16,6 @@
     },
     {
       "kind": "part",
-      "id": "hip-hop-l1-b22-b3-two-chord-jams"
-    },
-    {
-      "kind": "part",
       "id": "hip-hop-l2-d3-d2-sus2-groove"
     },
     {
@@ -57,6 +53,10 @@
     {
       "kind": "part",
       "id": "hip-hop-l3-d2-1-phrygian-jam-two-hands"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-b22-b3-two-chord-jams"
     }
   ]
 }

@@ -6,7 +6,7 @@ import {
   LESSON_STYLES,
   type LessonStyle,
 } from '@/curriculum/data/lessonStyles';
-import type { Band } from '@/curriculum/engine/band/band';
+import { type Band, variationForStyle } from '@/curriculum/engine/band/band';
 import type {
   LessonPairing,
   PairingOverride,
@@ -21,6 +21,9 @@ import { useBandList, usePairingList } from './bandSession';
  * it and its Practice Track, so one click covers the whole run of activities.
  * An exception gives a section, or some steps, another band where the lesson
  * genuinely changes inside the style.
+ *
+ * A band with variations plays, in a style, the variation made for it unless
+ * the style names another; an exception can name a band's variation too.
  */
 
 const SECTIONS = ['A', 'B', 'C', 'D'];
@@ -51,6 +54,18 @@ export function stepsLabel(steps: readonly number[]): string {
   return runs.join(', ');
 }
 
+/** An exception's band, and its variation when it names one: 'id#variation'. */
+const overrideTarget = (o: PairingOverride) =>
+  o.variation ? `${o.band}#${o.variation}` : o.band;
+
+/** 'Funk Band 1 · The Pocket' for 'funk-band-1#pocket'. */
+function targetName(bands: readonly Band[], target: string): string {
+  const [id, variationId] = target.split('#');
+  const b = bands.find((x) => x.id === id);
+  const v = b?.variations?.find((x) => x.id === variationId);
+  return `${b?.name ?? id}${v ? ` · ${v.name}` : ''}`;
+}
+
 const exceptionLabel = (o: PairingOverride) =>
   [
     o.section ? `section ${o.section}` : 'every section',
@@ -70,7 +85,7 @@ export const BandAssignments = ({ band, dirty }: Props) => {
   const bands = useBandList();
   const [busy, setBusy] = useState<string | null>(null);
   const byStyle = new Map(pairings.map((p) => [p.id, p]));
-  const bandName = (id: string) => bands.find((b) => b.id === id)?.name ?? id;
+  const bandName = (target: string) => targetName(bands, target);
 
   const write = async (styleId: string, next: LessonPairing) => {
     setBusy(styleId);
@@ -93,7 +108,16 @@ export const BandAssignments = ({ band, dirty }: Props) => {
     });
   const unassign = (style: LessonStyle) => {
     const p = byStyle.get(style.id);
-    return write(style.id, { ...p, id: style.id, band: undefined });
+    return write(style.id, {
+      ...p,
+      id: style.id,
+      band: undefined,
+      variation: undefined,
+    });
+  };
+  const setVariation = (style: LessonStyle, variation: string | undefined) => {
+    const p = byStyle.get(style.id) ?? { id: style.id };
+    return write(style.id, { ...p, variation });
   };
   const setOverrides = (style: LessonStyle, overrides: PairingOverride[]) => {
     const p = byStyle.get(style.id) ?? { id: style.id };
@@ -128,6 +152,10 @@ export const BandAssignments = ({ band, dirty }: Props) => {
             {styles.map((style) => {
               const p = byStyle.get(style.id);
               const mine = p?.band === band.id;
+              const plays = mine
+                ? (band.variations?.find((v) => v.id === p?.variation) ??
+                  variationForStyle(band, style.id))
+                : undefined;
               const legacy = !p?.band
                 ? [
                     p?.drums && 'drums',
@@ -143,7 +171,7 @@ export const BandAssignments = ({ band, dirty }: Props) => {
                   mine={mine}
                   status={
                     mine
-                      ? 'Plays this band'
+                      ? `Plays this band${plays ? ` · ${plays.name}` : ''}`
                       : p?.band
                         ? `Plays ${bandName(p.band)}`
                         : legacy.length
@@ -155,6 +183,7 @@ export const BandAssignments = ({ band, dirty }: Props) => {
                   currentBand={band}
                   onAssign={() => void assign(style)}
                   onUnassign={() => void unassign(style)}
+                  onVariation={(v) => void setVariation(style, v)}
                   onOverrides={(o) => void setOverrides(style, o)}
                 />
               );
@@ -176,6 +205,7 @@ const StyleRow = ({
   currentBand,
   onAssign,
   onUnassign,
+  onVariation,
   onOverrides,
 }: {
   style: LessonStyle;
@@ -187,6 +217,7 @@ const StyleRow = ({
   currentBand: Band;
   onAssign: () => void;
   onUnassign: () => void;
+  onVariation: (variation: string | undefined) => void;
   onOverrides: (overrides: PairingOverride[]) => void;
 }) => {
   const [adding, setAdding] = useState(false);
@@ -194,7 +225,8 @@ const StyleRow = ({
   const [steps, setSteps] = useState('');
   const [other, setOther] = useState('');
   const overrides = pairing?.overrides ?? [];
-  const bandName = (id: string) => bands.find((b) => b.id === id)?.name ?? id;
+  const bandName = (target: string) => targetName(bands, target);
+  const made = variationForStyle(currentBand, style.id);
   const select =
     'rounded-md border border-white/10 bg-white/5 px-1.5 py-1 text-xs';
 
@@ -229,6 +261,26 @@ const StyleRow = ({
           ))}
       </div>
 
+      {CAN_WRITE_FILES && mine && !!currentBand.variations?.length && (
+        <select
+          value={pairing?.variation ?? ''}
+          onChange={(e) => onVariation(e.target.value || undefined)}
+          className={`${select} mt-1.5 max-w-full`}
+          aria-label={`The variation ${style.name} plays`}
+        >
+          <option value="">
+            {made?.style === style.id
+              ? `The one made for it (${made.name})`
+              : `The first (${made?.name ?? '—'})`}
+          </option>
+          {currentBand.variations.map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.name}
+            </option>
+          ))}
+        </select>
+      )}
+
       {overrides.length > 0 && (
         <ul className="mt-1.5 flex flex-col gap-1 text-xs">
           {overrides.map((o, i) => (
@@ -236,7 +288,7 @@ const StyleRow = ({
               <span className="text-muted-foreground">Except</span>
               <span>{exceptionLabel(o)}</span>
               <span className="text-muted-foreground">plays</span>
-              <span className="truncate">{bandName(o.band)}</span>
+              <span className="truncate">{bandName(overrideTarget(o))}</span>
               {CAN_WRITE_FILES && (
                 <button
                   type="button"
@@ -287,11 +339,23 @@ const StyleRow = ({
               aria-label="Band"
             >
               <option value="">a band…</option>
-              {bands.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.id === currentBand.id ? `${b.name} (this band)` : b.name}
-                </option>
-              ))}
+              {bands.map((b) => {
+                const name =
+                  b.id === currentBand.id ? `${b.name} (this band)` : b.name;
+                return b.variations?.length ? (
+                  <optgroup key={b.id} label={name}>
+                    {b.variations.map((v) => (
+                      <option key={v.id} value={`${b.id}#${v.id}`}>
+                        {v.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ) : (
+                  <option key={b.id} value={b.id}>
+                    {name}
+                  </option>
+                );
+              })}
             </select>
             <Button
               size="sm"
@@ -299,12 +363,14 @@ const StyleRow = ({
               disabled={!other || (!section && !parseSteps(steps).length)}
               onClick={() => {
                 const parsed = parseSteps(steps);
+                const [otherBand, otherVariation] = other.split('#');
                 onOverrides([
                   ...overrides,
                   {
                     ...(section ? { section } : {}),
                     ...(parsed.length ? { steps: parsed } : {}),
-                    band: other,
+                    band: otherBand,
+                    ...(otherVariation ? { variation: otherVariation } : {}),
                   },
                 ]);
                 setAdding(false);

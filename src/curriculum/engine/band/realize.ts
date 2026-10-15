@@ -18,7 +18,6 @@ import {
 import { barTicks } from '../meter';
 import { partTicks, playedTick, type InstrumentPart } from '../parts/part';
 import {
-  type Band,
   type BandLayer,
   type RealizeContext,
   type RealizedLayer,
@@ -114,7 +113,7 @@ export function realizeLayer(
 
 /** Every playing layer's notes, in the band's order. */
 export function realizeBand(
-  band: Pick<Band, 'layers'>,
+  band: { layers: readonly BandLayer[] },
   items: BandItems,
   ctx: RealizeContext,
   options: { tonic?: number; includeMuted?: boolean } = {},

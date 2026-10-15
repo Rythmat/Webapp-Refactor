@@ -15,7 +15,7 @@ import {
   rememberPairing,
 } from '../../lessonPairings/registry';
 import { barTicks } from '../../meter';
-import type { Band } from '../band';
+import { type Band, bandVariation } from '../band';
 import { realizeBand } from '../realize';
 import { ALL_ITEMS, LIVE_ITEMS, rememberBand } from '../registry';
 
@@ -79,7 +79,12 @@ describe('a pairing as a band', () => {
       'drums',
       'bass',
       'keys',
+      'guitar',
     ]);
+    // Each style plays its own variation of the one Latin band.
+    expect(pairingFor('latin', 1, 'l1c')?.drums?.id).toBe('groove-latin-2');
+    expect(pairingFor('latin', 1, 'l1c')?.band.timeSignature).toEqual([3, 4]);
+    expect(pairingFor('latin', 1, 'l1a')?.drums?.id).toBe('reggaeton_01');
   });
 });
 
@@ -130,11 +135,56 @@ describe('a band assigned to a style', () => {
     expect(pairingFor('funk', 2, undefined)).toBeUndefined();
     // The console still previews it.
     const preview = realizeBand(
-      band('test-band', 'groove_funk_03', 'draft'),
+      bandVariation(band('test-band', 'groove_funk_03', 'draft')),
       ALL_ITEMS,
       { chordAt, bars: 1, timeSignature: [4, 4] },
     );
     expect(preview[0].notes.length).toBeGreaterThan(0);
+  });
+
+  it('plays the variation made for the style, and leaves an empty member to the lesson', () => {
+    rememberBand('test-band', {
+      ...band('test-band', 'groove_funk_03', 'live'),
+      layers: [
+        { id: 'drums', name: 'Drums', instrument: 'drums' },
+        { id: 'bass', name: 'Bass', instrument: 'bass' },
+      ],
+      variations: [
+        {
+          id: 'pocket',
+          name: 'The Pocket',
+          style: 'funk-l1-pocket',
+          plays: { drums: { kind: 'groove', id: 'groove_funk_01' } },
+        },
+        {
+          id: 'syncopation',
+          name: 'Syncopation',
+          style: 'funk-l2-syncopation',
+          timeSignature: [3, 4],
+          plays: {
+            drums: { kind: 'groove', id: 'groove_funk_03' },
+            bass: { kind: 'bassLine', id: 'funk' },
+          },
+        },
+      ],
+    });
+    rememberPairing({ id: 'funk-l2-syncopation', band: 'test-band' });
+    const played = pairingFor('funk', 2, undefined)!.band;
+    expect(played.variation?.id).toBe('syncopation');
+    expect(played.timeSignature).toEqual([3, 4]);
+    expect(played.layers.map((l) => l.source.id)).toEqual([
+      'groove_funk_03',
+      'funk',
+    ]);
+    // Named outright, another variation; its empty bass drops out.
+    rememberPairing({
+      id: 'funk-l2-syncopation',
+      band: 'test-band',
+      variation: 'pocket',
+    });
+    expect(
+      pairingFor('funk', 2, undefined)!.band.layers.map((l) => l.id),
+    ).toEqual(['drums']);
   });
 
   it('reads an override without steps as its whole section', () => {
@@ -166,9 +216,9 @@ describe('a layer', () => {
       ],
     };
     const ctx = { chordAt, bars: 1, timeSignature: [4, 4] as [number, number] };
-    expect(realizeBand(band, ALL_ITEMS, ctx)).toEqual([]);
+    expect(realizeBand(bandVariation(band), ALL_ITEMS, ctx)).toEqual([]);
     expect(
-      realizeBand(band, ALL_ITEMS, ctx, { includeMuted: true }),
+      realizeBand(bandVariation(band), ALL_ITEMS, ctx, { includeMuted: true }),
     ).toHaveLength(1);
   });
 
@@ -189,7 +239,7 @@ describe('a layer', () => {
       ],
     };
     expect(
-      realizeBand(band, ALL_ITEMS, {
+      realizeBand(bandVariation(band), ALL_ITEMS, {
         chordAt,
         bars: 1,
         timeSignature: [4, 4],

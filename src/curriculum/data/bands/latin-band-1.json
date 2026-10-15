@@ -3,8 +3,7 @@
   "name": "Latin Band 1",
   "description": "Cumbia: offbeat comping over the cumbia groove and its R-3-5 bass.",
   "genre": "latin",
-  "style": "Cumbia",
-  "status": "draft",
+  "status": "live",
   "order": 10,
   "timeSignature": [4, 4],
   "tempo": 90,
@@ -13,34 +12,129 @@
       "id": "drums",
       "name": "Drums",
       "instrument": "drums",
-      "source": {
-        "kind": "groove",
-        "id": "groove-latin-1"
-      },
       "player": "latin-drummer-1"
     },
     {
       "id": "bass",
       "name": "Bass",
       "instrument": "bass",
-      "source": {
-        "kind": "bassLine",
-        "id": "cumbia-1"
-      },
       "player": "latin-bassist-1"
     },
     {
       "id": "keys",
       "name": "Keys comping",
       "instrument": "keys",
-      "source": {
-        "kind": "comping",
-        "id": "cumbia-offbeats"
-      },
       "player": "latin-pianist-1"
+    },
+    {
+      "id": "guitar-comping",
+      "name": "Guitar comping",
+      "instrument": "guitar",
+      "player": "latin-guitarist-1",
+      "sound": "sample:acoustic-guitar"
     }
   ],
   "preview": {
     "chart": "| Em | Am | B7 | Em |"
-  }
+  },
+  "variations": [
+    {
+      "id": "l1-reggaeton",
+      "name": "L1 · Reggaeton",
+      "style": "latin-l1-reggaeton",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "reggaeton_01"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "cumbia-1-copy-2"
+        },
+        "keys": {
+          "kind": "comping",
+          "id": "reggaeton-tresillo"
+        }
+      }
+    },
+    {
+      "id": "l1-cumbia",
+      "name": "L1 · Cumbia",
+      "style": "latin-l1-cumbia",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "groove-latin-1"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "cumbia-1"
+        },
+        "keys": {
+          "kind": "comping",
+          "id": "cumbia-offbeats"
+        },
+        "guitar-comping": {
+          "kind": "comping",
+          "id": "cumbia-offbeats"
+        }
+      }
+    },
+    {
+      "id": "l1-mariachi",
+      "name": "L1 · Mariachi",
+      "style": "latin-l1-mariachi",
+      "timeSignature": [3, 4],
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "groove-latin-2"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "mariachi"
+        },
+        "keys": {
+          "kind": "comping",
+          "id": "mariachi-vals"
+        }
+      }
+    },
+    {
+      "id": "l2-merengue-bachata",
+      "name": "L2 · Merengue & Bachata",
+      "style": "latin-l2-merengue-bachata",
+      "plays": {}
+    },
+    {
+      "id": "l2-cha-cha",
+      "name": "L2 · Cha-cha-chá",
+      "style": "latin-l2-cha-cha",
+      "plays": {}
+    },
+    {
+      "id": "l2-bolero",
+      "name": "L2 · Bolero",
+      "style": "latin-l2-bolero",
+      "plays": {}
+    },
+    {
+      "id": "l3-bossa-samba",
+      "name": "L3 · Bossa & Samba",
+      "style": "latin-l3-bossa-samba",
+      "plays": {}
+    },
+    {
+      "id": "l3-tango",
+      "name": "L3 · Tango",
+      "style": "latin-l3-tango",
+      "plays": {}
+    },
+    {
+      "id": "l3-afro-cuban",
+      "name": "L3 · Afro-Cuban",
+      "style": "latin-l3-afro-cuban",
+      "plays": {}
+    }
+  ]
 }

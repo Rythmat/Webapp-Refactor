@@ -7,6 +7,11 @@
  * its notes) goes straight to that editor. A sampled sound reopens the same
  * way, to add samples. Assign the band to lesson styles at the foot.
  *
+ * A genre's band plays every style its lessons teach as variations: the tabs
+ * above the lanes. The members — who plays, on what sound, how loud — are
+ * the band's; what each plays, and the meter and tempo, are the open
+ * variation's. A member the variation gives nothing plays as the lesson does.
+ *
  * What it plays over (the preview chart and key) is saved with the band for
  * the next session, but lessons play their own chords.
  */
@@ -32,11 +37,20 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
 import {
+  LESSON_STYLES,
+  type LessonStyle,
+} from '@/curriculum/data/lessonStyles';
+import {
   BAND_INSTRUMENTS,
   type Band,
   type BandInstrument,
   type BandLayer,
+  type BandMember,
   type BandSource,
+  type BandVariation,
+  bandIdFrom,
+  bandSources,
+  bandVariation,
   layerIdFor,
 } from '@/curriculum/engine/band/band';
 import { layerSound, realizeBand } from '@/curriculum/engine/band/realize';
@@ -61,6 +75,7 @@ import { useCompingList } from '../chordComping/compingSession';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
 import { useGrooveList } from '../drumGrooves/grooveSession';
 import { usePartList } from '../parts/partFiles';
+import { fileItem } from '../players/playerFiles';
 import { usePlayerList } from '../players/playerSession';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { CONSOLE_LABEL, CONSOLE_PANEL } from '../ui/styles';
@@ -70,6 +85,7 @@ import { LayerItemEditor } from './LayerItemEditor';
 import { SampleInstrumentMaker } from './SampleInstrumentMaker';
 import { SynthLayerPanel } from './SynthLayerPanel';
 import { CAN_WRITE_FILES, downloadBand, saveBand } from './bandFiles';
+import { usePairingList } from './bandSession';
 import {
   SAMPLE_PREFIX,
   SYNTH_PREFIX,
@@ -183,15 +199,101 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   const parts = usePartList();
   const players = usePlayerList();
 
+  const pairings = usePairingList();
+
   const set = (patch: Partial<Band>) => setDraft((b) => ({ ...b, ...patch }));
-  const setLayer = (id: string, patch: Partial<BandLayer>) =>
+  const setLayer = (id: string, patch: Partial<BandMember>) =>
     setDraft((b) => ({
       ...b,
       layers: b.layers.map((l) => (l.id === id ? { ...l, ...patch } : l)),
     }));
 
+  // ── variations ──
+  const variations = draft.variations ?? [];
+  const [variationId, setVariationId] = useState(initial.variations?.[0]?.id);
+  const variation =
+    variations.find((v) => v.id === variationId) ?? variations[0];
+  const setVariation = (patch: Partial<BandVariation>) =>
+    variation &&
+    setDraft((b) => ({
+      ...b,
+      variations: b.variations?.map((v) =>
+        v.id === variation.id ? { ...v, ...patch } : v,
+      ),
+    }));
+  /** What a member plays in the open variation; nothing = as in the lesson. */
+  const sourceOf = (l: BandMember): BandSource | undefined =>
+    variation ? variation.plays[l.id] : l.source;
+  const setSource = (memberId: string, source: BandSource | undefined) => {
+    if (!variation) {
+      if (source) setLayer(memberId, { source });
+      return;
+    }
+    const plays = { ...variation.plays };
+    if (source) plays[memberId] = source;
+    else delete plays[memberId];
+    setVariation({ plays });
+  };
+  const variationIdFor = (name: string) => {
+    const base = bandIdFrom(name);
+    const taken = new Set(variations.map((v) => v.id));
+    let id = base;
+    for (let n = 2; taken.has(id); n++) id = `${base}-${n}`;
+    return id;
+  };
+  /** The genre's styles, for a variation's "made for". */
+  const genreStyles = LESSON_STYLES.filter(
+    (st) => !draft.genre || st.genre === draft.genre,
+  );
+  /**
+   * One variation per style the genre teaches: the members' items go to the
+   * style the band already plays in lessons (else the first); the rest start
+   * as the lessons play.
+   */
+  const addVariations = () => {
+    const own = Object.fromEntries(
+      draft.layers.flatMap((l) => (l.source ? [[l.id, l.source]] : [])),
+    );
+    const paired = pairings.find((p) => p.band === draft.id)?.id;
+    const styles: (LessonStyle | undefined)[] = genreStyles.length
+      ? genreStyles
+      : [undefined];
+    const home = styles.find((st) => st?.id === paired) ?? styles[0];
+    const list: BandVariation[] = styles.map((st) => ({
+      id: st ? st.id.slice(st.genre.length + 1) : 'main',
+      name: st ? `L${st.level} · ${st.name}` : draft.name,
+      ...(st ? { style: st.id } : {}),
+      plays: st === home ? own : {},
+    }));
+    set({
+      layers: draft.layers.map(({ source: _source, ...m }) => m),
+      variations: list,
+    });
+    setVariationId(list[styles.indexOf(home)].id);
+  };
+  const newVariation = () => {
+    const name = variation ? `${variation.name} copy` : 'New variation';
+    const next: BandVariation = {
+      ...(variation ?? { plays: {} }),
+      id: variationIdFor(name),
+      name,
+      style: undefined,
+    };
+    set({ variations: [...variations, next] });
+    setVariationId(next.id);
+  };
+  const removeVariation = () => {
+    if (!variation || variations.length < 2) return;
+    const rest = variations.filter((v) => v.id !== variation.id);
+    set({ variations: rest });
+    setVariationId(rest[0].id);
+  };
+  /** The band as the open variation plays it. */
+  const playable = bandVariation(draft, variation?.id);
+  const tempo = playable.tempo;
+
   // ── the chart it plays over ──
-  const ts = draft.timeSignature;
+  const ts = playable.timeSignature;
   const preview = draft.preview ?? {};
   const progression = progressionById(
     preview.progression ?? (ts[0] === 3 ? 'turnaround' : PROGRESSIONS[0].id),
@@ -207,7 +309,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   // The longest layer, so a long groove or line is heard in full.
   const longestBars = Math.max(
     1,
-    ...draft.layers.map((l) => {
+    ...playable.layers.map((l) => {
       const { source } = l;
       if (source.kind === 'groove')
         return grooves.find((g) => g.id === source.id)?.bars ?? 1;
@@ -231,10 +333,13 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
 
   // The Studio's imported grooves load on demand: the ones the layers name are
   // loaded before they play, and the band re-reads them once they are.
-  const grooveIds = draft.layers
-    .filter((l) => l.source.kind === 'groove')
-    .map((l) => l.source.id)
-    .join(',');
+  const grooveIds = [
+    ...new Set(
+      bandSources(draft)
+        .filter((src) => src.kind === 'groove')
+        .map((src) => src.id),
+    ),
+  ].join(',');
   const [studioLoaded, setStudioLoaded] = useState(0);
   useEffect(() => {
     let alive = true;
@@ -253,7 +358,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     () =>
       harmony
         ? realizeBand(
-            draft,
+            playable,
             ALL_ITEMS,
             { chordAt: harmony.chordAt, bars, timeSignature: ts },
             { includeMuted: true },
@@ -263,7 +368,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     [draft, harmony, bars, ts, grooves, lines, patterns, parts, studioLoaded],
   );
   const notesOf = new Map(realized.map((r) => [r.layer.id, r.notes]));
-  const playerLayers: PlayerLayer[] = draft.layers.map((l) => ({
+  const playerLayers: PlayerLayer[] = playable.layers.map((l) => ({
     id: l.id,
     sound: layerSound(l, ALL_ITEMS),
     notes: notesOf.get(l.id) ?? [],
@@ -278,9 +383,9 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   // An edit while playing is heard on the next pass; a level at once.
   useEffect(() => {
     if (player.playing)
-      void player.play(playerLayers, { bpm: draft.tempo, totalTicks });
+      void player.play(playerLayers, { bpm: tempo, totalTicks });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notesKey, realized, draft.tempo]);
+  }, [notesKey, realized, tempo]);
   const mixKey = JSON.stringify(
     playerLayers.map((l) => [l.id, l.volume, l.muted]),
   );
@@ -292,7 +397,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   const toggle = () =>
     player.playing
       ? player.stop()
-      : void player.play(playerLayers, { bpm: draft.tempo, totalTicks });
+      : void player.play(playerLayers, { bpm: tempo, totalTicks });
 
   // ── layers ──
   const addLayer = (spec: (typeof NEW_LAYERS)[number]) => {
@@ -313,13 +418,22 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
       return;
     }
     const id = layerIdFor(draft, spec.label.toLowerCase().replace(/\s+/g, '-'));
-    const layer: BandLayer = {
+    const source = { kind: spec.kind, id: first } as BandSource;
+    const member: BandMember = {
       id,
       name: spec.label,
       instrument: spec.instrument,
-      source: { kind: spec.kind, id: first } as BandSource,
     };
-    set({ layers: [...draft.layers, layer] });
+    // With variations it plays its item in the open one only.
+    setDraft((b) => ({
+      ...b,
+      layers: [...b.layers, variation ? member : { ...member, source }],
+      variations: b.variations?.map((v) =>
+        v.id === variation?.id
+          ? { ...v, plays: { ...v.plays, [id]: source } }
+          : v,
+      ),
+    }));
     setSelected(id);
     setEditingItem(false);
   };
@@ -332,7 +446,15 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     set({ layers });
   };
   const remove = (id: string) => {
-    set({ layers: draft.layers.filter((l) => l.id !== id) });
+    set({
+      layers: draft.layers.filter((l) => l.id !== id),
+      variations: draft.variations?.map((v) => ({
+        ...v,
+        plays: Object.fromEntries(
+          Object.entries(v.plays).filter(([member]) => member !== id),
+        ),
+      })),
+    });
     if (selected === id) setSelected(null);
   };
 
@@ -358,9 +480,11 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
           ? patterns.map((c) => ({ id: c.id, name: c.name, status: c.status }))
           : parts.map((p) => ({ id: p.id, name: p.name, status: p.status }));
   const layer = draft.layers.find((l) => l.id === selected) ?? null;
+  /** What the open layer plays in the open variation. */
+  const layerSource = layer ? sourceOf(layer) : undefined;
 
-  const itemName = layer
-    ? itemsFor(layer.source.kind).find((i) => i.id === layer.source.id)?.name
+  const itemName = layerSource
+    ? itemsFor(layerSource.kind).find((i) => i.id === layerSource.id)?.name
     : undefined;
   /** The open layer's sampled sound, which "Edit the sound" reopens. */
   const sampleSound = layer?.sound?.startsWith(SAMPLE_PREFIX)
@@ -448,27 +572,30 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
             placeholder="latin"
           />
         </label>
-        <label className="flex flex-col gap-1">
-          <span className={CONSOLE_LABEL}>Style</span>
-          <input
-            value={draft.style ?? ''}
-            onChange={(e) => set({ style: e.target.value || undefined })}
-            className={cn(input, 'w-36')}
-            placeholder="Cumbia"
-          />
-        </label>
+        {/* A band with variations plays a style in each. */}
+        {!variations.length && (
+          <label className="flex flex-col gap-1">
+            <span className={CONSOLE_LABEL}>Style</span>
+            <input
+              value={draft.style ?? ''}
+              onChange={(e) => set({ style: e.target.value || undefined })}
+              className={cn(input, 'w-36')}
+              placeholder="Cumbia"
+            />
+          </label>
+        )}
         <label className="flex flex-col gap-1">
           <span className={CONSOLE_LABEL}>Meter</span>
           <select
             value={ts.join('/')}
-            onChange={(e) =>
-              set({
-                timeSignature: e.target.value.split('/').map(Number) as [
-                  number,
-                  number,
-                ],
-              })
-            }
+            onChange={(e) => {
+              const timeSignature = e.target.value.split('/').map(Number) as [
+                number,
+                number,
+              ];
+              if (variation) setVariation({ timeSignature });
+              else set({ timeSignature });
+            }}
             className={input}
           >
             {METERS.map((m) => (
@@ -484,8 +611,12 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
             type="number"
             min={40}
             max={240}
-            value={draft.tempo}
-            onChange={(e) => set({ tempo: Number(e.target.value) || 96 })}
+            value={tempo}
+            onChange={(e) => {
+              const next = Number(e.target.value) || 96;
+              if (variation) setVariation({ tempo: next });
+              else set({ tempo: next });
+            }}
             className={cn(input, 'w-20 tabular-nums')}
           />
         </label>
@@ -554,9 +685,103 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         </label>
       </div>
 
+      {/* ── its variations ── */}
+      <div className={cn(CONSOLE_PANEL, 'flex flex-col gap-2 p-3')}>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className={cn(CONSOLE_LABEL, 'mr-1')}>Variations</span>
+          {variations.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => {
+                setVariationId(v.id);
+                setEditingItem(false);
+              }}
+              className={cn(
+                'rounded-full px-3 py-1 text-xs',
+                v.id === variation?.id
+                  ? 'bg-white font-semibold text-black'
+                  : 'bg-white/10 hover:bg-white/20',
+              )}
+              aria-pressed={v.id === variation?.id}
+            >
+              {v.name}
+            </button>
+          ))}
+          {variations.length ? (
+            <Button size="sm" variant="ghost" onClick={newVariation}>
+              <Plus /> New variation
+            </Button>
+          ) : (
+            <>
+              <span className="text-xs text-muted-foreground">
+                One arrangement for now.
+              </span>
+              <Button size="sm" variant="secondary" onClick={addVariations}>
+                <Plus /> A variation for every{' '}
+                {genreStyles.length && draft.genre
+                  ? `${genreStyles[0].genreName} style`
+                  : 'style'}
+              </Button>
+            </>
+          )}
+        </div>
+        {variation && (
+          <div className="flex flex-wrap items-end gap-4">
+            <label className="flex flex-col gap-1">
+              <span className={CONSOLE_LABEL}>Name</span>
+              <input
+                value={variation.name}
+                onChange={(e) => setVariation({ name: e.target.value })}
+                className={cn(input, 'w-56')}
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className={CONSOLE_LABEL}>Made for</span>
+              <select
+                value={variation.style ?? ''}
+                onChange={(e) =>
+                  setVariation({ style: e.target.value || undefined })
+                }
+                className={input}
+              >
+                <option value="">No lesson style</option>
+                {genreStyles.map((st) => (
+                  <option key={st.id} value={st.id}>
+                    {st.genreName} L{st.level} · {st.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="max-w-xl flex-1 text-xs text-muted-foreground">
+              {(() => {
+                const given = Object.keys(variation.plays).length;
+                const members = `${given} of ${draft.layers.length} members play their own item here; the rest play as the lesson does.`;
+                if (!variation.style)
+                  return `${members} Exceptions below can name it.`;
+                const paired =
+                  pairings.find((p) => p.id === variation.style)?.band ===
+                  draft.id;
+                return paired
+                  ? `${members} Its lessons play it.`
+                  : `${members} Its lessons play it once this band is used for the style below.`;
+              })()}
+            </p>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={removeVariation}
+              disabled={variations.length < 2}
+            >
+              <Trash2 /> Remove variation
+            </Button>
+          </div>
+        )}
+      </div>
+
       {/* ── transport ── */}
       <div className="flex items-center gap-3">
-        <Button size="sm" onClick={toggle} disabled={!draft.layers.length}>
+        <Button size="sm" onClick={toggle} disabled={!playable.layers.length}>
           {player.loading ? (
             <Loader2 className="animate-spin" />
           ) : player.playing ? (
@@ -567,7 +792,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
           {player.playing ? 'Stop' : 'Play the band'}
         </Button>
         <span className="text-xs text-muted-foreground tabular-nums">
-          {bars} bar{bars === 1 ? '' : 's'} · {ts.join('/')} · {draft.tempo} bpm
+          {bars} bar{bars === 1 ? '' : 's'} · {ts.join('/')} · {tempo} bpm
         </span>
       </div>
 
@@ -581,6 +806,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         {draft.layers.map((l, i) => {
           const isSelected = l.id === selected;
           const solo = player.solo === l.id;
+          const src = sourceOf(l);
           return (
             <div
               key={l.id}
@@ -652,8 +878,13 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                   <button
                     type="button"
                     onClick={() => editLayer(l.id)}
-                    className="ml-auto flex shrink-0 items-center gap-1 rounded bg-white/10 px-1.5 text-[11px] font-semibold hover:bg-white/20"
-                    title={`Edit the notes of this ${SOURCE_LABEL[l.source.kind].toLowerCase()}`}
+                    disabled={!src}
+                    className="ml-auto flex shrink-0 items-center gap-1 rounded bg-white/10 px-1.5 text-[11px] font-semibold hover:bg-white/20 disabled:opacity-40"
+                    title={
+                      src
+                        ? `Edit the notes of this ${SOURCE_LABEL[src.kind].toLowerCase()}`
+                        : 'Plays as in the lesson here: pick what it plays first'
+                    }
                   >
                     <Pencil className="size-3" /> Edit
                   </button>
@@ -666,18 +897,25 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                   setSelected(l.id);
                   setEditingItem(false);
                 }}
-                onDoubleClick={() => editLayer(l.id)}
+                onDoubleClick={() => src && editLayer(l.id)}
                 title="Click to open · double-click to edit its notes"
                 aria-label={`Open ${l.name}`}
               >
-                <LaneStrip
-                  notes={notesOf.get(l.id) ?? []}
-                  totalTicks={totalTicks}
-                  barTicks={barTicks(ts)}
-                  drums={l.source.kind === 'groove'}
-                  muted={Boolean(l.muted) || (player.solo !== null && !solo)}
-                  colour={COLOUR[l.instrument]}
-                />
+                {src ? (
+                  <LaneStrip
+                    notes={notesOf.get(l.id) ?? []}
+                    totalTicks={totalTicks}
+                    barTicks={barTicks(ts)}
+                    drums={src.kind === 'groove'}
+                    muted={Boolean(l.muted) || (player.solo !== null && !solo)}
+                    colour={COLOUR[l.instrument]}
+                  />
+                ) : (
+                  <span className="flex h-full items-center px-3 text-xs italic text-muted-foreground">
+                    As in the lesson: its own backing plays this part (silent
+                    here). Open it to pick what it plays.
+                  </span>
+                )}
                 {playhead !== null && (
                   <span
                     className="pointer-events-none absolute inset-y-0 w-px bg-white/70"
@@ -761,15 +999,20 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
             <label className="flex flex-col gap-1">
               <span className={CONSOLE_LABEL}>What it plays</span>
               <select
-                value={`${layer.source.kind}:${layer.source.id}`}
+                value={
+                  layerSource ? `${layerSource.kind}:${layerSource.id}` : ''
+                }
                 onChange={(e) => {
                   const at = e.target.value.indexOf(':');
-                  setLayer(layer.id, {
-                    source: {
-                      kind: e.target.value.slice(0, at),
-                      id: e.target.value.slice(at + 1),
-                    } as BandSource,
-                  });
+                  setSource(
+                    layer.id,
+                    at < 0
+                      ? undefined
+                      : ({
+                          kind: e.target.value.slice(0, at),
+                          id: e.target.value.slice(at + 1),
+                        } as BandSource),
+                  );
                   setEditingItem(false);
                 }}
                 className={cn(input, 'max-w-[20rem]')}
@@ -778,8 +1021,8 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                   const kinds = kindsFor(layer.instrument);
                   // The layer may still name a kind its instrument no longer
                   // takes; keep it listed so the picker shows what it plays.
-                  if (!kinds.includes(layer.source.kind))
-                    kinds.unshift(layer.source.kind);
+                  if (layerSource && !kinds.includes(layerSource.kind))
+                    kinds.unshift(layerSource.kind);
                   const by = players.find((p) => p.id === layer.player);
                   const isTheirs = (kind: BandSource['kind'], id: string) =>
                     !!by?.items.some((i) => i.kind === kind && i.id === id);
@@ -799,6 +1042,11 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                   );
                   return (
                     <>
+                      {variation && (
+                        <option value="">
+                          As in the lesson (its own backing)
+                        </option>
+                      )}
                       {by && (
                         <optgroup label={`${by.name} plays`}>
                           {kinds.flatMap((kind) =>
@@ -845,10 +1093,15 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               >
                 <option value="">
                   As in lessons (
-                  {soundLabel(
-                    layerSound({ ...layer, sound: undefined }, ALL_ITEMS),
-                    layer.instrument,
-                  )}
+                  {layerSource
+                    ? soundLabel(
+                        layerSound(
+                          { ...layer, source: layerSource, sound: undefined },
+                          ALL_ITEMS,
+                        ),
+                        layer.instrument,
+                      )
+                    : 'its item’s sound'}
                   )
                 </option>
                 {soundGroups(layer.instrument).map((group) => (
@@ -889,10 +1142,10 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               </Button>
             </div>
           </div>
-          {editingItem ? (
+          {editingItem && layerSource ? (
             <div className="flex flex-col gap-2 border-t border-white/[0.06] pt-3">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                Editing the {SOURCE_LABEL[layer.source.kind].toLowerCase()}{' '}
+                Editing the {SOURCE_LABEL[layerSource.kind].toLowerCase()}{' '}
                 itself: a save is heard in every band and lesson that plays it.
                 Duplicate makes this band its own copy.
                 <Button
@@ -905,8 +1158,13 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                 </Button>
               </div>
               <LayerItemEditor
-                source={layer.source}
-                onReplace={(source) => setLayer(layer.id, { source })}
+                source={layerSource}
+                onReplace={(source) => {
+                  setSource(layer.id, source);
+                  // The copy belongs to whoever plays the layer.
+                  if (layer.player)
+                    void fileItem(source, layer.player).catch(() => undefined);
+                }}
               />
             </div>
           ) : synth?.layerId === layer.id ? (
@@ -936,26 +1194,39 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
             </div>
           ) : (
             <div className="flex flex-wrap items-center gap-2">
-              <Button size="sm" onClick={() => editLayer(layer.id)}>
-                <Pencil /> Edit the{' '}
-                {SOURCE_LABEL[layer.source.kind].toLowerCase()}
-                {itemName ? `: ${itemName}` : ''}
-              </Button>
-              <Button size="sm" variant="ghost" asChild>
-                <Link to={LIBRARY_HREF[layer.source.kind](layer.source.id)}>
-                  <ExternalLink /> Open in its library
-                </Link>
-              </Button>
+              {layerSource ? (
+                <>
+                  <Button size="sm" onClick={() => editLayer(layer.id)}>
+                    <Pencil /> Edit the{' '}
+                    {SOURCE_LABEL[layerSource.kind].toLowerCase()}
+                    {itemName ? `: ${itemName}` : ''}
+                  </Button>
+                  <Button size="sm" variant="ghost" asChild>
+                    <Link to={LIBRARY_HREF[layerSource.kind](layerSource.id)}>
+                      <ExternalLink /> Open in its library
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  In {variation?.name} this plays as the lesson does. Pick what
+                  it plays above to give it an item of its own.
+                </span>
+              )}
               {layer.sound?.startsWith(SYNTH_PREFIX) ? (
                 <Button
                   size="sm"
                   variant="secondary"
                   onClick={async () => {
-                    const engine = await player.synthEngine(
-                      playerLayers.find((l) => l.id === layer.id)!,
-                    );
+                    const playing = playerLayers.find((l) => l.id === layer.id);
+                    const engine = playing
+                      ? await player.synthEngine(playing)
+                      : null;
                     if (engine) setSynth({ layerId: layer.id, engine });
-                    else setError('The synth could not start.');
+                    else
+                      setError(
+                        'The synth starts on a layer that plays something in this variation.',
+                      );
                   }}
                 >
                   Open the synth

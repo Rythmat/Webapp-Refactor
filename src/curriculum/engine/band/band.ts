@@ -13,6 +13,14 @@
  *
  * Lessons pair a style with one Band (bandAssignments), replacing the three
  * separate drums / bass / comping pairings (ledger D-084, D-087).
+ *
+ * Variations: a genre's Band is one lineup — its members, their sounds and
+ * levels — that plays every style its Learn genre teaches. Each variation
+ * says what every member plays in one style (Funk Band 1: The Pocket,
+ * Syncopation & Sauce, Deep Groove), and may set its own meter and tempo. A
+ * member a variation gives nothing plays as the lesson does: the lesson's
+ * own backing for that part. Lessons in a style play the variation made for
+ * it. A band without variations is one arrangement, its members' own items.
  */
 
 import type { TimeSignature } from '../bassLines/harmony';
@@ -39,6 +47,7 @@ export type BandSource =
 
 export type BandSourceKind = BandSource['kind'];
 
+/** A band member as it plays: what it plays resolved (bandVariation). */
 export interface BandLayer {
   /** Unique within the band; kebab-case. */
   id: string;
@@ -66,6 +75,30 @@ export interface BandLayer {
   player?: string;
 }
 
+/**
+ * A member as the band file keeps it. In a band with variations what it
+ * plays lives in each variation, so `source` is left out here.
+ */
+export type BandMember = Omit<BandLayer, 'source'> & { source?: BandSource };
+
+/** What the band's members play in one style. */
+export interface BandVariation {
+  /** Unique within the band; kebab-case. */
+  id: string;
+  name: string;
+  /** The lesson style it was made for (lessonStyles.ts): its lessons play it. */
+  style?: string;
+  /** Its own meter, when not the band's (Mariachi's 3/4). */
+  timeSignature?: TimeSignature;
+  /** Its own preview tempo; lessons keep their own. */
+  tempo?: number;
+  /**
+   * What each member plays, by member id. A member not named plays as the
+   * lesson does — its own backing for that part.
+   */
+  plays: Record<string, BandSource>;
+}
+
 export interface Band {
   /** File name and lesson-assignment target: lowercase, digits, _ and -. */
   id: string;
@@ -83,12 +116,64 @@ export interface Band {
   timeSignature: TimeSignature;
   /** The tempo it is previewed at; lessons keep their own. */
   tempo: number;
-  layers: BandLayer[];
+  /** The members, in the order they are stacked. */
+  layers: BandMember[];
+  /** The styles it plays; left out, it is one arrangement. */
+  variations?: BandVariation[];
   /**
    * What the editor plays it over: a preset progression and key, or a typed
    * chart ('| Am | Dm | E7 | Am |'). Editor only; lessons play their own.
    */
   preview?: { progression?: string; key?: number; chart?: string };
+}
+
+/** A band as one variation plays it: every member with what it plays. */
+export type PlayableBand = Omit<Band, 'layers' | 'variations'> & {
+  layers: BandLayer[];
+  /** The variation it is, when the band has them. */
+  variation?: BandVariation;
+};
+
+/** The variation a style plays: the one made for it, else the band's first. */
+export function variationForStyle(
+  band: Pick<Band, 'variations'>,
+  styleId: string | undefined,
+): BandVariation | undefined {
+  const all = band.variations ?? [];
+  return all.find((v) => v.style && v.style === styleId) ?? all[0];
+}
+
+/**
+ * The band as a variation plays it (its first when the id is unknown or left
+ * out): members it gives nothing drop out, so the lesson's own backing plays
+ * that part. A band without variations plays its members' own items.
+ */
+export function bandVariation(band: Band, variationId?: string): PlayableBand {
+  const { variations, layers, ...rest } = band;
+  if (!variations?.length)
+    return {
+      ...rest,
+      layers: layers.filter((l): l is BandLayer => !!l.source),
+    };
+  const variation =
+    variations.find((v) => v.id === variationId) ?? variations[0];
+  return {
+    ...rest,
+    timeSignature: variation.timeSignature ?? band.timeSignature,
+    tempo: variation.tempo ?? band.tempo,
+    variation,
+    layers: layers.flatMap((l) => {
+      const source = variation.plays[l.id];
+      return source ? [{ ...l, source }] : [];
+    }),
+  };
+}
+
+/** Every item a band plays, in any variation. */
+export function bandSources(band: Band): BandSource[] {
+  return band.variations?.length
+    ? band.variations.flatMap((v) => Object.values(v.plays))
+    : band.layers.flatMap((l) => (l.source ? [l.source] : []));
 }
 
 export const BAND_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;

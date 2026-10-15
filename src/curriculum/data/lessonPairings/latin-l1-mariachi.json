@@ -1,6 +1,4 @@
 {
   "id": "latin-l1-mariachi",
-  "drums": "groove-latin-2",
-  "bass": "mariachi",
-  "comping": "mariachi-vals"
+  "band": "latin-band-1"
 }

@@ -5,6 +5,8 @@ import {
   chartFromStudio,
   hasSendableChart,
   type StudioChartSource,
+  chartSummary,
+  updateWouldLoseChart,
 } from '../toSetListChart';
 
 const BAR = 1920;
@@ -240,5 +242,54 @@ describe('chartFromStudio', () => {
       source({ chordRegions: [region(0, 1, '1 maj', 'G maj'), shy] }),
     );
     expect(chart.sections[0].bars[1].chords).toEqual([]);
+  });
+});
+
+describe('what an update would do to a set’s copy', () => {
+  const bar = (chords = 1, restBars?: number) => ({
+    chords: Array.from({ length: chords }, () => ({
+      degree: '1',
+      chordName: 'C',
+      beat: 1,
+      duration: 4,
+    })),
+    ...(restBars ? { restBars } : {}),
+  });
+  const chart = (sections: ReturnType<typeof bar>[][], key = 'C major') => ({
+    key,
+    sections: sections.map((bars, i) => ({
+      id: `s${i}`,
+      label: String.fromCharCode(65 + i),
+      bars,
+    })),
+  });
+
+  it('counts bars (a multi-bar rest by its bars), sections and chords', () => {
+    expect(chartSummary(chart([[bar(2), bar(0, 4)], [bar()]]))).toEqual({
+      bars: 6,
+      sections: 2,
+      chords: 3,
+      key: 'C major',
+    });
+  });
+
+  it('would lose the chart with no chords, fewer bars or fewer sections', () => {
+    const stored = chart([[bar(), bar()], [bar()]]);
+    expect(
+      updateWouldLoseChart(stored, chart([[bar(0), bar(0)], [bar(0)]])),
+    ).toBe(true);
+    expect(updateWouldLoseChart(stored, chart([[bar()], [bar()]]))).toBe(true);
+    expect(updateWouldLoseChart(stored, chart([[bar(), bar(), bar()]]))).toBe(
+      true,
+    );
+    expect(
+      updateWouldLoseChart(
+        stored,
+        chart([
+          [bar(), bar()],
+          [bar(), bar()],
+        ]),
+      ),
+    ).toBe(false);
   });
 });

@@ -210,3 +210,44 @@ export function hasSendableChart(source: StudioChartSource): boolean {
     s.bars.some((b) => b.chords.length > 0),
   );
 }
+
+/** What the update offer shows of a chart, before and after. */
+export interface ChartSummary {
+  /** Bars of music, a multi-bar rest counted by its bars. */
+  bars: number;
+  sections: number;
+  chords: number;
+  key: string;
+}
+
+export function chartSummary(
+  chart: Pick<StoredChart, 'key' | 'sections'>,
+): ChartSummary {
+  const bars = chart.sections.flatMap((section) => section.bars);
+  return {
+    bars: bars.reduce((sum, bar) => sum + Math.max(1, bar.restBars ?? 1), 0),
+    sections: chart.sections.length,
+    chords: bars.reduce((sum, bar) => sum + bar.chords.length, 0),
+    key: chart.key,
+  };
+}
+
+/**
+ * Whether sending `next` over the set's copy would lose what the set holds:
+ * a chart with no chords, or one with fewer bars or sections. A project
+ * reopened without its chord lane, or refreshed without its sections, looks
+ * that way, and the set list may be the only place the chart survived, so
+ * the update isn't offered then (leadsheet-04).
+ */
+export function updateWouldLoseChart(
+  stored: Pick<StoredChart, 'key' | 'sections'>,
+  next: Pick<StoredChart, 'key' | 'sections'>,
+): boolean {
+  const before = chartSummary(stored);
+  const after = chartSummary(next);
+  return (
+    after.chords === 0 ||
+    after.bars < before.bars ||
+    after.sections < before.sections
+  );
+}

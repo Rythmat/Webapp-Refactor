@@ -32,7 +32,7 @@ import {
   Square,
   Trash2,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
@@ -54,7 +54,11 @@ import {
   bandVariation,
   layerIdFor,
 } from '@/curriculum/engine/band/band';
-import { layerSound, realizeBand } from '@/curriculum/engine/band/realize';
+import {
+  type BandItems,
+  layerSound,
+  realizeBand,
+} from '@/curriculum/engine/band/realize';
 import { ALL_ITEMS } from '@/curriculum/engine/band/registry';
 import { lineBars } from '@/curriculum/engine/bassLines/bassLine';
 import {
@@ -404,14 +408,41 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   }, [grooveIds]);
 
   // ── what every layer plays ──
-  // The item lists are read so an edit to an item, saved in its own editor,
-  // is heard here at once.
+  // From this session's lists, not the files the page was built with, so a
+  // part just captured or saved plays at once; and a part open in its editor
+  // below plays as edited, unsaved, so the band is its audition.
+  const [liveParts, setLiveParts] = useState<Record<string, InstrumentPart>>(
+    {},
+  );
+  const onPartDraft = useCallback(
+    (part: InstrumentPart) =>
+      setLiveParts((m) =>
+        m[part.id] === part ? m : { ...m, [part.id]: part },
+      ),
+    [],
+  );
+  // Closed unsaved, a part's edits go with its editor.
+  useEffect(() => {
+    if (!editingItem) setLiveParts({});
+  }, [editingItem]);
+  const items = useMemo<BandItems>(
+    () => ({
+      ...ALL_ITEMS,
+      part: (id) =>
+        liveParts[id] ?? parts.find((p) => p.id === id) ?? ALL_ITEMS.part(id),
+      bassLine: (id) =>
+        lines.find((l) => l.id === id) ?? ALL_ITEMS.bassLine(id),
+      comping: (id) =>
+        patterns.find((c) => c.id === id) ?? ALL_ITEMS.comping(id),
+    }),
+    [liveParts, parts, lines, patterns],
+  );
   const realized = useMemo(
     () =>
       harmony
         ? realizeBand(
             playable,
-            ALL_ITEMS,
+            items,
             {
               chordAt: harmony.chordAt,
               bars,
@@ -422,12 +453,12 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
           )
         : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [draft, harmony, bars, ts, grooves, lines, patterns, parts, studioLoaded],
+    [draft, harmony, bars, ts, grooves, items, studioLoaded],
   );
   const notesOf = new Map(realized.map((r) => [r.layer.id, r.notes]));
   const playerLayers: PlayerLayer[] = playable.layers.map((l) => ({
     id: l.id,
-    sound: layerSound(l, ALL_ITEMS),
+    sound: layerSound(l, items),
     notes: notesOf.get(l.id) ?? [],
     volume: l.volume ?? 1,
     muted: Boolean(l.muted),
@@ -625,8 +656,10 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     setSelected(id);
     setSynth(null);
     setSampling(null);
-    // The item's editor previews on its own transport.
-    player.stop();
+    // A part plays with the band as it's edited; the other editors preview
+    // on their own transport.
+    const l = draft.layers.find((x) => x.id === id);
+    if (!l || sourceOf(l)?.kind !== 'part') player.stop();
     setEditingItem(true);
     requestAnimationFrame(() =>
       panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
@@ -1254,7 +1287,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                     ? soundLabel(
                         layerSound(
                           { ...layer, source: layerSource, sound: undefined },
-                          ALL_ITEMS,
+                          items,
                         ),
                         layer.instrument,
                       )
@@ -1316,6 +1349,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               </div>
               <LayerItemEditor
                 source={layerSource}
+                band={{ playing: player.playing, toggle, onDraft: onPartDraft }}
                 onReplace={(source) => {
                   setSource(layer.id, source);
                   // The copy belongs to whoever plays the layer.

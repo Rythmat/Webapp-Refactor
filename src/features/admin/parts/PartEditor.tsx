@@ -109,6 +109,15 @@ interface Props {
   part: InstrumentPart;
   onDuplicate: (part: InstrumentPart) => void;
   lesson?: LessonTarget;
+  /**
+   * Opened inside a band: Play plays the band (this part in it, as edited),
+   * and every edit is handed up so the band hears it on its next pass.
+   */
+  band?: {
+    playing: boolean;
+    toggle: () => void;
+    onDraft: (part: InstrumentPart) => void;
+  };
 }
 
 /**
@@ -120,6 +129,7 @@ export const PartEditor: FC<Props> = ({
   part: initial,
   onDuplicate,
   lesson,
+  band,
 }) => {
   const history = useUndoable<InstrumentPart>(initial);
   const store = useInstrumentStore();
@@ -159,6 +169,12 @@ export const PartEditor: FC<Props> = ({
   const length = partTicks(draft);
   const beyondEnd = draft.notes.filter((n) => n.tick >= length).length;
   const sounds = SOUND_OPTIONS[draft.instrument];
+
+  // In a band, every edit goes up to it, heard on the band's next pass.
+  const onBandDraft = band?.onDraft;
+  useEffect(() => {
+    onBandDraft?.(draft);
+  }, [draft, onBandDraft]);
 
   // Hear every edit on the next pass.
   useEffect(() => {
@@ -248,7 +264,8 @@ export const PartEditor: FC<Props> = ({
       const mod = e.metaKey || e.ctrlKey;
       if (e.code === 'Space' && !typing && view !== 'staff') {
         e.preventDefault();
-        togglePlay();
+        if (band) band.toggle();
+        else togglePlay();
       } else if (mod && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if ((lesson || canSave) && dirty) void save();
@@ -266,7 +283,7 @@ export const PartEditor: FC<Props> = ({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [togglePlay, history, dirty, save, view]);
+  }, [togglePlay, history, dirty, save, view, band]);
 
   // The content area's guard: leaving with unsaved edits asks first.
   useUnsavedChanges(dirty);
@@ -340,28 +357,41 @@ export const PartEditor: FC<Props> = ({
           className="min-w-0 flex-[1_1_18rem] bg-transparent text-[2rem] leading-[1.1] tracking-[-0.02em] text-white outline-none"
           aria-label="Part name"
         />
-        <Button
-          onClick={togglePlay}
-          className={player.playing ? 'bg-rose-500 hover:bg-rose-400' : ''}
-        >
-          {player.loading ? (
-            <Loader2 className="animate-spin" />
-          ) : player.playing ? (
-            <Square />
-          ) : (
-            <Play />
-          )}
-          {player.playing ? 'Stop' : 'Play'}
-        </Button>
-        <Button
-          variant="outline"
-          onClick={record}
-          className={cn(armed && 'border-rose-500 text-rose-300')}
-          title="Count in one bar, then play it in on a MIDI keyboard"
-        >
-          <Circle className={cn(armed && 'fill-rose-500 text-rose-500')} />
-          {armed ? 'Recording' : 'Capture'}
-        </Button>
+        {band ? (
+          // In a band, the band's transport: this part as edited, with it.
+          <Button
+            onClick={band.toggle}
+            className={band.playing ? 'bg-rose-500 hover:bg-rose-400' : ''}
+          >
+            {band.playing ? <Square /> : <Play />}
+            {band.playing ? 'Stop the band' : 'Play with the band'}
+          </Button>
+        ) : (
+          <>
+            <Button
+              onClick={togglePlay}
+              className={player.playing ? 'bg-rose-500 hover:bg-rose-400' : ''}
+            >
+              {player.loading ? (
+                <Loader2 className="animate-spin" />
+              ) : player.playing ? (
+                <Square />
+              ) : (
+                <Play />
+              )}
+              {player.playing ? 'Stop' : 'Play'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={record}
+              className={cn(armed && 'border-rose-500 text-rose-300')}
+              title="Count in one bar, then play it in on a MIDI keyboard"
+            >
+              <Circle className={cn(armed && 'fill-rose-500 text-rose-500')} />
+              {armed ? 'Recording' : 'Capture'}
+            </Button>
+          </>
+        )}
         <UndoRedo history={history} />
         {lesson ? (
           <>

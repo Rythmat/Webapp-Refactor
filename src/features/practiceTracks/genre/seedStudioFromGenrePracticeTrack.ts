@@ -9,6 +9,7 @@
  * to fetch.
  */
 
+import { trackSound } from '@/daw/instruments/trackSound';
 import { useStore } from '@/daw/store';
 import type { InstrumentType } from '@/daw/store/tracksSlice';
 import type {
@@ -60,6 +61,29 @@ function applyLessonSound(
   }
 }
 
+/**
+ * A band layer's track name: the layer's, marked so the style switch can find
+ * the band's own tracks again (`swapGenrePracticeBacking`).
+ */
+const BAND_MARK = ' (band)';
+const layerTrackName = (name: string) => `${name}${BAND_MARK}`;
+
+/** The style's band layers on tracks of their own, each on its sound and level. */
+function addLayerTracks(track: GenrePracticeTrackResult): void {
+  const store = useStore.getState();
+  for (const layer of track.layerClips) {
+    const trackId = store.addTrack(
+      'midi',
+      'electric-piano',
+      layerTrackName(layer.name),
+    );
+    const { settings, drumKit } = trackSound(trackId, layer.sound, track.bpm);
+    store.updateTrack(trackId, { ...settings, volume: layer.volume });
+    if (drumKit) store.setDrumKit(trackId, drumKit);
+    store.addMidiClip(trackId, { ...layer.clip, name: layer.name });
+  }
+}
+
 /** What the student's track is called, by what the section asked them to play. */
 function studentTrackName(parts: StudentPart[], sectionName: string): string {
   if (parts.length > 1) return `${sectionName} — Rhodes`;
@@ -99,6 +123,8 @@ export function applyGenrePracticeTrack(
     store.addMidiClip(trackId, clip);
     applyLessonSound(trackId, instrument, track);
   }
+
+  addLayerTracks(track);
 
   // The student's part: an empty track, which is the whole invitation.
   const studentPart = track.studentParts[0];
@@ -157,5 +183,9 @@ export function swapGenrePracticeBacking(
     if (instrument === 'bass-electric')
       store.updateTrack(target.id, { bassVoice: track.bassVoice });
   }
+  // The band's own layers: the old style's go, the new style's come in.
+  for (const t of useStore.getState().tracks)
+    if (t.name.endsWith(BAND_MARK) && !t.recordArmed) store.removeTrack(t.id);
+  addLayerTracks(track);
   store.setLoopRange(0, track.loopTicks);
 }

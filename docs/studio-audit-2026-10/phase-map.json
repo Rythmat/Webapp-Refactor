@@ -1,0 +1,3112 @@
+{
+  "audio-core-01": {
+    "severity": "critical",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "audio-core-06": {
+    "severity": "critical",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "collab-01": {
+    "severity": "critical",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "collab-02": {
+    "severity": "critical",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "dock-instruments-01": {
+    "severity": "critical",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "fx-mixer-01": {
+    "severity": "critical",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "ia-flows-01": {
+    "severity": "critical",
+    "designMilestone": "1.5",
+    "status": "open"
+  },
+  "ia-flows-02": {
+    "severity": "critical",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "insight-01": {
+    "severity": "critical",
+    "designMilestone": "1.5",
+    "status": "open"
+  },
+  "instruments-01": {
+    "severity": "critical",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "leadsheet-01": {
+    "severity": "critical",
+    "designMilestone": "1.5",
+    "status": "open"
+  },
+  "live-input-01": {
+    "severity": "critical",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "live-input-02": {
+    "severity": "critical",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "pianoroll-01": {
+    "severity": "critical",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "score-01": {
+    "severity": "critical",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "score-02": {
+    "severity": "critical",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "shell-02": {
+    "severity": "critical",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "shell-03": {
+    "severity": "critical",
+    "designMilestone": "1.5",
+    "status": "open"
+  },
+  "state-reload-01": {
+    "severity": "critical",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "state-reload-02": {
+    "severity": "critical",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "state-reload-04": {
+    "severity": "critical",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "state-reload-05": {
+    "severity": "critical",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "synth-engine-01": {
+    "severity": "critical",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "synth-engine-02": {
+    "severity": "critical",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "timeline-01": {
+    "severity": "critical",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "audio-analysis-01": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "audio-analysis-02": {
+    "severity": "high",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "audio-analysis-03": {
+    "severity": "high",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "audio-analysis-04": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "audio-analysis-05": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "audio-core-02": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-core-03": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "audio-core-04": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-core-05": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "audio-core-07": {
+    "severity": "high",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "audio-core-08": {
+    "severity": "high",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "audio-core-09": {
+    "severity": "high",
+    "designMilestone": "1.8",
+    "status": "open"
+  },
+  "audio-core-14": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-core-17": {
+    "severity": "high",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-01": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "bundle-load-02": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "bundle-load-03": {
+    "severity": "high",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-04": {
+    "severity": "high",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-05": {
+    "severity": "high",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "collab-03": {
+    "severity": "high",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "collab-04": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "collab-05": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "collab-07": {
+    "severity": "high",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "collab-10": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "collab-13": {
+    "severity": "high",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-14": {
+    "severity": "high",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-15": {
+    "severity": "high",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-16": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "design-system-01": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "design-system-04": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "dock-instruments-02": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "dock-instruments-03": {
+    "severity": "high",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "dock-instruments-05": {
+    "severity": "high",
+    "designMilestone": "1.6",
+    "status": "open"
+  },
+  "dock-instruments-08": {
+    "severity": "high",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "dock-instruments-09": {
+    "severity": "high",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "dock-instruments-10": {
+    "severity": "high",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "engine-hooks-01": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "engine-hooks-03": {
+    "severity": "high",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-04": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "engine-hooks-05": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "engine-hooks-06": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "engine-hooks-07": {
+    "severity": "high",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-09": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "engine-hooks-11": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "engine-hooks-12": {
+    "severity": "high",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "engine-hooks-13": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "engine-hooks-15": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "fx-mixer-02": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "fx-mixer-04": {
+    "severity": "high",
+    "designMilestone": "2.10",
+    "status": "open"
+  },
+  "fx-mixer-05": {
+    "severity": "high",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "fx-mixer-06": {
+    "severity": "high",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "fx-mixer-07": {
+    "severity": "high",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "fx-mixer-16": {
+    "severity": "high",
+    "designMilestone": "2.2",
+    "status": "open"
+  },
+  "fx-mixer-21": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "ia-flows-03": {
+    "severity": "high",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "ia-flows-04": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "ia-flows-05": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "ia-flows-07": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "ia-flows-08": {
+    "severity": "high",
+    "designMilestone": "1.6",
+    "status": "open"
+  },
+  "ia-flows-09": {
+    "severity": "high",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "ia-flows-10": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "ia-flows-11": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "ia-flows-12": {
+    "severity": "high",
+    "designMilestone": "2.10",
+    "status": "open"
+  },
+  "ia-flows-13": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "ia-flows-14": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "ia-flows-16": {
+    "severity": "high",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "ia-flows-18": {
+    "severity": "high",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "ia-flows-19": {
+    "severity": "high",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "insight-03": {
+    "severity": "high",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "insight-05": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "instruments-02": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "instruments-03": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "instruments-07": {
+    "severity": "high",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "leadsheet-02": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "leadsheet-03": {
+    "severity": "high",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "leadsheet-04": {
+    "severity": "high",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "leadsheet-05": {
+    "severity": "high",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "leadsheet-06": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "leadsheet-07": {
+    "severity": "high",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "live-input-03": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "pianoroll-02": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "pianoroll-03": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "pianoroll-06": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "practice-tutorial-03": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "practice-tutorial-04": {
+    "severity": "high",
+    "designMilestone": "1.15",
+    "status": "open"
+  },
+  "practice-tutorial-06": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "prism-engine-02": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "prism-ui-01": {
+    "severity": "high",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "prism-ui-02": {
+    "severity": "high",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "prism-ui-03": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "prism-ui-04": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "prism-ui-05": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "prism-ui-07": {
+    "severity": "high",
+    "designMilestone": "1.5",
+    "status": "open"
+  },
+  "score-06": {
+    "severity": "high",
+    "designMilestone": "1.8",
+    "status": "open"
+  },
+  "score-09": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "shell-01": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "shell-04": {
+    "severity": "high",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "shell-06": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "shell-07": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "shell-08": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "shell-10": {
+    "severity": "high",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "shell-11": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "shell-12": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "shell-13": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "shell-14": {
+    "severity": "high",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "shell-15": {
+    "severity": "high",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "state-reload-03": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "state-reload-06": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "state-reload-07": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "state-reload-09": {
+    "severity": "high",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "state-reload-10": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "state-reload-12": {
+    "severity": "high",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "state-reload-15": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "state-reload-17": {
+    "severity": "high",
+    "designMilestone": "1.15",
+    "status": "open"
+  },
+  "state-reload-18": {
+    "severity": "high",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "state-reload-20": {
+    "severity": "high",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "synth-engine-05": {
+    "severity": "high",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "synth-engine-07": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "synth-engine-08": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-engine-10": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-store-01": {
+    "severity": "high",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "synth-store-02": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "synth-store-03": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-store-04": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "synth-store-05": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-store-09": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-ui-01": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "synth-ui-02": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-ui-03": {
+    "severity": "high",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "synth-ui-05": {
+    "severity": "high",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-ui-06": {
+    "severity": "high",
+    "designMilestone": "1.6",
+    "status": "open"
+  },
+  "synth-ui-08": {
+    "severity": "high",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-09": {
+    "severity": "high",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "synth-ui-10": {
+    "severity": "high",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "timeline-02": {
+    "severity": "high",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "timeline-03": {
+    "severity": "high",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "timeline-04": {
+    "severity": "high",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "timeline-05": {
+    "severity": "high",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "timeline-07": {
+    "severity": "high",
+    "designMilestone": "1.8",
+    "status": "open"
+  },
+  "timeline-10": {
+    "severity": "high",
+    "designMilestone": "1.8",
+    "status": "open"
+  },
+  "audio-analysis-06": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-analysis-07": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "audio-analysis-08": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "audio-analysis-09": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-analysis-10": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "audio-analysis-11": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "audio-analysis-12": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "audio-analysis-13": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "audio-analysis-14": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "audio-analysis-15": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "audio-analysis-16": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "audio-core-10": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-core-11": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "audio-core-12": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-core-13": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "audio-core-15": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-core-16": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "audio-core-18": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "audio-core-19": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-core-20": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-core-23": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "bundle-load-06": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-07": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "bundle-load-08": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-09": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-10": {
+    "severity": "medium",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "bundle-load-11": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-13": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-14": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-15": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-16": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "collab-06": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-08": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "collab-09": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-11": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-12": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-17": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-18": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-19": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "collab-20": {
+    "severity": "medium",
+    "designMilestone": "2.5",
+    "status": "open"
+  },
+  "collab-21": {
+    "severity": "medium",
+    "designMilestone": "2.8",
+    "status": "open"
+  },
+  "collab-22": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-23": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "collab-24": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-25": {
+    "severity": "medium",
+    "designMilestone": "2.3",
+    "status": "open"
+  },
+  "collab-26": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "design-system-02": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "design-system-03": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "design-system-05": {
+    "severity": "medium",
+    "designMilestone": "2.1",
+    "status": "open"
+  },
+  "design-system-06": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "design-system-07": {
+    "severity": "medium",
+    "designMilestone": "2.7",
+    "status": "open"
+  },
+  "design-system-08": {
+    "severity": "medium",
+    "designMilestone": "3.15",
+    "status": "open"
+  },
+  "design-system-09": {
+    "severity": "medium",
+    "designMilestone": "2.2",
+    "status": "open"
+  },
+  "design-system-10": {
+    "severity": "medium",
+    "designMilestone": "2.8",
+    "status": "open"
+  },
+  "design-system-11": {
+    "severity": "medium",
+    "designMilestone": "2.4",
+    "status": "open"
+  },
+  "design-system-12": {
+    "severity": "medium",
+    "designMilestone": "2.4",
+    "status": "open"
+  },
+  "design-system-13": {
+    "severity": "medium",
+    "designMilestone": "2.2",
+    "status": "open"
+  },
+  "design-system-14": {
+    "severity": "medium",
+    "designMilestone": "2.2",
+    "status": "open"
+  },
+  "dock-instruments-04": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "dock-instruments-06": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "dock-instruments-07": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "dock-instruments-11": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "dock-instruments-12": {
+    "severity": "medium",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "dock-instruments-13": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "dock-instruments-14": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "dock-instruments-15": {
+    "severity": "medium",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "dock-instruments-16": {
+    "severity": "medium",
+    "designMilestone": "2.8",
+    "status": "open"
+  },
+  "dock-instruments-17": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "dock-instruments-18": {
+    "severity": "medium",
+    "designMilestone": "1.6",
+    "status": "open"
+  },
+  "dock-instruments-19": {
+    "severity": "medium",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "dock-instruments-20": {
+    "severity": "medium",
+    "designMilestone": "2.2",
+    "status": "open"
+  },
+  "dock-instruments-21": {
+    "severity": "medium",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "engine-hooks-02": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-08": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-10": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "engine-hooks-14": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-16": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "engine-hooks-17": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "engine-hooks-18": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "engine-hooks-19": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-20": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-21": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-22": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "engine-hooks-23": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "engine-hooks-24": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-25": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-26": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "engine-hooks-27": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "engine-hooks-28": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "engine-hooks-29": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "engine-hooks-30": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "engine-hooks-31": {
+    "severity": "medium",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "fx-mixer-03": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "fx-mixer-08": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "fx-mixer-09": {
+    "severity": "medium",
+    "designMilestone": "3.6",
+    "status": "open"
+  },
+  "fx-mixer-10": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "fx-mixer-11": {
+    "severity": "medium",
+    "designMilestone": "3.6",
+    "status": "open"
+  },
+  "fx-mixer-12": {
+    "severity": "medium",
+    "designMilestone": "2.10",
+    "status": "open"
+  },
+  "fx-mixer-13": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "fx-mixer-14": {
+    "severity": "medium",
+    "designMilestone": "2.10",
+    "status": "open"
+  },
+  "fx-mixer-15": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "fx-mixer-17": {
+    "severity": "medium",
+    "designMilestone": "2.2",
+    "status": "open"
+  },
+  "fx-mixer-18": {
+    "severity": "medium",
+    "designMilestone": "3.6",
+    "status": "open"
+  },
+  "fx-mixer-19": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "fx-mixer-20": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "fx-mixer-22": {
+    "severity": "medium",
+    "designMilestone": "3.6",
+    "status": "open"
+  },
+  "ia-flows-06": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "ia-flows-15": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "ia-flows-17": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "ia-flows-20": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "ia-flows-21": {
+    "severity": "medium",
+    "designMilestone": "2.4",
+    "status": "open"
+  },
+  "ia-flows-22": {
+    "severity": "medium",
+    "designMilestone": "2.8",
+    "status": "open"
+  },
+  "ia-flows-23": {
+    "severity": "medium",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "ia-flows-24": {
+    "severity": "medium",
+    "designMilestone": "2.5",
+    "status": "open"
+  },
+  "ia-flows-25": {
+    "severity": "medium",
+    "designMilestone": "2.6",
+    "status": "open"
+  },
+  "ia-flows-26": {
+    "severity": "medium",
+    "designMilestone": "2.5",
+    "status": "open"
+  },
+  "ia-flows-27": {
+    "severity": "medium",
+    "designMilestone": "2.5",
+    "status": "open"
+  },
+  "ia-flows-28": {
+    "severity": "medium",
+    "designMilestone": "1.15",
+    "status": "open"
+  },
+  "ia-flows-29": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "ia-flows-30": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "ia-flows-31": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "ia-flows-32": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "ia-flows-33": {
+    "severity": "medium",
+    "designMilestone": "2.2",
+    "status": "open"
+  },
+  "ia-flows-34": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "ia-flows-35": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "ia-flows-36": {
+    "severity": "medium",
+    "designMilestone": "2.6",
+    "status": "open"
+  },
+  "insight-02": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "insight-04": {
+    "severity": "medium",
+    "designMilestone": "1.8",
+    "status": "open"
+  },
+  "insight-06": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "insight-07": {
+    "severity": "medium",
+    "designMilestone": "1.6",
+    "status": "open"
+  },
+  "insight-08": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "insight-09": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "insight-10": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "insight-11": {
+    "severity": "medium",
+    "designMilestone": "2.4",
+    "status": "open"
+  },
+  "insight-12": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "insight-13": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "insight-14": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "insight-15": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "insight-16": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "insight-17": {
+    "severity": "medium",
+    "designMilestone": "3.8",
+    "status": "open"
+  },
+  "insight-18": {
+    "severity": "medium",
+    "designMilestone": "2.8",
+    "status": "open"
+  },
+  "insight-20": {
+    "severity": "medium",
+    "designMilestone": "3.8",
+    "status": "open"
+  },
+  "instruments-04": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "instruments-05": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "instruments-06": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "instruments-08": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "instruments-09": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "instruments-10": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "instruments-11": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "instruments-12": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "instruments-13": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "instruments-14": {
+    "severity": "medium",
+    "designMilestone": "unassigned",
+    "status": "open"
+  },
+  "instruments-15": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "instruments-16": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "instruments-17": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "instruments-18": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "leadsheet-08": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "leadsheet-09": {
+    "severity": "medium",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-10": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "leadsheet-11": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "leadsheet-12": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "leadsheet-13": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "leadsheet-14": {
+    "severity": "medium",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-15": {
+    "severity": "medium",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-16": {
+    "severity": "medium",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-17": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "leadsheet-18": {
+    "severity": "medium",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-19": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "leadsheet-20": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "leadsheet-21": {
+    "severity": "medium",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-23": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "leadsheet-24": {
+    "severity": "medium",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "leadsheet-25": {
+    "severity": "medium",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-26": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "live-input-04": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "live-input-05": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "live-input-06": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "live-input-07": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "live-input-08": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "live-input-09": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "live-input-10": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "live-input-11": {
+    "severity": "medium",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "live-input-12": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "live-input-13": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "live-input-14": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "live-input-15": {
+    "severity": "medium",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "live-input-16": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "live-input-17": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "live-input-18": {
+    "severity": "medium",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "live-input-20": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "pianoroll-04": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "pianoroll-05": {
+    "severity": "medium",
+    "designMilestone": "1.8",
+    "status": "open"
+  },
+  "pianoroll-07": {
+    "severity": "medium",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "pianoroll-08": {
+    "severity": "medium",
+    "designMilestone": "3.1",
+    "status": "open"
+  },
+  "pianoroll-09": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "pianoroll-10": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "pianoroll-11": {
+    "severity": "medium",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "pianoroll-12": {
+    "severity": "medium",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "pianoroll-13": {
+    "severity": "medium",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "pianoroll-14": {
+    "severity": "medium",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "pianoroll-15": {
+    "severity": "medium",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "pianoroll-16": {
+    "severity": "medium",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "pianoroll-17": {
+    "severity": "medium",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "pianoroll-18": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "pianoroll-19": {
+    "severity": "medium",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "pianoroll-20": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "pianoroll-21": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "pianoroll-22": {
+    "severity": "medium",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "pianoroll-23": {
+    "severity": "medium",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "practice-tutorial-01": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "practice-tutorial-02": {
+    "severity": "medium",
+    "designMilestone": "1.15",
+    "status": "open"
+  },
+  "practice-tutorial-05": {
+    "severity": "medium",
+    "designMilestone": "1.15",
+    "status": "open"
+  },
+  "practice-tutorial-07": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "practice-tutorial-08": {
+    "severity": "medium",
+    "designMilestone": "3.12",
+    "status": "open"
+  },
+  "practice-tutorial-09": {
+    "severity": "medium",
+    "designMilestone": "1.15",
+    "status": "open"
+  },
+  "practice-tutorial-10": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "practice-tutorial-11": {
+    "severity": "medium",
+    "designMilestone": "1.15",
+    "status": "open"
+  },
+  "practice-tutorial-12": {
+    "severity": "medium",
+    "designMilestone": "unassigned",
+    "status": "open"
+  },
+  "practice-tutorial-14": {
+    "severity": "medium",
+    "designMilestone": "3.12",
+    "status": "open"
+  },
+  "practice-tutorial-15": {
+    "severity": "medium",
+    "designMilestone": "3.12",
+    "status": "open"
+  },
+  "practice-tutorial-17": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "practice-tutorial-18": {
+    "severity": "medium",
+    "designMilestone": "2.0",
+    "status": "open"
+  },
+  "practice-tutorial-19": {
+    "severity": "medium",
+    "designMilestone": "2.1",
+    "status": "open"
+  },
+  "practice-tutorial-20": {
+    "severity": "medium",
+    "designMilestone": "2.0",
+    "status": "open"
+  },
+  "practice-tutorial-21": {
+    "severity": "medium",
+    "designMilestone": "3.12",
+    "status": "open"
+  },
+  "prism-engine-01": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "prism-engine-03": {
+    "severity": "medium",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "prism-engine-04": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "prism-engine-05": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "prism-engine-06": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "prism-engine-07": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-engine-08": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-engine-09": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-ui-06": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "prism-ui-08": {
+    "severity": "medium",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "prism-ui-09": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-ui-10": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "prism-ui-11": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "prism-ui-12": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "prism-ui-13": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-ui-14": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-ui-15": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-ui-16": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-ui-17": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "prism-ui-18": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-ui-19": {
+    "severity": "medium",
+    "designMilestone": "3.7",
+    "status": "open"
+  },
+  "prism-ui-20": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "prism-ui-21": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "score-03": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "score-04": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "score-05": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "score-07": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-08": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-10": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-11": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-12": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "score-13": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "score-14": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "score-15": {
+    "severity": "medium",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "score-16": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-17": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-18": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-19": {
+    "severity": "medium",
+    "designMilestone": "1.8",
+    "status": "open"
+  },
+  "score-20": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "score-21": {
+    "severity": "medium",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "score-22": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-23": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-24": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-25": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-26": {
+    "severity": "medium",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "score-27": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-28": {
+    "severity": "medium",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "shell-05": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "shell-09": {
+    "severity": "medium",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "shell-16": {
+    "severity": "medium",
+    "designMilestone": "1.15",
+    "status": "open"
+  },
+  "shell-17": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "shell-18": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "shell-19": {
+    "severity": "medium",
+    "designMilestone": "2.5",
+    "status": "open"
+  },
+  "shell-20": {
+    "severity": "medium",
+    "designMilestone": "2.4",
+    "status": "open"
+  },
+  "shell-21": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "shell-22": {
+    "severity": "medium",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "shell-23": {
+    "severity": "medium",
+    "designMilestone": "2.1",
+    "status": "open"
+  },
+  "shell-25": {
+    "severity": "medium",
+    "designMilestone": "2.5",
+    "status": "open"
+  },
+  "shell-26": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "shell-27": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "shell-28": {
+    "severity": "medium",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "shell-29": {
+    "severity": "medium",
+    "designMilestone": "2.5",
+    "status": "open"
+  },
+  "shell-33": {
+    "severity": "medium",
+    "designMilestone": "1.6",
+    "status": "open"
+  },
+  "shell-36": {
+    "severity": "medium",
+    "designMilestone": "2.1",
+    "status": "open"
+  },
+  "state-reload-08": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "state-reload-11": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "state-reload-13": {
+    "severity": "medium",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "state-reload-14": {
+    "severity": "medium",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "state-reload-16": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "state-reload-19": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "state-reload-21": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "state-reload-22": {
+    "severity": "medium",
+    "designMilestone": "1.9",
+    "status": "open"
+  },
+  "state-reload-23": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "state-reload-24": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "state-reload-25": {
+    "severity": "medium",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "state-reload-26": {
+    "severity": "medium",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "state-reload-27": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "state-reload-28": {
+    "severity": "medium",
+    "designMilestone": "1.4",
+    "status": "open"
+  },
+  "state-reload-29": {
+    "severity": "medium",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "state-reload-30": {
+    "severity": "medium",
+    "designMilestone": "2.4",
+    "status": "open"
+  },
+  "state-reload-31": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "state-reload-32": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-engine-03": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "synth-engine-04": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "synth-engine-06": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "synth-engine-09": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-engine-11": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "synth-engine-12": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-engine-13": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "synth-engine-14": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-engine-15": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-engine-16": {
+    "severity": "medium",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "synth-engine-17": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "synth-engine-18": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-engine-19": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-engine-21": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-engine-22": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-store-06": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-store-07": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-store-08": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-store-10": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-store-11": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-store-12": {
+    "severity": "medium",
+    "designMilestone": "unassigned",
+    "status": "open"
+  },
+  "synth-store-13": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-store-14": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-store-16": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-ui-04": {
+    "severity": "medium",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "synth-ui-07": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-11": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-ui-12": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-ui-13": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "synth-ui-14": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "synth-ui-15": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-16": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-17": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-ui-18": {
+    "severity": "medium",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-ui-19": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-20": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-21": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-22": {
+    "severity": "medium",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "timeline-06": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "timeline-08": {
+    "severity": "medium",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "timeline-09": {
+    "severity": "medium",
+    "designMilestone": "2.7",
+    "status": "open"
+  },
+  "timeline-11": {
+    "severity": "medium",
+    "designMilestone": "1.8",
+    "status": "open"
+  },
+  "timeline-12": {
+    "severity": "medium",
+    "designMilestone": "2.6",
+    "status": "open"
+  },
+  "timeline-13": {
+    "severity": "medium",
+    "designMilestone": "2.4",
+    "status": "open"
+  },
+  "timeline-14": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "timeline-15": {
+    "severity": "medium",
+    "designMilestone": "2.7",
+    "status": "open"
+  },
+  "timeline-16": {
+    "severity": "medium",
+    "designMilestone": "3.3",
+    "status": "open"
+  },
+  "timeline-17": {
+    "severity": "medium",
+    "designMilestone": "3.3",
+    "status": "open"
+  },
+  "timeline-18": {
+    "severity": "medium",
+    "designMilestone": "3.3",
+    "status": "open"
+  },
+  "timeline-19": {
+    "severity": "medium",
+    "designMilestone": "3.3",
+    "status": "open"
+  },
+  "timeline-20": {
+    "severity": "medium",
+    "designMilestone": "3.3",
+    "status": "open"
+  },
+  "timeline-21": {
+    "severity": "medium",
+    "designMilestone": "2.6",
+    "status": "open"
+  },
+  "timeline-22": {
+    "severity": "medium",
+    "designMilestone": "2.7",
+    "status": "open"
+  },
+  "timeline-23": {
+    "severity": "medium",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "timeline-24": {
+    "severity": "medium",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "timeline-25": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "timeline-26": {
+    "severity": "medium",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "audio-analysis-17": {
+    "severity": "low",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-analysis-18": {
+    "severity": "low",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "audio-analysis-19": {
+    "severity": "low",
+    "designMilestone": "unassigned",
+    "status": "open"
+  },
+  "audio-analysis-20": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "audio-analysis-21": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "audio-core-21": {
+    "severity": "low",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "audio-core-22": {
+    "severity": "low",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "bundle-load-12": {
+    "severity": "low",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "bundle-load-17": {
+    "severity": "low",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "bundle-load-18": {
+    "severity": "low",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "bundle-load-19": {
+    "severity": "low",
+    "designMilestone": "2.1",
+    "status": "open"
+  },
+  "collab-27": {
+    "severity": "low",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-28": {
+    "severity": "low",
+    "designMilestone": "2.8",
+    "status": "open"
+  },
+  "collab-29": {
+    "severity": "low",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "collab-30": {
+    "severity": "low",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "collab-31": {
+    "severity": "low",
+    "designMilestone": "1.14",
+    "status": "open"
+  },
+  "design-system-15": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "design-system-16": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "design-system-17": {
+    "severity": "low",
+    "designMilestone": "2.1",
+    "status": "open"
+  },
+  "dock-instruments-22": {
+    "severity": "low",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "dock-instruments-23": {
+    "severity": "low",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "dock-instruments-24": {
+    "severity": "low",
+    "designMilestone": "1.6",
+    "status": "open"
+  },
+  "dock-instruments-25": {
+    "severity": "low",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "fx-mixer-23": {
+    "severity": "low",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "fx-mixer-24": {
+    "severity": "low",
+    "designMilestone": "2.6",
+    "status": "open"
+  },
+  "fx-mixer-25": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "fx-mixer-26": {
+    "severity": "low",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "fx-mixer-27": {
+    "severity": "low",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "ia-flows-37": {
+    "severity": "low",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "ia-flows-38": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "insight-19": {
+    "severity": "low",
+    "designMilestone": "3.8",
+    "status": "open"
+  },
+  "insight-21": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "insight-22": {
+    "severity": "low",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "insight-23": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "insight-24": {
+    "severity": "low",
+    "designMilestone": "3.8",
+    "status": "open"
+  },
+  "insight-25": {
+    "severity": "low",
+    "designMilestone": "3.8",
+    "status": "open"
+  },
+  "instruments-19": {
+    "severity": "low",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "leadsheet-22": {
+    "severity": "low",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "leadsheet-27": {
+    "severity": "low",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "leadsheet-28": {
+    "severity": "low",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-29": {
+    "severity": "low",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-30": {
+    "severity": "low",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-31": {
+    "severity": "low",
+    "designMilestone": "3.10",
+    "status": "open"
+  },
+  "leadsheet-32": {
+    "severity": "low",
+    "designMilestone": "1.10",
+    "status": "open"
+  },
+  "leadsheet-33": {
+    "severity": "low",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "live-input-19": {
+    "severity": "low",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "live-input-21": {
+    "severity": "low",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "live-input-22": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "live-input-23": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "live-input-24": {
+    "severity": "low",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "live-input-25": {
+    "severity": "low",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "live-input-26": {
+    "severity": "low",
+    "designMilestone": "3.5",
+    "status": "open"
+  },
+  "pianoroll-24": {
+    "severity": "low",
+    "designMilestone": "3.4",
+    "status": "open"
+  },
+  "pianoroll-25": {
+    "severity": "low",
+    "designMilestone": "2.9",
+    "status": "open"
+  },
+  "pianoroll-26": {
+    "severity": "low",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "pianoroll-27": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "practice-tutorial-13": {
+    "severity": "low",
+    "designMilestone": "3.12",
+    "status": "open"
+  },
+  "practice-tutorial-16": {
+    "severity": "low",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "practice-tutorial-22": {
+    "severity": "low",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "practice-tutorial-23": {
+    "severity": "low",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "practice-tutorial-24": {
+    "severity": "low",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "practice-tutorial-25": {
+    "severity": "low",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "prism-engine-10": {
+    "severity": "low",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "prism-engine-11": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "prism-engine-12": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "prism-engine-13": {
+    "severity": "low",
+    "designMilestone": "1.1",
+    "status": "open"
+  },
+  "prism-engine-14": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "prism-engine-15": {
+    "severity": "low",
+    "designMilestone": "1.16",
+    "status": "open"
+  },
+  "prism-ui-22": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "prism-ui-23": {
+    "severity": "low",
+    "designMilestone": "1.2",
+    "status": "open"
+  },
+  "score-29": {
+    "severity": "low",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-30": {
+    "severity": "low",
+    "designMilestone": "3.9",
+    "status": "open"
+  },
+  "score-31": {
+    "severity": "low",
+    "designMilestone": "2.2",
+    "status": "open"
+  },
+  "shell-24": {
+    "severity": "low",
+    "designMilestone": "1.7",
+    "status": "open"
+  },
+  "shell-30": {
+    "severity": "low",
+    "designMilestone": "1.12",
+    "status": "open"
+  },
+  "shell-31": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "shell-32": {
+    "severity": "low",
+    "designMilestone": "1.6",
+    "status": "open"
+  },
+  "shell-34": {
+    "severity": "low",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "shell-35": {
+    "severity": "low",
+    "designMilestone": "2.1",
+    "status": "open"
+  },
+  "state-reload-33": {
+    "severity": "low",
+    "designMilestone": "2.4",
+    "status": "open"
+  },
+  "state-reload-34": {
+    "severity": "low",
+    "designMilestone": "1.3",
+    "status": "open"
+  },
+  "synth-engine-20": {
+    "severity": "low",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "synth-engine-23": {
+    "severity": "low",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-engine-24": {
+    "severity": "low",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-engine-25": {
+    "severity": "low",
+    "designMilestone": "1.11",
+    "status": "open"
+  },
+  "synth-store-15": {
+    "severity": "low",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-23": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  },
+  "synth-ui-24": {
+    "severity": "low",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-25": {
+    "severity": "low",
+    "designMilestone": "3.11",
+    "status": "open"
+  },
+  "synth-ui-26": {
+    "severity": "low",
+    "designMilestone": "1.13",
+    "status": "open"
+  },
+  "timeline-27": {
+    "severity": "low",
+    "designMilestone": "2.6",
+    "status": "open"
+  },
+  "timeline-28": {
+    "severity": "low",
+    "designMilestone": "2.7",
+    "status": "open"
+  },
+  "timeline-29": {
+    "severity": "low",
+    "designMilestone": "1.17",
+    "status": "open"
+  }
+}

@@ -35,6 +35,11 @@ const BY_ID = new Map(ALL.map((l) => [l.id, l]));
  * The line lessons and Practice Tracks play for an id: published lines only,
  * so a draft never reaches a student.
  */
+/** A line by id, drafts included — the back office. */
+export function getBassLine(id: string | undefined): BassLine | undefined {
+  return id ? BY_ID.get(id) : undefined;
+}
+
 export function getLiveBassLine(id: string | undefined): BassLine | undefined {
   if (!id) return undefined;
   const line = BY_ID.get(id);

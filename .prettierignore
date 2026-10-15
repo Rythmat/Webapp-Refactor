@@ -22,6 +22,9 @@ src/components/atlas/data/stateBoundaries.ts
 
 # Generated optimization-baseline artifacts (treemaps, raw reports)
 docs/optimization/**/bundle.html
+# Studio editor audit archive: machine-written JSON dumps (findings, ledger,
+# designs, research)
+docs/studio-audit-2026-10/*.json
 # Studio perf baselines and golden-render features: machine-written JSON
 docs/studio-perf/**/*.json
 
@@ -39,3 +42,6 @@ src/components/atlas/data/__tests__/fixtures/geoReference.json
 # src/components/atlas/data/lineage.calibration.test.ts: reformatting it
 # breaks the comparison
 docs/globe-redesign/lineage-calibration.md
+
+# Claude reference notes and one-shot scripts (git-ignored, local only)
+claude-ref/

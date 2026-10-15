@@ -59,7 +59,7 @@
     },
     {
       "file": "slugPatterns.generated.json",
-      "sha256": "c07d0d48b213610bc48f7f6615bb4a3db97b0080ad49763590bdebc08cb94814",
+      "sha256": "03d8831278adb8d5908d93c4b8ac8c0d25994dedbd479778b529b57c9a35137e",
       "handedOff": "03d8831278adb8d5908d93c4b8ac8c0d25994dedbd479778b529b57c9a35137e",
       "what": "Identity field and slug pattern (regex source) per content kind."
     },

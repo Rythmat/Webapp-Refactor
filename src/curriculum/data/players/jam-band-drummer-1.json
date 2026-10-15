@@ -1,0 +1,9 @@
+{
+  "id": "jam-band-drummer-1",
+  "name": "Jam-Band-Drummer-1",
+  "instrument": "drums",
+  "genre": "jam-band",
+  "kind": "placeholder",
+  "order": 250,
+  "items": []
+}

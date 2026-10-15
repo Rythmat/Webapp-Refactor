@@ -1,0 +1,9 @@
+{
+  "id": "funk-guitarist-1",
+  "name": "Funk-Guitarist-1",
+  "instrument": "guitar",
+  "genre": "funk",
+  "kind": "placeholder",
+  "order": 200,
+  "items": []
+}

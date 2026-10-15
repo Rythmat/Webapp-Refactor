@@ -264,7 +264,7 @@ function getTileCompletion(
 const THEORY_SECTIONS = [
   { id: 'O', name: 'Overview', activity: 'lesson-overview' },
   { id: 'A', name: 'Melody', activity: 'asc-nh' },
-  { id: 'B', name: 'Chords', activity: 'arpeggiate-1-nh' },
+  { id: 'B', name: 'Chords', activity: 'triad-1-arp-pa' },
   { id: 'D', name: 'Practice Track' },
 ];
 
@@ -1601,20 +1601,23 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     );
     // Practice Track is offered for the 7 diatonic modes (DIATONIC_MODES
     // above enumerates exactly those slugs) and the pentatonic and blues
-    // scales, whose lessons are melody only — no Chords chapter.
+    // scales.
     const isDiatonicMode = DIATONIC_MODES.some((m) => m.slug === mode);
     const isScale = isScaleLesson(mode);
     const keyParam = keyLabelToUrlParam(keyLabel);
     const sections = THEORY_SECTIONS.filter(
-      (section) =>
-        (isDiatonicMode || isScale || section.id !== 'D') &&
-        !(isScale && section.id === 'B'),
-    ).map(({ activity, ...section }) => ({
-      ...section,
-      route: activity
-        ? LearnRoutes.lesson({ mode, key: keyParam }, { activity })
-        : `${StudioRoutes.editor.definition}?practiceMode=${mode}&practiceRoot=${keyParam}&practiceOpen=melody`,
-    }));
+      (section) => isDiatonicMode || isScale || section.id !== 'D',
+    ).map(({ activity: chapterStart, ...section }) => {
+      // A scale's Chords chapter is its own tonic chords (scaleLessons.ts).
+      const activity =
+        isScale && section.id === 'B' ? 'scale-chord-1-arp-pa' : chapterStart;
+      return {
+        ...section,
+        route: activity
+          ? LearnRoutes.lesson({ mode, key: keyParam }, { activity })
+          : `${StudioRoutes.editor.definition}?practiceMode=${mode}&practiceRoot=${keyParam}&practiceOpen=melody`,
+      };
+    });
     setSelectedSubItem({
       label: `${keyLabel} ${modeTitle}`,
       route: LearnRoutes.lesson({ mode, key: keyParam }),

@@ -1,0 +1,9 @@
+{
+  "id": "electronic-guitarist-1",
+  "name": "Electronic-Guitarist-1",
+  "instrument": "guitar",
+  "genre": "electronic",
+  "kind": "placeholder",
+  "order": 120,
+  "items": []
+}

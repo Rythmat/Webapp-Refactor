@@ -9,22 +9,10 @@ import {
   resolveMasterAutomationTargets,
 } from '@/daw/audio/automationParams';
 import { getAudioBuffer, sliceBuffer } from '@/daw/audio/AudioBufferStore';
-import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
-import { PianoSampler } from '@/daw/instruments/PianoSampler';
-import { SamplerInstrument } from '@/daw/instruments/SamplerInstrument';
-import {
-  BASS_ELECTRIC_CONFIG,
-  ELECTRIC_PIANO_CONFIG,
-  CELLO_CONFIG,
-  ORGAN_CONFIG,
-  bassVoiceSamplerConfig,
-} from '@/daw/instruments/sampleConfigs';
-import { EightOhEightInstrument } from '@/daw/instruments/EightOhEightInstrument';
 import {
   DrumMachineEngine,
   DRUM_PADS,
 } from '@/daw/instruments/DrumMachineEngine';
-import type { DrumKitId } from '@/daw/instruments/drumKits';
 import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
 import {
   DEFAULT_SAMPLER_FILTER_HZ,
@@ -33,11 +21,9 @@ import {
   samplerSampleSignature,
   samplerTrimRange,
 } from '@/daw/instruments/samplerChops';
-import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
-import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
-import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
 import type { InstrumentAdapter } from '@/daw/instruments/InstrumentAdapter';
+import { createInstrument } from '@/daw/instruments/instrumentFactory';
 
 // ── Track audio ─────────────────────────────────────────────────────────
 // The per-track audio objects (TrackEngine + instrument), the registry the
@@ -94,45 +80,9 @@ export function notifyEngineReady(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-export function createInstrument(
-  type: InstrumentType,
-  gmProgram?: number,
-  drumKit?: DrumKitId,
-  bassVoice?: StudioBassVoice,
-): InstrumentAdapter | null {
-  switch (type) {
-    case 'oracle-synth':
-      return new OracleSynthAdapter();
-    case 'piano-sampler':
-      return new PianoSampler();
-    case 'electric-piano':
-      return new SamplerInstrument(ELECTRIC_PIANO_CONFIG);
-    case 'bass-electric':
-      if (bassVoice === '808') return new EightOhEightInstrument();
-      return new SamplerInstrument(
-        bassVoice ? bassVoiceSamplerConfig(bassVoice) : BASS_ELECTRIC_CONFIG,
-      );
-    case 'cello':
-      return new SamplerInstrument(CELLO_CONFIG);
-    case 'organ':
-      return new SamplerInstrument(ORGAN_CONFIG);
-    case 'tonewheel-organ':
-      return new TonewheelOrganEngine();
-    case 'drum-machine':
-      return new DrumMachineEngine(drumKit);
-    case 'sampler':
-      return new ChopsSampler();
-    case 'soundfont':
-      return new SoundFontAdapter(gmProgram ?? 0);
-    case 'guitar-fx':
-    case 'bass-fx':
-      return new GuitarFxAdapter();
-    case 'vocal-fx':
-      return new VocalFxAdapter();
-    default:
-      return null;
-  }
-}
+// The factory lives with the instrument classes (no store), so lessons and
+// the console make the same instruments without loading the Studio.
+export { createInstrument };
 
 /** Apply a track's saved per-pad mix (or kit defaults) to its drum engine.
  *  Needed after kit loads too, since loadKit resets pans to the kit defaults. */

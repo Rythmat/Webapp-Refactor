@@ -1,0 +1,454 @@
+{
+  "id": "funk-l2-d3-1-integrated-performance-lh-bass-rh-chords",
+  "name": "Funk L2 · D3.1: Integrated Performance — LH Bass + RH Chords",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 9,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 5,
+  "tempo": 102,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 460,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 460,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 960,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 460,
+      "midi": 38,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 460,
+      "midi": 38,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2880,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 460,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4200,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4200,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4200,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 460,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 4800,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 4800,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5040,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5040,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5040,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 460,
+      "midi": 40,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 5760,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 120,
+      "midi": 68,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 5760,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6120,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6120,
+      "duration": 120,
+      "midi": 68,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6120,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 460,
+      "midi": 40,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 6720,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 120,
+      "midi": 68,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6720,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6960,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6960,
+      "duration": 120,
+      "midi": 68,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 6960,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 45,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 7680,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 2,
+    "section": "D",
+    "stepNumber": 97,
+    "title": "D3: Integrated Performance",
+    "tag": "funk:performance_capstone_l3_it | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Level 2 capstone: LH plays bass (A2 root-based line), RH plays Am9 stabs using Funk Stab 1 rhythm over the Am9→D13→Am9→E7#5 progression. Demonstrate your full Level 2 Funk vocabulary.",
+  "genre": "funk",
+  "chordSymbols": ["Am9", "D13", "Am9", "E7#5"]
+}

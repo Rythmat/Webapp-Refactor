@@ -1,0 +1,56 @@
+{
+  "id": "pop-band-1",
+  "name": "Pop Band 1",
+  "description": "Dance-pop drums and the octave disco bass made with them.",
+  "genre": "pop",
+  "status": "draft",
+  "order": 30,
+  "timeSignature": [4, 4],
+  "tempo": 118,
+  "layers": [
+    {
+      "id": "drums",
+      "name": "Drums",
+      "instrument": "drums",
+      "player": "pop-drummer-1"
+    },
+    {
+      "id": "bass",
+      "name": "Bass",
+      "instrument": "bass",
+      "player": "pop-bassist-1"
+    }
+  ],
+  "preview": {
+    "chart": "| C | G | Am | F |"
+  },
+  "variations": [
+    {
+      "id": "l1-singable",
+      "name": "L1 · Singable & Simple",
+      "style": "pop-l1-singable",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "dance-pop"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "octave-disco"
+        }
+      }
+    },
+    {
+      "id": "l2-craft",
+      "name": "L2 · The Craft",
+      "style": "pop-l2-craft",
+      "plays": {}
+    },
+    {
+      "id": "l3-artistry",
+      "name": "L3 · Artistry",
+      "style": "pop-l3-artistry",
+      "plays": {}
+    }
+  ]
+}

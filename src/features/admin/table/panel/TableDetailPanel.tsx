@@ -76,6 +76,7 @@ import type {
 } from '../model/types';
 import { tableHref } from '../tablePaths';
 import { EventDetails, type EventGuesses, type Guess } from './EventPanel';
+import { ProgressionHeardIn, SongProgressions } from './HarmonySection';
 import { Capped, ColumnList, EdgeGroups, NodeChip } from './PanelConnections';
 import { PanelFrame } from './PanelFrame';
 import { PanelSaveBar } from './PanelSaveBar';
@@ -1352,6 +1353,25 @@ const RowBody = ({
               returnFocus={returnFocus}
             />
           </Suspense>
+        )}
+
+        {def.id === 'progressions' && Number.isInteger(Number(row.key)) && (
+          <ProgressionHeardIn
+            progressionId={Number(row.key)}
+            linked={
+              Array.isArray(row.body?.songIds)
+                ? (row.body.songIds as string[])
+                : []
+            }
+          />
+        )}
+        {def.id === 'songs' && (
+          <SongProgressions
+            songId={row.key}
+            labelOf={(id) =>
+              graph.nodes.get(`progression:${id}` as EntityId)?.label
+            }
+          />
         )}
 
         <PanelSection

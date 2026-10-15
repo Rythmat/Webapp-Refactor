@@ -1,0 +1,202 @@
+{
+  "id": "latin-l1-d3-2-mariachi-lh-vals-through-the-progression",
+  "name": "Latin L1 · D3.2: Mariachi — LH Vals Through the Progression",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 7,
+    "mode": "ionian"
+  },
+  "timeSignature": [3, 4],
+  "bars": 4,
+  "tempo": 120,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 440,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "duration": 400,
+      "midi": 47,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "duration": 400,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "duration": 400,
+      "midi": 55,
+      "velocity": 96
+    },
+    {
+      "tick": 960,
+      "duration": 400,
+      "midi": 47,
+      "velocity": 96
+    },
+    {
+      "tick": 960,
+      "duration": 400,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "tick": 960,
+      "duration": 400,
+      "midi": 55,
+      "velocity": 96
+    },
+    {
+      "tick": 1440,
+      "duration": 440,
+      "midi": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 400,
+      "midi": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 400,
+      "midi": 52,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 400,
+      "midi": 55,
+      "velocity": 96
+    },
+    {
+      "tick": 2400,
+      "duration": 400,
+      "midi": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 2400,
+      "duration": 400,
+      "midi": 52,
+      "velocity": 96
+    },
+    {
+      "tick": 2400,
+      "duration": 400,
+      "midi": 55,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "duration": 440,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "duration": 400,
+      "midi": 54,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "duration": 400,
+      "midi": 57,
+      "velocity": 96
+    },
+    {
+      "tick": 3360,
+      "duration": 400,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 400,
+      "midi": 54,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 400,
+      "midi": 57,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 400,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "tick": 4320,
+      "duration": 440,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 4800,
+      "duration": 400,
+      "midi": 47,
+      "velocity": 96
+    },
+    {
+      "tick": 4800,
+      "duration": 400,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "tick": 4800,
+      "duration": 400,
+      "midi": 55,
+      "velocity": 96
+    },
+    {
+      "tick": 5280,
+      "duration": 400,
+      "midi": 47,
+      "velocity": 96
+    },
+    {
+      "tick": 5280,
+      "duration": 400,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "tick": 5280,
+      "duration": 400,
+      "midi": 55,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "latin",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 43,
+    "title": "D3: Mariachi Performance",
+    "tag": "latin:l1_perf_mariachi_lh_prog | latin",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Bass, chord, chord on every bar: G – C – D7 – G.",
+  "genre": "latin",
+  "chordSymbols": ["G", "C", "D7", "G"]
+}

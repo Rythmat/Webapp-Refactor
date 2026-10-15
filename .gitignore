@@ -11,7 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
-.partykit/
+# Wrangler state and local secrets for the collab worker
+.wrangler/
+.dev.vars*
 
 # Build caches / coverage / deploy metadata
 *.tsbuildinfo
@@ -64,3 +66,7 @@ docs/globe-ui/runs/
 # Per-run evidence a baseline does not need: lesson screenshots, raw golden dumps
 docs/studio-perf/baselines/**/shots/
 docs/studio-perf/baselines/**/actual/
+
+# Claude's reference notes, reports and one-shot scripts: local only.
+# Every new reference .md and one-off script goes here (claude-ref/README.md).
+/claude-ref/

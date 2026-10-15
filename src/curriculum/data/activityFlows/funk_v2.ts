@@ -1288,38 +1288,34 @@ const funkL1SectionD: ActivitySectionV2 = {
       },
       chordSymbols: ['Dm7'],
       targetNotes: [
-        // LH — D2 root locked to beats 1 and 3
-        { midi: 38, onset: 0, duration: 460, hand: 'lh' }, // D2 beat1 bar1
-        { midi: 38, onset: 960, duration: 460, hand: 'lh' }, // D2 beat3 bar1
-        { midi: 38, onset: 1920, duration: 460, hand: 'lh' }, // D2 beat1 bar2
-        { midi: 38, onset: 2880, duration: 460, hand: 'lh' }, // D2 beat3 bar2
-        // RH — Dm7 [b7-3-5] stabs on comp_funk_s1 (bar 1)
+        { midi: 38, onset: 0, duration: 460, hand: 'lh' },
         { midi: 60, onset: 0, duration: 120, hand: 'rh' },
         { midi: 65, onset: 0, duration: 120, hand: 'rh' },
         { midi: 69, onset: 0, duration: 120, hand: 'rh' },
         { midi: 60, onset: 360, duration: 120, hand: 'rh' },
         { midi: 65, onset: 360, duration: 120, hand: 'rh' },
         { midi: 69, onset: 360, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 960, duration: 460, hand: 'lh' },
         { midi: 60, onset: 960, duration: 120, hand: 'rh' },
         { midi: 65, onset: 960, duration: 120, hand: 'rh' },
         { midi: 69, onset: 960, duration: 120, hand: 'rh' },
-        { midi: 60, onset: 1200, duration: 120, hand: 'rh' },
-        { midi: 65, onset: 1200, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 1200, duration: 120, hand: 'rh' },
-        // bar 2
+        { midi: 60, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 65, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 1920, duration: 460, hand: 'lh' },
         { midi: 60, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 65, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 69, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 60, onset: 2280, duration: 120, hand: 'rh' },
         { midi: 65, onset: 2280, duration: 120, hand: 'rh' },
         { midi: 69, onset: 2280, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 2880, duration: 460, hand: 'lh' },
         { midi: 60, onset: 2880, duration: 120, hand: 'rh' },
         { midi: 65, onset: 2880, duration: 120, hand: 'rh' },
         { midi: 69, onset: 2880, duration: 120, hand: 'rh' },
-        { midi: 60, onset: 3120, duration: 120, hand: 'rh' },
-        { midi: 65, onset: 3120, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 3120, duration: 120, hand: 'rh' },
-        // bar 3: final downbeat — LH root + RH chord
+        { midi: 60, onset: 3240, duration: 120, hand: 'rh' },
+        { midi: 65, onset: 3240, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 3240, duration: 120, hand: 'rh' },
         { midi: 38, onset: 3840, duration: 120, hand: 'lh' },
         { midi: 60, onset: 3840, duration: 120, hand: 'rh' },
         { midi: 65, onset: 3840, duration: 120, hand: 'rh' },
@@ -1355,38 +1351,34 @@ const funkL1SectionD: ActivitySectionV2 = {
       },
       chordSymbols: ['Dm7'],
       targetNotes: [
-        // LH — D2 root beats 1+3
         { midi: 38, onset: 0, duration: 460, hand: 'lh' },
-        { midi: 38, onset: 960, duration: 460, hand: 'lh' },
-        { midi: 38, onset: 1920, duration: 460, hand: 'lh' },
-        { midi: 38, onset: 2880, duration: 460, hand: 'lh' },
-        // RH — Funk9 [b7-9-5] stabs on comp_funk_s1 (bar 1)
         { midi: 60, onset: 0, duration: 120, hand: 'rh' },
         { midi: 64, onset: 0, duration: 120, hand: 'rh' },
         { midi: 69, onset: 0, duration: 120, hand: 'rh' },
         { midi: 60, onset: 360, duration: 120, hand: 'rh' },
         { midi: 64, onset: 360, duration: 120, hand: 'rh' },
         { midi: 69, onset: 360, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 960, duration: 460, hand: 'lh' },
         { midi: 60, onset: 960, duration: 120, hand: 'rh' },
         { midi: 64, onset: 960, duration: 120, hand: 'rh' },
         { midi: 69, onset: 960, duration: 120, hand: 'rh' },
-        { midi: 60, onset: 1200, duration: 120, hand: 'rh' },
-        { midi: 64, onset: 1200, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 1200, duration: 120, hand: 'rh' },
-        // bar 2
+        { midi: 60, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 64, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 1920, duration: 460, hand: 'lh' },
         { midi: 60, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 64, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 69, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 60, onset: 2280, duration: 120, hand: 'rh' },
         { midi: 64, onset: 2280, duration: 120, hand: 'rh' },
         { midi: 69, onset: 2280, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 2880, duration: 460, hand: 'lh' },
         { midi: 60, onset: 2880, duration: 120, hand: 'rh' },
         { midi: 64, onset: 2880, duration: 120, hand: 'rh' },
         { midi: 69, onset: 2880, duration: 120, hand: 'rh' },
-        { midi: 60, onset: 3120, duration: 120, hand: 'rh' },
-        { midi: 64, onset: 3120, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 3120, duration: 120, hand: 'rh' },
-        // bar 3: final downbeat — LH root + RH Funk9
+        { midi: 60, onset: 3240, duration: 120, hand: 'rh' },
+        { midi: 64, onset: 3240, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 3240, duration: 120, hand: 'rh' },
         { midi: 38, onset: 3840, duration: 120, hand: 'lh' },
         { midi: 60, onset: 3840, duration: 120, hand: 'rh' },
         { midi: 64, onset: 3840, duration: 120, hand: 'rh' },
@@ -1420,65 +1412,62 @@ const funkL1SectionD: ActivitySectionV2 = {
       },
       chordSymbols: ['Dm7', 'G9'],
       targetNotes: [
-        // Bars 1-2: LH D2, RH Dm7 [C4-F4-A4] Stab 1
         { midi: 38, onset: 0, duration: 460, hand: 'lh' },
-        { midi: 38, onset: 960, duration: 460, hand: 'lh' },
-        { midi: 38, onset: 1920, duration: 460, hand: 'lh' },
-        { midi: 38, onset: 2880, duration: 460, hand: 'lh' },
         { midi: 60, onset: 0, duration: 120, hand: 'rh' },
         { midi: 65, onset: 0, duration: 120, hand: 'rh' },
         { midi: 69, onset: 0, duration: 120, hand: 'rh' },
         { midi: 60, onset: 360, duration: 120, hand: 'rh' },
         { midi: 65, onset: 360, duration: 120, hand: 'rh' },
         { midi: 69, onset: 360, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 960, duration: 460, hand: 'lh' },
         { midi: 60, onset: 960, duration: 120, hand: 'rh' },
         { midi: 65, onset: 960, duration: 120, hand: 'rh' },
         { midi: 69, onset: 960, duration: 120, hand: 'rh' },
-        { midi: 60, onset: 1200, duration: 120, hand: 'rh' },
-        { midi: 65, onset: 1200, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 1200, duration: 120, hand: 'rh' },
+        { midi: 60, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 65, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 1920, duration: 460, hand: 'lh' },
         { midi: 60, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 65, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 69, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 60, onset: 2280, duration: 120, hand: 'rh' },
         { midi: 65, onset: 2280, duration: 120, hand: 'rh' },
         { midi: 69, onset: 2280, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 2880, duration: 460, hand: 'lh' },
         { midi: 60, onset: 2880, duration: 120, hand: 'rh' },
         { midi: 65, onset: 2880, duration: 120, hand: 'rh' },
         { midi: 69, onset: 2880, duration: 120, hand: 'rh' },
-        { midi: 60, onset: 3120, duration: 120, hand: 'rh' },
-        { midi: 65, onset: 3120, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 3120, duration: 120, hand: 'rh' },
-        // Bars 3-4: LH G2, RH Gdom9 [B3-F4-A4] Drop the Sizzle
+        { midi: 60, onset: 3240, duration: 120, hand: 'rh' },
+        { midi: 65, onset: 3240, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 3240, duration: 120, hand: 'rh' },
         { midi: 43, onset: 3840, duration: 460, hand: 'lh' },
-        { midi: 43, onset: 4800, duration: 460, hand: 'lh' },
-        { midi: 43, onset: 5760, duration: 460, hand: 'lh' },
-        { midi: 43, onset: 6720, duration: 460, hand: 'lh' },
         { midi: 59, onset: 3840, duration: 120, hand: 'rh' },
         { midi: 65, onset: 3840, duration: 120, hand: 'rh' },
         { midi: 69, onset: 3840, duration: 120, hand: 'rh' },
         { midi: 59, onset: 4200, duration: 120, hand: 'rh' },
         { midi: 65, onset: 4200, duration: 120, hand: 'rh' },
         { midi: 69, onset: 4200, duration: 120, hand: 'rh' },
+        { midi: 43, onset: 4800, duration: 460, hand: 'lh' },
         { midi: 59, onset: 4800, duration: 120, hand: 'rh' },
         { midi: 65, onset: 4800, duration: 120, hand: 'rh' },
         { midi: 69, onset: 4800, duration: 120, hand: 'rh' },
-        { midi: 59, onset: 5040, duration: 120, hand: 'rh' },
-        { midi: 65, onset: 5040, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 5040, duration: 120, hand: 'rh' },
+        { midi: 59, onset: 5160, duration: 120, hand: 'rh' },
+        { midi: 65, onset: 5160, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 5160, duration: 120, hand: 'rh' },
+        { midi: 43, onset: 5760, duration: 460, hand: 'lh' },
         { midi: 59, onset: 5760, duration: 120, hand: 'rh' },
         { midi: 65, onset: 5760, duration: 120, hand: 'rh' },
         { midi: 69, onset: 5760, duration: 120, hand: 'rh' },
         { midi: 59, onset: 6120, duration: 120, hand: 'rh' },
         { midi: 65, onset: 6120, duration: 120, hand: 'rh' },
         { midi: 69, onset: 6120, duration: 120, hand: 'rh' },
+        { midi: 43, onset: 6720, duration: 460, hand: 'lh' },
         { midi: 59, onset: 6720, duration: 120, hand: 'rh' },
         { midi: 65, onset: 6720, duration: 120, hand: 'rh' },
         { midi: 69, onset: 6720, duration: 120, hand: 'rh' },
-        { midi: 59, onset: 6960, duration: 120, hand: 'rh' },
-        { midi: 65, onset: 6960, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 6960, duration: 120, hand: 'rh' },
-        // Bar 5: final downbeat — LH D2 + RH Dm7 (back to first chord)
+        { midi: 59, onset: 7080, duration: 120, hand: 'rh' },
+        { midi: 65, onset: 7080, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 7080, duration: 120, hand: 'rh' },
         { midi: 38, onset: 7680, duration: 120, hand: 'lh' },
         { midi: 60, onset: 7680, duration: 120, hand: 'rh' },
         { midi: 65, onset: 7680, duration: 120, hand: 'rh' },
@@ -1512,42 +1501,38 @@ const funkL1SectionD: ActivitySectionV2 = {
       },
       chordSymbols: ['Dm7'],
       targetNotes: [
-        // LH — D2-D3 octave pop (beats 1 and and-of-2)
-        { midi: 38, onset: 0, duration: 460, hand: 'lh' },
-        { midi: 50, onset: 480, duration: 120, hand: 'lh' },
-        { midi: 38, onset: 960, duration: 460, hand: 'lh' },
-        { midi: 50, onset: 1440, duration: 120, hand: 'lh' },
-        { midi: 38, onset: 1920, duration: 460, hand: 'lh' },
-        { midi: 50, onset: 2400, duration: 120, hand: 'lh' },
-        { midi: 38, onset: 2880, duration: 460, hand: 'lh' },
-        { midi: 50, onset: 3360, duration: 120, hand: 'lh' },
-        // RH — Funk9 stabs on comp_funk_s1 (bar 1)
+        { midi: 38, onset: 0, duration: 360, hand: 'lh' },
         { midi: 60, onset: 0, duration: 120, hand: 'rh' },
         { midi: 64, onset: 0, duration: 120, hand: 'rh' },
         { midi: 69, onset: 0, duration: 120, hand: 'rh' },
+        { midi: 50, onset: 360, duration: 120, hand: 'rh' },
         { midi: 60, onset: 360, duration: 120, hand: 'rh' },
         { midi: 64, onset: 360, duration: 120, hand: 'rh' },
         { midi: 69, onset: 360, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 960, duration: 360, hand: 'lh' },
         { midi: 60, onset: 960, duration: 120, hand: 'rh' },
         { midi: 64, onset: 960, duration: 120, hand: 'rh' },
         { midi: 69, onset: 960, duration: 120, hand: 'rh' },
-        { midi: 60, onset: 1200, duration: 120, hand: 'rh' },
-        { midi: 64, onset: 1200, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 1200, duration: 120, hand: 'rh' },
-        // bar 2
+        { midi: 50, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 60, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 64, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 1320, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 1920, duration: 360, hand: 'lh' },
         { midi: 60, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 64, onset: 1920, duration: 120, hand: 'rh' },
         { midi: 69, onset: 1920, duration: 120, hand: 'rh' },
+        { midi: 50, onset: 2280, duration: 120, hand: 'rh' },
         { midi: 60, onset: 2280, duration: 120, hand: 'rh' },
         { midi: 64, onset: 2280, duration: 120, hand: 'rh' },
         { midi: 69, onset: 2280, duration: 120, hand: 'rh' },
+        { midi: 38, onset: 2880, duration: 360, hand: 'lh' },
         { midi: 60, onset: 2880, duration: 120, hand: 'rh' },
         { midi: 64, onset: 2880, duration: 120, hand: 'rh' },
         { midi: 69, onset: 2880, duration: 120, hand: 'rh' },
-        { midi: 60, onset: 3120, duration: 120, hand: 'rh' },
-        { midi: 64, onset: 3120, duration: 120, hand: 'rh' },
-        { midi: 69, onset: 3120, duration: 120, hand: 'rh' },
-        // bar 3: final downbeat — LH D2 + RH Funk9
+        { midi: 50, onset: 3240, duration: 120, hand: 'rh' },
+        { midi: 60, onset: 3240, duration: 120, hand: 'rh' },
+        { midi: 64, onset: 3240, duration: 120, hand: 'rh' },
+        { midi: 69, onset: 3240, duration: 120, hand: 'rh' },
         { midi: 38, onset: 3840, duration: 120, hand: 'lh' },
         { midi: 60, onset: 3840, duration: 120, hand: 'rh' },
         { midi: 64, onset: 3840, duration: 120, hand: 'rh' },
@@ -1638,46 +1623,42 @@ const funkL1SectionD: ActivitySectionV2 = {
       },
       chordSymbols: ['Dm7', 'G7'],
       targetNotes: [
-        // LH bar 1 — Dm7 1-3-7 = D3-F3-C4, Funk Stab 1 rhythm
-        { midi: 50, onset: 0, duration: 120, hand: 'lh' }, // D3
-        { midi: 53, onset: 0, duration: 120, hand: 'lh' }, // F3
-        { midi: 60, onset: 0, duration: 120, hand: 'lh' }, // C4
+        { midi: 50, onset: 0, duration: 120, hand: 'lh' },
+        { midi: 53, onset: 0, duration: 120, hand: 'lh' },
+        { midi: 60, onset: 0, duration: 120, hand: 'lh' },
+        { midi: 69, onset: 0, duration: 480, hand: 'rh' },
         { midi: 50, onset: 360, duration: 120, hand: 'lh' },
         { midi: 53, onset: 360, duration: 120, hand: 'lh' },
         { midi: 60, onset: 360, duration: 120, hand: 'lh' },
+        { midi: 65, onset: 600, duration: 240, hand: 'rh' },
+        { midi: 67, onset: 840, duration: 120, hand: 'rh' },
         { midi: 50, onset: 960, duration: 120, hand: 'lh' },
         { midi: 53, onset: 960, duration: 120, hand: 'lh' },
         { midi: 60, onset: 960, duration: 120, hand: 'lh' },
-        { midi: 50, onset: 1200, duration: 120, hand: 'lh' },
-        { midi: 53, onset: 1200, duration: 120, hand: 'lh' },
-        { midi: 60, onset: 1200, duration: 120, hand: 'lh' },
-        // LH bar 2 — G7 Drop the Sizzle = D3-F3-B3 (C4 drops to B3)
-        { midi: 50, onset: 1920, duration: 120, hand: 'lh' }, // D3
-        { midi: 53, onset: 1920, duration: 120, hand: 'lh' }, // F3
-        { midi: 59, onset: 1920, duration: 120, hand: 'lh' }, // B3 — the sizzle
+        { midi: 69, onset: 960, duration: 960, hand: 'rh' },
+        { midi: 50, onset: 1320, duration: 120, hand: 'lh' },
+        { midi: 53, onset: 1320, duration: 120, hand: 'lh' },
+        { midi: 60, onset: 1320, duration: 120, hand: 'lh' },
+        { midi: 50, onset: 1920, duration: 120, hand: 'lh' },
+        { midi: 53, onset: 1920, duration: 120, hand: 'lh' },
+        { midi: 59, onset: 1920, duration: 120, hand: 'lh' },
+        { midi: 69, onset: 1920, duration: 480, hand: 'rh' },
         { midi: 50, onset: 2280, duration: 120, hand: 'lh' },
         { midi: 53, onset: 2280, duration: 120, hand: 'lh' },
         { midi: 59, onset: 2280, duration: 120, hand: 'lh' },
+        { midi: 65, onset: 2520, duration: 240, hand: 'rh' },
+        { midi: 67, onset: 2760, duration: 120, hand: 'rh' },
         { midi: 50, onset: 2880, duration: 120, hand: 'lh' },
         { midi: 53, onset: 2880, duration: 120, hand: 'lh' },
         { midi: 59, onset: 2880, duration: 120, hand: 'lh' },
-        { midi: 50, onset: 3120, duration: 120, hand: 'lh' },
-        { midi: 53, onset: 3120, duration: 120, hand: 'lh' },
-        { midi: 59, onset: 3120, duration: 120, hand: 'lh' },
-        // RH — D blues melody call+answer
-        { midi: 69, onset: 0, duration: 480, hand: 'rh' }, // A4 beat1
-        { midi: 65, onset: 600, duration: 240, hand: 'rh' }, // F4
-        { midi: 67, onset: 840, duration: 120, hand: 'rh' }, // G4 pickup
-        { midi: 69, onset: 960, duration: 960, hand: 'rh' }, // A4 held
-        { midi: 69, onset: 1920, duration: 480, hand: 'rh' }, // A4 beat1
-        { midi: 65, onset: 2520, duration: 240, hand: 'rh' }, // F4
-        { midi: 67, onset: 2760, duration: 120, hand: 'rh' }, // G4 pickup
-        { midi: 65, onset: 2880, duration: 960, hand: 'rh' }, // F4 resolve held
-        // bar 3: final downbeat — LH Dm7 resolve + RH A4
-        { midi: 50, onset: 3840, duration: 120, hand: 'lh' }, // D3
-        { midi: 53, onset: 3840, duration: 120, hand: 'lh' }, // F3
-        { midi: 60, onset: 3840, duration: 120, hand: 'lh' }, // C4
-        { midi: 69, onset: 3840, duration: 120, hand: 'rh' }, // A4
+        { midi: 65, onset: 2880, duration: 960, hand: 'rh' },
+        { midi: 50, onset: 3240, duration: 120, hand: 'lh' },
+        { midi: 53, onset: 3240, duration: 120, hand: 'lh' },
+        { midi: 59, onset: 3240, duration: 120, hand: 'lh' },
+        { midi: 50, onset: 3840, duration: 120, hand: 'lh' },
+        { midi: 53, onset: 3840, duration: 120, hand: 'lh' },
+        { midi: 60, onset: 3840, duration: 120, hand: 'lh' },
+        { midi: 69, onset: 3840, duration: 120, hand: 'rh' },
       ],
     },
     {
@@ -1708,33 +1689,30 @@ const funkL1SectionD: ActivitySectionV2 = {
       },
       chordSymbols: ['Dm7', 'G7'],
       targetNotes: [
-        // LH bar 1 — Dm7 1-3-7 = D3-F3-C4, Funk Stab 1 rhythm
-        { midi: 50, onset: 0, duration: 120, hand: 'lh' }, // D3
-        { midi: 53, onset: 0, duration: 120, hand: 'lh' }, // F3
-        { midi: 60, onset: 0, duration: 120, hand: 'lh' }, // C4
+        { midi: 50, onset: 0, duration: 120, hand: 'lh' },
+        { midi: 53, onset: 0, duration: 120, hand: 'lh' },
+        { midi: 60, onset: 0, duration: 120, hand: 'lh' },
+        { midi: 68, onset: 0, duration: 120, hand: 'rh' },
+        { midi: 65, onset: 120, duration: 120, hand: 'rh' },
+        { midi: 67, onset: 240, duration: 120, hand: 'rh' },
         { midi: 50, onset: 360, duration: 120, hand: 'lh' },
         { midi: 53, onset: 360, duration: 120, hand: 'lh' },
         { midi: 60, onset: 360, duration: 120, hand: 'lh' },
+        { midi: 65, onset: 360, duration: 360, hand: 'rh' },
         { midi: 50, onset: 960, duration: 120, hand: 'lh' },
         { midi: 53, onset: 960, duration: 120, hand: 'lh' },
         { midi: 60, onset: 960, duration: 120, hand: 'lh' },
-        { midi: 50, onset: 1200, duration: 120, hand: 'lh' },
-        { midi: 53, onset: 1200, duration: 120, hand: 'lh' },
-        { midi: 60, onset: 1200, duration: 120, hand: 'lh' },
-        // RH bar 1 — D blues lick ×2 (beat 1 + beat 3)
-        { midi: 68, onset: 0, duration: 120, hand: 'rh' }, // Ab4 — blue note
-        { midi: 67, onset: 120, duration: 120, hand: 'rh' }, // G4
-        { midi: 65, onset: 240, duration: 120, hand: 'rh' }, // F4
-        { midi: 62, onset: 360, duration: 360, hand: 'rh' }, // D4 — dotted quarter
-        { midi: 68, onset: 960, duration: 120, hand: 'rh' }, // Ab4 — blue note
-        { midi: 67, onset: 1080, duration: 120, hand: 'rh' }, // G4
-        { midi: 65, onset: 1200, duration: 120, hand: 'rh' }, // F4
-        { midi: 62, onset: 1320, duration: 360, hand: 'rh' }, // D4 — dotted quarter
-        // Final downbeat — LH Dm7 resolve + RH D5
-        { midi: 50, onset: 1920, duration: 120, hand: 'lh' }, // D3
-        { midi: 53, onset: 1920, duration: 120, hand: 'lh' }, // F3
-        { midi: 60, onset: 1920, duration: 120, hand: 'lh' }, // C4
-        { midi: 74, onset: 1920, duration: 120, hand: 'rh' }, // D5 — resolve
+        { midi: 68, onset: 960, duration: 120, hand: 'rh' },
+        { midi: 65, onset: 1080, duration: 120, hand: 'rh' },
+        { midi: 67, onset: 1200, duration: 120, hand: 'rh' },
+        { midi: 50, onset: 1320, duration: 120, hand: 'lh' },
+        { midi: 53, onset: 1320, duration: 120, hand: 'lh' },
+        { midi: 60, onset: 1320, duration: 120, hand: 'lh' },
+        { midi: 65, onset: 1320, duration: 360, hand: 'rh' },
+        { midi: 50, onset: 1920, duration: 120, hand: 'lh' },
+        { midi: 53, onset: 1920, duration: 120, hand: 'lh' },
+        { midi: 60, onset: 1920, duration: 120, hand: 'lh' },
+        { midi: 74, onset: 1920, duration: 120, hand: 'rh' },
       ],
     },
   ],
@@ -5604,22 +5582,23 @@ const funkL3SectionD: ActivitySectionV2 = {
         style_ref: 'l3a',
       },
       targetNotes: [
-        // LH: selective lock beat 1+3
-        { midi: 45, onset: 0, duration: 460, hand: 'lh' }, // A2
-        { midi: 45, onset: 960, duration: 460, hand: 'lh' }, // A2 beat 3
-        // RH: sparse Am9 stabs (comp_funk_s1: beat1, a-of-1, beat3, a-of-3)
+        { midi: 45, onset: 0, duration: 460, hand: 'lh' },
         { midi: 60, onset: 0, duration: 120, hand: 'rh' },
         { midi: 67, onset: 0, duration: 120, hand: 'rh' },
         { midi: 71, onset: 0, duration: 120, hand: 'rh' },
         { midi: 60, onset: 360, duration: 120, hand: 'rh' },
         { midi: 67, onset: 360, duration: 120, hand: 'rh' },
         { midi: 71, onset: 360, duration: 120, hand: 'rh' },
+        { midi: 45, onset: 960, duration: 460, hand: 'lh' },
         { midi: 60, onset: 960, duration: 120, hand: 'rh' },
         { midi: 67, onset: 960, duration: 120, hand: 'rh' },
         { midi: 71, onset: 960, duration: 120, hand: 'rh' },
         { midi: 60, onset: 1200, duration: 120, hand: 'rh' },
         { midi: 67, onset: 1200, duration: 120, hand: 'rh' },
         { midi: 71, onset: 1200, duration: 120, hand: 'rh' },
+        { midi: 60, onset: 1560, duration: 360, hand: 'rh' },
+        { midi: 67, onset: 1560, duration: 360, hand: 'rh' },
+        { midi: 71, onset: 1560, duration: 360, hand: 'rh' },
       ],
       backing_parts: {
         engine_generates: [],
@@ -5738,26 +5717,20 @@ const funkL3SectionD: ActivitySectionV2 = {
         style_ref: 'l3b',
       },
       targetNotes: [
-        // LH — A funk9 [b7-9-5]: G4-B4-E5, with half-step Ab approach
-        { midi: 66, onset: 0, duration: 240, hand: 'lh' }, // Gb4 (b7 of Ab)
-        { midi: 70, onset: 0, duration: 240, hand: 'lh' }, // Bb4 (9  of Ab)
-        { midi: 75, onset: 0, duration: 240, hand: 'lh' }, // Eb5 (5  of Ab)
-        { midi: 67, onset: 240, duration: 120, hand: 'lh' }, // G4  (b7 of A) — approach stab
-        { midi: 71, onset: 240, duration: 120, hand: 'lh' }, // B4  (9  of A)
-        { midi: 76, onset: 240, duration: 120, hand: 'lh' }, // E5  (5  of A)
-        { midi: 67, onset: 360, duration: 1080, hand: 'lh' }, // G4  held
-        { midi: 71, onset: 360, duration: 1080, hand: 'lh' }, // B4  held
-        { midi: 76, onset: 360, duration: 1080, hand: 'lh' }, // E5  held
-        // RH — syncopated Dorian phrase (half rest, then G5 on beat 3)
-        { midi: 79, onset: 960, duration: 240, hand: 'rh' }, // G5
-        { midi: 78, onset: 1200, duration: 240, hand: 'rh' }, // F#5
-        { midi: 76, onset: 1440, duration: 120, hand: 'rh' }, // E5
-        { midi: 78, onset: 1560, duration: 120, hand: 'rh' }, // F#5
-        { midi: 76, onset: 1800, duration: 120, hand: 'rh' }, // E5
-        // bar 2: final downbeat — LH A funk9 only
-        { midi: 67, onset: 1920, duration: 120, hand: 'lh' }, // G4
-        { midi: 71, onset: 1920, duration: 120, hand: 'lh' }, // B4
-        { midi: 76, onset: 1920, duration: 120, hand: 'lh' }, // E5
+        { midi: 67, onset: 0, duration: 120, hand: 'lh' },
+        { midi: 71, onset: 0, duration: 120, hand: 'lh' },
+        { midi: 76, onset: 0, duration: 120, hand: 'lh' },
+        { midi: 66, onset: 240, duration: 120, hand: 'lh' },
+        { midi: 70, onset: 240, duration: 120, hand: 'lh' },
+        { midi: 75, onset: 240, duration: 120, hand: 'lh' },
+        { midi: 67, onset: 360, duration: 1080, hand: 'lh' },
+        { midi: 71, onset: 360, duration: 1080, hand: 'lh' },
+        { midi: 76, onset: 360, duration: 1080, hand: 'lh' },
+        { midi: 79, onset: 960, duration: 240, hand: 'rh' },
+        { midi: 78, onset: 1200, duration: 240, hand: 'rh' },
+        { midi: 76, onset: 1440, duration: 120, hand: 'rh' },
+        { midi: 78, onset: 1560, duration: 120, hand: 'rh' },
+        { midi: 76, onset: 1800, duration: 120, hand: 'rh' },
       ],
       backing_parts: {
         engine_generates: ['drums', 'bass'],

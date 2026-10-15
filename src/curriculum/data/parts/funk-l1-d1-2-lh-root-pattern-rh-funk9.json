@@ -1,0 +1,252 @@
+{
+  "id": "funk-l1-d1-2-lh-root-pattern-rh-funk9",
+  "name": "Funk L1 · D1.2: LH Root Pattern + RH Funk9",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 2,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 3,
+  "tempo": 92,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "hand": "lh",
+      "tick": 0,
+      "duration": 460,
+      "midi": 38,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 360,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 360,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 360,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 960,
+      "duration": 460,
+      "midi": 38,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 96
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 1920,
+      "duration": 460,
+      "midi": 38,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1920,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1920,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1920,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2280,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2280,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2280,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 2880,
+      "duration": 460,
+      "midi": 38,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2880,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2880,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2880,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 38,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 44,
+    "title": "D1: LH Bass + RH Chords",
+    "tag": "funk:performance_lh_bass_rh_funk9_it | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Left hand locks root bass (D2) with the kick drum, right hand plays Funk9 stabs [C4-E4-A4] on the grid.",
+  "genre": "funk",
+  "chordSymbols": ["Dm7"]
+}

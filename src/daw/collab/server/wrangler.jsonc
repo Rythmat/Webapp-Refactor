@@ -1,0 +1,32 @@
+// The music-atlas-collab worker: studio/jam collab and classroom sessions as
+// PartyServer Durable Objects (see index.ts).
+//
+//   npm run collab:dev      local, on localhost:1999 (the web app's default)
+//   npm run collab:deploy   deploy to Cloudflare
+//
+// Its variables are secrets (see env.ts), set once per variable with
+//   npx wrangler secret put <NAME> --config src/daw/collab/server/wrangler.jsonc
+// and, for `collab:dev`, in a git-ignored .dev.vars next to this file.
+{
+  "$schema": "../../../../node_modules/wrangler/config-schema.json",
+  "name": "music-atlas-collab",
+  "main": "index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      { "name": "Main", "class_name": "CollabServer" },
+      { "name": "ClassroomSession", "class_name": "ClassroomSessionServer" },
+    ],
+  },
+  // Wrangler doesn't create Durable Object migrations: add an entry whenever a
+  // server class is added, renamed or removed.
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["CollabServer", "ClassroomSessionServer"],
+    },
+  ],
+  "observability": { "enabled": true },
+  "dev": { "port": 1999 },
+}

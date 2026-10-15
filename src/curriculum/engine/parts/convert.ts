@@ -9,8 +9,9 @@ import type {
   ActivityStepV2,
   TargetNote,
 } from '@/curriculum/types/activity.v2';
-import { flowKeyRoot, flowMode } from '@/curriculum/utils/flowKey';
+import { stepKeyRoot, stepMode } from '@/curriculum/utils/flowKey';
 import type { GuitarStringNumber } from '@/lib/guitar/types';
+import { barTicks as meterBarTicks, stepTimeSignature } from '../meter';
 import {
   barsSpanned,
   blankPart,
@@ -158,8 +159,11 @@ export function partFromLessonStep(
     }))
     .sort((a, b) => a.tick - b.tick || a.midi - b.midi);
 
+  // The step's meter: Latin L1's Mariachi steps are in 3/4.
+  const timeSignature = stepTimeSignature(step, flow);
+  const barLength = meterBarTicks(timeSignature);
   // Lesson notes start after a count-in bar when the first note sits there.
-  const firstBar = Math.floor(notes[0].tick / 1920) * 1920;
+  const firstBar = Math.floor(notes[0].tick / barLength) * barLength;
   const shifted = notes.map((n) => ({ ...n, tick: n.tick - firstBar }));
 
   const handLabel = hands === 'both' ? '' : hands === 'lh' ? ' (LH)' : ' (RH)';
@@ -185,8 +189,11 @@ export function partFromLessonStep(
             : 'comping',
     genre: flow.genre,
     level: Math.min(5, Math.max(1, flow.level)) as PartLevel,
-    key: { tonic: flowKeyRoot(flow) % 12, mode: flowMode(flow) },
-    bars: barsSpanned(shifted),
+    // The step's own key: a level in two keys names it on the odd steps
+    // (Latin L1's Mariachi steps are in G major).
+    key: { tonic: stepKeyRoot(flow, step) % 12, mode: stepMode(flow, step) },
+    timeSignature,
+    bars: barsSpanned(shifted, timeSignature),
     tempo: step.tempo ?? Math.round((lo + hi) / 2),
     swing: Math.max(50, step.swing ?? flow.params.swing ?? 50),
     chordSymbols: (variant?.chordSymbols ?? step.chordSymbols)?.slice(),
@@ -238,6 +245,16 @@ export function writePartToStep(
           }
         : {}),
     }));
+
+  // A note added in the editor without a hand, among notes that have one,
+  // takes the hand of the nearest note by pitch.
+  const handed = written.filter((n) => n.hand);
+  if (handed.length && handed.length < written.length)
+    for (const n of written)
+      if (!n.hand)
+        n.hand = handed.reduce((best, h) =>
+          Math.abs(h.midi - n.midi) < Math.abs(best.midi - n.midi) ? h : best,
+        ).hand;
 
   const merge = (existing: TargetNote[] | undefined) => {
     const kept =

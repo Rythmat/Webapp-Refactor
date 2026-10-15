@@ -1,29 +1,9 @@
 import type { PartInstrument } from '@/curriculum/engine/parts/part';
 import { FACTORY_PRESETS } from '@/daw/oracle-synth/store/presets/factoryPresets';
-import type { InstrumentType, StudioBassVoice } from '@/daw/store/tracksSlice';
 
-/**
- * A part's `sound`: a Studio InstrumentType, plus a bass voice, GM program or
- * drum kit after a colon — what the Studio track it lands on is set to.
- */
-export interface PartSound {
-  type: InstrumentType;
-  /** Oracle Synth: the factory or Music Atlas patch name. */
-  synthPatch?: string;
-  bassVoice?: StudioBassVoice;
-  gmProgram?: number;
-  drumKit?: string;
-}
-
-export function parseSound(sound: string): PartSound {
-  const [type, arg] = sound.split(':') as [InstrumentType, string | undefined];
-  if (type === 'bass-electric' && arg)
-    return { type, bassVoice: arg as StudioBassVoice };
-  if (type === 'soundfont') return { type, gmProgram: Number(arg ?? 0) };
-  if (type === 'drum-machine') return { type, drumKit: arg ?? 'natural' };
-  if (type === 'oracle-synth' && arg) return { type, synthPatch: arg };
-  return { type };
-}
+// A part's `sound` is a sound string (daw/instruments/soundString.ts): what
+// the Studio track it lands on is set to.
+export { parseSound, type PartSound } from '@/daw/instruments/soundString';
 
 /** Every Oracle Synth patch — built-ins and Music Atlas patches. */
 const SYNTH_SOUNDS = FACTORY_PRESETS.filter((p) => p.name !== 'INITIALIZE').map(

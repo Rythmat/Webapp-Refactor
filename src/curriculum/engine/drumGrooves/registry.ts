@@ -39,6 +39,11 @@ export function getDesignedGroove(id: string): DrumGroove | undefined {
   return BY_ID.get(id);
 }
 
+/** A groove by id, drafts and loaded Studio grooves included — the back office. */
+export function getAnyGroove(id: string | undefined): DrumGroove | undefined {
+  return id ? (BY_ID.get(id) ?? STUDIO_LOADED.get(id)) : undefined;
+}
+
 // ── The Studio's grooves ───────────────────────────────────────────────────
 // The Studio's Grooves-tab performances, imported from its .mid files into
 // data/drumGrooves/studio/. They are real played takes (hundreds of hits with
@@ -74,7 +79,12 @@ export async function preloadStudioGroove(id: string): Promise<void> {
 export function loadStudioGrooves(): Promise<DrumGroove[]> {
   studioCache ??= Promise.all(
     Object.values(studioFiles).map((load) => load()),
-  ).then((list) => list.sort((a, b) => a.name.localeCompare(b.name)));
+  ).then((list) => {
+    // Loaded is loaded: getLiveGroove and getAnyGroove can return them now.
+    for (const g of list)
+      if (!STUDIO_LOADED.has(g.id)) STUDIO_LOADED.set(g.id, g);
+    return list.sort((a, b) => a.name.localeCompare(b.name));
+  });
   return studioCache;
 }
 

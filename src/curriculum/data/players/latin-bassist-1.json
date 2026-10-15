@@ -1,0 +1,42 @@
+{
+  "id": "latin-bassist-1",
+  "name": "Latin-Bassist-1",
+  "instrument": "bass",
+  "genre": "latin",
+  "kind": "placeholder",
+  "order": 340,
+  "items": [
+    {
+      "kind": "bassLine",
+      "id": "bossa"
+    },
+    {
+      "kind": "bassLine",
+      "id": "cumbia-1-copy-2"
+    },
+    {
+      "kind": "bassLine",
+      "id": "cumbia-1-copy"
+    },
+    {
+      "kind": "bassLine",
+      "id": "cumbia-1"
+    },
+    {
+      "kind": "bassLine",
+      "id": "mariachi-copy"
+    },
+    {
+      "kind": "bassLine",
+      "id": "mariachi"
+    },
+    {
+      "kind": "bassLine",
+      "id": "partido-alto"
+    },
+    {
+      "kind": "bassLine",
+      "id": "samba"
+    }
+  ]
+}

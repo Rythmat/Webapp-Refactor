@@ -122,6 +122,26 @@ const AdminChordCompingsPage = lazy(() =>
   ),
 );
 
+const AdminBandsPage = lazy(() =>
+  import('./band/AdminBandsPage').then(({ AdminBandsPage }) => ({
+    default: AdminBandsPage,
+  })),
+);
+const AdminPlayersPage = lazy(() =>
+  import('./players/AdminPlayersPage').then(({ AdminPlayersPage }) => ({
+    default: AdminPlayersPage,
+  })),
+);
+const AdminPlayerPage = lazy(() =>
+  import('./players/AdminPlayerPage').then(({ AdminPlayerPage }) => ({
+    default: AdminPlayerPage,
+  })),
+);
+const AdminBandEditPage = lazy(() =>
+  import('./band/AdminBandEditPage').then(({ AdminBandEditPage }) => ({
+    default: AdminBandEditPage,
+  })),
+);
 const AdminChordCompingEditPage = lazy(() =>
   import('./chordComping/AdminChordCompingEditPage').then(
     ({ AdminChordCompingEditPage }) => ({ default: AdminChordCompingEditPage }),
@@ -512,6 +532,22 @@ export const adminPages = () => {
                   {
                     path: AdminRoutes.bassLine.definition,
                     element: <AdminBassLineEditPage />,
+                  },
+                  {
+                    path: AdminRoutes.bands.definition,
+                    element: <AdminBandsPage />,
+                  },
+                  {
+                    path: AdminRoutes.band.definition,
+                    element: <AdminBandEditPage />,
+                  },
+                  {
+                    path: AdminRoutes.players.definition,
+                    element: <AdminPlayersPage />,
+                  },
+                  {
+                    path: AdminRoutes.player.definition,
+                    element: <AdminPlayerPage />,
                   },
                   {
                     path: AdminRoutes.chordComping.definition,

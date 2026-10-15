@@ -1,0 +1,14 @@
+{
+  "id": "blues-drummer-1",
+  "name": "Blues-Drummer-1",
+  "instrument": "drums",
+  "genre": "blues",
+  "kind": "placeholder",
+  "order": 50,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "blues-shuffle"
+    }
+  ]
+}

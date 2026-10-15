@@ -22,6 +22,9 @@ src/components/atlas/data/stateBoundaries.ts
 
 # Generated optimization-baseline artifacts (treemaps, raw reports)
 docs/optimization/**/bundle.html
+# Studio editor audit archive: machine-written JSON dumps (findings, ledger,
+# designs, research)
+docs/studio-audit-2026-10/*.json
 # Studio perf baselines and golden-render features: machine-written JSON
 docs/studio-perf/**/*.json
 

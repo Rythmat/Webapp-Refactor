@@ -7,8 +7,12 @@
  * Run: npx vitest run src/daw/store/__tests__/genreSettings.test.ts
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { GENRE_MAP, GENRE_STRUM, GENRE_SWING } from '@prism/engine';
-import { genreSettings, genreStrum } from '../genreSettings';
+import { GENRE_MAP, GENRE_STRUM, GENRE_SWING, StrumMode } from '@prism/engine';
+import {
+  formerGenreStrumMode,
+  genreSettings,
+  genreStrum,
+} from '../genreSettings';
 import { useStore } from '../index';
 
 afterEach(() => {
@@ -26,12 +30,31 @@ describe('genreSettings', () => {
     expect(rock).toMatchObject({
       genre: 'Rock',
       swing: GENRE_SWING['Rock' as keyof typeof GENRE_SWING] ?? 0,
-      // The table's number as it stands, as before 1.3: the table counts
-      // from 0 and StrumMode from 1, which 1.16 reconciles.
       strumMode: GENRE_STRUM.Rock.mode,
       strumAmount: GENRE_STRUM.Rock.amount,
     });
     expect(GENRE_STRUM.Rock.amount).toBeGreaterThan(0);
+  });
+
+  it('strums each genre with its own StrumMode (it was one below until 1.16a)', () => {
+    const modes = Object.fromEntries(
+      ['Pop', 'Rock', 'Jazz', 'R&B', 'Indie', 'Reggae'].map((genre) => [
+        genre,
+        genreStrum(genre).strumMode,
+      ]),
+    );
+    expect(modes).toEqual({
+      Pop: StrumMode.Synchronized,
+      Rock: StrumMode.Down,
+      Jazz: StrumMode.Human,
+      'R&B': StrumMode.Human,
+      Indie: StrumMode.Human,
+      Reggae: StrumMode.Up,
+    });
+    for (const { mode } of Object.values(GENRE_STRUM)) {
+      expect(Object.values(StrumMode)).toContain(mode);
+    }
+    expect(formerGenreStrumMode('Jazz')).toBe(StrumMode.Up);
   });
 
   it("draws the rhythm from the genre's own, or its aliases, and Whole Notes", () => {
@@ -52,7 +75,7 @@ describe('genreSettings', () => {
     expect(none).toEqual({
       genre: 'No Such Genre',
       swing: 0,
-      strumMode: 0,
+      strumMode: StrumMode.Synchronized,
       strumAmount: 0,
     });
     expect('rhythmName' in none).toBe(false);

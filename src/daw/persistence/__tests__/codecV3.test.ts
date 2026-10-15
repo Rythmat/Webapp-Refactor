@@ -21,6 +21,7 @@ import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FAMILY_DEGREE_ORDER } from '@prism/engine';
 import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
+import { withoutIdentity } from '@/daw/harmony/chordIdentity';
 import { assertNoteIds, isNoteId, legacyNoteId } from '@/daw/model/noteIds';
 import {
   getTrackSynthState,
@@ -213,6 +214,24 @@ describe('the draft layout', () => {
 
 // ── Every field ─────────────────────────────────────────────────────────────
 
+/**
+ * A stored draft with the chord identities a load reads from labels
+ * (source 'derived', milestone 1.16a) taken back out: the all-fields draft
+ * saves one region with its identity and one without, and the one without
+ * comes back with one read from its labels. The format is unchanged
+ * (identity has been a region field since schema 3); only that region gains
+ * a value.
+ */
+function withoutDerivedIdentities<T>(stored: T): T {
+  const copy = JSON.parse(JSON.stringify(stored));
+  copy.data.chordRegions = copy.data.chordRegions.map((region: any) => {
+    return region.identity?.source === 'derived'
+      ? withoutIdentity(region)
+      : region;
+  });
+  return copy;
+}
+
 describe('the all-fields draft', () => {
   it('holds a value other than its default for every local store key', () => {
     const { project } = decode(allFields());
@@ -301,16 +320,44 @@ describe('the all-fields draft', () => {
     // migration from this format and new fixtures. The order keys are
     // written in is not the format, so it isn't compared.
     expect(
-      JSON.parse(JSON.stringify(again)),
+      withoutDerivedIdentities(JSON.parse(JSON.stringify(again))),
       'the v3 draft format changed: bump SESSION_SCHEMA_VERSION, add a migration and fixtures',
     ).toEqual(stored);
+  });
+
+  it('reads an identity for the chord saved without one, once', () => {
+    const stored = allFields();
+    const { project, synthPatches } = decode(stored);
+    const [given, read] = project.chordRegions;
+    // Saved with its identity: kept. Saved without: read from its labels,
+    // the letter name first ('G7' in D dorian).
+    expect(given.identity).toEqual(stored.data.chordRegions?.[0].identity);
+    expect(read.identity).toEqual({
+      rootPc: 7,
+      quality: 'dominant7',
+      bassPc: 7,
+      source: 'derived',
+      label: read.name,
+    });
+    // Written back, it loads as it was: reading it is done once.
+    const again = encodeSession(
+      project,
+      patchesOf(synthPatches),
+      stored.timestamp,
+    );
+    expect(
+      decode(JSON.parse(JSON.stringify(again))).project.chordRegions,
+    ).toEqual(project.chordRegions);
   });
 
   it('round-trips through the store: restore, then the next autosave', () => {
     const stored = allFields();
     expect(deserializeSession(stored)).toBe(true);
     const again = serializeSession();
-    expect({ ...again, timestamp: 0 }).toEqual({ ...stored, timestamp: 0 });
+    expect({ ...withoutDerivedIdentities(again), timestamp: 0 }).toEqual({
+      ...stored,
+      timestamp: 0,
+    });
     expect(getTrackSynthState('trk-lead')).toEqual(
       stored.data.tracks[1].settings?.oracleSynth,
     );

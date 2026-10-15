@@ -1,10 +1,11 @@
 /**
  * A chord region's identity (decision D3) never outlives the label it was
- * made for. Milestone 1.3 only keeps identities as they come (1.16a fills
- * them in), so every write that changes which chord a region holds, or the
- * name its identity describes, drops it; a write that only moves or resizes
- * a region keeps it. That way a 1.16a identity can't describe the wrong
- * chord after an edit in this build.
+ * made for. A write that gives a region another chord brings that chord's
+ * identity (one it is handed, else one read from the new labels, 'given':
+ * the student named it); a key change carries the identity over to the
+ * chord's new name; a write that only moves or resizes a region keeps it.
+ * Analysis that changes a chord (a bass under it) drops it for the caller
+ * to read again.
  *
  * Run: npx vitest run src/daw/store/__tests__/chordIdentityWrites.test.ts
  */
@@ -12,6 +13,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type { MidiNoteEvent } from '@prism/engine';
 import {
   identityIsCurrent,
+  withoutIdentity,
   type ChordRegionIdentity,
 } from '@/daw/harmony/chordIdentity';
 import { useStore, type AllSlices } from '../index';
@@ -59,17 +61,52 @@ beforeEach(() => {
   } as Partial<AllSlices>);
 });
 
-describe('writes that change the chord drop its identity', () => {
+/** The identity a write reads from the labels the student gave a region. */
+const given = (
+  label: string,
+  rootPc: number,
+  quality = 'major',
+): ChordRegionIdentity => ({
+  rootPc,
+  quality,
+  bassPc: rootPc,
+  source: 'given',
+  label,
+});
+
+describe('writes that change the chord bring its identity', () => {
   it('renaming a chord', () => {
     s().renameChordRegion('b', 'Am', 'A min');
-    expect(region('b').identity).toBeUndefined();
+    expect(region('b').identity).toEqual(given('Am', 9, 'minor'));
     expect(region('a').identity).toEqual(identity('1 maj'));
+  });
+
+  it('renaming a chord to text that names none, which drops it', () => {
+    s().renameChordRegion('b', 'hello', 'hello');
+    expect(region('b').identity).toBeUndefined();
+  });
+
+  it('renaming a chord with the identity the writer read', () => {
+    const typed = given('5 maj', 7);
+    s().renameChordRegion('b', '5 maj', 'G maj', {
+      degreeKey: '5 major',
+      identity: typed,
+    });
+    expect(region('b')).toMatchObject({
+      degreeKey: '5 major',
+      identity: typed,
+    });
+  });
+
+  it('dropping the degreeKey a rename leaves describing the old chord', () => {
+    s().renameChordRegion('b', 'Am', 'A min');
+    expect(region('b').degreeKey).toBeUndefined();
   });
 
   it('writing another chord on its first beat', () => {
     s().insertChordRegion(BAR, '5 maj', 'G maj');
     expect(region('b')).toMatchObject({ name: '5 maj', noteName: 'G maj' });
-    expect(region('b').identity).toBeUndefined();
+    expect(region('b').identity).toEqual(given('5 maj', 7));
   });
 
   it("the lead sheet's new chord over one: the name alone says too little", () => {
@@ -82,19 +119,48 @@ describe('writes that change the chord drop its identity', () => {
       ),
     });
     s().insertChordRegion(BAR, 'maj', 'D');
-    expect(region('b').identity).toBeUndefined();
+    expect(region('b').identity).toEqual(given('maj', 2));
   });
+});
 
-  it('a key change that renames it', () => {
+describe('a key change', () => {
+  it('carries each identity over to the chord’s new name', () => {
     s().setRootNote(7); // G: C major is now the 4 chord
     expect(region('a').name).toBe('4 maj');
     expect(s().chordRegions.map((r) => r.identity)).toEqual([
-      undefined,
-      undefined,
-      undefined,
+      identity('4 maj'),
+      identity('4 maj'),
+      identity('4 maj'),
     ]);
   });
 
+  it('relabels a slash chord from its identity, bass and all', () => {
+    useStore.setState({
+      chordRegions: [
+        {
+          ...cMajor('slash', 0, 1),
+          name: '5 maj/3',
+          noteName: 'G maj/3',
+          degreeKey: '5 major/3',
+          identity: { ...given('5 maj/3', 7), bassPc: 11 },
+        },
+      ],
+    });
+    s().setRootNote(2); // D: G/B is IV over the key's 6th
+    expect(region('slash')).toMatchObject({
+      name: '4 maj/6',
+      noteName: 'G maj/B',
+      degreeKey: '4 major/3',
+    });
+    expect(region('slash').identity).toMatchObject({
+      rootPc: 7,
+      bassPc: 11,
+      label: '4 maj/6',
+    });
+  });
+});
+
+describe('analysis that changes the chord drops its identity', () => {
   it('a bass under it that makes a slash chord, or names a chord from below', () => {
     const bassAt = (pitch: number, startTick = 0): MidiNoteEvent => ({
       note: pitch,
@@ -131,11 +197,11 @@ describe('writes that leave the chord alone keep it', () => {
     expect(identityIsCurrent(region('b'))).toBe(true);
   });
 
-  it('a key change that keeps its name, and one its label parse skips', () => {
+  it('a key change that keeps its name, and one that relabels a placeholder', () => {
     useStore.setState({
       chordRegions: [
         cMajor('a', 0, 1),
-        // The lead sheet's own label: noteName has no quality to parse.
+        // The lead sheet's old placeholder label: noteName has no quality.
         {
           ...cMajor('typed', 1, 2),
           name: 'maj',
@@ -147,8 +213,9 @@ describe('writes that leave the chord alone keep it', () => {
     s().setRootNote(0); // the same key again
     expect(region('a').identity).toEqual(identity('1 maj'));
     s().setRootNote(7);
-    expect(region('typed')).toMatchObject({ name: 'maj', noteName: 'C' });
-    expect(region('typed').identity).toEqual(identity('maj'));
+    // The identity says the chord, so it gets the lane's labels in G.
+    expect(region('typed')).toMatchObject({ name: '4 maj', noteName: 'C maj' });
+    expect(region('typed').identity).toEqual(identity('4 maj'));
   });
 
   it('moving, resizing, shifting and deleting around it', () => {
@@ -169,7 +236,7 @@ describe('writes that leave the chord alone keep it', () => {
     );
     expect(head).toMatchObject({ id: 'c', endTick: 3 * BAR });
     expect(head.identity).toEqual(identity('1 maj'));
-    expect(inserted.identity).toBeUndefined();
+    expect(inserted.identity).toEqual(given('5 maj', 7));
   });
 
   it('cutting a measure out of it, or laying chords over part of it', () => {
@@ -192,6 +259,35 @@ describe('writes that leave the chord alone keep it', () => {
   it('keeping the region whole through setChordRegions', () => {
     s().setChordRegions([cMajor('x', 0, 1)], true);
     expect(region('x').identity).toEqual(identity('1 maj'));
+  });
+});
+
+describe('setChordRegions fills what has none', () => {
+  it('reads one from the labels, as derived unless the caller says', () => {
+    const bare = withoutIdentity(cMajor('x', 0, 1));
+    s().setChordRegions([bare], true);
+    expect(region('x').identity).toEqual({
+      ...identity('1 maj'),
+      source: 'derived',
+    });
+    s().setChordRegions([{ ...bare, id: 'y' }], true, 'given');
+    expect(region('y').identity).toEqual(identity('1 maj'));
+  });
+
+  it('leaves a region whose labels name no chord without one', () => {
+    s().setChordRegions(
+      [
+        {
+          ...cMajor('n', 0, 1),
+          name: 'N.C.',
+          noteName: 'N.C.',
+          degreeKey: undefined,
+          identity: undefined,
+        },
+      ],
+      true,
+    );
+    expect(region('n').identity).toBeUndefined();
   });
 });
 

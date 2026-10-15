@@ -1,5 +1,14 @@
 import type { MidiNoteEvent } from '@prism/engine';
-import type { ChordRegion } from '@/daw/store/prismSlice';
+import {
+  identityIsCurrent,
+  type ChordRegionIdentity,
+} from '@/daw/harmony/chordIdentity';
+import {
+  laneWithChordAt,
+  replaceChordRegionsInRange,
+  type ChordRegion,
+} from '@/daw/store/prismSlice';
+import type { TimeSignature } from '@/daw/time/timeModel';
 import type { Track } from '@/daw/store/tracksSlice';
 import type { LeadSheetRepeat, LeadSheetSection } from '@/daw/store/uiSlice';
 import type { ItemKind } from './leadSheetSelection';
@@ -9,15 +18,21 @@ import type { ItemKind } from './leadSheetSelection';
 // roadmap marks on a barline — stored relative to the start of the copied
 // block so it lands wherever the paste starts. Pasting a block of measures
 // replaces what is inside them; pasting loose items drops them in without
-// clearing anything, the way the Score behaves.
+// clearing anything, the way the Score behaves. Either way only the span
+// pasted over changes: every chord outside it is the same object, ends and
+// gaps (N.C.) included (leadsheet-08).
 
 export interface ClipboardChord {
   /** Ticks after the block's start. */
   tickOffset: number;
+  /** How long it lasts, cut at the end of a copied block. */
+  lengthTicks: number;
   name: string;
   noteName: string;
   color: [number, number, number];
   degreeKey?: string;
+  /** Its identity, when it had a current one (it names the same name). */
+  identity?: ChordRegionIdentity;
 }
 
 export interface ClipboardNote {
@@ -80,13 +95,22 @@ export function buildClipboard(source: CopySource): LeadSheetClipboard {
     spanTicks: source.spanTicks,
     spanMeasures: source.spanMeasures,
     replace: source.replace,
-    chords: source.chords.map((region) => ({
-      tickOffset: region.startTick - source.startTick,
-      name: region.name,
-      noteName: region.noteName,
-      color: region.color,
-      degreeKey: region.degreeKey,
-    })),
+    chords: source.chords.map((region) => {
+      const blockEnd = source.startTick + source.spanTicks;
+      const end =
+        source.spanTicks > 0
+          ? Math.min(region.endTick, blockEnd)
+          : region.endTick;
+      return {
+        tickOffset: region.startTick - source.startTick,
+        lengthTicks: Math.max(0, end - region.startTick),
+        name: region.name,
+        noteName: region.noteName,
+        color: region.color,
+        degreeKey: region.degreeKey,
+        ...(identityIsCurrent(region) ? { identity: region.identity } : {}),
+      };
+    }),
     notes: source.notes.map((note) => ({
       tickOffset: note.tick - source.startTick,
       midi: note.midi,
@@ -104,67 +128,82 @@ export function buildClipboard(source: CopySource): LeadSheetClipboard {
 }
 
 /**
- * A chord region by where it starts and what it says. A region kept from the
- * lane is passed whole, so it keeps everything it holds (its id, the notes it
- * was read from, its identity); a pasted chord has only what the clipboard
- * carries, and no id yet.
+ * The region a pasted chord becomes over [startTick, endTick): what the
+ * clipboard holds, and no id until the store gives it one.
  */
-type ChordStart = Omit<ChordRegion, 'id' | 'endTick'> &
-  Partial<Pick<ChordRegion, 'id' | 'endTick'>>;
-
-/**
- * Rebuild contiguous regions from their starts: each runs to the next one,
- * and the last keeps the old end — or the end of the pasted block when that
- * reaches further. Only the ends change: a kept region is the same chord on
- * the same beat.
- */
-function regionsFromStarts(
-  starts: ChordStart[],
+function pastedRegion(
+  chord: ClipboardChord,
+  startTick: number,
   endTick: number,
-): ChordRegion[] {
-  const sorted = [...starts].sort((a, b) => a.startTick - b.startTick);
-  return sorted.map((start, i) => ({
-    ...start,
-    id: start.id ?? '',
-    endTick: sorted[i + 1]?.startTick ?? Math.max(endTick, start.startTick),
-  }));
+): ChordRegion {
+  return {
+    id: '',
+    startTick,
+    endTick,
+    name: chord.name,
+    noteName: chord.noteName,
+    color: chord.color,
+    ...(chord.degreeKey ? { degreeKey: chord.degreeKey } : {}),
+    ...(chord.identity ? { identity: chord.identity } : {}),
+  };
 }
 
 /**
- * Paste the clipboard's chords so its start lands on `targetTick`. A measure
- * copy clears the chords already in that span; a loose chord copy adds to
- * them, replacing only an exact collision.
+ * Paste the clipboard's chords so its start lands on `targetTick`. A block
+ * (measures or beats) replaces the chords across its span, each pasted chord
+ * as long as it was, and a chord crossing either edge keeps its part
+ * outside; an empty block clears the span. Loose chords go in as a typed
+ * chord does: over a chord starting on the same beat, else splitting the
+ * one they land in. Chords outside the span stay exactly as they were.
  */
 export function pasteChords(
   regions: ChordRegion[],
   clipboard: LeadSheetClipboard,
   targetTick: number,
+  ts: TimeSignature,
 ): ChordRegion[] {
   if (clipboard.chords.length === 0 && !clipboard.replace) return regions;
 
-  const from = targetTick;
-  const to = targetTick + clipboard.spanTicks;
-  const kept: ChordStart[] = regions.filter((region) =>
-    clipboard.replace
-      ? region.startTick < from || region.startTick >= to
-      : !clipboard.chords.some(
-          (chord) => chord.tickOffset + targetTick === region.startTick,
+  if (clipboard.replace) {
+    const from = targetTick;
+    const to = targetTick + clipboard.spanTicks;
+    const incoming = clipboard.chords.map((chord) => {
+      const startTick = targetTick + chord.tickOffset;
+      return pastedRegion(
+        chord,
+        startTick,
+        Math.min(startTick + chord.lengthTicks, to),
+      );
+    });
+    return replaceChordRegionsInRange(regions, incoming, from, to);
+  }
+
+  let lane = regions;
+  const loose = [...clipboard.chords].sort(
+    (a, b) => a.tickOffset - b.tickOffset,
+  );
+  for (const chord of loose) {
+    const tick = targetTick + chord.tickOffset;
+    lane = laneWithChordAt(
+      lane,
+      tick,
+      ts,
+      // Over a chord on the same beat: that region, with this chord in it.
+      (existing) => ({
+        ...pastedRegion(chord, existing.startTick, existing.endTick),
+        id: existing.id,
+      }),
+      (startTick, endTick) =>
+        pastedRegion(
+          chord,
+          startTick,
+          chord.lengthTicks > 0
+            ? Math.min(endTick, startTick + chord.lengthTicks)
+            : endTick,
         ),
-  );
-
-  const incoming: ChordStart[] = clipboard.chords.map((chord) => ({
-    startTick: targetTick + chord.tickOffset,
-    name: chord.name,
-    noteName: chord.noteName,
-    color: chord.color,
-    ...(chord.degreeKey ? { degreeKey: chord.degreeKey } : {}),
-  }));
-
-  const previousEnd = regions.reduce(
-    (max, region) => Math.max(max, region.endTick),
-    0,
-  );
-  return regionsFromStarts([...kept, ...incoming], Math.max(previousEnd, to));
+    );
+  }
+  return lane;
 }
 
 export interface RoadmapEdit {

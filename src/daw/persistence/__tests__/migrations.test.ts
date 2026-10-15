@@ -16,6 +16,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { withoutIdentity } from '@/daw/harmony/chordIdentity';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { Track } from '@/daw/store/tracksSlice';
 import {
@@ -129,9 +130,28 @@ function ourTrack(track: Track): Record<string, unknown> {
   };
 }
 
+/**
+ * `value` with every chord region's identity set aside, wherever a chord
+ * lane sits in it. The drafts here were saved without identities, and a
+ * load reads one from each chord's labels (milestone 1.16a, checked on its
+ * own below); everything else they hold must load as it always did.
+ */
+function withoutChordIdentities<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(withoutChordIdentities) as T;
+  if (value === null || typeof value !== 'object') return value;
+  const out: Record<string, unknown> = {};
+  for (const [key, field] of Object.entries(value)) {
+    out[key] =
+      key === 'chordRegions' && Array.isArray(field)
+        ? field.map(withoutIdentity)
+        : withoutChordIdentities(field);
+  }
+  return out as T;
+}
+
 /** Expect our decode of `stored` to load what the frozen decoder does. */
 function expectSameAsFrozen(name: string, stored: any, frozen: FrozenDecode) {
-  const ours = decode(stored);
+  const ours = withoutChordIdentities(decode(stored));
   for (const key of V2_KEYS) {
     expect({ name, key, value: ours.project[key] }).toEqual({
       name,
@@ -205,8 +225,19 @@ describe('the captured v2 autosaves', () => {
         );
       });
 
+      it('reads an identity for every chord its labels name', () => {
+        const regions = decode(session).project.chordRegions;
+        expect(regions.length).toBe(session.data.chordRegions?.length ?? 0);
+        for (const region of regions) {
+          expect(region.identity, region.name).toMatchObject({
+            source: 'derived',
+            label: region.name,
+          });
+        }
+      });
+
       it('rewritten as v3, keeps every v2 field at its v2 path', () => {
-        const v3 = reencoded(session);
+        const v3 = withoutChordIdentities(reencoded(session));
         const before = session.data;
         const after = v3.data as any;
         for (const field of [
@@ -249,18 +280,21 @@ describe('the captured v2 autosaves', () => {
       });
 
       it('rewritten as v3, reads in 1.2 as the original did', () => {
-        expect(withoutPrefs(decodeAs12(reencoded(session)))).toEqual(
-          withoutPrefs(decodeAs12(session)),
-        );
+        // An older build keeps a chord's identity as it finds it.
+        expect(
+          withoutChordIdentities(withoutPrefs(decodeAs12(reencoded(session)))),
+        ).toEqual(withoutPrefs(decodeAs12(session)));
       });
 
       it('rewritten as v3, reads in prod (before 1.1) as the original did', () => {
         // Prod's decoder copies what a track holds, and a v3 draft always
         // holds the role and the input channel, which pre-1.1 saves lack.
         const extra = ['trackRole', 'audioInputChannel'];
-        expect(withoutPrefs(decodeAsMain(reencoded(session)), extra)).toEqual(
-          withoutPrefs(decodeAsMain(session), extra),
-        );
+        expect(
+          withoutChordIdentities(
+            withoutPrefs(decodeAsMain(reencoded(session)), extra),
+          ),
+        ).toEqual(withoutPrefs(decodeAsMain(session), extra));
         expect(readAsMainSongPage(reencoded(session))).toEqual(
           readAsMainSongPage(session),
         );
@@ -370,7 +404,13 @@ describe('a v3 draft in a build from before 1.3', () => {
     loop: [state.loopEnabled, state.loopStart, state.loopEnd],
     key: [state.rootNote, state.mode, state.rhythmName, state.genre],
     swing: state.swing,
-    chordRegions: state.chordRegions,
+    // The identities ours reads from the labels on load aside; the one the
+    // draft saved, every build keeps.
+    chordRegions: state.chordRegions.map((region: any) => {
+      return region.identity?.source === 'derived'
+        ? withoutIdentity(region)
+        : region;
+    }),
     returns: state.returns,
     masterAutomation: state.masterAutomation,
     tracks: state.tracks.map((t: any) => ({

@@ -14,6 +14,7 @@ import { ChevronDown, X, Mic, Maximize2, Lock, Unlock } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { RATE_LABELS } from '@/daw/audio/pedals/PhaserPedal';
 import { useStore } from '@/daw/store';
+import { useEffectiveKey } from '@/daw/harmony/effectiveKey';
 import { paintInputBar, useMeterPaint } from '@/daw/hooks/useMeterLevel';
 import type { AudioInputChannel } from '@/daw/store/tracksSlice';
 import { TunerDisplay } from './TunerDisplay';
@@ -491,13 +492,12 @@ export function VocalView({ trackId }: { trackId: string }) {
   const inputChannel = audioInputChannel ?? DEFAULT_INPUT_CHANNEL;
   const globalInputDeviceId = useStore((s) => s.inputDeviceId);
   const bpm = useStore((s) => s.bpm);
-  const prismRootNote = useStore((s) => s.rootNote);
-  const prismMode = useStore((s) => s.mode);
-  // Prefer MusicIntelligenceBus detected key (from UNISON) over manual session key
-  const busKeyRootPc = useStore((s) => s.detectedKeyRootPc);
-  const busMode = useStore((s) => s.detectedMode);
-  const globalRootNote = busKeyRootPc ?? prismRootNote;
-  const globalMode = busMode ?? prismMode;
+  // The song's key: the student's, else a detected one while none is set
+  // (effectiveKey). The detected key used to win over the student's.
+  const effectiveKey = useEffectiveKey();
+  const projectMode = useStore((s) => s.mode);
+  const globalRootNote = effectiveKey?.rootPc ?? null;
+  const globalMode = effectiveKey?.mode ?? projectMode;
   const setGlobalRootNote = useStore((s) => s.setRootNote);
   const setGlobalMode = useStore((s) => s.setMode);
   const rootLocked = useStore((s) => s.rootLocked);

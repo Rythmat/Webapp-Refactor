@@ -144,7 +144,19 @@ describe('a cloud save writes the document', () => {
     buildProject();
     const body = serializeSessionForCloud(undefined, 'document');
     expect(body.documentSchema).toBe(CLOUD_DOCUMENT_SCHEMA);
-    expect(body.document?.chordRegions).toEqual([REGION]);
+    // With the identity the lane read from its labels (D, 'Dm7').
+    expect(body.document?.chordRegions).toEqual([
+      {
+        ...REGION,
+        identity: {
+          rootPc: 2,
+          quality: 'minor7',
+          bassPc: 2,
+          source: 'derived',
+          label: 'Dm7',
+        },
+      },
+    ]);
     expect(body.tracks.some((t) => t.settings?.projectDoc)).toBe(false);
   });
 

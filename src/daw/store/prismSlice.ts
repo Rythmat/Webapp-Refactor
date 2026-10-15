@@ -4,9 +4,19 @@ import { genreSettings } from './genreSettings';
 import { isTrackLockedByRemote } from './trackLock';
 import type { MidiClip, Track } from './tracksSlice';
 import {
+  ensureChordIdentities,
+  ensureChordIdentity,
+  identityIsCurrent,
+  identityRelabelled,
+  pitchesOfDegreeName,
+  pitchesOfNotes,
+  withIdentity,
   withoutIdentity,
+  type ChordIdentitySource,
   type ChordRegionIdentity,
 } from '@/daw/harmony/chordIdentity';
+import { chordLabels } from '@/daw/harmony/chordLabels';
+import { keyFrame, keyFrameOf } from '@/daw/harmony/keyFrame';
 import { withNoteIds } from '@/daw/model/noteIds';
 import {
   keyColourOf,
@@ -61,6 +71,11 @@ export function nextChordId(): string {
 
 export type ChordRecordMode = 'replace' | 'locked' | 'merge';
 
+/** What a chord write brings besides its labels (insert, rename). */
+export type ChordRegionExtra = Partial<
+  Pick<ChordRegion, 'degreeKey' | 'color' | 'identity'>
+>;
+
 export interface ChordRegion {
   id: string;
   startTick: number;
@@ -80,11 +95,11 @@ export interface ChordRegion {
    */
   sourceClipId?: string;
   /**
-   * Which chord the region holds, as pitch classes (decision D3). Milestone
-   * 1.16a fills it in; until then it is only kept as it came. Every write
-   * that changes the chord or its labels drops it (withoutIdentity), so an
-   * identity never outlives the label it was made for; edits that only move
-   * or resize a region keep it.
+   * Which chord the region holds, as pitch classes (decision D3,
+   * harmony/chordIdentity). Every write that makes a chord fills it in;
+   * a write that changes the chord brings a new one or drops it, so an
+   * identity never outlives the label it was made for; edits that only
+   * move or resize a region keep it, and a key change relabels it.
    */
   identity?: ChordRegionIdentity;
 }
@@ -161,20 +176,42 @@ export interface PrismSlice {
   setSelectedTrackId: (id: string | null) => void;
 
   // Actions — chord regions
-  setChordRegions: (regions: ChordRegion[], force?: boolean) => void;
+  /**
+   * Write chords to the lane, through the chord record mode unless `force`.
+   * A region without an identity gets one read from its labels, from
+   * `source` ('derived' unless the caller knows better: a song's chart is
+   * 'given', analysis 'detected').
+   */
+  setChordRegions: (
+    regions: ChordRegion[],
+    force?: boolean,
+    source?: ChordIdentitySource,
+  ) => void;
   setMeasureRowSizes: (sizes: number[] | null) => void;
   setMeasureRestMap: (map: Record<number, number> | null) => void;
   setMeasureFermatas: (fermatas: number[] | null) => void;
 
   // Actions — lead sheet chord editing
+  /**
+   * Put a chord on `tick`. `extra` carries what a typed chord knows
+   * (harmony/chordInput: its degreeKey and identity); without an identity
+   * the region gets one read from its labels.
+   */
   insertChordRegion: (
     tick: number,
     name: string,
     noteName: string,
     color?: [number, number, number],
+    extra?: ChordRegionExtra,
   ) => void;
   deleteChordRegion: (id: string) => void;
-  renameChordRegion: (id: string, newName: string, newNoteName: string) => void;
+  /** Give a region another chord; `extra` as for insertChordRegion. */
+  renameChordRegion: (
+    id: string,
+    newName: string,
+    newNoteName: string,
+    extra?: ChordRegionExtra,
+  ) => void;
   resizeChordRegion: (id: string, newEndTick: number) => void;
   moveChordRegion: (id: string, newStartTick: number) => void;
   /**
@@ -253,9 +290,10 @@ function parseNoteNameChord(
 
 /**
  * Re-derive degreeKey, name, noteName, and color for all chord regions
- * when the key (rootNote/mode) changes. The chords stay the same, so a
- * region keeps its identity unless its name (the label the identity
- * describes) changes with the key.
+ * when the key (rootNote/mode) changes. The chords stay the same: a region
+ * with an identity is relabelled from it (chordLabels, slash chords
+ * included) and keeps it under its new name. One without is re-read from
+ * its letter name, as before identities.
  */
 function rederiveChordRegions(
   regions: ChordRegion[],
@@ -263,7 +301,14 @@ function rederiveChordRegions(
   mode: string,
 ): ChordRegion[] {
   const keyPc = rootMidi % 12;
+  const frame = keyFrame(keyPc, mode);
   const rederived = regions.map((r) => {
+    if (identityIsCurrent(r)) {
+      const labels = chordLabels(r.identity!, frame);
+      const next: ChordRegion = { ...r, ...labels };
+      if (labels.degreeKey === undefined) delete next.degreeKey;
+      return { ...next, identity: identityRelabelled(r, labels.name) };
+    }
     const parsed = parseNoteNameChord(r.noteName);
     if (!parsed) {
       // Can't parse — just recolor if we have a degreeKey
@@ -488,25 +533,42 @@ function deriveChordRegions(
     midis: [...currentNotes],
   });
 
-  return respellLeadingChordRegions(regions);
+  // A chord the student built is the one they chose ('given'); one past the
+  // sequence is read from the notes ('detected').
+  const known = (index: number) => collapsed[index];
+  const identified = regions.map((region, index) => {
+    const graphName = known(index);
+    const pitches = graphName
+      ? pitchesOfDegreeName(graphName, parentRoot % 12)
+      : pitchesOfNotes(region.midis ?? []);
+    return pitches
+      ? withIdentity(region, pitches, graphName ? 'given' : 'detected')
+      : region;
+  });
+  return respellLeadingChordRegions(identified);
 }
 
 /**
  * `region` with the labels the student wrote over it (a rename, or another
  * chord entered on its first beat). A name alone doesn't always say the
  * chord (the lead sheet's new chord is named 'maj', with its root only in
- * noteName), so the identity stays only when neither label changes.
+ * noteName), so the old identity stays only when neither label changes.
+ * Otherwise the chord is the one `extra` brings (a typed chord's identity
+ * and degreeKey), or else the one the new labels name; a degreeKey the
+ * write doesn't bring would describe the old chord, so it goes.
  */
 function relabelChordRegion(
   region: ChordRegion,
   name: string,
   noteName: string,
-  extra?: Partial<ChordRegion>,
+  extra: Partial<ChordRegion> = {},
+  frame: ReturnType<typeof keyFrameOf> = null,
 ): ChordRegion {
   const next = { ...region, name, noteName, ...extra };
-  return name === region.name && noteName === region.noteName
-    ? next
-    : withoutIdentity(next);
+  if (name === region.name && noteName === region.noteName) return next;
+  if (!('degreeKey' in extra)) delete next.degreeKey;
+  if (extra.identity) return next;
+  return ensureChordIdentity(withoutIdentity(next), frame, 'given');
 }
 
 // ── Shared label helpers (used by derivation and reconcile logic) ─────────
@@ -645,7 +707,7 @@ function reconcileChordRegions(
       const mergedStart = Math.min(ex.startTick, inc.startTick);
       const mergedEnd = Math.max(ex.endTick, inc.endTick);
 
-      result.push({
+      const merged: ChordRegion = {
         id: ex.id, // preserve existing region ID
         startTick: mergedStart,
         endTick: mergedEnd,
@@ -657,7 +719,11 @@ function reconcileChordRegions(
           : getChordColorFromNotes(combined, rootMidi, currentMode),
         degreeKey: rawKey,
         midis: combined,
-      });
+      };
+      // The union is a new chord, read as analysis reads it.
+      result.push(
+        ensureChordIdentity(merged, keyFrame(keyPc, currentMode), 'detected'),
+      );
     }
   }
   // Add non-overlapping existing regions
@@ -672,6 +738,41 @@ function reconcileChordRegions(
   return respellLeadingChordRegions(
     result.sort((a, b) => a.startTick - b.startTick),
   );
+}
+
+/**
+ * The lane with a chord written on `tick`, as the lead sheet and the Score
+ * write one: over a chord that starts there, in its place (`over`); inside
+ * one, splitting it, the new chord running to its end; in a gap, to the next
+ * chord or the end of the bar, in the project's metre (leadsheet-07).
+ * `fresh` makes the new region for the span it gets. Always a new array,
+ * in time order; the other regions are the same objects.
+ */
+export function laneWithChordAt(
+  regions: readonly ChordRegion[],
+  tick: number,
+  ts: TimeSignature,
+  over: (existing: ChordRegion) => ChordRegion,
+  fresh: (startTick: number, endTick: number) => ChordRegion,
+): ChordRegion[] {
+  const lane = [...regions];
+  const index = lane.findIndex((r) => r.startTick <= tick && r.endTick > tick);
+  if (index >= 0) {
+    const existing = lane[index];
+    if (tick === existing.startTick) {
+      lane[index] = over(existing);
+    } else {
+      lane[index] = { ...existing, endTick: tick };
+      lane.splice(index + 1, 0, fresh(tick, existing.endTick));
+    }
+  } else {
+    const next = lane
+      .filter((r) => r.startTick > tick)
+      .reduce((min, r) => Math.min(min, r.startTick), Infinity);
+    const barEnd = barStartTick(tick, ts) + ticksPerBar(ts);
+    lane.push(fresh(tick, Math.min(next, barEnd)));
+  }
+  return lane.sort((a, b) => a.startTick - b.startTick);
 }
 
 /**
@@ -1075,7 +1176,11 @@ export function deriveChordRegionsFromNotes(
     );
   }
 
-  return respellLeadingChordRegions(cleaned);
+  return ensureChordIdentities(
+    respellLeadingChordRegions(cleaned),
+    keyFrame(rootMidi % 12, mode),
+    'detected',
+  );
 }
 
 /**
@@ -1185,7 +1290,11 @@ export function deriveChordRegionsFromAudioSnapshots(
     );
   }
 
-  return respellLeadingChordRegions(cleaned);
+  return ensureChordIdentities(
+    respellLeadingChordRegions(cleaned),
+    keyFrame(rootMidi % 12, mode),
+    'detected',
+  );
 }
 
 // ── Phase 7B: Multi-track chord derivation ──────────────────────────────
@@ -1233,8 +1342,14 @@ export function deriveChordRegionsFromSession(
   if (harmonyEvents.length === 0) return [];
 
   const regions = deriveChordRegionsFromNotes(harmonyEvents, rootMidi, mode);
-  return respellLeadingChordRegions(
-    enrichWithBass(regions, bassEvents, rootMidi, mode),
+  // A bass under the chord makes a new one (enrichWithBass drops its
+  // identity), read again here.
+  return ensureChordIdentities(
+    respellLeadingChordRegions(
+      enrichWithBass(regions, bassEvents, rootMidi, mode),
+    ),
+    keyFrame(rootMidi % 12, mode),
+    'detected',
   );
 }
 
@@ -1410,8 +1525,14 @@ export function refineChordRegionsWithMelody(
   if (harmonyEvents.length === 0) return [];
 
   const regions = deriveChordRegionsFromNotes(harmonyEvents, rootMidi, mode);
-  return respellLeadingChordRegions(
-    enrichWithBass(regions, bassEvents, rootMidi, mode),
+  // A bass under the chord makes a new one (enrichWithBass drops its
+  // identity), read again here.
+  return ensureChordIdentities(
+    respellLeadingChordRegions(
+      enrichWithBass(regions, bassEvents, rootMidi, mode),
+    ),
+    keyFrame(rootMidi % 12, mode),
+    'detected',
   );
 }
 
@@ -1716,14 +1837,18 @@ export const createPrismSlice: StateCreator<
 
   // ── Actions — chord regions ──
 
-  setChordRegions: (regions, force) => {
-    const tagged = regions.map((r) => (r.id ? r : { ...r, id: nextChordId() }));
+  setChordRegions: (regions, force, source = 'derived') => {
     const {
       chordRecordMode,
       chordRegions: existing,
       rootNote,
       mode: currentMode,
     } = get();
+    const tagged = ensureChordIdentities(
+      regions.map((r) => (r.id ? r : { ...r, id: nextChordId() })),
+      keyFrameOf(rootNote, currentMode),
+      source,
+    );
     const effectiveMode = force ? 'replace' : chordRecordMode;
     const rootMidi = (rootNote ?? 0) + 48;
     const result = reconcileChordRegions(
@@ -1745,53 +1870,40 @@ export const createPrismSlice: StateCreator<
 
   // ── Actions — lead sheet chord editing ──
 
-  insertChordRegion: (tick, name, noteName, color) =>
+  insertChordRegion: (tick, name, noteName, color, extra = {}) =>
     set((s) => {
-      const regions = [...s.chordRegions];
       const c: [number, number, number] = color ?? [128, 128, 128];
-      // Find the region that contains this tick and split it
-      const idx = regions.findIndex(
-        (r) => r.startTick <= tick && r.endTick > tick,
-      );
-      if (idx >= 0) {
-        const existing = regions[idx];
-        if (tick === existing.startTick) {
-          // Replace the existing region at this exact position
-          regions[idx] = relabelChordRegion(existing, name, noteName, {
-            color: c,
-          });
-        } else {
-          // Truncate the existing region at the insertion point
-          regions[idx] = { ...existing, endTick: tick };
-          // Insert the new region from tick to the original endTick
-          regions.splice(idx + 1, 0, {
-            id: nextChordId(),
-            startTick: tick,
-            endTick: existing.endTick,
-            name,
-            noteName,
-            color: c,
-          });
-        }
-      } else {
-        // No region here: the chord lasts until the next one, or to the end
-        // of its bar, in the project's metre (leadsheet-07).
-        const ts = timeSignatureOf(s);
-        const next = regions
-          .filter((r) => r.startTick > tick)
-          .reduce((min, r) => Math.min(min, r.startTick), Infinity);
-        const barEnd = barStartTick(tick, ts) + ticksPerBar(ts);
-        regions.push({
-          id: nextChordId(),
-          startTick: tick,
-          endTick: Math.min(next, barEnd),
-          name,
-          noteName,
-          color: c,
-        });
-      }
-      regions.sort((a, b) => a.startTick - b.startTick);
-      return { chordRegions: regions };
+      const frame = keyFrameOf(s.rootNote, s.mode);
+      return {
+        chordRegions: laneWithChordAt(
+          s.chordRegions,
+          tick,
+          timeSignatureOf(s),
+          (existing) =>
+            relabelChordRegion(
+              existing,
+              name,
+              noteName,
+              { color: c, ...extra },
+              frame,
+            ),
+          (startTick, endTick) => {
+            const region: ChordRegion = {
+              id: nextChordId(),
+              startTick,
+              endTick,
+              name,
+              noteName,
+              color: c,
+              ...extra,
+            };
+            // The chord `extra` names, else the one its labels do.
+            return extra.identity
+              ? region
+              : ensureChordIdentity(region, frame, 'given');
+          },
+        ),
+      };
     }),
 
   deleteChordRegion: (id) =>
@@ -1818,12 +1930,18 @@ export const createPrismSlice: StateCreator<
       return { chordRegions: respellLeadingChordRegions(regions) };
     }),
 
-  renameChordRegion: (id, newName, newNoteName) =>
+  renameChordRegion: (id, newName, newNoteName, extra) =>
     set((s) => {
       const regions = [...s.chordRegions];
       const index = regions.findIndex((r) => r.id === id);
       if (index < 0) return s;
-      regions[index] = relabelChordRegion(regions[index], newName, newNoteName);
+      regions[index] = relabelChordRegion(
+        regions[index],
+        newName,
+        newNoteName,
+        extra,
+        keyFrameOf(s.rootNote, s.mode),
+      );
       return { chordRegions: regions };
     }),
 

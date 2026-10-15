@@ -1,5 +1,5 @@
 import { ListMusic } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
+import { useEffect, useMemo, useRef, useState, type FC } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,13 +8,21 @@ import {
 } from '@/components/ui/dialog';
 import { showSuccess } from '@/components/utils/toast';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
-import { useStore } from '@/daw/store';
+import { useStore, type AllSlices } from '@/daw/store';
+import { Button } from '@/daw/ui/Button';
 import { roleList, setListOptions } from '@/features/setlists/setListsStore';
 import {
   useProjectSetListEntries,
   useSetLists,
 } from '@/features/setlists/useSetLists';
-import { chartFromStudio, type StudioChartSource } from './toSetListChart';
+import type { StoredChart } from '@/features/setlists/types';
+import {
+  chartFromStudio,
+  chartSummary,
+  updateWouldLoseChart,
+  type ChartSummary,
+  type StudioChartSource,
+} from './toSetListChart';
 
 /**
  * Sending a Studio lead sheet to a set list, and keeping it honest afterwards.
@@ -247,20 +255,12 @@ const SendDialog: FC<{
         </div>
 
         <div className="mt-4 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            className="rounded-full border border-white/15 px-3 py-1.5 text-sm text-white/70 hover:border-white/30"
-          >
+          <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Cancel
-          </button>
-          <button
-            type="button"
-            onClick={send}
-            className="rounded-full bg-[#7ecfcf] px-4 py-1.5 text-sm font-semibold text-[#191919]"
-          >
+          </Button>
+          <Button variant="primary" onClick={send}>
             Send
-          </button>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
@@ -269,39 +269,77 @@ const SendDialog: FC<{
 
 /* ── The offer, on save ───────────────────────────────────────────────── */
 
+/** Everything the chart is built from, read off the store at one moment. */
+export function chartSourceOf(state: AllSlices): StudioChartSource {
+  return {
+    projectName: state.projectName,
+    composerName: state.composerName,
+    chordRegions: state.chordRegions,
+    rootNote: state.rootNote,
+    mode: state.mode,
+    bpm: state.bpm,
+    measuresPerLine: state.measuresPerLine,
+    measureRowSizes: state.measureRowSizes,
+    measureRestMap: state.measureRestMap,
+    measureFermatas: state.measureFermatas,
+    leadSheetSections: state.leadSheetSections,
+    leadSheetRepeats: state.leadSheetRepeats,
+    timeSignature: [
+      state.timeSignatureNumerator,
+      state.timeSignatureDenominator,
+    ],
+  };
+}
+
+type StaleEntry = ReturnType<
+  ReturnType<typeof useProjectSetListEntries>['staleFor']
+>[number];
+
+/** "32 bars · 4 sections · G major". */
+function describeChart(summary: ChartSummary): string {
+  const plural = (n: number, word: string) =>
+    `${n} ${word}${n === 1 ? '' : 's'}`;
+  return `${plural(summary.bars, 'bar')} · ${plural(summary.sections, 'section')} · ${summary.key}`;
+}
+
 /**
  * Mounted once in the Studio. After a save, if any set carries an older print
  * of this chart, it offers to send the new one. It never updates on its own:
- * a page on a stand does not change under a player's hands.
+ * a page on a stand does not change under a player's hands. It isn't offered
+ * when the new chart would lose what the set holds (no chords, fewer bars or
+ * sections: updateWouldLoseChart), and keeping the old one is the main
+ * action. The chart is built only when a save asks, from the store at that
+ * moment, not on every edit (leadsheet-27).
  */
 export const SetListUpdatePrompt: FC = () => {
   const projectId = useStore((s) => s.projectId);
-  const source = useStudioChartSource();
-  const { staleFor, actions, flush } = useProjectSetListEntries(
+  const { carrying, staleFor, actions, flush } = useProjectSetListEntries(
     projectId ?? undefined,
   );
-  const [asking, setAsking] = useState(false);
+  const [offer, setOffer] = useState<{
+    chart: StoredChart;
+    entries: StaleEntry[];
+  } | null>(null);
 
-  const chart = useMemo(() => chartFromStudio(source), [source]);
-  // Read at the moment of the save, not on every render, so editing after
-  // dismissing the offer doesn't bring it back unasked.
-  const [stale, setStale] = useState<ReturnType<typeof staleFor>>([]);
-
-  const onSaved = useCallback(
-    (event: Event) => {
-      if (!isSaveOfOpenProject(event)) return;
-      const behind = staleFor(chart);
-      if (behind.length === 0) return;
-      setStale(behind);
-      setAsking(true);
-    },
-    [chart, staleFor],
-  );
+  // The listener reads the latest entries without being bound again on
+  // every change to them.
+  const setsRef = useRef({ carrying, staleFor });
+  setsRef.current = { carrying, staleFor };
 
   useEffect(() => {
+    const onSaved = (event: Event) => {
+      if (!isSaveOfOpenProject(event)) return;
+      const sets = setsRef.current;
+      if (sets.carrying.length === 0) return;
+      const chart = chartFromStudio(chartSourceOf(useStore.getState()));
+      const entries = sets
+        .staleFor(chart)
+        .filter(({ entry }) => !updateWouldLoseChart(entry.chart, chart));
+      if (entries.length > 0) setOffer({ chart, entries });
+    };
     window.addEventListener(PROJECT_SAVED_EVENT, onSaved);
     return () => window.removeEventListener(PROJECT_SAVED_EVENT, onSaved);
-  }, [onSaved]);
+  }, []);
 
   // The project is gone. The pages stay where they are; only the link goes.
   useEffect(() => {
@@ -313,23 +351,27 @@ export const SetListUpdatePrompt: FC = () => {
     return () => window.removeEventListener(PROJECT_DELETED_EVENT, onDeleted);
   }, [actions]);
 
+  if (!offer) return null;
+  const { chart, entries } = offer;
+
   const update = () => {
-    for (const { setListId, entry } of stale) {
-      actions.replaceProjectChart(setListId, entry.id, chart, chart.title);
+    // Each entry keeps its own title in its set; only the chart changes.
+    for (const { setListId, entry } of entries) {
+      actions.replaceProjectChart(setListId, entry.id, chart, undefined);
     }
     void flush();
-    setAsking(false);
+    setOffer(null);
     showSuccess(
-      stale.length === 1
-        ? `Updated the chart in ${stale[0].setListTitle}`
-        : `Updated the chart in ${stale.length} set lists`,
+      entries.length === 1
+        ? `Updated the chart in ${entries[0].setListTitle}`
+        : `Updated the chart in ${entries.length} set lists`,
     );
   };
 
-  if (!asking || stale.length === 0) return null;
+  const now = describeChart(chartSummary(chart));
 
   return (
-    <Dialog open onOpenChange={() => setAsking(false)}>
+    <Dialog open onOpenChange={() => setOffer(null)}>
       <DialogContent className="max-w-md border-white/10 bg-[#161618] text-white">
         <DialogHeader>
           <DialogTitle className="text-base font-medium">
@@ -338,36 +380,34 @@ export const SetListUpdatePrompt: FC = () => {
         </DialogHeader>
         <p className="text-sm leading-relaxed text-white/60">
           This lead sheet is on{' '}
-          {stale.length === 1 ? (
-            <span className="text-white/85">{stale[0].setListTitle}</span>
+          {entries.length === 1 ? (
+            <span className="text-white/85">{entries[0].setListTitle}</span>
           ) : (
-            `${stale.length} of your set lists`
+            `${entries.length} of your set lists`
           )}
-          , and the copy there is the one you sent before these edits. Send the
-          new version?
+          , and the copy there is the one you sent before these edits.
         </p>
-        {stale.length > 1 && (
-          <ul className="mt-1 space-y-0.5 text-xs text-white/45">
-            {stale.map(({ setListId, entry, setListTitle }) => (
-              <li key={`${setListId}:${entry.id}`}>{setListTitle}</li>
-            ))}
-          </ul>
-        )}
+        <dl className="mt-1 space-y-1.5 text-xs">
+          {entries.map(({ setListId, entry, setListTitle }) => (
+            <div key={`${setListId}:${entry.id}`}>
+              <dt className="text-white/85">{setListTitle}</dt>
+              <dd className="text-white/55">
+                On the set list: {describeChart(chartSummary(entry.chart))}
+              </dd>
+            </div>
+          ))}
+          <div>
+            <dt className="text-white/85">This project now</dt>
+            <dd className="text-white/55">{now}</dd>
+          </div>
+        </dl>
         <div className="mt-4 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => setAsking(false)}
-            className="rounded-full border border-white/15 px-3 py-1.5 text-sm text-white/70 hover:border-white/30"
-          >
-            Keep the old one
-          </button>
-          <button
-            type="button"
-            onClick={update}
-            className="rounded-full bg-[#7ecfcf] px-4 py-1.5 text-sm font-semibold text-[#191919]"
-          >
+          <Button variant="secondary" onClick={update}>
             Update
-          </button>
+          </Button>
+          <Button variant="primary" autoFocus onClick={() => setOffer(null)}>
+            Keep the old one
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,4 +1,4 @@
-import type { GenreName } from '../types';
+import { StrumMode, type GenreName } from '../types';
 
 /**
  * Maps each comping pattern name (from CHORD_RHYTHMS) to a genre name
@@ -89,26 +89,30 @@ export const GENRE_SWING: Record<GenreName, number> = {
 
 /**
  * Per-genre strum defaults.
- * mode: 0=Synchronized, 1=Down, 2=Up, 3=Human
+ * mode: a StrumMode (Synchronized, Down, Up, Human). The table counted from
+ * 0 until milestone 1.16a, one below StrumMode, so every genre strummed with
+ * the mode before its own: the Human genres (Jazz, R&B, Indie…) strummed Up
+ * and Reggae Down.
  * amount: strum offset in ticks (0-60)
  */
-export const GENRE_STRUM: Record<string, { mode: number; amount: number }> = {
-  Pop: { mode: 0, amount: 0 },
-  Rock: { mode: 1, amount: 20 },
-  'Hip Hop': { mode: 0, amount: 0 },
-  'Jam Band': { mode: 3, amount: 20 },
-  Funk: { mode: 1, amount: 15 },
-  'Neo Soul': { mode: 3, amount: 25 },
-  Jazz: { mode: 3, amount: 30 },
-  'R&B': { mode: 3, amount: 20 },
-  Salsa: { mode: 1, amount: 20 },
-  Merengue: { mode: 1, amount: 15 },
-  Bossa: { mode: 3, amount: 20 },
-  Samba: { mode: 1, amount: 25 },
-  Ballad: { mode: 0, amount: 0 },
-  Folk: { mode: 1, amount: 25 },
-  EDM: { mode: 0, amount: 0 },
-  Reggae: { mode: 2, amount: 25 },
-  Latin: { mode: 1, amount: 20 },
-  Indie: { mode: 3, amount: 15 },
-};
+export const GENRE_STRUM: Record<string, { mode: StrumMode; amount: number }> =
+  {
+    Pop: { mode: StrumMode.Synchronized, amount: 0 },
+    Rock: { mode: StrumMode.Down, amount: 20 },
+    'Hip Hop': { mode: StrumMode.Synchronized, amount: 0 },
+    'Jam Band': { mode: StrumMode.Human, amount: 20 },
+    Funk: { mode: StrumMode.Down, amount: 15 },
+    'Neo Soul': { mode: StrumMode.Human, amount: 25 },
+    Jazz: { mode: StrumMode.Human, amount: 30 },
+    'R&B': { mode: StrumMode.Human, amount: 20 },
+    Salsa: { mode: StrumMode.Down, amount: 20 },
+    Merengue: { mode: StrumMode.Down, amount: 15 },
+    Bossa: { mode: StrumMode.Human, amount: 20 },
+    Samba: { mode: StrumMode.Down, amount: 25 },
+    Ballad: { mode: StrumMode.Synchronized, amount: 0 },
+    Folk: { mode: StrumMode.Down, amount: 25 },
+    EDM: { mode: StrumMode.Synchronized, amount: 0 },
+    Reggae: { mode: StrumMode.Up, amount: 25 },
+    Latin: { mode: StrumMode.Down, amount: 20 },
+    Indie: { mode: StrumMode.Human, amount: 15 },
+  };

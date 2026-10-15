@@ -4,6 +4,8 @@ import {
 } from '@/daw/audio/EffectChain';
 import type { AutomationLanes, AutomationPoint } from '@/daw/audio/automation';
 import { isChannelStripTabId } from '@/daw/components/ChannelStrip/channelStripTabs';
+import { ensureChordIdentities } from '@/daw/harmony/chordIdentity';
+import { keyFrameOf } from '@/daw/harmony/keyFrame';
 import {
   MARK_STYLES,
   type ScoreTextMark,
@@ -1531,6 +1533,17 @@ export function decodeSession(
   return {
     project: {
       ...(project as ProjectSnapshot),
+      // A chord saved without its identity (any draft from before 1.16a)
+      // gets one read from its labels; one saved with it keeps it.
+      chordRegions: readOnItsOwn(
+        () =>
+          ensureChordIdentities(
+            project.chordRegions as ChordRegion[],
+            keyFrameOf(rootNote, project.mode as string),
+          ),
+        () => project.chordRegions as ChordRegion[],
+        repairs,
+      ),
       rootTrackColor: readOnItsOwn(
         () => keyColourFor(rootNote, project.mode as string),
         () => null,

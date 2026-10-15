@@ -4,6 +4,7 @@ import {
   analyzeChordStyle,
   extractGraphSeed,
   generateSuggestions,
+  longQuality,
   type SuggestionSet,
 } from '../suggestionEngine';
 
@@ -142,5 +143,71 @@ describe('Ionian', () => {
     expect(
       extractGraphSeed([region('5 major', '5 maj')], BAR, C, 'ionian'),
     ).toEqual(['5 major']);
+  });
+});
+
+// ── The style is read from what the chords are ────────────────────────────
+// It used to classify each region's display name ('1 maj', '5 dom7'), which
+// no quality set holds, so every real lane counted as extended and
+// suggestions preferred slash chords (prism-engine-01).
+
+describe('the style of a lane', () => {
+  it('counts triads and sevenths from the lane’s own labels', () => {
+    const style = analyzeChordStyle([
+      region('1 major', '1 maj', 0),
+      region('5 dominant7', '5 dom7', 1),
+      region(undefined, '6 min', 2),
+      region(undefined, '4 maj7', 3),
+    ]);
+    expect([style.triadRatio, style.seventhRatio, style.extendedRatio]).toEqual(
+      [0.5, 0.5, 0],
+    );
+    expect(style.preferredQualities).toEqual(
+      expect.arrayContaining(['major', 'dominant7', 'minor', 'major7']),
+    );
+  });
+
+  it("reads a region's identity first, and an engine slash chord as its triad", () => {
+    const style = analyzeChordStyle([
+      {
+        ...region(undefined, 'whatever', 0),
+        identity: { quality: 'minor7', label: 'whatever' },
+      },
+      region('1 major/5', '1 maj/5', 1),
+    ]);
+    expect([style.triadRatio, style.seventhRatio]).toEqual([0.5, 0.5]);
+  });
+
+  it('keeps an all-triad song on triads, not slash chords', () => {
+    const style = analyzeChordStyle([
+      region('1 major', '1 maj', 0),
+      region('4 major', '4 maj', 1),
+      region('5 major', '5 maj', 2),
+      region('1 major', '1 maj', 3),
+    ]);
+    const mostCommon = byLabel(
+      generateSuggestions(['1 major'], C, 'ionian', style, 4),
+      'Most Common',
+    );
+    expect(mostCommon.chords.every((c) => !c.quality.includes('/'))).toBe(true);
+  });
+
+  it('writes short qualities out long, as the graph does', () => {
+    expect(
+      ['dom7', 'min7b5', 'maj/3', 'minmaj7', 'dim7', 'aug', 'dominant7'].map(
+        longQuality,
+      ),
+    ).toEqual([
+      'dominant7',
+      'minor7b5',
+      'major/3',
+      'minormajor7',
+      'diminished7',
+      'augmented',
+      'dominant7',
+    ]);
+    expect(
+      extractGraphSeed([region(undefined, '5 dom7')], BAR, C, 'ionian'),
+    ).toEqual(['5 dominant7']);
   });
 });

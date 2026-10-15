@@ -4,8 +4,10 @@
  * mirror share about 5M characters with the rest of the app, and kept work
  * has a 1M budget across every student on a device, so v3's additions are
  * held to a budget: each note id costs at most 15 characters (12 for the id,
- * its quotes and a comma), and the new blocks (the mastering rack, notation,
- * view, Prism builder, metre) at most 4,000 characters per project.
+ * its quotes and a comma), each chord's identity (1.16a: root, quality, bass,
+ * source and the name it describes) at most 110, and the new blocks (the
+ * mastering rack, notation, view, Prism builder, metre) at most 4,000
+ * characters per project.
  *
  * Run: npx vitest run src/daw/persistence/__tests__/sessionSize.test.ts
  */
@@ -26,6 +28,8 @@ const FIXTURES = resolve(
 
 /** Characters per note an id adds: `"` 12 characters `"` and a comma. */
 const ID_CHARS_PER_NOTE = 15;
+/** What a chord's identity may cost, its field name and comma included. */
+const IDENTITY_CHARS_PER_CHORD = 110;
 /** What the rest of v3 may add to a project, whatever its size. */
 const BLOCKS_BUDGET = 4_000;
 
@@ -47,14 +51,24 @@ function sizes(file: string) {
     (sum, c) => sum + `,"ids":${JSON.stringify(c.events.ids)}`.length,
     0,
   );
+  const chords = v3.data.chordRegions ?? [];
+  const identityChars = chords.reduce(
+    (sum, r) =>
+      r.identity
+        ? sum + `,"identity":${JSON.stringify(r.identity)}`.length
+        : sum,
+    0,
+  );
   const v3Chars = JSON.stringify(v3).length;
   return {
     notes,
     clips: clips.length,
+    chords: chords.length,
     v2Chars: raw.length,
     v3Chars,
     idChars,
-    blockChars: v3Chars - raw.length - idChars,
+    identityChars,
+    blockChars: v3Chars - raw.length - idChars - identityChars,
   };
 }
 
@@ -71,6 +85,9 @@ describe('the size of a v3 draft', () => {
       // Up to 10 more per clip for the `,"ids":[]` around its ids.
       expect(size.idChars).toBeLessThanOrEqual(
         size.notes * ID_CHARS_PER_NOTE + size.clips * 10,
+      );
+      expect(size.identityChars).toBeLessThanOrEqual(
+        size.chords * IDENTITY_CHARS_PER_CHORD,
       );
       expect(size.blockChars).toBeLessThanOrEqual(BLOCKS_BUDGET);
     });

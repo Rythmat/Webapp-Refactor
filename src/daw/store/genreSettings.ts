@@ -1,9 +1,4 @@
-import {
-  GENRE_MAP,
-  GENRE_STRUM,
-  GENRE_SWING,
-  type StrumMode,
-} from '@prism/engine';
+import { GENRE_MAP, GENRE_STRUM, GENRE_SWING, StrumMode } from '@prism/engine';
 import type { PrismSlice } from './prismSlice';
 
 // ── A genre's Prism settings ─────────────────────────────────────────────
@@ -58,17 +53,20 @@ export type GenreSettings = Pick<
 export function genreStrum(
   genre: string,
 ): Pick<GenreSettings, 'strumMode' | 'strumAmount'> {
-  const strum = GENRE_STRUM[genre] ?? { mode: 0, amount: 0 };
-  return {
-    // GENRE_STRUM numbers its modes from 0 (Synchronized, Down, Up, Human)
-    // and StrumMode from 1, so this writes the mode one below the table's:
-    // Reggae's Up is written as Down, and the Human genres (Jazz, R&B,
-    // Indie) as Up. It is written as it was before 1.3, which changes no
-    // sound: fixing the numbering changes what Prism Create writes after a
-    // genre pick or a template opens, so it waits for 1.16.
-    strumMode: strum.mode as StrumMode,
-    strumAmount: strum.amount,
+  const strum = GENRE_STRUM[genre] ?? {
+    mode: StrumMode.Synchronized,
+    amount: 0,
   };
+  return { strumMode: strum.mode, strumAmount: strum.amount };
+}
+
+/**
+ * The strum mode a pick of `genre` wrote before milestone 1.16a: one below
+ * its own, since GENRE_STRUM counted its modes from 0 and StrumMode from 1
+ * (Jazz wrote Up, Reggae Down). A project saved then still holds it.
+ */
+export function formerGenreStrumMode(genre: string): number {
+  return genreStrum(genre).strumMode - 1;
 }
 
 /**

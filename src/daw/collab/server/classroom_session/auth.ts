@@ -1,9 +1,11 @@
-// ── Classroom Session — PartyKit auth ─────────────────────────────────────
+// ── Classroom Session — party auth ────────────────────────────────────────
 // Resolves a connection's authoritative role by calling the Music Atlas API's
 // server-to-server authorize endpoint (gated by PARTYKIT_WEBHOOK_SECRET). The
 // socket's `role` query param is only a *request*; the API decides teacher vs
 // student vs projector from the DB. This is the transport half of Rule 2 —
 // role can't be spoofed to receive identified peer responses.
+
+import type { CollabVars } from '../env';
 
 export type Role = 'teacher' | 'student' | 'projector';
 
@@ -32,11 +34,11 @@ export type AuthResult =
   | { ok: false; reason: 'unauthorized' | 'not_found' | 'ended' };
 
 function envValue(
-  env: Record<string, unknown> | undefined,
-  key: string,
+  env: CollabVars | undefined,
+  key: keyof CollabVars,
 ): string | undefined {
   return (
-    (env?.[key] as string | undefined) ??
+    env?.[key] ??
     (globalThis as { process?: { env?: Record<string, string> } }).process
       ?.env?.[key]
   );
@@ -49,7 +51,7 @@ function envValue(
 export async function authorizeClassroomConnection(opts: {
   url: string;
   sessionId: string;
-  env?: Record<string, unknown>;
+  env?: CollabVars;
 }): Promise<AuthResult> {
   try {
     const params = new URL(opts.url).searchParams;

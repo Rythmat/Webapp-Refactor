@@ -1,6 +1,6 @@
 import { create, type StoreApi, type UseBoundStore } from 'zustand';
 import { useStore, type AllSlices, type Track } from '@/daw/store';
-import { genreStrum } from '@/daw/store/genreSettings';
+import { formerGenreStrumMode, genreStrum } from '@/daw/store/genreSettings';
 import {
   AUDIO_CLIP_FIELDS,
   CC_EVENT_FIELDS,
@@ -856,12 +856,14 @@ const STRUM_KEYS: readonly StoreDataKey[] = ['strumMode', 'strumAmount'];
 
 /**
  * Whether `state` strums as its genre does, which a genre pick sets
- * (genreStrum: the strum alone, without genreSettings' random rhythm).
+ * (genreStrum: the strum alone, without genreSettings' random rhythm), or
+ * as a pick wrote it before 1.16a fixed the numbering (formerGenreStrumMode).
  */
 function strumsAsItsGenre(state: AllSlices): boolean {
   const strum = genreStrum(state.genre);
   return (
-    state.strumMode === strum.strumMode &&
+    (state.strumMode === strum.strumMode ||
+      state.strumMode === formerGenreStrumMode(state.genre)) &&
     state.strumAmount === strum.strumAmount
   );
 }

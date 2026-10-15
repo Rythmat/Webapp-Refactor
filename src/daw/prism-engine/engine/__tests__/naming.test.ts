@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { CHORDS } from '../../data/chords';
-import { detectChordWithInversion } from '../naming';
+import { generateChord } from '../chordUtils';
+import {
+  degreeMidi,
+  detectChordWithInversion,
+  ionianToModeLabel,
+  modeToIonianLabel,
+} from '../naming';
 
 // ── detectChordWithInversion ───────────────────────────────────────────────
 // It now looks each candidate root's pitch-class set up in a table built once
@@ -114,5 +120,35 @@ describe('detectChordWithInversion', () => {
     for (let i = 0; i < 5; i++) {
       expect(detectChordWithInversion(notes)).toEqual(first);
     }
+  });
+});
+
+// ── Slash chords across modes ──────────────────────────────────────────────
+// A slash quality ('major/3') is a CHORDS key whose number places the bass
+// from the chord's own root. Converting the degree between the parent major
+// and the mode leaves it as it is; converting it as a key degree stored E/G♯
+// in A minor as '5 major/5', which reads as E/B.
+
+describe('ionianToModeLabel and modeToIonianLabel', () => {
+  it('move the degree and keep a slash quality', () => {
+    expect(ionianToModeLabel('3 major/3', 'aeolian')).toBe('5 major/3');
+    expect(modeToIonianLabel('5 major/3', 'aeolian')).toBe('3 major/3');
+    expect(ionianToModeLabel('1 major/5', 'dorian')).toBe('b7 major/5');
+    expect(ionianToModeLabel('4 minor6/b3', 'aeolian')).toBe('b6 minor6/b3');
+  });
+
+  it('leave Ionian and the non-diatonic modes alone', () => {
+    expect(ionianToModeLabel('3 major/3', 'ionian')).toBe('3 major/3');
+    expect(ionianToModeLabel('3 major/3', 'harmonicMinor')).toBe('3 major/3');
+  });
+});
+
+describe("the graph's '4 major/1'", () => {
+  it('voices IV over the tonic: F/C in C', () => {
+    const notes = generateChord(degreeMidi(48, '4 major/1'), 'major/1');
+    expect(Math.min(...notes) % 12).toBe(0);
+    expect(new Set(notes.map((n) => n % 12))).toEqual(new Set([5, 9, 0]));
+    // The root still leads, as in every slash entry.
+    expect(notes[0] % 12).toBe(5);
   });
 });

@@ -66,8 +66,10 @@ describe('Suggest Chords in A minor', () => {
     st().openPrismSuggestion(BAR, 'track-1');
     const sets = st().prismSuggestSets;
     // What the graph lets follow vi (Am) in C major, counted from A. The old
-    // engine dropped the Am and opened on an A-major chord instead.
-    const afterAm = ['b3 major', '4 minor', '5 major/5', '5 sus4', 'b6 major'];
+    // engine dropped the Am and opened on an A-major chord instead. E/G♯
+    // keeps its engine quality, 'major/3' (its own third below), when its
+    // degree moves: it used to become '5 major/5', which reads as E/B.
+    const afterAm = ['b3 major', '4 minor', '5 major/3', '5 sus4', 'b6 major'];
     for (const set of sets) {
       expect(afterAm).toContain(set.chords[0].degree);
       for (const c of set.chords)
@@ -90,6 +92,12 @@ describe('Suggest Chords in A minor', () => {
     for (const r of written) {
       expect(rootOf(r.noteName)).toBe(fromA(r.degreeKey!));
       expect(r.name).toBe(r.noteName);
+      // The chord the suggestion voiced, as the student chose it.
+      expect(r.identity).toMatchObject({
+        rootPc: fromA(r.degreeKey!),
+        source: 'given',
+        label: r.name,
+      });
       expect(r.id).toMatch(UUID);
     }
     expect(st().prismSuggestOpen).toBe(false);

@@ -18,6 +18,14 @@ import { withTransaction } from '@/daw/store/history';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
+import {
+  CHORD_INPUT_HINT,
+  chordInputText,
+  typedChord,
+} from '@/daw/harmony/chordInput';
+import { ChordInputHint, chordBoxBorder } from '@/daw/harmony/ChordInputHint';
+import { keyFrameOf } from '@/daw/harmony/keyFrame';
+import { showWarning } from '@/components/utils/toast';
 import { useChordNotation } from '@/lib/chordNotation';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { getPlayheadTick, usePlayheadEffect } from '@/daw/engine/playheadClock';
@@ -606,16 +614,46 @@ export function Timeline() {
   // Chord-lane labels follow the global chord notation (hybrid = the toggle above).
   const chordNotation = useChordNotation();
   const chordNotationRef = useRef(chordNotation);
-  const renameChordRegion = useStore((s) => s.renameChordRegion);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
 
+  /**
+   * The chord ruler's rename box: the region, where it stands, what has been
+   * typed, and whether the last Enter found no chord in it.
+   */
   const [editingChord, setEditingChord] = useState<{
     id: string;
     x: number;
     y: number;
     value: string;
+    refused?: boolean;
   } | null>(null);
+
+  /**
+   * Write the chord typed in the ruler's box over its region, as the lane
+   * stores chords (harmony/chordInput). 'refused' when the text names no
+   * chord; nothing is written for an empty or unchanged box.
+   */
+  const writeTypedChord = useCallback(
+    (entry: { id: string; value: string }) => {
+      const text = entry.value.trim();
+      const { rootNote, mode, chordRegions, renameChordRegion } =
+        useStore.getState();
+      const region = chordRegions.find((r) => r.id === entry.id);
+      if (!text || !region) return 'unchanged';
+      const frame = keyFrameOf(rootNote, mode);
+      if (text === chordInputText(region, frame)) return 'unchanged';
+      const chord = typedChord(text, frame);
+      if (!chord) return 'refused';
+      renameChordRegion(entry.id, chord.name, chord.noteName, {
+        color: chord.color,
+        degreeKey: chord.degreeKey,
+        identity: chord.identity,
+      });
+      return 'written';
+    },
+    [],
+  );
 
   // ── Derived ──
   const ppb = pixelsPerBeat(zoom);
@@ -1950,7 +1988,11 @@ export function Timeline() {
               state.timelineScrollLeft,
             ),
             y: RULER_HEIGHT,
-            value: region.noteName,
+            // Opens on the chord, as a symbol the box reads back.
+            value: chordInputText(
+              region,
+              keyFrameOf(state.rootNote, state.mode),
+            ),
           });
         }
         return;
@@ -2989,40 +3031,53 @@ export function Timeline() {
                 top: editingChord.y,
                 width: 120,
                 height: CHORD_RULER_HEIGHT,
-                fontSize: 10,
+                fontSize: 12,
                 fontFamily: "'Glacial Indifference', system-ui, sans-serif",
                 background: 'var(--color-surface-2)',
                 color: 'var(--color-text)',
-                border: '1px solid var(--color-accent, #7ecfcf)',
+                border: chordBoxBorder(!!editingChord.refused),
                 borderRadius: 3,
                 padding: '0 4px',
                 outline: 'none',
               }}
               value={editingChord.value}
+              aria-label="Chord symbol"
+              aria-invalid={editingChord.refused || undefined}
               onChange={(e) =>
                 setEditingChord(
-                  (prev) => prev && { ...prev, value: e.target.value },
+                  (prev) =>
+                    prev && { ...prev, value: e.target.value, refused: false },
                 )
               }
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  const trimmed = editingChord.value.trim();
-                  if (trimmed) {
-                    renameChordRegion(editingChord.id, trimmed, trimmed);
+                  if (writeTypedChord(editingChord) === 'refused') {
+                    setEditingChord({ ...editingChord, refused: true });
+                  } else {
+                    setEditingChord(null);
                   }
-                  setEditingChord(null);
                 } else if (e.key === 'Escape') {
                   setEditingChord(null);
                 }
               }}
               onBlur={() => {
-                const trimmed = editingChord.value.trim();
-                if (trimmed) {
-                  renameChordRegion(editingChord.id, trimmed, trimmed);
+                if (writeTypedChord(editingChord) === 'refused') {
+                  showWarning(
+                    `"${editingChord.value.trim()}": ${CHORD_INPUT_HINT}`,
+                  );
                 }
                 setEditingChord(null);
               }}
             />
+            {editingChord.refused && (
+              <ChordInputHint
+                style={{
+                  left: editingChord.x,
+                  top: editingChord.y + CHORD_RULER_HEIGHT + 4,
+                  zIndex: 51,
+                }}
+              />
+            )}
           </>
         )}
         {/* CSS playhead — GPU-accelerated, no canvas redraw needed */}

@@ -15,10 +15,8 @@ import {
   Loader2,
   Play,
   Plus,
-  Redo2,
   Save,
   Square,
-  Undo2,
   X,
 } from 'lucide-react';
 import {
@@ -73,6 +71,7 @@ import { useUndoable } from '../drumGrooves/useUndoable';
 import { UseInLessons } from '../lessonPairings/UseInLessons';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
+import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL } from '../ui/styles';
 import {
   BassRoll,
@@ -417,26 +416,7 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
           )}
           {player.playing ? 'Stop' : 'Play'}
         </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.undo}
-          disabled={!history.canUndo}
-          aria-label="Undo"
-          title="Undo (⌘Z)"
-        >
-          <Undo2 />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.redo}
-          disabled={!history.canRedo}
-          aria-label="Redo"
-          title="Redo (⌘⇧Z)"
-        >
-          <Redo2 />
-        </Button>
+        <UndoRedo history={history} />
         {CAN_WRITE_FILES ? (
           <>
             <Button

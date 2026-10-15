@@ -7,10 +7,8 @@ import {
   FileMusic,
   Loader2,
   Play,
-  Redo2,
   Save,
   Square,
-  Undo2,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
 import { Link } from 'react-router-dom';
@@ -43,6 +41,7 @@ import {
   type PartNote,
   type PartRole,
 } from '@/curriculum/engine/parts/part';
+import { useKeyDispatcher } from '@/daw/commands/dispatcher';
 import { PianoRoll } from '@/daw/components/PianoRoll/PianoRoll';
 import {
   PianoRollHostContext,
@@ -55,6 +54,7 @@ import { useInstrumentStore } from '../drumGrooves/instrumentStore';
 import { useUndoable } from '../drumGrooves/useUndoable';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
+import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../ui/styles';
 import { StudioScoreBridge } from './StudioScoreBridge';
 import { downloadPartJson, downloadPartMidi } from './partFiles';
@@ -133,6 +133,12 @@ export const PartEditor: FC<Props> = ({
   const [view, setView] = useState<View>('roll');
   const [armed, setArmed] = useState(false);
   const [overdub, setOverdub] = useState(true);
+  /** When the metronome clicks: while capturing (default), always, never. */
+  const [metronome, setMetronome] = useState<'capture' | 'always' | 'off'>(
+    'capture',
+  );
+  const clickWhile = (recording: boolean) =>
+    metronome === 'always' || (metronome === 'capture' && recording);
   const [quantize, setQuantize] = useState<CaptureQuantize>(120);
   const [transposeTo, setTransposeTo] = useState(initial.key.tonic);
   const player = usePartPlayer();
@@ -156,16 +162,18 @@ export const PartEditor: FC<Props> = ({
 
   // Hear every edit on the next pass.
   useEffect(() => {
-    if (player.playing) void player.play(draft, feel);
+    if (player.playing)
+      void player.play(draft, feel, { click: clickWhile(armed) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft, feel]);
+  }, [draft, feel, metronome, armed]);
 
   const togglePlay = useCallback(() => {
     if (player.playing) {
       player.stop();
       setArmed(false);
-    } else void player.play(draft, feel);
-  }, [player, draft, feel]);
+    } else void player.play(draft, feel, { click: clickWhile(false) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player, draft, feel, metronome]);
 
   /** Arm, count in a bar, then run the loop recording. */
   const record = () => {
@@ -180,7 +188,9 @@ export const PartEditor: FC<Props> = ({
     }
     void player.countIn(draft, () => {
       setArmed(true);
-      void player.play(overdub ? draft : { ...draft, notes: [] }, feel);
+      void player.play(overdub ? draft : { ...draft, notes: [] }, feel, {
+        click: clickWhile(true),
+      });
     });
   };
 
@@ -225,6 +235,11 @@ export const PartEditor: FC<Props> = ({
     [draft, setDraft, lesson, store],
   );
 
+  // The Studio roll's own keys — Delete and Backspace remove the selected
+  // notes, V/D/E pick a tool — go through the Studio's key dispatcher, which
+  // only the Studio editor switches on otherwise.
+  useKeyDispatcher();
+
   // Space plays, ⌘Z/⌘⇧Z undo/redo (Roll view — the Score has its own), ⌘S saves.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -243,8 +258,7 @@ export const PartEditor: FC<Props> = ({
         !typing &&
         view === 'roll'
       ) {
-        // The roll handles its own keys when focused; this catches the rest.
-        if (target.closest('.daw-root')) return;
+        // The console has no Studio undo behind the roll: this is its undo.
         e.preventDefault();
         if (e.shiftKey) history.redo();
         else history.undo();
@@ -348,24 +362,7 @@ export const PartEditor: FC<Props> = ({
           <Circle className={cn(armed && 'fill-rose-500 text-rose-500')} />
           {armed ? 'Recording' : 'Capture'}
         </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.undo}
-          disabled={!history.canUndo}
-          aria-label="Undo"
-        >
-          <Undo2 />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.redo}
-          disabled={!history.canRedo}
-          aria-label="Redo"
-        >
-          <Redo2 />
-        </Button>
+        <UndoRedo history={history} />
         {lesson ? (
           <>
             <Button onClick={() => void save()} disabled={saving || !dirty}>
@@ -704,6 +701,20 @@ export const PartEditor: FC<Props> = ({
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <span className={fieldLabel}>Capture</span>
         <label className="flex items-center gap-1.5 text-white/70">
+          Metronome
+          <select
+            value={metronome}
+            onChange={(e) =>
+              setMetronome(e.target.value as 'capture' | 'always' | 'off')
+            }
+            className={control}
+          >
+            <option value="capture">While capturing</option>
+            <option value="always">Always</option>
+            <option value="off">Off</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-1.5 text-white/70">
           <input
             type="checkbox"
             checked={overdub}
@@ -788,7 +799,7 @@ export const PartEditor: FC<Props> = ({
           {draft.notes.length} notes · {keyLabel(draft.key)} ·{' '}
           {view === 'staff'
             ? 'the Studio’s Score editor — click a note, then type or use the palettes'
-            : 'draw with the pencil, drag to move, drag edges to resize'}
+            : 'draw with the pencil, drag to move, drag edges to resize; Select and drag a box round notes, then Delete'}
         </span>
       </div>
 

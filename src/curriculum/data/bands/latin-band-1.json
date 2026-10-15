@@ -1,0 +1,46 @@
+{
+  "id": "latin-band-1",
+  "name": "Latin Band 1",
+  "description": "Cumbia: offbeat comping over the cumbia groove and its R-3-5 bass.",
+  "genre": "latin",
+  "style": "Cumbia",
+  "status": "draft",
+  "order": 10,
+  "timeSignature": [4, 4],
+  "tempo": 90,
+  "layers": [
+    {
+      "id": "drums",
+      "name": "Drums",
+      "instrument": "drums",
+      "source": {
+        "kind": "groove",
+        "id": "groove-latin-1"
+      },
+      "player": "latin-drummer-1"
+    },
+    {
+      "id": "bass",
+      "name": "Bass",
+      "instrument": "bass",
+      "source": {
+        "kind": "bassLine",
+        "id": "cumbia-1"
+      },
+      "player": "latin-bassist-1"
+    },
+    {
+      "id": "keys",
+      "name": "Keys comping",
+      "instrument": "keys",
+      "source": {
+        "kind": "comping",
+        "id": "cumbia-offbeats"
+      },
+      "player": "latin-pianist-1"
+    }
+  ],
+  "preview": {
+    "chart": "| Em | Am | B7 | Em |"
+  }
+}

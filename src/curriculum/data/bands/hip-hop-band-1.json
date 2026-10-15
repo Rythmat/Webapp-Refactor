@@ -1,0 +1,36 @@
+{
+  "id": "hip-hop-band-1",
+  "name": "Hip Hop Band 1",
+  "description": "Boom bap drums and the Hip Hop L2 boom bap bass part (written over Am and Dm).",
+  "genre": "hip-hop",
+  "style": "Boom bap",
+  "status": "draft",
+  "order": 40,
+  "timeSignature": [4, 4],
+  "tempo": 85,
+  "layers": [
+    {
+      "id": "drums",
+      "name": "Drums",
+      "instrument": "drums",
+      "source": {
+        "kind": "groove",
+        "id": "boombap_a"
+      },
+      "player": "hip-hop-drummer-1"
+    },
+    {
+      "id": "bass",
+      "name": "Bass",
+      "instrument": "bass",
+      "source": {
+        "kind": "part",
+        "id": "hip-hop-l2-c4-c1-boom-bap-bass"
+      },
+      "player": "hip-hop-bassist-1"
+    }
+  ],
+  "preview": {
+    "chart": "| Am7 | Dm7 |"
+  }
+}

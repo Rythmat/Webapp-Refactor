@@ -47,6 +47,7 @@ import {
   realizePreset,
 } from '@/curriculum/engine/bassLines/harmony';
 import { compingBars } from '@/curriculum/engine/chordComping/chordComping';
+import { preloadStudioGroove } from '@/curriculum/engine/drumGrooves/registry';
 import { barTicks } from '@/curriculum/engine/meter';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useBassLineList } from '../bassLines/bassLineSession';
@@ -186,6 +187,23 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   const bars = harmony?.bars ?? longestBars;
   const totalTicks = bars * barTicks(ts);
 
+  // The Studio's imported grooves load on demand: the ones the layers name are
+  // loaded before they play, and the band re-reads them once they are.
+  const grooveIds = draft.layers
+    .filter((l) => l.source.kind === 'groove')
+    .map((l) => l.source.id)
+    .join(',');
+  const [studioLoaded, setStudioLoaded] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    void Promise.all(
+      grooveIds.split(',').filter(Boolean).map(preloadStudioGroove),
+    ).then(() => alive && setStudioLoaded((n) => n + 1));
+    return () => {
+      alive = false;
+    };
+  }, [grooveIds]);
+
   // ── what every layer plays ──
   // The item lists are read so an edit to an item, saved in its own editor,
   // is heard here at once.
@@ -200,7 +218,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
           )
         : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [draft, harmony, bars, ts, grooves, lines, patterns, parts],
+    [draft, harmony, bars, ts, grooves, lines, patterns, parts, studioLoaded],
   );
   const notesOf = new Map(realized.map((r) => [r.layer.id, r.notes]));
   const playerLayers: PlayerLayer[] = draft.layers.map((l) => ({

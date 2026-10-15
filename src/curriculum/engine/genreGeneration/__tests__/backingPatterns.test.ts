@@ -1,10 +1,22 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 import type { ActivityStepV2 } from '../../../types/activity.v2';
 import { getPairing, rememberPairing } from '../../lessonPairings/registry';
 import { buildBackingNotes, type BackingNote } from '../backingPatterns';
 import { chordSymbolToBassPC } from '../chordBassNote';
 import { chordSymbolTones } from '../chordSymbolTones';
 import type { GenreNoteEvent } from '../resolveStepContent';
+
+// These tests check the code patterns themselves; a band paired to a Pop
+// style replaces them in lessons, so the Pop pairings sit out here. Set
+// aside before any describe builds its notes.
+const POP_STYLES = ['pop-l1-singable', 'pop-l2-craft', 'pop-l3-artistry'];
+const popPairings = POP_STYLES.map((id) => getPairing(id));
+POP_STYLES.forEach((id) => rememberPairing({ id }));
+afterAll(() =>
+  popPairings.forEach((p) => {
+    if (p) rememberPairing(p);
+  }),
+);
 
 const BAR = 1920;
 const LEAD_IN = 2 * BAR; // piano roll count-in bar + one-bar note offset

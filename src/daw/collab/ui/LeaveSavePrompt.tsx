@@ -12,7 +12,6 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
-import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { saveProject } from '@/daw/commands/saveProject';
 import { openSession } from '@/daw/session/openSession';
@@ -44,11 +43,6 @@ export function LeaveSavePrompt() {
   const setLeavePrompt = useStore((s) => s._setLeavePrompt);
   const token = useAuthToken();
   const [saving, setSaving] = useState(false);
-  // Portaled to <body>, outside .daw-root: it holds the DAW tokens there
-  // itself, and for as long as it is mounted, so the card stays opaque
-  // through its exit animation too.
-  useDawBodyTokens();
-
   // The host disconnecting flips us to 'disconnected'. In that case the session
   // is already over, so there's nothing to cancel back into.
   const hostLeft = connectionStatus !== 'connected';
@@ -133,15 +127,15 @@ export function LeaveSavePrompt() {
           {/* Centering wrapper — flex (not translate) so framer-motion's scale
               animation can't clobber the centering transform. */}
           <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Modal: an opaque card, its tokens from body.daw-active. */}
+            {/* Modal: an opaque card. */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="pointer-events-auto flex w-[360px] flex-col gap-4 rounded-xl p-5 shadow-2xl"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-popover)',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               {/* Header */}
@@ -149,11 +143,11 @@ export function LeaveSavePrompt() {
                 <LogOut
                   size={14}
                   strokeWidth={2}
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                 />
                 <span
                   className="text-sm font-semibold"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                 >
                   Save project before leaving?
                 </span>
@@ -161,7 +155,7 @@ export function LeaveSavePrompt() {
 
               <p
                 className="text-xs leading-relaxed"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {hostLeft
                   ? 'The host ended the session. '
@@ -191,8 +185,8 @@ export function LeaveSavePrompt() {
                   disabled={saving}
                   className="rounded-full py-2 text-xs font-medium transition-colors hover:bg-white/5 disabled:opacity-50"
                   style={{
-                    color: 'var(--color-text)',
-                    border: '1px solid var(--color-border)',
+                    color: 'var(--daw-text)',
+                    border: '1px solid var(--daw-hairline)',
                   }}
                 >
                   Discard this session's changes
@@ -202,7 +196,7 @@ export function LeaveSavePrompt() {
                     onClick={() => setLeavePrompt(false)}
                     disabled={saving}
                     className="rounded-full py-1.5 text-xs transition-colors hover:bg-white/5 disabled:opacity-50"
-                    style={{ color: 'var(--color-text-dim)', border: 'none' }}
+                    style={{ color: 'var(--daw-text-3)', border: 'none' }}
                   >
                     Cancel
                   </button>

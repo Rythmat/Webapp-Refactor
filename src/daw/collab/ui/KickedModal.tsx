@@ -34,20 +34,19 @@ export function KickedModal() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="pointer-events-auto flex w-[340px] flex-col gap-4 rounded-xl p-5 shadow-2xl"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
-                backdropFilter: 'blur(24px)',
+                backgroundColor: 'var(--daw-popover)',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               <div className="flex items-center gap-2">
                 <UserX
                   size={14}
                   strokeWidth={2}
-                  style={{ color: 'var(--color-record)' }}
+                  style={{ color: 'var(--daw-record)' }}
                 />
                 <span
                   className="text-sm font-semibold"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                 >
                   Removed from session
                 </span>
@@ -55,7 +54,7 @@ export function KickedModal() {
 
               <p
                 className="text-xs leading-relaxed"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 You have been kicked from the studio session.
               </p>

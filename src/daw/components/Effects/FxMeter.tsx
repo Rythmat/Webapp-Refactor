@@ -41,7 +41,7 @@ export function FxMeter({
   level = 0,
   source = null,
   label,
-  color = 'var(--color-accent)',
+  color = 'var(--daw-accent)',
   height = 120,
 }: FxMeterProps) {
   const totalWidth = 22;

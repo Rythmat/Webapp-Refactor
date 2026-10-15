@@ -343,11 +343,11 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
         {/* ── Toolbar ── */}
         <div
           className="flex shrink-0 items-center gap-2 border-b px-3 py-1.5"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <span
             className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Sampler
           </span>
@@ -355,9 +355,9 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
             <span
               className="max-w-[180px] truncate rounded-lg px-2 py-0.5 text-[11px]"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                color: 'var(--color-text)',
-                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-surface-2)',
+                color: 'var(--daw-text)',
+                border: '1px solid var(--daw-hairline)',
               }}
               title={sample.name}
             >
@@ -368,7 +368,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
             <Loader2
               size={12}
               className="animate-spin"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             />
           )}
           {sample && (
@@ -376,9 +376,9 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
               onClick={() => fileInputRef.current?.click()}
               className="ml-auto cursor-pointer rounded-lg px-2 py-0.5 text-[11px] transition-colors"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                color: 'var(--color-text-dim)',
-                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-surface-2)',
+                color: 'var(--daw-text-3)',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               Replace…
@@ -402,7 +402,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
         <div className="flex min-h-0 flex-1">
           <div
             className="flex w-[64px] shrink-0 flex-col border-r"
-            style={{ borderColor: 'var(--color-border)' }}
+            style={{ borderColor: 'var(--daw-hairline)' }}
           >
             {PLAYBACK_MODES.map((m) => {
               const active = sample && mode === m.id;
@@ -414,13 +414,11 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
                   onClick={() => updateSample({ mode: m.id })}
                   className="flex-1 cursor-pointer border-b text-[10px] font-semibold uppercase tracking-wide transition-colors disabled:cursor-default disabled:opacity-40"
                   style={{
-                    borderColor: 'var(--color-border)',
+                    borderColor: 'var(--daw-hairline)',
                     backgroundColor: active
-                      ? 'var(--color-surface-2)'
+                      ? 'var(--daw-surface-2)'
                       : 'transparent',
-                    color: active
-                      ? 'var(--color-accent)'
-                      : 'var(--color-text-dim)',
+                    color: active ? 'var(--daw-accent)' : 'var(--daw-text-3)',
                   }}
                 >
                   {m.label}
@@ -434,7 +432,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
             {...dropHandlers}
             style={{
               outline:
-                dragActive && sample ? '2px solid var(--color-accent)' : 'none',
+                dragActive && sample ? '2px solid var(--daw-accent)' : 'none',
               outlineOffset: -2,
             }}
           >
@@ -445,11 +443,9 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
                 className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-1.5"
                 style={{
                   backgroundColor: dragActive
-                    ? 'rgba(126,207,207,0.08)'
+                    ? 'rgba(255,255,255,0.08)'
                     : 'transparent',
-                  outline: dragActive
-                    ? '2px solid var(--color-accent)'
-                    : 'none',
+                  outline: dragActive ? '2px solid var(--daw-accent)' : 'none',
                   outlineOffset: -2,
                   transition: 'background-color 150ms ease',
                 }}
@@ -458,17 +454,14 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
                   <Loader2
                     size={18}
                     className="animate-spin"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   />
                 ) : (
-                  <Upload
-                    size={18}
-                    style={{ color: 'var(--color-text-dim)' }}
-                  />
+                  <Upload size={18} style={{ color: 'var(--daw-text-3)' }} />
                 )}
                 <div
                   className="text-xs font-medium"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   Drop Sample Here
                 </div>
@@ -480,9 +473,9 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
                   }}
                   className="mt-1 flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1 text-[11px] font-medium transition-colors"
                   style={{
-                    backgroundColor: 'var(--color-surface-2)',
-                    color: 'var(--color-text)',
-                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--daw-surface-2)',
+                    color: 'var(--daw-text)',
+                    border: '1px solid var(--daw-hairline)',
                   }}
                 >
                   <Music4 size={12} />
@@ -491,10 +484,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
               </div>
             ) : unrecoverable ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center">
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text)' }}
-                >
+                <span className="text-xs" style={{ color: 'var(--daw-text)' }}>
                   This sample couldn’t be restored — its audio was never
                   uploaded before the project closed.
                 </span>
@@ -502,9 +492,9 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
                   onClick={() => fileInputRef.current?.click()}
                   className="cursor-pointer rounded-lg px-3 py-1 text-[11px] font-medium"
                   style={{
-                    backgroundColor: 'var(--color-surface-2)',
-                    color: 'var(--color-text)',
-                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--daw-surface-2)',
+                    color: 'var(--daw-text)',
+                    border: '1px solid var(--daw-hairline)',
                   }}
                 >
                   Load a new sample
@@ -512,10 +502,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
               </div>
             ) : loadFailed && sample ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center">
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text)' }}
-                >
+                <span className="text-xs" style={{ color: 'var(--daw-text)' }}>
                   This sample couldn’t load.
                 </span>
                 <div className="flex gap-2">
@@ -532,9 +519,9 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
                     onClick={() => fileInputRef.current?.click()}
                     className="cursor-pointer rounded-lg px-3 py-1 text-xs font-medium"
                     style={{
-                      backgroundColor: 'var(--color-surface-2)',
-                      color: 'var(--color-text)',
-                      border: '1px solid var(--color-border)',
+                      backgroundColor: 'var(--daw-surface-2)',
+                      color: 'var(--daw-text)',
+                      border: '1px solid var(--daw-hairline)',
                     }}
                   >
                     Load a new sample
@@ -546,11 +533,11 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
                 <Loader2
                   size={14}
                   className="animate-spin"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 />
                 <span
                   className="text-xs"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   Loading sample…
                 </span>
@@ -571,7 +558,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
         {/* ── Sample param row ── */}
         <div
           className="flex shrink-0 items-center gap-4 border-t px-3 py-1"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <RotaryKnob
             label="Gain"
@@ -609,7 +596,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
           />
           <label
             className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Root
             <select
@@ -619,9 +606,9 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
               onChange={(e) => updateSample({ rootNote: e.target.value })}
               className="rounded px-2 py-1 text-[11px] disabled:opacity-40"
               style={{
-                backgroundColor: 'var(--color-surface-3)',
-                color: 'var(--color-text)',
-                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-hover)',
+                color: 'var(--daw-text)',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               {SAMPLER_ROOT_NOTE_OPTIONS.map((n) => (
@@ -634,7 +621,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
           {sample?.durationSeconds != null && (
             <span
               className="ml-auto text-[10px] tabular-nums"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               {sample.durationSeconds.toFixed(2)}s
             </span>
@@ -644,22 +631,22 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
         {/* ── Bottom strip: Filter | Envelope (Simpler-style) ── */}
         <div
           className="flex shrink-0 items-center gap-4 border-t px-3 py-1"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <button
             data-tutorial-id="sampler-filter"
             disabled={!sample}
             onClick={() => updateSample({ filterOn: !sample?.filterOn })}
             className="flex cursor-pointer items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider disabled:cursor-default disabled:opacity-40"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             <span
               className="inline-block h-2.5 w-2.5 rounded-[2px]"
               style={{
                 backgroundColor: sample?.filterOn
-                  ? 'var(--color-accent)'
-                  : 'var(--color-surface-3)',
-                border: '1px solid var(--color-border)',
+                  ? 'var(--daw-accent)'
+                  : 'var(--daw-hover)',
+                border: '1px solid var(--daw-hairline)',
               }}
             />
             Filter
@@ -709,7 +696,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
         {/* ── Audition keyboard ── */}
         <div
           className="relative h-[76px] shrink-0 border-t"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <div style={{ position: 'absolute', inset: 0 }}>
             <PianoKeyboard
@@ -779,7 +766,7 @@ function TrimField({
     <label className="flex flex-col items-center gap-0.5">
       <span
         className="text-[11px] font-semibold uppercase tracking-wider"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         {label}
       </span>
@@ -803,15 +790,12 @@ function TrimField({
           }}
           className="h-6 w-16 rounded px-1 text-right text-[12px] tabular-nums disabled:opacity-40"
           style={{
-            backgroundColor: 'var(--color-surface-3)',
-            color: 'var(--color-text)',
-            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--daw-hover)',
+            color: 'var(--daw-text)',
+            border: '1px solid var(--daw-hairline)',
           }}
         />
-        <span
-          className="text-[12px]"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
+        <span className="text-[12px]" style={{ color: 'var(--daw-text-3)' }}>
           %
         </span>
       </span>

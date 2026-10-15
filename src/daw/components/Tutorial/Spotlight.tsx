@@ -23,7 +23,7 @@ import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 const PAD = 6;
 const RADIUS = 8;
 const DIM = 'rgba(6, 8, 12, 0.4)';
-const ACCENT = 'var(--color-accent, #7ecfcf)';
+const ACCENT = 'var(--daw-accent)';
 
 export function Spotlight({
   target,

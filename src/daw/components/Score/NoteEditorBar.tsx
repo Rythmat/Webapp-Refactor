@@ -154,13 +154,11 @@ export function NoteEditorBar({
   }, []);
 
   const cellStyle = (active: boolean) => ({
-    borderColor: active
-      ? 'var(--color-accent, #7ecfcf)'
-      : 'var(--color-border)',
+    borderColor: active ? 'var(--daw-accent)' : 'var(--daw-hairline)',
     background: active
-      ? 'color-mix(in srgb, var(--color-accent, #7ecfcf) 22%, transparent)'
-      : 'var(--color-surface-2)',
-    color: 'var(--color-text)',
+      ? 'color-mix(in srgb, var(--daw-accent) 22%, transparent)'
+      : 'var(--daw-surface-2)',
+    color: 'var(--daw-text)',
     opacity: hasNotes ? 1 : 0.45,
     cursor: hasNotes ? 'pointer' : 'default',
   });
@@ -186,7 +184,7 @@ export function NoteEditorBar({
   return (
     <div
       className="flex shrink-0 items-start gap-3 px-1"
-      style={{ borderBottom: '1px solid var(--color-border)' }}
+      style={{ borderBottom: '1px solid var(--daw-hairline)' }}
     >
       {/* Left: the three rows you write into. */}
       <div className="flex shrink-0 flex-col">
@@ -201,20 +199,20 @@ export function NoteEditorBar({
                 className="flex h-6 w-[86px] shrink-0 items-center gap-1.5 rounded border px-2 text-[10px] font-semibold uppercase tracking-wider transition-colors"
                 style={{
                   borderColor: live
-                    ? 'var(--color-accent, #7ecfcf)'
-                    : 'var(--color-border)',
+                    ? 'var(--daw-accent)'
+                    : 'var(--daw-hairline)',
                   background: live
-                    ? 'color-mix(in srgb, var(--color-accent, #7ecfcf) 22%, transparent)'
+                    ? 'color-mix(in srgb, var(--daw-accent) 22%, transparent)'
                     : 'transparent',
-                  color: live ? 'var(--color-text)' : 'var(--color-text-dim)',
+                  color: live ? 'var(--daw-text)' : 'var(--daw-text-3)',
                 }}
               >
                 <span
                   className="size-1.5 shrink-0 rounded-full"
                   style={{
                     background: live
-                      ? 'var(--color-accent, #7ecfcf)'
-                      : 'var(--color-border)',
+                      ? 'var(--daw-accent)'
+                      : 'var(--daw-hairline)',
                   }}
                 />
                 {name}
@@ -266,7 +264,7 @@ export function NoteEditorBar({
               {id === 'slashes' && (
                 <span
                   className="ml-auto pl-3 text-[10px]"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   {hasNotes
                     ? 'Numbers write into the live row · . > - _ mark · S slurs'
@@ -283,20 +281,20 @@ export function NoteEditorBar({
           button the three layers use. */}
       <div
         className="flex min-w-0 flex-1 flex-col"
-        style={{ borderLeft: '1px solid var(--color-border)' }}
+        style={{ borderLeft: '1px solid var(--daw-hairline)' }}
       >
         <div className="flex items-center gap-2 px-3 py-1">
           <span
             className="flex h-6 w-[126px] shrink-0 items-center gap-1.5 rounded border px-2 text-[10px] font-semibold uppercase"
             style={{
-              borderColor: 'var(--color-border)',
+              borderColor: 'var(--daw-hairline)',
               background: 'transparent',
-              color: 'var(--color-text-dim)',
+              color: 'var(--daw-text-3)',
             }}
           >
             <span
               className="size-1.5 shrink-0 rounded-full"
-              style={{ background: 'var(--color-border)' }}
+              style={{ background: 'var(--daw-hairline)' }}
             />
             Articulations
           </span>
@@ -353,9 +351,9 @@ export function NoteEditorBar({
               aria-label="Undo"
               className="flex size-7 items-center justify-center rounded border transition-colors hover:bg-white/10"
               style={{
-                borderColor: 'var(--color-border)',
-                background: 'var(--color-surface-2)',
-                color: 'var(--color-text)',
+                borderColor: 'var(--daw-hairline)',
+                background: 'var(--daw-surface-2)',
+                color: 'var(--daw-text)',
                 opacity: canUndo ? 1 : 0.35,
                 cursor: canUndo ? 'pointer' : 'default',
               }}
@@ -369,9 +367,9 @@ export function NoteEditorBar({
               aria-label="Redo"
               className="flex size-7 items-center justify-center rounded border transition-colors hover:bg-white/10"
               style={{
-                borderColor: 'var(--color-border)',
-                background: 'var(--color-surface-2)',
-                color: 'var(--color-text)',
+                borderColor: 'var(--daw-hairline)',
+                background: 'var(--daw-surface-2)',
+                color: 'var(--daw-text)',
                 opacity: canRedo ? 1 : 0.35,
                 cursor: canRedo ? 'pointer' : 'default',
               }}
@@ -385,14 +383,14 @@ export function NoteEditorBar({
           <span
             className="flex h-6 w-[126px] shrink-0 items-center gap-1.5 rounded border px-2 text-[10px] font-semibold uppercase"
             style={{
-              borderColor: 'var(--color-border)',
+              borderColor: 'var(--daw-hairline)',
               background: 'transparent',
-              color: 'var(--color-text-dim)',
+              color: 'var(--daw-text-3)',
             }}
           >
             <span
               className="size-1.5 shrink-0 rounded-full"
-              style={{ background: 'var(--color-border)' }}
+              style={{ background: 'var(--daw-hairline)' }}
             />
             Accidentals
           </span>
@@ -413,7 +411,7 @@ export function NoteEditorBar({
           </div>
           <span
             className="ml-auto pl-3 text-[10px]"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             {hasNotes
               ? 'Written on the note, which moves a semitone to match'

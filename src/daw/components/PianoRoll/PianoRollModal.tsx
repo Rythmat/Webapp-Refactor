@@ -99,12 +99,12 @@ export function PianoRollModal() {
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70" />
         <Dialog.Content
           ref={contentRef}
           className="fixed inset-x-[5%] bottom-[10%] top-[5%] z-50 flex flex-col overflow-hidden rounded-2xl outline-none"
           style={{
-            backgroundColor: 'var(--color-surface-2)',
+            backgroundColor: 'var(--daw-popover)',
             border: '1px solid rgba(255, 255, 255, 0.06)',
           }}
         >
@@ -118,7 +118,7 @@ export function PianoRollModal() {
           >
             <Dialog.Title
               className="text-sm font-semibold"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {clip?.name || clip?.id || 'Piano Roll'}
               {track && (
@@ -145,8 +145,8 @@ export function PianoRollModal() {
                 }
                 className="flex h-7 items-center gap-1 rounded-full px-3 text-xs font-medium transition-colors enabled:hover:bg-white/10 disabled:cursor-default disabled:opacity-40"
                 style={{
-                  color: 'var(--color-accent)',
-                  border: '1px solid rgba(126, 207, 207, 0.4)',
+                  color: 'var(--daw-accent)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
                 }}
               >
                 <Sparkles size={12} strokeWidth={2} />
@@ -159,7 +159,7 @@ export function PianoRollModal() {
               <Dialog.Close asChild>
                 <button
                   className="flex size-7 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                   aria-label="Close"
                 >
                   &#x2715;
@@ -182,7 +182,7 @@ export function PianoRollModal() {
             ) : (
               <div
                 className="flex h-full items-center justify-center text-sm"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 No clip selected
               </div>

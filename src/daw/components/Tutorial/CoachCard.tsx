@@ -112,9 +112,9 @@ const ctrlBtn = (disabled: boolean): React.CSSProperties => ({
   fontSize: 13,
   fontWeight: 600,
   borderRadius: 9999,
-  border: '1px solid var(--color-border)',
+  border: '1px solid var(--daw-hairline)',
   background: 'transparent',
-  color: disabled ? 'var(--color-text-dim)' : 'var(--color-text)',
+  color: disabled ? 'var(--daw-text-3)' : 'var(--daw-text)',
   opacity: disabled ? 0.4 : 1,
   cursor: disabled ? 'not-allowed' : 'pointer',
 });
@@ -132,8 +132,8 @@ const primaryBtn = (disabled: boolean): React.CSSProperties => ({
   fontWeight: 700,
   borderRadius: 9999,
   border: 'none',
-  background: disabled ? 'var(--color-surface-2)' : '#fff',
-  color: disabled ? 'var(--color-text-dim)' : '#101012',
+  background: disabled ? 'var(--daw-surface-2)' : '#fff',
+  color: disabled ? 'var(--daw-text-3)' : '#101012',
   opacity: disabled ? 0.6 : 1,
   cursor: disabled ? 'not-allowed' : 'pointer',
 });
@@ -238,8 +238,8 @@ export function CoachCard({
         maxWidth: 'calc(100vw - 24px)',
         pointerEvents: 'auto',
         zIndex: 2,
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
+        background: 'var(--daw-surface-1)',
+        border: '1px solid var(--daw-hairline)',
         borderRadius: 12,
         boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
         overflow: 'hidden',
@@ -254,16 +254,16 @@ export function CoachCard({
           alignItems: 'center',
           gap: 8,
           padding: '9px 11px',
-          borderBottom: '1px solid var(--color-border)',
+          borderBottom: '1px solid var(--daw-hairline)',
         }}
       >
-        <GraduationCap size={16} style={{ color: 'var(--color-accent)' }} />
+        <GraduationCap size={16} style={{ color: 'var(--daw-accent)' }} />
         <span
           style={{
             fontSize: 13,
             fontWeight: 700,
             letterSpacing: 0.3,
-            color: 'var(--color-text)',
+            color: 'var(--daw-text)',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -272,7 +272,7 @@ export function CoachCard({
           {title}
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: 12, color: 'var(--color-text-dim)' }}>
+        <span style={{ fontSize: 12, color: 'var(--daw-text-3)' }}>
           {stepIndex + 1} / {total}
         </span>
         <button
@@ -287,7 +287,7 @@ export function CoachCard({
             borderRadius: 5,
             border: 'none',
             background: 'transparent',
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
             cursor: 'pointer',
           }}
         >
@@ -296,12 +296,12 @@ export function CoachCard({
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 3, background: 'var(--color-surface-2)' }}>
+      <div style={{ height: 3, background: 'var(--daw-surface-2)' }}>
         <div
           style={{
             height: '100%',
             width: `${progress * 100}%`,
-            background: 'var(--color-accent)',
+            background: 'var(--daw-accent)',
             transition: reducedMotion ? 'none' : 'width 240ms ease',
           }}
         />
@@ -315,7 +315,7 @@ export function CoachCard({
             fontWeight: 700,
             letterSpacing: 1,
             textTransform: 'uppercase',
-            color: 'var(--color-accent)',
+            color: 'var(--daw-accent)',
             marginBottom: 7,
           }}
         >
@@ -335,7 +335,7 @@ export function CoachCard({
           <p
             style={{
               fontSize: 13,
-              color: 'var(--color-text)',
+              color: 'var(--daw-text)',
               opacity: 0.85,
               margin: '7px 0 0',
             }}
@@ -355,7 +355,7 @@ export function CoachCard({
             }}
           >
             {done ? (
-              <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>
+              <span style={{ color: 'var(--daw-accent)', fontWeight: 700 }}>
                 ✓ Nice!
               </span>
             ) : (
@@ -365,13 +365,13 @@ export function CoachCard({
                     width: 7,
                     height: 7,
                     borderRadius: '50%',
-                    background: 'var(--color-accent)',
+                    background: 'var(--daw-accent)',
                     animation: reducedMotion
                       ? 'none'
                       : 'tutorialDot 1.1s ease-in-out infinite',
                   }}
                 />
-                <span style={{ color: 'var(--color-text)' }}>
+                <span style={{ color: 'var(--daw-text)' }}>
                   Waiting for your move…
                 </span>
               </>

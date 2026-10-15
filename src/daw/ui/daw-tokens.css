@@ -1,0 +1,100 @@
+/* Generated from src/daw/ui/tokens.ts by scripts/studio/gen-tokens.mjs
+   (npm run studio:tokens). Do not edit by hand. */
+
+:root {
+  --daw-bg: hsl(var(--ui-background));
+  --daw-surface-1: hsl(var(--ui-card));
+  --daw-surface-2: rgba(255, 255, 255, 0.04);
+  --daw-popover: hsl(var(--ui-popover));
+  --daw-hover: hsl(var(--ui-muted));
+  --daw-selected: hsl(var(--ui-secondary));
+  --daw-chip: rgba(255, 255, 255, 0.08);
+  --daw-scrim: rgba(0, 0, 0, 0.6);
+  --daw-hairline: hsl(var(--ui-border));
+  --daw-outline: hsl(var(--ui-input));
+  --daw-focus: hsl(var(--ui-ring));
+  --daw-text: hsl(var(--ui-foreground));
+  --daw-text-2: rgba(255, 255, 255, 0.7);
+  --daw-text-3: #8e8ea3;
+  --daw-primary: hsl(var(--ui-primary));
+  --daw-primary-hover: hsl(var(--ui-brand-dark));
+  --daw-primary-active: hsl(var(--ui-brand-darker));
+  --daw-on-primary: hsl(var(--ui-primary-foreground));
+  --daw-record: #ef4444;
+  --daw-danger: #dc2626;
+  --daw-danger-hover: #b91c1c;
+  --daw-on-danger: #ffffff;
+  --daw-danger-text: #f87171;
+  --daw-danger-subtle: rgba(239, 68, 68, 0.16);
+  --daw-warning: #f59e0b;
+  --daw-warning-subtle: rgba(245, 158, 11, 0.16);
+  --daw-success: #22c55e;
+  --daw-success-subtle: rgba(34, 197, 94, 0.16);
+  --daw-meter-safe: #22c55e;
+  --daw-meter-hot: #f59e0b;
+  --daw-meter-clip: #ef4444;
+  --daw-meter-track: rgba(255, 255, 255, 0.06);
+  --daw-playhead: hsl(var(--ui-foreground));
+  --daw-range-fill: rgba(255, 255, 255, 0.12);
+  --daw-range-edge: rgba(255, 255, 255, 0.45);
+  --daw-ruler-text: rgba(255, 255, 255, 0.7);
+  --daw-grid: rgba(255, 255, 255, 0.04);
+  --daw-scrollbar: rgba(255, 255, 255, 0.08);
+  --daw-accent: var(--daw-text);
+  --daw-selection-rgb: 255, 255, 255;
+  --daw-line-rgb: 255, 255, 255;
+  --daw-font-micro: 11px;
+  --daw-leading-micro: 14px;
+  --daw-tracking-micro: 0.08em;
+  --daw-font-label: 12px;
+  --daw-leading-label: 16px;
+  --daw-font-body: 13px;
+  --daw-leading-body: 18px;
+  --daw-font-title: 14px;
+  --daw-leading-title: 20px;
+  --daw-font-coach: 15px;
+  --daw-leading-coach: 22px;
+  --daw-font-heading: 16px;
+  --daw-leading-heading: 22px;
+  --daw-size-control: 28px;
+  --daw-size-control-sm: 24px;
+  --daw-size-control-lg: 32px;
+  --daw-size-play: 36px;
+  --daw-size-hit-min: 24px;
+  --daw-size-icon: 16px;
+  --daw-size-icon-sm: 14px;
+  --daw-space-2xs: 2px;
+  --daw-space-xs: 4px;
+  --daw-space-sm: 6px;
+  --daw-space-md: 8px;
+  --daw-space-lg: 12px;
+  --daw-space-xl: 16px;
+  --daw-space-2xl: 24px;
+  --daw-space-3xl: 32px;
+  --daw-radius-sm: 4px;
+  --daw-radius-md: 8px;
+  --daw-radius-lg: 12px;
+  --daw-radius-pill: 9999px;
+  --daw-z-sticky: 10;
+  --daw-z-dock: 20;
+  --daw-z-panel: 30;
+  --daw-z-modal: 50;
+  --daw-z-popover: 60;
+  --daw-z-tooltip: 70;
+  --daw-z-tutorial: 80;
+  --daw-z-toast: 90;
+  --daw-motion-fast: 120ms;
+  --daw-motion-base: 180ms;
+  --daw-motion-slow: 240ms;
+  --daw-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --daw-shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --daw-shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --daw-motion-fast: 0ms;
+    --daw-motion-base: 0ms;
+    --daw-motion-slow: 0ms;
+  }
+}

@@ -131,7 +131,7 @@ export function StudioNotationView({
   const noteStyles = useMemo(() => {
     const styles = new Map<string, NoteStyle>();
     for (const i of selectedIndices ?? []) {
-      styles.set(String(i), { color: 'var(--color-accent, #7ecfcf)' });
+      styles.set(String(i), { color: 'var(--daw-accent)' });
     }
     return styles;
   }, [selectedIndices]);

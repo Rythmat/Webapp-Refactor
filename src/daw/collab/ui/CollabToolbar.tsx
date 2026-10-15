@@ -126,9 +126,8 @@ export function CollabToolbar({
       left: rect.right - 220,
       width: 220,
       zIndex: 9999,
-      backgroundColor: 'var(--color-surface-2)',
-      border: '1px solid var(--color-border)',
-      backdropFilter: 'blur(24px)',
+      backgroundColor: 'var(--daw-popover)',
+      border: '1px solid var(--daw-hairline)',
     };
   };
 
@@ -142,8 +141,10 @@ export function CollabToolbar({
         style={{
           color:
             isActive || userListOpen
-              ? 'var(--color-accent)'
-              : 'var(--color-text-dim)',
+              ? 'var(--daw-accent)'
+              : 'var(--daw-text-3)',
+          backgroundColor:
+            isActive || userListOpen ? 'var(--daw-selected)' : undefined,
         }}
         title={isActive ? `${collaboratorCount} online` : 'Start Collaboration'}
       >
@@ -156,7 +157,7 @@ export function CollabToolbar({
         {connectionStatus === 'connecting' && (
           <div
             className="size-1.5 animate-pulse rounded-full"
-            style={{ backgroundColor: 'var(--color-meter-yellow)' }}
+            style={{ backgroundColor: 'var(--daw-meter-hot)' }}
           />
         )}
       </motion.button>
@@ -185,13 +186,13 @@ export function CollabToolbar({
             {/* Divider */}
             <div
               className="h-px"
-              style={{ backgroundColor: 'var(--color-border)' }}
+              style={{ backgroundColor: 'var(--daw-hairline)' }}
             />
 
             {/* Join Room by id */}
             <span
               className="text-[9px] font-medium uppercase tracking-wide"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Join Room
             </span>
@@ -211,8 +212,8 @@ export function CollabToolbar({
                 autoComplete="off"
                 className="min-w-0 flex-1 rounded border bg-transparent px-1.5 py-1 text-[10px] outline-none"
                 style={{
-                  color: 'var(--color-text)',
-                  borderColor: 'var(--color-border)',
+                  color: 'var(--daw-text)',
+                  borderColor: 'var(--daw-hairline)',
                 }}
               />
               <button
@@ -220,8 +221,8 @@ export function CollabToolbar({
                 disabled={!joinId.trim() || inRoom}
                 className="rounded-md px-2 py-1 text-[10px] font-medium transition-colors hover:bg-white/10 disabled:opacity-40"
                 style={{
-                  color: 'var(--color-text)',
-                  border: '1px solid var(--color-border)',
+                  color: 'var(--daw-text)',
+                  border: '1px solid var(--daw-hairline)',
                   background: 'none',
                 }}
               >
@@ -231,7 +232,7 @@ export function CollabToolbar({
             {roomError && (
               <span
                 className="text-[9px]"
-                style={{ color: 'var(--color-record)' }}
+                style={{ color: 'var(--daw-record)' }}
               >
                 {roomError}
               </span>
@@ -247,9 +248,8 @@ export function CollabToolbar({
           whileTap={{ scale: 0.85 }}
           className="flex h-7 items-center gap-1 rounded-md px-1 transition-colors hover:bg-white/5"
           style={{
-            color: chatPanelOpen
-              ? 'var(--color-accent)'
-              : 'var(--color-text-dim)',
+            color: chatPanelOpen ? 'var(--daw-accent)' : 'var(--daw-text-3)',
+            backgroundColor: chatPanelOpen ? 'var(--daw-selected)' : undefined,
           }}
           title="Chat"
         >
@@ -272,7 +272,7 @@ export function CollabToolbar({
           onClick={() => setInviteOpen(true)}
           whileTap={{ scale: 0.85 }}
           className="flex h-7 items-center gap-1 rounded-md px-1 transition-colors hover:bg-white/5"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
           title="Invite Collaborators"
         >
           <Link2 size={13} strokeWidth={2} />
@@ -289,7 +289,7 @@ export function CollabToolbar({
           whileTap={{ scale: 0.85 }}
           className="ml-0.5 flex h-5 items-center rounded px-1 text-[8px] font-medium transition-colors hover:bg-red-500/10"
           style={{
-            color: 'var(--color-record)',
+            color: 'var(--daw-record)',
             background: 'none',
             border: 'none',
           }}

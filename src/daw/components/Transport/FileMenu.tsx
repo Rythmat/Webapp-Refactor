@@ -1,5 +1,5 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   FileDown,
   FileUp,
@@ -56,8 +56,8 @@ function rescaleTick(tick: number, sourcePpq: number): number {
 
 const itemClass =
   'flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-xs outline-none transition-colors hover:bg-white/5';
-const itemStyle = { color: 'var(--color-text)' };
-const dimItemStyle = { color: 'var(--color-text-dim)' };
+const itemStyle = { color: 'var(--daw-text)' };
+const dimItemStyle = { color: 'var(--daw-text-3)' };
 const separatorStyle = {
   height: 1,
   backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -124,33 +124,6 @@ export function FileMenu() {
   const helpKeys = shortcutKeys('help.shortcuts').label;
 
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // Radix portals the menu content to document.body, which is outside the
-  // `.daw-root` element that the theme tokens (--color-surface-2, etc.) are
-  // scoped to — so `var(...)` references resolve to nothing and the menu
-  // renders transparent. Snapshot the active theme's custom properties from
-  // `.daw-root` whenever the menu opens and re-apply them inline on the
-  // portalled content, so every `var(...)` inside resolves and the surface
-  // stays fully opaque (and theme-accurate) without coupling to the store.
-  const [menuVars, setMenuVars] = useState<React.CSSProperties>({});
-  useEffect(() => {
-    if (!menuOpen) return;
-    const root = document.querySelector('.daw-root');
-    if (!root) return;
-    const computed = getComputedStyle(root);
-    const vars: Record<string, string> = {};
-    for (const name of [
-      '--color-surface-2',
-      '--color-text',
-      '--color-text-dim',
-      '--color-border',
-      '--color-bg',
-      '--color-accent',
-    ]) {
-      vars[name] = computed.getPropertyValue(name);
-    }
-    setMenuVars(vars as unknown as React.CSSProperties);
-  }, [menuOpen]);
 
   const [exportAudioOpen, setExportAudioOpen] = useState(false);
   const [exportChoices, setExportChoices] = useState<ExportChoices>(
@@ -325,7 +298,7 @@ export function FileMenu() {
             data-tutorial-id="file-menu"
             className="flex h-7 cursor-pointer items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors hover:bg-white/5"
             style={{
-              color: 'var(--color-text)',
+              color: 'var(--daw-text)',
               background: 'none',
               border: 'none',
             }}
@@ -339,8 +312,7 @@ export function FileMenu() {
           <DropdownMenu.Content
             className="z-50 min-w-[180px] rounded-lg p-1 shadow-lg"
             style={{
-              ...menuVars,
-              backgroundColor: 'var(--color-surface-2)',
+              backgroundColor: 'var(--daw-popover)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
             }}
             sideOffset={4}
@@ -379,7 +351,7 @@ export function FileMenu() {
               {saving ? 'Saving…' : 'Save'}
               <span
                 className="ml-auto text-[10px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {saveKeys}
               </span>
@@ -399,7 +371,7 @@ export function FileMenu() {
               className={itemClass}
               style={{
                 ...itemStyle,
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
               }}
               onSelect={() => void handleDeleteProject()}
               disabled={saving}
@@ -429,7 +401,7 @@ export function FileMenu() {
               Export MIDI
               <span
                 className="ml-auto text-[10px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {exportMidiKeys}
               </span>
@@ -465,7 +437,7 @@ export function FileMenu() {
               Analyze
               <span
                 className="ml-auto text-[10px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {analyzeKeys}
               </span>
@@ -493,7 +465,7 @@ export function FileMenu() {
               Keyboard Shortcuts
               <span
                 className="ml-auto text-[10px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {helpKeys}
               </span>

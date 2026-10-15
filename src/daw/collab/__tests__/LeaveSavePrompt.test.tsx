@@ -31,9 +31,8 @@ import { LeaveSavePrompt } from '../ui/LeaveSavePrompt';
 // ── The leave prompt renders as a real dialog (collab-10) ───────────────────
 // It portals to <body>, where its surface, hairline and teal primary used to
 // resolve to nothing: a borderless see-through card whose most important
-// choice, Save & Leave, had no fill. It now holds body.daw-active itself, so
-// the card is opaque, and Save & Leave is the app's white pill. Nothing in
-// these tests sets the class for it.
+// choice, Save & Leave, had no fill. The tokens are on :root now (plan 2.1),
+// so the card is opaque, and Save & Leave is the app's white pill.
 
 let removeCss: () => void;
 beforeAll(() => {
@@ -47,18 +46,16 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
-  expect(document.body).not.toHaveClass('daw-active');
 });
 
 describe('LeaveSavePrompt', () => {
   it('paints an opaque card outside .daw-root', () => {
     render(<LeaveSavePrompt />);
-    expect(document.body).toHaveClass('daw-active');
     const card = screen
       .getByText('Save project before leaving?')
       .closest<HTMLElement>('.rounded-xl')!;
     expect(card.closest('.daw-root')).toBeNull();
-    expect(resolvedBackground(card)).toBe('#1e1e1e');
+    expect(resolvedBackground(card)).toBe('#141416');
     expect(alphaOf(resolvedBackground(card))).toBe(1);
   });
 

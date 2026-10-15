@@ -11,7 +11,7 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1px;
-  color: #7ecfcf;
+  color: var(--daw-accent);
   text-transform: uppercase;
   flex-shrink: 0;
 }
@@ -37,8 +37,8 @@
 
 .lfoTab.active {
   background: #2a3535;
-  border-color: #7ecfcf;
-  color: #7ecfcf;
+  border-color: var(--daw-accent);
+  color: var(--daw-accent);
 }
 
 .lfoTab:hover:not(.active) {
@@ -71,7 +71,7 @@
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 1px;
-  color: #7ecfcf;
+  color: var(--daw-accent);
   text-align: center;
   flex-shrink: 0;
 }

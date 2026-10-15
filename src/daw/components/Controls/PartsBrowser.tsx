@@ -86,7 +86,7 @@ function prepared(part: InstrumentPart, toTonic: number | null) {
 }
 
 const selectCls =
-  'rounded px-1.5 py-1 text-[10px] outline-none bg-[var(--color-surface-2)] text-[var(--color-text)] border border-[var(--color-border)]';
+  'rounded px-1.5 py-1 text-[10px] outline-none bg-[var(--daw-surface-2)] text-[var(--daw-text)] border border-[var(--daw-hairline)]';
 
 interface PartsBrowserProps {
   trackId: string;
@@ -207,7 +207,7 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
       {/* Filters */}
       <div
         className="flex flex-wrap items-center gap-1.5 px-3 py-2"
-        style={{ borderBottom: '1px solid var(--color-border)' }}
+        style={{ borderBottom: '1px solid var(--daw-hairline)' }}
       >
         <select
           className={selectCls}
@@ -277,7 +277,7 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
         </select>
         <label
           className="ml-auto flex items-center gap-1 text-[10px]"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
           title={
             rootNote === null
               ? 'The project has no key yet — parts stay in the key they were written in'
@@ -294,7 +294,7 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
         </label>
         <label
           className="flex items-center gap-1 text-[10px]"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
           title="Switch this track to the sound the part was written for"
         >
           <input
@@ -311,7 +311,7 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
         {shown.length === 0 && (
           <p
             className="px-3 py-4 text-[11px]"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             {parts.length === 0
               ? 'No parts published yet — they are curated in the Parts Library.'
@@ -333,7 +333,7 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
                 type="button"
                 onClick={() => (playing ? stopPreview() : preview(part))}
                 aria-label={playing ? 'Stop preview' : `Preview ${part.name}`}
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {playing ? (
                   <Square size={12} strokeWidth={1.5} />
@@ -344,13 +344,13 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
               <div className="min-w-0 flex-1">
                 <div
                   className="truncate text-[11px]"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                 >
                   {part.name}
                 </div>
                 <div
                   className="truncate text-[9px] uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   {[
                     part.instrument,
@@ -369,8 +369,8 @@ export function PartsBrowser({ trackId }: PartsBrowserProps) {
                 onClick={() => add(part)}
                 className="flex items-center gap-1 rounded px-2 py-1 text-[10px]"
                 style={{
-                  color: 'var(--color-text)',
-                  border: '1px solid var(--color-border)',
+                  color: 'var(--daw-text)',
+                  border: '1px solid var(--daw-hairline)',
                 }}
                 title="Add at the playhead's bar"
               >

@@ -235,8 +235,8 @@ export function ChannelStrip() {
     <div
       className="shrink-0 flex flex-col border-t"
       style={{
-        backgroundColor: 'var(--color-surface)',
-        borderColor: 'var(--color-border)',
+        backgroundColor: 'var(--daw-surface-1)',
+        borderColor: 'var(--daw-hairline)',
       }}
     >
       {/* Tab bar (always visible) */}
@@ -254,18 +254,14 @@ export function ChannelStrip() {
                 onFocus={() => preloadTab(tab.id)}
                 className="flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider cursor-pointer"
                 style={{
-                  backgroundColor: active
-                    ? 'var(--color-surface-3)'
-                    : 'transparent',
-                  color: active ? 'var(--color-text)' : 'var(--color-text-dim)',
+                  backgroundColor: active ? 'var(--daw-hover)' : 'transparent',
+                  color: active ? 'var(--daw-text)' : 'var(--daw-text-3)',
                   border: 'none',
                 }}
               >
                 <span
                   style={{
-                    color: active
-                      ? 'var(--color-accent)'
-                      : 'var(--color-text-dim)',
+                    color: active ? 'var(--daw-accent)' : 'var(--daw-text-3)',
                   }}
                 >
                   {tab.icon}
@@ -285,15 +281,15 @@ export function ChannelStrip() {
             />
             <span
               className="text-[10px]"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               {track.name}
             </span>
             <span
               className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                color: 'var(--color-text-dim)',
+                backgroundColor: 'var(--daw-surface-2)',
+                color: 'var(--daw-text-3)',
               }}
             >
               {instrumentLabel(track.instrument)}
@@ -309,7 +305,7 @@ export function ChannelStrip() {
           onClick={() => setActiveTab(activeTab === null ? 'controls' : null)}
           className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
           style={{
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
             backgroundColor: 'transparent',
             border: 'none',
           }}
@@ -328,7 +324,7 @@ export function ChannelStrip() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={SPRING}
-            style={{ borderTop: '1px solid var(--color-border)' }}
+            style={{ borderTop: '1px solid var(--daw-hairline)' }}
           >
             <div
               className={
@@ -362,7 +358,7 @@ export function ChannelStrip() {
                 ) : (
                   <div
                     className="flex items-center justify-center h-full text-xs"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     Select a clip on the timeline to edit
                   </div>

@@ -34,6 +34,7 @@ import {
   useContinuousControl,
 } from '@/daw/hooks/useContinuousControl';
 import { previewTrack } from '@/daw/engine/trackReconciler';
+import { COLOR } from '@/daw/ui/tokens';
 
 // Effects that have a visualizer component
 // The ducker's GR meter is inline in its FxKnobs controls (DuckerControls), so
@@ -252,7 +253,7 @@ export function EffectsPanel() {
             ) : (
               <div
                 className="flex flex-1 items-center justify-center text-[11px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {track.activeEffects.length === 0
                   ? 'Add effects from the list'
@@ -264,7 +265,7 @@ export function EffectsPanel() {
       ) : (
         <div
           className="flex flex-1 items-center justify-center p-4 text-xs"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Select a track to edit effects
         </div>
@@ -291,7 +292,7 @@ export function FxChainRow({
   return (
     <div
       className="relative flex shrink-0 items-center border-b"
-      style={{ borderColor: 'var(--color-border)', minHeight: 110 }}
+      style={{ borderColor: 'var(--daw-hairline)', minHeight: 110 }}
     >
       {/* Connection line */}
       <div
@@ -329,7 +330,7 @@ export function FxChainRow({
         </div>
         <span
           className="mt-1 text-[9px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           In
         </span>
@@ -341,15 +342,12 @@ export function FxChainRow({
         style={{ zIndex: 1 }}
       >
         {activeEffects.length === 0 && (
-          <span
-            className="text-[11px]"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
+          <span className="text-[11px]" style={{ color: 'var(--daw-text-3)' }}>
             Add effects from the list
           </span>
         )}
         {activeEffects.map((slot) => {
-          const color = FX_COLOR[slot] ?? '#7ecfcf';
+          const color = FX_COLOR[slot] ?? COLOR.accent.value;
           const isSelected = slot === selectedEffect;
           const effectState = effects[slot as keyof TrackEffectState] as {
             enabled: boolean;
@@ -390,7 +388,7 @@ export function FxChainRow({
               </div>
               <span
                 className="mt-1 text-[9px] font-semibold uppercase tracking-wider"
-                style={{ color: isSelected ? color : 'var(--color-text-dim)' }}
+                style={{ color: isSelected ? color : 'var(--daw-text-3)' }}
               >
                 {FX_LABEL[slot] ?? slot}
               </span>
@@ -428,7 +426,7 @@ export function FxChainRow({
         </div>
         <span
           className="mt-1 text-[9px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Out
         </span>
@@ -498,7 +496,7 @@ export function FxControlsPanel({
     [fx.begin, fx.end],
   );
 
-  const color = FX_COLOR[selectedEffect] ?? '#7ecfcf';
+  const color = FX_COLOR[selectedEffect] ?? COLOR.accent.value;
   const category = FX_CATEGORY[selectedEffect] ?? '';
   const label = FX_LABEL[selectedEffect] ?? selectedEffect;
   const hasViz = HAS_VIZ.has(selectedEffect);
@@ -515,12 +513,12 @@ export function FxControlsPanel({
     <ControlGestureContext.Provider value={gesture}>
       <div
         className="flex-1 overflow-y-auto"
-        style={{ backgroundColor: 'var(--color-surface)' }}
+        style={{ backgroundColor: 'var(--daw-surface-1)' }}
       >
         {/* Header */}
         <div
           className="flex items-center gap-2.5 border-b px-4 py-1.5"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <FxPowerButton
             enabled={enabled}
@@ -535,13 +533,13 @@ export function FxControlsPanel({
           />
           <span
             className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             {category}
           </span>
           <span
             className="flex-1 text-[13px] font-medium"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             {label}
           </span>
@@ -549,9 +547,7 @@ export function FxControlsPanel({
             onClick={onTogglePopOut}
             className="cursor-pointer rounded-md p-1"
             style={{
-              color: popOutOpen
-                ? 'var(--color-accent)'
-                : 'var(--color-text-dim)',
+              color: popOutOpen ? 'var(--daw-accent)' : 'var(--daw-text-3)',
               background: 'none',
               border: 'none',
             }}
@@ -562,7 +558,7 @@ export function FxControlsPanel({
             onClick={() => onRemove(selectedEffect)}
             className="cursor-pointer rounded-md p-1"
             style={{
-              color: 'var(--color-text-dim)',
+              color: 'var(--daw-text-3)',
               background: 'none',
               border: 'none',
             }}
@@ -948,7 +944,7 @@ export function FxKnobs({
           <div className="flex flex-col items-center gap-1">
             <span
               className="text-[8px] uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               TYPE
             </span>
@@ -963,14 +959,14 @@ export function FxKnobs({
                 })
               }
               className="cursor-pointer rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] outline-none"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {(['hall', 'room', 'chamber', 'plate', 'spring'] as const).map(
                 (t) => (
                   <option
                     key={t}
                     value={t}
-                    style={{ backgroundColor: 'var(--color-bg)' }}
+                    style={{ backgroundColor: 'var(--daw-bg)' }}
                   >
                     {t.charAt(0).toUpperCase() + t.slice(1)}
                   </option>
@@ -1377,7 +1373,7 @@ function DuckerControls({
       <div className="flex flex-col items-center gap-1">
         <span
           className="text-[8px] uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Key
         </span>
@@ -1392,16 +1388,16 @@ function DuckerControls({
           }
           onChange={(e) => set({ keyTrackId: e.target.value || null })}
           className="cursor-pointer rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] outline-none"
-          style={{ color: 'var(--color-text)', maxWidth: 110 }}
+          style={{ color: 'var(--daw-text)', maxWidth: 110 }}
         >
-          <option value="" style={{ backgroundColor: 'var(--color-bg)' }}>
+          <option value="" style={{ backgroundColor: 'var(--daw-bg)' }}>
             None
           </option>
           {keyTracks.map((t) => (
             <option
               key={t.id}
               value={t.id}
-              style={{ backgroundColor: 'var(--color-bg)' }}
+              style={{ backgroundColor: 'var(--daw-bg)' }}
             >
               {t.name}
             </option>
@@ -1455,7 +1451,7 @@ function DuckerControls({
       <FxMeter
         source={duckSource(trackId)}
         label="GR"
-        color="var(--color-accent)"
+        color="var(--daw-accent)"
         height={72}
       />
     </div>
@@ -1500,7 +1496,7 @@ export function FxVisualizer({
             <FxMeter
               source={grSource}
               label="GR"
-              color="var(--color-accent)"
+              color="var(--daw-accent)"
               height={large ? 200 : 100}
             />
             <FxMeter

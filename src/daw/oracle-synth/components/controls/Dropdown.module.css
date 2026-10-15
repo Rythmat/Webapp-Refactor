@@ -33,5 +33,5 @@
 }
 
 .select:focus {
-  border-color: #7ecfcf;
+  border-color: var(--daw-accent);
 }

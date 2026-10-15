@@ -100,14 +100,14 @@ export function LibraryPanel() {
           className="shrink-0 flex flex-col overflow-hidden border-l"
           style={{
             width: PANEL_WIDTH,
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
+            backgroundColor: 'var(--daw-surface-1)',
+            borderColor: 'var(--daw-hairline)',
           }}
         >
           {/* Tab header */}
           <div
             className="flex items-center shrink-0 border-b"
-            style={{ height: 28, borderColor: 'var(--color-border)' }}
+            style={{ height: 28, borderColor: 'var(--daw-hairline)' }}
           >
             <button
               onClick={() => setActiveTab('insight')}
@@ -115,13 +115,13 @@ export function LibraryPanel() {
               style={{
                 color:
                   activeTab === 'insight'
-                    ? 'var(--color-text)'
-                    : 'var(--color-text-dim)',
+                    ? 'var(--daw-text)'
+                    : 'var(--daw-text-3)',
                 background: 'none',
                 border: 'none',
                 borderBottom:
                   activeTab === 'insight'
-                    ? '1px solid var(--color-accent)'
+                    ? '1px solid var(--daw-accent)'
                     : '1px solid transparent',
               }}
             >
@@ -130,7 +130,7 @@ export function LibraryPanel() {
                 strokeWidth={1.5}
                 style={{
                   color:
-                    activeTab === 'insight' ? 'var(--color-accent)' : undefined,
+                    activeTab === 'insight' ? 'var(--daw-accent)' : undefined,
                 }}
               />
               <span className="text-[10px] font-semibold uppercase tracking-wider">
@@ -143,13 +143,13 @@ export function LibraryPanel() {
               style={{
                 color:
                   activeTab === 'library'
-                    ? 'var(--color-text)'
-                    : 'var(--color-text-dim)',
+                    ? 'var(--daw-text)'
+                    : 'var(--daw-text-3)',
                 background: 'none',
                 border: 'none',
                 borderBottom:
                   activeTab === 'library'
-                    ? '1px solid var(--color-accent)'
+                    ? '1px solid var(--daw-accent)'
                     : '1px solid transparent',
               }}
             >
@@ -158,7 +158,7 @@ export function LibraryPanel() {
                 strokeWidth={1.5}
                 style={{
                   color:
-                    activeTab === 'library' ? 'var(--color-accent)' : undefined,
+                    activeTab === 'library' ? 'var(--daw-accent)' : undefined,
                 }}
               />
               <span className="text-[10px] font-semibold uppercase tracking-wider">
@@ -170,7 +170,7 @@ export function LibraryPanel() {
               onClick={toggleLibrary}
               className="flex items-center justify-center w-5 h-5 rounded cursor-pointer mr-1.5"
               style={{
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
                 border: 'none',
                 background: 'none',
               }}
@@ -184,19 +184,19 @@ export function LibraryPanel() {
               {/* Search */}
               <div
                 className="px-2 py-1.5 shrink-0 border-b"
-                style={{ borderColor: 'var(--color-border)' }}
+                style={{ borderColor: 'var(--daw-hairline)' }}
               >
                 <div
                   className="flex items-center gap-1.5 rounded px-2 py-1"
                   style={{
-                    backgroundColor: 'var(--color-surface-2)',
-                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--daw-surface-2)',
+                    border: '1px solid var(--daw-hairline)',
                   }}
                 >
                   <Search
                     size={11}
                     strokeWidth={1.5}
-                    style={{ color: 'var(--color-text-dim)', flexShrink: 0 }}
+                    style={{ color: 'var(--daw-text-3)', flexShrink: 0 }}
                   />
                   <input
                     type="text"
@@ -204,14 +204,14 @@ export function LibraryPanel() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="text-[10px] bg-transparent outline-none w-full"
-                    style={{ color: 'var(--color-text)', border: 'none' }}
+                    style={{ color: 'var(--daw-text)', border: 'none' }}
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
                       className="flex items-center justify-center cursor-pointer"
                       style={{
-                        color: 'var(--color-text-dim)',
+                        color: 'var(--daw-text-3)',
                         border: 'none',
                         background: 'none',
                         flexShrink: 0,
@@ -242,7 +242,7 @@ export function LibraryPanel() {
                   <div className="px-4 py-6 text-center">
                     <span
                       className="text-[10px]"
-                      style={{ color: 'var(--color-text-dim)' }}
+                      style={{ color: 'var(--daw-text-3)' }}
                     >
                       No results for &ldquo;{searchQuery}&rdquo;
                     </span>
@@ -278,12 +278,12 @@ function CategorySection({
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="border-b" style={{ borderColor: 'var(--color-border)' }}>
+    <div className="border-b" style={{ borderColor: 'var(--daw-hairline)' }}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex items-center w-full px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
         style={{
-          color: 'var(--color-text-dim)',
+          color: 'var(--daw-text-3)',
           background: 'none',
           border: 'none',
         }}
@@ -364,7 +364,7 @@ function LibraryItemRow({ item }: { item: LibraryItem }) {
       title={inRoom ? 'Leave the shared session to open a template' : undefined}
       className="flex items-center gap-2 px-4 py-1 text-[11px] transition-colors"
       style={{
-        color: disabled ? 'var(--color-text-dim)' : 'var(--color-text)',
+        color: disabled ? 'var(--daw-text-3)' : 'var(--daw-text)',
         opacity: disabled ? 0.5 : 1,
         cursor: disabled ? 'default' : isProjectTemplate ? 'pointer' : 'grab',
       }}
@@ -383,7 +383,7 @@ function LibraryItemRow({ item }: { item: LibraryItem }) {
       {item.disabled && (
         <span
           className="ml-auto text-[8px] uppercase font-medium"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Soon
         </span>

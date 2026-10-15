@@ -6,8 +6,8 @@ import { trackRole, type ChordAnalysis } from '@/daw/utils/chordAnalysis';
 import { ChordSymbolChips, KeyLabel } from './ChordSymbolsSection';
 import { plural } from './insightNotation';
 
-const dim = { color: 'var(--color-text-dim)' };
-const text = { color: 'var(--color-text)' };
+const dim = { color: 'var(--daw-text-3)' };
+const text = { color: 'var(--daw-text)' };
 // How each role's notes are read. A track left on 'auto' that its name and
 // instrument don't place is read as harmony, so it's labeled Chords.
 const ROLE_LABEL: Record<string, string> = {
@@ -42,7 +42,7 @@ function PromptButton({
       style={
         primary
           ? { backgroundColor: '#fff', color: '#101012' }
-          : { border: '1px solid var(--color-border)', ...dim }
+          : { border: '1px solid var(--daw-hairline)', ...dim }
       }
     >
       {children}
@@ -153,12 +153,12 @@ export function ChordAnalysisPrompt() {
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !o && notNow()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content
           data-testid="chord-analysis-prompt"
           className="fixed left-1/2 top-1/2 z-50 flex w-[min(92vw,440px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl p-5 outline-none"
           style={{
-            backgroundColor: 'var(--color-surface-2)',
+            backgroundColor: 'var(--daw-popover)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >

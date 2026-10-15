@@ -60,7 +60,7 @@
 .actionButton.primary {
   background: #345;
   border-color: #567;
-  color: #7ecfcf;
+  color: var(--daw-accent);
 }
 
 .actionButton.primary:hover {
@@ -108,7 +108,7 @@
 }
 
 .presetItem.active {
-  color: #7ecfcf;
+  color: var(--daw-accent);
 }
 
 .divider {
@@ -149,7 +149,7 @@
 }
 
 .saveInput:focus {
-  border-color: #7ecfcf;
+  border-color: var(--daw-accent);
 }
 
 .saveActions {

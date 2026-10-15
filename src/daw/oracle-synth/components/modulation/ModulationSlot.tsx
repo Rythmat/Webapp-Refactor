@@ -6,6 +6,7 @@ import { Knob } from '../controls/Knob';
 import { Toggle } from '../controls/Toggle';
 import { SegmentedControl } from '../controls/SegmentedControl';
 import styles from './ModulationSlot.module.css';
+import { COLOR } from '@/daw/ui/tokens';
 
 interface ModulationSlotProps {
   route: ModRoute;
@@ -183,7 +184,7 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
             min={-1}
             max={1}
             defaultValue={0.5}
-            accent="#7ecfcf"
+            accent={COLOR.accent.value}
             size={28}
             formatValue={(v) => `${v > 0 ? '+' : ''}${Math.round(v * 100)}%`}
             onChange={(v) => onUpdate(route.id, { amount: v })}
@@ -191,7 +192,7 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
           <SegmentedControl
             value={route.polarity}
             options={POLARITY_OPTIONS}
-            accent="#7ecfcf"
+            accent={COLOR.accent.value}
             onChange={(v) =>
               onUpdate(route.id, { polarity: v as ModRoute['polarity'] })
             }

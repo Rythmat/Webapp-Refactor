@@ -43,7 +43,7 @@ export function OracleSynthInline() {
   if (!isVisible || !engine || !analysers) {
     return (
       <div className="flex h-full items-center justify-center">
-        <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
+        <span className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
           Synth engine not available
         </span>
       </div>
@@ -90,7 +90,7 @@ export function OracleSynthInline() {
             fontWeight: 600,
             letterSpacing: 1,
             textTransform: 'uppercase',
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
           }}
         >
           Patch

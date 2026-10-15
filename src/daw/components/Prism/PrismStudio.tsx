@@ -49,7 +49,7 @@ const titleStyle: React.CSSProperties = {
   fontWeight: 600,
   letterSpacing: 1,
   textTransform: 'uppercase',
-  color: 'var(--color-text-dim)',
+  color: 'var(--daw-text-3)',
 };
 
 // ── Component ────────────────────────────────────────────────────────────
@@ -118,9 +118,7 @@ export function PrismStudio() {
                 onClick={toggleRootLock}
                 className="cursor-pointer rounded p-0.5 transition-colors hover:bg-white/10"
                 style={{
-                  color: rootLocked
-                    ? 'var(--color-accent)'
-                    : 'var(--color-text-dim)',
+                  color: rootLocked ? 'var(--daw-accent)' : 'var(--daw-text-3)',
                   border: 'none',
                   background: 'none',
                 }}
@@ -135,7 +133,7 @@ export function PrismStudio() {
               onClick={undoChord}
               className="cursor-pointer rounded p-1 transition-colors hover:bg-white/10"
               style={{
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
                 border: 'none',
                 background: 'none',
               }}
@@ -211,7 +209,7 @@ export function PrismStudio() {
           className={`h-8 w-full rounded-full border-none text-xs font-semibold transition-colors ${
             canGenerate
               ? 'cursor-pointer bg-white text-[#101012] hover:bg-white/90 active:bg-white/80'
-              : 'cursor-not-allowed bg-[var(--color-surface-2)] text-[var(--color-text-dim)] opacity-50'
+              : 'cursor-not-allowed bg-[var(--daw-surface-2)] text-[var(--daw-text-3)] opacity-50'
           }`}
         >
           {!isMidiTrack ? 'Select a MIDI track' : 'Create'}
@@ -245,9 +243,9 @@ export function PrismStudio() {
                 className="flex h-6 cursor-pointer items-center gap-0.5 rounded-full px-2 text-[10px] font-medium transition-colors"
                 style={{
                   backgroundColor: isActive
-                    ? 'var(--color-accent)'
+                    ? 'var(--daw-selected)'
                     : 'rgba(255, 255, 255, 0.06)',
-                  color: isActive ? '#fff' : 'var(--color-text-dim)',
+                  color: isActive ? 'var(--daw-text)' : 'var(--daw-text-3)',
                   border: 'none',
                 }}
               >

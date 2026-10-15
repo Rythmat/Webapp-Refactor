@@ -78,7 +78,7 @@ function ViewSwitcher() {
   return (
     <div
       className="flex items-center overflow-hidden rounded-md"
-      style={{ backgroundColor: 'var(--color-surface-2)' }}
+      style={{ backgroundColor: 'var(--daw-surface-2)' }}
     >
       {views.map((v) => {
         const active = currentView === v.id;
@@ -93,10 +93,8 @@ function ViewSwitcher() {
             onFocus={() => preloadView(v.id)}
             className="h-5 shrink-0 cursor-pointer whitespace-nowrap px-2.5 text-[10px] font-semibold uppercase tracking-wide transition-colors"
             style={{
-              backgroundColor: active
-                ? 'var(--color-surface-3)'
-                : 'transparent',
-              color: active ? 'var(--color-text)' : 'var(--color-text-dim)',
+              backgroundColor: active ? 'var(--daw-hover)' : 'transparent',
+              color: active ? 'var(--daw-text)' : 'var(--daw-text-3)',
               border: 'none',
             }}
           >
@@ -191,7 +189,7 @@ const PositionDisplay = memo(function PositionDisplay() {
     <span
       ref={ref}
       className="block min-w-14 text-center text-xs"
-      style={{ color: 'var(--color-text)' }}
+      style={{ color: 'var(--daw-text)' }}
       title="Bar : Beat : Sixteenth"
     />
   );
@@ -204,12 +202,12 @@ function ZoomIndicator() {
   return (
     <div
       className="flex h-5 items-center rounded px-1.5"
-      style={{ backgroundColor: 'var(--color-surface-2)' }}
+      style={{ backgroundColor: 'var(--daw-surface-2)' }}
       title={`Timeline Zoom: ${Math.round(zoom * 100)}%  (${ZOOM_HINT})`}
     >
       <span
         className="text-[9px] font-medium tabular-nums"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         {Math.round(zoom * 100)}%
       </span>
@@ -417,12 +415,12 @@ export const TransportBar = memo(function TransportBar({
 
   return (
     <div
-      className="glass-panel relative flex h-12 shrink-0 select-none items-center border-b px-3"
+      className="relative flex h-12 shrink-0 select-none items-center border-b px-3"
       style={{
         // Base tint so the transport bar reads continuous with the TopRail; the
         // border-b + glass shadow keep it separated from the timeline below.
-        backgroundColor: 'var(--color-bg)',
-        borderColor: 'var(--color-border)',
+        backgroundColor: 'var(--daw-bg)',
+        borderColor: 'var(--daw-hairline)',
       }}
     >
       {/* ── Left Half ──────────────────────────────────────────── */}
@@ -448,7 +446,7 @@ export const TransportBar = memo(function TransportBar({
               ? 'hover:border-white/10 focus:border-white/20 focus:ring-1'
               : 'cursor-default'
           }`}
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
           title={
             canEditName
               ? 'Project name (click to edit)'
@@ -477,7 +475,7 @@ export const TransportBar = memo(function TransportBar({
             backgroundColor:
               rootNote !== null && rootTrackColor
                 ? rootTrackColor
-                : 'var(--color-surface-2)',
+                : 'var(--daw-surface-2)',
             color: '#fff',
           }}
           title="Key"
@@ -496,10 +494,8 @@ export const TransportBar = memo(function TransportBar({
                   (keyButtonRef.current?.getBoundingClientRect().bottom ?? 0) +
                   8,
                 left: keyButtonRef.current?.getBoundingClientRect().left ?? 0,
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
+                backgroundColor: 'var(--daw-popover)',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               <CircleOfFifths />
@@ -511,9 +507,7 @@ export const TransportBar = memo(function TransportBar({
             onClick={toggleRootLock}
             className="flex size-5 cursor-pointer items-center justify-center rounded transition-colors hover:bg-white/5"
             style={{
-              color: rootLocked
-                ? 'var(--color-accent)'
-                : 'var(--color-text-dim)',
+              color: rootLocked ? 'var(--daw-accent)' : 'var(--daw-text-3)',
               border: 'none',
               background: 'none',
             }}
@@ -532,8 +526,8 @@ export const TransportBar = memo(function TransportBar({
               onClick={() => setTsOpen((v) => !v)}
               className="flex h-5 cursor-pointer items-center rounded px-1.5 text-[10px] font-medium tabular-nums transition-colors hover:bg-white/5"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                color: 'var(--color-text-dim)',
+                backgroundColor: 'var(--daw-surface-2)',
+                color: 'var(--daw-text-3)',
                 border: 'none',
               }}
               title="Time Signature"
@@ -551,10 +545,8 @@ export const TransportBar = memo(function TransportBar({
                         0) + 6,
                     left:
                       tsButtonRef.current?.getBoundingClientRect().left ?? 0,
-                    backgroundColor: 'var(--color-surface-2)',
-                    border: '1px solid var(--color-border)',
-                    backdropFilter: 'blur(24px)',
-                    WebkitBackdropFilter: 'blur(24px)',
+                    backgroundColor: 'var(--daw-popover)',
+                    border: '1px solid var(--daw-hairline)',
                   }}
                 >
                   <div className="grid grid-cols-3 gap-1">
@@ -587,7 +579,7 @@ export const TransportBar = memo(function TransportBar({
                             backgroundColor: isActive
                               ? 'rgba(255, 255, 255, 0.10)'
                               : undefined,
-                            color: 'var(--color-text)',
+                            color: 'var(--daw-text)',
                             border: 'none',
                           }}
                         >
@@ -599,7 +591,7 @@ export const TransportBar = memo(function TransportBar({
                   {/* Custom time signature input */}
                   <div
                     className="mt-1.5 flex items-center gap-1 border-t pt-1.5"
-                    style={{ borderColor: 'var(--color-border)' }}
+                    style={{ borderColor: 'var(--daw-hairline)' }}
                   >
                     <input
                       type="number"
@@ -620,13 +612,13 @@ export const TransportBar = memo(function TransportBar({
                       placeholder={String(tsNum)}
                       className="h-5 w-8 rounded border bg-transparent text-center text-[10px] tabular-nums outline-none focus:ring-1"
                       style={{
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
+                        borderColor: 'var(--daw-hairline)',
+                        color: 'var(--daw-text)',
                       }}
                     />
                     <span
                       className="text-[10px]"
-                      style={{ color: 'var(--color-text-dim)' }}
+                      style={{ color: 'var(--daw-text-3)' }}
                     >
                       /
                     </span>
@@ -635,8 +627,8 @@ export const TransportBar = memo(function TransportBar({
                       onChange={(e) => setCustomDen(e.target.value)}
                       className="h-5 cursor-pointer rounded border bg-transparent text-[10px] tabular-nums outline-none focus:ring-1"
                       style={{
-                        borderColor: 'var(--color-border)',
-                        color: 'var(--color-text)',
+                        borderColor: 'var(--daw-hairline)',
+                        color: 'var(--daw-text)',
                       }}
                     >
                       <option value="2">2</option>
@@ -675,7 +667,7 @@ export const TransportBar = memo(function TransportBar({
           >
             <label
               className="text-[10px] font-medium uppercase"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
               htmlFor="bpm-input"
             >
               BPM
@@ -693,15 +685,15 @@ export const TransportBar = memo(function TransportBar({
               }}
               className="h-5 w-12 rounded border bg-transparent text-center text-[11px] tabular-nums outline-none focus:ring-1"
               style={{
-                borderColor: 'var(--color-border)',
-                color: 'var(--color-text)',
+                borderColor: 'var(--daw-hairline)',
+                color: 'var(--daw-text)',
               }}
             />
           </div>
 
           <div
             className="h-4 w-px"
-            style={{ backgroundColor: 'var(--color-border)' }}
+            style={{ backgroundColor: 'var(--daw-hairline)' }}
           />
 
           {/* Metronome */}
@@ -711,8 +703,11 @@ export const TransportBar = memo(function TransportBar({
             className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
             style={{
               color: metronomeEnabled
-                ? 'var(--color-accent)'
-                : 'var(--color-text-dim)',
+                ? 'var(--daw-accent)'
+                : 'var(--daw-text-3)',
+              backgroundColor: metronomeEnabled
+                ? 'var(--daw-selected)'
+                : undefined,
             }}
             title="Metronome"
             aria-keyshortcuts={TRANSPORT_KEYS['transport.metronome']}
@@ -729,9 +724,9 @@ export const TransportBar = memo(function TransportBar({
             className="flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-white/5"
             style={{
               color:
-                countInBars > 0
-                  ? 'var(--color-accent)'
-                  : 'var(--color-text-dim)',
+                countInBars > 0 ? 'var(--daw-accent)' : 'var(--daw-text-3)',
+              backgroundColor:
+                countInBars > 0 ? 'var(--daw-selected)' : undefined,
             }}
             title={`Count In: ${countInBars === 0 ? 'Off' : `${countInBars} Bar${countInBars > 1 ? 's' : ''}`}`}
           >
@@ -744,9 +739,8 @@ export const TransportBar = memo(function TransportBar({
             whileTap={{ scale: 0.85 }}
             className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
             style={{
-              color: loopEnabled
-                ? 'var(--color-accent)'
-                : 'var(--color-text-dim)',
+              color: loopEnabled ? 'var(--daw-accent)' : 'var(--daw-text-3)',
+              backgroundColor: loopEnabled ? 'var(--daw-selected)' : undefined,
             }}
             title="Loop"
             aria-keyshortcuts={TRANSPORT_KEYS['transport.loop']}
@@ -762,9 +756,8 @@ export const TransportBar = memo(function TransportBar({
             whileTap={{ scale: 0.85 }}
             className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
             style={{
-              color: snapEnabled
-                ? 'var(--color-accent)'
-                : 'var(--color-text-dim)',
+              color: snapEnabled ? 'var(--daw-accent)' : 'var(--daw-text-3)',
+              backgroundColor: snapEnabled ? 'var(--daw-selected)' : undefined,
             }}
             title="Snap to Grid"
           >
@@ -784,8 +777,12 @@ export const TransportBar = memo(function TransportBar({
             style={{
               color:
                 chordRulerShowNotes && !chordRulerLocked
-                  ? 'var(--color-accent)'
-                  : 'var(--color-text-dim)',
+                  ? 'var(--daw-accent)'
+                  : 'var(--daw-text-3)',
+              backgroundColor:
+                chordRulerShowNotes && !chordRulerLocked
+                  ? 'var(--daw-selected)'
+                  : undefined,
             }}
             title={
               chordRulerLocked
@@ -808,7 +805,7 @@ export const TransportBar = memo(function TransportBar({
           onDoubleClick={handleStopToZero}
           whileTap={{ scale: 0.85 }}
           className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
           title="Stop (double-click for start)"
           aria-keyshortcuts={TRANSPORT_KEYS['transport.stop']}
         >
@@ -821,7 +818,7 @@ export const TransportBar = memo(function TransportBar({
           whileTap={{ scale: 0.85 }}
           className="flex size-8 items-center justify-center rounded-full transition-colors hover:bg-white/5"
           style={{
-            color: isPlaying ? 'var(--color-play)' : 'var(--color-text)',
+            color: isPlaying ? 'var(--daw-success)' : 'var(--daw-text)',
             backgroundColor: isPlaying
               ? 'rgba(34, 197, 94, 0.1)'
               : 'transparent',
@@ -845,10 +842,10 @@ export const TransportBar = memo(function TransportBar({
           }`}
           style={{
             color: isRecording
-              ? 'var(--color-record)'
+              ? 'var(--daw-record)'
               : isCountingIn
                 ? '#f59e0b'
-                : 'var(--color-text-dim)',
+                : 'var(--daw-text-3)',
           }}
           title="Record"
           aria-keyshortcuts={TRANSPORT_KEYS['transport.record']}
@@ -859,7 +856,7 @@ export const TransportBar = memo(function TransportBar({
         {/* Separator + Time Display */}
         <div
           className="mx-1 h-4 w-px"
-          style={{ backgroundColor: 'var(--color-border)' }}
+          style={{ backgroundColor: 'var(--daw-hairline)' }}
         />
         <PositionDisplay />
       </div>
@@ -878,7 +875,7 @@ export const TransportBar = memo(function TransportBar({
             onClick={handleSkipBack}
             whileTap={{ scale: 0.85 }}
             className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
             title="Skip Back"
           >
             <SkipBack size={12} fill="currentColor" strokeWidth={0} />
@@ -889,7 +886,7 @@ export const TransportBar = memo(function TransportBar({
             onClick={handleSkipForward}
             whileTap={{ scale: 0.85 }}
             className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
             title="Skip Forward"
           >
             <SkipForward size={12} fill="currentColor" strokeWidth={0} />
@@ -899,7 +896,7 @@ export const TransportBar = memo(function TransportBar({
           <div
             className="flex h-5 items-center gap-1 rounded px-1.5"
             style={{
-              backgroundColor: 'var(--color-surface-2)',
+              backgroundColor: 'var(--daw-surface-2)',
             }}
             title={
               midiStatus === 'ready'
@@ -928,7 +925,7 @@ export const TransportBar = memo(function TransportBar({
                     ? '#22c55e'
                     : midiStatus === 'unavailable'
                       ? '#ef4444'
-                      : 'var(--color-text-dim)',
+                      : 'var(--daw-text-3)',
               }}
             >
               MIDI
@@ -940,7 +937,7 @@ export const TransportBar = memo(function TransportBar({
 
           <div
             className="h-4 w-px"
-            style={{ backgroundColor: 'var(--color-border)' }}
+            style={{ backgroundColor: 'var(--daw-hairline)' }}
           />
 
           {/* Collaboration */}
@@ -961,9 +958,8 @@ export const TransportBar = memo(function TransportBar({
             whileTap={{ scale: 0.85 }}
             className="flex h-7 items-center gap-1 rounded-md px-1 transition-colors hover:bg-white/5"
             style={{
-              color: libraryOpen
-                ? 'var(--color-accent)'
-                : 'var(--color-text-dim)',
+              color: libraryOpen ? 'var(--daw-accent)' : 'var(--daw-text-3)',
+              backgroundColor: libraryOpen ? 'var(--daw-selected)' : undefined,
             }}
             title="Library"
           >
@@ -972,7 +968,7 @@ export const TransportBar = memo(function TransportBar({
 
           <div
             className="h-4 w-px"
-            style={{ backgroundColor: 'var(--color-border)' }}
+            style={{ backgroundColor: 'var(--daw-hairline)' }}
           />
           {/* Settings */}
           <motion.button
@@ -980,9 +976,8 @@ export const TransportBar = memo(function TransportBar({
             onClick={() => setSettingsOpen(true)}
             className="flex h-7 items-center gap-1 rounded-md px-1 transition-colors hover:bg-white/5"
             style={{
-              color: settingsOpen
-                ? 'var(--color-accent)'
-                : 'var(--color-text-dim)',
+              color: settingsOpen ? 'var(--daw-accent)' : 'var(--daw-text-3)',
+              backgroundColor: settingsOpen ? 'var(--daw-selected)' : undefined,
             }}
             title="Settings"
           >

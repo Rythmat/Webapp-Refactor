@@ -159,7 +159,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const btnClass =
     'flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-[11px] font-medium transition-colors hover:bg-white/5';
   const btnStyle = {
-    color: 'var(--color-text)',
+    color: 'var(--daw-text)',
     background: 'none',
     border: 'none',
   };
@@ -169,7 +169,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
       className="leadsheet-toolbar flex items-center gap-1 border-b px-3 py-1.5"
       style={{
         borderColor: 'rgba(255, 255, 255, 0.08)',
-        backgroundColor: 'var(--color-surface-1)',
+        backgroundColor: 'var(--daw-surface-1)',
       }}
     >
       {/* Chord format toggle (locked to the global notation in jazz / roman) */}
@@ -218,9 +218,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
         style={{
           ...btnStyle,
           opacity: showMelody ? 1 : 0.5,
-          color: showMelody
-            ? 'var(--color-accent, #8b5cf6)'
-            : 'var(--color-text)',
+          color: showMelody ? 'var(--daw-accent)' : 'var(--daw-text)',
         }}
         onClick={toggleMelody}
         title={

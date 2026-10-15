@@ -86,7 +86,7 @@ export function DelayTaps({
             height={barH}
             rx={1.5}
             fill={
-              index === 0 ? 'rgba(255, 255, 255, 0.3)' : 'var(--color-accent)'
+              index === 0 ? 'rgba(255, 255, 255, 0.3)' : 'var(--daw-accent)'
             }
             opacity={opacity}
           />
@@ -104,7 +104,7 @@ export function DelayTaps({
             })
             .join(' ')}
           fill="none"
-          stroke="var(--color-accent)"
+          stroke="var(--daw-accent)"
           strokeWidth={1}
           strokeDasharray="2 2"
           opacity={0.4}

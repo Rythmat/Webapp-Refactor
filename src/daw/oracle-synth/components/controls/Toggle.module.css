@@ -10,18 +10,14 @@
   width: 28px;
   height: 14px;
   border-radius: 7px;
-  background: var(--color-surface-3);
+  background: var(--daw-hover);
   position: relative;
   transition: background 0.15s;
 }
 
 .track.active {
-  /* Muted teal derived from the accent so the bright accent thumb still pops. */
-  background: color-mix(
-    in srgb,
-    var(--color-accent) 40%,
-    var(--color-surface-3)
-  );
+  /* A dimmed mix of the accent, so the bright accent thumb still stands out. */
+  background: color-mix(in srgb, var(--daw-accent) 40%, var(--daw-hover));
 }
 
 .thumb {
@@ -31,7 +27,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--color-text-dim);
+  background: var(--daw-text-3);
   transition:
     transform 0.15s,
     background 0.15s;
@@ -39,7 +35,7 @@
 
 .track.active .thumb {
   transform: translateX(14px);
-  background: var(--color-accent);
+  background: var(--daw-accent);
 }
 
 .label {

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '@/daw/store';
-import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 import {
   studioTutorialActivityRef,
   useMspModuleCompletion,
@@ -55,11 +54,6 @@ export function TutorialLayer() {
   // launch, and any other lesson finished in it reports nothing
   // (practice-tutorial-09).
   const { reportCompletion } = useMspModuleCompletion();
-  // The overlay portals to <body>, outside .daw-root. It holds the DAW tokens
-  // there itself (daw.css aliases them onto body.daw-active), so the coach
-  // card resolves them from its first frame without anything copied onto the
-  // portal, and never depends on someone else having set the class.
-  useDawBodyTokens();
 
   const tutorial = useMemo(() => getTutorial(activeId), [activeId]);
   const total = tutorial?.steps.length ?? 0;

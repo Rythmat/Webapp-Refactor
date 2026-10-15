@@ -28,9 +28,8 @@ import {
 // ── The lesson coach card (design-system-02, ia-flows-32) ───────────────────
 // Next is the step's main action, so it is the app's white pill: #101012 on
 // white, where white on the old teal fill was about 1.8:1. The card reads its
-// tokens from body.daw-active, which TutorialLayer holds around it rather
-// than copying them onto its portal (practice-tutorial-24). Rendered alone
-// here, the tests that need the tokens set the class the way the layer does.
+// tokens from :root, as every overlay portaled to <body> does, rather than
+// copying them onto its portal (practice-tutorial-24).
 
 let removeCss: () => void;
 beforeAll(() => {
@@ -39,7 +38,6 @@ beforeAll(() => {
 afterAll(() => removeCss());
 afterEach(() => {
   cleanup();
-  document.body.classList.remove('daw-active');
   document.body.innerHTML = '';
   vi.unstubAllGlobals();
 });
@@ -83,15 +81,13 @@ describe('CoachCard', () => {
   });
 
   it('keeps a validated step’s Next quiet until the move is made', () => {
-    document.body.classList.add('daw-active');
     renderCard({ isValidated: true, status: 'waiting' });
     const next = screen.getByRole('button', { name: 'Next' });
     expect(next).toBeDisabled();
-    expect(resolvedBackground(next)).toBe('#1e1e1e');
+    expect(resolvedBackground(next)).toBe('rgba(255, 255, 255, 0.04)');
   });
 
-  it('paints an opaque card from the tokens on body.daw-active', () => {
-    document.body.classList.add('daw-active');
+  it('paints an opaque card from the tokens on :root', () => {
     renderCard();
     // The card is the fixed element that holds the Quit button (the lesson
     // walkthrough finds it the same way).
@@ -99,7 +95,7 @@ describe('CoachCard', () => {
       .getByRole('button', { name: 'Quit tutorial' })
       .closest<HTMLElement>('div[style*="position: fixed"]')!;
     expect(card.closest('.daw-root')).toBeNull();
-    expect(resolvedBackground(card)).toBe('#1a1a1a');
+    expect(resolvedBackground(card)).toBe('#151518');
     expect(alphaOf(resolvedBackground(card))).toBe(1);
   });
 });

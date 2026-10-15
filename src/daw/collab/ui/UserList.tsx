@@ -57,8 +57,8 @@ export function UserList({ open, onClose }: UserListProps) {
             transition={SPRING}
             className="flex shrink-0 flex-col overflow-hidden border-l"
             style={{
-              backgroundColor: 'var(--color-surface)',
-              borderColor: 'var(--color-border)',
+              backgroundColor: 'var(--daw-surface-1)',
+              borderColor: 'var(--daw-hairline)',
             }}
           >
             {/* Header */}
@@ -66,12 +66,12 @@ export function UserList({ open, onClose }: UserListProps) {
               className="flex shrink-0 items-center justify-between border-b px-3"
               style={{
                 height: 28,
-                borderColor: 'var(--color-border)',
+                borderColor: 'var(--daw-hairline)',
               }}
             >
               <span
                 className="text-[10px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 Collaborators
               </span>
@@ -79,7 +79,7 @@ export function UserList({ open, onClose }: UserListProps) {
                 onClick={onClose}
                 className="flex size-4 items-center justify-center rounded transition-colors hover:bg-white/10"
                 style={{
-                  color: 'var(--color-text-dim)',
+                  color: 'var(--daw-text-3)',
                   background: 'none',
                   border: 'none',
                 }}
@@ -91,22 +91,22 @@ export function UserList({ open, onClose }: UserListProps) {
             {/* Connection status */}
             <div
               className="flex items-center gap-1.5 border-b px-3 py-1.5"
-              style={{ borderColor: 'var(--color-border)' }}
+              style={{ borderColor: 'var(--daw-hairline)' }}
             >
               <div
                 className="size-1.5 rounded-full"
                 style={{
                   backgroundColor:
                     connectionStatus === 'connected'
-                      ? 'var(--color-play)'
+                      ? 'var(--daw-success)'
                       : connectionStatus === 'connecting'
-                        ? 'var(--color-meter-yellow)'
-                        : 'var(--color-record)',
+                        ? 'var(--daw-meter-hot)'
+                        : 'var(--daw-record)',
                 }}
               />
               <span
                 className="text-[9px] capitalize"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {connectionStatus}
               </span>
@@ -116,18 +116,18 @@ export function UserList({ open, onClose }: UserListProps) {
             {roomCode && (
               <div
                 className="flex shrink-0 flex-col gap-1 border-b px-3 py-2"
-                style={{ borderColor: 'var(--color-border)' }}
+                style={{ borderColor: 'var(--daw-hairline)' }}
               >
                 <span
                   className="text-[8px] font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   Room Code
                 </span>
                 <div className="flex items-center gap-1.5">
                   <span
                     className="flex-1 truncate text-xs font-semibold tracking-[0.2em]"
-                    style={{ color: 'var(--color-text)' }}
+                    style={{ color: 'var(--daw-text)' }}
                   >
                     {roomCode}
                   </span>
@@ -136,8 +136,8 @@ export function UserList({ open, onClose }: UserListProps) {
                     className="flex size-5 shrink-0 items-center justify-center rounded transition-colors hover:bg-white/10"
                     style={{
                       color: copied
-                        ? 'var(--color-play)'
-                        : 'var(--color-text-dim)',
+                        ? 'var(--daw-success)'
+                        : 'var(--daw-text-3)',
                       background: 'none',
                       border: 'none',
                     }}
@@ -161,7 +161,7 @@ export function UserList({ open, onClose }: UserListProps) {
               {/* Self */}
               <UserRow
                 name="You"
-                color="var(--color-accent)"
+                color="var(--daw-accent)"
                 activity="idle"
                 isSelf
               />
@@ -179,7 +179,7 @@ export function UserList({ open, onClose }: UserListProps) {
               {remoteUsers.length === 0 && (
                 <div
                   className="px-3 py-4 text-center text-[10px]"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   No other users online
                 </div>
@@ -211,7 +211,7 @@ function UserRow({
     <div
       className="flex items-center gap-2 px-3 py-1.5 transition-colors hover:bg-white/5"
       style={{
-        borderBottom: '1px solid var(--color-border)',
+        borderBottom: '1px solid var(--daw-hairline)',
         cursor: onContextMenu ? 'context-menu' : undefined,
       }}
       onContextMenu={onContextMenu}
@@ -228,11 +228,11 @@ function UserRow({
       <div className="min-w-0 flex-1">
         <div
           className="truncate text-[10px] font-medium"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           {name}
         </div>
-        <div className="text-[8px]" style={{ color: 'var(--color-text-dim)' }}>
+        <div className="text-[8px]" style={{ color: 'var(--daw-text-3)' }}>
           {ACTIVITY_LABELS[activity]}
         </div>
       </div>

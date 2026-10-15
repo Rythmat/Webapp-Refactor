@@ -336,8 +336,8 @@ describe('the guitar view after a load that keeps the track id', () => {
       expect(chain).toEqual(toEngine(IN_THE_DRAFT));
     }
     // The loaded amp's model is the one marked in the model list.
-    expect(screen.getByText('Quartz').style.color).toBe('var(--color-accent)');
-    expect(screen.getByText('Fire Opal').style.color).toBe('var(--color-text)');
+    expect(screen.getByText('Quartz').style.color).toBe('var(--daw-accent)');
+    expect(screen.getByText('Fire Opal').style.color).toBe('var(--daw-text)');
   });
 
   it('never saves the last chain over the loaded one, not even with the next edit', async () => {
@@ -386,7 +386,7 @@ describe('the guitar view when another guitar track is selected', () => {
     for (const [chain] of onNext.syncChain.mock.calls) {
       expect(chain).toEqual(toEngine(IN_THE_DRAFT));
     }
-    expect(screen.getByText('Quartz').style.color).toBe('var(--color-accent)');
+    expect(screen.getByText('Quartz').style.color).toBe('var(--daw-accent)');
     expect(s().tracks.find((t) => t.id === next)?.guitarChain).toEqual(
       IN_THE_DRAFT,
     );

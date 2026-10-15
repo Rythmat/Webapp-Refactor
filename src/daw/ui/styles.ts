@@ -1,12 +1,5 @@
-import { installDawTokens } from './tokens';
-
-// Every primitive imports this module, so the --daw-* tokens are on :root
-// before the first one renders, wherever that is: in the editor, in an
-// overlay portaled to <body>, or on the Studio dashboard (PremiumBadge).
-// Milestone 2.1's codemod, which moves the legacy --color-* uses onto these
-// tokens, also moves this install to src/main.tsx; until then the
-// primitives bring their own.
-installDawTokens();
+// The --daw-* tokens these classes read are on :root on every page:
+// src/main.tsx imports daw-tokens.css.
 
 /**
  * The keyboard focus indicator: a 2 px ring with a 2 px gap, so it reads on

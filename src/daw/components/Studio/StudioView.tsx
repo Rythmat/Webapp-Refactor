@@ -107,9 +107,9 @@ function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
       darkGrad.addColorStop(1, 'rgba(40, 60, 100, 0.18)');
       // Bright accent fill (top layer)
       const brightGrad = ctx.createLinearGradient(0, graphH, 0, 0);
-      brightGrad.addColorStop(0, 'rgba(126, 207, 207, 0.03)');
-      brightGrad.addColorStop(0.5, 'rgba(126, 207, 207, 0.12)');
-      brightGrad.addColorStop(1, 'rgba(126, 207, 207, 0.25)');
+      brightGrad.addColorStop(0, 'rgba(255, 255, 255, 0.03)');
+      brightGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.12)');
+      brightGrad.addColorStop(1, 'rgba(255, 255, 255, 0.25)');
       layout = { xs, first, darkGrad, brightGrad, sampleRate };
       layoutRef.current = layout;
     }
@@ -150,7 +150,7 @@ function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
     ctx.beginPath();
     ctx.moveTo(xs[first], yAt(first));
     for (let i = first + 1; i <= last; i++) ctx.lineTo(xs[i], yAt(i));
-    ctx.strokeStyle = 'rgba(126, 207, 207, 0.6)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
@@ -178,8 +178,8 @@ function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
       className="w-full shrink-0 rounded-lg"
       style={{
         height: 180,
-        backgroundColor: 'var(--color-surface-2)',
-        border: 'var(--glass-border)',
+        backgroundColor: 'var(--daw-surface-2)',
+        border: '1px solid var(--daw-hairline)',
         overflow: 'hidden',
       }}
     >
@@ -202,10 +202,10 @@ const PEAK_SEGMENTS = 20;
 function peakSegmentColor(i: number): string {
   const ratio = i / PEAK_SEGMENTS;
   return ratio > 0.85
-    ? 'var(--color-meter-red)'
+    ? 'var(--daw-meter-clip)'
     : ratio > 0.6
-      ? 'var(--color-meter-yellow)'
-      : 'var(--color-meter-green)';
+      ? 'var(--daw-meter-hot)'
+      : 'var(--daw-meter-safe)';
 }
 
 const SEGMENT_OFF = 'rgba(255, 255, 255, 0.04)';
@@ -257,11 +257,11 @@ function PeakMeter() {
       <span
         ref={readoutRef}
         className="whitespace-nowrap text-[12px] font-bold"
-        style={{ color: 'var(--color-text)' }}
+        style={{ color: 'var(--daw-text)' }}
       />
       <span
         className="text-[11px] font-semibold uppercase"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         Peak
       </span>
@@ -310,7 +310,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
       data-tutorial-id="mastering-section"
       className="flex shrink-0 flex-col"
       style={{
-        borderBottom: '1px solid var(--color-border)',
+        borderBottom: '1px solid var(--daw-hairline)',
         padding: '12px 16px',
       }}
     >
@@ -318,7 +318,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
       <div className="flex items-center" style={{ marginBottom: 12 }}>
         <span
           className="text-[11px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           Mastering
         </span>
@@ -334,11 +334,11 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
             title="Hear the mix without mastering (exports keep it)"
             className="flex h-6 cursor-pointer items-center rounded-full px-3 text-[12px] font-medium transition-colors"
             style={{
-              color: bypass ? 'var(--color-text)' : 'var(--color-text-dim)',
+              color: bypass ? 'var(--daw-text)' : 'var(--daw-text-3)',
               backgroundColor: bypass
                 ? 'rgba(255, 255, 255, 0.1)'
                 : 'transparent',
-              border: '1px solid var(--color-border)',
+              border: '1px solid var(--daw-hairline)',
             }}
           >
             Bypass
@@ -354,8 +354,8 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
         className="flex overflow-hidden rounded-lg"
         style={{
           marginTop: 12,
-          backgroundColor: 'var(--color-surface-2)',
-          border: 'var(--glass-border)',
+          backgroundColor: 'var(--daw-surface-2)',
+          border: '1px solid var(--daw-hairline)',
         }}
       >
         {/* Left: FxBrowser */}
@@ -411,7 +411,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
           ) : (
             <div
               className="flex flex-1 items-center justify-center py-6 text-[11px]"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               {fxChain.length === 0
                 ? 'Add effects from the list'
@@ -431,9 +431,9 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
 // ── Helpers ──────────────────────────────────────────────────────────────
 
 function dbColor(db: number): string {
-  if (db > -3) return 'var(--color-meter-red)';
-  if (db > -12) return 'var(--color-meter-yellow)';
-  return 'var(--color-meter-green)';
+  if (db > -3) return 'var(--daw-meter-clip)';
+  if (db > -12) return 'var(--daw-meter-hot)';
+  return 'var(--daw-meter-safe)';
 }
 
 /** A reading's level: one channel, or the mean of all of them. */
@@ -479,18 +479,18 @@ function DbReadout({
 
 function barFill(pct: number): string {
   return pct > 85
-    ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow) 60%, var(--color-meter-red))'
+    ? 'linear-gradient(to top, var(--daw-meter-safe), var(--daw-meter-hot) 60%, var(--daw-meter-clip))'
     : pct > 50
-      ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow))'
-      : 'var(--color-meter-green)';
+      ? 'linear-gradient(to top, var(--daw-meter-safe), var(--daw-meter-hot))'
+      : 'var(--daw-meter-safe)';
 }
 
 function holdColor(pct: number): string {
   return pct > 85
-    ? 'var(--color-meter-red)'
+    ? 'var(--daw-meter-clip)'
     : pct > 50
-      ? 'var(--color-meter-yellow)'
-      : 'var(--color-meter-green)';
+      ? 'var(--daw-meter-hot)'
+      : 'var(--daw-meter-safe)';
 }
 
 function MeterBar({
@@ -638,7 +638,7 @@ function PanKnob({
           y1={cy}
           x2={ix}
           y2={iy}
-          stroke="var(--color-text)"
+          stroke="var(--daw-text)"
           strokeWidth={2}
           strokeLinecap="round"
         />
@@ -683,8 +683,8 @@ const MixingStrip = React.memo(function MixingStrip({
       className="relative flex shrink-0 flex-col items-center gap-2 px-2 py-3"
       style={{
         width: STRIP_WIDTH,
-        borderRight: 'var(--glass-border)',
-        backgroundColor: 'var(--color-surface-2)',
+        borderRight: '1px solid var(--daw-hairline)',
+        backgroundColor: 'var(--daw-surface-2)',
       }}
     >
       <DbReadout source={level} />
@@ -694,9 +694,9 @@ const MixingStrip = React.memo(function MixingStrip({
           className="h-6 cursor-pointer rounded px-2 text-[9px] font-bold uppercase transition-colors"
           style={{
             backgroundColor: track.mute
-              ? 'var(--color-record)'
+              ? 'var(--daw-record)'
               : 'rgba(255, 255, 255, 0.06)',
-            color: track.mute ? '#fff' : 'var(--color-text-dim)',
+            color: track.mute ? '#fff' : 'var(--daw-text-3)',
             border: 'none',
           }}
           onClick={() => toggleMute(track.id)}
@@ -707,9 +707,9 @@ const MixingStrip = React.memo(function MixingStrip({
           className="h-6 cursor-pointer rounded px-2 text-[9px] font-bold uppercase transition-colors"
           style={{
             backgroundColor: track.solo
-              ? 'var(--color-meter-yellow)'
+              ? 'var(--daw-meter-hot)'
               : 'rgba(255, 255, 255, 0.06)',
-            color: track.solo ? '#000' : 'var(--color-text-dim)',
+            color: track.solo ? '#000' : 'var(--daw-text-3)',
             border: 'none',
           }}
           onClick={() => toggleSolo(track.id)}
@@ -755,7 +755,7 @@ const MixingStrip = React.memo(function MixingStrip({
         />
         <span
           className="truncate text-center text-[10px] font-medium"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           {track.name}
         </span>
@@ -801,7 +801,7 @@ function StripVolume({ track }: { track: Track }) {
         style={
           {
             backgroundColor: '#e8e8f0',
-            '--tw-ring-color': 'var(--color-accent)',
+            '--tw-ring-color': 'var(--daw-accent)',
           } as React.CSSProperties
         }
         aria-label="Volume"
@@ -866,7 +866,7 @@ function MasterStrip() {
       style={{
         width: MASTER_WIDTH,
         borderLeft: '2px solid rgba(255, 255, 255, 0.12)',
-        backgroundColor: 'var(--color-surface-2)',
+        backgroundColor: 'var(--daw-surface-2)',
       }}
     >
       <DbReadout source={level} />
@@ -875,7 +875,7 @@ function MasterStrip() {
         className="h-6 cursor-pointer rounded px-2 text-[9px] font-bold uppercase transition-colors"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.06)',
-          color: 'var(--color-text-dim)',
+          color: 'var(--daw-text-3)',
           border: 'none',
         }}
         onClick={handleMuteAll}
@@ -907,15 +907,15 @@ function MasterStrip() {
           >
             <Slider.Range
               className="absolute w-full rounded-full"
-              style={{ backgroundColor: 'rgba(126, 207, 207, 0.4)' }}
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.4)' }}
             />
           </Slider.Track>
           <Slider.Thumb
             className="block h-4 w-5 rounded-sm shadow-sm focus:outline-none focus:ring-1"
             style={
               {
-                backgroundColor: 'var(--color-accent)',
-                '--tw-ring-color': 'var(--color-accent)',
+                backgroundColor: 'var(--daw-accent)',
+                '--tw-ring-color': 'var(--daw-accent)',
               } as React.CSSProperties
             }
             aria-label="Master Volume"
@@ -928,12 +928,12 @@ function MasterStrip() {
       <FixedDigits
         text={formatGain(volume.value)}
         className="text-[10px] font-medium"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       />
 
       <span
         className="text-[10px] font-bold uppercase tracking-wider"
-        style={{ color: 'var(--color-text)' }}
+        style={{ color: 'var(--daw-text)' }}
       >
         Master
       </span>
@@ -966,16 +966,14 @@ function ReturnStrip({
       className="flex shrink-0 cursor-pointer flex-col items-center gap-2 px-2 py-3"
       style={{
         width: RETURN_WIDTH,
-        borderRight: 'var(--glass-border)',
-        backgroundColor: selected
-          ? 'var(--color-surface-3)'
-          : 'var(--color-surface-2)',
-        boxShadow: selected ? 'inset 0 0 0 1px var(--color-accent)' : 'none',
+        borderRight: '1px solid var(--daw-hairline)',
+        backgroundColor: selected ? 'var(--daw-hover)' : 'var(--daw-surface-2)',
+        boxShadow: selected ? 'inset 0 0 0 1px var(--daw-accent)' : 'none',
       }}
     >
       <span
         className="text-[9px] font-bold uppercase tracking-wider"
-        style={{ color: 'var(--color-accent)' }}
+        style={{ color: 'var(--daw-accent)' }}
       >
         Return {returnId}
       </span>
@@ -991,12 +989,12 @@ function ReturnStrip({
       <div className="flex w-full items-center justify-center gap-1">
         <span
           className="truncate text-center text-[10px] font-medium"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           {ret.label}
         </span>
       </div>
-      <span className="text-[9px]" style={{ color: 'var(--color-text-dim)' }}>
+      <span className="text-[9px]" style={{ color: 'var(--daw-text-3)' }}>
         {ret.fxChain.length} FX
       </span>
     </div>
@@ -1024,15 +1022,15 @@ function ReturnFader({ ret }: { ret: ReturnBus }) {
       >
         <Slider.Range
           className="absolute w-full rounded-full"
-          style={{ backgroundColor: 'rgba(126, 207, 207, 0.4)' }}
+          style={{ backgroundColor: 'rgba(255, 255, 255, 0.4)' }}
         />
       </Slider.Track>
       <Slider.Thumb
         className="block h-4 w-5 rounded-sm shadow-sm focus:outline-none focus:ring-1"
         style={
           {
-            backgroundColor: 'var(--color-accent)',
-            '--tw-ring-color': 'var(--color-accent)',
+            backgroundColor: 'var(--daw-accent)',
+            '--tw-ring-color': 'var(--daw-accent)',
           } as React.CSSProperties
         }
         aria-label={`Return ${ret.id} volume`}
@@ -1085,14 +1083,14 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
       data-tutorial-id={`return-fx-${returnId}`}
       className="flex shrink-0 flex-col"
       style={{
-        borderTop: '1px solid var(--color-border)',
+        borderTop: '1px solid var(--daw-hairline)',
         padding: '8px 16px',
       }}
     >
       <div className="mb-2 flex items-center gap-2">
         <span
           className="text-[11px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           Return {returnId} — {ret.label}
         </span>
@@ -1100,8 +1098,8 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
       <div
         className="flex overflow-hidden rounded-lg"
         style={{
-          backgroundColor: 'var(--color-surface-2)',
-          border: 'var(--glass-border)',
+          backgroundColor: 'var(--daw-surface-2)',
+          border: '1px solid var(--daw-hairline)',
         }}
       >
         <FxBrowser
@@ -1143,7 +1141,7 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
           ) : (
             <div
               className="flex flex-1 items-center justify-center py-5 text-[11px]"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               {fxChain.length === 0
                 ? 'Add effects from the list'
@@ -1173,13 +1171,13 @@ function MixingSection() {
       <div className="flex shrink-0 items-center gap-2 px-3 py-1.5">
         <span
           className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           Mixer
         </span>
         <div
           className="flex-1"
-          style={{ height: 1, backgroundColor: 'var(--color-border)' }}
+          style={{ height: 1, backgroundColor: 'var(--daw-hairline)' }}
         />
       </div>
 
@@ -1190,11 +1188,11 @@ function MixingSection() {
             <Sliders
               size={28}
               strokeWidth={1.5}
-              style={{ color: 'var(--color-text-dim)', opacity: 0.4 }}
+              style={{ color: 'var(--daw-text-3)', opacity: 0.4 }}
             />
             <span
               className="text-[12px]"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Add tracks to see the mixer
             </span>
@@ -1237,7 +1235,7 @@ export function StudioView({ isReady }: { isReady: boolean }) {
   return (
     <div
       className="flex flex-1 flex-col overflow-hidden"
-      style={{ backgroundColor: 'var(--color-bg)' }}
+      style={{ backgroundColor: 'var(--daw-bg)' }}
     >
       {/* Top: Mastering */}
       <MasteringSection isReady={isReady} />

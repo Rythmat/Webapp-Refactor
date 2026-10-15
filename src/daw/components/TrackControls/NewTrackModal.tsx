@@ -160,16 +160,14 @@ export function NewTrackModal({ open, onOpenChange }: NewTrackModalProps) {
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         {/* Overlay */}
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
 
         {/* Content */}
         <Dialog.Content
-          className="glass-panel fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
+          className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
           style={{
             backgroundColor: 'rgba(255, 255, 255, 0.04)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
-            backdropFilter: 'blur(32px)',
-            WebkitBackdropFilter: 'blur(32px)',
             boxShadow:
               '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
           }}
@@ -177,7 +175,7 @@ export function NewTrackModal({ open, onOpenChange }: NewTrackModalProps) {
           {/* Header */}
           <Dialog.Title
             className="mb-4 text-lg font-semibold"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             Add Track
           </Dialog.Title>
@@ -205,7 +203,7 @@ export function NewTrackModal({ open, onOpenChange }: NewTrackModalProps) {
                     border: `1px solid ${template.color}4D`, // ~30% opacity
                   }}
                 >
-                  <span className="mb-2" style={{ color: 'var(--color-text)' }}>
+                  <span className="mb-2" style={{ color: 'var(--daw-text)' }}>
                     <AnimatedTrackIcon
                       animationId={template.animationId}
                       size={ANIM_SIZE}
@@ -213,13 +211,13 @@ export function NewTrackModal({ open, onOpenChange }: NewTrackModalProps) {
                   </span>
                   <span
                     className="text-sm font-bold"
-                    style={{ color: 'var(--color-text)' }}
+                    style={{ color: 'var(--daw-text)' }}
                   >
                     {template.label}
                   </span>
                   <span
                     className="mt-0.5 text-xs"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     {template.description}
                   </span>
@@ -232,7 +230,7 @@ export function NewTrackModal({ open, onOpenChange }: NewTrackModalProps) {
           <Dialog.Close asChild>
             <button
               className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
               aria-label="Close"
             >
               &#x2715;

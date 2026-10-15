@@ -15,7 +15,7 @@ export function OracleSynthView() {
   if (!isVisible || !engine) {
     return (
       <div className="flex h-full items-center justify-center">
-        <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
+        <span className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
           Synth engine not available
         </span>
       </div>

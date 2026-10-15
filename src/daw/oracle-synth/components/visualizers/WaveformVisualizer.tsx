@@ -1,6 +1,7 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { useAnimationFrame, useOnScreen } from '../../hooks/useAnimationFrame';
 import styles from './WaveformVisualizer.module.css';
+import { COLOR } from '@/daw/ui/tokens';
 
 /** Silence this long stops the drawing (the flat line stays drawn). */
 export const WAVEFORM_SILENCE_STOP_MS = 1000;
@@ -22,7 +23,7 @@ interface WaveformVisualizerProps {
 }
 
 export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = React.memo(
-  ({ analyser, height = 60, color = '#7ecfcf' }) => {
+  ({ analyser, height = 60, color = COLOR.accent.value }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const bufferRef = useRef<Uint8Array | null>(null);
     const lastWidth = useRef(0);

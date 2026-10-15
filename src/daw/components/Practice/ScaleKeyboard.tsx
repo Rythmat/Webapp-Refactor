@@ -35,8 +35,9 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { SegmentedToggle } from './SegmentedToggle';
 import { BLACK_KEYS, useKeyCenters } from './useKeyCenters';
+import { COLOR } from '@/daw/ui/tokens';
 
-const ACCENT = '#7ecfcf';
+const ACCENT = COLOR.accent.value;
 const OFF_SCALE = '#71717a';
 
 /** What `PianoKeyboard` asks for one octave in `gaming` mode: twice its normal. */
@@ -279,7 +280,7 @@ export function ScaleKeyboard({
                         <span
                           className={`text-base ${tonic ? 'font-bold' : 'font-medium'}`}
                           style={{
-                            color: showDegrees ? 'var(--color-text)' : ACCENT,
+                            color: showDegrees ? 'var(--daw-text)' : ACCENT,
                           }}
                         >
                           {name}
@@ -349,8 +350,8 @@ function LabelToggle({
       onClick={onClick}
       className="rounded-full px-2.5 py-1 text-xs font-medium tabular-nums transition-colors"
       style={{
-        border: `1px solid ${on ? ACCENT : 'var(--color-border)'}`,
-        color: on ? ACCENT : 'var(--color-text-dim)',
+        border: `1px solid ${on ? ACCENT : 'var(--daw-hairline)'}`,
+        color: on ? ACCENT : 'var(--daw-text-3)',
         opacity: on ? 1 : 0.7,
       }}
     >

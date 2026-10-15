@@ -22,7 +22,7 @@ import {
 // participates in collaborative track selection or locking (the master bus is
 // shared by everyone, so it must stay editable for all collaborators).
 
-const MASTER_COLOR = 'var(--color-accent)';
+const MASTER_COLOR = 'var(--daw-accent)';
 
 export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
   // Previews while it moves; one store write on release.
@@ -51,8 +51,8 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
       className="flex flex-col justify-between border-b px-3 py-2"
       style={{
         height: 80,
-        backgroundColor: 'var(--color-surface-2)',
-        borderColor: 'var(--color-border)',
+        backgroundColor: 'var(--daw-surface-2)',
+        borderColor: 'var(--daw-hairline)',
         borderLeft: `3px solid ${MASTER_COLOR}`,
       }}
     >
@@ -64,7 +64,7 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
         />
         <span
           className="min-w-0 flex-1 truncate text-[11px] font-bold uppercase tracking-wide"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           Master
         </span>
@@ -73,9 +73,9 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
           whileTap={{ scale: 0.9 }}
           className="flex items-center gap-1 rounded px-1.5 py-0.5 transition-colors"
           style={{
-            color: fxCount > 0 ? MASTER_COLOR : 'var(--color-text-dim)',
+            color: fxCount > 0 ? MASTER_COLOR : 'var(--daw-text-3)',
             border: `1px solid ${
-              fxCount > 0 ? MASTER_COLOR : 'var(--color-border)'
+              fxCount > 0 ? MASTER_COLOR : 'var(--daw-hairline)'
             }`,
             background: 'none',
           }}
@@ -104,11 +104,11 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
               ? '#000'
               : hasAutomation
                 ? MASTER_COLOR
-                : 'var(--color-text-dim)',
+                : 'var(--daw-text-3)',
             border: `1px solid ${
               automationOpen || hasAutomation
                 ? MASTER_COLOR
-                : 'var(--color-border)'
+                : 'var(--daw-hairline)'
             }`,
           }}
           title="Master volume automation"
@@ -126,7 +126,7 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
       <div className="flex items-center gap-1">
         <span
           className="text-[9px] uppercase tracking-wide"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Master Bus
         </span>
@@ -136,9 +136,8 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
             whileTap={{ scale: 0.9 }}
             className="ml-auto flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors"
             style={{
-              color:
-                listenMode === 'all' ? MASTER_COLOR : 'var(--color-text-dim)',
-              border: `1px solid ${listenMode === 'all' ? MASTER_COLOR : 'var(--color-border)'}`,
+              color: listenMode === 'all' ? MASTER_COLOR : 'var(--daw-text-3)',
+              border: `1px solid ${listenMode === 'all' ? MASTER_COLOR : 'var(--daw-hairline)'}`,
               background: 'none',
             }}
             title={
@@ -170,7 +169,7 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
         >
           <Slider.Track
             className="relative h-1.5 w-full overflow-hidden rounded-full"
-            style={{ backgroundColor: 'var(--color-border)' }}
+            style={{ backgroundColor: 'var(--daw-hairline)' }}
           >
             {/* Live stereo master level (the mean of L and R), the same
                 source as the mixer's master strip. */}
@@ -182,13 +181,13 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
           </Slider.Track>
           <Slider.Thumb
             className="block h-3 w-1.5 rounded-sm shadow-sm focus:outline-none"
-            style={{ backgroundColor: 'var(--color-text-dim)' }}
+            style={{ backgroundColor: 'var(--daw-text-3)' }}
             aria-label="Master Volume"
           />
         </Slider.Root>
         <span
           className="ml-0.5 w-8 shrink-0 text-right text-[9px] tabular-nums"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           {formatGain(masterVolume, { unit: '' })}
         </span>

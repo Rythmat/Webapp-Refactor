@@ -33,6 +33,7 @@ import {
   useControlGesture,
 } from '@/daw/hooks/useContinuousControl';
 import styles from './OrganView.module.css';
+import { COLOR } from '@/daw/ui/tokens';
 
 type OrganState = NonNullable<Track['organState']>;
 
@@ -73,7 +74,7 @@ const ACCENT = {
   presets: '#e8a040',
   drawbars: '#e8a040',
   percussion: '#e8c840',
-  vibrato: '#7ecfcf',
+  vibrato: COLOR.accent.value,
   leslie: '#45B649',
   mix: '#aaa',
 } as const;
@@ -314,7 +315,7 @@ interface SegmentedProps<T extends string> {
 function Segmented<T extends string>({
   options,
   value,
-  accent = '#7ecfcf',
+  accent = COLOR.accent.value,
   className,
   onChange,
 }: SegmentedProps<T>) {
@@ -410,7 +411,7 @@ export function OrganView({ trackId }: OrganViewProps) {
   if (!engine) {
     return (
       <div className="flex items-center justify-center h-full p-4">
-        <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
+        <span className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
           Organ engine loading...
         </span>
       </div>

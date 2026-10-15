@@ -6,8 +6,9 @@ import { Knob } from '../controls/Knob';
 import { LFONode, RateDiv, QuarterRates } from '../../audio/types';
 import { RATE_DIV_OPTIONS, divToRepeats } from '../../audio/rateDivisions';
 import styles from './LFOArea.module.css';
+import { COLOR } from '@/daw/ui/tokens';
 
-const ACCENT = '#7ecfcf';
+const ACCENT = COLOR.accent.value;
 
 /** Map numeric knob index → rate division */
 function indexToRateDiv(index: number): RateDiv {

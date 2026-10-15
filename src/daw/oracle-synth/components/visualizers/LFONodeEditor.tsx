@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { LFONode } from '../../audio/types';
 import styles from './LFONodeEditor.module.css';
+import { COLOR } from '@/daw/ui/tokens';
 
 interface LFONodeEditorProps {
   nodes: LFONode[];
@@ -36,7 +37,7 @@ function shapeFrac(frac: number, curve: number): number {
  * - Double-click a curve handle to reset to linear
  */
 export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
-  ({ nodes, onChange, color = '#7ecfcf', gridSnap = true }) => {
+  ({ nodes, onChange, color = COLOR.accent.value, gridSnap = true }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const [size, setSize] = useState({ width: 200, height: 100 });

@@ -285,20 +285,20 @@ export function AutomationLaneEditor() {
       className="flex shrink-0 border-t"
       style={{
         height: LANE_H,
-        backgroundColor: 'var(--color-surface)',
-        borderColor: 'var(--color-border)',
+        backgroundColor: 'var(--daw-surface-1)',
+        borderColor: 'var(--daw-hairline)',
       }}
       data-tutorial-id="automation-lane"
     >
       {/* Label / controls column */}
       <div
         className="flex shrink-0 flex-col justify-between border-r p-2"
-        style={{ width: HEADER_W, borderColor: 'var(--color-border)' }}
+        style={{ width: HEADER_W, borderColor: 'var(--daw-hairline)' }}
       >
         <div className="flex items-center justify-between">
           <span
             className="truncate text-[11px] font-semibold"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
             title={laneName}
           >
             {laneName}
@@ -306,7 +306,7 @@ export function AutomationLaneEditor() {
           <button
             onClick={() => setOpen(null)}
             className="flex size-5 items-center justify-center rounded transition-colors hover:bg-white/10"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
             aria-label="Close automation lane"
           >
             <X size={13} />
@@ -315,7 +315,7 @@ export function AutomationLaneEditor() {
         <div className="flex flex-col gap-1">
           <span
             className="text-[9px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Automate
           </span>
@@ -325,9 +325,9 @@ export function AutomationLaneEditor() {
             onChange={(e) => setParamId(e.target.value)}
             className="w-full rounded px-1.5 py-1 text-[11px] outline-none"
             style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--daw-surface-2)',
+              color: 'var(--daw-text)',
+              border: '1px solid var(--daw-hairline)',
             }}
           >
             {options.map((p) => (
@@ -337,7 +337,7 @@ export function AutomationLaneEditor() {
             ))}
           </select>
         </div>
-        <span className="text-[9px]" style={{ color: 'var(--color-text-dim)' }}>
+        <span className="text-[9px]" style={{ color: 'var(--daw-text-3)' }}>
           Click to add · drag ↕ · alt-click to delete
         </span>
       </div>

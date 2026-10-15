@@ -15,7 +15,7 @@
 }
 
 .whiteKey.active {
-  background: linear-gradient(to bottom, #7ecfcf, #a0e8e8);
+  background: linear-gradient(to bottom, #a8a8b0, #c8c8ce);
 }
 
 .blackKey {
@@ -36,5 +36,5 @@
 }
 
 .blackKey.active {
-  background: linear-gradient(to bottom, #4a9e9e, #357070);
+  background: linear-gradient(to bottom, #6a6a72, #4a4a52);
 }

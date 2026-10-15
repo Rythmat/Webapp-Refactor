@@ -58,7 +58,7 @@ function Seg<T extends string | number>({
   return (
     <div
       className="flex gap-1 rounded-lg p-1"
-      style={{ backgroundColor: 'var(--color-surface-2)' }}
+      style={{ backgroundColor: 'var(--daw-surface-2)' }}
     >
       {options.map((opt) => {
         const active = opt.value === value;
@@ -71,7 +71,7 @@ function Seg<T extends string | number>({
             className="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
             style={{
               backgroundColor: active ? '#f59e0b' : 'transparent',
-              color: active ? '#1a1a1a' : 'var(--color-text-dim)',
+              color: active ? '#1a1a1a' : 'var(--daw-text-3)',
               cursor: off ? 'default' : 'pointer',
               opacity: off ? 0.5 : 1,
             }}
@@ -88,7 +88,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <span
       className="text-[10px] font-semibold uppercase tracking-wider"
-      style={{ color: 'var(--color-text-dim)' }}
+      style={{ color: 'var(--daw-text-3)' }}
     >
       {children}
     </span>
@@ -108,7 +108,7 @@ function BarInput({
 }) {
   return (
     <label className="flex flex-1 flex-col gap-1">
-      <span className="text-[10px]" style={{ color: 'var(--color-text-dim)' }}>
+      <span className="text-[10px]" style={{ color: 'var(--daw-text-3)' }}>
         {label}
       </span>
       <input
@@ -123,9 +123,9 @@ function BarInput({
         // The dialog portals outside .daw-root, so the theme vars need
         // literal fallbacks or the field renders without a box.
         style={{
-          backgroundColor: 'var(--color-surface-2, rgba(255,255,255,0.08))',
-          color: 'var(--color-text, #e8e8f0)',
-          border: '1px solid var(--color-border, rgba(255,255,255,0.2))',
+          backgroundColor: 'var(--daw-surface-2)',
+          color: 'var(--daw-text)',
+          border: '1px solid var(--daw-hairline)',
         }}
       />
     </label>
@@ -309,7 +309,7 @@ export function ExportAudioDialog({
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !busy && onOpenChange(o)}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content
           data-tutorial-id="export-audio-dialog"
           className="fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
@@ -317,8 +317,6 @@ export function ExportAudioDialog({
             maxWidth: 420,
             backgroundColor: 'rgba(255, 255, 255, 0.04)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
-            backdropFilter: 'blur(32px)',
-            WebkitBackdropFilter: 'blur(32px)',
             boxShadow:
               '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
           }}
@@ -327,13 +325,13 @@ export function ExportAudioDialog({
         >
           <Dialog.Title
             className="mb-1 text-lg font-semibold"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             Export Audio
           </Dialog.Title>
           <Dialog.Description
             className="mb-5 text-xs"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Bounce your project to an audio file. The full mix — instruments,
             effects, sends and mastering — is rendered offline.
@@ -356,8 +354,8 @@ export function ExportAudioDialog({
                       style={{
                         backgroundColor: active
                           ? 'rgba(255, 255, 255, 0.08)'
-                          : 'var(--color-surface-2)',
-                        border: `1px solid ${active ? 'rgba(255, 255, 255, 0.6)' : 'var(--color-border)'}`,
+                          : 'var(--daw-surface-2)',
+                        border: `1px solid ${active ? 'rgba(255, 255, 255, 0.6)' : 'var(--daw-hairline)'}`,
                         cursor: unavailable ? 'not-allowed' : 'pointer',
                         opacity: unavailable ? 0.4 : 1,
                       }}
@@ -366,15 +364,15 @@ export function ExportAudioDialog({
                         className="text-xs font-semibold"
                         style={{
                           color: active
-                            ? 'var(--color-text)'
-                            : 'var(--color-text-dim)',
+                            ? 'var(--daw-text)'
+                            : 'var(--daw-text-3)',
                         }}
                       >
                         {f.label}
                       </span>
                       <span
                         className="text-[9px]"
-                        style={{ color: 'var(--color-text-dim)' }}
+                        style={{ color: 'var(--daw-text-3)' }}
                       >
                         {unavailable ? 'unsupported' : f.hint}
                       </span>
@@ -427,7 +425,7 @@ export function ExportAudioDialog({
                     />
                     <span
                       className="pb-2 text-xs"
-                      style={{ color: 'var(--color-text-dim)' }}
+                      style={{ color: 'var(--daw-text-3)' }}
                     >
                       to
                     </span>
@@ -441,7 +439,7 @@ export function ExportAudioDialog({
                   <span
                     className="text-[11px]"
                     style={{
-                      color: customError ? '#f87171' : 'var(--color-text-dim)',
+                      color: customError ? '#f87171' : 'var(--daw-text-3)',
                     }}
                     role={customError ? 'alert' : undefined}
                   >
@@ -473,7 +471,7 @@ export function ExportAudioDialog({
                     <span
                       key={w}
                       className="text-[11px] leading-snug"
-                      style={{ color: 'var(--color-text-dim)' }}
+                      style={{ color: 'var(--daw-text-3)' }}
                     >
                       {w}
                     </span>
@@ -489,18 +487,18 @@ export function ExportAudioDialog({
                   <Loader2
                     size={13}
                     className="animate-spin"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   />
                   <span
                     className="text-xs"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     {progressLabel}
                   </span>
                 </div>
                 <div
                   className="h-1.5 w-full overflow-hidden rounded-full"
-                  style={{ backgroundColor: 'var(--color-surface-2)' }}
+                  style={{ backgroundColor: 'var(--daw-surface-2)' }}
                 >
                   <div
                     className="h-full rounded-full transition-all duration-200"
@@ -520,8 +518,8 @@ export function ExportAudioDialog({
                 disabled={busy}
                 className="rounded-full px-4 py-2 text-xs font-medium transition-colors hover:bg-white/5"
                 style={{
-                  color: 'var(--color-text-dim)',
-                  border: '1px solid var(--color-border)',
+                  color: 'var(--daw-text-3)',
+                  border: '1px solid var(--daw-hairline)',
                   cursor: busy ? 'default' : 'pointer',
                   opacity: busy ? 0.5 : 1,
                 }}

@@ -129,7 +129,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
       height={MEASURE_HEIGHT}
       viewBox={`0 0 ${svgWidth} ${MEASURE_HEIGHT}`}
       className="leadsheet-staff"
-      style={{ display: 'block', color: 'var(--color-text)' }}
+      style={{ display: 'block', color: 'var(--daw-text)' }}
     >
       {measures.map((measure, i) => {
         // The real bar: after a multi-bar rest it is ahead of the slot.

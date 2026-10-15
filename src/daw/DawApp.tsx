@@ -16,14 +16,12 @@ import {
   useStartAudioOnGesture,
 } from '@/daw/hooks/useAudioEngine';
 import { usePrefsSync } from '@/daw/hooks/usePrefsSync';
-import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 import { useGlobalCommands } from '@/daw/commands/globalCommands';
 import { useMusicalTyping } from '@/daw/hooks/useMusicalTyping';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { StudioRoutes } from '@/constants/routes';
 import { useStudioCurrentProjectNote } from '@/daw/hooks/useStudioCurrentProjectNote';
-import { useTheme } from '@/daw/hooks/useTheme';
 import { useStore } from '@/daw/store';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { initUndoTracking } from '@/daw/store/undoMiddleware';
@@ -181,11 +179,6 @@ function DawAppInner() {
   useEffect(() => {
     if (isReady) devMark('engine-ready');
   }, [isReady]);
-  useTheme();
-  // Portaled dialogs and popovers read the DAW palette from body.daw-active
-  // (daw.css) while the editor is mounted. Interim: 2.1 moves the tokens to
-  // :root and deletes the hook.
-  useDawBodyTokens();
   const currentView = useStore((s) => s.currentView);
   const practiceSession = useStore((s) => s.practiceSession);
   const userListOpen = useStore((s) => s.userListOpen);
@@ -343,7 +336,7 @@ function DawAppInner() {
     <div
       ref={rootRef}
       className="daw-root relative flex-1 min-h-0 w-full flex flex-col overflow-hidden"
-      style={{ backgroundColor: 'var(--color-bg)' }}
+      style={{ backgroundColor: 'var(--daw-bg)' }}
       aria-busy={busy ? 'true' : undefined}
     >
       <EngineHost isReady={isReady} authToken={authToken} />

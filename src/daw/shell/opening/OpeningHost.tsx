@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { UpgradeLessonDialog } from '@/daw/components/Tutorial/UpgradeLessonDialog';
-import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 import { openErrorTitle } from '@/daw/session/openErrors';
 import {
   backToMyWork,
@@ -43,8 +42,6 @@ function panelContent(
 }
 
 export function OpeningHost() {
-  // The panel portals to <body>, outside .daw-root's tokens.
-  useDawBodyTokens();
   const {
     overlay,
     label,

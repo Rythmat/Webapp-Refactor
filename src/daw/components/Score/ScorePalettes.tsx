@@ -229,13 +229,13 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div
         className="flex shrink-0 items-center gap-1 pl-3 pr-1"
-        style={{ height: 36, borderBottom: '1px solid var(--color-border)' }}
+        style={{ height: 36, borderBottom: '1px solid var(--daw-hairline)' }}
       >
         {searching ? (
           <>
             <Search
               className="size-3.5 shrink-0"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             />
             <input
               ref={searchRef}
@@ -249,7 +249,7 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
               }}
               placeholder="Search palettes"
               className="min-w-0 flex-1 bg-transparent text-xs outline-none"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             />
             <button
               onClick={() => {
@@ -258,7 +258,7 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
               }}
               title="Close search"
               className="rounded p-1 hover:bg-white/10"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               <X className="size-3.5" />
             </button>
@@ -267,7 +267,7 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
           <>
             <span
               className="flex-1 text-xs font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Palettes
             </span>
@@ -275,7 +275,7 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
               onClick={() => setSearching(true)}
               title="Search palettes"
               className="rounded p-1 hover:bg-white/10"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               <Search className="size-3.5" />
             </button>
@@ -284,7 +284,7 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
                 onClick={() => setMenuOpen((v) => !v)}
                 title="Palette options"
                 className="rounded p-1 hover:bg-white/10"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 <MoreHorizontal className="size-3.5" />
               </button>
@@ -297,9 +297,9 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
                   <div
                     className="absolute right-0 top-7 z-50 w-56 rounded border py-1 text-xs shadow-lg"
                     style={{
-                      background: 'var(--color-surface-2)',
-                      borderColor: 'var(--color-border)',
-                      color: 'var(--color-text)',
+                      background: 'var(--daw-popover)',
+                      borderColor: 'var(--daw-hairline)',
+                      color: 'var(--daw-text)',
                     }}
                   >
                     {[
@@ -356,7 +356,7 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
                   !singleClickOpens && togglePalette(palette.id)
                 }
                 className="flex w-full items-center gap-1 px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/5"
-                style={{ color: 'var(--color-text)' }}
+                style={{ color: 'var(--daw-text)' }}
                 title={expanded ? 'Collapse' : 'Expand'}
               >
                 {expanded ? (
@@ -377,9 +377,9 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
                         title={item.name}
                         className="relative flex aspect-square items-center justify-center overflow-hidden rounded border transition-colors hover:bg-white/10"
                         style={{
-                          borderColor: 'var(--color-border)',
-                          background: 'var(--color-surface-2)',
-                          color: 'var(--color-text)',
+                          borderColor: 'var(--daw-hairline)',
+                          background: 'var(--daw-surface-2)',
+                          color: 'var(--daw-text)',
                           opacity: live ? 1 : 0.55,
                           cursor: live ? 'pointer' : 'default',
                         }}
@@ -409,7 +409,7 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
                             style={{
                               borderColor: 'currentColor',
                               marginBottom: STAFF_HEIGHT,
-                              background: 'var(--color-surface-2)',
+                              background: 'var(--daw-surface-2)',
                             }}
                           >
                             {item.boxed}
@@ -430,8 +430,8 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
       <div
         className="shrink-0 px-3 py-2 text-[10px] leading-snug"
         style={{
-          borderTop: '1px solid var(--color-border)',
-          color: 'var(--color-text-dim)',
+          borderTop: '1px solid var(--daw-hairline)',
+          color: 'var(--daw-text-3)',
         }}
       >
         {hasSelection

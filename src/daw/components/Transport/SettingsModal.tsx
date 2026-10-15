@@ -38,15 +38,13 @@ export function SettingsModal() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content
           className="fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
           style={{
             maxWidth: view === 'main' ? 448 : 560,
             backgroundColor: 'rgba(255, 255, 255, 0.04)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
-            backdropFilter: 'blur(32px)',
-            WebkitBackdropFilter: 'blur(32px)',
             boxShadow:
               '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
           }}
@@ -62,7 +60,7 @@ export function SettingsModal() {
           <Dialog.Close asChild>
             <button
               className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
               aria-label="Close"
             >
               &#x2715;
@@ -176,7 +174,7 @@ function MainView({
     <>
       <Dialog.Title
         className="mb-6 text-lg font-semibold"
-        style={{ color: 'var(--color-text)' }}
+        style={{ color: 'var(--daw-text)' }}
       >
         Settings
       </Dialog.Title>
@@ -189,7 +187,7 @@ function MainView({
         <div className="flex flex-col gap-2">
           <span
             className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Audio Input Device
           </span>
@@ -208,7 +206,7 @@ function MainView({
           <div className="flex flex-col gap-2">
             <span
               className="text-[10px] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Input Channels
             </span>
@@ -216,9 +214,9 @@ function MainView({
               <div
                 className="rounded-lg px-3 py-2 text-xs"
                 style={{
-                  backgroundColor: 'var(--color-surface-2)',
-                  border: '1px solid var(--color-border)',
-                  color: 'var(--color-text-dim)',
+                  backgroundColor: 'var(--daw-surface-2)',
+                  border: '1px solid var(--daw-hairline)',
+                  color: 'var(--daw-text-3)',
                 }}
               >
                 Detecting channels…
@@ -229,20 +227,20 @@ function MainView({
                   onClick={() => setShowChannelCountMenu((v) => !v)}
                   className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2"
                   style={{
-                    backgroundColor: 'var(--color-surface-2)',
-                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--daw-surface-2)',
+                    border: '1px solid var(--daw-hairline)',
                   }}
                 >
                   <span
                     className="text-xs"
-                    style={{ color: 'var(--color-text)' }}
+                    style={{ color: 'var(--daw-text)' }}
                   >
                     {channelCountLabel}
                   </span>
                   <ChevronDown
                     size={14}
                     className="ml-2 shrink-0"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   />
                 </div>
                 {showChannelCountMenu && (
@@ -251,8 +249,8 @@ function MainView({
                     style={{
                       top: '100%',
                       marginTop: 2,
-                      backgroundColor: 'var(--color-surface-2)',
-                      border: '1px solid var(--color-border)',
+                      backgroundColor: 'var(--daw-popover)',
+                      border: '1px solid var(--daw-hairline)',
                       maxHeight: 200,
                       overflowY: 'auto',
                     }}
@@ -270,7 +268,7 @@ function MainView({
                           onClick={() => handleSelectChannelCount(opt.value)}
                           className="cursor-pointer px-3 py-1.5 text-xs hover:bg-white/10"
                           style={{
-                            color: 'var(--color-text)',
+                            color: 'var(--daw-text)',
                             backgroundColor: isSelected
                               ? 'rgba(255, 255, 255, 0.10)'
                               : undefined,
@@ -291,7 +289,7 @@ function MainView({
         <div className="flex flex-col gap-2">
           <span
             className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Audio Output Device
           </span>
@@ -308,9 +306,9 @@ function MainView({
             <div
               className="rounded-lg px-3 py-2 text-xs"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
-                color: 'var(--color-text-dim)',
+                backgroundColor: 'var(--daw-surface-2)',
+                border: '1px solid var(--daw-hairline)',
+                color: 'var(--daw-text-3)',
               }}
             >
               Output device selection requires Chrome or Edge
@@ -322,7 +320,7 @@ function MainView({
         <div className="flex flex-col gap-2">
           <span
             className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Channel Configuration
           </span>
@@ -332,11 +330,9 @@ function MainView({
               disabled={!inputDeviceId}
               className="flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-white/10"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
-                color: inputDeviceId
-                  ? 'var(--color-text)'
-                  : 'var(--color-text-dim)',
+                backgroundColor: 'var(--daw-surface-2)',
+                border: '1px solid var(--daw-hairline)',
+                color: inputDeviceId ? 'var(--daw-text)' : 'var(--daw-text-3)',
                 cursor: inputDeviceId ? 'pointer' : 'default',
                 opacity: inputDeviceId ? 1 : 0.5,
               }}
@@ -348,11 +344,9 @@ function MainView({
               disabled={!outputDeviceId}
               className="flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-white/10"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
-                color: outputDeviceId
-                  ? 'var(--color-text)'
-                  : 'var(--color-text-dim)',
+                backgroundColor: 'var(--daw-surface-2)',
+                border: '1px solid var(--daw-hairline)',
+                color: outputDeviceId ? 'var(--daw-text)' : 'var(--daw-text-3)',
                 cursor: outputDeviceId ? 'pointer' : 'default',
                 opacity: outputDeviceId ? 1 : 0.5,
               }}
@@ -419,13 +413,13 @@ function ChannelConfigView({
         <button
           onClick={onBack}
           className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/10"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           <ArrowLeft size={16} />
         </button>
         <Dialog.Title
           className="text-lg font-semibold"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           {label} Configuration
         </Dialog.Title>
@@ -436,7 +430,7 @@ function ChannelConfigView({
 
       <p
         className="mb-5 text-xs leading-relaxed"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         Choose which audio hardware {kind}s to make available to tracks. Every{' '}
         {kind} pair can be used as one stereo {kind === 'input' ? 'in' : 'out'}{' '}
@@ -444,7 +438,7 @@ function ChannelConfigView({
       </p>
 
       {channelCount === 0 ? (
-        <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
+        <p className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
           No {kind} device selected.
         </p>
       ) : (
@@ -456,7 +450,7 @@ function ChannelConfigView({
           <div className="flex-1">
             <span
               className="mb-3 block text-[11px] font-semibold"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               Mono {label}s
             </span>
@@ -469,7 +463,7 @@ function ChannelConfigView({
                   <div key={pi} className="flex items-center gap-1.5">
                     <span
                       className="w-10 shrink-0 text-right text-[10px]"
-                      style={{ color: 'var(--color-text-dim)' }}
+                      style={{ color: 'var(--daw-text-3)' }}
                     >
                       {ch1 + 1}
                       {hasCh2 ? ` & ${ch2 + 1}` : ''}
@@ -494,7 +488,7 @@ function ChannelConfigView({
           <div className="flex-1">
             <span
               className="mb-3 block text-[11px] font-semibold"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               Stereo {label}s
             </span>
@@ -535,9 +529,9 @@ function ChannelToggle({
       onClick={onClick}
       className="cursor-pointer rounded px-2.5 py-1 text-[11px] font-medium transition-colors"
       style={{
-        backgroundColor: active ? '#ffffff' : 'var(--color-surface-2)',
-        color: active ? '#101012' : 'var(--color-text-dim)',
-        border: `1px solid ${active ? '#ffffff' : 'var(--color-border)'}`,
+        backgroundColor: active ? '#ffffff' : 'var(--daw-surface-2)',
+        color: active ? '#101012' : 'var(--daw-text-3)',
+        border: `1px solid ${active ? '#ffffff' : 'var(--daw-hairline)'}`,
         minWidth: label ? 48 : 32,
       }}
     >
@@ -572,16 +566,14 @@ function DeviceDropdown({
         onClick={onToggle}
         className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2"
         style={{
-          backgroundColor: 'var(--color-surface-2)',
-          border: '1px solid var(--color-border)',
+          backgroundColor: 'var(--daw-surface-2)',
+          border: '1px solid var(--daw-hairline)',
         }}
       >
         <span
           className="truncate text-xs"
           style={{
-            color: devices.length
-              ? 'var(--color-text)'
-              : 'var(--color-text-dim)',
+            color: devices.length ? 'var(--daw-text)' : 'var(--daw-text-3)',
           }}
         >
           {selectedLabel}
@@ -589,7 +581,7 @@ function DeviceDropdown({
         <ChevronDown
           size={14}
           className="ml-2 shrink-0"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         />
       </div>
       {open && devices.length > 0 && (
@@ -598,8 +590,8 @@ function DeviceDropdown({
           style={{
             top: '100%',
             marginTop: 2,
-            backgroundColor: 'var(--color-surface-2)',
-            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--daw-popover)',
+            border: '1px solid var(--daw-hairline)',
             maxHeight: 200,
             overflowY: 'auto',
           }}
@@ -610,7 +602,7 @@ function DeviceDropdown({
               onClick={() => onSelect(d.id)}
               className="cursor-pointer truncate px-3 py-1.5 text-xs hover:bg-white/10"
               style={{
-                color: 'var(--color-text)',
+                color: 'var(--daw-text)',
                 backgroundColor:
                   d.id === selectedId ? 'rgba(255, 255, 255, 0.10)' : undefined,
               }}
@@ -631,16 +623,16 @@ function InfoPill({ label, value }: { label: string; value: string }) {
     <div className="flex flex-col gap-1">
       <span
         className="text-[10px] font-semibold uppercase tracking-wider"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         {label}
       </span>
       <span
         className="rounded-lg px-3 py-1.5 text-xs"
         style={{
-          backgroundColor: 'var(--color-surface-2)',
-          border: '1px solid var(--color-border)',
-          color: 'var(--color-text)',
+          backgroundColor: 'var(--daw-surface-2)',
+          border: '1px solid var(--daw-hairline)',
+          color: 'var(--daw-text)',
           fontVariantNumeric: 'tabular-nums',
         }}
       >

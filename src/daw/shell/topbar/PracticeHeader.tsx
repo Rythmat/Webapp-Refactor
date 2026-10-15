@@ -7,10 +7,8 @@ import { SaveStatusChip } from './SaveStatusChip';
 // Back to lesson · the track's name · the save chip and 'Take it to the
 // Studio'. Lifted from PracticeTrackView unchanged in look; the chip is the
 // one addition. No Undo/Redo: the practice screen has no undo (Cmd+Z is off
-// there). The teal 'Take it to the Studio' pill is today's practice accent
-// (--color-accent); Stage B restyles it with the rest of Practice. Its text
-// is var(--color-bg) (#101012 in the editor) where it was #191919: the
-// shell's lint allows no hex literal, and the step is not visible.
+// there). 'Take it to the Studio' is the white pill, the screen's primary
+// action (it was teal until milestone 2.1).
 //
 // Three columns, so the title stays centred now that the right-hand group
 // (chip and pill) is wider than the back button; it wraps below md, as before.
@@ -36,13 +34,13 @@ export function PracticeHeader({
         type="button"
         onClick={onBack}
         className="justify-self-start rounded-full px-4 py-1.5 text-sm transition-colors hover:bg-white/5"
-        style={{ border: '1px solid var(--color-border)' }}
+        style={{ border: '1px solid var(--daw-hairline)' }}
       >
         &larr; Back to lesson
       </button>
       <h1
         className="min-w-0 truncate text-center text-sm font-medium"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         {projectName}
       </h1>
@@ -56,8 +54,8 @@ export function PracticeHeader({
           onClick={onTakeToStudio}
           className="rounded-full px-4 py-1.5 text-sm font-semibold transition-colors"
           style={{
-            background: 'var(--color-accent)',
-            color: 'var(--color-bg)',
+            background: 'var(--daw-primary)',
+            color: 'var(--daw-on-primary)',
           }}
         >
           Take it to the Studio &rarr;

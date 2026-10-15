@@ -44,6 +44,7 @@ import {
 } from '@/daw/hooks/useContinuousControl';
 import { previewTrack } from '@/daw/engine/trackReconciler';
 import { withTransaction } from '@/daw/store/history';
+import { getDawPalette } from '@/daw/ui/tokens';
 
 type DrumPads = NonNullable<Track['drumPads']>;
 
@@ -115,13 +116,12 @@ function padIndexForNote(note: number): number {
 
 // ── Theme colors ──────────────────────────────────────────────────────────
 
-function getThemeColors(el: HTMLElement) {
-  const s = getComputedStyle(el);
-  const get = (v: string, fb: string) => s.getPropertyValue(v).trim() || fb;
+function getThemeColors() {
+  const palette = getDawPalette();
   return {
-    bg: get('--color-bg', '#101012'),
-    border: get('--color-border', 'rgba(255,255,255,0.08)'),
-    textDim: get('--color-text-dim', '#6b6b80'),
+    bg: palette.bg,
+    border: palette.hairline,
+    textDim: palette.text3,
   };
 }
 
@@ -408,9 +408,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const colors = containerRef.current
-      ? getThemeColors(containerRef.current)
-      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+    const colors = getThemeColors();
     const dpr = window.devicePixelRatio || 1;
     const rulerContainer = rulerScrollRef.current;
     const w = rulerContainer
@@ -474,9 +472,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     const container = gridScrollRef.current;
     if (!container) return;
 
-    const colors = containerRef.current
-      ? getThemeColors(containerRef.current)
-      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+    const colors = getThemeColors();
     const dpr = window.devicePixelRatio || 1;
     const w = Math.max(container.clientWidth, gridW);
     const h = GRID_H;
@@ -631,9 +627,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const colors = containerRef.current
-      ? getThemeColors(containerRef.current)
-      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+    const colors = getThemeColors();
     const dpr = window.devicePixelRatio || 1;
     const velContainer = velScrollRef.current;
     const w = velContainer ? Math.max(velContainer.clientWidth, gridW) : gridW;
@@ -1394,13 +1388,13 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         className="flex items-center gap-2 px-3 shrink-0"
         style={{
           height: TOOLBAR_H,
-          borderBottom: '1px solid var(--color-border)',
+          borderBottom: '1px solid var(--daw-hairline)',
         }}
       >
         {/* Label + Kit selector */}
         <span
           className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Drums
         </span>
@@ -1410,28 +1404,28 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             onClick={() => setDropdownOpen((o) => !o)}
             className="flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[11px] font-medium cursor-pointer transition-colors"
             style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--daw-surface-2)',
+              color: 'var(--daw-text)',
+              border: '1px solid var(--daw-hairline)',
             }}
           >
             {loading && (
               <Loader2
                 size={10}
                 className="animate-spin"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               />
             )}
             {currentKitLabel}
-            <ChevronDown size={10} style={{ color: 'var(--color-text-dim)' }} />
+            <ChevronDown size={10} style={{ color: 'var(--daw-text-3)' }} />
           </button>
 
           {dropdownOpen && (
             <div
               className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-30"
               style={{
-                backgroundColor: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-surface-1)',
+                border: '1px solid var(--daw-hairline)',
                 minWidth: 140,
                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
               }}
@@ -1444,19 +1438,19 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
                   style={{
                     backgroundColor:
                       kit.id === currentKit
-                        ? 'var(--color-surface-2)'
+                        ? 'var(--daw-surface-2)'
                         : 'transparent',
                     color:
                       kit.id === currentKit
-                        ? 'var(--color-text)'
-                        : 'var(--color-text-dim)',
+                        ? 'var(--daw-text)'
+                        : 'var(--daw-text-3)',
                     fontWeight: kit.id === currentKit ? 600 : 400,
                     border: 'none',
                   }}
                   onMouseEnter={(e) => {
                     if (kit.id !== currentKit)
                       e.currentTarget.style.backgroundColor =
-                        'var(--color-surface-2)';
+                        'var(--daw-surface-2)';
                   }}
                   onMouseLeave={(e) => {
                     if (kit.id !== currentKit)
@@ -1520,20 +1514,20 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         {/* Grid dropdown */}
         <label
           className="flex items-center gap-1.5 text-xs"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Grid
           <select
             value={gridSize}
             onChange={(e) => setGridSize(e.target.value as GridSize)}
             className="bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-xs outline-none"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             {Object.keys(GRID_VALUES).map((g) => (
               <option
                 key={g}
                 value={g}
-                style={{ backgroundColor: 'var(--color-bg)' }}
+                style={{ backgroundColor: 'var(--daw-bg)' }}
               >
                 {g}
               </option>
@@ -1544,7 +1538,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         <button
           onClick={handleQuantize}
           className="px-2 py-0.5 text-xs rounded bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           Quantize
         </button>
@@ -1591,12 +1585,12 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         {/* Spacer + meta */}
         <div className="flex-1" />
 
-        <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
+        <span className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
           {events.length} notes
         </span>
         <span
           className="text-[10px] tabular-nums"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           {Math.round(zoom * 100)}%
         </span>
@@ -1606,8 +1600,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] uppercase tracking-wider cursor-pointer transition-colors"
           style={{
             backgroundColor: 'rgba(255,255,255,0.04)',
-            color: 'var(--color-text-dim)',
-            border: '1px solid var(--color-border)',
+            color: 'var(--daw-text-3)',
+            border: '1px solid var(--daw-hairline)',
           }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)')
@@ -1632,9 +1626,9 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
               style={{
                 height: RULER_H,
                 flexShrink: 0,
-                backgroundColor: 'var(--color-bg)',
-                borderBottom: '1px solid var(--color-border)',
-                borderRight: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-bg)',
+                borderBottom: '1px solid var(--daw-hairline)',
+                borderRight: '1px solid var(--daw-hairline)',
               }}
             />
             {/* Pad labels — reversed so Kick is at bottom, scrolls with grid */}
@@ -1643,7 +1637,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
               className="flex flex-col overflow-y-auto"
               style={{
                 flex: 1,
-                borderRight: '1px solid var(--color-border)',
+                borderRight: '1px solid var(--daw-hairline)',
                 scrollbarWidth: 'none',
               }}
             >
@@ -1732,10 +1726,10 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             onClick={() => setVelLaneOpen((o) => !o)}
             className="flex items-center gap-1 w-full px-2 py-1 text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
             style={{
-              color: 'var(--color-text-dim)',
+              color: 'var(--daw-text-3)',
               background: 'none',
               border: 'none',
-              borderTop: '1px solid var(--color-border)',
+              borderTop: '1px solid var(--daw-hairline)',
             }}
           >
             {velLaneOpen ? (
@@ -1826,7 +1820,7 @@ function DrumRowLabel({
           width: 16,
           height: 16,
           backgroundColor: selected
-            ? 'var(--color-accent)'
+            ? 'var(--daw-accent)'
             : 'rgba(255,255,255,0.08)',
           border: 'none',
           cursor: 'pointer',
@@ -1838,7 +1832,7 @@ function DrumRowLabel({
       <span
         className="text-[9px] font-medium truncate"
         style={{
-          color: selected ? 'var(--color-text)' : 'var(--color-text-dim)',
+          color: selected ? 'var(--daw-text)' : 'var(--daw-text-3)',
           width: 42,
           flexShrink: 0,
         }}
@@ -1965,7 +1959,7 @@ function MiniKnob({
         y1={cy}
         x2={ix}
         y2={iy}
-        stroke="var(--color-text)"
+        stroke="var(--daw-text)"
         strokeWidth={1.5}
         strokeLinecap="round"
       />

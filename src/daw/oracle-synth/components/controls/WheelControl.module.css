@@ -34,7 +34,7 @@
   left: 2px;
   right: 2px;
   height: 4px;
-  background: #7ecfcf;
+  background: var(--daw-accent);
   border-radius: 2px;
   transition: top 0.05s;
 }

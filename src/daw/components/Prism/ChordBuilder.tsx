@@ -65,13 +65,13 @@ function SliderControl({
       <div className="flex items-center justify-between">
         <span
           className="text-xs font-medium"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           {label}
         </span>
         <span
           className="text-xs tabular-nums"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           {value}
         </span>
@@ -87,16 +87,16 @@ function SliderControl({
       >
         <Slider.Track
           className="relative h-1.5 grow rounded-full"
-          style={{ backgroundColor: 'var(--color-surface-2)' }}
+          style={{ backgroundColor: 'var(--daw-surface-2)' }}
         >
           <Slider.Range
             className="absolute h-full rounded-full"
-            style={{ backgroundColor: 'var(--color-accent)' }}
+            style={{ backgroundColor: 'var(--daw-accent)' }}
           />
         </Slider.Track>
         <Slider.Thumb
           className="block size-3.5 cursor-pointer rounded-full shadow focus:outline-none"
-          style={{ backgroundColor: 'var(--color-accent)' }}
+          style={{ backgroundColor: 'var(--daw-accent)' }}
         />
       </Slider.Root>
     </div>
@@ -123,7 +123,7 @@ function EnumSelector({
     <div className="flex flex-col gap-1">
       <span
         className="mb-0.5 text-xs font-medium"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         {label}
       </span>
@@ -132,9 +132,9 @@ function EnumSelector({
         onChange={handleChange}
         className="h-8 cursor-pointer rounded-md px-2 text-sm font-medium outline-none"
         style={{
-          backgroundColor: 'var(--color-surface-2)',
-          color: 'var(--color-text)',
-          border: '1px solid var(--color-border)',
+          backgroundColor: 'var(--daw-surface-2)',
+          color: 'var(--daw-text)',
+          border: '1px solid var(--daw-hairline)',
         }}
       >
         {Object.entries(options).map(([k, v]) => (
@@ -208,9 +208,9 @@ export function ChordSelection() {
             onClick={handleAddChord(name)}
             className="h-7 cursor-pointer truncate rounded px-1.5 text-xs font-medium transition-colors hover:brightness-125"
             style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--daw-surface-2)',
+              color: 'var(--daw-text)',
+              border: '1px solid var(--daw-hairline)',
             }}
           >
             {chordLabel(name)}
@@ -219,7 +219,7 @@ export function ChordSelection() {
         {!hasDiatonicProgressions && (
           <div
             className="col-span-2 py-3 text-center text-xs italic"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             No progressions for this mode
           </div>
@@ -229,7 +229,7 @@ export function ChordSelection() {
           stringSeq.length > 0 && (
             <div
               className="col-span-2 py-3 text-center text-xs italic"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               No more options available
             </div>
@@ -243,9 +243,9 @@ export function ChordSelection() {
           disabled={stringSeq.length === 0}
           className="h-7 flex-1 cursor-pointer rounded text-[10px] font-medium transition-colors disabled:cursor-default disabled:opacity-40"
           style={{
-            backgroundColor: 'var(--color-surface-2)',
-            color: 'var(--color-text-dim)',
-            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--daw-surface-2)',
+            color: 'var(--daw-text-3)',
+            border: '1px solid var(--daw-hairline)',
           }}
         >
           Undo
@@ -255,9 +255,9 @@ export function ChordSelection() {
           disabled={stringSeq.length === 0}
           className="h-7 flex-1 cursor-pointer rounded text-[10px] font-medium transition-colors disabled:cursor-default disabled:opacity-40"
           style={{
-            backgroundColor: 'var(--color-surface-2)',
-            color: 'var(--color-text-dim)',
-            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--daw-surface-2)',
+            color: 'var(--daw-text-3)',
+            border: '1px solid var(--daw-hairline)',
           }}
         >
           Clear
@@ -284,10 +284,7 @@ export function RhythmExpression() {
 
   return (
     <div className="flex flex-col gap-3">
-      <span
-        className="text-xs font-bold"
-        style={{ color: 'var(--color-text)' }}
-      >
+      <span className="text-xs font-bold" style={{ color: 'var(--daw-text)' }}>
         Rhythm &amp; Expression
       </span>
 
@@ -329,7 +326,7 @@ export function ChordBuilder() {
       <ChordSelection />
       <div
         className="border-t pt-3"
-        style={{ borderColor: 'var(--color-border)' }}
+        style={{ borderColor: 'var(--daw-hairline)' }}
       >
         <RhythmExpression />
       </div>

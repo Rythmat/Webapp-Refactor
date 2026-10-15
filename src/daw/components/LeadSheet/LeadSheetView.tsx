@@ -876,7 +876,7 @@ function LeadSheetChartView() {
           sidebar does — it has no width of its own. */}
       <div
         className="leadsheet-palette flex w-[216px] shrink-0 flex-col overflow-hidden"
-        style={{ borderRight: '1px solid var(--color-border)' }}
+        style={{ borderRight: '1px solid var(--daw-hairline)' }}
       >
         <ScorePalettes
           hasSelection={targetBarline !== null}
@@ -897,7 +897,7 @@ function LeadSheetChartView() {
           {/* Title */}
           <h1
             className="leadsheet-title mb-1 text-center text-xl font-bold"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             {projectName}
           </h1>
@@ -908,7 +908,7 @@ function LeadSheetChartView() {
           {/* Subtitle: key, tempo */}
           <div
             className="leadsheet-subtitle mb-6 flex justify-center gap-4 text-xs"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             {keyDisplay && <span>Key: {keyDisplay}</span>}
             <span>Tempo: {bpm} BPM</span>
@@ -960,7 +960,7 @@ function LeadSheetChartView() {
           {chordRegions.length === 0 && (
             <div
               className="mt-8 text-center text-sm"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               No chords recorded yet. Switch to Create view and record some
               chords, or double-click a beat on the staff to add one.

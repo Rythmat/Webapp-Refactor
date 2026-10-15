@@ -194,10 +194,10 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
         rx={2}
         fill={
           selected
-            ? 'color-mix(in srgb, var(--color-accent, #8b5cf6) 35%, transparent)'
+            ? 'color-mix(in srgb, var(--daw-accent) 35%, transparent)'
             : 'transparent'
         }
-        stroke={selected ? 'var(--color-accent, #8b5cf6)' : 'transparent'}
+        stroke={selected ? 'var(--daw-accent)' : 'transparent'}
         strokeWidth={1}
         onClick={handleBarlineClick(barlineIndex)}
         style={{ cursor: 'pointer' }}
@@ -294,7 +294,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
                 cx={chordDrag.currentX}
                 cy={CHORD_AREA_HEIGHT + STAFF_HEIGHT / 2}
                 r={4}
-                fill="var(--color-accent, #8b5cf6)"
+                fill="var(--daw-accent)"
                 opacity={0.8}
               />
               {/* Tether line from chord area to beat dot */}
@@ -303,7 +303,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
                 y1={CHORD_AREA_HEIGHT - 4}
                 x2={chordDrag.currentX}
                 y2={CHORD_AREA_HEIGHT + STAFF_HEIGHT / 2 - 4}
-                stroke="var(--color-accent, #8b5cf6)"
+                stroke="var(--daw-accent)"
                 strokeWidth={1}
                 strokeDasharray="3 2"
                 opacity={0.7}
@@ -321,9 +321,9 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
           y={staffTop - 4}
           width={width}
           height={STAFF_HEIGHT + 8}
-          fill="var(--color-accent, #8b5cf6)"
+          fill="var(--daw-accent)"
           opacity={0.16}
-          stroke="var(--color-accent, #8b5cf6)"
+          stroke="var(--daw-accent)"
           strokeWidth={1}
           rx={2}
           style={{ pointerEvents: 'none' }}
@@ -338,7 +338,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
             y={staffTop - 2}
             width={beatCellWidth}
             height={STAFF_HEIGHT + 4}
-            fill="var(--color-accent, #8b5cf6)"
+            fill="var(--daw-accent)"
             opacity={0.24}
             rx={2}
             style={{ pointerEvents: 'none' }}
@@ -418,9 +418,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
               y1={cy + 6}
               x2={bx + 5}
               y2={cy - 6}
-              stroke={
-                isTarget ? 'var(--color-accent, #8b5cf6)' : 'currentColor'
-              }
+              stroke={isTarget ? 'var(--daw-accent)' : 'currentColor'}
               strokeWidth={isTarget ? 3 : 2}
               opacity={isTarget ? 0.9 : 0.35}
             />

@@ -1,5 +1,4 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 
 // ── ConfirmModal ────────────────────────────────────────────────────────────
 // Small confirmation dialog. Renders a Cancel + Confirm pair, or a single
@@ -35,15 +34,14 @@ export function ConfirmModal({
   onConfirm,
   destructive,
 }: ConfirmModalProps) {
-  useDawBodyTokens();
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
         <Dialog.Content
           className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
           style={{
-            backgroundColor: 'var(--color-surface)',
+            backgroundColor: 'var(--daw-surface-1)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
             boxShadow:
               '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
@@ -51,13 +49,13 @@ export function ConfirmModal({
         >
           <Dialog.Title
             className="mb-2 text-base font-semibold"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             {title}
           </Dialog.Title>
           <Dialog.Description
             className="text-sm leading-relaxed"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             {description}
           </Dialog.Description>
@@ -67,7 +65,7 @@ export function ConfirmModal({
               <button
                 onClick={() => onOpenChange(false)}
                 className="h-8 cursor-pointer rounded-full bg-white/10 px-4 text-xs font-semibold transition-colors hover:bg-white/15"
-                style={{ color: 'var(--color-text)', border: 'none' }}
+                style={{ color: 'var(--daw-text)', border: 'none' }}
               >
                 {cancelLabel}
               </button>
@@ -81,7 +79,7 @@ export function ConfirmModal({
               style={
                 destructive
                   ? {
-                      backgroundColor: 'var(--color-record, #ef4444)',
+                      backgroundColor: 'var(--daw-record)',
                       color: '#fff',
                       border: 'none',
                     }

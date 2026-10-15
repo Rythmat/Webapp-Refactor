@@ -382,8 +382,8 @@ describe('VocalView after a reload (live-input-02, live-input-03)', () => {
     fireEvent.click(screen.getByText('1'));
 
     const [, input1] = screen.getAllByText('1');
-    expect(input1.style.color).toBe('var(--color-accent)');
-    expect(screen.getByText('2').style.color).toBe('var(--color-text)');
+    expect(input1.style.color).toBe('var(--daw-accent)');
+    expect(screen.getByText('2').style.color).toBe('var(--daw-text)');
   });
 
   it('logs an input that fails to open instead of leaving it unhandled', async () => {

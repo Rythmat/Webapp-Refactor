@@ -45,7 +45,7 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 function tagColor(tag: string): string {
-  return TAG_COLORS[tag] ?? 'var(--color-text-dim)';
+  return TAG_COLORS[tag] ?? 'var(--daw-text-3)';
 }
 
 type SortMode = 'newest' | 'oldest' | 'a-z';
@@ -261,12 +261,12 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
     <div
       data-tutorial-id="grooves-browser"
       className="relative flex flex-col h-full"
-      style={{ backgroundColor: 'var(--color-surface)' }}
+      style={{ backgroundColor: 'var(--daw-surface-1)' }}
     >
       {/* ── Filter bar ────────────────────────────────────────────── */}
       <div
         className="flex items-center gap-2 px-3 py-2 shrink-0 border-b"
-        style={{ borderColor: 'var(--color-border)' }}
+        style={{ borderColor: 'var(--daw-hairline)' }}
       >
         {/* BPM dropdown */}
         <select
@@ -276,11 +276,9 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           className="text-[10px] rounded-full px-3 py-1 cursor-pointer"
           style={{
             backgroundColor:
-              bpmFilter !== 'All'
-                ? 'var(--color-surface-3)'
-                : 'var(--color-surface-2)',
-            color: 'var(--color-text)',
-            border: '1px solid var(--color-border)',
+              bpmFilter !== 'All' ? 'var(--daw-hover)' : 'var(--daw-surface-2)',
+            color: 'var(--daw-text)',
+            border: '1px solid var(--daw-hairline)',
             outline: 'none',
           }}
         >
@@ -300,11 +298,9 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           className="text-[10px] rounded-full px-3 py-1 cursor-pointer"
           style={{
             backgroundColor:
-              genre !== 'All'
-                ? 'var(--color-surface-3)'
-                : 'var(--color-surface-2)',
-            color: 'var(--color-text)',
-            border: '1px solid var(--color-border)',
+              genre !== 'All' ? 'var(--daw-hover)' : 'var(--daw-surface-2)',
+            color: 'var(--daw-text)',
+            border: '1px solid var(--daw-hairline)',
             outline: 'none',
           }}
         >
@@ -335,20 +331,20 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           their columns. */}
       <div
         className="flex items-center gap-2.5 px-3 py-1.5 shrink-0 border-b"
-        style={{ borderColor: 'var(--color-border)' }}
+        style={{ borderColor: 'var(--daw-hairline)' }}
       >
         {/* Spans the row's thumbnail and play button. */}
         <span className="w-[56px] shrink-0" aria-hidden />
         <span
           className="text-[11px] uppercase tracking-wider flex-1"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Name
         </span>
 
         <span
           className="text-[11px] uppercase tracking-wider w-[48px] shrink-0 text-right"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           BPM
         </span>
@@ -364,9 +360,9 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
             }}
             className="text-[10px] rounded-full px-2.5 py-1 cursor-pointer"
             style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--daw-surface-2)',
+              color: 'var(--daw-text)',
+              border: '1px solid var(--daw-hairline)',
               outline: 'none',
             }}
           >
@@ -382,7 +378,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
             onClick={() => setShuffleSeed((s) => s + 1)}
             className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
             style={{
-              color: 'var(--color-text-dim)',
+              color: 'var(--daw-text-3)',
               background: 'none',
               border: 'none',
             }}
@@ -401,7 +397,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
         {filtered.length === 0 ? (
           <div
             className="flex items-center justify-center h-full text-[10px]"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             No grooves found
           </div>
@@ -429,8 +425,8 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
         <div
           className="flex items-center gap-2 px-3 py-1.5 shrink-0 border-t"
           style={{
-            borderColor: 'var(--color-border)',
-            backgroundColor: 'var(--color-surface-2)',
+            borderColor: 'var(--daw-hairline)',
+            backgroundColor: 'var(--daw-surface-2)',
           }}
         >
           {/* Transport */}
@@ -439,7 +435,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
               onClick={() => navigatePreview(-1)}
               className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
               style={{
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
                 background: 'none',
                 border: 'none',
               }}
@@ -453,8 +449,8 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
               }}
               className="flex items-center justify-center w-7 h-7 rounded-full cursor-pointer"
               style={{
-                color: 'var(--color-text)',
-                backgroundColor: 'var(--color-surface-3)',
+                color: 'var(--daw-text)',
+                backgroundColor: 'var(--daw-hover)',
                 border: 'none',
               }}
             >
@@ -468,7 +464,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
               onClick={() => navigatePreview(1)}
               className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
               style={{
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
                 background: 'none',
                 border: 'none',
               }}
@@ -480,12 +476,12 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           {/* Thumbnail */}
           <div
             className="w-8 h-8 rounded shrink-0 flex items-center justify-center"
-            style={{ backgroundColor: 'var(--color-surface-3)' }}
+            style={{ backgroundColor: 'var(--daw-hover)' }}
           >
             <FileMusic
               size={14}
               strokeWidth={1.5}
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             />
           </div>
 
@@ -493,7 +489,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           <div className="flex flex-col gap-0.5 flex-1 min-w-0">
             <span
               className="text-[11px] font-medium truncate"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {previewGroove.name}
             </span>
@@ -510,8 +506,8 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
             onClick={() => loadGroove(previewGroove)}
             className="flex items-center justify-center w-7 h-7 rounded cursor-pointer shrink-0"
             style={{
-              color: 'var(--color-accent)',
-              backgroundColor: 'var(--color-surface-3)',
+              color: 'var(--daw-accent)',
+              backgroundColor: 'var(--daw-hover)',
               border: 'none',
             }}
             title="Add to track"
@@ -527,30 +523,28 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           ref={bpmPopoverRef}
           className="absolute left-1/2 top-1/2 z-50 w-56 -translate-x-1/2 -translate-y-1/2 rounded-xl p-4 shadow-lg"
           style={{
-            backgroundColor: 'var(--color-surface-2)',
+            backgroundColor: 'var(--daw-popover)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
-            backdropFilter: 'blur(32px)',
-            WebkitBackdropFilter: 'blur(32px)',
             boxShadow:
               '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
           }}
         >
           <p
             className="mb-1 text-xs font-semibold"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             Change Project BPM?
           </p>
           <p
             className="mb-4 text-[10px] leading-relaxed"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             This groove is{' '}
-            <strong style={{ color: 'var(--color-text)' }}>
+            <strong style={{ color: 'var(--daw-text)' }}>
               {pendingGroove.bpm} BPM
             </strong>
             , but your project is{' '}
-            <strong style={{ color: 'var(--color-text)' }}>
+            <strong style={{ color: 'var(--daw-text)' }}>
               {projectBpm} BPM
             </strong>
             .
@@ -564,8 +558,8 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
               }}
               className="flex h-7 w-full cursor-pointer items-center justify-center rounded-md text-[10px] font-semibold transition-colors hover:opacity-90"
               style={{
-                backgroundColor: 'var(--color-accent)',
-                color: '#000',
+                backgroundColor: 'var(--daw-primary)',
+                color: 'var(--daw-on-primary)',
                 border: 'none',
               }}
             >
@@ -579,7 +573,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
               className="flex h-7 w-full cursor-pointer items-center justify-center rounded-md text-[10px] font-medium transition-colors hover:bg-white/10"
               style={{
                 backgroundColor: 'transparent',
-                color: 'var(--color-text)',
+                color: 'var(--daw-text)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
               }}
             >
@@ -590,7 +584,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
               className="flex h-6 w-full cursor-pointer items-center justify-center text-[10px] transition-colors hover:underline"
               style={{
                 backgroundColor: 'transparent',
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
                 border: 'none',
               }}
             >
@@ -621,17 +615,15 @@ function FilterPill({
       onClick={onClick}
       className="flex items-center gap-1.5 text-[10px] rounded-full px-3 py-1 cursor-pointer"
       style={{
-        backgroundColor: active
-          ? 'var(--color-surface-3)'
-          : 'var(--color-surface-2)',
-        color: active ? 'var(--color-text)' : 'var(--color-text-dim)',
-        border: '1px solid var(--color-border)',
+        backgroundColor: active ? 'var(--daw-hover)' : 'var(--daw-surface-2)',
+        color: active ? 'var(--daw-text)' : 'var(--daw-text-3)',
+        border: '1px solid var(--daw-hairline)',
       }}
     >
       {label}
       <span
         style={{
-          color: active ? 'var(--color-accent)' : 'var(--color-text-dim)',
+          color: active ? 'var(--daw-accent)' : 'var(--daw-text-3)',
         }}
       >
         {icon}
@@ -663,8 +655,8 @@ function GrooveRow({
     <div
       className="flex items-center gap-2.5 px-3 py-2 group border-b"
       style={{
-        backgroundColor: isActive ? 'var(--color-surface-2)' : 'transparent',
-        borderColor: 'var(--color-border)',
+        backgroundColor: isActive ? 'var(--daw-surface-2)' : 'transparent',
+        borderColor: 'var(--daw-hairline)',
       }}
       onMouseEnter={(e) => {
         if (!isActive)
@@ -677,12 +669,12 @@ function GrooveRow({
       {/* Thumbnail */}
       <div
         className="w-8 h-8 rounded shrink-0 flex items-center justify-center"
-        style={{ backgroundColor: 'var(--color-surface-3)' }}
+        style={{ backgroundColor: 'var(--daw-hover)' }}
       >
         <FileMusic
           size={14}
           strokeWidth={1.5}
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         />
       </div>
 
@@ -693,7 +685,7 @@ function GrooveRow({
         style={{
           background: 'none',
           border: 'none',
-          color: isPlaying ? 'var(--color-accent)' : 'var(--color-text-dim)',
+          color: isPlaying ? 'var(--daw-accent)' : 'var(--daw-text-3)',
         }}
       >
         {isPlaying ? (
@@ -707,7 +699,7 @@ function GrooveRow({
       <div className="flex flex-col gap-0.5 flex-1 min-w-0">
         <span
           className="text-[11px] font-medium truncate"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           {groove.name}
         </span>
@@ -723,7 +715,7 @@ function GrooveRow({
       <span
         className="text-[10px] w-[48px] shrink-0 text-right"
         style={{
-          color: 'var(--color-text-dim)',
+          color: 'var(--daw-text-3)',
           fontVariantNumeric: 'tabular-nums',
         }}
       >
@@ -739,7 +731,7 @@ function GrooveRow({
           style={{
             background: 'none',
             border: 'none',
-            color: isSaved ? '#ef4444' : 'var(--color-text-dim)',
+            color: isSaved ? '#ef4444' : 'var(--daw-text-3)',
             opacity: isSaved ? 1 : undefined,
           }}
         >
@@ -757,7 +749,7 @@ function GrooveRow({
           style={{
             background: 'none',
             border: 'none',
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
           }}
           title="Add to track"
         >

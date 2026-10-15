@@ -64,8 +64,8 @@ function StyleBadge({
     <span
       className="rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider"
       style={{
-        backgroundColor: 'var(--color-surface-3)',
-        color: 'var(--color-text-dim)',
+        backgroundColor: 'var(--daw-hover)',
+        color: 'var(--daw-text-3)',
       }}
     >
       Style: {label}
@@ -88,7 +88,7 @@ function MeasurePicker({
     <div className="flex items-center gap-1">
       <span
         className="text-[10px] uppercase tracking-wider"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         Measures:
       </span>
@@ -99,8 +99,8 @@ function MeasurePicker({
           className="cursor-pointer rounded px-2 py-0.5 text-[11px] font-medium"
           style={{
             backgroundColor:
-              value === n ? 'var(--color-accent)' : 'var(--color-surface-3)',
-            color: value === n ? 'var(--color-bg)' : 'var(--color-text-dim)',
+              value === n ? 'var(--daw-selected)' : 'var(--daw-hover)',
+            color: value === n ? 'var(--daw-text)' : 'var(--daw-text-3)',
             border: 'none',
           }}
         >
@@ -403,7 +403,6 @@ export function PrismSuggestionModal({
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(4px)',
       }}
       onClick={close}
     >
@@ -412,7 +411,7 @@ export function PrismSuggestionModal({
         style={{
           width: 520,
           maxWidth: '90vw',
-          backgroundColor: 'var(--color-surface)',
+          backgroundColor: 'var(--daw-surface-1)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
           boxShadow: '0 24px 48px rgba(0, 0, 0, 0.4)',
         }}
@@ -421,19 +420,16 @@ export function PrismSuggestionModal({
         {/* ── Header ── */}
         <div
           className="flex items-center gap-2 px-5 py-3"
-          style={{ borderBottom: '1px solid var(--color-border)' }}
+          style={{ borderBottom: '1px solid var(--daw-hairline)' }}
         >
           <PrismLogo size={18} />
           <span
             className="text-sm font-semibold"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             Prism Suggestions
           </span>
-          <span
-            className="text-[10px]"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
+          <span className="text-[10px]" style={{ color: 'var(--daw-text-3)' }}>
             Bar {insertBar}
           </span>
           {style && <StyleBadge style={style} />}
@@ -442,7 +438,7 @@ export function PrismSuggestionModal({
             onClick={close}
             className="flex cursor-pointer items-center justify-center rounded p-1"
             style={{
-              color: 'var(--color-text-dim)',
+              color: 'var(--daw-text-3)',
               background: 'none',
               border: 'none',
             }}
@@ -454,7 +450,7 @@ export function PrismSuggestionModal({
         {/* ── Controls row ── */}
         <div
           className="flex items-center justify-between px-5 py-2"
-          style={{ borderBottom: '1px solid var(--color-border)' }}
+          style={{ borderBottom: '1px solid var(--daw-hairline)' }}
         >
           <MeasurePicker value={measures} onChange={setMeasures} />
 
@@ -465,9 +461,9 @@ export function PrismSuggestionModal({
                 onChange={(e) => handleSoundChange(Number(e.target.value))}
                 className="cursor-pointer rounded px-2 py-1 text-[10px]"
                 style={{
-                  color: 'var(--color-text-dim)',
-                  backgroundColor: 'var(--color-surface-2)',
-                  border: '1px solid var(--color-border)',
+                  color: 'var(--daw-text-3)',
+                  backgroundColor: 'var(--daw-surface-2)',
+                  border: '1px solid var(--daw-hairline)',
                   outline: 'none',
                 }}
               >
@@ -482,8 +478,8 @@ export function PrismSuggestionModal({
               onClick={regenerate}
               className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px]"
               style={{
-                color: 'var(--color-text-dim)',
-                background: 'var(--color-surface-2)',
+                color: 'var(--daw-text-3)',
+                background: 'var(--daw-surface-2)',
                 border: 'none',
               }}
               title="Re-roll (R)"
@@ -500,8 +496,8 @@ export function PrismSuggestionModal({
             onClick={prev}
             className="flex cursor-pointer items-center justify-center rounded p-1"
             style={{
-              color: 'var(--color-text-dim)',
-              background: 'var(--color-surface-2)',
+              color: 'var(--daw-text-3)',
+              background: 'var(--daw-surface-2)',
               border: 'none',
             }}
             title="Previous (←)"
@@ -512,14 +508,11 @@ export function PrismSuggestionModal({
           <div className="flex flex-1 flex-col items-center">
             <span
               className="text-[11px] font-medium"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {activeSuggestion.label}
             </span>
-            <span
-              className="text-[9px]"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
+            <span className="text-[9px]" style={{ color: 'var(--daw-text-3)' }}>
               {activeIdx + 1} of {suggestions.length}
             </span>
           </div>
@@ -528,8 +521,8 @@ export function PrismSuggestionModal({
             onClick={next}
             className="flex cursor-pointer items-center justify-center rounded p-1"
             style={{
-              color: 'var(--color-text-dim)',
-              background: 'var(--color-surface-2)',
+              color: 'var(--daw-text-3)',
+              background: 'var(--daw-surface-2)',
               border: 'none',
             }}
             title="Next (→)"
@@ -555,7 +548,7 @@ export function PrismSuggestionModal({
                       className="h-8"
                       style={{
                         width: 1,
-                        backgroundColor: 'var(--color-border)',
+                        backgroundColor: 'var(--daw-hairline)',
                       }}
                     />
                   )}
@@ -572,7 +565,7 @@ export function PrismSuggestionModal({
           {activeSuggestion.chords.length === 0 && (
             <div
               className="py-4 text-center text-xs"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               No suggestions available for this position. Try setting a key in
               the Prism panel first.
@@ -583,17 +576,17 @@ export function PrismSuggestionModal({
         {/* ── Footer ── */}
         <div
           className="flex items-center justify-between px-5 py-3"
-          style={{ borderTop: '1px solid var(--color-border)' }}
+          style={{ borderTop: '1px solid var(--daw-hairline)' }}
         >
           {/* Preview controls */}
           <button
             onClick={isPreviewPlaying ? stopPreview : playProgression}
             className="flex cursor-pointer items-center gap-1.5 rounded px-3 py-1.5 text-[11px] font-medium"
             style={{
-              color: isPreviewPlaying ? 'var(--color-bg)' : 'var(--color-text)',
+              color: isPreviewPlaying ? 'var(--daw-bg)' : 'var(--daw-text)',
               backgroundColor: isPreviewPlaying
                 ? '#ef4444'
-                : 'var(--color-surface-3)',
+                : 'var(--daw-hover)',
               border: 'none',
             }}
             title="Preview (Space)"
@@ -615,9 +608,9 @@ export function PrismSuggestionModal({
               onClick={close}
               className="cursor-pointer rounded px-3 py-1.5 text-[11px]"
               style={{
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
                 background: 'none',
-                border: '1px solid var(--color-border)',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               Cancel
@@ -626,8 +619,8 @@ export function PrismSuggestionModal({
               onClick={commit}
               className="flex cursor-pointer items-center gap-1 rounded px-3 py-1.5 text-[11px] font-semibold"
               style={{
-                color: 'var(--color-bg)',
-                backgroundColor: 'var(--color-accent)',
+                color: 'var(--daw-on-primary)',
+                backgroundColor: 'var(--daw-primary)',
                 border: 'none',
               }}
               title="Commit (Enter)"

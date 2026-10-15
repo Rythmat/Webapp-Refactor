@@ -15,6 +15,7 @@ import {
   displayDegreeLabel,
 } from '@/daw/utils/displayAccidentals';
 import { useChordNotation } from '@/lib/chordNotation';
+import { COLOR } from '@/daw/ui/tokens';
 
 interface ChordChartProps {
   /** One turn of the progression — the loop's regions, cut to the cycle. */
@@ -31,7 +32,7 @@ interface ChordChartProps {
   mode: string;
 }
 
-const ACCENT = '#7ecfcf';
+const ACCENT = COLOR.accent.value;
 
 export function ChordChart({
   regions,
@@ -66,9 +67,9 @@ export function ChordChart({
             className={`rounded-xl text-center transition-colors duration-100 ${large ? 'px-3 py-5' : 'px-2 py-1.5'}`}
             style={{
               background: now
-                ? 'rgba(126,207,207,0.18)'
+                ? 'rgba(255,255,255,0.18)'
                 : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${now ? ACCENT : 'var(--color-border)'}`,
+              border: `1px solid ${now ? ACCENT : 'var(--daw-hairline)'}`,
             }}
           >
             <div
@@ -80,7 +81,7 @@ export function ChordChart({
             </div>
             <div
               className={large ? 'mt-1 text-sm' : 'text-xs'}
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               {displayDegreeLabel(region.name)}
             </div>

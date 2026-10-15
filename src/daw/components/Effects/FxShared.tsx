@@ -18,7 +18,7 @@ export const BAND_COLORS = [
 ];
 
 export const SECTION_STYLE = {
-  backgroundColor: 'var(--color-surface-2)',
+  backgroundColor: 'var(--daw-surface-2)',
   border: '1px solid rgba(255,255,255,0.04)',
 } as const;
 
@@ -64,7 +64,7 @@ export function FxPowerButton({
         height: size,
         minWidth: size,
         padding: withText ? '0 8px 0 6px' : 0,
-        backgroundColor: enabled ? POWER_ON : 'var(--color-surface-3, #222)',
+        backgroundColor: enabled ? POWER_ON : 'var(--daw-hover)',
         color: enabled ? '#04210f' : 'rgba(255,255,255,0.55)',
         border: `1px solid ${enabled ? POWER_ON : 'rgba(255,255,255,0.25)'}`,
         boxShadow: enabled ? `0 0 8px ${POWER_ON}aa` : 'none',
@@ -109,26 +109,24 @@ export function SectionHeader({
         onClick={onToggle}
         className="w-2.5 h-2.5 rounded-full shrink-0 cursor-pointer"
         style={{
-          backgroundColor: enabled
-            ? 'var(--color-accent)'
-            : 'var(--color-surface-3)',
+          backgroundColor: enabled ? 'var(--daw-accent)' : 'var(--daw-hover)',
           border: 'none',
         }}
       />
       <span
         className="text-[10px] font-semibold uppercase tracking-wider shrink-0"
-        style={{ color: 'var(--color-text)' }}
+        style={{ color: 'var(--daw-text)' }}
       >
         {title}
       </span>
       <div
         className="flex-1"
-        style={{ height: 1, backgroundColor: 'var(--color-border)' }}
+        style={{ height: 1, backgroundColor: 'var(--daw-hairline)' }}
       />
       {rightLabel && (
         <span
           className="text-[8px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           {rightLabel}
         </span>
@@ -137,7 +135,7 @@ export function SectionHeader({
         <Settings
           size={10}
           strokeWidth={1.5}
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         />
       )}
       {onExpand && (
@@ -145,7 +143,7 @@ export function SectionHeader({
           onClick={onExpand}
           className="w-4 h-4 flex items-center justify-center rounded-sm cursor-pointer transition-transform"
           style={{
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
             border: 'none',
             background: 'none',
             transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -160,7 +158,7 @@ export function SectionHeader({
           onClick={onPopOut}
           className="w-4 h-4 flex items-center justify-center rounded-sm cursor-pointer"
           style={{
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
             border: 'none',
             background: 'none',
           }}
@@ -174,7 +172,7 @@ export function SectionHeader({
           onClick={onRemove}
           className="w-4 h-4 flex items-center justify-center rounded-sm cursor-pointer"
           style={{
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
             border: 'none',
             background: 'none',
           }}
@@ -201,8 +199,7 @@ export function StudioCreativeToggle({
       <span
         className="text-[8px] font-semibold uppercase tracking-wider cursor-pointer"
         style={{
-          color:
-            mode === 'studio' ? 'var(--color-text)' : 'var(--color-text-dim)',
+          color: mode === 'studio' ? 'var(--daw-text)' : 'var(--daw-text-3)',
         }}
         onClick={() => onChange('studio')}
       >
@@ -213,15 +210,16 @@ export function StudioCreativeToggle({
         className="w-7 h-3.5 rounded-full flex items-center px-0.5 cursor-pointer"
         style={{
           backgroundColor:
-            mode === 'creative'
-              ? 'var(--color-accent)'
-              : 'var(--color-surface-3)',
+            mode === 'creative' ? 'var(--daw-primary)' : 'var(--daw-hover)',
           border: 'none',
         }}
       >
         <motion.div
           className="w-2.5 h-2.5 rounded-full"
-          style={{ backgroundColor: 'var(--color-text)' }}
+          style={{
+            backgroundColor:
+              mode === 'creative' ? 'var(--daw-on-primary)' : 'var(--daw-text)',
+          }}
           animate={{ x: mode === 'creative' ? 12 : 0 }}
           transition={{ type: 'spring', stiffness: 500, damping: 30 }}
         />
@@ -229,8 +227,7 @@ export function StudioCreativeToggle({
       <span
         className="text-[8px] font-semibold uppercase tracking-wider cursor-pointer"
         style={{
-          color:
-            mode === 'creative' ? 'var(--color-text)' : 'var(--color-text-dim)',
+          color: mode === 'creative' ? 'var(--daw-text)' : 'var(--daw-text-3)',
         }}
         onClick={() => onChange('creative')}
       >
@@ -258,14 +255,12 @@ export function AutoCheckbox({
       <div
         className="w-2 h-2 rounded-full"
         style={{
-          backgroundColor: checked
-            ? 'var(--color-accent)'
-            : 'var(--color-surface-3)',
+          backgroundColor: checked ? 'var(--daw-accent)' : 'var(--daw-hover)',
         }}
       />
       <span
         className="text-[7px] font-semibold uppercase"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         Auto
       </span>
@@ -292,14 +287,14 @@ export function BandTab({
       className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[8px] font-semibold cursor-pointer"
       style={{
         backgroundColor: active ? color : 'transparent',
-        color: active ? '#fff' : 'var(--color-text-dim)',
-        border: active ? 'none' : '1px solid var(--color-border)',
+        color: active ? '#fff' : 'var(--daw-text-3)',
+        border: active ? 'none' : '1px solid var(--daw-hairline)',
         opacity: active ? 1 : 0.6,
       }}
     >
       <div
         className="w-1.5 h-1.5 rounded-full shrink-0"
-        style={{ backgroundColor: active ? '#fff' : 'var(--color-surface-3)' }}
+        style={{ backgroundColor: active ? '#fff' : 'var(--daw-hover)' }}
       />
       Band {index}
     </button>
@@ -358,7 +353,7 @@ export function CurveTypeSelector({
       onClick={cycle}
       className="p-1 rounded cursor-pointer flex items-center justify-center"
       style={{
-        backgroundColor: color ? `${color}18` : 'var(--color-surface-3)',
+        backgroundColor: color ? `${color}18` : 'var(--daw-hover)',
         border: 'none',
       }}
     >
@@ -385,7 +380,7 @@ export function InlineViz({
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
           transition={VIZ_SPRING}
-          style={{ borderTop: '1px solid var(--color-border)' }}
+          style={{ borderTop: '1px solid var(--daw-hairline)' }}
         >
           <div className="p-2.5">{children}</div>
         </motion.div>

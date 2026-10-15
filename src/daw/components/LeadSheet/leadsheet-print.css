@@ -1,6 +1,6 @@
 /* Barline click targets: invisible until pointed at, as in the Score. */
 .leadsheet-barline-target:hover:not([data-selected]) {
-  fill: color-mix(in srgb, var(--color-accent, #8b5cf6) 25%, transparent);
+  fill: color-mix(in srgb, var(--daw-accent) 25%, transparent);
 }
 
 /* ── Printing ───────────────────────────────────────────────────────────────

@@ -66,7 +66,7 @@ export const SuggestionChordPill = memo(function SuggestionChordPill({
       {/* Chord name */}
       <span
         className="whitespace-nowrap text-[11px] font-medium"
-        style={{ color: 'var(--color-text)' }}
+        style={{ color: 'var(--daw-text)' }}
       >
         {label}
       </span>

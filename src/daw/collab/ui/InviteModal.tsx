@@ -73,9 +73,8 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
               onKeyDown={(e) => e.stopPropagation()}
               className="pointer-events-auto flex w-[380px] flex-col gap-4 rounded-xl p-5 shadow-2xl"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
-                backdropFilter: 'blur(24px)',
+                backgroundColor: 'var(--daw-popover)',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               {/* Header */}
@@ -84,11 +83,11 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                   <UserPlus
                     size={14}
                     strokeWidth={2}
-                    style={{ color: 'var(--color-text)' }}
+                    style={{ color: 'var(--daw-text)' }}
                   />
                   <span
                     className="text-sm font-semibold"
-                    style={{ color: 'var(--color-text)' }}
+                    style={{ color: 'var(--daw-text)' }}
                   >
                     Invite Collaborators
                   </span>
@@ -97,7 +96,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                   onClick={onClose}
                   className="flex size-5 items-center justify-center rounded transition-colors hover:bg-white/10"
                   style={{
-                    color: 'var(--color-text-dim)',
+                    color: 'var(--daw-text-3)',
                     background: 'none',
                     border: 'none',
                   }}
@@ -110,7 +109,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
               <div className="flex flex-col gap-1.5">
                 <span
                   className="text-[10px] font-medium uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   Share this room code
                 </span>
@@ -118,8 +117,8 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                   <div
                     className="flex-1 rounded-md px-3 py-2 text-center text-base font-semibold tracking-[0.3em]"
                     style={{
-                      backgroundColor: 'var(--color-surface)',
-                      color: 'var(--color-text)',
+                      backgroundColor: 'var(--daw-surface-1)',
+                      color: 'var(--daw-text)',
                     }}
                   >
                     {roomCode ?? '—'}
@@ -131,8 +130,8 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                     className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5 disabled:opacity-40"
                     style={{
                       color: copied
-                        ? 'var(--color-play)'
-                        : 'var(--color-text-dim)',
+                        ? 'var(--daw-success)'
+                        : 'var(--daw-text-3)',
                       background: 'none',
                       border: 'none',
                     }}
@@ -147,7 +146,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                 </div>
                 <span
                   className="text-[9px]"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   They can join from Start Collaboration → Join Room.
                 </span>

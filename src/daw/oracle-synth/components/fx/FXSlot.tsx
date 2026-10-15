@@ -4,6 +4,7 @@ import { Dropdown } from '../controls/Dropdown';
 import { Knob } from '../controls/Knob';
 import { Toggle } from '../controls/Toggle';
 import styles from './FXSlot.module.css';
+import { COLOR } from '@/daw/ui/tokens';
 
 interface FXSlotProps {
   route: FXRoute;
@@ -23,7 +24,7 @@ const FX_TYPE_OPTIONS: { value: FXType; label: string }[] = [
   { value: 'compressor', label: 'COMP' },
 ];
 
-const ACCENT = '#7ecfcf'; // teal — matches --color-accent
+const ACCENT = COLOR.accent.value;
 
 export const FXSlot: React.FC<FXSlotProps> = React.memo(
   ({ route, fx, usedTypes, onUpdate, onRemove, onParamChange }) => {

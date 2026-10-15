@@ -855,11 +855,11 @@ export function VocalView({ trackId }: { trackId: string }) {
         {/* ── Input Section ──────────────────────────────────── */}
         <div
           className="w-[240px] shrink-0 p-4 flex flex-col gap-3 border-r"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <span
             className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Input
           </span>
@@ -870,20 +870,20 @@ export function VocalView({ trackId }: { trackId: string }) {
               onClick={() => setShowDeviceMenu((v) => !v)}
               className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-surface-2)',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               <span
                 className="text-xs truncate"
-                style={{ color: 'var(--color-text)' }}
+                style={{ color: 'var(--daw-text)' }}
               >
                 {selectedDeviceLabel}
               </span>
               <ChevronDown
                 size={14}
                 className="shrink-0 ml-2"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               />
             </div>
             {showDeviceMenu && (
@@ -892,8 +892,8 @@ export function VocalView({ trackId }: { trackId: string }) {
                 style={{
                   top: '100%',
                   marginTop: 2,
-                  backgroundColor: 'var(--color-surface-2)',
-                  border: '1px solid var(--color-border)',
+                  backgroundColor: 'var(--daw-popover)',
+                  border: '1px solid var(--daw-hairline)',
                   maxHeight: 200,
                   overflowY: 'auto',
                 }}
@@ -906,8 +906,8 @@ export function VocalView({ trackId }: { trackId: string }) {
                     style={{
                       color:
                         d.id === globalInputDeviceId
-                          ? 'var(--color-accent)'
-                          : 'var(--color-text)',
+                          ? 'var(--daw-accent)'
+                          : 'var(--daw-text)',
                     }}
                   >
                     {d.label}
@@ -924,20 +924,14 @@ export function VocalView({ trackId }: { trackId: string }) {
                 onClick={() => setShowChannelMenu((v) => !v)}
                 className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
                 style={{
-                  backgroundColor: 'var(--color-surface-2)',
-                  border: '1px solid var(--color-border)',
+                  backgroundColor: 'var(--daw-surface-2)',
+                  border: '1px solid var(--daw-hairline)',
                 }}
               >
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text)' }}
-                >
+                <span className="text-xs" style={{ color: 'var(--daw-text)' }}>
                   {channelLabel}
                 </span>
-                <ChevronDown
-                  size={14}
-                  style={{ color: 'var(--color-text-dim)' }}
-                />
+                <ChevronDown size={14} style={{ color: 'var(--daw-text-3)' }} />
               </div>
               {showChannelMenu && (
                 <div
@@ -945,8 +939,8 @@ export function VocalView({ trackId }: { trackId: string }) {
                   style={{
                     top: '100%',
                     marginTop: 2,
-                    backgroundColor: 'var(--color-surface-2)',
-                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--daw-popover)',
+                    border: '1px solid var(--daw-hairline)',
                   }}
                 >
                   {channelOptions.map((opt) => (
@@ -956,8 +950,8 @@ export function VocalView({ trackId }: { trackId: string }) {
                       className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10"
                       style={{
                         color: configsMatch(opt.config, inputChannel)
-                          ? 'var(--color-accent)'
-                          : 'var(--color-text)',
+                          ? 'var(--daw-accent)'
+                          : 'var(--daw-text)',
                       }}
                     >
                       {opt.label}
@@ -972,18 +966,21 @@ export function VocalView({ trackId }: { trackId: string }) {
           <div className="flex items-center gap-3">
             <span
               className="text-[10px] shrink-0"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Input Level
             </span>
             <div
               className="flex-1 h-1.5 rounded-full"
-              style={{ backgroundColor: 'var(--color-surface-3)' }}
+              style={{ backgroundColor: 'var(--daw-hover)' }}
             >
               <div
                 ref={meterBarRef}
                 className="h-full rounded-full"
-                style={{ width: '0%', backgroundColor: 'var(--color-accent)' }}
+                style={{
+                  width: '0%',
+                  backgroundColor: 'var(--daw-meter-safe)',
+                }}
               />
             </div>
           </div>
@@ -995,15 +992,15 @@ export function VocalView({ trackId }: { trackId: string }) {
         {/* ── Pedals Column ──────────────────────────────────── */}
         <div
           className="w-[130px] shrink-0 flex flex-col border-r"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <div
             className="px-3 py-2 shrink-0 border-b"
-            style={{ borderColor: 'var(--color-border)' }}
+            style={{ borderColor: 'var(--daw-hairline)' }}
           >
             <span
               className="text-[10px] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Pedals
             </span>
@@ -1022,12 +1019,12 @@ export function VocalView({ trackId }: { trackId: string }) {
                     {ci > 0 && (
                       <div
                         className="mx-3"
-                        style={{ borderTop: '1px solid var(--color-border)' }}
+                        style={{ borderTop: '1px solid var(--daw-hairline)' }}
                       />
                     )}
                     <div
                       className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
-                      style={{ color: 'var(--color-text-dim)' }}
+                      style={{ color: 'var(--daw-text-3)' }}
                     >
                       {category}
                     </div>
@@ -1044,7 +1041,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                         />
                         <span
                           className="text-[11px]"
-                          style={{ color: 'var(--color-text)' }}
+                          style={{ color: 'var(--daw-text)' }}
                         >
                           {def.name}
                         </span>
@@ -1092,11 +1089,11 @@ export function VocalView({ trackId }: { trackId: string }) {
                   height: 68,
                   border:
                     insertSlotIndex === chainIdx || dragOverSlot === chainIdx
-                      ? '2px solid var(--color-accent)'
+                      ? '2px solid var(--daw-accent)'
                       : '2px dashed rgba(255,255,255,0.15)',
                   backgroundColor:
                     dragOverSlot === chainIdx
-                      ? 'rgba(126,207,207,0.08)'
+                      ? 'rgba(255,255,255,0.08)'
                       : 'transparent',
                   transition:
                     'border-color 150ms ease, background-color 150ms ease',
@@ -1107,7 +1104,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                   style={{
                     color:
                       insertSlotIndex === chainIdx
-                        ? 'var(--color-accent)'
+                        ? 'var(--daw-accent)'
                         : 'rgba(255,255,255,0.25)',
                     fontSize: 18,
                   }}
@@ -1120,7 +1117,7 @@ export function VocalView({ trackId }: { trackId: string }) {
             return (
               <div
                 className="relative flex items-center border-b flex-1 min-h-0"
-                style={{ borderColor: 'var(--color-border)' }}
+                style={{ borderColor: 'var(--daw-hairline)' }}
               >
                 {/* Continuous line from In to Out */}
                 <div
@@ -1143,11 +1140,11 @@ export function VocalView({ trackId }: { trackId: string }) {
                   <Mic
                     size={22}
                     strokeWidth={1.5}
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   />
                   <span
                     className="text-[9px] font-semibold uppercase tracking-wider"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     In
                   </span>
@@ -1237,7 +1234,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                 >
                   <span
                     className="text-[9px] font-semibold uppercase tracking-wider shrink-0"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     Out
                   </span>
@@ -1250,12 +1247,12 @@ export function VocalView({ trackId }: { trackId: string }) {
           {selectedBlock && selectedDef && (
             <div
               className="flex-1 overflow-y-auto"
-              style={{ backgroundColor: 'var(--color-surface)' }}
+              style={{ backgroundColor: 'var(--daw-surface-1)' }}
             >
               {/* Header */}
               <div
                 className="flex items-center gap-2.5 px-4 py-1.5 border-b"
-                style={{ borderColor: 'var(--color-border)' }}
+                style={{ borderColor: 'var(--daw-hairline)' }}
               >
                 <div
                   className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -1263,13 +1260,13 @@ export function VocalView({ trackId }: { trackId: string }) {
                 />
                 <span
                   className="text-[10px] font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   {selectedDef.category}
                 </span>
                 <span
                   className="text-[13px] font-medium flex-1"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                 >
                   {selectedDef.name}
                 </span>
@@ -1277,7 +1274,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                   onClick={() => removeBlock(selectedBlock.id)}
                   className="p-1 cursor-pointer rounded-md"
                   style={{
-                    color: 'var(--color-text-dim)',
+                    color: 'var(--daw-text-3)',
                     background: 'none',
                     border: 'none',
                   }}
@@ -1297,7 +1294,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                         <span
                           className="text-[9px] font-semibold uppercase tracking-wider"
                           style={{
-                            color: 'var(--color-text-dim)',
+                            color: 'var(--daw-text-3)',
                             letterSpacing: '1px',
                           }}
                         >
@@ -1309,8 +1306,8 @@ export function VocalView({ trackId }: { trackId: string }) {
                             className="flex items-center justify-center cursor-pointer"
                             style={{
                               color: rootLocked
-                                ? 'var(--color-accent)'
-                                : 'var(--color-text-dim)',
+                                ? 'var(--daw-accent)'
+                                : 'var(--daw-text-3)',
                               border: 'none',
                               background: 'none',
                               padding: 0,
@@ -1354,9 +1351,9 @@ export function VocalView({ trackId }: { trackId: string }) {
                         }}
                         className="text-[10px] rounded px-2 py-1"
                         style={{
-                          backgroundColor: 'var(--color-surface-3)',
-                          color: 'var(--color-text)',
-                          border: '1px solid var(--color-border)',
+                          backgroundColor: 'var(--daw-hover)',
+                          color: 'var(--daw-text)',
+                          border: '1px solid var(--daw-hairline)',
                           cursor: rootLocked ? 'not-allowed' : 'pointer',
                           opacity: rootLocked ? 0.5 : 1,
                         }}
@@ -1373,7 +1370,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                       <span
                         className="text-[9px] font-semibold uppercase tracking-wider"
                         style={{
-                          color: 'var(--color-text-dim)',
+                          color: 'var(--daw-text-3)',
                           letterSpacing: '1px',
                         }}
                       >
@@ -1384,9 +1381,9 @@ export function VocalView({ trackId }: { trackId: string }) {
                           onClick={() => setScaleDropdownOpen((v) => !v)}
                           className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-white/10"
                           style={{
-                            backgroundColor: 'var(--color-surface-3)',
-                            color: 'var(--color-text)',
-                            border: '1px solid var(--color-border)',
+                            backgroundColor: 'var(--daw-hover)',
+                            color: 'var(--daw-text)',
+                            border: '1px solid var(--daw-hairline)',
                             minWidth: 90,
                           }}
                         >
@@ -1415,10 +1412,8 @@ export function VocalView({ trackId }: { trackId: string }) {
                             style={{
                               maxHeight: 260,
                               width: 200,
-                              backgroundColor:
-                                'var(--color-surface-2, #1e1e2e)',
-                              borderColor:
-                                'var(--color-border, rgba(255,255,255,0.08))',
+                              backgroundColor: 'var(--daw-surface-2)',
+                              borderColor: 'var(--daw-hairline)',
                               boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
                             }}
                           >
@@ -1442,7 +1437,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                 color:
                                   (selectedBlock.params.scaleType ?? 0) === 0
                                     ? '#fff'
-                                    : 'var(--color-text-secondary, #a0a0b0)',
+                                    : 'var(--daw-text-2)',
                                 background:
                                   (selectedBlock.params.scaleType ?? 0) === 0
                                     ? 'rgba(255,255,255,0.08)'
@@ -1461,9 +1456,8 @@ export function VocalView({ trackId }: { trackId: string }) {
                                 <div
                                   className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
                                   style={{
-                                    color: 'var(--color-text-dim, #6b6b80)',
-                                    backgroundColor:
-                                      'var(--color-surface-2, #1e1e2e)',
+                                    color: 'var(--daw-text-3)',
+                                    backgroundColor: 'var(--daw-surface-2)',
                                   }}
                                 >
                                   {group.label}
@@ -1500,7 +1494,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                       style={{
                                         color: isActive
                                           ? '#fff'
-                                          : 'var(--color-text-secondary, #a0a0b0)',
+                                          : 'var(--daw-text-2)',
                                         background: isActive
                                           ? 'rgba(255,255,255,0.08)'
                                           : 'none',
@@ -1574,7 +1568,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                       onClick={() => setPitchExpanded(true)}
                       className="ml-auto p-1.5 rounded-md cursor-pointer hover:bg-white/10"
                       style={{
-                        color: 'var(--color-text-dim)',
+                        color: 'var(--daw-text-3)',
                         border: 'none',
                         background: 'none',
                       }}
@@ -1588,14 +1582,12 @@ export function VocalView({ trackId }: { trackId: string }) {
                       onOpenChange={setPitchExpanded}
                     >
                       <Dialog.Portal>
-                        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+                        <Dialog.Overlay className="fixed inset-0 bg-black/60 z-50" />
                         <Dialog.Content
                           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md rounded-2xl z-50 outline-none flex flex-col"
                           style={{
                             backgroundColor: 'rgba(255, 255, 255, 0.04)',
                             border: '1px solid rgba(255, 255, 255, 0.12)',
-                            backdropFilter: 'blur(32px)',
-                            WebkitBackdropFilter: 'blur(32px)',
                             boxShadow:
                               '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
                           }}
@@ -1611,7 +1603,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                             />
                             <Dialog.Title
                               className="text-[13px] font-medium flex-1 m-0"
-                              style={{ color: 'var(--color-text)' }}
+                              style={{ color: 'var(--daw-text)' }}
                             >
                               Pitch Correction
                             </Dialog.Title>
@@ -1619,7 +1611,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                               <button
                                 className="p-1 cursor-pointer rounded-md hover:bg-white/10"
                                 style={{
-                                  color: 'var(--color-text-dim)',
+                                  color: 'var(--daw-text-3)',
                                   background: 'none',
                                   border: 'none',
                                 }}
@@ -1643,7 +1635,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                   <span
                                     className="text-[9px] font-semibold uppercase tracking-wider"
                                     style={{
-                                      color: 'var(--color-text-dim)',
+                                      color: 'var(--daw-text-3)',
                                       letterSpacing: '1px',
                                     }}
                                   >
@@ -1652,7 +1644,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                   <span
                                     className="text-[10px] font-medium"
                                     style={{
-                                      color: 'var(--color-text)',
+                                      color: 'var(--daw-text)',
                                       fontVariantNumeric: 'tabular-nums',
                                     }}
                                   >
@@ -1687,7 +1679,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                   <span
                                     className="text-[9px] font-semibold uppercase tracking-wider"
                                     style={{
-                                      color: 'var(--color-text-dim)',
+                                      color: 'var(--daw-text-3)',
                                       letterSpacing: '1px',
                                     }}
                                   >
@@ -1696,7 +1688,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                   <span
                                     className="text-[10px] font-medium"
                                     style={{
-                                      color: 'var(--color-text)',
+                                      color: 'var(--daw-text)',
                                       fontVariantNumeric: 'tabular-nums',
                                     }}
                                   >
@@ -1729,7 +1721,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                   <span
                                     className="text-[9px] font-semibold uppercase tracking-wider"
                                     style={{
-                                      color: 'var(--color-text-dim)',
+                                      color: 'var(--daw-text-3)',
                                       letterSpacing: '1px',
                                     }}
                                   >
@@ -1738,7 +1730,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                   <span
                                     className="text-[10px] font-medium"
                                     style={{
-                                      color: 'var(--color-text)',
+                                      color: 'var(--daw-text)',
                                       fontVariantNumeric: 'tabular-nums',
                                     }}
                                   >
@@ -1912,7 +1904,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                   <span
                                     className="text-[9px] font-semibold uppercase tracking-wider"
                                     style={{
-                                      color: 'var(--color-text-dim)',
+                                      color: 'var(--daw-text-3)',
                                       letterSpacing: '1px',
                                     }}
                                   >
@@ -1925,8 +1917,8 @@ export function VocalView({ trackId }: { trackId: string }) {
                                       className="flex items-center justify-center cursor-pointer"
                                       style={{
                                         color: rootLocked
-                                          ? 'var(--color-accent)'
-                                          : 'var(--color-text-dim)',
+                                          ? 'var(--daw-accent)'
+                                          : 'var(--daw-text-3)',
                                         border: 'none',
                                         background: 'none',
                                         padding: 0,
@@ -1980,9 +1972,9 @@ export function VocalView({ trackId }: { trackId: string }) {
                                   }}
                                   className="text-[10px] rounded px-2 py-1"
                                   style={{
-                                    backgroundColor: 'var(--color-surface-3)',
-                                    color: 'var(--color-text)',
-                                    border: '1px solid var(--color-border)',
+                                    backgroundColor: 'var(--daw-hover)',
+                                    color: 'var(--daw-text)',
+                                    border: '1px solid var(--daw-hairline)',
                                     cursor: rootLocked
                                       ? 'not-allowed'
                                       : 'pointer',
@@ -2000,7 +1992,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                 <span
                                   className="text-[9px] font-semibold uppercase tracking-wider"
                                   style={{
-                                    color: 'var(--color-text-dim)',
+                                    color: 'var(--daw-text-3)',
                                     letterSpacing: '1px',
                                   }}
                                 >
@@ -2016,9 +2008,9 @@ export function VocalView({ trackId }: { trackId: string }) {
                                     }
                                     className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-white/10"
                                     style={{
-                                      backgroundColor: 'var(--color-surface-3)',
-                                      color: 'var(--color-text)',
-                                      border: '1px solid var(--color-border)',
+                                      backgroundColor: 'var(--daw-hover)',
+                                      color: 'var(--daw-text)',
+                                      border: '1px solid var(--daw-hairline)',
                                       minWidth: 90,
                                     }}
                                   >
@@ -2049,10 +2041,8 @@ export function VocalView({ trackId }: { trackId: string }) {
                                       style={{
                                         maxHeight: 260,
                                         width: 200,
-                                        backgroundColor:
-                                          'var(--color-surface-2, #1e1e2e)',
-                                        borderColor:
-                                          'var(--color-border, rgba(255,255,255,0.08))',
+                                        backgroundColor: 'var(--daw-surface-2)',
+                                        borderColor: 'var(--daw-hairline)',
                                         boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
                                       }}
                                     >
@@ -2076,7 +2066,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                             (selectedBlock.params.scaleType ??
                                               0) === 0
                                               ? '#fff'
-                                              : 'var(--color-text-secondary, #a0a0b0)',
+                                              : 'var(--daw-text-2)',
                                           background:
                                             (selectedBlock.params.scaleType ??
                                               0) === 0
@@ -2097,10 +2087,9 @@ export function VocalView({ trackId }: { trackId: string }) {
                                           <div
                                             className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
                                             style={{
-                                              color:
-                                                'var(--color-text-dim, #6b6b80)',
+                                              color: 'var(--daw-text-3)',
                                               backgroundColor:
-                                                'var(--color-surface-2, #1e1e2e)',
+                                                'var(--daw-surface-2)',
                                             }}
                                           >
                                             {group.label}
@@ -2141,7 +2130,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                                 style={{
                                                   color: isActive
                                                     ? '#fff'
-                                                    : 'var(--color-text-secondary, #a0a0b0)',
+                                                    : 'var(--daw-text-2)',
                                                   background: isActive
                                                     ? 'rgba(255,255,255,0.08)'
                                                     : 'none',
@@ -2166,7 +2155,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                 <span
                                   className="text-[9px] font-semibold uppercase tracking-wider"
                                   style={{
-                                    color: 'var(--color-text-dim)',
+                                    color: 'var(--daw-text-3)',
                                     letterSpacing: '1px',
                                   }}
                                 >
@@ -2175,7 +2164,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                 <span
                                   className="text-[10px] font-medium px-2 py-1"
                                   style={{
-                                    color: 'var(--color-text)',
+                                    color: 'var(--daw-text)',
                                     fontVariantNumeric: 'tabular-nums',
                                   }}
                                 >
@@ -2287,7 +2276,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                       <span
                         className="text-[9px] font-semibold uppercase tracking-wider"
                         style={{
-                          color: 'var(--color-text-dim)',
+                          color: 'var(--daw-text-3)',
                           letterSpacing: '1px',
                         }}
                       >
@@ -2295,7 +2284,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                       </span>
                       <div
                         className="flex rounded-md overflow-hidden"
-                        style={{ border: '1px solid var(--color-border)' }}
+                        style={{ border: '1px solid var(--daw-hairline)' }}
                       >
                         {['Hz', 'Rate'].map((label, idx) => (
                           <button
@@ -2316,7 +2305,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                               color:
                                 (selectedBlock.params.rateMode ?? 0) === idx
                                   ? '#000'
-                                  : 'var(--color-text-dim)',
+                                  : 'var(--daw-text-3)',
                               border: 'none',
                               transition:
                                 'background 150ms ease, color 150ms ease',
@@ -2401,7 +2390,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                       <span
                         className="text-[9px] font-semibold uppercase tracking-wider"
                         style={{
-                          color: 'var(--color-text-dim)',
+                          color: 'var(--daw-text-3)',
                           letterSpacing: '1px',
                         }}
                       >
@@ -2409,7 +2398,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                       </span>
                       <div
                         className="flex rounded-md overflow-hidden"
-                        style={{ border: '1px solid var(--color-border)' }}
+                        style={{ border: '1px solid var(--daw-hairline)' }}
                       >
                         {['LP', 'BP', 'HP'].map((label, idx) => (
                           <button
@@ -2434,7 +2423,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                                   selectedBlock.params.filterType ?? 1,
                                 ) === idx
                                   ? '#000'
-                                  : 'var(--color-text-dim)',
+                                  : 'var(--daw-text-3)',
                               border: 'none',
                               transition:
                                 'background 150ms ease, color 150ms ease',
@@ -2490,7 +2479,7 @@ export function VocalView({ trackId }: { trackId: string }) {
             <div className="flex-1 flex items-center justify-center">
               <span
                 className="text-[11px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {chain.length === 0
                   ? 'Add your first effect'

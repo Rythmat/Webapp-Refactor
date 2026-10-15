@@ -277,7 +277,7 @@ export function CircleOfFifths({
             onClick={() => setDropdownOpen((v) => !v)}
             className="flex cursor-pointer items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors hover:bg-white/10"
             style={{
-              color: 'var(--color-text-dim)',
+              color: 'var(--daw-text-3)',
               border: 'none',
               background: 'none',
             }}
@@ -300,8 +300,8 @@ export function CircleOfFifths({
                 transform: 'translateX(-50%)',
                 maxHeight: 260,
                 width: 180,
-                backgroundColor: 'var(--color-surface-2, #1e1e2e)',
-                borderColor: 'var(--color-border, rgba(255,255,255,0.08))',
+                backgroundColor: 'var(--daw-popover)',
+                borderColor: 'var(--daw-hairline)',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
               }}
             >
@@ -311,8 +311,8 @@ export function CircleOfFifths({
                   <div
                     className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
                     style={{
-                      color: 'var(--color-text-dim, #6b6b80)',
-                      backgroundColor: 'var(--color-surface-2, #1e1e2e)',
+                      color: 'var(--daw-text-3)',
+                      backgroundColor: 'var(--daw-popover)',
                     }}
                   >
                     {group.label}
@@ -323,10 +323,7 @@ export function CircleOfFifths({
                       onClick={() => handleModeSelect(modeKey)}
                       className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
                       style={{
-                        color:
-                          modeKey === mode
-                            ? '#fff'
-                            : 'var(--color-text-secondary, #a0a0b0)',
+                        color: modeKey === mode ? '#fff' : 'var(--daw-text-2)',
                         background:
                           modeKey === mode ? 'rgba(255,255,255,0.08)' : 'none',
                         border: 'none',
@@ -348,7 +345,7 @@ export function CircleOfFifths({
           onClick={handleClear}
           className="cursor-pointer rounded px-3 py-1 text-[10px] font-medium transition-colors hover:bg-white/10"
           style={{
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
             border: 'none',
             background: 'none',
           }}

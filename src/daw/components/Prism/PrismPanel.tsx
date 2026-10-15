@@ -19,7 +19,7 @@ export function PrismPanel() {
         onClick={openPopOut}
         className="absolute right-2 top-2 flex size-6 cursor-pointer items-center justify-center rounded-md transition-colors"
         style={{
-          color: 'var(--color-text-dim)',
+          color: 'var(--daw-text-3)',
           border: 'none',
           background: 'rgba(0,0,0,0.3)',
         }}

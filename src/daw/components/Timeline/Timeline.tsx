@@ -81,6 +81,7 @@ import type { ChordRegion } from '@/daw/store/prismSlice';
 import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
 import { AnimatedBlobs } from '@/components/ui/blobs';
 import type { Track } from '@/daw/store/tracksSlice';
+import { DAW_PALETTE_EVENT, getDawPalette } from '@/daw/ui/tokens';
 import { sameTimelineGeometry, timelineNeedsRedraw } from './timelineGeometry';
 import {
   clipAudioStatus,
@@ -382,21 +383,14 @@ interface CanvasTokens {
   colorSelRgb: string;
 }
 
-/**
- * Reads the theme colours from the canvas itself: the DAW tokens live on
- * `.daw-root`, not `:root`, and custom properties inherit, so the canvas (a
- * `.daw-root` descendant) resolves them, whereas document.documentElement
- * would not.
- */
-function readCanvasTokens(canvas: HTMLCanvasElement): CanvasTokens {
-  const style = getComputedStyle(canvas);
-  const token = (name: string, fallback: string) =>
-    style.getPropertyValue(name).trim() || fallback;
+/** The DAW palette as the timeline canvas draws with it. */
+function readCanvasTokens(): CanvasTokens {
+  const palette = getDawPalette();
   return {
-    colorBg: token('--color-bg', '#101012'),
-    colorBorder: token('--color-border', 'rgba(255, 255, 255, 0.08)'),
-    colorGridRgb: token('--color-grid-rgb', '255, 255, 255'),
-    colorSelRgb: token('--color-selection-rgb', '126, 207, 207'),
+    colorBg: palette.bg,
+    colorBorder: palette.hairline,
+    colorGridRgb: palette.lineRgb,
+    colorSelRgb: palette.selectionRgb,
   };
 }
 
@@ -491,7 +485,7 @@ function PrismSuggestItem({
     return (
       <button
         className="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-white/5"
-        style={{ color: 'var(--color-text)' }}
+        style={{ color: 'var(--daw-text)' }}
         onClick={onSuggest}
       >
         <AnimatedBlobs size={30} />
@@ -502,7 +496,7 @@ function PrismSuggestItem({
   return (
     <button
       className="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-white/5"
-      style={{ color: 'var(--color-text-dim)' }}
+      style={{ color: 'var(--daw-text-3)' }}
       title="Prism is part of Premium. Subscribe to unlock it."
       aria-label="Prism — Suggest Chords (Premium, locked)"
       onClick={() => {
@@ -730,7 +724,7 @@ export function Timeline() {
     const newClipRects: ClipRect[] = [];
     const newDrawnNotes: DrawnNote[] = [];
 
-    canvasTokensRef.current ??= readCanvasTokens(canvas);
+    canvasTokensRef.current ??= readCanvasTokens();
     const { colorBg, colorBorder, colorGridRgb, colorSelRgb } =
       canvasTokensRef.current;
 
@@ -1329,9 +1323,9 @@ export function Timeline() {
       const my = Math.min(marquee.y0, marquee.y1);
       const mw = Math.abs(marquee.x1 - marquee.x0);
       const mh = Math.abs(marquee.y1 - marquee.y0);
-      ctx.fillStyle = 'rgba(126, 207, 207, 0.12)';
+      ctx.fillStyle = `rgba(${colorSelRgb}, 0.12)`;
       ctx.fillRect(mx, my, mw, mh);
-      ctx.strokeStyle = 'rgba(126, 207, 207, 0.8)';
+      ctx.strokeStyle = `rgba(${colorSelRgb}, 0.8)`;
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 3]);
       ctx.strokeRect(mx + 0.5, my + 0.5, mw, mh);
@@ -1636,17 +1630,15 @@ export function Timeline() {
     requestRedraw();
   }, [chordNotation, requestRedraw]);
 
-  // The theme's tokens are inline styles on `.daw-root` (useTheme): read
-  // them again only when those change.
+  // The palette is read once; a change to the tokens at run time redraws
+  // with the new one.
   useEffect(() => {
-    const root = canvasRef.current?.closest('.daw-root');
-    if (!root) return;
-    const observer = new MutationObserver(() => {
+    const onPalette = () => {
       canvasTokensRef.current = null;
       requestRedraw();
-    });
-    observer.observe(root, { attributes: true, attributeFilter: ['style'] });
-    return () => observer.disconnect();
+    };
+    window.addEventListener(DAW_PALETTE_EVENT, onPalette);
+    return () => window.removeEventListener(DAW_PALETTE_EVENT, onPalette);
   }, [requestRedraw]);
 
   // Moving the window to a screen with another pixel ratio redraws at it.
@@ -3001,7 +2993,7 @@ export function Timeline() {
 
   return (
     <div
-      className="flex flex-1 flex-col bg-[var(--color-bg)]"
+      className="flex flex-1 flex-col bg-[var(--daw-bg)]"
       style={{ minHeight: '100%' }}
     >
       <div className="relative flex-1 overflow-x-hidden">
@@ -3033,8 +3025,8 @@ export function Timeline() {
                 height: CHORD_RULER_HEIGHT,
                 fontSize: 12,
                 fontFamily: "'Glacial Indifference', system-ui, sans-serif",
-                background: 'var(--color-surface-2)',
-                color: 'var(--color-text)',
+                background: 'var(--daw-popover)',
+                color: 'var(--daw-text)',
                 border: chordBoxBorder(!!editingChord.refused),
                 borderRadius: 3,
                 padding: '0 4px',
@@ -3105,8 +3097,8 @@ export function Timeline() {
             style={{
               left: ctxMenu.x,
               top: ctxMenu.y,
-              backgroundColor: 'var(--color-surface-2)',
-              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--daw-popover)',
+              border: '1px solid var(--daw-hairline)',
               minWidth: 140,
             }}
           >
@@ -3114,7 +3106,7 @@ export function Timeline() {
               <>
                 <button
                   className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                   onClick={handleCtxFadeIn}
                 >
                   {(() => {
@@ -3129,7 +3121,7 @@ export function Timeline() {
                 </button>
                 <button
                   className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                   onClick={handleCtxFadeOut}
                 >
                   {(() => {
@@ -3145,20 +3137,20 @@ export function Timeline() {
                 <div
                   style={{
                     height: 1,
-                    backgroundColor: 'var(--color-border)',
+                    backgroundColor: 'var(--daw-hairline)',
                     margin: '2px 0',
                   }}
                 />
                 <button
                   className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                   onClick={handleCtxSplitAtPlayhead}
                 >
                   Split at Playhead
                 </button>
                 <button
                   className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                   onClick={handleCtxDuplicate}
                 >
                   Duplicate
@@ -3166,7 +3158,7 @@ export function Timeline() {
                 <div
                   style={{
                     height: 1,
-                    backgroundColor: 'var(--color-border)',
+                    backgroundColor: 'var(--daw-hairline)',
                     margin: '2px 0',
                   }}
                 />
@@ -3182,7 +3174,7 @@ export function Timeline() {
               <>
                 <button
                   className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                   onClick={handleCtxMenuRename}
                 >
                   Rename Marker
@@ -3203,7 +3195,7 @@ export function Timeline() {
             ) : (
               <button
                 className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                style={{ color: 'var(--color-text)' }}
+                style={{ color: 'var(--daw-text)' }}
                 onClick={handleCtxMenuAdd}
               >
                 Add Marker Here
@@ -3218,7 +3210,7 @@ export function Timeline() {
       <div
         className="h-3 shrink-0"
         style={{
-          backgroundColor: 'var(--color-grid-line)',
+          backgroundColor: 'var(--daw-grid)',
           position: 'sticky',
           bottom: 0,
           zIndex: 30,
@@ -3229,7 +3221,7 @@ export function Timeline() {
           style={{
             width: thumbWidth,
             left: thumbLeft,
-            backgroundColor: 'var(--color-scrollbar-thumb)',
+            backgroundColor: 'var(--daw-scrollbar)',
             cursor: scrollable ? 'pointer' : 'default',
             opacity: scrollable ? 1 : 0.4,
           }}

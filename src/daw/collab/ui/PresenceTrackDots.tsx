@@ -25,7 +25,7 @@ export function PresenceTrackDots({ trackId }: PresenceTrackDotsProps) {
       {users.length > 4 && (
         <span
           className="text-[8px] font-medium"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           +{users.length - 4}
         </span>

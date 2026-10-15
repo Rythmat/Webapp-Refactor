@@ -67,8 +67,8 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           transition={SPRING}
           className="flex shrink-0 flex-col overflow-hidden border-l"
           style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
+            backgroundColor: 'var(--daw-surface-1)',
+            borderColor: 'var(--daw-hairline)',
           }}
         >
           {/* Header */}
@@ -76,18 +76,18 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
             className="flex shrink-0 items-center justify-between border-b px-3"
             style={{
               height: 28,
-              borderColor: 'var(--color-border)',
+              borderColor: 'var(--daw-hairline)',
             }}
           >
             <div className="flex items-center gap-1.5">
               <MessageSquare
                 size={10}
                 strokeWidth={2}
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               />
               <span
                 className="text-[10px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 Chat
               </span>
@@ -96,7 +96,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               onClick={onClose}
               className="flex size-4 items-center justify-center rounded transition-colors hover:bg-white/10"
               style={{
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
                 background: 'none',
                 border: 'none',
               }}
@@ -114,7 +114,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
             {messages.length === 0 && (
               <div
                 className="py-4 text-center text-[10px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 No messages yet
               </div>
@@ -131,7 +131,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           {/* Input */}
           <div
             className="flex shrink-0 items-center gap-1 border-t p-1.5"
-            style={{ borderColor: 'var(--color-border)' }}
+            style={{ borderColor: 'var(--daw-hairline)' }}
           >
             <input
               value={input}
@@ -140,8 +140,8 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               placeholder="Message..."
               className="flex-1 rounded-md border-none px-2 py-1 text-[10px] outline-none"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                color: 'var(--color-text)',
+                backgroundColor: 'var(--daw-surface-2)',
+                color: 'var(--daw-text)',
               }}
             />
             <button
@@ -149,9 +149,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               disabled={!input.trim()}
               className="flex size-6 items-center justify-center rounded-md transition-colors hover:bg-white/5"
               style={{
-                color: input.trim()
-                  ? 'var(--color-accent)'
-                  : 'var(--color-text-dim)',
+                color: input.trim() ? 'var(--daw-accent)' : 'var(--daw-text-3)',
                 background: 'none',
                 border: 'none',
                 opacity: input.trim() ? 1 : 0.4,
@@ -181,17 +179,17 @@ function MessageBubble({
       <div className="flex items-baseline gap-1.5">
         <span
           className="text-[9px] font-semibold"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           {isSelf ? 'You' : message.userName}
         </span>
-        <span className="text-[7px]" style={{ color: 'var(--color-text-dim)' }}>
+        <span className="text-[7px]" style={{ color: 'var(--daw-text-3)' }}>
           {timeStr}
         </span>
       </div>
       <span
         className="text-[10px] leading-tight"
-        style={{ color: 'var(--color-text)' }}
+        style={{ color: 'var(--daw-text)' }}
       >
         {message.text}
       </span>

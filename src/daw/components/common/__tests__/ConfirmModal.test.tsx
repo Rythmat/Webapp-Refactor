@@ -11,21 +11,15 @@ import { ConfirmModal } from '../ConfirmModal';
 // ── ConfirmModal outside .daw-root (design-system-01, shell-11) ─────────────
 // Radix portals the dialog to <body>, where the DAW tokens used to be
 // undefined: the recording-limit notice's only button, 'OK', was black text
-// on nothing. The modal now holds body.daw-active itself, which carries the
-// --color-* tokens (daw.css); the card is an opaque surface and the
-// non-destructive confirm is the white pill. Nothing in these tests sets the
-// class for it.
+// on nothing. The tokens are on :root now (plan 2.1), so the card is an
+// opaque surface and the non-destructive confirm is the white pill.
 
 let removeCss: () => void;
 beforeAll(() => {
   removeCss = installDawCss();
 });
 afterAll(() => removeCss());
-afterEach(() => {
-  cleanup();
-  // Unmounted, the modal lets go of the class again.
-  expect(document.body).not.toHaveClass('daw-active');
-});
+afterEach(() => cleanup());
 
 function renderModal(props: { destructive?: boolean; cancel?: boolean } = {}) {
   return render(
@@ -49,37 +43,11 @@ function dialogCard(): HTMLElement {
 }
 
 describe('ConfirmModal portaled to <body>', () => {
-  it('paints an opaque card from the tokens it holds on <body>', () => {
+  it('paints an opaque card from the tokens on :root', () => {
     renderModal();
-    expect(document.body).toHaveClass('daw-active');
     const card = dialogCard();
-    expect(resolvedBackground(card)).toBe('#1a1a1a');
+    expect(resolvedBackground(card)).toBe('#151518');
     expect(alphaOf(resolvedBackground(card))).toBe(1);
-  });
-
-  it('owes that opacity to the class: without it the card is see-through', () => {
-    // The bug it fixes. The modal never drops the class while mounted, so
-    // take it off by hand to show what the card would paint.
-    renderModal();
-    document.body.classList.remove('daw-active');
-    expect(alphaOf(resolvedBackground(dialogCard()))).toBe(0);
-  });
-
-  it('holds the class while closed too, for as long as it is mounted', () => {
-    // RecordGuard and RecordingLimitModal keep theirs mounted, closed, for
-    // the editor's lifetime, so the editor's other overlays have it as well.
-    const { unmount } = render(
-      <ConfirmModal
-        open={false}
-        onOpenChange={() => {}}
-        title="Overwrite existing recording?"
-        description="This track already has a recording."
-        confirmLabel="Continue"
-      />,
-    );
-    expect(document.body).toHaveClass('daw-active');
-    unmount();
-    expect(document.body).not.toHaveClass('daw-active');
   });
 
   it('makes the non-destructive confirm the white pill', () => {

@@ -360,7 +360,12 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         ? realizeBand(
             playable,
             ALL_ITEMS,
-            { chordAt: harmony.chordAt, bars, timeSignature: ts },
+            {
+              chordAt: harmony.chordAt,
+              bars,
+              timeSignature: ts,
+              genre: draft.genre,
+            },
             { includeMuted: true },
           )
         : [],

@@ -41,6 +41,7 @@ import {
   INSTRUMENTS,
   lineBars,
   passesFor,
+  GENRE_BASS_RULES,
   realizeLine,
   sameMeter,
   stackedNotes,
@@ -142,6 +143,17 @@ export function feelFor(groove: DrumGroove | null): Feel {
   return { tempo: groove.tempo, swing, swingOn: 'eighths' };
 }
 
+const RULES_LABEL: Record<string, string> = {
+  pop: 'Pop',
+  funk: 'Funk',
+  'hip-hop': 'Hip Hop',
+  latin: 'Latin',
+};
+
+/** "Funk"; "free" for a genre without Walk and Approach rules. */
+const rulesLabel = (genre: string | undefined) =>
+  (genre && RULES_LABEL[genre]) ?? 'free';
+
 interface Props {
   line: BassLine;
   onDuplicate: (line: BassLine) => void;
@@ -224,6 +236,9 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
     (g) => !draft.grooves.includes(g.id) && sameMeter(g.timeSignature, ts),
   );
   const [grooveId, setGrooveId] = useState<string>(() => paired[0]?.id ?? '');
+  // Walk and Approach preview by the line's genre, else its first groove's.
+  const grooveGenre = paired.find((g) => g.genre)?.genre;
+  const rulesGenre = draft.genre ?? grooveGenre;
   const groove = allGrooves.find((g) => g.id === grooveId) ?? null;
   const [feel, setFeel] = useState<Feel>(() => feelFor(groove));
   const [click, setClick] = useState(true);
@@ -250,8 +265,9 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
       instrument: draft.instrument,
       passes,
       seed: hashSeed(draft.name || 'line', String(chartBars.length)),
+      genre: rulesGenre,
     });
-  }, [line, chartBars, ts, lineQ, draft.instrument, draft.name]);
+  }, [line, chartBars, ts, lineQ, draft.instrument, draft.name, rulesGenre]);
 
   // Chords along the top of the roll, over the line's own length.
   const chordMarks = useMemo<ChordMark[]>(() => {
@@ -540,6 +556,22 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
                 {v.label}
               </option>
             ))}
+          </select>
+        </Field>
+        <Field label="Walk & Approach">
+          <select
+            value={draft.genre ?? ''}
+            onChange={(e) => set({ genre: e.target.value || undefined })}
+            className={control}
+            title="Lessons and bands play the line by their own genre's rules; this is what the editor previews."
+          >
+            <option value="">As its groove ({rulesLabel(grooveGenre)})</option>
+            {Object.keys(GENRE_BASS_RULES).map((g) => (
+              <option key={g} value={g}>
+                {rulesLabel(g)}
+              </option>
+            ))}
+            <option value="free">Free (no genre rules)</option>
           </select>
         </Field>
         <label

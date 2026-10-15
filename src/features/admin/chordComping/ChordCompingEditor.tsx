@@ -198,6 +198,9 @@ export const ChordCompingEditor: FC<Props> = ({
     setFeel(feelFor(allGrooves.find((g) => g.id === id) ?? null));
   };
 
+  // The comping's genre, from the groove it pairs with: the bass walks and
+  // approaches by its rules.
+  const pairedGenre = paired.find((g) => g.genre)?.genre;
   const bassLines = useBassLineList();
   const [bassId, setBassId] = useState<string>(
     () =>
@@ -228,8 +231,9 @@ export const ChordCompingEditor: FC<Props> = ({
       timeSignature: ts,
       passes: Math.max(1, Math.round(harmony.loopQ / harmony.chartQ)),
       seed: hashSeed(bassLine.name || 'line', String(chartBars.length)),
+      genre: pairedGenre,
     });
-  }, [harmony, bassLine, chartBars, ts]);
+  }, [harmony, bassLine, chartBars, ts, pairedGenre]);
 
   // Chords along the top of the grid, over the pattern's own length.
   const chordMarks = useMemo<ChordMark[]>(() => {

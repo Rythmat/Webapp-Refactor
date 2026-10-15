@@ -408,6 +408,29 @@ export const AdminRoutes = {
    */
   chordComping: createRouteDefinition('/comping', { prefix: adminPrefix }),
 
+  /**
+   * Bands — a lesson style's rhythm section as one item: drums, bass,
+   * comping and any keyboard or guitar layers, heard layered over a chart and
+   * paired with lesson styles. Saving writes repo files (dev server only).
+   */
+  bands: createRouteDefinition('/bands', { prefix: adminPrefix }),
+
+  /**
+   * Players — the people in the bands, one per instrument per genre to start,
+   * each with the grooves, lines, patterns and parts they play.
+   */
+  players: createRouteDefinition('/players', { prefix: adminPrefix }),
+
+  /** Players — one player. */
+  player: createRouteDefinition<{ id: string }>('/players/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /** Bands — one band's editor. */
+  band: createRouteDefinition<{ id: string }>('/bands/:id', {
+    prefix: adminPrefix,
+  }),
+
   /** Chord Comping — one pattern's editor. */
   chordCompingPattern: createRouteDefinition<{ id: string }>('/comping/:id', {
     prefix: adminPrefix,

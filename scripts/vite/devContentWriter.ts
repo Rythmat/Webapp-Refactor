@@ -15,13 +15,23 @@
  *   DELETE /__dev/parts/:id
  *   PUT    /__dev/feels/:id            body: feel profile JSON
  *   PUT    /__dev/synth-patches/:id    body: Oracle Synth preset JSON
+ *   PUT    /__dev/bands/:id            body: band JSON
+ *   DELETE /__dev/bands/:id
+ *   PUT    /__dev/players/:id          body: player JSON
+ *   DELETE /__dev/players/:id
+ *   PUT    /__dev/sample-instruments/:id  body: sampled instrument JSON
  *   DELETE /__dev/drum-kits/:id
  *   GET    /__dev/drum-samples         → { samples: string[] }  (public URLs)
  *   POST   /__dev/drum-samples?name=x  body: raw audio → { url }
+ *   GET    /__dev/instrument-samples   → { samples: string[] }  (pitched)
+ *   POST   /__dev/instrument-samples?name=x  body: raw audio → { url },
+ *          its leading silence trimmed (with ffmpeg, when installed)
  */
 
+import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import os from 'node:os';
 import path from 'node:path';
 import { format } from 'prettier';
 import type { Plugin } from 'vite';
@@ -33,6 +43,12 @@ const GROOVE_DIR = path.join(ROOT, 'src/curriculum/data/drumGrooves');
 const KIT_DIR = path.join(ROOT, 'src/daw/instruments/customDrumKits');
 const BASS_LINE_DIR = path.join(ROOT, 'src/curriculum/data/bassLines');
 const CHORD_COMPING_DIR = path.join(ROOT, 'src/curriculum/data/chordComping');
+const BAND_DIR = path.join(ROOT, 'src/curriculum/data/bands');
+const PLAYER_DIR = path.join(ROOT, 'src/curriculum/data/players');
+const SAMPLE_INSTRUMENT_DIR = path.join(
+  ROOT,
+  'src/daw/instruments/sampleInstruments',
+);
 const LESSON_PAIRING_DIR = path.join(
   ROOT,
   'src/curriculum/data/lessonPairings',
@@ -42,6 +58,47 @@ const FEEL_DIR = path.join(ROOT, 'src/curriculum/data/feels');
 const PATCH_DIR = path.join(ROOT, 'src/daw/oracle-synth/store/presets/atlas');
 const SAMPLE_DIR = path.join(ROOT, 'public/daw-assets/samples/drums/uploads');
 const SAMPLE_URL = '/daw-assets/samples/drums/uploads/';
+/** Pitched recordings for sampled instruments, apart from the drum hits. */
+const INSTRUMENT_SAMPLE_DIR = path.join(
+  ROOT,
+  'public/daw-assets/samples/instruments/uploads',
+);
+const INSTRUMENT_SAMPLE_URL = '/daw-assets/samples/instruments/uploads/';
+
+const SAMPLE_FOLDERS: Record<string, { dir: string; url: string }> = {
+  'drum-samples': { dir: SAMPLE_DIR, url: SAMPLE_URL },
+  'instrument-samples': {
+    dir: INSTRUMENT_SAMPLE_DIR,
+    url: INSTRUMENT_SAMPLE_URL,
+  },
+};
+
+/**
+ * A pitched sample without the silence before its note: the sampler plays
+ * from the file's first frame, so 40 ms of air there makes every note late.
+ * Uses ffmpeg when it is installed; without it the file is kept as sent.
+ */
+async function trimLeadingSilence(file: string): Promise<void> {
+  const tmp = path.join(os.tmpdir(), `trim-${Date.now()}${path.extname(file)}`);
+  const ok = await new Promise<boolean>((resolve) =>
+    execFile(
+      'ffmpeg',
+      [
+        '-y',
+        '-loglevel',
+        'error',
+        '-i',
+        file,
+        '-af',
+        'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.003',
+        ...(/\.mp3$/i.test(file) ? ['-b:a', '192k'] : []),
+        tmp,
+      ],
+      (err) => resolve(!err),
+    ),
+  );
+  if (ok) await fs.rename(tmp, file).catch(() => fs.rm(tmp, { force: true }));
+}
 
 const ID = /^[a-z0-9][a-z0-9_-]*$/;
 const AUDIO_EXT = /\.(wav|mp3|ogg|aif|aiff|flac)$/i;
@@ -122,7 +179,7 @@ export function devContentWriter(): Plugin {
           // this host, same origin, JSON writes) — these endpoints write repo
           // files too. A sample upload is raw audio, so it is checked as JSON
           // would be and must then say it is audio.
-          const upload = kind === 'drum-samples' && method === 'POST';
+          const upload = kind in SAMPLE_FOLDERS && method === 'POST';
           const refusal = refusalFor({
             method,
             remoteAddress: req.socket.remoteAddress,
@@ -146,6 +203,9 @@ export function devContentWriter(): Plugin {
             'bass-lines': BASS_LINE_DIR,
             'lesson-pairings': LESSON_PAIRING_DIR,
             'chord-comping': CHORD_COMPING_DIR,
+            bands: BAND_DIR,
+            players: PLAYER_DIR,
+            'sample-instruments': SAMPLE_INSTRUMENT_DIR,
             parts: PART_DIR,
             feels: FEEL_DIR,
             'synth-patches': PATCH_DIR,
@@ -169,15 +229,16 @@ export function devContentWriter(): Plugin {
             }
           }
 
-          if (kind === 'drum-samples') {
+          if (kind && kind in SAMPLE_FOLDERS) {
+            const folder = SAMPLE_FOLDERS[kind];
             if (method === 'GET') {
-              await fs.mkdir(SAMPLE_DIR, { recursive: true });
-              const names = (await fs.readdir(SAMPLE_DIR))
+              await fs.mkdir(folder.dir, { recursive: true });
+              const names = (await fs.readdir(folder.dir))
                 .filter((n) => AUDIO_EXT.test(n))
                 .sort()
                 .reverse();
               return send(res, 200, {
-                samples: names.map((n) => `${SAMPLE_URL}${n}`),
+                samples: names.map((n) => `${folder.url}${n}`),
               });
             }
             if (method === 'POST') {
@@ -194,9 +255,11 @@ export function devContentWriter(): Plugin {
               }
               const file = `${Date.now().toString(36)}-${safe}`;
               const body = await readBody(req, MAX_SAMPLE_BYTES);
-              await fs.mkdir(SAMPLE_DIR, { recursive: true });
-              await fs.writeFile(path.join(SAMPLE_DIR, file), body);
-              return send(res, 200, { url: `${SAMPLE_URL}${file}` });
+              await fs.mkdir(folder.dir, { recursive: true });
+              await fs.writeFile(path.join(folder.dir, file), body);
+              if (kind === 'instrument-samples')
+                await trimLeadingSilence(path.join(folder.dir, file));
+              return send(res, 200, { url: `${folder.url}${file}` });
             }
           }
 

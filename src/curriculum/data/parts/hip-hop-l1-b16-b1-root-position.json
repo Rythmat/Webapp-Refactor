@@ -1,0 +1,214 @@
+{
+  "id": "hip-hop-l1-b16-b1-root-position",
+  "name": "Hip Hop L1 · B16 B1: Root Position",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "draft",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 76,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 75,
+      "velocity": 96
+    },
+    {
+      "tick": 0,
+      "duration": 1860,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 200,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 200,
+      "midi": 75,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 200,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 2280,
+      "duration": 200,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 2280,
+      "duration": 200,
+      "midi": 75,
+      "velocity": 96
+    },
+    {
+      "tick": 2280,
+      "duration": 200,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "duration": 200,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "duration": 200,
+      "midi": 75,
+      "velocity": 96
+    },
+    {
+      "tick": 2880,
+      "duration": 200,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 200,
+      "midi": 72,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 200,
+      "midi": 75,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 200,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 1860,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 5760,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "tick": 5760,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 5760,
+      "duration": 200,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 6120,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "tick": 6120,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 6120,
+      "duration": 200,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 6720,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "tick": 6720,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 6720,
+      "duration": 200,
+      "midi": 74,
+      "velocity": 96
+    },
+    {
+      "tick": 7080,
+      "duration": 200,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "tick": 7080,
+      "duration": 200,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 7080,
+      "duration": 200,
+      "midi": 74,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 1,
+    "section": "B",
+    "stepNumber": 16,
+    "title": "B1: Root Position",
+    "tag": "hiphop:l1_playalong_cm_g_root | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Bar 1 holds the chord; bar 2 hits it on 1, the \"a\" of 1, 3 and the \"a\" of 3.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Cm", "Cm", "G", "G"]
+}

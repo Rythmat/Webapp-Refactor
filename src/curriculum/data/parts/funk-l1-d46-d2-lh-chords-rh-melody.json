@@ -1,0 +1,280 @@
+{
+  "id": "funk-l1-d46-d2-lh-chords-rh-melody",
+  "name": "Funk L1 · D46 D2: LH Chords + RH Melody",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 2,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 3,
+  "tempo": 92,
+  "swing": 50,
+  "sound": "electric-piano",
+  "notes": [
+    {
+      "hand": "lh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 360,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 360,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 360,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 600,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 840,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 960,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96
+    },
+    {
+      "tick": 1320,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 1920,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 1920,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 1920,
+      "duration": 120,
+      "midi": 59,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1920,
+      "duration": 480,
+      "midi": 69,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 2280,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 2280,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 2280,
+      "duration": 120,
+      "midi": 59,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2520,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2760,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 2880,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 2880,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 2880,
+      "duration": 120,
+      "midi": 59,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 2880,
+      "duration": 960,
+      "midi": 65,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96
+    },
+    {
+      "tick": 3240,
+      "duration": 120,
+      "midi": 59,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 53,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 3840,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 1,
+    "section": "D",
+    "stepNumber": 46,
+    "title": "D2: LH Chords + RH Melody",
+    "tag": "funk:performance_lh_chords_rh_melody_it | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Left hand: Dm7 1-3-7 shell (D3-F3-C4) in bar 1. Bar 2: Drop the Sizzle — only C4 drops to B3, giving you G7 (D3-F3-B3). D and F stay put. Right hand plays D blues melody. Drums provided.",
+  "genre": "funk",
+  "chordSymbols": ["Dm7", "G7"]
+}

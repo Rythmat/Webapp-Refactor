@@ -1,0 +1,14 @@
+{
+  "id": "blues-bassist-1",
+  "name": "Blues-Bassist-1",
+  "instrument": "bass",
+  "genre": "blues",
+  "kind": "placeholder",
+  "order": 60,
+  "items": [
+    {
+      "kind": "bassLine",
+      "id": "boogie"
+    }
+  ]
+}

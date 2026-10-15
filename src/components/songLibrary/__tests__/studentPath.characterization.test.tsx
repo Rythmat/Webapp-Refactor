@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { createHash } from 'node:crypto';
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { ensureSongContent, getSong } from '@/content/songStore';
@@ -159,8 +159,11 @@ describe('the credits a student sees of a session the console linked', () => {
       studioId: 'sunset-sound',
       source: 'discogs',
     });
-    expect(container.textContent).toContain('RecordedSunset Sound');
+    // The studio waits behind the Recorded pill, in a popover.
+    fireEvent.click(screen.getByRole('button', { name: /Recorded/ }));
+    expect(document.body.textContent).toContain('Sunset Sound');
     expect(container.textContent).not.toContain('sunset-sound');
+    expect(document.body.textContent).not.toContain('sunset-sound');
   });
 });
 

@@ -1,0 +1,195 @@
+{
+  "id": "funk-l2-d3-2-integrated-performance-two-bar-call-and-answer",
+  "name": "Funk L2 · D3.2: Integrated Performance — Two-Bar Call and Answer",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 9,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 3,
+  "tempo": 102,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1200,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 1200,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 0,
+      "duration": 1200,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 240,
+      "duration": 240,
+      "midi": 79,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 81,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 720,
+      "duration": 120,
+      "midi": 79,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 840,
+      "duration": 360,
+      "midi": 81,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1200,
+      "duration": 240,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 61,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 65,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1800,
+      "duration": 1320,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1800,
+      "duration": 1320,
+      "midi": 64,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 1800,
+      "duration": 1320,
+      "midi": 69,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 2160,
+      "duration": 240,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 86,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2640,
+      "duration": 120,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 2760,
+      "duration": 360,
+      "midi": 86,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3120,
+      "duration": 240,
+      "midi": 84,
+      "velocity": 96,
+      "hand": "rh"
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 60,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 67,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 71,
+      "velocity": 96,
+      "hand": "lh"
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 81,
+      "velocity": 96,
+      "hand": "rh"
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 2,
+    "section": "D",
+    "stepNumber": 98,
+    "title": "D3: Integrated Performance",
+    "tag": "funk:performance_capstone_l3b_it | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Level 2 capstone: LH holds Am9, slides through Eb funk9 and D funk9. RH plays a two-bar call-and-answer melody. Both hands locked to the groove.",
+  "genre": "funk",
+  "chordSymbols": ["Am9", "Eb9", "D9"]
+}

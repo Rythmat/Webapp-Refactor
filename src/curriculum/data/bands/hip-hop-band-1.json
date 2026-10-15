@@ -1,0 +1,75 @@
+{
+  "id": "hip-hop-band-1",
+  "name": "Hip Hop Band 1",
+  "description": "Boom bap drums and the Hip Hop L2 boom bap bass part (written over Am and Dm).",
+  "genre": "hip-hop",
+  "status": "live",
+  "order": 40,
+  "timeSignature": [4, 4],
+  "tempo": 85,
+  "layers": [
+    {
+      "id": "drums",
+      "name": "Drums",
+      "instrument": "drums",
+      "player": "hip-hop-drummer-1"
+    },
+    {
+      "id": "bass",
+      "name": "Bass",
+      "instrument": "bass",
+      "player": "hip-hop-bassist-1",
+      "sound": "bass-electric:808"
+    },
+    {
+      "id": "keys-comping",
+      "name": "Keys comping",
+      "instrument": "keys"
+    }
+  ],
+  "preview": {
+    "chart": "| Cmin |  G7  |"
+  },
+  "variations": [
+    {
+      "id": "l1-trap",
+      "name": "L1 · Trap",
+      "style": "hip-hop-l1-trap",
+      "plays": {
+        "keys-comping": {
+          "kind": "part",
+          "id": "hip-hop-l1-d2-2-jam-cm-g-1st-inversion"
+        },
+        "drums": {
+          "kind": "groove",
+          "id": "trap_a"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "hip-hop-l1-c27-c1-the-trap-bass-pattern-copy"
+        }
+      }
+    },
+    {
+      "id": "l2-boom-bap",
+      "name": "L2 · Boom Bap",
+      "style": "hip-hop-l2-boom-bap",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "boombap_a"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "hip-hop-l2-c4-c1-boom-bap-bass"
+        }
+      }
+    },
+    {
+      "id": "l3-conscious",
+      "name": "L3 · Conscious",
+      "style": "hip-hop-l3-conscious",
+      "plays": {}
+    }
+  ]
+}

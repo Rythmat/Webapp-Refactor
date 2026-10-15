@@ -29,19 +29,26 @@ describe('activityPayoff', () => {
   });
 
   it('names a chord, skipping a symbol that only restates the degree', () => {
-    const base = { ...dorian, activityKey: 'arpeggiate-4-pa' };
+    const base = { ...dorian, activityKey: 'triad-4-arp-pa' };
     expect(
       activityPayoff({ ...base, chordSymbols: [{ text: 'G' }] }).headline,
     ).toBe("That's the 4 chord of D Dorian: G.");
     expect(
       activityPayoff({ ...base, chordSymbols: [{ text: '4 maj' }] }).headline,
     ).toBe("That's the 4 chord of D Dorian.");
+    expect(
+      activityPayoff({
+        ...dorian,
+        activityKey: 'seventh-4-arp-pa',
+        chordSymbols: [{ text: 'G7' }],
+      }).headline,
+    ).toBe("That's the 4 7th chord of D Dorian: G7.");
   });
 
   it('lists a progression once per chord', () => {
     const payoff = activityPayoff({
       ...dorian,
-      activityKey: 'chords-2-pa',
+      activityKey: 'triad-progression-1-pa',
       chordSymbols: [{ text: 'Dm' }, { text: 'G' }, { text: 'Dm' }],
     });
     expect(payoff.headline).toBe('Those are chords from D Dorian: Dm – G.');

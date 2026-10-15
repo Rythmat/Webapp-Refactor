@@ -1,0 +1,77 @@
+{
+  "id": "funk-band-1",
+  "name": "Funk Band 1",
+  "description": "Sixteenth-note funk drums and the funk bass line made with them.",
+  "genre": "funk",
+  "status": "live",
+  "order": 20,
+  "timeSignature": [4, 4],
+  "tempo": 100,
+  "layers": [
+    {
+      "id": "drums",
+      "name": "Drums",
+      "instrument": "drums",
+      "player": "funk-drummer-1"
+    },
+    {
+      "id": "bass",
+      "name": "Bass",
+      "instrument": "bass",
+      "player": "funk-bassist-1"
+    },
+    {
+      "id": "keys-comping",
+      "name": "Keys comping",
+      "instrument": "keys",
+      "player": "funk-pianist-1",
+      "sound": "electric-piano"
+    }
+  ],
+  "preview": {
+    "chart": "| Am7 | D7 | Am7 | D7 |"
+  },
+  "variations": [
+    {
+      "id": "l1-pocket",
+      "name": "L1 · The Pocket",
+      "style": "funk-l1-pocket",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "funk-16ths"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "funk"
+        },
+        "keys-comping": {
+          "kind": "part",
+          "id": "funk-l2-d93-d1-lh-bass-rh-chords-headhunters-copy"
+        }
+      }
+    },
+    {
+      "id": "l2-syncopation",
+      "name": "L2 · Syncopation & Sauce",
+      "style": "funk-l2-syncopation",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "groove_funk_01"
+        }
+      }
+    },
+    {
+      "id": "l3-deep-groove",
+      "name": "L3 · Deep Groove",
+      "style": "funk-l3-deep-groove",
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "groove_funk_03"
+        }
+      }
+    }
+  ]
+}

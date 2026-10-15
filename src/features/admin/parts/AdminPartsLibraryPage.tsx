@@ -1,10 +1,11 @@
 /* eslint-disable react/jsx-sort-props */
 import { BookOpen, FileMusic, Plus, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
+import type { HarmonyMatch, ProgressionLike } from '@/content/harmony';
 import {
   blankPart,
   keyLabel,
@@ -15,8 +16,12 @@ import {
   type InstrumentPart,
   type PartInstrument,
 } from '@/curriculum/engine/parts/part';
+import type { PlayerItem } from '@/curriculum/engine/players/player';
+import { useBassLineList } from '../bassLines/bassLineSession';
+import { useCompingList } from '../chordComping/compingSession';
 import { useGrooveList } from '../drumGrooves/grooveSession';
 import { useInstrumentStore } from '../drumGrooves/instrumentStore';
+import { usePlayerList } from '../players/playerSession';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
 import { ConsolePageHeader } from '../ui/ConsolePageHeader';
@@ -24,11 +29,14 @@ import { CONSOLE_PANEL } from '../ui/styles';
 import { LessonStepPicker } from './LessonStepPicker';
 import { MidiImportPanel } from './MidiImportPanel';
 import { usePartList } from './partFiles';
+import { partProgressions } from './partProgressions';
 
 type Panel = 'new' | 'lesson' | 'midi' | null;
 
-/** A part or a drum groove, as one row of the library. */
+/** A part, groove, bass line or comping pattern, as one row of the library. */
 interface LibraryRow {
+  /** What the row is, as a player files it. */
+  item: PlayerItem;
   id: string;
   name: string;
   instrument: string;
@@ -45,6 +53,12 @@ interface LibraryRow {
 }
 
 const LENGTHS = [1, 2, 4, 8];
+
+/** A template length ("2m") as people say it: "2 bars", "1 bar". */
+const barsLabel = (length: string) => {
+  const n = Number.parseInt(length, 10) || 1;
+  return `${n} bar${n === 1 ? '' : 's'}`;
+};
 
 const select =
   'rounded-md border border-white/10 bg-white/5 px-2 py-1.5 text-sm';
@@ -68,6 +82,8 @@ export const AdminPartsLibraryPage = () => {
     instrument: '',
     role: '',
     genre: '',
+    player: '',
+    progression: '',
     level: '',
     bars: '',
     status: '',
@@ -76,17 +92,60 @@ export const AdminPartsLibraryPage = () => {
   const taken = useMemo(() => new Set(parts.map((p) => p.id)), [parts]);
   const makeId = (name: string) => uniquePartId(name, taken);
   const grooves = useGrooveList();
+  const lines = useBassLineList();
+  const patterns = useCompingList();
+  const players = usePlayerList();
+  const genreOfGroove = useMemo(
+    () => new Map(grooves.map((g) => [g.id, g.genre])),
+    [grooves],
+  );
+  // Bass lines and comping patterns name no genre: their grooves' is theirs.
+  const viaGrooves = (ids: readonly string[]) =>
+    ids.map((id) => genreOfGroove.get(id)).find(Boolean);
   const genres = [
     ...new Set(
       [...parts, ...grooves].map((p) => p.genre).filter(Boolean) as string[],
     ),
   ].sort();
 
+  // The library progressions each chord part plays, once the library loads.
+  const [library, setLibrary] = useState<ProgressionLike[] | null>(null);
+  useEffect(() => {
+    void import('@/curriculum/data/chordProgressionLibrary').then((m) =>
+      setLibrary(m.default),
+    );
+  }, []);
+  const heard = useMemo(
+    () =>
+      library
+        ? partProgressions(parts, library)
+        : new Map<string, HarmonyMatch[]>(),
+    [parts, library],
+  );
+  const progressionsHeard = useMemo(() => {
+    const count = new Map<number, number>();
+    for (const matches of heard.values())
+      for (const m of matches)
+        count.set(m.progressionId, (count.get(m.progressionId) ?? 0) + 1);
+    return [...count]
+      .map(([id, n]) => ({
+        id,
+        n,
+        name: library?.find((p) => p.id === id)?.chords.join(' - ') ?? `#${id}`,
+      }))
+      .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+  }, [heard, library]);
+  const playerOfRow = (item: PlayerItem) =>
+    players.find((pl) =>
+      pl.items.some((i) => i.kind === item.kind && i.id === item.id),
+    );
+
   // Drum grooves are designed in Drum Grooves but filed here too, so the
   // library is one place to look for any instrument.
   const rows: LibraryRow[] = useMemo(
     () => [
       ...parts.map((p) => ({
+        item: { kind: 'part' as const, id: p.id },
         id: p.id,
         name: p.name,
         instrument: p.instrument as string,
@@ -110,6 +169,7 @@ export const AdminPartsLibraryPage = () => {
         remove: () => store.remove('instrument_part', p.id),
       })),
       ...grooves.map((g) => ({
+        item: { kind: 'groove' as const, id: g.id },
         id: g.id,
         name: g.name,
         instrument: 'drums',
@@ -132,8 +192,51 @@ export const AdminPartsLibraryPage = () => {
         ],
         remove: undefined,
       })),
+      ...lines.map((l) => ({
+        item: { kind: 'bassLine' as const, id: l.id },
+        id: l.id,
+        name: l.name,
+        instrument: 'bass',
+        role: 'bassline',
+        genre: viaGrooves(l.grooves),
+        style: undefined,
+        level: undefined,
+        bars: Number.parseInt(l.length, 10) || 1,
+        status: l.status,
+        tags: l.tags ?? [],
+        href: AdminRoutes.bassLine({ id: l.id }),
+        detail: [
+          'Bass line (follows any chords)',
+          viaGrooves(l.grooves),
+          barsLabel(l.length),
+          l.instrument,
+        ],
+        remove: undefined,
+      })),
+      ...patterns.map((c) => ({
+        item: { kind: 'comping' as const, id: c.id },
+        id: c.id,
+        name: c.name,
+        instrument: 'piano',
+        role: 'comping',
+        genre: viaGrooves(c.grooves),
+        style: undefined,
+        level: undefined,
+        bars: Number.parseInt(c.length, 10) || 1,
+        status: c.status,
+        tags: c.tags ?? [],
+        href: AdminRoutes.chordCompingPattern({ id: c.id }),
+        detail: [
+          'Comping pattern (voices any chords)',
+          viaGrooves(c.grooves),
+          barsLabel(c.length),
+          `${c.hits.length} hits`,
+        ],
+        remove: undefined,
+      })),
     ],
-    [parts, grooves],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [parts, grooves, lines, patterns, genreOfGroove],
   );
 
   const shown = rows.filter((p) => {
@@ -146,6 +249,12 @@ export const AdminPartsLibraryPage = () => {
       (!filter.instrument || p.instrument === filter.instrument) &&
       (!filter.role || p.role === filter.role) &&
       (!filter.genre || p.genre === filter.genre) &&
+      (!filter.player || playerOfRow(p.item)?.id === filter.player) &&
+      (!filter.progression ||
+        (p.item.kind === 'part' &&
+          (heard.get(p.id) ?? []).some(
+            (m) => m.progressionId === Number(filter.progression),
+          ))) &&
       (!filter.level || p.level === Number(filter.level)) &&
       (!filter.bars ||
         (filter.bars === '8+'
@@ -177,14 +286,15 @@ export const AdminPartsLibraryPage = () => {
           <>
             Instrumental examples, basic to pro — the parts lessons and the
             Studio draw on. Start one from scratch, from any lesson step, or
-            from a MIDI file. Drum grooves are listed here too and open in{' '}
+            from a MIDI file. Drum grooves, bass lines and comping patterns are
+            listed here too and open in their own editors. Browse by genre, by{' '}
             <Link
-              to={AdminRoutes.drumGrooves()}
+              to={AdminRoutes.players()}
               className="text-white/80 underline-offset-4 hover:text-white hover:underline"
             >
-              Drum Grooves
+              player
             </Link>
-            .
+            , or by the chord progression a piano or guitar part plays.
           </>
         }
       />
@@ -309,10 +419,44 @@ export const AdminPartsLibraryPage = () => {
           className={select}
           aria-label="Genre"
         >
-          <option value="">All styles</option>
+          <option value="">All genres</option>
           {genres.map((g) => (
             <option key={g} value={g}>
               {g}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filter.player}
+          onChange={(e) => setF({ player: e.target.value })}
+          className={select}
+          aria-label="Player"
+        >
+          <option value="">All players</option>
+          {players
+            .filter((pl) => pl.items.length)
+            .map((pl) => (
+              <option key={pl.id} value={pl.id}>
+                {pl.name}
+              </option>
+            ))}
+        </select>
+        <select
+          value={filter.progression}
+          onChange={(e) => setF({ progression: e.target.value })}
+          className={cn(select, 'max-w-[18rem]')}
+          aria-label="Chord progression"
+          disabled={!progressionsHeard.length}
+          title="Chord parts (piano, guitar) by the library progression their chords play"
+        >
+          <option value="">
+            {progressionsHeard.length
+              ? 'Any progression'
+              : 'No chord part plays a library progression yet'}
+          </option>
+          {progressionsHeard.map((pr) => (
+            <option key={pr.id} value={pr.id}>
+              {pr.name} ({pr.n})
             </option>
           ))}
         </select>
@@ -367,7 +511,7 @@ export const AdminPartsLibraryPage = () => {
         <div className="overflow-hidden rounded-lg border border-white/[0.08]">
           {shown.map((p, i) => (
             <div
-              key={p.id}
+              key={`${p.item.kind}:${p.id}`}
               className={cn(
                 'flex items-center gap-4 px-4 py-3',
                 i > 0 && 'border-t border-white/[0.06]',
@@ -388,7 +532,9 @@ export const AdminPartsLibraryPage = () => {
                   </ConsoleBadge>
                 </div>
                 <div className="mt-0.5 truncate text-xs text-muted-foreground">
-                  {p.detail.filter(Boolean).join(' · ')}
+                  {[...p.detail, playerOfRow(p.item)?.name]
+                    .filter(Boolean)
+                    .join(' · ')}
                 </div>
               </Link>
               {canSave && p.remove && (

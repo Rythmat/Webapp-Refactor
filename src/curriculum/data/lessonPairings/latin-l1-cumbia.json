@@ -1,6 +1,4 @@
 {
   "id": "latin-l1-cumbia",
-  "drums": "groove-latin-1",
-  "bass": "cumbia-1",
-  "comping": "cumbia-offbeats"
+  "band": "latin-band-1"
 }

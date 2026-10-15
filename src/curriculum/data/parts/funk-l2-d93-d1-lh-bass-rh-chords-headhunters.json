@@ -1,0 +1,146 @@
+{
+  "id": "funk-l2-d93-d1-lh-bass-rh-chords-headhunters",
+  "name": "Funk L2 · D93 D1: LH Bass + RH Chords (Headhunters)",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 9,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 1,
+  "tempo": 102,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "hand": "lh",
+      "tick": 0,
+      "duration": 460,
+      "midi": 45,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 0,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 360,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 360,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 360,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 960,
+      "duration": 460,
+      "midi": 45,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "tick": 1560,
+      "duration": 360,
+      "midi": 60,
+      "velocity": 100
+    },
+    {
+      "tick": 1560,
+      "duration": 360,
+      "midi": 67,
+      "velocity": 100
+    },
+    {
+      "tick": 1560,
+      "duration": 360,
+      "midi": 71,
+      "velocity": 100
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 2,
+    "section": "D",
+    "stepNumber": 93,
+    "title": "D1: LH Bass + RH Chords (Headhunters)",
+    "tag": "funk:performance_headhunters_l3_oot | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Left hand: locked bass on A2, beat 1 and 3 only. Right hand: sparse Am9 stabs. Maximum space, maximum groove.",
+  "genre": "funk"
+}

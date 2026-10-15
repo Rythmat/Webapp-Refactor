@@ -1,0 +1,38 @@
+{
+  "id": "jazz-bassist-1",
+  "name": "Jazz-Bassist-1",
+  "instrument": "bass",
+  "genre": "jazz",
+  "kind": "placeholder",
+  "order": 300,
+  "items": [
+    {
+      "kind": "bassLine",
+      "id": "poinciana-ostinato"
+    },
+    {
+      "kind": "bassLine",
+      "id": "second-line"
+    },
+    {
+      "kind": "bassLine",
+      "id": "two-feel"
+    },
+    {
+      "kind": "bassLine",
+      "id": "walking-1-chord-per-bar"
+    },
+    {
+      "kind": "bassLine",
+      "id": "walking-2-chords-per-bar"
+    },
+    {
+      "kind": "bassLine",
+      "id": "walking-fast-swing"
+    },
+    {
+      "kind": "bassLine",
+      "id": "waltz-walk"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "jazz-band-1",
+  "name": "Jazz Band 1",
+  "description": "Swing ride with feathered kick, and a walking bass one chord per bar.",
+  "genre": "jazz",
+  "style": "Swing",
+  "status": "draft",
+  "order": 50,
+  "timeSignature": [4, 4],
+  "tempo": 120,
+  "layers": [
+    {
+      "id": "drums",
+      "name": "Drums",
+      "instrument": "drums",
+      "source": {
+        "kind": "groove",
+        "id": "jazz-swing-feathered"
+      },
+      "player": "jazz-drummer-1"
+    },
+    {
+      "id": "bass",
+      "name": "Bass",
+      "instrument": "bass",
+      "source": {
+        "kind": "bassLine",
+        "id": "walking-1-chord-per-bar"
+      },
+      "player": "jazz-bassist-1"
+    }
+  ],
+  "preview": {
+    "chart": "| Dm7 | G7 | Cmaj7 | Cmaj7 |"
+  }
+}

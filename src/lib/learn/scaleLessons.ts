@@ -1,8 +1,9 @@
 /**
  * Theory lessons for the pentatonic and blues scales — the Pentatonic/Blues
- * mode family. They are scales, not modes of a seven-note parent, so each
- * lesson is an overview and melody chapters only (no chords chapter), ending
- * in a Practice Track over a fixed progression.
+ * mode family. They are scales, not modes of a seven-note parent, so there is
+ * no chord built on every degree: each lesson's Chords chapter is only the
+ * tonic chords Peter chose for it (`chords`), and it ends in a Practice Track
+ * over a fixed progression.
  *
  * The slugs are the API's own (`/learn/majorpentatonic/c`), so routing and
  * progress keys work as they do for every other mode.
@@ -17,6 +18,16 @@ export interface ScaleProgressionChord {
   degree: number;
   accidental: -1 | 0 | 1;
   quality: 'major' | 'minor' | 'major7' | 'dominant7';
+}
+
+/** A tonic chord the scale's Chords chapter teaches, in one set voicing. */
+export interface ScaleLessonChord {
+  /** Hybrid quality after the degree: "maj6" → "1 maj6". */
+  quality: string;
+  /** The voicing, low to high, in semitones from the tonic. */
+  offsets: number[];
+  /** Those notes as degrees, for the directions: ['3', '♭7', '♯9']. */
+  tones: string[];
 }
 
 export interface ScaleLesson {
@@ -34,6 +45,8 @@ export interface ScaleLesson {
   chordTones: number[];
   /** One bar per chord, looped. */
   progression: ScaleProgressionChord[];
+  /** The Chords chapter: one arpeggio-and-hold activity each, in order. */
+  chords: ScaleLessonChord[];
   parentMode: ScaleParentMode;
   /** Tile art under /learn-tiles/theory. */
   image: string;
@@ -62,6 +75,17 @@ const BLUES_CHANGES = [
   bar(1, 0, 'dominant7'),
 ];
 
+const chord = (
+  quality: string,
+  offsets: number[],
+  tones: string[],
+): ScaleLessonChord => ({ quality, offsets, tones });
+
+const MAJ = chord('maj', [0, 4, 7], ['1', '3', '5']);
+const MIN = chord('min', [0, 3, 7], ['1', '♭3', '5']);
+const MAJ6 = chord('maj6', [0, 4, 7, 9], ['1', '3', '5', '6']);
+const MIN7 = chord('min7', [0, 3, 7, 10], ['1', '♭3', '5', '♭7']);
+
 export const SCALE_LESSONS: Record<ScaleLessonSlug, ScaleLesson> = {
   majorpentatonic: {
     slug: 'majorpentatonic',
@@ -76,6 +100,7 @@ export const SCALE_LESSONS: Record<ScaleLessonSlug, ScaleLesson> = {
       bar(1, 0, 'major'),
       bar(4, 0, 'major'),
     ],
+    chords: [MAJ, MAJ6],
     parentMode: 'ionian',
     image: '/learn-tiles/theory/majorpentatonic.svg',
   },
@@ -92,6 +117,7 @@ export const SCALE_LESSONS: Record<ScaleLessonSlug, ScaleLesson> = {
       bar(6, -1, 'major7'),
       bar(6, -1, 'major7'),
     ],
+    chords: [MIN, MIN7],
     parentMode: 'aeolian',
     image: '/learn-tiles/theory/minorpentatonic.svg',
   },
@@ -103,6 +129,12 @@ export const SCALE_LESSONS: Record<ScaleLessonSlug, ScaleLesson> = {
     character: 'Major pentatonic plus the ♭3 blue note, bending up into the 3',
     chordTones: [0, 4, 7],
     progression: BLUES_CHANGES,
+    chords: [
+      MAJ,
+      MAJ6,
+      // Shell voicing, no 5th.
+      chord('dom7', [0, 4, 10], ['1', '3', '♭7']),
+    ],
     parentMode: 'mixolydian',
     image: '/learn-tiles/theory/majorblues.svg',
   },
@@ -114,6 +146,12 @@ export const SCALE_LESSONS: Record<ScaleLessonSlug, ScaleLesson> = {
     character: 'Minor pentatonic plus the ♯4 blue note between the 4 and 5',
     chordTones: [0, 3, 7],
     progression: BLUES_CHANGES,
+    chords: [
+      MIN,
+      MIN7,
+      // Rootless: the 3, ♭7 and ♯9 over the tonic.
+      chord('dom7(♯9)', [4, 10, 15], ['3', '♭7', '♯9']),
+    ],
     parentMode: 'mixolydian',
     image: '/learn-tiles/theory/minorblues.svg',
   },
@@ -149,6 +187,32 @@ export function spellScaleLesson(lesson: ScaleLesson, tonic: string): string[] {
     const degree = Number(token.replace(/[♭♯]/g, ''));
     const letter = (tonicLetter + degree - 1) % 7;
     let diff = (tonicPc + lesson.steps[i] - LETTER_PC[letter] + 12) % 12;
+    if (diff > 6) diff -= 12;
+    const accidental = diff > 0 ? '♯'.repeat(diff) : '♭'.repeat(-diff);
+    return `${LETTERS[letter]}${accidental}`;
+  });
+}
+
+/**
+ * A scale chord's notes spelled from its own degrees, low to high: the 9 takes
+ * the 2's letter, so C's dom7(♯9) is E – B♭ – D♯, never an E♭ beside the E
+ * the chord's 3 needs. `tonic` takes ♭/♯ or b/#: "B♭", "Bb", "F#".
+ */
+export function spellScaleChord(
+  chord: ScaleLessonChord,
+  tonic: string,
+): string[] {
+  const match = tonic.match(/^([A-G])([♭♯b#]?)/);
+  if (!match) return [];
+  const tonicLetter = LETTERS.indexOf(match[1]);
+  const sharp = match[2] === '♯' || match[2] === '#';
+  const flat = match[2] === '♭' || match[2] === 'b';
+  const tonicPc =
+    (LETTER_PC[tonicLetter] + (sharp ? 1 : flat ? -1 : 0) + 12) % 12;
+  return chord.tones.map((tone, i) => {
+    const degree = Number(tone.replace(/[♭♯]/g, ''));
+    const letter = (tonicLetter + degree - 1) % 7;
+    let diff = (tonicPc + chord.offsets[i] - LETTER_PC[letter] + 24) % 12;
     if (diff > 6) diff -= 12;
     const accidental = diff > 0 ? '♯'.repeat(diff) : '♭'.repeat(-diff);
     return `${LETTERS[letter]}${accidental}`;

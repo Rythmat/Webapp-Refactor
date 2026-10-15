@@ -1,0 +1,9 @@
+{
+  "id": "electronic-bassist-1",
+  "name": "Electronic-Bassist-1",
+  "instrument": "bass",
+  "genre": "electronic",
+  "kind": "placeholder",
+  "order": 100,
+  "items": []
+}

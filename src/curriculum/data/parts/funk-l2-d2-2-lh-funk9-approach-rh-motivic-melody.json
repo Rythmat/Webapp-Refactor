@@ -1,0 +1,126 @@
+{
+  "id": "funk-l2-d2-2-lh-funk9-approach-rh-motivic-melody",
+  "name": "Funk L2 · D2.2: LH Funk9 Approach + RH Motivic Melody",
+  "instrument": "piano",
+  "role": "two-hand",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 9,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 102,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 100
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 100
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 100
+    },
+    {
+      "tick": 240,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 96
+    },
+    {
+      "tick": 240,
+      "duration": 120,
+      "midi": 70,
+      "velocity": 96
+    },
+    {
+      "tick": 240,
+      "duration": 120,
+      "midi": 75,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 360,
+      "duration": 1080,
+      "midi": 67,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 360,
+      "duration": 1080,
+      "midi": 71,
+      "velocity": 96
+    },
+    {
+      "hand": "lh",
+      "tick": 360,
+      "duration": 1080,
+      "midi": 76,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 960,
+      "duration": 240,
+      "midi": 79,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1200,
+      "duration": 240,
+      "midi": 78,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1440,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1560,
+      "duration": 120,
+      "midi": 78,
+      "velocity": 96
+    },
+    {
+      "hand": "rh",
+      "tick": 1800,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "funk",
+    "level": 2,
+    "section": "D",
+    "stepNumber": 96,
+    "title": "D2: LH Chords + RH Melody",
+    "tag": "funk:performance_prince_l3_it | funk",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Same as D2.1 — LH chromatic approach into A funk9, RH syncopated Dorian phrase — both hands locked to the groove.",
+  "genre": "funk",
+  "chordSymbols": ["Abfunk9", "Afunk9"]
+}

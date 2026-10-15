@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ActivityStepV2 } from '../../../types/activity.v2';
+import { getPairing, rememberPairing } from '../../lessonPairings/registry';
 import { buildBackingNotes, type BackingNote } from '../backingPatterns';
 import { chordSymbolToBassPC } from '../chordBassNote';
 import { chordSymbolTones } from '../chordSymbolTones';
@@ -109,6 +110,9 @@ describe('buildBackingNotes follows the progression', () => {
   });
 
   it('voices the funk stabs for each bar’s chord', () => {
+    // The code pattern itself: a band paired to the style would replace it.
+    const paired = getPairing('funk-l1-pocket');
+    rememberPairing({ id: 'funk-l1-pocket' });
     const notes = buildBackingNotes(
       step({
         chordSymbols: ['Dm7', 'G7', 'Cmaj7', 'A7'],
@@ -123,6 +127,7 @@ describe('buildBackingNotes follows the progression', () => {
       [],
       'funk',
     );
+    if (paired) rememberPairing(paired);
     // Bars 1 and 3 are plain stab bars.
     const bar1 = pitchClasses(inRange(notes, 'chords', 0, 1680));
     const bar3 = pitchClasses(

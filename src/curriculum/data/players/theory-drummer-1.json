@@ -1,0 +1,14 @@
+{
+  "id": "theory-drummer-1",
+  "name": "Theory-Drummer-1",
+  "instrument": "drums",
+  "genre": "theory",
+  "kind": "placeholder",
+  "order": 570,
+  "items": [
+    {
+      "kind": "groove",
+      "id": "theory_practice_track"
+    }
+  ]
+}

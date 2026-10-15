@@ -579,7 +579,13 @@ function LeadSheetChartView() {
     if (targetTick === null || targetMeasure === null) return;
 
     if (clipboard.chords.length > 0 || clipboard.replace) {
-      setChordRegions(pasteChords(chordRegions, clipboard, targetTick), true);
+      setChordRegions(
+        pasteChords(chordRegions, clipboard, targetTick, {
+          numerator: beatsPerMeasure,
+          denominator: beatUnit,
+        }),
+        true,
+      );
     }
     if (clipboard.roadmap.length > 0) {
       applyRoadmapEdits(pasteRoadmap(clipboard, targetMeasure, measureCount));
@@ -736,7 +742,10 @@ function LeadSheetChartView() {
         const span =
           (Math.max(...beats) - Math.min(...beats) + 1) * ticksPerBeat;
         setChordRegions(
-          pasteChords(chordRegions, { ...empty, spanTicks: span }, from),
+          pasteChords(chordRegions, { ...empty, spanTicks: span }, from, {
+            numerator: beatsPerMeasure,
+            denominator: beatUnit,
+          }),
           true,
         );
       } else if (kind === 'barline' && targetBarline !== null) {

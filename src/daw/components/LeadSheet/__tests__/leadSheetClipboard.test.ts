@@ -10,6 +10,7 @@ import {
 } from '../leadSheetClipboard';
 
 const BAR = 1920;
+const TS = { numerator: 4, denominator: 4 };
 const grey: [number, number, number] = [128, 128, 128];
 
 const region = (
@@ -97,7 +98,7 @@ describe('building a clipboard', () => {
 describe('pasting chords', () => {
   it('replaces the chords in the destination bar', () => {
     const clipboard = buildClipboard(measureCopy());
-    const next = pasteChords(regions(), clipboard, BAR);
+    const next = pasteChords(regions(), clipboard, BAR, TS);
     expect(next.map((r) => [r.startTick, r.noteName, r.endTick])).toEqual([
       [0, 'C', 960],
       [960, 'Am', BAR],
@@ -107,7 +108,7 @@ describe('pasting chords', () => {
   });
 
   it('leaves regions contiguous after a paste', () => {
-    const next = pasteChords(regions(), buildClipboard(measureCopy()), BAR);
+    const next = pasteChords(regions(), buildClipboard(measureCopy()), BAR, TS);
     for (let i = 0; i < next.length - 1; i++) {
       expect(next[i].endTick).toBe(next[i + 1].startTick);
     }
@@ -115,9 +116,48 @@ describe('pasting chords', () => {
 
   it('clears a destination bar when an empty measure is pasted', () => {
     const empty = buildClipboard(measureCopy({ chords: [] }));
-    const next = pasteChords(regions(), empty, BAR);
+    const next = pasteChords(regions(), empty, BAR, TS);
     expect(next.map((r) => r.noteName)).toEqual(['C', 'Am']);
-    expect(next.at(-1)?.endTick).toBe(BAR * 2);
+    // The bar is left empty: the Am before it used to grow across it.
+    expect(next.at(-1)?.endTick).toBe(BAR);
+  });
+
+  it('changes nothing outside the span it pastes over', () => {
+    // A gap (N.C.) in bar 4 and a low-confidence chord after it.
+    const lane: ChordRegion[] = [
+      ...regions(),
+      { ...region('d', BAR * 3, BAR * 4, 'G'), confidence: 0.2 },
+      { ...region('e', BAR * 5, BAR * 6, 'D'), midis: [62, 66, 69] },
+    ];
+    const next = pasteChords(lane, buildClipboard(measureCopy()), BAR, TS);
+    for (const id of ['a', 'b', 'd', 'e']) {
+      expect(next.find((r) => r.id === id)).toBe(lane.find((r) => r.id === id));
+    }
+  });
+
+  it('keeps each pasted chord as long as it was, gaps included', () => {
+    const copy = buildClipboard(
+      measureCopy({ chords: [region('a', 0, 480, 'C')] }),
+    );
+    const next = pasteChords(regions(), copy, BAR, TS);
+    expect(next.map((r) => [r.startTick, r.noteName, r.endTick])).toEqual([
+      [0, 'C', 960],
+      [960, 'Am', BAR],
+      [BAR, 'C', BAR + 480],
+    ]);
+  });
+
+  it('trims a chord crossing the span rather than deleting it', () => {
+    const long: ChordRegion[] = [region('w', 0, BAR * 4, 'C')];
+    const copy = buildClipboard(
+      measureCopy({ chords: [region('x', 0, BAR, 'F')] }),
+    );
+    const next = pasteChords(long, copy, BAR, TS);
+    expect(next.map((r) => [r.startTick, r.noteName, r.endTick])).toEqual([
+      [0, 'C', BAR],
+      [BAR, 'F', BAR * 2],
+      [BAR * 2, 'C', BAR * 4],
+    ]);
   });
 
   it('adds a loose chord without clearing the bar around it', () => {
@@ -130,7 +170,7 @@ describe('pasting chords', () => {
         startTick: 960,
       }),
     );
-    const next = pasteChords(regions(), loose, 480);
+    const next = pasteChords(regions(), loose, 480, TS);
     expect(next.map((r) => [r.startTick, r.noteName])).toEqual([
       [0, 'C'],
       [480, 'Am'],
@@ -149,7 +189,7 @@ describe('pasting chords', () => {
         startTick: BAR,
       }),
     );
-    const next = pasteChords(regions(), loose, 960);
+    const next = pasteChords(regions(), loose, 960, TS);
     expect(next.map((r) => [r.startTick, r.noteName])).toEqual([
       [0, 'C'],
       [960, 'F'],
@@ -158,7 +198,12 @@ describe('pasting chords', () => {
   });
 
   it('extends the piece when pasting past the end', () => {
-    const next = pasteChords(regions(), buildClipboard(measureCopy()), BAR * 3);
+    const next = pasteChords(
+      regions(),
+      buildClipboard(measureCopy()),
+      BAR * 3,
+      TS,
+    );
     expect(next.at(-1)?.endTick).toBe(BAR * 4);
   });
 });

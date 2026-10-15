@@ -40,6 +40,7 @@ import {
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { showError } from '@/components/utils/toast';
 import { RotaryKnob } from './RotaryKnob';
+import { formatDb, formatGain } from '@/daw/ui/format';
 import {
   ControlGestureContext,
   useContinuousControl,
@@ -579,7 +580,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
             max={2}
             size={34}
             formatValue={(v) =>
-              v <= 0.011 ? '-∞ dB' : `${(20 * Math.log10(v)).toFixed(1)}dB`
+              v <= 0.011 ? formatDb(-Infinity) : formatGain(v)
             }
             onChange={(v) => updateSample({ gain: v })}
           />

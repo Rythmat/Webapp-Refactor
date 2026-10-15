@@ -113,6 +113,25 @@ const LIBRARY_HREF: Record<BandSource['kind'], (id: string) => string> = {
   part: (id) => AdminRoutes.part({ id }),
 };
 
+/** The kinds of item a layer on an instrument can play: its own, or a part. */
+const kindsFor = (instrument: BandInstrument): BandSource['kind'][] =>
+  instrument === 'drums' || instrument === 'percussion'
+    ? ['groove', 'part']
+    : instrument === 'bass'
+      ? ['bassLine', 'part']
+      : ['comping', 'part'];
+
+/** Whether a part, by the instrument it was written for, suits a layer. */
+const partFits = (partInstrument: string | undefined, layer: BandInstrument) =>
+  partInstrument === 'drums'
+    ? layer === 'drums' || layer === 'percussion'
+    : partInstrument === 'bass'
+      ? layer === 'bass'
+      : partInstrument === 'guitar'
+        ? layer === 'guitar'
+        : // A piano part suits any pitched layer but the bass.
+          !['drums', 'percussion', 'bass'].includes(layer);
+
 const isDrums = (layer: Pick<BandLayer, 'instrument'>) =>
   layer.instrument === 'drums' || layer.instrument === 'percussion';
 
@@ -740,50 +759,77 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               </select>
             </label>
             <label className="flex flex-col gap-1">
-              <span className={CONSOLE_LABEL}>
-                {SOURCE_LABEL[layer.source.kind]}
-              </span>
+              <span className={CONSOLE_LABEL}>What it plays</span>
               <select
-                value={layer.source.id}
+                value={`${layer.source.kind}:${layer.source.id}`}
                 onChange={(e) => {
+                  const at = e.target.value.indexOf(':');
                   setLayer(layer.id, {
                     source: {
-                      kind: layer.source.kind,
-                      id: e.target.value,
+                      kind: e.target.value.slice(0, at),
+                      id: e.target.value.slice(at + 1),
                     } as BandSource,
                   });
                   setEditingItem(false);
                 }}
-                className={cn(input, 'max-w-[16rem]')}
+                className={cn(input, 'max-w-[20rem]')}
               >
                 {(() => {
-                  const all = itemsFor(layer.source.kind);
+                  const kinds = kindsFor(layer.instrument);
+                  // The layer may still name a kind its instrument no longer
+                  // takes; keep it listed so the picker shows what it plays.
+                  if (!kinds.includes(layer.source.kind))
+                    kinds.unshift(layer.source.kind);
                   const by = players.find((p) => p.id === layer.player);
-                  const theirs = by
-                    ? all.filter((item) =>
-                        by.items.some(
-                          (i) =>
-                            i.kind === layer.source.kind && i.id === item.id,
-                        ),
-                      )
-                    : [];
-                  const option = (item: (typeof all)[number]) => (
-                    <option key={item.id} value={item.id}>
+                  const isTheirs = (kind: BandSource['kind'], id: string) =>
+                    !!by?.items.some((i) => i.kind === kind && i.id === id);
+                  const option = (
+                    kind: BandSource['kind'],
+                    item: { id: string; name: string; status: string },
+                    withKind: boolean,
+                  ) => (
+                    <option
+                      key={`${kind}:${item.id}`}
+                      value={`${kind}:${item.id}`}
+                    >
                       {item.name}
+                      {withKind ? ` · ${SOURCE_LABEL[kind].toLowerCase()}` : ''}
                       {item.status === 'live' ? '' : ' (draft)'}
                     </option>
                   );
-                  return by ? (
+                  return (
                     <>
-                      <optgroup label={`${by.name} plays`}>
-                        {theirs.map(option)}
-                      </optgroup>
-                      <optgroup label="Everything else">
-                        {all.filter((i) => !theirs.includes(i)).map(option)}
-                      </optgroup>
+                      {by && (
+                        <optgroup label={`${by.name} plays`}>
+                          {kinds.flatMap((kind) =>
+                            itemsFor(kind)
+                              .filter((item) => isTheirs(kind, item.id))
+                              .map((item) =>
+                                option(kind, item, kinds.length > 1),
+                              ),
+                          )}
+                        </optgroup>
+                      )}
+                      {kinds.map((kind) => (
+                        <optgroup
+                          key={kind}
+                          label={`${by ? 'Other ' : 'All '}${SOURCE_LABEL[kind].toLowerCase()}s`}
+                        >
+                          {itemsFor(kind)
+                            .filter((item) => !isTheirs(kind, item.id))
+                            .filter(
+                              (item) =>
+                                kind !== 'part' ||
+                                partFits(
+                                  parts.find((pt) => pt.id === item.id)
+                                    ?.instrument,
+                                  layer.instrument,
+                                ),
+                            )
+                            .map((item) => option(kind, item, false))}
+                        </optgroup>
+                      ))}
                     </>
-                  ) : (
-                    all.map(option)
                   );
                 })()}
               </select>

@@ -42,7 +42,10 @@ export const CHORDS: Record<string, number[]> = {
   dominant7b9: [0, 4, 7, 10, 13],
   'major/6': [0, -3, 4, 7],
   'major7#11': [0, 4, 7, 11, 14, 18],
-  'major/1': [0, 5, 8, 12],
+  // The graph's '4 major/1': IV over the tonic (F/C in C), so the bass is the
+  // chord's fifth, as in 'major/5'. It used to read [0, 5, 8, 12], a B♭ minor
+  // over F.
+  'major/1': [0, 4, 7, -5],
   'minor6/5': [0, -5, 3, 7, 9],
   'minor6/b3': [0, -9, 3, 7, 9],
   'minor7b5/4': [0, -5, -4, 2, 5],

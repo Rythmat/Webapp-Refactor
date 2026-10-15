@@ -139,7 +139,9 @@ export const CHORD_COLORS: Record<string, ColorIndex> = {
   '3 dominant7b9': 14,
   '3 dominant7#5': 13,
   '3 major': 5,
+  '3 major/3': 5, // E/G♯, the V of vi: E major's own colour
   '3 sus2': 1,
+  '3 sus4': 1,
   '3 quartal': 1,
   '3 minor7#5': 1,
   '3 diminished': 12, // Mixolydian

@@ -56,29 +56,16 @@ function extractDegreePrefix(label: string): string {
 /**
  * Convert an Ionian-relative chord label to a mode-relative label.
  * Only transforms diatonic modes; non-diatonic modes return the label unchanged.
- * Handles slash chords (e.g., "4 major/1").
+ *
+ * Only the degree moves. A slash chord's quality ("major/3" in "3 major/3",
+ * E/G♯) is a CHORDS key whose number places the bass from the chord's own
+ * root, so it travels with the chord unchanged. Converting that number as a
+ * key degree too stored E/G♯ in A aeolian as "5 major/5", which reads as E/B.
  */
 export function ionianToModeLabel(ionianLabel: string, mode: string): string {
   if (mode === 'ionian' || !isDiatonicMode(mode)) return ionianLabel;
   const offset = getModeOffset(mode);
   if (offset === 0) return ionianLabel;
-
-  const slashIdx = ionianLabel.indexOf('/');
-  if (slashIdx >= 0) {
-    const mainPart = ionianLabel.substring(0, slashIdx);
-    const bassDegree = ionianLabel.substring(slashIdx + 1);
-    const mainQuality = unstepChord(mainPart);
-    const mainDegreeStr = extractDegreePrefix(mainPart);
-    const convertedMain = convertDegreePart(
-      mainDegreeStr,
-      mainQuality,
-      -offset,
-    );
-    // Bass is just a degree number (e.g., "1", "3")
-    const bassConverted = convertDegreePart(bassDegree, '', -offset);
-    const bassResult = extractDegreePrefix(bassConverted);
-    return `${convertedMain}/${bassResult}`;
-  }
 
   const quality = unstepChord(ionianLabel);
   const degreeStr = extractDegreePrefix(ionianLabel);
@@ -87,24 +74,13 @@ export function ionianToModeLabel(ionianLabel: string, mode: string): string {
 
 /**
  * Convert a mode-relative chord label back to Ionian-relative.
- * Reverse of ionianToModeLabel.
+ * Reverse of ionianToModeLabel: the degree moves, the quality (slash and
+ * all) stays.
  */
 export function modeToIonianLabel(modeLabel: string, mode: string): string {
   if (mode === 'ionian' || !isDiatonicMode(mode)) return modeLabel;
   const offset = getModeOffset(mode);
   if (offset === 0) return modeLabel;
-
-  const slashIdx = modeLabel.indexOf('/');
-  if (slashIdx >= 0) {
-    const mainPart = modeLabel.substring(0, slashIdx);
-    const bassDegree = modeLabel.substring(slashIdx + 1);
-    const mainQuality = unstepChord(mainPart);
-    const mainDegreeStr = extractDegreePrefix(mainPart);
-    const convertedMain = convertDegreePart(mainDegreeStr, mainQuality, offset);
-    const bassConverted = convertDegreePart(bassDegree, '', offset);
-    const bassResult = extractDegreePrefix(bassConverted);
-    return `${convertedMain}/${bassResult}`;
-  }
 
   const quality = unstepChord(modeLabel);
   const degreeStr = extractDegreePrefix(modeLabel);

@@ -16,6 +16,7 @@ import {
   unstepChord,
 } from './naming';
 import { generateChord, normalizeSequence } from './chordUtils';
+import { CHORDS } from '../data/chords';
 import { getChordColor } from './colorSystem';
 import { noteNameInKey, respellLeadingChords } from '../data/notes';
 
@@ -127,12 +128,55 @@ interface ChordRegionLike {
   name: string;
   noteName: string;
   degreeKey?: string;
+  /** The region's chord as pitch classes (src/daw/harmony/chordIdentity). */
+  identity?: { quality: string; label: string };
+}
+
+/** An engine slash quality ("major/5") without its bass: the chord it voices. */
+function chordOf(quality: string): string {
+  const slash = quality.indexOf('/');
+  return slash > 0 && quality in CHORDS ? quality.slice(0, slash) : quality;
 }
 
 function classifyQuality(quality: string): 'triad' | 'seventh' | 'extended' {
-  if (TRIAD_QUALITIES.has(quality)) return 'triad';
-  if (SEVENTH_QUALITIES.has(quality)) return 'seventh';
+  const chord = chordOf(quality);
+  if (TRIAD_QUALITIES.has(chord)) return 'triad';
+  if (SEVENTH_QUALITIES.has(chord)) return 'seventh';
   return 'extended';
+}
+
+const LONG_QUALITY: Record<string, string> = {
+  dom: 'dominant',
+  dim: 'diminished',
+  min: 'minor',
+  maj: 'major',
+  aug: 'augmented',
+};
+
+/**
+ * A quality as the lane writes it short ("dom7", "min7b5", "maj/3") in
+ * CHORDS' own words ("dominant7", "minor7b5", "major/3"). A long one comes
+ * back as it is.
+ */
+export function longQuality(quality: string): string {
+  if (quality in CHORDS) return quality;
+  return quality.replace(
+    /dom(?!inant)|dim(?!inished)|min(?!or|ished)|maj(?!or)|aug(?!mented)/g,
+    (short) => LONG_QUALITY[short],
+  );
+}
+
+/**
+ * The quality a region holds, in CHORDS' words: its identity's while that
+ * still describes the region, else its degreeKey's, else its name's. The
+ * name alone is a display label ("1 maj", "5 dom7"), which no set above
+ * holds, so reading it raw counted every chord as extended.
+ */
+function regionQuality(region: ChordRegionLike): string {
+  if (region.identity && region.identity.label === region.name) {
+    return region.identity.quality;
+  }
+  return longQuality(unstepChord(region.degreeKey ?? region.name));
 }
 
 export function analyzeChordStyle(regions: ChordRegionLike[]): ChordStyle {
@@ -152,7 +196,7 @@ export function analyzeChordStyle(regions: ChordRegionLike[]): ChordStyle {
   const qualityCounts = new Map<string, number>();
 
   for (const region of regions) {
-    const quality = unstepChord(region.name);
+    const quality = chordOf(regionQuality(region));
     const category = classifyQuality(quality);
     if (category === 'triad') triads++;
     else if (category === 'seventh') sevenths++;
@@ -219,14 +263,12 @@ export function extractGraphSeed(
       continue;
     }
 
-    // Try to reconstruct: parse the note name and compute degree
-    // The region.name may be like "1 maj" — expand abbreviations
-    const expanded = r.name
-      .replace(/\bmaj\b/, 'major')
-      .replace(/\bmin\b/, 'minor')
-      .replace(/\bdom\b/, 'dominant')
-      .replace(/\bdim\b/, 'diminished')
-      .replace(/\baug\b/, 'augmented');
+    // A degree name ("1 maj", "5 dom7") written out long, as the graph is
+    const space = r.name.indexOf(' ');
+    const expanded =
+      space > 0
+        ? `${r.name.slice(0, space)} ${longQuality(r.name.slice(space + 1))}`
+        : r.name;
     seed.push(toGraphLabel(expanded, mode));
   }
 
@@ -408,8 +450,8 @@ export function generateSuggestions(
     );
     const chords: SuggestionChord[] = degrees.map((degree, j) => ({
       degree: ionianToModeLabel(degree, mode),
-      // From the graph name: converting a slash chord moves its bass number
-      // too, and "major/5" would no longer be the inversion it voiced.
+      // The graph's quality, slash and all ("major/5" places its bass from
+      // the chord's root), which the mode conversion leaves as it is.
       quality: unstepChord(degree),
       noteName: noteNames[j],
       midi: normalized[j],

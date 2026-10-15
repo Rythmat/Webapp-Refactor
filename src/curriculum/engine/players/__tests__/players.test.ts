@@ -16,6 +16,14 @@ import { listPlayers, playerOf } from '../registry';
 
 const key = (kind: string, id: string) => `${kind}:${id}`;
 
+/** The player instrument a part's instrument is played by. */
+const PART_INSTRUMENT: Record<string, string> = {
+  piano: 'keys',
+  bass: 'bass',
+  guitar: 'guitar',
+  drums: 'drums',
+};
+
 describe('the players', () => {
   it('are well formed, one per id', () => {
     const players = listPlayers();
@@ -59,6 +67,11 @@ describe('the players', () => {
         kind: 'comping' as const,
         id: c.id,
         instrument: 'keys',
+      })),
+      ...listParts().map((p) => ({
+        kind: 'part' as const,
+        id: p.id,
+        instrument: PART_INSTRUMENT[p.instrument],
       })),
     ].filter((item) => playerOf(item)?.instrument !== item.instrument);
     expect(unfiled).toEqual([]);

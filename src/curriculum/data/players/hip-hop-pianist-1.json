@@ -5,5 +5,22 @@
   "genre": "hip-hop",
   "kind": "placeholder",
   "order": 230,
-  "items": []
+  "items": [
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-b16-b1-root-position"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-b20-b2-1st-inversion"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l1-b22-b3-two-chord-jams"
+    },
+    {
+      "kind": "part",
+      "id": "hip-hop-l2-d3-d2-sus2-groove"
+    }
+  ]
 }

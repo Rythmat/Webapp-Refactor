@@ -9,6 +9,22 @@
     {
       "kind": "part",
       "id": "funk-l1-a1-scale-d-minor-pentatonic"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-b22-b2-chord-voicings"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-b29-b2-chord-voicings"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l1-d46-d1-lh-bass-rh-chords"
+    },
+    {
+      "kind": "part",
+      "id": "funk-l3-d146-d3-full-groove"
     }
   ]
 }

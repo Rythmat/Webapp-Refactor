@@ -709,8 +709,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'open-automation',
       stage: 'STAGE 1 — OPEN',
       instruction:
-        'Pick a track and click its **automation** button in the track header to open its lane.',
-      target: 'automation-toggle',
+        "Open a track's **⋯** menu and choose **Show automation** to open its lane.",
+      // The menu item once the menu is open, the selected row's ⋯ until then.
+      target: ['automation-toggle', 'track-menu-button'],
       requires: { view: 'arrange', libraryOpen: false },
       check: (s) => s.automationOpenTrackId !== null,
     },

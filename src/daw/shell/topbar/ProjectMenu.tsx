@@ -27,6 +27,7 @@ import {
 import { saveProject } from '@/daw/commands/saveProject';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { samplerBufferKey } from '@/daw/instruments/samplerChops';
+import { importMidiToTracks } from '@/daw/midi/importMidiToTracks';
 import { useStore } from '@/daw/store';
 import { timeSignatureOf } from '@/daw/time/timeModel';
 import { openSession } from '@/daw/session/openSession';
@@ -41,7 +42,6 @@ import {
   DEFAULT_EXPORT_CHOICES,
   type ExportChoices,
 } from '@/daw/components/Transport/exportChoices';
-import type { MidiNoteEvent } from '@prism/engine';
 import { buttonVariants } from '@/daw/ui/Button';
 import { confirmDialog, promptDialog } from '@/daw/ui/DialogHost';
 import {
@@ -62,14 +62,6 @@ import { TYPE_CLASS } from '@/daw/ui/styles';
 // Export's items sit in a labelled group rather than a submenu, so a lesson
 // step's click and the keyboard reach them in one move. The '?' menu holds
 // Keyboard shortcuts now.
-
-const OUR_PPQ = 480;
-
-/** Scale ticks if the imported file uses a different PPQ. */
-function rescaleTick(tick: number, sourcePpq: number): number {
-  if (sourcePpq === OUR_PPQ) return tick;
-  return Math.round((tick * OUR_PPQ) / sourcePpq);
-}
 
 /**
  * The project the server just deleted reclaimed its audio assets (E12: the
@@ -239,36 +231,7 @@ export function ProjectMenu() {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      const arrayBuffer = await file.arrayBuffer();
-      // The MIDI reader loads with the first import, not with the editor.
-      const { importMidiFile } = await import('@/daw/midi/MidiFileIO');
-      const sequences = importMidiFile(arrayBuffer);
-
-      const state = useStore.getState();
-
-      for (let i = 0; i < sequences.length; i++) {
-        const seq = sequences[i];
-        const ppq = seq.ticksPerQuarterNote;
-
-        // addTrack picks the colour from the track palette.
-        const trackId = state.addTrack('midi', 'oracle-synth', seq.trackName);
-
-        const events: MidiNoteEvent[] = seq.events.map((ev: MidiNoteEvent) => ({
-          ...ev,
-          startTick: rescaleTick(ev.startTick, ppq),
-          durationTicks: rescaleTick(ev.durationTicks, ppq),
-        }));
-
-        state.addMidiClip(trackId, {
-          id: `clip-import-${crypto.randomUUID().slice(0, 8)}`,
-          name: seq.trackName,
-          startTick: 0,
-          events,
-        });
-      }
-
-      // Imported notes come without chord symbols: offer to analyze them.
-      state.offerChordAnalysis();
+      await importMidiToTracks(await file.arrayBuffer());
 
       e.target.value = '';
     },

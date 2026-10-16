@@ -325,7 +325,10 @@ export function ChannelStrip() {
       {isOpen && (
         <div
           key={activeTab}
-          className="overflow-hidden animate-in fade-in-0 duration-daw-fast motion-reduce:animate-none"
+          // Where Enter on a track row puts focus (the track list's keys).
+          data-dock-content
+          tabIndex={-1}
+          className="overflow-hidden outline-none animate-in fade-in-0 duration-daw-fast motion-reduce:animate-none"
           style={{ borderTop: '1px solid var(--daw-hairline)' }}
         >
           <div

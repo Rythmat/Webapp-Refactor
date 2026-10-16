@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useStore } from '@/daw/store';
 import { MINUS } from '@/daw/ui/format';
-import { MasterTrackHeader } from '@/daw/components/TrackControls/MasterTrackHeader';
+import { MasterRow } from '@/daw/shell/tracklist/MasterRow';
 import { StudioView } from '../StudioView';
 
 // ── The MASTER view says what the audio does (fx-mixer-02/03, ia-flows-35) ─
@@ -111,7 +111,7 @@ describe('MASTER view', () => {
     [1, '0.0'],
     [0, `${MINUS}∞`],
   ])(
-    'reads a master fader at %f as %s dB, as the Create header does',
+    'reads a master fader at %f as %s dB, as the Create Master row does',
     (gain, db) => {
       useStore.setState({ masterVolume: gain });
       // The mixer, and its master strip, show once there is a track.
@@ -120,8 +120,11 @@ describe('MASTER view', () => {
       expect(masterFaderReadout()).toBe(`${db} dB`);
       cleanup();
 
-      render(<MasterTrackHeader isReady={false} />);
-      expect(screen.getByText(db, { exact: false })).toBeInTheDocument();
+      // The Master row's fader says it in its value text.
+      render(<MasterRow />);
+      expect(
+        screen.getByRole('slider', { name: 'Master volume' }),
+      ).toHaveAttribute('aria-valuetext', `${db} dB`);
     },
   );
 });

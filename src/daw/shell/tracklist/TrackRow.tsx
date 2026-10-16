@@ -1,0 +1,306 @@
+import { Circle, Ear, EarOff, MoreHorizontal } from 'lucide-react';
+import { memo, useCallback, useRef, useState, type PointerEvent } from 'react';
+import { cn } from '@/components/utilities';
+import { useTrackPresence } from '@/daw/collab/presence';
+import {
+  useListenMode,
+  useRemoteTrackActive,
+  useRemoteTrackAudible,
+  useStudioListenStore,
+} from '@/daw/collab/studioListenStore';
+import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
+import { meterSource } from '@/daw/engine/meterBus';
+import { useTrackVolumeControl } from '@/daw/hooks/useMixControls';
+import { useStore, useTrack, type Track } from '@/daw/store';
+import { Fader } from '@/daw/ui/Fader';
+import { formatGain } from '@/daw/ui/format';
+import { IconButton } from '@/daw/ui/IconButton';
+import { Meter } from '@/daw/ui/Meter';
+import { Menu, MenuTrigger } from '@/daw/ui/Menu';
+import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
+import { Toggle } from '@/daw/ui/Toggle';
+import { TRACK_ROW_PX } from './rowLayout';
+import { TrackMenuContent } from './TrackMenu';
+import { useTrackRename } from './useTrackRename';
+
+// ── A track row (milestone 2.6) ────────────────────────────────────────────
+//
+// 64 px, two lines (ia-flows-36, timeline-21):
+//   colour · name · collaborators · ⋯
+//   M · S · Arm · volume over its meter
+// Everything else (rename, colour, role, monitor, test sound, automation,
+// release, delete) is in the ⋯ menu. Every control is named in full
+// ('Mute Rhodes'), shows its state by more than colour (pressed, filled),
+// and is at least 24×24. A muted row dims.
+//
+// The name is the row's selector: a click selects the track, a double-click
+// (or F2 / N with focus on it) renames it, and the arrow keys move the
+// selection (the track list's keys, useTrackListKeys). The colour bar at
+// the left edge is the grip that drags the row up or down.
+//
+// A track a collaborator has selected is theirs for now: it is outlined in
+// their colour and only Mute and Solo (which are each person's own) stay
+// live; while they play it live, Listen sets whether you hear them.
+
+/** The fader and meter's length in a 200 px row. */
+const FADER_PX = 88;
+
+export interface TrackRowProps {
+  trackId: string;
+  index: number;
+  /** This row's selector takes the list's Tab stop. */
+  tabStop: boolean;
+  /** This row's ⋯ is the lessons' 'track-menu-button'. */
+  menuAnchor: boolean;
+  /** A grip press: the list drags the row from here. */
+  onGripDown(event: PointerEvent<HTMLElement>, trackId: string): void;
+  /** The row is being dragged to a new place. */
+  dragging?: boolean;
+}
+
+export const TrackRow = memo(function TrackRow(props: TrackRowProps) {
+  const track = useTrack(props.trackId);
+  return track ? <TrackRowBody track={track} {...props} /> : null;
+});
+
+const TrackRowBody = memo(function TrackRowBody({
+  track,
+  index,
+  tabStop,
+  menuAnchor,
+  onGripDown,
+  dragging = false,
+}: TrackRowProps & { track: Track }) {
+  const isSelected = useStore((s) => s.selectedTrackId === track.id);
+  const lockOwner = useTrackPresence(track.id)[0] ?? null;
+  const locked = lockOwner !== null;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const rename = useTrackRename(track);
+
+  const select = useCallback(() => {
+    useStore.getState().setSelectedTrackId(track.id);
+  }, [track.id]);
+
+  return (
+    <li
+      data-track-id={track.id}
+      data-testid="track-row"
+      data-selected={isSelected || undefined}
+      aria-label={track.name}
+      aria-current={isSelected || undefined}
+      className={cn(
+        'relative flex border-b border-daw-hairline',
+        isSelected ? 'bg-daw-selected' : 'bg-daw-surface-1 hover:bg-daw-hover',
+        dragging && 'opacity-60',
+        TRANSITION,
+      )}
+      style={{ height: TRACK_ROW_PX }}
+      onClick={select}
+    >
+      {/* The colour bar, which is also the grip that reorders the row. */}
+      <div
+        aria-hidden
+        data-testid="track-grip"
+        className="flex w-3 shrink-0 cursor-grab touch-none justify-start active:cursor-grabbing"
+        onPointerDown={(e) => onGripDown(e, track.id)}
+      >
+        <span
+          className="h-full w-1"
+          style={{ backgroundColor: track.color }}
+          data-meaning="track-colour"
+        />
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-1 pr-1">
+        <div className="flex h-7 min-w-0 items-center gap-1">
+          {rename.editing ? (
+            <input
+              ref={rename.inputRef}
+              aria-label={`Name of ${track.name}`}
+              defaultValue={track.name}
+              className={cn(
+                'h-6 min-w-0 flex-1 rounded-[var(--daw-radius-sm)] border border-daw-outline bg-daw-bg px-1 font-bold text-daw-text outline-none',
+                TYPE_CLASS.label,
+              )}
+              spellCheck={false}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={rename.onKeyDown}
+              onBlur={rename.commit}
+            />
+          ) : (
+            <button
+              type="button"
+              data-track-selector
+              tabIndex={tabStop ? 0 : -1}
+              aria-pressed={isSelected}
+              aria-label={`${track.name}, track ${index + 1}`}
+              className={cn(
+                'h-6 min-w-0 flex-1 truncate rounded-[var(--daw-radius-sm)] px-1 text-left font-bold text-daw-text',
+                TYPE_CLASS.label,
+                track.mute && 'opacity-45',
+                FOCUS_RING,
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                select();
+              }}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                if (!locked) rename.start();
+              }}
+            >
+              {track.name}
+            </button>
+          )}
+          <PresenceTrackDots trackId={track.id} />
+          <Menu open={menuOpen} onOpenChange={setMenuOpen}>
+            <MenuTrigger asChild>
+              <IconButton
+                label={`More for ${track.name}`}
+                icon={<MoreHorizontal />}
+                size="sm"
+                data-tutorial-id={menuAnchor ? 'track-menu-button' : undefined}
+                data-testid="track-menu-button"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </MenuTrigger>
+            {menuOpen ? (
+              <TrackMenuContent
+                track={track}
+                locked={locked}
+                isSelected={isSelected}
+                onRename={rename.startFromMenu}
+                onCloseAutoFocus={rename.menuCloseAutoFocus}
+              />
+            ) : null}
+          </Menu>
+        </div>
+        <div
+          className="flex h-7 items-center gap-0.5"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Toggle
+            label={`Mute ${track.name}`}
+            size="sm"
+            pressed={track.mute}
+            onPressedChange={() => useStore.getState().toggleMute(track.id)}
+          >
+            M
+          </Toggle>
+          <Toggle
+            label={`Solo ${track.name}`}
+            size="sm"
+            pressed={track.solo}
+            onPressedChange={() => useStore.getState().toggleSolo(track.id)}
+          >
+            S
+          </Toggle>
+          {locked && lockOwner ? (
+            <RemoteListen trackId={track.id} owner={lockOwner.userName} />
+          ) : (
+            <>
+              <Toggle
+                label={`Arm ${track.name} to record`}
+                tone="record"
+                size="sm"
+                icon={
+                  <Circle
+                    className={track.recordArmed ? 'fill-current' : undefined}
+                  />
+                }
+                pressed={track.recordArmed}
+                onPressedChange={() =>
+                  useStore.getState().toggleRecordArm(track.id)
+                }
+              />
+              <RowVolume track={track} dimmed={track.mute} />
+            </>
+          )}
+        </div>
+      </div>
+      {/* Last, so it is drawn over the row without a z-index of its own. */}
+      {locked && lockOwner ? (
+        <LockOutline color={lockOwner.color} trackId={track.id} />
+      ) : null}
+    </li>
+  );
+});
+
+/** The row's volume and its meter, one under the other. */
+function RowVolume({ track, dimmed }: { track: Track; dimmed: boolean }) {
+  const volume = useTrackVolumeControl(track);
+  const source = useRef(meterSource(`track:${track.id}`));
+  return (
+    <div
+      className={cn('ml-1 flex flex-col items-start', dimmed && 'opacity-45')}
+      onPointerDownCapture={volume.begin}
+    >
+      <Fader
+        label={`Volume of ${track.name}`}
+        orientation="horizontal"
+        length={FADER_PX}
+        min={0}
+        max={1}
+        step={0.01}
+        resetValue={0.8}
+        value={volume.value}
+        format={(v) => formatGain(v)}
+        onChange={volume.change}
+        onCommit={volume.end}
+        showValue={false}
+        hideLabel
+      />
+      <Meter
+        label={`${track.name} level`}
+        source={source.current}
+        orientation="horizontal"
+        length={FADER_PX}
+        channels={1}
+      />
+    </div>
+  );
+}
+
+/**
+ * Whether you hear a collaborator's live signal on a track they hold: in
+ * Listen-all you mute or unmute them, in Solo-listen you listen to them or
+ * stop.
+ */
+function RemoteListen({ trackId, owner }: { trackId: string; owner: string }) {
+  const mode = useListenMode();
+  const audible = useRemoteTrackAudible(trackId);
+  const toggle = useStudioListenStore((s) => s.toggleTrackAudible);
+  const label =
+    mode === 'all'
+      ? `${audible ? 'Mute' : 'Unmute'} ${owner}'s live audio`
+      : `${audible ? 'Stop listening to' : 'Listen to'} ${owner}`;
+  return (
+    <Toggle
+      label={label}
+      size="sm"
+      pressed={audible}
+      icon={audible ? <Ear /> : <EarOff />}
+      onPressedChange={() => toggle(trackId)}
+    >
+      {audible ? 'Listening' : 'Listen'}
+    </Toggle>
+  );
+}
+
+/** A collaborator's track: their colour round it, brighter while they play. */
+function LockOutline({ color, trackId }: { color: string; trackId: string }) {
+  const audible = useRemoteTrackAudible(trackId);
+  const active = useRemoteTrackActive(trackId);
+  const playing = audible && active;
+  return (
+    <div
+      aria-hidden
+      data-meaning="presence"
+      className={cn(
+        'pointer-events-none absolute inset-0 rounded-[var(--daw-radius-sm)]',
+        playing && 'animate-pulse motion-reduce:animate-none',
+      )}
+      style={{ boxShadow: `inset 0 0 0 2px ${color}` }}
+    />
+  );
+}

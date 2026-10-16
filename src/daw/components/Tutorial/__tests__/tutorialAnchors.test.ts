@@ -221,12 +221,12 @@ interface TemplateSource {
 /** The template anchors the lessons can use, by the text before `${`. */
 const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
   'add-track-': {
-    file: 'components/Mixer/AddTrackMenu.tsx',
-    // One card per template; the Synth card renders the exact id
-    // 'add-track-synth' instead (the ternary around the template).
+    file: 'shell/tracklist/AddTrackSheet.tsx',
+    // One card per template (trackTemplates.ts); the Synth card renders the
+    // exact id 'add-track-synth' instead (the ternary around the template).
     suffixes: () =>
       constValues(
-        'components/Mixer/AddTrackMenu.tsx',
+        'shell/tracklist/trackTemplates.ts',
         'TRACK_TEMPLATES',
         'instrument',
       ).filter((instrument) => instrument !== 'oracle-synth'),

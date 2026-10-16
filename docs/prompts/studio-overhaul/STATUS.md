@@ -726,3 +726,70 @@ The owner asked to combine the Score and Lead sheet tabs and to put the notes, r
     - A selected note took Half, Accent and Sharp from the palettes, with the cells lit.
     - The layout switch and the Score tab worked both ways; the melody lead sheet shows the note palettes; the toolbar wraps at 1,042 px.
 - **Open:** the palettes panel is still the legacy look (data-ds legacy); its v2 restyle is Stage C's (3.x). The page header's other controls (parts count, Print, MusicXML) are unchanged.
+
+## B4 — 2.8 rails and Inspector, 2.9 editor dock v2 (2026-10-16)
+
+Prompt 15. The rails themselves (B4a) were already on `aaron`; this run finishes 2.8 and builds 2.9, both in one chat.
+
+- **Branch:** `aaron`, from `473089a0`. Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (decision 16's plan change, the Ableton review), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Commits:**
+  - `7cd85eee` **transport and Click menu** (2.8);
+  - `3e889b35` **the effects library and the dock's chain as one state** (2.8);
+  - `64f5c8b3` **the dock v2** (2.9);
+  - `dff262c1` **harness**: R29's dock checks, the click's prefs in the fingerprint and the kitchen sink, the engine tests' mocks;
+  - this entry.
+- **Pushed:** yes, to `aaron` (fast-forward), from a temporary worktree of HEAD: the pre-push lint sees another session's untracked files in this checkout.
+- **What changed (2.8):**
+  - **Bottom rail:**
+    - Go to start (⇧Home), and Rewind and Fast-forward (`,` and `.`, as in Logic), which step a bar and repeat while held. Rewind goes back a whole bar when the playhead is within half a beat of a bar line, so a press while playing never lands just behind the playhead.
+    - The Click caret opens a menu: the click's sound (Click, Tick, Hi-hat; a choice plays one click), its volume (−30 to 0 dB) and the count-in. Sound and volume are per-user prefs (`metronomeSound`, `metronomeVolume`).
+    - The click and the count-in now go straight to the output (`audio/clickVoice.ts`), around the master fader and the mastering chain, so mastering no longer colours them and the master meter no longer shows them; an export never had them.
+    - The countInFolded leftover and two stale header comments are gone.
+  - **Effects library and chain as one state:**
+    - The dock's Effects tab lost its own add list. After the last effect sits an **Add effect** card: a click opens the side rail's Effects library and arms it ("Pick from the library"). Each pick fills the slot and arms the next; the armed card's × stops and puts the Inspector back as it was (`fxLibraryReturn`). The rail's Effects icon is the same state: armed means the Effects panel is showing.
+    - A pick switches the dock to Effects and shows the new effect's controls (`dockEffect`); an effect already in the chain shows its controls instead.
+    - The library groups the ten effects in five categories, each with a one-line purpose ("Reverb: puts the sound in a room") and each effect with a line on what it does, in neutral colours (`data/effectCategories.ts`).
+    - One cap, `MAX_RACK_EFFECTS` (5), enforced by the store for tracks, the master and the returns; a track's own add never checked it (fx-mixer-19).
+    - The `fx-add-*` anchors moved with the list into the library (stamped with the rack it adds to). The five lesson steps that click one get a new step precondition, `effectsLibrary`, and say Effects rather than FX.
+- **What changed (2.9):** the dock moved to `src/daw/shell/dock/` (`git mv` of ChannelStrip).
+  - **Tabs by track type, Effects last:** Instrument · Prism · Notes · Effects (melodic), Instrument · Grooves · Notes · Effects (drums), no tab bar on audio (the chain) or live input (its pedals or voice chain, then the effects after them, behind a two-way switch). Labels changed (Controls → Instrument, Piano Roll → Notes, FX → Effects); the ids and the `chanstrip-tab-*` anchors did not.
+  - **Drums:** Notes is the drum grid; the Instrument tab is new, the kit and a pad per drum (play it, with its volume and pan; `DrumPadsView`). Hip Hop's four drum-grid steps now open Notes.
+  - **Parts** left the dock for a Templates | Parts switch in the Library panel, as they were, until 2.14.
+  - **Selection drives the dock:** a click on a clip selects its track and, on release, opens the clip's editor (Notes, the drum grid or the chain; `dockSelection.ts`); a double-click does the same instead of the modal. The dock follows the selected track, keeping the tab that applies (Prism and Grooves take each other's place). Notes always edits the track the dock shows (`editorTrackId` removed). During a lesson the dock keeps the step's tab.
+  - **Maximize** grows the dock over the canvas (kept mounted, inert) and Escape restores it. It replaced PianoRollModal (its Analyze in Insight moved to the dock's header) and the three PopOutOverlay openers (pianoroll-11, dock-instruments-15, -21). Maximized, the Oracle synth shows its full panel and effect graphs show large. An effect's graph is a labelled Graph toggle under its knobs, in the Mix view too (fx-mixer-11).
+  - **Keys:** Escape with focus in the dock shuts it, and the timeline's clip keys stay out of the dock (a `dock` region scope; the modal and pop-out scopes are gone, `dockMax` is new). Collaborators see "editing" while the dock is on Notes.
+  - **Master in the dock's slot:** the bottom rail's Master button (it replaced "Master effects: open the Mix view") shows the gain, the master chain with its own Add effect slot (the library then fills the master chain, without the Sidechain) and the output's peak (`DockMaster`, `dock-master` anchor). The Mix view stays; `mastering-section` and `master-strip` stay its anchors.
+  - **Height:** still a share of the body per tab, now with Master's own (0.36); a stored height for the old Parts tab is still a valid pref.
+  - **Found and fixed:** the bottom rail's Master fader and meter stood 48 px in the 44 px rail (since B4a), so the shell scrolled 4.5 px whenever something was scrolled into view.
+- **Verification:**
+  - **Lint:** prettier and eslint clean on every file this work touched; `tsc -b` clean. The whole-tree `npm run lint` stops only on another session's untracked `src/scripts/enrichment/research/` (12 prettier warnings, 1 eslint error).
+  - **`npx vitest run`:** 15,927 pass, 9 fail in 13 files, none in this work's code: the inherited `designGuard` PianoRoll budget and the content/scripts suites of B4a's list. New tests: `Dock.v2.test` (14), `effectsLibrary.test` (10), the transport's skip buttons, hold-to-repeat and Click menu, the prefs' validators.
+  - **`studio:check`** (fast, on 5263): round-trips laptop 79 ok (25 full-tier only), Chromebook 101 ok, 0 lost fields, 0 page errors. Lessons at all three sizes, both personas: Chromebook 74/78, laptop 76/78, 1280×720 74/78, only Indie's known failures; 4/4 Premium lessons gated. Bundle: DawApp 103.3 kB gzip (B4a 103.4), budget 150; the every-page FAIL is the inherited one.
+  - **R29:** all 13 flags at all three sizes, the four new ones included (dockTabs, dockMaster, dockMaximize, effectsArming). Maximize: 204 → 567 px on a Chromebook (the whole body) and back. R30's row budget (≥ 4 rows with the dock open at 1366×655) passes.
+  - **Golden (audio):** the metronome trace passes 15/15 checks at 44.1 and 48 kHz (clicks on the beat, 4/4 count-in clicks); the renders pass 10/10.
+  - **The click's level:** before, −10 dB into the master fader (0.8, −1.9 dB) and the mastering chain's crush stage (+2.4 dB at low level when off; audio-core-12, still open), about −9.6 dB at the output; now −10 dB, within half a dB.
+  - **Browser (Chrome, 5263, a 1042 × 1035 window; the exact sizes are R29's):**
+    - Drums: the Instrument tab's pads played (the meter moved); Notes is the drum grid, and two painted hits made a clip.
+    - Synth: the dock kept Notes and showed its piano roll. Before the fix it showed the drum grid of the drum clip still selected: found here.
+    - Effects: Add effect armed slot 1 and the library opened beside the dock, pushing it; Reverb then Delay filled slots 1 and 2 and armed 3; Graph showed Delay's graph; Maximize filled the body and Escape restored it; the armed slot's × shut the library.
+    - Master: gain at −1.9 dB, the chain and the peak; Add effect said "Adding to Master" without the Sidechain, and a Compressor went to the master chain only. A click on the drum clip then left Master for the drum grid.
+    - Vocal: no tabs, a Voice | Effects switch over the vocal chain.
+    - Click menu: Tick and a 1-bar count-in set, and Escape closed only the menu. Its volume readout ran out of the popover: fixed.
+    - Transport: Fast-forward twice to bar 3, Rewind to bar 2; with the click and the count-in, `.` while playing jumped a bar and Go to start went to bar 1.
+    - Library → Parts: a part (Am9 – D13, 34 notes) went onto the Synth at bar 1, and a reload brought the dock back on the Synth's Notes with it.
+    - Console: only the known third-party StrictMode warning.
+- **Owner sign-offs:**
+  1. **Tab names:** the plan's (Instrument · Prism or Grooves · Notes · Effects; the owner's answer recorded at 15:15), not the B4a note's Soundtrap names (Chords, Patterns, Piano Roll). The ids are the same, so a rename is one table in `shell/dock/dockTabs.ts`.
+  2. **Drums:** Notes is the drum grid and Instrument the new kit-and-pads view; Hip Hop's drum steps moved to Notes.
+  3. **Live-input tracks:** no tab bar, but a two-way switch (Pedals or Voice | Effects), because the engine has two chains in series; one chain is engine work.
+  4. **Keys:** Go to start ⇧Home; Rewind and Fast-forward `,` and `.` (the plan's proposal). They also work while the computer keyboard plays notes.
+  5. **The click:** three sounds (Click, Tick, Hi-hat), −30 to 0 dB, −10 dB by default, routed around mastering.
+  6. **Escape in the dock** shuts the dock rather than stopping playback, while focus is in it.
+  7. **A clip click** opens its editor on release, not on press, and not during a lesson.
+  8. **The Effects tab** keeps our chain row of 68 px blocks with the controls below, not Soundtrap's 174 × 251 cards with controls inside: they don't fit the Chromebook's 204 px dock.
+- **Open issues:**
+  1. The dock's tab bodies are still the legacy look (data-ds legacy): Stage C's.
+  2. The Mix view's mastering and return racks keep their own FxBrowser lists until 2.10's RackDock.
+  3. The Library's Parts section is the old PartsBrowser (legacy look, tight at 300 px) until 2.14.
+  4. The Export pill and ⌘K are 15d's (2.15), not this prompt's, although the B4a entry listed them under 15.
+- **Next:** 15a (B5: 2.12 clips).

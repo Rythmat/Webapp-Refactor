@@ -28,8 +28,8 @@ function nudgeTicks(): number {
   return grid.enabled ? grid.step : ticksPerBeat(grid.ts);
 }
 
-/** How much one ⌥= or ⌥− zooms. */
-const ZOOM_STEP = 0.25;
+/** How much one ⌥= or ⌥− (or the tools strip's −/+) zooms. */
+export const ZOOM_STEP = 0.25;
 
 function onTimeline(e: KeyboardEvent): boolean {
   const { currentView, editingClipId } = useStore.getState();
@@ -188,7 +188,7 @@ function selectFirstClip(): void {
 }
 
 /** The song's length in ticks, with room after the last clip. */
-function songLengthTicks(ticksPerBar: number): number {
+export function songLengthTicks(ticksPerBar: number): number {
   let maxTick = ticksPerBar * 8; // 8 bars minimum
   for (const track of useStore.getState().tracks) {
     for (const clip of track.midiClips) {

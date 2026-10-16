@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 /**
- * File ▸ New, Open…, Save, Save As and Delete (milestone 1.4).
+ * Project ▸ New, Open…, Save, Save as and Delete (milestone 1.4; the File
+ * menu until 2.5 renamed it the Project menu).
  *
  * New opens a blank project in place through openSession: no question (owner
  * decision 6, the work it replaces is kept with a Restore), no reload. Open…
@@ -9,7 +10,7 @@
  * one save path; Delete keeps the session open as device-only work, its
  * cloud link let go in the store, the last save and the draft.
  *
- * Run: npx vitest run src/daw/components/Transport/__tests__/FileMenu.test.tsx
+ * Run: npx vitest run src/daw/shell/topbar/__tests__/ProjectMenu.test.tsx
  */
 import {
   act,
@@ -56,7 +57,7 @@ vi.mock('@/daw/ui/DialogHost', () => ({
   promptDialog: h.promptDialog,
 }));
 // The export dialog is mounted only while open; not under test.
-vi.mock('../ExportAudioDialog', () => ({
+vi.mock('@/daw/components/Transport/ExportAudioDialog', () => ({
   DEFAULT_EXPORT_CHOICES: {},
   ExportAudioDialog: () => null,
 }));
@@ -70,13 +71,13 @@ import {
 } from '@/daw/session/sessionDeps';
 import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
 import { useStore } from '@/daw/store';
-import { FileMenu } from '../FileMenu';
+import { ProjectMenu } from '../ProjectMenu';
 
 const s = () => useStore.getState();
 
-/** Open the File menu (Radix opens it from the keyboard in jsdom). */
+/** Open the Project menu (Radix opens it from the keyboard in jsdom). */
 function openMenu(): void {
-  const trigger = screen.getByRole('button', { name: /File/ });
+  const trigger = screen.getByRole('button', { name: /Project/ });
   fireEvent.keyDown(trigger, { key: 'Enter' });
 }
 
@@ -120,11 +121,11 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('File ▸ New Project', () => {
+describe('Project ▸ New project', () => {
   it('opens a blank project in place: no question, no reload', async () => {
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
-    await choose('New Project');
+    await choose('New project');
 
     expect(h.openSession).toHaveBeenCalledTimes(1);
     expect(h.openSession).toHaveBeenCalledWith(
@@ -137,18 +138,18 @@ describe('File ▸ New Project', () => {
 
   it('is off in a shared session', async () => {
     useStore.setState({ roomId: 'room-1', collabRole: 'editor' });
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
 
-    expect(item('New Project')).toHaveAttribute('aria-disabled', 'true');
-    await choose('New Project');
+    expect(item('New project')).toHaveAttribute('aria-disabled', 'true');
+    await choose('New project');
     expect(h.openSession).not.toHaveBeenCalled();
   });
 });
 
-describe('File ▸ Open…', () => {
+describe('Project ▸ Open…', () => {
   it('opens the Projects dialog, with no list fetched by the menu', async () => {
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
     await choose('Open…');
 
@@ -159,7 +160,7 @@ describe('File ▸ Open…', () => {
   it('is off in a shared session, as is the room’s identity alone', async () => {
     // A guest's room identity with no bridge yet: still a room (E15).
     useStore.setState({ roomId: 'room-1', collabRole: 'editor' });
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
 
     expect(item('Open…')).toHaveAttribute('aria-disabled', 'true');
@@ -168,9 +169,9 @@ describe('File ▸ Open…', () => {
   });
 });
 
-describe('File ▸ Save and Save As', () => {
+describe('Project ▸ Save and Save as', () => {
   it('saves through saveProject, which words the outcome', async () => {
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
     // The hint names the student's own modifier (Ctrl off a Mac).
     await choose(/^Save\s*(⌘S|Ctrl\+S)$/);
@@ -181,7 +182,7 @@ describe('File ▸ Save and Save As', () => {
 
   it('reads Saving… while a save runs', () => {
     useCloudSaveStore.setState({ phase: 'saving' });
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
 
     expect(item(/Saving…/)).toHaveAttribute('aria-disabled', 'true');
@@ -190,9 +191,9 @@ describe('File ▸ Save and Save As', () => {
   it('saves a copy under the name asked for, leaving the link to the save', async () => {
     useStore.setState({ projectId: 'p1', projectName: 'Mine' });
     h.promptDialog.mockResolvedValueOnce('  My Copy ');
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
-    await choose('Save As…');
+    await choose('Save as…');
 
     expect(h.promptDialog).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Save a copy', defaultValue: 'Mine' }),
@@ -209,16 +210,16 @@ describe('File ▸ Save and Save As', () => {
 
   it('does nothing when the name is left empty', async () => {
     h.promptDialog.mockResolvedValueOnce('   ');
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
-    await choose('Save As…');
+    await choose('Save as…');
 
     await waitFor(() => expect(h.promptDialog).toHaveBeenCalled());
     expect(h.saveProject).not.toHaveBeenCalled();
   });
 });
 
-describe('File ▸ Delete Project', () => {
+describe('Project ▸ Delete project', () => {
   it('keeps the session open as device-only work, its link let go everywhere', async () => {
     h.confirmDialog.mockResolvedValue(true);
     const keys = s().addTrack('audio', 'guitar-fx', 'Take');
@@ -245,9 +246,9 @@ describe('File ▸ Delete Project', () => {
       at: 1,
       generation: getSessionGeneration(),
     });
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
-    await choose('Delete Project');
+    await choose('Delete project…');
     await waitFor(() =>
       expect(h.showSuccess).toHaveBeenCalledWith('Project deleted'),
     );
@@ -271,9 +272,9 @@ describe('File ▸ Delete Project', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     h.remove.mockRejectedValueOnce(new Error('DELETE /projects/p1 (500)'));
     useStore.setState({ projectId: 'p1', projectName: 'Kept' });
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
-    await choose('Delete Project');
+    await choose('Delete project…');
     await waitFor(() => expect(h.showError).toHaveBeenCalled());
 
     expect(s().projectId).toBe('p1');
@@ -293,9 +294,9 @@ describe('File ▸ Delete Project', () => {
         }),
     );
     useStore.setState({ projectId: 'p1', projectName: 'Old' });
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
-    await choose('Delete Project');
+    await choose('Delete project…');
     await waitFor(() => expect(h.remove).toHaveBeenCalled());
 
     // Another project opened while the request was out.
@@ -317,10 +318,10 @@ describe('File ▸ Delete Project', () => {
   it('is off while a save is out, which would re-create the project', () => {
     useStore.setState({ projectId: 'p1', projectName: 'Busy' });
     useCloudSaveStore.setState({ phase: 'saving' });
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
 
-    expect(item('Delete Project')).toHaveAttribute('aria-disabled', 'true');
+    expect(item('Delete project…')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('lets a save still out land before it deletes, then deletes what is open', async () => {
@@ -328,9 +329,9 @@ describe('File ▸ Delete Project', () => {
     useStore.setState({ projectId: 'p1', projectName: 'Racing' });
     // A save is out (the chip's Retry, say) but the menu isn't 'saving' yet.
     useCloudSaveStore.setState({ inFlight: 1 });
-    render(<FileMenu />);
+    render(<ProjectMenu />);
     openMenu();
-    await choose('Delete Project');
+    await choose('Delete project…');
     expect(h.confirmDialog).not.toHaveBeenCalled();
     expect(h.remove).not.toHaveBeenCalled();
 
@@ -344,8 +345,8 @@ describe('File ▸ Delete Project', () => {
 });
 
 describe('lesson anchors', () => {
-  it('keeps the File menu and Export Audio anchors', () => {
-    render(<FileMenu />);
+  it('keeps the File menu and Export Audio anchors on the Project menu', () => {
+    render(<ProjectMenu />);
     expect(
       document.querySelector('[data-tutorial-id="file-menu"]'),
     ).not.toBeNull();

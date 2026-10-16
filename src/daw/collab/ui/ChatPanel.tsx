@@ -3,14 +3,16 @@
 // the Yjs `chat` Y.Array so they persist across reconnections.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { MessageSquare, Send, X } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useCollab } from '../CollabProvider';
 import type { ChatMessage } from '../types';
 
-const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
+// The column takes its width at once and only its content fades in: a
+// width spring beside the timeline re-laid it out every frame (2.4).
+const FADE_IN =
+  'animate-in fade-in-0 duration-daw-fast motion-reduce:animate-none';
 
 interface ChatPanelProps {
   open: boolean;
@@ -58,15 +60,12 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   );
 
   return (
-    <AnimatePresence>
+    <>
       {open && (
-        <motion.div
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 240, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={SPRING}
-          className="flex shrink-0 flex-col overflow-hidden border-l"
+        <div
+          className={`flex shrink-0 flex-col overflow-hidden border-l ${FADE_IN}`}
           style={{
+            width: 240,
             backgroundColor: 'var(--daw-surface-1)',
             borderColor: 'var(--daw-hairline)',
           }}
@@ -158,9 +157,9 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               <Send size={10} strokeWidth={2} />
             </button>
           </div>
-        </motion.div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 }
 

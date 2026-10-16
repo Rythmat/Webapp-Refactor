@@ -598,6 +598,12 @@ defineCommand({
   keys: ['Backquote'],
 });
 defineCommand({
+  id: 'view.inspector',
+  scope: 'global',
+  label: 'Show or hide the Inspector',
+  keys: ['KeyI'],
+});
+defineCommand({
   id: 'help.shortcuts',
   scope: 'global',
   label: 'Keyboard shortcuts',

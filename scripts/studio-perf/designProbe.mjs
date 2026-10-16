@@ -7,7 +7,9 @@
  *   decision 2).
  * - Targets under 24×24 px: buttons, links, fields and anything focusable.
  *   A native checkbox or radio inside a <label> is measured by its label,
- *   the area that takes the click.
+ *   the area that takes the click. A panel's resize edge (role=separator,
+ *   the Resizer primitive) is left out: it is 8 px across but the whole
+ *   edge long, and the keyboard moves it as well.
  *
  * It looks only inside [data-ds="v2"] (the primitives' dialogs, the shell)
  * and skips any [data-ds="legacy"] inside them: legacy content a v2 frame
@@ -68,7 +70,7 @@ export function designProbe(rootSelector = '[data-ds="v2"]') {
       }
 
       // Targets.
-      if (el.matches(INTERACTIVE)) {
+      if (el.matches(INTERACTIVE) && !el.matches('[role="separator"]')) {
         const box =
           el.matches('input[type="checkbox"], input[type="radio"]') &&
           el.closest('label')

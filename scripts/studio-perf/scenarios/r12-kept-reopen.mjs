@@ -175,7 +175,7 @@ async function openFromLibrary(kit, page, label) {
     store.getState().setCurrentView('arrange');
     return store.getState().libraryOpen;
   });
-  if (!open) await page.click('button[title="Library"]');
+  if (!open) await page.click('[data-testid="inspector-toggle"]');
   await page.locator('button:has-text("Library")').first().click();
   await kit.waitForQuiet(page);
   await kit.waitForDraft(page);

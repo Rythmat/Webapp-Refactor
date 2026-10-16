@@ -62,7 +62,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
-const PANEL_WIDTH = 200;
 const FADE = { duration: 0.12, ease: 'easeOut' as const };
 
 // ── LibraryPanel ────────────────────────────────────────────────────────
@@ -89,7 +88,8 @@ export function LibraryPanel() {
   // The column takes its width in one step and only its content fades in.
   // Animating the width beside the timeline re-laid out the timeline and its
   // canvas every frame of the spring (insight-04). Closing removes it at
-  // once, and returning to Create shows it without a fade.
+  // once. The shell keeps it mounted across views (milestone 2.4) and sets
+  // its width (--daw-insp-w, the student's, dragged on its left edge).
   return (
     <AnimatePresence initial={false}>
       {libraryOpen && (
@@ -99,7 +99,7 @@ export function LibraryPanel() {
           transition={FADE}
           className="shrink-0 flex flex-col overflow-hidden border-l"
           style={{
-            width: PANEL_WIDTH,
+            width: 'var(--daw-insp-w, 200px)',
             backgroundColor: 'var(--daw-surface-1)',
             borderColor: 'var(--daw-hairline)',
           }}

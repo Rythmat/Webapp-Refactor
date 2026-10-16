@@ -3,14 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { DEV_AUTH_BYPASS } from '@/auth/devBypass';
 import { registerBeforeSignOut } from '@/auth/beforeSignOut';
 import './daw.css';
-import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
-import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
 import { SetListUpdatePrompt } from '@/daw/components/LeadSheet/SendToSetList';
-import { TimelineWithHeaders } from '@/daw/components/Timeline/TimelineWithHeaders';
 import { RecordingLimitModal } from '@/daw/components/Transport/RecordingLimitModal';
 import { RecordGuard } from '@/daw/components/Transport/RecordGuard';
 import { useLessonAccess } from '@/daw/components/Tutorial/useLessonAccess';
-import { TransportBar } from '@/daw/components/Transport/TransportBar';
 import {
   useAudioEngine,
   useStartAudioOnGesture,
@@ -36,8 +32,6 @@ import { CollabProvider, useCollab } from '@/daw/collab/CollabProvider';
 import { KickedModal } from '@/daw/collab/ui/KickedModal';
 import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
 import { TooltipGroup } from '@/daw/ui/Tooltip';
-import { UserList } from '@/daw/collab/ui/UserList';
-import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 import { registerSaveAuth } from '@/daw/commands/saveProject';
 import { useCloudSaveStore } from '@/daw/commands/cloudSaveStore';
 import { getDraftSessionPort } from '@/daw/persistence/drafts/draftSessionPort';
@@ -51,15 +45,11 @@ import { useSessionBoot } from '@/daw/session/useSessionBoot';
 import { DawErrorBoundary } from '@/daw/shell/errors/DawErrorBoundary';
 import {
   ChordAnalysisPromptHost,
-  LeadSheetViewPart,
-  PianoRollModalHost,
-  PracticeTrackViewPart,
   PrismSuggestionModalHost,
-  ScoreViewPart,
   SettingsModalHost,
-  StudioViewPart,
   TutorialLayerHost,
 } from '@/daw/shell/lazyParts';
+import { StudioShell } from '@/daw/shell/StudioShell';
 import { OpeningHost } from '@/daw/shell/opening/OpeningHost';
 import { ShortcutSheetHost } from '@/daw/shell/help/ShortcutSheetHost';
 import { ProjectsDialogHost } from '@/daw/shell/projects/ProjectsDialogHost';
@@ -67,12 +57,11 @@ import { SaveConflictDialog } from '@/daw/shell/topbar/SaveConflictDialog';
 import { DialogHost } from '@/daw/ui/DialogHost';
 import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
 import { clearCloudProjectCache } from '@/daw/shell/projects/cloudProjectList';
-import { EditorTopRailSlot } from '@/daw/shell/topbar/EditorTopRailSlot';
 import { userKeyOf } from '@/lib/local-store/userScope';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { EngineHost } from '@/daw/engine/EngineHost';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
-import { DevProfiler, devMark, useDevCommitCount } from '@/daw/dev/DevProfiler';
+import { devMark, useDevCommitCount } from '@/daw/dev/DevProfiler';
 
 // Dev-only: when the editor chunk finished evaluating (scripts/studio-perf).
 devMark('module');
@@ -85,9 +74,9 @@ const OVERLAY_SELECTOR = '[data-testid=opening-overlay]';
  * overlay itself is inert: no clicks, no focus, no keys reach the editor
  * underneath (E14). React 18 has no inert prop, so the attribute is set here
  * and on any child mounted meanwhile, and only the ones set here are cleared.
- * No wrapper div: leadsheet-print.css hides every direct child of .daw-root
- * but the lead sheet when printing, and a wrapper would hide the sheet too.
- * The TopRail's chip and Undo/Redo, the Projects dialog and the error panel
+ * The shell (top bar and regions) is one such child. leadsheet-print.css
+ * prints only the elements that hold the lead sheet, so the shell's grid
+ * around it prints as plain blocks. The Projects dialog and the error panel
  * live outside .daw-root and disable themselves while an open is busy.
  */
 function useInertWhileOpening(
@@ -180,13 +169,6 @@ function DawAppInner() {
   useEffect(() => {
     if (isReady) devMark('engine-ready');
   }, [isReady]);
-  const currentView = useStore((s) => s.currentView);
-  const practiceSession = useStore((s) => s.practiceSession);
-  const userListOpen = useStore((s) => s.userListOpen);
-  const toggleUserList = useStore((s) => s.toggleUserList);
-  const chatPanelOpen = useStore((s) => s.chatPanelOpen);
-  const toggleChatPanel = useStore((s) => s.toggleChatPanel);
-  const isCollabActive = useStore((s) => s.isCollabActive);
   const overlay = useSessionStore((s) => s.overlay);
   const busy = useSessionStore((s) => isBusyPhase(s.phase));
 
@@ -341,67 +323,9 @@ function DawAppInner() {
       aria-busy={busy ? 'true' : undefined}
     >
       <EngineHost isReady={isReady} authToken={authToken} />
-      {currentView === 'practice' && practiceSession ? (
-        <DevProfiler id="PracticeTrackView">
-          <PracticeTrackViewPart
-            session={practiceSession}
-            isReady={isReady}
-            onInit={initEngine}
-          />
-        </DevProfiler>
-      ) : (
-        <DevProfiler id="TransportBar">
-          <TransportBar onInit={initEngine} isReady={isReady} />
-        </DevProfiler>
-      )}
-      {currentView === 'practice' && practiceSession ? null : currentView ===
-          'arrange' || currentView === 'practice' ? (
-        <>
-          <div className="flex flex-1 overflow-hidden">
-            <div className="flex flex-1 flex-col overflow-hidden">
-              <DevProfiler id="TimelineWithHeaders">
-                <TimelineWithHeaders isReady={isReady} />
-              </DevProfiler>
-            </div>
-            <DevProfiler id="LibraryPanel">
-              <LibraryPanel />
-            </DevProfiler>
-            {isCollabActive && (
-              <>
-                <UserList open={userListOpen} onClose={toggleUserList} />
-                <ChatPanel open={chatPanelOpen} onClose={toggleChatPanel} />
-              </>
-            )}
-          </div>
-          <DevProfiler id="ChannelStrip">
-            <ChannelStrip />
-          </DevProfiler>
-          <PianoRollModalHost />
-        </>
-      ) : currentView === 'leadsheet' ? (
-        <DevProfiler id="LeadSheetView">
-          <LeadSheetViewPart />
-        </DevProfiler>
-      ) : currentView === 'score' ? (
-        <DevProfiler id="ScoreView">
-          <ScoreViewPart />
-        </DevProfiler>
-      ) : (
-        <div className="flex flex-1 overflow-hidden">
-          <DevProfiler id="StudioView">
-            <StudioViewPart isReady={isReady} />
-          </DevProfiler>
-          <DevProfiler id="LibraryPanel">
-            <LibraryPanel />
-          </DevProfiler>
-          {isCollabActive && (
-            <>
-              <UserList open={userListOpen} onClose={toggleUserList} />
-              <ChatPanel open={chatPanelOpen} onClose={toggleChatPanel} />
-            </>
-          )}
-        </div>
-      )}
+      {/* The top bar, the view, the Inspector and the dock, laid out once
+          (milestones 2.4 and 2.5): a view change remounts only the view. */}
+      <StudioShell isReady={isReady} onInit={initEngine} />
       <ChordAnalysisPromptHost />
       <SetListUpdatePrompt />
       <SettingsModalHost />
@@ -409,14 +333,10 @@ function DawAppInner() {
       <RecordingLimitModal />
       <RecordGuard />
       <TutorialLayerHost />
-      {/* Collab's prompts portal to <body>; mounted here, not in the
-          TransportBar, so they show in Practice too. */}
+      {/* Collab's prompts portal to <body>; mounted here, not in the top
+          bar, so they show in Practice too. */}
       <LeaveSavePrompt />
       <KickedModal />
-      {/* Save chip · Undo · Redo, portaled into the app TopRail. */}
-      <DevProfiler id="EditorTopRailSlot">
-        <EditorTopRailSlot />
-      </DevProfiler>
       <ProjectsDialogHost />
       <ShortcutSheetHost userId={userId} ownerKnown={ownerKnown} />
       <SaveConflictDialog />

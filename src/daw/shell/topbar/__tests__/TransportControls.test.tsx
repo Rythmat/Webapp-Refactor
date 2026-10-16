@@ -9,13 +9,14 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// ── TransportBar (shell-17) ────────────────────────────────────────────────
+// ── The transport (shell-17; the TransportBar until milestone 2.5) ─────────
 // The bar subscribed to the whole tracks array for one button, so every
 // fader tick or note drag re-rendered it, its File menu and its dialogs; and
 // its position readout re-rendered with every playback tick (~30 a second)
 // although its text changes once a sixteenth. The readout now writes its
-// text itself, only when it changes, and Skip Forward reads the tracks when
-// pressed, counting audio clips too.
+// text itself, only when it changes, and Forward reads the tracks when
+// pressed, counting audio clips too. The readout's second mode (m:ss.t) is
+// the student's pref.
 
 const h = vi.hoisted(() => ({
   commits: {} as Record<string, number>,
@@ -33,10 +34,6 @@ vi.mock('@/daw/dev/DevProfiler', () => ({
 vi.mock('@/daw/hooks/useTransport', () => ({
   seekTo: (tick: number) => h.seekTo(tick),
 }));
-// The bar's menus and collab controls aren't under test. (The collab
-// dialogs mount at the DawApp root since 1.4.)
-vi.mock('../FileMenu', () => ({ FileMenu: () => null }));
-vi.mock('@/daw/collab/ui/CollabToolbar', () => ({ CollabToolbar: () => null }));
 vi.mock('@/daw/commands/requestRecord', () => ({ requestRecord: vi.fn() }));
 
 import { useStore } from '@/daw/store';
@@ -45,7 +42,7 @@ import {
   setPlayheadSourceForTests,
   startPlayheadRun,
 } from '@/daw/engine/playheadClock';
-import { TransportBar } from '../TransportBar';
+import { TransportControls } from '../TransportControls';
 
 const s = () => useStore.getState();
 const BAR = 1920;
@@ -54,12 +51,12 @@ let barCommits = 0;
 function renderBar() {
   return render(
     <Profiler id="bar" onRender={() => (barCommits += 1)}>
-      <TransportBar onInit={() => {}} isReady />
+      <TransportControls onInit={() => {}} isReady />
     </Profiler>,
   );
 }
 
-const readout = () => screen.getByTitle('Bar : Beat : Sixteenth');
+const readout = () => screen.getByTestId('position-readout-text');
 
 let keys = '';
 
@@ -67,7 +64,13 @@ beforeEach(() => {
   h.commits = {};
   h.seekTo = vi.fn();
   barCommits = 0;
-  useStore.setState({ tracks: [], markers: [], position: 0 });
+  useStore.setState({
+    tracks: [],
+    markers: [],
+    position: 0,
+    readoutMode: 'bars',
+    isCountingIn: false,
+  });
   s().setTimeSignature(4, 4);
   keys = s().addTrack('midi', 'piano-sampler', 'Keys');
 });
@@ -88,7 +91,7 @@ describe('the position readout', () => {
   it('commits nothing while playback moves the playhead', () => {
     renderBar();
     const committed = barCommits;
-    const self = h.commits.TransportBar;
+    const self = h.commits.TransportControls;
 
     // Four bars of playback, written as the transport does (~30 a second).
     for (let tick = 0; tick <= 4 * BAR; tick += 64) {
@@ -97,7 +100,7 @@ describe('the position readout', () => {
 
     expect(readout().textContent).toBe('5:1:1');
     expect(barCommits).toBe(committed);
-    expect(h.commits.TransportBar).toBe(self);
+    expect(h.commits.TransportControls).toBe(self);
   });
 
   it('writes only when its text changes', () => {
@@ -176,7 +179,7 @@ describe('the readout while playing', () => {
     expect(barCommits).toBe(committed);
   });
 
-  it('skips to the marker after where the student hears the playhead', () => {
+  it('skips to the marker after where the student hears the playhead, and back', () => {
     useStore.setState({
       markers: [
         { id: 'm1', tick: BAR, name: 'Verse', color: '#fff' },
@@ -186,9 +189,11 @@ describe('the readout while playing', () => {
     renderBar();
     startPlayheadRun(0, 0);
     now.t = 3; // 2880, past the verse
-    fireEvent.click(screen.getByTitle('Skip Forward'));
+    fireEvent.click(screen.getByRole('button', { name: /^Forward/ }));
     expect(h.seekTo).toHaveBeenLastCalledWith(3 * BAR);
-    fireEvent.click(screen.getByTitle('Skip Back'));
+    fireEvent.click(
+      screen.getByRole('button', { name: /^Back to the previous marker/ }),
+    );
     expect(h.seekTo).toHaveBeenLastCalledWith(BAR);
   });
 });
@@ -204,8 +209,9 @@ describe('track edits', () => {
   });
 });
 
-describe('Skip Forward', () => {
-  const skipForward = () => fireEvent.click(screen.getByTitle('Skip Forward'));
+describe('Forward', () => {
+  const skipForward = () =>
+    fireEvent.click(screen.getByRole('button', { name: /^Forward/ }));
 
   it('goes to the end of a song made only of audio', () => {
     const vocals = s().addTrack('audio', 'vocal-fx', 'Vocals');
@@ -245,5 +251,28 @@ describe('Skip Forward', () => {
     act(() => s().setPosition(2 * BAR));
     skipForward();
     expect(h.seekTo).toHaveBeenLastCalledWith(4 * BAR);
+  });
+});
+
+describe('the readout in minutes and seconds', () => {
+  it('switches on a click, and keeps the student’s choice', () => {
+    useStore.setState({ bpm: 120 });
+    renderBar();
+    act(() => s().setPosition(960 * 75 + 96));
+    expect(readout().textContent).toBe('38:3:1');
+    fireEvent.click(screen.getByTestId('position-readout'));
+    expect(s().readoutMode).toBe('time');
+    // 72,096 ticks at 120 bpm (960 a second): 75.1 s.
+    expect(readout().textContent).toBe('1:15.1');
+    fireEvent.click(screen.getByTestId('position-readout'));
+    expect(s().readoutMode).toBe('bars');
+  });
+
+  it('says Count-in while a count-in runs', () => {
+    renderBar();
+    act(() => useStore.setState({ isCountingIn: true }));
+    expect(screen.getByTestId('position-readout').textContent).toContain(
+      'Count-in',
+    );
   });
 });

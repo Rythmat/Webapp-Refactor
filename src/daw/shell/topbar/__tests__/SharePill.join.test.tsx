@@ -1,12 +1,13 @@
 // @vitest-environment jsdom
 /**
- * The toolbar's Join (milestone 1.4): it opens the room's session through
+ * The Share pill's Join (milestone 1.4, in the collab toolbar until 2.5
+ * made it the Share pill): it opens the room's session through
  * openSession (source 'toolbar'), off while a room is joined (E15). The
  * code the student typed is cleared only once the session opened, so a
  * refused join leaves it there to fix; a pasted session link joins by the
  * code it carries.
  *
- * Run: npx vitest run src/daw/collab/__tests__/CollabToolbar.join.test.tsx
+ * Run: npx vitest run src/daw/shell/topbar/__tests__/SharePill.join.test.tsx
  */
 import {
   act,
@@ -22,10 +23,10 @@ const h = vi.hoisted(() => ({
 }));
 
 vi.mock('@/daw/session/openSession', () => ({ openSession: h.openSession }));
-vi.mock('../ui/InviteModal', () => ({ InviteModal: () => null }));
+vi.mock('@/daw/collab/ui/InviteModal', () => ({ InviteModal: () => null }));
 
 import { useStore } from '@/daw/store';
-import { CollabToolbar } from '../ui/CollabToolbar';
+import { SharePill } from '../SharePill';
 
 const refused = {
   status: 'refused',
@@ -45,23 +46,16 @@ const ready = {
 };
 
 function renderToolbar() {
-  return render(
-    <CollabToolbar
-      onToggleUserList={() => {}}
-      userListOpen={false}
-      onToggleChatPanel={() => {}}
-      chatPanelOpen={false}
-    />,
-  );
+  return render(<SharePill />);
 }
 
 function openPopover(): void {
-  fireEvent.click(screen.getByTitle('Start Collaboration'));
+  fireEvent.click(screen.getByRole('button', { name: 'Share' }));
 }
 
 async function join(code: string): Promise<void> {
   openPopover();
-  fireEvent.change(screen.getByPlaceholderText('Enter room id'), {
+  fireEvent.change(screen.getByPlaceholderText('Code or link'), {
     target: { value: code },
   });
   await act(async () => {
@@ -76,7 +70,7 @@ beforeEach(() => {
 
 afterEach(() => cleanup());
 
-describe('CollabToolbar Join', () => {
+describe('Share ▸ Join with a code', () => {
   it('opens the room through openSession and closes the popover', async () => {
     h.openSession.mockResolvedValue(ready);
     renderToolbar();
@@ -92,11 +86,11 @@ describe('CollabToolbar Join', () => {
       },
       { source: 'toolbar' },
     );
-    expect(screen.queryByPlaceholderText('Enter room id')).toBeNull();
+    expect(screen.queryByPlaceholderText('Code or link')).toBeNull();
 
     // Opened: the code is gone next time.
     openPopover();
-    expect(screen.getByPlaceholderText('Enter room id')).toHaveValue('');
+    expect(screen.getByPlaceholderText('Code or link')).toHaveValue('');
   });
 
   it('keeps what was typed when the join is refused', async () => {
@@ -105,7 +99,7 @@ describe('CollabToolbar Join', () => {
     await join('room-typo');
 
     openPopover();
-    expect(screen.getByPlaceholderText('Enter room id')).toHaveValue(
+    expect(screen.getByPlaceholderText('Code or link')).toHaveValue(
       'room-typo',
     );
   });
@@ -127,7 +121,7 @@ describe('CollabToolbar Join', () => {
     renderToolbar();
     openPopover();
 
-    expect(screen.getByPlaceholderText('Enter room id')).toBeDisabled();
+    expect(screen.getByPlaceholderText('Code or link')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Join' })).toBeDisabled();
   });
 });

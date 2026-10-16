@@ -332,8 +332,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'slow-bpm',
       stage: 'STAGE 4 — TEMPO',
       instruction:
-        'Hip hop breathes slower. Set the **BPM** to **95 or less**.',
-      target: 'transport-bpm',
+        'Hip hop breathes slower. Open the **Song** chip and set the **BPM** to **95 or less**.',
+      // The tempo once the Song popover is open, the chip until then.
+      target: ['transport-bpm', 'song-chip'],
       check: (s, armed) => s.bpm <= 95 && s.bpm !== armed.bpm,
     },
     {
@@ -625,7 +626,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'goto-master',
       stage: 'STAGE 4 — MIX',
       instruction:
-        'Time to mix. Click **Master** in the top bar to open the mixing console.',
+        'Time to mix. Click **Mix** in the top bar to open the mixing console.',
       target: 'view-switch-studio',
       check: (s) => s.currentView === 'studio',
     },
@@ -692,7 +693,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'bounce-mixdown',
       stage: 'STAGE 6 — BOUNCE',
       instruction:
-        'Ship it — open **File → Export Audio**, pick a format, and hit **Export** to bounce your finished track.',
+        'Ship it — open **Project → Export → Audio…**, pick a format, and hit **Export** to bounce your finished track.',
       hint: 'The whole mix renders offline: instruments, FX, sends and mastering.',
       target: ['export-audio-run', 'file-menu'],
       // Fires when a fresh export completes during this step (the session-only

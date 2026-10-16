@@ -59,7 +59,8 @@ export const flags = {
   },
 };
 
-const SLOT = '[data-slot="toprail-leading"]';
+/** The editor's top bar (milestone 2.5; the TopRail's slot before it). */
+const SLOT = '[data-testid="top-bar"]';
 const CHIP = '[data-testid="musical-typing-chip"]';
 
 const VIEWPORTS = [

@@ -3,13 +3,15 @@
 // activity and presence state. Follows the LibraryPanel pattern.
 
 import { useCallback, useState, type MouseEvent } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { Check, Copy, X } from 'lucide-react';
 import { useRemoteUsers } from '../presence';
 import { useStore } from '@/daw/store/index';
 import type { UserActivity } from '../types';
 
-const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
+// The column takes its width at once and only its content fades in: a
+// width spring beside the timeline re-laid it out every frame (2.4).
+const FADE_IN =
+  'animate-in fade-in-0 duration-daw-fast motion-reduce:animate-none';
 
 const ACTIVITY_LABELS: Record<UserActivity, string> = {
   idle: 'Idle',
@@ -48,146 +50,139 @@ export function UserList({ open, onClose }: UserListProps) {
 
   return (
     <>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 200, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={SPRING}
-            className="flex shrink-0 flex-col overflow-hidden border-l"
+      {open && (
+        <div
+          className={`flex shrink-0 flex-col overflow-hidden border-l ${FADE_IN}`}
+          style={{
+            width: 200,
+            backgroundColor: 'var(--daw-surface-1)',
+            borderColor: 'var(--daw-hairline)',
+          }}
+        >
+          {/* Header */}
+          <div
+            className="flex shrink-0 items-center justify-between border-b px-3"
             style={{
-              backgroundColor: 'var(--daw-surface-1)',
+              height: 28,
               borderColor: 'var(--daw-hairline)',
             }}
           >
-            {/* Header */}
-            <div
-              className="flex shrink-0 items-center justify-between border-b px-3"
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--daw-text-3)' }}
+            >
+              Collaborators
+            </span>
+            <button
+              onClick={onClose}
+              className="flex size-4 items-center justify-center rounded transition-colors hover:bg-white/10"
               style={{
-                height: 28,
-                borderColor: 'var(--daw-hairline)',
+                color: 'var(--daw-text-3)',
+                background: 'none',
+                border: 'none',
               }}
             >
-              <span
-                className="text-[10px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                Collaborators
-              </span>
-              <button
-                onClick={onClose}
-                className="flex size-4 items-center justify-center rounded transition-colors hover:bg-white/10"
-                style={{
-                  color: 'var(--daw-text-3)',
-                  background: 'none',
-                  border: 'none',
-                }}
-              >
-                <X size={10} strokeWidth={2.5} />
-              </button>
-            </div>
+              <X size={10} strokeWidth={2.5} />
+            </button>
+          </div>
 
-            {/* Connection status */}
+          {/* Connection status */}
+          <div
+            className="flex items-center gap-1.5 border-b px-3 py-1.5"
+            style={{ borderColor: 'var(--daw-hairline)' }}
+          >
             <div
-              className="flex items-center gap-1.5 border-b px-3 py-1.5"
+              className="size-1.5 rounded-full"
+              style={{
+                backgroundColor:
+                  connectionStatus === 'connected'
+                    ? 'var(--daw-success)'
+                    : connectionStatus === 'connecting'
+                      ? 'var(--daw-meter-hot)'
+                      : 'var(--daw-record)',
+              }}
+            />
+            <span
+              className="text-[9px] capitalize"
+              style={{ color: 'var(--daw-text-3)' }}
+            >
+              {connectionStatus}
+            </span>
+          </div>
+
+          {/* Room code — share so others can join via Join Room */}
+          {roomCode && (
+            <div
+              className="flex shrink-0 flex-col gap-1 border-b px-3 py-2"
               style={{ borderColor: 'var(--daw-hairline)' }}
             >
-              <div
-                className="size-1.5 rounded-full"
-                style={{
-                  backgroundColor:
-                    connectionStatus === 'connected'
-                      ? 'var(--daw-success)'
-                      : connectionStatus === 'connecting'
-                        ? 'var(--daw-meter-hot)'
-                        : 'var(--daw-record)',
-                }}
-              />
               <span
-                className="text-[9px] capitalize"
+                className="text-[8px] font-semibold uppercase tracking-wider"
                 style={{ color: 'var(--daw-text-3)' }}
               >
-                {connectionStatus}
+                Room Code
               </span>
-            </div>
-
-            {/* Room code — share so others can join via Join Room */}
-            {roomCode && (
-              <div
-                className="flex shrink-0 flex-col gap-1 border-b px-3 py-2"
-                style={{ borderColor: 'var(--daw-hairline)' }}
-              >
+              <div className="flex items-center gap-1.5">
                 <span
-                  className="text-[8px] font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--daw-text-3)' }}
+                  className="flex-1 truncate text-xs font-semibold tracking-[0.2em]"
+                  style={{ color: 'var(--daw-text)' }}
                 >
-                  Room Code
+                  {roomCode}
                 </span>
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className="flex-1 truncate text-xs font-semibold tracking-[0.2em]"
-                    style={{ color: 'var(--daw-text)' }}
-                  >
-                    {roomCode}
-                  </span>
-                  <button
-                    onClick={handleCopyCode}
-                    className="flex size-5 shrink-0 items-center justify-center rounded transition-colors hover:bg-white/10"
-                    style={{
-                      color: copied
-                        ? 'var(--daw-success)'
-                        : 'var(--daw-text-3)',
-                      background: 'none',
-                      border: 'none',
-                    }}
-                    title="Copy room code"
-                  >
-                    {copied ? (
-                      <Check size={10} strokeWidth={2.5} />
-                    ) : (
-                      <Copy size={10} strokeWidth={2} />
-                    )}
-                  </button>
-                </div>
+                <button
+                  onClick={handleCopyCode}
+                  className="flex size-5 shrink-0 items-center justify-center rounded transition-colors hover:bg-white/10"
+                  style={{
+                    color: copied ? 'var(--daw-success)' : 'var(--daw-text-3)',
+                    background: 'none',
+                    border: 'none',
+                  }}
+                  title="Copy room code"
+                >
+                  {copied ? (
+                    <Check size={10} strokeWidth={2.5} />
+                  ) : (
+                    <Copy size={10} strokeWidth={2} />
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* User list */}
+          <div
+            className="flex-1 overflow-y-auto"
+            style={{ scrollbarWidth: 'none' }}
+          >
+            {/* Self */}
+            <UserRow
+              name="You"
+              color="var(--daw-accent)"
+              activity="idle"
+              isSelf
+            />
+
+            {/* Remote users */}
+            {remoteUsers.map((user) => (
+              <UserRow
+                key={user.userId}
+                name={user.userName}
+                color={user.color}
+                activity={user.activity}
+              />
+            ))}
+
+            {remoteUsers.length === 0 && (
+              <div
+                className="px-3 py-4 text-center text-[10px]"
+                style={{ color: 'var(--daw-text-3)' }}
+              >
+                No other users online
               </div>
             )}
-
-            {/* User list */}
-            <div
-              className="flex-1 overflow-y-auto"
-              style={{ scrollbarWidth: 'none' }}
-            >
-              {/* Self */}
-              <UserRow
-                name="You"
-                color="var(--daw-accent)"
-                activity="idle"
-                isSelf
-              />
-
-              {/* Remote users */}
-              {remoteUsers.map((user) => (
-                <UserRow
-                  key={user.userId}
-                  name={user.userName}
-                  color={user.color}
-                  activity={user.activity}
-                />
-              ))}
-
-              {remoteUsers.length === 0 && (
-                <div
-                  className="px-3 py-4 text-center text-[10px]"
-                  style={{ color: 'var(--daw-text-3)' }}
-                >
-                  No other users online
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
     </>
   );
 }

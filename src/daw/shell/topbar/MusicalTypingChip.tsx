@@ -10,12 +10,17 @@ import { Tooltip } from '@/daw/ui/Tooltip';
 //
 // Always in sight while the editor is open, since while it is on the letter
 // keys play notes instead of being shortcuts: white/10 and the octave the A
-// key plays ('Typing · C4') when on. ` toggles it too. Milestone 2.11 moves
-// it into the editor's own top bar.
+// key plays ('Typing · C4') when on. ` toggles it too. It sits in the
+// editor's top bar since 2.5 (2.11 restyles it there).
 
 const TOGGLE_KEYS = shortcutKeys('typing.on');
 
-export const MusicalTypingChip = memo(function MusicalTypingChip() {
+export const MusicalTypingChip = memo(function MusicalTypingChip({
+  compact = false,
+}: {
+  /** The folded top bar's form: the icon alone while it is off (2.5). */
+  compact?: boolean;
+}) {
   const enabled = useMusicalTypingStore((s) => s.enabled);
   const octave = useMusicalTypingStore((s) => s.octave);
   const setEnabled = useMusicalTypingStore((s) => s.setEnabled);
@@ -37,7 +42,11 @@ export const MusicalTypingChip = memo(function MusicalTypingChip() {
         data-testid="musical-typing-chip"
         className="shrink-0 rounded-full"
       >
-        {enabled ? `Typing · ${octaveLabel(octave)}` : 'Typing'}
+        {enabled
+          ? `Typing · ${octaveLabel(octave)}`
+          : compact
+            ? null
+            : 'Typing'}
       </Toggle>
     </Tooltip>
   );

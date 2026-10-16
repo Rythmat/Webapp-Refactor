@@ -158,8 +158,8 @@ vi.mock('@/daw/components/Tutorial/TutorialLayer', () => ({
 vi.mock('@/daw/components/Tutorial/UpgradeLessonDialog', () => ({
   UpgradeLessonDialog: h.nothing,
 }));
-vi.mock('@/daw/components/Transport/TransportBar', () => ({
-  TransportBar: () => <div data-testid="transport-bar" />,
+vi.mock('@/daw/shell/topbar/TopBar', () => ({
+  TopBar: () => <div data-testid="top-bar" />,
 }));
 vi.mock('@/daw/collab/ui/UserList', () => ({ UserList: h.nothing }));
 vi.mock('@/daw/collab/ui/ChatPanel', () => ({ ChatPanel: h.nothing }));
@@ -171,9 +171,6 @@ vi.mock('@/daw/collab/ui/KickedModal', () => ({
 }));
 vi.mock('@/daw/shell/projects/ProjectsDialogHost', () => ({
   ProjectsDialogHost: h.nothing,
-}));
-vi.mock('@/daw/shell/topbar/EditorTopRailSlot', () => ({
-  EditorTopRailSlot: h.nothing,
 }));
 
 import {
@@ -425,10 +422,12 @@ describe('the Opening overlay', () => {
     expect(others.length).toBeGreaterThan(0);
     for (const child of others) expect(child).toHaveAttribute('inert');
     expect(overlay).not.toHaveAttribute('inert');
-    // No wrapper: the editor's views are still direct children (the lead
-    // sheet's print rule hides every other direct child).
+    // The shell is one of them: the top bar and the views are inside it
+    // (the lead sheet's print rule shows the children that hold the sheet).
     expect(
-      root().querySelector(':scope > [data-testid=transport-bar]'),
+      root().querySelector(
+        ':scope > [data-testid=studio-shell] [data-testid=top-bar]',
+      ),
     ).not.toBeNull();
 
     // A view mounted while it shows is inert too.

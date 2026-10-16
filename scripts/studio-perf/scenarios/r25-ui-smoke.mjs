@@ -176,7 +176,8 @@ function undoRedoColours() {
   return out;
 }
 
-const SLOT = '[data-slot="toprail-leading"]';
+/** The editor's top bar (milestone 2.5; the TopRail's slot before it). */
+const SLOT = '[data-testid="top-bar"]';
 
 /** In-page: Undo's and Redo's sizes (the 24×24 target floor). */
 const undoRedoSizes = () =>

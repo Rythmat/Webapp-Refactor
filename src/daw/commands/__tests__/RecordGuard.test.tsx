@@ -8,17 +8,8 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// TransportBar's neighbours that need the audio engine, auth or a session.
+// The transport's seek needs the audio engine.
 vi.mock('@/daw/hooks/useTransport', () => ({ seekTo: vi.fn() }));
-vi.mock('@/daw/components/Transport/FileMenu', () => ({
-  FileMenu: () => null,
-}));
-vi.mock('@/daw/components/Prism/CircleOfFifths', () => ({
-  CircleOfFifths: () => null,
-}));
-vi.mock('@/daw/collab/ui/CollabToolbar', () => ({
-  CollabToolbar: () => null,
-}));
 
 import {
   dismissRecordRequest,
@@ -26,7 +17,7 @@ import {
   requestRecord,
 } from '../requestRecord';
 import { RecordGuard } from '@/daw/components/Transport/RecordGuard';
-import { TransportBar } from '@/daw/components/Transport/TransportBar';
+import { TransportControls } from '@/daw/shell/topbar/TransportControls';
 import { useStore } from '@/daw/store';
 
 const QUESTION = 'Overwrite existing recording?';
@@ -87,12 +78,12 @@ describe('the Record button', () => {
     const onInit = vi.fn();
     render(
       <>
-        <TransportBar onInit={onInit} isReady={false} />
+        <TransportControls onInit={onInit} isReady={false} />
         <RecordGuard />
       </>,
     );
 
-    fireEvent.click(screen.getByTitle('Record'));
+    fireEvent.click(screen.getByRole('button', { name: 'Record' }));
 
     expect(isRecordGuardOpen()).toBe(true);
     expect(screen.getByText(QUESTION)).toBeInTheDocument();

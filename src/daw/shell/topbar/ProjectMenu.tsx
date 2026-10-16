@@ -1,19 +1,18 @@
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useCallback, useRef, useState } from 'react';
 import {
-  FileDown,
-  FileUp,
+  AudioWaveform,
   ChevronDown,
-  Music,
+  FileDown,
   FilePlus,
+  FileUp,
+  FolderOpen,
+  Music,
   Save,
   SaveAll,
-  FolderOpen,
-  Trash2,
   Sparkles,
-  AudioWaveform,
-  Keyboard,
+  Trash2,
 } from 'lucide-react';
+import { cn } from '@/components/utilities';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { getAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import {
@@ -33,17 +32,36 @@ import { timeSignatureOf } from '@/daw/time/timeModel';
 import { openSession } from '@/daw/session/openSession';
 import { getSessionDeps } from '@/daw/session/sessionDeps';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
-import { useShortcutSheetStore } from '@/daw/shell/help/useShortcutSheetStore';
 import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
 import { studioProjectsApi } from '@/lib/studio-projects/api';
 import type { AssetStamp } from '@/lib/studio-assets/upload-pending';
 import { showError, showSuccess } from '@/components/utils/toast';
 import { ExportAudioDialogPart } from '@/daw/shell/lazyParts';
-import { DEFAULT_EXPORT_CHOICES, type ExportChoices } from './exportChoices';
+import {
+  DEFAULT_EXPORT_CHOICES,
+  type ExportChoices,
+} from '@/daw/components/Transport/exportChoices';
 import type { MidiNoteEvent } from '@prism/engine';
+import { buttonVariants } from '@/daw/ui/Button';
 import { confirmDialog, promptDialog } from '@/daw/ui/DialogHost';
+import {
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuLabel,
+  MenuSeparator,
+  MenuTrigger,
+} from '@/daw/ui/Menu';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// ── The Project menu (milestone 2.5; File menu until then) ─────────────────
+//
+// New, Open…, Save and Save as…, Import, Export, the analysis, and Delete
+// on its own at the bottom in red. It keeps the File menu's lesson anchors:
+// 'file-menu' on the trigger and 'file-export-audio' on Export ▸ Audio….
+// Export's items sit in a labelled group rather than a submenu, so a lesson
+// step's click and the keyboard reach them in one move. The '?' menu holds
+// Keyboard shortcuts now.
 
 const OUR_PPQ = 480;
 
@@ -52,18 +70,6 @@ function rescaleTick(tick: number, sourcePpq: number): number {
   if (sourcePpq === OUR_PPQ) return tick;
   return Math.round((tick * OUR_PPQ) / sourcePpq);
 }
-
-// ── Styles ──────────────────────────────────────────────────────────────────
-
-const itemClass =
-  'flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-xs outline-none transition-colors hover:bg-white/5';
-const itemStyle = { color: 'var(--daw-text)' };
-const dimItemStyle = { color: 'var(--daw-text-3)' };
-const separatorStyle = {
-  height: 1,
-  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-  margin: '4px 8px',
-};
 
 /**
  * The project the server just deleted reclaimed its audio assets (E12: the
@@ -110,7 +116,7 @@ async function unstampDeletedAssets(generation: number): Promise<void> {
 
 // ── Component ───────────────────────────────────────────────────────────────
 
-export function FileMenu() {
+export function ProjectMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const token = useAuthToken();
   // In a shared session (E15: membership is the room id), New and Open are
@@ -122,7 +128,6 @@ export function FileMenu() {
   const saveKeys = shortcutKeys('project.save').label;
   const analyzeKeys = shortcutKeys('project.analyze').label;
   const exportMidiKeys = shortcutKeys('project.exportMidi').label;
-  const helpKeys = shortcutKeys('help.shortcuts').label;
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -146,8 +151,7 @@ export function FileMenu() {
     void saveProject({ source: 'menu' });
   }, []);
 
-  // window.prompt stays until 2.3's Prompt primitive. The copy takes the
-  // name and the cloud link only once it is saved.
+  // The copy takes the name and the cloud link only once it is saved.
   const handleSaveAs = useCallback(async () => {
     const name = await promptDialog({
       title: 'Save a copy',
@@ -304,192 +308,102 @@ export function FileMenu() {
         onChange={handleFileChange}
       />
 
-      <DropdownMenu.Root open={menuOpen} onOpenChange={setMenuOpen}>
-        <DropdownMenu.Trigger asChild>
-          <button
-            data-tutorial-id="file-menu"
-            className="flex h-7 cursor-pointer items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors hover:bg-white/5"
-            style={{
-              color: 'var(--daw-text)',
-              background: 'none',
-              border: 'none',
-            }}
+      <Menu open={menuOpen} onOpenChange={setMenuOpen}>
+        <MenuTrigger
+          data-tutorial-id="file-menu"
+          className={cn(
+            buttonVariants({ variant: 'ghost', size: 'md' }),
+            TYPE_CLASS.label,
+            'gap-1 px-2.5',
+          )}
+        >
+          Project
+          <ChevronDown aria-hidden />
+        </MenuTrigger>
+
+        <MenuContent align="start" sideOffset={6} className="w-60">
+          {/* New and Open are off in a shared session: either would replace
+              the room's project for everyone. */}
+          <MenuItem
+            icon={<FilePlus />}
+            onSelect={handleNewProject}
+            disabled={inRoom}
           >
-            File
-            <ChevronDown size={10} strokeWidth={2} />
-          </button>
-        </DropdownMenu.Trigger>
-
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content
-            className="z-50 min-w-[180px] rounded-lg p-1 shadow-lg"
-            style={{
-              backgroundColor: 'var(--daw-popover)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-            }}
-            sideOffset={4}
+            New project
+          </MenuItem>
+          <MenuItem
+            icon={<FolderOpen />}
+            onSelect={handleOpen}
+            disabled={inRoom}
           >
-            {/* Project management. New and Open are off in a shared session:
-                either would replace the room's project for everyone. */}
-            <DropdownMenu.Item
-              className={itemClass}
-              style={inRoom ? dimItemStyle : itemStyle}
-              onSelect={handleNewProject}
-              disabled={inRoom}
-            >
-              <FilePlus size={13} strokeWidth={2} />
-              New Project
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item
-              className={itemClass}
-              style={inRoom ? dimItemStyle : itemStyle}
-              onSelect={handleOpen}
-              disabled={inRoom}
-            >
-              <FolderOpen size={13} strokeWidth={2} />
-              Open…
-            </DropdownMenu.Item>
-
-            <div style={separatorStyle} />
-
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={handleSave}
-              disabled={saving}
-            >
-              <Save size={13} strokeWidth={2} />
-              {saving ? 'Saving…' : 'Save'}
-              <span
-                className="ml-auto text-[10px]"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                {saveKeys}
-              </span>
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={() => void handleSaveAs()}
-              disabled={saving}
-            >
-              <SaveAll size={13} strokeWidth={2} />
-              Save As…
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item
-              className={itemClass}
-              style={{
-                ...itemStyle,
-                color: 'var(--daw-text-3)',
-              }}
-              onSelect={() => void handleDeleteProject()}
-              disabled={saving}
-            >
-              <Trash2 size={13} strokeWidth={2} />
-              Delete Project
-            </DropdownMenu.Item>
-
-            <div style={separatorStyle} />
-
-            {/* MIDI & Lead Sheet I/O */}
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={handleImport}
-            >
-              <FileUp size={13} strokeWidth={2} />
-              Import MIDI
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={() => void exportProjectMidi()}
-            >
-              <FileDown size={13} strokeWidth={2} />
-              Export MIDI
-              <span
-                className="ml-auto text-[10px]"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                {exportMidiKeys}
-              </span>
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item
-              data-tutorial-id="file-export-audio"
-              className={itemClass}
-              style={itemStyle}
-              onSelect={() => setExportAudioOpen(true)}
-            >
-              <AudioWaveform size={13} strokeWidth={2} />
-              Export Audio…
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={handleExportLeadSheet}
-            >
-              <Music size={13} strokeWidth={2} />
-              Export Lead Sheet
-            </DropdownMenu.Item>
-
-            <div style={separatorStyle} />
-
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={analyzeProject}
-            >
-              <Sparkles size={13} strokeWidth={2} />
-              Analyze
-              <span
-                className="ml-auto text-[10px]"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                {analyzeKeys}
-              </span>
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={handleExportUnison}
-            >
-              <FileDown size={13} strokeWidth={2} />
-              Export Analysis JSON
-            </DropdownMenu.Item>
-
-            <div style={separatorStyle} />
-
-            {/* The sheet holds the single-key switch, so it stays reachable
-                with single-key shortcuts (and so ?) turned off. */}
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={() => useShortcutSheetStore.getState().open()}
-            >
-              <Keyboard size={13} strokeWidth={2} />
-              Keyboard Shortcuts
-              <span
-                className="ml-auto text-[10px]"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                {helpKeys}
-              </span>
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Root>
+            Open…
+          </MenuItem>
+          <MenuSeparator />
+          <MenuItem
+            icon={<Save />}
+            shortcut={saveKeys}
+            onSelect={handleSave}
+            disabled={saving}
+          >
+            {saving ? 'Saving…' : 'Save'}
+          </MenuItem>
+          <MenuItem
+            icon={<SaveAll />}
+            onSelect={() => void handleSaveAs()}
+            disabled={saving}
+          >
+            Save as…
+          </MenuItem>
+          <MenuSeparator />
+          <MenuLabel>Import</MenuLabel>
+          <MenuItem icon={<FileUp />} onSelect={handleImport}>
+            MIDI file…
+          </MenuItem>
+          <MenuLabel>Export</MenuLabel>
+          <MenuItem
+            data-tutorial-id="file-export-audio"
+            icon={<AudioWaveform />}
+            onSelect={() => setExportAudioOpen(true)}
+          >
+            Audio…
+          </MenuItem>
+          <MenuItem
+            icon={<FileDown />}
+            shortcut={exportMidiKeys}
+            onSelect={() => void exportProjectMidi()}
+          >
+            MIDI
+          </MenuItem>
+          <MenuItem icon={<Music />} onSelect={handleExportLeadSheet}>
+            Lead sheet (MusicXML)
+          </MenuItem>
+          <MenuSeparator />
+          <MenuItem
+            icon={<Sparkles />}
+            shortcut={analyzeKeys}
+            onSelect={analyzeProject}
+          >
+            Analyze
+          </MenuItem>
+          <MenuItem icon={<FileDown />} onSelect={handleExportUnison}>
+            Export analysis (JSON)
+          </MenuItem>
+          <MenuSeparator />
+          <MenuItem
+            icon={<Trash2 />}
+            danger
+            onSelect={() => void handleDeleteProject()}
+            disabled={saving}
+          >
+            Delete project…
+          </MenuItem>
+        </MenuContent>
+      </Menu>
 
       {/* Mounted only while open: it subscribes to the whole track list, so
-          an always-mounted dialog re-rendered the transport bar's region on
-          every track edit (shell-17). The student's format, bit depth and
-          range live here instead, so they carry over to the next export. */}
+          an always-mounted dialog re-rendered the top bar on every track
+          edit (shell-17). The student's format, bit depth and range live
+          here instead, so they carry over to the next export. */}
       {exportAudioOpen && (
         <ExportAudioDialogPart
           open

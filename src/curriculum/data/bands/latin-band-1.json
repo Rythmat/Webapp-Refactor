@@ -97,14 +97,36 @@
         "keys": {
           "kind": "comping",
           "id": "mariachi-vals"
+        },
+        "guitar-comping": {
+          "kind": "part",
+          "id": "latin-guitarist-1-l1-mariachi-take-3"
         }
-      }
+      },
+      "tempo": 110
     },
     {
       "id": "l2-merengue-bachata",
       "name": "L2 · Merengue & Bachata",
       "style": "latin-l2-merengue-bachata",
-      "plays": {}
+      "plays": {
+        "drums": {
+          "kind": "groove",
+          "id": "salsa_3_2_copy"
+        },
+        "bass": {
+          "kind": "part",
+          "id": "latin-bassist-1-l2-merengue-bachata-take-1"
+        },
+        "keys": {
+          "kind": "part",
+          "id": "latin-pianist-1-l2-merengue-bachata-take-9"
+        },
+        "guitar-comping": {
+          "kind": "part",
+          "id": "latin-guitarist-1-l2-merengue-bachata-take-4"
+        }
+      }
     },
     {
       "id": "l2-cha-cha",

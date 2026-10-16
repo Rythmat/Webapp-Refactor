@@ -95,7 +95,13 @@ export function realizeLayer(
     case 'bassLine': {
       const line = items.bassLine(source.id);
       return line
-        ? pairedBassNotes(line, ctx.chordAt, ctx.bars, ctx.timeSignature)
+        ? pairedBassNotes(
+            line,
+            ctx.chordAt,
+            ctx.bars,
+            ctx.timeSignature,
+            ctx.genre,
+          )
         : null;
     }
     case 'comping': {

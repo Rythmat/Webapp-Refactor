@@ -6,7 +6,7 @@
  * its own copy and points the layer at it.
  */
 
-import { useMemo } from 'react';
+import { type ComponentProps, useMemo } from 'react';
 import type { BandSource } from '@/curriculum/engine/band/band';
 import { uniquePartId } from '@/curriculum/engine/parts/part';
 import { createBassLine } from '../bassLines/AdminBassLinesPage';
@@ -26,9 +26,11 @@ interface Props {
   source: BandSource;
   /** Point the layer at another item (the copy Duplicate made). */
   onReplace: (source: BandSource) => void;
+  /** A part edited here plays with the band (PartEditor's `band`). */
+  band?: ComponentProps<typeof PartEditor>['band'];
 }
 
-export const LayerItemEditor = ({ source, onReplace }: Props) => {
+export const LayerItemEditor = ({ source, onReplace, band }: Props) => {
   const store = useInstrumentStore();
   const grooves = useGrooveList();
   const lines = useBassLineList();
@@ -103,6 +105,7 @@ export const LayerItemEditor = ({ source, onReplace }: Props) => {
         <PartEditor
           key={part.id}
           part={part}
+          band={band}
           onDuplicate={async (from) => {
             const name = `${from.name} copy`;
             const copy = {

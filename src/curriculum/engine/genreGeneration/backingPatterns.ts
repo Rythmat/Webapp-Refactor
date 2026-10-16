@@ -1423,7 +1423,7 @@ export function buildBackingNotes(
     const realized = realizeBand(
       pairing.band,
       LIVE_ITEMS,
-      { chordAt, bars: BACKING_BARS, timeSignature: ts },
+      { chordAt, bars: BACKING_BARS, timeSignature: ts, genre },
       { tonic: ((keyRoot % 12) + 12) % 12 },
     );
     let out = notes;

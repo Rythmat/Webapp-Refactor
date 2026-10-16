@@ -7,10 +7,8 @@ import {
   FileMusic,
   Loader2,
   Play,
-  Redo2,
   Save,
   Square,
-  Undo2,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
 import { Link } from 'react-router-dom';
@@ -43,6 +41,7 @@ import {
   type PartNote,
   type PartRole,
 } from '@/curriculum/engine/parts/part';
+import { useKeyDispatcher } from '@/daw/commands/dispatcher';
 import { PianoRoll } from '@/daw/components/PianoRoll/PianoRoll';
 import {
   PianoRollHostContext,
@@ -55,6 +54,7 @@ import { useInstrumentStore } from '../drumGrooves/instrumentStore';
 import { useUndoable } from '../drumGrooves/useUndoable';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
+import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../ui/styles';
 import { StudioScoreBridge } from './StudioScoreBridge';
 import { downloadPartJson, downloadPartMidi } from './partFiles';
@@ -109,6 +109,15 @@ interface Props {
   part: InstrumentPart;
   onDuplicate: (part: InstrumentPart) => void;
   lesson?: LessonTarget;
+  /**
+   * Opened inside a band: Play plays the band (this part in it, as edited),
+   * and every edit is handed up so the band hears it on its next pass.
+   */
+  band?: {
+    playing: boolean;
+    toggle: () => void;
+    onDraft: (part: InstrumentPart) => void;
+  };
 }
 
 /**
@@ -120,6 +129,7 @@ export const PartEditor: FC<Props> = ({
   part: initial,
   onDuplicate,
   lesson,
+  band,
 }) => {
   const history = useUndoable<InstrumentPart>(initial);
   const store = useInstrumentStore();
@@ -133,6 +143,12 @@ export const PartEditor: FC<Props> = ({
   const [view, setView] = useState<View>('roll');
   const [armed, setArmed] = useState(false);
   const [overdub, setOverdub] = useState(true);
+  /** When the metronome clicks: while capturing (default), always, never. */
+  const [metronome, setMetronome] = useState<'capture' | 'always' | 'off'>(
+    'capture',
+  );
+  const clickWhile = (recording: boolean) =>
+    metronome === 'always' || (metronome === 'capture' && recording);
   const [quantize, setQuantize] = useState<CaptureQuantize>(120);
   const [transposeTo, setTransposeTo] = useState(initial.key.tonic);
   const player = usePartPlayer();
@@ -154,18 +170,26 @@ export const PartEditor: FC<Props> = ({
   const beyondEnd = draft.notes.filter((n) => n.tick >= length).length;
   const sounds = SOUND_OPTIONS[draft.instrument];
 
+  // In a band, every edit goes up to it, heard on the band's next pass.
+  const onBandDraft = band?.onDraft;
+  useEffect(() => {
+    onBandDraft?.(draft);
+  }, [draft, onBandDraft]);
+
   // Hear every edit on the next pass.
   useEffect(() => {
-    if (player.playing) void player.play(draft, feel);
+    if (player.playing)
+      void player.play(draft, feel, { click: clickWhile(armed) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft, feel]);
+  }, [draft, feel, metronome, armed]);
 
   const togglePlay = useCallback(() => {
     if (player.playing) {
       player.stop();
       setArmed(false);
-    } else void player.play(draft, feel);
-  }, [player, draft, feel]);
+    } else void player.play(draft, feel, { click: clickWhile(false) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [player, draft, feel, metronome]);
 
   /** Arm, count in a bar, then run the loop recording. */
   const record = () => {
@@ -180,7 +204,9 @@ export const PartEditor: FC<Props> = ({
     }
     void player.countIn(draft, () => {
       setArmed(true);
-      void player.play(overdub ? draft : { ...draft, notes: [] }, feel);
+      void player.play(overdub ? draft : { ...draft, notes: [] }, feel, {
+        click: clickWhile(true),
+      });
     });
   };
 
@@ -225,6 +251,11 @@ export const PartEditor: FC<Props> = ({
     [draft, setDraft, lesson, store],
   );
 
+  // The Studio roll's own keys — Delete and Backspace remove the selected
+  // notes, V/D/E pick a tool — go through the Studio's key dispatcher, which
+  // only the Studio editor switches on otherwise.
+  useKeyDispatcher();
+
   // Space plays, ⌘Z/⌘⇧Z undo/redo (Roll view — the Score has its own), ⌘S saves.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -233,7 +264,8 @@ export const PartEditor: FC<Props> = ({
       const mod = e.metaKey || e.ctrlKey;
       if (e.code === 'Space' && !typing && view !== 'staff') {
         e.preventDefault();
-        togglePlay();
+        if (band) band.toggle();
+        else togglePlay();
       } else if (mod && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if ((lesson || canSave) && dirty) void save();
@@ -243,8 +275,7 @@ export const PartEditor: FC<Props> = ({
         !typing &&
         view === 'roll'
       ) {
-        // The roll handles its own keys when focused; this catches the rest.
-        if (target.closest('.daw-root')) return;
+        // The console has no Studio undo behind the roll: this is its undo.
         e.preventDefault();
         if (e.shiftKey) history.redo();
         else history.undo();
@@ -252,7 +283,7 @@ export const PartEditor: FC<Props> = ({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [togglePlay, history, dirty, save, view]);
+  }, [togglePlay, history, dirty, save, view, band]);
 
   // The content area's guard: leaving with unsaved edits asks first.
   useUnsavedChanges(dirty);
@@ -326,46 +357,42 @@ export const PartEditor: FC<Props> = ({
           className="min-w-0 flex-[1_1_18rem] bg-transparent text-[2rem] leading-[1.1] tracking-[-0.02em] text-white outline-none"
           aria-label="Part name"
         />
-        <Button
-          onClick={togglePlay}
-          className={player.playing ? 'bg-rose-500 hover:bg-rose-400' : ''}
-        >
-          {player.loading ? (
-            <Loader2 className="animate-spin" />
-          ) : player.playing ? (
-            <Square />
-          ) : (
-            <Play />
-          )}
-          {player.playing ? 'Stop' : 'Play'}
-        </Button>
-        <Button
-          variant="outline"
-          onClick={record}
-          className={cn(armed && 'border-rose-500 text-rose-300')}
-          title="Count in one bar, then play it in on a MIDI keyboard"
-        >
-          <Circle className={cn(armed && 'fill-rose-500 text-rose-500')} />
-          {armed ? 'Recording' : 'Capture'}
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.undo}
-          disabled={!history.canUndo}
-          aria-label="Undo"
-        >
-          <Undo2 />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.redo}
-          disabled={!history.canRedo}
-          aria-label="Redo"
-        >
-          <Redo2 />
-        </Button>
+        {band ? (
+          // In a band, the band's transport: this part as edited, with it.
+          <Button
+            onClick={band.toggle}
+            className={band.playing ? 'bg-rose-500 hover:bg-rose-400' : ''}
+          >
+            {band.playing ? <Square /> : <Play />}
+            {band.playing ? 'Stop the band' : 'Play with the band'}
+          </Button>
+        ) : (
+          <>
+            <Button
+              onClick={togglePlay}
+              className={player.playing ? 'bg-rose-500 hover:bg-rose-400' : ''}
+            >
+              {player.loading ? (
+                <Loader2 className="animate-spin" />
+              ) : player.playing ? (
+                <Square />
+              ) : (
+                <Play />
+              )}
+              {player.playing ? 'Stop' : 'Play'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={record}
+              className={cn(armed && 'border-rose-500 text-rose-300')}
+              title="Count in one bar, then play it in on a MIDI keyboard"
+            >
+              <Circle className={cn(armed && 'fill-rose-500 text-rose-500')} />
+              {armed ? 'Recording' : 'Capture'}
+            </Button>
+          </>
+        )}
+        <UndoRedo history={history} />
         {lesson ? (
           <>
             <Button onClick={() => void save()} disabled={saving || !dirty}>
@@ -704,6 +731,20 @@ export const PartEditor: FC<Props> = ({
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <span className={fieldLabel}>Capture</span>
         <label className="flex items-center gap-1.5 text-white/70">
+          Metronome
+          <select
+            value={metronome}
+            onChange={(e) =>
+              setMetronome(e.target.value as 'capture' | 'always' | 'off')
+            }
+            className={control}
+          >
+            <option value="capture">While capturing</option>
+            <option value="always">Always</option>
+            <option value="off">Off</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-1.5 text-white/70">
           <input
             type="checkbox"
             checked={overdub}
@@ -788,7 +829,7 @@ export const PartEditor: FC<Props> = ({
           {draft.notes.length} notes · {keyLabel(draft.key)} ·{' '}
           {view === 'staff'
             ? 'the Studio’s Score editor — click a note, then type or use the palettes'
-            : 'draw with the pencil, drag to move, drag edges to resize'}
+            : 'draw with the pencil, drag to move, drag edges to resize; Select and drag a box round notes, then Delete'}
         </span>
       </div>
 

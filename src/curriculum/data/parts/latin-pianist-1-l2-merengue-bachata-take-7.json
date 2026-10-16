@@ -1,0 +1,169 @@
+{
+  "id": "latin-pianist-1-l2-merengue-bachata-take-7",
+  "name": "Latin-Pianist-1 Merengue Whole Notes 2-Hand Chords",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1680,
+      "midi": 52,
+      "velocity": 98
+    },
+    {
+      "tick": 0,
+      "duration": 1680,
+      "midi": 55,
+      "velocity": 89
+    },
+    {
+      "tick": 0,
+      "duration": 1560,
+      "midi": 59,
+      "velocity": 68
+    },
+    {
+      "tick": 0,
+      "duration": 1680,
+      "midi": 64,
+      "velocity": 99
+    },
+    {
+      "tick": 0,
+      "duration": 1560,
+      "midi": 67,
+      "velocity": 107
+    },
+    {
+      "tick": 0,
+      "duration": 1680,
+      "midi": 71,
+      "velocity": 91
+    },
+    {
+      "tick": 1920,
+      "duration": 1680,
+      "midi": 52,
+      "velocity": 58
+    },
+    {
+      "tick": 1920,
+      "duration": 1680,
+      "midi": 57,
+      "velocity": 78
+    },
+    {
+      "tick": 1920,
+      "duration": 1680,
+      "midi": 60,
+      "velocity": 56
+    },
+    {
+      "tick": 1920,
+      "duration": 1680,
+      "midi": 64,
+      "velocity": 70
+    },
+    {
+      "tick": 1920,
+      "duration": 1680,
+      "midi": 69,
+      "velocity": 82
+    },
+    {
+      "tick": 1920,
+      "duration": 1680,
+      "midi": 72,
+      "velocity": 74
+    },
+    {
+      "tick": 3840,
+      "duration": 1680,
+      "midi": 52,
+      "velocity": 51
+    },
+    {
+      "tick": 3840,
+      "duration": 1680,
+      "midi": 55,
+      "velocity": 64
+    },
+    {
+      "tick": 3840,
+      "duration": 1680,
+      "midi": 59,
+      "velocity": 46
+    },
+    {
+      "tick": 3840,
+      "duration": 1680,
+      "midi": 64,
+      "velocity": 63
+    },
+    {
+      "tick": 3840,
+      "duration": 1680,
+      "midi": 67,
+      "velocity": 69
+    },
+    {
+      "tick": 3840,
+      "duration": 1680,
+      "midi": 71,
+      "velocity": 73
+    },
+    {
+      "tick": 5760,
+      "duration": 1680,
+      "midi": 51,
+      "velocity": 70
+    },
+    {
+      "tick": 5760,
+      "duration": 1560,
+      "midi": 57,
+      "velocity": 70
+    },
+    {
+      "tick": 5760,
+      "duration": 1680,
+      "midi": 59,
+      "velocity": 53
+    },
+    {
+      "tick": 5760,
+      "duration": 1560,
+      "midi": 63,
+      "velocity": 73
+    },
+    {
+      "tick": 5760,
+      "duration": 1560,
+      "midi": 69,
+      "velocity": 79
+    },
+    {
+      "tick": 5760,
+      "duration": 1560,
+      "midi": 71,
+      "velocity": 77
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "chordSymbols": ["Em", "Am", "Em", "B7"]
+}

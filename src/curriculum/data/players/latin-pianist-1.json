@@ -29,6 +29,22 @@
     {
       "kind": "part",
       "id": "latin-l1-d3-3-mariachi-lh-vals-rh-melody-play-along"
+    },
+    {
+      "kind": "part",
+      "id": "latin-pianist-1-l3-bossa-samba-take-5"
+    },
+    {
+      "kind": "part",
+      "id": "latin-pianist-1-l3-bossa-samba-take-6"
+    },
+    {
+      "kind": "part",
+      "id": "latin-pianist-1-l2-merengue-bachata-take-7"
+    },
+    {
+      "kind": "part",
+      "id": "latin-pianist-1-l2-merengue-bachata-take-9"
     }
   ]
 }

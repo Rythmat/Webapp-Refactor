@@ -19,6 +19,7 @@
 import {
   ArrowLeft,
   ChevronDown,
+  Circle,
   ChevronUp,
   Copy,
   Download,
@@ -31,7 +32,7 @@ import {
   Square,
   Trash2,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
@@ -53,10 +54,15 @@ import {
   bandVariation,
   layerIdFor,
 } from '@/curriculum/engine/band/band';
-import { layerSound, realizeBand } from '@/curriculum/engine/band/realize';
+import {
+  type BandItems,
+  layerSound,
+  realizeBand,
+} from '@/curriculum/engine/band/realize';
 import { ALL_ITEMS } from '@/curriculum/engine/band/registry';
 import { lineBars } from '@/curriculum/engine/bassLines/bassLine';
 import {
+  chordSymbol,
   KEYS,
   PROGRESSIONS,
   parseChart,
@@ -67,6 +73,13 @@ import {
 import { compingBars } from '@/curriculum/engine/chordComping/chordComping';
 import { preloadStudioGroove } from '@/curriculum/engine/drumGrooves/registry';
 import { barTicks } from '@/curriculum/engine/meter';
+import {
+  blankPart,
+  type InstrumentPart,
+  type PartInstrument,
+  type PartNote,
+  uniquePartId,
+} from '@/curriculum/engine/parts/part';
 import { getSampleInstrument } from '@/daw/instruments/sampleInstruments';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useBassLineList } from '../bassLines/bassLineSession';
@@ -74,12 +87,17 @@ import { previewHarmony } from '../chordComping/compingGrid';
 import { useCompingList } from '../chordComping/compingSession';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
 import { useGrooveList } from '../drumGrooves/grooveSession';
+import { useInstrumentStore } from '../drumGrooves/instrumentStore';
+import { useUndoable } from '../drumGrooves/useUndoable';
 import { usePartList } from '../parts/partFiles';
+import { type CaptureQuantize, useLiveCapture } from '../parts/useLiveCapture';
 import { fileItem } from '../players/playerFiles';
 import { usePlayerList } from '../players/playerSession';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
+import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL } from '../ui/styles';
 import { BandAssignments } from './BandAssignments';
+import { BandCapture, type Take } from './BandCapture';
 import { LaneStrip } from './LaneStrip';
 import { LayerItemEditor } from './LayerItemEditor';
 import { SampleInstrumentMaker } from './SampleInstrumentMaker';
@@ -148,6 +166,18 @@ const partFits = (partInstrument: string | undefined, layer: BandInstrument) =>
         : // A piano part suits any pitched layer but the bass.
           !['drums', 'percussion', 'bass'].includes(layer);
 
+/** The part instrument a layer's take is written for. */
+const PART_INSTRUMENT_OF: Record<BandInstrument, PartInstrument> = {
+  drums: 'drums',
+  percussion: 'drums',
+  bass: 'bass',
+  guitar: 'guitar',
+  keys: 'piano',
+  synth: 'piano',
+  strings: 'piano',
+  horns: 'piano',
+};
+
 const isDrums = (layer: Pick<BandLayer, 'instrument'>) =>
   layer.instrument === 'drums' || layer.instrument === 'percussion';
 
@@ -170,7 +200,10 @@ interface Props {
 }
 
 export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
-  const [draft, setDraft] = useState<Band>(initial);
+  // Every change is a step Undo and Redo walk back and forth through.
+  const history = useUndoable<Band>(initial);
+  const draft = history.value;
+  const setDraft = history.set;
   const [saved, setSaved] = useState<Band>(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -178,6 +211,9 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     initial.layers[0]?.id ?? null,
   );
   const [editingItem, setEditingItem] = useState(false);
+  const editingRef = useRef(editingItem);
+  editingRef.current = editingItem;
+  const saveRef = useRef<() => Promise<void>>(async () => undefined);
   /** The layer a sound is being sampled for, and whether it edits its own. */
   const [sampling, setSampling] = useState<{
     layerId: string;
@@ -202,6 +238,27 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   const pairings = usePairingList();
 
   const set = (patch: Partial<Band>) => setDraft((b) => ({ ...b, ...patch }));
+
+  // ⌘Z / ⌘⇧Z undo and redo the band, ⌘S saves it. While a layer's own
+  // editor is open below, its keys are its own.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName)) return;
+      if (!(e.metaKey || e.ctrlKey) || editingRef.current) return;
+      const key = e.key.toLowerCase();
+      if (key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) history.redo();
+        else history.undo();
+      } else if (key === 's' && CAN_WRITE_FILES) {
+        e.preventDefault();
+        void saveRef.current();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [history]);
   const setLayer = (id: string, patch: Partial<BandMember>) =>
     setDraft((b) => ({
       ...b,
@@ -352,38 +409,88 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   }, [grooveIds]);
 
   // ── what every layer plays ──
-  // The item lists are read so an edit to an item, saved in its own editor,
-  // is heard here at once.
+  // From this session's lists, not the files the page was built with, so a
+  // part just captured or saved plays at once; and a part open in its editor
+  // below plays as edited, unsaved, so the band is its audition.
+  const [liveParts, setLiveParts] = useState<Record<string, InstrumentPart>>(
+    {},
+  );
+  const onPartDraft = useCallback(
+    (part: InstrumentPart) =>
+      setLiveParts((m) =>
+        m[part.id] === part ? m : { ...m, [part.id]: part },
+      ),
+    [],
+  );
+  // Closed unsaved, a part's edits go with its editor.
+  useEffect(() => {
+    if (!editingItem) setLiveParts({});
+  }, [editingItem]);
+  const items = useMemo<BandItems>(
+    () => ({
+      ...ALL_ITEMS,
+      part: (id) =>
+        liveParts[id] ?? parts.find((p) => p.id === id) ?? ALL_ITEMS.part(id),
+      bassLine: (id) =>
+        lines.find((l) => l.id === id) ?? ALL_ITEMS.bassLine(id),
+      comping: (id) =>
+        patterns.find((c) => c.id === id) ?? ALL_ITEMS.comping(id),
+    }),
+    [liveParts, parts, lines, patterns],
+  );
   const realized = useMemo(
     () =>
       harmony
         ? realizeBand(
             playable,
-            ALL_ITEMS,
-            { chordAt: harmony.chordAt, bars, timeSignature: ts },
+            items,
+            {
+              chordAt: harmony.chordAt,
+              bars,
+              timeSignature: ts,
+              genre: draft.genre,
+            },
             { includeMuted: true },
           )
         : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [draft, harmony, bars, ts, grooves, lines, patterns, parts, studioLoaded],
+    [draft, harmony, bars, ts, grooves, items, studioLoaded],
   );
   const notesOf = new Map(realized.map((r) => [r.layer.id, r.notes]));
   const playerLayers: PlayerLayer[] = playable.layers.map((l) => ({
     id: l.id,
-    sound: layerSound(l, ALL_ITEMS),
+    sound: layerSound(l, items),
     notes: notesOf.get(l.id) ?? [],
     volume: l.volume ?? 1,
     muted: Boolean(l.muted),
   }));
 
   const player = useBandPlayer();
+
+  // ── capturing a part with the band ──
+  const store = useInstrumentStore();
+  const [take, setTakeState] = useState<Take | null>(null);
+  const setTake = (update: (t: Take | null) => Take | null) =>
+    setTakeState(update);
+  /** The click the band plays while a take records, if wanted. */
+  const [takeClick, setTakeClick] = useState(false);
+  /** The band without the layer being captured: its own part sits out. */
+  const backingLayers = take
+    ? playerLayers.filter((l) => l.id !== take.layerId)
+    : playerLayers;
+  const playBand = (click = take?.recording ? takeClick : false) =>
+    void player.play(backingLayers, {
+      bpm: tempo,
+      totalTicks,
+      click: click ? ts : undefined,
+    });
+
   const notesKey = JSON.stringify(
-    playerLayers.map((l) => [l.id, l.sound, l.notes.length, totalTicks]),
+    backingLayers.map((l) => [l.id, l.sound, l.notes.length, totalTicks]),
   );
   // An edit while playing is heard on the next pass; a level at once.
   useEffect(() => {
-    if (player.playing)
-      void player.play(playerLayers, { bpm: tempo, totalTicks });
+    if (player.playing) playBand();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notesKey, realized, tempo]);
   const mixKey = JSON.stringify(
@@ -394,10 +501,63 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mixKey]);
 
-  const toggle = () =>
-    player.playing
-      ? player.stop()
-      : void player.play(playerLayers, { bpm: tempo, totalTicks });
+  const toggle = () => {
+    if (player.playing) {
+      player.stop();
+      setTake((t) => t && { ...t, recording: false });
+    } else playBand(false);
+  };
+
+  /** The sound a layer's take is heard on while it's played in. */
+  const monitorSoundOf = (l: BandMember) =>
+    playerLayers.find((x) => x.id === l.id)?.sound ??
+    l.sound ??
+    blankPart('take', 'take', PART_INSTRUMENT_OF[l.instrument]).sound;
+
+  /**
+   * Keeps a take as a new part: the band's meter, tempo, length, key and
+   * chords; filed under the layer's player; played by the layer in the open
+   * variation; opened in its editor to tidy and publish.
+   */
+  const keepTake = async (l: BandMember, notes: PartNote[]) => {
+    const who = players.find((p) => p.id === l.player);
+    const count =
+      (who?.items.filter((i) => i.kind === 'part').length ?? parts.length) + 1;
+    const name = `${who?.name ?? l.name} · ${variation?.name ?? draft.name} take ${count}`;
+    // A typed chart is in its first chord's key; a preset, in the key picked.
+    const first = typed?.bars[0]?.[0];
+    const tonic = first && !first.nc ? first.root : keyPc;
+    const minor = first
+      ? /^m(?!aj)/.test(first.quality)
+      : Boolean(progression.minor);
+    const part: InstrumentPart = {
+      ...blankPart(
+        uniquePartId(name, new Set(parts.map((x) => x.id))),
+        name,
+        PART_INSTRUMENT_OF[l.instrument],
+      ),
+      ...(draft.genre ? { genre: draft.genre } : {}),
+      key: { tonic, mode: minor ? 'aeolian' : 'ionian' },
+      timeSignature: ts,
+      bars,
+      tempo,
+      sound: monitorSoundOf(l),
+      chordSymbols: Array.from({ length: bars }, (_, b) => {
+        const chord = chartBars[b % chartBars.length]?.[0];
+        return chord ? chordSymbol(chord) : '';
+      }),
+      notes,
+    };
+    try {
+      await store.save('instrument_part', part);
+      if (l.player) await fileItem({ kind: 'part', id: part.id }, l.player);
+      setSource(l.id, { kind: 'part', id: part.id });
+      setTake(() => null);
+      editLayer(l.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
 
   // ── layers ──
   const addLayer = (spec: (typeof NEW_LAYERS)[number]) => {
@@ -470,6 +630,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
       setSaving(false);
     }
   };
+  saveRef.current = save;
 
   const itemsFor = (kind: BandSource['kind']) =>
     kind === 'groove'
@@ -491,13 +652,53 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
     ? getSampleInstrument(layer.sound.slice(SAMPLE_PREFIX.length))
     : undefined;
 
+  // ── the keyboard ──
+  // A MIDI keyboard plays the open layer's sound (the take's, while one is
+  // open) the moment a layer is open — not only once a capture records — and
+  // writes into the take while it does. A part open in its own editor below
+  // has the keyboard instead: that editor plays it on the part's sound.
+  const [takeQuantize, setTakeQuantize] = useState<CaptureQuantize>(120);
+  const keysLayer = take
+    ? draft.layers.find((l) => l.id === take.layerId)
+    : (layer ?? undefined);
+  const keysSound = keysLayer ? monitorSoundOf(keysLayer) : null;
+  const partEditorOpen = editingItem && layerSource?.kind === 'part';
+  const keyboard = useLiveCapture({
+    enabled: Boolean(keysSound) && !partEditorOpen,
+    active: Boolean(take?.recording) && player.playing,
+    length: totalTicks,
+    quantize: takeQuantize,
+    currentTick: player.currentTick,
+    onNote: (note) =>
+      setTake(
+        (t) =>
+          t && {
+            ...t,
+            notes: [...t.notes, note].sort(
+              (a, b) => a.tick - b.tick || a.midi - b.midi,
+            ),
+          },
+      ),
+    monitorOn: (m, v) => {
+      if (keysSound) void player.liveOn(keysSound, m, v);
+    },
+    monitorOff: player.liveOff,
+  });
+  // The sound loads as the layer opens, so the first key is heard at once.
+  useEffect(() => {
+    if (keysSound) void player.prepareLive(keysSound).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keysSound]);
+
   /** Opens a layer's item in its own editor, below, and goes there. */
   const editLayer = (id: string) => {
     setSelected(id);
     setSynth(null);
     setSampling(null);
-    // The item's editor previews on its own transport.
-    player.stop();
+    // A part plays with the band as it's edited; the other editors preview
+    // on their own transport.
+    const l = draft.layers.find((x) => x.id === id);
+    if (!l || sourceOf(l)?.kind !== 'part') player.stop();
     setEditingItem(true);
     requestAnimationFrame(() =>
       panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
@@ -541,15 +742,21 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         <Button size="sm" variant="ghost" onClick={() => onDuplicate(draft)}>
           <Copy /> Duplicate
         </Button>
-        {CAN_WRITE_FILES ? (
-          <Button
-            size="sm"
-            onClick={() => void save()}
-            disabled={!dirty || saving}
-          >
-            {saving ? <Loader2 className="animate-spin" /> : <Save />} Save
-          </Button>
-        ) : (
+        <UndoRedo history={history} />
+        <Button
+          size="sm"
+          onClick={() => void save()}
+          disabled={!CAN_WRITE_FILES || !dirty || saving}
+          title={
+            CAN_WRITE_FILES
+              ? 'Save (⌘S)'
+              : 'Bands are repo files until the content API holds them: save on your local console, or Export'
+          }
+        >
+          {saving ? <Loader2 className="animate-spin" /> : <Save />}
+          {dirty ? 'Save' : 'Saved'}
+        </Button>
+        {!CAN_WRITE_FILES && (
           <Button
             size="sm"
             variant="secondary"
@@ -560,6 +767,13 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
         )}
       </div>
       {error && <p className="text-sm text-red-300">{error}</p>}
+      {!CAN_WRITE_FILES && (
+        <p className="text-xs text-amber-200/80">
+          The live console can&rsquo;t save bands yet: they&rsquo;re files in
+          the repo until the content API holds them. Edit and save on your local
+          console, or Export this band&rsquo;s file.
+        </p>
+      )}
 
       {/* ── what it is, and what it plays over ── */}
       <div className={cn(CONSOLE_PANEL, 'flex flex-wrap items-end gap-4 p-3')}>
@@ -901,7 +1115,22 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                 title="Click to open · double-click to edit its notes"
                 aria-label={`Open ${l.name}`}
               >
-                {src ? (
+                {take?.layerId === l.id ? (
+                  <LaneStrip
+                    notes={take.notes.map((n) => ({
+                      note: n.midi,
+                      onset: n.tick,
+                      duration: n.duration,
+                      velocity: n.velocity,
+                      part: 'chords' as const,
+                    }))}
+                    totalTicks={totalTicks}
+                    barTicks={barTicks(ts)}
+                    drums={false}
+                    muted={false}
+                    colour="#fb7185"
+                  />
+                ) : src ? (
                   <LaneStrip
                     notes={notesOf.get(l.id) ?? []}
                     totalTicks={totalTicks}
@@ -1097,7 +1326,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                     ? soundLabel(
                         layerSound(
                           { ...layer, source: layerSource, sound: undefined },
-                          ALL_ITEMS,
+                          items,
                         ),
                         layer.instrument,
                       )
@@ -1159,6 +1388,7 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               </div>
               <LayerItemEditor
                 source={layerSource}
+                band={{ playing: player.playing, toggle, onDraft: onPartDraft }}
                 onReplace={(source) => {
                   setSource(layer.id, source);
                   // The copy belongs to whoever plays the layer.
@@ -1212,6 +1442,26 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                   In {variation?.name} this plays as the lesson does. Pick what
                   it plays above to give it an item of its own.
                 </span>
+              )}
+              {CAN_WRITE_FILES && !take && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-rose-500/60 text-rose-200"
+                  onClick={() => {
+                    player.stop();
+                    setEditingItem(false);
+                    setTake(() => ({
+                      layerId: layer.id,
+                      recording: false,
+                      notes: [],
+                    }));
+                  }}
+                  title="Play a new part in on a MIDI keyboard while the band plays"
+                >
+                  <Circle className="fill-rose-500 text-rose-500" /> Capture a
+                  part with the band
+                </Button>
               )}
               {layer.sound?.startsWith(SYNTH_PREFIX) ? (
                 <Button
@@ -1269,6 +1519,24 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
                 </>
               )}
             </div>
+          )}
+          {take?.layerId === layer.id && (
+            <BandCapture
+              take={take}
+              setTake={setTake}
+              layerName={layer.name}
+              midi={keyboard}
+              quantize={takeQuantize}
+              setQuantize={setTakeQuantize}
+              timeSignature={ts}
+              tempo={tempo}
+              player={player}
+              playBand={(click) => {
+                setTakeClick(click);
+                playBand(click);
+              }}
+              onKeep={(notes) => keepTake(layer, notes)}
+            />
           )}
           {sampling?.layerId === layer.id && (
             <SampleInstrumentMaker

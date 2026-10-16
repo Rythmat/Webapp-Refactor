@@ -59,6 +59,14 @@
         "drums": {
           "kind": "groove",
           "id": "groove_funk_01"
+        },
+        "bass": {
+          "kind": "bassLine",
+          "id": "heavy-funk"
+        },
+        "keys-comping": {
+          "kind": "part",
+          "id": "funk-pianist-1-l2-syncopation-sauce-take-24"
         }
       }
     },

@@ -15,10 +15,8 @@ import {
   Loader2,
   Play,
   Plus,
-  Redo2,
   Save,
   Square,
-  Undo2,
   X,
 } from 'lucide-react';
 import {
@@ -41,6 +39,7 @@ import {
   INSTRUMENTS,
   lineBars,
   passesFor,
+  GENRE_BASS_RULES,
   realizeLine,
   sameMeter,
   stackedNotes,
@@ -72,6 +71,7 @@ import { useUndoable } from '../drumGrooves/useUndoable';
 import { UseInLessons } from '../lessonPairings/UseInLessons';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
+import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL } from '../ui/styles';
 import {
   BassRoll,
@@ -141,6 +141,17 @@ export function feelFor(groove: DrumGroove | null): Feel {
   const swing = Math.min(75, Math.round(((240 + offset) / 480) * 100));
   return { tempo: groove.tempo, swing, swingOn: 'eighths' };
 }
+
+const RULES_LABEL: Record<string, string> = {
+  pop: 'Pop',
+  funk: 'Funk',
+  'hip-hop': 'Hip Hop',
+  latin: 'Latin',
+};
+
+/** "Funk"; "free" for a genre without Walk and Approach rules. */
+const rulesLabel = (genre: string | undefined) =>
+  (genre && RULES_LABEL[genre]) ?? 'free';
 
 interface Props {
   line: BassLine;
@@ -224,6 +235,9 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
     (g) => !draft.grooves.includes(g.id) && sameMeter(g.timeSignature, ts),
   );
   const [grooveId, setGrooveId] = useState<string>(() => paired[0]?.id ?? '');
+  // Walk and Approach preview by the line's genre, else its first groove's.
+  const grooveGenre = paired.find((g) => g.genre)?.genre;
+  const rulesGenre = draft.genre ?? grooveGenre;
   const groove = allGrooves.find((g) => g.id === grooveId) ?? null;
   const [feel, setFeel] = useState<Feel>(() => feelFor(groove));
   const [click, setClick] = useState(true);
@@ -250,8 +264,9 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
       instrument: draft.instrument,
       passes,
       seed: hashSeed(draft.name || 'line', String(chartBars.length)),
+      genre: rulesGenre,
     });
-  }, [line, chartBars, ts, lineQ, draft.instrument, draft.name]);
+  }, [line, chartBars, ts, lineQ, draft.instrument, draft.name, rulesGenre]);
 
   // Chords along the top of the roll, over the line's own length.
   const chordMarks = useMemo<ChordMark[]>(() => {
@@ -401,26 +416,7 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
           )}
           {player.playing ? 'Stop' : 'Play'}
         </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.undo}
-          disabled={!history.canUndo}
-          aria-label="Undo"
-          title="Undo (⌘Z)"
-        >
-          <Undo2 />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.redo}
-          disabled={!history.canRedo}
-          aria-label="Redo"
-          title="Redo (⌘⇧Z)"
-        >
-          <Redo2 />
-        </Button>
+        <UndoRedo history={history} />
         {CAN_WRITE_FILES ? (
           <>
             <Button
@@ -540,6 +536,22 @@ export const BassLineEditor: FC<Props> = ({ line: initial, onDuplicate }) => {
                 {v.label}
               </option>
             ))}
+          </select>
+        </Field>
+        <Field label="Walk & Approach">
+          <select
+            value={draft.genre ?? ''}
+            onChange={(e) => set({ genre: e.target.value || undefined })}
+            className={control}
+            title="Lessons and bands play the line by their own genre's rules; this is what the editor previews."
+          >
+            <option value="">As its groove ({rulesLabel(grooveGenre)})</option>
+            {Object.keys(GENRE_BASS_RULES).map((g) => (
+              <option key={g} value={g}>
+                {rulesLabel(g)}
+              </option>
+            ))}
+            <option value="free">Free (no genre rules)</option>
           </select>
         </Field>
         <label

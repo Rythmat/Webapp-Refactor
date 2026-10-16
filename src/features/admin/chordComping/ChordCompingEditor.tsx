@@ -16,10 +16,8 @@ import {
   Loader2,
   Play,
   Plus,
-  Redo2,
   Save,
   Square,
-  Undo2,
   X,
 } from 'lucide-react';
 import {
@@ -67,6 +65,7 @@ import { useUndoable } from '../drumGrooves/useUndoable';
 import { UseInLessons } from '../lessonPairings/UseInLessons';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
+import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL } from '../ui/styles';
 import { CompingRoll, type ChordMark } from './CompingRoll';
 import { RealizedChords } from './RealizedChords';
@@ -198,6 +197,9 @@ export const ChordCompingEditor: FC<Props> = ({
     setFeel(feelFor(allGrooves.find((g) => g.id === id) ?? null));
   };
 
+  // The comping's genre, from the groove it pairs with: the bass walks and
+  // approaches by its rules.
+  const pairedGenre = paired.find((g) => g.genre)?.genre;
   const bassLines = useBassLineList();
   const [bassId, setBassId] = useState<string>(
     () =>
@@ -228,8 +230,9 @@ export const ChordCompingEditor: FC<Props> = ({
       timeSignature: ts,
       passes: Math.max(1, Math.round(harmony.loopQ / harmony.chartQ)),
       seed: hashSeed(bassLine.name || 'line', String(chartBars.length)),
+      genre: pairedGenre,
     });
-  }, [harmony, bassLine, chartBars, ts]);
+  }, [harmony, bassLine, chartBars, ts, pairedGenre]);
 
   // Chords along the top of the grid, over the pattern's own length.
   const chordMarks = useMemo<ChordMark[]>(() => {
@@ -372,26 +375,7 @@ export const ChordCompingEditor: FC<Props> = ({
           )}
           {player.playing ? 'Stop' : 'Play'}
         </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.undo}
-          disabled={!history.canUndo}
-          aria-label="Undo"
-          title="Undo (⌘Z)"
-        >
-          <Undo2 />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.redo}
-          disabled={!history.canRedo}
-          aria-label="Redo"
-          title="Redo (⌘⇧Z)"
-        >
-          <Redo2 />
-        </Button>
+        <UndoRedo history={history} />
         {CAN_WRITE_FILES ? (
           <>
             <Button

@@ -6,7 +6,7 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { ComposerLine } from '../LeadSheet/ComposerLine';
 import '../LeadSheet/leadsheet-print.css';
 import { useLeadSheetPrint } from '../LeadSheet/useLeadSheetPrint';
-import { NoteEditorBar } from './NoteEditorBar';
+import { ScoreLayoutSwitch } from './ScoreLayoutSwitch';
 import { ScorePalettes } from './ScorePalettes';
 import { ScorePartsPanel } from './ScorePartsPanel';
 import { buildScoreParts, isNotatable, ScorePartsCache } from './scoreParts';
@@ -20,7 +20,9 @@ import { inches } from '@/lib/notation/pageLayout';
 // Every track of the project notated and stacked, the way a conductor's score
 // is laid out: one part per track, shared barlines, the transport's playhead
 // running through all of them. The editing itself lives in useScoreEditing,
-// which the Lead Sheet uses too.
+// which the Lead Sheet uses too. The Score and the Lead sheet are one page
+// (one Score tab; ScoreLayoutSwitch picks the layout), and the note tools
+// are palettes beside the staff rather than a row above it.
 
 /** Room at the top of printed page 1 for the title block (page pixels). */
 const PRINT_TITLE_INSET = inches(0.85);
@@ -145,7 +147,7 @@ export function ScoreView() {
         className="score-no-print flex w-[216px] shrink-0 flex-col overflow-hidden"
         style={{ borderRight: '1px solid var(--daw-hairline)' }}
       >
-        <ScorePalettes {...editing.palette} />
+        <ScorePalettes {...editing.palette} notes={editing.editor} />
         <ScorePartsPanel
           parts={editing.partRows}
           onToggleChords={editing.onToggleChords}
@@ -153,18 +155,15 @@ export function ScoreView() {
         />
       </div>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="score-no-print">
-          <NoteEditorBar {...editing.editor} />
-        </div>
         <div
           className="score-no-print flex shrink-0 items-center gap-3 px-3 text-xs"
           style={{
-            height: 36,
+            height: 40,
             borderBottom: '1px solid var(--daw-hairline)',
             color: 'var(--daw-text-3)',
           }}
         >
-          <span className="font-semibold uppercase tracking-wider">Score</span>
+          <ScoreLayoutSwitch />
           <span>
             {parts.length} {parts.length === 1 ? 'part' : 'parts'}
           </span>

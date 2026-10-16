@@ -6,7 +6,6 @@ import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar } from '@/daw/utils/timelineScale';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { Track } from '@/daw/store/tracksSlice';
-import { NoteEditorBar } from '../Score/NoteEditorBar';
 import { ScorePalettes } from '../Score/ScorePalettes';
 import { buildScoreParts, ScorePartsCache } from '../Score/scoreParts';
 import { useScoreEditing } from '../Score/useScoreEditing';
@@ -17,8 +16,8 @@ import { useLeadSheetPrint } from './useLeadSheetPrint';
 
 // ── The lead sheet, written out ────────────────────────────────────────────
 // With a melody assigned, the sheet is one part of a score: the same staff
-// renderer, the same palette, the same note editor the Score uses, with the
-// song's chord symbols standing over the melody. There is one editor, so a
+// renderer and the same palettes (the note tools among them) the Score uses,
+// with the song's chord symbols standing over the melody. There is one editor, so a
 // tie drawn here behaves exactly as it does there.
 
 interface LeadSheetScoreViewProps {
@@ -126,11 +125,10 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
         className="leadsheet-palette flex w-[216px] shrink-0 flex-col overflow-hidden"
         style={{ borderRight: '1px solid var(--daw-hairline)' }}
       >
-        <ScorePalettes {...editing.palette} />
+        <ScorePalettes {...editing.palette} notes={editing.editor} />
       </div>
       <div className="flex flex-1 flex-col overflow-hidden">
         <LeadSheetToolbar selectedMeasureIdx={selectedMeasureIdx} />
-        <NoteEditorBar {...editing.editor} />
 
         <div
           className="leadsheet-scroll flex-1 overflow-y-auto"

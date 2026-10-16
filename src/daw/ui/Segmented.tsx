@@ -10,6 +10,8 @@ export interface SegmentedOption<T extends string> {
   label: string;
   icon?: ReactNode;
   disabled?: boolean;
+  /** A lesson anchor on the segment (its data-tutorial-id). */
+  anchor?: string;
 }
 
 export interface SegmentedProps<T extends string> {
@@ -61,6 +63,7 @@ export function Segmented<T extends string>({
             key={option.value}
             value={option.value}
             disabled={option.disabled}
+            data-tutorial-id={option.anchor}
             aria-label={iconOnly ? option.label : undefined}
             className={cn(
               'inline-flex items-center justify-center gap-1.5 rounded-full font-bold text-daw-text-3',

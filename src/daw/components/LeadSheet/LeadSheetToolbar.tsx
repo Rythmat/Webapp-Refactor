@@ -26,6 +26,7 @@ import { useChordNotation } from '@/lib/chordNotation';
 import { pickMelodyTrack } from './leadSheetMelody';
 import { SendToSetListButton } from './SendToSetList';
 import { promptDialog } from '@/daw/ui/DialogHost';
+import { ScoreLayoutSwitch } from '../Score/ScoreLayoutSwitch';
 
 interface LeadSheetToolbarProps {
   selectedMeasureIdx: number | null;
@@ -175,12 +176,22 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
   return (
     <div
-      className="leadsheet-toolbar flex items-center gap-1 border-b px-3 py-1.5"
+      // Wraps rather than running under the side rail: with the layout
+      // switch first it needs about 1,175 px, more than a Chromebook gives.
+      className="leadsheet-toolbar flex flex-wrap items-center gap-1 border-b px-3 py-1.5"
       style={{
         borderColor: 'rgba(255, 255, 255, 0.08)',
         backgroundColor: 'var(--daw-surface-1)',
       }}
     >
+      {/* The Score page's layouts (the Score and the Lead sheet are one page). */}
+      <ScoreLayoutSwitch />
+      <div
+        aria-hidden
+        className="mx-1 h-5 w-px shrink-0"
+        style={{ background: 'var(--daw-hairline)' }}
+      />
+
       {/* Chord format toggle (locked to the global notation in jazz / roman) */}
       {formatLocked ? (
         <button

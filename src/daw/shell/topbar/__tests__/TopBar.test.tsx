@@ -71,13 +71,15 @@ describe('the top bar', () => {
       'view-switch-arrange',
       'view-switch-studio',
       'view-switch-score',
-      'view-switch-leadsheet',
     ]) {
       expect(
         document.querySelector(`[data-tutorial-id="${id}"]`),
       ).not.toBeNull();
     }
     expect(screen.getByRole('tab', { name: 'Mix' })).toBeInTheDocument();
+    // One Score tab for both layouts (2026-10-16): the Lead sheet's anchor
+    // is on the Score page's own switch.
+    expect(screen.queryByRole('tab', { name: 'Lead sheet' })).toBeNull();
     // Trimmed (2.7): no Back, Forward or Stop; Help, Settings and the
     // computer keyboard's switch are in '⋯'; Share is an icon; the typing
     // chip shows only while typing is on.

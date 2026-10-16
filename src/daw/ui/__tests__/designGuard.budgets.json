@@ -215,9 +215,6 @@
     "rgb": 2,
     "smallText": 2
   },
-  "src/daw/components/Score/NoteEditorBar.tsx": {
-    "smallText": 8
-  },
   "src/daw/components/Score/ScorePalettes.tsx": {
     "smallText": 3,
     "zIndex": 2

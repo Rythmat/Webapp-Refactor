@@ -10,22 +10,25 @@ import { useMemo, type PointerEvent } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { StaffLayout } from '@/components/notation/StaffView';
 import { useStore, type AllSlices } from '@/daw/store';
-import { NoteEditorBar } from './NoteEditorBar';
 import { ACCIDENTALS, ARTICULATIONS, DURATIONS } from './noteEditor';
+import { SCORE_PALETTES, ScorePalettes } from './ScorePalettes';
 import { buildScoreParts } from './scoreParts';
 import { useScoreEditing } from './useScoreEditing';
 
-// The bar draws its cells in the music font once VexFlow has loaded; neither
-// matters to what a click does, so the font never arrives here.
+// The palettes draw their cells in the music font once VexFlow has loaded;
+// neither matters to what a click does, so the font never arrives here.
 vi.mock('@/components/notation/StaffView', () => ({
   loadVexFlow: () => new Promise(() => {}),
 }));
 
-// ── Clicking across the note editor's rows ─────────────────────────────────
-// A cell click makes its row live and applies its length in the same tick.
-// The row used to be read from the render before the click, so a Rests cell
-// clicked while Notes was live changed the note's length, and only a second
-// click wrote the rest. Driven through the real hook, as ScoreView wires it.
+// ── Clicking across the note palettes ──────────────────────────────────────
+// The note editor's row above the staff became palettes (Notes, Rests,
+// Rhythmic, Articulations, Accidentals) when the Score and the Lead sheet
+// became one page (2026-10-16). A cell click makes its palette live and
+// applies its length in the same tick. The layer used to be read from the
+// render before the click, so a Rests cell clicked while Notes was live
+// changed the note's length, and only a second click wrote the rest. Driven
+// through the real hook, as ScoreView wires it.
 
 const st = () => useStore.getState();
 
@@ -48,7 +51,7 @@ function ScoreEditor() {
     [scoreParts],
   );
   editing = useScoreEditing({ parts, scoreParts });
-  return <NoteEditorBar {...editing.editor} />;
+  return <ScorePalettes {...editing.palette} notes={editing.editor} />;
 }
 
 let trackId = '';
@@ -130,12 +133,16 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
+/** The palette whose Write switch is on: where a number key writes. */
 const liveRow = () =>
   screen
     .getAllByRole('button', { pressed: true })
-    .map((button) => button.textContent);
+    .filter((button) => button.getAttribute('aria-label')?.startsWith('Write'))
+    .map((button) =>
+      button.closest('[data-palette]')?.getAttribute('data-palette-name'),
+    );
 
-describe('the note editor rows', () => {
+describe('the note palettes', () => {
   it('writes a rest from a Rests cell while Notes is live', () => {
     expect(liveRow()).toEqual(['Notes']);
     fireEvent.click(screen.getByTitle('Quarter rests (5)'));
@@ -155,7 +162,7 @@ describe('the note editor rows', () => {
   });
 
   it('sets a length from a Notes cell while Rests is live', () => {
-    fireEvent.click(screen.getByRole('button', { name: /Rests/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Write rests/ }));
     expect(liveRow()).toEqual(['Rests']);
     fireEvent.click(screen.getByTitle('Half notes (6)'));
 
@@ -167,8 +174,8 @@ describe('the note editor rows', () => {
     expect(liveRow()).toEqual(['Notes']);
   });
 
-  it("dots the note from the Notes row's dot while Rests is live", () => {
-    fireEvent.click(screen.getByRole('button', { name: /Rests/ }));
+  it("dots the note from the Notes palette's dot while Rests is live", () => {
+    fireEvent.click(screen.getByRole('button', { name: /Write rests/ }));
     fireEvent.click(screen.getByTitle('Augmentation dot'));
 
     // A dotted quarter, not a dotted quarter rest over both notes.
@@ -194,12 +201,19 @@ describe('the note editor rows', () => {
   it('leaves every click to the cell under the pointer, not a glyph', () => {
     // A music glyph's text box runs over two rows tall, so in the browser
     // the Rests row's glyphs covered the Notes cells above them and took
-    // their clicks. jsdom does no hit-testing; this pins what prevents it.
+    // their clicks. jsdom does no hit-testing; this pins what prevents it,
+    // for the mark palettes' glyphs too.
     const glyphs = [
       ...document.querySelectorAll<HTMLElement>('button span'),
     ].filter((span) => ['Bravura', 'serif'].includes(span.style.fontFamily));
+    const markGlyphs = SCORE_PALETTES.flatMap((p) => p.items).filter(
+      (item) => item.glyph,
+    ).length;
     expect(glyphs).toHaveLength(
-      DURATIONS.length * 2 + ARTICULATIONS.length + ACCIDENTALS.length,
+      DURATIONS.length * 2 +
+        ARTICULATIONS.length +
+        ACCIDENTALS.length +
+        markGlyphs,
     );
     for (const glyph of glyphs) expect(glyph.style.pointerEvents).toBe('none');
   });

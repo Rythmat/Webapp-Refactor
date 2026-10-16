@@ -28,13 +28,16 @@ import {
   CurveTypeSelector,
   FxPowerButton,
 } from './FxShared';
-import { FxBrowser } from './FxBrowser';
+import { FxBlockIcon } from './FxBlockIcon';
 import {
   ControlGestureContext,
   useContinuousControl,
 } from '@/daw/hooks/useContinuousControl';
 import { previewTrack } from '@/daw/engine/trackReconciler';
 import { COLOR } from '@/daw/ui/tokens';
+import { AddEffectSlot } from '@/daw/shell/dock/AddEffectSlot';
+
+export { FxBlockIcon };
 
 // Effects that have a visualizer component
 // The ducker's GR meter is inline in its FxKnobs controls (DuckerControls), so
@@ -47,221 +50,73 @@ export const HAS_VIZ = new Set<EffectSlotType>([
   'delay',
 ]);
 
-// ── Block Icons (SVG, matching GuitarBassView pattern) ──────────────────
-
-export function FxBlockIcon({
-  type,
-  size = 28,
-  color,
-}: {
-  type: EffectSlotType;
-  size?: number;
-  color: string;
-}) {
-  const s = size;
-  const props = {
-    width: s,
-    height: s,
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: color,
-    strokeWidth: 1.8,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-  };
-  switch (type) {
-    case 'compressor':
-      return (
-        <svg {...props}>
-          <polyline points="4,18 10,12 14,14 20,6" />
-          <polyline points="16,6 20,6 20,10" />
-        </svg>
-      );
-    case 'gate':
-      return (
-        <svg {...props}>
-          <rect x="4" y="4" width="16" height="16" rx="2" />
-          <line x1="9" y1="4" x2="9" y2="20" />
-          <line x1="15" y1="4" x2="15" y2="20" />
-        </svg>
-      );
-    case 'eq':
-      return (
-        <svg {...props}>
-          <line x1="7" y1="4" x2="7" y2="20" />
-          <line x1="12" y1="4" x2="12" y2="20" />
-          <line x1="17" y1="4" x2="17" y2="20" />
-          <rect
-            x="5"
-            y="7"
-            width="4"
-            height="3"
-            rx="1"
-            fill={color}
-            stroke="none"
-          />
-          <rect
-            x="10"
-            y="13"
-            width="4"
-            height="3"
-            rx="1"
-            fill={color}
-            stroke="none"
-          />
-          <rect
-            x="15"
-            y="9"
-            width="4"
-            height="3"
-            rx="1"
-            fill={color}
-            stroke="none"
-          />
-        </svg>
-      );
-    case 'reverb':
-      return (
-        <svg {...props}>
-          <path d="M12,6 Q18,6 18,12 Q18,18 12,18" />
-          <path d="M12,9 Q15,9 15,12 Q15,15 12,15" />
-          <line x1="12" y1="10" x2="12" y2="14" />
-        </svg>
-      );
-    case 'delay':
-      return (
-        <svg {...props}>
-          <circle cx="6" cy="12" r="2.5" />
-          <circle cx="13" cy="12" r="1.8" opacity="0.6" />
-          <circle cx="19" cy="12" r="1.2" opacity="0.3" />
-        </svg>
-      );
-    case 'presence':
-      return (
-        <svg {...props}>
-          <path d="M4,16 Q8,16 12,8 Q16,16 20,16" />
-        </svg>
-      );
-    case 'de-esser':
-      return (
-        <svg {...props}>
-          <path d="M2,12 C5,4 8,20 12,12 C16,4 19,20 22,12" />
-        </svg>
-      );
-    case 'saturator':
-      return (
-        <svg {...props}>
-          <polyline points="2,16 6,16 9,8 12,18 15,6 18,16 22,16" />
-        </svg>
-      );
-    case 'multiband':
-      return (
-        <svg {...props}>
-          {/* Three bands, each squeezed from top and bottom (up+down comp) */}
-          <line x1="6" y1="7" x2="6" y2="17" />
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="18" y1="9" x2="18" y2="15" />
-          <polyline points="3,4 6,7 9,4" />
-          <polyline points="3,20 6,17 9,20" />
-          <polyline points="15,4 18,9 21,4" />
-          <polyline points="15,20 18,15 21,20" />
-        </svg>
-      );
-    case 'ducker':
-      return (
-        <svg {...props}>
-          {/* A pumping envelope: level dips on each trigger, then recovers */}
-          <path d="M2,8 L5,8 L6,17 L9,9 L10,17 L13,9 L14,17 L17,9 L18,8 L22,8" />
-        </svg>
-      );
-  }
-}
-
 // ── EffectsPanel (top-level) ────────────────────────────────────────────
+//
+// The dock's Effects tab: the selected track's chain, then the Add effect
+// slot, and the controls of the effect picked in the chain (dockEffect in
+// the store, so the side rail's library can show one). Effects are added
+// from the library only (milestone 2.8): Add effect arms the slot and opens
+// it, and each pick there lands here.
 
 export function EffectsPanel() {
   const selectedTrackId = useStore((s) => s.selectedTrackId);
-  const tracks = useStore((s) => s.tracks);
+  const track = useStore((s) => s.tracks.find((t) => t.id === selectedTrackId));
   const updateTrackEffects = useStore((s) => s.updateTrackEffects);
-  const addActiveEffect = useStore((s) => s.addActiveEffect);
   const removeActiveEffect = useStore((s) => s.removeActiveEffect);
-  const track = tracks.find((t) => t.id === selectedTrackId);
-
-  const [selectedEffect, setSelectedEffect] = useState<EffectSlotType | null>(
-    null,
-  );
+  const selectedEffect = useStore((s) => s.dockEffect);
+  const setSelectedEffect = useStore((s) => s.setDockEffect);
   const [popOutOpen, setPopOutOpen] = useState(false);
 
-  // Auto-select first effect; deselect if removed
-  useEffect(() => {
-    if (!track) {
-      setSelectedEffect(null);
-      return;
-    }
-    if (selectedEffect && !track.activeEffects.includes(selectedEffect)) {
-      setSelectedEffect(track.activeEffects[0] ?? null);
-    }
-    if (!selectedEffect && track.activeEffects.length > 0) {
-      setSelectedEffect(track.activeEffects[0]);
-    }
-  }, [track?.activeEffects, selectedEffect, track]);
+  useShownEffect(track?.activeEffects, selectedEffect, setSelectedEffect);
 
   return (
     <div className="flex h-full overflow-hidden">
       {track ? (
-        <>
-          <FxBrowser
-            trackId={track.id}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <FxChainRow
             activeEffects={track.activeEffects}
-            onAddEffect={addActiveEffect}
-            onSelectEffect={setSelectedEffect}
-            hideMidi
+            effects={track.effects}
+            selectedEffect={selectedEffect}
+            onSelect={setSelectedEffect}
+            onToggle={(slot) => {
+              const key = slot === 'de-esser' ? 'de-esser' : slot;
+              const current = track.effects[key as keyof TrackEffectState] as {
+                enabled: boolean;
+              };
+              updateTrackEffects(track.id, {
+                [key]: {
+                  ...track.effects[key as keyof TrackEffectState],
+                  enabled: !current.enabled,
+                },
+              });
+            }}
+            addSlot={<AddEffectSlot count={track.activeEffects.length} />}
           />
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <FxChainRow
-              activeEffects={track.activeEffects}
-              effects={track.effects}
+          {selectedEffect && track.activeEffects.includes(selectedEffect) ? (
+            <FxControlsPanel
+              trackId={track.id}
               selectedEffect={selectedEffect}
-              onSelect={setSelectedEffect}
-              onToggle={(slot) => {
-                const key = slot === 'de-esser' ? 'de-esser' : slot;
-                const current = track.effects[
-                  key as keyof TrackEffectState
-                ] as { enabled: boolean };
-                updateTrackEffects(track.id, {
-                  [key]: {
-                    ...track.effects[key as keyof TrackEffectState],
-                    enabled: !current.enabled,
-                  },
-                });
+              effects={track.effects}
+              onUpdate={updateTrackEffects}
+              onPreview={(effects) => previewTrack(track.id, { effects })}
+              onRemove={(slot) => {
+                removeActiveEffect(track.id, slot);
               }}
+              popOutOpen={popOutOpen}
+              onTogglePopOut={() => setPopOutOpen((v) => !v)}
+              meterTarget={track.id}
             />
-            {selectedEffect ? (
-              <FxControlsPanel
-                trackId={track.id}
-                selectedEffect={selectedEffect}
-                effects={track.effects}
-                onUpdate={updateTrackEffects}
-                onPreview={(effects) => previewTrack(track.id, { effects })}
-                onRemove={(slot) => {
-                  removeActiveEffect(track.id, slot);
-                }}
-                popOutOpen={popOutOpen}
-                onTogglePopOut={() => setPopOutOpen((v) => !v)}
-                meterTarget={track.id}
-              />
-            ) : (
-              <div
-                className="flex flex-1 items-center justify-center text-[11px]"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                {track.activeEffects.length === 0
-                  ? 'Add effects from the list'
-                  : 'Select a block to edit'}
-              </div>
-            )}
-          </div>
-        </>
+          ) : (
+            <div
+              className="flex flex-1 items-center justify-center text-[12px]"
+              style={{ color: 'var(--daw-text-3)' }}
+            >
+              {track.activeEffects.length === 0
+                ? 'Add effect opens the effects library'
+                : 'Select an effect to change it'}
+            </div>
+          )}
+        </div>
       ) : (
         <div
           className="flex flex-1 items-center justify-center p-4 text-xs"
@@ -274,6 +129,30 @@ export function EffectsPanel() {
   );
 }
 
+/**
+ * Keeps the shown effect one of the chain's: the first when none is picked
+ * or the picked one leaves, and a new one as it is added (a pick in the
+ * library shows its controls).
+ */
+export function useShownEffect(
+  chain: readonly EffectSlotType[] | undefined,
+  shown: EffectSlotType | null,
+  show: (effect: EffectSlotType | null) => void,
+) {
+  const last = useRef(chain);
+  useEffect(() => {
+    const before = last.current;
+    last.current = chain;
+    if (!chain) return;
+    const added =
+      before && chain.length > before.length
+        ? chain.find((e) => !before.includes(e))
+        : undefined;
+    if (added) show(added);
+    else if (!shown || !chain.includes(shown)) show(chain[0] ?? null);
+  }, [chain, shown, show]);
+}
+
 // ── Signal Chain Row ────────────────────────────────────────────────────
 
 export function FxChainRow({
@@ -282,12 +161,15 @@ export function FxChainRow({
   selectedEffect,
   onSelect,
   onToggle,
+  addSlot,
 }: {
   activeEffects: EffectSlotType[];
   effects: TrackEffectState;
   selectedEffect: EffectSlotType | null;
   onSelect: (slot: EffectSlotType) => void;
   onToggle: (slot: EffectSlotType) => void;
+  /** The card after the last effect (the dock's Add effect slot). */
+  addSlot?: React.ReactNode;
 }) {
   return (
     <div
@@ -341,7 +223,7 @@ export function FxChainRow({
         className="flex flex-1 items-center justify-center gap-2 overflow-x-auto px-3 py-5"
         style={{ zIndex: 1 }}
       >
-        {activeEffects.length === 0 && (
+        {activeEffects.length === 0 && !addSlot && (
           <span className="text-[11px]" style={{ color: 'var(--daw-text-3)' }}>
             Add effects from the list
           </span>
@@ -395,6 +277,7 @@ export function FxChainRow({
             </div>
           );
         })}
+        {addSlot}
       </div>
 
       {/* Output */}

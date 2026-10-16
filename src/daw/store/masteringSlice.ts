@@ -1,4 +1,5 @@
 import type { StateCreator } from 'zustand';
+import { MAX_RACK_EFFECTS } from './effectRack';
 import type { AllSlices } from './index';
 import {
   DEFAULT_EFFECTS,
@@ -83,7 +84,7 @@ export const createMasteringSlice: StateCreator<
     set((s) => {
       if (
         s.masteringFxChain.includes(effectType) ||
-        s.masteringFxChain.length >= 5
+        s.masteringFxChain.length >= MAX_RACK_EFFECTS
       )
         return s;
       return {

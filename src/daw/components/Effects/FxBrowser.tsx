@@ -7,17 +7,18 @@ import {
   type LibraryItem,
 } from '@/daw/data/libraryItems';
 import type { EffectSlotType } from '@/daw/audio/EffectChain';
-import { FxBlockIcon } from './EffectsPanel';
+import { FxBlockIcon } from './FxBlockIcon';
 import {
   type AnchorRack,
   rackOfFxTrack,
 } from '@/daw/components/Tutorial/anchorRegistry';
+import { MAX_RACK_EFFECTS } from '@/daw/store/effectRack';
 import { COLOR } from '@/daw/ui/tokens';
 
-// A rack holds at most five effects: this list enforces it for tracks, and
-// the return and master stores also refuse a sixth. The list shows the count
-// and, at the cap, says why the other effects are greyed out.
-const MAX_EFFECTS = 5;
+// A rack holds at most MAX_RACK_EFFECTS (the stores refuse more). The list
+// shows the count and, at the cap, says why the other effects are greyed
+// out.
+const MAX_EFFECTS = MAX_RACK_EFFECTS;
 
 interface FxBrowserProps {
   trackId: string;

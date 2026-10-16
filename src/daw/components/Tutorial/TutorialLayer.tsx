@@ -92,6 +92,7 @@ export function TutorialLayer() {
     if (r?.view !== undefined) setCurrentView(r.view);
     if (r?.libraryOpen !== undefined) setLibraryOpen(r.libraryOpen);
     if (r?.channelStripTab !== undefined) setChannelStripTab(r.channelStripTab);
+    if (r?.effectsLibrary) useStore.getState().showInspectorPanel('fx');
     if (r?.automationParam !== undefined)
       setAutomationParamId(r.automationParam);
     if (r?.clearClipSelection) {

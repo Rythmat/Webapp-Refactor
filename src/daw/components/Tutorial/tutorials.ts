@@ -38,6 +38,12 @@ export interface StepRequires {
   /** Force the automation lane's selected paramId so a lane-drawing step targets
    *  the parameter it teaches regardless of the prior selection. */
   automationParam?: string;
+  /**
+   * Show the side rail's Effects library, whose rows (the fx-add-* anchors)
+   * add effects to the selected track since milestone 2.8; the dock's chain
+   * has none of its own.
+   */
+  effectsLibrary?: boolean;
 }
 
 /**
@@ -406,9 +412,10 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
     {
       id: 'space-it-out',
       stage: 'STAGE 4 — SPACE',
-      instruction: 'Give it air — open **FX** and add a **Delay**.',
+      instruction:
+        'Give it air — open **Effects** and pick a **Delay** in the effects library.',
       target: ['fx-add-delay', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) => selectedTrack(s)?.activeEffects.includes('delay') ?? false,
     },
   ],
@@ -488,9 +495,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'saturate',
       stage: 'STAGE 6 — GRIT',
       instruction:
-        'Finish with grit — open **FX** and add a **Saturator** to the synth.',
+        'Finish with grit — pick a **Saturator** for the synth in the effects library.',
       target: ['fx-add-saturator', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) =>
         selectedTrack(s)?.activeEffects.includes('saturator') ?? false,
     },
@@ -500,7 +507,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       instruction:
         'Glue it all together — add the **OTT** multiband compressor for that modern, in-your-face density.',
       target: ['fx-add-multiband', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) =>
         selectedTrack(s)?.activeEffects.includes('multiband') ?? false,
     },
@@ -546,9 +553,10 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
     {
       id: 'add-ducker',
       stage: 'STAGE 2 — SIDECHAIN',
-      instruction: 'On the synth, open **FX** and add a **Sidechain** ducker.',
+      instruction:
+        'On the synth, open **Effects** and pick the **Sidechain** ducker in the library.',
       target: ['fx-add-ducker', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) => selectedTrack(s)?.activeEffects.includes('ducker') ?? false,
     },
     {
@@ -602,9 +610,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'add-reverb',
       stage: 'STAGE 3 — SPACE',
       instruction:
-        'Give it room — open **FX** and add a **Reverb** to your track.',
+        'Give it room — open **Effects** and pick a **Reverb** for your track in the library.',
       target: ['fx-add-reverb', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) => selectedTrack(s)?.activeEffects.includes('reverb') ?? false,
     },
     {

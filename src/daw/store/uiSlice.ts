@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
 import type { MidiClip, AudioClip } from './tracksSlice';
+import type { EffectSlotType } from '@/daw/audio/EffectChain';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import { clampZoom, fitZoom, zoomAround } from '@/daw/editor/zoom';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
@@ -248,6 +249,23 @@ export interface UiSlice {
   /** Shows `panel` and opens the Inspector for now (an analysis, a lesson). */
   showInspectorPanel: (panel: InspectorPanelId) => void;
   setInspectorWidth: (px: number) => void;
+
+  // ── The effects library and the dock's chain (milestone 2.8) ──
+  /**
+   * The Effects panel and the dock's chain are one state, as in Soundtrap:
+   * while the panel shows, the next empty slot of the chain is armed, and
+   * each pick fills it and arms the next. What the armed slot's × goes back
+   * to: the panel that showed before (null: the Inspector was shut).
+   */
+  fxLibraryReturn: InspectorPanelId | null;
+  /** Add effect: shows the Effects panel (the student's choice) and arms. */
+  openEffectsLibrary: () => void;
+  /** The armed slot's ×: stops adding and puts the Inspector back. */
+  cancelEffectsLibrary: () => void;
+  /** The effect whose controls the dock's chain shows. */
+  dockEffect: EffectSlotType | null;
+  setDockEffect: (effect: EffectSlotType | null) => void;
+
   /** Per-user: the dock's height for each tab, as a share of the editor body. */
   dockHeights: DockHeights;
   setDockHeight: (tab: ChannelStripTabId, frac: number) => void;
@@ -370,6 +388,11 @@ export interface UiSlice {
   /** Notes written as rhythmic slashes, by note id. */
   scoreSlashNotes: string[];
   setScoreSlashNotes: (ids: string[]) => void;
+}
+
+/** The panel the Effects library goes back to: the one showing, if any. */
+function returnPanel(s: UiSlice): InspectorPanelId | null {
+  return s.libraryOpen && s.inspectorPanel !== 'fx' ? s.inspectorPanel : null;
 }
 
 export const createUiSlice: StateCreator<
@@ -521,11 +544,32 @@ export const createUiSlice: StateCreator<
   toggleInspectorPanel: (panel) => {
     const s = get();
     const open = !(s.libraryOpen && s.inspectorPanel === panel);
+    // The rail's Effects icon arms the chain too: its × goes back to the
+    // panel that showed before.
+    if (open && panel === 'fx') set({ fxLibraryReturn: returnPanel(s) });
     set({ inspectorPanel: panel });
     s.setInspectorOpenFor(s.currentView, open);
   },
   showInspectorPanel: (panel) =>
     set({ inspectorPanel: panel, libraryOpen: true }),
+
+  fxLibraryReturn: null,
+  openEffectsLibrary: () => {
+    const s = get();
+    if (!(s.libraryOpen && s.inspectorPanel === 'fx')) {
+      set({ fxLibraryReturn: returnPanel(s), inspectorPanel: 'fx' });
+    }
+    s.setInspectorOpenFor(s.currentView, true);
+  },
+  cancelEffectsLibrary: () => {
+    const s = get();
+    const back = s.fxLibraryReturn;
+    set({ fxLibraryReturn: null });
+    if (back) set({ inspectorPanel: back });
+    else s.setInspectorOpenFor(s.currentView, false);
+  },
+  dockEffect: null,
+  setDockEffect: (effect) => set({ dockEffect: effect }),
   dockHeights: {},
   setDockHeight: (tab, frac) =>
     set((s) => ({

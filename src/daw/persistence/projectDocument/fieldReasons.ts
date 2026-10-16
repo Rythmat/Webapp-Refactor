@@ -215,6 +215,9 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   leadSheetSelectedChordIdx: SELECTION,
   selectedChordIds: SELECTION,
   selectedNotes: SELECTION,
+  fxLibraryReturn:
+    'Where the armed effect slot’s × puts the Inspector back: a moment in this session, never saved (milestone 2.8).',
+  dockEffect: SELECTION,
 
   // ── collab ──
   isCollabActive: COLLAB,

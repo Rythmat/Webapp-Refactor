@@ -1,4 +1,5 @@
 import type { StateCreator } from 'zustand';
+import { MAX_RACK_EFFECTS } from './effectRack';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
 import type { AllSlices } from './index';
 import { genreSettings } from './genreSettings';
@@ -714,7 +715,11 @@ export const createTracksSlice: StateCreator<
     set(
       guardTrack(trackId, (state) => ({
         tracks: state.tracks.map((t) => {
-          if (t.id !== trackId || t.activeEffects.includes(effectType))
+          if (
+            t.id !== trackId ||
+            t.activeEffects.includes(effectType) ||
+            t.activeEffects.length >= MAX_RACK_EFFECTS
+          )
             return t;
           return {
             ...t,

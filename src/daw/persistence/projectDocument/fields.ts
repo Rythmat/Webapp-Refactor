@@ -433,6 +433,8 @@ const STORE_SPECS = {
   leadSheetSelectedChordIdx: session('ui', null, 'project'),
   selectedChordIds: session('ui', () => [], 'project'),
   selectedNotes: session('ui', () => [], 'project'),
+  fxLibraryReturn: session('ui', null, 'project'),
+  dockEffect: session('ui', null, 'project'),
 
   // ── collab ──
   isCollabActive: session('collab', false, 'page'),

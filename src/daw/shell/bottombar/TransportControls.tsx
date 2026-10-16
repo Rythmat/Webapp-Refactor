@@ -1,42 +1,58 @@
 import { memo, useCallback } from 'react';
-import { Circle, Pause, Play, Repeat } from 'lucide-react';
+import {
+  Circle,
+  FastForward,
+  Pause,
+  Play,
+  Repeat,
+  Rewind,
+  SkipBack,
+} from 'lucide-react';
 import { cn } from '@/components/utilities';
 import { requestRecord } from '@/daw/commands/requestRecord';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
+import {
+  fastForwardBar,
+  goToStart,
+  rewindBar,
+} from '@/daw/commands/transportSkip';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
 import { Toggle } from '@/daw/ui/Toggle';
 import { ClickToggle } from './ClickToggle';
 import { PositionReadout } from './PositionReadout';
+import { useHoldRepeat } from './useHoldRepeat';
 
-// ── The transport, in the top bar's centre (milestone 2.5) ─────────────────
+// ── The transport, in the bottom rail's centre (milestones 2.5, B4a, 2.8) ──
 //
-// Play (the white pill, a pause while playing), Record (red), the position
-// readout, Loop and Click with its count-in, left to right, in one place:
-// the old bar split them across its width (shell-19). Back, Forward and
-// Stop left the bar when it was trimmed (2.7): Esc stops, Home and End go
-// to the markers and the ends (commands/transportSkip), and the ruler
+// Play (the white pill, a pause while playing), Record (red), Go to start,
+// Rewind and Fast-forward, the position readout, Loop and Click with its
+// menu, left to right, in one place: the old bar split them across its
+// width (shell-19). It moved from the top bar to the bottom rail (B4a), and
+// the three skip buttons came back there after Soundtrap's (2.8): Rewind
+// and Fast-forward step a bar and repeat while held. Esc stops, Home and End
+// go to the markers and the ends (commands/transportSkip), and the ruler
 // seeks anywhere. Each control reads only its own state, so playback
 // re-renders none of them: the readout and the click's dots move by ref.
 
 const KEYS = {
   playPause: shortcutKeys('transport.playPause'),
   record: shortcutKeys('transport.record'),
+  toStart: shortcutKeys('transport.toStart'),
+  rewind: shortcutKeys('transport.rewind'),
+  fastForward: shortcutKeys('transport.fastForward'),
   loop: shortcutKeys('transport.loop'),
 };
 
 export interface TransportControlsProps {
   isReady: boolean;
   onInit(): void;
-  /** The top bar folded the count-in caret into its '⋯' menu. */
-  countInFolded?: boolean;
 }
 
 export const TransportControls = memo(function TransportControls({
   isReady,
   onInit,
-  countInFolded = false,
 }: TransportControlsProps) {
   useDevCommitCount('TransportControls');
   const isPlaying = useStore((s) => s.isPlaying);
@@ -64,6 +80,9 @@ export const TransportControls = memo(function TransportControls({
   const handleRecord = useCallback(() => {
     requestRecord(isReady ? undefined : onInit);
   }, [isReady, onInit]);
+
+  const rewind = useHoldRepeat(rewindBar);
+  const fastForward = useHoldRepeat(fastForwardBar);
 
   const recordState = isRecording
     ? 'recording'
@@ -118,6 +137,33 @@ export const TransportControls = memo(function TransportControls({
         )}
         onClick={handleRecord}
       />
+      <IconButton
+        label="Go to start"
+        icon={<SkipBack fill="currentColor" />}
+        shortcut={KEYS.toStart.label}
+        aria-keyshortcuts={KEYS.toStart.aria}
+        tooltipSide="top"
+        data-testid="transport-to-start"
+        onClick={goToStart}
+      />
+      <IconButton
+        label="Rewind one bar"
+        icon={<Rewind fill="currentColor" />}
+        shortcut={KEYS.rewind.label}
+        aria-keyshortcuts={KEYS.rewind.aria}
+        tooltipSide="top"
+        data-testid="transport-rewind"
+        {...rewind}
+      />
+      <IconButton
+        label="Fast-forward one bar"
+        icon={<FastForward fill="currentColor" />}
+        shortcut={KEYS.fastForward.label}
+        aria-keyshortcuts={KEYS.fastForward.aria}
+        tooltipSide="top"
+        data-testid="transport-fast-forward"
+        {...fastForward}
+      />
       <span className="mx-1 h-4 w-px shrink-0 bg-daw-hairline" aria-hidden />
       <PositionReadout />
       <Toggle
@@ -129,7 +175,7 @@ export const TransportControls = memo(function TransportControls({
         aria-keyshortcuts={KEYS.loop.aria}
         data-testid="transport-loop"
       />
-      <ClickToggle countInFolded={countInFolded} />
+      <ClickToggle />
     </div>
   );
 });

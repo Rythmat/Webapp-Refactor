@@ -10,6 +10,7 @@ import { AudioClipScheduler } from '@/daw/audio/AudioClipScheduler';
 import { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import { MetronomeEngine, clickPitch } from '@/daw/audio/MetronomeEngine';
+import { createClickVoice, type ClickVoice } from '@/daw/audio/clickVoice';
 import { AudioRecorder } from '@/daw/audio/AudioRecorder';
 import {
   setAudioBuffer,
@@ -194,13 +195,15 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const liveAudioPeaksRef = useRef<number[]>([]);
 
   const countInTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const countInSynthRef = useRef<Tone.MembraneSynth | null>(null);
+  const countInVoiceRef = useRef<ClickVoice | null>(null);
 
   const isPlaying = useStore((s) => s.isPlaying);
   const isRecording = useStore((s) => s.isRecording);
   const isCountingIn = useStore((s) => s.isCountingIn);
   const countInBars = useStore((s) => s.countInBars);
   const metronomeEnabled = useStore((s) => s.metronomeEnabled);
+  const metronomeSound = useStore((s) => s.metronomeSound);
+  const metronomeVolume = useStore((s) => s.metronomeVolume);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
   // The piano roll editor's own loop while it's open, else the project loop.
@@ -386,10 +389,16 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
 
     if (!metronomeRef.current) {
       metronomeRef.current = new MetronomeEngine();
-      metronomeRef.current.init(audioEngine.getMasterGain());
+      metronomeRef.current.init(
+        audioEngine.getOutput(),
+        metronomeSound,
+        metronomeVolume,
+      );
     }
 
     const metro = metronomeRef.current;
+    metro.setSound(metronomeSound);
+    metro.setVolume(metronomeVolume);
     metro.setTimeSignature(tsNum, tsDen);
     metro.setEnabled(metronomeEnabled);
 
@@ -398,7 +407,15 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     } else {
       metro.stop();
     }
-  }, [isReady, isPlaying, metronomeEnabled, tsNum, tsDen]);
+  }, [
+    isReady,
+    isPlaying,
+    metronomeEnabled,
+    metronomeSound,
+    metronomeVolume,
+    tsNum,
+    tsDen,
+  ]);
 
   // ── Count-in scheduling (audio-clock, transport stays paused) ────────
   useEffect(() => {
@@ -411,17 +428,15 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     // Beat duration based on denominator: eighth = half a quarter, half = two quarters
     const beatDuration = (60 / bpm) * (4 / den);
     const totalBeats = countInBars * num;
-    const masterGain = audioEngine.getMasterGain();
 
-    // Create a temporary synth for count-in clicks (same config as MetronomeEngine)
-    const synth = new Tone.MembraneSynth({
-      pitchDecay: 0.008,
-      octaves: 2,
-      envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.05 },
-    });
-    synth.connect(masterGain);
-    synth.volume.value = -10;
-    countInSynthRef.current = synth;
+    // A voice of its own for the count-in clicks, in the metronome's sound
+    // and volume, straight to the output as the metronome is.
+    const voice = createClickVoice(
+      storeSnap.metronomeSound,
+      audioEngine.getOutput(),
+      storeSnap.metronomeVolume,
+    );
+    countInVoiceRef.current = voice;
 
     // Schedule all clicks at audio-clock times (no Transport needed)
     const now = Tone.now();
@@ -432,7 +447,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     for (let i = 0; i < totalBeats; i++) {
       const time = now + i * beatDuration;
       // Same accents as the metronome (beat 1, compound sub-groups).
-      synth.triggerAttackRelease(clickPitch(i % num, num, den), '32n', time);
+      voice.trigger(clickPitch(i % num, num, den) === 'C5', time);
     }
 
     // After count-in completes, start the transport (and recording, if this
@@ -450,9 +465,9 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         clearTimeout(countInTimerRef.current);
         countInTimerRef.current = null;
       }
-      if (countInSynthRef.current) {
-        countInSynthRef.current.dispose();
-        countInSynthRef.current = null;
+      if (countInVoiceRef.current) {
+        countInVoiceRef.current.dispose();
+        countInVoiceRef.current = null;
       }
     };
   }, [isReady, isCountingIn, countInBars]);

@@ -125,6 +125,16 @@ export class AudioEngine {
     return this.masterGain;
   }
 
+  /**
+   * The output itself, past the master fader and the mastering chain: for
+   * sounds only this student hears and an export never has (the click).
+   */
+  getOutput(): AudioNode {
+    if (!this.ctx)
+      throw new Error('AudioEngine not initialized. Call init() first.');
+    return this.ctx.destination;
+  }
+
   getMasterAnalysers(): [AnalyserNode, AnalyserNode] {
     if (!this.analyserL || !this.analyserR)
       throw new Error('AudioEngine not initialized. Call init() first.');

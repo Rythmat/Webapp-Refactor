@@ -2,6 +2,12 @@ import type { StateCreator } from 'zustand';
 import type { MidiNoteEvent } from '@prism/engine';
 import type { AllSlices } from './index';
 import { midiClipLength } from '@/daw/time/timeModel';
+import {
+  DEFAULT_CLICK_DB,
+  MAX_CLICK_DB,
+  MIN_CLICK_DB,
+  type ClickSound,
+} from '@/daw/audio/clickSounds';
 
 // ── Transport Slice ─────────────────────────────────────────────────────
 // Controls playback state, tempo, position, metronome, and loop region.
@@ -49,6 +55,9 @@ export interface TransportSlice {
   position: number;
   lastSeekPosition: number; // last manually-placed playhead position
   metronomeEnabled: boolean;
+  /** The click's sound and its level in dB: per-user prefs (2.8). */
+  metronomeSound: ClickSound;
+  metronomeVolume: number;
   loopEnabled: boolean;
   loopStart: number; // tick
   loopEnd: number; // tick (default: 4 bars = 7680)
@@ -75,6 +84,8 @@ export interface TransportSlice {
   setPosition: (tick: number) => void;
   setLastSeekPosition: (tick: number) => void;
   toggleMetronome: () => void;
+  setMetronomeSound: (sound: ClickSound) => void;
+  setMetronomeVolume: (db: number) => void;
   toggleLoop: () => void;
   setLoopEnabled: (enabled: boolean) => void;
   setLoopRange: (start: number, end: number) => void;
@@ -124,6 +135,8 @@ export const createTransportSlice: StateCreator<
   position: 0,
   lastSeekPosition: 0,
   metronomeEnabled: false,
+  metronomeSound: 'click',
+  metronomeVolume: DEFAULT_CLICK_DB,
   loopEnabled: false,
   loopStart: 0,
   loopEnd: 7680, // 4 bars × 4 beats × 480 ticks
@@ -222,6 +235,13 @@ export const createTransportSlice: StateCreator<
 
   toggleMetronome: () =>
     set((state) => ({ metronomeEnabled: !state.metronomeEnabled })),
+
+  setMetronomeSound: (sound) => set({ metronomeSound: sound }),
+
+  setMetronomeVolume: (db) =>
+    set({
+      metronomeVolume: Math.min(MAX_CLICK_DB, Math.max(MIN_CLICK_DB, db)),
+    }),
 
   toggleLoop: () =>
     set((state) => {

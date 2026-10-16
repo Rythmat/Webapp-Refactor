@@ -717,6 +717,9 @@ describe('decision D5', () => {
     expect([...PREF_KEYS].sort()).toEqual(
       [
         'metronomeEnabled',
+        // The Click menu's sound and volume (milestone 2.8).
+        'metronomeSound',
+        'metronomeVolume',
         'countInBars',
         'timelineSnapEnabled',
         'timelineGridSize',

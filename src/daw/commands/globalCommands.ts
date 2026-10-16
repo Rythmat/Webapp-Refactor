@@ -8,7 +8,13 @@ import { useMusicalTypingStore } from './musicalTypingStore';
 import { analyzeProject, exportProjectMidi } from './projectCommands';
 import { bindKeymap, type KeymapHandlers } from './registry';
 import { requestRecord } from './requestRecord';
-import { skipBack, skipForward } from './transportSkip';
+import {
+  fastForwardBar,
+  goToStart,
+  rewindBar,
+  skipBack,
+  skipForward,
+} from './transportSkip';
 import { saveProject } from './saveProject';
 
 // ── The editor's global keys (milestone 1.6) ───────────────────────────────
@@ -41,6 +47,9 @@ export const GLOBAL_HANDLERS: KeymapHandlers = {
   'transport.stop': () => useStore.getState().stop(),
   'transport.back': skipBack,
   'transport.forward': skipForward,
+  'transport.toStart': goToStart,
+  'transport.rewind': rewindBar,
+  'transport.fastForward': fastForwardBar,
   'transport.loop': () => useStore.getState().toggleLoop(),
   'transport.metronome': () => useStore.getState().toggleMetronome(),
   'project.save': () => {

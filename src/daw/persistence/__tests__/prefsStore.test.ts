@@ -45,6 +45,8 @@ const B = 'student-b';
 /** One valid value for every per-user pref, none of them the default. */
 const CHOSEN = {
   metronomeEnabled: true,
+  metronomeSound: 'hihat',
+  metronomeVolume: -16,
   countInBars: 2,
   timelineSnapEnabled: false,
   timelineGridSize: '1/8T',
@@ -200,6 +202,9 @@ describe('reading what is stored', () => {
       v: 1,
       prefs: {
         metronomeEnabled: 'yes',
+        // Not one of the click's sounds, and louder than it goes.
+        metronomeSound: 'cowbell',
+        metronomeVolume: 12,
         countInBars: 5,
         timelineSnapEnabled: false,
         // On the prototype of the grid table, not one of its sizes.

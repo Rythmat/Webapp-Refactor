@@ -1,55 +1,101 @@
 import { ChevronDown } from 'lucide-react';
 import { memo, useEffect, useRef } from 'react';
+import {
+  CLICK_SOUNDS,
+  DEFAULT_CLICK_DB,
+  MAX_CLICK_DB,
+  MIN_CLICK_DB,
+  type ClickSound,
+} from '@/daw/audio/clickSounds';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick, subscribePlayhead } from '@/daw/engine/playheadClock';
 import { useStore } from '@/daw/store';
 import { ticksPerBeat } from '@/daw/time/timeModel';
+import { cn } from '@/components/utilities';
+import { Fader } from '@/daw/ui/Fader';
+import { formatDb } from '@/daw/ui/format';
 import { IconButton } from '@/daw/ui/IconButton';
-import {
-  Menu,
-  MenuContent,
-  MenuLabel,
-  MenuRadioGroup,
-  MenuRadioItem,
-  MenuTrigger,
-} from '@/daw/ui/Menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@/daw/ui/Popover';
+import { Segmented } from '@/daw/ui/Segmented';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
 
-// ── Click and count-in (milestone 2.5) ─────────────────────────────────────
+// ── Click and its menu (milestones 2.5, 2.8) ───────────────────────────────
 //
-// The metronome as a toggle, with a caret for the count-in (off, one bar,
-// two). When the top bar folds, the caret's choices move into its '⋯' menu
-// (CountInItems). The icon's two dots take turns on each beat while a click
-// is sounding; the playhead clock moves them by writing the dots' opacity,
-// so a beat re-renders nothing.
+// The metronome as a toggle, with a caret for its menu (after Soundtrap's):
+// the click's sound, its volume and the count-in (off, one bar, two). The
+// sound and the volume are the student's (per-user prefs); a new choice
+// plays one click. The icon's two dots take turns on each beat while a
+// click is sounding; the playhead clock moves them by writing the dots'
+// opacity, so a beat re-renders nothing.
 
 const METRONOME_KEYS = shortcutKeys('transport.metronome');
 
 export const COUNT_IN_CHOICES = [
-  { value: '0', label: 'No count-in' },
-  { value: '1', label: 'Count in 1 bar' },
-  { value: '2', label: 'Count in 2 bars' },
+  { value: '0', label: 'Off' },
+  { value: '1', label: '1 bar' },
+  { value: '2', label: '2 bars' },
 ] as const;
 
-/** The count-in's radio items, for the caret's menu or the '⋯' menu. */
-export function CountInItems() {
+/** One click in `sound`, to hear the choice (loaded on demand). */
+function hear(sound: ClickSound, db: number) {
+  void import('@/daw/audio/clickPreview').then((m) =>
+    m.previewClick(sound, db),
+  );
+}
+
+/** The menu's three settings. */
+function ClickSettings() {
+  const sound = useStore((s) => s.metronomeSound);
+  const volume = useStore((s) => s.metronomeVolume);
   const countInBars = useStore((s) => s.countInBars);
+  const setSound = useStore((s) => s.setMetronomeSound);
+  const setVolume = useStore((s) => s.setMetronomeVolume);
   const setCountInBars = useStore((s) => s.setCountInBars);
   return (
-    <>
-      <MenuLabel>Count-in</MenuLabel>
-      <MenuRadioGroup
-        value={String(countInBars)}
-        onValueChange={(value) => setCountInBars(Number(value))}
-      >
-        {COUNT_IN_CHOICES.map((choice) => (
-          <MenuRadioItem key={choice.value} value={choice.value}>
-            {choice.label}
-          </MenuRadioItem>
-        ))}
-      </MenuRadioGroup>
-    </>
+    <div className="flex w-56 flex-col gap-3" data-testid="click-menu">
+      <section className="flex flex-col gap-1.5">
+        <h3 className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}>Sound</h3>
+        <Segmented
+          label="Click sound"
+          options={CLICK_SOUNDS.map((c) => ({ value: c.id, label: c.label }))}
+          value={sound}
+          onValueChange={(next) => {
+            setSound(next);
+            hear(next, volume);
+          }}
+        />
+      </section>
+      <section className="flex flex-col gap-1.5">
+        <h3 className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}>Volume</h3>
+        <Fader
+          label="Click volume"
+          orientation="horizontal"
+          length={224}
+          min={MIN_CLICK_DB}
+          max={MAX_CLICK_DB}
+          step={0.5}
+          resetValue={DEFAULT_CLICK_DB}
+          value={volume}
+          format={(db) => formatDb(db)}
+          onChange={setVolume}
+          onCommit={(db) => hear(sound, db)}
+          hideLabel
+        />
+      </section>
+      <section className="flex flex-col gap-1.5">
+        <h3 className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}>Count-in</h3>
+        <Segmented
+          label="Count-in"
+          options={COUNT_IN_CHOICES}
+          value={
+            String(countInBars) as (typeof COUNT_IN_CHOICES)[number]['value']
+          }
+          onValueChange={(next) => setCountInBars(Number(next))}
+        />
+      </section>
+    </div>
   );
 }
 
@@ -130,19 +176,10 @@ function MetronomeIcon({ on }: { on: boolean }) {
   );
 }
 
-export const ClickToggle = memo(function ClickToggle({
-  countInFolded,
-}: {
-  /** The caret's choices are in the top bar's '⋯' menu instead. */
-  countInFolded: boolean;
-}) {
+export const ClickToggle = memo(function ClickToggle() {
   const on = useStore((s) => s.metronomeEnabled);
   const toggle = useStore((s) => s.toggleMetronome);
   const countInBars = useStore((s) => s.countInBars);
-  const countInLabel =
-    countInBars === 0
-      ? 'Count-in: off'
-      : `Count-in: ${countInBars} bar${countInBars > 1 ? 's' : ''}`;
   return (
     <div className="flex shrink-0 items-center">
       <Toggle
@@ -153,26 +190,24 @@ export const ClickToggle = memo(function ClickToggle({
         shortcut={METRONOME_KEYS.label}
         aria-keyshortcuts={METRONOME_KEYS.aria}
         data-testid="click-toggle"
-        className={countInFolded ? undefined : 'rounded-r-none'}
+        className="rounded-r-none"
       />
-      {countInFolded ? null : (
-        <Menu>
-          <MenuTrigger asChild>
-            <IconButton
-              label={countInLabel}
-              icon={<ChevronDown />}
-              size="md"
-              tooltipSide="top"
-              data-testid="count-in-menu"
-              data-count-in={countInBars}
-              className="w-6 rounded-l-none [&_svg]:size-3.5"
-            />
-          </MenuTrigger>
-          <MenuContent align="start" sideOffset={6}>
-            <CountInItems />
-          </MenuContent>
-        </Menu>
-      )}
+      <Popover>
+        <PopoverTrigger asChild>
+          <IconButton
+            label="Click settings: sound, volume and count-in"
+            icon={<ChevronDown />}
+            size="md"
+            tooltipSide="top"
+            data-testid="count-in-menu"
+            data-count-in={countInBars}
+            className="w-6 rounded-l-none [&_svg]:size-3.5"
+          />
+        </PopoverTrigger>
+        <PopoverContent side="top" align="end" sideOffset={8}>
+          <ClickSettings />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 });

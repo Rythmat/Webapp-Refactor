@@ -4,6 +4,7 @@ import {
   USER_PREF_KEYS,
   type PrefKey,
 } from '@/daw/persistence/projectDocument/fields';
+import { isClickSound, isClickVolume } from '@/daw/audio/clickSounds';
 import { userNamespace } from '@/daw/persistence/storageNamespace';
 import { useStore, type AllSlices } from '@/daw/store';
 import {
@@ -18,7 +19,7 @@ import { ALL_GRID_VALUES, type AllGridSize } from '@/daw/utils/quantize';
 // ── Per-user editor preferences ────────────────────────────────────────────
 //
 // A few editor settings belong to the student rather than to a project: the
-// metronome, the count-in, the timeline's snap, grid and triplets and
+// metronome (and since 2.8 its sound and volume), the count-in, the timeline's snap, grid and triplets and
 // whether it follows the playhead, whether the chord ruler shows note
 // names, whether single-key shortcuts are on
 // (the registry's 'pref' scope, decision D5), and since milestone 2.4 the
@@ -74,6 +75,8 @@ const IS_VALID: {
   [K in UserPrefKey]: (value: unknown) => value is AllSlices[K];
 } = {
   metronomeEnabled: isBoolean,
+  metronomeSound: isClickSound,
+  metronomeVolume: isClickVolume,
   // Off, one bar or two, as setCountInBars allows.
   countInBars: (value): value is number =>
     Number.isInteger(value) && (value as number) >= 0 && (value as number) <= 2,

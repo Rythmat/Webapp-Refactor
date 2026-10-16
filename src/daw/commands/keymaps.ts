@@ -644,6 +644,29 @@ defineCommand({
   label: 'Forward to the next marker or the end',
   keys: ['End'],
 });
+// Go to start, Rewind and Fast-forward: the bottom rail's buttons (2.8).
+// Comma and full stop step a bar, as in Logic; Go to start is ⇧Home, since
+// Home alone is Back (a Chromebook's Search + ← is Home).
+defineCommand({
+  id: 'transport.toStart',
+  scope: 'global',
+  label: 'Go to the start',
+  keys: ['Shift+Home'],
+});
+defineCommand({
+  id: 'transport.rewind',
+  scope: 'global',
+  label: 'Back one bar',
+  keys: ['Comma'],
+  repeat: true,
+});
+defineCommand({
+  id: 'transport.fastForward',
+  scope: 'global',
+  label: 'On one bar',
+  keys: ['Period'],
+  repeat: true,
+});
 defineCommand({
   id: 'transport.loop',
   scope: 'global',

@@ -255,6 +255,8 @@ const STORE_SPECS = {
   position: view('transport', 0),
   loopEnabled: view('transport', false),
   metronomeEnabled: pref('transport', false),
+  metronomeSound: pref('transport', 'click'),
+  metronomeVolume: pref('transport', -10),
   countInBars: pref('transport', 0),
   isPlaying: session('transport', false, 'project'),
   isRecording: session('transport', false, 'project'),

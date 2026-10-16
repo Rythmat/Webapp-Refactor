@@ -11,19 +11,6 @@
     "zIndex": 1,
     "whileTap": 4
   },
-  "src/daw/collab/ui/InviteModal.tsx": {
-    "smallText": 2,
-    "zIndex": 2,
-    "whileTap": 1
-  },
-  "src/daw/collab/ui/KickedModal.tsx": {
-    "hex": 2,
-    "zIndex": 2
-  },
-  "src/daw/collab/ui/LeaveSavePrompt.tsx": {
-    "hex": 2,
-    "zIndex": 2
-  },
   "src/daw/collab/ui/PresenceTrackDots.tsx": {
     "smallText": 1
   },
@@ -37,11 +24,6 @@
     "hex": 2,
     "rgb": 7,
     "zIndex": 1
-  },
-  "src/daw/components/common/ConfirmModal.tsx": {
-    "hex": 3,
-    "rgb": 3,
-    "zIndex": 2
   },
   "src/daw/components/Controls/AudioMidiSourcePanel.tsx": {
     "smallText": 1
@@ -57,9 +39,8 @@
   },
   "src/daw/components/Controls/GroovesBrowser.tsx": {
     "hex": 14,
-    "rgb": 5,
-    "smallText": 11,
-    "zIndex": 1
+    "rgb": 1,
+    "smallText": 7
   },
   "src/daw/components/Controls/GuitarBassView.tsx": {
     "hex": 41,
@@ -120,10 +101,10 @@
     "smallText": 6
   },
   "src/daw/components/Controls/VocalView.tsx": {
-    "hex": 35,
-    "rgb": 21,
+    "hex": 34,
+    "rgb": 16,
     "smallText": 35,
-    "zIndex": 13
+    "zIndex": 11
   },
   "src/daw/components/Effects/EffectsPanel.tsx": {
     "hex": 4,
@@ -172,17 +153,7 @@
     "hex": 1
   },
   "src/daw/components/LeadSheet/LeadSheetToolbar.tsx": {
-    "rgb": 6,
-    "nativeDialog": 1
-  },
-  "src/daw/components/LeadSheet/SendToSetList.tsx": {
-    "hex": 3
-  },
-  "src/daw/components/Library/ChordAnalysisPrompt.tsx": {
-    "hex": 2,
-    "rgb": 1,
-    "smallText": 1,
-    "zIndex": 2
+    "rgb": 6
   },
   "src/daw/components/Library/ChordCard.tsx": {
     "hex": 2,
@@ -267,12 +238,6 @@
     "rgb": 2,
     "smallText": 2
   },
-  "src/daw/components/Prism/PrismSuggestionModal.tsx": {
-    "hex": 1,
-    "rgb": 3,
-    "smallText": 6,
-    "zIndex": 1
-  },
   "src/daw/components/Score/NoteEditorBar.tsx": {
     "smallText": 8
   },
@@ -299,8 +264,7 @@
     "hex": 14,
     "rgb": 16,
     "smallText": 5,
-    "zIndex": 6,
-    "nativeDialog": 1
+    "zIndex": 6
   },
   "src/daw/components/Timeline/TimelineWithHeaders.tsx": {
     "rgb": 5,
@@ -313,9 +277,7 @@
     "whileTap": 3
   },
   "src/daw/components/TrackControls/NewTrackModal.tsx": {
-    "hex": 126,
-    "rgb": 4,
-    "zIndex": 2
+    "hex": 126
   },
   "src/daw/components/TrackControls/TrackHeader.tsx": {
     "hex": 4,
@@ -323,28 +285,15 @@
     "zIndex": 4,
     "whileTap": 9
   },
-  "src/daw/components/Transport/ExportAudioDialog.tsx": {
-    "hex": 6,
-    "rgb": 9,
-    "smallText": 3,
-    "zIndex": 2
-  },
   "src/daw/components/Transport/FileMenu.tsx": {
     "rgb": 2,
     "smallText": 4,
-    "zIndex": 1,
-    "nativeDialog": 2
-  },
-  "src/daw/components/Transport/SettingsModal.tsx": {
-    "hex": 3,
-    "rgb": 6,
-    "smallText": 6,
-    "zIndex": 4
+    "zIndex": 1
   },
   "src/daw/components/Transport/TransportBar.tsx": {
-    "hex": 9,
+    "hex": 4,
     "rgb": 2,
-    "smallText": 10,
+    "smallText": 9,
     "zIndex": 2,
     "whileTap": 12
   },
@@ -364,9 +313,6 @@
   },
   "src/daw/components/Tutorial/TutorialLayer.tsx": {
     "zIndex": 1
-  },
-  "src/daw/components/Tutorial/UpgradeLessonDialog.tsx": {
-    "hex": 5
   },
   "src/daw/constants/trackColors.ts": {
     "hex": 25
@@ -506,9 +452,6 @@
     "rgb": 2,
     "smallText": 3,
     "zIndex": 3
-  },
-  "src/daw/oracle-synth/components/preset/PresetSelector.tsx": {
-    "nativeDialog": 1
   },
   "src/daw/oracle-synth/components/routing/RoutingPanel.module.css": {
     "hex": 10,

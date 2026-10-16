@@ -161,6 +161,15 @@ describe('the legacy design ratchet', () => {
   });
 });
 
+describe('native dialogs (2.3)', () => {
+  it('are gone from the editor: it asks with confirmDialog and promptDialog', () => {
+    const left = [...actual]
+      .filter(([, counts]) => counts.nativeDialog)
+      .map(([file]) => file);
+    expect(left).toEqual([]);
+  });
+});
+
 describe('retired for good in src/daw', () => {
   const files = sources(DAW).map((file) => ({
     rel: relative(REPO, file).split('\\').join('/'),

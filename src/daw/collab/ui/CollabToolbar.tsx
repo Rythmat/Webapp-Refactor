@@ -168,6 +168,7 @@ export function CollabToolbar({
         createPortal(
           <div
             ref={popoverRef}
+            data-testid="collab-popover"
             className="flex flex-col gap-2 rounded-lg p-2 shadow-2xl"
             style={getPopoverStyle()}
           >

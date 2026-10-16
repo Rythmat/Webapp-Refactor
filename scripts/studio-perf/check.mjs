@@ -243,6 +243,19 @@ const UNIT_TESTS = [
   'src/daw/components/Controls/__tests__/samplerTrimFields.test.tsx',
   'src/daw/components/Library/__tests__/buildLiveChord.test.ts',
   'src/daw/components/Library/__tests__/nowPlaying.test.tsx',
+  // Milestones 2.1 and 2.3: one palette on :root (fresh tokens, no legacy
+  // tokens or teal, the design ratchet), canvases on the palette, the
+  // editor's own dialogs (DialogHost, Save As, Delete, Export, the leave
+  // prompt) and the Audio & MIDI settings.
+  'src/daw/ui/__tests__/tokens.test.ts',
+  'src/daw/ui/__tests__/designGuard.test.ts',
+  'src/daw/__tests__/dawCss.test.ts',
+  'src/daw/components/Timeline/__tests__/Timeline.redraw.test.tsx',
+  'src/daw/ui/__tests__/dialogs.test.tsx',
+  'src/daw/components/Transport/__tests__/FileMenu.test.tsx',
+  'src/daw/components/Transport/__tests__/ExportAudioDialog.test.tsx',
+  'src/daw/components/Transport/__tests__/SettingsModal.test.tsx',
+  'src/daw/collab/__tests__/LeaveSavePrompt.test.tsx',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */

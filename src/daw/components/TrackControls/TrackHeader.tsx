@@ -251,6 +251,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
+              data-testid="track-colour-popover"
               className="z-50 rounded-lg p-2 shadow-lg"
               style={{
                 backgroundColor: 'var(--daw-popover)',
@@ -263,6 +264,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
                 {TRACK_PALETTES.map((color) => (
                   <button
                     key={color}
+                    data-meaning="track-colour"
                     onClick={() => {
                       updateTrack(track.id, { color });
                       setColorOpen(false);

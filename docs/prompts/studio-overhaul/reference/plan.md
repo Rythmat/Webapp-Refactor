@@ -687,6 +687,10 @@ as before.
 
 **Every milestone (fast tier, run locally before its merge-commit PR):**
 
+- **Always use the browser to test your work** (owner rule, 2026-10-16): go through every
+  changed flow by hand in Chrome (the Claude in Chrome tools) on the bypass dev server, with
+  screenshots and the console read for errors. The harness and the unit tests come on top of
+  this, never instead of it.
 - `npm run lint` (prettier, eslint with zero warnings, `tsc -b`) and `npx vitest run`.
 - `npm run studio:check`: reload round-trips, the 8 lessons at 1366×655 as premium and free
   personas, and anchor integrity.

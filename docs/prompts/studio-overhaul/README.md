@@ -1,6 +1,8 @@
 # Studio editor overhaul: one prompt per Claude Code chat
 
-Each numbered file is a standalone prompt, except 29, which is the Stage D plan that prompts 30–37 build from. Paste one into a fresh Claude Code chat opened in `/Users/marfizo/Documents/Full App Code/Webapp-Refactor`. Every prompt repeats the shared rules (branch `aaron`, never `main`, no PRs, push only when verified), points at the plan, checks its own precondition, and ends by appending to `STATUS.md`.
+Each numbered file is a standalone prompt, except 29, which is the Stage D plan that prompts 30–37 build from. Paste one into a fresh Claude Code chat opened in `/Users/marfizo/Documents/Full App Code/Webapp-Refactor`. Every prompt repeats the shared rules (branch `aaron`, never `main`, no PRs, push only when verified, and always test the work in the browser), points at the plan, checks its own precondition, and ends by appending to `STATUS.md`.
+
+**Always use the browser to test your work** (owner rule, 2026-10-16): every milestone is tried by hand in Chrome (the Claude in Chrome tools) as well as by the harness and the unit tests.
 
 **Run one at a time.** They all work in this single checkout, so two chats at once would edit the same files.
 

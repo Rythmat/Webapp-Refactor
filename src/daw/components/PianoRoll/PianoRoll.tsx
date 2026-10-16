@@ -14,6 +14,7 @@ import {
   Eraser,
   ChevronDown,
   ChevronRight,
+  Trash2,
 } from 'lucide-react';
 import {
   noteNameInKey,
@@ -429,6 +430,10 @@ export function PianoRoll({
     originX: number;
     originY: number;
     moved: boolean;
+    /** What the box adds to: the selection before a Shift/⌘ box, else none. */
+    base: Set<number>;
+    /** The note a Shift/⌘ press began on: toggled if it was only a click. */
+    clickNote: number | null;
   } | null>(null);
   const velDragRef = useRef<{ noteIndex: number } | null>(null);
   // Active ruler press: undecided until it passes the drag threshold, then a
@@ -1345,7 +1350,19 @@ export function PianoRoll({
         }
 
         case 'select': {
-          if (noteIdx !== null) {
+          if (e.shiftKey || e.metaKey || e.ctrlKey) {
+            // Shift or ⌘: a box from anywhere — over notes too, so a dense
+            // part can be boxed — adds to the selection; a click without a
+            // drag adds or takes away the one note.
+            marqueeRef.current = {
+              originX: x,
+              originY: y,
+              moved: false,
+              base: new Set(selectedIndices),
+              clickNote: noteIdx,
+            };
+            setMarqueeRect(null);
+          } else if (noteIdx !== null) {
             // Drag the whole selection if the grabbed note is part of an
             // existing multi-selection; otherwise grab just this note.
             let indices: Set<number>;
@@ -1378,7 +1395,13 @@ export function PianoRoll({
             // plain click (no drag) deselects everything, while a drag rebuilds
             // the selection live in handleMouseMove.
             setSelectedIndices(new Set());
-            marqueeRef.current = { originX: x, originY: y, moved: false };
+            marqueeRef.current = {
+              originX: x,
+              originY: y,
+              moved: false,
+              base: new Set(),
+              clickNote: null,
+            };
             setMarqueeRect(null);
           }
           break;
@@ -1426,7 +1449,7 @@ export function PianoRoll({
         };
         setMarqueeRect(rect);
 
-        const sel = new Set<number>();
+        const sel = new Set<number>(m.base);
         const evs = eventsRef.current;
         for (let i = 0; i < evs.length; i++) {
           const ev = evs[i];
@@ -1554,6 +1577,13 @@ export function PianoRoll({
 
   // ── Mouse up ────────────────────────────────────────────────────────────
   const handleMouseUp = useCallback(() => {
+    const m = marqueeRef.current;
+    if (m && !m.moved && m.clickNote !== null) {
+      const toggled = new Set(m.base);
+      if (toggled.has(m.clickNote)) toggled.delete(m.clickNote);
+      else toggled.add(m.clickNote);
+      setSelectedIndices(toggled);
+    }
     dragRef.current = null;
     marqueeRef.current = null;
     setMarqueeRect(null);
@@ -1584,17 +1614,25 @@ export function PianoRoll({
   // removes the selected notes. Delete stays here with nothing selected, so
   // it never reaches the clip behind the roll.
   const bodyRef = useRef<HTMLDivElement>(null);
+  const deleteSelected = () => {
+    if (selectedIndices.size === 0) return;
+    onChange(eventsRef.current.filter((_, i) => !selectedIndices.has(i)));
+    setSelectedIndices(new Set());
+  };
+  // A toolbar button keeps the keys with the roll, so Delete works next.
+  const focusRoll = () => bodyRef.current?.focus({ preventScroll: true });
+  const selectAll = () => {
+    setSelectedIndices(new Set(eventsRef.current.map((_, i) => i)));
+    focusRoll();
+  };
   useKeymap(
     PIANO_ROLL_SCOPE.id,
     {
       'pianoRoll.select': () => setTool('select'),
       'pianoRoll.draw': () => setTool('draw'),
       'pianoRoll.erase': () => setTool('erase'),
-      'pianoRoll.delete': () => {
-        if (selectedIndices.size === 0) return;
-        onChange(eventsRef.current.filter((_, i) => !selectedIndices.has(i)));
-        setSelectedIndices(new Set());
-      },
+      'pianoRoll.delete': deleteSelected,
+      'pianoRoll.selectAll': selectAll,
     },
     { element: bodyRef },
   );
@@ -1886,7 +1924,10 @@ export function PianoRoll({
           ).map((t) => (
             <button
               key={t.id}
-              onClick={() => setTool(t.id)}
+              onClick={() => {
+                setTool(t.id);
+                focusRoll();
+              }}
               title={`${t.label} (${t.shortcut})`}
               className={`flex h-6 items-center gap-1 rounded px-2 text-[10px] font-semibold transition-colors ${
                 tool === t.id
@@ -1899,6 +1940,25 @@ export function PianoRoll({
             </button>
           ))}
         </div>
+
+        {/* The selection: everything at once, and away with it. */}
+        <button
+          onClick={selectAll}
+          title="Select every note (⌘A) · Shift- or ⌘-drag boxes notes, even over notes"
+          className="flex h-6 items-center rounded px-2 text-[10px] font-semibold text-white/40 transition-colors hover:bg-white/5 hover:text-white/60"
+        >
+          Select all
+        </button>
+        {selectedIndices.size > 0 && (
+          <button
+            onClick={deleteSelected}
+            title="Delete the selected notes (Delete)"
+            className="flex h-6 items-center gap-1 rounded bg-rose-500/20 px-2 text-[10px] font-semibold text-rose-200 transition-colors hover:bg-rose-500/30"
+          >
+            <Trash2 className="size-3.5" />
+            Delete {selectedIndices.size}
+          </button>
+        )}
 
         {/* Divider */}
         <div className="h-4 w-px bg-white/10" />

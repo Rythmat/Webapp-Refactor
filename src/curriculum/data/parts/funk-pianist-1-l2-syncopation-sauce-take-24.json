@@ -1,0 +1,241 @@
+{
+  "id": "funk-pianist-1-l2-syncopation-sauce-take-24",
+  "name": "Funk-Pianist L2 Chromatic Comping",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 9,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "electric-piano",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 99
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 108
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 97
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 66,
+      "velocity": 101
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 127
+    },
+    {
+      "tick": 480,
+      "duration": 240,
+      "midi": 75,
+      "velocity": 125
+    },
+    {
+      "tick": 840,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 88
+    },
+    {
+      "tick": 840,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 112
+    },
+    {
+      "tick": 840,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 100
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 99
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 118
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 105
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 59,
+      "velocity": 80
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 63,
+      "velocity": 120
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 68,
+      "velocity": 108
+    },
+    {
+      "tick": 2760,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 60
+    },
+    {
+      "tick": 2760,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 102
+    },
+    {
+      "tick": 2760,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 106
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 105
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 112
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 96
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 66,
+      "velocity": 98
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 70,
+      "velocity": 116
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 75,
+      "velocity": 120
+    },
+    {
+      "tick": 4680,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 85
+    },
+    {
+      "tick": 4680,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 110
+    },
+    {
+      "tick": 4680,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 97
+    },
+    {
+      "tick": 5760,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 101
+    },
+    {
+      "tick": 5760,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 121
+    },
+    {
+      "tick": 5760,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 105
+    },
+    {
+      "tick": 6240,
+      "duration": 240,
+      "midi": 59,
+      "velocity": 79
+    },
+    {
+      "tick": 6240,
+      "duration": 240,
+      "midi": 63,
+      "velocity": 112
+    },
+    {
+      "tick": 6240,
+      "duration": 240,
+      "midi": 68,
+      "velocity": 92
+    },
+    {
+      "tick": 6600,
+      "duration": 120,
+      "midi": 60,
+      "velocity": 89
+    },
+    {
+      "tick": 6600,
+      "duration": 120,
+      "midi": 64,
+      "velocity": 116
+    },
+    {
+      "tick": 6600,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 104
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "funk",
+  "chordSymbols": ["Am7", "D7", "Am7", "D7", "Am7", "D7", "Am7", "D7"]
+}

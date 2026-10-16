@@ -1,10 +1,21 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 import type { ActivityStepV2 } from '../../../types/activity.v2';
-import { getPairing, rememberPairing } from '../../lessonPairings/registry';
+import {
+  getPairing,
+  listPairings,
+  rememberPairing,
+} from '../../lessonPairings/registry';
 import { buildBackingNotes, type BackingNote } from '../backingPatterns';
 import { chordSymbolToBassPC } from '../chordBassNote';
 import { chordSymbolTones } from '../chordSymbolTones';
 import type { GenreNoteEvent } from '../resolveStepContent';
+
+// These tests check the code patterns themselves; a band paired to a style
+// replaces them in lessons, so every pairing sits out here. Set aside before
+// any describe builds its notes.
+const pairings = listPairings();
+pairings.forEach((p) => rememberPairing({ id: p.id }));
+afterAll(() => pairings.forEach((p) => rememberPairing(p)));
 
 const BAR = 1920;
 const LEAD_IN = 2 * BAR; // piano roll count-in bar + one-bar note offset

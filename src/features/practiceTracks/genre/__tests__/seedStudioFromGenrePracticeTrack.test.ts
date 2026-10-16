@@ -1,12 +1,22 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, afterAll } from 'vitest';
 import { funkL2 } from '@/curriculum/data/activityFlows/funk_v2';
+import {
+  listPairings,
+  rememberPairing,
+} from '@/curriculum/engine/lessonPairings/registry';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import { resetSessionToEmpty } from '@/daw/persistence/SessionSerializer';
 import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
 import { useStore } from '@/daw/store';
 import { buildGenrePracticeTrack } from '../buildGenrePracticeTrack';
 import { applyGenrePracticeTrack } from '../seedStudioFromGenrePracticeTrack';
+
+// What the lesson's own engine plays: a band paired to a style would replace
+// it, so every pairing sits out here.
+const pairings = listPairings();
+pairings.forEach((p) => rememberPairing({ id: p.id }));
+afterAll(() => pairings.forEach((p) => rememberPairing(p)));
 
 /** Each seed starts from an empty session, reset the way openSession resets
  *  before it applies, so seeding twice in one test is two independent

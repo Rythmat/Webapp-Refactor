@@ -10,16 +10,27 @@ import {
   hipHopL3,
 } from '@/curriculum/data/activityFlows/hipHop_v2';
 import { popL1 } from '@/curriculum/data/activityFlows/pop_v2';
+import {
+  getPairing,
+  rememberPairing,
+} from '@/curriculum/engine/lessonPairings/registry';
 import { buildGenrePracticeTrack } from '../buildGenrePracticeTrack';
 
 describe('Practice Track sounds', () => {
   // The kits are the designed grooves' own (console → Drum Grooves).
   it('gives Pop its Fretless bass on its groove’s kit', () => {
-    const track = buildGenrePracticeTrack(popL1, 'A')!;
-    expect(track).toMatchObject({
-      drumKit: 'custom_808_01',
-      bassVoice: 'fretless',
-    });
+    // The lesson's own sounds: a band paired to the style would bring its own.
+    const paired = getPairing('pop-l1-singable');
+    rememberPairing({ id: 'pop-l1-singable' });
+    try {
+      const track = buildGenrePracticeTrack(popL1, 'A')!;
+      expect(track).toMatchObject({
+        drumKit: 'custom_808_01',
+        bassVoice: 'fretless',
+      });
+    } finally {
+      if (paired) rememberPairing(paired);
+    }
   });
 
   it('gives Funk its Finger electric bass', () => {

@@ -6,8 +6,9 @@
  * new part — filed under the layer's player, played by the layer in the open
  * variation — or played again, or thrown away.
  *
- * Mounted only while capturing, so a band page never asks for MIDI access
- * until a capture starts.
+ * The keyboard itself is the Band editor's (useLiveCapture there): it's
+ * heard on the open layer's sound whenever a layer is open, and written into
+ * the take while it records.
  */
 
 import { Circle, Loader2, Square } from 'lucide-react';
@@ -18,7 +19,6 @@ import { countIn } from '../parts/metronome';
 import {
   type CaptureQuantize,
   QUANTIZE_OPTIONS,
-  useLiveCapture,
 } from '../parts/useLiveCapture';
 
 export interface Take {
@@ -32,18 +32,13 @@ interface Props {
   take: Take;
   setTake: (update: (take: Take | null) => Take | null) => void;
   layerName: string;
-  /** The sound keys are heard on as they're played. */
-  monitorSound: string;
+  /** The keyboard: what it's listening on, or why it can't. */
+  midi: { inputs: string[]; error: string | null };
+  quantize: CaptureQuantize;
+  setQuantize: (q: CaptureQuantize) => void;
   timeSignature: [number, number];
   tempo: number;
-  totalTicks: number;
-  player: {
-    playing: boolean;
-    stop: () => void;
-    currentTick: () => number;
-    liveOn: (sound: string, midi: number, velocity: number) => Promise<void>;
-    liveOff: (midi: number) => void;
-  };
+  player: { stop: () => void };
   /** Starts the band (all but the captured layer) looping. */
   playBand: (click: boolean) => void;
   onKeep: (notes: PartNote[]) => Promise<void>;
@@ -53,37 +48,18 @@ export const BandCapture = ({
   take,
   setTake,
   layerName,
-  monitorSound,
+  midi,
+  quantize,
+  setQuantize,
   timeSignature,
   tempo,
-  totalTicks,
   player,
   playBand,
   onKeep,
 }: Props) => {
   const [click, setClick] = useState(true);
-  const [quantize, setQuantize] = useState<CaptureQuantize>(120);
   const [counting, setCounting] = useState(false);
   const [keeping, setKeeping] = useState(false);
-
-  const midi = useLiveCapture({
-    active: take.recording && player.playing,
-    length: totalTicks,
-    quantize,
-    currentTick: player.currentTick,
-    onNote: (note) =>
-      setTake(
-        (t) =>
-          t && {
-            ...t,
-            notes: [...t.notes, note].sort(
-              (a, b) => a.tick - b.tick || a.midi - b.midi,
-            ),
-          },
-      ),
-    monitorOn: (m, v) => void player.liveOn(monitorSound, m, v),
-    monitorOff: player.liveOff,
-  });
 
   /** A bar's count-in, then the band loops and the take records. */
   const record = () => {

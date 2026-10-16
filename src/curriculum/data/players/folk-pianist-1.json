@@ -5,5 +5,10 @@
   "genre": "folk",
   "kind": "placeholder",
   "order": 150,
-  "items": []
+  "items": [
+    {
+      "kind": "part",
+      "id": "folk-pianist-1-l2-merengue-bachata-take-2"
+    }
+  ]
 }

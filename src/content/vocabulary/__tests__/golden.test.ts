@@ -58,7 +58,7 @@ const GOLDEN: Record<string, string> = {
   // 98 edges onto genre and instrument nodes, nothing else moved. Taken
   // again 14 and 15 Oct 2026 for the new parts, players and bands (content
   // only).
-  graph: 'ff6c67df154a1be7739c3b7e2bda45b77856b39c5cd3be6aa1266b83a9a16bdc',
+  graph: '2ff774c0ef82e8333417c98c28af66885cce20255a7d7ad579aa7341d5f8ab24',
   mapGenre: '8bd762b39a6fba226af4828d3bcd81f8e2b44198abf4a2c2e24c3d5b4af7921a',
   mapInstrument:
     'f694219a31ced971e2bb90549148765b874ac5f533ab3ae11a303696eafa22d0',
@@ -68,7 +68,7 @@ const GOLDEN: Record<string, string> = {
   resolveGenreTag:
     '761075b0a6f5a5bdf91295a92f493232f88daf69d6f9d282dfdde9ca93fa66f7',
   // 7 Oct 2026: the same 13 genre and instrument rows now list those edges.
-  tables: '6aac059312812d861d8e399fa7c1de2a11e4cd011904389bffa3e111648e2381',
+  tables: 'd7f40741f737616220b32f770c016be69c15bf00063fb6d8cc8e6d26f67c9bd2',
   vocabularyPage:
     '8c3210c3ab7a49f6ed4bd98ca606443f27260841f432852e72235b8819b26b2e',
 };

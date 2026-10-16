@@ -90,6 +90,7 @@ import { useGrooveList } from '../drumGrooves/grooveSession';
 import { useInstrumentStore } from '../drumGrooves/instrumentStore';
 import { useUndoable } from '../drumGrooves/useUndoable';
 import { usePartList } from '../parts/partFiles';
+import { type CaptureQuantize, useLiveCapture } from '../parts/useLiveCapture';
 import { fileItem } from '../players/playerFiles';
 import { usePlayerList } from '../players/playerSession';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
@@ -650,6 +651,44 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
   const sampleSound = layer?.sound?.startsWith(SAMPLE_PREFIX)
     ? getSampleInstrument(layer.sound.slice(SAMPLE_PREFIX.length))
     : undefined;
+
+  // ── the keyboard ──
+  // A MIDI keyboard plays the open layer's sound (the take's, while one is
+  // open) the moment a layer is open — not only once a capture records — and
+  // writes into the take while it does. A part open in its own editor below
+  // has the keyboard instead: that editor plays it on the part's sound.
+  const [takeQuantize, setTakeQuantize] = useState<CaptureQuantize>(120);
+  const keysLayer = take
+    ? draft.layers.find((l) => l.id === take.layerId)
+    : (layer ?? undefined);
+  const keysSound = keysLayer ? monitorSoundOf(keysLayer) : null;
+  const partEditorOpen = editingItem && layerSource?.kind === 'part';
+  const keyboard = useLiveCapture({
+    enabled: Boolean(keysSound) && !partEditorOpen,
+    active: Boolean(take?.recording) && player.playing,
+    length: totalTicks,
+    quantize: takeQuantize,
+    currentTick: player.currentTick,
+    onNote: (note) =>
+      setTake(
+        (t) =>
+          t && {
+            ...t,
+            notes: [...t.notes, note].sort(
+              (a, b) => a.tick - b.tick || a.midi - b.midi,
+            ),
+          },
+      ),
+    monitorOn: (m, v) => {
+      if (keysSound) void player.liveOn(keysSound, m, v);
+    },
+    monitorOff: player.liveOff,
+  });
+  // The sound loads as the layer opens, so the first key is heard at once.
+  useEffect(() => {
+    if (keysSound) void player.prepareLive(keysSound).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keysSound]);
 
   /** Opens a layer's item in its own editor, below, and goes there. */
   const editLayer = (id: string) => {
@@ -1486,10 +1525,11 @@ export const BandEditor = ({ band: initial, onDuplicate }: Props) => {
               take={take}
               setTake={setTake}
               layerName={layer.name}
-              monitorSound={monitorSoundOf(layer)}
+              midi={keyboard}
+              quantize={takeQuantize}
+              setQuantize={setTakeQuantize}
               timeSignature={ts}
               tempo={tempo}
-              totalTicks={totalTicks}
               player={player}
               playBand={(click) => {
                 setTakeClick(click);

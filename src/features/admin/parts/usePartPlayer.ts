@@ -22,7 +22,12 @@ import {
   synthTrackStateFromPreset,
 } from '@/daw/oracle-synth/synthTrackState';
 import type { LoopState } from '@/daw/store/transportSlice';
-import { countIn as countInBar, makeClick, scheduleClicks } from './metronome';
+import {
+  countIn as countInBar,
+  heardTransportTicks,
+  makeClick,
+  scheduleClicks,
+} from './metronome';
 import { parseSound } from './sounds';
 
 interface PartEvent {
@@ -63,7 +68,21 @@ export function usePartPlayer() {
 
   const scale = () => Tone.getTransport().PPQ / 480;
 
-  const ensureInstrument = useCallback(async (sound: string) => {
+  /** A sound still loading, so keys pressed meanwhile share it. */
+  const loadingRef = useRef<{
+    sound: string;
+    adapter: Promise<InstrumentAdapter>;
+  } | null>(null);
+  const ensureInstrument = useCallback((sound: string) => {
+    if (loadingRef.current?.sound === sound) return loadingRef.current.adapter;
+    const adapter = loadInstrument(sound).finally(() => {
+      if (loadingRef.current?.sound === sound) loadingRef.current = null;
+    });
+    loadingRef.current = { sound, adapter };
+    return adapter;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const loadInstrument = async (sound: string) => {
     if (Tone.getContext().state !== 'running') await Tone.start();
     if (!outRef.current) outRef.current = new Tone.Gain(1).toDestination();
     if (instrumentRef.current?.key === sound)
@@ -91,7 +110,7 @@ export function usePartPlayer() {
     }
     instrumentRef.current = { key: sound, adapter };
     return adapter;
-  }, []);
+  };
 
   const releaseAll = useCallback(() => {
     const adapter = instrumentRef.current?.adapter;
@@ -235,9 +254,12 @@ export function usePartPlayer() {
   /** Live input: sound a key as it's played, and release it. */
   const liveOn = useCallback(
     async (sound: string, midi: number, velocity: number) => {
-      const adapter = await ensureInstrument(sound);
-      adapter.noteOn(midi, velocity);
       held.current.add(midi);
+      const adapter = await ensureInstrument(sound);
+      // Let go while the sound was still loading: never start it, or it
+      // would ring on with nothing to stop it.
+      if (!held.current.has(midi)) return;
+      adapter.noteOn(midi, velocity);
     },
     [ensureInstrument],
   );
@@ -247,10 +269,7 @@ export function usePartPlayer() {
   }, []);
 
   /** Where the transport is, in part ticks. */
-  const currentTick = useCallback(
-    () => Tone.getTransport().ticks / scale(),
-    [],
-  );
+  const currentTick = useCallback(() => heardTransportTicks() / scale(), []);
 
   /** One bar of clicks before `then` — a count-in for live capture. */
   const countIn = useCallback(

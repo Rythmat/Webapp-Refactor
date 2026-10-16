@@ -1,0 +1,323 @@
+{
+  "id": "latin-guitarist-1-l3-bossa-samba-take-2",
+  "name": "Latin-Guitarist-1 · L3 · Bossa & Samba take 2",
+  "instrument": "guitar",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "draft",
+  "key": {
+    "tonic": 10,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "sample:acoustic-guitar",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 48,
+      "velocity": 49
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 41
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 38
+    },
+    {
+      "tick": 480,
+      "offset": 10,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 43
+    },
+    {
+      "tick": 480,
+      "offset": 10,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 54
+    },
+    {
+      "tick": 480,
+      "offset": 35,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 39
+    },
+    {
+      "tick": 960,
+      "offset": 43,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 35
+    },
+    {
+      "tick": 1320,
+      "offset": -55,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 55
+    },
+    {
+      "tick": 1320,
+      "offset": -55,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 62
+    },
+    {
+      "tick": 1320,
+      "offset": -55,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 59
+    },
+    {
+      "tick": 2040,
+      "offset": -12,
+      "duration": 480,
+      "midi": 41,
+      "velocity": 25
+    },
+    {
+      "tick": 2040,
+      "offset": -30,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 34
+    },
+    {
+      "tick": 2040,
+      "offset": -12,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 54
+    },
+    {
+      "tick": 2040,
+      "offset": -12,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 44
+    },
+    {
+      "tick": 2520,
+      "offset": -5,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 36
+    },
+    {
+      "tick": 2520,
+      "offset": 5,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 52
+    },
+    {
+      "tick": 2520,
+      "offset": 5,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 36
+    },
+    {
+      "tick": 3000,
+      "offset": 28,
+      "duration": 720,
+      "midi": 41,
+      "velocity": 35
+    },
+    {
+      "tick": 3240,
+      "offset": 10,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 35
+    },
+    {
+      "tick": 3240,
+      "offset": 10,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 49
+    },
+    {
+      "tick": 3240,
+      "offset": 10,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 33
+    },
+    {
+      "tick": 3960,
+      "offset": -5,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 40
+    },
+    {
+      "tick": 3960,
+      "offset": -15,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 33
+    },
+    {
+      "tick": 3960,
+      "offset": -22,
+      "duration": 120,
+      "midi": 58,
+      "velocity": 40
+    },
+    {
+      "tick": 3960,
+      "offset": -5,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 33
+    },
+    {
+      "tick": 4440,
+      "offset": -30,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 37
+    },
+    {
+      "tick": 4440,
+      "offset": -40,
+      "duration": 480,
+      "midi": 58,
+      "velocity": 51
+    },
+    {
+      "tick": 4440,
+      "offset": -20,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 37
+    },
+    {
+      "tick": 4920,
+      "offset": -12,
+      "duration": 480,
+      "midi": 48,
+      "velocity": 47
+    },
+    {
+      "tick": 5040,
+      "offset": 58,
+      "duration": 600,
+      "midi": 58,
+      "velocity": 46
+    },
+    {
+      "tick": 5160,
+      "offset": -40,
+      "duration": 600,
+      "midi": 51,
+      "velocity": 41
+    },
+    {
+      "tick": 5160,
+      "offset": -30,
+      "duration": 600,
+      "midi": 62,
+      "velocity": 36
+    },
+    {
+      "tick": 5880,
+      "offset": -12,
+      "duration": 600,
+      "midi": 41,
+      "velocity": 14
+    },
+    {
+      "tick": 5880,
+      "offset": -30,
+      "duration": 120,
+      "midi": 51,
+      "velocity": 38
+    },
+    {
+      "tick": 5880,
+      "offset": -20,
+      "duration": 120,
+      "midi": 57,
+      "velocity": 37
+    },
+    {
+      "tick": 5880,
+      "offset": -40,
+      "duration": 120,
+      "midi": 62,
+      "velocity": 22
+    },
+    {
+      "tick": 6360,
+      "offset": -5,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 33
+    },
+    {
+      "tick": 6360,
+      "offset": -5,
+      "duration": 360,
+      "midi": 57,
+      "velocity": 32
+    },
+    {
+      "tick": 6360,
+      "offset": -5,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 23
+    },
+    {
+      "tick": 6840,
+      "offset": -30,
+      "duration": 720,
+      "midi": 41,
+      "velocity": 26
+    },
+    {
+      "tick": 7080,
+      "offset": -37,
+      "duration": 480,
+      "midi": 51,
+      "velocity": 37
+    },
+    {
+      "tick": 7080,
+      "offset": -27,
+      "duration": 480,
+      "midi": 57,
+      "velocity": 46
+    },
+    {
+      "tick": 7080,
+      "offset": -37,
+      "duration": 480,
+      "midi": 62,
+      "velocity": 33
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "chordSymbols": ["Cm7", "F7", "Bbmaj7", "Bbmaj7"]
+}

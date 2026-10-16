@@ -128,23 +128,22 @@ const UNIT_TESTS = [
   'src/daw/shell/topbar/__tests__/useSaveChipState.test.tsx',
   'src/daw/shell/topbar/__tests__/SaveStatusChip.test.tsx',
   'src/daw/shell/topbar/__tests__/UndoRedoButtons.test.tsx',
-  'src/daw/shell/topbar/__tests__/topRailSlot.test.tsx',
   'src/daw/shell/topbar/__tests__/platformKeys.test.ts',
   'src/daw/shell/opening/__tests__/opening.test.tsx',
   'src/daw/shell/projects/__tests__/projectRows.test.ts',
   'src/daw/shell/projects/__tests__/useProjectsDialogStore.test.ts',
   'src/daw/shell/projects/__tests__/ProjectsDialog.test.tsx',
   // The editor's wiring of it all.
-  'src/daw/components/Transport/__tests__/FileMenu.test.tsx',
+  'src/daw/shell/topbar/__tests__/ProjectMenu.test.tsx',
   'src/daw/collab/__tests__/sessionDraft.test.tsx',
   'src/daw/collab/__tests__/LeaveSavePrompt.test.tsx',
   'src/daw/hooks/__tests__/useMidiRecording.test.tsx',
   'src/daw/commands/__tests__/RecordGuard.test.tsx',
-  'src/daw/collab/__tests__/CollabToolbar.join.test.tsx',
+  'src/daw/shell/topbar/__tests__/SharePill.join.test.tsx',
   'src/daw/components/Library/__tests__/LibraryPanel.templateClick.test.tsx',
   'src/daw/commands/__tests__/keyboardCommands.test.tsx',
   'src/daw/commands/__tests__/registry.test.ts',
-  'src/daw/components/Transport/__tests__/TransportBar.test.tsx',
+  'src/daw/shell/topbar/__tests__/TransportControls.test.tsx',
   'src/daw/components/Timeline/__tests__/splitDuringUpload.test.ts',
   'src/daw/components/LeadSheet/__tests__/SendToSetList.test.tsx',
   // Per-user device stores, the sign-out hook, the entry points.
@@ -252,10 +251,22 @@ const UNIT_TESTS = [
   'src/daw/__tests__/dawCss.test.ts',
   'src/daw/components/Timeline/__tests__/Timeline.redraw.test.tsx',
   'src/daw/ui/__tests__/dialogs.test.tsx',
-  'src/daw/components/Transport/__tests__/FileMenu.test.tsx',
   'src/daw/components/Transport/__tests__/ExportAudioDialog.test.tsx',
   'src/daw/components/Transport/__tests__/SettingsModal.test.tsx',
   'src/daw/collab/__tests__/LeaveSavePrompt.test.tsx',
+  // Milestones 2.4 and 2.5: the shell's regions and layout prefs, the
+  // resizers, the top bar (its fold, the Song chip, tap tempo, the view
+  // tabs) and focus mode.
+  'src/daw/shell/__tests__/StudioShell.test.tsx',
+  'src/daw/shell/layout/__tests__/layoutModel.test.ts',
+  'src/daw/shell/layout/__tests__/layoutPrefs.test.ts',
+  'src/daw/ui/__tests__/resizer.test.tsx',
+  'src/daw/shell/topbar/__tests__/useToolbarOverflow.test.ts',
+  'src/daw/shell/topbar/__tests__/TopBar.test.tsx',
+  'src/daw/shell/topbar/__tests__/songChip.test.tsx',
+  'src/daw/shell/topbar/__tests__/tapTempo.test.ts',
+  'src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx',
+  'src/daw/persistence/__tests__/prefsStore.test.ts',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */

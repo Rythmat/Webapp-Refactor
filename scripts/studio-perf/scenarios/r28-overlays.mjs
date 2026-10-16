@@ -4,12 +4,12 @@
  * and 1440×787 (a laptop). Every overlay the editor opens, one at a time:
  *
  * - the dialogs on the 2.2 primitives: Audio & MIDI settings, Export Audio,
- *   File ▸ Save As's prompt, Projects, the recording-limit notice, the
+ *   Project ▸ Save as's prompt, Projects, the recording-limit notice, the
  *   removed-from-session notice, the leave prompt, the chord analysis prompt
  *   and a confirmDialog() asked through the editor's DialogHost;
- * - the menus and popovers that are still the old ones: the File menu, the
- *   Key and Time Signature popovers, the collab popover and a track's colour
- *   popover.
+ * - the menus and popovers: the Project menu, the Song popover (key, metre
+ *   and tempo, milestone 2.5), the Share popover, the account menu and a
+ *   track's colour popover (still the old one).
  *
  * Flags:
  * - overlaysOpaque: each panel's background is at least 95 % opaque (the
@@ -65,6 +65,9 @@ const VIEWPORTS = [
   { width: 1440, height: 787 },
 ];
 
+/** The top bar's Settings button (milestone 2.5). */
+const SETTINGS_BUTTON = '[data-testid="settings-button"]';
+
 /** The open v2 panel: a DawDialog or ConfirmDialog. */
 const V2_PANEL = '[data-ds="v2"][data-state="open"]';
 
@@ -73,16 +76,30 @@ function dialogs(kit) {
   return [
     {
       name: 'Audio & MIDI settings',
-      opener: '.daw-root button[title="Settings"]',
-      open: (page) => page.click('.daw-root button[title="Settings"]'),
+      // The top bar's button, or its '⋯' menu where a narrow window folds
+      // it (milestone 2.5); focus goes back to the button when there is one.
+      opener: SETTINGS_BUTTON,
+      open: async (page) => {
+        if (await page.locator(SETTINGS_BUTTON).count()) {
+          await page.click(SETTINGS_BUTTON);
+          return;
+        }
+        await page.click('[data-testid="top-bar-overflow"]');
+        await page
+          .locator('[role=menu][data-state=open] [role=menuitem]', {
+            hasText: 'Audio & MIDI settings',
+          })
+          .first()
+          .click();
+      },
     },
     {
       name: 'Export Audio',
-      open: (page) => kit.clickFileItem(page, 'Export Audio'),
+      open: (page) => kit.clickFileItem(page, 'Audio'),
     },
     {
       name: 'Save a copy',
-      open: (page) => kit.clickFileItem(page, 'Save As'),
+      open: (page) => kit.clickFileItem(page, 'Save as'),
     },
     { name: 'Projects', open: (page) => kit.clickFileItem(page, 'Open') },
     {
@@ -124,27 +141,29 @@ function dialogs(kit) {
   ];
 }
 
-/** The old menus and popovers: opacity and teal only. */
+/** The menus and popovers: opacity and teal (and the v2 ones' floors). */
 const POPOVERS = [
   {
-    name: 'File menu',
+    name: 'Project menu',
     trigger: '[data-tutorial-id="file-menu"]',
     panel: '[role=menu][data-state=open]',
   },
   {
-    name: 'Key popover',
-    trigger: '.daw-root button[title="Key"]',
-    panel: '[data-testid="key-popover"]',
+    name: 'Song popover',
+    trigger: '[data-testid="song-chip"]',
+    panel: '[data-testid="song-popover"]',
+    v2: true,
   },
   {
-    name: 'Time signature popover',
-    trigger: '.daw-root button[title="Time Signature"]',
-    panel: '[data-testid="time-signature-popover"]',
-  },
-  {
-    name: 'Collab popover',
-    trigger: '.daw-root button[title="Start Collaboration"]',
+    name: 'Share popover',
+    trigger: '[data-testid="share-pill"]',
     panel: '[data-testid="collab-popover"]',
+    v2: true,
+  },
+  {
+    name: 'Account menu',
+    trigger: '[data-testid="avatar-menu"]',
+    panel: '[role=menu][data-state=open]',
   },
   {
     name: 'Track colour popover',
@@ -179,7 +198,7 @@ async function checkDialog(kit, page, dialog) {
       .waitForSelector(V2_PANEL, { state: 'detached', timeout: 5000 })
       .then(() => true)
       .catch(() => false);
-    if (dialog.opener) {
+    if (dialog.opener && (await page.locator(dialog.opener).count())) {
       // Focus goes back as the panel unmounts, after its exit animation.
       await kit.sleep(300);
       out.focusBack = await page.evaluate(
@@ -214,6 +233,10 @@ async function checkPopover(kit, page, popover) {
     await page.waitForSelector(popover.panel, { timeout: 5000 });
     await kit.sleep(300);
     out.look = await page.evaluate(overlayLook, popover.panel);
+    // A popover built on the primitives keeps the design floors too.
+    out.floors = popover.v2
+      ? await page.evaluate(designProbe, popover.panel)
+      : [];
   } catch (err) {
     out.error = String(err).slice(0, 200);
   }
@@ -317,6 +340,7 @@ async function overlays(kit, run) {
       ),
       designFloors:
         dialogsAll.every((d) => d.floors && d.floors.length === 0) &&
+        at.every((v) => v.popovers.every((p) => !p.floors?.length)) &&
         at.every((v) => v.pageFloors.length === 0),
       focusTrapped: dialogsAll.every((d) => d.focusStarts && d.trapped),
       escapeCloses: dialogsAll.every((d) => d.closed && d.focusBack !== false),
@@ -348,6 +372,7 @@ async function overlays(kit, run) {
         ...(p.error ? { error: p.error } : {}),
         alpha: p.look?.alpha,
         teals: p.look?.teals,
+        ...(p.floors?.length ? { floors: p.floors } : {}),
       })),
       host: v.host,
       pageFloors: v.pageFloors,

@@ -5,12 +5,6 @@
   "src/daw/collab/ui/ChatPanel.tsx": {
     "smallText": 6
   },
-  "src/daw/collab/ui/CollabToolbar.tsx": {
-    "hex": 4,
-    "smallText": 7,
-    "zIndex": 1,
-    "whileTap": 4
-  },
   "src/daw/collab/ui/PresenceTrackDots.tsx": {
     "smallText": 1
   },
@@ -284,18 +278,6 @@
     "smallText": 7,
     "zIndex": 4,
     "whileTap": 9
-  },
-  "src/daw/components/Transport/FileMenu.tsx": {
-    "rgb": 2,
-    "smallText": 4,
-    "zIndex": 1
-  },
-  "src/daw/components/Transport/TransportBar.tsx": {
-    "hex": 4,
-    "rgb": 2,
-    "smallText": 9,
-    "zIndex": 2,
-    "whileTap": 12
   },
   "src/daw/components/Tutorial/CoachCard.tsx": {
     "hex": 4,

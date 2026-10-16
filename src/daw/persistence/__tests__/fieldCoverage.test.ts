@@ -723,6 +723,11 @@ describe('decision D5', () => {
         'timelineTripletMode',
         'chordRulerShowNotes',
         'singleKeyShortcuts',
+        // The shell's layout, per user (milestone 2.4).
+        'inspectorOpenByView',
+        'inspectorWidth',
+        'dockHeights',
+        'readoutMode',
         'inputDeviceId',
         'inputChannelCountOverride',
       ].sort(),

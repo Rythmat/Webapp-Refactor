@@ -4,18 +4,8 @@ import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/components/utilities';
 import { ProfileRoutes, UserRoutes } from '@/constants/routes';
-import { useMe } from '@/hooks/data';
-import { useExperienceSummary } from '@/hooks/data/experience';
-import { useAwards } from '@/hooks/data/useAwards';
-import { useStreak } from '@/hooks/data/useStreak';
-import { useAvatarConfig } from '@/hooks/useAvatarConfig';
 import { ChordNotationSwitcher } from './ChordNotationSwitcher';
-import { setTopRailSlot } from './topRailSlot';
-
-const CREDITS_PLACEHOLDER = 12;
-// Notifications count is not yet backed by a real feed — inline a zero here
-// so the badge dot stays hidden until a real notification stream ships.
-const NOTIFICATION_COUNT = 0;
+import { CREDITS_PLACEHOLDER, useTopRailStats } from './useTopRailStats';
 
 interface TopRailProps {
   className?: string;
@@ -23,24 +13,20 @@ interface TopRailProps {
 
 /**
  * App-wide chrome top rail. Renders on every dashboard route (Home / Learn /
- * Studio / Globe / Arcade / Songs). Right-aligned stats cluster relocated
- * from the (now-slimmed) WelcomeHeader.
+ * Studio / Globe / Arcade / Songs) but the Studio editor, whose own top bar
+ * has an avatar menu with the same stats (focus mode). Right-aligned stats
+ * cluster relocated from the (now-slimmed) WelcomeHeader.
  */
 export const TopRail = ({ className }: TopRailProps) => {
-  const { data: xp } = useExperienceSummary();
-  const totalXp = xp?.totalExperience ?? 0;
-  const level = xp?.level ?? 1;
-  const { data: streak } = useStreak();
-  const streakDays = streak?.currentStreak ?? 0;
-  const { unlockedCount } = useAwards();
-  const notificationCount = NOTIFICATION_COUNT;
-
-  const { data: user } = useMe();
-  const { config: avatarConfig } = useAvatarConfig(
-    user?.id,
-    (user as Record<string, unknown> | undefined)?.avatarConfig,
-  );
-  const userName = user?.nickname || user?.username || 'friend';
+  const {
+    totalXp,
+    level,
+    streakDays,
+    unlockedCount,
+    notificationCount,
+    userName,
+    avatarConfig,
+  } = useTopRailStats();
 
   return (
     <header
@@ -51,14 +37,6 @@ export const TopRail = ({ className }: TopRailProps) => {
         className,
       )}
     >
-      {/* Leading slot: the Studio editor portals its save chip and
-          Undo/Redo here while it is open (EditorTopRailSlot). Empty
-          elsewhere. */}
-      <div
-        ref={setTopRailSlot}
-        data-slot="toprail-leading"
-        className="mr-auto flex min-w-0 items-center gap-2"
-      />
       <div className="flex items-center gap-6 text-white">
         {/* Chord notation — only once turned on in Settings ▸ Look & Feel. */}
         <ChordNotationSwitcher />

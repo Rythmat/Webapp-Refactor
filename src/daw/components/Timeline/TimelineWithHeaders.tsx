@@ -14,6 +14,7 @@ import {
   TIME_RULER_HEIGHT,
 } from './Timeline';
 import { AutomationLaneEditor } from './AutomationLaneEditor';
+import { InterimTools } from '@/daw/shell/canvas/InterimTools';
 
 export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
   // Ids only: a track edit re-renders its own header, not this column.
@@ -23,6 +24,10 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
   const headersRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const syncing = useRef(false);
+  const timelineWidth = useCallback(
+    () => timelineRef.current?.clientWidth ?? 0,
+    [],
+  );
 
   const handleHeadersScroll = useCallback(() => {
     if (syncing.current) return;
@@ -76,7 +81,8 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
             scrollbarWidth: 'none',
           }}
         >
-          {/* Ruler spacer (sticky to match canvas ruler) */}
+          {/* Beside the rulers (sticky to match them): the timeline's
+              tools until 2.7's Create toolbar (InterimTools). */}
           <div
             style={{
               height: RULER_HEIGHT + CHORD_RULER_HEIGHT,
@@ -87,8 +93,9 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
               backgroundColor: 'var(--daw-surface-1)',
             }}
             className="shrink-0 border-b"
-            aria-hidden
-          />
+          >
+            <InterimTools viewportWidth={timelineWidth} />
+          </div>
 
           <Reorder.Group
             axis="y"

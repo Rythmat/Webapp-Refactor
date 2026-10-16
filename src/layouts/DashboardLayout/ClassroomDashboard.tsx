@@ -21,18 +21,27 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
 
   // Only the DAW editor (`/studio/editor`) needs the full-viewport, no-scroll
   // treatment; the `/studio` Studio Dashboard is a normal scrollable inlet.
+  // It is also in focus mode (owner decision 7): no sidebar, TopRail or
+  // chord-notation bar, so a Chromebook gives the editor the whole window.
+  // Its own top bar has Back to Studio and an avatar menu with the stats.
   const isStudioEditor = pathname.startsWith('/studio/editor');
 
   return (
     <div className="dashboard-root flex h-screen w-full overflow-hidden">
-      <ClassroomSidebar className="hidden flex-shrink-0 md:flex" />
+      {isStudioEditor ? null : (
+        <ClassroomSidebar className="hidden flex-shrink-0 md:flex" />
+      )}
 
       <main
         ref={mainRef}
         className="flex min-w-0 flex-1 flex-col overflow-hidden"
       >
-        <TopRail />
-        <MobileChordNotationBar />
+        {isStudioEditor ? null : (
+          <>
+            <TopRail />
+            <MobileChordNotationBar />
+          </>
+        )}
         <div
           className={cn(
             'relative flex-1 min-w-0',

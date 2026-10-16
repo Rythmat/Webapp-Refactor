@@ -237,14 +237,10 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
       constValues('components/ChannelStrip/ChannelStrip.tsx', 'TABS', 'id'),
   },
   'view-switch-': {
-    file: 'components/Transport/TransportBar.tsx',
+    file: 'shell/topbar/ViewTabs.tsx',
     suffixes: () => [
-      ...constValues('components/Transport/TransportBar.tsx', 'VIEWS', 'id'),
-      ...constValues(
-        'components/Transport/TransportBar.tsx',
-        'PRACTICE_VIEW',
-        'id',
-      ),
+      ...constValues('shell/topbar/ViewTabs.tsx', 'VIEWS', 'id'),
+      ...constValues('shell/topbar/ViewTabs.tsx', 'PRACTICE_VIEW', 'id'),
     ],
   },
   'fx-add-': {

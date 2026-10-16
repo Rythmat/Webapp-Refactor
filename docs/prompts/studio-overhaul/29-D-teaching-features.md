@@ -331,6 +331,7 @@ Stage B leaves room for Stage D; Stage D builds into Stage B's files later.
 ## Verification
 
 - **Every milestone:** the plan's fast tier: `npm run lint`, `npx vitest run`, `npm run studio:check`.
+- **Always use the browser to test your work** (owner rule, 2026-10-16): every changed flow is tried by hand in Chrome (the Claude in Chrome tools) as well as by the harness and the unit tests.
 - **4.0, 4.2 and 4.3:**
   - contract tests against the mock;
   - two-persona browser runs: a teacher and two students, using `VITE_DEV_AUTH_BYPASS_ROLE` plus the new user override.

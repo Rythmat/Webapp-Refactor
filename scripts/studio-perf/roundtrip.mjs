@@ -2271,20 +2271,20 @@ async function coldBaseline(run, intent) {
 
 /**
  * Opens a template from the Library panel, as a student does: the panel is
- * in the arrange view, on its Library tab (the top bar's Library button
+ * in the arrange view, on its Library tab (the top bar's Inspector toggle
  * opens a shut panel), and a template is a row there, by its label. Returns
  * the fingerprint of the session the click replaces, taken once the store
  * is still: the work as it is kept, with the view the panel needed.
  */
 async function openFromLibrary(page, label) {
-  // The arrange view opens the panel by itself (setCurrentView); the store
-  // says so before React has drawn it.
+  // The arrange view opens the panel as the student keeps it there (2.4);
+  // the store says so before React has drawn it.
   const open = await page.evaluate(() => {
     const store = window.__MA_STORE__;
     store.getState().setCurrentView('arrange');
     return store.getState().libraryOpen;
   });
-  if (!open) await page.click('button[title="Library"]');
+  if (!open) await page.click('[data-testid="inspector-toggle"]');
   // The panel's tab is the one Library button with a label; the top bar's
   // is an icon.
   await page.locator('button:has-text("Library")').first().click();

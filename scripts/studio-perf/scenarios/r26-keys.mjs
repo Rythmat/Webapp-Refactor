@@ -59,7 +59,8 @@ export const flags = {
   },
 };
 
-const SLOT = '[data-slot="toprail-leading"]';
+/** The editor's top bar (milestone 2.5; the TopRail's slot before it). */
+const SLOT = '[data-testid="top-bar"]';
 const CHIP = '[data-testid="musical-typing-chip"]';
 
 const VIEWPORTS = [
@@ -262,7 +263,7 @@ async function keysIn(kit, run) {
     const fromKey = await guardShown();
     await page.getByRole('button', { name: 'Cancel' }).first().click();
     await kit.sleep(300);
-    await page.click('button[title="Record"]');
+    await page.click('[data-testid="transport-record"]');
     await kit.sleep(400);
     const fromButton = await guardShown();
     await page.getByRole('button', { name: 'Cancel' }).first().click();

@@ -12,7 +12,8 @@ import { saveProject } from './saveProject';
 
 // ── The editor's global keys (milestone 1.6) ───────────────────────────────
 //
-// Transport, save, undo, export and the '?' sheet, in every view. They run
+// Transport, save, undo, export, the Inspector and the '?' sheet, in every
+// view. They run
 // the same commands as their buttons: R is requestRecord (which asks before
 // recording over a take), ⌘S is saveProject (File ▸ Save's toasts and
 // chip), ⌘E and ⇧⌘U are File ▸ Export MIDI and Analyze. Undo and redo stand
@@ -48,6 +49,7 @@ export const GLOBAL_HANDLERS: KeymapHandlers = {
     void exportProjectMidi();
   },
   'project.analyze': analyzeProject,
+  'view.inspector': () => useStore.getState().toggleLibrary(),
   'typing.on': () => useMusicalTypingStore.getState().setEnabled(true),
   'help.shortcuts': () => useShortcutSheetStore.getState().open(),
   'browser.selectAll': () => true,

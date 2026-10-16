@@ -354,6 +354,11 @@ const STORE_SPECS = {
   timelineSnapEnabled: pref('view', true),
   timelineTripletMode: pref('view', false),
   singleKeyShortcuts: pref('view', true),
+  // The shell's layout (milestone 2.4): per user, never per project.
+  inspectorOpenByView: pref('view', () => ({})),
+  inspectorWidth: pref('view', 200),
+  dockHeights: pref('view', () => ({})),
+  readoutMode: pref('view', 'bars'),
   activeTool: session('view', 'cursor', 'project'),
   selectedClipId: session('view', null, 'project'),
   selectedClipTrackId: session('view', null, 'project'),

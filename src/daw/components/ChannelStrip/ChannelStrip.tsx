@@ -1,6 +1,5 @@
 /* eslint-disable tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
 import { useCallback, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Zap,
   Sparkles,
@@ -28,7 +27,11 @@ import {
   preloadDockTab,
   preloadInstrumentViews,
 } from '@/daw/shell/lazyParts';
+import { DOCK_TAB_BAR_PX } from '@/daw/shell/layout/layoutModel';
 import { isChannelStripTabId } from './channelStripTabs';
+
+/** The dock's height before the shell has measured itself (220 px, 2.4). */
+const DOCK_FALLBACK_PX = 220;
 
 // ── PrismLogo ────────────────────────────────────────────────────────────
 
@@ -82,8 +85,6 @@ const TABS: TabDef[] = [
     icon: <Piano size={14} strokeWidth={1.5} />,
   },
 ];
-
-const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
 
 function instrumentLabel(instrument: string): string {
   switch (instrument) {
@@ -240,7 +241,10 @@ export function ChannelStrip() {
       }}
     >
       {/* Tab bar (always visible) */}
-      <div className="flex items-center px-3 shrink-0" style={{ height: 32 }}>
+      <div
+        className="flex items-center px-3 shrink-0"
+        style={{ height: DOCK_TAB_BAR_PX }}
+      >
         {/* Tabs */}
         <div className="flex items-center gap-0.5">
           {visibleTabs.map((tab) => {
@@ -314,59 +318,56 @@ export function ChannelStrip() {
         </button>
       </div>
 
-      {/* Content area (animated) */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            key="channel-strip-content"
-            className="overflow-hidden"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={SPRING}
-            style={{ borderTop: '1px solid var(--daw-hairline)' }}
+      {/* Content area. It takes its height in one step, the shell's
+          --daw-dock-h (the student's for this tab) less the tab bar, and
+          only its content fades in: a height spring re-laid out the
+          timeline above it every frame (milestone 2.4's motion rules). */}
+      {isOpen && (
+        <div
+          key={activeTab}
+          className="overflow-hidden animate-in fade-in-0 duration-daw-fast motion-reduce:animate-none"
+          style={{ borderTop: '1px solid var(--daw-hairline)' }}
+        >
+          <div
+            className={
+              activeTab === 'piano-roll' ? 'overflow-hidden' : 'overflow-y-auto'
+            }
+            style={{
+              height: `calc(var(--daw-dock-h, ${DOCK_FALLBACK_PX}px) - ${DOCK_TAB_BAR_PX + 1}px)`,
+            }}
           >
-            <div
-              className={
-                activeTab === 'piano-roll'
-                  ? 'overflow-hidden'
-                  : 'overflow-y-auto'
-              }
-              style={{ height: '33vh' }}
-            >
-              {activeTab === 'controls' && <TrackControlsPanel />}
-              {activeTab === 'fx' && <EffectsPanelPart />}
-              {activeTab === 'grooves' && track && (
-                <GroovesBrowserPart trackId={track.id} />
-              )}
-              {activeTab === 'parts' && track && (
-                <PartsBrowserPart trackId={track.id} />
-              )}
-              {activeTab === 'prism' && (
-                <LockedFeatureOverlay locked={!isPremium}>
-                  <PrismPanelPart />
-                </LockedFeatureOverlay>
-              )}
-              {activeTab === 'piano-roll' &&
-                (rollTrackId && (rollClipId || isMidiInstrument) ? (
-                  <ClipPianoRollPart
-                    trackId={rollTrackId}
-                    clipId={rollClipId}
-                    blankStartTick={blankStartTick}
-                    onAuditionNote={handleAuditionNote}
-                  />
-                ) : (
-                  <div
-                    className="flex items-center justify-center h-full text-xs"
-                    style={{ color: 'var(--daw-text-3)' }}
-                  >
-                    Select a clip on the timeline to edit
-                  </div>
-                ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {activeTab === 'controls' && <TrackControlsPanel />}
+            {activeTab === 'fx' && <EffectsPanelPart />}
+            {activeTab === 'grooves' && track && (
+              <GroovesBrowserPart trackId={track.id} />
+            )}
+            {activeTab === 'parts' && track && (
+              <PartsBrowserPart trackId={track.id} />
+            )}
+            {activeTab === 'prism' && (
+              <LockedFeatureOverlay locked={!isPremium}>
+                <PrismPanelPart />
+              </LockedFeatureOverlay>
+            )}
+            {activeTab === 'piano-roll' &&
+              (rollTrackId && (rollClipId || isMidiInstrument) ? (
+                <ClipPianoRollPart
+                  trackId={rollTrackId}
+                  clipId={rollClipId}
+                  blankStartTick={blankStartTick}
+                  onAuditionNote={handleAuditionNote}
+                />
+              ) : (
+                <div
+                  className="flex items-center justify-center h-full text-xs"
+                  style={{ color: 'var(--daw-text-3)' }}
+                >
+                  Select a clip on the timeline to edit
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

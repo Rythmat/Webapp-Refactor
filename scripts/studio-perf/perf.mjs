@@ -100,10 +100,11 @@
  *   each write's commit span (start to commit, mostly waiting on the disk;
  *   reported, never judged), long tasks overlapping a write (target 0),
  *   mirror writes while the tab is visible (target 0: the mirror is for
- *   hidden, pagehide and freeze only), the TopRail slot's React commits
- *   (its DevProfiler region EditorTopRailSlot, when DawApp has one)
- *   against its chip and Undo/Redo flips (target: no more commits than
- *   flips + 1), with its DOM-changing frames as a secondary check. Idle: 0
+ *   hidden, pagehide and freeze only), the top bar's React commits (its
+ *   DevProfiler region TopBar; the TopRail slot's, EditorTopRailSlot,
+ *   before milestone 2.5) against its chip and Undo/Redo flips (target: no
+ *   more commits than flips + 1), with the DOM-changing frames of its
+ *   project zone (chip, Undo, Redo) as a secondary check. Idle: 0
  *   writes once the last change is committed, and the dragged fader's
  *   final volume is the one the draft body holds (finalValueCommitted).
  *   Fails when the window saw no draft write at all, the transport stopped,
@@ -1945,7 +1946,7 @@ async function coldLoad(browser, base, profile, load, windows) {
     await installPeakReader(page);
     await page.evaluate(watchFirstAudio, AUDIBLE_PEAK);
     // A student presses Play as soon as the editor shows.
-    await page.click('button[title="Play"]');
+    await page.click('[data-testid="transport-play"]');
     const endedBy = await waitForSound(page, requests, expectSound, windows);
     const heard = endedBy === 'sound';
     if (heard) {
@@ -2121,7 +2122,11 @@ function startDraftMonitor() {
     if (String(key).startsWith('musicAtlas:daw:mirror:')) m.mirrorWrites += 1;
     return setItem.call(this, key, value);
   };
-  const slot = document.querySelector('[data-slot="toprail-leading"]');
+  // The top bar's project zone (milestone 2.5), or the TopRail's slot that
+  // held the chip and Undo/Redo before it.
+  const slot = document.querySelector(
+    '[data-testid="top-bar"] [data-zone="project"], [data-slot="toprail-leading"]',
+  );
   m.slotFound = Boolean(slot);
   let frameCounted = false;
   m.observer = new MutationObserver((records) => {
@@ -2315,8 +2320,9 @@ async function autosave({ browser, base, profile, windows }) {
         draft: stored,
       };
     }, slider.trackId);
-    // The TopRail slot's React commits, when DawApp profiles it.
-    const slotRegion = probes.regions?.EditorTopRailSlot ?? null;
+    // The top bar's React commits (the TopRail slot's before 2.5).
+    const slotRegion =
+      probes.regions?.TopBar ?? probes.regions?.EditorTopRailSlot ?? null;
     const slotCommits = slotRegion
       ? Math.round(slotRegion.commitsPerSecond * probes.seconds)
       : null;
@@ -2326,7 +2332,7 @@ async function autosave({ browser, base, profile, windows }) {
     if (!gesture.target.changed) {
       problems.push(`the drag never changed ${slider.track}'s volume`);
     }
-    if (!active.slotFound) problems.push('no TopRail slot on screen');
+    if (!active.slotFound) problems.push('no top bar on screen');
     problems.push(...probeProblems(probes));
     return {
       setup: session.setup,
@@ -3406,7 +3412,7 @@ function autosaveTable(runs) {
     'slot commits / frames / chip + undo flips',
     'idle writes',
     'frame p95 (ms)',
-    'TransportBar commits/s',
+    'top bar commits/s',
     'targets met',
   ];
   const rows = runs.map((run) => {
@@ -3432,7 +3438,9 @@ function autosaveTable(runs) {
       `${run.slotCommits ?? '–'} / ${active.slotFrames} / ${active.chipFlips} + ${active.undoFlips}`,
       quiet.writes,
       probes.frameMs.p95,
-      probes.regions?.TransportBar?.commitsPerSecond ?? 0,
+      probes.regions?.TopBar?.commitsPerSecond ??
+        probes.regions?.TransportBar?.commitsPerSecond ??
+        0,
       missed.length ? `${yes(false)}: ${missed.join(', ')}` : yes(true),
     ];
   });
@@ -3854,7 +3862,8 @@ function summarize(results, meta, limits) {
     'CPU throttle (10 Mbps / 40 ms on loads), laptop 1440×787 DPR 2, small',
     '1280×720. A cell that reads "a (b–c)" is the median of the repeats and',
     'their range. Region counts come from the DevProfiler wrappers in',
-    'DawApp; TransportBar also counts its own commits under the same id, and',
+    'the shell (TopBar, the views, LibraryPanel, ChannelStrip); TopBar was',
+    'TransportBar before milestone 2.5, which also counted its own commits, and',
     'Timeline and DawAppInner count only their own (no render time).',
   ];
   const add = (scenario, title, body, note) => {
@@ -3949,8 +3958,8 @@ function summarize(results, meta, limits) {
       '(budget 5 ms at p95; "unmeasured" until the editor sets those marks).',
       'Commit = write start to its commit, mostly disk wait (reported only).',
       'Targets: writes ≤ ceil(window / maxWait) + 1; no long task overlapping',
-      'a write; no mirror write while visible; TopRail-slot React commits',
-      '(DevProfiler EditorTopRailSlot) ≤ chip + Undo/Redo flips + 1, and no',
+      'a write; no mirror write while visible; top bar React commits',
+      '(DevProfiler TopBar) ≤ chip + Undo/Redo flips + 1, and no',
       'more DOM-changing frames than flips; 0 writes idle; the fader’s final',
       'volume is in the draft body. A missed target is listed here, not as a',
       'problem; an unmeasured one (null) is neither.',

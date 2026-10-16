@@ -28,8 +28,11 @@
     background: white !important;
   }
 
-  /* Hide all DAW chrome */
-  body.ma-print-leadsheet .daw-root > *:not(.leadsheet-container) {
+  /* Hide all DAW chrome: every child of the editor that neither is the
+     sheet nor holds it (the shell's grid holds it since milestone 2.4). */
+  body.ma-print-leadsheet
+    .daw-root
+    > *:not(.leadsheet-container):not(:has(.leadsheet-container)) {
     display: none !important;
   }
 

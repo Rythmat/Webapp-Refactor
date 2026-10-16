@@ -1,12 +1,14 @@
 import { DevProfiler } from '@/daw/dev/DevProfiler';
+import { AvatarMenu } from './AvatarMenu';
 import { MusicalTypingChip } from './MusicalTypingChip';
 import { SaveStatusChip } from './SaveStatusChip';
 
 // ── The practice screen's header (milestone 1.4) ───────────────────────────
 //
-// Back to lesson · the track's name · the save chip and 'Take it to the
-// Studio'. Lifted from PracticeTrackView unchanged in look; the chip is the
-// one addition. No Undo/Redo: the practice screen has no undo (Cmd+Z is off
+// Back to lesson · the track's name · the save chip, 'Take it to the
+// Studio' and the avatar menu. Lifted from PracticeTrackView unchanged in
+// look; the chip is one addition, and the avatar menu (2.5) the other: in
+// focus mode the app's TopRail is gone from the practice screen too. No Undo/Redo: the practice screen has no undo (Cmd+Z is off
 // there). 'Take it to the Studio' is the white pill, the screen's primary
 // action (it was teal until milestone 2.1).
 //
@@ -60,6 +62,7 @@ export function PracticeHeader({
         >
           Take it to the Studio &rarr;
         </button>
+        <AvatarMenu />
       </div>
     </header>
   );

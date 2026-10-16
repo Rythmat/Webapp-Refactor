@@ -216,7 +216,9 @@ async function shell(kit, run) {
         (z) =>
           `${z.zone} ${Math.round(z.left)}–${Math.round(z.right)}${z.clipped ? ' clipped' : ''}`,
       ),
-      main: v.opened.main && `${Math.round(v.opened.main.w)}×${Math.round(v.opened.main.h)}`,
+      main:
+        v.opened.main &&
+        `${Math.round(v.opened.main.w)}×${Math.round(v.opened.main.h)}`,
       dock: v.opened.dock?.h,
       inspectorOpen: v.opened.libraryOpen,
       inspectorMounts: [...new Set(v.ids)],

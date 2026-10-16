@@ -1,26 +1,110 @@
-import { useState, useEffect, useCallback } from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
-import { ChevronDown, ArrowLeft } from 'lucide-react';
-import { useStore } from '@/daw/store';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useStore, type MidiStatus } from '@/daw/store';
 import {
-  getAudioInputs,
   getAudioOutputs,
+  hasMicrophonePermission,
+  listAudioInputs,
   probeDeviceChannelCount,
   type AudioInputDevice,
   type AudioOutputDevice,
 } from '@/daw/midi/AudioInputEnumerator';
 import { audioEngine } from '@/daw/audio/AudioEngine';
+import { Chip } from '@/daw/ui/Chip';
+import { DawDialog } from '@/daw/ui/DawDialog';
+import { Select } from '@/daw/ui/Select';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 
-type SettingsView = 'main' | 'inputConfig' | 'outputConfig';
+// ── Audio & MIDI settings (plan 2.3) ───────────────────────────────────────
+// The editor's one settings dialog: the input and output devices, the input's
+// channel count, what the audio context runs at, and where MIDI stands.
+//
+// Opening it asks for nothing. Until the page may use the microphone the
+// browser hides device names (Chrome lists one unnamed default input), so the
+// list shows what it can and says that choosing an input asks for access. The
+// microphone is requested only when the student picks one (shell-21).
 
-const CHANNEL_COUNT_OPTIONS = [
-  { label: 'Auto', value: null as number | null },
-  { label: '2', value: 2 },
-  { label: '4', value: 4 },
-  { label: '8', value: 8 },
-  { label: '16', value: 16 },
-  { label: '32', value: 32 },
-];
+const CHANNEL_COUNTS = [2, 4, 8, 16, 32];
+const AUTO = 'auto';
+/** Chrome's unnamed default input, before the page may use the microphone. */
+const DEFAULT_INPUT = 'default';
+
+/** What a MIDI status says, in the student's words (engine-hooks-27). */
+export function midiStatusText(
+  status: MidiStatus,
+  inputNames: readonly string[],
+): string {
+  switch (status) {
+    case 'ready':
+      return inputNames.length === 1
+        ? `MIDI: ${inputNames[0]}`
+        : `MIDI: ${inputNames.length} keyboards (${inputNames.join(', ')})`;
+    case 'no-device':
+      return 'No MIDI keyboard connected';
+    case 'unsupported':
+      return 'MIDI keyboards need Chrome or Edge';
+    case 'denied':
+      return 'MIDI is blocked for this site in the browser’s settings';
+    case 'idle':
+      return 'Looking for MIDI keyboards…';
+  }
+}
+
+/** The input picker's options: names once allowed, plain ones until then. */
+export function inputOptions(
+  inputs: readonly AudioInputDevice[],
+): { value: string; label: string }[] {
+  const named = inputs.filter((d) => d.id !== '');
+  if (named.length === 0) {
+    return [{ value: DEFAULT_INPUT, label: 'Default microphone' }];
+  }
+  return named.map((d, i) => ({
+    value: d.id,
+    label:
+      d.label ||
+      (d.id === DEFAULT_INPUT ? 'Default microphone' : `Microphone ${i + 1}`),
+  }));
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="flex flex-col gap-2">
+      <h3 className={TYPE_CLASS.micro} style={{ color: 'var(--daw-text-3)' }}>
+        {title}
+      </h3>
+      {children}
+    </section>
+  );
+}
+
+function Note({ children }: { children: React.ReactNode }) {
+  return (
+    <p className={TYPE_CLASS.label} style={{ color: 'var(--daw-text-3)' }}>
+      {children}
+    </p>
+  );
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className={TYPE_CLASS.label} style={{ color: 'var(--daw-text-3)' }}>
+        {label}
+      </span>
+      <span
+        className={`${TYPE_CLASS.body} tabular-nums`}
+        style={{ color: 'var(--daw-text)' }}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
 
 // ── SettingsModal ──────────────────────────────────────────────────────
 
@@ -28,63 +112,26 @@ export function SettingsModal() {
   const open = useStore((s) => s.settingsOpen);
   const setOpen = useStore((s) => s.setSettingsOpen);
 
-  const [view, setView] = useState<SettingsView>('main');
-
-  // Reset view when modal closes
-  useEffect(() => {
-    if (!open) setView('main');
-  }, [open]);
-
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-        <Dialog.Content
-          className="fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
-          style={{
-            maxWidth: view === 'main' ? 448 : 560,
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            boxShadow:
-              '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-          }}
-        >
-          {view === 'main' && <MainView onNavigate={setView} />}
-          {view === 'inputConfig' && (
-            <ChannelConfigView kind="input" onBack={() => setView('main')} />
-          )}
-          {view === 'outputConfig' && (
-            <ChannelConfigView kind="output" onBack={() => setView('main')} />
-          )}
-
-          <Dialog.Close asChild>
-            <button
-              className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-              style={{ color: 'var(--daw-text-3)' }}
-              aria-label="Close"
-            >
-              &#x2715;
-            </button>
-          </Dialog.Close>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <DawDialog
+      open={open}
+      onOpenChange={setOpen}
+      size="md"
+      title="Audio & MIDI"
+      description="Where the Studio listens and plays, and your MIDI keyboard."
+      data={{ 'data-testid': 'audio-midi-settings' }}
+    >
+      {open && <SettingsBody />}
+    </DawDialog>
   );
 }
 
-// ── Main View ─────────────────────────────────────────────────────────
-
-function MainView({
-  onNavigate,
-}: {
-  onNavigate: (view: SettingsView) => void;
-}) {
+function SettingsBody() {
   const [inputs, setInputs] = useState<AudioInputDevice[]>([]);
   const [outputs, setOutputs] = useState<AudioOutputDevice[]>([]);
-  const [showInputMenu, setShowInputMenu] = useState(false);
-  const [showOutputMenu, setShowOutputMenu] = useState(false);
-  const [showChannelCountMenu, setShowChannelCountMenu] = useState(false);
+  const [allowed, setAllowed] = useState<boolean | null>(null);
   const [probing, setProbing] = useState(false);
+  const [refused, setRefused] = useState(false);
 
   const inputDeviceId = useStore((s) => s.inputDeviceId);
   const outputDeviceId = useStore((s) => s.outputDeviceId);
@@ -100,54 +147,59 @@ function MainView({
   const setInputChannelCountOverride = useStore(
     (s) => s.setInputChannelCountOverride,
   );
+  const midiStatus = useStore((s) => s.midiStatus);
+  const midiInputs = useStore((s) => s.inputs);
 
   const supportsOutput = audioEngine.supportsOutputSelection();
   const sampleRate = audioEngine.getSampleRate();
   const latencyMs = audioEngine.getBaseLatency() * 1000;
 
-  // Enumerate devices — auto-select first input device if none configured
-  useEffect(() => {
-    const enumerate = () => {
-      getAudioInputs().then(async (list) => {
-        setInputs(list);
-        if (!useStore.getState().inputDeviceId && list.length > 0) {
-          setProbing(true);
-          try {
-            const detected = await probeDeviceChannelCount(list[0].id);
-            setInputDevice(list[0].id, detected);
-          } catch {
-            setInputDevice(list[0].id, 2);
-          }
-          setProbing(false);
-        }
-      });
-      getAudioOutputs().then(setOutputs);
-    };
-    enumerate();
-    navigator.mediaDevices.addEventListener('devicechange', enumerate);
-    return () =>
-      navigator.mediaDevices.removeEventListener('devicechange', enumerate);
-  }, [setInputDevice]);
+  // List the devices, asking for nothing, and again when one is plugged in.
+  const enumerate = useCallback(async () => {
+    const [ins, outs, permission] = await Promise.all([
+      listAudioInputs(),
+      getAudioOutputs(),
+      hasMicrophonePermission(),
+    ]);
+    setInputs(ins);
+    setOutputs(outs);
+    setAllowed(permission ?? ins.some((d) => d.label !== ''));
+  }, []);
 
+  useEffect(() => {
+    void enumerate();
+    const devices = navigator.mediaDevices;
+    if (!devices?.addEventListener) return;
+    const onChange = () => void enumerate();
+    devices.addEventListener('devicechange', onChange);
+    return () => devices.removeEventListener('devicechange', onChange);
+  }, [enumerate]);
+
+  // Picking an input is when the browser asks for the microphone: the probe
+  // opens it to count its channels. Then the names show.
   const handleSelectInput = useCallback(
     async (id: string) => {
-      setShowInputMenu(false);
       setProbing(true);
+      setRefused(false);
       try {
         const detected = await probeDeviceChannelCount(id);
         setInputDevice(id, detected);
-      } catch {
-        setInputDevice(id, 2);
+      } catch (err) {
+        const blocked =
+          err instanceof DOMException &&
+          (err.name === 'NotAllowedError' || err.name === 'SecurityError');
+        if (blocked) setRefused(true);
+        else setInputDevice(id, 2);
       }
       setProbing(false);
+      await enumerate();
     },
-    [setInputDevice],
+    [setInputDevice, enumerate],
   );
 
   const handleSelectOutput = useCallback(
     (id: string) => {
-      setShowOutputMenu(false);
-      // Discover channel count — output devices don't provide channelCount easily, default to 2
+      // Output devices don't report a channel count; stereo it is.
       setOutputDevice(id, 2);
       audioEngine.setOutputDevice(id).catch((err) => {
         console.warn('[SettingsModal] Failed to set output device:', err);
@@ -156,488 +208,117 @@ function MainView({
     [setOutputDevice],
   );
 
-  const handleSelectChannelCount = useCallback(
-    (value: number | null) => {
-      setShowChannelCountMenu(false);
-      setInputChannelCountOverride(value);
-    },
-    [setInputChannelCountOverride],
+  const inputChoices = useMemo(() => inputOptions(inputs), [inputs]);
+  const outputChoices = useMemo(
+    () =>
+      outputs
+        .filter((d) => d.id !== '')
+        .map((d, i) => ({ value: d.id, label: d.label || `Output ${i + 1}` })),
+    [outputs],
   );
-
-  // Current channel count label
-  const channelCountLabel =
-    inputChannelCountOverride !== null
-      ? `${inputChannelCountOverride} ch`
-      : `Auto (${inputDetectedChannelCount || '—'})`;
+  const autoLabel = `Auto (${inputDetectedChannelCount || '—'})`;
 
   return (
-    <>
-      <Dialog.Title
-        className="mb-6 text-lg font-semibold"
-        style={{ color: 'var(--daw-text)' }}
-      >
-        Settings
-      </Dialog.Title>
-      <Dialog.Description className="sr-only">
-        Configure audio input and output devices.
-      </Dialog.Description>
-
-      <div className="flex flex-col gap-5">
-        {/* Audio Input Device */}
-        <div className="flex flex-col gap-2">
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--daw-text-3)' }}
-          >
-            Audio Input Device
-          </span>
-          <DeviceDropdown
-            devices={inputs}
-            selectedId={inputDeviceId ?? ''}
-            onSelect={handleSelectInput}
-            open={showInputMenu}
-            onToggle={() => setShowInputMenu((v) => !v)}
-            placeholder="No Input Device"
-          />
-        </div>
-
-        {/* Input Channel Count */}
+    <div className="flex flex-col gap-5 pb-3">
+      <Section title="Input">
+        <Select
+          label="Input device"
+          options={inputChoices}
+          value={
+            inputDeviceId && inputChoices.some((o) => o.value === inputDeviceId)
+              ? inputDeviceId
+              : undefined
+          }
+          placeholder="Choose an input"
+          onValueChange={(id) => void handleSelectInput(id)}
+          disabled={probing}
+          id="settings-input-device"
+        />
+        {refused ? (
+          <Note>
+            The browser didn’t allow the microphone. Allow it from the icon in
+            the address bar, then choose the input again.
+          </Note>
+        ) : allowed === false ? (
+          <Note>
+            Choosing an input asks the browser for microphone access, so the
+            Studio can hear it.
+          </Note>
+        ) : null}
         {inputDeviceId && (
-          <div className="flex flex-col gap-2">
-            <span
-              className="text-[10px] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--daw-text-3)' }}
-            >
-              Input Channels
-            </span>
-            {probing ? (
-              <div
-                className="rounded-lg px-3 py-2 text-xs"
-                style={{
-                  backgroundColor: 'var(--daw-surface-2)',
-                  border: '1px solid var(--daw-hairline)',
-                  color: 'var(--daw-text-3)',
-                }}
-              >
-                Detecting channels…
-              </div>
-            ) : (
-              <div style={{ position: 'relative' }}>
-                <div
-                  onClick={() => setShowChannelCountMenu((v) => !v)}
-                  className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2"
-                  style={{
-                    backgroundColor: 'var(--daw-surface-2)',
-                    border: '1px solid var(--daw-hairline)',
-                  }}
-                >
-                  <span
-                    className="text-xs"
-                    style={{ color: 'var(--daw-text)' }}
-                  >
-                    {channelCountLabel}
-                  </span>
-                  <ChevronDown
-                    size={14}
-                    className="ml-2 shrink-0"
-                    style={{ color: 'var(--daw-text-3)' }}
-                  />
-                </div>
-                {showChannelCountMenu && (
-                  <div
-                    className="absolute inset-x-0 z-50 overflow-hidden rounded-lg"
-                    style={{
-                      top: '100%',
-                      marginTop: 2,
-                      backgroundColor: 'var(--daw-popover)',
-                      border: '1px solid var(--daw-hairline)',
-                      maxHeight: 200,
-                      overflowY: 'auto',
-                    }}
-                  >
-                    {CHANNEL_COUNT_OPTIONS.map((opt) => {
-                      const isSelected =
-                        opt.value === inputChannelCountOverride;
-                      const label =
-                        opt.value === null
-                          ? `Auto (${inputDetectedChannelCount || '—'})`
-                          : `${opt.value} channels`;
-                      return (
-                        <div
-                          key={opt.label}
-                          onClick={() => handleSelectChannelCount(opt.value)}
-                          className="cursor-pointer px-3 py-1.5 text-xs hover:bg-white/10"
-                          style={{
-                            color: 'var(--daw-text)',
-                            backgroundColor: isSelected
-                              ? 'rgba(255, 255, 255, 0.10)'
-                              : undefined,
-                          }}
-                        >
-                          {label}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <Select
+            label="Input channels"
+            options={[
+              { value: AUTO, label: autoLabel },
+              ...CHANNEL_COUNTS.map((n) => ({
+                value: String(n),
+                label: `${n} channels`,
+              })),
+            ]}
+            value={
+              inputChannelCountOverride === null
+                ? AUTO
+                : String(inputChannelCountOverride)
+            }
+            onValueChange={(next) =>
+              setInputChannelCountOverride(next === AUTO ? null : Number(next))
+            }
+            disabled={probing}
+          />
         )}
+        {probing && <Note>Checking the input’s channels…</Note>}
+      </Section>
 
-        {/* Audio Output Device */}
-        <div className="flex flex-col gap-2">
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--daw-text-3)' }}
-          >
-            Audio Output Device
-          </span>
-          {supportsOutput ? (
-            <DeviceDropdown
-              devices={outputs}
-              selectedId={outputDeviceId ?? ''}
-              onSelect={handleSelectOutput}
-              open={showOutputMenu}
-              onToggle={() => setShowOutputMenu((v) => !v)}
-              placeholder="No Output Device"
+      <Section title="Output">
+        {supportsOutput ? (
+          outputChoices.length > 0 ? (
+            <Select
+              label="Output device"
+              options={outputChoices}
+              value={outputDeviceId ?? undefined}
+              placeholder="System default"
+              onValueChange={handleSelectOutput}
             />
           ) : (
-            <div
-              className="rounded-lg px-3 py-2 text-xs"
-              style={{
-                backgroundColor: 'var(--daw-surface-2)',
-                border: '1px solid var(--daw-hairline)',
-                color: 'var(--daw-text-3)',
-              }}
-            >
-              Output device selection requires Chrome or Edge
-            </div>
-          )}
-        </div>
+            <Note>
+              Playing through the system’s default output. Other outputs are
+              listed once the microphone is allowed.
+            </Note>
+          )
+        ) : (
+          <Note>Choosing an output needs Chrome or Edge.</Note>
+        )}
+      </Section>
 
-        {/* Channel Configuration */}
-        <div className="flex flex-col gap-2">
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--daw-text-3)' }}
-          >
-            Channel Configuration
-          </span>
-          <div className="flex gap-3">
-            <button
-              onClick={() => onNavigate('inputConfig')}
-              disabled={!inputDeviceId}
-              className="flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-white/10"
-              style={{
-                backgroundColor: 'var(--daw-surface-2)',
-                border: '1px solid var(--daw-hairline)',
-                color: inputDeviceId ? 'var(--daw-text)' : 'var(--daw-text-3)',
-                cursor: inputDeviceId ? 'pointer' : 'default',
-                opacity: inputDeviceId ? 1 : 0.5,
-              }}
-            >
-              Input Config
-            </button>
-            <button
-              onClick={() => onNavigate('outputConfig')}
-              disabled={!outputDeviceId}
-              className="flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-white/10"
-              style={{
-                backgroundColor: 'var(--daw-surface-2)',
-                border: '1px solid var(--daw-hairline)',
-                color: outputDeviceId ? 'var(--daw-text)' : 'var(--daw-text-3)',
-                cursor: outputDeviceId ? 'pointer' : 'default',
-                opacity: outputDeviceId ? 1 : 0.5,
-              }}
-            >
-              Output Config
-            </button>
-          </div>
-        </div>
-
-        {/* Info row */}
+      <Section title="Audio">
         <div className="flex gap-6">
-          <InfoPill
-            label="Sample Rate"
+          <Fact
+            label="Sample rate"
             value={sampleRate > 0 ? `${sampleRate} Hz` : '—'}
           />
-          <InfoPill
+          <Fact
             label="Latency"
             value={latencyMs > 0 ? `${latencyMs.toFixed(1)} ms` : '—'}
           />
-          <InfoPill
-            label="Channels"
+          <Fact
+            label="Input channels"
             value={
               inputDeviceChannelCount > 0 ? `${inputDeviceChannelCount}` : '—'
             }
           />
         </div>
-      </div>
-    </>
-  );
-}
+      </Section>
 
-// ── Channel Config View ───────────────────────────────────────────────
-
-function ChannelConfigView({
-  kind,
-  onBack,
-}: {
-  kind: 'input' | 'output';
-  onBack: () => void;
-}) {
-  const channelCount = useStore((s) =>
-    kind === 'input' ? s.inputDeviceChannelCount : s.outputDeviceChannelCount,
-  );
-  const enabledMono = useStore((s) =>
-    kind === 'input' ? s.enabledMonoInputs : s.enabledMonoOutputs,
-  );
-  const enabledStereo = useStore((s) =>
-    kind === 'input' ? s.enabledStereoInputs : s.enabledStereoOutputs,
-  );
-  const toggleMono = useStore((s) =>
-    kind === 'input' ? s.toggleMonoInput : s.toggleMonoOutput,
-  );
-  const toggleStereo = useStore((s) =>
-    kind === 'input' ? s.toggleStereoInput : s.toggleStereoOutput,
-  );
-
-  const pairCount = Math.ceil(channelCount / 2);
-  const label = kind === 'input' ? 'Input' : 'Output';
-
-  return (
-    <>
-      {/* Header */}
-      <div className="mb-4 flex items-center gap-3">
-        <button
-          onClick={onBack}
-          className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/10"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          <ArrowLeft size={16} />
-        </button>
-        <Dialog.Title
-          className="text-lg font-semibold"
-          style={{ color: 'var(--daw-text)' }}
-        >
-          {label} Configuration
-        </Dialog.Title>
-      </div>
-      <Dialog.Description className="sr-only">
-        Choose which audio hardware {kind}s to make available to tracks.
-      </Dialog.Description>
-
-      <p
-        className="mb-5 text-xs leading-relaxed"
-        style={{ color: 'var(--daw-text-3)' }}
-      >
-        Choose which audio hardware {kind}s to make available to tracks. Every{' '}
-        {kind} pair can be used as one stereo {kind === 'input' ? 'in' : 'out'}{' '}
-        and/or two mono {kind === 'input' ? 'ins' : 'outs'}.
-      </p>
-
-      {channelCount === 0 ? (
-        <p className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
-          No {kind} device selected.
-        </p>
-      ) : (
-        <div
-          className="flex gap-8"
-          style={{ maxHeight: 320, overflowY: 'auto' }}
-        >
-          {/* Mono column */}
-          <div className="flex-1">
-            <span
-              className="mb-3 block text-[11px] font-semibold"
-              style={{ color: 'var(--daw-text)' }}
-            >
-              Mono {label}s
-            </span>
-            <div className="flex flex-col gap-1.5">
-              {Array.from({ length: pairCount }, (_, pi) => {
-                const ch1 = pi * 2;
-                const ch2 = pi * 2 + 1;
-                const hasCh2 = ch2 < channelCount;
-                return (
-                  <div key={pi} className="flex items-center gap-1.5">
-                    <span
-                      className="w-10 shrink-0 text-right text-[10px]"
-                      style={{ color: 'var(--daw-text-3)' }}
-                    >
-                      {ch1 + 1}
-                      {hasCh2 ? ` & ${ch2 + 1}` : ''}
-                    </span>
-                    <ChannelToggle
-                      active={enabledMono.includes(ch1)}
-                      onClick={() => toggleMono(ch1)}
-                    />
-                    {hasCh2 && (
-                      <ChannelToggle
-                        active={enabledMono.includes(ch2)}
-                        onClick={() => toggleMono(ch2)}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Stereo column */}
-          <div className="flex-1">
-            <span
-              className="mb-3 block text-[11px] font-semibold"
-              style={{ color: 'var(--daw-text)' }}
-            >
-              Stereo {label}s
-            </span>
-            <div className="flex flex-col gap-1.5">
-              {Array.from({ length: Math.floor(channelCount / 2) }, (_, pi) => {
-                const left = pi * 2;
-                return (
-                  <div key={pi} className="flex items-center gap-1.5">
-                    <ChannelToggle
-                      active={enabledStereo.includes(left)}
-                      onClick={() => toggleStereo(left)}
-                      label={`${left + 1}/${left + 2}`}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+      <Section title="MIDI">
+        <div>
+          <Chip size="md" data-testid="midi-status" data-status={midiStatus}>
+            {midiStatusText(
+              midiStatus,
+              midiInputs.map((d) => d.name),
+            )}
+          </Chip>
         </div>
-      )}
-    </>
-  );
-}
-
-// ── Channel Toggle Button ─────────────────────────────────────────────
-
-function ChannelToggle({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label?: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="cursor-pointer rounded px-2.5 py-1 text-[11px] font-medium transition-colors"
-      style={{
-        backgroundColor: active ? '#ffffff' : 'var(--daw-surface-2)',
-        color: active ? '#101012' : 'var(--daw-text-3)',
-        border: `1px solid ${active ? '#ffffff' : 'var(--daw-hairline)'}`,
-        minWidth: label ? 48 : 32,
-      }}
-    >
-      {label ?? ''}
-    </button>
-  );
-}
-
-// ── Device Dropdown ────────────────────────────────────────────────────
-
-function DeviceDropdown({
-  devices,
-  selectedId,
-  onSelect,
-  open,
-  onToggle,
-  placeholder,
-}: {
-  devices: { id: string; label: string }[];
-  selectedId: string;
-  onSelect: (id: string) => void;
-  open: boolean;
-  onToggle: () => void;
-  placeholder: string;
-}) {
-  const selectedLabel =
-    devices.find((d) => d.id === selectedId)?.label ?? placeholder;
-
-  return (
-    <div style={{ position: 'relative' }}>
-      <div
-        onClick={onToggle}
-        className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2"
-        style={{
-          backgroundColor: 'var(--daw-surface-2)',
-          border: '1px solid var(--daw-hairline)',
-        }}
-      >
-        <span
-          className="truncate text-xs"
-          style={{
-            color: devices.length ? 'var(--daw-text)' : 'var(--daw-text-3)',
-          }}
-        >
-          {selectedLabel}
-        </span>
-        <ChevronDown
-          size={14}
-          className="ml-2 shrink-0"
-          style={{ color: 'var(--daw-text-3)' }}
-        />
-      </div>
-      {open && devices.length > 0 && (
-        <div
-          className="absolute inset-x-0 z-50 overflow-hidden rounded-lg"
-          style={{
-            top: '100%',
-            marginTop: 2,
-            backgroundColor: 'var(--daw-popover)',
-            border: '1px solid var(--daw-hairline)',
-            maxHeight: 200,
-            overflowY: 'auto',
-          }}
-        >
-          {devices.map((d) => (
-            <div
-              key={d.id}
-              onClick={() => onSelect(d.id)}
-              className="cursor-pointer truncate px-3 py-1.5 text-xs hover:bg-white/10"
-              style={{
-                color: 'var(--daw-text)',
-                backgroundColor:
-                  d.id === selectedId ? 'rgba(255, 255, 255, 0.10)' : undefined,
-              }}
-            >
-              {d.label}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Info Pill ──────────────────────────────────────────────────────────
-
-function InfoPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span
-        className="text-[10px] font-semibold uppercase tracking-wider"
-        style={{ color: 'var(--daw-text-3)' }}
-      >
-        {label}
-      </span>
-      <span
-        className="rounded-lg px-3 py-1.5 text-xs"
-        style={{
-          backgroundColor: 'var(--daw-surface-2)',
-          border: '1px solid var(--daw-hairline)',
-          color: 'var(--daw-text)',
-          fontVariantNumeric: 'tabular-nums',
-        }}
-      >
-        {value}
-      </span>
+      </Section>
     </div>
   );
 }

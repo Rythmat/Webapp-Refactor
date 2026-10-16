@@ -11,7 +11,16 @@ export interface MidiDevice {
 
 // ── Slice ───────────────────────────────────────────────────────────────
 
-export type MidiStatus = 'idle' | 'ready' | 'unavailable';
+/**
+ * Where MIDI stands: still checking, ready (a device is connected), none
+ * connected, no Web MIDI in this browser, or the page was refused it.
+ */
+export type MidiStatus =
+  | 'idle'
+  | 'ready'
+  | 'no-device'
+  | 'unsupported'
+  | 'denied';
 
 export interface MidiDeviceSlice {
   inputs: MidiDevice[];

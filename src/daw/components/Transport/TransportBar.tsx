@@ -227,8 +227,6 @@ export const TransportBar = memo(function TransportBar({
   const isCountingIn = useStore((s) => s.isCountingIn);
   const countInBars = useStore((s) => s.countInBars);
   const bpm = useStore((s) => s.bpm);
-  const midiStatus = useStore((s) => s.midiStatus);
-  const midiInputs = useStore((s) => s.inputs);
   const metronomeEnabled = useStore((s) => s.metronomeEnabled);
   const loopEnabled = useStore((s) => s.loopEnabled);
   const snapEnabled = useStore((s) => s.timelineSnapEnabled);
@@ -488,6 +486,7 @@ export const TransportBar = memo(function TransportBar({
           createPortal(
             <div
               ref={keyPopoverRef}
+              data-testid="key-popover"
               className="fixed z-50 rounded-xl p-4 shadow-lg"
               style={{
                 top:
@@ -538,6 +537,7 @@ export const TransportBar = memo(function TransportBar({
               createPortal(
                 <div
                   ref={tsPopoverRef}
+                  data-testid="time-signature-popover"
                   className="fixed z-50 rounded-lg p-2 shadow-lg"
                   style={{
                     top:
@@ -891,46 +891,6 @@ export const TransportBar = memo(function TransportBar({
           >
             <SkipForward size={12} fill="currentColor" strokeWidth={0} />
           </motion.button>
-
-          {/* MIDI Status Indicator */}
-          <div
-            className="flex h-5 items-center gap-1 rounded px-1.5"
-            style={{
-              backgroundColor: 'var(--daw-surface-2)',
-            }}
-            title={
-              midiStatus === 'ready'
-                ? `MIDI: ${midiInputs.length} input(s) — ${midiInputs.map((d) => d.name).join(', ')}`
-                : midiStatus === 'unavailable'
-                  ? 'MIDI: Unavailable — use Chrome/Edge'
-                  : 'MIDI: Initializing...'
-            }
-          >
-            <div
-              className="size-1.5 rounded-full"
-              style={{
-                backgroundColor:
-                  midiStatus === 'ready'
-                    ? '#22c55e'
-                    : midiStatus === 'unavailable'
-                      ? '#ef4444'
-                      : '#6b7280',
-              }}
-            />
-            <span
-              className="text-[9px] font-medium uppercase"
-              style={{
-                color:
-                  midiStatus === 'ready'
-                    ? '#22c55e'
-                    : midiStatus === 'unavailable'
-                      ? '#ef4444'
-                      : 'var(--daw-text-3)',
-              }}
-            >
-              MIDI
-            </span>
-          </div>
 
           {/* Zoom indicator */}
           <ZoomIndicator />

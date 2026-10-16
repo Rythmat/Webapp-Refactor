@@ -41,6 +41,7 @@ import { showError, showSuccess } from '@/components/utils/toast';
 import { ExportAudioDialogPart } from '@/daw/shell/lazyParts';
 import { DEFAULT_EXPORT_CHOICES, type ExportChoices } from './exportChoices';
 import type { MidiNoteEvent } from '@prism/engine';
+import { confirmDialog, promptDialog } from '@/daw/ui/DialogHost';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -147,11 +148,15 @@ export function FileMenu() {
 
   // window.prompt stays until 2.3's Prompt primitive. The copy takes the
   // name and the cloud link only once it is saved.
-  const handleSaveAs = useCallback(() => {
-    const name = window.prompt(
-      'Project name:',
-      useStore.getState().projectName,
-    );
+  const handleSaveAs = useCallback(async () => {
+    const name = await promptDialog({
+      title: 'Save a copy',
+      label: 'Project name',
+      defaultValue: useStore.getState().projectName,
+      confirmLabel: 'Save',
+      validate: (value) =>
+        value.trim() ? null : 'Give the copy a name to save it.',
+    });
     if (!name || !name.trim()) return;
     void saveProject({ source: 'menu', saveAs: { name: name.trim() } });
   }, []);
@@ -165,7 +170,7 @@ export function FileMenu() {
 
   // Deletes the open project from the account. The session stays open as
   // work on this device (E12), no longer linked to it, so the next Save
-  // makes a new project. window.confirm stays until 2.3.
+  // makes a new project.
   const handleDeleteProject = useCallback(async () => {
     if (!token) {
       showError('Sign in to delete a project from your account.');
@@ -180,7 +185,14 @@ export function FileMenu() {
       showError('This project has not been saved to your account yet.');
       return;
     }
-    if (!window.confirm(`Delete project "${state.projectName}"?`)) return;
+    const confirmed = await confirmDialog({
+      title: `Delete “${state.projectName}”?`,
+      description:
+        'It is removed from your account. The work stays open on this device, so you can save it again as a new project.',
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (!confirmed) return;
     const generation = getSessionGeneration();
     const drafts = getSessionDeps()?.drafts ?? null;
     const draftId = drafts?.activeDraftId() ?? null;
@@ -360,7 +372,7 @@ export function FileMenu() {
             <DropdownMenu.Item
               className={itemClass}
               style={itemStyle}
-              onSelect={handleSaveAs}
+              onSelect={() => void handleSaveAs()}
               disabled={saving}
             >
               <SaveAll size={13} strokeWidth={2} />

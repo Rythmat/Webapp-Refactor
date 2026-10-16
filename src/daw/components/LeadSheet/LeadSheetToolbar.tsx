@@ -25,6 +25,7 @@ import {
 import { useChordNotation } from '@/lib/chordNotation';
 import { pickMelodyTrack } from './leadSheetMelody';
 import { SendToSetListButton } from './SendToSetList';
+import { promptDialog } from '@/daw/ui/DialogHost';
 
 interface LeadSheetToolbarProps {
   selectedMeasureIdx: number | null;
@@ -131,11 +132,19 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
     selectedMeasureIdx !== null &&
     repeats.some((r) => r.startMeasure === selectedMeasureIdx);
 
-  const handleAddSection = useCallback(() => {
+  const handleAddSection = useCallback(async () => {
     if (selectedMeasureIdx === null) return;
-    const label = window.prompt('Section label (e.g. A, B, Intro, Bridge):');
+    const measureIdx = selectedMeasureIdx;
+    const label = await promptDialog({
+      title: 'Add a section',
+      label: 'Section label',
+      description: 'For example A, B, Intro or Bridge.',
+      confirmLabel: 'Add',
+      maxLength: 24,
+      validate: (value) => (value.trim() ? null : 'Type a label to add it.'),
+    });
     if (!label || !label.trim()) return;
-    addSection({ measureIdx: selectedMeasureIdx, label: label.trim() });
+    addSection({ measureIdx, label: label.trim() });
   }, [selectedMeasureIdx, addSection]);
 
   const handleRemoveSection = useCallback(() => {
@@ -273,7 +282,11 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
           ...btnStyle,
           opacity: selectedMeasureIdx === null ? 0.4 : 1,
         }}
-        onClick={hasSectionAtSelected ? handleRemoveSection : handleAddSection}
+        onClick={
+          hasSectionAtSelected
+            ? handleRemoveSection
+            : () => void handleAddSection()
+        }
         disabled={selectedMeasureIdx === null}
         title={
           hasSectionAtSelected ? 'Remove section marker' : 'Add section marker'

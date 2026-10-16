@@ -562,8 +562,11 @@ describe('confirmDialog and promptDialog (promises through DialogHost)', () => {
       first = confirmDialog({ title: 'First?', description: '1' });
       second = confirmDialog({ title: 'Second?', description: '2' });
     });
+    // Each shows a tick after it is asked (a menu that asked has closed).
+    expect(
+      await screen.findByRole('alertdialog', { name: 'First?' }),
+    ).toBeInTheDocument();
     expect(screen.getAllByRole('alertdialog')).toHaveLength(1);
-    expect(screen.getByRole('alertdialog')).toHaveAccessibleName('First?');
     fireEvent.click(screen.getByRole('button', { name: 'OK' }));
     await expect(first!).resolves.toBe(true);
     expect(

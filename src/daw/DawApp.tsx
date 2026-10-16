@@ -64,6 +64,7 @@ import { OpeningHost } from '@/daw/shell/opening/OpeningHost';
 import { ShortcutSheetHost } from '@/daw/shell/help/ShortcutSheetHost';
 import { ProjectsDialogHost } from '@/daw/shell/projects/ProjectsDialogHost';
 import { SaveConflictDialog } from '@/daw/shell/topbar/SaveConflictDialog';
+import { DialogHost } from '@/daw/ui/DialogHost';
 import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
 import { clearCloudProjectCache } from '@/daw/shell/projects/cloudProjectList';
 import { EditorTopRailSlot } from '@/daw/shell/topbar/EditorTopRailSlot';
@@ -419,6 +420,9 @@ function DawAppInner() {
       <ProjectsDialogHost />
       <ShortcutSheetHost userId={userId} ownerKnown={ownerKnown} />
       <SaveConflictDialog />
+      {/* confirmDialog() and promptDialog(): the editor's questions, one at a
+          time (Delete project, Save a copy, marker and section names). */}
+      <DialogHost />
       {/* The Opening overlay, the error panel and the Premium prompt. A
           direct child of .daw-root, left out of the inert toggle above. */}
       <OpeningHost />

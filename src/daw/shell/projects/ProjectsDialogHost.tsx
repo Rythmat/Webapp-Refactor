@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { ProjectsDialogPart } from '@/daw/shell/lazyParts';
 import { useOpenedOnce } from '@/daw/shell/lazyPart';
+import { menuOpener } from '@/daw/ui/useReturnFocus';
 import { useProjectsDialogStore } from './useProjectsDialogStore';
 
 // ── Where the Projects dialog lives (milestone 1.4) ────────────────────────
@@ -17,20 +18,6 @@ import { useProjectsDialogStore } from './useProjectsDialogStore';
 // still on its item, so the dialog would hand focus back to a dead menu
 // item: the menu's trigger takes focus first (menuOpener). The dialog's
 // code loads when it is first opened (milestone 1.12a).
-
-/**
- * When focus sits in a Radix menu, that menu's trigger (named by the
- * content's aria-labelledby); otherwise null.
- */
-function menuOpener(
-  active: Element | null = document.activeElement,
-): HTMLElement | null {
-  const menu = active?.closest('[role=menu]');
-  const triggerId = menu?.getAttribute('aria-labelledby');
-  if (!triggerId) return null;
-  const trigger = document.getElementById(triggerId);
-  return trigger instanceof HTMLElement && trigger.isConnected ? trigger : null;
-}
 
 export function ProjectsDialogHost() {
   const { open, sortBy, focusDraftId, close } = useProjectsDialogStore(

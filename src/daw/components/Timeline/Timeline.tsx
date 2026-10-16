@@ -82,6 +82,7 @@ import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
 import { AnimatedBlobs } from '@/components/ui/blobs';
 import type { Track } from '@/daw/store/tracksSlice';
 import { DAW_PALETTE_EVENT, getDawPalette } from '@/daw/ui/tokens';
+import { promptDialog } from '@/daw/ui/DialogHost';
 import { sameTimelineGeometry, timelineNeedsRedraw } from './timelineGeometry';
 import {
   clipAudioStatus,
@@ -2102,18 +2103,22 @@ export function Timeline() {
 
   const closeCtxMenu = useCallback(() => setCtxMenu(null), []);
 
-  const handleCtxMenuRename = useCallback(() => {
+  const handleCtxMenuRename = useCallback(async () => {
     if (!ctxMenu?.markerId) return;
-    const marker = useStore
-      .getState()
-      .markers.find((m) => m.id === ctxMenu.markerId);
-    const newName = prompt('Marker name:', marker?.name ?? '');
-    if (newName !== null && newName.trim()) {
-      useStore
-        .getState()
-        .updateMarker(ctxMenu.markerId, { name: newName.trim() });
-    }
+    const markerId = ctxMenu.markerId;
+    const marker = useStore.getState().markers.find((m) => m.id === markerId);
     setCtxMenu(null);
+    const newName = await promptDialog({
+      title: 'Rename marker',
+      label: 'Marker name',
+      defaultValue: marker?.name ?? '',
+      confirmLabel: 'Rename',
+      validate: (value) => (value.trim() ? null : 'Type a name for it.'),
+    });
+    // The marker may have gone while the dialog was open.
+    if (newName === null || !newName.trim()) return;
+    if (!useStore.getState().markers.some((m) => m.id === markerId)) return;
+    useStore.getState().updateMarker(markerId, { name: newName.trim() });
   }, [ctxMenu]);
 
   const handleCtxMenuDelete = useCallback(() => {
@@ -3175,7 +3180,7 @@ export function Timeline() {
                 <button
                   className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
                   style={{ color: 'var(--daw-text)' }}
-                  onClick={handleCtxMenuRename}
+                  onClick={() => void handleCtxMenuRename()}
                 >
                   Rename Marker
                 </button>

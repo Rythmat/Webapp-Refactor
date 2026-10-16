@@ -31,9 +31,12 @@ interface Options {
   onNote: (note: PartNote) => void;
   monitorOn: (midi: number, velocity: number) => void;
   monitorOff: (midi: number) => void;
+  /** Listening at all; off asks for no MIDI access. Default on. */
+  enabled?: boolean;
 }
 
 export function useLiveCapture({
+  enabled = true,
   active,
   length,
   quantize,
@@ -136,18 +139,30 @@ export function useLiveCapture({
   );
 
   useEffect(() => {
+    if (!enabled) return;
     if (!navigator.requestMIDIAccess) {
       setError(
         'This browser has no Web MIDI — use Chrome or Edge to capture live.',
       );
       return;
     }
+    // A listener, not the input's one onmidimessage slot: two editors on a
+    // page (a part open inside a band) each hear the keyboard, and one
+    // closing leaves the other listening.
+    const listener = onMessage as EventListener;
     let access: MIDIAccess | null = null;
+    let bound: MIDIInput[] = [];
+    let alive = true;
     const bind = () => {
-      if (!access) return;
+      if (!access || !alive) return;
+      bound.forEach((input) =>
+        input.removeEventListener('midimessage', listener),
+      );
+      bound = [];
       const names: string[] = [];
       access.inputs.forEach((input) => {
-        input.onmidimessage = onMessage;
+        input.addEventListener('midimessage', listener);
+        bound.push(input);
         names.push(input.name ?? 'MIDI input');
       });
       setInputs(names);
@@ -157,16 +172,17 @@ export function useLiveCapture({
       .then((a) => {
         access = a;
         bind();
-        a.onstatechange = bind;
+        a.addEventListener('statechange', bind);
       })
       .catch(() => setError('MIDI access was refused.'));
     return () => {
-      access?.inputs.forEach((input) => {
-        input.onmidimessage = null;
-      });
-      if (access) access.onstatechange = null;
+      alive = false;
+      bound.forEach((input) =>
+        input.removeEventListener('midimessage', listener),
+      );
+      access?.removeEventListener('statechange', bind);
     };
-  }, [onMessage]);
+  }, [onMessage, enabled]);
 
   return { inputs, error };
 }

@@ -1,7 +1,7 @@
 /**
- * The console's metronome, for live capture: a short square click,
- * accented on the downbeat, and a one-bar count-in. The Parts editor and the
- * Band editor both capture with it.
+ * The console's metronome and clock for live capture: a short square click,
+ * accented on the downbeat, a one-bar count-in, and where the transport is
+ * as it's heard. The Parts editor and the Band editor both capture with it.
  */
 
 import * as Tone from 'tone';
@@ -75,5 +75,21 @@ export async function countIn(
       window.setTimeout(() => click.dispose(), 500);
     },
     (0.1 + beats * beat - 0.05) * 1000,
+  );
+}
+
+/**
+ * Where the transport is as it's heard right now, in transport ticks.
+ * `transport.ticks` reads the scheduler, which runs Tone's look-ahead
+ * (0.1 s) in front of the speakers, and the speakers add their own output
+ * latency: a player keeping time with what they hear would be written
+ * that much late — about a 16th note. This is the position of the sound
+ * leaving the speakers now, which is what a key pressed in time meets.
+ */
+export function heardTransportTicks(): number {
+  const raw = Tone.getContext().rawContext as AudioContext;
+  const latency = (raw.outputLatency || 0) + (raw.baseLatency || 0);
+  return Tone.getTransport().getTicksAtTime(
+    Math.max(0, Tone.immediate() - latency),
   );
 }

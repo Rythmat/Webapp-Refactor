@@ -13,7 +13,11 @@ import * as Tone from 'tone';
 import type { BackingNote } from '@/curriculum/engine/genreGeneration/backingPatterns';
 import type { InstrumentAdapter } from '@/daw/instruments/InstrumentAdapter';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
-import { makeClick, scheduleClicks } from '../parts/metronome';
+import {
+  heardTransportTicks,
+  makeClick,
+  scheduleClicks,
+} from '../parts/metronome';
 import {
   applySynthSound,
   createBandInstrument,
@@ -94,32 +98,45 @@ export function useBandPlayer() {
   }, []);
 
   /** The layer's instrument, made (or remade, for a new sound) as needed. */
+  /** Voices still loading, so keys pressed meanwhile share one. */
+  const loadingVoices = useRef(new Map<string, Promise<Voice | null>>());
   const voiceFor = useCallback(
-    async (layer: PlayerLayer): Promise<Voice | null> => {
-      const existing = voices.current.get(layer.id);
-      if (existing?.sound === layer.sound) return existing;
-      if (existing) disposeVoice(layer.id);
-      const adapter = createBandInstrument(layer.sound);
-      if (!adapter) return null;
-      const gain = new Tone.Gain(gainFor(layer)).toDestination();
-      await adapter.init(
-        Tone.getContext().rawContext as AudioContext,
-        gain.input as unknown as AudioNode,
+    (layer: PlayerLayer): Promise<Voice | null> => {
+      const key = `${layer.id}|${layer.sound}`;
+      const loading = loadingVoices.current.get(key);
+      if (loading) return loading;
+      const made = makeVoice(layer).finally(() =>
+        loadingVoices.current.delete(key),
       );
-      // A synth layer plays its patch, applied the way a saved project's is.
-      applySynthSound(adapter, layer.sound);
-      const voice: Voice = {
-        sound: layer.sound,
-        adapter,
-        gain,
-        part: null,
-        sounding: new Set(),
-      };
-      voices.current.set(layer.id, voice);
-      return voice;
+      loadingVoices.current.set(key, made);
+      return made;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [disposeVoice],
   );
+  const makeVoice = async (layer: PlayerLayer): Promise<Voice | null> => {
+    const existing = voices.current.get(layer.id);
+    if (existing?.sound === layer.sound) return existing;
+    if (existing) disposeVoice(layer.id);
+    const adapter = createBandInstrument(layer.sound);
+    if (!adapter) return null;
+    const gain = new Tone.Gain(gainFor(layer)).toDestination();
+    await adapter.init(
+      Tone.getContext().rawContext as AudioContext,
+      gain.input as unknown as AudioNode,
+    );
+    // A synth layer plays its patch, applied the way a saved project's is.
+    applySynthSound(adapter, layer.sound);
+    const voice: Voice = {
+      sound: layer.sound,
+      adapter,
+      gain,
+      part: null,
+      sounding: new Set(),
+    };
+    voices.current.set(layer.id, voice);
+    return voice;
+  };
 
   /** Puts a layer's notes on the transport, replacing what it had. */
   const schedule = (voice: Voice, notes: readonly BackingNote[]) => {
@@ -221,30 +238,48 @@ export function useBandPlayer() {
   }, []);
 
   /** Where the transport is, in band ticks. */
-  const currentTick = useCallback(
-    () => Tone.getTransport().ticks / scale(),
-    [],
-  );
+  /** Where the band is as it's heard (not as scheduled), in band ticks. */
+  const currentTick = useCallback(() => heardTransportTicks() / scale(), []);
 
-  /** A key played live, heard on `sound` (a capture's monitor). */
-  const liveOn = useCallback(
-    async (sound: string, midi: number, velocity: number) => {
-      if (Tone.getContext().state !== 'running') await Tone.start();
-      const voice = await voiceFor({
+  /** The live monitor's voice on a sound, made (and its samples loaded) once. */
+  const liveVoice = useCallback(
+    (sound: string) =>
+      voiceFor({
         id: `${CAPTURE}${sound}`,
         sound,
         notes: [],
         volume: 1,
         muted: false,
-      });
-      if (!voice) return;
+      }),
+    [voiceFor],
+  );
+  /** Keys down on the keyboard right now. */
+  const down = useRef(new Set<number>());
+
+  /** A key played live, heard on `sound` (the open layer's). */
+  const liveOn = useCallback(
+    async (sound: string, midi: number, velocity: number) => {
+      down.current.add(midi);
+      if (Tone.getContext().state !== 'running') await Tone.start();
+      const voice = await liveVoice(sound);
+      // Let go while the sound was still loading: never start it, or it
+      // would ring on with nothing to stop it.
+      if (!voice || !down.current.has(midi)) return;
       voice.gain.gain.value = 1;
       voice.adapter.noteOn(midi, velocity);
       voice.sounding.add(midi);
     },
-    [voiceFor],
+    [liveVoice],
+  );
+  /** Loads a sound for live playing ahead of the first key. */
+  const prepareLive = useCallback(
+    async (sound: string) => {
+      await liveVoice(sound);
+    },
+    [liveVoice],
   );
   const liveOff = useCallback((midi: number) => {
+    down.current.delete(midi);
     voices.current.forEach((voice, id) => {
       if (!id.startsWith(CAPTURE) || !voice.sounding.has(midi)) return;
       voice.adapter.noteOff(midi);
@@ -358,6 +393,7 @@ export function useBandPlayer() {
     currentTick,
     liveOn,
     liveOff,
+    prepareLive,
     position,
     playing,
     loading,

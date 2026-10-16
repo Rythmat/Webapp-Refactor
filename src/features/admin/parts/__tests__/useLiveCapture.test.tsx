@@ -10,24 +10,25 @@ import { useLiveCapture } from '../useLiveCapture';
  * written — until it comes up.
  */
 
-const input = {
-  name: 'Fake Keys',
-  onmidimessage: null as null | ((e: unknown) => void),
-};
+/** A MIDI input: an EventTarget that 'midimessage' events go out on. */
+const input = Object.assign(new EventTarget(), { name: 'Fake Keys' });
 const send = (...data: number[]) =>
-  act(() => input.onmidimessage?.({ data: new Uint8Array(data) }));
+  act(() => {
+    input.dispatchEvent(
+      Object.assign(new Event('midimessage'), { data: new Uint8Array(data) }),
+    );
+  });
 
 afterEach(() => {
-  input.onmidimessage = null;
   vi.unstubAllGlobals();
 });
 
 function setup() {
   vi.stubGlobal('navigator', {
-    requestMIDIAccess: async () => ({
-      inputs: new Map([['fake', input]]),
-      onstatechange: null,
-    }),
+    requestMIDIAccess: async () =>
+      Object.assign(new EventTarget(), {
+        inputs: new Map([['fake', input]]),
+      }),
   });
   let tick = 0;
   const notes: PartNote[] = [];

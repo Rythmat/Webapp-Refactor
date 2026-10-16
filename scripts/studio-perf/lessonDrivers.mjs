@@ -799,14 +799,15 @@ const TRIM_MASTER = {
 
 const EXPORT_AUDIO = {
   how: 'click',
-  describe: 'click file-menu, file-export-audio, then export-audio-run',
+  describe:
+    'click file-menu (Project), file-export-audio, then export-audio-run',
   related: ['practice-tutorial-20', 'audio-core-01'],
   // The offline render of the whole mix, on a throttled CPU.
   advanceTimeoutMs: 240_000,
   async run(ctx) {
     await ctx.clickAnchor('file-menu');
     await ctx.measure('file-export-audio');
-    await ctx.clickAnchor('file-export-audio', 'Export Audio…');
+    await ctx.clickAnchor('file-export-audio', 'Export ▸ Audio…');
     await ctx.measure('export-audio-run');
     await ctx.clickAnchor('export-audio-run', 'Export');
   },
@@ -1031,16 +1032,12 @@ export function driverFor(lessonId, stepId) {
  * prism-ui-23: the four Prism lessons are gated for a free student now.)
  */
 export const KNOWN_FAILURES = {
-  'chromebook/*/rnb-mix-and-polish/balance-fader':
-    'ia-flows-12, fx-mixer-04: mixer-section has a 0 px tall box in MASTER at 1366×655',
   'chromebook|small/*/rnb-mix-and-polish/use-send':
     'ia-flows-12, fx-mixer-04: mixer-sends-A is cut off by the scrolling strips row (none of it shows at 1366×655, 31% at 1280×720)',
   'chromebook|small/*/rnb-mix-and-polish/tweak-return':
     'ia-flows-12, fx-mixer-04: return-strip-A is cut off by the scrolling strips row (none of it shows at 1366×655, where mastering-section also takes the click on its label; 75% at 1280×720)',
   '*/*/rnb-mix-and-polish/master-volume':
     'ia-flows-12, fx-mixer-04: master-strip is cut off by the scrolling strips row',
-  '*/*/rnb-mix-and-polish/bounce-mixdown':
-    'new (nearest practice-tutorial-18): the coach card covers File > Export Audio…, so the click on it times out',
   '*/*/indie-movement-and-dynamics/open-automation':
     'new: ?tutorial= boots an empty session and no step adds a track, so there is no automation button to click',
   'chromebook/*/indie-movement-and-dynamics/draw-volume':

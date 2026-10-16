@@ -263,7 +263,7 @@ async function keysIn(kit, run) {
     const fromKey = await guardShown();
     await page.getByRole('button', { name: 'Cancel' }).first().click();
     await kit.sleep(300);
-    await page.click('button[title="Record"]');
+    await page.click('[data-testid="transport-record"]');
     await kit.sleep(400);
     const fromButton = await guardShown();
     await page.getByRole('button', { name: 'Cancel' }).first().click();

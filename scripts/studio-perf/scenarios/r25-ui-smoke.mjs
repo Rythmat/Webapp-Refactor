@@ -21,8 +21,8 @@
  * - ctrlZInTextField: Ctrl/⌘Z in the project-name field undoes the typing
  *   there, not the project's last edit.
  * - practiceHeaderChip: on the Practice screen the chip is in its header
- *   (150 px, unclipped), with no Undo/Redo there, and the TopRail slot is
- *   empty.
+ *   (150 px, unclipped), with no Undo/Redo there, and the editor's top bar
+ *   (the TopRail slot before 2.5) shows neither.
  */
 import { MOD } from './_shared.mjs';
 
@@ -377,11 +377,15 @@ async function practiceAt(kit, run, viewport) {
               '[data-testid="practice-header"] [data-testid="undo-button"]',
             ),
           ),
+          // The top bar stays mounted under the practice screen (2.5),
+          // hidden: what counts is whether it shows.
           slotChip: Boolean(
-            document.querySelector(`${slot} [data-testid="save-chip"]`),
+            document.querySelector(`${slot} [data-testid="save-chip"]`)
+              ?.offsetParent,
           ),
           slotUndo: Boolean(
-            document.querySelector(`${slot} [data-testid="undo-button"]`),
+            document.querySelector(`${slot} [data-testid="undo-button"]`)
+              ?.offsetParent,
           ),
         }),
         SLOT,

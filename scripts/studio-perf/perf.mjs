@@ -1946,7 +1946,7 @@ async function coldLoad(browser, base, profile, load, windows) {
     await installPeakReader(page);
     await page.evaluate(watchFirstAudio, AUDIBLE_PEAK);
     // A student presses Play as soon as the editor shows.
-    await page.click('button[title="Play"]');
+    await page.click('[data-testid="transport-play"]');
     const endedBy = await waitForSound(page, requests, expectSound, windows);
     const heard = endedBy === 'sound';
     if (heard) {

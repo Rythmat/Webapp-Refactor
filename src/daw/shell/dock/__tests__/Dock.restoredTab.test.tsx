@@ -34,6 +34,9 @@ vi.mock('@/daw/components/Prism/PrismPanel', () => ({
 vi.mock('@/daw/components/Controls/GroovesBrowser', () => ({
   GroovesBrowser: () => null,
 }));
+vi.mock('@/components/ui/LockedFeatureOverlay', () => ({
+  LockedFeatureOverlay: ({ children }: { children: unknown }) => children,
+}));
 vi.mock('@/hooks/useIsPremium', () => ({
   useIsPremium: () => ({ isPremium: true }),
 }));
@@ -46,7 +49,7 @@ import {
 import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore } from '@/daw/store';
 import type { ChannelStripTabId } from '@/daw/store/uiSlice';
-import { ChannelStrip } from '../ChannelStrip';
+import { Dock } from '../Dock';
 
 const s = () => useStore.getState();
 
@@ -86,10 +89,10 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-describe('ChannelStrip keeps a restored tab', () => {
+describe('The dock keeps a restored tab', () => {
   it('keeps the tab a refreshed project restores into the empty strip', () => {
     const restored = keysProject();
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     // The boot restores the draft in one write, after the strip has mounted.
     act(() => useStore.setState({ ...restored, channelStripTab: 'fx' }));
@@ -99,7 +102,7 @@ describe('ChannelStrip keeps a restored tab', () => {
 
   it('keeps a restored piano roll on a melodic track', () => {
     const restored = keysProject();
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     act(() =>
       useStore.setState({ ...restored, channelStripTab: 'piano-roll' }),
@@ -112,16 +115,16 @@ describe('ChannelStrip keeps a restored tab', () => {
     // Back in Create from another view, or back in the editor: the strip
     // mounts again over the same project.
     useStore.setState({ ...keysProject(), channelStripTab: 'fx' });
-    render(<ChannelStrip />);
+    render(<Dock />);
     expect(s().channelStripTab).toBe('fx');
 
     cleanup();
-    render(<ChannelStrip />);
+    render(<Dock />);
     expect(s().channelStripTab).toBe('fx');
   });
 
   it('opens on Controls when the first track arrives with the strip closed', () => {
-    render(<ChannelStrip />);
+    render(<Dock />);
     expect(s().channelStripTab).toBeNull();
 
     act(() => {
@@ -133,24 +136,25 @@ describe('ChannelStrip keeps a restored tab', () => {
 
   it('opens on Controls when it mounts closed over a project', () => {
     useStore.setState(keysProject());
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     expect(s().channelStripTab).toBe('controls');
   });
 
-  it('falls back to Controls when the restored tab doesn’t apply to the selected track', () => {
+  it('takes the tab in its place when the restored tab doesn’t apply to the selected track', () => {
     const restored = keysProject();
-    render(<ChannelStrip />);
+    render(<Dock />);
 
-    // Grooves is a drum machine's tab; Keys is a melodic track.
+    // Grooves is a drum machine's tab; Keys is a melodic track, whose tab in
+    // that place is Prism (milestone 2.9; it fell back to Instrument).
     act(() => useStore.setState({ ...restored, channelStripTab: 'grooves' }));
 
-    expect(s().channelStripTab).toBe('controls');
+    expect(s().channelStripTab).toBe('prism');
   });
 
   it('falls back to Controls for a value that isn’t one of its tabs', () => {
     const restored = keysProject();
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     act(() =>
       useStore.setState({
@@ -169,14 +173,14 @@ describe('ChannelStrip keeps a restored tab', () => {
   });
 });
 
-describe('ChannelStrip on a project opened in place of another', () => {
+describe('The dock on a project opened in place of another', () => {
   it('opens a template on Controls, not on the last project’s tab', () => {
     const template = project(['Drums', 'Bass']);
     useStore.setState({
       ...project(['A', 'B', 'C']),
       channelStripTab: 'fx',
     });
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     // From three tracks straight to two: no first track to see.
     act(() => openInPlace(template, 'template'));
@@ -188,7 +192,7 @@ describe('ChannelStrip on a project opened in place of another', () => {
   it('keeps the tab of kept work restored in place of the project', () => {
     const kept = project(['Keys', 'Pad']);
     useStore.setState({ ...project(['A', 'B', 'C']), channelStripTab: 'fx' });
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     act(() =>
       openInPlace({ ...kept, channelStripTab: 'piano-roll' }, 'restore'),
@@ -200,7 +204,7 @@ describe('ChannelStrip on a project opened in place of another', () => {
   it('opens on Controls when a restored value isn’t one of its tabs', () => {
     const kept = keysProject();
     useStore.setState({ ...project(['A', 'B']), channelStripTab: 'fx' });
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     act(() =>
       openInPlace(
@@ -214,7 +218,7 @@ describe('ChannelStrip on a project opened in place of another', () => {
 
   it('opens on Controls after New when the student adds the first track', () => {
     useStore.setState({ ...keysProject(), channelStripTab: 'fx' });
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     act(() => resetProjectState('new'));
     expect(s().channelStripTab).toBeNull();
@@ -227,7 +231,7 @@ describe('ChannelStrip on a project opened in place of another', () => {
 
   it('leaves a strip the student closed closed while they edit', () => {
     useStore.setState({ ...keysProject(), channelStripTab: 'fx' });
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     act(() => s().setChannelStripTab(null));
     act(() => {
@@ -240,7 +244,7 @@ describe('ChannelStrip on a project opened in place of another', () => {
   it('opens a loaded project once: closing the strip after it holds', () => {
     const template = project(['Drums', 'Bass']);
     useStore.setState({ ...keysProject(), channelStripTab: 'fx' });
-    render(<ChannelStrip />);
+    render(<Dock />);
     act(() => openInPlace(template, 'template'));
     expect(s().channelStripTab).toBe('controls');
 

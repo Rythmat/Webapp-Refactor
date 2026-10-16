@@ -7,8 +7,12 @@ import {
   type LibraryItem,
 } from '@/daw/data/libraryItems';
 import { openSession } from '@/daw/session/openSession';
+import { dockKindOf } from '@/daw/shell/dock/dockTabs';
+import { PartsBrowserPart } from '@/daw/shell/lazyParts';
 import { useStore } from '@/daw/store';
+import { EmptyState } from '@/daw/ui/EmptyState';
 import { IconButton } from '@/daw/ui/IconButton';
+import { Segmented } from '@/daw/ui/Segmented';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 
 // ── The Library panel (B4a; LibraryPanel's Library tab until then) ─────────
@@ -21,6 +25,20 @@ import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 // cloud project rather than writing over the one it replaced. Never in a
 // shared session (E15: membership is the room id), where it would replace
 // the room's project for everyone.
+//
+// Parts (the published instrumental parts) left the dock for a section of
+// their own here in 2.9, as they were; 2.14 makes this panel the browser
+// over parts, grooves, kits, presets and templates.
+
+type Section = 'templates' | 'parts';
+
+const SECTIONS = [
+  { value: 'templates' as const, label: 'Templates' },
+  { value: 'parts' as const, label: 'Parts' },
+];
+
+/** The section last shown (this session), so the panel opens on it. */
+let lastSection: Section = 'templates';
 
 const ICONS: Record<string, ReactNode> = {
   Flame: <Flame />,
@@ -35,6 +53,53 @@ export function openTemplate(templateId: string): void {
 }
 
 export function LibraryBody() {
+  const [section, setSection] = useState<Section>(lastSection);
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex shrink-0 justify-center border-b border-daw-hairline p-2">
+        <Segmented
+          label="Library section"
+          options={SECTIONS}
+          value={section}
+          onValueChange={(next) => {
+            lastSection = next;
+            setSection(next);
+          }}
+        />
+      </div>
+      {section === 'parts' ? <PartsSection /> : <TemplatesSection />}
+    </div>
+  );
+}
+
+/**
+ * Parts for the selected melodic track, at the playhead's bar, moved to
+ * the project's key (PartsBrowser, the dock's Parts tab until 2.9).
+ */
+function PartsSection() {
+  const track = useStore((s) =>
+    s.tracks.find((t) => t.id === s.selectedTrackId),
+  );
+  if (!track || dockKindOf(track) !== 'melodic') {
+    return (
+      <EmptyState
+        title="Pick a melodic track"
+        description="Parts go on the selected track, at the playhead's bar, in the song's key."
+      />
+    );
+  }
+  return (
+    <div
+      className="flex min-h-0 flex-1 flex-col"
+      data-ds="legacy"
+      data-testid="library-parts"
+    >
+      <PartsBrowserPart key={track.id} trackId={track.id} />
+    </div>
+  );
+}
+
+function TemplatesSection() {
   const [query, setQuery] = useState('');
   const items = useMemo(
     () => (query ? searchLibraryItems(query) : LIBRARY_ITEMS),
@@ -43,7 +108,7 @@ export function LibraryBody() {
   const inRoom = useStore((s) => s.roomId !== null);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <>
       <div className="shrink-0 border-b border-daw-hairline p-2">
         <label
           className={cn(
@@ -103,7 +168,7 @@ export function LibraryBody() {
           </p>
         ) : null}
       </div>
-    </div>
+    </>
   );
 }
 

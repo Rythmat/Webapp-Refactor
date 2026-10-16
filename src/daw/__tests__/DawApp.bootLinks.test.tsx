@@ -112,8 +112,8 @@ vi.mock('@/daw/hooks/usePlaybackEngine', () => ({
   usePlaybackEngine: h.noop,
 }));
 vi.mock('@/daw/hooks/useTransport', () => ({ useTransport: h.noop }));
-vi.mock('@/daw/components/ChannelStrip/ChannelStrip', () => ({
-  ChannelStrip: h.nothing,
+vi.mock('@/daw/shell/dock/Dock', () => ({
+  Dock: h.nothing,
 }));
 vi.mock('@/daw/shell/inspector/InspectorPanel', () => ({
   InspectorPanel: h.nothing,

@@ -232,9 +232,8 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
       ).filter((instrument) => instrument !== 'oracle-synth'),
   },
   'chanstrip-tab-': {
-    file: 'components/ChannelStrip/ChannelStrip.tsx',
-    suffixes: () =>
-      constValues('components/ChannelStrip/ChannelStrip.tsx', 'TABS', 'id'),
+    file: 'shell/dock/Dock.tsx',
+    suffixes: () => constValues('shell/dock/dockTabs.ts', 'DOCK_TABS', 'id'),
   },
   'view-switch-': {
     file: 'shell/topbar/ViewTabs.tsx',

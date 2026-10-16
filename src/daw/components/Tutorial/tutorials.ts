@@ -308,10 +308,11 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'open-sequencer',
       stage: 'STAGE 1 — SETUP',
       instruction:
-        "This is the **step sequencer** — we've opened it below. Each row is a drum, each column a step.",
-      target: 'chanstrip-tab-controls',
-      requires: { channelStripTab: 'controls' },
-      check: (s) => s.channelStripTab === 'controls',
+        "This is the **step sequencer** — we've opened it below, in **Notes**. Each row is a drum, each column a step.",
+      // The drum grid is the drums' Notes tab since milestone 2.9.
+      target: 'chanstrip-tab-piano-roll',
+      requires: { channelStripTab: 'piano-roll' },
+      check: (s) => s.channelStripTab === 'piano-roll',
     },
     {
       id: 'swap-kit',
@@ -320,7 +321,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
         'Hip hop lives on the **808**. Open the **kit menu** in the sequencer toolbar and switch to the **808** kit.',
       hint: 'The dropdown next to “Drums”, top-left of the sequencer.',
       target: 'drum-kit-selector',
-      requires: { channelStripTab: 'controls' },
+      requires: { channelStripTab: 'piano-roll' },
       check: (s) => selectedTrack(s)?.drumKit === '808',
     },
     {
@@ -330,7 +331,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
         'Paint your pattern — add at least **four hits** on the grid. Try kick on 1 and 3, snare on 2 and 4.',
       hint: 'Click cells to add hits; click again to remove.',
       target: 'drum-machine-view',
-      requires: { channelStripTab: 'controls' },
+      requires: { channelStripTab: 'piano-roll' },
       check: (s, armed) =>
         selectedTrackEvents(s) >= selectedTrackEvents(armed) + 4,
     },
@@ -360,7 +361,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       instruction:
         'Back in the sequencer, balance your kit — nudge any pad’s **volume or pan** fader.',
       target: 'drum-machine-view',
-      requires: { channelStripTab: 'controls' },
+      requires: { channelStripTab: 'piano-roll' },
       check: (s, armed) => {
         const now = selectedTrack(s);
         const before = armedSelectedTrack(s, armed);
@@ -399,7 +400,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'play-notes',
       stage: 'STAGE 3 — MELODY',
       instruction:
-        'Open the **piano roll** and draw at least **3 notes** — one sample, any pitch.',
+        'Open **Notes** (the piano roll) and draw at least **3 notes** — one sample, any pitch.',
       hint: 'Chords made from a single voice — that’s the vocal-chop trick.',
       target: ['chanstrip-tab-piano-roll'],
       // clearClipSelection: without it the piano roll would edit a

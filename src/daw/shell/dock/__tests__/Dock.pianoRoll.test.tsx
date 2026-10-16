@@ -52,7 +52,7 @@ vi.mock('@/daw/audio/auditionNote', () => ({ auditionNote: vi.fn() }));
 
 import { ClipPianoRollPart } from '@/daw/shell/lazyParts';
 import { useStore } from '@/daw/store';
-import { ChannelStrip } from '../ChannelStrip';
+import { Dock } from '../Dock';
 
 const BAR = 1920;
 
@@ -82,7 +82,7 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-describe('ChannelStrip PIANO ROLL tab', () => {
+describe('The dock’s Notes tab (the piano roll)', () => {
   it('draws a clip at bar 5 from its own start, placed at bar 5 in the song', () => {
     const events = [note(0), note(BAR)];
     useStore.getState().addMidiClip(trackId, {
@@ -93,7 +93,7 @@ describe('ChannelStrip PIANO ROLL tab', () => {
     });
     useStore.getState().setSelectedClip('later', trackId);
 
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     expect(roll.props).not.toBeNull();
     // addMidiClip gave the id-less notes ids (decision D2), so the store
@@ -113,7 +113,7 @@ describe('ChannelStrip PIANO ROLL tab', () => {
   });
 
   it('keeps a blank roll at bar 1, creating its clip there on the first note', () => {
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     expect(roll.props!.clipStartTick).toBe(0);
     expect(roll.props!.timelineStartTick).toBe(0);
@@ -134,7 +134,7 @@ describe('ChannelStrip PIANO ROLL tab', () => {
       startTick: 4 * BAR,
       events: [note(0)],
     });
-    render(<ChannelStrip />);
+    render(<Dock />);
 
     expect(roll.props!.events).toHaveLength(1);
     expect(roll.props!.timelineStartTick).toBe(4 * BAR);
@@ -160,13 +160,13 @@ describe('ChannelStrip PIANO ROLL tab', () => {
       });
     }
     useStore.setState({ position: 9 * BAR });
-    render(<ChannelStrip />);
+    render(<Dock />);
     expect(roll.props!.timelineStartTick).toBe(8 * BAR);
   });
 
   it("starts a blank roll at the playhead's bar", () => {
     useStore.setState({ position: 5 * BAR + 300 });
-    render(<ChannelStrip />);
+    render(<Dock />);
     expect(roll.props!.timelineStartTick).toBe(5 * BAR);
     act(() => roll.props!.onChange([note(0)]));
     const [clip] = useStore

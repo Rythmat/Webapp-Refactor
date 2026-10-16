@@ -33,11 +33,15 @@ function nudgeTicks(): number {
   return grid.enabled ? grid.step : ticksPerBeat(grid.ts);
 }
 
+/**
+ * Whether a clip key acts on the timeline: in Create, with the timeline in
+ * sight (a maximized dock covers it), and not from a field or a widget.
+ */
 function onTimeline(e: KeyboardEvent): boolean {
-  const { currentView, editingClipId } = useStore.getState();
+  const { currentView, dockMaximized } = useStore.getState();
   return (
     currentView === 'arrange' &&
-    editingClipId === null &&
+    !dockMaximized &&
     !isFormControl(e.target) &&
     !isInKeyWidget(e.target)
   );

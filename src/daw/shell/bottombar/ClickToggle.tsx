@@ -72,7 +72,7 @@ function ClickSettings() {
         <Fader
           label="Click volume"
           orientation="horizontal"
-          length={224}
+          length={160}
           min={MIN_CLICK_DB}
           max={MAX_CLICK_DB}
           step={0.5}

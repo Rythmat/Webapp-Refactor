@@ -285,7 +285,6 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
   const [selectedEffect, setSelectedEffect] = useState<EffectSlotType | null>(
     null,
   );
-  const [popOutOpen, setPopOutOpen] = useState(false);
 
   // Auto-select first effect; deselect if removed
   useEffect(() => {
@@ -411,8 +410,6 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
               onUpdate={wrappedUpdate}
               onPreview={previewMasteringEffects}
               onRemove={(slot) => removeMasteringFx(slot)}
-              popOutOpen={popOutOpen}
-              onTogglePopOut={() => setPopOutOpen((v) => !v)}
               meterTarget={isReady ? 'master' : null}
             />
           ) : (
@@ -1061,7 +1058,6 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
   const [selectedEffect, setSelectedEffect] = useState<EffectSlotType | null>(
     null,
   );
-  const [popOutOpen, setPopOutOpen] = useState(false);
 
   const fxChain = ret?.fxChain ?? [];
   useEffect(() => {
@@ -1142,8 +1138,6 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
               onUpdate={wrappedUpdate}
               onPreview={(effects) => previewReturnEffects(returnId, effects)}
               onRemove={(slot) => removeReturnFx(returnId, slot)}
-              popOutOpen={popOutOpen}
-              onTogglePopOut={() => setPopOutOpen((v) => !v)}
             />
           ) : (
             <div

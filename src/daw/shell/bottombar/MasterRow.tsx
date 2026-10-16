@@ -1,4 +1,4 @@
-import { Activity, Ear, Headphones, Sparkles } from 'lucide-react';
+import { Activity, ChevronUp, Ear, Headphones } from 'lucide-react';
 import { memo, useRef } from 'react';
 import { cn } from '@/components/utilities';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
@@ -11,25 +11,26 @@ import { useMasterVolumeControl } from '@/daw/hooks/useMixControls';
 import { useStore } from '@/daw/store';
 import { Fader } from '@/daw/ui/Fader';
 import { formatGain } from '@/daw/ui/format';
-import { IconButton } from '@/daw/ui/IconButton';
 import { Meter } from '@/daw/ui/Meter';
-import { TYPE_CLASS } from '@/daw/ui/styles';
+import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
 
-// ── Master, at the bottom rail's left (2.6; B4a) ───────────────────────────
+// ── Master, at the bottom rail's left (2.6; B4a; 2.9) ──────────────────────
 //
-// The whole mix's volume and level, its volume automation lane, and Effects,
-// which opens the Mix view, where the master's chain lives (the old pop-out
-// copy of it is gone). It sat under the track list until the bottom rail
-// (owner, 2026-10-16, after Soundtrap's), where it shows in every view. It
-// is everyone's in a session, so it is never locked; with collaborators in
-// the room it also switches between hearing all of them and only the tracks
-// you pick.
+// The whole mix's volume and level, and its volume automation lane. The
+// Master button opens Master in the dock's slot (2.9, after Soundtrap's
+// Master ▾): its gain, the master chain and the output, from any view, in
+// Create; the Mix view keeps the full mixer. It sat under the track list
+// until the bottom rail (owner, 2026-10-16), where it shows in every view.
+// It is everyone's in a session, so it is never locked; with collaborators
+// in the room it also switches between hearing all of them and only the
+// tracks you pick.
 
 export const MasterRow = memo(function MasterRow() {
   const volume = useMasterVolumeControl();
   const source = useRef(meterSource('master'));
   const fxCount = useStore((s) => s.masteringFxChain.length);
+  const inDock = useStore((s) => s.dockMaster && s.currentView === 'arrange');
   const automationOpen = useStore(
     (s) => s.automationOpenTrackId === MASTER_AUTOMATION_ID,
   );
@@ -40,13 +41,57 @@ export const MasterRow = memo(function MasterRow() {
 
   return (
     <div data-testid="master-row" className="flex h-full items-center gap-1.5">
-      <span className={cn(TYPE_CLASS.micro, 'shrink-0 text-daw-text-2')}>
+      <button
+        type="button"
+        aria-pressed={inDock}
+        aria-label={
+          fxCount > 0
+            ? `Master (${fxCount} effect${fxCount > 1 ? 's' : ''}): show it in the dock`
+            : 'Master: show it in the dock'
+        }
+        data-testid="master-open"
+        onClick={() => {
+          const s = useStore.getState();
+          if (inDock) {
+            // Back to the selected track, or shut if Master opened the dock.
+            s.setDockMaster(false);
+            return;
+          }
+          // The dock is Create's.
+          if (s.currentView !== 'arrange') s.setCurrentView('arrange');
+          s.setDockMaster(true);
+        }}
+        className={cn(
+          TYPE_CLASS.label,
+          'inline-flex h-7 shrink-0 items-center gap-1 rounded-[var(--daw-radius-sm)] px-2 font-bold [&_svg]:size-3.5',
+          inDock
+            ? 'bg-daw-selected text-daw-text'
+            : 'text-daw-text-2 hover:bg-daw-hover hover:text-daw-text',
+          TRANSITION,
+          FOCUS_RING,
+        )}
+      >
         Master
-      </span>
+        <ChevronUp
+          aria-hidden
+          className={cn(TRANSITION, inDock && 'rotate-180')}
+        />
+      </button>
       <div
-        className="flex flex-col items-start"
+        className="flex flex-col-reverse items-start"
         onPointerDownCapture={volume.begin}
       >
+        {/* The meter comes first, so the fader is drawn over it: its 24 px
+            target tucks 10 px under the fader's, and the pair fits the 44 px
+            rail (it stood 48 px, and the shell scrolled by the difference). */}
+        <Meter
+          label="Master level"
+          source={source.current}
+          orientation="horizontal"
+          length={faderPx}
+          channels={1}
+          className="-mt-2.5"
+        />
         <Fader
           label="Master volume"
           orientation="horizontal"
@@ -62,25 +107,8 @@ export const MasterRow = memo(function MasterRow() {
           showValue={false}
           hideLabel
         />
-        <Meter
-          label="Master level"
-          source={source.current}
-          orientation="horizontal"
-          length={faderPx}
-          channels={1}
-        />
       </div>
       <div className="flex items-center">
-        <IconButton
-          label={
-            fxCount > 0
-              ? `Master effects (${fxCount}): open the Mix view`
-              : 'Master effects: open the Mix view'
-          }
-          icon={<Sparkles />}
-          size="sm"
-          onClick={() => useStore.getState().setCurrentView('studio')}
-        />
         <Toggle
           label="Master volume automation"
           icon={<Activity />}

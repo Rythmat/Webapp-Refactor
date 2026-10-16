@@ -18,19 +18,26 @@ import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 // the next, so the student can keep adding; the armed slot's × stops
 // (uiSlice: openEffectsLibrary, cancelEffectsLibrary). A pick switches the
 // dock to its Effects tab in Create; an effect already in the chain shows
-// its controls there instead. This is the only list that adds effects to a
-// track, so its rows carry the fx-add-* lesson anchors, stamped with the
-// track rack (the Mix view's racks keep their own lists).
+// its controls there instead. While the dock shows Master (2.9), the
+// library fills the master chain instead. This is the only list that adds
+// effects to a track, so its rows carry the fx-add-* lesson anchors,
+// stamped with the rack they add to (the Mix view's racks keep their own
+// lists).
+
+/** The sidechain keys off another track: a track's rack only. */
+const TRACK_ONLY: readonly EffectSlotType[] = ['ducker'];
 
 export function FxBody() {
+  const toMaster = useStore((s) => s.dockMaster && s.currentView === 'arrange');
   const trackId = useStore((s) => s.selectedTrackId);
   const track = useStore((s) =>
     s.selectedTrackId === null
       ? null
       : (s.tracks.find((t) => t.id === s.selectedTrackId) ?? null),
   );
+  const masterChain = useStore((s) => s.masteringFxChain);
 
-  if (!track || !trackId) {
+  if (!toMaster && (!track || !trackId)) {
     return (
       <EmptyState
         title="Pick a track"
@@ -39,17 +46,23 @@ export function FxBody() {
     );
   }
 
-  const chain = track.activeEffects;
+  const chain = toMaster ? masterChain : (track?.activeEffects ?? []);
   const full = chain.length >= MAX_RACK_EFFECTS;
+  const rack = toMaster ? 'master' : 'track';
 
   const pick = (type: EffectSlotType) => {
     const s = useStore.getState();
     if (!chain.includes(type)) {
       if (full) return;
-      s.addActiveEffect(trackId, type);
+      if (toMaster) s.addMasteringFx(type);
+      else if (trackId) s.addActiveEffect(trackId, type);
     }
     s.setDockEffect(type);
-    if (s.currentView === 'arrange' && s.channelStripTab !== 'fx') {
+    if (
+      !toMaster &&
+      s.currentView === 'arrange' &&
+      s.channelStripTab !== 'fx'
+    ) {
       s.setChannelStripTab('fx');
     }
   };
@@ -62,7 +75,9 @@ export function FxBody() {
           data-testid="effects-library-target"
         >
           Adding to{' '}
-          <span className="font-bold text-daw-text">{track.name}</span>
+          <span className="font-bold text-daw-text">
+            {toMaster ? 'Master' : track?.name}
+          </span>
         </span>
         {/* Always on the page: a screen reader announces a status as its
             text changes. */}
@@ -96,68 +111,72 @@ export function FxBody() {
               {category.purpose}
             </p>
             <ul aria-label={category.label}>
-              {category.effects.map((type) => {
-                const on = chain.includes(type);
-                const disabled = full && !on;
-                const label = FX_LABEL[type] ?? type;
-                return (
-                  <li key={type}>
-                    <button
-                      type="button"
-                      data-tutorial-id={`fx-add-${type}`}
-                      data-tutorial-target="track"
-                      data-testid={`inspector-fx-${type}`}
-                      aria-disabled={disabled || undefined}
-                      aria-label={
-                        on ? `${label}: in the chain, show it` : `Add ${label}`
-                      }
-                      onClick={() => {
-                        if (!disabled) pick(type);
-                      }}
-                      className={cn(
-                        'flex w-full items-start gap-2.5 px-3 py-1.5 text-left',
-                        disabled
-                          ? 'cursor-default opacity-50'
-                          : 'hover:bg-daw-hover',
-                        TRANSITION,
-                        FOCUS_RING,
-                      )}
-                    >
-                      <span
-                        aria-hidden
-                        className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-[var(--daw-radius-sm)] bg-daw-surface-2 text-daw-text-2"
+              {category.effects
+                .filter((type) => !(toMaster && TRACK_ONLY.includes(type)))
+                .map((type) => {
+                  const on = chain.includes(type);
+                  const disabled = full && !on;
+                  const label = FX_LABEL[type] ?? type;
+                  return (
+                    <li key={type}>
+                      <button
+                        type="button"
+                        data-tutorial-id={`fx-add-${type}`}
+                        data-tutorial-target={rack}
+                        data-testid={`inspector-fx-${type}`}
+                        aria-disabled={disabled || undefined}
+                        aria-label={
+                          on
+                            ? `${label}: in the chain, show it`
+                            : `Add ${label}`
+                        }
+                        onClick={() => {
+                          if (!disabled) pick(type);
+                        }}
+                        className={cn(
+                          'flex w-full items-start gap-2.5 px-3 py-1.5 text-left',
+                          disabled
+                            ? 'cursor-default opacity-50'
+                            : 'hover:bg-daw-hover',
+                          TRANSITION,
+                          FOCUS_RING,
+                        )}
                       >
-                        <FxBlockIcon
-                          type={type}
-                          size={16}
-                          color="currentColor"
-                        />
-                      </span>
-                      <span className="flex min-w-0 flex-1 flex-col">
                         <span
-                          className={cn(
-                            TYPE_CLASS.body,
-                            'truncate font-bold text-daw-text',
-                          )}
-                        >
-                          {label}
-                        </span>
-                        <span
-                          className={cn(TYPE_CLASS.label, 'text-daw-text-3')}
-                        >
-                          {EFFECT_ABOUT[type]}
-                        </span>
-                      </span>
-                      {on ? (
-                        <Check
                           aria-hidden
-                          className="mt-1.5 size-4 shrink-0 text-daw-text-2"
-                        />
-                      ) : null}
-                    </button>
-                  </li>
-                );
-              })}
+                          className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-[var(--daw-radius-sm)] bg-daw-surface-2 text-daw-text-2"
+                        >
+                          <FxBlockIcon
+                            type={type}
+                            size={16}
+                            color="currentColor"
+                          />
+                        </span>
+                        <span className="flex min-w-0 flex-1 flex-col">
+                          <span
+                            className={cn(
+                              TYPE_CLASS.body,
+                              'truncate font-bold text-daw-text',
+                            )}
+                          >
+                            {label}
+                          </span>
+                          <span
+                            className={cn(TYPE_CLASS.label, 'text-daw-text-3')}
+                          >
+                            {EFFECT_ABOUT[type]}
+                          </span>
+                        </span>
+                        {on ? (
+                          <Check
+                            aria-hidden
+                            className="mt-1.5 size-4 shrink-0 text-daw-text-2"
+                          />
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
             </ul>
           </section>
         ))}

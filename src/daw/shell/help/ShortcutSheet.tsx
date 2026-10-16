@@ -30,10 +30,11 @@ const SCOPE_ORDER = [
   'leadsheet',
   'pianoRoll',
   'drums',
+  'dock',
   'typing',
   'practice',
   'prism',
-  'popOut',
+  'dockMax',
 ];
 
 function sortedScopes(): ScopeDef[] {

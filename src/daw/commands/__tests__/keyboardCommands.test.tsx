@@ -43,7 +43,7 @@ import { publishTimelineWidth } from '@/daw/editor/viewport';
 import { useGlobalCommands } from '../globalCommands';
 import {
   LEAD_SHEET_SCOPE,
-  NOTE_EDITOR_SCOPE,
+  DOCK_SCOPE,
   PIANO_ROLL_SCOPE,
   SCORE_SCOPE,
 } from '../keymaps';
@@ -501,11 +501,10 @@ describe('the dispatcher: keys stay where the student is working', () => {
     expectNoStoreChange(() => press('KeyM', {}, option));
   });
 
-  it('keeps Space and undo in the modal piano roll, but not clip keys', () => {
-    useStore.setState({ editingClipId: 'clip-1', editingClipTrackId: 'keys' });
+  it('keeps Space and undo in the dock’s piano roll, but not clip keys', () => {
     const tool = vi.fn();
     renderEditor(
-      <Bound scope={NOTE_EDITOR_SCOPE.id} handlers={{}} role="dialog">
+      <Bound scope={DOCK_SCOPE.id} handlers={{}}>
         <Bound
           scope={PIANO_ROLL_SCOPE.id}
           handlers={{ 'pianoRoll.draw': tool }}
@@ -517,12 +516,12 @@ describe('the dispatcher: keys stay where the student is working', () => {
     const roll = screen.getByTestId('roll');
     roll.focus();
 
+    // The clip behind the dock stays put. (R and M are global keys, and
+    // work in the dock as anywhere.)
     expectNoStoreChange(() => {
       press('Delete', {}, roll);
       press('ArrowRight', {}, roll);
       press('KeyD', { metaKey: true }, roll);
-      press('KeyR', {}, roll);
-      press('KeyM', {}, roll);
     });
     expect(clip()?.startTick).toBe(1920);
 
@@ -535,9 +534,8 @@ describe('the dispatcher: keys stay where the student is working', () => {
   });
 
   it('never lets Cmd+D open the bookmark dialog over the editor', () => {
-    useStore.setState({ editingClipId: 'clip-1', editingClipTrackId: 'keys' });
     const { unmount } = renderEditor(
-      <Bound scope={NOTE_EDITOR_SCOPE.id} handlers={{}} role="dialog">
+      <Bound scope={DOCK_SCOPE.id} handlers={{}}>
         <div tabIndex={0} data-testid="roll" />
       </Bound>,
     );

@@ -69,33 +69,21 @@ defineCommand({
   keys: ['Escape'],
 });
 
-/** The modal piano roll: an editor with no transport of its own. */
-export const NOTE_EDITOR_SCOPE = defineScope({
-  id: 'noteEditor',
-  label: 'Piano roll window',
-  level: 'dialog',
-  passThrough: [
-    'project.save',
-    'edit.undo',
-    'edit.redo',
-    'transport.playPause',
-    'browser.selectAll',
-    'browser.bookmark',
-    'typing',
-  ],
-});
-
-/** The pop-out synth and other full-window devices. Not modal. */
-export const POP_OUT_SCOPE = defineScope({
-  id: 'popOut',
-  label: 'Pop-out window',
+/**
+ * The dock grown over the canvas (milestone 2.9, Maximize): Escape gives
+ * the canvas back. Not modal: every other key works as in the dock. It
+ * replaced the modal piano roll's and the pop-outs' scopes.
+ */
+export const DOCK_MAX_SCOPE = defineScope({
+  id: 'dockMax',
+  label: 'Maximized dock',
   level: 'dialog',
 });
 
 defineCommand({
-  id: 'popOut.close',
-  scope: 'popOut',
-  label: 'Close the window',
+  id: 'dockMax.restore',
+  scope: 'dockMax',
+  label: 'Restore the dock',
   keys: ['Escape'],
 });
 
@@ -146,6 +134,27 @@ defineCommand({
 });
 
 // ── Focused regions ──────────────────────────────────────────────────────
+
+/**
+ * The editor dock, while focus is in it. Escape shuts it. The timeline's
+ * clip keys stay out (Delete, the arrows, ⌘D would act on the clip behind
+ * it, as the modal piano roll kept them out before); the global keys and
+ * the computer keyboard get through. The note editors inside it are
+ * regions of their own and answer first.
+ */
+export const DOCK_SCOPE = defineScope({
+  id: 'dock',
+  label: 'Editor dock',
+  level: 'region',
+  passThrough: ['global', 'typing'],
+});
+
+defineCommand({
+  id: 'dock.close',
+  scope: 'dock',
+  label: 'Close the dock',
+  keys: ['Escape'],
+});
 
 export const PIANO_ROLL_SCOPE = defineScope({
   id: 'pianoRoll',

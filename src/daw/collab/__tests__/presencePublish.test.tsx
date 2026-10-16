@@ -127,7 +127,9 @@ beforeEach(() => {
   useStore.setState({
     selectedTrackId: null,
     selectedClipId: null,
-    editingClipId: null,
+    currentView: 'arrange',
+    channelStripTab: null,
+    dockMaster: false,
   });
 });
 
@@ -154,7 +156,8 @@ describe('what publishes presence', () => {
 
     act(() => s().setSelectedTrackId('t1'));
     s().setPosition(480);
-    useStore.setState({ editingClipId: 'c1' });
+    // Notes open in the dock (the modal piano roll until 2.9).
+    useStore.setState({ channelStripTab: 'piano-roll' });
 
     const [selected, editing] = published().slice(-2);
     expect(published()).toHaveLength(3);
@@ -170,7 +173,7 @@ describe('what publishes presence', () => {
   });
 
   it('starts from the selection already made', () => {
-    useStore.setState({ selectedTrackId: 't1', editingClipId: 'c1' });
+    useStore.setState({ selectedTrackId: 't1', channelStripTab: 'piano-roll' });
     joinRoom();
     expect(published()[0]).toMatchObject({
       userId: 'u1',

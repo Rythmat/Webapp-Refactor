@@ -1,20 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import {
-  CHANNEL_STRIP_TAB_IDS,
-  isChannelStripTabId,
-} from '../channelStripTabs';
+import { CHANNEL_STRIP_TAB_IDS, isChannelStripTabId } from '../dockTabs';
 
 // ── The dock's tab ids ─────────────────────────────────────────────────────
 // The strip and the codec check a restored channelStripTab here. The type
 // keeps the list complete; these cases pin what passes the check.
 
 describe('isChannelStripTabId', () => {
-  it('knows the dock’s six tabs', () => {
+  it('knows the dock’s five tabs', () => {
     expect([...CHANNEL_STRIP_TAB_IDS].sort()).toEqual([
       'controls',
       'fx',
       'grooves',
-      'parts',
       'piano-roll',
       'prism',
     ]);
@@ -26,6 +22,8 @@ describe('isChannelStripTabId', () => {
   it('rejects anything else a draft could hold', () => {
     for (const value of [
       'mixer',
+      // Parts left the dock for the Library panel (2.9).
+      'parts',
       'Controls',
       '',
       // On the prototype of the table, not one of its tabs.

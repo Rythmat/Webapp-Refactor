@@ -12,6 +12,7 @@ import {
   INSPECTOR_DEFAULT_PX,
   resolveInspectorOpen,
   type DockHeights,
+  type DockSlotId,
   type InspectorOpenByView,
   type InspectorPanelId,
   type ReadoutMode,
@@ -135,15 +136,14 @@ export interface PracticeKeyboard {
   view: PracticeKeyboardView | null;
   scaleId: string | null;
 }
-/** Tabs of the bottom Channel Strip. Kept here (not in ChannelStrip.tsx) so
- *  the tutorial system can read/open a specific tab from the store. */
+/** The editor dock's tabs (shell/dock/dockTabs.ts). Kept here so the
+ *  tutorial system can read and open a tab from the store. */
 export type ChannelStripTabId =
   | 'controls'
   | 'fx'
   | 'prism'
   | 'piano-roll'
-  | 'grooves'
-  | 'parts';
+  | 'grooves';
 export type LeadSheetChordFormat = 'jazz' | 'hybrid' | 'numbers';
 
 export interface LeadSheetSection {
@@ -167,8 +167,6 @@ export interface UiSlice {
   activeTool: ToolType;
   selectedClipId: string | null;
   selectedClipTrackId: string | null;
-  editingClipId: string | null;
-  editingClipTrackId: string | null;
   clipboardClips: MidiClip[];
   clipboardAudioClip: { clip: AudioClip; bufferId: string } | null;
 
@@ -186,7 +184,6 @@ export interface UiSlice {
 
   setActiveTool: (tool: ToolType) => void;
   setSelectedClip: (clipId: string | null, trackId: string | null) => void;
-  setEditingClip: (clipId: string | null, trackId: string | null) => void;
   setClipboard: (clips: MidiClip[]) => void;
   setAudioClipboard: (clip: AudioClip, bufferId: string) => void;
 
@@ -268,16 +265,28 @@ export interface UiSlice {
 
   /** Per-user: the dock's height for each tab, as a share of the editor body. */
   dockHeights: DockHeights;
-  setDockHeight: (tab: ChannelStripTabId, frac: number) => void;
+  setDockHeight: (slot: DockSlotId, frac: number) => void;
   /** Per-user: the position readout in bars and beats, or minutes. */
   readoutMode: ReadoutMode;
   setReadoutMode: (mode: ReadoutMode) => void;
 
-  // ── Channel strip (bottom panel) active tab ──
-  // Lifted out of ChannelStrip's local state so tutorials can open a tab
-  // (e.g. Prism) programmatically. null = strip collapsed.
+  // ── The editor dock (milestone 2.9) ──
+  // The open tab, in the store so tutorials can open one (e.g. Prism).
+  // null: the dock is shut to its tab bar.
   channelStripTab: ChannelStripTabId | null;
   setChannelStripTab: (tab: ChannelStripTabId | null) => void;
+  /**
+   * The dock shows Master (gain, the master chain, the output) in its slot
+   * instead of the selected track; the bottom rail's Master opens it.
+   */
+  dockMaster: boolean;
+  setDockMaster: (open: boolean) => void;
+  /** The dock grown over the canvas (Maximize; Escape restores it). */
+  dockMaximized: boolean;
+  setDockMaximized: (on: boolean) => void;
+  /** Notes picked in the dock's piano roll, which Analyze sends to Insight. */
+  dockNoteSelection: ClipNoteSelection | null;
+  setDockNoteSelection: (selection: ClipNoteSelection | null) => void;
 
   // ── Clip color mode ──
   clipColorMode: 'track' | 'prism';
@@ -406,8 +415,6 @@ export const createUiSlice: StateCreator<
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,
-  editingClipId: null,
-  editingClipTrackId: null,
   clipboardClips: [],
   clipboardAudioClip: null,
 
@@ -429,9 +436,6 @@ export const createUiSlice: StateCreator<
       selectedClipTrackId: trackId,
       parkedClipSelection: null,
     }),
-
-  setEditingClip: (clipId, trackId) =>
-    set({ editingClipId: clipId, editingClipTrackId: trackId }),
 
   setClipboard: (clips) => set({ clipboardClips: clips }),
 
@@ -488,6 +492,8 @@ export const createUiSlice: StateCreator<
       // Lesson steps re-assert the view they are already on: not a switch,
       // so the Inspector stays as the step left it.
       if (view === s.currentView) return next;
+      // The dock is Create's: coming back finds it at its own height.
+      next.dockMaximized = false;
       // Each view opens the Inspector as the student last had it there
       // (2.4); switching no longer forces it open in Create (ia-flows-21).
       next.libraryOpen = resolveInspectorOpen(view, s.inspectorOpenByView);
@@ -581,9 +587,21 @@ export const createUiSlice: StateCreator<
   readoutMode: 'bars',
   setReadoutMode: (mode) => set({ readoutMode: mode }),
 
-  // ── Channel strip active tab ──
+  // ── The editor dock ──
   channelStripTab: null,
-  setChannelStripTab: (tab) => set({ channelStripTab: tab }),
+  // Shutting the dock shuts Master and a maximized dock with it.
+  setChannelStripTab: (tab) =>
+    set(
+      tab === null
+        ? { channelStripTab: null, dockMaster: false, dockMaximized: false }
+        : { channelStripTab: tab },
+    ),
+  dockMaster: false,
+  setDockMaster: (open) => set({ dockMaster: open }),
+  dockMaximized: false,
+  setDockMaximized: (on) => set({ dockMaximized: on }),
+  dockNoteSelection: null,
+  setDockNoteSelection: (selection) => set({ dockNoteSelection: selection }),
 
   // ── Clip color mode ──
   clipColorMode: 'track',

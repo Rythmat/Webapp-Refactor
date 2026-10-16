@@ -107,7 +107,13 @@ export const ClipPianoRollPart = lazyPart(
   { name: 'piano roll', fallback: dock('Loading the piano roll') },
 );
 
-// The Controls tab's frame (TrackControlsPanel) is small and stays in the
+/** Master in the dock's slot (2.9): the mastering rack's parts. */
+export const DockMasterPart = lazyPart(
+  () => import('@/daw/shell/dock/DockMaster').then((m) => m.DockMaster),
+  { name: 'Master', fallback: dock('Loading Master') },
+);
+
+// The Instrument tab's frame (TrackControlsPanel) is small and stays in the
 // editor's chunk; the instrument view inside it loads (below), so opening
 // the tab is one fetch, not two in a row.
 const TAB_PARTS: Partial<
@@ -115,14 +121,23 @@ const TAB_PARTS: Partial<
 > = {
   fx: EffectsPanelPart,
   grooves: GroovesBrowserPart,
-  parts: PartsBrowserPart,
   prism: PrismPanelPart,
   'piano-roll': ClipPianoRollPart,
 };
 
-/** Fetch a dock tab's chunk ahead of opening it (a hover on the tab). */
-export function preloadDockTab(id: ChannelStripTabId): void {
-  TAB_PARTS[id]?.preload().catch(() => {});
+/**
+ * Fetch a dock tab's chunk ahead of opening it (a hover on the tab). Notes
+ * on drums is the drum grid.
+ */
+export function preloadDockTab(
+  id: ChannelStripTabId,
+  instrument?: string,
+): void {
+  const part =
+    id === 'piano-roll' && instrument === 'drum-machine'
+      ? DrumMachineViewPart
+      : TAB_PARTS[id];
+  part?.preload().catch(() => {});
 }
 
 // ── Instrument views (the Controls tab) ─────────────────────────────────────
@@ -179,7 +194,13 @@ export const DrumMachineViewPart = lazyPart(
     import('@/daw/components/Controls/DrumMachineView').then(
       (m) => m.DrumMachineView,
     ),
-  { name: 'drum machine', fallback: instrument() },
+  { name: 'drum grid', fallback: instrument() },
+);
+
+/** Drums' Instrument tab: the kit and its pads (2.9). */
+export const DrumPadsViewPart = lazyPart(
+  () => import('@/daw/shell/dock/DrumPadsView').then((m) => m.DrumPadsView),
+  { name: 'drum kit', fallback: instrument() },
 );
 
 export const SamplerChopsViewPart = lazyPart(
@@ -216,7 +237,7 @@ function instrumentPart(
     case 'soundfont':
       return SoundFontViewPart;
     case 'drum-machine':
-      return DrumMachineViewPart;
+      return DrumPadsViewPart;
     case 'sampler':
       return SamplerChopsViewPart;
     case 'vocal-fx':
@@ -252,14 +273,6 @@ export const PrismSuggestionModalPart = lazyPart(
       (m) => m.PrismSuggestionModal,
     ),
   { name: 'Prism suggestion' },
-);
-
-export const PianoRollModalPart = lazyPart(
-  () =>
-    import('@/daw/components/PianoRoll/PianoRollModal').then(
-      (m) => m.PianoRollModal,
-    ),
-  { name: 'piano roll' },
 );
 
 export const ChordAnalysisPromptPart = lazyPart(
@@ -313,14 +326,6 @@ export function PrismSuggestionModalHost({
   return opened ? <PrismSuggestionModalPart audioReady={audioReady} /> : null;
 }
 
-/** The full-size piano roll, mounted once a clip is first opened in it. */
-export function PianoRollModalHost() {
-  const opened = useOpenedOnce(
-    useStore((s) => s.editingClipId !== null && s.editingClipTrackId !== null),
-  );
-  return opened ? <PianoRollModalPart /> : null;
-}
-
 /** The offer to read a project's chords, mounted once first offered. */
 export function ChordAnalysisPromptHost() {
   const opened = useOpenedOnce(useStore((s) => s.chordAnalysisPromptOpen));
@@ -354,10 +359,15 @@ export function preloadForLesson(
   instrumentIds: Iterable<string>,
 ): void {
   TutorialLayerPart.preload().catch(() => {});
+  const instruments = [...instrumentIds];
   for (const step of steps) {
     const { view: stepView, channelStripTab } = step.requires ?? {};
     if (stepView) preloadView(stepView);
-    if (channelStripTab === 'controls') preloadInstrumentViews(instrumentIds);
-    else if (channelStripTab) preloadDockTab(channelStripTab);
+    if (channelStripTab === 'controls') preloadInstrumentViews(instruments);
+    else if (channelStripTab === 'piano-roll') {
+      // Notes is the drum grid on drums.
+      preloadDockTab(channelStripTab);
+      for (const id of instruments) preloadDockTab(channelStripTab, id);
+    } else if (channelStripTab) preloadDockTab(channelStripTab);
   }
 }

@@ -33,19 +33,28 @@ export const DOCK_TALL_FRAC = 0.6;
 /** One arrow-key step of a resizer. */
 export const RESIZE_STEP_PX = 16;
 
+/** What fills the dock's slot: one of its tabs, or Master (2.9). */
+export type DockSlotId = ChannelStripTabId | 'master';
+
 /**
  * Each tab's default height, as a share of the body (window height less the
  * top bar and the bottom rail): about 204 px on a Chromebook in focus mode
  * (567 px of body), and a little more for the two editors.
  */
-export const DOCK_DEFAULT_FRAC: Readonly<Record<ChannelStripTabId, number>> = {
+export const DOCK_DEFAULT_FRAC: Readonly<Record<DockSlotId, number>> = {
   controls: 0.36,
   fx: 0.36,
   grooves: 0.36,
-  parts: 0.36,
   prism: 0.4,
   'piano-roll': 0.4,
+  master: 0.36,
 };
+
+/**
+ * Tabs the dock had once (Parts, until 2.9): a stored height for one is
+ * still a valid pref, and is never read.
+ */
+const FORMER_DOCK_TABS = ['parts'];
 
 /** The Inspector panel, beside the side rail. */
 export const INSPECTOR_MIN_PX = 240;
@@ -72,7 +81,7 @@ export type InspectorPanelId = (typeof INSPECTOR_PANELS)[number];
  */
 export const INSPECTOR_PINNED_MIN_VIEWPORT = 1440;
 
-export type DockHeights = Partial<Record<ChannelStripTabId, number>>;
+export type DockHeights = Partial<Record<DockSlotId, number>>;
 export type InspectorOpenByView = Partial<Record<ViewType, boolean>>;
 /** The position readout: bars and beats, or minutes and seconds. */
 export type ReadoutMode = 'bars' | 'time';
@@ -81,10 +90,7 @@ const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v));
 
 /** The dock's share of the body for `tab`: the student's, else the default. */
-export function dockFracFor(
-  tab: ChannelStripTabId,
-  heights: DockHeights,
-): number {
+export function dockFracFor(tab: DockSlotId, heights: DockHeights): number {
   return heights[tab] ?? DOCK_DEFAULT_FRAC[tab];
 }
 
@@ -142,7 +148,10 @@ export function resolveInspectorOpen(
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-const DOCK_TABS = new Set<string>(Object.keys(DOCK_DEFAULT_FRAC));
+const DOCK_TABS = new Set<string>([
+  ...Object.keys(DOCK_DEFAULT_FRAC),
+  ...FORMER_DOCK_TABS,
+]);
 const VIEWS = new Set<string>([
   'arrange',
   'studio',

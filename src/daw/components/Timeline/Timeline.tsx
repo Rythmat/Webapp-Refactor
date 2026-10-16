@@ -16,6 +16,7 @@ import { PremiumBadge } from '@/daw/ui/PremiumBadge';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useArrangeKeymap } from '@/daw/commands/clipCommands';
 import { withTransaction } from '@/daw/store/history';
+import { openClipEditor } from '@/daw/shell/dock/dockSelection';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
@@ -1870,10 +1871,8 @@ export function Timeline({ scrollRef }: TimelineProps) {
         }
         state.setSelectedTrackId(track.id);
         state.setSelectedClip(clipId, track.id);
-        // Drum hits are edited on the drum grid, other notes in the roll.
-        state.setChannelStripTab(
-          track.instrument === 'drum-machine' ? 'controls' : 'piano-roll',
-        );
+        // Notes: the drum grid on drums, the piano roll on the rest (2.9).
+        state.setChannelStripTab('piano-roll');
         return;
       }
 
@@ -1911,7 +1910,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
     ],
   );
 
-  // Double-click: ruler → add marker, clip → open Piano Roll
+  // Double-click: ruler → add marker, clip → its editor in the dock
   const handleCanvasDoubleClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { x, y } = getCanvasCoords(e);
@@ -1956,19 +1955,11 @@ export function Timeline({ scrollRef }: TimelineProps) {
         state.addMarker(snapped, `Marker ${nextNum}`);
         return;
       }
+      // The click before it has opened the clip's editor in the dock
+      // already (2.9: Notes, the drum grid or the chain); a double-click
+      // does the same, where the modal piano roll used to open.
       const hit = hitTestClip(x, y);
-      if (hit) {
-        // Audio clips have no piano-roll representation, so don't open the
-        // editor for them — double-clicking an audio clip is a no-op.
-        const state = useStore.getState();
-        const track = state.tracks.find((t) => t.id === hit.trackId);
-        const isAudioClip = track?.audioClips.some((c) => c.id === hit.clipId);
-        if (isAudioClip) return;
-        // Open the piano roll for any MIDI clip, including drum-machine tracks.
-        // Drum hits are MIDI notes, so they edit in the roll just like any other
-        // MIDI clip (the drum machine remains available in the track controls).
-        state.setEditingClip(hit.clipId, hit.trackId);
-      }
+      if (hit) openClipEditor(hit.trackId);
     },
     [getCanvasCoords, getScrollTop, hitTestClip],
   );
@@ -2589,6 +2580,27 @@ export function Timeline({ scrollRef }: TimelineProps) {
 
     dragRef.current = null;
     if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+
+    // The clip's track is selected with it, and a click that moved and
+    // trimmed nothing opens the clip's editor in the dock (2.9). Done on
+    // release, so the dock never changes height under a drag.
+    const clicked =
+      dragTickRef.current === drag.startTickOrigin &&
+      dragEndTickRef.current === drag.endTickOrigin &&
+      dragTrackRef.current === drag.originTrackIndex;
+    const holder = useStore
+      .getState()
+      .tracks.find(
+        (t) =>
+          t.midiClips.some((c) => c.id === drag.clipId) ||
+          t.audioClips.some((c) => c.id === drag.clipId),
+      );
+    if (holder) {
+      if (clicked) openClipEditor(holder.id);
+      else if (useStore.getState().selectedTrackId !== holder.id) {
+        useStore.getState().setSelectedTrackId(holder.id);
+      }
+    }
 
     requestRedraw();
   }, [requestRedraw]);

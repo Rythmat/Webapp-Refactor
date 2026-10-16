@@ -21,8 +21,8 @@ vi.mock('../bottombar/BottomRail', () => ({ BottomRail: stub('bottom-rail') }));
 vi.mock('@/daw/shell/tracklist/TrackArea', () => ({
   TrackArea: stub('timeline'),
 }));
-vi.mock('@/daw/components/ChannelStrip/ChannelStrip', () => ({
-  ChannelStrip: stub('channel-strip'),
+vi.mock('../dock/Dock', () => ({
+  Dock: stub('channel-strip'),
 }));
 vi.mock('@/daw/shell/inspector/InspectorPanel', () => ({
   InspectorPanel: stub('library-panel'),
@@ -32,7 +32,6 @@ vi.mock('../lazyParts', () => ({
   ScoreViewPart: stub('score-view'),
   LeadSheetViewPart: stub('leadsheet-view'),
   PracticeTrackViewPart: stub('practice-view'),
-  PianoRollModalHost: () => null,
 }));
 
 import { useStore, type ViewType } from '@/daw/store';

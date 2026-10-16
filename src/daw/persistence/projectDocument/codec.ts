@@ -3,7 +3,7 @@ import {
   type TrackEffectState,
 } from '@/daw/audio/EffectChain';
 import type { AutomationLanes, AutomationPoint } from '@/daw/audio/automation';
-import { isChannelStripTabId } from '@/daw/components/ChannelStrip/channelStripTabs';
+import { isChannelStripTabId } from '@/daw/shell/dock/dockTabs';
 import { ensureChordIdentities } from '@/daw/harmony/chordIdentity';
 import { keyFrameOf } from '@/daw/harmony/keyFrame';
 import {

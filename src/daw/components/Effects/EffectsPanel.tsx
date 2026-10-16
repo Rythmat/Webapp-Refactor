@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { X, Maximize2, Zap } from 'lucide-react';
+import { X, Zap } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
 import type {
@@ -17,7 +17,6 @@ import {
   DelayTaps,
   GateCurve,
 } from './visualizers';
-import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { FxMeter } from './FxMeter';
 import { meterSource } from '@/daw/engine/meterBus';
 import { getReverbManifest, getReverbIrMeta } from '@/daw/audio/reverbIR';
@@ -65,7 +64,7 @@ export function EffectsPanel() {
   const removeActiveEffect = useStore((s) => s.removeActiveEffect);
   const selectedEffect = useStore((s) => s.dockEffect);
   const setSelectedEffect = useStore((s) => s.setDockEffect);
-  const [popOutOpen, setPopOutOpen] = useState(false);
+  const roomy = useStore((s) => s.dockMaximized);
 
   useShownEffect(track?.activeEffects, selectedEffect, setSelectedEffect);
 
@@ -102,8 +101,7 @@ export function EffectsPanel() {
               onRemove={(slot) => {
                 removeActiveEffect(track.id, slot);
               }}
-              popOutOpen={popOutOpen}
-              onTogglePopOut={() => setPopOutOpen((v) => !v)}
+              roomy={roomy}
               meterTarget={track.id}
             />
           ) : (
@@ -327,8 +325,7 @@ export function FxControlsPanel({
   onUpdate,
   onPreview,
   onRemove,
-  popOutOpen,
-  onTogglePopOut,
+  roomy = false,
   meterTarget = null,
 }: {
   trackId: string;
@@ -339,8 +336,11 @@ export function FxControlsPanel({
    *  EQ band moves (the engine/preview.ts functions). */
   onPreview: (effects: TrackEffectState) => void;
   onRemove: (slot: EffectSlotType) => void;
-  popOutOpen: boolean;
-  onTogglePopOut: () => void;
+  /**
+   * The dock is maximized (milestone 2.9): larger knobs, and the effect's
+   * graph shown large under them. It replaced the pop-out window.
+   */
+  roomy?: boolean;
   /** Whose effect chain the meters read on the meter bus (a track id or
    *  'master'); null when the rack has no live chain to meter. */
   meterTarget?: string | null;
@@ -391,6 +391,13 @@ export function FxControlsPanel({
     update(trackId, {
       [selectedEffect]: { ...slotState, enabled: !enabled },
     });
+  // The effect's graph (the compressor's curve, the EQ, the reverb's tail):
+  // a labelled toggle shows it under the knobs, and a maximized dock shows
+  // it from the start (fx-mixer-11: it was behind an unlabelled pop-out).
+  const [showGraph, setShowGraph] = useState(roomy);
+  useEffect(() => {
+    if (roomy) setShowGraph(true);
+  }, [roomy]);
 
   return (
     <ControlGestureContext.Provider value={gesture}>
@@ -426,17 +433,20 @@ export function FxControlsPanel({
           >
             {label}
           </span>
-          <button
-            onClick={onTogglePopOut}
-            className="cursor-pointer rounded-md p-1"
-            style={{
-              color: popOutOpen ? 'var(--daw-accent)' : 'var(--daw-text-3)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            <Maximize2 size={14} />
-          </button>
+          {hasViz ? (
+            <button
+              type="button"
+              aria-pressed={showGraph}
+              onClick={() => setShowGraph((v) => !v)}
+              className={`flex h-6 cursor-pointer items-center rounded-full border border-daw-hairline px-2.5 text-[12px] font-medium transition-colors hover:bg-daw-hover ${
+                showGraph
+                  ? 'bg-daw-selected text-daw-text'
+                  : 'bg-transparent text-daw-text-3'
+              }`}
+            >
+              Graph
+            </button>
+          ) : null}
           <button
             onClick={() => onRemove(selectedEffect)}
             className="cursor-pointer rounded-md p-1"
@@ -458,41 +468,22 @@ export function FxControlsPanel({
             effects={effects}
             onUpdate={update}
             color={color}
+            roomy={roomy}
           />
         </div>
 
-        {/* Pop-out overlay */}
-        <PopOutOverlay
-          isOpen={popOutOpen}
-          onClose={onTogglePopOut}
-          title={`${category}  ${label}`}
-          trackColor={color}
-        >
-          <div className="flex h-full flex-col gap-4 p-4">
-            <div className="flex flex-wrap items-center justify-center gap-4 px-4 py-3">
-              <FxKnobs
-                trackId={trackId}
-                slot={selectedEffect}
-                effects={effects}
-                onUpdate={update}
-                color={color}
-                popOut
-              />
-            </div>
-            {hasViz && (
-              <div className="flex min-h-0 flex-1 items-center justify-center p-3">
-                <FxVisualizer
-                  slot={selectedEffect}
-                  effects={effects}
-                  trackId={trackId}
-                  onUpdate={update}
-                  meterTarget={meterTarget}
-                  large
-                />
-              </div>
-            )}
+        {hasViz && showGraph ? (
+          <div className="flex items-center justify-center px-4 pb-3">
+            <FxVisualizer
+              slot={selectedEffect}
+              effects={effects}
+              trackId={trackId}
+              onUpdate={update}
+              meterTarget={meterTarget}
+              large={roomy}
+            />
           </div>
-        </PopOutOverlay>
+        ) : null}
       </div>
     </ControlGestureContext.Provider>
   );
@@ -506,18 +497,19 @@ export function FxKnobs({
   effects,
   onUpdate,
   color,
-  popOut,
+  roomy,
 }: {
   trackId: string;
   slot: EffectSlotType;
   effects: TrackEffectState;
   onUpdate: (trackId: string, effects: Partial<TrackEffectState>) => void;
   color: string;
-  popOut?: boolean;
+  /** Larger knobs, in a maximized dock. */
+  roomy?: boolean;
 }) {
-  const ks = popOut ? 62 : 52; // knob size
-  const eqKs = popOut ? 42 : 32; // EQ band knob size
-  const eqQs = popOut ? 32 : 26; // EQ Q knob size
+  const ks = roomy ? 62 : 52; // knob size
+  const eqKs = roomy ? 42 : 32; // EQ band knob size
+  const eqQs = roomy ? 32 : 26; // EQ Q knob size
   const comp = effects.compressor;
   const gate = effects.gate;
   const pres = effects.presence;

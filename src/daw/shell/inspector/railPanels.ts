@@ -33,7 +33,7 @@ export const RAIL_PANELS: readonly RailPanel[] = [
   {
     id: 'library',
     title: 'Library',
-    hint: 'Library: start from a template',
+    hint: 'Library: templates, and parts for the selected track',
     icon: LayoutTemplate,
   },
   {

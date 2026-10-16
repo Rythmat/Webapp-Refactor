@@ -2,14 +2,6 @@
   "src/daw/collab/types.ts": {
     "hex": 8
   },
-  "src/daw/components/ChannelStrip/ChannelStrip.tsx": {
-    "smallText": 3
-  },
-  "src/daw/components/ChannelStrip/PopOutOverlay.tsx": {
-    "hex": 2,
-    "rgb": 7,
-    "zIndex": 1
-  },
   "src/daw/components/Controls/AudioMidiSourcePanel.tsx": {
     "smallText": 1
   },
@@ -77,9 +69,6 @@
   "src/daw/components/Controls/SoundFontView.tsx": {
     "rgb": 1,
     "zIndex": 1
-  },
-  "src/daw/components/Controls/TrackControlsPanel.tsx": {
-    "rgb": 3
   },
   "src/daw/components/Controls/TunerDisplay.tsx": {
     "hex": 3,
@@ -181,10 +170,6 @@
     "smallText": 6,
     "zIndex": 1
   },
-  "src/daw/components/PianoRoll/PianoRollModal.tsx": {
-    "rgb": 3,
-    "zIndex": 2
-  },
   "src/daw/components/Practice/ChordChart.tsx": {
     "rgb": 2
   },
@@ -206,9 +191,6 @@
   },
   "src/daw/components/Prism/ColorSpectrum.tsx": {
     "rgb": 2
-  },
-  "src/daw/components/Prism/PrismPanel.tsx": {
-    "rgb": 3
   },
   "src/daw/components/Prism/PrismStudio.tsx": {
     "hex": 3,

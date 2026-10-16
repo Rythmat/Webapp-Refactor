@@ -55,7 +55,6 @@ const BUILDER =
   'The Prism builder’s progression in progress: saved and shared, with its own Undo chord.';
 const COMPUTER_SETTING =
   'A setting of this computer rather than of a student, so it keeps its own storage key';
-const PIANO_ROLL_CLIP = 'The clip open in the piano roll editor.';
 
 /** Why each store key is classified as it is (STORE_FIELDS). */
 export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
@@ -202,8 +201,6 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   enabledStereoOutputs: DEVICES,
 
   // ── ui ──
-  editingClipId: PIANO_ROLL_CLIP,
-  editingClipTrackId: PIANO_ROLL_CLIP,
   clipboardClips: 'Copied clips: they paste into the next project too.',
   clipboardAudioClip:
     'A copied audio clip: it pastes into the next project too.',
@@ -218,6 +215,11 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   fxLibraryReturn:
     'Where the armed effect slot’s × puts the Inspector back: a moment in this session, never saved (milestone 2.8).',
   dockEffect: SELECTION,
+  dockMaster:
+    'Master shown in the dock’s slot: a moment of this session; a project opens with its tracks (milestone 2.9).',
+  dockNoteSelection: SELECTION,
+  dockMaximized:
+    'The dock grown over the canvas for a moment; a project opens with the canvas showing (milestone 2.9).',
 
   // ── collab ──
   isCollabActive: COLLAB,

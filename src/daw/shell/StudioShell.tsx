@@ -1,5 +1,4 @@
-import { memo, useRef, type RefObject } from 'react';
-import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
+import { memo, useEffect, useRef, type RefObject } from 'react';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { Resizer } from '@/daw/ui/Resizer';
@@ -20,6 +19,7 @@ import {
 import {
   DOCK_HEIGHT_VAR,
   dockPxFor,
+  dockSlotOf,
   INSPECTOR_WIDTH_VAR,
   useShellBodyPx,
   useShellGeometry,
@@ -27,12 +27,12 @@ import {
 import { useInspectorFollowsPrefs } from './layout/useInspectorFollowsPrefs';
 import {
   LeadSheetViewPart,
-  PianoRollModalHost,
   PracticeTrackViewPart,
   ScoreViewPart,
   StudioViewPart,
 } from './lazyParts';
 import { BottomRail } from './bottombar/BottomRail';
+import { Dock } from './dock/Dock';
 import { InspectorPanel } from './inspector/InspectorPanel';
 import { SideRail } from './inspector/SideRail';
 import { TopBar } from './topbar/TopBar';
@@ -58,7 +58,9 @@ import { TrackArea } from './tracklist/TrackArea';
 //
 // Sizes the student drags are CSS variables on this root (shellGeometry):
 // the dock's height per tab and the Inspector's width, both per-user prefs.
-// Panels resize at once; their content fades in (motion rules, 2.4).
+// Panels resize at once; their content fades in (motion rules, 2.4). A
+// maximized dock (2.9) takes the main region's row too: the canvas stays
+// mounted, out of sight and out of reach (inert), until Escape or Restore.
 //
 // Until their own milestones restyle them, the main and dock regions'
 // contents are the editor's legacy components (data-ds="legacy"); the bars,
@@ -85,8 +87,20 @@ export const StudioShell = memo(function StudioShell({
   const practiceScreen = view === 'practice' && practiceSession !== null;
   // Create's timeline is the practice view's too until its session exists.
   const create = view === 'arrange' || (view === 'practice' && !practiceScreen);
+  const dockOpen = useStore((s) => s.channelStripTab !== null || s.dockMaster);
+  const maximized =
+    useStore((s) => s.dockMaximized) && create && !practiceScreen && dockOpen;
   useShellGeometry(rootRef);
   useInspectorFollowsPrefs();
+  // Under a maximized dock the canvas is out of reach: inert (set on the
+  // element: React 18 doesn't know the attribute).
+  const mainRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const main = mainRef.current;
+    if (!main) return;
+    if (maximized) main.setAttribute('inert', '');
+    else main.removeAttribute('inert');
+  }, [maximized]);
 
   return (
     <div
@@ -100,7 +114,9 @@ export const StudioShell = memo(function StudioShell({
           : '"top top top" "main inspector rail" "dock inspector rail" "bottom bottom bottom"',
         gridTemplateRows: practiceScreen
           ? 'minmax(0, 1fr)'
-          : `${TOP_BAR_PX}px minmax(0, 1fr) auto ${BOTTOM_RAIL_PX}px`,
+          : maximized
+            ? `${TOP_BAR_PX}px 0px minmax(0, 1fr) ${BOTTOM_RAIL_PX}px`
+            : `${TOP_BAR_PX}px minmax(0, 1fr) auto ${BOTTOM_RAIL_PX}px`,
         gridTemplateColumns: practiceScreen
           ? 'minmax(0, 1fr) 0 0'
           : `minmax(0, 1fr) auto ${SIDE_RAIL_PX}px`,
@@ -125,6 +141,7 @@ export const StudioShell = memo(function StudioShell({
         aria-label={MAIN_LABEL[practiceScreen ? 'practice' : view]}
         className="flex min-h-0 min-w-0 flex-col overflow-hidden"
         style={{ gridArea: 'main' }}
+        ref={mainRef}
       >
         {practiceScreen && practiceSession ? (
           <DevProfiler id="PracticeTrackView">
@@ -169,16 +186,15 @@ export const StudioShell = memo(function StudioShell({
       {create && !practiceScreen ? (
         <section
           data-region="dock"
-          data-ds="legacy"
+          data-ds="v2"
           aria-label="Editor dock"
-          className="relative min-w-0"
+          className="relative min-h-0 min-w-0"
           style={{ gridArea: 'dock' }}
         >
-          <DockResizer rootRef={rootRef} />
-          <DevProfiler id="ChannelStrip">
-            <ChannelStrip />
+          {maximized ? null : <DockResizer rootRef={rootRef} />}
+          <DevProfiler id="Dock">
+            <Dock />
           </DevProfiler>
-          <PianoRollModalHost />
         </section>
       ) : null}
 
@@ -272,15 +288,18 @@ function InspectorResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
  */
 function DockResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
   const tab = useStore((s) => s.channelStripTab);
+  const master = useStore((s) => s.dockMaster);
   const heights = useStore((s) => s.dockHeights);
   const setDockHeight = useStore((s) => s.setDockHeight);
   const setTab = useStore((s) => s.setChannelStripTab);
   const bodyPx = useShellBodyPx(rootRef);
   // A shut dock is its tab bar only: nothing to drag until a tab opens.
-  if (tab === null || bodyPx === 0) return null;
-  const value = dockPxFor(tab, heights, bodyPx);
+  if ((tab === null && !master) || bodyPx === 0) return null;
+  // Master keeps a height of its own, as each tab does.
+  const slot = dockSlotOf(tab, master);
+  const value = dockPxFor(slot, heights, bodyPx);
   const max = Math.max(DOCK_MIN_PX, Math.round(bodyPx * DOCK_MAX_FRAC));
-  const commit = (px: number) => setDockHeight(tab, px / bodyPx);
+  const commit = (px: number) => setDockHeight(slot, px / bodyPx);
   return (
     <Resizer
       label="Resize the dock"
@@ -295,9 +314,9 @@ function DockResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
       }
       onCommit={commit}
       onDoubleClick={() => {
-        const fallback = DOCK_DEFAULT_FRAC[tab] ?? DOCK_DEFAULT_FRAC.controls;
+        const fallback = DOCK_DEFAULT_FRAC[slot] ?? DOCK_DEFAULT_FRAC.controls;
         const tall = Math.abs(value - bodyPx * DOCK_TALL_FRAC) < 2;
-        setDockHeight(tab, tall ? fallback : DOCK_TALL_FRAC);
+        setDockHeight(slot, tall ? fallback : DOCK_TALL_FRAC);
       }}
       onToggle={() => setTab(null)}
       data-testid="dock-resizer"

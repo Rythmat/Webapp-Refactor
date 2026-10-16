@@ -423,8 +423,6 @@ const STORE_SPECS = {
   enabledStereoOutputs: session('devices', () => [], 'page'),
 
   // ── ui ──
-  editingClipId: session('ui', null, 'project'),
-  editingClipTrackId: session('ui', null, 'project'),
   clipboardClips: session('ui', () => [], 'page'),
   clipboardAudioClip: session('ui', null, 'page'),
   settingsOpen: session('ui', false, 'page'),
@@ -435,6 +433,9 @@ const STORE_SPECS = {
   selectedNotes: session('ui', () => [], 'project'),
   fxLibraryReturn: session('ui', null, 'project'),
   dockEffect: session('ui', null, 'project'),
+  dockMaster: session('ui', false, 'project'),
+  dockMaximized: session('ui', false, 'project'),
+  dockNoteSelection: session('ui', null, 'project'),
 
   // ── collab ──
   isCollabActive: session('collab', false, 'page'),

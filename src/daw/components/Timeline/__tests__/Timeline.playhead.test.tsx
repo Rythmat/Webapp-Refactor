@@ -60,11 +60,11 @@ import {
 import { useStore } from '@/daw/store';
 import { tickToPixel } from '@/daw/utils/timelineScale';
 import {
-  CHORD_RULER_HEIGHT,
-  RULER_HEIGHT,
-  TRACK_HEIGHT,
-  Timeline,
-} from '../Timeline';
+  LANE_HEADER_PX,
+  RULER_PX,
+  TRACK_ROW_PX,
+} from '@/daw/shell/tracklist/rowLayout';
+import { ScrolledTimeline } from './scrolledTimeline';
 
 const s = () => useStore.getState();
 const VIEWPORT = 1200;
@@ -91,14 +91,13 @@ afterAll(() => {
   HTMLCanvasElement.prototype.getContext = getContext;
 });
 
-/** The Timeline inside a scroller, as TimelineWithHeaders mounts it, with
- *  the scroller's scrollTop reads counted. */
+/** The Timeline inside its scroller, as TrackArea mounts it, with the
+ *  scroller's scrollTop reads counted. */
 function renderTimeline() {
   let scrollTopReads = 0;
   const view = render(
-    <div
-      ref={(node) => {
-        if (!node) return;
+    <ScrolledTimeline
+      onScroller={(node) => {
         Object.defineProperty(node, 'scrollTop', {
           configurable: true,
           get: () => {
@@ -107,9 +106,7 @@ function renderTimeline() {
           },
         });
       }}
-    >
-      <Timeline />
-    </div>,
+    />,
   );
   return { ...view, scrollTopReads: () => scrollTopReads };
 }
@@ -165,7 +162,7 @@ describe('playback', () => {
     act(() => s().setPosition(480));
     const handle = playhead()!.firstElementChild as HTMLDivElement;
     expect(handle.style.top).not.toBe('');
-    expect(parseFloat(handle.style.top)).toBeLessThan(RULER_HEIGHT);
+    expect(parseFloat(handle.style.top)).toBeLessThan(RULER_PX);
   });
 
   it('hides the playhead once it leaves the view', () => {
@@ -240,7 +237,7 @@ describe('playback through the playhead clock', () => {
     runFrame();
     const canvas = document.querySelector('canvas')!;
     const x = tickToPixel(1920, 1, 0);
-    fireEvent.mouseMove(canvas, { clientX: x, clientY: RULER_HEIGHT - 2 });
+    fireEvent.mouseMove(canvas, { clientX: x, clientY: RULER_PX - 2 });
     expect(canvas.style.cursor).toBe('grab');
   });
 });
@@ -251,7 +248,7 @@ describe('Suggest Chords in the context menu', () => {
     const canvas = document.querySelector('canvas')!;
     fireEvent.contextMenu(canvas, {
       clientX: 200,
-      clientY: RULER_HEIGHT + CHORD_RULER_HEIGHT + TRACK_HEIGHT / 2,
+      clientY: LANE_HEADER_PX + TRACK_ROW_PX / 2,
     });
   }
 

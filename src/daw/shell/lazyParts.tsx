@@ -78,14 +78,6 @@ export const EffectsPanelPart = lazyPart(
   { name: 'FX panel', fallback: dock('Loading FX') },
 );
 
-export const MasterFxPanelPart = lazyPart(
-  () =>
-    import('@/daw/components/Effects/MasterFxPanel').then(
-      (m) => m.MasterFxPanel,
-    ),
-  { name: 'Master effects', fallback: dock('Loading the Master effects') },
-);
-
 export const GroovesBrowserPart = lazyPart(
   () =>
     import('@/daw/components/Controls/GroovesBrowser').then(

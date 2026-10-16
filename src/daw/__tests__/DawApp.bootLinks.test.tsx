@@ -137,8 +137,8 @@ vi.mock('@/daw/components/Practice/PracticeTrackView', () => ({
 vi.mock('@/daw/components/Studio/StudioView', () => ({
   StudioView: h.nothing,
 }));
-vi.mock('@/daw/components/Timeline/TimelineWithHeaders', () => ({
-  TimelineWithHeaders: () => <div data-testid="timeline" />,
+vi.mock('@/daw/shell/tracklist/TrackArea', () => ({
+  TrackArea: () => <div data-testid="timeline" />,
 }));
 vi.mock('@/daw/components/Prism/PrismSuggestionModal', () => ({
   PrismSuggestionModal: h.nothing,

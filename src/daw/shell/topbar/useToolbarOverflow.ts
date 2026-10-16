@@ -60,24 +60,27 @@ export function folded(level: number, step: FoldStep): boolean {
 export function foldLevelFor(
   available: number,
   widths: ReadonlyArray<number | undefined>,
+  maxFold: number = MAX_FOLD,
 ): number {
-  for (let level = 0; level <= MAX_FOLD; level++) {
+  for (let level = 0; level <= maxFold; level++) {
     const width = widths[level];
     if (width === undefined || width <= available) return level;
   }
-  return MAX_FOLD;
+  return maxFold;
 }
 
 /**
  * The bar's fold level. `barRef` is the bar, whose inner width is what the
  * zones may take; `zoneRefs` are its zones, whose content widths (plus
  * `chromePx` of padding and the least room between them) are what they
- * need.
+ * need. `maxFold` is how many steps the bar has (the top bar's FOLD_STEPS
+ * by default; Create's toolbar has its own).
  */
 export function useToolbarOverflow(
   barRef: RefObject<HTMLElement>,
   zoneRefs: ReadonlyArray<RefObject<HTMLElement>>,
   chromePx: number,
+  maxFold: number = MAX_FOLD,
 ): number {
   const [level, setLevel] = useState(0);
   const levelRef = useRef(level);
@@ -102,9 +105,9 @@ export function useToolbarOverflow(
       widths.current = [];
     }
     widths.current[at] = needed;
-    const next = foldLevelFor(available, widths.current);
+    const next = foldLevelFor(available, widths.current, maxFold);
     if (next !== at) setLevel(next);
-  }, [barRef, chromePx, zoneRefs]);
+  }, [barRef, chromePx, zoneRefs, maxFold]);
 
   // After every render of the bar, before paint.
   useLayoutEffect(settle);

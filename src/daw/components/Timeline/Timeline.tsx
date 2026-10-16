@@ -6,6 +6,7 @@ import {
   useLayoutEffect,
   useMemo,
   useState,
+  type RefObject,
 } from 'react';
 import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -52,12 +53,9 @@ import {
   visibleSubdivisions,
   alternatingBarGroup,
   rulerMarkings,
-  tickToTime,
-  tickToTimePrecise,
 } from '@/daw/utils/timelineScale';
 import {
   LOOP_STRIP_H,
-  PLAYHEAD_COLOR,
   PLAYHEAD_HANDLE_H,
   PLAYHEAD_HANDLE_W,
   dragLoopRange,
@@ -72,6 +70,7 @@ import {
 } from '@/daw/utils/insightSelection';
 import { ALL_GRID_VALUES, TRIPLET_GRID_VALUES } from '@/daw/utils/quantize';
 import {
+  barStartTick,
   gridStepTicks,
   snapTicks,
   timelineSnapGrid,
@@ -80,10 +79,23 @@ import type { MidiNoteEvent } from '@prism/engine';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
 import { AnimatedBlobs } from '@/components/ui/blobs';
-import type { Track } from '@/daw/store/tracksSlice';
-import { DAW_PALETTE_EVENT, getDawPalette } from '@/daw/ui/tokens';
+import {
+  DAW_PALETTE_EVENT,
+  getDawPalette,
+  type DawPalette,
+} from '@/daw/ui/tokens';
 import { promptDialog } from '@/daw/ui/DialogHost';
-import { sameTimelineGeometry, timelineNeedsRedraw } from './timelineGeometry';
+import { timelineNeedsRedraw, useTimelineTracks } from './timelineGeometry';
+import {
+  CHORD_LANE_PX,
+  LANE_HEADER_PX,
+  RULER_PX,
+  clampedRowAt,
+  rowIndexAt,
+  rowLayoutOf,
+} from '@/daw/shell/tracklist/rowLayout';
+import { pauseFollow, useFollowPlayhead } from '@/daw/editor/follow';
+import { publishTimelineWidth, songLengthOf } from '@/daw/editor/viewport';
 import {
   clipAudioStatus,
   retryClipAudio,
@@ -91,15 +103,20 @@ import {
 } from '@/daw/audio/assets/assetStatus';
 
 // ── Constants ───────────────────────────────────────────────────────────
-const TRACK_HEIGHT = 80; // px per track lane
-const RULER_HEIGHT = 42; // px for top ruler: loop strip (LOOP_STRIP_H) + bar numbers
-const CHORD_RULER_HEIGHT = 20; // px for chord name ruler
-const RULERS_HEIGHT = RULER_HEIGHT + CHORD_RULER_HEIGHT; // total header height
-const TIME_RULER_HEIGHT = 22; // px for time ruler at bottom
-const H_SCROLLBAR_H = 12; // px for the always-shown scrollbar (h-3) below it
+// The lanes' heights come from the track list's row layout (rowLayout.ts),
+// so a header and its lane always line up. The rulers the lanes scroll
+// under: the loop strip and the bar numbers, then the chord lane. The m:ss
+// row that sat under the lanes is gone: the top bar's readout switches to
+// minutes and seconds (milestone 2.7).
+const RULER_HEIGHT = RULER_PX; // loop strip (LOOP_STRIP_H) + bar numbers
+const CHORD_RULER_HEIGHT = CHORD_LANE_PX; // the chord lane
+const RULERS_HEIGHT = LANE_HEADER_PX;
+/** Clips sit this far inside their lane, top and bottom. */
+const CLIP_INSET = 2;
 const RESIZE_EDGE_PX = 6; // px threshold for resize handle
-const PROJECT_MIN_BARS = 8; // minimum visible project length
-const PROJECT_PAD_BARS = 4; // extra bars of padding beyond content
+/** Ruler labels: the micro type, and the gap kept between two labels. */
+const RULER_FONT = "11px 'Glacial Indifference', system-ui, sans-serif";
+const RULER_LABEL_GAP = 6;
 // Dragging vertically on the bar-number ruler zooms the timeline: this much
 // zoom delta is applied per pixel of vertical movement (up = zoom in).
 const RULER_ZOOM_SENSITIVITY = 0.006;
@@ -334,40 +351,6 @@ interface DragState {
   mode: DragMode;
 }
 
-// ── Project length computation ──────────────────────────────────────────
-
-function computeProjectLengthTicks(
-  tracks: {
-    midiClips: {
-      startTick: number;
-      durationTicks?: number;
-      events: { startTick: number; durationTicks: number }[];
-    }[];
-    audioClips: { startTick: number; duration: number }[];
-  }[],
-  barTicks: number,
-): number {
-  let maxTick = barTicks * PROJECT_MIN_BARS;
-  for (const track of tracks) {
-    for (const clip of track.midiClips) {
-      // Event ticks are clip-relative, so the clip's end is its start plus its
-      // content extent — not the larger of the two.
-      const endTick =
-        clip.startTick +
-        (clip.durationTicks ??
-          clip.events.reduce(
-            (max, e) => Math.max(max, e.startTick + e.durationTicks),
-            0,
-          ));
-      maxTick = Math.max(maxTick, endTick);
-    }
-    for (const clip of track.audioClips) {
-      maxTick = Math.max(maxTick, clip.startTick + clip.duration);
-    }
-  }
-  return maxTick + barTicks * PROJECT_PAD_BARS;
-}
-
 // ── Snapping ────────────────────────────────────────────────────────────
 // Every gesture snaps to the one grid, the timeline's (timelineSnapGrid), in
 // the project's metre and from each bar line; with snap off every gesture is
@@ -382,6 +365,7 @@ interface CanvasTokens {
   colorBorder: string;
   colorGridRgb: string;
   colorSelRgb: string;
+  palette: DawPalette;
 }
 
 /** The DAW palette as the timeline canvas draws with it. */
@@ -392,29 +376,16 @@ function readCanvasTokens(): CanvasTokens {
     colorBorder: palette.hairline,
     colorGridRgb: palette.lineRgb,
     colorSelRgb: palette.selectionRgb,
+    palette,
   };
-}
-
-/**
- * The tracks, kept as they were until a change alters what the timeline
- * draws (sameTimelineGeometry). The timeline's markup and handlers read only
- * that part of them, and fresh state through useStore.getState().
- */
-function useTimelineTracks(): Track[] {
-  const kept = useRef<Track[] | null>(null);
-  return useStore((s) => {
-    if (kept.current && sameTimelineGeometry(kept.current, s.tracks)) {
-      return kept.current;
-    }
-    kept.current = s.tracks;
-    return s.tracks;
-  });
 }
 
 // ── Playhead ────────────────────────────────────────────────────────────
 // Painted through a ref from the playhead clock (milestone 1.7): playback
 // moves this line every frame without rendering it or the Timeline
-// (timeline-23). It renders only when the zoom, scroll or width change.
+// (timeline-23). It renders only when the zoom, scroll or width change, and
+// when recording starts or stops: it is white, and record red while
+// recording (milestone 2.7).
 const TimelinePlayhead = memo(function TimelinePlayhead({
   zoom,
   scrollLeft,
@@ -429,6 +400,8 @@ const TimelinePlayhead = memo(function TimelinePlayhead({
   handleRef: (node: HTMLDivElement | null) => void;
 }) {
   const lineRef = useRef<HTMLDivElement | null>(null);
+  const recording = useStore((s) => s.isRecording);
+  const color = recording ? 'var(--daw-record)' : 'var(--daw-playhead)';
   usePlayheadEffect((tick) => {
     const line = lineRef.current;
     if (!line) return;
@@ -446,9 +419,10 @@ const TimelinePlayhead = memo(function TimelinePlayhead({
     <div
       ref={lineRef}
       className="pointer-events-none absolute inset-y-0"
+      data-testid="timeline-playhead"
       style={{
         width: 2,
-        backgroundColor: PLAYHEAD_COLOR,
+        backgroundColor: color,
         willChange: 'transform',
       }}
     >
@@ -461,7 +435,7 @@ const TimelinePlayhead = memo(function TimelinePlayhead({
           left: 1 - PLAYHEAD_HANDLE_W / 2,
           borderLeft: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
           borderRight: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
-          borderTop: `${PLAYHEAD_HANDLE_H}px solid ${PLAYHEAD_COLOR}`,
+          borderTop: `${PLAYHEAD_HANDLE_H}px solid ${color}`,
         }}
       />
     </div>
@@ -516,9 +490,20 @@ function PrismSuggestItem({
 
 // ── Timeline ────────────────────────────────────────────────────────────
 
-export function Timeline() {
+export interface TimelineProps {
+  /**
+   * The scroller the timeline shares with the track list (TrackArea): one
+   * vertical scroll for the rows and the lanes (timeline-12). The rulers are
+   * drawn at its scroll offset, so they stay on top.
+   */
+  scrollRef: RefObject<HTMLDivElement>;
+}
+
+export function Timeline({ scrollRef }: TimelineProps) {
   useDevCommitCount('Timeline');
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // The canvas's width in px, as last measured (see Width, below).
+  const widthRef = useRef(0);
   const clipRectsRef = useRef<ClipRect[]>([]);
   const dragRef = useRef<DragState | null>(null);
   const dragTickRef = useRef<number>(0);
@@ -651,13 +636,12 @@ export function Timeline() {
   );
 
   // ── Derived ──
-  const ppb = pixelsPerBeat(zoom);
   const snapGrid = useMemo(() => {
     const ts = { numerator: tsNum, denominator: tsDen };
     return { enabled: snapEnabled, step: gridStepTicks(gridSize, ts), ts };
   }, [snapEnabled, gridSize, tsNum, tsDen]);
   const projectLengthTicks = useMemo(
-    () => computeProjectLengthTicks(tracks, ticksPerBar(tsNum, tsDen)),
+    () => songLengthOf(tracks, ticksPerBar(tsNum, tsDen)),
     [tracks, tsNum, tsDen],
   );
 
@@ -693,20 +677,21 @@ export function Timeline() {
     const tsDen = state.timeSignatureDenominator;
     const chordNotation = chordNotationRef.current;
 
-    // Scroll parent = the overflow-auto div in TimelineWithHeaders
-    const scrollParent = container.parentElement?.parentElement;
+    // The scroller the lanes share with the track list (TrackArea).
+    const scrollParent = scrollRef.current;
     const scrollTop = scrollParent?.scrollTop ?? 0;
     const viewportH = scrollParent?.clientHeight ?? 0;
+    const rows = rowLayoutOf(tracks);
 
     // The canvas is sized from the scroll area, not from its own parent: the
     // parent holds the canvas, so measuring it let the canvas only ever grow,
     // leaving dead scroll range after the dock opened or a track went
-    // (timeline-11). The always-shown scrollbar (h-3) sits under it.
+    // (timeline-11).
     const dpr = window.devicePixelRatio || 1;
     const cw = container.clientWidth;
     const ch = Math.max(
-      viewportH > 0 ? viewportH - H_SCROLLBAR_H : container.clientHeight,
-      tracks.length * TRACK_HEIGHT + RULERS_HEIGHT + TIME_RULER_HEIGHT,
+      viewportH > 0 ? viewportH : container.clientHeight,
+      rows.total + RULERS_HEIGHT,
     );
 
     // Resize canvas to viewport (virtual rendering — not content size)
@@ -726,7 +711,7 @@ export function Timeline() {
     const newDrawnNotes: DrawnNote[] = [];
 
     canvasTokensRef.current ??= readCanvasTokens();
-    const { colorBg, colorBorder, colorGridRgb, colorSelRgb } =
+    const { colorBg, colorBorder, colorGridRgb, colorSelRgb, palette } =
       canvasTokensRef.current;
 
     // Visible tick range (with 1 bar buffer on each side)
@@ -759,12 +744,7 @@ export function Timeline() {
         currentZoom,
         currentScrollLeft,
       );
-      ctx.fillRect(
-        x1,
-        RULERS_HEIGHT,
-        x2 - x1,
-        ch - RULERS_HEIGHT - TIME_RULER_HEIGHT,
-      );
+      ctx.fillRect(x1, RULERS_HEIGHT, x2 - x1, ch - RULERS_HEIGHT);
     }
 
     // ── Grid (zoom-adaptive subdivisions) ──────────────────────────
@@ -794,7 +774,7 @@ export function Timeline() {
         if (x < -1 || x > cw + 1) continue;
         ctx.beginPath();
         ctx.moveTo(x, RULERS_HEIGHT);
-        ctx.lineTo(x, ch - TIME_RULER_HEIGHT);
+        ctx.lineTo(x, ch);
         ctx.stroke();
       }
     }
@@ -808,7 +788,7 @@ export function Timeline() {
         ? ALL_GRID_VALUES[gridSize]
         : (TRIPLET_GRID_VALUES['1/4T'] as number);
 
-      ctx.strokeStyle = 'rgba(255, 180, 100, 0.08)';
+      ctx.strokeStyle = `rgba(${colorGridRgb}, 0.08)`;
       ctx.setLineDash([2, 4]);
       ctx.lineWidth = 0.5;
 
@@ -820,23 +800,28 @@ export function Timeline() {
         if (x < -1 || x > cw + 1) continue;
         ctx.beginPath();
         ctx.moveTo(x, RULERS_HEIGHT);
-        ctx.lineTo(x, ch - TIME_RULER_HEIGHT);
+        ctx.lineTo(x, ch);
         ctx.stroke();
       }
       ctx.setLineDash([]);
     }
 
     // ── Track lanes ─────────────────────────────────────────────────
+    // A clip being moved is drawn in the lane under the pointer.
+    const laneTop = (index: number) => rows.tops[index] + RULERS_HEIGHT;
+    const clipHeight = (index: number) => rows.heights[index] - CLIP_INSET * 2;
     for (let t = 0; t < tracks.length; t++) {
       const track = tracks[t];
-      const y = t * TRACK_HEIGHT + RULERS_HEIGHT;
+      const y = laneTop(t);
+      const laneH = rows.heights[t];
+      const boxH = laneH - CLIP_INSET * 2;
 
       // Lane separator
       ctx.strokeStyle = `rgba(${colorGridRgb}, 0.04)`;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(0, y + TRACK_HEIGHT);
-      ctx.lineTo(cw, y + TRACK_HEIGHT);
+      ctx.moveTo(0, y + laneH);
+      ctx.lineTo(cw, y + laneH);
       ctx.stroke();
 
       // ── MIDI clips ────────────────────────────────────────────────
@@ -845,7 +830,8 @@ export function Timeline() {
         const dmode = drag && drag.clipId === clip.id ? drag.mode : null;
         const isMoving = dmode === 'move';
         const effectiveTrackIndex = isMoving ? dragTrackRef.current : t;
-        const effectiveY = effectiveTrackIndex * TRACK_HEIGHT + RULERS_HEIGHT;
+        const effectiveY = laneTop(effectiveTrackIndex);
+        const effectiveH = clipHeight(effectiveTrackIndex);
 
         // Events are clip-relative (playback adds clip.startTick), so notes
         // are drawn from the clip's own tick 0, sized or not. Drawing a sized
@@ -909,27 +895,23 @@ export function Timeline() {
           trackId: track.id,
           trackIndex: t,
           x: clipX,
-          y: effectiveY + 2,
+          y: effectiveY + CLIP_INSET,
           w: clipWidth,
-          h: TRACK_HEIGHT - 4,
+          h: effectiveH,
           startTick: boxStartTick,
         });
 
         // Background — neutral white glass so chord ruler / MIDI notes show through
-        ctx.fillStyle = isSelected
-          ? 'rgba(255,255,255,0.10)'
-          : 'rgba(255,255,255,0.05)';
+        ctx.fillStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.1 : 0.05})`;
         ctx.beginPath();
-        ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
+        ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
         ctx.fill();
 
         // Border — neutral white, brighter when selected
-        ctx.strokeStyle = isSelected
-          ? 'rgba(255,255,255,0.4)'
-          : 'rgba(255,255,255,0.2)';
+        ctx.strokeStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.4 : 0.2})`;
         ctx.lineWidth = isSelected ? 2 : 1;
         ctx.beginPath();
-        ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
+        ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
         ctx.stroke();
 
         // ── Clip title + piano-roll notes ──────────────────────────
@@ -937,7 +919,13 @@ export function Timeline() {
         if (clipWidth > 8 && currentPpb >= 5) {
           ctx.save();
           ctx.beginPath();
-          ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
+          ctx.roundRect(
+            clipX,
+            effectiveY + CLIP_INSET,
+            clipWidth,
+            effectiveH,
+            4,
+          );
           ctx.clip();
 
           if (clip.events.length > 0) {
@@ -951,9 +939,9 @@ export function Timeline() {
               ctx,
               clip.events,
               noteX,
-              effectiveY + 2,
+              effectiveY + CLIP_INSET,
               noteWidth,
-              TRACK_HEIGHT - 4,
+              effectiveH,
               eventsMinTick,
               clipDuration,
               track.color,
@@ -965,8 +953,8 @@ export function Timeline() {
               clip.startTick,
             );
             // Only notes showing inside the clip box can be hit.
-            const boxTop = effectiveY + 2;
-            const boxBottom = boxTop + TRACK_HEIGHT - 4;
+            const boxTop = effectiveY + CLIP_INSET;
+            const boxBottom = boxTop + effectiveH;
             for (const b of bars) {
               if (
                 b.x > clipX + clipWidth ||
@@ -1001,20 +989,20 @@ export function Timeline() {
           const liveW = Math.max((liveDur / TICKS_PER_BEAT) * currentPpb, 20);
           ctx.fillStyle = track.color + '28';
           ctx.beginPath();
-          ctx.roundRect(liveX, y + 2, liveW, TRACK_HEIGHT - 4, 4);
+          ctx.roundRect(liveX, y + CLIP_INSET, liveW, boxH, 4);
           ctx.fill();
 
           ctx.save();
           ctx.beginPath();
-          ctx.roundRect(liveX, y + 2, liveW, TRACK_HEIGHT - 4, 4);
+          ctx.roundRect(liveX, y + CLIP_INSET, liveW, boxH, 4);
           ctx.clip();
           drawPianoRoll(
             ctx,
             liveNotes,
             liveX,
-            y + 2,
+            y + CLIP_INSET,
             liveW,
-            TRACK_HEIGHT - 4,
+            boxH,
             liveStart,
             liveDur,
             track.color,
@@ -1041,18 +1029,18 @@ export function Timeline() {
         // Background
         ctx.fillStyle = track.color + '28';
         ctx.beginPath();
-        ctx.roundRect(liveX, y + 2, liveW, TRACK_HEIGHT - 4, 4);
+        ctx.roundRect(liveX, y + CLIP_INSET, liveW, boxH, 4);
         ctx.fill();
 
         // Waveform
         if (liveW > 8) {
           ctx.save();
           ctx.beginPath();
-          ctx.roundRect(liveX, y + 2, liveW, TRACK_HEIGHT - 4, 4);
+          ctx.roundRect(liveX, y + CLIP_INSET, liveW, boxH, 4);
           ctx.clip();
 
-          const centerY = y + TRACK_HEIGHT / 2;
-          const maxH = (TRACK_HEIGHT - 8) * 0.42;
+          const centerY = y + laneH / 2;
+          const maxH = (laneH - 8) * 0.42;
 
           // Normalize peaks for display
           let maxPeak = 0;
@@ -1081,7 +1069,8 @@ export function Timeline() {
         const dmode = drag && drag.clipId === clip.id ? drag.mode : null;
         const isMoving = dmode === 'move';
         const effectiveTrackIndex = isMoving ? dragTrackRef.current : t;
-        const effectiveY = effectiveTrackIndex * TRACK_HEIGHT + RULERS_HEIGHT;
+        const effectiveY = laneTop(effectiveTrackIndex);
+        const effectiveH = clipHeight(effectiveTrackIndex);
 
         // Box edges — live values while trimming, content extent otherwise.
         const baseStartTick = isMoving ? dragTickRef.current : clip.startTick;
@@ -1117,36 +1106,38 @@ export function Timeline() {
           trackId: track.id,
           trackIndex: t,
           x: clipX,
-          y: effectiveY + 2,
+          y: effectiveY + CLIP_INSET,
           w: clipWidth,
-          h: TRACK_HEIGHT - 4,
+          h: effectiveH,
           startTick: boxStartTick,
         });
 
-        ctx.fillStyle = isSelected
-          ? 'rgba(255,255,255,0.10)'
-          : 'rgba(255,255,255,0.05)';
+        ctx.fillStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.1 : 0.05})`;
         ctx.beginPath();
-        ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
+        ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
         ctx.fill();
 
-        ctx.strokeStyle = isSelected
-          ? 'rgba(255,255,255,0.4)'
-          : 'rgba(255,255,255,0.2)';
+        ctx.strokeStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.4 : 0.2})`;
         ctx.lineWidth = isSelected ? 2 : 1;
         ctx.beginPath();
-        ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
+        ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
         ctx.stroke();
 
         if (clipWidth > 8 && currentPpb >= 5) {
           ctx.save();
           ctx.beginPath();
-          ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
+          ctx.roundRect(
+            clipX,
+            effectiveY + CLIP_INSET,
+            clipWidth,
+            effectiveH,
+            4,
+          );
           ctx.clip();
 
           const sampleCount = Math.max(Math.floor(clipWidth / 2), 16);
-          const centerY = effectiveY + TRACK_HEIGHT / 2;
-          const maxH = (TRACK_HEIGHT - 8) * 0.42;
+          const centerY = effectiveY + CLIP_INSET + effectiveH / 2;
+          const maxH = (effectiveH - 4) * 0.42;
 
           const audioBuffer = getAudioBuffer(clip.id);
           // A clip without its audio says why, instead of drawing a made-up
@@ -1231,14 +1222,14 @@ export function Timeline() {
           }
 
           // ── Fade overlays ──
-          const clipH = TRACK_HEIGHT - 4;
+          const clipH = effectiveH;
           if (clip.fadeInTicks > 0) {
             const fadeW = (clip.fadeInTicks / TICKS_PER_BEAT) * currentPpb;
             ctx.fillStyle = 'rgba(0,0,0,0.35)';
             ctx.beginPath();
-            ctx.moveTo(clipX, effectiveY + 2);
-            ctx.lineTo(clipX + fadeW, effectiveY + 2);
-            ctx.lineTo(clipX, effectiveY + 2 + clipH);
+            ctx.moveTo(clipX, effectiveY + CLIP_INSET);
+            ctx.lineTo(clipX + fadeW, effectiveY + CLIP_INSET);
+            ctx.lineTo(clipX, effectiveY + CLIP_INSET + clipH);
             ctx.closePath();
             ctx.fill();
           }
@@ -1247,9 +1238,9 @@ export function Timeline() {
             const clipRight = clipX + clipWidth;
             ctx.fillStyle = 'rgba(0,0,0,0.35)';
             ctx.beginPath();
-            ctx.moveTo(clipRight, effectiveY + 2);
-            ctx.lineTo(clipRight - fadeW, effectiveY + 2);
-            ctx.lineTo(clipRight, effectiveY + 2 + clipH);
+            ctx.moveTo(clipRight, effectiveY + CLIP_INSET);
+            ctx.lineTo(clipRight - fadeW, effectiveY + CLIP_INSET);
+            ctx.lineTo(clipRight, effectiveY + CLIP_INSET + clipH);
             ctx.closePath();
             ctx.fill();
           }
@@ -1270,21 +1261,16 @@ export function Timeline() {
 
       // Tinted overlay on track area (loop ruler elements drawn in sticky section)
       ctx.fillStyle = `rgba(${colorSelRgb}, 0.04)`;
-      ctx.fillRect(
-        lx1,
-        RULERS_HEIGHT,
-        lw,
-        ch - RULERS_HEIGHT - TIME_RULER_HEIGHT,
-      );
+      ctx.fillRect(lx1, RULERS_HEIGHT, lw, ch - RULERS_HEIGHT);
 
       // Vertical lines at loop boundaries
-      ctx.strokeStyle = `rgba(${colorSelRgb}, 0.4)`;
+      ctx.strokeStyle = palette.rangeEdge;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(lx1, RULERS_HEIGHT);
-      ctx.lineTo(lx1, ch - TIME_RULER_HEIGHT);
+      ctx.lineTo(lx1, ch);
       ctx.moveTo(lx2, RULERS_HEIGHT);
-      ctx.lineTo(lx2, ch - TIME_RULER_HEIGHT);
+      ctx.lineTo(lx2, ch);
       ctx.stroke();
     }
 
@@ -1310,7 +1296,7 @@ export function Timeline() {
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.moveTo(mx, RULERS_HEIGHT);
-      ctx.lineTo(mx, ch - TIME_RULER_HEIGHT);
+      ctx.lineTo(mx, ch);
       ctx.stroke();
       ctx.restore();
 
@@ -1324,9 +1310,9 @@ export function Timeline() {
       const my = Math.min(marquee.y0, marquee.y1);
       const mw = Math.abs(marquee.x1 - marquee.x0);
       const mh = Math.abs(marquee.y1 - marquee.y0);
-      ctx.fillStyle = `rgba(${colorSelRgb}, 0.12)`;
+      ctx.fillStyle = palette.rangeFill;
       ctx.fillRect(mx, my, mw, mh);
-      ctx.strokeStyle = `rgba(${colorSelRgb}, 0.8)`;
+      ctx.strokeStyle = palette.rangeEdge;
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 3]);
       ctx.strokeRect(mx + 0.5, my + 0.5, mw, mh);
@@ -1337,12 +1323,6 @@ export function Timeline() {
 
     // Scroll-offset positions so rulers stay pinned during vertical scroll
     const rulerY = scrollTop;
-    // The horizontal scrollbar is always shown, so always reserve space for
-    // it beneath the time ruler.
-    const timeRulerY =
-      viewportH > 0
-        ? scrollTop + viewportH - TIME_RULER_HEIGHT - H_SCROLLBAR_H
-        : ch - TIME_RULER_HEIGHT;
 
     // ── Top ruler (bar/beat numbers) ──────────────────────────────────
     ctx.fillStyle = colorBg;
@@ -1375,58 +1355,23 @@ export function Timeline() {
     ctx.lineTo(cw, rulerY + RULER_HEIGHT);
     ctx.stroke();
 
-    // Ruler labels (zoom-adaptive)
+    // Ruler labels (zoom-adaptive): bars, then beats, then halves of a
+    // beat as the zoom allows. All in the 11 px micro type, the bars in the
+    // ruler colour and the finer levels dimmer; a mark a coarser level
+    // already labels is skipped, and a label that would run into the one
+    // before it is left out, so labels never overprint (timeline-22).
     const levels = rulerMarkings(currentZoom, state.bpm, tsNum, tsDen);
-    for (const level of levels) {
-      ctx.fillStyle = `rgba(${colorGridRgb}, ${level.alpha * 0.6})`;
-      ctx.font = `${level.fontSize}px 'Glacial Indifference', system-ui, sans-serif`;
-      ctx.textBaseline = 'middle';
+    const labelY = rulerY + LOOP_STRIP_H + (RULER_HEIGHT - LOOP_STRIP_H) / 2;
+    ctx.font = RULER_FONT;
+    ctx.textBaseline = 'middle';
+    const taken: [number, number][] = [];
+    const free = (left: number, right: number) =>
+      taken.every(
+        ([l, r]) => right + RULER_LABEL_GAP <= l || left >= r + RULER_LABEL_GAP,
+      );
 
-      const startAligned =
-        Math.floor(visStart / level.tickInterval) * level.tickInterval;
-      for (
-        let tick = startAligned;
-        tick <= visEnd;
-        tick += level.tickInterval
-      ) {
-        if (tick < 0) continue;
-        if (level !== levels[0] && tick % levels[0].tickInterval === 0)
-          continue;
-        const x = tickToPixel(tick, currentZoom, currentScrollLeft);
-        if (x < -50 || x > cw + 50) continue;
-        ctx.fillText(
-          level.format(tick),
-          x + 4,
-          rulerY + LOOP_STRIP_H + (RULER_HEIGHT - LOOP_STRIP_H) / 2,
-        );
-      }
-    }
-
-    // Time display at primary marks (when zoomed in enough)
-    if (currentPpb >= 30) {
-      ctx.fillStyle = 'rgba(107, 107, 128, 0.3)';
-      ctx.font = "8px 'Glacial Indifference', system-ui, sans-serif";
-      ctx.textBaseline = 'bottom';
-      const primaryLevelInterval = levels[0].tickInterval;
-      const startAligned =
-        Math.floor(visStart / primaryLevelInterval) * primaryLevelInterval;
-      for (
-        let tick = startAligned;
-        tick <= visEnd;
-        tick += primaryLevelInterval
-      ) {
-        if (tick < 0) continue;
-        const x = tickToPixel(tick, currentZoom, currentScrollLeft);
-        if (x < -50 || x > cw + 50) continue;
-        ctx.fillText(
-          tickToTime(tick, state.bpm),
-          x + 4,
-          rulerY + RULER_HEIGHT - 2,
-        );
-      }
-    }
-
-    // Marker flags (top of the bar-number lane, under the loop strip)
+    // Marker flags (top of the bar-number lane, under the loop strip). Their
+    // names go first: a bar number they would cover is left out.
     const flagY = rulerY + LOOP_STRIP_H;
     for (const marker of currentMarkers) {
       const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
@@ -1442,11 +1387,33 @@ export function Timeline() {
       ctx.closePath();
       ctx.fill();
 
-      ctx.fillStyle = marker.color + 'cc';
-      ctx.font = "9px 'Glacial Indifference', system-ui, sans-serif";
-      ctx.textBaseline = 'middle';
-      ctx.fillText(marker.name, mx + 10, flagY + 10);
+      ctx.fillText(marker.name, mx + 10, labelY);
+      taken.push([mx, mx + 10 + ctx.measureText(marker.name).width]);
     }
+
+    levels.forEach((level, depth) => {
+      ctx.fillStyle = depth === 0 ? palette.rulerText : palette.text3;
+      const startAligned =
+        Math.floor(visStart / level.tickInterval) * level.tickInterval;
+      for (
+        let tick = startAligned;
+        tick <= visEnd;
+        tick += level.tickInterval
+      ) {
+        if (tick < 0) continue;
+        if (levels.some((c, i) => i < depth && tick % c.tickInterval === 0)) {
+          continue;
+        }
+        const x = tickToPixel(tick, currentZoom, currentScrollLeft);
+        if (x < -50 || x > cw + 50) continue;
+        const text = level.format(tick);
+        const left = x + 4;
+        const right = left + ctx.measureText(text).width;
+        if (!free(left, right)) continue;
+        taken.push([left, right]);
+        ctx.fillText(text, left, labelY);
+      }
+    });
 
     // ── Chord name ruler ────────────────────────────────────────────────
     const chordRulerY = rulerY + RULER_HEIGHT;
@@ -1489,10 +1456,8 @@ export function Timeline() {
       }
 
       // Chord name
-      ctx.fillStyle = isSelected
-        ? '#f8fafc'
-        : `rgba(${cr}, ${cg}, ${cb}, 0.85)`;
-      ctx.font = "10px 'Glacial Indifference', system-ui, sans-serif";
+      ctx.fillStyle = isSelected ? palette.text : `rgb(${cr}, ${cg}, ${cb})`;
+      ctx.font = "12px 'Glacial Indifference', system-ui, sans-serif";
       ctx.textBaseline = 'middle';
       const label = displayAccidentals(
         chordRulerShowNotes ? region.name : region.noteName,
@@ -1516,60 +1481,6 @@ export function Timeline() {
       ctx.moveTo(x2, chordRulerY + 2);
       ctx.lineTo(x2, chordRulerY + CHORD_RULER_HEIGHT - 2);
       ctx.stroke();
-    }
-
-    // ── Bottom time ruler ─────────────────────────────────────────────
-    ctx.fillStyle = colorBg;
-    ctx.fillRect(0, timeRulerY, cw, TIME_RULER_HEIGHT);
-    ctx.fillStyle = `rgba(${colorGridRgb}, 0.03)`;
-    ctx.fillRect(0, timeRulerY, cw, TIME_RULER_HEIGHT);
-
-    // Top border
-    ctx.strokeStyle = colorBorder;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, timeRulerY);
-    ctx.lineTo(cw, timeRulerY);
-    ctx.stroke();
-
-    // Time labels
-    const showTenths = currentPpb >= 80;
-    const timeLevels = rulerMarkings(currentZoom, state.bpm, tsNum, tsDen);
-    const primaryInterval = timeLevels[0].tickInterval;
-
-    ctx.fillStyle = `rgba(${colorGridRgb}, 0.3)`;
-    ctx.font = "9px 'Glacial Indifference', system-ui, sans-serif";
-    ctx.textBaseline = 'middle';
-    const trStartAligned =
-      Math.floor(visStart / primaryInterval) * primaryInterval;
-    for (let tick = trStartAligned; tick <= visEnd; tick += primaryInterval) {
-      if (tick < 0) continue;
-      const x = tickToPixel(tick, currentZoom, currentScrollLeft);
-      if (x < -50 || x > cw + 50) continue;
-      ctx.fillText(
-        tickToTimePrecise(tick, state.bpm, showTenths),
-        x + 4,
-        timeRulerY + TIME_RULER_HEIGHT / 2,
-      );
-    }
-
-    if (timeLevels.length > 1) {
-      const secondaryInterval = timeLevels[1].tickInterval;
-      ctx.fillStyle = 'rgba(107, 107, 128, 0.3)';
-      ctx.font = "8px 'Glacial Indifference', system-ui, sans-serif";
-      const trSecStart =
-        Math.floor(visStart / secondaryInterval) * secondaryInterval;
-      for (let tick = trSecStart; tick <= visEnd; tick += secondaryInterval) {
-        if (tick < 0) continue;
-        if (tick % primaryInterval === 0) continue;
-        const x = tickToPixel(tick, currentZoom, currentScrollLeft);
-        if (x < -50 || x > cw + 50) continue;
-        ctx.fillText(
-          tickToTimePrecise(tick, state.bpm, showTenths),
-          x + 4,
-          timeRulerY + TIME_RULER_HEIGHT / 2,
-        );
-      }
     }
 
     clipRectsRef.current = newClipRects;
@@ -1663,7 +1574,7 @@ export function Timeline() {
 
   // ── Redraw on vertical scroll (sticky rulers) and on resize ──────────
   useEffect(() => {
-    const el = canvasRef.current?.parentElement?.parentElement?.parentElement;
+    const el = scrollRef.current;
     if (!el) return;
     const onScroll = () => {
       // Keep the playhead's grab handle on the sticky bar ruler.
@@ -1693,14 +1604,14 @@ export function Timeline() {
       el.removeEventListener('scroll', onScroll);
       ro.disconnect();
     };
-  }, [requestRedraw]);
+  }, [requestRedraw, scrollRef]);
 
   // ── Mouse coord helper ─────────────────────────────────────────────
 
-  const getScrollTop = useCallback(() => {
-    const el = canvasRef.current?.parentElement?.parentElement?.parentElement;
-    return el?.scrollTop ?? 0;
-  }, []);
+  const getScrollTop = useCallback(
+    () => scrollRef.current?.scrollTop ?? 0,
+    [scrollRef],
+  );
 
   // The playhead's grab handle, pinned to the foot of the bar ruler as it
   // mounts; the scroll listener above keeps it there. A stable callback, so
@@ -1909,6 +1820,8 @@ export function Timeline() {
           dragTickRef.current = hit.startTick;
           dragEndTickRef.current = endTickOrigin;
           dragTrackRef.current = hit.trackIndex;
+          // A page turn under a dragged clip would move the clip too.
+          pauseFollow();
         } else {
           // Empty space: deselect now, then begin a hand/grab pan. A plain
           // click (no horizontal movement past the threshold) still seeks on
@@ -1922,6 +1835,46 @@ export function Timeline() {
             seekTick: doSnap(tick),
           };
         }
+      }
+
+      // Draw tool: a click on an empty MIDI lane draws a one-bar clip there,
+      // from the grid line before the click, and opens it in the dock's note
+      // editor; a click on a clip opens that one.
+      if (activeTool === 'pencil') {
+        const hit = hitTestClip(x, y);
+        const trackId =
+          hit?.trackId ??
+          state.tracks[rowIndexAt(rowLayoutOf(state.tracks), y - RULERS_HEIGHT)]
+            ?.id;
+        const track = state.tracks.find((t) => t.id === trackId);
+        if (!track || track.type !== 'midi') return;
+        let clipId = hit?.clipId ?? null;
+        if (!clipId) {
+          const grid = timelineSnapGrid(state);
+          const tick = pixelToTick(x, currentZoom, currentScrollLeft);
+          const barStart = barStartTick(tick, grid.ts);
+          const startTick = grid.enabled
+            ? barStart + Math.floor((tick - barStart) / grid.step) * grid.step
+            : Math.max(0, Math.round(tick));
+          clipId = `clip-draw-${crypto.randomUUID().slice(0, 8)}`;
+          const newId = clipId;
+          withTransaction('Draw clip', () =>
+            state.addMidiClip(track.id, {
+              id: newId,
+              name: track.name,
+              startTick,
+              durationTicks: ticksPerBar(tsNum, tsDen),
+              events: [],
+            }),
+          );
+        }
+        state.setSelectedTrackId(track.id);
+        state.setSelectedClip(clipId, track.id);
+        // Drum hits are edited on the drum grid, other notes in the roll.
+        state.setChannelStripTab(
+          track.instrument === 'drum-machine' ? 'controls' : 'piano-roll',
+        );
+        return;
       }
 
       // Scissors tool: split clip at click position
@@ -1953,6 +1906,8 @@ export function Timeline() {
       isNearRightEdge,
       isNearLeftEdge,
       doSnap,
+      tsNum,
+      tsDen,
     ],
   );
 
@@ -1980,7 +1935,8 @@ export function Timeline() {
               state.timelineZoom,
               state.timelineScrollLeft,
             ),
-            y: RULER_HEIGHT,
+            // The chord lane is drawn at the scroll offset (sticky).
+            y: st + RULER_HEIGHT,
             // Opens on the chord, as a symbol the box reads back.
             value: chordInputText(
               region,
@@ -2049,9 +2005,10 @@ export function Timeline() {
           }
         }
 
-        // Blank track region — offer Prism suggestion
-        const trackIdx = Math.floor((y - st - RULERS_HEIGHT) / TRACK_HEIGHT);
-        const track = state.tracks[trackIdx];
+        // Blank track region — offer Prism suggestion. The canvas is the
+        // lanes' full height, so a lane is found from the canvas's top.
+        const rows = rowLayoutOf(state.tracks);
+        const track = state.tracks[rowIndexAt(rows, y - RULERS_HEIGHT)];
         if (track) {
           e.preventDefault();
           const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
@@ -2252,6 +2209,8 @@ export function Timeline() {
               ? 'zoom'
               : 'loop';
         r.lastY = y;
+        // Zooming takes the view: Follow waits for Play or Stop.
+        if (r.mode === 'zoom') pauseFollow();
         // Drawing a fresh loop switches looping on, as in Logic.
         if (r.mode === 'loop' && r.target === 'empty') {
           state.setLoopEnabled(true);
@@ -2337,13 +2296,14 @@ export function Timeline() {
           if (Math.abs(x - p.startX) <= PAN_DRAG_THRESHOLD) return;
           p.moved = true;
           p.lastX = x;
+          pauseFollow();
         }
         const deltaX = x - p.lastX;
         if (deltaX !== 0) {
           const maxScrollNow = Math.max(
             0,
             (projectLengthTicks / TICKS_PER_BEAT) * pixelsPerBeat(currentZoom) -
-              (canvas.parentElement?.clientWidth ?? 800),
+              widthRef.current,
           );
           state.setTimelineScrollLeft(
             Math.min(maxScrollNow, Math.max(0, currentScrollLeft - deltaX)),
@@ -2364,10 +2324,9 @@ export function Timeline() {
             currentScrollLeft,
           );
           dragTickRef.current = snapTicks(rawTick, grid);
-          const trackIdx = Math.floor((y - RULERS_HEIGHT) / TRACK_HEIGHT);
-          dragTrackRef.current = Math.max(
-            0,
-            Math.min(tracks.length - 1, trackIdx),
+          dragTrackRef.current = clampedRowAt(
+            rowLayoutOf(state.tracks),
+            y - RULERS_HEIGHT,
           );
           requestRedraw();
         } else if (drag.mode === 'resize-left') {
@@ -2435,6 +2394,13 @@ export function Timeline() {
           canvas.style.cursor = 'crosshair';
         } else if (state.activeTool === 'scissors' && hit) {
           canvas.style.cursor = 'crosshair';
+        } else if (state.activeTool === 'pencil') {
+          const lane =
+            state.tracks[
+              rowIndexAt(rowLayoutOf(state.tracks), y - RULERS_HEIGHT)
+            ];
+          canvas.style.cursor =
+            lane?.type === 'midi' ? (hit ? 'pointer' : 'copy') : 'not-allowed';
         } else if (hit && (isNearLeftEdge(x, hit) || isNearRightEdge(x, hit))) {
           canvas.style.cursor = 'col-resize';
         } else if (hit) {
@@ -2456,7 +2422,6 @@ export function Timeline() {
       isNearRightEdge,
       isNearLeftEdge,
       requestRedraw,
-      tracks.length,
       projectLengthTicks,
       moveRulerPress,
       extendNoteMarquee,
@@ -2659,6 +2624,7 @@ export function Timeline() {
           if (Math.abs(x - p.startX) <= PAN_DRAG_THRESHOLD) return;
           p.moved = true;
           p.lastX = x;
+          pauseFollow();
         }
         const deltaX = x - p.lastX;
         if (deltaX !== 0) {
@@ -2667,7 +2633,7 @@ export function Timeline() {
             0,
             (projectLengthTicks / TICKS_PER_BEAT) *
               pixelsPerBeat(state.timelineZoom) -
-              (canvasRef.current?.parentElement?.clientWidth ?? 800),
+              widthRef.current,
           );
           state.setTimelineScrollLeft(
             Math.min(
@@ -2720,6 +2686,7 @@ export function Timeline() {
       if (e.metaKey || e.ctrlKey) {
         // Zoom at cursor position
         e.preventDefault();
+        pauseFollow();
         const delta = e.deltaY > 0 ? -0.03 : 0.03;
         const rect = canvas.getBoundingClientRect();
         const cursorX = e.clientX - rect.left;
@@ -2729,13 +2696,14 @@ export function Timeline() {
       } else if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         // Horizontal scroll (shift+wheel or trackpad horizontal gesture)
         e.preventDefault();
+        pauseFollow();
         const dx = e.shiftKey ? e.deltaY : e.deltaX;
         const state = useStore.getState();
         const maxScroll = Math.max(
           0,
           (projectLengthTicks / TICKS_PER_BEAT) *
             pixelsPerBeat(state.timelineZoom) -
-            (canvas.parentElement?.clientWidth ?? 800),
+            widthRef.current,
         );
         state.setTimelineScrollLeft(
           Math.min(maxScroll, state.timelineScrollLeft + dx),
@@ -2913,88 +2881,44 @@ export function Timeline() {
     }
   }, []);
 
-  // ── Scrollbar ──────────────────────────────────────────────────────
+  // ── Width ──────────────────────────────────────────────────────────
 
-  // Track the viewport width reactively so the always-visible scrollbar stays
-  // correctly sized as side panels open/close or the window resizes (a plain
-  // render-time read of clientWidth is stale on resize and can mis-hide it).
-  // A resize re-renders this component once a frame at most.
-  const [viewportWidth, setViewportWidth] = useState(800);
+  // The canvas's width, tracked as it changes (a panel opening or closing,
+  // the window) so the playhead's range stays right, and published to the
+  // editor's viewport, which the toolbar's zoom, the keys, Fit and the
+  // scrollbar all read (shell-32). A resize re-renders this component once a
+  // frame at most.
+  const [viewportWidth, setViewportWidth] = useState(0);
   useEffect(() => {
     const el = canvasRef.current?.parentElement;
     if (!el) return;
     let frame = 0;
-    setViewportWidth(el.clientWidth);
+    const measure = () => {
+      widthRef.current = el.clientWidth;
+      publishTimelineWidth(el.clientWidth);
+      setViewportWidth(el.clientWidth);
+    };
+    measure();
     const ro = new ResizeObserver(() => {
       if (frame) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
-        setViewportWidth(el.clientWidth);
+        measure();
       });
     });
     ro.observe(el);
     return () => {
       ro.disconnect();
       cancelAnimationFrame(frame);
+      publishTimelineWidth(0);
     };
   }, []);
 
   // Create's keys (copy, paste, nudge, tools, zoom), while the timeline is on
-  // screen. Zoom to fit fills the width measured above.
-  useArrangeKeymap({
-    width: () => viewportWidth,
-    ticksPerBar: () => ticksPerBar(tsNum, tsDen),
-  });
-
-  const totalContentWidth = (projectLengthTicks / TICKS_PER_BEAT) * ppb;
-  const containerWidth = viewportWidth;
-  // The scrollbar is always visible; when the content fits, the thumb fills the
-  // whole track (and dragging is a no-op).
-  const scrollable = totalContentWidth > containerWidth;
-  const maxScroll = Math.max(1, totalContentWidth - containerWidth);
-  const thumbWidth = scrollable
-    ? Math.max(30, (containerWidth / totalContentWidth) * containerWidth)
-    : containerWidth;
-  const thumbLeft = scrollable
-    ? (scrollLeft / maxScroll) * (containerWidth - thumbWidth)
-    : 0;
-
-  const scrollbarDragRef = useRef<{
-    startX: number;
-    startScroll: number;
-  } | null>(null);
-
-  const handleScrollbarMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      scrollbarDragRef.current = { startX: e.clientX, startScroll: scrollLeft };
-
-      const handleMove = (me: MouseEvent) => {
-        if (!scrollbarDragRef.current) return;
-        const dx = me.clientX - scrollbarDragRef.current.startX;
-        const scrollDelta = (dx / (containerWidth - thumbWidth)) * maxScroll;
-        useStore
-          .getState()
-          .setTimelineScrollLeft(
-            Math.max(
-              0,
-              Math.min(
-                maxScroll,
-                scrollbarDragRef.current.startScroll + scrollDelta,
-              ),
-            ),
-          );
-      };
-      const handleUp = () => {
-        scrollbarDragRef.current = null;
-        window.removeEventListener('mousemove', handleMove);
-        window.removeEventListener('mouseup', handleUp);
-      };
-      window.addEventListener('mousemove', handleMove);
-      window.addEventListener('mouseup', handleUp);
-    },
-    [scrollLeft, containerWidth, thumbWidth, maxScroll],
-  );
+  // screen.
+  useArrangeKeymap();
+  // Pages after the playhead while the song plays (editor/follow).
+  useFollowPlayhead(() => widthRef.current);
 
   return (
     <div
@@ -3081,7 +3005,7 @@ export function Timeline() {
         <TimelinePlayhead
           zoom={zoom}
           scrollLeft={scrollLeft}
-          maxX={containerWidth}
+          maxX={viewportWidth}
           handleRef={pinPlayheadHandle}
         />
       </div>
@@ -3209,32 +3133,6 @@ export function Timeline() {
           </div>
         </>
       )}
-      {/* Horizontal scrollbar — always visible, pinned to the bottom of the
-          timeline just below the time ruler. It rides up with the timeline when
-          a bottom toolbar (e.g. the channel strip) expands. */}
-      <div
-        className="h-3 shrink-0"
-        style={{
-          backgroundColor: 'var(--daw-grid)',
-          position: 'sticky',
-          bottom: 0,
-          zIndex: 30,
-        }}
-      >
-        <div
-          className="absolute top-0.5 h-2 rounded-full"
-          style={{
-            width: thumbWidth,
-            left: thumbLeft,
-            backgroundColor: 'var(--daw-scrollbar)',
-            cursor: scrollable ? 'pointer' : 'default',
-            opacity: scrollable ? 1 : 0.4,
-          }}
-          onMouseDown={scrollable ? handleScrollbarMouseDown : undefined}
-        />
-      </div>
     </div>
   );
 }
-
-export { TRACK_HEIGHT, RULER_HEIGHT, CHORD_RULER_HEIGHT, TIME_RULER_HEIGHT };

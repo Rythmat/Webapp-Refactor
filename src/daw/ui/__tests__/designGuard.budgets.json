@@ -5,9 +5,6 @@
   "src/daw/collab/ui/ChatPanel.tsx": {
     "smallText": 6
   },
-  "src/daw/collab/ui/PresenceTrackDots.tsx": {
-    "smallText": 1
-  },
   "src/daw/collab/ui/UserList.tsx": {
     "smallText": 6
   },
@@ -185,10 +182,6 @@
   "src/daw/components/MeshGradientBg.tsx": {
     "zIndex": 1
   },
-  "src/daw/components/Mixer/AddTrackMenu.tsx": {
-    "hex": 127,
-    "rgb": 2
-  },
   "src/daw/components/PianoRoll/ClipPianoRoll.tsx": {
     "hex": 1
   },
@@ -255,29 +248,9 @@
     "smallText": 2
   },
   "src/daw/components/Timeline/Timeline.tsx": {
-    "hex": 14,
-    "rgb": 16,
-    "smallText": 5,
-    "zIndex": 6
-  },
-  "src/daw/components/Timeline/TimelineWithHeaders.tsx": {
+    "hex": 13,
     "rgb": 5,
-    "smallText": 1,
-    "zIndex": 3
-  },
-  "src/daw/components/TrackControls/MasterTrackHeader.tsx": {
-    "hex": 1,
-    "smallText": 4,
-    "whileTap": 3
-  },
-  "src/daw/components/TrackControls/NewTrackModal.tsx": {
-    "hex": 126
-  },
-  "src/daw/components/TrackControls/TrackHeader.tsx": {
-    "hex": 4,
-    "smallText": 7,
-    "zIndex": 4,
-    "whileTap": 9
+    "zIndex": 5
   },
   "src/daw/components/Tutorial/CoachCard.tsx": {
     "hex": 4,
@@ -470,10 +443,6 @@
   },
   "src/daw/store/markersSlice.ts": {
     "hex": 1
-  },
-  "src/daw/utils/rulerLoop.ts": {
-    "hex": 1,
-    "rgb": 2
   },
   "src/daw/utils/timelineScale.ts": {
     "smallText": 7

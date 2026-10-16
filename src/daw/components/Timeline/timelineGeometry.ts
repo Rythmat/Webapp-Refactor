@@ -1,4 +1,5 @@
-import type { AllSlices } from '@/daw/store';
+import { useRef } from 'react';
+import { useStore, type AllSlices } from '@/daw/store';
 import type { AudioClip, MidiClip, Track } from '@/daw/store/tracksSlice';
 
 // ── What the timeline canvas draws from ─────────────────────────────────────
@@ -104,4 +105,21 @@ export function timelineNeedsRedraw(next: AllSlices, prev: AllSlices): boolean {
     if (next[key] !== prev[key]) return true;
   }
   return !sameTimelineGeometry(next.tracks, prev.tracks);
+}
+
+/**
+ * The tracks, kept as they were until a change alters what the timeline
+ * draws (sameTimelineGeometry). The timeline's markup and handlers, and its
+ * scrollbar, read only that part of them, and fresh state through
+ * useStore.getState().
+ */
+export function useTimelineTracks(): Track[] {
+  const kept = useRef<Track[] | null>(null);
+  return useStore((s) => {
+    if (kept.current && sameTimelineGeometry(kept.current, s.tracks)) {
+      return kept.current;
+    }
+    kept.current = s.tracks;
+    return s.tracks;
+  });
 }

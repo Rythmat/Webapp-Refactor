@@ -1,7 +1,6 @@
 import { memo, useRef, type RefObject } from 'react';
 import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
 import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
-import { TimelineWithHeaders } from '@/daw/components/Timeline/TimelineWithHeaders';
 import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 import { UserList } from '@/daw/collab/ui/UserList';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
@@ -35,6 +34,7 @@ import {
   StudioViewPart,
 } from './lazyParts';
 import { TopBar } from './topbar/TopBar';
+import { TrackArea } from './tracklist/TrackArea';
 
 // ── The editor shell (milestones 2.4 and 2.5) ──────────────────────────────
 //
@@ -127,8 +127,8 @@ export const StudioShell = memo(function StudioShell({
             />
           </DevProfiler>
         ) : create ? (
-          <DevProfiler id="TimelineWithHeaders">
-            <TimelineWithHeaders isReady={isReady} />
+          <DevProfiler id="TrackArea">
+            <TrackArea />
           </DevProfiler>
         ) : view === 'studio' ? (
           <DevProfiler id="StudioView">

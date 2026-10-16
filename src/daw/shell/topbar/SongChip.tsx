@@ -47,6 +47,36 @@ export function songChipText(
   return `${key} · ${s.timeSignatureNumerator}/${s.timeSignatureDenominator} · ${s.bpm}`;
 }
 
+/**
+ * The Song popover's open state, with the key lock: opening frees the key
+ * so the circle can change it, closing locks a chosen one again (as the old
+ * Key popover did). A lesson step done in it (Hip Hop's tempo) closes it,
+ * so it never sits over the next step's card. The top bar's chip and the
+ * chord lane's key chip each open one.
+ */
+export function useSongPopover(): [boolean, (open: boolean) => void] {
+  const [open, setOpen] = useState(false);
+  const onOpenChange = useCallback((next: boolean) => {
+    const s = useStore.getState();
+    if (next && s.rootLocked) s.toggleRootLock();
+    if (!next && s.rootNote !== null && !s.rootLocked) s.toggleRootLock();
+    setOpen(next);
+  }, []);
+
+  const step = useStore((s) =>
+    s.activeTutorialId === null ? null : s.tutorialStepIndex,
+  );
+  const lastStep = useRef(step);
+  useEffect(() => {
+    if (step !== lastStep.current && step !== null && open) {
+      onOpenChange(false);
+    }
+    lastStep.current = step;
+  }, [step, open, onOpenChange]);
+
+  return [open, onOpenChange];
+}
+
 export const SongChip = memo(function SongChip({
   short = false,
 }: {
@@ -60,29 +90,7 @@ export const SongChip = memo(function SongChip({
   );
   const hasKey = useStore((s) => s.rootNote !== null);
   const locked = useStore((s) => s.rootLocked && s.rootNote !== null);
-  const [open, setOpen] = useState(false);
-
-  const onOpenChange = useCallback((next: boolean) => {
-    const s = useStore.getState();
-    // Opening frees the key so the circle can change it; closing locks a
-    // chosen one again (as the old Key popover did).
-    if (next && s.rootLocked) s.toggleRootLock();
-    if (!next && s.rootNote !== null && !s.rootLocked) s.toggleRootLock();
-    setOpen(next);
-  }, []);
-
-  // A lesson step done in the popover (Hip Hop's tempo) moves the lesson
-  // on: the popover closes, so it never sits over the next step's card.
-  const step = useStore((s) =>
-    s.activeTutorialId === null ? null : s.tutorialStepIndex,
-  );
-  const lastStep = useRef(step);
-  useEffect(() => {
-    if (step !== lastStep.current && step !== null && open) {
-      onOpenChange(false);
-    }
-    lastStep.current = step;
-  }, [step, open, onOpenChange]);
+  const [open, onOpenChange] = useSongPopover();
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>

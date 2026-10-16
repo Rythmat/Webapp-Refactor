@@ -17,8 +17,8 @@ const { stub } = vi.hoisted(() => ({
     },
 }));
 vi.mock('../topbar/TopBar', () => ({ TopBar: stub('top-bar') }));
-vi.mock('@/daw/components/Timeline/TimelineWithHeaders', () => ({
-  TimelineWithHeaders: stub('timeline'),
+vi.mock('@/daw/shell/tracklist/TrackArea', () => ({
+  TrackArea: stub('timeline'),
 }));
 vi.mock('@/daw/components/ChannelStrip/ChannelStrip', () => ({
   ChannelStrip: stub('channel-strip'),

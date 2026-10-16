@@ -4,6 +4,15 @@ import type { MidiClip, AudioClip } from './tracksSlice';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
 import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
+import {
+  clampInspectorPx,
+  DOCK_MAX_FRAC,
+  INSPECTOR_DEFAULT_PX,
+  resolveInspectorOpen,
+  type DockHeights,
+  type InspectorOpenByView,
+  type ReadoutMode,
+} from '@/daw/shell/layout/layoutModel';
 
 // ── UI Slice ──────────────────────────────────────────────────────────────
 // Global UI state: active tool, selected clip, timeline zoom/scroll/grid.
@@ -210,10 +219,31 @@ export interface UiSlice {
   practiceKeyboard: PracticeKeyboard | null;
   setPracticeKeyboard: (patch: Partial<PracticeKeyboard>) => void;
 
-  // ── Library sidebar ──
+  // ── The Inspector column (LibraryPanel until 2.8) ──
+  /**
+   * Whether the Inspector is open in the view showing. It follows the
+   * student's choice for each view (inspectorOpenByView) when the view
+   * changes or a project opens; a lesson step or an automatic open sets it
+   * for the moment only.
+   */
   libraryOpen: boolean;
+  /** The student's open or close: kept for the view showing. */
   toggleLibrary: () => void;
+  /** Open or close for now, leaving the student's choice as it is. */
   setLibraryOpen: (open: boolean) => void;
+  /** The student's choice for `view`, applied at once if it is showing. */
+  setInspectorOpenFor: (view: ViewType, open: boolean) => void;
+  /** Per-user: whether the Inspector is open in each view (milestone 2.4). */
+  inspectorOpenByView: InspectorOpenByView;
+  /** Per-user: the Inspector column's width in px. */
+  inspectorWidth: number;
+  setInspectorWidth: (px: number) => void;
+  /** Per-user: the dock's height for each tab, as a share of the editor body. */
+  dockHeights: DockHeights;
+  setDockHeight: (tab: ChannelStripTabId, frac: number) => void;
+  /** Per-user: the position readout in bars and beats, or minutes. */
+  readoutMode: ReadoutMode;
+  setReadoutMode: (mode: ReadoutMode) => void;
 
   // ── Channel strip (bottom panel) active tab ──
   // Lifted out of ChannelStrip's local state so tutorials can open a tab
@@ -432,12 +462,13 @@ export const createUiSlice: StateCreator<
     })),
   setCurrentView: (view) =>
     set((s) => {
-      const next: Partial<UiSlice> = {
-        currentView: view,
-        libraryOpen: view === 'arrange',
-      };
-      // Lesson steps re-assert the view they are already on: not a switch.
+      const next: Partial<UiSlice> = { currentView: view };
+      // Lesson steps re-assert the view they are already on: not a switch,
+      // so the Inspector stays as the step left it.
       if (view === s.currentView) return next;
+      // Each view opens the Inspector as the student last had it there
+      // (2.4); switching no longer forces it open in Create (ia-flows-21).
+      next.libraryOpen = resolveInspectorOpen(view, s.inspectorOpenByView);
       if (view !== 'arrange') {
         // A clip selected in Create is out of sight in the other views, so
         // nothing done there may act on it: it is parked until the student
@@ -472,10 +503,31 @@ export const createUiSlice: StateCreator<
     }),
   parkedClipSelection: null,
 
-  // ── Library sidebar ──
+  // ── The Inspector column ──
   libraryOpen: true,
-  toggleLibrary: () => set((s) => ({ libraryOpen: !s.libraryOpen })),
+  toggleLibrary: () => {
+    const s = get();
+    s.setInspectorOpenFor(s.currentView, !s.libraryOpen);
+  },
   setLibraryOpen: (open) => set({ libraryOpen: open }),
+  setInspectorOpenFor: (view, open) =>
+    set((s) => ({
+      inspectorOpenByView: { ...s.inspectorOpenByView, [view]: open },
+      ...(view === s.currentView ? { libraryOpen: open } : {}),
+    })),
+  inspectorOpenByView: {},
+  inspectorWidth: INSPECTOR_DEFAULT_PX,
+  setInspectorWidth: (px) => set({ inspectorWidth: clampInspectorPx(px) }),
+  dockHeights: {},
+  setDockHeight: (tab, frac) =>
+    set((s) => ({
+      dockHeights: {
+        ...s.dockHeights,
+        [tab]: Math.min(DOCK_MAX_FRAC, Math.max(0.05, frac)),
+      },
+    })),
+  readoutMode: 'bars',
+  setReadoutMode: (mode) => set({ readoutMode: mode }),
 
   // ── Channel strip active tab ──
   channelStripTab: null,

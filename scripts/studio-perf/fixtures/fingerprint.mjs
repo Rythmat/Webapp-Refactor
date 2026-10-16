@@ -656,6 +656,22 @@ export async function fingerprintPage() {
     ['store.singleKeyShortcuts'],
     s.singleKeyShortcuts,
   );
+  // The shell's layout, the student's own (milestone 2.4).
+  put(
+    'view.layout',
+    [
+      'store.inspectorOpenByView',
+      'store.inspectorWidth',
+      'store.dockHeights',
+      'store.readoutMode',
+    ],
+    {
+      inspector: s.inspectorOpenByView,
+      width: s.inspectorWidth,
+      dock: s.dockHeights,
+      readout: s.readoutMode,
+    },
+  );
   put(
     'view.selectedTrack',
     ['store.selectedTrackId'],

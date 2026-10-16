@@ -51,6 +51,10 @@ const CHOSEN = {
   timelineTripletMode: true,
   chordRulerShowNotes: true,
   singleKeyShortcuts: false,
+  inspectorOpenByView: { arrange: false, score: true },
+  inspectorWidth: 280,
+  dockHeights: { fx: 0.5, 'piano-roll': 0.6 },
+  readoutMode: 'time',
 } as const;
 
 const DEFAULTS = Object.fromEntries(

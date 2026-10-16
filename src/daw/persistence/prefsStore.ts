@@ -6,15 +6,22 @@ import {
 } from '@/daw/persistence/projectDocument/fields';
 import { userNamespace } from '@/daw/persistence/storageNamespace';
 import { useStore, type AllSlices } from '@/daw/store';
+import {
+  isDockHeights,
+  isInspectorOpenByView,
+  isInspectorWidth,
+  isReadoutMode,
+} from '@/daw/shell/layout/layoutModel';
 import { ALL_GRID_VALUES, type AllGridSize } from '@/daw/utils/quantize';
 
 // ── Per-user editor preferences ────────────────────────────────────────────
 //
 // A few editor settings belong to the student rather than to a project: the
 // metronome, the count-in, the timeline's snap, grid and triplets, whether
-// the chord ruler shows note names, and whether single-key shortcuts are on
-// (the registry's 'pref' scope,
-// decision D5). They follow the student from project to project, so a new
+// the chord ruler shows note names, whether single-key shortcuts are on
+// (the registry's 'pref' scope, decision D5), and since milestone 2.4 the
+// editor's layout (the Inspector per view and its width, the dock's height
+// per tab, the readout). They follow the student from project to project, so a new
 // project, a template or a restored draft leaves them as they are. Each
 // user's are kept under their own key, so on a shared school Chromebook
 // every student finds their own settings and never someone else's.
@@ -75,6 +82,10 @@ const IS_VALID: {
   timelineTripletMode: isBoolean,
   chordRulerShowNotes: isBoolean,
   singleKeyShortcuts: isBoolean,
+  inspectorOpenByView: isInspectorOpenByView,
+  inspectorWidth: isInspectorWidth,
+  dockHeights: isDockHeights,
+  readoutMode: isReadoutMode,
 };
 
 /**
@@ -199,6 +210,16 @@ function defaultPrefs(): UserPrefs {
 }
 
 /**
+ * Whether two values of a pref are the same: by value, since the layout
+ * prefs (2.4) are small objects ({} until the student sizes something).
+ */
+function samePref(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) return false;
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/**
  * A student's first visit on this device: save the editor's settings as
  * theirs, but only those that differ from the defaults. Even an empty entry
  * is written, so the next visit isn't a first one.
@@ -207,7 +228,7 @@ function seedPrefs(userId: string | null): void {
   const defaults = defaultPrefs();
   const seeded = validPrefs(currentPrefs());
   for (const key of USER_PREFS) {
-    if (Object.is(seeded[key], defaults[key])) delete seeded[key];
+    if (samePref(seeded[key], defaults[key])) delete seeded[key];
   }
   writePrefs(userId, seeded);
 }

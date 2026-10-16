@@ -47,6 +47,8 @@ const STEP = 'Whether the running lesson has seen its current step done.';
 const DEVICES = 'What this computer has connected: no part of a project.';
 const PANELS =
   'Panel layout, which the Stage B shell keeps per user (milestones 2.4, 2.8).';
+const LAYOUT =
+  'The editor’s layout, the student’s own on every project (milestone 2.4): kept per user by prefsStore, never in a project, so a new project or a restored draft leaves it as it is.';
 const COLLAB =
   'The collaboration session belongs to the room, not the project: a load leaves it alone, and leaving the room is a separate step.';
 const NOTE_KEYED =
@@ -127,6 +129,12 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
     'A project field. A draft from before 1.3 opens as prism when it has chord regions, as the editor showed it.',
   currentView:
     'Restored for every view but practice, which the body alone can’t rebuild: the draft’s context brings the practice screen back with its session (milestone 1.15).',
+  libraryOpen:
+    'The Inspector as it is now, in the view showing. The draft keeps it, but the shell sets it from the student’s choice for that view (inspectorOpenByView) when a project opens or the view changes (milestone 2.4); a lesson step sets it for the moment only.',
+  inspectorOpenByView: LAYOUT,
+  inspectorWidth: LAYOUT,
+  dockHeights: LAYOUT,
+  readoutMode: LAYOUT,
   activeTool: 'The editing tool: every project opens with the cursor.',
   selectedClipId: SELECTION,
   selectedClipTrackId: SELECTION,

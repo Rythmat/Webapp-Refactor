@@ -241,7 +241,7 @@ const VIEW_SWITCHES = [
   { view: 'score', region: 'ScoreView' },
   { view: 'leadsheet', region: 'LeadSheetView' },
   { view: 'studio', region: 'StudioView' },
-  { view: 'arrange', region: 'TimelineWithHeaders' },
+  { view: 'arrange', region: 'TrackArea' },
 ];
 
 /** A master peak at or above −60 dBFS counts as audible. */
@@ -857,41 +857,31 @@ function watchFirstAudio(audiblePeak) {
 }
 
 /**
- * The first track header's volume slider (Radix): where to press, and the
- * track whose volume it sets, matched by the name in that header.
+ * The first track row's volume fader (milestone 2.6's Fader, a
+ * role="slider" named "Volume of <track>"): where its cap is, the slider's
+ * box, and the track it sets, by the name in its label.
  */
 function findVolumeSlider() {
-  // MasterTrackHeader's slider is labelled "Master Volume", so this is the
-  // first track header's.
-  const thumb = document.querySelector('[role="slider"][aria-label="Volume"]');
-  if (!thumb) return null;
-  const box = thumb.getBoundingClientRect();
-  // Radix renders Root > (Track, a wrapper > the thumb): the root is the
-  // first ancestor much wider than the thumb.
-  let root = thumb.parentElement;
-  while (root && root.getBoundingClientRect().width < box.width * 3) {
-    root = root.parentElement;
-  }
-  if (!root) return null;
-  const rootBox = root.getBoundingClientRect();
-  // TrackHeader shows its track's name in a text input above the slider.
-  let header = root.parentElement;
-  while (header && !header.querySelector('input:not([type])')) {
-    header = header.parentElement;
-  }
-  const name = header?.querySelector('input:not([type])')?.value;
+  const slider = document.querySelector(
+    '[data-testid="track-row"] [role="slider"][aria-label^="Volume of "]',
+  );
+  if (!slider) return null;
+  const box = slider.getBoundingClientRect();
+  // The cap: the slider's last child, moved along it by the value.
+  const cap = slider.lastElementChild?.getBoundingClientRect() ?? box;
+  const name = slider.getAttribute('aria-label').slice('Volume of '.length);
   const tracks = window.__MA_STORE__.getState().tracks;
   const named = tracks.filter((track) => track.name === name);
   const track = named.length === 1 ? named[0] : tracks[0];
   return {
-    thumbX: box.left + box.width / 2,
+    thumbX: cap.left + cap.width / 2,
     y: box.top + box.height / 2,
-    left: rootBox.left,
-    width: rootBox.width,
+    left: box.left,
+    width: box.width,
     trackId: track?.id ?? null,
     track: track?.name ?? null,
     volume: track?.volume ?? null,
-    matchedBy: named.length === 1 ? 'the header name' : 'the first track',
+    matchedBy: named.length === 1 ? 'the row name' : 'the first track',
   };
 }
 
@@ -1689,7 +1679,7 @@ async function faderDrag({ browser, base, profile, windows }) {
       const slider = await page.evaluate(findVolumeSlider);
       if (!slider?.trackId) throw new Error('no track volume slider on screen');
       control ??= {
-        slider: 'first track header volume (Radix slider)',
+        slider: 'first track row volume (Fader)',
         widthPx: round(slider.width),
         trackId: slider.trackId,
         track: slider.track,

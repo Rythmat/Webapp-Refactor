@@ -165,10 +165,24 @@ const POPOVERS = [
     trigger: '[data-testid="avatar-menu"]',
     panel: '[role=menu][data-state=open]',
   },
+  // The track row's ⋯ menu holds its colours since milestone 2.6.
   {
-    name: 'Track colour popover',
-    trigger: '.daw-root button[title="Change track color"]',
-    panel: '[data-testid="track-colour-popover"]',
+    name: 'Track menu',
+    trigger: '[data-testid="track-menu-button"]',
+    panel: '[data-testid="track-menu"]',
+    v2: true,
+  },
+  {
+    name: 'Grid menu',
+    trigger: '[data-testid="grid-menu"]',
+    panel: '[role=menu][data-state=open]',
+    v2: true,
+  },
+  {
+    name: 'Chord lane key',
+    trigger: '[data-testid="chord-lane-key"]',
+    panel: '[data-testid="chord-lane-song-popover"]',
+    v2: true,
   },
 ];
 

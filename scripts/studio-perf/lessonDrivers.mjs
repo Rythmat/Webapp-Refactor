@@ -79,7 +79,7 @@ const anchor = (id) => `[data-tutorial-id="${id}"]`;
 /** The chord buttons of Prism's Chord Selection card, in option order. */
 const CHORD_BUTTONS = `${anchor('prism-chord-selection')} .grid-cols-2 > button`;
 
-/** Instruments the + Add Track cards create (AddTrackMenu.tsx). */
+/** Instruments the Add-track sheet's cards create (AddTrackSheet.tsx). */
 const ADD_TRACK_CARDS = {
   'add-track-synth': ['midi', 'oracle-synth', 'Synth'],
   'add-track-drum-machine': ['midi', 'drum-machine', 'Drums'],
@@ -827,23 +827,26 @@ const EXPORT_AUDIO = {
   },
 };
 
-/** The automation button on the selected track's header. */
+/** Show automation, in the selected track's ⋯ menu (milestone 2.6). */
 const OPEN_AUTOMATION = {
   how: 'click',
-  describe: 'click automation-toggle on a track header',
+  describe: 'open track-menu-button, then click automation-toggle',
   async run(ctx) {
-    const buttons = await ctx.read(
+    const menus = await ctx.read(
       (sel) => document.querySelectorAll(sel).length,
-      anchor('automation-toggle'),
+      anchor('track-menu-button'),
     );
-    if (buttons === 0) {
+    if (menus === 0) {
       ctx.problem(
-        'The lesson opens in an empty session and its first step asks to pick a track, but there is no track and no step adds one, so there is no automation button',
+        'The lesson opens in an empty session and its first step asks to pick a track, but there is no track and no step adds one, so there is no track menu',
       );
       // What a student would do: add a track first.
       await ctx.clickAnchor('add-track-button');
       await ctx.clickAnchor('add-track-synth');
     }
+    await ctx.clickAnchor('track-menu-button');
+    // The spotlight follows into the menu (the step's first target id).
+    await ctx.measure('automation-toggle');
     await ctx.clickAnchor('automation-toggle');
   },
   fallback: (ctx) =>
@@ -1039,9 +1042,9 @@ export const KNOWN_FAILURES = {
   '*/*/rnb-mix-and-polish/master-volume':
     'ia-flows-12, fx-mixer-04: master-strip is cut off by the scrolling strips row',
   '*/*/indie-movement-and-dynamics/open-automation':
-    'new: ?tutorial= boots an empty session and no step adds a track, so there is no automation button to click',
-  'chromebook/*/indie-movement-and-dynamics/draw-volume':
-    'new (nearest practice-tutorial-18): the coach card is clamped back over the wide automation lane',
+    'new: ?tutorial= boots an empty session and no step adds a track, so there is no track menu to open',
+  'chromebook|small/*/indie-movement-and-dynamics/draw-volume':
+    'new (nearest practice-tutorial-18): the coach card is clamped back over the wide automation lane (at 1280×720 too since 2.6/2.7 moved the lane up; card docking is 1.2b)',
 };
 
 /** The KNOWN_FAILURES pattern that lists `key`, or null. */

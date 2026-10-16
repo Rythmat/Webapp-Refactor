@@ -106,6 +106,9 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setLoopRange(1920, 9600);
   act().setLoopEnabled(true);
   act().toggleMetronome();
+  // The Click menu's sound and volume (milestone 2.8).
+  act().setMetronomeSound('hihat');
+  act().setMetronomeVolume(-16);
   act().setCountInBars(2);
   act().setPosition(960);
   act().setLastSeekPosition(960);

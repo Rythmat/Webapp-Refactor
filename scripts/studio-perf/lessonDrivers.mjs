@@ -960,7 +960,8 @@ export const DRIVERS = {
   },
   'hiphop-build-the-beat': {
     'add-drums': addTrack('add-track-drum-machine'),
-    'open-sequencer': openedByStep('controls'),
+    // The drum grid is the drums' Notes tab since milestone 2.9.
+    'open-sequencer': openedByStep('piano-roll'),
     'swap-kit': pickKit('808'),
     'program-hits': PAINT_HITS,
     'slow-bpm': setBpm(90),

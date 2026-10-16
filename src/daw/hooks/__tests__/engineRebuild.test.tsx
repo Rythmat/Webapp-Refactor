@@ -26,6 +26,8 @@ vi.mock('@/daw/audio/AudioEngine', () => ({
       gain: { setTargetAtTime() {} },
       context: { currentTime: 0 },
     }),
+    // The click goes straight to the output (milestone 2.8).
+    getOutput: () => ({}),
     updateMasteringEffects() {},
     updateReturnEffects() {},
     setReturnVolume() {},
@@ -86,6 +88,8 @@ vi.mock('@/daw/audio/AutomationScheduler', () => ({
 vi.mock('@/daw/audio/MetronomeEngine', () => ({
   MetronomeEngine: class {
     init() {}
+    setSound() {}
+    setVolume() {}
     setTimeSignature() {}
     setEnabled() {}
     start() {}

@@ -29,6 +29,18 @@
  *   text under the floor or a target under 24×24.
  * - quietWhilePlaying: neither bar makes a React commit in 3 s of playback
  *   (the readout writes itself).
+ * - dockTabs (2.9): the dock's tabs follow the selected track, Effects last:
+ *   Instrument · Prism · Notes · Effects on a melodic track, Instrument ·
+ *   Grooves · Notes · Effects on drums, none on an audio track; and the
+ *   dock's frame has no text under the floor or target under 24×24.
+ * - dockMaster (2.9): the bottom rail's Master shows Master in the dock's
+ *   slot, at the dock's height, and a second click gives it back.
+ * - dockMaximize (2.9): Maximize grows the dock to the whole body (the
+ *   canvas inert under it) and Escape gives the canvas back at the height
+ *   it had.
+ * - effectsArming (2.8, on the Chromebook): Add effect arms the slot and
+ *   opens the Effects library; a pick fills it and arms the next; the
+ *   armed slot's × stops and shuts the Inspector.
  */
 import { designProbe } from '../designProbe.mjs';
 
@@ -68,6 +80,22 @@ export const flags = {
   quietWhilePlaying: {
     goal: true,
     text: 'the top bar and the bottom rail made no React commit in 3 s of playback',
+  },
+  dockTabs: {
+    goal: true,
+    text: 'the dock showed Instrument · Prism · Notes · Effects on keys, Instrument · Grooves · Notes · Effects on drums and no tabs on audio, with the floors kept',
+  },
+  dockMaster: {
+    goal: true,
+    text: 'Master opened in the dock’s slot at the dock’s height, and a second click gave it back',
+  },
+  dockMaximize: {
+    goal: true,
+    text: 'Maximize filled the body with the canvas inert, and Escape restored the dock’s height',
+  },
+  effectsArming: {
+    goal: true,
+    text: 'Add effect armed the slot and opened the library, a pick filled it and armed the next, × stopped and shut the Inspector',
   },
 };
 
@@ -175,6 +203,9 @@ async function shellAt(kit, run, viewport) {
       const panels =
         viewport.width === 1366 ? await sidePanels(page, kit) : null;
 
+      // The dock v2 (2.9) and the effects library's armed slot (2.8).
+      const dockV2 = await dockChecks(page, kit, viewport);
+
       // The dock, 3 steps taller from the keyboard, then a reload.
       await page.focus('[data-testid="dock-resizer"]');
       for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowUp');
@@ -202,6 +233,7 @@ async function shellAt(kit, run, viewport) {
         reloaded,
         dashboardTopRail,
         panels,
+        dockV2,
       };
     },
     api,
@@ -260,6 +292,119 @@ async function sidePanels(page, kit) {
   };
 }
 
+/** The dock's tabs, Master, Maximize and the effects library's arming. */
+async function dockChecks(page, kit, viewport) {
+  const store = (fn, arg) => page.evaluate(fn, arg);
+  // Start from a shut Inspector and the keys track, on its Instrument tab.
+  await store(() => {
+    const s = window.__MA_STORE__.getState();
+    s.setInspectorOpenFor('arrange', false);
+    s.setSelectedTrackId(s.tracks[0].id);
+    s.setChannelStripTab('controls');
+  });
+  await kit.sleep(400);
+  const dockState = () =>
+    store(() => {
+      const dock = document.querySelector('[data-testid="dock"]');
+      const region = document.querySelector('[data-region="dock"]');
+      const main = document.querySelector('[data-region="main"]');
+      const s = window.__MA_STORE__.getState();
+      return {
+        kind: dock?.dataset.kind ?? null,
+        tabs: [...(dock?.querySelectorAll('[role="tab"]') ?? [])].map(
+          (t) => t.textContent,
+        ),
+        h: Math.round(region?.getBoundingClientRect().height ?? 0),
+        inert: main?.hasAttribute('inert') ?? false,
+        maximized: s.dockMaximized,
+        master: s.dockMaster,
+        open: s.libraryOpen,
+        panel: s.inspectorPanel,
+        slot:
+          document.querySelector('[data-testid="fx-add-slot"]')?.dataset
+            .state ?? null,
+      };
+    });
+  const keys = await dockState();
+  const floors = await page.evaluate(designProbe, '[data-region="dock"]');
+
+  await store(() => {
+    const s = window.__MA_STORE__.getState();
+    s.setSelectedTrackId(s.addTrack('midi', 'drum-machine', 'Shell Drums'));
+  });
+  await kit.sleep(400);
+  const drums = await dockState();
+  await store(() => {
+    const s = window.__MA_STORE__.getState();
+    s.setSelectedTrackId(s.addTrack('audio', 'none', 'Shell Take'));
+  });
+  await kit.sleep(400);
+  const audio = await dockState();
+  await store(() => {
+    const s = window.__MA_STORE__.getState();
+    s.setSelectedTrackId(s.tracks[0].id);
+  });
+  await kit.sleep(300);
+  const before = await dockState();
+
+  // Master in the dock's slot, and back.
+  await page.click('[data-testid="master-open"]');
+  await kit.sleep(400);
+  const master = await dockState();
+  await page.click('[data-testid="master-open"]');
+  await kit.sleep(300);
+  const back = await dockState();
+
+  // Maximize, then Escape.
+  await page.click('[data-testid="dock-maximize"]');
+  await kit.sleep(400);
+  const maximized = await dockState();
+  await page.keyboard.press('Escape');
+  await kit.sleep(400);
+  const restored = await dockState();
+
+  // The effects library's armed slot, once.
+  let arming = null;
+  if (viewport.width === 1366) {
+    await page.click('[data-tutorial-id="chanstrip-tab-fx"]');
+    await kit.sleep(500);
+    await page.click('[data-testid="fx-add-slot"]');
+    await kit.sleep(400);
+    const armed = await dockState();
+    await page.click('[data-testid="inspector-fx-reverb"]');
+    await kit.sleep(400);
+    const picked = await dockState();
+    const chain = await store(() => {
+      const s = window.__MA_STORE__.getState();
+      return s.tracks[0].activeEffects;
+    });
+    await page.click('[data-testid="fx-add-cancel"]');
+    await kit.sleep(400);
+    const cancelled = await dockState();
+    arming = {
+      armed: armed.open && armed.panel === 'fx' && armed.slot === 'armed',
+      picked:
+        chain.includes('reverb') && picked.open && picked.slot === 'armed',
+      cancelled: !cancelled.open && cancelled.slot === 'idle',
+    };
+  }
+
+  const body = viewport.height - 44 - 44;
+  return {
+    keys,
+    drums,
+    audio,
+    floors,
+    master,
+    back,
+    before,
+    maximized,
+    restored,
+    body,
+    arming,
+  };
+}
+
 function judge(v) {
   const { width, height } = v.viewport;
   const o = v.opened;
@@ -310,6 +455,32 @@ function judge(v) {
         v.panels.reopened &&
         v.panels.floors.length === 0),
     quietWhilePlaying: v.playingCommits === 0,
+    dockTabs:
+      v.dockV2.keys.tabs.join(' · ') ===
+        'Instrument · Prism · Notes · Effects' &&
+      v.dockV2.drums.tabs.join(' · ') ===
+        'Instrument · Grooves · Notes · Effects' &&
+      v.dockV2.audio.tabs.length === 0 &&
+      v.dockV2.audio.kind === 'audio' &&
+      v.dockV2.floors.length === 0,
+    dockMaster:
+      v.dockV2.master.master &&
+      v.dockV2.master.kind === 'master' &&
+      near(v.dockV2.master.h, Math.round(v.dockV2.body * 0.36)) &&
+      !v.dockV2.back.master &&
+      v.dockV2.back.kind === 'melodic',
+    dockMaximize:
+      v.dockV2.maximized.maximized &&
+      v.dockV2.maximized.inert &&
+      near(v.dockV2.maximized.h, v.dockV2.body) &&
+      !v.dockV2.restored.maximized &&
+      !v.dockV2.restored.inert &&
+      near(v.dockV2.restored.h, v.dockV2.before.h),
+    effectsArming:
+      v.dockV2.arming === null ||
+      (v.dockV2.arming.armed &&
+        v.dockV2.arming.picked &&
+        v.dockV2.arming.cancelled),
   };
 }
 
@@ -358,6 +529,21 @@ async function shell(kit, run) {
           ? `text ${f.size}px “${f.text}”`
           : `target ${f.width}×${f.height} “${f.text}”`,
       ),
+      dockV2: {
+        tabs: {
+          keys: v.dockV2.keys.tabs.join(' · '),
+          drums: v.dockV2.drums.tabs.join(' · '),
+          audio: v.dockV2.audio.tabs.join(' · ') || '(none)',
+        },
+        floors: v.dockV2.floors.map((f) =>
+          f.kind === 'text'
+            ? `text ${f.size}px “${f.text}”`
+            : `target ${f.width}×${f.height} “${f.text}”`,
+        ),
+        master: `${v.dockV2.master.kind} ${v.dockV2.master.h} px → ${v.dockV2.back.kind}`,
+        maximize: `${v.dockV2.before.h} → ${v.dockV2.maximized.h} px (body ${v.dockV2.body}, inert ${v.dockV2.maximized.inert}) → ${v.dockV2.restored.h} px`,
+        arming: v.dockV2.arming,
+      },
       failed: Object.entries(judged[i])
         .filter(([, ok]) => !ok)
         .map(([key]) => key),
@@ -371,7 +557,7 @@ export const scenarios = (kit) => [
     key: '',
     id: 'R29-shell',
     title:
-      'The shell at 1366×655, 1440×787 and 1280×720: focus mode, the 44 px top bar and its fold, the bottom and side rails, the region budget, one Inspector, the layout after a reload, no commits while playing',
+      'The shell at 1366×655, 1440×787 and 1280×720: focus mode, the 44 px top bar and its fold, the bottom and side rails, the region budget, one Inspector, the layout after a reload, no commits while playing, the dock’s tabs, Master, Maximize and the effects library’s armed slot',
     run: (run) => shell(kit, run),
   },
 ];

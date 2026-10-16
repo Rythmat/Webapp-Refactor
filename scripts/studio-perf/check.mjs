@@ -88,7 +88,7 @@ const UNIT_TESTS = [
   'src/daw/session/__tests__/sessionGeneration.test.ts',
   'src/daw/harmony/__tests__/chordIdentity.test.ts',
   'src/daw/__tests__/DawApp.bootLinks.test.tsx',
-  'src/daw/components/ChannelStrip/__tests__/ChannelStrip.restoredTab.test.tsx',
+  'src/daw/shell/dock/__tests__/Dock.restoredTab.test.tsx',
   // Milestone 1.4: the draft store (src/lib/studio-projects/drafts).
   'src/lib/studio-projects/drafts/__tests__/types.test.ts',
   'src/lib/studio-projects/drafts/__tests__/fingerprintHash.test.ts',
@@ -179,7 +179,7 @@ const UNIT_TESTS = [
   'src/daw/store/__tests__/moveClip.test.ts',
   'src/daw/model/__tests__/editorClip.test.ts',
   'src/daw/components/PianoRoll/__tests__/rollGrid.test.ts',
-  'src/daw/components/ChannelStrip/__tests__/ChannelStrip.pianoRoll.test.tsx',
+  'src/daw/shell/dock/__tests__/Dock.pianoRoll.test.tsx',
   'src/daw/components/Controls/__tests__/clipRelativeEditors.test.tsx',
   'src/daw/components/LeadSheet/__tests__/toSetListChart.test.ts',
   'src/daw/components/LeadSheet/__tests__/leadSheetPlayhead.test.ts',

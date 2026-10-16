@@ -363,6 +363,13 @@ export async function fingerprintPage() {
   });
   put('transport.loopEnabled', ['store.loopEnabled'], s.loopEnabled);
   put('transport.metronome', ['store.metronomeEnabled'], s.metronomeEnabled);
+  // The Click menu's sound and volume (milestone 2.8): per-user prefs.
+  put('transport.metronomeSound', ['store.metronomeSound'], s.metronomeSound);
+  put(
+    'transport.metronomeVolume',
+    ['store.metronomeVolume'],
+    s.metronomeVolume,
+  );
   put('transport.countInBars', ['store.countInBars'], s.countInBars);
   put('transport.position', ['store.position'], s.position);
 

@@ -569,3 +569,55 @@ Each prompt appends an entry: milestone, commits, pushed or not, verification nu
   - **Forward** (next marker or end) kept beside Back.
   - **The Typing chip shows only its icon while off** when the bar is narrower than about 1490 px (fold step 1).
   - **Collaborator faces in the Share pill use presence colours,** which the plan leaves to the Stage B colour review.
+
+## 14 — B3: 2.6 track list v2, 2.7 Create canvas (2026-10-16)
+
+- **Branch:** `aaron`, started at `5b2c0103` (B2) plus `aa689d62` (the owner's prompt note). Another session's untracked `src/daw/collab/server/.partykit/`, `src/scripts/enrichment/research/` and its `.gitignore` line left alone.
+- **Commits:**
+  - `737e3288` editor core and registry: `src/daw/editor/{zoom,viewport,snap,follow}`, the Follow pref, the chord lane's offer and Not now (draft **schema 5**, compat 3; v5 all-fields and `cloud-2.7` fixtures), V/B/C tools, the 'tracks' key scope, fingerprint and kitchen sink;
+  - `b6d2d963` track list (`src/daw/shell/tracklist/`): rows, ⋯ menu, Master row, keys, grip reorder, the Add-track sheet, empty-project tiles, one `importMidiToTracks`, Indie's step through the ⋯ menu, the old headers and pop-out deleted;
+  - `af1618b8` canvas: one scroller (TrackArea), the Timeline on the row layout, Create's toolbar, chord-lane header and banner, scrollbar in the footer, Follow, Draw, ruler/palette;
+  - `2731c65e` harness: R30, R28's popovers (track menu, Grid, chord-lane key), the perf fader probe and view region, the Indie driver and known list;
+  - `4cd659de` **the top bar trimmed and quieted** (owner request mid-run, below);
+  - this entry.
+- **Pushed:** yes, to `aaron` (fast-forward; `origin/aaron` had not moved).
+- **What changed:**
+  - **One scroller** for rows and lanes, placed from one height array (`shell/tracklist/rowLayout.ts`, 64 px rows; ready for inline automation). The Timeline takes the scroller as `scrollRef` (no parentElement chains). Above the lanes: toolbar 32, ruler 32 (loop strip 14 + bar numbers 18), chord lane 24. The m:ss row under the lanes is gone (the readout's time mode). Footer 40 px: Master row (volume, meter, automation, Effects → Mix) and the scrollbar.
+  - **Track row** 64 px: colour bar (= reorder grip), name (= selector; double-click/F2/N renames), presence dots, ⋯; M, S, Arm (record tone), Fader over a Meter (MeterBus). Remote-held tracks: outlined in the holder's colour, only M/S live, Listen toggle instead of Arm/fader. ⋯: Rename, Colour ▸, Role ▸, Monitor input, Test sound, Show automation (`automation-toggle`), Release (session only), Delete track (one undo step, Undo on the toast).
+  - **Keys (A11Y#3)**, region scope 'tracks' (on a row's name only): ↑ ↓ Home End (and ⌘↑ ⌘↓), ⌥↑ ⌥↓ (and ⌘⇧↑ ⌘⇧↓ for ChromeOS) move, Enter opens the dock with focus in it, F2/N rename, M/S mute/solo (ahead of the global M).
+  - **Add-track sheet** (DawDialog lg, wrapping grid): Keys, Synth, Organ, Instruments, Drums, Sampler, Voice, Guitar, Bass, Import MIDI file… (opens the picker; the Project menu's import is the same function). After an add the dock opens on the Instrument tab, except during a lesson.
+  - **Empty project:** Start with a beat (Drums, pads), Play an instrument (Keys, computer keyboard on), Start from a genre (Drums, Grooves), Add a track (the sheet).
+  - **Toolbar:** + Add track; Pointer/Draw/Cut; Snap; Grid menu (metre-aware choices and names, Triplets, Snap); zoom −/%/+/Fit; Follow; + Marker (at the playhead on the grid, named in a prompt); chord-lane labels; Colour: Track | Harmony (`clipColorMode`, one undo step). It folds (labels → icons, zoom level, Harmony toggle) instead of clipping. Room left for + Section.
+  - **Draw tool** now draws: a click in an empty MIDI lane makes a one-bar clip from the grid line before it, selects its track and opens the dock's note editor (drum grid for drums).
+  - **Chord lane header:** CHORDS · key chip (opens the Song popover; dashed with no key) · + (Prism suggestions after the last chord, Premium-locked). **Banner** in the lane: "This song has notes but no chord symbols. Analyze… · Not now"; Analyze opens the existing analysis dialog; Not now is kept in the draft.
+  - **Follow:** past 85% of the width (or off screen) the view turns a page; paused by wheel, pan, scrollbar, ruler zoom, clip drag and toolbar/key zoom until Play or Stop; one store write per page.
+  - **Zoom** is anchored (the old sum scaled the scroll too) and Fit uses the measured canvas width (`publishTimelineWidth`).
+  - **Ruler/canvas colours:** labels 11 px in ruler/dim text, never overprinting (markers first); chord names 12 px; playhead white (`--daw-playhead`, the piano roll's too), record red while recording; loop, marquee, triplet lines from the palette.
+- **Owner requests during the run (2026-10-16):**
+  - **"The top rail looks too busy" → trim and quiet both** (`4cd659de`): Back, Forward and Stop left the bar (Esc stops; new global Home/End = previous/next marker or the ends, `commands/transportSkip.ts`; the ruler seeks); Help, Audio & MIDI settings and the computer keyboard's switch live in one '⋯' (the typing chip shows only while on); Share is an icon; the save status lost its pill and the readout its box; Back to Studio, Undo, Redo and '⋯' are dimmer (`ui/styles` QUIET); hairlines divide the transport. The bar no longer folds at 1280/1366/1440 (fold kept for narrower windows: Song chip, name, count-in, tabs). The save chip keeps its wording ("Saved on this device" says the cloud copy lacks the work; the save checks and harness rely on it).
+  - **Soundtrap review** (side rail + bottom rail), screenshots in `~/Desktop/References/soundtrap-2026-10-16/` (35 + README). Owner decided: **the transport moves to a bottom rail**; a side rail drives the Inspector. Next work, not in this entry.
+  - **Combine Score and Lead sheet into one page** (one Score tab with a Full score | Lead sheet switch; notes, rests, rhythmic, articulations and accidentals into Palettes; the toolbar row above the staff removed). Queued after the rails.
+- **Verification:**
+  - `npm run lint` passes (prettier, eslint 0 warnings, `tsc -b`).
+  - `npx vitest run`: 15,893 pass; 13 fail in 17 files, none in this milestone's code: the inherited `designGuard` PianoRoll budget (B2's list), 8 suites that fail only on this checkout's stale gitignored `src/curriculum/data/songs/_generated_index.ts` (pass on a `git archive`), and 8 content/scripts files (atlas calibration, graph integrity budget, guitar theory notes, landing song chart, apiContract manifest ×2, writeVocabulary, repoStore ×2, vocabularySource) that fail identically on a `git archive` of `aa689d62` (before B3). New tests: editor (zoom anchor, Fit, grids per metre, Follow page turns/pause), row layout and reorder math, TrackList (ARIA, keys, Alt-move, F2/N rename, grip drop, delete + Undo), Add-track sheet and tiles, toolbar/chord lane/banner/Suggest, Timeline lanes on 64 px rows, Draw tool, labels never overprint; v5 draft + cloud-2.7 fixtures and a v4→v5 migration test.
+  - **`studio:check`** (fast, own server on 5263): round-trips 79/79 ok, 0 lost fields, 0 page errors; **R30 all 11 flags** (rows aligned to ±0 px at top/middle/bottom at all three sizes; Chromebook 4 whole rows with the dock open, 7 closed; laptop 5/9; 1280×720 4/8; Follow made 2 page turns in 9 s and held after a sideways scroll; banner stayed dismissed after reload); R28 8/8 at both sizes after it moved off the old colour popover; R26 and R29 all flags on the trimmed bar. Lessons at **all three sizes, both personas**: Chromebook 71/78, laptop 75/78, 1280×720 73/78, every failure on the known list, 12/12 complete, 4/4 Premium gated. **Bundle FAIL, inherited** (store, registry and save status on every page, as B1/B2); DawApp 102.0 kB gzip (+3.1 kB), budget 150.
+  - Browser (Chrome, own server): empty project tiles, Add-track sheet, track ⋯ menu and Colour swatches, chord-lane key chip and Song popover, Draw tool clip → dock piano roll, Indie's open-automation step through the ⋯ menu completing, the trimmed top bar; no console errors but the known third-party StrictMode warning. During the run the owner's server on 5179 briefly showed "The Studio couldn't load" while files were being swapped; a reload fixed it.
+- **Open issues:**
+  1. **Duplicate track** (design's ⋯ item) not built: copying Oracle patches, audio buffers and note ids needs its own care.
+  2. **Instrument-status ring** on the row waits for 1.13's instrument lifecycle.
+  3. The **Fader cap** (12 × 24 white) is heavy in a 64 px row; a slimmer row variant of the primitive is a 3.x polish.
+  4. **Lessons that boot empty** (Indie) still need a track the steps never add (known failure); the tiles now give the student a way in.
+  5. The coach card can cover the bottom of an open ⋯ menu (Delete) on Indie's step; docking is 1.2b's.
+  6. **Indie draw-volume is now known at 1280×720 too** (was Chromebook only): the toolbar and footer moved the automation lane up, and the 270 px coach card fits neither above nor below it, so it clamps over the lane's right end. Docking is 1.2b's.
+  7. Piano roll keeps V/D/E for its tools while the timeline uses V/B/C.
+  8. R26's typing-chip flag now measures the chip only while typing is on (it is gone when off).
+- **Owner sign-offs:**
+  - **Draft schema 5** for one view field (the per-project Not now); the cloud document's schema number follows (5), its content unchanged.
+  - **Follow lives in Create's toolbar**, not the top bar's centre: only the timeline follows, and the top bar's fold stays as measured in B2.
+  - **Tile wording** from the plan's Stage D note (Start with a beat, Play an instrument, Start from a genre, Add a track), not the archived design's four; "Play an instrument" turns musical typing on.
+  - **Suggest is an icon (+)** in the chord-lane header (name in the tooltip): "+ Suggest" doesn't fit 200 px beside CHORDS and the key.
+  - **Ruler order kept:** ruler on top, chord lane under it (next to the music); loop strip stays 14 px (the piano roll shares it).
+  - **+ Marker asks for a name** in a prompt (Enter keeps "Marker N"); inline rename on the canvas was not built.
+  - **Tools V/B/C** (plan default), digits kept.
+  - **The dock opens on the new track's Instrument tab** after an add, except during a lesson.
+  - **Top bar trim:** Stop is gone from the bar (Esc), Back/Forward became Home/End, and the keyboard's switch moved into '⋯'.

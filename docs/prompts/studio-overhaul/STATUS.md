@@ -637,17 +637,17 @@ After a Soundtrap review (screenshots and notes in `~/Desktop/References/soundtr
   - **Shell grid** (StudioShell): `top top top` / `main inspector rail` / `dock inspector rail` / `bottom bottom bottom`. The Inspector runs from the top bar to the bottom rail, so the dock stops at it (as Soundtrap's library does). The practice screen hides the bars, both rails and the Inspector (still mounted).
   - **Side rail** (`shell/inspector/SideRail.tsx`): a 48 px column of six icons, the owner's choice: Insight, Library, Effects, Lessons, People, Chat. The open one is a white tile; a second click closes the Inspector. I opens and closes it on the panel it last showed. Chat shows an unread count. It replaces the top bar's Inspector toggle and the session's People and Chat columns.
   - **Inspector panel** (`shell/inspector/InspectorPanel.tsx`, 300 px by default, 240–420; widths saved under 240 fall back to the default): a header (name and ×) over one body.
-    - *Insight* is the old panel's Insight tab; a piano-roll Analyze still brings it forward.
-    - *Library* is the templates, with a search. It opens them through openSession as before, and is off in a shared session.
-    - *Effects* adds an audio effect to the selected track and opens the dock's Effects tab on it (five per rack). Its rows carry test ids, not the dock's `fx-add-*` anchors, so a lesson's spotlight never lands here.
-    - *Lessons* is the Production catalog. It opens a lesson through openSession (`kind: 'tutorial'`), so a free student gets the upgrade dialog; it marks the running and finished lessons and links to the Studio's Production tab.
-    - *People* shows the connection, the room code (copy) and who is here; outside a session, "Start a session" opens the room and its invite.
-    - *Chat* is the room's chat; showing it marks messages read.
+    - _Insight_ is the old panel's Insight tab; a piano-roll Analyze still brings it forward.
+    - _Library_ is the templates, with a search. It opens them through openSession as before, and is off in a shared session.
+    - _Effects_ adds an audio effect to the selected track and opens the dock's Effects tab on it (five per rack). Its rows carry test ids, not the dock's `fx-add-*` anchors, so a lesson's spotlight never lands here.
+    - _Lessons_ is the Production catalog. It opens a lesson through openSession (`kind: 'tutorial'`), so a free student gets the upgrade dialog; it marks the running and finished lessons and links to the Studio's Production tab.
+    - _People_ shows the connection, the room code (copy) and who is here; outside a session, "Start a session" opens the room and its invite.
+    - _Chat_ is the room's chat; showing it marks messages read.
     - Store: `inspectorPanel` (a per-user **view pref**, in the registry and prefsStore with its validator), `toggleInspectorPanel`, `showInspectorPanel`. `userListOpen`, `chatPanelOpen` and their toggles are gone (session state, never saved). **No draft schema change.**
   - **Bottom rail** (`shell/bottombar/`, 44 px, full width):
-    - *Left: Master* — volume, level, its automation (which switches to Create, where the lane is) and Effects → Mix. It moved out of the track list, whose footer is now only the 16 px scrollbar.
-    - *Centre: the transport*, moved from the top bar and centred in the window: Play, Record, the readout, Loop, Click and its count-in.
-    - *Right: the song as three controls* — Key (the circle of fifths in a popover; the key lock as before), Tempo (an inline field with Tap; `transport-bpm` is on it) and the time signature (a popover of the common metres and a custom one). Below 1100 px of rail the key drops its mode word.
+    - _Left: Master_ — volume, level, its automation (which switches to Create, where the lane is) and Effects → Mix. It moved out of the track list, whose footer is now only the 16 px scrollbar.
+    - _Centre: the transport_, moved from the top bar and centred in the window: Play, Record, the readout, Loop, Click and its count-in.
+    - _Right: the song as three controls_ — Key (the circle of fifths in a popover; the key lock as before), Tempo (an inline field with Tap; `transport-bpm` is on it) and the time signature (a popover of the common metres and a custom one). Below 1100 px of rail the key drops its mode word.
     - The chord lane's key chip opens the same Key popover (the circle only). The Song chip and its combined popover are gone.
   - **Top bar:** Back, Project, the name, the save chip, Undo/Redo | the view tabs, centred | Share, the typing chip, '⋯', the avatar. Its fold has two steps left (name, tabs); it folds at none of the three sizes.
   - **Mix view:** the mixer keeps its full height and the mastering section scrolls in what is left. On a Chromebook the two no longer fit under the rail. The faders, sends, return and master strip now show at every size, and the lessons' three known Mix failures pass.

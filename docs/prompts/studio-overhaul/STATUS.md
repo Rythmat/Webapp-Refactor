@@ -523,3 +523,47 @@ Each prompt appends an entry: milestone, commits, pushed or not, verification nu
   - **"Removed from session" copy** is now "You left the session … The host removed you …".
   - **Copy invite link** shares `/studio/editor?collab=<code>`; joiners wait for the host as the link already did.
   - Colour sign-offs the plan defers to the Stage B review (presence colours, confetti) are untouched.
+
+## 13 — B2: 2.4 shell frame, 2.5 top bar v2 and focus mode (2026-10-16)
+
+- **Branch:** `aaron`, started at `9e206689` (B1). Clean tree apart from another session's untracked `src/daw/collab/server/.partykit/`, left alone.
+- **Commits:**
+  - `0a75fa31` layout prefs per user: `inspectorOpenByView`, `inspectorWidth`, `dockHeights`, `readoutMode` (registry `pref`, prefsStore); a view switch opens the Inspector as the student keeps it there (ia-flows-21); fingerprint and kitchen sink cover them;
+  - `0c89beb5` the `Resizer` primitive (`src/daw/ui/Resizer.tsx`);
+  - `4b0d7365` the shell (`src/daw/shell/StudioShell.tsx`, `layout/`) and the top bar (`shell/topbar/TopBar.tsx` and parts), the interim tools strip (`shell/canvas/InterimTools.tsx`), lesson copy, harness selectors (shell-19/20/29, ia-flows-24, insight-04, design-system-12);
+  - `a8a93079` focus mode (`ClassroomDashboard`);
+  - `cceb3687` R29 shell scenario, fast-tier unit list, designProbe skips resize edges;
+  - `0f7205dd` two known lesson failures off the list; R25/R26/perf selectors.
+- **Pushed:** yes, to `aaron` (fast-forward), with the bundle tier's inherited failure below.
+- **What changed:**
+  - **Shell.** Grid `top top / main inspector / dock inspector`, 44 px top row, rendered once outside the view switch. The Inspector column (LibraryPanel, UserList, ChatPanel until 2.8) is mounted in every view (one `data-mount-id` across Create → Mix → Score → Lead sheet → Create); the dock region is Create's. The practice screen hides the top bar and the Inspector (`hidden`, still mounted). Sizes are CSS variables on the shell root (`--daw-dock-h`, `--daw-insp-w`, `layout/shellGeometry.ts`): drags write them without a render and commit once on release. Dock: 36% of the body by default (40% for Prism and the piano roll), 120 px to 85%, snaps at 25/40/60/85%, double-click default ⇄ 60%, Enter closes it; Inspector 200–420 px. Width/height springs removed from ChannelStrip, LibraryPanel, UserList, ChatPanel (content fades in, opacity only). `leadsheet-print.css`'s direct-child rule now also shows the child that holds the sheet. DawSkeleton follows the new geometry.
+  - **Inspector default.** Before the student chooses: open in Create from 1440 px, closed below (and in the other views). `useInspectorFollowsPrefs` applies the choice when an open settles and when prefs arrive; a running lesson is left alone. `setLibraryOpen` is now "for the moment" (lessons, Analyze, chord analysis); `toggleLibrary` / `setInspectorOpenFor` are the student's choice.
+  - **Top bar.** Project zone: Back to Studio, Project menu (was FileMenu; Import and Export as labelled groups, not submenus; Delete in red at the bottom), name (140/96 px), the 150 px save chip, Undo/Redo. Transport: Back (previous marker or start), Forward (next marker or end), Stop, Play (36 px white pill), Record (red; red fill and a ping while recording; the readout says Count-in…), readout (bars ⇄ m:ss.t, click to switch), Loop, Click with a count-in caret. Right: Song chip + popover (CircleOfFifths with its mode list, 12 metres + custom, BPM with −/+ and Tap), view tabs (Create · Mix · Score · Lead sheet, Practice first with a session; manual activation), Share pill (start/join; in a session faces, count, status dot, Invite/People/Chat/Leave), typing chip, Inspector toggle (key I), Help menu (Keyboard shortcuts, Lessons), Audio & MIDI settings, avatar menu. `SaveChipAnnouncer` moved into the top bar.
+  - **Fold** (`useToolbarOverflow`, measured per level, cached, re-measured on content change): 1 typing chip icon-only while off, 2 Share icon-only, 3 Help + Settings into '⋯', 4 Song chip short, 5 name 96 px, 6 count-in into '⋯', 7 tighter tabs. Measured: 1440 → level 2, 1366 → 4, 1280 → 7, nothing clipped at any.
+  - **Interim tools** (until 2.7): Snap, chord-ruler labels, zoom −/level/+/fit in the empty 200×62 corner above the track headers, so the lanes lose no height.
+  - **Focus mode.** No ClassroomSidebar, TopRail or MobileChordNotationBar on `/studio/editor`. `useTopRailStats` shared by TopRail and the avatar menu; the TopRail's leading slot (`topRailSlot.ts`, `EditorTopRailSlot`) is deleted. The practice header has the avatar menu.
+  - **Deleted/moved:** TransportBar → TransportControls, FileMenu → ProjectMenu, CollabToolbar → SharePill (git moves, tests ported), ZoomIndicator, the MIDI pill (B1), EditorTopRailSlot.
+  - **Lessons:** step ids and anchors unchanged. Copy: "Click **Mix**", "**Project → Export → Audio…**", slow-bpm says to open the Song chip and targets `['transport-bpm', 'song-chip']` (the tempo once open, the chip until then). The Song popover closes when a lesson step done in it moves on.
+- **Verification:**
+  - `npm run lint` passes.
+  - `npx vitest run`: 15,794 pass; 12 files fail, the same 12 that failed at `99e77232` (B1's list). The "Funk L1" snapshot is not among them. `editorRoute.test.tsx` timed out once while two suites shared the CPU; it passes alone (3/3) and in the final run.
+  - **`studio:check`** (fast, own pages on 5263): round-trips all ok, 0 lost fields, 0 page errors, after fixing R25/R26 selectors (both re-run ok); R28 all 8 flags at both sizes, with the Song and Share popovers on the design floors too; **R29 (new) all 7 flags at 1366×655, 1440×787 and 1280×720**: dock 221/268/244 px, timeline 1,166 px on a Chromebook, Inspector closed/open/closed, one Inspector mount, a resized dock restored after reload, no floors broken in the top bar, 0 top-bar commits in 3 s of playback. Lessons at **all three sizes, both personas**: 221/234 steps, only known failures, 36/36 complete, 12/12 Premium gated; R&B balance-fader (chromebook) and bounce-mixdown (all) pass now and left the known list. **Bundle FAIL, inherited** (identical to B1: store, registry and save status on every page); DawApp 98.9 kB gzip (+4.9 kB), budget 150.
+  - Browser (Chrome at 1366×711 and 1512, plus headless at the three target sizes): Project menu, New, Song popover (key, metre, tempo, lock on close, focus back to the chip), Share, account menu, '⋯', Inspector toggle and per-view memory, a dock drag committed once and restored after reload, Hip Hop slow-bpm and R&B Mix/Export done by hand, practice screen and Take it to the Studio, Lead sheet and Mix views; no console errors but a pre-existing third-party StrictMode warning.
+- **Open issues:**
+  1. **Follow** (centre zone) is not built: it belongs to 2.7's `src/daw/editor/follow`, and a toggle without it would be a dead control.
+  2. **No Alt+1–4 view keys and no F6 region cycling:** the keymap rules reserve Alt+1–8 for the Chromebook shelf and forbid F-key-only bindings. Views stay on the tabs (Tab and Enter); regions keep their aria-labels.
+  3. **Not built from the archived design:** New from template ▸ (templates stay in the Library), the DEV-only Developer group (Analyze and Export analysis stay for everyone, as before), print buttons moved out of Score/Lead sheet, a shared `importMidiToTracks`, the per-project view-state sidecar (1.15's draft meta and the 'view' fields already restore view, zoom, scroll, track and dock tab).
+  4. The Song popover's top overlaps the coach card's header on Hip Hop's tempo step (the instruction stays readable); lesson-overlay docking is 1.2b's.
+  5. Zones are `role="group"`, not `role="toolbar"` (no roving tabindex yet).
+  6. A taller dock shows empty space under content that doesn't stretch (the instrument keyboard); 2.9's dock content.
+  7. Mix's strips row still cuts off sends, returns and the master strip at 1366×655 (known lesson failures, 2.10).
+  8. Chrome here may report the full screen width at first after a window resize; exact-size checks are headless.
+- **Owner sign-offs:**
+  - **Focus mode's avatar menu:** name, Level · XP, streak, Profile, Awards (count), Notifications ("No notifications" while there is no feed), Chord notation (only once it's on in Settings), App settings, Back to Studio. The credits stub is not shown.
+  - **Label changes:** Master → **Mix**, File → **Project**. Dock labels (Controls/FX/Piano Roll) are unchanged until 2.9.
+  - **The Inspector starts closed on a Chromebook** (below 1440 px) and open on a laptop, until the student toggles it; then their choice per view is kept on that device. Lessons are unaffected.
+  - **Key lock unchanged:** opening the Song popover frees the key, closing it locks a chosen key, as the old Key popover did; the chip shows a lock. The design's explicit Lock switch was not added.
+  - **Export items are a labelled group in the Project menu,** not an Export ▸ submenu (one move for lesson clicks and the keyboard).
+  - **Forward** (next marker or end) kept beside Back.
+  - **The Typing chip shows only its icon while off** when the bar is narrower than about 1490 px (fold step 1).
+  - **Collaborator faces in the Share pill use presence colours,** which the plan leaves to the Stage B colour review.

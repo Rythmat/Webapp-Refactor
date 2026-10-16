@@ -1,0 +1,386 @@
+{
+  "id": "latin-guitarist-1-l2-merengue-bachata-take-4",
+  "name": "Latin-Guitarist-1 · L2 · Merengue Chunking",
+  "instrument": "guitar",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "sample:acoustic-guitar",
+  "notes": [
+    {
+      "offset": 58,
+      "tick": 0,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 25
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 48
+    },
+    {
+      "tick": 0,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 56
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 44
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 63
+    },
+    {
+      "tick": 360,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 71
+    },
+    {
+      "tick": 720,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 39
+    },
+    {
+      "tick": 720,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 51
+    },
+    {
+      "tick": 720,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 70
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 23
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 41
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 53
+    },
+    {
+      "tick": 1440,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 42
+    },
+    {
+      "tick": 1440,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 62
+    },
+    {
+      "tick": 1440,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 76
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 42
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 36
+    },
+    {
+      "tick": 1920,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 44
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 34
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 53
+    },
+    {
+      "tick": 2280,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 48
+    },
+    {
+      "tick": 2640,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 37
+    },
+    {
+      "tick": 2640,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 67
+    },
+    {
+      "tick": 2640,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 64
+    },
+    {
+      "tick": 3120,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 35
+    },
+    {
+      "tick": 3120,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 45
+    },
+    {
+      "tick": 3120,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 41
+    },
+    {
+      "tick": 3360,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 39
+    },
+    {
+      "tick": 3360,
+      "duration": 120,
+      "midi": 72,
+      "velocity": 47
+    },
+    {
+      "tick": 3360,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 54
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 52
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 56
+    },
+    {
+      "tick": 3840,
+      "duration": 120,
+      "midi": 75,
+      "velocity": 68
+    },
+    {
+      "tick": 4200,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 53
+    },
+    {
+      "tick": 4200,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 52
+    },
+    {
+      "tick": 4200,
+      "duration": 120,
+      "midi": 75,
+      "velocity": 63
+    },
+    {
+      "tick": 4560,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 55
+    },
+    {
+      "tick": 4560,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 49
+    },
+    {
+      "tick": 4560,
+      "duration": 120,
+      "midi": 75,
+      "velocity": 60
+    },
+    {
+      "tick": 4920,
+      "duration": 120,
+      "midi": 75,
+      "velocity": 59
+    },
+    {
+      "tick": 5040,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 51
+    },
+    {
+      "tick": 5040,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 52
+    },
+    {
+      "tick": 5280,
+      "duration": 120,
+      "midi": 66,
+      "velocity": 57
+    },
+    {
+      "tick": 5280,
+      "duration": 120,
+      "midi": 69,
+      "velocity": 66
+    },
+    {
+      "tick": 5280,
+      "duration": 120,
+      "midi": 75,
+      "velocity": 66
+    },
+    {
+      "tick": 5760,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 27
+    },
+    {
+      "tick": 5760,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 31
+    },
+    {
+      "tick": 5760,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 60
+    },
+    {
+      "tick": 6120,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 41
+    },
+    {
+      "tick": 6120,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 46
+    },
+    {
+      "tick": 6120,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 66
+    },
+    {
+      "tick": 6480,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 50
+    },
+    {
+      "tick": 6480,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 72
+    },
+    {
+      "tick": 6480,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 77
+    },
+    {
+      "tick": 6960,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 41
+    },
+    {
+      "tick": 6960,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 47
+    },
+    {
+      "tick": 6960,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 58
+    },
+    {
+      "tick": 7200,
+      "duration": 120,
+      "midi": 67,
+      "velocity": 45
+    },
+    {
+      "tick": 7200,
+      "duration": 120,
+      "midi": 71,
+      "velocity": 58
+    },
+    {
+      "tick": 7200,
+      "duration": 120,
+      "midi": 76,
+      "velocity": 70
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "chordSymbols": ["Em", "Am", "B7", "Em"]
+}

@@ -1,0 +1,121 @@
+{
+  "id": "latin-bassist-1-l2-merengue-bachata-take-1",
+  "name": "Latin-Bassist-1 Merengue",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "aeolian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 50
+    },
+    {
+      "tick": 480,
+      "duration": 360,
+      "midi": 35,
+      "velocity": 59
+    },
+    {
+      "tick": 960,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 49
+    },
+    {
+      "tick": 1440,
+      "duration": 240,
+      "midi": 35,
+      "velocity": 57
+    },
+    {
+      "tick": 1920,
+      "duration": 240,
+      "midi": 33,
+      "velocity": 26
+    },
+    {
+      "tick": 2400,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 38
+    },
+    {
+      "tick": 2880,
+      "duration": 240,
+      "midi": 33,
+      "velocity": 30
+    },
+    {
+      "tick": 3360,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 54
+    },
+    {
+      "tick": 3840,
+      "duration": 240,
+      "midi": 35,
+      "velocity": 53
+    },
+    {
+      "tick": 4320,
+      "duration": 240,
+      "midi": 42,
+      "velocity": 80
+    },
+    {
+      "tick": 4800,
+      "duration": 240,
+      "midi": 35,
+      "velocity": 54
+    },
+    {
+      "tick": 5160,
+      "duration": 240,
+      "midi": 30,
+      "velocity": 59
+    },
+    {
+      "tick": 5760,
+      "duration": 360,
+      "midi": 28,
+      "velocity": 58
+    },
+    {
+      "tick": 6240,
+      "duration": 240,
+      "midi": 35,
+      "velocity": 63
+    },
+    {
+      "tick": 6720,
+      "duration": 240,
+      "midi": 40,
+      "velocity": 45
+    },
+    {
+      "tick": 7200,
+      "duration": 240,
+      "midi": 35,
+      "velocity": 39
+    }
+  ],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "latin",
+  "chordSymbols": ["Em", "Am", "Em", "B7"]
+}

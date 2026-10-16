@@ -27,7 +27,6 @@ import {
 } from './buildGenrePracticeTrack';
 import { keyboardWindow, scaleTonicIn } from './practiceKeyboard';
 import { practicePrompts } from './practicePrompts';
-import { swapGenrePracticeBacking } from './seedStudioFromGenrePracticeTrack';
 
 // ── The hand-off box ─────────────────────────────────────────────────────────
 
@@ -163,6 +162,13 @@ export async function switchGenrePracticeTrack(
     },
   );
   if (!track) return null;
+  // Loaded here, not at the top: the swap writes the editor's store, and a
+  // static import put the store on every page that can open a lesson (the
+  // 1.12a budget "editor core off other pages"). The toggle only runs in
+  // the open Studio, where the store is loaded already.
+  const { swapGenrePracticeBacking } = await import(
+    './seedStudioFromGenrePracticeTrack'
+  );
   swapGenrePracticeBacking(track);
   const widest = Math.max(
     ...track.scales.map((scale) => scale.intervals[scale.intervals.length - 1]),

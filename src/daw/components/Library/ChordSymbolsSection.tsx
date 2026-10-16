@@ -11,11 +11,10 @@ import {
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useChordNotation } from '@/lib/chordNotation';
 import { MODE_DISPLAY } from './insightConstants';
-import { chordLabelSymbol, keyContext } from './insightNotation';
+import { chordLabelSymbol, keyContext, plural } from './insightNotation';
 
 const MAX_CHIPS = 16;
 const dim = { color: 'var(--color-text-dim)' };
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /** A key as "D Dorian". */
 export function KeyLabel({

@@ -72,3 +72,110 @@ describe('Oracle synth FX slots', () => {
     expect(screen.getAllByRole('combobox')).toHaveLength(1);
   });
 });
+
+// ── The panel lists what the chain plays ───────────────────────────────────
+// Most pack presets switch an effect on with no route (synth-ui-09), so a
+// panel built from routes said "No effects" while drive was audibly on. A
+// slot shows for every effect that is on or routed, in chain order.
+
+function presetWith(enabled: FXRoute['type'][], fxRoutes: FXRoute[]) {
+  const fx = structuredClone(initial.fx);
+  for (const type of enabled) fx[type].enabled = true;
+  useSynthStore.setState({ fx, fxRoutes });
+}
+
+/** The on/off switch at the head of the slot that shows `type`. */
+function slotToggle(type: string): HTMLElement {
+  const menu = screen
+    .getAllByRole('combobox')
+    .find((m) => (m as HTMLSelectElement).value === type);
+  // The menu sits in the Dropdown's wrapper, the switch just before it.
+  const row = menu?.parentElement?.parentElement;
+  if (!row?.firstElementChild) throw new Error(type);
+  return row.firstElementChild as HTMLElement;
+}
+
+describe('Oracle synth FX panel', () => {
+  it('shows effects a preset switched on without a route, in chain order', () => {
+    presetWith(
+      ['drive', 'reverb', 'delay'],
+      [{ id: 'fx-1', type: 'reverb', target: 'master' }],
+    );
+    render(<FXPanel />);
+
+    expect(screen.queryByText(/No effects/)).toBeNull();
+    expect(
+      screen
+        .getAllByRole('combobox')
+        .map((m) => (m as HTMLSelectElement).value),
+    ).toEqual(['drive', 'delay', 'reverb']);
+    expect(screen.getByRole('slider', { name: 'AMOUNT' })).toBeInTheDocument();
+  });
+
+  it('keeps an unrouted effect in the list when it is switched off', () => {
+    presetWith(['drive'], []);
+    render(<FXPanel />);
+
+    fireEvent.click(slotToggle('drive'));
+
+    const { fx, fxRoutes } = useSynthStore.getState();
+    expect(fx.drive.enabled).toBe(false);
+    expect(fxRoutes.map((r) => r.type)).toEqual(['drive']);
+    expect(screen.getAllByRole('combobox')).toHaveLength(1);
+  });
+
+  it('removes an unrouted effect by switching it off', () => {
+    presetWith(['delay'], []);
+    render(<FXPanel />);
+
+    fireEvent.click(screen.getByRole('button', { name: '×' }));
+
+    const { fx, fxRoutes } = useSynthStore.getState();
+    expect(fx.delay.enabled).toBe(false);
+    expect(fxRoutes).toEqual([]);
+    expect(screen.getByText(/No effects/)).toBeInTheDocument();
+  });
+
+  it('swaps an unrouted effect for another through a new route', () => {
+    presetWith(['drive'], [{ id: 'fx-1', type: 'chorus', target: 'master' }]);
+    render(<FXPanel />);
+
+    const driveMenu = screen
+      .getAllByRole('combobox')
+      .find((m) => (m as HTMLSelectElement).value === 'drive')!;
+    fireEvent.change(driveMenu, { target: { value: 'phaser' } });
+
+    const { fx, fxRoutes } = useSynthStore.getState();
+    expect(fx.drive.enabled).toBe(false);
+    expect(fx.phaser.enabled).toBe(true);
+    expect(fxRoutes.map((r) => r.type).sort()).toEqual(['chorus', 'phaser']);
+    expect(new Set(fxRoutes.map((r) => r.id)).size).toBe(2);
+  });
+
+  it('adds an effect that is not already playing', () => {
+    presetWith(['drive', 'chorus'], []);
+    render(<FXPanel />);
+
+    fireEvent.click(screen.getByRole('button', { name: '+ ADD' }));
+
+    const { fx, fxRoutes } = useSynthStore.getState();
+    expect(fxRoutes.map((r) => r.type)).toEqual(['phaser']);
+    expect(fx.phaser.enabled).toBe(true);
+    expect(screen.getAllByRole('combobox')).toHaveLength(3);
+  });
+
+  it('gives a new route an id the patch does not use yet', () => {
+    presetWith(
+      [],
+      [
+        { id: 'fx-1', type: 'drive', target: 'master' },
+        { id: 'fx-2', type: 'chorus', target: 'master' },
+        { id: 'fx-3', type: 'phaser', target: 'master' },
+      ],
+    );
+    useSynthStore.getState().addFXRoute();
+
+    const ids = useSynthStore.getState().fxRoutes.map((r) => r.id);
+    expect(new Set(ids).size).toBe(4);
+  });
+});

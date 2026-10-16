@@ -38,11 +38,6 @@ export function ChordCard({
   const context = keyContext(rootNote, mode);
   // Hybrid: the hybrid number plus the letter name; jazz / Roman: one symbol.
   const labels = chordCardLabels(chord, notation, context);
-  // Lesson links carry the song and chord, so the lesson can say where this
-  // sound lives and offer a way back.
-  const projectName = useStore((s) => s.projectName);
-  const fromSong = (path: string) =>
-    withStudioOrigin(path, { song: projectName, chord: labels.title });
   const formatTarget = (target: string) =>
     formatSecondaryLabel(target, notation, context);
   const secondaryTarget = chord.modalInterchange?.secondaryTarget;
@@ -116,10 +111,63 @@ export function ChordCard({
           </span>
         )}
 
-      {/* Intervals */}
-      {chord.intervals && (
+      <ChordTones intervals={chord.intervals} noteNames={chord.noteNames} />
+
+      {/* Theory description (enriched when UNISON data available) */}
+      <div
+        className="text-[9px] leading-snug"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
+        {getEnrichedDescription(chord, formatTarget)}
+      </div>
+
+      <ChordLessonLinks
+        chord={chord}
+        chordName={labels.title}
+        keyLetter={keyLetter}
+        mode={mode}
+      />
+
+      <ChordAlternatives
+        rootLetter={chord.rootLetter}
+        alternatives={chord.alternatives}
+        sourceMode={chord.sourceMode}
+        chordName={labels.title}
+        rootNote={rootNote}
+        mode={mode}
+        expanded={expanded}
+        onToggleExpand={onToggleExpand}
+      />
+    </div>
+  );
+}
+
+// ── Parts shared with Insight's "Now Playing" ──────────────────────────────
+// A chord gets the same tones, lesson links and alternatives whether it's
+// played or written (insight-21); Now Playing used to draw its own copies,
+// with 8 px icons and links that had no way back to the song.
+
+/** Lesson links carry the song and chord, so the lesson can say where this
+ * sound lives and offer a way back. */
+function useFromSong(chordName: string) {
+  const projectName = useStore((s) => s.projectName);
+  return (path: string) =>
+    withStudioOrigin(path, { song: projectName, chord: chordName });
+}
+
+/** The chord's intervals from its root, then its notes. */
+export function ChordTones({
+  intervals,
+  noteNames,
+}: {
+  intervals: string;
+  noteNames: string[];
+}) {
+  return (
+    <>
+      {intervals && (
         <div className="flex gap-1 flex-wrap">
-          {chord.intervals.split(' ').map((interval, i) => (
+          {intervals.split(' ').map((interval, i) => (
             <span
               key={i}
               className="text-[9px] px-1 py-0.5 rounded"
@@ -136,22 +184,50 @@ export function ChordCard({
           ))}
         </div>
       )}
-
-      {/* Note names */}
       <div className="text-[9px]" style={{ color: 'var(--color-text-dim)' }}>
-        Notes: {chord.noteNames.join(' \u2013 ')}
+        Notes: {noteNames.join(' \u2013 ')}
       </div>
+    </>
+  );
+}
 
-      {/* Theory description (enriched when UNISON data available) */}
-      <div
-        className="text-[9px] leading-snug"
-        style={{ color: 'var(--color-text-dim)' }}
-      >
-        {getEnrichedDescription(chord, formatTarget)}
-      </div>
+/** Where a chord sits in the key, as its lesson links need it. */
+export interface ChordLessonFacts {
+  rootLetter: string;
+  chordRootMode: string;
+  sessionMode: string | null;
+  parentKeyLetter: string | null;
+  parentMode: string | null;
+  isSessionParent: boolean;
+}
 
-      {/* Lesson links: the chord's own sound first, as the one clear next
-          step, then the song's key and the parent scale as plain labels. */}
+/** The chord's own sound first, as the one clear next step, then the song's
+ * key and the parent scale as plain labels. */
+export function ChordLessonLinks({
+  chord,
+  chordName,
+  keyLetter,
+  mode,
+}: {
+  chord: ChordLessonFacts;
+  /** The chord as the card titles it, for the lesson's way back. */
+  chordName: string;
+  keyLetter: string | null;
+  mode?: string;
+}) {
+  const fromSong = useFromSong(chordName);
+  const showKey =
+    chord.sessionMode &&
+    keyLetter &&
+    !(
+      chord.sessionMode === chord.chordRootMode &&
+      chord.rootLetter === keyLetter
+    );
+  const showParent =
+    !chord.isSessionParent && chord.parentKeyLetter && chord.parentMode;
+
+  return (
+    <>
       <LessonLink
         primary
         to={fromSong(
@@ -162,137 +238,145 @@ export function ChordCard({
         )}
         scale={`${chord.rootLetter} ${MODE_DISPLAY[chord.chordRootMode] ?? chord.chordRootMode}`}
       />
-      {((chord.sessionMode &&
-        keyLetter &&
-        !(
-          chord.sessionMode === chord.chordRootMode &&
-          chord.rootLetter === keyLetter
-        )) ||
-        (!chord.isSessionParent &&
-          chord.parentKeyLetter &&
-          chord.parentMode)) && (
+      {(showKey || showParent) && (
         <div className="flex flex-wrap items-center gap-1">
-          {chord.sessionMode &&
-            keyLetter &&
-            !(
-              chord.sessionMode === chord.chordRootMode &&
-              chord.rootLetter === keyLetter
-            ) && (
-              <LessonLink
-                to={fromSong(
-                  LearnRoutes.lesson({
-                    mode: MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode,
-                    key: keyLabelToUrlParam(keyLetter),
-                  }),
-                )}
-                // Only the song's key when it really is the detected key; the
-                // card's session mode is read from the chord's own family.
-                label={
-                  mode &&
-                  (MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode) ===
-                    (MODE_TO_SLUG[mode] ?? mode)
-                    ? 'Song’s key'
-                    : 'Also'
-                }
-                scale={`${keyLetter} ${MODE_DISPLAY[chord.sessionMode] ?? chord.sessionMode}`}
-              />
-            )}
-          {!chord.isSessionParent &&
-            chord.parentKeyLetter &&
-            chord.parentMode && (
-              <LessonLink
-                to={fromSong(
-                  LearnRoutes.lesson({
-                    mode: MODE_TO_SLUG[chord.parentMode] ?? chord.parentMode,
-                    key: keyLabelToUrlParam(chord.parentKeyLetter),
-                  }),
-                )}
-                label="Parent scale"
-                scale={`${chord.parentKeyLetter} ${MODE_DISPLAY[chord.parentMode] ?? chord.parentMode}`}
-              />
-            )}
-        </div>
-      )}
-
-      {/* Alternative interpretations */}
-      {chord.alternatives.length > 0 && (
-        <div className="flex flex-col gap-0.5 mt-0.5">
-          <button
-            type="button"
-            onClick={onToggleExpand}
-            className="flex items-center gap-1 text-[9px] font-medium"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-            }}
-          >
-            <ChevronDown
-              size={10}
-              strokeWidth={2}
-              style={{
-                transition: 'transform 150ms',
-                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-              }}
+          {showKey && chord.sessionMode && keyLetter && (
+            <LessonLink
+              to={fromSong(
+                LearnRoutes.lesson({
+                  mode: MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode,
+                  key: keyLabelToUrlParam(keyLetter),
+                }),
+              )}
+              // Only the song's key when it really is the detected key; the
+              // card's session mode is read from the chord's own family.
+              label={
+                mode &&
+                (MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode) ===
+                  (MODE_TO_SLUG[mode] ?? mode)
+                  ? 'Song’s key'
+                  : 'Also'
+              }
+              scale={`${keyLetter} ${MODE_DISPLAY[chord.sessionMode] ?? chord.sessionMode}`}
             />
-            Also found in {chord.alternatives.length} scale
-            {chord.alternatives.length > 1 ? 's' : ''}
-          </button>
-          {expanded &&
-            chord.alternatives.map((alt, i) => {
-              const isDetectedSource =
-                chord.sourceMode && alt.chordRootMode === chord.sourceMode;
-              return (
-                <div
-                  key={i}
-                  className="flex items-center gap-1.5 pl-3 text-[9px] leading-snug"
-                  style={{
-                    color: 'var(--color-text-dim)',
-                    opacity: isDetectedSource ? 1 : 0.7,
-                  }}
-                >
-                  <span>
-                    {chord.rootLetter}{' '}
-                    {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
-                    {' \u00B7 '}
-                    {displayAccidentals(
-                      noteNameInKey(
-                        (rootNote! - alt.parentOffset + 12) % 12,
-                        rootNote!,
-                        mode,
-                      ),
-                    )}{' '}
-                    {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ?? alt.family}
-                    {isDetectedSource && (
-                      <span
-                        className="ml-1 text-[8px] font-medium"
-                        style={{ color: 'var(--color-accent)' }}
-                      >
-                        detected
-                      </span>
-                    )}
-                  </span>
-                  <Link
-                    to={fromSong(
-                      LearnRoutes.lesson({
-                        mode:
-                          MODE_TO_SLUG[alt.chordRootMode] ?? alt.chordRootMode,
-                        key: keyLabelToUrlParam(chord.rootLetter),
-                      }),
-                    )}
-                    title={`Learn ${chord.rootLetter} ${MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}`}
-                    className="flex shrink-0 items-center gap-1 rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)] transition-colors hover:bg-[rgba(126,207,207,0.15)]"
-                  >
-                    <BookOpen size={10} strokeWidth={2} />
-                    Learn
-                  </Link>
-                </div>
-              );
-            })}
+          )}
+          {showParent && chord.parentKeyLetter && chord.parentMode && (
+            <LessonLink
+              to={fromSong(
+                LearnRoutes.lesson({
+                  mode: MODE_TO_SLUG[chord.parentMode] ?? chord.parentMode,
+                  key: keyLabelToUrlParam(chord.parentKeyLetter),
+                }),
+              )}
+              label="Parent scale"
+              scale={`${chord.parentKeyLetter} ${MODE_DISPLAY[chord.parentMode] ?? chord.parentMode}`}
+            />
+          )}
         </div>
       )}
+    </>
+  );
+}
+
+/** "Also found in N scales": the other scales the chord belongs to. */
+export function ChordAlternatives({
+  rootLetter,
+  alternatives,
+  sourceMode,
+  chordName,
+  rootNote,
+  mode,
+  expanded,
+  onToggleExpand,
+}: {
+  rootLetter: string;
+  alternatives: ChordInsight['alternatives'];
+  /** The scale an analysis found the chord borrowed from, marked "detected". */
+  sourceMode?: string;
+  chordName: string;
+  rootNote: number | null;
+  mode?: string;
+  expanded: boolean;
+  onToggleExpand: () => void;
+}) {
+  const fromSong = useFromSong(chordName);
+  if (alternatives.length === 0 || rootNote === null) return null;
+  return (
+    <div className="flex flex-col gap-0.5 mt-0.5">
+      <button
+        type="button"
+        onClick={onToggleExpand}
+        aria-expanded={expanded}
+        className="flex items-center gap-1 text-[9px] font-medium"
+        style={{
+          color: 'var(--color-text-dim)',
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+        }}
+      >
+        <ChevronDown
+          size={10}
+          strokeWidth={2}
+          style={{
+            transition: 'transform 150ms',
+            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+          }}
+        />
+        Also found in {alternatives.length} scale
+        {alternatives.length > 1 ? 's' : ''}
+      </button>
+      {expanded &&
+        alternatives.map((alt, i) => {
+          const isDetectedSource =
+            sourceMode && alt.chordRootMode === sourceMode;
+          return (
+            <div
+              key={i}
+              className="flex items-center gap-1.5 pl-3 text-[9px] leading-snug"
+              style={{
+                color: 'var(--color-text-dim)',
+                opacity: isDetectedSource ? 1 : 0.7,
+              }}
+            >
+              <span>
+                {rootLetter}{' '}
+                {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
+                {' \u00B7 '}
+                {displayAccidentals(
+                  noteNameInKey(
+                    (rootNote - alt.parentOffset + 12) % 12,
+                    rootNote,
+                    mode,
+                  ),
+                )}{' '}
+                {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ?? alt.family}
+                {isDetectedSource && (
+                  <span
+                    className="ml-1 text-[8px] font-medium"
+                    style={{ color: 'var(--color-accent)' }}
+                  >
+                    detected
+                  </span>
+                )}
+              </span>
+              <Link
+                to={fromSong(
+                  LearnRoutes.lesson({
+                    mode: MODE_TO_SLUG[alt.chordRootMode] ?? alt.chordRootMode,
+                    key: keyLabelToUrlParam(rootLetter),
+                  }),
+                )}
+                title={`Learn ${rootLetter} ${MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}`}
+                className="flex shrink-0 items-center gap-1 rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)] transition-colors hover:bg-[rgba(126,207,207,0.15)]"
+              >
+                <BookOpen size={10} strokeWidth={2} />
+                Learn
+              </Link>
+            </div>
+          );
+        })}
     </div>
   );
 }

@@ -1,13 +1,15 @@
 import React, { useCallback, useMemo } from 'react';
 import { useSynthStore } from '../../store';
-import type { FXType } from '../../audio/types';
+import type { FXRoute, FXType } from '../../audio/types';
 import { FXSlot } from './FXSlot';
+import { derivedSlotType, projectFxSlots } from './fxSlots';
 import styles from './FXPanel.module.css';
 
 export const FXPanel: React.FC = React.memo(() => {
   const fx = useSynthStore((s) => s.fx);
   const fxRoutes = useSynthStore((s) => s.fxRoutes);
   const addFXRoute = useSynthStore((s) => s.addFXRoute);
+  const ensureFXRoute = useSynthStore((s) => s.ensureFXRoute);
   const removeFXRoute = useSynthStore((s) => s.removeFXRoute);
   const updateFXRoute = useSynthStore((s) => s.updateFXRoute);
 
@@ -18,13 +20,36 @@ export const FXPanel: React.FC = React.memo(() => {
   const setReverbParam = useSynthStore((s) => s.setReverbParam);
   const setCompressorParam = useSynthStore((s) => s.setCompressorParam);
 
+  // One slot per effect the chain runs or the patch routes (fxSlots.ts).
+  const slots = useMemo(() => projectFxSlots(fx, fxRoutes), [fx, fxRoutes]);
   const usedTypes = useMemo(
-    () => new Set(fxRoutes.map((r) => r.type)),
-    [fxRoutes],
+    () => new Set(slots.map((slot) => slot.route.type)),
+    [slots],
+  );
+
+  // A derived slot's edits go to a real route, made on first use.
+  const routeIdFor = useCallback(
+    (id: string) => {
+      const type = derivedSlotType(id);
+      return type ? ensureFXRoute(type) : id;
+    },
+    [ensureFXRoute],
+  );
+  const handleUpdate = useCallback(
+    (id: string, updates: Partial<FXRoute>) =>
+      updateFXRoute(routeIdFor(id), updates),
+    [routeIdFor, updateFXRoute],
+  );
+  const handleRemove = useCallback(
+    (id: string) => removeFXRoute(routeIdFor(id)),
+    [routeIdFor, removeFXRoute],
   );
 
   const handleParamChange = useCallback(
     (type: FXType, key: string, value: number | boolean) => {
+      // Switching off an effect that has no route keeps its slot: the route
+      // is made first, so the slot stays as an "off" effect.
+      if (key === 'enabled') ensureFXRoute(type);
       switch (type) {
         case 'drive':
           setDriveParam(key as keyof typeof fx.drive, value as never);
@@ -47,6 +72,7 @@ export const FXPanel: React.FC = React.memo(() => {
       }
     },
     [
+      ensureFXRoute,
       setDriveParam,
       setChorusParam,
       setPhaserParam,
@@ -60,7 +86,7 @@ export const FXPanel: React.FC = React.memo(() => {
     <div className={styles.panel}>
       <div className={styles.header}>
         <span className={styles.title}>FX</span>
-        {fxRoutes.length < 6 && (
+        {slots.length < 6 && (
           <button className={styles.addBtn} onClick={addFXRoute}>
             + ADD
           </button>
@@ -68,19 +94,19 @@ export const FXPanel: React.FC = React.memo(() => {
       </div>
 
       <div className={styles.routes}>
-        {fxRoutes.length === 0 && (
+        {slots.length === 0 && (
           <div className={styles.empty}>
             No effects. Click + ADD to create one.
           </div>
         )}
-        {fxRoutes.map((route) => (
+        {slots.map(({ route }) => (
           <FXSlot
-            key={route.id}
+            key={route.type}
             route={route}
             fx={fx}
             usedTypes={usedTypes}
-            onUpdate={updateFXRoute}
-            onRemove={removeFXRoute}
+            onUpdate={handleUpdate}
+            onRemove={handleRemove}
             onParamChange={handleParamChange}
           />
         ))}

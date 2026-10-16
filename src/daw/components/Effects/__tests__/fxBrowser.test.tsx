@@ -85,6 +85,32 @@ describe('FxBrowser', () => {
     expect(onAddEffect).not.toHaveBeenCalled();
   });
 
+  it('shows the controls of an effect already in the chain', () => {
+    // Even at the cap: the row is the way to an effect, not only to adding.
+    const full: EffectSlotType[] = [
+      'eq',
+      'compressor',
+      'reverb',
+      'delay',
+      'saturator',
+    ];
+    const onAddEffect = vi.fn();
+    const onSelectEffect = vi.fn();
+    render(
+      <FxBrowser
+        trackId="keys"
+        activeEffects={full}
+        onAddEffect={onAddEffect}
+        onSelectEffect={onSelectEffect}
+        hideMidi
+      />,
+    );
+
+    fireEvent.click(row('reverb'));
+    expect(onSelectEffect).toHaveBeenCalledWith('reverb');
+    expect(onAddEffect).not.toHaveBeenCalled();
+  });
+
   it('keeps every lesson anchor on its row', () => {
     renderBrowser([]);
     for (const type of [

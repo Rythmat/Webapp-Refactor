@@ -1,33 +1,25 @@
 /* eslint-disable tailwindcss/classnames-order */
 /* eslint-disable tailwindcss/enforces-shorthand */
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { BookOpen, ChevronDown, Lightbulb } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '@/daw/store';
-import {
-  NOTES,
-  noteNameInKey,
-  KEY_COLORS,
-  ionianToModeLabel,
-} from '@prism/engine';
-import { LearnRoutes } from '@/constants/routes';
-import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
+import { NOTES, KEY_COLORS, ionianToModeLabel } from '@prism/engine';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useChordNotation } from '@/lib/chordNotation';
 import { keyContext, liveChordLabels } from './insightNotation';
-import {
-  FAMILY_MODES,
-  MODE_DISPLAY,
-  MODE_TO_SLUG,
-  ROOT_TO_KEY_INDEX,
-} from './insightConstants';
+import { ROOT_TO_KEY_INDEX } from './insightConstants';
 import {
   buildChordInsights,
   buildLiveChord,
   unisonChordLookup,
 } from './buildChordInsights';
-import { ChordCard } from './ChordCard';
+import {
+  ChordAlternatives,
+  ChordCard,
+  ChordLessonLinks,
+  ChordTones,
+} from './ChordCard';
 import { KeySection } from './KeySection';
 import { ChordSymbolsSection } from './ChordSymbolsSection';
 import { SelectionAnalysis } from './SelectionAnalysis';
@@ -170,200 +162,27 @@ export function InsightContent() {
                 </span>
               )}
             </div>
-            {liveChord.intervals && (
-              <div className="flex gap-1 flex-wrap">
-                {liveChord.intervals.split(' ').map((interval, i) => (
-                  <span
-                    key={i}
-                    className="text-[9px] tabular-nums px-1 py-0.5 rounded"
-                    style={{
-                      backgroundColor: 'var(--color-surface-2)',
-                      color:
-                        interval === 'R'
-                          ? 'var(--color-accent)'
-                          : 'var(--color-text-dim)',
-                    }}
-                  >
-                    {interval}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div
-              className="text-[9px]"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
-              Notes: {liveChord.noteNames.join(' \u2013 ')}
-            </div>
+            <ChordTones
+              intervals={liveChord.intervals}
+              noteNames={liveChord.noteNames}
+            />
             {liveChord.chordRootMode && (
-              <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                <Link
-                  to={LearnRoutes.lesson({
-                    mode:
-                      MODE_TO_SLUG[liveChord.chordRootMode] ??
-                      liveChord.chordRootMode,
-                    key: keyLabelToUrlParam(liveChord.rootLetter),
-                  })}
-                  className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-                  style={{
-                    backgroundColor: 'var(--color-surface-3)',
-                    color: 'var(--color-accent)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      'rgba(126,207,207,0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      'var(--color-surface-3)';
-                  }}
-                >
-                  <BookOpen size={8} strokeWidth={2} />
-                  {liveChord.rootLetter}{' '}
-                  {MODE_DISPLAY[liveChord.chordRootMode] ??
-                    liveChord.chordRootMode}
-                </Link>
-                {liveChord.sessionMode &&
-                  keyLetter &&
-                  !(
-                    liveChord.sessionMode === liveChord.chordRootMode &&
-                    liveChord.rootLetter === keyLetter
-                  ) && (
-                    <Link
-                      to={LearnRoutes.lesson({
-                        mode:
-                          MODE_TO_SLUG[liveChord.sessionMode] ??
-                          liveChord.sessionMode,
-                        key: keyLabelToUrlParam(keyLetter),
-                      })}
-                      className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-                      style={{
-                        backgroundColor: 'var(--color-surface-3)',
-                        color: 'var(--color-accent)',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          'rgba(126,207,207,0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          'var(--color-surface-3)';
-                      }}
-                    >
-                      <BookOpen size={8} strokeWidth={2} />
-                      {keyLetter}{' '}
-                      {MODE_DISPLAY[liveChord.sessionMode] ??
-                        liveChord.sessionMode}
-                    </Link>
-                  )}
-                {!liveChord.isSessionParent &&
-                  liveChord.parentKeyLetter &&
-                  liveChord.parentMode && (
-                    <Link
-                      to={LearnRoutes.lesson({
-                        mode:
-                          MODE_TO_SLUG[liveChord.parentMode] ??
-                          liveChord.parentMode,
-                        key: keyLabelToUrlParam(liveChord.parentKeyLetter),
-                      })}
-                      className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-                      style={{
-                        backgroundColor: 'var(--color-surface-3)',
-                        color: 'var(--color-accent)',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          'rgba(126,207,207,0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          'var(--color-surface-3)';
-                      }}
-                    >
-                      <BookOpen size={8} strokeWidth={2} />
-                      Parent: {liveChord.parentKeyLetter}{' '}
-                      {MODE_DISPLAY[liveChord.parentMode] ??
-                        liveChord.parentMode}
-                    </Link>
-                  )}
-              </div>
+              <ChordLessonLinks
+                chord={{ ...liveChord, chordRootMode: liveChord.chordRootMode }}
+                chordName={liveLabels?.title ?? liveChord.chordLabel}
+                keyLetter={keyLetter}
+                mode={mode}
+              />
             )}
-            {liveChord.alternatives.length > 0 && (
-              <div className="flex flex-col gap-0.5 mt-0.5">
-                <button
-                  type="button"
-                  onClick={() => setShowLiveAlts((v) => !v)}
-                  className="flex items-center gap-1 text-[9px] font-medium"
-                  style={{
-                    color: 'var(--color-text-dim)',
-                    background: 'none',
-                    border: 'none',
-                    padding: 0,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <ChevronDown
-                    size={10}
-                    strokeWidth={2}
-                    style={{
-                      transition: 'transform 150ms',
-                      transform: showLiveAlts
-                        ? 'rotate(180deg)'
-                        : 'rotate(0deg)',
-                    }}
-                  />
-                  Also found in {liveChord.alternatives.length} scale
-                  {liveChord.alternatives.length > 1 ? 's' : ''}
-                </button>
-                {showLiveAlts &&
-                  liveChord.alternatives.map((alt, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-1.5 pl-3 text-[9px] leading-snug"
-                      style={{ color: 'var(--color-text-dim)', opacity: 0.7 }}
-                    >
-                      <span>
-                        {liveChord.rootLetter}{' '}
-                        {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
-                        {' \u00B7 '}
-                        {displayAccidentals(
-                          noteNameInKey(
-                            (rootNote! - alt.parentOffset + 12) % 12,
-                            rootNote!,
-                            mode,
-                          ),
-                        )}{' '}
-                        {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ??
-                          alt.family}
-                      </span>
-                      <Link
-                        to={LearnRoutes.lesson({
-                          mode:
-                            MODE_TO_SLUG[alt.chordRootMode] ??
-                            alt.chordRootMode,
-                          key: keyLabelToUrlParam(liveChord.rootLetter),
-                        })}
-                        className="flex items-center gap-0.5 px-1 py-0.5 rounded text-[8px] font-medium transition-colors shrink-0"
-                        style={{
-                          backgroundColor: 'var(--color-surface-2)',
-                          color: 'var(--color-accent)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor =
-                            'rgba(126,207,207,0.15)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor =
-                            'var(--color-surface-2)';
-                        }}
-                      >
-                        <BookOpen size={8} strokeWidth={2} />
-                        Learn
-                      </Link>
-                    </div>
-                  ))}
-              </div>
-            )}
+            <ChordAlternatives
+              rootLetter={liveChord.rootLetter}
+              alternatives={liveChord.alternatives}
+              chordName={liveLabels?.title ?? liveChord.chordLabel}
+              rootNote={rootNote}
+              mode={mode}
+              expanded={showLiveAlts}
+              onToggleExpand={() => setShowLiveAlts((v) => !v)}
+            />
           </>
         ) : (
           <div className="flex flex-1 items-center justify-center">

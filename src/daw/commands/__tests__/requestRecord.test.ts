@@ -152,8 +152,6 @@ describe('requestRecord', () => {
     expect(record).not.toHaveBeenCalled();
     expect(init).not.toHaveBeenCalled();
 
-    // ConfirmModal reports the close first, then the confirm.
-    dismissRecordRequest();
     confirmRecordRequest(request);
 
     expect(init).toHaveBeenCalledTimes(1);

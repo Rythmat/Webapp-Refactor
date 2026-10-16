@@ -483,3 +483,43 @@ Each prompt appends an entry: milestone, commits, pushed or not, verification nu
   - **This prompt changed another session's file** (`features/practiceTracks/genre/openGenrePracticeTrack.ts`) to put the bundle budget back. The behaviour is the same: the switch already awaited before the swap.
   - **The ledger lives beside the plan copy,** not in `docs/studio-audit-2026-10/`, until PR #188 merges.
   - **Stage A exit:** accept the three unmet criteria as owned by Stage C, the Globe session and the manual walk-through, and go on to Stage B (prompt 12). Gating the Globe warm-up off the editor route would close the idle-rAF criterion.
+
+## 12 — B1: 2.1 tokens and guardrails, 2.3 overlays and settings (2026-10-15)
+
+- **Branch:** `aaron`, started at `99e77232` (the owner's merge of `main`, not yet pushed then; it goes up with this push). Clean tree apart from another session's untracked `src/daw/collab/server/.partykit/`, left alone. `npm install` was run to install `partyserver` from that merge; the lockfile churn it made (`libc` fields) was reverted.
+- **Commits:**
+  - `9b11a9b8` one palette on `:root`: `src/daw/ui/daw-tokens.css` generated from `tokens.ts` (`npm run studio:tokens`, staleness test) and loaded by `src/main.tsx`; 1,293 `var(--color-*)` uses moved to `--daw-*`; `useTheme`, `THEMES`, `useDawBodyTokens`, `body.daw-active` and the FileMenu/PopOutOverlay/ExportAudio copies deleted; floating panels on the opaque popover surface; glass removed; teal retired; canvases on `getDawPalette()` (design-system-01/02/05, shell-11/23/36, ia-flows-13, collab-10, practice-tutorial-19/24, bundle-load-19, shell-31);
+  - `d46e6c26` the legacy design ratchet (`designGuard.test.ts` + budgets) (design-system-17);
+  - `f2e3559f` the editor's own questions: DialogHost mounted, Save As / Delete / section label / marker rename, ConfirmModal deleted (design-system-14, shell-22, ia-flows-33);
+  - `7ecbd973` every dialog on DawDialog (design-system-13, collab-10/25, shell-23);
+  - `dc6f3189` Audio & MIDI settings and the MIDI status (shell-21, engine-hooks-27);
+  - `63d64afd` the global autofill animation rule scoped to form fields (menus closed with Escape stayed on screen);
+  - `77851bc8` R28 overlays scenario, `designProbe.mjs`, budgets lowered, fast-tier unit list.
+- **Pushed:** yes, to `aaron` (fast-forward), with the bundle tier's inherited failure below.
+- **What changed:**
+  - **Tokens.** The generated sheet is named `daw-tokens.css`, not `tokens.css`: beside `tokens.ts`, the extensionless `./src/daw/ui/tokens` import in `tailwind.config.ts` resolved to the CSS file under vitest's loader. Legacy `surface-2` maps to the translucent white/4 token, so the 26 floating panels that used it as their own fill take `popover`. `--daw-line-rgb` (`lineRgb`) added for canvas grid lines. Dim text is #8e8ea3; ruler text white/70 (was white/25).
+  - **Teal.** Transport and collab toggles show white/10 when on; pill buttons are white with dark text; switches are a white track with a dark knob; the Vocal and Guitar input meters are meter green; synth, Practice and FX accents read `COLOR.accent.value` (near-white); teal tints became white tints. Track, key and amp-gem colours are untouched (meaning).
+  - **Ratchet.** `src/daw` outside `ui/` and `shell/` keeps per-file counts (now 699 hex, 286 rgb, 316 text under 11 px, 71 literal z-index, 28 `whileTap`) that can only go down; stale budgets fail; `DESIGN_BUDGETS=lower` rewrites. Teal, `--color-*`, glass and `daw-active` are banned in all of `src/daw`, and so are native dialogs. Rendered side: `designProbe.mjs` checks the 12 px floor (11 px capitals) and 24×24 targets inside `[data-ds="v2"]`, skipping `[data-ds="legacy"]`. DawDialog and ConfirmDialog panels carry `data-ds="v2"`.
+  - **Dialogs.** DialogHost shows a request a tick after it is asked (same tick as a closing Radix menu left `pointer-events: none` on `<body>`); `menuOpener` is shared with the Projects host. DawDialog gained `data`, `contentRef` and `closable`. Moved: Export Audio (Segmented, white-pill Export, anchors kept), chord analysis, Prism suggestions (keymap bound to the panel), Add Track, Premium lesson notice, both set-list dialogs, Invite (+ Copy invite link to `?collab=`), Removed from session, the leave prompt (not closable once the host left), the recording confirms, Pitch Correction's expanded frame (its body `data-ds="legacy"`). The Grooves BPM question stays in its panel (see sign-offs).
+  - **Settings.** Lists devices without asking; picking an input is what asks; Selects throughout; Input/Output Config views removed; MIDI chip in the dialog, top-bar indicator removed; `MidiStatus` is `idle | ready | no-device | unsupported | denied`.
+  - **Projects dialog.** Already on the 2.2 primitives from 1.4; R28 found nothing to restyle. Its sections take another group (room for 4.2's Assignments).
+- **Verification:**
+  - `npm run lint` passes.
+  - `npx vitest run`: 15,753 pass; 12 files fail, all failing at `99e77232` before this milestone (song-data suites, `lineage.calibration`, `landing/music.test.ts`, harmony corpus/crosscheck, apiContract, repoContent, `songEventLinks`); EraRail passed this time (date-sensitive). The "Funk L1" snapshot is not among them.
+  - **`studio:check`** (fast, own server on 5263): unit pass (166 files); round-trips pass, 0 lost fields, 0 page errors, R28 all 8 flags at both viewports; lessons pass after the Grooves fix: 69/78 steps, 9 known failures, 12/12 complete, 4/4 Premium gated for free; **bundle FAIL, inherited**: "editor core off other pages: every page: `src/daw/store/index.ts`, `fields.ts`, `saveStatusStore.ts`" fails identically on a `git archive` of `99e77232`. DawApp 94.0 kB gzip (94.8 before), initial JS +0.4 kB.
+  - Browser (1366×655): Settings, Export, File menu screenshots checked; Settings opens with no `getUserMedia` call.
+- **Open issues:**
+  1. **Bundle leak from the `main` merge** (Peter's bands / genre practice tracks): e.g. `features/practiceTracks/genre/buildGenrePracticeTrack.ts` takes a value import from `@/daw/store/prismSlice`, and the curriculum reaches the band player's `@/daw/instruments`. Not traced to the line; not this milestone's code.
+  2. **PianoRollModal and PopOutOverlay** stay as they are (opaque; the piano roll is a Radix dialog) until 2.9 deletes both.
+  3. **Legacy popovers** (Key, Time Signature, collab, track colour) are opaque and teal-free but ignore Escape (the collab one); they move to the Popover primitive with the top bar (2.5) and track list (2.6).
+  4. **Projects dialog extras** from the archived 2.3 design (All/Cloud/Device filter, Rename, Duplicate) were not built; the prompt asked for a restyle only.
+  5. `NewTrackModal` has no callers (2.6's AddTrackSheet reuses its descriptions); restyled anyway.
+  6. Export's focus can start on Cancel rather than the first Segmented option (Radix radio roving tabindex).
+- **Owner sign-offs:**
+  - **The look change (plan risk):** accent → white everywhere, dim text #8e8ea3, ruler labels brighter, no glass. Toggles on are white/10; previously teal text.
+  - **The Grooves "Change Project BPM?" question stays inside its panel**, not a modal: the coach card sits above modals (z 80 vs 50) and covered a centred dialog's Add Anyway in the Hip Hop lesson.
+  - **`src/index.css` (app-wide) changed:** the `onAutoFillCancel` animation hook applies to form fields only. Nothing listens for it; it was keeping Radix menus on screen after Escape across the app.
+  - **The top bar loses its MIDI indicator**; MIDI status lives in Settings.
+  - **"Removed from session" copy** is now "You left the session … The host removed you …".
+  - **Copy invite link** shares `/studio/editor?collab=<code>`; joiners wait for the host as the link already did.
+  - Colour sign-offs the plan defers to the Stage B review (presence colours, confetti) are untouched.

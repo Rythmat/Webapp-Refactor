@@ -21,8 +21,8 @@ export function ChordSequenceDisplay() {
       <div
         className="flex h-10 items-center justify-center rounded text-xs italic"
         style={{
-          backgroundColor: 'var(--color-surface-2)',
-          color: 'var(--color-text-dim)',
+          backgroundColor: 'var(--daw-surface-2)',
+          color: 'var(--daw-text-3)',
         }}
       >
         No chords yet

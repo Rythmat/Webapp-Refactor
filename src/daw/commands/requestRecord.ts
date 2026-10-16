@@ -75,8 +75,8 @@ export function requestRecord(beforeStart?: () => void): 'started' | 'asked' {
 
 /**
  * RecordGuard's Continue: the take it asked about starts. The guard passes
- * the request it showed, because ConfirmModal reports the close, which drops
- * the request here, before the confirm.
+ * the request it showed; this clears it (the dialog's close drops nothing
+ * more), and asks again for a track armed since.
  */
 export function confirmRecordRequest(request: RecordRequest): void {
   setPending(null);

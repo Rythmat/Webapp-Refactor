@@ -91,8 +91,8 @@ function over(top: string, under: string): string {
   return `rgb(${mix(r, R)}, ${mix(g, G)}, ${mix(b, B)})`;
 }
 
-/** The DAW's --color-surface-2 (src/daw/daw.css): the Timeline menu's fill. */
-const MENU = '#1e1e1e';
+/** The Timeline menu's fill: the popover surface (plan 2.1). */
+const MENU = COLOR.popover.value;
 
 /** Every surface the badge sits on today, at rest and hovered. */
 const HOSTS: Record<string, string> = {

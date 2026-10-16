@@ -58,6 +58,37 @@ export async function getAudioInputs(): Promise<AudioInputDevice[]> {
 }
 
 /**
+ * Whether the page may use the microphone already, so device labels are
+ * visible. Null when the browser won't say.
+ */
+export async function hasMicrophonePermission(): Promise<boolean | null> {
+  try {
+    const status = await navigator.permissions.query({
+      name: 'microphone' as PermissionName,
+    });
+    return status.state === 'granted';
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The audio inputs the browser lists, without asking for the microphone.
+ * Until the page may use it, browsers hide the labels (and Chrome lists a
+ * single unnamed default input), so `label` is '' then.
+ */
+export async function listAudioInputs(): Promise<AudioInputDevice[]> {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices
+      .filter((d) => d.kind === 'audioinput')
+      .map((d) => ({ id: d.deviceId, label: d.label, groupId: d.groupId }));
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Get a live MediaStream from a specific audio input device.
  * The caller is responsible for stopping the stream when done.
  *

@@ -45,8 +45,8 @@ export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
     <div
       className="flex items-center gap-3 rounded-lg px-3 py-2"
       style={{
-        backgroundColor: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
+        backgroundColor: 'var(--daw-surface-1)',
+        border: '1px solid var(--daw-hairline)',
       }}
     >
       {/* Note name display */}
@@ -54,7 +54,7 @@ export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
         <div
           className="text-lg font-bold leading-tight"
           style={{
-            color: hasSignal ? 'var(--color-accent)' : 'var(--color-text-dim)',
+            color: hasSignal ? 'var(--daw-accent)' : 'var(--daw-text-3)',
             fontVariantNumeric: 'tabular-nums',
           }}
         >
@@ -63,7 +63,7 @@ export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
         <div
           className="text-[9px] leading-tight"
           style={{
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
             fontVariantNumeric: 'tabular-nums',
           }}
         >
@@ -150,7 +150,7 @@ export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
               cx={100 + Math.max(-90, Math.min(90, centsOff * 0.9))}
               cy={14}
               r={5}
-              fill="var(--color-accent)"
+              fill="var(--daw-accent)"
               opacity={0.9}
             />
           )}
@@ -167,7 +167,7 @@ export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
               : Math.abs(centsOff) < 20
                 ? '#f59e0b'
                 : '#ef4444'
-            : 'var(--color-text-dim)',
+            : 'var(--daw-text-3)',
           fontVariantNumeric: 'tabular-nums',
         }}
       >

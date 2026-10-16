@@ -2,7 +2,7 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: var(--color-bg, #101012);
+  background: var(--daw-bg);
 }
 
 .layout {
@@ -18,8 +18,8 @@
     'sources'
     'middle'
     'footer';
-  background: var(--color-bg, #101012);
-  color: var(--color-text, #e8e8f0);
+  background: var(--daw-bg);
+  color: var(--daw-text);
   /* Font inherited from .daw-root (Glacial Indifference) — no redeclaration needed. */
   overflow: hidden;
   transform-origin: 0 0;
@@ -31,8 +31,8 @@
   align-items: center;
   padding: 0 16px;
   gap: 16px;
-  background: var(--color-surface-2, #1e1e1e);
-  border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  background: var(--daw-surface-2);
+  border-bottom: 1px solid var(--daw-hairline);
 }
 
 .logo {
@@ -44,7 +44,7 @@
 
 .presetName {
   font-size: 13px;
-  color: var(--color-text-dim, #6b6b80);
+  color: var(--daw-text-3);
   letter-spacing: 1px;
   flex: 1;
   text-align: center;
@@ -60,7 +60,7 @@
 .sources {
   grid-area: sources;
   overflow-x: auto;
-  border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  border-bottom: 1px solid var(--daw-hairline);
 }
 
 .middle {
@@ -74,7 +74,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-right: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  border-right: 1px solid var(--daw-hairline);
 }
 
 .middleCenter {
@@ -91,7 +91,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-left: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  border-left: 1px solid var(--daw-hairline);
 }
 
 .footer {
@@ -99,8 +99,8 @@
   display: flex;
   gap: 12px;
   padding: 4px 8px;
-  background: var(--color-bg, #101012);
-  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  background: var(--daw-bg);
+  border-top: 1px solid var(--daw-hairline);
   align-items: stretch;
 }
 

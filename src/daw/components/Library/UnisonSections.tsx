@@ -32,11 +32,11 @@ export function UnisonSections({
       {unisonDoc.analysis.progressionMatches.length > 0 && (
         <div
           className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <span
             className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Progression Matches ({unisonDoc.analysis.progressionMatches.length})
           </span>
@@ -47,12 +47,12 @@ export function UnisonSections({
             <div
               key={match.libraryId}
               className="rounded px-2 py-1.5"
-              style={{ backgroundColor: 'var(--color-surface-2)' }}
+              style={{ backgroundColor: 'var(--daw-surface-2)' }}
             >
               <div className="flex items-center justify-between">
                 <span
                   className="text-[10px] font-medium"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                 >
                   {formatProgression(
                     match.progression,
@@ -62,7 +62,7 @@ export function UnisonSections({
                 </span>
                 <span
                   className="text-[9px] tabular-nums"
-                  style={{ color: 'var(--color-accent)' }}
+                  style={{ color: 'var(--daw-accent)' }}
                 >
                   {Math.round(match.score * 100)}%
                 </span>
@@ -70,7 +70,7 @@ export function UnisonSections({
               {(match.artist || match.song) && (
                 <span
                   className="text-[9px]"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   {[match.artist, match.song].filter(Boolean).join(' — ')}
                 </span>
@@ -83,7 +83,7 @@ export function UnisonSections({
               onClick={() => setExpandedMatches(!expandedMatches)}
               className="text-[9px] font-medium cursor-pointer"
               style={{
-                color: 'var(--color-accent)',
+                color: 'var(--daw-accent)',
                 background: 'none',
                 border: 'none',
                 padding: 0,
@@ -102,13 +102,13 @@ export function UnisonSections({
         unisonDoc.analysis.styles.length > 0) && (
         <div
           className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           {unisonDoc.analysis.vibes.length > 0 && (
             <div className="flex flex-col gap-1">
               <span
                 className="text-[9px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 Vibes
               </span>
@@ -118,9 +118,9 @@ export function UnisonSections({
                     key={vibe}
                     className="rounded-full px-1.5 py-0.5 text-[9px]"
                     style={{
-                      backgroundColor: 'rgba(126, 207, 207, 0.1)',
-                      color: 'var(--color-accent)',
-                      border: '1px solid rgba(126, 207, 207, 0.2)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: 'var(--daw-accent)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
                     }}
                   >
                     {vibe}
@@ -129,7 +129,7 @@ export function UnisonSections({
                 {unisonDoc.analysis.vibes.length > 8 && (
                   <span
                     className="text-[9px]"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     +{unisonDoc.analysis.vibes.length - 8}
                   </span>
@@ -141,7 +141,7 @@ export function UnisonSections({
             <div className="flex flex-col gap-1">
               <span
                 className="text-[9px] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 Styles
               </span>
@@ -162,7 +162,7 @@ export function UnisonSections({
                 {unisonDoc.analysis.styles.length > 8 && (
                   <span
                     className="text-[9px]"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     +{unisonDoc.analysis.styles.length - 8}
                   </span>
@@ -198,54 +198,45 @@ function SessionSections({
       {/* Rhythm */}
       <div
         className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-        style={{ borderColor: 'var(--color-border)' }}
+        style={{ borderColor: 'var(--daw-hairline)' }}
       >
         <span
           className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Rhythm
         </span>
         <div className="grid grid-cols-3 gap-1">
           <div className="flex flex-col">
-            <span
-              className="text-[8px]"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
+            <span className="text-[8px]" style={{ color: 'var(--daw-text-3)' }}>
               BPM
             </span>
             <span
               className="text-[11px] font-bold"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {unisonDoc.rhythm.bpm}
             </span>
           </div>
           <div className="flex flex-col">
-            <span
-              className="text-[8px]"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
+            <span className="text-[8px]" style={{ color: 'var(--daw-text-3)' }}>
               Time
             </span>
             <span
               className="text-[11px] font-bold"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {unisonDoc.rhythm.timeSignatureNumerator}/
               {unisonDoc.rhythm.timeSignatureDenominator}
             </span>
           </div>
           <div className="flex flex-col">
-            <span
-              className="text-[8px]"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
+            <span className="text-[8px]" style={{ color: 'var(--daw-text-3)' }}>
               Feel
             </span>
             <span
               className="text-[11px] font-bold"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {unisonDoc.rhythm.subdivision}
             </span>
@@ -253,27 +244,24 @@ function SessionSections({
         </div>
         {unisonDoc.rhythm.swingAmount > 0 && (
           <div className="flex items-center gap-1.5">
-            <span
-              className="text-[8px]"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
+            <span className="text-[8px]" style={{ color: 'var(--daw-text-3)' }}>
               Swing
             </span>
             <div
               className="h-1 flex-1 rounded-full overflow-hidden"
-              style={{ backgroundColor: 'var(--color-surface-2)' }}
+              style={{ backgroundColor: 'var(--daw-surface-2)' }}
             >
               <div
                 className="h-full rounded-full"
                 style={{
                   width: `${unisonDoc.rhythm.swingAmount * 100}%`,
-                  backgroundColor: 'var(--color-accent)',
+                  backgroundColor: 'var(--daw-accent)',
                 }}
               />
             </div>
             <span
               className="text-[8px] tabular-nums"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               {Math.round(unisonDoc.rhythm.swingAmount * 100)}%
             </span>
@@ -285,11 +273,11 @@ function SessionSections({
       {unisonDoc.melody && (
         <div
           className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <span
             className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Melody
           </span>
@@ -297,13 +285,13 @@ function SessionSections({
             <div className="flex flex-col">
               <span
                 className="text-[8px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 Range
               </span>
               <span
                 className="text-[10px] font-medium"
-                style={{ color: 'var(--color-text)' }}
+                style={{ color: 'var(--daw-text)' }}
               >
                 {midiToNoteName(
                   unisonDoc.melody.pitchRange.low,
@@ -321,13 +309,13 @@ function SessionSections({
             <div className="flex flex-col">
               <span
                 className="text-[8px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 Contour
               </span>
               <span
                 className="text-[10px] font-medium capitalize"
-                style={{ color: 'var(--color-text)' }}
+                style={{ color: 'var(--daw-text)' }}
               >
                 {unisonDoc.melody.contour}
               </span>

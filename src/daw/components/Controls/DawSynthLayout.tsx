@@ -21,6 +21,7 @@ import { NumberStepper } from '@/daw/oracle-synth/components/controls/NumberStep
 import { WaveformVisualizer } from '@/daw/oracle-synth/components/visualizers/WaveformVisualizer';
 import { useContainerScale } from '@/daw/hooks/useContainerScale';
 import styles from '@/daw/oracle-synth/components/layout/SynthLayout.module.css';
+import { COLOR } from '@/daw/ui/tokens';
 
 // ── DawSynthLayout ────────────────────────────────────────────────────────
 // The Oracle synth panel: the fixed 1440×932 grid in SynthLayout.module.css,
@@ -93,7 +94,7 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({ engine }) => {
         position: 'absolute',
         inset: 0,
         overflow: 'hidden',
-        background: 'var(--color-bg)',
+        background: 'var(--daw-bg)',
       }}
     >
       <div
@@ -178,7 +179,7 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({ engine }) => {
               min={0}
               max={1}
               springBack={false}
-              accent="#7ecfcf"
+              accent={COLOR.accent.value}
               onChange={setModWheel}
             />
           </div>

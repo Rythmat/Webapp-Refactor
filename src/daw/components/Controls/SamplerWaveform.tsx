@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { computePeaks } from '@/daw/audio/AudioBufferStore';
+import { getDawPalette } from '@/daw/ui/tokens';
 
 // ── SamplerWaveform ─────────────────────────────────────────────────────
 // Simpler-style sample display: the full waveform with the active trim
@@ -8,7 +9,6 @@ import { computePeaks } from '@/daw/audio/AudioBufferStore';
 
 const PEAK_COUNT = 600;
 const HANDLE_HIT_PX = 10;
-const FALLBACK_ACCENT = '#7ecfcf';
 
 interface SamplerWaveformProps {
   buffer: AudioBuffer;
@@ -29,7 +29,6 @@ export function SamplerWaveform({
   // sized: a trim drag redraws on every pointer move and must not reallocate
   // the canvas or recompute styles each time (live-input-22).
   const dprRef = useRef(1);
-  const accentRef = useRef(FALLBACK_ACCENT);
   // Uncommitted marker positions while a drag is live.
   const [drag, setDrag] = useState<{
     marker: 'start' | 'end';
@@ -56,7 +55,7 @@ export function SamplerWaveform({
     return () => ro.disconnect();
   }, []);
 
-  // Size the backing store and read the accent only when the size changes.
+  // Size the backing store only when the size changes.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || size.w === 0 || size.h === 0) return;
@@ -64,9 +63,6 @@ export function SamplerWaveform({
     dprRef.current = dpr;
     canvas.width = size.w * dpr;
     canvas.height = size.h * dpr;
-    accentRef.current =
-      getComputedStyle(canvas).getPropertyValue('--color-accent').trim() ||
-      FALLBACK_ACCENT;
   }, [size]);
 
   // Redraw on any change, onto the canvas as sized above.
@@ -78,7 +74,7 @@ export function SamplerWaveform({
     const dpr = dprRef.current;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const accent = accentRef.current;
+    const accent = getDawPalette().accent;
     const dim = 'rgba(255,255,255,0.22)';
 
     const { w, h } = size;

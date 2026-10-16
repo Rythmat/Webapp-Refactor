@@ -9,6 +9,7 @@ import { AuthRoutes } from './constants/routes.ts';
 import { installChunkReload } from './lib/chunkReload.ts';
 import './index.css';
 import './styles/appTheme.css';
+import './daw/ui/daw-tokens.css';
 
 const renderStartupError = (message: string) => {
   const rootElement = document.getElementById('root');

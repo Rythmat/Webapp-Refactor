@@ -17,8 +17,11 @@ export interface ConfirmDialogProps {
   description: ReactNode;
   /** The action's name ('Delete', 'Replace'). Default 'OK'. */
   confirmLabel?: string;
-  /** Default 'Cancel'. */
-  cancelLabel?: string;
+  /**
+   * Default 'Cancel'. null leaves Cancel out: a notice with one way out
+   * ('OK'), which Escape also takes.
+   */
+  cancelLabel?: string | null;
   /** The action destroys work: a red button, and focus starts on Cancel. */
   danger?: boolean;
   onConfirm(): void;
@@ -72,6 +75,7 @@ export function ConfirmDialog({
         {/* A plain scrim, as DawDialog's: no backdrop blur. */}
         <AlertDialogPrimitive.Overlay className="fixed inset-0 z-[var(--daw-z-modal)] bg-daw-scrim" />
         <AlertDialogPrimitive.Content
+          data-ds="v2"
           onOpenAutoFocus={(event) => {
             focus.capture();
             // Radix starts on Cancel; a harmless action starts on itself.
@@ -96,9 +100,11 @@ export function ConfirmDialog({
             {description}
           </AlertDialogPrimitive.Description>
           <div className="mt-5 flex flex-wrap justify-end gap-2">
-            <AlertDialogPrimitive.Cancel asChild>
-              <Button variant="secondary">{cancelLabel}</Button>
-            </AlertDialogPrimitive.Cancel>
+            {cancelLabel !== null && (
+              <AlertDialogPrimitive.Cancel asChild>
+                <Button variant="secondary">{cancelLabel}</Button>
+              </AlertDialogPrimitive.Cancel>
+            )}
             {alternative ? (
               <AlertDialogPrimitive.Action asChild>
                 <Button

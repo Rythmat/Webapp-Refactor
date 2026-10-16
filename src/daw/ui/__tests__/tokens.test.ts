@@ -8,6 +8,7 @@ import { TYPE_CLASS } from '../styles';
 import {
   COLOR,
   DAW_PALETTE_EVENT,
+  DAW_TOKENS_CSS_FILE,
   DAW_TOKENS_STYLE_ID,
   dawTokenDeclarations,
   dawTokensCss,
@@ -206,10 +207,22 @@ describe('installDawTokens', () => {
     expect(root.getPropertyValue('--daw-text-3').trim()).toBe('#8e8ea3');
     expect(root.getPropertyValue('--daw-z-popover').trim()).toBe('60');
   });
+});
 
-  it('is already done by importing any primitive (styles.ts)', () => {
-    // styles.ts ran its install when this file imported it.
-    expect(document.getElementById(DAW_TOKENS_STYLE_ID)).not.toBeNull();
+describe('daw-tokens.css', () => {
+  // Under jsdom vitest stubs CSS imports, so the file is read from disk.
+  const file = (name: string) =>
+    readFileSync(join(dirname(fileURLToPath(import.meta.url)), name), 'utf8');
+
+  it('is the stylesheet tokens.ts writes (npm run studio:tokens)', () => {
+    expect(file('../daw-tokens.css')).toBe(DAW_TOKENS_CSS_FILE);
+  });
+
+  it('is loaded on every page by src/main.tsx, not by the primitives', () => {
+    expect(file('../../../main.tsx')).toContain(
+      "import './daw/ui/daw-tokens.css';",
+    );
+    expect(file('../styles.ts')).not.toContain('installDawTokens');
   });
 });
 

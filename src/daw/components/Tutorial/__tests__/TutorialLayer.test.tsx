@@ -28,9 +28,8 @@ import { getTutorial } from '../tutorials';
 // ── The lesson overlay inherits the DAW tokens (practice-tutorial-24) ───────
 // The overlay portals to <body>. It used to copy seven --color-* values from
 // .daw-root onto itself in an effect, so its first frame had none and a theme
-// change mid-lesson never reached it. It now holds body.daw-active itself
-// (useDawBodyTokens) and inherits the palette from there, so the coach card
-// never depends on anything else in the editor having set the class.
+// change mid-lesson never reached it. The tokens are on :root now (plan 2.1),
+// so the coach card inherits them from its first frame wherever it mounts.
 
 let removeCss: () => void;
 beforeAll(() => {
@@ -45,16 +44,15 @@ afterEach(() => {
 });
 
 describe('TutorialLayer', () => {
-  it('holds the DAW tokens itself and copies none onto its portal', () => {
+  it('inherits the DAW tokens and copies none onto its portal', () => {
     // As in the editor: DawApp's .daw-root holds the layer, which portals out
-    // of it. Nothing else in this test sets body.daw-active.
+    // of it.
     const dawRoot = document.createElement('div');
     dawRoot.className = 'daw-root';
     document.body.appendChild(dawRoot);
 
     act(() => useStore.getState().startTutorial('make-first-track'));
     const { unmount } = render(<TutorialLayer />, { container: dawRoot });
-    expect(document.body).toHaveClass('daw-active');
 
     const card = screen
       .getByRole('button', { name: 'Quit tutorial' })
@@ -67,11 +65,9 @@ describe('TutorialLayer', () => {
       name.startsWith('--'),
     );
     expect(inlineTokens).toEqual([]);
-    expect(resolvedBackground(card)).toBe('#1a1a1a');
+    expect(resolvedBackground(card)).toBe('#151518');
 
-    // Leaving the editor takes the class off the rest of the app.
     unmount();
-    expect(document.body).not.toHaveClass('daw-active');
     dawRoot.remove();
   });
 });

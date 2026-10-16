@@ -23,7 +23,7 @@ export function KeySection({
   return (
     <div
       className="flex flex-col gap-1.5 px-3 py-2 border-b"
-      style={{ borderColor: 'var(--color-border)' }}
+      style={{ borderColor: 'var(--daw-hairline)' }}
     >
       {/* Key label + confidence */}
       <div className="flex items-center gap-2">
@@ -33,14 +33,14 @@ export function KeySection({
         />
         <span
           className="text-[11px] font-semibold"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           Key of {keyLetter}
         </span>
         {unisonKey && (
           <span
             className="text-[9px] tabular-nums"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             {Math.round(unisonKey.confidence * 100)}%
           </span>
@@ -67,13 +67,11 @@ export function KeySection({
                 className="rounded px-1.5 py-0.5 text-[9px] transition-colors cursor-pointer"
                 style={{
                   backgroundColor: isActive
-                    ? 'rgba(126, 207, 207, 0.15)'
-                    : 'var(--color-surface-2)',
-                  color: isActive
-                    ? 'var(--color-accent)'
-                    : 'var(--color-text-dim)',
+                    ? 'rgba(255, 255, 255, 0.15)'
+                    : 'var(--daw-surface-2)',
+                  color: isActive ? 'var(--daw-accent)' : 'var(--daw-text-3)',
                   border: isActive
-                    ? '1px solid rgba(126, 207, 207, 0.3)'
+                    ? '1px solid rgba(255, 255, 255, 0.3)'
                     : '1px solid transparent',
                 }}
               >

@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { POP_OUT_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
-import { THEMES } from '@/daw/constants/themes';
 
 // ── PopOutOverlay ────────────────────────────────────────────────────────
 // Reusable full-screen portal overlay for oversized channel strip components.
@@ -58,14 +57,10 @@ export function PopOutOverlay({
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
         className="flex flex-col overflow-hidden rounded-lg"
         style={{
-          // The portal mounts in <body>, outside .daw-root where useTheme sets
-          // the Studio palette — re-apply it here or the panel and the
-          // instrument inside it render see-through.
-          ...(THEMES.dark as React.CSSProperties),
-          backgroundColor: 'var(--color-surface)',
+          backgroundColor: 'var(--daw-surface-1)',
           width: fullScreen ? 'calc(100vw - 24px)' : '70vw',
           height: fullScreen ? 'calc(100vh - 24px)' : '70vh',
-          border: 'var(--glass-border)',
+          border: '1px solid var(--daw-hairline)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         }}
         onClick={(e) => e.stopPropagation()}

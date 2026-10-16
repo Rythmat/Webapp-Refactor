@@ -186,7 +186,7 @@ export function RotaryKnob({
           <path
             d={valueArc}
             fill="none"
-            stroke={arcColor || 'var(--color-accent)'}
+            stroke={arcColor || 'var(--daw-accent)'}
             strokeWidth={3}
             strokeLinecap="round"
           />
@@ -198,21 +198,21 @@ export function RotaryKnob({
           y1={indicatorStart.y}
           x2={indicatorEnd.x}
           y2={indicatorEnd.y}
-          stroke="var(--color-text)"
+          stroke="var(--daw-text)"
           strokeWidth={2}
           strokeLinecap="round"
         />
       </svg>
       <span
         className="text-center text-[10px] leading-tight"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         {label}
       </span>
       {formatValue && (
         <span
           className="text-center text-[9px] tabular-nums"
-          style={{ color: 'var(--color-text-dim)', opacity: 0.7 }}
+          style={{ color: 'var(--daw-text-3)', opacity: 0.7 }}
         >
           {formatValue(value)}
         </span>

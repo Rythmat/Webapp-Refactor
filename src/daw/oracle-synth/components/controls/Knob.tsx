@@ -1,5 +1,6 @@
 import React, { useRef, useCallback } from 'react';
 import styles from './Knob.module.css';
+import { COLOR } from '@/daw/ui/tokens';
 
 /**
  * Live modulation indicator: the range the parameter is being swept over by
@@ -71,7 +72,7 @@ export const Knob: React.FC<KnobProps> = React.memo(
     step = 0.01,
     defaultValue,
     label,
-    accent = '#7ecfcf',
+    accent = COLOR.accent.value,
     size = 40,
     showValue = true,
     horizontal = false,

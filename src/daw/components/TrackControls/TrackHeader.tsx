@@ -162,16 +162,16 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
       onClick={handleSelect}
       whileHover={{
         backgroundColor: isSelected
-          ? 'var(--color-surface-3)'
-          : 'var(--color-surface-2)',
+          ? 'var(--daw-hover)'
+          : 'var(--daw-surface-2)',
       }}
       className="group relative flex cursor-pointer flex-col justify-between border-b px-3 py-2"
       style={{
         height: 80,
         backgroundColor: isSelected
-          ? 'var(--color-surface-2)'
-          : 'var(--color-surface)',
-        borderColor: 'var(--color-border)',
+          ? 'var(--daw-surface-2)'
+          : 'var(--daw-surface-1)',
+        borderColor: 'var(--daw-hairline)',
         borderLeft: `3px solid ${track.color}`,
       }}
     >
@@ -224,7 +224,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           whileTap={{ scale: 0.85 }}
           className="absolute right-1.5 top-1.5 z-10 flex size-4 cursor-pointer items-center justify-center rounded opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-400 group-hover:opacity-100"
           style={{
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
             background: 'none',
             border: 'none',
           }}
@@ -251,12 +251,11 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
+              data-testid="track-colour-popover"
               className="z-50 rounded-lg p-2 shadow-lg"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
+                backgroundColor: 'var(--daw-popover)',
+                border: '1px solid var(--daw-hairline)',
               }}
               sideOffset={6}
               onClick={(e) => e.stopPropagation()}
@@ -265,6 +264,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
                 {TRACK_PALETTES.map((color) => (
                   <button
                     key={color}
+                    data-meaning="track-colour"
                     onClick={() => {
                       updateTrack(track.id, { color });
                       setColorOpen(false);
@@ -274,7 +274,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
                       backgroundColor: color,
                       border:
                         color === track.color
-                          ? '2px solid var(--color-text)'
+                          ? '2px solid var(--daw-text)'
                           : '2px solid transparent',
                       padding: 0,
                     }}
@@ -291,7 +291,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           onBlur={handleNameBlur}
           onKeyDown={handleNameKeyDown}
           className="min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
           spellCheck={false}
         />
         <PresenceTrackDots trackId={track.id} />
@@ -301,7 +301,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           onClick={(e) => e.stopPropagation()}
           className="shrink-0 cursor-pointer rounded border-none bg-transparent text-[9px] uppercase tracking-wide outline-none"
           style={{
-            color: 'var(--color-text-dim)',
+            color: 'var(--daw-text-3)',
             padding: '0 2px',
           }}
           title="Track role for chord analysis"
@@ -328,12 +328,12 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
             className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors"
             style={{
               color: remoteAudible
-                ? (lockOwner?.color ?? 'var(--color-text)')
-                : 'var(--color-text-dim)',
+                ? (lockOwner?.color ?? 'var(--daw-text)')
+                : 'var(--daw-text-3)',
               border: `1px solid ${
                 remoteAudible
-                  ? (lockOwner?.color ?? 'var(--color-border)')
-                  : 'var(--color-border)'
+                  ? (lockOwner?.color ?? 'var(--daw-hairline)')
+                  : 'var(--daw-hairline)'
               }`,
               background: 'none',
             }}
@@ -372,8 +372,8 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
             className="flex w-fit items-center gap-1 rounded px-1.5 py-0.5 transition-colors"
             style={{
               backgroundColor: track.monitoring ? track.color : 'transparent',
-              color: track.monitoring ? '#fff' : 'var(--color-text-dim)',
-              border: `1px solid ${track.monitoring ? track.color : 'var(--color-border)'}`,
+              color: track.monitoring ? '#fff' : 'var(--daw-text-3)',
+              border: `1px solid ${track.monitoring ? track.color : 'var(--daw-hairline)'}`,
             }}
             title="Monitor"
           >
@@ -386,7 +386,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
               whileTap={{ scale: 0.85 }}
               className="flex size-5 items-center justify-center rounded transition-colors"
               style={{
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
                 background: 'none',
                 border: 'none',
               }}
@@ -406,8 +406,8 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
               whileTap={{ scale: 0.9 }}
               className="ml-auto flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors hover:bg-white/10"
               style={{
-                color: 'var(--color-text-dim)',
-                border: '1px solid var(--color-border)',
+                color: 'var(--daw-text-3)',
+                border: '1px solid var(--daw-hairline)',
                 background: 'none',
               }}
               title="Release this track so others can select it"
@@ -430,9 +430,9 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           whileTap={{ scale: 0.85 }}
           className="flex size-5 items-center justify-center rounded text-[10px] font-bold transition-colors"
           style={{
-            backgroundColor: track.mute ? 'var(--color-record)' : 'transparent',
-            color: track.mute ? '#fff' : 'var(--color-text-dim)',
-            border: `1px solid ${track.mute ? 'var(--color-record)' : 'var(--color-border)'}`,
+            backgroundColor: track.mute ? 'var(--daw-record)' : 'transparent',
+            color: track.mute ? '#fff' : 'var(--daw-text-3)',
+            border: `1px solid ${track.mute ? 'var(--daw-record)' : 'var(--daw-hairline)'}`,
           }}
           title="Mute"
         >
@@ -447,10 +447,10 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           className="flex size-5 items-center justify-center rounded text-[10px] font-bold transition-colors"
           style={{
             backgroundColor: track.solo
-              ? 'var(--color-meter-yellow)'
+              ? 'var(--daw-meter-hot)'
               : 'transparent',
-            color: track.solo ? '#000' : 'var(--color-text-dim)',
-            border: `1px solid ${track.solo ? 'var(--color-meter-yellow)' : 'var(--color-border)'}`,
+            color: track.solo ? '#000' : 'var(--daw-text-3)',
+            border: `1px solid ${track.solo ? 'var(--daw-meter-hot)' : 'var(--daw-hairline)'}`,
           }}
           title="Solo"
         >
@@ -467,8 +467,8 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
             backgroundColor: track.recordArmed
               ? `${track.color}26`
               : 'transparent',
-            color: track.recordArmed ? track.color : 'var(--color-text-dim)',
-            border: `1px solid ${track.recordArmed ? track.color : 'var(--color-border)'}`,
+            color: track.recordArmed ? track.color : 'var(--daw-text-3)',
+            border: `1px solid ${track.recordArmed ? track.color : 'var(--daw-hairline)'}`,
             ...lockedStyle,
           }}
           title="Record Arm"
@@ -489,10 +489,10 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           className="flex size-5 items-center justify-center rounded transition-colors"
           style={{
             backgroundColor: automationOpen
-              ? 'var(--color-accent)'
+              ? 'var(--daw-selected)'
               : 'transparent',
-            color: automationOpen ? '#000' : 'var(--color-text-dim)',
-            border: `1px solid ${automationOpen ? 'var(--color-accent)' : 'var(--color-border)'}`,
+            color: automationOpen ? 'var(--daw-text)' : 'var(--daw-text-3)',
+            border: `1px solid ${automationOpen ? 'var(--daw-outline)' : 'var(--daw-hairline)'}`,
           }}
           title="Automation"
         >
@@ -514,7 +514,7 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
         >
           <Slider.Track
             className="relative h-1.5 w-full overflow-hidden rounded-full"
-            style={{ backgroundColor: 'var(--color-border)' }}
+            style={{ backgroundColor: 'var(--daw-hairline)' }}
           >
             {/* Painted from the meter bus by key, which finds this track's
                 engine again after a rebuild: the header never re-renders
@@ -527,14 +527,14 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
           </Slider.Track>
           <Slider.Thumb
             className="block h-3 w-1.5 rounded-sm shadow-sm focus:outline-none"
-            style={{ backgroundColor: 'var(--color-text-dim)' }}
+            style={{ backgroundColor: 'var(--daw-text-3)' }}
             aria-label="Volume"
           />
         </Slider.Root>
         <FixedDigits
           text={formatGain(volume.value, { unit: '' })}
           className="ml-0.5 w-8 shrink-0 text-right text-[9px]"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         />
       </div>
     </motion.div>

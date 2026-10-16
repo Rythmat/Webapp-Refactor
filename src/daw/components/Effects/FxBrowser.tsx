@@ -12,6 +12,7 @@ import {
   type AnchorRack,
   rackOfFxTrack,
 } from '@/daw/components/Tutorial/anchorRegistry';
+import { COLOR } from '@/daw/ui/tokens';
 
 // A rack holds at most five effects: this list enforces it for tracks, and
 // the return and master stores also refuse a sixth. The list shows the count
@@ -63,21 +64,21 @@ export function FxBrowser({
   return (
     <div
       className="w-[130px] shrink-0 flex flex-col border-r"
-      style={{ borderColor: 'var(--color-border)' }}
+      style={{ borderColor: 'var(--daw-hairline)' }}
     >
       <div
         className="flex items-center justify-between px-3 py-2 shrink-0 border-b"
-        style={{ borderColor: 'var(--color-border)' }}
+        style={{ borderColor: 'var(--daw-hairline)' }}
       >
         <span
           className="text-[11px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           FX
         </span>
         <span
           className="text-[12px] tabular-nums"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
           title={`${activeEffects.length} of ${MAX_EFFECTS} effects`}
         >
           {activeEffects.length}/{MAX_EFFECTS}
@@ -91,8 +92,8 @@ export function FxBrowser({
           <p
             className="m-0 px-3 py-2 border-b text-[12px] leading-snug"
             style={{
-              borderColor: 'var(--color-border)',
-              color: 'var(--color-text-dim)',
+              borderColor: 'var(--daw-hairline)',
+              color: 'var(--daw-text-3)',
             }}
           >
             Max {MAX_EFFECTS} effects. Remove one to add another.
@@ -105,12 +106,12 @@ export function FxBrowser({
             {ci > 0 && (
               <div
                 className="mx-3"
-                style={{ borderTop: '1px solid var(--color-border)' }}
+                style={{ borderTop: '1px solid var(--daw-hairline)' }}
               />
             )}
             <div
               className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               {category === 'Audio Effects' ? 'Audio' : 'MIDI'}
             </div>
@@ -194,18 +195,20 @@ function FxRow({
         <FxBlockIcon
           type={item.dragPayload.effectType}
           size={14}
-          color={isActive ? '#7ecfcf' : item.color}
+          color={isActive ? COLOR.accent.value : item.color}
         />
       ) : (
         <div
           className="w-2 h-2 rounded-full shrink-0"
-          style={{ backgroundColor: isActive ? '#7ecfcf' : item.color }}
+          style={{
+            backgroundColor: isActive ? COLOR.accent.value : item.color,
+          }}
         />
       )}
       <span
         className="text-[11px]"
         style={{
-          color: isActive ? 'var(--color-accent)' : 'var(--color-text)',
+          color: isActive ? 'var(--daw-accent)' : 'var(--daw-text)',
         }}
       >
         {item.label}
@@ -213,7 +216,7 @@ function FxRow({
       {item.disabled && (
         <span
           className="ml-auto text-[8px] uppercase font-medium"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Soon
         </span>

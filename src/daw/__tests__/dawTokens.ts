@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { COLOR, dawTokenDeclarations } from '@/daw/ui/tokens';
 
 // ── Test helpers: the DAW tokens as a portaled overlay sees them ─────────────
 // jsdom applies stylesheets to the elements their rules name, but it neither
 // inherits custom properties nor substitutes var(). These helpers load the
-// real daw.css and resolve a computed value the way a browser would, so a
+// editor's sheets and resolve a computed value the way a browser would, so a
 // test can tell whether a card portaled to <body> paints opaque or comes out
 // transparent.
 
@@ -19,12 +20,30 @@ export const DAW_CSS = readFileSync(
   'utf8',
 );
 
-/** Adds daw.css to the document. Returns a function that removes it again. */
+/**
+ * daw-tokens.css as a browser computes it: every --daw-* token on :root, each
+ * alias of an app --ui-* token already resolved to its colour (appTheme.css
+ * is not loaded here; tokens.test.ts checks the aliases against it).
+ */
+export const RESOLVED_TOKENS_CSS = `:root {\n${dawTokenDeclarations()
+  .map(([name, value]) => {
+    const color = COLOR[name.slice('--daw-'.length) as keyof typeof COLOR];
+    return `  ${name}: ${color ? color.value : value};`;
+  })
+  .join('\n')}\n}\n`;
+
+/**
+ * Adds the tokens on :root and daw.css to the document, as src/main.tsx
+ * does for every page. Returns a function that removes them again.
+ */
 export function installDawCss(): () => void {
-  const style = document.createElement('style');
-  style.textContent = DAW_CSS;
-  document.head.appendChild(style);
-  return () => style.remove();
+  const styles = [RESOLVED_TOKENS_CSS, DAW_CSS].map((css) => {
+    const style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
+    return style;
+  });
+  return () => styles.forEach((style) => style.remove());
 }
 
 /** A custom property as `el` inherits it: from itself or its nearest ancestor. */

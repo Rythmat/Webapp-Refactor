@@ -47,7 +47,7 @@ export function ChordCard({
   return (
     <div
       className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-      style={{ borderColor: 'var(--color-border)' }}
+      style={{ borderColor: 'var(--daw-hairline)' }}
     >
       {/* Title row */}
       <div className="flex items-center gap-1.5">
@@ -57,15 +57,12 @@ export function ChordCard({
         />
         <span
           className="text-[11px] font-semibold"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           {labels.title}
         </span>
         {labels.detail !== null && (
-          <span
-            className="text-[10px]"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
+          <span className="text-[10px]" style={{ color: 'var(--daw-text-3)' }}>
             {labels.detail}
           </span>
         )}
@@ -103,8 +100,8 @@ export function ChordCard({
           <span
             className="self-start text-[9px] font-medium px-1.5 py-0.5 rounded-full"
             style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text-dim)',
+              backgroundColor: 'var(--daw-surface-2)',
+              color: 'var(--daw-text-3)',
             }}
           >
             Chromatic
@@ -116,7 +113,7 @@ export function ChordCard({
       {/* Theory description (enriched when UNISON data available) */}
       <div
         className="text-[9px] leading-snug"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         {getEnrichedDescription(chord, formatTarget)}
       </div>
@@ -172,11 +169,9 @@ export function ChordTones({
               key={i}
               className="text-[9px] px-1 py-0.5 rounded"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
+                backgroundColor: 'var(--daw-surface-2)',
                 color:
-                  interval === 'R'
-                    ? 'var(--color-accent)'
-                    : 'var(--color-text-dim)',
+                  interval === 'R' ? 'var(--daw-accent)' : 'var(--daw-text-3)',
               }}
             >
               {interval}
@@ -184,7 +179,7 @@ export function ChordTones({
           ))}
         </div>
       )}
-      <div className="text-[9px]" style={{ color: 'var(--color-text-dim)' }}>
+      <div className="text-[9px]" style={{ color: 'var(--daw-text-3)' }}>
         Notes: {noteNames.join(' \u2013 ')}
       </div>
     </>
@@ -309,7 +304,7 @@ export function ChordAlternatives({
         aria-expanded={expanded}
         className="flex items-center gap-1 text-[9px] font-medium"
         style={{
-          color: 'var(--color-text-dim)',
+          color: 'var(--daw-text-3)',
           background: 'none',
           border: 'none',
           padding: 0,
@@ -336,7 +331,7 @@ export function ChordAlternatives({
               key={i}
               className="flex items-center gap-1.5 pl-3 text-[9px] leading-snug"
               style={{
-                color: 'var(--color-text-dim)',
+                color: 'var(--daw-text-3)',
                 opacity: isDetectedSource ? 1 : 0.7,
               }}
             >
@@ -355,7 +350,7 @@ export function ChordAlternatives({
                 {isDetectedSource && (
                   <span
                     className="ml-1 text-[8px] font-medium"
-                    style={{ color: 'var(--color-accent)' }}
+                    style={{ color: 'var(--daw-accent)' }}
                   >
                     detected
                   </span>
@@ -369,7 +364,7 @@ export function ChordAlternatives({
                   }),
                 )}
                 title={`Learn ${rootLetter} ${MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}`}
-                className="flex shrink-0 items-center gap-1 rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)] transition-colors hover:bg-[rgba(126,207,207,0.15)]"
+                className="flex shrink-0 items-center gap-1 rounded bg-[var(--daw-surface-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--daw-accent)] transition-colors hover:bg-[rgba(255,255,255,0.15)]"
               >
                 <BookOpen size={10} strokeWidth={2} />
                 Learn
@@ -397,12 +392,12 @@ function LessonLink({ to, scale, label, primary = false }: LessonLinkProps) {
       <Link
         to={to}
         title={`Open the ${scale} lesson: the scale behind this chord`}
-        className="mt-1 flex w-full items-center gap-2 rounded-md border border-[rgba(126,207,207,0.35)] bg-[rgba(126,207,207,0.08)] px-2 py-1.5 text-[var(--color-accent)] transition-colors hover:bg-[rgba(126,207,207,0.18)]"
+        className="mt-1 flex w-full items-center gap-2 rounded-md border border-[rgba(255,255,255,0.35)] bg-[rgba(255,255,255,0.08)] px-2 py-1.5 text-[var(--daw-accent)] transition-colors hover:bg-[rgba(255,255,255,0.18)]"
       >
         <BookOpen size={14} strokeWidth={2} className="shrink-0" />
         <span className="flex min-w-0 flex-col leading-tight">
           <span className="text-xs font-semibold">Learn this sound</span>
-          <span className="text-[11px]" style={{ color: 'var(--color-text)' }}>
+          <span className="text-[11px]" style={{ color: 'var(--daw-text)' }}>
             {scale} &rarr;
           </span>
         </span>
@@ -413,12 +408,10 @@ function LessonLink({ to, scale, label, primary = false }: LessonLinkProps) {
     <Link
       to={to}
       title={`Open the ${scale} lesson`}
-      className="flex items-center gap-1 rounded bg-[var(--color-surface-3)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--color-accent)] transition-colors hover:bg-[rgba(126,207,207,0.15)]"
+      className="flex items-center gap-1 rounded bg-[var(--daw-hover)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--daw-accent)] transition-colors hover:bg-[rgba(255,255,255,0.15)]"
     >
       <BookOpen size={11} strokeWidth={2} />
-      {label && (
-        <span style={{ color: 'var(--color-text-dim)' }}>{label}:</span>
-      )}
+      {label && <span style={{ color: 'var(--daw-text-3)' }}>{label}:</span>}
       {scale}
     </Link>
   );

@@ -143,11 +143,9 @@ export function AddTrackMenu({ onClose }: AddTrackMenuProps) {
 
   return (
     <div
-      className="flex items-center gap-2 rounded-2xl px-4 py-3 mx-auto glass-panel"
+      className="flex items-center gap-2 rounded-2xl px-4 py-3 mx-auto"
       style={{
-        backgroundColor: 'var(--color-surface-2)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+        backgroundColor: 'var(--daw-popover)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.2)',
       }}
@@ -179,7 +177,7 @@ export function AddTrackMenu({ onClose }: AddTrackMenuProps) {
             </span>
             <span
               className="text-sm font-medium whitespace-nowrap"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {t.label}
             </span>

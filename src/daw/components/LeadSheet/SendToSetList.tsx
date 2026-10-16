@@ -1,15 +1,11 @@
 import { ListMusic } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FC } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { showSuccess } from '@/components/utils/toast';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore, type AllSlices } from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
+import { DawDialog } from '@/daw/ui/DawDialog';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 import { roleList, setListOptions } from '@/features/setlists/setListsStore';
 import {
   useProjectSetListEntries,
@@ -143,6 +139,9 @@ export const SendToSetListButton: FC<{
   );
 };
 
+const LABEL = { color: 'var(--daw-text-3)' } as const;
+const FIELD = `mt-1 h-7 w-full rounded-[var(--daw-radius-sm)] border border-daw-outline bg-transparent px-3 text-daw-text outline-none placeholder:text-daw-text-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-daw-focus ${TYPE_CLASS.body}`;
+
 const SendDialog: FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -187,83 +186,88 @@ const SendDialog: FC<{
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md border-white/10 bg-[#161618] text-white">
-        <DialogHeader>
-          <DialogTitle className="text-base font-medium">
-            Send this chart to a set list
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-3">
-          <p className="text-xs leading-relaxed text-white/45">
-            The set gets its own copy — {barCount}{' '}
-            {barCount === 1 ? 'bar' : 'bars'} in {chart.key}. Edit this project
-            later and you will be asked whether to send the new version too.
-          </p>
-
-          <label className="block">
-            <span className="text-xs text-white/50">Title</span>
-            <input
-              autoFocus
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-white/15 bg-transparent px-3 py-1.5 text-sm outline-none focus:border-white/35"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-xs text-white/50">Notes (optional)</span>
-            <input
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="count in 4 · cut last chorus"
-              className="mt-1 w-full rounded-lg border border-white/15 bg-transparent px-3 py-1.5 text-sm outline-none placeholder:text-white/25 focus:border-white/35"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-xs text-white/50">Set list</span>
-            <select
-              value={chosen}
-              onChange={(e) => setDestination(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-white/15 bg-[#161618] px-3 py-1.5 text-sm outline-none focus:border-white/35"
-            >
-              {options.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.label}
-                </option>
-              ))}
-              <option value={NEW_LIST}>New set list…</option>
-            </select>
-          </label>
-
-          {chosen === NEW_LIST && (
-            <input
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="Name the new set list"
-              className="w-full rounded-lg border border-white/15 bg-transparent px-3 py-1.5 text-sm outline-none placeholder:text-white/25 focus:border-white/35"
-            />
-          )}
-
-          {status === 'signedOut' && (
-            <p className="text-xs text-amber-300/80">
-              You are not signed in, so this will not be kept.
-            </p>
-          )}
-        </div>
-
-        <div className="mt-4 flex justify-end gap-2">
+    <DawDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="sm"
+      title="Send this chart to a set list"
+      description={`The set gets its own copy: ${barCount} ${
+        barCount === 1 ? 'bar' : 'bars'
+      } in ${chart.key}. Edit this project later and you will be asked whether to send the new version too.`}
+      footer={
+        <>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button variant="primary" onClick={send}>
             Send
           </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </>
+      }
+    >
+      <div className="space-y-3 pb-1">
+        <label className="block">
+          <span className={TYPE_CLASS.label} style={LABEL}>
+            Title
+          </span>
+          <input
+            autoFocus
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className={FIELD}
+          />
+        </label>
+
+        <label className="block">
+          <span className={TYPE_CLASS.label} style={LABEL}>
+            Notes (optional)
+          </span>
+          <input
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="count in 4 · cut last chorus"
+            className={FIELD}
+          />
+        </label>
+
+        <label className="block">
+          <span className={TYPE_CLASS.label} style={LABEL}>
+            Set list
+          </span>
+          <select
+            value={chosen}
+            onChange={(e) => setDestination(e.target.value)}
+            className={`${FIELD} bg-daw-popover`}
+          >
+            {options.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.label}
+              </option>
+            ))}
+            <option value={NEW_LIST}>New set list…</option>
+          </select>
+        </label>
+
+        {chosen === NEW_LIST && (
+          <input
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="Name the new set list"
+            aria-label="New set list name"
+            className={FIELD}
+          />
+        )}
+
+        {status === 'signedOut' && (
+          <p
+            className={TYPE_CLASS.label}
+            style={{ color: 'var(--daw-warning)' }}
+          >
+            You are not signed in, so this will not be kept.
+          </p>
+        )}
+      </div>
+    </DawDialog>
   );
 };
 
@@ -371,45 +375,49 @@ export const SetListUpdatePrompt: FC = () => {
   const now = describeChart(chartSummary(chart));
 
   return (
-    <Dialog open onOpenChange={() => setOffer(null)}>
-      <DialogContent className="max-w-md border-white/10 bg-[#161618] text-white">
-        <DialogHeader>
-          <DialogTitle className="text-base font-medium">
-            Update the Set List chart?
-          </DialogTitle>
-        </DialogHeader>
-        <p className="text-sm leading-relaxed text-white/60">
+    <DawDialog
+      open
+      onOpenChange={(next) => !next && setOffer(null)}
+      size="sm"
+      title="Update the Set List chart?"
+      description={
+        <>
           This lead sheet is on{' '}
           {entries.length === 1 ? (
-            <span className="text-white/85">{entries[0].setListTitle}</span>
+            <span style={{ color: 'var(--daw-text)' }}>
+              {entries[0].setListTitle}
+            </span>
           ) : (
             `${entries.length} of your set lists`
           )}
           , and the copy there is the one you sent before these edits.
-        </p>
-        <dl className="mt-1 space-y-1.5 text-xs">
-          {entries.map(({ setListId, entry, setListTitle }) => (
-            <div key={`${setListId}:${entry.id}`}>
-              <dt className="text-white/85">{setListTitle}</dt>
-              <dd className="text-white/55">
-                On the set list: {describeChart(chartSummary(entry.chart))}
-              </dd>
-            </div>
-          ))}
-          <div>
-            <dt className="text-white/85">This project now</dt>
-            <dd className="text-white/55">{now}</dd>
-          </div>
-        </dl>
-        <div className="mt-4 flex justify-end gap-2">
+        </>
+      }
+      footer={
+        <>
           <Button variant="secondary" onClick={update}>
             Update
           </Button>
           <Button variant="primary" autoFocus onClick={() => setOffer(null)}>
             Keep the old one
           </Button>
+        </>
+      }
+    >
+      <dl className={`space-y-1.5 pb-1 ${TYPE_CLASS.label}`}>
+        {entries.map(({ setListId, entry, setListTitle }) => (
+          <div key={`${setListId}:${entry.id}`}>
+            <dt style={{ color: 'var(--daw-text)' }}>{setListTitle}</dt>
+            <dd style={LABEL}>
+              On the set list: {describeChart(chartSummary(entry.chart))}
+            </dd>
+          </div>
+        ))}
+        <div>
+          <dt style={{ color: 'var(--daw-text)' }}>This project now</dt>
+          <dd style={LABEL}>{now}</dd>
         </div>
-      </DialogContent>
-    </Dialog>
+      </dl>
+    </DawDialog>
   );
 };

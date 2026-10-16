@@ -19,7 +19,7 @@ export function useMidiDevices() {
       const inputs = midiDeviceManager.getInputs();
       setInputs(inputs);
       setOutputs(midiDeviceManager.getOutputs());
-      setMidiStatus(inputs.length > 0 ? 'ready' : 'unavailable');
+      setMidiStatus(inputs.length > 0 ? 'ready' : 'no-device');
     };
 
     const doInit = async () => {
@@ -37,10 +37,7 @@ export function useMidiDevices() {
           }, 2000);
         }
       } else {
-        setMidiStatus('unavailable');
-        console.warn(
-          '[MIDI] Not available. Check: (1) Chrome/Edge browser required, (2) MIDI device connected, (3) MIDI permission granted',
-        );
+        setMidiStatus(midiDeviceManager.failure ?? 'unsupported');
       }
     };
 

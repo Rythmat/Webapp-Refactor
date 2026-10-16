@@ -37,6 +37,7 @@ import { ChordChart } from './ChordChart';
 import { practiceStudentTrack } from './practiceStudentTrack';
 import { ScaleKeyboard, type KeyboardScale } from './ScaleKeyboard';
 import { SegmentedToggle } from './SegmentedToggle';
+import { COLOR } from '@/daw/ui/tokens';
 
 /**
  * The screen a Practice Track opens on: one job — play over this — with the
@@ -66,7 +67,7 @@ interface PracticeTrackViewProps {
   onInit: () => void;
 }
 
-const ACCENT = '#7ecfcf';
+const ACCENT = COLOR.accent.value;
 const TEMPO_MIN = 50;
 const TEMPO_MAX = 160;
 /** A Theory Practice Track always shows C3–B5; a genre one is sized to its part. */
@@ -484,14 +485,14 @@ export function PracticeTrackView({
           onClick={toggleLoop}
           className="rounded-full px-5 py-3 text-sm"
           style={{
-            border: `1px solid ${loopEnabled ? ACCENT : 'var(--color-border)'}`,
-            color: loopEnabled ? ACCENT : 'var(--color-text-dim)',
+            border: `1px solid ${loopEnabled ? ACCENT : 'var(--daw-hairline)'}`,
+            color: loopEnabled ? ACCENT : 'var(--daw-text-3)',
           }}
         >
           ⟳ Loop {loopEnabled ? 'on' : 'off'}
         </button>
         <label className="flex items-center gap-3 text-sm">
-          <span style={{ color: 'var(--color-text-dim)' }}>Tempo</span>
+          <span style={{ color: 'var(--daw-text-3)' }}>Tempo</span>
           <input
             type="range"
             min={TEMPO_MIN}
@@ -508,13 +509,13 @@ export function PracticeTrackView({
         </label>
         {genre?.styles && genre.styles.length > 1 && (
           <label className="flex items-center gap-2 text-sm">
-            <span style={{ color: 'var(--color-text-dim)' }}>Groove</span>
+            <span style={{ color: 'var(--daw-text-3)' }}>Groove</span>
             <select
               value={genre.styleId ?? ''}
               disabled={switching || isRecording}
               onChange={(e) => void switchTrack({ styleId: e.target.value })}
               className="rounded-full bg-transparent px-3 py-2"
-              style={{ border: '1px solid var(--color-border)' }}
+              style={{ border: '1px solid var(--daw-hairline)' }}
               aria-label="Groove"
             >
               {genre.styles.map((s) => (
@@ -527,7 +528,7 @@ export function PracticeTrackView({
         )}
         {genre?.progressions && genre.progressions.length > 1 && (
           <label className="flex items-center gap-2 text-sm">
-            <span style={{ color: 'var(--color-text-dim)' }}>Progression</span>
+            <span style={{ color: 'var(--daw-text-3)' }}>Progression</span>
             <select
               value={genre.progressionId ?? ''}
               disabled={switching || isRecording}
@@ -535,7 +536,7 @@ export function PracticeTrackView({
                 void switchTrack({ progressionId: e.target.value })
               }
               className="max-w-72 rounded-full bg-transparent px-3 py-2"
-              style={{ border: '1px solid var(--color-border)' }}
+              style={{ border: '1px solid var(--daw-hairline)' }}
               aria-label="Progression"
             >
               {genre.progressions.map((p) => (
@@ -548,7 +549,7 @@ export function PracticeTrackView({
         )}
       </div>
 
-      <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
+      <p className="text-sm" style={{ color: 'var(--daw-text-3)' }}>
         {takeNotes > 0 && !isRecording
           ? `Your take is on the ${studentTrackLabel} track. Take it to the Studio to hear or edit it.`
           : `Play along on these keys, your computer keyboard or a MIDI keyboard; the ${view === 'bass' ? 'bass note is lit on the keyboard' : view === 'chords' ? 'chord to play is lit on the keyboard' : 'scale notes are lit on the keyboard'}.`}
@@ -625,7 +626,7 @@ export function PracticeTrackView({
     <div
       ref={rootRef}
       className="flex flex-1 flex-col overflow-y-auto px-4 py-3 sm:px-8 sm:py-4"
-      style={{ color: 'var(--color-text)' }}
+      style={{ color: 'var(--daw-text)' }}
       data-testid="practice-track-view"
     >
       <PracticeHeader
@@ -640,10 +641,7 @@ export function PracticeTrackView({
             {task}
           </h2>
           {genre ? (
-            <p
-              className="mt-1 text-sm"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
+            <p className="mt-1 text-sm" style={{ color: 'var(--daw-text-3)' }}>
               {genre.genreLabel} Level {genre.level} · {genre.sectionName}
             </p>
           ) : null}
@@ -675,12 +673,12 @@ function PromptList({ prompts }: { prompts: string[] }) {
       className="w-full rounded-2xl px-5 py-4"
       style={{
         background: 'rgba(255,255,255,0.03)',
-        border: '1px solid var(--color-border)',
+        border: '1px solid var(--daw-hairline)',
       }}
     >
       <h3
         className="text-xs font-semibold uppercase tracking-wide"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         Things to try
       </h3>
@@ -688,7 +686,7 @@ function PromptList({ prompts }: { prompts: string[] }) {
       {rest.length > 0 && (
         <ul
           className="mt-3 flex flex-col gap-1.5 text-sm"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           {rest.map((prompt) => (
             <li key={prompt} className="flex gap-2">

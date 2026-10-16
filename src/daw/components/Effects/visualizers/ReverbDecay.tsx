@@ -131,10 +131,10 @@ export function ReverbDecay({
     >
       <defs>
         <linearGradient id="reverb-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--color-accent)" stopOpacity={0.2} />
+          <stop offset="0%" stopColor="var(--daw-accent)" stopOpacity={0.2} />
           <stop
             offset="100%"
-            stopColor="var(--color-accent)"
+            stopColor="var(--daw-accent)"
             stopOpacity={0.02}
           />
         </linearGradient>
@@ -207,7 +207,7 @@ export function ReverbDecay({
           y1={PADDING.top}
           x2={preDelayX}
           y2={filterY}
-          stroke="rgba(126, 207, 207, 0.3)"
+          stroke="rgba(255, 255, 255, 0.3)"
           strokeWidth={0.5}
           strokeDasharray="2 2"
         />
@@ -220,7 +220,7 @@ export function ReverbDecay({
       <path
         d={curvePath}
         fill="none"
-        stroke="var(--color-accent)"
+        stroke="var(--daw-accent)"
         strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -230,7 +230,7 @@ export function ReverbDecay({
       <text
         x={PADDING.left + 3}
         y={PADDING.top - 3}
-        fill="rgba(126, 207, 207, 0.5)"
+        fill="rgba(255, 255, 255, 0.5)"
         fontSize={7}
         fontFamily="'Glacial Indifference', 'Haskoy', system-ui, sans-serif"
         fontWeight={600}
@@ -244,7 +244,7 @@ export function ReverbDecay({
         <text
           x={PADDING.left + (preDelayX - PADDING.left) / 2}
           y={ampToY(0) - 3}
-          fill="rgba(126, 207, 207, 0.35)"
+          fill="rgba(255, 255, 255, 0.35)"
           fontSize={6}
           fontFamily="'Glacial Indifference', 'Haskoy', system-ui, sans-serif"
           textAnchor="middle"

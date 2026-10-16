@@ -66,6 +66,7 @@ import {
   visibleRect,
   type PaintedWindow,
 } from './viewportCanvas';
+import { getDawPalette } from '@/daw/ui/tokens';
 
 type Tool = 'select' | 'draw' | 'erase';
 
@@ -122,16 +123,15 @@ const VIEW_MIN = 24; // C1
 const VIEW_MAX = 96; // C7
 const VIEW_RANGE = VIEW_MAX - VIEW_MIN + 1; // 73 notes
 
-// ── Theme colors (read CSS variables for canvas drawing) ────────────────────
-function getThemeColors(el: HTMLElement) {
-  const s = getComputedStyle(el);
-  const get = (v: string, fb: string) => s.getPropertyValue(v).trim() || fb;
+// ── Theme colors (the DAW palette, for canvas drawing) ─────────────────────
+function getThemeColors() {
+  const palette = getDawPalette();
   return {
-    bg: get('--color-bg', '#101012'),
-    border: get('--color-border', 'rgba(255,255,255,0.08)'),
-    textDim: get('--color-text-dim', '#6b6b80'),
-    // The loop's light blue — the same token the timeline's loop uses.
-    selectionRgb: get('--color-selection-rgb', '126, 207, 207'),
+    bg: palette.bg,
+    border: palette.hairline,
+    textDim: palette.text3,
+    // The loop's selection colour, the same token the timeline's loop uses.
+    selectionRgb: palette.selectionRgb,
   };
 }
 
@@ -566,14 +566,7 @@ export function PianoRoll({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const colors = containerRef.current
-      ? getThemeColors(containerRef.current)
-      : {
-          bg: '#101012',
-          border: 'rgba(255,255,255,0.08)',
-          textDim: '#6b6b80',
-          selectionRgb: '126, 207, 207',
-        };
+    const colors = getThemeColors();
 
     const dpr = window.devicePixelRatio || 1;
     const w = KEYS_WIDTH;
@@ -679,14 +672,7 @@ export function PianoRoll({
     const surface = rulerCanvasRef.current;
     if (!canvas || !surface) return;
 
-    const colors = containerRef.current
-      ? getThemeColors(containerRef.current)
-      : {
-          bg: '#101012',
-          border: 'rgba(255,255,255,0.08)',
-          textDim: '#6b6b80',
-          selectionRgb: '126, 207, 207',
-        };
+    const colors = getThemeColors();
 
     const dpr = window.devicePixelRatio || 1;
     const rulerContainer = rulerScrollRef.current;
@@ -789,14 +775,7 @@ export function PianoRoll({
     const container = gridScrollRef.current;
     if (!container) return;
 
-    const colors = containerRef.current
-      ? getThemeColors(containerRef.current)
-      : {
-          bg: '#101012',
-          border: 'rgba(255,255,255,0.08)',
-          textDim: '#6b6b80',
-          selectionRgb: '126, 207, 207',
-        };
+    const colors = getThemeColors();
 
     const dpr = window.devicePixelRatio || 1;
     const w = Math.max(container.clientWidth, gridW);
@@ -974,14 +953,7 @@ export function PianoRoll({
     const surface = velCanvasRef.current;
     if (!canvas || !surface || !velLaneOpen) return;
 
-    const colors = containerRef.current
-      ? getThemeColors(containerRef.current)
-      : {
-          bg: '#101012',
-          border: 'rgba(255,255,255,0.08)',
-          textDim: '#6b6b80',
-          selectionRgb: '126, 207, 207',
-        };
+    const colors = getThemeColors();
     const dpr = window.devicePixelRatio || 1;
     const velContainer = velScrollRef.current;
     const w = velContainer ? Math.max(velContainer.clientWidth, gridW) : gridW;
@@ -1920,7 +1892,7 @@ export function PianoRoll({
         className="flex shrink-0 items-center gap-2 px-3"
         style={{
           height: TOOLBAR_H,
-          borderBottom: '1px solid var(--color-border)',
+          borderBottom: '1px solid var(--daw-hairline)',
         }}
       >
         {!host && <RollViewToggle view={rollView} onChange={setRollView} />}
@@ -1994,20 +1966,20 @@ export function PianoRoll({
         {/* Grid dropdown */}
         <label
           className="flex items-center gap-1.5 text-xs"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Grid
           <select
             value={gridSize}
             onChange={(e) => setGridSize(e.target.value as GridSize)}
             className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs outline-none"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             {Object.keys(GRID_VALUES).map((g) => (
               <option
                 key={g}
                 value={g}
-                style={{ backgroundColor: 'var(--color-bg)' }}
+                style={{ backgroundColor: 'var(--daw-bg)' }}
               >
                 {g}
               </option>
@@ -2018,7 +1990,7 @@ export function PianoRoll({
         <button
           onClick={handleQuantize}
           className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-xs transition-colors hover:bg-white/10"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           Quantize
         </button>
@@ -2065,13 +2037,13 @@ export function PianoRoll({
         {/* Note count + zoom */}
         <span
           className="ml-auto text-xs"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           {events.length} notes
         </span>
         <span
           className="inline-block min-w-[13ch] text-right text-[10px] tabular-nums"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           H:{Math.round(zoom * 100)}% V:{Math.round(vZoom * 100)}%
         </span>
@@ -2088,7 +2060,7 @@ export function PianoRoll({
         {showNotation && (
           <div
             className="absolute inset-0 z-30"
-            style={{ background: 'var(--color-bg)', visibility: 'visible' }}
+            style={{ background: 'var(--daw-bg)', visibility: 'visible' }}
           >
             <StudioNotationView
               events={events}
@@ -2114,9 +2086,9 @@ export function PianoRoll({
               style={{
                 height: RULER_H,
                 flexShrink: 0,
-                backgroundColor: 'var(--color-bg)',
-                borderBottom: '1px solid var(--color-border)',
-                borderRight: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-bg)',
+                borderBottom: '1px solid var(--daw-hairline)',
+                borderRight: '1px solid var(--daw-hairline)',
               }}
             />
             {/* Piano keys — syncs vertically with grid */}
@@ -2212,9 +2184,9 @@ export function PianoRoll({
                 height: 18,
                 background: 'none',
                 border: 'none',
-                borderTop: '1px solid var(--color-border)',
-                borderRight: '1px solid var(--color-border)',
-                color: 'var(--color-text-dim)',
+                borderTop: '1px solid var(--daw-hairline)',
+                borderRight: '1px solid var(--daw-hairline)',
+                color: 'var(--daw-text-3)',
               }}
             >
               {velLaneOpen ? (
@@ -2230,7 +2202,7 @@ export function PianoRoll({
               className="flex-1"
               style={{
                 height: 18,
-                borderTop: '1px solid var(--color-border)',
+                borderTop: '1px solid var(--daw-hairline)',
               }}
             />
           </div>
@@ -2249,7 +2221,7 @@ export function PianoRoll({
                   style={{
                     width: KEYS_WIDTH,
                     height: VEL_LANE_H,
-                    borderRight: '1px solid var(--color-border)',
+                    borderRight: '1px solid var(--daw-hairline)',
                   }}
                 />
                 {/* Vel canvas */}

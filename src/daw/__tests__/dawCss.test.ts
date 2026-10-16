@@ -1,102 +1,66 @@
 // @vitest-environment jsdom
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { THEMES } from '@/daw/constants/themes';
-import { DAW_BODY_CLASS } from '@/daw/hooks/useDawBodyTokens';
-import { installDawCss } from './dawTokens';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { DAW_CSS, alphaOf, installDawCss, resolveVars } from './dawTokens';
 
-// ── body.daw-active: the DAW palette for portaled overlays ──────────────────
-// Dialogs and popovers portal to <body>, outside .daw-root. While the editor
-// or one of those overlays is mounted, useDawBodyTokens sets body.daw-active,
-// and daw.css declares the --color-* tokens there too. Only those: the rest of
-// the app keeps its own fonts, text colour and glass tokens while the editor
-// is open.
+// ── One palette, on :root (plan 2.1) ────────────────────────────────────────
+// The editor's tokens are the --daw-* properties daw-tokens.css declares on
+// :root, which src/main.tsx loads on every page. Dialogs, popovers and the
+// lesson overlay portal to <body>, outside .daw-root, and read the same
+// values from there, so nothing has to copy a palette onto them (the old
+// body.daw-active class, the THEMES inline copy and the per-portal copies are
+// gone). daw.css keeps only the editor's base styles.
 
-// The selector daw.css must use for the class the hook sets.
-const ON_BODY = `body.${DAW_BODY_CLASS}`;
+const SRC = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 let removeCss: () => void;
 beforeAll(() => {
   removeCss = installDawCss();
 });
 afterAll(() => removeCss());
-afterEach(() => document.body.classList.remove(DAW_BODY_CLASS));
 
-/** Every style rule in daw.css (the only sheet here), with its selectors split. */
-function styleRules(): { selectors: string[]; style: CSSStyleDeclaration }[] {
-  const sheets = [...document.styleSheets];
-  expect(sheets).toHaveLength(1);
-  return [...sheets[0].cssRules]
-    .filter((r): r is CSSStyleRule => r instanceof CSSStyleRule)
-    .map((r) => ({
-      selectors: r.selectorText.split(',').map((s) => s.trim()),
-      style: r.style,
-    }));
-}
+describe('the DAW tokens', () => {
+  it('are loaded by src/main.tsx, after the app theme they alias', () => {
+    const main = readFileSync(join(SRC, 'main.tsx'), 'utf8');
+    const theme = main.indexOf("import './styles/appTheme.css';");
+    const tokens = main.indexOf("import './daw/ui/daw-tokens.css';");
+    expect(theme).toBeGreaterThan(-1);
+    expect(tokens).toBeGreaterThan(theme);
+  });
 
-/** The properties a rule declares, by name. */
-function declared(style: CSSStyleDeclaration): Map<string, string> {
-  const out = new Map<string, string>();
-  for (let i = 0; i < style.length; i++) {
-    const name = style[i];
-    out.set(name, style.getPropertyValue(name).trim());
-  }
-  return out;
-}
+  it('reach an overlay portaled to <body>, outside .daw-root', () => {
+    const card = document.createElement('div');
+    card.style.background = 'var(--daw-popover)';
+    card.style.color = 'var(--daw-text)';
+    document.body.appendChild(card);
+    expect(card.closest('.daw-root')).toBeNull();
+    const background = resolveVars(card, card.style.background);
+    expect(background).toBe('#141416');
+    expect(alphaOf(background)).toBe(1);
+    expect(resolveVars(card, card.style.color)).toBe('#e8e8f0');
+    card.remove();
+  });
+});
 
-function declarationsFor(selector: string): Map<string, string> {
-  const out = new Map<string, string>();
-  for (const rule of styleRules()) {
-    if (!rule.selectors.includes(selector)) continue;
-    for (const [name, value] of declared(rule.style)) out.set(name, value);
-  }
-  return out;
-}
+describe('daw.css', () => {
+  it('declares no tokens of its own, and no legacy --color-* or glass ones', () => {
+    expect(DAW_CSS).not.toMatch(/--(?:daw|color|glass|grain)-[\w-]+\s*:/);
+    expect(DAW_CSS).not.toMatch(/var\(--(?:color|glass|grain)-/);
+    expect(DAW_CSS).not.toContain('glass-panel');
+    expect(DAW_CSS).not.toContain('daw-active');
+  });
 
-describe('daw.css token scope', () => {
-  it('declares every --color-* token on body.daw-active, and nothing else', () => {
-    const onBody = declarationsFor(ON_BODY);
-    const onRoot = declarationsFor('.daw-root');
-    const colorTokens = [...onRoot.keys()].filter((n) =>
-      n.startsWith('--color-'),
+  it('keeps the editor font and text colour on .daw-root', () => {
+    const root = document.createElement('div');
+    root.className = 'daw-root';
+    document.body.appendChild(root);
+    const style = getComputedStyle(root);
+    expect(style.fontFamily).toContain('Glacial Indifference');
+    expect(resolveVars(root, style.color || 'var(--daw-text)')).toMatch(
+      /#e8e8f0|rgb\(232, 232, 240\)/,
     );
-
-    expect(colorTokens.length).toBeGreaterThan(10);
-    expect([...onBody.keys()].sort()).toEqual(colorTokens.sort());
-    for (const name of colorTokens) {
-      expect(onBody.get(name), name).toBe(onRoot.get(name));
-    }
-  });
-
-  it('keeps the glass tokens, font and text colour on .daw-root only', () => {
-    const onBody = declarationsFor(ON_BODY);
-    const onRoot = declarationsFor('.daw-root');
-    for (const name of ['--glass-border', 'font-family', 'color']) {
-      expect(onRoot.has(name), name).toBe(true);
-      expect(onBody.has(name), name).toBe(false);
-    }
-  });
-
-  it('gives <body> the palette only while the class is set', () => {
-    const body = () => getComputedStyle(document.body);
-    expect(body().getPropertyValue('--color-surface-2').trim()).toBe('');
-
-    document.body.classList.add(DAW_BODY_CLASS);
-    expect(body().getPropertyValue('--color-surface-2').trim()).toBe('#1e1e1e');
-    expect(body().getPropertyValue('--color-accent').trim()).toBe('#7ecfcf');
-    expect(body().getPropertyValue('--glass-border').trim()).toBe('');
-  });
-
-  // useTheme writes THEMES.dark inline on .daw-root, over daw.css. A portal
-  // reads daw.css's values from <body>, so the two copies must agree or an
-  // overlay would not match the editor behind it (until 2.1 removes THEMES).
-  it('matches the runtime copy useTheme writes on .daw-root', () => {
-    const onBody = declarationsFor(ON_BODY);
-    const runtime = Object.entries(THEMES.dark).filter(([name]) =>
-      name.startsWith('--color-'),
-    );
-    expect(runtime.length).toBeGreaterThan(0);
-    for (const [name, value] of runtime) {
-      expect(onBody.get(name), name).toBe(value);
-    }
+    root.remove();
   });
 });

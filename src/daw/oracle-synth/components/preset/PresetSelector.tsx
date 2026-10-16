@@ -4,6 +4,7 @@ import { useSynthStore } from '../../store';
 import styles from './PresetSelector.module.css';
 import { saveAtlasPatch } from '../../store/presets/atlasPatches';
 import type { PresetData } from '../../store/presets/PresetData';
+import { showError } from '@/components/utils/toast';
 
 /**
  * Flip-aware fixed placement for the dropdown/save dialog, anchored to the
@@ -95,7 +96,7 @@ export const PresetSelector: React.FC = React.memo(() => {
       setShowSaveDialog(false);
       setSaveName('');
     } catch (err) {
-      window.alert(
+      showError(
         `Saved in this browser, but not for everyone: ${err instanceof Error ? err.message : String(err)}`,
       );
     }

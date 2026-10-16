@@ -14,7 +14,7 @@ import { MODE_DISPLAY } from './insightConstants';
 import { chordLabelSymbol, keyContext, plural } from './insightNotation';
 
 const MAX_CHIPS = 16;
-const dim = { color: 'var(--color-text-dim)' };
+const dim = { color: 'var(--daw-text-3)' };
 
 /** A key as "D Dorian". */
 export function KeyLabel({
@@ -92,14 +92,14 @@ function ActionButton({
         cursor: disabled ? 'default' : 'pointer',
         ...(prominent
           ? {
-              backgroundColor: 'rgba(126, 207, 207, 0.15)',
-              border: '1px solid rgba(126, 207, 207, 0.4)',
-              color: 'var(--color-accent)',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              color: 'var(--daw-accent)',
             }
           : {
-              backgroundColor: 'var(--color-surface-2)',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text)',
+              backgroundColor: 'var(--daw-surface-2)',
+              border: '1px solid var(--daw-hairline)',
+              color: 'var(--daw-text)',
             }),
       }}
     >
@@ -142,12 +142,12 @@ export function ChordSymbolsSection() {
     <div
       data-testid="insight-chord-symbols"
       className="flex flex-col gap-1.5 border-b px-3 py-2.5"
-      style={{ borderColor: 'var(--color-border)' }}
+      style={{ borderColor: 'var(--daw-hairline)' }}
     >
       <div className="flex items-center gap-1.5">
         <span
           className="text-[10px] font-medium uppercase tracking-wider"
-          style={{ color: 'var(--color-accent)' }}
+          style={{ color: 'var(--daw-accent)' }}
         >
           Chord Symbols
         </span>

@@ -1,5 +1,6 @@
 import React, { useRef, useCallback } from 'react';
 import styles from './WheelControl.module.css';
+import { COLOR } from '@/daw/ui/tokens';
 
 interface WheelControlProps {
   value: number; // 0..1 for mod, -1..1 for pitch
@@ -22,7 +23,7 @@ export const WheelControl: React.FC<WheelControlProps> = React.memo(
     max = 1,
     label,
     springBack = false,
-    accent = '#7ecfcf',
+    accent = COLOR.accent.value,
     onChange,
   }) => {
     const wheelRef = useRef<HTMLDivElement>(null);

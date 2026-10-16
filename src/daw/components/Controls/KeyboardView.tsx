@@ -102,11 +102,11 @@ export function KeyboardView({ trackId }: { trackId: string }) {
       {/* Top bar */}
       <div
         className="flex shrink-0 items-center gap-4 border-b px-4 py-2"
-        style={{ borderColor: 'var(--color-border)' }}
+        style={{ borderColor: 'var(--daw-hairline)' }}
       >
         <span
           className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Instrument
         </span>
@@ -116,13 +116,13 @@ export function KeyboardView({ trackId }: { trackId: string }) {
         <div
           className="flex items-center gap-1 rounded-lg px-3 py-1"
           style={{
-            backgroundColor: 'var(--color-surface-2)',
-            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--daw-surface-2)',
+            border: '1px solid var(--daw-hairline)',
           }}
         >
           <span
             className="min-w-[100px] text-center text-xs font-medium"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             {presetName}
           </span>
@@ -134,10 +134,10 @@ export function KeyboardView({ trackId }: { trackId: string }) {
           className="flex cursor-pointer items-center gap-1 rounded-lg px-3 py-1.5 text-[10px] font-medium transition-colors"
           style={{
             backgroundColor: browserOpen
-              ? 'var(--color-accent)'
-              : 'var(--color-surface-2)',
-            color: browserOpen ? '#fff' : 'var(--color-text-dim)',
-            border: '1px solid var(--color-border)',
+              ? 'var(--daw-selected)'
+              : 'var(--daw-surface-2)',
+            color: browserOpen ? 'var(--daw-text)' : 'var(--daw-text-3)',
+            border: '1px solid var(--daw-hairline)',
           }}
         >
           <Search size={12} />
@@ -149,13 +149,13 @@ export function KeyboardView({ trackId }: { trackId: string }) {
         {/* Mode toggle */}
         <span
           className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Mode
         </span>
         <div
           className="flex overflow-hidden rounded-lg"
-          style={{ border: '1px solid var(--color-border)' }}
+          style={{ border: '1px solid var(--daw-hairline)' }}
         >
           <button
             onClick={() => setMode('keyboard')}
@@ -163,9 +163,10 @@ export function KeyboardView({ trackId }: { trackId: string }) {
             style={{
               backgroundColor:
                 mode === 'keyboard'
-                  ? 'var(--color-accent)'
-                  : 'var(--color-surface-2)',
-              color: mode === 'keyboard' ? '#fff' : 'var(--color-text-dim)',
+                  ? 'var(--daw-selected)'
+                  : 'var(--daw-surface-2)',
+              color:
+                mode === 'keyboard' ? 'var(--daw-text)' : 'var(--daw-text-3)',
               border: 'none',
             }}
           >
@@ -177,9 +178,10 @@ export function KeyboardView({ trackId }: { trackId: string }) {
             style={{
               backgroundColor:
                 mode === 'pianoroll'
-                  ? 'var(--color-accent)'
-                  : 'var(--color-surface-2)',
-              color: mode === 'pianoroll' ? '#fff' : 'var(--color-text-dim)',
+                  ? 'var(--daw-selected)'
+                  : 'var(--daw-surface-2)',
+              color:
+                mode === 'pianoroll' ? 'var(--daw-text)' : 'var(--daw-text-3)',
               border: 'none',
             }}
           >
@@ -240,7 +242,7 @@ export function KeyboardView({ trackId }: { trackId: string }) {
           ) : (
             <div
               className="flex h-full items-center justify-center text-xs"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               No MIDI clips on this track
             </div>

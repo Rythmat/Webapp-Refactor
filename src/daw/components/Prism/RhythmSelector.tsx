@@ -38,7 +38,7 @@ export function RhythmSelector() {
     <div className="flex flex-col gap-1">
       <span
         className="mb-0.5 text-xs font-medium"
-        style={{ color: 'var(--color-text-dim)' }}
+        style={{ color: 'var(--daw-text-3)' }}
       >
         Rhythm Pattern
       </span>
@@ -47,9 +47,9 @@ export function RhythmSelector() {
         onChange={handleChange}
         className="h-8 cursor-pointer rounded-md px-2 text-sm font-medium outline-none"
         style={{
-          backgroundColor: 'var(--color-surface-2)',
-          color: 'var(--color-text)',
-          border: '1px solid var(--color-border)',
+          backgroundColor: 'var(--daw-surface-2)',
+          color: 'var(--daw-text)',
+          border: '1px solid var(--daw-hairline)',
         }}
       >
         {Array.from(genreGroups.entries()).map(([genre, names]) => (

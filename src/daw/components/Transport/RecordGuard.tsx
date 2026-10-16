@@ -4,7 +4,7 @@ import {
   dismissRecordRequest,
   useRecordRequest,
 } from '@/daw/commands/requestRecord';
-import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
+import { ConfirmDialog } from '@/daw/ui/ConfirmDialog';
 
 // ── RecordGuard ─────────────────────────────────────────────────────────────
 // The overwrite confirm behind requestRecord(). DawApp mounts it once at the
@@ -22,24 +22,20 @@ export function RecordGuard() {
     return dismissRecordRequest;
   }, []);
 
-  // ConfirmModal reports the close, which drops the request, before the
-  // confirm, so Continue starts the take this render showed.
-  const onConfirm = () => {
-    if (request) confirmRecordRequest(request);
-  };
-
+  // Continue settles the request itself (it may ask again, for a track armed
+  // meanwhile), so only Cancel, Escape and the like drop it here.
   return (
-    <ConfirmModal
+    <ConfirmDialog
       open={request !== null}
-      onOpenChange={(next) => {
-        if (!next) dismissRecordRequest();
-      }}
+      onOpenChange={() => {}}
       title="Overwrite existing recording?"
       description="This track already has a recording. Starting a new recording will overwrite any audio it rolls over in time."
       confirmLabel="Continue"
-      cancelLabel="Cancel"
-      destructive
-      onConfirm={onConfirm}
+      danger
+      onConfirm={() => {
+        if (request) confirmRecordRequest(request);
+      }}
+      onCancel={dismissRecordRequest}
     />
   );
 }

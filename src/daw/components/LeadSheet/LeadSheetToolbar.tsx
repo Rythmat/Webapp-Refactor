@@ -25,6 +25,7 @@ import {
 import { useChordNotation } from '@/lib/chordNotation';
 import { pickMelodyTrack } from './leadSheetMelody';
 import { SendToSetListButton } from './SendToSetList';
+import { promptDialog } from '@/daw/ui/DialogHost';
 
 interface LeadSheetToolbarProps {
   selectedMeasureIdx: number | null;
@@ -131,11 +132,19 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
     selectedMeasureIdx !== null &&
     repeats.some((r) => r.startMeasure === selectedMeasureIdx);
 
-  const handleAddSection = useCallback(() => {
+  const handleAddSection = useCallback(async () => {
     if (selectedMeasureIdx === null) return;
-    const label = window.prompt('Section label (e.g. A, B, Intro, Bridge):');
+    const measureIdx = selectedMeasureIdx;
+    const label = await promptDialog({
+      title: 'Add a section',
+      label: 'Section label',
+      description: 'For example A, B, Intro or Bridge.',
+      confirmLabel: 'Add',
+      maxLength: 24,
+      validate: (value) => (value.trim() ? null : 'Type a label to add it.'),
+    });
     if (!label || !label.trim()) return;
-    addSection({ measureIdx: selectedMeasureIdx, label: label.trim() });
+    addSection({ measureIdx, label: label.trim() });
   }, [selectedMeasureIdx, addSection]);
 
   const handleRemoveSection = useCallback(() => {
@@ -159,7 +168,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const btnClass =
     'flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-[11px] font-medium transition-colors hover:bg-white/5';
   const btnStyle = {
-    color: 'var(--color-text)',
+    color: 'var(--daw-text)',
     background: 'none',
     border: 'none',
   };
@@ -169,7 +178,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
       className="leadsheet-toolbar flex items-center gap-1 border-b px-3 py-1.5"
       style={{
         borderColor: 'rgba(255, 255, 255, 0.08)',
-        backgroundColor: 'var(--color-surface-1)',
+        backgroundColor: 'var(--daw-surface-1)',
       }}
     >
       {/* Chord format toggle (locked to the global notation in jazz / roman) */}
@@ -218,9 +227,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
         style={{
           ...btnStyle,
           opacity: showMelody ? 1 : 0.5,
-          color: showMelody
-            ? 'var(--color-accent, #8b5cf6)'
-            : 'var(--color-text)',
+          color: showMelody ? 'var(--daw-accent)' : 'var(--daw-text)',
         }}
         onClick={toggleMelody}
         title={
@@ -275,7 +282,11 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
           ...btnStyle,
           opacity: selectedMeasureIdx === null ? 0.4 : 1,
         }}
-        onClick={hasSectionAtSelected ? handleRemoveSection : handleAddSection}
+        onClick={
+          hasSectionAtSelected
+            ? handleRemoveSection
+            : () => void handleAddSection()
+        }
         disabled={selectedMeasureIdx === null}
         title={
           hasSectionAtSelected ? 'Remove section marker' : 'Add section marker'

@@ -1,0 +1,499 @@
+{
+  "src/daw/collab/types.ts": {
+    "hex": 8
+  },
+  "src/daw/collab/ui/ChatPanel.tsx": {
+    "smallText": 6
+  },
+  "src/daw/collab/ui/CollabToolbar.tsx": {
+    "hex": 4,
+    "smallText": 7,
+    "zIndex": 1,
+    "whileTap": 4
+  },
+  "src/daw/collab/ui/PresenceTrackDots.tsx": {
+    "smallText": 1
+  },
+  "src/daw/collab/ui/UserList.tsx": {
+    "smallText": 6
+  },
+  "src/daw/components/ChannelStrip/ChannelStrip.tsx": {
+    "smallText": 3
+  },
+  "src/daw/components/ChannelStrip/PopOutOverlay.tsx": {
+    "hex": 2,
+    "rgb": 7,
+    "zIndex": 1
+  },
+  "src/daw/components/Controls/AudioMidiSourcePanel.tsx": {
+    "smallText": 1
+  },
+  "src/daw/components/Controls/DawSynthLayout.tsx": {
+    "hex": 3
+  },
+  "src/daw/components/Controls/DrumMachineView.tsx": {
+    "hex": 6,
+    "rgb": 22,
+    "smallText": 8,
+    "zIndex": 2
+  },
+  "src/daw/components/Controls/GroovesBrowser.tsx": {
+    "hex": 14,
+    "rgb": 1,
+    "smallText": 7
+  },
+  "src/daw/components/Controls/GuitarBassView.tsx": {
+    "hex": 41,
+    "rgb": 11,
+    "smallText": 13,
+    "zIndex": 9
+  },
+  "src/daw/components/Controls/KeyboardView.tsx": {
+    "smallText": 5,
+    "zIndex": 1
+  },
+  "src/daw/components/Controls/OracleSynthInline.tsx": {
+    "hex": 8,
+    "rgb": 1,
+    "smallText": 1
+  },
+  "src/daw/components/Controls/OrganView.module.css": {
+    "hex": 4,
+    "rgb": 20,
+    "smallText": 10
+  },
+  "src/daw/components/Controls/OrganView.tsx": {
+    "hex": 16
+  },
+  "src/daw/components/Controls/PartsBrowser.tsx": {
+    "rgb": 1,
+    "smallText": 5
+  },
+  "src/daw/components/Controls/PitchMeter.tsx": {
+    "hex": 3,
+    "rgb": 7,
+    "smallText": 2
+  },
+  "src/daw/components/Controls/PresetBrowser.tsx": {
+    "smallText": 1
+  },
+  "src/daw/components/Controls/RotaryKnob.tsx": {
+    "rgb": 3,
+    "smallText": 2
+  },
+  "src/daw/components/Controls/SamplerChopsView.tsx": {
+    "hex": 2,
+    "rgb": 1,
+    "smallText": 5
+  },
+  "src/daw/components/Controls/SamplerWaveform.tsx": {
+    "rgb": 2
+  },
+  "src/daw/components/Controls/SoundFontView.tsx": {
+    "rgb": 1,
+    "zIndex": 1
+  },
+  "src/daw/components/Controls/TrackControlsPanel.tsx": {
+    "rgb": 3
+  },
+  "src/daw/components/Controls/TunerDisplay.tsx": {
+    "hex": 3,
+    "smallText": 6
+  },
+  "src/daw/components/Controls/VocalView.tsx": {
+    "hex": 34,
+    "rgb": 16,
+    "smallText": 35,
+    "zIndex": 11
+  },
+  "src/daw/components/Effects/EffectsPanel.tsx": {
+    "hex": 4,
+    "rgb": 8,
+    "smallText": 8,
+    "zIndex": 4
+  },
+  "src/daw/components/Effects/FxBrowser.tsx": {
+    "smallText": 2
+  },
+  "src/daw/components/Effects/FxMeter.tsx": {
+    "rgb": 2,
+    "smallText": 1
+  },
+  "src/daw/components/Effects/FxShared.tsx": {
+    "hex": 12,
+    "rgb": 4,
+    "smallText": 7
+  },
+  "src/daw/components/Effects/GraphicEQ.tsx": {
+    "hex": 8,
+    "rgb": 17,
+    "smallText": 2
+  },
+  "src/daw/components/Effects/visualizers/CompressorCurve.tsx": {
+    "rgb": 7
+  },
+  "src/daw/components/Effects/visualizers/DelayTaps.tsx": {
+    "rgb": 6
+  },
+  "src/daw/components/Effects/visualizers/GateCurve.tsx": {
+    "rgb": 7
+  },
+  "src/daw/components/Effects/visualizers/ReverbDecay.tsx": {
+    "rgb": 12
+  },
+  "src/daw/components/LeadSheet/ChordSymbol.tsx": {
+    "hex": 1,
+    "rgb": 1,
+    "zIndex": 1
+  },
+  "src/daw/components/LeadSheet/leadsheet-print.css": {
+    "zIndex": 1
+  },
+  "src/daw/components/LeadSheet/LeadSheetStaff.tsx": {
+    "hex": 1
+  },
+  "src/daw/components/LeadSheet/LeadSheetToolbar.tsx": {
+    "rgb": 6
+  },
+  "src/daw/components/Library/ChordCard.tsx": {
+    "hex": 2,
+    "rgb": 7,
+    "smallText": 10
+  },
+  "src/daw/components/Library/ChordSymbolsSection.tsx": {
+    "hex": 1,
+    "rgb": 3,
+    "smallText": 10
+  },
+  "src/daw/components/Library/InsightContent.tsx": {
+    "hex": 1,
+    "rgb": 1,
+    "smallText": 5
+  },
+  "src/daw/components/Library/KeySection.tsx": {
+    "rgb": 2,
+    "smallText": 3
+  },
+  "src/daw/components/Library/LibraryPanel.tsx": {
+    "rgb": 1,
+    "smallText": 6
+  },
+  "src/daw/components/Library/SelectionAnalysis.tsx": {
+    "hex": 2,
+    "rgb": 4,
+    "smallText": 16
+  },
+  "src/daw/components/Library/UnisonSections.tsx": {
+    "hex": 1,
+    "rgb": 4,
+    "smallText": 22
+  },
+  "src/daw/components/MeshGradientBg.tsx": {
+    "zIndex": 1
+  },
+  "src/daw/components/Mixer/AddTrackMenu.tsx": {
+    "hex": 127,
+    "rgb": 2
+  },
+  "src/daw/components/PianoRoll/ClipPianoRoll.tsx": {
+    "hex": 1
+  },
+  "src/daw/components/PianoRoll/PianoRoll.tsx": {
+    "hex": 4,
+    "rgb": 9,
+    "smallText": 6,
+    "zIndex": 1
+  },
+  "src/daw/components/PianoRoll/PianoRollModal.tsx": {
+    "rgb": 3,
+    "zIndex": 2
+  },
+  "src/daw/components/Practice/ChordChart.tsx": {
+    "rgb": 2
+  },
+  "src/daw/components/Practice/PracticeTrackView.tsx": {
+    "hex": 5,
+    "rgb": 1
+  },
+  "src/daw/components/Practice/ScaleKeyboard.tsx": {
+    "hex": 1
+  },
+  "src/daw/components/Prism/ChordBuilder.tsx": {
+    "smallText": 2
+  },
+  "src/daw/components/Prism/CircleOfFifths.tsx": {
+    "hex": 3,
+    "rgb": 6,
+    "smallText": 4,
+    "zIndex": 1
+  },
+  "src/daw/components/Prism/ColorSpectrum.tsx": {
+    "rgb": 2
+  },
+  "src/daw/components/Prism/PrismPanel.tsx": {
+    "rgb": 3
+  },
+  "src/daw/components/Prism/PrismStudio.tsx": {
+    "hex": 3,
+    "rgb": 2,
+    "smallText": 2
+  },
+  "src/daw/components/Score/NoteEditorBar.tsx": {
+    "smallText": 8
+  },
+  "src/daw/components/Score/ScorePalettes.tsx": {
+    "smallText": 3,
+    "zIndex": 2
+  },
+  "src/daw/components/Score/useScoreEditing.tsx": {
+    "hex": 1,
+    "rgb": 1,
+    "zIndex": 5
+  },
+  "src/daw/components/Studio/StudioView.tsx": {
+    "hex": 3,
+    "rgb": 27,
+    "smallText": 11
+  },
+  "src/daw/components/Timeline/AutomationLaneEditor.tsx": {
+    "hex": 3,
+    "rgb": 2,
+    "smallText": 2
+  },
+  "src/daw/components/Timeline/Timeline.tsx": {
+    "hex": 14,
+    "rgb": 16,
+    "smallText": 5,
+    "zIndex": 6
+  },
+  "src/daw/components/Timeline/TimelineWithHeaders.tsx": {
+    "rgb": 5,
+    "smallText": 1,
+    "zIndex": 3
+  },
+  "src/daw/components/TrackControls/MasterTrackHeader.tsx": {
+    "hex": 1,
+    "smallText": 4,
+    "whileTap": 3
+  },
+  "src/daw/components/TrackControls/NewTrackModal.tsx": {
+    "hex": 126
+  },
+  "src/daw/components/TrackControls/TrackHeader.tsx": {
+    "hex": 4,
+    "smallText": 7,
+    "zIndex": 4,
+    "whileTap": 9
+  },
+  "src/daw/components/Transport/FileMenu.tsx": {
+    "rgb": 2,
+    "smallText": 4,
+    "zIndex": 1
+  },
+  "src/daw/components/Transport/TransportBar.tsx": {
+    "hex": 4,
+    "rgb": 2,
+    "smallText": 9,
+    "zIndex": 2,
+    "whileTap": 12
+  },
+  "src/daw/components/Tutorial/CoachCard.tsx": {
+    "hex": 4,
+    "rgb": 1,
+    "zIndex": 1
+  },
+  "src/daw/components/Tutorial/Confetti.tsx": {
+    "hex": 6,
+    "zIndex": 1
+  },
+  "src/daw/components/Tutorial/Spotlight.tsx": {
+    "hex": 2,
+    "rgb": 1,
+    "zIndex": 2
+  },
+  "src/daw/components/Tutorial/TutorialLayer.tsx": {
+    "zIndex": 1
+  },
+  "src/daw/constants/trackColors.ts": {
+    "hex": 25
+  },
+  "src/daw/data/demoProjects.ts": {
+    "hex": 4
+  },
+  "src/daw/data/libraryItems.ts": {
+    "hex": 7
+  },
+  "src/daw/data/projectTemplates.ts": {
+    "hex": 23
+  },
+  "src/daw/harmony/ChordInputHint.tsx": {
+    "zIndex": 1
+  },
+  "src/daw/jam-import/importJamSession.ts": {
+    "hex": 1
+  },
+  "src/daw/oracle-synth/components/arp/ArpPanel.module.css": {
+    "hex": 3,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/arp/ArpPanel.tsx": {
+    "hex": 2
+  },
+  "src/daw/oracle-synth/components/controls/Dropdown.module.css": {
+    "hex": 5,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/controls/Knob.module.css": {
+    "hex": 3,
+    "rgb": 1,
+    "smallText": 2
+  },
+  "src/daw/oracle-synth/components/controls/NumberStepper.module.css": {
+    "hex": 9,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/controls/SegmentedControl.module.css": {
+    "rgb": 2,
+    "smallText": 2
+  },
+  "src/daw/oracle-synth/components/controls/Toggle.module.css": {
+    "hex": 1,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/controls/WheelControl.module.css": {
+    "hex": 4,
+    "rgb": 2,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/fx/FXPanel.module.css": {
+    "smallText": 2
+  },
+  "src/daw/oracle-synth/components/keyboard/KeyScaleBar.module.css": {
+    "hex": 2,
+    "rgb": 1,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/keyboard/KeyScaleBar.tsx": {
+    "hex": 1
+  },
+  "src/daw/oracle-synth/components/keyboard/PianoKey.module.css": {
+    "hex": 14,
+    "zIndex": 1
+  },
+  "src/daw/oracle-synth/components/keyboard/PianoKeyboard.module.css": {
+    "zIndex": 1
+  },
+  "src/daw/oracle-synth/components/layout/LFOArea.module.css": {
+    "hex": 7,
+    "smallText": 2
+  },
+  "src/daw/oracle-synth/components/layout/RightSidebar.module.css": {
+    "hex": 1,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/layout/RightSidebar.tsx": {
+    "hex": 3
+  },
+  "src/daw/oracle-synth/components/layout/SourceRow.module.css": {
+    "hex": 2
+  },
+  "src/daw/oracle-synth/components/layout/SourceRow.tsx": {
+    "hex": 6
+  },
+  "src/daw/oracle-synth/components/layout/SynthLayout.module.css": {
+    "hex": 1
+  },
+  "src/daw/oracle-synth/components/modulation/MacroStrip.module.css": {
+    "hex": 1,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/modulation/MacroStrip.tsx": {
+    "hex": 1
+  },
+  "src/daw/oracle-synth/components/modulation/ModulationPanel.module.css": {
+    "smallText": 2
+  },
+  "src/daw/oracle-synth/components/modulation/ModulationSlot.tsx": {
+    "hex": 1
+  },
+  "src/daw/oracle-synth/components/modules/EnvelopeModule.module.css": {
+    "hex": 2,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/modules/EnvelopeModule.tsx": {
+    "hex": 1
+  },
+  "src/daw/oracle-synth/components/modules/FilterModule.module.css": {
+    "hex": 2
+  },
+  "src/daw/oracle-synth/components/modules/FilterModule.tsx": {
+    "hex": 1
+  },
+  "src/daw/oracle-synth/components/modules/NoiseModule.module.css": {
+    "hex": 3
+  },
+  "src/daw/oracle-synth/components/modules/NoiseModule.tsx": {
+    "hex": 4
+  },
+  "src/daw/oracle-synth/components/modules/OscillatorModule.module.css": {
+    "hex": 3
+  },
+  "src/daw/oracle-synth/components/modules/OscillatorModule.tsx": {
+    "hex": 1
+  },
+  "src/daw/oracle-synth/components/modules/SubOscillatorModule.module.css": {
+    "hex": 2
+  },
+  "src/daw/oracle-synth/components/modules/SubOscillatorModule.tsx": {
+    "hex": 1
+  },
+  "src/daw/oracle-synth/components/preset/PresetSelector.module.css": {
+    "hex": 26,
+    "rgb": 2,
+    "smallText": 3,
+    "zIndex": 3
+  },
+  "src/daw/oracle-synth/components/routing/RoutingPanel.module.css": {
+    "hex": 10,
+    "rgb": 1,
+    "smallText": 2
+  },
+  "src/daw/oracle-synth/components/visualizers/EnvelopeVisualizer.module.css": {
+    "hex": 2
+  },
+  "src/daw/oracle-synth/components/visualizers/EnvelopeVisualizer.tsx": {
+    "hex": 2,
+    "smallText": 1
+  },
+  "src/daw/oracle-synth/components/visualizers/FilterResponseVisualizer.module.css": {
+    "hex": 2
+  },
+  "src/daw/oracle-synth/components/visualizers/FilterResponseVisualizer.tsx": {
+    "hex": 2
+  },
+  "src/daw/oracle-synth/components/visualizers/LFONodeEditor.module.css": {
+    "hex": 2
+  },
+  "src/daw/oracle-synth/components/visualizers/LFONodeEditor.tsx": {
+    "hex": 7
+  },
+  "src/daw/oracle-synth/components/visualizers/WaveformVisualizer.module.css": {
+    "hex": 2
+  },
+  "src/daw/oracle-synth/components/visualizers/WaveformVisualizer.tsx": {
+    "hex": 1
+  },
+  "src/daw/persistence/projectDocument/fields.ts": {
+    "hex": 1
+  },
+  "src/daw/store/markersSlice.ts": {
+    "hex": 1
+  },
+  "src/daw/utils/rulerLoop.ts": {
+    "hex": 1,
+    "rgb": 2
+  },
+  "src/daw/utils/timelineScale.ts": {
+    "smallText": 7
+  }
+}

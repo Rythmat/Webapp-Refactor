@@ -3,10 +3,9 @@
  * type sizes, z-indexes, radii, spacing and motion from (overhaul plan,
  * milestone 2.1).
  *
- * Every token becomes a `--daw-<name>` custom property on :root.
- * `dawTokensCss()` writes that stylesheet and `installDawTokens()` puts it on
- * the page, so an overlay portaled to <body> reads exactly what the editor
- * reads. A colour the app's look already has is an alias of its `--ui-*`
+ * Every token becomes a `--daw-<name>` custom property on :root, in
+ * daw-tokens.css (generated from this file; src/main.tsx imports it), so an
+ * overlay portaled to <body> reads exactly what the editor reads. A colour the app's look already has is an alias of its `--ui-*`
  * token (src/styles/appTheme.css), not a copy, so the editor follows any
  * re-skin of the app. Only this file spells colours out: the ESLint
  * guardrails for src/daw/ui and src/daw/shell hold every other file to it.
@@ -116,6 +115,12 @@ export type DawColorName = keyof typeof COLOR;
  * `rgba(r, g, b, alpha)` overlays at any opacity.
  */
 export const SELECTION_RGB = '255, 255, 255';
+
+/**
+ * The colour of a canvas's grid lines and faint fills (beat lines, bar
+ * shading, lane separators), as a triplet drawn at each line's own alpha.
+ */
+export const LINE_RGB = '255, 255, 255';
 
 /** The two inks `onColor()` chooses between for text on a colour. */
 export const INK = { dark: '#101012', light: '#ffffff' } as const;
@@ -227,6 +232,7 @@ export function dawTokenDeclarations(): ReadonlyArray<
     out.push([`--daw-${name}`, token.css]);
   }
   out.push(['--daw-selection-rgb', SELECTION_RGB]);
+  out.push(['--daw-line-rgb', LINE_RGB]);
   for (const [name, step] of Object.entries(TYPE) as Array<
     [string, TypeToken]
   >) {
@@ -270,13 +276,23 @@ export function dawTokensCss(): string {
   );
 }
 
+/**
+ * daw-tokens.css as scripts/studio/gen-tokens.mjs writes it: the stylesheet under
+ * a do-not-edit note. src/main.tsx imports that file.
+ */
+export const DAW_TOKENS_CSS_FILE =
+  '/* Generated from src/daw/ui/tokens.ts by scripts/studio/gen-tokens.mjs\n' +
+  '   (npm run studio:tokens). Do not edit by hand. */\n\n' +
+  dawTokensCss();
+
 /** The id of the <style> element that holds the tokens. */
 export const DAW_TOKENS_STYLE_ID = 'daw-tokens';
 
 /**
- * Puts the token stylesheet in <head>, once. Safe to call any number of times
- * and without a DOM (it does nothing there). On a hot reload it rewrites the
- * existing element, so edited tokens show without a refresh.
+ * Puts the token stylesheet in <head>, once, for a document that has not
+ * loaded daw-tokens.css: a jsdom test, or a canvas palette read before the app's
+ * CSS. Safe to call any number of times and without a DOM (it does nothing
+ * there).
  */
 export function installDawTokens(
   doc: Document | undefined = typeof document === 'undefined'
@@ -330,11 +346,12 @@ type Camel<S extends string> = S extends `${infer Head}-${infer Tail}`
 
 /**
  * The palette resolved to colours a canvas accepts: `surface1`, `text3`,
- * `meterClip` and so on, plus `selectionRgb` (a triplet, not a colour).
+ * `meterClip` and so on, plus `selectionRgb` and `lineRgb` (triplets, not
+ * colours).
  */
 export type DawPalette = {
   readonly [Name in DawColorName as Camel<Name>]: string;
-} & { readonly selectionRgb: string };
+} & { readonly selectionRgb: string; readonly lineRgb: string };
 
 const camel = (name: string) =>
   name.replace(/-(\w)/g, (_, letter: string) => letter.toUpperCase());
@@ -384,8 +401,9 @@ function resolveProperty(
 export function getDawPalette(): DawPalette {
   if (palette) return palette;
   const hasDom = typeof document !== 'undefined' && !!document.documentElement;
-  if (hasDom) installDawTokens(document);
+  // A computed style is live, so the install shows in it at once.
   const style = hasDom ? getComputedStyle(document.documentElement) : null;
+  if (style && !style.getPropertyValue('--daw-bg')) installDawTokens(document);
   const read = (name: string, fallback: string) =>
     (style && resolveProperty(style, name)) || fallback;
 
@@ -394,6 +412,7 @@ export function getDawPalette(): DawPalette {
     out[camel(name)] = read(`--daw-${name}`, token.value);
   }
   out.selectionRgb = read('--daw-selection-rgb', SELECTION_RGB);
+  out.lineRgb = read('--daw-line-rgb', LINE_RGB);
   palette = Object.freeze(out) as DawPalette;
 
   if (!listening && typeof window !== 'undefined') {

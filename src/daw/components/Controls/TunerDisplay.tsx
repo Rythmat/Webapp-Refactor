@@ -74,7 +74,7 @@ function LedBar({
         y1={midY - tickH / 2}
         x2={x}
         y2={midY + tickH / 2}
-        stroke="var(--color-surface-3)"
+        stroke="var(--daw-hover)"
         strokeWidth={1.5}
         strokeLinecap="round"
       />,
@@ -151,7 +151,7 @@ function StringIndicator({
             key={`${s.note}${s.octave}`}
             className="text-[9px] font-semibold tabular-nums px-1 py-0.5 rounded"
             style={{
-              color: isActive ? GREEN : 'var(--color-text-dim)',
+              color: isActive ? GREEN : 'var(--daw-text-3)',
               backgroundColor: isActive ? `${GREEN}15` : 'transparent',
             }}
           >
@@ -193,7 +193,7 @@ export const TunerDisplay = memo(function TunerDisplay({
 
   const hasNote = active && note !== '';
   const inTune = hasNote && Math.abs(cents) < IN_TUNE_THRESHOLD;
-  const color = !hasNote ? 'var(--color-surface-3)' : inTune ? GREEN : YELLOW;
+  const color = !hasNote ? 'var(--daw-hover)' : inTune ? GREEN : YELLOW;
 
   const strings = instrumentType === 'bass' ? BASS_STRINGS : GUITAR_STRINGS;
 
@@ -213,10 +213,10 @@ export const TunerDisplay = memo(function TunerDisplay({
   const statusColor = error
     ? RED
     : !active
-      ? 'var(--color-text-dim)'
+      ? 'var(--daw-text-3)'
       : hasNote
         ? color
-        : 'var(--color-text-dim)';
+        : 'var(--daw-text-3)';
 
   // Phase 9: cents display text
   const centsText = !hasNote
@@ -240,13 +240,13 @@ export const TunerDisplay = memo(function TunerDisplay({
   return (
     <div
       className="flex flex-col select-none border-t pt-3 gap-1"
-      style={{ borderColor: 'var(--color-border)' }}
+      style={{ borderColor: 'var(--daw-hairline)' }}
     >
       {/* Header: label + toggle */}
       <div className="flex items-center justify-between">
         <span
           className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         >
           Tuner
         </span>
@@ -254,16 +254,16 @@ export const TunerDisplay = memo(function TunerDisplay({
           onClick={handleToggle}
           className="w-7 h-3.5 rounded-full flex items-center px-0.5 cursor-pointer shrink-0"
           style={{
-            backgroundColor: active
-              ? 'var(--color-accent)'
-              : 'var(--color-surface-3)',
+            backgroundColor: active ? 'var(--daw-primary)' : 'var(--daw-hover)',
             border: 'none',
           }}
         >
           <div
             className="w-2.5 h-2.5 rounded-full transition-transform"
             style={{
-              backgroundColor: 'var(--color-text)',
+              backgroundColor: active
+                ? 'var(--daw-on-primary)'
+                : 'var(--daw-text)',
               transform: active ? 'translateX(12px)' : 'translateX(0)',
             }}
           />
@@ -275,7 +275,7 @@ export const TunerDisplay = memo(function TunerDisplay({
         <div
           className="font-bold leading-none tracking-tight"
           style={{
-            color: hasNote ? color : 'var(--color-surface-3)',
+            color: hasNote ? color : 'var(--daw-hover)',
             textShadow: hasNote
               ? `0 0 12px ${inTune ? GREEN : YELLOW}40`
               : 'none',
@@ -303,7 +303,7 @@ export const TunerDisplay = memo(function TunerDisplay({
       <LedBar
         cents={cents}
         hasNote={hasNote}
-        color={hasNote ? (inTune ? GREEN : YELLOW) : 'var(--color-surface-3)'}
+        color={hasNote ? (inTune ? GREEN : YELLOW) : 'var(--daw-hover)'}
       />
 
       {/* Phase 9: Cents offset + frequency readout */}
@@ -318,7 +318,7 @@ export const TunerDisplay = memo(function TunerDisplay({
         )}
         <span
           className="inline-block min-w-[3.75rem] text-left text-[10px] tabular-nums"
-          style={{ color: hasNote ? 'var(--color-text-dim)' : 'transparent' }}
+          style={{ color: hasNote ? 'var(--daw-text-3)' : 'transparent' }}
         >
           {hasNote && frequency > 0 ? `${frequency} Hz` : '\u00A0'}
         </span>
@@ -329,7 +329,7 @@ export const TunerDisplay = memo(function TunerDisplay({
         <div className="text-center">
           <span
             className="text-[9px] tabular-nums"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             A4 ≈ {Math.round(440 * Math.pow(2, globalTuningCents / 1200))} Hz (
             {globalTuningCents > 0 ? '+' : ''}

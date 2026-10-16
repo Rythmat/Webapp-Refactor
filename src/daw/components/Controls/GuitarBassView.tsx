@@ -808,11 +808,11 @@ export function GuitarBassView({
         {/* ── Input Section ──────────────────────────────────── */}
         <div
           className="w-[240px] shrink-0 p-4 flex flex-col gap-3 border-r"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <span
             className="text-[10px] font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Input
           </span>
@@ -823,20 +823,20 @@ export function GuitarBassView({
               onClick={() => setShowDeviceMenu((v) => !v)}
               className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
               style={{
-                backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-surface-2)',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               <span
                 className="text-xs truncate"
-                style={{ color: 'var(--color-text)' }}
+                style={{ color: 'var(--daw-text)' }}
               >
                 {selectedDeviceLabel}
               </span>
               <ChevronDown
                 size={14}
                 className="shrink-0 ml-2"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               />
             </div>
             {showDeviceMenu && (
@@ -845,8 +845,8 @@ export function GuitarBassView({
                 style={{
                   top: '100%',
                   marginTop: 2,
-                  backgroundColor: 'var(--color-surface-2)',
-                  border: '1px solid var(--color-border)',
+                  backgroundColor: 'var(--daw-popover)',
+                  border: '1px solid var(--daw-hairline)',
                   maxHeight: 200,
                   overflowY: 'auto',
                 }}
@@ -859,8 +859,8 @@ export function GuitarBassView({
                     style={{
                       color:
                         d.id === globalInputDeviceId
-                          ? 'var(--color-accent)'
-                          : 'var(--color-text)',
+                          ? 'var(--daw-accent)'
+                          : 'var(--daw-text)',
                     }}
                   >
                     {d.label}
@@ -877,20 +877,14 @@ export function GuitarBassView({
                 onClick={() => setShowChannelMenu((v) => !v)}
                 className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
                 style={{
-                  backgroundColor: 'var(--color-surface-2)',
-                  border: '1px solid var(--color-border)',
+                  backgroundColor: 'var(--daw-surface-2)',
+                  border: '1px solid var(--daw-hairline)',
                 }}
               >
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text)' }}
-                >
+                <span className="text-xs" style={{ color: 'var(--daw-text)' }}>
                   {channelLabel}
                 </span>
-                <ChevronDown
-                  size={14}
-                  style={{ color: 'var(--color-text-dim)' }}
-                />
+                <ChevronDown size={14} style={{ color: 'var(--daw-text-3)' }} />
               </div>
               {showChannelMenu && (
                 <div
@@ -898,8 +892,8 @@ export function GuitarBassView({
                   style={{
                     top: '100%',
                     marginTop: 2,
-                    backgroundColor: 'var(--color-surface-2)',
-                    border: '1px solid var(--color-border)',
+                    backgroundColor: 'var(--daw-popover)',
+                    border: '1px solid var(--daw-hairline)',
                   }}
                 >
                   {channelOptions.map((opt) => (
@@ -909,8 +903,8 @@ export function GuitarBassView({
                       className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10"
                       style={{
                         color: configsMatch(opt.config, inputChannel)
-                          ? 'var(--color-accent)'
-                          : 'var(--color-text)',
+                          ? 'var(--daw-accent)'
+                          : 'var(--daw-text)',
                       }}
                     >
                       {opt.label}
@@ -925,18 +919,21 @@ export function GuitarBassView({
           <div className="flex items-center gap-3">
             <span
               className="text-[10px] shrink-0"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Input Level
             </span>
             <div
               className="flex-1 h-1.5 rounded-full"
-              style={{ backgroundColor: 'var(--color-surface-3)' }}
+              style={{ backgroundColor: 'var(--daw-hover)' }}
             >
               <div
                 ref={meterBarRef}
                 className="h-full rounded-full"
-                style={{ width: '0%', backgroundColor: 'var(--color-accent)' }}
+                style={{
+                  width: '0%',
+                  backgroundColor: 'var(--daw-meter-safe)',
+                }}
               />
             </div>
           </div>
@@ -952,15 +949,15 @@ export function GuitarBassView({
         {/* ── Amps Column ────────────────────────────────────── */}
         <div
           className="w-[150px] shrink-0 flex flex-col border-r"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <div
             className="px-3 py-2 shrink-0 border-b"
-            style={{ borderColor: 'var(--color-border)' }}
+            style={{ borderColor: 'var(--daw-hairline)' }}
           >
             <span
               className="text-[10px] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Amps
             </span>
@@ -980,12 +977,12 @@ export function GuitarBassView({
                   {gi > 0 && (
                     <div
                       className="mx-3"
-                      style={{ borderTop: '1px solid var(--color-border)' }}
+                      style={{ borderTop: '1px solid var(--daw-hairline)' }}
                     />
                   )}
                   <div
                     className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     {AMP_CATEGORY_LABELS[tone] ?? tone}
                   </div>
@@ -1013,8 +1010,8 @@ export function GuitarBassView({
                         style={{
                           color:
                             entry.id === selectedModelId
-                              ? 'var(--color-accent)'
-                              : 'var(--color-text)',
+                              ? 'var(--daw-accent)'
+                              : 'var(--daw-text)',
                         }}
                       >
                         {entry.name}
@@ -1030,15 +1027,15 @@ export function GuitarBassView({
         {/* ── Pedals Column ──────────────────────────────────── */}
         <div
           className="w-[130px] shrink-0 flex flex-col border-r"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           <div
             className="px-3 py-2 shrink-0 border-b"
-            style={{ borderColor: 'var(--color-border)' }}
+            style={{ borderColor: 'var(--daw-hairline)' }}
           >
             <span
               className="text-[10px] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Pedals
             </span>
@@ -1058,12 +1055,12 @@ export function GuitarBassView({
                     {ci > 0 && (
                       <div
                         className="mx-3"
-                        style={{ borderTop: '1px solid var(--color-border)' }}
+                        style={{ borderTop: '1px solid var(--daw-hairline)' }}
                       />
                     )}
                     <div
                       className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
-                      style={{ color: 'var(--color-text-dim)' }}
+                      style={{ color: 'var(--daw-text-3)' }}
                     >
                       {category}
                     </div>
@@ -1080,7 +1077,7 @@ export function GuitarBassView({
                         />
                         <span
                           className="text-[11px]"
-                          style={{ color: 'var(--color-text)' }}
+                          style={{ color: 'var(--daw-text)' }}
                         >
                           {def.name}
                         </span>
@@ -1138,11 +1135,11 @@ export function GuitarBassView({
                   height: 68,
                   border:
                     insertSlotIndex === chainIdx || dragOverSlot === chainIdx
-                      ? '2px solid var(--color-accent)'
+                      ? '2px solid var(--daw-accent)'
                       : '2px dashed rgba(255,255,255,0.15)',
                   backgroundColor:
                     dragOverSlot === chainIdx
-                      ? 'rgba(126,207,207,0.08)'
+                      ? 'rgba(255,255,255,0.08)'
                       : 'transparent',
                   transition:
                     'border-color 150ms ease, background-color 150ms ease',
@@ -1153,7 +1150,7 @@ export function GuitarBassView({
                   style={{
                     color:
                       insertSlotIndex === chainIdx
-                        ? 'var(--color-accent)'
+                        ? 'var(--daw-accent)'
                         : 'rgba(255,255,255,0.25)',
                     fontSize: 18,
                   }}
@@ -1166,7 +1163,7 @@ export function GuitarBassView({
             return (
               <div
                 className="relative flex items-center border-b flex-1 min-h-0"
-                style={{ borderColor: 'var(--color-border)' }}
+                style={{ borderColor: 'var(--daw-hairline)' }}
               >
                 {/* Continuous line from In to Out */}
                 <div
@@ -1199,7 +1196,7 @@ export function GuitarBassView({
                   </div>
                   <span
                     className="text-[9px] font-semibold uppercase tracking-wider mt-1"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     In
                   </span>
@@ -1338,7 +1335,7 @@ export function GuitarBassView({
                   {/* Out label */}
                   <span
                     className="text-[9px] font-semibold uppercase tracking-wider shrink-0"
-                    style={{ color: 'var(--color-text-dim)' }}
+                    style={{ color: 'var(--daw-text-3)' }}
                   >
                     Out
                   </span>
@@ -1351,12 +1348,12 @@ export function GuitarBassView({
           {selectedBlock && selectedDef && (
             <div
               className="flex-1 overflow-y-auto"
-              style={{ backgroundColor: 'var(--color-surface)' }}
+              style={{ backgroundColor: 'var(--daw-surface-1)' }}
             >
               {/* Header */}
               <div
                 className="flex items-center gap-2.5 px-4 py-1.5 border-b"
-                style={{ borderColor: 'var(--color-border)' }}
+                style={{ borderColor: 'var(--daw-hairline)' }}
               >
                 <div
                   className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -1364,13 +1361,13 @@ export function GuitarBassView({
                 />
                 <span
                   className="text-[10px] font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   {selectedDef.category}
                 </span>
                 <span
                   className="text-[13px] font-medium flex-1"
-                  style={{ color: 'var(--color-text)' }}
+                  style={{ color: 'var(--daw-text)' }}
                 >
                   {selectedBlock.type === 'nam-amp'
                     ? (BUNDLED_MODELS.find(
@@ -1383,7 +1380,7 @@ export function GuitarBassView({
                     onClick={() => removeBlock(selectedBlock.id)}
                     className="p-1 cursor-pointer rounded-md"
                     style={{
-                      color: 'var(--color-text-dim)',
+                      color: 'var(--daw-text-3)',
                       background: 'none',
                       border: 'none',
                     }}
@@ -1405,7 +1402,7 @@ export function GuitarBassView({
                       <span
                         className="text-[9px] font-semibold uppercase tracking-wider"
                         style={{
-                          color: 'var(--color-text-dim)',
+                          color: 'var(--daw-text-3)',
                           letterSpacing: '1px',
                         }}
                       >
@@ -1413,7 +1410,7 @@ export function GuitarBassView({
                       </span>
                       <div
                         className="flex rounded-md overflow-hidden"
-                        style={{ border: '1px solid var(--color-border)' }}
+                        style={{ border: '1px solid var(--daw-hairline)' }}
                       >
                         {['Hz', 'Rate'].map((label, idx) => (
                           <button
@@ -1434,7 +1431,7 @@ export function GuitarBassView({
                               color:
                                 (selectedBlock.params.rateMode ?? 0) === idx
                                   ? '#000'
-                                  : 'var(--color-text-dim)',
+                                  : 'var(--daw-text-3)',
                               border: 'none',
                               transition:
                                 'background 150ms ease, color 150ms ease',
@@ -1521,7 +1518,7 @@ export function GuitarBassView({
                       <span
                         className="text-[9px] font-semibold uppercase tracking-wider"
                         style={{
-                          color: 'var(--color-text-dim)',
+                          color: 'var(--daw-text-3)',
                           letterSpacing: '1px',
                         }}
                       >
@@ -1529,7 +1526,7 @@ export function GuitarBassView({
                       </span>
                       <div
                         className="flex rounded-md overflow-hidden"
-                        style={{ border: '1px solid var(--color-border)' }}
+                        style={{ border: '1px solid var(--daw-hairline)' }}
                       >
                         {['LP', 'BP', 'HP'].map((label, idx) => (
                           <button
@@ -1554,7 +1551,7 @@ export function GuitarBassView({
                                   selectedBlock.params.filterType ?? 1,
                                 ) === idx
                                   ? '#000'
-                                  : 'var(--color-text-dim)',
+                                  : 'var(--daw-text-3)',
                               border: 'none',
                               transition:
                                 'background 150ms ease, color 150ms ease',
@@ -1611,7 +1608,7 @@ export function GuitarBassView({
             <div className="flex-1 flex items-center justify-center">
               <span
                 className="text-[11px]"
-                style={{ color: 'var(--color-text-dim)' }}
+                style={{ color: 'var(--daw-text-3)' }}
               >
                 {chain.length === 0
                   ? 'Add your first effect'

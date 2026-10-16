@@ -18,7 +18,6 @@ import {
   Square,
   RefreshCw,
   Check,
-  X,
 } from 'lucide-react';
 import { PRISM_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
@@ -29,24 +28,13 @@ import { audioEngine } from '@/daw/audio/AudioEngine';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
 import { GM_PROGRAMS } from '@/daw/instruments/gmPrograms';
 import type { InstrumentType } from '@/daw/store/tracksSlice';
-
-// ── PrismLogo (inline) ────────────────────────────────────────────────────
-
-function PrismLogo({ size = 16 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-    >
-      <path d="M12 4L5 18h14L12 4z" />
-    </svg>
-  );
-}
+import { Button } from '@/daw/ui/Button';
+import { Chip } from '@/daw/ui/Chip';
+import { DawDialog } from '@/daw/ui/DawDialog';
+import { IconButton } from '@/daw/ui/IconButton';
+import { Segmented } from '@/daw/ui/Segmented';
+import { Select } from '@/daw/ui/Select';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 
 // ── Style badge ────────────────────────────────────────────────────────────
 
@@ -60,17 +48,7 @@ function StyleBadge({
   else if (style.seventhRatio > 0.5) label = 'Jazz (7ths)';
   else if (style.triadRatio > 0.5) label = 'Mostly Triads';
 
-  return (
-    <span
-      className="rounded px-1.5 py-0.5 text-[9px] uppercase tracking-wider"
-      style={{
-        backgroundColor: 'var(--color-surface-3)',
-        color: 'var(--color-text-dim)',
-      }}
-    >
-      Style: {label}
-    </span>
-  );
+  return <Chip>Style: {label}</Chip>;
 }
 
 // ── Measure length picker ──────────────────────────────────────────────────
@@ -85,28 +63,19 @@ function MeasurePicker({
   onChange: (n: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-1">
-      <span
-        className="text-[10px] uppercase tracking-wider"
-        style={{ color: 'var(--color-text-dim)' }}
-      >
-        Measures:
+    <div className="flex items-center gap-2">
+      <span className={TYPE_CLASS.micro} style={{ color: 'var(--daw-text-3)' }}>
+        Measures
       </span>
-      {MEASURE_OPTIONS.map((n) => (
-        <button
-          key={n}
-          onClick={() => onChange(n)}
-          className="cursor-pointer rounded px-2 py-0.5 text-[11px] font-medium"
-          style={{
-            backgroundColor:
-              value === n ? 'var(--color-accent)' : 'var(--color-surface-3)',
-            color: value === n ? 'var(--color-bg)' : 'var(--color-text-dim)',
-            border: 'none',
-          }}
-        >
-          {n}
-        </button>
-      ))}
+      <Segmented
+        label="Measures"
+        options={MEASURE_OPTIONS.map((n) => ({
+          value: String(n),
+          label: String(n),
+        }))}
+        value={String(value)}
+        onValueChange={(next) => onChange(Number(next))}
+      />
     </div>
   );
 }
@@ -362,13 +331,14 @@ export function PrismSuggestionModal({
   // previews instead of playing the song, and Delete can't remove a clip
   // nobody can see. Save and undo still go through, and browser shortcuts
   // still work: a modified key is never prevented here.
-  const overlayRef = useRef<HTMLDivElement>(null);
   const visible = isOpen && activeSuggestion !== null;
+  // Focus is inside the dialog while it is open, so its keys are bound to it.
+  const dialogRef = useRef<HTMLDivElement>(null);
   // Enter and Space press the button that has focus (Cancel, Re-roll), as
   // on any button, rather than committing or previewing.
   const onOwnButton = (e: KeyboardEvent) =>
     e.target instanceof HTMLButtonElement &&
-    !!overlayRef.current?.contains(e.target);
+    !!dialogRef.current?.contains(e.target);
   useKeymap(
     PRISM_SCOPE.id,
     {
@@ -392,252 +362,131 @@ export function PrismSuggestionModal({
       },
       'prism.close': () => close(),
     },
-    { active: visible },
+    { active: visible, element: dialogRef },
   );
 
   if (!isOpen || !activeSuggestion) return null;
 
   return (
-    <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(4px)',
-      }}
-      onClick={close}
-    >
-      <div
-        className="flex flex-col rounded-2xl"
-        style={{
-          width: 520,
-          maxWidth: '90vw',
-          backgroundColor: 'var(--color-surface)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.4)',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── Header ── */}
-        <div
-          className="flex items-center gap-2 px-5 py-3"
-          style={{ borderBottom: '1px solid var(--color-border)' }}
-        >
-          <PrismLogo size={18} />
-          <span
-            className="text-sm font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            Prism Suggestions
-          </span>
-          <span
-            className="text-[10px]"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            Bar {insertBar}
-          </span>
+    <DawDialog
+      open
+      onOpenChange={(next) => !next && close()}
+      size="md"
+      data={{ 'data-testid': 'prism-suggestions' }}
+      contentRef={dialogRef}
+      title="Prism Suggestions"
+      description={
+        <span className="flex flex-wrap items-center gap-2">
+          Bar {insertBar}
           {style && <StyleBadge style={style} />}
-          <div className="flex-1" />
-          <button
-            onClick={close}
-            className="flex cursor-pointer items-center justify-center rounded p-1"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        {/* ── Controls row ── */}
-        <div
-          className="flex items-center justify-between px-5 py-2"
-          style={{ borderBottom: '1px solid var(--color-border)' }}
-        >
-          <MeasurePicker value={measures} onChange={setMeasures} />
-
-          <div className="flex items-center gap-2">
-            {showSoundPicker && (
-              <select
-                value={previewProgram}
-                onChange={(e) => handleSoundChange(Number(e.target.value))}
-                className="cursor-pointer rounded px-2 py-1 text-[10px]"
-                style={{
-                  color: 'var(--color-text-dim)',
-                  backgroundColor: 'var(--color-surface-2)',
-                  border: '1px solid var(--color-border)',
-                  outline: 'none',
-                }}
-              >
-                {soundPickerPrograms.map((p) => (
-                  <option key={p.number} value={p.number}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            )}
-            <button
-              onClick={regenerate}
-              className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px]"
-              style={{
-                color: 'var(--color-text-dim)',
-                background: 'var(--color-surface-2)',
-                border: 'none',
-              }}
-              title="Re-roll (R)"
-            >
-              <RefreshCw size={12} />
-              Re-roll
-            </button>
-          </div>
-        </div>
-
-        {/* ── Suggestion navigation ── */}
-        <div className="flex items-center gap-2 px-5 py-2">
-          <button
-            onClick={prev}
-            className="flex cursor-pointer items-center justify-center rounded p-1"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'var(--color-surface-2)',
-              border: 'none',
-            }}
-            title="Previous (←)"
-          >
-            <ChevronLeft size={16} />
-          </button>
-
-          <div className="flex flex-1 flex-col items-center">
-            <span
-              className="text-[11px] font-medium"
-              style={{ color: 'var(--color-text)' }}
-            >
-              {activeSuggestion.label}
-            </span>
-            <span
-              className="text-[9px]"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
-              {activeIdx + 1} of {suggestions.length}
-            </span>
-          </div>
-
-          <button
-            onClick={next}
-            className="flex cursor-pointer items-center justify-center rounded p-1"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'var(--color-surface-2)',
-              border: 'none',
-            }}
-            title="Next (→)"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
-
-        {/* ── Chord pills ── */}
-        <div className="px-5 py-3">
-          <div className="flex flex-wrap gap-2">
-            {activeSuggestion.chords.map((chord, i) => {
-              // Measure separator
-              const chordsPerMeasure =
-                activeSuggestion.chords.length / measures;
-              const showDivider =
-                i > 0 && chordsPerMeasure > 0 && i % chordsPerMeasure === 0;
-
-              return (
-                <div key={i} className="flex items-center gap-2">
-                  {showDivider && (
-                    <div
-                      className="h-8"
-                      style={{
-                        width: 1,
-                        backgroundColor: 'var(--color-border)',
-                      }}
-                    />
-                  )}
-                  <SuggestionChordPill
-                    chord={chord}
-                    isPlaying={playingChordIdx === i}
-                    onClick={() => previewChord(chord.midi)}
-                  />
-                </div>
-              );
-            })}
-          </div>
-
-          {activeSuggestion.chords.length === 0 && (
-            <div
-              className="py-4 text-center text-xs"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
-              No suggestions available for this position. Try setting a key in
-              the Prism panel first.
-            </div>
-          )}
-        </div>
-
-        {/* ── Footer ── */}
-        <div
-          className="flex items-center justify-between px-5 py-3"
-          style={{ borderTop: '1px solid var(--color-border)' }}
-        >
-          {/* Preview controls */}
-          <button
+        </span>
+      }
+      footer={
+        <>
+          <Button
+            className="mr-auto"
             onClick={isPreviewPlaying ? stopPreview : playProgression}
-            className="flex cursor-pointer items-center gap-1.5 rounded px-3 py-1.5 text-[11px] font-medium"
-            style={{
-              color: isPreviewPlaying ? 'var(--color-bg)' : 'var(--color-text)',
-              backgroundColor: isPreviewPlaying
-                ? '#ef4444'
-                : 'var(--color-surface-3)',
-              border: 'none',
-            }}
             title="Preview (Space)"
           >
-            {isPreviewPlaying ? (
-              <>
-                <Square size={12} /> Stop
-              </>
-            ) : (
-              <>
-                <Play size={12} /> Preview
-              </>
-            )}
-          </button>
-
-          {/* Commit / Cancel */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={close}
-              className="cursor-pointer rounded px-3 py-1.5 text-[11px]"
-              style={{
-                color: 'var(--color-text-dim)',
-                background: 'none',
-                border: '1px solid var(--color-border)',
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={commit}
-              className="flex cursor-pointer items-center gap-1 rounded px-3 py-1.5 text-[11px] font-semibold"
-              style={{
-                color: 'var(--color-bg)',
-                backgroundColor: 'var(--color-accent)',
-                border: 'none',
-              }}
-              title="Commit (Enter)"
-            >
-              <Check size={12} />
-              Commit
-            </button>
-          </div>
+            {isPreviewPlaying ? <Square /> : <Play />}
+            {isPreviewPlaying ? 'Stop' : 'Preview'}
+          </Button>
+          <Button onClick={close}>Cancel</Button>
+          <Button variant="primary" onClick={commit} title="Commit (Enter)">
+            <Check />
+            Commit
+          </Button>
+        </>
+      }
+    >
+      {/* ── Controls row ── */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-2">
+        <MeasurePicker value={measures} onChange={setMeasures} />
+        <div className="flex items-center gap-2">
+          {showSoundPicker && (
+            <Select
+              label="Preview sound"
+              options={soundPickerPrograms.map((p) => ({
+                value: String(p.number),
+                label: p.name,
+              }))}
+              value={String(previewProgram)}
+              onValueChange={(next) => handleSoundChange(Number(next))}
+              className="w-44"
+            />
+          )}
+          <Button onClick={regenerate} title="Re-roll (R)">
+            <RefreshCw />
+            Re-roll
+          </Button>
         </div>
       </div>
-    </div>
+
+      {/* ── Suggestion navigation ── */}
+      <div className="flex items-center gap-2 py-2">
+        <IconButton
+          label="Previous suggestion"
+          icon={<ChevronLeft />}
+          onClick={prev}
+        />
+        <div className="flex flex-1 flex-col items-center">
+          <span
+            className={`${TYPE_CLASS.body} font-bold`}
+            style={{ color: 'var(--daw-text)' }}
+          >
+            {activeSuggestion.label}
+          </span>
+          <span
+            className={TYPE_CLASS.label}
+            style={{ color: 'var(--daw-text-3)' }}
+          >
+            {activeIdx + 1} of {suggestions.length}
+          </span>
+        </div>
+        <IconButton
+          label="Next suggestion"
+          icon={<ChevronRight />}
+          onClick={next}
+        />
+      </div>
+
+      {/* ── Chord pills ── */}
+      <div className="py-3">
+        <div className="flex flex-wrap gap-2">
+          {activeSuggestion.chords.map((chord, i) => {
+            // Measure separator
+            const chordsPerMeasure = activeSuggestion.chords.length / measures;
+            const showDivider =
+              i > 0 && chordsPerMeasure > 0 && i % chordsPerMeasure === 0;
+
+            return (
+              <div key={i} className="flex items-center gap-2">
+                {showDivider && (
+                  <div
+                    className="h-8"
+                    style={{ width: 1, backgroundColor: 'var(--daw-hairline)' }}
+                  />
+                )}
+                <SuggestionChordPill
+                  chord={chord}
+                  isPlaying={playingChordIdx === i}
+                  onClick={() => previewChord(chord.midi)}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {activeSuggestion.chords.length === 0 && (
+          <div
+            className={`py-4 text-center ${TYPE_CLASS.body}`}
+            style={{ color: 'var(--daw-text-3)' }}
+          >
+            No suggestions available for this position. Try setting a key in the
+            Prism panel first.
+          </div>
+        )}
+      </div>
+    </DawDialog>
   );
 }

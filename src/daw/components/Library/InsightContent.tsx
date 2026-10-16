@@ -128,7 +128,7 @@ export function InsightContent() {
       {/* Now Playing — always visible */}
       <div
         className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-        style={{ borderColor: 'var(--color-border)', minHeight: 120 }}
+        style={{ borderColor: 'var(--daw-hairline)', minHeight: 120 }}
       >
         <div className="flex items-center gap-1.5">
           {liveChord?.color && (
@@ -139,7 +139,7 @@ export function InsightContent() {
           )}
           <span
             className="text-[10px] uppercase tracking-wider font-medium"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ color: 'var(--daw-accent)' }}
           >
             Now Playing
           </span>
@@ -149,14 +149,14 @@ export function InsightContent() {
             <div className="flex items-center gap-1.5">
               <span
                 className="text-[11px] font-semibold"
-                style={{ color: 'var(--color-text)' }}
+                style={{ color: 'var(--daw-text)' }}
               >
                 {liveLabels?.title}
               </span>
               {liveLabels?.detail && (
                 <span
                   className="text-[10px]"
-                  style={{ color: 'var(--color-text-dim)' }}
+                  style={{ color: 'var(--daw-text-3)' }}
                 >
                   {liveLabels.detail}
                 </span>
@@ -188,7 +188,7 @@ export function InsightContent() {
           <div className="flex flex-1 items-center justify-center">
             <span
               className="text-[10px]"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               Play a chord to see analysis
             </span>
@@ -238,11 +238,11 @@ export function InsightContent() {
           <Lightbulb
             size={20}
             strokeWidth={1.5}
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           />
           <span
             className="text-[10px] leading-relaxed"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             Build a chord progression with Prism to see insights here
           </span>

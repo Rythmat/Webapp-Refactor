@@ -6,6 +6,7 @@ import {
 } from 'react';
 import { ConfirmDialog } from './ConfirmDialog';
 import { PromptDialog, type PromptDialogProps } from './PromptDialog';
+import { menuOpener } from './useReturnFocus';
 
 /**
  * Promise versions of ConfirmDialog and PromptDialog, so code that asked
@@ -14,7 +15,11 @@ import { PromptDialog, type PromptDialogProps } from './PromptDialog';
  *   if (await confirmDialog({ title: 'Delete this track?', description, danger: true })) …
  *   const name = await promptDialog({ title: 'Rename marker', label: 'Name' });
  *
- * One <DialogHost /> shows them, one at a time, in the order asked.
+ * One <DialogHost /> shows them, one at a time, in the order asked, each a
+ * tick after it is asked: a Radix menu item that asked (File ▸ Save As…)
+ * has closed by then and given focus back to its trigger. Shown in the
+ * same tick, the menu's pointer-events lock on <body> outlived the dialog
+ * and the page took no more clicks.
  * Milestone 2.3 mounts it in the editor; with none mounted a request answers
  * at once as if cancelled (false, null), so nothing destructive goes ahead
  * unasked.
@@ -146,7 +151,17 @@ export function DialogHost() {
 
   const active = useSyncExternalStore(subscribe, () => hosts[0] === hostId);
   const current = useSyncExternalStore(subscribe, () => queue[0] ?? null);
-  if (!active || !current) return null;
+  const currentId = active ? (current?.id ?? null) : null;
+  const [shownId, setShownId] = useState<number | null>(null);
+  useEffect(() => {
+    if (currentId === null) return;
+    const timer = window.setTimeout(() => {
+      menuOpener()?.focus({ preventScroll: true });
+      setShownId(currentId);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [currentId]);
+  if (!active || !current || shownId !== current.id) return null;
 
   // Keyed by request, so each one opens fresh (focus, field text).
   if (current.kind === 'confirm') {

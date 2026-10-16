@@ -124,7 +124,7 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
     >
       <div
         className="leadsheet-palette flex w-[216px] shrink-0 flex-col overflow-hidden"
-        style={{ borderRight: '1px solid var(--color-border)' }}
+        style={{ borderRight: '1px solid var(--daw-hairline)' }}
       >
         <ScorePalettes {...editing.palette} />
       </div>
@@ -138,7 +138,7 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
         >
           <h1
             className="leadsheet-title mb-1 text-center text-xl font-bold"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             {projectName}
           </h1>
@@ -147,7 +147,7 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
 
           <div
             className="leadsheet-subtitle mb-6 flex justify-center gap-4 text-xs"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             {keyDisplay && <span>Key: {keyDisplay}</span>}
             <span>Tempo: {bpm} BPM</span>
@@ -159,7 +159,7 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
           {parts.length === 0 ? (
             <div
               className="py-16 text-center text-sm"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               {track.name} has no notes yet. Record or write a melody on it, or
               turn Melody off to go back to the chord chart.

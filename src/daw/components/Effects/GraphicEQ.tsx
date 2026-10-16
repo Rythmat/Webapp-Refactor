@@ -427,9 +427,9 @@ export function GraphicEQ({
         xs[i] = offsetX + (freqToX(freq, GW) / GW) * graphW;
       }
       const grad = ctx.createLinearGradient(0, bottomY, 0, offsetY);
-      grad.addColorStop(0, 'rgba(126, 207, 207, 0.02)');
-      grad.addColorStop(0.5, 'rgba(126, 207, 207, 0.08)');
-      grad.addColorStop(1, 'rgba(126, 207, 207, 0.18)');
+      grad.addColorStop(0, 'rgba(255, 255, 255, 0.02)');
+      grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.08)');
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0.18)');
       cache = { xs, first, last, grad, sampleRate };
       spectrumCache.current = cache;
     }
@@ -450,7 +450,7 @@ export function GraphicEQ({
     ctx.beginPath();
     ctx.moveTo(xs[first], yAt(first));
     for (let i = first + 1; i <= last; i++) ctx.lineTo(xs[i], yAt(i));
-    ctx.strokeStyle = 'rgba(126, 207, 207, 0.4)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.lineWidth = 1;
     ctx.stroke();
   });

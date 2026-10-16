@@ -143,7 +143,7 @@ export function ScoreView() {
     >
       <div
         className="score-no-print flex w-[216px] shrink-0 flex-col overflow-hidden"
-        style={{ borderRight: '1px solid var(--color-border)' }}
+        style={{ borderRight: '1px solid var(--daw-hairline)' }}
       >
         <ScorePalettes {...editing.palette} />
         <ScorePartsPanel
@@ -160,8 +160,8 @@ export function ScoreView() {
           className="score-no-print flex shrink-0 items-center gap-3 px-3 text-xs"
           style={{
             height: 36,
-            borderBottom: '1px solid var(--color-border)',
-            color: 'var(--color-text-dim)',
+            borderBottom: '1px solid var(--daw-hairline)',
+            color: 'var(--daw-text-3)',
           }}
         >
           <span className="font-semibold uppercase tracking-wider">Score</span>
@@ -184,7 +184,7 @@ export function ScoreView() {
               disabled={parts.length === 0}
               title="Print the score, or save it as a PDF from the print dialog"
               className="rounded px-2 py-1 font-semibold uppercase tracking-wider transition-colors hover:bg-white/5 disabled:opacity-40"
-              style={{ border: '1px solid var(--color-border)' }}
+              style={{ border: '1px solid var(--daw-hairline)' }}
             >
               Print / PDF
             </button>
@@ -194,7 +194,7 @@ export function ScoreView() {
               disabled={parts.length === 0}
               title="Download every part as MusicXML, for MuseScore, Finale, Sibelius or Dorico"
               className="rounded px-2 py-1 font-semibold uppercase tracking-wider transition-colors hover:bg-white/5 disabled:opacity-40"
-              style={{ border: '1px solid var(--color-border)' }}
+              style={{ border: '1px solid var(--daw-hairline)' }}
             >
               MusicXML
             </button>
@@ -208,7 +208,7 @@ export function ScoreView() {
           <div className="score-print-title">
             <h1
               className="leadsheet-title mb-1 text-center text-xl font-bold"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {projectName}
             </h1>
@@ -217,7 +217,7 @@ export function ScoreView() {
 
             <div
               className="leadsheet-subtitle mb-6 flex justify-center gap-4 text-xs"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               {keyDisplay && <span>Key: {keyDisplay}</span>}
               <span>Tempo: {bpm} BPM</span>
@@ -230,7 +230,7 @@ export function ScoreView() {
           {parts.length === 0 ? (
             <div
               className="py-16 text-center text-sm"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               No notes to notate yet. Record or write MIDI on a track and it
               will appear here.

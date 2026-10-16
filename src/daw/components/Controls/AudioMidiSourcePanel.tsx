@@ -45,7 +45,7 @@ export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
     <div
       className="flex flex-col gap-1.5 px-3 py-2"
       style={{
-        borderBottom: '1px solid var(--color-border, rgba(255,255,255,0.08))',
+        borderBottom: '1px solid var(--daw-hairline)',
       }}
     >
       <label className="flex cursor-pointer items-center gap-2">
@@ -56,7 +56,7 @@ export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
         />
         <span
           className="text-xs font-medium"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           Play from instrument input
         </span>
@@ -69,9 +69,9 @@ export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
             onChange={(e) => onSelectSource(e.target.value)}
             className="rounded px-1.5 py-1 text-xs"
             style={{
-              background: 'var(--color-bg-elev, rgba(0,0,0,0.3))',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
+              background: 'var(--daw-surface-1)',
+              color: 'var(--daw-text)',
+              border: '1px solid var(--daw-hairline)',
             }}
           >
             {audioTracks.map((t) => (
@@ -82,17 +82,14 @@ export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
           </select>
 
           {isBass ? (
-            <span
-              className="text-xs"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
+            <span className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
               Mono
             </span>
           ) : (
             <div
               className="flex overflow-hidden rounded"
               style={{
-                border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
+                border: '1px solid var(--daw-hairline)',
               }}
             >
               {(['mono', 'poly'] as const).map((m) => (
@@ -102,10 +99,9 @@ export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
                   className="px-2 py-1 text-xs capitalize transition-colors"
                   style={{
                     background:
-                      cfg.mode === m
-                        ? 'var(--color-accent, #6366f1)'
-                        : 'transparent',
-                    color: cfg.mode === m ? '#fff' : 'var(--color-text-dim)',
+                      cfg.mode === m ? 'var(--daw-selected)' : 'transparent',
+                    color:
+                      cfg.mode === m ? 'var(--daw-text)' : 'var(--daw-text-3)',
                     border: 'none',
                     cursor: 'pointer',
                   }}
@@ -124,7 +120,7 @@ export function AudioMidiSourcePanel({ trackId }: { trackId: string }) {
           {!hasDevice && (
             <span
               className="text-[10px]"
-              style={{ color: 'var(--color-warning, #f59e0b)' }}
+              style={{ color: 'var(--daw-warning)' }}
             >
               Select an input on the {isBass ? 'bass' : 'guitar'} track
             </span>

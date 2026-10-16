@@ -101,7 +101,7 @@ export function TrackControlsPanel() {
                 onClick={openPopOut}
                 className="absolute right-2 top-2 flex size-6 cursor-pointer items-center justify-center rounded-md transition-colors"
                 style={{
-                  color: 'var(--color-text-dim)',
+                  color: 'var(--daw-text-3)',
                   border: 'none',
                   background: 'rgba(0,0,0,0.3)',
                 }}
@@ -184,7 +184,7 @@ function renderView(track: { id: string; instrument: string }) {
 function DefaultView({ message }: { message: string }) {
   return (
     <div className="flex h-full items-center justify-center p-4">
-      <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
+      <span className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
         {message}
       </span>
     </div>

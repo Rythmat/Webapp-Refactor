@@ -1655,11 +1655,11 @@ export function useScoreEditing({
   const noteStyles = useMemo(() => {
     const styles = new Map<string, { color?: string; glow?: boolean }>();
     for (const id of selectedNotes) {
-      styles.set(id, { color: 'var(--color-accent, #7ecfcf)', glow: true });
+      styles.set(id, { color: 'var(--daw-accent)', glow: true });
     }
     // Rests are painted through the same map, keyed by their own id.
     for (const key of selectedRests) {
-      styles.set(key, { color: 'var(--color-accent, #7ecfcf)', glow: true });
+      styles.set(key, { color: 'var(--daw-accent)', glow: true });
     }
     return styles;
   }, [selectedNotes, selectedRests]);
@@ -1713,8 +1713,8 @@ export function useScoreEditing({
               width: m.width,
               height: m.height,
               background:
-                'color-mix(in srgb, var(--color-accent, #7ecfcf) 16%, transparent)',
-              border: '1px solid var(--color-accent, #7ecfcf)',
+                'color-mix(in srgb, var(--daw-accent) 16%, transparent)',
+              border: '1px solid var(--daw-accent)',
               borderRadius: 2,
             }}
           />
@@ -1745,11 +1745,7 @@ export function useScoreEditing({
                     textAnchor="middle"
                     fontFamily="Bravura"
                     fontSize={space * 4}
-                    fill={
-                      picked
-                        ? 'var(--color-accent, #7ecfcf)'
-                        : 'var(--color-text)'
-                    }
+                    fill={picked ? 'var(--daw-accent)' : 'var(--daw-text)'}
                     style={{ pointerEvents: 'auto', cursor: 'pointer' }}
                     onPointerDown={(event) =>
                       handleMarkPointerDown(markKey, event)
@@ -1786,9 +1782,7 @@ export function useScoreEditing({
               <path
                 d={d}
                 fill="none"
-                stroke={
-                  picked ? 'var(--color-accent, #7ecfcf)' : 'var(--color-text)'
-                }
+                stroke={picked ? 'var(--daw-accent)' : 'var(--daw-text)'}
                 strokeWidth={Math.max(1, from.space * 0.22)}
                 strokeLinecap="round"
               />
@@ -1824,7 +1818,7 @@ export function useScoreEditing({
                   <path
                     d={`M ${from.x} ${y} Q ${(from.x + to.x) / 2} ${y + (y < from.y ? -space : space)} ${to.x} ${y}`}
                     fill="none"
-                    stroke="var(--color-accent, #7ecfcf)"
+                    stroke="var(--daw-accent)"
                     strokeWidth={Math.max(1.6, from.space * 0.4)}
                   />
                 )}
@@ -1914,8 +1908,8 @@ export function useScoreEditing({
                   fontWeight: 700,
                   fontSize: CHORD_FONT_SIZE * scale,
                   lineHeight: 1,
-                  color: 'var(--color-text)',
-                  background: 'var(--color-surface-2)',
+                  color: 'var(--daw-text)',
+                  background: 'var(--daw-popover)',
                   border: chordBoxBorder(!!chordEntry.refused),
                   zIndex: 6,
                 }}
@@ -1959,11 +1953,9 @@ export function useScoreEditing({
               fontWeight: 700,
               fontSize: CHORD_FONT_SIZE * (layout?.scale ?? 1),
               zIndex: 5,
-              color: isSelected
-                ? 'var(--color-accent, #7ecfcf)'
-                : 'var(--color-text)',
+              color: isSelected ? 'var(--daw-accent)' : 'var(--daw-text)',
               background: isSelected
-                ? 'color-mix(in srgb, var(--color-accent, #7ecfcf) 20%, transparent)'
+                ? 'color-mix(in srgb, var(--daw-accent) 20%, transparent)'
                 : 'transparent',
             }}
           >
@@ -2001,7 +1993,7 @@ export function useScoreEditing({
                 setSelected(barline.measureIndex);
               }}
               title={`Barline before bar ${barline.measureIndex + 1}`}
-              className="absolute rounded-sm transition-colors hover:bg-[color:var(--color-accent,#7ecfcf)]/25"
+              className="absolute rounded-sm transition-colors hover:bg-[color:var(--daw-accent)]/25"
               style={{
                 // A system's opening barline sits right of the brace, so its
                 // target leans inward rather than over the bracket.
@@ -2010,10 +2002,10 @@ export function useScoreEditing({
                 width: 14,
                 height: barline.height,
                 background: isSelected
-                  ? 'color-mix(in srgb, var(--color-accent, #7ecfcf) 35%, transparent)'
+                  ? 'color-mix(in srgb, var(--daw-accent) 35%, transparent)'
                   : 'transparent',
                 border: isSelected
-                  ? '1px solid var(--color-accent, #7ecfcf)'
+                  ? '1px solid var(--daw-accent)'
                   : '1px solid transparent',
                 cursor: 'pointer',
               }}
@@ -2045,9 +2037,9 @@ export function useScoreEditing({
                     }}
                     className="w-20 rounded-sm border px-1 text-[11px] font-bold outline-none"
                     style={{
-                      background: 'var(--color-surface-2)',
-                      borderColor: 'var(--color-accent, #7ecfcf)',
-                      color: 'var(--color-text)',
+                      background: 'var(--daw-surface-2)',
+                      borderColor: 'var(--daw-accent)',
+                      color: 'var(--daw-text)',
                     }}
                   />
                 ) : (
@@ -2057,9 +2049,9 @@ export function useScoreEditing({
                     title="Double-click to rename"
                     className="rounded-sm border px-1 text-[11px] font-bold"
                     style={{
-                      borderColor: 'var(--color-text)',
-                      color: 'var(--color-text)',
-                      background: 'var(--color-bg)',
+                      borderColor: 'var(--daw-text)',
+                      color: 'var(--daw-text)',
+                      background: 'var(--daw-bg)',
                     }}
                   >
                     {section.label}
@@ -2106,9 +2098,9 @@ export function useScoreEditing({
                       }}
                       className="w-28 rounded-sm border px-1 text-[11px] outline-none"
                       style={{
-                        background: 'var(--color-surface-2)',
-                        borderColor: 'var(--color-accent, #7ecfcf)',
-                        color: 'var(--color-text)',
+                        background: 'var(--daw-surface-2)',
+                        borderColor: 'var(--daw-accent)',
+                        color: 'var(--daw-text)',
                       }}
                     />
                   ) : (
@@ -2124,7 +2116,7 @@ export function useScoreEditing({
                       }
                       className="whitespace-nowrap px-0.5"
                       style={{
-                        color: 'var(--color-text)',
+                        color: 'var(--daw-text)',
                         fontFamily: glyph
                           ? 'Bravura'
                           : "'Glacial Indifference', system-ui, sans-serif",
@@ -2148,7 +2140,7 @@ export function useScoreEditing({
                 style={{
                   left: barline.x + 4,
                   top: Math.max(0, barline.y - 18),
-                  color: 'var(--color-text-dim)',
+                  color: 'var(--daw-text-3)',
                 }}
                 title="System break"
               >
@@ -2181,7 +2173,7 @@ export function useScoreEditing({
                 top: box.y,
                 width: 2,
                 height: box.height,
-                background: 'var(--color-accent, #7ecfcf)',
+                background: 'var(--daw-accent)',
                 opacity: 0.8,
                 zIndex: 4,
               }}
@@ -2205,7 +2197,7 @@ export function useScoreEditing({
               fontFamily: 'Bravura',
               fontSize: 26 * layout.scale,
               lineHeight: 1,
-              color: 'var(--color-text)',
+              color: 'var(--daw-text)',
               zIndex: 5,
             }}
           >
@@ -2221,8 +2213,8 @@ export function useScoreEditing({
             left: chordMenu.x,
             top: chordMenu.y,
             minWidth: 150,
-            background: 'var(--color-surface-2)',
-            border: '1px solid var(--color-border)',
+            background: 'var(--daw-popover)',
+            border: '1px solid var(--daw-hairline)',
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             zIndex: 20,
           }}
@@ -2281,7 +2273,7 @@ export function useScoreEditing({
               }}
               className="block w-full px-3 py-1.5 text-left hover:bg-white/10"
               style={{
-                color: item.danger ? '#ef4444' : 'var(--color-text)',
+                color: item.danger ? '#ef4444' : 'var(--daw-text)',
               }}
             >
               {item.label}

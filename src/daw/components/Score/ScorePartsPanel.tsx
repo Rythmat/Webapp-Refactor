@@ -29,11 +29,11 @@ export function ScorePartsPanel({
   return (
     <div
       className="shrink-0"
-      style={{ borderTop: '1px solid var(--color-border)' }}
+      style={{ borderTop: '1px solid var(--daw-hairline)' }}
     >
       <div
         className="flex items-center px-2 py-1.5 text-xs"
-        style={{ color: 'var(--color-text)' }}
+        style={{ color: 'var(--daw-text)' }}
       >
         Chord symbols
       </div>
@@ -42,20 +42,20 @@ export function ScorePartsPanel({
           <div
             key={part.id}
             className="flex items-center gap-2 px-2 py-1 text-xs"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2">
               <input
                 type="checkbox"
                 checked={part.showChords}
                 onChange={() => onToggleChords(part.id)}
-                className="size-3 accent-[color:var(--color-accent,#7ecfcf)]"
+                className="size-3 accent-[color:var(--daw-accent)]"
               />
               <span
                 className="size-2 shrink-0 rounded-full"
                 style={{ background: part.color }}
               />
-              <span className="truncate" style={{ color: 'var(--color-text)' }}>
+              <span className="truncate" style={{ color: 'var(--daw-text)' }}>
                 {part.name}
               </span>
             </label>

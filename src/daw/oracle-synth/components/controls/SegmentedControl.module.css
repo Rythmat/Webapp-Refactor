@@ -8,13 +8,13 @@
   font-size: 9px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--color-text-dim);
+  color: var(--daw-text-3);
 }
 
 .segments {
   display: flex;
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
+  background: var(--daw-surface-2);
+  border: 1px solid var(--daw-hairline);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -22,8 +22,8 @@
 .segment {
   background: none;
   border: none;
-  border-right: 1px solid var(--color-border);
-  color: var(--color-text-dim);
+  border-right: 1px solid var(--daw-hairline);
+  color: var(--daw-text-3);
   cursor: pointer;
   padding: 3px 8px;
   font-size: 10px;
@@ -44,5 +44,5 @@
 
 .segment.active {
   background: rgba(255, 255, 255, 0.1);
-  color: var(--color-text);
+  color: var(--daw-text);
 }

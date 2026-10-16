@@ -34,6 +34,8 @@ const h = vi.hoisted(() => ({
   })),
   showError: vi.fn(),
   showSuccess: vi.fn(),
+  confirmDialog: vi.fn(async () => false),
+  promptDialog: vi.fn(async (): Promise<string | null> => null),
 }));
 
 vi.mock('@/contexts/AuthContext/hooks/useAuthToken', () => ({
@@ -47,6 +49,11 @@ vi.mock('@/components/utils/toast', () => ({
 }));
 vi.mock('@/lib/studio-projects/api', () => ({
   studioProjectsApi: { remove: h.remove },
+}));
+// The editor's own questions (2.3), answered here by each test.
+vi.mock('@/daw/ui/DialogHost', () => ({
+  confirmDialog: h.confirmDialog,
+  promptDialog: h.promptDialog,
 }));
 // The export dialog is mounted only while open; not under test.
 vi.mock('../ExportAudioDialog', () => ({
@@ -91,6 +98,9 @@ beforeEach(() => {
   useProjectsDialogStore.setState({ open: false, focusDraftId: null });
   useCloudSaveStore.setState(useCloudSaveStore.getInitialState(), true);
   for (const fn of Object.values(h)) fn.mockClear();
+  // Unasked, a question is cancelled.
+  h.confirmDialog.mockResolvedValue(false);
+  h.promptDialog.mockResolvedValue(null);
   unregister = registerSessionDeps({
     drafts: {
       activeDraftId: () => 'draft-live',
@@ -112,7 +122,6 @@ afterEach(() => {
 
 describe('File ▸ New Project', () => {
   it('opens a blank project in place: no question, no reload', async () => {
-    const confirm = vi.spyOn(window, 'confirm');
     render(<FileMenu />);
     openMenu();
     await choose('New Project');
@@ -122,7 +131,7 @@ describe('File ▸ New Project', () => {
       { kind: 'new' },
       { source: 'menu' },
     );
-    expect(confirm).not.toHaveBeenCalled();
+    expect(h.confirmDialog).not.toHaveBeenCalled();
     expect(reload).not.toHaveBeenCalled();
   });
 
@@ -180,32 +189,38 @@ describe('File ▸ Save and Save As', () => {
 
   it('saves a copy under the name asked for, leaving the link to the save', async () => {
     useStore.setState({ projectId: 'p1', projectName: 'Mine' });
-    vi.spyOn(window, 'prompt').mockReturnValue('  My Copy ');
+    h.promptDialog.mockResolvedValueOnce('  My Copy ');
     render(<FileMenu />);
     openMenu();
     await choose('Save As…');
 
-    expect(h.saveProject).toHaveBeenCalledWith({
-      source: 'menu',
-      saveAs: { name: 'My Copy' },
-    });
+    expect(h.promptDialog).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Save a copy', defaultValue: 'Mine' }),
+    );
+    await waitFor(() =>
+      expect(h.saveProject).toHaveBeenCalledWith({
+        source: 'menu',
+        saveAs: { name: 'My Copy' },
+      }),
+    );
     // The link and the name move only once the copy is saved.
     expect([s().projectId, s().projectName]).toEqual(['p1', 'Mine']);
   });
 
   it('does nothing when the name is left empty', async () => {
-    vi.spyOn(window, 'prompt').mockReturnValue('   ');
+    h.promptDialog.mockResolvedValueOnce('   ');
     render(<FileMenu />);
     openMenu();
     await choose('Save As…');
 
+    await waitFor(() => expect(h.promptDialog).toHaveBeenCalled());
     expect(h.saveProject).not.toHaveBeenCalled();
   });
 });
 
 describe('File ▸ Delete Project', () => {
   it('keeps the session open as device-only work, its link let go everywhere', async () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    h.confirmDialog.mockResolvedValue(true);
     const keys = s().addTrack('audio', 'guitar-fx', 'Take');
     s().updateTrack(keys, {
       audioClips: [
@@ -252,7 +267,7 @@ describe('File ▸ Delete Project', () => {
   });
 
   it('changes nothing when the delete fails, in plain words', async () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    h.confirmDialog.mockResolvedValue(true);
     vi.spyOn(console, 'error').mockImplementation(() => {});
     h.remove.mockRejectedValueOnce(new Error('DELETE /projects/p1 (500)'));
     useStore.setState({ projectId: 'p1', projectName: 'Kept' });
@@ -269,7 +284,7 @@ describe('File ▸ Delete Project', () => {
   });
 
   it('leaves a session opened meanwhile alone, and unlinks only the draft that held the project', async () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    h.confirmDialog.mockResolvedValue(true);
     let finish: () => void = () => {};
     h.remove.mockImplementationOnce(
       (_t, id) =>
@@ -309,14 +324,14 @@ describe('File ▸ Delete Project', () => {
   });
 
   it('lets a save still out land before it deletes, then deletes what is open', async () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    h.confirmDialog.mockResolvedValue(true);
     useStore.setState({ projectId: 'p1', projectName: 'Racing' });
     // A save is out (the chip's Retry, say) but the menu isn't 'saving' yet.
     useCloudSaveStore.setState({ inFlight: 1 });
     render(<FileMenu />);
     openMenu();
     await choose('Delete Project');
-    expect(confirm).not.toHaveBeenCalled();
+    expect(h.confirmDialog).not.toHaveBeenCalled();
     expect(h.remove).not.toHaveBeenCalled();
 
     // The save lands as a re-created project under a new id.

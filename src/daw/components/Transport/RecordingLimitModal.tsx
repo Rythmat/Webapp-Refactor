@@ -1,6 +1,6 @@
 import { useStore } from '@/daw/store';
-import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
 import { MAX_RECORDING_SECONDS } from '@/daw/audio/recordingLimit';
+import { ConfirmDialog } from '@/daw/ui/ConfirmDialog';
 
 // ── RecordingLimitModal ─────────────────────────────────────────────────────
 // Shown when an audio recording auto-stops at the per-track recording cap.
@@ -12,12 +12,14 @@ export function RecordingLimitModal() {
   const setOpen = useStore((s) => s.setRecordingLimitModalOpen);
 
   return (
-    <ConfirmModal
+    <ConfirmDialog
       open={open}
       onOpenChange={setOpen}
       title="Maximum recording length reached"
       description={`Audio tracks are limited to ${LIMIT_MINUTES} minutes of recording. The first ${LIMIT_MINUTES} minutes were saved; recording has stopped.`}
       confirmLabel="OK"
+      cancelLabel={null}
+      onConfirm={() => {}}
     />
   );
 }

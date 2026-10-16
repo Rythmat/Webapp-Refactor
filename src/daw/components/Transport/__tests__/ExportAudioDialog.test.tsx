@@ -66,6 +66,9 @@ function FileMenuExport() {
 
 const click = (name: string | RegExp) =>
   fireEvent.click(screen.getByRole('button', { name }));
+/** Picks a segmented option (a radio in its group). */
+const pick = (name: string | RegExp) =>
+  fireEvent.click(screen.getByRole('radio', { name }));
 
 /** Open the dialog, run `pick`, then cancel, which unmounts it. */
 function chooseThenCancel(pick: () => void) {
@@ -109,9 +112,9 @@ describe('ExportAudioDialog choices', () => {
   it('keeps the format, bit depth and range for the next export', async () => {
     render(<FileMenuExport />);
     chooseThenCancel(() => {
-      click('24-bit');
-      click(/^Opus/);
-      click('Start – End');
+      pick('24-bit');
+      pick(/^Opus/);
+      pick('Start – End');
     });
 
     expect(await reopenAndExport()).toMatchObject({
@@ -125,7 +128,7 @@ describe('ExportAudioDialog choices', () => {
   it('falls back to the whole project when the loop is off by then', async () => {
     useStore.setState({ loopEnabled: true });
     render(<FileMenuExport />);
-    chooseThenCancel(() => click('Loop region'));
+    chooseThenCancel(() => pick('Loop region'));
 
     act(() => useStore.setState({ loopEnabled: false }));
 

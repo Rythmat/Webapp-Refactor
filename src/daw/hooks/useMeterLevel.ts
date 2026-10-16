@@ -89,9 +89,9 @@ export function useMeterLevel(from: SourceLike): number {
 
 /** The meter colour for a 0–100 level. */
 export function meterColor(level: number): string {
-  if (level > 90) return 'var(--color-meter-red)';
-  if (level > 75) return 'var(--color-meter-yellow)';
-  return 'var(--color-meter-green)';
+  if (level > 90) return 'var(--daw-meter-clip)';
+  if (level > 75) return 'var(--daw-meter-hot)';
+  return 'var(--daw-meter-safe)';
 }
 
 /**
@@ -148,8 +148,8 @@ export function paintInputBar(
   const pct = Math.max(0, Math.min(100, ((db + 60) / 60) * 100));
   el.style.width = `${Math.round(pct)}%`;
   el.style.backgroundColor = levels?.clipped
-    ? 'var(--color-meter-red)'
-    : 'var(--color-accent)';
+    ? 'var(--daw-meter-clip)'
+    : 'var(--daw-accent)';
 }
 
 // ── Fixed-digit readouts ─────────────────────────────────────────────────

@@ -272,8 +272,8 @@ export const ChordSymbol = memo(function ChordSymbol({
               fontWeight: 'bold',
               fontFamily:
                 "'Glacial Indifference', 'Haskoy', system-ui, sans-serif",
-              background: 'var(--color-surface-2)',
-              color: 'var(--color-text)',
+              background: 'var(--daw-surface-2)',
+              color: 'var(--daw-text)',
               border: chordBoxBorder(refused),
               borderRadius: '3px',
               padding: '0 4px',
@@ -316,7 +316,7 @@ export const ChordSymbol = memo(function ChordSymbol({
         {isSelected && (
           <tspan
             style={{
-              stroke: 'var(--color-accent, #8b5cf6)',
+              stroke: 'var(--daw-accent)',
               strokeWidth: 0.5,
             }}
           >
@@ -335,8 +335,8 @@ export const ChordSymbol = memo(function ChordSymbol({
               left: contextMenu.x,
               top: contextMenu.y,
               zIndex: 9999,
-              background: 'var(--color-surface-2)',
-              border: '1px solid var(--color-border)',
+              background: 'var(--daw-popover)',
+              border: '1px solid var(--daw-hairline)',
               borderRadius: '6px',
               padding: '4px 0',
               boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
@@ -356,13 +356,13 @@ export const ChordSymbol = memo(function ChordSymbol({
                   textAlign: 'left',
                   padding: '6px 12px',
                   fontSize: '12px',
-                  color: 'var(--color-text)',
+                  color: 'var(--daw-text)',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = 'var(--color-surface-3)')
+                  (e.currentTarget.style.background = 'var(--daw-hover)')
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = 'none')
@@ -382,13 +382,13 @@ export const ChordSymbol = memo(function ChordSymbol({
                 textAlign: 'left',
                 padding: '6px 12px',
                 fontSize: '12px',
-                color: 'var(--color-text)',
+                color: 'var(--daw-text)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = 'var(--color-surface-3)')
+                (e.currentTarget.style.background = 'var(--daw-hover)')
               }
               onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
             >
@@ -412,7 +412,7 @@ export const ChordSymbol = memo(function ChordSymbol({
                   cursor: 'pointer',
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = 'var(--color-surface-3)')
+                  (e.currentTarget.style.background = 'var(--daw-hover)')
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = 'none')

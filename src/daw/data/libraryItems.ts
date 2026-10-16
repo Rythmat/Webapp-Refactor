@@ -1,5 +1,6 @@
 import type { EffectSlotType } from '@/daw/audio/EffectChain';
 import type { TrackType, InstrumentType } from '@/daw/store/tracksSlice';
+import { COLOR } from '@/daw/ui/tokens';
 
 // ── Library Categories ──────────────────────────────────────────────────
 
@@ -98,7 +99,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'Compressor',
     category: 'Audio Effects',
     icon: 'Gauge',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'compressor' },
   },
   {
@@ -106,7 +107,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'Gate',
     category: 'Audio Effects',
     icon: 'ShieldCheck',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'gate' },
   },
   {
@@ -114,7 +115,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'EQ',
     category: 'Audio Effects',
     icon: 'SlidersHorizontal',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'eq' },
   },
   {
@@ -122,7 +123,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'Reverb',
     category: 'Audio Effects',
     icon: 'Waves',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'reverb' },
   },
   {
@@ -130,7 +131,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'Delay',
     category: 'Audio Effects',
     icon: 'Timer',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'delay' },
   },
   {
@@ -138,7 +139,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'Presence',
     category: 'Audio Effects',
     icon: 'Sparkles',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'presence' },
   },
   {
@@ -146,7 +147,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'De-Esser',
     category: 'Audio Effects',
     icon: 'AudioLines',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'de-esser' },
   },
   {
@@ -154,7 +155,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'Saturator',
     category: 'Audio Effects',
     icon: 'Flame',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'saturator' },
   },
   {
@@ -162,7 +163,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'OTT',
     category: 'Audio Effects',
     icon: 'BarChart3',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'multiband' },
   },
   {
@@ -170,7 +171,7 @@ export const FX_CATALOG: LibraryItem[] = [
     label: 'Sidechain',
     category: 'Audio Effects',
     icon: 'Activity',
-    color: '#7ecfcf',
+    color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'ducker' },
   },
   // MIDI Effects

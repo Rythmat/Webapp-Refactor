@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { useEffect } from 'react';
+import { DAW_PALETTE_EVENT } from '@/daw/ui/tokens';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import {
   afterAll,
@@ -218,7 +219,7 @@ describe('timeline redraws', () => {
     expect(s().tracks[0].audioClips[0].startTick).toBe(7 * 480);
   });
 
-  it('reads the theme colours once, and again only when the theme changes', async () => {
+  it('draws from the DAW palette, and again when the tokens change', () => {
     addClip();
     const read = vi.spyOn(window, 'getComputedStyle');
     const { container } = render(
@@ -235,14 +236,13 @@ describe('timeline redraws', () => {
       act(() => runFrames());
     }
     expect(draws()).toBe(4);
-    expect(canvasReads()).toBe(1);
+    // The colours come from getDawPalette's cache, not the canvas's style.
+    expect(canvasReads()).toBe(0);
 
-    const root = container.querySelector<HTMLElement>('.daw-root')!;
-    await act(async () => {
-      root.style.setProperty('--color-bg', '#000000');
+    act(() => {
+      window.dispatchEvent(new Event(DAW_PALETTE_EVENT));
     });
     act(() => runFrames());
     expect(draws()).toBe(5);
-    expect(canvasReads()).toBe(2);
   });
 });

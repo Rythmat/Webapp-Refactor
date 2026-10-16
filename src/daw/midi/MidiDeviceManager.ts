@@ -29,6 +29,8 @@ export class MidiDeviceManager {
   private initialized = false;
   private initPromise: Promise<boolean> | null = null;
   private onChangeCallbacks: Array<() => void> = [];
+  /** Why the last init failed: no Web MIDI here, or the page was refused it. */
+  failure: 'unsupported' | 'denied' | null = null;
 
   /** Enable MIDI access and start listening for device hot-plug events.
    *  @returns `true` if MIDI was successfully enabled, `false` if unavailable.
@@ -38,6 +40,13 @@ export class MidiDeviceManager {
     if (this.initPromise) return this.initPromise;
 
     this.initPromise = (async () => {
+      if (
+        typeof navigator === 'undefined' ||
+        !('requestMIDIAccess' in navigator)
+      ) {
+        this.failure = 'unsupported';
+        return false;
+      }
       try {
         const { WebMidi } = await import('webmidi');
         await WebMidi.enable({ sysex: false });
@@ -46,8 +55,11 @@ export class MidiDeviceManager {
 
         WebMidi.addListener('connected', () => this.notifyChange());
         WebMidi.addListener('disconnected', () => this.notifyChange());
+        this.failure = null;
         return true;
       } catch {
+        // The browser has Web MIDI, so a refusal is the permission's.
+        this.failure = 'denied';
         return false;
       } finally {
         this.initPromise = null;

@@ -90,9 +90,6 @@ vi.mock('@/daw/dev/DevProfiler', () => ({
   useDevCommitCount: h.noop,
 }));
 vi.mock('@/daw/hooks/usePrefsSync', () => ({ usePrefsSync: h.noop }));
-vi.mock('@/daw/hooks/useDawBodyTokens', () => ({
-  useDawBodyTokens: h.noop,
-}));
 vi.mock('@/daw/hooks/useKeyboardShortcuts', () => ({
   useKeyboardShortcuts: h.noop,
 }));
@@ -114,7 +111,6 @@ vi.mock('@/daw/hooks/useCollabAudioLoader', () => ({
 vi.mock('@/daw/hooks/usePlaybackEngine', () => ({
   usePlaybackEngine: h.noop,
 }));
-vi.mock('@/daw/hooks/useTheme', () => ({ useTheme: h.noop }));
 vi.mock('@/daw/hooks/useTransport', () => ({ useTransport: h.noop }));
 vi.mock('@/daw/components/ChannelStrip/ChannelStrip', () => ({
   ChannelStrip: h.nothing,

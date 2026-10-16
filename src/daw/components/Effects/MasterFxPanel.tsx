@@ -85,7 +85,7 @@ export function MasterFxPanel({ isReady }: { isReady: boolean }) {
         ) : (
           <div
             className="flex flex-1 items-center justify-center text-[11px]"
-            style={{ color: 'var(--color-text-dim)' }}
+            style={{ color: 'var(--daw-text-3)' }}
           >
             {fxChain.length === 0
               ? 'Add effects to the mix'

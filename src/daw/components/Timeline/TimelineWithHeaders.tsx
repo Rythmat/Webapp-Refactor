@@ -69,10 +69,10 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
         <div
           ref={headersRef}
           onScroll={handleHeadersScroll}
-          className="glass-panel-sm flex w-[200px] shrink-0 flex-col overflow-y-auto border-r"
+          className="flex w-[200px] shrink-0 flex-col overflow-y-auto border-r"
           style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
+            backgroundColor: 'var(--daw-surface-1)',
+            borderColor: 'var(--daw-hairline)',
             scrollbarWidth: 'none',
           }}
         >
@@ -84,7 +84,7 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
               position: 'sticky',
               top: 0,
               zIndex: 10,
-              backgroundColor: 'var(--color-surface)',
+              backgroundColor: 'var(--daw-surface-1)',
             }}
             className="shrink-0 border-b"
             aria-hidden
@@ -121,7 +121,7 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
             onClick={() => setMenuOpen((o) => !o)}
             className="mx-3 my-2 flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-[10px] font-medium"
             style={{
-              color: 'var(--color-text-dim)',
+              color: 'var(--daw-text-3)',
               backgroundColor: 'transparent',
               border: '1px dashed rgba(255,255,255,0.1)',
             }}
@@ -146,7 +146,7 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
               position: 'sticky',
               bottom: 0,
               zIndex: 10,
-              backgroundColor: 'var(--color-surface)',
+              backgroundColor: 'var(--daw-surface-1)',
             }}
             className="shrink-0 border-t"
             aria-hidden
@@ -172,7 +172,7 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
           ref={timelineRef}
           onScroll={handleTimelineScroll}
           className="flex-1 overflow-auto"
-          style={{ backgroundColor: 'var(--color-bg)' }}
+          style={{ backgroundColor: 'var(--daw-bg)' }}
         >
           <Timeline />
         </div>

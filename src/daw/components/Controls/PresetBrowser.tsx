@@ -30,34 +30,34 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
   return (
     <div
       className="flex flex-col h-full"
-      style={{ backgroundColor: 'var(--color-surface)' }}
+      style={{ backgroundColor: 'var(--daw-surface-1)' }}
     >
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-2.5 shrink-0 border-b"
-        style={{ borderColor: 'var(--color-border)' }}
+        style={{ borderColor: 'var(--daw-hairline)' }}
       >
         <span
           className="text-sm font-semibold"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           Browse Instruments
         </span>
         <div
           className="flex items-center gap-2 flex-1 max-w-[280px] rounded-lg px-3 py-1.5"
           style={{
-            backgroundColor: 'var(--color-surface-2)',
-            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--daw-surface-2)',
+            border: '1px solid var(--daw-hairline)',
           }}
         >
-          <Search size={12} style={{ color: 'var(--color-text-dim)' }} />
+          <Search size={12} style={{ color: 'var(--daw-text-3)' }} />
           <input
             type="text"
             placeholder="Search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 bg-transparent border-none outline-none text-xs"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           />
         </div>
         <div className="flex-1" />
@@ -65,9 +65,9 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
           onClick={onClose}
           className="text-[10px] px-2 py-1 rounded cursor-pointer"
           style={{
-            backgroundColor: 'var(--color-surface-2)',
-            color: 'var(--color-text-dim)',
-            border: '1px solid var(--color-border)',
+            backgroundColor: 'var(--daw-surface-2)',
+            color: 'var(--daw-text-3)',
+            border: '1px solid var(--daw-hairline)',
           }}
         >
           Close
@@ -79,7 +79,7 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
         {/* Category sidebar */}
         <div
           className="w-[160px] shrink-0 overflow-y-auto py-2 border-r"
-          style={{ borderColor: 'var(--color-border)' }}
+          style={{ borderColor: 'var(--daw-hairline)' }}
         >
           {PRESET_CATEGORIES.map((cat) => (
             <button
@@ -92,12 +92,12 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
               style={{
                 backgroundColor:
                   selectedCategory === cat && !searchQuery
-                    ? 'var(--color-surface-2)'
+                    ? 'var(--daw-surface-2)'
                     : 'transparent',
                 color:
                   selectedCategory === cat && !searchQuery
-                    ? 'var(--color-text)'
-                    : 'var(--color-text-dim)',
+                    ? 'var(--daw-text)'
+                    : 'var(--daw-text-3)',
                 fontWeight:
                   selectedCategory === cat && !searchQuery ? 600 : 400,
                 border: 'none',
@@ -114,7 +114,7 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
           <div className="px-4 pb-2">
             <span
               className="text-sm font-semibold"
-              style={{ color: 'var(--color-text)' }}
+              style={{ color: 'var(--daw-text)' }}
             >
               {searchQuery ? 'Search Results' : selectedCategory}
             </span>
@@ -123,7 +123,7 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
           {filteredPresets.length === 0 ? (
             <div
               className="px-4 py-8 text-xs text-center"
-              style={{ color: 'var(--color-text-dim)' }}
+              style={{ color: 'var(--daw-text-3)' }}
             >
               No presets found
             </div>
@@ -137,7 +137,7 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
                   style={{ background: 'none', border: 'none' }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLElement).style.backgroundColor =
-                      'var(--color-surface-2)';
+                      'var(--daw-surface-2)';
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLElement).style.backgroundColor =
@@ -149,7 +149,7 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
                       nothing. */}
                   <span
                     className="text-sm"
-                    style={{ color: 'var(--color-text)' }}
+                    style={{ color: 'var(--daw-text)' }}
                   >
                     {preset.name}
                   </span>

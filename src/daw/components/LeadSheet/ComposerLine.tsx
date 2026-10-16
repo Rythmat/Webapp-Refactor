@@ -79,9 +79,9 @@ export function ComposerLine() {
           }}
           className="rounded border px-2 py-0.5 text-center text-sm"
           style={{
-            background: 'var(--color-surface-2)',
-            color: 'var(--color-text)',
-            borderColor: 'var(--color-accent, #7ecfcf)',
+            background: 'var(--daw-surface-2)',
+            color: 'var(--daw-text)',
+            borderColor: 'var(--daw-accent)',
             outline: 'none',
             width: 200,
           }}
@@ -93,7 +93,7 @@ export function ComposerLine() {
   return (
     <div
       className="leadsheet-composer mb-1 cursor-pointer text-center text-sm"
-      style={{ color: 'var(--color-text-dim)' }}
+      style={{ color: 'var(--daw-text-3)' }}
       onDoubleClick={startEditing}
       title="Double-click to edit composer"
     >

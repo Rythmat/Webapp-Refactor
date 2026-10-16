@@ -421,7 +421,7 @@ describe('the Score overlay', () => {
     const strokes = [...svg.querySelectorAll('path')].map((p) =>
       p.getAttribute('stroke'),
     );
-    expect(strokes.filter((s) => s === 'var(--color-text)')).toHaveLength(4);
+    expect(strokes.filter((s) => s === 'var(--daw-text)')).toHaveLength(4);
     expect(strokes.filter((s) => s === 'transparent')).toHaveLength(4 + 2);
   });
 });

@@ -25,8 +25,8 @@ import {
 } from './insightNotation';
 import { UnisonSections } from './UnisonSections';
 
-const sectionStyle = { borderColor: 'var(--color-border)' };
-const labelStyle = { color: 'var(--color-text-dim)' };
+const sectionStyle = { borderColor: 'var(--daw-hairline)' };
+const labelStyle = { color: 'var(--daw-text-3)' };
 
 /**
  * Insight for a selection — chords picked in the timeline's chord lane, or
@@ -125,7 +125,7 @@ export function SelectionAnalysis() {
     <div
       data-testid="insight-selection"
       className="flex flex-col"
-      style={{ boxShadow: 'inset 2px 0 0 var(--color-accent)' }}
+      style={{ boxShadow: 'inset 2px 0 0 var(--daw-accent)' }}
     >
       <div
         className="flex flex-col gap-1.5 border-b px-3 py-2.5"
@@ -134,7 +134,7 @@ export function SelectionAnalysis() {
         <div className="flex items-center gap-1.5">
           <span
             className="text-[10px] font-medium uppercase tracking-wider"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ color: 'var(--daw-accent)' }}
           >
             Selection
           </span>
@@ -182,9 +182,9 @@ export function SelectionAnalysis() {
             }
             className="flex items-center justify-center gap-1 rounded py-1 text-[10px] font-semibold"
             style={{
-              backgroundColor: 'rgba(126, 207, 207, 0.15)',
-              border: '1px solid rgba(126, 207, 207, 0.4)',
-              color: 'var(--color-accent)',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              color: 'var(--daw-accent)',
               cursor: 'pointer',
             }}
           >
@@ -233,7 +233,7 @@ function Chip({
   rgb?: [number, number, number];
   css?: string;
 }) {
-  const color = rgb ? `rgb(${rgb.join(', ')})` : (css ?? 'var(--color-text)');
+  const color = rgb ? `rgb(${rgb.join(', ')})` : (css ?? 'var(--daw-text)');
   return (
     <span
       className="rounded px-1.5 py-0.5 text-[9px] font-medium"
@@ -261,8 +261,8 @@ function Badge({
       : tone === 'purple'
         ? { backgroundColor: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }
         : {
-            backgroundColor: 'var(--color-surface-2)',
-            color: 'var(--color-text-dim)',
+            backgroundColor: 'var(--daw-surface-2)',
+            color: 'var(--daw-text-3)',
           };
   return (
     <span
@@ -317,7 +317,7 @@ function HarmonySummary({
         <>
           <span
             className="text-[11px] font-semibold"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             {symbols
               ? symbols.join(' → ')
@@ -414,13 +414,13 @@ function VoiceLeading({
         </span>
         <div
           className="h-1 flex-1 overflow-hidden rounded-full"
-          style={{ backgroundColor: 'var(--color-surface-2)' }}
+          style={{ backgroundColor: 'var(--daw-surface-2)' }}
         >
           <div
             className="h-full rounded-full"
             style={{
               width: `${summary.avgSmoothness * 100}%`,
-              backgroundColor: 'var(--color-accent)',
+              backgroundColor: 'var(--daw-accent)',
             }}
           />
         </div>
@@ -438,11 +438,11 @@ function VoiceLeading({
         <div
           key={`${t.fromChordId}-${t.toChordId}`}
           className="flex items-center justify-between rounded px-2 py-1"
-          style={{ backgroundColor: 'var(--color-surface-2)' }}
+          style={{ backgroundColor: 'var(--daw-surface-2)' }}
         >
           <span
             className="text-[10px] font-medium"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: 'var(--daw-text)' }}
           >
             {names.get(t.fromChordId)} → {names.get(t.toChordId)}
           </span>

@@ -116,9 +116,9 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
         <Loader2
           size={14}
           className="animate-spin"
-          style={{ color: 'var(--color-text-dim)' }}
+          style={{ color: 'var(--daw-text-3)' }}
         />
-        <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
+        <span className="text-xs" style={{ color: 'var(--daw-text-3)' }}>
           Loading SoundFont...
         </span>
       </div>
@@ -130,7 +130,7 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
       {/* Top bar */}
       <div
         className="flex shrink-0 items-center gap-4 border-b px-4 py-2"
-        style={{ borderColor: 'var(--color-border)' }}
+        style={{ borderColor: 'var(--daw-hairline)' }}
       >
         {/* Category selector */}
         <div className="relative">
@@ -138,21 +138,21 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
             onClick={() => setCategoryOpen((o) => !o)}
             className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
             style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-border)',
+              backgroundColor: 'var(--daw-surface-2)',
+              color: 'var(--daw-text)',
+              border: '1px solid var(--daw-hairline)',
             }}
           >
             {selectedCategory}
-            <ChevronDown size={12} style={{ color: 'var(--color-text-dim)' }} />
+            <ChevronDown size={12} style={{ color: 'var(--daw-text-3)' }} />
           </button>
 
           {categoryOpen && (
             <div
               className="absolute left-0 top-full z-30 mt-1 max-h-[240px] overflow-hidden overflow-y-auto rounded-lg"
               style={{
-                backgroundColor: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--daw-surface-1)',
+                border: '1px solid var(--daw-hairline)',
                 minWidth: 160,
                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
               }}
@@ -168,19 +168,19 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
                   style={{
                     backgroundColor:
                       cat === selectedCategory
-                        ? 'var(--color-surface-2)'
+                        ? 'var(--daw-surface-2)'
                         : 'transparent',
                     color:
                       cat === selectedCategory
-                        ? 'var(--color-text)'
-                        : 'var(--color-text-dim)',
+                        ? 'var(--daw-text)'
+                        : 'var(--daw-text-3)',
                     fontWeight: cat === selectedCategory ? 600 : 400,
                     border: 'none',
                   }}
                   onMouseEnter={(e) => {
                     if (cat !== selectedCategory)
                       e.currentTarget.style.backgroundColor =
-                        'var(--color-surface-2)';
+                        'var(--daw-surface-2)';
                   }}
                   onMouseLeave={(e) => {
                     if (cat !== selectedCategory)
@@ -197,7 +197,7 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
         {/* Current program label */}
         <span
           className="text-xs font-medium"
-          style={{ color: 'var(--color-text)' }}
+          style={{ color: 'var(--daw-text)' }}
         >
           {currentProgramName}
         </span>
@@ -210,7 +210,7 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
           className="shrink-0 overflow-y-auto"
           style={{
             width: 200,
-            borderRight: '1px solid var(--color-border)',
+            borderRight: '1px solid var(--daw-hairline)',
           }}
         >
           {categoryPrograms.map((prog) => (
@@ -221,19 +221,19 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
               style={{
                 backgroundColor:
                   prog.number === currentProgram
-                    ? 'var(--color-surface-2)'
+                    ? 'var(--daw-surface-2)'
                     : 'transparent',
                 color:
                   prog.number === currentProgram
-                    ? 'var(--color-text)'
-                    : 'var(--color-text-dim)',
+                    ? 'var(--daw-text)'
+                    : 'var(--daw-text-3)',
                 fontWeight: prog.number === currentProgram ? 600 : 400,
                 border: 'none',
               }}
               onMouseEnter={(e) => {
                 if (prog.number !== currentProgram)
                   e.currentTarget.style.backgroundColor =
-                    'var(--color-surface-2)';
+                    'var(--daw-surface-2)';
               }}
               onMouseLeave={(e) => {
                 if (prog.number !== currentProgram)

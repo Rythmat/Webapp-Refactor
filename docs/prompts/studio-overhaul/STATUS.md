@@ -793,3 +793,28 @@ Prompt 15. The rails themselves (B4a) were already on `aaron`; this run finishes
   3. The Library's Parts section is the old PartsBrowser (legacy look, tight at 300 px) until 2.14.
   4. The Export pill and ⌘K are 15d's (2.15), not this prompt's, although the B4a entry listed them under 15.
 - **Next:** 15a (B5: 2.12 clips).
+
+## Owner request — the drums' Instrument tab as a drum kit (2026-10-16)
+
+After B4, the owner sent a reference (`~/Desktop/References/drum instrument.png`, Soundtrap's drum Instrument tab): "This image shows what the drum instrument should look like."
+
+- **Commits:** `68784563` (the kit, the drum keys, tests, R29) and this entry. **Pushed:** yes, to `aaron`.
+- **What changed:**
+  - **The kit** (`shell/dock/DrumPadsView.tsx`, layout in `drumKitLayout.ts`): a top-down kit of round pads. The kick is in the middle; the snare and hi-hat sit to the left, two rack toms above, the floor tom to the right, and the crash and ride out wide. The sidestick and the open and pedal hats are badges on the rims of the drums they're played on.
+  - **Pads:** each shows the key that plays it. A click plays a pad and picks it. Pads light while they sound, whether from a click, the computer keyboard or a MIDI keyboard.
+  - **Our look, not Soundtrap's purple:** neutral rings, white key badges, a white ring on the picked pad.
+  - **Above the kit** (beside it when the dock is under 240 px, as on a Chromebook, so the kit keeps the height): the kit's menu with ‹ ›, the kit's volume and pan (the track's), the picked pad's volume and pan, and a Keys switch. The drum-kit-selector anchor stays on the kit menu.
+  - **The computer keyboard plays a kit at the kit's own octave** (`DRUM_TYPING_OCTAVE` = 2, whatever octave is set), so the letters on the pads are true: A kick, S snare, D sidestick, F floor tom, T Y U the hats, H and K the rack toms, O crash, P ride. This is a GM drum keyboard's layout. Before, A played C4, which no pad has. The typing chip says "Typing · Drums" then.
+- **Verification:**
+  - tsc and eslint clean on the changed files.
+  - Vitest: the dock and command suites 158 pass (new: `drumKit.test`, the drum octave in `keyboardCommands.test`). The design guard fails only on the inherited PianoRoll budget.
+  - R29: all 13 flags at all three sizes, with the kit now probed for the floors.
+  - The Hip Hop and House lessons on a Chromebook, both personas: 24/24 steps.
+  - Browser (Chrome, 5263):
+    - A click on the snare played it and moved the pad knobs to it.
+    - With Keys on, S played MIDI 38 and lit the snare.
+    - A short dock (204 px) moved the controls beside the kit; a tall one put them above.
+- **Owner sign-offs:**
+  1. The kit's keys follow the GM drum keyboard (above) rather than Soundtrap's letters (Soundtrap uses digits too, which our typing scope doesn't bind).
+  2. Soundtrap's Save Preset and Auto-quantize are not copied: no drum presets or input quantize exist to back them.
+- **Found (pre-existing, open):** inside the editor, a `border-daw-*` colour class loses to the editor's border reset (`daw.css`, `.daw-root *`) and to the dashboard's (`dashboard.css`, `.dashboard-root *`). Same specificity, loaded later. So the design system's outlines (Select, secondary Button and IconButton, Chip, the search fields) show as hairlines in the editor. The kit and the Add effect card use the important form for now. A proper fix touches the shared `dashboard.css` reset, so it waits for the owner.

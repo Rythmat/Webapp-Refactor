@@ -123,7 +123,13 @@
     transition: background-color 50000s ease-in-out 0s;
   }
 
-  :not(:-webkit-autofill) {
+  /* Form fields only: on every element, this animation name made Radix
+     think each menu and popover had an exit animation still to run, so one
+     closed with Escape stayed on screen, taking clicks, until the next click
+     outside it. */
+  input:not(:-webkit-autofill),
+  textarea:not(:-webkit-autofill),
+  select:not(:-webkit-autofill) {
     /* Expose a hook for JS onAutoFillCancel
     JavaScript can capture 'animationstart' events */
     animation-name: onAutoFillCancel;

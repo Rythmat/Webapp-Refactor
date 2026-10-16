@@ -22,6 +22,7 @@ import {
   synthTrackStateFromPreset,
 } from '@/daw/oracle-synth/synthTrackState';
 import type { LoopState } from '@/daw/store/transportSlice';
+import { countIn as countInBar, makeClick, scheduleClicks } from './metronome';
 import { parseSound } from './sounds';
 
 interface PartEvent {
@@ -38,7 +39,15 @@ export function usePartPlayer() {
   } | null>(null);
   const outRef = useRef<Tone.Gain | null>(null);
   const partRef = useRef<Tone.Part<PartEvent> | null>(null);
+  const clickRef = useRef<Tone.Synth | null>(null);
+  const unclickRef = useRef<(() => void) | null>(null);
   const sounding = useRef(new Set<number>());
+  /**
+   * Keys held on the MIDI keyboard. Kept apart from the part's own notes: a
+   * replay (every captured note is one) lets go of those, never of a key
+   * still down.
+   */
+  const held = useRef(new Set<number>());
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [position, setPosition] = useState(0);
@@ -98,6 +107,8 @@ export function usePartPlayer() {
       /* already gone */
     }
     partRef.current = null;
+    unclickRef.current?.();
+    unclickRef.current = null;
   };
 
   /** Apply the loop window (editor loop, else the whole part) to the transport. */
@@ -122,7 +133,12 @@ export function usePartPlayer() {
   }, [releaseAll]);
 
   const play = useCallback(
-    async (part: InstrumentPart, feel?: FeelProfile) => {
+    async (
+      part: InstrumentPart,
+      feel?: FeelProfile,
+      /** Click every beat (the metronome), downbeats accented. */
+      options: { click?: boolean } = {},
+    ) => {
       const adapter = await ensureInstrument(part.sound);
       const transport = Tone.getTransport();
       const s = scale();
@@ -145,10 +161,16 @@ export function usePartPlayer() {
       disposePart();
       releaseAll();
       const tonePart = new Tone.Part<PartEvent>((time, ev) => {
+        // A key held live on the same pitch wins over the part's own note.
+        if (held.current.has(ev.midi)) return;
         adapter.noteOn(ev.midi, ev.velocity, time);
         sounding.current.add(ev.midi);
         const off = time + Tone.Time(ev.duration).toSeconds();
-        adapter.noteOff(ev.midi, off);
+        // Released just ahead of time, unless that key went down live since.
+        const wait = Math.max(0, (off - Tone.now() - 0.05) * 1000);
+        window.setTimeout(() => {
+          if (!held.current.has(ev.midi)) adapter.noteOff(ev.midi, off);
+        }, wait);
       }, events);
       transport.bpm.value = part.tempo;
       transport.swing = 0;
@@ -158,6 +180,15 @@ export function usePartPlayer() {
       if (starting) transport.cancel();
       applyTransportLoop();
       tonePart.start(0);
+      if (options.click) {
+        clickRef.current ??= makeClick();
+        unclickRef.current = scheduleClicks(
+          clickRef.current,
+          part.timeSignature,
+          lengthRef.current,
+          at,
+        );
+      }
       if (starting) {
         transport.ticks = Math.round(
           (loopRef.current.enabled ? loopRef.current.start : 0) * s,
@@ -206,13 +237,13 @@ export function usePartPlayer() {
     async (sound: string, midi: number, velocity: number) => {
       const adapter = await ensureInstrument(sound);
       adapter.noteOn(midi, velocity);
-      sounding.current.add(midi);
+      held.current.add(midi);
     },
     [ensureInstrument],
   );
   const liveOff = useCallback((midi: number) => {
     instrumentRef.current?.adapter.noteOff(midi);
-    sounding.current.delete(midi);
+    held.current.delete(midi);
   }, []);
 
   /** Where the transport is, in part ticks. */
@@ -223,27 +254,8 @@ export function usePartPlayer() {
 
   /** One bar of clicks before `then` — a count-in for live capture. */
   const countIn = useCallback(
-    async (part: InstrumentPart, then: () => void) => {
-      if (Tone.getContext().state !== 'running') await Tone.start();
-      const click = new Tone.Synth({
-        oscillator: { type: 'square' },
-        envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.02 },
-        volume: -12,
-      }).toDestination();
-      const beats = part.timeSignature[0];
-      const beat = (60 / part.tempo) * (4 / part.timeSignature[1]);
-      const t0 = Tone.now() + 0.1;
-      for (let i = 0; i < beats; i++) {
-        click.triggerAttackRelease(i === 0 ? 'C6' : 'G5', 0.03, t0 + i * beat);
-      }
-      window.setTimeout(
-        () => {
-          then();
-          window.setTimeout(() => click.dispose(), 500);
-        },
-        (0.1 + beats * beat - 0.05) * 1000,
-      );
-    },
+    (part: InstrumentPart, then: () => void) =>
+      countInBar(part.timeSignature, part.tempo, then),
     [],
   );
 
@@ -267,6 +279,8 @@ export function usePartPlayer() {
       transport.cancel();
       transport.loop = false;
       disposePart();
+      clickRef.current?.dispose();
+      clickRef.current = null;
       instrumentRef.current?.adapter.dispose?.();
       instrumentRef.current = null;
       outRef.current?.dispose();

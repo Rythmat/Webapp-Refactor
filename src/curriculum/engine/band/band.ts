@@ -203,6 +203,8 @@ export interface RealizeContext {
   chordAt: (tick: number) => ChordSymbolTones;
   bars: number;
   timeSignature: TimeSignature;
+  /** The genre it plays in: bass lines walk and approach by its rules. */
+  genre?: string;
 }
 
 /** One layer's notes, with the layer they came from. */

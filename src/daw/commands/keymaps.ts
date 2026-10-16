@@ -177,6 +177,12 @@ defineCommand({
   label: 'Delete the selected notes',
   keys: ['Delete', 'Backspace'],
 });
+defineCommand({
+  id: 'pianoRoll.selectAll',
+  scope: 'pianoRoll',
+  label: 'Select every note',
+  keys: ['Mod+KeyA'],
+});
 
 export const DRUMS_SCOPE = defineScope({
   id: 'drums',

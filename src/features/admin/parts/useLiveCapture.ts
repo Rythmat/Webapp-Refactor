@@ -2,7 +2,8 @@
  * Play a part in from a MIDI keyboard. While armed and the loop is running,
  * every key becomes a note at the transport's position in the part, wrapping
  * with the loop so a phrase can be built up pass by pass (overdub). Notes are
- * heard as they're played, on the part's own sound.
+ * heard as they're played, on the part's own sound. The sustain pedal holds
+ * notes on as a piano's does: heard, and written to their length under it.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -43,7 +44,9 @@ export function useLiveCapture({
 }: Options) {
   const [inputs, setInputs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const held = useRef(new Map<number, { tick: number; velocity: number }>());
+  const held = useRef(
+    new Map<number, { tick: number; velocity: number; recording: boolean }>(),
+  );
   // Latest options for the MIDI handler, which is bound once.
   const opts = useRef({
     active,
@@ -64,45 +67,73 @@ export function useLiveCapture({
     monitorOff,
   };
 
-  const onMessage = useCallback((e: MIDIMessageEvent) => {
-    const data = e.data;
-    if (!data || data.length < 3) return;
-    const [status, midi, vel] = data;
-    const kind = status & 0xf0;
+  /** The sustain pedal is down. */
+  const pedal = useRef(false);
+  /** Keys let go under the pedal: still sounding, still being written. */
+  const sustained = useRef(new Set<number>());
+
+  /** A key's note ends now: stop hearing it, and write it if recording. */
+  const finish = useCallback((midi: number) => {
     const o = opts.current;
-    const isOn = kind === 0x90 && vel > 0;
-    const isOff = kind === 0x80 || (kind === 0x90 && vel === 0);
-    if (isOn) {
-      o.monitorOn(midi, vel);
-      if (o.active)
-        held.current.set(midi, { tick: o.currentTick(), velocity: vel });
-    } else if (isOff) {
-      o.monitorOff(midi);
-      const start = held.current.get(midi);
-      held.current.delete(midi);
-      if (!start || !o.active || o.length <= 0) return;
-      const wrap = (t: number) => ((t % o.length) + o.length) % o.length;
-      const played = wrap(start.tick);
-      // Quantize writes the note on the grid and keeps how it was played as
-      // its feel — never thrown away.
-      const { tick, offset } = o.quantize
-        ? splitPlayed(played, o.quantize)
-        : { tick: Math.round(played), offset: undefined };
-      let duration = wrap(o.currentTick() - start.tick) || o.length;
-      if (o.quantize)
-        duration = Math.max(
-          o.quantize,
-          Math.round(duration / o.quantize) * o.quantize,
-        );
-      o.onNote({
-        tick: wrap(tick),
-        ...(offset ? { offset } : {}),
-        duration: Math.max(30, Math.round(duration)),
-        midi,
-        velocity: start.velocity,
-      });
-    }
+    o.monitorOff(midi);
+    sustained.current.delete(midi);
+    const start = held.current.get(midi);
+    held.current.delete(midi);
+    if (!start?.recording || !o.active || o.length <= 0) return;
+    const wrap = (t: number) => ((t % o.length) + o.length) % o.length;
+    const played = wrap(start.tick);
+    // Quantize writes the note on the grid and keeps how it was played as
+    // its feel — never thrown away.
+    const { tick, offset } = o.quantize
+      ? splitPlayed(played, o.quantize)
+      : { tick: Math.round(played), offset: undefined };
+    let duration = wrap(o.currentTick() - start.tick) || o.length;
+    if (o.quantize)
+      duration = Math.max(
+        o.quantize,
+        Math.round(duration / o.quantize) * o.quantize,
+      );
+    o.onNote({
+      tick: wrap(tick),
+      ...(offset ? { offset } : {}),
+      duration: Math.max(30, Math.round(duration)),
+      midi,
+      velocity: start.velocity,
+    });
   }, []);
+
+  const onMessage = useCallback(
+    (e: MIDIMessageEvent) => {
+      const data = e.data;
+      if (!data || data.length < 3) return;
+      const [status, midi, vel] = data;
+      const kind = status & 0xf0;
+      const o = opts.current;
+      // The sustain pedal: a key let go while it's down rings on — heard and
+      // written — until the pedal comes up.
+      if (kind === 0xb0 && midi === 64) {
+        pedal.current = vel >= 64;
+        if (!pedal.current) [...sustained.current].forEach(finish);
+        return;
+      }
+      const isOn = kind === 0x90 && vel > 0;
+      const isOff = kind === 0x80 || (kind === 0x90 && vel === 0);
+      if (isOn) {
+        // The same key struck again under the pedal ends the ringing one.
+        if (sustained.current.has(midi)) finish(midi);
+        o.monitorOn(midi, vel);
+        held.current.set(midi, {
+          tick: o.currentTick(),
+          velocity: vel,
+          recording: o.active,
+        });
+      } else if (isOff) {
+        if (pedal.current) sustained.current.add(midi);
+        else finish(midi);
+      }
+    },
+    [finish],
+  );
 
   useEffect(() => {
     if (!navigator.requestMIDIAccess) {

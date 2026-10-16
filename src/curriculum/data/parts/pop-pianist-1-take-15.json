@@ -1,0 +1,23 @@
+{
+  "id": "pop-pianist-1-take-15",
+  "name": "Pop Piano Broken Chords",
+  "instrument": "piano",
+  "role": "comping",
+  "level": 1,
+  "tags": [],
+  "status": "draft",
+  "key": {
+    "tonic": 0,
+    "mode": "ionian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 100,
+  "swing": 50,
+  "sound": "piano-sampler",
+  "notes": [],
+  "source": {
+    "kind": "scratch"
+  },
+  "genre": "pop"
+}

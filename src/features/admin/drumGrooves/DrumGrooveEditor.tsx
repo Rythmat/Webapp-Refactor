@@ -5,10 +5,8 @@ import {
   Download,
   Loader2,
   Play,
-  Redo2,
   Save,
   Square,
-  Undo2,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type FC } from 'react';
 import { Link } from 'react-router-dom';
@@ -42,6 +40,7 @@ import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
 import { UseInLessons } from '../lessonPairings/UseInLessons';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
+import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../ui/styles';
 import { GrooveGrid } from './GrooveGrid';
 import { KitPanel } from './KitPanel';
@@ -277,26 +276,7 @@ export const DrumGrooveEditor: FC<Props> = ({
           )}
           {player.playing ? 'Stop' : 'Play'}
         </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.undo}
-          disabled={!history.canUndo}
-          aria-label="Undo"
-          title="Undo (⌘Z)"
-        >
-          <Undo2 />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={history.redo}
-          disabled={!history.canRedo}
-          aria-label="Redo"
-          title="Redo (⌘⇧Z)"
-        >
-          <Redo2 />
-        </Button>
+        <UndoRedo history={history} />
         {canSave ? (
           <>
             <Button

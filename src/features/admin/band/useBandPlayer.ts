@@ -13,6 +13,7 @@ import * as Tone from 'tone';
 import type { BackingNote } from '@/curriculum/engine/genreGeneration/backingPatterns';
 import type { InstrumentAdapter } from '@/daw/instruments/InstrumentAdapter';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
+import { makeClick, scheduleClicks } from '../parts/metronome';
 import {
   applySynthSound,
   createBandInstrument,
@@ -42,6 +43,9 @@ interface Voice {
 
 const scale = () => Tone.getTransport().PPQ / 480;
 
+/** The voice a capture monitors on: kept apart from the band's layers. */
+const CAPTURE = 'capture:';
+
 export function useBandPlayer() {
   const voices = useRef(new Map<string, Voice>());
   const soloRef = useRef<string | null>(null);
@@ -50,6 +54,12 @@ export function useBandPlayer() {
   const [loading, setLoading] = useState(false);
   const [position, setPosition] = useState(0);
   const [solo, setSoloState] = useState<string | null>(null);
+  const clickRef = useRef<Tone.Synth | null>(null);
+  const unclickRef = useRef<(() => void) | null>(null);
+  const unclick = () => {
+    unclickRef.current?.();
+    unclickRef.current = null;
+  };
 
   const gainFor = (layer: PlayerLayer) => {
     const audible =
@@ -138,13 +148,22 @@ export function useBandPlayer() {
   const play = useCallback(
     async (
       layers: readonly PlayerLayer[],
-      { bpm, totalTicks }: { bpm: number; totalTicks: number },
+      {
+        bpm,
+        totalTicks,
+        click,
+      }: {
+        bpm: number;
+        totalTicks: number;
+        /** The meter to click a metronome in; no click when left out. */
+        click?: readonly [number, number];
+      },
     ) => {
       if (Tone.getContext().state !== 'running') await Tone.start();
       layersRef.current = layers;
       const keep = new Set(layers.map((l) => l.id));
       [...voices.current.keys()]
-        .filter((id) => !keep.has(id))
+        .filter((id) => !keep.has(id) && !id.startsWith(CAPTURE))
         .forEach(disposeVoice);
       setLoading(true);
       let ready: (Voice | null)[];
@@ -169,6 +188,16 @@ export function useBandPlayer() {
         voice.gain.gain.rampTo(gainFor(layer), 0.02);
         schedule(voice, layer.notes);
       });
+      unclick();
+      if (click) {
+        clickRef.current ??= makeClick();
+        unclickRef.current = scheduleClicks(
+          clickRef.current,
+          click,
+          totalTicks,
+          (tick) => `${Math.round(tick * scale())}i`,
+        );
+      }
       if (starting) {
         transport.ticks = 0;
         transport.start('+0.05');
@@ -182,12 +211,45 @@ export function useBandPlayer() {
     const transport = Tone.getTransport();
     transport.stop();
     transport.cancel();
+    unclick();
     voices.current.forEach((voice) => {
       disposePart(voice);
       releaseVoice(voice);
     });
     setPlaying(false);
     setPosition(0);
+  }, []);
+
+  /** Where the transport is, in band ticks. */
+  const currentTick = useCallback(
+    () => Tone.getTransport().ticks / scale(),
+    [],
+  );
+
+  /** A key played live, heard on `sound` (a capture's monitor). */
+  const liveOn = useCallback(
+    async (sound: string, midi: number, velocity: number) => {
+      if (Tone.getContext().state !== 'running') await Tone.start();
+      const voice = await voiceFor({
+        id: `${CAPTURE}${sound}`,
+        sound,
+        notes: [],
+        volume: 1,
+        muted: false,
+      });
+      if (!voice) return;
+      voice.gain.gain.value = 1;
+      voice.adapter.noteOn(midi, velocity);
+      voice.sounding.add(midi);
+    },
+    [voiceFor],
+  );
+  const liveOff = useCallback((midi: number) => {
+    voices.current.forEach((voice, id) => {
+      if (!id.startsWith(CAPTURE) || !voice.sounding.has(midi)) return;
+      voice.adapter.noteOff(midi);
+      voice.sounding.delete(midi);
+    });
   }, []);
 
   /** Levels, mutes and the solo, heard at once. */
@@ -276,6 +338,9 @@ export function useBandPlayer() {
       transport.cancel();
       transport.loop = false;
       [...voices.current.keys()].forEach(disposeVoice);
+      unclickRef.current?.();
+      clickRef.current?.dispose();
+      clickRef.current = null;
     },
     [disposeVoice],
   );
@@ -290,6 +355,9 @@ export function useBandPlayer() {
     synthEngine,
     renameSound,
     reloadSound,
+    currentTick,
+    liveOn,
+    liveOff,
     position,
     playing,
     loading,

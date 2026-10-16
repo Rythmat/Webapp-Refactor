@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
 import type { MidiClip, AudioClip } from './tracksSlice';
 import type { AllGridSize } from '@/daw/utils/quantize';
+import { clampZoom, fitZoom, zoomAround } from '@/daw/editor/zoom';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
 import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
 import {
@@ -153,13 +154,6 @@ export interface LeadSheetRepeat {
   endMeasure: number;
 }
 
-const MIN_ZOOM = 0.1;
-const MAX_ZOOM = 10.0;
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
-}
-
 export interface UiSlice {
   /**
    * Whether letter, digit and symbol keys with no ⌘ or ⌥ are shortcuts (R,
@@ -182,6 +176,11 @@ export interface UiSlice {
   timelineGridSize: AllGridSize;
   timelineSnapEnabled: boolean;
   timelineTripletMode: boolean;
+  /**
+   * Whether the timeline follows the playhead by pages while playing
+   * (editor/follow). A per-user pref, on by default.
+   */
+  followPlayhead: boolean;
 
   setActiveTool: (tool: ToolType) => void;
   setSelectedClip: (clipId: string | null, trackId: string | null) => void;
@@ -195,6 +194,7 @@ export interface UiSlice {
   setTimelineGridSize: (size: AllGridSize) => void;
   toggleTimelineSnap: () => void;
   toggleTripletMode: () => void;
+  setFollowPlayhead: (on: boolean) => void;
   /** Zoom centered on cursor — keeps tick under anchorPx visually fixed. */
   zoomAtPoint: (delta: number, anchorPx: number) => void;
   /** Zoom to fit all content in the viewport. */
@@ -390,6 +390,7 @@ export const createUiSlice: StateCreator<
   timelineGridSize: '1/4',
   timelineSnapEnabled: true,
   timelineTripletMode: false,
+  followPlayhead: true,
 
   setActiveTool: (tool) => set({ activeTool: tool }),
 
@@ -412,8 +413,7 @@ export const createUiSlice: StateCreator<
 
   // ── Timeline actions ──
 
-  setTimelineZoom: (zoom) =>
-    set({ timelineZoom: clamp(zoom, MIN_ZOOM, MAX_ZOOM) }),
+  setTimelineZoom: (zoom) => set({ timelineZoom: clampZoom(zoom) }),
 
   setTimelineScrollLeft: (px) => set({ timelineScrollLeft: Math.max(0, px) }),
 
@@ -424,28 +424,23 @@ export const createUiSlice: StateCreator<
 
   toggleTripletMode: () =>
     set((s) => ({ timelineTripletMode: !s.timelineTripletMode })),
+  setFollowPlayhead: (on) => set({ followPlayhead: on }),
 
   zoomAtPoint: (delta, anchorPx) =>
     set((s) => {
-      const oldZoom = s.timelineZoom;
-      const newZoom = clamp(oldZoom * (1 + delta), MIN_ZOOM, MAX_ZOOM);
-      const ratio = newZoom / oldZoom;
-      const newScrollLeft =
-        anchorPx * ratio - anchorPx + s.timelineScrollLeft * ratio;
-      return {
-        timelineZoom: newZoom,
-        timelineScrollLeft: Math.max(0, newScrollLeft),
-      };
+      const next = zoomAround(
+        { zoom: s.timelineZoom, scrollLeft: s.timelineScrollLeft },
+        delta,
+        anchorPx - s.timelineScrollLeft,
+      );
+      return { timelineZoom: next.zoom, timelineScrollLeft: next.scrollLeft };
     }),
 
-  zoomToFit: (viewportWidth, projectLengthTicks) => {
-    const BASE_PPB = 40;
-    const neededZoom = (viewportWidth * 480) / (projectLengthTicks * BASE_PPB);
+  zoomToFit: (viewportWidth, projectLengthTicks) =>
     set({
-      timelineZoom: clamp(neededZoom, MIN_ZOOM, MAX_ZOOM),
+      timelineZoom: fitZoom(viewportWidth, projectLengthTicks),
       timelineScrollLeft: 0,
-    });
-  },
+    }),
 
   // ── View switcher ──
   currentView: 'arrange' as ViewType,

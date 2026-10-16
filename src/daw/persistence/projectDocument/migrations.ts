@@ -31,6 +31,8 @@ import { NOTE_EVENT_FIELDS } from './fields';
 //   region's sourceClipId. A v3 draft is a v4 draft without them (no bars
 //   past the last chord, no region tied to a clip), so nothing translates:
 //   the codec reads the missing fields as their defaults.
+// - v5 (2.7 on): v4 plus the view's chordAnalysisDismissed. A v4 draft is a
+//   v5 draft whose student never said Not now to the chord lane's offer.
 // - Later schemas: a draft whose `compat` is 3 or lower only adds fields to
 //   v3, so it is read as this build's schema and the fields this build
 //   doesn't know are left out. `from` says it was newer, and the caller keeps a copy of it before

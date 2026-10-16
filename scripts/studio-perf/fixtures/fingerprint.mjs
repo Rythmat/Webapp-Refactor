@@ -643,14 +643,22 @@ export async function fingerprintPage() {
       'store.timelineGridSize',
       'store.timelineSnapEnabled',
       'store.timelineTripletMode',
+      'store.followPlayhead',
     ],
     {
       size: s.timelineGridSize,
       snap: s.timelineSnapEnabled,
       triplet: s.timelineTripletMode,
+      follow: s.followPlayhead,
     },
   );
   put('view.activeTool', ['store.activeTool'], s.activeTool);
+  // The chord lane's Not now, on this project (milestone 2.7).
+  put(
+    'view.chordAnalysisDismissed',
+    ['store.chordAnalysisDismissed'],
+    s.chordAnalysisDismissed,
+  );
   put(
     'view.singleKeyShortcuts',
     ['store.singleKeyShortcuts'],

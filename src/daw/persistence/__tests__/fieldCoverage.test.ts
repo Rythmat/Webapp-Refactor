@@ -721,6 +721,8 @@ describe('decision D5', () => {
         'timelineSnapEnabled',
         'timelineGridSize',
         'timelineTripletMode',
+        // Create's toolbar (milestone 2.7).
+        'followPlayhead',
         'chordRulerShowNotes',
         'singleKeyShortcuts',
         // The shell's layout, per user (milestone 2.4).
@@ -754,6 +756,8 @@ describe('decision D5', () => {
         'automationOpenTrackId',
         'automationParamId',
         'masteringBypass',
+        // The chord lane's Not now (milestone 2.7).
+        'chordAnalysisDismissed',
       ].sort(),
     );
     expect([...TRACK_PER_USER_FIELDS].sort()).toEqual(

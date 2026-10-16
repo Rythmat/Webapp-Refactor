@@ -171,8 +171,11 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   unisonError: ANALYSIS,
   selectionAnalysis: ANALYSIS,
   chordAnalysis: ANALYSIS,
-  chordAnalysisPromptOpen:
-    'Offered when a project opens with notes but no chord symbols.',
+  chordAnalysisOffered:
+    'Offered (the chord lane’s banner) when a project opens with notes but no chord symbols.',
+  chordAnalysisDismissed:
+    'The student’s Not now to that offer, on this project and this device (milestone 2.7, schema 5): the banner stays away when the draft reopens. Not in the cloud copy, so another device offers it once more.',
+  chordAnalysisPromptOpen: 'The analysis dialog, opened from the banner.',
 
   // ── suggest ──
   prismSuggestOpen: SUGGESTION,

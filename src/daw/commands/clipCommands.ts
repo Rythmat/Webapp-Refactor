@@ -5,6 +5,11 @@ import { withTransaction } from '@/daw/store/history';
 import { ticksPerBeat, timelineSnapGrid } from '@/daw/time/timeModel';
 import { toast } from '@/hooks/use-toast';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
+import {
+  fitTimeline,
+  zoomTimelineIn,
+  zoomTimelineOut,
+} from '@/daw/editor/viewport';
 import type { ToolType } from '@/daw/store/uiSlice';
 import { isFormControl, isInKeyWidget } from './keys';
 import { ARRANGE_SCOPE } from './keymaps';
@@ -27,9 +32,6 @@ function nudgeTicks(): number {
   const grid = timelineSnapGrid(state);
   return grid.enabled ? grid.step : ticksPerBeat(grid.ts);
 }
-
-/** How much one ⌥= or ⌥− (or the tools strip's −/+) zooms. */
-export const ZOOM_STEP = 0.25;
 
 function onTimeline(e: KeyboardEvent): boolean {
   const { currentView, editingClipId } = useStore.getState();
@@ -187,20 +189,6 @@ function selectFirstClip(): void {
   if (first) state.setSelectedClip(first.id, trackId);
 }
 
-/** The song's length in ticks, with room after the last clip. */
-export function songLengthTicks(ticksPerBar: number): number {
-  let maxTick = ticksPerBar * 8; // 8 bars minimum
-  for (const track of useStore.getState().tracks) {
-    for (const clip of track.midiClips) {
-      maxTick = Math.max(maxTick, clip.startTick + midiClipLength(clip));
-    }
-    for (const clip of track.audioClips) {
-      maxTick = Math.max(maxTick, clip.startTick + clip.duration);
-    }
-  }
-  return maxTick + ticksPerBar * 4; // 4 bars padding
-}
-
 function tool(next: ToolType) {
   return (e: KeyboardEvent) => {
     if (!onTimeline(e)) return false;
@@ -208,19 +196,11 @@ function tool(next: ToolType) {
   };
 }
 
-export interface TimelineViewport {
-  /** The timeline canvas's width in px, as the Timeline measures it. */
-  width: () => number;
-  ticksPerBar: () => number;
-}
-
 /** Binds Create's timeline keys while the Timeline is mounted. */
-export function useArrangeKeymap(viewport: TimelineViewport): void {
-  const zoomBy = (factor: number) => (e: KeyboardEvent) => {
+export function useArrangeKeymap(): void {
+  const zoom = (action: () => void) => (e: KeyboardEvent) => {
     if (!onTimeline(e)) return false;
-    const state = useStore.getState();
-    // Around the middle of what's on screen.
-    state.zoomAtPoint(factor, state.timelineScrollLeft + viewport.width() / 2);
+    action();
   };
   const handlers: KeymapHandlers = {
     'clip.copy': (e) => onTimeline(e) && copyClip(),
@@ -247,14 +227,9 @@ export function useArrangeKeymap(viewport: TimelineViewport): void {
     'tool.pencil': tool('pencil'),
     'tool.scissors': tool('scissors'),
     'tool.layout': tool('layout'),
-    'timeline.zoomIn': zoomBy(ZOOM_STEP),
-    'timeline.zoomOut': zoomBy(-ZOOM_STEP / (1 + ZOOM_STEP)),
-    'timeline.zoomToFit': (e) => {
-      if (!onTimeline(e)) return false;
-      useStore
-        .getState()
-        .zoomToFit(viewport.width(), songLengthTicks(viewport.ticksPerBar()));
-    },
+    'timeline.zoomIn': zoom(zoomTimelineIn),
+    'timeline.zoomOut': zoom(zoomTimelineOut),
+    'timeline.zoomToFit': zoom(fitTimeline),
   };
   useKeymap(ARRANGE_SCOPE.id, handlers);
 }

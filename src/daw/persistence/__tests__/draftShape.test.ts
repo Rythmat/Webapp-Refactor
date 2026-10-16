@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * The shape of today's draft, held still: every key path an encoded
- * all-fields session holds (fixtures/v4-all-fields, re-encoded by today's
+ * all-fields session holds (fixtures/v5-all-fields, re-encoded by today's
  * codec), and
  * the keys of a draft track, clip and settings blob. A draft that gains,
  * loses or moves a field fails here, and the fix is never to update the
@@ -9,8 +9,8 @@
  * (allFieldsFixture.test.ts writes the all-fields one), and raise
  * SESSION_COMPAT_VERSION too when a field changes what it means. Milestones
  * known to need it: 1.13b (the Oracle patch moves out of the track's
- * settings), 1.16 (the per-project chord-prompt flag). Schema 4 was 1.10's
- * (leadSheetBars, a chord region's sourceClipId).
+ * settings). Schema 4 was 1.10's (leadSheetBars, a chord region's
+ * sourceClipId), 5 is 2.7's (the view's chordAnalysisDismissed).
  *
  * An array's entries share one path (`[]`). The instrument and effect blobs
  * inside it are their owners' (each loads older versions of itself, and the
@@ -53,7 +53,7 @@ const OPAQUE = new Set([
 function encodedAllFields(): StoredSession {
   const file = resolve(
     process.cwd(),
-    'src/daw/persistence/__tests__/fixtures/v4-all-fields/all-fields.json',
+    'src/daw/persistence/__tests__/fixtures/v5-all-fields/all-fields.json',
   );
   const migrated = migrateSession(readFileSync(file, 'utf8'));
   if (!migrated.ok) throw new Error(`unreadable: ${migrated.detail}`);
@@ -311,6 +311,7 @@ const DRAFT_PATHS = [
   'data.view.automationOpenTrackId',
   'data.view.automationParamId',
   'data.view.channelStripTab',
+  'data.view.chordAnalysisDismissed',
   'data.view.currentView',
   'data.view.libraryOpen',
   'data.view.masteringBypass',

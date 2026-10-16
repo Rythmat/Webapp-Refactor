@@ -74,7 +74,9 @@ import {
 // v4 (milestone 1.10) adds two fields and changes no meaning: the Lead
 // Sheet's length past its last chord (leadSheetBars) and the clip a chord
 // region was read from (sourceClipId), so the chord lane follows that clip
-// alone. Its compat stays 3.
+// alone. Its compat stays 3. v5 (milestone 2.7) adds one view field, the
+// student's Not now to the chord lane's analysis offer
+// (chordAnalysisDismissed); compat 3 still.
 //
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
@@ -107,11 +109,12 @@ export const SESSION_ENVELOPE_VERSION = 2;
  * The format inside the envelope (decision D1). A draft without `schema` is
  * v1 or v2, from before 1.3, and goes through migrations.ts first. Any change
  * to what a draft holds bumps it, with a migration and fixtures (draftShape
- * .test fails until then): 1.13b moving the Oracle patch, 1.16's per-project
- * chord-prompt flag. 4 is 1.10's (leadSheetBars, a region's sourceClipId);
- * its bar indices keep their meaning, every one a real bar of the song.
+ * .test fails until then): 1.13b moving the Oracle patch, for one. 4 is
+ * 1.10's (leadSheetBars, a region's sourceClipId); its bar indices keep
+ * their meaning, every one a real bar of the song. 5 is 2.7's: the view's
+ * chordAnalysisDismissed, the chord lane's Not now on this project.
  */
-export const SESSION_SCHEMA_VERSION = 4;
+export const SESSION_SCHEMA_VERSION = 5;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -243,6 +246,7 @@ const DRAFT_LAYOUT = {
   selectedTrackId: 'view',
   automationOpenTrackId: 'view',
   automationParamId: 'view',
+  chordAnalysisDismissed: 'view',
 } as const satisfies { readonly [K in LocalKey]: DraftPlace };
 
 /** The store keys a draft holds: the registry's doc and view keys. */
@@ -990,6 +994,7 @@ const KEY_CHECKS: { readonly [K in SectionKey]: Check<AllSlices[K]> } = {
   selectedTrackId: nullable(valid(isString)),
   automationOpenTrackId: nullable(valid(isString)),
   automationParamId: valid(isString),
+  chordAnalysisDismissed: valid(isBoolean),
 };
 
 /**

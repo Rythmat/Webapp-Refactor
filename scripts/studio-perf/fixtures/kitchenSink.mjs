@@ -575,6 +575,8 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setTimelineGridSize('1/8');
   act().toggleTimelineSnap();
   act().toggleTripletMode();
+  act().setFollowPlayhead(false);
+  act().dismissChordAnalysis();
   act().setSingleKeyShortcuts(false);
   // The shell's layout prefs (milestone 2.4).
   act().setInspectorOpenFor('score', true);

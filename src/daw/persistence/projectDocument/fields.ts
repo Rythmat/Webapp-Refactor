@@ -353,6 +353,7 @@ const STORE_SPECS = {
   timelineGridSize: pref('view', '1/4'),
   timelineSnapEnabled: pref('view', true),
   timelineTripletMode: pref('view', false),
+  followPlayhead: pref('view', true),
   singleKeyShortcuts: pref('view', true),
   // The shell's layout (milestone 2.4): per user, never per project.
   inspectorOpenByView: pref('view', () => ({})),
@@ -389,6 +390,8 @@ const STORE_SPECS = {
   unisonError: session('unison', null, 'project'),
   selectionAnalysis: session('unison', null, 'project'),
   chordAnalysis: session('unison', null, 'project'),
+  chordAnalysisOffered: session('unison', false, 'project'),
+  chordAnalysisDismissed: view('unison', false),
   chordAnalysisPromptOpen: session('unison', false, 'project'),
 
   // ── suggest ──

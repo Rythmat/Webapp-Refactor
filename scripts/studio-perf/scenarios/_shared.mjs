@@ -553,8 +553,9 @@ export async function clickToastAction(page, match, action, timeout = 8000) {
 }
 
 /**
- * Closes the "Analyze chords?" prompt a project or jam open may offer
- * (offerChordAnalysis, a modal), as the student's "Not now" does.
+ * Closes the "Analyze chords?" dialog if it is open. Since milestone 2.7 an
+ * open only offers it in the chord lane's banner (offerChordAnalysis), which
+ * blocks nothing, so this is a guard for an older build's modal.
  */
 export const dismissChordPrompt = (page) =>
   page.evaluate(() => {

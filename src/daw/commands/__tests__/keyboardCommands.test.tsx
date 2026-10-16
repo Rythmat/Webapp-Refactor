@@ -39,6 +39,7 @@ vi.mock('@/daw/audio/AudioEngine', () => ({
 }));
 
 import { useArrangeKeymap } from '../clipCommands';
+import { publishTimelineWidth } from '@/daw/editor/viewport';
 import { useGlobalCommands } from '../globalCommands';
 import {
   LEAD_SHEET_SCOPE,
@@ -255,7 +256,8 @@ function Editor({ children }: { children?: ReactNode }) {
 
 /** Create's keys, as the Timeline binds them while it is on screen. */
 function TimelineKeys() {
-  useArrangeKeymap({ width: () => 1200, ticksPerBar: () => 1920 });
+  publishTimelineWidth(1200);
+  useArrangeKeymap();
   return null;
 }
 

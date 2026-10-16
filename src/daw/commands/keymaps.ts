@@ -215,6 +215,82 @@ defineCommand({
   keys: ['Delete', 'Backspace'],
 });
 
+// The track list (milestone 2.6): with focus on a track row, the arrows
+// move the selection (A11Y#3) and M and S mute and solo that track, ahead of
+// the global M (the metronome). Musical typing, a level above, has the keys
+// while it is on.
+export const TRACKS_SCOPE = defineScope({
+  id: 'tracks',
+  label: 'Track list',
+  level: 'region',
+});
+
+defineCommand({
+  id: 'tracks.previous',
+  scope: 'tracks',
+  label: 'Select the track above',
+  keys: ['ArrowUp'],
+  repeat: true,
+});
+defineCommand({
+  id: 'tracks.next',
+  scope: 'tracks',
+  label: 'Select the track below',
+  keys: ['ArrowDown'],
+  repeat: true,
+});
+defineCommand({
+  id: 'tracks.first',
+  scope: 'tracks',
+  label: 'Select the first track',
+  keys: ['Home', 'Mod+ArrowUp'],
+});
+defineCommand({
+  id: 'tracks.last',
+  scope: 'tracks',
+  label: 'Select the last track',
+  keys: ['End', 'Mod+ArrowDown'],
+});
+defineCommand({
+  id: 'tracks.moveUp',
+  scope: 'tracks',
+  label: 'Move the track up',
+  // ChromeOS can turn Alt+Up into Page Up: the second pair is for it.
+  keys: ['Alt+ArrowUp', 'Mod+Shift+ArrowUp'],
+  repeat: true,
+});
+defineCommand({
+  id: 'tracks.moveDown',
+  scope: 'tracks',
+  label: 'Move the track down',
+  keys: ['Alt+ArrowDown', 'Mod+Shift+ArrowDown'],
+  repeat: true,
+});
+defineCommand({
+  id: 'tracks.edit',
+  scope: 'tracks',
+  label: 'Edit the track in the dock',
+  keys: ['Enter'],
+});
+defineCommand({
+  id: 'tracks.rename',
+  scope: 'tracks',
+  label: 'Rename the track',
+  keys: ['F2', 'KeyN'],
+});
+defineCommand({
+  id: 'tracks.mute',
+  scope: 'tracks',
+  label: 'Mute the track',
+  keys: ['KeyM'],
+});
+defineCommand({
+  id: 'tracks.solo',
+  scope: 'tracks',
+  label: 'Solo the track',
+  keys: ['KeyS'],
+});
+
 // ── Views ────────────────────────────────────────────────────────────────
 
 export const PRACTICE_SCOPE = defineScope({
@@ -302,23 +378,25 @@ defineCommand({
   label: 'Stop and deselect',
   keys: ['Escape'],
 });
+// V, B and C, as the Create toolbar shows them (plan default); the digits
+// still work.
 defineCommand({
   id: 'tool.cursor',
   scope: 'arrange',
   label: 'Pointer tool',
-  keys: ['Digit1'],
+  keys: ['KeyV', 'Digit1'],
 });
 defineCommand({
   id: 'tool.pencil',
   scope: 'arrange',
-  label: 'Pencil tool',
-  keys: ['Digit2'],
+  label: 'Draw tool',
+  keys: ['KeyB', 'Digit2'],
 });
 defineCommand({
   id: 'tool.scissors',
   scope: 'arrange',
-  label: 'Scissors tool',
-  keys: ['Digit3'],
+  label: 'Cut tool',
+  keys: ['KeyC', 'Digit3'],
 });
 defineCommand({
   id: 'tool.layout',

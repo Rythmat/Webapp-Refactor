@@ -59,8 +59,9 @@ function jsonFiles(dir: string): { name: string; session: any }[] {
 const V2 = jsonFiles(join(FIXTURES, 'v2'));
 const V2_12 = jsonFiles(join(FIXTURES, 'v2-1.2'));
 const V1 = jsonFiles(join(FIXTURES, 'v1'));
-/** Today's format (schema 4), and the v3 one it migrates from. */
-const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v4-all-fields'))[0].session;
+/** Today's format (schema 5), and the v4 and v3 ones it migrates from. */
+const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v5-all-fields'))[0].session;
+const ALL_FIELDS_V4 = jsonFiles(join(FIXTURES, 'v4-all-fields'))[0].session;
 const ALL_FIELDS_V3 = jsonFiles(join(FIXTURES, 'v3-all-fields'))[0].session;
 /** A schema after this build's. */
 const NEXT = SESSION_SCHEMA_VERSION + 1;
@@ -607,12 +608,23 @@ describe('migrating', () => {
     expect(result.session.data.tracks).toEqual(ALL_FIELDS.data.tracks);
   });
 
-  it('reads a v3 draft as v4, with no bars past its chords', () => {
+  it('reads a v3 draft as today’s, with no bars past its chords', () => {
     const result = migrated(ALL_FIELDS_V3);
     expect(result.from).toBe(3);
-    expect(result.session).toMatchObject({ schema: 4, compat: 3 });
-    // Schema 4 only added fields, so the v3 data passes through untouched.
+    expect(result.session).toMatchObject({ schema: 5, compat: 3 });
+    // Schemas 4 and 5 only added fields, so the v3 data passes through
+    // untouched.
     expect(result.session.data).toEqual(ALL_FIELDS_V3.data);
     expect(decode(ALL_FIELDS_V3).project.leadSheetBars).toBeNull();
+  });
+
+  it('reads a v4 draft as v5, with the chord lane’s offer not declined', () => {
+    const result = migrated(ALL_FIELDS_V4);
+    expect(result.from).toBe(4);
+    expect(result.session).toMatchObject({ schema: 5, compat: 3 });
+    expect(result.session.data).toEqual(ALL_FIELDS_V4.data);
+    const { project } = decode(ALL_FIELDS_V4);
+    expect(project.chordAnalysisDismissed).toBe(false);
+    expect(project.leadSheetBars).toBe(24);
   });
 });

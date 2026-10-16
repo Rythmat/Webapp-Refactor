@@ -49,6 +49,7 @@ const CHOSEN = {
   timelineSnapEnabled: false,
   timelineGridSize: '1/8T',
   timelineTripletMode: true,
+  followPlayhead: false,
   chordRulerShowNotes: true,
   singleKeyShortcuts: false,
   inspectorOpenByView: { arrange: false, score: true },

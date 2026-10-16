@@ -489,7 +489,7 @@ describe('extras after ready are guarded by the session', () => {
     apply(prepared);
     prepared.afterReady(ready(false));
     expect(loadJamSession()).not.toBeNull();
-    expect(s().chordAnalysisPromptOpen).toBe(false);
+    expect(s().chordAnalysisOffered).toBe(false);
     // The draft couldn't be written: the hand-off is its only copy.
     prepared.afterReady(ready(true, false));
     expect(loadJamSession()).not.toBeNull();

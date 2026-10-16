@@ -17,8 +17,9 @@ import { ALL_GRID_VALUES, type AllGridSize } from '@/daw/utils/quantize';
 // ── Per-user editor preferences ────────────────────────────────────────────
 //
 // A few editor settings belong to the student rather than to a project: the
-// metronome, the count-in, the timeline's snap, grid and triplets, whether
-// the chord ruler shows note names, whether single-key shortcuts are on
+// metronome, the count-in, the timeline's snap, grid and triplets and
+// whether it follows the playhead, whether the chord ruler shows note
+// names, whether single-key shortcuts are on
 // (the registry's 'pref' scope, decision D5), and since milestone 2.4 the
 // editor's layout (the Inspector per view and its width, the dock's height
 // per tab, the readout). They follow the student from project to project, so a new
@@ -80,6 +81,7 @@ const IS_VALID: {
     typeof value === 'string' &&
     Object.prototype.hasOwnProperty.call(ALL_GRID_VALUES, value),
   timelineTripletMode: isBoolean,
+  followPlayhead: isBoolean,
   chordRulerShowNotes: isBoolean,
   singleKeyShortcuts: isBoolean,
   inspectorOpenByView: isInspectorOpenByView,

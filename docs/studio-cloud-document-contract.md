@@ -32,7 +32,7 @@ reads or changes what is inside it.**
 | column                | type                        | meaning                                                  |
 | --------------------- | --------------------------- | -------------------------------------------------------- |
 | `document`            | `JSONB NULL`                | the client's document, stored as sent                    |
-| `document_schema`     | `INT NULL`                  | its format version (`documentSchema`), today `3`         |
+| `document_schema`     | `INT NULL`                  | its format version (`documentSchema`), today `5`         |
 | `revision`            | `BIGINT NOT NULL DEFAULT 0` | +1 on every successful POST and PUT                      |
 | `written_at_revision` | `BIGINT NULL`               | the `revision` of the last write that carried `document` |
 

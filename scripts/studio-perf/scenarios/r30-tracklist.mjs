@@ -8,7 +8,8 @@
  * - rowsAligned: each row's top is its lane's top (±1 px) with the list
  *   scrolled to the top, the middle and the bottom (timeline-12).
  * - rowBudget: a Chromebook shows at least 4 whole rows with the dock open
- *   at its default height, and at least 7 with the dock closed.
+ *   at its default height, and at least 6 with the dock closed (7 until the
+ *   bottom rail took 44 px of the body, B4a; the owner's rails).
  * - trackKeys: with focus on a row's name, ↓ selects the next track, and
  *   Enter puts focus in the dock (A11Y#3).
  * - addSheet: + Add track opens the sheet, its grid has no sideways
@@ -38,7 +39,7 @@ export const flags = {
   },
   rowBudget: {
     goal: true,
-    text: 'on a Chromebook, ≥ 4 whole rows with the dock open and ≥ 7 with it closed',
+    text: 'on a Chromebook, ≥ 4 whole rows with the dock open and ≥ 6 with it closed',
   },
   trackKeys: {
     goal: true,
@@ -250,7 +251,7 @@ function judge(v) {
       offsets.every((o) => Math.abs(o) <= 1),
     ),
     rowBudget:
-      !chromebook || (fullRows(v.open) >= 4 && fullRows(v.closed) >= 7),
+      !chromebook || (fullRows(v.open) >= 4 && fullRows(v.closed) >= 6),
     trackKeys: v.selected === 1 && v.focusInDock,
     addSheet:
       v.sheet.open && !v.sheet.overflow && v.sheet.dialogFits && v.sheet.closed,

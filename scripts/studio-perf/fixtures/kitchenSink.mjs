@@ -581,6 +581,9 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   // The shell's layout prefs (milestone 2.4).
   act().setInspectorOpenFor('score', true);
   act().setInspectorWidth(264);
+  // Library: R4's libraryTemplate opens a template from that panel, so
+  // its prefs check doesn't see the scenario's own rail click.
+  act().toggleInspectorPanel('library');
   act().setDockHeight('fx', 0.5);
   act().setReadoutMode('time');
   act().setActiveTool('pencil');

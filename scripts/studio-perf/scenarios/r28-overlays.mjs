@@ -148,10 +148,17 @@ const POPOVERS = [
     trigger: '[data-tutorial-id="file-menu"]',
     panel: '[role=menu][data-state=open]',
   },
+  // The song's controls are the bottom rail's since B4a.
   {
-    name: 'Song popover',
-    trigger: '[data-testid="song-chip"]',
-    panel: '[data-testid="song-popover"]',
+    name: 'Key popover',
+    trigger: '[data-testid="key-button"]',
+    panel: '[data-testid="key-popover"]',
+    v2: true,
+  },
+  {
+    name: 'Metre popover',
+    trigger: '[data-testid="metre-button"]',
+    panel: '[data-testid="metre-popover"]',
     v2: true,
   },
   {
@@ -181,7 +188,7 @@ const POPOVERS = [
   {
     name: 'Chord lane key',
     trigger: '[data-testid="chord-lane-key"]',
-    panel: '[data-testid="chord-lane-song-popover"]',
+    panel: '[data-testid="chord-lane-key-popover"]',
     v2: true,
   },
 ];

@@ -140,10 +140,10 @@ const UNIT_TESTS = [
   'src/daw/hooks/__tests__/useMidiRecording.test.tsx',
   'src/daw/commands/__tests__/RecordGuard.test.tsx',
   'src/daw/shell/topbar/__tests__/SharePill.join.test.tsx',
-  'src/daw/components/Library/__tests__/LibraryPanel.templateClick.test.tsx',
+  'src/daw/shell/inspector/__tests__/libraryBody.templateClick.test.tsx',
   'src/daw/commands/__tests__/keyboardCommands.test.tsx',
   'src/daw/commands/__tests__/registry.test.ts',
-  'src/daw/shell/topbar/__tests__/TransportControls.test.tsx',
+  'src/daw/shell/bottombar/__tests__/TransportControls.test.tsx',
   'src/daw/components/Timeline/__tests__/splitDuringUpload.test.ts',
   'src/daw/components/LeadSheet/__tests__/SendToSetList.test.tsx',
   // Per-user device stores, the sign-out hook, the entry points.
@@ -263,8 +263,8 @@ const UNIT_TESTS = [
   'src/daw/ui/__tests__/resizer.test.tsx',
   'src/daw/shell/topbar/__tests__/useToolbarOverflow.test.ts',
   'src/daw/shell/topbar/__tests__/TopBar.test.tsx',
-  'src/daw/shell/topbar/__tests__/songChip.test.tsx',
-  'src/daw/shell/topbar/__tests__/tapTempo.test.ts',
+  'src/daw/shell/bottombar/__tests__/songControls.test.tsx',
+  'src/daw/shell/song/__tests__/tapTempo.test.ts',
   'src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx',
   'src/daw/persistence/__tests__/prefsStore.test.ts',
 ];

@@ -670,12 +670,14 @@ export async function fingerprintPage() {
     [
       'store.inspectorOpenByView',
       'store.inspectorWidth',
+      'store.inspectorPanel',
       'store.dockHeights',
       'store.readoutMode',
     ],
     {
       inspector: s.inspectorOpenByView,
       width: s.inspectorWidth,
+      panel: s.inspectorPanel,
       dock: s.dockHeights,
       readout: s.readoutMode,
     },

@@ -170,18 +170,20 @@ const PATHS = [
  * needed.
  */
 async function openFromLibrary(kit, page, label) {
-  const open = await page.evaluate(() => {
+  // The side rail's Library icon shows the templates (B4a); on the panel
+  // already showing it would close it.
+  const showing = await page.evaluate(() => {
     const store = window.__MA_STORE__;
     store.getState().setCurrentView('arrange');
-    return store.getState().libraryOpen;
+    const s = store.getState();
+    return s.libraryOpen && s.inspectorPanel === 'library';
   });
-  if (!open) await page.click('[data-testid="inspector-toggle"]');
-  await page.locator('button:has-text("Library")').first().click();
+  if (!showing) await page.click('[data-testid="rail-library"]');
   await kit.waitForQuiet(page);
   await kit.waitForDraft(page);
   const replaced = await kit.fingerprint(page);
   await page
-    .locator('div[draggable="false"]', {
+    .locator('[data-testid^="library-project-"]', {
       hasText: new RegExp(`^\\s*${label}\\s*$`),
     })
     .first()

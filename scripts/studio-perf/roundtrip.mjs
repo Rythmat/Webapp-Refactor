@@ -2279,20 +2279,19 @@ async function coldBaseline(run, intent) {
 async function openFromLibrary(page, label) {
   // The arrange view opens the panel as the student keeps it there (2.4);
   // the store says so before React has drawn it.
-  const open = await page.evaluate(() => {
+  // The side rail's Library icon shows the templates (B4a); on the panel
+  // already showing it would close it.
+  const showing = await page.evaluate(() => {
     const store = window.__MA_STORE__;
     store.getState().setCurrentView('arrange');
-    return store.getState().libraryOpen;
+    const s = store.getState();
+    return s.libraryOpen && s.inspectorPanel === 'library';
   });
-  if (!open) await page.click('[data-testid="inspector-toggle"]');
-  // The panel's tab is the one Library button with a label; the top bar's
-  // is an icon.
-  await page.locator('button:has-text("Library")').first().click();
+  if (!showing) await page.click('[data-testid="rail-library"]');
   await waitForQuiet(page);
   const replaced = await fingerprint(page);
-  // A template row is never dragged.
   await page
-    .locator('div[draggable="false"]', {
+    .locator('[data-testid^="library-project-"]', {
       hasText: new RegExp(`^\\s*${label}\\s*$`),
     })
     .first()

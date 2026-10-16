@@ -1035,12 +1035,6 @@ export function driverFor(lessonId, stepId) {
  * prism-ui-23: the four Prism lessons are gated for a free student now.)
  */
 export const KNOWN_FAILURES = {
-  'chromebook|small/*/rnb-mix-and-polish/use-send':
-    'ia-flows-12, fx-mixer-04: mixer-sends-A is cut off by the scrolling strips row (none of it shows at 1366×655, 31% at 1280×720)',
-  'chromebook|small/*/rnb-mix-and-polish/tweak-return':
-    'ia-flows-12, fx-mixer-04: return-strip-A is cut off by the scrolling strips row (none of it shows at 1366×655, where mastering-section also takes the click on its label; 75% at 1280×720)',
-  '*/*/rnb-mix-and-polish/master-volume':
-    'ia-flows-12, fx-mixer-04: master-strip is cut off by the scrolling strips row',
   '*/*/indie-movement-and-dynamics/open-automation':
     'new: ?tutorial= boots an empty session and no step adds a track, so there is no track menu to open',
   'chromebook|small/*/indie-movement-and-dynamics/draw-volume':

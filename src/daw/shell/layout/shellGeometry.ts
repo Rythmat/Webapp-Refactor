@@ -5,6 +5,7 @@ import {
   DOCK_DEFAULT_FRAC,
   dockFracFor,
   dockHeightPx,
+  BOTTOM_RAIL_PX,
   TOP_BAR_PX,
   type DockHeights,
 } from './layoutModel';
@@ -33,9 +34,14 @@ export function dockPxFor(
   return dockHeightPx(dockFracFor(sizingTab(tab), heights), bodyPx);
 }
 
-/** The shell's body: its height less the top bar, 0 before it is laid out. */
+/**
+ * The shell's body: its height less the top bar and the bottom rail, 0
+ * before it is laid out.
+ */
 export function bodyPxOf(root: HTMLElement | null): number {
-  return root ? Math.max(0, root.clientHeight - TOP_BAR_PX) : 0;
+  return root
+    ? Math.max(0, root.clientHeight - TOP_BAR_PX - BOTTOM_RAIL_PX)
+    : 0;
 }
 
 /**

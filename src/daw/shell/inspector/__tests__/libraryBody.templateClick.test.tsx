@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * A template clicked in the Library panel replaces the project, as the
+ * A template clicked in the Library panel (the side rail's, B4a) replaces the project, as the
  * dashboard's template tile does (decision D10). Since milestone 1.4 it opens
  * through openSession, the one way every session opens: the work it replaces
  * is kept first as a device draft, with a Restore; a take still recording is
@@ -21,42 +21,26 @@ import {
   render,
   screen,
 } from '@testing-library/react';
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const h = vi.hoisted(() => ({
   openSession: vi.fn(async () => ({ status: 'cancelled' })),
 }));
 
-// Insight analyses the project; this test is about the Library tab.
-vi.mock('../InsightContent', () => ({ InsightContent: () => null }));
 vi.mock('@/daw/session/openSession', () => ({ openSession: h.openSession }));
 
 import { useStore } from '@/daw/store';
-import { LibraryPanel } from '../LibraryPanel';
+import { LibraryBody } from '../panels/LibraryBody';
 
-/** Open the Library tab and click the Pop template, as the student does. */
+/** Click the Pop template, as the student does. */
 async function clickPopTemplate(): Promise<void> {
-  render(<LibraryPanel />);
-  fireEvent.click(screen.getByText('Library'));
+  render(<LibraryBody />);
   await act(async () => {
     fireEvent.click(screen.getByText('Pop'));
   });
 }
 
-const popRow = () => screen.getByText('Pop').closest('[draggable]')!;
-
-beforeAll(() => {
-  // framer-motion measures the panel's animation through it; jsdom has none.
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
+const popRow = () => screen.getByTestId('library-project-pop');
 
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
@@ -104,8 +88,7 @@ describe('a Library template click', () => {
 
   it('is on again once the room is left', async () => {
     useStore.setState({ roomId: 'room-1', collabRole: 'editor' });
-    render(<LibraryPanel />);
-    fireEvent.click(screen.getByText('Library'));
+    render(<LibraryBody />);
     expect(popRow()).toHaveAttribute('aria-disabled', 'true');
 
     act(() => useStore.getState()._clearCollab());

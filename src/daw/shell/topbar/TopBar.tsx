@@ -16,51 +16,40 @@ import {
 } from '@/daw/ui/Menu';
 import { AvatarMenu } from './AvatarMenu';
 import { BackToStudio } from './BackToStudio';
-import { CountInItems } from './ClickToggle';
 import { HelpItems } from './HelpMenu';
-import { InspectorToggle } from './InspectorToggle';
 import { MusicalTypingChip } from './MusicalTypingChip';
 import { ProjectMenu } from './ProjectMenu';
 import { ProjectName } from './ProjectName';
 import { SaveChipAnnouncer, SaveStatusChip } from './SaveStatusChip';
 import { SharePill } from './SharePill';
-import { SongChip } from './SongChip';
-import { TransportControls } from './TransportControls';
 import { UndoRedoButtons } from './UndoRedoButtons';
 import { ViewTabs } from './ViewTabs';
 import { folded, useToolbarOverflow } from './useToolbarOverflow';
 
-// ── The editor's top bar (milestones 2.5, 2.7) ─────────────────────────────
+// ── The editor's top bar (milestones 2.5, 2.7, B4a) ────────────────────────
 //
 // 44 px, three zones (shell-19, ia-flows-24):
 // - project: Back to Studio, the Project menu, the name, the save chip,
 //   Undo and Redo;
-// - transport: Play, Record, the readout, Loop, Click;
-// - song and views: the Song chip, the view tabs, Share, the computer
-//   keyboard's chip while it is on, the Inspector toggle, '⋯' and the
+// - views: the view tabs, centred;
+// - share: Share, the computer keyboard's chip while it is on, '⋯' and the
 //   avatar.
 // The owner found the bar too busy (2026-10-16), so it was trimmed and
-// quieted: Back, Forward and Stop left it (Esc, Home and End, the ruler),
-// Help, Settings and the keyboard's switch went into '⋯', Share is an
-// icon, the zones are divided by hairlines and the secondary buttons are
-// dimmer. The transport sits centred in the room the other two leave.
+// quieted (2.7: Back, Forward and Stop left it; Help, Settings and the
+// keyboard's switch went into '⋯'; Share is an icon; the secondary buttons
+// are dimmer), and then, after Soundtrap's, the transport and the song moved
+// to the bottom rail and the Inspector's toggle to the side rail (B4a).
 // When the zones don't fit, the bar folds (useToolbarOverflow). Each
 // control subscribes to its own state, so playback and edits re-render
-// none of the bar (the readout writes itself). The left zone leaves room
-// for Stage D's assignment strip and the read-only review banner (4.1).
+// none of the bar. The left zone leaves room for Stage D's assignment strip
+// and the read-only review banner (4.1).
 
-/** The least room either side of the transport (the grid's spacers). */
+/** The least room either side of the tabs (the grid's spacers). */
 const BAR_CHROME_PX = 4 + 4;
 
 const TYPING_KEYS = shortcutKeys('typing.on');
 
-export const TopBar = memo(function TopBar({
-  isReady,
-  onInit,
-}: {
-  isReady: boolean;
-  onInit(): void;
-}) {
+export const TopBar = memo(function TopBar() {
   useDevCommitCount('TopBar');
   const barRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -70,8 +59,6 @@ export const TopBar = memo(function TopBar({
   const fold = useToolbarOverflow(barRef, zones, BAR_CHROME_PX);
   // Undo and Redo are off in the practice view, as Cmd+Z is.
   const practiceView = useStore((s) => s.currentView === 'practice');
-
-  const countInFolded = folded(fold, 'count-in');
 
   return (
     <>
@@ -102,32 +89,23 @@ export const TopBar = memo(function TopBar({
         <div
           ref={centreRef}
           role="group"
-          aria-label="Transport"
-          data-zone="transport"
-          className="flex items-center gap-2"
+          aria-label="Views"
+          data-zone="views"
+          className="flex items-center"
         >
-          <Divider />
-          <TransportControls
-            isReady={isReady}
-            onInit={onInit}
-            countInFolded={countInFolded}
-          />
-          <Divider />
+          <ViewTabs tight={folded(fold, 'tabs-tight')} />
         </div>
         <span aria-hidden />
         <div
           ref={rightRef}
           role="group"
-          aria-label="Song and views"
-          data-zone="views"
+          aria-label="Share and account"
+          data-zone="share"
           className="flex items-center gap-1"
         >
-          <SongChip short={folded(fold, 'song-short')} />
-          <ViewTabs tight={folded(fold, 'tabs-tight')} />
           <SharePill iconOnly />
           <MusicalTypingChip />
-          <InspectorToggle />
-          <MoreMenu countIn={countInFolded} />
+          <MoreMenu />
           <AvatarMenu className="ml-1" />
         </div>
       </div>
@@ -138,16 +116,11 @@ export const TopBar = memo(function TopBar({
   );
 });
 
-/** A hairline between the bar's zones. */
-function Divider() {
-  return <span aria-hidden className="h-5 w-px shrink-0 bg-daw-hairline" />;
-}
-
 /**
- * '⋯': the computer keyboard's switch, the count-in when the bar folds it,
- * Help (shortcuts, lessons) and Audio & MIDI settings.
+ * '⋯': the computer keyboard's switch, Help (shortcuts, lessons) and Audio &
+ * MIDI settings.
  */
-function MoreMenu({ countIn }: { countIn: boolean }) {
+function MoreMenu() {
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
   const typing = useMusicalTypingStore((s) => s.enabled);
   const setTyping = useMusicalTypingStore((s) => s.setEnabled);
@@ -171,12 +144,6 @@ function MoreMenu({ countIn }: { countIn: boolean }) {
         >
           Play notes from the computer keyboard
         </MenuCheckboxItem>
-        {countIn ? (
-          <>
-            <MenuSeparator />
-            <CountInItems />
-          </>
-        ) : null}
         <MenuSeparator />
         <HelpItems />
         <MenuItem

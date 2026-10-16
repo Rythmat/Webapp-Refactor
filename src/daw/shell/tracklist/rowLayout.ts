@@ -11,8 +11,8 @@
 
 /** A track row: name and ⋯ on top, M, S, Arm and the fader below. */
 export const TRACK_ROW_PX = 64;
-/** The Master row, pinned under the list. */
-export const MASTER_ROW_PX = 40;
+/** The timeline's scrollbar, under the lanes (Master moved to the bottom rail, B4a). */
+export const SCROLL_FOOTER_PX = 16;
 /** Create's toolbar, above the list. */
 export const CREATE_TOOLBAR_PX = 32;
 /** The ruler: the loop strip and the bar numbers. */

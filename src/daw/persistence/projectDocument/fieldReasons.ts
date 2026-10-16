@@ -45,8 +45,6 @@ const LESSON =
   'The lesson running on this project: never in the body, but its draft’s meta keeps it (DraftContext, milestone 1.15), and reopening that draft resumes it.';
 const STEP = 'Whether the running lesson has seen its current step done.';
 const DEVICES = 'What this computer has connected: no part of a project.';
-const PANELS =
-  'Panel layout, which the Stage B shell keeps per user (milestones 2.4, 2.8).';
 const LAYOUT =
   'The editor’s layout, the student’s own on every project (milestone 2.4): kept per user by prefsStore, never in a project, so a new project or a restored draft leaves it as it is.';
 const COLLAB =
@@ -133,6 +131,7 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
     'The Inspector as it is now, in the view showing. The draft keeps it, but the shell sets it from the student’s choice for that view (inspectorOpenByView) when a project opens or the view changes (milestone 2.4); a lesson step sets it for the moment only.',
   inspectorOpenByView: LAYOUT,
   inspectorWidth: LAYOUT,
+  inspectorPanel: LAYOUT,
   dockHeights: LAYOUT,
   readoutMode: LAYOUT,
   activeTool: 'The editing tool: every project opens with the cursor.',
@@ -208,8 +207,6 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   clipboardClips: 'Copied clips: they paste into the next project too.',
   clipboardAudioClip:
     'A copied audio clip: it pastes into the next project too.',
-  userListOpen: PANELS,
-  chatPanelOpen: PANELS,
   settingsOpen:
     'Whether the Settings dialog is open. It sets up this computer’s audio inputs and outputs, not a project, so a load leaves it as it is.',
   recordingLimitModalOpen: 'A notice about a take in the previous project.',

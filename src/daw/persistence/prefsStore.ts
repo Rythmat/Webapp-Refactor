@@ -9,6 +9,7 @@ import { useStore, type AllSlices } from '@/daw/store';
 import {
   isDockHeights,
   isInspectorOpenByView,
+  isInspectorPanel,
   isInspectorWidth,
   isReadoutMode,
 } from '@/daw/shell/layout/layoutModel';
@@ -86,6 +87,7 @@ const IS_VALID: {
   singleKeyShortcuts: isBoolean,
   inspectorOpenByView: isInspectorOpenByView,
   inspectorWidth: isInspectorWidth,
+  inspectorPanel: isInspectorPanel,
   dockHeights: isDockHeights,
   readoutMode: isReadoutMode,
 };

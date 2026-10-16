@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createTapTempo } from '../tapTempo';
 
-// Run: npx vitest run src/daw/shell/topbar/__tests__/tapTempo.test.ts
+// Run: npx vitest run src/daw/shell/song/__tests__/tapTempo.test.ts
 
 describe('tap tempo', () => {
   it('averages the last four gaps', () => {

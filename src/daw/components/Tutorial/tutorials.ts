@@ -332,9 +332,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'slow-bpm',
       stage: 'STAGE 4 — TEMPO',
       instruction:
-        'Hip hop breathes slower. Open the **Song** chip and set the **BPM** to **95 or less**.',
-      // The tempo once the Song popover is open, the chip until then.
-      target: ['transport-bpm', 'song-chip'],
+        'Hip hop breathes slower. Set the **Tempo** at the bottom to **95 BPM or less**.',
+      // The tempo field in the bottom rail (B4a).
+      target: 'transport-bpm',
       check: (s, armed) => s.bpm <= 95 && s.bpm !== armed.bpm,
     },
     {

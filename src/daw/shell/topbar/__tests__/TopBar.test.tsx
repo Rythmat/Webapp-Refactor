@@ -9,10 +9,11 @@ import {
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// ── The top bar (milestone 2.5) ────────────────────────────────────────────
-// Three zones, the lesson anchors kept, the Inspector toggle, and the fold:
-// in a window too narrow for the zones, the bar takes every fold step and
-// the '⋯' menu holds what it folded (Help, Settings, the count-in).
+// ── The top bar (milestones 2.5, 2.7, B4a) ─────────────────────────────────
+// Three zones (project, views, share), the lesson anchors kept, '⋯', and
+// the fold: in a window too narrow for the zones, the bar takes every fold
+// step. The transport and the song are the bottom rail's, the Inspector's
+// toggle the side rail's (B4a).
 //
 // Run: npx vitest run src/daw/shell/topbar/__tests__/TopBar.test.tsx
 
@@ -42,12 +43,10 @@ import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { useStore } from '@/daw/store';
 import { TopBar } from '../TopBar';
 
-const s = () => useStore.getState();
-
 function renderBar() {
   return render(
     <MemoryRouter>
-      <TopBar isReady onInit={() => {}} />
+      <TopBar />
     </MemoryRouter>,
   );
 }
@@ -62,14 +61,13 @@ afterEach(() => {
 });
 
 describe('the top bar', () => {
-  it('has the project, transport and views zones, with the lesson anchors', () => {
+  it('has the project, views and share zones, with the lesson anchors', () => {
     renderBar();
-    for (const name of ['Project', 'Transport', 'Song and views']) {
+    for (const name of ['Project', 'Views', 'Share and account']) {
       expect(screen.getByRole('group', { name })).toBeInTheDocument();
     }
     for (const id of [
       'file-menu',
-      'song-chip',
       'view-switch-arrange',
       'view-switch-studio',
       'view-switch-score',
@@ -90,6 +88,10 @@ describe('the top bar', () => {
       'settings-button',
       'help-menu',
       'musical-typing-chip',
+      // B4a: in the rails now.
+      'transport-play',
+      'song-chip',
+      'inspector-toggle',
     ]) {
       expect(screen.queryByTestId(id)).toBeNull();
     }
@@ -119,15 +121,6 @@ describe('the top bar', () => {
     );
   });
 
-  it('opens and closes the Inspector, kept for the view', () => {
-    renderBar();
-    const toggle = screen.getByTestId('inspector-toggle');
-    const before = s().libraryOpen;
-    fireEvent.click(toggle);
-    expect(s().libraryOpen).toBe(!before);
-    expect(s().inspectorOpenByView.arrange).toBe(!before);
-  });
-
   it('adds Practice first while a practice session exists', () => {
     act(() =>
       useStore.setState({ practiceSession: { kind: 'theory' } as never }),
@@ -137,7 +130,7 @@ describe('the top bar', () => {
     expect(tabs[0]).toBe('Practice');
   });
 
-  it('folds into the ⋯ menu when the window is too narrow', () => {
+  it('folds when the window is too narrow', () => {
     // A 600 px bar with zones that need 400 px each: every fold step.
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(
       function (this: HTMLElement) {
@@ -150,13 +143,7 @@ describe('the top bar', () => {
       },
     );
     renderBar();
-    expect(screen.getByTestId('top-bar')).toHaveAttribute('data-fold', '4');
-    expect(screen.queryByTestId('count-in-menu')).toBeNull();
-    const more = screen.getByTestId('top-bar-overflow');
-    fireEvent.keyDown(more, { key: 'Enter' });
-    expect(
-      screen.getByRole('menuitemradio', { name: 'Count in 1 bar' }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('top-bar')).toHaveAttribute('data-fold', '2');
   });
 
   it('shows the student in the account menu', () => {

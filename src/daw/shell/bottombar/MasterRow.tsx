@@ -16,13 +16,15 @@ import { Meter } from '@/daw/ui/Meter';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
 
-// ── The Master row (milestone 2.6) ─────────────────────────────────────────
+// ── Master, at the bottom rail's left (2.6; B4a) ───────────────────────────
 //
-// Pinned under the track list: the whole mix's volume and level, its volume
-// automation lane, and Effects, which opens the Mix view, where the master's
-// chain lives (the old pop-out copy of it is gone). It is everyone's in a
-// session, so it is never locked; with collaborators in the room it also
-// switches between hearing all of them and only the tracks you pick.
+// The whole mix's volume and level, its volume automation lane, and Effects,
+// which opens the Mix view, where the master's chain lives (the old pop-out
+// copy of it is gone). It sat under the track list until the bottom rail
+// (owner, 2026-10-16, after Soundtrap's), where it shows in every view. It
+// is everyone's in a session, so it is never locked; with collaborators in
+// the room it also switches between hearing all of them and only the tracks
+// you pick.
 
 export const MasterRow = memo(function MasterRow() {
   const volume = useMasterVolumeControl();
@@ -34,14 +36,11 @@ export const MasterRow = memo(function MasterRow() {
   const hasPeers = useStore((s) => s.remoteUsers.size > 0);
   const listenMode = useListenMode();
   const toggleListenMode = useStudioListenStore((s) => s.toggleListenMode);
-  const faderPx = hasPeers ? 52 : 76;
+  const faderPx = hasPeers ? 72 : 96;
 
   return (
-    <div
-      data-testid="master-row"
-      className="flex h-full items-center gap-1 bg-daw-surface-1 pl-3 pr-1"
-    >
-      <span className={cn(TYPE_CLASS.micro, 'w-12 shrink-0 text-daw-text-2')}>
+    <div data-testid="master-row" className="flex h-full items-center gap-1.5">
+      <span className={cn(TYPE_CLASS.micro, 'shrink-0 text-daw-text-2')}>
         Master
       </span>
       <div
@@ -71,7 +70,7 @@ export const MasterRow = memo(function MasterRow() {
           channels={1}
         />
       </div>
-      <div className="ml-auto flex items-center">
+      <div className="flex items-center">
         <IconButton
           label={
             fxCount > 0
@@ -89,6 +88,8 @@ export const MasterRow = memo(function MasterRow() {
           pressed={automationOpen}
           onPressedChange={(on) => {
             const s = useStore.getState();
+            // The lane is Create's, under the tracks.
+            if (on && s.currentView !== 'arrange') s.setCurrentView('arrange');
             if (on) s.setAutomationParamId('volume');
             s.setAutomationOpenTrackId(on ? MASTER_AUTOMATION_ID : null);
           }}

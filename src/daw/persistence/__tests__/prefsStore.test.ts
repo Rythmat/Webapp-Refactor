@@ -54,6 +54,7 @@ const CHOSEN = {
   singleKeyShortcuts: false,
   inspectorOpenByView: { arrange: false, score: true },
   inspectorWidth: 280,
+  inspectorPanel: 'lessons',
   dockHeights: { fx: 0.5, 'piano-roll': 0.6 },
   readoutMode: 'time',
 } as const;

@@ -62,8 +62,11 @@ export function PianoRollModal() {
     ];
     setSelectedNotes(selection);
     analyzeNoteSelection(selection);
-    const { libraryOpen, toggleLibrary } = useStore.getState();
-    if (!libraryOpen) toggleLibrary();
+    // Insight holds the analysis: open it, as the student's choice.
+    const { libraryOpen, inspectorPanel, toggleInspectorPanel } =
+      useStore.getState();
+    if (!libraryOpen || inspectorPanel !== 'insight')
+      toggleInspectorPanel('insight');
     handleClose();
   }, [
     editingClipTrackId,

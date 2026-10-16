@@ -728,6 +728,8 @@ describe('decision D5', () => {
         // The shell's layout, per user (milestone 2.4).
         'inspectorOpenByView',
         'inspectorWidth',
+        // The side rail's panel (B4a).
+        'inspectorPanel',
         'dockHeights',
         'readoutMode',
         'inputDeviceId',
@@ -1061,8 +1063,6 @@ describe('the classification, key by key', () => {
         // the clipboard and panels
         'clipboardClips',
         'clipboardAudioClip',
-        'userListOpen',
-        'chatPanelOpen',
         'settingsOpen',
         // the collaboration room
         'isCollabActive',

@@ -2,12 +2,6 @@
   "src/daw/collab/types.ts": {
     "hex": 8
   },
-  "src/daw/collab/ui/ChatPanel.tsx": {
-    "smallText": 6
-  },
-  "src/daw/collab/ui/UserList.tsx": {
-    "smallText": 6
-  },
   "src/daw/components/ChannelStrip/ChannelStrip.tsx": {
     "smallText": 3
   },
@@ -164,10 +158,6 @@
   "src/daw/components/Library/KeySection.tsx": {
     "rgb": 2,
     "smallText": 3
-  },
-  "src/daw/components/Library/LibraryPanel.tsx": {
-    "rgb": 1,
-    "smallText": 6
   },
   "src/daw/components/Library/SelectionAnalysis.tsx": {
     "hex": 2,

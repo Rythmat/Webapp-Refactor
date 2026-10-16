@@ -1,8 +1,5 @@
 import { memo, useRef, type RefObject } from 'react';
 import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
-import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
-import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
-import { UserList } from '@/daw/collab/ui/UserList';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { Resizer } from '@/daw/ui/Resizer';
@@ -15,6 +12,8 @@ import {
   INSPECTOR_DEFAULT_PX,
   INSPECTOR_MAX_PX,
   INSPECTOR_MIN_PX,
+  BOTTOM_RAIL_PX,
+  SIDE_RAIL_PX,
   snapDockPx,
   TOP_BAR_PX,
 } from './layout/layoutModel';
@@ -33,30 +32,37 @@ import {
   ScoreViewPart,
   StudioViewPart,
 } from './lazyParts';
+import { BottomRail } from './bottombar/BottomRail';
+import { InspectorPanel } from './inspector/InspectorPanel';
+import { SideRail } from './inspector/SideRail';
 import { TopBar } from './topbar/TopBar';
 import { TrackArea } from './tracklist/TrackArea';
 
-// ── The editor shell (milestones 2.4 and 2.5) ──────────────────────────────
+// ── The editor shell (milestones 2.4, 2.5 and B4a) ─────────────────────────
 //
-// Five regions, laid out once and rendered outside the view switch, so a
+// Seven regions, laid out once and rendered outside the view switch, so a
 // view change remounts only what the main region shows:
 //
-//   top   top        the 44 px top bar
-//   main  inspector  the view: Create's timeline, Mix, Score, Lead sheet
-//   dock  inspector  Create's editor dock
+//   top     top        top    the 44 px top bar
+//   main    inspector  rail   the view: Create's timeline, Mix, Score, Lead sheet
+//   dock    inspector  rail   Create's editor dock
+//   bottom  bottom     bottom the 44 px bottom rail: Master, transport, song
 //
-// The Inspector column (LibraryPanel and the collab columns until 2.8) stays
-// mounted in every view and only opens and closes, as the student keeps it
-// per view. The practice screen is full-window: the top bar and the
-// Inspector are hidden (still mounted) while it shows.
+// The side rail (48 px of icons) picks what the Inspector beside it shows:
+// Insight, Library, Effects, Lessons, People, Chat (owner, 2026-10-16, after
+// Soundtrap's). The Inspector runs from the top bar to the bottom rail, so
+// the dock stops at it. It stays mounted in every view and only opens and
+// closes, as the student keeps it per view. The practice screen is
+// full-window: the top bar, the rails and the Inspector are hidden (still
+// mounted) while it shows.
 //
 // Sizes the student drags are CSS variables on this root (shellGeometry):
 // the dock's height per tab and the Inspector's width, both per-user prefs.
 // Panels resize at once; their content fades in (motion rules, 2.4).
 //
-// Until their own milestones restyle them, the regions' contents are the
-// editor's legacy components (data-ds="legacy"); the top bar is the first
-// region built on the design system (data-ds="v2").
+// Until their own milestones restyle them, the main and dock regions'
+// contents are the editor's legacy components (data-ds="legacy"); the bars,
+// the rails and the Inspector are built on the design system (data-ds="v2").
 
 /** The main region's id: the view tabs control it. */
 export const MAIN_REGION_ID = 'daw-main-region';
@@ -90,12 +96,14 @@ export const StudioShell = memo(function StudioShell({
       className="relative grid min-h-0 w-full flex-1 overflow-hidden"
       style={{
         gridTemplateAreas: practiceScreen
-          ? '"main main"'
-          : '"top top" "main inspector" "dock inspector"',
+          ? '"main main main"'
+          : '"top top top" "main inspector rail" "dock inspector rail" "bottom bottom bottom"',
         gridTemplateRows: practiceScreen
           ? 'minmax(0, 1fr)'
-          : `${TOP_BAR_PX}px minmax(0, 1fr) auto`,
-        gridTemplateColumns: 'minmax(0, 1fr) auto',
+          : `${TOP_BAR_PX}px minmax(0, 1fr) auto ${BOTTOM_RAIL_PX}px`,
+        gridTemplateColumns: practiceScreen
+          ? 'minmax(0, 1fr) 0 0'
+          : `minmax(0, 1fr) auto ${SIDE_RAIL_PX}px`,
       }}
     >
       <div
@@ -106,7 +114,7 @@ export const StudioShell = memo(function StudioShell({
         hidden={practiceScreen}
       >
         <DevProfiler id="TopBar">
-          <TopBar isReady={isReady} onInit={onInit} />
+          <TopBar />
         </DevProfiler>
       </div>
 
@@ -147,6 +155,17 @@ export const StudioShell = memo(function StudioShell({
 
       <InspectorRegion hidden={practiceScreen} rootRef={rootRef} />
 
+      <nav
+        data-region="rail"
+        data-ds="v2"
+        aria-label="Panels"
+        className="min-h-0"
+        style={{ gridArea: 'rail' }}
+        hidden={practiceScreen}
+      >
+        <SideRail />
+      </nav>
+
       {create && !practiceScreen ? (
         <section
           data-region="dock"
@@ -162,6 +181,18 @@ export const StudioShell = memo(function StudioShell({
           <PianoRollModalHost />
         </section>
       ) : null}
+
+      <div
+        data-region="bottom"
+        data-ds="v2"
+        className="min-w-0"
+        style={{ gridArea: 'bottom' }}
+        hidden={practiceScreen}
+      >
+        <DevProfiler id="BottomRail">
+          <BottomRail isReady={isReady} onInit={onInit} />
+        </DevProfiler>
+      </div>
     </div>
   );
 });
@@ -186,15 +217,10 @@ const InspectorRegion = memo(function InspectorRegion({
   const mountId = useRef<number | null>(null);
   if (mountId.current === null) mountId.current = ++inspectorMounts;
   const libraryOpen = useStore((s) => s.libraryOpen);
-  const collab = useStore((s) => s.isCollabActive);
-  const userListOpen = useStore((s) => s.userListOpen);
-  const chatPanelOpen = useStore((s) => s.chatPanelOpen);
-  const toggleUserList = useStore((s) => s.toggleUserList);
-  const toggleChatPanel = useStore((s) => s.toggleChatPanel);
   return (
     <aside
       data-region="inspector"
-      data-ds="legacy"
+      data-ds="v2"
       data-mount-id={mountId.current}
       data-open={libraryOpen || undefined}
       aria-label="Inspector"
@@ -202,14 +228,12 @@ const InspectorRegion = memo(function InspectorRegion({
       style={{ gridArea: 'inspector' }}
       hidden={hidden}
     >
-      {libraryOpen ? <InspectorResizer rootRef={rootRef} /> : null}
-      <DevProfiler id="LibraryPanel">
-        <LibraryPanel />
-      </DevProfiler>
-      {collab ? (
+      {libraryOpen ? (
         <>
-          <UserList open={userListOpen} onClose={toggleUserList} />
-          <ChatPanel open={chatPanelOpen} onClose={toggleChatPanel} />
+          <InspectorResizer rootRef={rootRef} />
+          <DevProfiler id="Inspector">
+            <InspectorPanel />
+          </DevProfiler>
         </>
       ) : null}
     </aside>

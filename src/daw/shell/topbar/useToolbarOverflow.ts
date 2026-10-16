@@ -21,18 +21,14 @@ import {
 /**
  * The fold steps, in order; a step folds everything before it too. What
  * never goes into '⋯': Back, the Project menu, the name, the save chip,
- * Undo and Redo, the transport, the readout, Loop, Click, the view tabs,
- * Share, the Inspector toggle and the avatar. (Help, Settings and the
- * computer keyboard's switch live in '⋯' at every width since the bar was
- * trimmed, 2.7; Share is always an icon.)
+ * Undo and Redo, the view tabs, Share and the avatar. (Help, Settings and
+ * the computer keyboard's switch live in '⋯' at every width since the bar
+ * was trimmed, 2.7; the transport and the song moved to the bottom rail and
+ * the Inspector's toggle to the side rail, B4a.)
  */
 export const FOLD_STEPS = [
-  /** The Song chip: 'C · 92' instead of 'C major · 4/4 · 92'. */
-  'song-short',
   /** The project name: 96 px instead of 140. */
   'name-narrow',
-  /** The count-in caret: into '⋯'. */
-  'count-in',
   /** The view tabs: tighter padding. */
   'tabs-tight',
 ] as const;

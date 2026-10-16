@@ -1,7 +1,7 @@
-// ── The editor shell's geometry and layout prefs (milestone 2.4) ───────────
+// ── The editor shell's geometry and layout prefs (milestones 2.4, B4a) ─────
 //
-// The five regions (top bar, main, Inspector, dock) and the sizes the
-// student can change: the dock's height for each of its tabs, the Inspector
+// The regions (top bar, main, Inspector, side rail, dock, bottom rail) and
+// the sizes the student can change: the dock's height for each of its tabs, the Inspector
 // column's width, and whether the Inspector is open in each view. Those are
 // per-user prefs (the registry's 'pref' scope, kept by prefsStore under each
 // student's own key), so a shared Chromebook gives every student their own
@@ -14,6 +14,10 @@ import type { ChannelStripTabId, ViewType } from '@/daw/store/uiSlice';
 
 /** The editor's top bar (2.5). */
 export const TOP_BAR_PX = 44;
+/** The bottom rail: Master, the transport and the song (B4a). */
+export const BOTTOM_RAIL_PX = 44;
+/** The side rail of Inspector icons, at the right edge (B4a). */
+export const SIDE_RAIL_PX = 48;
 
 /** The dock's tab bar, always shown in Create. */
 export const DOCK_TAB_BAR_PX = 32;
@@ -31,8 +35,8 @@ export const RESIZE_STEP_PX = 16;
 
 /**
  * Each tab's default height, as a share of the body (window height less the
- * top bar): 220 px on a Chromebook in focus mode (611 px of body), the
- * plan's pixel budget, and a little more for the two editors.
+ * top bar and the bottom rail): about 204 px on a Chromebook in focus mode
+ * (567 px of body), and a little more for the two editors.
  */
 export const DOCK_DEFAULT_FRAC: Readonly<Record<ChannelStripTabId, number>> = {
   controls: 0.36,
@@ -43,10 +47,24 @@ export const DOCK_DEFAULT_FRAC: Readonly<Record<ChannelStripTabId, number>> = {
   'piano-roll': 0.4,
 };
 
-/** The Inspector column (LibraryPanel until 2.8 replaces it). */
-export const INSPECTOR_MIN_PX = 200;
+/** The Inspector panel, beside the side rail. */
+export const INSPECTOR_MIN_PX = 240;
 export const INSPECTOR_MAX_PX = 420;
-export const INSPECTOR_DEFAULT_PX = 200;
+export const INSPECTOR_DEFAULT_PX = 300;
+
+/**
+ * The side rail's panels, top to bottom (owner's choice, 2026-10-16): one
+ * shows in the Inspector at a time.
+ */
+export const INSPECTOR_PANELS = [
+  'insight',
+  'library',
+  'fx',
+  'lessons',
+  'people',
+  'chat',
+] as const;
+export type InspectorPanelId = (typeof INSPECTOR_PANELS)[number];
 
 /**
  * Below this window width the Inspector starts closed, so the timeline keeps
@@ -164,6 +182,13 @@ export function isInspectorWidth(value: unknown): value is number {
     Number.isFinite(value) &&
     value >= INSPECTOR_MIN_PX &&
     value <= INSPECTOR_MAX_PX
+  );
+}
+
+export function isInspectorPanel(value: unknown): value is InspectorPanelId {
+  return (
+    typeof value === 'string' &&
+    (INSPECTOR_PANELS as readonly string[]).includes(value)
   );
 }
 

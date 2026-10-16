@@ -9,8 +9,7 @@ import { CreateToolbar } from '../canvas/CreateToolbar';
 import { TimelineScrollbar } from '../canvas/TimelineScrollbar';
 import { AddTrackSheet } from './AddTrackSheet';
 import { EmptyProjectTiles } from './EmptyProjectTiles';
-import { MasterRow } from './MasterRow';
-import { LANE_HEADER_PX, MASTER_ROW_PX, RULER_PX } from './rowLayout';
+import { LANE_HEADER_PX, RULER_PX, SCROLL_FOOTER_PX } from './rowLayout';
 import { TrackList } from './TrackList';
 
 // ── Create's track area (milestones 2.6 and 2.7) ───────────────────────────
@@ -20,14 +19,14 @@ import { TrackList } from './TrackList';
 //   Chords · key │ the chord lane                                        24
 //   track rows   │ the lanes                                     (scrolls)
 //   (automation lane, when one is open)
-//   Master       │ the timeline's scrollbar                              40
+//                │ the timeline's scrollbar                              16
 //
 // The rows and the lanes are one vertical scroller, so a row and its lane
 // can't drift apart (timeline-12); both take their heights from rowLayout.
 // The ruler and the chord lane stay at the top while it scrolls: the canvas
 // draws them at the scroll offset, and the left column's corner is sticky.
-// The Master row and the scrollbar share the footer, so the lanes give up no
-// height to either. An empty project shows its first steps in the lanes.
+// The scrollbar sits in a thin footer under the lanes; Master moved to the
+// bottom rail (B4a). An empty project shows its first steps in the lanes.
 
 export const TrackArea = memo(function TrackArea() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -73,15 +72,11 @@ export const TrackArea = memo(function TrackArea() {
       <AutomationLaneEditor />
       <div
         data-ds="v2"
-        className="flex shrink-0 border-t border-daw-hairline"
-        style={{ height: MASTER_ROW_PX }}
+        data-testid="timeline-footer"
+        className="flex shrink-0 items-center border-t border-daw-hairline bg-daw-surface-1 pl-[200px] pr-2"
+        style={{ height: SCROLL_FOOTER_PX }}
       >
-        <div className="w-[200px] shrink-0 border-r border-daw-hairline">
-          <MasterRow />
-        </div>
-        <div className="flex min-w-0 flex-1 items-center bg-daw-surface-1 px-2">
-          <TimelineScrollbar />
-        </div>
+        <TimelineScrollbar />
       </div>
       <AddTrackSheet />
     </div>

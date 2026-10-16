@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useStore } from '@/daw/store';
 import { MINUS } from '@/daw/ui/format';
-import { MasterRow } from '@/daw/shell/tracklist/MasterRow';
+import { MasterRow } from '@/daw/shell/bottombar/MasterRow';
 import { StudioView } from '../StudioView';
 
 // ── The MASTER view says what the audio does (fx-mixer-02/03, ia-flows-35) ─

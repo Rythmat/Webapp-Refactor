@@ -12,6 +12,7 @@ import {
   resolveInspectorOpen,
   type DockHeights,
   type InspectorOpenByView,
+  type InspectorPanelId,
   type ReadoutMode,
 } from '@/daw/shell/layout/layoutModel';
 
@@ -237,6 +238,15 @@ export interface UiSlice {
   inspectorOpenByView: InspectorOpenByView;
   /** Per-user: the Inspector column's width in px. */
   inspectorWidth: number;
+  /** Per-user: the side rail's panel the Inspector shows (B4a). */
+  inspectorPanel: InspectorPanelId;
+  /**
+   * A side rail icon: shows its panel, opening the Inspector (the student's
+   * choice for the view); on the panel already open, closes it.
+   */
+  toggleInspectorPanel: (panel: InspectorPanelId) => void;
+  /** Shows `panel` and opens the Inspector for now (an analysis, a lesson). */
+  showInspectorPanel: (panel: InspectorPanelId) => void;
   setInspectorWidth: (px: number) => void;
   /** Per-user: the dock's height for each tab, as a share of the editor body. */
   dockHeights: DockHeights;
@@ -250,12 +260,6 @@ export interface UiSlice {
   // (e.g. Prism) programmatically. null = strip collapsed.
   channelStripTab: ChannelStripTabId | null;
   setChannelStripTab: (tab: ChannelStripTabId | null) => void;
-
-  // ── Collab panels ──
-  userListOpen: boolean;
-  toggleUserList: () => void;
-  chatPanelOpen: boolean;
-  toggleChatPanel: () => void;
 
   // ── Clip color mode ──
   clipColorMode: 'track' | 'prism';
@@ -513,6 +517,15 @@ export const createUiSlice: StateCreator<
   inspectorOpenByView: {},
   inspectorWidth: INSPECTOR_DEFAULT_PX,
   setInspectorWidth: (px) => set({ inspectorWidth: clampInspectorPx(px) }),
+  inspectorPanel: 'insight',
+  toggleInspectorPanel: (panel) => {
+    const s = get();
+    const open = !(s.libraryOpen && s.inspectorPanel === panel);
+    set({ inspectorPanel: panel });
+    s.setInspectorOpenFor(s.currentView, open);
+  },
+  showInspectorPanel: (panel) =>
+    set({ inspectorPanel: panel, libraryOpen: true }),
   dockHeights: {},
   setDockHeight: (tab, frac) =>
     set((s) => ({
@@ -527,12 +540,6 @@ export const createUiSlice: StateCreator<
   // ── Channel strip active tab ──
   channelStripTab: null,
   setChannelStripTab: (tab) => set({ channelStripTab: tab }),
-
-  // ── Collab panels ──
-  userListOpen: false,
-  toggleUserList: () => set((s) => ({ userListOpen: !s.userListOpen })),
-  chatPanelOpen: false,
-  toggleChatPanel: () => set((s) => ({ chatPanelOpen: !s.chatPanelOpen })),
 
   // ── Clip color mode ──
   clipColorMode: 'track',

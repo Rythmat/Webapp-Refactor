@@ -1,7 +1,6 @@
 import { Lock, Plus } from 'lucide-react';
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NOTES } from '@prism/engine';
 import { cn } from '@/components/utilities';
 import { ProfileRoutes } from '@/constants/routes';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
@@ -11,18 +10,17 @@ import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
 import { Popover, PopoverContent, PopoverTrigger } from '@/daw/ui/Popover';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Tooltip } from '@/daw/ui/Tooltip';
-import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { trackRole } from '@/daw/utils/chordAnalysis';
-import { modeWord, useSongPopover } from '../topbar/SongChip';
-import { SongPopover } from '../topbar/SongPopover';
+import { keyText, useKeyPopover } from '../song/keyPopover';
+import { KeyCircle } from '../song/SongParts';
 import { CHORD_LANE_PX } from '../tracklist/rowLayout';
 
 // ── The chord lane's header (milestone 2.7) ────────────────────────────────
 //
 // The left end of the chord lane, sticky with it: what the lane is, the
-// song's key as a chip ('C major', with its key colour) that opens the Song
-// popover, and + (Suggest chords), which opens Prism's suggestions where the
-// chords end. Both were reachable only by right-click or from the top bar
+// song's key as a chip ('C major', with its key colour) that opens the Key
+// popover (the circle; B4a), and + (Suggest chords), which opens Prism's
+// suggestions where the chords end. Both were reachable only by right-click or from the top bar
 // (ia-flows-26). Prism is Premium: a free student sees + locked and is
 // offered the plans (decision 8). In 200 × 24 px, Suggest is an icon with
 // its name in the tooltip.
@@ -77,14 +75,11 @@ export const ChordLaneHeader = memo(function ChordLaneHeader() {
     s.rootNote !== null ? s.rootTrackColor : null,
   );
   const canSuggest = useStore((s) => suggestTarget(s, 0) !== null);
-  const [open, onOpenChange] = useSongPopover();
+  const [open, onOpenChange] = useKeyPopover();
   const { isPremium, isLoading } = useIsPremium();
   const navigate = useNavigate();
 
-  const key =
-    rootNote === null
-      ? 'No key'
-      : `${displayAccidentals(NOTES[rootNote])} ${modeWord(mode)}`;
+  const key = keyText({ rootNote, mode });
 
   const suggest = () => {
     if (!isPremium) {
@@ -108,12 +103,12 @@ export const ChordLaneHeader = memo(function ChordLaneHeader() {
         Chords
       </span>
       <Popover open={open} onOpenChange={onOpenChange}>
-        <Tooltip content="Key, metre and tempo" side="right">
+        <Tooltip content="Key" side="right">
           <PopoverTrigger asChild>
             <button
               type="button"
               data-testid="chord-lane-key"
-              aria-label={`Key: ${key}. Change the key, metre and tempo`}
+              aria-label={`Key: ${key}. Change the key`}
               className={cn(
                 SMALL_BUTTON,
                 'min-w-0 border',
@@ -137,11 +132,11 @@ export const ChordLaneHeader = memo(function ChordLaneHeader() {
         <PopoverContent
           align="start"
           sideOffset={6}
-          data-testid="chord-lane-song-popover"
+          data-testid="chord-lane-key-popover"
           data-ds="v2"
-          className="w-[440px]"
+          className="w-[260px]"
         >
-          <SongPopover onDone={() => onOpenChange(false)} />
+          <KeyCircle onDone={() => onOpenChange(false)} />
         </PopoverContent>
       </Popover>
       <Tooltip

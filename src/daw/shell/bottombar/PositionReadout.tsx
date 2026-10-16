@@ -110,7 +110,7 @@ export const PositionReadout = memo(function PositionReadout() {
       : 'Bar : beat : sixteenth. Click for minutes and seconds';
 
   return (
-    <Tooltip content={hint} side="bottom">
+    <Tooltip content={hint} side="top">
       <button
         type="button"
         data-testid="position-readout"

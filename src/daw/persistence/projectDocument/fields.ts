@@ -357,7 +357,8 @@ const STORE_SPECS = {
   singleKeyShortcuts: pref('view', true),
   // The shell's layout (milestone 2.4): per user, never per project.
   inspectorOpenByView: pref('view', () => ({})),
-  inspectorWidth: pref('view', 200),
+  inspectorWidth: pref('view', 300),
+  inspectorPanel: pref('view', 'insight'),
   dockHeights: pref('view', () => ({})),
   readoutMode: pref('view', 'bars'),
   activeTool: session('view', 'cursor', 'project'),
@@ -424,8 +425,6 @@ const STORE_SPECS = {
   editingClipTrackId: session('ui', null, 'project'),
   clipboardClips: session('ui', () => [], 'page'),
   clipboardAudioClip: session('ui', null, 'page'),
-  userListOpen: session('ui', false, 'page'),
-  chatPanelOpen: session('ui', false, 'page'),
   settingsOpen: session('ui', false, 'page'),
   recordingLimitModalOpen: session('ui', false, 'project'),
   lastAudioExportAt: session('ui', null, 'project'),

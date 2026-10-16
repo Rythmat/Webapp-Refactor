@@ -177,7 +177,9 @@ function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
       ref={containerRef}
       className="w-full shrink-0 rounded-lg"
       style={{
-        height: 180,
+        // Shorter in a short window, so the master's FX list shows without
+        // a scroll on a Chromebook under the bottom rail (B4a).
+        height: 'clamp(72px, 18vh, 180px)',
         backgroundColor: 'var(--daw-surface-2)',
         border: '1px solid var(--daw-hairline)',
         overflow: 'hidden',
@@ -306,16 +308,21 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
   );
 
   return (
+    // The mastering section takes what the mixer leaves, never under 160 px,
+    // and scrolls inside it: on a Chromebook, under the bottom rail (B4a),
+    // the two no longer fit, and the faders matter more. The mixer keeps its
+    // height until a return's rack makes it taller than the rest; then it
+    // scrolls too.
     <div
       data-tutorial-id="mastering-section"
-      className="flex shrink-0 flex-col"
+      className="flex min-h-[160px] flex-1 flex-col overflow-y-auto"
       style={{
         borderBottom: '1px solid var(--daw-hairline)',
         padding: '12px 16px',
       }}
     >
       {/* ── Header bar ─────────────────────────────────── */}
-      <div className="flex items-center" style={{ marginBottom: 12 }}>
+      <div className="flex shrink-0 items-center" style={{ marginBottom: 12 }}>
         <span
           className="text-[11px] font-semibold uppercase tracking-wider"
           style={{ color: 'var(--daw-text)' }}
@@ -351,7 +358,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
 
       {/* ── Mastering Chain — signal chain layout ──────────── */}
       <div
-        className="flex overflow-hidden rounded-lg"
+        className="flex shrink-0 overflow-hidden rounded-lg"
         style={{
           marginTop: 12,
           backgroundColor: 'var(--daw-surface-2)',
@@ -1165,7 +1172,7 @@ function MixingSection() {
   return (
     <div
       data-tutorial-id="mixer-section"
-      className="flex min-h-0 flex-1 flex-col overflow-hidden"
+      className="flex min-h-0 flex-col overflow-y-auto"
     >
       {/* Section header */}
       <div className="flex shrink-0 items-center gap-2 px-3 py-1.5">
@@ -1182,7 +1189,7 @@ function MixingSection() {
       </div>
 
       {/* Mixer content */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex shrink-0 overflow-hidden">
         {trackCount === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3">
             <Sliders

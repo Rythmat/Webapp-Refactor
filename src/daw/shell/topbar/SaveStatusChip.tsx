@@ -132,7 +132,8 @@ export const SaveStatusChip = memo(function SaveStatusChip({
           data-state={chip.state}
           data-reason={reason ?? 'none'}
           className={cn(
-            'justify-start bg-white/10 font-normal text-daw-text-2',
+            // Quiet: no pill, dim text; a warning keeps its amber icon.
+            'justify-start bg-transparent font-normal text-daw-text-3',
             className,
           )}
           style={{ width: SAVE_CHIP_WIDTH_PX }}

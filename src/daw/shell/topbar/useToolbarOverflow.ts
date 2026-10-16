@@ -22,15 +22,11 @@ import {
  * The fold steps, in order; a step folds everything before it too. What
  * never goes into '⋯': Back, the Project menu, the name, the save chip,
  * Undo and Redo, the transport, the readout, Loop, Click, the view tabs,
- * the Inspector toggle, the computer keyboard's switch and the avatar.
+ * Share, the Inspector toggle and the avatar. (Help, Settings and the
+ * computer keyboard's switch live in '⋯' at every width since the bar was
+ * trimmed, 2.7; Share is always an icon.)
  */
 export const FOLD_STEPS = [
-  /** The computer keyboard's switch, while off: its icon only. */
-  'typing-icon',
-  /** Share's label: an icon only. */
-  'share-icon',
-  /** '?' and Settings: into '⋯'. */
-  'help-settings',
   /** The Song chip: 'C · 92' instead of 'C major · 4/4 · 92'. */
   'song-short',
   /** The project name: 96 px instead of 140. */

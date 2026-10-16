@@ -117,7 +117,7 @@ export const PositionReadout = memo(function PositionReadout() {
         data-mode={mode}
         onClick={() => setMode(mode === 'time' ? 'bars' : 'time')}
         className={cn(
-          'inline-flex h-7 min-w-[84px] shrink-0 items-center justify-center rounded-[var(--daw-radius-sm)] bg-daw-chip px-2 text-[length:var(--daw-font-title)] font-bold tabular-nums text-daw-text hover:bg-daw-hover',
+          'inline-flex h-7 min-w-[84px] shrink-0 items-center justify-center rounded-[var(--daw-radius-sm)] px-2 text-[length:var(--daw-font-title)] font-bold tabular-nums text-daw-text hover:bg-daw-hover',
           TRANSITION,
           FOCUS_RING,
         )}

@@ -8,45 +8,33 @@ import { Tooltip } from '@/daw/ui/Tooltip';
 
 // ── The computer keyboard's switch (milestone 1.6) ─────────────────────────
 //
-// Always in sight while the editor is open, since while it is on the letter
-// keys play notes instead of being shortcuts: white/10 and the octave the A
-// key plays ('Typing · C4') when on. ` toggles it too. It sits in the
-// editor's top bar since 2.5 (2.11 restyles it there).
+// In sight whenever it is on, since then the letter keys play notes instead
+// of being shortcuts: white/10 and the octave the A key plays ('Typing ·
+// C4'); a click turns it off. ` toggles it, and the top bar's '⋯' has the
+// switch; while it is off the chip is not shown (the bar was trimmed, 2.7).
 
 const TOGGLE_KEYS = shortcutKeys('typing.on');
 
-export const MusicalTypingChip = memo(function MusicalTypingChip({
-  compact = false,
-}: {
-  /** The folded top bar's form: the icon alone while it is off (2.5). */
-  compact?: boolean;
-}) {
+export const MusicalTypingChip = memo(function MusicalTypingChip() {
   const enabled = useMusicalTypingStore((s) => s.enabled);
   const octave = useMusicalTypingStore((s) => s.octave);
   const setEnabled = useMusicalTypingStore((s) => s.setEnabled);
+  if (!enabled) return null;
   return (
     <Tooltip
-      content={
-        enabled
-          ? 'Letter keys play notes. Z/X octave, C/V softer/louder'
-          : 'Play notes from the computer keyboard'
-      }
+      content="Letter keys play notes. Z/X octave, C/V softer/louder"
       shortcut={TOGGLE_KEYS.label}
     >
       <Toggle
         label="Play notes from the computer keyboard"
         icon={<Keyboard />}
-        pressed={enabled}
+        pressed
         onPressedChange={setEnabled}
         aria-keyshortcuts={TOGGLE_KEYS.aria}
         data-testid="musical-typing-chip"
         className="shrink-0 rounded-full"
       >
-        {enabled
-          ? `Typing · ${octaveLabel(octave)}`
-          : compact
-            ? null
-            : 'Typing'}
+        {`Typing · ${octaveLabel(octave)}`}
       </Toggle>
     </Tooltip>
   );

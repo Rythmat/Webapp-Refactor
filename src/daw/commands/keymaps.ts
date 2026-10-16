@@ -630,6 +630,20 @@ defineCommand({
   label: 'Stop',
   keys: ['Escape'],
 });
+// Home and End: the markers, the start and the end (the top bar's Back and
+// Forward buttons until 2.7 trimmed it).
+defineCommand({
+  id: 'transport.back',
+  scope: 'global',
+  label: 'Back to the previous marker or the start',
+  keys: ['Home'],
+});
+defineCommand({
+  id: 'transport.forward',
+  scope: 'global',
+  label: 'Forward to the next marker or the end',
+  keys: ['End'],
+});
 defineCommand({
   id: 'transport.loop',
   scope: 'global',

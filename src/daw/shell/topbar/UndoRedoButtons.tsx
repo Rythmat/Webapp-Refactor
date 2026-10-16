@@ -9,7 +9,9 @@ import {
   smartUndo,
   subscribeUndo,
 } from '@/daw/store/undoMiddleware';
+import { cn } from '@/components/utilities';
 import { IconButton } from '@/daw/ui/IconButton';
+import { QUIET } from '@/daw/ui/styles';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
 
 // ── Undo and Redo (milestone 1.4) ──────────────────────────────────────────
@@ -55,7 +57,7 @@ export const UndoRedoButtons = memo(function UndoRedoButtons() {
         data-testid="undo-button"
         size="md"
         tooltipSide="bottom"
-        className={ICON_SIZE}
+        className={cn(ICON_SIZE, QUIET)}
         disabled={!canUndo || blocked}
         onClick={() => {
           smartUndo();
@@ -69,7 +71,7 @@ export const UndoRedoButtons = memo(function UndoRedoButtons() {
         data-testid="redo-button"
         size="md"
         tooltipSide="bottom"
-        className={ICON_SIZE}
+        className={cn(ICON_SIZE, QUIET)}
         disabled={!canRedo || blocked}
         onClick={() => {
           smartRedo();

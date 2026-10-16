@@ -38,6 +38,7 @@ vi.mock('@/daw/components/Prism/CircleOfFifths', () => ({
 }));
 vi.mock('@/daw/hooks/useTransport', () => ({ seekTo: vi.fn() }));
 
+import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { useStore } from '@/daw/store';
 import { TopBar } from '../TopBar';
 
@@ -53,6 +54,7 @@ function renderBar() {
 
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
+  useMusicalTypingStore.setState({ enabled: false });
 });
 afterEach(() => {
   cleanup();
@@ -78,9 +80,43 @@ describe('the top bar', () => {
       ).not.toBeNull();
     }
     expect(screen.getByRole('tab', { name: 'Mix' })).toBeInTheDocument();
-    // Wide enough (jsdom measures nothing): nothing folded.
-    expect(screen.queryByTestId('top-bar-overflow')).toBeNull();
-    expect(screen.getByTestId('settings-button')).toBeInTheDocument();
+    // Trimmed (2.7): no Back, Forward or Stop; Help, Settings and the
+    // computer keyboard's switch are in '⋯'; Share is an icon; the typing
+    // chip shows only while typing is on.
+    for (const id of [
+      'transport-back',
+      'transport-forward',
+      'transport-stop',
+      'settings-button',
+      'help-menu',
+      'musical-typing-chip',
+    ]) {
+      expect(screen.queryByTestId(id)).toBeNull();
+    }
+    expect(screen.getByTestId('share-pill')).not.toHaveTextContent('Share');
+    expect(screen.getByTestId('top-bar')).toHaveAttribute('data-fold', '0');
+  });
+
+  it('keeps Help, Settings and the computer keyboard in ⋯', () => {
+    renderBar();
+    fireEvent.keyDown(screen.getByTestId('top-bar-overflow'), {
+      key: 'Enter',
+    });
+    for (const name of [
+      /Keyboard shortcuts/,
+      /Lessons/,
+      /Audio & MIDI settings/,
+    ]) {
+      expect(screen.getByRole('menuitem', { name })).toBeInTheDocument();
+    }
+    fireEvent.click(
+      screen.getByRole('menuitemcheckbox', {
+        name: /Play notes from the computer keyboard/,
+      }),
+    );
+    expect(screen.getByTestId('musical-typing-chip')).toHaveTextContent(
+      'Typing',
+    );
   });
 
   it('opens and closes the Inspector, kept for the view', () => {
@@ -114,20 +150,10 @@ describe('the top bar', () => {
       },
     );
     renderBar();
-    expect(screen.getByTestId('top-bar')).toHaveAttribute('data-fold', '7');
-    expect(screen.queryByTestId('settings-button')).toBeNull();
-    expect(screen.queryByTestId('help-menu')).toBeNull();
+    expect(screen.getByTestId('top-bar')).toHaveAttribute('data-fold', '4');
     expect(screen.queryByTestId('count-in-menu')).toBeNull();
-    expect(screen.getByTestId('share-pill')).not.toHaveTextContent('Share');
     const more = screen.getByTestId('top-bar-overflow');
     fireEvent.keyDown(more, { key: 'Enter' });
-    for (const name of [
-      /Keyboard shortcuts/,
-      /Lessons/,
-      /Audio & MIDI settings/,
-    ]) {
-      expect(screen.getByRole('menuitem', { name })).toBeInTheDocument();
-    }
     expect(
       screen.getByRole('menuitemradio', { name: 'Count in 1 bar' }),
     ).toBeInTheDocument();

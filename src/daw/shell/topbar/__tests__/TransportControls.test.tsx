@@ -14,8 +14,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // fader tick or note drag re-rendered it, its File menu and its dialogs; and
 // its position readout re-rendered with every playback tick (~30 a second)
 // although its text changes once a sixteenth. The readout now writes its
-// text itself, only when it changes, and Forward reads the tracks when
-// pressed, counting audio clips too. The readout's second mode (m:ss.t) is
+// text itself, only when it changes, and Forward (now End) reads the
+// tracks when pressed, counting audio clips too. The readout's second mode (m:ss.t) is
 // the student's pref.
 
 const h = vi.hoisted(() => ({
@@ -42,6 +42,7 @@ import {
   setPlayheadSourceForTests,
   startPlayheadRun,
 } from '@/daw/engine/playheadClock';
+import { skipBack, skipForward } from '@/daw/commands/transportSkip';
 import { TransportControls } from '../TransportControls';
 
 const s = () => useStore.getState();
@@ -189,11 +190,9 @@ describe('the readout while playing', () => {
     renderBar();
     startPlayheadRun(0, 0);
     now.t = 3; // 2880, past the verse
-    fireEvent.click(screen.getByRole('button', { name: /^Forward/ }));
+    skipForward();
     expect(h.seekTo).toHaveBeenLastCalledWith(3 * BAR);
-    fireEvent.click(
-      screen.getByRole('button', { name: /^Back to the previous marker/ }),
-    );
+    skipBack();
     expect(h.seekTo).toHaveBeenLastCalledWith(BAR);
   });
 });
@@ -209,10 +208,9 @@ describe('track edits', () => {
   });
 });
 
+// Forward and Back are End and Home since the bar was trimmed (2.7):
+// commands/transportSkip.
 describe('Forward', () => {
-  const skipForward = () =>
-    fireEvent.click(screen.getByRole('button', { name: /^Forward/ }));
-
   it('goes to the end of a song made only of audio', () => {
     const vocals = s().addTrack('audio', 'vocal-fx', 'Vocals');
     s().addAudioClip(vocals, {

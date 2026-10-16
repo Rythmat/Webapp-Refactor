@@ -621,3 +621,83 @@ Each prompt appends an entry: milestone, commits, pushed or not, verification nu
   - **Tools V/B/C** (plan default), digits kept.
   - **The dock opens on the new track's Instrument tab** after an add, except during a lesson.
   - **Top bar trim:** Stop is gone from the bar (Esc), Back/Forward became Home/End, and the keyboard's switch moved into '⋯'.
+
+## Owner request — B4a: the side rail and the bottom rail (2026-10-16)
+
+After a Soundtrap review (screenshots and notes in `~/Desktop/References/soundtrap-2026-10-16/`), the owner moved the transport to a bottom rail and gave the Inspector a side rail of icons. Not one of the numbered prompts: it lands between B3 and prompt 15 (B4).
+
+- **Branch:** `aaron`, on `53a18377` (B3's entry). Another session's untracked `src/daw/collab/server/.partykit/`, `src/scripts/enrichment/research/` and its `.gitignore` line left alone.
+- **Commits:**
+  - `70c00d70` **the rails**: the layout, the store and registry, the Inspector's panels, the bottom rail, the top bar without the transport and the song;
+  - `bcde0043` **the Mix view fits under the bottom rail**;
+  - `a5fe1b14` **harness**: R29's rails and side panels, R28's song popovers, R30's row budget, the Library's rail in R4/R12, the kitchen sink, the lessons' known list;
+  - this entry.
+- **Pushed:** yes, to `aaron` (fast-forward), from a temporary worktree of HEAD: the pre-push lint sees another session's untracked files in this checkout.
+- **What changed:**
+  - **Shell grid** (StudioShell): `top top top` / `main inspector rail` / `dock inspector rail` / `bottom bottom bottom`. The Inspector runs from the top bar to the bottom rail, so the dock stops at it (as Soundtrap's library does). The practice screen hides the bars, both rails and the Inspector (still mounted).
+  - **Side rail** (`shell/inspector/SideRail.tsx`): a 48 px column of six icons, the owner's choice: Insight, Library, Effects, Lessons, People, Chat. The open one is a white tile; a second click closes the Inspector. I opens and closes it on the panel it last showed. Chat shows an unread count. It replaces the top bar's Inspector toggle and the session's People and Chat columns.
+  - **Inspector panel** (`shell/inspector/InspectorPanel.tsx`, 300 px by default, 240–420; widths saved under 240 fall back to the default): a header (name and ×) over one body.
+    - *Insight* is the old panel's Insight tab; a piano-roll Analyze still brings it forward.
+    - *Library* is the templates, with a search. It opens them through openSession as before, and is off in a shared session.
+    - *Effects* adds an audio effect to the selected track and opens the dock's Effects tab on it (five per rack). Its rows carry test ids, not the dock's `fx-add-*` anchors, so a lesson's spotlight never lands here.
+    - *Lessons* is the Production catalog. It opens a lesson through openSession (`kind: 'tutorial'`), so a free student gets the upgrade dialog; it marks the running and finished lessons and links to the Studio's Production tab.
+    - *People* shows the connection, the room code (copy) and who is here; outside a session, "Start a session" opens the room and its invite.
+    - *Chat* is the room's chat; showing it marks messages read.
+    - Store: `inspectorPanel` (a per-user **view pref**, in the registry and prefsStore with its validator), `toggleInspectorPanel`, `showInspectorPanel`. `userListOpen`, `chatPanelOpen` and their toggles are gone (session state, never saved). **No draft schema change.**
+  - **Bottom rail** (`shell/bottombar/`, 44 px, full width):
+    - *Left: Master* — volume, level, its automation (which switches to Create, where the lane is) and Effects → Mix. It moved out of the track list, whose footer is now only the 16 px scrollbar.
+    - *Centre: the transport*, moved from the top bar and centred in the window: Play, Record, the readout, Loop, Click and its count-in.
+    - *Right: the song as three controls* — Key (the circle of fifths in a popover; the key lock as before), Tempo (an inline field with Tap; `transport-bpm` is on it) and the time signature (a popover of the common metres and a custom one). Below 1100 px of rail the key drops its mode word.
+    - The chord lane's key chip opens the same Key popover (the circle only). The Song chip and its combined popover are gone.
+  - **Top bar:** Back, Project, the name, the save chip, Undo/Redo | the view tabs, centred | Share, the typing chip, '⋯', the avatar. Its fold has two steps left (name, tabs); it folds at none of the three sizes.
+  - **Mix view:** the mixer keeps its full height and the mastering section scrolls in what is left. On a Chromebook the two no longer fit under the rail. The faders, sends, return and master strip now show at every size, and the lessons' three known Mix failures pass.
+  - **Lessons:** Hip Hop's tempo step targets `transport-bpm` alone ("Set the **Tempo** at the bottom to **95 BPM or less**").
+- **Verification:**
+  - `npm run lint` passes (prettier, eslint 0 warnings, `tsc -b`).
+  - `npx vitest run`: 15,896 pass. 10 fail in 14 files, none in this work's code:
+    - the inherited `designGuard` PianoRoll budget;
+    - the suites that fail only on this checkout's stale `_generated_index.ts`, and the content/scripts files, the same as B3's list;
+    - `EraRail.test.tsx` (Atlas), which is flaky under the full suite's load: it passes on its own 3/3 and on a clean `git archive` of HEAD.
+    - The first run caught two problems, both fixed: `DawApp.bootLinks.test` now mocks the bottom rail (its master meter polled the mocked engine: 11 uncaught errors), and the deleted panels' design budgets are gone.
+  - **`studio:check`** (fast, on 5263): round-trips 79/79 ok, 0 lost fields, 0 page errors.
+    - The first run caught two problems, both fixed:
+      - R4's `libraryTemplate` prefs check saw the scenario's own rail click; the kitchen sink now leaves the Library panel showing.
+      - The Mix squeeze below.
+    - **R29: all 9 flags at all three sizes:**
+      - Top bar 44 px, fold 0.
+      - Bottom rail 44 px, its zones clear, the transport centred to the pixel (683/720/640).
+      - Side rail 48 × 567 on a Chromebook.
+      - Timeline 1,118 px on a Chromebook, under the new ≥ 1,100.
+      - Dock at 36% of the new body (205 px).
+      - Each of the six icons shows its panel, a second click closes it, I reopens it, and no panel has text under the floor or a target under 24 × 24.
+      - No commits from either bar during playback.
+    - R28 (Key and Metre popovers, the chord lane's key popover) and R30 pass.
+    - Lessons pass at all three sizes, both personas: Chromebook 74/78 (was 71), laptop 76/78 (was 75), 1280×720 74/78 (was 73). The only failures are Indie's known ones. All eleven R&B steps pass on a Chromebook, so the three fx-mixer-04 entries left the known list.
+    - Bundle FAIL, inherited (store, registry and save status on every page, as B1–B3); DawApp 103.4 kB gzip (+1.4 kB), budget 150.
+  - **Browser (Chrome, own server):**
+    - Each panel opened from the rail.
+    - Effects added Reverb to Drums and opened the dock's FX tab.
+    - Key picked G with the lock shown; Metre and Tempo (92) set.
+    - I toggled the Inspector.
+    - The Mix view kept both rails.
+    - No console errors but the known third-party StrictMode warning.
+- **Owner sign-offs:**
+  - **Row budget:** a Chromebook with the dock closed shows 6 whole rows, not 7. The bottom rail takes 44 px; dropping Master from the track footer gave 24 back. With the dock open it still shows 4.
+  - **Timeline width on a Chromebook:** ≥ 1,100 px, not the plan's 1,120. The side rail takes 48 px, and the Inspector, closed, no longer does.
+  - **Effects panel vs the dock:** the rail's Effects panel adds an effect; the dock still holds the chain and its controls. The Soundtrap-style chain of cards and the armed "Add effect" slot are the dock rebuild's (owner decision, below).
+- **The plan changed meanwhile** (another session's entry above, uncommitted when this landed):
+  - Prompt 15 (B4: 2.8 rails + Inspector, 2.9 dock v2) takes these rails as its starting point. They are committed and pushed here, so it starts from `a5fe1b14`.
+  - Its owner answers are not built yet; they are 15's: Go to start, Rewind, Fast-forward and a metronome menu in the bottom rail; Master opening in the dock; an Export pill; ⌘K.
+  - In this session the owner asked for the **Score + Lead sheet merge next**, then the dock.
+- **Owner requests during the run (2026-10-16):**
+  - A second Soundtrap pass on the **instrument drawer** (Instrument, Chords/Patterns, Piano Roll, Effects) and how Effects works with the side rail: 14 more screenshots (36–49) and measurements in the same folder's README. The owner decided:
+    - Soundtrap's four tabs: Instrument · Chords (Prism) or Patterns (drum grid + Grooves) · Piano Roll · Effects.
+    - Parts moves to the Library panel.
+    - Voice and guitar tracks get no tabs: an input row, then the chain.
+    - The Effects tab becomes a row of effect cards whose "Add effect" slot arms the side rail's Effects panel; each pick appends and re-arms, × cancels.
+    - Order: **the Score + Lead sheet merge first, then the dock.**
+- **Open issues:**
+  1. The Inspector's Effects list is flat (no categories, search or descriptions yet); the dock rebuild brings Soundtrap's library.
+  2. People and Chat show to everyone, with empty states outside a session; a classroom may want them hidden.
+  3. The Master group in the bottom rail is MasterRow as it was; Soundtrap's "Master ▾" drawer (gain, mastering styles) is not built.
+  4. Lessons don't open from the panel while a session is shared (as templates).

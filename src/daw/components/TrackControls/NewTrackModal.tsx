@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
 import { useStore, type InstrumentType, type TrackType } from '@/daw/store';
 import {
   AnimatedTrackIcon,
   type AnimationId,
 } from '@/components/ui/circle-animations-collection-3';
+import { DawDialog } from '@/daw/ui/DawDialog';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 
 // ── Gradient helpers ─────────────────────────────────────────────────────
 
@@ -157,87 +158,56 @@ export function NewTrackModal({ open, onOpenChange }: NewTrackModalProps) {
   );
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        {/* Overlay */}
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-
-        {/* Content */}
-        <Dialog.Content
-          className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            boxShadow:
-              '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-          }}
-        >
-          {/* Header */}
-          <Dialog.Title
-            className="mb-4 text-lg font-semibold"
-            style={{ color: 'var(--daw-text)' }}
+    <DawDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="md"
+      title="Add Track"
+      description="Choose a track type to add to your project."
+    >
+      {/* Card Grid */}
+      <div className="grid grid-cols-2 gap-3 pb-3">
+        {TRACK_TEMPLATES.map((template) => (
+          <div
+            key={template.label}
+            className="gradient-border-hover"
+            style={
+              {
+                '--border-gradient': keyGradient ?? template.borderGradient,
+              } as React.CSSProperties
+            }
           >
-            Add Track
-          </Dialog.Title>
-          <Dialog.Description className="sr-only">
-            Choose a track type to add to your project.
-          </Dialog.Description>
-
-          {/* Card Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {TRACK_TEMPLATES.map((template) => (
-              <div
-                key={template.label}
-                className="gradient-border-hover"
-                style={
-                  {
-                    '--border-gradient': keyGradient ?? template.borderGradient,
-                  } as React.CSSProperties
-                }
-              >
-                <button
-                  onClick={() => handleSelect(template)}
-                  className="flex min-h-24 w-full cursor-pointer flex-col items-start rounded-xl p-4 text-left transition-transform hover:scale-[1.02] active:scale-[0.98]"
-                  style={{
-                    backgroundColor: `${template.color}26`, // ~15% opacity
-                    border: `1px solid ${template.color}4D`, // ~30% opacity
-                  }}
-                >
-                  <span className="mb-2" style={{ color: 'var(--daw-text)' }}>
-                    <AnimatedTrackIcon
-                      animationId={template.animationId}
-                      size={ANIM_SIZE}
-                    />
-                  </span>
-                  <span
-                    className="text-sm font-bold"
-                    style={{ color: 'var(--daw-text)' }}
-                  >
-                    {template.label}
-                  </span>
-                  <span
-                    className="mt-0.5 text-xs"
-                    style={{ color: 'var(--daw-text-3)' }}
-                  >
-                    {template.description}
-                  </span>
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Close button (X) */}
-          <Dialog.Close asChild>
             <button
-              className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-              style={{ color: 'var(--daw-text-3)' }}
-              aria-label="Close"
+              type="button"
+              onClick={() => handleSelect(template)}
+              className="flex min-h-24 w-full cursor-pointer flex-col items-start rounded-xl p-4 text-left transition-transform hover:scale-[1.02] active:scale-[0.98] motion-reduce:transform-none"
+              style={{
+                backgroundColor: `${template.color}26`, // ~15% opacity
+                border: `1px solid ${template.color}4D`, // ~30% opacity
+              }}
             >
-              &#x2715;
+              <span className="mb-2" style={{ color: 'var(--daw-text)' }}>
+                <AnimatedTrackIcon
+                  animationId={template.animationId}
+                  size={ANIM_SIZE}
+                />
+              </span>
+              <span
+                className={TYPE_CLASS.title}
+                style={{ color: 'var(--daw-text)' }}
+              >
+                {template.label}
+              </span>
+              <span
+                className={`mt-0.5 ${TYPE_CLASS.label}`}
+                style={{ color: 'var(--daw-text-3)' }}
+              >
+                {template.description}
+              </span>
             </button>
-          </Dialog.Close>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+          </div>
+        ))}
+      </div>
+    </DawDialog>
   );
 }

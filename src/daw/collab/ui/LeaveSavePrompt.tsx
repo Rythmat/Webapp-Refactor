@@ -8,15 +8,14 @@
 // work, is kept as a device draft with a Restore, as when a link replaces it.
 
 import { useCallback, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { saveProject } from '@/daw/commands/saveProject';
 import { openSession } from '@/daw/session/openSession';
 import { studioProjectsApi } from '@/lib/studio-projects/api';
 import { showSuccess } from '@/components/utils/toast';
+import { Button } from '@/daw/ui/Button';
+import { DawDialog } from '@/daw/ui/DawDialog';
 
 /**
  * Leave the room and continue in a new blank project. The prompt closes as
@@ -112,101 +111,51 @@ export function LeaveSavePrompt() {
     setSaving(false);
   }, []);
 
-  return createPortal(
-    <AnimatePresence>
-      {pending && (
+  // Saving is the choice that keeps the work, so it is the one white pill.
+  // When the host has left there is no session to go back to: no Cancel,
+  // and the dialog can't be closed without a choice.
+  return (
+    <DawDialog
+      open={pending}
+      onOpenChange={(next) => {
+        if (!next && !hostLeft && !saving) setLeavePrompt(false);
+      }}
+      closable={!hostLeft}
+      dismissible={false}
+      size="sm"
+      title="Save project before leaving?"
+      description={`${
+        hostLeft
+          ? 'The host ended the session. '
+          : "You're about to leave the collaborative session. "
+      }Save a copy to your own account before you go. You'll continue in a new solo project.`}
+      footer={
         <>
-          {/* Backdrop — non-dismissable; the user must make a choice. */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/50"
-          />
-
-          {/* Centering wrapper — flex (not translate) so framer-motion's scale
-              animation can't clobber the centering transform. */}
-          <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Modal: an opaque card. */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="pointer-events-auto flex w-[360px] flex-col gap-4 rounded-xl p-5 shadow-2xl"
-              style={{
-                backgroundColor: 'var(--daw-popover)',
-                border: '1px solid var(--daw-hairline)',
-              }}
+          {!hostLeft && (
+            <Button
+              variant="quiet"
+              className="mr-auto"
+              onClick={() => setLeavePrompt(false)}
+              disabled={saving}
             >
-              {/* Header */}
-              <div className="flex items-center gap-2">
-                <LogOut
-                  size={14}
-                  strokeWidth={2}
-                  style={{ color: 'var(--daw-text)' }}
-                />
-                <span
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--daw-text)' }}
-                >
-                  Save project before leaving?
-                </span>
-              </div>
-
-              <p
-                className="text-xs leading-relaxed"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                {hostLeft
-                  ? 'The host ended the session. '
-                  : "You're about to leave the collaborative session. "}
-                Save a copy to your own account before you go — you'll continue
-                in a new solo project.
-              </p>
-
-              {/* Actions. Saving is the choice that keeps the work, so it is
-                  the one white pill; the others stay quiet, with no inline
-                  background so their hover step shows. */}
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => void handleSaveAndLeave()}
-                  disabled={saving}
-                  className="rounded-full py-2 text-xs font-semibold transition-[filter] hover:brightness-90 disabled:opacity-50"
-                  style={{
-                    backgroundColor: '#fff',
-                    color: '#101012',
-                    border: 'none',
-                  }}
-                >
-                  {saving ? 'Saving…' : 'Save & Leave'}
-                </button>
-                <button
-                  onClick={() => void handleDiscardSessionChanges()}
-                  disabled={saving}
-                  className="rounded-full py-2 text-xs font-medium transition-colors hover:bg-white/5 disabled:opacity-50"
-                  style={{
-                    color: 'var(--daw-text)',
-                    border: '1px solid var(--daw-hairline)',
-                  }}
-                >
-                  Discard this session's changes
-                </button>
-                {!hostLeft && (
-                  <button
-                    onClick={() => setLeavePrompt(false)}
-                    disabled={saving}
-                    className="rounded-full py-1.5 text-xs transition-colors hover:bg-white/5 disabled:opacity-50"
-                    style={{ color: 'var(--daw-text-3)', border: 'none' }}
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          </div>
+              Cancel
+            </Button>
+          )}
+          <Button
+            onClick={() => void handleDiscardSessionChanges()}
+            disabled={saving}
+          >
+            Discard this session's changes
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => void handleSaveAndLeave()}
+            disabled={saving}
+          >
+            {saving ? 'Saving…' : 'Save & Leave'}
+          </Button>
         </>
-      )}
-    </AnimatePresence>,
-    document.body,
+      }
+    />
   );
 }

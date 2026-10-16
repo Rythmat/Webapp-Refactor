@@ -1,15 +1,8 @@
-import { Lock } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { cn } from '@/components/utilities';
 import { ProfileRoutes } from '@/constants/routes';
+import { Button } from '@/daw/ui/Button';
+import { DawDialog } from '@/daw/ui/DawDialog';
 import { trackPaywallViewed } from '@/telemetry/hooks/useTelemetryProduct';
 import { getTutorialEntry } from './tutorialCatalog';
 
@@ -18,19 +11,6 @@ interface UpgradeLessonDialogProps {
   lessonId: string | null;
   onClose: () => void;
 }
-
-// The landing look: the white pill for what to do next, the outlined pill
-// beside it, 36 px targets, 12 px and up.
-const TARGET =
-  'inline-flex h-9 items-center justify-center rounded-full px-4 text-sm font-normal transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60';
-const PRIMARY = cn(
-  TARGET,
-  'bg-white text-[#101012] hover:bg-white/90 active:bg-white/80',
-);
-const SECONDARY = cn(
-  TARGET,
-  'border border-white/15 bg-white/[0.04] text-[#e8e8f0] hover:bg-white/[0.08] active:bg-white/[0.12]',
-);
 
 /**
  * Says why a Premium lesson didn't open for a free student, and where to go
@@ -75,46 +55,24 @@ export function UpgradeLessonDialog({
   };
 
   return (
-    <Dialog
+    <DawDialog
       open={lessonId !== null}
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-    >
-      <DialogContent
-        className={cn(
-          'w-[calc(100%-2rem)] max-w-[420px] gap-5 rounded-2xl border-white/[0.08] bg-[#151518] text-[#e8e8f0] sm:rounded-2xl',
-          // Reduced motion: it fades, without the zoom and the drift.
-          'motion-reduce:data-[state=closed]:zoom-out-100 motion-reduce:data-[state=open]:zoom-in-100 motion-reduce:data-[state=closed]:slide-out-to-top-1/2 motion-reduce:data-[state=open]:slide-in-from-top-1/2',
-          // The close button: a 36 px round target.
-          '[&>button:last-child]:right-3 [&>button:last-child]:top-3 [&>button:last-child]:flex [&>button:last-child]:size-9 [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:rounded-full [&>button:last-child]:bg-transparent [&>button:last-child]:text-white/55 [&>button:last-child]:opacity-100 [&>button:last-child]:transition-colors hover:[&>button:last-child]:bg-white/[0.06] hover:[&>button:last-child]:text-[#e8e8f0]',
-        )}
-      >
-        <DialogHeader className="gap-3 space-y-0 text-left sm:text-left">
-          <span
-            aria-hidden
-            className="flex size-10 items-center justify-center rounded-full bg-white/10"
-          >
-            <Lock className="size-5 text-white/80" />
-          </span>
-          <DialogTitle className="pr-8 text-lg font-normal leading-snug text-white">
-            This lesson uses Prism, part of Premium
-          </DialogTitle>
-          <DialogDescription className="text-sm leading-relaxed text-white/60">
-            {title ? `“${title}” has` : 'This lesson has'} steps in Prism, the
-            Studio’s chord and harmony workshop. Lessons without the Premium tag
-            are free.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-wrap justify-end gap-2">
-          <button type="button" className={SECONDARY} onClick={onClose}>
+      size="sm"
+      title="This lesson uses Prism, part of Premium"
+      description={`${title ? `“${title}” has` : 'This lesson has'} steps in Prism, the Studio’s chord and harmony workshop. Lessons without the Premium tag are free.`}
+      footer={
+        <>
+          <Button size="lg" onClick={onClose}>
             Not now
-          </button>
-          <button type="button" className={PRIMARY} onClick={seePlans}>
+          </Button>
+          <Button size="lg" variant="primary" onClick={seePlans}>
             See plans
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </Button>
+        </>
+      }
+    />
   );
 }

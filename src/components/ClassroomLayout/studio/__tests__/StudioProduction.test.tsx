@@ -125,7 +125,7 @@ describe('the Production tab', () => {
 
     // The primary action is the white pill.
     const seePlans = within(dialog).getByRole('button', { name: 'See plans' });
-    expect(seePlans).toHaveClass('bg-white', 'text-[#101012]', 'rounded-full');
+    expect(seePlans).toHaveAttribute('data-variant', 'primary');
 
     fireEvent.click(within(dialog).getByRole('button', { name: 'Not now' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());

@@ -3,78 +3,24 @@
 // The session is already torn down (the user is back in a local studio); this
 // just explains why.
 
-import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { UserX } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
+import { ConfirmDialog } from '@/daw/ui/ConfirmDialog';
 
 export function KickedModal() {
   const kicked = useStore((s) => s.kickedNotice);
   const setKicked = useStore((s) => s._setKickedNotice);
 
-  return createPortal(
-    <AnimatePresence>
-      {kicked && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setKicked(false)}
-            className="fixed inset-0 z-50 bg-black/50"
-          />
-
-          {/* Centering wrapper — flex (not translate) so the scale animation
-              can't clobber the centering transform. */}
-          <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="pointer-events-auto flex w-[340px] flex-col gap-4 rounded-xl p-5 shadow-2xl"
-              style={{
-                backgroundColor: 'var(--daw-popover)',
-                border: '1px solid var(--daw-hairline)',
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <UserX
-                  size={14}
-                  strokeWidth={2}
-                  style={{ color: 'var(--daw-record)' }}
-                />
-                <span
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--daw-text)' }}
-                >
-                  Removed from session
-                </span>
-              </div>
-
-              <p
-                className="text-xs leading-relaxed"
-                style={{ color: 'var(--daw-text-3)' }}
-              >
-                You have been kicked from the studio session.
-              </p>
-
-              <button
-                onClick={() => setKicked(false)}
-                className="rounded-full py-2 text-xs font-semibold transition-[filter] hover:brightness-90"
-                style={{
-                  backgroundColor: '#fff',
-                  color: '#101012',
-                  border: 'none',
-                }}
-              >
-                OK
-              </button>
-            </motion.div>
-          </div>
-        </>
-      )}
-    </AnimatePresence>,
-    document.body,
+  return (
+    <ConfirmDialog
+      open={kicked}
+      onOpenChange={(next) => {
+        if (!next) setKicked(false);
+      }}
+      title="You left the session"
+      description="The host removed you from the shared session, so you’re back in your own studio. Your own projects are just as you left them."
+      confirmLabel="OK"
+      cancelLabel={null}
+      onConfirm={() => setKicked(false)}
+    />
   );
 }

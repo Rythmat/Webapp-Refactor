@@ -5,7 +5,6 @@ import {
   type Dispatch,
   type SetStateAction,
 } from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
 import { Download, Loader2, AlertTriangle } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import {
@@ -19,6 +18,10 @@ import { projectEndTick } from '@/daw/audio/renderProject';
 import { ticksPerBar } from '@/daw/utils/timelineScale';
 import { isOpusEncodingSupported } from '@/lib/studio-assets/encode-opus';
 import { showError, showSuccess } from '@/components/utils/toast';
+import { Button } from '@/daw/ui/Button';
+import { DawDialog } from '@/daw/ui/DawDialog';
+import { Segmented } from '@/daw/ui/Segmented';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 import type { ExportChoices, RangeChoice } from './exportChoices';
 
 const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
@@ -42,54 +45,11 @@ function formatDuration(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-// ── Segmented control ──────────────────────────────────────────────────────
-
-function Seg<T extends string | number>({
-  options,
-  value,
-  onChange,
-  disabled,
-}: {
-  options: { value: T; label: string; disabled?: boolean }[];
-  value: T;
-  onChange: (v: T) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <div
-      className="flex gap-1 rounded-lg p-1"
-      style={{ backgroundColor: 'var(--daw-surface-2)' }}
-    >
-      {options.map((opt) => {
-        const active = opt.value === value;
-        const off = disabled || opt.disabled;
-        return (
-          <button
-            key={String(opt.value)}
-            onClick={() => onChange(opt.value)}
-            disabled={off}
-            className="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
-            style={{
-              backgroundColor: active ? '#f59e0b' : 'transparent',
-              color: active ? '#1a1a1a' : 'var(--daw-text-3)',
-              cursor: off ? 'default' : 'pointer',
-              opacity: off ? 0.5 : 1,
-            }}
-          >
-            {opt.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+// ── Fields ──────────────────────────────────────────────────────────────
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span
-      className="text-[10px] font-semibold uppercase tracking-wider"
-      style={{ color: 'var(--daw-text-3)' }}
-    >
+    <span className={TYPE_CLASS.micro} style={{ color: 'var(--daw-text-3)' }}>
       {children}
     </span>
   );
@@ -108,7 +68,7 @@ function BarInput({
 }) {
   return (
     <label className="flex flex-1 flex-col gap-1">
-      <span className="text-[10px]" style={{ color: 'var(--daw-text-3)' }}>
+      <span className={TYPE_CLASS.label} style={{ color: 'var(--daw-text-3)' }}>
         {label}
       </span>
       <input
@@ -119,14 +79,7 @@ function BarInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="w-full rounded-md px-2.5 py-1.5 text-xs outline-none focus:ring-1 focus:ring-amber-500"
-        // The dialog portals outside .daw-root, so the theme vars need
-        // literal fallbacks or the field renders without a box.
-        style={{
-          backgroundColor: 'var(--daw-surface-2)',
-          color: 'var(--daw-text)',
-          border: '1px solid var(--daw-hairline)',
-        }}
+        className={`h-7 w-full rounded-[var(--daw-radius-sm)] border border-daw-outline bg-transparent px-2.5 text-daw-text outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-daw-focus ${TYPE_CLASS.body}`}
       />
     </label>
   );
@@ -306,248 +259,195 @@ export function ExportAudioDialog({
         ? 40 + progress.pct * 60
         : 0;
 
+  const exportBlocked = busy || trackCount === 0 || !!customError;
+  const formatHint = FORMATS.find((f) => f.id === format)?.hint ?? '';
+
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => !busy && onOpenChange(o)}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
-        <Dialog.Content
-          data-tutorial-id="export-audio-dialog"
-          className="fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
-          style={{
-            maxWidth: 420,
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            boxShadow:
-              '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-          }}
-          onInteractOutside={(e) => busy && e.preventDefault()}
-          onEscapeKeyDown={(e) => busy && e.preventDefault()}
-        >
-          <Dialog.Title
-            className="mb-1 text-lg font-semibold"
-            style={{ color: 'var(--daw-text)' }}
+    <DawDialog
+      open={open}
+      onOpenChange={(o) => !busy && onOpenChange(o)}
+      // Nothing closes it while it renders.
+      closable={!busy}
+      size="sm"
+      data={{ 'data-tutorial-id': 'export-audio-dialog' }}
+      title="Export Audio"
+      description="Bounce your project to an audio file. The full mix (instruments, effects, sends and mastering) is rendered offline."
+      footer={
+        <>
+          <Button onClick={() => onOpenChange(false)} disabled={busy}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            data-tutorial-id="export-audio-run"
+            onClick={() => void handleExport()}
+            disabled={exportBlocked}
           >
-            Export Audio
-          </Dialog.Title>
-          <Dialog.Description
-            className="mb-5 text-xs"
+            <Download strokeWidth={2.5} />
+            {trackCount === 0 ? 'Add a track first' : 'Export'}
+          </Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-5 pb-1">
+        {/* Format */}
+        <div className="flex flex-col gap-2">
+          <FieldLabel>Format</FieldLabel>
+          <Segmented
+            label="Format"
+            options={FORMATS.map((f) => ({
+              value: f.id,
+              label: f.label,
+              disabled: f.id === 'opus' && !opusSupported,
+            }))}
+            value={format}
+            onValueChange={setFormat}
+            disabled={busy}
+            className="self-start"
+          />
+          <span
+            className={TYPE_CLASS.label}
             style={{ color: 'var(--daw-text-3)' }}
           >
-            Bounce your project to an audio file. The full mix — instruments,
-            effects, sends and mastering — is rendered offline.
-          </Dialog.Description>
+            {opusSupported
+              ? formatHint
+              : `${formatHint} · Opus isn’t supported in this browser`}
+          </span>
+        </div>
 
-          <div className="flex flex-col gap-5">
-            {/* Format */}
-            <div className="flex flex-col gap-2">
-              <FieldLabel>Format</FieldLabel>
-              <div className="flex gap-2">
-                {FORMATS.map((f) => {
-                  const active = f.id === format;
-                  const unavailable = f.id === 'opus' && !opusSupported;
-                  return (
-                    <button
-                      key={f.id}
-                      onClick={() => !unavailable && setFormat(f.id)}
-                      disabled={busy || unavailable}
-                      className="flex flex-1 flex-col items-center gap-0.5 rounded-lg px-2 py-2 transition-colors"
-                      style={{
-                        backgroundColor: active
-                          ? 'rgba(255, 255, 255, 0.08)'
-                          : 'var(--daw-surface-2)',
-                        border: `1px solid ${active ? 'rgba(255, 255, 255, 0.6)' : 'var(--daw-hairline)'}`,
-                        cursor: unavailable ? 'not-allowed' : 'pointer',
-                        opacity: unavailable ? 0.4 : 1,
-                      }}
-                    >
-                      <span
-                        className="text-xs font-semibold"
-                        style={{
-                          color: active
-                            ? 'var(--daw-text)'
-                            : 'var(--daw-text-3)',
-                        }}
-                      >
-                        {f.label}
-                      </span>
-                      <span
-                        className="text-[9px]"
-                        style={{ color: 'var(--daw-text-3)' }}
-                      >
-                        {unavailable ? 'unsupported' : f.hint}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+        {/* Format-specific quality */}
+        {format === 'wav' && (
+          <div className="flex flex-col gap-2">
+            <FieldLabel>Bit depth</FieldLabel>
+            <Segmented
+              label="Bit depth"
+              options={BIT_DEPTHS.map((b) => ({
+                value: String(b),
+                label: `${b}-bit`,
+              }))}
+              value={String(bitDepth)}
+              onValueChange={(next) => setBitDepth(Number(next) as WavBitDepth)}
+              disabled={busy}
+              className="self-start"
+            />
+          </div>
+        )}
 
-            {/* Format-specific quality */}
-            {format === 'wav' && (
-              <div className="flex flex-col gap-2">
-                <FieldLabel>Bit depth</FieldLabel>
-                <Seg
-                  options={BIT_DEPTHS.map((b) => ({
-                    value: b,
-                    label: `${b}-bit`,
-                  }))}
-                  value={bitDepth}
-                  onChange={setBitDepth}
+        {/* Range */}
+        <div className="flex flex-col gap-2">
+          <FieldLabel>Range</FieldLabel>
+          <Segmented
+            label="Range"
+            options={[
+              { value: 'project' as const, label: 'Whole project' },
+              {
+                value: 'loop' as const,
+                label: loopEnabled ? 'Loop region' : 'Loop (off)',
+                disabled: !loopEnabled,
+              },
+              { value: 'custom' as const, label: 'Start – End' },
+            ]}
+            value={range}
+            onValueChange={setRange}
+            disabled={busy}
+            className="self-start"
+          />
+          {range === 'custom' && (
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-end gap-2">
+                <BarInput
+                  label="Start bar"
+                  value={startBarText}
+                  onChange={setStartBarText}
+                  disabled={busy}
+                />
+                <span
+                  className={`pb-1.5 ${TYPE_CLASS.body}`}
+                  style={{ color: 'var(--daw-text-3)' }}
+                >
+                  to
+                </span>
+                <BarInput
+                  label="End bar"
+                  value={endBarText}
+                  onChange={setEndBarText}
                   disabled={busy}
                 />
               </div>
-            )}
-            {/* Range */}
-            <div className="flex flex-col gap-2">
-              <FieldLabel>Range</FieldLabel>
-              <Seg
-                options={[
-                  { value: 'project' as const, label: 'Whole project' },
-                  {
-                    value: 'loop' as const,
-                    label: loopEnabled ? 'Loop region' : 'Loop (off)',
-                    disabled: !loopEnabled,
-                  },
-                  { value: 'custom' as const, label: 'Start – End' },
-                ]}
-                value={range}
-                onChange={setRange}
-                disabled={busy}
-              />
-              {range === 'custom' && (
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex items-end gap-2">
-                    <BarInput
-                      label="Start bar"
-                      value={startBarText}
-                      onChange={setStartBarText}
-                      disabled={busy}
-                    />
-                    <span
-                      className="pb-2 text-xs"
-                      style={{ color: 'var(--daw-text-3)' }}
-                    >
-                      to
-                    </span>
-                    <BarInput
-                      label="End bar"
-                      value={endBarText}
-                      onChange={setEndBarText}
-                      disabled={busy}
-                    />
-                  </div>
-                  <span
-                    className="text-[11px]"
-                    style={{
-                      color: customError ? '#f87171' : 'var(--daw-text-3)',
-                    }}
-                    role={customError ? 'alert' : undefined}
-                  >
-                    {customError ??
-                      `${endBar! - startBar! + 1} ${
-                        endBar === startBar ? 'bar' : 'bars'
-                      } · ${formatDuration(customSeconds)} (end bar included)`}
-                  </span>
-                </div>
-              )}
+              <span
+                className={TYPE_CLASS.label}
+                style={{
+                  color: customError
+                    ? 'var(--daw-danger-text)'
+                    : 'var(--daw-text-3)',
+                }}
+                role={customError ? 'alert' : undefined}
+              >
+                {customError ??
+                  `${endBar! - startBar! + 1} ${
+                    endBar === startBar ? 'bar' : 'bars'
+                  } · ${formatDuration(customSeconds)} (end bar included)`}
+              </span>
             </div>
+          )}
+        </div>
 
-            {/* Coverage warnings */}
-            {!busy && warnings.length > 0 && (
-              <div
-                className="flex gap-2 rounded-lg p-3"
-                style={{
-                  backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                  border: '1px solid rgba(245, 158, 11, 0.3)',
-                }}
-              >
-                <AlertTriangle
-                  size={14}
-                  className="mt-0.5 shrink-0"
-                  style={{ color: '#f59e0b' }}
-                />
-                <div className="flex flex-col gap-1">
-                  {warnings.map((w) => (
-                    <span
-                      key={w}
-                      className="text-[11px] leading-snug"
-                      style={{ color: 'var(--daw-text-3)' }}
-                    >
-                      {w}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Progress */}
-            {busy && (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <Loader2
-                    size={13}
-                    className="animate-spin"
-                    style={{ color: 'var(--daw-text-3)' }}
-                  />
-                  <span
-                    className="text-xs"
-                    style={{ color: 'var(--daw-text-3)' }}
-                  >
-                    {progressLabel}
-                  </span>
-                </div>
-                <div
-                  className="h-1.5 w-full overflow-hidden rounded-full"
-                  style={{ backgroundColor: 'var(--daw-surface-2)' }}
+        {/* Coverage warnings */}
+        {!busy && warnings.length > 0 && (
+          <div
+            className="flex gap-2 rounded-[var(--daw-radius-md)] p-3"
+            style={{ backgroundColor: 'var(--daw-warning-subtle)' }}
+          >
+            <AlertTriangle
+              size={14}
+              className="mt-0.5 shrink-0"
+              style={{ color: 'var(--daw-warning)' }}
+            />
+            <div className="flex flex-col gap-1">
+              {warnings.map((w) => (
+                <span
+                  key={w}
+                  className={TYPE_CLASS.label}
+                  style={{ color: 'var(--daw-text-2)' }}
                 >
-                  <div
-                    className="h-full rounded-full transition-all duration-200"
-                    style={{
-                      width: `${barPct}%`,
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex justify-end gap-2 pt-1">
-              <button
-                onClick={() => onOpenChange(false)}
-                disabled={busy}
-                className="rounded-full px-4 py-2 text-xs font-medium transition-colors hover:bg-white/5"
-                style={{
-                  color: 'var(--daw-text-3)',
-                  border: '1px solid var(--daw-hairline)',
-                  cursor: busy ? 'default' : 'pointer',
-                  opacity: busy ? 0.5 : 1,
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                data-tutorial-id="export-audio-run"
-                onClick={() => void handleExport()}
-                disabled={busy || trackCount === 0 || !!customError}
-                className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold transition-colors"
-                style={{
-                  backgroundColor: '#f59e0b',
-                  color: '#1a1a1a',
-                  cursor:
-                    busy || trackCount === 0 || customError
-                      ? 'default'
-                      : 'pointer',
-                  opacity: busy || trackCount === 0 || customError ? 0.5 : 1,
-                }}
-              >
-                <Download size={13} strokeWidth={2.5} />
-                {trackCount === 0 ? 'Add a track first' : 'Export'}
-              </button>
+                  {w}
+                </span>
+              ))}
             </div>
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        )}
+
+        {/* Progress */}
+        {busy && (
+          <div className="flex flex-col gap-2" role="status">
+            <div className="flex items-center gap-2">
+              <Loader2
+                size={14}
+                className="animate-spin"
+                style={{ color: 'var(--daw-text-3)' }}
+              />
+              <span
+                className={TYPE_CLASS.body}
+                style={{ color: 'var(--daw-text-3)' }}
+              >
+                {progressLabel}
+              </span>
+            </div>
+            <div
+              className="h-1.5 w-full overflow-hidden rounded-full"
+              style={{ backgroundColor: 'var(--daw-meter-track)' }}
+            >
+              <div
+                className="h-full rounded-full transition-all duration-200"
+                style={{
+                  width: `${barPct}%`,
+                  backgroundColor: 'var(--daw-text)',
+                }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </DawDialog>
   );
 }

@@ -1,5 +1,5 @@
 /* eslint-disable tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef, useId } from 'react';
 import {
   Play,
   Square,
@@ -22,6 +22,8 @@ import { useStore } from '@/daw/store';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
+import { Button } from '@/daw/ui/Button';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
@@ -95,18 +97,8 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
   // Pending groove awaiting BPM confirmation
   const [pendingGroove, setPendingGroove] = useState<GrooveItem | null>(null);
-  const bpmPopoverRef = useRef<HTMLDivElement>(null);
-
-  // Close BPM popover on outside click
-  useEffect(() => {
-    if (!pendingGroove) return;
-    function handleMouseDown(e: MouseEvent) {
-      if (bpmPopoverRef.current?.contains(e.target as Node)) return;
-      setPendingGroove(null);
-    }
-    document.addEventListener('mousedown', handleMouseDown);
-    return () => document.removeEventListener('mousedown', handleMouseDown);
-  }, [pendingGroove]);
+  const bpmTitleId = useId();
+  const bpmTextId = useId();
 
   const uniqueBpms = useMemo(() => getUniqueBpms(), []);
 
@@ -517,79 +509,55 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
         </div>
       )}
 
-      {/* BPM mismatch popover */}
+      {/* BPM mismatch: change the project's tempo, or add it as it is.
+          Asked in the panel, not in a modal: a lesson's coach card, which
+          sits above modals, keeps clear of this panel but not of the middle
+          of the window. Escape is Cancel. */}
       {pendingGroove && (
         <div
-          ref={bpmPopoverRef}
-          className="absolute left-1/2 top-1/2 z-50 w-56 -translate-x-1/2 -translate-y-1/2 rounded-xl p-4 shadow-lg"
-          style={{
-            backgroundColor: 'var(--daw-popover)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            boxShadow:
-              '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+          role="alertdialog"
+          aria-labelledby={bpmTitleId}
+          aria-describedby={bpmTextId}
+          data-ds="v2"
+          onKeyDown={(e) => {
+            if (e.key !== 'Escape') return;
+            e.stopPropagation();
+            setPendingGroove(null);
           }}
+          className="absolute left-1/2 top-1/2 z-[var(--daw-z-panel)] flex w-60 -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-[var(--daw-radius-lg)] border border-daw-hairline bg-daw-popover p-4 shadow-2xl shadow-black/60"
         >
-          <p
-            className="mb-1 text-xs font-semibold"
-            style={{ color: 'var(--daw-text)' }}
-          >
-            Change Project BPM?
-          </p>
-          <p
-            className="mb-4 text-[10px] leading-relaxed"
-            style={{ color: 'var(--daw-text-3)' }}
-          >
-            This groove is{' '}
-            <strong style={{ color: 'var(--daw-text)' }}>
-              {pendingGroove.bpm} BPM
-            </strong>
-            , but your project is{' '}
-            <strong style={{ color: 'var(--daw-text)' }}>
-              {projectBpm} BPM
-            </strong>
-            .
-          </p>
+          <div className="flex flex-col gap-1">
+            <p id={bpmTitleId} className={`${TYPE_CLASS.title} text-daw-text`}>
+              Change Project BPM?
+            </p>
+            <p id={bpmTextId} className={`${TYPE_CLASS.label} text-daw-text-2`}>
+              This groove is {pendingGroove.bpm} BPM, but your project is{' '}
+              {projectBpm} BPM.
+            </p>
+          </div>
           <div className="flex flex-col gap-1.5">
-            <button
+            <Button
+              variant="primary"
+              autoFocus
               onClick={() => {
                 setBpm(pendingGroove.bpm);
                 doLoadGroove(pendingGroove);
                 setPendingGroove(null);
               }}
-              className="flex h-7 w-full cursor-pointer items-center justify-center rounded-md text-[10px] font-semibold transition-colors hover:opacity-90"
-              style={{
-                backgroundColor: 'var(--daw-primary)',
-                color: 'var(--daw-on-primary)',
-                border: 'none',
-              }}
             >
               Change to {pendingGroove.bpm} BPM
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => {
                 doLoadGroove(pendingGroove);
                 setPendingGroove(null);
               }}
-              className="flex h-7 w-full cursor-pointer items-center justify-center rounded-md text-[10px] font-medium transition-colors hover:bg-white/10"
-              style={{
-                backgroundColor: 'transparent',
-                color: 'var(--daw-text)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-              }}
             >
               Add Anyway
-            </button>
-            <button
-              onClick={() => setPendingGroove(null)}
-              className="flex h-6 w-full cursor-pointer items-center justify-center text-[10px] transition-colors hover:underline"
-              style={{
-                backgroundColor: 'transparent',
-                color: 'var(--daw-text-3)',
-                border: 'none',
-              }}
-            >
+            </Button>
+            <Button variant="quiet" onClick={() => setPendingGroove(null)}>
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}

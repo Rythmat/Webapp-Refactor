@@ -1,6 +1,11 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import { type ReactElement, type ReactNode, type RefObject } from 'react';
+import {
+  type ReactElement,
+  type ReactNode,
+  type Ref,
+  type RefObject,
+} from 'react';
 import {
   DialogClose,
   DialogDescription,
@@ -39,7 +44,19 @@ interface OverlayProps {
   closeLabel?: string;
   /** A click on the scrim closes it. Default true; Escape always does. */
   dismissible?: boolean;
+  /**
+   * False for a choice that must be made: no close button, and neither
+   * Escape nor the scrim closes it. Default true.
+   */
+  closable?: boolean;
   className?: string;
+  /** data-* attributes for the panel: a test id, a lesson anchor. */
+  data?: Readonly<Record<`data-${string}`, string | undefined>>;
+  /**
+   * The panel (role="dialog"), for a keymap scope that answers inside it:
+   * with focus in a dialog, only scopes bound to it get the keys.
+   */
+  contentRef?: Ref<HTMLDivElement>;
 }
 
 export interface DawDialogProps extends OverlayProps {
@@ -92,7 +109,10 @@ function OverlayFrame({
   initialFocus,
   closeLabel = 'Close',
   dismissible = true,
+  closable = true,
   className,
+  data,
+  contentRef,
   panelClassName,
 }: OverlayProps & { panelClassName: string }) {
   const focus = useReturnFocus();
@@ -115,6 +135,11 @@ function OverlayFrame({
           )}
         />
         <DialogPrimitive.Content
+          ref={contentRef}
+          {...data}
+          // Built on the design system: the harness's design probe holds it
+          // to the text floor and the 24×24 targets.
+          data-ds="v2"
           // Without a description, say so, rather than point at nothing.
           {...(description ? {} : { 'aria-describedby': undefined })}
           onOpenAutoFocus={(event) => {
@@ -128,7 +153,10 @@ function OverlayFrame({
           }}
           onCloseAutoFocus={focus.restore}
           onPointerDownOutside={(event) => {
-            if (!dismissible) event.preventDefault();
+            if (!dismissible || !closable) event.preventDefault();
+          }}
+          onEscapeKeyDown={(event) => {
+            if (!closable) event.preventDefault();
           }}
           className={cn(
             'fixed z-[var(--daw-z-modal)] flex flex-col border-daw-hairline bg-daw-popover text-daw-text shadow-2xl shadow-black/60 outline-none',
@@ -166,14 +194,16 @@ function OverlayFrame({
             </div>
           )}
           {/* Last in the tab order, so focus starts on the content. */}
-          <DialogClose asChild>
-            <IconButton
-              label={closeLabel}
-              icon={<X />}
-              noTooltip
-              className="absolute right-3 top-3"
-            />
-          </DialogClose>
+          {closable && (
+            <DialogClose asChild>
+              <IconButton
+                label={closeLabel}
+                icon={<X />}
+                noTooltip
+                className="absolute right-3 top-3"
+              />
+            </DialogClose>
+          )}
         </DialogPrimitive.Content>
       </DialogPortal>
     </DialogPrimitive.Root>

@@ -199,7 +199,13 @@ export const Dock = memo(function Dock() {
           key={master ? 'master' : `${kind}:${activeTab}`}
           // Where Enter on a track row puts focus (the track list's keys).
           data-dock-content
-          data-ds="legacy"
+          // The drums' kit is built on the design system; the other bodies
+          // are the legacy components until Stage C.
+          data-ds={
+            !master && kind === 'drums' && activeTab === 'controls'
+              ? 'v2'
+              : 'legacy'
+          }
           tabIndex={-1}
           className="min-h-0 overflow-hidden border-t border-daw-hairline outline-none duration-daw-fast animate-in fade-in-0 motion-reduce:animate-none"
           style={{

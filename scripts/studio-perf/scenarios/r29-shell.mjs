@@ -32,7 +32,8 @@
  * - dockTabs (2.9): the dock's tabs follow the selected track, Effects last:
  *   Instrument · Prism · Notes · Effects on a melodic track, Instrument ·
  *   Grooves · Notes · Effects on drums, none on an audio track; and the
- *   dock's frame has no text under the floor or target under 24×24.
+ *   dock's frame, and the drums' kit, have no text under the floor or
+ *   target under 24×24.
  * - dockMaster (2.9): the bottom rail's Master shows Master in the dock's
  *   slot, at the dock's height, and a second click gives it back.
  * - dockMaximize (2.9): Maximize grows the dock to the whole body (the
@@ -326,14 +327,23 @@ async function dockChecks(page, kit, viewport) {
       };
     });
   const keys = await dockState();
-  const floors = await page.evaluate(designProbe, '[data-region="dock"]');
+  const floors = [
+    ...(await page.evaluate(designProbe, '[data-region="dock"]')),
+  ];
 
   await store(() => {
     const s = window.__MA_STORE__.getState();
     s.setSelectedTrackId(s.addTrack('midi', 'drum-machine', 'Shell Drums'));
   });
-  await kit.sleep(400);
+  await kit.sleep(800);
   const drums = await dockState();
+  // The drums' Instrument tab is the kit, on the design system.
+  floors.push(
+    ...(await page.evaluate(designProbe, '[data-region="dock"]')).map((f) => ({
+      ...f,
+      text: `kit: ${f.text}`,
+    })),
+  );
   await store(() => {
     const s = window.__MA_STORE__.getState();
     s.setSelectedTrackId(s.addTrack('audio', 'none', 'Shell Take'));

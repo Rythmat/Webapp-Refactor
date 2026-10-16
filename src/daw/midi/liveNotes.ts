@@ -1,7 +1,7 @@
 import { studioRealtime } from '@/daw/collab/studioRealtime';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { useStore } from '@/daw/store';
-import { practiceLiveTrackId, recordTargetTrackId } from './liveTarget';
+import { liveMidiTargetIds, recordTargetTrackId } from './liveTarget';
 
 // ── Live notes: what the student plays right now ───────────────────────────
 //
@@ -35,15 +35,7 @@ export function registerLiveRecorder(next: LiveRecorder): () => void {
  * else the monitored MIDI tracks, else the selected one.
  */
 export function liveMidiTargets(): string[] {
-  const state = useStore.getState();
-  const practice = practiceLiveTrackId(state);
-  if (practice !== null) return [practice];
-  const { tracks, selectedTrackId } = state;
-  const monitored = tracks
-    .filter((t) => t.monitoring && t.type === 'midi')
-    .map((t) => t.id);
-  if (monitored.length > 0) return monitored;
-  return selectedTrackId ? [selectedTrackId] : [];
+  return liveMidiTargetIds();
 }
 
 function relay(action: 'on' | 'off', note: number, velocity: number): void {

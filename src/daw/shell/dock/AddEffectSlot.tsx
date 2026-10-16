@@ -50,7 +50,7 @@ export function AddEffectSlot({ count }: { count: number }) {
         data-state="armed"
         className="flex shrink-0 flex-col items-center"
       >
-        <div className="relative flex size-[68px] items-center justify-center rounded-xl border-2 border-daw-text-2 bg-daw-hover px-1 text-center">
+        <div className="relative flex size-[68px] items-center justify-center rounded-xl border-2 !border-daw-text-2 bg-daw-hover px-1 text-center">
           <span className={cn(TYPE_CLASS.label, 'leading-tight text-daw-text')}>
             Pick from the library
           </span>
@@ -81,7 +81,7 @@ export function AddEffectSlot({ count }: { count: number }) {
         data-state="idle"
         onClick={open}
         className={cn(
-          'flex size-[68px] flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-daw-outline text-daw-text-2 hover:border-daw-text-2 hover:bg-daw-hover hover:text-daw-text [&_svg]:size-5',
+          'flex size-[68px] flex-col items-center justify-center gap-1 rounded-xl border border-dashed !border-daw-outline text-daw-text-2 hover:!border-daw-text-2 hover:bg-daw-hover hover:text-daw-text [&_svg]:size-5',
           TRANSITION,
           FOCUS_RING,
         )}

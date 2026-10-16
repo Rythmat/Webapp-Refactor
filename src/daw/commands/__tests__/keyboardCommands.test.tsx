@@ -886,6 +886,27 @@ describe('musical typing', () => {
     expect(engine.noteOff).toHaveBeenCalledWith(67);
   });
 
+  it('plays a drum kit at its own octave: A the kick, whatever the octave', () => {
+    const kitEngine = { noteOn: vi.fn(), noteOff: vi.fn() };
+    const s = useStore.getState();
+    const kit = s.addTrack('midi', 'drum-machine', 'Kit');
+    useStore.setState({
+      tracks: useStore
+        .getState()
+        .tracks.map((t) => ({ ...t, monitoring: false })),
+    });
+    s.setSelectedTrackId(kit);
+    trackEngineRegistry.set(kit, { trackEngine: kitEngine } as never);
+    useMusicalTypingStore.setState({ enabled: true, octave: 5 });
+    renderEditor();
+    press('KeyA');
+    press('KeyS');
+    press('KeyT');
+    // The kick, the snare and the closed hi-hat (2.9's pad letters).
+    expect(kitEngine.noteOn.mock.calls.map((c) => c[0])).toEqual([36, 38, 42]);
+    trackEngineRegistry.delete(kit);
+  });
+
   it('acts once while a key is held', () => {
     useMusicalTypingStore.setState({ enabled: true });
     renderEditor();

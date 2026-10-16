@@ -701,3 +701,28 @@ After a Soundtrap review (screenshots and notes in `~/Desktop/References/soundtr
   2. People and Chat show to everyone, with empty states outside a session; a classroom may want them hidden.
   3. The Master group in the bottom rail is MasterRow as it was; Soundtrap's "Master ▾" drawer (gain, mastering styles) is not built.
   4. Lessons don't open from the panel while a session is shared (as templates).
+
+## Owner request — one Score page (2026-10-16)
+
+The owner asked to combine the Score and Lead sheet tabs and to put the notes, rests, rhythmic, articulations and accidentals in the Palettes section. Their answers: one tab with two layouts, and the toolbar row above the staff removed. Done after the rails, as asked.
+
+- **Commits:** `c1a229e3` (the page, the palettes, tests) and this entry. **Pushed:** yes, to `aaron`.
+- **What changed:**
+  - **Tabs:** the top bar's tabs are Create · Mix · Score. The Score tab is on in either view and opens the layout last shown. The view ids stay `score` and `leadsheet`, so drafts, keymaps (the Score and Lead sheet scopes) and the harness are unchanged.
+  - **Switch:** a **Full score | Lead sheet** switch (`components/Score/ScoreLayoutSwitch.tsx`, the kit's Segmented) leads each layout's header. Its Lead sheet segment carries `view-switch-leadsheet`. The Lead sheet toolbar wraps on a narrow window (it needs about 1,175 px).
+  - **Palettes** (`components/Score/notePalettes.tsx`):
+    - Notes (with the dot), Rests and Rhythmic, each with a Write switch for the live layer (⌥N/⌥R/⌥H and the number keys as before);
+    - Articulations, with Tie and Slur;
+    - Accidentals;
+    - the chord symbol joins Text, above Barlines and Layout.
+    - A cell click makes its palette live and applies in the same tick (the old row's fix, kept). Active cells show what the selection has. The chord chart keeps only the mark palettes.
+  - The note editor row (`NoteEditorBar.tsx`) is deleted. Its Undo and Redo are the top bar's.
+- **Verification:**
+  - Lint clean (prettier, eslint 0 warnings, `tsc -b`).
+  - `npx vitest run src/daw`: 4,006 pass. The failures are the inherited PianoRoll design budget and three session suites that pass on their own (the song-link flake in big runs, noted at B2).
+  - New tests: the palettes (the old row's six cases, ported) and the tab and switch (`scoreLayout.test.tsx`).
+  - Round-trips: R26, R28 and R29 pass every flag; R29 reaches the Lead sheet through the page's switch.
+  - Browser (Chrome, own server):
+    - A selected note took Half, Accent and Sharp from the palettes, with the cells lit.
+    - The layout switch and the Score tab worked both ways; the melody lead sheet shows the note palettes; the toolbar wraps at 1,042 px.
+- **Open:** the palettes panel is still the legacy look (data-ds legacy); its v2 restyle is Stage C's (3.x). The page header's other controls (parts count, Print, MusicXML) are unchanged.

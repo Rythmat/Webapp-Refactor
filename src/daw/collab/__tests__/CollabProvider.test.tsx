@@ -237,7 +237,7 @@ describe('connect params', () => {
     expect(provider.paramsLog[0]).toMatchObject({
       role: 'editor',
       token: 'tok-1',
-      [COLLAB_DOC_SCHEMA_PARAM]: '1',
+      [COLLAB_DOC_SCHEMA_PARAM]: String(COLLAB_DOC_SCHEMA_VERSION),
     });
 
     provider.open();

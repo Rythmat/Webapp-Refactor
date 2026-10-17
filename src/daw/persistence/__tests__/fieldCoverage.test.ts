@@ -1032,10 +1032,10 @@ describe('the classification, key by key', () => {
     );
     expect(documentOnly).toEqual({
       Track: [],
-      MidiClip: ['ccEvents', 'durationTicks'],
+      MidiClip: ['ccEvents', 'durationTicks', 'muted'],
       MidiNoteEvent: ['id'],
       MidiCCEvent: Object.keys(CC_EVENT_FIELDS).sort(),
-      AudioClip: [],
+      AudioClip: ['muted', 'name'],
       ChordRegion: Object.keys(CHORD_REGION_FIELDS).sort(),
       Marker: Object.keys(MARKER_FIELDS).sort(),
       ReturnBus: [],

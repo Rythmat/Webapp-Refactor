@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * The shape of today's draft, held still: every key path an encoded
- * all-fields session holds (fixtures/v5-all-fields, re-encoded by today's
+ * all-fields session holds (fixtures/v6-all-fields, re-encoded by today's
  * codec), and
  * the keys of a draft track, clip and settings blob. A draft that gains,
  * loses or moves a field fails here, and the fix is never to update the
@@ -10,7 +10,8 @@
  * SESSION_COMPAT_VERSION too when a field changes what it means. Milestones
  * known to need it: 1.13b (the Oracle patch moves out of the track's
  * settings). Schema 4 was 1.10's (leadSheetBars, a chord region's
- * sourceClipId), 5 is 2.7's (the view's chordAnalysisDismissed).
+ * sourceClipId), 5 is 2.7's (the view's chordAnalysisDismissed), 6 is
+ * 2.12's (a clip's muted, an audio clip's name).
  *
  * An array's entries share one path (`[]`). The instrument and effect blobs
  * inside it are their owners' (each loads older versions of itself, and the
@@ -53,7 +54,7 @@ const OPAQUE = new Set([
 function encodedAllFields(): StoredSession {
   const file = resolve(
     process.cwd(),
-    'src/daw/persistence/__tests__/fixtures/v5-all-fields/all-fields.json',
+    'src/daw/persistence/__tests__/fixtures/v6-all-fields/all-fields.json',
   );
   const migrated = migrateSession(readFileSync(file, 'utf8'));
   if (!migrated.ok) throw new Error(`unreadable: ${migrated.detail}`);
@@ -235,6 +236,8 @@ const DRAFT_PATHS = [
   'data.tracks[].audioClips[].fadeOutTicks',
   'data.tracks[].audioClips[].gain',
   'data.tracks[].audioClips[].id',
+  'data.tracks[].audioClips[].muted',
+  'data.tracks[].audioClips[].name',
   'data.tracks[].audioClips[].offsetSeconds',
   'data.tracks[].audioClips[].startTick',
   'data.tracks[].audioInputChannel',
@@ -272,6 +275,7 @@ const DRAFT_PATHS = [
   'data.tracks[].midiClips[].events.velocities',
   'data.tracks[].midiClips[].events.velocities[]',
   'data.tracks[].midiClips[].id',
+  'data.tracks[].midiClips[].muted',
   'data.tracks[].midiClips[].name',
   'data.tracks[].midiClips[].startTick',
   'data.tracks[].midiInputId',
@@ -345,7 +349,15 @@ const DRAFT_RECORDS = {
     'type',
     'volume',
   ],
-  midiClip: ['ccEvents', 'durationTicks', 'events', 'id', 'name', 'startTick'],
+  midiClip: [
+    'ccEvents',
+    'durationTicks',
+    'events',
+    'id',
+    'muted',
+    'name',
+    'startTick',
+  ],
   audioClip: [
     'assetId',
     'duration',
@@ -353,6 +365,8 @@ const DRAFT_RECORDS = {
     'fadeOutTicks',
     'gain',
     'id',
+    'muted',
+    'name',
     'offsetSeconds',
     'startTick',
   ],

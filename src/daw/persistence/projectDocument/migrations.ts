@@ -33,6 +33,9 @@ import { NOTE_EVENT_FIELDS } from './fields';
 //   the codec reads the missing fields as their defaults.
 // - v5 (2.7 on): v4 plus the view's chordAnalysisDismissed. A v4 draft is a
 //   v5 draft whose student never said Not now to the chord lane's offer.
+// - v6 (2.12 on): v5 plus a clip's `muted` (MIDI and audio) and an audio
+//   clip's `name`. A v5 draft is a v6 draft with every clip playing and no
+//   audio clip named.
 // - Later schemas: a draft whose `compat` is 3 or lower only adds fields to
 //   v3, so it is read as this build's schema and the fields this build
 //   doesn't know are left out. `from` says it was newer, and the caller keeps a copy of it before
@@ -74,7 +77,8 @@ export interface LegacyPrefs {
 export type MigrationResult =
   | {
       ok: true;
-      /** The draft in this build's format: `version` 2, `schema` 4. */
+      /** The draft in this build's format: `version` 2, `schema`
+       *  SESSION_SCHEMA_VERSION. */
       session: StoredSession;
       /**
        * The format it was written in: 1, 2, 3, or a later schema read as 3.

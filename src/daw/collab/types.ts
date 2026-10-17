@@ -138,8 +138,12 @@ export const ORIGIN_REMOTE = 'remote-yjs' as const;
  * they say the session server is being updated (the 4426 reason names the
  * server's version), while older tabs carry on. Once the new server is live,
  * older tabs are told to update, and a refresh lets them back in.
+ *
+ * 2 (milestone 2.12): clips carry `muted`, and audio clips `name`. A version
+ * 1 peer would drop them from its copy, play muted clips, and write clips
+ * without them back into the room.
  */
-export const COLLAB_DOC_SCHEMA_VERSION = 1;
+export const COLLAB_DOC_SCHEMA_VERSION = 2;
 
 /** Connection URL query parameter that carries COLLAB_DOC_SCHEMA_VERSION. */
 export const COLLAB_DOC_SCHEMA_PARAM = 'docSchemaVersion';

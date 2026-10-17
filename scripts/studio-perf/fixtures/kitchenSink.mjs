@@ -288,6 +288,8 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     id: 'kitchen-clip-drums',
     name: 'Beat',
     startTick: 0,
+    // Muted from the clip menu (2.12): it must survive every round trip.
+    muted: true,
     events: [
       note(36, 0, 120, 110, 9),
       note(42, 240, 60, 70, 9),
@@ -345,6 +347,9 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     ),
     fadeInTicks: 0,
     fadeOutTicks: 0,
+    // Named and muted from the clip menu (2.12).
+    name: 'Vox chop take',
+    muted: true,
   });
 
   // A Chops sample dropped from a file: its decoded buffer and original

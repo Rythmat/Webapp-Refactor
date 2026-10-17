@@ -126,6 +126,8 @@ export function midiClipToYMap(clip: MidiClip): Y.Map<unknown> {
     ccArr.push(clip.ccEvents.map(ccEventToYMap));
     m.set('ccEvents', ccArr);
   }
+  // Doc schema 2 (milestone 2.12): set only while the clip is muted.
+  if (clip.muted) m.set('muted', true);
   return m;
 }
 
@@ -142,6 +144,9 @@ export function audioClipToYMap(clip: AudioClip): Y.Map<unknown> {
   m.set('assetId', clip.assetId ?? null);
   m.set('offsetSeconds', clip.offsetSeconds ?? 0);
   m.set('gain', clip.gain ?? 1);
+  // Doc schema 2 (milestone 2.12): set only while the clip has them.
+  if (clip.name !== undefined) m.set('name', clip.name);
+  if (clip.muted) m.set('muted', true);
   return m;
 }
 
@@ -264,6 +269,7 @@ export function yMapToMidiClip(m: Y.Map<unknown>): MidiClip {
     durationTicks: (m.get('durationTicks') as number) || undefined,
     events: eventsArr ? eventsArr.toArray().map(yMapToMidiEvent) : [],
     ccEvents: ccArr ? ccArr.toArray().map(yMapToCCEvent) : undefined,
+    muted: m.get('muted') === true || undefined,
   };
 }
 
@@ -277,6 +283,9 @@ export function yMapToAudioClip(m: Y.Map<unknown>): AudioClip {
     assetId: (m.get('assetId') as string | null) ?? null,
     offsetSeconds: (m.get('offsetSeconds') as number | undefined) ?? 0,
     gain: (m.get('gain') as number | undefined) ?? 1,
+    name:
+      typeof m.get('name') === 'string' ? (m.get('name') as string) : undefined,
+    muted: m.get('muted') === true || undefined,
   };
 }
 

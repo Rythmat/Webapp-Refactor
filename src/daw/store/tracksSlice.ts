@@ -123,6 +123,9 @@ export interface MidiClip {
   durationTicks?: number;
   events: MidiNoteEvent[];
   ccEvents?: MidiCCEvent[];
+  /** Muted from the clip menu (milestone 2.12): it stays in place but plays
+   *  nothing. Absent when it plays. */
+  muted?: boolean;
 }
 
 /** Audio clip metadata (no AudioBuffer — not serializable). */
@@ -142,6 +145,11 @@ export interface AudioClip {
   offsetSeconds?: number;
   /** Per-clip gain multiplier; defaults to 1 (no change). */
   gain?: number;
+  /** Its own name (milestone 2.12); its header shows the track's without one. */
+  name?: string;
+  /** Muted from the clip menu (milestone 2.12): it stays in place but plays
+   *  nothing. Absent when it plays. */
+  muted?: boolean;
 }
 
 export interface Track {

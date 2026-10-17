@@ -59,8 +59,9 @@ function jsonFiles(dir: string): { name: string; session: any }[] {
 const V2 = jsonFiles(join(FIXTURES, 'v2'));
 const V2_12 = jsonFiles(join(FIXTURES, 'v2-1.2'));
 const V1 = jsonFiles(join(FIXTURES, 'v1'));
-/** Today's format (schema 5), and the v4 and v3 ones it migrates from. */
-const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v5-all-fields'))[0].session;
+/** Today's format (schema 6), and the v5, v4 and v3 ones it migrates from. */
+const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v6-all-fields'))[0].session;
+const ALL_FIELDS_V5 = jsonFiles(join(FIXTURES, 'v5-all-fields'))[0].session;
 const ALL_FIELDS_V4 = jsonFiles(join(FIXTURES, 'v4-all-fields'))[0].session;
 const ALL_FIELDS_V3 = jsonFiles(join(FIXTURES, 'v3-all-fields'))[0].session;
 /** A schema after this build's. */
@@ -611,20 +612,38 @@ describe('migrating', () => {
   it('reads a v3 draft as today’s, with no bars past its chords', () => {
     const result = migrated(ALL_FIELDS_V3);
     expect(result.from).toBe(3);
-    expect(result.session).toMatchObject({ schema: 5, compat: 3 });
-    // Schemas 4 and 5 only added fields, so the v3 data passes through
+    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
+    // Schemas 4, 5 and 6 only added fields, so the v3 data passes through
     // untouched.
     expect(result.session.data).toEqual(ALL_FIELDS_V3.data);
     expect(decode(ALL_FIELDS_V3).project.leadSheetBars).toBeNull();
   });
 
-  it('reads a v4 draft as v5, with the chord lane’s offer not declined', () => {
+  it('reads a v4 draft as today’s, with the chord lane’s offer not declined', () => {
     const result = migrated(ALL_FIELDS_V4);
     expect(result.from).toBe(4);
-    expect(result.session).toMatchObject({ schema: 5, compat: 3 });
+    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
     expect(result.session.data).toEqual(ALL_FIELDS_V4.data);
     const { project } = decode(ALL_FIELDS_V4);
     expect(project.chordAnalysisDismissed).toBe(false);
     expect(project.leadSheetBars).toBe(24);
+  });
+
+  it('reads a v5 draft as v6, every clip playing and no audio clip named', () => {
+    const result = migrated(ALL_FIELDS_V5);
+    expect(result.from).toBe(5);
+    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
+    expect(result.session.data).toEqual(ALL_FIELDS_V5.data);
+    const { project } = decode(ALL_FIELDS_V5);
+    const clips = project.tracks.flatMap((t) => [
+      ...t.midiClips,
+      ...t.audioClips,
+    ]);
+    expect(clips.length).toBeGreaterThan(0);
+    expect(clips.some((c) => c.muted !== undefined)).toBe(false);
+    expect(
+      project.tracks.flatMap((t) => t.audioClips).some((c) => c.name),
+    ).toBe(false);
+    expect(project.chordAnalysisDismissed).toBe(true);
   });
 });

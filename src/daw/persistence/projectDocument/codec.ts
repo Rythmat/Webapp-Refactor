@@ -76,7 +76,9 @@ import {
 // region was read from (sourceClipId), so the chord lane follows that clip
 // alone. Its compat stays 3. v5 (milestone 2.7) adds one view field, the
 // student's Not now to the chord lane's analysis offer
-// (chordAnalysisDismissed); compat 3 still.
+// (chordAnalysisDismissed); compat 3 still. v6 (milestone 2.12) adds a
+// clip's mute (both kinds) and an audio clip's own name, from the clip
+// menu; compat 3 still.
 //
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
@@ -112,9 +114,10 @@ export const SESSION_ENVELOPE_VERSION = 2;
  * .test fails until then): 1.13b moving the Oracle patch, for one. 4 is
  * 1.10's (leadSheetBars, a region's sourceClipId); its bar indices keep
  * their meaning, every one a real bar of the song. 5 is 2.7's: the view's
- * chordAnalysisDismissed, the chord lane's Not now on this project.
+ * chordAnalysisDismissed, the chord lane's Not now on this project. 6 is
+ * 2.12's: `muted` on MIDI and audio clips and `name` on audio clips.
  */
-export const SESSION_SCHEMA_VERSION = 5;
+export const SESSION_SCHEMA_VERSION = 6;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -321,9 +324,11 @@ export interface DraftMidiClip {
   durationTicks?: number;
   events: DraftNoteColumns;
   ccEvents?: DraftCcColumns;
+  /** v6: written only while the clip is muted. */
+  muted?: boolean;
 }
 
-/** An audio clip in the draft, as v2 wrote it. */
+/** An audio clip in the draft, as v2 wrote it, and v6's name and mute. */
 interface DraftAudioClip {
   id: string;
   startTick: number;
@@ -334,6 +339,8 @@ interface DraftAudioClip {
   assetId?: string | null;
   offsetSeconds?: number;
   gain?: number;
+  name?: string;
+  muted?: boolean;
 }
 
 /** A track in the draft: the Track's top-level fields and its settings. */
@@ -506,6 +513,7 @@ function encodeMidiClip(clip: MidiClip): DraftMidiClip {
     durationTicks: clip.durationTicks,
     events: encodeNoteColumns(clip.events, true),
     ccEvents: clip.ccEvents && encodeCcColumns(clip.ccEvents),
+    muted: clip.muted,
   } satisfies Record<keyof MidiClip, unknown>;
 }
 
@@ -519,6 +527,8 @@ function encodeAudioClip(clip: AudioClip): DraftAudioClip {
     assetId: clip.assetId ?? null,
     offsetSeconds: clip.offsetSeconds,
     gain: clip.gain,
+    name: clip.name,
+    muted: clip.muted,
   } satisfies Record<keyof AudioClip, unknown>;
 }
 
@@ -1246,6 +1256,8 @@ function decodeMidiClip(
   }
   const ccEvents = decodeCcColumns(raw.ccEvents, repairs);
   if (ccEvents) clip.ccEvents = ccEvents;
+  if (isBoolean(raw.muted)) clip.muted = raw.muted;
+  else if (raw.muted !== undefined) repairs.count++;
   return clip;
 }
 
@@ -1282,6 +1294,10 @@ function decodeAudioClip(
     if (isFiniteNumber(value)) clip[field] = value;
     else if (value !== undefined) repairs.count++;
   }
+  if (isString(raw.name)) clip.name = raw.name;
+  else if (raw.name !== undefined) repairs.count++;
+  if (isBoolean(raw.muted)) clip.muted = raw.muted;
+  else if (raw.muted !== undefined) repairs.count++;
   return clip;
 }
 

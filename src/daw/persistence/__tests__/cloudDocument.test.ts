@@ -247,6 +247,51 @@ describe('a cloud open reads the document', () => {
     expect(byName('Keys').midiClips[0].durationTicks).toBe(3840);
   });
 
+  it('with each clip’s mute, and an audio clip’s name by its row (2.12)', () => {
+    buildProject();
+    s().updateMidiClip(byName('Keys').id, 'clip-keys', { muted: true });
+    const vocal = s().addTrack('audio', 'vocal-fx', 'Vocal');
+    for (const [id, startTick] of [
+      ['take-1', 0],
+      ['take-2', 3840],
+    ] as const) {
+      s().addAudioClip(vocal, {
+        id,
+        startTick,
+        duration: 1920,
+        fadeInTicks: 0,
+        fadeOutTicks: 0,
+        assetId: `asset-${id}`,
+      });
+    }
+    s().updateAudioClip(vocal, 'take-1', { name: 'Verse take', muted: true });
+    s().updateAudioClip(vocal, 'take-2', { name: 'Chorus take' });
+
+    const body = serializeSessionForCloud(undefined, 'document');
+    // The rows have no place for either.
+    expect(JSON.stringify(body.tracks)).not.toMatch(/Verse take|"muted"/);
+    expect(body.document!.audioClips).toEqual({
+      'take-1': {
+        row: 'asset-take-1:0:1920',
+        name: 'Verse take',
+        muted: true,
+      },
+      'take-2': { row: 'asset-take-2:3840:1920', name: 'Chorus take' },
+    });
+
+    // An older app since moved the second take: its part stays off it.
+    body.tracks[2].audioClips![1].startTick = 5760;
+    const report = deserializeCloudProject(
+      fromServer(body, { revision: 4, writtenAtRevision: 3 }),
+    );
+    expect(report).toMatchObject({ stale: true, partsSkipped: 1 });
+    expect(byName('Keys').midiClips[0].muted).toBe(true);
+    const [first, second] = byName('Vocal').audioClips;
+    expect(first).toMatchObject({ name: 'Verse take', muted: true });
+    expect(second.name).toBeUndefined();
+    expect(second.startTick).toBe(5760);
+  });
+
   it('leaving out a document from a later schema it can’t read', () => {
     buildProject();
     const body = serializeSessionForCloud(undefined, 'document');

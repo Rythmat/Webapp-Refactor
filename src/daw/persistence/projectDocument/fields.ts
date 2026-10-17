@@ -723,6 +723,7 @@ export const MIDI_CLIP_FIELDS: MidiClipFields = Object.freeze({
   durationTicks: trackPart(undefined, 'document'),
   events: trackPart(() => [], 'legacy'),
   ccEvents: trackPart(undefined, 'document'),
+  muted: trackPart(undefined, 'document'),
 } satisfies MidiClipFields);
 
 type NoteEventFields = {
@@ -758,6 +759,8 @@ export const AUDIO_CLIP_FIELDS: AudioClipFields = Object.freeze({
   assetId: trackPart<string | null | undefined>(null, 'legacy'),
   offsetSeconds: trackPart(0, 'legacy'),
   gain: trackPart(1, 'legacy'),
+  name: trackPart(undefined, 'document'),
+  muted: trackPart(undefined, 'document'),
 } satisfies AudioClipFields);
 
 type ChordRegionSpecs = {

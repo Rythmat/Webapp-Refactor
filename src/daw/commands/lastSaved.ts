@@ -97,6 +97,9 @@ const GROUP_OF_KEY: Readonly<Record<string, string>> = {
   chordRecordMode: 'Prism settings',
   'MidiClip.durationTicks': 'clip lengths',
   'MidiClip.ccEvents': 'controller data',
+  'MidiClip.muted': 'clip names and mutes',
+  'AudioClip.muted': 'clip names and mutes',
+  'AudioClip.name': 'clip names and mutes',
 };
 
 /** Where groups come in the toast: the ones students notice first. */
@@ -109,6 +112,7 @@ const GROUP_ORDER: readonly string[] = [
   'mastering',
   'Prism settings',
   'clip lengths',
+  'clip names and mutes',
   'controller data',
   'loop range',
   'effect returns',

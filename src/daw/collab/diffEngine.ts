@@ -274,6 +274,8 @@ function diffMidiClips(
       yClip.set('startTick', nextClip.startTick);
     if (prevClip.durationTicks !== nextClip.durationTicks)
       yClip.set('durationTicks', nextClip.durationTicks ?? 0);
+    if (!prevClip.muted !== !nextClip.muted)
+      setFlag(yClip, 'muted', nextClip.muted);
 
     // MIDI events — replace the entire events array when changed, since MIDI
     // edits replace the clip's whole events array in Zustand. Each note's
@@ -342,7 +344,19 @@ function diffAudioClips(
     if (prevClip.offsetSeconds !== nextClip.offsetSeconds)
       yClip.set('offsetSeconds', nextClip.offsetSeconds ?? 0);
     if (prevClip.gain !== nextClip.gain) yClip.set('gain', nextClip.gain ?? 1);
+    if (prevClip.name !== nextClip.name) {
+      if (nextClip.name === undefined) yClip.delete('name');
+      else yClip.set('name', nextClip.name);
+    }
+    if (!prevClip.muted !== !nextClip.muted)
+      setFlag(yClip, 'muted', nextClip.muted);
   }
+}
+
+/** A clip's flag in the doc: the key while it is on, no key while off. */
+function setFlag(yClip: Y.Map<unknown>, key: string, on: boolean | undefined) {
+  if (on) yClip.set(key, true);
+  else yClip.delete(key);
 }
 
 // ── Chord region diff ───────────────────────────────────────────────────

@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 /**
- * Writes fixtures/v5-all-fields/all-fields.json: a draft in today's format
- * (schema 5) holding a value other than its default for every local
+ * Writes fixtures/v6-all-fields/all-fields.json: a draft in today's format
+ * (schema 6) holding a value other than its default for every local
  * registry field, which codecV3.test and draftShape.test read (see there for
  * what it must hold).
  *
  * Skipped unless WRITE_FIXTURES=1. The fixture is the format, so rewrite it
  * only for a new registry field that needs a value in it, or with a
  * SESSION_SCHEMA_VERSION bump (keeping a copy of the old one for the
- * migration from it: fixtures/v3-all-fields and v4-all-fields are the
- * v3 and v4 ones).
+ * migration from it: fixtures/v3-all-fields, v4-all-fields and
+ * v5-all-fields are the v3, v4 and v5 ones).
  *
  * Run: WRITE_FIXTURES=1 npx vitest run src/daw/persistence/__tests__/allFieldsFixture.test.ts
  */
@@ -32,7 +32,7 @@ import { migrateSession } from '../projectDocument/migrations';
 
 const FILE = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v5-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v6-all-fields/all-fields.json',
 );
 
 const effects = (patch: Record<string, unknown> = {}) =>
@@ -186,6 +186,7 @@ function allFieldsProject(): ProjectSnapshot {
           id: 'clip-beat',
           name: 'Beat',
           startTick: 0,
+          muted: true,
           events: [
             {
               id: 'DrumNote0001',
@@ -233,6 +234,8 @@ function allFieldsProject(): ProjectSnapshot {
           assetId: 'asset-take-1',
           offsetSeconds: 0.5,
           gain: 0.7,
+          name: 'Solo take',
+          muted: true,
         },
       ],
     }),

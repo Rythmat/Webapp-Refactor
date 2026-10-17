@@ -272,6 +272,8 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
   MidiClip: {
     durationTicks:
       'Set when a clip is trimmed or drawn past its notes; without it a clip ends with its last note.',
+    muted:
+      'Mute clip in the clip menu (milestone 2.12): the scheduler and the export skip it. Shared in collab, as the arrangement is; only a track’s M is each person’s own. Absent (never false) while it plays.',
   },
   MidiNoteEvent: {
     id: 'Minted when a note is made. An older note without one gets a derived id (noteIds.ts) when it loads, or when a save settles the ids (ensureProjectNoteIds, deterministic); never minted on save. Collab carries it in the Y key _cid.',
@@ -285,6 +287,9 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
     duration: 'In ticks.',
     assetId:
       'Null until the audio is uploaded; a cloud save leaves such clips out.',
+    name: 'Rename in the clip menu (milestone 2.12). The cloud rows have no name for an audio clip, so it rides in the document, by the clip’s id.',
+    muted:
+      'Mute clip in the clip menu (milestone 2.12), as on a MIDI clip; in the document by the clip’s id, as its name is.',
   },
   ChordRegion: {
     degreeKey:

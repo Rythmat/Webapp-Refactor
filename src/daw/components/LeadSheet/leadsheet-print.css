@@ -41,10 +41,10 @@
     display: none !important;
   }
 
-  /* The written-out sheet (Melody on) draws its chord symbols and marks as
-     text over the staves in the theme's ink, which is light: on paper it is
-     black, as the staves are. */
-  body.ma-print-leadsheet .leadsheet-score {
+  /* The Score and the written-out lead sheet (Melody on) draw their chord
+     symbols and marks as text over the staves in the theme's ink, which is
+     light: on paper it is black, as the staves are. */
+  body.ma-print-leadsheet .score-print-root {
     --daw-text: black;
   }
 

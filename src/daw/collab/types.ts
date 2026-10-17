@@ -142,8 +142,13 @@ export const ORIGIN_REMOTE = 'remote-yjs' as const;
  * 2 (milestone 2.12): clips carry `muted`, and audio clips `name`. A version
  * 1 peer would drop them from its copy, play muted clips, and write clips
  * without them back into the room.
+ *
+ * 3 (milestone 2.13): the song's sections, an array of their own
+ * (`sections`), take over from the lead sheet's `sections` key (its bar
+ * marks), which nothing writes or reads any more. A version 2 peer would
+ * see none of the sections, and its Lead Sheet's edits would reach no one.
  */
-export const COLLAB_DOC_SCHEMA_VERSION = 2;
+export const COLLAB_DOC_SCHEMA_VERSION = 3;
 
 /** Connection URL query parameter that carries COLLAB_DOC_SCHEMA_VERSION. */
 export const COLLAB_DOC_SCHEMA_PARAM = 'docSchemaVersion';

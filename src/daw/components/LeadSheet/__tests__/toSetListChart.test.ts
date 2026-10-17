@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import type { SongSection } from '@/daw/model/sections';
 import type { ChordRegion } from '@/daw/store/prismSlice';
+import { leadSheetSectionsOf } from '@/daw/store/sectionsSlice';
 import {
   chartChordName,
   chartFromStudio,
@@ -103,6 +105,45 @@ describe('chartFromStudio', () => {
     );
     expect(chart.sections.map((s) => s.label)).toEqual(['Intro', 'Verse']);
     expect(chart.sections.map((s) => s.bars.length)).toEqual([2, 2]);
+  });
+
+  it("splits at the song's sections, in the project's own bars", () => {
+    // The set list gets the sections as the Lead Sheet marks them: each at
+    // the bar it starts in, and a 3/4 bar is 1440 ticks, not 1920.
+    const BAR_34 = 1440;
+    const sections: SongSection[] = [
+      {
+        id: 'a',
+        type: 'intro',
+        label: 'Intro',
+        startTick: 0,
+        endTick: BAR_34,
+      },
+      {
+        id: 'b',
+        type: 'verse',
+        label: 'Verse 1',
+        startTick: BAR_34,
+        endTick: 4 * BAR_34,
+      },
+    ];
+    const chart = chartFromStudio(
+      source({
+        timeSignature: [3, 4],
+        chordRegions: [0, 1, 2, 3].map((bar) => ({
+          ...region(bar, 1, '1 maj', 'G maj'),
+          startTick: bar * BAR_34,
+          endTick: (bar + 1) * BAR_34,
+        })),
+        leadSheetSections: leadSheetSectionsOf({
+          sections,
+          timeSignatureNumerator: 3,
+          timeSignatureDenominator: 4,
+        }),
+      }),
+    );
+    expect(chart.sections.map((s) => s.label)).toEqual(['Intro', 'Verse 1']);
+    expect(chart.sections.map((s) => s.bars.length)).toEqual([1, 3]);
   });
 
   it('gives the bars before the first mark a section of their own', () => {

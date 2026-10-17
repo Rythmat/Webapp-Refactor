@@ -72,7 +72,7 @@ export const StudioScoreBridge: FC<{
       mode: p.key.mode,
       projectName: p.name,
       composerName: 'Music Atlas Parts Library',
-      leadSheetSections: [],
+      sections: [],
       leadSheetRepeats: [],
       scoreChordTracks: [],
       scoreChordHidden: [],

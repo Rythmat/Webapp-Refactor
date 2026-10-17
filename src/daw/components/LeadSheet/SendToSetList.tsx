@@ -2,7 +2,12 @@ import { ListMusic } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FC } from 'react';
 import { showSuccess } from '@/components/utils/toast';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
-import { useStore, type AllSlices } from '@/daw/store';
+import {
+  leadSheetSectionsOf,
+  useLeadSheetSections,
+  useStore,
+  type AllSlices,
+} from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
 import { DawDialog } from '@/daw/ui/DawDialog';
 import { TYPE_CLASS } from '@/daw/ui/styles';
@@ -72,7 +77,7 @@ export function useStudioChartSource(): StudioChartSource {
   const measureRowSizes = useStore((s) => s.measureRowSizes);
   const measureRestMap = useStore((s) => s.measureRestMap);
   const measureFermatas = useStore((s) => s.measureFermatas);
-  const leadSheetSections = useStore((s) => s.leadSheetSections);
+  const leadSheetSections = useLeadSheetSections();
   const leadSheetRepeats = useStore((s) => s.leadSheetRepeats);
   const tsNumerator = useStore((s) => s.timeSignatureNumerator);
   const tsDenominator = useStore((s) => s.timeSignatureDenominator);
@@ -286,7 +291,7 @@ export function chartSourceOf(state: AllSlices): StudioChartSource {
     measureRowSizes: state.measureRowSizes,
     measureRestMap: state.measureRestMap,
     measureFermatas: state.measureFermatas,
-    leadSheetSections: state.leadSheetSections,
+    leadSheetSections: leadSheetSectionsOf(state),
     leadSheetRepeats: state.leadSheetRepeats,
     timeSignature: [
       state.timeSignatureNumerator,

@@ -36,6 +36,11 @@ import { NOTE_EVENT_FIELDS } from './fields';
 // - v6 (2.12 on): v5 plus a clip's `muted` (MIDI and audio) and an audio
 //   clip's `name`. A v5 draft is a v6 draft with every clip playing and no
 //   audio clip named.
+// - v7 (2.13 on): v6 plus the song's `sections`, which take over from the
+//   Lead Sheet's bar marks (notation.leadSheetSections, still written as a
+//   copy for older builds). A v6 draft is a v7 draft whose sections are read
+//   from those marks: decodeSession does it, for any draft without sections,
+//   since a cloud copy merged from an older document carries none either.
 // - Later schemas: a draft whose `compat` is 3 or lower only adds fields to
 //   v3, so it is read as this build's schema and the fields this build
 //   doesn't know are left out. `from` says it was newer, and the caller keeps a copy of it before

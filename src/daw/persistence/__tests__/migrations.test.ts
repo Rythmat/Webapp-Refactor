@@ -59,8 +59,9 @@ function jsonFiles(dir: string): { name: string; session: any }[] {
 const V2 = jsonFiles(join(FIXTURES, 'v2'));
 const V2_12 = jsonFiles(join(FIXTURES, 'v2-1.2'));
 const V1 = jsonFiles(join(FIXTURES, 'v1'));
-/** Today's format (schema 6), and the v5, v4 and v3 ones it migrates from. */
-const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v6-all-fields'))[0].session;
+/** Today's format (schema 7), and the v6 to v3 ones it migrates from. */
+const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v7-all-fields'))[0].session;
+const ALL_FIELDS_V6 = jsonFiles(join(FIXTURES, 'v6-all-fields'))[0].session;
 const ALL_FIELDS_V5 = jsonFiles(join(FIXTURES, 'v5-all-fields'))[0].session;
 const ALL_FIELDS_V4 = jsonFiles(join(FIXTURES, 'v4-all-fields'))[0].session;
 const ALL_FIELDS_V3 = jsonFiles(join(FIXTURES, 'v3-all-fields'))[0].session;
@@ -612,8 +613,8 @@ describe('migrating', () => {
   it('reads a v3 draft as today’s, with no bars past its chords', () => {
     const result = migrated(ALL_FIELDS_V3);
     expect(result.from).toBe(3);
-    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
-    // Schemas 4, 5 and 6 only added fields, so the v3 data passes through
+    expect(result.session).toMatchObject({ schema: 7, compat: 3 });
+    // Schemas 4 to 7 only added fields, so the v3 data passes through
     // untouched.
     expect(result.session.data).toEqual(ALL_FIELDS_V3.data);
     expect(decode(ALL_FIELDS_V3).project.leadSheetBars).toBeNull();
@@ -622,17 +623,63 @@ describe('migrating', () => {
   it('reads a v4 draft as today’s, with the chord lane’s offer not declined', () => {
     const result = migrated(ALL_FIELDS_V4);
     expect(result.from).toBe(4);
-    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
+    expect(result.session).toMatchObject({ schema: 7, compat: 3 });
     expect(result.session.data).toEqual(ALL_FIELDS_V4.data);
     const { project } = decode(ALL_FIELDS_V4);
     expect(project.chordAnalysisDismissed).toBe(false);
     expect(project.leadSheetBars).toBe(24);
   });
 
-  it('reads a v5 draft as v6, every clip playing and no audio clip named', () => {
+  it('reads a v6 draft as v7, its Lead Sheet marks as sections', () => {
+    const result = migrated(ALL_FIELDS_V6);
+    expect(result.from).toBe(6);
+    expect(result.session).toMatchObject({ schema: 7, compat: 3 });
+    expect(result.session.data).toEqual(ALL_FIELDS_V6.data);
+    const { project, repaired } = decode(ALL_FIELDS_V6);
+    expect(repaired).toBe(0);
+    // Marks at bars 0 ('A') and 8 ('B') of a 6/8 chart of 24 bars: each runs
+    // to the next, the last to the chart's end; letters are custom sections.
+    expect(ALL_FIELDS_V6.data.notation.leadSheetSections).toEqual([
+      { measureIdx: 0, label: 'A' },
+      { measureIdx: 8, label: 'B' },
+    ]);
+    expect(project.sections).toEqual([
+      {
+        id: 'section-bar-0',
+        type: 'custom',
+        label: 'A',
+        startTick: 0,
+        endTick: 8 * 1440,
+      },
+      {
+        id: 'section-bar-8',
+        type: 'custom',
+        label: 'B',
+        startTick: 8 * 1440,
+        endTick: 24 * 1440,
+      },
+    ]);
+    // Read twice, the same sections: a reload never mints new ids for them.
+    expect(decode(ALL_FIELDS_V6).project.sections).toEqual(project.sections);
+  });
+
+  it('keeps the Lead Sheet marks a v7 draft implies where older builds read them', () => {
+    expect(ALL_FIELDS.data.notation.leadSheetSections).toEqual([
+      { measureIdx: 1, label: 'Intro' },
+      { measureIdx: 5, label: 'Chorus 1' },
+    ]);
+    // A v7 draft's own sections win over those marks.
+    const { project } = decode(ALL_FIELDS);
+    expect(project.sections.map((x) => x.id)).toEqual([
+      'section-intro001',
+      'section-chorus01',
+    ]);
+  });
+
+  it('reads a v5 draft as today’s, every clip playing and no audio clip named', () => {
     const result = migrated(ALL_FIELDS_V5);
     expect(result.from).toBe(5);
-    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
+    expect(result.session).toMatchObject({ schema: 7, compat: 3 });
     expect(result.session.data).toEqual(ALL_FIELDS_V5.data);
     const { project } = decode(ALL_FIELDS_V5);
     const clips = project.tracks.flatMap((t) => [

@@ -46,6 +46,7 @@ import {
   FIELD_GROUPS,
   LOCAL_KEYS,
   MARKER_FIELDS,
+  SECTION_FIELDS,
   MIDI_CLIP_FIELDS,
   NOTE_EVENT_FIELDS,
   ORACLE_NON_PATCH_FIELDS,
@@ -121,6 +122,7 @@ const ALL_SPECS: [string, FieldSpec][] = [
     AudioClip: AUDIO_CLIP_FIELDS,
     ChordRegion: CHORD_REGION_FIELDS,
     Marker: MARKER_FIELDS,
+    Section: SECTION_FIELDS,
     ReturnBus: RETURN_BUS_FIELDS,
   }).flatMap(([type, specs]) =>
     Object.entries(specs).map(
@@ -288,6 +290,7 @@ function fieldsInUse() {
     AudioClip: new Set<string>(),
     ChordRegion: new Set<string>(),
     Marker: new Set<string>(),
+    Section: new Set<string>(),
     ReturnBus: new Set<string>(),
   };
   const add = (into: Set<string>, value: object) =>
@@ -303,6 +306,7 @@ function fieldsInUse() {
   }
   st.chordRegions.forEach((region) => add(seen.ChordRegion, region));
   st.markers.forEach((marker) => add(seen.Marker, marker));
+  st.sections.forEach((section) => add(seen.Section, section));
   st.returns.forEach((bus) => add(seen.ReturnBus, bus));
   return seen;
 }
@@ -316,6 +320,7 @@ const SPECS_BY_TYPE = {
   AudioClip: AUDIO_CLIP_FIELDS,
   ChordRegion: CHORD_REGION_FIELDS,
   Marker: MARKER_FIELDS,
+  Section: SECTION_FIELDS,
   ReturnBus: RETURN_BUS_FIELDS,
 } as const;
 
@@ -408,7 +413,7 @@ describe('projects loaded from the captured autosaves', () => {
 describe('entries the editor makes', () => {
   beforeEach(resetStore);
 
-  it('classifies every field of clips, notes, takes, chords and markers', () => {
+  it('classifies every field of clips, notes, takes, chords, markers and sections', () => {
     const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
     s().addMidiClip(keys, {
       id: 'clip-keys',
@@ -439,6 +444,7 @@ describe('entries the editor makes', () => {
     });
     s().insertChordRegion(0, '1 maj', 'C maj');
     s().addMarker(1920, 'Verse');
+    s().addSection({ type: 'verse', label: 'Verse' });
 
     const seen = fieldsInUse();
     for (const [type, keys] of Object.entries(seen)) {
@@ -590,6 +596,7 @@ describe('the classification', () => {
     check('AudioClip', NESTED_FIELD_REASONS.AudioClip, AUDIO_CLIP_FIELDS);
     check('ChordRegion', NESTED_FIELD_REASONS.ChordRegion, CHORD_REGION_FIELDS);
     check('Marker', NESTED_FIELD_REASONS.Marker, MARKER_FIELDS);
+    check('Section', NESTED_FIELD_REASONS.Section, SECTION_FIELDS);
     check('ReturnBus', NESTED_FIELD_REASONS.ReturnBus, RETURN_BUS_FIELDS);
     check('synth', ORACLE_NON_PATCH_REASONS, ORACLE_NON_PATCH_FIELDS);
     expect(stray).toEqual([]);
@@ -840,7 +847,6 @@ describe('decision D5', () => {
       'measureFermatas',
       'leadSheetBars',
       'leadSheetChordFormat',
-      'leadSheetSections',
       'leadSheetRepeats',
       'leadSheetShowRepeats',
       'leadSheetShowMelody',
@@ -855,6 +861,7 @@ describe('decision D5', () => {
       'scorePageBreaks',
       'scoreSystemRuns',
       'scoreTextMarks',
+      'sections',
     ];
     expect(added.filter((key) => !DOC_KEYS.includes(key))).toEqual([]);
     expect(MIDI_CLIP_FIELDS.durationTicks.local).toBe(true);
@@ -979,7 +986,6 @@ describe('the classification, key by key', () => {
         'measureFermatas',
         'leadSheetBars',
         'leadSheetChordFormat',
-        'leadSheetSections',
         'leadSheetRepeats',
         'leadSheetShowRepeats',
         'leadSheetShowMelody',
@@ -994,8 +1000,9 @@ describe('the classification, key by key', () => {
         'scorePageBreaks',
         'scoreSystemRuns',
         'scoreTextMarks',
-        // markers, mixer and clip colours
+        // markers, sections, mixer and clip colours
         'markers',
+        'sections',
         'masterVolume',
         'masteringFxChain',
         'masteringEffects',
@@ -1038,6 +1045,7 @@ describe('the classification, key by key', () => {
       AudioClip: ['muted', 'name'],
       ChordRegion: Object.keys(CHORD_REGION_FIELDS).sort(),
       Marker: Object.keys(MARKER_FIELDS).sort(),
+      Section: Object.keys(SECTION_FIELDS).sort(),
       ReturnBus: [],
     });
   });

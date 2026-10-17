@@ -486,6 +486,7 @@ const LABEL_RULES: ReadonlyArray<[label: string, keys: readonly UndoKey[]]> = [
   ],
   ['Edit chords', ['chordRegions']],
   ['Edit markers', ['markers']],
+  ['Edit sections', ['sections']],
   ['Change master volume', ['masterVolume']],
   ['Edit master effects', ['masteringFxChain', 'masteringEffects']],
   ['Edit returns', ['returns']],

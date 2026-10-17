@@ -169,8 +169,12 @@ export function exportSongToChordRegions(
   fermatas: number[];
   /** Visual bar count per section row (1 rest bar = 1 visual slot regardless of restBars count) */
   rowSizes: number[];
-  /** Boxed section labels at the bar each performed section starts. */
-  sectionMarks: Array<{ measureIdx: number; label: string }>;
+  /**
+   * The performed sections, named as the chart names them: each from the
+   * tick its run starts at to the next one's start (the last to the end of
+   * the song), counted on the same cursor as the chords.
+   */
+  sections: Array<{ label: string; startTick: number; endTick: number }>;
 } {
   const played: Song = opts.loopSection
     ? {
@@ -187,8 +191,12 @@ export function exportSongToChordRegions(
   const restMap: Record<number, number> = {};
   const fermatas: number[] = [];
   const rowSizes: number[] = [];
-  const runs: Array<{ sectionIdx: number; measureIdx: number; bars: number }> =
-    [];
+  const runs: Array<{
+    sectionIdx: number;
+    measureIdx: number;
+    startTick: number;
+    bars: number;
+  }> = [];
   let barIndex = 0;
   // Where this bar begins on the timeline. `barIndex` still counts bars, for
   // the rest map and the section runs, but it stopped predicting tick
@@ -204,7 +212,12 @@ export function exportSongToChordRegions(
     // A new run starts at a new section or wherever the roadmap jumps back.
     const run = runs[runs.length - 1];
     if (!run || run.sectionIdx !== sectionIdx || writtenIdx <= prevWritten)
-      runs.push({ sectionIdx, measureIdx: barIndex, bars: 1 });
+      runs.push({
+        sectionIdx,
+        measureIdx: barIndex,
+        startTick: barStartTick,
+        bars: 1,
+      });
     else run.bars++;
     prevWritten = writtenIdx;
 
@@ -275,19 +288,23 @@ export function exportSongToChordRegions(
     restMap,
     fermatas,
     rowSizes,
-    sectionMarks: numberedRunLabels(played, runs),
+    sections: performedSections(played, runs, barStartTick),
   };
 }
 
 /**
- * The label for each performed run. A name played more than once is numbered
- * in order — the chart's one "Verse" with a repeat plays as Verse 1 and 2 —
- * unless the chart already numbers it.
+ * The song's form as it plays: a section for each performed run that has a
+ * label. A name played more than once is numbered in order — the chart's
+ * one "Verse" with a repeat plays as Verse 1 and 2 — unless the chart
+ * already numbers it. Each section runs to the next one's start, so a run
+ * without a label belongs to the section before it, and the last runs to
+ * `endTick`.
  */
-function numberedRunLabels(
+function performedSections(
   song: Song,
-  runs: Array<{ sectionIdx: number; measureIdx: number }>,
-): Array<{ measureIdx: number; label: string }> {
+  runs: Array<{ sectionIdx: number; measureIdx: number; startTick: number }>,
+  endTick: number,
+): Array<{ label: string; startTick: number; endTick: number }> {
   const nameOf = (label: string) => parseSectionLabel(label)?.name ?? label;
   const total = new Map<string, number>();
   for (const run of runs) {
@@ -295,7 +312,7 @@ function numberedRunLabels(
     total.set(name, (total.get(name) ?? 0) + 1);
   }
   const seen = new Map<string, number>();
-  const marks: Array<{ measureIdx: number; label: string }> = [];
+  const starts: Array<{ label: string; startTick: number }> = [];
   let prev: number | null = null;
   for (const run of runs) {
     const label = song.sections[run.sectionIdx].label;
@@ -306,10 +323,13 @@ function numberedRunLabels(
     // still gets its own number.
     const numbered = (total.get(name) ?? 0) > 1 ? `${name} ${nth}` : label;
     if (label && prev !== run.measureIdx)
-      marks.push({ measureIdx: run.measureIdx, label: numbered });
+      starts.push({ label: numbered, startTick: run.startTick });
     prev = run.measureIdx;
   }
-  return marks;
+  return starts.map((start, i) => ({
+    ...start,
+    endTick: starts[i + 1]?.startTick ?? endTick,
+  }));
 }
 
 /* ── ChordRegions → MidiClip (block chords, full song) ───────────────── */

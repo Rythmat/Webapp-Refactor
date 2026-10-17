@@ -29,11 +29,11 @@
  * Classes. Each field names the registry entries it shows
  * (src/daw/persistence/projectDocument/fields.ts, read in the page), and its
  * class comes from them, so the harness and the codec agree on what a field
- * is (FIELD_CLASSES below). The fields of a track, a clip, a chord region and
- * a marker are generated from the registry outright, so a field added there
- * is fingerprinted without an edit here; every project-level doc, view and
- * pref key must be shown by some field, or `meta.coverage` names it and the
- * suite refuses to run.
+ * is (FIELD_CLASSES below). The fields of a track, a clip, a chord region, a
+ * marker and a song section are generated from the registry outright, so a
+ * field added there is fingerprinted without an edit here; every
+ * project-level doc, view and pref key must be shown by some field, or
+ * `meta.coverage` names it and the suite refuses to run.
  *
  * fingerprintPage runs in the editor page and must be self-contained. The
  * registry, the Oracle Synth patch cache, the decoded-audio store and the
@@ -71,6 +71,7 @@ export const ID_KINDS = [
   'audioClips',
   'chordRegions',
   'markers',
+  'sections',
   'notes',
 ];
 
@@ -190,6 +191,7 @@ export async function fingerprintPage() {
     audioClip: registry.AUDIO_CLIP_FIELDS,
     region: registry.CHORD_REGION_FIELDS,
     marker: registry.MARKER_FIELDS,
+    section: registry.SECTION_FIELDS,
     note: registry.NOTE_EVENT_FIELDS,
     patch: { oracleSynth: registry.ORACLE_PATCH_FIELD },
   };
@@ -570,7 +572,8 @@ export async function fingerprintPage() {
   notation('measureRestMap', s.measureRestMap);
   notation('measureFermatas', s.measureFermatas);
   notation('leadSheetBars', s.leadSheetBars);
-  notation('leadSheetSections', s.leadSheetSections);
+  // The Lead Sheet's section marks are the song's sections since 2.13
+  // (`sections` below), so they have no field of their own.
   notation('leadSheetRepeats', s.leadSheetRepeats);
   notation('leadSheetChordFormat', s.leadSheetChordFormat);
   notation('leadSheetShowRepeats', s.leadSheetShowRepeats);
@@ -625,6 +628,24 @@ export async function fingerprintPage() {
     [...s.markers]
       .sort((a, b) => a.tick - b.tick)
       .map((m) => Object.fromEntries(markerKeys.map((k) => [k, m[k]]))),
+  );
+
+  // Every field of a song section but its id, in start order (milestone
+  // 2.13: the sections lane, and the Lead Sheet's marks).
+  const sectionKeys = Object.keys(registry.SECTION_FIELDS).filter(
+    (k) => k !== 'id',
+  );
+  for (const k of sectionKeys) shown.add(`section.${k}`);
+  shown.add('section.id');
+  const sectionsInOrder = [...s.sections].sort(
+    (a, b) => a.startTick - b.startTick,
+  );
+  put(
+    'sections',
+    ['store.sections'],
+    sectionsInOrder.map((x) =>
+      Object.fromEntries(sectionKeys.map((k) => [k, x[k]])),
+    ),
   );
 
   put('mixer.masteringFxChain', ['store.masteringFxChain'], s.masteringFxChain);
@@ -737,6 +758,7 @@ export async function fingerprintPage() {
     ...Object.keys(registry.AUDIO_CLIP_FIELDS).map((k) => `audioClip.${k}`),
     ...Object.keys(registry.CHORD_REGION_FIELDS).map((k) => `region.${k}`),
     ...Object.keys(registry.MARKER_FIELDS).map((k) => `marker.${k}`),
+    ...Object.keys(registry.SECTION_FIELDS).map((k) => `section.${k}`),
     'note.id',
   ];
   meta.coverage.missing = wanted.filter((k) => !shown.has(k));
@@ -752,6 +774,7 @@ export async function fingerprintPage() {
     audioClips: s.tracks.map((t) => t.audioClips.map((c) => c.id)),
     chordRegions: regionIds,
     markers: [...s.markers].sort((a, b) => a.tick - b.tick).map((m) => m.id),
+    sections: sectionsInOrder.map((x) => x.id),
     // Per track and clip, in the codec's note order.
     notes: s.tracks.map((t) =>
       t.midiClips.map((c) => sortedNotes(c.events).map((e) => e.id ?? null)),

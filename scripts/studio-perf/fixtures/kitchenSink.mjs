@@ -16,9 +16,9 @@
  * through installDevModules (fingerprint.mjs), which the page must run as an
  * init script. It edits through the stores' own actions wherever one exists
  * (tracksSlice, prismSlice, uiSlice, transportSlice, masteringSlice,
- * returnsSlice, markersSlice, tutorialSlice and the Oracle Synth store), so
- * it walks the same code a click would; the one raw setState
- * (measuresPerLine) is a field only seeders write that way.
+ * returnsSlice, markersSlice, sectionsSlice, tutorialSlice and the Oracle
+ * Synth store), so it walks the same code a click would; the one raw
+ * setState (measuresPerLine) is a field only seeders write that way.
  *
  * `assetId` is an audio asset the mock Studio API already holds
  * (mockStudioApi.mjs `seedAsset`). The guitar track gets a clip on it, which
@@ -42,8 +42,8 @@
  * Values are chosen so a reset is visible: each differs from the slice
  * default AND from what a load would re-derive (trackRole differs from
  * guessTrackRole, audioInputChannel from the guitar default {mono, 0}).
- * The fields of a track, a clip, a note, a controller event, a chord region
- * and a marker are held to the same rule across the project:
+ * The fields of a track, a clip, a note, a controller event, a chord region,
+ * a marker and a song section are held to the same rule across the project:
  * sinkFieldsAtDefault lists any that no entity sets, and roundtrip.mjs
  * refuses to run on such a sink.
  */
@@ -511,9 +511,25 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setMeasureRowSizes([2, 2, 1]);
   act().setMeasureRestMap({ 4: 2 });
   act().setMeasureFermatas([3]);
-  act().setLeadSheetSections([
-    { measureIdx: 0, label: 'A' },
-    { measureIdx: 2, label: 'B' },
+  // Song sections (milestone 2.13), which the Lead Sheet shows as its marks:
+  // every field off the registry's default (type 'custom', label '', ticks
+  // 0), on the bar lines of the sink's 6/8 (1440 ticks a bar) and over its
+  // 12-bar chart, so the marks fall on bars 1 and 3 where 'A' and 'B' were.
+  act().setSections([
+    {
+      id: 'kitchen-section-intro',
+      type: 'intro',
+      label: 'Intro',
+      startTick: 0,
+      endTick: 2 * 1440,
+    },
+    {
+      id: 'kitchen-section-verse',
+      type: 'verse',
+      label: 'Verse 1',
+      startTick: 2 * 1440,
+      endTick: 12 * 1440,
+    },
   ]);
   act().setLeadSheetRepeats([{ startMeasure: 0, endMeasure: 1 }]);
   act().setLeadSheetChordFormat('jazz');
@@ -643,8 +659,9 @@ export async function applyKitchenSink({ assetId = null } = {}) {
 
 /**
  * Runs in the page, after applyKitchenSink: the fields of a track, a MIDI
- * clip, a note, a controller event, an audio clip, a chord region and a
- * marker (the registry's, src/daw/persistence/projectDocument/fields.ts)
+ * clip, a note, a controller event, an audio clip, a chord region, a marker
+ * and a song section (the registry's,
+ * src/daw/persistence/projectDocument/fields.ts)
  * that no such entity in the open project holds at other than its default,
  * as `track.volume`, `note.channel`. The fingerprint shows every one of them
  * however the registry grows, but a field the sink never sets could be lost
@@ -699,6 +716,7 @@ export async function sinkFieldsAtDefault() {
       ],
       ['region', registry.CHORD_REGION_FIELDS, s.chordRegions],
       ['marker', registry.MARKER_FIELDS, s.markers],
+      ['section', registry.SECTION_FIELDS, s.sections],
     ].map(([kind, specs, entities]) => [
       kind,
       Object.keys(specs),

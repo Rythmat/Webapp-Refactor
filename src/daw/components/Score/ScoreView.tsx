@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
-import { useStore } from '@/daw/store';
+import { leadSheetSectionsOf, useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { ComposerLine } from '../LeadSheet/ComposerLine';
 import '../LeadSheet/leadsheet-print.css';
@@ -122,7 +122,7 @@ export function ScoreView() {
           const cut = pair.indexOf('|');
           return [pair.slice(0, cut), pair.slice(cut + 1)] as const;
         }),
-        sections: s.leadSheetSections,
+        sections: leadSheetSectionsOf(s),
         repeats: s.leadSheetRepeats,
         systemStarts: breaksFromRowSizes(
           s.measureRowSizes,

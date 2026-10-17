@@ -5,6 +5,7 @@ import type { EffectSlotType } from '@/daw/audio/EffectChain';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import { clampZoom, fitZoom, zoomAround } from '@/daw/editor/zoom';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
+import type { SectionMark } from '@/daw/model/sections';
 import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
 import {
   clampInspectorPx,
@@ -146,10 +147,12 @@ export type ChannelStripTabId =
   | 'grooves';
 export type LeadSheetChordFormat = 'jazz' | 'hybrid' | 'numbers';
 
-export interface LeadSheetSection {
-  measureIdx: number;
-  label: string; // e.g. 'A', 'B', 'Intro', 'Bridge', 'Coda'
-}
+/**
+ * A song section as the Lead Sheet marks it: the bar it starts at and its
+ * name. The sections themselves live in the sections slice (milestone 2.13);
+ * the Lead Sheet reads them as these marks (leadSheetSectionsOf).
+ */
+export type LeadSheetSection = SectionMark;
 
 export interface LeadSheetRepeat {
   startMeasure: number;
@@ -338,10 +341,6 @@ export interface UiSlice {
   setSelectedChordIds: (ids: string[]) => void;
   selectedNotes: ClipNoteSelection[];
   setSelectedNotes: (selection: ClipNoteSelection[]) => void;
-  leadSheetSections: LeadSheetSection[];
-  setLeadSheetSections: (sections: LeadSheetSection[]) => void;
-  addLeadSheetSection: (section: LeadSheetSection) => void;
-  removeLeadSheetSection: (measureIdx: number) => void;
   leadSheetRepeats: LeadSheetRepeat[];
   setLeadSheetRepeats: (repeats: LeadSheetRepeat[]) => void;
   addLeadSheetRepeat: (repeat: LeadSheetRepeat) => void;
@@ -656,23 +655,6 @@ export const createUiSlice: StateCreator<
         ? { selectedNotes: selection, selectedChordIds: [] }
         : { selectedNotes: selection },
     ),
-  leadSheetSections: [],
-  setLeadSheetSections: (sections) => set({ leadSheetSections: sections }),
-  addLeadSheetSection: (section) =>
-    set((s) => ({
-      leadSheetSections: [
-        ...s.leadSheetSections.filter(
-          (sec) => sec.measureIdx !== section.measureIdx,
-        ),
-        section,
-      ].sort((a, b) => a.measureIdx - b.measureIdx),
-    })),
-  removeLeadSheetSection: (measureIdx) =>
-    set((s) => ({
-      leadSheetSections: s.leadSheetSections.filter(
-        (sec) => sec.measureIdx !== measureIdx,
-      ),
-    })),
   leadSheetRepeats: [],
   setLeadSheetRepeats: (repeats) => set({ leadSheetRepeats: repeats }),
   addLeadSheetRepeat: (repeat) =>

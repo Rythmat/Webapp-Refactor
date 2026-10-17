@@ -1,4 +1,5 @@
 import type { MidiCCEvent, MidiNoteEvent } from '@/daw/prism-engine/types';
+import type { SongSection } from '@/daw/model/sections';
 import type { Marker } from '@/daw/store/markersSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { ReturnBus } from '@/daw/store/returnsSlice';
@@ -26,6 +27,7 @@ type NestedReasons = {
   readonly AudioClip: Reasons<AudioClip>;
   readonly ChordRegion: Reasons<ChordRegion>;
   readonly Marker: Reasons<Marker>;
+  readonly Section: Reasons<SongSection>;
   readonly ReturnBus: Reasons<ReturnBus>;
 };
 type OracleNonPatchReasons = {
@@ -112,6 +114,10 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   scoreSlurs: NOTE_KEYED,
   scoreSpellings: NOTE_KEYED,
   scoreSlashNotes: NOTE_KEYED,
+
+  // ── song sections ──
+  sections:
+    'The song’s form (milestone 2.13): the sections lane and the Lead Sheet read this one list, which replaces the Lead Sheet’s own bar marks (leadSheetSections). Shared and undone as the arrangement is. A draft also writes the marks it implies in their old place (notation.leadSheetSections), so a build from before 2.13 still shows them after a rollback; one without sections reads them back from there.',
 
   // ── mixer ──
   masterAutomation:
@@ -300,6 +306,14 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
       'The clip a Prism take wrote the region from (milestone 1.10): moving that clip moves the region. Collab should share it (1.14); until then a peer’s copy has none, and moving the clip there leaves the lane alone.',
   },
   Marker: {},
+  Section: {
+    id: 'Minted when a section is added. One read back from an older draft’s Lead Sheet marks gets one from its bar (section-bar-<n>), the same every time.',
+    type: 'One of UNISON’s SectionType names (plus tag, hook, breakdown, build-up and drop); a name of the student’s own is custom.',
+    label:
+      'What the lane and the Lead Sheet show: the type’s name, a song chart’s own (“Verse 2”) or the student’s.',
+    endTick:
+      'Exclusive: the next section may start there. Sections never overlap.',
+  },
   ReturnBus: {
     id: 'Two fixed buses: A (Reverb) and B (Delay).',
   },

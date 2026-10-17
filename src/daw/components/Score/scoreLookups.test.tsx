@@ -380,6 +380,14 @@ function ScoreEditor() {
 
 describe('the Score overlay', () => {
   it('draws the marked-up page from its lookups', () => {
+    const BAR = 1920;
+    const section = (label: string, startTick: number, endTick: number) => ({
+      id: `section-${label}`,
+      type: 'custom' as const,
+      label,
+      startTick,
+      endTick,
+    });
     useStore.setState({
       currentView: 'score',
       tracks: [
@@ -390,7 +398,15 @@ describe('the Score overlay', () => {
       ],
       scoreArticulations: fx.articulations,
       scoreSlurs: fx.slurs,
-      leadSheetSections: fx.sections,
+      // The song's sections, each marked at the bar it starts in. Two start
+      // in bar 3, and only the first of them is marked there.
+      sections: [
+        section('A', 0, 3 * BAR),
+        section('B', 3 * BAR, 3 * BAR + 480),
+        section('C', 3 * BAR + 480, 6 * BAR),
+      ],
+      timeSignatureNumerator: 4,
+      timeSignatureDenominator: 4,
       scoreTextMarks: fx.textMarks,
     } as Partial<AllSlices>);
     const { container } = render(<ScoreEditor />);

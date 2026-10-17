@@ -8,13 +8,13 @@
  *   UnisonDocument for display in the lead sheet view.
  */
 
+import { sectionTypeOfLabel } from '@/daw/model/sections';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { LeadSheetSection, LeadSheetRepeat } from '@/daw/store/uiSlice';
 import type {
   UnisonDocument,
   UnisonChordRegion,
   FormSection,
-  SectionType,
 } from '../types/schema';
 import { sessionToUnison, type SessionSnapshot } from './sessionToUnison';
 
@@ -94,7 +94,9 @@ export function leadSheetToUnison(
 
       return {
         label: sec.label,
-        type: labelToSectionType(sec.label),
+        // The Studio's own reading of a name, so 'Verse 2' is a verse here
+        // too and the two can't disagree.
+        type: sectionTypeOfLabel(sec.label),
         startTick,
         endTick,
         startMeasure: sec.measureIdx,
@@ -167,26 +169,6 @@ function unisonChordToRegion(chord: UnisonChordRegion): ChordRegion {
     color: chord.color,
     confidence: chord.confidence,
   };
-}
-
-/**
- * Map a section label to a SectionType.
- */
-function labelToSectionType(label: string): SectionType {
-  const lower = label.toLowerCase().trim();
-  const map: Record<string, SectionType> = {
-    intro: 'intro',
-    verse: 'verse',
-    chorus: 'chorus',
-    bridge: 'bridge',
-    'pre-chorus': 'pre-chorus',
-    prechorus: 'pre-chorus',
-    outro: 'outro',
-    solo: 'solo',
-    interlude: 'interlude',
-    coda: 'coda',
-  };
-  return map[lower] ?? 'custom';
 }
 
 /**

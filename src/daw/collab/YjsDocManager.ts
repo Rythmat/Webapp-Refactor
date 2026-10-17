@@ -15,6 +15,12 @@ import type { AllSlices } from '@/daw/store/index';
 import type { Track, MidiClip, AudioClip } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { Marker } from '@/daw/store/markersSlice';
+import {
+  isSectionType,
+  normalizeSections,
+  sectionName,
+  type SongSection,
+} from '@/daw/model/sections';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
 import type { ChatMessage } from './types';
 
@@ -59,6 +65,11 @@ export function getYPrism(doc: Y.Doc): Y.Map<unknown> {
 
 export function getYMarkers(doc: Y.Doc): Y.Array<Y.Map<unknown>> {
   return doc.getArray('markers');
+}
+
+/** The song's sections (milestone 2.13), one Y.Map each. */
+export function getYSections(doc: Y.Doc): Y.Array<Y.Map<unknown>> {
+  return doc.getArray('sections');
 }
 
 export function getYMastering(doc: Y.Doc): Y.Map<unknown> {
@@ -220,6 +231,16 @@ export function markerToYMap(marker: Marker): Y.Map<unknown> {
   m.set('tick', marker.tick);
   m.set('name', marker.name);
   m.set('color', marker.color);
+  return m;
+}
+
+export function sectionToYMap(section: SongSection): Y.Map<unknown> {
+  const m = new Y.Map<unknown>();
+  m.set('id', section.id);
+  m.set('type', section.type);
+  m.set('label', section.label);
+  m.set('startTick', section.startTick);
+  m.set('endTick', section.endTick);
   return m;
 }
 
@@ -401,6 +422,37 @@ export function yMapToMarker(m: Y.Map<unknown>): Marker {
   };
 }
 
+/** A section from the doc; a type this build doesn't know reads as custom. */
+export function yMapToSection(m: Y.Map<unknown>): SongSection {
+  const type = isSectionType(m.get('type')) ? m.get('type') : 'custom';
+  const label = m.get('label');
+  return {
+    id: String(m.get('id') ?? ''),
+    type: type as SongSection['type'],
+    label:
+      typeof label === 'string'
+        ? label
+        : sectionName(type as SongSection['type']),
+    startTick: Number(m.get('startTick')),
+    endTick: Number(m.get('endTick')),
+  };
+}
+
+/**
+ * The doc's sections as the store keeps them: in order and never
+ * overlapping. Two collaborators can add one at the same end at once; every
+ * peer reads the doc the same way (normalizeSections is deterministic), and
+ * the next edit writes the order back.
+ */
+export function sectionsFromDoc(doc: Y.Doc): SongSection[] {
+  return normalizeSections(
+    getYSections(doc)
+      .toArray()
+      .map(yMapToSection)
+      .filter((section) => section.id !== ''),
+  );
+}
+
 // ── Hydrate: populate Y.Doc from Zustand state ─────────────────────────
 
 /**
@@ -465,6 +517,12 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     yMarkers.delete(0, yMarkers.length);
     yMarkers.push(state.markers.map(markerToYMap));
 
+    // Song sections (milestone 2.13). The lead sheet's own `sections` key,
+    // its bar marks before 2.13, is no longer written or read.
+    const ySections = getYSections(doc);
+    ySections.delete(0, ySections.length);
+    ySections.push(state.sections.map(sectionToYMap));
+
     // Mastering
     const mastering = getYMastering(doc);
     for (const [key, value] of Object.entries(LEGACY_MASTERING_MACROS)) {
@@ -479,7 +537,6 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
 
     // Lead sheet
     const leadSheet = getYLeadSheet(doc);
-    leadSheet.set('sections', JSON.stringify(state.leadSheetSections));
     leadSheet.set('repeats', JSON.stringify(state.leadSheetRepeats));
     leadSheet.set('chordFormat', state.leadSheetChordFormat);
     leadSheet.set('showRepeats', state.leadSheetShowRepeats);

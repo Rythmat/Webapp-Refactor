@@ -1,13 +1,14 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { LEAD_SHEET_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
-import { useStore } from '@/daw/store';
+import { useLeadSheetSections, useStore } from '@/daw/store';
 import { laneWithChordAt } from '@/daw/store/prismSlice';
 import type { TypedChord } from '@/daw/harmony/chordInput';
 import { usePlayheadSelector } from '@/daw/engine/playheadClock';
 import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
-import { barSlots, slotOfBar } from '@/daw/time/timeModel';
+import { chartExtraBars } from '@/daw/time/measureEdits';
+import { barSlots, slotOfBar, timeSignatureOf } from '@/daw/time/timeModel';
 import { NOTES } from '@prism/engine';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { ScorePalettes, type PaletteAction } from '../Score/ScorePalettes';
@@ -79,7 +80,11 @@ function LeadSheetChartView() {
   const measureRowSizes = useStore((s) => s.measureRowSizes);
   const measureRestMap = useStore((s) => s.measureRestMap);
   const measureFermatas = useStore((s) => s.measureFermatas);
-  const leadSheetBars = useStore((s) => s.leadSheetBars);
+  // Bars past the last chord: added ones, or as many as the song's sections
+  // cover, so every section the sections lane has shows (milestone 2.13).
+  const leadSheetBars = useStore((s) =>
+    chartExtraBars(s.leadSheetBars, s.sections, timeSignatureOf(s)),
+  );
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
   const bpm = useStore((s) => s.bpm);
@@ -94,7 +99,8 @@ function LeadSheetChartView() {
   const chordFormat = useStore((s) => s.leadSheetChordFormat);
   const selectedChordIdx = useStore((s) => s.leadSheetSelectedChordIdx);
   const setSelectedChordIdx = useStore((s) => s.setLeadSheetSelectedChordIdx);
-  const sections = useStore((s) => s.leadSheetSections);
+  // The song's sections, as marks on the bars they start at (milestone 2.13).
+  const sections = useLeadSheetSections();
   const repeats = useStore((s) => s.leadSheetRepeats);
   const showRepeats = useStore((s) => s.leadSheetShowRepeats);
   const renameChordRegion = useStore((s) => s.renameChordRegion);
@@ -108,8 +114,8 @@ function LeadSheetChartView() {
   const setChordRegions = useStore((s) => s.setChordRegions);
   const setMeasureRowSizes = useStore((s) => s.setMeasureRowSizes);
   const setRepeats = useStore((s) => s.setLeadSheetRepeats);
-  const addSection = useStore((s) => s.addLeadSheetSection);
-  const removeSection = useStore((s) => s.removeLeadSheetSection);
+  const markSectionAtBar = useStore((s) => s.markSectionAtBar);
+  const removeSectionAtBar = useStore((s) => s.removeSectionAtBar);
 
   // Track which measure is "selected" for insert/delete operations
   const [selectedMeasureIdx, setSelectedMeasureIdx] = useState<number | null>(
@@ -521,12 +527,12 @@ function LeadSheetChartView() {
         if (edit.repeatEnd) {
           nextRepeats = withRepeatEnd(nextRepeats, edit.measureIndex);
         }
-        removeSection(edit.measureIndex);
+        // A pasted name renames the section starting on this barline, or
+        // starts one there; a barline without one leaves its bars unnamed.
         if (edit.sectionLabel) {
-          addSection({
-            measureIdx: edit.measureIndex,
-            label: edit.sectionLabel,
-          });
+          markSectionAtBar(edit.measureIndex, edit.sectionLabel);
+        } else {
+          removeSectionAtBar(edit.measureIndex);
         }
         if (edit.systemBreak) breaks.add(edit.measureIndex);
         else breaks.delete(edit.measureIndex);
@@ -540,8 +546,8 @@ function LeadSheetChartView() {
       measureCount,
       rowSizesFor,
       setRepeats,
-      addSection,
-      removeSection,
+      markSectionAtBar,
+      removeSectionAtBar,
       setMeasureRowSizes,
     ],
   );
@@ -649,12 +655,8 @@ function LeadSheetChartView() {
           break;
         case 'text.rehearsalMark': {
           const existing = sections.find((s) => s.measureIdx === barline);
-          if (existing) removeSection(barline);
-          else
-            addSection({
-              measureIdx: barline,
-              label: nextSectionLabel(sections),
-            });
+          if (existing) removeSectionAtBar(barline);
+          else markSectionAtBar(barline, nextSectionLabel(sections));
           break;
         }
       }
@@ -665,8 +667,8 @@ function LeadSheetChartView() {
       sections,
       measureCount,
       setRepeats,
-      addSection,
-      removeSection,
+      markSectionAtBar,
+      removeSectionAtBar,
       toggleSystemBreak,
       setMeasureRowSizes,
     ],
@@ -750,7 +752,7 @@ function LeadSheetChartView() {
         );
       } else if (kind === 'barline' && targetBarline !== null) {
         setRepeats(withoutRepeatAt(repeats, targetBarline));
-        removeSection(targetBarline);
+        removeSectionAtBar(targetBarline);
       } else if (selectedChordIdx !== null) {
         useStore.getState().deleteChordRegion(selectedChordIdx);
         setSelectedChordIdx(null);

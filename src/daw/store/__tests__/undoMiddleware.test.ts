@@ -30,7 +30,7 @@ beforeEach(() => {
     scoreArticulations: [],
     scoreSlurs: [],
     scoreChordHidden: [],
-    leadSheetSections: [],
+    sections: [],
     leadSheetRepeats: [],
     measureRowSizes: null,
     measureFermatas: null,
@@ -63,9 +63,12 @@ describe('what undo restores', () => {
   });
 
   it('puts a rehearsal mark back', () => {
-    edit({ leadSheetSections: [{ measureIdx: 4, label: 'B' }] });
+    withTransaction('Edit score', () =>
+      useStore.getState().markSectionAtBar(4, 'B'),
+    );
+    expect(useStore.getState().sections).toHaveLength(1);
     undo();
-    expect(useStore.getState().leadSheetSections).toEqual([]);
+    expect(useStore.getState().sections).toEqual([]);
   });
 
   it('puts a repeat back', () => {
@@ -87,12 +90,17 @@ describe('what undo restores', () => {
   });
 
   it('restores a mark it had cleared, not just an empty list', () => {
-    setMarks({ leadSheetSections: [{ measureIdx: 1, label: 'A' }] });
-    edit({ leadSheetSections: [] });
+    const verse = {
+      id: 'section-a',
+      type: 'custom' as const,
+      label: 'A',
+      startTick: 1920,
+      endTick: 3840,
+    };
+    setMarks({ sections: [verse] });
+    edit({ sections: [] });
     undo();
-    expect(useStore.getState().leadSheetSections).toEqual([
-      { measureIdx: 1, label: 'A' },
-    ]);
+    expect(useStore.getState().sections).toEqual([verse]);
   });
 
   it('keeps what an edit replaced, by reference: the store never edits in place', () => {

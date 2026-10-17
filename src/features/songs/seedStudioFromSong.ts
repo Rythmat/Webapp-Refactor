@@ -3,17 +3,18 @@ import {
   exportSongToChordRegions,
 } from '@/curriculum/songLibrary/exportToStudio';
 import type { Song } from '@/curriculum/types/songLibrary';
+import { newSectionId, sectionTypeOfLabel } from '@/daw/model/sections';
 import { useStore } from '@/daw/store';
 import { ticksPerBar } from '@/daw/time/timeModel';
 
 /**
  * Apply a song's chart to the project just reset: project metadata,
- * key/mode/tempo, chord regions, and a chords MIDI clip. `useStore.getState()`
- * is a module singleton, so this runs outside React. It is the apply step of
- * the editor's `?song=<id>[&transpose=<n>]` link (openSession's 'song'
- * intent; the Song page's Open in Studio navigates there), which keeps the
- * work it replaces first, resets the project, and hands this the chart
- * already transposed.
+ * key/mode/tempo, chord regions, the song's sections, and a chords MIDI
+ * clip. `useStore.getState()` is a module singleton, so this runs outside
+ * React. It is the apply step of the editor's `?song=<id>[&transpose=<n>]`
+ * link (openSession's 'song' intent; the Song page's Open in Studio
+ * navigates there), which keeps the work it replaces first, resets the
+ * project, and hands this the chart already transposed.
  *
  * Synchronous, and nothing but the song's writes (1.4 CONTRACTS): no reset,
  * no baseline and no undo reset, which are the opener's (openSession
@@ -23,7 +24,7 @@ import { ticksPerBar } from '@/daw/time/timeModel';
  * would shape this one.
  */
 export const applySong = (song: Song): void => {
-  const { regions, restMap, fermatas, rowSizes, sectionMarks } =
+  const { regions, restMap, fermatas, rowSizes, sections } =
     exportSongToChordRegions(song, { voicingMode: 'auto', bassLine: false });
   const store = useStore.getState();
   store.setProjectName(song.title);
@@ -49,8 +50,18 @@ export const applySong = (song: Song): void => {
   store.setChordRegions(regions, false, 'given');
   if (rowSizes) store.setMeasureRowSizes(rowSizes);
   // The Studio plays the roadmap out bar by bar, so it gets the performed
-  // sections and no repeats of its own.
-  store.setLeadSheetSections(sectionMarks);
+  // sections and no repeats of its own: the song's form, each section named
+  // as the chart names it ('Verse 2') and of the kind its name says. An
+  // instrumental verse is still a verse.
+  store.setSections(
+    sections.map(({ label, startTick, endTick }) => ({
+      id: newSectionId(),
+      type: sectionTypeOfLabel(label),
+      label,
+      startTick,
+      endTick,
+    })),
+  );
   store.setLeadSheetRepeats([]);
   if (restMap && Object.keys(restMap).length > 0)
     store.setMeasureRestMap(restMap);

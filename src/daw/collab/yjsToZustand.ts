@@ -16,8 +16,10 @@ import {
   getYChordRegions,
   getYPrism,
   getYMarkers,
+  getYSections,
   getYMastering,
   getYLeadSheet,
+  sectionsFromDoc,
   yMapToTrack,
   yMapToChordRegion,
   yMapToMarker,
@@ -380,6 +382,15 @@ export function observeYjsAndPushToStore(
   yMarkers.observeDeep(onMarkers);
   disposers.push(() => yMarkers.unobserveDeep(onMarkers));
 
+  // ── Song sections (milestone 2.13) ──
+  const ySections = getYSections(doc);
+  const onSections = (_events: Y.YEvent<any>[], tx: Y.Transaction) => {
+    if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
+    setState({ sections: sectionsFromDoc(doc) } as Partial<AllSlices>);
+  };
+  ySections.observeDeep(onSections);
+  disposers.push(() => ySections.unobserveDeep(onSections));
+
   // ── Mastering ──
   // The doc also holds the eight retired mastering macros (style, eq,
   // dynamics, loudness, stereoField, amount, presence, deEsser) for older
@@ -441,12 +452,9 @@ export function observeYjsAndPushToStore(
       if (event instanceof Y.YMapEvent) {
         for (const key of event.keysChanged) {
           const value = yLeadSheet.get(key);
+          // 'sections' is the Lead Sheet's bar marks from before 2.13: the
+          // song's sections have their own array now (above).
           switch (key) {
-            case 'sections':
-              (patch as Record<string, unknown>).leadSheetSections = JSON.parse(
-                value as string,
-              );
-              break;
             case 'repeats':
               (patch as Record<string, unknown>).leadSheetRepeats = JSON.parse(
                 value as string,
@@ -524,6 +532,9 @@ export function pullDocIntoStore(
     .toArray()
     .map((ym) => yMapToMarker(ym as Y.Map<unknown>));
 
+  // ── Song sections ──
+  patch.sections = sectionsFromDoc(doc);
+
   // ── Mastering ── (docKey → [storeKey, isJsonEncoded])
   // Only these keys reach the store: the retired macros the doc keeps for
   // older peers are left where they are (see the observer above).
@@ -556,7 +567,6 @@ export function pullDocIntoStore(
   // ── Lead sheet ──
   const yLeadSheet = getYLeadSheet(doc);
   const leadSheetMap: Record<string, [string, boolean]> = {
-    sections: ['leadSheetSections', true],
     repeats: ['leadSheetRepeats', true],
     chordFormat: ['leadSheetChordFormat', false],
     showRepeats: ['leadSheetShowRepeats', false],

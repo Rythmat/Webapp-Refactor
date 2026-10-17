@@ -12,10 +12,10 @@ deploy at any time. No flag and no client release are needed.
 
 A Studio save today keeps the tracks, clips, tempo, key and mixer. It loses
 everything else the editor holds: the chord lane, the mode, the time
-signature, the loop range, markers, mastering, the Score and Lead Sheet
-(marks, layout, sections), Prism's builder settings, clip lengths, controller
-data (sustain pedal), note ids, muted clips and audio clips' names. The save
-toast says "Project saved", but the project reopens without them.
+signature, the loop range, markers, the song's sections, mastering, the Score
+and Lead Sheet (marks, layout), Prism's builder settings, clip lengths,
+controller data (sustain pedal), note ids, muted clips and audio clips' names.
+The save toast says "Project saved", but the project reopens without them.
 
 The client now writes all of that as one JSON object, the **cloud document**.
 The API's only job is to store it and give it back, plus a **revision** number
@@ -32,7 +32,7 @@ reads or changes what is inside it.**
 | column                | type                        | meaning                                                  |
 | --------------------- | --------------------------- | -------------------------------------------------------- |
 | `document`            | `JSONB NULL`                | the client's document, stored as sent                    |
-| `document_schema`     | `INT NULL`                  | its format version (`documentSchema`), today `6`         |
+| `document_schema`     | `INT NULL`                  | its format version (`documentSchema`), today `7`         |
 | `revision`            | `BIGINT NOT NULL DEFAULT 0` | +1 on every successful POST and PUT                      |
 | `written_at_revision` | `BIGINT NULL`               | the `revision` of the last write that carried `document` |
 

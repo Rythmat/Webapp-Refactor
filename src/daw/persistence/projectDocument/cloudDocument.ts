@@ -23,11 +23,14 @@ import { LOCAL_KEYS, STORE_FIELDS } from './fields';
 // What a cloud save carries beyond today's payload: everything of the
 // project the payload has no place for (the registry's cloud 'document'
 // fields: the metre, the loop range, the mode, the chord lane, the Prism
-// builder, the Score and Lead Sheet, markers, mastering, clip lengths,
-// controller data, note ids, clip mutes and audio clips' names), plus copies
-// of the two the payload carries
-// only in places music-atlas-api hasn't confirmed it keeps (the return
-// buses, and the Master automation on the first track's settings).
+// builder, the Score and Lead Sheet, markers, song sections, mastering,
+// clip lengths, controller data, note ids, clip mutes and audio clips'
+// names), plus copies of the two the payload carries only in places
+// music-atlas-api hasn't confirmed it keeps (the return buses, and the
+// Master automation on the first track's settings). Like the draft, it
+// writes the Lead Sheet's marks its sections imply in their old place, for
+// builds from before 2.13, and reads sections back from them when an older
+// document has none (codec.ts).
 //
 // It is codec v3 (codec.ts) cut down: the same sections, the same keys at
 // the same places, written by encodeSession, so it needs no format of its
@@ -189,8 +192,12 @@ export function encodeCloudDocument(project: ProjectSnapshot): CloudDocument {
       section[key] = (data[place] as Section)[key];
     }
   }
-  const marks = (data.notation as Section | undefined)?.marks;
-  if (marks !== undefined) (doc.notation ??= {}).marks = marks;
+  const notation = data.notation as Section | undefined;
+  if (notation?.marks !== undefined)
+    (doc.notation ??= {}).marks = notation.marks;
+  if (notation?.leadSheetSections !== undefined) {
+    (doc.notation ??= {}).leadSheetSections = notation.leadSheetSections;
+  }
 
   for (const track of draft.data.tracks) {
     for (const clip of track.midiClips) {
@@ -482,6 +489,11 @@ export function cloudProjectDraft(
     const notation = doc.notation;
     if (isRecord(notation) && notation.marks !== undefined) {
       sections.notation.marks = notation.marks;
+    }
+    // A document from before 2.13 has only these; decodeSession reads the
+    // sections back from them.
+    if (isRecord(notation) && notation.leadSheetSections !== undefined) {
+      sections.notation.leadSheetSections = notation.leadSheetSections;
     }
   }
   const prism = isRecord(project.prism) ? project.prism : {};

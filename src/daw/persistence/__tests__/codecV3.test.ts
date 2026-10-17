@@ -3,8 +3,8 @@
  * Codec v3: the project draft written on this device (the autosave, kept
  * work) and read back (projectDocument/codec.ts, through SessionSerializer).
  *
- * fixtures/v6-all-fields/all-fields.json is a draft in today's format (v3's
- * codec at schema 6) holding a value other than its default for every local
+ * fixtures/v7-all-fields/all-fields.json is a draft in today's format (v3's
+ * codec at schema 7) holding a value other than its default for every local
  * registry field: every doc and view store
  * key, every Track field and every nested field (clips, notes, controller
  * events, audio clips, chord regions, markers, return buses), an Oracle
@@ -83,7 +83,7 @@ const s = () => useStore.getState();
 
 const ALL_FIELDS = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v6-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v7-all-fields/all-fields.json',
 );
 const allFields = (): StoredSession =>
   JSON.parse(readFileSync(ALL_FIELDS, 'utf8')) as StoredSession;
@@ -363,16 +363,16 @@ describe('the all-fields draft', () => {
     );
   });
 
-  it('is written in the v2 envelope with the v5 schema', () => {
+  it('is written in the v2 envelope with today’s schema', () => {
     const stored = allFields();
     expect([stored.version, stored.schema, stored.compat]).toEqual([
       2,
       SESSION_SCHEMA_VERSION,
       SESSION_COMPAT_VERSION,
     ]);
-    // Schemas 4 (1.10), 5 (2.7) and 6 (2.12) only added fields, so a 1.3
+    // Schemas 4 (1.10), 5 (2.7), 6 (2.12) and 7 (2.13) only added fields, so a 1.3
     // build still reads it.
-    expect([SESSION_SCHEMA_VERSION, SESSION_COMPAT_VERSION]).toEqual([6, 3]);
+    expect([SESSION_SCHEMA_VERSION, SESSION_COMPAT_VERSION]).toEqual([7, 3]);
     // Prefs are kept per user, apart from any project.
     expect(stored.data.transport).not.toHaveProperty('metronomeEnabled');
     expect(JSON.stringify(stored.data)).not.toMatch(

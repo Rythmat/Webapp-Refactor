@@ -8,6 +8,7 @@ import type { AllSlices } from '@/daw/store/index';
 import type { Track, MidiClip, AudioClip } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { Marker } from '@/daw/store/markersSlice';
+import type { SongSection } from '@/daw/model/sections';
 import {
   getYProject,
   getYTransport,
@@ -15,6 +16,7 @@ import {
   getYChordRegions,
   getYPrism,
   getYMarkers,
+  getYSections,
   getYMastering,
   getYLeadSheet,
   trackToYMap,
@@ -23,6 +25,7 @@ import {
   midiEventToYMap,
   chordRegionToYMap,
   markerToYMap,
+  sectionToYMap,
 } from './YjsDocManager';
 // ── Helpers ─────────────────────────────────────────────────────────────
 
@@ -103,6 +106,11 @@ export function diffAndApply(
   // ── Markers ──
   if (prev.markers !== next.markers) {
     diffMarkers(doc, prev.markers, next.markers);
+  }
+
+  // ── Song sections ──
+  if (prev.sections !== next.sections) {
+    diffSections(doc, prev.sections, next.sections);
   }
 
   // ── Mastering ──
@@ -460,6 +468,46 @@ function diffMarkers(
   }
 }
 
+// ── Song sections diff (milestone 2.13) ─────────────────────────────────
+
+/** Keyed by id, as the markers are: a removal, an addition, the fields that changed. */
+function diffSections(
+  doc: Y.Doc,
+  prevSections: SongSection[],
+  nextSections: SongSection[],
+): void {
+  const ySections = getYSections(doc);
+  const prevById = new Map(prevSections.map((s) => [s.id, s]));
+  const nextIds = new Set(nextSections.map((s) => s.id));
+
+  for (let i = ySections.length - 1; i >= 0; i--) {
+    const ys = ySections.get(i) as Y.Map<unknown>;
+    if (!nextIds.has(ys.get('id') as string)) ySections.delete(i, 1);
+  }
+
+  for (const next of nextSections) {
+    const prev = prevById.get(next.id);
+    if (!prev) {
+      // Not in the doc yet (a peer's own copy may already hold it: an undo
+      // that brings back a section a collaborator also restored).
+      if (!findYMap(ySections, 'id', next.id)) {
+        ySections.push([sectionToYMap(next)]);
+      }
+      continue;
+    }
+    if (prev === next) continue;
+    const ys = findYMap(ySections, 'id', next.id);
+    if (!ys) {
+      ySections.push([sectionToYMap(next)]);
+      continue;
+    }
+    if (prev.type !== next.type) ys.set('type', next.type);
+    if (prev.label !== next.label) ys.set('label', next.label);
+    if (prev.startTick !== next.startTick) ys.set('startTick', next.startTick);
+    if (prev.endTick !== next.endTick) ys.set('endTick', next.endTick);
+  }
+}
+
 // ── Mastering diff ──────────────────────────────────────────────────────
 
 // The doc's eight retired macro keys (style, eq, dynamics, loudness,
@@ -487,8 +535,6 @@ function diffMastering(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
 
 function diffLeadSheet(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
   const yLS = getYLeadSheet(doc);
-  if (prev.leadSheetSections !== next.leadSheetSections)
-    yLS.set('sections', JSON.stringify(next.leadSheetSections));
   if (prev.leadSheetRepeats !== next.leadSheetRepeats)
     yLS.set('repeats', JSON.stringify(next.leadSheetRepeats));
   if (prev.leadSheetChordFormat !== next.leadSheetChordFormat)

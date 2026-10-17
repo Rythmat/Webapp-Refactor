@@ -830,9 +830,10 @@ describe('hasWorkToKeep', () => {
         ]),
       true,
     ],
+    ['add a lead-sheet section', () => s().markSectionAtBar(0, 'Verse'), true],
     [
-      'add a lead-sheet section',
-      () => s().addLeadSheetSection({ measureIdx: 0, label: 'Verse' }),
+      'add a section in the sections lane',
+      () => s().addSection({ type: 'chorus', label: 'Chorus' }),
       true,
     ],
     ['strum the Prism chords', () => s().setStrumAmount(30), true],

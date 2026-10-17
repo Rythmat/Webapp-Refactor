@@ -80,6 +80,7 @@ const GROUP_OF_KEY: Readonly<Record<string, string>> = {
   loopStart: 'loop range',
   loopEnd: 'loop range',
   markers: 'markers',
+  sections: 'song sections',
   masterVolume: 'mastering',
   masteringFxChain: 'mastering',
   masteringEffects: 'mastering',
@@ -107,6 +108,7 @@ const GROUP_ORDER: readonly string[] = [
   'chord symbols',
   'notation',
   'markers',
+  'song sections',
   'time signature',
   'mode',
   'mastering',
@@ -165,6 +167,7 @@ export function groupsFromGaps(gaps: readonly string[]): string[] {
 const PLURAL_GROUPS: ReadonlySet<string> = new Set([
   'chord symbols',
   'markers',
+  'song sections',
   'Prism settings',
   'clip lengths',
   'effect returns',

@@ -11,6 +11,7 @@ import {
 } from '@/daw/prism-engine/types';
 import type { AllSlices } from '@/daw/store';
 import type { Marker } from '@/daw/store/markersSlice';
+import type { SongSection } from '@/daw/model/sections';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { defaultReturns, type ReturnBus } from '@/daw/store/returnsSlice';
 import type {
@@ -122,6 +123,7 @@ export const FIELD_GROUPS = [
   'prism',
   'notation',
   'markers',
+  'sections',
   'mixer',
   'view',
   'context',
@@ -310,7 +312,6 @@ const STORE_SPECS = {
   measureFermatas: doc('notation', null, 'document', SHARED_UNDO),
   leadSheetBars: doc('notation', null, 'document', SHARED_UNDO),
   leadSheetChordFormat: doc('notation', 'hybrid', 'document', SHARED),
-  leadSheetSections: doc('notation', () => [], 'document', SHARED_UNDO),
   leadSheetRepeats: doc('notation', () => [], 'document', SHARED_UNDO),
   leadSheetShowRepeats: doc('notation', false, 'document', SHARED),
   leadSheetShowMelody: doc('notation', false, 'document', SHARED),
@@ -328,6 +329,9 @@ const STORE_SPECS = {
 
   // ── markers ──
   markers: doc('markers', () => [], 'document', SHARED_UNDO),
+
+  // ── song sections (milestone 2.13) ──
+  sections: doc('sections', () => [], 'document', SHARED_UNDO),
 
   // ── mixer ──
   masterVolume: doc('mixer', 0.8, 'document', SHARED_UNDO),
@@ -712,6 +716,7 @@ const nestedIn =
 const trackPart = nestedIn('tracks');
 const regionPart = nestedIn('harmony');
 const markerPart = nestedIn('markers');
+const sectionPart = nestedIn('sections');
 const busPart = nestedIn('mixer');
 
 type MidiClipFields = { [K in keyof MidiClip]-?: FieldSpec<MidiClip[K]> };
@@ -793,6 +798,19 @@ export const MARKER_FIELDS: MarkerSpecs = Object.freeze({
   name: markerPart('', 'document'),
   color: markerPart('#e8e8f0', 'document'),
 } satisfies MarkerSpecs);
+
+type SectionSpecs = { [K in keyof SongSection]-?: FieldSpec<SongSection[K]> };
+
+export const SECTION_FIELDS: SectionSpecs = Object.freeze({
+  id: sectionPart(
+    () => `section-${crypto.randomUUID().slice(0, 8)}`,
+    'document',
+  ),
+  type: sectionPart<SongSection['type']>('custom', 'document'),
+  label: sectionPart('', 'document'),
+  startTick: sectionPart(0, 'document'),
+  endTick: sectionPart(0, 'document'),
+} satisfies SectionSpecs);
 
 type ReturnBusSpecs = { [K in keyof ReturnBus]-?: FieldSpec<ReturnBus[K]> };
 

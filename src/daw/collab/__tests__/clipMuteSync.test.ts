@@ -63,8 +63,8 @@ function roundTrip(track: Track): Track {
 }
 
 describe('clip mute and name in the doc', () => {
-  it('is doc schema 2', () => {
-    expect(COLLAB_DOC_SCHEMA_VERSION).toBe(2);
+  it('needs doc schema 2 or later', () => {
+    expect(COLLAB_DOC_SCHEMA_VERSION).toBeGreaterThanOrEqual(2);
   });
 
   it('round-trips a muted MIDI clip and a named, muted audio clip', () => {

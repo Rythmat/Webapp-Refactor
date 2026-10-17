@@ -12,8 +12,9 @@ import {
   Lock,
   GitMerge,
 } from 'lucide-react';
-import { useStore } from '@/daw/store';
+import { useLeadSheetSections, useStore } from '@/daw/store';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
+import { chartExtraBars } from '@/daw/time/measureEdits';
 import { timeSignatureOf } from '@/daw/time/timeModel';
 import { withTransaction } from '@/daw/store/history';
 import type { LeadSheetChordFormat } from '@/daw/store/uiSlice';
@@ -49,9 +50,10 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const showRepeats = useStore((s) => s.leadSheetShowRepeats);
   const setShowRepeats = useStore((s) => s.setLeadSheetShowRepeats);
   const projectName = useStore((s) => s.projectName);
-  const sections = useStore((s) => s.leadSheetSections);
-  const addSection = useStore((s) => s.addLeadSheetSection);
-  const removeSection = useStore((s) => s.removeLeadSheetSection);
+  // The song's sections, as marks on the bars they start at (milestone 2.13).
+  const sections = useLeadSheetSections();
+  const markSectionAtBar = useStore((s) => s.markSectionAtBar);
+  const removeSectionAtBar = useStore((s) => s.removeSectionAtBar);
   const repeats = useStore((s) => s.leadSheetRepeats);
   const addRepeat = useStore((s) => s.addLeadSheetRepeat);
   const removeRepeat = useStore((s) => s.removeLeadSheetRepeat);
@@ -72,7 +74,11 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
       mode,
       // Written in the project's metre, not 4/4 (ia-flows-34).
       timeSignature: timeSignatureOf(state),
-      extraBars: state.leadSheetBars,
+      extraBars: chartExtraBars(
+        state.leadSheetBars,
+        state.sections,
+        timeSignatureOf(state),
+      ),
     });
   }, [chordRegions, bpm, rootNote, mode, projectName]);
 
@@ -145,13 +151,13 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
       validate: (value) => (value.trim() ? null : 'Type a label to add it.'),
     });
     if (!label || !label.trim()) return;
-    addSection({ measureIdx, label: label.trim() });
-  }, [selectedMeasureIdx, addSection]);
+    markSectionAtBar(measureIdx, label.trim());
+  }, [selectedMeasureIdx, markSectionAtBar]);
 
   const handleRemoveSection = useCallback(() => {
     if (selectedMeasureIdx === null) return;
-    removeSection(selectedMeasureIdx);
-  }, [selectedMeasureIdx, removeSection]);
+    removeSectionAtBar(selectedMeasureIdx);
+  }, [selectedMeasureIdx, removeSectionAtBar]);
 
   const handleAddRepeat = useCallback(() => {
     if (selectedMeasureIdx === null) return;

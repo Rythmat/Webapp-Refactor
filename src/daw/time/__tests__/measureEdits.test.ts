@@ -14,6 +14,7 @@ import {
 // fermatas, breaks and the melody behind (leadsheet-07, prism-ui-21).
 
 const BAR_68 = 1440; // 6/8
+const ts68 = { numerator: 6, denominator: 8 };
 
 const chord = (id: string, from: number, to: number): ChordRegion => ({
   id,
@@ -52,9 +53,21 @@ function state(over: Partial<MeasureEditState> = {}): MeasureEditState {
     timeSignatureDenominator: 8,
     chordRegions: [chord('A', 0, 2), chord('B', 2, 4), chord('C', 4, 8)],
     leadSheetBars: null,
-    leadSheetSections: [
-      { measureIdx: 0, label: 'Verse' },
-      { measureIdx: 4, label: 'Chorus' },
+    sections: [
+      {
+        id: 'verse',
+        type: 'verse',
+        label: 'Verse',
+        startTick: 0,
+        endTick: 4 * BAR_68,
+      },
+      {
+        id: 'chorus',
+        type: 'chorus',
+        label: 'Chorus',
+        startTick: 4 * BAR_68,
+        endTick: 8 * BAR_68,
+      },
     ],
     leadSheetRepeats: [{ startMeasure: 4, endMeasure: 7 }],
     measureRestMap: { 2: 2 },
@@ -86,9 +99,10 @@ describe('inserting a bar in 6/8', () => {
   });
 
   it('moves every bar-indexed mark at or after it', () => {
-    expect(patch.leadSheetSections).toEqual([
-      { measureIdx: 0, label: 'Verse' },
-      { measureIdx: 5, label: 'Chorus' },
+    // The verse holds bar 3, so it is a bar longer; the chorus moves on.
+    expect(patch.sections!.map((x) => [x.id, x.startTick, x.endTick])).toEqual([
+      ['verse', 0, 5 * BAR_68],
+      ['chorus', 5 * BAR_68, 9 * BAR_68],
     ]);
     expect(patch.leadSheetRepeats).toEqual([
       { startMeasure: 5, endMeasure: 8 },
@@ -129,9 +143,10 @@ describe('deleting bars', () => {
       ['B', 2 * BAR_68, 4 * BAR_68],
       ['C', 4 * BAR_68, 7 * BAR_68],
     ]);
-    // The Chorus mark sat on the deleted bar.
-    expect(patch.leadSheetSections).toEqual([
-      { measureIdx: 0, label: 'Verse' },
+    // The chorus loses the deleted bar, its first, and keeps the rest.
+    expect(patch.sections!.map((x) => [x.id, x.startTick, x.endTick])).toEqual([
+      ['verse', 0, 4 * BAR_68],
+      ['chorus', 4 * BAR_68, 7 * BAR_68],
     ]);
     expect(patch.leadSheetRepeats).toEqual([
       { startMeasure: 4, endMeasure: 6 },
@@ -171,12 +186,35 @@ describe('deleting bars', () => {
     const one = state({
       chordRegions: [chord('A', 0, 1)],
       leadSheetBars: 1,
+      sections: [],
       measureRestMap: null,
       measureFermatas: null,
       measureRowSizes: null,
     });
     // A blank chart shows four bars: three can go, the fourth stays.
     expect(measureEditPatch(one, 0, -4)?.leadSheetBars).toBe(1);
+  });
+
+  it('counts the bars the song’s sections cover as the chart’s (2.13)', () => {
+    // The verse and chorus run to bar 8; the chords stop there too, but a
+    // section past them keeps its bars on the chart.
+    const longer = state({
+      chordRegions: [chord('A', 0, 2)],
+      sections: [
+        {
+          id: 'outro',
+          type: 'outro',
+          label: 'Outro',
+          startTick: 0,
+          endTick: 12 * BAR_68,
+        },
+      ],
+    });
+    expect(
+      chartBarCount(longer.chordRegions, null, ts68, longer.sections),
+    ).toBe(12);
+    // Deleting the last two bars leaves ten.
+    expect(measureEditPatch(longer, 10, -2)?.leadSheetBars).toBe(10);
   });
 });
 
@@ -216,5 +254,5 @@ it('leaves a melody a collaborator holds alone', () => {
     'mel',
   )!;
   expect(patch.tracks).toBeUndefined();
-  expect(patch.leadSheetSections?.[0].measureIdx).toBe(1);
+  expect(patch.sections?.[0].startTick).toBe(BAR_68);
 });

@@ -8,6 +8,7 @@ import {
   DOC_CONTENT_KEYS,
   DOC_KEYS,
   MARKER_FIELDS,
+  SECTION_FIELDS,
   MIDI_CLIP_FIELDS,
   NOTE_EVENT_FIELDS,
   RETURN_BUS_FIELDS,
@@ -333,6 +334,7 @@ const TRACK_SHAPE = shapeOf(TRACK_DOC_FIELDS, {
 const TOP_LIST_SHAPES: Readonly<Record<string, Shape>> = {
   chordRegions: shapeOf(Object.keys(CHORD_REGION_FIELDS)),
   markers: shapeOf(Object.keys(MARKER_FIELDS)),
+  sections: shapeOf(Object.keys(SECTION_FIELDS)),
   returns: shapeOf(Object.keys(RETURN_BUS_FIELDS)),
 };
 

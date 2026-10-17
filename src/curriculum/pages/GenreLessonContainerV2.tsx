@@ -37,6 +37,7 @@ import { TabTheoryOverlay } from '@/curriculum/components/LearnTabView';
 import { GuitarLessonVisuals } from '@/curriculum/components/guitar';
 import { useGuitarTabLayers } from '@/curriculum/components/guitar/GuitarLessonVisuals';
 import { MusicMapOverlay } from '@/curriculum/components/guitar/theory';
+import { createTransportClock } from '@/curriculum/components/transportClock';
 import {
   centerTitle,
   flowGuitarCenterId,
@@ -639,10 +640,6 @@ function GenreLessonContainerV2Inner({
 
   // For IT activities, offset all notes by 1 bar to create a genuine count-in
   const COUNT_IN_OFFSET = barLength; // one bar of the step's meter
-  /** Lead time given to every transport start, so the graph is ready. */
-  const TRANSPORT_LEAD_SEC = 0.1;
-  /** A little past the start, so the first read is a real tick, not a null. */
-  const PLAYHEAD_SETTLE_MS = 60;
   // In time, the student's bar 1 arrives two bars after transport start: the
   // piano roll's own count-in bar (its playhead starts a bar early) plus the
   // one-bar note offset above. Audio scheduled on the transport — the practice
@@ -1086,124 +1083,37 @@ function GenreLessonContainerV2Inner({
     return () => stopTickCounter();
   }, [stopTickCounter]);
 
-  /**
-   * Audio-clock second the transport is scheduled to begin, or null when it is
-   * not running. Every start goes through startTransport so this is always set
-   * before the playhead can ask a question about a time near the beginning.
-   */
-  const transportStartRef = useRef<number | null>(null);
+  // The transport, read through transportClock.ts (shared with Music
+  // Literacy's player): when it begins, what the student hears now
+  // (playbackTicks) and where a note played now lands (soundingTicks).
+  // Made once, so the playhead loop that takes playbackTicks never restarts.
+  const [clock] = useState(createTransportClock);
+  const {
+    noteStart: noteTransportStart,
+    start: startTransport,
+    stop: stopTransport,
+    wait: waitForTransport,
+    playbackTicks,
+  } = clock;
 
-  /**
-   * Start the transport and remember when it will actually begin.
-   *
-   * `leadSeconds` buys the audio graph a moment to be ready. It is the same for
-   * every path on purpose: practice, Play Now with a backing track and Play Now
-   * with only a metronome used to start with three different lead times and
-   * three different sleeps before the playhead was switched on, so the amount
-   * of margin the playhead got depended on which button was pressed. The
-   * metronome-only path had none at all, which is what made its playhead sit on
-   * beat 1 while the count had already begun.
-   */
-  const noteTransportStart = useCallback((leadSeconds: number) => {
-    const startAt = Tone.now() + leadSeconds;
-    transportStartRef.current = startAt;
-    return startAt;
-  }, []);
-
-  const startTransport = useCallback(
-    (leadSeconds = TRANSPORT_LEAD_SEC) => {
-      const startAt = noteTransportStart(leadSeconds);
-      Tone.getTransport().start(startAt);
-      return startAt;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- TRANSPORT_LEAD_SEC is a render-stable constant
-    [noteTransportStart],
-  );
-
-  /** Stop the transport and forget when it started, so no stale read survives. */
-  const stopTransport = useCallback(() => {
-    Tone.getTransport().stop();
-    transportStartRef.current = null;
-  }, []);
-
-  /** Wait until the transport has begun, plus a frame, before the playhead reads it. */
-  const waitForTransport = useCallback(async () => {
-    const startAt = transportStartRef.current;
-    const remaining = startAt === null ? 0 : startAt - Tone.now();
-    const ms = Math.max(0, remaining * 1000) + PLAYHEAD_SETTLE_MS;
-    await new Promise((resolve) => setTimeout(resolve, ms));
-  }, []);
-
-  const ticksAt = useCallback((time: number): number | null => {
-    const transport = Tone.getTransport();
-    if (transport.state !== 'started') return null;
-
-    // Before the transport begins there is no honest position for this moment.
-    // Answering 0 would be a lie the playhead cannot tell from a real tick 0 a
-    // count-in bar later, and it would sit at the start for however long the
-    // output latency happens to be.
-    const startedAt = transportStartRef.current;
-    if (startedAt === null || time < startedAt) return null;
-
-    let ticks: number;
-    try {
-      ticks = (transport.getTicksAtTime(time) / transport.PPQ) * 480;
-    } catch {
-      // Tone throws for a time outside its recorded history.
-      return null;
-    }
-    return Number.isFinite(ticks) ? ticks : null;
-  }, []);
-
-  const playbackTicks = useCallback((): number | null => {
-    const context = Tone.getContext().rawContext as AudioContext;
-    // Browsers can report a stale device latency after an output switch; a
-    // real one is well under half a second, so cap it rather than let a bogus
-    // value park the playhead before the run.
-    const deviceLatency = Math.min(
-      MAX_DEVICE_LATENCY_SEC,
-      Math.max(0, (context.outputLatency ?? 0) + (context.baseLatency ?? 0)),
-    );
-    return ticksAt(
-      context.currentTime -
-        deviceLatency -
-        useSettingsStore.getState().outputLatencyMs / 1000,
-    );
-  }, [ticksAt]);
-
-  // Where a note played right now lands in the music: it sounds from the audio
-  // clock's "now", travels to the speakers alongside the backing track, and so
-  // reaches the student's ear beside it. Hits are stamped and scored here, not
-  // at the playhead — a player with output latency presses early so that what
-  // they hear of themselves lands on the beat, and that's the playing to judge.
+  // Where a note played right now lands in the music (transportClock.ts),
+  // in the piano roll's space, where its own count-in bar puts tick 0 one
+  // bar after the transport starts — that's how user notes are stored.
   const soundingTicks = useCallback((): number | null => {
-    const context = Tone.getContext().rawContext as AudioContext;
-    const ticks = ticksAt(context.currentTime);
-    // Into the piano roll's space, where its own count-in bar puts tick 0 one
-    // bar after the transport starts — that's how user notes are stored.
+    const ticks = clock.soundingTicks();
     return ticks == null ? null : ticks - COUNT_IN_OFFSET;
-  }, [ticksAt, COUNT_IN_OFFSET]);
+  }, [clock, COUNT_IN_OFFSET]);
 
   // Where a guitar heard through the microphone lands in the music. An
   // acoustic guitar doesn't go through the app's output, so the student plays
-  // it against what they hear: the playhead's moment (audio clock less the
-  // output latency, as playbackTicks), taken at the note's attack time.
+  // it against what they hear: the playhead's moment, taken at the note's
+  // attack time.
   const heardTicksAt = useCallback(
     (perfMs: number): number | null => {
-      const context = Tone.getContext().rawContext as AudioContext;
-      const deviceLatency = Math.min(
-        MAX_DEVICE_LATENCY_SEC,
-        Math.max(0, (context.outputLatency ?? 0) + (context.baseLatency ?? 0)),
-      );
-      const ticks = ticksAt(
-        context.currentTime -
-          (performance.now() - perfMs) / 1000 -
-          deviceLatency -
-          useSettingsStore.getState().outputLatencyMs / 1000,
-      );
+      const ticks = clock.heardTicksAt(perfMs);
       return ticks == null ? null : ticks - COUNT_IN_OFFSET;
     },
-    [ticksAt, COUNT_IN_OFFSET],
+    [clock, COUNT_IN_OFFSET],
   );
 
   // ── MIDI input subscription (dongle connection — read-only) ──────────────
@@ -3012,8 +2922,6 @@ function outputLatencySecNow(): number {
 }
 
 // ── Exported component with provider wrapper ─────────────────────────────────
-
-const MAX_DEVICE_LATENCY_SEC = 0.5;
 
 export function GenreLessonContainerV2(props: GenreLessonContainerV2Props) {
   // The input reads its instrument once, on mount: a new one remounts it.

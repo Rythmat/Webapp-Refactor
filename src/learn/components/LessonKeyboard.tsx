@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type PointerEvent,
+} from 'react';
 import { create } from 'zustand';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext';
@@ -12,13 +18,16 @@ import {
   normalizeKeyRange,
   outOfRangeDirection,
   shiftKeyRange,
+  whiteKeysIn,
 } from '@/learn/keyboard/lessonKeyboardRange';
 import { useLessonKeyboardStage } from '@/learn/keyboard/lessonKeyboardStage';
 import { type PlayedKeys, toPlayedNotes } from '@/learn/keyboard/playedKeys';
 
 // The on-screen keyboard every Learn surface shows under the activity. It
 // fills the width and mirrors the player's keyboard (see
-// lessonKeyboardRange.ts for the rules).
+// lessonKeyboardRange.ts for the rules). A surface can instead ask for a
+// fixed set of keys at real proportions (`range` and `natural`: Music
+// Literacy's 25 keys, C3–C5).
 
 /**
  * Where the player's hardware is sitting right now. In memory only, shared
@@ -54,6 +63,17 @@ type LessonKeyboardProps = {
   useContextNotes?: boolean;
   enableMidiInterface?: boolean;
   onKeyClick?: (midi: number) => void;
+  /** A key pressed (pointer down), for keys that sound until let go. */
+  onKeyPointerDown?: (midi: number, event: PointerEvent) => void;
+  /** Exactly these keys, whatever the player's keyboard: no following
+   *  their octave buttons, no widening, no out-of-range notice. */
+  range?: KeyRange;
+  /** Real key proportions: each white key `aspect` times as tall as it is
+   *  wide, never stretched to the width. The keys are as wide as fits under
+   *  `maxHeight` (px), centred. */
+  natural?: { aspect: number; maxHeight: number };
+  /** A word at the foot of a key (MIDI -> text): a scale degree. */
+  keyLabels?: ReadonlyMap<number, string>;
 };
 
 export function LessonKeyboard({
@@ -61,6 +81,8 @@ export function LessonKeyboard({
   minHeight = 120,
   showOctaveStart = true,
   playedKeys,
+  range,
+  natural,
   ...keyboardProps
 }: LessonKeyboardProps) {
   const playedNotes = useMemo(
@@ -78,7 +100,12 @@ export function LessonKeyboard({
     }
   }, [viewKey, mappingKey]);
 
+  const fixed = useMemo(
+    () => (range ? normalizeKeyRange(range) : null),
+    [range?.low, range?.high],
+  );
   const view = useMemo<KeyRange>(() => {
+    if (fixed) return fixed;
     if (viewKey !== mappingKey) {
       return mapping
         ? normalizeKeyRange({ low: mapping.firstNote, high: mapping.lastNote })
@@ -91,7 +118,7 @@ export function LessonKeyboard({
       );
     }
     return grown ?? DEFAULT_LESSON_KEY_RANGE;
-  }, [mapping, mappingKey, viewKey, offset, grown]);
+  }, [fixed, mapping, mappingKey, viewKey, offset, grown]);
 
   const handleNote = useCallback(
     (midi: number) => {
@@ -105,13 +132,30 @@ export function LessonKeyboard({
     },
     [view, mapped],
   );
-  useMidiNoteListener(true, handleNote);
+  // A fixed range stays put, and leaves the shared window alone.
+  useMidiNoteListener(!fixed, handleNote);
 
   // What's drawn: the player's keys, widened to every target note.
   const shown = useMemo(
-    () => (targetMidis ? includeTargets(view, targetMidis) : view),
-    [view, targetMidis],
+    () => (targetMidis && !fixed ? includeTargets(view, targetMidis) : view),
+    [view, targetMidis, fixed],
   );
+
+  // Real proportions: as wide as the box, or as the height cap allows.
+  const [boxEl, setBoxEl] = useState<HTMLDivElement | null>(null);
+  const boxWidth = useBoxWidth(natural ? boxEl : null);
+  const naturalSize = useMemo(() => {
+    if (!natural || boxWidth <= 0) return null;
+    const whites = Math.max(1, whiteKeysIn(shown).length);
+    const keyWidth = Math.min(
+      boxWidth / whites,
+      natural.maxHeight / natural.aspect,
+    );
+    return {
+      width: Math.floor(keyWidth * whites),
+      height: Math.round(keyWidth * natural.aspect),
+    };
+  }, [natural?.aspect, natural?.maxHeight, boxWidth, shown]);
 
   // Tell the cascade view where the keys are.
   const [stageEl, setStageEl] = useState<HTMLDivElement | null>(null);
@@ -129,24 +173,60 @@ export function LessonKeyboard({
   // player needs their octave buttons to play what's on screen.
   const outOfRange = useMemo(
     () =>
-      mapped && targetMidis ? outOfRangeDirection(view, targetMidis) : null,
-    [mapped, view, targetMidis],
+      mapped && targetMidis && !fixed
+        ? outOfRangeDirection(view, targetMidis)
+        : null,
+    [mapped, view, targetMidis, fixed],
   );
 
   return (
-    <div className="relative w-full">
-      <div ref={setStageEl}>
+    <div ref={setBoxEl} className="relative w-full">
+      <div
+        ref={setStageEl}
+        className={natural ? 'mx-auto' : undefined}
+        style={
+          natural
+            ? { width: naturalSize?.width ?? '100%', maxWidth: '100%' }
+            : undefined
+        }
+      >
         <PianoKeyboard
           {...keyboardProps}
           playedNotes={playedNotes}
           showOctaveStart={showOctaveStart}
-          fill={{ lowMidi: shown.low, highMidi: shown.high, minHeight }}
+          fill={{
+            lowMidi: shown.low,
+            highMidi: shown.high,
+            minHeight,
+            ...(naturalSize ? { height: naturalSize.height } : {}),
+          }}
         />
       </div>
       {/* Under the keys, never over the music above them. */}
       {outOfRange && <OctaveNotice direction={outOfRange} />}
     </div>
   );
+}
+
+/** Live width of `el` (0 until measured). */
+function useBoxWidth(el: HTMLElement | null): number {
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    if (!el) return;
+    const measure = () => setWidth(el.clientWidth);
+    measure();
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(measure);
+    observer?.observe(el);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [el]);
+  return width;
 }
 
 const NOTICE_TEXT = {

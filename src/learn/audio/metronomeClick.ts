@@ -61,18 +61,21 @@ subscribeLessonVolume(() => {
  * Silently does nothing when the audio context is not running yet: the first
  * beats of a count-in can land before the context resumes, and a dropped click
  * is better than a thrown error mid-animation-frame.
+ *
+ * `time` is a transport callback's time, for clicks scheduled on the
+ * transport (Music Literacy's count-in); without it the click is now.
  */
-export function playClick(isDownbeat: boolean): void {
+export function playClick(isDownbeat: boolean, time?: number): void {
   if (Tone.getContext().state !== 'running') return;
 
-  const now = Tone.now();
-  if (lastClickAt >= 0 && now - lastClickAt < MIN_CLICK_SPACING_SECONDS) return;
-  lastClickAt = now;
+  const at = time ?? Tone.now();
+  if (lastClickAt >= 0 && at - lastClickAt < MIN_CLICK_SPACING_SECONDS) return;
+  lastClickAt = at;
 
   getSynth().triggerAttackRelease(
     isDownbeat ? 'C5' : 'C6',
     '32n',
-    now,
+    at,
     isDownbeat ? 0.9 : 0.5,
   );
 }

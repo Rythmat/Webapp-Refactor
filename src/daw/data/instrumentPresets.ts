@@ -93,8 +93,16 @@ export const PRESETS: Preset[] = [
 
   // Guitars
   {
-    id: 'acoustic-guitar',
+    // The sampled steel-string guitar the guitar Practice Tracks play, as
+    // against the GM soundfont one below it.
+    id: 'acoustic-guitar-sampled',
     name: 'Acoustic Guitar',
+    category: 'Guitars',
+    instrumentType: 'guitar-acoustic',
+  },
+  {
+    id: 'acoustic-guitar',
+    name: 'Steel Guitar (GM)',
     category: 'Guitars',
     instrumentType: 'soundfont',
     gmProgram: 25,

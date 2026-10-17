@@ -85,6 +85,7 @@ export type InstrumentType =
   | 'piano-sampler'
   | 'electric-piano'
   | 'bass-electric'
+  | 'guitar-acoustic'
   | 'cello'
   | 'organ'
   | 'tonewheel-organ'

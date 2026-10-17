@@ -85,7 +85,7 @@ export function legendEntries(ctx: LegendContext): LegendEntry[] {
       : {
           id: 'countries',
           label: 'Countries',
-          detail: 'One plain colour: country colours are off in Layers.',
+          detail: 'One plain color: country colors are off in Layers.',
           swatch: { shape: 'fill', color: ATLAS_SCENE.landPlain },
         },
   );
@@ -120,7 +120,7 @@ export function legendEntries(ctx: LegendContext): LegendEntry[] {
       detail: names
         ? 'Each city by its name: select a name to open the city. Towns with events are named too, closer in.'
         : layers.countryColors
-          ? 'A column on each city, in a shade of its country’s colour.'
+          ? 'A column on each city, in a shade of its country’s color.'
           : 'A column on each city.',
       swatch: names
         ? { shape: 'label', color: ATLAS_SCENE.label }

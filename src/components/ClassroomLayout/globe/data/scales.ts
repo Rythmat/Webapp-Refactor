@@ -42,7 +42,7 @@ export const SCALE_TRADITIONS: { tradition: ScaleTradition; blurb: string }[] =
       blurb: 'Five-note scales — the world’s most widespread',
     },
     { tradition: 'Western Modes', blurb: 'The European church modes' },
-    { tradition: 'Other Traditions', blurb: 'Distinctive regional colours' },
+    { tradition: 'Other Traditions', blurb: 'Distinctive regional colors' },
     {
       tradition: 'Persian',
       blurb: 'Persian dastgah — 17 tones with neutral intervals',
@@ -155,7 +155,7 @@ export const WORLD_SCALES: WorldScale[] = [
     name: 'Phrygian',
     tradition: 'Western Modes',
     region: 'Europe',
-    character: 'Dark; a flat 2nd (Spanish colour)',
+    character: 'Dark; a flat 2nd (Spanish color)',
   },
   {
     id: 'mixolydian',
@@ -184,7 +184,7 @@ export const WORLD_SCALES: WorldScale[] = [
     name: 'Freygish',
     tradition: 'Other Traditions',
     region: 'Eastern Europe',
-    character: 'Klezmer colour; flat 2nd, major 3rd',
+    character: 'Klezmer color; flat 2nd, major 3rd',
   },
   {
     id: 'hungarian-minor',

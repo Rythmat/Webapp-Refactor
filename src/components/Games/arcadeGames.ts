@@ -56,7 +56,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
   {
     title: 'Chroma',
     category: 'Ear Training',
-    blurb: 'Colour-match the pitch before the crystal fades.',
+    blurb: 'Color-match the pitch before the crystal fades.',
     route: 'chroma',
   },
   {

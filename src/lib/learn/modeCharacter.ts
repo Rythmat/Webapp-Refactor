@@ -12,7 +12,7 @@ export const MODE_CHARACTER: Readonly<Record<string, string>> = {
   // Diatonic
   ionian: 'The major scale: bright, settled, home',
   dorian: 'Minor with a bright raised 6th',
-  phrygian: 'Dark, with a flat 2nd (Spanish colour)',
+  phrygian: 'Dark, with a flat 2nd (Spanish color)',
   lydian: 'Major with a dreamy raised 4th',
   mixolydian: 'Major with a bluesy flat 7th',
   aeolian: 'The natural minor scale',
@@ -22,7 +22,7 @@ export const MODE_CHARACTER: Readonly<Record<string, string>> = {
   harmonicMinor: 'Minor with a raised 7th; dark, dramatic, one exotic leap',
   locrianNat6: 'Locrian with a natural 6th; tense, with a glint of light',
   ionianSharp5: 'Major with a raised 5th; bright but restless',
-  dorianSharp4: 'Minor with a raised 4th; Romanian and klezmer colour',
+  dorianSharp4: 'Minor with a raised 4th; Romanian and klezmer color',
   phrygianDominant:
     'Phrygian with a major 3rd; flamenco and Middle Eastern fire',
   lydianSharp2: 'Lydian with a raised 2nd; bright and exotic',
@@ -48,12 +48,12 @@ export const MODE_CHARACTER: Readonly<Record<string, string>> = {
   locrianDoubleFlat7: 'Locrian with a double-flat 7th; diminished and brooding',
 
   // Double harmonic family
-  doubleHarmonicMajor: 'Two exotic leaps; Byzantine and Arabic colour',
+  doubleHarmonicMajor: 'Two exotic leaps; Byzantine and Arabic color',
   lydianSharp2Sharp6:
     'Lydian with a raised 2nd and 6th; glittering and strange',
   ultraphrygian: 'Phrygian pushed darker; flat 4th and double-flat 7th',
   doubleHarmonicMinor: 'Hungarian minor; two dramatic augmented steps',
-  oriental: 'A dominant with a flat 2nd and flat 5th; eastern colour',
+  oriental: 'A dominant with a flat 2nd and flat 5th; eastern color',
   ionianSharp2Sharp5: 'Major with a raised 2nd and 5th; bright and exotic',
   locrianDoubleFlat3DoubleFlat7:
     'The darkest here; flat 2nd, double-flat 3rd and 7th',

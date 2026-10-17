@@ -252,13 +252,13 @@ export default function AtlasCommandPalette({
       {
         id: 'legend',
         title: 'Show legend',
-        subtitle: 'What the colours and marks mean',
+        subtitle: 'What the colors and marks mean',
         keywords: ['key', 'colours', 'colors', 'help'],
       },
       {
         id: 'layers',
         title: 'Open Layers',
-        subtitle: 'Show or hide cities, arcs, states and colours',
+        subtitle: 'Show or hide cities, arcs, states and colors',
         keywords: ['layers', 'hide', 'show', 'map'],
       },
     ],

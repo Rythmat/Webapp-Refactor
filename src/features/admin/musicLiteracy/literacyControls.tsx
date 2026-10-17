@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-sort-props */
-import { X } from 'lucide-react';
-import type { FC } from 'react';
+import { ChevronDown, GripVertical, Plus, X } from 'lucide-react';
+import type { FC, ReactNode } from 'react';
 import { cn } from '@/components/utilities';
 import {
   LITERACY_DEGREES,
@@ -16,11 +16,13 @@ import {
   NOTE_LENGTHS,
   type NoteShape,
 } from './literacyChips';
+import type { ChipReorder } from './useChipReorder';
 
 /**
  * The Music Literacy editor's small parts: a note's length drawn as a note
- * (or a rest), the degree and length pickers every chip has, and a strip
- * that shows a segment's rhythm against its bars.
+ * (or a rest), the degree and length pickers every chip has, a chip's top
+ * line that drags it, the "+ rest before / after" pickers, and a strip that
+ * shows a segment's rhythm against its bars.
  */
 
 export const control =
@@ -282,6 +284,94 @@ export const RestChip: FC<{
       <X className="size-3" /> remove
     </button>
   </div>
+);
+
+// ── Moving chips and adding rests ──────────────────────────────────────────
+
+/**
+ * A chip's top line, which drags it (`useChipReorder`): a grip, which also
+ * takes Alt+← / Alt+→, then what the chip is and where it falls. It runs to
+ * the chip's edges, so a finger has room to take hold of it.
+ */
+export const ChipHandle: FC<{
+  reorder: ChipReorder;
+  index: number;
+  /** The grip's name: "Move “Hey” (syllable 1)". */
+  label: string;
+  children: ReactNode;
+}> = ({ reorder, index, label, children }) => (
+  <div
+    {...reorder.handle(index)}
+    className="-mx-1.5 -mt-1.5 flex cursor-grab touch-none select-none items-baseline gap-1 rounded-t-lg px-1.5 pb-0.5 pt-1.5 transition-colors [-webkit-touch-callout:none] hover:bg-white/[0.04] active:cursor-grabbing"
+  >
+    <button
+      type="button"
+      {...reorder.grip(index)}
+      aria-label={label}
+      title="Drag to move it, or Alt+← / Alt+→"
+      className="-ml-0.5 shrink-0 self-center rounded text-white/25 outline-none transition-colors hover:text-white/60 focus-visible:text-white focus-visible:ring-1 focus-visible:ring-[#60a5fa]"
+    >
+      <GripVertical className="size-3" />
+    </button>
+    {children}
+  </div>
+);
+
+/** Where a dragged chip would land: a bar in the gap on that side of this one. */
+export const DropMark: FC<{ side: 'before' | 'after' | null }> = ({ side }) =>
+  side ? (
+    <span
+      aria-hidden="true"
+      data-drop-mark={side}
+      className={cn(
+        'pointer-events-none absolute -inset-y-1 z-10 w-[3px] rounded-full bg-sky-300 shadow-[0_0_0_3px_rgba(125,211,252,0.2)]',
+        side === 'before' ? '-left-[4.5px]' : '-right-[4.5px]',
+      )}
+    />
+  ) : null;
+
+/** A screen reader's word on the last move. */
+export const ReorderStatus: FC<{ reorder: ChipReorder }> = ({ reorder }) => (
+  <span role="status" className="sr-only">
+    {reorder.said}
+  </span>
+);
+
+/**
+ * "+ rest before" or "+ rest after": picking a length puts a rest that long
+ * on that side of the note. The picker is the plain select, so an iPad
+ * shows its own wheel.
+ */
+export const AddRest: FC<{
+  side: 'before' | 'after';
+  label: string;
+  onAdd: (ticks: number) => void;
+}> = ({ side, label, onAdd }) => (
+  <label
+    className="relative inline-flex cursor-pointer items-center gap-0.5 self-start rounded px-1 text-[11px] text-white/35 transition-colors focus-within:text-white focus-within:ring-1 focus-within:ring-[#60a5fa] hover:bg-white/10 hover:text-white"
+    title={`A rest ${side} this note: pick how long`}
+  >
+    <Plus className="size-3" /> rest {side}
+    <ChevronDown className="size-2.5 opacity-60" />
+    <select
+      aria-label={label}
+      value=""
+      onChange={(e) => {
+        const ticks = Number(e.target.value);
+        if (ticks > 0) onAdd(ticks);
+      }}
+      className="absolute inset-0 cursor-pointer opacity-0"
+    >
+      <option value="" disabled>
+        A rest {side}: how long?
+      </option>
+      {NOTE_LENGTHS.map((length) => (
+        <option key={length.ticks} value={length.ticks}>
+          {length.label} rest
+        </option>
+      ))}
+    </select>
+  </label>
 );
 
 // ── The rhythm strip ───────────────────────────────────────────────────────

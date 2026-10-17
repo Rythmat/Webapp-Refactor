@@ -8,14 +8,23 @@ import {
   within,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import { getMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
 import { MusicLiteracyEditor } from '../MusicLiteracyEditor';
 
 /**
  * The lesson editor on Part 1: steps added, copied, moved and deleted, a
- * note and a rest changed, and a save that goes through only when the body
+ * note and a rest changed, chips dragged into a new order and rests put
+ * before and after notes, and a save that goes through only when the body
  * schema accepts the lesson, laid out as its file.
  */
 
@@ -223,5 +232,232 @@ describe('saving', () => {
     await waitFor(() => expect(store.save).toHaveBeenCalledTimes(1));
     expect(savedBody().steps[0].call.bars).toBe(2);
     expect(savedBody().steps[0].call.notes).toHaveLength(5);
+  });
+});
+
+// jsdom has no PointerEvent; without one fireEvent drops the pointer's id,
+// type and place, which the drag reads.
+beforeAll(() => {
+  if (window.PointerEvent) return;
+  class TestPointerEvent extends MouseEvent {
+    pointerId: number;
+    pointerType: string;
+    constructor(type: string, init: PointerEventInit = {}) {
+      super(type, init);
+      this.pointerId = init.pointerId ?? 0;
+      this.pointerType = init.pointerType ?? 'mouse';
+    }
+  }
+  window.PointerEvent = TestPointerEvent as typeof PointerEvent;
+});
+
+/** A row's chips laid out as the browser would: 100px apart, on one line. */
+function layOutChips() {
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(
+    function (this: HTMLElement) {
+      const left = Number(this.dataset.reorderItem ?? 0) * 100;
+      return {
+        left,
+        right: left + 90,
+        top: 0,
+        bottom: 120,
+        x: left,
+        y: 0,
+        width: 90,
+        height: 120,
+        toJSON: () => ({}),
+      } as DOMRect;
+    },
+  );
+}
+
+/**
+ * Drag the chip whose grip is named `grip` by its top line and let go at
+ * `x` (chip n spans n·100 to n·100 + 90).
+ */
+function dragChip(grip: string | RegExp, x: number, pointerType = 'mouse') {
+  const handle = screen.getByRole('button', { name: grip })
+    .parentElement as HTMLElement;
+  const from = Number(
+    handle.closest<HTMLElement>('[data-reorder-item]')?.dataset.reorderItem,
+  );
+  const at = { pointerId: 1, pointerType, clientY: 10 };
+  fireEvent.pointerDown(handle, { ...at, button: 0, clientX: from * 100 + 45 });
+  fireEvent.pointerMove(handle, { ...at, clientX: (from * 100 + 45 + x) / 2 });
+  fireEvent.pointerMove(handle, { ...at, clientX: x });
+  fireEvent.pointerUp(handle, { ...at, clientX: x });
+}
+
+const wordsInput = () =>
+  screen.getByRole('textbox', {
+    name: 'Step 1 words, as sung',
+  }) as HTMLInputElement;
+const select = (name: string) =>
+  screen.getByRole('combobox', { name }) as HTMLSelectElement;
+const callDegrees = () =>
+  [1, 2, 3].map((n) => select(`Step 1 call note ${n}: which note`).value);
+const undo = () =>
+  fireEvent.click(screen.getByRole('button', { name: /Undo/ }));
+
+describe('dragging chips', () => {
+  it('drags a syllable with its note and length, the typed line following, and undoes it in one step', () => {
+    mount();
+    layOutChips();
+    // "play" up to the 5 first, so its note can be followed.
+    fireEvent.change(select('Step 1 note for “play” (syllable 7)'), {
+      target: { value: '5|0' },
+    });
+    // From the 7th chip into the gap before the first.
+    dragChip(/^Step 1 move “play” \(syllable 7\)/, 10);
+    expect(wordsInput().value).toBe(
+      "play Hey hey hey I'm gon-na on a note called C",
+    );
+    expect(select('Step 1 note for “play” (syllable 1)').value).toBe('5|0');
+    expect(select('Step 1 length of “play” (syllable 1)').value).toBe('480');
+    expect(select('Step 1 length of “Hey” (syllable 2)').value).toBe('480');
+
+    // One undo takes back the whole drag, and only the drag.
+    undo();
+    expect(wordsInput().value).toBe(
+      "Hey hey hey I'm gon-na play on a note called C",
+    );
+    expect(select('Step 1 note for “play” (syllable 7)').value).toBe('5|0');
+  });
+
+  it('drags a note of the call, and undoes it in one step', () => {
+    mount();
+    layOutChips();
+    fireEvent.change(select('Step 1 call note 1: which note'), {
+      target: { value: '5|0' },
+    });
+    expect(callDegrees()).toEqual(['5|0', '1|0', '1|0']);
+    // Note 1 into the gap after the last, by touch this time.
+    dragChip(/^Step 1 call note 1: move/, 290, 'touch');
+    expect(callDegrees()).toEqual(['1|0', '1|0', '5|0']);
+    undo();
+    expect(callDegrees()).toEqual(['5|0', '1|0', '1|0']);
+  });
+
+  it('shows where a chip would land while it is dragged, and Escape puts it back', () => {
+    mount();
+    layOutChips();
+    const handle = screen.getByRole('button', {
+      name: /^Step 1 call note 3: move/,
+    }).parentElement as HTMLElement;
+    const at = { pointerId: 1, pointerType: 'mouse', clientY: 10 };
+    fireEvent.pointerDown(handle, { ...at, button: 0, clientX: 245 });
+    fireEvent.pointerMove(handle, { ...at, clientX: 20 });
+    const mark = document.querySelector('[data-drop-mark]');
+    expect(mark?.getAttribute('data-drop-mark')).toBe('before');
+    expect(
+      mark?.closest('[data-reorder-item]')?.getAttribute('data-reorder-item'),
+    ).toBe('0');
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(document.querySelector('[data-drop-mark]')).toBeNull();
+    fireEvent.pointerUp(handle, { ...at, clientX: 20 });
+    expect((saveButton() as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('moves a chip with Alt+→ on its grip, which keeps the focus', () => {
+    mount();
+    fireEvent.change(select('Step 1 call note 1: which note'), {
+      target: { value: '5|0' },
+    });
+    const grip = screen.getByRole('button', {
+      name: /^Step 1 call note 1: move/,
+    });
+    grip.focus();
+    fireEvent.keyDown(grip, { key: 'ArrowRight', altKey: true });
+    expect(callDegrees()).toEqual(['1|0', '5|0', '1|0']);
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: /^Step 1 call note 2: move/ }),
+    );
+    // Not without Alt: the arrows alone are left to the page.
+    fireEvent.keyDown(document.activeElement!, { key: 'ArrowRight' });
+    expect(callDegrees()).toEqual(['1|0', '5|0', '1|0']);
+  });
+});
+
+describe('rests before and after a note', () => {
+  it('adds rests before and after syllables and call notes, warns of an overrun, and saves the gaps', async () => {
+    mount();
+    // An eighth before the line, and a quarter between "Hey" and "hey".
+    fireEvent.change(select('Step 1 add a rest before “Hey” (syllable 1)'), {
+      target: { value: '240' },
+    });
+    fireEvent.change(select('Step 1 add a rest after “Hey” (syllable 1)'), {
+      target: { value: '480' },
+    });
+    // The rest after "Hey" is the one before "hey": a second one there
+    // makes it longer.
+    fireEvent.change(select('Step 1 add a rest before “hey” (syllable 2)'), {
+      target: { value: '240' },
+    });
+    expect(select('Step 1 rest before “hey” (syllable 2)').value).toBe('720');
+    expect(screen.getByText(/The line runs .* past its 2 bars/)).toBeDefined();
+    expect((saveButton() as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(select('Step 1 words length in bars'), {
+      target: { value: '3' },
+    });
+    expect(screen.queryByText(/The line runs .* past its/)).toBeNull();
+
+    // In the call: a quarter rest after note 1, an eighth before note 3.
+    fireEvent.change(select('Step 1 call note 1: add a rest after'), {
+      target: { value: '480' },
+    });
+    // Now chip 4 is the third note.
+    fireEvent.change(select('Step 1 call note 4: add a rest before'), {
+      target: { value: '240' },
+    });
+    expect(
+      screen.getByText(/This runs an eighth past its 1 bar/),
+    ).toBeDefined();
+    fireEvent.change(select('Step 1 call length in bars'), {
+      target: { value: '2' },
+    });
+
+    fireEvent.click(saveButton());
+    await waitFor(() => expect(store.save).toHaveBeenCalledTimes(1));
+    const step = savedBody().steps[0];
+    const original = PART_1.steps[0];
+    expect(step.words.bars).toBe(3);
+    expect(step.words.notes.slice(0, 3).map((n) => n.tick)).toEqual([
+      240,
+      240 + 480 + 720,
+      240 + 480 + 720 + 480,
+    ]);
+    // Every syllable after the rests comes 240 + 720 ticks later.
+    expect(step.words.notes.slice(1).map((n) => n.tick - 960)).toEqual(
+      original.words.notes.slice(1).map((n) => n.tick),
+    );
+    expect(step.call).toEqual({
+      bars: 2,
+      notes: [
+        { tick: 0, duration: 480, degree: '1' },
+        { tick: 960, duration: 480, degree: '1' },
+        { tick: 1680, duration: 480, degree: '1' },
+      ],
+    });
+  });
+
+  it('takes a rest out from the rest itself', () => {
+    mount();
+    fireEvent.change(select('Step 1 add a rest before “Hey” (syllable 1)'), {
+      target: { value: '480' },
+    });
+    fireEvent.change(select('Step 1 call note 2: add a rest before'), {
+      target: { value: '960' },
+    });
+    expect(screen.getAllByText(/runs .* past its/)).toHaveLength(2);
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Remove the Step 1 rest before “Hey” (syllable 1)',
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Remove Step 1 call rest 2' }),
+    );
+    expect(screen.queryByText(/runs .* past its/)).toBeNull();
+    expect((saveButton() as HTMLButtonElement).disabled).toBe(true);
   });
 });

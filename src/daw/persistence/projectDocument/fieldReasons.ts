@@ -94,13 +94,13 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
 
   // ── tracks ──
   nextColorIndex:
-    'The palette colour the next new track takes; a load derives it from the track count.',
+    'The palette color the next new track takes; a load derives it from the track count.',
 
   // ── harmony ──
   rootLocked:
     'The key lock guards this student’s own key changes: saved with the project, never shared.',
   rootTrackColor:
-    'The key colour: derived from rootNote and mode, and recomputed on load.',
+    'The key color: derived from rootNote and mode, and recomputed on load.',
 
   // ── prism ──
   chordSeq: BUILDER,
@@ -248,7 +248,7 @@ export const TRACK_FIELD_REASONS: Reasons<Track> = Object.freeze({
   id: 'Stable across cloud loads: the cloud payload carries it as settings.sourceTrackId (decision D4).',
   type: 'A live input instrument makes an audio track. An imported audio file has no instrument, so its caller passes the type.',
   color:
-    'A new track takes the next palette colour, or the key colour while a key is set.',
+    'A new track takes the next palette color, or the key color while a key is set.',
   mute: 'Saved with the project and to the cloud; each collaborator mutes on their own.',
   solo: 'Saved with the project and to the cloud; each collaborator solos on their own.',
   recordArmed: OWN_INPUT,

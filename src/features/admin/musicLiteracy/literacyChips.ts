@@ -3,7 +3,9 @@
  * words (one chip per syllable, typed as a line of text) and a figure (a
  * row of notes and rests). Both are views of the stored notes, which are
  * ticks from the segment's start with rests as the gaps, and each turns
- * back into exactly the notes it came from.
+ * back into exactly the notes it came from. Chips are dragged into a new
+ * order (`moveItem`, `moveSyllable`), and a rest goes before or after a
+ * note as the gap on that side of it (`insertRest`, `withRestBefore`).
  *
  * No React here.
  */
@@ -153,6 +155,28 @@ export function overlaps(
 const byTick = <T extends { tick: number }>(notes: readonly T[]): T[] =>
   [...notes].sort((a, b) => a.tick - b.tick);
 
+// ── Reordering ─────────────────────────────────────────────────────────────
+
+/** The items with the one at `from` taken out and put back in at `to`. */
+export function moveItem<T>(
+  items: readonly T[],
+  from: number,
+  to: number,
+): T[] {
+  const next = [...items];
+  if (from < 0 || from >= next.length) return next;
+  const [item] = next.splice(from, 1);
+  next.splice(Math.max(0, Math.min(to, next.length)), 0, item);
+  return next;
+}
+
+/**
+ * Where an item ends up when it is dropped in the gap before `slot` (the
+ * item count: after the last), so `moveItem(items, from, dropIndex(...))`.
+ */
+export const dropIndex = (from: number, slot: number): number =>
+  slot > from ? slot - 1 : slot;
+
 /** A note as stored: the octave left out when it is the tonic's own. */
 function stored(degree: LiteracyDegree, octave: number) {
   return octave ? { degree, octave } : { degree };
@@ -200,6 +224,19 @@ export function figureNotes(chips: readonly FigureChip[]): LiteracyNote[] {
   return notes;
 }
 
+/** A rest of `ticks` put in among a figure's chips, before chip `at`. */
+export function insertRest(
+  chips: readonly FigureChip[],
+  at: number,
+  ticks: number,
+): FigureChip[] {
+  return [
+    ...chips.slice(0, at),
+    { kind: 'rest', duration: ticks },
+    ...chips.slice(at),
+  ];
+}
+
 /** Where each chip starts, in ticks from the segment's start. */
 export function chipStarts(chips: readonly { duration: number }[]): number[] {
   let at = 0;
@@ -217,12 +254,15 @@ export interface Syllable {
   degree: LiteracyDegree;
   octave: number;
   duration: number;
-  /** The rest after it, in ticks: 0 for none. */
+  /**
+   * The rest after it, in ticks: 0 for none. The same gap is the next
+   * syllable's rest before it (`restBefore`).
+   */
   rest: number;
 }
 
 export interface WordsLine {
-  /** A rest before the first syllable, in ticks: 0 for none. */
+  /** A rest before the first syllable (a pickup), in ticks: 0 for none. */
   lead: number;
   syllables: Syllable[];
 }
@@ -261,6 +301,55 @@ export function wordsNotes(line: WordsLine): LiteracyWord[] {
     at += s.duration + s.rest;
     return note;
   });
+}
+
+/**
+ * The rest ahead of a syllable, the gap before it as stored: the line's
+ * lead for the first, else the rest after the one before it. (A rest after
+ * one syllable and a rest before the next are the same gap.)
+ */
+export const restBefore = (line: WordsLine, index: number): number =>
+  index === 0 ? line.lead : (line.syllables[index - 1]?.rest ?? 0);
+
+/** The line with the rest ahead of a syllable made `ticks` long. */
+export function withRestBefore(
+  line: WordsLine,
+  index: number,
+  ticks: number,
+): WordsLine {
+  if (index === 0) return { ...line, lead: ticks };
+  return {
+    ...line,
+    syllables: line.syllables.map((s, i) =>
+      i === index - 1 ? { ...s, rest: ticks } : s,
+    ),
+  };
+}
+
+/**
+ * The line with one syllable moved to `to`, its note, its length and the
+ * rest ahead of it going with it, so the line lasts as long as it did and
+ * no rest is lost. The first syllable's rest ahead of it is the line's lead.
+ */
+export function moveSyllable(
+  line: WordsLine,
+  from: number,
+  to: number,
+): WordsLine {
+  const moved = moveItem(
+    line.syllables.map((s, i) => ({ s, before: restBefore(line, i) })),
+    from,
+    to,
+  );
+  return {
+    // Overlapping syllables (from the roll) have a rest below zero; the
+    // line can't start before its first beat.
+    lead: Math.max(0, moved[0]?.before ?? 0),
+    syllables: moved.map(({ s }, i) => ({
+      ...s,
+      rest: moved[i + 1]?.before ?? 0,
+    })),
+  };
 }
 
 /** Where each syllable starts, in ticks from the segment's start. */

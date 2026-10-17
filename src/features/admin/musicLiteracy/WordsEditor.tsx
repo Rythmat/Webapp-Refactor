@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-sort-props */
-import { Plus } from 'lucide-react';
-import { Fragment, useEffect, useMemo, useState, type FC } from 'react';
+import { useEffect, useMemo, useState, type FC } from 'react';
 import { cn } from '@/components/utilities';
 import type { LiteracyWords } from '@/content/musicLiteracy/schemas';
 import { DEGREE_SEMITONES } from '@/curriculum/engine/musicLiteracy/literacy';
@@ -8,33 +7,42 @@ import { ConsoleCallout } from '../ui/ConsoleCallout';
 import {
   barBeat,
   lineText,
+  moveSyllable,
   overrun,
+  restBefore,
   retypeLine,
   spanWords,
   splitSyllables,
   syllableStarts,
+  withRestBefore,
   wordsLine,
   wordsNotes,
   type Syllable,
   type WordsLine,
 } from './literacyChips';
 import {
+  AddRest,
   BarsSelect,
   CHIP,
+  ChipHandle,
   DegreeSelect,
+  DropMark,
   LengthSelect,
+  ReorderStatus,
   RestChip,
   RhythmStrip,
 } from './literacyControls';
+import { useChipReorder } from './useChipReorder';
 
 /**
  * The words, the teacher's line: typed as text, then one chip per syllable
- * with its note and its length, and a rest after it where the line breathes.
+ * with its note and its length, and a rest before or after it where the
+ * line breathes. A rest is the gap between two syllables, so it shows once,
+ * ahead of the syllable after it, and goes with that syllable when it is
+ * dragged (`moveSyllable`); the first syllable's is the line's pickup.
  * Retyping keeps the notes and rhythm of every syllable it can
  * (`retypeLine`).
  */
-
-const QUARTER = 480;
 
 export const WordsEditor: FC<{
   words: LiteracyWords;
@@ -66,9 +74,22 @@ export const WordsEditor: FC<{
       ),
     });
   const commitText = () => {
-    if (splitSyllables(text).join(' ') !== joined)
+    const typed = splitSyllables(text);
+    // Only a change is a step to undo.
+    if (
+      typed.length !== line.syllables.length ||
+      typed.some((piece, i) => piece !== line.syllables[i].text)
+    )
       setLine(retypeLine(line, text));
   };
+  // Another rest ahead of a syllable makes the one there longer.
+  const addRestBefore = (index: number, ticks: number) =>
+    setLine(
+      withRestBefore(line, index, Math.max(0, restBefore(line, index)) + ticks),
+    );
+  const reorder = useChipReorder(line.syllables.length, (from, to) =>
+    setLine(moveSyllable(line, from, to)),
+  );
 
   const starts = syllableStarts(line);
   const over = overrun(words.notes, words.bars, timeSignature);
@@ -95,72 +116,87 @@ export const WordsEditor: FC<{
       <p className="text-xs text-white/40">
         A space between words, a hyphen between syllables (gon-na). Each
         syllable gets a chip: pick the note it’s sung on and how long it lasts.
-        Retyping keeps each syllable’s note where it can.
+        Drag a chip by its top line to move the syllable, with its note and the
+        rest before it. Retyping keeps each syllable’s note where it can.
       </p>
 
-      <div className="flex flex-wrap items-stretch gap-1.5">
-        {line.lead > 0 && (
-          <RestChip
-            ticks={line.lead}
-            at={barBeat(0, timeSignature)}
-            label={`${stepLabel} rest before the first syllable`}
-            onLength={(ticks) => setLine({ ...line, lead: ticks })}
-            onRemove={() => setLine({ ...line, lead: 0 })}
-          />
-        )}
-        {line.syllables.map((s, i) => (
-          <Fragment key={i}>
+      <div
+        ref={reorder.listRef}
+        className="flex flex-wrap items-stretch gap-1.5"
+      >
+        {line.syllables.map((s, i) => {
+          const name = `“${s.text}” (syllable ${i + 1})`;
+          const before = restBefore(line, i);
+          return (
             <div
-              data-lit={lit === i || undefined}
+              key={i}
+              {...reorder.item(i)}
               className={cn(
-                CHIP,
-                lit === i
-                  ? 'border-sky-300/70 bg-sky-300/15'
-                  : 'border-white/[0.08] bg-white/[0.03]',
+                'relative flex items-stretch gap-0.5',
+                reorder.dragging === i && 'opacity-40',
               )}
             >
-              <div className="flex items-baseline justify-between gap-1">
-                <span className="truncate text-sm font-medium text-white">
-                  {s.text}
-                </span>
-                <span className="shrink-0 text-[10px] tabular-nums text-white/35">
-                  {barBeat(starts[i], timeSignature)}
-                </span>
-              </div>
-              <DegreeSelect
-                degree={s.degree}
-                octave={s.octave}
-                label={`${stepLabel} note for “${s.text}” (syllable ${i + 1})`}
-                onChange={(degree, octave) => patch(i, { degree, octave })}
-              />
-              <LengthSelect
-                ticks={s.duration}
-                label={`${stepLabel} length of “${s.text}” (syllable ${i + 1})`}
-                onChange={(duration) => patch(i, { duration })}
-              />
-              {i < last && s.rest === 0 && (
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-0.5 self-start rounded px-1 text-[11px] text-white/35 transition-colors hover:bg-white/10 hover:text-white"
-                  onClick={() => patch(i, { rest: QUARTER })}
-                  title="A rest between this syllable and the next"
-                >
-                  <Plus className="size-3" /> rest after
-                </button>
+              <DropMark side={reorder.mark(i)} />
+              {before > 0 && (
+                <RestChip
+                  ticks={before}
+                  at={barBeat(starts[i] - before, timeSignature)}
+                  label={`${stepLabel} rest before ${name}`}
+                  onLength={(ticks) => setLine(withRestBefore(line, i, ticks))}
+                  onRemove={() => setLine(withRestBefore(line, i, 0))}
+                />
               )}
+              <div
+                data-lit={lit === i || undefined}
+                className={cn(
+                  CHIP,
+                  lit === i
+                    ? 'border-sky-300/70 bg-sky-300/15'
+                    : 'border-white/[0.08] bg-white/[0.03]',
+                )}
+              >
+                <ChipHandle
+                  reorder={reorder}
+                  index={i}
+                  label={`${stepLabel} move ${name} (drag, or Alt+← / Alt+→)`}
+                >
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+                    {s.text}
+                  </span>
+                  <span className="shrink-0 text-[10px] tabular-nums text-white/35">
+                    {barBeat(starts[i], timeSignature)}
+                  </span>
+                </ChipHandle>
+                <DegreeSelect
+                  degree={s.degree}
+                  octave={s.octave}
+                  label={`${stepLabel} note for ${name}`}
+                  onChange={(degree, octave) => patch(i, { degree, octave })}
+                />
+                <LengthSelect
+                  ticks={s.duration}
+                  label={`${stepLabel} length of ${name}`}
+                  onChange={(duration) => patch(i, { duration })}
+                />
+                <AddRest
+                  side="before"
+                  label={`${stepLabel} add a rest before ${name}`}
+                  onAdd={(ticks) => addRestBefore(i, ticks)}
+                />
+                {/* After the last, the line's bars hold the silence. */}
+                {i < last && (
+                  <AddRest
+                    side="after"
+                    label={`${stepLabel} add a rest after ${name}`}
+                    onAdd={(ticks) => addRestBefore(i + 1, ticks)}
+                  />
+                )}
+              </div>
             </div>
-            {i < last && s.rest > 0 && (
-              <RestChip
-                ticks={s.rest}
-                at={barBeat(starts[i] + s.duration, timeSignature)}
-                label={`${stepLabel} rest after “${s.text}” (syllable ${i + 1})`}
-                onLength={(rest) => patch(i, { rest })}
-                onRemove={() => patch(i, { rest: 0 })}
-              />
-            )}
-          </Fragment>
-        ))}
+          );
+        })}
       </div>
+      <ReorderStatus reorder={reorder} />
 
       <RhythmStrip
         bars={words.bars}
@@ -180,16 +216,6 @@ export const WordsEditor: FC<{
           label={`${stepLabel} words length in bars`}
           onChange={(bars) => onChange({ ...words, bars })}
         />
-        {line.lead === 0 && line.syllables.length > 0 && (
-          <button
-            type="button"
-            className="inline-flex items-center gap-0.5 rounded px-1 text-xs text-white/40 transition-colors hover:bg-white/10 hover:text-white"
-            onClick={() => setLine({ ...line, lead: QUARTER })}
-            title="Start the line after a rest (a pickup)"
-          >
-            <Plus className="size-3" /> Rest before the first syllable
-          </button>
-        )}
         <span className="text-xs text-white/40">
           {line.syllables.length} syllable
           {line.syllables.length === 1 ? '' : 's'} · counting bar·beat, “&” is

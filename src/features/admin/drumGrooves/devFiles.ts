@@ -26,8 +26,12 @@ const json = (value: unknown): RequestInit => ({
 export const saveGrooveFile = (groove: DrumGroove) =>
   call(`/__dev/drum-grooves/${groove.id}`, json(groove));
 
+// JSON like every write, or the writer refuses it (415).
 export const deleteGrooveFile = (id: string) =>
-  call(`/__dev/drum-grooves/${id}`, { method: 'DELETE' });
+  call(`/__dev/drum-grooves/${id}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
 
 export const saveKitFile = (kit: CustomDrumKitFile) =>
   call(`/__dev/drum-kits/${kit.id}`, json(kit));

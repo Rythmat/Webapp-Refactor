@@ -135,3 +135,63 @@ describe('ExportAudioDialog choices', () => {
     expect(await reopenAndExport()).toMatchObject({ range: 'project' });
   });
 });
+
+// ── What the dialog warns about ─────────────────────────────────────────────
+// SoundFont tracks and amped takes render in the bounce now; only a wah's
+// sweep doesn't (its envelope follower can't run offline), so only it warns.
+
+/** A guitar track with a take and `chain` as its stored amp/pedal chain. */
+function guitarWith(chain: { type: string; enabled: boolean }[]) {
+  const s = useStore.getState();
+  const id = s.addTrack('audio', 'guitar-fx', 'Gtr');
+  s.addAudioClip(id, {
+    id: `${id}-take`,
+    startTick: 0,
+    duration: 1920,
+    fadeInTicks: 0,
+    fadeOutTicks: 0,
+  });
+  s.setGuitarChain(
+    id,
+    chain.map((b) => ({ ...b, params: {} })),
+  );
+  return id;
+}
+
+describe('ExportAudioDialog warnings', () => {
+  it("doesn't warn about SoundFont tracks or amped takes", () => {
+    useStore.getState().addTrack('midi', 'soundfont', 'Strings');
+    guitarWith([{ type: 'nam-amp', enabled: true }]);
+    render(<FileMenuExport />);
+    click('Export Audio…');
+    expect(screen.queryByText(/SoundFont|dry|wah/i)).toBeNull();
+  });
+
+  it('warns that a wah bounces as a fixed filter', () => {
+    guitarWith([{ type: 'wah', enabled: true }]);
+    // Switched off, or muted: nothing to warn about.
+    guitarWith([{ type: 'wah', enabled: false }]);
+    const muted = guitarWith([{ type: 'wah', enabled: true }]);
+    useStore.getState().updateTrack(muted, { mute: true });
+    render(<FileMenuExport />);
+    click('Export Audio…');
+    expect(
+      screen.getByText(
+        '1 track uses the wah pedal, which bounces as a fixed filter (no sweep).',
+      ),
+    ).toBeTruthy();
+  });
+
+  it('shows how far the SoundFont tracks have rendered', async () => {
+    h.exportProjectAudio.mockImplementation(
+      (_opts: unknown, onProgress: (p: unknown) => void) => {
+        onProgress({ stage: 'instruments', pct: 0.4 });
+        return new Promise(() => {});
+      },
+    );
+    render(<FileMenuExport />);
+    click('Export Audio…');
+    await act(async () => click(/^Export$/));
+    expect(screen.getByText('Rendering instruments 40%')).toBeTruthy();
+  });
+});

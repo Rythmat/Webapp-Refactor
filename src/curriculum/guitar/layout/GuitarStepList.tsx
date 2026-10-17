@@ -6,7 +6,9 @@ import type { GuitarStepStatus, NavStep } from './types';
 // ── Step list ──────────────────────────────────────────────────────────────
 // Every step of the section, grouped by subsection, opened from the pager's
 // count. Each row says how the step went in words for assistive tech and by
-// mark for the eye: ✓ passed, ✋ counted by you, a dot once attempted.
+// mark for the eye: a green ✓ passed, a green ✋ counted by you, a dot once
+// attempted. The step the student is on carries a white ✓ at the row's
+// start, as a menu marks its current choice. Piano and guitar share it.
 
 /** ": counted by you" and so on, after the step's code and title. */
 const STATUS_WORDS: Record<GuitarStepStatus, string> = {
@@ -33,14 +35,14 @@ export function StepStatusMark({
       return (
         <Check
           data-status-mark="passed"
-          className={cn('size-4 shrink-0 text-white/55', className)}
+          className={cn('size-4 shrink-0 text-success-base', className)}
         />
       );
     case 'selfReported':
       return (
         <Hand
           data-status-mark="selfReported"
-          className={cn('size-4 shrink-0 text-white/55', className)}
+          className={cn('size-4 shrink-0 text-success-base', className)}
         />
       );
     case 'attempted':
@@ -113,6 +115,17 @@ export function GuitarStepList({ steps, index, onPick }: GuitarStepListProps) {
                         : 'text-white/55',
                     )}
                   >
+                    <span
+                      className="flex w-4 shrink-0 justify-center"
+                      data-current-mark={i === index || undefined}
+                    >
+                      {i === index && (
+                        <Check
+                          aria-hidden
+                          className="size-4 shrink-0 text-[#e8e8f0]"
+                        />
+                      )}
+                    </span>
                     <span className="w-12 shrink-0 text-xs text-white/45">
                       {step.code}
                     </span>

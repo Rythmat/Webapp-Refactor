@@ -25,6 +25,7 @@ import type {
   AudioClip,
   AudioInputChannel,
   MidiClip,
+  NotationStaffSetting,
   Track,
   TrackType,
 } from '@/daw/store/tracksSlice';
@@ -76,6 +77,17 @@ import {
 // region was read from (sourceClipId), so the chord lane follows that clip
 // alone. Its compat stays 3.
 //
+// v6 adds one field and changes no meaning: the staff a part is written on
+// in the Score, set by hand (a track's settings.notationStaff; unset is
+// Auto). Its compat stays 3, and an older build reading it shows every part
+// on Auto.
+//
+// v7 lets that field hold two more staves, and changes no meaning: 'alto'
+// (the viola's C clef) and 'bass8vb' (the bass clef with a small 8 under it,
+// a bass guitar's). A v6 build counts either as a value it can't read and
+// shows the part on Auto, so its compat stays 3; the bump has a v6 build see
+// the draft as newer rather than repair it.
+//
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
 // know. A later schema that only adds fields keeps it at 3, so after a
@@ -109,9 +121,15 @@ export const SESSION_ENVELOPE_VERSION = 2;
  * to what a draft holds bumps it, with a migration and fixtures (draftShape
  * .test fails until then): 1.13b moving the Oracle patch, 1.16's per-project
  * chord-prompt flag. 4 is 1.10's (leadSheetBars, a region's sourceClipId);
- * its bar indices keep their meaning, every one a real bar of the song.
+ * its bar indices keep their meaning, every one a real bar of the song. 5
+ * holds the Lead Sheet's melody tracks as a list (leadSheetMelodyTrackIds)
+ * where 4 held one id (leadSheetMelodyTrackId); migrations.ts reads the one
+ * id as a list of it. 6 adds the staff a part is set to in the Score (a
+ * track's settings.notationStaff) and changes no meaning: a 5 draft is a 6
+ * one with every part on Auto, and compat stays 3. 7 lets that staff be
+ * 'alto' or 'bass8vb' too: a 6 draft is a 7 one as it is, and compat stays 3.
  */
-export const SESSION_SCHEMA_VERSION = 4;
+export const SESSION_SCHEMA_VERSION = 7;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -213,7 +231,7 @@ const DRAFT_LAYOUT = {
   leadSheetRepeats: 'notation',
   leadSheetShowRepeats: 'notation',
   leadSheetShowMelody: 'notation',
-  leadSheetMelodyTrackId: 'notation',
+  leadSheetMelodyTrackIds: 'notation',
   scoreChordTracks: 'notation',
   scoreChordHidden: 'notation',
   scoreArticulations: 'noteMarks',
@@ -447,6 +465,7 @@ const TRACK_PLACES = {
   sends: 'settings',
   automation: 'settings',
   trackRole: 'top',
+  notationStaff: 'settings',
 } as const satisfies { readonly [K in keyof Track]-?: TrackPlace };
 
 type TrackSettingsField = {
@@ -961,7 +980,7 @@ const KEY_CHECKS: { readonly [K in SectionKey]: Check<AllSlices[K]> } = {
   leadSheetRepeats: listOf(REPEAT),
   leadSheetShowRepeats: valid(isBoolean),
   leadSheetShowMelody: valid(isBoolean),
-  leadSheetMelodyTrackId: nullable(valid(isString)),
+  leadSheetMelodyTrackIds: STRINGS,
   scoreChordTracks: STRINGS,
   scoreChordHidden: STRINGS,
   scoreSystemBreaks: BAR_INDICES,
@@ -1033,6 +1052,19 @@ const TRACK_ROLE = memberOf<DawTrackRole>({
   auto: true,
 });
 
+/**
+ * A part's staff, set by hand in the Score (schema 6; alto and the bass
+ * clef with an 8, schema 7).
+ */
+const NOTATION_STAFF = memberOf<NotationStaffSetting>({
+  auto: true,
+  treble: true,
+  alto: true,
+  bass: true,
+  bass8vb: true,
+  grand: true,
+});
+
 const INPUT_CHANNEL: Check<AudioInputChannel> = (raw) => {
   if (!isRecord(raw)) return undefined;
   const channelOk = integerIn(0, 1024);
@@ -1065,6 +1097,7 @@ const SETTINGS_CHECKS: {
   presetName: valid(isString),
   sends: valid(isRecord),
   automation: AUTOMATION,
+  notationStaff: NOTATION_STAFF,
 };
 
 /**
@@ -1493,7 +1526,7 @@ export function decodeSession(
       tracks: withIds,
       scoreChordTracks: project.scoreChordTracks as string[],
       scoreChordHidden: project.scoreChordHidden as string[],
-      leadSheetMelodyTrackId: project.leadSheetMelodyTrackId as string | null,
+      leadSheetMelodyTrackIds: project.leadSheetMelodyTrackIds as string[],
       selectedTrackId: project.selectedTrackId as string | null,
       automationOpenTrackId: project.automationOpenTrackId as string | null,
     },

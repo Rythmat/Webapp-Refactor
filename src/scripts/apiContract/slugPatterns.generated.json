@@ -66,5 +66,9 @@
   "feel_profile": {
     "identity": "id",
     "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "music_literacy": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
   }
 }

@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 /**
- * Piano's lesson screen, pinned. The guitar lesson gets its own layout, and
- * none of that may reach piano: these file snapshots hold the piano
- * container's DOM in the states a student meets. They were written before the
- * guitar layout work began; never update them with `-u` as part of guitar
- * work — a diff here means piano changed.
+ * Piano's lesson screen, pinned: these file snapshots hold the piano
+ * container's DOM in the states a student meets. Re-recorded on 2026-10-16,
+ * when piano took guitar's screen (piano/layout: one page, no start card, the
+ * buttons in the bar). Never update them with `-u` as part of other work — a
+ * diff here means piano changed.
  *
  * Audio, the transport and the input provider are faked as in the
  * instruments test; VexFlow never loads (jsdom has no layout).
@@ -158,7 +158,7 @@ async function settle(ms = 600) {
   for (let t = 0; t < ms; t += 50) await vi.advanceTimersByTimeAsync(50);
 }
 
-describe('piano lesson DOM (pinned before the guitar layout)', () => {
+describe('piano lesson DOM (pinned on its own screen)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     localStorage.clear();

@@ -115,6 +115,7 @@ describe('the content kinds', () => {
       drum_groove: true,
       instrument_part: true,
       feel_profile: true,
+      music_literacy: true,
     } satisfies Record<ContentKind, true>;
     // The vocabulary kinds, which only the dev repo content server serves:
     // their rows are the Genres and Instruments tables' (TABLE_FOR_NODE_KIND),
@@ -123,8 +124,9 @@ describe('the content kinds', () => {
     // are never among the other records.
     const vocabulary = new Set(['genre', 'subgenre', 'instrument']);
     for (const kind of Object.keys(all)) {
-      // Grooves and parts have pages of their own (instrumentPages.ts),
-      // which their records URLs hand over to: in neither list.
+      // Grooves, parts and Music Literacy have pages of their own
+      // (instrumentPages.ts), which their records URLs hand over to: in
+      // neither list.
       if (isInstrumentPageKind(kind)) {
         expect(kind in TABLE_FOR_CONTENT_KIND, kind).toBe(false);
         expect(isOtherRecordKind(kind), kind).toBe(false);

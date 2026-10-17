@@ -16,6 +16,7 @@ import type {
   NotationScore,
   StaffId,
 } from '@/lib/notation';
+import { CLEF_ANNOTATION, VEXFLOW_CLEF } from '@/lib/notation/clefs';
 import {
   contentWidth as pageContentWidth,
   fitScale,
@@ -76,9 +77,19 @@ export interface ScorePart {
   score: NotationScore;
   /**
    * An 8 on the clef for a part written an octave off its sounding pitch —
-   * guitar's treble clef with an 8 below. Never on a drumset staff.
+   * guitar's treble clef with an 8 below. Never on a drumset staff. A
+   * bass8vb staff carries its own 8 whatever this says (clefs.ts).
    */
   clefAnnotation?: '8va' | '8vb';
+}
+
+/** The 8 on a staff's clef: its own (bass8vb), else the part's. */
+function clefAnnotationOf(
+  part: ScorePart,
+  staff: StaffId,
+): '8va' | '8vb' | undefined {
+  if (staff === 'percussion') return undefined;
+  return CLEF_ANNOTATION[staff] ?? part.clefAnnotation;
 }
 
 /** Where a barline sits on screen, in scaled px, for overlays and clicks. */
@@ -105,6 +116,15 @@ export interface MeasureBox {
   height: number;
   startTick: number;
   endTick: number;
+  /**
+   * Where the bar's notes may sit across, scaled: from after the clef, key
+   * and time on a system's opening bar to where the last note can end. A
+   * click-to-place editor maps time across this span.
+   */
+  noteStartX?: number;
+  noteEndX?: number;
+  /** The part's staves in this bar, top to bottom, with their top lines. */
+  staves?: Array<{ staff: StaffId; topLineY: number }>;
 }
 
 /** Where a drawn note sits, for range selection. */
@@ -259,6 +279,13 @@ export interface StaffViewProps {
   /** The page was pressed away from any measure. */
   onBackgroundPointerDown?: (event: ReactPointerEvent) => void;
   /**
+   * The pointer moved over the music, at `x`, `y` in the layout's own
+   * (scaled) px: what a ghost note follows.
+   */
+  onStaffPointerMove?: (point: { x: number; y: number }) => void;
+  /** The pointer left the music. */
+  onStaffPointerLeave?: () => void;
+  /**
    * Engrave incrementally, for a score that is edited in place (the Studio
    * Score): bar widths are cached by part and content, only the systems an
    * edit changed are redrawn, and on a page a width-only resize rescales
@@ -302,9 +329,11 @@ const TOP_LINE_DROP = 40;
 const CHORD_ROOM = 24;
 /** Bottom line of each clef, as an absolute diatonic step. */
 const BOTTOM_LINE: Partial<Record<StaffId, number>> = {
-  // E4 and G2.
+  // E4, F3 and G2, as written: a bass8vb staff is drawn like a bass one.
   treble: 4 * 7 + 2,
+  alto: 3 * 7 + 3,
   bass: 2 * 7 + 4,
+  bass8vb: 2 * 7 + 4,
 };
 
 /**
@@ -377,9 +406,12 @@ const KEY_SPECS: Record<number, string> = {
   7: 'C#',
 };
 
+/** The middle line of each staff, where a rest or a slash is written. */
 const REST_KEY: Record<StaffId, string> = {
   treble: 'b/4',
   bass: 'd/3',
+  alto: 'c/4',
+  bass8vb: 'd/3',
   percussion: 'b/4',
 };
 
@@ -449,7 +481,7 @@ function buildMeasure(
           note = new vf.StaveNote({
             keys: [REST_KEY[staff]],
             duration: 'wr',
-            clef: staff,
+            clef: VEXFLOW_CLEF[staff],
             alignCenter: true,
           });
         } else {
@@ -466,7 +498,7 @@ function buildMeasure(
                   : item.keys.map(vexKey),
             duration: `${item.value}${item.kind === 'rest' ? 'r' : ''}`,
             dots: item.dots,
-            clef: staff,
+            clef: VEXFLOW_CLEF[staff],
             ...(stem === undefined
               ? { autoStem: true }
               : { stemDirection: stem }),
@@ -623,9 +655,9 @@ function headerWidth(
   for (const part of parts) {
     for (const clef of part.score.staves) {
       const stave = new vf.Stave(0, 0, 500).addClef(
-        clef,
+        VEXFLOW_CLEF[clef],
         undefined,
-        clef === 'percussion' ? undefined : part.clefAnnotation,
+        clefAnnotationOf(part, clef),
       );
       if (clef !== 'percussion') {
         stave.addKeySignature(KEY_SPECS[part.score.keyFifths] ?? 'C');
@@ -796,9 +828,60 @@ interface Rendered {
   groups: Map<string, SVGElement[]>;
 }
 
-/** Vertical offset of every staff within a system, and the system's height. */
-function stackParts(parts: ScorePart[]) {
+/** A stem's length, VexFlow's: three and a half staff spaces. */
+const STEM_LENGTH = 35;
+
+/**
+ * How far a part's notes reach past its outer staves, in unscaled px: over
+ * its top staff's top line and under its bottom staff's bottom line, to the
+ * centre of the furthest notehead. A drumset staff's stems point away from
+ * it (hands up, feet down), so its reach is to their ends.
+ */
+function ledgerReach(part: ScorePart): { above: number; below: number } {
+  const staves = part.score.staves;
+  const reach = (staff: StaffId, side: 'above' | 'below') => {
+    // Drum noteheads sit where a treble staff would put their letters.
+    const bottom = BOTTOM_LINE[staff === 'percussion' ? 'treble' : staff];
+    if (bottom === undefined) return 0;
+    let furthest = -Infinity; // staff lines past the outer line
+    for (const measure of part.score.measures) {
+      for (const voice of measure.staves[staff] ?? []) {
+        for (const item of voice.items) {
+          if (item.kind !== 'note') continue;
+          for (const key of item.keys) {
+            const line =
+              (key.octave * 7 + 'cdefgab'.indexOf(key.letter) - bottom) / 2;
+            furthest = Math.max(furthest, side === 'above' ? line - 4 : -line);
+          }
+        }
+      }
+    }
+    if (furthest === -Infinity) return 0;
+    if (staff === 'percussion') {
+      return Math.max(0, furthest * LINE_GAP + STEM_LENGTH);
+    }
+    return Math.max(0, furthest * LINE_GAP);
+  };
+  return {
+    above: reach(staves[0], 'above'),
+    below: reach(staves[staves.length - 1], 'below'),
+  };
+}
+
+/**
+ * Vertical offset of every staff within a system, and the system's height.
+ * On a page (`roomForLedgers`), parts written far off their staves are held
+ * apart: two parts' ledger lines meeting in the gap between them get room
+ * for both noteheads and the same two spaces of air the top part keeps
+ * (inkAboveStave), and the last part's reach under its staff pushes the next
+ * system down. A lesson's staff, which never sets it, stacks as it always
+ * has.
+ */
+function stackParts(parts: ScorePart[], roomForLedgers = false) {
   const offsets: Array<Map<StaffId, number>> = [];
+  const reach = roomForLedgers ? parts.map(ledgerReach) : null;
+  /** The air every note keeps from the next part's: two staff spaces. */
+  const air = 2 * LINE_GAP;
   let y = 0;
   parts.forEach((part, i) => {
     const map = new Map<StaffId, number>();
@@ -807,7 +890,17 @@ function stackParts(parts: ScorePart[]) {
     });
     offsets.push(map);
     y += (part.score.staves.length - 1) * STAFF_SLOT + STAFF_BODY;
-    if (i < parts.length - 1) y += PART_GAP;
+    if (i < parts.length - 1) {
+      y += PART_GAP;
+      if (reach) {
+        // Bottom line to the next part's top line, against what both need.
+        const needed =
+          reach[i].below + reach[i + 1].above + 2 * NOTEHEAD_HALF + air;
+        y += Math.max(0, needed - (PART_GAP + TOP_LINE_DROP));
+      }
+    } else if (reach) {
+      y += Math.max(0, reach[i].below + NOTEHEAD_HALF + air - SYSTEM_GAP);
+    }
   });
   return { offsets, contentHeight: y };
 }
@@ -1103,7 +1196,7 @@ function render(
   }
   const headerFirst = headerWidth(vf, parts, true);
   const headerRest = headerWidth(vf, parts, false);
-  const { offsets, contentHeight } = stackParts(parts);
+  const { offsets, contentHeight } = stackParts(parts, !!options.page);
   // The system opens far enough below its own top for whatever stands there:
   // chord symbols, rehearsal marks, and any ledger lines reaching up to them.
   const systemTop =
@@ -1373,9 +1466,9 @@ function render(
           );
           if (first) {
             stave.addClef(
-              staff,
+              VEXFLOW_CLEF[staff],
               undefined,
-              staff === 'percussion' ? undefined : part.clefAnnotation,
+              clefAnnotationOf(part, staff),
             );
             if (staff !== 'percussion') {
               stave.addKeySignature(KEY_SPECS[part.score.keyFifths] ?? 'C');
@@ -1661,6 +1754,7 @@ function render(
           );
           const top = Math.min(...staffOffsets);
           const bottom = Math.max(...staffOffsets) + STAFF_BODY;
+          const staves = partStaves[partIndex];
           out.measures.push({
             measureIndex,
             partIndex,
@@ -1671,6 +1765,12 @@ function render(
             height: bottom - top,
             startTick: measure.startTick,
             endTick: slotEndTick!,
+            noteStartX: noteStart,
+            noteEndX: staves.values().next().value!.getNoteEndX(),
+            staves: [...staves].map(([staff, stave]) => ({
+              staff,
+              topLineY: stave.getYForLine(0),
+            })),
           });
         });
       }
@@ -1752,6 +1852,20 @@ function render(
           y: box.y * scale,
           width: box.width * scale,
           height: box.height * scale,
+          ...(box.noteStartX !== undefined
+            ? { noteStartX: box.noteStartX * scale }
+            : {}),
+          ...(box.noteEndX !== undefined
+            ? { noteEndX: box.noteEndX * scale }
+            : {}),
+          ...(box.staves
+            ? {
+                staves: box.staves.map((s) => ({
+                  staff: s.staff,
+                  topLineY: s.topLineY * scale,
+                })),
+              }
+            : {}),
         });
       }
       for (const note of drawn.notes) {
@@ -1966,6 +2080,8 @@ export function StaffView({
   onMeasurePointerDown,
   onRestPointerDown,
   onBackgroundPointerDown,
+  onStaffPointerMove,
+  onStaffPointerLeave,
   incremental = false,
   className,
   style,
@@ -2296,6 +2412,18 @@ export function StaffView({
           margin: '0 auto',
         }}
         onPointerDown={handlePointerDown}
+        onPointerMove={
+          onStaffPointerMove
+            ? (event) => {
+                const box = event.currentTarget.getBoundingClientRect();
+                onStaffPointerMove({
+                  x: event.clientX - box.left,
+                  y: event.clientY - box.top,
+                });
+              }
+            : undefined
+        }
+        onPointerLeave={onStaffPointerLeave}
       >
         {rendered?.pages.map((sheet, i) => (
           <div

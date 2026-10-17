@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ChordContext } from '@/lib/chordNotation';
 import {
   chordsPerBar,
+  formatChordsInText,
   placeLessonChords,
   formatLessonChord,
   lessonChordSymbols,
@@ -14,6 +15,70 @@ const BB_MAJOR: ChordContext = { keyRootPc: 10, mode: 'ionian' };
 
 const texts = (chords: { label: string; startTick: number }[], n = 'hybrid') =>
   lessonChordSymbols(chords, n as 'hybrid', D_DORIAN).map((s) => s.text);
+
+/** A minor (dorian) — Funk L2. */
+const A_DORIAN: ChordContext = { keyRootPc: 9, mode: 'dorian' };
+
+describe('formatChordsInText', () => {
+  const B15 = 'Am9 → Ddom13 Voice Leading';
+
+  it('names a title’s chords as the staff does, in either notation', () => {
+    // One step used to read three ways: "Am9 → Ddom13" (title), "Am9 → D13"
+    // (beside it) and "A min9 / D dom13" (over the staff).
+    expect(formatChordsInText(B15, 'hybrid', A_DORIAN)).toBe(
+      'A min9 → D dom13 Voice Leading',
+    );
+    expect(formatChordsInText(B15, 'jazz', A_DORIAN)).toBe(
+      'A−9 → D13 Voice Leading',
+    );
+  });
+
+  it('reads chords joined by hyphens and slash chords', () => {
+    expect(
+      formatChordsInText('A♭13-G7alt-Cm9-F13 Full Progression', 'hybrid', {}, [
+        'Ab13',
+        'G7alt',
+        'Cm9',
+        'F13',
+      ]),
+    ).toBe('A♭ dom13-G dom7alt-C min9-F dom13 Full Progression');
+    expect(formatChordsInText('1maj/3 over Bb/D', 'hybrid', {})).toBe(
+      '1maj/3 over B♭ maj/D',
+    );
+  });
+
+  it('reads a root and an abbreviated quality written apart', () => {
+    expect(formatChordsInText('A Funk9 → D Funk9', 'hybrid', {})).toBe(
+      'A funk9 → D funk9',
+    );
+    expect(formatChordsInText('F Dom13 7-3-13 Voicing', 'jazz', {})).toBe(
+      'F13 7-3-13 Voicing',
+    );
+  });
+
+  it('leaves words, keys, notes and section codes alone', () => {
+    for (const text of [
+      'C Major Pentatonic Ascending',
+      'Dorian Bass Groove',
+      'Drop the Sizzle',
+      'LH: D3-F3-C4, RH: Ab4→G4→F4→D4',
+      'B1.5 · A1 · D2',
+      'Register: C3-C5',
+    ]) {
+      expect(formatChordsInText(text, 'hybrid', {})).toBe(text);
+    }
+  });
+
+  it('takes a bare number for a chord only when the step plays it', () => {
+    // "G7" is a chord here; "D5" is a note, not a power chord.
+    expect(
+      formatChordsInText('switch to G7 as RH hits D5', 'hybrid', {}, [
+        'Dm7',
+        'G7',
+      ]),
+    ).toBe('switch to G dom7 as RH hits D5');
+  });
+});
 
 describe('formatLessonChord', () => {
   it('writes a letter-named chord in each notation', () => {

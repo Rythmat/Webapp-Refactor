@@ -114,8 +114,33 @@ export interface GenrePracticeSession {
    */
   styles?: { id: string; name: string }[];
   styleId?: string | null;
-  progressions?: { id: string; label: string; chords: string[] }[];
+  progressions?: {
+    id: string;
+    /** As built, raw symbols: the screen writes `chords` in the notation. */
+    label: string;
+    chords: string[];
+    /** The groove the progression comes with, when the level has several. */
+    styleName?: string;
+  }[];
   progressionId?: string;
+  /**
+   * A guitar lesson's track: the screen draws the scale position and chord
+   * shapes on a fretboard in place of the keyboard. Absent on piano.
+   */
+  guitar?: GuitarPracticeInfo;
+}
+
+/**
+ * What a guitar Practice Track draws, as ids into the guitar book so a
+ * refreshed session can draw it again: the key center, the scale position the
+ * level plays from, and the chord shapes the section plays.
+ */
+export interface GuitarPracticeInfo {
+  /** 'C', or 'D:dorian' (curriculum/data/guitar/centers). */
+  keyCenter: string;
+  /** 'major' | 'pentatonic' | 'pentatonic2'; null when the level has none. */
+  scalePosition: string | null;
+  shapeIds: string[];
 }
 
 /** A Practice Track in progress, from either kind of lesson. */
@@ -168,6 +193,13 @@ export interface UiSlice {
    */
   singleKeyShortcuts: boolean;
   setSingleKeyShortcuts: (on: boolean) => void;
+  /**
+   * The Score's note input (MuseScore's N): a click on a staff, or a letter
+   * A–G, writes a note instead of selecting. Shared by the Score and a lead
+   * sheet's melody, which edit with the same tools.
+   */
+  scoreNoteInput: boolean;
+  setScoreNoteInput: (on: boolean) => void;
   activeTool: ToolType;
   selectedClipId: string | null;
   selectedClipTrackId: string | null;
@@ -320,9 +352,29 @@ export interface UiSlice {
   /** Draw the melody track's notes on the lead sheet staff, over the slashes. */
   leadSheetShowMelody: boolean;
   setLeadSheetShowMelody: (show: boolean) => void;
-  /** Which track the melody is read from; null picks one by its role. */
-  leadSheetMelodyTrackId: string | null;
-  setLeadSheetMelodyTrackId: (trackId: string | null) => void;
+  /**
+   * The tracks the lead sheet writes as its melody, a staff each, stacked in
+   * track order (leadSheetMelody.ts, pickMelodyTracks). Empty is Auto: the
+   * track whose role is melody, else the first MIDI track with notes. An id
+   * whose track has gone is skipped, not cleared, so undoing the delete
+   * brings its staff back; a load drops it.
+   */
+  leadSheetMelodyTrackIds: string[];
+  /**
+   * Make these tracks the melody, in place of any before; an empty list goes
+   * back to Auto. With `show`, Melody is switched on too: what a caller that
+   * hands the student a track to read (the Learn hand-off) wants.
+   */
+  setLeadSheetMelodyTrackIds: (
+    trackIds: readonly string[],
+    options?: { show?: boolean },
+  ) => void;
+  /**
+   * Tick or untick one track in the lead sheet's melody picker. Ticking also
+   * switches Melody on, since it asks to see that track; unticking the last
+   * one goes back to Auto.
+   */
+  toggleLeadSheetMelodyTrack: (trackId: string) => void;
   /**
    * Score view: track ids whose part shows chord symbols. The symbols are the
    * lead sheet's own chords; this only says which parts display them.
@@ -376,6 +428,8 @@ export const createUiSlice: StateCreator<
 > = (set, get) => ({
   singleKeyShortcuts: true,
   setSingleKeyShortcuts: (on) => set({ singleKeyShortcuts: on }),
+  scoreNoteInput: false,
+  setScoreNoteInput: (on) => set({ scoreNoteInput: on }),
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,
@@ -630,9 +684,26 @@ export const createUiSlice: StateCreator<
   setLeadSheetShowRepeats: (show) => set({ leadSheetShowRepeats: show }),
   leadSheetShowMelody: false,
   setLeadSheetShowMelody: (show) => set({ leadSheetShowMelody: show }),
-  leadSheetMelodyTrackId: null,
-  setLeadSheetMelodyTrackId: (trackId) =>
-    set({ leadSheetMelodyTrackId: trackId }),
+  leadSheetMelodyTrackIds: [],
+  setLeadSheetMelodyTrackIds: (trackIds, { show = false } = {}) =>
+    set({
+      leadSheetMelodyTrackIds: [...new Set(trackIds)],
+      ...(show ? { leadSheetShowMelody: true } : {}),
+    }),
+  toggleLeadSheetMelodyTrack: (trackId) =>
+    set((s) => {
+      const picked = new Set(s.leadSheetMelodyTrackIds);
+      const adding = !picked.has(trackId);
+      if (adding) picked.add(trackId);
+      else picked.delete(trackId);
+      return {
+        // Kept in track order, and only for tracks the project still has.
+        leadSheetMelodyTrackIds: s.tracks
+          .filter((track) => picked.has(track.id))
+          .map((track) => track.id),
+        ...(adding ? { leadSheetShowMelody: true } : {}),
+      };
+    }),
   scoreChordTracks: [],
   toggleScoreChordTrack: (trackId) =>
     set((s) => ({

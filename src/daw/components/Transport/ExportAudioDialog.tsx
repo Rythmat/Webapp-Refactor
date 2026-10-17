@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { Download, Loader2, AlertTriangle } from 'lucide-react';
 import { useStore } from '@/daw/store';
+import type { Track } from '@/daw/store/tracksSlice';
 import {
   exportProjectAudio,
   downloadAudioBlob,
@@ -36,6 +37,18 @@ export { DEFAULT_EXPORT_CHOICES, type ExportChoices } from './exportChoices';
 function parseBar(text: string): number | null {
   const n = Number(text.trim());
   return Number.isInteger(n) && n >= 1 ? n : null;
+}
+
+/** Whether a Guitar/Bass/Vocal track's stored chain has a wah switched on:
+ *  its envelope follower can't run in an offline render (WahPedal). */
+function usesWah(track: Track): boolean {
+  const chain =
+    track.instrument === 'guitar-fx' || track.instrument === 'bass-fx'
+      ? track.guitarChain
+      : track.instrument === 'vocal-fx'
+        ? track.vocalChain
+        : undefined;
+  return !!chain?.some((b) => b.type === 'wah' && b.enabled);
 }
 
 /** Seconds → m:ss. */
@@ -108,28 +121,16 @@ export function ExportAudioDialog({
   );
 
   const trackCount = tracks.length;
-  // Instruments that don't render faithfully offline (see renderProject parity
-  // checklist) — warn so a silent/dry track isn't a surprise. Muted tracks are
-  // excluded from the bounce anyway, so don't warn about them.
-  const soundfontCount = tracks.filter(
-    (t) => !t.mute && t.instrument === 'soundfont',
-  ).length;
-  const ampDryCount = tracks.filter(
-    (t) =>
-      !t.mute &&
-      (t.instrument === 'guitar-fx' ||
-        t.instrument === 'bass-fx' ||
-        t.instrument === 'vocal-fx') &&
-      t.audioClips.length > 0,
+  // What doesn't render as it plays (see renderProject's parity checklist):
+  // warn so the difference isn't a surprise. Muted tracks are excluded from
+  // the bounce anyway, so don't warn about them.
+  const wahCount = tracks.filter(
+    (t) => !t.mute && t.audioClips.length > 0 && usesWah(t),
   ).length;
   const warnings: string[] = [];
-  if (soundfontCount > 0)
+  if (wahCount > 0)
     warnings.push(
-      `${soundfontCount} SoundFont/GM ${soundfontCount === 1 ? 'track is' : 'tracks are'} not yet included in the bounce.`,
-    );
-  if (ampDryCount > 0)
-    warnings.push(
-      `${ampDryCount} guitar/bass/vocal ${ampDryCount === 1 ? 'track bounces' : 'tracks bounce'} dry (without amp/pedal FX).`,
+      `${wahCount} ${wahCount === 1 ? 'track uses' : 'tracks use'} the wah pedal, which bounces as a fixed filter (no sweep).`,
     );
 
   const { format, bitDepth, range } = choices;
@@ -244,20 +245,27 @@ export function ExportAudioDialog({
     onOpenChange,
   ]);
 
+  const stagePct =
+    progress && progress.pct > 0 ? ` ${Math.round(progress.pct * 100)}%` : '…';
   const progressLabel =
-    progress?.stage === 'render'
-      ? 'Rendering mixdown…'
-      : progress?.stage === 'encode'
-        ? `Encoding${progress.pct > 0 ? ` ${Math.round(progress.pct * 100)}%` : '…'}`
-        : '';
-  // Render has no sub-progress; show a modest indeterminate fill so the bar
-  // isn't stuck at 0 while the offline render runs.
+    progress?.stage === 'instruments'
+      ? `Rendering instruments${stagePct}`
+      : progress?.stage === 'render'
+        ? `Rendering mixdown${stagePct}`
+        : progress?.stage === 'encode'
+          ? `Encoding${stagePct}`
+          : '';
+  // SoundFont tracks (when there are any), then the mixdown, then encoding.
+  // The mixdown starts the bar off a little way in, so it isn't stuck at 0
+  // in a browser that can't report the render's progress.
   const barPct =
-    progress?.stage === 'render'
-      ? 30
-      : progress?.stage === 'encode'
-        ? 40 + progress.pct * 60
-        : 0;
+    progress?.stage === 'instruments'
+      ? progress.pct * 20
+      : progress?.stage === 'render'
+        ? 25 + progress.pct * 55
+        : progress?.stage === 'encode'
+          ? 80 + progress.pct * 20
+          : 0;
 
   const exportBlocked = busy || trackCount === 0 || !!customError;
   const formatHint = FORMATS.find((f) => f.id === format)?.hint ?? '';

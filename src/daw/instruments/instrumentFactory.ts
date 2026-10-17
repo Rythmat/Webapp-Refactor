@@ -18,6 +18,7 @@ import {
   BASS_ELECTRIC_CONFIG,
   CELLO_CONFIG,
   ELECTRIC_PIANO_CONFIG,
+  GUITAR_ACOUSTIC_CONFIG,
   ORGAN_CONFIG,
   bassVoiceSamplerConfig,
 } from './sampleConfigs';
@@ -44,6 +45,8 @@ export function createInstrument(
       return new SamplerInstrument(
         bassVoice ? bassVoiceSamplerConfig(bassVoice) : BASS_ELECTRIC_CONFIG,
       );
+    case 'guitar-acoustic':
+      return new SamplerInstrument(GUITAR_ACOUSTIC_CONFIG);
     case 'cello':
       return new SamplerInstrument(CELLO_CONFIG);
     case 'organ':

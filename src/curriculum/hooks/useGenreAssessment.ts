@@ -106,7 +106,7 @@ const TICKS_PER_BEAT = 480; // PPQ
 // ── Shared helpers ───────────────────────────────────────────────────────────
 
 /** Wrong-note penalty: scales relative to activity size, weighted 50%. */
-function applyWrongNotePenalty(
+export function applyWrongNotePenalty(
   baseScore: number,
   targetCount: number,
   wrongCount: number,

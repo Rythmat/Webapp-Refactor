@@ -1,4 +1,5 @@
 import { SLUG_PATTERN } from '@/content/graph/ids';
+import { blankLiteracyLesson } from '@/content/musicLiteracy/template';
 import {
   VOCABULARY_KINDS,
   type VocabularyKind,
@@ -36,7 +37,8 @@ export type MockKind =
   | 'label'
   | 'chord_progression'
   | VocabularyKind
-  | InstrumentKind;
+  | InstrumentKind
+  | 'music_literacy';
 
 /** Instrument content (docs/instrument-content-kinds.md). */
 export type InstrumentKind = 'drum_groove' | 'instrument_part' | 'feel_profile';
@@ -83,6 +85,8 @@ export const ALL_KINDS: readonly MockKind[] = [
   'artist_location',
   'chord_progression',
   ...INSTRUMENT_KINDS,
+  // docs/music-literacy-content-kind.md: names nothing, so last.
+  'music_literacy',
 ];
 
 /**
@@ -105,6 +109,7 @@ export const REPO_KINDS: readonly MockKind[] = [
   'chord_progression',
   ...VOCABULARY_KINDS,
   ...INSTRUMENT_KINDS,
+  'music_literacy',
 ];
 
 export const kindsFor = (mode: ContentMockMode): readonly MockKind[] =>
@@ -162,6 +167,8 @@ export const BUNDLE: Record<MockKind, string | null> = {
   drum_groove: 'drum-grooves',
   instrument_part: 'instrument-parts',
   feel_profile: 'feel-profiles',
+  // The Music Literacy lessons Learn plays.
+  music_literacy: 'music-literacy',
 };
 
 /**
@@ -190,6 +197,7 @@ export const AUTHORITATIVE: Record<MockKind, boolean> = {
   drum_groove: true,
   instrument_part: true,
   feel_profile: true,
+  music_literacy: true,
 };
 
 /**
@@ -286,6 +294,8 @@ export function project(kind: string, body: Body | null, slug: string) {
       return row(b.name, b.instrument, null, b.tags);
     case 'feel_profile':
       return row(b.name, b.source, null, []);
+    case 'music_literacy':
+      return row(b.name, num(b.part) ? `Part ${b.part}` : null, null, []);
     default:
       return row(b.title ?? b.name, null, null, []);
   }
@@ -318,6 +328,8 @@ const TEMPLATE_HINTS: Record<MockKind, string> = {
     'The id is kebab-case. Write the notes in the Parts Library editor rather than here.',
   feel_profile:
     'The id is kebab-case. Measure a feel from a played part in the Parts Library (Save feel).',
+  music_literacy:
+    'The id is kebab-case. Write the steps in the Music Literacy editor: each step’s tag is what students’ progress keys off, so it stays when the step is renamed.',
 };
 
 export function templateFor(kind: MockKind, slug: string, nextId: number) {
@@ -440,6 +452,7 @@ export function templateFor(kind: MockKind, slug: string, nextId: number) {
       positions: 4,
       offsets: [0, 0, 0, 0],
     },
+    music_literacy: { ...blankLiteracyLesson(slug, '') },
   };
   const body = bodies[kind];
   return {

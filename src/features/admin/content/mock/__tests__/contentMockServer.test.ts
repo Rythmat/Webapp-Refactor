@@ -178,6 +178,8 @@ describe('the seed', () => {
       drum_groove: expect.any(Number),
       instrument_part: expect.any(Number),
       feel_profile: expect.any(Number),
+      // And the Music Literacy lessons, from src/curriculum/data too.
+      music_literacy: expect.any(Number),
     });
     // Every kind is live at v1, releases too now the seed holds some (with
     // none until the import, they had no live version).

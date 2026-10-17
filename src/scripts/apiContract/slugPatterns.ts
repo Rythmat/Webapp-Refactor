@@ -39,6 +39,10 @@ const KINDS: Record<string, [Identity, keyof typeof SLUG_PATTERN | null]> = {
   drum_groove: ['id', 'groove'],
   instrument_part: ['id', 'part'],
   feel_profile: ['id', 'feel'],
+  // Music Literacy (docs/music-literacy-content-kind.md). Not in the graph:
+  // it borrows the part's kebab pattern, the one its body holds `id` to, as
+  // repo mode needs a pattern to check a save's slug against.
+  music_literacy: ['id', 'part'],
 };
 
 export function buildSlugPatterns() {

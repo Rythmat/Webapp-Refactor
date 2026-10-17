@@ -47,7 +47,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     when: 'isFirstKey',
     modes: 'ionian',
     title: 'Start with C',
-    body: 'C major has no sharps or flats. Each key after it changes just one note.',
+    body: 'C major has no sharps or flats. Each key center has a different amount of sharps or flats.',
   },
   {
     id: 'key.newNote',
@@ -84,7 +84,8 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     subsectionPrefix: 'KEY',
     placement: 'info',
     kind: 'theory',
-    when: 'always',
+    // Not on C: the first key has no key before it to come from.
+    when: 'notFirstKey',
     modes: 'ionian',
     title: 'Why this order?',
     body: 'Each key starts on note 5 of the key before it. Musicians call this order the circle of fifths.',

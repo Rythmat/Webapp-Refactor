@@ -1,0 +1,24 @@
+/* ── Piano lesson layout ───────────────────────────────────────────────────
+   Guitar's bands (guitarLayout.css), with the keyboard in place of the TAB.
+   Desktop: the column never scrolls the page. The roll takes what the
+   header, nav, keyboard and bar leave, never under 200px (the roll's own
+   floor); the result or the section's offer take the roll's place. Below
+   640px wide the column scrolls instead and the roll keeps a fixed height.
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* The grid row gives the roll (or what takes its place) a definite height,
+   so the measured roll box and h-full inside keep working. */
+[data-piano-layout] [data-piano-roll-slot] {
+  flex: 1 1 0%;
+  min-height: 200px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 639px) {
+  [data-piano-layout] [data-piano-roll-slot] {
+    flex: none;
+    height: 360px;
+  }
+}

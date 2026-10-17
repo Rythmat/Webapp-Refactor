@@ -43,9 +43,9 @@
  *
  * Not probed: the lesson and practice context (tutorial step, practice
  * session), which milestone 1.15 moves into the draft (DraftMeta.context);
- * leadSheetMelodyTrackId (nothing writes it); audioMidiSource, the
- * Guitar/Bass-to-MIDI binding, which the registry keeps session-only
- * (fields.ts; a reload asks the student to pick their input again); takes
+ * audioMidiSource, the Guitar/Bass-to-MIDI binding, which the registry keeps
+ * session-only (fields.ts; a reload asks the student to pick their input
+ * again); takes
  * still being recorded, which no draft holds until milestone 1.11d; and
  * session state such as the tool and the clip selection, which no reload
  * keeps. The view of the project (current view, zoom, scroll, selected
@@ -699,6 +699,18 @@ const probes = {
     write: (p) => st(p).setLeadSheetShowMelody(true),
     check: (p) => expect(st(p).leadSheetShowMelody).toBe(true),
   },
+  // The tracks the Lead Sheet's picker ticked, a staff each.
+  leadSheetMelodyTracks: {
+    write: (p) => {
+      st(p).toggleLeadSheetMelodyTrack(track(p, 'Keys').id);
+      st(p).toggleLeadSheetMelodyTrack(track(p, 'Lead').id);
+    },
+    check: (p) =>
+      expect(st(p).leadSheetMelodyTrackIds).toEqual([
+        track(p, 'Keys').id,
+        track(p, 'Lead').id,
+      ]),
+  },
   articulations: {
     write: (p) =>
       st(p).setScoreArticulations([
@@ -1036,6 +1048,23 @@ const probes = {
       st(p).updateTrack(track(p, 'Keys').id, { trackRole: 'melody' }),
     check: (p) => expect(track(p, 'Keys').trackRole).toBe('melody'),
   },
+  // The staff a part is set to in the Score's parts panel (schema 6).
+  partStaff: {
+    write: (p) =>
+      st(p).updateTrack(track(p, 'Keys').id, { notationStaff: 'treble' }),
+    check: (p) => expect(track(p, 'Keys').notationStaff).toBe('treble'),
+  },
+  // The alto clef and the bass clef with an 8 (schema 7).
+  partStaffSchema7: {
+    write: (p) => {
+      st(p).updateTrack(track(p, 'Keys').id, { notationStaff: 'alto' });
+      st(p).updateTrack(track(p, 'Lead').id, { notationStaff: 'bass8vb' });
+    },
+    check: (p) => {
+      expect(track(p, 'Keys').notationStaff).toBe('alto');
+      expect(track(p, 'Lead').notationStaff).toBe('bass8vb');
+    },
+  },
   inputChannel: {
     write: writeStereoInput,
     check: (p) =>
@@ -1200,6 +1229,7 @@ describe('a browser refresh (local autosave) keeps', () => {
   it('fermatas', kept(probes.fermatas));
   it('the lead-sheet chord format', kept(probes.chordFormat));
   it('the lead-sheet melody toggle', kept(probes.leadSheetMelody));
+  it('the lead-sheet melody tracks', kept(probes.leadSheetMelodyTracks));
   // state-reload-01: fixed in 1.3 (the draft keeps the Score's marks, by
   // note id, and its layout).
   it('Score articulations', kept(probes.articulations));
@@ -1237,6 +1267,8 @@ describe('a browser refresh (local autosave) keeps', () => {
   it('the Oracle synth patch', kept(probes.oracleSynthPatch));
   // state-reload-10: fixed in 1.1 (the track map carries trackRole).
   it('the track role', kept(probes.trackRole));
+  it("a part's staff", kept(probes.partStaff));
+  it("a part's alto or bass 8vb clef", kept(probes.partStaffSchema7));
   // live-input-02: fixed in 1.1 (the track map carries audioInputChannel).
   it('the live input channel', kept(probes.inputChannel));
   it('record arm, monitoring and input devices', kept(probes.inputRouting));
@@ -1274,6 +1306,7 @@ const LOCAL_ROWS: [string, Probe][] = [
   ['fermatas', probes.fermatas],
   ['the lead-sheet chord format', probes.chordFormat],
   ['the lead-sheet melody toggle', probes.leadSheetMelody],
+  ['the lead-sheet melody tracks', probes.leadSheetMelodyTracks],
   ['Score articulations', probes.articulations],
   ['Score slurs', probes.slurs],
   ['pinned Score spellings', probes.pinnedSpellings],
@@ -1305,6 +1338,8 @@ const LOCAL_ROWS: [string, Probe][] = [
   ['the vocal pedal chain', probes.vocalChain],
   ['the Oracle synth patch', probes.oracleSynthPatch],
   ['the track role', probes.trackRole],
+  ["a part's staff", probes.partStaff],
+  ["a part's alto or bass 8vb clef", probes.partStaffSchema7],
   ['the live input channel', probes.inputChannel],
   ['record arm, monitoring and input devices', probes.inputRouting],
   ['MIDI clip notes, name and position', probes.midiNotes],
@@ -1428,6 +1463,7 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   it('fermatas', kept(probes.fermatas));
   it('the lead-sheet chord format', kept(probes.chordFormat));
   it('the lead-sheet melody toggle', kept(probes.leadSheetMelody));
+  it('the lead-sheet melody tracks', kept(probes.leadSheetMelodyTracks));
   it('Score articulations', kept(probes.articulations));
   it('Score slurs', kept(probes.slurs));
   it('pinned Score spellings', kept(probes.pinnedSpellings));
@@ -1461,6 +1497,9 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   // state-reload-10: fixed in 1.1 (the role rides in the track settings blob;
   // only a save without it re-guesses from the name).
   it('the track role', kept(probes.trackRole));
+  // Rides in the track settings blob the payload already carries.
+  it("a part's staff", kept(probes.partStaff));
+  it("a part's alto or bass 8vb clef", kept(probes.partStaffSchema7));
   // live-input-02: deserializeCloudProject sets audioInputChannel to null.
   // Kept null on purpose in 1.1 (the channel is per-device, never cloud);
   // the input views read null as mono input 1 instead (see the probe).

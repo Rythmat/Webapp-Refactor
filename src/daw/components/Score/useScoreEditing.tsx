@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  type MeasureBox,
   type NoteInfo,
   type ScorePart,
   type StaffLayout,
@@ -110,6 +111,25 @@ import {
   withoutRepeatAt,
 } from './roadmap';
 import type { ScoreTrackPart } from './scoreParts';
+import { partStaffState, storedSetting } from './partStaff';
+import { PartNameMenu } from './PartStaffControls';
+import type { NotationStaffSetting } from '@/daw/store/tracksSlice';
+import {
+  drawnSpans,
+  inputGrid,
+  inputTargetAt,
+  letterPitch,
+  middleLineStep,
+  pinnedSpelling,
+  placeOfTick,
+  planNoteInsert,
+  soundingStep,
+  stepOf,
+  type InputTarget,
+  type NoteInsertPlan,
+} from './noteInput';
+import { writtenOctaves } from '@/lib/notation/clefs';
+import { NoteInputLayer } from './NoteInputLayer';
 import {
   articulationIndex,
   byBar,
@@ -124,6 +144,45 @@ import {
  * chord symbol. */
 const MARK_ROW = 22;
 
+/** How hard a written note is played: the piano roll's own default. */
+const NEW_NOTE_VELOCITY = 100;
+
+/** Where a typed letter writes next (see the note input section). */
+interface InputCursor {
+  partIndex: number;
+  staffIndex: number;
+  /** Song tick. */
+  tick: number;
+  /** The diatonic step the next letter's octave is sought from. */
+  step: number | null;
+  /** Where the note just written starts, or null before one is. */
+  enteredTick: number | null;
+}
+
+/** Two ghost positions that would draw the same. */
+function sameTarget(a: InputTarget | null, b: InputTarget | null): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return (
+    a.partIndex === b.partIndex &&
+    a.staffIndex === b.staffIndex &&
+    a.tick === b.tick &&
+    a.midi === b.midi &&
+    a.x === b.x &&
+    a.y === b.y
+  );
+}
+
+/**
+ * Sound a written note on its track's instrument, as the piano roll does.
+ * Loaded on first use, so the editor doesn't bring the audio engine with it.
+ */
+function previewPitch(trackId: string, midi: number, velocity: number) {
+  void import('@/daw/audio/auditionNote')
+    .then(({ auditionNote }) => auditionNote(trackId, midi, velocity))
+    .catch(() => undefined);
+}
+
 // ── The score editor ───────────────────────────────────────────────────────
 // Everything the Score view does to the music: what is selected, what the
 // keys and the toolbar do to it, and the layer drawn over the staves. It
@@ -136,11 +195,12 @@ export interface ScoreEditingOptions {
   /** The same parts with their track identity, for editing the clips. */
   scoreParts: ScoreTrackPart[];
   /**
-   * Show the song's chord symbols over every part without being asked. A lead
-   * sheet is chords over a melody by definition; a score turns them on per
-   * instrument.
+   * Show the song's chord symbols without being asked: over every part
+   * (true), or over the top part only ('top'). A lead sheet is chords over a
+   * melody by definition, and with several melody staves it writes them
+   * once, above the first; a score turns them on per instrument.
    */
-  chordsAlwaysVisible?: boolean;
+  chordsAlwaysVisible?: boolean | 'top';
 }
 
 export function useScoreEditing({
@@ -269,6 +329,14 @@ export function useScoreEditing({
   const markAnchor = useRef<string | null>(null);
   const [dotted, setDotted] = useState(false);
   const [layer, setLayer] = useState<NoteLayer>('notes');
+  /**
+   * In note input, a press on the staves writes a note (see the note input
+   * section below). Read through a ref so the press handlers here needn't be
+   * declared after everything writing a note uses.
+   */
+  const inputPressRef = useRef<(event: React.PointerEvent) => boolean>(
+    () => false,
+  );
   const [dragging, setDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number } | null>(
     null,
@@ -490,6 +558,7 @@ export function useScoreEditing({
       { noteId }: { noteId: string; noteIds: string[] },
       event: React.PointerEvent,
     ) => {
+      if (inputPressRef.current(event)) return;
       event.preventDefault();
       setSelected(null);
       setSelectedCells(new Set());
@@ -580,6 +649,7 @@ export function useScoreEditing({
 
   const handleRestPointerDown = useCallback(
     (key: string, event: React.PointerEvent) => {
+      if (inputPressRef.current(event)) return;
       event.preventDefault();
       setSelectedNotes(new Set());
       setSelectedCells(new Set());
@@ -621,6 +691,7 @@ export function useScoreEditing({
 
   const handleMeasurePointerDown = useCallback(
     (cell: Cell, event: React.PointerEvent) => {
+      if (inputPressRef.current(event)) return;
       setSelectedNotes(new Set());
       setSelectedRests(new Set());
       setSelectedMarks(new Set());
@@ -875,10 +946,21 @@ export function useScoreEditing({
     [selectedNotes, articulations, setArticulations],
   );
 
-  /** The written spelling of every selected note, where the score drew one. */
+  /**
+   * The spelling of every selected note, where the score drew one, in the
+   * octave it sounds: a part on the bass clef with an 8 draws its notes an
+   * octave above their pitch (clefs.ts), and an accidental moves the pitch.
+   */
   const selectedSpelled = useMemo(
-    () => (layout?.notes ?? []).filter((note) => selectedNotes.has(note.id)),
-    [layout, selectedNotes],
+    () =>
+      (layout?.notes ?? [])
+        .filter((note) => selectedNotes.has(note.id))
+        .map((note) => {
+          const staves = parts[note.partIndex]?.score.staves ?? [];
+          const octaves = staves.length === 1 ? writtenOctaves(staves[0]) : 0;
+          return octaves ? { ...note, octave: note.octave - octaves } : note;
+        }),
+    [layout, selectedNotes, parts],
   );
 
   /** The one accidental every selected note carries, if they agree. */
@@ -1097,7 +1179,11 @@ export function useScoreEditing({
       new Set(
         scoreParts
           .map((part, index) =>
-            chordsAlwaysVisible || scoreChordTracks.includes(part.id)
+            (
+              chordsAlwaysVisible === 'top'
+                ? index === 0
+                : chordsAlwaysVisible || scoreChordTracks.includes(part.id)
+            )
               ? index
               : -1,
           )
@@ -1332,18 +1418,40 @@ export function useScoreEditing({
     setSelectedChords(new Set());
   }, [selectedChords, scoreChordHidden, trackIdByPart, setScoreChordHidden]);
 
+  // ── Each part's clef ────────────────────────────────────────────────────
+  // A part's staff follows its instrument unless set by hand (partStaff.ts),
+  // from the parts panel or the menu on its name. Setting it is one undo
+  // step, like any other edit.
+  const updateTrack = useStore((s) => s.updateTrack);
+  const staffStates = useMemo(() => {
+    const byId = new Map(tracks.map((track) => [track.id, track]));
+    return scoreParts.map((part) => {
+      const track = byId.get(part.id);
+      return track ? partStaffState(track) : null;
+    });
+  }, [tracks, scoreParts]);
+  const setPartStaff = useCallback(
+    (trackId: string, setting: NotationStaffSetting) => {
+      withTransaction('Change clef', () =>
+        updateTrack(trackId, { notationStaff: storedSetting(setting) }),
+      );
+    },
+    [updateTrack],
+  );
+
   const partRows = useMemo(
     () =>
-      scoreParts.map((part) => ({
+      scoreParts.map((part, index) => ({
         id: part.id,
         name: part.name,
         color: part.color,
+        staff: staffStates[index],
         showChords: scoreChordTracks.includes(part.id),
         hiddenChords: scoreChordHidden.filter((entry) =>
           entry.startsWith(`${part.id}:`),
         ).length,
       })),
-    [scoreParts, scoreChordTracks, scoreChordHidden],
+    [scoreParts, staffStates, scoreChordTracks, scoreChordHidden],
   );
 
   // ── Copy and paste ──────────────────────────────────────────────────────
@@ -1538,6 +1646,349 @@ export function useScoreEditing({
     followEdit,
   ]);
 
+  // ── Note input (MuseScore's N) ──────────────────────────────────────────
+  // With note input on, the pointer carries a ghost note: the line or space
+  // under it through that staff's clef and key, at the nearest place in the
+  // bar the chosen length can start. A press writes it there, over whatever
+  // that staff had (noteInput.ts); Shift adds it to the chord there instead.
+  // A letter A–G writes that note at the input cursor, in the octave nearest
+  // the last one, and walks the cursor on by the note's length. The note
+  // written is selected, so ↑/↓ and the accidentals act on it straight away;
+  // a length key picks the next note's length, as in MuseScore. Each note is
+  // one undo step.
+  const noteInput = useStore((s) => s.scoreNoteInput);
+  const setNoteInput = useStore((s) => s.setScoreNoteInput);
+  const [inputDuration, setInputDuration] = useState<DurationChoice>(
+    () => DURATIONS.find((choice) => choice.key === '5') ?? DURATIONS[0],
+  );
+  const [ghost, setGhost] = useState<InputTarget | null>(null);
+  /**
+   * Where a typed letter writes next: the part and staff, the tick, the
+   * step the next letter's octave is sought from, and the tick of the note
+   * just written there (whose chord Shift adds to).
+   */
+  const [inputCursor, setInputCursor] = useState<InputCursor | null>(null);
+  /** The pointer's last spot over the music, to re-aim the ghost. */
+  const lastPointer = useRef<{ x: number; y: number } | null>(null);
+
+  const inputGridTicks = inputGrid(inputDuration, ticksPerQuarter, dotted);
+  const inputTicks = durationTicks(inputDuration, ticksPerQuarter, dotted);
+
+  const staffIdsOf = useCallback(
+    (partIndex: number) => parts[partIndex]?.score.staves ?? ['treble'],
+    [parts],
+  );
+  const keyFifthsOf = useCallback(
+    (partIndex: number) => parts[partIndex]?.score.keyFifths ?? 0,
+    [parts],
+  );
+  const targetAt = useCallback(
+    (x: number, y: number) =>
+      layout
+        ? inputTargetAt({
+            layout,
+            x,
+            y,
+            grid: inputGridTicks,
+            staffIdsOf,
+            keyFifthsOf,
+          })
+        : null,
+    [layout, inputGridTicks, staffIdsOf, keyFifthsOf],
+  );
+
+  const handleStaffPointerMove = useCallback(
+    (point: { x: number; y: number }) => {
+      lastPointer.current = point;
+      const next = targetAt(point.x, point.y);
+      setGhost((current) => (sameTarget(current, next) ? current : next));
+    },
+    [targetAt],
+  );
+  const handleStaffPointerLeave = useCallback(() => {
+    lastPointer.current = null;
+    setGhost(null);
+  }, []);
+  // A new engraving, length or dot moves where the ghost belongs.
+  useEffect(() => {
+    const point = lastPointer.current;
+    if (!noteInput || !point) return;
+    const next = targetAt(point.x, point.y);
+    setGhost((current) => (sameTarget(current, next) ? current : next));
+  }, [noteInput, targetAt]);
+
+  /**
+   * Write one note (noteInput.ts says how it overwrites), as one undo step,
+   * sound it on its track, and select it. Returns the plan, or null.
+   */
+  const writeNote = useCallback(
+    (
+      at: {
+        partIndex: number;
+        staffIndex: number;
+        tick: number;
+        midi: number;
+        step: number;
+      },
+      chord: boolean,
+    ): NoteInsertPlan | null => {
+      const part = scoreParts[at.partIndex];
+      if (!part) return null;
+      const staves = part.score.staves;
+      const plan = planNoteInsert(useStore.getState().tracks, {
+        trackId: part.id,
+        tick: at.tick,
+        durationTicks: inputTicks,
+        midi: at.midi,
+        velocity: NEW_NOTE_VELOCITY,
+        barTicks: measureTicks,
+        drawn: drawnSpans(part.score),
+        // Each staff of a grand staff is written on its own.
+        ...(staves.length > 1 ? { staff: staves[at.staffIndex] } : {}),
+        chord,
+      });
+      if (!plan) return null;
+      if (plan.writes.length > 0) {
+        withTransaction('Add note', () => {
+          const store = useStore.getState();
+          for (const write of plan.writes) {
+            if (write.newClipStartTick !== undefined) {
+              store.addMidiClip(write.trackId, {
+                id: write.clipId,
+                startTick: write.newClipStartTick,
+                ...(write.durationTicks !== undefined
+                  ? { durationTicks: write.durationTicks }
+                  : {}),
+                events: write.events,
+              });
+            } else {
+              store.updateMidiClipEvents(
+                write.trackId,
+                write.clipId,
+                write.events,
+              );
+              if (write.durationTicks !== undefined) {
+                store.updateMidiClip(write.trackId, write.clipId, {
+                  durationTicks: write.durationTicks,
+                });
+              }
+            }
+          }
+          // What it wrote over takes its marks along. The new note keeps the
+          // line it was written on, and with the rhythm row live it is
+          // written as a slash.
+          const { rootNote, mode } = useStore.getState();
+          const pin = pinnedSpelling(
+            at.midi,
+            soundingStep(at.step, staves[at.staffIndex] ?? 'treble'),
+            part.score.keyFifths,
+            rootNote,
+            mode,
+          );
+          followEdit(
+            {
+              ids: [plan.noteId],
+              renamed: new Map(),
+              removed: new Set(plan.removed),
+            },
+            (marks) => ({
+              ...marks,
+              ...(pin
+                ? { spellings: withSpelling(marks.spellings, plan.noteId, pin) }
+                : {}),
+              ...(layer === 'slashes'
+                ? { slashNotes: [...marks.slashNotes, plan.noteId] }
+                : {}),
+            }),
+          );
+        });
+      }
+      previewPitch(part.id, at.midi, NEW_NOTE_VELOCITY);
+      setSelectedNotes(new Set([plan.noteId]));
+      setSelectedCells(new Set());
+      setSelectedRests(new Set());
+      setSelectedMarks(new Set());
+      setSelectedChords(new Set());
+      setSelected(null);
+      noteAnchor.current = plan.noteId;
+      return plan;
+    },
+    [scoreParts, inputTicks, measureTicks, followEdit, layer],
+  );
+
+  // A press in note input writes the ghost's note, or adds it to the chord
+  // with Shift. Anything off the staves (a drumset's, the margin) is left to
+  // the usual handlers.
+  inputPressRef.current = (event) => {
+    if (!noteInput || !layout) return false;
+    const target = event.currentTarget as Element | null;
+    const rect = target?.getBoundingClientRect?.();
+    if (!rect) return false;
+    const at = targetAt(event.clientX - rect.left, event.clientY - rect.top);
+    if (!at) return false;
+    event.preventDefault();
+    const plan = writeNote(at, event.shiftKey);
+    if (plan) {
+      setInputCursor({
+        partIndex: at.partIndex,
+        staffIndex: at.staffIndex,
+        tick: at.tick + plan.durationTicks,
+        step: at.step,
+        enteredTick: at.tick,
+      });
+    }
+    return true;
+  };
+
+  /** Where a letter writes when nothing has been written yet. */
+  const startCursor = useCallback((): InputCursor => {
+    const note = (layout?.notes ?? [])
+      .filter((n) => selectedNotes.has(n.id))
+      .sort((a, b) => a.tick - b.tick || a.partIndex - b.partIndex)[0];
+    if (note) {
+      const part = scoreParts[note.partIndex];
+      const staff = part
+        ? drawnSpans(part.score).get(note.id)?.staff
+        : undefined;
+      return {
+        partIndex: note.partIndex,
+        staffIndex: Math.max(
+          0,
+          staff ? staffIdsOf(note.partIndex).indexOf(staff) : 0,
+        ),
+        tick: note.tick,
+        step: stepOf(note.letter, note.octave),
+        enteredTick: null,
+      };
+    }
+    const rest = (layout?.rests ?? [])
+      .filter((r) => selectedRests.has(r.key))
+      .sort((a, b) => a.tick - b.tick || a.partIndex - b.partIndex)[0];
+    if (rest) {
+      return {
+        partIndex: rest.partIndex,
+        staffIndex: 0,
+        tick: rest.tick,
+        step: null,
+        enteredTick: null,
+      };
+    }
+    const cell = [...selectedCellList].sort(
+      (a, b) => a.measureIndex - b.measureIndex || a.partIndex - b.partIndex,
+    )[0];
+    return {
+      partIndex: cell?.partIndex ?? 0,
+      staffIndex: 0,
+      tick: (cell?.measureIndex ?? 0) * measureTicks,
+      step: null,
+      enteredTick: null,
+    };
+  }, [
+    layout,
+    selectedNotes,
+    selectedRests,
+    selectedCellList,
+    scoreParts,
+    staffIdsOf,
+    measureTicks,
+  ]);
+
+  const toggleNoteInput = useCallback(
+    (on: boolean = !noteInput) => {
+      if (on === noteInput) return;
+      // Bars and rests are picked by part, and the parts may change: note
+      // input shows the instruments that have no notes yet.
+      setSelectedCells(new Set());
+      setSelectedRests(new Set());
+      setGhost(null);
+      if (on) {
+        setInputCursor(startCursor());
+        if (layer === 'rests') setLayer('notes');
+      } else {
+        setInputCursor(null);
+      }
+      setNoteInput(on);
+    },
+    [noteInput, startCursor, layer, setNoteInput],
+  );
+
+  /** Whether the selection is the note (or chord) just written. */
+  const selectionIsEntry = useCallback(() => {
+    const cursor = inputCursor;
+    const trackId = cursor ? scoreParts[cursor.partIndex]?.id : undefined;
+    if (!cursor || cursor.enteredTick === null || !trackId) return false;
+    if (selectedNotes.size === 0) return false;
+    return [...selectedNotes].every((id) => {
+      const ref = parseNoteId(id);
+      const clip = tracks
+        .find((t) => t.id === ref?.trackId)
+        ?.midiClips.find((c) => c.id === ref?.clipId);
+      return (
+        !!ref &&
+        !!clip &&
+        ref.trackId === trackId &&
+        clip.startTick + ref.startTick === cursor.enteredTick
+      );
+    });
+  }, [inputCursor, scoreParts, selectedNotes, tracks]);
+
+  /** A typed letter (0 = C … 6 = B): write it at the cursor and walk on. */
+  const typeNote = useCallback(
+    (letter: number, chord: boolean) => {
+      const cursor = inputCursor ?? startCursor();
+      const part = parts[cursor.partIndex];
+      if (!part) return;
+      const staff = part.score.staves[cursor.staffIndex] ?? 'treble';
+      // Shift adds the letter above the note just written, to its chord.
+      const joining = chord && cursor.enteredTick !== null;
+      const pitch = letterPitch(
+        letter,
+        cursor.step ?? middleLineStep(staff),
+        part.score.keyFifths,
+        joining,
+        staff,
+      );
+      if (!pitch) return;
+      const tick =
+        joining && cursor.enteredTick !== null
+          ? cursor.enteredTick
+          : cursor.tick;
+      const plan = writeNote(
+        {
+          partIndex: cursor.partIndex,
+          staffIndex: cursor.staffIndex,
+          tick,
+          midi: pitch.midi,
+          step: pitch.step,
+        },
+        joining,
+      );
+      if (!plan) return;
+      setInputCursor({
+        ...cursor,
+        tick: tick + plan.durationTicks,
+        step: pitch.step,
+        enteredTick: tick,
+      });
+    },
+    [inputCursor, startCursor, parts, writeNote],
+  );
+
+  /** Where the input cursor stands on the page, when it has a bar there. */
+  const cursorPlace = useMemo(
+    () =>
+      noteInput && inputCursor && layout
+        ? placeOfTick(
+            layout,
+            inputCursor.partIndex,
+            inputCursor.staffIndex,
+            inputCursor.tick,
+            staffIdsOf(inputCursor.partIndex),
+          )
+        : null,
+    [noteInput, inputCursor, layout, staffIdsOf],
+  );
+
   // ── Keys (the score scope) ──────────────────────────────────────────────
   // MuseScore's keys. Delete clears what's selected (notes, the bars picked,
   // a barline's repeat and rehearsal mark, markings, chord symbols); Up and
@@ -1558,6 +2009,14 @@ export function useScoreEditing({
     targetBarline !== null;
   const moveNotes = (steps: number) => {
     if (!editingNotes) return false;
+    // The next typed letter's octave follows the note just written.
+    if (noteInput && selectionIsEntry()) {
+      setInputCursor((cursor) =>
+        cursor && cursor.step !== null
+          ? { ...cursor, step: cursor.step + steps }
+          : cursor,
+      );
+    }
     setSelectedNotes(new Set(writeEdit(selectedNotes, { steps })));
   };
   useKeymap(SCORE_SCOPE.id, {
@@ -1583,7 +2042,14 @@ export function useScoreEditing({
     'score.octaveDown': () => moveNotes(-7),
     'score.duration': (e) => {
       const duration = DURATIONS.find((choice) => choice.key === e.key);
-      if (!editingNotes || !duration) return false;
+      if (!duration) return false;
+      // In note input a length is the next note's, as in MuseScore: the
+      // note just written keeps its own (Escape, then the key, changes it).
+      if (noteInput) {
+        setInputDuration(duration);
+        return;
+      }
+      if (!editingNotes) return false;
       applyDuration(duration);
     },
     'score.articulation': (e) => {
@@ -1624,10 +2090,25 @@ export function useScoreEditing({
       if (!atBarline || selectedCells.size > 0) return false;
       apply('text.rehearsalMark');
     },
+    'score.noteInput': () => {
+      if (editingSection !== null) return false;
+      toggleNoteInput();
+    },
+    'score.noteName': (e) => {
+      if (!noteInput || editingSection !== null) return false;
+      const letter = 'CDEFGAB'.indexOf(e.code.slice('Key'.length));
+      if (letter < 0) return false;
+      typeNote(letter, e.shiftKey);
+    },
     'score.copy': () => handleCopy(),
     'score.paste': () => handlePaste(),
     'score.escape': () => {
       if (editingSection !== null) return;
+      // The first Escape leaves note input; the next clears the selection.
+      if (noteInput) {
+        toggleNoteInput(false);
+        return;
+      }
       if (
         selectedNotes.size > 0 ||
         selectedCells.size > 0 ||
@@ -1697,9 +2178,33 @@ export function useScoreEditing({
     () => systemOpeningBars(layout?.barlines ?? []),
     [layout],
   );
+  /**
+   * Where each part's name sits on each system: left of the system's first
+   * bar, as tall as the part's staves.
+   */
+  const partNameBoxes = useMemo(() => {
+    const first = new Map<string, MeasureBox>();
+    for (const box of layout?.measures ?? []) {
+      const key = `${box.system}:${box.partIndex}`;
+      const kept = first.get(key);
+      if (!kept || box.x < kept.x) first.set(key, box);
+    }
+    return [...first.values()];
+  }, [layout]);
 
   const overlay = layout ? (
     <>
+      {noteInput && (
+        <NoteInputLayer
+          ghost={ghost}
+          duration={inputDuration}
+          dotted={dotted}
+          keyFifths={ghost ? keyFifthsOf(ghost.partIndex) : 0}
+          cursor={cursorPlace}
+          cursorTick={inputCursor?.tick ?? null}
+          stepPx={layout.stepPx}
+        />
+      )}
       {layout.measures
         .filter((m) => selectedCells.has(cellKey(m)))
         .map((m) => (
@@ -1719,6 +2224,33 @@ export function useScoreEditing({
             }}
           />
         ))}
+      {/* Each part's name at the left of a system opens its clef menu. The
+          names are drawn only with two parts or more. */}
+      {parts.length > 1 &&
+        partNameBoxes.map((box) => {
+          const part = scoreParts[box.partIndex];
+          const state = staffStates[box.partIndex];
+          if (!part || !state) return null;
+          // From the page's margin to the system's opening barline.
+          const left = Math.max(
+            0,
+            Math.min(LETTER_PORTRAIT.margin * layout.scale, box.x - 24),
+          );
+          return (
+            <PartNameMenu
+              key={`name:${box.system}:${box.partIndex}`}
+              name={part.name}
+              state={state}
+              onChange={(setting) => setPartStaff(part.id, setting)}
+              style={{
+                left,
+                top: box.y,
+                width: Math.max(0, box.x - 2 - left),
+                height: box.height,
+              }}
+            />
+          );
+        })}
       {/* Marks, slurs and ties: one layer that scales with the staff. Each
           is clickable on its own, and shows when it is selected. */}
       <svg
@@ -2285,6 +2817,13 @@ export function useScoreEditing({
   ) : null;
 
   return {
+    /** Note input: whether it's on, and the length it writes. */
+    noteInput: {
+      on: noteInput,
+      duration: inputDuration,
+      dotted,
+      cursorTick: inputCursor?.tick ?? null,
+    },
     // What is selected, for the panels and for tests.
     selection: {
       notes: selectedNotes,
@@ -2320,11 +2859,21 @@ export function useScoreEditing({
       onNotePointerDown: handleNotePointerDown,
       onMeasurePointerDown: handleMeasurePointerDown,
       onRestPointerDown: handleRestPointerDown,
-      onBackgroundPointerDown: clearSelection,
+      onBackgroundPointerDown: (event?: React.PointerEvent) => {
+        if (event && inputPressRef.current(event)) return;
+        clearSelection();
+      },
+      // The ghost note follows the pointer only in note input.
+      onStaffPointerMove: noteInput ? handleStaffPointerMove : undefined,
+      onStaffPointerLeave: noteInput ? handleStaffPointerLeave : undefined,
+      style: noteInput ? { cursor: 'crosshair' } : undefined,
     },
     /** Props for the note editor bar. */
     editor: {
       hasNotes: selectedNotes.size > 0,
+      noteInput,
+      onToggleNoteInput: () => toggleNoteInput(),
+      inputDuration,
       layer,
       onLayer: setLayer,
       currentDuration,
@@ -2355,11 +2904,19 @@ export function useScoreEditing({
       },
       // The bar names the row: its click also sets `layer`, which this
       // render's applyDuration would still read as the previous row.
-      onDuration: (choice: DurationChoice, into: NoteLayer) =>
-        applyDuration(choice, dotted, into),
+      onDuration: (choice: DurationChoice, into: NoteLayer) => {
+        // In note input the Notes row picks the next note's length.
+        if (noteInput && into === 'notes') {
+          setInputDuration(choice);
+          return;
+        }
+        applyDuration(choice, dotted, into);
+      },
       onToggleDot: (into: NoteLayer) => {
         const next = !dotted;
         setDotted(next);
+        // In note input the dot is the next note's, too.
+        if (noteInput) return;
         if (currentDuration) applyDuration(currentDuration, next, into);
       },
       onArticulation: applyArticulation,
@@ -2367,8 +2924,9 @@ export function useScoreEditing({
     },
     /** What a palette cell applies to, and how to apply one. */
     palette: { hasSelection: targetBarline !== null, onApply: apply },
-    /** Per-part chord symbol switches. */
+    /** Per-part clefs and chord symbol switches. */
     partRows,
+    onSetStaff: setPartStaff,
     onToggleChords: toggleScoreChordTrack,
     onRestoreChords: (trackId: string) =>
       setScoreChordHidden(withPartChordsRestored(scoreChordHidden, trackId)),

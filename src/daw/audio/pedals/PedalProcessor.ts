@@ -19,6 +19,10 @@ export interface PedalProcessor {
 
   /** Disconnect and release all internal nodes. */
   dispose(): void;
+
+  /** Resolves once the processor can process: one that sets up an
+   *  AudioWorklet does so in the background. A bounce waits for it. */
+  whenReady?(): Promise<void>;
 }
 
 /** Block descriptor passed from the UI to syncChain(). */

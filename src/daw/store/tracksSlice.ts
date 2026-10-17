@@ -12,6 +12,7 @@ import { initialProjectState } from '@/daw/persistence/projectDocument/projectDe
 import { initialTrackDefaults } from '@/daw/persistence/projectDocument/trackDefaults';
 import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
+import { instrumentChanges } from '@/daw/components/Score/partStaff';
 import type { DrumKitId } from '@/daw/instruments/drumKits';
 import {
   insertPoint,
@@ -85,6 +86,7 @@ export type InstrumentType =
   | 'piano-sampler'
   | 'electric-piano'
   | 'bass-electric'
+  | 'guitar-acoustic'
   | 'cello'
   | 'organ'
   | 'tonewheel-organ'
@@ -97,6 +99,22 @@ export type InstrumentType =
   | 'none';
 
 export type StudioBassVoice = 'fretless' | 'finger' | 'upright' | '808';
+
+/**
+ * The staff a track's part is written on in the Score and the Lead Sheet:
+ * 'auto' (or unset) follows its instrument (Score/partStaff.ts); the others
+ * are set by hand ('alto' the viola's C clef, 'bass8vb' the bass clef with a
+ * small 8 under it, written an octave above its sound). A drum kit is always
+ * on a drum staff, whatever this says. A new instrument sets it back to
+ * unset (updateTrack).
+ */
+export type NotationStaffSetting =
+  | 'auto'
+  | 'treble'
+  | 'alto'
+  | 'bass'
+  | 'bass8vb'
+  | 'grand';
 
 export type AudioInputChannel =
   | { mode: 'mono'; channel: number }
@@ -203,6 +221,11 @@ export interface Track {
   automation?: AutomationLanes;
   /** Harmonic role for chord detection (auto = infer from name/instrument). */
   trackRole: DawTrackRole;
+  /**
+   * The staff the Score writes this track's part on, set by hand; unset is
+   * Auto, which follows the instrument (Score/partStaff.ts).
+   */
+  notationStaff?: NotationStaffSetting;
 }
 
 // ── Note ids ────────────────────────────────────────────────────────────
@@ -456,9 +479,21 @@ export const createTracksSlice: StateCreator<
             }
           : updates;
         return {
-          tracks: state.tracks.map((t) =>
-            t.id === id ? { ...t, ...next } : t,
-          ),
+          tracks: state.tracks.map((t) => {
+            if (t.id !== id) return t;
+            // A new instrument (or GM program, or a patch that plays
+            // something else) puts a clef set by hand back to Auto, in this
+            // same write so one undo brings both back. Every instrument
+            // change comes through here: the Instruments panel's programs,
+            // the keyboard's presets, a part's sound (Score/partStaff.ts).
+            const clefGoes =
+              t.notationStaff !== undefined && instrumentChanges(t, updates);
+            return {
+              ...t,
+              ...next,
+              ...(clefGoes ? { notationStaff: undefined } : {}),
+            };
+          }),
         };
       }),
     ),

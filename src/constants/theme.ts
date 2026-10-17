@@ -108,6 +108,12 @@ export const theme: Config['theme'] = {
         '50%': { opacity: '0.6' },
         '100%': { opacity: '1' },
       },
+      // A band of light from the bottom of a key to the top (the band is a
+      // third of the key's height, so 300% starts it just below the key).
+      'key-sheen': {
+        '0%': { transform: 'translateY(300%)' },
+        '100%': { transform: 'translateY(-100%)' },
+      },
       highlight: {
         '0%': { backgroundColor: '#fff' },
         '50%': { backgroundColor: 'rgba(147, 197, 253, 0.3)' },
@@ -130,6 +136,9 @@ export const theme: Config['theme'] = {
     },
     animation: {
       'piano-key-press': 'piano-key-press 48ms ease-in-out',
+      'key-sheen': 'key-sheen 450ms ease-out',
+      // The same band, over and over: a falling note at the line, sounding.
+      'key-shimmer': 'key-sheen 1.2s ease-in-out infinite',
       highlight: 'highlight 1s ease-in-out',
       'caret-blink': 'caret-blink 1.25s ease-out infinite',
       'fade-in-bottom':

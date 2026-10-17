@@ -9,8 +9,9 @@ import {
   it,
   vi,
 } from 'vitest';
-import { buildScore } from '@/lib/notation';
+import { buildScore, type NotationScore } from '@/lib/notation';
 import { GrandStaff } from '../GrandStaff';
+import type { StaffLayout } from '../StaffView';
 
 // VexFlow measures its glyphs as canvas text, and the view sizes itself from
 // a ResizeObserver; jsdom has neither.
@@ -71,5 +72,65 @@ describe('clef annotation', () => {
   it('draws the treble clef with an 8 below for guitar', async () => {
     // Bravura gClef8vb U+E052.
     expect(await clefGlyphs('8vb')).toEqual(['\u{E052}']);
+  });
+});
+
+// ── The Score's own clefs ──────────────────────────────────────────────────
+// A viola's alto clef, and a bass guitar's bass clef with an 8 under it,
+// which writes its notes an octave above the pitch they sound.
+
+async function drawn(drawnScore: NotationScore) {
+  let layout: StaffLayout | null = null;
+  const { container } = render(
+    <GrandStaff
+      score={drawnScore}
+      onLayout={(next) => {
+        layout = next;
+      }}
+    />,
+  );
+  await waitFor(
+    () => {
+      expect(container.querySelector('.vf-clef')).not.toBeNull();
+      expect(layout?.notes.length).toBeGreaterThan(0);
+    },
+    { timeout: 5000 },
+  );
+  return {
+    glyphs: [...container.querySelectorAll('.vf-clef text')].map(
+      (text) => text.textContent,
+    ),
+    notes: (layout as StaffLayout | null)?.notes ?? [],
+  };
+}
+
+const one = (midi: number, staves: 'treble' | 'bass' | 'bass8vb' | 'alto') =>
+  buildScore([{ id: 'n', midi, startTick: 0, durationTicks: 1920 }], {
+    staves,
+    minMeasures: 1,
+  });
+
+describe("the Score's clefs", () => {
+  it('draws the alto clef, middle C on its middle line', async () => {
+    const { glyphs, notes } = await drawn(one(60, 'alto'));
+    // Bravura cClef U+E05C.
+    expect(glyphs).toEqual(['\u{E05C}']);
+    expect(notes[0]).toMatchObject({ letter: 'c', octave: 4 });
+    // On the middle line, where B4 sits in treble clef.
+    const treble = await drawn(one(71, 'treble'));
+    expect(notes[0].line).toBe(treble.notes[0].line);
+    expect(notes[0].y).toBe(treble.notes[0].y);
+  });
+
+  it('draws the bass clef with an 8 under it, C2 on the C3 space', async () => {
+    const bass8vb = await drawn(one(36, 'bass8vb'));
+    // Bravura fClef8vb U+E064, as against fClef U+E062.
+    expect(bass8vb.glyphs).toEqual(['\u{E064}']);
+    const bass = await drawn(one(48, 'bass'));
+    expect(bass.glyphs).toEqual(['\u{E062}']);
+    // C2 on the bass clef with an 8 sits where C3 sits on the plain one.
+    expect(bass8vb.notes[0]).toMatchObject({ letter: 'c', octave: 3 });
+    expect(bass8vb.notes[0].line).toBe(bass.notes[0].line);
+    expect(bass8vb.notes[0].y).toBe(bass.notes[0].y);
   });
 });

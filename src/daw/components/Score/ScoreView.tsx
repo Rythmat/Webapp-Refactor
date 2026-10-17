@@ -5,7 +5,10 @@ import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { ComposerLine } from '../LeadSheet/ComposerLine';
 import '../LeadSheet/leadsheet-print.css';
-import { useLeadSheetPrint } from '../LeadSheet/useLeadSheetPrint';
+import {
+  PRINT_TITLE_INSET,
+  useLeadSheetPrint,
+} from '../LeadSheet/useLeadSheetPrint';
 import { NoteEditorBar } from './NoteEditorBar';
 import { ScorePalettes } from './ScorePalettes';
 import { ScorePartsPanel } from './ScorePartsPanel';
@@ -14,16 +17,12 @@ import { spellingMap } from './noteEditor';
 import { useScoreEditing } from './useScoreEditing';
 import { breaksFromRowSizes } from './roadmap';
 import { downloadScoreXml } from '@/daw/midi/ScoreMusicXmlExport';
-import { inches } from '@/lib/notation/pageLayout';
 
 // ── Score ──────────────────────────────────────────────────────────────────
 // Every track of the project notated and stacked, the way a conductor's score
 // is laid out: one part per track, shared barlines, the transport's playhead
 // running through all of them. The editing itself lives in useScoreEditing,
 // which the Lead Sheet uses too.
-
-/** Room at the top of printed page 1 for the title block (page pixels). */
-const PRINT_TITLE_INSET = inches(0.85);
 
 export function ScoreView() {
   // The score prints through the lead sheet's print rules (its named page).
@@ -38,6 +37,8 @@ export function ScoreView() {
   // The roadmap lives with the lead sheet's, so edits show up in both views.
   const slashNotes = useStore((s) => s.scoreSlashNotes);
   const scoreSpellings = useStore((s) => s.scoreSpellings);
+  // Note input shows the instruments with nothing written yet, to write on.
+  const noteInput = useStore((s) => s.scoreNoteInput);
 
   const timeSignature: [number, number] = useMemo(
     () => [numerator, denominator],
@@ -63,8 +64,18 @@ export function ScoreView() {
         slashNotes: slashSet,
         spellings,
         cache: partsCache,
+        includeEmpty: noteInput,
       }),
-    [tracks, rootNote, mode, timeSignature, slashSet, spellings, partsCache],
+    [
+      tracks,
+      rootNote,
+      mode,
+      timeSignature,
+      slashSet,
+      spellings,
+      partsCache,
+      noteInput,
+    ],
   );
   const parts: ScorePart[] = useMemo(
     () => scoreParts.map(({ id, name, score }) => ({ id, name, score })),
@@ -148,6 +159,7 @@ export function ScoreView() {
         <ScorePalettes {...editing.palette} />
         <ScorePartsPanel
           parts={editing.partRows}
+          onSetStaff={editing.onSetStaff}
           onToggleChords={editing.onToggleChords}
           onRestoreChords={editing.onRestoreChords}
         />
@@ -168,6 +180,19 @@ export function ScoreView() {
           <span>
             {parts.length} {parts.length === 1 ? 'part' : 'parts'}
           </span>
+          {editing.noteInput.on && (
+            <span
+              data-note-input-status
+              className="rounded px-2 py-0.5 font-semibold uppercase tracking-wider"
+              style={{
+                border: '1px solid var(--daw-accent)',
+                color: 'var(--daw-text)',
+              }}
+            >
+              Note input · {editing.noteInput.dotted ? 'dotted ' : ''}
+              {editing.noteInput.duration.name.toLowerCase()}
+            </span>
+          )}
           {skipped.length > 0 && (
             <span title={skipped.map((t) => t.name).join(', ')}>
               · {skipped.length} not notated (audio)
@@ -232,8 +257,9 @@ export function ScoreView() {
               className="py-16 text-center text-sm"
               style={{ color: 'var(--daw-text-3)' }}
             >
-              No notes to notate yet. Record or write MIDI on a track and it
-              will appear here.
+              {noteInput
+                ? 'Add an instrument track to write notes on it.'
+                : 'No notes to notate yet. Record or write MIDI on a track, or press Add notes (N) to write them here.'}
             </div>
           ) : (
             <StaffView

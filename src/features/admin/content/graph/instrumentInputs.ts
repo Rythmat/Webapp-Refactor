@@ -55,7 +55,8 @@ export function partInstrument(
       if (arg === '808' || type === 'oracle-synth') return 'synth-bass';
       return 'electric-bass';
     case 'guitar':
-      return type === 'soundfont' && ['24', '25'].includes(arg ?? '')
+      return type === 'guitar-acoustic' ||
+        (type === 'soundfont' && ['24', '25'].includes(arg ?? ''))
         ? 'acoustic-guitar'
         : 'electric-guitar';
     case 'drums':

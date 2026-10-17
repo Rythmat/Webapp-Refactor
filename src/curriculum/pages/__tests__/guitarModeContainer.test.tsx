@@ -141,7 +141,7 @@ afterEach(() => {
 });
 
 describe('GenreLessonContainerV2 header and Practice Track return', () => {
-  it('piano: Courses, the level slug and the genre level route, as before', () => {
+  it('piano: Courses, the step count and the genre level route', () => {
     const flow = buildAppliedTheoryFundamentalsFlow('C');
     render(
       <MemoryRouter>
@@ -154,8 +154,9 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
         />
       </MemoryRouter>,
     );
+    // The pager's count, as guitar's (the level slug line is gone).
     expect(
-      screen.getByText(/^applied-theory-fundamentals Level 1 · Step 1 of \d+$/),
+      screen.getByRole('button', { name: /^Step 1 of \d+$/ }),
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Courses' }));

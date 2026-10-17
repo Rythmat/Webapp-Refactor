@@ -23,6 +23,13 @@ export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
     image: '/learn-tiles/beginner-hex.svg',
     interactive: true,
   },
+  // Call and response on scale degrees, for beginners and classrooms.
+  {
+    title: 'Music Literacy',
+    route: CurriculumRoutes.musicLiteracy(),
+    image: '/learn-tiles/music-literacy-hex.svg',
+    interactive: true,
+  },
 ];
 
 // Guitar has no Technique lessons yet: its lessons are in Theory (The

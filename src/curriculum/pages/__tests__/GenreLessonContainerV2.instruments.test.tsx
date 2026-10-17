@@ -180,10 +180,14 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
 
   it('piano: keyboard, piano sound, piano scoring, no microphone', async () => {
     const { container } = renderLesson(buildAppliedTheoryFundamentalsFlow('C'));
+    expect(container.querySelector('[data-piano-layout]')).not.toBeNull();
     expect(container.querySelector('[data-guitar-visuals]')).toBeNull();
-    expect(container.querySelector('[data-guitar-mode]')).toBeNull();
     expect(container.querySelector('[data-guitar-theory]')).toBeNull();
-    expect(screen.getByRole('radio', { name: 'Piano roll' })).toBeTruthy();
+    // The roll / notation / falling switch sits in the nav row, big.
+    expect(
+      container.querySelector('[data-guitar-nav] [data-roll-view-switch]'),
+    ).not.toBeNull();
+    expect(screen.getByRole('radio', { name: 'Roll' })).toBeTruthy();
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
@@ -215,9 +219,9 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
     ).toBeChecked();
     fireEvent.click(gear);
     expect(screen.queryByRole('dialog')).toBeNull();
-    // How the step listens, and its pass mark, before the take.
-    expect(container.querySelector('[data-guitar-mode]')?.textContent).toMatch(
-      /Wait for me.*Pass mark 75%/,
+    // The pass mark, before the take.
+    expect(container.querySelector('[data-pass-mark]')?.textContent).toBe(
+      'Pass = 75%',
     );
 
     await act(async () => {

@@ -111,6 +111,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   availableNextChords: 'Derived from the builder’s progression and filter.',
 
   // ── notation ──
+  leadSheetMelodyTrackIds:
+    'The tracks the Lead Sheet writes as its melody, a staff each; empty is Auto. Shared and outside undo like its other display settings, as the single id it replaces was. Drafts and cloud documents before schema 5 held that one id (leadSheetMelodyTrackId), which loads as a list of it.',
   scoreArticulations: NOTE_KEYED,
   scoreSlurs: NOTE_KEYED,
   scoreSpellings: NOTE_KEYED,
@@ -136,6 +138,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   dockHeights: LAYOUT,
   readoutMode: LAYOUT,
   activeTool: 'The editing tool: every project opens with the cursor.',
+  scoreNoteInput:
+    'The Score’s note input mode, like the editing tool: every project opens selecting, not writing.',
   selectedClipId: SELECTION,
   selectedClipTrackId: SELECTION,
   parkedClipSelection:
@@ -258,6 +262,8 @@ export const TRACK_FIELD_REASONS: Reasons<Track> = Object.freeze({
   effects: 'A drum machine starts with its compressor on.',
   trackRole:
     'Guessed from the name and instrument; the student can pick another.',
+  notationStaff:
+    'The staff the Score and Lead Sheet write the part on, set by hand (treble, alto, bass, bass8vb: the bass clef with an 8, grand); unset is Auto, which follows the instrument (Score/partStaff.ts), and a new instrument sets it back to unset. A setting of the music like the instrument, so it is shared, undone and saved with it, in the settings blob the cloud payload already carries. Drafts and cloud saves from before schema 6 hold none: every part reads Auto; alto and bass8vb came with schema 7, and a schema 6 build reads either as Auto.',
 } satisfies Reasons<Track>);
 
 const FROM_CLIP_START = 'From the start of the clip.';

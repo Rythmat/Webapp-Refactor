@@ -346,6 +346,11 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     return this.pedalChain?.updateProcessorParams(blocks) ?? false;
   }
 
+  /** Resolves once every pedal in the chain can process (a bounce waits). */
+  whenChainReady(): Promise<void> {
+    return this.pedalChain?.whenReady() ?? Promise.resolve();
+  }
+
   updateOverdrive(params: Partial<OverdriveParams>): void {
     this.pedalChain?.updateOverdrive(params);
   }

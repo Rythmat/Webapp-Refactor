@@ -8,12 +8,11 @@
  * instead.
  */
 
+import { formatLessonChord } from '@/curriculum/notation/lessonChordSymbols';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
-import {
-  displayAccidentals,
-  displayDegreeLabel,
-} from '@/daw/utils/displayAccidentals';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { displayChordLabel } from '@/daw/utils/displayChordLabel';
 import { useChordNotation } from '@/lib/chordNotation';
 import { COLOR } from '@/daw/ui/tokens';
 
@@ -54,12 +53,12 @@ export function ChordChart({
       {regions.map((region, i) => {
         const now = isPlaying && i === nowIndex;
         const letter = displayAccidentals(region.noteName);
-        const symbol = formatChordRegion(
-          region,
-          notation === 'hybrid' ? 'jazz' : notation,
-          { keyRootPc, mode },
-          letter,
-        );
+        // The chord by letter, as the lesson names it (A min9 / A−9); its
+        // degree underneath.
+        const symbol =
+          notation === 'hybrid'
+            ? formatLessonChord(region.name, 'hybrid', { keyRootPc, mode })
+            : formatChordRegion(region, notation, { keyRootPc, mode }, letter);
         return (
           <div
             key={region.id}
@@ -83,7 +82,7 @@ export function ChordChart({
               className={large ? 'mt-1 text-sm' : 'text-xs'}
               style={{ color: 'var(--daw-text-3)' }}
             >
-              {displayDegreeLabel(region.name)}
+              {displayChordLabel(region.name)}
             </div>
           </div>
         );

@@ -21,7 +21,7 @@ export const QUALITY_DISPLAY: Record<string, string> = {
   sus2: 'sus2',
   sus4: 'sus4',
   quartal: 'quartal',
-  'sus#4': 'sus(#4)',
+  'sus#4': 'sus(\u266F4)',
   susb2: 'sus(\u266D2)',
   susb2b5: 'sus(\u266D2\u266D5)',
   sus2b5: 'sus2(\u266D5)',
@@ -43,15 +43,15 @@ export const QUALITY_DISPLAY: Record<string, string> = {
   minor7b5: 'min7(\u266D5)',
   minormajor7: 'min(maj7)',
   major7diminished: 'dim(maj7)',
-  'minor7#5': 'min7(#5)',
-  'major7#5': 'maj7(#5)',
+  'minor7#5': 'min7(\u266F5)',
+  'major7#5': 'maj7(\u266F5)',
   major7b5: 'maj7(\u266D5)',
   dominant7b5: 'dom7(\u266D5)',
-  'dominant7#5': 'dom7(#5)',
+  'dominant7#5': 'dom7(\u266F5)',
   dominant7b9: 'dom7(\u266D9)',
-  'major7#11': 'maj7(#11)',
-  'dominant7#11': 'dom7(#11)',
-  'b7dominant7#11': '\u266D7dom7(#11)',
+  'major7#11': 'maj7(\u266F11)',
+  'dominant7#11': 'dom7(\u266F11)',
+  'b7dominant7#11': '\u266D7dom7(\u266F11)',
   // 7th sus chords
   dominant7sus2: 'dom7sus2',
   dominant7sus4: 'dom7sus4',
@@ -63,16 +63,16 @@ export const QUALITY_DISPLAY: Record<string, string> = {
   minor9: 'min9',
   minor7b9: 'min7(\u266D9)',
   minormajor9: 'min(maj9)',
-  'major9#5': 'maj9(#5)',
+  'major9#5': 'maj9(\u266F5)',
   diminished7b9: 'dim7(\u266D9)',
   minor7b5b9: 'min7(\u266D5\u266D9)',
-  'major7#9': 'maj7(#9)',
-  'dominant7#5b9': 'dom7(#5\u266D9)',
-  'dominant9#5': 'dom9(#5)',
+  'major7#9': 'maj7(\u266F9)',
+  'dominant7#5b9': 'dom7(\u266F5\u266D9)',
+  'dominant9#5': 'dom9(\u266F5)',
   minor9b5: 'min9(\u266D5)',
-  'dominant7#9': 'dom7(#9)',
-  'dominant7#5#9': 'dom7(#5#9)',
-  'major7#5#9': 'maj7(#5#9)',
+  'dominant7#9': 'dom7(\u266F9)',
+  'dominant7#5#9': 'dom7(\u266F5\u266F9)',
+  'major7#5#9': 'maj7(\u266F5\u266F9)',
   minor6add9: 'min6/9',
   diminishedmajor7: 'dim(maj7)',
   // Slash chords
@@ -82,7 +82,7 @@ export const QUALITY_DISPLAY: Record<string, string> = {
   'major/6': 'maj/6',
   'major/1': 'maj/1',
   'major/7': 'maj/7',
-  'major/#5': 'maj/#5',
+  'major/#5': 'maj/\u266F5',
   'major7/5': 'maj7/5',
   'minor6/5': 'min6/5',
   'minor6/b3': 'min6/\u266D3',
@@ -93,6 +93,10 @@ export const QUALITY_DISPLAY: Record<string, string> = {
 
 // ── Helper functions ─────────────────────────────────────────────────────
 
+/**
+ * A quality as hybrid writes it: "minor7b5" → "min7(♭5)". Every accidental
+ * is a real sign — never a lower-case b or a #.
+ */
 export function formatQuality(quality: string): string {
   return (
     QUALITY_DISPLAY[quality] ??
@@ -101,13 +105,16 @@ export function formatQuality(quality: string): string {
       .replace(/diminished/g, 'dim')
       .replace(/minor/g, 'min')
       .replace(/major/g, 'maj')
+      .replace(/b(?=\d)/g, '\u266D')
+      .replace(/#/g, '\u266F')
   );
 }
 
 export function degreeToHybrid(degreeName: string): string {
   const deg = chordDeg(degreeName);
   const quality = unstepChord(degreeName);
-  const prefix = deg.modifier === -1 ? '\u266D' : deg.modifier === 1 ? '#' : '';
+  const prefix =
+    deg.modifier === -1 ? '\u266D' : deg.modifier === 1 ? '\u266F' : '';
   return `${prefix}${deg.degree} ${formatQuality(quality)}`;
 }
 

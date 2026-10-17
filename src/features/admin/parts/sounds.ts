@@ -30,6 +30,7 @@ export const SOUND_OPTIONS: Record<
     ...SYNTH_SOUNDS,
   ],
   guitar: [
+    { value: 'guitar-acoustic', label: 'Steel acoustic (sampled)' },
     { value: 'soundfont:27', label: 'Clean electric (GM)' },
     { value: 'soundfont:25', label: 'Steel acoustic (GM)' },
     { value: 'soundfont:24', label: 'Nylon (GM)' },

@@ -101,6 +101,11 @@ describe('the bar’s way into the Table', () => {
     ['/console/content/atlas/globe', '/console/table/events'],
     // Lessons are in no category: their list is one of the other records.
     ['/console/content/curriculum', '/console/content/records/activity_flow'],
+    // Music Literacy's list is its own page.
+    [
+      '/console/content/curriculum/music-literacy/music-literacy-part-1',
+      '/console/music-literacy',
+    ],
   ])('%s → %s', (path, table) => {
     renderAt(path);
     expect(tableToggle()).toBe(table);
@@ -157,6 +162,21 @@ describe('the bar’s way into the Table', () => {
       screen.getByRole('link', { name: 'Edit song' }).getAttribute('href'),
     ).toBe('/console/content/songs/africa?edit=1');
   });
+
+  it('opens a Music Literacy lesson in its editor, not as a course', () => {
+    renderAt(
+      '/console/content/curriculum/music-literacy/music-literacy-part-1',
+    );
+    expect(
+      screen.getByRole('link', { name: 'Edit lesson' }).getAttribute('href'),
+    ).toBe('/console/music-literacy/music-literacy-part-1');
+    expect(screen.queryByRole('link', { name: 'Edit course' })).toBeNull();
+    cleanup();
+    renderAt('/console/content/curriculum/music-literacy');
+    expect(
+      screen.getByRole('link', { name: 'Edit lessons' }).getAttribute('href'),
+    ).toBe('/console/music-literacy');
+  });
 });
 
 describe('the Records menu', () => {
@@ -177,10 +197,12 @@ describe('the Records menu', () => {
       ['Drum Grooves', '/console/grooves'],
       ['Bass Lines', '/console/bass-lines'],
       ['Chord Comping', '/console/comping'],
+      // Learn's own series.
+      ['Music Literacy', '/console/music-literacy'],
     ]);
     expect(
       within(screen.getByRole('menu')).getAllByRole('separator'),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   });
 
   it('opens the first table from a page the Table does not hold', () => {

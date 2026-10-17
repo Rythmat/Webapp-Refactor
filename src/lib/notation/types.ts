@@ -5,7 +5,12 @@ import type { DrumNotehead } from './drumMap';
 // every item already knows its written duration, ties, tuplet and which
 // accidentals to show, so a renderer only has to draw it.
 
-export type StaffId = 'treble' | 'bass' | 'percussion';
+/**
+ * A staff, by its clef. 'alto' is the viola's C clef; 'bass8vb' a bass clef
+ * with a small 8 under it, written an octave above its sound (clefs.ts).
+ * Only the Studio's Score writes on those two.
+ */
+export type StaffId = 'treble' | 'bass' | 'alto' | 'bass8vb' | 'percussion';
 
 /** One piano-roll note. Ticks are absolute; `originTick` marks bar 1. */
 export interface NotationNoteInput {
@@ -40,10 +45,11 @@ export interface NotationOptions {
   splitMidi?: number;
   /**
    * Staves to write on: a grand staff (default), one staff for a part that
-   * belongs in a single clef — a bass line, a horn, a melody — or a drumset
+   * belongs in a single clef — a bass line, a horn, a melody, a viola in
+   * alto clef, a bass guitar on the bass clef with an 8 — or a drumset
    * staff, where notes are placed by instrument instead of by pitch.
    */
-  staves?: 'grand' | 'treble' | 'bass' | 'percussion';
+  staves?: 'grand' | 'treble' | 'bass' | 'alto' | 'bass8vb' | 'percussion';
   /** Names notes that come without one. */
   spell?: (midi: number) => string;
 }
@@ -56,7 +62,10 @@ export interface NotationKey {
   letter: string;
   /** −2 … 2 */
   alteration: number;
-  /** Octave of the written letter (C♭5 is MIDI 71). */
+  /**
+   * Octave of the written letter (C♭5 is MIDI 71). On a staff written an
+   * octave above its sound (bass8vb) it is one more: MIDI 36 is written C3.
+   */
   octave: number;
   /** Accidental to print, or null when the key signature / bar covers it. */
   accidental: Accidental | null;

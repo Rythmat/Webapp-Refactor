@@ -1,5 +1,6 @@
 import { BookOpen, Settings } from 'lucide-react';
 import { Fragment, useId, type ReactNode } from 'react';
+import { ChordNameSwitch } from '@/components/notation/ChordNameSwitch';
 import { cn } from '@/components/utilities';
 import type { HeaderModel } from './types';
 
@@ -32,6 +33,9 @@ export interface GuitarLessonHeaderProps {
   onOpenSettings: () => void;
   /** The guitar input indicator, when it has something to say. */
   inputIndicator?: ReactNode;
+  /** Beside the title: piano's chord progression for the step (the chord
+   *  name switch follows it when the step writes chord names). */
+  titleAside?: ReactNode;
 }
 
 const iconPill =
@@ -45,9 +49,17 @@ export function GuitarLessonHeader({
   settingsOpen,
   onOpenSettings,
   inputIndicator,
+  titleAside,
 }: GuitarLessonHeaderProps) {
   const newsId = useId();
   const title = lessonTitle(header.activity);
+  const aside =
+    titleAside || header.chordNames ? (
+      <>
+        {titleAside}
+        {header.chordNames && <ChordNameSwitch />}
+      </>
+    ) : null;
 
   return (
     // A grid (guitarLayout.css): the trail over the title, the buttons
@@ -104,25 +116,48 @@ export function GuitarLessonHeader({
             />
             {header.keyLabel}
           </li>
-          <li aria-hidden className="shrink-0 max-[639px]:hidden">
-            ›
-          </li>
-          <li
-            data-crumb-subsection
-            className="min-w-0 truncate max-[639px]:hidden"
-          >
-            {eyebrowSubsection(header.subsection)}
-          </li>
+          {/* A lesson without subsections (Piano Fundamentals) ends at the key. */}
+          {header.subsection && (
+            <>
+              <li aria-hidden className="shrink-0 max-[639px]:hidden">
+                ›
+              </li>
+              <li
+                data-crumb-subsection
+                className="min-w-0 truncate max-[639px]:hidden"
+              >
+                {eyebrowSubsection(header.subsection)}
+              </li>
+            </>
+          )}
         </ol>
       </nav>
-      <h1
-        data-guitar-title
-        data-area="title"
-        title={header.activity}
-        className="mt-1 min-w-0 truncate pr-2 text-2xl font-normal leading-8 tracking-[-0.01em] text-[#e8e8f0] max-[639px]:line-clamp-2 max-[639px]:whitespace-normal"
-      >
-        {title}
-      </h1>
+      {aside ? (
+        <div
+          data-area="title"
+          className="mt-1 flex min-w-0 items-baseline gap-x-4 pr-2 max-[639px]:flex-wrap"
+        >
+          <h1
+            data-guitar-title
+            title={header.activity}
+            className="min-w-0 truncate text-2xl font-normal leading-8 tracking-[-0.01em] text-[#e8e8f0] max-[639px]:line-clamp-2 max-[639px]:whitespace-normal"
+          >
+            {title}
+          </h1>
+          <div className="flex min-w-0 shrink-0 items-center gap-3 [&>span]:truncate">
+            {aside}
+          </div>
+        </div>
+      ) : (
+        <h1
+          data-guitar-title
+          data-area="title"
+          title={header.activity}
+          className="mt-1 min-w-0 truncate pr-2 text-2xl font-normal leading-8 tracking-[-0.01em] text-[#e8e8f0] max-[639px]:line-clamp-2 max-[639px]:whitespace-normal"
+        >
+          {title}
+        </h1>
+      )}
 
       <div
         data-area="indicator"

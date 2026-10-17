@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CHORDS } from '../../data/chords';
 import { generateChord } from '../chordUtils';
 import {
+  chordReadings,
   degreeMidi,
   detectChordWithInversion,
   ionianToModeLabel,
@@ -120,6 +121,72 @@ describe('detectChordWithInversion', () => {
     for (let i = 0; i < 5; i++) {
       expect(detectChordWithInversion(notes)).toEqual(first);
     }
+  });
+});
+
+describe('the simplest reading (musical Occam’s razor)', () => {
+  const best = (pcs: number[], bassPc: number) => {
+    const [first] = chordReadings(pcs, bassPc);
+    return first && { quality: first.quality, rootPc: first.rootPc };
+  };
+
+  it('names a 13th played 1-3-♭7-13 from its bass', () => {
+    // A♭ G♭ C F: no root has these four exactly — but over the A♭ they are
+    // the 13th every keyboard player voices this way. Never "F sus♭2/A♭".
+    expect(best([6, 0, 5], 8)).toEqual({ quality: 'dominant13', rootPc: 8 });
+    expect(detectChordWithInversion([44, 54, 60, 65])).toEqual({
+      quality: 'dominant13',
+      rootPc: 8,
+      bassNote: 44,
+      inversion: 0,
+    });
+  });
+
+  it('prefers the fullest chord, exact first', () => {
+    // C E G B♭ D: exactly a 9th, not a 13th with tones missing.
+    expect(best([4, 7, 10, 2], 0)).toEqual({ quality: 'dominant9', rootPc: 0 });
+    // C E B♭ D: a 9th without its 5th.
+    expect(best([4, 10, 2], 0)).toEqual({ quality: 'dominant9', rootPc: 0 });
+  });
+
+  it('never leaves out the 3rd or the 7th', () => {
+    // C G B♭ A: no 3rd, so no C13.
+    expect(
+      chordReadings([7, 10, 9], 0).some((r) => r.quality === 'dominant13'),
+    ).toBe(false);
+  });
+
+  it('re-reads a rare chord as the common one it nearly always is', () => {
+    // C D F♯ A: "C sus2(♭5)add6" exactly, but it's D7 over C.
+    expect(detectChordWithInversion([48, 50, 54, 57])).toMatchObject({
+      quality: 'dominant7',
+      rootPc: 2,
+    });
+    // D G C: "D quartal" exactly, but it's D7sus4 without its 5th.
+    expect(detectChordWithInversion([50, 55, 60])).toMatchObject({
+      quality: 'dominant7sus4',
+      rootPc: 2,
+    });
+  });
+
+  it('keeps a rare chord when nothing simpler fits', () => {
+    // C D♭ G: C sus♭2 is the only name these notes have.
+    expect(detectChordWithInversion([48, 49, 55])).toMatchObject({
+      quality: 'susb2',
+      rootPc: 0,
+    });
+  });
+
+  it('leaves common chords and their inversions as they were', () => {
+    expect(detectChordWithInversion([52, 55, 60])).toMatchObject({
+      quality: 'major',
+      rootPc: 0,
+      inversion: 1,
+    });
+    expect(detectChordWithInversion([50, 53, 57, 60])).toMatchObject({
+      quality: 'minor7',
+      rootPc: 2,
+    });
   });
 });
 

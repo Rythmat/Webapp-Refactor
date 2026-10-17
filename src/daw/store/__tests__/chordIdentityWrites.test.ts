@@ -185,6 +185,28 @@ describe('analysis that changes the chord drops its identity', () => {
     const [fromBelow] = enrichWithBass([rootless], [bassAt(38)], 60);
     expect(fromBelow.noteName).toBe('D min9');
     expect(fromBelow.identity).toBeUndefined();
+
+    // A♭ under G♭-C-F: A♭13 played 1-3-♭7-13 (no 5th, no 9th) — a chord
+    // with tones left out, not "F susb2/A♭" (an exotic chord over a bass).
+    const ab13: ChordRegion = {
+      ...cMajor('t', 0, 1),
+      name: '4 susb2',
+      noteName: 'F susb2',
+      midis: [54, 60, 65],
+    };
+    const [thirteenth] = enrichWithBass([ab13], [bassAt(44)], 60, 'aeolian');
+    expect(thirteenth.noteName).toBe('Ab dom13');
+
+    // F-A-C over G stays F maj/G: an add9 with its 9th in the bass is no
+    // simpler than the slash chord everyone writes.
+    const fOverG: ChordRegion = {
+      ...cMajor('g', 0, 1),
+      name: '4 maj',
+      noteName: 'F maj',
+      midis: [65, 69, 72],
+    };
+    const [upper] = enrichWithBass([fOverG], [bassAt(43)], 60);
+    expect(upper.noteName).toBe('F maj/G');
   });
 });
 

@@ -312,6 +312,146 @@ const DETECTABLE_CHORDS: ReadonlyMap<
   return byMask;
 })();
 
+// ── The simplest reading ─────────────────────────────────────────────────
+// Notes can usually be named more than one way, and the first exact match in
+// CHORDS isn't always the one a musician means: G♭-C-F matches "F sus♭2"
+// exactly, where over an A♭ bass it is plainly A♭13. Musical Occam's razor:
+// read the notes every way they go — every note as the root, exactly or with
+// the tones voicings leave out — and take the simplest. A rare chord costs
+// most, then a tone missing, then an inversion; a chord rooted on its bass
+// costs nothing extra.
+
+/**
+ * Chords the engine can name that musicians rarely mean: nearly always a
+ * common chord read from the wrong root or missing its bass. One is kept only
+ * when nothing simpler fits.
+ */
+const RARE_QUALITIES: ReadonlySet<string> = new Set([
+  'susb2',
+  'susb2b5',
+  'sus2b5',
+  'sus#4',
+  'majorb5',
+  'major4',
+  'minor4',
+  'quartal',
+  'Add4',
+  'sus2b5add6',
+  'major7diminished',
+  'diminishedmajor7',
+  'major7#5',
+  'major7b5',
+  'minor7#5',
+  'major7sus2',
+  'major7sus4',
+  'minormajor9',
+  'major9#5',
+  'major7#9',
+  'major7#5#9',
+  'dominant7#5#9',
+  'dominant7#5b9',
+  'diminished7b9',
+  'minor7b5b9',
+  'minor9b5',
+  'b7dominant7#11',
+]);
+
+/** Whether a quality is one musicians rarely mean (RARE_QUALITIES). */
+export const isRareQuality = (quality: string): boolean =>
+  RARE_QUALITIES.has(quality);
+
+/** What a rare quality costs a reading. */
+export const RARE_COST = 3;
+/** What each tone left out costs. */
+const OMISSION_COST = 1;
+/** What a bass outside the chord costs: the upper chord over it, "D/C". */
+export const SLASH_COST = 2;
+
+/** A detectable chord's tones above its root, and those a voicing may leave out. */
+const READABLE_CHORDS: ReadonlyArray<{
+  name: string;
+  tones: ReadonlySet<number>;
+  optional: ReadonlySet<number>;
+  sixth: boolean;
+}> = Object.entries(CHORDS)
+  .filter(([name]) => !name.includes('/'))
+  .map(([name, def]) => {
+    const has13 = def.includes(21);
+    const has11 = def.includes(17) || def.includes(18);
+    // The 5th of any chord; under an 11th or 13th the 9th; under a 13th the
+    // 11th. The 3rd and 7th say what the chord is, so they always stay.
+    const optional = new Set([7]);
+    if (has13 || has11) optional.add(2);
+    if (has13) optional.add(5);
+    return {
+      name,
+      tones: new Set(def.map((v) => ((v % 12) + 12) % 12)),
+      optional,
+      sixth: name === 'major6' || name === 'minor6',
+    };
+  });
+
+/** What it costs to hear the bass as this tone of the chord. */
+function bassCost(interval: number): number {
+  if (interval === 0) return 0;
+  // The 3rd or the 5th: an everyday inversion.
+  if ([3, 4, 6, 7, 8].includes(interval)) return 1.5;
+  // The 7th (or a 6th chord's 6th): third inversion.
+  if ([9, 10, 11].includes(interval)) return 2;
+  // A 9th, 11th or 13th under the chord is barely ever what's meant.
+  return 4;
+}
+
+/** One way to name a set of notes, and how simple it is (lower is simpler). */
+export interface ChordReading {
+  quality: string;
+  rootPc: number;
+  score: number;
+}
+
+/**
+ * Every way to read `pitchClasses` over `bassPc` as one chord — each pitch
+ * class as the root, exactly or leaving out the tones voicings leave out —
+ * simplest first. Every note has to be a tone of the chord. Ties go to the
+ * chord rooted on the bass, then a 7th chord over a 6th, then CHORDS order.
+ */
+export function chordReadings(
+  pitchClasses: Iterable<number>,
+  bassPc: number,
+): ChordReading[] {
+  const mod = (n: number) => ((n % 12) + 12) % 12;
+  const pcs = [...new Set([...pitchClasses, bassPc].map(mod))];
+  const readings: (ChordReading & { order: number; sixth: boolean })[] = [];
+  for (const rootPc of pcs) {
+    const played = new Set(pcs.map((pc) => mod(pc - rootPc)));
+    READABLE_CHORDS.forEach(({ name, tones, optional, sixth }, order) => {
+      if (![...played].every((t) => tones.has(t))) return;
+      const missing = [...tones].filter((t) => !played.has(t));
+      if (!missing.every((t) => optional.has(t))) return;
+      readings.push({
+        quality: name,
+        rootPc,
+        score:
+          (RARE_QUALITIES.has(name) ? RARE_COST : 0) +
+          missing.length * OMISSION_COST +
+          bassCost(mod(bassPc - rootPc)),
+        order,
+        sixth,
+      });
+    });
+  }
+  const onBass = (r: ChordReading) => (r.rootPc === mod(bassPc) ? 0 : 1);
+  return readings
+    .sort(
+      (a, b) =>
+        a.score - b.score ||
+        onBass(a) - onBass(b) ||
+        Number(a.sixth) - Number(b.sixth) ||
+        a.order - b.order,
+    )
+    .map(({ quality, rootPc, score }) => ({ quality, rootPc, score }));
+}
+
 /**
  * Given sorted MIDI notes, detects the chord quality and inversion.
  * Tries each pitch class as a potential root to recognize inversions.
@@ -360,8 +500,12 @@ export function detectChordWithInversion(
       inversion,
     };
 
-    // Root position → return immediately
-    if (candidate === bassPc) return match;
+    // Root position → return immediately, unless it's a rare chord a
+    // simpler reading might name (simplestMatch).
+    if (candidate === bassPc) {
+      if (!RARE_QUALITIES.has(name)) return match;
+      return simplestMatch(pcs, bassNote) ?? match;
+    }
 
     // Non-root: prefer 7th chords over 6th chords
     if (!bestMatch) {
@@ -376,5 +520,23 @@ export function detectChordWithInversion(
     }
   }
 
-  return bestMatch;
+  if (bestMatch && !RARE_QUALITIES.has(bestMatch.quality)) return bestMatch;
+  return simplestMatch(pcs, bassNote) ?? bestMatch;
+}
+
+/**
+ * The simplest reading of the notes (chordReadings) as a match: for notes no
+ * chord spells exactly — a 13th played 1-3-♭7-13 — and in place of a rare one.
+ */
+function simplestMatch(pcs: number[], bassNote: number): ChordMatch | null {
+  const bassPc = bassNote % 12;
+  const [best] = chordReadings(pcs, bassPc);
+  if (!best) return null;
+  const def = CHORDS[best.quality];
+  const bassInterval = (bassPc - best.rootPc + 12) % 12;
+  const inversion = Math.max(
+    0,
+    def.findIndex((v, j) => j > 0 && ((v % 12) + 12) % 12 === bassInterval),
+  );
+  return { quality: best.quality, rootPc: best.rootPc, bassNote, inversion };
 }

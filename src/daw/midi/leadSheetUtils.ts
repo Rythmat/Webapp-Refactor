@@ -1,6 +1,7 @@
 import type { ChordRegionIdentity } from '@/daw/harmony/chordIdentity';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { displayChordLabel } from '@/daw/utils/displayChordLabel';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -279,8 +280,8 @@ export function formatChordSymbol(
   format: ChordFormat = 'jazz',
   degreeName?: string,
 ): string {
-  if (format === 'numbers') return displayAccidentals(degreeName ?? noteName);
-  if (format === 'hybrid') return displayAccidentals(noteName);
+  if (format === 'numbers') return displayChordLabel(degreeName ?? noteName);
+  if (format === 'hybrid') return displayChordLabel(noteName);
 
   const { root, quality } = parseChordDisplay(noteName);
   const jazzSuffix = JAZZ_MAP[quality];
@@ -298,8 +299,8 @@ export function formatChordSymbol(
     }
   }
 
-  // Fallback: just concatenate root + quality
-  return displayAccidentals(root + quality);
+  // Fallback: written as hybrid writes it
+  return displayChordLabel(`${root} ${quality}`);
 }
 
 // ── Duration Helpers ─────────────────────────────────────────────────────

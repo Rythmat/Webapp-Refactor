@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { applyOfflinePedalChain, pedalBlocksOf } from '../offlinePedalChain';
+import { applyOfflinePedalChain } from '../offlinePedalChain';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 
 // ── A take's amp and pedals in the bounce ──────────────────────────────────
-// Live, the track's view applies its stored chain to the adapter and loads
-// the amp's NAM model; a bounce applies the same chain to the adapter it
-// built offline, so recorded takes no longer bounce dry.
+// Live, the engine applies a track's stored chain to its adapter and loads
+// the amp's NAM model (applyPedalChain); a bounce applies the same chain the
+// same way to the adapter it built offline, so recorded takes no longer
+// bounce dry.
 
 const nam = vi.hoisted(() => ({ fetch: vi.fn() }));
 vi.mock('../nam/NamModelStore', () => ({
@@ -24,10 +25,15 @@ vi.mock('../nam/NamModelStore', () => ({
 vi.mock('@/daw/instruments/GuitarFxAdapter', () => ({
   GuitarFxAdapter: class {
     log: unknown[][] = [];
+    loaded = false;
+    // A fresh chain has no pedals, so the parameter fast path fails.
+    updateChainParams = vi.fn(() => false);
     syncChain = vi.fn((...a: unknown[]) => this.log.push(['sync', ...a]));
     loadNamModel = vi.fn(async (...a: unknown[]) => {
       this.log.push(['load', ...a]);
+      this.loaded = true;
     });
+    isNamLoaded = vi.fn(() => this.loaded);
     setAmpSimMode = vi.fn((...a: unknown[]) => this.log.push(['mode', ...a]));
     whenChainReady = vi.fn(async () => {
       this.log.push(['ready']);
@@ -36,6 +42,7 @@ vi.mock('@/daw/instruments/GuitarFxAdapter', () => ({
 }));
 vi.mock('@/daw/instruments/VocalFxAdapter', () => ({
   VocalFxAdapter: class {
+    updateChainParams = vi.fn(() => false);
     syncChain = vi.fn();
     whenChainReady = vi.fn(async () => {});
   },
@@ -55,22 +62,12 @@ const amp = (namModelId: string | null) => ({
 const phaser = { type: 'phaser', enabled: true, params: { rate: 0.5 } };
 
 const guitarTrack = (guitarChain?: unknown[]) => ({
-  name: 'Gtr',
   guitarChain: guitarChain as never,
 });
 
 beforeEach(() => {
   nam.fetch.mockReset();
   nam.fetch.mockResolvedValue({ architecture: 'WaveNet' });
-});
-
-describe('pedalBlocksOf', () => {
-  it('hands the phaser the project tempo, as the views do', () => {
-    expect(pedalBlocksOf([phaser, amp('nam-plexi')], 96)).toEqual([
-      { ...phaser, params: { rate: 0.5, bpm: 96 }, namModelId: undefined },
-      amp('nam-plexi'),
-    ]);
-  });
 });
 
 describe('applyOfflinePedalChain', () => {
@@ -140,7 +137,7 @@ describe('applyOfflinePedalChain', () => {
     };
     await applyOfflinePedalChain(
       adapter as never,
-      { name: 'Vox', guitarChain: undefined, vocalChain: [pitch] },
+      { guitarChain: undefined, vocalChain: [pitch] },
       120,
     );
     expect(adapter.syncChain).toHaveBeenCalledWith([

@@ -21,9 +21,13 @@ import {
 import { withoutHistory } from '@/daw/store/history';
 import {
   BUNDLED_MODELS,
-  fetchBundledModel,
   type NamModelEntry,
 } from '@/daw/audio/nam/NamModelStore';
+import {
+  applyPedalChain,
+  loadPedalChainModel,
+  pedalBlocksOf,
+} from '@/daw/audio/applyPedalChain';
 import {
   getTrackAudioState,
   subscribeEngineReady,
@@ -410,6 +414,11 @@ function storedGuitarChain(chain: PedalBlock[]) {
   }));
 }
 
+/** A fresh id for a block taken from the stored chain. */
+function freshBlockId(type: string): string {
+  return `${type}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
 function getAdapter(trackId: string): GuitarFxAdapter | null {
   const instrument = getTrackAudioState(trackId)?.trackEngine.getInstrument();
   return instrument instanceof GuitarFxAdapter ? instrument : null;
@@ -460,7 +469,7 @@ export function GuitarBassView({
       ? storedChain.map((b) => ({
           ...b,
           type: b.type as PedalBlockType,
-          id: `${b.type}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: freshBlockId(b.type),
           namModelId: b.namModelId,
         }))
       : DEFAULT_CHAIN,
@@ -537,94 +546,66 @@ export function GuitarBassView({
     const entry = filteredModels[0];
     if (!entry?.url) return;
     autoLoadedRef.current = true;
-    fetchBundledModel(entry.url)
-      .then(async (model) => {
-        try {
-          await adapter.loadNamModel(model, entry.gainCompensation);
-          setChain((prev) =>
-            prev.map((b) =>
-              b.type === 'nam-amp' && !b.namModelId
-                ? { ...b, namModelId: entry.id }
-                : b,
-            ),
-          );
-          adapter.setAmpSimMode('nam');
-        } catch (err) {
-          console.warn('[NAM] Auto-load model failed:', err);
-          autoLoadedRef.current = false;
-        }
-      })
-      .catch((err) => {
-        console.warn('[NAM] Auto-load fetch failed:', err);
+    void loadPedalChainModel(adapter, entry.id).then((loaded) => {
+      if (!loaded) {
         autoLoadedRef.current = false;
-      });
-  }, [adapter, chain, instrumentFilter, filteredModels]);
+        return;
+      }
+      const withModel = <
+        B extends { type: string; namModelId?: string | null },
+      >(
+        blocks: B[],
+      ) =>
+        blocks.map((b) =>
+          b.type === 'nam-amp' && !b.namModelId
+            ? { ...b, namModelId: entry.id }
+            : b,
+        );
+      // The amp's first model is bookkeeping, as filling in the chain is:
+      // now that the engine follows undo, an undo step here would put the
+      // new track's amp back on its classic model.
+      const stored = useStore
+        .getState()
+        .tracks.find((t) => t.id === trackId)?.guitarChain;
+      if (stored) {
+        withoutHistory(() =>
+          useStore.getState().setGuitarChain(trackId, withModel(stored)),
+        );
+      }
+      setChain((prev) => withModel(prev));
+    });
+  }, [adapter, chain, instrumentFilter, filteredModels, trackId]);
 
-  // Sync the pedal chain to the audio engine. A change to parameters only (a
-  // knob's every move) updates the pedals in place; a pedal added, removed,
-  // moved or given another amp model rebuilds the chain (live-input-05).
-  const syncedStructure = useRef<{
-    adapter: GuitarFxAdapter;
-    structure: string;
-  } | null>(null);
+  // Play the view's chain through the adapter, on every edit (a knob's every
+  // move), as applyPedalChain does for the engine: parameters update the
+  // pedals in place, a pedal added, removed or moved rebuilds the chain
+  // (live-input-05), and the amp's model loads once per adapter and model.
+  // The engine has applied the stored chain already, so the view opening on
+  // it changes nothing.
   useEffect(() => {
     if (!adapter) return;
-
-    const blocks = chain.map((b) => ({
-      type: b.type,
-      enabled: b.enabled,
-      params: b.type === 'phaser' ? { ...b.params, bpm } : b.params,
-      namModelId: b.namModelId,
-    }));
-    const structure = chain
-      .map((b) => `${b.type}:${b.namModelId ?? ''}`)
-      .join('|');
-    const synced = syncedStructure.current;
-    if (
-      synced?.adapter === adapter &&
-      synced.structure === structure &&
-      adapter.updateChainParams(blocks)
-    ) {
-      return;
-    }
-    adapter.syncChain(blocks);
-    syncedStructure.current = { adapter, structure };
+    void applyPedalChain(adapter, pedalBlocksOf(storedGuitarChain(chain), bpm));
   }, [adapter, chain, bpm]);
 
-  // Restore persisted NAM model when engine becomes ready. It runs after the
-  // chain sync so isNamLoaded() asks the amp that sync just built or kept: a
-  // pedal inserted before the amp gets a fresh amp with no model. Chain edits
-  // re-run this while the model is still downloading, so a restore already
-  // under way for this adapter and model is not started again.
-  const namRestoreRef = useRef<{
-    adapter: GuitarFxAdapter;
-    modelId: string;
-  } | null>(null);
+  // The stored chain changed from outside the view (undo, redo, a
+  // collaborator): the view takes it up, as the engine already has. A
+  // block keeps its id while a block of its type stays in its slot.
+  const seenStoredChain = useRef(JSON.stringify(storedChain ?? null));
   useEffect(() => {
-    const ampBlock = chain.find((b) => b.type === 'nam-amp');
-    if (!ampBlock?.namModelId) return;
-    if (!adapter || adapter.isNamLoaded()) return;
-    const pending = namRestoreRef.current;
-    if (
-      pending?.adapter === adapter &&
-      pending.modelId === ampBlock.namModelId
-    ) {
-      return;
-    }
-    const entry = BUNDLED_MODELS.find((m) => m.id === ampBlock.namModelId);
-    if (!entry?.url) return;
-    const restore = { adapter, modelId: entry.id };
-    namRestoreRef.current = restore;
-    fetchBundledModel(entry.url)
-      .then(async (model) => {
-        await adapter.loadNamModel(model, entry.gainCompensation);
-        adapter.setAmpSimMode('nam');
-      })
-      .catch((err) => console.warn('[NAM] Restore failed:', err))
-      .finally(() => {
-        if (namRestoreRef.current === restore) namRestoreRef.current = null;
-      });
-  }, [adapter, chain]);
+    const json = JSON.stringify(storedChain ?? null);
+    if (json === seenStoredChain.current) return;
+    seenStoredChain.current = json;
+    if (!storedChain) return;
+    setChain((prev) =>
+      JSON.stringify(storedGuitarChain(prev)) === json
+        ? prev
+        : storedChain.map((b, i) => ({
+            ...b,
+            type: b.type as PedalBlockType,
+            id: prev[i]?.type === b.type ? prev[i].id : freshBlockId(b.type),
+          })),
+    );
+  }, [storedChain]);
 
   // Persist chain to store so it survives GuitarBassView unmount/remount: at
   // once after a click, and once on release after a knob drag, which the
@@ -716,13 +697,13 @@ export function GuitarBassView({
     });
   }, []);
 
+  // The model loads before the amp shows it as picked, as it always has.
   const handleSelectNamModel = useCallback(
     async (entry: NamModelEntry, blockId: string) => {
       if (!entry.url) return;
-      const model = await fetchBundledModel(entry.url);
       const adapter = getAdapter(trackId);
       if (!adapter) return;
-      await adapter.loadNamModel(model, entry.gainCompensation);
+      if (!(await loadPedalChainModel(adapter, entry.id))) return;
       setChain((prev) =>
         prev.map((b) =>
           b.id === blockId ? { ...b, namModelId: entry.id } : b,

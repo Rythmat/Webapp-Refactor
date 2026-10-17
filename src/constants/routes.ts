@@ -988,12 +988,13 @@ export const CurriculumRoutes = {
   }),
 
   // Music Literacy: call-and-response lessons on scale degrees (Learn →
-  // Technique). Static segments, so they rank above '/:genre/:level'.
+  // Start Here). Static segments, so they rank above '/:genre/:level'.
   musicLiteracy: createRouteDefinition('/music-literacy', {
     prefix: curriculumPrefix,
   }),
 
-  musicLiteracyLesson: createRouteDefinition<{ id: string }>(
+  /** A lesson; `?step=<tag>` opens it on that step (Continue). */
+  musicLiteracyLesson: createRouteDefinition<{ id: string }, { step?: string }>(
     '/music-literacy/:id',
     { prefix: curriculumPrefix },
   ),

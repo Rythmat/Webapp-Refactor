@@ -1,9 +1,20 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { LearnInlet } from '@/components/learn/LearnInlet';
+import { START_HERE_TAB } from '@/curriculum/musicLiteracy/literacyPath';
 
-/** The Learn tabs the mirror shows; each is content rather than per-student. */
-const TABS = ['Songs', 'Genre', 'Theory', 'Technique', 'WorldHarmony'];
+/**
+ * The Learn tabs the mirror shows; each is content rather than per-student.
+ * Start Here is the Music Literacy path; its progress is this device's own.
+ */
+const TABS = [
+  START_HERE_TAB,
+  'Songs',
+  'Genre',
+  'Theory',
+  'Technique',
+  'WorldHarmony',
+];
 
 /**
  * Learn, always on a tab.

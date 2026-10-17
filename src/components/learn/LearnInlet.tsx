@@ -22,6 +22,7 @@ import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
+import { START_HERE_TAB } from '@/curriculum/musicLiteracy/literacyPath';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import {
@@ -46,6 +47,7 @@ import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import { HexWaveBackground } from '../ui/hex-wave-background';
 import { LearnHome } from './LearnHome';
 import { LearnTabBar } from './LearnTabBar';
+import { StartHere } from './StartHere';
 import { WorldHarmony } from './WorldHarmony';
 import {
   COMING_SOON_FOR_GUITAR,
@@ -1341,7 +1343,14 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const genreParam = searchParams.get('genre');
   const tabParam = searchParams.get('tab');
   const { isPremium } = useIsPremium();
-  const validTabs = ['Songs', 'Genre', 'Theory', 'Technique', 'WorldHarmony'];
+  const validTabs = [
+    START_HERE_TAB,
+    'Songs',
+    'Genre',
+    'Theory',
+    'Technique',
+    'WorldHarmony',
+  ];
   const defaultTab =
     tabParam && validTabs.includes(tabParam)
       ? tabParam
@@ -2062,6 +2071,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         {subTab === 'Home' ? (
           <div className="min-h-0 flex-1 overflow-y-auto">
             <LearnHome />
+          </div>
+        ) : subTab === START_HERE_TAB ? (
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <StartHere />
           </div>
         ) : subTab === 'Songs' ? (
           <div

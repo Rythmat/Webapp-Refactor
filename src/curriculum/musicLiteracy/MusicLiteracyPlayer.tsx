@@ -1,17 +1,13 @@
 import { Headphones, Keyboard, Play, Square } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   releaseAllPianoNotes,
   triggerPianoAttack,
   triggerPianoRelease,
 } from '@/audio/pianoSampler';
 import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
-import {
-  CurriculumRoutes,
-  LearnRoutes,
-  SettingsRoutes,
-} from '@/constants/routes';
+import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import GenrePianoRoll, {
@@ -73,6 +69,7 @@ import type { KeyRange } from '@/learn/keyboard/lessonKeyboardRange';
 import { describeKey } from '@/lib/learn/keyDescription';
 import { LiteracyCallPanel } from './LiteracyCallPanel';
 import { MusicLiteracyLayout } from './MusicLiteracyLayout';
+import { startHereRoute } from './literacyPath';
 import {
   literacyClock,
   startLiteracyRun,
@@ -147,7 +144,14 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const { reportCompletion } = useMspModuleCompletion();
   const { progress, record } = useLiteracyProgress(lesson.id);
 
-  const [stepIndex, setStepIndex] = useState(0);
+  // `?step=<tag>` opens on that step: Start Here's Continue.
+  const [params] = useSearchParams();
+  const [stepIndex, setStepIndex] = useState(() =>
+    Math.max(
+      0,
+      lesson.steps.findIndex((s) => s.tag === params.get('step')),
+    ),
+  );
   const step = lesson.steps[Math.min(stepIndex, lesson.steps.length - 1)];
   const notes = useMemo(() => stepNotes(lesson, step), [lesson, step]);
   const { timeline, tonic } = notes;
@@ -343,7 +347,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const next = useCallback(() => {
     if (isLastStep) {
       endRun();
-      navigate(`${LearnRoutes.root()}?tab=Technique`);
+      navigate(startHereRoute());
       return;
     }
     goToStep(stepIndex + 1);
@@ -682,8 +686,8 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       header={{
         crumbs: [
           {
-            label: 'Technique',
-            onClick: () => navigate(`${LearnRoutes.root()}?tab=Technique`),
+            label: 'Start here',
+            onClick: () => navigate(startHereRoute()),
           },
           {
             // The console previews drafts; say so.

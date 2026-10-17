@@ -73,12 +73,23 @@ const MUSIC_LITERACY_PAGE =
   /^\/curriculum\/music-literacy(?:\/([a-z0-9-]+))?(?:\/|$)/;
 
 /**
+ * Learn → Start Here, the Music Literacy path. The tab's slug is spelled
+ * here rather than imported (musicLiteracy/literacyPath.ts): this bar is
+ * eager console chrome, and that module reads the lessons.
+ */
+const isStartHere = (appPath: string, search: URLSearchParams) =>
+  appPath === '/learn' && search.get('tab') === 'StartHere';
+
+/**
  * What the page showing can be edited as, where it has no in-place editor
  * yet. A song page has one (Preview | Edit); a course, a Music Literacy
- * lesson and a globe event open their editors; a song's globe event opens
- * the song's page in Edit.
+ * lesson (and Start Here, its path) and a globe event open their editors; a
+ * song's globe event opens the song's page in Edit.
  */
 function contextActions(appPath: string, search: URLSearchParams): Action[] {
+  if (isStartHere(appPath, search)) {
+    return [{ label: 'Edit Music Literacy', to: AdminRoutes.musicLiteracy() }];
+  }
   // Before the courses: `music-literacy` would read as a course's genre.
   const literacy = MUSIC_LITERACY_PAGE.exec(appPath);
   if (literacy) {
@@ -191,20 +202,25 @@ export const MirrorBar = () => {
   const recordsItem = Boolean(records?.[2]);
   const section = consoleAppPath(pathname);
 
+  const params = new URLSearchParams(search);
+  // Start Here is Music Literacy's, which is in no table: not Learn's songs.
+  const startHere = appPath !== null && isStartHere(appPath, params);
   // Where the page showing is in the Table: its row when the page is about
   // one thing (a song page, the globe with an event, an artist or a city
   // open), its table otherwise.
-  const inTable = appPath ? tableForAppPage(appPath, search) : null;
+  const inTable =
+    appPath && !startHere ? tableForAppPage(appPath, search) : null;
   const inTableHref = inTable ? tableHref(inTable.table, inTable.row) : null;
   // Page | Table: the same content as the page, or as rows — the course's
-  // lessons for the curriculum, the Music Literacy lessons for theirs. A
-  // list under Other records keeps its way back to its page, and is the
-  // table itself. An item's full editor is neither: its Table is the item's
-  // row (`ItemRowLink`; the kind's table until the item has loaded, or for a
-  // new one), or for an other record its list under Other records.
+  // lessons for the curriculum, the Music Literacy lessons for theirs and
+  // for Start Here, their path. A list under Other records keeps its way
+  // back to its page, and is the table itself. An item's full editor is
+  // neither: its Table is the item's row (`ItemRowLink`; the kind's table
+  // until the item has loaded, or for a new one), or for an other record its
+  // list under Other records.
   const tableLink =
     inTableHref ??
-    (appPath && MUSIC_LITERACY_PAGE.test(appPath)
+    (appPath && (startHere || MUSIC_LITERACY_PAGE.test(appPath))
       ? AdminRoutes.musicLiteracy()
       : appPath && isCurriculum(appPath)
         ? AdminRoutes.contentKind({ kind: 'activity_flow' })
@@ -232,7 +248,6 @@ export const MirrorBar = () => {
         ? { mirror: mirrorPathFor(mirrorSegment), table: recordsTable }
         : null;
 
-  const params = new URLSearchParams(search);
   const actions = appPath ? contextActions(appPath, params) : [];
   const songSlug = appPath ? songSlugOf(appPath) : null;
   const editing = params.get('edit') === '1';

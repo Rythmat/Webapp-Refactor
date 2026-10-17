@@ -287,6 +287,19 @@ function Hub({
 /** A syllable ending in "-" joins the next ("Ma-", "jor" → "Ma-jor"). */
 const joinsNext = (text: string) => text.endsWith('-');
 
+/** The words as read: syllables joined into their words ("gon-na"). */
+const wordsText = (words: readonly TimedNote[]) =>
+  words
+    .map((w, i) =>
+      i < words.length - 1 && !joinsNext(w.text ?? '') ? `${w.text} ` : w.text,
+    )
+    .join('');
+
+interface Syllable {
+  note: TimedNote;
+  i: number;
+}
+
 function WordsLine({
   words,
   wordsStart,
@@ -296,16 +309,24 @@ function WordsLine({
   keyColor,
   compact,
 }: LiteracyCallPanelProps) {
-  const lines: { note: TimedNote; i: number }[][] = [];
+  // A line a bar; on each, the syllables grouped into their words, so a
+  // word never breaks across the line's wrap and reads as one ("gon-na").
+  const lines: Syllable[][][] = [];
   words.forEach((note, i) => {
     const bar = Math.floor((note.onset - wordsStart) / barTicks);
-    (lines[bar] ??= []).push({ note, i });
+    const line = (lines[bar] ??= []);
+    const word = line[line.length - 1];
+    if (word && joinsNext(word[word.length - 1].note.text ?? '')) {
+      word.push({ note, i });
+    } else {
+      line.push([{ note, i }]);
+    }
   });
 
   return (
     <div
       data-literacy-words
-      aria-label={`Words: ${words.map((w) => w.text).join(' ')}`}
+      aria-label={`Words: ${wordsText(words)}`}
       className={cn(
         'flex shrink-0 flex-col gap-1.5',
         compact ? 'min-w-0 flex-1 items-start' : 'items-center',
@@ -320,42 +341,48 @@ function WordsLine({
             compact ? 'justify-start' : 'justify-center',
           )}
         >
-          {line.map(({ note, i }) => {
-            const now = running && view.word === i;
-            const sung = running && view.word > i;
-            const offRoot = note.degree !== '1';
-            return (
-              <span
-                key={i}
-                data-word-index={i}
-                data-word-now={now || undefined}
-                className={cn(
-                  'flex flex-col items-center gap-1',
-                  joinsNext(note.text ?? '') && '-mr-[0.3em]',
-                )}
-              >
-                <span
-                  className="h-[0.6em] text-[0.6em] font-semibold leading-none"
-                  style={{ color: offRoot ? keyColor : 'transparent' }}
-                >
-                  {offRoot ? degreeLabel(note.degree) : '·'}
-                </span>
-                <span
-                  className="rounded px-[0.08em] transition-colors duration-75"
-                  style={{
-                    color: now
-                      ? '#101012'
-                      : sung || !running
-                        ? '#e8e8f0'
-                        : 'rgba(255,255,255,0.4)',
-                    backgroundColor: now ? keyColor : 'transparent',
-                  }}
-                >
-                  {note.text}
-                </span>
-              </span>
-            );
-          })}
+          {line.map((word) => (
+            <span key={word[0].i} data-literacy-word className="flex items-end">
+              {word.map(({ note, i }, s) => {
+                const now = running && view.word === i;
+                const sung = running && view.word > i;
+                const offRoot = note.degree !== '1';
+                return (
+                  <span
+                    key={i}
+                    data-word-index={i}
+                    data-word-now={now || undefined}
+                    className={cn(
+                      'flex flex-col items-center gap-1',
+                      // Each syllable keeps its own highlight; the next one
+                      // in the word sits flush, over the padding between.
+                      s > 0 && '-ml-[0.16em]',
+                    )}
+                  >
+                    <span
+                      className="h-[0.6em] text-[0.6em] font-semibold leading-none"
+                      style={{ color: offRoot ? keyColor : 'transparent' }}
+                    >
+                      {offRoot ? degreeLabel(note.degree) : '·'}
+                    </span>
+                    <span
+                      className="rounded px-[0.08em] transition-colors duration-75"
+                      style={{
+                        color: now
+                          ? '#101012'
+                          : sung || !running
+                            ? '#e8e8f0'
+                            : 'rgba(255,255,255,0.4)',
+                        backgroundColor: now ? keyColor : 'transparent',
+                      }}
+                    >
+                      {note.text}
+                    </span>
+                  </span>
+                );
+              })}
+            </span>
+          ))}
         </p>
       ))}
     </div>

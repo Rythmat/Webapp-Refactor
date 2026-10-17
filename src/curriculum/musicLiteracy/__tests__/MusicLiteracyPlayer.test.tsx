@@ -15,7 +15,7 @@ import {
   screen,
 } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
 import {
@@ -70,10 +70,18 @@ const { MusicLiteracyPlayer } = await import('../MusicLiteracyPlayer');
 
 const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
 
-function renderPlayer() {
+const LocationProbe = () => {
+  const { pathname, search } = useLocation();
+  return <output data-testid="location">{`${pathname}${search}`}</output>;
+};
+
+function renderPlayer(
+  url = '/curriculum/music-literacy/music-literacy-part-1',
+) {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[url]}>
       <MusicLiteracyPlayer lesson={lesson} />
+      <LocationProbe />
     </MemoryRouter>,
   );
 }
@@ -237,6 +245,47 @@ describe('a Music Literacy step', () => {
     feedTo(13440);
     expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
     expect(msp.reportCompletion).toHaveBeenCalledTimes(1);
+
+    // The last step's Finish goes back to the path the lesson is on.
+    await press(/^Finish$/);
+    expect(screen.getByTestId('location').textContent).toBe(
+      '/learn?tab=StartHere',
+    );
+  });
+
+  it('opens on the step `?step=` names (Start Here’s Continue)', () => {
+    renderPlayer(
+      '/curriculum/music-literacy/music-literacy-part-1?step=add-the-3',
+    );
+    expect(title()).toBe('Add the 3: Major');
+    cleanup();
+    // A step it doesn't know: step 1.
+    renderPlayer('/curriculum/music-literacy/music-literacy-part-1?step=gone');
+    expect(title()).toBe('A note called C');
+  });
+
+  it('reads a syllable ending in "-" and the next as one word, each lit on its own', async () => {
+    renderPlayer();
+    expect(
+      document
+        .querySelector('[data-literacy-words]')
+        ?.getAttribute('aria-label'),
+    ).toBe("Words: Hey hey hey I'm gon-na play on a note called C");
+    const syllable = (i: number) =>
+      document.querySelector(`[data-word-index="${i}"]`)!;
+    // "gon-" and "na" share a word; "I'm" is a word of its own.
+    expect(syllable(4).textContent).toContain('gon-');
+    expect(syllable(4).parentElement).toBe(syllable(5).parentElement);
+    expect(syllable(4).parentElement?.hasAttribute('data-literacy-word')).toBe(
+      true,
+    );
+    expect(syllable(3).parentElement).not.toBe(syllable(4).parentElement);
+
+    await press('Play');
+    feedTo(1920 + 1680);
+    const lit = document.querySelectorAll('[data-word-now]');
+    expect(lit).toHaveLength(1);
+    expect(lit[0].getAttribute('data-word-index')).toBe('5');
   });
 
   it('lets Listen and Practice run without a score', async () => {

@@ -368,6 +368,22 @@ describe('Learn → Theory on guitar', () => {
     expect(screen.queryByText('Piano Fundamentals')).not.toBeInTheDocument();
   });
 
+  it('opens Start Here, the Music Literacy path, on guitar as on piano', () => {
+    for (const instrument of ['guitar', 'piano'] as const) {
+      const setSubTab = vi.fn();
+      renderLearn('/learn?tab=StartHere', instrument, setSubTab);
+      expect(location()).toBe('/learn?tab=StartHere');
+      expect(setSubTab).toHaveBeenCalledWith('StartHere');
+      expect(
+        screen.getByRole('heading', { name: 'Start here: Music Literacy' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('list', { name: 'The Music Literacy path' }).children,
+      ).toHaveLength(5);
+      cleanup();
+    }
+  });
+
   it('closes the open tile when the instrument changes', async () => {
     renderLearn('/learn?tab=Theory', 'guitar');
     openTile('Ionian (Major)');

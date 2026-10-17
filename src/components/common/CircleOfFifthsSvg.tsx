@@ -102,6 +102,8 @@ export interface CircleOfFifthsSvgProps {
   onSelectPitch?: (pitch: number) => void;
   /** Font weight of the selected slice's label (bold by default). */
   labelWeight?: number;
+  /** Draw the selected slice's note name outside the ring (default true). */
+  showLabel?: boolean;
 }
 
 export const CircleOfFifthsSvg: FC<CircleOfFifthsSvgProps> = ({
@@ -112,6 +114,7 @@ export const CircleOfFifthsSvg: FC<CircleOfFifthsSvgProps> = ({
   ariaLabel,
   onSelectPitch,
   labelWeight = 700,
+  showLabel = true,
 }) => {
   const scale = size / DEFAULT_SIZE;
   const cx = size / 2;
@@ -176,7 +179,7 @@ export const CircleOfFifthsSvg: FC<CircleOfFifthsSvgProps> = ({
                 },
               })}
             />
-            {isSelected && (
+            {isSelected && showLabel && (
               <text
                 x={lx}
                 y={ly}

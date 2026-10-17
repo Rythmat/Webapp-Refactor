@@ -5,7 +5,7 @@ import {
 } from '@/components/learn/techniqueCatalog';
 
 describe('techniqueCatalog', () => {
-  it('keeps the piano Technique tiles exactly as they were', () => {
+  it('keeps the piano Technique tiles, Music Literacy last', () => {
     expect(PIANO_TECHNIQUE_DATA).toEqual([
       {
         title: 'Piano Fundamentals',
@@ -17,6 +17,12 @@ describe('techniqueCatalog', () => {
         title: 'Applied Theory Fundamentals',
         route: '/curriculum/applied-theory-fundamentals',
         image: '/learn-tiles/beginner-hex.svg',
+        interactive: true,
+      },
+      {
+        title: 'Music Literacy',
+        route: '/curriculum/music-literacy',
+        image: '/learn-tiles/music-literacy-hex.svg',
         interactive: true,
       },
     ]);

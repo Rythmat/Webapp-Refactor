@@ -59,8 +59,18 @@ type PianoKeyboardProps = {
   /** Fill mode: stretch the keys to the full width of the container and show
    *  exactly `lowMidi`–`highMidi` (any key, not just whole octaves). Height
    *  follows the key width, never below `minHeight`, never above 30% of the
-   *  viewport. `startC`/`endC`/`gaming`/`vertical` are ignored. */
-  fill?: { lowMidi: number; highMidi: number; minHeight?: number };
+   *  viewport, unless `height` sets it outright (a caller that sizes the
+   *  keys to real proportions itself). `startC`/`endC`/`gaming`/`vertical`
+   *  are ignored. */
+  fill?: {
+    lowMidi: number;
+    highMidi: number;
+    minHeight?: number;
+    height?: number;
+  };
+  /** Fill mode: a word on a key (MIDI note -> text), such as its scale
+   *  degree, at the foot of the key. */
+  keyLabels?: ReadonlyMap<number, string>;
 };
 
 export type PlayedKey = { color: string; shine: boolean };
@@ -133,6 +143,7 @@ export function PianoKeyboard({
   onMidiInput,
   enableMidiInterface = false,
   fill,
+  keyLabels,
 }: PianoKeyboardProps) {
   const [localActiveNotes, setLocalActiveNotes] = useState<PlaybackEvent[]>([]);
 
@@ -407,16 +418,23 @@ export function PianoKeyboard({
     const columns = Math.max(1, whites.length);
     const minHeight = fill.minHeight ?? OCTAVE_HEIGHT;
     const whiteWidth = fillSize.width / columns;
-    const height = fillSize.width
-      ? Math.max(
-          minHeight,
-          Math.min(
-            whiteWidth * FILL_KEY_ASPECT,
-            fillSize.viewportHeight * FILL_MAX_VIEWPORT_SHARE,
-          ),
-        )
-      : minHeight;
+    const height =
+      fill.height ??
+      (fillSize.width
+        ? Math.max(
+            minHeight,
+            Math.min(
+              whiteWidth * FILL_KEY_ASPECT,
+              fillSize.viewportHeight * FILL_MAX_VIEWPORT_SHARE,
+            ),
+          )
+        : minHeight);
     const labelSize = Math.max(8, Math.min(12, whiteWidth * 0.4));
+    const keyLabelSize = Math.max(9, Math.min(16, whiteWidth * 0.42));
+    const pointerDown = (note: number) =>
+      onKeyPointerDown
+        ? (e: PointerEvent) => onKeyPointerDown(note, e)
+        : undefined;
     const blacks: number[] = [];
     for (let m = range.low; m <= range.high; m++) {
       if (isBlackKey(m)) blacks.push(m);
@@ -449,8 +467,18 @@ export function PianoKeyboard({
                     : whiteKeyStyle(activeNote, hintNotes?.get(note))
                 }
                 onClick={() => handleKeyClick(note)}
+                onPointerDown={pointerDown(note)}
               >
                 {played?.shine && <KeySheen />}
+                {keyLabels?.has(note) && (
+                  <div
+                    data-key-label={keyLabels.get(note)}
+                    className="pb-1 font-semibold leading-none text-black/75"
+                    style={{ fontSize: keyLabelSize }}
+                  >
+                    {keyLabels.get(note)}
+                  </div>
+                )}
                 {showOctaveStart && note % 12 === 0 && (
                   <div
                     className="pb-1 leading-none text-black"
@@ -476,11 +504,13 @@ export function PianoKeyboard({
                   height: BLACK_KEY_HEIGHT,
                 }}
                 onClick={() => handleKeyClick(note)}
+                onPointerDown={pointerDown(note)}
               >
                 <div
                   key={`${activeNote?.id ?? ''}-${playedKeyId(played)}`}
                   className={cn(
                     'size-full rounded-b-[3px] border-b-[3px] border-b-zinc-600 bg-zinc-900 shadow-md transition-colors',
+                    keyLabels?.has(note) && 'flex items-end justify-center',
                     !!activeNote &&
                       'animate-piano-key-press border-orange-900 bg-orange-700',
                     played?.shine && 'relative',
@@ -493,6 +523,15 @@ export function PianoKeyboard({
                   }
                 >
                   {played?.shine && <KeySheen />}
+                  {keyLabels?.has(note) && (
+                    <span
+                      data-key-label={keyLabels.get(note)}
+                      className="pb-1 font-semibold leading-none text-white/90"
+                      style={{ fontSize: keyLabelSize * 0.85 }}
+                    >
+                      {keyLabels.get(note)}
+                    </span>
+                  )}
                 </div>
               </div>
             );

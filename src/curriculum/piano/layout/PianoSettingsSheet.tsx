@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   AudioTimingRow,
   MetronomeRow,
@@ -11,13 +12,16 @@ import {
 // ── PianoSettingsSheet ─────────────────────────────────────────────────────
 // The gear's sheet on piano: the Sound rows guitar has (the metronome, the
 // volume and audio timing). The piano screen keeps them here, as guitar
-// does, so the keyboard gets the full width.
+// does, so the keyboard gets the full width. A screen with more to set
+// (Music Literacy's tempo) puts its sections above Sound.
 
 export interface PianoSettingsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   outputLatencyMs: number;
   openAudioTiming: () => void;
+  /** Sections above Sound. */
+  children?: ReactNode;
 }
 
 export function PianoSettingsSheet({
@@ -25,6 +29,7 @@ export function PianoSettingsSheet({
   onOpenChange,
   outputLatencyMs,
   openAudioTiming,
+  children,
 }: PianoSettingsSheetProps) {
   return (
     <GuitarSheet
@@ -35,6 +40,7 @@ export function PianoSettingsSheet({
       title="Lesson settings"
       width={400}
     >
+      {children}
       <SettingsSection label="Sound">
         <MetronomeRow />
         <VolumeRow />

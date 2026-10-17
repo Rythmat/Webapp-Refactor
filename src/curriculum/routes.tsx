@@ -24,6 +24,10 @@ import { AppliedTheoryFundamentalsKeyPicker } from '@/curriculum/components/Appl
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { buildAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/appliedTheoryFundamentals';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
+import {
+  MusicLiteracyIndexRoute,
+  MusicLiteracyLessonRoute,
+} from '@/curriculum/musicLiteracy/MusicLiteracyRoutes';
 import { GenreCourseOverview } from '@/curriculum/pages/GenreCourseOverview';
 import { GenreLessonContainerV2 } from '@/curriculum/pages/GenreLessonContainerV2';
 import type { ActivityFlow } from '@/curriculum/types/activity';
@@ -170,6 +174,15 @@ export function curriculumPages() {
       {
         path: CurriculumRoutes.guitarAppliedTheoryFundamentalsLesson.definition,
         element: <LegacyGuitarRedirect />,
+      },
+      // Music Literacy is free, like Piano Fundamentals: no RequirePremium.
+      {
+        path: CurriculumRoutes.musicLiteracy.definition,
+        element: <MusicLiteracyIndexRoute />,
+      },
+      {
+        path: CurriculumRoutes.musicLiteracyLesson.definition,
+        element: <MusicLiteracyLessonRoute />,
       },
       {
         path: CurriculumRoutes.genre.definition,

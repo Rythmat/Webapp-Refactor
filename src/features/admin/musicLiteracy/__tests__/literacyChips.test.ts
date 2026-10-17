@@ -44,7 +44,7 @@ describe('the words line', () => {
       'hey',
       'hey',
       'I’m',
-      'gon',
+      'gon-',
       'na',
       'play',
       'on',
@@ -54,6 +54,23 @@ describe('the words line', () => {
       'C',
     ]);
     expect(splitSyllables(' - ')).toEqual([]);
+    expect(splitSyllables('mu-si-cal gra-vi-ty-')).toEqual([
+      'mu-',
+      'si-',
+      'cal',
+      'gra-',
+      'vi-',
+      'ty',
+    ]);
+  });
+
+  it('writes a hyphenated word back whole', () => {
+    const line = {
+      syllables: ['That’s', 'mu-', 'si-', 'cal', 'gra-', 'vi-', 'ty'].map(
+        (text) => ({ text }),
+      ),
+    } as unknown as Parameters<typeof lineText>[0];
+    expect(lineText(line)).toBe('That’s mu-si-cal gra-vi-ty');
   });
 
   it('turns every seeded step’s words into a line and back, tick for tick', () => {

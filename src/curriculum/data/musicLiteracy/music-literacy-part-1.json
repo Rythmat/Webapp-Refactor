@@ -48,7 +48,7 @@
             "tick": 1440,
             "duration": 240,
             "degree": "1",
-            "text": "gon"
+            "text": "gon-"
           },
           {
             "tick": 1680,
@@ -276,7 +276,7 @@
             "tick": 2880,
             "duration": 480,
             "degree": "3",
-            "text": "Ma"
+            "text": "Ma-"
           },
           {
             "tick": 3360,
@@ -354,13 +354,13 @@
             "tick": 2160,
             "duration": 240,
             "degree": "1",
-            "text": "mu"
+            "text": "mu-"
           },
           {
             "tick": 2400,
             "duration": 240,
             "degree": "1",
-            "text": "si"
+            "text": "si-"
           },
           {
             "tick": 2640,
@@ -372,13 +372,13 @@
             "tick": 2880,
             "duration": 240,
             "degree": "1",
-            "text": "gra"
+            "text": "gra-"
           },
           {
             "tick": 3120,
             "duration": 240,
             "degree": "1",
-            "text": "vi"
+            "text": "vi-"
           },
           {
             "tick": 3360,
@@ -480,7 +480,7 @@
             "tick": 2400,
             "duration": 240,
             "degree": "3",
-            "text": "Ma"
+            "text": "Ma-"
           },
           {
             "tick": 2640,
@@ -492,7 +492,7 @@
             "tick": 2880,
             "duration": 480,
             "degree": "1",
-            "text": "Tri"
+            "text": "Tri-"
           },
           {
             "tick": 3360,
@@ -598,7 +598,7 @@
             "tick": 2880,
             "duration": 480,
             "degree": "b3",
-            "text": "Mi"
+            "text": "Mi-"
           },
           {
             "tick": 3360,
@@ -646,7 +646,7 @@
             "tick": 240,
             "duration": 240,
             "degree": "b3",
-            "text": "mi"
+            "text": "mi-"
           },
           {
             "tick": 480,
@@ -700,7 +700,7 @@
             "tick": 2400,
             "duration": 240,
             "degree": "1",
-            "text": "flat"
+            "text": "flat-"
           },
           {
             "tick": 2640,

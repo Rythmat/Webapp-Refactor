@@ -90,7 +90,7 @@ describe('a step on its timeline', () => {
     const minor = lesson!.steps.find((s) => s.tag === 'flat-the-3')!;
     const { words, call } = stepNotes(lesson!, minor);
     expect(words.filter((w) => w.midi === 63).map((w) => w.text)).toEqual([
-      'Mi',
+      'Mi-',
       'nor',
     ]);
     expect(call.map((n) => n.midi)).toEqual([60, 63, 60]);

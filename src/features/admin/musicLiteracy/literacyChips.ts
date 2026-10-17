@@ -275,18 +275,28 @@ export function syllableStarts(line: WordsLine): number[] {
 
 /**
  * The line typed as text, split into syllables: words by spaces, syllables
- * within a word by hyphens ("gon-na" is two). Empty pieces are dropped.
+ * within a word by hyphens ("gon-na" is two). A syllable that runs on into
+ * the next keeps its hyphen ("gon-", "na"), so the word reads whole again
+ * here and in Learn. Empty pieces are dropped.
  */
 export function splitSyllables(text: string): string[] {
-  return text
-    .split(/[\s-]+/)
-    .map((piece) => piece.trim())
-    .filter(Boolean);
+  return text.split(/\s+/).flatMap((word) => {
+    const pieces = word.split('-').filter(Boolean);
+    return pieces.map((piece, i) =>
+      i < pieces.length - 1 ? `${piece}-` : piece,
+    );
+  });
 }
 
-/** The line as text: its syllables, a space between each. */
+/** The line as text: a space between words, a syllable ending "-" running on. */
 export const lineText = (line: WordsLine): string =>
-  line.syllables.map((s) => s.text).join(' ');
+  line.syllables
+    .map((s, i) =>
+      i === 0 || line.syllables[i - 1].text.endsWith('-')
+        ? s.text
+        : ` ${s.text}`,
+    )
+    .join('');
 
 const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
 

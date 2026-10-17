@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  LiteracyStep,
-  MusicLiteracyLesson,
-} from '@/content/musicLiteracy/schemas';
-import { getMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
+import type { LiteracyStep } from '@/content/musicLiteracy/schemas';
+import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import type { InstrumentPart } from '@/curriculum/engine/parts/part';
 import {
   partFigure,
@@ -18,7 +15,7 @@ import {
  * of the same 1, and the words' syllables on the roll's notes in order.
  */
 
-const PART_1 = getMusicLiteracy('music-literacy-part-1') as MusicLiteracyLesson;
+const PART_1 = LITERACY_FIXTURE;
 
 const step = (tag: string) =>
   PART_1.steps.find((s) => s.tag === tag) as LiteracyStep;

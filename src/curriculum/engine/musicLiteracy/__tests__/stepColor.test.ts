@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { KEY_OF_COLORS } from '@/constants/theme';
-import { getLiveMusicLiteracy } from '../registry';
+import { LITERACY_FIXTURE } from '../__fixtures__/literacyFixture';
 import { stepKeyColor, stepMode, tonicPitchClass } from '../stepColor';
 
-const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
+const lesson = LITERACY_FIXTURE;
 const step = (tag: string) => lesson.steps.find((s) => s.tag === tag)!;
 
 describe('the house color rule, from the first lesson', () => {

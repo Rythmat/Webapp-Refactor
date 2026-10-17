@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
-import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
+import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import {
   currentStop,
   LITERACY_PATH,
@@ -16,7 +16,11 @@ import { withTry, type LiteracyProgress } from '../useLiteracyProgress';
  * this device has saved for its lesson.
  */
 
-const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
+/** The test fixture, as the lesson Part 1's stop opens. */
+const lesson: MusicLiteracyLesson = {
+  ...LITERACY_FIXTURE,
+  id: 'music-literacy-part-1',
+};
 const part1 = LITERACY_PATH[0];
 const tags = lesson.steps.map((s) => s.tag);
 

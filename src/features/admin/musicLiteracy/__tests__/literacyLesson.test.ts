@@ -1,9 +1,9 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { format } from 'prettier';
 import { describe, expect, it } from 'vitest';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import { blankLiteracyLesson } from '@/content/musicLiteracy/template';
-import { getMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
+import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { repoPrettierOptions } from '@/scripts/repoContent/tsWrite';
 import {
   addStep,
@@ -24,8 +24,9 @@ import {
  * the editor shows them, and the body laid out exactly as its file.
  */
 
-const FILE = 'src/curriculum/data/musicLiteracy/music-literacy-part-1.json';
-const PART_1 = getMusicLiteracy('music-literacy-part-1') as MusicLiteracyLesson;
+const FILE =
+  'src/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture.json';
+const PART_1 = LITERACY_FIXTURE;
 const tags = (lesson: MusicLiteracyLesson) => lesson.steps.map((s) => s.tag);
 
 /** The file's text for a body, as the dev writer and repo mode write it. */
@@ -40,6 +41,21 @@ describe('the lesson’s file', () => {
     expect(await fileText(canonicalLesson(PART_1))).toBe(
       readFileSync(FILE, 'utf8'),
     );
+  });
+
+  it('lays every real lesson file out exactly as the editor saves it', async () => {
+    const dir = 'src/curriculum/data/musicLiteracy';
+    const files = readdirSync(dir).filter((name) => name.endsWith('.json'));
+    expect(files.length).toBeGreaterThan(0);
+    for (const name of files) {
+      const text = readFileSync(`${dir}/${name}`, 'utf8');
+      expect(
+        await fileText(
+          canonicalLesson(JSON.parse(text) as MusicLiteracyLesson),
+        ),
+        name,
+      ).toBe(text);
+    }
   });
 
   it('puts a field an edit adds where the file has it, and drops empty ones', () => {
@@ -242,8 +258,8 @@ describe('ids', () => {
     expect(kebab('Music Literacy · Part 2')).toBe('music-literacy-part-2');
     expect(kebab('Flat the ♭3: Minor')).toBe('flat-the-b3-minor');
     expect(kebab("That's ♯4!")).toBe('thats-sharp4');
-    expect(lessonIdFor('Music Literacy · Part 1', [PART_1])).toBe(
-      'music-literacy-part-1-2',
+    expect(lessonIdFor('Literacy Fixture · Part 1', [PART_1])).toBe(
+      'literacy-fixture-part-1-2',
     );
     expect(lessonIdFor('???', [])).toBe('music-literacy');
   });

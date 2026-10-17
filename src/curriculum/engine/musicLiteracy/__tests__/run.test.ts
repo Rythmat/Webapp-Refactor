@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { LITERACY_FIXTURE } from '../__fixtures__/literacyFixture';
 import { secondsPerTick, stepTimeline } from '../literacy';
-import { getLiveMusicLiteracy } from '../registry';
 import {
   applyCue,
   FINAL_DOWNBEAT_BEATS,
@@ -17,7 +17,7 @@ import {
   type RunView,
 } from '../run';
 
-const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
+const lesson = LITERACY_FIXTURE;
 const step = (tag: string) => lesson.steps.find((s) => s.tag === tag)!;
 
 const beats = (cues: RunCue[]) =>

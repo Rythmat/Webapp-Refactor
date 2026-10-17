@@ -18,14 +18,14 @@ import {
   vi,
 } from 'vitest';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
-import { getMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
+import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { MusicLiteracyEditor } from '../MusicLiteracyEditor';
 
 /**
- * The lesson editor on Part 1: steps added, copied, moved and deleted, a
- * note and a rest changed, chips dragged into a new order and rests put
- * before and after notes, and a save that goes through only when the body
- * schema accepts the lesson, laid out as its file.
+ * The lesson editor on Part 1 (the test fixture): steps added, copied,
+ * moved and deleted, a note and a rest changed, chips dragged into a new
+ * order and rests put before and after notes, and a save that goes through
+ * only when the body schema accepts the lesson, laid out as its file.
  */
 
 const store = vi.hoisted(() => ({
@@ -55,9 +55,9 @@ vi.mock('../LiteracyRoll', () => ({
   LiteracyRoll: () => <h1>Piano roll</h1>,
 }));
 
-const PART_1 = getMusicLiteracy('music-literacy-part-1') as MusicLiteracyLesson;
+const PART_1 = LITERACY_FIXTURE;
 
-const mount = (path = '/console/music-literacy/music-literacy-part-1') =>
+const mount = (path = '/console/music-literacy/literacy-fixture-part-1') =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <MusicLiteracyEditor lesson={PART_1} />
@@ -133,7 +133,7 @@ describe('the steps', () => {
   });
 
   it('opens a segment in the piano roll on the same page', () => {
-    mount('/console/music-literacy/music-literacy-part-1?roll=0:call');
+    mount('/console/music-literacy/literacy-fixture-part-1?roll=0:call');
     expect(screen.getByRole('heading', { name: 'Piano roll' })).toBeDefined();
   });
 });

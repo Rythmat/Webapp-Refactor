@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StartHereCard } from '@/components/ClassroomLayout/dashboard/StartHereCard';
 import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
 import {
@@ -14,6 +14,17 @@ import {
  * Home's "Start here" card: the Music Literacy path's next stop, how far
  * along it this device is, its one action and the way to the whole path.
  */
+
+// The registry serves the test fixture, under the id the path's Part 1 stop
+// opens: the card counts the fixture's steps, never the real lesson's.
+vi.mock('@/curriculum/engine/musicLiteracy/registry', async () => {
+  const { LITERACY_FIXTURE, fixtureRegistry } = await import(
+    '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture'
+  );
+  return fixtureRegistry([
+    { ...LITERACY_FIXTURE, id: 'music-literacy-part-1' },
+  ]);
+});
 
 const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
 const tags = lesson.steps.map((s) => s.tag);

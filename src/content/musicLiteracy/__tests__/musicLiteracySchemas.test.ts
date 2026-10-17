@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { listMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
+import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import {
   musicLiteracyBodySchema,
   type LiteracyWords,
@@ -7,15 +7,17 @@ import {
 } from '../schemas';
 import { blankLiteracyLesson } from '../template';
 
-/** The Music Literacy body schema against every lesson file in the repo. */
+/**
+ * The Music Literacy body schema against every lesson file in the repo, as
+ * the console last saved them, and its rules against the test fixture.
+ */
 
 const files = import.meta.glob<MusicLiteracyLesson>(
   '../../../curriculum/data/musicLiteracy/*.json',
   { eager: true, import: 'default' },
 );
 
-const lesson = (): MusicLiteracyLesson =>
-  structuredClone(listMusicLiteracy()[0]);
+const lesson = (): MusicLiteracyLesson => structuredClone(LITERACY_FIXTURE);
 
 describe('the music_literacy schema', () => {
   it('holds every lesson file, named for its id', () => {
@@ -25,6 +27,10 @@ describe('the music_literacy schema', () => {
       expect(result.success, `${path}: ${String(result.error)}`).toBe(true);
       expect(path.endsWith(`/${body.id}.json`)).toBe(true);
     }
+  });
+
+  it('holds the test fixture the rules below are tried on', () => {
+    expect(musicLiteracyBodySchema.safeParse(lesson()).success).toBe(true);
   });
 
   it('refuses a step tag used twice', () => {

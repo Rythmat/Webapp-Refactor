@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { LITERACY_FIXTURE } from '../__fixtures__/literacyFixture';
 import {
   LITERACY_PASS_MARK,
   gradeResponse,
@@ -10,10 +11,9 @@ import {
   type PlayedNote,
 } from '../grading';
 import { stepNotes } from '../literacy';
-import { getLiveMusicLiteracy } from '../registry';
 import { runCues, type NoteCue, type RunGroove } from '../run';
 
-const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
+const lesson = LITERACY_FIXTURE;
 const step = (tag: string) => lesson.steps.find((s) => s.tag === tag)!;
 
 /** The step's answer, graded at 80 against the series mark. */

@@ -17,7 +17,7 @@ import {
 import type { ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
+import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import {
   runCues,
   type RunCue,
@@ -84,7 +84,7 @@ const { setDrumGrooveClick, setDrumGrooveId } = await import(
   '@/learn/audio/drumGrooveSettingsStore'
 );
 
-const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
+const lesson = LITERACY_FIXTURE;
 
 const LocationProbe = () => {
   const { pathname, search } = useLocation();
@@ -92,7 +92,7 @@ const LocationProbe = () => {
 };
 
 function renderPlayer(
-  url = '/curriculum/music-literacy/music-literacy-part-1',
+  url = '/curriculum/music-literacy/literacy-fixture-part-1',
 ) {
   return render(
     <MemoryRouter initialEntries={[url]}>
@@ -198,7 +198,9 @@ describe('a Music Literacy step', () => {
     expect(screen.getByText('Passed')).toBeTruthy();
     expect(
       JSON.parse(
-        localStorage.getItem('music_literacy_progress_music-literacy-part-1')!,
+        localStorage.getItem(
+          'music_literacy_progress_literacy-fixture-part-1',
+        )!,
       )['note-called-c'],
     ).toMatchObject({ best: 100, passed: true });
     expect(
@@ -277,12 +279,14 @@ describe('a Music Literacy step', () => {
 
   it('opens on the step `?step=` names (Start Here’s Continue)', () => {
     renderPlayer(
-      '/curriculum/music-literacy/music-literacy-part-1?step=add-the-3',
+      '/curriculum/music-literacy/literacy-fixture-part-1?step=add-the-3',
     );
     expect(title()).toBe('Add the 3: Major');
     cleanup();
     // A step it doesn't know: step 1.
-    renderPlayer('/curriculum/music-literacy/music-literacy-part-1?step=gone');
+    renderPlayer(
+      '/curriculum/music-literacy/literacy-fixture-part-1?step=gone',
+    );
     expect(title()).toBe('A note called C');
   });
 
@@ -320,7 +324,7 @@ describe('a Music Literacy step', () => {
     feedTo(9600, 'practice');
     expect(document.querySelector('[data-guitar-result]')).toBeNull();
     expect(
-      localStorage.getItem('music_literacy_progress_music-literacy-part-1'),
+      localStorage.getItem('music_literacy_progress_literacy-fixture-part-1'),
     ).toBeNull();
   });
 

@@ -3,6 +3,7 @@ import type {
   LiteracyNote,
   LiteracyWord,
 } from '@/content/musicLiteracy/schemas';
+import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { listMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
 import {
   barBeat,
@@ -47,6 +48,15 @@ const word = (
   degree: LiteracyNote['degree'] = '1',
 ): LiteracyWord => ({ tick, duration, degree, text });
 
+/**
+ * Every step the round trips run over: the fixture's, and every real
+ * lesson's as the owner has written it. A round trip holds for any content,
+ * so the real files catch editor bugs without pinning their words.
+ */
+const ALL_STEPS = [LITERACY_FIXTURE, ...listMusicLiteracy()].flatMap((lesson) =>
+  lesson.steps.map((step) => ({ ...step, tag: `${lesson.id}/${step.tag}` })),
+);
+
 describe('the words line', () => {
   it('splits typed text into syllables at spaces and hyphens', () => {
     expect(
@@ -85,15 +95,12 @@ describe('the words line', () => {
     expect(lineText(line)).toBe('That’s mu-si-cal gra-vi-ty');
   });
 
-  it('turns every seeded step’s words into a line and back, tick for tick', () => {
-    const lessons = listMusicLiteracy();
-    expect(lessons.length).toBeGreaterThan(0);
-    for (const lesson of lessons)
-      for (const step of lesson.steps)
-        expect(
-          wordsNotes(wordsLine(step.words.notes, step.words.pickup)),
-          step.tag,
-        ).toEqual(step.words.notes);
+  it('turns every step’s words into a line and back, tick for tick', () => {
+    for (const step of ALL_STEPS)
+      expect(
+        wordsNotes(wordsLine(step.words.notes, step.words.pickup)),
+        step.tag,
+      ).toEqual(step.words.notes);
   });
 
   it('keeps a rest before the first syllable, between two, and an octave', () => {
@@ -160,12 +167,13 @@ describe('the words line', () => {
 });
 
 describe('a figure’s chips', () => {
-  it('turns every seeded call into chips and back, tick for tick', () => {
-    for (const lesson of listMusicLiteracy())
-      for (const step of lesson.steps)
-        expect(figureNotes(figureChips(step.call.notes)), step.tag).toEqual(
-          step.call.notes,
-        );
+  it('turns every call and response into chips and back, tick for tick', () => {
+    for (const step of ALL_STEPS)
+      for (const figure of [step.call, step.response])
+        if (figure)
+          expect(figureNotes(figureChips(figure.notes)), step.tag).toEqual(
+            figure.notes,
+          );
   });
 
   it('makes a rest of every gap, and none after the last note', () => {

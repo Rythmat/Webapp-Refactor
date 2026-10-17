@@ -1,5 +1,4 @@
 import type { AllSlices } from '@/daw/store';
-import { isTrackLockedByRemote } from '@/daw/store/trackLock';
 import type { Track } from '@/daw/store/tracksSlice';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import type { CanvasMenuTarget } from './canvasMenuStore';
@@ -8,6 +7,7 @@ import {
   findClip,
   isDrumTrack,
   playheadInside,
+  trackHolder,
   type FoundClip,
 } from './clipActions';
 
@@ -74,15 +74,6 @@ type MenuState = Pick<
   | 'markers'
   | 'timelineGridSize'
 >;
-
-/** The collaborator holding the track, by name, or null. */
-function holderOf(state: MenuState, trackId: string): string | null {
-  if (!isTrackLockedByRemote(state.remoteUsers, trackId)) return null;
-  for (const user of state.remoteUsers.values()) {
-    if (user.selectedTrackId === trackId) return user.userName || 'Someone';
-  }
-  return 'Someone';
-}
 
 /** Why the clipboard's clip can't be pasted on `track`, or undefined. */
 function pasteBlocked(state: MenuState, track: Track): string | undefined {
@@ -204,7 +195,7 @@ function clipMenu(
 ): MenuModel {
   const found = findClip(state, target);
   if (!found) return [];
-  const holder = holderOf(state, target.trackId);
+  const holder = trackHolder(state, target.trackId);
   const locked = holder ? `${holder} is editing this track` : undefined;
   const clip = (found.midi ?? found.audio)!;
 
@@ -311,7 +302,7 @@ function laneMenu(
 ): MenuModel {
   const track = state.tracks.find((t) => t.id === target.trackId);
   if (!track) return [];
-  const holder = holderOf(state, track.id);
+  const holder = trackHolder(state, track.id);
   const locked = holder ? `${holder} is editing this track` : undefined;
   const make: MenuEntry[] = [
     {

@@ -30,6 +30,14 @@ describe('clipZoneAt', () => {
     expect(clipZoneAt(thin.x + thin.w - 2, middle, thin)).toBe('trim-right');
   });
 
+  it('leaves a clip narrower than the trim zone a body to grab', () => {
+    // 8 px: two-thirds of it moves the clip, the last third trims.
+    const tiny = { ...box, w: 8 };
+    expect(clipZoneAt(tiny.x + 2, middle, tiny)).toBe('body');
+    expect(clipZoneAt(tiny.x + 4, middle, tiny)).toBe('body');
+    expect(clipZoneAt(tiny.x + 7, middle, tiny)).toBe('trim-right');
+  });
+
   it('grabs an audio clip’s fade handles in its top corners', () => {
     const top = box.y + CLIP_HEADER_PX / 2;
     expect(clipZoneAt(box.x + 4, top, box, noFades)).toBe('fade-in');

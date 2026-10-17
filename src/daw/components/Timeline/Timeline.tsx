@@ -554,6 +554,9 @@ export function Timeline({ scrollRef }: TimelineProps) {
   const extendNoteMarquee = useCallback((x: number, y: number) => {
     const marquee = noteMarqueeRef.current;
     if (!marquee) return;
+    // The marquee is drawn in canvas px: a page turn under it would leave
+    // it over other notes.
+    pauseFollow();
     marquee.x1 = x;
     marquee.y1 = y;
     marqueeHitsRef.current = new Map(
@@ -2129,10 +2132,13 @@ export function Timeline({ scrollRef }: TimelineProps) {
       const state = useStore.getState();
       const currentZoom = state.timelineZoom;
       const currentScrollLeft = state.timelineScrollLeft;
-      const tick = snapTicks(
-        pixelToTick(x, currentZoom, currentScrollLeft),
-        timelineSnapGrid(state),
+      // Clips and lanes get the pointer's own tick, which each item snaps
+      // its own way; a marker goes on the grid.
+      const pointerTick = Math.max(
+        0,
+        Math.round(pixelToTick(x, currentZoom, currentScrollLeft)),
       );
+      const tick = snapTicks(pointerTick, timelineSnapGrid(state));
 
       let target: CanvasMenuTarget | null = null;
       if (y >= st && y < st + RULERS_HEIGHT) {
@@ -2148,7 +2154,12 @@ export function Timeline({ scrollRef }: TimelineProps) {
         const hit = hitTestClip(x, y);
         if (hit) {
           state.setSelectedClip(hit.clipId, hit.trackId);
-          target = { kind: 'clip', trackId: hit.trackId, clipId: hit.clipId };
+          target = {
+            kind: 'clip',
+            trackId: hit.trackId,
+            clipId: hit.clipId,
+            tick: pointerTick,
+          };
         } else {
           // The canvas is the lanes' full height, so a lane is found from
           // the canvas's top.
@@ -2156,7 +2167,9 @@ export function Timeline({ scrollRef }: TimelineProps) {
             state.tracks[
               rowIndexAt(rowLayoutOf(state.tracks), y - RULERS_HEIGHT)
             ];
-          if (track) target = { kind: 'lane', trackId: track.id, tick };
+          if (track) {
+            target = { kind: 'lane', trackId: track.id, tick: pointerTick };
+          }
         }
       }
       if (!target) return;
@@ -2379,6 +2392,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
       // Cursor hint — ruler area
       const st = getScrollTop();
       if (y >= st && y < st + RULERS_HEIGHT) {
+        setHoverClip(null);
         const localY = y - st;
         // Marker handles (flag + name label area)
         if (localY >= LOOP_STRIP_H && localY < LOOP_STRIP_H + 20) {

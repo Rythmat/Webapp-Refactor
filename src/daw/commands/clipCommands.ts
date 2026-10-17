@@ -10,7 +10,7 @@ import { openClipMenu } from '@/daw/shell/canvas/clipMenu/canvasMenuStore';
 import {
   copyClip,
   cutClip,
-  deleteClip,
+  deleteClipStep,
   duplicateClip,
   findClip,
   pasteClipboard,
@@ -48,7 +48,10 @@ function nudgeTicks(): number {
 
 /**
  * Whether a clip key acts on the timeline: in Create, with the timeline in
- * sight (a maximized dock covers it), and not from a field or a widget.
+ * sight (a maximized dock covers it), and not from a field, a widget or the
+ * track list. A key pressed on a row's button (M, S, a fader) is about that
+ * track: ⇧⌘↑ there must not move the selected clip, on another track, up
+ * an octave.
  */
 function onTimeline(e: KeyboardEvent): boolean {
   const { currentView, dockMaximized } = useStore.getState();
@@ -56,7 +59,24 @@ function onTimeline(e: KeyboardEvent): boolean {
     currentView === 'arrange' &&
     !dockMaximized &&
     !isFormControl(e.target) &&
-    !isInKeyWidget(e.target)
+    !isInKeyWidget(e.target) &&
+    !(
+      e.target instanceof Element &&
+      e.target.closest('[data-testid="track-list"]')
+    )
+  );
+}
+
+/**
+ * The menu key (Windows) also opens the browser's own context menu, on its
+ * release: swallow that one, so ours stays on top.
+ */
+function swallowNativeMenu(): void {
+  const stop = (event: Event) => event.preventDefault();
+  window.addEventListener('contextmenu', stop, { capture: true, once: true });
+  window.setTimeout(
+    () => window.removeEventListener('contextmenu', stop, { capture: true }),
+    1000,
   );
 }
 
@@ -70,12 +90,12 @@ function selected(): ClipRef | null {
 }
 
 /** A handler acting on the selected clip; without one the key goes on. */
-function withClip(act: (ref: ClipRef) => boolean | void) {
+function withClip(act: (ref: ClipRef, e: KeyboardEvent) => boolean | void) {
   return (e: KeyboardEvent) => {
     if (!onTimeline(e)) return false;
     const ref = selected();
     if (!ref) return false;
-    return act(ref) !== false;
+    return act(ref, e) !== false;
   };
 }
 
@@ -124,15 +144,16 @@ export function useArrangeKeymap(): void {
     'clip.copy': withClip(copyClip),
     'clip.paste': (e) => onTimeline(e) && pasteClipboard(),
     'clip.duplicate': withClip(duplicateClip),
-    'clip.delete': withClip((ref) =>
-      withTransaction('Delete clip', () => deleteClip(ref)),
-    ),
+    'clip.delete': withClip(deleteClipStep),
     'clip.rename': withClip((ref) => {
       void renameClip(ref);
     }),
     'clip.split': withClip(splitClipAtPlayhead),
     'clip.mute': withClip(toggleClipMute),
-    'clip.menu': withClip((ref) => openClipMenu(ref, 'key')),
+    'clip.menu': withClip((ref, e) => {
+      if (e.code === 'ContextMenu') swallowNativeMenu();
+      return openClipMenu(ref, 'key');
+    }),
     // Taken even when the notes can't move (drums, the keyboard's end), so
     // ⇧↑ never scrolls the page instead.
     'clip.transposeUp': withClip((ref) => {

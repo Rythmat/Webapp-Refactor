@@ -102,7 +102,10 @@ export function clipZoneAt(
     if (nearIn) return 'fade-in';
     if (nearOut) return 'fade-out';
   }
-  if (px >= box.x + box.w - TRIM_ZONE_PX) return 'trim-right';
+  // A narrow clip keeps a body to grab: the right zone is at most a third
+  // of it (the left one only shows on a clip three zones wide).
+  const right = Math.min(TRIM_ZONE_PX, box.w / 3);
+  if (px >= box.x + box.w - right) return 'trim-right';
   if (box.w > LEFT_TRIM_MIN_W && px <= box.x + TRIM_ZONE_PX) {
     return 'trim-left';
   }

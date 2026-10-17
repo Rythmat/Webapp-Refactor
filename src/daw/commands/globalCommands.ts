@@ -66,6 +66,7 @@ export const GLOBAL_HANDLERS: KeymapHandlers = {
   'help.shortcuts': () => useShortcutSheetStore.getState().open(),
   'browser.selectAll': () => true,
   'browser.bookmark': () => true,
+  'browser.search': () => true,
 };
 
 const globalHandlers = { current: GLOBAL_HANDLERS };

@@ -222,6 +222,18 @@ describe('a right-click', () => {
   });
 });
 
+describe('the timeline going', () => {
+  it('closes its menu, which doesn’t open again with it', async () => {
+    const view = render(<ScrolledTimeline />);
+    fireEvent.contextMenu(canvas(), { clientX: clipMidX, clientY: laneY });
+    expect(await screen.findByRole('menu', { name: 'Clip menu' })).toBeTruthy();
+    view.unmount();
+    expect(useCanvasMenuStore.getState().request).toBeNull();
+    render(<ScrolledTimeline />);
+    expect(screen.queryByRole('menu')).toBeNull();
+  });
+});
+
 describe('the Edit pill', () => {
   it('shows on the selected clip, 24 px high, and opens its menu', async () => {
     render(<ScrolledTimeline />);
@@ -283,6 +295,82 @@ describe('keys', () => {
     expect(getCommand('project.exportMidi')?.keys).toEqual(['Mod+Shift+KeyE']);
     expect(getCommand('transport.metronome')?.keys).toEqual(['KeyM']);
     expect(getCommand('clip.mute')?.keys).toEqual(['Shift+KeyM']);
+    // N first, the one a Chromebook has: the menu shows the first key.
+    expect(getCommand('clip.rename')?.keys).toEqual(['KeyN', 'F2']);
+    // ⌘E anywhere else is kept from the browser (its address bar).
+    expect(getCommand('browser.search')).toMatchObject({
+      scope: 'global',
+      keys: ['Mod+KeyE'],
+      hidden: true,
+    });
+  });
+
+  it('with the menu key, keep the browser’s own menu from following ours', async () => {
+    render(<ScrolledTimeline />);
+    act(() => s().setSelectedClip('keys-1', keys));
+    press({ code: 'ContextMenu', key: 'ContextMenu' });
+    expect(await screen.findByRole('menu', { name: 'Clip menu' })).toBeTruthy();
+    // The key's release brings the browser's menu: that one is swallowed.
+    const native = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+    });
+    document.body.dispatchEvent(native);
+    expect(native.defaultPrevented).toBe(true);
+    // Only that one.
+    const next = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+    });
+    document.body.dispatchEvent(next);
+    expect(next.defaultPrevented).toBe(false);
+  });
+
+  it('ignore a held Return’s repeats in the menu a key opened', async () => {
+    render(<ScrolledTimeline />);
+    act(() => s().setSelectedClip('keys-1', keys));
+    press({ code: 'Enter', key: 'Enter', altKey: true });
+    const cut = await screen.findByRole('menuitem', { name: /^Cut/ });
+    const repeat = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      code: 'Enter',
+      key: 'Enter',
+      repeat: true,
+    });
+    act(() => {
+      cut.dispatchEvent(repeat);
+    });
+    expect(repeat.defaultPrevented).toBe(true);
+    expect(s().tracks[0].midiClips).toHaveLength(1);
+    expect(screen.getByRole('menu', { name: 'Clip menu' })).toBeTruthy();
+  });
+
+  it('leave the selected clip alone when pressed in the track list', () => {
+    render(<ScrolledTimeline />);
+    act(() => s().setSelectedClip('keys-1', keys));
+    // A row's button: ⇧M there is about that track, not the clip.
+    const list = document.createElement('div');
+    list.setAttribute('data-testid', 'track-list');
+    const button = document.createElement('button');
+    list.append(button);
+    document.body.append(list);
+    try {
+      act(() => {
+        button.dispatchEvent(
+          new KeyboardEvent('keydown', {
+            bubbles: true,
+            cancelable: true,
+            code: 'KeyM',
+            key: 'M',
+            shiftKey: true,
+          }),
+        );
+      });
+      expect(s().tracks[0].midiClips[0].muted).toBeUndefined();
+    } finally {
+      list.remove();
+    }
   });
 });
 

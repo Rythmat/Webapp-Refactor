@@ -556,6 +556,17 @@ describe('the dispatcher: keys stay where the student is working', () => {
     expect(inScore.defaultPrevented).toBe(true);
   });
 
+  it('never lets ⌘E send focus to the address bar where it splits nothing (2.12)', () => {
+    // ⌘E splits the selected clip in Create; in the Score it does nothing.
+    reset('score');
+    renderEditor();
+    let inScore!: KeyboardEvent;
+    expectNoStoreChange(() => {
+      inScore = press('KeyE', { metaKey: true }, document.body);
+    });
+    expect(inScore.defaultPrevented).toBe(true);
+  });
+
   it('lets a view take a key before the global scope (the Score walks chords on Space)', () => {
     reset('score');
     const walk = vi.fn(() => true);

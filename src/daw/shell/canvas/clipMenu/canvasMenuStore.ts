@@ -10,7 +10,11 @@ import { getPlayheadTick } from '@/daw/engine/playheadClock';
 // nothing a project holds, saves or undoes.
 
 export type CanvasMenuTarget =
-  | { kind: 'clip'; trackId: string; clipId: string }
+  /** `tick`: where a right-click landed in the clip (Suggest chords there);
+   *  the pill and the keys open the menu without one. */
+  | { kind: 'clip'; trackId: string; clipId: string; tick?: number }
+  /** `tick`: the pointer's, unsnapped: each item snaps it its own way (a
+   *  new clip from the grid line before it, a paste to the nearest). */
   | { kind: 'lane'; trackId: string; tick: number }
   | { kind: 'marker'; markerId: string; tick: number }
   | { kind: 'ruler'; tick: number };

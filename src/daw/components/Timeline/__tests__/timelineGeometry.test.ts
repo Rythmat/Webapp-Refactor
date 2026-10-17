@@ -56,6 +56,16 @@ describe('sameTimelineGeometry', () => {
       audioClips: t.audioClips.map((c) => ({ ...c, name: 'Take 2' })),
     }));
     expect(sameTimelineGeometry(before, named)).toBe(false);
+    const audioMuted = before.map((t) => ({
+      ...t,
+      audioClips: t.audioClips.map((c) => ({ ...c, muted: true })),
+    }));
+    expect(sameTimelineGeometry(before, audioMuted)).toBe(false);
+    const midiNamed = before.map((t) => ({
+      ...t,
+      midiClips: t.midiClips.map((c) => ({ ...c, name: 'Riff' })),
+    }));
+    expect(sameTimelineGeometry(before, midiNamed)).toBe(false);
   });
 
   it('treats rebuilt but equal clips as the same (a collab rebuild)', () => {

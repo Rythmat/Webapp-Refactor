@@ -264,6 +264,24 @@ export function CanvasMenu() {
   useEffect(() => {
     if (gone) close();
   }, [gone, close]);
+  // So does the timeline going (another view, a lesson's step): the request
+  // lives in its own store and would open again with the timeline.
+  useEffect(() => () => useCanvasMenuStore.getState().close(), []);
+
+  // The key that opened it may be held: its repeats must not choose the
+  // item focus lands on (Alt+Return held would cut the clip). Arrow repeats
+  // still move through the items.
+  useEffect(() => {
+    if (request?.source !== 'key') return;
+    const swallow = (e: KeyboardEvent) => {
+      if (!e.repeat || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    window.addEventListener('keydown', swallow, { capture: true });
+    return () =>
+      window.removeEventListener('keydown', swallow, { capture: true });
+  }, [request]);
 
   // Opened from a key, focus goes straight onto the first item, as for a
   // menu opened from its button with the keyboard (Radix has focused the

@@ -9,12 +9,20 @@ const h = vi.hoisted(() => ({
   playhead: 0,
   prompt: null as string | null,
   shared: [] as Array<[string, string]>,
+  toasts: [] as Array<{ title?: string; description?: string }>,
 }));
 vi.mock('@/daw/engine/playheadClock', () => ({
   getPlayheadTick: () => h.playhead,
 }));
 vi.mock('@/daw/ui/DialogHost', () => ({
   promptDialog: () => Promise.resolve(h.prompt),
+}));
+vi.mock('@/hooks/use-toast', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  toast: (t: { title?: string; description?: string }) => {
+    h.toasts.push(t);
+    return { id: '', dismiss() {}, update() {} };
+  },
 }));
 vi.mock('@/daw/audio/AudioBufferStore', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
@@ -24,6 +32,8 @@ vi.mock('@/daw/audio/AudioBufferStore', async (importOriginal) => ({
   },
 }));
 
+import type { UserPresence } from '@/daw/collab/types';
+import { noteKey } from '@/daw/model/noteKeys';
 import { useStore } from '@/daw/store';
 import {
   historyLabels,
@@ -36,6 +46,7 @@ import {
   copyClip,
   createClipAt,
   cutClip,
+  deleteClipStep,
   duplicateClip,
   pasteClipboard,
   quantizeClip,
@@ -72,6 +83,7 @@ beforeEach(() => {
   h.playhead = 0;
   h.prompt = null;
   h.shared = [];
+  h.toasts = [];
   keys = s().addTrack('midi', 'piano-sampler', 'Keys');
   drums = s().addTrack('midi', 'drum-machine', 'Beat');
   vocal = s().addTrack('audio', 'vocal-fx', 'Vocal');
@@ -164,6 +176,113 @@ describe('Quantize', () => {
     for (const e of clip.events) {
       expect((clip.startTick + e.startTick) % 480).toBe(0);
     }
+  });
+});
+
+describe('the Score’s marks follow the notes', () => {
+  const key = (startTick: number, midi: number) =>
+    noteKey(keys, 'keys-1', startTick, midi);
+  const marks = () => ({
+    articulations: s().scoreArticulations,
+    slurs: s().scoreSlurs,
+    spellings: s().scoreSpellings,
+    slashNotes: s().scoreSlashNotes,
+  });
+  beforeEach(() => {
+    stopHistory();
+    useStore.setState({
+      scoreArticulations: [`${key(0, 60)}|staccato`],
+      scoreSlurs: [`${key(0, 60)}|${key(250, 64)}`],
+      scoreSpellings: [`${key(470, 67)}|G4`],
+      scoreSlashNotes: [key(470, 67)],
+    });
+    resetHistory();
+    stopHistory = startHistory();
+  });
+
+  it('through a transpose, in the same undo step', () => {
+    const before = marks();
+    transposeClip(KEYS(), 12);
+    expect(marks()).toEqual({
+      articulations: [`${key(0, 72)}|staccato`],
+      slurs: [`${key(0, 72)}|${key(250, 76)}`],
+      // A pinned spelling follows a note an octave away, re-octaved.
+      spellings: [`${key(470, 79)}|G5`],
+      slashNotes: [key(470, 79)],
+    });
+    expect(historyLabels()).toEqual(['Transpose clip']);
+    undo();
+    expect(marks()).toEqual(before);
+  });
+
+  it('through a quantize', () => {
+    // Song ticks 2040, 2290 and 2510 on a 1/8 grid: 2160, 2400 and 2400,
+    // so clip ticks 120, 360 and 360.
+    quantizeClip(KEYS(), '1/8');
+    expect(marks()).toMatchObject({
+      articulations: [`${noteKey(keys, 'keys-1', 120, 60)}|staccato`],
+      slurs: [
+        `${noteKey(keys, 'keys-1', 120, 60)}|${noteKey(keys, 'keys-1', 360, 64)}`,
+      ],
+      slashNotes: [noteKey(keys, 'keys-1', 360, 67)],
+    });
+    expect(historyLabels()).toEqual(['Quantize clip']);
+  });
+});
+
+describe('a track a collaborator holds', () => {
+  beforeEach(() => {
+    useStore.setState({
+      remoteUsers: new Map([
+        [
+          7,
+          {
+            userId: 'sam',
+            userName: 'Sam',
+            selectedTrackId: keys,
+          } as unknown as UserPresence,
+        ],
+      ]),
+    });
+  });
+
+  it('refuses every change, saying who holds it, and changes nothing', async () => {
+    const before = keysClip();
+    h.playhead = 2400;
+    h.prompt = 'Renamed';
+    expect(cutClip(KEYS())).toBe(true);
+    expect(deleteClipStep(KEYS())).toBe(true);
+    expect(duplicateClip(KEYS())).toBe(true);
+    expect(splitClipAtPlayhead(KEYS())).toBe(true);
+    expect(toggleClipMute(KEYS())).toBe(true);
+    expect(quantizeClip(KEYS(), '1/8')).toBe(true);
+    expect(transposeClip(KEYS(), 2)).toBe(false);
+    await renameClip(KEYS());
+
+    expect(s().tracks[0].midiClips).toEqual([before]);
+    // A refused cut leaves the clipboard as it was.
+    expect(s().clipboardClips).toEqual([]);
+    expect(historyLabels()).toEqual([]);
+    expect(h.toasts).toHaveLength(8);
+    for (const toast of h.toasts) {
+      expect(toast).toMatchObject({
+        title: 'Track locked',
+        description: 'Sam is editing this track',
+      });
+    }
+  });
+
+  it('pastes nothing onto it and draws no clip on it', () => {
+    copyClip(KEYS());
+    expect(pasteClipboard({ trackId: keys, tick: 0 })).toBe(true);
+    expect(createClipAt(keys, 0)).toBeNull();
+    expect(s().tracks[0].midiClips).toHaveLength(1);
+  });
+
+  it('leaves the other tracks free', () => {
+    expect(toggleClipMute(TAKE())).toBe(true);
+    expect(take()!.muted).toBe(true);
+    expect(h.toasts).toEqual([]);
   });
 });
 
@@ -281,6 +400,10 @@ describe('Prism', () => {
     expect(open).toHaveBeenLastCalledWith(3840, keys);
     runCanvasMenuItem({ kind: 'clip', ...KEYS() }, 'prism:suggest');
     expect(open).toHaveBeenLastCalledWith(1920, keys);
+    // A clip right-clicked further in suggests from the bar under the
+    // pointer.
+    runCanvasMenuItem({ kind: 'clip', ...KEYS(), tick: 4000 }, 'prism:suggest');
+    expect(open).toHaveBeenLastCalledWith(3840, keys);
   });
 
   it('opens Prism in the dock for the clip’s track', () => {
@@ -298,5 +421,21 @@ describe('an empty lane', () => {
     expect(s().selectedClipId).toBe(id);
     expect(s().channelStripTab).toBe('piano-roll');
     expect(createClipAt(vocal, 0)).toBeNull();
+  });
+
+  it('from the lane menu, starts at the grid line before the click', () => {
+    useStore.setState({ timelineGridSize: '1/4' });
+    // 1300 is nearer 1440, but a drawn clip starts at the line before it.
+    runCanvasMenuItem(
+      { kind: 'lane', trackId: keys, tick: 1300 },
+      'createClip',
+    );
+    expect(s().tracks[0].midiClips.map((c) => c.startTick)).toEqual([
+      2040, 960,
+    ]);
+    // Paste here goes to the nearest line, as a drop does.
+    copyClip(KEYS());
+    runCanvasMenuItem({ kind: 'lane', trackId: keys, tick: 1300 }, 'paste');
+    expect(s().tracks[0].midiClips.at(-1)!.startTick).toBe(1440);
   });
 });

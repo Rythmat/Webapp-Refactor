@@ -3,9 +3,13 @@ import { midiClipLength } from '@/daw/components/Timeline/midiClipCuts';
 import { splitAudioClipAt } from '@/daw/components/Timeline/splitAudioClipAt';
 import { splitMidiClipAt } from '@/daw/components/Timeline/splitMidiClipAt';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
+import { followNoteEdit } from '@/daw/model/noteMarks';
+import { noteKey } from '@/daw/model/noteKeys';
 import { useStore, type AllSlices } from '@/daw/store';
 import { withTransaction } from '@/daw/store/history';
+import { isTrackLockedByRemote } from '@/daw/store/trackLock';
 import type { AudioClip, MidiClip, Track } from '@/daw/store/tracksSlice';
+import type { MidiNoteEvent } from '@prism/engine';
 import {
   barStartTick,
   gridStepTicks,
@@ -24,9 +28,10 @@ import { toast } from '@/hooks/use-toast';
 // Every action of the one clip menu, on a clip named by its track and id:
 // the right-click menu, the Edit pill and the timeline's keys all come here
 // (the keys act on the selected clip, clipCommands.ts). Each change is one
-// undo step with a label that says what it did. A track a collaborator holds
-// refuses the write in the store (guardTrack), so nothing here checks it
-// again; the menu shows those items off.
+// undo step with a label that says what it did. On a track a collaborator
+// holds the store would refuse the write anyway (guardTrack); an action
+// says so instead of doing half of it (a cut that copied but kept the
+// clip), and the menu shows those items off.
 
 export interface ClipRef {
   trackId: string;
@@ -83,6 +88,37 @@ export function clipTitle(found: FoundClip): string {
 const newClipId = (prefix: string) =>
   `clip-${prefix}-${crypto.randomUUID().slice(0, 8)}`;
 
+/** The collaborator holding `trackId`, by name, or null while it is free. */
+export function trackHolder(
+  state: Pick<AllSlices, 'remoteUsers'>,
+  trackId: string,
+): string | null {
+  if (!isTrackLockedByRemote(state.remoteUsers, trackId)) return null;
+  for (const user of state.remoteUsers.values()) {
+    if (user.selectedTrackId === trackId) return user.userName || 'Someone';
+  }
+  return 'Someone';
+}
+
+/**
+ * True, having said why, when a collaborator holds the track: the action
+ * changes nothing then. A key that lands here is still taken.
+ */
+function refusedByLock(trackId: string): boolean {
+  const holder = trackHolder(useStore.getState(), trackId);
+  if (holder === null) return false;
+  toast({
+    title: 'Track locked',
+    description: `${holder} is editing this track`,
+    variant: 'destructive',
+  });
+  return true;
+}
+
+/** Whether clip `clipId` is on `trackId` now (a refused add isn't). */
+const landed = (trackId: string, clipId: string) =>
+  findClip(useStore.getState(), { trackId, clipId }) !== null;
+
 // ── Clipboard ──────────────────────────────────────────────────────────────
 
 export function copyClip(ref: ClipRef): boolean {
@@ -117,9 +153,18 @@ export function deleteClip(ref: ClipRef): boolean {
 }
 
 export function cutClip(ref: ClipRef): boolean {
-  if (!copyClip(ref)) return false;
+  if (!findClip(useStore.getState(), ref)) return false;
+  if (refusedByLock(ref.trackId)) return true;
+  copyClip(ref);
   withTransaction('Cut clip', () => deleteClip(ref));
   return true;
+}
+
+/** Deletes the clip as one undo step ('Delete clip'). */
+export function deleteClipStep(ref: ClipRef): boolean {
+  if (!findClip(useStore.getState(), ref)) return false;
+  if (refusedByLock(ref.trackId)) return true;
+  return withTransaction('Delete clip', () => deleteClip(ref));
 }
 
 /** Says so when a clip can't go on the track it was pasted to. */
@@ -156,6 +201,7 @@ export function pasteClipboard(
     at.trackId ?? (state.selectedClipTrackId || state.tracks[0]?.id);
   const target = state.tracks.find((t) => t.id === targetTrackId);
   if (!target) return true;
+  if (refusedByLock(target.id)) return true;
   withTransaction('Paste clip', () => {
     if (clipboardAudioClip) {
       if (target.type !== 'audio') {
@@ -169,7 +215,7 @@ export function pasteClipboard(
         id,
         startTick: position,
       });
-      state.setSelectedClip(id, target.id);
+      if (landed(target.id, id)) state.setSelectedClip(id, target.id);
       return;
     }
     if (target.type !== 'midi') {
@@ -183,7 +229,7 @@ export function pasteClipboard(
         id,
         startTick: position,
       });
-      state.setSelectedClip(id, target.id);
+      if (landed(target.id, id)) state.setSelectedClip(id, target.id);
     }
   });
   return true;
@@ -193,6 +239,7 @@ export function duplicateClip(ref: ClipRef): boolean {
   const state = useStore.getState();
   const found = findClip(state, ref);
   if (!found) return false;
+  if (refusedByLock(ref.trackId)) return true;
   const id = newClipId('dup');
   withTransaction('Duplicate clip', () => {
     if (found.midi) {
@@ -211,7 +258,7 @@ export function duplicateClip(ref: ClipRef): boolean {
         startTick: found.audio.startTick + found.audio.duration,
       });
     }
-    state.setSelectedClip(id, ref.trackId);
+    if (landed(ref.trackId, id)) state.setSelectedClip(id, ref.trackId);
   });
   return true;
 }
@@ -232,7 +279,7 @@ function updateClip(
 /** Asks for a new name; a blank one gives the clip its track's name again. */
 export async function renameClip(ref: ClipRef): Promise<void> {
   const found = findClip(useStore.getState(), ref);
-  if (!found) return;
+  if (!found || refusedByLock(ref.trackId)) return;
   const name = await promptDialog({
     title: 'Rename clip',
     label: 'Clip name',
@@ -242,7 +289,7 @@ export async function renameClip(ref: ClipRef): Promise<void> {
   if (name === null) return;
   // The clip may have gone while the dialog was open.
   const now = findClip(useStore.getState(), ref);
-  if (!now) return;
+  if (!now || refusedByLock(ref.trackId)) return;
   const trimmed = name.trim();
   const next = trimmed && trimmed !== now.track.name ? trimmed : undefined;
   if (next === (now.midi ?? now.audio)?.name) return;
@@ -262,6 +309,7 @@ export function playheadInside(found: FoundClip, tick: number): boolean {
 export function splitClipAtPlayhead(ref: ClipRef): boolean {
   const found = findClip(useStore.getState(), ref);
   if (!found) return false;
+  if (refusedByLock(ref.trackId)) return true;
   const tick = Math.round(getPlayheadTick());
   if (!playheadInside(found, tick)) {
     toast({
@@ -286,11 +334,59 @@ export function splitClipAtPlayhead(ref: ClipRef): boolean {
 export function toggleClipMute(ref: ClipRef): boolean {
   const found = findClip(useStore.getState(), ref);
   if (!found) return false;
+  if (refusedByLock(ref.trackId)) return true;
   const muted = !(found.midi ?? found.audio)?.muted;
   withTransaction(muted ? 'Mute clip' : 'Unmute clip', () =>
     updateClip(found, { muted: muted || undefined }),
   );
   return true;
+}
+
+/**
+ * Writes a clip's notes moved one for one (`next[i]` is `before[i]` moved),
+ * as one undo step: the Score's marks on them (articulations, slurs, pinned
+ * spellings, slash notes) follow, keyed as they are by where each note sits,
+ * or they would point at nothing and the next save would drop them.
+ */
+function moveClipNotes(
+  ref: ClipRef,
+  before: readonly MidiNoteEvent[],
+  next: MidiNoteEvent[],
+  label: string,
+): void {
+  const renamed = new Map<string, string>();
+  before.forEach((event, i) => {
+    const from = noteKey(ref.trackId, ref.clipId, event.startTick, event.note);
+    const to = noteKey(
+      ref.trackId,
+      ref.clipId,
+      next[i].startTick,
+      next[i].note,
+    );
+    if (from !== to) renamed.set(from, to);
+  });
+  withTransaction(label, () => {
+    const state = useStore.getState();
+    state.updateMidiClipEvents(ref.trackId, ref.clipId, next);
+    if (renamed.size === 0) return;
+    const marks = {
+      articulations: state.scoreArticulations,
+      slurs: state.scoreSlurs,
+      spellings: state.scoreSpellings,
+      slashNotes: state.scoreSlashNotes,
+    };
+    const moved = followNoteEdit(marks, { renamed, removed: new Set() });
+    if (moved.articulations !== marks.articulations) {
+      state.setScoreArticulations(moved.articulations);
+    }
+    if (moved.slurs !== marks.slurs) state.setScoreSlurs(moved.slurs);
+    if (moved.spellings !== marks.spellings) {
+      state.setScoreSpellings(moved.spellings);
+    }
+    if (moved.slashNotes !== marks.slashNotes) {
+      state.setScoreSlashNotes(moved.slashNotes);
+    }
+  });
 }
 
 /**
@@ -303,6 +399,7 @@ export function transposeClip(ref: ClipRef, semitones: number): boolean {
   if (!found?.midi || semitones === 0 || isDrumTrack(found.track)) {
     return false;
   }
+  if (refusedByLock(ref.trackId)) return false;
   const { events } = found.midi;
   if (events.length === 0) return false;
   const notes = events.map((e) => e.note);
@@ -315,12 +412,11 @@ export function transposeClip(ref: ClipRef, semitones: number): boolean {
     });
     return false;
   }
-  withTransaction('Transpose clip', () =>
-    useStore.getState().updateMidiClipEvents(
-      ref.trackId,
-      ref.clipId,
-      events.map((e) => ({ ...e, note: e.note + semitones })),
-    ),
+  moveClipNotes(
+    ref,
+    events,
+    events.map((e) => ({ ...e, note: e.note + semitones })),
+    'Transpose clip',
   );
   return true;
 }
@@ -344,6 +440,7 @@ export function quantizeClip(ref: ClipRef, grid: AllGridSize): boolean {
   const state = useStore.getState();
   const found = findClip(state, ref);
   if (!found?.midi || found.midi.events.length === 0) return false;
+  if (refusedByLock(ref.trackId)) return true;
   const ts = timeSignatureOf(state);
   const step = gridStepTicks(grid, ts);
   const snapped = quantizeEvents(
@@ -351,9 +448,7 @@ export function quantizeClip(ref: ClipRef, grid: AllGridSize): boolean {
     (tick) => snapTicks(tick, { enabled: true, step, ts }),
     found.midi.startTick,
   );
-  withTransaction('Quantize clip', () =>
-    state.updateMidiClipEvents(ref.trackId, ref.clipId, snapped),
-  );
+  moveClipNotes(ref, found.midi.events, snapped, 'Quantize clip');
   return true;
 }
 
@@ -371,6 +466,7 @@ export function setClipFade(
 ): boolean {
   const found = findClip(useStore.getState(), ref);
   if (!found?.audio) return false;
+  if (refusedByLock(ref.trackId)) return true;
   const other =
     edge === 'in' ? found.audio.fadeOutTicks : found.audio.fadeInTicks;
   const room = Math.max(0, found.audio.duration - other);
@@ -403,6 +499,7 @@ export function createClipAt(trackId: string, tick: number): string | null {
   const state = useStore.getState();
   const track = state.tracks.find((t) => t.id === trackId);
   if (!track || track.type !== 'midi') return null;
+  if (refusedByLock(trackId)) return null;
   const grid = timelineSnapGrid(state);
   const barStart = barStartTick(tick, grid.ts);
   const startTick = grid.enabled

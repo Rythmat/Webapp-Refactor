@@ -371,11 +371,12 @@ defineCommand({
   label: 'Delete the selected clip',
   keys: ['Delete', 'Backspace'],
 });
+// N first: it is the one a Chromebook has, and the menu shows the first.
 defineCommand({
   id: 'clip.rename',
   scope: 'arrange',
   label: 'Rename the selected clip',
-  keys: ['F2', 'KeyN'],
+  keys: ['KeyN', 'F2'],
 });
 defineCommand({
   id: 'clip.split',
@@ -819,5 +820,14 @@ defineCommand({
   scope: 'global',
   label: 'Bookmark (kept from the browser)',
   keys: ['Mod+KeyD'],
+  hidden: true,
+});
+// ⌘E splits a clip in Create (2.12); anywhere else (no clip selected, the
+// Score, the dock) it would send focus to Chrome's address bar.
+defineCommand({
+  id: 'browser.search',
+  scope: 'global',
+  label: 'Search the web (kept from the browser)',
+  keys: ['Mod+KeyE'],
   hidden: true,
 });

@@ -1,5 +1,5 @@
 import { useStore } from '@/daw/store';
-import { withTransaction } from '@/daw/store/history';
+import { snapTicks, timelineSnapGrid } from '@/daw/time/timeModel';
 import { promptDialog } from '@/daw/ui/DialogHost';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import type { CanvasMenuTarget } from './canvasMenuStore';
@@ -7,7 +7,7 @@ import {
   copyClip,
   createClipAt,
   cutClip,
-  deleteClip,
+  deleteClipStep,
   duplicateClip,
   findClip,
   openPrismFor,
@@ -71,7 +71,10 @@ export function runCanvasMenuItem(
   }
   if (target.kind === 'lane') {
     if (id === 'paste') {
-      return pasteClipboard({ trackId: target.trackId, tick: target.tick });
+      return pasteClipboard({
+        trackId: target.trackId,
+        tick: snapTicks(target.tick, timelineSnapGrid(useStore.getState())),
+      });
     }
     if (id === 'createClip') {
       return createClipAt(target.trackId, target.tick) !== null;
@@ -93,7 +96,7 @@ export function runCanvasMenuItem(
     case 'paste':
       return pasteClipboard({ trackId: ref.trackId });
     case 'delete':
-      return withTransaction('Delete clip', () => deleteClip(ref));
+      return deleteClipStep(ref);
     case 'duplicate':
       return duplicateClip(ref);
     case 'rename':
@@ -122,9 +125,10 @@ export function runCanvasMenuItem(
         return true;
       }
       if (arg !== 'suggest') return false;
+      // Where the clip was right-clicked, else where it starts.
       const found = findClip(useStore.getState(), ref);
       suggestChordsAt(
-        (found?.midi ?? found?.audio)?.startTick ?? 0,
+        target.tick ?? (found?.midi ?? found?.audio)?.startTick ?? 0,
         ref.trackId,
       );
       return true;

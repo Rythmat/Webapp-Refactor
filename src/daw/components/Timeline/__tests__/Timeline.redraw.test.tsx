@@ -177,13 +177,13 @@ describe('timeline redraws', () => {
     act(() => runFrames());
     expect(draws()).toBe(drawn + 1);
 
-    // A clip's own name and its mute are drawn too.
-    act(() => {
-      s().updateAudioClip(trackId, 'clip', { name: 'Take 2' });
-      s().updateAudioClip(trackId, 'clip', { muted: true });
-    });
+    // A clip's own name and its mute are drawn too, each on its own.
+    act(() => s().updateAudioClip(trackId, 'clip', { name: 'Take 2' }));
     act(() => runFrames());
     expect(draws()).toBe(drawn + 2);
+    act(() => s().updateAudioClip(trackId, 'clip', { muted: true }));
+    act(() => runFrames());
+    expect(draws()).toBe(drawn + 3);
   });
 
   it('draws the changes made in one frame once, on that frame', () => {

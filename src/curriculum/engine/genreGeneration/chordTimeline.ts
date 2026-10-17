@@ -23,6 +23,8 @@ export interface TimedChord extends ChordSymbolTones {
 
 type Chord = ChordSymbolTones & { symbol: string };
 type Hit = { tick: number; pcs: Set<number>; bassPc: number | null };
+/** What the timeline reads of a target note. */
+type TargetNote = Pick<GenreNoteEvent, 'onset' | 'midi'>;
 
 const BAR_TICKS = 1920;
 /** Share of a target chord's pitch classes a symbol must contain to count as it. */
@@ -50,9 +52,15 @@ const pitchClass = (midi: number) => ((midi % 12) + 12) % 12;
 
 /**
  * Onsets where the targets strike two or more pitch classes, in order, repeats
- * dropped. When the part has a bass voice, only strikes over a bass note count.
+ * dropped. When the part has a bass voice, only strikes over a bass note count
+ * — unless `everyStrike`: a right hand can change chord between bass notes
+ * (Asus2 → Am on beat 3), or play its first chord over a bass too close to
+ * count as one (B♭/D: D3 under B♭3).
  */
-function targetChordHits(notes: readonly GenreNoteEvent[]): Hit[] {
+function targetChordHits(
+  notes: readonly TargetNote[],
+  everyStrike = false,
+): Hit[] {
   const byOnset = new Map<number, number[]>();
   for (const note of notes) {
     byOnset.set(note.onset, [...(byOnset.get(note.onset) ?? []), note.midi]);
@@ -65,7 +73,7 @@ function targetChordHits(notes: readonly GenreNoteEvent[]): Hit[] {
     const bassPc = above - lowest >= BASS_GAP ? pitchClass(lowest) : null;
     strikes.push({ tick, pcs, bassPc });
   }
-  const withBass = strikes.some((hit) => hit.bassPc !== null);
+  const withBass = !everyStrike && strikes.some((hit) => hit.bassPc !== null);
   const hits: Hit[] = [];
   for (const hit of withBass
     ? strikes.filter((s) => s.bassPc !== null)
@@ -82,24 +90,33 @@ function targetChordHits(notes: readonly GenreNoteEvent[]): Hit[] {
   return hits;
 }
 
-/** Which symbol each hit plays: the current chord, the next one in order, or the best match. */
+/**
+ * How well a chord names a hit: 0 when it doesn't match; otherwise its fit,
+ * plus a bonus when the hit's bass note is the chord's bass.
+ */
+function hitScore(hit: Hit, chord: Chord | null): number {
+  if (!chord) return 0;
+  const fit = chordFit(hit.pcs, chord);
+  const bassMatch = hit.bassPc !== null && hit.bassPc === chord.bassPc;
+  if (fit < (bassMatch ? 0.5 : MATCH)) return 0;
+  return fit + (bassMatch ? BASS_BONUS : 0);
+}
+
+/**
+ * Which symbol each hit plays: the current chord, the next one in order, or the
+ * best match. A change then starts as early as the notes allow: a strike just
+ * before it that the new chord fits as well as the old one is the new chord's
+ * — a melody note on the downbeat can make Dm7 and G7 fit D-F-B-A alike, and
+ * the G7 shell is already there under it.
+ */
 function assignSymbols(
   chords: (Chord | null)[],
-  hits: Hit[],
+  hits: readonly Hit[],
 ): (number | null)[] {
   const assigned: (number | null)[] = [];
   let current = -1;
   for (const hit of hits) {
-    // 0 when the chord doesn't match the hit; otherwise its fit, plus a bonus
-    // when the hit's bass note is the chord's bass.
-    const score = (i: number) => {
-      const chord = chords[i];
-      if (!chord) return 0;
-      const fit = chordFit(hit.pcs, chord);
-      const bassMatch = hit.bassPc !== null && hit.bassPc === chord.bassPc;
-      if (fit < (bassMatch ? 0.5 : MATCH)) return 0;
-      return fit + (bassMatch ? BASS_BONUS : 0);
-    };
+    const score = (i: number) => hitScore(hit, chords[i]);
     const next = (current + 1) % chords.length;
     let pick: number | null = null;
     if (current >= 0 && score(current) > 0 && score(current) >= score(next)) {
@@ -114,12 +131,24 @@ function assignSymbols(
     assigned.push(pick);
     if (pick !== null) current = pick;
   }
+
+  for (let i = 1; i < assigned.length; i++) {
+    const before = assigned[i - 1];
+    const after = assigned[i];
+    if (before === null || after === null || before === after) continue;
+    // Never past the old chord's own first strike: it keeps at least one.
+    for (let j = i - 1; j > 0 && assigned[j - 1] === before; j--) {
+      const old = hitScore(hits[j], chords[before]);
+      if (hitScore(hits[j], chords[after]) < old) break;
+      assigned[j] = after;
+    }
+  }
   return assigned;
 }
 
 function matchTargets(
   chords: (Chord | null)[],
-  hits: Hit[],
+  hits: readonly Hit[],
 ): TimedChord[] | null {
   if (hits.length < 2) return null;
   const assigned = assignSymbols(chords, hits);
@@ -140,7 +169,7 @@ function matchTargets(
     const index = assigned[i];
     const chord = index === null ? null : chords[index];
     if (index === last || !chord) return;
-    timeline.push({ ...chord, tick: timeline.length ? hit.tick : 0 });
+    timeline.push({ ...chord, tick: hit.tick });
     last = index;
   });
   return timeline;
@@ -159,25 +188,52 @@ function perBar(
   return timeline;
 }
 
+const toChords = (symbols: readonly string[]): (Chord | null)[] =>
+  symbols.map((symbol) => {
+    const tones = chordSymbolTones(symbol);
+    return tones ? { ...tones, symbol } : null;
+  });
+
+/** How many of the progression's chords a timeline names. */
+const named = (timeline: readonly TimedChord[] | null) =>
+  new Set(timeline?.map((chord) => chord.symbol)).size;
+
+/**
+ * Where the target notes strike each chord: every change in the harmony they
+ * play, at its own onset, matched to its symbol. Read from the strikes over a
+ * bass note, or from every strike when that names more of the progression.
+ * Null when the targets don't play the progression — a single line, or
+ * strikes too few symbols fit. What the backing plays and the chord symbols
+ * over the staff sit on (lessonChordSymbols.ts).
+ */
+export function chordStrikes(
+  symbols: readonly string[] | undefined,
+  targetNotes: readonly TargetNote[],
+): TimedChord[] | null {
+  if (!symbols?.length) return null;
+  const chords = toChords(symbols);
+  const overBass = matchTargets(chords, targetChordHits(targetNotes));
+  const every = matchTargets(chords, targetChordHits(targetNotes, true));
+  return named(every) > named(overBass) ? every : overBass;
+}
+
 /**
  * The step's chord timeline over `bars` bars; empty without chord symbols.
- * `barLength` is the meter's bar in ticks (engine/meter.ts barTicks).
+ * `barLength` is the meter's bar in ticks (engine/meter.ts barTicks). The
+ * first chord sounds from the downbeat, even when the targets come in later.
  */
 export function buildChordTimeline(
   symbols: readonly string[] | undefined,
-  targetNotes: readonly GenreNoteEvent[],
+  targetNotes: readonly TargetNote[],
   bars: number,
   barLength = BAR_TICKS,
 ): TimedChord[] {
   if (!symbols?.length) return [];
-  const chords = symbols.map((symbol) => {
-    const tones = chordSymbolTones(symbol);
-    return tones ? { ...tones, symbol } : null;
-  });
-  return (
-    matchTargets(chords, targetChordHits(targetNotes)) ??
-    perBar(chords, bars, barLength)
-  );
+  const struck = chordStrikes(symbols, targetNotes);
+  if (struck) {
+    return struck.map((chord, i) => (i === 0 ? { ...chord, tick: 0 } : chord));
+  }
+  return perBar(toChords(symbols), bars, barLength);
 }
 
 /** The chord sounding at `tick`, or null before the first one. */

@@ -1,19 +1,22 @@
-import { useRef } from 'react';
+import { useRef, type CSSProperties } from 'react';
 import { CircleOfFifthsSvg } from '@/components/common/CircleOfFifthsSvg';
 import { cn } from '@/components/utilities';
 import {
   degreeLabel,
   type TimedNote,
 } from '@/curriculum/engine/musicLiteracy/literacy';
-import type { RunPhase, RunView } from '@/curriculum/engine/musicLiteracy/run';
+import type { RunView } from '@/curriculum/engine/musicLiteracy/run';
 import { useElementSize } from '@/hooks/useElementSize';
+import type { HubHeadline, TurnCue } from './turnCues';
+import './literacyCues.css';
 
 // ── The call: the circle, the hub and the words ────────────────────────────
 // The left half of a Music Literacy step, as the landing page's Theory scene
 // draws its circle: the key on the circle of fifths in the house colors (a
 // minor step lights its relative major's color), and in the circle's middle
-// a Simon-like hub: whose turn it is, the call's scale degrees lighting as
-// they sound and as they should be played back, and the beat. Under the
+// a Simon-like hub: what to do now, in big lit letters (LISTEN, GET READY,
+// GO!, then YOUR TURN), the call's scale degrees lighting as they sound and
+// as they should be played back, and the beat. Under the
 // circle, the words, a bar to a line, each syllable lighting as its note
 // sounds; one sung off the root carries its scale degree. A pickup's
 // syllables lead the first line, into its downbeat.
@@ -63,25 +66,13 @@ export interface LiteracyCallPanelProps {
   beatsPerBar: number;
   view: RunView;
   running: boolean;
+  /**
+   * What the hub says over the degrees (turnCues.ts): LISTEN, GET READY,
+   * GO!, then whose turn; out of a run, what the degrees are.
+   */
+  headline: HubHeadline;
   /** The circle sits beside the words (a short, wide box) rather than above. */
   compact?: boolean;
-}
-
-/**
- * Whose turn, by phase. The teacher's turn is the words and the call, both:
- * Atlas sings and plays them (and a teacher in the room may play along),
- * then the student answers.
- */
-const TURN: Record<RunPhase, string> = {
-  countIn: 'Ready',
-  words: 'My turn',
-  call: 'My turn',
-  response: 'Your turn',
-};
-
-/** The hub's label: whose turn in a run, else what its degrees are. */
-export function hubTurnLabel(running: boolean, phase: RunPhase | null): string {
-  return running && phase ? TURN[phase] : 'The call';
 }
 
 export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
@@ -181,11 +172,125 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
 
 // ── The hub ────────────────────────────────────────────────────────────────
 
+/**
+ * Each cue's letters, as a share of the hub's diameter: as big as the hub's
+ * width allows at the headline (GET READY is the longest), Go! the biggest.
+ */
+const CUE_SIZE: Readonly<Record<TurnCue, number>> = {
+  listen: 0.19,
+  getReady: 0.135,
+  go: 0.27,
+};
+
+/** The headline's height, as a share of the diameter: room for Go!. */
+const HEADLINE_BOX = 0.27;
+
+/** Each cue's light: base, the sheen's peak, the glow (CSS colors). */
+function cueColors(cue: TurnCue, keyColor: string) {
+  const mix = (share: number, other: string) =>
+    `color-mix(in oklab, ${keyColor} ${share}%, ${other})`;
+  switch (cue) {
+    // Calm: silver, lit white.
+    case 'listen':
+      return {
+        base: '#d9dbe6',
+        shine: '#ffffff',
+        glow: 'rgb(255 255 255 / 0.28)',
+        glowSize: '5px',
+      };
+    // The call's color: the degrees lighting under it are the targets.
+    case 'getReady':
+      return {
+        base: mix(78, 'white'),
+        shine: mix(20, 'white'),
+        glow: mix(60, 'transparent'),
+        glowSize: '7px',
+      };
+    // The brightest: white-hot in the call's color.
+    case 'go':
+      return {
+        base: mix(52, 'white'),
+        shine: '#ffffff',
+        glow: mix(85, 'transparent'),
+        glowSize: '10px',
+      };
+  }
+}
+
+function Headline({
+  headline,
+  keyColor,
+  diameter,
+}: {
+  headline: HubHeadline;
+  keyColor: string;
+  diameter: number;
+}) {
+  const label = Math.max(9, Math.min(13, diameter * 0.085));
+  let content;
+  if (headline.kind === 'cue') {
+    const colors = cueColors(headline.cue, keyColor);
+    content = (
+      <span
+        // A new cue remounts, so it pops in again.
+        key={headline.cue}
+        data-literacy-cue={headline.cue}
+        className="literacy-cue"
+        style={
+          {
+            fontSize: Math.max(12, diameter * CUE_SIZE[headline.cue]),
+            '--cue-base': colors.base,
+            '--cue-shine': colors.shine,
+            '--cue-glow': colors.glow,
+            '--cue-glow-size': colors.glowSize,
+          } as CSSProperties
+        }
+      >
+        {headline.text}
+      </span>
+    );
+  } else if (headline.kind === 'turn') {
+    content = (
+      <span
+        className="whitespace-nowrap rounded-full font-semibold uppercase leading-none tracking-[0.14em] text-[#101012]"
+        style={{
+          fontSize: Math.max(10, Math.min(15, diameter * 0.095)),
+          backgroundColor: keyColor,
+          padding: '0.4em 0.75em',
+        }}
+      >
+        {headline.text}
+      </span>
+    );
+  } else {
+    content = (
+      <span
+        className="whitespace-nowrap font-semibold uppercase leading-none tracking-[0.14em] text-white/70"
+        style={{ fontSize: label }}
+      >
+        {headline.text}
+      </span>
+    );
+  }
+  return (
+    <p
+      aria-live="polite"
+      data-literacy-turn
+      className="flex items-center justify-center"
+      // A fixed box: the degrees under it stay put as the cues change.
+      style={{ height: Math.max(label * 2, diameter * HEADLINE_BOX) }}
+    >
+      {content}
+    </p>
+  );
+}
+
 function Hub({
   call,
   response,
   view,
   running,
+  headline,
   keyColor,
   beatsPerBar,
   size,
@@ -194,41 +299,26 @@ function Hub({
   const diameter = size * 0.36;
   const figure = view.phase === 'response' ? response : call;
   const lit = view.hub;
-  const turn = hubTurnLabel(running, view.phase);
-  const yourTurn = running && view.phase === 'response';
   const digits = Math.max(1, figure.length);
   const degreeSize = Math.max(
     14,
     Math.min(34, diameter / (digits * 1.25 + 0.6)),
   );
+  // From GET READY to GO! the degrees are what to copy: brought forward.
+  const copying =
+    headline.kind === 'cue' &&
+    (headline.cue === 'getReady' || headline.cue === 'go');
+  const waiting = copying ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.4)';
 
   return (
     <div
       data-literacy-hub
       data-turn={running ? (view.phase ?? 'idle') : 'idle'}
-      className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-[6%] rounded-full bg-[#101012] text-center"
+      data-cue={headline.kind === 'cue' ? headline.cue : undefined}
+      className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-[4%] rounded-full bg-[#101012] text-center"
       style={{ width: diameter, height: diameter }}
     >
-      <p
-        aria-live="polite"
-        data-literacy-turn
-        className={cn(
-          'whitespace-nowrap font-semibold uppercase leading-none tracking-[0.14em] transition-colors duration-150',
-          yourTurn ? 'text-[#101012]' : 'text-white/70',
-        )}
-        style={{
-          fontSize: Math.max(9, Math.min(13, diameter * 0.085)),
-          ...(yourTurn
-            ? {
-                backgroundColor: keyColor,
-                borderRadius: 999,
-                padding: '0.35em 0.7em',
-              }
-            : {}),
-        }}
-      >
-        {turn}
-      </p>
+      <Headline headline={headline} keyColor={keyColor} diameter={diameter} />
       <p
         aria-label={`Scale degrees ${figure.map((n) => degreeLabel(n.degree)).join(' ')}`}
         data-literacy-degrees
@@ -257,7 +347,7 @@ function Hub({
                         textShadow: `0 0 14px ${keyColor}`,
                         transform: 'scale(1.15)',
                       }
-                    : { color: running ? 'rgba(255,255,255,0.4)' : '#e8e8f0' }
+                    : { color: running ? waiting : '#e8e8f0' }
                 }
               >
                 {degreeLabel(note.degree)}

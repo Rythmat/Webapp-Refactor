@@ -12,6 +12,7 @@ import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import GenrePianoRoll, {
   type NoteEvent,
+  type RollBand,
 } from '@/curriculum/components/GenrePianoRoll';
 import {
   MIDI_ROOT_TO_KEY,
@@ -80,6 +81,7 @@ import {
   startLiteracyRun,
   stopLiteracyRun,
 } from './literacyRun';
+import { hubHeadline } from './turnCues';
 import { typingLetterFor, typingOctaveLabel } from './typingKeys';
 import { useLiteracyInput, type LiteracyNoteOn } from './useLiteracyInput';
 import { useLiteracyProgress } from './useLiteracyProgress';
@@ -109,6 +111,12 @@ import { useLiteracyProgress } from './useLiteracyProgress';
 // Words with a pickup sing it at the end of the count-in bar, which clicks on
 // under it, into the words' downbeat; the roll and the staff mark that
 // downbeat with a double bar.
+//
+// What to do is never in doubt: the hub says LISTEN through the count-in and
+// the words, GET READY as the call starts, GO! on its last beat, one before
+// the student's turn, and then YOUR TURN (turnCues.ts). The call is what to
+// copy: its keys light shiny over the words' plain light, and the roll marks
+// its bars "Copy this".
 
 /** The keyboard: exactly 25 keys, C3–C5 (the series' register, literacy.ts). */
 export const LITERACY_KEY_RANGE: KeyRange = { low: 48, high: 72 };
@@ -498,6 +506,18 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const bar = timeline.barTicks;
 
   const wordsColor = useMemo(() => mutedColor(keyColor), [keyColor]);
+  // The call is the figure to copy: marked so over its bars.
+  const rollBands = useMemo<RollBand[]>(
+    () => [
+      {
+        startTick: timeline.call.start - countIn,
+        endTick: timeline.call.start + timeline.call.length - countIn,
+        label: 'Copy this',
+        color: keyColor,
+      },
+    ],
+    [timeline.call, countIn, keyColor],
+  );
   const segments = useMemo(
     () =>
       [
@@ -610,6 +630,22 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     }
     return labels;
   }, [notes]);
+  // The call's keys as they sound: shiny, as the student's own right notes
+  // are, over the plain light of the words. A key the student holds is
+  // drawn as theirs.
+  const keysShown = useMemo(() => {
+    const sounding = notes.call.filter(
+      (n) =>
+        view.lit.includes(n.midi) &&
+        n.onset <= view.tick &&
+        view.tick < n.onset + n.duration,
+    );
+    if (sounding.length === 0) return held;
+    return new Map([
+      ...sounding.map((n) => [n.midi, keyColor] as const),
+      ...held,
+    ]);
+  }, [notes.call, view.lit, view.tick, held, keyColor]);
   const playingNotes = useMemo<PlaybackEvent[]>(
     () =>
       view.lit.map((midi) => ({
@@ -632,6 +668,15 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const answerLetters = notes.response
     .map((n) => typingLetterFor(n.midi, typingOctave) ?? '–')
     .join(' · ');
+
+  // ── The hub: what to do now ──
+
+  const headline = hubHeadline(
+    timeline,
+    running ? view.tick : -1,
+    beatsPerBar,
+    running ? runMode : null,
+  );
 
   // ── The bar ──
 
@@ -842,6 +887,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             beatsPerBar={beatsPerBar}
             view={view}
             running={running}
+            headline={headline}
             compact={stacked}
           />
         ),
@@ -875,6 +921,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             userNotes={userNotes}
             targetMidiSet={figureMidis}
             colorActiveLanesByTarget
+            bands={rollBands}
           />
         ),
         result: resultModel ? (
@@ -890,7 +937,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
               hintNotes={hintNotes}
               keyLabels={keyLabels}
               playingNotes={playingNotes}
-              playedKeys={held}
+              playedKeys={keysShown}
               enableClick={false}
               useContextNotes={false}
               onKeyPointerDown={onKeyPointerDown}

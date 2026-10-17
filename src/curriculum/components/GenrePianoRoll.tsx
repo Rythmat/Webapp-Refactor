@@ -152,6 +152,22 @@ export interface PianoRollProps {
    * between two passes of a practice loop.
    */
   tabOpensOnMusic?: boolean;
+  /**
+   * Stretches of the music marked for the student, in the events' ticks:
+   * each a tint behind its bars and a label in the ruler over them (Music
+   * Literacy's "Copy this" over the call). The roll only; the staff and the
+   * falling notes leave them out.
+   */
+  bands?: readonly RollBand[];
+}
+
+/** A stretch of the roll marked with a word (PianoRollProps.bands). */
+export interface RollBand {
+  startTick: number;
+  endTick: number;
+  label: string;
+  /** Its tint and its label's color. */
+  color: string;
 }
 
 // ===== Helpers =====
@@ -365,6 +381,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   guitarViewToggle = true,
   showViewToggle = true,
   tabOpensOnMusic = false,
+  bands,
 }) => {
   const laneList = buildLaneList(
     events,
@@ -663,6 +680,12 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     pickup > 0 && downbeatAt >= 0 && downbeatAt <= 100 ? (
       <DoubleBar left={downbeatAt} />
     ) : null;
+  // The bands, cut to what's in view: a label rides the visible part.
+  const shownBands = (bands ?? []).flatMap((band) => {
+    const left = clampPercent(tickPercent(band.startTick));
+    const right = clampPercent(tickPercent(band.endTick));
+    return right > left ? [{ ...band, left, width: right - left }] : [];
+  });
 
   return (
     <div className="relative">
@@ -750,6 +773,29 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                   </div>
                 ))}
                 {doubleBar}
+                {shownBands.map((band) => (
+                  <div
+                    key={`band-${band.startTick}`}
+                    aria-hidden="true"
+                    data-roll-band={band.label}
+                    className="pointer-events-none absolute bottom-[3px] flex h-4 items-center overflow-hidden rounded-[3px]"
+                    style={{
+                      left: `${band.left}%`,
+                      width: `${band.width}%`,
+                      background: `color-mix(in srgb, ${band.color} 24%, rgb(25 25 25))`,
+                      boxShadow: `inset 0 1px 0 color-mix(in srgb, ${band.color} 55%, transparent)`,
+                    }}
+                  >
+                    <span
+                      className="whitespace-nowrap px-1.5 text-[11px] font-semibold uppercase leading-none tracking-[0.12em]"
+                      style={{
+                        color: `color-mix(in srgb, ${band.color} 55%, white)`,
+                      }}
+                    >
+                      {band.label}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -827,6 +873,19 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                   />
                 );
               })}
+              {/* bands: a tint behind their bars */}
+              {shownBands.map((band) => (
+                <div
+                  key={`band-${band.startTick}`}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0"
+                  style={{
+                    left: `${band.left}%`,
+                    width: `${band.width}%`,
+                    background: `color-mix(in srgb, ${band.color} 10%, transparent)`,
+                  }}
+                />
+              ))}
               {/* sub grid lines */}
               {subLines.map((b) => (
                 <div

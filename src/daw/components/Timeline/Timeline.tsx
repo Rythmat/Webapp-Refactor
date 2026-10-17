@@ -16,8 +16,8 @@ import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useArrangeKeymap } from '@/daw/commands/clipCommands';
 import { withTransaction } from '@/daw/store/history';
 import { useStore } from '@/daw/store';
-import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
+import { displayChordLabel } from '@/daw/utils/displayChordLabel';
 import {
   CHORD_INPUT_HINT,
   chordInputText,
@@ -1494,7 +1494,7 @@ export function Timeline() {
         : `rgba(${cr}, ${cg}, ${cb}, 0.85)`;
       ctx.font = "10px 'Glacial Indifference', system-ui, sans-serif";
       ctx.textBaseline = 'middle';
-      const label = displayAccidentals(
+      const label = displayChordLabel(
         chordRulerShowNotes ? region.name : region.noteName,
       );
       ctx.fillText(

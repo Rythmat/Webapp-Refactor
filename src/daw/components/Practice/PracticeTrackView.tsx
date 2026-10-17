@@ -18,6 +18,7 @@ import {
   displayAccidentals,
   displayDegree,
 } from '@/daw/utils/displayAccidentals';
+import { displayChordLabel } from '@/daw/utils/displayChordLabel';
 import { getScaleLesson, spellScaleLesson } from '@/lib/learn/scaleLessons';
 import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
 import { barTicks } from '@/curriculum/engine/meter';
@@ -418,7 +419,7 @@ export function PracticeTrackView({
     const lowest = now.notes[0];
     return {
       id: now.region.id,
-      title: displayAccidentals(now.region.noteName),
+      title: displayChordLabel(now.region.noteName),
       tonic: lowest,
       intervals: now.notes.map((midi) => midi - lowest),
       degrees: now.degrees,

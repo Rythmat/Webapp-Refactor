@@ -89,13 +89,17 @@ export {
   abbreviateSequence,
   graphToken,
   detectChordWithInversion,
+  chordReadings,
+  isRareQuality,
+  RARE_COST,
+  SLASH_COST,
   getModeOffset,
   isDiatonicMode,
   ionianToModeLabel,
   modeToIonianLabel,
   resolveDegreeKey,
 } from './engine/naming';
-export type { ChordMatch } from './engine/naming';
+export type { ChordMatch, ChordReading } from './engine/naming';
 
 // Engine — color system
 export { getChordColor, getChordColorFromNotes } from './engine/colorSystem';

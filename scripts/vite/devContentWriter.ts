@@ -1,7 +1,8 @@
 /**
  * Dev-server-only endpoints that let the console's Drum Grooves designer,
- * Bass Lines editor and Parts Library write repo files: groove JSON, custom
- * kit JSON, bass line JSON, instrumental part JSON and uploaded drum samples.
+ * Bass Lines editor, Parts Library and Music Literacy editor write repo
+ * files: groove JSON, custom kit JSON, bass line JSON, instrumental part
+ * JSON, Music Literacy lesson JSON and uploaded drum samples.
  * Commit
  * the files to ship them. `apply: 'serve'` keeps all of this out of builds, so
  * a deployed console has no way to write and the designer says so.
@@ -14,6 +15,8 @@
  *   PUT    /__dev/parts/:id            body: instrumental part JSON
  *   DELETE /__dev/parts/:id
  *   PUT    /__dev/feels/:id            body: feel profile JSON
+ *   PUT    /__dev/music-literacy/:id   body: Music Literacy lesson JSON
+ *   DELETE /__dev/music-literacy/:id
  *   PUT    /__dev/synth-patches/:id    body: Oracle Synth preset JSON
  *   PUT    /__dev/bands/:id            body: band JSON
  *   DELETE /__dev/bands/:id
@@ -55,6 +58,7 @@ const LESSON_PAIRING_DIR = path.join(
 );
 const PART_DIR = path.join(ROOT, 'src/curriculum/data/parts');
 const FEEL_DIR = path.join(ROOT, 'src/curriculum/data/feels');
+const MUSIC_LITERACY_DIR = path.join(ROOT, 'src/curriculum/data/musicLiteracy');
 const PATCH_DIR = path.join(ROOT, 'src/daw/oracle-synth/store/presets/atlas');
 const SAMPLE_DIR = path.join(ROOT, 'public/daw-assets/samples/drums/uploads');
 const SAMPLE_URL = '/daw-assets/samples/drums/uploads/';
@@ -208,6 +212,7 @@ export function devContentWriter(): Plugin {
             'sample-instruments': SAMPLE_INSTRUMENT_DIR,
             parts: PART_DIR,
             feels: FEEL_DIR,
+            'music-literacy': MUSIC_LITERACY_DIR,
             'synth-patches': PATCH_DIR,
           };
           if (kind && kind in JSON_DIRS) {

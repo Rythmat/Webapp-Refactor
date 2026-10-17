@@ -226,6 +226,15 @@ export async function loadSeed(mode: ContentMockMode): Promise<MockSeed> {
       items.push({ kind: 'instrument_part', slug: part.id, body: plain(part) });
     for (const feel of feels.FEEL_PROFILES)
       items.push({ kind: 'feel_profile', slug: feel.id, body: plain(feel) });
+    // The Music Literacy lessons, drafts included: the files its editor
+    // writes (docs/music-literacy-content-kind.md).
+    const literacy = await import('@/curriculum/engine/musicLiteracy/registry');
+    for (const lesson of literacy.listMusicLiteracy())
+      items.push({
+        kind: 'music_literacy',
+        slug: lesson.id,
+        body: plain(lesson),
+      });
   }
 
   return { items };

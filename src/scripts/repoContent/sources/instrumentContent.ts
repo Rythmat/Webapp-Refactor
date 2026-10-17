@@ -20,13 +20,15 @@ import {
 
 /**
  * The console's instrument content, one JSON file per item (the shape the
- * Drum Grooves designer and the Parts Library have always written):
+ * Drum Grooves designer and the Parts Library have always written), and the
+ * Music Literacy lessons, kept the same way:
  *
  * | Kind | Files |
  * |---|---|
  * | `drum_groove` | `src/curriculum/data/drumGrooves/<id>.json`, and the Studio's imported grooves in `drumGrooves/studio/` |
  * | `instrument_part` | `src/curriculum/data/parts/<id>.json` |
  * | `feel_profile` | `src/curriculum/data/feels/<id>.json` |
+ * | `music_literacy` | `src/curriculum/data/musicLiteracy/<id>.json` |
  *
  * One adapter per kind, so a file made in one of these folders by hand is
  * known as that kind (`kindsOfPath` in repoStore.ts). A new item is written
@@ -141,4 +143,11 @@ export const feelProfilesSource = instrumentSource({
   name: 'feel profiles',
   kind: 'feel_profile',
   dirs: ['src/curriculum/data/feels'],
+});
+
+/** Not instrument content, but its files are laid out the same way. */
+export const musicLiteracySource = instrumentSource({
+  name: 'music literacy',
+  kind: 'music_literacy',
+  dirs: ['src/curriculum/data/musicLiteracy'],
 });

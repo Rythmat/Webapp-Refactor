@@ -449,6 +449,24 @@ export const AdminRoutes = {
   }),
 
   /**
+   * Music Literacy — the call-and-response lessons on scale degrees (Part 1,
+   * Part 2…): the words, the call and the response of every step. Saving
+   * writes repo files (dev server) or the content API once it serves them.
+   */
+  musicLiteracy: createRouteDefinition('/music-literacy', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Music Literacy — one lesson's editor. `?roll=<step>:<segment>` opens a
+   * step's words, call or response in the piano roll and staff.
+   */
+  musicLiteracyLesson: createRouteDefinition<{ id: string }, { roll?: string }>(
+    '/music-literacy/:id',
+    { prefix: adminPrefix },
+  ),
+
+  /**
    * Parts editor on a lesson step's notes: piano roll / staff, then commit
    * back to the lesson. `index` is the step's position in its section.
    */

@@ -115,6 +115,7 @@ export function segmentForKind(kind: string): string | null {
     case 'activity_flow':
     case 'fundamentals_flow':
     case 'chord_progression':
+    case 'music_literacy':
       return '/learn';
     case 'globe_event':
     case 'globe_city':
@@ -140,6 +141,8 @@ export function consoleAppPath(pathname: string): string | null {
   const records = new RegExp(`^${MIRROR_BASE}/records/([^/]+)`).exec(pathname);
   if (records) return segmentForKind(records[1]);
   if (pathname.startsWith('/console/lessons/')) return '/learn';
+  // Music Literacy is a Learn series; its editor belongs with it.
+  if (pathname.startsWith('/console/music-literacy')) return '/learn';
   // Instrument content is what the Studio's Grooves and Parts tabs play.
   if (
     pathname.startsWith('/console/grooves') ||

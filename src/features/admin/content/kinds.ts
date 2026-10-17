@@ -504,6 +504,27 @@ export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
     formKeys: ['id', 'name', 'description', 'source', 'step', 'positions'],
     jsonLabel: 'Offsets and accents per position',
   },
+
+  // ── Music Literacy (docs/music-literacy-content-kind.md) ──
+  // Edited on its own page (instrumentPages.ts), like grooves and parts.
+  music_literacy: {
+    label: 'Music Literacy',
+    singular: 'music literacy lesson',
+    blurb:
+      'Call-and-response lessons on scale degrees: the teacher sings a line, plays a figure, and the student plays it back. Edited in the Music Literacy editor.',
+    fields: [
+      { path: 'id', label: 'Id', type: 'text' },
+      { path: 'name', label: 'Name', type: 'text' },
+      { path: 'part', label: 'Part', type: 'number' },
+      {
+        path: 'status',
+        label: 'Status',
+        type: 'select',
+        options: ['draft', 'live'],
+      },
+    ],
+    formKeys: ['id', 'name', 'part', 'status'],
+  },
 };
 
 /** Tab order in the console. */
@@ -525,6 +546,7 @@ export const KIND_ORDER: ContentKind[] = [
   'feel_profile',
   'drum_groove',
   'instrument_part',
+  'music_literacy',
 ];
 
 // Own keys only: `in` also accepts inherited ones, so a URL of

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type {
+  LiteracyMelodicEchoStep,
   LiteracyStep,
   MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
@@ -17,14 +18,20 @@ const lesson = LITERACY_FIXTURE;
 const stepOf = (tag: string) => lesson.steps.find((s) => s.tag === tag)!;
 
 /** A step's words moved `pickup` ticks earlier, sung into their downbeat. */
-const withPickup = (step: LiteracyStep, pickup: number): LiteracyStep => ({
-  ...step,
-  words: {
-    ...step.words,
-    pickup,
-    notes: step.words.notes.map((n) => ({ ...n, tick: n.tick - pickup })),
-  },
-});
+const withPickup = (
+  step: LiteracyMelodicEchoStep,
+  pickup: number,
+): LiteracyMelodicEchoStep => {
+  const words = step.words!;
+  return {
+    ...step,
+    words: {
+      ...words,
+      pickup,
+      notes: words.notes.map((n) => ({ ...n, tick: n.tick - pickup })),
+    },
+  };
+};
 
 /** What the hub says on each beat of a run, as the player draws it. */
 function headlinesByBeat(

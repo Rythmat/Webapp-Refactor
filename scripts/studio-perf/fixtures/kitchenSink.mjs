@@ -164,7 +164,11 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     audioInputChannel: { mode: 'stereo', left: 2, right: 3 },
   });
   act().updateTrack(vocals, { trackRole: 'melody' });
-  act().updateTrack(bass, { bassVoice: 'upright' });
+  act().updateTrack(bass, {
+    bassVoice: 'upright',
+    // The bass clef with an 8, set by hand (schema 7).
+    notationStaff: 'bass8vb',
+  });
   act().updateTrack(strings, { gmProgram: 48 });
   act().toggleSolo(keys);
   act().toggleMute(bass);

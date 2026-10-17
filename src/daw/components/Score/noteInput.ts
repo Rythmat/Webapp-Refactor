@@ -14,6 +14,7 @@ import {
   type NotationScore,
   type StaffId,
 } from '@/lib/notation';
+import { TOP_LINE_STEP, writtenOctaves } from '@/lib/notation/clefs';
 import { mintNoteId } from '@/daw/model/noteIds';
 import { noteKey } from '@/daw/model/noteKeys';
 import type { Track } from '@/daw/store/tracksSlice';
@@ -27,19 +28,16 @@ import type { DurationChoice } from './noteEditor';
 //
 // A pitch is read off the staff: the line or space under the pointer,
 // through that staff's clef and the key signature, so the top line of a
-// treble staff in G major is F♯5. A time is the nearest place in the bar the
+// treble staff in G major is F♯5. A staff written an octave above its sound
+// (the bass clef with an 8, clefs.ts) writes the note it sounds: its C3 line
+// writes MIDI C2. Steps (`step`, the cursor's) count the lines as written;
+// the MIDI pitch is the one heard. A time is the nearest place in the bar the
 // chosen length can start on. Writing a note overwrites, as MuseScore does:
 // what starts inside the new note on that staff goes, and a note held into
 // it is cut short where it begins.
 
 /** C D E F G A B as pitch classes. */
 const LETTER_PITCH_CLASS = [0, 2, 4, 5, 7, 9, 11];
-
-/** Each clef's top line, as an absolute diatonic step (octave × 7 + letter). */
-const TOP_LINE_STEP: Partial<Record<StaffId, number>> = {
-  treble: 5 * 7 + 3, // F5
-  bass: 3 * 7 + 5, // A3
-};
 
 /** A staff spans eight steps, its top line to its bottom one. */
 const STAFF_STEPS = 8;
@@ -71,6 +69,23 @@ export function pitchForStep(step: number, keyFifths: number): number {
   );
 }
 
+/**
+ * The MIDI pitch a step written on `staff` sounds: pitchForStep, an octave
+ * lower on a staff written an octave up (the bass clef with an 8).
+ */
+export function soundingPitchForStep(
+  step: number,
+  keyFifths: number,
+  staff: StaffId,
+): number {
+  return pitchForStep(step, keyFifths) - 12 * writtenOctaves(staff);
+}
+
+/** The step a note written on `step` of `staff` sounds on, an octave down on an 8vb staff. */
+export function soundingStep(step: number, staff: StaffId): number {
+  return step - 7 * writtenOctaves(staff);
+}
+
 const SIGNS: Record<number, string> = {
   [-2]: '𝄫',
   [-1]: '♭',
@@ -92,7 +107,8 @@ export function writtenName(step: number, keyFifths: number): string {
  * (scoreParts), or with the default names when the song has none, and that
  * can put a black key on the other letter (A♯ for the B♭ an inferred F major
  * draws). Pinning it, as an accidental does, keeps the note on the line it
- * was written on.
+ * was written on. `step` is the one the note sounds on (soundingStep), so the
+ * name's octave is the pitch's, as every pinned spelling's is.
  */
 export function pinnedSpelling(
   midi: number,
@@ -138,22 +154,24 @@ export function pitchAtY(
   if (top === undefined || stepPx <= 0) return null;
   const position = Math.round((y - topLineY) / stepPx);
   const step = top - position;
-  const midi = pitchForStep(step, keyFifths);
+  const midi = soundingPitchForStep(step, keyFifths, staff);
   if (midi < 0 || midi > 127) return null;
   return { midi, step, position };
 }
 
 /**
  * The note a typed letter writes (0 = C … 6 = B), in the key: the nearest
- * one to `near` (a diatonic step), as MuseScore picks it — never more than a
- * fourth away, so F then B climbs to the B above. `above` takes the first
- * one higher than `near` instead, which is how Shift adds to a chord.
+ * one to `near` (a diatonic step as written on `staff`), as MuseScore picks
+ * it — never more than a fourth away, so F then B climbs to the B above.
+ * `above` takes the first one higher than `near` instead, which is how Shift
+ * adds to a chord. The step comes back as written, the pitch as it sounds.
  */
 export function letterPitch(
   letter: number,
   near: number,
   keyFifths: number,
   above = false,
+  staff: StaffId = 'treble',
 ): { midi: number; step: number } | null {
   let step = near - mod(near - letter, 7);
   if (above) {
@@ -161,7 +179,7 @@ export function letterPitch(
   } else if (near - step > 3) {
     step += 7;
   }
-  const midi = pitchForStep(step, keyFifths);
+  const midi = soundingPitchForStep(step, keyFifths, staff);
   if (midi < 0 || midi > 127) return null;
   return { midi, step };
 }

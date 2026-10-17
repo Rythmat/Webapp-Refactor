@@ -14,6 +14,8 @@ import { Select } from '@/daw/ui/Select';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import {
   autoHint,
+  autoLabel,
+  isStaffSetting as isSetting,
   STAFF_LABEL,
   staffOptions,
   staffSummary,
@@ -25,12 +27,6 @@ import {
 // Score's parts panel, and a menu on the part's name at the left of every
 // system. Auto names what it writes — 'Auto (Grand staff)' — so going back
 // to it is never a guess. A drum kit has nothing to choose: it says so.
-
-const isSetting = (value: string): value is NotationStaffSetting =>
-  value === 'auto' ||
-  value === 'treble' ||
-  value === 'bass' ||
-  value === 'grand';
 
 interface PartStaffControlProps {
   /** The part's name, for the control's label. */
@@ -56,11 +52,19 @@ export function PartStaffSelect({
     );
   }
   return (
-    <div title={autoHint(state)}>
+    // What Auto writes and why, or the staff set by hand, said in full.
+    <div title={staffSummary(state)}>
       <Select
         label={`Clef for ${name}`}
         size="sm"
         value={state.setting}
+        // The list says what the 8 does; the closed field, narrow in the
+        // panel, names the clef ('Bass clef 8vb') and its tooltip says more.
+        valueLabel={
+          state.setting === 'auto'
+            ? autoLabel(state)
+            : STAFF_LABEL[state.setting]
+        }
         options={staffOptions(state)}
         onValueChange={(value) => {
           if (isSetting(value) && value !== state.setting) onChange(value);

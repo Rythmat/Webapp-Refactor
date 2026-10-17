@@ -263,7 +263,7 @@ export const TRACK_FIELD_REASONS: Reasons<Track> = Object.freeze({
   trackRole:
     'Guessed from the name and instrument; the student can pick another.',
   notationStaff:
-    'The staff the Score and Lead Sheet write the part on, set by hand (treble, bass, grand); unset is Auto, which follows the instrument (Score/partStaff.ts). A setting of the music like the instrument, so it is shared, undone and saved with it, in the settings blob the cloud payload already carries. Drafts and cloud saves from before schema 6 hold none: every part reads Auto.',
+    'The staff the Score and Lead Sheet write the part on, set by hand (treble, alto, bass, bass8vb: the bass clef with an 8, grand); unset is Auto, which follows the instrument (Score/partStaff.ts), and a new instrument sets it back to unset. A setting of the music like the instrument, so it is shared, undone and saved with it, in the settings blob the cloud payload already carries. Drafts and cloud saves from before schema 6 hold none: every part reads Auto; alto and bass8vb came with schema 7, and a schema 6 build reads either as Auto.',
 } satisfies Reasons<Track>);
 
 const FROM_CLIP_START = 'From the start of the clip.';

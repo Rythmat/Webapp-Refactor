@@ -123,10 +123,12 @@ import {
   pinnedSpelling,
   placeOfTick,
   planNoteInsert,
+  soundingStep,
   stepOf,
   type InputTarget,
   type NoteInsertPlan,
 } from './noteInput';
+import { writtenOctaves } from '@/lib/notation/clefs';
 import { NoteInputLayer } from './NoteInputLayer';
 import {
   articulationIndex,
@@ -944,10 +946,21 @@ export function useScoreEditing({
     [selectedNotes, articulations, setArticulations],
   );
 
-  /** The written spelling of every selected note, where the score drew one. */
+  /**
+   * The spelling of every selected note, where the score drew one, in the
+   * octave it sounds: a part on the bass clef with an 8 draws its notes an
+   * octave above their pitch (clefs.ts), and an accidental moves the pitch.
+   */
   const selectedSpelled = useMemo(
-    () => (layout?.notes ?? []).filter((note) => selectedNotes.has(note.id)),
-    [layout, selectedNotes],
+    () =>
+      (layout?.notes ?? [])
+        .filter((note) => selectedNotes.has(note.id))
+        .map((note) => {
+          const staves = parts[note.partIndex]?.score.staves ?? [];
+          const octaves = staves.length === 1 ? writtenOctaves(staves[0]) : 0;
+          return octaves ? { ...note, octave: note.octave - octaves } : note;
+        }),
+    [layout, selectedNotes, parts],
   );
 
   /** The one accidental every selected note carries, if they agree. */
@@ -1767,7 +1780,7 @@ export function useScoreEditing({
           const { rootNote, mode } = useStore.getState();
           const pin = pinnedSpelling(
             at.midi,
-            at.step,
+            soundingStep(at.step, staves[at.staffIndex] ?? 'treble'),
             part.score.keyFifths,
             rootNote,
             mode,
@@ -1933,6 +1946,7 @@ export function useScoreEditing({
         cursor.step ?? middleLineStep(staff),
         part.score.keyFifths,
         joining,
+        staff,
       );
       if (!pitch) return;
       const tick =

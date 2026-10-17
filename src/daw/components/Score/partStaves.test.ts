@@ -95,10 +95,10 @@ function stavesWhileWriting(
 }
 
 describe('writing notes one by one', () => {
-  it('keeps an empty bass part in bass clef, high notes and all', () => {
+  it('keeps an empty bass part on its bass clef, high notes and all', () => {
     // C2, then up past the treble staff: ledger lines, not a new clef.
     const seen = stavesWhileWriting('bass-electric', [36, 60, 72, 84, 96]);
-    expect(seen).toEqual(seen.map(() => ['bass']));
+    expect(seen).toEqual(seen.map(() => ['bass8vb']));
   });
 
   it('keeps a treble part in treble clef, however low it goes', () => {
@@ -140,7 +140,7 @@ describe('notes far from the staff', () => {
     const [bass] = build([
       track('bass', 'bass-electric', [ev(28, 0), ev(84, 480), ev(96, 960)]),
     ]);
-    expect(pitchesOn(bass.score)).toEqual({ bass: [28, 84, 96] });
+    expect(pitchesOn(bass.score)).toEqual({ bass8vb: [28, 84, 96] });
   });
 
   it('are shared out on a grand staff by the usual split', () => {
@@ -172,7 +172,9 @@ describe("a part's setting", () => {
     expect(on(undefined)).toEqual(['treble', 'bass']);
     expect(on('auto')).toEqual(['treble', 'bass']);
     expect(on('treble')).toEqual(['treble']);
+    expect(on('alto')).toEqual(['alto']);
     expect(on('bass')).toEqual(['bass']);
+    expect(on('bass8vb')).toEqual(['bass8vb']);
     expect(on('grand')).toEqual(['treble', 'bass']);
   });
 
@@ -212,10 +214,14 @@ describe('the Lead Sheet’s melody staves', () => {
     ];
     const staves = (list: Track[]) =>
       melodyScoreParts(list, base).map((part) => part.score.staves);
-    expect(staves(tracks)).toEqual([['treble'], ['bass'], ['treble', 'bass']]);
+    expect(staves(tracks)).toEqual([
+      ['treble'],
+      ['bass8vb'],
+      ['treble', 'bass'],
+    ]);
     expect(
       staves([tracks[0], tracks[1], { ...tracks[2], notationStaff: 'treble' }]),
-    ).toEqual([['treble'], ['bass'], ['treble']]);
+    ).toEqual([['treble'], ['bass8vb'], ['treble']]);
   });
 });
 
@@ -258,6 +264,34 @@ describe('the MusicXML export', () => {
       { staves: '2', clefs: ['G', 'F'] },
       { staves: '1', clefs: ['percussion'] },
     ]);
+    // The bass's bass clef carries its 8; the cello's does not.
+    const clefs = [...xml.matchAll(/<clef[^>]*>[\s\S]*?<\/clef>/g)].map(
+      ([clef]) => clef,
+    );
+    expect(clefs[2]).toBe(
+      '<clef><sign>F</sign><line>4</line><clef-octave-change>-1</clef-octave-change></clef>',
+    );
+    expect(clefs[4]).toBe('<clef><sign>F</sign><line>4</line></clef>');
+  });
+
+  it('writes a viola on a C clef, on the middle line', () => {
+    const xml = xmlOf(
+      build([track('Viola', 'soundfont', [ev(60, 0)], { gmProgram: 41 })]),
+    );
+    expect(xml).toContain('<clef><sign>C</sign><line>3</line></clef>');
+    expect(xml).toContain('<pitch><step>C</step><octave>4</octave></pitch>');
+  });
+
+  it('writes a bass at the pitch it sounds, the 8 drawing it an octave up', () => {
+    // C2 and E1, the bass guitar's lowest E. MuseScore reads <pitch> as the
+    // sounding pitch under an octave clef, so no <transpose> goes with it.
+    const xml = xmlOf(
+      build([track('Bass', 'bass-electric', [ev(36, 0), ev(28, 480)])]),
+    );
+    expect(xml).toContain('<clef-octave-change>-1</clef-octave-change>');
+    expect(xml).not.toContain('<transpose>');
+    expect(xml).toContain('<pitch><step>C</step><octave>2</octave></pitch>');
+    expect(xml).toContain('<pitch><step>E</step><octave>1</octave></pitch>');
   });
 
   it('writes a part on the staff it was set to', () => {
@@ -267,5 +301,60 @@ describe('the MusicXML export', () => {
       ]),
     );
     expect(attributesOf(xml)).toEqual([{ staves: '1', clefs: ['F'] }]);
+  });
+});
+
+describe('a staff written an octave above its sound', () => {
+  /** Each written key of a part's one staff: letter, octave, MIDI pitch. */
+  const keysOf = (score: NotationScore) =>
+    score.measures.flatMap((measure) =>
+      (measure.staves[score.staves[0]] ?? []).flatMap((voice) =>
+        voice.items.flatMap((item) =>
+          item.kind === 'note'
+            ? item.keys.map((key) => `${key.letter}${key.octave}=${key.midi}`)
+            : [],
+        ),
+      ),
+    );
+
+  it('draws a bass an octave up and keeps the pitch it sounds', () => {
+    // MIDI C2 is written on the C3 space; the low E string, E1, on E2.
+    const [bass] = build([
+      track('bass', 'bass-electric', [ev(36, 0), ev(28, 480), ev(43, 960)]),
+    ]);
+    expect(bass.score.staves).toEqual(['bass8vb']);
+    expect(keysOf(bass.score)).toEqual(['c3=36', 'e2=28', 'g3=43']);
+  });
+
+  it('writes the plain bass clef where it sounds', () => {
+    const [cello] = build([track('cello', 'cello', [ev(36, 0)])]);
+    expect(cello.score.staves).toEqual(['bass']);
+    expect(keysOf(cello.score)).toEqual(['c2=36']);
+  });
+
+  it('keeps a pinned spelling on its letter, an octave up', () => {
+    // A♯1 (MIDI 34) pinned as B♭: written B♭2 on the bass clef with an 8.
+    const bass = track('bass', 'bass-electric', [ev(34, 0)]);
+    const id = `bass:bass-c:0:34`;
+    const [part] = buildScoreParts({
+      ...base,
+      tracks: [bass],
+      spellings: new Map([[id, 'B♭1']]),
+    });
+    const key = part.score.measures[0].staves.bass8vb[0].items[0].keys[0];
+    expect([key.letter, key.alteration, key.octave, key.midi]).toEqual([
+      'b',
+      -1,
+      2,
+      34,
+    ]);
+  });
+
+  it('reads alto clef pitches as they sound', () => {
+    const [viola] = build([
+      track('viola', 'soundfont', [ev(48, 0), ev(60, 480)], { gmProgram: 41 }),
+    ]);
+    expect(viola.score.staves).toEqual(['alto']);
+    expect(keysOf(viola.score)).toEqual(['c3=48', 'c4=60']);
   });
 });

@@ -25,6 +25,7 @@ import {
   redo,
   resetUndoHistory,
   undo,
+  withTransaction,
 } from '@/daw/store/undoMiddleware';
 import { installDomShims } from '@/daw/ui/__tests__/dom';
 import { ScorePartsPanel } from './ScorePartsPanel';
@@ -170,7 +171,7 @@ describe('the parts panel', () => {
     ).toHaveTextContent('Auto (Grand staff)');
     expect(
       screen.getByRole('combobox', { name: 'Clef for Bass' }),
-    ).toHaveTextContent('Auto (Bass clef)');
+    ).toHaveTextContent('Auto (Bass clef 8vb)');
     // A kit has nothing to choose.
     expect(
       screen.queryByRole('combobox', { name: 'Clef for Drums' }),
@@ -200,9 +201,72 @@ describe('the parts panel', () => {
     mount();
     await choose('Bass', 'Treble clef');
     expect(trackOf(bass).notationStaff).toBe('treble');
-    await choose('Bass', 'Auto (Bass clef)');
+    await choose('Bass', 'Auto (Bass clef 8vb)');
+    expect(trackOf(bass).notationStaff).toBeUndefined();
+    expect(stavesOf(bass)).toEqual(['bass8vb']);
+  });
+
+  it('offers the alto clef and both bass clefs', async () => {
+    mount();
+    await choose('Keys', 'Alto clef');
+    expect(trackOf(keys).notationStaff).toBe('alto');
+    expect(stavesOf(keys)).toEqual(['alto']);
+    await choose('Bass', 'Bass clef');
+    expect(trackOf(bass).notationStaff).toBe('bass');
+    expect(stavesOf(bass)).toEqual(['bass']);
+    await choose('Keys', 'Bass clef 8vb (sounds an octave lower)');
+    expect(stavesOf(keys)).toEqual(['bass8vb']);
+    // The narrow field names the clef; its tooltip says what the 8 does.
+    const field = screen.getByRole('combobox', { name: 'Clef for Keys' });
+    expect(field).toHaveTextContent(/^Bass clef 8vb$/);
+    expect(field.parentElement?.getAttribute('title')).toBe(
+      'Bass clef 8vb (sounds an octave lower), set by hand',
+    );
+  });
+});
+
+describe('a new instrument', () => {
+  it('puts a clef set by hand back to Auto, and one undo brings both back', async () => {
+    mount();
+    await choose('Bass', 'Treble clef');
+    expect(stavesOf(bass)).toEqual(['treble']);
+    // The keyboard's preset browser: a soundfont cello, as one edit.
+    act(() =>
+      withTransaction('Change instrument', () =>
+        st().updateTrack(bass, { instrument: 'soundfont', gmProgram: 42 }),
+      ),
+    );
     expect(trackOf(bass).notationStaff).toBeUndefined();
     expect(stavesOf(bass)).toEqual(['bass']);
+    expect(
+      screen.getByRole('combobox', { name: 'Clef for Bass' }),
+    ).toHaveTextContent('Auto (Bass clef)');
+    // Then a viola, from the Instruments panel's program list.
+    act(() =>
+      withTransaction('Change instrument', () =>
+        st().updateTrack(bass, { gmProgram: 41 }),
+      ),
+    );
+    expect(stavesOf(bass)).toEqual(['alto']);
+
+    act(() => undo());
+    expect(trackOf(bass)).toMatchObject({ gmProgram: 42 });
+    act(() => undo());
+    expect(trackOf(bass)).toMatchObject({
+      instrument: 'bass-electric',
+      notationStaff: 'treble',
+    });
+    expect(stavesOf(bass)).toEqual(['treble']);
+    act(() => redo());
+    expect(trackOf(bass)).toMatchObject({ instrument: 'soundfont' });
+    expect(trackOf(bass).notationStaff).toBeUndefined();
+  });
+
+  it('keeps the clef through an edit that is not one', async () => {
+    mount();
+    await choose('Keys', 'Treble clef');
+    act(() => st().updateTrack(keys, { name: 'Lead keys', volume: 0.5 }));
+    expect(trackOf(keys).notationStaff).toBe('treble');
   });
 });
 
@@ -223,7 +287,7 @@ describe("a part's name on the page", () => {
       height: '180px',
     });
     expect(button.getAttribute('title')).toBe(
-      'Bass — Auto: Bass clef, for Bass guitar. Click to change the clef.',
+      'Bass — Auto: Bass clef 8vb (sounds an octave lower), for Bass guitar. Click to change the clef.',
     );
   });
 
@@ -239,9 +303,11 @@ describe("a part's name on the page", () => {
         .getAllByRole('menuitemradio')
         .map((item) => [item.textContent, item.getAttribute('aria-checked')]),
     ).toEqual([
-      ['Auto (Bass clef)', 'true'],
+      ['Auto (Bass clef 8vb)', 'true'],
       ['Treble clef', 'false'],
+      ['Alto clef', 'false'],
       ['Bass clef', 'false'],
+      ['Bass clef 8vb (sounds an octave lower)', 'false'],
       ['Grand staff', 'false'],
     ]);
     fireEvent.click(
@@ -253,7 +319,7 @@ describe("a part's name on the page", () => {
 
     act(() => undo());
     expect(trackOf(bass).notationStaff).toBeUndefined();
-    expect(stavesOf(bass)).toEqual(['bass']);
+    expect(stavesOf(bass)).toEqual(['bass8vb']);
   });
 
   it('says a kit is always on a drum staff', async () => {

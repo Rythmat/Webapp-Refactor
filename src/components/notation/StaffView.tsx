@@ -16,6 +16,7 @@ import type {
   NotationScore,
   StaffId,
 } from '@/lib/notation';
+import { CLEF_ANNOTATION, VEXFLOW_CLEF } from '@/lib/notation/clefs';
 import {
   contentWidth as pageContentWidth,
   fitScale,
@@ -76,9 +77,19 @@ export interface ScorePart {
   score: NotationScore;
   /**
    * An 8 on the clef for a part written an octave off its sounding pitch —
-   * guitar's treble clef with an 8 below. Never on a drumset staff.
+   * guitar's treble clef with an 8 below. Never on a drumset staff. A
+   * bass8vb staff carries its own 8 whatever this says (clefs.ts).
    */
   clefAnnotation?: '8va' | '8vb';
+}
+
+/** The 8 on a staff's clef: its own (bass8vb), else the part's. */
+function clefAnnotationOf(
+  part: ScorePart,
+  staff: StaffId,
+): '8va' | '8vb' | undefined {
+  if (staff === 'percussion') return undefined;
+  return CLEF_ANNOTATION[staff] ?? part.clefAnnotation;
 }
 
 /** Where a barline sits on screen, in scaled px, for overlays and clicks. */
@@ -318,9 +329,11 @@ const TOP_LINE_DROP = 40;
 const CHORD_ROOM = 24;
 /** Bottom line of each clef, as an absolute diatonic step. */
 const BOTTOM_LINE: Partial<Record<StaffId, number>> = {
-  // E4 and G2.
+  // E4, F3 and G2, as written: a bass8vb staff is drawn like a bass one.
   treble: 4 * 7 + 2,
+  alto: 3 * 7 + 3,
   bass: 2 * 7 + 4,
+  bass8vb: 2 * 7 + 4,
 };
 
 /**
@@ -393,9 +406,12 @@ const KEY_SPECS: Record<number, string> = {
   7: 'C#',
 };
 
+/** The middle line of each staff, where a rest or a slash is written. */
 const REST_KEY: Record<StaffId, string> = {
   treble: 'b/4',
   bass: 'd/3',
+  alto: 'c/4',
+  bass8vb: 'd/3',
   percussion: 'b/4',
 };
 
@@ -465,7 +481,7 @@ function buildMeasure(
           note = new vf.StaveNote({
             keys: [REST_KEY[staff]],
             duration: 'wr',
-            clef: staff,
+            clef: VEXFLOW_CLEF[staff],
             alignCenter: true,
           });
         } else {
@@ -482,7 +498,7 @@ function buildMeasure(
                   : item.keys.map(vexKey),
             duration: `${item.value}${item.kind === 'rest' ? 'r' : ''}`,
             dots: item.dots,
-            clef: staff,
+            clef: VEXFLOW_CLEF[staff],
             ...(stem === undefined
               ? { autoStem: true }
               : { stemDirection: stem }),
@@ -639,9 +655,9 @@ function headerWidth(
   for (const part of parts) {
     for (const clef of part.score.staves) {
       const stave = new vf.Stave(0, 0, 500).addClef(
-        clef,
+        VEXFLOW_CLEF[clef],
         undefined,
-        clef === 'percussion' ? undefined : part.clefAnnotation,
+        clefAnnotationOf(part, clef),
       );
       if (clef !== 'percussion') {
         stave.addKeySignature(KEY_SPECS[part.score.keyFifths] ?? 'C');
@@ -1450,9 +1466,9 @@ function render(
           );
           if (first) {
             stave.addClef(
-              staff,
+              VEXFLOW_CLEF[staff],
               undefined,
-              staff === 'percussion' ? undefined : part.clefAnnotation,
+              clefAnnotationOf(part, staff),
             );
             if (staff !== 'percussion') {
               stave.addKeySignature(KEY_SPECS[part.score.keyFifths] ?? 'C');

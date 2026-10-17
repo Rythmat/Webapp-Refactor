@@ -59,8 +59,9 @@ function jsonFiles(dir: string): { name: string; session: any }[] {
 const V2 = jsonFiles(join(FIXTURES, 'v2'));
 const V2_12 = jsonFiles(join(FIXTURES, 'v2-1.2'));
 const V1 = jsonFiles(join(FIXTURES, 'v1'));
-/** Today's format (schema 6), and the v3, v4 and v5 ones it migrates from. */
-const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v6-all-fields'))[0].session;
+/** Today's format (schema 7), and the v3 to v6 ones it migrates from. */
+const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v7-all-fields'))[0].session;
+const ALL_FIELDS_V6 = jsonFiles(join(FIXTURES, 'v6-all-fields'))[0].session;
 const ALL_FIELDS_V5 = jsonFiles(join(FIXTURES, 'v5-all-fields'))[0].session;
 const ALL_FIELDS_V4 = jsonFiles(join(FIXTURES, 'v4-all-fields'))[0].session;
 const ALL_FIELDS_V3 = jsonFiles(join(FIXTURES, 'v3-all-fields'))[0].session;
@@ -609,10 +610,10 @@ describe('migrating', () => {
     expect(result.session.data.tracks).toEqual(ALL_FIELDS.data.tracks);
   });
 
-  it('reads a v3 draft as v6, with no bars past its chords', () => {
+  it('reads a v3 draft as v7, with no bars past its chords', () => {
     const result = migrated(ALL_FIELDS_V3);
     expect(result.from).toBe(3);
-    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
+    expect(result.session).toMatchObject({ schema: 7, compat: 3 });
     // Schema 4 only added fields, so the v3 data passes through untouched
     // but for the melody track 5 turned into a list.
     const { notation, ...data } = result.session.data;
@@ -640,7 +641,7 @@ describe('a v4 draft', () => {
   it('reads its one melody track as a list of it', () => {
     const result = migrated(ALL_FIELDS_V4);
     expect(result.from).toBe(4);
-    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
+    expect(result.session).toMatchObject({ schema: 7, compat: 3 });
     const notation = result.session.data.notation as Record<string, unknown>;
     expect(notation).not.toHaveProperty('leadSheetMelodyTrackId');
     expect(notation.leadSheetMelodyTrackIds).toEqual(['trk-lead']);
@@ -686,10 +687,10 @@ describe('a v4 draft', () => {
 });
 
 describe('a v5 draft', () => {
-  it('reads as v6 untouched, every part on Auto', () => {
+  it('reads as v7 untouched, every part on Auto', () => {
     const result = migrated(ALL_FIELDS_V5);
     expect(result.from).toBe(5);
-    expect([result.repaired, result.session.schema]).toEqual([0, 6]);
+    expect([result.repaired, result.session.schema]).toEqual([0, 7]);
     // Schema 6 only added a field, so the v5 data passes through as it is.
     expect(result.session.data).toEqual(ALL_FIELDS_V5.data);
     const { project } = decode(ALL_FIELDS_V5);
@@ -700,7 +701,7 @@ describe('a v5 draft', () => {
 
   it('loads as the v6 draft does, but for the staff v6 set by hand', () => {
     // The two all-fields drafts differ only there: v6 writes Keys in treble.
-    const v6 = decode(ALL_FIELDS).project;
+    const v6 = decode(ALL_FIELDS_V6).project;
     expect(v6.tracks[0]).toMatchObject({
       id: 'trk-keys',
       notationStaff: 'treble',
@@ -713,9 +714,52 @@ describe('a v5 draft', () => {
 
   it('drops a staff that is no staff, and counts it', () => {
     const stored = structuredClone(ALL_FIELDS);
-    stored.data.tracks[0].settings.notationStaff = 'alto';
+    stored.data.tracks[0].settings.notationStaff = 'tenor';
     const { project, repaired } = decode(stored);
     expect(repaired).toBe(1);
     expect(project.tracks[0].notationStaff).toBeUndefined();
+  });
+});
+
+describe('a v6 draft', () => {
+  it('reads as v7 untouched', () => {
+    const result = migrated(ALL_FIELDS_V6);
+    expect(result.from).toBe(6);
+    expect([result.repaired, result.session.schema]).toEqual([0, 7]);
+    // Schema 7 only let the staff take two more values: nothing translates.
+    expect(result.session.data).toEqual(ALL_FIELDS_V6.data);
+  });
+
+  it('loads as the v7 draft does, but for the two staves v7 can name', () => {
+    // The two all-fields drafts differ only there: v7 writes the Lead in
+    // alto clef and the Bass on the bass clef with an 8.
+    const v7 = decode(ALL_FIELDS).project;
+    const staves = Object.fromEntries(
+      v7.tracks.map((t) => [t.id, t.notationStaff]),
+    );
+    expect(staves).toMatchObject({
+      'trk-keys': 'treble',
+      'trk-lead': 'alto',
+      'trk-bass': 'bass8vb',
+    });
+    const unset = ({ notationStaff: _staff, ...track }: Track) => track;
+    expect(decode(ALL_FIELDS_V6).project).toEqual({
+      ...v7,
+      tracks: v7.tracks.map((track) =>
+        track.id === 'trk-lead' || track.id === 'trk-bass'
+          ? unset(track)
+          : track,
+      ),
+    });
+  });
+
+  it('reads the staves schema 7 added', () => {
+    for (const staff of ['alto', 'bass8vb'] as const) {
+      const stored = structuredClone(ALL_FIELDS_V6);
+      stored.data.tracks[0].settings.notationStaff = staff;
+      const { project, repaired } = decode(stored);
+      expect(repaired).toBe(0);
+      expect(project.tracks[0].notationStaff).toBe(staff);
+    }
   });
 });

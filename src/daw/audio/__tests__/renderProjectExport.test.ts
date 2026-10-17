@@ -123,6 +123,23 @@ vi.mock('../MidiScheduler', () => ({
     }
   },
 }));
+const audio = vi.hoisted(() => ({
+  scheduled: [] as string[],
+  buffers: new Set<string>(),
+}));
+vi.mock('../AudioClipScheduler', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  AudioClipScheduler: class {
+    scheduleClip({ clip }: { clip: { id?: string } }) {
+      audio.scheduled.push(clip.id ?? '');
+    }
+  },
+}));
+vi.mock('../AudioBufferStore', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getAudioBuffer: (id: string) =>
+    audio.buffers.has(id) ? { duration: 4, numberOfChannels: 2 } : undefined,
+}));
 vi.mock('../AutomationScheduler', () => ({
   applyOfflineAutomation: () => {},
   applyOfflineLanes: () => {},
@@ -181,6 +198,8 @@ beforeEach(() => {
   chains.disposed = 0;
   chains.failUpdate = false;
   midi.scheduled = 0;
+  audio.scheduled.length = 0;
+  audio.buffers.clear();
   ir.ensureProcessedIr.mockReset();
   ir.ensureProcessedIr.mockResolvedValue(null);
   instruments.createInstrument.mockReset();
@@ -296,6 +315,27 @@ describe('renderProject', () => {
     ];
     await renderProject();
     expect(midi.scheduled).toBe(1);
+  });
+
+  it('leaves a muted audio clip out of the export too (2.12)', async () => {
+    audio.buffers.add('take-1').add('take-2');
+    const take = (id: string, startTick: number, muted?: true) => ({
+      id,
+      startTick,
+      duration: 1920,
+      fadeInTicks: 0,
+      fadeOutTicks: 0,
+      muted,
+    });
+    store.state.tracks = [
+      {
+        ...track('vocal'),
+        instrument: 'vocal-fx',
+        audioClips: [take('take-1', 0), take('take-2', 1920, true)],
+      },
+    ];
+    await renderProject();
+    expect(audio.scheduled).toEqual(['take-1']);
   });
 
   it('runs the stored mastering chain', async () => {

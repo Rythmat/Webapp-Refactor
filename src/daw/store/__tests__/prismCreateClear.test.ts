@@ -356,6 +356,8 @@ describe('Create again', () => {
       'renamed',
       (take) => st().updateMidiClip(keys, take.id, { name: 'Verse' }),
     ],
+    // From the clip menu or ⇧M (milestone 2.12).
+    ['muted', (take) => st().updateMidiClip(keys, take.id, { muted: true })],
   ])('keeps a take the student has %s', (_, touch) => {
     const first = firstTake();
     touch(first);

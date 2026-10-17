@@ -9,7 +9,12 @@ interface ScheduledPart {
   trackEngine: TrackEngine;
   /** How many of each note this part has started and not yet ended. */
   sounding: Map<number, number>;
+  /** The clip's sustain pedal is down (its last CC 64 was 64 or more). */
+  pedal: { down: boolean };
 }
+
+/** The sustain pedal's controller. */
+const SUSTAIN_CC = 64;
 
 export class MidiScheduler {
   private parts: ScheduledPart[] = [];
@@ -73,9 +78,11 @@ export class MidiScheduler {
     }
 
     const sounding = new Map<number, number>();
+    const pedal = { down: false };
+    const muted = () => clipId !== undefined && this.mutedClips.has(clipId);
     const part = new Tone.Part((time, ev) => {
       if (ev.type === 'on') {
-        if (clipId !== undefined && this.mutedClips.has(clipId)) return;
+        if (muted()) return;
         sounding.set(ev.note, (sounding.get(ev.note) ?? 0) + 1);
         trackEngine.noteOn(ev.note, ev.velocity, time);
       } else if (ev.type === 'off') {
@@ -87,28 +94,40 @@ export class MidiScheduler {
         else sounding.set(ev.note, count - 1);
         trackEngine.noteOff(ev.note, time);
       } else if (ev.type === 'cc') {
+        // A muted clip's controllers are silent too: its pedal would hold
+        // another clip's notes on the track, as the bounce never does.
+        if (muted()) return;
+        if (ev.controller === SUSTAIN_CC) pedal.down = ev.value! >= 64;
         trackEngine.cc(ev.controller!, ev.value!, time);
       }
     }, allEvents);
 
     part.start(0);
-    this.parts.push({ part, clipId, trackEngine, sounding });
+    this.parts.push({ part, clipId, trackEngine, sounding, pedal });
   }
 
   /**
    * The clips that are muted now. A clip that has just been muted lets go of
-   * the notes it has sounding; one just unmuted plays from its next note.
+   * the notes it has sounding, and of its sustain pedal; one just unmuted
+   * plays from its next note. The release is timed where the transport is
+   * scheduling (Tone.now(), a look-ahead past the audio clock), so it comes
+   * after any attack the clip has already booked rather than before it.
    */
   setMutedClips(clipIds: ReadonlySet<string>): void {
     const before = this.mutedClips;
     this.mutedClips = clipIds;
     for (const entry of this.parts) {
-      const { clipId, sounding, trackEngine } = entry;
+      const { clipId, sounding, trackEngine, pedal } = entry;
       if (clipId === undefined || before.has(clipId) || !clipIds.has(clipId)) {
         continue;
       }
-      for (const note of sounding.keys()) trackEngine.noteOff(note);
+      const at = Tone.now();
+      for (const note of sounding.keys()) trackEngine.noteOff(note, at);
       sounding.clear();
+      if (pedal.down) {
+        trackEngine.cc(SUSTAIN_CC, 0, at);
+        pedal.down = false;
+      }
     }
   }
 

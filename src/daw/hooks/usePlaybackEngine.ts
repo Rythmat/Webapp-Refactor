@@ -574,7 +574,12 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       scheduler.setMutedClips(muted);
       const unmuted = new Set(audioClipScheduler.setMutedClips(muted));
       if (unmuted.size === 0) return;
-      const tick = getPlayheadTick();
+      // Where the transport is on the audio clock, as the clips started on
+      // the beat are: the playhead the student sees runs an output latency
+      // behind it, and a restart from there would play late.
+      const tick = Tone.getTransport().getTicksAtTime(
+        Tone.getContext().currentTime,
+      );
       for (const track of state.tracks) {
         const audio = audioMap.get(track.id);
         if (!audio) continue;

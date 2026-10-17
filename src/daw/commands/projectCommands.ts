@@ -22,13 +22,16 @@ export function exportProjectMidi(): Promise<void> {
   for (let i = 0; i < state.tracks.length; i++) {
     const track = state.tracks[i];
     if (track.midiClips.length === 0) continue;
-    // Notes are clip time; the file is song time.
-    const events = track.midiClips.flatMap((clip) =>
-      clip.events.map((e) => ({
-        ...e,
-        startTick: toSongTick(clip, e.startTick),
-      })),
-    );
+    // Notes are clip time; the file is song time. A muted clip (2.12) is
+    // left out, as the audio export leaves it out: the file holds what plays.
+    const events = track.midiClips
+      .filter((clip) => !clip.muted)
+      .flatMap((clip) =>
+        clip.events.map((e) => ({
+          ...e,
+          startTick: toSongTick(clip, e.startTick),
+        })),
+      );
     if (events.length === 0) continue;
     sequences.set(i + 1, {
       ticksPerQuarterNote: OUR_PPQ,

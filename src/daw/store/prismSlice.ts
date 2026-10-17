@@ -834,6 +834,8 @@ function clipContent(clip: MidiClip): string {
     clip.startTick,
     clip.durationTicks ?? 0,
     clip.name ?? '',
+    // A take the student muted (2.12) was touched: kept, as a renamed one is.
+    clip.muted === true,
     clip.events.map((e) => [
       e.note,
       e.velocity,

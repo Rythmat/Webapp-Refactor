@@ -63,6 +63,15 @@ export class AudioClipScheduler {
    */
   private mutedClips: ReadonlySet<string> = new Set();
   private sourcesByClip = new Map<string, Set<AudioBufferSourceNode>>();
+  /**
+   * A start that came while its clip was muted: when it was due (audio-clock
+   * time) and how to make it. An unmute before that time comes (the
+   * transport books starts a look-ahead early) makes it then, on the beat.
+   */
+  private skippedStarts = new Map<
+    string,
+    { time: number; start: (time: number) => void }
+  >();
   // One silent source per track input while its clips are scheduled (see
   // holdTrackInput).
   private holds = new Map<TrackEngine, ConstantSourceNode>();
@@ -134,8 +143,7 @@ export class AudioClipScheduler {
       );
       // Runs once per tick: the transports clips play on drop Tone's repeated
       // ticks (transportTicks.ts), which would start a clip twice, +6 dB.
-      const id = Tone.getTransport().schedule((time) => {
-        if (muted()) return;
+      const start = (time: number) =>
         this.startSource(
           buffer,
           startOffset,
@@ -146,6 +154,14 @@ export class AudioClipScheduler {
           envelope.clipDurationSeconds,
           clipId,
         );
+      const id = Tone.getTransport().schedule((time) => {
+        if (muted()) {
+          if (clipId !== undefined) {
+            this.skippedStarts.set(clipId, { time, start });
+          }
+          return;
+        }
+        start(time);
       }, `${startTick}i`);
       this.scheduledIds.push(id);
     }
@@ -173,6 +189,7 @@ export class AudioClipScheduler {
     }
     this.activeSources = [];
     this.sourcesByClip.clear();
+    this.skippedStarts.clear();
 
     for (const hold of this.holds.values()) {
       try {
@@ -256,9 +273,11 @@ export class AudioClipScheduler {
   }
 
   /**
-   * The clips that are muted now. What a clip just muted has sounding stops;
-   * returns the clips just unmuted, which the caller starts again where the
-   * playhead is (a start that already passed was skipped).
+   * The clips that are muted now. What a clip just muted has sounding stops.
+   * A clip just unmuted whose start was skipped but isn't due yet starts
+   * when it is due; the rest of the clips just unmuted are returned, for
+   * the caller to start where the transport is if it is inside them (a
+   * start that already passed was skipped).
    */
   setMutedClips(clipIds: ReadonlySet<string>): string[] {
     const before = this.mutedClips;
@@ -273,7 +292,16 @@ export class AudioClipScheduler {
         }
       }
     }
-    return [...before].filter((clipId) => !clipIds.has(clipId));
+    const now = Tone.getContext().currentTime;
+    const restart: string[] = [];
+    for (const clipId of before) {
+      if (clipIds.has(clipId)) continue;
+      const skipped = this.skippedStarts.get(clipId);
+      this.skippedStarts.delete(clipId);
+      if (skipped && skipped.time > now) skipped.start(skipped.time);
+      else restart.push(clipId);
+    }
+    return restart;
   }
 
   /** Track a started source until it ends, so cancelAll can stop it. */

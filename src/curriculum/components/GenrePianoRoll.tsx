@@ -65,6 +65,14 @@ export interface PianoRollProps {
    * length so it counts every beat the student hears. Defaults to one bar.
    */
   leadInTicks?: number;
+  /**
+   * A pickup into bar 1, in ticks: notes before tick 0, at the end of the
+   * count-in bar (Music Literacy's words). Parked, the roll opens on it
+   * rather than on bar 1; a double bar marks bar 1, the real downbeat, on
+   * the roll and the staff, and the count-in bar's beats are numbered as
+   * the pickup bar's ("1" … "4"). Left out, none.
+   */
+  pickupTicks?: number;
   /** Staves the notation view writes on; the roll itself is unaffected. */
   staves?: 'grand' | 'treble' | 'bass';
   /**
@@ -276,17 +284,24 @@ function generateTickPositions(
   return ticks;
 }
 
+/** The first of `stepSize`'s multiples at or after `tick`. */
+const alignUp = (tick: number, stepSize: number) =>
+  stepSize > 0 ? Math.ceil(tick / stepSize - 1e-9) * stepSize : tick;
+
 function barBeatLabels(
   bars: number,
   beatsPerBar: number,
   showCountIn: boolean,
   beatTicks: number,
+  /** The bar before bar 1 is a pickup bar: just its beats, "1" … "4". */
+  pickupBar = false,
 ) {
   const labels: { tick: number; label: string }[] = [];
   for (let barIndex = -(showCountIn ? 1 : 0); barIndex < bars; barIndex++) {
     for (let beat = 1; beat <= beatsPerBar; beat++) {
       const absoluteBeat = barIndex * beatsPerBar + (beat - 1);
-      const prefix = barIndex < 0 ? `${barIndex}.` : `${barIndex + 1}.`;
+      const prefix =
+        barIndex < 0 ? (pickupBar ? '' : `${barIndex}.`) : `${barIndex + 1}.`;
       labels.push({
         tick: absoluteBeat * beatTicks,
         label: `${prefix}${beat}`,
@@ -295,6 +310,22 @@ function barBeatLabels(
   }
   return labels;
 }
+
+/** Bar 1 after a pickup, the real downbeat: two lines, the second on it. */
+const DoubleBar: React.FC<{ left: number }> = ({ left }) => (
+  <div
+    aria-hidden="true"
+    data-roll-double-bar
+    className="pointer-events-none absolute inset-y-0"
+    style={{
+      left: `${left}%`,
+      width: 6,
+      transform: 'translateX(-4px)',
+      borderLeft: `2px solid ${PIANO_ROLL_LANE_COLORS.doubleBarLine}`,
+      borderRight: `2px solid ${PIANO_ROLL_LANE_COLORS.doubleBarLine}`,
+    }}
+  />
+);
 
 // ===== Component =====
 const GenrePianoRoll: React.FC<PianoRollProps> = ({
@@ -307,6 +338,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   rowHeight = 36 * 24,
   inTime = false,
   leadInTicks,
+  pickupTicks = 0,
   staves,
   notationToggle,
   playSpeed = 60,
@@ -351,9 +383,13 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   // shifted its notes to make room, so bar 1 sits that much later than tick 0
   // on this playhead — that is where the count has to run to.
   const musicStartTick = Math.max(0, countOffTicks - countInTicks);
-  const totalTicks = bars * ticksPerBar + countInTicks;
+  // A pickup sits at the end of the count-in bar; parked, the roll shows
+  // only it ahead of bar 1.
+  const pickup = Math.max(0, Math.min(pickupTicks, ticksPerBar));
+  const leadTicks = inTime ? countInTicks : pickup;
+  const totalTicks = bars * ticksPerBar + leadTicks;
   const laneLabelWidth = 72;
-  const timelineStartTick = -countInTicks;
+  const timelineStartTick = -leadTicks;
   const timelineEndTick = bars * ticksPerBar;
   const safeSubdivision = subdivision <= 0 ? 1 : subdivision;
   const beatsPerSecond = Math.max(playSpeed, 0) / 60;
@@ -369,7 +405,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     : timelineEndTick;
   const tickPercent = (tick: number) => {
     if (!inTime) {
-      return ticksToPercent(tick, countInTicks, totalTicks);
+      return ticksToPercent(tick, leadTicks, totalTicks);
     }
     const denominator = displayEndTick - displayStartTick || 1;
     return ((tick - displayStartTick) / denominator) * 100;
@@ -570,6 +606,8 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
         beatTicks={beatTicks}
         timeSignature={timeSignature}
         musicStartTick={musicStartTick}
+        // Only a lesson with a pickup hands one on; the rest stay as they were.
+        {...(pickup > 0 ? { pickupTicks: pickup } : {})}
         staves={staves}
         noteHoldMeta={noteHoldMeta}
         performanceMeta={performanceMeta}
@@ -586,30 +624,45 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     laneIndex[name] = i;
   });
 
-  // Sub grid (thin lines) and beat lines (stronger)
+  // Sub grid (thin lines) and beat lines (stronger). Parked, they fall on
+  // the beats counted from bar 1, wherever a pickup opens the roll.
+  const gridStart = (stepSize: number) =>
+    inTime ? displayStartTick : alignUp(displayStartTick, stepSize);
   const subStepTicks = beatTicks / safeSubdivision;
   const subLines = generateTickPositions(
-    displayStartTick,
+    gridStart(subStepTicks),
     displayEndTick,
     subStepTicks,
   );
   const beatLines = generateTickPositions(
-    displayStartTick,
+    gridStart(beatTicks),
     displayEndTick,
     beatTicks,
   );
   const barLines = generateTickPositions(
-    displayStartTick,
+    gridStart(ticksPerBar),
     displayEndTick,
     ticksPerBar,
   );
 
-  const labels = barBeatLabels(bars, beatsPerBar, inTime, beatTicks);
+  const labels = barBeatLabels(
+    bars,
+    beatsPerBar,
+    inTime || pickup > 0,
+    beatTicks,
+    pickup > 0,
+  );
   const visibleLabels = inTime
     ? labels.filter(
         ({ tick }) => tick >= displayStartTick && tick <= displayEndTick,
       )
-    : labels;
+    : labels.filter(({ tick }) => tick >= timelineStartTick);
+  // After a pickup, bar 1 is the real downbeat: a double bar, where it is.
+  const downbeatAt = tickPercent(0);
+  const doubleBar =
+    pickup > 0 && downbeatAt >= 0 && downbeatAt <= 100 ? (
+      <DoubleBar left={downbeatAt} />
+    ) : null;
 
   return (
     <div className="relative">
@@ -696,6 +749,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                     />
                   </div>
                 ))}
+                {doubleBar}
               </div>
             </div>
           </div>
@@ -822,6 +876,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                   />
                 </div>
               ))}
+              {doubleBar}
             </div>
 
             {/* Notes layer */}

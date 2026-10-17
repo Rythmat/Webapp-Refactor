@@ -197,7 +197,7 @@ export const LiteracyStepEditor: FC<{
 
       <Section
         title="Words · the teacher’s line"
-        hint="Sung on the notes below, after the count-in."
+        hint="Sung on the notes below, after the count-in; a pickup, at its end, into the downbeat (‖)."
         actions={<RollButton what="words" onClick={() => onRoll('words')} />}
       >
         <WordsEditor

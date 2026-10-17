@@ -105,6 +105,10 @@ import { useLiteracyProgress } from './useLiteracyProgress';
 // downbeat, and the result shows once it has rung. The words and the call
 // are MY TURN, the teacher's: a teacher may play along on the keyboard then,
 // and nothing played in it is graded or shown wrong.
+//
+// Words with a pickup sing it at the end of the count-in bar, which clicks on
+// under it, into the words' downbeat; the roll and the staff mark that
+// downbeat with a double bar.
 
 /** The keyboard: exactly 25 keys, C3–C5 (the series' register, literacy.ts). */
 export const LITERACY_KEY_RANGE: KeyRange = { low: 48, high: 72 };
@@ -510,7 +514,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
           id: `${segment}-${note.index}`,
           pitchName: midiToPitchName(note.midi, tonic),
           midi: note.midi,
-          // The roll's tick 0 is where the words begin.
+          // The roll's tick 0 is the words' downbeat (a pickup's before it).
           startTicks: note.onset - countIn,
           durationTicks: note.duration,
           color: segment === 'words' ? wordsColor : keyColor,
@@ -853,6 +857,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             beatsPerBar={beatsPerBar}
             beatTicks={bar / beatsPerBar}
             timeSignature={lesson.timeSignature}
+            pickupTicks={timeline.pickup.length}
             staves="treble"
             subdivision={running ? 2 : 1}
             rowHeight={rowHeight}

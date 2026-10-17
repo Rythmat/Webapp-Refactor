@@ -14,6 +14,8 @@ import {
   lengthLabel,
   lengthOf,
   NOTE_LENGTHS,
+  pickupLabel,
+  pickupLengths,
   type NoteShape,
 } from './literacyChips';
 import type { ChipReorder } from './useChipReorder';
@@ -21,8 +23,9 @@ import type { ChipReorder } from './useChipReorder';
 /**
  * The Music Literacy editor's small parts: a note's length drawn as a note
  * (or a rest), the degree and length pickers every chip has, a chip's top
- * line that drags it, the "+ rest before / after" pickers, and a strip that
- * shows a segment's rhythm against its bars.
+ * line that drags it, the "+ rest before / after" pickers, the words'
+ * pickup and the double bar that ends it, and a strip that shows a
+ * segment's rhythm against its bars.
  */
 
 export const control =
@@ -254,6 +257,63 @@ export const BarsSelect: FC<{
   </label>
 );
 
+/**
+ * The words' pickup: none, or how long, sung at the end of the count-in
+ * into the words' downbeat.
+ */
+export const PickupSelect: FC<{
+  pickup: number;
+  timeSignature: readonly [number, number];
+  onChange: (ticks: number) => void;
+  label: string;
+}> = ({ pickup, timeSignature, onChange, label }) => (
+  <label
+    className="flex items-center gap-1.5 text-xs text-white/60"
+    title="Syllables sung at the end of the count-in, leading into the downbeat (‖)"
+  >
+    Pickup
+    <select
+      aria-label={label}
+      value={pickup}
+      onChange={(e) => onChange(Number(e.target.value))}
+      className={control}
+    >
+      <option value={0}>None</option>
+      {pickupLengths(timeSignature, pickup).map((ticks) => (
+        <option key={ticks} value={ticks}>
+          {pickupLabel(ticks, timeSignature)}
+        </option>
+      ))}
+    </select>
+  </label>
+);
+
+/**
+ * The double bar in a row of chips: the words' downbeat, bar 1, with the
+ * pickup's chips before it.
+ */
+export const DownbeatMark: FC = () => (
+  <div
+    role="separator"
+    aria-orientation="vertical"
+    aria-label="Double bar: the downbeat, bar 1. The pickup is before it."
+    title="The downbeat, bar 1: the pickup before it is sung at the end of the count-in"
+    data-downbeat-mark
+    className="flex shrink-0 flex-col items-center gap-1 self-stretch px-1 py-0.5"
+  >
+    <span
+      aria-hidden="true"
+      className="w-[7px] flex-1 border-x-2 border-sky-300/70"
+    />
+    <span
+      aria-hidden="true"
+      className="text-[10px] tabular-nums leading-none text-sky-200/70"
+    >
+      1·1
+    </span>
+  </div>
+);
+
 /** A rest's chip: its length, and a way to take it out. */
 export const RestChip: FC<{
   ticks: number;
@@ -393,23 +453,30 @@ const BLOCK = 16;
 /**
  * A segment's rhythm and the shape of its melody against its bars: each
  * note a block where it falls and as high as it sits, beats and bar lines
- * behind, and anything past the last bar in red.
+ * behind, and anything past the last bar in red. A pickup (the words')
+ * comes first, before a double bar at the downbeat; items start from the
+ * downbeat, so a pickup's are below zero.
  */
 export const RhythmStrip: FC<{
   items: readonly StripItem[];
   bars: number;
   timeSignature: readonly [number, number];
-}> = ({ items, bars, timeSignature }) => {
+  /** The words' pickup, in ticks: 0 for none. */
+  pickup?: number;
+}> = ({ items, bars, timeSignature, pickup = 0 }) => {
   const bar = barTicks(timeSignature);
   const beat = bar / timeSignature[0];
   const length = bars * bar;
   const end = items.reduce((m, i) => Math.max(m, i.start + i.duration), 0);
-  const total = Math.max(length, end);
+  const total = Math.max(length, end) + pickup;
   const pct = (ticks: number) => `${(ticks / total) * 100}%`;
+  /** Where a tick from the downbeat sits across the strip. */
+  const at = (tick: number) => pct(tick + pickup);
+  const firstBeat = -Math.floor(pickup / beat) * beat;
   const lines = Array.from(
-    { length: Math.ceil(total / beat) + 1 },
-    (_, i) => i * beat,
-  );
+    { length: Math.ceil((total - pickup - firstBeat) / beat) + 1 },
+    (_, i) => firstBeat + i * beat,
+  ).filter((tick) => !(pickup > 0 && tick === 0));
   const pitches = items.flatMap((i) =>
     i.pitch === undefined ? [] : [i.pitch],
   );
@@ -425,10 +492,16 @@ export const RhythmStrip: FC<{
       style={{ height: STRIP }}
       aria-hidden="true"
     >
+      {pickup > 0 && (
+        <div
+          className="absolute inset-y-0 left-0 bg-white/[0.03]"
+          style={{ width: pct(pickup) }}
+        />
+      )}
       {end > length && (
         <div
           className="absolute inset-y-0 bg-red-400/10"
-          style={{ left: pct(length), right: 0 }}
+          style={{ left: at(length), right: 0 }}
         />
       )}
       {lines.map((tick) => (
@@ -438,9 +511,16 @@ export const RhythmStrip: FC<{
             'absolute inset-y-0 w-px',
             tick % bar === 0 ? 'bg-white/25' : 'bg-white/[0.07]',
           )}
-          style={{ left: pct(tick) }}
+          style={{ left: at(tick) }}
         />
       ))}
+      {pickup > 0 && (
+        <div
+          data-strip-double-bar
+          className="absolute inset-y-0 w-[5px] translate-x-[-3px] border-x border-sky-300/70"
+          style={{ left: at(0) }}
+        />
+      )}
       {items
         .filter((item) => !item.rest)
         .map((item, i) => (
@@ -455,7 +535,7 @@ export const RhythmStrip: FC<{
                   : 'bg-white/20 text-white/85',
             )}
             style={{
-              left: pct(item.start),
+              left: at(item.start),
               width: `calc(${pct(item.duration)} - 2px)`,
               top: top(item.pitch),
               height: BLOCK,

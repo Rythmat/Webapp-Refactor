@@ -119,3 +119,52 @@ describe('a part back as a segment', () => {
     expect(less.words.notes).toHaveLength(10);
   });
 });
+
+describe('words with a pickup in the roll', () => {
+  /** "When I" on 4 and its "and", "play" on the downbeat. */
+  const pickupStep: LiteracyStep = {
+    ...step('root-is-1'),
+    words: {
+      bars: 2,
+      pickup: 480,
+      notes: [
+        { tick: -480, duration: 240, degree: '1', text: 'When' },
+        { tick: -240, duration: 240, degree: '3', text: 'I' },
+        { tick: 0, duration: 480, degree: '5', text: 'play' },
+        { tick: 3360, duration: 480, degree: '1', text: 'one' },
+      ],
+    },
+  };
+
+  it('opens a bar longer, the pickup at the end of its first bar', () => {
+    const part = segmentPart(PART_1, pickupStep, 'words', 'x');
+    expect(part.bars).toBe(3);
+    expect(part.notes.map((n) => [n.tick, n.midi])).toEqual([
+      [1440, 60],
+      [1680, 64],
+      [1920, 67],
+      [5280, 60],
+    ]);
+    // The call has no pickup: as it was.
+    expect(segmentPart(PART_1, pickupStep, 'call', 'x').bars).toBe(1);
+  });
+
+  it('comes back as it went, pickup and all', () => {
+    const part = segmentPart(PART_1, pickupStep, 'words', 'x');
+    const back = partWords(part, PART_1, pickupStep.words);
+    expect(back.words).toEqual(pickupStep.words);
+    expect([back.added, back.dropped]).toEqual([0, []]);
+  });
+
+  it('makes the pickup longer, to the eighth, for a note put earlier in its bar', () => {
+    const part = segmentPart(PART_1, pickupStep, 'words', 'x');
+    const earlier: InstrumentPart = {
+      ...part,
+      notes: [{ ...part.notes[0], tick: 1000 }, ...part.notes.slice(1)],
+    };
+    const back = partWords(earlier, PART_1, pickupStep.words);
+    expect(back.words.pickup).toBe(960);
+    expect(back.words.notes[0].tick).toBe(-920);
+    expect(back.words.bars).toBe(2);
+  });
+});

@@ -7,14 +7,20 @@
  * order (`moveItem`, `moveSyllable`), and a rest goes before or after a
  * note as the gap on that side of it (`insertRest`, `withRestBefore`).
  *
+ * Words with a pickup start before their downbeat (negative ticks). Their
+ * line starts at the pickup's start, so the chips run on from it across
+ * the double bar, and the pickup's beats are counted as its bar's ("4&").
+ *
  * No React here.
  */
 
 import {
   LITERACY_TPQ,
+  PICKUP_STEP,
   type LiteracyDegree,
   type LiteracyNote,
   type LiteracyWord,
+  type LiteracyWords,
 } from '@/content/musicLiteracy/schemas';
 import { barTicks } from '@/curriculum/engine/musicLiteracy/literacy';
 
@@ -100,7 +106,8 @@ export function spanWords(
 /**
  * Where a tick falls, as a teacher counts it: "1·1" is the first beat of the
  * first bar, "2·3&" the "and" of beat 3 in bar 2 ("1 e & a"; triplets are
- * "trip" and "let").
+ * "trip" and "let"). Before bar 1, in a pickup, it is the pickup bar's beat
+ * alone: "4", "4&".
  */
 export function barBeat(
   tick: number,
@@ -108,7 +115,7 @@ export function barBeat(
 ): string {
   const bar = barTicks(timeSignature);
   const beat = (Q * 4) / timeSignature[1];
-  const inBar = tick % bar;
+  const inBar = ((tick % bar) + bar) % bar;
   const sub = (inBar % beat) / beat;
   const suffix =
     sub === 0
@@ -124,7 +131,8 @@ export function barBeat(
               : Math.abs(sub - 2 / 3) < 1e-9
                 ? 'let'
                 : '+';
-  return `${Math.floor(tick / bar) + 1}·${Math.floor(inBar / beat) + 1}${suffix}`;
+  const count = `${Math.floor(inBar / beat) + 1}${suffix}`;
+  return tick < 0 ? count : `${Math.floor(tick / bar) + 1}·${count}`;
 }
 
 /** Where a segment's last note ends, in ticks from its start. */
@@ -262,20 +270,33 @@ export interface Syllable {
 }
 
 export interface WordsLine {
-  /** A rest before the first syllable (a pickup), in ticks: 0 for none. */
+  /**
+   * The words' pickup, in ticks (0: none): the line starts this long
+   * before its downbeat, so its first syllables lead into bar 1.
+   */
+  pickup: number;
+  /**
+   * A rest before the first syllable, from the line's start (the pickup's,
+   * when it has one), in ticks: 0 for none.
+   */
   lead: number;
   syllables: Syllable[];
 }
 
 /**
- * The words as a line of syllables. A syllable's rest is the gap to the
- * next one, so a line always turns back into the same ticks (two that
- * overlap have a rest below zero, which the editor warns of).
+ * The words as a line of syllables, from the start of their `pickup` (0:
+ * their downbeat). A syllable's rest is the gap to the next one, so a line
+ * always turns back into the same ticks (two that overlap have a rest
+ * below zero, which the editor warns of).
  */
-export function wordsLine(notes: readonly LiteracyWord[]): WordsLine {
+export function wordsLine(
+  notes: readonly LiteracyWord[],
+  pickup = 0,
+): WordsLine {
   const sorted = byTick(notes);
   return {
-    lead: sorted[0]?.tick ?? 0,
+    pickup,
+    lead: (sorted[0]?.tick ?? 0) + pickup,
     syllables: sorted.map((note, i) => ({
       text: note.text,
       degree: note.degree,
@@ -289,8 +310,9 @@ export function wordsLine(notes: readonly LiteracyWord[]): WordsLine {
   };
 }
 
+/** The line back as the words' notes: a pickup's before tick 0. */
 export function wordsNotes(line: WordsLine): LiteracyWord[] {
-  let at = line.lead;
+  let at = line.lead - line.pickup;
   return line.syllables.map((s) => {
     const note = {
       tick: at,
@@ -330,6 +352,9 @@ export function withRestBefore(
  * The line with one syllable moved to `to`, its note, its length and the
  * rest ahead of it going with it, so the line lasts as long as it did and
  * no rest is lost. The first syllable's rest ahead of it is the line's lead.
+ * The pickup stays as long as it was, so a syllable moved across the
+ * downbeat goes into the pickup or out of it, and the line still starts
+ * where the pickup does.
  */
 export function moveSyllable(
   line: WordsLine,
@@ -342,6 +367,7 @@ export function moveSyllable(
     to,
   );
   return {
+    pickup: line.pickup,
     // Overlapping syllables (from the roll) have a rest below zero; the
     // line can't start before its first beat.
     lead: Math.max(0, moved[0]?.before ?? 0),
@@ -352,14 +378,73 @@ export function moveSyllable(
   };
 }
 
-/** Where each syllable starts, in ticks from the segment's start. */
+/**
+ * Where each syllable starts, in ticks from the segment's start: its
+ * downbeat, so a pickup's are below zero.
+ */
 export function syllableStarts(line: WordsLine): number[] {
-  let at = line.lead;
+  let at = line.lead - line.pickup;
   return line.syllables.map((s) => {
     const start = at;
     at += s.duration + s.rest;
     return start;
   });
+}
+
+// ── The pickup ─────────────────────────────────────────────────────────────
+
+/** The pickups offered, those shorter than the bar: an eighth to a dotted half. */
+const PICKUP_LENGTHS = [Q / 2, Q, (Q * 3) / 2, Q * 2, Q * 3];
+
+/**
+ * The pickup lengths to offer in a meter, shortest first: those at least
+ * an eighth shorter than its bar, and `current` whatever it is.
+ */
+export function pickupLengths(
+  timeSignature: readonly [number, number],
+  current = 0,
+): number[] {
+  const longest = barTicks(timeSignature) - PICKUP_STEP;
+  const lengths = PICKUP_LENGTHS.filter((ticks) => ticks <= longest);
+  return current > 0 && !lengths.includes(current)
+    ? [...lengths, current].sort((a, b) => a - b)
+    : lengths;
+}
+
+/** "Quarter · from 4", "Dotted half · from 2": a pickup, and where it starts. */
+export const pickupLabel = (
+  ticks: number,
+  timeSignature: readonly [number, number],
+): string => `${lengthLabel(ticks)} · from ${barBeat(-ticks, timeSignature)}`;
+
+/**
+ * The words with a pickup `ticks` long (0: none). The line keeps its
+ * rhythm and starts where the pickup does, so it moves by the difference:
+ * a quarter's pickup puts the line's first quarter before the downbeat.
+ */
+export function withPickup(words: LiteracyWords, ticks: number): LiteracyWords {
+  const line = wordsLine(words.notes, words.pickup ?? 0);
+  const notes = wordsNotes({ ...line, pickup: ticks });
+  return ticks > 0
+    ? { bars: words.bars, pickup: ticks, notes }
+    : { bars: words.bars, notes };
+}
+
+/**
+ * Where the double bar goes among a line's chips: before syllable `index`
+ * (the count: after the last), or inside its chip, between it and the rest
+ * ahead of it, when that rest starts in the pickup (`inRest`). Null when
+ * the line has no pickup.
+ */
+export function downbeatSlot(
+  line: WordsLine,
+): { index: number; inRest: boolean } | null {
+  if (line.pickup <= 0) return null;
+  const starts = syllableStarts(line);
+  const index = starts.findIndex((start) => start >= 0);
+  if (index === -1) return { index: line.syllables.length, inRest: false };
+  const before = restBefore(line, index);
+  return { index, inRest: before > 0 && starts[index] - before < 0 };
 }
 
 /**

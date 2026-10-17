@@ -1,11 +1,12 @@
 /* eslint-disable react/jsx-sort-props */
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { Fragment, useEffect, useMemo, useState, type FC } from 'react';
 import { cn } from '@/components/utilities';
 import type { LiteracyWords } from '@/content/musicLiteracy/schemas';
 import { DEGREE_SEMITONES } from '@/curriculum/engine/musicLiteracy/literacy';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
 import {
   barBeat,
+  downbeatSlot,
   lineText,
   moveSyllable,
   overrun,
@@ -14,6 +15,7 @@ import {
   spanWords,
   splitSyllables,
   syllableStarts,
+  withPickup,
   withRestBefore,
   wordsLine,
   wordsNotes,
@@ -26,8 +28,10 @@ import {
   CHIP,
   ChipHandle,
   DegreeSelect,
+  DownbeatMark,
   DropMark,
   LengthSelect,
+  PickupSelect,
   ReorderStatus,
   RestChip,
   RhythmStrip,
@@ -39,9 +43,14 @@ import { useChipReorder } from './useChipReorder';
  * with its note and its length, and a rest before or after it where the
  * line breathes. A rest is the gap between two syllables, so it shows once,
  * ahead of the syllable after it, and goes with that syllable when it is
- * dragged (`moveSyllable`); the first syllable's is the line's pickup.
+ * dragged (`moveSyllable`); the first syllable's is the line's lead-in.
  * Retyping keeps the notes and rhythm of every syllable it can
  * (`retypeLine`).
+ *
+ * A pickup is the line's start, sung at the end of the count-in: its chips
+ * come before a double bar, the downbeat, and count the pickup bar's beats
+ * ("4", "4&"). Choosing one moves the line that much earlier (`withPickup`);
+ * dragging a chip across the double bar moves it into the pickup or out.
  */
 
 export const WordsEditor: FC<{
@@ -52,7 +61,11 @@ export const WordsEditor: FC<{
   lit?: number | null;
   stepLabel: string;
 }> = ({ words, timeSignature, onChange, lit, stepLabel }) => {
-  const line = useMemo(() => wordsLine(words.notes), [words.notes]);
+  const pickup = words.pickup ?? 0;
+  const line = useMemo(
+    () => wordsLine(words.notes, pickup),
+    [words.notes, pickup],
+  );
   const joined = lineText(line);
   const [text, setText] = useState(joined);
 
@@ -92,6 +105,7 @@ export const WordsEditor: FC<{
   );
 
   const starts = syllableStarts(line);
+  const downbeat = downbeatSlot(line);
   const over = overrun(words.notes, words.bars, timeSignature);
   const last = line.syllables.length - 1;
   const overlapping = line.syllables.some((s, i) => i < last && s.rest < 0);
@@ -127,80 +141,89 @@ export const WordsEditor: FC<{
         {line.syllables.map((s, i) => {
           const name = `“${s.text}” (syllable ${i + 1})`;
           const before = restBefore(line, i);
+          const barHere = downbeat?.index === i;
           return (
-            <div
-              key={i}
-              {...reorder.item(i)}
-              className={cn(
-                'relative flex items-stretch gap-0.5',
-                reorder.dragging === i && 'opacity-40',
-              )}
-            >
-              <DropMark side={reorder.mark(i)} />
-              {before > 0 && (
-                <RestChip
-                  ticks={before}
-                  at={barBeat(starts[i] - before, timeSignature)}
-                  label={`${stepLabel} rest before ${name}`}
-                  onLength={(ticks) => setLine(withRestBefore(line, i, ticks))}
-                  onRemove={() => setLine(withRestBefore(line, i, 0))}
-                />
-              )}
+            <Fragment key={i}>
+              {barHere && !downbeat.inRest && <DownbeatMark />}
               <div
-                data-lit={lit === i || undefined}
+                {...reorder.item(i)}
+                data-pickup={starts[i] < 0 || undefined}
                 className={cn(
-                  CHIP,
-                  lit === i
-                    ? 'border-sky-300/70 bg-sky-300/15'
-                    : 'border-white/[0.08] bg-white/[0.03]',
+                  'relative flex items-stretch gap-0.5',
+                  reorder.dragging === i && 'opacity-40',
                 )}
               >
-                <ChipHandle
-                  reorder={reorder}
-                  index={i}
-                  label={`${stepLabel} move ${name} (drag, or Alt+← / Alt+→)`}
-                >
-                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">
-                    {s.text}
-                  </span>
-                  <span className="shrink-0 text-[10px] tabular-nums text-white/35">
-                    {barBeat(starts[i], timeSignature)}
-                  </span>
-                </ChipHandle>
-                <DegreeSelect
-                  degree={s.degree}
-                  octave={s.octave}
-                  label={`${stepLabel} note for ${name}`}
-                  onChange={(degree, octave) => patch(i, { degree, octave })}
-                />
-                <LengthSelect
-                  ticks={s.duration}
-                  label={`${stepLabel} length of ${name}`}
-                  onChange={(duration) => patch(i, { duration })}
-                />
-                <AddRest
-                  side="before"
-                  label={`${stepLabel} add a rest before ${name}`}
-                  onAdd={(ticks) => addRestBefore(i, ticks)}
-                />
-                {/* After the last, the line's bars hold the silence. */}
-                {i < last && (
-                  <AddRest
-                    side="after"
-                    label={`${stepLabel} add a rest after ${name}`}
-                    onAdd={(ticks) => addRestBefore(i + 1, ticks)}
+                <DropMark side={reorder.mark(i)} />
+                {before > 0 && (
+                  <RestChip
+                    ticks={before}
+                    at={barBeat(starts[i] - before, timeSignature)}
+                    label={`${stepLabel} rest before ${name}`}
+                    onLength={(ticks) =>
+                      setLine(withRestBefore(line, i, ticks))
+                    }
+                    onRemove={() => setLine(withRestBefore(line, i, 0))}
                   />
                 )}
+                {barHere && downbeat.inRest && <DownbeatMark />}
+                <div
+                  data-lit={lit === i || undefined}
+                  className={cn(
+                    CHIP,
+                    lit === i
+                      ? 'border-sky-300/70 bg-sky-300/15'
+                      : 'border-white/[0.08] bg-white/[0.03]',
+                  )}
+                >
+                  <ChipHandle
+                    reorder={reorder}
+                    index={i}
+                    label={`${stepLabel} move ${name} (drag, or Alt+← / Alt+→)`}
+                  >
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+                      {s.text}
+                    </span>
+                    <span className="shrink-0 text-[10px] tabular-nums text-white/35">
+                      {barBeat(starts[i], timeSignature)}
+                    </span>
+                  </ChipHandle>
+                  <DegreeSelect
+                    degree={s.degree}
+                    octave={s.octave}
+                    label={`${stepLabel} note for ${name}`}
+                    onChange={(degree, octave) => patch(i, { degree, octave })}
+                  />
+                  <LengthSelect
+                    ticks={s.duration}
+                    label={`${stepLabel} length of ${name}`}
+                    onChange={(duration) => patch(i, { duration })}
+                  />
+                  <AddRest
+                    side="before"
+                    label={`${stepLabel} add a rest before ${name}`}
+                    onAdd={(ticks) => addRestBefore(i, ticks)}
+                  />
+                  {/* After the last, the line's bars hold the silence. */}
+                  {i < last && (
+                    <AddRest
+                      side="after"
+                      label={`${stepLabel} add a rest after ${name}`}
+                      onAdd={(ticks) => addRestBefore(i + 1, ticks)}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
+            </Fragment>
           );
         })}
+        {downbeat?.index === line.syllables.length && <DownbeatMark />}
       </div>
       <ReorderStatus reorder={reorder} />
 
       <RhythmStrip
         bars={words.bars}
         timeSignature={timeSignature}
+        pickup={pickup}
         items={line.syllables.map((s, i) => ({
           start: starts[i],
           duration: s.duration,
@@ -215,6 +238,12 @@ export const WordsEditor: FC<{
           bars={words.bars}
           label={`${stepLabel} words length in bars`}
           onChange={(bars) => onChange({ ...words, bars })}
+        />
+        <PickupSelect
+          pickup={pickup}
+          timeSignature={timeSignature}
+          label={`${stepLabel} words pickup`}
+          onChange={(ticks) => onChange(withPickup(words, ticks))}
         />
         <span className="text-xs text-white/40">
           {line.syllables.length} syllable

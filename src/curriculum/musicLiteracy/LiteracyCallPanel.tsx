@@ -15,7 +15,8 @@ import { useElementSize } from '@/hooks/useElementSize';
 // a Simon-like hub: whose turn it is, the call's scale degrees lighting as
 // they sound and as they should be played back, and the beat. Under the
 // circle, the words, a bar to a line, each syllable lighting as its note
-// sounds; one sung off the root carries its scale degree.
+// sounds; one sung off the root carries its scale degree. A pickup's
+// syllables lead the first line, into its downbeat.
 
 /** The circle never grows past this, nor shrinks under the floor. */
 const MAX_CIRCLE = 460;
@@ -53,7 +54,10 @@ export interface LiteracyCallPanelProps {
   call: readonly TimedNote[];
   response: readonly TimedNote[];
   words: readonly TimedNote[];
-  /** Where the words begin on the timeline, and a bar's length: one line a bar. */
+  /**
+   * Where the words' downbeat is on the timeline (a pickup comes before),
+   * and a bar's length: one line a bar.
+   */
   wordsStart: number;
   barTicks: number;
   beatsPerBar: number;
@@ -321,9 +325,10 @@ function WordsLine({
 }: LiteracyCallPanelProps) {
   // A line a bar; on each, the syllables grouped into their words, so a
   // word never breaks across the line's wrap and reads as one ("gon-na").
+  // A pickup, before the words' downbeat, opens the first line.
   const lines: Syllable[][][] = [];
   words.forEach((note, i) => {
-    const bar = Math.floor((note.onset - wordsStart) / barTicks);
+    const bar = Math.max(0, Math.floor((note.onset - wordsStart) / barTicks));
     const line = (lines[bar] ??= []);
     const word = line[line.length - 1];
     if (word && joinsNext(word[word.length - 1].note.text ?? '')) {

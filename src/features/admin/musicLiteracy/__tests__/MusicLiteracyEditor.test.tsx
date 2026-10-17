@@ -461,3 +461,81 @@ describe('rests before and after a note', () => {
     expect((saveButton() as HTMLButtonElement).disabled).toBe(true);
   });
 });
+
+describe('a pickup', () => {
+  /** Step 2, "When I play in a Key…", opened. */
+  const openStep2 = () => {
+    mount();
+    fireEvent.click(
+      document.querySelector('[data-step="1"] button[aria-expanded]')!,
+    );
+  };
+  /** The chips and the double bar, in order: "When@4", "‖"… */
+  const row = () =>
+    [
+      ...document.querySelectorAll<HTMLElement>(
+        '[data-reorder-item], [data-downbeat-mark]',
+      ),
+    ]
+      .filter(
+        (el) =>
+          el.hasAttribute('data-downbeat-mark') ||
+          el
+            .querySelector('[data-reorder-grip]')
+            ?.getAttribute('aria-label')
+            ?.startsWith('Step 2 move “'),
+      )
+      .map((el) => {
+        if (el.hasAttribute('data-downbeat-mark')) return '‖';
+        const head = el.querySelector('[data-reorder-grip]')!.parentElement!;
+        return `${head.querySelector('.font-medium')?.textContent}@${head.querySelector('.tabular-nums')?.textContent}`;
+      });
+
+  it('moves "When I" onto 4 and its "and", before a double bar, and saves them there', async () => {
+    openStep2();
+    expect(row().slice(0, 3)).toEqual(['When@1·1', 'I@1·1&', 'play@1·2']);
+    fireEvent.change(select('Step 2 words pickup'), {
+      target: { value: '480' },
+    });
+    expect(row().slice(0, 4)).toEqual(['When@4', 'I@4&', '‖', 'play@1·1']);
+    expect(document.querySelectorAll('[data-strip-double-bar]')).toHaveLength(
+      1,
+    );
+
+    fireEvent.click(saveButton());
+    await waitFor(() => expect(store.save).toHaveBeenCalledTimes(1));
+    const words = savedBody().steps[1].words;
+    expect(Object.keys(words)).toEqual(['bars', 'pickup', 'notes']);
+    expect(words.pickup).toBe(480);
+    expect(words.notes.map((n) => n.tick)).toEqual(
+      PART_1.steps[1].words.notes.map((n) => n.tick - 480),
+    );
+  });
+
+  it('takes a chip moved across the double bar into the pickup', () => {
+    openStep2();
+    fireEvent.change(select('Step 2 words pickup'), {
+      target: { value: '480' },
+    });
+    fireEvent.keyDown(
+      screen.getByRole('button', {
+        name: /^Step 2 move “play” \(syllable 3\)/,
+      }),
+      { key: 'ArrowLeft', altKey: true },
+    );
+    // "play" is a quarter on the "and" of 4, held over the bar line.
+    expect(row().slice(0, 4)).toEqual(['When@4', 'play@4&', '‖', 'I@1·1&']);
+  });
+
+  it('takes the pickup out again, the line back on the downbeat', () => {
+    openStep2();
+    fireEvent.change(select('Step 2 words pickup'), {
+      target: { value: '480' },
+    });
+    fireEvent.change(select('Step 2 words pickup'), {
+      target: { value: '0' },
+    });
+    expect(row().slice(0, 3)).toEqual(['When@1·1', 'I@1·1&', 'play@1·2']);
+    expect((saveButton() as HTMLButtonElement).disabled).toBe(true);
+  });
+});

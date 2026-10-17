@@ -5,20 +5,27 @@
  * of its 1 (`tonicMidi`) and come back as degrees of that same 1, whatever
  * key the roll is told the part is in.
  *
+ * Words with a pickup go out a bar longer: the roll's bar 1 is the pickup
+ * bar, the end of the count-in, with the pickup at its end, and the words'
+ * bar 1 is the roll's bar 2. They come back a bar earlier.
+ *
  * No React here.
  */
 
-import type {
-  LiteracyFigure,
-  LiteracyNote,
-  LiteracyStep,
-  LiteracyWord,
-  LiteracyWords,
-  MusicLiteracyLesson,
+import {
+  PICKUP_STEP,
+  type LiteracyFigure,
+  type LiteracyNote,
+  type LiteracyStep,
+  type LiteracyWord,
+  type LiteracyWords,
+  type MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
 import {
+  barTicks,
   degreeOfMidi,
   noteMidi,
+  pickupOf,
   tonicMidi,
 } from '@/curriculum/engine/musicLiteracy/literacy';
 import type { InstrumentPart, PartNote } from '@/curriculum/engine/parts/part';
@@ -46,6 +53,20 @@ export function segmentOf(
   return step.response ?? step.call;
 }
 
+/**
+ * Where the segment's tick 0 is in its part: a bar in for words with a
+ * pickup, which the roll's first bar holds.
+ */
+export function partOffset(
+  lesson: Pick<MusicLiteracyLesson, 'timeSignature'>,
+  step: LiteracyStep,
+  segment: Segment,
+): number {
+  return segment === 'words' && pickupOf(step) > 0
+    ? barTicks(lesson.timeSignature)
+    : 0;
+}
+
 /** The segment as a piano part in the lesson's key, at the step's tempo. */
 export function segmentPart(
   lesson: MusicLiteracyLesson,
@@ -55,6 +76,7 @@ export function segmentPart(
 ): InstrumentPart {
   const figure = segmentOf(step, segment);
   const tonic = tonicMidi(lesson.key.tonic);
+  const offset = partOffset(lesson, step, segment);
   return {
     id,
     name: `${step.title} · ${SEGMENT_LABEL[segment]}`,
@@ -68,7 +90,7 @@ export function segmentPart(
       mode: lesson.key.mode === 'minor' ? 'aeolian' : 'ionian',
     },
     timeSignature: [lesson.timeSignature[0], lesson.timeSignature[1]],
-    bars: figure.bars,
+    bars: figure.bars + (offset ? 1 : 0),
     tempo: step.tempo ?? lesson.tempo,
     swing: 50,
     sound: 'piano-sampler',
@@ -76,7 +98,7 @@ export function segmentPart(
       .sort((a, b) => a.tick - b.tick)
       .map(
         (note): PartNote => ({
-          tick: note.tick,
+          tick: note.tick + offset,
           duration: note.duration,
           midi: noteMidi(note, tonic),
           velocity: VELOCITY,
@@ -86,16 +108,20 @@ export function segmentPart(
   };
 }
 
-/** The part's notes as degrees of the lesson's 1, in time order. */
+/**
+ * The part's notes as degrees of the lesson's 1, in time order, from the
+ * segment's tick 0: `offset` into the part.
+ */
 function partNotes(
   part: InstrumentPart,
   lesson: MusicLiteracyLesson,
+  offset = 0,
 ): LiteracyNote[] {
   const tonic = tonicMidi(lesson.key.tonic);
   return [...part.notes]
     .sort((a, b) => a.tick - b.tick || a.midi - b.midi)
     .map((note) => ({
-      tick: Math.max(0, Math.round(note.tick)),
+      tick: Math.max(0, Math.round(note.tick)) - offset,
       duration: Math.max(1, Math.round(note.duration)),
       ...degreeOfMidi(note.midi, tonic),
     }));
@@ -120,7 +146,10 @@ export interface WordsFromPart {
 /**
  * The words back from the roll: the line's syllables on the roll's notes,
  * one each in order. A note past the last syllable sings the placeholder; a
- * syllable past the last note is dropped, and both are reported.
+ * syllable past the last note is dropped, and both are reported. Words
+ * with a pickup come back from the roll's second bar; a note put earlier in
+ * the pickup bar than the pickup reaches makes the pickup that much longer,
+ * to the eighth, as far as a bar less an eighth.
  */
 export function partWords(
   part: InstrumentPart,
@@ -130,14 +159,24 @@ export function partWords(
   const texts = [...previous.notes]
     .sort((a, b) => a.tick - b.tick)
     .map((note) => note.text);
-  const notes = partNotes(part, lesson).map(
+  const pickup = previous.pickup ?? 0;
+  const bar = barTicks(lesson.timeSignature);
+  const notes = partNotes(part, lesson, pickup ? bar : 0).map(
     (note, i): LiteracyWord => ({
       ...note,
       text: texts[i] ?? PLACEHOLDER_SYLLABLE,
     }),
   );
+  const earliest = Math.min(0, ...notes.map((note) => note.tick));
+  const reach = Math.min(
+    bar - PICKUP_STEP,
+    Math.ceil(-earliest / PICKUP_STEP) * PICKUP_STEP,
+  );
+  const bars = pickup ? Math.max(1, part.bars - 1) : part.bars;
   return {
-    words: { bars: part.bars, notes },
+    words: pickup
+      ? { bars, pickup: Math.max(pickup, reach), notes }
+      : { bars, notes },
     added: Math.max(0, notes.length - texts.length),
     dropped: texts.slice(notes.length),
   };

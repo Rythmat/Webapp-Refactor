@@ -12,6 +12,13 @@ import { SLUG_PATTERN } from '@/content/graph/ids';
  * plays the response back. Rests are the gaps between notes; a segment's
  * `bars` says how long it lasts, trailing rests included.
  *
+ * The words may open with a pickup (an anacrusis): syllables sung at the
+ * end of the count-in, leading into the words' first downbeat. They are
+ * stored with negative ticks, back from that downbeat, and `pickup` says
+ * how long the pickup is. A step with a pickup counts in at least a bar,
+ * whatever the lesson's `countInBars`, so the pickup always has a count-in
+ * bar to sit in.
+ *
  * The sung line is `words`, never "lyrics": the song kind forbids lyrics by
  * design, and this line is original teaching text, not a song's.
  */
@@ -68,9 +75,13 @@ export const literacyNoteSchema = z
   })
   .strict();
 
-/** A sung word or syllable, on its note. */
+/**
+ * A sung word or syllable, on its note. A pickup's syllables come before
+ * the words' downbeat, so their ticks are negative (the body checks them
+ * against the pickup).
+ */
 export const literacyWordSchema = literacyNoteSchema
-  .extend({ text: z.string().min(1) })
+  .extend({ tick: int, text: z.string().min(1) })
   .strict();
 
 /** A figure: its notes and how many bars it lasts, trailing rests included. */
@@ -81,9 +92,21 @@ export const literacyFigureSchema = z
   })
   .strict();
 
+/**
+ * The shortest pickup, an eighth, and how much shorter than a bar the
+ * longest must be.
+ */
+export const PICKUP_STEP = LITERACY_TPQ / 2;
+
 export const literacyWordsSchema = z
   .object({
     bars: int.min(1).max(8),
+    /**
+     * A pickup's length in ticks, sung before the words' downbeat at the
+     * end of the count-in: an eighth up to a bar less an eighth. Left out,
+     * none: the words start on their downbeat.
+     */
+    pickup: int.min(PICKUP_STEP).optional(),
     notes: z.array(literacyWordSchema).min(1),
   })
   .strict();
@@ -138,6 +161,23 @@ export const musicLiteracyBodySchema = z
           message: `Step tag "${step.tag}" is used twice`,
         });
       tags.add(step.tag);
+      const pickup = step.words.pickup ?? 0;
+      if (pickup > barTicks - PICKUP_STEP)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['steps', s, 'words', 'pickup'],
+          message: 'A pickup must be at least an eighth shorter than a bar',
+        });
+      step.words.notes.forEach((note, n) => {
+        if (note.tick < -pickup)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['steps', s, 'words', 'notes', n],
+            message: pickup
+              ? 'A syllable starts before the pickup: make the pickup longer'
+              : 'A syllable starts before the words do: give them a pickup',
+          });
+      });
       const segments = [
         ['words', step.words],
         ['call', step.call],

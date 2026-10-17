@@ -78,20 +78,60 @@ types; `int` is an integer.
 | Shape  | Fields                                                            | Notes                                                                                               |
 | ------ | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | figure | `{ bars: int 1–8, notes: note[] }`                                | At least one note. `bars` is how long the segment lasts, trailing rests included.                   |
-| words  | `{ bars: int 1–8, notes: word[] }`                                | As a figure, each note a syllable.                                                                  |
+| words  | `{ bars: int 1–8, pickup?: int ≥ 240, notes: word[] }`            | As a figure, each note a syllable. `pickup`: below.                                                 |
 | note   | `{ tick: int ≥ 0, duration: int ≥ 1, degree, octave?: int −2…2 }` | `tick` from the segment's start at 480 per quarter. `degree` one of `1 b2 2 b3 3 4 #4 5 b6 6 b7 7`. |
-| word   | a note plus `text: string`                                        | `text` not empty: one sung syllable.                                                                |
+| word   | a note plus `text: string`, its `tick` any int                    | `text` not empty: one sung syllable. A pickup's syllables have negative ticks.                      |
 
 Rests are the gaps between notes; nothing stores them.
+
+### A pickup
+
+The words may open with a pickup (an anacrusis): syllables sung at the end
+of the count-in, leading into the words' first downbeat. "When I" on beat 4
+and its "and" is a quarter's pickup:
+
+```json
+"words": {
+  "bars": 2,
+  "pickup": 480,
+  "notes": [
+    { "tick": -480, "duration": 240, "degree": "1", "text": "When" },
+    { "tick": -240, "duration": 240, "degree": "1", "text": "I" },
+    { "tick": 0, "duration": 480, "degree": "1", "text": "play" }
+  ]
+}
+```
+
+- `pickup` is the pickup's length in ticks, from an eighth (240) up to a
+  bar less an eighth (1680 in 4/4). Left out, there is none, and the
+  words start on their downbeat as before: every file without one means
+  what it always did.
+- A pickup's syllables are stored with **negative ticks**, back from the
+  words' downbeat (tick 0), and none may start before `-pickup`.
+- The downbeat stays where it always is, at the end of the count-in, so
+  nothing after it moves: the call, the response, the grading and the
+  drums all keep their places. The pickup is sung over the count-in's last
+  beats, which click as always.
+- A step with a pickup counts in **at least one bar**, whatever the
+  lesson's `countInBars`: a lesson with no count-in still gets the bar its
+  pickup sits in. (A pickup is always shorter than a bar, so one is
+  enough.)
+- Only the words have one; a figure's notes start at 0 or later.
 
 ### Rules beyond the field types
 
 - No two steps share a `tag`.
 - No note runs past its segment: `tick + duration` ≤ `bars` × the bar's
-  ticks (`beats × 1920 / unit`).
+  ticks (`beats × 1920 / unit`), counted from the downbeat.
+- A words `pickup` is at least an eighth shorter than the bar.
+- No syllable starts before the words' pickup: `tick` ≥ `-pickup` (≥ 0
+  without one).
 
-The zod schema checks both (`superRefine`), with these messages:
-`Step tag "…" is used twice` and `A call note runs past its 1 bar(s)`.
+The zod schema checks them (`superRefine`), with these messages:
+`Step tag "…" is used twice`, `A call note runs past its 1 bar(s)`,
+`A pickup must be at least an eighth shorter than a bar`,
+`A syllable starts before the pickup: make the pickup longer` and
+`A syllable starts before the words do: give them a pickup`.
 
 ### List projection (`/items`)
 
@@ -128,7 +168,9 @@ notes on the 1 and whose call is three, with an empty name to fill in.
 - **Editing.** The Music Literacy editor (`/console/music-literacy`, in the
   bar's Records menu) lists the lessons and edits one: its key, tempo and
   status, and each step's words, call and response as chips of notes and
-  rests, or in the Parts editor's piano roll and staff. Its
+  rests, or in the Parts editor's piano roll and staff. The words' Pickup
+  control sets a pickup: its chips sit before a double bar (‖) and count
+  the pickup bar's beats ("4", "4&"). Its
   `records/music_literacy[/:id]` URLs redirect there, and a lesson's Learn
   page in the console offers Edit lesson.
 - **Saving.** Through the content API when `/capabilities` serves the kind;

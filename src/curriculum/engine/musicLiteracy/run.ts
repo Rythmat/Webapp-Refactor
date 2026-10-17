@@ -17,6 +17,10 @@
  * everything else; then a final downbeat, a kick and a crash together, and
  * the run ends once they've rung. The count-in still clicks. Nothing else
  * moves: the response's window and its grading are the same either way.
+ *
+ * Words with a pickup sing it at the end of the count-in, which clicks on
+ * under it; the teacher's turn starts with its first syllable, and the
+ * drums still come in on the words' downbeat.
  */
 
 import type {
@@ -133,10 +137,18 @@ const ORDER: Record<RunCue['kind'], number> = {
   end: 4,
 };
 
-/** Whose turn it is at `tick` (null before the first beat and after the last). */
-export function phaseAt(timeline: StepTimeline, tick: number): RunPhase | null {
+/**
+ * Whose turn it is at `tick` (null before the first beat and after the
+ * last). The teacher's starts on the words' downbeat, or at `firstWord`
+ * when it comes before: a pickup's first syllable, in the count-in.
+ */
+export function phaseAt(
+  timeline: StepTimeline,
+  tick: number,
+  firstWord = timeline.words.start,
+): RunPhase | null {
   if (tick < 0 || tick >= timeline.total) return null;
-  if (tick < timeline.words.start) return 'countIn';
+  if (tick < Math.min(firstWord, timeline.words.start)) return 'countIn';
   if (tick < timeline.call.start) return 'words';
   if (tick < timeline.response.start) return 'call';
   return 'response';
@@ -225,17 +237,19 @@ export function runCues(
   const [beatsPerBar] = lesson.timeSignature;
   const beatTicks = timeline.barTicks / beatsPerBar;
 
+  // A pickup is the teacher's turn from its first syllable.
+  const firstWord = Math.min(...words.map((note) => note.onset));
   const cues: RunCue[] = [];
   for (let tick = 0; tick < timeline.total; tick += beatTicks) {
-    const phase = phaseAt(timeline, tick)!;
     const beat = Math.round((tick % timeline.barTicks) / beatTicks);
     cues.push({
       kind: 'beat',
       tick,
       beat,
-      phase,
-      // The count-in always counts; past it the click is the setting's.
-      click: phase === 'countIn' || metronome,
+      phase: phaseAt(timeline, tick, firstWord)!,
+      // The count-in always counts, under a pickup too; past it the click
+      // is the setting's.
+      click: tick < timeline.words.start || metronome,
       downbeat: beat === 0,
     });
   }
@@ -338,6 +352,11 @@ export function applyCue(
     case 'note':
       return {
         ...view,
+        // A pickup's first syllable, off the beat, starts the teacher's turn.
+        phase:
+          cue.segment === 'words' && view.phase === 'countIn'
+            ? 'words'
+            : view.phase,
         word: cue.segment === 'words' ? cue.index : view.word,
         hub:
           cue.segment === 'words'

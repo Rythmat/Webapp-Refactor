@@ -409,3 +409,88 @@ describe('a Music Literacy step', () => {
     ).toBe(true);
   });
 });
+
+describe('a step whose words have a pickup', () => {
+  // "When I play in a Key…" with "When I" on 4 and its "and", in the
+  // count-in bar, over the drums.
+  const root = lesson.steps.find((s) => s.tag === 'root-is-1')!;
+  const pickupLesson = {
+    ...lesson,
+    steps: [
+      {
+        ...root,
+        words: {
+          ...root.words,
+          pickup: 480,
+          notes: root.words.notes.map((n) => ({ ...n, tick: n.tick - 480 })),
+        },
+      },
+    ],
+  };
+
+  beforeEach(() => {
+    localStorage.clear();
+    run.onCue = null;
+    run.starts = 0;
+    run.tick = null;
+  });
+  afterEach(() => {
+    cleanup();
+    setDrumGrooveId(null);
+  });
+
+  it('counts in under the pickup, sings "When I" on 4 and its "and", brings the drums in on the downbeat, and grades the same', async () => {
+    setDrumGrooveId('straight-8');
+    render(
+      <MemoryRouter initialEntries={['/curriculum/music-literacy/x']}>
+        <MusicLiteracyPlayer lesson={pickupLesson} />
+      </MemoryRouter>,
+    );
+    // The pickup opens the first line of the words.
+    const firstLine = document.querySelectorAll(
+      '[data-literacy-words] p:first-child [data-word-index]',
+    );
+    expect([...firstLine].slice(0, 3).map((w) => w.textContent)).toEqual([
+      '·When',
+      '·I',
+      '·play',
+    ]);
+    // The roll marks the downbeat with a double bar, ruler and grid.
+    expect(document.querySelectorAll('[data-roll-double-bar]')).toHaveLength(2);
+
+    await press('Play');
+    await vi.waitFor(() => expect(run.starts).toBe(1));
+    const cues = run.cues as RunCue[];
+    expect(
+      cues.filter((c) => c.kind === 'beat' && c.click).map((c) => c.tick),
+    ).toEqual([0, 480, 960, 1440]);
+    expect(cues.find((c) => c.kind === 'drum')?.tick).toBe(1920);
+
+    let fedTo = -1;
+    const feed = (tick: number) => {
+      act(() =>
+        cues
+          .filter((c) => c.tick <= tick && c.tick > fedTo)
+          .forEach((c) => run.onCue!(c)),
+      );
+      fedTo = tick;
+    };
+    const now = () => document.querySelector('[data-word-now]')?.textContent;
+    feed(960);
+    expect(hub().textContent).toContain('Ready');
+    feed(1440);
+    expect(hub().textContent).toContain('My turn');
+    expect(now()).toContain('When');
+    feed(1680);
+    expect(now()).toContain('I');
+    feed(1920);
+    expect(now()).toContain('play');
+
+    feed(7680);
+    typeAt('KeyA', 7680);
+    typeAt('KeyA', 8160);
+    typeAt('KeyA', 8640);
+    feed(9600 + 960);
+    expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
+  });
+});

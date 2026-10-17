@@ -143,6 +143,64 @@ describe('the steps', () => {
   });
 });
 
+describe('a step’s pickup in the file', () => {
+  const pickupStep = {
+    ...PART_1.steps[1],
+    words: {
+      bars: 2,
+      pickup: 480,
+      notes: [
+        { tick: -480, duration: 240, degree: '1', text: 'When' },
+        { tick: -240, duration: 240, degree: '1', text: 'I' },
+        { tick: 0, duration: 480, degree: '1', text: 'play' },
+      ],
+    },
+  } satisfies MusicLiteracyLesson['steps'][number];
+
+  it('writes it between the bars and the notes, and none when there is none', () => {
+    const out = canonicalLesson({ ...PART_1, steps: [pickupStep] });
+    expect(Object.keys(out.steps[0].words)).toEqual([
+      'bars',
+      'pickup',
+      'notes',
+    ]);
+    expect(out.steps[0].words.notes[0]).toEqual({
+      tick: -480,
+      duration: 240,
+      degree: '1',
+      text: 'When',
+    });
+    expect(Object.keys(canonicalLesson(PART_1).steps[0].words)).toEqual([
+      'bars',
+      'notes',
+    ]);
+    expect(lessonIssues({ ...PART_1, steps: [pickupStep] })).toEqual([]);
+  });
+
+  it('says what is wrong with one in the editor’s words', () => {
+    const tooEarly = {
+      ...pickupStep,
+      words: { ...pickupStep.words, pickup: 240 },
+    };
+    const tooLong = {
+      ...pickupStep,
+      tag: 'too-long',
+      words: { ...pickupStep.words, pickup: 1920 },
+    };
+    const issues = lessonIssues({ ...PART_1, steps: [tooEarly, tooLong] });
+    expect(issues.map((i) => [i.where, i.message])).toEqual([
+      [
+        'Step 1 · words, syllable 1',
+        'A syllable starts before the pickup: make the pickup longer',
+      ],
+      [
+        'Step 2 · words pickup',
+        'A pickup must be at least an eighth shorter than a bar',
+      ],
+    ]);
+  });
+});
+
 describe('the problems', () => {
   it('says where each is in the editor’s words', () => {
     const broken: MusicLiteracyLesson = {

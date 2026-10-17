@@ -17,8 +17,37 @@ import { learnNoteStyles } from './learnNoteStyles';
 // The notation face of GenrePianoRoll. The roll keeps running the lesson
 // (playhead, hold tracking); this only draws what it would show: the lesson's
 // own spelling, hand tags for the staves, and the same progress colors.
+//
+// A pickup (Music Literacy's words) is written in the bar before bar 1, the
+// count-in bar, numbered 0: rests up to its first note, then a double bar
+// into the real downbeat. A true short anacrusis bar would need buildScore
+// to lay out a bar shorter than the meter, beats counted from its end.
 
 const HEADER_HEIGHT = 34;
+
+/** The pickup bar's double bar, one set for every render. */
+const PICKUP_DOUBLE_BAR: ReadonlySet<number> = new Set([0]);
+
+/**
+ * How the staff writes a pickup of `pickupTicks` (0: none): where its first
+ * bar starts and is numbered, how many bars it adds, and which bars close
+ * with a double bar. The pickup bar is measure 0, the whole count-in bar.
+ */
+export function pickupLayout(pickupTicks: number, barTicks: number) {
+  return pickupTicks > 0
+    ? {
+        originTick: -barTicks,
+        firstMeasureNumber: 0,
+        extraBars: 1,
+        doubleBarEnds: PICKUP_DOUBLE_BAR,
+      }
+    : {
+        originTick: 0,
+        firstMeasureNumber: 1,
+        extraBars: 0,
+        doubleBarEnds: undefined,
+      };
+}
 
 interface LearnNotationViewProps {
   events: NoteEvent[];
@@ -36,6 +65,11 @@ interface LearnNotationViewProps {
   timeSignature?: [number, number];
   /** Where bar 1 sits on the playhead's scale; 0 unless notes are offset. */
   musicStartTick?: number;
+  /**
+   * A pickup into bar 1, in ticks: notes before tick 0, written in the bar
+   * before it with a double bar into bar 1 (`pickupLayout`). 0: none.
+   */
+  pickupTicks?: number;
   /**
    * Which staves to write on. A melody belongs in the treble clef whatever
    * register it happens to dip into, so lessons name the clef rather than
@@ -73,6 +107,7 @@ export function LearnNotationView({
   beatTicks = 480,
   timeSignature,
   musicStartTick = 0,
+  pickupTicks = 0,
   staves,
   writtenOctaveShift = 0,
   clefAnnotation,
@@ -84,6 +119,8 @@ export function LearnNotationView({
   showHeader = true,
 }: LearnNotationViewProps) {
   const [layout, setLayout] = useState<StaffLayout | null>(null);
+  const meter = timeSignature ?? [beatsPerBar, 4];
+  const pickup = pickupLayout(pickupTicks, (meter[0] * 4 * 480) / meter[1]);
   // Rebuild only when the notes themselves change, not on every playhead frame.
   const signature = events
     .map(
@@ -111,7 +148,9 @@ export function LearnNotationView({
     const resolved = resolveStaves(events, staves);
     return buildScore(notes, {
       timeSignature: timeSignature ?? [beatsPerBar, 4],
-      minMeasures: bars,
+      minMeasures: bars + pickup.extraBars,
+      originTick: pickup.originTick,
+      firstMeasureNumber: pickup.firstMeasureNumber,
       ...(keyRoot !== undefined ? { keyTonicPc: keyRoot % 12 } : {}),
       ...(resolved ? { staves: resolved } : {}),
     });
@@ -124,6 +163,9 @@ export function LearnNotationView({
     keyRoot,
     staves,
     writtenOctaveShift,
+    pickup.originTick,
+    pickup.firstMeasureNumber,
+    pickup.extraBars,
   ]);
 
   const noteStyles = useMemo(
@@ -190,7 +232,10 @@ export function LearnNotationView({
           score={score}
           clefAnnotation={clefAnnotation}
           noteStyles={noteStyles}
-          playheadTick={inTime && playheadTick >= 0 ? playheadTick : null}
+          playheadTick={
+            inTime && playheadTick >= pickup.originTick ? playheadTick : null
+          }
+          doubleBarEnds={pickup.doubleBarEnds}
           fitHeight
           // The roll scrolls sideways; the staff must not. Bars wrap onto as
           // many systems as they need and the whole thing shrinks to fit the

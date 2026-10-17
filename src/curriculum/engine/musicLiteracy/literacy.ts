@@ -2,6 +2,10 @@
  * Music Literacy's music: scale degrees to pitches in the series' register,
  * and a step laid out on one timeline (count-in, words, call, response).
  * Shared by the Learn player and the console editor.
+ *
+ * Words with a pickup start before their downbeat: the pickup is sung at
+ * the end of the count-in, and the words' bar 1 starts where it always
+ * does, so nothing after it moves.
  */
 
 import {
@@ -109,6 +113,10 @@ export function barTicks(timeSignature: readonly [number, number]): number {
   return (beats * LITERACY_TPQ * 4) / unit;
 }
 
+/** How long the words' pickup is, in ticks: 0 for none. */
+export const pickupOf = (step: Pick<LiteracyStep, 'words'>): number =>
+  step.words.pickup ?? 0;
+
 /** What the student plays back: the response, or the call echoed. */
 export function responseOf(step: LiteracyStep): LiteracyFigure {
   return step.response ?? step.call;
@@ -122,6 +130,12 @@ export interface Span {
 /** One step on a timeline, in ticks from the first count-in click. */
 export interface StepTimeline {
   countIn: Span;
+  /**
+   * The words' pickup: the end of the count-in, sung up to the words'
+   * downbeat (`words.start`). Length 0 without one.
+   */
+  pickup: Span;
+  /** The words from their downbeat, their bar 1 (a pickup comes before). */
   words: Span;
   call: Span;
   response: Span;
@@ -135,7 +149,12 @@ export function stepTimeline(
   step: LiteracyStep,
 ): StepTimeline {
   const bar = barTicks(lesson.timeSignature);
-  const countIn = { start: 0, length: lesson.countInBars * bar };
+  const pickup = pickupOf(step);
+  // A pickup is sung in the count-in's last bar, so it always has one.
+  const countInBars = pickup
+    ? Math.max(1, lesson.countInBars)
+    : lesson.countInBars;
+  const countIn = { start: 0, length: countInBars * bar };
   const words = { start: countIn.length, length: step.words.bars * bar };
   const call = {
     start: words.start + words.length,
@@ -147,6 +166,7 @@ export function stepTimeline(
   };
   return {
     countIn,
+    pickup: { start: words.start - pickup, length: pickup },
     words,
     call,
     response,
@@ -183,7 +203,10 @@ function place(
   }));
 }
 
-/** A step's three segments placed on its timeline, in its lesson's key. */
+/**
+ * A step's three segments placed on its timeline, in its lesson's key. A
+ * pickup's syllables (negative ticks) land before the words' downbeat.
+ */
 export function stepNotes(lesson: MusicLiteracyLesson, step: LiteracyStep) {
   const timeline = stepTimeline(lesson, step);
   const tonic = tonicMidi(lesson.key.tonic);

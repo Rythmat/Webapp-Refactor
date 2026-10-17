@@ -6,6 +6,7 @@ import type {
 import { listMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
 import {
   barBeat,
+  downbeatSlot,
   dropIndex,
   figureChips,
   figureNotes,
@@ -17,10 +18,14 @@ import {
   notesEnd,
   overlaps,
   overrun,
+  pickupLabel,
+  pickupLengths,
   restBefore,
   retypeLine,
   spanWords,
   splitSyllables,
+  syllableStarts,
+  withPickup,
   withRestBefore,
   wordsLine,
   wordsNotes,
@@ -85,9 +90,10 @@ describe('the words line', () => {
     expect(lessons.length).toBeGreaterThan(0);
     for (const lesson of lessons)
       for (const step of lesson.steps)
-        expect(wordsNotes(wordsLine(step.words.notes)), step.tag).toEqual(
-          step.words.notes,
-        );
+        expect(
+          wordsNotes(wordsLine(step.words.notes, step.words.pickup)),
+          step.tag,
+        ).toEqual(step.words.notes);
   });
 
   it('keeps a rest before the first syllable, between two, and an octave', () => {
@@ -145,7 +151,7 @@ describe('the words line', () => {
   });
 
   it('gives a line typed from empty a note per syllable', () => {
-    const line = retypeLine({ lead: 0, syllables: [] }, 'one two');
+    const line = retypeLine({ pickup: 0, lead: 0, syllables: [] }, 'one two');
     expect(wordsNotes(line)).toEqual([
       word(0, 480, 'one'),
       word(480, 480, 'two'),
@@ -369,5 +375,116 @@ describe('a rest before or after a figure’s note', () => {
       { tick: 480, duration: 480, degree: '3' },
       { tick: 960, duration: 480, degree: '1' },
     ]);
+  });
+});
+
+describe('a pickup', () => {
+  /** "When I" on 4 and its "and", "play add go" from the downbeat. */
+  const notes: LiteracyWord[] = [
+    word(-480, 240, 'When'),
+    word(-240, 240, 'I'),
+    word(0, 480, 'play'),
+    word(480, 480, 'add', '3'),
+    word(960, 960, 'go', '5'),
+  ];
+  const words = { bars: 1, pickup: 480, notes };
+  const line = () => wordsLine(notes, 480);
+  const texts = (ws: readonly LiteracyWord[]) =>
+    ws.map((w) => `${w.text}@${w.tick}`);
+
+  it('reads the line from the pickup’s start and back, tick for tick', () => {
+    expect(line()).toMatchObject({ pickup: 480, lead: 0 });
+    expect(wordsNotes(line())).toEqual(notes);
+    expect(syllableStarts(line())).toEqual([-480, -240, 0, 480, 960]);
+    // A rest ahead of the pickup's first syllable is the line's lead.
+    const late = [word(-240, 240, 'I'), ...notes.slice(2)];
+    expect(wordsLine(late, 480).lead).toBe(240);
+    expect(wordsNotes(wordsLine(late, 480))).toEqual(late);
+  });
+
+  it('counts the pickup’s beats as its bar’s, not below zero', () => {
+    expect(barBeat(-480, FOUR)).toBe('4');
+    expect(barBeat(-240, FOUR)).toBe('4&');
+    expect(barBeat(-720, FOUR)).toBe('3&');
+    expect(barBeat(-1440, FOUR)).toBe('2');
+    expect(barBeat(-120, FOUR)).toBe('4a');
+    expect(barBeat(-480, [3, 4])).toBe('3');
+    expect(barBeat(0, FOUR)).toBe('1·1');
+  });
+
+  it('moves the line when the pickup changes, keeping its rhythm', () => {
+    const plain = withPickup(words, 0);
+    expect(plain).toEqual({
+      bars: 1,
+      notes: notes.map((n) => ({ ...n, tick: n.tick + 480 })),
+    });
+    expect('pickup' in plain).toBe(false);
+    // From none to a quarter: "When I" go back before the downbeat.
+    expect(withPickup(plain, 480)).toEqual(words);
+    // A half: "play" joins the pickup.
+    expect(texts(withPickup(words, 960).notes)).toEqual([
+      'When@-960',
+      'I@-720',
+      'play@-480',
+      'add@0',
+      'go@480',
+    ]);
+  });
+
+  it('takes a chip dragged across the double bar into the pickup, or out', () => {
+    // "play" to the front: it is the pickup now, "When I" the downbeat.
+    const into = moveSyllable(line(), 2, 0);
+    expect(into.pickup).toBe(480);
+    expect(texts(wordsNotes(into))).toEqual([
+      'play@-480',
+      'When@0',
+      'I@240',
+      'add@480',
+      'go@960',
+    ]);
+    expect(downbeatSlot(into)).toEqual({ index: 1, inRest: false });
+    // "When" after "play": "I" alone leads in, "play" across the bar line.
+    const out = moveSyllable(line(), 0, 2);
+    expect(texts(wordsNotes(out))).toEqual([
+      'I@-480',
+      'play@-240',
+      'When@240',
+      'add@480',
+      'go@960',
+    ]);
+    expect(downbeatSlot(out)).toEqual({ index: 2, inRest: false });
+    // The line still lasts as long, so it fits its bars as it did.
+    expect(overrun(wordsNotes(out), 1, FOUR)).toBe(0);
+  });
+
+  it('puts the double bar where the downbeat falls among the chips', () => {
+    expect(downbeatSlot(line())).toEqual({ index: 2, inRest: false });
+    expect(downbeatSlot(wordsLine(notes.slice(2)))).toBeNull();
+    // A rest from the pickup into bar 1: the bar goes inside its chip.
+    const rest = [word(240, 240, 'and'), word(480, 480, 'go')];
+    expect(downbeatSlot(wordsLine(rest, 480))).toEqual({
+      index: 0,
+      inRest: true,
+    });
+    // All pickup: after the last chip.
+    expect(downbeatSlot(wordsLine(notes.slice(0, 2), 480))).toEqual({
+      index: 2,
+      inRest: false,
+    });
+  });
+
+  it('still warns of a line run past its bars', () => {
+    expect(overrun(withPickup(words, 0).notes, 1, FOUR)).toBe(480);
+    expect(overrun(notes, 1, FOUR)).toBe(0);
+  });
+
+  it('offers the pickups that fit the bar, and names them', () => {
+    expect(pickupLengths(FOUR)).toEqual([240, 480, 720, 960, 1440]);
+    expect(pickupLengths([3, 4])).toEqual([240, 480, 720, 960]);
+    expect(pickupLengths(FOUR, 1200)).toEqual([240, 480, 720, 960, 1200, 1440]);
+    expect(pickupLabel(480, FOUR)).toBe('Quarter · from 4');
+    expect(pickupLabel(240, FOUR)).toBe('Eighth · from 4&');
+    expect(pickupLabel(1440, FOUR)).toBe('Dotted half · from 2');
+    expect(pickupLabel(1200, FOUR)).toBe('Half + eighth · from 2&');
   });
 });

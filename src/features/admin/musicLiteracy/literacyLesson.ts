@@ -181,6 +181,7 @@ const FIELD_NAME: Record<string, string> = {
   direction: 'direction',
   passMark: 'pass mark',
   bars: 'bars',
+  pickup: 'pickup',
 };
 
 /** Where a problem is, as the editor names its parts. */
@@ -267,6 +268,7 @@ const figure = (f: LiteracyFigure): LiteracyFigure => ({
 
 const words = (w: LiteracyWords): LiteracyWords => ({
   bars: w.bars,
+  ...(w.pickup ? { pickup: w.pickup } : {}),
   notes: w.notes.map(word),
 });
 

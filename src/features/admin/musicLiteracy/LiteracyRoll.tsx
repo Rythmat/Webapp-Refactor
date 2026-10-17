@@ -77,6 +77,9 @@ export const LiteracyRoll: FC<{
         loop length back to the step as degrees of the key; the filing fields,
         tempo and key here are the roll’s own and are not kept.
         {segment === 'words' && ' The syllables go onto the notes in order.'}
+        {segment === 'words' &&
+          (step.words.pickup ?? 0) > 0 &&
+          ' The roll’s first bar is the pickup bar, the end of the count-in, so the words’ bar 1 is its bar 2.'}
       </ConsoleCallout>
       <PartEditor
         key={id}

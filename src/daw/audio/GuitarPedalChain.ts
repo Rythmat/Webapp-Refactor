@@ -240,6 +240,11 @@ export class GuitarPedalChain {
     return true;
   }
 
+  /** Resolves once every processor in the chain can process. */
+  async whenReady(): Promise<void> {
+    await Promise.all(this.processors.map((p) => p.whenReady?.()));
+  }
+
   dispose(): void {
     for (const proc of this.processors) {
       proc.dispose();

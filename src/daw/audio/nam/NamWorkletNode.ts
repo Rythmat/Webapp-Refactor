@@ -2,6 +2,7 @@
 // TypeScript wrapper around the nam-processor AudioWorklet.
 // Handles registration, model loading (with zero-copy transfer), and messaging.
 
+import { isOfflineContext } from '../offlineContext';
 import { getModelDisplayName, type NamModelFile } from './NamModelParser';
 
 export class NamWorkletNode {
@@ -18,8 +19,10 @@ export class NamWorkletNode {
 
   async init(): Promise<void> {
     // Caller (GuitarPedalChain) passes the native AudioContext directly —
-    // standardized-audio-context doesn't support AudioWorkletNode.
-    if (this.ctx.state === 'suspended') {
+    // standardized-audio-context doesn't support AudioWorkletNode. A
+    // bounce's offline context is suspended until it renders, and can't be
+    // resumed before then.
+    if (this.ctx.state === 'suspended' && !isOfflineContext(this.ctx)) {
       await this.ctx.resume();
     }
 

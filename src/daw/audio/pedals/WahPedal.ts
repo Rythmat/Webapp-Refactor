@@ -3,8 +3,12 @@
 // envelope-modulated frequency and resonance, and wet/dry mix.
 //
 // The envelope follower runs on the editor's shared frame loop (engineClock)
-// while the pedal is on, and stops while it is bypassed or disposed.
+// while the pedal is on, and stops while it is bypassed or disposed. In a
+// bounce it doesn't run at all: an offline render outruns the frame loop, so
+// the follower would sweep the filter at random. The bounced wah is its
+// filter at rest (the frequency and resonance knobs), with its mix and level.
 
+import { isOfflineContext } from '../offlineContext';
 import type { PedalProcessor } from './PedalProcessor';
 import { addFrameTask } from '@/daw/engine/engineClock';
 
@@ -23,6 +27,8 @@ export class WahPedal implements PedalProcessor {
   private analyser: AnalyserNode;
   private analyserData: Float32Array;
   private enabled = true;
+  /** On a bounce's offline context: no envelope follower. */
+  private readonly offline: boolean;
 
   // Envelope follower state
   private sensitivity = 5; // 0.1–10
@@ -36,6 +42,7 @@ export class WahPedal implements PedalProcessor {
   private stopFollower: (() => void) | null = null;
 
   constructor(ctx: AudioContext) {
+    this.offline = isOfflineContext(ctx);
     this.inputNode = ctx.createGain();
     this.outputNode = ctx.createGain();
     this.bypassNode = ctx.createGain();
@@ -129,6 +136,7 @@ export class WahPedal implements PedalProcessor {
       this.dryGain.gain.value = 1 - params.mix;
       this.wetGain.gain.value = params.mix;
     }
+    this.applyFilter();
   }
 
   dispose(): void {
@@ -154,6 +162,7 @@ export class WahPedal implements PedalProcessor {
 
   /** Runs the envelope follower only while the pedal is on. */
   private syncEnvelopeFollower(): void {
+    if (this.offline) return;
     if (this.enabled && !this.stopFollower) {
       this.stopFollower = addFrameTask(this.tick, { name: 'wah-envelope' });
     } else if (!this.enabled && this.stopFollower) {
@@ -182,12 +191,15 @@ export class WahPedal implements PedalProcessor {
     // Attack/decay smoothing
     const coeff = target > this.envelope ? this.attackCoeff : this.decayCoeff;
     this.envelope += (target - this.envelope) * coeff;
+    this.applyFilter();
+  };
 
-    // Apply envelope to filter parameters
+  /** Set the filter where the envelope has it (at rest, with none). */
+  private applyFilter(): void {
     this.filter.frequency.value =
       this.baseFreq + this.envelope * this.freqEnvAmt;
     this.filter.Q.value = this.baseQ + this.envelope * this.resEnvAmt;
-  };
+  }
 
   private wireEnabled(): void {
     if (this.enabled) {

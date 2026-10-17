@@ -64,6 +64,12 @@ export class PitchCorrectionPedal implements PedalProcessor {
     }
   }
 
+  /** Resolves once an enabled pedal's worklet is set up and wired (or has
+   *  failed to, leaving it bypassed). */
+  whenReady(): Promise<void> {
+    return this._initPromise ?? Promise.resolve();
+  }
+
   // ── Vocal-specific: pitch info for PitchMeter ──────────────────────────
 
   getPitchInfo(): PitchInfo | null {

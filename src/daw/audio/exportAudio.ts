@@ -32,9 +32,11 @@ export interface AudioExportOptions {
 }
 
 export interface ExportProgress {
-  /** 'render' while the offline mixdown runs, 'encode' while encoding. */
-  stage: 'render' | 'encode';
-  /** 0..1 within the current stage; render has no sub-progress (stays 0). */
+  /** 'instruments' while SoundFont tracks render (projects with any), then
+   *  'render' while the offline mixdown runs, 'encode' while encoding. */
+  stage: 'instruments' | 'render' | 'encode';
+  /** 0..1 within the current stage (a browser that can't pause an offline
+   *  render leaves the mixdown at 0). */
   pct: number;
 }
 
@@ -66,14 +68,22 @@ function projectSlug(): string {
 
 /**
  * Render + encode the project to a downloadable Blob. `onProgress` fires with
- * the render stage first, then the encode stage.
+ * the render stage (and SoundFont tracks' instruments stage within it), then
+ * the encode stage.
  */
 export async function exportProjectAudio(
   opts: AudioExportOptions,
   onProgress?: (p: ExportProgress) => void,
 ): Promise<AudioExportResult> {
   onProgress?.({ stage: 'render', pct: 0 });
-  const buffer = await renderProject({ range: opts.range });
+  const buffer = await renderProject({
+    range: opts.range,
+    onProgress: (p) =>
+      onProgress?.({
+        stage: p.stage === 'instruments' ? 'instruments' : 'render',
+        pct: p.pct,
+      }),
+  });
 
   onProgress?.({ stage: 'encode', pct: 0 });
   let blob: Blob;

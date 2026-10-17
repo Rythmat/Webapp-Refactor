@@ -218,6 +218,8 @@ export const THEORY_CONDITIONS: Readonly<
   always: () => true,
   isFirstKey: (d) =>
     d.center.mode === 'ionian' && d.center.key === GUITAR_KEY_ORDER[0],
+  notFirstKey: (d) =>
+    !(d.center.mode === 'ionian' && d.center.key === GUITAR_KEY_ORDER[0]),
   notFirstKeyNoRespell: (d) => !!d.keyShift && !d.keyShift.respelled,
   isFlatSwitch: (d) => !!d.keyShift?.respelled,
   modeSpelledLikeParent: (d) =>

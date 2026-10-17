@@ -104,6 +104,8 @@ function defaultGmProgram(
       return 4;
     case 'bass-electric':
       return 33; // Electric Bass (finger)
+    case 'guitar-acoustic':
+      return 25; // Acoustic Guitar (steel)
     default:
       return 0; // Acoustic Grand Piano
   }

@@ -211,6 +211,7 @@ function instrumentPart(
     case 'piano-sampler':
     case 'electric-piano':
     case 'bass-electric':
+    case 'guitar-acoustic':
     case 'cello':
     case 'organ':
       return KeyboardViewPart;

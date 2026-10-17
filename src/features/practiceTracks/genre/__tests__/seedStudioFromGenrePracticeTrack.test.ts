@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, afterAll } from 'vitest';
 import { funkL2 } from '@/curriculum/data/activityFlows/funk_v2';
+import { buildGuitarAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/guitarAppliedTheoryFundamentals';
 import {
   listPairings,
   rememberPairing,
@@ -82,6 +83,21 @@ describe('applyGenrePracticeTrack', () => {
       expect(
         s.state.tracks.find((t) => t.id === s.studentTrackId)!.instrument,
       ).toBe('electric-piano');
+    }
+  });
+
+  it('gives a guitar lesson’s student a steel-string guitar, not the Rhodes', () => {
+    for (const section of ['A', 'B'] as ActivitySectionId[]) {
+      resetSessionToEmpty();
+      resetProjectState('practice');
+      const track = buildGenrePracticeTrack(
+        buildGuitarAppliedTheoryFundamentalsFlow('C'),
+        section,
+      )!;
+      const id = applyGenrePracticeTrack(track, 'Guitar');
+      const student = useStore.getState().tracks.find((t) => t.id === id)!;
+      expect(student.instrument).toBe('guitar-acoustic');
+      expect(student.recordArmed).toBe(true);
     }
   });
 

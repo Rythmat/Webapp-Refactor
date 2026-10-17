@@ -179,11 +179,8 @@ exports[`guitar theory notes: resolution > snapshots the resolved notes for C, F
   "d3.tricky": [
     "Tricky change: These chords share no notes, so every finger moves. Loop this change a few extra times.",
   ],
-  "key.circle": [
-    "Why this order?: Each key starts on note 5 of the key before it. Musicians call this order the circle of fifths.",
-  ],
   "key.first": [
-    "Start with C: C major has no sharps or flats. Each key after it changes just one note.",
+    "Start with C: C major has no sharps or flats. Each key center has a different amount of sharps or flats.",
   ],
   "key.relMinor": [
     "Its minor partner: A minor uses the same notes as C major. It starts on note 6 instead of note 1.",

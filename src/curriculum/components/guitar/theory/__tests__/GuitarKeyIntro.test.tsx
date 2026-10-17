@@ -24,10 +24,11 @@ const noteIds = () =>
 describe('GuitarKeyIntro', () => {
   it('starts with C', () => {
     const region = openIntro('C');
-    expect(noteIds()).toEqual(['key.first', 'key.circle', 'key.relMinor']);
+    // No "Why this order?" on C: no key comes before it.
+    expect(noteIds()).toEqual(['key.first', 'key.relMinor']);
     expect(region).toHaveTextContent('Start with C');
     expect(region).toHaveTextContent(
-      'C major has no sharps or flats. Each key after it changes just one note.',
+      'C major has no sharps or flats. Each key center has a different amount of sharps or flats.',
     );
     expect(region).toHaveTextContent('A minor uses the same notes as C major.');
     // With the chord-family preview.

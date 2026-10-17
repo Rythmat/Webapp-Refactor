@@ -11,8 +11,9 @@
    height, then the TAB at 208px, with the bar pinned under them.
    ──────────────────────────────────────────────────────────────────────── */
 
-/* Header: the trail over the title on the left, the buttons beside both. */
-[data-guitar-layout] [data-guitar-header] {
+/* Header: the trail over the title on the left, the buttons beside both.
+   Piano's lesson screen (data-piano-layout) shares the header. */
+:is([data-guitar-layout], [data-piano-layout]) [data-guitar-header] {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto auto;
   grid-template-areas:
@@ -71,7 +72,7 @@
 
 @media (max-width: 639px) {
   /* The trail gets the full width; the icon buttons sit by the title. */
-  [data-guitar-layout] [data-guitar-header] {
+  :is([data-guitar-layout], [data-piano-layout]) [data-guitar-header] {
     grid-template-areas:
       'crumbs crumbs crumbs crumbs'
       'title title about settings'
@@ -90,7 +91,12 @@
 /* Keyboard focus: a white ring round whatever has it, so the browser's blue
    outline never becomes a second accent. :where() keeps this under any
    control's own focus ring (the white pill's, the step list's rows). */
-:where([data-guitar-layout], [data-guitar-sheet], [data-guitar-overlay])
+:where(
+    [data-guitar-layout],
+    [data-piano-layout],
+    [data-guitar-sheet],
+    [data-guitar-overlay]
+  )
   :focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.6);
   outline-offset: 2px;
@@ -114,6 +120,7 @@
   }
 
   [data-guitar-layout] *,
+  [data-piano-layout] *,
   [data-guitar-sheet],
   [data-guitar-overlay] {
     scroll-behavior: auto !important;

@@ -1,5 +1,5 @@
 import { ChartNoAxesGantt, Music, type LucideIcon } from 'lucide-react';
-import type { RollView } from '@/lib/notation';
+import { useRollView, type RollView } from '@/lib/notation';
 
 /**
  * Two-icon (Learn: three-icon) switch between the app's own note picture and the staff. The
@@ -63,6 +63,60 @@ export function RollViewToggle({
           }`}
         >
           <Icon className={`size-3.5 ${iconClassName ?? ''}`} />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * The same switch at a lesson's nav-row size, beside the section pills and
+ * ♪ Practice Track: an icon and a word per view, the choice a white pill, on
+ * the device's saved Learn view (so the roll it drives follows).
+ */
+export function SavedRollViewSwitch() {
+  const [view, setView] = useRollView('learn');
+  const options: {
+    id: RollView;
+    label: string;
+    Icon: LucideIcon;
+    iconClassName?: string;
+  }[] = [
+    { id: 'roll', label: 'Roll', Icon: ChartNoAxesGantt },
+    { id: 'notation', label: 'Notation', Icon: Music },
+    {
+      id: 'cascade',
+      label: 'Falling',
+      Icon: ChartNoAxesGantt,
+      iconClassName: 'rotate-90',
+    },
+  ];
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Note view"
+      data-roll-view-switch
+      className="flex h-9 shrink-0 items-center rounded-full ring-1 ring-inset ring-white/10 max-[639px]:h-11"
+    >
+      {options.map(({ id, label, Icon, iconClassName }) => (
+        <button
+          key={id}
+          type="button"
+          role="radio"
+          aria-checked={view === id}
+          title={id === 'cascade' ? 'Falling notes' : label}
+          onClick={() => setView(id)}
+          className={`inline-flex h-full items-center gap-2 rounded-full px-4 text-sm font-normal transition-colors duration-150 ${
+            view === id
+              ? 'bg-white text-[#101012]'
+              : 'text-white/55 hover:text-[#e8e8f0]'
+          }`}
+        >
+          <Icon
+            aria-hidden
+            className={`size-4 shrink-0 ${iconClassName ?? ''}`}
+          />
+          {label}
         </button>
       ))}
     </div>

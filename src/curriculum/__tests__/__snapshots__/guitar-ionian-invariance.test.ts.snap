@@ -420,7 +420,7 @@ exports[`guitar Ionian invariance > keeps C Ionian unchanged 1`] = `
   "barreCare": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
   "familyChips": "09198be129bea2b7c49988e760382b4a49261b73540ac4d888549adfd179c0a0",
   "head": "95962b85776f8164e5b5bb84e51b23e92430125a9261324e00613e4ea46b9e24",
-  "prefixNotes": "23e76389831230625f978680b866e0de57424b5d0af4b9c8ef853cba67d9c8f0",
+  "prefixNotes": "d95aabb46728ae8ee0721cdb6bb41d339ada971f644f04a4b35d7d38a7e6c5e3",
   "sections": "aeb53732ef6077d653a304b4585b0f33f0287532de0e3600b252c62ab468a1d8",
 }
 `;

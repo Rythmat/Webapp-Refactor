@@ -10,6 +10,31 @@ const CHORD_FONT_SIZE = 16;
 const CHORD_GAP = 6;
 /** Ledger lines and the notehead's own outline reach past its centre. */
 const NOTE_CLEARANCE = 3;
+/** A bold Glacial character's average width, as a share of the font size. */
+const CHAR_WIDTH = 0.58;
+/** Clear air between two symbols on one line. */
+const SYMBOL_GAP = 6;
+
+/**
+ * Which line each symbol takes, in order: the staff's own (0), or the one above
+ * (1, 2 …) when it would run into the symbol before it — chords a sixteenth
+ * apart (a chromatic approach stab, then its target) each keep their place over
+ * their own note, one above the other, rather than printing on top of each
+ * other.
+ */
+export function chordSymbolRows(
+  symbols: ReadonlyArray<{ left: number; width: number; system: number }>,
+): number[] {
+  const ends = new Map<string, number>();
+  return symbols.map(({ left, width, system }) => {
+    let row = 0;
+    while ((ends.get(`${system}:${row}`) ?? -Infinity) + SYMBOL_GAP > left) {
+      row += 1;
+    }
+    ends.set(`${system}:${row}`, left + width);
+    return row;
+  });
+}
 
 /** The top edge to draw a symbol at, in the same scaled px the layout reports. */
 export function chordSymbolTop(
@@ -72,47 +97,55 @@ export function ChordSymbolOverlay({
 
   // The top staff of each system carries the chords, as on a lead sheet.
   const topPart = Math.min(...layout.measures.map((m) => m.partIndex));
+  const fontSize = CHORD_FONT_SIZE * layout.scale;
+
+  const placed = [...symbols]
+    .sort((a, b) => a.startTick - b.startTick)
+    .flatMap((symbol) => {
+      const box = layout.measures.find(
+        (m) =>
+          m.partIndex === topPart &&
+          symbol.startTick >= m.startTick &&
+          symbol.startTick < m.endTick,
+      );
+      return box ? [{ symbol, box }] : [];
+    })
+    .map(({ symbol, box }) => {
+      // The leftmost note drawn at this tick — on a grand staff both staves
+      // align, so either hand's notehead gives the same x.
+      const anchors = layout.notes.filter(
+        (n) => n.partIndex === box.partIndex && n.tick === symbol.startTick,
+      );
+      const span = box.endTick - box.startTick || 1;
+      const left = anchors.length
+        ? Math.min(...anchors.map((n) => n.x))
+        : box.x + ((symbol.startTick - box.startTick) / span) * box.width;
+
+      const inBar = layout.notes.filter(
+        (n) =>
+          n.partIndex === box.partIndex && n.measureIndex === box.measureIndex,
+      );
+      return {
+        symbol,
+        left,
+        top: chordSymbolTop(box.y, layout.topLineDrop, inBar, layout.scale),
+        // Systems are told apart by where their staves sit.
+        system: Math.round(box.y),
+        width: [...symbol.text].length * fontSize * CHAR_WIDTH,
+      };
+    });
+  const rows = chordSymbolRows(placed);
 
   return (
     <div className="pointer-events-none absolute inset-0">
-      {symbols.map((symbol) => {
-        const box = layout.measures.find(
-          (m) =>
-            m.partIndex === topPart &&
-            symbol.startTick >= m.startTick &&
-            symbol.startTick < m.endTick,
-        );
-        if (!box) return null;
-
-        // The leftmost note drawn at this tick — on a grand staff both staves
-        // align, so either hand's notehead gives the same x.
-        const anchors = layout.notes.filter(
-          (n) => n.partIndex === box.partIndex && n.tick === symbol.startTick,
-        );
-        const span = box.endTick - box.startTick || 1;
-        const left = anchors.length
-          ? Math.min(...anchors.map((n) => n.x))
-          : box.x + ((symbol.startTick - box.startTick) / span) * box.width;
-
-        const inBar = layout.notes.filter(
-          (n) =>
-            n.partIndex === box.partIndex &&
-            n.measureIndex === box.measureIndex,
-        );
-        const fontSize = CHORD_FONT_SIZE * layout.scale;
-
+      {placed.map(({ symbol, left, top }, i) => {
         return (
           <span
             key={symbol.id}
             className="absolute whitespace-nowrap"
             style={{
               left,
-              top: chordSymbolTop(
-                box.y,
-                layout.topLineDrop,
-                inBar,
-                layout.scale,
-              ),
+              top: top - rows[i] * fontSize * 1.15,
               fontFamily: "'Glacial Indifference', system-ui, sans-serif",
               fontSize: `${fontSize}px`,
               fontWeight: 700,

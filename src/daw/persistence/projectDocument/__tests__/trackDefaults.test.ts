@@ -88,6 +88,7 @@ const INSTRUMENTS: Record<Exclude<InstrumentType, 'none'>, TrackType> = {
   'piano-sampler': 'midi',
   'electric-piano': 'midi',
   'bass-electric': 'midi',
+  'guitar-acoustic': 'midi',
   cello: 'midi',
   organ: 'midi',
   'tonewheel-organ': 'midi',

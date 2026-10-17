@@ -20,6 +20,7 @@
  */
 
 import { CHORDS, getChordColorFromNotes } from '@prism/engine';
+import { flowGuitarCenterId } from '@/curriculum/data/guitar/centers';
 import {
   getLessonStyle,
   lessonStyleFor,
@@ -47,6 +48,7 @@ import type {
   ActivitySectionV2,
   ActivityStepV2,
 } from '@/curriculum/types/activity.v2';
+import { flowInstrument } from '@/curriculum/utils/flowInstrument';
 import {
   flowKeyRoot,
   stepKeyLabel,
@@ -57,6 +59,7 @@ import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidental
 import type { DrumKitId } from '@/daw/instruments/drumKits';
 import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
 import type { MidiClip, StudioBassVoice } from '@/daw/store/tracksSlice';
+import type { GuitarPracticeInfo } from '@/daw/store/uiSlice';
 import { formatChord, normalizeQuality, parseChord } from '@/lib/chordNotation';
 import { stylisticVoicings } from '../chordVoicings';
 import { flowPracticeScales, type PracticeScale } from './practiceScales';
@@ -183,6 +186,12 @@ export interface GenrePracticeTrackResult {
   progressions: PracticeProgressionOption[];
   /** The one playing: its chords joined by spaces. */
   progressionId: string;
+  /**
+   * A guitar lesson's track: the key center, scale position and chord shapes
+   * the practice screen draws on a fretboard in place of the keyboard.
+   * Absent on piano.
+   */
+  guitar?: GuitarPracticeInfo;
 }
 
 export interface PracticeStyleOption {
@@ -192,9 +201,12 @@ export interface PracticeStyleOption {
 
 export interface PracticeProgressionOption {
   id: string;
-  /** As the switch reads: 'Cumbia · Em – Am – B7 – Em'. */
+  /** 'Cumbia · Em – Am – B7 – Em', raw symbols; the switch writes `chords`
+   *  in the reader's notation after `styleName`. */
   label: string;
   chords: string[];
+  /** The groove the progression comes with, when the level has several. */
+  styleName?: string;
 }
 
 export interface GenrePracticeTrackOptions {
@@ -378,6 +390,7 @@ function levelProgressions(flow: ActivityFlowV2): PracticeProgressionOption[] {
       id,
       label: style ? `${style.name} · ${chart}` : chart,
       chords: loop,
+      ...(style ? { styleName: style.name } : {}),
     });
   };
   if (flow.params.practiceTrack?.chords?.length)
@@ -909,5 +922,33 @@ export function buildGenrePracticeTrack(
     })(),
     progressionId: chords.join(' '),
     ...lessonSounds(flow, step, backingStep, styleRef),
+    ...(flowInstrument(flow) === 'guitar'
+      ? { guitar: guitarPracticeInfo(flow, section) }
+      : {}),
+  };
+}
+
+/**
+ * What a guitar Practice Track draws: the section's key center, the scale
+ * position it plays from (the level's first when the section has none of its
+ * own, as Chords doesn't), and every chord shape the section plays (the
+ * level's when it plays none, as Melody doesn't), in the order first met.
+ */
+export function guitarPracticeInfo(
+  flow: ActivityFlowV2,
+  section: ActivitySectionV2,
+): GuitarPracticeInfo {
+  const own = section.steps.filter((step) => step.guitar);
+  const all = flow.sections.flatMap((s) => s.steps).filter((s) => s.guitar);
+  const scaleOf = (steps: ActivityStepV2[]) =>
+    steps.find((step) => step.guitar?.scalePosition)?.guitar?.scalePosition;
+  const shapesOf = (steps: ActivityStepV2[]) => [
+    ...new Set(steps.flatMap((step) => step.guitar?.shapeIds ?? [])),
+  ];
+  const shapeIds = shapesOf(own);
+  return {
+    keyCenter: own[0]?.guitar?.keyCenter ?? flowGuitarCenterId(flow),
+    scalePosition: scaleOf(own) ?? scaleOf(all) ?? null,
+    shapeIds: shapeIds.length > 0 ? shapeIds : shapesOf(all),
   };
 }

@@ -25,6 +25,7 @@ import type {
   AudioClip,
   AudioInputChannel,
   MidiClip,
+  NotationStaffSetting,
   Track,
   TrackType,
 } from '@/daw/store/tracksSlice';
@@ -76,6 +77,11 @@ import {
 // region was read from (sourceClipId), so the chord lane follows that clip
 // alone. Its compat stays 3.
 //
+// v6 adds one field and changes no meaning: the staff a part is written on
+// in the Score, set by hand (a track's settings.notationStaff; unset is
+// Auto). Its compat stays 3, and an older build reading it shows every part
+// on Auto.
+//
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
 // know. A later schema that only adds fields keeps it at 3, so after a
@@ -112,9 +118,11 @@ export const SESSION_ENVELOPE_VERSION = 2;
  * its bar indices keep their meaning, every one a real bar of the song. 5
  * holds the Lead Sheet's melody tracks as a list (leadSheetMelodyTrackIds)
  * where 4 held one id (leadSheetMelodyTrackId); migrations.ts reads the one
- * id as a list of it.
+ * id as a list of it. 6 adds the staff a part is set to in the Score (a
+ * track's settings.notationStaff) and changes no meaning: a 5 draft is a 6
+ * one with every part on Auto, and compat stays 3.
  */
-export const SESSION_SCHEMA_VERSION = 5;
+export const SESSION_SCHEMA_VERSION = 6;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -450,6 +458,7 @@ const TRACK_PLACES = {
   sends: 'settings',
   automation: 'settings',
   trackRole: 'top',
+  notationStaff: 'settings',
 } as const satisfies { readonly [K in keyof Track]-?: TrackPlace };
 
 type TrackSettingsField = {
@@ -1036,6 +1045,14 @@ const TRACK_ROLE = memberOf<DawTrackRole>({
   auto: true,
 });
 
+/** A part's staff, set by hand in the Score (schema 6). */
+const NOTATION_STAFF = memberOf<NotationStaffSetting>({
+  auto: true,
+  treble: true,
+  bass: true,
+  grand: true,
+});
+
 const INPUT_CHANNEL: Check<AudioInputChannel> = (raw) => {
   if (!isRecord(raw)) return undefined;
   const channelOk = integerIn(0, 1024);
@@ -1068,6 +1085,7 @@ const SETTINGS_CHECKS: {
   presetName: valid(isString),
   sends: valid(isRecord),
   automation: AUTOMATION,
+  notationStaff: NOTATION_STAFF,
 };
 
 /**

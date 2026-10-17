@@ -262,6 +262,8 @@ export const TRACK_FIELD_REASONS: Reasons<Track> = Object.freeze({
   effects: 'A drum machine starts with its compressor on.',
   trackRole:
     'Guessed from the name and instrument; the student can pick another.',
+  notationStaff:
+    'The staff the Score and Lead Sheet write the part on, set by hand (treble, bass, grand); unset is Auto, which follows the instrument (Score/partStaff.ts). A setting of the music like the instrument, so it is shared, undone and saved with it, in the settings blob the cloud payload already carries. Drafts and cloud saves from before schema 6 hold none: every part reads Auto.',
 } satisfies Reasons<Track>);
 
 const FROM_CLIP_START = 'From the start of the clip.';

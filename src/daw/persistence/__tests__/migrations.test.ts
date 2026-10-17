@@ -59,8 +59,9 @@ function jsonFiles(dir: string): { name: string; session: any }[] {
 const V2 = jsonFiles(join(FIXTURES, 'v2'));
 const V2_12 = jsonFiles(join(FIXTURES, 'v2-1.2'));
 const V1 = jsonFiles(join(FIXTURES, 'v1'));
-/** Today's format (schema 5), and the v3 and v4 ones it migrates from. */
-const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v5-all-fields'))[0].session;
+/** Today's format (schema 6), and the v3, v4 and v5 ones it migrates from. */
+const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v6-all-fields'))[0].session;
+const ALL_FIELDS_V5 = jsonFiles(join(FIXTURES, 'v5-all-fields'))[0].session;
 const ALL_FIELDS_V4 = jsonFiles(join(FIXTURES, 'v4-all-fields'))[0].session;
 const ALL_FIELDS_V3 = jsonFiles(join(FIXTURES, 'v3-all-fields'))[0].session;
 /** A schema after this build's. */
@@ -608,10 +609,10 @@ describe('migrating', () => {
     expect(result.session.data.tracks).toEqual(ALL_FIELDS.data.tracks);
   });
 
-  it('reads a v3 draft as v5, with no bars past its chords', () => {
+  it('reads a v3 draft as v6, with no bars past its chords', () => {
     const result = migrated(ALL_FIELDS_V3);
     expect(result.from).toBe(3);
-    expect(result.session).toMatchObject({ schema: 5, compat: 3 });
+    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
     // Schema 4 only added fields, so the v3 data passes through untouched
     // but for the melody track 5 turned into a list.
     const { notation, ...data } = result.session.data;
@@ -639,7 +640,7 @@ describe('a v4 draft', () => {
   it('reads its one melody track as a list of it', () => {
     const result = migrated(ALL_FIELDS_V4);
     expect(result.from).toBe(4);
-    expect(result.session).toMatchObject({ schema: 5, compat: 3 });
+    expect(result.session).toMatchObject({ schema: 6, compat: 3 });
     const notation = result.session.data.notation as Record<string, unknown>;
     expect(notation).not.toHaveProperty('leadSheetMelodyTrackId');
     expect(notation.leadSheetMelodyTrackIds).toEqual(['trk-lead']);
@@ -656,7 +657,7 @@ describe('a v4 draft', () => {
     expect({
       ...decode(ALL_FIELDS_V4).project,
       leadSheetMelodyTrackIds: ['trk-lead', 'trk-keys'],
-    }).toEqual(decode(ALL_FIELDS).project);
+    }).toEqual(decode(ALL_FIELDS_V5).project);
   });
 
   it('reads Auto, a null id, as no tracks', () => {
@@ -681,5 +682,40 @@ describe('a v4 draft', () => {
   it('counts a melody id that is no id at all', () => {
     expect(migrated(v4WithMelody(7)).repaired).toBe(1);
     expect(decode(v4WithMelody(7)).project.leadSheetMelodyTrackIds).toEqual([]);
+  });
+});
+
+describe('a v5 draft', () => {
+  it('reads as v6 untouched, every part on Auto', () => {
+    const result = migrated(ALL_FIELDS_V5);
+    expect(result.from).toBe(5);
+    expect([result.repaired, result.session.schema]).toEqual([0, 6]);
+    // Schema 6 only added a field, so the v5 data passes through as it is.
+    expect(result.session.data).toEqual(ALL_FIELDS_V5.data);
+    const { project } = decode(ALL_FIELDS_V5);
+    expect(project.tracks.map((t) => t.notationStaff)).toEqual(
+      project.tracks.map(() => undefined),
+    );
+  });
+
+  it('loads as the v6 draft does, but for the staff v6 set by hand', () => {
+    // The two all-fields drafts differ only there: v6 writes Keys in treble.
+    const v6 = decode(ALL_FIELDS).project;
+    expect(v6.tracks[0]).toMatchObject({
+      id: 'trk-keys',
+      notationStaff: 'treble',
+    });
+    expect(decode(ALL_FIELDS_V5).project).toEqual({
+      ...v6,
+      tracks: v6.tracks.map(({ notationStaff: _staff, ...track }) => track),
+    });
+  });
+
+  it('drops a staff that is no staff, and counts it', () => {
+    const stored = structuredClone(ALL_FIELDS);
+    stored.data.tracks[0].settings.notationStaff = 'alto';
+    const { project, repaired } = decode(stored);
+    expect(repaired).toBe(1);
+    expect(project.tracks[0].notationStaff).toBeUndefined();
   });
 });

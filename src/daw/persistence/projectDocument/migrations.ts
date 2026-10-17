@@ -36,6 +36,10 @@ import { NOTE_EVENT_FIELDS } from './fields';
 //   (notation.leadSheetMelodyTrackId, or null for Auto). The one id becomes
 //   a list of it (v4ToV5Notation); a v4 build reading a v5 draft finds no
 //   id and shows Auto, so compat stays 3.
+// - v6: v5 plus the staff each part is set to in the Score (a track's
+//   settings.notationStaff). A v5 draft is a v6 draft with every part on
+//   Auto, so nothing translates, and a v5 build reading a v6 draft leaves
+//   the field out, so compat stays 3.
 // - Later schemas: a draft whose `compat` is 3 or lower only adds fields to
 //   v3, so it is read as this build's schema and the fields this build
 //   doesn't know are left out. `from` says it was newer, and the caller keeps a copy of it before
@@ -77,7 +81,7 @@ export interface LegacyPrefs {
 export type MigrationResult =
   | {
       ok: true;
-      /** The draft in this build's format: `version` 2, `schema` 5. */
+      /** The draft in this build's format: `version` 2, `schema` 6. */
       session: StoredSession;
       /**
        * The format it was written in: 1, 2, 3, or a later schema read as 3.

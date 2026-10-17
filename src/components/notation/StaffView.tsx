@@ -812,9 +812,60 @@ interface Rendered {
   groups: Map<string, SVGElement[]>;
 }
 
-/** Vertical offset of every staff within a system, and the system's height. */
-function stackParts(parts: ScorePart[]) {
+/** A stem's length, VexFlow's: three and a half staff spaces. */
+const STEM_LENGTH = 35;
+
+/**
+ * How far a part's notes reach past its outer staves, in unscaled px: over
+ * its top staff's top line and under its bottom staff's bottom line, to the
+ * centre of the furthest notehead. A drumset staff's stems point away from
+ * it (hands up, feet down), so its reach is to their ends.
+ */
+function ledgerReach(part: ScorePart): { above: number; below: number } {
+  const staves = part.score.staves;
+  const reach = (staff: StaffId, side: 'above' | 'below') => {
+    // Drum noteheads sit where a treble staff would put their letters.
+    const bottom = BOTTOM_LINE[staff === 'percussion' ? 'treble' : staff];
+    if (bottom === undefined) return 0;
+    let furthest = -Infinity; // staff lines past the outer line
+    for (const measure of part.score.measures) {
+      for (const voice of measure.staves[staff] ?? []) {
+        for (const item of voice.items) {
+          if (item.kind !== 'note') continue;
+          for (const key of item.keys) {
+            const line =
+              (key.octave * 7 + 'cdefgab'.indexOf(key.letter) - bottom) / 2;
+            furthest = Math.max(furthest, side === 'above' ? line - 4 : -line);
+          }
+        }
+      }
+    }
+    if (furthest === -Infinity) return 0;
+    if (staff === 'percussion') {
+      return Math.max(0, furthest * LINE_GAP + STEM_LENGTH);
+    }
+    return Math.max(0, furthest * LINE_GAP);
+  };
+  return {
+    above: reach(staves[0], 'above'),
+    below: reach(staves[staves.length - 1], 'below'),
+  };
+}
+
+/**
+ * Vertical offset of every staff within a system, and the system's height.
+ * On a page (`roomForLedgers`), parts written far off their staves are held
+ * apart: two parts' ledger lines meeting in the gap between them get room
+ * for both noteheads and the same two spaces of air the top part keeps
+ * (inkAboveStave), and the last part's reach under its staff pushes the next
+ * system down. A lesson's staff, which never sets it, stacks as it always
+ * has.
+ */
+function stackParts(parts: ScorePart[], roomForLedgers = false) {
   const offsets: Array<Map<StaffId, number>> = [];
+  const reach = roomForLedgers ? parts.map(ledgerReach) : null;
+  /** The air every note keeps from the next part's: two staff spaces. */
+  const air = 2 * LINE_GAP;
   let y = 0;
   parts.forEach((part, i) => {
     const map = new Map<StaffId, number>();
@@ -823,7 +874,17 @@ function stackParts(parts: ScorePart[]) {
     });
     offsets.push(map);
     y += (part.score.staves.length - 1) * STAFF_SLOT + STAFF_BODY;
-    if (i < parts.length - 1) y += PART_GAP;
+    if (i < parts.length - 1) {
+      y += PART_GAP;
+      if (reach) {
+        // Bottom line to the next part's top line, against what both need.
+        const needed =
+          reach[i].below + reach[i + 1].above + 2 * NOTEHEAD_HALF + air;
+        y += Math.max(0, needed - (PART_GAP + TOP_LINE_DROP));
+      }
+    } else if (reach) {
+      y += Math.max(0, reach[i].below + NOTEHEAD_HALF + air - SYSTEM_GAP);
+    }
   });
   return { offsets, contentHeight: y };
 }
@@ -1119,7 +1180,7 @@ function render(
   }
   const headerFirst = headerWidth(vf, parts, true);
   const headerRest = headerWidth(vf, parts, false);
-  const { offsets, contentHeight } = stackParts(parts);
+  const { offsets, contentHeight } = stackParts(parts, !!options.page);
   // The system opens far enough below its own top for whatever stands there:
   // chord symbols, rehearsal marks, and any ledger lines reaching up to them.
   const systemTop =

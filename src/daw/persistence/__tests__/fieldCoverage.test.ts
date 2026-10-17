@@ -1174,6 +1174,7 @@ const TRACK_IN_PAYLOAD: Record<string, string> = {
   'settings.sends': 'sends',
   'settings.automation': 'automation',
   'settings.trackRole': 'trackRole',
+  'settings.notationStaff': 'notationStaff',
 };
 /** Track settings that hold something other than a Track field. */
 const SETTINGS_ELSEWHERE = [
@@ -1218,8 +1219,8 @@ function cloudBodies(): Record<string, unknown>[] {
   return withTracks.map(({ name, session }) => {
     resetStore();
     expect(deserializeSession(session), name).toBe(true);
-    // An uploaded take, so the body carries an audio clip, and master
-    // automation, which rides on the first track.
+    // An uploaded take, so the body carries an audio clip, master
+    // automation, which rides on the first track, and a part's staff.
     s().addAudioClip(s().tracks[0].id, {
       id: 'take-1',
       startTick: 0,
@@ -1231,6 +1232,8 @@ function cloudBodies(): Record<string, unknown>[] {
       gain: 1,
     });
     s().upsertMasterAutomationPoint('volume', { tick: 0, value: 0.5 });
+    // A part set to a staff by hand (schema 6), which none of them has.
+    s().updateTrack(s().tracks[0].id, { notationStaff: 'bass' });
     return JSON.parse(JSON.stringify(serializeSessionForCloud())) as Record<
       string,
       unknown

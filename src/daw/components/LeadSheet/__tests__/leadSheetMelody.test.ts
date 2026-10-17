@@ -164,7 +164,8 @@ describe('the staves for the melody tracks', () => {
   it('gives a track with no notes a staff of rests, as long as the rest', () => {
     const parts = build([
       track('lead', [{ note: 72, startTick: 0, durationTicks: 480 }]),
-      track('student', []),
+      // A synth with nothing to go by reads treble (partStaff.ts).
+      track('student', [], { instrument: 'oracle-synth' }),
     ]);
     expect(parts.map((p) => p.noteCount)).toEqual([1, 0]);
     expect(parts[1].score.staves).toEqual(['treble']);

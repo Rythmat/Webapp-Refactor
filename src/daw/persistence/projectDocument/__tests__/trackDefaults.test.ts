@@ -208,6 +208,7 @@ describe('initialTrackDefaults', () => {
       'presetName',
       'sends',
       'automation',
+      'notationStaff',
     ];
     expect(optional.filter((key) => key in track)).toEqual([]);
     expect('id' in track).toBe(false);

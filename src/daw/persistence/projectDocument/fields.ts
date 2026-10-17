@@ -312,7 +312,7 @@ const STORE_SPECS = {
   leadSheetRepeats: doc('notation', () => [], 'document', SHARED_UNDO),
   leadSheetShowRepeats: doc('notation', false, 'document', SHARED),
   leadSheetShowMelody: doc('notation', false, 'document', SHARED),
-  leadSheetMelodyTrackId: doc('notation', null, 'document', SHARED),
+  leadSheetMelodyTrackIds: doc('notation', () => [], 'document', SHARED),
   scoreChordTracks: doc('notation', () => [], 'document', SHARED_UNDO),
   scoreChordHidden: doc('notation', () => [], 'document', SHARED_UNDO),
   scoreArticulations: doc('notation', () => [], 'document', SHARED_UNDO),

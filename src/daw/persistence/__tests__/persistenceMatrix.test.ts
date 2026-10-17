@@ -43,9 +43,9 @@
  *
  * Not probed: the lesson and practice context (tutorial step, practice
  * session), which milestone 1.15 moves into the draft (DraftMeta.context);
- * leadSheetMelodyTrackId (nothing writes it); audioMidiSource, the
- * Guitar/Bass-to-MIDI binding, which the registry keeps session-only
- * (fields.ts; a reload asks the student to pick their input again); takes
+ * audioMidiSource, the Guitar/Bass-to-MIDI binding, which the registry keeps
+ * session-only (fields.ts; a reload asks the student to pick their input
+ * again); takes
  * still being recorded, which no draft holds until milestone 1.11d; and
  * session state such as the tool and the clip selection, which no reload
  * keeps. The view of the project (current view, zoom, scroll, selected
@@ -699,6 +699,18 @@ const probes = {
     write: (p) => st(p).setLeadSheetShowMelody(true),
     check: (p) => expect(st(p).leadSheetShowMelody).toBe(true),
   },
+  // The tracks the Lead Sheet's picker ticked, a staff each.
+  leadSheetMelodyTracks: {
+    write: (p) => {
+      st(p).toggleLeadSheetMelodyTrack(track(p, 'Keys').id);
+      st(p).toggleLeadSheetMelodyTrack(track(p, 'Lead').id);
+    },
+    check: (p) =>
+      expect(st(p).leadSheetMelodyTrackIds).toEqual([
+        track(p, 'Keys').id,
+        track(p, 'Lead').id,
+      ]),
+  },
   articulations: {
     write: (p) =>
       st(p).setScoreArticulations([
@@ -1200,6 +1212,7 @@ describe('a browser refresh (local autosave) keeps', () => {
   it('fermatas', kept(probes.fermatas));
   it('the lead-sheet chord format', kept(probes.chordFormat));
   it('the lead-sheet melody toggle', kept(probes.leadSheetMelody));
+  it('the lead-sheet melody tracks', kept(probes.leadSheetMelodyTracks));
   // state-reload-01: fixed in 1.3 (the draft keeps the Score's marks, by
   // note id, and its layout).
   it('Score articulations', kept(probes.articulations));
@@ -1274,6 +1287,7 @@ const LOCAL_ROWS: [string, Probe][] = [
   ['fermatas', probes.fermatas],
   ['the lead-sheet chord format', probes.chordFormat],
   ['the lead-sheet melody toggle', probes.leadSheetMelody],
+  ['the lead-sheet melody tracks', probes.leadSheetMelodyTracks],
   ['Score articulations', probes.articulations],
   ['Score slurs', probes.slurs],
   ['pinned Score spellings', probes.pinnedSpellings],
@@ -1428,6 +1442,7 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   it('fermatas', kept(probes.fermatas));
   it('the lead-sheet chord format', kept(probes.chordFormat));
   it('the lead-sheet melody toggle', kept(probes.leadSheetMelody));
+  it('the lead-sheet melody tracks', kept(probes.leadSheetMelodyTracks));
   it('Score articulations', kept(probes.articulations));
   it('Score slurs', kept(probes.slurs));
   it('pinned Score spellings', kept(probes.pinnedSpellings));

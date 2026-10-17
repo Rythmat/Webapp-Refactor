@@ -70,7 +70,7 @@ function leaveAProjectBehind(): void {
   s().setLeadSheetChordFormat('jazz');
   s().setLeadSheetShowRepeats(true);
   s().setLeadSheetShowMelody(true);
-  s().setLeadSheetMelodyTrackId('melody-track');
+  s().setLeadSheetMelodyTrackIds(['melody-track']);
   useStore.setState({
     prismSuggestOpen: true,
     prismSuggestInsertTick: 1920,
@@ -103,7 +103,7 @@ function leftovers() {
       x.leadSheetChordFormat,
       x.leadSheetShowRepeats,
       x.leadSheetShowMelody,
-      x.leadSheetMelodyTrackId,
+      x.leadSheetMelodyTrackIds,
     ],
     suggestion: [
       x.prismSuggestOpen,
@@ -125,7 +125,7 @@ const freshPage = {
   mastering: [[], false, 0.8],
   returnA: defaultReturns().find((r) => r.id === 'A')?.effects.reverb.decay,
   score: [[], [], [], [], []],
-  leadSheet: ['hybrid', false, false, null],
+  leadSheet: ['hybrid', false, false, []],
   suggestion: [false, 0, null, 0],
 };
 

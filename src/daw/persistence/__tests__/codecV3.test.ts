@@ -3,8 +3,8 @@
  * Codec v3: the project draft written on this device (the autosave, kept
  * work) and read back (projectDocument/codec.ts, through SessionSerializer).
  *
- * fixtures/v4-all-fields/all-fields.json is a draft in today's format (v3's
- * codec at schema 4) holding a value other than its default for every local
+ * fixtures/v5-all-fields/all-fields.json is a draft in today's format (v3's
+ * codec at schema 5) holding a value other than its default for every local
  * registry field: every doc and view store
  * key, every Track field and every nested field (clips, notes, controller
  * events, audio clips, chord regions, markers, return buses), an Oracle
@@ -83,7 +83,7 @@ const s = () => useStore.getState();
 
 const ALL_FIELDS = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v4-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v5-all-fields/all-fields.json',
 );
 const allFields = (): StoredSession =>
   JSON.parse(readFileSync(ALL_FIELDS, 'utf8')) as StoredSession;
@@ -363,15 +363,16 @@ describe('the all-fields draft', () => {
     );
   });
 
-  it('is written in the v2 envelope with the v4 schema', () => {
+  it('is written in the v2 envelope with the v5 schema', () => {
     const stored = allFields();
     expect([stored.version, stored.schema, stored.compat]).toEqual([
       2,
       SESSION_SCHEMA_VERSION,
       SESSION_COMPAT_VERSION,
     ]);
-    // Schema 4 (1.10) only added fields, so a 1.3 build still reads it.
-    expect([SESSION_SCHEMA_VERSION, SESSION_COMPAT_VERSION]).toEqual([4, 3]);
+    // Schema 4 (1.10) only added fields, and 5 renamed one a 1.3 build reads
+    // as missing (the melody tracks: it shows Auto), so it still reads both.
+    expect([SESSION_SCHEMA_VERSION, SESSION_COMPAT_VERSION]).toEqual([5, 3]);
     // Prefs are kept per user, apart from any project.
     expect(stored.data.transport).not.toHaveProperty('metronomeEnabled');
     expect(JSON.stringify(stored.data)).not.toMatch(
@@ -705,13 +706,13 @@ describe('decoding', () => {
     const stored = allFields();
     const notation = stored.data.notation as Record<string, unknown>;
     notation.scoreChordTracks = ['trk-keys', 'gone'];
-    notation.leadSheetMelodyTrackId = 'gone';
+    notation.leadSheetMelodyTrackIds = ['gone', 'trk-lead'];
     const keys = stored.data.tracks[0].settings?.effects;
     if (!keys) throw new Error('no Keys effects');
     keys.ducker.keyTrackId = 'gone';
     const { project } = decode(stored);
     expect(project.scoreChordTracks).toEqual(['trk-keys']);
-    expect(project.leadSheetMelodyTrackId).toBeNull();
+    expect(project.leadSheetMelodyTrackIds).toEqual(['trk-lead']);
     expect(project.tracks[0].effects.ducker.keyTrackId).toBeNull();
   });
 

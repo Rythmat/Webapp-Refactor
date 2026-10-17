@@ -1,14 +1,15 @@
 // @vitest-environment jsdom
 /**
- * Writes fixtures/v4-all-fields/all-fields.json: a draft in today's format
- * (schema 4) holding a value other than its default for every local
+ * Writes fixtures/v5-all-fields/all-fields.json: a draft in today's format
+ * (schema 5) holding a value other than its default for every local
  * registry field, which codecV3.test and draftShape.test read (see there for
  * what it must hold).
  *
  * Skipped unless WRITE_FIXTURES=1. The fixture is the format, so rewrite it
  * only for a new registry field that needs a value in it, or with a
  * SESSION_SCHEMA_VERSION bump (keeping a copy of the old one for the
- * migration from it: fixtures/v3-all-fields is the v3 one).
+ * migration from it: fixtures/v3-all-fields and fixtures/v4-all-fields are
+ * the v3 and v4 ones).
  *
  * Run: WRITE_FIXTURES=1 npx vitest run src/daw/persistence/__tests__/allFieldsFixture.test.ts
  */
@@ -31,7 +32,7 @@ import { migrateSession } from '../projectDocument/migrations';
 
 const FILE = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v4-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v5-all-fields/all-fields.json',
 );
 
 const effects = (patch: Record<string, unknown> = {}) =>
@@ -386,7 +387,8 @@ function allFieldsProject(): ProjectSnapshot {
     leadSheetRepeats: [{ startMeasure: 0, endMeasure: 7 }],
     leadSheetShowRepeats: true,
     leadSheetShowMelody: true,
-    leadSheetMelodyTrackId: 'trk-lead',
+    // Not in track order: the list keeps the order it was given.
+    leadSheetMelodyTrackIds: ['trk-lead', 'trk-keys'],
     scoreChordTracks: ['trk-keys'],
     scoreChordHidden: ['trk-keys:chord-2'],
     scoreArticulations: [

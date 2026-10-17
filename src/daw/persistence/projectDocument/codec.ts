@@ -109,9 +109,12 @@ export const SESSION_ENVELOPE_VERSION = 2;
  * to what a draft holds bumps it, with a migration and fixtures (draftShape
  * .test fails until then): 1.13b moving the Oracle patch, 1.16's per-project
  * chord-prompt flag. 4 is 1.10's (leadSheetBars, a region's sourceClipId);
- * its bar indices keep their meaning, every one a real bar of the song.
+ * its bar indices keep their meaning, every one a real bar of the song. 5
+ * holds the Lead Sheet's melody tracks as a list (leadSheetMelodyTrackIds)
+ * where 4 held one id (leadSheetMelodyTrackId); migrations.ts reads the one
+ * id as a list of it.
  */
-export const SESSION_SCHEMA_VERSION = 4;
+export const SESSION_SCHEMA_VERSION = 5;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -213,7 +216,7 @@ const DRAFT_LAYOUT = {
   leadSheetRepeats: 'notation',
   leadSheetShowRepeats: 'notation',
   leadSheetShowMelody: 'notation',
-  leadSheetMelodyTrackId: 'notation',
+  leadSheetMelodyTrackIds: 'notation',
   scoreChordTracks: 'notation',
   scoreChordHidden: 'notation',
   scoreArticulations: 'noteMarks',
@@ -961,7 +964,7 @@ const KEY_CHECKS: { readonly [K in SectionKey]: Check<AllSlices[K]> } = {
   leadSheetRepeats: listOf(REPEAT),
   leadSheetShowRepeats: valid(isBoolean),
   leadSheetShowMelody: valid(isBoolean),
-  leadSheetMelodyTrackId: nullable(valid(isString)),
+  leadSheetMelodyTrackIds: STRINGS,
   scoreChordTracks: STRINGS,
   scoreChordHidden: STRINGS,
   scoreSystemBreaks: BAR_INDICES,
@@ -1493,7 +1496,7 @@ export function decodeSession(
       tracks: withIds,
       scoreChordTracks: project.scoreChordTracks as string[],
       scoreChordHidden: project.scoreChordHidden as string[],
-      leadSheetMelodyTrackId: project.leadSheetMelodyTrackId as string | null,
+      leadSheetMelodyTrackIds: project.leadSheetMelodyTrackIds as string[],
       selectedTrackId: project.selectedTrackId as string | null,
       automationOpenTrackId: project.automationOpenTrackId as string | null,
     },

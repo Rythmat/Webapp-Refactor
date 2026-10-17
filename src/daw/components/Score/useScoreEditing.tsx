@@ -136,11 +136,12 @@ export interface ScoreEditingOptions {
   /** The same parts with their track identity, for editing the clips. */
   scoreParts: ScoreTrackPart[];
   /**
-   * Show the song's chord symbols over every part without being asked. A lead
-   * sheet is chords over a melody by definition; a score turns them on per
-   * instrument.
+   * Show the song's chord symbols without being asked: over every part
+   * (true), or over the top part only ('top'). A lead sheet is chords over a
+   * melody by definition, and with several melody staves it writes them
+   * once, above the first; a score turns them on per instrument.
    */
-  chordsAlwaysVisible?: boolean;
+  chordsAlwaysVisible?: boolean | 'top';
 }
 
 export function useScoreEditing({
@@ -1097,7 +1098,11 @@ export function useScoreEditing({
       new Set(
         scoreParts
           .map((part, index) =>
-            chordsAlwaysVisible || scoreChordTracks.includes(part.id)
+            (
+              chordsAlwaysVisible === 'top'
+                ? index === 0
+                : chordsAlwaysVisible || scoreChordTracks.includes(part.id)
+            )
               ? index
               : -1,
           )

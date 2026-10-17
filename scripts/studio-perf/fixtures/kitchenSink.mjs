@@ -511,7 +511,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setLeadSheetChordFormat('jazz');
   act().setLeadSheetShowRepeats(true);
   act().setLeadSheetShowMelody(true);
-  act().setLeadSheetMelodyTrackId(lead);
+  act().setLeadSheetMelodyTrackIds([lead]);
   act().toggleScoreChordTrack(keys);
   act().setScoreChordHidden([`${keys}:${firstRegion}`]);
   act().setScoreArticulations([

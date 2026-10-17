@@ -23,7 +23,8 @@ import {
   chordNotationLockTitle,
 } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
-import { pickMelodyTrack } from './leadSheetMelody';
+import { pickMelodyTracks } from './leadSheetMelody';
+import { MelodyTrackPicker } from './MelodyTrackPicker';
 import { SendToSetListButton } from './SendToSetList';
 import { promptDialog } from '@/daw/ui/DialogHost';
 
@@ -58,7 +59,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const setChordRecordMode = useStore((s) => s.setChordRecordMode);
   const showMelody = useStore((s) => s.leadSheetShowMelody);
   const setShowMelody = useStore((s) => s.setLeadSheetShowMelody);
-  const melodyTrackId = useStore((s) => s.leadSheetMelodyTrackId);
+  const melodyTrackIds = useStore((s) => s.leadSheetMelodyTrackIds);
   const tracks = useStore((s) => s.tracks);
 
   const handleExportMusicXml = useCallback(() => {
@@ -83,11 +84,15 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
     setShowRepeats(!showRepeats);
   }, [showRepeats, setShowRepeats]);
 
-  // Assigns the melody track to the sheet: with it on, the staff carries the
-  // melody instead of slashes.
-  const melodyTrack = useMemo(
-    () => (showMelody ? pickMelodyTrack(tracks, melodyTrackId) : null),
-    [showMelody, tracks, melodyTrackId],
+  // The melody tracks the sheet shows: with Melody on, each writes its own
+  // staff instead of slashes. The picker beside the button chooses them.
+  const melodyTracks = useMemo(
+    () => (showMelody ? pickMelodyTracks(tracks, melodyTrackIds).tracks : []),
+    [showMelody, tracks, melodyTrackIds],
+  );
+  const melodyIds = useMemo(
+    () => melodyTracks.map((track) => track.id),
+    [melodyTracks],
   );
   const toggleMelody = useCallback(() => {
     setShowMelody(!showMelody);
@@ -104,7 +109,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
   // A bar goes in after the selected one, or at the end with nothing
   // selected, so a chart can grow past its last chord (leadsheet-07). The
-  // melody the sheet shows moves with the bars.
+  // melody tracks the sheet shows move with the bars.
   const handleInsertMeasure = useCallback(() => {
     withTransaction('Insert bar', () =>
       insertMeasures(
@@ -112,17 +117,17 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
           ? Number.POSITIVE_INFINITY
           : selectedMeasureIdx + 1,
         1,
-        melodyTrack?.id ?? null,
+        melodyIds,
       ),
     );
-  }, [selectedMeasureIdx, insertMeasures, melodyTrack]);
+  }, [selectedMeasureIdx, insertMeasures, melodyIds]);
 
   const handleDeleteMeasure = useCallback(() => {
     if (selectedMeasureIdx === null) return;
     withTransaction('Delete bar', () =>
-      deleteMeasures(selectedMeasureIdx, 1, melodyTrack?.id ?? null),
+      deleteMeasures(selectedMeasureIdx, 1, melodyIds),
     );
-  }, [selectedMeasureIdx, deleteMeasures, melodyTrack]);
+  }, [selectedMeasureIdx, deleteMeasures, melodyIds]);
 
   const hasSectionAtSelected =
     selectedMeasureIdx !== null &&
@@ -221,24 +226,31 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
         <Repeat size={13} strokeWidth={2} />
       </button>
 
-      {/* Add Melody — writes the melody track onto the staff */}
-      <button
-        className={btnClass}
-        style={{
-          ...btnStyle,
-          opacity: showMelody ? 1 : 0.5,
-          color: showMelody ? 'var(--daw-accent)' : 'var(--daw-text)',
-        }}
-        onClick={toggleMelody}
-        title={
-          showMelody
-            ? `Melody from \u201C${melodyTrack?.name ?? 'no track'}\u201D \u2014 click to hide`
-            : 'Add Melody: write the melody track on the staff'
-        }
-      >
-        <Music size={13} strokeWidth={2} />
-        Melody
-      </button>
+      {/* Add Melody — writes the melody tracks onto the staff, and the
+          picker beside it says which */}
+      <div className="flex items-center">
+        <button
+          className={btnClass}
+          style={{
+            ...btnStyle,
+            opacity: showMelody ? 1 : 0.5,
+            color: showMelody ? 'var(--daw-accent)' : 'var(--daw-text)',
+          }}
+          onClick={toggleMelody}
+          aria-pressed={showMelody}
+          title={
+            showMelody
+              ? melodyTracks.length > 0
+                ? `Melody from ${melodyTracks.map((t) => `\u201C${t.name}\u201D`).join(', ')} \u2014 click to hide`
+                : 'Melody is on, but there is no instrument track to read it from \u2014 click to hide'
+              : 'Add Melody: write the melody tracks on the staff'
+          }
+        >
+          <Music size={13} strokeWidth={2} />
+          Melody
+        </button>
+        <MelodyTrackPicker className={btnClass} style={btnStyle} />
+      </div>
 
       <div
         className="mx-1 h-4 w-px"

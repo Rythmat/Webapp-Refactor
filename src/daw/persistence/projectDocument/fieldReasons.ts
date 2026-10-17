@@ -111,6 +111,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   availableNextChords: 'Derived from the builder’s progression and filter.',
 
   // ── notation ──
+  leadSheetMelodyTrackIds:
+    'The tracks the Lead Sheet writes as its melody, a staff each; empty is Auto. Shared and outside undo like its other display settings, as the single id it replaces was. Drafts and cloud documents before schema 5 held that one id (leadSheetMelodyTrackId), which loads as a list of it.',
   scoreArticulations: NOTE_KEYED,
   scoreSlurs: NOTE_KEYED,
   scoreSpellings: NOTE_KEYED,

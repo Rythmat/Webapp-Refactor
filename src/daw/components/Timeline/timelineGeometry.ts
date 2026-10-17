@@ -14,7 +14,10 @@ import { midiClipLength } from './midiClipCuts';
 // every edit replaces it: a fader step, an FX knob, an automation drag, a
 // rename (finding timeline-07). The canvas draws only each track's id and
 // colour and its clips' places, lengths, notes, offsets and fades, so it now
-// compares those and leaves everything else alone.
+// compares those and leaves everything else alone. Since 2.12 a clip draws
+// a header with its name (the track's when it has none of its own) and, on a
+// pitched track, its key, so a clip's name and mute and a track's name, role
+// and instrument redraw it too; a fader or an FX knob still doesn't.
 
 function sameMidiClips(a: MidiClip[], b: MidiClip[]): boolean {
   if (a === b) return true;
@@ -27,7 +30,9 @@ function sameMidiClips(a: MidiClip[], b: MidiClip[]): boolean {
       x.id !== y.id ||
       x.startTick !== y.startTick ||
       x.durationTicks !== y.durationTicks ||
-      x.events !== y.events
+      x.events !== y.events ||
+      x.name !== y.name ||
+      x.muted !== y.muted
     ) {
       return false;
     }
@@ -49,7 +54,9 @@ function sameAudioClips(a: AudioClip[], b: AudioClip[]): boolean {
       x.fadeInTicks !== y.fadeInTicks ||
       x.fadeOutTicks !== y.fadeOutTicks ||
       x.assetId !== y.assetId ||
-      x.offsetSeconds !== y.offsetSeconds
+      x.offsetSeconds !== y.offsetSeconds ||
+      x.name !== y.name ||
+      x.muted !== y.muted
     ) {
       return false;
     }
@@ -68,6 +75,9 @@ export function sameTimelineGeometry(a: Track[], b: Track[]): boolean {
     if (
       x.id !== y.id ||
       x.color !== y.color ||
+      x.name !== y.name ||
+      x.instrument !== y.instrument ||
+      x.trackRole !== y.trackRole ||
       !sameMidiClips(x.midiClips, y.midiClips) ||
       !sameAudioClips(x.audioClips, y.audioClips)
     ) {
@@ -97,6 +107,9 @@ const DRAWN_FIELDS = [
   'chordRulerShowNotes',
   'rootNote',
   'mode',
+  // A clip header's key is read against the effective key (2.12).
+  'detectedKeyRootPc',
+  'detectedMode',
   'clipColorMode',
   'liveRecordingTrackId',
   'liveRecordingStartTick',

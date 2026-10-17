@@ -152,7 +152,7 @@ describe('timeline redraws', () => {
     expect(draws()).toBe(1);
   });
 
-  it('a fader step, a rename or a mute neither redraws nor re-renders it', () => {
+  it('a fader step or a track mute neither redraws nor re-renders it', () => {
     const trackId = addClip();
     render(<ScrolledTimeline />);
     const drawn = draws();
@@ -160,13 +160,30 @@ describe('timeline redraws', () => {
 
     act(() => {
       s().updateTrack(trackId, { volume: 0.3 });
-      s().updateTrack(trackId, { name: 'Lead vocal' });
       s().updateTrack(trackId, { mute: true });
     });
     act(() => runFrames());
 
     expect(draws()).toBe(drawn);
     expect(h.commits).toBe(commits);
+  });
+
+  it('redraws a rename once: clip headers show their track’s name (2.12)', () => {
+    const trackId = addClip();
+    render(<ScrolledTimeline />);
+    const drawn = draws();
+
+    act(() => s().updateTrack(trackId, { name: 'Lead vocal' }));
+    act(() => runFrames());
+    expect(draws()).toBe(drawn + 1);
+
+    // A clip's own name and its mute are drawn too.
+    act(() => {
+      s().updateAudioClip(trackId, 'clip', { name: 'Take 2' });
+      s().updateAudioClip(trackId, 'clip', { muted: true });
+    });
+    act(() => runFrames());
+    expect(draws()).toBe(drawn + 2);
   });
 
   it('draws the changes made in one frame once, on that frame', () => {

@@ -285,3 +285,54 @@ describe('keys', () => {
     expect(getCommand('clip.mute')?.keys).toEqual(['Shift+KeyM']);
   });
 });
+
+describe('the Pointer on empty canvas', () => {
+  it('seeks on a click, on the grid', () => {
+    render(<ScrolledTimeline />);
+    const x = tickToPixel(4 * 1920 + 500, 1, 0);
+    fireEvent.mouseDown(canvas(), { clientX: x, clientY: laneY, button: 0 });
+    fireEvent.mouseUp(canvas(), { clientX: x, clientY: laneY, button: 0 });
+    expect(h.seeks).toEqual([4 * 1920 + 480]);
+  });
+
+  it('draws the marquee on a drag, neither seeking nor panning', () => {
+    render(<ScrolledTimeline />);
+    // From empty lane past the clip's end, back across its notes.
+    const fromY = LANE_HEADER_PX + TRACK_ROW_PX - 4;
+    fireEvent.mouseDown(canvas(), {
+      clientX: emptyX,
+      clientY: fromY,
+      button: 0,
+    });
+    fireEvent.mouseMove(canvas(), {
+      clientX: clipMidX - 200,
+      clientY: LANE_HEADER_PX + 4,
+    });
+    fireEvent.mouseUp(canvas(), {
+      clientX: clipMidX - 200,
+      clientY: LANE_HEADER_PX + 4,
+    });
+    expect(h.seeks).toEqual([]);
+    expect(s().timelineScrollLeft).toBe(0);
+    // It crossed the clip: its notes are selected for Insight.
+    expect(s().selectedNotes.map((n) => n.clipId)).toEqual(['keys-1']);
+  });
+
+  it('pans with the middle button', () => {
+    s().addMidiClip(keys, {
+      id: 'far',
+      startTick: 64 * 1920,
+      durationTicks: 1920,
+      events: [],
+    });
+    useStore.setState({ timelineScrollLeft: 400 });
+    render(<ScrolledTimeline />);
+    fireEvent.mouseDown(canvas(), { clientX: 600, clientY: laneY, button: 1 });
+    // The first move past the threshold takes hold, the next one pans.
+    fireEvent.mouseMove(canvas(), { clientX: 590, clientY: laneY });
+    fireEvent.mouseMove(canvas(), { clientX: 490, clientY: laneY });
+    fireEvent.mouseUp(canvas(), { clientX: 500, clientY: laneY, button: 1 });
+    expect(s().timelineScrollLeft).toBe(500);
+    expect(h.seeks).toEqual([]);
+  });
+});

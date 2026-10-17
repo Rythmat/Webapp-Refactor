@@ -32,6 +32,8 @@ import {
   setOriginalAudio,
   subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
+import { selectEffectiveKey } from '@/daw/harmony/effectiveKey';
+import { clipKeyOf } from '@/daw/harmony/clipKey';
 import { isApplePlatform } from '@/daw/shell/topbar/platformKeys';
 import { CanvasMenu } from '@/daw/shell/canvas/clipMenu/CanvasMenu';
 import { ClipEditPill } from '@/daw/shell/canvas/clipMenu/ClipEditPill';
@@ -39,6 +41,19 @@ import {
   useCanvasMenuStore,
   type CanvasMenuTarget,
 } from '@/daw/shell/canvas/clipMenu/canvasMenuStore';
+import {
+  isDrumTrack,
+  setClipFade,
+} from '@/daw/shell/canvas/clipMenu/clipActions';
+import {
+  CLIP_HEADER_PX,
+  clipZoneAt,
+  drawClipHeader,
+  drawFadeHandles,
+  drawTrimGrips,
+  type ChromeBox,
+  type FadeSpan,
+} from './clipChrome';
 import {
   getPeakPyramid,
   readPeaks,
@@ -118,7 +133,6 @@ import {
 const RULER_HEIGHT = RULER_PX; // loop strip (LOOP_STRIP_H) + bar numbers
 const CHORD_RULER_HEIGHT = CHORD_LANE_PX; // the chord lane
 const RULERS_HEIGHT = LANE_HEADER_PX;
-const RESIZE_EDGE_PX = 6; // px threshold for resize handle
 /** Ruler labels: the micro type, and the gap kept between two labels. */
 const RULER_FONT = "11px 'Glacial Indifference', system-ui, sans-serif";
 const RULER_LABEL_GAP = 6;
@@ -339,6 +353,34 @@ interface ClipRect {
 
 type DragMode = 'move' | 'resize-left' | 'resize-right';
 
+/**
+ * A fade handle being dragged (milestone 2.12): the audio clip, which fade,
+ * and its length so far in ticks. Drawn from here, written once on release.
+ */
+interface FadeDrag {
+  clipId: string;
+  trackId: string;
+  edge: 'in' | 'out';
+  ticks: number;
+}
+
+/** Where a clip's chrome is drawn: its box, less the lane inset. */
+function chromeBox(x: number, y: number, w: number, h: number): ChromeBox {
+  return { x, y, w, h };
+}
+
+/** An audio clip's fades in px at the zoom, kept inside the clip. */
+function fadeSpanPx(
+  fadeInTicks: number,
+  fadeOutTicks: number,
+  ppb: number,
+  widthPx: number,
+): FadeSpan {
+  const px = (ticks: number) =>
+    Math.max(0, Math.min(widthPx, (ticks / TICKS_PER_BEAT) * ppb));
+  return { inPx: px(fadeInTicks), outPx: px(fadeOutTicks) };
+}
+
 interface DragState {
   clipId: string;
   trackId: string;
@@ -496,11 +538,14 @@ export function Timeline({ scrollRef }: TimelineProps) {
   const chordAnchorRef = useRef<string | null>(null);
   // ⌘/Ctrl-drag in the track area: a marquee selecting, for Insight, every
   // note it touches in the clips it crosses. Canvas coords.
+  // A plain press on empty canvas starts one too: released without a drag
+  // it is a click, and seeks to `seekTick`.
   const noteMarqueeRef = useRef<{
     x0: number;
     y0: number;
     x1: number;
     y1: number;
+    seekTick: number | null;
   } | null>(null);
   // Clip notes as last drawn — what the marquee hits — and, while it's being
   // dragged, the notes it touches per clip, lit up live.
@@ -518,15 +563,20 @@ export function Timeline({ scrollRef }: TimelineProps) {
       ]),
     );
   }, []);
-  // Active hand/grab pan started on empty timeline space. `seekTick` is applied
-  // on release if the press never crossed the drag threshold (a plain click).
+  // A pan with the middle button (2.12; a plain drag on empty canvas used to
+  // pan and now draws the marquee). `seekTick`, when set, is applied on a
+  // release that never crossed the drag threshold.
   const panDragRef = useRef<{
     startX: number;
     lastX: number;
     moved: boolean;
-    seekTick: number;
+    seekTick: number | null;
   } | null>(null);
 
+  // The clip under the pointer, whose trim zones (and fade handles) show.
+  const hoverClipRef = useRef<string | null>(null);
+  // An audio clip's fade handle in hand (2.12).
+  const fadeDragRef = useRef<FadeDrag | null>(null);
   // The canvas's box: a clip drag marks it data-dragging, which hides the
   // Edit pill until the clip lands.
   const canvasBoxRef = useRef<HTMLDivElement>(null);
@@ -665,6 +715,8 @@ export function Timeline({ scrollRef }: TimelineProps) {
     canvasTokensRef.current ??= readCanvasTokens();
     const { colorBg, colorBorder, colorGridRgb, colorSelRgb, palette } =
       canvasTokensRef.current;
+    // The key a pitched clip's header is read against (harmony core, 1.16a).
+    const songKey = selectEffectiveKey(state);
 
     // Visible tick range (with 1 bar buffer on each side)
     const { startTick: visStartRaw, endTick: visEndRaw } = visibleTickRange(
@@ -840,6 +892,13 @@ export function Timeline({ scrollRef }: TimelineProps) {
         );
 
         const isSelected = currentSelectedClipId === clip.id;
+        const muted = clip.muted === true;
+        const box = chromeBox(
+          clipX,
+          effectiveY + CLIP_INSET,
+          clipWidth,
+          effectiveH,
+        );
 
         // Store rect for hit testing (viewport space)
         newClipRects.push({
@@ -853,20 +912,16 @@ export function Timeline({ scrollRef }: TimelineProps) {
           startTick: boxStartTick,
         });
 
+        // A muted clip (2.12) stays in place, dimmed, under a dashed edge.
+        ctx.globalAlpha = muted ? 0.45 : 1;
+
         // Background — neutral white glass so chord ruler / MIDI notes show through
         ctx.fillStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.1 : 0.05})`;
         ctx.beginPath();
         ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
         ctx.fill();
 
-        // Border — neutral white, brighter when selected
-        ctx.strokeStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.4 : 0.2})`;
-        ctx.lineWidth = isSelected ? 2 : 1;
-        ctx.beginPath();
-        ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
-        ctx.stroke();
-
-        // ── Clip title + piano-roll notes ──────────────────────────
+        // ── Clip header + piano-roll notes ─────────────────────────
         // Skip details at extreme zoom-out for performance
         if (clipWidth > 8 && currentPpb >= 5) {
           ctx.save();
@@ -920,7 +975,41 @@ export function Timeline({ scrollRef }: TimelineProps) {
             }
           }
 
+          // The header (2.12): the clip's name, or its track's, and on a
+          // pitched track the key its notes are in.
+          ctx.globalAlpha = 1;
+          drawClipHeader(
+            ctx,
+            box,
+            {
+              title: clip.name?.trim() || track.name,
+              keyLabel: isDrumTrack(track)
+                ? null
+                : (clipKeyOf(clip.events, songKey)?.label ?? null),
+              muted,
+              color: track.color,
+            },
+            palette,
+          );
           ctx.restore();
+        }
+
+        // Border — neutral white, bright when selected; dashed while muted.
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.7 : 0.2})`;
+        ctx.lineWidth = isSelected ? 2 : 1;
+        if (muted) ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // The trim zones show on the clip in hand or under the pointer.
+        if (
+          !isMoving &&
+          (isSelected || hoverClipRef.current === clip.id) &&
+          clipWidth > 8
+        ) {
+          drawTrimGrips(ctx, box, palette);
         }
       }
 
@@ -1051,6 +1140,20 @@ export function Timeline({ scrollRef }: TimelineProps) {
         const previewDurationSec = (boxEndTick - boxStartTick) / ticksPerSec;
 
         const isSelected = currentSelectedClipId === clip.id;
+        const muted = clip.muted === true;
+        const box = chromeBox(
+          clipX,
+          effectiveY + CLIP_INSET,
+          clipWidth,
+          effectiveH,
+        );
+        // A fade handle in hand draws its fade where the pointer has it.
+        const fadeDrag =
+          fadeDragRef.current?.clipId === clip.id ? fadeDragRef.current : null;
+        const fadeInTicks =
+          fadeDrag?.edge === 'in' ? fadeDrag.ticks : clip.fadeInTicks;
+        const fadeOutTicks =
+          fadeDrag?.edge === 'out' ? fadeDrag.ticks : clip.fadeOutTicks;
 
         // Store rect for hit testing
         newClipRects.push({
@@ -1064,16 +1167,11 @@ export function Timeline({ scrollRef }: TimelineProps) {
           startTick: boxStartTick,
         });
 
+        ctx.globalAlpha = muted ? 0.45 : 1;
         ctx.fillStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.1 : 0.05})`;
         ctx.beginPath();
         ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
         ctx.fill();
-
-        ctx.strokeStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.4 : 0.2})`;
-        ctx.lineWidth = isSelected ? 2 : 1;
-        ctx.beginPath();
-        ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
-        ctx.stroke();
 
         if (clipWidth > 8 && currentPpb >= 5) {
           ctx.save();
@@ -1088,8 +1186,10 @@ export function Timeline({ scrollRef }: TimelineProps) {
           ctx.clip();
 
           const sampleCount = Math.max(Math.floor(clipWidth / 2), 16);
-          const centerY = effectiveY + CLIP_INSET + effectiveH / 2;
-          const maxH = (effectiveH - 4) * 0.42;
+          // The waveform sits under the header (2.12).
+          const bodyH = effectiveH - CLIP_HEADER_PX;
+          const centerY = effectiveY + CLIP_INSET + CLIP_HEADER_PX + bodyH / 2;
+          const maxH = (bodyH - 4) * 0.46;
 
           const audioBuffer = getAudioBuffer(clip.id);
           // A clip without its audio says why, instead of drawing a made-up
@@ -1173,31 +1273,91 @@ export function Timeline({ scrollRef }: TimelineProps) {
             );
           }
 
-          // ── Fade overlays ──
-          const clipH = effectiveH;
-          if (clip.fadeInTicks > 0) {
-            const fadeW = (clip.fadeInTicks / TICKS_PER_BEAT) * currentPpb;
+          // ── Fade overlays ── over the body, under the header: the
+          // shading falls from the fade's end to the clip's edge, with the
+          // fade's line on it.
+          const bodyTop = effectiveY + CLIP_INSET + CLIP_HEADER_PX;
+          const bodyBottom = effectiveY + CLIP_INSET + effectiveH;
+          const fades = fadeSpanPx(
+            fadeInTicks,
+            fadeOutTicks,
+            currentPpb,
+            clipWidth,
+          );
+          ctx.strokeStyle = `rgba(${colorGridRgb}, 0.55)`;
+          ctx.lineWidth = 1;
+          if (fades.inPx > 0) {
             ctx.fillStyle = 'rgba(0,0,0,0.35)';
             ctx.beginPath();
-            ctx.moveTo(clipX, effectiveY + CLIP_INSET);
-            ctx.lineTo(clipX + fadeW, effectiveY + CLIP_INSET);
-            ctx.lineTo(clipX, effectiveY + CLIP_INSET + clipH);
+            ctx.moveTo(clipX, bodyTop);
+            ctx.lineTo(clipX + fades.inPx, bodyTop);
+            ctx.lineTo(clipX, bodyBottom);
             ctx.closePath();
             ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(clipX, bodyBottom);
+            ctx.lineTo(clipX + fades.inPx, bodyTop);
+            ctx.stroke();
           }
-          if (clip.fadeOutTicks > 0) {
-            const fadeW = (clip.fadeOutTicks / TICKS_PER_BEAT) * currentPpb;
+          if (fades.outPx > 0) {
             const clipRight = clipX + clipWidth;
             ctx.fillStyle = 'rgba(0,0,0,0.35)';
             ctx.beginPath();
-            ctx.moveTo(clipRight, effectiveY + CLIP_INSET);
-            ctx.lineTo(clipRight - fadeW, effectiveY + CLIP_INSET);
-            ctx.lineTo(clipRight, effectiveY + CLIP_INSET + clipH);
+            ctx.moveTo(clipRight, bodyTop);
+            ctx.lineTo(clipRight - fades.outPx, bodyTop);
+            ctx.lineTo(clipRight, bodyBottom);
             ctx.closePath();
             ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(clipRight, bodyBottom);
+            ctx.lineTo(clipRight - fades.outPx, bodyTop);
+            ctx.stroke();
           }
 
+          // The header (2.12): the clip's own name, or its track's. Room is
+          // kept for the fade handles in its corners.
+          ctx.globalAlpha = 1;
+          drawClipHeader(
+            ctx,
+            box,
+            {
+              title: clip.name?.trim() || track.name,
+              keyLabel: null,
+              muted,
+              color: track.color,
+              insetLeft: 12,
+              insetRight: 12,
+            },
+            palette,
+          );
           ctx.restore();
+        }
+
+        // Border — bright when selected; dashed while muted.
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = `rgba(${colorGridRgb}, ${isSelected ? 0.7 : 0.2})`;
+        ctx.lineWidth = isSelected ? 2 : 1;
+        if (muted) ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.roundRect(clipX, effectiveY + CLIP_INSET, clipWidth, effectiveH, 4);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // The trim zones and fade handles show on the clip in hand or under
+        // the pointer.
+        if (
+          !isMoving &&
+          (isSelected ||
+            hoverClipRef.current === clip.id ||
+            fadeDrag !== null) &&
+          clipWidth > 8
+        ) {
+          drawTrimGrips(ctx, box, palette);
+          drawFadeHandles(
+            ctx,
+            box,
+            fadeSpanPx(fadeInTicks, fadeOutTicks, currentPpb, clipWidth),
+            palette,
+          );
         }
       }
     }
@@ -1595,21 +1755,32 @@ export function Timeline({ scrollRef }: TimelineProps) {
     return null;
   }, []);
 
-  const isNearRightEdge = useCallback(
-    (x: number, clipRect: ClipRect): boolean => {
-      return x >= clipRect.x + clipRect.w - RESIZE_EDGE_PX;
-    },
-    [],
-  );
+  // What a press on a clip grabs (2.12): a fade handle on an audio clip, a
+  // trim zone at either edge, or the clip itself (clipChrome.clipZoneAt).
+  const zoneAt = useCallback((x: number, y: number, hit: ClipRect) => {
+    const state = useStore.getState();
+    const audio = state.tracks
+      .find((t) => t.id === hit.trackId)
+      ?.audioClips.find((c) => c.id === hit.clipId);
+    const fades = audio
+      ? fadeSpanPx(
+          audio.fadeInTicks,
+          audio.fadeOutTicks,
+          pixelsPerBeat(state.timelineZoom),
+          hit.w,
+        )
+      : undefined;
+    return clipZoneAt(x, y, hit, fades);
+  }, []);
 
-  const isNearLeftEdge = useCallback(
-    (x: number, clipRect: ClipRect): boolean => {
-      // Don't claim the left edge on a clip too narrow to also grab/move.
-      return (
-        clipRect.w > RESIZE_EDGE_PX * 3 && x <= clipRect.x + RESIZE_EDGE_PX
-      );
+  /** The clip under the pointer, for its trim zones; redraws on a change. */
+  const setHoverClip = useCallback(
+    (clipId: string | null) => {
+      if (hoverClipRef.current === clipId) return;
+      hoverClipRef.current = clipId;
+      requestRedraw();
     },
-    [],
+    [requestRedraw],
   );
 
   // ── Mouse down ─────────────────────────────────────────────────────
@@ -1622,6 +1793,18 @@ export function Timeline({ scrollRef }: TimelineProps) {
       const currentZoom = state.timelineZoom;
       const currentScrollLeft = state.timelineScrollLeft;
 
+      // The middle button pans the view, wherever it is pressed (2.12: a
+      // drag on empty canvas draws the marquee now).
+      if (e.button === 1) {
+        e.preventDefault();
+        panDragRef.current = {
+          startX: x,
+          lastX: x,
+          moved: false,
+          seekTick: null,
+        };
+        return;
+      }
       // Only the main button acts here: a right-click opens the canvas menu
       // (handleContextMenu), and on a Mac so does a Ctrl-click.
       if (e.button !== 0 || (e.ctrlKey && isApplePlatform())) return;
@@ -1692,9 +1875,10 @@ export function Timeline({ scrollRef }: TimelineProps) {
         return;
       }
 
-      // Cursor tool, ⌘/Ctrl held: drag a marquee to select notes in clips.
+      // Cursor tool, ⌘/Ctrl held: drag a marquee to select notes in clips,
+      // starting on a clip too.
       if (activeTool === 'cursor' && (e.metaKey || e.ctrlKey)) {
-        noteMarqueeRef.current = { x0: x, y0: y, x1: x, y1: y };
+        noteMarqueeRef.current = { x0: x, y0: y, x1: x, y1: y, seekTick: null };
         return;
       }
 
@@ -1717,14 +1901,34 @@ export function Timeline({ scrollRef }: TimelineProps) {
             retryClipAudio(tile.id);
           }
 
-          const mode: DragMode = isNearLeftEdge(x, hit)
-            ? 'resize-left'
-            : isNearRightEdge(x, hit)
-              ? 'resize-right'
-              : 'move';
-
           // Resolve the clip's content end + the bounds its edges may travel to.
           const hitTrack = state.tracks.find((t) => t.id === hit.trackId);
+          const zone = zoneAt(x, y, hit);
+          const fadeClip = hitTrack?.audioClips.find(
+            (c) => c.id === hit.clipId,
+          );
+          if ((zone === 'fade-in' || zone === 'fade-out') && fadeClip) {
+            // A fade handle: the fade follows the pointer and is written on
+            // release (2.12).
+            fadeDragRef.current = {
+              clipId: hit.clipId,
+              trackId: hit.trackId,
+              edge: zone === 'fade-in' ? 'in' : 'out',
+              ticks:
+                zone === 'fade-in'
+                  ? fadeClip.fadeInTicks
+                  : fadeClip.fadeOutTicks,
+            };
+            pauseFollow();
+            return;
+          }
+          const mode: DragMode =
+            zone === 'trim-left'
+              ? 'resize-left'
+              : zone === 'trim-right'
+                ? 'resize-right'
+                : 'move';
+
           const midiClip = hitTrack?.midiClips.find((c) => c.id === hit.clipId);
           const audioClip = hitTrack?.audioClips.find(
             (c) => c.id === hit.clipId,
@@ -1779,15 +1983,16 @@ export function Timeline({ scrollRef }: TimelineProps) {
           // A page turn under a dragged clip would move the clip too.
           pauseFollow();
         } else {
-          // Empty space: deselect now, then begin a hand/grab pan. A plain
-          // click (no horizontal movement past the threshold) still seeks on
-          // release.
+          // Empty space: deselect now. A click seeks on release, as the
+          // ruler does; a drag draws the marquee, selecting the notes it
+          // touches for Insight (2.12; the middle button pans).
           state.setSelectedClip(null, null);
           const tick = pixelToTick(x, currentZoom, currentScrollLeft);
-          panDragRef.current = {
-            startX: x,
-            lastX: x,
-            moved: false,
+          noteMarqueeRef.current = {
+            x0: x,
+            y0: y,
+            x1: x,
+            y1: y,
             seekTick: doSnap(tick),
           };
         }
@@ -1853,16 +2058,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
         if (rightId) state.setSelectedClip(rightId, hit.trackId);
       }
     },
-    [
-      getCanvasCoords,
-      getScrollTop,
-      hitTestClip,
-      isNearRightEdge,
-      isNearLeftEdge,
-      doSnap,
-      tsNum,
-      tsDen,
-    ],
+    [getCanvasCoords, getScrollTop, hitTestClip, zoneAt, doSnap, tsNum, tsDen],
   );
 
   // Double-click: ruler → add marker, clip → its editor in the dock
@@ -2082,9 +2278,9 @@ export function Timeline({ scrollRef }: TimelineProps) {
       // Top-ruler press in progress: playhead, zoom or loop drag.
       if (moveRulerPress(x, y)) return;
 
-      // Hand/grab pan over empty timeline space. Dragging the mouse left scrolls
-      // toward the right of the timeline and vice-versa (content follows the
-      // cursor), clamped to the content extent.
+      // The middle button's pan. Dragging the mouse left scrolls toward the
+      // right of the timeline and vice-versa (content follows the cursor),
+      // clamped to the content extent.
       if (panDragRef.current) {
         const p = panDragRef.current;
         if (!p.moved) {
@@ -2106,6 +2302,34 @@ export function Timeline({ scrollRef }: TimelineProps) {
           p.lastX = x;
         }
         canvas.style.cursor = 'grabbing';
+        return;
+      }
+
+      // A fade handle in hand: the fade runs from its edge of the clip to
+      // the pointer, on the grid, never into the other fade.
+      const fade = fadeDragRef.current;
+      if (fade) {
+        const clip = state.tracks
+          .find((t) => t.id === fade.trackId)
+          ?.audioClips.find((c) => c.id === fade.clipId);
+        if (clip) {
+          const tick = snapTicks(
+            pixelToTick(x, currentZoom, currentScrollLeft),
+            grid,
+          );
+          const raw =
+            fade.edge === 'in'
+              ? tick - clip.startTick
+              : clip.startTick + clip.duration - tick;
+          const other =
+            fade.edge === 'in' ? clip.fadeOutTicks : clip.fadeInTicks;
+          const next = Math.max(0, Math.min(clip.duration - other, raw));
+          if (next !== fade.ticks) {
+            fade.ticks = next;
+            requestRedraw();
+          }
+        }
+        canvas.style.cursor = 'ew-resize';
         return;
       }
 
@@ -2188,6 +2412,12 @@ export function Timeline({ scrollRef }: TimelineProps) {
       }
       if (y > st + RULERS_HEIGHT) {
         const hit = hitTestClip(x, y);
+        // The Pointer tool shows a clip's trim zones (and an audio clip's
+        // fade handles) while the pointer is over it.
+        setHoverClip(
+          state.activeTool === 'cursor' ? (hit?.clipId ?? null) : null,
+        );
+        const zone = hit ? zoneAt(x, y, hit) : null;
         if (state.activeTool === 'cursor' && (e.metaKey || e.ctrlKey)) {
           canvas.style.cursor = 'crosshair';
         } else if (state.activeTool === 'scissors' && hit) {
@@ -2199,17 +2429,18 @@ export function Timeline({ scrollRef }: TimelineProps) {
             ];
           canvas.style.cursor =
             lane?.type === 'midi' ? (hit ? 'pointer' : 'copy') : 'not-allowed';
-        } else if (hit && (isNearLeftEdge(x, hit) || isNearRightEdge(x, hit))) {
+        } else if (zone === 'fade-in' || zone === 'fade-out') {
+          canvas.style.cursor = 'ew-resize';
+        } else if (zone === 'trim-left' || zone === 'trim-right') {
           canvas.style.cursor = 'col-resize';
         } else if (hit) {
           canvas.style.cursor = 'grab';
-        } else if (state.activeTool === 'cursor') {
-          // Empty space is grab-pannable.
-          canvas.style.cursor = 'grab';
         } else {
+          // Empty space: a click seeks, a drag draws the marquee.
           canvas.style.cursor = 'default';
         }
       } else {
+        setHoverClip(null);
         canvas.style.cursor = 'default';
       }
     },
@@ -2217,8 +2448,8 @@ export function Timeline({ scrollRef }: TimelineProps) {
       getCanvasCoords,
       getScrollTop,
       hitTestClip,
-      isNearRightEdge,
-      isNearLeftEdge,
+      zoneAt,
+      setHoverClip,
       requestRedraw,
       projectLengthTicks,
       moveRulerPress,
@@ -2242,6 +2473,22 @@ export function Timeline({ scrollRef }: TimelineProps) {
       state.setSelectedNotes(
         dragged ? notesInMarquee(drawnNotesRef.current, m) : [],
       );
+      // A plain click on empty canvas seeks, as a click on the ruler does.
+      if (!dragged && m.seekTick !== null) seekTo(m.seekTick);
+      if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+      requestRedraw();
+      return;
+    }
+    if (fadeDragRef.current) {
+      // One write, one undo step: 'Fade in' or 'Fade out'.
+      const fade = fadeDragRef.current;
+      fadeDragRef.current = null;
+      setClipFade(
+        { trackId: fade.trackId, clipId: fade.clipId },
+        fade.edge,
+        fade.ticks,
+      );
+      useStore.getState().setSelectedClip(fade.clipId, fade.trackId);
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
       requestRedraw();
       return;
@@ -2267,8 +2514,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
     if (panDragRef.current) {
       const p = panDragRef.current;
       panDragRef.current = null;
-      // Didn't pan → treat as a click and seek (selection was already cleared).
-      if (!p.moved) seekTo(p.seekTick);
+      if (!p.moved && p.seekTick !== null) seekTo(p.seekTick);
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
       return;
     }
@@ -2362,23 +2608,39 @@ export function Timeline({ scrollRef }: TimelineProps) {
           }
         } else if (audioClip) {
           // Audio trims are non-destructive: shift the asset read offset and the
-          // played duration; the buffer itself is untouched.
+          // played duration; the buffer itself is untouched. The fades stay
+          // inside what is left, the fade in first (2.12: their handles show
+          // where they end).
           const ticksPerSec = (state.bpm * 480) / 60;
+          const fadesWithin = (duration: number) => {
+            const fadeInTicks = Math.min(audioClip.fadeInTicks, duration);
+            return {
+              fadeInTicks,
+              fadeOutTicks: Math.min(
+                audioClip.fadeOutTicks,
+                duration - fadeInTicks,
+              ),
+            };
+          };
           if (drag.mode === 'resize-left') {
             const shift = dragTickRef.current - audioClip.startTick;
             if (shift !== 0) {
+              const duration = audioClip.duration - shift;
               state.updateAudioClip(drag.trackId, drag.clipId, {
                 startTick: dragTickRef.current,
-                duration: audioClip.duration - shift,
+                duration,
                 offsetSeconds: Math.max(
                   0,
                   (audioClip.offsetSeconds ?? 0) + shift / ticksPerSec,
                 ),
+                ...fadesWithin(duration),
               });
             }
           } else {
+            const duration = dragEndTickRef.current - audioClip.startTick;
             state.updateAudioClip(drag.trackId, drag.clipId, {
-              duration: dragEndTickRef.current - audioClip.startTick,
+              duration,
+              ...fadesWithin(duration),
             });
           }
         }
@@ -2431,7 +2693,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
         const { x, y } = getCanvasCoords(e);
         moveRulerPress(x, y);
       } else if (
-        (dragRef.current || markerDragRef.current) &&
+        (dragRef.current || markerDragRef.current || fadeDragRef.current) &&
         e.target !== canvasRef.current
       ) {
         // A clip or marker drag keeps following the pointer off the canvas
@@ -2483,7 +2745,8 @@ export function Timeline({ scrollRef }: TimelineProps) {
         markerDragRef.current ||
         rulerPressRef.current ||
         panDragRef.current ||
-        noteMarqueeRef.current
+        noteMarqueeRef.current ||
+        fadeDragRef.current
       ) {
         handleCanvasMouseUp();
       }
@@ -2793,6 +3056,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
           onMouseUp={handleCanvasMouseUp}
           onDoubleClick={handleCanvasDoubleClick}
           onContextMenu={handleContextMenu}
+          onMouseLeave={() => setHoverClip(null)}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         />

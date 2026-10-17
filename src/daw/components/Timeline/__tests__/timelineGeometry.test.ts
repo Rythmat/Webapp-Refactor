@@ -32,13 +32,30 @@ describe('sameTimelineGeometry', () => {
     const before = tracks();
     const after = before.map((t) => ({
       ...t,
-      name: `${t.name}!`,
       volume: 0.2,
       pan: -1,
       mute: true,
       solo: true,
     }));
     expect(sameTimelineGeometry(before, after)).toBe(true);
+  });
+
+  it('sees what a clip header draws: names, roles and clip mutes (2.12)', () => {
+    const before = tracks();
+    const renamed = before.map((t) => ({ ...t, name: `${t.name}!` }));
+    expect(sameTimelineGeometry(before, renamed)).toBe(false);
+    const role = before.map((t) => ({ ...t, trackRole: 'drums' as const }));
+    expect(sameTimelineGeometry(before, role)).toBe(false);
+    const muted = before.map((t) => ({
+      ...t,
+      midiClips: t.midiClips.map((c) => ({ ...c, muted: true })),
+    }));
+    expect(sameTimelineGeometry(before, muted)).toBe(false);
+    const named = before.map((t) => ({
+      ...t,
+      audioClips: t.audioClips.map((c) => ({ ...c, name: 'Take 2' })),
+    }));
+    expect(sameTimelineGeometry(before, named)).toBe(false);
   });
 
   it('treats rebuilt but equal clips as the same (a collab rebuild)', () => {

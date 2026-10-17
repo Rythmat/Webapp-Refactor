@@ -4,6 +4,7 @@ import {
   clipBoxOf,
   useTimelineTracks,
 } from '@/daw/components/Timeline/timelineGeometry';
+import { TRIM_ZONE_PX } from '@/daw/components/Timeline/clipChrome';
 import { LANE_HEADER_PX } from '@/daw/shell/tracklist/rowLayout';
 import { useStore } from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
@@ -25,7 +26,7 @@ const PILL_W = 44;
 /** Its gap from the clip's bottom and right edges. */
 const INSET = 4;
 /** Its gap from the clip's left edge: clear of the trim zone there. */
-const LEFT_INSET = 12;
+const LEFT_INSET = TRIM_ZONE_PX + 2;
 
 export interface ClipEditPillProps {
   /** The lanes' scroller (TrackArea), for its vertical scroll. */

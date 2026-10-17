@@ -6,6 +6,7 @@ import {
   type KeyRange,
 } from '@/learn/keyboard/lessonKeyboardRange';
 import { useLessonKeyboardStage } from '@/learn/keyboard/lessonKeyboardStage';
+import { brightKeyColor } from '@/learn/keyboard/playedKeys';
 import type { NoteEvent, NoteHoldMeta } from './GenrePianoRoll';
 
 // The cascade face of GenrePianoRoll: the roll turned 90° with the grid taken
@@ -135,6 +136,17 @@ export function LearnCascadeView({
         inTime && !played && playheadTick > e.startTicks + MISS_AFTER_TICKS;
       const upcoming = !inTime && noteHoldMeta && !hold?.isCurrentChord;
       const color = missed ? MISSED_COLOR : (e.color ?? keyColor);
+      // On the line now — sounding in time, or the chord to hold out of
+      // time: bright, glossy and shimmering, the keyboard's look for a right
+      // note (playedKeys), so the notes being played stand out from the ones
+      // still falling.
+      const atLine =
+        !missed &&
+        (inTime
+          ? playheadTick >= e.startTicks &&
+            playheadTick < e.startTicks + e.durationTicks
+          : !!hold?.isCurrentChord);
+      const fill = atLine ? brightKeyColor(color) : color;
 
       notes.push(
         <div
@@ -153,13 +165,24 @@ export function LearnCascadeView({
           <div
             className="absolute inset-0 overflow-hidden rounded-md"
             style={{
-              background: color,
-              boxShadow: played
-                ? `0 0 14px 2px ${color}`
-                : 'inset 0 2px 0 rgba(255,255,255,0.2)',
+              background: atLine
+                ? `linear-gradient(to bottom, color-mix(in oklab, ${fill} 40%, white) 0%, ${fill} 35%, ${fill} 80%, color-mix(in oklab, ${fill} 65%, white) 100%)`
+                : color,
+              boxShadow: atLine
+                ? `0 0 ${played ? 22 : 16}px ${played ? 5 : 3}px color-mix(in srgb, ${fill} 75%, transparent), inset 0 0 0 1px rgb(255 255 255 / 0.6)`
+                : played
+                  ? `0 0 14px 2px ${color}`
+                  : 'inset 0 2px 0 rgba(255,255,255,0.2)',
               border: box.black ? '1px solid rgba(0,0,0,0.35)' : undefined,
             }}
           >
+            {atLine && (
+              <span
+                aria-hidden
+                data-cascade-shimmer
+                className="pointer-events-none absolute inset-x-0 top-0 h-1/3 -translate-y-full bg-gradient-to-b from-transparent via-white/70 to-transparent motion-safe:animate-key-shimmer"
+              />
+            )}
             {hold?.isCurrentChord && hold.holdProgress > 0 && (
               <div
                 className="absolute inset-x-0 bottom-0"
@@ -174,7 +197,7 @@ export function LearnCascadeView({
               run a little past its edges, on a pill of the note's colour. */}
           <div
             className="absolute bottom-1 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded px-0.5 font-semibold leading-none text-black/75"
-            style={{ fontSize, background: color }}
+            style={{ fontSize, background: fill }}
           >
             {labelOf(e)}
           </div>

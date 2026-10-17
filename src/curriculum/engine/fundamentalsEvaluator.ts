@@ -16,6 +16,9 @@ export interface EvalResult {
   passed: boolean;
   /** Human-readable progress string, e.g. "2 of 3 octaves found" */
   progress: string;
+  /** The exact keys to play next, for the keyboard to light while
+   *  practising. Only rules with a fixed answer have one. */
+  due?: number[];
 }
 
 // ---------------------------------------------------------------------------
@@ -89,6 +92,53 @@ export function evaluateStep(
       // Quiz evaluation is handled by the component (stateful sub-flow).
       // This should not be called directly.
       return { passed: false, progress: 'Quiz in progress...' };
+  }
+}
+
+/**
+ * Whether one key is a note the step asks for, so the keyboard can light it
+ * as right (shiny) or wrong (grey) the moment it's pressed. A key-by-key
+ * reading of each rule: a sequence step counts any of its notes, not just the
+ * next one. A quiz counts the question on screen (`quizExpected`), or any
+ * note in its pool before the quiz has begun.
+ */
+export function isStepNote(
+  evalRule: FundamentalsMidiEval,
+  midi: number,
+  quizExpected?: number,
+): boolean {
+  const inRange = (r: { min: number; max: number }) =>
+    midi >= r.min && midi <= r.max;
+  const samePc = (n: number) => pc(n) === pc(midi);
+  switch (evalRule.type) {
+    case 'two_range_sequence':
+      return inRange(evalRule.first) || inRange(evalRule.second);
+    case 'pitch_class':
+      return evalRule.notes.some(samePc);
+    case 'alternating':
+      return evalRule.pitchClasses.some(samePc);
+    case 'sequence':
+      return evalRule.octaveAware
+        ? evalRule.notes.includes(midi)
+        : evalRule.notes.some(samePc);
+    case 'exact_midi':
+    case 'simultaneous':
+      return evalRule.midi.includes(midi);
+    case 'range':
+      return inRange(evalRule);
+    case 'multi_zone':
+      return evalRule.zones.some(inRange);
+    case 'ordered_ranges':
+      return evalRule.phases.some(inRange);
+    case 'chromatic_ascending':
+      return true;
+    case 'quiz': {
+      const matches = (n: number) =>
+        evalRule.octaveAware ? n === midi : samePc(n);
+      return quizExpected != null
+        ? matches(quizExpected)
+        : evalRule.notePool.some(matches);
+    }
   }
 }
 
@@ -229,6 +279,10 @@ function evalSequence(
   return {
     passed: matchIdx >= rule.notes.length,
     progress: `${matchIdx} of ${rule.notes.length} notes`,
+    // Pitch classes can be played in any octave: no one key to light.
+    ...(rule.octaveAware && {
+      due: rule.notes.slice(matchIdx, matchIdx + 1),
+    }),
   };
 }
 
@@ -249,6 +303,7 @@ function evalExactMidi(
           ? 'Found it!'
           : `Play ${noteName(rule.midi[0])}`
         : `${found} of ${rule.midi.length} notes`,
+    due: rule.midi.filter((m) => remaining.has(m)),
   };
 }
 
@@ -285,7 +340,11 @@ function evalSimultaneous(
   notes: NoteRecord[],
 ): EvalResult {
   if (notes.length === 0) {
-    return { passed: false, progress: `0 of ${rule.midi.length} notes` };
+    return {
+      passed: false,
+      progress: `0 of ${rule.midi.length} notes`,
+      due: rule.midi,
+    };
   }
 
   // Check if all required MIDI notes appear within any windowMs-sized window
@@ -303,7 +362,7 @@ function evalSimultaneous(
       }
     }
     if (found.size === required.size) {
-      return { passed: true, progress: 'All notes played!' };
+      return { passed: true, progress: 'All notes played!', due: [] };
     }
   }
 
@@ -320,6 +379,8 @@ function evalSimultaneous(
   return {
     passed: false,
     progress: `${recentNotes.size} of ${rule.midi.length} notes`,
+    // A chord: all of it, together, until it's played.
+    due: rule.midi,
   };
 }
 

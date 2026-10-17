@@ -46,6 +46,10 @@ type PianoKeyboardProps = {
    *  being played, e.g. a practice run's target notes. A played key still
    *  takes its full active color, so presses stay visible over the hint. */
   hintNotes?: ReadonlyMap<number, string>;
+  /** Keys the player is holding, drawn on top of everything else,
+   *  `playingNotes` included, so their own notes stand out from the targets:
+   *  glossy and glowing with `shine`, a plain fill without. */
+  playedNotes?: ReadonlyMap<number, PlayedKey>;
   onKeyClick?: (midiNumber: number) => void;
   /** A key pressed (pointer down), for keys that hold their note until let
    *  go, as the Studio's practice keyboard plays them. */
@@ -58,6 +62,48 @@ type PianoKeyboardProps = {
    *  viewport. `startC`/`endC`/`gaming`/`vertical` are ignored. */
   fill?: { lowMidi: number; highMidi: number; minHeight?: number };
 };
+
+export type PlayedKey = { color: string; shine: boolean };
+
+// A key the player is holding. With shine it's lit from the top like a
+// glossy key, with a glow in its own colour that spills onto its neighbours;
+// without, it's a flat fill.
+const playedWhiteKeyStyle = ({ color, shine }: PlayedKey): CSSProperties =>
+  shine
+    ? {
+        background: `linear-gradient(to bottom, color-mix(in oklab, ${color} 40%, white) 0%, ${color} 35%, ${color} 80%, color-mix(in oklab, ${color} 65%, white) 100%)`,
+        boxShadow: `0 0 14px 3px color-mix(in srgb, ${color} 70%, transparent), inset 0 0 0 1px rgb(255 255 255 / 0.7)`,
+      }
+    : { backgroundColor: color };
+
+const playedBlackKeyStyle = ({ color, shine }: PlayedKey): CSSProperties =>
+  shine
+    ? {
+        background: `linear-gradient(to bottom, color-mix(in oklab, ${color} 50%, white) 0%, ${color} 40%, color-mix(in oklab, ${color} 70%, black) 100%)`,
+        borderBottomColor: `color-mix(in oklab, ${color} 60%, black)`,
+        boxShadow: `0 0 12px 2px color-mix(in srgb, ${color} 70%, transparent), inset 0 0 0 1px rgb(255 255 255 / 0.5)`,
+      }
+    : {
+        backgroundColor: color,
+        borderBottomColor: `color-mix(in oklab, ${color} 60%, black)`,
+      };
+
+// Part of a key's React key, so a new press remounts it and the sheen and
+// press animations run again.
+const playedKeyId = (played: PlayedKey | undefined) =>
+  played ? (played.shine ? 'shine' : 'plain') : '';
+
+/** One sweep of light up a key as it goes down. */
+function KeySheen() {
+  return (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute inset-0 overflow-hidden rounded-b-[3px]"
+    >
+      <span className="absolute inset-x-0 top-0 h-1/3 -translate-y-full bg-gradient-to-b from-transparent via-white/70 to-transparent motion-safe:animate-key-sheen" />
+    </span>
+  );
+}
 
 /** White-key height ÷ width in fill mode. A real key is ~6.4; a touch
  *  squatter leaves the score/roll more room on wide screens. */
@@ -83,6 +129,7 @@ export function PianoKeyboard({
   activeWhiteKeyColor,
   activeBlackKeyColor,
   hintNotes,
+  playedNotes,
   onMidiInput,
   enableMidiInterface = false,
   fill,
@@ -256,11 +303,12 @@ export function PianoKeyboard({
   const renderWhiteKey = (note: number) => {
     const activeNote = getActiveNote(note);
     const hintColor = hintNotes?.get(note);
+    const played = playedNotes?.get(note);
     const isLastWhiteInOctave = note % 12 === 11;
 
     return (
       <div
-        key={activeNote?.id}
+        key={`${note}-${activeNote?.id ?? ''}-${playedKeyId(played)}`}
         className={cn(
           whiteKeyClass,
           {
@@ -268,13 +316,19 @@ export function PianoKeyboard({
           },
           gaming && !vertical && isLastWhiteInOctave && 'mr-0',
           gaming && vertical && isLastWhiteInOctave && 'mb-0',
+          played?.shine && 'relative !z-[1]',
         )}
-        style={whiteKeyStyle(activeNote, hintColor)}
+        style={
+          played
+            ? playedWhiteKeyStyle(played)
+            : whiteKeyStyle(activeNote, hintColor)
+        }
         onClick={() => handleKeyClick(note)}
         onPointerDown={
           onKeyPointerDown ? (e) => onKeyPointerDown(note, e) : undefined
         }
       >
+        {played?.shine && <KeySheen />}
         {showOctaveStart && !gaming && note % 12 === 0 && (
           <div className={octaveLabelClass}>C{Math.floor(note / 12) - 1}</div>
         )}
@@ -285,6 +339,7 @@ export function PianoKeyboard({
   const renderBlackKey = (note: number) => {
     const activeNote = getActiveNote(note);
     const hintColor = hintNotes?.get(note);
+    const played = playedNotes?.get(note);
 
     return (
       <div
@@ -295,13 +350,20 @@ export function PianoKeyboard({
         }
       >
         <div
-          key={activeNote?.id}
+          key={`${activeNote?.id ?? ''}-${playedKeyId(played)}`}
           className={cn(blackKeyClass, {
             'bg-orange-700 animate-piano-key-press': !!activeNote,
             'border-orange-900': !!activeNote,
+            relative: played?.shine,
           })}
-          style={blackKeyStyle(activeNote, hintColor)}
-        />
+          style={
+            played
+              ? playedBlackKeyStyle(played)
+              : blackKeyStyle(activeNote, hintColor)
+          }
+        >
+          {played?.shine && <KeySheen />}
+        </div>
       </div>
     );
   };
@@ -370,18 +432,25 @@ export function PianoKeyboard({
         >
           {whites.map((note, i) => {
             const activeNote = getActiveNote(note);
+            const played = playedNotes?.get(note);
             return (
               <div
-                key={`${note}-${activeNote?.id ?? ''}`}
+                key={`${note}-${activeNote?.id ?? ''}-${playedKeyId(played)}`}
                 className={cn(
                   'flex h-full min-w-0 flex-1 cursor-pointer flex-col items-center justify-end rounded-b-[3px] bg-white transition-colors',
                   i < whites.length - 1 && 'mr-px',
                   !!activeNote && 'animate-piano-key-press bg-zinc-300',
+                  played?.shine && 'relative z-[1]',
                   whiteKeyClassName,
                 )}
-                style={whiteKeyStyle(activeNote, hintNotes?.get(note))}
+                style={
+                  played
+                    ? playedWhiteKeyStyle(played)
+                    : whiteKeyStyle(activeNote, hintNotes?.get(note))
+                }
                 onClick={() => handleKeyClick(note)}
               >
+                {played?.shine && <KeySheen />}
                 {showOctaveStart && note % 12 === 0 && (
                   <div
                     className="pb-1 leading-none text-black"
@@ -395,6 +464,7 @@ export function PianoKeyboard({
           })}
           {blacks.map((note) => {
             const activeNote = getActiveNote(note);
+            const played = playedNotes?.get(note);
             const column = whites.indexOf(note - 1) + 1;
             return (
               <div
@@ -408,15 +478,22 @@ export function PianoKeyboard({
                 onClick={() => handleKeyClick(note)}
               >
                 <div
-                  key={activeNote?.id}
+                  key={`${activeNote?.id ?? ''}-${playedKeyId(played)}`}
                   className={cn(
                     'size-full rounded-b-[3px] border-b-[3px] border-b-zinc-600 bg-zinc-900 shadow-md transition-colors',
                     !!activeNote &&
                       'animate-piano-key-press border-orange-900 bg-orange-700',
+                    played?.shine && 'relative',
                     blackKeyClassName,
                   )}
-                  style={blackKeyStyle(activeNote, hintNotes?.get(note))}
-                />
+                  style={
+                    played
+                      ? playedBlackKeyStyle(played)
+                      : blackKeyStyle(activeNote, hintNotes?.get(note))
+                  }
+                >
+                  {played?.shine && <KeySheen />}
+                </div>
               </div>
             );
           })}

@@ -14,6 +14,7 @@ import {
   shiftKeyRange,
 } from '@/learn/keyboard/lessonKeyboardRange';
 import { useLessonKeyboardStage } from '@/learn/keyboard/lessonKeyboardStage';
+import { type PlayedKeys, toPlayedNotes } from '@/learn/keyboard/playedKeys';
 
 // The on-screen keyboard every Learn surface shows under the activity. It
 // fills the width and mirrors the player's keyboard (see
@@ -39,6 +40,9 @@ type LessonKeyboardProps = {
   activeWhiteKeyColor?: string | null;
   activeBlackKeyColor?: string | null;
   hintNotes?: ReadonlyMap<number, string>;
+  /** Keys the player is holding, right (their target colour) or wrong
+   *  (null), drawn on top of the rest: see playedKeys.ts. */
+  playedKeys?: PlayedKeys;
   /** Every note the activity asks for. The keyboard always widens to show
    *  them all; on a mapped keyboard, ones outside it bring up the
    *  octave-button notice. */
@@ -56,8 +60,13 @@ export function LessonKeyboard({
   targetMidis,
   minHeight = 120,
   showOctaveStart = true,
+  playedKeys,
   ...keyboardProps
 }: LessonKeyboardProps) {
+  const playedNotes = useMemo(
+    () => (playedKeys ? toPlayedNotes(playedKeys) : undefined),
+    [playedKeys],
+  );
   const mapping = useSettingsStore((s) => s.midiMapping);
   const mapped = !!mapping;
   const mappingKey = mapping ? `${mapping.firstNote}-${mapping.lastNote}` : '';
@@ -126,14 +135,16 @@ export function LessonKeyboard({
 
   return (
     <div className="relative w-full">
-      {outOfRange && <OctaveNotice direction={outOfRange} />}
       <div ref={setStageEl}>
         <PianoKeyboard
           {...keyboardProps}
+          playedNotes={playedNotes}
           showOctaveStart={showOctaveStart}
           fill={{ lowMidi: shown.low, highMidi: shown.high, minHeight }}
         />
       </div>
+      {/* Under the keys, never over the music above them. */}
+      {outOfRange && <OctaveNotice direction={outOfRange} />}
     </div>
   );
 }
@@ -150,7 +161,8 @@ function OctaveNotice({ direction }: { direction: keyof typeof NOTICE_TEXT }) {
   return (
     <div
       role="status"
-      className="pointer-events-none absolute inset-x-0 -top-2 z-20 flex -translate-y-full justify-center"
+      data-octave-notice={direction}
+      className="pointer-events-none mt-2 flex justify-center"
     >
       <div
         className="rounded-full px-3 py-1 text-xs font-medium"

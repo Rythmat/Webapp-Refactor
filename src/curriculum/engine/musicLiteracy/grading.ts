@@ -4,9 +4,13 @@
  * count-in click, as stepNotes places them).
  *
  * ONLY THE RESPONSE COUNTS
- * A note played along with the words or the call is the student joining in,
- * not their answer, so it's dropped before anything is scored. The window
- * opens an eighth early, so a keen first note still counts.
+ * The words and the call are the teacher's turn (MY TURN): Atlas, and
+ * perhaps a teacher at the keyboard playing along with it, or the student
+ * joining in. Nothing played then is an answer, so it's dropped before
+ * anything is scored, and no key is shown wrong for it. The window opens
+ * an eighth early, so a keen first note still counts; a note of the call
+ * played along in that eighth (a pickup into the answer) is still the
+ * call's, when it's nearer that call note than any answer of its pitch.
  *
  * ONE NOTE, ONE TARGET
  * Each target is scored with the house in-time maths (assessPitchAndTiming:
@@ -69,12 +73,38 @@ export function responseWindow(timeline: StepTimeline): {
   };
 }
 
-export function inResponse<T extends { onset: number }>(
+type Placed = Pick<TimedNote, 'midi' | 'onset'>;
+
+/** The step's call and response, for telling the call's notes from answers. */
+export interface ResponseFigure {
+  call: readonly Placed[];
+  response: readonly Placed[];
+}
+
+/** Ticks from `note` to the nearest of `list` at its pitch (Infinity: none). */
+const nearest = (note: Placed, list: readonly Placed[]) =>
+  Math.min(
+    ...list
+      .filter((n) => n.midi === note.midi)
+      .map((n) => Math.abs(n.onset - note.onset)),
+  );
+
+/**
+ * The notes the student answered with: those in the response window. Given
+ * the figure, a note in the window's early eighth that is a call note played
+ * along (nearer it than any answer of its pitch) is left out too.
+ */
+export function inResponse<T extends Placed>(
   played: readonly T[],
   timeline: StepTimeline,
+  figure?: ResponseFigure,
 ): T[] {
   const { start, end } = responseWindow(timeline);
-  return played.filter((note) => note.onset >= start && note.onset < end);
+  return played.filter((note) => {
+    if (note.onset < start || note.onset >= end) return false;
+    if (!figure || note.onset >= timeline.response.start) return true;
+    return !(nearest(note, figure.call) < nearest(note, figure.response));
+  });
 }
 
 /**
@@ -147,7 +177,8 @@ function feedback(
 
 /**
  * The student's answer, graded. `played` is everything they played during
- * the run; the response window is taken here.
+ * the run; the response window is taken here. With the step's `call`, a
+ * call note played along at the window's edge isn't taken for an answer.
  */
 export function gradeResponse(
   targets: readonly TimedNote[],
@@ -156,9 +187,20 @@ export function gradeResponse(
     timeline,
     tempo,
     passMark,
-  }: { timeline: StepTimeline; tempo: number; passMark: number },
+    call,
+  }: {
+    timeline: StepTimeline;
+    tempo: number;
+    passMark: number;
+    call?: readonly TimedNote[];
+  },
 ): LiteracyResult {
-  const { pairs, extras } = pairResponse(targets, inResponse(played, timeline));
+  const answers = inResponse(
+    played,
+    timeline,
+    call && { call, response: targets },
+  );
+  const { pairs, extras } = pairResponse(targets, answers);
 
   const pitch: number[] = [];
   const timing: number[] = [];
@@ -220,18 +262,21 @@ export function gradeResponse(
 }
 
 /**
- * Whether a key the student presses now is right, for the keyboard's colour:
- * in the response window, the pitch of the target nearest in time; before it,
- * any pitch of the figure.
+ * Whether a key pressed now is right, for the keyboard's color: in the
+ * response window, the pitch of the target nearest in time. Before it, in a
+ * run, it's the teacher's turn and nothing is wrong: a teacher playing along
+ * on the keyboard, or the student joining in, lights right, never gray. Out
+ * of a run (null) and after the answer, any pitch of the figure.
  */
 export function isRightNote(
   midi: number,
   tick: number | null,
-  targets: readonly Pick<TimedNote, 'midi' | 'onset'>[],
+  targets: readonly Placed[],
   timeline: StepTimeline,
 ): boolean {
   const { start, end } = responseWindow(timeline);
-  if (tick === null || tick < start || tick >= end || targets.length === 0) {
+  if (tick !== null && tick < start) return true;
+  if (tick === null || tick >= end || targets.length === 0) {
     return targets.some((target) => target.midi === midi);
   }
   const nearest = targets.reduce((a, b) =>

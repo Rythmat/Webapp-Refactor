@@ -10,8 +10,8 @@ import { useElementSize } from '@/hooks/useElementSize';
 
 // ── The call: the circle, the hub and the words ────────────────────────────
 // The left half of a Music Literacy step, as the landing page's Theory scene
-// draws its circle: the key on the circle of fifths in the house colours (a
-// minor step lights its relative major's colour), and in the circle's middle
+// draws its circle: the key on the circle of fifths in the house colors (a
+// minor step lights its relative major's color), and in the circle's middle
 // a Simon-like hub: whose turn it is, the call's scale degrees lighting as
 // they sound and as they should be played back, and the beat. Under the
 // circle, the words, a bar to a line, each syllable lighting as its note
@@ -42,14 +42,14 @@ export function circleTrim(tonicPc: number): { top: number; bottom: number } {
 }
 
 export interface LiteracyCallPanelProps {
-  /** The 1's pitch class, and the step's mode by the colour rule. */
+  /** The 1's pitch class, and the step's mode by the color rule. */
   tonicPc: number;
   mode: 'major' | 'minor';
   keyColor: string;
   /** "C Major", "C Minor". */
   keyName: string;
-  /** Minor: the major key whose colour it wears ("E♭"). */
-  colourOf: string | null;
+  /** Minor: the major key whose color it wears ("E♭"). */
+  colorOf: string | null;
   call: readonly TimedNote[];
   response: readonly TimedNote[];
   words: readonly TimedNote[];
@@ -63,6 +63,11 @@ export interface LiteracyCallPanelProps {
   compact?: boolean;
 }
 
+/**
+ * Whose turn, by phase. The teacher's turn is the words and the call, both:
+ * Atlas sings and plays them (and a teacher in the room may play along),
+ * then the student answers.
+ */
 const TURN: Record<RunPhase, string> = {
   countIn: 'Ready',
   words: 'My turn',
@@ -70,8 +75,13 @@ const TURN: Record<RunPhase, string> = {
   response: 'Your turn',
 };
 
+/** The hub's label: whose turn in a run, else what its degrees are. */
+export function hubTurnLabel(running: boolean, phase: RunPhase | null): string {
+  return running && phase ? TURN[phase] : 'The call';
+}
+
 export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
-  const { keyColor, keyName, colourOf, compact } = props;
+  const { keyColor, keyName, colorOf, compact } = props;
   // The circle takes what the words leave, and the two stay together.
   const areaRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
@@ -105,9 +115,9 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
         style={{ backgroundColor: keyColor }}
       />
       <span className="text-[#e8e8f0]">{keyName}</span>
-      {colourOf && (
+      {colorOf && (
         <span className="normal-case tracking-normal text-white/45">
-          · in {colourOf}’s colour
+          · in {colorOf}’s color
         </span>
       )}
     </p>
@@ -128,7 +138,7 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
         selectedMode={props.mode}
         size={size}
         labelWeight={400}
-        ariaLabel={`${keyName}${colourOf ? `, in ${colourOf}’s colour` : ''}`}
+        ariaLabel={`${keyName}${colorOf ? `, in ${colorOf}’s color` : ''}`}
       />
       <Hub {...props} size={size} />
     </div>
@@ -180,7 +190,7 @@ function Hub({
   const diameter = size * 0.36;
   const figure = view.phase === 'response' ? response : call;
   const lit = view.hub;
-  const turn = running && view.phase ? TURN[view.phase] : 'The call';
+  const turn = hubTurnLabel(running, view.phase);
   const yourTurn = running && view.phase === 'response';
   const digits = Math.max(1, figure.length);
   const degreeSize = Math.max(

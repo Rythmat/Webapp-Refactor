@@ -1,8 +1,8 @@
 /**
- * A Music Literacy step's key and colour, by the house colour rule from the
- * first lesson on: a minor key wears its relative major's colour (C minor is
+ * A Music Literacy step's key and color, by the house color rule from the
+ * first lesson on: a minor key wears its relative major's color (C minor is
  * E♭'s purple), so the circle's highlight moves round the ring the moment a
- * figure flats its 3. The owner wants students used to the colour coding
+ * figure flats its 3. The owner wants students used to the color coding
  * early.
  */
 
@@ -41,7 +41,7 @@ export function tonicPitchClass(
   return tonicMidi(lesson.key.tonic) % 12;
 }
 
-/** The step's colour (KEY_OF_COLORS): C major's red, C minor's E♭ purple. */
+/** The step's color (KEY_OF_COLORS): C major's red, C minor's E♭ purple. */
 export function stepKeyColor(
   lesson: Pick<MusicLiteracyLesson, 'key'>,
   step: LiteracyStep,

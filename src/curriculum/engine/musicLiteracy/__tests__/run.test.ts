@@ -3,12 +3,17 @@ import { secondsPerTick, stepTimeline } from '../literacy';
 import { getLiveMusicLiteracy } from '../registry';
 import {
   applyCue,
+  FINAL_DOWNBEAT_BEATS,
+  FINAL_DOWNBEAT_NOTES,
+  groovePreviewCues,
   IDLE_RUN_VIEW,
   phaseAt,
   runCues,
   type BeatCue,
+  type DrumCue,
   type NoteCue,
   type RunCue,
+  type RunGroove,
   type RunView,
 } from '../run';
 
@@ -19,6 +24,8 @@ const beats = (cues: RunCue[]) =>
   cues.filter((c): c is BeatCue => c.kind === 'beat');
 const notes = (cues: RunCue[], segment: NoteCue['segment']) =>
   cues.filter((c): c is NoteCue => c.kind === 'note' && c.segment === segment);
+const drums = (cues: RunCue[]) =>
+  cues.filter((c): c is DrumCue => c.kind === 'drum');
 
 describe('a run on the step timeline', () => {
   const play = runCues(lesson, step('add-the-3'), 'play', { metronome: false });
@@ -158,5 +165,158 @@ describe('what a run shows', () => {
 
   it('ends with nothing lit', () => {
     expect(viewAt(9600)).toMatchObject({ ended: true, hub: null, lit: [] });
+  });
+});
+
+describe('a run over a drum groove', () => {
+  /** A bar of rock: kick 1 and 3, snare 2 and 4, eighth hats. */
+  const rock: RunGroove = {
+    loopTicks: 1920,
+    hits: [
+      { tick: 0, note: 36, velocity: 100 },
+      { tick: 960, note: 36, velocity: 100 },
+      { tick: 480, note: 38, velocity: 100 },
+      { tick: 1440, note: 38, velocity: 100 },
+      ...[0, 240, 480, 720, 960, 1200, 1440, 1680].map((tick) => ({
+        tick,
+        note: 42,
+        velocity: 80,
+      })),
+    ],
+    padGains: { 49: 0.5 },
+  };
+  // add-the-3: a bar of count-in, two of words, one of call, one of answer.
+  const plain = runCues(lesson, step('add-the-3'), 'play', {
+    metronome: false,
+  });
+  const over = runCues(lesson, step('add-the-3'), 'play', {
+    metronome: false,
+    groove: rock,
+  });
+  const loop = drums(over).filter((c) => c.tick < 9600);
+
+  it('comes in on the words’ first beat, never in the count-in', () => {
+    expect(loop[0].tick).toBe(1920);
+    expect(loop.some((c) => c.tick < 1920)).toBe(false);
+    // The count-in still clicks; the drums keep time after it.
+    expect(
+      beats(over)
+        .filter((c) => c.click)
+        .map((c) => c.tick),
+    ).toEqual([0, 480, 960, 1440]);
+  });
+
+  it('loops through the words, the call and the answer, to its last bar line', () => {
+    const kicks = loop.filter((c) => c.note === 36).map((c) => c.tick);
+    expect(kicks).toEqual([1920, 2880, 3840, 4800, 5760, 6720, 7680, 8640]);
+    expect(loop).toHaveLength(4 * rock.hits.length);
+  });
+
+  it('lands a kick and a crash together on the downbeat after the answer', () => {
+    const final = drums(over).filter((c) => c.tick >= 9600);
+    expect(final.map((c) => [c.tick, c.note])).toEqual([
+      [9600, 36],
+      [9600, 49],
+    ]);
+    expect(FINAL_DOWNBEAT_NOTES).toEqual([36, 49]);
+    // At the groove's own levels: its crash is trimmed to half.
+    expect(final.map((c) => c.velocity)).toEqual([112, 56]);
+    // The pulse lights the downbeat with it, without a click.
+    expect(beats(over).at(-1)).toMatchObject({
+      tick: 9600,
+      beat: 0,
+      downbeat: true,
+      click: false,
+    });
+  });
+
+  it('is longer by the final downbeat and its ring, and ends after it', () => {
+    expect(FINAL_DOWNBEAT_BEATS).toBe(2);
+    expect(over.at(-1)).toEqual({ kind: 'end', tick: 9600 + 2 * 480 });
+    expect(plain.at(-1)).toEqual({ kind: 'end', tick: 9600 });
+  });
+
+  it('moves nothing else: the pulse, the words, the call and the answer', () => {
+    const others = (cues: RunCue[]) =>
+      cues.filter(
+        (c) => c.kind !== 'drum' && c.kind !== 'end' && c.tick < 9600,
+      );
+    expect(others(over)).toEqual(others(plain));
+  });
+
+  it('clicks over the drums only when asked to', () => {
+    const clicking = runCues(lesson, step('add-the-3'), 'play', {
+      metronome: true,
+      groove: rock,
+    });
+    expect(
+      beats(clicking)
+        .filter((c) => c.tick < 9600)
+        .every((c) => c.click),
+    ).toBe(true);
+  });
+
+  it('plays a longer loop whole, and stops it at the answer’s end', () => {
+    const twoBars: RunGroove = {
+      loopTicks: 3840,
+      hits: [
+        { tick: 0, note: 49, velocity: 100 },
+        { tick: 3600, note: 38, velocity: 100 },
+      ],
+    };
+    const cues = drums(
+      runCues(lesson, step('add-the-3'), 'listen', {
+        metronome: false,
+        groove: twoBars,
+      }),
+    );
+    // Loops at 1920 and 5760; the third would begin on the final downbeat.
+    expect(cues.map((c) => [c.tick, c.note])).toEqual([
+      [1920, 49],
+      [5520, 38],
+      [5760, 49],
+      [9360, 38],
+      [9600, 36],
+      [9600, 49],
+    ]);
+  });
+
+  it('lets the final downbeat replace one played a touch early, not flam with it', () => {
+    const pushed: RunGroove = {
+      loopTicks: 1920 * 8,
+      hits: [
+        { tick: 0, note: 36, velocity: 100 },
+        { tick: 7680 - 4, note: 36, velocity: 100 }, // bar 5's downbeat, early
+        { tick: 7680 - 60, note: 38, velocity: 100 }, // a 32nd before: kept
+      ],
+    };
+    const cues = drums(
+      runCues(lesson, step('add-the-3'), 'play', {
+        metronome: false,
+        groove: pushed,
+      }),
+    );
+    expect(cues.map((c) => [c.tick, c.note])).toEqual([
+      [1920, 36],
+      [9540, 38],
+      [9600, 36],
+      [9600, 49],
+    ]);
+  });
+
+  it('draws nothing for a drum hit', () => {
+    const view = { ...IDLE_RUN_VIEW, tick: 100 };
+    expect(applyCue(view, loop[0], 3)).toBe(view);
+  });
+
+  it('previews a bar of the groove and its final downbeat', () => {
+    const cues = groovePreviewCues(rock, 1920, 4);
+    expect(drums(cues)).toHaveLength(rock.hits.length + 2);
+    expect(
+      drums(cues)
+        .filter((c) => c.tick === 1920)
+        .map((c) => c.note),
+    ).toEqual([36, 49]);
+    expect(cues.at(-1)).toEqual({ kind: 'end', tick: 1920 + 960 });
   });
 });

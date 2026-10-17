@@ -11,6 +11,7 @@ import {
 } from '../grading';
 import { stepNotes } from '../literacy';
 import { getLiveMusicLiteracy } from '../registry';
+import { runCues, type NoteCue, type RunGroove } from '../run';
 
 const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
 const step = (tag: string) => lesson.steps.find((s) => s.tag === tag)!;
@@ -193,9 +194,81 @@ describe('a key, right or wrong, as it’s pressed', () => {
     expect(isRightNote(62, 8160, response, timeline)).toBe(false);
   });
 
-  it('is right before the answer when it’s in the figure', () => {
+  it('is never wrong in the teacher’s turn: the words and the call', () => {
+    // A teacher playing along (or the student joining in), any pitch.
     expect(isRightNote(64, 2000, response, timeline)).toBe(true);
+    expect(isRightNote(62, 2000, response, timeline)).toBe(true);
+    expect(isRightNote(71, 6240, response, timeline)).toBe(true);
+    // From an eighth before the answer, the answer's rule.
+    expect(isRightNote(62, 7680 - 200, response, timeline)).toBe(false);
+  });
+
+  it('is right out of a run when it’s in the figure', () => {
     expect(isRightNote(60, null, response, timeline)).toBe(true);
     expect(isRightNote(62, null, response, timeline)).toBe(false);
+  });
+});
+
+describe('the teacher’s turn, played along', () => {
+  it('never grades a note of the words or the call, played in time with them', () => {
+    const { words, call } = stepNotes(lesson, step('add-the-3'));
+    const alongside = [...words, ...call].map((n) => ({
+      midi: n.midi,
+      onset: n.onset + 20,
+      duration: n.duration - 40,
+    }));
+    const result = grade('add-the-3', [...alongside, ...answer([60, 64, 60])]);
+    expect(result.percent).toBe(100);
+    expect(result.extras).toEqual([]);
+  });
+
+  it('keeps a call note played into the answer’s early eighth out of it', () => {
+    const { response, timeline } = stepNotes(lesson, step('add-the-3'));
+    // A call with a pickup on the last eighth before the answer.
+    const call = [{ midi: 67, onset: 7680 - 240, duration: 200 } as const];
+    const pickup = { midi: 67, onset: 7680 - 230, duration: 200 };
+    const keen = { midi: 60, onset: 7680 - 100, duration: 300 };
+    const figure = { call, response };
+    expect(inResponse([pickup, keen], timeline, figure)).toEqual([keen]);
+    // The same G is an extra without the call to tell it by.
+    expect(inResponse([pickup, keen], timeline)).toEqual([pickup, keen]);
+    const graded = gradeResponse(response, [pickup, ...answer([60, 64, 60])], {
+      timeline,
+      tempo: 80,
+      passMark: LITERACY_PASS_MARK,
+      call: call.map((n) => ({ ...n, degree: '5', index: 0 })),
+    });
+    expect(graded.extras).toEqual([]);
+    expect(graded.percent).toBe(100);
+  });
+});
+
+describe('grading over a drum groove', () => {
+  const groove: RunGroove = {
+    loopTicks: 1920,
+    hits: [0, 480, 960, 1440].map((tick) => ({ tick, note: 36, velocity: 99 })),
+  };
+  const answerCues = (g?: RunGroove) =>
+    runCues(lesson, step('add-the-3'), 'play', { metronome: false, groove: g })
+      .filter(
+        (c): c is NoteCue => c.kind === 'note' && c.segment === 'response',
+      )
+      .map((c) => [c.tick, c.midi]);
+
+  it('asks for the same answer, at the same ticks', () => {
+    expect(answerCues(groove)).toEqual(answerCues());
+  });
+
+  it('grades the same, and never hears the final downbeat', () => {
+    // The groove changes none of what grading reads: the step's notes and
+    // timeline. A key struck with the final kick and crash is past the
+    // answer, so not an extra.
+    const played = [
+      ...answer([60, 64, 60], 30),
+      { midi: 60, onset: 9600, duration: 300 },
+    ];
+    const result = grade('add-the-3', played);
+    expect(result.extras).toEqual([]);
+    expect(result).toEqual(grade('add-the-3', answer([60, 64, 60], 30)));
   });
 });

@@ -34,6 +34,7 @@ import {
 } from '@/curriculum/engine/musicLiteracy/literacy';
 import {
   applyCue,
+  groovePreviewCues,
   IDLE_RUN_VIEW,
   runCues,
   type RunCue,
@@ -63,6 +64,7 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { useElementSize } from '@/hooks/useElementSize';
+import { useDrumGrooveSettings } from '@/learn/audio/useDrumGrooveSettings';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LearnInputProvider } from '@/learn/context/LearnInputContext';
@@ -70,9 +72,11 @@ import type { KeyRange } from '@/learn/keyboard/lessonKeyboardRange';
 import { describeKey } from '@/lib/learn/keyDescription';
 import { LiteracyCallPanel } from './LiteracyCallPanel';
 import { MusicLiteracyLayout } from './MusicLiteracyLayout';
+import { drumsForGroove } from './literacyGrooves';
 import { startHereRoute } from './literacyPath';
 import {
   literacyClock,
+  previewLiteracyGroove,
   startLiteracyRun,
   stopLiteracyRun,
 } from './literacyRun';
@@ -94,6 +98,13 @@ import { useLiteracyProgress } from './useLiteracyProgress';
 // cues (engine/musicLiteracy/run.ts); the student's notes, from MIDI, the
 // on-screen keys or the letter keys (useLiteracyInput.ts), are stamped on
 // the same clock and graded in the response bars (grading.ts).
+//
+// With a drum groove chosen (Settings → Play along, literacyGrooves.ts) every
+// run plays over it: the count-in clicks, the drums come in with the words
+// and keep time to the end of the answer, a kick and crash land the final
+// downbeat, and the result shows once it has rung. The words and the call
+// are MY TURN, the teacher's: a teacher may play along on the keyboard then,
+// and nothing played in it is graded or shown wrong.
 
 /** The keyboard: exactly 25 keys, C3–C5 (the series' register, literacy.ts). */
 export const LITERACY_KEY_RANGE: KeyRange = { low: 48, high: 72 };
@@ -142,6 +153,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const navigate = useNavigate();
   const outputLatencyMs = useSettingsStore((s) => s.outputLatencyMs);
   const { metronomeEnabled } = usePracticeSettings();
+  const { grooveId, click: grooveClick, setGrooveId } = useDrumGrooveSettings();
   const { reportCompletion } = useMspModuleCompletion();
   const { progress, record } = useLiteracyProgress(lesson.id);
 
@@ -161,12 +173,15 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const tonicPc = tonicPitchClass(lesson);
   const tonicName = displayAccidentals(lesson.key.tonic);
   const keyName = `${tonicName} ${mode === 'minor' ? 'Minor' : 'Major'}`;
-  const colourOf =
+  const colorOf =
     mode === 'minor'
       ? displayAccidentals(MIDI_ROOT_TO_KEY[(tonicPc + 3) % 12])
       : null;
   const passMark = passMarkOf(step);
-  const [beatsPerBar] = lesson.timeSignature;
+  const [beatsPerBar, beatUnit] = lesson.timeSignature;
+  // The grooves are all in 4/4; a lesson in another meter plays without one.
+  const grooveFits = beatsPerBar === 4 && beatUnit === 4;
+  const groove = grooveFits ? grooveId : null;
 
   // Tempo: the step's own, or the lesson's, until the student changes it.
   const ownTempo = step.tempo ?? lesson.tempo;
@@ -220,6 +235,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         timeline: run.notes.timeline,
         tempo: run.tempo,
         passMark: run.passMark,
+        call: run.notes.call,
       });
       if (import.meta.env.DEV) {
         // For tuning the grading by ear: how far off each answer was.
@@ -279,11 +295,32 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         setView((v) => applyCue(v, cue, wordCount));
         if (cue.kind === 'end') finishRun(run);
       };
-      void startLiteracyRun({
-        cues: runCues(lesson, step, mode, { metronome: metronomeEnabled }),
-        tempo,
-        onCue,
-      }).then(
+      // The groove's drums first (a Studio groove or a code groove loads
+      // now); one that's gone, or won't load, leaves the click alone.
+      const begin = async () => {
+        const drums =
+          groove === null
+            ? null
+            : await drumsForGroove(
+                groove,
+                (timeline.total - timeline.words.start) / timeline.barTicks,
+              ).catch((error: unknown) => {
+                console.warn('[MusicLiteracy] the groove did not load', error);
+                return null;
+              });
+        if (runRef.current !== run) return false;
+        return startLiteracyRun({
+          cues: runCues(lesson, step, mode, {
+            // Over the drums the click stops after the count-in, unless asked for.
+            metronome: drums ? grooveClick : metronomeEnabled,
+            groove: drums?.groove,
+          }),
+          tempo,
+          onCue,
+          kit: drums?.kit,
+        });
+      };
+      void begin().then(
         (started) => {
           if (!started || runRef.current !== run) return;
           liveRef.current = true;
@@ -303,6 +340,8 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     [
       endRun,
       finishRun,
+      groove,
+      grooveClick,
       lesson,
       metronomeEnabled,
       notes,
@@ -310,6 +349,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       step,
       stepIndex,
       tempo,
+      timeline,
     ],
   );
 
@@ -319,6 +359,40 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     setRunMode(null);
     setView(IDLE_RUN_VIEW);
   }, [endRun]);
+
+  // Choosing a groove stops a run (as a new tempo does) and plays a bar of
+  // it, then its final downbeat, at the step's tempo.
+  const previewRef = useRef(0);
+  const chooseGroove = useCallback(
+    (id: string | null) => {
+      if (runRef.current) stopRun();
+      setGrooveId(id);
+      const preview = ++previewRef.current;
+      if (id === null) {
+        stopLiteracyRun();
+        return;
+      }
+      void drumsForGroove(id, 1)
+        .then((drums) => {
+          if (!drums || preview !== previewRef.current || runRef.current) {
+            return;
+          }
+          return previewLiteracyGroove({
+            cues: groovePreviewCues(
+              drums.groove,
+              timeline.barTicks,
+              beatsPerBar,
+            ),
+            tempo,
+            kit: drums.kit,
+          });
+        })
+        .catch((error: unknown) => {
+          console.warn('[MusicLiteracy] the groove preview failed', error);
+        });
+    },
+    [beatsPerBar, setGrooveId, stopRun, tempo, timeline.barTicks],
+  );
 
   const goToStep = useCallback(
     (index: number) => {
@@ -462,8 +536,14 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   // Live pairs while the student answers (Play); the result's once graded.
   const pairs = useMemo(() => {
     if (result) return result.pairs;
-    return pairResponse(notes.response, inResponse(played, timeline)).pairs;
-  }, [result, notes.response, played, timeline]);
+    return pairResponse(
+      notes.response,
+      inResponse(played, timeline, {
+        call: notes.call,
+        response: notes.response,
+      }),
+    ).pairs;
+  }, [result, notes.call, notes.response, played, timeline]);
 
   const performanceMeta = useMemo(() => {
     if (!running) return undefined;
@@ -619,7 +699,11 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       return {
         lead: (
           <p data-literacy-run-lead className="text-[15px] text-[#e8e8f0]">
-            {live ? RUN_LEAD[runMode] : 'Getting the piano ready…'}
+            {live
+              ? RUN_LEAD[runMode]
+              : groove !== null
+                ? 'Getting the drums ready…'
+                : 'Getting the piano ready…'}
           </p>
         ),
         meta: (
@@ -734,6 +818,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
           setTempo(bpm);
         },
       }}
+      groove={{ onChoose: chooseGroove, fits: grooveFits }}
       announcement={resultModel ? resultSummary(resultModel, passMark) : ''}
       slots={{
         call: (stacked) => (
@@ -744,7 +829,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             mode={mode}
             keyColor={keyColor}
             keyName={keyName}
-            colourOf={colourOf}
+            colorOf={colorOf}
             call={notes.call}
             response={notes.response}
             words={notes.words}
@@ -828,7 +913,7 @@ const NO_RUN_MODEL = {
   hint: null,
 } as const;
 
-/** The words' notes on the roll: the key's colour, quieter than the figure's. */
+/** The words' notes on the roll: the key's color, quieter than the figure's. */
 function mutedColor(hex: string): string {
   const n = Number.parseInt(hex.replace('#', ''), 16);
   if (!Number.isFinite(n)) return hex;

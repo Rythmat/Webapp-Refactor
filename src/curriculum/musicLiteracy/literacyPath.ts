@@ -101,7 +101,7 @@ export interface LiteracyStopKey {
   mode: 'major' | 'minor';
   /** "C Major". */
   name: string;
-  /** Its colour (KEY_OF_COLORS): C Major's red. */
+  /** Its color (KEY_OF_COLORS): C Major's red. */
   color: string;
 }
 

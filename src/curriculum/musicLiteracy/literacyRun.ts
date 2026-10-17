@@ -3,8 +3,10 @@
 // Tone.Transport, in ticks from the step's timeline (engine/musicLiteracy/
 // run.ts makes the cues): the count-in and metronome clicks
 // (learn/audio/metronomeClick.ts), the words, call and Listen's response on
-// the lesson piano (learn/audio/practiceGuide.ts), and every visual through
-// Tone.getDraw(), drawn when it's heard rather than when it's queued.
+// the lesson piano (learn/audio/practiceGuide.ts), the play-along groove and
+// its final downbeat on the lesson drums (literacyDrums.ts), and every
+// visual through Tone.getDraw(), drawn when it's heard rather than when it's
+// queued. The drums are only heard: a groove's hundreds of hits never draw.
 //
 // The run's Tone.Part lives at module level, as every Learn sound does: a
 // node built in useMemo and disposed in an effect cleanup ends up disposed
@@ -22,6 +24,7 @@ import { secondsPerTick } from '@/curriculum/engine/musicLiteracy/literacy';
 import type { RunCue } from '@/curriculum/engine/musicLiteracy/run';
 import { playClick, resetClickSpacing } from '@/learn/audio/metronomeClick';
 import { playGuideNote } from '@/learn/audio/practiceGuide';
+import { loadDrumKit, strikeDrum } from './literacyDrums';
 
 /** The transport as every in-time lesson reads it (transportClock.ts). */
 export const literacyClock = createTransportClock();
@@ -66,8 +69,10 @@ export interface LiteracyRunOptions {
   cues: readonly RunCue[];
   /** Quarter notes per minute. */
   tempo: number;
-  /** Each cue, when it's heard. The last is `end`. */
+  /** Each cue but the drums', when it's heard. The last is `end`. */
   onCue: (cue: RunCue) => void;
+  /** The drum kit the cues' drums play on, loaded before the start. */
+  kit?: string;
 }
 
 /**
@@ -80,11 +85,19 @@ export async function startLiteracyRun({
   cues,
   tempo,
   onCue,
+  kit,
 }: LiteracyRunOptions): Promise<boolean> {
   stopLiteracyRun();
   const run = generation;
   await startPianoSampler();
   if (run !== generation) return false;
+  if (kit !== undefined) {
+    // No drums is no reason to stop the step: it runs on the click alone.
+    await loadDrumKit(kit).catch((error: unknown) => {
+      console.warn('[MusicLiteracy] the drums did not load', error);
+    });
+    if (run !== generation) return false;
+  }
 
   const transport = Tone.getTransport();
   transport.bpm.value = tempo;
@@ -96,6 +109,10 @@ export async function startLiteracyRun({
   };
   part = new Tone.Part<RunCue & { time: number }>(
     (time, cue) => {
+      if (cue.kind === 'drum') {
+        strikeDrum(cue.note, cue.velocity, time);
+        return;
+      }
       if (cue.kind === 'beat' && cue.click) playClick(cue.downbeat, time);
       if (cue.kind === 'note' && cue.sound) {
         playGuideNote(cue.midi, cue.duration * spt, TEACHER_VELOCITY, time);
@@ -119,4 +136,23 @@ export async function startLiteracyRun({
 
   await literacyClock.wait();
   return run === generation;
+}
+
+/**
+ * Play a groove's preview cues (run.ts groovePreviewCues) on the run's
+ * transport, then stop: a run started meanwhile, or a stop, cuts it off.
+ */
+export async function previewLiteracyGroove({
+  cues,
+  tempo,
+  kit,
+}: Omit<LiteracyRunOptions, 'onCue'>): Promise<void> {
+  await startLiteracyRun({
+    cues,
+    tempo,
+    kit,
+    onCue: (cue) => {
+      if (cue.kind === 'end') stopLiteracyRun();
+    },
+  });
 }

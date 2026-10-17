@@ -43,6 +43,7 @@ import {
   buildHipHopDrums,
   hipHopDrumPattern,
 } from './hipHop/hipHopBacking';
+import { HIPHOP_DRUMS } from './hipHop/hipHopPatterns';
 import {
   buildMeterBass,
   buildMeterChords,
@@ -842,6 +843,23 @@ export function stepBassVoice(
 ): BackingStyle['bassVoice'] {
   const line = pairingFor(genre, level, styleRef, placeOf(step))?.bass;
   return line ? pairedBassVoice(line) : step.backing_style?.bassVoice;
+}
+
+/**
+ * A code groove's drums (codeGrooves.ts) over `bars` bars of 4/4, unswung, as
+ * a step naming it plays them: a published designed groove with its id
+ * first. Music Literacy's play-along plays them on their own, with no step.
+ */
+export function buildCodeGrooveDrums(
+  grooveId: string,
+  bars: number,
+): BackingNote[] {
+  const hipHop = HIPHOP_DRUMS[grooveId];
+  if (!hipHop) return buildDrumPatternForGroove(bars, grooveId as GrooveId);
+  const designed = getLiveGroove(grooveId);
+  return designed
+    ? buildDesignedDrums(designed, bars, BAR_TICKS)
+    : buildHipHopDrums(bars, hipHop);
 }
 
 function buildDrumPatternForGroove(

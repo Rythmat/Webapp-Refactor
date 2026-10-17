@@ -3,7 +3,7 @@
  * The Music Literacy step, as a student meets it: Play, the count-in, the
  * words lighting syllable by syllable, the call, YOUR TURN, the answer on
  * the computer keyboard, the score, Try again and Next, and the minor step's
- * colour. The transport run is faked (literacyRun.ts): the test hands the
+ * color. The transport run is faked (literacyRun.ts): the test hands the
  * player each cue itself and says where on the timeline a key lands.
  */
 
@@ -37,9 +37,11 @@ vi.mock('@/learn/context/LearnInputContext', () => ({
   useLearnInputStable: () => input.stable,
 }));
 
-/** The fake run: the cue handler of the latest start, and the clock's tick. */
+/** The fake run: the latest start's cues and handler, and the clock's tick. */
 const run = vi.hoisted(() => ({
   onCue: null as null | ((cue: unknown) => void),
+  cues: [] as unknown[],
+  kit: undefined as string | undefined,
   starts: 0,
   tick: null as number | null,
 }));
@@ -48,12 +50,23 @@ vi.mock('@/curriculum/musicLiteracy/literacyRun', () => ({
     soundingTicks: () => run.tick,
     playbackTicks: () => run.tick,
   },
-  startLiteracyRun: async ({ onCue }: { onCue: (cue: unknown) => void }) => {
+  startLiteracyRun: async ({
+    onCue,
+    cues,
+    kit,
+  }: {
+    onCue: (cue: unknown) => void;
+    cues: unknown[];
+    kit?: string;
+  }) => {
     run.onCue = onCue;
+    run.cues = cues;
+    run.kit = kit;
     run.starts += 1;
     return true;
   },
   stopLiteracyRun: () => {},
+  previewLiteracyGroove: async () => {},
 }));
 vi.mock('@/audio/pianoSampler', () => ({
   triggerPianoAttack: async () => {},
@@ -67,6 +80,9 @@ vi.mock('@/features/classroom/msp', () => ({
 }));
 
 const { MusicLiteracyPlayer } = await import('../MusicLiteracyPlayer');
+const { setDrumGrooveClick, setDrumGrooveId } = await import(
+  '@/learn/audio/drumGrooveSettingsStore'
+);
 
 const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
 
@@ -128,7 +144,11 @@ describe('a Music Literacy step', () => {
     run.tick = null;
     msp.reportCompletion.mockClear();
   });
-  afterEach(() => cleanup());
+  afterEach(() => {
+    cleanup();
+    setDrumGrooveId(null);
+    setDrumGrooveClick(false);
+  });
 
   it('runs count-in, words, call, then the student’s turn, and scores the answer', async () => {
     renderPlayer();
@@ -161,6 +181,8 @@ describe('a Music Literacy step', () => {
 
     feedTo(5760 + 500);
     expect(hub().getAttribute('data-turn')).toBe('call');
+    // The call is the teacher's too: MY TURN, its degrees lit as they sound.
+    expect(hub().textContent).toContain('My turn');
     expect(document.querySelectorAll('[data-degree-lit]')).toHaveLength(1);
 
     feedTo(7680);
@@ -210,7 +232,7 @@ describe('a Music Literacy step', () => {
     expect(hub().getAttribute('data-turn')).toBe('idle');
   });
 
-  it('shows a minor step in its relative major’s colour', () => {
+  it('shows a minor step in its relative major’s color', () => {
     renderPlayer();
     for (let i = 0; i < 5; i++) {
       fireEvent.click(screen.getByRole('button', { name: 'Next step' }));
@@ -300,5 +322,90 @@ describe('a Music Literacy step', () => {
     expect(
       localStorage.getItem('music_literacy_progress_music-literacy-part-1'),
     ).toBeNull();
+  });
+
+  it('never shows a key wrong in the teacher’s turn, nor grades it', async () => {
+    renderPlayer();
+    await press('Play');
+    feedTo(1920 + 480);
+    // A teacher playing along on E (the D key; not in the call) during the words.
+    run.tick = 1920 + 480;
+    const grayKeys = () =>
+      [...document.querySelectorAll<HTMLElement>('div')].filter(
+        (el) => el.style.backgroundColor === 'rgb(113, 113, 122)', // WRONG_KEY_COLOR
+      );
+    act(() => {
+      fireEvent.keyDown(window, { code: 'KeyD' });
+    });
+    expect(grayKeys()).toHaveLength(0);
+    act(() => {
+      fireEvent.keyUp(window, { code: 'KeyD' });
+    });
+    typeAt('KeyG', 5760 + 480); // and G during the call
+    feedTo(7680);
+    typeAt('KeyA', 7680);
+    typeAt('KeyA', 8160);
+    typeAt('KeyA', 8640);
+    feedTo(9600);
+    expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
+    // Out of the run, that E is wrong again (C is the figure): gray.
+    act(() => {
+      fireEvent.keyDown(window, { code: 'KeyD' });
+    });
+    expect(grayKeys().length).toBeGreaterThan(0);
+  });
+
+  it('plays a chosen groove from the words, ends on its final downbeat, and grades the same', async () => {
+    setDrumGrooveId('straight-8');
+    renderPlayer();
+    await press('Play');
+    await vi.waitFor(() => expect(run.starts).toBe(1));
+    expect(run.kit).toBe('custom_custom_natural_01');
+    const cues = run.cues as RunCue[];
+    const drums = cues.filter((c) => c.kind === 'drum');
+    expect(drums[0].tick).toBe(1920);
+    expect(drums.filter((c) => c.tick === 9600).map((c) => c.note)).toEqual([
+      36, 49,
+    ]);
+    expect(cues.at(-1)).toEqual({ kind: 'end', tick: 9600 + 960 });
+    // The drums keep time: no click past the count-in.
+    expect(
+      cues.filter((c) => c.kind === 'beat' && c.click).map((c) => c.tick),
+    ).toEqual([0, 480, 960, 1440]);
+
+    const feed = (tick: number) =>
+      act(() =>
+        cues
+          .filter((c) => c.tick <= tick && c.tick > fedTo)
+          .forEach((c) => run.onCue!(c)),
+      );
+    let fedTo = -1;
+    feed(7680);
+    fedTo = 7680;
+    typeAt('KeyA', 7680);
+    typeAt('KeyA', 8160);
+    typeAt('KeyA', 8640);
+    feed(9600);
+    fedTo = 9600;
+    // The final downbeat is ringing: the result waits for it.
+    expect(document.querySelector('[data-guitar-result]')).toBeNull();
+    expect(hub().textContent).toContain('Your turn');
+    feed(9600 + 960);
+    expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
+  });
+
+  it('clicks over the groove when asked to, and plays it in Listen too', async () => {
+    setDrumGrooveId('straight-8');
+    setDrumGrooveClick(true);
+    renderPlayer();
+    await press('Listen');
+    await vi.waitFor(() => expect(run.starts).toBe(1));
+    const cues = run.cues as RunCue[];
+    expect(cues.some((c) => c.kind === 'drum')).toBe(true);
+    expect(
+      cues
+        .filter((c) => c.kind === 'beat' && c.tick < 9600)
+        .every((c) => c.kind === 'beat' && c.click),
+    ).toBe(true);
   });
 });

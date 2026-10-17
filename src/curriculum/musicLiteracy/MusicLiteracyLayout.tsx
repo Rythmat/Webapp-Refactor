@@ -19,6 +19,10 @@ import {
 } from '@/curriculum/piano/layout/PianoAboutStepSheet';
 import { PianoSettingsSheet } from '@/curriculum/piano/layout/PianoSettingsSheet';
 import { useElementSize } from '@/hooks/useElementSize';
+import {
+  LiteracyGrooveSettings,
+  type LiteracyGrooveSettingsProps,
+} from './LiteracyGrooveSettings';
 import '@/curriculum/guitar/layout/guitarLayout.css';
 
 // ── The Music Literacy lesson screen ───────────────────────────────────────
@@ -46,6 +50,8 @@ export interface MusicLiteracyLayoutProps {
   about: PianoAboutModel;
   audio: { outputLatencyMs: number; openAudioTiming: () => void };
   tempo: { bpm: number; onChange: (bpm: number) => void };
+  /** Settings → Play along: the drum groove. */
+  groove: LiteracyGrooveSettingsProps;
   /** Said once when a result arrives. */
   announcement: string;
   slots: {
@@ -69,6 +75,7 @@ export function MusicLiteracyLayout({
   about,
   audio,
   tempo,
+  groove,
   announcement,
   slots,
 }: MusicLiteracyLayoutProps) {
@@ -181,6 +188,7 @@ export function MusicLiteracyLayout({
             <TempoStepper bpm={tempo.bpm} onChange={tempo.onChange} />
           </div>
         </SettingsSection>
+        <LiteracyGrooveSettings {...groove} />
       </PianoSettingsSheet>
       <PianoAboutStepSheet
         open={aboutOpen}

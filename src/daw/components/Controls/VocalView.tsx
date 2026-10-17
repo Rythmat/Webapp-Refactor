@@ -37,6 +37,7 @@ import {
 } from '@/daw/hooks/usePlaybackEngine';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 import { SCALE_TYPES } from '@/daw/audio/pitch-correction/PitchCorrectionNode';
+import { applyPedalChain, pedalBlocksOf } from '@/daw/audio/applyPedalChain';
 import {
   KEY_COLORS,
   ALL_MODES,
@@ -477,6 +478,11 @@ function storedVocalChain(chain: PedalBlock[]) {
   }));
 }
 
+/** A fresh id for a block taken from the stored chain. */
+function freshBlockId(type: string): string {
+  return `${type}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
 function getAdapter(trackId: string): VocalFxAdapter | null {
   const instrument = getTrackAudioState(trackId)?.trackEngine.getInstrument();
   return instrument instanceof VocalFxAdapter ? instrument : null;
@@ -521,7 +527,7 @@ export function VocalView({ trackId }: { trackId: string }) {
       ? storedChain.map((b) => ({
           ...b,
           type: b.type as PedalBlockType,
-          id: `${b.type}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: freshBlockId(b.type),
         }))
       : DEFAULT_VOCAL_CHAIN,
   );
@@ -583,22 +589,35 @@ export function VocalView({ trackId }: { trackId: string }) {
 
   // Monitoring sync is handled centrally in usePlaybackEngine
 
-  // Sync pedal chain to audio engine (fast path avoids rewiring on param-only changes)
+  // Play the view's chain through the adapter, on every edit, as
+  // applyPedalChain does for the engine (parameters update the pedals in
+  // place; a pedal added, removed or moved rebuilds the chain). The engine
+  // has applied the stored chain already, so the view opening on it changes
+  // nothing.
   useEffect(() => {
     if (!adapter) return;
-
-    const blocks = chain.map((b) => ({
-      type: b.type,
-      enabled: b.enabled,
-      params: b.type === 'phaser' ? { ...b.params, bpm } : b.params,
-    }));
-
-    // Fast path: update params only if chain structure hasn't changed
-    if (!adapter.updateChainParams(blocks)) {
-      // Structure changed — full sync with rewire
-      adapter.syncChain(blocks);
-    }
+    void applyPedalChain(adapter, pedalBlocksOf(storedVocalChain(chain), bpm));
   }, [adapter, chain, bpm]);
+
+  // The stored chain changed from outside the view (undo, redo, a
+  // collaborator): the view takes it up, as the engine already has. A
+  // block keeps its id while a block of its type stays in its slot.
+  const seenStoredChain = useRef(JSON.stringify(storedChain ?? null));
+  useEffect(() => {
+    const json = JSON.stringify(storedChain ?? null);
+    if (json === seenStoredChain.current) return;
+    seenStoredChain.current = json;
+    if (!storedChain) return;
+    setChain((prev) =>
+      JSON.stringify(storedVocalChain(prev)) === json
+        ? prev
+        : storedChain.map((b, i) => ({
+            ...b,
+            type: b.type as PedalBlockType,
+            id: prev[i]?.type === b.type ? prev[i].id : freshBlockId(b.type),
+          })),
+    );
+  }, [storedChain]);
 
   // Persist chain to store so it survives VocalView unmount/remount: at once
   // after a click, and once on release after a knob or slider drag, which

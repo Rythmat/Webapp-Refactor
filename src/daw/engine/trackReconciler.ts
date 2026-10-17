@@ -3,11 +3,14 @@ import { useStore, type Track } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { TrackEngine } from '@/daw/audio/TrackEngine';
 import type { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
+import { applyStoredPedalChain } from '@/daw/audio/applyPedalChain';
 import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
 import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
+import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
 import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
+import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 import {
   applySynthStateToEngine,
   defaultSynthTrackState,
@@ -240,6 +243,20 @@ export function startTrackReconciler(
     ) {
       applySamplerState(instrument, next);
     }
+    // The amp and pedals of a Guitar/Bass/Vocal track, whether or not its
+    // view is open (the view applies its own edits as they happen, so the
+    // store write that saves one finds it applied). An adapter still in its
+    // init gets the chain the track holds when the init ends (create).
+    if (
+      isPedalAdapter(instrument) &&
+      state.trackEngine.getInstrument() === instrument
+    ) {
+      const key =
+        instrument instanceof GuitarFxAdapter ? 'guitarChain' : 'vocalChain';
+      if (!sameValue(old[key], next[key])) {
+        void applyStoredPedalChain(instrument, next, useStore.getState().bpm);
+      }
+    }
   }
 
   /** Makes a track's engine and starts loading its instrument. */
@@ -325,6 +342,17 @@ export function startTrackReconciler(
           }
           if (instrument instanceof ChopsSampler) {
             applySamplerState(instrument, current);
+          }
+          // The saved amp and pedals of a Guitar/Bass/Vocal track, so its
+          // takes and its live input play through them before (or without)
+          // its view opening. The amp's NAM model loads in the background:
+          // the amp plays its classic model until it is in.
+          if (isPedalAdapter(instrument)) {
+            void applyStoredPedalChain(
+              instrument,
+              current,
+              useStore.getState().bpm,
+            );
           }
           applyMonitoring(state, current);
           // Tap audio-input adapters into the live-monitor send bus so this
@@ -469,6 +497,23 @@ export function startTrackReconciler(
   const unsubscribeGeneration = onSessionGeneration(() => {
     queueMicrotask(safeReconcile);
   });
+  // The phaser syncs to the project tempo: a tempo change reaches every
+  // chain (an open view applies its own as well; an unchanged chain is a
+  // no-op).
+  const unsubscribeBpm = useStore.subscribe(
+    (s) => s.bpm,
+    (bpm) => {
+      if (stopped) return;
+      for (const track of useStore.getState().tracks) {
+        const state = trackEngineRegistry.get(track.id);
+        const instrument = state?.instrument;
+        // An adapter still in its init gets the tempo when it ends.
+        if (!isPedalAdapter(instrument)) continue;
+        if (state?.trackEngine.getInstrument() !== instrument) continue;
+        void applyStoredPedalChain(instrument, track, bpm);
+      }
+    },
+  );
 
   safeReconcile();
 
@@ -479,12 +524,23 @@ export function startTrackReconciler(
       stopped = true;
       unsubscribeTracks();
       unsubscribeGeneration();
+      unsubscribeBpm();
       applied.clear();
       if (active === reconciler) active = null;
     },
   };
   active = reconciler;
   return reconciler;
+}
+
+/** A Guitar/Bass or Vocal adapter: the instruments with a pedal chain. */
+function isPedalAdapter(
+  instrument: unknown,
+): instrument is GuitarFxAdapter | VocalFxAdapter {
+  return (
+    instrument instanceof GuitarFxAdapter ||
+    instrument instanceof VocalFxAdapter
+  );
 }
 
 /** Whether a track has any automation lane. */

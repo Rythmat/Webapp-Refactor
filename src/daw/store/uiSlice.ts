@@ -114,8 +114,33 @@ export interface GenrePracticeSession {
    */
   styles?: { id: string; name: string }[];
   styleId?: string | null;
-  progressions?: { id: string; label: string; chords: string[] }[];
+  progressions?: {
+    id: string;
+    /** As built, raw symbols: the screen writes `chords` in the notation. */
+    label: string;
+    chords: string[];
+    /** The groove the progression comes with, when the level has several. */
+    styleName?: string;
+  }[];
   progressionId?: string;
+  /**
+   * A guitar lesson's track: the screen draws the scale position and chord
+   * shapes on a fretboard in place of the keyboard. Absent on piano.
+   */
+  guitar?: GuitarPracticeInfo;
+}
+
+/**
+ * What a guitar Practice Track draws, as ids into the guitar book so a
+ * refreshed session can draw it again: the key center, the scale position the
+ * level plays from, and the chord shapes the section plays.
+ */
+export interface GuitarPracticeInfo {
+  /** 'C', or 'D:dorian' (curriculum/data/guitar/centers). */
+  keyCenter: string;
+  /** 'major' | 'pentatonic' | 'pentatonic2'; null when the level has none. */
+  scalePosition: string | null;
+  shapeIds: string[];
 }
 
 /** A Practice Track in progress, from either kind of lesson. */

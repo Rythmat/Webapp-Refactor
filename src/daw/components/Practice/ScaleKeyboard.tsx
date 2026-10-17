@@ -33,12 +33,12 @@ import { OCTAVE_WIDTH } from '@/components/PianoKeyboard/useExpandedRange';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
+import { toPlayedNotes } from '@/learn/keyboard/playedKeys';
 import { SegmentedToggle } from './SegmentedToggle';
 import { BLACK_KEYS, useKeyCenters } from './useKeyCenters';
 import { COLOR } from '@/daw/ui/tokens';
 
 const ACCENT = COLOR.accent.value;
-const OFF_SCALE = '#71717a';
 
 /** What `PianoKeyboard` asks for one octave in `gaming` mode: twice its normal. */
 const OCTAVE_PX = OCTAVE_WIDTH * 2;
@@ -101,6 +101,9 @@ interface ScaleKeyboardProps {
   kind?: 'scale' | 'chord';
   /** Switches of the screen's own, drawn in the same row as the scale switcher. */
   controls?: ReactNode;
+  /** The key center's colour (its key and mode), as the lessons light their
+   *  notes: the lit keys, their numbers, a right note played. */
+  keyColor?: string;
 }
 
 export function ScaleKeyboard({
@@ -116,6 +119,7 @@ export function ScaleKeyboard({
   onScaleChange,
   kind = 'scale',
   controls,
+  keyColor = ACCENT,
 }: ScaleKeyboardProps) {
   const showDegrees = useSettingsStore((s) => s.practiceShowDegrees);
   const showNames = useSettingsStore((s) => s.practiceShowNoteNames);
@@ -147,35 +151,43 @@ export function ScaleKeyboard({
   const high = endC * 12 + 11;
 
   // Every octave of a scale is lit, and only the one octave is named. A chord
-  // is lit as voiced, so the keys lit are the keys to press.
+  // is lit as voiced, so the keys lit are the keys to press. Lit in the key's
+  // colour, solid, as a lesson lights its target notes.
   const scalePcs = useMemo(
     () => new Set(scale.intervals.map((i) => (scaleTonic + i) % 12)),
     [scale, scaleTonic],
   );
-  const litKeys = useMemo(() => {
-    const keys = new Map<number, string>();
-    if (kind === 'chord') {
-      for (const step of scale.intervals) keys.set(scaleTonic + step, ACCENT);
-      return keys;
-    }
-    for (let midi = low; midi <= high; midi++) {
-      if (scalePcs.has(((midi % 12) + 12) % 12)) keys.set(midi, ACCENT);
-    }
-    return keys;
-  }, [kind, scale, scaleTonic, scalePcs, low, high]);
+  const litKeys: PlaybackEvent[] = useMemo(() => {
+    const midis =
+      kind === 'chord'
+        ? scale.intervals.map((step) => scaleTonic + step)
+        : Array.from({ length: high - low + 1 }, (_, i) => low + i).filter(
+            (midi) => scalePcs.has(((midi % 12) + 12) % 12),
+          );
+    return midis.map((midi) => ({
+      id: `lit-${midi}`,
+      type: 'note',
+      midi,
+      time: 0,
+      duration: Number.POSITIVE_INFINITY,
+      velocity: 1,
+      color: keyColor,
+    }));
+  }, [kind, scale, scaleTonic, scalePcs, low, high, keyColor]);
 
-  const playedKeys: PlaybackEvent[] = useMemo(
+  // The student's keys, over the lit ones: a scale (or chord) note shines in
+  // the key's colour, anything else goes grey (see playedKeys.ts).
+  const playedNotes = useMemo(
     () =>
-      [...heldNotes].map((midi) => ({
-        id: `hw-${midi}`,
-        type: 'note',
-        midi,
-        time: 0,
-        duration: Number.POSITIVE_INFINITY,
-        velocity: 1,
-        color: scalePcs.has(((midi % 12) + 12) % 12) ? ACCENT : OFF_SCALE,
-      })),
-    [heldNotes, scalePcs],
+      toPlayedNotes(
+        new Map(
+          [...heldNotes].map((midi) => [
+            midi,
+            scalePcs.has(((midi % 12) + 12) % 12) ? keyColor : null,
+          ]),
+        ),
+      ),
+    [heldNotes, scalePcs, keyColor],
   );
 
   const labels = useMemo(
@@ -271,7 +283,7 @@ export function ScaleKeyboard({
                       {showDegrees && (
                         <span
                           className={`text-sm ${tonic ? 'font-bold' : 'font-medium'}`}
-                          style={{ color: ACCENT }}
+                          style={{ color: keyColor }}
                         >
                           {degree}
                         </span>
@@ -280,7 +292,7 @@ export function ScaleKeyboard({
                         <span
                           className={`text-base ${tonic ? 'font-bold' : 'font-medium'}`}
                           style={{
-                            color: showDegrees ? 'var(--daw-text)' : ACCENT,
+                            color: showDegrees ? 'var(--daw-text)' : keyColor,
                           }}
                         >
                           {name}
@@ -302,8 +314,8 @@ export function ScaleKeyboard({
                 className="mx-auto"
                 startC={startC}
                 endC={endC}
-                hintNotes={litKeys}
-                playingNotes={playedKeys}
+                playingNotes={litKeys}
+                playedNotes={playedNotes}
                 enableClick={false}
                 useContextNotes={false}
                 onKeyPointerDown={onKeyPointerDown}

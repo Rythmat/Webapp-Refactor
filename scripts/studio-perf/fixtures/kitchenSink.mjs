@@ -587,11 +587,18 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().dismissChordAnalysis();
   act().setSingleKeyShortcuts(false);
   // The shell's layout prefs (milestone 2.4).
+  const layout = await devModule('/src/daw/shell/layout/layoutModel.ts');
+  const freshOpen = layout.defaultInspectorOpen('arrange', window.innerWidth);
   act().setInspectorOpenFor('score', true);
   act().setInspectorWidth(264);
   // Library: R4's libraryTemplate opens a template from that panel, so
   // its prefs check doesn't see the scenario's own rail click.
   act().toggleInspectorPanel('library');
+  // That click also chose the Inspector open in Create, a pref that follows
+  // the student into the next project. Back at the window's default, a boot
+  // into Create opens as a fresh one does, and R4 sees the project's own
+  // libraryOpen if it is carried over.
+  act().setInspectorOpenFor('arrange', freshOpen);
   act().setDockHeight('fx', 0.5);
   act().setReadoutMode('time');
   act().setActiveTool('pencil');
@@ -599,9 +606,14 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setAutomationOpenTrackId(lead);
   act().setAutomationParamId('pan');
   act().setChannelStripTab('fx');
-  act().setLibraryOpen(false);
   act().setPosition(960);
   act().setCurrentView('leadsheet');
+  // The Inspector "for the moment" (as a lesson step sets it), the other
+  // way from a fresh project's: that opens in Create from 1440 px and is
+  // closed below (2.4), so a fixed value would be the default on one
+  // profile. After the view switch, which sets it from the per-view choice;
+  // the running lesson keeps it through a reload.
+  act().setLibraryOpen(!freshOpen);
   act().setSelectedClip(keysClip, keys);
   await sleep(50);
 

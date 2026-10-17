@@ -6,8 +6,8 @@
  * - clipMenuFits: a right-click on that clip opens the clip menu, every item
  *   in its place (Cut … Prism), and the whole menu inside the window.
  * - editPill: the selected clip shows its Edit pill, at least 24×24 and
- *   inside the clip; a click opens the same menu, inside the window, and
- *   Escape gives focus back to the pill.
+ *   inside the clip's box; a click opens the same menu, inside the window,
+ *   and Escape gives focus back to the pill.
  * - clipMenuKey: Alt+Return (Chromebook-safe) opens the selected clip's menu
  *   with focus on its first item.
  * - clipFloors: no text under the floor and no target under 24×24 in the
@@ -15,7 +15,8 @@
  *
  * And once, at 1366×655:
  * - emptyClickSeeks: a Pointer click on empty canvas seeks there, on the
- *   grid, and a drag there draws the marquee (notes selected, no seek).
+ *   grid, from elsewhere; and a drag from another bar draws the marquee
+ *   (notes selected, the playhead left where the click put it).
  * - muteKeys: ⇧M mutes the selected clip and ⌘E splits it at the playhead,
  *   each one undo step, and M is still the click.
  */
@@ -143,8 +144,8 @@ function pillNow() {
 
 /**
  * In page px, from the canvas's box (it scrolls with the lanes): a point in
- * the last clip's body (bar 3 of it), and an empty stretch of the first
- * lane at bar 7 (the clips end at bar 4).
+ * the last clip's body (bar 3 of it), the last clip's box, and an empty
+ * stretch of the first lane at bar 7 (the clips end at bar 4).
  */
 async function clipPoints(page) {
   const canvas = await page
@@ -155,9 +156,14 @@ async function clipPoints(page) {
       const s = window.__MA_STORE__.getState();
       const ppb = 40 * s.timelineZoom;
       const row = s.tracks.length - 1;
+      const left = x + 4 * ppb - s.timelineScrollLeft;
+      const top = y + 56 + row * 64;
       return {
         x: x + (2.5 * 4 * ppb - s.timelineScrollLeft),
         y: y + 56 + row * 64 + 40,
+        // Bars 2–3 of the last lane: the clip's box, rounded corners and
+        // insets included.
+        clip: { left, top, right: left + 8 * ppb, bottom: top + 64 },
         empty: {
           x: x + 6 * 4 * ppb + 5 - s.timelineScrollLeft,
           y: y + 56 + 32,
@@ -223,6 +229,7 @@ async function clipsAt(kit, run, viewport) {
 
       return {
         viewport,
+        clip: point.clip,
         rightClick,
         pill,
         fromPill,
@@ -242,7 +249,12 @@ function judge(v) {
     !!v.pill &&
     v.pill.width >= 24 &&
     v.pill.height >= 24 &&
-    v.pill.clipId === 'r31-clip-3';
+    v.pill.clipId === 'r31-clip-3' &&
+    // On the clip it is for, not beside it.
+    v.pill.left >= v.clip.left - 0.5 &&
+    v.pill.right <= v.clip.right + 0.5 &&
+    v.pill.top >= v.clip.top - 0.5 &&
+    v.pill.bottom <= v.clip.bottom + 0.5;
   return {
     clipMenuFits: whole(v.rightClick) && v.rightClick.inside,
     editPill: pillOk && whole(v.fromPill) && v.fromPill.inside && v.focusBack,
@@ -268,16 +280,23 @@ async function clipsOnce(kit, run) {
         window.__MA_STORE__.getState().setSelectedClip(null, null),
       );
 
-      // A click on empty lane (bar 7 of the first lane) seeks there.
+      // A click on empty lane (bar 7 of the first lane) seeks there, from
+      // a position it can't be at already.
+      await page.evaluate(() => window.__MA_STORE__.getState().setPosition(77));
       await page.mouse.click(at.empty.x, at.empty.y);
       await kit.sleep(300);
       const sought = await page.evaluate(
         () => window.__MA_STORE__.getState().position,
       );
-      // A drag from there back across the first clip draws the marquee.
-      await page.mouse.move(at.empty.x, at.empty.y + 20);
+      // A drag from bar 6 back across the first clip draws the marquee: a
+      // drag that also sought would move the playhead to bar 6.
+      const ppb = await page.evaluate(
+        () => 40 * window.__MA_STORE__.getState().timelineZoom,
+      );
+      const dragX = at.empty.x - 4 * ppb + 20;
+      await page.mouse.move(dragX, at.empty.y + 20);
       await page.mouse.down();
-      await page.mouse.move(at.empty.x - 300, at.empty.y - 20, { steps: 4 });
+      await page.mouse.move(dragX - 300, at.empty.y - 20, { steps: 4 });
       await page.mouse.move(at.x - 120, at.empty.y - 24, { steps: 6 });
       await page.mouse.up();
       await kit.sleep(300);
@@ -295,7 +314,10 @@ async function clipsOnce(kit, run) {
         const track = s.tracks[0];
         s.setSelectedClip(track.midiClips[0].id, track.id);
         s.setPosition(2400);
-        return { metronome: s.metronomeEnabled };
+        return {
+          metronome: s.metronomeEnabled,
+          steps: window.__MA_HISTORY__?.labels?.().length ?? null,
+        };
       });
       await page.evaluate(() => document.activeElement?.blur());
       await page.keyboard.press('Shift+KeyM');
@@ -311,6 +333,7 @@ async function clipsOnce(kit, run) {
             startTick: c.startTick,
           })),
           labels: window.__MA_HISTORY__?.labels?.().slice(-2) ?? [],
+          steps: window.__MA_HISTORY__?.labels?.().length ?? null,
           metronome: s.metronomeEnabled,
         };
       });
@@ -341,6 +364,9 @@ async function clips(kit, run) {
     muteKeys:
       once.afterKeys.clips.length === 2 &&
       once.afterKeys.clips.every((c) => c.muted) &&
+      // One undo step each: two new steps, named for what they did.
+      once.keys.steps !== null &&
+      once.afterKeys.steps === once.keys.steps + 2 &&
       once.afterKeys.labels.join(',') === 'Mute clip,Split clip' &&
       once.afterKeys.metronome === once.keys.metronome &&
       once.clickAfterM !== once.keys.metronome,

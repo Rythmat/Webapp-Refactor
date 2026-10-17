@@ -843,14 +843,15 @@ export async function openSongInStudio(
 
 /**
  * Opens the Projects dialog: File ▸ Open… when the editor shows its File
- * menu, else (the Practice screen has none) the dialog's own store.
+ * menu, else (the Practice screen hides the top bar, 2.4) the dialog's own
+ * store.
  */
 export async function openProjects(page, kit) {
   await dismissChordPrompt(page);
   const hasMenu = await page
     .locator('[data-tutorial-id="file-menu"]')
-    .count()
-    .catch(() => 0);
+    .isVisible()
+    .catch(() => false);
   if (hasMenu) return openProjectsFromMenu(page, kit);
   await page.evaluate(async (path) => {
     const { useProjectsDialogStore } = await window.__RT_DEV_MODULE__(path);

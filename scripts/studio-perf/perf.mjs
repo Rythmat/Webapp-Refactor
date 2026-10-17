@@ -2384,7 +2384,8 @@ function percentiles(values, digits = 2) {
 
 /**
  * In-page: defines window.__maTimelineCanvas(), the arrange view's canvas
- * (the one in the track area's scroller), and starts counting the
+ * (the one in the track area's scroller, which since 2.6 scrolls up and
+ * down only: the Timeline scrolls sideways itself), and starts counting the
  * Timeline's draw measures for the rest of the page's life, so a run can
  * tell an editor that does not mark its draws (unmeasured) from a window in
  * which nothing drew (0).
@@ -2394,7 +2395,7 @@ function installTimelineHelpers(drawName) {
     [...document.querySelectorAll('canvas')].find(
       (canvas) =>
         canvas.parentElement?.classList.contains('overflow-x-hidden') &&
-        canvas.closest('.overflow-auto'),
+        canvas.closest('[data-testid="track-scroller"]'),
     ) ?? null;
   const seen = { count: 0 };
   window.__maTimelineDraws = seen;
@@ -2571,14 +2572,20 @@ async function waitForWaveforms(page, count, timeout = 60_000) {
   };
 }
 
-/** In-page: where to point the wheel, the middle of the visible track area. */
+/**
+ * In-page: where to point the wheel, the middle of the visible lanes (the
+ * scroller holds the track list too, left of the canvas).
+ */
 function timelinePoint() {
   const canvas = window.__maTimelineCanvas();
-  const scroller = canvas?.closest('.overflow-auto');
+  const scroller = canvas?.closest('[data-testid="track-scroller"]');
   if (!scroller) return { reason: 'no Timeline canvas' };
   const box = scroller.getBoundingClientRect();
+  const lanes = canvas.getBoundingClientRect();
+  const left = Math.max(box.left, lanes.left);
+  const right = Math.min(box.right, lanes.right);
   const point = {
-    x: Math.round(box.left + box.width / 2),
+    x: Math.round((left + right) / 2),
     y: Math.round(box.top + Math.min(box.height / 2, 200)),
   };
   if (document.elementFromPoint(point.x, point.y) !== canvas) {

@@ -610,6 +610,11 @@ async function sameIdReopen(kit, run) {
         () => window.__MA_CLOUD_SAVE__.getState().savedCount,
       );
       await kit.clickFileItem(page, 'Save As');
+      // The copy's name is asked in the editor's own dialog (2.3), no longer
+      // with the browser's prompt.
+      const ask = page.getByRole('dialog', { name: 'Save a copy' });
+      await ask.getByLabel('Project name').fill('Same Id Copy');
+      await ask.getByRole('button', { name: 'Save', exact: true }).click();
       await page.waitForFunction(
         (count) => window.__MA_CLOUD_SAVE__.getState().savedCount > count,
         savedBefore,

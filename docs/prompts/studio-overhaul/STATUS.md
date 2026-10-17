@@ -818,3 +818,155 @@ After B4, the owner sent a reference (`~/Desktop/References/drum instrument.png`
   1. The kit's keys follow the GM drum keyboard (above) rather than Soundtrap's letters (Soundtrap uses digits too, which our typing scope doesn't bind).
   2. Soundtrap's Save Preset and Auto-quantize are not copied: no drum presets or input quantize exist to back them.
 - **Found (pre-existing, open):** inside the editor, a `border-daw-*` colour class loses to the editor's border reset (`daw.css`, `.daw-root *`) and to the dashboard's (`dashboard.css`, `.dashboard-root *`). Same specificity, loaded later. So the design system's outlines (Select, secondary Button and IconButton, Chip, the search fields) show as hairlines in the editor. The kit and the Add effect card use the important form for now. A proper fix touches the shared `dashboard.css` reset, so it waits for the owner.
+
+## B5 — 2.12 clips: one clip menu, the Edit pill, clip chrome (2026-10-17)
+
+Prompt 15a. Decision 16, ST1 and ST2; 3.1's shared context menu and 3.3's clip names and menus pulled forward.
+
+- **Branch:** `aaron`, from `2f76504f`. Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`. The research files were formatted (prettier, eslint --fix) with the owner's OK, so that the pre-push lint passes; nothing else in them changed.
+- **Commits:**
+  - `136f2a5d` **document fields:** `muted` on both clip types and `name` on audio clips, through drafts, the cloud document and collab;
+  - `bc9811e2` **scheduler:** a muted clip plays nothing, live or in an export;
+  - `729762e1` **the clip menu, the Edit pill and the keys** (timeline-17, ia-flows-26);
+  - `8b84002b` **clip chrome:** header with name and key, trim zones, fade handles, empty-canvas clicks (timeline-17);
+  - `9d389fb3` **harness:** R31-clips;
+  - `887be29c` **review fixes, the menu:** the Score's marks follow Transpose and Quantize; a collaborator's track refuses every action out loud; the menu's keys and ticks;
+  - `a872673c` **review fixes, muted clips:** the sustain pedal, skipped audio starts, MIDI export;
+  - `ca703a2b` **harness:** the Chromebook round trips run again (kitchen sink, R4's Inspector), R12's Save as… and practice screen, perf's timeline-scroll, stricter R31;
+  - this entry.
+  - Each commit typechecks and passes its suites alone (checked on `git archive` exports).
+- **Pushed:** yes, to `aaron` (fast-forward, `2f76504f..` this entry), from this checkout with the pre-push hook (owner rule: no clone, no worktree).
+- **What changed:**
+  - **One menu module, in its final home** (`src/daw/shell/canvas/clipMenu/`, for 3.1):
+    - `clipMenuModel` (items by clip type and context);
+    - `clipActions` (what each item does, shared with the timeline's keys);
+    - `CanvasMenu` (one renderer on the 2.2 Menu primitive);
+    - `ClipEditPill`;
+    - `canvasMenuStore` (which menu is open; a small store beside the editor's, since an open menu is nothing a project holds).
+  - **Three ways in, one implementation:**
+    - a right-click, which selects the clip but not its track, so the dock stays put, as in Soundtrap;
+    - the Edit pill, a 44×24 button at the selected clip's bottom left;
+    - a key, `clip.menu`.
+  - The menu hangs beside what opened it, so it slides up to fit: 373 px, inside the window at 1366×655.
+  - **The clip menu** is the same for every clip type. What can't act now stays in its place, off, with the reason as its hint.
+    - Cut · Copy · Paste · Delete · Duplicate │ Rename… · Split at playhead · Mute clip · Add comment (off until 4.3) │ Transpose ▸ · Quantize ▸ (MIDI) · Fade in / Fade out (audio) │ Prism ▸ (Premium).
+    - **Transpose:** steps of a half step and an octave. The menu stays open and names the move so far ("Up a minor 3rd (+3 semitones)"). Drums and audio show it off with the reason, and a move off the keyboard is refused.
+    - **Quantize:** the timeline's grid first, then 1/4–1/32 and the 1/8 and 1/16 triplets. It snaps on the song's grid from the bar lines (wiring `quantizeEvents`), moves starts only, and never moves a note before its clip's start.
+    - **The Score's marks follow both:** articulations, slurs, pinned spellings and slash notes move with their notes in the same undo step. They are keyed by where each note sits, so they would point at nothing after a move and the next save would drop them. `followNoteEdit` moved to `model/noteMarks.ts` for it.
+    - **Prism:** Suggest chords here (from the bar under the pointer) and Open Prism. A free student sees it locked, leading to the plans, as before.
+    - **A collaborator's track:** every item but Copy is off, with "Sam is editing this track" as the hint, and a key or a stale menu that still lands says so in a toast and changes nothing.
+  - **The other canvas menus come from the same renderer.** They replace the hand-built menu, which covered audio clips only (a MIDI clip got a lone "Prism — Suggest Chords").
+    - an empty lane: Paste here (the nearest grid line), Create clip (from the grid line before the click), Add comment, Prism;
+    - a marker: Rename, Delete;
+    - the ruler: Add marker here.
+  - **Clip chrome:**
+    - **Header:** 16 px in the track's colour, with the clip's name or its track's.
+    - **Key:** a pitched clip shows its key in bold (`harmony/clipKey.ts`):
+      - the song's key when ≥ 90 % of the notes' weight sits in its scale;
+      - else the best major or minor key, by UNISON's Krumhansl–Schmuckler step, now exported as `rankMajorMinorKeys`, when it correlates ≥ 0.5;
+      - else none. Drums show none.
+      - This delivers 4.6's "pitched clips show their key".
+    - **Muted:** the clip is dimmed, with a dashed edge and "Muted" in its header.
+    - **Trim zones and fade handles:** trim zones are 10 px (were 6) and show as grips on the clip in hand or under the pointer; a clip narrower than three zones keeps a body to grab. An audio clip shows a fade handle in each top corner, at its fade's end. A handle drag snaps to the grid, stays clear of the other fade, and is one undo step. A trim now keeps the fades inside the clip.
+    - **Redraws:** the redraw gate sees names, mutes, a track's name, role and instrument, and the detected key.
+  - **Pointer on empty canvas:** a click seeks there on the grid and deselects. A drag draws the marquee, which selects notes for Insight; it used to pan. The middle button pans.
+  - **The scheduler skips muted clips.** Starts are gated when they come, so a mute or an unmute while playing is heard at once, as a track's is:
+    - MIDI: a muted part starts nothing and sends no controllers. One just muted lets go of its sounding notes, and of its sustain pedal if it is down, where the transport is scheduling, so nothing it had booked rings on. A part now ends only notes it started.
+    - Audio: a muted clip's start is skipped and its sound stops. Unmuted before that start was due (the transport books starts a look-ahead early), it starts on the beat; unmuted later, it starts under the transport's position.
+    - **Both exports leave muted clips out:** the bounce and File ▸ Export MIDI hold what plays. The chord lane's analysis and the bounce's length still count them, as they count muted tracks.
+  - **New document fields:** `muted` (MIDI and audio clips) and `name` (audio clips). They are cloud 'document' fields in the registry.
+    - Draft schema 6, compat 3: new v6-all-fields fixture; v5 kept for the migration.
+    - Cloud document: a MIDI clip's mute rides in its clip part. A named or muted audio clip gets a part keyed by clip id, with the row it was written for (asset:start:length), so an older app's moved row doesn't take it. New cloud-2.12 fixtures; the contract doc says 6.
+    - Collab: the Y.Doc holds both on each clip, and the diff sends them. `COLLAB_DOC_SCHEMA_VERSION` is 2.
+    - The dashboard's schema is 6. The kitchen sink sets all three fields. Prism counts a muted take as touched, as a renamed one, so its next Create keeps the take instead of replacing it.
+- **Key clashes, settled in the registry:**
+
+  | Key                                 | Now                                                          | Before      |
+  | ----------------------------------- | ------------------------------------------------------------ | ----------- |
+  | ⌘E                                  | Split the selected clip at the playhead (Soundtrap, Ableton) | Export MIDI |
+  | ⌘E elsewhere (Score, dock, no clip) | nothing: kept from Chrome's address bar                      | Export MIDI |
+  | ⇧⌘E                                 | Export MIDI                                                  | —           |
+  | ⇧M                                  | Mute or unmute the selected clip                             | —           |
+  | M                                   | the click, unchanged                                         | the click   |
+  | ⌘X                                  | Cut the selected clip                                        | —           |
+  | N, F2                               | Rename the selected clip (as the track list's rename)        | —           |
+  | ⇧↑ / ⇧↓, ⇧⌘↑ / ⇧⌘↓                  | the selected clip's notes a half step / an octave            | —           |
+  | Alt+Return, Shift+F10, the menu key | the selected clip's menu, focus on its first item            | —           |
+
+  Soundtrap's ⌘M wasn't taken: on a Mac it minimizes the window. Alt+Return and N are the Chromebook-safe ones (no F keys, no menu key). A clip key pressed on a track row's button is the row's, not the clip's.
+
+- **Review:** an adversarial review of the five feature commits (one workflow: finders per dimension, each finding verified) confirmed 20 findings, 1 high. All are fixed in `887be29c` and `a872673c`, each with a test:
+  - **high:** Transpose and Quantize orphaned the clip's Score marks, which the next save dropped;
+  - Prism's next Create replaced a take the student had muted;
+  - holding Alt+Return cut the clip;
+  - a mute just before a note could leave it stuck, and a muted clip's controllers (the pedal, Oracle macros) still played;
+  - Export MIDI wrote muted clips;
+  - a locked track's keys gave no feedback (⌘X copied and kept the clip; paste and duplicate selected a clip that never landed);
+  - the lane's Create clip landed a grid step late, and a clip's Suggest chords ignored where it was clicked;
+  - audio clips 10 px wide or narrower couldn't be moved;
+  - the menu key also opened the browser's menu, a track row's keys acted on the clip, and ⌘E with no clip reached the address bar;
+  - an unmute near a clip's start left it silent for the pass, and a restart played late by the output latency;
+  - the marquee didn't pause follow, hover grips stayed under the ruler, and Rename showed only F2;
+  - three mute tests that couldn't fail, and R31 flags weaker than they claimed.
+  - Found while testing in the browser, also fixed: the menu opened again when the timeline came back.
+- **Inherited harness failures, fixed** (`ca703a2b`):
+  - **Every Chromebook round trip that applies the kitchen sink errored** ("leaves view.libraryOpen at the default") since 2.4's Inspector default (`0a75fa31`): a fresh project on a 1366 px window starts with the Inspector closed, and so did the sink. Reproduced on the B4 build `2f76504f`. The sink now sets it the other way from the window's default.
+  - Once they ran, **R4 called `view.libraryOpen` carried over** on a Chromebook: the sink's Library click had chosen the Inspector open in Create, a pref that rightly follows the student into the next project, while R4 expected a cold boot's closed Inspector. R4 now expects it where the carried prefs put it (unless a lesson's step sets it) and judges the prefs against the session the link replaced; the sink puts its Create choice back at the window's default, so a project's own value carried over still shows on every other link.
+  - **R12 sameIdReopen** (full tier) timed out since 2.3 and 2.5: the item is "Save as…" (`4b0d7365`) and asks in the editor's own dialog (`f2e3559f`).
+  - **R12 practiceMode and practiceGenre** (full tier) timed out since 2.4: the practice screen hides the top bar, and `openProjects` tested that the File menu existed rather than that it showed.
+  - **Perf's timeline-scroll** found no Timeline since 2.6 (`b6d2d963`): the track area's scroller scrolls up and down only, and the old lookup wanted `.overflow-auto`. It runs again.
+- **Verification:**
+  - **Lint:** prettier and eslint clean on every file this work touched; `tsc -p tsconfig.app.json` clean.
+  - **Vitest:**
+    - The suites this work touches pass: 125 files and 1,121 tests (Score, Timeline, hooks, store, audio, shell, commands, model, harmony).
+    - `887be29c` on its own (a `git archive` export): tsc clean, 21 files and 196 tests pass.
+    - New tests: `clipMenuModel`, `clipActions` (the marks following, the locked track), `clipMenu` (the menu key, a held Return, the track list), `clipChrome`, `clipKey`, `intervalName`, `clipMuteScheduling` (the pedal, release timing, skipped starts), `exportProjectMidi`, the bounce's muted audio, `clipMuteSync`, the schema-6 codec and cloud fixtures, and ⌘E in `keyboardCommands`.
+  - **Full tier**, on a `git archive` export of the final app tree, with the 1.3 build `e10ac4db` on 5264 as the previous build:
+    - **unit:** 3,195 pass. The one failure is the inherited PianoRoll budget.
+    - **round trips** (the final harness, in 6 parallel shards):
+      - 105 scenarios on each profile, all ok: 0 lost fields, 0 unowned losses, 0 page errors, every goal flag true.
+      - R14:real and R15 timed out booting the 1.3 build beside six other browsers, and passed when run alone on both profiles.
+      - R28–R31 have no known-loss baselines, as since B2.
+    - **lessons:** pass. 148/156 steps; the 8 failing are Indie's known open-automation and draw-volume steps, at both sizes and for both personas. 24/24 complete, and 8/8 Premium lessons gated for the free student.
+    - **perf, playback (Chromebook):** 0 store writes/s and 0.15 commits/s. 14 long tasks (790 ms) in 20 s: the known Oracle per-note cost, Stage C's.
+    - **perf, fader drag:** 1 write and 1 undo step per gesture.
+    - **perf, timeline-scroll** (after its fix): scroll draws p95 2.0 ms on a Chromebook and 0.7 ms on a laptop (1.8 measured 3.0 and 0.9), so the clip headers cost nothing measurable. Zoom draws p95 11.7 and 3.7 ms, frame p95 16.7 ms, no long tasks.
+    - **perf, idle:** 240 rAF/s, AppContext's known Globe warm-up.
+    - **golden:** 10/10 renders the same. **golden-trace:** 15/15 checks at 44.1 and 48 kHz. The 36 "live track sync" warnings were there before.
+    - **bundle:** DawApp 109.5 kB gzip (B4: 103.3; budget 150); the editor's boot closure is 332.5 kB in 111 chunks. The every-page FAIL is the inherited one.
+    - **R31**, with its stricter checks: all 6 flags at 1366×655, 1440×787 and 1280×720.
+  - **Mixed-version collab** (two builds and a local PartyKit):
+    - new ↔ new syncs mute, unmute and rename;
+    - an old tab against the new server is told to update;
+    - a new tab against an old server is told the server is being updated, and keeps its work;
+    - old ↔ old connects.
+  - **Browser (Chrome, own servers):**
+    - right-click, the pill and Alt+Return open the menu;
+    - the transpose label names each step;
+    - mute and unmute while playing are heard (meters);
+    - rename, ⌘E split, fades and their handles, and the trim clamp work, and all of it survives a reload;
+    - a click on empty canvas seeks and a drag draws the marquee;
+    - the lane, ruler and marker menus work.
+    - On the final build:
+      - Transpose ▸ Up an octave moved a staccato and a slur with their notes in the Score, and one ⌘Z brought both back;
+      - Suggest chords here, right-clicked at bar 3 of a clip that starts at bar 2, opened at bar 3;
+      - Create clip from a lane right-click at about tick 8520 started at 8160, the grid line before it;
+      - the console showed only the known third-party StrictMode warning.
+- **Owner sign-offs:**
+  1. **Keys:** the table above, especially ⌘E → split with Export MIDI on ⇧⌘E, and ⇧M rather than ⌘M.
+  2. **Empty canvas:** a drag draws the marquee (it used to pan); the middle button, the scrollbar and a sideways scroll pan.
+  3. **The clip's key:** the song's key when the clip fits it, so a riff on A–C–E in C major reads "C", not "Am"; otherwise major or minor only. Keys are spelled as the key chip spells them (D♭m, not C♯m).
+  4. **Transpose:** stay-open steps with the move named, not Soundtrap's slider with Apply.
+  5. **Quantize:** starts only, on the song's grid, never before the clip's start.
+  6. **A right-click** selects the clip but not its track or the dock.
+  7. **A clip's mute is part of the song:** shared in collab and saved. A track's M stays each person's own.
+  8. **Muted clips** are left out of both exports, MIDI included; the chord lane's analysis and the bounce's length still count them.
+  9. **Fade handles snap** to the grid. A trim shortens fades that no longer fit.
+  10. **The Edit pill** is a secondary pill on the popover surface, not a white primary.
+- **Open issues:**
+  1. **Deploy order:** ship the web app, then `npm run collab:deploy`. Doc schema 2: a tab from before this milestone is told to update; one after it, against an old server, is told the server is being updated.
+  2. **`.env.local` sets `VITE_PARTYKIT_HOST` to an empty string.** `CollabProvider` falls back to `localhost:1999` with `??`, which an empty string doesn't trigger, so local collab can't connect on a dev server that reads it. The mixed-version check ran with the variable set on the command line. The fix (`||`, or unsetting the line) is the owner's.
+  3. **Keyboard-only clip navigation** (Tab into the canvas, arrows between clips) stays with 3.3, so timeline-17 is partial; ia-flows-26 is partial too (the duplicated key setting is 2.5's). The audit ledger is left for the Stage B exit, as in B1–B4.
+  4. **One swallowed click:** a click made a few milliseconds after closing the Invite dialog with Escape was swallowed once while that dialog animated out. A click at a normal pace worked. It is pre-existing, for the Stage B exit's "no click swallowed" guard to check.
+  5. **Still to come:** Reverse (it needs a reversed buffer) and the loop strip (it needs a repeat model, 3.3); a key for audio clips; Add comment (4.3).
+- **Next:** 15b (B6: 2.13 lanes and sections).

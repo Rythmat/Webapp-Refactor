@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 /**
  * The Music Literacy step, as a student meets it: Play, the count-in, the
- * words lighting syllable by syllable, the call, YOUR TURN, the answer on
- * the computer keyboard, the score, Try again and Next, and the minor step's
- * color. The transport run is faked (literacyRun.ts): the test hands the
+ * words lighting syllable by syllable, the call, LISTEN, GET READY, GO! and
+ * YOUR TURN, the answer on the computer keyboard, the score, Try again and
+ * Next, and the minor step's color. The transport run is faked (literacyRun.ts): the test hands the
  * player each cue itself and says where on the timeline a key lands.
  */
 
@@ -103,6 +103,9 @@ function renderPlayer(
 }
 
 const hub = () => document.querySelector('[data-literacy-hub]')!;
+/** The hub's headline: the cue, or whose turn it is. */
+const headline = () =>
+  document.querySelector('[data-literacy-turn]')?.textContent;
 const title = () => document.querySelector('[data-guitar-title]')?.textContent;
 const stepIndex = () => lesson.steps.findIndex((s) => s.title === title());
 
@@ -166,11 +169,11 @@ describe('a Music Literacy step', () => {
 
     feedTo(0);
     expect(hub().getAttribute('data-turn')).toBe('countIn');
-    expect(hub().textContent).toContain('Ready');
+    expect(headline()).toBe('Listen');
 
     feedTo(1920);
     expect(hub().getAttribute('data-turn')).toBe('words');
-    expect(hub().textContent).toContain('My turn');
+    expect(headline()).toBe('Listen');
     expect(document.querySelector('[data-word-now]')?.textContent).toContain(
       'Hey',
     );
@@ -181,15 +184,20 @@ describe('a Music Literacy step', () => {
 
     feedTo(5760 + 500);
     expect(hub().getAttribute('data-turn')).toBe('call');
-    // The call is the teacher's too: MY TURN, its degrees lit as they sound.
-    expect(hub().textContent).toContain('My turn');
+    // The call is the figure to copy: GET READY, its degrees lit as they sound.
+    expect(headline()).toBe('Get Ready');
     expect(document.querySelectorAll('[data-degree-lit]')).toHaveLength(1);
 
+    // GO! on the call's last beat, held into the answer's first.
+    feedTo(7200);
+    expect(headline()).toBe('Go!');
     feedTo(7680);
     expect(hub().getAttribute('data-turn')).toBe('response');
-    expect(hub().textContent).toContain('Your turn');
+    expect(headline()).toBe('Go!');
 
     typeAt('KeyA', 7680);
+    feedTo(8160);
+    expect(headline()).toBe('Your turn');
     typeAt('KeyA', 8160);
     typeAt('KeyA', 8640);
     feedTo(9600);
@@ -312,6 +320,57 @@ describe('a Music Literacy step', () => {
     const lit = document.querySelectorAll('[data-word-now]');
     expect(lit).toHaveLength(1);
     expect(lit[0].getAttribute('data-word-index')).toBe('5');
+  });
+
+  it('says LISTEN, GET READY and GO! through a run, the call’s keys shiny and its bars marked “Copy this”', async () => {
+    renderPlayer();
+    // Parked, the roll already marks the call's bar.
+    expect(
+      document
+        .querySelector('[data-roll-band]')
+        ?.getAttribute('data-roll-band'),
+    ).toBe('Copy this');
+    const cue = () => hub().getAttribute('data-cue');
+    const shinyKeys = () =>
+      document.querySelectorAll(
+        '[data-testid="piano-keyboard-fill"] .motion-safe\\:animate-key-sheen',
+      ).length;
+
+    await press('Play');
+    expect(cue()).toBeNull();
+    expect(headline()).toBe('The call'); // the piano still loading
+
+    // Beat by beat. The words light their keys plain; the call's shine.
+    const seen: (string | null | undefined)[] = [];
+    for (let tick = 0; tick < 9600; tick += 480) {
+      feedTo(tick);
+      seen.push(headline());
+      if (tick === 1920) {
+        expect(cue()).toBe('listen');
+        expect(shinyKeys()).toBe(0);
+      }
+      if (tick === 5760) {
+        expect(cue()).toBe('getReady');
+        expect(shinyKeys()).toBe(1);
+      }
+    }
+    expect(seen).toEqual([
+      ...Array<string>(12).fill('Listen'),
+      ...Array<string>(3).fill('Get Ready'),
+      'Go!',
+      'Go!',
+      ...Array<string>(3).fill('Your turn'),
+    ]);
+  });
+
+  it('says LIKE THIS after GO! in Listen, where Atlas plays the answer', async () => {
+    renderPlayer();
+    await press('Listen');
+    feedTo(7200, 'listen');
+    expect(headline()).toBe('Go!');
+    feedTo(8160, 'listen');
+    expect(headline()).toBe('Like this');
+    expect(hub().getAttribute('data-cue')).toBeNull();
   });
 
   it('lets Listen and Practice run without a score', async () => {
@@ -480,10 +539,11 @@ describe('a step whose words have a pickup', () => {
       fedTo = tick;
     };
     const now = () => document.querySelector('[data-word-now]')?.textContent;
-    feed(960);
-    expect(hub().textContent).toContain('Ready');
+    // LISTEN from the first click, through the pickup and into the words.
+    feed(0);
+    expect(headline()).toBe('Listen');
     feed(1440);
-    expect(hub().textContent).toContain('My turn');
+    expect(headline()).toBe('Listen');
     expect(now()).toContain('When');
     feed(1680);
     expect(now()).toContain('I');

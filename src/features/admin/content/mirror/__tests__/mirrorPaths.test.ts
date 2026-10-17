@@ -103,6 +103,10 @@ describe('translating between app and console paths', () => {
     );
     expect(consoleAppPath('/console/content/records/vocabulary')).toBeNull();
     expect(consoleAppPath('/console/lessons/pop')).toBe('/learn');
+    expect(consoleAppPath('/console/music-literacy/part-1')).toBe('/learn');
+    expect(consoleAppPath('/console/content/records/music_literacy')).toBe(
+      '/learn',
+    );
     expect(consoleAppPath('/console/content/publishing')).toBeNull();
     expect(consoleAppPath('/console/users')).toBeNull();
     expect(segmentForKind('artist')).toBe('/atlas');

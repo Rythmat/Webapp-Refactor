@@ -1311,6 +1311,15 @@ are `src/content/instrument/schemas.ts` and the slug patterns are in
 `slugPatterns.generated.json` (draft 4). Repo mode and the mock serve them
 already.
 
+`music_literacy` joins them the same way: Learn's Music Literacy lessons,
+with `id` as its identity, its own bundle (see CDN bundles), and no
+references in or out, so any publish order. Its body, slug pattern and
+import are in [music-literacy-content-kind.md](music-literacy-content-kind.md);
+the zod body is `musicLiteracyBodySchema` in
+`src/content/musicLiteracy/schemas.ts`, and its slug pattern is in
+`slugPatterns.generated.json` (draft 5). Repo mode and the mock serve it
+already.
+
 ## Derivation changes
 
 All in `music-atlas-api/src/services/content/derive/song-to-globe-event.ts`.
@@ -1492,8 +1501,11 @@ a release (priority 4) and the publish checks read live releases
 | `drum_groove`       | `drum-grooves`     |
 | `instrument_part`   | `instrument-parts` |
 | `feel_profile`      | `feel-profiles`    |
+| `music_literacy`    | `music-literacy`   |
 
-The last four are from `console-backend-integration.md` §4.4. The Teach
+The four before `music_literacy` are from `console-backend-integration.md`
+§4.4, and `music_literacy` is from
+[music-literacy-content-kind.md](music-literacy-content-kind.md). The Teach
 kinds follow later. If `globe_city` already
 publishes under another name on your side, keep that name and report it. The
 rest is specified at checkpoint 1i.

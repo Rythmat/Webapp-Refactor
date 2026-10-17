@@ -103,6 +103,12 @@ export interface LessonTarget {
   backHref: string;
   /** Write the notes into the lesson; resolves with what happened. */
   onCommit: (part: InstrumentPart) => Promise<string>;
+  /**
+   * The lesson is this same page (the Music Literacy editor opens the roll
+   * with a search parameter), so the content area's guard, which asks only
+   * on leaving a page, cannot see Back: ask here before uncommitted notes go.
+   */
+  askOnBack?: boolean;
 }
 
 interface Props {
@@ -316,7 +322,19 @@ export const PartEditor: FC<Props> = ({
     <div className="flex min-w-0 max-w-full flex-col gap-4 [contain:inline-size]">
       <div className="flex flex-wrap items-center gap-3">
         <Button asChild size="sm" variant="ghost">
-          <Link to={lesson ? lesson.backHref : AdminRoutes.parts()}>
+          <Link
+            to={lesson ? lesson.backHref : AdminRoutes.parts()}
+            onClick={(e) => {
+              if (
+                lesson?.askOnBack &&
+                dirty &&
+                !window.confirm(
+                  'Go back without committing these notes to the lesson? Your changes here will be lost.',
+                )
+              )
+                e.preventDefault();
+            }}
+          >
             <ArrowLeft /> {lesson ? 'Back to the lesson' : 'Parts Library'}
           </Link>
         </Button>

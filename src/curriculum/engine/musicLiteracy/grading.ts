@@ -24,7 +24,6 @@ import {
   type AssessmentResult,
   type TargetOutcome,
 } from '@/curriculum/hooks/useGenreAssessment';
-import { stepPassMark } from '@/curriculum/practice/practiceDefaults';
 import type { StepTimeline, TimedNote } from './literacy';
 
 /** A note the student played, on the step's timeline. */
@@ -41,14 +40,22 @@ export const RESPONSE_EARLY_TICKS = 240;
 /** A right note further than this (ticks) from a target doesn't answer it. */
 export const MATCH_WINDOW_TICKS = 480;
 
-/** The house in-time pass mark, in percent (60). */
-export const IN_TIME_PASS_MARK = Math.round(
-  stepPassMark('pitch_order_timing') * 100,
-);
+/**
+ * Music Literacy's pass mark, in percent. Higher than the house in-time 60:
+ * the series is about steady time, and under the house blend the right
+ * notes played anywhere near the beat already reach 60.
+ */
+export const LITERACY_PASS_MARK = 70;
 
-/** The step's own pass mark, or the house in-time mark. */
+/**
+ * Timing (percent) a pass also needs, whatever the overall score: generous
+ * for beginners, but the right notes off the beat don't pass.
+ */
+export const TIMING_FLOOR = 50;
+
+/** The step's own pass mark, or the series mark. */
 export function passMarkOf(step: Pick<LiteracyStep, 'passMark'>): number {
-  return step.passMark ?? IN_TIME_PASS_MARK;
+  return step.passMark ?? LITERACY_PASS_MARK;
 }
 
 /** The ticks the student's answer is heard in. */
@@ -184,7 +191,8 @@ export function gradeResponse(
     extras.length,
   );
   const percent = Math.round(overallScore * 100);
-  const passed = percent >= passMark;
+  const passed =
+    percent >= passMark && Math.round(timingAccuracy * 100) >= TIMING_FLOOR;
   const missedNotes = targets.filter((_, i) => !pairs[i]).map((t) => t.midi);
 
   return {

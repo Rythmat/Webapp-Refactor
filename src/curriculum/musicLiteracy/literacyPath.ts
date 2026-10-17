@@ -33,8 +33,8 @@ export interface LiteracyPathStop {
   module: LiteracyPathModule;
   /** Where in the module, when that says more than its name ("Practice"). */
   place?: string;
-  /** One line: what the stop is. */
-  description: string;
+  /** One line: what the stop is (left out when the title says it). */
+  description?: string;
   /** Open to students. A lesson stop also needs its lesson published. */
   live: boolean;
   /** A Music Literacy lesson: the stop opens it and wears its progress. */
@@ -48,8 +48,6 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
     id: 'call-and-response',
     title: 'Part 1 · Call and response',
     module: 'Learn',
-    description:
-      'Hear a call, play it back: 1, 3, 5 and ♭3, and the triads they make.',
     live: true,
     lessonId: 'music-literacy-part-1',
   },
@@ -79,7 +77,7 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
     id: 'echo',
     title: 'Echo',
     module: 'Arcade',
-    description: 'An endless call-and-response game.',
+    description: 'A Call-and-Response music creation game.',
     live: false,
   },
 ];

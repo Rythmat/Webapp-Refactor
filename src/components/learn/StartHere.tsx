@@ -297,9 +297,11 @@ const OpenStop = ({
             <h3 className="text-lg font-semibold leading-tight text-white md:text-2xl">
               {stop.title}
             </h3>
-            <p className="text-sm text-white/60 md:text-base">
-              {stop.description}
-            </p>
+            {stop.description && (
+              <p className="text-sm text-white/60 md:text-base">
+                {stop.description}
+              </p>
+            )}
           </div>
         </div>
         <StopActionLink
@@ -337,7 +339,9 @@ const SoonStop = ({ state }: { state: LiteracyStopState }) => (
       <h3 className="text-base font-medium leading-tight text-white/75 md:text-lg">
         {state.stop.title}
       </h3>
-      <p className="text-sm text-white/45">{state.stop.description}</p>
+      {state.stop.description && (
+        <p className="text-sm text-white/45">{state.stop.description}</p>
+      )}
     </div>
     <span className="shrink-0 self-start rounded-full bg-white/[0.06] px-3 py-1 text-xs text-white/50 sm:self-center">
       Coming soon
@@ -378,8 +382,7 @@ export const StartHere = () => {
             <span className="text-white/45">Start here:</span> Music Literacy
           </h1>
           <p className="text-base text-white/60 md:text-lg">
-            Learn to hear, name and play music: a first path for beginners and
-            the teachers who guide them.
+            Learn Music from Step 1.
           </p>
         </header>
 

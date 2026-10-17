@@ -164,7 +164,7 @@ export const LiteracyStepEditor: FC<{
                     : Math.min(100, Math.max(0, value)),
               })
             }
-            placeholder="the usual mark"
+            placeholder="70%, with 50% timing"
             min={0}
             max={100}
             suffix="%"

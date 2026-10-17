@@ -61,10 +61,12 @@ export const StartHereCard = () => {
               <StepPips state={current} />
               <span className="min-w-0 truncate text-sm text-white/60">
                 {stepsLine(current)}
-                <span className="text-white/45">
-                  {' · '}
-                  {detail}
-                </span>
+                {detail && (
+                  <span className="text-white/45">
+                    {' · '}
+                    {detail}
+                  </span>
+                )}
               </span>
             </div>
           </div>

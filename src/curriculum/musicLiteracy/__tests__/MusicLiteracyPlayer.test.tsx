@@ -195,7 +195,7 @@ describe('a Music Literacy step', () => {
     typeAt('KeyG', 8640);
     feedTo(9600);
     expect(screen.getByRole('heading', { name: '0%' })).toBeTruthy();
-    expect(screen.getByText('Not yet · 60% passes')).toBeTruthy();
+    expect(screen.getByText('Not yet · 70% passes')).toBeTruthy();
 
     await press('Try Again');
     expect(run.starts).toBe(2);

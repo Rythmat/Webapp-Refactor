@@ -147,6 +147,37 @@ notes on the 1 and whose call is three, with an empty name to fill in.
   the lessons.
 - The dev writer stops writing the kind.
 
+## Planned: progress saved to the student's account
+
+Decided by the product owner on 2026-10-17: progress has to belong to the
+**user account, not the device**. Today each step's best score, passes and
+attempts live in the browser's localStorage
+(`src/curriculum/musicLiteracy/useLiteracyProgress.ts`, key
+`music_literacy_progress_<lessonId>`). A student who switches Chromebooks
+starts over, and a teacher can't see it. That's fine for the prototype but
+not for classrooms.
+
+The plan:
+
+- Record every graded try through the existing progress API, the one the
+  Theory lessons use (`src/lib/progress/api.ts`):
+  - `PATCH /progress/activity` per step, with `status`, `attemptsDelta` and
+    `score`;
+  - `GET /progress/lesson` to load a lesson's state.
+- One activity per step. Instance ids follow the Theory shape, built from
+  the lesson id and the step's **tag** (tags survive edits and reordering),
+  e.g. `music-literacy-part-1::v1::<tag>`.
+- Keep localStorage only as an offline cache that syncs up on sign-in.
+  Merge with "best score wins, a pass is never taken back".
+- Start Here (`literacyPath.ts`) and the Home card read the same store, so
+  they show the account's progress on any device.
+- Teachers see it with the rest of the classroom progress. The classroom
+  completion report (`reportCompletion`) already fires on the last pass.
+
+**For the API (Ryan):** confirm `/progress/activity` accepts these lesson
+and instance ids for a lesson that isn't a Theory mode, or say what it
+needs.
+
 ## Trying it
 
 - `npm run dev`: the editor saves through the dev writer.

@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
-  IN_TIME_PASS_MARK,
+  LITERACY_PASS_MARK,
   gradeResponse,
   inResponse,
   isRightNote,
   pairResponse,
   passMarkOf,
+  TIMING_FLOOR,
   type PlayedNote,
 } from '../grading';
 import { stepNotes } from '../literacy';
@@ -14,13 +15,13 @@ import { getLiveMusicLiteracy } from '../registry';
 const lesson = getLiveMusicLiteracy('music-literacy-part-1')!;
 const step = (tag: string) => lesson.steps.find((s) => s.tag === tag)!;
 
-/** The step's answer, graded at 80 against the house mark. */
+/** The step's answer, graded at 80 against the series mark. */
 function grade(tag: string, played: PlayedNote[]) {
   const { response, timeline } = stepNotes(lesson, step(tag));
   return gradeResponse(response, played, {
     timeline,
     tempo: 80,
-    passMark: IN_TIME_PASS_MARK,
+    passMark: LITERACY_PASS_MARK,
   });
 }
 
@@ -139,9 +140,9 @@ describe('grading the answer', () => {
     ).toEqual([7440, 9599]);
   });
 
-  it('passes at the step’s own mark, else the house in-time mark', () => {
-    expect(IN_TIME_PASS_MARK).toBe(60);
-    expect(passMarkOf({})).toBe(60);
+  it('passes at the step’s own mark, else the series mark of 70', () => {
+    expect(LITERACY_PASS_MARK).toBe(70);
+    expect(passMarkOf({})).toBe(70);
     expect(passMarkOf({ passMark: 80 })).toBe(80);
     const { response, timeline } = stepNotes(lesson, step('add-the-3'));
     const strict = gradeResponse(response, answer([60, 64, 60], 120), {
@@ -149,8 +150,35 @@ describe('grading the answer', () => {
       tempo: 80,
       passMark: 90,
     });
-    expect(strict.passed).toBe(strict.percent >= 90);
+    expect(strict.passed).toBe(
+      strict.percent >= 90 && strict.timingAccuracy! >= TIMING_FLOOR / 100,
+    );
     expect(strict.passMark).toBe(90);
+  });
+});
+
+describe('the timing floor', () => {
+  it('fails the right notes played off the beat, even above the pass mark', () => {
+    const { response, timeline } = stepNotes(lesson, step('add-the-3'));
+    // A third of a beat late: every pitch right, timing poor.
+    const late = gradeResponse(response, answer([60, 64, 60], 160), {
+      timeline,
+      tempo: 80,
+      passMark: 0,
+    });
+    expect(late.pitchAccuracy).toBe(1);
+    expect(late.timingAccuracy! * 100).toBeLessThan(TIMING_FLOOR);
+    expect(late.passed).toBe(false);
+  });
+
+  it('passes the right notes on the beat', () => {
+    const { response, timeline } = stepNotes(lesson, step('add-the-3'));
+    const onTime = gradeResponse(response, answer([60, 64, 60]), {
+      timeline,
+      tempo: 80,
+      passMark: LITERACY_PASS_MARK,
+    });
+    expect(onTime.passed).toBe(true);
   });
 });
 

@@ -23,6 +23,7 @@ import {
   isRightNote,
   pairResponse,
   passMarkOf,
+  TIMING_FLOOR,
   type LiteracyResult,
   type PlayedNote,
 } from '@/curriculum/engine/musicLiteracy/grading';
@@ -580,10 +581,10 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     const corner = (
       <span
         data-pass-mark={passMark}
-        title={`Score ${passMark}% to pass this step.`}
+        title={`Score ${passMark}% overall, with timing at ${TIMING_FLOOR}% or more, to pass this step.`}
         className="whitespace-nowrap text-xs text-white/45"
       >
-        Pass = {passMark}%
+        Pass = {passMark}% · timing {TIMING_FLOOR}%
       </span>
     );
     if (status === 'result' && resultModel) {

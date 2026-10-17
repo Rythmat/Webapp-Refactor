@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import type { Track } from '@/daw/store/tracksSlice';
 import {
+  autoMelodyTrack,
   flagCount,
+  hasMelodyNotes,
   isFilledNotehead,
   layOutMelody,
+  MELODY_STAFF_LAYOUT,
+  melodyCandidates,
   melodyNoteOrder,
-  pickMelodyTrack,
+  melodyScoreParts,
+  pickMelodyTracks,
   type MelodyLayoutOptions,
 } from '../leadSheetMelody';
 
@@ -16,7 +21,7 @@ const options: MelodyLayoutOptions = {
   measureCount: 4,
 };
 
-/** Only the fields the melody layout reads. */
+/** Only the fields the melody layout and the pick read. */
 const track = (
   id: string,
   events: Array<{ note: number; startTick: number; durationTicks: number }>,
@@ -26,6 +31,8 @@ const track = (
     id,
     name: id,
     type: 'midi',
+    instrument: 'piano-sampler',
+    color: 'red',
     trackRole: 'auto',
     midiClips: [
       {
@@ -39,41 +46,131 @@ const track = (
     ...over,
   }) as unknown as Track;
 
-describe('picking the melody track', () => {
+describe('picking the melody tracks', () => {
   const chords = track(
     'chords',
     [{ note: 48, startTick: 0, durationTicks: 480 }],
-    {
-      trackRole: 'chords',
-    } as Partial<Track>,
+    { trackRole: 'chords' } as Partial<Track>,
   );
   const melody = track(
     'melody',
     [{ note: 72, startTick: 0, durationTicks: 480 }],
-    {
-      trackRole: 'melody',
-    } as Partial<Track>,
+    { trackRole: 'melody' } as Partial<Track>,
   );
+  const keys = track('keys', [{ note: 64, startTick: 0, durationTicks: 480 }]);
+  const kit = track('kit', [{ note: 36, startTick: 0, durationTicks: 120 }], {
+    instrument: 'drum-machine',
+  } as Partial<Track>);
+  const beat = track('beat', [{ note: 36, startTick: 0, durationTicks: 120 }], {
+    trackRole: 'drums',
+  } as Partial<Track>);
+  const vocal = {
+    ...track('vocal', []),
+    type: 'audio',
+    midiClips: [],
+  } as unknown as Track;
+  const empty = { ...track('empty', []), midiClips: [] } as Track;
+  const ids = (pick: { tracks: Track[] }) => pick.tracks.map((t) => t.id);
 
-  it('prefers the track that was explicitly assigned', () => {
-    expect(pickMelodyTrack([chords, melody], 'chords')?.id).toBe('chords');
+  it('shows every assigned track, a staff each, in track order', () => {
+    const pick = pickMelodyTracks([chords, melody, keys], ['keys', 'chords']);
+    expect(ids(pick)).toEqual(['chords', 'keys']);
+    expect(pick.auto).toBe(false);
   });
 
-  it('falls back to the track whose role says melody', () => {
-    expect(pickMelodyTrack([chords, melody], null)?.id).toBe('melody');
+  it('shows one assigned track on its own', () => {
+    const pick = pickMelodyTracks([chords, melody], ['chords']);
+    expect(ids(pick)).toEqual(['chords']);
+    expect(pick.auto).toBe(false);
   });
 
-  it('falls back again when the assigned track is gone', () => {
-    expect(pickMelodyTrack([chords, melody], 'deleted')?.id).toBe('melody');
+  it('keeps an assigned track that has no notes yet', () => {
+    expect(ids(pickMelodyTracks([melody, empty], ['empty']))).toEqual([
+      'empty',
+    ]);
   });
 
-  it('ignores tracks with no clips', () => {
-    const empty = { ...melody, midiClips: [] } as Track;
-    expect(pickMelodyTrack([empty, chords], null)?.id).toBe('chords');
+  it('falls back to Auto with nothing assigned: the role that says melody', () => {
+    const pick = pickMelodyTracks([chords, melody], []);
+    expect(ids(pick)).toEqual(['melody']);
+    expect(pick.auto).toBe(true);
   });
 
-  it('returns null when there is nothing to draw', () => {
-    expect(pickMelodyTrack([], null)).toBeNull();
+  it('guesses the role from the name, as the track header does', () => {
+    const lead = track('Lead', [
+      { note: 72, startTick: 0, durationTicks: 480 },
+    ]);
+    expect(autoMelodyTrack([keys, lead])?.name).toBe('Lead');
+  });
+
+  it('then picks the first track with clips, passing over empty ones', () => {
+    expect(autoMelodyTrack([empty, chords, keys])?.id).toBe('chords');
+  });
+
+  it('goes back to Auto when every assigned track is gone', () => {
+    const pick = pickMelodyTracks([chords, melody], ['deleted', 'gone']);
+    expect(ids(pick)).toEqual(['melody']);
+    expect(pick.auto).toBe(true);
+  });
+
+  it('passes over a deleted track and keeps the rest', () => {
+    expect(
+      ids(pickMelodyTracks([chords, melody], ['deleted', 'chords'])),
+    ).toEqual(['chords']);
+  });
+
+  it('never reads a melody from a kit or an audio track', () => {
+    expect(melodyCandidates([kit, beat, vocal, keys]).map((t) => t.id)).toEqual(
+      ['keys'],
+    );
+    // Assigned or picked automatically.
+    expect(ids(pickMelodyTracks([kit, vocal], ['kit', 'vocal']))).toEqual([]);
+    expect(autoMelodyTrack([kit, beat, keys])?.id).toBe('keys');
+  });
+
+  it('shows nothing when there is nothing to draw', () => {
+    expect(pickMelodyTracks([], [])).toEqual({ tracks: [], auto: true });
+    expect(pickMelodyTracks([empty], [])).toEqual({ tracks: [], auto: true });
+  });
+
+  it('tells a track with notes from one without', () => {
+    expect(hasMelodyNotes(keys)).toBe(true);
+    expect(hasMelodyNotes(empty)).toBe(false);
+    expect(hasMelodyNotes(track('blank', []))).toBe(false);
+  });
+});
+
+describe('the staves for the melody tracks', () => {
+  const build = (tracks: Track[]) =>
+    melodyScoreParts(tracks, {
+      rootNote: 0,
+      mode: 'ionian',
+      timeSignature: [4, 4],
+      minMeasures: 4,
+    });
+
+  it('stacks a staff per track, named, in the order given', () => {
+    const parts = build([
+      track('lead', [{ note: 72, startTick: 0, durationTicks: 480 }]),
+      track('keys', [{ note: 64, startTick: 0, durationTicks: 480 }]),
+    ]);
+    expect(parts.map((p) => [p.id, p.name])).toEqual([
+      ['lead', 'lead'],
+      ['keys', 'keys'],
+    ]);
+    expect(MELODY_STAFF_LAYOUT).toBe('stacked');
+  });
+
+  it('gives a track with no notes a staff of rests, as long as the rest', () => {
+    const parts = build([
+      track('lead', [{ note: 72, startTick: 0, durationTicks: 480 }]),
+      track('student', []),
+    ]);
+    expect(parts.map((p) => p.noteCount)).toEqual([1, 0]);
+    expect(parts[1].score.staves).toEqual(['treble']);
+    expect(parts[1].score.measures).toHaveLength(
+      parts[0].score.measures.length,
+    );
   });
 });
 

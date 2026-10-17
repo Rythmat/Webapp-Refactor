@@ -835,7 +835,7 @@ describe('decision D5', () => {
       'leadSheetRepeats',
       'leadSheetShowRepeats',
       'leadSheetShowMelody',
-      'leadSheetMelodyTrackId',
+      'leadSheetMelodyTrackIds',
       'scoreChordTracks',
       'scoreChordHidden',
       'scoreArticulations',
@@ -974,7 +974,7 @@ describe('the classification, key by key', () => {
         'leadSheetRepeats',
         'leadSheetShowRepeats',
         'leadSheetShowMelody',
-        'leadSheetMelodyTrackId',
+        'leadSheetMelodyTrackIds',
         'scoreChordTracks',
         'scoreChordHidden',
         'scoreArticulations',
@@ -1123,7 +1123,7 @@ describe('the classification, key by key', () => {
         'leadSheetChordFormat',
         'leadSheetShowRepeats',
         'leadSheetShowMelody',
-        'leadSheetMelodyTrackId',
+        'leadSheetMelodyTrackIds',
       ].sort(),
     );
     expect(namesWhere(trackDocSpecs, (f) => !f.undo)).toEqual(['mute', 'solo']);

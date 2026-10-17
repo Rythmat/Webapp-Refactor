@@ -8,25 +8,37 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { Track } from '@/daw/store/tracksSlice';
 import { NoteEditorBar } from '../Score/NoteEditorBar';
 import { ScorePalettes } from '../Score/ScorePalettes';
-import { buildScoreParts, ScorePartsCache } from '../Score/scoreParts';
+import { ScorePartsCache } from '../Score/scoreParts';
 import { useScoreEditing } from '../Score/useScoreEditing';
 import { ComposerLine } from './ComposerLine';
 import { LeadSheetToolbar } from './LeadSheetToolbar';
+import { melodyScoreParts } from './leadSheetMelody';
 import './leadsheet-print.css';
-import { useLeadSheetPrint } from './useLeadSheetPrint';
+import { PRINT_TITLE_INSET, useLeadSheetPrint } from './useLeadSheetPrint';
 
 // ── The lead sheet, written out ────────────────────────────────────────────
-// With a melody assigned, the sheet is one part of a score: the same staff
+// With Melody on, the sheet is a score of its melody tracks: the same staff
 // renderer, the same palette, the same note editor the Score uses, with the
-// song's chord symbols standing over the melody. There is one editor, so a
-// tie drawn here behaves exactly as it does there.
+// song's chord symbols standing over the top staff. There is one editor, so
+// a tie drawn here behaves exactly as it does there, and an edit lands on
+// the track its note belongs to, whichever staff it is on.
 
 interface LeadSheetScoreViewProps {
-  /** The track the sheet's melody is read from and written back to. */
-  track: Track;
+  /**
+   * The tracks the melody is read from and written back to, top staff first
+   * (pickMelodyTracks).
+   */
+  tracks: Track[];
 }
 
-export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
+/** "Lead", "Lead and Keys", "Lead, Keys and Bass". */
+function listNames(names: string[]): string {
+  return names.length < 2
+    ? (names[0] ?? '')
+    : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+}
+
+export function LeadSheetScoreView({ tracks }: LeadSheetScoreViewProps) {
   useLeadSheetPrint();
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
@@ -52,14 +64,13 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
   );
 
   const slashSet = useMemo(() => new Set(slashNotes), [slashNotes]);
-  // The part is kept between builds, as the Score keeps its parts: a change
-  // to the track that leaves its notes alone (a fader move) hands back the
-  // same part, so the staff has nothing to engrave.
+  // The parts are kept between builds, as the Score keeps its parts: a
+  // change to a track that leaves its notes alone (a fader move) hands back
+  // the same part, so the staff has nothing to engrave.
   const [partsCache] = useState(() => new ScorePartsCache());
   const scoreParts = useMemo(
     () =>
-      buildScoreParts({
-        tracks: [track],
+      melodyScoreParts(tracks, {
         rootNote,
         mode,
         timeSignature,
@@ -67,7 +78,11 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
         minMeasures: measureCount,
         cache: partsCache,
       }),
-    [track, rootNote, mode, timeSignature, slashSet, measureCount, partsCache],
+    [tracks, rootNote, mode, timeSignature, slashSet, measureCount, partsCache],
+  );
+  const emptyNames = useMemo(
+    () => scoreParts.filter((p) => p.noteCount === 0).map((p) => p.name),
+    [scoreParts],
   );
   const parts: ScorePart[] = useMemo(
     () => scoreParts.map(({ id, name, score }) => ({ id, name, score })),
@@ -82,12 +97,13 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
     return `${note} ${modeLabel}`;
   }, [rootNote, mode]);
 
-  // A lead sheet always carries its chords, so the part shows them without
-  // being switched on the way a score's instruments are.
+  // A lead sheet always carries its chords, so the top staff shows them
+  // without being switched on the way a score's instruments are; the staves
+  // under it share them rather than repeating them.
   const editing = useScoreEditing({
     parts,
     scoreParts,
-    chordsAlwaysVisible: true,
+    chordsAlwaysVisible: 'top',
   });
   const { selection } = editing;
 
@@ -119,7 +135,9 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
 
   return (
     <div
-      className="leadsheet-container flex flex-1 overflow-hidden"
+      // It prints as the Score does, its engraved pages one to a sheet with
+      // the title in the room StaffView keeps at the top of page 1.
+      className="leadsheet-container leadsheet-score score-print-root flex flex-1 overflow-hidden"
       data-score-selection={`${selection.notes.size}n ${selection.cells.size}m ${selection.barline ?? '-'}b ${selection.chords.size}c ${selection.rests.size}r ${selection.marks.size}k`}
     >
       <div
@@ -130,48 +148,56 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
       </div>
       <div className="flex flex-1 flex-col overflow-hidden">
         <LeadSheetToolbar selectedMeasureIdx={selectedMeasureIdx} />
-        <NoteEditorBar {...editing.editor} />
+        {/* A tool, not the music: it stays off the printed page. */}
+        <div className="score-no-print">
+          <NoteEditorBar {...editing.editor} />
+        </div>
 
         <div
           className="leadsheet-scroll flex-1 overflow-y-auto"
           style={{ padding: '32px 48px' }}
         >
-          <h1
-            className="leadsheet-title mb-1 text-center text-xl font-bold"
-            style={{ color: 'var(--daw-text)' }}
-          >
-            {projectName}
-          </h1>
+          <div className="score-print-title">
+            <h1
+              className="leadsheet-title mb-1 text-center text-xl font-bold"
+              style={{ color: 'var(--daw-text)' }}
+            >
+              {projectName}
+            </h1>
 
-          <ComposerLine />
+            <ComposerLine />
 
-          <div
-            className="leadsheet-subtitle mb-6 flex justify-center gap-4 text-xs"
-            style={{ color: 'var(--daw-text-3)' }}
-          >
-            {keyDisplay && <span>Key: {keyDisplay}</span>}
-            <span>Tempo: {bpm} BPM</span>
-            <span>
-              Time: {numerator}/{denominator}
-            </span>
-          </div>
-
-          {parts.length === 0 ? (
             <div
-              className="py-16 text-center text-sm"
+              className="leadsheet-subtitle mb-6 flex justify-center gap-4 text-xs"
               style={{ color: 'var(--daw-text-3)' }}
             >
-              {track.name} has no notes yet. Record or write a melody on it, or
-              turn Melody off to go back to the chord chart.
+              {keyDisplay && <span>Key: {keyDisplay}</span>}
+              <span>Tempo: {bpm} BPM</span>
+              <span>
+                Time: {numerator}/{denominator}
+              </span>
             </div>
-          ) : (
-            <StaffView
-              parts={parts}
-              // An edit redraws only the systems it changed, as in the Score.
-              incremental
-              {...editing.staff}
-            />
+          </div>
+
+          {emptyNames.length > 0 && (
+            <div
+              className="score-no-print mb-4 text-center text-xs"
+              style={{ color: 'var(--daw-text-3)' }}
+              data-testid="melody-empty-hint"
+            >
+              {listNames(emptyNames)} {emptyNames.length === 1 ? 'has' : 'have'}{' '}
+              no notes yet. Record or write a melody in Create, or turn Melody
+              off to go back to the chord chart.
+            </div>
           )}
+
+          <StaffView
+            parts={parts}
+            printTitleInset={PRINT_TITLE_INSET}
+            // An edit redraws only the systems it changed, as in the Score.
+            incremental
+            {...editing.staff}
+          />
         </div>
       </div>
     </div>

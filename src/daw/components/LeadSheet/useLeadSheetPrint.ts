@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { inches } from '@/lib/notation/pageLayout';
 
 // ── Printing the lead sheet and the score ──────────────────────────────────
 // leadsheet-print.css stays loaded for the rest of the session once a view
@@ -11,6 +12,13 @@ import { useEffect } from 'react';
 
 /** The body class leadsheet-print.css scopes its print rules to. */
 export const LEADSHEET_PRINT_CLASS = 'ma-print-leadsheet';
+
+/**
+ * Room at the top of printed page 1 for the title block (page pixels), on a
+ * sheet that prints its engraved pages (`.score-print-root`): the Score, and
+ * the lead sheet with Melody on.
+ */
+export const PRINT_TITLE_INSET = inches(0.85);
 
 /** Views mounted that print through the stylesheet. */
 let holders = 0;

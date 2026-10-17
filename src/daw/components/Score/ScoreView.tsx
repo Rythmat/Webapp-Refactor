@@ -5,7 +5,10 @@ import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { ComposerLine } from '../LeadSheet/ComposerLine';
 import '../LeadSheet/leadsheet-print.css';
-import { useLeadSheetPrint } from '../LeadSheet/useLeadSheetPrint';
+import {
+  PRINT_TITLE_INSET,
+  useLeadSheetPrint,
+} from '../LeadSheet/useLeadSheetPrint';
 import { NoteEditorBar } from './NoteEditorBar';
 import { ScorePalettes } from './ScorePalettes';
 import { ScorePartsPanel } from './ScorePartsPanel';
@@ -14,16 +17,12 @@ import { spellingMap } from './noteEditor';
 import { useScoreEditing } from './useScoreEditing';
 import { breaksFromRowSizes } from './roadmap';
 import { downloadScoreXml } from '@/daw/midi/ScoreMusicXmlExport';
-import { inches } from '@/lib/notation/pageLayout';
 
 // ── Score ──────────────────────────────────────────────────────────────────
 // Every track of the project notated and stacked, the way a conductor's score
 // is laid out: one part per track, shared barlines, the transport's playhead
 // running through all of them. The editing itself lives in useScoreEditing,
 // which the Lead Sheet uses too.
-
-/** Room at the top of printed page 1 for the title block (page pixels). */
-const PRINT_TITLE_INSET = inches(0.85);
 
 export function ScoreView() {
   // The score prints through the lead sheet's print rules (its named page).

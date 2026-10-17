@@ -48,6 +48,8 @@ export function isDrumTrack(track: Track): boolean {
 }
 
 function chooseStaves(midis: number[]): 'grand' | 'treble' | 'bass' {
+  // A part with nothing written yet waits on the treble staff.
+  if (midis.length === 0) return 'treble';
   const low = Math.min(...midis);
   const high = Math.max(...midis);
   const mean = midis.reduce((a, b) => a + b, 0) / midis.length;
@@ -74,6 +76,11 @@ export interface ScoreBuildOptions {
    * (see ScorePartsCache). Without it every build starts from scratch.
    */
   cache?: ScorePartsCache;
+  /**
+   * Give a track with no notes a part too, rests all through, instead of
+   * leaving it out: the lead sheet, whose tracks were picked by name.
+   */
+  keepEmpty?: boolean;
 }
 
 /** One track's notes, as the notation reads them. */
@@ -160,7 +167,7 @@ function sharedMeasures(
 
 /**
  * A part per notatable track holding notes, plus the bar count they share.
- * Tracks with no notes are left out.
+ * Tracks with no notes are left out, unless `keepEmpty` keeps them.
  */
 export function buildScoreParts(options: ScoreBuildOptions): ScoreTrackPart[] {
   if (options.cache) return options.cache.build(options);
@@ -180,7 +187,7 @@ export function buildScoreParts(options: ScoreBuildOptions): ScoreTrackPart[] {
   const keyFifths = keyFifthsOf(rootNote, mode);
 
   return perTrack
-    .filter(({ notes }) => notes.length > 0)
+    .filter(({ notes }) => options.keepEmpty || notes.length > 0)
     .map(({ track, drums, notes }) => ({
       id: track.id,
       name: track.name,
@@ -276,7 +283,7 @@ export class ScorePartsCache {
     const scoreKey = JSON.stringify([timeSignature, measures, keyFifths]);
 
     const parts = perTrack
-      .filter(({ cached }) => cached.notes.length > 0)
+      .filter(({ cached }) => options.keepEmpty || cached.notes.length > 0)
       .map(({ track, drums, cached }) => {
         if (!cached.score || cached.scoreKey !== scoreKey) {
           cached.score = partScore(

@@ -216,19 +216,19 @@ export interface PrismSlice {
   moveChordRegion: (id: string, newStartTick: number) => void;
   /**
    * Insert `count` bars before bar `at`, or delete `count` bars from it:
-   * the chords, the roadmap, the Score's marks, the markers and, given its
-   * id, the melody the sheet shows all move with the bars, in the project's
-   * metre (measureEdits.ts). One write, one undo step.
+   * the chords, the roadmap, the Score's marks, the markers and, given
+   * their ids, the melody tracks the sheet shows all move with the bars, in
+   * the project's metre (measureEdits.ts). One write, one undo step.
    */
   insertMeasures: (
     at: number,
     count?: number,
-    melodyTrackId?: string | null,
+    melodyTrackIds?: string | readonly string[] | null,
   ) => void;
   deleteMeasures: (
     at: number,
     count?: number,
-    melodyTrackId?: string | null,
+    melodyTrackIds?: string | readonly string[] | null,
   ) => void;
 
   /** Take a chord out of the lane: the notes it was read from are melody. */
@@ -1998,12 +1998,14 @@ export const createPrismSlice: StateCreator<
       return { chordRegions: respellLeadingChordRegions(sorted) };
     }),
 
-  insertMeasures: (at, count = 1, melodyTrackId) =>
-    set((s) => measureEditPatch(s, at, Math.max(1, count), melodyTrackId) ?? s),
-
-  deleteMeasures: (at, count = 1, melodyTrackId) =>
+  insertMeasures: (at, count = 1, melodyTrackIds) =>
     set(
-      (s) => measureEditPatch(s, at, -Math.max(1, count), melodyTrackId) ?? s,
+      (s) => measureEditPatch(s, at, Math.max(1, count), melodyTrackIds) ?? s,
+    ),
+
+  deleteMeasures: (at, count = 1, melodyTrackIds) =>
+    set(
+      (s) => measureEditPatch(s, at, -Math.max(1, count), melodyTrackIds) ?? s,
     ),
 
   // ── Actions — melody (Phase 10) ──

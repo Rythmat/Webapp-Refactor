@@ -59,8 +59,9 @@ function jsonFiles(dir: string): { name: string; session: any }[] {
 const V2 = jsonFiles(join(FIXTURES, 'v2'));
 const V2_12 = jsonFiles(join(FIXTURES, 'v2-1.2'));
 const V1 = jsonFiles(join(FIXTURES, 'v1'));
-/** Today's format (schema 4), and the v3 one it migrates from. */
-const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v4-all-fields'))[0].session;
+/** Today's format (schema 5), and the v3 and v4 ones it migrates from. */
+const ALL_FIELDS = jsonFiles(join(FIXTURES, 'v5-all-fields'))[0].session;
+const ALL_FIELDS_V4 = jsonFiles(join(FIXTURES, 'v4-all-fields'))[0].session;
 const ALL_FIELDS_V3 = jsonFiles(join(FIXTURES, 'v3-all-fields'))[0].session;
 /** A schema after this build's. */
 const NEXT = SESSION_SCHEMA_VERSION + 1;
@@ -607,12 +608,78 @@ describe('migrating', () => {
     expect(result.session.data.tracks).toEqual(ALL_FIELDS.data.tracks);
   });
 
-  it('reads a v3 draft as v4, with no bars past its chords', () => {
+  it('reads a v3 draft as v5, with no bars past its chords', () => {
     const result = migrated(ALL_FIELDS_V3);
     expect(result.from).toBe(3);
-    expect(result.session).toMatchObject({ schema: 4, compat: 3 });
-    // Schema 4 only added fields, so the v3 data passes through untouched.
-    expect(result.session.data).toEqual(ALL_FIELDS_V3.data);
+    expect(result.session).toMatchObject({ schema: 5, compat: 3 });
+    // Schema 4 only added fields, so the v3 data passes through untouched
+    // but for the melody track 5 turned into a list.
+    const { notation, ...data } = result.session.data;
+    const { notation: v3Notation, ...v3Data } = ALL_FIELDS_V3.data;
+    expect(data).toEqual(v3Data);
+    const v3Rest = { ...(v3Notation as Record<string, unknown>) };
+    delete v3Rest.leadSheetMelodyTrackId;
+    expect(notation).toEqual({
+      ...v3Rest,
+      leadSheetMelodyTrackIds: ['trk-lead'],
+    });
     expect(decode(ALL_FIELDS_V3).project.leadSheetBars).toBeNull();
+  });
+});
+
+describe('a v4 draft', () => {
+  /** The v4 all-fields draft with its one melody track set to `id`. */
+  const v4WithMelody = (id: unknown) => {
+    const stored = structuredClone(ALL_FIELDS_V4);
+    (stored.data.notation as Record<string, unknown>).leadSheetMelodyTrackId =
+      id;
+    return stored;
+  };
+
+  it('reads its one melody track as a list of it', () => {
+    const result = migrated(ALL_FIELDS_V4);
+    expect(result.from).toBe(4);
+    expect(result.session).toMatchObject({ schema: 5, compat: 3 });
+    const notation = result.session.data.notation as Record<string, unknown>;
+    expect(notation).not.toHaveProperty('leadSheetMelodyTrackId');
+    expect(notation.leadSheetMelodyTrackIds).toEqual(['trk-lead']);
+    // The caller's draft is never written to.
+    expect(ALL_FIELDS_V4.data.notation.leadSheetMelodyTrackId).toBe('trk-lead');
+
+    const { project, repaired } = decode(ALL_FIELDS_V4);
+    expect(repaired).toBe(0);
+    expect(project.leadSheetMelodyTrackIds).toEqual(['trk-lead']);
+  });
+
+  it('loads as the v5 draft does, but for the melody it names', () => {
+    // The two all-fields drafts differ only there: v5 names two tracks.
+    expect({
+      ...decode(ALL_FIELDS_V4).project,
+      leadSheetMelodyTrackIds: ['trk-lead', 'trk-keys'],
+    }).toEqual(decode(ALL_FIELDS).project);
+  });
+
+  it('reads Auto, a null id, as no tracks', () => {
+    const result = migrated(v4WithMelody(null));
+    expect(result.session.data.notation).not.toHaveProperty(
+      'leadSheetMelodyTrackIds',
+    );
+    expect(decode(v4WithMelody(null)).project.leadSheetMelodyTrackIds).toEqual(
+      [],
+    );
+    expect(decode(v4WithMelody('')).project.leadSheetMelodyTrackIds).toEqual(
+      [],
+    );
+  });
+
+  it('drops a melody track the draft does not hold', () => {
+    const { project, repaired } = decode(v4WithMelody('gone'));
+    expect(project.leadSheetMelodyTrackIds).toEqual([]);
+    expect(repaired).toBe(0);
+  });
+
+  it('counts a melody id that is no id at all', () => {
+    expect(migrated(v4WithMelody(7)).repaired).toBe(1);
+    expect(decode(v4WithMelody(7)).project.leadSheetMelodyTrackIds).toEqual([]);
   });
 });

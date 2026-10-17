@@ -259,16 +259,17 @@ function shiftRowSizes(
 
 /**
  * The patch that inserts `count` bars before bar `at` (count > 0) or
- * deletes bars [at, at − count) (count < 0). `melodyTrackId` is the melody
- * the sheet shows, whose notes move with the bars; a track a collaborator
- * holds is left alone, like every edit to it. Null when there is nothing to
- * do (no bars, or a delete past the end).
+ * deletes bars [at, at − count) (count < 0). `melodyTrackIds` are the
+ * melody tracks the sheet shows (one id, or several, a staff each), whose
+ * notes move with the bars; a track a collaborator holds is left alone,
+ * like every edit to it. Null when there is nothing to do (no bars, or a
+ * delete past the end).
  */
 export function measureEditPatch(
   state: MeasureEditState,
   at: number,
   count: number,
-  melodyTrackId?: string | null,
+  melodyTrackIds?: string | readonly string[] | null,
 ): MeasureEditPatch | null {
   const ts = timeSignatureOf(state);
   const bar = ticksPerBar(ts);
@@ -346,16 +347,22 @@ export function measureEditPatch(
     markers: state.markers.map((m) => ({ ...m, tick: tick(m.tick) })),
   };
 
-  const melody: Track | undefined = melodyTrackId
-    ? state.tracks.find((t) => t.id === melodyTrackId)
-    : undefined;
-  if (melody && !isTrackLockedByRemote(state.remoteUsers, melody.id)) {
-    const midiClips = melody.midiClips.flatMap((c) => {
-      const moved = shiftMelodyClip(c, from, removedEnd, delta);
-      return moved ? [moved] : [];
-    });
+  const melodyIds = new Set(
+    typeof melodyTrackIds === 'string' ? [melodyTrackIds] : melodyTrackIds,
+  );
+  const moves = (t: Track) =>
+    melodyIds.has(t.id) && !isTrackLockedByRemote(state.remoteUsers, t.id);
+  if (state.tracks.some(moves)) {
     patch.tracks = state.tracks.map((t) =>
-      t.id === melody.id ? { ...t, midiClips } : t,
+      moves(t)
+        ? {
+            ...t,
+            midiClips: t.midiClips.flatMap((c) => {
+              const moved = shiftMelodyClip(c, from, removedEnd, delta);
+              return moved ? [moved] : [];
+            }),
+          }
+        : t,
     );
   }
   return patch;

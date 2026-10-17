@@ -3,6 +3,8 @@
 // Handles registration, parameter updates, and pitch info messaging.
 // Pattern mirrors NamWorkletNode.ts.
 
+import { isOfflineContext } from '../offlineContext';
+
 export interface PitchCorrectionParams {
   correction: number; // 0-100 (snap strength)
   speed: number; // 0-100 (0=slow/natural, 100=instant)
@@ -92,25 +94,24 @@ export const DEFAULT_PITCH_CORRECTION: PitchCorrectionParams = {
   formantFollow: 0,
 };
 
-// ── Module-level guard for AudioWorklet registration ──────────────────────
+// ── AudioWorklet registration, once per context ───────────────────────────
+// Per context: a bounce's offline context has a worklet scope of its own,
+// where the live context's registration doesn't reach.
 
-let moduleLoaded = false;
-let modulePromise: Promise<void> | null = null;
+const modulePromises = new WeakMap<BaseAudioContext, Promise<void>>();
 
 async function ensureModuleLoaded(ctx: AudioContext): Promise<void> {
-  if (moduleLoaded) return;
-  if (!modulePromise) {
-    modulePromise = ctx.audioWorklet
+  let promise = modulePromises.get(ctx);
+  if (!promise) {
+    promise = ctx.audioWorklet
       .addModule('/daw-assets/pitch-correction-processor.js')
-      .then(() => {
-        moduleLoaded = true;
-      })
       .catch((err) => {
-        modulePromise = null; // allow retry
+        modulePromises.delete(ctx); // allow retry
         throw err;
       });
+    modulePromises.set(ctx, promise);
   }
-  await modulePromise;
+  await promise;
 }
 
 // ── PitchCorrectionNode class ─────────────────────────────────────────────
@@ -127,7 +128,8 @@ export class PitchCorrectionNode {
   }
 
   async init(): Promise<void> {
-    if (this.ctx.state === 'suspended') {
+    // A bounce's offline context can't be resumed before it renders.
+    if (this.ctx.state === 'suspended' && !isOfflineContext(this.ctx)) {
       await this.ctx.resume();
     }
 

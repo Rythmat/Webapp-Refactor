@@ -54,4 +54,20 @@ describe('WahPedal envelope follower', () => {
     expect(filter.frequency.value).toBeGreaterThan(100);
     pedal.dispose();
   });
+
+  it("holds the filter at rest in a bounce, where the frame loop can't keep up", () => {
+    // An offline context renders faster than the page's frames; a follower
+    // there would sweep the filter at random.
+    const offline = Object.assign(ctx, { startRendering: vi.fn() });
+    const pedal = new WahPedal(offline);
+    expect(frameTaskNames()).toEqual([]);
+
+    const filter = graph.ofKind('biquad')[0];
+    pedal.updateParams({ frequency: 0, resonance: 1, freqEnvAmt: 1 });
+    vi.advanceTimersByTime(16 * 30);
+    // The knobs' rest position: 100 Hz, Q 20, no envelope on top.
+    expect(filter.frequency.value).toBeCloseTo(100);
+    expect((filter as unknown as { Q: { value: number } }).Q.value).toBe(20);
+    pedal.dispose();
+  });
 });

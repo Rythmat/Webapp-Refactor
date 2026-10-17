@@ -337,6 +337,16 @@ export const ARRANGE_SCOPE = defineScope({
   views: ['arrange'],
 });
 
+// The clip menu's items (milestone 2.12) with keys, as the menu shows them.
+// Key clashes settled for it: ⌘E splits, as in Soundtrap and Ableton, and
+// Export MIDI moved to ⇧⌘E; M stays the click, so Mute clip is ⇧M (not
+// Soundtrap's ⌘M, which minimizes the window on a Mac).
+defineCommand({
+  id: 'clip.cut',
+  scope: 'arrange',
+  label: 'Cut the selected clip',
+  keys: ['Mod+KeyX'],
+});
 defineCommand({
   id: 'clip.copy',
   scope: 'arrange',
@@ -360,6 +370,61 @@ defineCommand({
   scope: 'arrange',
   label: 'Delete the selected clip',
   keys: ['Delete', 'Backspace'],
+});
+defineCommand({
+  id: 'clip.rename',
+  scope: 'arrange',
+  label: 'Rename the selected clip',
+  keys: ['F2', 'KeyN'],
+});
+defineCommand({
+  id: 'clip.split',
+  scope: 'arrange',
+  label: 'Split the selected clip at the playhead',
+  keys: ['Mod+KeyE'],
+});
+defineCommand({
+  id: 'clip.mute',
+  scope: 'arrange',
+  label: 'Mute or unmute the selected clip',
+  keys: ['Shift+KeyM'],
+});
+// The clip menu without a right-click: the Edit pill's menu, for a
+// keyboard. Shift+F10 and the menu key are the usual ones; Alt+Return is for
+// a Chromebook, which has neither.
+defineCommand({
+  id: 'clip.menu',
+  scope: 'arrange',
+  label: 'Open the selected clip’s menu',
+  keys: ['Alt+Enter', 'Shift+F10', 'ContextMenu'],
+});
+defineCommand({
+  id: 'clip.transposeUp',
+  scope: 'arrange',
+  label: 'Selected clip’s notes up a half step',
+  keys: ['Shift+ArrowUp'],
+  repeat: true,
+});
+defineCommand({
+  id: 'clip.transposeDown',
+  scope: 'arrange',
+  label: 'Selected clip’s notes down a half step',
+  keys: ['Shift+ArrowDown'],
+  repeat: true,
+});
+defineCommand({
+  id: 'clip.octaveUp',
+  scope: 'arrange',
+  label: 'Selected clip’s notes up an octave',
+  keys: ['Mod+Shift+ArrowUp'],
+  repeat: true,
+});
+defineCommand({
+  id: 'clip.octaveDown',
+  scope: 'arrange',
+  label: 'Selected clip’s notes down an octave',
+  keys: ['Mod+Shift+ArrowDown'],
+  repeat: true,
 });
 defineCommand({
   id: 'clip.nudgeLeft',
@@ -709,11 +774,12 @@ defineCommand({
   keys: ['Mod+Shift+KeyZ'],
   repeat: true,
 });
+// ⇧⌘E since 2.12: ⌘E splits a clip.
 defineCommand({
   id: 'project.exportMidi',
   scope: 'global',
   label: 'Export MIDI',
-  keys: ['Mod+KeyE'],
+  keys: ['Mod+Shift+KeyE'],
 });
 defineCommand({
   id: 'project.analyze',

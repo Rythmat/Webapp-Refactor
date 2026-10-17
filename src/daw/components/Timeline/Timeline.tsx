@@ -8,11 +8,6 @@ import {
   useState,
   type RefObject,
 } from 'react';
-import { Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { ProfileRoutes } from '@/constants/routes';
-import { useIsPremium } from '@/hooks/useIsPremium';
-import { PremiumBadge } from '@/daw/ui/PremiumBadge';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useArrangeKeymap } from '@/daw/commands/clipCommands';
 import { withTransaction } from '@/daw/store/history';
@@ -37,6 +32,13 @@ import {
   setOriginalAudio,
   subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
+import { isApplePlatform } from '@/daw/shell/topbar/platformKeys';
+import { CanvasMenu } from '@/daw/shell/canvas/clipMenu/CanvasMenu';
+import { ClipEditPill } from '@/daw/shell/canvas/clipMenu/ClipEditPill';
+import {
+  useCanvasMenuStore,
+  type CanvasMenuTarget,
+} from '@/daw/shell/canvas/clipMenu/canvasMenuStore';
 import {
   getPeakPyramid,
   readPeaks,
@@ -79,14 +81,18 @@ import {
 import type { MidiNoteEvent } from '@prism/engine';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
-import { AnimatedBlobs } from '@/components/ui/blobs';
 import {
   DAW_PALETTE_EVENT,
   getDawPalette,
   type DawPalette,
 } from '@/daw/ui/tokens';
-import { promptDialog } from '@/daw/ui/DialogHost';
-import { timelineNeedsRedraw, useTimelineTracks } from './timelineGeometry';
+import {
+  CLIP_INSET,
+  MIN_MIDI_CLIP_PX,
+  clipBoxOf,
+  timelineNeedsRedraw,
+  useTimelineTracks,
+} from './timelineGeometry';
 import {
   CHORD_LANE_PX,
   LANE_HEADER_PX,
@@ -112,8 +118,6 @@ import {
 const RULER_HEIGHT = RULER_PX; // loop strip (LOOP_STRIP_H) + bar numbers
 const CHORD_RULER_HEIGHT = CHORD_LANE_PX; // the chord lane
 const RULERS_HEIGHT = LANE_HEADER_PX;
-/** Clips sit this far inside their lane, top and bottom. */
-const CLIP_INSET = 2;
 const RESIZE_EDGE_PX = 6; // px threshold for resize handle
 /** Ruler labels: the micro type, and the gap kept between two labels. */
 const RULER_FONT = "11px 'Glacial Indifference', system-ui, sans-serif";
@@ -443,52 +447,6 @@ const TimelinePlayhead = memo(function TimelinePlayhead({
   );
 });
 
-// ── Prism suggestion menu item ──────────────────────────────────────────
-// Prism is part of Premium and stays locked in lessons (owner decision 8).
-// A free student sees the item locked, as Prism's dock tab is
-// (LockedFeatureOverlay), and is offered the plans instead of the modal.
-function PrismSuggestItem({
-  onSuggest,
-  onClose,
-}: {
-  onSuggest: () => void;
-  onClose: () => void;
-}) {
-  const { isPremium, isLoading } = useIsPremium();
-  const navigate = useNavigate();
-
-  if (isPremium) {
-    return (
-      <button
-        className="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-white/5"
-        style={{ color: 'var(--daw-text)' }}
-        onClick={onSuggest}
-      >
-        <AnimatedBlobs size={30} />
-        Prism — Suggest Chords
-      </button>
-    );
-  }
-  return (
-    <button
-      className="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-white/5"
-      style={{ color: 'var(--daw-text-3)' }}
-      title="Prism is part of Premium. Subscribe to unlock it."
-      aria-label="Prism — Suggest Chords (Premium, locked)"
-      onClick={() => {
-        onClose();
-        // While the plan is loading a premium student looks free for a
-        // moment: the lock may show, but it never sends them away.
-        if (!isLoading) navigate(ProfileRoutes.plan.definition);
-      }}
-    >
-      <Lock size={14} strokeWidth={2} aria-hidden />
-      Prism — Suggest Chords
-      <PremiumBadge className="ml-auto" />
-    </button>
-  );
-}
-
 // ── Timeline ────────────────────────────────────────────────────────────
 
 export interface TimelineProps {
@@ -569,16 +527,9 @@ export function Timeline({ scrollRef }: TimelineProps) {
     seekTick: number;
   } | null>(null);
 
-  // ── Context menu state ──
-  const [ctxMenu, setCtxMenu] = useState<{
-    x: number;
-    y: number;
-    markerId: string | null;
-    tick: number;
-    audioClipId?: string;
-    audioTrackId?: string;
-    blankTrackId?: string;
-  } | null>(null);
+  // The canvas's box: a clip drag marks it data-dragging, which hides the
+  // Edit pill until the clip lands.
+  const canvasBoxRef = useRef<HTMLDivElement>(null);
 
   // ── Store state ──
   // Not the transport position: TimelinePlayhead subscribes to that itself,
@@ -885,7 +836,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
         const clipX = tickToPixel(boxStartTick, currentZoom, currentScrollLeft);
         const clipWidth = Math.max(
           ((boxEndTick - boxStartTick) / TICKS_PER_BEAT) * currentPpb,
-          20,
+          MIN_MIDI_CLIP_PX,
         );
 
         const isSelected = currentSelectedClipId === clip.id;
@@ -1671,6 +1622,10 @@ export function Timeline({ scrollRef }: TimelineProps) {
       const currentZoom = state.timelineZoom;
       const currentScrollLeft = state.timelineScrollLeft;
 
+      // Only the main button acts here: a right-click opens the canvas menu
+      // (handleContextMenu), and on a Mac so does a Ctrl-click.
+      if (e.button !== 0 || (e.ctrlKey && isApplePlatform())) return;
+
       // Chord ruler click: select chords for Insight to analyze — click one,
       // Shift-click a run, Cmd/Ctrl-click to add or remove one; clicking an
       // empty stretch clears the selection. Double-click renames a chord.
@@ -1965,210 +1920,59 @@ export function Timeline({ scrollRef }: TimelineProps) {
   );
 
   // ── Context menu (right-click) ────────────────────────────────────
+  // The one canvas menu (2.12): a clip's menu on a clip, which it selects
+  // (not its track, so the dock stays put, as in Soundtrap); a lane's on an
+  // empty stretch of lane; a marker's on a marker flag; the ruler's above
+  // the lanes. It hangs at the pointer.
 
   const handleContextMenu = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
       const { x, y } = getCanvasCoords(e);
       const st = getScrollTop();
       const state = useStore.getState();
       const currentZoom = state.timelineZoom;
       const currentScrollLeft = state.timelineScrollLeft;
-      const grid = timelineSnapGrid(state);
+      const tick = snapTicks(
+        pixelToTick(x, currentZoom, currentScrollLeft),
+        timelineSnapGrid(state),
+      );
 
-      // Check audio clip hit first
-      if (y >= st + RULERS_HEIGHT) {
+      let target: CanvasMenuTarget | null = null;
+      if (y >= st && y < st + RULERS_HEIGHT) {
+        // A marker's flag or its name, else the ruler itself.
+        const marker = state.markers.find((m) => {
+          const mx = tickToPixel(m.tick, currentZoom, currentScrollLeft);
+          return x >= mx - 5 && x <= mx + 70;
+        });
+        target = marker
+          ? { kind: 'marker', markerId: marker.id, tick: marker.tick }
+          : { kind: 'ruler', tick };
+      } else if (y >= st + RULERS_HEIGHT) {
         const hit = hitTestClip(x, y);
         if (hit) {
-          const track = state.tracks.find((t) => t.id === hit.trackId);
-          const audioClip = track?.audioClips.find((c) => c.id === hit.clipId);
-          if (audioClip) {
-            e.preventDefault();
-            state.setSelectedClip(hit.clipId, hit.trackId);
-            setCtxMenu({
-              x: e.clientX,
-              y: e.clientY,
-              markerId: null,
-              tick: 0,
-              audioClipId: hit.clipId,
-              audioTrackId: hit.trackId,
-            });
-            return;
-          }
-        }
-
-        // Blank track region — offer Prism suggestion. The canvas is the
-        // lanes' full height, so a lane is found from the canvas's top.
-        const rows = rowLayoutOf(state.tracks);
-        const track = state.tracks[rowIndexAt(rows, y - RULERS_HEIGHT)];
-        if (track) {
-          e.preventDefault();
-          const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-          const snapped = snapTicks(rawTick, grid);
-          setCtxMenu({
-            x: e.clientX,
-            y: e.clientY,
-            markerId: null,
-            tick: snapped,
-            blankTrackId: track.id,
-          });
-          return;
+          state.setSelectedClip(hit.clipId, hit.trackId);
+          target = { kind: 'clip', trackId: hit.trackId, clipId: hit.clipId };
+        } else {
+          // The canvas is the lanes' full height, so a lane is found from
+          // the canvas's top.
+          const track =
+            state.tracks[
+              rowIndexAt(rowLayoutOf(state.tracks), y - RULERS_HEIGHT)
+            ];
+          if (track) target = { kind: 'lane', trackId: track.id, tick };
         }
       }
-
-      // Ruler area: marker context menu
-      if (y < st || y >= st + RULERS_HEIGHT) return;
-
-      e.preventDefault();
-
-      // Check if near an existing marker (flag + name label area)
-      let hitMarkerId: string | null = null;
-      for (const marker of state.markers) {
-        const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
-        if (x >= mx - 5 && x <= mx + 70) {
-          hitMarkerId = marker.id;
-          break;
-        }
-      }
-
-      const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-      const snapped = snapTicks(rawTick, grid);
-
-      setCtxMenu({
-        x: e.clientX,
-        y: e.clientY,
-        markerId: hitMarkerId,
-        tick: snapped,
+      if (!target) return;
+      useCanvasMenuStore.getState().open({
+        target,
+        anchor: { x: e.clientX, y: e.clientY, width: 0, height: 0 },
+        source: 'pointer',
+        playheadTick: getPlayheadTick(),
       });
     },
     [getCanvasCoords, getScrollTop, hitTestClip],
   );
-
-  const handlePrismSuggest = useCallback(() => {
-    if (!ctxMenu?.blankTrackId) return;
-    useStore.getState().openPrismSuggestion(ctxMenu.tick, ctxMenu.blankTrackId);
-    setCtxMenu(null);
-  }, [ctxMenu]);
-
-  const closeCtxMenu = useCallback(() => setCtxMenu(null), []);
-
-  const handleCtxMenuRename = useCallback(async () => {
-    if (!ctxMenu?.markerId) return;
-    const markerId = ctxMenu.markerId;
-    const marker = useStore.getState().markers.find((m) => m.id === markerId);
-    setCtxMenu(null);
-    const newName = await promptDialog({
-      title: 'Rename marker',
-      label: 'Marker name',
-      defaultValue: marker?.name ?? '',
-      confirmLabel: 'Rename',
-      validate: (value) => (value.trim() ? null : 'Type a name for it.'),
-    });
-    // The marker may have gone while the dialog was open.
-    if (newName === null || !newName.trim()) return;
-    if (!useStore.getState().markers.some((m) => m.id === markerId)) return;
-    useStore.getState().updateMarker(markerId, { name: newName.trim() });
-  }, [ctxMenu]);
-
-  const handleCtxMenuDelete = useCallback(() => {
-    if (!ctxMenu?.markerId) return;
-    useStore.getState().removeMarker(ctxMenu.markerId);
-    setCtxMenu(null);
-  }, [ctxMenu]);
-
-  const handleCtxMenuAdd = useCallback(() => {
-    if (!ctxMenu) return;
-    const state = useStore.getState();
-    const nextNum = state.markers.length + 1;
-    state.addMarker(ctxMenu.tick, `Marker ${nextNum}`);
-    setCtxMenu(null);
-  }, [ctxMenu]);
-
-  // ── Audio clip context menu handlers ──
-
-  const handleCtxFadeIn = useCallback(() => {
-    if (!ctxMenu?.audioClipId || !ctxMenu.audioTrackId) return;
-    const state = useStore.getState();
-    const track = state.tracks.find((t) => t.id === ctxMenu.audioTrackId);
-    const clip = track?.audioClips.find((c) => c.id === ctxMenu.audioClipId);
-    if (!clip) {
-      setCtxMenu(null);
-      return;
-    }
-    // Toggle: if already has fade, remove it; otherwise set to 1 beat
-    const newFade = clip.fadeInTicks > 0 ? 0 : 480;
-    state.updateAudioClip(ctxMenu.audioTrackId, ctxMenu.audioClipId, {
-      fadeInTicks: newFade,
-    });
-    setCtxMenu(null);
-  }, [ctxMenu]);
-
-  const handleCtxFadeOut = useCallback(() => {
-    if (!ctxMenu?.audioClipId || !ctxMenu.audioTrackId) return;
-    const state = useStore.getState();
-    const track = state.tracks.find((t) => t.id === ctxMenu.audioTrackId);
-    const clip = track?.audioClips.find((c) => c.id === ctxMenu.audioClipId);
-    if (!clip) {
-      setCtxMenu(null);
-      return;
-    }
-    const newFade = clip.fadeOutTicks > 0 ? 0 : 480;
-    state.updateAudioClip(ctxMenu.audioTrackId, ctxMenu.audioClipId, {
-      fadeOutTicks: newFade,
-    });
-    setCtxMenu(null);
-  }, [ctxMenu]);
-
-  const handleCtxSplitAtPlayhead = useCallback(() => {
-    if (!ctxMenu?.audioClipId || !ctxMenu.audioTrackId) return;
-    const state = useStore.getState();
-    // Non-destructive, like the scissors: both halves keep the recording.
-    const rightId = splitAudioClipAt(
-      ctxMenu.audioTrackId,
-      ctxMenu.audioClipId,
-      // Where the student hears it, also while playing.
-      Math.round(getPlayheadTick()),
-    );
-    if (rightId) state.setSelectedClip(rightId, ctxMenu.audioTrackId);
-    setCtxMenu(null);
-  }, [ctxMenu]);
-
-  const handleCtxDuplicate = useCallback(() => {
-    if (!ctxMenu?.audioClipId || !ctxMenu.audioTrackId) return;
-    const state = useStore.getState();
-    const track = state.tracks.find((t) => t.id === ctxMenu.audioTrackId);
-    const clip = track?.audioClips.find((c) => c.id === ctxMenu.audioClipId);
-    if (!clip) {
-      setCtxMenu(null);
-      return;
-    }
-
-    const srcBuffer = getAudioBuffer(clip.id);
-    if (!srcBuffer) {
-      setCtxMenu(null);
-      return;
-    }
-
-    const newId = `clip-dup-${crypto.randomUUID().slice(0, 8)}`;
-    setAudioBuffer(newId, srcBuffer);
-    state.addAudioClip(ctxMenu.audioTrackId, {
-      ...structuredClone(clip),
-      id: newId,
-      startTick: clip.startTick + clip.duration,
-    });
-    state.setSelectedClip(newId, ctxMenu.audioTrackId);
-    setCtxMenu(null);
-  }, [ctxMenu]);
-
-  const handleCtxDeleteClip = useCallback(() => {
-    if (!ctxMenu?.audioClipId || !ctxMenu.audioTrackId) return;
-    // The take's audio stays in memory, as the Delete key leaves it, so
-    // Cmd+Z brings back a clip that still plays (audio-core-07).
-    useStore
-      .getState()
-      .removeAudioClip(ctxMenu.audioTrackId, ctxMenu.audioClipId);
-    useStore.getState().setSelectedClip(null, null);
-    setCtxMenu(null);
-  }, [ctxMenu]);
 
   // ── Mouse move ─────────────────────────────────────────────────────
 
@@ -2308,6 +2112,9 @@ export function Timeline({ scrollRef }: TimelineProps) {
       const drag = dragRef.current;
 
       if (drag) {
+        // The Edit pill hides until the clip lands (ClipEditPill).
+        if (canvasBoxRef.current)
+          canvasBoxRef.current.dataset.dragging = 'true';
         if (drag.mode === 'move') {
           const rawTick = pixelToTick(
             x - drag.offsetX,
@@ -2580,6 +2387,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
 
     dragRef.current = null;
     if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+    if (canvasBoxRef.current) delete canvasBoxRef.current.dataset.dragging;
 
     // The clip's track is selected with it, and a click that moved and
     // trimmed nothing opens the clip's editor in the dock (2.9). Done on
@@ -2926,6 +2734,42 @@ export function Timeline({ scrollRef }: TimelineProps) {
     };
   }, []);
 
+  // Where a clip sits on screen, kept in sight: a key opens the clip's menu
+  // there when its Edit pill is scrolled away (2.12).
+  useEffect(() => {
+    useCanvasMenuStore.setState({
+      clipAnchor: (clipId) => {
+        const canvas = canvasRef.current;
+        const scroller = scrollRef.current;
+        if (!canvas || !scroller) return null;
+        const state = useStore.getState();
+        const box = clipBoxOf(
+          state.tracks,
+          clipId,
+          state.timelineZoom,
+          state.timelineScrollLeft,
+        );
+        if (!box) return null;
+        const canvasBox = canvas.getBoundingClientRect();
+        const view = scroller.getBoundingClientRect();
+        const clamp = (v: number, lo: number, hi: number) =>
+          Math.max(lo, Math.min(hi, v));
+        const x = clamp(
+          canvasBox.left + box.x,
+          canvasBox.left,
+          canvasBox.right - 8,
+        );
+        const y = clamp(
+          canvasBox.top + box.y,
+          view.top + RULERS_HEIGHT,
+          view.bottom - 8,
+        );
+        return { x, y, width: 0, height: Math.min(box.h, view.bottom - y) };
+      },
+    });
+    return () => useCanvasMenuStore.setState({ clipAnchor: null });
+  }, [scrollRef]);
+
   // Create's keys (copy, paste, nudge, tools, zoom), while the timeline is on
   // screen.
   useArrangeKeymap();
@@ -2937,7 +2781,10 @@ export function Timeline({ scrollRef }: TimelineProps) {
       className="flex flex-1 flex-col bg-[var(--daw-bg)]"
       style={{ minHeight: '100%' }}
     >
-      <div className="relative flex-1 overflow-x-hidden">
+      <div
+        ref={canvasBoxRef}
+        className="group/canvas relative flex-1 overflow-x-hidden"
+      >
         <canvas
           ref={canvasRef}
           className="block"
@@ -3020,131 +2867,12 @@ export function Timeline({ scrollRef }: TimelineProps) {
           maxX={viewportWidth}
           handleRef={pinPlayheadHandle}
         />
+        {/* The selected clip's Edit pill (2.12): its menu without a
+            right-click. */}
+        <ClipEditPill scrollRef={scrollRef} viewportWidth={viewportWidth} />
       </div>
-      {/* Marker context menu */}
-      {ctxMenu && (
-        <>
-          {/* Backdrop to dismiss */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setCtxMenu(null)}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              setCtxMenu(null);
-            }}
-          />
-          <div
-            className="fixed z-50 rounded-md py-1 shadow-lg"
-            style={{
-              left: ctxMenu.x,
-              top: ctxMenu.y,
-              backgroundColor: 'var(--daw-popover)',
-              border: '1px solid var(--daw-hairline)',
-              minWidth: 140,
-            }}
-          >
-            {ctxMenu.audioClipId ? (
-              <>
-                <button
-                  className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--daw-text)' }}
-                  onClick={handleCtxFadeIn}
-                >
-                  {(() => {
-                    const t = tracks.find((t) => t.id === ctxMenu.audioTrackId);
-                    const c = t?.audioClips.find(
-                      (c) => c.id === ctxMenu.audioClipId,
-                    );
-                    return c && c.fadeInTicks > 0
-                      ? 'Remove Fade In'
-                      : 'Fade In';
-                  })()}
-                </button>
-                <button
-                  className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--daw-text)' }}
-                  onClick={handleCtxFadeOut}
-                >
-                  {(() => {
-                    const t = tracks.find((t) => t.id === ctxMenu.audioTrackId);
-                    const c = t?.audioClips.find(
-                      (c) => c.id === ctxMenu.audioClipId,
-                    );
-                    return c && c.fadeOutTicks > 0
-                      ? 'Remove Fade Out'
-                      : 'Fade Out';
-                  })()}
-                </button>
-                <div
-                  style={{
-                    height: 1,
-                    backgroundColor: 'var(--daw-hairline)',
-                    margin: '2px 0',
-                  }}
-                />
-                <button
-                  className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--daw-text)' }}
-                  onClick={handleCtxSplitAtPlayhead}
-                >
-                  Split at Playhead
-                </button>
-                <button
-                  className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--daw-text)' }}
-                  onClick={handleCtxDuplicate}
-                >
-                  Duplicate
-                </button>
-                <div
-                  style={{
-                    height: 1,
-                    backgroundColor: 'var(--daw-hairline)',
-                    margin: '2px 0',
-                  }}
-                />
-                <button
-                  className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: '#ef4444' }}
-                  onClick={handleCtxDeleteClip}
-                >
-                  Delete
-                </button>
-              </>
-            ) : ctxMenu.markerId ? (
-              <>
-                <button
-                  className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: 'var(--daw-text)' }}
-                  onClick={() => void handleCtxMenuRename()}
-                >
-                  Rename Marker
-                </button>
-                <button
-                  className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                  style={{ color: '#ef4444' }}
-                  onClick={handleCtxMenuDelete}
-                >
-                  Delete Marker
-                </button>
-              </>
-            ) : ctxMenu.blankTrackId ? (
-              <PrismSuggestItem
-                onSuggest={handlePrismSuggest}
-                onClose={closeCtxMenu}
-              />
-            ) : (
-              <button
-                className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                style={{ color: 'var(--daw-text)' }}
-                onClick={handleCtxMenuAdd}
-              >
-                Add Marker Here
-              </button>
-            )}
-          </div>
-        </>
-      )}
+      {/* The canvas's one menu (2.12): clips, lanes, markers, the ruler. */}
+      <CanvasMenu />
     </div>
   );
 }

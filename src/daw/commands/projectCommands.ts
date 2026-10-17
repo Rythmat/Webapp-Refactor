@@ -4,7 +4,7 @@ import type { MidiSequence } from '@prism/engine';
 
 // ── File ▸ Export MIDI and File ▸ Analyze, from the menu and the keys ──────
 //
-// One command each, so ⌘E and ⇧⌘U do exactly what the menu items do (the key
+// One command each, so ⇧⌘E and ⇧⌘U do exactly what the menu items do (the key
 // used to skip Analyze's chord step and number the tracks differently).
 
 const OUR_PPQ = 480;

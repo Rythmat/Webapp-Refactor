@@ -1,12 +1,6 @@
 // @vitest-environment jsdom
 import { useEffect } from 'react';
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-} from '@testing-library/react';
+import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import {
   afterAll,
   afterEach,
@@ -16,10 +10,9 @@ import {
   expect,
   it,
   vi,
-  type Mock,
 } from 'vitest';
 
-// ── Timeline playhead (timeline-23) and the Prism item's lock (decision 8) ──
+// ── Timeline playhead (timeline-23) ─────────────────────────────────────────
 // The Timeline subscribed to the transport position at its top level, so the
 // whole 3,000-line component re-rendered with every playback tick (~30 a
 // second) to move one line, and its inline handle ref re-measured the scroll
@@ -27,8 +20,7 @@ import {
 // 1.7 it is painted through a ref from the playhead clock: playback moves it
 // without rendering even that child, and without writing the store.
 //
-// Prism is part of Premium: the context menu's Suggest Chords item shows a
-// free student the lock instead of opening the suggestion modal.
+// The canvas menu's Prism lock (decision 8) is clipMenu.test.tsx's now.
 
 const h = vi.hoisted(() => ({
   commits: {} as Record<string, number>,
@@ -51,7 +43,6 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => h.navigate,
 }));
 
-import { ProfileRoutes } from '@/constants/routes';
 import {
   endPlayheadRun,
   setPlayheadSourceForTests,
@@ -59,11 +50,7 @@ import {
 } from '@/daw/engine/playheadClock';
 import { useStore } from '@/daw/store';
 import { tickToPixel } from '@/daw/utils/timelineScale';
-import {
-  LANE_HEADER_PX,
-  RULER_PX,
-  TRACK_ROW_PX,
-} from '@/daw/shell/tracklist/rowLayout';
+import { RULER_PX } from '@/daw/shell/tracklist/rowLayout';
 import { ScrolledTimeline } from './scrolledTimeline';
 
 const s = () => useStore.getState();
@@ -239,58 +226,5 @@ describe('playback through the playhead clock', () => {
     const x = tickToPixel(1920, 1, 0);
     fireEvent.mouseMove(canvas, { clientX: x, clientY: RULER_PX - 2 });
     expect(canvas.style.cursor).toBe('grab');
-  });
-});
-
-describe('Suggest Chords in the context menu', () => {
-  /** Right-click the empty first track lane. */
-  function openBlankTrackMenu() {
-    const canvas = document.querySelector('canvas')!;
-    fireEvent.contextMenu(canvas, {
-      clientX: 200,
-      clientY: LANE_HEADER_PX + TRACK_ROW_PX / 2,
-    });
-  }
-
-  let open: Mock<(tick: number, trackId: string) => void>;
-  beforeEach(() => {
-    open = vi.fn<(tick: number, trackId: string) => void>();
-    useStore.setState({ openPrismSuggestion: open });
-  });
-
-  it('opens Prism’s suggestions for a premium student', () => {
-    renderTimeline();
-    openBlankTrackMenu();
-    fireEvent.click(screen.getByRole('button', { name: /Suggest Chords/ }));
-
-    expect(open).toHaveBeenCalledTimes(1);
-    expect(open.mock.calls[0][1]).toBe(s().tracks[0].id);
-    expect(h.navigate).not.toHaveBeenCalled();
-  });
-
-  it('is locked for a free student, and leads to the plans', () => {
-    h.premium = { isPremium: false, isLoading: false };
-    renderTimeline();
-    openBlankTrackMenu();
-    const item = screen.getByRole('button', {
-      name: 'Prism — Suggest Chords (Premium, locked)',
-    });
-    expect(item.textContent).toContain('Premium');
-    fireEvent.click(item);
-
-    expect(open).not.toHaveBeenCalled();
-    expect(h.navigate).toHaveBeenCalledWith(ProfileRoutes.plan.definition);
-    // The menu closed.
-    expect(screen.queryByRole('button', { name: /Suggest Chords/ })).toBeNull();
-  });
-
-  it('never sends a student away while their plan is still loading', () => {
-    h.premium = { isPremium: false, isLoading: true };
-    renderTimeline();
-    openBlankTrackMenu();
-    fireEvent.click(screen.getByRole('button', { name: /Suggest Chords/ }));
-
-    expect(open).not.toHaveBeenCalled();
-    expect(h.navigate).not.toHaveBeenCalled();
   });
 });

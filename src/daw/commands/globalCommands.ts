@@ -23,7 +23,7 @@ import { saveProject } from './saveProject';
 // view. They run
 // the same commands as their buttons: R is requestRecord (which asks before
 // recording over a take), ⌘S is saveProject (File ▸ Save's toasts and
-// chip), ⌘E and ⇧⌘U are File ▸ Export MIDI and Analyze. Undo and redo stand
+// chip), ⇧⌘E and ⇧⌘U are File ▸ Export MIDI and Analyze. Undo and redo stand
 // aside while recording, as their buttons are disabled then.
 
 function togglePlayback() {

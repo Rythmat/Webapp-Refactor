@@ -1,6 +1,13 @@
 import { useRef } from 'react';
 import { useStore, type AllSlices } from '@/daw/store';
 import type { AudioClip, MidiClip, Track } from '@/daw/store/tracksSlice';
+import { LANE_HEADER_PX, rowLayoutOf } from '@/daw/shell/tracklist/rowLayout';
+import {
+  TICKS_PER_BEAT,
+  pixelsPerBeat,
+  tickToPixel,
+} from '@/daw/utils/timelineScale';
+import { midiClipLength } from './midiClipCuts';
 
 // ── What the timeline canvas draws from ─────────────────────────────────────
 // The canvas used to redraw whenever the tracks array changed, and almost
@@ -122,4 +129,57 @@ export function useTimelineTracks(): Track[] {
     kept.current = s.tracks;
     return s.tracks;
   });
+}
+
+// ── Where a clip sits on the canvas ─────────────────────────────────────────
+
+/** Clips sit this far inside their lane, top and bottom. */
+export const CLIP_INSET = 2;
+/** A MIDI clip is never drawn narrower than this, however short. */
+export const MIN_MIDI_CLIP_PX = 20;
+
+/** A clip's box in canvas coordinates: x from the canvas's left edge (the
+ *  view scrolled sideways), y from the top of the scrolled lanes' content. */
+export interface ClipBox {
+  trackId: string;
+  trackIndex: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/**
+ * Where the canvas draws clip `clipId` at this zoom and sideways scroll, or
+ * null when no track holds it. The Edit pill is placed with it (2.12), so it
+ * reads the same row layout and lengths as the canvas's draw.
+ */
+export function clipBoxOf(
+  tracks: readonly Track[],
+  clipId: string,
+  zoom: number,
+  scrollLeft: number,
+): ClipBox | null {
+  const rows = rowLayoutOf(tracks);
+  const ppb = pixelsPerBeat(zoom);
+  for (let i = 0; i < tracks.length; i++) {
+    const track = tracks[i];
+    const midi = track.midiClips.find((c) => c.id === clipId);
+    const audio = midi
+      ? undefined
+      : track.audioClips.find((c) => c.id === clipId);
+    if (!midi && !audio) continue;
+    const startTick = (midi ?? audio)!.startTick;
+    const ticks = midi ? midiClipLength(midi) : audio!.duration;
+    const width = (ticks / TICKS_PER_BEAT) * ppb;
+    return {
+      trackId: track.id,
+      trackIndex: i,
+      x: tickToPixel(startTick, zoom, scrollLeft),
+      y: LANE_HEADER_PX + rows.tops[i] + CLIP_INSET,
+      w: midi ? Math.max(width, MIN_MIDI_CLIP_PX) : width,
+      h: rows.heights[i] - CLIP_INSET * 2,
+    };
+  }
+  return null;
 }

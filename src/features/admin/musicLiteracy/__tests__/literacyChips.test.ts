@@ -6,15 +6,22 @@ import type {
 import { listMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
 import {
   barBeat,
+  dropIndex,
   figureChips,
   figureNotes,
+  insertRest,
   lengthLabel,
   lineText,
+  moveItem,
+  moveSyllable,
+  notesEnd,
   overlaps,
   overrun,
+  restBefore,
   retypeLine,
   spanWords,
   splitSyllables,
+  withRestBefore,
   wordsLine,
   wordsNotes,
   type FigureChip,
@@ -215,5 +222,152 @@ describe('positions and lengths', () => {
   it('sees notes that overlap', () => {
     expect(overlaps([word(0, 480, 'a'), word(240, 240, 'b')])).toBe(true);
     expect(overlaps([word(0, 480, 'a'), word(480, 240, 'b')])).toBe(false);
+  });
+});
+
+describe('reordering', () => {
+  it('moves an item to where it is dropped', () => {
+    const items = ['a', 'b', 'c', 'd'];
+    // Dropped in the gap before "a", and in the gap after the last.
+    expect(moveItem(items, 2, dropIndex(2, 0))).toEqual(['c', 'a', 'b', 'd']);
+    expect(moveItem(items, 0, dropIndex(0, 4))).toEqual(['b', 'c', 'd', 'a']);
+    // Either side of itself, it stays.
+    expect(dropIndex(1, 1)).toBe(1);
+    expect(dropIndex(1, 2)).toBe(1);
+    expect(moveItem(items, 1, 1)).toEqual(items);
+  });
+});
+
+describe('dragging a syllable', () => {
+  const line = () =>
+    wordsLine([
+      word(0, 480, 'Hey'),
+      word(480, 240, 'there', '3'),
+      // A quarter rest, then "you" on the 5.
+      { tick: 1200, duration: 720, degree: '5', octave: 1, text: 'you' },
+      word(1920, 480, 'all', '2'),
+    ]);
+
+  it('moves its note, its length and the rest before it with it', () => {
+    const moved = moveSyllable(line(), 2, 0);
+    expect(lineText(moved)).toBe('you Hey there all');
+    expect(wordsNotes(moved)).toEqual([
+      // The rest that was before "you" still is, so the line starts late.
+      { tick: 480, duration: 720, degree: '5', octave: 1, text: 'you' },
+      word(1200, 480, 'Hey'),
+      word(1680, 240, 'there', '3'),
+      word(1920, 480, 'all', '2'),
+    ]);
+    // Nothing lost: the line ends where it did.
+    expect(notesEnd(wordsNotes(moved))).toBe(notesEnd(wordsNotes(line())));
+  });
+
+  it('takes the line’s opening rest with the first syllable', () => {
+    const late = withRestBefore(line(), 0, 240);
+    const moved = moveSyllable(late, 0, 3);
+    expect(lineText(moved)).toBe('there you all Hey');
+    expect(moved.lead).toBe(0);
+    expect(wordsNotes(moved).map((n) => [n.text, n.tick])).toEqual([
+      ['there', 0],
+      ['you', 720],
+      ['all', 1440],
+      ['Hey', 2160],
+    ]);
+    expect(moveSyllable(moved, 3, 0)).toEqual(late);
+  });
+
+  it('turns back into exactly the ticks it shows', () => {
+    for (const [from, to] of [
+      [0, 3],
+      [3, 0],
+      [1, 2],
+      [2, 1],
+    ]) {
+      const notes = wordsNotes(moveSyllable(line(), from, to));
+      expect(wordsNotes(wordsLine(notes))).toEqual(notes);
+    }
+  });
+});
+
+describe('a rest before or after a syllable', () => {
+  const line = () =>
+    wordsLine([word(0, 480, 'one'), word(480, 480, 'two', '3')]);
+
+  it('is the gap ahead of it: the line’s lead for the first', () => {
+    const late = withRestBefore(line(), 0, 240);
+    expect(restBefore(late, 0)).toBe(240);
+    expect(wordsNotes(late)).toEqual([
+      word(240, 480, 'one'),
+      word(720, 480, 'two', '3'),
+    ]);
+  });
+
+  it('after one syllable is before the next, the same gap', () => {
+    const after = { ...line(), syllables: line().syllables.slice() };
+    after.syllables[0] = { ...after.syllables[0], rest: 960 };
+    const before = withRestBefore(line(), 1, 960);
+    expect(before).toEqual(after);
+    expect(restBefore(before, 1)).toBe(960);
+    expect(wordsNotes(before)).toEqual([
+      word(0, 480, 'one'),
+      word(1440, 480, 'two', '3'),
+    ]);
+    expect(wordsLine(wordsNotes(before))).toEqual(before);
+  });
+});
+
+describe('a rest before or after a figure’s note', () => {
+  const notes: LiteracyNote[] = [
+    { tick: 0, duration: 480, degree: '1' },
+    { tick: 480, duration: 480, degree: '3' },
+  ];
+
+  it('puts a rest chip on that side, and the notes after it move up', () => {
+    const chips = figureChips(notes);
+    // Before note 2 (chip 1), and after it.
+    expect(figureNotes(insertRest(chips, 1, 240))).toEqual([
+      { tick: 0, duration: 480, degree: '1' },
+      { tick: 720, duration: 480, degree: '3' },
+    ]);
+    // Before the first: the figure starts late.
+    expect(figureNotes(insertRest(chips, 0, 960))).toEqual([
+      { tick: 960, duration: 480, degree: '1' },
+      { tick: 1440, duration: 480, degree: '3' },
+    ]);
+    // After note 1, which is before note 2: the same ticks.
+    expect(figureNotes(insertRest(chips, 1, 480))).toEqual(
+      figureNotes(insertRest(insertRest(chips, 1, 240), 1, 240)),
+    );
+  });
+
+  it('joins a rest put next to another, and reads back tick for tick', () => {
+    const chips = insertRest(insertRest(figureChips(notes), 1, 480), 1, 240);
+    const stored = figureNotes(chips);
+    expect(figureChips(stored)).toEqual<FigureChip[]>([
+      { kind: 'note', degree: '1', octave: 0, duration: 480 },
+      { kind: 'rest', duration: 720 },
+      { kind: 'note', degree: '3', octave: 0, duration: 480 },
+    ]);
+    expect(figureNotes(figureChips(stored))).toEqual(stored);
+  });
+
+  it('moves a note or a rest chip alone when it is dragged', () => {
+    const chips = insertRest(figureChips(notes), 1, 480);
+    // The rest to the front: the figure starts late.
+    expect(figureNotes(moveItem(chips, 1, 0))).toEqual([
+      { tick: 480, duration: 480, degree: '1' },
+      { tick: 960, duration: 480, degree: '3' },
+    ]);
+    // The second note to the front: the rest stays put, last, where it is
+    // the silence before the bar line.
+    expect(figureNotes(moveItem(chips, 2, 0))).toEqual([
+      { tick: 0, duration: 480, degree: '3' },
+      { tick: 480, duration: 480, degree: '1' },
+    ]);
+    // The first note to the end: it sounds after the rest.
+    expect(figureNotes(moveItem(chips, 0, 2))).toEqual([
+      { tick: 480, duration: 480, degree: '3' },
+      { tick: 960, duration: 480, degree: '1' },
+    ]);
   });
 });

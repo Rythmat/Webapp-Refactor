@@ -623,6 +623,7 @@ export const TRACK_FIELDS: TrackFields = Object.freeze({
     'legacy',
     SHARED_UNDO,
   ),
+  notationStaff: trackDoc(undefined, 'legacy', SHARED_UNDO),
 } satisfies TrackFields);
 
 /**

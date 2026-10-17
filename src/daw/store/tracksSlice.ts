@@ -98,6 +98,13 @@ export type InstrumentType =
 
 export type StudioBassVoice = 'fretless' | 'finger' | 'upright' | '808';
 
+/**
+ * The staff a track's part is written on in the Score and the Lead Sheet:
+ * 'auto' (or unset) follows its instrument (Score/partStaff.ts); the others
+ * are set by hand. A drum kit is always on a drum staff, whatever this says.
+ */
+export type NotationStaffSetting = 'auto' | 'treble' | 'bass' | 'grand';
+
 export type AudioInputChannel =
   | { mode: 'mono'; channel: number }
   | { mode: 'stereo'; left: number; right: number };
@@ -203,6 +210,11 @@ export interface Track {
   automation?: AutomationLanes;
   /** Harmonic role for chord detection (auto = infer from name/instrument). */
   trackRole: DawTrackRole;
+  /**
+   * The staff the Score writes this track's part on, set by hand; unset is
+   * Auto, which follows the instrument (Score/partStaff.ts).
+   */
+  notationStaff?: NotationStaffSetting;
 }
 
 // ── Note ids ────────────────────────────────────────────────────────────

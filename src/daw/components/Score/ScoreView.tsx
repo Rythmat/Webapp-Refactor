@@ -159,6 +159,7 @@ export function ScoreView() {
         <ScorePalettes {...editing.palette} />
         <ScorePartsPanel
           parts={editing.partRows}
+          onSetStaff={editing.onSetStaff}
           onToggleChords={editing.onToggleChords}
           onRestoreChords={editing.onRestoreChords}
         />

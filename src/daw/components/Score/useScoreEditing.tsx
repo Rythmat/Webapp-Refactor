@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  type MeasureBox,
   type NoteInfo,
   type ScorePart,
   type StaffLayout,
@@ -110,6 +111,9 @@ import {
   withoutRepeatAt,
 } from './roadmap';
 import type { ScoreTrackPart } from './scoreParts';
+import { partStaffState, storedSetting } from './partStaff';
+import { PartNameMenu } from './PartStaffControls';
+import type { NotationStaffSetting } from '@/daw/store/tracksSlice';
 import {
   drawnSpans,
   inputGrid,
@@ -1401,18 +1405,40 @@ export function useScoreEditing({
     setSelectedChords(new Set());
   }, [selectedChords, scoreChordHidden, trackIdByPart, setScoreChordHidden]);
 
+  // ── Each part's clef ────────────────────────────────────────────────────
+  // A part's staff follows its instrument unless set by hand (partStaff.ts),
+  // from the parts panel or the menu on its name. Setting it is one undo
+  // step, like any other edit.
+  const updateTrack = useStore((s) => s.updateTrack);
+  const staffStates = useMemo(() => {
+    const byId = new Map(tracks.map((track) => [track.id, track]));
+    return scoreParts.map((part) => {
+      const track = byId.get(part.id);
+      return track ? partStaffState(track) : null;
+    });
+  }, [tracks, scoreParts]);
+  const setPartStaff = useCallback(
+    (trackId: string, setting: NotationStaffSetting) => {
+      withTransaction('Change clef', () =>
+        updateTrack(trackId, { notationStaff: storedSetting(setting) }),
+      );
+    },
+    [updateTrack],
+  );
+
   const partRows = useMemo(
     () =>
-      scoreParts.map((part) => ({
+      scoreParts.map((part, index) => ({
         id: part.id,
         name: part.name,
         color: part.color,
+        staff: staffStates[index],
         showChords: scoreChordTracks.includes(part.id),
         hiddenChords: scoreChordHidden.filter((entry) =>
           entry.startsWith(`${part.id}:`),
         ).length,
       })),
-    [scoreParts, scoreChordTracks, scoreChordHidden],
+    [scoreParts, staffStates, scoreChordTracks, scoreChordHidden],
   );
 
   // ── Copy and paste ──────────────────────────────────────────────────────
@@ -2138,6 +2164,19 @@ export function useScoreEditing({
     () => systemOpeningBars(layout?.barlines ?? []),
     [layout],
   );
+  /**
+   * Where each part's name sits on each system: left of the system's first
+   * bar, as tall as the part's staves.
+   */
+  const partNameBoxes = useMemo(() => {
+    const first = new Map<string, MeasureBox>();
+    for (const box of layout?.measures ?? []) {
+      const key = `${box.system}:${box.partIndex}`;
+      const kept = first.get(key);
+      if (!kept || box.x < kept.x) first.set(key, box);
+    }
+    return [...first.values()];
+  }, [layout]);
 
   const overlay = layout ? (
     <>
@@ -2171,6 +2210,33 @@ export function useScoreEditing({
             }}
           />
         ))}
+      {/* Each part's name at the left of a system opens its clef menu. The
+          names are drawn only with two parts or more. */}
+      {parts.length > 1 &&
+        partNameBoxes.map((box) => {
+          const part = scoreParts[box.partIndex];
+          const state = staffStates[box.partIndex];
+          if (!part || !state) return null;
+          // From the page's margin to the system's opening barline.
+          const left = Math.max(
+            0,
+            Math.min(LETTER_PORTRAIT.margin * layout.scale, box.x - 24),
+          );
+          return (
+            <PartNameMenu
+              key={`name:${box.system}:${box.partIndex}`}
+              name={part.name}
+              state={state}
+              onChange={(setting) => setPartStaff(part.id, setting)}
+              style={{
+                left,
+                top: box.y,
+                width: Math.max(0, box.x - 2 - left),
+                height: box.height,
+              }}
+            />
+          );
+        })}
       {/* Marks, slurs and ties: one layer that scales with the staff. Each
           is clickable on its own, and shows when it is selected. */}
       <svg
@@ -2844,8 +2910,9 @@ export function useScoreEditing({
     },
     /** What a palette cell applies to, and how to apply one. */
     palette: { hasSelection: targetBarline !== null, onApply: apply },
-    /** Per-part chord symbol switches. */
+    /** Per-part clefs and chord symbol switches. */
     partRows,
+    onSetStaff: setPartStaff,
     onToggleChords: toggleScoreChordTrack,
     onRestoreChords: (trackId: string) =>
       setScoreChordHidden(withPartChordsRestored(scoreChordHidden, trackId)),

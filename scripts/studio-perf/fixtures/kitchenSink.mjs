@@ -156,6 +156,8 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     trackRole: 'chords',
     midiInputId: 'kitchen-midi-in',
     presetName: 'Bright Grand',
+    // The Score writes it on one staff, set by hand (schema 6).
+    notationStaff: 'treble',
   });
   act().updateTrack(guitar, {
     audioInputId: 'kitchen-audio-in',

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * The shape of today's draft, held still: every key path an encoded
- * all-fields session holds (fixtures/v5-all-fields, re-encoded by today's
+ * all-fields session holds (fixtures/v6-all-fields, re-encoded by today's
  * codec), and
  * the keys of a draft track, clip and settings blob. A draft that gains,
  * loses or moves a field fails here, and the fix is never to update the
@@ -11,7 +11,8 @@
  * known to need it: 1.13b (the Oracle patch moves out of the track's
  * settings), 1.16 (the per-project chord-prompt flag). Schema 4 was 1.10's
  * (leadSheetBars, a chord region's sourceClipId); 5 made the Lead Sheet's
- * melody track a list (leadSheetMelodyTrackIds).
+ * melody track a list (leadSheetMelodyTrackIds); 6 added the staff a part is
+ * set to (a track's settings.notationStaff).
  *
  * An array's entries share one path (`[]`). The instrument and effect blobs
  * inside it are their owners' (each loads older versions of itself, and the
@@ -54,7 +55,7 @@ const OPAQUE = new Set([
 function encodedAllFields(): StoredSession {
   const file = resolve(
     process.cwd(),
-    'src/daw/persistence/__tests__/fixtures/v5-all-fields/all-fields.json',
+    'src/daw/persistence/__tests__/fixtures/v6-all-fields/all-fields.json',
   );
   const migrated = migrateSession(readFileSync(file, 'utf8'));
   if (!migrated.ok) throw new Error(`unreadable: ${migrated.detail}`);
@@ -290,6 +291,7 @@ const DRAFT_PATHS = [
   'data.tracks[].settings.effects',
   'data.tracks[].settings.gmProgram',
   'data.tracks[].settings.guitarChain',
+  'data.tracks[].settings.notationStaff',
   'data.tracks[].settings.oracleSynth',
   'data.tracks[].settings.organState',
   'data.tracks[].settings.presetName',
@@ -365,6 +367,7 @@ const DRAFT_RECORDS = {
     'effects',
     'gmProgram',
     'guitarChain',
+    'notationStaff',
     'oracleSynth',
     'organState',
     'presetName',

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
- * The cloud copy of the all-fields project (fixtures/v5-all-fields), held
- * still as today's client writes it: fixtures/cloud-schema-5 holds the
+ * The cloud copy of the all-fields project (fixtures/v6-all-fields), held
+ * still as today's client writes it: fixtures/cloud-schema-6 holds the
  * server's answer for a save in each mode, 'document' (the API's field) and
  * 'interim' (the first track's settings). Opening either must give back
  * every field the cloud keeps, exactly as the draft does; and today's
@@ -12,6 +12,8 @@
  * (schema 3, from fixtures/v3-all-fields) and fixtures/cloud-1.10 are
  * milestone 1.10's (schema 4, from fixtures/v4-all-fields), and both still
  * open whole, their one melody track read as a list of it.
+ * fixtures/cloud-schema-5 are schema 5's (from fixtures/v5-all-fields),
+ * which open whole with every part's staff on Auto.
  *
  * Fixtures are written only with WRITE_FIXTURES=1.
  *
@@ -39,8 +41,11 @@ import {
 } from '../SessionSerializer';
 
 const DIR = resolve(process.cwd(), 'src/daw/persistence/__tests__/fixtures');
-const ALL_FIELDS = resolve(DIR, 'v5-all-fields/all-fields.json');
-const CLOUD = resolve(DIR, 'cloud-schema-5');
+const ALL_FIELDS = resolve(DIR, 'v6-all-fields/all-fields.json');
+const CLOUD = resolve(DIR, 'cloud-schema-6');
+/** Schema 5's saves, of the v5 all-fields draft. */
+const ALL_FIELDS_V5 = resolve(DIR, 'v5-all-fields/all-fields.json');
+const CLOUD_V5 = resolve(DIR, 'cloud-schema-5');
 /** Milestone 1.10's saves (schema 4), of the v4 all-fields draft. */
 const ALL_FIELDS_V4 = resolve(DIR, 'v4-all-fields/all-fields.json');
 const CLOUD_V4 = resolve(DIR, 'cloud-1.10');
@@ -145,6 +150,10 @@ describe.each(MODES)('a cloud copy saved in %s mode', (mode) => {
       partsSkipped: 0,
     });
     expect(cloudContent(s())).toEqual(expected);
+    // The staff Keys was set to by hand rides in its settings (schema 6).
+    expect(s().tracks.find((t) => t.name === 'Keys')?.notationStaff).toBe(
+      'treble',
+    );
   });
 
   it('writes the same document again (else bump the schema)', () => {
@@ -167,6 +176,19 @@ describe.each(MODES)('a cloud copy saved in %s mode', (mode) => {
     });
     const again = JSON.parse(JSON.stringify(encodeCloudDocument(s())));
     expect(underived(again)).toEqual(underived(document));
+  });
+});
+
+describe.each(MODES)('a cloud copy schema 5 saved in %s mode', (mode) => {
+  it('still opens with every field it kept, every staff on Auto', () => {
+    loadAllFields(ALL_FIELDS_V5);
+    const expected = cloudContent(s());
+    useStore.setState(useStore.getInitialState(), true);
+
+    const report = deserializeCloudProject(fixture(mode, CLOUD_V5));
+    expect(report).toMatchObject({ stale: false, newer: false });
+    expect(cloudContent(s())).toEqual(expected);
+    expect(s().tracks.every((t) => t.notationStaff === undefined)).toBe(true);
   });
 });
 

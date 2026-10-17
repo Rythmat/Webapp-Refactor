@@ -1048,6 +1048,12 @@ const probes = {
       st(p).updateTrack(track(p, 'Keys').id, { trackRole: 'melody' }),
     check: (p) => expect(track(p, 'Keys').trackRole).toBe('melody'),
   },
+  // The staff a part is set to in the Score's parts panel (schema 6).
+  partStaff: {
+    write: (p) =>
+      st(p).updateTrack(track(p, 'Keys').id, { notationStaff: 'treble' }),
+    check: (p) => expect(track(p, 'Keys').notationStaff).toBe('treble'),
+  },
   inputChannel: {
     write: writeStereoInput,
     check: (p) =>
@@ -1250,6 +1256,7 @@ describe('a browser refresh (local autosave) keeps', () => {
   it('the Oracle synth patch', kept(probes.oracleSynthPatch));
   // state-reload-10: fixed in 1.1 (the track map carries trackRole).
   it('the track role', kept(probes.trackRole));
+  it("a part's staff", kept(probes.partStaff));
   // live-input-02: fixed in 1.1 (the track map carries audioInputChannel).
   it('the live input channel', kept(probes.inputChannel));
   it('record arm, monitoring and input devices', kept(probes.inputRouting));
@@ -1319,6 +1326,7 @@ const LOCAL_ROWS: [string, Probe][] = [
   ['the vocal pedal chain', probes.vocalChain],
   ['the Oracle synth patch', probes.oracleSynthPatch],
   ['the track role', probes.trackRole],
+  ["a part's staff", probes.partStaff],
   ['the live input channel', probes.inputChannel],
   ['record arm, monitoring and input devices', probes.inputRouting],
   ['MIDI clip notes, name and position', probes.midiNotes],
@@ -1476,6 +1484,8 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   // state-reload-10: fixed in 1.1 (the role rides in the track settings blob;
   // only a save without it re-guesses from the name).
   it('the track role', kept(probes.trackRole));
+  // Rides in the track settings blob the payload already carries.
+  it("a part's staff", kept(probes.partStaff));
   // live-input-02: deserializeCloudProject sets audioInputChannel to null.
   // Kept null on purpose in 1.1 (the channel is per-device, never cloud);
   // the input views read null as mono input 1 instead (see the probe).

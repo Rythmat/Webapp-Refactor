@@ -43,6 +43,7 @@ describe('the Studio instruments', () => {
     ['tonewheel-organ', 'grand'],
     ['bass-electric', 'bass'],
     ['cello', 'bass'],
+    ['guitar-acoustic', 'treble'],
     ['drum-machine', 'percussion'],
     ['guitar-fx', 'treble'],
     ['bass-fx', 'bass'],

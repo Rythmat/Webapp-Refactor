@@ -8,11 +8,14 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// ── Create's canvas: the toolbar and the chord lane (milestone 2.7) ────────
+// ── Create's canvas: the header's controls and the chord lane (2.7, 2.13) ──
 // Snap never moves the playhead (shell-18); the grid and the tool are
 // visible choices (timeline-14, timeline-15); the chord lane's analysis
 // offer blocks nothing and remembers Not now (insight-22); + Suggest is
-// Premium and targets a track that can hold chords (ia-flows-26).
+// Premium and targets a track that can hold chords (ia-flows-26). Since
+// Create's toolbar folded away (2.13, decision 16) the tools sit beside the
+// ruler, Snap and Grid at its right end, zoom and Follow in the footer, and
+// + Add track over the track list.
 
 const h = vi.hoisted(() => ({
   premium: { isPremium: true, isLoading: false },
@@ -24,7 +27,10 @@ vi.mock('react-router-dom', () => ({ useNavigate: () => h.navigate }));
 import { useStore } from '@/daw/store';
 import { ChordAnalysisBanner } from '../ChordAnalysisBanner';
 import { ChordLaneHeader, suggestTarget } from '../ChordLaneHeader';
-import { CreateToolbar } from '../CreateToolbar';
+import { GridMenu } from '../GridMenu';
+import { RulerEndControls } from '../RulerEndControls';
+import { TimelineFooter } from '../TimelineFooter';
+import { TimelineTools } from '../TimelineTools';
 
 const s = () => useStore.getState();
 
@@ -49,9 +55,9 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-describe('the toolbar', () => {
+describe('the header’s controls', () => {
   it('turns snap off and on without moving the playhead (shell-18)', () => {
-    render(<CreateToolbar />);
+    render(<RulerEndControls />);
     fireEvent.click(screen.getByRole('button', { name: 'Snap to grid' }));
     expect(s().timelineSnapEnabled).toBe(false);
     fireEvent.click(screen.getByRole('button', { name: 'Snap to grid' }));
@@ -59,8 +65,13 @@ describe('the toolbar', () => {
     expect(s().position).toBe(960);
   });
 
-  it('picks the tool, and Follow is the student’s switch', () => {
-    render(<CreateToolbar />);
+  it('picks the tool beside the ruler, and Follow is the student’s switch', () => {
+    render(
+      <>
+        <TimelineTools />
+        <TimelineFooter />
+      </>,
+    );
     fireEvent.click(screen.getByRole('radio', { name: 'Cut clips (C)' }));
     expect(s().activeTool).toBe('scissors');
     fireEvent.click(
@@ -69,19 +80,31 @@ describe('the toolbar', () => {
     expect(s().followPlayhead).toBe(false);
   });
 
+  it('zooms from the footer, beside the scrollbar', () => {
+    useStore.setState({ timelineZoom: 1 });
+    render(<TimelineFooter />);
+    const footer = screen.getByTestId('timeline-footer');
+    expect(footer).toContainElement(screen.getByTestId('timeline-scrollbar'));
+    fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }));
+    expect(s().timelineZoom).toBeGreaterThan(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
+    expect(s().timelineZoom).toBeLessThan(1);
+  });
+
   it('names the grid on its button', () => {
     useStore.setState({ timelineGridSize: '1/8T', timelineSnapEnabled: false });
-    render(<CreateToolbar />);
+    render(<GridMenu />);
     expect(
       screen.getByRole('button', { name: 'Grid: 1/8 triplet, snap off' }),
     ).toBeInTheDocument();
   });
 
-  it('keeps + Add track as the lessons’ anchor', () => {
-    render(<CreateToolbar />);
-    expect(
-      document.querySelector('[data-tutorial-id="add-track-button"]'),
-    ).toHaveAccessibleName('Add track');
+  it('puts snap and the grid together at the ruler’s end', () => {
+    render(<RulerEndControls />);
+    const end = screen.getByRole('group', { name: 'Grid and snap' });
+    expect(end).toContainElement(screen.getByTestId('snap-toggle'));
+    expect(end).toContainElement(screen.getByTestId('grid-menu'));
   });
 });
 

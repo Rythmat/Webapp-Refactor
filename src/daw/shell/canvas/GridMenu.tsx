@@ -12,6 +12,7 @@ import {
   type GridBase,
 } from '@/daw/editor/snap';
 import { useStore } from '@/daw/store';
+import { withTransaction } from '@/daw/store/history';
 import { buttonVariants } from '@/daw/ui/Button';
 import {
   Menu,
@@ -23,15 +24,21 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from '@/daw/ui/Menu';
+import { TYPE_CLASS } from '@/daw/ui/styles';
 import { Tooltip } from '@/daw/ui/Tooltip';
+import { chordNotationLockTitle } from '@/daw/utils/chordRegionNotation';
+import { useChordNotation } from '@/lib/chordNotation';
 
-// ── The Grid menu (milestone 2.7) ──────────────────────────────────────────
+// ── The Grid menu (milestones 2.7 and 2.13) ────────────────────────────────
 //
 // What clips, the loop, markers and the playhead snap to: a bar, a half, a
 // beat, an eighth or a sixteenth (those that fit the metre), in triplets or
 // not, and Snap on or off (timeline-14). The button names the grid; a
 // struck-out grid means snap is off. Turning snap on or off never moves the
-// playhead (shell-18).
+// playhead (shell-18). Since Create's toolbar folded away (2.13, decision
+// 16) it sits at the ruler's right end, and it also holds the timeline's
+// two display choices: how the chord lane labels chords, and what colours
+// the clips.
 
 export const GridMenu = memo(function GridMenu() {
   const size = useStore((s) => s.timelineGridSize);
@@ -55,7 +62,7 @@ export const GridMenu = memo(function GridMenu() {
 
   return (
     <Menu>
-      <Tooltip content="Grid and snap" side="bottom">
+      <Tooltip content="Grid, snap and display" side="bottom">
         <MenuTrigger
           data-testid="grid-menu"
           aria-label={`Grid: ${label}${snap ? '' : ', snap off'}`}
@@ -71,7 +78,12 @@ export const GridMenu = memo(function GridMenu() {
           <ChevronDown aria-hidden className="!size-3" />
         </MenuTrigger>
       </Tooltip>
-      <MenuContent align="start" data-ds="v2" className="w-52">
+      <MenuContent
+        align="end"
+        data-ds="v2"
+        data-testid="grid-menu-content"
+        className="w-56"
+      >
         <MenuLabel>Grid</MenuLabel>
         <MenuRadioGroup
           value={base}
@@ -100,7 +112,69 @@ export const GridMenu = memo(function GridMenu() {
         >
           Snap to grid
         </MenuCheckboxItem>
+        <MenuSeparator />
+        <ChordLabels />
+        <MenuSeparator />
+        <ClipColours />
       </MenuContent>
     </Menu>
   );
 });
+
+/**
+ * How the chord lane labels chords: degree numbers or note names. Jazz and
+ * Roman notation decide it themselves; the choice applies to hybrid only.
+ */
+function ChordLabels() {
+  const showNotes = useStore((s) => s.chordRulerShowNotes);
+  const notation = useChordNotation();
+  const locked = notation !== 'hybrid';
+  return (
+    <>
+      <MenuLabel>Chord lane</MenuLabel>
+      {locked ? (
+        <p className={cn(TYPE_CLASS.label, 'px-2 pb-1 text-daw-text-3')}>
+          {chordNotationLockTitle(notation)}
+        </p>
+      ) : null}
+      <MenuRadioGroup
+        data-testid="chord-ruler-labels"
+        value={showNotes ? 'notes' : 'numbers'}
+        onValueChange={(value) => {
+          if ((value === 'notes') !== useStore.getState().chordRulerShowNotes) {
+            useStore.getState().toggleChordRulerLabels();
+          }
+        }}
+      >
+        <MenuRadioItem value="numbers" disabled={locked}>
+          Degree numbers
+        </MenuRadioItem>
+        <MenuRadioItem value="notes" disabled={locked}>
+          Note names
+        </MenuRadioItem>
+      </MenuRadioGroup>
+    </>
+  );
+}
+
+/** What colours the clips: their track's colour, or the chords' (one undo step). */
+function ClipColours() {
+  const mode = useStore((s) => s.clipColorMode);
+  return (
+    <>
+      <MenuLabel>Colour clips by</MenuLabel>
+      <MenuRadioGroup
+        data-testid="clip-colour-mode"
+        value={mode}
+        onValueChange={(value) =>
+          withTransaction('Colour clips', () =>
+            useStore.getState().setClipColorMode(value as 'track' | 'prism'),
+          )
+        }
+      >
+        <MenuRadioItem value="track">Track</MenuRadioItem>
+        <MenuRadioItem value="prism">Harmony</MenuRadioItem>
+      </MenuRadioGroup>
+    </>
+  );
+}

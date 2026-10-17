@@ -8,11 +8,12 @@ import { pixelsPerBeat, TICKS_PER_BEAT } from '@/daw/utils/timelineScale';
 
 // ── The timeline's scrollbar (milestone 2.6) ───────────────────────────────
 //
-// The footer under the lanes, where it costs them no height; it has the
-// footer to itself since Master moved to the bottom rail (B4a). Always
-// shown: when the song fits, the thumb fills the track. Dragging the thumb
-// scrolls; a click on the track moves a page. The student has taken the
-// view, so Follow waits for Play or Stop.
+// In the footer under the lanes, where it costs them no height, with zoom
+// and Follow beside its right end since Create's toolbar folded away
+// (milestone 2.13, TimelineFooter). Always shown: when the song fits, the
+// thumb fills the track. Dragging the thumb scrolls; a click on the track
+// moves a page. The student has taken the view, so Follow waits for Play or
+// Stop.
 
 const MIN_THUMB_PX = 30;
 

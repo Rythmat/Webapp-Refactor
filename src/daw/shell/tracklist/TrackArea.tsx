@@ -1,39 +1,45 @@
+import { Plus } from 'lucide-react';
 import { memo, useRef } from 'react';
 import { AutomationLaneEditor } from '@/daw/components/Timeline/AutomationLaneEditor';
 import { Timeline } from '@/daw/components/Timeline/Timeline';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
+import { Button } from '@/daw/ui/Button';
 import { ChordAnalysisBanner } from '../canvas/ChordAnalysisBanner';
 import { ChordLaneHeader } from '../canvas/ChordLaneHeader';
-import { CreateToolbar } from '../canvas/CreateToolbar';
-import { TimelineScrollbar } from '../canvas/TimelineScrollbar';
+import { RulerEndControls } from '../canvas/RulerEndControls';
+import { TimelineFooter } from '../canvas/TimelineFooter';
+import { TimelineTools } from '../canvas/TimelineTools';
 import { AddTrackSheet } from './AddTrackSheet';
+import { openAddTrackSheet } from './addTrack';
 import { EmptyProjectTiles } from './EmptyProjectTiles';
-import { LANE_HEADER_PX, RULER_PX, SCROLL_FOOTER_PX } from './rowLayout';
+import { LANE_HEADER_PX, SECTIONS_LANE_PX } from './rowLayout';
 import { TrackList } from './TrackList';
 
-// ── Create's track area (milestones 2.6 and 2.7) ───────────────────────────
+// ── Create's track area (milestones 2.6, 2.7 and 2.13) ─────────────────────
 //
-//   + Add track  │ the toolbar (tools, grid, zoom, Follow, + Marker)    32
-//   (ruler)      │ the ruler: loop strip and bar numbers                 32
+//   + Add track  │ the sections lane                                     24
+//   V B C        │ the ruler: loop strip and bar numbers   [Snap][Grid]  32
 //   Chords · key │ the chord lane                                        24
 //   track rows   │ the lanes                                     (scrolls)
 //   (automation lane, when one is open)
-//                │ the timeline's scrollbar                              16
+//                │ the scrollbar                    [− % + Fit][Follow]  24
 //
-// The rows and the lanes are one vertical scroller, so a row and its lane
-// can't drift apart (timeline-12); both take their heights from rowLayout.
-// The ruler and the chord lane stay at the top while it scrolls: the canvas
-// draws them at the scroll offset, and the left column's corner is sticky.
-// The scrollbar sits in a thin footer under the lanes; Master moved to the
-// bottom rail (B4a). An empty project shows its first steps in the lanes.
+// Create's toolbar row folded away in 2.13 (decision 16): its controls sit
+// where they act, and the lane header is 80 px. The rows and the lanes are
+// one vertical scroller, so a row and its lane can't drift apart
+// (timeline-12); both take their heights from rowLayout. The ruler and the
+// chord lane stay at the top while it scrolls: the canvas draws them at the
+// scroll offset, and the left column's corner and the ruler's end controls
+// are sticky. The sections row sits above the scroller, which never moves
+// it. An empty project shows its first steps in the lanes.
 
 export const TrackArea = memo(function TrackArea() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const empty = useStore((s) => s.tracks.length === 0);
   return (
     <div data-testid="track-area" className="flex min-h-0 flex-1 flex-col">
-      <CreateToolbar />
+      <SectionsRow />
       <div
         ref={scrollRef}
         data-testid="track-scroller"
@@ -45,11 +51,7 @@ export const TrackArea = memo(function TrackArea() {
           className="relative border-r border-daw-hairline bg-daw-surface-1"
         >
           <div className="sticky top-0 z-[var(--daw-z-sticky)] bg-daw-surface-1">
-            <div
-              aria-hidden
-              className="border-b border-daw-hairline"
-              style={{ height: RULER_PX }}
-            />
+            <TimelineTools />
             <ChordLaneHeader />
           </div>
           <DevProfiler id="TrackList">
@@ -57,6 +59,7 @@ export const TrackArea = memo(function TrackArea() {
           </DevProfiler>
         </div>
         <div className="relative min-w-0">
+          <RulerEndControls />
           <ChordAnalysisBanner />
           <Timeline scrollRef={scrollRef} />
           {empty ? (
@@ -70,15 +73,39 @@ export const TrackArea = memo(function TrackArea() {
         </div>
       </div>
       <AutomationLaneEditor />
-      <div
-        data-ds="v2"
-        data-testid="timeline-footer"
-        className="flex shrink-0 items-center border-t border-daw-hairline bg-daw-surface-1 pl-[200px] pr-2"
-        style={{ height: SCROLL_FOOTER_PX }}
-      >
-        <TimelineScrollbar />
-      </div>
+      <TimelineFooter />
       <AddTrackSheet />
     </div>
   );
 });
+
+/**
+ * The row above the ruler: + Add track over the track list (the lessons'
+ * anchor, where the toolbar had it), and the song's sections over the
+ * lanes. A hairline under it that takes no height keeps the header at 80 px.
+ */
+function SectionsRow() {
+  return (
+    <div
+      data-ds="v2"
+      data-testid="sections-row"
+      className="grid shrink-0 grid-cols-[200px_minmax(0,1fr)] bg-daw-surface-1 shadow-[inset_0_-1px_0_var(--daw-hairline)]"
+      style={{ height: SECTIONS_LANE_PX }}
+    >
+      <div className="flex items-center border-r border-daw-hairline px-2">
+        <Button
+          size="sm"
+          variant="ghost"
+          data-tutorial-id="add-track-button"
+          data-testid="add-track-button"
+          className="w-full justify-start"
+          onClick={openAddTrackSheet}
+        >
+          <Plus aria-hidden />
+          Add track
+        </Button>
+      </div>
+      <div className="relative min-w-0" />
+    </div>
+  );
+}

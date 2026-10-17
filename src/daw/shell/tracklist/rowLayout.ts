@@ -11,16 +11,41 @@
 
 /** A track row: name and ⋯ on top, M, S, Arm and the fader below. */
 export const TRACK_ROW_PX = 64;
-/** The timeline's scrollbar, under the lanes (Master moved to the bottom rail, B4a). */
-export const SCROLL_FOOTER_PX = 16;
-/** Create's toolbar, above the list. */
-export const CREATE_TOOLBAR_PX = 32;
+/**
+ * Under the lanes: the timeline's scrollbar, with zoom and Follow beside it
+ * (milestone 2.13; 24 px, so each is a 24 px target).
+ */
+export const SCROLL_FOOTER_PX = 24;
+/**
+ * The song's sections, above the ruler (milestone 2.13), in the row Create's
+ * toolbar had before it folded away.
+ */
+export const SECTIONS_LANE_PX = 24;
+/**
+ * The comment lane's slot, above the sections: shown only while the Comments
+ * panel is open (milestone 4.3 fills it).
+ */
+export const COMMENT_LANE_PX = 24;
 /** The ruler: the loop strip and the bar numbers. */
 export const RULER_PX = 32;
 /** The chord lane, under the ruler. */
 export const CHORD_LANE_PX = 24;
-/** The rulers the lanes scroll under: the ruler and the chord lane. */
+/**
+ * The rulers the lanes scroll under, which the timeline's canvas draws: the
+ * ruler and the chord lane.
+ */
 export const LANE_HEADER_PX = RULER_PX + CHORD_LANE_PX;
+
+/**
+ * The lane header a student sees over the lanes: the sections lane, the
+ * ruler and the chord lane, 80 px (decision 16's budget), and the comment
+ * lane's 24 more while it shows.
+ */
+export function laneHeaderPx(commentLane = false): number {
+  return (
+    (commentLane ? COMMENT_LANE_PX : 0) + SECTIONS_LANE_PX + LANE_HEADER_PX
+  );
+}
 
 export interface RowLayout {
   /** Each row's top, from the first row's top. */

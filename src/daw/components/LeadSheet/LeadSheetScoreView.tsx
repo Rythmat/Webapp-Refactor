@@ -36,6 +36,8 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
   const projectName = useStore((s) => s.projectName);
   const chordRegions = useStore((s) => s.chordRegions);
   const slashNotes = useStore((s) => s.scoreSlashNotes);
+  // In note input the melody's staff shows even before it has notes.
+  const noteInput = useStore((s) => s.scoreNoteInput);
 
   const timeSignature: [number, number] = useMemo(
     () => [numerator, denominator],
@@ -66,8 +68,18 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
         slashNotes: slashSet,
         minMeasures: measureCount,
         cache: partsCache,
+        includeEmpty: noteInput,
       }),
-    [track, rootNote, mode, timeSignature, slashSet, measureCount, partsCache],
+    [
+      track,
+      rootNote,
+      mode,
+      timeSignature,
+      slashSet,
+      measureCount,
+      partsCache,
+      noteInput,
+    ],
   );
   const parts: ScorePart[] = useMemo(
     () => scoreParts.map(({ id, name, score }) => ({ id, name, score })),
@@ -161,8 +173,9 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
               className="py-16 text-center text-sm"
               style={{ color: 'var(--daw-text-3)' }}
             >
-              {track.name} has no notes yet. Record or write a melody on it, or
-              turn Melody off to go back to the chord chart.
+              {track.name} has no notes yet. Record or write a melody on it,
+              press Add notes (N) to write it here, or turn Melody off to go
+              back to the chord chart.
             </div>
           ) : (
             <StaffView

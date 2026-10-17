@@ -1,4 +1,4 @@
-import { Redo2, Undo2 } from 'lucide-react';
+import { Pencil, Redo2, Undo2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { loadVexFlow } from '@/components/notation/StaffView';
 import {
@@ -84,6 +84,14 @@ function SlashGlyph({ quarters }: { quarters: number }) {
 export interface NoteEditorBarProps {
   /** Notes are selected; without any, the cells do nothing. */
   hasNotes: boolean;
+  /**
+   * Note input is on: a click on a staff writes a note. The Notes row then
+   * picks the length the next note is written with, selection or not.
+   */
+  noteInput?: boolean;
+  onToggleNoteInput?: () => void;
+  /** The length note input writes. */
+  inputDuration?: DurationChoice;
   layer: NoteLayer;
   onLayer: (layer: NoteLayer) => void;
   /** The length of the selection, when they all share one. */
@@ -120,6 +128,9 @@ export interface NoteEditorBarProps {
 
 export function NoteEditorBar({
   hasNotes,
+  noteInput = false,
+  onToggleNoteInput,
+  inputDuration,
   layer,
   onLayer,
   currentDuration,
@@ -153,15 +164,20 @@ export function NoteEditorBar({
     };
   }, []);
 
-  const cellStyle = (active: boolean) => ({
+  const cellStyle = (active: boolean, enabled = hasNotes) => ({
     borderColor: active ? 'var(--daw-accent)' : 'var(--daw-hairline)',
     background: active
       ? 'color-mix(in srgb, var(--daw-accent) 22%, transparent)'
       : 'var(--daw-surface-2)',
     color: 'var(--daw-text)',
-    opacity: hasNotes ? 1 : 0.45,
-    cursor: hasNotes ? 'pointer' : 'default',
+    opacity: enabled ? 1 : 0.45,
+    cursor: enabled ? 'pointer' : 'default',
   });
+  // In note input the Notes row sets the next note's length, so its cells
+  // work with nothing selected and show the length that will be written.
+  const lengthPicks = (id: NoteLayer) => noteInput && id === 'notes';
+  const lengthName = `${dotted ? 'dotted ' : ''}${inputDuration?.name.toLowerCase() ?? 'note'}`;
+  const inputLength = `${/^[aeiou]/.test(lengthName) ? 'an' : 'a'} ${lengthName}`;
 
   const glyph = (text: string, size = 22, lift = 3) => (
     <span
@@ -186,6 +202,37 @@ export function NoteEditorBar({
       className="flex shrink-0 items-start gap-3 px-1"
       style={{ borderBottom: '1px solid var(--daw-hairline)' }}
     >
+      {/* Note input, MuseScore's N: on, a click on a staff adds a note. */}
+      {onToggleNoteInput && (
+        <div className="flex shrink-0 self-stretch py-1 pl-2">
+          <button
+            onClick={onToggleNoteInput}
+            aria-pressed={noteInput}
+            title={
+              noteInput
+                ? 'Stop adding notes (N or Esc). Shift+click or Shift+A–G adds to a chord.'
+                : 'Add notes: click a staff to write one, or type A–G (N)'
+            }
+            className="flex w-[76px] flex-col items-center justify-center gap-1 rounded border px-1 text-[11px] font-semibold uppercase leading-tight tracking-wider transition-colors hover:bg-white/10"
+            style={{
+              borderColor: noteInput
+                ? 'var(--daw-accent)'
+                : 'var(--daw-hairline)',
+              background: noteInput
+                ? 'color-mix(in srgb, var(--daw-accent) 22%, transparent)'
+                : 'var(--daw-surface-2)',
+              color: 'var(--daw-text)',
+            }}
+          >
+            <Pencil className="size-4" aria-hidden />
+            Add notes
+            <span style={{ color: 'var(--daw-text-3)' }}>
+              {noteInput ? 'On · Esc' : 'N'}
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* Left: the three rows you write into. */}
       <div className="flex shrink-0 flex-col">
         {LAYERS.map(({ id, name, hotkey }) => {
@@ -223,14 +270,22 @@ export function NoteEditorBar({
                   <button
                     key={`${id}-${choice.key}`}
                     onClick={() => {
-                      if (!hasNotes) return;
+                      if (!hasNotes && !lengthPicks(id)) return;
                       onLayer(id);
                       onDuration(choice, id);
                     }}
                     title={`${choice.name} ${name.toLowerCase()} (${choice.key})`}
+                    aria-pressed={
+                      lengthPicks(id)
+                        ? inputDuration?.key === choice.key
+                        : undefined
+                    }
                     className="flex h-7 min-w-8 items-center justify-center rounded border px-1 transition-colors hover:bg-white/10"
                     style={cellStyle(
-                      live && currentDuration?.key === choice.key,
+                      lengthPicks(id)
+                        ? inputDuration?.key === choice.key
+                        : live && currentDuration?.key === choice.key,
+                      hasNotes || lengthPicks(id),
                     )}
                   >
                     {id === 'notes' && glyph(choice.glyph)}
@@ -243,7 +298,7 @@ export function NoteEditorBar({
                 {id === 'notes' && (
                   <button
                     onClick={() => {
-                      if (!hasNotes) return;
+                      if (!hasNotes && !noteInput) return;
                       // The dot follows the live row, so a slash stays a
                       // slash. Rests are the exception: a dotted rest there
                       // would delete the selected notes, so with Rests live
@@ -254,7 +309,7 @@ export function NoteEditorBar({
                     }}
                     title="Augmentation dot"
                     className="flex h-7 min-w-8 items-center justify-center rounded border px-1 text-xs font-semibold transition-colors hover:bg-white/10"
-                    style={cellStyle(dotted)}
+                    style={cellStyle(dotted, hasNotes || noteInput)}
                   >
                     .
                   </button>
@@ -266,9 +321,11 @@ export function NoteEditorBar({
                   className="ml-auto pl-3 text-[10px]"
                   style={{ color: 'var(--daw-text-3)' }}
                 >
-                  {hasNotes
-                    ? 'Numbers write into the live row · . > - _ mark · S slurs'
-                    : 'Select a note to edit it'}
+                  {noteInput
+                    ? `Click a staff, or type A–G, to add ${inputLength}`
+                    : hasNotes
+                      ? 'Numbers write into the live row · . > - _ mark · S slurs'
+                      : 'Select a note to edit it, or press Add notes'}
                 </span>
               )}
             </div>

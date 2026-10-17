@@ -360,6 +360,7 @@ const STORE_SPECS = {
   dockHeights: pref('view', () => ({})),
   readoutMode: pref('view', 'bars'),
   activeTool: session('view', 'cursor', 'project'),
+  scoreNoteInput: session('view', false, 'project'),
   selectedClipId: session('view', null, 'project'),
   selectedClipTrackId: session('view', null, 'project'),
   parkedClipSelection: session('view', null, 'project'),

@@ -1054,6 +1054,17 @@ const probes = {
       st(p).updateTrack(track(p, 'Keys').id, { notationStaff: 'treble' }),
     check: (p) => expect(track(p, 'Keys').notationStaff).toBe('treble'),
   },
+  // The alto clef and the bass clef with an 8 (schema 7).
+  partStaffSchema7: {
+    write: (p) => {
+      st(p).updateTrack(track(p, 'Keys').id, { notationStaff: 'alto' });
+      st(p).updateTrack(track(p, 'Lead').id, { notationStaff: 'bass8vb' });
+    },
+    check: (p) => {
+      expect(track(p, 'Keys').notationStaff).toBe('alto');
+      expect(track(p, 'Lead').notationStaff).toBe('bass8vb');
+    },
+  },
   inputChannel: {
     write: writeStereoInput,
     check: (p) =>
@@ -1257,6 +1268,7 @@ describe('a browser refresh (local autosave) keeps', () => {
   // state-reload-10: fixed in 1.1 (the track map carries trackRole).
   it('the track role', kept(probes.trackRole));
   it("a part's staff", kept(probes.partStaff));
+  it("a part's alto or bass 8vb clef", kept(probes.partStaffSchema7));
   // live-input-02: fixed in 1.1 (the track map carries audioInputChannel).
   it('the live input channel', kept(probes.inputChannel));
   it('record arm, monitoring and input devices', kept(probes.inputRouting));
@@ -1327,6 +1339,7 @@ const LOCAL_ROWS: [string, Probe][] = [
   ['the Oracle synth patch', probes.oracleSynthPatch],
   ['the track role', probes.trackRole],
   ["a part's staff", probes.partStaff],
+  ["a part's alto or bass 8vb clef", probes.partStaffSchema7],
   ['the live input channel', probes.inputChannel],
   ['record arm, monitoring and input devices', probes.inputRouting],
   ['MIDI clip notes, name and position', probes.midiNotes],
@@ -1486,6 +1499,7 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   it('the track role', kept(probes.trackRole));
   // Rides in the track settings blob the payload already carries.
   it("a part's staff", kept(probes.partStaff));
+  it("a part's alto or bass 8vb clef", kept(probes.partStaffSchema7));
   // live-input-02: deserializeCloudProject sets audioInputChannel to null.
   // Kept null on purpose in 1.1 (the channel is per-device, never cloud);
   // the input views read null as mono input 1 instead (see the probe).

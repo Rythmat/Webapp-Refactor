@@ -82,6 +82,12 @@ import {
 // Auto). Its compat stays 3, and an older build reading it shows every part
 // on Auto.
 //
+// v7 lets that field hold two more staves, and changes no meaning: 'alto'
+// (the viola's C clef) and 'bass8vb' (the bass clef with a small 8 under it,
+// a bass guitar's). A v6 build counts either as a value it can't read and
+// shows the part on Auto, so its compat stays 3; the bump has a v6 build see
+// the draft as newer rather than repair it.
+//
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
 // know. A later schema that only adds fields keeps it at 3, so after a
@@ -120,9 +126,10 @@ export const SESSION_ENVELOPE_VERSION = 2;
  * where 4 held one id (leadSheetMelodyTrackId); migrations.ts reads the one
  * id as a list of it. 6 adds the staff a part is set to in the Score (a
  * track's settings.notationStaff) and changes no meaning: a 5 draft is a 6
- * one with every part on Auto, and compat stays 3.
+ * one with every part on Auto, and compat stays 3. 7 lets that staff be
+ * 'alto' or 'bass8vb' too: a 6 draft is a 7 one as it is, and compat stays 3.
  */
-export const SESSION_SCHEMA_VERSION = 6;
+export const SESSION_SCHEMA_VERSION = 7;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -1045,11 +1052,16 @@ const TRACK_ROLE = memberOf<DawTrackRole>({
   auto: true,
 });
 
-/** A part's staff, set by hand in the Score (schema 6). */
+/**
+ * A part's staff, set by hand in the Score (schema 6; alto and the bass
+ * clef with an 8, schema 7).
+ */
 const NOTATION_STAFF = memberOf<NotationStaffSetting>({
   auto: true,
   treble: true,
+  alto: true,
   bass: true,
+  bass8vb: true,
   grand: true,
 });
 

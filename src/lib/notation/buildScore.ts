@@ -2,6 +2,7 @@ import {
   midiToPitchName,
   parseNoteName,
 } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
+import { writtenOctaves } from './clefs';
 import { drumStaffPosition, isFootDrum, type DrumNotehead } from './drumMap';
 import { inferKeyFifths, keySignatureAlterations } from './keySignature';
 import { makeMeter, splitMetric, splitTriplet, type Meter } from './meter';
@@ -384,6 +385,8 @@ export function buildScore(
   > = {
     treble: [],
     bass: [],
+    alto: [],
+    bass8vb: [],
     percussion: [],
   };
   const staffOf =
@@ -403,10 +406,14 @@ export function buildScore(
       layout === 'grand'
         ? (note.staff ?? staffOf.get(note.id) ?? 'treble')
         : layout;
+    const pitch = drums ? drumPitch(note) : spellPitch(note, spell);
+    // A staff written above its sound draws the note that much higher; its
+    // pitch stays the one it sounds (clefs.ts).
+    pitch.octave += writtenOctaves(staff);
     perStaff[staff].push({
       start: Math.max(0, start),
       end: start + durationTicks,
-      pitch: drums ? drumPitch(note) : spellPitch(note, spell),
+      pitch,
     });
   }
 
@@ -414,7 +421,12 @@ export function buildScore(
     ? 0
     : (options.keyFifths ??
       inferKeyFifths(
-        [...perStaff.treble, ...perStaff.bass].map((n) => n.pitch),
+        [
+          ...perStaff.treble,
+          ...perStaff.bass,
+          ...perStaff.alto,
+          ...perStaff.bass8vb,
+        ].map((n) => n.pitch),
         options.keyTonicPc,
       ));
   const signature = keySignatureAlterations(keyFifths);
@@ -440,7 +452,11 @@ export function buildScore(
   // 2–3. Quantize, trim same-pitch overlaps, voice
   const staffVoices = {} as Record<StaffId, [Chord[], Chord[]]>;
   const tripletBeats = {} as Record<StaffId, Set<number>>;
-  for (const staff of drums ? (['percussion'] as StaffId[]) : STAVES) {
+  // The grand staff's two, and a single staff of another clef.
+  const written: StaffId[] = drums
+    ? ['percussion']
+    : [...new Set([...STAVES, ...staves])];
+  for (const staff of written) {
     const quantized = quantizeStaff(perStaff[staff], meter);
     tripletBeats[staff] = quantized.tripletBeats;
     // A note snapped onto the final barline has nowhere left to sound. It is

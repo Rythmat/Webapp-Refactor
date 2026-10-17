@@ -40,6 +40,10 @@ import { NOTE_EVENT_FIELDS } from './fields';
 //   settings.notationStaff). A v5 draft is a v6 draft with every part on
 //   Auto, so nothing translates, and a v5 build reading a v6 draft leaves
 //   the field out, so compat stays 3.
+// - v7: v6 with two more staves that field may hold, 'alto' and 'bass8vb'
+//   (the bass clef with an 8). A v6 draft is a v7 draft as it is, so nothing
+//   translates, and a v6 build reading a v7 draft shows such a part on Auto,
+//   so compat stays 3.
 // - Later schemas: a draft whose `compat` is 3 or lower only adds fields to
 //   v3, so it is read as this build's schema and the fields this build
 //   doesn't know are left out. `from` says it was newer, and the caller keeps a copy of it before
@@ -81,7 +85,7 @@ export interface LegacyPrefs {
 export type MigrationResult =
   | {
       ok: true;
-      /** The draft in this build's format: `version` 2, `schema` 6. */
+      /** The draft in this build's format: `version` 2, `schema` 7. */
       session: StoredSession;
       /**
        * The format it was written in: 1, 2, 3, or a later schema read as 3.

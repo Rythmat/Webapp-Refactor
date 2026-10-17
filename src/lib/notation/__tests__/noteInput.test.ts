@@ -12,6 +12,7 @@ import {
   pitchAtY,
   planNoteInsert,
   snapTick,
+  soundingStep,
   staffAt,
   writtenName,
   xAtTick,
@@ -27,8 +28,11 @@ const length = (name: string) => DURATIONS.find((d) => d.name === name)!;
 
 describe('the pitch under the pointer', () => {
   // A staff's top line at y = 100: each step down is 5 px.
-  const at = (position: number, staff: 'treble' | 'bass', fifths = 0) =>
-    pitchAtY(100 + position * STEP, 100, STEP, staff, fifths)?.midi;
+  const at = (
+    position: number,
+    staff: 'treble' | 'bass' | 'alto' | 'bass8vb',
+    fifths = 0,
+  ) => pitchAtY(100 + position * STEP, 100, STEP, staff, fifths)?.midi;
 
   it('reads the treble clef', () => {
     expect(at(0, 'treble')).toBe(77); // F5, the top line
@@ -43,6 +47,35 @@ describe('the pitch under the pointer', () => {
     expect(at(0, 'bass')).toBe(57); // A3, the top line
     expect(at(8, 'bass')).toBe(43); // G2, the bottom line
     expect(at(-2, 'bass')).toBe(60); // C4, one ledger line above
+  });
+
+  it('reads the alto clef, middle C on its middle line', () => {
+    expect(at(0, 'alto')).toBe(67); // G4, the top line
+    expect(at(4, 'alto')).toBe(60); // C4, the middle line
+    expect(at(8, 'alto')).toBe(53); // F3, the bottom line
+    expect(at(7, 'alto')).toBe(55); // G3, the bottom space
+    expect(at(10, 'alto')).toBe(50); // D3, one ledger line below
+    expect(at(-2, 'alto')).toBe(71); // B4, one ledger line above
+    // In F major the middle line is still C, its top space B♭4.
+    expect(at(-1, 'alto', -1)).toBe(69);
+    expect(at(1, 'alto', -1)).toBe(65);
+  });
+
+  it('reads the bass clef with an 8 an octave below where it is written', () => {
+    // The lines say A3 … G2; the bass sounds A2 … G1.
+    expect(at(0, 'bass8vb')).toBe(45); // written A3, the top line
+    expect(at(8, 'bass8vb')).toBe(31); // written G2, the bottom line
+    // The written C3 space writes MIDI C2.
+    expect(at(5, 'bass8vb')).toBe(36);
+    expect(pitchAtY(125, 100, STEP, 'bass8vb', 0)).toEqual({
+      midi: 36,
+      step: 3 * 7, // C3, as written
+      position: 5,
+    });
+    // The low E string, E1, on the first ledger line under the staff.
+    expect(at(10, 'bass8vb')).toBe(28);
+    // F major's B♭ is a B♭ an octave down too.
+    expect(at(6, 'bass8vb', -1)).toBe(34);
   });
 
   it('reads the key signature', () => {
@@ -271,6 +304,35 @@ describe('a typed letter', () => {
     expect(letterPitch(4, E4, 0, true)?.midi).toBe(67); // G4 over E4
     expect(letterPitch(2, E4, 0, true)?.midi).toBe(76); // E5 over E4
     expect(letterPitch(0, E4, 0, true)?.midi).toBe(72); // C5 over E4
+  });
+
+  it('sounds an octave below the line it is written on, on the bass clef with an 8', () => {
+    const D3 = 3 * 7 + 1; // the middle line, as written
+    // C: written C3, a step down; it sounds C2.
+    expect(letterPitch(0, D3, 0, false, 'bass8vb')).toEqual({
+      midi: 36,
+      step: 3 * 7,
+    });
+    expect(letterPitch(0, D3, 0, false, 'bass')?.midi).toBe(48);
+    expect(letterPitch(0, 4 * 7, 0, false, 'alto')?.midi).toBe(60);
+  });
+});
+
+describe('the step a note sounds on', () => {
+  it('is an octave below the written one on the bass clef with an 8', () => {
+    expect(soundingStep(3 * 7, 'bass8vb')).toBe(2 * 7);
+    expect(soundingStep(3 * 7, 'bass')).toBe(3 * 7);
+    expect(soundingStep(4 * 7, 'alto')).toBe(4 * 7);
+  });
+
+  it('names a pinned spelling in the octave the note sounds', () => {
+    // G♯2 written on the G3 space of the bass clef with an 8, no key set
+    // and an inferred A major: the default name A♭ would move it, so G♯2 is
+    // pinned, not the G♯3 it is drawn as.
+    const written = 3 * 7 + 4; // G3, as written
+    expect(
+      pinnedSpelling(44, soundingStep(written, 'bass8vb'), 3, null, 'ionian'),
+    ).toBe('G♯2');
   });
 });
 

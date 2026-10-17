@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 /**
- * Writes fixtures/v6-all-fields/all-fields.json: a draft in today's format
- * (schema 6) holding a value other than its default for every local
+ * Writes fixtures/v7-all-fields/all-fields.json: a draft in today's format
+ * (schema 7) holding a value other than its default for every local
  * registry field, which codecV3.test and draftShape.test read (see there for
  * what it must hold).
  *
  * Skipped unless WRITE_FIXTURES=1. The fixture is the format, so rewrite it
  * only for a new registry field that needs a value in it, or with a
  * SESSION_SCHEMA_VERSION bump (keeping a copy of the old one for the
- * migration from it: fixtures/v3-all-fields, fixtures/v4-all-fields and
- * fixtures/v5-all-fields are the v3, v4 and v5 ones).
+ * migration from it: fixtures/v3-all-fields to fixtures/v6-all-fields are
+ * the v3 to v6 ones).
  *
  * Run: WRITE_FIXTURES=1 npx vitest run src/daw/persistence/__tests__/allFieldsFixture.test.ts
  */
@@ -32,7 +32,7 @@ import { migrateSession } from '../projectDocument/migrations';
 
 const FILE = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v6-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v7-all-fields/all-fields.json',
 );
 
 const effects = (patch: Record<string, unknown> = {}) =>
@@ -145,6 +145,8 @@ function allFieldsProject(): ProjectSnapshot {
       recordArmed: true,
       monitoring: true,
       midiInputId: 'keyboard-1',
+      // A line written in alto clef by hand (schema 7).
+      notationStaff: 'alto',
       midiClips: [
         {
           id: 'clip-lead',
@@ -260,6 +262,8 @@ function allFieldsProject(): ProjectSnapshot {
       color: '#7fc783',
       bassVoice: 'upright',
       trackRole: 'bass',
+      // The bass clef with an 8, set by hand (schema 7).
+      notationStaff: 'bass8vb',
     }),
     track({
       id: 'trk-chops',

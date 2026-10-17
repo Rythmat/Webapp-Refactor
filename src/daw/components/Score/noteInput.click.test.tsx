@@ -355,3 +355,95 @@ describe('note input', () => {
     ]);
   });
 });
+
+describe('note input on a staff written an octave above its sound', () => {
+  // A bass guitar reads the bass clef with an 8 under it: its lines say
+  // A3 (top) … G2 (bottom) and it sounds an octave lower. G major again.
+  const BASS8VB = [{ staff: 'bass8vb' as const, topLineY: 40 }];
+
+  beforeEach(() => {
+    useStore.setState({ tracks: [] } as Partial<AllSlices>);
+    trackId = st().addTrack('midi', 'bass-electric', 'Bass');
+    resetUndoHistory();
+  });
+
+  it('writes the pitch it sounds: the written C3 space writes C2', () => {
+    const view = mount(BASS8VB);
+    act(() => editing.staff.onStaffPointerMove?.({ x: beatX(0), y: lineY(5) }));
+    expect(
+      view.container
+        .querySelector('[data-note-ghost]')
+        ?.getAttribute('data-note-ghost'),
+    ).toBe('36@0');
+    press(beatX(0), lineY(5));
+    expect(notes()).toEqual([{ midi: 36, at: 0, length: 480 }]);
+    // The top line, written A3, is A2; the ledger line under the staff E1.
+    press(beatX(1), lineY(0));
+    press(beatX(2), lineY(10));
+    expect(notes().map((n) => n.midi)).toEqual([36, 45, 28]);
+  });
+
+  it('moves a written note by its lines, and types letters an octave down', () => {
+    mount(BASS8VB);
+    press(beatX(0), lineY(5)); // C2, on the written C3 space
+    keyDown({ key: 'ArrowUp', code: 'ArrowUp' });
+    expect(notes()).toEqual([{ midi: 38, at: 0, length: 480 }]); // D2
+    // The cursor stands on beat 2, a step up: E is written E3, sounds E2.
+    typeLetter('E');
+    typeLetter('G');
+    expect(notes().map((n) => n.midi)).toEqual([38, 40, 43]);
+  });
+
+  it('starts typing from the staff’s middle line, an octave down', () => {
+    render(<ScoreEditor />);
+    keyDown({ key: 'n', code: 'KeyN' });
+    act(() => editing.staff.onLayout(layoutOf(BASS8VB)));
+    // Nothing written yet: the middle line is written D3, so C is C2.
+    typeLetter('C');
+    expect(notes()).toEqual([{ midi: 36, at: 0, length: 480 }]);
+  });
+
+  it('sharpens a note at the pitch it sounds', () => {
+    mount(BASS8VB);
+    press(beatX(0), lineY(5)); // C2
+    const [clip] = st().tracks.find((t) => t.id === trackId)!.midiClips;
+    const id = `${trackId}:${clip.id}:0:36`;
+    // The page draws it as StaffView reports: written C3.
+    act(() =>
+      editing.staff.onLayout({
+        ...layoutOf(BASS8VB),
+        notes: [
+          {
+            id,
+            partIndex: 0,
+            measureIndex: 0,
+            tick: 0,
+            x: beatX(0),
+            y: lineY(5),
+            space: STEP,
+            stem: 'up',
+            letter: 'c',
+            octave: 3,
+            alteration: 0,
+            line: 1.5,
+          },
+        ],
+      }),
+    );
+    act(() => editing.editor.onAccidental(1));
+    expect(notes()).toEqual([{ midi: 37, at: 0, length: 480 }]);
+    // Pinned in the octave it sounds, as every spelling is.
+    expect(st().scoreSpellings).toEqual([`${trackId}:${clip.id}:0:37|C♯2`]);
+  });
+
+  it('reads the alto clef for a viola', () => {
+    useStore.setState({ tracks: [] } as Partial<AllSlices>);
+    trackId = st().addTrack('midi', 'soundfont', 'Viola');
+    st().updateTrack(trackId, { gmProgram: 41 });
+    mount([{ staff: 'alto', topLineY: 40 }]);
+    press(beatX(0), lineY(4)); // middle C, on the middle line
+    press(beatX(1), lineY(0)); // G4, the top line
+    press(beatX(2), lineY(1)); // F♯4 in G major, the top space
+    expect(notes().map((n) => n.midi)).toEqual([60, 67, 66]);
+  });
+});

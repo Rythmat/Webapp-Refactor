@@ -9,13 +9,20 @@ import { guessTrackRole, type DawTrackRole } from '@/daw/utils/trackRole';
 // ── Which staff each part is written on ────────────────────────────────────
 // A part's staff comes from what plays it, never from its notes, so writing
 // notes can't flip a staff from treble to bass or into a grand staff halfway
-// through. Bass instruments read bass clef, keyboards a grand staff, drums a
-// drum staff, and most of the rest treble clef. A part written far off its
-// staff takes ledger lines; a grand staff shares its notes between its two
-// staves by the usual split (staffSplit.ts).
+// through. Keyboards read a grand staff, drums a drum staff, the viola the
+// alto clef, and most of the rest treble clef. Bass guitars, the double bass
+// and synth basses read the bass clef with a small 8 under it ('bass8vb'):
+// written an octave above where they sound, as players read them, so a bass
+// line sits in the staff instead of under it on ledger lines. The other
+// low instruments — cello, trombone, tuba, bassoon, timpani, baritone sax —
+// sound where they are written, on the plain bass clef. A part written far
+// off its staff takes ledger lines; a grand staff shares its notes between
+// its two staves by the usual split (staffSplit.ts).
 //
 // Each part may also be set by hand (the track's `notationStaff`), from the
-// Score's parts panel or by clicking a part's name on the page. In order:
+// Score's parts panel or by clicking a part's name on the page. A setting
+// made by hand goes when the track changes instrument (instrumentChanges),
+// so the new one starts on its own staff, as in MuseScore. In order:
 //
 //   1. A drum kit: a drum-machine track, or a track whose role is set to
 //      Drums (as an imported MIDI drum part's is, from its name). Its notes
@@ -31,8 +38,11 @@ import { guessTrackRole, type DawTrackRole } from '@/daw/utils/trackRole';
 // The tables below are the rule: adjust them, not the code. Only the Studio's
 // Score and Lead Sheet read them; Learn's staves have rules of their own.
 
-/** A staff a part may be set to by hand. */
-export type PitchedStaff = 'treble' | 'bass' | 'grand';
+/**
+ * A staff a part may be set to by hand. 'bass8vb': the bass clef with a
+ * small 8 under it, written an octave above the pitch it sounds.
+ */
+export type PitchedStaff = 'treble' | 'alto' | 'bass' | 'bass8vb' | 'grand';
 /** The staff a part is written on. */
 export type PartStaff = PitchedStaff | 'percussion';
 
@@ -54,7 +64,7 @@ export const INSTRUMENT_STAFF: Readonly<
   'electric-piano': 'grand',
   organ: 'grand',
   'tonewheel-organ': 'grand',
-  'bass-electric': 'bass',
+  'bass-electric': 'bass8vb',
   cello: 'bass',
   'guitar-acoustic': 'treble',
   'drum-machine': 'percussion',
@@ -62,7 +72,7 @@ export const INSTRUMENT_STAFF: Readonly<
   'oracle-synth': null,
   sampler: null, // Chops: a one-shot sample played across the keys
   'guitar-fx': 'treble',
-  'bass-fx': 'bass',
+  'bass-fx': 'bass8vb',
   'vocal-fx': 'treble',
   none: null,
 };
@@ -91,8 +101,8 @@ export const GM_FAMILY_STAFF: Readonly<Record<GMCategory, PartStaff>> = {
   'Chromatic Perc': 'treble', // 8–15: glockenspiel, vibraphone, xylophone…
   Organ: 'grand', // 16–23, accordions too
   Guitar: 'treble', // 24–31
-  Bass: 'bass', // 32–39, synth basses too
-  Strings: 'treble', // 40–47: violin and viola; the rest below
+  Bass: 'bass8vb', // 32–39, synth basses too: written an octave up
+  Strings: 'treble', // 40–47: the violin; the rest below
   Ensemble: 'grand', // 48–55: string sections, synth strings, choirs
   Brass: 'treble', // 56–63: trumpet, horn, sections; trombone and tuba below
   Reed: 'treble', // 64–71: saxes, oboe, clarinet; bassoon below
@@ -110,9 +120,9 @@ export const GM_PROGRAM_STAFF: Readonly<Partial<Record<number, PartStaff>>> = {
   8: 'grand', // Celesta
   12: 'grand', // Marimba
   22: 'treble', // Harmonica
-  41: 'treble', // Viola: alto clef is not drawn yet
-  42: 'bass', // Cello
-  43: 'bass', // Contrabass
+  41: 'alto', // Viola
+  42: 'bass', // Cello: written where it sounds
+  43: 'bass8vb', // Contrabass: written an octave up, like a bass guitar
   44: 'grand', // Tremolo Strings: a section
   45: 'grand', // Pizzicato Strings: a section
   46: 'grand', // Orchestral Harp
@@ -122,7 +132,7 @@ export const GM_PROGRAM_STAFF: Readonly<Partial<Record<number, PartStaff>>> = {
   58: 'bass', // Tuba
   67: 'bass', // Baritone Sax: written at pitch, it sits in bass clef
   70: 'bass', // Bassoon
-  87: 'bass', // Lead 8 (bass + lead)
+  87: 'bass', // Lead 8 (bass + lead): a lead, written where it sounds
   112: 'treble', // Tinkle Bell: pitched
   114: 'treble', // Steel Drums: pitched
 };
@@ -146,8 +156,8 @@ const PATCH_NAMED: ReadonlySet<InstrumentType> = new Set<InstrumentType>([
  * track's role decides.
  */
 export const FACTORY_PATCH_STAFF: Readonly<Record<string, PitchedStaff>> = {
-  BASS: 'bass',
-  WOBBLE: 'bass',
+  BASS: 'bass8vb', // a synth bass, read as a bass guitar is
+  WOBBLE: 'bass8vb',
   PAD: 'grand',
   CHORDS: 'grand',
   TRANCE: 'grand', // a gated pad
@@ -165,7 +175,7 @@ export const PATCH_WORDS: ReadonlyArray<
   readonly [words: RegExp, staff: PitchedStaff | null]
 > = [
   [/\b(kit|drums?|percussion|bongos|congas|shaker|tambourine)\b/i, null],
-  [/\b(bass|sub|808|wobble)\b/i, 'bass'],
+  [/\b(bass|sub|808|wobble)\b/i, 'bass8vb'],
   [/\b(lead|pluck|arp|sequence)\b/i, 'treble'],
   [
     /\b(pads?|chords?|keys|piano|rhodes|wurlitzer|organ|strings|choir)\b/i,
@@ -173,27 +183,43 @@ export const PATCH_WORDS: ReadonlyArray<
   ],
 ];
 
-/** The staff a track's role reads in, when its instrument says nothing. */
+/**
+ * The staff a track's role reads in, when its instrument says nothing: a
+ * synth or a sampler playing the bass line is a synth bass.
+ */
 export const ROLE_STAFF: Readonly<Record<DawTrackRole, PartStaff>> = {
-  bass: 'bass',
+  bass: 'bass8vb',
   drums: 'percussion',
   chords: 'grand',
   melody: 'treble',
   auto: 'treble',
 };
 
-/** How each staff is named in the Score's controls. */
+/** How each staff is named in the Score's controls: 'Auto (Alto clef)'. */
 export const STAFF_LABEL: Readonly<Record<PartStaff, string>> = {
   treble: 'Treble clef',
+  alto: 'Alto clef',
   bass: 'Bass clef',
+  bass8vb: 'Bass clef 8vb',
   grand: 'Grand staff',
   percussion: 'Drum staff',
 };
 
-/** The staves a part may be set to by hand, in menu order. */
+/**
+ * A staff as a choice, and in the tooltips, said in full where the name
+ * alone leaves a teacher guessing: what the 8 under the clef does.
+ */
+export const STAFF_CHOICE: Readonly<Record<PartStaff, string>> = {
+  ...STAFF_LABEL,
+  bass8vb: 'Bass clef 8vb (sounds an octave lower)',
+};
+
+/** The staves a part may be set to by hand, in menu order: high to low. */
 export const PITCHED_STAVES: readonly PitchedStaff[] = [
   'treble',
+  'alto',
   'bass',
+  'bass8vb',
   'grand',
 ];
 
@@ -343,9 +369,14 @@ export function staffOptions(
     { value: 'auto', label: autoLabel(state) },
     ...PITCHED_STAVES.map((staff) => ({
       value: staff,
-      label: STAFF_LABEL[staff],
+      label: STAFF_CHOICE[staff],
     })),
   ];
+}
+
+/** Whether a choice from a control is a setting a part can have. */
+export function isStaffSetting(value: string): value is NotationStaffSetting {
+  return value === 'auto' || (PITCHED_STAVES as string[]).includes(value);
 }
 
 /**
@@ -355,7 +386,7 @@ export function staffOptions(
 export function autoHint(state: PartStaffState): string {
   return state.kit
     ? 'A drum kit is always written on a drum staff'
-    : `Auto: ${STAFF_LABEL[state.auto.staff]}, ${state.auto.because}`;
+    : `Auto: ${STAFF_CHOICE[state.auto.staff]}, ${state.auto.because}`;
 }
 
 /**
@@ -364,7 +395,7 @@ export function autoHint(state: PartStaffState): string {
  */
 export function staffSummary(state: PartStaffState): string {
   if (state.kit || state.setting === 'auto') return autoHint(state);
-  return `${STAFF_LABEL[state.setting]}, set by hand`;
+  return `${STAFF_CHOICE[state.setting]}, set by hand`;
 }
 
 /**
@@ -375,4 +406,30 @@ export function storedSetting(
   setting: NotationStaffSetting,
 ): PitchedStaff | undefined {
   return setting === 'auto' ? undefined : setting;
+}
+
+// ── A new instrument ───────────────────────────────────────────────────────
+
+/**
+ * Whether an edit to a track changes what plays it, so a staff set by hand
+ * goes back to Auto and the part reads the new instrument's (MuseScore does
+ * the same on a change of instrument): another Studio instrument, another
+ * General MIDI program, or another patch that plays something else — a bass
+ * patch for a pad. A patch of the same kind (one lead for another), or an
+ * edit that sets the staff itself, keeps it. The store applies it in
+ * updateTrack, in the same write, so one undo puts back both.
+ */
+export function instrumentChanges(
+  track: StaffTrack,
+  updates: Partial<Track>,
+): boolean {
+  if ('notationStaff' in updates) return false;
+  const differs = <K extends 'instrument' | 'gmProgram' | 'presetName'>(
+    key: K,
+  ) => key in updates && updates[key] !== track[key];
+  if (differs('instrument') || differs('gmProgram')) return true;
+  return (
+    differs('presetName') &&
+    patchStaff(updates.presetName) !== patchStaff(track.presetName)
+  );
 }

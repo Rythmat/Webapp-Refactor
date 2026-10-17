@@ -3,8 +3,8 @@
  * Codec v3: the project draft written on this device (the autosave, kept
  * work) and read back (projectDocument/codec.ts, through SessionSerializer).
  *
- * fixtures/v6-all-fields/all-fields.json is a draft in today's format (v3's
- * codec at schema 6) holding a value other than its default for every local
+ * fixtures/v7-all-fields/all-fields.json is a draft in today's format (v3's
+ * codec at schema 7) holding a value other than its default for every local
  * registry field: every doc and view store
  * key, every Track field and every nested field (clips, notes, controller
  * events, audio clips, chord regions, markers, return buses), an Oracle
@@ -83,7 +83,7 @@ const s = () => useStore.getState();
 
 const ALL_FIELDS = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v6-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v7-all-fields/all-fields.json',
 );
 const allFields = (): StoredSession =>
   JSON.parse(readFileSync(ALL_FIELDS, 'utf8')) as StoredSession;
@@ -364,7 +364,7 @@ describe('the all-fields draft', () => {
     );
   });
 
-  it('is written in the v2 envelope with the v6 schema', () => {
+  it('is written in the v2 envelope with the v7 schema', () => {
     const stored = allFields();
     expect([stored.version, stored.schema, stored.compat]).toEqual([
       2,
@@ -372,9 +372,11 @@ describe('the all-fields draft', () => {
       SESSION_COMPAT_VERSION,
     ]);
     // Schema 4 (1.10) only added fields, 5 renamed one a 1.3 build reads as
-    // missing (the melody tracks: it shows Auto) and 6 added a part's staff
-    // (every part reads Auto without it), so a 1.3 build still reads them.
-    expect([SESSION_SCHEMA_VERSION, SESSION_COMPAT_VERSION]).toEqual([6, 3]);
+    // missing (the melody tracks: it shows Auto), 6 added a part's staff
+    // (every part reads Auto without it) and 7 two more staves it may name
+    // (a build that can't read one shows Auto), so a 1.3 build still reads
+    // them.
+    expect([SESSION_SCHEMA_VERSION, SESSION_COMPAT_VERSION]).toEqual([7, 3]);
     // Prefs are kept per user, apart from any project.
     expect(stored.data.transport).not.toHaveProperty('metronomeEnabled');
     expect(JSON.stringify(stored.data)).not.toMatch(

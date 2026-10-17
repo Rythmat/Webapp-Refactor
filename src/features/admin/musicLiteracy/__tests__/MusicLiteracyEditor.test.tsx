@@ -17,8 +17,10 @@ import {
   it,
   vi,
 } from 'vitest';
-import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
-import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
+import {
+  LITERACY_FIXTURE,
+  type LiteracyFixtureLesson,
+} from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { MusicLiteracyEditor } from '../MusicLiteracyEditor';
 
 /**
@@ -74,7 +76,8 @@ const titles = () =>
 const saveButton = () => screen.getByRole('button', { name: /^Save/ });
 
 const savedBody = () =>
-  store.save.mock.calls.at(-1)?.[1] as MusicLiteracyLesson;
+  // The fixture's Part 1 steps, edited: still Part 1 steps.
+  store.save.mock.calls.at(-1)?.[1] as LiteracyFixtureLesson;
 
 beforeEach(() => {
   store.save.mockClear();

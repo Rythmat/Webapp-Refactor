@@ -1,0 +1,1332 @@
+{
+  "id": "music-literacy-part-2",
+  "name": "Music Literacy · Part 2",
+  "description": "Choose a color: melodies and chord progressions in a key you pick.",
+  "status": "draft",
+  "part": 2,
+  "key": {
+    "tonic": "C",
+    "mode": "major"
+  },
+  "keyChoice": "student",
+  "numbering": "scale",
+  "passes": {
+    "challenge": false,
+    "create": true
+  },
+  "tempo": 80,
+  "timeSignature": [4, 4],
+  "countInBars": 1,
+  "steps": [
+    {
+      "kind": "chooseKey",
+      "tag": "choose-your-key",
+      "section": "Choose a Color",
+      "title": "Choose your key",
+      "direction": "Pick a color on the circle. Its note is your 1."
+    },
+    {
+      "tag": "rhythm-on-1",
+      "section": "Choose a Color",
+      "title": "A rhythm on the 1",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 1,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 960,
+            "duration": 960,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "chooseMode",
+      "tag": "choose-major-or-minor",
+      "section": "Choose a Color",
+      "title": "Major or minor?",
+      "direction": "Pick one. It sets your 3."
+    },
+    {
+      "tag": "play-1-3-1",
+      "section": "Choose a Color",
+      "title": "1-3-1",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 1,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "rhythm-on-1-3",
+      "section": "Choose a Color",
+      "title": "A rhythm on 1 and 3",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 1,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 240,
+            "degree": "1"
+          },
+          {
+            "tick": 240,
+            "duration": 240,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 960,
+            "duration": 240,
+            "degree": "1"
+          },
+          {
+            "tick": 1200,
+            "duration": 240,
+            "degree": "1"
+          },
+          {
+            "tick": 1440,
+            "duration": 480,
+            "degree": "3"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "add-the-5",
+      "section": "Choose a Color",
+      "title": "Add the 5: 1-3-5",
+      "direction": "Three notes make a triad.",
+      "call": {
+        "bars": 1,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "5"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "rhythm-on-1-3-5",
+      "section": "Choose a Color",
+      "title": "A rhythm on 1-3-5",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 960,
+            "duration": 960,
+            "degree": "5"
+          },
+          {
+            "tick": 1920,
+            "duration": 240,
+            "degree": "5"
+          },
+          {
+            "tick": 2160,
+            "duration": 240,
+            "degree": "5"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 2880,
+            "duration": 960,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "chooseMode",
+      "tag": "melody-major-or-minor",
+      "section": "Create a Melody",
+      "title": "Major or minor?",
+      "direction": "Pick the color of your melody."
+    },
+    {
+      "tag": "up-1-2-3",
+      "section": "Create a Melody",
+      "title": "Up: 1-2-3",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "3"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "down-3-2-1",
+      "section": "Create a Melody",
+      "title": "Down: 3-2-1",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "up-3-4-5",
+      "section": "Create a Melody",
+      "title": "Up: 3-4-5",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "5"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "down-5-4-3",
+      "section": "Create a Melody",
+      "title": "Down: 5-4-3",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "3"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "up-1-to-5",
+      "section": "Create a Melody",
+      "title": "Up from 1 to 5",
+      "direction": "Five notes up, twice.",
+      "call": {
+        "bars": 4,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 1440,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 1920,
+            "duration": 1920,
+            "degree": "5"
+          },
+          {
+            "tick": 3840,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 4320,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 4800,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 5280,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 5760,
+            "duration": 1920,
+            "degree": "5"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "down-5-to-1",
+      "section": "Create a Melody",
+      "title": "Down from 5 to 1",
+      "direction": "Five notes down, twice.",
+      "call": {
+        "bars": 4,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 1440,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 1920,
+            "duration": 1920,
+            "degree": "1"
+          },
+          {
+            "tick": 3840,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 4320,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 4800,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 5280,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 5760,
+            "duration": 1920,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "neighbors-of-1",
+      "section": "Create a Melody",
+      "title": "Neighbors of 1: 1-2-1, 1-7-1",
+      "direction": "The 7 is just below the 1.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "7",
+            "octave": -1
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "neighbors-of-1-both",
+      "section": "Create a Melody",
+      "title": "Neighbors of 1: 1-7-2-1, 1-2-7-1",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "7",
+            "octave": -1
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 1440,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "7",
+            "octave": -1
+          },
+          {
+            "tick": 3360,
+            "duration": 480,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "neighbors-into-1",
+      "section": "Create a Melody",
+      "title": "Neighbors of 1: 7-2-1, 2-7-1",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "7",
+            "octave": -1
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "7",
+            "octave": -1
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "neighbors-of-3",
+      "section": "Create a Melody",
+      "title": "Neighbors of 3: 3-4-3, 3-2-3",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "3"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "neighbors-of-3-both",
+      "section": "Create a Melody",
+      "title": "Neighbors of 3: 3-2-4-3, 3-4-2-3",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 1440,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 3360,
+            "duration": 480,
+            "degree": "3"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "neighbors-into-3",
+      "section": "Create a Melody",
+      "title": "Neighbors of 3: 2-4-3, 4-2-3",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "3"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "2"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "3"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "neighbors-of-5",
+      "section": "Create a Melody",
+      "title": "Neighbors of 5: 5-6-5, 5-4-5",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "6"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "5"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "neighbors-of-5-both",
+      "section": "Create a Melody",
+      "title": "Neighbors of 5: 5-4-6-5, 5-6-4-5",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "6"
+          },
+          {
+            "tick": 1440,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "6"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 3360,
+            "duration": 480,
+            "degree": "5"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "neighbors-into-5",
+      "section": "Create a Melody",
+      "title": "Neighbors of 5: 4-6-5, 6-4-5",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "6"
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "5"
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "6"
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "4"
+          },
+          {
+            "tick": 2880,
+            "duration": 480,
+            "degree": "5"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "low-5-up-to-1",
+      "section": "Create a Melody",
+      "title": "5-6-7-1",
+      "direction": "Start on the low 5 and climb to the 1.",
+      "call": {
+        "bars": 1,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "5",
+            "octave": -1
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "6",
+            "octave": -1
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "7",
+            "octave": -1
+          },
+          {
+            "tick": 1440,
+            "duration": 480,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "1-down-to-low-5-and-back",
+      "section": "Create a Melody",
+      "title": "1-7-6-5-6-7-1",
+      "direction": "Down to the low 5, then back up to the 1.",
+      "call": {
+        "bars": 2,
+        "notes": [
+          {
+            "tick": 0,
+            "duration": 480,
+            "degree": "1"
+          },
+          {
+            "tick": 480,
+            "duration": 480,
+            "degree": "7",
+            "octave": -1
+          },
+          {
+            "tick": 960,
+            "duration": 480,
+            "degree": "6",
+            "octave": -1
+          },
+          {
+            "tick": 1440,
+            "duration": 480,
+            "degree": "5",
+            "octave": -1
+          },
+          {
+            "tick": 1920,
+            "duration": 480,
+            "degree": "6",
+            "octave": -1
+          },
+          {
+            "tick": 2400,
+            "duration": 480,
+            "degree": "7",
+            "octave": -1
+          },
+          {
+            "tick": 2880,
+            "duration": 960,
+            "degree": "1"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "chooseMode",
+      "tag": "chords-major-or-minor",
+      "section": "Create a Chord Progression",
+      "title": "Major or minor?",
+      "direction": "Pick the color of your chords."
+    },
+    {
+      "tag": "the-1-chord",
+      "section": "Create a Chord Progression",
+      "title": "The 1 chord",
+      "direction": "Play the 1 chord in this rhythm: short, short, long.",
+      "call": {
+        "chords": ["1", "1"],
+        "rhythm": [480, 480, 960],
+        "harmony": "triads"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-your-x",
+      "section": "Create a Chord Progression",
+      "title": "Choose your X",
+      "direction": "Pick a chord for X.",
+      "template": ["1", "X"],
+      "distinct": 1,
+      "harmony": "triads",
+      "saveAs": "one-and-x"
+    },
+    {
+      "tag": "play-1-x",
+      "section": "Create a Chord Progression",
+      "title": "Play | 1 | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "one-and-x",
+        "rhythm": [480, 480, 960],
+        "harmony": "triads"
+      }
+    },
+    {
+      "tag": "play-x-1",
+      "section": "Create a Chord Progression",
+      "title": "Play | X | 1 |",
+      "direction": "Now X comes first.",
+      "call": {
+        "chords": ["X", "1"],
+        "progression": "one-and-x",
+        "rhythm": [480, 480, 960],
+        "harmony": "triads"
+      }
+    },
+    {
+      "tag": "play-1-1-x-x",
+      "section": "Create a Chord Progression",
+      "title": "Play | 1 | 1 | X | X |",
+      "direction": "Four bars: two on each chord.",
+      "call": {
+        "chords": ["1", "1", "X", "X"],
+        "progression": "one-and-x",
+        "rhythm": [480, 480, 960],
+        "harmony": "triads"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-1-x-x-x",
+      "section": "Create a Chord Progression",
+      "title": "Add a 3rd chord: | 1 | X | X | X |",
+      "direction": "Fill the X bars with two different chords.",
+      "template": ["1", "X", "X", "X"],
+      "distinct": 2,
+      "harmony": "triads",
+      "saveAs": "three-chords-1"
+    },
+    {
+      "tag": "play-1-x-x-x",
+      "section": "Create a Chord Progression",
+      "title": "Play | 1 | X | X | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "three-chords-1",
+        "rhythm": [480, 480, 960],
+        "harmony": "triads"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-x-x-x-1",
+      "section": "Create a Chord Progression",
+      "title": "Choose | X | X | X | 1 |",
+      "direction": "Fill the X bars with two different chords.",
+      "template": ["X", "X", "X", "1"],
+      "distinct": 2,
+      "harmony": "triads",
+      "saveAs": "three-chords-2"
+    },
+    {
+      "tag": "play-x-x-x-1",
+      "section": "Create a Chord Progression",
+      "title": "Play | X | X | X | 1 |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "three-chords-2",
+        "rhythm": [480, 480, 960],
+        "harmony": "triads"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-x-1-x-x",
+      "section": "Create a Chord Progression",
+      "title": "Choose | X | 1 | X | X |",
+      "direction": "Fill the X bars with two different chords.",
+      "template": ["X", "1", "X", "X"],
+      "distinct": 2,
+      "harmony": "triads",
+      "saveAs": "three-chords-3"
+    },
+    {
+      "tag": "play-x-1-x-x",
+      "section": "Create a Chord Progression",
+      "title": "Play | X | 1 | X | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "three-chords-3",
+        "rhythm": [480, 480, 960],
+        "harmony": "triads"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-x-x-1-x",
+      "section": "Create a Chord Progression",
+      "title": "Choose | X | X | 1 | X |",
+      "direction": "Fill the X bars with two different chords.",
+      "template": ["X", "X", "1", "X"],
+      "distinct": 2,
+      "harmony": "triads",
+      "saveAs": "three-chords-4"
+    },
+    {
+      "tag": "play-x-x-1-x",
+      "section": "Create a Chord Progression",
+      "title": "Play | X | X | 1 | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "three-chords-4",
+        "rhythm": [480, 480, 960],
+        "harmony": "triads"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-x-x-x-x",
+      "section": "Create a Chord Progression",
+      "title": "Add a 4th chord: | X | X | X | X |",
+      "direction": "Four different chords.",
+      "template": ["X", "X", "X", "X"],
+      "distinct": 4,
+      "harmony": "triads",
+      "saveAs": "four-chords"
+    },
+    {
+      "tag": "play-x-x-x-x",
+      "section": "Create a Chord Progression",
+      "title": "Play | X | X | X | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "four-chords",
+        "rhythm": [480, 480, 960],
+        "harmony": "triads"
+      }
+    },
+    {
+      "kind": "replay",
+      "tag": "your-progression-with-7ths",
+      "section": "7th Chords",
+      "title": "Your progression, now with 7ths",
+      "direction": "Hear your four chords, then the same chords with their 7ths.",
+      "progression": "four-chords"
+    },
+    {
+      "tag": "the-1-chord-7ths",
+      "section": "7th Chords",
+      "title": "The 1 chord with its 7th",
+      "direction": "Play the 1 chord in this rhythm: short, short, long.",
+      "call": {
+        "chords": ["1", "1"],
+        "rhythm": [480, 480, 960],
+        "harmony": "sevenths"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-your-x-7ths",
+      "section": "7th Chords",
+      "title": "Choose your X with 7ths",
+      "direction": "Pick a chord for X.",
+      "template": ["1", "X"],
+      "distinct": 1,
+      "harmony": "sevenths",
+      "saveAs": "one-and-x-7ths"
+    },
+    {
+      "tag": "play-1-x-7ths",
+      "section": "7th Chords",
+      "title": "Play | 1 | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "one-and-x-7ths",
+        "rhythm": [480, 480, 960],
+        "harmony": "sevenths"
+      }
+    },
+    {
+      "tag": "play-x-1-7ths",
+      "section": "7th Chords",
+      "title": "Play | X | 1 |",
+      "direction": "Now X comes first.",
+      "call": {
+        "chords": ["X", "1"],
+        "progression": "one-and-x-7ths",
+        "rhythm": [480, 480, 960],
+        "harmony": "sevenths"
+      }
+    },
+    {
+      "tag": "play-1-1-x-x-7ths",
+      "section": "7th Chords",
+      "title": "Play | 1 | 1 | X | X |",
+      "direction": "Four bars: two on each chord.",
+      "call": {
+        "chords": ["1", "1", "X", "X"],
+        "progression": "one-and-x-7ths",
+        "rhythm": [480, 480, 960],
+        "harmony": "sevenths"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-1-x-x-x-7ths",
+      "section": "7th Chords",
+      "title": "Add a 3rd chord: | 1 | X | X | X |",
+      "direction": "Fill the X bars with two different chords.",
+      "template": ["1", "X", "X", "X"],
+      "distinct": 2,
+      "harmony": "sevenths",
+      "saveAs": "three-chords-1-7ths"
+    },
+    {
+      "tag": "play-1-x-x-x-7ths",
+      "section": "7th Chords",
+      "title": "Play | 1 | X | X | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "three-chords-1-7ths",
+        "rhythm": [480, 480, 960],
+        "harmony": "sevenths"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-x-x-x-1-7ths",
+      "section": "7th Chords",
+      "title": "Choose | X | X | X | 1 |",
+      "direction": "Fill the X bars with two different chords.",
+      "template": ["X", "X", "X", "1"],
+      "distinct": 2,
+      "harmony": "sevenths",
+      "saveAs": "three-chords-2-7ths"
+    },
+    {
+      "tag": "play-x-x-x-1-7ths",
+      "section": "7th Chords",
+      "title": "Play | X | X | X | 1 |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "three-chords-2-7ths",
+        "rhythm": [480, 480, 960],
+        "harmony": "sevenths"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-x-1-x-x-7ths",
+      "section": "7th Chords",
+      "title": "Choose | X | 1 | X | X |",
+      "direction": "Fill the X bars with two different chords.",
+      "template": ["X", "1", "X", "X"],
+      "distinct": 2,
+      "harmony": "sevenths",
+      "saveAs": "three-chords-3-7ths"
+    },
+    {
+      "tag": "play-x-1-x-x-7ths",
+      "section": "7th Chords",
+      "title": "Play | X | 1 | X | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "three-chords-3-7ths",
+        "rhythm": [480, 480, 960],
+        "harmony": "sevenths"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-x-x-1-x-7ths",
+      "section": "7th Chords",
+      "title": "Choose | X | X | 1 | X |",
+      "direction": "Fill the X bars with two different chords.",
+      "template": ["X", "X", "1", "X"],
+      "distinct": 2,
+      "harmony": "sevenths",
+      "saveAs": "three-chords-4-7ths"
+    },
+    {
+      "tag": "play-x-x-1-x-7ths",
+      "section": "7th Chords",
+      "title": "Play | X | X | 1 | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "three-chords-4-7ths",
+        "rhythm": [480, 480, 960],
+        "harmony": "sevenths"
+      }
+    },
+    {
+      "kind": "chooseChords",
+      "tag": "choose-x-x-x-x-7ths",
+      "section": "7th Chords",
+      "title": "Add a 4th chord: | X | X | X | X |",
+      "direction": "Four different chords.",
+      "template": ["X", "X", "X", "X"],
+      "distinct": 4,
+      "harmony": "sevenths",
+      "saveAs": "four-chords-7ths"
+    },
+    {
+      "tag": "play-x-x-x-x-7ths",
+      "section": "7th Chords",
+      "title": "Play | X | X | X | X |",
+      "direction": "Listen, then play it back.",
+      "call": {
+        "progression": "four-chords-7ths",
+        "rhythm": [480, 480, 960],
+        "harmony": "sevenths"
+      }
+    }
+  ]
+}

@@ -15,8 +15,8 @@
 import {
   PICKUP_STEP,
   type LiteracyFigure,
+  type LiteracyMelodicEchoStep,
   type LiteracyNote,
-  type LiteracyStep,
   type LiteracyWord,
   type LiteracyWords,
   type MusicLiteracyLesson,
@@ -43,12 +43,16 @@ export const PLACEHOLDER_SYLLABLE = 'la';
 
 const VELOCITY = 96;
 
+/** A step's words, or a blank line for a step with none (a Part 2 echo). */
+export const wordsOf = (step: LiteracyMelodicEchoStep): LiteracyWords =>
+  step.words ?? { bars: 1, notes: [] };
+
 /** A segment's notes and bars, as the step has them now. */
 export function segmentOf(
-  step: LiteracyStep,
+  step: LiteracyMelodicEchoStep,
   segment: Segment,
 ): LiteracyFigure | LiteracyWords {
-  if (segment === 'words') return step.words;
+  if (segment === 'words') return wordsOf(step);
   if (segment === 'call') return step.call;
   return step.response ?? step.call;
 }
@@ -59,7 +63,7 @@ export function segmentOf(
  */
 export function partOffset(
   lesson: Pick<MusicLiteracyLesson, 'timeSignature'>,
-  step: LiteracyStep,
+  step: LiteracyMelodicEchoStep,
   segment: Segment,
 ): number {
   return segment === 'words' && pickupOf(step) > 0
@@ -70,7 +74,7 @@ export function partOffset(
 /** The segment as a piano part in the lesson's key, at the step's tempo. */
 export function segmentPart(
   lesson: MusicLiteracyLesson,
-  step: LiteracyStep,
+  step: LiteracyMelodicEchoStep,
   segment: Segment,
   id: string,
 ): InstrumentPart {

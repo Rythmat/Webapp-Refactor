@@ -8,10 +8,14 @@
  */
 
 import {
+  isChordFigure,
   musicLiteracyBodySchema,
+  type LiteracyChordFigure,
   type LiteracyFigure,
+  type LiteracyLessonPasses,
   type LiteracyNote,
   type LiteracyStep,
+  type LiteracyStepPasses,
   type LiteracyWord,
   type LiteracyWords,
   type MusicLiteracyLesson,
@@ -144,15 +148,16 @@ export function removeStep(
   return { ...lesson, steps: lesson.steps.filter((_, i) => i !== index) };
 }
 
-export function patchStep(
+/** A change to one step: fields of its own kind (the editor's to keep so). */
+export function patchStep<S extends LiteracyStep>(
   lesson: MusicLiteracyLesson,
   index: number,
-  patch: Partial<LiteracyStep>,
+  patch: Partial<S>,
 ): MusicLiteracyLesson {
   return {
     ...lesson,
     steps: lesson.steps.map((step, i) =>
-      i === index ? { ...step, ...patch } : step,
+      i === index ? ({ ...step, ...patch } as LiteracyStep) : step,
     ),
   };
 }
@@ -182,6 +187,19 @@ const FIELD_NAME: Record<string, string> = {
   passMark: 'pass mark',
   bars: 'bars',
   pickup: 'pickup',
+  kind: 'kind',
+  section: 'section',
+  keyChoice: 'key choice',
+  numbering: 'numbering',
+  passes: 'passes',
+  template: 'template',
+  distinct: 'different chords',
+  harmony: 'harmony',
+  harmonies: 'harmonies',
+  saveAs: 'saved as',
+  progression: 'progression',
+  rhythm: 'rhythm',
+  chords: 'chords',
 };
 
 /** Where a problem is, as the editor names its parts. */
@@ -212,6 +230,7 @@ export function issueWhere(path: readonly (string | number)[]): string {
 function plainMessage(issue: {
   code: string;
   message: string;
+  path?: (string | number)[];
   minimum?: number | bigint;
   maximum?: number | bigint;
   type?: string;
@@ -230,6 +249,10 @@ function plainMessage(issue: {
     return 'Use lowercase letters, numbers and hyphens only.';
   if (issue.code === 'invalid_type' && issue.message === 'Required')
     return 'Missing.';
+  if (issue.code === 'invalid_union_discriminator')
+    return issue.path?.at(-1) === 'harmony'
+      ? 'Harmony is triads or sevenths.'
+      : 'Not a kind of step: echo, chooseKey, chooseMode, chooseChords or replay.';
   return issue.message;
 }
 
@@ -266,6 +289,24 @@ const figure = (f: LiteracyFigure): LiteracyFigure => ({
   notes: f.notes.map(note),
 });
 
+const chordFigure = (f: LiteracyChordFigure): LiteracyChordFigure => ({
+  ...(f.chords ? { chords: [...f.chords] } : {}),
+  ...(f.progression ? { progression: f.progression } : {}),
+  rhythm: [...f.rhythm],
+  harmony: f.harmony,
+});
+
+/** A passes object with only what it sets; undefined when it sets nothing. */
+function passes<P extends LiteracyStepPasses>(p: P | undefined): P | undefined {
+  if (!p) return undefined;
+  const out = {
+    ...(p.challenge !== undefined ? { challenge: p.challenge } : {}),
+    ...(p.create !== undefined ? { create: p.create } : {}),
+    ...(p.createBars !== undefined ? { createBars: p.createBars } : {}),
+  };
+  return Object.keys(out).length ? (out as P) : undefined;
+}
+
 const words = (w: LiteracyWords): LiteracyWords => ({
   bars: w.bars,
   ...(w.pickup ? { pickup: w.pickup } : {}),
@@ -284,6 +325,7 @@ const has = <T>(value: T | undefined | ''): value is T =>
 export function canonicalLesson(
   lesson: MusicLiteracyLesson,
 ): MusicLiteracyLesson {
+  const lessonPasses = passes<LiteracyLessonPasses>(lesson.passes);
   return {
     id: lesson.id,
     name: lesson.name,
@@ -292,20 +334,67 @@ export function canonicalLesson(
     part: lesson.part,
     ...(lesson.order !== undefined ? { order: lesson.order } : {}),
     key: { tonic: lesson.key.tonic, mode: lesson.key.mode },
+    ...(lesson.keyChoice ? { keyChoice: lesson.keyChoice } : {}),
+    ...(lesson.numbering ? { numbering: lesson.numbering } : {}),
+    ...(lessonPasses ? { passes: lessonPasses } : {}),
     tempo: lesson.tempo,
     timeSignature: [lesson.timeSignature[0], lesson.timeSignature[1]],
     countInBars: lesson.countInBars,
-    steps: lesson.steps.map((step) => ({
-      tag: step.tag,
-      title: step.title,
-      ...(has(step.direction) ? { direction: step.direction } : {}),
-      words: words(step.words),
-      call: figure(step.call),
-      ...(step.response ? { response: figure(step.response) } : {}),
-      ...(step.tempo !== undefined ? { tempo: step.tempo } : {}),
-      ...(step.passMark !== undefined ? { passMark: step.passMark } : {}),
-    })),
+    steps: lesson.steps.map(canonicalStep),
   };
+}
+
+/**
+ * A step with its keys in the schema's order: the kind first (an echo, the
+ * default, says none), then its tag, section, title and direction, then
+ * what its kind has, and its tempo (and an echo's pass mark) last.
+ */
+function canonicalStep(step: LiteracyStep): LiteracyStep {
+  const head = {
+    tag: step.tag,
+    ...(has(step.section) ? { section: step.section } : {}),
+    title: step.title,
+    ...(has(step.direction) ? { direction: step.direction } : {}),
+  };
+  const tempo = step.tempo !== undefined ? { tempo: step.tempo } : {};
+  switch (step.kind) {
+    case 'chooseKey':
+    case 'chooseMode':
+      return { kind: step.kind, ...head, ...tempo };
+    case 'chooseChords':
+      return {
+        kind: step.kind,
+        ...head,
+        template: [...step.template],
+        distinct: step.distinct,
+        harmony: step.harmony,
+        saveAs: step.saveAs,
+        ...tempo,
+      };
+    case 'replay':
+      return {
+        kind: step.kind,
+        ...head,
+        progression: step.progression,
+        ...(step.harmonies ? { harmonies: [...step.harmonies] } : {}),
+        ...(step.rhythm ? { rhythm: [...step.rhythm] } : {}),
+        ...tempo,
+      };
+    default: {
+      const own = passes(step.passes);
+      return {
+        ...head,
+        ...(step.words ? { words: words(step.words) } : {}),
+        call: isChordFigure(step.call)
+          ? chordFigure(step.call)
+          : figure(step.call),
+        ...(step.response ? { response: figure(step.response) } : {}),
+        ...(own ? { passes: own } : {}),
+        ...tempo,
+        ...(step.passMark !== undefined ? { passMark: step.passMark } : {}),
+      };
+    }
+  }
 }
 
 /** "B♭", "F♯": a key's tonic as it is shown. */

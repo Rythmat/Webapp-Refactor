@@ -21,17 +21,30 @@
  * Words with a pickup sing it at the end of the count-in, which clicks on
  * under it; the teacher's turn starts with its first syllable, and the
  * drums still come in on the words' downbeat.
+ *
+ * Part 2 (passes.ts) runs the same way in the student's key (pass their
+ * choices). The challenge is a Play run with `challenge` set: the same
+ * cues, Atlas still playing the words and the call, but the student plays
+ * along, so those notes and their beats are marked `playAlong`. The create
+ * pass has cues of its own (createRunCues): count-in, the student's call,
+ * their repeat, on one pulse, with no Atlas notes at all.
  */
 
 import type {
   LiteracyStep,
   MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
+import type { LiteracyChoices } from './choices';
+import type { CreatePass } from './createPass';
 import { stepNotes, type StepTimeline, type TimedNote } from './literacy';
 
 export type RunMode = 'listen' | 'practice' | 'play';
 
-/** Whose turn: the count-in, the teacher's words and call, the student's bars. */
+/**
+ * Whose turn: the count-in, the teacher's words and call, the student's bars.
+ * In a create run (createRunCues) 'call' is the student's own call and
+ * 'response' their repeat of it.
+ */
 export type RunPhase = 'countIn' | 'words' | 'call' | 'response';
 
 export type RunSegment = 'words' | 'call' | 'response';
@@ -45,6 +58,8 @@ export interface BeatCue {
   phase: RunPhase;
   click: boolean;
   downbeat: boolean;
+  /** The challenge: the teacher's turn, which the student plays along with. */
+  playAlong?: true;
 }
 
 export interface NoteCue {
@@ -58,6 +73,8 @@ export interface NoteCue {
   sound: boolean;
   /** Its key lights while it lasts. */
   light: boolean;
+  /** The challenge: Atlas plays it and the student plays it too, graded. */
+  playAlong?: true;
 }
 
 export interface NoteEndCue {
@@ -110,6 +127,14 @@ export interface RunOptions {
   metronome: boolean;
   /** The drums to play along with, if any. */
   groove?: RunGroove | null;
+  /** The student's choices: a Part 2 step plays in their key. */
+  choices?: LiteracyChoices | null;
+  /**
+   * The challenge pass (passes.ts): the student plays every note along with
+   * Atlas, so the words and the call, and their beats, are `playAlong`.
+   * Nothing else changes: the timeline, the sounds, the drums.
+   */
+  challenge?: boolean;
 }
 
 /** The final downbeat: a kick and a crash cymbal, together (General MIDI). */
@@ -159,6 +184,7 @@ function noteCues(
   segment: RunSegment,
   sound: boolean,
   light: boolean,
+  playAlong = false,
 ): RunCue[] {
   return notes.flatMap((note): RunCue[] => [
     {
@@ -170,6 +196,7 @@ function noteCues(
       duration: note.duration,
       sound,
       light,
+      ...(playAlong ? { playAlong: true as const } : {}),
     },
     {
       kind: 'noteEnd',
@@ -226,46 +253,51 @@ function inOrder(cues: RunCue[]): RunCue[] {
   return cues.sort((a, b) => a.tick - b.tick || ORDER[a.kind] - ORDER[b.kind]);
 }
 
-/** Every cue of one run, in the order it happens. */
-export function runCues(
-  lesson: MusicLiteracyLesson,
-  step: LiteracyStep,
-  mode: RunMode,
-  { metronome, groove }: RunOptions,
-): RunCue[] {
-  const { timeline, words, call, response } = stepNotes(lesson, step);
-  const [beatsPerBar] = lesson.timeSignature;
+/** The pulse: a beat cue on every beat of the run. */
+function beatCues(
+  timeline: StepTimeline,
+  beatsPerBar: number,
+  metronome: boolean,
+  firstWord: number,
+  playAlong: boolean,
+): BeatCue[] {
   const beatTicks = timeline.barTicks / beatsPerBar;
-
-  // A pickup is the teacher's turn from its first syllable.
-  const firstWord = Math.min(...words.map((note) => note.onset));
-  const cues: RunCue[] = [];
+  const cues: BeatCue[] = [];
   for (let tick = 0; tick < timeline.total; tick += beatTicks) {
     const beat = Math.round((tick % timeline.barTicks) / beatTicks);
+    const phase = phaseAt(timeline, tick, firstWord)!;
     cues.push({
       kind: 'beat',
       tick,
       beat,
-      phase: phaseAt(timeline, tick, firstWord)!,
+      phase,
       // The count-in always counts, under a pickup too; past it the click
       // is the setting's.
       click: tick < timeline.words.start || metronome,
       downbeat: beat === 0,
+      ...(playAlong && (phase === 'words' || phase === 'call')
+        ? { playAlong: true as const }
+        : {}),
     });
   }
-  cues.push(
-    ...noteCues(words, 'words', true, true),
-    ...noteCues(call, 'call', true, true),
-    ...noteCues(response, 'response', mode === 'listen', mode !== 'play'),
-  );
-  if (!groove) {
-    cues.push({ kind: 'end', tick: timeline.total });
-    return inOrder(cues);
-  }
-  // The drums keep time from the words to the response's last bar line,
-  // land the final downbeat on it, and let it ring before the end.
-  cues.push(
-    ...grooveCues(groove, timeline.words.start, timeline.total),
+  return cues;
+}
+
+/**
+ * The run's end: with no groove, at the last bar line; with one, the drums
+ * keep time from `from` to it, land the final downbeat on it, and let it
+ * ring before the end.
+ */
+function ending(
+  timeline: StepTimeline,
+  beatsPerBar: number,
+  groove: RunGroove | null | undefined,
+  from: number,
+): RunCue[] {
+  if (!groove) return [{ kind: 'end', tick: timeline.total }];
+  const beatTicks = timeline.barTicks / beatsPerBar;
+  return [
+    ...grooveCues(groove, from, timeline.total),
     {
       kind: 'beat',
       tick: timeline.total,
@@ -279,8 +311,59 @@ export function runCues(
       kind: 'end',
       tick: timeline.total + FINAL_DOWNBEAT_BEATS * beatTicks,
     },
-  );
-  return inOrder(cues);
+  ];
+}
+
+/** Every cue of one run, in the order it happens. */
+export function runCues(
+  lesson: MusicLiteracyLesson,
+  step: LiteracyStep,
+  mode: RunMode,
+  { metronome, groove, choices, challenge = false }: RunOptions,
+): RunCue[] {
+  const { timeline, words, call, response } = stepNotes(lesson, step, choices);
+  const [beatsPerBar] = lesson.timeSignature;
+
+  // A pickup is the teacher's turn from its first syllable.
+  const firstWord = Math.min(...words.map((note) => note.onset));
+  return inOrder([
+    ...beatCues(timeline, beatsPerBar, metronome, firstWord, challenge),
+    ...noteCues(words, 'words', true, true, challenge),
+    ...noteCues(call, 'call', true, true, challenge),
+    ...noteCues(response, 'response', mode === 'listen', mode !== 'play'),
+    // The drums come in on the words' downbeat.
+    ...ending(timeline, beatsPerBar, groove, timeline.words.start),
+  ]);
+}
+
+/**
+ * A create pass's run (createPass.ts): the count-in, then the student's own
+ * call and their repeat of it, back to back on one pulse. Atlas plays no
+ * notes, since the call is the student's; the count-in clicks, the click
+ * past it is the setting's, and a groove comes in on the call's downbeat
+ * and lands its final downbeat after the repeat, as in any run. Phases:
+ * 'countIn', then 'call' (theirs), then 'response' (the repeat).
+ */
+export function createRunCues(
+  lesson: Pick<MusicLiteracyLesson, 'timeSignature'>,
+  pass: Pick<CreatePass, 'timeline'>,
+  { metronome, groove }: Pick<RunOptions, 'metronome' | 'groove'>,
+): RunCue[] {
+  const { timeline } = pass;
+  const [beatsPerBar] = lesson.timeSignature;
+  return inOrder([
+    ...beatCues(timeline, beatsPerBar, metronome, timeline.call.start, false),
+    ...ending(timeline, beatsPerBar, groove, timeline.call.start),
+  ]);
+}
+
+/**
+ * Cues lighting the keys of the student's own call during their repeat (a
+ * Practice-style hint, if the player wants one): its notes on the repeat,
+ * silent and lit. The player adds them once the call is transcribed.
+ */
+export function repeatLightCues(targets: readonly TimedNote[]): RunCue[] {
+  return inOrder(noteCues(targets, 'response', false, true));
 }
 
 /**
@@ -318,6 +401,8 @@ export interface RunView {
   /** Keys sounding (or due, in Practice) now. */
   lit: readonly number[];
   ended: boolean;
+  /** The challenge: the teacher's turn, which the student plays along with. */
+  playAlong?: boolean;
 }
 
 export const IDLE_RUN_VIEW: RunView = {
@@ -341,6 +426,11 @@ export function applyCue(
     case 'beat':
       return {
         ...view,
+        ...(cue.playAlong
+          ? { playAlong: true }
+          : view.playAlong
+            ? { playAlong: false }
+            : {}),
         beat: cue.beat,
         phase: cue.phase,
         // Past the words, every syllable reads as sung.
@@ -352,6 +442,7 @@ export function applyCue(
     case 'note':
       return {
         ...view,
+        ...(cue.playAlong ? { playAlong: true } : {}),
         // A pickup's first syllable, off the beat, starts the teacher's turn.
         phase:
           cue.segment === 'words' && view.phase === 'countIn'

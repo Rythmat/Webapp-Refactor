@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  LiteracyNote,
-  LiteracyWord,
+import {
+  isMelodicEcho,
+  type LiteracyNote,
+  type LiteracyWord,
 } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { listMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
@@ -53,8 +54,11 @@ const word = (
  * lesson's as the owner has written it. A round trip holds for any content,
  * so the real files catch editor bugs without pinning their words.
  */
+// Every melody's step (a chord call or a choose step has no chips).
 const ALL_STEPS = [LITERACY_FIXTURE, ...listMusicLiteracy()].flatMap((lesson) =>
-  lesson.steps.map((step) => ({ ...step, tag: `${lesson.id}/${step.tag}` })),
+  lesson.steps
+    .filter(isMelodicEcho)
+    .map((step) => ({ ...step, tag: `${lesson.id}/${step.tag}` })),
 );
 
 describe('the words line', () => {
@@ -97,10 +101,11 @@ describe('the words line', () => {
 
   it('turns every step’s words into a line and back, tick for tick', () => {
     for (const step of ALL_STEPS)
-      expect(
-        wordsNotes(wordsLine(step.words.notes, step.words.pickup)),
-        step.tag,
-      ).toEqual(step.words.notes);
+      if (step.words)
+        expect(
+          wordsNotes(wordsLine(step.words.notes, step.words.pickup)),
+          step.tag,
+        ).toEqual(step.words.notes);
   });
 
   it('keeps a rest before the first syllable, between two, and an octave', () => {

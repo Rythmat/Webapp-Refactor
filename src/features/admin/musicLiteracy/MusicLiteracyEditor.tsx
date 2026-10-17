@@ -30,6 +30,8 @@ import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
 import {
   LITERACY_TONICS,
+  isMelodicEcho,
+  stepKind,
   type LiteracyStep,
   type LiteracyTonic,
   type MusicLiteracyLesson,
@@ -153,11 +155,14 @@ export const MusicLiteracyEditor: FC<{ lesson: MusicLiteracyLesson }> = ({
   // The step the roll was opened from, to bring back into view after it.
   const fromRoll = useRef<number | null>(null);
   const roll = rollOf(search.get('roll'));
-  if (roll && draft.steps[roll.step]) {
+  const rollStep = roll ? draft.steps[roll.step] : undefined;
+  // The roll edits a melody's notes: Part 1's kind of step.
+  if (roll && rollStep && isMelodicEcho(rollStep)) {
     fromRoll.current = roll.step;
     return (
       <LiteracyRoll
         lesson={draft}
+        step={rollStep}
         stepIndex={roll.step}
         segment={roll.segment}
         backHref={pathname}
@@ -556,28 +561,39 @@ const LessonPane: FC<PaneProps> = ({
               setExpanded(null);
             }}
           >
-            <LiteracyStepEditor
-              lesson={draft}
-              step={step}
-              index={index}
-              issues={stepIssues(issues, index)}
-              tagFixed={savedTags.has(step.tag)}
-              onChange={(next) =>
-                set((lesson) => patchStep(lesson, index, next))
-              }
-              onRename={(title) =>
-                set((lesson) => renameStep(lesson, index, title, savedTags))
-              }
-              onRoll={(segment) => openRoll(index, segment)}
-              preview={{
-                playing: preview.playingStep === index,
-                loading: preview.loading,
-                lit: preview.lit?.step === index ? preview.lit : null,
-                play: () => play(index),
-                stop: preview.stop,
-              }}
-              learnHref={learnHref}
-            />
+            {!isMelodicEcho(step) ? (
+              <div className="border-t border-white/[0.06] px-4 pb-5 pt-4">
+                <ConsoleCallout tone="info">
+                  A Part 2 step ({stepKind(step)}
+                  {stepKind(step) === 'echo' ? ', a chord call' : ''}). Its
+                  editor is on its way; until then, edit it in the lesson’s
+                  file.
+                </ConsoleCallout>
+              </div>
+            ) : (
+              <LiteracyStepEditor
+                lesson={draft}
+                step={step}
+                index={index}
+                issues={stepIssues(issues, index)}
+                tagFixed={savedTags.has(step.tag)}
+                onChange={(next) =>
+                  set((lesson) => patchStep(lesson, index, next))
+                }
+                onRename={(title) =>
+                  set((lesson) => renameStep(lesson, index, title, savedTags))
+                }
+                onRoll={(segment) => openRoll(index, segment)}
+                preview={{
+                  playing: preview.playingStep === index,
+                  loading: preview.loading,
+                  lit: preview.lit?.step === index ? preview.lit : null,
+                  play: () => play(index),
+                  stop: preview.stop,
+                }}
+                learnHref={learnHref}
+              />
+            )}
           </StepRow>
         ))}
 
@@ -627,9 +643,12 @@ const StepRow: FC<{
   children,
 }) => {
   const n = index + 1;
-  const call = step.call.notes
-    .map((note) => pitchLabel(note.degree, note.octave ?? 0))
-    .join(' ');
+  const call = isMelodicEcho(step)
+    ? step.call.notes
+        .map((note) => pitchLabel(note.degree, note.octave ?? 0))
+        .join(' ')
+    : stepKind(step);
+  const ownResponse = isMelodicEcho(step) && step.response !== undefined;
   return (
     <div
       data-step={index}
@@ -663,7 +682,7 @@ const StepRow: FC<{
           >
             {call || '—'}
           </span>
-          {step.response && (
+          {ownResponse && (
             <ConsoleBadge tone="muted" className="shrink-0">
               own response
             </ConsoleBadge>

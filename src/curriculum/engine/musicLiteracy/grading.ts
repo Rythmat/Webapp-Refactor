@@ -19,6 +19,15 @@
  * three of "1 1 1" and pass. Here a played note answers one target at most,
  * the closest pairs first, and only within a beat of it; a note that answers
  * none is an extra, penalised as the house penalises a wrong note.
+ *
+ * THE CHALLENGE (passes.ts)
+ * "Go again and play ALL the notes!": the same run, every note of the words,
+ * the call and the response a target, graded by the same maths and the same
+ * pass rule. Each segment is paired on its own, so a note played in the
+ * words never answers a call target: a segment's notes are those from an
+ * eighth before it starts (its first syllable, for words with a pickup) to
+ * an eighth before the next one does. In the challenge the teacher's turn
+ * is graded, so a wrong key there is wrong (isRightNote's challenge mode).
  */
 
 import type { LiteracyStep } from '@/content/musicLiteracy/schemas';
@@ -28,7 +37,8 @@ import {
   type AssessmentResult,
   type TargetOutcome,
 } from '@/curriculum/hooks/useGenreAssessment';
-import type { StepTimeline, TimedNote } from './literacy';
+import type { StepNotes, StepTimeline, TimedNote } from './literacy';
+import type { RunSegment } from './run';
 
 /** A note the student played, on the step's timeline. */
 export interface PlayedNote {
@@ -57,9 +67,9 @@ export const LITERACY_PASS_MARK = 70;
  */
 export const TIMING_FLOOR = 50;
 
-/** The step's own pass mark, or the series mark. */
-export function passMarkOf(step: Pick<LiteracyStep, 'passMark'>): number {
-  return step.passMark ?? LITERACY_PASS_MARK;
+/** The step's own pass mark, or the series mark (a step of any kind). */
+export function passMarkOf(step: LiteracyStep | { passMark?: number }): number {
+  return ('passMark' in step ? step.passMark : undefined) ?? LITERACY_PASS_MARK;
 }
 
 /** The ticks the student's answer is heard in. */
@@ -150,7 +160,7 @@ const mean = (values: number[]) =>
   values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
 
 /** Timing this good (0–1) reads as "on time". */
-const ON_TIME = 0.8;
+export const ON_TIME = 0.8;
 
 function feedback(
   missed: number,
@@ -174,6 +184,79 @@ function feedback(
   }
   return 'The right notes, but off the beat: answer in time, on the beats after the call.';
 }
+
+/** What a scoring of paired targets comes to, before its feedback words. */
+interface Scored {
+  pitchAccuracy: number;
+  timingAccuracy: number;
+  overallScore: number;
+  percent: number;
+  passed: boolean;
+  outcomes: TargetOutcome[];
+  missedNotes: number[];
+}
+
+/**
+ * The house in-time maths over paired targets: each scored on its own
+ * (exact pitch, Gaussian timing), the blend pitch-heaviest, the wrong-note
+ * penalty for the extras, then the pass rule (the mark, and the timing
+ * floor).
+ */
+function scorePairs(
+  targets: readonly TimedNote[],
+  pairs: readonly (PlayedNote | null)[],
+  extras: number,
+  tempo: number,
+  passMark: number,
+): Scored {
+  const pitch: number[] = [];
+  const timing: number[] = [];
+  const outcomes: TargetOutcome[] = targets.map((target, i) => {
+    const pair = pairs[i];
+    const scored = assessPitchAndTiming(
+      [target],
+      pair ? [pair] : [],
+      tempo,
+      'pitch_order_timing',
+    );
+    pitch.push(scored.pitchAccuracy);
+    timing.push(scored.timingAccuracy ?? 0);
+    return pair
+      ? {
+          targetIndex: i,
+          onsetTick: target.onset,
+          status: 'hit',
+          timingDevTicks: pair.onset - target.onset,
+        }
+      : { targetIndex: i, onsetTick: target.onset, status: 'missed' };
+  });
+  const pitchAccuracy = mean(pitch);
+  const timingAccuracy = mean(timing);
+  // The house in-time blend (pitch-heaviest), then its wrong-note penalty.
+  const overallScore = applyWrongNotePenalty(
+    pitchAccuracy * 0.6 + timingAccuracy * 0.4,
+    targets.length,
+    extras,
+  );
+  const percent = Math.round(overallScore * 100);
+  return {
+    pitchAccuracy,
+    timingAccuracy,
+    overallScore,
+    percent,
+    passed: meetsPassRule(percent, timingAccuracy, passMark),
+    outcomes,
+    missedNotes: targets.filter((_, i) => !pairs[i]).map((t) => t.midi),
+  };
+}
+
+/** The pass rule: the mark overall, and the timing floor (0–1 timing). */
+export const meetsPassRule = (
+  percent: number,
+  timingAccuracy: number,
+  passMark: number,
+): boolean =>
+  percent >= passMark && Math.round(timingAccuracy * 100) >= TIMING_FLOOR;
 
 /**
  * The student's answer, graded. `played` is everything they played during
@@ -201,64 +284,188 @@ export function gradeResponse(
     call && { call, response: targets },
   );
   const { pairs, extras } = pairResponse(targets, answers);
-
-  const pitch: number[] = [];
-  const timing: number[] = [];
-  const outcomes: TargetOutcome[] = targets.map((target, i) => {
-    const pair = pairs[i];
-    const scored = assessPitchAndTiming(
-      [target],
-      pair ? [pair] : [],
-      tempo,
-      'pitch_order_timing',
-    );
-    pitch.push(scored.pitchAccuracy);
-    timing.push(scored.timingAccuracy ?? 0);
-    return pair
-      ? {
-          targetIndex: i,
-          onsetTick: target.onset,
-          status: 'hit',
-          timingDevTicks: pair.onset - target.onset,
-        }
-      : { targetIndex: i, onsetTick: target.onset, status: 'missed' };
-  });
-
-  const pitchAccuracy = mean(pitch);
-  const timingAccuracy = mean(timing);
-  // The house in-time blend (pitch-heaviest), then its wrong-note penalty.
-  const overallScore = applyWrongNotePenalty(
-    pitchAccuracy * 0.6 + timingAccuracy * 0.4,
-    targets.length,
-    extras.length,
-  );
-  const percent = Math.round(overallScore * 100);
-  const passed =
-    percent >= passMark && Math.round(timingAccuracy * 100) >= TIMING_FLOOR;
-  const missedNotes = targets.filter((_, i) => !pairs[i]).map((t) => t.midi);
-
+  const scored = scorePairs(targets, pairs, extras.length, tempo, passMark);
   return {
-    passed,
-    pitchAccuracy,
-    timingAccuracy,
+    passed: scored.passed,
+    pitchAccuracy: scored.pitchAccuracy,
+    timingAccuracy: scored.timingAccuracy,
     durationAccuracy: null,
-    overallScore,
-    missedNotes,
+    overallScore: scored.overallScore,
+    missedNotes: scored.missedNotes,
     wrongNotes: extras.map((note) => note.midi),
-    xpEarned: Math.round(overallScore * 30),
+    xpEarned: Math.round(scored.overallScore * 30),
     skillTagsEarned: [],
     feedbackText: feedback(
-      missedNotes.length,
+      scored.missedNotes.length,
       extras.length,
-      timingAccuracy,
-      passed,
+      scored.timingAccuracy,
+      scored.passed,
     ),
-    outcomes,
-    percent,
+    outcomes: scored.outcomes,
+    percent: scored.percent,
     passMark,
     pairs,
     extras,
   };
+}
+
+// ── The challenge ──────────────────────────────────────────────────────────
+
+/** A note the challenge grades: every note of the step, by its segment. */
+export interface ChallengeTarget extends TimedNote {
+  segment: RunSegment;
+}
+
+/** The challenge's targets: the words, the call and the response, in order. */
+export function challengeTargets(
+  notes: Pick<StepNotes, 'words' | 'call' | 'response'>,
+): ChallengeTarget[] {
+  return (['words', 'call', 'response'] as const).flatMap((segment) =>
+    notes[segment].map((note) => ({ ...note, segment })),
+  );
+}
+
+const SEGMENTS: readonly RunSegment[] = ['words', 'call', 'response'];
+
+/**
+ * Where each segment's played notes are taken from: an eighth before it
+ * starts (a pickup's first syllable, for the words) to an eighth before
+ * the next one does; the response's to the end of its bars.
+ */
+export function challengeWindows(
+  timeline: StepTimeline,
+  targets: readonly Pick<ChallengeTarget, 'segment' | 'onset'>[],
+): Record<RunSegment, { start: number; end: number }> {
+  const firstWord = Math.min(
+    timeline.words.start,
+    ...targets.filter((t) => t.segment === 'words').map((t) => t.onset),
+  );
+  const call = timeline.call.start - RESPONSE_EARLY_TICKS;
+  const response = timeline.response.start - RESPONSE_EARLY_TICKS;
+  const words = Math.min(firstWord - RESPONSE_EARLY_TICKS, call);
+  return {
+    words: { start: words, end: call },
+    call: { start: call, end: response },
+    response: {
+      start: response,
+      end: timeline.response.start + timeline.response.length,
+    },
+  };
+}
+
+/** The ticks the challenge hears: its words' window to the response's end. */
+export function challengeWindow(
+  timeline: StepTimeline,
+  targets: readonly Pick<ChallengeTarget, 'segment' | 'onset'>[],
+): { start: number; end: number } {
+  const windows = challengeWindows(timeline, targets);
+  return { start: windows.words.start, end: windows.response.end };
+}
+
+export interface LiteracyChallengeResult extends LiteracyResult {
+  /** How each segment went: its targets, how many were hit, its extras. */
+  segments: Record<
+    RunSegment,
+    { targets: number; hit: number; extras: number }
+  >;
+}
+
+function challengeFeedback(
+  missed: number,
+  extras: number,
+  timing: number,
+  passed: boolean,
+): string {
+  if (passed) {
+    if (missed > 0 || extras > 0) {
+      return 'Challenge passed! Next time, every note and nothing extra.';
+    }
+    return timing >= ON_TIME
+      ? 'Every note, right on time. Challenge complete!'
+      : 'Challenge passed! Now land every note on its beat.';
+  }
+  if (missed > 0) {
+    return `${missed} note${missed > 1 ? 's' : ''} missed. Play along with every note, the words and the call too.`;
+  }
+  if (extras > 0) {
+    return `${extras} extra note${extras > 1 ? 's' : ''}. Play just the notes Atlas plays, then your answer.`;
+  }
+  return 'The right notes, but off the beat: play along in time with Atlas.';
+}
+
+/**
+ * The challenge, graded: every target (challengeTargets) against what the
+ * student played over the whole run. Each segment pairs only its own
+ * notes (challengeWindows), one note to one target; notes in no segment's
+ * window (the count-in before the words) aren't heard. Same maths and pass
+ * rule as `gradeResponse`; `pairs` follows the targets' order.
+ */
+export function gradeChallenge(
+  targets: readonly ChallengeTarget[],
+  played: readonly PlayedNote[],
+  {
+    timeline,
+    tempo,
+    passMark,
+  }: { timeline: StepTimeline; tempo: number; passMark: number },
+): LiteracyChallengeResult {
+  const windows = challengeWindows(timeline, targets);
+  const pairs: (PlayedNote | null)[] = targets.map(() => null);
+  const extras: PlayedNote[] = [];
+  const segments = {} as LiteracyChallengeResult['segments'];
+  for (const segment of SEGMENTS) {
+    const { start, end } = windows[segment];
+    const indices = targets.flatMap((t, i) =>
+      t.segment === segment ? [i] : [],
+    );
+    const heard = played.filter((n) => n.onset >= start && n.onset < end);
+    const paired = pairResponse(
+      indices.map((i) => targets[i]),
+      heard,
+    );
+    indices.forEach((target, k) => {
+      pairs[target] = paired.pairs[k];
+    });
+    extras.push(...paired.extras);
+    segments[segment] = {
+      targets: indices.length,
+      hit: paired.pairs.filter(Boolean).length,
+      extras: paired.extras.length,
+    };
+  }
+  const scored = scorePairs(targets, pairs, extras.length, tempo, passMark);
+  return {
+    passed: scored.passed,
+    pitchAccuracy: scored.pitchAccuracy,
+    timingAccuracy: scored.timingAccuracy,
+    durationAccuracy: null,
+    overallScore: scored.overallScore,
+    missedNotes: scored.missedNotes,
+    wrongNotes: extras.map((note) => note.midi),
+    xpEarned: Math.round(scored.overallScore * 30),
+    skillTagsEarned: [],
+    feedbackText: challengeFeedback(
+      scored.missedNotes.length,
+      extras.length,
+      scored.timingAccuracy,
+      scored.passed,
+    ),
+    outcomes: scored.outcomes,
+    percent: scored.percent,
+    passMark,
+    pairs,
+    extras,
+    segments,
+  };
+}
+
+/** How `isRightNote` judges. */
+export interface RightNoteOptions {
+  /**
+   * The challenge: `targets` are every note (challengeTargets), and the
+   * teacher's turn is graded too, so a wrong key there is wrong.
+   */
+  challenge?: boolean;
 }
 
 /**
@@ -267,20 +474,43 @@ export function gradeResponse(
  * run, it's the teacher's turn and nothing is wrong: a teacher playing along
  * on the keyboard, or the student joining in, lights right, never gray. Out
  * of a run (null) and after the answer, any pitch of the figure.
+ *
+ * In the challenge every segment is the student's: from the words' window
+ * on, a key is right when it's the pitch of the nearest target in the
+ * segment it's played in (before that, the count-in, nothing is wrong).
  */
 export function isRightNote(
   midi: number,
   tick: number | null,
-  targets: readonly Placed[],
+  targets: readonly (Placed & { segment?: RunSegment })[],
   timeline: StepTimeline,
+  { challenge = false }: RightNoteOptions = {},
 ): boolean {
+  const any = () => targets.some((target) => target.midi === midi);
+  if (challenge) {
+    const tagged = targets.map((t) => ({
+      ...t,
+      segment: t.segment ?? ('response' as const),
+    }));
+    const windows = challengeWindows(timeline, tagged);
+    if (tick !== null && tick < windows.words.start) return true;
+    if (tick === null || tick >= windows.response.end || !targets.length) {
+      return any();
+    }
+    const segment =
+      SEGMENTS.find((s) => tick >= windows[s].start && tick < windows[s].end) ??
+      'response';
+    const inSegment = tagged.filter((t) => t.segment === segment);
+    return nearestPitch(inSegment.length ? inSegment : tagged, tick) === midi;
+  }
   const { start, end } = responseWindow(timeline);
   if (tick !== null && tick < start) return true;
-  if (tick === null || tick >= end || targets.length === 0) {
-    return targets.some((target) => target.midi === midi);
-  }
-  const nearest = targets.reduce((a, b) =>
-    Math.abs(b.onset - tick) < Math.abs(a.onset - tick) ? b : a,
-  );
-  return nearest.midi === midi;
+  if (tick === null || tick >= end || targets.length === 0) return any();
+  return nearestPitch(targets, tick) === midi;
 }
+
+/** The pitch of the target nearest `tick`. */
+const nearestPitch = (targets: readonly Placed[], tick: number) =>
+  targets.reduce((a, b) =>
+    Math.abs(b.onset - tick) < Math.abs(a.onset - tick) ? b : a,
+  ).midi;

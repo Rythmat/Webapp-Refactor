@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
+import {
+  LITERACY_FIXTURE,
+  type LiteracyFixtureLesson,
+  type LiteracyFixtureStep,
+} from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import {
   musicLiteracyBodySchema,
   type LiteracyWords,
@@ -17,7 +21,10 @@ const files = import.meta.glob<MusicLiteracyLesson>(
   { eager: true, import: 'default' },
 );
 
-const lesson = (): MusicLiteracyLesson => structuredClone(LITERACY_FIXTURE);
+const lesson = (): LiteracyFixtureLesson => structuredClone(LITERACY_FIXTURE);
+/** A blank lesson's one step: a Part 1 step. */
+const firstStep = (body: MusicLiteracyLesson) =>
+  body.steps[0] as LiteracyFixtureStep;
 
 describe('the music_literacy schema', () => {
   it('holds every lesson file, named for its id', () => {
@@ -66,7 +73,7 @@ describe('a pickup on the words', () => {
     edit: Partial<MusicLiteracyLesson> = {},
   ) => {
     const body = { ...blankLiteracyLesson('pickup', 'Pickup'), ...edit };
-    body.steps[0].words = words;
+    firstStep(body).words = words;
     return musicLiteracyBodySchema.safeParse(body);
   };
   const whenI = (pickup?: number): LiteracyWords => ({
@@ -125,14 +132,13 @@ describe('a pickup on the words', () => {
 
   it('is only the words’: a call note can’t come before its downbeat', () => {
     const body = blankLiteracyLesson('pickup', 'Pickup');
-    body.steps[0].call.notes[0].tick = -240;
+    const step = firstStep(body);
+    step.call.notes[0].tick = -240;
     expect(musicLiteracyBodySchema.safeParse(body).success).toBe(false);
     expect(
       musicLiteracyBodySchema.safeParse({
         ...body,
-        steps: [
-          { ...body.steps[0], call: { ...body.steps[0].call, pickup: 480 } },
-        ],
+        steps: [{ ...step, call: { ...step.call, pickup: 480 } }],
       }).success,
     ).toBe(false);
   });

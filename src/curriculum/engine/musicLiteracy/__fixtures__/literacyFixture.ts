@@ -11,11 +11,25 @@
  * (content/musicLiteracy/__tests__/musicLiteracySchemas.test.ts).
  */
 
-import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
+import type {
+  LiteracyMelodicEchoStep,
+  LiteracyWords,
+  MusicLiteracyLesson,
+} from '@/content/musicLiteracy/schemas';
 import type * as Registry from '../registry';
 import lesson from './literacyFixture.json';
 
-export const LITERACY_FIXTURE = lesson as MusicLiteracyLesson;
+/** A Part 1 step: call and response with a melodic call, and words. */
+export type LiteracyFixtureStep = LiteracyMelodicEchoStep & {
+  words: LiteracyWords;
+};
+
+/** Part 1's shape: a lesson of Part 1 steps only (still a lesson). */
+export type LiteracyFixtureLesson = Omit<MusicLiteracyLesson, 'steps'> & {
+  steps: LiteracyFixtureStep[];
+};
+
+export const LITERACY_FIXTURE = lesson as LiteracyFixtureLesson;
 
 /**
  * The registry over these lessons instead of the files, for a test that

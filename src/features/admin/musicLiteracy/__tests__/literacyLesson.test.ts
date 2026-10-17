@@ -1,9 +1,16 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { format } from 'prettier';
 import { describe, expect, it } from 'vitest';
-import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
+import type {
+  LiteracyStep,
+  MusicLiteracyLesson,
+} from '@/content/musicLiteracy/schemas';
 import { blankLiteracyLesson } from '@/content/musicLiteracy/template';
-import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
+import {
+  LITERACY_FIXTURE,
+  type LiteracyFixtureStep,
+} from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
+import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
 import { repoPrettierOptions } from '@/scripts/repoContent/tsWrite';
 import {
   addStep,
@@ -28,6 +35,8 @@ const FILE =
   'src/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture.json';
 const PART_1 = LITERACY_FIXTURE;
 const tags = (lesson: MusicLiteracyLesson) => lesson.steps.map((s) => s.tag);
+/** A step these tests know is a Part 1 step. */
+const part1 = (step: LiteracyStep) => step as LiteracyFixtureStep;
 
 /** The file's text for a body, as the dev writer and repo mode write it. */
 const fileText = async (body: unknown) =>
@@ -96,10 +105,77 @@ describe('the lesson’s file', () => {
       'response',
       'passMark',
     ]);
-    expect(out.steps[0].response?.notes[0]).toEqual({
+    expect(part1(out.steps[0]).response?.notes[0]).toEqual({
       tick: 0,
       duration: 480,
       degree: '1',
+    });
+  });
+});
+
+describe('a Part 2 lesson’s file', () => {
+  it('lays each kind out in the schema’s order, the kind first, an echo’s left out', () => {
+    const lesson = canonicalLesson({
+      ...PART2_FIXTURE,
+      steps: [
+        {
+          kind: 'replay',
+          title: 'Hear it',
+          rhythm: [960, 960],
+          harmonies: ['sevenths'],
+          progression: 'four',
+          tag: 'hear-it',
+          section: '',
+        },
+        {
+          passes: { createBars: 2, challenge: true, create: true },
+          call: {
+            harmony: 'triads',
+            rhythm: [1920],
+            chords: ['1', '4'],
+          },
+          title: 'Chords',
+          kind: 'echo',
+          tag: 'chords',
+          section: 'Chords',
+        },
+        {
+          tag: 'empty-passes',
+          title: 'Empty passes',
+          call: { bars: 1, notes: [{ tick: 0, duration: 480, degree: '1' }] },
+          passes: {},
+        },
+      ] as MusicLiteracyLesson['steps'],
+    });
+    expect(Object.keys(lesson)).toEqual([
+      'id',
+      'name',
+      'status',
+      'part',
+      'key',
+      'keyChoice',
+      'numbering',
+      'passes',
+      'tempo',
+      'timeSignature',
+      'countInBars',
+      'steps',
+    ]);
+    expect(lesson.steps.map((step) => Object.keys(step))).toEqual([
+      ['kind', 'tag', 'title', 'progression', 'harmonies', 'rhythm'],
+      ['tag', 'section', 'title', 'call', 'passes'],
+      ['tag', 'title', 'call'],
+    ]);
+    const [, chords] = lesson.steps;
+    expect(chords.kind === undefined && Object.keys(chords.call)).toEqual([
+      'chords',
+      'rhythm',
+      'harmony',
+    ]);
+    expect(chords.kind === undefined && chords.passes).toEqual({
+      challenge: true,
+      create: true,
+      createBars: 2,
     });
   });
 });
@@ -116,8 +192,8 @@ describe('the steps', () => {
     expect(once.steps).toHaveLength(PART_1.steps.length + 1);
     expect(once.steps[1].title).toBe('A note called C (copy)');
     expect(once.steps[1].tag).toBe('a-note-called-c-copy');
-    expect(once.steps[1].words).toEqual(PART_1.steps[0].words);
-    expect(once.steps[1].words).not.toBe(PART_1.steps[0].words);
+    expect(part1(once.steps[1]).words).toEqual(PART_1.steps[0].words);
+    expect(part1(once.steps[1]).words).not.toBe(PART_1.steps[0].words);
     const twice = duplicateStep(once, 0);
     expect(twice.steps[1].tag).toBe('a-note-called-c-copy-2');
     expect(new Set(tags(twice)).size).toBe(twice.steps.length);
@@ -134,7 +210,10 @@ describe('the steps', () => {
   it('removes a step, and refuses to save a lesson with none', () => {
     const fewer = removeStep(PART_1, 2);
     expect(tags(fewer)).not.toContain('add-the-3');
-    const none = PART_1.steps.reduce((l) => removeStep(l, 0), PART_1);
+    const none = PART_1.steps.reduce<MusicLiteracyLesson>(
+      (l) => removeStep(l, 0),
+      PART_1,
+    );
     expect(lessonIssues(none)).toEqual([
       { path: ['steps'], where: 'Steps', message: 'Needs at least one.' },
     ]);
@@ -175,18 +254,18 @@ describe('a step’s pickup in the file', () => {
 
   it('writes it between the bars and the notes, and none when there is none', () => {
     const out = canonicalLesson({ ...PART_1, steps: [pickupStep] });
-    expect(Object.keys(out.steps[0].words)).toEqual([
+    expect(Object.keys(part1(out.steps[0]).words)).toEqual([
       'bars',
       'pickup',
       'notes',
     ]);
-    expect(out.steps[0].words.notes[0]).toEqual({
+    expect(part1(out.steps[0]).words.notes[0]).toEqual({
       tick: -480,
       duration: 240,
       degree: '1',
       text: 'When',
     });
-    expect(Object.keys(canonicalLesson(PART_1).steps[0].words)).toEqual([
+    expect(Object.keys(part1(canonicalLesson(PART_1).steps[0]).words)).toEqual([
       'bars',
       'notes',
     ]);

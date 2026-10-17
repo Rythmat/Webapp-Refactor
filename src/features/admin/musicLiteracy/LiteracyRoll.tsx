@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminRoutes } from '@/constants/routes';
 import type {
-  LiteracyStep,
+  LiteracyMelodicEchoStep,
   MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
 import { uniquePartId } from '@/curriculum/engine/parts/part';
@@ -16,6 +16,7 @@ import {
   PLACEHOLDER_SYLLABLE,
   SEGMENT_LABEL,
   segmentPart,
+  wordsOf,
   type Segment,
 } from './literacyPart';
 
@@ -29,16 +30,17 @@ import {
 
 export const LiteracyRoll: FC<{
   lesson: MusicLiteracyLesson;
+  /** The step, at `stepIndex`: a melodic echo, the kind the roll edits. */
+  step: LiteracyMelodicEchoStep;
   stepIndex: number;
   segment: Segment;
   /** The lesson's editor, without the roll. */
   backHref: string;
-  onCommit: (step: LiteracyStep) => void;
-}> = ({ lesson, stepIndex, segment, backHref, onCommit }) => {
+  onCommit: (step: LiteracyMelodicEchoStep) => void;
+}> = ({ lesson, step, stepIndex, segment, backHref, onCommit }) => {
   const navigate = useNavigate();
   const store = useInstrumentStore();
   const parts = usePartList();
-  const step = lesson.steps[stepIndex];
   const id = `literacy-${lesson.id}-${step.tag}-${segment}`;
   // Seeded once per step and segment: an edit here stays the roll's own.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,9 +54,9 @@ export const LiteracyRoll: FC<{
     edited: Parameters<typeof partFigure>[0],
   ): Promise<string> => {
     let note = '';
-    let next: LiteracyStep;
+    let next: LiteracyMelodicEchoStep;
     if (segment === 'words') {
-      const back = partWords(edited, lesson, step.words);
+      const back = partWords(edited, lesson, wordsOf(step));
       next = { ...step, words: back.words };
       if (back.added)
         note += ` ${back.added} new note${back.added === 1 ? '' : 's'} sing${back.added === 1 ? 's' : ''} “${PLACEHOLDER_SYLLABLE}” until you retype the line.`;
@@ -78,7 +80,7 @@ export const LiteracyRoll: FC<{
         tempo and key here are the roll’s own and are not kept.
         {segment === 'words' && ' The syllables go onto the notes in order.'}
         {segment === 'words' &&
-          (step.words.pickup ?? 0) > 0 &&
+          (step.words?.pickup ?? 0) > 0 &&
           ' The roll’s first bar is the pickup bar, the end of the count-in, so the words’ bar 1 is its bar 2.'}
       </ConsoleCallout>
       <PartEditor

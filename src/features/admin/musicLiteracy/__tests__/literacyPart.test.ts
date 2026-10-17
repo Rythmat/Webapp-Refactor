@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import type { LiteracyStep } from '@/content/musicLiteracy/schemas';
-import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
+import {
+  LITERACY_FIXTURE,
+  type LiteracyFixtureStep,
+} from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import type { InstrumentPart } from '@/curriculum/engine/parts/part';
 import {
   partFigure,
@@ -18,7 +20,7 @@ import {
 const PART_1 = LITERACY_FIXTURE;
 
 const step = (tag: string) =>
-  PART_1.steps.find((s) => s.tag === tag) as LiteracyStep;
+  PART_1.steps.find((s) => s.tag === tag) as LiteracyFixtureStep;
 
 describe('a segment as a part', () => {
   it('plays C’s degrees from middle C, at the step’s tempo, as long as its bars', () => {
@@ -53,7 +55,7 @@ describe('a segment as a part', () => {
     const empty = {
       ...step('root-is-1'),
       call: { bars: 1, notes: [] },
-    } as unknown as LiteracyStep;
+    } as unknown as LiteracyFixtureStep;
     const part = segmentPart(PART_1, empty, 'call', 'x');
     expect(part.notes).toEqual([]);
     expect(partFigure(part, PART_1)).toEqual({ bars: 1, notes: [] });
@@ -119,7 +121,7 @@ describe('a part back as a segment', () => {
 
 describe('words with a pickup in the roll', () => {
   /** "When I" on 4 and its "and", "play" on the downbeat. */
-  const pickupStep: LiteracyStep = {
+  const pickupStep: LiteracyFixtureStep = {
     ...step('root-is-1'),
     words: {
       bars: 2,

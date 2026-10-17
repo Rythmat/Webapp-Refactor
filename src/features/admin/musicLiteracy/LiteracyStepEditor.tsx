@@ -10,7 +10,7 @@ import type { FC, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import type {
-  LiteracyStep,
+  LiteracyMelodicEchoStep,
   MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
 import {
@@ -23,7 +23,7 @@ import { CONSOLE_LABEL } from '../ui/styles';
 import { FigureEditor } from './FigureEditor';
 import { WordsEditor } from './WordsEditor';
 import type { LessonIssue } from './literacyLesson';
-import type { Segment } from './literacyPart';
+import { wordsOf, type Segment } from './literacyPart';
 import type { LitNote } from './useStepPreview';
 
 /**
@@ -67,12 +67,12 @@ const RollButton: FC<{ onClick: () => void; what: string }> = ({
 
 export const LiteracyStepEditor: FC<{
   lesson: MusicLiteracyLesson;
-  step: LiteracyStep;
+  step: LiteracyMelodicEchoStep;
   index: number;
   issues: readonly LessonIssue[];
   /** Whether the step's tag is the one it was saved with, so fixed. */
   tagFixed: boolean;
-  onChange: (patch: Partial<LiteracyStep>) => void;
+  onChange: (patch: Partial<LiteracyMelodicEchoStep>) => void;
   onRename: (title: string) => void;
   onRoll: (segment: Segment) => void;
   preview: {
@@ -201,7 +201,7 @@ export const LiteracyStepEditor: FC<{
         actions={<RollButton what="words" onClick={() => onRoll('words')} />}
       >
         <WordsEditor
-          words={step.words}
+          words={wordsOf(step)}
           timeSignature={ts}
           stepLabel={name}
           lit={lit?.segment === 'words' ? lit.index : null}

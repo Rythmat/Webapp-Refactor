@@ -63,12 +63,16 @@ vi.mock('@/daw/audio/TrackEngine', () => ({
 vi.mock('@/daw/audio/MidiScheduler', () => ({
   MidiScheduler: class {
     scheduleSequence() {}
+    setMutedClips() {}
     cancelAll() {}
   },
 }));
 vi.mock('@/daw/audio/AudioClipScheduler', () => ({
   AudioClipScheduler: class {
     scheduleClip() {}
+    setMutedClips() {
+      return [];
+    }
     cancelAll() {}
   },
 }));

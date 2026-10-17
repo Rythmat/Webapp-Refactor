@@ -30,6 +30,8 @@ export interface ScheduleClipOptions {
    *  through the amp/effects in real time. Falls back to the TrackEngine
    *  input. */
   pedalInput?: AudioNode;
+  /** The clip's id, so muting the clip silences it (setMutedClips). */
+  clipId?: string;
 }
 
 // Nothing writes a clip gain yet, so clamp what saved or collab data carries
@@ -53,6 +55,14 @@ interface ClipEnvelope {
 export class AudioClipScheduler {
   private scheduledIds: number[] = [];
   private activeSources: AudioBufferSourceNode[] = [];
+  /**
+   * Clips muted from the clip menu (milestone 2.12): a scheduled start of
+   * one is skipped when it comes, so a mute or an unmute during playback
+   * counts from then on. A clip's sources are kept by its id, so a mute also
+   * stops what is sounding.
+   */
+  private mutedClips: ReadonlySet<string> = new Set();
+  private sourcesByClip = new Map<string, Set<AudioBufferSourceNode>>();
   // One silent source per track input while its clips are scheduled (see
   // holdTrackInput).
   private holds = new Map<TrackEngine, ConstantSourceNode>();
@@ -68,12 +78,14 @@ export class AudioClipScheduler {
     fromTick,
     bpm,
     pedalInput,
+    clipId,
   }: ScheduleClipOptions): void {
     const startTick = clip.startTick;
     const clipEndTick = startTick + clip.duration;
 
     // Clip entirely in the past — skip
     if (fromTick >= clipEndTick) return;
+    const muted = () => clipId !== undefined && this.mutedClips.has(clipId);
 
     if (!pedalInput) this.holdTrackInput(trackEngine);
 
@@ -90,6 +102,7 @@ export class AudioClipScheduler {
     const maxBufferOffset = Math.max(0, buffer.duration - 0.001);
 
     if (fromTick >= startTick) {
+      if (muted()) return;
       // Playhead is at or inside the clip — start immediately. The buffer read
       // position is the clip's trim offset plus how far the playhead already is
       // into the clip; the fade math still uses the in-clip position.
@@ -111,6 +124,7 @@ export class AudioClipScheduler {
         envelope,
         playheadSeconds,
         playDuration,
+        clipId,
       );
     } else {
       // Clip is in the future — schedule via Transport
@@ -121,6 +135,7 @@ export class AudioClipScheduler {
       // Runs once per tick: the transports clips play on drop Tone's repeated
       // ticks (transportTicks.ts), which would start a clip twice, +6 dB.
       const id = Tone.getTransport().schedule((time) => {
+        if (muted()) return;
         this.startSource(
           buffer,
           startOffset,
@@ -129,6 +144,7 @@ export class AudioClipScheduler {
           pedalInput,
           envelope,
           envelope.clipDurationSeconds,
+          clipId,
         );
       }, `${startTick}i`);
       this.scheduledIds.push(id);
@@ -156,6 +172,7 @@ export class AudioClipScheduler {
       }
     }
     this.activeSources = [];
+    this.sourcesByClip.clear();
 
     for (const hold of this.holds.values()) {
       try {
@@ -238,12 +255,39 @@ export class AudioClipScheduler {
     return { ctx, source, gainNode };
   }
 
+  /**
+   * The clips that are muted now. What a clip just muted has sounding stops;
+   * returns the clips just unmuted, which the caller starts again where the
+   * playhead is (a start that already passed was skipped).
+   */
+  setMutedClips(clipIds: ReadonlySet<string>): string[] {
+    const before = this.mutedClips;
+    this.mutedClips = clipIds;
+    for (const clipId of clipIds) {
+      if (before.has(clipId)) continue;
+      for (const source of this.sourcesByClip.get(clipId) ?? []) {
+        try {
+          source.stop();
+        } catch {
+          /* already stopped */
+        }
+      }
+    }
+    return [...before].filter((clipId) => !clipIds.has(clipId));
+  }
+
   /** Track a started source until it ends, so cancelAll can stop it. */
-  private track(source: AudioBufferSourceNode): void {
+  private track(source: AudioBufferSourceNode, clipId?: string): void {
     this.activeSources.push(source);
+    if (clipId !== undefined) {
+      const sources = this.sourcesByClip.get(clipId) ?? new Set();
+      sources.add(source);
+      this.sourcesByClip.set(clipId, sources);
+    }
     source.onended = () => {
       const idx = this.activeSources.indexOf(source);
       if (idx >= 0) this.activeSources.splice(idx, 1);
+      if (clipId !== undefined) this.sourcesByClip.get(clipId)?.delete(source);
     };
   }
 
@@ -256,6 +300,7 @@ export class AudioClipScheduler {
     pedalInputNode: AudioNode | undefined,
     envelope: ClipEnvelope,
     playDuration = 0,
+    clipId?: string,
   ): void {
     try {
       const { source, gainNode } = this.buildSource(
@@ -284,7 +329,7 @@ export class AudioClipScheduler {
       } else {
         source.start(time, offsetSeconds);
       }
-      this.track(source);
+      this.track(source, clipId);
     } catch (err) {
       console.error('[AudioClipScheduler] startSource failed:', err);
     }
@@ -299,6 +344,7 @@ export class AudioClipScheduler {
     envelope: ClipEnvelope,
     currentOffsetSeconds = 0,
     playDuration = 0,
+    clipId?: string,
   ): void {
     try {
       const { ctx, source, gainNode } = this.buildSource(
@@ -349,7 +395,7 @@ export class AudioClipScheduler {
       } else {
         source.start(now, offsetSeconds);
       }
-      this.track(source);
+      this.track(source, clipId);
     } catch (err) {
       console.error('[AudioClipScheduler] startSourceNow failed:', err);
     }

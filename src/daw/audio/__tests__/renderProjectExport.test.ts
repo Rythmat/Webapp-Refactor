@@ -273,6 +273,31 @@ describe('renderProject', () => {
     expect(midi.scheduled).toBe(0);
   });
 
+  it('leaves a muted clip out of the export, as playback does (2.12)', async () => {
+    instruments.createInstrument.mockReturnValue({
+      init: () => Promise.resolve(),
+      dispose() {},
+    });
+    const note = {
+      note: 60,
+      velocity: 100,
+      startTick: 0,
+      durationTicks: 480,
+      channel: 0,
+    };
+    store.state.tracks = [
+      {
+        ...track('keys'),
+        midiClips: [
+          { id: 'heard', startTick: 0, events: [note] },
+          { id: 'muted', startTick: 1920, events: [note], muted: true },
+        ],
+      },
+    ];
+    await renderProject();
+    expect(midi.scheduled).toBe(1);
+  });
+
   it('runs the stored mastering chain', async () => {
     await renderProject();
     const [mastering] = chains.updates;

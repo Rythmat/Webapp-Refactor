@@ -407,7 +407,8 @@ async function prepareReverbIrs(
 }
 
 /** Schedule a track's MIDI clips onto the (offline) transport via the shared
- *  MidiScheduler. Ticks are shifted so the render window starts at t=0. */
+ *  MidiScheduler. Ticks are shifted so the render window starts at t=0. A
+ *  muted clip (milestone 2.12) is left out, as playback leaves it silent. */
 function scheduleTrackMidi(
   track: ReturnType<typeof useStore.getState>['tracks'][number],
   te: TrackEngine,
@@ -415,7 +416,7 @@ function scheduleTrackMidi(
 ): void {
   const scheduler = new MidiScheduler();
   for (const clip of track.midiClips) {
-    if (clip.events.length === 0) continue;
+    if (clip.muted || clip.events.length === 0) continue;
     scheduler.scheduleSequence(
       {
         ticksPerQuarterNote: PPQ,
@@ -439,6 +440,7 @@ function scheduleTrackClips(
 ): void {
   const scheduler = new AudioClipScheduler();
   for (const clip of track.audioClips) {
+    if (clip.muted) continue;
     const buffer = getAudioBuffer(clip.id);
     if (!buffer) continue;
     scheduler.scheduleClip({

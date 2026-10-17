@@ -24,6 +24,7 @@ import {
   ticksToSeconds,
 } from '@/daw/audio/recordingLimit';
 import { overwriteAudioRegion } from '@/daw/audio/overwriteAudioRegion';
+import { mutedClipIds } from '@/daw/audio/trackAudibility';
 import { seekTo } from '@/daw/hooks/useTransport';
 import {
   applySamplerState,
@@ -31,6 +32,7 @@ import {
   applyStaticTrackParams,
   scheduleMasterAutomation,
   trackEngineRegistry,
+  type TrackAudioState,
 } from '@/daw/engine/trackAudio';
 import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
@@ -55,6 +57,23 @@ export {
   trackEngineRegistry,
   type TrackAudioState,
 } from '@/daw/engine/trackAudio';
+
+/**
+ * Where a track's audio clips play into: the pedal chain's native input on a
+ * Guitar, Bass or Vocal track, so amp and pedal changes are heard in real
+ * time during playback; else the track's own input (undefined).
+ */
+function pedalInputOf(
+  instrument: TrackAudioState['instrument'],
+): AudioNode | undefined {
+  if (instrument instanceof GuitarFxAdapter) {
+    return instrument.getNativePedalInputNode() ?? undefined;
+  }
+  if (instrument instanceof VocalFxAdapter) {
+    return instrument.getNativePedalInputNode() ?? undefined;
+  }
+  return undefined;
+}
 
 // ── Hook ─────────────────────────────────────────────────────────────────
 // Manages the lifecycle of TrackEngine instances, instrument adapters,
@@ -309,6 +328,11 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       const currentTracks = storeState.tracks;
       const currentTick = storeState.position;
       const bpm = storeState.bpm;
+      // Muted clips are scheduled too, and start nothing while muted (the
+      // clip-mute effect below follows a change during playback).
+      const muted = mutedClipIds(currentTracks);
+      scheduler.setMutedClips(muted);
+      audioClipScheduler.setMutedClips(muted);
 
       for (const track of currentTracks) {
         // Muted and solo-excluded tracks are still scheduled: the TrackEngine's
@@ -328,21 +352,13 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
             },
             state.trackEngine,
             clip.startTick,
+            clip.id,
           );
         }
 
         // Schedule audio clips — route through pedal chain for Guitar/Bass/Vocal tracks
         // so amp/pedal changes are heard in real time during playback
-        const pedalInput =
-          state.instrument instanceof GuitarFxAdapter
-            ? ((
-                state.instrument as GuitarFxAdapter
-              ).getNativePedalInputNode() ?? undefined)
-            : state.instrument instanceof VocalFxAdapter
-              ? ((
-                  state.instrument as VocalFxAdapter
-                ).getNativePedalInputNode() ?? undefined)
-              : undefined;
+        const pedalInput = pedalInputOf(state.instrument);
         for (const clip of track.audioClips) {
           const audioBuffer = getAudioBuffer(clip.id);
           if (!audioBuffer) continue;
@@ -353,6 +369,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
             fromTick: currentTick,
             bpm,
             pedalInput,
+            clipId: clip.id,
           });
         }
 
@@ -499,16 +516,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       for (const track of currentTracks) {
         const state = audioMap.get(track.id);
         if (!state) continue;
-        const pedalInput =
-          state.instrument instanceof GuitarFxAdapter
-            ? ((
-                state.instrument as GuitarFxAdapter
-              ).getNativePedalInputNode() ?? undefined)
-            : state.instrument instanceof VocalFxAdapter
-              ? ((
-                  state.instrument as VocalFxAdapter
-                ).getNativePedalInputNode() ?? undefined)
-              : undefined;
+        const pedalInput = pedalInputOf(state.instrument);
         for (const clip of track.audioClips) {
           const audioBuffer = getAudioBuffer(clip.id);
           if (!audioBuffer) continue;
@@ -522,6 +530,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
               fromTick: loopStart,
               bpm,
               pedalInput,
+              clipId: clip.id,
             });
           }
         }
@@ -544,6 +553,49 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       transport.off('loop', handleLoop);
     };
   }, [isReady, isPlaying, loopEnabled]);
+
+  // ── A clip muted or unmuted during playback (milestone 2.12) ─────────
+  // The schedulers gate each start on the muted set, so nothing is
+  // rescheduled: a clip just muted stops sounding, its later notes and
+  // starts are skipped, and one just unmuted plays from its next note (an
+  // audio clip under the playhead starts there at once).
+  useEffect(() => {
+    if (!isReady || !isPlaying) return;
+    const scheduler = schedulerRef.current;
+    const audioClipScheduler = audioClipSchedulerRef.current;
+    const audioMap = trackAudioRef.current;
+    let key = [...mutedClipIds(useStore.getState().tracks)].sort().join('|');
+    return useStore.subscribe((state, prev) => {
+      if (state.tracks === prev.tracks) return;
+      const muted = mutedClipIds(state.tracks);
+      const next = [...muted].sort().join('|');
+      if (next === key) return;
+      key = next;
+      scheduler.setMutedClips(muted);
+      const unmuted = new Set(audioClipScheduler.setMutedClips(muted));
+      if (unmuted.size === 0) return;
+      const tick = getPlayheadTick();
+      for (const track of state.tracks) {
+        const audio = audioMap.get(track.id);
+        if (!audio) continue;
+        for (const clip of track.audioClips) {
+          if (!unmuted.has(clip.id)) continue;
+          if (tick < clip.startTick) continue;
+          const buffer = getAudioBuffer(clip.id);
+          if (!buffer) continue;
+          audioClipScheduler.scheduleClip({
+            buffer,
+            clip,
+            trackEngine: audio.trackEngine,
+            fromTick: tick,
+            bpm: state.bpm,
+            pedalInput: pedalInputOf(audio.instrument),
+            clipId: clip.id,
+          });
+        }
+      }
+    });
+  }, [isReady, isPlaying]);
 
   // ── Audio recording (record-armed audio tracks) ─────────────────────
   useEffect(() => {

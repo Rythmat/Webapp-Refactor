@@ -148,7 +148,7 @@ export function pickMelodyTracks(
 export const hasMelodyNotes = (track: Track): boolean =>
   track.midiClips.some((clip) => clip.events.length > 0);
 
-type MelodyPartOptions = Omit<ScoreBuildOptions, 'tracks' | 'keepEmpty'>;
+type MelodyPartOptions = Omit<ScoreBuildOptions, 'tracks' | 'includeEmpty'>;
 
 /** How each layout turns the melody tracks into the parts it draws. */
 const MELODY_PARTS: Record<
@@ -158,7 +158,7 @@ const MELODY_PARTS: Record<
   // Each track is a part, and one with no notes keeps its staff, rests all
   // through, so a track that was ticked always shows.
   stacked: (tracks, options) =>
-    buildScoreParts({ ...options, tracks, keepEmpty: true }),
+    buildScoreParts({ ...options, tracks, includeEmpty: true }),
 };
 
 /** The parts the sheet draws for its melody tracks, top first. */

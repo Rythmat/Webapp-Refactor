@@ -47,9 +47,12 @@ export function isDrumTrack(track: Track): boolean {
   return role === 'drums';
 }
 
-function chooseStaves(midis: number[]): 'grand' | 'treble' | 'bass' {
-  // A part with nothing written yet waits on the treble staff.
-  if (midis.length === 0) return 'treble';
+function chooseStaves(
+  midis: number[],
+  empty: 'treble' | 'bass' = 'treble',
+): 'grand' | 'treble' | 'bass' {
+  // Nothing written yet: the clef the instrument reads in.
+  if (midis.length === 0) return empty;
   const low = Math.min(...midis);
   const high = Math.max(...midis);
   const mean = midis.reduce((a, b) => a + b, 0) / midis.length;
@@ -77,10 +80,29 @@ export interface ScoreBuildOptions {
    */
   cache?: ScorePartsCache;
   /**
-   * Give a track with no notes a part too, rests all through, instead of
-   * leaving it out: the lead sheet, whose tracks were picked by name.
+   * Keep a pitched track that has no notes yet, as a part of empty bars:
+   * note input needs a staff to write on, and the lead sheet shows every
+   * melody track it was given. A kit stays out until it has hits.
    */
-  keepEmpty?: boolean;
+  includeEmpty?: boolean;
+}
+
+/** The clef an instrument with nothing written yet is shown in. */
+function emptyClef(track: Track): 'treble' | 'bass' {
+  const role =
+    track.trackRole === 'auto' || track.trackRole === undefined
+      ? guessTrackRole(track.name, track.instrument)
+      : track.trackRole;
+  return role === 'bass' ? 'bass' : 'treble';
+}
+
+/** Whether a track is a part of the score: it has notes, or may get some. */
+function shown(
+  notes: NotationNoteInput[],
+  drums: boolean,
+  includeEmpty: boolean | undefined,
+): boolean {
+  return notes.length > 0 || (!!includeEmpty && !drums);
 }
 
 /** One track's notes, as the notation reads them. */
@@ -145,12 +167,18 @@ function partScore(
   timeSignature: [number, number],
   measures: number,
   keyFifths: number | undefined,
+  empty: 'treble' | 'bass' = 'treble',
 ): NotationScore {
   return buildScore(notes, {
     ticksPerQuarter: TICKS_PER_QUARTER,
     timeSignature,
     minMeasures: measures,
-    staves: drums ? 'percussion' : chooseStaves(notes.map((n) => n.midi)),
+    staves: drums
+      ? 'percussion'
+      : chooseStaves(
+          notes.map((n) => n.midi),
+          empty,
+        ),
     ...(keyFifths !== undefined && !drums ? { keyFifths } : {}),
   });
 }
@@ -167,7 +195,8 @@ function sharedMeasures(
 
 /**
  * A part per notatable track holding notes, plus the bar count they share.
- * Tracks with no notes are left out, unless `keepEmpty` keeps them.
+ * Tracks with no notes are left out, unless `includeEmpty` keeps the
+ * pitched ones for note input.
  */
 export function buildScoreParts(options: ScoreBuildOptions): ScoreTrackPart[] {
   if (options.cache) return options.cache.build(options);
@@ -187,13 +216,20 @@ export function buildScoreParts(options: ScoreBuildOptions): ScoreTrackPart[] {
   const keyFifths = keyFifthsOf(rootNote, mode);
 
   return perTrack
-    .filter(({ notes }) => options.keepEmpty || notes.length > 0)
+    .filter(({ drums, notes }) => shown(notes, drums, options.includeEmpty))
     .map(({ track, drums, notes }) => ({
       id: track.id,
       name: track.name,
       color: track.color,
       noteCount: notes.length,
-      score: partScore(notes, drums, timeSignature, measures, keyFifths),
+      score: partScore(
+        notes,
+        drums,
+        timeSignature,
+        measures,
+        keyFifths,
+        emptyClef(track),
+      ),
     }));
 }
 
@@ -255,6 +291,7 @@ export class ScorePartsCache {
         rootNote,
         mode,
         trackMarks(track.id, options),
+        emptyClef(track),
       ]);
       let cached = this.tracks.get(track.id);
       if (
@@ -283,7 +320,9 @@ export class ScorePartsCache {
     const scoreKey = JSON.stringify([timeSignature, measures, keyFifths]);
 
     const parts = perTrack
-      .filter(({ cached }) => options.keepEmpty || cached.notes.length > 0)
+      .filter(({ drums, cached }) =>
+        shown(cached.notes, drums, options.includeEmpty),
+      )
       .map(({ track, drums, cached }) => {
         if (!cached.score || cached.scoreKey !== scoreKey) {
           cached.score = partScore(
@@ -292,6 +331,7 @@ export class ScorePartsCache {
             timeSignature,
             measures,
             keyFifths,
+            emptyClef(track),
           );
           cached.scoreKey = scoreKey;
         }

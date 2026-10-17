@@ -186,8 +186,8 @@ export function LeadSheetScoreView({ tracks }: LeadSheetScoreViewProps) {
               data-testid="melody-empty-hint"
             >
               {listNames(emptyNames)} {emptyNames.length === 1 ? 'has' : 'have'}{' '}
-              no notes yet. Record or write a melody in Create, or turn Melody
-              off to go back to the chord chart.
+              no notes yet. Press Add notes (N) to write here, record a melody
+              in Create, or turn Melody off to go back to the chord chart.
             </div>
           )}
 

@@ -105,6 +105,15 @@ export interface MeasureBox {
   height: number;
   startTick: number;
   endTick: number;
+  /**
+   * Where the bar's notes may sit across, scaled: from after the clef, key
+   * and time on a system's opening bar to where the last note can end. A
+   * click-to-place editor maps time across this span.
+   */
+  noteStartX?: number;
+  noteEndX?: number;
+  /** The part's staves in this bar, top to bottom, with their top lines. */
+  staves?: Array<{ staff: StaffId; topLineY: number }>;
 }
 
 /** Where a drawn note sits, for range selection. */
@@ -258,6 +267,13 @@ export interface StaffViewProps {
   onRestPointerDown?: (restKey: string, event: ReactPointerEvent) => void;
   /** The page was pressed away from any measure. */
   onBackgroundPointerDown?: (event: ReactPointerEvent) => void;
+  /**
+   * The pointer moved over the music, at `x`, `y` in the layout's own
+   * (scaled) px: what a ghost note follows.
+   */
+  onStaffPointerMove?: (point: { x: number; y: number }) => void;
+  /** The pointer left the music. */
+  onStaffPointerLeave?: () => void;
   /**
    * Engrave incrementally, for a score that is edited in place (the Studio
    * Score): bar widths are cached by part and content, only the systems an
@@ -1661,6 +1677,7 @@ function render(
           );
           const top = Math.min(...staffOffsets);
           const bottom = Math.max(...staffOffsets) + STAFF_BODY;
+          const staves = partStaves[partIndex];
           out.measures.push({
             measureIndex,
             partIndex,
@@ -1671,6 +1688,12 @@ function render(
             height: bottom - top,
             startTick: measure.startTick,
             endTick: slotEndTick!,
+            noteStartX: noteStart,
+            noteEndX: staves.values().next().value!.getNoteEndX(),
+            staves: [...staves].map(([staff, stave]) => ({
+              staff,
+              topLineY: stave.getYForLine(0),
+            })),
           });
         });
       }
@@ -1752,6 +1775,20 @@ function render(
           y: box.y * scale,
           width: box.width * scale,
           height: box.height * scale,
+          ...(box.noteStartX !== undefined
+            ? { noteStartX: box.noteStartX * scale }
+            : {}),
+          ...(box.noteEndX !== undefined
+            ? { noteEndX: box.noteEndX * scale }
+            : {}),
+          ...(box.staves
+            ? {
+                staves: box.staves.map((s) => ({
+                  staff: s.staff,
+                  topLineY: s.topLineY * scale,
+                })),
+              }
+            : {}),
         });
       }
       for (const note of drawn.notes) {
@@ -1966,6 +2003,8 @@ export function StaffView({
   onMeasurePointerDown,
   onRestPointerDown,
   onBackgroundPointerDown,
+  onStaffPointerMove,
+  onStaffPointerLeave,
   incremental = false,
   className,
   style,
@@ -2296,6 +2335,18 @@ export function StaffView({
           margin: '0 auto',
         }}
         onPointerDown={handlePointerDown}
+        onPointerMove={
+          onStaffPointerMove
+            ? (event) => {
+                const box = event.currentTarget.getBoundingClientRect();
+                onStaffPointerMove({
+                  x: event.clientX - box.left,
+                  y: event.clientY - box.top,
+                });
+              }
+            : undefined
+        }
+        onPointerLeave={onStaffPointerLeave}
       >
         {rendered?.pages.map((sheet, i) => (
           <div

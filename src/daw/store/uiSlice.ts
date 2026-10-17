@@ -168,6 +168,13 @@ export interface UiSlice {
    */
   singleKeyShortcuts: boolean;
   setSingleKeyShortcuts: (on: boolean) => void;
+  /**
+   * The Score's note input (MuseScore's N): a click on a staff, or a letter
+   * A–G, writes a note instead of selecting. Shared by the Score and a lead
+   * sheet's melody, which edit with the same tools.
+   */
+  scoreNoteInput: boolean;
+  setScoreNoteInput: (on: boolean) => void;
   activeTool: ToolType;
   selectedClipId: string | null;
   selectedClipTrackId: string | null;
@@ -396,6 +403,8 @@ export const createUiSlice: StateCreator<
 > = (set, get) => ({
   singleKeyShortcuts: true,
   setSingleKeyShortcuts: (on) => set({ singleKeyShortcuts: on }),
+  scoreNoteInput: false,
+  setScoreNoteInput: (on) => set({ scoreNoteInput: on }),
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,

@@ -138,6 +138,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   dockHeights: LAYOUT,
   readoutMode: LAYOUT,
   activeTool: 'The editing tool: every project opens with the cursor.',
+  scoreNoteInput:
+    'The Score’s note input mode, like the editing tool: every project opens selecting, not writing.',
   selectedClipId: SELECTION,
   selectedClipTrackId: SELECTION,
   parkedClipSelection:

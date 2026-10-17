@@ -252,7 +252,8 @@ describe('theory copy guard', () => {
       expect(reached('pt.focus')).toBe(true);
       expect(reached('b.fromScale')).toBe(true);
       expect(reached('b.sevenLater')).toBe(true);
-      expect(reached('key.circle')).toBe(true);
+      // "Why this order?" is left out on C, the first key.
+      expect(reached('key.circle')).toBe(key !== 'C');
       expect(reached('b8.topNote')).toBe(true);
       expect(reached('d3.tricky') || reached('b2.anchor')).toBe(true);
       expect(
@@ -290,7 +291,8 @@ describe('theory copy guard', () => {
     for (const key of GUITAR_KEY_ORDER) {
       render(<GuitarKeyIntro keyCenter={key} defaultOpen />);
       const texts = shownCopy();
-      expect(texts.length).toBeGreaterThanOrEqual(6);
+      // C has the fewest: its first note and its minor partner.
+      expect(texts.length).toBeGreaterThanOrEqual(4);
       expect(texts.filter((text) => !isAuthored(text))).toEqual([]);
       cleanup();
     }
@@ -330,7 +332,8 @@ describe('theory copy guard', () => {
       expect(reached('pt.clean')).toBe(true);
       expect(reached('b.fromScale')).toBe(true);
       expect(reached('b.sevenLater')).toBe(true);
-      expect(reached('key.circle')).toBe(true);
+      // "Why this order?" is left out on C, the first key.
+      expect(reached('key.circle')).toBe(key !== 'C');
       expect(
         [...seen].some((text) =>
           pattern(GUITAR_THEORY_STRINGS['compare.caption']).test(text),

@@ -280,7 +280,7 @@ describe('guitar theory notes: resolution', () => {
         (n) => n.body,
       );
     expect(intro('C')).toEqual([
-      'C major has no sharps or flats. Each key after it changes just one note.',
+      'C major has no sharps or flats. Each key center has a different amount of sharps or flats.',
     ]);
     expect(intro('F#')).toEqual([
       'F# major is B major with one note changed. E becomes E#. Find E# in your scale shape.',

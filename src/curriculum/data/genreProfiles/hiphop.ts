@@ -206,7 +206,7 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
   characteristics: [
     'The beat comes first — drums and bass carry the record',
     'Short loops: one to four chords, repeated',
-    'Minor keys and modal colour: Aeolian, Dorian, Phrygian',
+    'Minor keys and modal color: Aeolian, Dorian, Phrygian',
     'Chords sit high, the bass sits low — a wide gap between them',
     'The bass locks to the kick drum',
     'Two feels: swung, behind-the-beat boom bap, and straight half-time trap with rolling hi-hats',
@@ -383,8 +383,7 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
       ],
       technique: {
         melody: {
-          summary:
-            'Three colours of E minor: Phrygian, Dorian, harmonic minor.',
+          summary: 'Three colors of E minor: Phrygian, Dorian, harmonic minor.',
           details: [
             'Phrygian: F, the ♭2, leaning on E',
             'Dorian: C♯, the 6, swung',

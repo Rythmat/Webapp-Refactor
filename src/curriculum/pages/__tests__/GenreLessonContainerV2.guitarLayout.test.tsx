@@ -398,11 +398,17 @@ describe('the guitar layout, guitar only', () => {
     expect(within(bar).getByRole('button', { name: 'Demo' })).toBeTruthy();
   });
 
-  it('piano keeps its own screen and start card', () => {
+  it('piano has its own screen, in the same chrome, with no start card', () => {
     const { container } = renderLesson(buildAppliedTheoryFundamentalsFlow('C'));
     expect(container.querySelector('[data-guitar-layout]')).toBeNull();
-    expect(container.querySelector('[data-guitar-bar]')).toBeNull();
-    expect(screen.getByText('Ready to start?')).toBeTruthy();
+    expect(container.querySelector('[data-piano-layout]')).not.toBeNull();
+    expect(container.querySelector('[data-guitar-visuals]')).toBeNull();
+    // One page: the buttons are in the bar, not on a card over the roll.
+    expect(screen.queryByText('Ready to start?')).toBeNull();
+    const bar = screen.getByRole('region', { name: 'Lesson controls' });
+    expect(within(bar).getByRole('button', { name: 'Play Now' })).toBeTruthy();
+    expect(within(bar).getByRole('button', { name: 'Practice' })).toBeTruthy();
+    expect(within(bar).getByRole('button', { name: 'Demo' })).toBeTruthy();
     expect(roll.props.at(-1)).toMatchObject({ instrument: 'piano' });
     expect(roll.props.at(-1)).not.toHaveProperty('guitarViewToggle');
     expect(roll.props.at(-1)).not.toHaveProperty('tabOpensOnMusic');

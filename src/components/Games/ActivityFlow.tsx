@@ -4,8 +4,24 @@ import * as Tone from 'tone';
 import { usePrismStartContours } from '@/hooks/data/prism/usePrismStartContours';
 import { NoteHold } from './NoteHold';
 import { PlayAlong } from './PlayAlong';
-import { PlayAlongRetryCard } from './PlayAlongRetryCard';
-import type { PlayAlongResult } from './playAlongGrade';
+import { PLAY_ALONG_PASS_RATIO, type PlayAlongResult } from './playAlongGrade';
+import { TheoryLessonLayout, TheoryResultPanel } from './TheoryLessonLayout';
+import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
+import {
+  Primary,
+  Secondary,
+  type Zones,
+} from '@/curriculum/guitar/layout/GuitarActionBar';
+import { GuitarSectionCompletePanel } from '@/curriculum/guitar/layout/GuitarSectionCompletePanel';
+import type {
+  BarState,
+  NavStep,
+  SectionCompleteModel,
+} from '@/curriculum/guitar/layout/types';
+import type { ActivitySectionId } from '@/curriculum/types/activity';
+import { useSettingsStore } from '@/features/settings/useSettingsStore';
+import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
+import { describeKey } from '@/lib/learn/keyDescription';
 import { activityPayoff } from './activityPayoff';
 import type { LessonOrigin } from '@/lib/learn/lessonOrigin';
 // import { BoardChoiceGame } from "./BoardChoiceGame";
@@ -13,11 +29,10 @@ import type { LessonOrigin } from '@/lib/learn/lessonOrigin';
 import { LessonOverview } from '@/components/learn/LessonOverview';
 import { PrismModeSlug, usePrismModeChordsData } from '@/hooks/data';
 import { useNavigate } from 'react-router';
-import { LearnRoutes, StudioRoutes } from '@/constants/routes';
+import { LearnRoutes, SettingsRoutes, StudioRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { useMidiInput } from '@/hooks/music/useMidiInput';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
-import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import {
   releaseAllPianoNotes,
@@ -106,6 +121,10 @@ type FlowActivityProps = {
    * Play Now, where the student proves the notes unaided.
    */
   playTargetNotes?: boolean;
+  /** On the one-page lesson screen: just the roll and the keys. */
+  bare?: boolean;
+  /** The step's notes, or the demo, lit on the keyboard before a run. */
+  previewNotes?: PlaybackEvent[];
 };
 
 type ActivityFlowProps = {
@@ -276,6 +295,9 @@ export const ActivityFlow = ({
 }: ActivityFlowProps) => {
   const navigate = useNavigate();
   const authToken = useAuthToken();
+  // The bar's tempo (play-along steps) and the settings sheet's audio timing.
+  const { resolveTempo, setTempoBpm } = usePracticeSettings();
+  const outputLatencyMs = useSettingsStore((st) => st.outputLatencyMs);
   const modeLabel = mode ?? 'mode';
   // Practice Tracks (Studio hand-off CTAs) are only available for the 7
   // diatonic modes for now — see DIATONIC_MODE_SLUGS.
@@ -1332,24 +1354,16 @@ export const ActivityFlow = ({
     );
   }, [modeLabel, navigate, rootKey]);
 
+  // A note on the lesson-complete screen moves on. On a step it never starts
+  // a run or skips ahead: the one-page screen lets the student play freely
+  // before Practice or Play Now, as the guitar and Genre screens do.
   const handleMidiActivity = useCallback(() => {
     if (lessonComplete) {
       if (midiTriggeredRef.current) return;
       midiTriggeredRef.current = true;
       continueCurriculum();
-      return;
     }
-
-    if (activityState === 'pending') {
-      setActivityState('active');
-      setStartSignal((value) => value + 1);
-      return;
-    }
-
-    if (activityState === 'completed') {
-      handleContinue();
-    }
-  }, [activityState, continueCurriculum, handleContinue, lessonComplete]);
+  }, [continueCurriculum, lessonComplete]);
 
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: handleMidiActivity,
@@ -1555,9 +1569,6 @@ export const ActivityFlow = ({
     activityState === 'active' &&
     playAlongResult != null &&
     !playAlongResult.passed;
-  const showStartOverlay =
-    usesActivityStartOverlay && activityState === 'pending';
-
   const startOverlaySequence = useMemo(
     () =>
       [...events]
@@ -1618,73 +1629,6 @@ export const ActivityFlow = ({
     }));
   }, [demoHighlights]);
 
-  // Idle "Note sequence" preview: silently loops the step exactly as written —
-  // each note lit for its own duration at the roll's tempo, chord tones
-  // together — with a one-beat rest before repeating. Yields to the Demo.
-  const [startOverlayNotes, setStartOverlayNotes] = useState<PlaybackEvent[]>(
-    [],
-  );
-  useEffect(() => {
-    setStartOverlayNotes([]);
-    if (
-      !showStartOverlay ||
-      isPlayingDemo ||
-      startOverlaySequence.length === 0
-    ) {
-      return;
-    }
-
-    const msPerTick = 60_000 / THEORY_ACTIVITY_BPM / NOTE_DURATION_TICKS;
-    const endTicks = Math.max(
-      ...startOverlaySequence.map(
-        ({ event }) => event.startTicks + event.durationTicks,
-      ),
-    );
-    const loopMs = (endTicks + NOTE_DURATION_TICKS) * msPerTick;
-    const loopStart = performance.now();
-    let lastSignature = '';
-
-    const intervalId = window.setInterval(() => {
-      const tick = ((performance.now() - loopStart) % loopMs) / msPerTick;
-      const sounding = startOverlaySequence.filter(
-        ({ event }) =>
-          tick >= event.startTicks &&
-          tick < event.startTicks + event.durationTicks,
-      );
-      const signature = sounding.map(({ event }) => event.id).join('|');
-      if (signature === lastSignature) return;
-      lastSignature = signature;
-      const now = Date.now();
-      setStartOverlayNotes(
-        sounding.map(({ event, midi }) => ({
-          id: `preview-${event.id}`,
-          type: 'note',
-          midi,
-          time: now,
-          duration: START_OVERLAY_NOTE_DURATION_SECONDS,
-          velocity: 1,
-          color: event.color,
-        })),
-      );
-    }, 16);
-
-    return () => window.clearInterval(intervalId);
-  }, [showStartOverlay, isPlayingDemo, startOverlaySequence]);
-
-  const { startC: startOverlayStartC, endC: startOverlayEndC } = useMemo(() => {
-    if (startOverlaySequence.length === 0) {
-      return { startC: 3, endC: 4 };
-    }
-    const midiValues = startOverlaySequence.map((item) => item.midi);
-    const minMidi = Math.min(...midiValues);
-    const maxMidi = Math.max(...midiValues);
-    // PianoKeyboard maps octave N to MIDI [N*12 .. N*12+11].
-    const minOctave = Math.floor(minMidi / 12);
-    const maxOctave = Math.floor(maxMidi / 12);
-    const endC = Math.max(maxOctave, minOctave + 1);
-    return { startC: minOctave, endC };
-  }, [startOverlaySequence]);
-
   const stopDemo = useCallback(() => {
     demoRunIdRef.current += 1;
     demoTimeoutsRef.current.forEach(clearTimeout);
@@ -1697,6 +1641,25 @@ export const ActivityFlow = ({
 
   // A demo left running must not carry on into the next step's gate.
   useEffect(() => stopDemo, [currentActivity.key, stopDemo]);
+
+  // What the keyboard lights before a run: the demo as it plays, else the
+  // step's own notes, each once (no start card shows them any more).
+  const previewNotes = useMemo<PlaybackEvent[] | undefined>(() => {
+    if (isPlayingDemo) return demoPlayingNotes;
+    if (activityState !== 'pending') return undefined;
+    const seen = new Set<number>();
+    return startOverlaySequence
+      .filter(({ midi }) => !seen.has(midi) && !!seen.add(midi))
+      .map(({ event, midi }) => ({
+        id: `target-${midi}`,
+        type: 'note' as const,
+        midi,
+        time: 0,
+        duration: 1,
+        velocity: 1,
+        color: event.color,
+      }));
+  }, [isPlayingDemo, demoPlayingNotes, activityState, startOverlaySequence]);
 
   const playDemo = async () => {
     if (startOverlaySequence.length === 0) return;
@@ -1796,58 +1759,6 @@ export const ActivityFlow = ({
     handleRestartActivity();
     void playDemo();
   };
-
-  if (showMelodySectionCompleteInterstitial) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center p-4">
-        <div
-          className="w-full max-w-2xl rounded-2xl p-6 text-center glass-panel"
-          style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid var(--color-accent)',
-            boxShadow: 'var(--glass-shadow)',
-          }}
-        >
-          <h1
-            className="text-2xl font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            Melody complete!
-          </h1>
-          <p
-            className="mt-2 text-sm"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            Try composing your own melody over generated chords in Studio.
-          </p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <button
-              type="button"
-              onClick={openMelodyPracticeTrack}
-              className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-              style={{
-                background: 'var(--color-accent)',
-                color: '#191919',
-              }}
-            >
-              Open Practice Track
-            </button>
-            <button
-              type="button"
-              onClick={handleContinueToChordsSection}
-              className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-              style={{
-                border: '1px solid var(--color-border)',
-                color: 'var(--color-text)',
-              }}
-            >
-              Continue to Chords
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (lessonComplete) {
     return (
@@ -2011,487 +1922,342 @@ export const ActivityFlow = ({
     );
   }
 
-  return (
-    <div className="flex flex-col gap-4">
-      {/* Section navigation tabs */}
-      <div
-        className="flex gap-2 px-4 py-2"
-        style={{ borderBottom: '1px solid var(--color-border)' }}
-      >
-        {sectionIds.map((sId) => {
-          const isActive = sId === currentSectionId;
-          const sectionDefs = flowDefinitions.filter((d) => d.section === sId);
-          const completedCount = sectionDefs.filter((d) =>
-            completedActivityKeys.has(d.key),
-          ).length;
-          const totalCount = sectionDefs.length;
-          const isComplete = completedCount === totalCount && totalCount > 0;
+  // ── The one-page screen (TheoryLessonLayout) ──────────────────────────────
+  // No start card: a step waits ('pending') with its notes lit on the
+  // keyboard, and Demo / Practice / Play Now sit in the bar at the bottom. A
+  // result, the practice prompt, the retry and the end of Melody take the
+  // activity's place, their buttons in the bar.
 
-          return (
-            <button
-              key={sId}
-              type="button"
-              onClick={() => goToSection(sId)}
-              className="glass-panel-sm rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-150"
-              style={{
-                background: isActive
-                  ? 'rgba(126, 207, 207, 0.12)'
-                  : isComplete
-                    ? 'rgba(74, 255, 74, 0.08)'
-                    : 'rgba(255,255,255,0.03)',
-                border: isActive
-                  ? '1px solid var(--color-accent)'
-                  : '1px solid var(--color-border)',
-                color: isActive
-                  ? 'var(--color-accent)'
-                  : isComplete
-                    ? '#4aff4a'
-                    : 'var(--color-text-dim)',
-                cursor: 'pointer',
-              }}
-            >
-              {SECTION_LABELS[sId] ?? sId}
-              {isComplete && (
-                <span style={{ marginLeft: '6px' }}>&#10003;</span>
+  const modeTitle = getChordScales(mode as string)?.modeName ?? modeLabel;
+  const labelPrefix = `${rootKey} ${modeTitle} `;
+  const stepTitle = (label: string) =>
+    label.startsWith(labelPrefix) ? label.slice(labelPrefix.length) : label;
+  // Keys are scoped to the lesson; the definition id names the step.
+  const isOverview = currentActivity.activityDefId === 'lesson-overview';
+  const isPlayAlongStep = Component === PlayAlong;
+  const progressById = lessonProgressQuery.data?.progressByActivityInstanceId;
+  /** Passed this session, or on record from before. */
+  const isDone = (activity: ActivityDefinition) =>
+    completedActivityKeys.has(activity.key) ||
+    progressById?.[activity.activityInstanceId]?.status === 'COMPLETED';
+
+  // The step list behind ‹ 3 / 12 ›: grouped by exercise ("Ascend"), each
+  // row the exercise and how it's played ("Ascend • Hold").
+  const navSteps: NavStep[] = sectionActivities.map((activity, i) => {
+    const title = stepTitle(activity.label);
+    return {
+      code: activity.section === 'O' ? '' : `${activity.section}${i + 1}`,
+      title,
+      subsection: title.split(' • ')[0],
+      status: isDone(activity) ? 'passed' : 'todo',
+    };
+  });
+
+  const passMarkPct = Math.round(PLAY_ALONG_PASS_RATIO * 100);
+  const barState: BarState = showMelodySectionCompleteInterstitial
+    ? 'sectionComplete'
+    : practiceComplete || showPlayAlongRetry || showActivityCompletionOverlay
+      ? 'result'
+      : !usesActivityStartOverlay || activityState === 'pending'
+        ? 'preview'
+        : attemptMode === 'practice'
+          ? 'practice'
+          : 'performance';
+
+  const offer: SectionCompleteModel | null =
+    showMelodySectionCompleteInterstitial
+      ? {
+          heading: 'Melody complete!',
+          blurb:
+            'Try composing your own melody over generated chords in Studio.',
+          enterPracticeTrack: openMelodyPracticeTrack,
+          continueLabel: 'Continue to Chords',
+          onContinue: handleContinueToChordsSection,
+        }
+      : null;
+
+  const leadText = (text: string) => (
+    <p className="line-clamp-2 text-[15px] leading-5 text-[#e8e8f0]">{text}</p>
+  );
+  const canContinueAnyway = currentIndex < flowDefinitions.length - 1;
+  const nextSectionId = sectionIds[sectionIds.indexOf(currentSectionId) + 1];
+
+  // The bar's own states cover a step's preview, practice and run, and the
+  // section's offer; how a Theory step ends is told here.
+  const barCustom: Zones | null = practiceComplete
+    ? {
+        lead: null,
+        meta: null,
+        actions: (
+          <>
+            <Secondary onClick={() => beginFreshAttempt('practice')}>
+              Practice Again
+            </Secondary>
+            <Primary onClick={() => beginFreshAttempt('graded')}>
+              Play Now
+            </Primary>
+          </>
+        ),
+      }
+    : showPlayAlongRetry
+      ? {
+          lead: null,
+          meta: null,
+          actions: (
+            <>
+              {canContinueAnyway && (
+                <Secondary onClick={handleContinueAnyway}>
+                  Continue anyway
+                </Secondary>
               )}
-              {completedCount > 0 && !isComplete && (
-                <span
-                  style={{ fontSize: '11px', marginLeft: '6px', opacity: 0.7 }}
-                >
-                  {Math.round((completedCount / totalCount) * 100)}%
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Overview sub-tabs */}
-      {currentSectionId === 'O' && (
-        <div
-          className="flex gap-2 px-4 py-2"
-          style={{ borderBottom: '1px solid var(--color-border)' }}
-        >
-          {(scaleLesson
-            ? (['scale'] as const)
-            : (['scale', 'triads', 'sevenths', 'inversions'] as const)
-          ).map((t) => {
-            const label =
-              t === 'scale'
-                ? 'Scale'
-                : t === 'triads'
-                  ? 'Triads'
-                  : t === 'sevenths'
-                    ? '7th Chords'
-                    : 'Inversions';
-            const isActive = overviewTab === t;
-            return (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setOverviewTab(t)}
-                className="glass-panel-sm rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-150"
-                style={{
-                  background: isActive
-                    ? 'rgba(126, 207, 207, 0.12)'
-                    : 'rgba(255,255,255,0.03)',
-                  border: isActive
-                    ? '1px solid var(--color-accent)'
-                    : '1px solid var(--color-border)',
-                  color: isActive
-                    ? 'var(--color-accent)'
-                    : 'var(--color-text-dim)',
-                  cursor: 'pointer',
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Step progress dots */}
-      {currentSectionId !== 'O' && (
-        <div className="flex items-center gap-1 px-4 py-1">
-          {sectionActivities.map((activity, i) => {
-            const isStepDone = completedActivityKeys.has(activity.key);
-            const isCurrent = i === currentStepInSection;
-
-            if (isStepDone) {
-              return (
-                <button
-                  key={activity.key}
-                  type="button"
-                  onClick={() => goToStepInSection(activity)}
-                  aria-label={`Go to ${activity.label} — completed`}
-                  title={`${activity.label} ✓ Passed`}
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    borderRadius: '50%',
-                    border: '1.5px solid var(--color-accent)',
-                    background: 'rgba(126, 207, 207, 0.13)',
-                    color: 'var(--color-accent)',
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 0,
-                    flexShrink: 0,
-                    lineHeight: 1,
-                  }}
-                >
-                  &#10003;
-                </button>
-              );
-            }
-
-            return (
-              <button
-                key={activity.key}
-                type="button"
-                onClick={() => goToStepInSection(activity)}
-                aria-label={`Go to ${activity.label}`}
-                title={activity.label}
-                style={{
-                  width: isCurrent ? '24px' : '16px',
-                  height: '6px',
-                  borderRadius: '3px',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                  background: isCurrent
-                    ? 'var(--color-accent)'
-                    : 'rgba(255,255,255,0.1)',
-                  transition: 'all 0.2s',
-                  flexShrink: 0,
-                }}
-              />
-            );
-          })}
-          <span
-            className="ml-2 text-xs"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            {currentStepInSection + 1}/{sectionActivities.length}
-          </span>
-        </div>
-      )}
-
-      <div className="relative">
-        <div
-          className={
-            showActivityCompletionOverlay ||
-            showStartOverlay ||
-            practiceComplete ||
-            showPlayAlongRetry
-              ? 'pointer-events-none opacity-30 blur-sm transition duration-300'
-              : 'transition duration-300'
-          }
-        >
-          {usesActivityStartOverlay && (
-            <div
-              aria-label="Activity mode"
-              className="mb-3 flex justify-center gap-2"
-              role="group"
-            >
-              {(
-                [
-                  { label: '▶ Demo', mode: null, onClick: handleReplayDemo },
-                  {
-                    label: 'Practice',
-                    mode: 'practice',
-                    onClick: () => beginFreshAttempt('practice'),
-                  },
-                  {
-                    label: 'Play Now',
-                    mode: 'graded',
-                    onClick: () => beginFreshAttempt('graded'),
-                  },
-                ] as const
-              ).map(({ label, mode, onClick }) => {
-                const isCurrent = mode !== null && attemptMode === mode;
-                return (
-                  <button
-                    key={label}
-                    aria-pressed={mode === null ? undefined : isCurrent}
-                    className="glass-panel-sm rounded-full px-5 py-1.5 text-sm font-semibold transition-colors duration-150"
-                    style={{
-                      background: isCurrent
-                        ? 'rgba(126, 207, 207, 0.12)'
-                        : 'rgba(255,255,255,0.03)',
-                      border: isCurrent
-                        ? '1px solid var(--color-accent)'
-                        : '1px solid var(--color-border)',
-                      color: isCurrent
-                        ? 'var(--color-accent)'
-                        : 'var(--color-text)',
-                      cursor: 'pointer',
-                    }}
-                    type="button"
-                    onClick={onClick}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          <Component
-            key={`${currentActivity.key}-${activityInstanceId}`}
-            activityColor={activityColor}
-            events={events}
-            isActive={activityState === 'active'}
-            onContinue={handleContinue}
-            onActivityCompleteChange={handleActivityCompleteChange}
-            onRunGraded={handleRunGraded}
-            showTargetKeys={attemptMode === 'practice'}
-            playTargetNotes={attemptMode === 'practice'}
-            chordSymbols={currentActivity.chordSymbols}
-            startSignal={startSignal}
-            startMessage={direction}
-            noteSpelling={pcSpellingMap}
-          />
-        </div>
-        {showStartOverlay && (
-          <div
-            className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center px-4"
-            style={{
-              background: 'rgba(25,25,25,0.8)',
-              backdropFilter: 'blur(10px)',
-            }}
-          >
-            <div
-              className="w-full max-w-lg rounded-2xl px-8 py-6 text-center glass-panel"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid var(--color-border)',
-                color: 'var(--color-text)',
-              }}
-            >
-              <h3 className="text-2xl font-semibold">Ready to start?</h3>
-              <p
-                className="mt-2 text-sm"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                {direction}
-              </p>
-              {startOverlaySequence.length > 0 && (
-                <div className="mt-4">
-                  <p
-                    className="mb-2 text-xs uppercase tracking-wide"
-                    style={{
-                      color: 'var(--color-text-dim)',
-                      letterSpacing: '1px',
-                    }}
-                  >
-                    Note sequence
-                  </p>
-                  <PianoKeyboard
-                    className="mx-auto"
-                    startC={startOverlayStartC}
-                    endC={startOverlayEndC}
-                    playingNotes={
-                      isPlayingDemo ? demoPlayingNotes : startOverlayNotes
-                    }
-                    activeWhiteKeyColor={activityColor}
-                    activeBlackKeyColor={activityColor}
-                    enableClick={false}
-                    useContextNotes={false}
-                  />
-                </div>
-              )}
-              <div className="mt-6 flex justify-center gap-3">
-                {startOverlaySequence.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => void playDemo()}
-                    disabled={isPlayingDemo}
-                    className="rounded-full px-5 py-2 text-sm font-semibold transition-colors duration-150"
-                    style={{
-                      border: '1px solid var(--color-border)',
-                      background: isPlayingDemo
-                        ? 'rgba(255,255,255,0.02)'
-                        : 'transparent',
-                      color: isPlayingDemo
-                        ? 'var(--color-text-dim)'
-                        : 'var(--color-text)',
-                      cursor: isPlayingDemo ? 'default' : 'pointer',
-                    }}
-                  >
-                    {isPlayingDemo ? '◼ Playing...' : '▶ Demo'}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => handleStartAttempt('practice')}
-                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    border: '1px solid var(--color-border)',
-                    background: 'transparent',
-                    color: 'var(--color-text)',
-                  }}
-                >
-                  Practice
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleStartAttempt('graded')}
-                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    background: 'var(--color-accent)',
-                    color: '#191919',
-                  }}
-                >
-                  Play Now
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        {practiceComplete && (
-          <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center px-4">
-            <div
-              className="w-full max-w-lg rounded-2xl px-8 py-6 text-center glass-panel"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid var(--color-accent)',
-                color: 'var(--color-text)',
-              }}
-            >
-              <h3 className="text-2xl font-semibold">Nice practicing!</h3>
-              <p
-                className="mt-2 text-sm"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                Try it in Play Now to complete this step.
-              </p>
-              <div className="mt-6 flex justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => beginFreshAttempt('practice')}
-                  className="rounded-full px-5 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    border: '1px solid var(--color-border)',
-                    background: 'transparent',
-                    color: 'var(--color-text)',
-                  }}
-                >
-                  Practice Again
-                </button>
-                <button
-                  type="button"
-                  onClick={() => beginFreshAttempt('graded')}
-                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    background: 'var(--color-accent)',
-                    color: '#191919',
-                  }}
-                >
-                  Play Now
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        {showPlayAlongRetry && playAlongResult && (
-          <PlayAlongRetryCard
-            result={playAlongResult}
-            onTryAgain={() => beginFreshAttempt('graded')}
-            onContinueAnyway={
-              currentIndex < flowDefinitions.length - 1
-                ? handleContinueAnyway
-                : undefined
-            }
-          />
-        )}
-        {showActivityCompletionOverlay && (
-          <div className="absolute inset-0 flex items-center justify-center px-4">
-            <div
-              className="rounded-2xl px-8 py-6 text-center glass-panel"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid var(--color-border)',
-                color: 'var(--color-text)',
-              }}
-            >
-              <h3 className="text-2xl font-semibold">
-                {Component === PlayAlong ? 'Nice work!' : 'Great job!'}
-              </h3>
-              {Component === PlayAlong && playAlongResult && (
-                <p
-                  className="mt-1 text-sm"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  You played {playAlongResult.hits} of {playAlongResult.total}{' '}
-                  notes.
-                </p>
-              )}
-              {payoff && (
-                <div className="mx-auto mt-4 max-w-md">
-                  <p className="text-base font-medium">{payoff.headline}</p>
-                  {payoff.detail && (
-                    <p
-                      className="mt-1 text-sm"
-                      style={{ color: 'var(--color-text-dim)' }}
-                    >
-                      {payoff.detail}
-                    </p>
-                  )}
-                  {payoff.fromSong && (
-                    <p
-                      className="mt-2 text-sm"
-                      style={{ color: 'var(--color-accent)' }}
-                    >
-                      {payoff.fromSong}
-                    </p>
-                  )}
-                </div>
-              )}
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-                <button
-                  type="button"
-                  onClick={handleContinue}
-                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    background: 'var(--color-accent)',
-                    color: '#191919',
-                  }}
-                >
-                  Continue
-                </button>
-                <button
-                  type="button"
-                  onClick={handleRestartActivity}
-                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    border: '1px solid var(--color-border)',
-                    color: 'var(--color-text)',
-                  }}
-                >
-                  Restart
-                </button>
+              <Primary onClick={() => beginFreshAttempt('graded')}>
+                Try Again
+              </Primary>
+            </>
+          ),
+        }
+      : showActivityCompletionOverlay
+        ? {
+            lead: null,
+            meta: null,
+            actions: (
+              <>
                 {origin && (
-                  <button
-                    type="button"
-                    onClick={backToTrack}
-                    className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-                    style={{
-                      border: '1px solid var(--color-accent)',
-                      color: 'var(--color-accent)',
-                    }}
-                  >
+                  <Secondary onClick={backToTrack}>
                     Back to {origin.song}
-                  </button>
+                  </Secondary>
                 )}
-              </div>
-            </div>
-          </div>
-        )}
+                <Secondary onClick={handleRestartActivity}>Restart</Secondary>
+                <Primary onClick={handleContinue}>Continue</Primary>
+              </>
+            ),
+          }
+        : !usesActivityStartOverlay
+          ? {
+              // The Overview's line is in About this step; a loading step
+              // says what it's waiting for.
+              lead: isOverview ? null : leadText(direction),
+              meta: null,
+              actions:
+                isOverview && nextSectionId ? (
+                  <Primary onClick={handleContinue}>
+                    Start {SECTION_LABELS[nextSectionId] ?? nextSectionId}
+                  </Primary>
+                ) : null,
+            }
+          : null;
+
+  const playedLine = playAlongResult
+    ? `You played ${playAlongResult.hits} of ${playAlongResult.total} notes.`
+    : null;
+  const result = practiceComplete
+    ? {
+        heading: 'Nice practicing!',
+        status: null,
+        lines: [
+          ...(playedLine ? [playedLine] : []),
+          'Try it in Play Now to complete this step.',
+        ],
+      }
+    : showPlayAlongRetry && playAlongResult
+      ? {
+          heading:
+            playAlongResult.hits === 0 && playAlongResult.wrongNotes === 0
+              ? 'No notes heard'
+              : 'Not quite yet',
+          status: `Not yet · ${passMarkPct}% passes`,
+          lines: [
+            `You played ${playAlongResult.hits} of ${playAlongResult.total} notes. You need ${playAlongResult.required} to pass.`,
+            canContinueAnyway
+              ? 'Continuing won’t mark this step complete.'
+              : 'Pass this last step to complete the lesson.',
+          ],
+        }
+      : showActivityCompletionOverlay
+        ? {
+            heading:
+              isPlayAlongStep && playAlongResult && playAlongResult.total > 0
+                ? `${Math.round((playAlongResult.hits / playAlongResult.total) * 100)}%`
+                : 'Great job!',
+            status: 'Passed',
+            lines: isPlayAlongStep && playedLine ? [playedLine] : [],
+            payoff,
+          }
+        : null;
+
+  const panel = offer ? (
+    <GuitarSectionCompletePanel offer={offer} />
+  ) : result ? (
+    <TheoryResultPanel {...result} />
+  ) : null;
+
+  const announcement = offer
+    ? offer.heading
+    : result
+      ? [result.heading, result.status].filter(Boolean).join('. ')
+      : '';
+
+  const overviewTabs =
+    currentSectionId === 'O' ? (
+      <div
+        role="group"
+        aria-label="Overview"
+        className="flex h-9 w-fit shrink-0 items-center rounded-full ring-1 ring-inset ring-white/10 max-[639px]:h-11"
+      >
+        {(scaleLesson
+          ? (['scale'] as const)
+          : (['scale', 'triads', 'sevenths', 'inversions'] as const)
+        ).map((t) => (
+          <button
+            key={t}
+            type="button"
+            aria-pressed={overviewTab === t}
+            onClick={() => setOverviewTab(t)}
+            className={`inline-flex h-full items-center rounded-full px-4 text-sm font-normal transition-colors duration-150 ${
+              overviewTab === t
+                ? 'bg-white text-[#101012]'
+                : 'text-white/55 hover:text-[#e8e8f0]'
+            }`}
+          >
+            {t === 'scale'
+              ? 'Scale'
+              : t === 'triads'
+                ? 'Triads'
+                : t === 'sevenths'
+                  ? '7th Chords'
+                  : 'Inversions'}
+          </button>
+        ))}
       </div>
-    </div>
+    ) : null;
+
+  const effectiveBpm = resolveTempo(THEORY_ACTIVITY_BPM);
+
+  return (
+    <TheoryLessonLayout
+      header={{
+        crumbs: [
+          {
+            label: 'Theory',
+            onClick: () =>
+              navigate(LearnRoutes.root(undefined, { tab: 'Theory' })),
+          },
+          {
+            label: modeTitle,
+            onClick: () => navigate(LearnRoutes.overview({ mode: modeLabel })),
+          },
+        ],
+        keyLabel: `${rootKey} ${modeTitle}`,
+        keyColor: activityColor,
+        subsection: SECTION_LABELS[currentSectionId] ?? '',
+        activity: isOverview ? 'Overview' : stepTitle(currentActivity.label),
+        chordNames:
+          !isOverview && (currentActivity.chordSymbols?.length ?? 0) > 0,
+      }}
+      nav={{
+        sections: sectionIds.map((sId) => {
+          const defs = flowDefinitions.filter((d) => d.section === sId);
+          return {
+            // Theory's sections are O / A / B; the nav only shows the name.
+            id: sId as unknown as ActivitySectionId,
+            name: SECTION_LABELS[sId] ?? sId,
+            active: sId === currentSectionId,
+            done: defs.length > 0 && defs.every(isDone),
+          };
+        }),
+        onSection: (id) => goToSection(id as unknown as SectionId),
+        steps: navSteps,
+        index: Math.max(0, currentStepInSection),
+        goToStep: (i) => {
+          const activity = sectionActivities[i];
+          if (activity) goToStepInSection(activity);
+        },
+        practiceTrack: hasPracticeTrack
+          ? {
+              onOpen:
+                currentSectionId === 'B' && !scaleLesson
+                  ? openChordsPracticeTrack
+                  : openMelodyPracticeTrack,
+            }
+          : null,
+        // Roll / Notation / Falling, beside Practice Track.
+        extra: usesActivityStartOverlay ? <SavedRollViewSwitch /> : undefined,
+      }}
+      subNav={overviewTabs}
+      content={
+        <Component
+          key={`${currentActivity.key}-${activityInstanceId}`}
+          bare
+          previewNotes={previewNotes}
+          activityColor={activityColor}
+          events={events}
+          isActive={activityState === 'active'}
+          onContinue={handleContinue}
+          onActivityCompleteChange={handleActivityCompleteChange}
+          onRunGraded={handleRunGraded}
+          showTargetKeys={attemptMode === 'practice'}
+          playTargetNotes={attemptMode === 'practice'}
+          chordSymbols={currentActivity.chordSymbols}
+          startSignal={startSignal}
+          startMessage={direction}
+          noteSpelling={pcSpellingMap}
+        />
+      }
+      panel={panel}
+      bar={{
+        state: barState,
+        run: {
+          state:
+            barState === 'practice' || barState === 'performance'
+              ? barState
+              : 'preview',
+          restartingPass: false,
+          instruction: direction,
+          listen: {
+            mode: isPlayAlongStep ? 'keepTime' : 'waitForMe',
+            passMarkPct: isPlayAlongStep ? passMarkPct : 100,
+          },
+          loading: false,
+          demo: {
+            playing: isPlayingDemo,
+            play:
+              activityState === 'pending'
+                ? () => void playDemo()
+                : handleReplayDemo,
+            stop: stopDemo,
+          },
+          practise: () => handleStartAttempt('practice'),
+          playNow: () =>
+            activityState === 'pending'
+              ? handleStartAttempt('graded')
+              : beginFreshAttempt('graded'),
+          back: handleRestartActivity,
+          stopTake: handleRestartActivity,
+          hint: null,
+        },
+        tempo: isPlayAlongStep
+          ? {
+              bpm: effectiveBpm,
+              onChange: (bpm: number) => setTempoBpm(bpm),
+              effectiveBpm,
+            }
+          : null,
+        practice: { presets: [] },
+        result: null,
+        offer,
+        custom: barCustom,
+      }}
+      about={{
+        activity: isOverview ? 'Overview' : stepTitle(currentActivity.label),
+        instruction: direction,
+        chords: (currentActivity.chordSymbols ?? []).map((c) => c.text),
+        key: describeKey(rootKey, mode as string),
+      }}
+      audio={{
+        outputLatencyMs,
+        openAudioTiming: () => navigate(`${SettingsRoutes.root()}/audio`),
+      }}
+      announcement={announcement}
+    />
   );
 };

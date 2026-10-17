@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { PrismModeSlug } from '@/hooks/data';
@@ -11,7 +10,6 @@ import {
 import { readLessonOrigin } from '@/lib/learn/lessonOrigin';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 import { keyLabelToSemitone, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
-import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { ActivityFlow } from './ActivityFlow';
 import '@/components/learn/learn.css';
 
@@ -68,7 +66,6 @@ const LessonContainerInner = ({
   rootKey,
   startAtActivityKey,
 }: LessonContainerProps) => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const origin = useMemo(() => readLessonOrigin(searchParams), [searchParams]);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
@@ -93,12 +90,13 @@ const LessonContainerInner = ({
   );
 
   return (
+    // The lesson draws its own header (TheoryLessonLayout: Theory › mode ›
+    // key, the step's name), so no "Lesson" bar over it.
     <div
       className="learn-root flex min-h-screen w-full flex-col"
       style={{ backgroundColor: '#101012', color: 'var(--color-text)' }}
     >
-      <HeaderBar title="Lesson" onBack={() => navigate(-1)} />
-      <div className="flex-1 p-3 sm:p-4">
+      <div className="flex flex-1 flex-col">
         <ActivityFlow
           mode={modeSlug}
           rootKey={keyOption.label}

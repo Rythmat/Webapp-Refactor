@@ -19,11 +19,14 @@ import { useNavigate } from 'react-router';
 import * as Tone from 'tone';
 import { startTone } from '@/audio/core/toneBridge';
 import {
+  getPianoSampler,
   triggerPianoAttack,
   triggerPianoRelease,
   startPianoSampler,
 } from '@/audio/pianoSampler';
 import { ClefToggle } from '@/components/notation/ClefToggle';
+import { SavedGuitarViewToggle } from '@/components/notation/GuitarViewToggle';
+import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
 import type { StaffLayout } from '@/components/notation/StaffView';
 import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import { useUserRole } from '@/contexts/AuthContext/hooks/useUserRole';
@@ -46,8 +49,11 @@ import {
   nextEventForMidi,
 } from '@/curriculum/engine/noteGate';
 import {
+  formatChordsInText,
+  formatLessonChord,
   lessonChordSymbols,
   placeLessonChords,
+  type LessonChord,
 } from '@/curriculum/notation/lessonChordSymbols';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
@@ -71,8 +77,6 @@ import {
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
-import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
-import { MetronomeToggle } from '@/learn/components/MetronomeToggle';
 import type { GuitarSetupStep } from '@/learn/components/guitar/GuitarInputSetup';
 import { PREVIEW_MS as TONE_PREVIEW_MS } from '@/learn/components/guitar/GuitarToneMenu';
 import {
@@ -80,14 +84,13 @@ import {
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
 import {
-  formatChord,
-  parseChord,
   useChordNotation,
   type ChordContext,
   type ChordNotation,
 } from '@/lib/chordNotation';
 import { shapeNotes } from '@/lib/guitar/fretboard';
 import type { FretPosition } from '@/lib/guitar/types';
+import { describeKey, modeFromKeyName } from '@/lib/learn/keyDescription';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { useChordClef, type NotationStaves } from '@/lib/notation';
 import {
@@ -125,6 +128,7 @@ import {
   type BackendDongleData,
 } from '../hooks/useGenreProgress';
 import { useMetronome } from '../hooks/useMetronome';
+import { PianoLessonLayout } from '../piano/layout/PianoLessonLayout';
 import {
   LoopSelectionOverlay,
   MistakeMarkersOverlay,
@@ -241,23 +245,18 @@ function parseKeyRoot(keyName: string): number {
 // ── Chord symbols ────────────────────────────────────────────────────────────
 
 /**
- * A step's hand-written chord symbol ('Dm7', 'Bb/D') in the chosen notation.
- * Hybrid shows it as written, as does a chord the notation can't write
- * ('Afunk9'), rather than the formatter's hybrid fallback ("5 funk9").
+ * A step's hand-written chord symbol ('Dm7', 'Bb/D') in the chosen notation,
+ * written exactly as the symbols over the staff are ("A min9", "D dom13" in
+ * hybrid; "A−9", "D13" in jazz). A symbol the formatter can't read is shown as
+ * written.
  */
 function chordSymbolForDisplay(
   symbol: string,
   notation: ChordNotation,
   context: ChordContext,
 ): string {
-  const written = formatAccidentalsForDisplay(symbol);
-  if (notation === 'hybrid') return written;
-  const spec = parseChord(symbol);
-  if (!spec) return written;
-  const formatted = formatChord(spec, notation, context);
-  return formatted === formatChord(spec, 'hybrid', context)
-    ? written
-    : formatted;
+  const formatted = formatLessonChord(symbol, notation, context);
+  return formatted === symbol ? formatAccidentalsForDisplay(symbol) : formatted;
 }
 
 /**
@@ -336,6 +335,10 @@ function GenreLessonContainerV2Inner({
   const [userNotes, setUserNotes] = useState<GenreNoteEvent[]>([]);
   const [lastResult, setLastResult] = useState<AssessmentResult | null>(null);
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
+  // Every key held down right now, activity or not — what the on-screen
+  // keyboard lights (playedKeys). activeMidis stays activity-only because
+  // scoring reads it.
+  const [heldMidis, setHeldMidis] = useState<number[]>([]);
   const [activityInstanceId, setActivityInstanceId] = useState(0);
   const [practiceHighlightMidis, setPracticeHighlightMidis] = useState<
     Set<number>
@@ -375,8 +378,6 @@ function GenreLessonContainerV2Inner({
   const practiceNotePartRef = useRef<Tone.Part | null>(null);
 
   // Drag refs for tempo control
-  const dragStartY = useRef(0);
-  const dragStartTempo = useRef(tempo);
 
   // ── Derived data ──────────────────────────────────────────────────────────
 
@@ -585,7 +586,7 @@ function GenreLessonContainerV2Inner({
             {
               targetNotes: lessonTargetNotes,
               chordTargets: resolvedStep.chordTargets,
-              chordSymbols: currentStep.chordSymbols,
+              chordSymbols: resolvedStep.chordSymbols,
             },
             practice.loop,
             { padBars: practice.padBars, ticksPerBar: barLength },
@@ -598,7 +599,7 @@ function GenreLessonContainerV2Inner({
       barLength,
       lessonTargetNotes,
       resolvedStep.chordTargets,
-      currentStep.chordSymbols,
+      resolvedStep.chordSymbols,
     ],
   );
   /** The run repeats: bars are looped, or the speed trainer climbs the step. */
@@ -808,16 +809,16 @@ function GenreLessonContainerV2Inner({
     [targetNotes],
   );
 
-  // Keyboard color — priority: wrong (gray) > correct (keyColor) > preview (keyColor)
-  const keyboardActiveColor = useMemo(() => {
-    if (activityState === 'preview') return keyColor;
-    if (activityState === 'practice' || activityState === 'performance') {
-      if (activeMidis.length === 0) return keyColor;
-      const anyWrong = activeMidis.some((m) => !targetMidiSet.has(m));
-      return anyWrong ? '#aaaaaa' : keyColor;
-    }
-    return null;
-  }, [activityState, activeMidis, targetMidiSet, keyColor]);
+  // The keys the student is holding, in every state: a note the activity asks
+  // for lights up shiny over the targets, anything else goes grey (see
+  // playedKeys.ts).
+  const playedKeys = useMemo(
+    () =>
+      new Map(
+        heldMidis.map((m) => [m, targetMidiSet.has(m) ? keyColor : null]),
+      ),
+    [heldMidis, targetMidiSet, keyColor],
+  );
 
   // ── Real-time note hold tracking (sequential) ───────────────────────────
   // Track by EVENT INDEX, not MIDI number — so repeated pitches are sequential
@@ -959,6 +960,30 @@ function GenreLessonContainerV2Inner({
     });
     return meta;
   }, [pianoRollEvents, activeMidis, holdTick, getCurrentEventForMidi]);
+
+  // Out of time there's no guide to light the keys, so the keyboard shows
+  // what's due next instead: the notes at the gate (see noteGate.ts), the
+  // way the roll rings them.
+  const ootDueMidis = useMemo(() => {
+    void holdTick;
+    void activeMidis;
+    const due = new Set<number>();
+    if (isIT) return due;
+    const completed = completedEventIdsRef.current;
+    const held = new Set(heldEventIdsRef.current.values());
+    let gate = Infinity;
+    for (const e of pianoRollEvents) {
+      if (completed.has(e.id) || held.has(e.id)) continue;
+      gate = Math.min(gate, e.startTicks);
+    }
+    for (const e of pianoRollEvents) {
+      if (e.startTicks !== gate || completed.has(e.id) || held.has(e.id)) {
+        continue;
+      }
+      if (e.midi != null) due.add(e.midi);
+    }
+    return due;
+  }, [pianoRollEvents, activeMidis, holdTick, isIT]);
 
   // ── IT performance tracking ─────────────────────────────────────────────
   // performanceMeta tracks real-time note blocks for IT mode
@@ -1199,22 +1224,34 @@ function GenreLessonContainerV2Inner({
     return () => stopInput();
   }, [startInput, stopInput]);
 
+  // Load the piano now, so the first key a student plays sounds instead of
+  // waiting on the samples.
+  useEffect(() => {
+    if (!isGuitar) void getPianoSampler();
+  }, [isGuitar]);
+
   useEffect(() => {
     // Guitar input (MIDI guitar or microphone) goes to the guitar hook below.
     if (isGuitar) return;
     const unsubOn = subscribeNoteOn((event: MidiNoteEvent) => {
+      if (event.velocity === 0) return;
+
+      // Play audio — piano sampler, sustains until note-off. Always, so the
+      // student hears and sees their keyboard before pressing start too;
+      // only the scoring and capture below wait for an activity.
+      const noteName = midiToPitchName(event.number, keyRoot);
+      void triggerPianoAttack(noteName, event.velocity);
+      setHeldMidis((prev) =>
+        prev.includes(event.number) ? prev : [...prev, event.number],
+      );
+
       const state = activityStateRef.current;
       if (state !== 'performance' && state !== 'practice') return;
-      if (event.velocity === 0) return;
 
       // Track active MIDI for keyboard highlight (both practice + performance)
       setActiveMidis((prev) =>
         prev.includes(event.number) ? prev : [...prev, event.number],
       );
-
-      // Play audio — piano sampler, sustains until note-off
-      const noteName = midiToPitchName(event.number, keyRoot);
-      void triggerPianoAttack(noteName, event.velocity);
 
       // Capture notes for visual rendering (both practice + performance).
       const hitTick = soundingTicks() ?? currentTickRef.current;
@@ -1230,12 +1267,14 @@ function GenreLessonContainerV2Inner({
     });
 
     const unsubOff = subscribeNoteOff((event: MidiNoteEvent) => {
-      const state = activityStateRef.current;
-      if (state !== 'performance' && state !== 'practice') return;
-
-      // Release piano sound
+      // Release piano sound — always, like the attack, so a key held across
+      // a state change still stops.
       const noteName = midiToPitchName(event.number, keyRoot);
       void triggerPianoRelease(noteName);
+      setHeldMidis((prev) => prev.filter((m) => m !== event.number));
+
+      const state = activityStateRef.current;
+      if (state !== 'performance' && state !== 'practice') return;
 
       // Remove from active MIDI (both practice + performance)
       setActiveMidis((prev) => prev.filter((m) => m !== event.number));
@@ -1443,35 +1482,42 @@ function GenreLessonContainerV2Inner({
 
   // Chord symbols above the staff, from the step's own symbols. They sit on
   // the same timeline as the notes, so in time they carry the count-in offset
-  // too. The notes come along because a step with more chords than bars — two
-  // inside one bar of voice leading — has to place them against the music
-  // rather than against the barlines. Written through the shared formatter, so
-  // they read the same here as on a song chart and follow the Jazz/Roman
-  // switcher.
+  // too. Written through the shared formatter, so they read the same here as
+  // in the header and follow the Hybrid/Jazz switch.
   const chordSymbolsForStaff = useMemo(() => {
-    const labels = loopSlice?.chordSymbols ?? currentStep.chordSymbols;
-    if (!labels?.length) return undefined;
-    const contentBars = Math.max(1, requiredBars - (isIT ? 1 : 0));
-    const onsets = [...new Set(targetNotes.map((n) => n.onset))].sort(
-      (a, b) => a - b,
-    );
-    const contentEndTick = targetNotes.length
-      ? Math.max(...targetNotes.map((n) => n.onset + n.duration))
-      : undefined;
-    return lessonChordSymbols(
-      placeLessonChords(labels, {
-        bars: contentBars,
-        ticksPerBar: barLength,
-        onsets,
-        ...(contentEndTick !== undefined ? { contentEndTick } : {}),
-        startTick: isIT ? COUNT_IN_OFFSET : 0,
-      }),
-      chordNotation,
-      chordContext,
-    );
+    const offset = isIT ? COUNT_IN_OFFSET : 0;
+    const at = (chords: readonly LessonChord[]) =>
+      chords.map((chord) => ({
+        ...chord,
+        startTick: chord.startTick + offset,
+      }));
+    // Each symbol over the notes that play it (lessonChordSymbols.ts): a
+    // loop's as the whole step placed them, guitar's on its chord targets'
+    // own ticks, else where the target notes strike each chord.
+    const chordTargets = loopSlice?.chordTargets ?? resolvedStep.chordTargets;
+    const labels = loopSlice?.chordSymbols ?? resolvedStep.chordSymbols;
+    const chords = loopSlice?.chords
+      ? at(loopSlice.chords)
+      : chordTargets?.length
+        ? at(
+            chordTargets.map((target) => ({
+              label: target.symbol,
+              startTick: target.onsetTick,
+            })),
+          )
+        : labels?.length
+          ? placeLessonChords(labels, {
+              bars: Math.max(1, requiredBars - (isIT ? 1 : 0)),
+              ticksPerBar: barLength,
+              notes: targetNotes,
+              startTick: offset,
+            })
+          : [];
+    if (chords.length === 0) return undefined;
+    return lessonChordSymbols(chords, chordNotation, chordContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- COUNT_IN_OFFSET follows the step's meter, which these deps already track
   }, [
-    currentStep,
+    resolvedStep,
     loopSlice,
     requiredBars,
     isIT,
@@ -1763,28 +1809,9 @@ function GenreLessonContainerV2Inner({
     };
   }, [activityState, isIT, maxContentTick, runTempo, guitarGraceMs, barLength]); // NO handleComplete in deps
 
-  // ── Keyboard shortcuts for step navigation ──────────────────────────────
-
-  // Piano only: guitar's arrow keys are the layout's (useGuitarStepKeys),
-  // which leave controls and sheets alone and stop the demo.
-  useEffect(() => {
-    if (isGuitar) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return;
-      if (activityState !== 'preview') return;
-      if (
-        e.key === 'ArrowRight' &&
-        stepIndex < currentSection.steps.length - 1
-      ) {
-        setStepIndex((i) => i + 1);
-      }
-      if (e.key === 'ArrowLeft' && stepIndex > 0) {
-        setStepIndex((i) => i - 1);
-      }
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [isGuitar, activityState, stepIndex, currentSection.steps.length]);
+  // Arrow keys step through the section on both instruments: the layouts'
+  // useGuitarStepKeys, which leaves controls and sheets alone and stops the
+  // demo. (Piano's own handler here went with its old screen.)
 
   // ── Reset on flow change ───────────────────────────────────────────────
 
@@ -2401,22 +2428,37 @@ function GenreLessonContainerV2Inner({
   // callbacks (guitar/layout/types); every timer, handler and piece of
   // state stays above.
 
+  // Chord names in the step's own words — title, subsection, direction —
+  // written as the chords beside the title and over the staff are, so the
+  // Hybrid | Jazz switch changes all of them together.
+  const chordText = (
+    text: string,
+    chords: readonly string[] = resolvedStep.chordSymbols ?? [],
+  ) => formatChordsInText(text, chordNotation, chordContext, chords);
+  const stepActivity = chordText(currentStep.activity);
+  const stepSubsection = chordText(currentStep.subsection);
+  const stepDirection = chordText(currentStep.direction ?? '');
+  const stepWritesChords = (resolvedStep.chordSymbols?.length ?? 0) > 0;
+
+  // The step list behind the counter (‹ 3 / 20 ›), both instruments.
+  const navSteps: NavStep[] = currentSection.steps.map((step) => {
+    const saved = progress.completedSteps[step.tag];
+    const own = (step as ActivityStepV2).chordSymbols ?? [];
+    return {
+      ...splitActivity(chordText(step.activity, own)),
+      subsection: chordText(step.subsection, own),
+      status: !saved
+        ? 'todo'
+        : !saved.score.passed
+          ? 'attempted'
+          : saved.score.selfReported
+            ? 'selfReported'
+            : 'passed',
+    };
+  });
+
   if (isGuitar) {
     const practising = isPracticing || restartingPass;
-    const guitarSteps: NavStep[] = currentSection.steps.map((step) => {
-      const saved = progress.completedSteps[step.tag];
-      return {
-        ...splitActivity(step.activity),
-        subsection: step.subsection,
-        status: !saved
-          ? 'todo'
-          : !saved.score.passed
-            ? 'attempted'
-            : saved.score.selfReported
-              ? 'selfReported'
-              : 'passed',
-      };
-    });
     const offerSection = practiceOffer;
 
     return (
@@ -2435,8 +2477,9 @@ function GenreLessonContainerV2Inner({
           ],
           keyLabel: centerTitle(guitarCenter),
           keyColor,
-          subsection: currentStep.subsection,
-          activity: currentStep.activity,
+          subsection: stepSubsection,
+          activity: stepActivity,
+          chordNames: stepWritesChords,
         }}
         nav={{
           sections: flow.sections.map((section) => ({
@@ -2446,7 +2489,7 @@ function GenreLessonContainerV2Inner({
             done: getSectionProgress(section.id).percentage === 100,
           })),
           onSection: handleSectionChange,
-          steps: guitarSteps,
+          steps: navSteps,
           index: stepIndex,
           goToStep,
           // The active section's Practice Track, as on piano.
@@ -2457,7 +2500,7 @@ function GenreLessonContainerV2Inner({
         run={{
           state: activityState,
           restartingPass,
-          instruction: currentStep.direction ?? '',
+          instruction: stepDirection,
           listen: {
             mode: isIT ? 'keepTime' : 'waitForMe',
             passMarkPct: Math.round(
@@ -2595,43 +2638,53 @@ function GenreLessonContainerV2Inner({
           tabViewportRef: rollViewportRef,
           // The stage box sizes the TAB (measured through rollViewportRef).
           tab: (
-            <GenrePianoRoll
-              key={`roll-${activityInstanceId}`}
-              instrument="guitar"
-              guitarViewToggle={false}
-              // The preview opens a paged TAB on the music; a loop between
-              // passes keeps the count-in bar in view for the next count.
-              tabOpensOnMusic={activityState === 'preview' && !restartingPass}
-              tabOverlay={renderGuitarTabOverlay}
-              events={pianoRollEvents}
-              bars={requiredBars}
-              beatsPerBar={meterBeats}
-              beatTicks={meterBeatTicks}
-              timeSignature={timeSignature}
-              leadInTicks={LEAD_IN_TICKS}
-              staves={notationStaves}
-              notationToggle={clefToggle}
-              subdivision={isIT ? 4 : 1}
-              rowHeight={rowHeight}
-              midiRangeMin={noteRange.min}
-              midiRangeMax={noteRange.max}
-              inTime={isIT}
-              playSpeed={runTempo}
-              isPlaying={isActive && isIT}
-              onPlayingChange={() => {}}
-              playbackTicks={isIT ? playbackTicks : undefined}
-              onTickChange={handleTickChange}
-              activeMidis={guitarEval.activeMidis}
-              noteHoldMeta={
-                isActive && !isIT ? guitarEval.noteHoldMeta : undefined
-              }
-              performanceMeta={isIT ? guitarEval.performanceMeta : undefined}
-              keyRoot={keyRoot}
-              keyColor={keyColor}
-              userNotes={isActive ? guitarEval.userNotes : []}
-              targetMidiSet={targetMidiSet}
-              chordSymbols={chordSymbolsForStaff}
-            />
+            <>
+              {/* TAB / Notation in the corner over the music, as the piano
+                  roll has its views; the band keeps its full height. */}
+              <div
+                data-guitar-view-toggle
+                className="absolute left-3 top-3 z-10"
+              >
+                <SavedGuitarViewToggle />
+              </div>
+              <GenrePianoRoll
+                key={`roll-${activityInstanceId}`}
+                instrument="guitar"
+                guitarViewToggle={false}
+                // The preview opens a paged TAB on the music; a loop between
+                // passes keeps the count-in bar in view for the next count.
+                tabOpensOnMusic={activityState === 'preview' && !restartingPass}
+                tabOverlay={renderGuitarTabOverlay}
+                events={pianoRollEvents}
+                bars={requiredBars}
+                beatsPerBar={meterBeats}
+                beatTicks={meterBeatTicks}
+                timeSignature={timeSignature}
+                leadInTicks={LEAD_IN_TICKS}
+                staves={notationStaves}
+                notationToggle={clefToggle}
+                subdivision={isIT ? 4 : 1}
+                rowHeight={rowHeight}
+                midiRangeMin={noteRange.min}
+                midiRangeMax={noteRange.max}
+                inTime={isIT}
+                playSpeed={runTempo}
+                isPlaying={isActive && isIT}
+                onPlayingChange={() => {}}
+                playbackTicks={isIT ? playbackTicks : undefined}
+                onTickChange={handleTickChange}
+                activeMidis={guitarEval.activeMidis}
+                noteHoldMeta={
+                  isActive && !isIT ? guitarEval.noteHoldMeta : undefined
+                }
+                performanceMeta={isIT ? guitarEval.performanceMeta : undefined}
+                keyRoot={keyRoot}
+                keyColor={keyColor}
+                userNotes={isActive ? guitarEval.userNotes : []}
+                targetMidiSet={targetMidiSet}
+                chordSymbols={chordSymbolsForStaff}
+              />
+            </>
           ),
           visuals: (
             <GuitarLessonVisuals
@@ -2679,898 +2732,246 @@ function GenreLessonContainerV2Inner({
   }
 
   // ── Render (piano) ────────────────────────────────────────────────────────
+  // Guitar's screen with the keyboard (piano/layout): one page, no start
+  // card, the instruction and the buttons in the bar at the bottom. The
+  // layout gets plain values and callbacks, as guitar's does.
+
+  const pianoChords = (resolvedStep.chordSymbols ?? []).map((symbol) =>
+    chordSymbolForDisplay(symbol, chordNotation, chordContext),
+  );
+  const pianoPractising = isPracticing || restartingPass;
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        background: '#111',
-        color: '#eee',
+    <PianoLessonLayout
+      header={{
+        crumbs: [
+          {
+            label: rootCrumb.label,
+            onClick: () => navigate(rootCrumb.route),
+          },
+          {
+            label: genreDisplayName,
+            onClick: () =>
+              navigate(overviewRoute ?? CurriculumRoutes.genre({ genre })),
+          },
+        ],
+        keyLabel: formatAccidentalsForDisplay(ownKey ?? flow.params.defaultKey),
+        keyColor,
+        subsection: stepSubsection,
+        activity: stepActivity,
+        chordNames: stepWritesChords,
       }}
-    >
-      {/* Header — breadcrumb and level/step share one line so the vertical
-          budget goes to the piano roll and keyboard instead of chrome. */}
-      <div
-        style={{
-          flexShrink: 0,
-          padding: '8px 16px',
-          borderBottom: '1px solid #333',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '4px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <button
-              type="button"
-              onClick={() => navigate(rootCrumb.route)}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: 0,
-                fontSize: '11px',
-                color: 'var(--color-text-dim)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                opacity: 0.7,
-              }}
-              className="hover:opacity-100 transition-opacity"
-            >
-              {rootCrumb.label}
-            </button>
-            <span
-              style={{
-                fontSize: '11px',
-                color: 'var(--color-text-dim)',
-                opacity: 0.4,
-              }}
-            >
-              ›
-            </span>
-            <button
-              type="button"
-              onClick={() =>
-                navigate(overviewRoute ?? CurriculumRoutes.genre({ genre }))
-              }
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: 0,
-                fontSize: '11px',
-                color: 'var(--color-text-dim)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                opacity: 0.7,
-              }}
-              className="hover:opacity-100 transition-opacity"
-            >
-              {genreDisplayName}
-            </button>
-          </div>
-          <div
-            style={{
-              fontSize: '12px',
-              color: '#888',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
-          >
-            {`${flow.genre} Level ${flow.level}`} · Step {stepIndex + 1} of{' '}
-            {currentSection.steps.length}
-          </div>
-        </div>
-        <div style={{ fontSize: '13px', color: '#888' }}>
-          {currentStep.subsection}
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'baseline',
-            gap: '12px',
-            flexWrap: 'wrap',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '17px',
-              fontWeight: 600,
-            }}
-          >
-            {currentStep.activity}
-          </div>
-          {resolvedStep.chordSymbols &&
-            resolvedStep.chordSymbols.length > 0 && (
-              <div
-                style={{
-                  fontSize: '14px',
-                  color: keyColor,
-                  fontWeight: 600,
-                }}
-              >
-                {resolvedStep.chordSymbols
-                  .map((symbol) =>
-                    chordSymbolForDisplay(symbol, chordNotation, chordContext),
-                  )
-                  .join(' → ')}
-              </div>
-            )}
-        </div>
-      </div>
-
-      {/* Section tabs (from flow data, not hardcoded) and step navigation
-          share one row — two full-width rows of chrome bought nothing that
-          one does not, and the keyboard needs the pixels. */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '12px',
-          padding: '6px 16px',
-          borderBottom: '1px solid #333',
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {flow.sections.map((section) => {
-            const isSectionActive = section.id === activeSection;
-            const sectionProg = getSectionProgress(section.id);
-            return (
-              <button
-                key={section.id}
-                onClick={() => handleSectionChange(section.id)}
-                style={{
-                  padding: '6px 14px',
-                  border: isSectionActive
-                    ? '2px solid #4a9eff'
-                    : '1px solid #555',
-                  borderRadius: '8px',
-                  background: isSectionActive ? '#1a3a5c' : '#222',
-                  color: isSectionActive ? '#4a9eff' : '#aaa',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: isSectionActive ? 600 : 400,
-                }}
-              >
-                {section.id} {section.name}
-                {sectionProg.percentage > 0 && sectionProg.percentage < 100 && (
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      marginLeft: '6px',
-                      opacity: 0.7,
-                    }}
-                  >
-                    {sectionProg.percentage}%
-                  </span>
-                )}
-                {sectionProg.percentage === 100 && (
-                  <span style={{ marginLeft: '6px', fontSize: '12px' }}>
-                    &#10003;
-                  </span>
-                )}
-              </button>
-            );
-          })}
-          {/* The active section's Practice Track, always reachable once that
-              section has content — so a student who moved on can come back to
-              it, not only catch it on the way past. */}
-          {sectionHasContent(currentSection) && (
-            <button
-              onClick={() => enterPracticeTrack(activeSection)}
-              title={`Play over the ${currentSection.name} groove`}
-              style={{
-                padding: '6px 14px',
-                border: '1px solid #7ecfcf',
-                borderRadius: '8px',
-                background: 'rgba(126,207,207,0.12)',
-                color: '#7ecfcf',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontWeight: 600,
-              }}
-            >
-              &#9834; Practice Track
-            </button>
-          )}
-        </div>
-
-        {/* Step navigation — clickable dots + arrows */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            flexShrink: 0,
-          }}
-        >
-          {/* Previous arrow */}
-          <button
-            onClick={() => {
-              if (stepIndex > 0) goToStep((i) => i - 1);
-            }}
-            disabled={stepIndex === 0}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: stepIndex === 0 ? '#333' : '#888',
-              fontSize: '18px',
-              cursor: stepIndex === 0 ? 'default' : 'pointer',
-              padding: '0 4px',
-            }}
-          >
-            ‹
-          </button>
-
-          {/* Clickable progress dots */}
-          {currentSection.steps.map((step, i) => {
-            const stepTag = (step as ActivityStepV2).tag;
-            const result = progress.completedSteps[stepTag];
-            const isPassed = result?.score.passed ?? false;
-            const isAttempted = !!result;
-            const isCurrent = i === stepIndex;
-
-            const handleDotClick = () => goToStep(i);
-
-            if (isPassed) {
-              return (
-                <button
-                  key={i}
-                  onClick={handleDotClick}
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    borderRadius: '50%',
-                    border: `1.5px solid ${keyColor}`,
-                    background: `${keyColor}22`,
-                    color: keyColor,
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 0,
-                    flexShrink: 0,
-                    lineHeight: 1,
-                  }}
-                  title={`${(step as ActivityStepV2).activity} ✓ Passed`}
-                >
-                  ✓
-                </button>
-              );
+      chords={pianoChords}
+      nav={{
+        sections: flow.sections.map((section) => ({
+          id: section.id,
+          name: section.name,
+          active: section.id === activeSection,
+          done: getSectionProgress(section.id).percentage === 100,
+        })),
+        onSection: handleSectionChange,
+        steps: navSteps,
+        index: stepIndex,
+        goToStep,
+        practiceTrack: sectionHasContent(currentSection)
+          ? { onOpen: () => enterPracticeTrack(activeSection) }
+          : null,
+        // Roll / Notation / Falling, big, beside Practice Track (the roll's
+        // own corner icons are off).
+        extra: <SavedRollViewSwitch />,
+      }}
+      run={{
+        state: activityState,
+        restartingPass,
+        instruction: stepDirection,
+        listen: {
+          mode: isIT ? 'keepTime' : 'waitForMe',
+          passMarkPct: Math.round(
+            stepPassMark(currentStep.assessment ?? 'pitch_only') * 100,
+          ),
+        },
+        loading: instrumentsLoading,
+        demo: {
+          playing: isPlayingDemo,
+          play: () => void playDemo(targetNotes),
+          stop: stopDemo,
+        },
+        practise: () => void handleStartPractice(),
+        playNow: handleStartPerformance,
+        back: handleStopPractice,
+        stopTake: abortTake,
+        hint: null,
+      }}
+      tempo={
+        isIT
+          ? {
+              bpm: tempo,
+              onChange: handleTempoChange,
+              // The speed trainer's tempo while a practice run plays.
+              effectiveBpm: pianoPractising ? practiceTempo : tempo,
+              trainer: {
+                ladder: practice.ladder,
+                text: practice.ladderText,
+                onToggle: practice.toggleLadder,
+                onReset: practice.resetLadder,
+              },
             }
-
-            return (
-              <button
-                key={i}
-                onClick={handleDotClick}
-                style={{
-                  width: isCurrent ? '24px' : '10px',
-                  height: '10px',
-                  borderRadius: '5px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  backgroundColor: isAttempted
-                    ? '#555'
-                    : isCurrent
-                      ? '#fff'
-                      : '#333',
-                  flexShrink: 0,
-                  padding: 0,
-                }}
-                title={`${(step as ActivityStepV2).activity}${isAttempted ? ' — attempted' : ''}`}
+          : null
+      }
+      result={
+        activityState === 'complete' && lastResult
+          ? {
+              result: lastResult,
+              stepKind: activeSection === 'B' ? 'chords' : 'notes',
+              headingOverride: null,
+              feedback: lastResult.feedbackText,
+              suggestion: null,
+              onSuggestion: () => {},
+              hasMistakes: false,
+              canCountItMyself: false,
+              onCountItMyself: () => {},
+              retry: handleRetry,
+              next: handleNext,
+              nextLabel:
+                stepIndex < currentSection.steps.length - 1
+                  ? 'Next'
+                  : 'Section Complete',
+            }
+          : null
+      }
+      offer={
+        practiceOffer
+          ? {
+              heading: `${currentSection.name} complete!`,
+              blurb: practiceOfferBlurb(currentSection.id),
+              enterPracticeTrack: () => {
+                const section = practiceOffer;
+                setPracticeOffer(null);
+                enterPracticeTrack(section);
+              },
+              continueLabel: nextSectionName
+                ? `Continue to ${nextSectionName}`
+                : 'Finish the level',
+              onContinue: () => {
+                setPracticeOffer(null);
+                advanceSection();
+              },
+            }
+          : null
+      }
+      about={{
+        activity: stepActivity,
+        instruction: stepDirection,
+        chords: pianoChords,
+        // The flow's scale id when it maps to a mode; else what the key's
+        // name says ("C Major (Ionian)"), never a guessed mode.
+        key: (() => {
+          const mode =
+            keyModeSlug ?? modeFromKeyName(ownKey ?? flow.params.defaultKey);
+          return mode ? describeKey(keyName, mode) : null;
+        })(),
+      }}
+      audio={{
+        outputLatencyMs,
+        openAudioTiming: () => navigate(`${SettingsRoutes.root()}/audio`),
+      }}
+      slots={{
+        rollViewportRef,
+        roll: (
+          <>
+            {isDualStaff ? (
+              <DualStaffPianoRoll
+                key={`roll-${activityInstanceId}`}
+                showViewToggle={false}
+                handConfig={resolvedStep.instrument_config!.hand_config}
+                containerHeight={pianoRollMaxHeight}
+                events={pianoRollEvents}
+                bars={requiredBars}
+                beatsPerBar={meterBeats}
+                beatTicks={meterBeatTicks}
+                timeSignature={timeSignature}
+                leadInTicks={LEAD_IN_TICKS}
+                staves={notationStaves}
+                notationToggle={clefToggle}
+                subdivision={isIT ? 4 : 1}
+                rowHeight={rowHeight}
+                inTime={isIT}
+                playSpeed={tempo}
+                isPlaying={isActive && isIT}
+                onPlayingChange={() => {}}
+                playbackTicks={isIT ? playbackTicks : undefined}
+                onTickChange={handleTickChange}
+                activeMidis={activeMidis}
+                noteHoldMeta={isActive && !isIT ? noteHoldMeta : undefined}
+                performanceMeta={isIT ? performanceMeta : undefined}
+                keyRoot={keyRoot}
+                keyColor={keyColor}
+                userNotes={isActive ? userNotes : []}
+                targetMidiSet={targetMidiSet}
+                chordSymbols={chordSymbolsForStaff}
               />
-            );
-          })}
-
-          <span style={{ color: '#666', fontSize: '12px', marginLeft: '6px' }}>
-            {stepIndex + 1}/{currentSection.steps.length}
-          </span>
-
-          {/* Next arrow */}
-          <button
-            onClick={() => {
-              if (stepIndex < currentSection.steps.length - 1) {
-                goToStep((i) => i + 1);
-              }
-            }}
-            disabled={stepIndex === currentSection.steps.length - 1}
-            style={{
-              background: 'none',
-              border: 'none',
-              color:
-                stepIndex === currentSection.steps.length - 1 ? '#333' : '#888',
-              fontSize: '18px',
-              cursor:
-                stepIndex === currentSection.steps.length - 1
-                  ? 'default'
-                  : 'pointer',
-              padding: '0 4px',
-            }}
-          >
-            ›
-          </button>
-        </div>
-      </div>
-
-      {/* Tempo control — visible for IT activities. Only in-time steps pay for
-          this row now; out-of-time steps used to reserve its height anyway. */}
-      {isIT && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '6px 16px',
-            background: 'rgba(255,255,255,0.03)',
-            borderBottom: '1px solid #333',
-            flexShrink: 0,
-          }}
-        >
-          <span style={{ fontSize: '14px', color: '#888' }}>&#9833;=</span>
-          <input
-            type="number"
-            value={tempo}
-            min={40}
-            max={200}
-            onChange={(e) => handleTempoChange(Number(e.target.value))}
-            onMouseDown={(e) => {
-              dragStartY.current = e.clientY;
-              dragStartTempo.current = tempo;
-            }}
-            onMouseMove={(e) => {
-              if (e.buttons !== 1) return;
-              const delta = dragStartY.current - e.clientY;
-              handleTempoChange(dragStartTempo.current + Math.round(delta / 2));
-            }}
-            style={{
-              width: '60px',
-              background: 'transparent',
-              border: '1px solid #555',
-              borderRadius: '4px',
-              color: '#eee',
-              textAlign: 'center',
-              fontSize: '14px',
-              fontWeight: 600,
-              padding: '2px 4px',
-            }}
+            ) : (
+              <GenrePianoRoll
+                key={`roll-${activityInstanceId}`}
+                instrument="piano"
+                showViewToggle={false}
+                events={pianoRollEvents}
+                bars={requiredBars}
+                beatsPerBar={meterBeats}
+                beatTicks={meterBeatTicks}
+                timeSignature={timeSignature}
+                leadInTicks={LEAD_IN_TICKS}
+                staves={notationStaves}
+                notationToggle={clefToggle}
+                subdivision={isIT ? 4 : 1}
+                rowHeight={rowHeight}
+                midiRangeMin={noteRange.min}
+                midiRangeMax={noteRange.max}
+                inTime={isIT}
+                playSpeed={runTempo}
+                isPlaying={isActive && isIT}
+                onPlayingChange={() => {}}
+                playbackTicks={isIT ? playbackTicks : undefined}
+                onTickChange={handleTickChange}
+                activeMidis={activeMidis}
+                noteHoldMeta={isActive && !isIT ? noteHoldMeta : undefined}
+                performanceMeta={isIT ? performanceMeta : undefined}
+                keyRoot={keyRoot}
+                keyColor={keyColor}
+                userNotes={isActive ? userNotes : []}
+                targetMidiSet={targetMidiSet}
+                chordSymbols={chordSymbolsForStaff}
+              />
+            )}
+          </>
+        ),
+        keyboard: (
+          <LessonKeyboard
+            activeWhiteKeyColor={keyColor}
+            activeBlackKeyColor={keyColor}
+            targetMidis={targetMidiSet}
+            playingNotes={
+              // Every target only while the step waits. Once the demo or a
+              // run starts, just the notes in sequence: the demo's and the
+              // in-time guide's as they sound (nothing between them), the
+              // notes due next out of time, nothing in Play Now. The
+              // student's own keys are drawn over all of it (playedKeys).
+              isPlayingDemo
+                ? keyHighlights(demoHighlightMidis, 'demo')
+                : pianoPractising
+                  ? keyHighlights(
+                      isIT ? practiceHighlightMidis : ootDueMidis,
+                      'practice',
+                    )
+                  : activityState === 'preview'
+                    ? keyboardPlayingNotes
+                    : []
+            }
+            playedKeys={playedKeys}
           />
-          <span style={{ fontSize: '12px', color: '#888' }}>BPM</span>
-          <button
-            type="button"
-            onClick={() => navigate(`${SettingsRoutes.root()}/audio`)}
-            title="Backing track not lining up with what you hear? Bluetooth headphones delay sound — calibrate it here."
-            style={{
-              marginLeft: 'auto',
-              background: 'transparent',
-              border: 'none',
-              color: '#888',
-              fontSize: '12px',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              padding: 0,
-            }}
-          >
-            Audio timing{outputLatencyMs > 0 ? ` · ${outputLatencyMs} ms` : ''}
-          </button>
-        </div>
-      )}
-
-      {/* Main content area — a bounded column. `minHeight: 0` is what lets the
-          roll shrink instead of shoving the keyboard off the bottom: without
-          it a flex child refuses to go below its content size. */}
-      <div
-        style={{
-          flex: 1,
-          minHeight: 0,
-          padding: '8px 16px',
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {/* Piano Roll — takes the space the pinned rows leave. When even the
-            floor lane height will not fit, this box scrolls; the page does not. */}
-        <div
-          ref={rollViewportRef}
-          style={{
-            flex: 1,
-            minHeight: 0,
-            position: 'relative',
-            overflowX: 'hidden',
-            overflowY: 'auto',
-          }}
-        >
-          {isDualStaff ? (
-            <DualStaffPianoRoll
-              key={`roll-${activityInstanceId}`}
-              handConfig={resolvedStep.instrument_config!.hand_config}
-              containerHeight={pianoRollMaxHeight}
-              events={pianoRollEvents}
-              bars={requiredBars}
-              beatsPerBar={meterBeats}
-              beatTicks={meterBeatTicks}
-              timeSignature={timeSignature}
-              leadInTicks={LEAD_IN_TICKS}
-              staves={notationStaves}
-              notationToggle={clefToggle}
-              subdivision={isIT ? 4 : 1}
-              rowHeight={rowHeight}
-              inTime={isIT}
-              playSpeed={tempo}
-              isPlaying={isActive && isIT}
-              onPlayingChange={() => {}}
-              playbackTicks={isIT ? playbackTicks : undefined}
-              onTickChange={handleTickChange}
-              activeMidis={activeMidis}
-              noteHoldMeta={isActive && !isIT ? noteHoldMeta : undefined}
-              performanceMeta={isIT ? performanceMeta : undefined}
-              keyRoot={keyRoot}
-              keyColor={keyColor}
-              userNotes={isActive ? userNotes : []}
-              targetMidiSet={targetMidiSet}
-              chordSymbols={chordSymbolsForStaff}
-            />
-          ) : (
-            <GenrePianoRoll
-              key={`roll-${activityInstanceId}`}
-              instrument="piano"
-              events={pianoRollEvents}
-              bars={requiredBars}
-              beatsPerBar={meterBeats}
-              beatTicks={meterBeatTicks}
-              timeSignature={timeSignature}
-              leadInTicks={LEAD_IN_TICKS}
-              staves={notationStaves}
-              notationToggle={clefToggle}
-              subdivision={isIT ? 4 : 1}
-              rowHeight={rowHeight}
-              midiRangeMin={noteRange.min}
-              midiRangeMax={noteRange.max}
-              inTime={isIT}
-              playSpeed={runTempo}
-              isPlaying={isActive && isIT}
-              onPlayingChange={() => {}}
-              playbackTicks={isIT ? playbackTicks : undefined}
-              onTickChange={handleTickChange}
-              activeMidis={activeMidis}
-              noteHoldMeta={isActive && !isIT ? noteHoldMeta : undefined}
-              performanceMeta={isIT ? performanceMeta : undefined}
-              keyRoot={keyRoot}
-              keyColor={keyColor}
-              userNotes={isActive ? userNotes : []}
-              targetMidiSet={targetMidiSet}
-              chordSymbols={chordSymbolsForStaff}
-            />
-          )}
-        </div>
-
-        {/* Piano Keyboard — fills the width and mirrors the player's own
-            keyboard (LessonKeyboard). Volume dial sits alongside on the right
-            so it's always within reach during practice without crowding the
-            header. */}
-        <div
-          style={{
-            marginTop: '8px',
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'stretch',
-            gap: '12px',
-          }}
-        >
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <LessonKeyboard
-              activeWhiteKeyColor={keyboardActiveColor ?? keyColor}
-              activeBlackKeyColor={keyboardActiveColor ?? keyColor}
-              targetMidis={targetMidiSet}
-              playingNotes={
-                // Priority: demo > user MIDI > practice Tone.Part > static preview
-                // When demo is playing, ONLY show demo highlights (gaps = empty keyboard)
-                demoHighlightMidis.size > 0
-                  ? [...demoHighlightMidis].map((midi, i) => ({
-                      id: `demo_${i}`,
-                      type: 'note' as const,
-                      midi,
-                      time: 0,
-                      duration: 1,
-                      velocity: 80,
-                    }))
-                  : isPlayingDemo
-                    ? [] // demo is playing but between notes — show nothing
-                    : isActive && activeMidis.length > 0
-                      ? activeMidis.map((midi, i) => ({
-                          id: `active_${i}`,
-                          type: 'note' as const,
-                          midi,
-                          time: 0,
-                          duration: 1,
-                          velocity: 80,
-                        }))
-                      : isPracticing && practiceHighlightMidis.size > 0
-                        ? [...practiceHighlightMidis].map((midi, i) => ({
-                            id: `practice_${i}`,
-                            type: 'note' as const,
-                            midi,
-                            time: 0,
-                            duration: 1,
-                            velocity: 80,
-                          }))
-                        : keyboardPlayingNotes
-              }
-              enableMidiInterface
-            />
-          </div>
-
-          {/* Metronome switch + volume — tempo has its own slider above */}
-          <MetronomeToggle />
-          <LessonVolumeDial />
-        </div>
-
-        {/* Practice mode controls — below keyboard, pinned alongside it so
-            appearing mid-practice steals from the roll, never from the keys. */}
-        {isPracticing && (
-          <div
-            style={{
-              display: 'flex',
-              gap: '12px',
-              justifyContent: 'center',
-              padding: '8px 0',
-              flexShrink: 0,
-            }}
-          >
-            <button
-              onClick={handleStopPractice}
-              style={{
-                padding: '10px 20px',
-                borderRadius: '20px',
-                border: '1px solid #444',
-                background: '#2a2a2a',
-                color: '#fff',
-                fontSize: '14px',
-                cursor: 'pointer',
-              }}
-            >
-              ← Back
-            </button>
-            <button
-              onClick={() => void playDemo(targetNotes)}
-              disabled={isPlayingDemo}
-              style={{
-                padding: '10px 20px',
-                borderRadius: '20px',
-                border: '1px solid #444',
-                background: isPlayingDemo ? '#1a1a1a' : '#2a2a2a',
-                color: isPlayingDemo ? '#666' : '#fff',
-                fontSize: '14px',
-                cursor: isPlayingDemo ? 'default' : 'pointer',
-              }}
-            >
-              {isPlayingDemo ? '◼ Playing...' : '▶ Demo'}
-            </button>
-            <button
-              onClick={handleStartPerformance}
-              style={{
-                padding: '10px 24px',
-                borderRadius: '20px',
-                border: 'none',
-                background: keyColor,
-                color: '#000',
-                fontSize: '14px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              I'm Ready — Perform ▶
-            </button>
-          </div>
-        )}
-
-        {/* Preview modal — covers only the piano roll, never the keyboard */}
-        {activityState === 'preview' && !restartingPass && (
-          <div
-            style={{
-              position: 'absolute',
-              // 8px down and exactly as tall as the measured roll box, so the
-              // overlay tracks the roll at any window size and still stops
-              // short of the keyboard.
-              top: '8px',
-              left: 0,
-              right: 0,
-              height: `${pianoRollMaxHeight}px`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(17,17,17,0.88)',
-              // Above the roll's note layers (z-0..20) but below its header
-              // strip (z-30), so the piano-roll/notation toggle stays
-              // clickable while "Ready to start?" is up. The assessment modal
-              // below stays at 40 and covers the header too.
-              zIndex: 25,
-            }}
-          >
-            <div
-              style={{
-                maxWidth: '480px',
-                width: '100%',
-                padding: '32px',
-                borderRadius: '16px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid #444',
-                textAlign: 'center',
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: '22px',
-                  fontWeight: 600,
-                  marginBottom: '12px',
-                }}
-              >
-                Ready to start?
-              </h2>
-              <p
-                style={{
-                  fontSize: '14px',
-                  color: '#aaa',
-                  marginBottom: '24px',
-                  lineHeight: 1.5,
-                }}
-              >
-                {currentStep.direction}
-              </p>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '12px',
-                  justifyContent: 'center',
-                }}
-              >
-                <button
-                  onClick={() => {
-                    void playDemo(targetNotes);
-                  }}
-                  disabled={isPlayingDemo}
-                  style={{
-                    padding: '10px 20px',
-                    borderRadius: '24px',
-                    border: '1px solid #444',
-                    background: isPlayingDemo ? '#1a1a1a' : '#2a2a2a',
-                    color: isPlayingDemo ? '#666' : '#fff',
-                    fontSize: '14px',
-                    cursor: isPlayingDemo ? 'default' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}
-                >
-                  {isPlayingDemo ? '◼ Playing...' : '▶ Demo'}
-                </button>
-                <button
-                  onClick={() => {
-                    void handleStartPractice();
-                  }}
-                  style={{
-                    padding: '10px 24px',
-                    borderRadius: '24px',
-                    border: '1px solid #555',
-                    background: 'transparent',
-                    color: '#eee',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Practice
-                </button>
-                <button
-                  onClick={handleStartPerformance}
-                  disabled={instrumentsLoading}
-                  style={{
-                    padding: '10px 24px',
-                    borderRadius: '24px',
-                    border: 'none',
-                    background: instrumentsLoading ? '#555' : keyColor,
-                    color: instrumentsLoading ? '#999' : '#111',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    cursor: instrumentsLoading ? 'default' : 'pointer',
-                  }}
-                >
-                  {instrumentsLoading ? 'Loading instruments...' : 'Play Now'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Section complete — the Practice Track offer, before moving on. */}
-        {practiceOffer && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(17,17,17,0.92)',
-              zIndex: 45,
-            }}
-          >
-            <div
-              style={{
-                maxWidth: '520px',
-                width: '100%',
-                padding: '32px',
-                borderRadius: '16px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid #7ecfcf',
-                textAlign: 'center',
-              }}
-            >
-              <h2 style={{ fontSize: '26px', fontWeight: 600 }}>
-                {currentSection.name} complete!
-              </h2>
-              <p
-                style={{
-                  fontSize: '14px',
-                  color: '#aaa',
-                  margin: '10px 0 24px',
-                  lineHeight: 1.5,
-                }}
-              >
-                {practiceOfferBlurb(currentSection.id)}
-              </p>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '12px',
-                  justifyContent: 'center',
-                  flexWrap: 'wrap',
-                }}
-              >
-                <button
-                  onClick={() => {
-                    const section = practiceOffer;
-                    setPracticeOffer(null);
-                    enterPracticeTrack(section);
-                  }}
-                  style={{
-                    padding: '10px 24px',
-                    borderRadius: '24px',
-                    border: 'none',
-                    background: '#7ecfcf',
-                    color: '#191919',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Enter Practice Track
-                </button>
-                <button
-                  onClick={() => {
-                    setPracticeOffer(null);
-                    advanceSection();
-                  }}
-                  style={{
-                    padding: '10px 24px',
-                    borderRadius: '24px',
-                    border: '1px solid #555',
-                    background: 'transparent',
-                    color: '#eee',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {nextSectionName
-                    ? `Continue to ${nextSectionName}`
-                    : 'Finish the level'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Assessment result modal */}
-        {activityState === 'complete' && lastResult && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(17,17,17,0.92)',
-              zIndex: 40,
-            }}
-          >
-            <div
-              style={{
-                maxWidth: '480px',
-                width: '100%',
-                padding: '32px',
-                borderRadius: '16px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid #444',
-                textAlign: 'center',
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: '28px',
-                  fontWeight: 600,
-                  marginBottom: '8px',
-                }}
-              >
-                {lastResult.passed ? '✓' : '✗'}{' '}
-                {Math.round(lastResult.overallScore * 100)}%
-              </h2>
-              <p
-                style={{
-                  fontSize: '14px',
-                  color: '#aaa',
-                  marginBottom: '24px',
-                  lineHeight: 1.5,
-                }}
-              >
-                {lastResult.feedbackText}
-              </p>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '12px',
-                  justifyContent: 'center',
-                }}
-              >
-                <button
-                  onClick={handleRetry}
-                  style={{
-                    padding: '10px 24px',
-                    borderRadius: '24px',
-                    border: '1px solid #555',
-                    background: 'transparent',
-                    color: '#eee',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Try Again
-                </button>
-                <button
-                  onClick={handleNext}
-                  style={{
-                    padding: '10px 24px',
-                    borderRadius: '24px',
-                    border: 'none',
-                    background: '#4a9eff',
-                    color: '#111',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {stepIndex < currentSection.steps.length - 1
-                    ? 'Next'
-                    : 'Section Complete'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+        ),
+      }}
+    />
   );
 }
 
@@ -3587,6 +2988,21 @@ function disposeGuidePart(part: Tone.Part): void {
     // Disposed below.
   }
   part.dispose();
+}
+
+/** Keys to light on the lesson keyboard, as the events it draws. */
+function keyHighlights(
+  midis: ReadonlySet<number>,
+  prefix: string,
+): PlaybackEvent[] {
+  return [...midis].map((midi, i) => ({
+    id: `${prefix}_${i}`,
+    type: 'note' as const,
+    midi,
+    time: 0,
+    duration: 1,
+    velocity: 80,
+  }));
 }
 
 /** What the output device reports now (after the context has resumed). */

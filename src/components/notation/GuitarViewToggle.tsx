@@ -1,5 +1,12 @@
 import { Music } from 'lucide-react';
-import type { GuitarView } from '@/lib/notation';
+import { useGuitarView, type GuitarView } from '@/lib/notation';
+
+/** The switch on the device's saved TAB / Notation choice, which the lesson
+ *  settings sheet sets too. */
+export function SavedGuitarViewToggle() {
+  const [view, setView] = useGuitarView();
+  return <GuitarViewToggle view={view} onChange={setView} />;
+}
 
 /**
  * TAB | Notation switch for guitar lessons, styled like RollViewToggle. There

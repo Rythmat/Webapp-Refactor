@@ -56,7 +56,8 @@ const TEXT_BUTTON =
 const MENU_ITEM =
   'flex min-h-9 cursor-default select-none items-center rounded-lg px-3 py-1.5 text-sm font-normal text-[#e8e8f0] outline-none transition-colors duration-150 data-[highlighted]:bg-white/[0.08] max-[639px]:min-h-11';
 
-function Primary({
+/** The bar's white pill (exported for screens that bring their own buttons). */
+export function Primary({
   onClick,
   disabled,
   children,
@@ -78,7 +79,8 @@ function Primary({
   );
 }
 
-function Secondary({
+/** The bar's outlined pill. */
+export function Secondary({
   onClick,
   disabled,
   children,
@@ -99,29 +101,20 @@ function Secondary({
   );
 }
 
-const modeName = (mode: RunModel['listen']['mode']) =>
-  mode === 'keepTime' ? 'Keep time' : 'Wait for me';
-
 /**
- * "Wait for me · 75%": how the step listens, and what passes. Plain words,
- * no outline: among the bar's pills an outlined label would pass for one
- * more button.
+ * "Pass = 75%": what a take needs to pass, in the bar's corner, out of the
+ * way of the buttons. (Peter found "Wait for me · 75%" unclear: how the step
+ * listens is in its instruction; the corner says only what passes.)
  */
-function ModeChip({ listen }: { listen: RunModel['listen'] }) {
+function PassMark({ listen }: { listen: RunModel['listen'] }) {
   return (
     <span
-      data-guitar-mode={listen.mode}
-      title={
-        listen.mode === 'keepTime'
-          ? `Play in time with the count. ${listen.passMarkPct}% passes.`
-          : `The lesson waits for each note. ${listen.passMarkPct}% passes.`
-      }
-      className="inline-flex h-7 shrink-0 items-center whitespace-nowrap px-2 text-xs text-white/55"
+      data-pass-mark={listen.passMarkPct}
+      data-listen-mode={listen.mode}
+      title={`Get ${listen.passMarkPct}% of the notes right to pass this step.`}
+      className="whitespace-nowrap text-xs text-white/45"
     >
-      {modeName(listen.mode)}
-      <span aria-hidden>&nbsp;·&nbsp;</span>
-      <span className="sr-only">Pass mark </span>
-      {listen.passMarkPct}%
+      Pass = {listen.passMarkPct}%
     </span>
   );
 }
@@ -260,32 +253,47 @@ export interface GuitarActionBarProps {
   run: RunModel;
   tempo: TempoModel | null;
   practice: PracticeModel;
-  input: InputModel;
+  /** Guitar only: what the mic hears, and the silence offer. */
+  input?: InputModel;
   result: ResultModel | null;
   offer: SectionCompleteModel | null;
+  /**
+   * The words and buttons to show instead of the state's own, for a screen
+   * whose steps end differently (Theory's practice prompt and retry).
+   */
+  custom?: Zones | null;
+  /**
+   * 'centered' (piano and Theory): one centred row under the keyboard, the
+   * buttons bigger, and no instruction — it's in About this step.
+   */
+  variant?: 'default' | 'centered';
 }
 
-interface Zones {
+export interface Zones {
   lead: ReactNode;
   meta: ReactNode;
   actions: ReactNode;
+  /** Bottom right, out of the way: the pass mark. */
+  corner?: ReactNode;
 }
 
-function previewZones({ run, tempo, practice }: GuitarActionBarProps): Zones {
+function previewZones({
+  run,
+  tempo,
+  practice,
+  variant,
+}: GuitarActionBarProps): Zones {
   return {
-    lead: <Instruction text={run.instruction} />,
-    meta: (
-      <>
-        {tempo && (
-          <TempoStepper
-            bpm={tempo.bpm}
-            effectiveBpm={tempo.effectiveBpm}
-            onChange={tempo.onChange}
-          />
-        )}
-        <ModeChip listen={run.listen} />
-      </>
-    ),
+    lead:
+      variant === 'centered' ? null : <Instruction text={run.instruction} />,
+    meta: tempo ? (
+      <TempoStepper
+        bpm={tempo.bpm}
+        effectiveBpm={tempo.effectiveBpm}
+        onChange={tempo.onChange}
+      />
+    ) : null,
+    corner: <PassMark listen={run.listen} />,
     actions: (
       <>
         <DemoButton demo={run.demo} />
@@ -298,17 +306,35 @@ function previewZones({ run, tempo, practice }: GuitarActionBarProps): Zones {
   };
 }
 
-function practiceZones({ run, tempo, practice }: GuitarActionBarProps): Zones {
-  return {
-    lead: (
-      <div className="flex min-w-0 flex-col gap-1.5">
-        <GuitarLoopStatus {...practice.loopStatus} />
-        <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 empty:hidden [&_[data-guitar-practice-notes]]:mt-0 [&_[data-guitar-practice-notes]]:justify-start">
-          {tempo && <SpeedTrainerControl {...tempo.trainer} />}
-          <GuitarPracticeNotes {...practice.notes} />
-        </div>
+function practiceZones({
+  run,
+  tempo,
+  practice,
+  variant,
+}: GuitarActionBarProps): Zones {
+  // Bars loop on the TAB; a lesson without bar loops (piano) keeps the
+  // instruction in view instead — or, centred, leaves it to About this step.
+  const status = practice.loopStatus ? (
+    <GuitarLoopStatus {...practice.loopStatus} />
+  ) : variant === 'centered' ? null : (
+    <Instruction text={run.instruction} />
+  );
+  const extras =
+    tempo?.trainer || practice.notes ? (
+      <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 empty:hidden [&_[data-guitar-practice-notes]]:mt-0 [&_[data-guitar-practice-notes]]:justify-start">
+        {tempo?.trainer && <SpeedTrainerControl {...tempo.trainer} />}
+        {practice.notes && <GuitarPracticeNotes {...practice.notes} />}
       </div>
-    ),
+    ) : null;
+  return {
+    lead:
+      status || extras ? (
+        <div className="flex min-w-0 flex-col gap-1.5">
+          {status}
+          {extras}
+        </div>
+      ) : null,
+    corner: <PassMark listen={run.listen} />,
     meta: tempo && (
       <TempoStepper
         bpm={tempo.bpm}
@@ -329,7 +355,8 @@ function practiceZones({ run, tempo, practice }: GuitarActionBarProps): Zones {
 }
 
 function performanceZones({ run, tempo, input }: GuitarActionBarProps): Zones {
-  const { handle, silence } = input;
+  const handle = input?.handle ?? null;
+  const silence = input?.silence ?? null;
   const lead = silence ? (
     <div
       role="status"
@@ -363,7 +390,7 @@ function performanceZones({ run, tempo, input }: GuitarActionBarProps): Zones {
         {handle && handle.prefs.source !== 'midi' && (
           <LevelMeter handle={handle} />
         )}
-        Listening · {modeName(run.listen.mode)}
+        Listening
       </p>
       {run.hint && (
         <p
@@ -379,6 +406,7 @@ function performanceZones({ run, tempo, input }: GuitarActionBarProps): Zones {
   return {
     lead,
     meta: tempo && <ReadOnlyBpm tempo={tempo} />,
+    corner: <PassMark listen={run.listen} />,
     actions: (
       <Primary onClick={run.stopTake}>
         <Square />
@@ -496,8 +524,55 @@ function useBarFocus(state: BarState) {
 }
 
 export function GuitarActionBar(props: GuitarActionBarProps) {
-  const { lead, meta, actions } = zonesFor(props);
+  const { lead, meta, actions, corner } = props.custom ?? zonesFor(props);
   const focus = useBarFocus(props.state);
+  if (props.variant === 'centered') {
+    // One centred row under the keyboard: what's happening, the tempo and
+    // how it listens, then the buttons, larger. A run's "Listening · …"
+    // sits in the row, so the bar keeps its height from state to state.
+    return (
+      <div
+        ref={focus.ref}
+        onFocus={focus.onFocus}
+        onBlur={focus.onBlur}
+        role="region"
+        aria-label="Lesson controls"
+        data-guitar-bar={props.state}
+        data-bar-variant="centered"
+        className="sticky bottom-0 z-10 shrink-0 border-t border-white/[0.08] bg-[#101012] pb-[env(safe-area-inset-bottom)]"
+      >
+        <div className="relative mx-auto flex min-h-[80px] w-full max-w-[1184px] flex-wrap items-center justify-center gap-x-4 gap-y-2 px-6 py-4 max-[639px]:px-4">
+          {lead && (
+            <div data-bar-lead className="min-w-0 text-center">
+              {lead}
+            </div>
+          )}
+          {meta && (
+            <div
+              data-bar-meta
+              className="flex shrink-0 flex-wrap items-center gap-2"
+            >
+              {meta}
+            </div>
+          )}
+          <div
+            data-bar-actions
+            className="flex shrink-0 flex-wrap items-center justify-center gap-3 [&_button]:h-12 [&_button]:px-7 [&_button]:text-base max-[639px]:w-full max-[639px]:[&_button]:flex-1"
+          >
+            {actions}
+          </div>
+          {corner && (
+            <div
+              data-bar-corner
+              className="absolute bottom-3 right-6 max-[639px]:static max-[639px]:w-full max-[639px]:text-center"
+            >
+              {corner}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
   return (
     <div
       ref={focus.ref}
@@ -513,12 +588,13 @@ export function GuitarActionBar(props: GuitarActionBarProps) {
         <div data-bar-lead className="min-w-0 flex-1 max-[639px]:empty:hidden">
           {lead}
         </div>
-        {meta && (
+        {(meta || corner) && (
           <div
             data-bar-meta
             className="flex shrink-0 items-center gap-2 max-[639px]:flex-wrap"
           >
             {meta}
+            {corner}
           </div>
         )}
         <div

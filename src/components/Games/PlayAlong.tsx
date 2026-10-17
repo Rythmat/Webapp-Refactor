@@ -17,7 +17,9 @@ import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { PracticeControls } from '@/learn/components/PracticeControls';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
+import type { PlayedKeys } from '@/learn/keyboard/playedKeys';
 import {
+  LESSON_BAR_RESERVE,
   useFitAboveKeyboard,
   VIEW_KEYBOARD_GAP,
 } from '@/learn/layout/useFitAboveKeyboard';
@@ -28,12 +30,7 @@ import {
   THEORY_ACTIVITY_BPM,
 } from './PianoRollPlay';
 import { useWrongNoteFlash, WrongNoteFlash } from './WrongNoteFlash';
-import {
-  activationWindow,
-  dueMidisAt,
-  nextTargets,
-  WRONG_KEY_COLOR,
-} from './liveFeedback';
+import { activationWindow, dueMidisAt, nextTargets } from './liveFeedback';
 import { gradePlayAlong, type PlayAlongResult } from './playAlongGrade';
 
 /** GenrePianoRoll's bar ruler, on top of `rowHeight`. */
@@ -86,6 +83,17 @@ type PlayAlongProps = {
   playTargetNotes?: boolean;
   /** Lesson spelling map, passed through to the piano roll's lane labels. */
   noteSpelling?: Map<number, string>;
+  /**
+   * The one-page lesson screen (TheoryLessonLayout): no panel of its own, no
+   * tempo / metronome / volume beside the keys (they're in the bar and the
+   * settings), no switch in the roll's corner, room kept for the bar.
+   */
+  bare?: boolean;
+  /**
+   * Lit on the keyboard under the student's own keys: the step's notes while
+   * it waits to start, or the demo as it plays.
+   */
+  previewNotes?: PlaybackEvent[];
 };
 
 type NotePerformance = {
@@ -112,6 +120,8 @@ export const PlayAlong = ({
   chordSymbols,
   playTargetNotes = false,
   noteSpelling,
+  bare = false,
+  previewNotes,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const maxEventEndTick = useMemo(
@@ -133,11 +143,11 @@ export const PlayAlong = ({
   const [keyboardEl, setKeyboardEl] = useState<HTMLDivElement | null>(null);
   const viewHeight = useFitAboveKeyboard(viewEl, keyboardEl, {
     max: 28 * 18 + ROLL_TIMELINE_HEIGHT,
+    bottomInset: bare ? LESSON_BAR_RESERVE : 0,
   });
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
-  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
-    PlaybackEvent[]
-  >([]);
+  // The keys held right now: their target colour, or null when wrong.
+  const [playedKeys, setPlayedKeys] = useState<PlayedKeys>(() => new Map());
   const [currentTick, setCurrentTick] = useState(-COUNT_IN_TICKS);
   const [notePerformance, setNotePerformance] = useState<
     Record<string, NotePerformance>
@@ -180,7 +190,7 @@ export const PlayAlong = ({
     void releaseAllPianoNotes();
     activeMidiSetRef.current = new Set<number>();
     setActiveMidis([]);
-    setKeyboardPlayingNotes([]);
+    setPlayedKeys(new Map());
   }, []);
 
   const resetInTimeRun = useCallback(() => {
@@ -272,30 +282,22 @@ export const PlayAlong = ({
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number, wrong: boolean) => {
-      const color = wrong
-        ? WRONG_KEY_COLOR
-        : (noteColorByMidi.get(midi) ?? WRONG_KEY_COLOR);
-      const id = `keyboard-${midi}`;
-      setKeyboardPlayingNotes((prev) => [
-        ...prev.filter((event) => event.midi !== midi),
-        {
-          id,
-          type: 'note',
+      setPlayedKeys((prev) =>
+        new Map(prev).set(
           midi,
-          time: Date.now(),
-          duration: Number.POSITIVE_INFINITY,
-          velocity: 1,
-          color,
-        },
-      ]);
+          wrong ? null : (noteColorByMidi.get(midi) ?? null),
+        ),
+      );
     },
     [noteColorByMidi],
   );
 
   const handleKeyboardNoteOff = useCallback((midi: number) => {
-    setKeyboardPlayingNotes((prev) =>
-      prev.filter((event) => event.midi !== midi),
-    );
+    setPlayedKeys((prev) => {
+      const next = new Map(prev);
+      next.delete(midi);
+      return next;
+    });
   }, []);
 
   const showInTimeCompletion =
@@ -455,39 +457,72 @@ export const PlayAlong = ({
     ],
   );
 
+  // Before the activity starts (and after it ends) the student still hears
+  // and sees their keyboard, a note the activity asks for lit as right; none
+  // of it is judged.
+  const handleIdleNoteOff = useCallback(
+    (event: MidiNoteEvent) => {
+      const midi = event.number;
+      if (activeMidiSetRef.current.delete(midi) && event.source !== 'audio') {
+        triggerSynthRelease(Tone.Frequency(midi, 'midi').toNote());
+      }
+      handleKeyboardNoteOff(midi);
+    },
+    [triggerSynthRelease, handleKeyboardNoteOff],
+  );
+
+  const handleIdleNoteOn = useCallback(
+    (event: MidiNoteEvent) => {
+      const midi = event.number;
+      if (event.velocity == 0) {
+        handleIdleNoteOff(event);
+        return;
+      }
+      if (event.source !== 'audio' && !activeMidiSetRef.current.has(midi)) {
+        void startPianoSampler();
+        triggerSynthAttack(
+          Tone.Frequency(midi, 'midi').toNote(),
+          event.velocity,
+        );
+      }
+      activeMidiSetRef.current.add(midi);
+      handleKeyboardNoteOn(midi, false);
+    },
+    [handleIdleNoteOff, triggerSynthAttack, handleKeyboardNoteOn],
+  );
+
   const onMidiNoteOn = useCallback(
     (e: MidiNoteEvent) => {
-      if (!isActive) return;
+      if (!isActive) {
+        handleIdleNoteOn(e);
+        return;
+      }
       handleMidiNoteOn(e);
     },
-    [handleMidiNoteOn, isActive],
+    [handleMidiNoteOn, handleIdleNoteOn, isActive],
   );
 
   const onMidiNoteOff = useCallback(
     (e: MidiNoteEvent) => {
-      if (!isActive) return;
+      if (!isActive) {
+        handleIdleNoteOff(e);
+        return;
+      }
       handleMidiNoteOff(e);
     },
-    [handleMidiNoteOff, isActive],
+    [handleMidiNoteOff, handleIdleNoteOff, isActive],
   );
 
   const { subscribeNoteOn, subscribeNoteOff } = useLearnInputStable();
 
   useEffect(() => {
-    if (!isActive) return;
     const unsubOn = subscribeNoteOn(onMidiNoteOn);
     const unsubOff = subscribeNoteOff(onMidiNoteOff);
     return () => {
       unsubOn();
       unsubOff();
     };
-  }, [
-    isActive,
-    subscribeNoteOn,
-    subscribeNoteOff,
-    onMidiNoteOn,
-    onMidiNoteOff,
-  ]);
+  }, [subscribeNoteOn, subscribeNoteOff, onMidiNoteOn, onMidiNoteOff]);
 
   const performanceMeta = useMemo(() => {
     const meta: Record<string, { startTick: number; endTick?: number }> = {};
@@ -556,7 +591,7 @@ export const PlayAlong = ({
       setPlaySessionId((id) => id + 1);
       activeMidiSetRef.current = new Set<number>();
       setActiveMidis([]);
-      setKeyboardPlayingNotes([]);
+      setPlayedKeys(new Map());
     }
     wasPlayingRef.current = isPlaying;
   }, [isPlaying, resetInTimeRun]);
@@ -568,7 +603,7 @@ export const PlayAlong = ({
     void releaseAllPianoNotes();
     activeMidiSetRef.current = new Set<number>();
     setActiveMidis([]);
-    setKeyboardPlayingNotes([]);
+    setPlayedKeys(new Map());
   }, [isPlaying]);
 
   useEffect(() => {
@@ -597,6 +632,7 @@ export const PlayAlong = ({
       <div ref={setViewEl}>
         <GenrePianoRoll
           key={playSessionId}
+          showViewToggle={!bare}
           inTime
           activeMidis={activeMidis}
           bars={requiredBars}
@@ -628,12 +664,13 @@ export const PlayAlong = ({
             activeBlackKeyColor={activityColor}
             activeWhiteKeyColor={activityColor}
             hintNotes={showTargetKeys ? nextTargetKeys : undefined}
-            playingNotes={keyboardPlayingNotes}
+            playingNotes={previewNotes}
+            playedKeys={playedKeys}
             targetMidis={targetMidiSet}
           />
         </div>
-        <PracticeControls activityBpm={THEORY_ACTIVITY_BPM} />
-        <LessonVolumeDial />
+        {!bare && <PracticeControls activityBpm={THEORY_ACTIVITY_BPM} />}
+        {!bare && <LessonVolumeDial />}
       </div>
     </>
   );
@@ -648,6 +685,9 @@ export const PlayAlong = ({
       </div>
     );
   }
+
+  // The lesson screen draws the frame; the activity is just roll and keys.
+  if (bare) return <div className="flex flex-col">{gameplayContent}</div>;
 
   return (
     <div className="flex flex-col gap-4">

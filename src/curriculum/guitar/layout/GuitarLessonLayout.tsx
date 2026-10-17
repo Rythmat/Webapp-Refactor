@@ -157,6 +157,9 @@ export function GuitarLessonLayout({
       </div>
 
       <GuitarActionBar
+        // Centred under the music, as piano's and Theory's (the instruction
+        // is in About this step).
+        variant="centered"
         state={barState}
         run={run}
         tempo={tempo}

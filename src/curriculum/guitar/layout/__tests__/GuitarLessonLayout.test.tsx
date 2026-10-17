@@ -580,8 +580,9 @@ describe('guitarLayout.css', () => {
   it('rings keyboard focus in white, never the browser’s blue, beneath each control’s own ring', async () => {
     const css = await layoutCss();
     // Zero specificity for the scope, so a control's own focus ring wins.
+    // Piano's lesson screen shares the ring.
     expect(css).toContain(
-      ':where([data-guitar-layout], [data-guitar-sheet], [data-guitar-overlay]) :focus-visible { outline: 2px solid rgba(255, 255, 255, 0.6);',
+      ':where( [data-guitar-layout], [data-piano-layout], [data-guitar-sheet], [data-guitar-overlay] ) :focus-visible { outline: 2px solid rgba(255, 255, 255, 0.6);',
     );
   });
 });

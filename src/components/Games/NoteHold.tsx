@@ -13,7 +13,9 @@ import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
+import type { PlayedKeys } from '@/learn/keyboard/playedKeys';
 import {
+  LESSON_BAR_RESERVE,
   useFitAboveKeyboard,
   VIEW_KEYBOARD_GAP,
 } from '@/learn/layout/useFitAboveKeyboard';
@@ -24,7 +26,6 @@ import {
   type NoteHoldMeta,
 } from './PianoRollPlay';
 import { useWrongNoteFlash, WrongNoteFlash } from './WrongNoteFlash';
-import { WRONG_KEY_COLOR } from './liveFeedback';
 
 /** GenrePianoRoll's bar ruler, on top of `rowHeight`. */
 const ROLL_TIMELINE_HEIGHT = 40;
@@ -64,6 +65,17 @@ type NoteHoldProps = {
   chordSymbols?: readonly LessonChordSymbol[];
   /** Lesson spelling map, passed through to the piano roll's lane labels. */
   noteSpelling?: Map<number, string>;
+  /**
+   * The one-page lesson screen (TheoryLessonLayout): no panel of its own, no
+   * tempo / metronome / volume beside the keys (they're in the bar and the
+   * settings), no switch in the roll's corner, room kept for the bar.
+   */
+  bare?: boolean;
+  /**
+   * Lit on the keyboard under the student's own keys: the step's notes while
+   * it waits to start, or the demo as it plays.
+   */
+  previewNotes?: PlaybackEvent[];
 };
 
 export const NoteHold = ({
@@ -75,6 +87,8 @@ export const NoteHold = ({
   showTargetKeys = false,
   chordSymbols,
   noteSpelling,
+  bare = false,
+  previewNotes,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const activeMidiSetRef = useRef(new Set<number>());
@@ -84,11 +98,11 @@ export const NoteHold = ({
   const [keyboardEl, setKeyboardEl] = useState<HTMLDivElement | null>(null);
   const viewHeight = useFitAboveKeyboard(viewEl, keyboardEl, {
     max: 28 * 18 + ROLL_TIMELINE_HEIGHT,
+    bottomInset: bare ? LESSON_BAR_RESERVE : 0,
   });
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
-  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
-    PlaybackEvent[]
-  >([]);
+  // The keys held right now: their target colour, or null when wrong.
+  const [playedKeys, setPlayedKeys] = useState<PlayedKeys>(() => new Map());
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
   const [completedChords, setCompletedChords] = useState<Set<number>>(
@@ -115,7 +129,7 @@ export const NoteHold = ({
     void releaseAllPianoNotes();
     activeMidiSetRef.current = new Set<number>();
     setActiveMidis([]);
-    setKeyboardPlayingNotes([]);
+    setPlayedKeys(new Map());
   }, []);
 
   // Triggers the on state of the syntheizer with a specified note and a given velocity
@@ -209,31 +223,22 @@ export const NoteHold = ({
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number, wrong: boolean) => {
-      const color = wrong
-        ? WRONG_KEY_COLOR
-        : (noteColorByMidi.get(midi) ?? WRONG_KEY_COLOR);
-
-      const id = `keyboard-${midi}`;
-      setKeyboardPlayingNotes((prev) => [
-        ...prev.filter((event) => event.midi !== midi),
-        {
-          id,
-          type: 'note',
+      setPlayedKeys((prev) =>
+        new Map(prev).set(
           midi,
-          time: Date.now(),
-          duration: Number.POSITIVE_INFINITY,
-          velocity: 1,
-          color,
-        },
-      ]);
+          wrong ? null : (noteColorByMidi.get(midi) ?? null),
+        ),
+      );
     },
     [noteColorByMidi],
   );
 
   const handleKeyboardNoteOff = useCallback((midi: number) => {
-    setKeyboardPlayingNotes((prev) =>
-      prev.filter((event) => event.midi !== midi),
-    );
+    setPlayedKeys((prev) => {
+      const next = new Map(prev);
+      next.delete(midi);
+      return next;
+    });
   }, []);
 
   useEffect(() => {
@@ -364,39 +369,72 @@ export const NoteHold = ({
     ],
   );
 
+  // Before the activity starts (and after it ends) the student still hears
+  // and sees their keyboard, a note the activity asks for lit as right; none
+  // of it is judged.
+  const handleIdleNoteOff = useCallback(
+    (event: MidiNoteEvent) => {
+      const midi = event.number;
+      if (activeMidiSetRef.current.delete(midi) && event.source !== 'audio') {
+        triggerSynthRelease(Tone.Frequency(midi, 'midi').toNote());
+      }
+      handleKeyboardNoteOff(midi);
+    },
+    [triggerSynthRelease, handleKeyboardNoteOff],
+  );
+
+  const handleIdleNoteOn = useCallback(
+    (event: MidiNoteEvent) => {
+      const midi = event.number;
+      if (event.velocity == 0) {
+        handleIdleNoteOff(event);
+        return;
+      }
+      if (event.source !== 'audio' && !activeMidiSetRef.current.has(midi)) {
+        void startPianoSampler();
+        triggerSynthAttack(
+          Tone.Frequency(midi, 'midi').toNote(),
+          event.velocity,
+        );
+      }
+      activeMidiSetRef.current.add(midi);
+      handleKeyboardNoteOn(midi, false);
+    },
+    [handleIdleNoteOff, triggerSynthAttack, handleKeyboardNoteOn],
+  );
+
   const onMidiNoteOn = useCallback(
     (e: MidiNoteEvent) => {
-      if (!isActive) return;
+      if (!isActive) {
+        handleIdleNoteOn(e);
+        return;
+      }
       handleMidiNoteOn(e);
     },
-    [handleMidiNoteOn, isActive],
+    [handleMidiNoteOn, handleIdleNoteOn, isActive],
   );
 
   const onMidiNoteOff = useCallback(
     (e: MidiNoteEvent) => {
-      if (!isActive) return;
+      if (!isActive) {
+        handleIdleNoteOff(e);
+        return;
+      }
       handleMidiNoteOff(e);
     },
-    [handleMidiNoteOff, isActive],
+    [handleMidiNoteOff, handleIdleNoteOff, isActive],
   );
 
   const { subscribeNoteOn, subscribeNoteOff } = useLearnInputStable();
 
   useEffect(() => {
-    if (!isActive) return;
     const unsubOn = subscribeNoteOn(onMidiNoteOn);
     const unsubOff = subscribeNoteOff(onMidiNoteOff);
     return () => {
       unsubOn();
       unsubOff();
     };
-  }, [
-    isActive,
-    subscribeNoteOn,
-    subscribeNoteOff,
-    onMidiNoteOn,
-    onMidiNoteOff,
-  ]);
+  }, [subscribeNoteOn, subscribeNoteOff, onMidiNoteOn, onMidiNoteOff]);
 
   const noteHoldMeta = useMemo(() => {
     const meta: Record<string, NoteHoldMeta> = {};
@@ -465,14 +503,23 @@ export const NoteHold = ({
     <div className="flex flex-col gap-4">
       <div className="relative">
         <div
-          className="glass-panel rounded-xl p-4 transition duration-300"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid var(--color-border)',
-          }}
+          className={
+            bare
+              ? undefined
+              : 'glass-panel rounded-xl p-4 transition duration-300'
+          }
+          style={
+            bare
+              ? undefined
+              : {
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid var(--color-border)',
+                }
+          }
         >
           <div ref={setViewEl}>
             <GenrePianoRoll
+              showViewToggle={!bare}
               activeMidis={activeMidis}
               bars={requiredBars}
               beatsPerBar={4}
@@ -502,11 +549,12 @@ export const NoteHold = ({
                 activeBlackKeyColor={activityColor}
                 activeWhiteKeyColor={activityColor}
                 hintNotes={showTargetKeys ? nextTargetKeys : undefined}
-                playingNotes={keyboardPlayingNotes}
+                playingNotes={previewNotes}
+                playedKeys={playedKeys}
                 targetMidis={targetMidiSet}
               />
             </div>
-            <LessonVolumeDial />
+            {!bare && <LessonVolumeDial />}
           </div>
         </div>
       </div>

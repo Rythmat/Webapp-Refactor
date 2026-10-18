@@ -369,6 +369,7 @@ const STORE_SPECS = {
   libraryFavourites: pref('view', () => []),
   dockHeights: pref('view', () => ({})),
   readoutMode: pref('view', 'bars'),
+  hoverHints: pref('view', true),
   activeTool: session('view', 'cursor', 'project'),
   selectedClipId: session('view', null, 'project'),
   selectedClipTrackId: session('view', null, 'project'),
@@ -442,6 +443,8 @@ const STORE_SPECS = {
   dockMaster: session('ui', false, 'project'),
   dockMaximized: session('ui', false, 'project'),
   dockNoteSelection: session('ui', null, 'project'),
+  mixRack: session('ui', null, 'project'),
+  muteAllSet: session('ui', null, 'project'),
 
   // ── collab ──
   isCollabActive: session('collab', false, 'page'),

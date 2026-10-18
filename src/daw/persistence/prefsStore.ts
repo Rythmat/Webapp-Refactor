@@ -95,6 +95,7 @@ const IS_VALID: {
   libraryFavourites: isLibraryFavourites,
   dockHeights: isDockHeights,
   readoutMode: isReadoutMode,
+  hoverHints: isBoolean,
 };
 
 /**

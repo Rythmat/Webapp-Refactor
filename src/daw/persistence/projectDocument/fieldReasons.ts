@@ -141,6 +141,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
     'The items the student marked ♡ in the Library: their own on every project, kept per user by prefsStore (milestone 2.14).',
   dockHeights: LAYOUT,
   readoutMode: LAYOUT,
+  hoverHints:
+    'Whether the bottom rail says what the control under the pointer does: the student’s own choice on every project, kept per user by prefsStore (milestone 2.11).',
   activeTool: 'The editing tool: every project opens with the cursor.',
   selectedClipId: SELECTION,
   selectedClipTrackId: SELECTION,
@@ -226,6 +228,10 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   dockMaster:
     'Master shown in the dock’s slot: a moment of this session; a project opens with its tracks (milestone 2.9).',
   dockNoteSelection: SELECTION,
+  mixRack:
+    'The rack the Mix view’s RackDock shows (milestone 2.10): every project opens with it shut.',
+  muteAllSet:
+    'The tracks Mute All muted, for its second press (milestone 2.10); the mutes themselves are the tracks’ own fields.',
   dockMaximized:
     'The dock grown over the canvas for a moment; a project opens with the canvas showing (milestone 2.9).',
 

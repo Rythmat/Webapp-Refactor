@@ -744,6 +744,7 @@ describe('decision D5', () => {
         'libraryFavourites',
         'dockHeights',
         'readoutMode',
+        'hoverHints',
         'inputDeviceId',
         'inputChannelCountOverride',
       ].sort(),

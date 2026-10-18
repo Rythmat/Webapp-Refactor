@@ -63,6 +63,7 @@ const CHOSEN = {
   ] as string[],
   dockHeights: { fx: 0.5, 'piano-roll': 0.6 },
   readoutMode: 'time',
+  hoverHints: false,
 } as const;
 
 const DEFAULTS = Object.fromEntries(

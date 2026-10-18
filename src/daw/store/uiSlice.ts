@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
 import type { MidiClip, AudioClip } from './tracksSlice';
 import type { EffectSlotType } from '@/daw/audio/EffectChain';
+import type { RackTarget } from './effectRack';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import { clampZoom, fitZoom, zoomAround } from '@/daw/editor/zoom';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
@@ -298,6 +299,25 @@ export interface UiSlice {
   /** Notes picked in the dock's piano roll, which Analyze sends to Insight. */
   dockNoteSelection: ClipNoteSelection | null;
   setDockNoteSelection: (selection: ClipNoteSelection | null) => void;
+
+  // ── The Mix view (milestone 2.10) ──
+  /**
+   * The rack the Mix view's RackDock shows: a track's chain, a return's or
+   * the master's (null: the rack is shut to its bar). The side rail's
+   * Effects library adds to it while Mix shows. Its shown effect is
+   * dockEffect, as in Create's dock: the two never show at once.
+   */
+  mixRack: RackTarget | null;
+  setMixRack: (rack: RackTarget | null) => void;
+  /**
+   * The tracks Mute All muted, so pressing it again unmutes those and no
+   * others (null: Mute All isn't on).
+   */
+  muteAllSet: string[] | null;
+  setMuteAllSet: (ids: string[] | null) => void;
+  /** Per-user: the bottom rail says what the control under the pointer does. */
+  hoverHints: boolean;
+  setHoverHints: (on: boolean) => void;
 
   // ── Clip color mode ──
   clipColorMode: 'track' | 'prism';
@@ -614,6 +634,14 @@ export const createUiSlice: StateCreator<
   setDockMaximized: (on) => set({ dockMaximized: on }),
   dockNoteSelection: null,
   setDockNoteSelection: (selection) => set({ dockNoteSelection: selection }),
+
+  // ── The Mix view ──
+  mixRack: null,
+  setMixRack: (rack) => set({ mixRack: rack }),
+  muteAllSet: null,
+  setMuteAllSet: (ids) => set({ muteAllSet: ids }),
+  hoverHints: true,
+  setHoverHints: (on) => set({ hoverHints: on }),
 
   // ── Clip color mode ──
   clipColorMode: 'track',

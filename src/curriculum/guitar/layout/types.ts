@@ -80,7 +80,7 @@ export interface NavStep {
 
 /**
  * A button on a step list group's header, beside its name (Music
- * Literacy's "Create your own ▸", once the module is passed).
+ * Literacy's "Create Your Own ▸", once the module is passed).
  */
 export interface NavGroupAction {
   label: string;

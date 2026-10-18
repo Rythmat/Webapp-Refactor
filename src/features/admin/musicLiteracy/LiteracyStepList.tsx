@@ -448,7 +448,7 @@ const StepRow: FC<{
             {n}
           </span>
           <span className="min-w-0 flex-1 truncate text-sm text-white/85">
-            {step.title || 'Untitled step'}
+            {step.title || 'Untitled Step'}
           </span>
           {choice !== 'melody' && (
             <ConsoleBadge tone="neutral" className="shrink-0">
@@ -521,7 +521,7 @@ const StepRow: FC<{
       </div>
       {open && warning && (
         <div className="px-4 pb-3">
-          <ConsoleCallout tone="warning" title="Chosen once, in the gate">
+          <ConsoleCallout tone="warning" title="Chosen Once, in the Gate">
             <p data-choose-warning>{warning}</p>
             {onIntoGate && (
               <Button

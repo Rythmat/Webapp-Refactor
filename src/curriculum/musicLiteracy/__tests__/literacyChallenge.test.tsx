@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
  * Part 1's challenge round, as a student meets it: never after a step's
- * result, but once Part 1 is done ("Part 1 done! Want a challenge just for
+ * result, but once Part 1 is done ("Part 1 Done! Want a challenge just for
  * fun? Go again and play ALL the notes!"), a second time through its
  * steps, each the same run with PLAY ALONG over the teacher's turn, every
  * note graded, each segment's score, and its own best, kept apart from
@@ -154,7 +154,7 @@ async function passTheEcho() {
 async function intoTheRound() {
   passTheRest();
   await passTheEcho();
-  await press(/Play ALL the notes/);
+  await press(/Play ALL the Notes/);
   expect(title()).toBe(step.title);
 }
 
@@ -173,7 +173,7 @@ describe('the challenge round', () => {
     expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
     expect(document.querySelector('[data-literacy-offer]')).toBeNull();
     expect(document.querySelector('[data-literacy-passes]')).toBeNull();
-    expect(screen.queryByRole('button', { name: /Play ALL the notes/ })).toBe(
+    expect(screen.queryByRole('button', { name: /Play ALL the Notes/ })).toBe(
       null,
     );
     expect(primary()).toBe('Next');
@@ -184,14 +184,14 @@ describe('the challenge round', () => {
     await passTheEcho();
     const card = document.querySelector('[data-literacy-module-done]')!;
     expect(card.getAttribute('data-round')).toBe('challenge');
-    expect(screen.getByRole('heading', { name: 'Part 1 done!' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Part 1 Done!' })).toBeTruthy();
     expect(
       card.querySelector('[data-literacy-offer="challenge"]')?.textContent,
     ).toBe('Want a challenge just for fun? Go again and play ALL the notes!');
     expect(card.textContent).toContain('A note called C · 100% · Passed');
-    expect(card.textContent).toContain('Challenge round: 7 steps');
+    expect(card.textContent).toContain('Challenge Round: 7 steps');
     // The round first; Finish beside it, back to the path.
-    expect(primary()).toContain('Play ALL the notes');
+    expect(primary()).toContain('Play ALL the Notes');
     expect(screen.getByRole('button', { name: 'Finish' })).toBeTruthy();
   });
 
@@ -199,7 +199,7 @@ describe('the challenge round', () => {
     await intoTheRound();
     const banner = document.querySelector('[data-literacy-round-banner]')!;
     expect(banner.getAttribute('data-literacy-round-banner')).toBe('challenge');
-    expect(banner.textContent).toContain('Challenge round');
+    expect(banner.textContent).toContain('Challenge Round');
     expect(banner.textContent).toContain('Play ALL the notes!');
     expect(counter()).toBe('Step 1 of 7');
     expect(
@@ -212,7 +212,7 @@ describe('the challenge round', () => {
     });
     const list = document.querySelector('[data-guitar-step-list]')!;
     expect([...list.querySelectorAll('h3')].map((h) => h.textContent)).toEqual([
-      'Challenge round',
+      'Challenge Round',
     ]);
     expect(list.querySelectorAll('li')).toHaveLength(7);
     expect(document.querySelector('[data-group-action]')).toBeNull();
@@ -334,7 +334,7 @@ describe('the challenge round', () => {
     feedTo(13440);
     expect(screen.getByRole('button', { name: 'Finish' })).toBeTruthy();
     // Leave the round: the same step, as its echo, in the whole lesson.
-    await press(/Leave round/);
+    await press(/Leave Round/);
     expect(document.querySelector('[data-literacy-round-banner]')).toBeNull();
     expect(counter()).toMatch(/^Step 7 of 7/);
     expect(screen.getByRole('button', { name: 'Practice' })).toBeTruthy();
@@ -364,7 +364,7 @@ describe('the challenge round', () => {
     await act(async () => {
       fireEvent.click(
         screen.getByRole('button', {
-          name: `Play ALL the notes: ${lesson.name}`,
+          name: `Play ALL the Notes: ${lesson.name}`,
         }),
       );
     });

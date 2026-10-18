@@ -15,7 +15,7 @@
   "steps": [
     {
       "tag": "note-called-c",
-      "title": "A note called C",
+      "title": "A Note Called C",
       "direction": "Listen, then play C C C back in time.",
       "words": {
         "bars": 4,
@@ -117,7 +117,7 @@
     },
     {
       "tag": "root-is-1",
-      "title": "The root is 1",
+      "title": "The Root Is 1",
       "direction": "In a key, the root is 1. Play 1 1 1 back.",
       "words": {
         "bars": 2,
@@ -311,7 +311,7 @@
     },
     {
       "tag": "go-to-5",
-      "title": "Go to 5: musical gravity",
+      "title": "Go to 5: Musical Gravity",
       "direction": "5 pulls back home to 1. Play 1 5 1 back.",
       "words": {
         "bars": 2,

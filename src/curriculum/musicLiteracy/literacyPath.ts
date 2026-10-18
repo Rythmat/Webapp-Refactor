@@ -60,14 +60,14 @@ export interface LiteracyPathStop {
 export const LITERACY_PATH: readonly LiteracyPathStop[] = [
   {
     id: 'call-and-response',
-    title: 'Part 1 · Call and response',
+    title: 'Part 1 · Call and Response',
     module: 'Learn',
     live: true,
     lessonId: 'music-literacy-part-1',
   },
   {
     id: 'choose-a-color',
-    title: 'Part 2 · Choose a color',
+    title: 'Part 2 · Choose a Color',
     module: 'Learn',
     description: 'Melodies and chord progressions in a key you pick.',
     live: true,
@@ -75,7 +75,7 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
   },
   {
     id: 'hear-it-with-your-band',
-    title: 'Hear it with your band',
+    title: 'Hear It with Your Band',
     module: 'Studio',
     place: 'Practice',
     description: 'Your chord progression, played by a Band.',
@@ -83,7 +83,7 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
   },
   {
     id: 'studio-basics',
-    title: 'Studio basics',
+    title: 'Studio Basics',
     module: 'Studio',
     description: 'Nine guided tutorials around the Studio.',
     live: false,

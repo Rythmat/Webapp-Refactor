@@ -51,8 +51,10 @@ describe('a melody in the student’s key', () => {
     const triad = part2Step('one-three-five');
     const major = stepNotes(lesson, triad, inKey('C', 'major'));
     expect(major.call.map((n) => n.midi)).toEqual([60, 64, 67]);
+    // In the treble staff: A4, C5 and E5, not A3 below it.
     const minor = stepNotes(lesson, triad, inKey('A', 'minor'));
-    expect(minor.call.map((n) => n.midi)).toEqual([57, 60, 64]);
+    expect(minor.call.map((n) => n.midi)).toEqual([69, 72, 76]);
+    expect(minor.tonic).toBe(69);
     expect(minor.call.map((n) => n.degree)).toEqual(['1', 'b3', '5']);
     expect(minor.key).toEqual({ tonic: 'A', mode: 'minor' });
     // No choices yet: the lesson's key, C major.
@@ -63,12 +65,17 @@ describe('a melody in the student’s key', () => {
 
   it('puts the 7 neighbor below the 1, a ♭7 in minor', () => {
     const neighbor = part2Step('one-seven-one');
+    // B3 is under middle C, so the whole figure goes up to C5: B4 in it.
     expect(
       stepNotes(lesson, neighbor, inKey('C', 'major')).call.map((n) => n.midi),
-    ).toEqual([60, 59, 60]);
+    ).toEqual([72, 71, 72]);
     expect(
       stepNotes(lesson, neighbor, inKey('C', 'minor')).call.map((n) => n.midi),
-    ).toEqual([60, 58, 60]);
+    ).toEqual([72, 70, 72]);
+    // In E♭ its 7 is D4, in the staff already.
+    expect(
+      stepNotes(lesson, neighbor, inKey('Eb', 'major')).call.map((n) => n.midi),
+    ).toEqual([63, 62, 63]);
   });
 
   it('comes straight in after the count-in when it has no words', () => {
@@ -88,7 +95,7 @@ describe('a melody in the student’s key', () => {
       cues.flatMap((c) =>
         c.kind === 'note' && c.segment === 'call' ? [c.midi] : [],
       ),
-    ).toEqual([57, 60, 64]);
+    ).toEqual([69, 72, 76]);
     expect(cues.some((c) => c.kind === 'beat' && c.phase === 'words')).toBe(
       false,
     );

@@ -47,10 +47,10 @@ function progressOf(
 describe('the Music Literacy path', () => {
   it('runs Part 1, Part 2, the band, Studio basics, then Echo', () => {
     expect(LITERACY_PATH.map((s) => [s.title, s.module, s.live])).toEqual([
-      ['Part 1 · Call and response', 'Learn', true],
-      ['Part 2 · Choose a color', 'Learn', true],
-      ['Hear it with your band', 'Studio', false],
-      ['Studio basics', 'Studio', false],
+      ['Part 1 · Call and Response', 'Learn', true],
+      ['Part 2 · Choose a Color', 'Learn', true],
+      ['Hear It with Your Band', 'Studio', false],
+      ['Studio Basics', 'Studio', false],
       ['Echo', 'Arcade', false],
     ]);
     expect(part1.lessonId).toBe('music-literacy-part-1');
@@ -285,7 +285,7 @@ describe('the Part 2 seed on the path', () => {
   it('counts its four modules’ create rounds, the gate not among them', () => {
     const state = literacyStopState(LITERACY_PATH[1], seed, {});
     expect(state.rounds).toEqual({ done: 0, total: 4, kind: 'create' });
-    expect(state.next).toEqual({ index: 0, title: 'Choose your key' });
+    expect(state.next).toEqual({ index: 0, title: 'Choose Your Key' });
     expect(state.steps).toHaveLength(seed.steps.length);
   });
 });
@@ -333,7 +333,7 @@ describe('where a student stands', () => {
     );
     const { current, upNext } = currentStop(states);
     expect(current?.status).toBe('done');
-    expect(upNext?.stop.title).toBe('Part 2 · Choose a color');
+    expect(upNext?.stop.title).toBe('Part 2 · Choose a Color');
     expect(upNext?.status).toBe('soon');
   });
 

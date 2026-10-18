@@ -62,7 +62,7 @@ export const AdminMusicLiteracyPage = () => {
         </ConsoleCallout>
       )}
       {error && (
-        <ConsoleCallout tone="danger" title="Couldn’t make the lesson">
+        <ConsoleCallout tone="danger" title="Couldn’t Make the Lesson">
           {error}
         </ConsoleCallout>
       )}

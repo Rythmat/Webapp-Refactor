@@ -50,7 +50,7 @@ export function LiteracyGrooveSettings({
 
   return (
     <SettingsSection
-      label="Play along"
+      label="Play Along"
       className="mb-5 border-b border-white/[0.08] pb-5"
     >
       <SettingsRow

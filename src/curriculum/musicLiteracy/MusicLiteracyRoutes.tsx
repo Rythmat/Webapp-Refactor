@@ -45,7 +45,7 @@ export const MusicLiteracyIndexRoute = () => {
     <div className="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-6 pb-8 pt-6 text-[#e8e8f0]">
       <p className="text-xs uppercase tracking-[0.14em] text-white/45">
         <Link to={startHereRoute()} className="hover:text-[#e8e8f0]">
-          Start here
+          Start Here
         </Link>
       </p>
       <h1 className="text-2xl font-normal leading-8">Music Literacy</h1>
@@ -91,7 +91,7 @@ export const MusicLiteracyLessonRoute = () => {
     return (
       <div className="mx-auto flex w-full max-w-[880px] flex-col gap-3 px-6 pt-6 text-[#e8e8f0]">
         <h1 className="text-2xl font-normal leading-8">
-          This lesson isn’t here
+          This Lesson Isn’t Here
         </h1>
         <p className="text-[15px] text-white/55">
           It may not be published yet.{' '}

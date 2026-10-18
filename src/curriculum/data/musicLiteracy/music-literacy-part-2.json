@@ -45,20 +45,20 @@
       "kind": "chooseKey",
       "tag": "choose-your-key",
       "section": "Choose a Color",
-      "title": "Choose your key",
+      "title": "Choose Your Key",
       "direction": "Pick a color on the circle. Its note is your 1."
     },
     {
       "kind": "chooseMode",
       "tag": "choose-major-or-minor",
       "section": "Choose a Color",
-      "title": "Major or minor?",
+      "title": "Major or Minor?",
       "direction": "Pick one. It sets your 3."
     },
     {
       "tag": "rhythm-on-1",
       "section": "Create a Melody",
-      "title": "A rhythm on the 1",
+      "title": "A Rhythm on the 1",
       "direction": "Listen, then play it back.",
       "call": {
         "bars": 1,
@@ -110,7 +110,7 @@
     {
       "tag": "rhythm-on-1-3",
       "section": "Create a Melody",
-      "title": "A rhythm on 1 and 3",
+      "title": "A Rhythm on 1 and 3",
       "direction": "Listen, then play it back.",
       "call": {
         "bars": 1,
@@ -177,7 +177,7 @@
     {
       "tag": "rhythm-on-1-3-5",
       "section": "Create a Melody",
-      "title": "A rhythm on 1-3-5",
+      "title": "A Rhythm on 1-3-5",
       "direction": "Listen, then play it back.",
       "call": {
         "bars": 2,
@@ -998,7 +998,7 @@
     {
       "tag": "the-1-chord",
       "section": "Chords",
-      "title": "The 1 chord",
+      "title": "The 1 Chord",
       "direction": "Play the 1 chord in this rhythm: short, short, long.",
       "call": {
         "chords": ["1", "1"],
@@ -1056,7 +1056,7 @@
       "kind": "chooseChords",
       "tag": "choose-1-x-x-x",
       "section": "Progressions",
-      "title": "Add a 3rd chord: | 1 | X | X | X |",
+      "title": "Add a 3rd Chord: | 1 | X | X | X |",
       "direction": "Fill the X bars with two different chords.",
       "template": ["1", "X", "X", "X"],
       "distinct": 2,
@@ -1144,7 +1144,7 @@
       "kind": "chooseChords",
       "tag": "choose-x-x-x-x",
       "section": "Progressions",
-      "title": "Add a 4th chord: | X | X | X | X |",
+      "title": "Add a 4th Chord: | X | X | X | X |",
       "direction": "Four different chords.",
       "template": ["X", "X", "X", "X"],
       "distinct": 4,
@@ -1166,14 +1166,14 @@
       "kind": "replay",
       "tag": "your-progression-with-7ths",
       "section": "7th Chords",
-      "title": "Your progression, now with 7ths",
+      "title": "Your Progression, Now with 7ths",
       "direction": "Hear your four chords, then the same chords with their 7ths.",
       "progression": "four-chords"
     },
     {
       "tag": "the-1-chord-7ths",
       "section": "7th Chords",
-      "title": "The 1 chord with its 7th",
+      "title": "The 1 Chord with Its 7th",
       "direction": "Play the 1 chord in this rhythm: short, short, long.",
       "call": {
         "chords": ["1", "1"],
@@ -1231,7 +1231,7 @@
       "kind": "chooseChords",
       "tag": "choose-1-x-x-x-7ths",
       "section": "7th Chords",
-      "title": "Add a 3rd chord: | 1 | X | X | X |",
+      "title": "Add a 3rd Chord: | 1 | X | X | X |",
       "direction": "Fill the X bars with two different chords.",
       "template": ["1", "X", "X", "X"],
       "distinct": 2,
@@ -1319,7 +1319,7 @@
       "kind": "chooseChords",
       "tag": "choose-x-x-x-x-7ths",
       "section": "7th Chords",
-      "title": "Add a 4th chord: | X | X | X | X |",
+      "title": "Add a 4th Chord: | X | X | X | X |",
       "direction": "Four different chords.",
       "template": ["X", "X", "X", "X"],
       "distinct": 4,

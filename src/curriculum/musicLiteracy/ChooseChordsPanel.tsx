@@ -5,6 +5,7 @@ import type {
   LiteracyChooseChordsStep,
   LiteracyScaleDegree,
 } from '@/content/musicLiteracy/schemas';
+import { titleCase } from '@/content/musicLiteracy/titleCase';
 import {
   circleOfFifths,
   pickProgression,
@@ -79,7 +80,9 @@ const same = (a: readonly unknown[], b: readonly unknown[]) =>
 export const chooserHeading = (
   step: Pick<LiteracyChooseChordsStep, 'distinct'>,
 ) =>
-  step.distinct === 1 ? 'Choose a Chord' : `Choose ${step.distinct} Chords`;
+  titleCase(
+    step.distinct === 1 ? 'Choose a chord' : `Choose ${step.distinct} chords`,
+  );
 
 export interface ChooseChordsPanelProps {
   step: LiteracyChooseChordsStep;
@@ -387,7 +390,7 @@ export function ChooseChordsPanel({
             className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-[15px] text-[#e8e8f0] transition-colors hover:bg-white/[0.08] disabled:opacity-40 disabled:hover:bg-white/[0.04]"
           >
             <Headphones className="size-4" />
-            Hear it
+            Hear It
           </button>
           <button
             type="button"
@@ -402,9 +405,9 @@ export function ChooseChordsPanel({
                 Saved
               </>
             ) : one ? (
-              'Save my chord'
+              'Save My Chord'
             ) : (
-              'Save my chords'
+              'Save My Chords'
             )}
           </button>
           {picks.some(Boolean) && (
@@ -417,7 +420,7 @@ export function ChooseChordsPanel({
               className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm text-white/55 transition-colors hover:text-[#e8e8f0]"
             >
               <RotateCcw className="size-4" />
-              Start over
+              Start Over
             </button>
           )}
         </div>

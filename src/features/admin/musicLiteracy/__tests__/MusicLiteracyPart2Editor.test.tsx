@@ -162,7 +162,7 @@ describe('Add step', () => {
       screen.getByRole('button', { name: 'Add a step to Create a Melody' }),
     );
     fireEvent.click(
-      screen.getByRole('menuitem', { name: /Call and response \(chords\)/ }),
+      screen.getByRole('menuitem', { name: /Call and Response \(Chords\)/ }),
     );
     // In after 1-7-1, and in its section.
     const group = document.querySelector('[data-section="Create a Melody"]')!;
@@ -176,13 +176,13 @@ describe('Add step', () => {
       steps: LITERACY_FIXTURE.steps.slice(0, 1),
     } as MusicLiteracyLesson);
     fireEvent.click(screen.getByRole('button', { name: 'Add step' }));
-    const key = screen.getByRole('menuitem', { name: /Choose a key/ });
+    const key = screen.getByRole('menuitem', { name: /Choose a Key/ });
     expect((key as HTMLButtonElement).disabled).toBe(true);
     expect(key.textContent).toMatch(/set “Who picks the key” to Student/);
     expect(
       (
         screen.getByRole('menuitem', {
-          name: /Choose a chord/,
+          name: /Choose a Chord/,
         }) as HTMLButtonElement
       ).disabled,
     ).toBe(false);

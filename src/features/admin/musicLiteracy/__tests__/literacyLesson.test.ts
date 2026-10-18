@@ -216,7 +216,8 @@ describe('the steps', () => {
   it('copies a step right after it, under a new unique tag', () => {
     const once = duplicateStep(PART_1, 0);
     expect(once.steps).toHaveLength(PART_1.steps.length + 1);
-    expect(once.steps[1].title).toBe('A note called C (copy)');
+    // The title as typed, marked a copy in Title Case.
+    expect(once.steps[1].title).toBe('A note called C (Copy)');
     expect(once.steps[1].tag).toBe('a-note-called-c-copy');
     expect(part1(once.steps[1]).words).toEqual(PART_1.steps[0].words);
     expect(part1(once.steps[1]).words).not.toBe(PART_1.steps[0].words);
@@ -402,7 +403,7 @@ describe('a step of each kind (Add step’s menu)', () => {
     const at = addStepOfChoice(PART2_FIXTURE, 'chords', 2, 'Choose a Color');
     expect(at.steps[2]).toMatchObject({
       section: 'Choose a Color',
-      title: 'Play the chords',
+      title: 'Play the Chords',
       call: { chords: ['1', '1'], rhythm: [480, 480, 960], harmony: 'triads' },
     });
     expect(at.steps).toHaveLength(PART2_FIXTURE.steps.length + 1);

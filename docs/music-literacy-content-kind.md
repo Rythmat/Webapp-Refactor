@@ -182,7 +182,7 @@ author makes one by putting the choose steps, alone, first. Without one
 (no sections, as Part 1; a first section with any other step in it) the
 lesson has none and reads as it always has.
 
-- **Not a module.** No goal, no round, no "Module done!" card, and no
+- **Not a module.** No goal, no round, no "Module Done!" card, and no
   entry in `modules` (one is refused, below). The player's intro and
   Start Here count the modules after it.
 - **Chosen once.** Every step after the gate needs the key and the mode,
@@ -193,9 +193,33 @@ lesson has none and reads as it always has.
   allowed, but the editor warns that it asks again and offers to move it
   in (Part 2's seed has none).
 
-The register stays the series': the 1 sits F♯3–F4, melodies run from the
-low 5 to the 5 above, and chords are voiced in root position with every
-root in D3–C♯4 (MIDI 50–61).
+### The register
+
+The owner: "For melodies, we should be entirely in the treble clef staff
+as much as possible ... Just middle C as the lowest note ideally."
+
+- **A melody sits in the treble staff** (`register.ts`, `placeMelody`). A
+  step's words, call and response (and so its create pass's notes) are
+  placed together, so a step never jumps an octave within itself: the 1
+  goes in the lowest octave where every note is in C4–A5 (MIDI 60–81). If
+  none fits, the octave needing the fewest ledger lines wins, then the one
+  nearest the staff's middle line (B4), then the lower.
+- **Ledger lines** are counted by where each note is written on the treble
+  staff, spelled the key's way (a degree's letter is the 1's letter plus
+  the degree, so D♭'s 1 is a D): D4 and G5 need none; C4, B3, A5 and B5
+  one; A3, G3, C6 and D6 two; and so on. A placement needs its lowest
+  note's lines below the staff plus its highest note's above.
+- Part 1, in C, does not move: its 1 is middle C, its lowest note. In Part
+  2 every melodic step fits C4–A5 in all 24 keys; the only ledger line
+  left is middle C's (C4 or C♯4).
+- **Chords keep the series' register**: voiced in root position with every
+  root in D3–C♯4 (MIDI 50–61), around a 1 in F♯3–F4 (`pitch.ts`
+  `tonicMidi`).
+- The player's keyboard shows two octaves where the step is: C4–C6 for a
+  melody (and the choose steps, whose key is heard as 1, 3 and 5 in the
+  treble staff), C3–C5 for chords, widened for a note past them. The staff
+  writes melodies in the treble clef. The console's Play step and its piano
+  roll open a step where the player plays it.
 
 ### Numbering
 
@@ -227,7 +251,7 @@ and `tempo` (the tempo whatever it plays runs at).
   "kind": "chooseKey",
   "tag": "choose-your-key",
   "section": "Choose a Color",
-  "title": "Choose your key",
+  "title": "Choose Your Key",
   "direction": "Pick a color on the circle. Its note is your 1."
 }
 ```
@@ -237,7 +261,7 @@ and `tempo` (the tempo whatever it plays runs at).
   "kind": "chooseMode",
   "tag": "choose-major-or-minor",
   "section": "Choose a Color",
-  "title": "Major or minor?",
+  "title": "Major or Minor?",
   "direction": "Pick one. It sets your 3."
 }
 ```
@@ -264,7 +288,7 @@ the X is plainly the student's choice, so no title says "your X".
   "kind": "chooseChords",
   "tag": "choose-1-x-x-x",
   "section": "Progressions",
-  "title": "Add a 3rd chord: | 1 | X | X | X |",
+  "title": "Add a 3rd Chord: | 1 | X | X | X |",
   "direction": "Fill the X bars with two different chords.",
   "template": ["1", "X", "X", "X"],
   "distinct": 2,
@@ -278,7 +302,7 @@ the X is plainly the student's choice, so no title says "your X".
   "kind": "replay",
   "tag": "your-progression-with-7ths",
   "section": "7th Chords",
-  "title": "Your progression, now with 7ths",
+  "title": "Your Progression, Now with 7ths",
   "progression": "four-chords"
 }
 ```
@@ -324,7 +348,7 @@ taking its X from one:
 {
   "tag": "the-1-chord",
   "section": "Chords",
-  "title": "The 1 chord",
+  "title": "The 1 Chord",
   "direction": "Play the 1 chord in this rhythm: short, short, long.",
   "call": {
     "chords": ["1", "1"],
@@ -468,8 +492,8 @@ create a melody, a chord comping rhythm, or a chord progression with a
 rhythm, and play it the same way twice." A lesson without one (Part 1)
 shows none.
 
-Part 2's seed opens on the gate, "Choose a Color" (Choose your key, then
-Major or minor?), then its four modules: Create a Melody (22 steps, from
+Part 2's seed opens on the gate, "Choose a Color" (Choose Your Key, then
+Major or Minor?), then its four modules: Create a Melody (22 steps, from
 the rhythm on the 1, 1-3-1, the rhythm on 1 and 3, Add the 5: 1-3-5 and
 the rhythm on 1-3-5, then up 1-2-3 onward), Chords (4), Progressions (11)
 and 7th Chords (16), 55 steps in all. Its `modules`:
@@ -502,7 +526,7 @@ and 7th Chords (16), 55 steps in all. Its `modules`:
 
 **In the player** (`src/curriculum/musicLiteracy/`):
 
-- Part 2 opens on the lesson's goal, a card before Choose your key, with
+- Part 2 opens on the lesson's goal, a card before Choose Your Key, with
   its modules in order, the gate not among them: on a student's first
   visit only (no progress saved yet; not when Start Here's Continue opens
   a step). A second run goes straight in. About this step says the goal
@@ -512,9 +536,9 @@ and 7th Chords (16), 55 steps in all. Its `modules`:
   card follows it: its Next goes on to Create a Melody's first step.
 - Every step is played as its echo; no step offers more after its result.
 - Passing a module's last echo (once the rest is passed) shows the
-  module's card in the result's place: "Module done! Now go again and
-  create your own." with its goal, Create your own, and Next module. Part
-  1's: "Part 1 done! Want a challenge just for fun? Go again and play ALL
+  module's card in the result's place: "Module Done! Now go again and
+  create your own." with its goal, Create Your Own, and Next Module. Part
+  1's: "Part 1 Done! Want a challenge just for fun? Go again and play ALL
   the notes!" A module with no round to play shows no card.
 - The round goes through the module's round steps again, from the first
   not yet passed, under a banner naming the round, the module and its
@@ -522,7 +546,7 @@ and 7th Chords (16), 55 steps in all. Its `modules`:
   last step goes on to the next module (or, the lesson's last, back to the
   path). Leave round goes back to the step as its echo.
 - Once a module is passed, its header in the step list offers its round
-  ("Create your own ›", ✓ once every round step has passed).
+  ("Create Your Own ›", ✓ once every round step has passed).
 - Start Here and the Home card still count the steps (their echoes), and
   mark the rounds done: "1 of 4 create rounds", "Challenge done". A
   replay not heard holds nothing up: the stop is done without it ("Done:
@@ -596,6 +620,7 @@ the gate, where students choose: it has no goal or round`.
 | What                                                | Where (`src/curriculum/engine/musicLiteracy/`) |
 | --------------------------------------------------- | ---------------------------------------------- |
 | Pitches, modal numbering                            | `pitch.ts` (re-exported by `literacy.ts`)      |
+| A melody in the treble staff, ledger lines          | `register.ts`                                  |
 | Timelines, notes, chord figures, replays, sections  | `literacy.ts`                                  |
 | Chords, palette, voicing, progressions              | `chords.ts`                                    |
 | The student's choices                               | `choices.ts`                                   |
@@ -618,8 +643,24 @@ The mock's is in `src/features/admin/content/mock/mockKinds.ts`
 (`templateFor`, from `src/content/musicLiteracy/template.ts`): a draft in C
 major at 80 with a one-bar count-in, and one step whose line is four quarter
 notes on the 1 and whose call is three, with an empty name to fill in. The
-editor's Add step makes the other kinds from the same file: a choose-chords
-step, "Choose a Chord", is told "Pick a chord." on `| 1 | X |`.
+editor's Add step makes the other kinds from the same file: a choose-key
+step, "Choose Your Key", is told "Pick a color on the circle. Its note is
+your 1."; a choose-mode step, "Major or Minor?", "Pick one. It sets your
+3."; a choose-chords step, "Choose a Chord", is told "Pick a chord." on
+`| 1 | X |`.
+
+### Titles
+
+The owner: "Titles in Title Case. Descriptions and directive text in body
+style." Every step title of both seeds is in Title Case ("A Note Called
+C", "The 1 Chord with Its 7th"), as are the player's and editor's headings,
+card and banner titles and buttons ("Choose Major or Minor", "Module
+Done!", "Create Your Own"). Directions, hints and goals stay in sentences.
+`src/content/musicLiteracy/titleCase.ts` cases the titles the app builds
+(a new step's, a heading made from a count): every word capitalized but a
+an the and but or nor for so yet at by in of on to up as with from (unless
+first, last or first after a colon), and the music as written ("1-2-3",
+"♭3", "7th", "4 maj"). A title the owner types is never rewritten.
 
 ## What the API needs
 

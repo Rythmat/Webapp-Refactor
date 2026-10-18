@@ -328,7 +328,7 @@ const LessonPane: FC<PaneProps> = ({
             </Link>
           </Button>
           <h1 className="truncate text-xl tracking-[-0.01em] text-white">
-            {draft.name || 'Untitled lesson'}
+            {draft.name || 'Untitled Lesson'}
           </h1>
           <ConsoleBadge tone={draft.status === 'live' ? 'success' : 'warning'}>
             {draft.status === 'live' ? 'Live' : 'Draft'}
@@ -376,14 +376,14 @@ const LessonPane: FC<PaneProps> = ({
       )}
       {notice && <ConsoleCallout tone="success">{notice}</ConsoleCallout>}
       {error && (
-        <ConsoleCallout tone="danger" title="Couldn’t save">
+        <ConsoleCallout tone="danger" title="Couldn’t Save">
           {error}
         </ConsoleCallout>
       )}
       {issues.length > 0 && (
         <ConsoleCallout
           tone="warning"
-          title={`${issues.length} thing${issues.length === 1 ? '' : 's'} to fix before saving`}
+          title={`${issues.length} Thing${issues.length === 1 ? '' : 's'} to Fix Before Saving`}
         >
           <ul className="list-disc pl-4">
             {issues.slice(0, 8).map((issue, i) => (

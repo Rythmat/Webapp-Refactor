@@ -13,6 +13,11 @@
  * bar line; a chord call places a chord a bar in its rhythm, voiced
  * (chords.ts), and a replay plays a saved progression once per harmony as
  * its call, with no response. The choose steps have nothing to lay out.
+ *
+ * A melody sits in the treble staff (register.ts `placeMelody`): a step's
+ * words, call and response are placed together, the 1 in the lowest octave
+ * that keeps every note in C4–A5. Chords keep the series' register, every
+ * root in D3–C♯4 (chords.ts).
  */
 
 import {
@@ -43,10 +48,10 @@ import { sampleProgression, voicedChord, type VoicedChord } from './chords';
 import {
   degreeOfMidi,
   modalDegree,
-  notePitch,
   tonicMidi,
   type LiteracyKey,
 } from './pitch';
+import { pitchFrom, placeMelody, type WrittenNote } from './register';
 
 export { LITERACY_TPQ };
 export {
@@ -63,6 +68,13 @@ export {
   writtenDegree,
   type LiteracyKey,
 } from './pitch';
+export {
+  MELODY_HIGHEST_MIDI,
+  MELODY_LOWEST_MIDI,
+  placeMelody,
+  type MelodyPlacement,
+  type WrittenNote,
+} from './register';
 
 export function barTicks(timeSignature: readonly [number, number]): number {
   const [beats, unit] = timeSignature;
@@ -358,10 +370,46 @@ export function chordNotes(
   return notes;
 }
 
+/**
+ * A step's melody as written: its words, call and response together (a
+ * chord call's words alone), the notes `placeMelody` places as one. None
+ * for a step that plays no melody.
+ */
+export function melodyOf(step: LiteracyStep): WrittenNote[] {
+  if (!isEchoStep(step)) return [];
+  const words = step.words?.notes ?? [];
+  if (isChordFigure(step.call)) return [...words];
+  return [...words, ...step.call.notes, ...(step.response?.notes ?? [])];
+}
+
+/**
+ * The MIDI of a step's 1, as its melody is placed: in the treble staff
+ * (register.ts), in the key it plays in (the student's, given `choices`,
+ * else the lesson's). A step with no melody keeps the series' 1, F♯3–F4,
+ * which its chords are voiced around.
+ */
+export function melodyTonic(
+  lesson: Pick<
+    MusicLiteracyLesson,
+    'key' | 'keyChoice' | 'steps' | 'numbering'
+  >,
+  step: LiteracyStep,
+  choices?: LiteracyChoices | null,
+): number {
+  const key = stepKey(lesson, step, choices);
+  const melody = melodyOf(step);
+  return melody.length
+    ? placeMelody(key, melody, lesson.numbering ?? 'chromatic').tonic
+    : tonicMidi(key.tonic);
+}
+
 /** A step's notes on its timeline, in the key it plays in. */
 export interface StepNotes {
   timeline: StepTimeline;
-  /** The 1's pitch. */
+  /**
+   * The 1's pitch: where the step's melody puts it (`melodyTonic`), or for
+   * a chord step the series' 1 its chords are voiced around.
+   */
   tonic: number;
   key: LiteracyKey;
   words: TimedNote[];
@@ -386,14 +434,20 @@ export function stepNotes(
 ): StepNotes {
   const timeline = stepTimeline(lesson, step);
   const key = stepKey(lesson, step, choices);
-  const tonic = tonicMidi(key.tonic);
   const numbering = lesson.numbering ?? 'chromatic';
+  // A chord call's words are placed on their own; its chords keep theirs.
+  const melodic = isEchoStep(step) && !isChordFigure(step.call);
+  const tonic = melodic
+    ? melodyTonic(lesson, step, choices)
+    : tonicMidi(key.tonic);
+  const wordsTonic = melodic ? tonic : melodyTonic(lesson, step, choices);
   const place = (
     notes: readonly (LiteracyNote | LiteracyWord)[],
     start: number,
+    one = tonic,
   ): TimedNote[] =>
     notes.map((note, index) => ({
-      midi: notePitch(note, key, numbering),
+      midi: pitchFrom(note, one, key, numbering),
       onset: start + note.tick,
       duration: note.duration,
       degree: modalDegree(note.degree, key.mode, numbering),
@@ -425,7 +479,11 @@ export function stepNotes(
   }
   if (!isEchoStep(step)) return { ...base, chords: null, sample: false };
 
-  const words = place(step.words?.notes ?? [], timeline.words.start);
+  const words = place(
+    step.words?.notes ?? [],
+    timeline.words.start,
+    wordsTonic,
+  );
   if (isChordFigure(step.call)) {
     const figure = resolveChordFigure(lesson, step.call, choices);
     const at = (start: number) =>

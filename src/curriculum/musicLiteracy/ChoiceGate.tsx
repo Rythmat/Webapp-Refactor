@@ -7,7 +7,8 @@ import {
 // ── First, choose ──────────────────────────────────────────────────────────
 // A Part 2 step that plays in the student's key, mode or chords waits until
 // they've chosen them (choices.ts missingChoices): one friendly line and a
-// link to the step that chooses (the gate's, for the key and the mode).
+// link to the step that chooses (the gate's, for the key and the mode). Its
+// heading and its button in Title Case, the line in a sentence.
 
 /** The circle's twelve colors, as a little wheel. */
 const WHEEL = `conic-gradient(from -15deg, ${circleOfFifths('major')
@@ -19,27 +20,27 @@ const COPY: Record<
   { heading: string; line: string; go: string }
 > = {
   key: {
-    heading: 'First, choose your color',
+    heading: 'First, Choose Your Key',
     line: 'This step plays in your key.',
-    go: 'Choose your color',
+    go: 'Choose Your Key',
   },
   mode: {
-    heading: 'First, choose major or minor',
+    heading: 'First, Choose Major or Minor',
     line: 'This step sounds different in each.',
-    go: 'Choose major or minor',
+    go: 'Choose Major or Minor',
   },
   progression: {
-    heading: 'First, choose the chords',
+    heading: 'First, Choose the Chords',
     line: 'This step plays the chords you pick.',
-    go: 'Choose the chords',
+    go: 'Choose the Chords',
   },
 };
 
 /** A progression of one chosen chord: "a chord", not "the chords". */
 const ONE_CHORD = {
-  heading: 'First, choose a chord',
+  heading: 'First, Choose a Chord',
   line: 'This step plays the chord you pick.',
-  go: 'Choose a chord',
+  go: 'Choose a Chord',
 };
 
 /**

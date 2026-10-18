@@ -12,6 +12,7 @@ import { usePartList } from '../parts/partFiles';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
 import {
   partFigure,
+  partTonic,
   partWords,
   PLACEHOLDER_SYLLABLE,
   SEGMENT_LABEL,
@@ -42,9 +43,12 @@ export const LiteracyRoll: FC<{
   const store = useInstrumentStore();
   const parts = usePartList();
   const id = `literacy-${lesson.id}-${step.tag}-${segment}`;
-  // Seeded once per step and segment: an edit here stays the roll's own.
+  // Seeded once per step and segment: an edit here stays the roll's own,
+  // and comes back from the 1 it went out from.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const part = useMemo(() => segmentPart(lesson, step, segment, id), [id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const tonic = useMemo(() => partTonic(lesson, step), [id]);
   const what = `step ${stepIndex + 1}’s ${SEGMENT_LABEL[segment].toLowerCase()}`;
   // Opened from a step far down the lesson: start at the roll's top.
   const top = useRef<HTMLDivElement>(null);
@@ -56,16 +60,16 @@ export const LiteracyRoll: FC<{
     let note = '';
     let next: LiteracyMelodicEchoStep;
     if (segment === 'words') {
-      const back = partWords(edited, lesson, wordsOf(step));
+      const back = partWords(edited, lesson, wordsOf(step), tonic);
       next = { ...step, words: back.words };
       if (back.added)
         note += ` ${back.added} new note${back.added === 1 ? '' : 's'} sing${back.added === 1 ? 's' : ''} “${PLACEHOLDER_SYLLABLE}” until you retype the line.`;
       if (back.dropped.length)
         note += ` The roll has fewer notes than the line, so “${back.dropped.join(' ')}” ${back.dropped.length === 1 ? 'was' : 'were'} left out.`;
     } else if (segment === 'call') {
-      next = { ...step, call: partFigure(edited, lesson) };
+      next = { ...step, call: partFigure(edited, lesson, tonic) };
     } else {
-      next = { ...step, response: partFigure(edited, lesson) };
+      next = { ...step, response: partFigure(edited, lesson, tonic) };
     }
     onCommit(next);
     return `Written into ${what}.${note} Go back to the lesson and Save to keep it.`;

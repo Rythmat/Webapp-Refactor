@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import type { LiteracyStep } from '@/content/musicLiteracy/schemas';
+import type {
+  LiteracyStep,
+  LiteracyTonic,
+} from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '../__fixtures__/literacyFixture';
 import { PART2_FIXTURE, part2Step } from '../__fixtures__/part2Fixture';
 import { emptyChoices, withMode, withTonic } from '../choices';
@@ -14,6 +17,7 @@ import {
   type CreatePass,
 } from '../createPass';
 import { LITERACY_PASS_MARK, isRightNote, type PlayedNote } from '../grading';
+import { stepNotes } from '../literacy';
 import { createRunCues, type RunGroove } from '../run';
 
 /**
@@ -23,7 +27,9 @@ import { createRunCues, type RunGroove } from '../run';
  */
 
 const lesson = PART2_FIXTURE;
-const cMajor = withMode(withTonic(emptyChoices(), 'C'), 'major');
+const inKeyOf = (tonic: LiteracyTonic, mode: 'major' | 'minor') =>
+  withMode(withTonic(emptyChoices(), tonic), mode);
+const cMajor = inKeyOf('C', 'major');
 const pass = (tag: string, choices = cMajor): CreatePass =>
   createPass(lesson, part2Step(tag), choices)!;
 
@@ -99,6 +105,36 @@ describe('the create pass', () => {
       chords.material.kind === 'chords' &&
         chords.material.chords.map((c) => c.label),
     ).toEqual(['1 maj', '4 maj']);
+  });
+
+  it('takes its notes where the step plays them, in the treble staff', () => {
+    const midis = (p: CreatePass) =>
+      p.material.kind === 'notes' ? p.material.notes.map((n) => n.midi) : [];
+    // 1-7-1 in C is placed on C5 (its B3 would be under middle C): the
+    // material is the step's own B4 and C5, never B3 and C4.
+    const neighbor = pass('one-seven-one');
+    const played = stepNotes(lesson, part2Step('one-seven-one'), cMajor);
+    expect(midis(neighbor)).toEqual([71, 72]);
+    expect(neighbor.tonic).toBe(played.tonic);
+    expect(new Set(midis(neighbor))).toEqual(
+      new Set(played.response.map((n) => n.midi)),
+    );
+    // 1-3-5 in A minor: A4, C5 and E5, as the step plays them.
+    const aMinor = pass('one-three-five', inKeyOf('A', 'minor'));
+    expect(midis(aMinor)).toEqual([69, 72, 76]);
+    expect(aMinor.tonic).toBe(69);
+    // A note it transcribes is read from the same 1: B4 is the 7 below.
+    const t = transcribeCall(neighbor, [note(71, CALL), note(72, CALL + 480)]);
+    expect(t.figure?.notes.map((n) => [n.degree, n.octave])).toEqual([
+      ['7', -1],
+      ['1', undefined],
+    ]);
+    // A chord call's material keeps the chords' register.
+    const chords = pass('the-1-chord');
+    expect(chords.tonic).toBe(60);
+    expect(
+      chords.material.kind === 'chords' && chords.material.chords[0].midis,
+    ).toEqual([60, 64, 67]);
   });
 
   it('isn’t there where the step has none: Part 1, a choose step', () => {

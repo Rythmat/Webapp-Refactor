@@ -32,13 +32,16 @@ export interface StepChoiceInfo {
   choice: StepChoice;
   /** The format's kind it makes. */
   kind: LiteracyStepKind;
-  /** The menu's name for it. */
+  /** The menu's name for it, in Title Case. */
   name: string;
-  /** A step row's short tag. */
+  /** A step row's short tag, in Title Case. */
   short: string;
   /** One line on what the student does. */
   description: string;
-  /** A new step's title (melodies take "Step N", as Part 1's always have). */
+  /**
+   * A new step's title, in Title Case (melodies take "Step N", as Part 1's
+   * always have).
+   */
   title?: string;
   /** Only in a lesson whose key the student picks. */
   studentKeyOnly?: boolean;
@@ -51,7 +54,7 @@ export const STEP_CHOICES: readonly StepChoiceInfo[] = [
     choice: 'melody',
     directionHint: 'Listen, then play it back in time.',
     kind: 'echo',
-    name: 'Call and response (melody)',
+    name: 'Call and Response (Melody)',
     short: 'Melody',
     description: 'Atlas plays a melody and the student plays it back.',
   },
@@ -59,40 +62,40 @@ export const STEP_CHOICES: readonly StepChoiceInfo[] = [
     choice: 'chords',
     directionHint: 'Listen, then play the chords back in the same rhythm.',
     kind: 'echo',
-    name: 'Call and response (chords)',
+    name: 'Call and Response (Chords)',
     short: 'Chords',
     description:
       'Atlas plays a chord a bar in a rhythm and the student plays them back.',
-    title: 'Play the chords',
+    title: 'Play the Chords',
   },
   {
     choice: 'chooseKey',
     directionHint: 'Pick a color on the circle. Its note is your 1.',
     kind: 'chooseKey',
-    name: 'Choose a key',
-    short: 'Choose a key',
+    name: 'Choose a Key',
+    short: 'Choose a Key',
     description:
       'The student picks a color on the circle of fifths, once, in the gate at the start. Its note is their 1.',
-    title: 'Choose your key',
+    title: 'Choose Your Key',
     studentKeyOnly: true,
   },
   {
     choice: 'chooseMode',
     directionHint: 'Pick one. It sets your 3.',
     kind: 'chooseMode',
-    name: 'Choose major or minor',
-    short: 'Major or minor',
+    name: 'Choose Major or Minor',
+    short: 'Major or Minor',
     description:
       'The student picks major or minor, once, in the gate at the start.',
-    title: 'Major or minor?',
+    title: 'Major or Minor?',
     studentKeyOnly: true,
   },
   {
     choice: 'chooseChords',
     directionHint: 'Pick a chord.',
     kind: 'chooseChords',
-    name: 'Choose a chord',
-    short: 'Choose a chord',
+    name: 'Choose a Chord',
+    short: 'Choose a Chord',
     description:
       'The student picks a chord for each X bar. Later steps play what they saved.',
     title: 'Choose a Chord',
@@ -101,11 +104,11 @@ export const STEP_CHOICES: readonly StepChoiceInfo[] = [
     choice: 'replay',
     directionHint: 'Listen to your progression.',
     kind: 'replay',
-    name: 'Replay a progression',
+    name: 'Replay a Progression',
     short: 'Replay',
     description:
       'Atlas plays back a progression the student saved. Nothing is graded.',
-    title: 'Hear your progression',
+    title: 'Hear Your Progression',
   },
 ];
 

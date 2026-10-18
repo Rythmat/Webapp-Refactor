@@ -145,6 +145,8 @@ import { ChallengeSegments } from './ChallengeSegments';
 import { ChoiceGate } from './ChoiceGate';
 import { ChooseChordsPanel } from './ChooseChordsPanel';
 import {
+  CHOOSE_KEY_HEADING,
+  CHOOSE_MODE_HEADING,
   ChooseKeyPanel,
   ChooseModePanel,
   keyName as nameOfKey,
@@ -155,6 +157,7 @@ import { LiteracyCallPanel } from './LiteracyCallPanel';
 import {
   LessonIntroCard,
   ModuleDoneCard,
+  moduleDoneHeading,
   ROUND_COPY,
   RoundBanner,
   RoundIcon,
@@ -162,7 +165,12 @@ import {
 import { MusicLiteracyLayout } from './MusicLiteracyLayout';
 import { createComparison } from './createComparison';
 import { drumsForGroove } from './literacyGrooves';
-import { LITERACY_KEY_RANGE, literacyKeyRange } from './literacyKeyRange';
+import {
+  CHORD_KEY_RANGE,
+  MELODY_KEY_RANGE,
+  literacyKeyRange,
+  type LiteracyKeyboardKind,
+} from './literacyKeyRange';
 import {
   attackAt,
   chordLabelsByBar,
@@ -185,7 +193,11 @@ import {
 } from './literacyRun';
 import { literacyStepDone, literacyStepTried } from './stepDone';
 import { createHubHeadline, hubHeadline, replayHubHeadline } from './turnCues';
-import { typingLetterFor, typingOctaveLabel } from './typingKeys';
+import {
+  typingLetterFor,
+  typingOctaveLabel,
+  typingOctavesFor,
+} from './typingKeys';
 import { useLiteracyChoices } from './useLiteracyChoices';
 import { useLiteracyInput, type LiteracyNoteOn } from './useLiteracyInput';
 import { useLiteracyProgress, withTry } from './useLiteracyProgress';
@@ -204,6 +216,13 @@ import { useLiteracyProgress, withTry } from './useLiteracyProgress';
 // cues (engine/musicLiteracy/run.ts); the student's notes, from MIDI, the
 // on-screen keys or the letter keys (useLiteracyInput.ts), are stamped on
 // the same clock and graded in the response bars (grading.ts).
+//
+// A melody sits in the treble staff (engine/musicLiteracy/register.ts), so
+// its keyboard is C4–C6 and the staff writes it in the treble clef; a chord
+// step keeps the chords' register on C3–C5 (literacyKeyRange.ts). The letter
+// keys move between the keyboard's two octaves, starting on the one with
+// most of the step's notes. Titles, headings and buttons are in Title Case;
+// what the student is told, in sentences.
 //
 // With a drum groove chosen (Settings → Play along, literacyGrooves.ts) every
 // run plays over it: the count-in clicks, the drums come in with the words
@@ -229,12 +248,12 @@ import { useLiteracyProgress, withTry } from './useLiteracyProgress';
 // each as its round's pass. Once passed, the round stays open from the
 // module's header in the step list.
 //
-//   create     Part 2: "Module done! Now go again and create your own." Each
+//   create     Part 2: "Module Done! Now go again and create your own." Each
 //              step's create pass: count-in, the student's own call on the
 //              step's notes (the keys lit softly), transcribed to 16ths at
 //              its end and shown on the roll and staff, then their repeat of
 //              it, graded against it (`<tag>:create`).
-//   challenge  Part 1: "Part 1 done! Want a challenge just for fun? Go again
+//   challenge  Part 1: "Part 1 Done! Want a challenge just for fun? Go again
 //              and play ALL the notes!" The same run, PLAY ALONG over the
 //              teacher's turn, every note graded, each segment's score
 //              shown (`<tag>:challenge`). It never holds up the lesson.
@@ -256,7 +275,7 @@ import { useLiteracyProgress, withTry } from './useLiteracyProgress';
 // the student's progression as triads, then with 7ths, to listen to.
 // When a step counts as done is one rule, in stepDone.ts.
 
-export { LITERACY_KEY_RANGE };
+export { CHORD_KEY_RANGE, MELODY_KEY_RANGE };
 
 /** White-key length ÷ width: a real key is about 6.4, this a touch shorter. */
 const KEY_ASPECT = 6;
@@ -406,6 +425,34 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const missing = useMemo(
     () => (studentKey ? missingChoices(lesson, step, choices) : []),
     [studentKey, lesson, step, choices],
+  );
+
+  /** Every pitch the step asks for: the keyboard shows them all. */
+  const targetMidis = useMemo(() => {
+    const midis = new Set<number>();
+    for (const n of [...notes.words, ...notes.call, ...notes.response]) {
+      midis.add(n.midi);
+    }
+    if (create?.material.kind === 'notes') {
+      for (const m of create.material.notes) midis.add(m.midi);
+    } else if (create) {
+      for (const c of create.material.chords)
+        for (const m of c.midis) midis.add(m);
+    }
+    return midis;
+  }, [notes, create]);
+  // A melody's two octaves, C4–C6 (a key is heard as one), or a chord
+  // step's, C3–C5; widened for any note past them.
+  const keyboardKind: LiteracyKeyboardKind =
+    chordSteps || step.kind === 'chooseChords' ? 'chords' : 'melody';
+  const keyRange = useMemo(
+    () => literacyKeyRange(targetMidis, keyboardKind),
+    [targetMidis, keyboardKind],
+  );
+  /** The letter keys' octaves: the keyboard's two, from the step's notes. */
+  const typingOctaves = useMemo(
+    () => typingOctavesFor(keyRange, targetMidis),
+    [keyRange, targetMidis],
   );
   const gate = missing[0] ?? null;
 
@@ -1045,6 +1092,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const { onKeyPointerDown, typingOctave } = useLiteracyInput({
     onNoteOn: noteOn,
     onNoteOff: noteOff,
+    octaves: typingOctaves,
   });
 
   // ── The choose steps ──
@@ -1268,22 +1316,6 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       ),
     [segments, tonic, countIn, wordsColor, keyColor],
   );
-
-  /** Every pitch the step asks for: the keyboard shows them all. */
-  const targetMidis = useMemo(() => {
-    const midis = new Set<number>();
-    for (const n of [...notes.words, ...notes.call, ...notes.response]) {
-      midis.add(n.midi);
-    }
-    if (create?.material.kind === 'notes') {
-      for (const m of create.material.notes) midis.add(m.midi);
-    } else if (create) {
-      for (const c of create.material.chords)
-        for (const m of c.midis) midis.add(m);
-    }
-    return midis;
-  }, [notes, create]);
-  const keyRange = useMemo(() => literacyKeyRange(targetMidis), [targetMidis]);
 
   const createMaterialMidis = useMemo(() => {
     if (!create) return [];
@@ -1665,7 +1697,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const nextLabel = lastInRound
     ? isLastStep
       ? 'Finish'
-      : 'Next module'
+      : 'Next Module'
     : isLastStep
       ? 'Finish'
       : 'Next';
@@ -1712,7 +1744,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       return {
         lead: null,
         meta: null,
-        actions: <Primary onClick={() => setIntro(false)}>Let’s go</Primary>,
+        actions: <Primary onClick={() => setIntro(false)}>Let’s Go</Primary>,
       };
     }
     if (status === 'result' && outcome && doneModule && doneRound) {
@@ -1723,7 +1755,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         actions: (
           <>
             <Secondary onClick={() => toNextModule(doneModule)}>
-              {lastModule ? 'Finish' : 'Next module'}
+              {lastModule ? 'Finish' : 'Next Module'}
             </Secondary>
             <Primary
               onClick={() => moduleDone !== null && startRound(moduleDone)}
@@ -2064,7 +2096,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     if (step.kind === 'chooseKey') {
       return (
         <ChooseKeyPanel
-          heading="Choose your color"
+          heading={CHOOSE_KEY_HEADING}
           direction={step.direction}
           tonic={choices?.tonic ?? null}
           mode={choices?.mode ?? lesson.key.mode}
@@ -2080,7 +2112,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     if (step.kind === 'chooseMode') {
       return (
         <ChooseModePanel
-          heading="Choose major or minor"
+          heading={CHOOSE_MODE_HEADING}
           direction={step.direction}
           tonic={choices?.tonic ?? lesson.key.tonic}
           mode={choices?.mode ?? null}
@@ -2153,7 +2185,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             className="my-auto flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-[#151518] p-5"
           >
             <h2 className="text-2xl font-normal leading-8 text-[#e8e8f0]">
-              Try again
+              Try Again
             </h2>
             <p className="text-[15px] leading-6 text-white/55">
               {outcome.result.feedbackText}
@@ -2194,7 +2226,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   })();
 
   const announcement = doneModule
-    ? `${whole ? `Part ${lesson.part} done!` : 'Module done!'} ${doneRound ? ROUND_COPY[doneRound].offer : ''}`
+    ? `${moduleDoneHeading(whole ? { part: lesson.part } : null)} ${doneRound ? ROUND_COPY[doneRound].offer : ''}`
     : resultModel
       ? resultSummary(resultModel, passMark)
       : outcome?.pass === 'create'
@@ -2208,7 +2240,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       header={{
         crumbs: [
           {
-            label: 'Start here',
+            label: 'Start Here',
             onClick: () => navigate(startHereRoute()),
           },
           {
@@ -2220,7 +2252,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             onClick: () => navigate(CurriculumRoutes.musicLiteracy()),
           },
         ],
-        keyLabel: noKeyYet ? 'Your key' : keyName,
+        keyLabel: noKeyYet ? 'Your Key' : keyName,
         keyColor,
         // In a round, its module (Part 1's, the round's name).
         subsection:

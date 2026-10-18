@@ -4,10 +4,13 @@ import { cn } from '@/components/utilities';
 // ── The big circle of fifths, to choose from ───────────────────────────────
 // Part 2's choose steps draw the circle large: twelve slices in the key
 // colors, C at the top and clockwise by fifths, each named on the slice
-// itself. A slice that can be picked is a button (or a radio, for the key);
-// the chosen one stands out of the ring, outlined in white. The middle holds
-// whatever the step says there. The small circle the lesson's call panel
-// shows (CircleOfFifthsSvg) stays as it is.
+// itself, in white (the owner: "All the keys should be in white text on the
+// circle"), with a soft shadow so it reads on the light slices too, A's
+// yellow and E's green. A slice that can be picked is a button (or a radio,
+// for the key); the chosen one stands out of the ring, outlined in white.
+// The middle holds whatever the step says there. The small circle the
+// lesson's call panel shows (CircleOfFifthsSvg) names its key in white,
+// off the ring.
 
 export interface RingSlice {
   /** Stable id: the tonic, or the chord's degree. */
@@ -59,7 +62,20 @@ function arc(size: number, r1: number, r2: number, a1: number, a2: number) {
   ].join(' ');
 }
 
-/** Dark letters on a light slice, white on a dark one. */
+/** A slice's label: white, always. */
+export const RING_INK = '#ffffff';
+
+/**
+ * Under a slice's white label: a thin dark edge and a soft shadow, so the
+ * letters hold on the lightest key colors.
+ */
+const RING_INK_SHADOW = {
+  stroke: 'rgba(16, 16, 18, 0.45)',
+  paintOrder: 'stroke',
+  filter: 'drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.55))',
+} as const;
+
+/** Dark letters on a light color, white on a dark one (off the ring). */
 export function inkOn(hex: string): string {
   const n = Number.parseInt(hex.replace('#', ''), 16);
   if (!Number.isFinite(n)) return '#101012';
@@ -138,7 +154,6 @@ export function KeyRing({
           const dy = Math.sin(middle) * lift;
           const lx = size / 2 + mid * Math.cos(middle);
           const ly = size / 2 + mid * Math.sin(middle);
-          const ink = inkOn(slice.color);
           const interactive = slice.enabled;
           return (
             <g
@@ -185,10 +200,13 @@ export function KeyRing({
                 y={slice.sub ? ly - subSize * 0.55 : ly}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill={slice.dim ? 'rgba(255,255,255,0.45)' : ink}
+                fill={slice.dim ? 'rgba(255,255,255,0.45)' : RING_INK}
                 fontSize={labelSize}
                 fontWeight={slice.selected ? 700 : 600}
+                strokeWidth={labelSize * 0.06}
+                style={slice.dim ? undefined : RING_INK_SHADOW}
                 className="pointer-events-none"
+                data-ring-label
               >
                 {slice.label}
               </text>
@@ -198,10 +216,12 @@ export function KeyRing({
                   y={ly + labelSize * 0.55}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fill={slice.dim ? 'rgba(255,255,255,0.4)' : ink}
+                  fill={slice.dim ? 'rgba(255,255,255,0.4)' : RING_INK}
                   fontSize={subSize}
                   fontWeight={500}
-                  opacity={0.85}
+                  opacity={0.9}
+                  strokeWidth={subSize * 0.06}
+                  style={slice.dim ? undefined : RING_INK_SHADOW}
                   className="pointer-events-none"
                 >
                   {slice.sub}

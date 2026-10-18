@@ -7,8 +7,9 @@
  *
  * MATERIAL
  * A melody's material is the pitches its answer uses: on 1-3-5, just 1, 3
- * and 5, in the octaves the step plays them. A chord call's is each bar's
- * chord: in bar 2 the student plays bar 2's chord, any rhythm.
+ * and 5, in the octaves the step plays them (the step's melody placed in
+ * the treble staff, literacy.ts `melodyTonic`). A chord call's is each
+ * bar's chord: in bar 2 the student plays bar 2's chord, any rhythm.
  *
  * TRANSCRIPTION (after the call's last bar)
  * Their call is quantized to the 16th grid: an onset rounds to the nearest
@@ -58,6 +59,7 @@ import {
 } from './grading';
 import {
   barTicks,
+  melodyTonic,
   resolveChordFigure,
   stepKey,
   type ChordAttack,
@@ -68,11 +70,11 @@ import { stepPasses } from './passes';
 import {
   degreeLabel,
   modalDegree,
-  notePitch,
   tonicMidi,
   writtenDegree,
   type LiteracyKey,
 } from './pitch';
+import { pitchFrom } from './register';
 
 /** The create pass's grid: a 16th note. */
 export const CREATE_GRID_TICKS = 120;
@@ -142,9 +144,11 @@ export function createPass(
     };
   }
   const key = stepKey(lesson, step, choices);
+  // Where the step itself plays them: its melody placed as one.
+  const tonic = melodyTonic(lesson, step, choices);
   const byMidi = new Map<number, MaterialNote>();
   for (const note of (step.response ?? step.call).notes) {
-    const midi = notePitch(note, key, numbering);
+    const midi = pitchFrom(note, tonic, key, numbering);
     if (byMidi.has(midi)) continue;
     byMidi.set(midi, {
       midi,
@@ -157,7 +161,7 @@ export function createPass(
   return {
     bars: create.bars,
     key,
-    tonic: tonicMidi(key.tonic),
+    tonic,
     numbering,
     material: {
       kind: 'notes',

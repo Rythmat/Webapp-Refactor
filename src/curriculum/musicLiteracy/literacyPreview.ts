@@ -1,4 +1,3 @@
-import type { LiteracyMode } from '@/content/musicLiteracy/schemas';
 import type { VoicedChord } from '@/curriculum/engine/musicLiteracy/chords';
 import {
   chordNotes,
@@ -6,11 +5,12 @@ import {
   type ChordAttack,
   type TimedNote,
 } from '@/curriculum/engine/musicLiteracy/literacy';
+import type { LiteracyKey } from '@/curriculum/engine/musicLiteracy/pitch';
 import {
-  SCALE_SEMITONES,
-  tonicMidi,
-  type LiteracyKey,
-} from '@/curriculum/engine/musicLiteracy/pitch';
+  pitchFrom,
+  placeMelody,
+  type WrittenNote,
+} from '@/curriculum/engine/musicLiteracy/register';
 import type { RunCue } from '@/curriculum/engine/musicLiteracy/run';
 
 // ── Hearing a choice ───────────────────────────────────────────────────────
@@ -18,7 +18,8 @@ import type { RunCue } from '@/curriculum/engine/musicLiteracy/run';
 // (its 1, 3 and 5, then the three together), a mode the same way, and a
 // chord progression, a chord each half bar. Pure cues for the run's
 // transport (literacyRun.ts), drawn on the keys as they sound; no count-in,
-// nothing graded.
+// nothing graded. A key's 1, 3 and 5 sit where its melodies will, in the
+// treble staff (register.ts); a progression is voiced as its chords are.
 
 /** A preview's chord lasts a half note: four chords in two bars. */
 export const PREVIEW_CHORD_TICKS = 960;
@@ -56,19 +57,27 @@ export function previewCues(
   return cues.sort((a, b) => a.tick - b.tick || order[a.kind] - order[b.kind]);
 }
 
-/** A key in a mode, heard: 1, 3 and 5 in eighths, then the three together. */
+/** A key's 1, 3 and 5, as the mode has them. */
+const TRIAD: readonly WrittenNote[] = [
+  { degree: '1' },
+  { degree: '3' },
+  { degree: '5' },
+];
+
+/**
+ * A key in a mode, heard: 1, 3 and 5 in eighths, then the three together,
+ * placed as a melody (the lowest octave in C4–A5).
+ */
 export function keyPreviewNotes(
   key: LiteracyKey,
 ): Pick<TimedNote, 'midi' | 'onset' | 'duration'>[] {
-  const one = tonicMidi(key.tonic);
-  const triad = [0, third(key.mode), 7].map((semitones) => one + semitones);
+  const { tonic } = placeMelody(key, TRIAD, 'scale');
+  const triad = TRIAD.map((note) => pitchFrom(note, tonic, key, 'scale'));
   return [
     ...triad.map((midi, i) => ({ midi, onset: i * 240, duration: 240 })),
     ...triad.map((midi) => ({ midi, onset: 720, duration: 1200 })),
   ];
 }
-
-const third = (mode: LiteracyMode) => SCALE_SEMITONES[mode][2];
 
 /** A progression heard: each chord a half note, voiced as the lesson plays it. */
 export function progressionPreview(

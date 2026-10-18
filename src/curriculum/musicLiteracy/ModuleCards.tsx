@@ -2,6 +2,7 @@ import { Sparkles, Trophy, X } from 'lucide-react';
 import { useId } from 'react';
 import { cn } from '@/components/utilities';
 import type { LiteracyRound } from '@/content/musicLiteracy/schemas';
+import { titleCase } from '@/content/musicLiteracy/titleCase';
 import type { LiteracyModule } from '@/curriculum/engine/musicLiteracy/modules';
 
 // ── Modules: the lesson's goal, a module done, its round ───────────────────
@@ -11,7 +12,8 @@ import type { LiteracyModule } from '@/curriculum/engine/musicLiteracy/modules';
 // and the round it offers (Part 2: create your own; Part 1: the challenge,
 // just for fun), its goal said again. The round itself wears a banner over
 // the step pager, with the module's goal and the way out of it. Their
-// buttons are the action bar's, as every Learn screen has them.
+// buttons are the action bar's, as every Learn screen has them. Headings,
+// names and buttons in Title Case; what a card says, in sentences.
 
 /** A round's name, and the button that starts it. */
 export const ROUND_COPY: Readonly<
@@ -21,13 +23,13 @@ export const ROUND_COPY: Readonly<
   >
 > = {
   create: {
-    name: 'Create round',
-    start: 'Create your own',
+    name: 'Create Round',
+    start: 'Create Your Own',
     offer: 'Now go again and create your own.',
   },
   challenge: {
-    name: 'Challenge round',
-    start: 'Play ALL the notes',
+    name: 'Challenge Round',
+    start: 'Play ALL the Notes',
     offer: 'Want a challenge just for fun? Go again and play ALL the notes!',
   },
 };
@@ -176,10 +178,14 @@ export function LessonIntroCard({
   );
 }
 
+/** A module done's heading: "Module Done!", or for a lesson of one, "Part 1 Done!". */
+export const moduleDoneHeading = (whole: { part: number } | null): string =>
+  titleCase(whole ? `Part ${whole.part} done!` : 'Module done!');
+
 export interface ModuleDoneCardProps {
   module: Pick<LiteracyModule, 'title' | 'goal'>;
   round: Exclude<LiteracyRound, 'none'>;
-  /** The lesson is this one module (Part 1): "Part 1 done!". */
+  /** The lesson is this one module (Part 1): "Part 1 Done!". */
   whole: { part: number } | null;
   /** The last step's try: "1-7-1 · 92% · Passed". */
   last: { title: string; percent: number } | null;
@@ -219,7 +225,7 @@ export function ModuleDoneCard({
           id={headingId}
           className="text-[32px] font-normal leading-10 text-[#e8e8f0]"
         >
-          {whole ? `Part ${whole.part} done!` : 'Module done!'}
+          {moduleDoneHeading(whole)}
         </h2>
         <p
           data-literacy-offer={round}
@@ -301,7 +307,7 @@ export function RoundBanner({
       >
         <X aria-hidden className="size-4" />
         {/* A phone keeps the ✕ alone. */}
-        <span className="max-[639px]:sr-only">Leave round</span>
+        <span className="max-[639px]:sr-only">Leave Round</span>
       </button>
     </section>
   );

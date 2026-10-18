@@ -332,7 +332,7 @@ export const LiteracyStepEditor: FC<{
       )}
 
       {left.length > 0 && (
-        <ConsoleCallout tone="danger" title="Fix before saving">
+        <ConsoleCallout tone="danger" title="Fix Before Saving">
           <ul className="list-disc pl-4">
             {left.map((issue, i) => (
               <li key={i}>

@@ -30,6 +30,7 @@ import {
   type LiteracyWords,
   type MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
+import { titleCase } from '@/content/musicLiteracy/titleCase';
 import { MIRROR_BASE } from '../content/mirror/mirrorPaths';
 import { choiceInfo, newStepOfChoice, type StepChoice } from './literacyKinds';
 
@@ -123,7 +124,10 @@ export function addStepOfChoice(
   at = lesson.steps.length,
   section?: string | null,
 ): MusicLiteracyLesson {
-  const title = choiceInfo(choice).title ?? `Step ${lesson.steps.length + 1}`;
+  // A title the editor makes, so in Title Case; one the owner types isn't touched.
+  const title = titleCase(
+    choiceInfo(choice).title ?? `Step ${lesson.steps.length + 1}`,
+  );
   const tag = tagFor(title, lesson.steps);
   const before = lesson.steps.slice(0, at);
   const lastSaved = before
@@ -163,7 +167,8 @@ export function duplicateStep(
   index: number,
 ): MusicLiteracyLesson {
   const source = lesson.steps[index];
-  const title = `${source.title} (copy)`;
+  // The owner's title as typed, marked a copy.
+  const title = `${source.title} (Copy)`;
   const copy: LiteracyStep = {
     ...structuredClone(source),
     title,

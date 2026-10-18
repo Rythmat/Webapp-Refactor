@@ -55,11 +55,11 @@ describe('Home’s Start here card', () => {
 
   it('starts Part 1 when nothing is tried yet', () => {
     const card = renderCard();
-    expect(card.getByText('Part 1 · Call and response')).toBeTruthy();
+    expect(card.getByText('Part 1 · Call and Response')).toBeTruthy();
     expect(card.getByText(/^7 steps/)).toBeTruthy();
     expect(
       hrefOf(
-        card.getByRole('link', { name: 'Start Part 1 · Call and response' }),
+        card.getByRole('link', { name: 'Start Part 1 · Call and Response' }),
       ),
     ).toBe('/curriculum/music-literacy/music-literacy-part-1');
     expect(card.queryByRole('link', { name: /^Continue/ })).toBeNull();
@@ -73,7 +73,7 @@ describe('Home’s Start here card', () => {
     expect(card.getByRole('img', { name: '2 of 7 steps passed' })).toBeTruthy();
     expect(
       hrefOf(
-        card.getByRole('link', { name: 'Continue Part 1 · Call and response' }),
+        card.getByRole('link', { name: 'Continue Part 1 · Call and Response' }),
       ),
     ).toBe('/curriculum/music-literacy/music-literacy-part-1?step=add-the-3');
   });
@@ -83,12 +83,12 @@ describe('Home’s Start here card', () => {
     const card = renderCard();
     expect(card.getByText(/All 7 steps passed/)).toBeTruthy();
     expect(
-      card.getByText(/Up next: Part 2 · Choose a color, coming soon/),
+      card.getByText(/Up next: Part 2 · Choose a Color, coming soon/),
     ).toBeTruthy();
     expect(
       hrefOf(
         card.getByRole('link', {
-          name: 'Play again Part 1 · Call and response',
+          name: 'Play again Part 1 · Call and Response',
         }),
       ),
     ).toBe('/curriculum/music-literacy/music-literacy-part-1');

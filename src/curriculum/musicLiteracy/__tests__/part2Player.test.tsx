@@ -29,6 +29,7 @@ import type {
   LiteracyStep,
   MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
+import part2Seed from '@/curriculum/data/musicLiteracy/music-literacy-part-2.json';
 import {
   PART2_FIXTURE,
   PART2_GATED_FIXTURE,
@@ -217,8 +218,8 @@ describe('the lesson’s goal', () => {
       ),
     ).toEqual(['Choose a Color', 'Create a Melody', 'Chords', '7th Chords']);
     expect(intro.textContent).toContain('Then go again and create your own.');
-    expect(primary()).toBe('Let’s go');
-    await press('Let’s go');
+    expect(primary()).toBe('Let’s Go');
+    await press('Let’s Go');
     expect(document.querySelector('[data-literacy-intro]')).toBeNull();
     expect(title()).toBe('Choose your key');
   });
@@ -250,7 +251,7 @@ describe('the gate', () => {
         m.getAttribute('data-intro-module'),
       ),
     ).toEqual(['Create a Melody', 'Chords', '7th Chords']);
-    await press('Let’s go');
+    await press('Let’s Go');
     expect(title()).toBe('Choose your key');
     expect(crumb()).toBe('Choose a Color');
 
@@ -265,7 +266,7 @@ describe('the gate', () => {
     expect(savedChoices()).toMatchObject({ tonic: 'Eb', mode: 'minor' });
     // The gate done: no module card, no round, just on.
     expect(document.querySelector('[data-literacy-module-done]')).toBeNull();
-    expect(screen.queryByRole('button', { name: /Create your own/ })).toBe(
+    expect(screen.queryByRole('button', { name: /Create Your Own/ })).toBe(
       null,
     );
     await press('Next');
@@ -296,9 +297,9 @@ describe('the gate', () => {
     saveChoices(withTonic(emptyChoices(), 'D'));
     renderPlayer('one-three-five', gated);
     expect(
-      screen.getByRole('heading', { name: 'First, choose major or minor' }),
+      screen.getByRole('heading', { name: 'First, Choose Major or Minor' }),
     ).toBeTruthy();
-    await press('Choose major or minor');
+    await press('Choose Major or Minor');
     expect(title()).toBe('Major or minor?');
     expect(crumb()).toBe('Choose a Color');
   });
@@ -326,10 +327,10 @@ describe('choosing a color', () => {
   it('picks the key on the circle, names it, plays it and remembers it', async () => {
     renderPlayer('choose-key');
     expect(title()).toBe('Choose your key');
-    expect(screen.getByRole('heading', { name: 'Choose your color' }));
+    expect(screen.getByRole('heading', { name: 'Choose Your Key' }));
     // Nothing chosen yet: Next isn't the way on.
     expect(bar().querySelector('[data-primary]')).toBeNull();
-    const ring = screen.getByRole('radiogroup', { name: 'Choose your key' });
+    const ring = screen.getByRole('radiogroup', { name: 'Choose Your Key' });
     expect(ring.querySelectorAll('[role="radio"]')).toHaveLength(12);
 
     await act(async () => {
@@ -365,6 +366,35 @@ describe('choosing a color', () => {
         .getByRole('radio', { name: 'E♭ Major' })
         .getAttribute('aria-checked'),
     ).toBe('true');
+  });
+
+  it('says the seed’s gate as the owner put it, every key in white on the circle', () => {
+    // The real Part 2: its key step's title and line, as the panel shows them.
+    const seed = part2Seed as MusicLiteracyLesson;
+    renderPlayer('choose-your-key', seed);
+    expect(title()).toBe('Choose Your Key');
+    const panel = document.querySelector('[data-literacy-choose="key"]')!;
+    expect(panel.querySelector('h2')?.textContent).toBe('Choose Your Key');
+    expect(panel.querySelector('h2 + p')?.textContent).toBe(
+      'Pick a color on the circle. Its note is your 1.',
+    );
+    const labels = [...document.querySelectorAll('[data-ring-label]')];
+    expect(labels).toHaveLength(12);
+    for (const label of labels)
+      expect(label.getAttribute('fill')).toBe('#ffffff');
+    cleanup();
+    localStorage.setItem(
+      choicesStorageKey(seed.id),
+      JSON.stringify(withTonic(emptyChoices(), 'A')),
+    );
+    renderPlayer('choose-major-or-minor', seed);
+    expect(title()).toBe('Major or Minor?');
+    expect(
+      document.querySelector('[data-literacy-choose="mode"] h2')?.textContent,
+    ).toBe('Choose Major or Minor');
+    // A's yellow slice, labeled in white like the rest.
+    for (const label of document.querySelectorAll('[data-ring-label]'))
+      expect(label.getAttribute('fill')).toBe('#ffffff');
   });
 
   it('picks major or minor, showing the color minor takes', async () => {
@@ -452,7 +482,7 @@ describe('choosing chords', () => {
 
     // Hear it: the whole progression, a chord each half bar.
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Hear it' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Hear It' }));
     });
     const heard = (run.cues as RunCue[]).filter((c) => c.kind === 'note');
     expect(heard.map((c) => c.tick)).toEqual([0, 0, 0, 960, 960, 960]);
@@ -521,13 +551,11 @@ describe('a step that needs a choice', () => {
     renderPlayer('one-three-five');
     expect(document.querySelector('[data-literacy-intro]')).toBeNull();
     expect(
-      screen.getByRole('heading', { name: 'First, choose your color' }),
+      screen.getByRole('heading', { name: 'First, Choose Your Key' }),
     ).toBeTruthy();
     expect(document.querySelector('[data-literacy-hub]')).toBeTruthy(); // kept, hidden
     await act(async () => {
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Choose your color' }),
-      );
+      fireEvent.click(screen.getByRole('button', { name: 'Choose Your Key' }));
     });
     expect(title()).toBe('Choose your key');
   });
@@ -536,11 +564,11 @@ describe('a step that needs a choice', () => {
     saveChoices(withTonic(emptyChoices(), 'D'));
     renderPlayer('the-1-chord');
     expect(
-      screen.getByRole('heading', { name: 'First, choose major or minor' }),
+      screen.getByRole('heading', { name: 'First, Choose Major or Minor' }),
     ).toBeTruthy();
     await act(async () => {
       fireEvent.click(
-        screen.getByRole('button', { name: 'Choose major or minor' }),
+        screen.getByRole('button', { name: 'Choose Major or Minor' }),
       );
     });
     expect(title()).toBe('Major or minor?');
@@ -549,11 +577,11 @@ describe('a step that needs a choice', () => {
     saveChoices(cMajor);
     renderPlayer('hear-four');
     expect(
-      screen.getByRole('heading', { name: 'First, choose the chords' }),
+      screen.getByRole('heading', { name: 'First, Choose the Chords' }),
     ).toBeTruthy();
     await act(async () => {
       fireEvent.click(
-        screen.getByRole('button', { name: 'Choose the chords' }),
+        screen.getByRole('button', { name: 'Choose the Chords' }),
       );
     });
     expect(title()).toBe('Four chords');
@@ -563,10 +591,10 @@ describe('a step that needs a choice', () => {
     saveChoices(cMajor);
     renderPlayer('play-1-x');
     expect(
-      screen.getByRole('heading', { name: 'First, choose a chord' }),
+      screen.getByRole('heading', { name: 'First, Choose a Chord' }),
     ).toBeTruthy();
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Choose a chord' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Choose a Chord' }));
     });
     expect(title()).toBe('Choose your X');
     // The chooser says so too.
@@ -574,7 +602,7 @@ describe('a step that needs a choice', () => {
       screen.getByRole('heading', { name: 'Choose a Chord' }),
     ).toBeTruthy();
     expect(document.querySelector('[data-literacy-save]')?.textContent).toBe(
-      'Save my chord',
+      'Save My Chord',
     );
   });
 });
@@ -723,7 +751,7 @@ describe('the modules', () => {
     expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
     expect(document.querySelector('[data-literacy-offer]')).toBeNull();
     expect(document.querySelector('[data-literacy-module-done]')).toBeNull();
-    expect(screen.queryByRole('button', { name: /Create your own/i })).toBe(
+    expect(screen.queryByRole('button', { name: /Create Your Own/ })).toBe(
       null,
     );
     expect(primary()).toBe('Next');
@@ -735,7 +763,7 @@ describe('the modules', () => {
     expect(card.getAttribute('data-literacy-module-done')).toBe(
       'Choose a Color',
     );
-    expect(screen.getByRole('heading', { name: 'Module done!' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Module Done!' })).toBeTruthy();
     expect(card.querySelector('[data-literacy-offer]')?.textContent).toBe(
       'Now go again and create your own.',
     );
@@ -744,23 +772,23 @@ describe('the modules', () => {
       MODULE_GOALS.melody,
     );
     expect(card.textContent).toContain('1-3-5 · 100% · Passed');
-    expect(primary()).toContain('Create your own');
-    expect(screen.getByRole('button', { name: 'Next module' })).toBeTruthy();
+    expect(primary()).toContain('Create Your Own');
+    expect(screen.getByRole('button', { name: 'Next Module' })).toBeTruthy();
     expect(
       document.querySelector('[data-literacy-announcer]')?.textContent,
-    ).toBe('Module done! Now go again and create your own.');
+    ).toBe('Module Done! Now go again and create your own.');
 
-    // Next module: the next module's first step, out of any round.
-    await press('Next module');
+    // Next Module: the next module's first step, out of any round.
+    await press('Next Module');
     expect(title()).toBe('1-7-1');
     expect(banner()).toBeNull();
   });
 
   it('runs the create round: the student’s call, transcribed, lit for the repeat, and the repeat graded against it', async () => {
     await finishChooseAColor();
-    await press(/Create your own/);
+    await press(/Create Your Own/);
     // The round's banner, its goal, and its own pager.
-    expect(banner()?.textContent).toContain('Create round');
+    expect(banner()?.textContent).toContain('Create Round');
     expect(banner()?.textContent).toContain('Choose a Color');
     expect(banner()?.textContent).toContain(MODULE_GOALS.melody);
     // A round of one step: nothing to page.
@@ -851,7 +879,7 @@ describe('the modules', () => {
 
   it('passes a clean repeat, marks the round’s step, and goes on to the next module after the round’s last', async () => {
     await finishChooseAColor();
-    await press(/Create your own/);
+    await press(/Create Your Own/);
     await press('Play');
     const call: [string, number][] = [
       ['KeyA', 0],
@@ -870,15 +898,15 @@ describe('the modules', () => {
       passed: true,
     });
     // The round's only step: on to the next module.
-    expect(primary()).toBe('Next module');
-    await press('Next module');
+    expect(primary()).toBe('Next Module');
+    await press('Next Module');
     expect(title()).toBe('1-7-1');
     expect(banner()).toBeNull();
   });
 
   it('says to try again after an empty call, and records nothing', async () => {
     await finishChooseAColor();
-    await press(/Create your own/);
+    await press(/Create Your Own/);
     await press('Play');
     feedTo(3840);
     expect(
@@ -910,10 +938,10 @@ describe('the modules', () => {
       [...list.querySelectorAll('[data-group-action]')].map((b) =>
         b.getAttribute('aria-label'),
       ),
-    ).toEqual(['Create your own: Chords']);
+    ).toEqual(['Create Your Own: Chords']);
     await act(async () => {
       fireEvent.click(
-        screen.getByRole('button', { name: 'Create your own: Chords' }),
+        screen.getByRole('button', { name: 'Create Your Own: Chords' }),
       );
     });
     expect(counter()).toBe('Step 1 of 3');
@@ -951,7 +979,7 @@ describe('the modules', () => {
     const roundList = await openStepList();
     expect(
       [...roundList.querySelectorAll('h3')].map((h) => h.textContent),
-    ).toEqual(['Chords · Create round']);
+    ).toEqual(['Chords · Create Round']);
     expect(
       screen.getByRole('button', { name: '1: The 1 chord: passed' }),
     ).toBeTruthy();
@@ -959,8 +987,8 @@ describe('the modules', () => {
 
   it('is left from its banner, back on the same step as its echo', async () => {
     await finishChooseAColor();
-    await press(/Create your own/);
-    await press(/Leave round/);
+    await press(/Create Your Own/);
+    await press(/Leave Round/);
     expect(banner()).toBeNull();
     expect(title()).toBe('1-3-5');
     expect(counter()).toMatch(/^Step 2 of 10/);
@@ -994,7 +1022,7 @@ describe('the step list', () => {
     expect(list.querySelector('[data-pass-mark]')).toBeNull();
     const action = list.querySelector('[data-group-action]')!;
     expect(action.getAttribute('aria-label')).toBe(
-      'Create your own: Choose a Color: passed',
+      'Create Your Own: Choose a Color: passed',
     );
     expect(action.getAttribute('data-group-action-status')).toBe('passed');
   });
@@ -1019,17 +1047,37 @@ describe('the keyboard', () => {
       '[data-literacy-keyboard] [data-testid="piano-keyboard-fill"] > div.flex-1',
     ).length;
 
-  it('shows C3–C5, and widens to D5 for F major’s 6', () => {
+  /** Which white key, from the left, carries a degree's label. */
+  const whiteKeyOf = (label: string) => {
+    const keys = [
+      ...document.querySelectorAll(
+        '[data-literacy-keyboard] [data-testid="piano-keyboard-fill"] > div.flex-1',
+      ),
+    ];
+    const key = document.querySelector(
+      `[data-literacy-keyboard] [data-key-label="${label}"]`,
+    )?.parentElement;
+    return key ? keys.indexOf(key) : -1;
+  };
+
+  it('shows a melody on C4–C6, in the treble staff’s register, and chords on C3–C5', () => {
     saveChoices(cMajor);
     renderPlayer('five-six-five', withStep);
     expect(whiteKeys()).toBe(15);
+    // G4, the 5, is the fifth white key from C4.
+    expect(whiteKeyOf('5')).toBe(4);
     cleanup();
+    // F major's 5-6-5 is placed as low as fits: C4, D4, C4, its 6 the
+    // second white key.
     saveChoices(withMode(withTonic(emptyChoices(), 'F'), 'major'));
     renderPlayer('five-six-five', withStep);
-    expect(whiteKeys()).toBe(16);
-    // The 6 is on D5, the new last key, labeled.
-    expect(
-      document.querySelector('[data-literacy-keyboard] [data-key-label="6"]'),
-    ).toBeTruthy();
+    expect(whiteKeys()).toBe(15);
+    expect(whiteKeyOf('6')).toBe(1);
+    cleanup();
+    // A chord step keeps C3–C5: the 1 chord's C4 is the eighth white key.
+    saveChoices(cMajor);
+    renderPlayer('the-1-chord', withStep);
+    expect(whiteKeys()).toBe(15);
+    expect(whiteKeyOf('1')).toBe(7);
   });
 });

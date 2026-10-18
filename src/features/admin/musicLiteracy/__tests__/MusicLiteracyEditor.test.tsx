@@ -101,7 +101,7 @@ describe('the steps', () => {
     mount();
     fireEvent.click(screen.getByRole('button', { name: 'Add step' }));
     fireEvent.click(
-      screen.getByRole('menuitem', { name: /Call and response \(melody\)/ }),
+      screen.getByRole('menuitem', { name: /Call and Response \(Melody\)/ }),
     );
     expect(titles()).toHaveLength(PART_1.steps.length + 1);
     expect(titles().at(-1)).toBe('Step 8');
@@ -115,7 +115,7 @@ describe('the steps', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Duplicate step 1' }));
     expect(titles().slice(0, 3)).toEqual([
       'A note called C',
-      'A note called C (copy)',
+      'A note called C (Copy)',
       'The root is 1',
     ]);
   });

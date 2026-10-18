@@ -13,11 +13,16 @@ import { useElementSize } from '@/hooks/useElementSize';
 import { KeyRing, ringPosition, type RingSlice } from './KeyRing';
 
 // ── Part 2's choose steps: the key, then the mode ──────────────────────────
-// "Choose your color": the circle of fifths, large, in the key colors; a
-// tap picks the key center, plays its 1, 3 and 5, and names it the hybrid
-// way ("E♭ Major"). Then major or minor, each shown with the color it wears:
-// a minor key takes its relative major's color (C minor is E♭'s purple),
-// the house rule, so the student sees the color move round the ring.
+// "Choose Your Key" ("Pick a color on the circle. Its note is your 1."):
+// the circle of fifths, large, in the key colors; a tap picks the key
+// center, plays its 1, 3 and 5, and names it the hybrid way ("E♭ Major").
+// Then "Choose Major or Minor", each shown with the color it wears: a minor
+// key takes its relative major's color (C minor is E♭'s purple), the house
+// rule, so the student sees the color move round the ring.
+
+/** The choose steps' headings (their directions are the steps'). */
+export const CHOOSE_KEY_HEADING = 'Choose Your Key';
+export const CHOOSE_MODE_HEADING = 'Choose Major or Minor';
 
 /** "C Major", "E♭ Minor". */
 export const keyName = (tonic: LiteracyTonic, mode: LiteracyMode) =>
@@ -134,7 +139,7 @@ export function ChooseKeyPanel({
             slices={slices}
             size={size}
             role="radio"
-            ariaLabel="Choose your key"
+            ariaLabel={CHOOSE_KEY_HEADING}
             onPick={(slice) => onChoose(slice.id as LiteracyTonic)}
             center={
               chosen ? (
@@ -189,7 +194,7 @@ export function ChooseKeyPanel({
                 className="inline-flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 text-sm text-[#e8e8f0] transition-colors hover:bg-white/[0.08]"
               >
                 <Headphones className="size-4" />
-                Hear it
+                Hear It
               </button>
             </div>
           </div>

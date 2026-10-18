@@ -8,11 +8,14 @@
  * and runs the story with the pointer and the keys:
  *
  * - paletteOpens: ⌘K / Ctrl+K (MOD) opens the palette from Create, Mix, the
- *   Score and a focused track row; ⇧⌘P from the Lead sheet; each time
- *   focus is in its field, and Escape closes it.
+ *   Score and a focused track row; ⇧⌘P from the Lead sheet, and ⌘K there
+ *   too with nothing selected on the chart (no chord symbol added); each
+ *   time focus is in its field, and Escape closes it.
  * - paletteShortcuts: every row of every opening shows its keys in a Kbd
  *   equal to the registry's (the command's keysLabel when it declares one,
- *   else shortcutKeys(id).label), a row without keys shows none, and the
+ *   else shortcutKeys(id).label), a row without keys shows none, a row
+ *   whose first key a command earlier in the keys' precedence there takes
+ *   (dispatcher.availableCommands of the palette's opener) shows none, and the
  *   groups come in SCOPE_ORDER; the row-focused opening lists the track
  *   list's group.
  * - paletteRuns: "Loop on / off" toggles the loop; "Add a marker at the
@@ -20,6 +23,10 @@
  *   the playhead (bar 2); "Export…" opens the Export dialog; "Mute the
  *   track", chosen after opening from a focused row that isn't the
  *   selected one, mutes that row's track and nothing else.
+ * - paletteClickAfterClose: with Lead selected, ⌘K then Escape, and a click
+ *   on Bass's name 30 ms later (page.mouse at the point measured before,
+ *   so Playwright's own waiting can't hide a scrim that swallows it)
+ *   selects Bass.
  * - paletteFloors: the palette (designProbe in subtree mode) has no text
  *   under the floor and no target under 24×24, no sideways overflow, and
  *   sits inside the window, at every opening.
@@ -35,7 +42,8 @@
  * - exportTrack: Export track ▸ WAV audio file opens the dialog on Audio ▸
  *   One track with that track chosen and its effects on; ▸ WAV (no
  *   effects) opens it with No effects; that export downloads
- *   `<song>-<track>-dry.wav`, a valid WAV that isn't silent.
+ *   `<song>-<track>-dry.wav`, a valid WAV that isn't silent and differs
+ *   from the song without mastering (decoded PCM, RMS difference > 0.01).
  * - rowContextMenu: a right-click on a row's name opens the track menu at
  *   the pointer and selects that row; after Escape, one click on another
  *   row selects it (no click swallowed).
@@ -48,10 +56,13 @@
  * And the downloads (two bars render in a few seconds, even on the
  * Chromebook profile, so every size runs them):
  * - exportAudio: Whole song, WAV, mastering on and then off: each downloads
- *   `<song>.wav`, a valid WAV of the song's length; the two differ.
+ *   `<song>.wav`, a valid WAV of the song's length; the two differ
+ *   (decoded PCM, RMS difference > 0.01: renders of one song already
+ *   differ by an LSB in a few samples, so bytes prove nothing).
  * - exportStems: Each track downloads `<song>-stems.zip` with one entry per
  *   track that plays, named `NN-<track>.wav` in track order, each a valid
- *   WAV of the song's length.
+ *   WAV of the song's length that differs from every other stem and from
+ *   the song (RMS difference > 0.01).
  * - exportNotation: MIDI downloads `<song>.mid` (header parsed; the Drums
  *   track's notes on channel 10, the others not); MusicXML lead sheet and
  *   full score download `<song>-lead-sheet.musicxml` and
@@ -75,15 +86,19 @@ import { MOD } from './_shared.mjs';
 export const flags = {
   paletteOpens: {
     goal: true,
-    text: '⌘K opened the palette from Create, Mix, the Score and a track row, ⇧⌘P from the Lead sheet, with focus in its field',
+    text: '⌘K opened the palette from Create, Mix, the Score, a track row and the Lead sheet with nothing selected, ⇧⌘P from the Lead sheet, with focus in its field',
   },
   paletteShortcuts: {
     goal: true,
-    text: 'every palette row showed the registry’s keys (none where it has none), groups in SCOPE_ORDER',
+    text: 'every palette row showed the registry’s keys (none where it has none or an earlier command takes its key there), groups in SCOPE_ORDER',
   },
   paletteRuns: {
     goal: true,
     text: 'from the palette, Loop toggled the loop, Add a marker added one at the playhead, Export… opened the dialog, and Mute acted on the focused row',
+  },
+  paletteClickAfterClose: {
+    goal: true,
+    text: 'a click on another track 30 ms after Escape closed the palette selected that track',
   },
   paletteFloors: {
     goal: true,
@@ -99,11 +114,11 @@ export const flags = {
   },
   exportAudio: {
     goal: true,
-    text: 'Whole song WAV downloaded <song>.wav with mastering on and off, valid, the song’s length, the two different',
+    text: 'Whole song WAV downloaded <song>.wav with mastering on and off, valid, the song’s length, the two different (PCM RMS difference > 0.01)',
   },
   exportStems: {
     goal: true,
-    text: 'Each track downloaded one zip of NN-<track>.wav entries, one per playing track, each a valid WAV of the song’s length',
+    text: 'Each track downloaded one zip of NN-<track>.wav entries, one per playing track, each a valid WAV of the song’s length, different from each other and from the song (PCM RMS difference > 0.01)',
   },
   exportNotation: {
     goal: true,
@@ -119,7 +134,7 @@ export const flags = {
   },
   exportTrack: {
     goal: true,
-    text: 'Export track ▸ WAV opened the dialog on that track; no effects downloaded <song>-<track>-dry.wav',
+    text: 'Export track ▸ WAV opened the dialog on that track; no effects downloaded <song>-<track>-dry.wav, different from the song (PCM RMS difference > 0.01)',
   },
   rowContextMenu: {
     goal: true,
@@ -222,12 +237,36 @@ async function paletteNow() {
   const order = await window.__RT_DEV_MODULE__(
     '/src/daw/commands/scopeOrder.ts',
   );
+  const dispatcher = await window.__RT_DEV_MODULE__(
+    '/src/daw/commands/dispatcher.ts',
+  );
+  const keys = await window.__RT_DEV_MODULE__('/src/daw/commands/keys.ts');
+  const paletteStore = await window.__RT_DEV_MODULE__(
+    '/src/daw/shell/help/usePaletteStore.ts',
+  );
+  // What works where the palette was opened, in the keys' precedence order:
+  // a key an earlier command takes there would never run a later one, so
+  // the later row shows none (2.15 review: "only the keys that work there").
+  const opener = paletteStore.usePaletteStore.getState().opener ?? null;
+  const precedence = dispatcher.availableCommands(opener);
+  const shadowOf = (command) => {
+    const first = command.chords?.[0];
+    if (!first) return null;
+    const label = keys.chordLabel(first, false);
+    const at = precedence.findIndex((c) => c.id === command.id);
+    const earlier = precedence
+      .slice(0, at === -1 ? precedence.length : at)
+      .find((c) => c.chords.some((ch) => keys.chordLabel(ch, false) === label));
+    return earlier?.id ?? null;
+  };
   const expectedKeys = (id) => {
     const command = registry.getCommand(id);
-    if (!command) return { missing: true };
-    if (command.keysLabel) return command.keysLabel;
-    if (!command.chords?.length) return null;
-    return shortcuts.shortcutKeys(id).label;
+    if (!command) return { expected: { missing: true }, shadowedBy: null };
+    const shadowedBy = shadowOf(command);
+    if (shadowedBy) return { expected: null, shadowedBy };
+    if (command.keysLabel) return { expected: command.keysLabel, shadowedBy };
+    if (!command.chords?.length) return { expected: null, shadowedBy };
+    return { expected: shortcuts.shortcutKeys(id).label, shadowedBy };
   };
   const groups = [
     ...panel.querySelectorAll('[data-testid="command-palette-group"]'),
@@ -240,7 +279,7 @@ async function paletteNow() {
         return {
           id,
           keys: kbd ? kbd.textContent.trim() : null,
-          expected: expectedKeys(id),
+          ...expectedKeys(id),
         };
       },
     ),
@@ -544,6 +583,53 @@ function readWav(bytes) {
     dataSize: data.size,
   };
 }
+
+/**
+ * A WAV's samples as floats in −1…1 (interleaved), or null when it isn't a
+ * WAV readWav accepts: 16, 24 and 32-bit PCM and 32-bit float.
+ */
+function pcmOf(bytes) {
+  const wav = readWav(bytes);
+  if (!wav.valid) return null;
+  const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  const view = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+  const width = wav.bits / 8;
+  const count = Math.floor(wav.dataSize / width);
+  const out = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    const at = wav.dataOffset + i * width;
+    if (wav.bits === 16) out[i] = view.getInt16(at, true) / 32768;
+    else if (wav.bits === 24) {
+      const v = u8[at] | (u8[at + 1] << 8) | (u8[at + 2] << 16);
+      out[i] = (v & 0x800000 ? v - 0x1000000 : v) / 8388608;
+    } else if (wav.format === 3) out[i] = view.getFloat32(at, true);
+    else out[i] = view.getInt32(at, true) / 2147483648;
+  }
+  return out;
+}
+
+/**
+ * The RMS of the difference of two signals (over the shorter one), or null
+ * without both. Two renders of the same song differ by an LSB here and
+ * there, so the bytes of two renders of one song can differ: a real
+ * difference is judged by a threshold, never by byte inequality.
+ */
+function rmsDiff(a, b) {
+  if (!a || !b) return null;
+  const n = Math.min(a.length, b.length);
+  if (n === 0) return null;
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    const d = a[i] - b[i];
+    sum += d * d;
+  }
+  return Math.sqrt(sum / n);
+}
+
+/** What counts as different audio: an RMS difference past −40 dBFS. */
+const DIFFERENT_RMS = 0.01;
+
+const round = (x) => (x === null ? null : Math.round(x * 1e5) / 1e5);
 
 /** A store-only zip's entries, from its central directory (DataView). */
 function readZip(bytes) {
@@ -920,10 +1006,20 @@ async function paletteOpens(kit, page, ids) {
     ['mix', 'studio', `${MOD}+KeyK`],
     ['score', 'score', `${MOD}+KeyK`],
     ['leadsheet', 'leadsheet', `${MOD}+Shift+KeyP`],
+    // ⌘K is also the Lead sheet's Add a chord symbol, which needs something
+    // selected on the chart: with nothing selected it opens the palette.
+    ['leadsheetK', 'leadsheet', `${MOD}+KeyK`],
   ]) {
     await toView(kit, page, view);
+    const chordsBefore = await page.evaluate(
+      () => window.__MA_STORE__.getState().chordRegions.length,
+    );
     const opened = await openPalette(kit, page, keys);
     at[name] = { ...opened, view, closed: await closePalette(kit, page) };
+    at[name].chordsAdded =
+      (await page.evaluate(
+        () => window.__MA_STORE__.getState().chordRegions.length,
+      )) - chordsBefore;
     await closeOverlays(kit, page);
   }
   await toView(kit, page, 'arrange');
@@ -936,6 +1032,76 @@ async function paletteOpens(kit, page, ids) {
   };
   at.row.focusBack = await page.evaluate(focusNow);
   return at;
+}
+
+/** Escape on the palette, then a click on another row 30 ms later. */
+async function clickAfterClose(kit, page, ids) {
+  await toView(kit, page, 'arrange');
+  await page.evaluate((id) => {
+    window.__MA_STORE__.getState().setSelectedTrackId(id);
+  }, ids.lead);
+  await kit.sleep(200);
+  const box = await page.locator(selector(ids.bass)).boundingBox();
+  if (!box) throw new Error('no Bass row');
+  await page.evaluate(() => document.activeElement?.blur());
+  await page.keyboard.press(`${MOD}+KeyK`);
+  await page.waitForSelector(`${PALETTE}[data-state="open"]`, {
+    timeout: 5000,
+  });
+  await kit.sleep(300);
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  // What the click's pointerdown reaches (recorded by the page as it
+  // happens, so reading it doesn't delay the click).
+  await page.evaluate(() => {
+    window.__R34_CLICK__ = null;
+    window.addEventListener(
+      'pointerdown',
+      (e) => {
+        window.__R34_CLICK__ = {
+          target:
+            e.target instanceof Element
+              ? (e.target.getAttribute('data-testid') ??
+                e.target.getAttribute('aria-label') ??
+                e.target.tagName.toLowerCase())
+              : String(e.target),
+          bodyPointerEvents: getComputedStyle(document.body).pointerEvents,
+        };
+      },
+      { capture: true, once: true },
+    );
+  });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(30);
+  const atClick = await page.evaluate(
+    ({ px, py }) => {
+      const hit = document.elementFromPoint(px, py);
+      return {
+        hit: hit?.closest('[data-track-selector]')
+          ? 'track name'
+          : hit
+            ? `${hit.tagName.toLowerCase()}${hit.getAttribute('data-state') ? `[data-state=${hit.getAttribute('data-state')}]` : ''}`
+            : null,
+        // The element on top there: its classes, inline pointer-events
+        // (Radix sets its own) and what the cascade made of them.
+        hitClass: hit ? String(hit.className).slice(0, 80) : null,
+        hitInlinePointerEvents: hit?.style?.pointerEvents || null,
+        hitPointerEvents: hit ? getComputedStyle(hit).pointerEvents : null,
+        bodyPointerEvents: getComputedStyle(document.body).pointerEvents,
+      };
+    },
+    { px: x, py: y },
+  );
+  await page.mouse.click(x, y);
+  await kit.sleep(400);
+  const after = await state(page);
+  return {
+    before: ids.lead,
+    selected: after.selectedTrackId,
+    paletteClosed: !(await page.evaluate(paletteOpen)),
+    atClick,
+    pointerDown: await page.evaluate(() => window.__R34_CLICK__),
+  };
 }
 
 /** Loop, Add a marker, Export… and a track list command, by name. */
@@ -1196,7 +1362,7 @@ async function exportTrackDialog(kit, page, ids, item) {
   return page.evaluate(dialogNow);
 }
 
-async function exportTrack(kit, page, ids, { dir, renderTimeout }) {
+async function exportTrack(kit, page, ids, { dir, renderTimeout, song }) {
   const wet = await exportTrackDialog(kit, page, ids, 'track-menu-export-wav');
   await closeOverlays(kit, page);
   const dry = await exportTrackDialog(
@@ -1208,14 +1374,20 @@ async function exportTrack(kit, page, ids, { dir, renderTimeout }) {
   let file = null;
   if (dir) {
     const got = await download(kit, page, RUN_AUDIO, dir, null, renderTimeout);
-    file = { filename: got.filename, wav: readWav(readFileSync(got.path)) };
+    const bytes = readFileSync(got.path);
+    file = {
+      filename: got.filename,
+      wav: readWav(bytes),
+      // Against the whole song without mastering (dry leaves it out too).
+      vsSong: round(rmsDiff(pcmOf(bytes), song.off ?? null)),
+    };
   }
   await closeOverlays(kit, page);
   return { wet, dry, file };
 }
 
 /** Whole song, WAV, mastering on then off. */
-async function exportAudio(kit, page, { dir, renderTimeout }) {
+async function exportAudio(kit, page, { dir, renderTimeout, song }) {
   const files = {};
   for (const mastering of ['on', 'off']) {
     await openFromPill(kit, page);
@@ -1239,15 +1411,19 @@ async function exportAudio(kit, page, { dir, renderTimeout }) {
       bytes,
     };
   }
-  const a = files.on.bytes;
-  const b = files.off.bytes;
-  const differ = a.length !== b.length || !a.equals(b);
+  // Kept for the stems and the track export to compare against.
+  song.on = pcmOf(files.on.bytes);
+  song.off = pcmOf(files.off.bytes);
   for (const f of Object.values(files)) delete f.bytes;
-  return { ...files, differ, expectedSeconds: await expectedSeconds(page) };
+  return {
+    ...files,
+    masteringRms: round(rmsDiff(song.on, song.off)),
+    expectedSeconds: await expectedSeconds(page),
+  };
 }
 
 /** Each track: one zip of WAVs. */
-async function exportStems(kit, page, { dir, renderTimeout }) {
+async function exportStems(kit, page, { dir, renderTimeout, song }) {
   await openFromPill(kit, page);
   await choose(kit, page, 'export-tab', 'audio');
   await choose(kit, page, 'export-what', 'stems');
@@ -1278,16 +1454,29 @@ async function exportStems(kit, page, { dir, renderTimeout }) {
   await openFromPill(kit, page);
   await choose(kit, page, 'export-what', 'song');
   await closeOverlays(kit, page);
+  // Each stem against each other one and against the song (mastering on,
+  // as the stems were rendered).
+  const pcms = zip.entries.map((e) => pcmOf(e.data));
+  const pairs = {};
+  for (let i = 0; i < pcms.length; i++) {
+    for (let j = i + 1; j < pcms.length; j++) {
+      pairs[`${zip.entries[i].name} | ${zip.entries[j].name}`] = round(
+        rmsDiff(pcms[i], pcms[j]),
+      );
+    }
+  }
   return {
     filename: got.filename,
     valid: zip.valid,
     reason: zip.reason ?? null,
     expected,
-    entries: zip.entries.map((e) => ({
+    entries: zip.entries.map((e, i) => ({
       name: e.name,
       method: e.method,
       wav: readWav(e.data),
+      vsSong: round(rmsDiff(pcms[i], song.on ?? null)),
     })),
+    pairs,
     expectedSeconds: await expectedSeconds(page),
   };
 }
@@ -1385,20 +1574,26 @@ async function commandsAt(kit, run, viewport, { renders }) {
       const dir = renders ? downloadDir(run, viewport) : null;
       await step('opens', () => paletteOpens(kit, page, ids));
       await step('runs', () => paletteRuns(kit, page, ids));
+      await step('afterClose', () => clickAfterClose(kit, page, ids));
       await step('pill', () => exportPillAndTabs(kit, page));
       await step('field', () => trackMenuField(kit, page, ids));
       await step('context', () => rowContextMenu(kit, page, ids));
       await step('edge', () => selectedEdge(kit, page, ids));
       await step('icon', () => instrumentIcon(kit, page, ids));
-      await step('exportTrack', () =>
-        exportTrack(kit, page, ids, { dir, renderTimeout }),
-      );
+      // The song's renders, which the stems and the track export are
+      // compared against.
+      const song = { on: null, off: null };
       if (renders) {
         await step('audio', () =>
-          exportAudio(kit, page, { dir, renderTimeout }),
+          exportAudio(kit, page, { dir, renderTimeout, song }),
         );
+      }
+      await step('exportTrack', () =>
+        exportTrack(kit, page, ids, { dir, renderTimeout, song }),
+      );
+      if (renders) {
         await step('stems', () =>
-          exportStems(kit, page, { dir, renderTimeout }),
+          exportStems(kit, page, { dir, renderTimeout, song }),
         );
         await step('notation', () => exportNotation(kit, page, { dir }));
         await step('duplicate', () => duplicateTrack(kit, page, ids));
@@ -1438,12 +1633,13 @@ function groupsInOrder(p) {
   return ranks.every((r, i) => i === 0 || r >= ranks[i - 1]);
 }
 
-const OPENINGS = ['create', 'mix', 'score', 'leadsheet', 'row'];
+const OPENINGS = ['create', 'mix', 'score', 'leadsheet', 'leadsheetK', 'row'];
 
 function judgeOpens(o, ids) {
   if (!ok(o)) return false;
   return (
     OPENINGS.every((k) => o[k]?.opened && o[k].focusInField && o[k].closed) &&
+    o.leadsheetK.chordsAdded === 0 &&
     o.row.groups.some((g) => g.scope === 'tracks') &&
     o.row.focusBack?.row === ids.bass
   );
@@ -1599,7 +1795,9 @@ function judgeExportTrack(t, renders) {
     dialogs &&
     t.file?.filename === `${SLUG}-bass-dry.wav` &&
     !!t.file.wav?.valid &&
-    !t.file.wav.silent
+    !t.file.wav.silent &&
+    t.file.vsSong !== null &&
+    t.file.vsSong > DIFFERENT_RMS
   );
 }
 
@@ -1612,7 +1810,9 @@ function judgeAudio(a) {
         a[m].dialog.mastering === m &&
         lengthOk(a[m].wav, a.expectedSeconds) &&
         !a[m].wav.silent,
-    ) && a.differ
+    ) &&
+    a.masteringRms !== null &&
+    a.masteringRms > DIFFERENT_RMS
   );
 }
 
@@ -1630,8 +1830,12 @@ function judgeStems(s, sameValue) {
       (e) =>
         /^\d{2}-.+\.wav$/.test(e.name) &&
         lengthOk(e.wav, s.expectedSeconds) &&
-        !e.wav.silent,
-    )
+        !e.wav.silent &&
+        e.vsSong !== null &&
+        e.vsSong > DIFFERENT_RMS,
+    ) &&
+    Object.keys(s.pairs).length === 3 &&
+    Object.values(s.pairs).every((d) => d !== null && d > DIFFERENT_RMS)
   );
 }
 
@@ -1739,6 +1943,10 @@ function judge(v, same) {
           groupsInOrder(p),
       ),
     paletteRuns: judgeRuns(v.runs, ids),
+    paletteClickAfterClose:
+      ok(v.afterClose) &&
+      v.afterClose.paletteClosed &&
+      v.afterClose.selected === ids.bass,
     paletteFloors:
       palettes.length === OPENINGS.length &&
       palettes.every((p) => floorsClean(p.floors) && p.inside && !p.overflowX),
@@ -1792,6 +2000,11 @@ function report(v, judged, same) {
             closed: p.closed,
             groups: p.groups.map((g) => `${g.scope} (${g.rows.length})`),
             keyMismatches: keyMismatches(p),
+            shadowed: p.groups.flatMap((g) =>
+              g.rows
+                .filter((r) => r.shadowedBy)
+                .map((r) => `${r.id} (by ${r.shadowedBy})`),
+            ),
             inOrder: groupsInOrder(p),
             inside: p.inside,
             box: p.box,
@@ -1820,6 +2033,8 @@ function report(v, judged, same) {
       (v.opens &&
         Object.fromEntries(OPENINGS.map((k) => [k, palette(v.opens[k])]))),
     rowFocusBack: v.opens?.row?.focusBack ?? null,
+    leadsheetKChordsAdded: v.opens?.leadsheetK?.chordsAdded ?? null,
+    afterClose: err(v.afterClose) ?? v.afterClose,
     runs: err(v.runs) ?? {
       loop: v.runs?.loop,
       marker: v.runs?.marker,
@@ -1873,6 +2088,7 @@ function report(v, judged, same) {
       file: v.exportTrack?.file && {
         filename: v.exportTrack.file.filename,
         wav: wavText(v.exportTrack.file.wav),
+        vsSong: v.exportTrack.file.vsSong,
       },
     },
     ...(v.renders
@@ -1887,15 +2103,16 @@ function report(v, judged, same) {
               filename: v.audio.off.filename,
               wav: wavText(v.audio.off.wav),
             },
-            differ: v.audio?.differ,
+            masteringRms: v.audio?.masteringRms,
           },
           stems: err(v.stems) ?? {
             filename: v.stems?.filename,
             valid: v.stems?.valid,
             expected: v.stems?.expected,
             entries: v.stems?.entries.map(
-              (e) => `${e.name}: ${wavText(e.wav)}`,
+              (e) => `${e.name}: ${wavText(e.wav)}, vs song RMS ${e.vsSong}`,
             ),
+            pairs: v.stems?.pairs,
             expectedSeconds: v.stems?.expectedSeconds,
           },
           notation: err(v.notation) ?? {

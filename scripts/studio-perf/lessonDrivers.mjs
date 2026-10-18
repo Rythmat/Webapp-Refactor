@@ -812,6 +812,45 @@ const TRIM_MASTER = {
     }),
 };
 
+/**
+ * Clicks the Export dialog's Export button. When it is there but off, the
+ * step fails with the reason the button gives (its title: "Add a track
+ * first", "No track plays anything yet"), not with a click's timeout.
+ */
+async function clickExportRun(ctx) {
+  // The dialog loads on first use: wait for the button before reading it.
+  await ctx.page
+    .locator(anchor('export-audio-run'))
+    .first()
+    .waitFor({ state: 'attached', timeout: 10_000 })
+    .catch(() => {});
+  const off = await ctx.read((sel) => {
+    const run = document.querySelector(sel);
+    return run && run.disabled
+      ? run.getAttribute('title') || '(no title)'
+      : null;
+  }, anchor('export-audio-run'));
+  if (off !== null) {
+    throw new Error(`export-audio-run is disabled: ${off}`);
+  }
+  await ctx.clickAnchor('export-audio-run', 'Export');
+}
+
+/** Escape until no dialog or menu is open (at most four times). */
+async function closeOverlays(ctx) {
+  for (let i = 0; i < 4; i++) {
+    const open = await ctx.read(
+      () =>
+        !!document.querySelector(
+          '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"], [role="menu"][data-state="open"]',
+        ),
+    );
+    if (!open) return;
+    await ctx.press('Escape', 'Escape (close what is open)');
+    await ctx.page.waitForTimeout(250);
+  }
+}
+
 const EXPORT_AUDIO = {
   how: 'click',
   describe: 'click export-pill (the top bar), then export-audio-run',
@@ -822,13 +861,15 @@ const EXPORT_AUDIO = {
     await ctx.measure('export-pill');
     await ctx.clickAnchor('export-pill', 'Export');
     await ctx.measure('export-audio-run');
-    await ctx.clickAnchor('export-audio-run', 'Export');
+    await clickExportRun(ctx);
   },
   // The Project menu's Export ▸ Audio… opens the same dialog: when the pill
   // can't be reached, the keyboard reaches the menu item (a Radix menu):
   // focus it, Enter, then Export. This way the bounce itself is still
-  // measured.
+  // measured. Whatever the pill left open (the dialog itself) is closed
+  // first, or it would cover the Project menu.
   async fallback(ctx) {
+    await closeOverlays(ctx);
     const item = ctx.page.locator(anchor('file-export-audio')).first();
     if (!(await item.isVisible())) await ctx.clickAnchor('file-menu');
     await ctx.act(
@@ -837,7 +878,7 @@ const EXPORT_AUDIO = {
       anchor('file-export-audio'),
     );
     await ctx.press('Enter', 'Enter on Export Audio…');
-    await ctx.clickAnchor('export-audio-run', 'Export');
+    await clickExportRun(ctx);
   },
 };
 

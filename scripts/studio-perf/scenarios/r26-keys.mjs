@@ -12,8 +12,9 @@
  * - recordGuardBothWays: R over an existing take asks first, from the key
  *   and from the Record button.
  * - sheetListsCommands: '?' opens the shortcut sheet listing the commands,
- *   every scope's heading among them, and Escape closes it without stopping
- *   anything.
+ *   every scope's heading among them and none of the palette's key-less
+ *   commands (Export…, Add a track…, Go to Mix, Open the Library), and
+ *   Escape closes it without stopping anything.
  * - pageZoomFree: ⌘/Ctrl with = and − reach the browser (not prevented) and
  *   leave the timeline's zoom; ⌥= zooms the timeline.
  * - typingChipFits: while the computer keyboard is on, its chip is in the
@@ -44,7 +45,7 @@ export const flags = {
   },
   sheetListsCommands: {
     goal: true,
-    text: '? opened the shortcut sheet with every scope’s commands',
+    text: '? opened the shortcut sheet with every scope’s commands and none of the key-less ones',
   },
   pageZoomFree: {
     goal: true,
@@ -309,6 +310,15 @@ async function keysIn(kit, run) {
           'Octave up',
           'Single-key shortcuts',
         ].filter((t) => dialog.textContent.includes(t)),
+        // The palette's key-less commands (2.15) are not shortcuts: the
+        // sheet lists none of them.
+        keyless: [...dialog.querySelectorAll('li')]
+          .map((li) => li.textContent.trim())
+          .filter((text) =>
+            ['Export…', 'Add a track…', 'Go to Mix', 'Open the Library'].some(
+              (t) => text.includes(t),
+            ),
+          ),
       };
     });
     await page.keyboard.press('Escape');
@@ -433,6 +443,7 @@ async function keys(kit, run) {
         !!k.sheet &&
         k.sheet.rows >= 40 &&
         k.sheet.has.length === 6 &&
+        k.sheet.keyless.length === 0 &&
         k.sheetClosed,
       pageZoomFree:
         k.zoom.zoomAfterMod === k.zoom.zoomBefore &&

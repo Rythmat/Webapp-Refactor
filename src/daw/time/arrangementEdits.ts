@@ -18,8 +18,14 @@
 // and then lets each new audio clip play its source's audio (sharedAudio).
 // `mint` gives every new id, so a test can predict them.
 
-import type { AutomationLanes } from '@/daw/audio/automation';
+import type { MidiCCEvent } from '@prism/engine';
+import {
+  sampleAutomation,
+  type AutomationLanes,
+  type AutomationPoint,
+} from '@/daw/audio/automation';
 import { audioClipSection, splitAudioClip } from '@/daw/audio/audioClipCuts';
+import { hiddenKey } from '@/daw/components/Score/scoreChords';
 import {
   midiClipLength,
   midiClipSection,
@@ -64,6 +70,7 @@ export type ArrangementState = Pick<
   | 'scoreSlurs'
   | 'scoreSpellings'
   | 'scoreSlashNotes'
+  | 'scoreChordHidden'
 >;
 
 /** What an edit writes: store keys, in one write. */
@@ -83,6 +90,7 @@ export type ArrangementPatch = Partial<
     | 'scoreSlurs'
     | 'scoreSpellings'
     | 'scoreSlashNotes'
+    | 'scoreChordHidden'
   >
 >;
 
@@ -129,44 +137,201 @@ function mapKept<T>(list: T[], map: (entry: T) => T): T[] {
   return changed ? out : list;
 }
 
-/** Lanes with every point at or after `at` moved `delta` later. */
-function shiftLanes(
+/** How close two lane values are to count as the same. */
+const SAME_VALUE = 1e-9;
+
+/**
+ * `points` (sorted) with the `edges` added where the lane needs them: an
+ * edge on a tick that already has a point is left out, and so is one the
+ * lane already passes through (a flat stretch, or the middle of a ramp), so
+ * the student finds no points they didn't need in the lane.
+ */
+function withEdges(
+  points: AutomationPoint[],
+  edges: AutomationPoint[],
+): AutomationPoint[] {
+  const taken = new Set(points.map((p) => p.tick));
+  const added = edges.filter((e) => {
+    if (taken.has(e.tick)) return false;
+    taken.add(e.tick);
+    return true;
+  });
+  const out = [...points, ...added].sort((a, b) => a.tick - b.tick);
+  // An added point the lane would sound the same without goes again. Each
+  // one is weighed against the lane as it is by then, so the lane's sound
+  // never changes as they go.
+  for (const edge of added) {
+    const i = out.indexOf(edge);
+    const rest = [...out.slice(0, i), ...out.slice(i + 1)];
+    const without = sampleAutomation(rest, edge.tick);
+    if (without !== null && Math.abs(without - edge.value) < SAME_VALUE) {
+      out.splice(i, 1);
+    }
+  }
+  return out;
+}
+
+/** `next` for a lane, or the lane itself when it holds the same points. */
+function keptLane(
+  points: AutomationPoint[],
+  next: AutomationPoint[],
+): AutomationPoint[] {
+  return next.length === points.length && next.every((p, i) => p === points[i])
+    ? points
+    : next;
+}
+
+/** `lanes` with `edit` applied to every lane that has points. */
+function mapLanes(
   lanes: AutomationLanes,
-  at: number,
-  delta: number,
+  edit: (points: AutomationPoint[]) => AutomationPoint[],
 ): AutomationLanes {
   let changed = false;
   const out: AutomationLanes = {};
   for (const [lane, points] of Object.entries(lanes)) {
-    out[lane] = mapKept(points, (p) =>
-      p.tick >= at ? { ...p, tick: p.tick + delta } : p,
-    );
+    out[lane] = points.length > 0 ? keptLane(points, edit(points)) : points;
     if (out[lane] !== points) changed = true;
   }
   return changed ? out : lanes;
 }
 
-/** Lanes with the points in [from, to) copied `offset` later. */
-function copyLanePoints(
+/**
+ * Lanes with every point at or after `at` moved `delta` later. A ramp over
+ * `at` would stretch over the new bars, so the music before `at` would
+ * swell or fade at a new rate: the lane holds its value at `at` through the
+ * new bars instead (a point at `at` and one at `at + delta`), and the ramp
+ * goes on from there as it did.
+ */
+function shiftLanes(
+  lanes: AutomationLanes,
+  at: number,
+  delta: number,
+): AutomationLanes {
+  return mapLanes(lanes, (points) => {
+    const held = sampleAutomation(points, at)!;
+    return withEdges(
+      mapKept(points, (p) =>
+        p.tick >= at ? { ...p, tick: p.tick + delta } : p,
+      ),
+      [
+        { tick: at, value: held },
+        { tick: at + delta, value: held },
+      ],
+    );
+  });
+}
+
+/**
+ * Lanes as Duplicate leaves them: the section [from, to) played twice, its
+ * copy in [to, to + its length) and everything after it that much later.
+ * The section sounds as it did up to its last tick, the copy starts at the
+ * value the section starts at and ends at the one it ends at, and the music
+ * after the copy goes on from there. Only the points in the section would
+ * miss the values at its edges (a ramp in from before it, one on past it),
+ * so those are added where they're needed: the section's own value a tick
+ * before its end (the lane then turns to the copy's start in that tick), the
+ * copy's first value on its first tick and its last value at its end.
+ */
+function duplicateLanes(
   lanes: AutomationLanes,
   from: number,
   to: number,
-  offset: number,
 ): AutomationLanes {
-  let changed = false;
-  const out: AutomationLanes = {};
-  for (const [lane, points] of Object.entries(lanes)) {
+  const length = to - from;
+  return mapLanes(lanes, (points) => {
+    const before = points.filter((p) => p.tick < to);
     const copies = points
       .filter((p) => p.tick >= from && p.tick < to)
-      .map((p) => ({ ...p, tick: p.tick + offset }));
-    if (copies.length === 0) {
-      out[lane] = points;
-      continue;
-    }
-    changed = true;
-    out[lane] = [...points, ...copies].sort((a, b) => a.tick - b.tick);
+      .map((p) => ({ ...p, tick: p.tick + length }));
+    const later = points
+      .filter((p) => p.tick >= to)
+      .map((p) => ({ ...p, tick: p.tick + length }));
+    return withEdges(
+      [...before, ...copies, ...later],
+      [
+        { tick: to - 1, value: sampleAutomation(points, to - 1)! },
+        { tick: to, value: sampleAutomation(points, from)! },
+        { tick: to + length, value: sampleAutomation(points, to)! },
+      ],
+    );
+  });
+}
+
+/** The sustain pedal's controller: 64 or more holds it down. */
+const SUSTAIN_CC = 64;
+
+/**
+ * A MIDI clip cut at song tick `at` the way the scissors cut it
+ * (splitMidiClip), then made ready for the bars that go in between its
+ * halves. A sized clip keeps its box: the halves are sized to the cut and
+ * to the rest, so a clip that ends in silence still shows its bars (and a
+ * Duplicate after the cut copies the whole section). A sustain pedal held
+ * at the cut is lifted there, or its notes would ring through the new bars
+ * until the right half presses it again.
+ */
+function cutMidiClip(
+  clip: MidiClip,
+  at: number,
+  rightId: string,
+): [MidiClip, MidiClip] | null {
+  const halves = splitMidiClip(clip, at, rightId);
+  if (!halves) return null;
+  let [left, right] = halves;
+  const cut = at - clip.startTick;
+  if (clip.durationTicks) {
+    left = { ...left, durationTicks: cut };
+    right = { ...right, durationTicks: midiClipLength(clip) - cut };
   }
-  return changed ? out : lanes;
+  return [withPedalLifted(left, cut), right];
+}
+
+/**
+ * `clip` with its sustain pedal lifted by clip tick `end` on every channel
+ * where it is still down there. The lift goes a tick early, so a press on
+ * the next clip's first tick (the right half, or Duplicate's copy) always
+ * comes after it and holds; never before the clip's own last pedal event.
+ */
+function withPedalLifted(clip: MidiClip, end: number): MidiClip {
+  const last = new Map<number, MidiCCEvent>();
+  for (const c of clip.ccEvents ?? []) {
+    if (c.controller !== SUSTAIN_CC || c.tick >= end) continue;
+    const previous = last.get(c.channel);
+    if (!previous || c.tick >= previous.tick) last.set(c.channel, c);
+  }
+  const lifts: MidiCCEvent[] = [];
+  for (const [channel, c] of last) {
+    if (c.value < 64) continue;
+    lifts.push({
+      tick: Math.max(end - 1, c.tick + 1),
+      controller: SUSTAIN_CC,
+      value: 0,
+      channel,
+    });
+  }
+  return lifts.length > 0
+    ? { ...clip, ccEvents: [...(clip.ccEvents ?? []), ...lifts] }
+    : clip;
+}
+
+/**
+ * The chords hidden on a Score part, with the same parts hiding each new
+ * region whose source region they hid (`copies`: the source's id → the new
+ * one's): a chord cut in two, or copied, stays off the parts it was off.
+ */
+function hiddenFollowing(
+  hidden: string[],
+  tracks: readonly Track[],
+  copies: ReadonlyMap<string, string[]>,
+): string[] {
+  const had = new Set(hidden);
+  const extra: string[] = [];
+  for (const [source, made] of copies) {
+    for (const track of tracks) {
+      if (!had.has(hiddenKey(track.id, source))) continue;
+      for (const id of made) extra.push(hiddenKey(track.id, id));
+    }
+  }
+  return extra.length > 0 ? [...hidden, ...extra] : hidden;
 }
 
 /** The store's note-keyed marks, as noteMarks.ts names them. */
@@ -240,9 +405,11 @@ function copyNoteMarks(
  * `ticks` of silence inserted at song tick `atTick`: everything at or after
  * it moves that much later, on every track. A clip that straddles the tick
  * is cut there (the right half under a new id, its notes' Score marks with
- * it), and so is a chord; a section or a loop that straddles it gets longer.
- * When the tick and the length are whole bars, the chart's bar marks move
- * too, as + Measure moves them.
+ * it, a held pedal lifted at the cut: cutMidiClip), and so is a chord (its
+ * right part hidden on the Score parts the chord was); a section or a loop
+ * that straddles it gets longer. Automation holds its value through the new
+ * bars. When the tick and the length are whole bars, the chart's bar marks
+ * move too, as + Measure moves them.
  */
 export function insertTimeEdit(
   state: ArrangementState,
@@ -265,7 +432,7 @@ export function insertTimeEdit(
     }
     if (clip.startTick + midiClipLength(clip) <= at) return [clip];
     const rightId = mint('clip');
-    const halves = splitMidiClip(clip, at, rightId);
+    const halves = cutMidiClip(clip, at, rightId);
     if (!halves) return [clip];
     const cut = at - clip.startTick;
     for (const e of clip.events) {
@@ -315,6 +482,8 @@ export function insertTimeEdit(
     };
   });
 
+  /** A cut chord's id → its right part's, which hides where it hid. */
+  const rightPart = new Map<string, string[]>();
   const followClip = (id: string | undefined) =>
     id !== undefined ? (rightHalf.get(id) ?? id) : id;
   const chordRegions = state.chordRegions.flatMap((region): ChordRegion[] => {
@@ -343,6 +512,7 @@ export function insertTimeEdit(
     if (region.sourceClipId !== undefined) {
       right.sourceClipId = followClip(region.sourceClipId);
     }
+    rightPart.set(region.id, [right.id]);
     return [{ ...region, endTick: at }, right];
   });
 
@@ -393,6 +563,13 @@ export function insertTimeEdit(
     }
   }
 
+  const hidden = hiddenFollowing(
+    state.scoreChordHidden,
+    state.tracks,
+    rightPart,
+  );
+  if (hidden !== state.scoreChordHidden) patch.scoreChordHidden = hidden;
+
   const marks = noteMarksOf(state);
   Object.assign(
     patch,
@@ -429,6 +606,7 @@ export function duplicateSectionEdit(
   /** Score keys of copied notes: the note's → its copy's. */
   const copyOfNote = new Map<string, string>();
 
+  const sourceTracks = new Map(state.tracks.map((t) => [t.id, t]));
   const tracks = mapKept(after.tracks, (track) => {
     const midiCopies: MidiClip[] = [];
     for (const clip of track.midiClips) {
@@ -469,9 +647,10 @@ export function duplicateSectionEdit(
       });
       sharedAudio.push({ from: clip.id, to: copyId });
     }
-    const automation = track.automation
-      ? copyLanePoints(track.automation, from, to, length)
-      : track.automation;
+    // The lanes are built from the song as it was, not on the insert's held
+    // values, which would sit at the seam between the section and its copy.
+    const lanes = sourceTracks.get(track.id)?.automation;
+    const automation = lanes ? duplicateLanes(lanes, from, to) : lanes;
     if (
       midiCopies.length === 0 &&
       audioCopies.length === 0 &&
@@ -488,6 +667,8 @@ export function duplicateSectionEdit(
   });
 
   const chordCopies: ChordRegion[] = [];
+  /** A chord's id → its copy's, which hides where it hid. */
+  const copyOfChord = new Map<string, string[]>();
   for (const region of after.chordRegions) {
     const start = Math.max(region.startTick, from);
     const end = Math.min(region.endTick, to);
@@ -508,6 +689,7 @@ export function duplicateSectionEdit(
       if (source) copy.sourceClipId = source;
       else delete copy.sourceClipId;
     }
+    copyOfChord.set(region.id, [copy.id]);
     chordCopies.push(copy);
   }
 
@@ -521,7 +703,7 @@ export function duplicateSectionEdit(
             (a, b) => a.startTick - b.startTick,
           )
         : after.chordRegions,
-    masterAutomation: copyLanePoints(after.masterAutomation, from, to, length),
+    masterAutomation: duplicateLanes(state.masterAutomation, from, to),
     sections: normalizeSections([
       ...after.sections,
       {
@@ -534,6 +716,12 @@ export function duplicateSectionEdit(
     ]),
     ...marksPatch(marks, copyNoteMarks(marks, copyOfNote)),
   };
+  const hidden = hiddenFollowing(
+    after.scoreChordHidden,
+    after.tracks,
+    copyOfChord,
+  );
+  if (hidden !== after.scoreChordHidden) patch.scoreChordHidden = hidden;
   return { patch, sharedAudio };
 }
 

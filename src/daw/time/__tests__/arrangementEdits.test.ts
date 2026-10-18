@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { MidiNoteEvent } from '@prism/engine';
 import { audioClipSection } from '@/daw/audio/audioClipCuts';
-import type { AutomationLanes, AutomationPoint } from '@/daw/audio/automation';
+import {
+  sampleAutomation,
+  type AutomationLanes,
+  type AutomationPoint,
+} from '@/daw/audio/automation';
 import {
   midiClipSection,
   splitMidiClip,
@@ -69,6 +73,7 @@ interface Snapshot {
   scoreSlurs: string[];
   scoreSpellings: string[];
   scoreSlashNotes: string[];
+  scoreChordHidden: string[];
 }
 
 const snapshot = (over: Partial<Snapshot> = {}): Snapshot => ({
@@ -97,6 +102,7 @@ const snapshot = (over: Partial<Snapshot> = {}): Snapshot => ({
   scoreSlurs: [],
   scoreSpellings: [],
   scoreSlashNotes: [],
+  scoreChordHidden: [],
   ...over,
 });
 
@@ -440,6 +446,7 @@ const INSERT_KEYS = new Set<string>([
   'scoreSlurs',
   'scoreSpellings',
   'scoreSlashNotes',
+  'scoreChordHidden',
 ]);
 
 describe('insertTimeEdit', () => {
@@ -463,12 +470,20 @@ describe('insertTimeEdit', () => {
     });
 
     // k2 is cut at the point the way splitMidiClip cuts it, and its right
-    // half moves two bars on.
+    // half moves two bars on. k2 was sized, so each half keeps its part of
+    // the box: two bars before the cut, two after.
     const halves = splitMidiClip(K2, AT, right.id);
     expect(halves).not.toBeNull();
     const [wantLeft, wantRight] = halves!;
-    expect(midiIn(next, 'keys', 'k2')).toEqual(wantLeft);
-    expect(right).toEqual({ ...wantRight, startTick: AT + TICKS });
+    expect(midiIn(next, 'keys', 'k2')).toEqual({
+      ...wantLeft,
+      durationTicks: 2 * BAR,
+    });
+    expect(right).toEqual({
+      ...wantRight,
+      startTick: AT + TICKS,
+      durationTicks: 2 * BAR,
+    });
     // As the song plays it: the left half keeps the id and the notes before
     // the cut; the right half's notes, ids kept, play two bars later.
     expect(songNotes(midiIn(next, 'keys', 'k2')!)).toEqual(
@@ -500,8 +515,15 @@ describe('insertTimeEdit', () => {
     expect(bassRight.id).not.toBe(keysRight.id);
 
     const [wantLeft, wantRight] = splitMidiClip(B1, AT, bassRight.id)!;
-    expect(midiIn(next, 'bass', 'b1')).toEqual(wantLeft);
-    expect(bassRight).toEqual({ ...wantRight, startTick: AT + TICKS });
+    expect(midiIn(next, 'bass', 'b1')).toEqual({
+      ...wantLeft,
+      durationTicks: BAR,
+    });
+    expect(bassRight).toEqual({
+      ...wantRight,
+      startTick: AT + TICKS,
+      durationTicks: BAR,
+    });
     expect(midiIn(next, 'bass', 'b2')?.startTick).toBe(10 * BAR + TICKS);
     // A clip that starts right on the point moves too.
     expect(midiIn(next, 'drums', 'd1')?.startTick).toBe(AT + TICKS);
@@ -540,14 +562,18 @@ describe('insertTimeEdit', () => {
     const s = song();
     const next = applied(s, insertTime(s, AT, TICKS, counter().mint));
     const lanes = trackIn(next, 'keys').automation;
+    // The ramp up to the point stays where it was: the lane holds 0.7 at
+    // the point and through the new bars, then goes on as it did.
     expect(points(lanes?.volume)).toEqual([
       [0, 0.5],
+      [AT, 0.7],
       [AT + TICKS, 0.7],
       [20000 + TICKS, 0.9],
     ]);
     expect(points(lanes?.pan)).toEqual([[14000, -0.5]]);
     expect(points(next.masterAutomation.volume)).toEqual([
       [2 * BAR, 1],
+      [AT, 0.5],
       [AT + TICKS, 0.5],
       [16000 + TICKS, 0.25],
     ]);
@@ -1035,16 +1061,24 @@ describe('duplicateSectionEdit', () => {
 
   it('copies the automation in the section, on the tracks and on the master', () => {
     const { next } = duplicated();
+    // The verse still rises to 0.4 at its end (a point a tick before it),
+    // the copy starts again from 0.2, and the chorus goes on from 0.4.
     expect(points(trackIn(next, 'keys').automation?.volume)).toEqual([
       [0, 0.1],
       [VERSE_START, 0.2],
       [5 * BAR, 0.3],
+      [E - 1, expect.closeTo(0.3 + (0.1 * (3 * BAR - 1)) / (3 * BAR), 12)],
       [E, 0.2],
       [E + BAR, 0.3],
       [E + L, 0.4],
     ]);
+    // The master's fade runs over the verse: the verse keeps it, the copy
+    // starts where the verse started (0.9, held) and the fade after it goes
+    // on through the copy's end as it did through the verse's.
     expect(points(next.masterAutomation.volume)).toEqual([
       [8000, 0.9],
+      [E - 1, expect.closeTo(0.9 - (0.4 * (E - 1 - 8000)) / 8000, 12)],
+      [E, 0.9],
       [8000 + L, 0.9],
       [16000 + L, 0.5],
     ]);
@@ -1268,5 +1302,457 @@ describe('arrangementBlocker', () => {
     );
     expect(reason).toContain('Maya');
     expect(reason).toContain('is editing a track');
+  });
+});
+
+// ── What the student hears and sees across the new bars ────────────────────
+// Review of milestone 2.13: the music before the insert point plays as it
+// did (its automation, its pedal), the clips keep their boxes, the Lead
+// Sheet's rows keep their shape, and a chord hidden on a Score part stays
+// hidden on its new parts.
+
+/** A lane's value every 60 ticks over [from, to), and at `to - 1`. */
+const heard = (
+  lane: AutomationPoint[] | undefined,
+  from: number,
+  to: number,
+): number[] => {
+  const out: number[] = [];
+  for (let t = from; t < to; t += 60) out.push(sampleAutomation(lane, t)!);
+  out.push(sampleAutomation(lane, to - 1)!);
+  return out;
+};
+
+/** Close enough to hear as the same. */
+const same = (list: number[]) => list.map((v) => expect.closeTo(v, 9));
+
+describe('automation across the new bars', () => {
+  /** A fade-in over sixteen bars, on a track and on the master. */
+  const FADE: AutomationPoint[] = [
+    { tick: 0, value: 0 },
+    { tick: 16 * BAR, value: 1 },
+  ];
+  /** Section A is bars 1–8, B bars 9–16. */
+  const fadeSong = () =>
+    snapshot({
+      tracks: [midiTrack('keys', [], { volume: FADE })],
+      masterAutomation: { volume: FADE },
+      sections: [
+        sec('a', 'verse', 'A', 0, 8 * BAR),
+        sec('b', 'chorus', 'B', 8 * BAR, 16 * BAR),
+      ],
+    });
+  const NEW = DEFAULT_SECTION_BARS * BAR;
+
+  it('keeps a ramp over the insert point as it was before it, holds it through the new bars and goes on after them', () => {
+    const s = fadeSong();
+    const next = applied(
+      s,
+      insertSection(
+        s,
+        'a',
+        'after',
+        { type: 'bridge', label: 'Bridge' },
+        counter().mint,
+      ),
+    );
+    for (const lane of [
+      trackIn(next, 'keys').automation?.volume,
+      next.masterAutomation.volume,
+    ]) {
+      // Bar 5, inside A: a quarter of the way up, as it was.
+      expect(sampleAutomation(lane, 4 * BAR)).toBe(0.25);
+      expect(heard(lane, 0, 8 * BAR)).toEqual(same(heard(FADE, 0, 8 * BAR)));
+      // The new bars hold the value A ended on.
+      expect(new Set(heard(lane, 8 * BAR, 8 * BAR + NEW))).toEqual(
+        new Set([0.5]),
+      );
+      // B rises from there to the top, eight bars later.
+      expect(heard(lane, 8 * BAR + NEW, 16 * BAR + NEW)).toEqual(
+        same(heard(FADE, 8 * BAR, 16 * BAR)),
+      );
+    }
+  });
+
+  it('adds no points to a lane that is flat, empty or ends before the point', () => {
+    const flat = [
+      { tick: 0, value: 0.6 },
+      { tick: 20 * BAR, value: 0.6 },
+    ];
+    const early = [
+      { tick: 0, value: 0.2 },
+      { tick: 2 * BAR, value: 0.9 },
+    ];
+    const s = snapshot({
+      tracks: [midiTrack('keys', [], { volume: flat, pan: early, send: [] })],
+      sections: [sec('a', 'verse', 'A', 0, 8 * BAR)],
+    });
+    const next = applied(s, insertTime(s, 8 * BAR, 4 * BAR, counter().mint));
+    const lanes = trackIn(next, 'keys').automation!;
+    expect(points(lanes.volume)).toEqual([
+      [0, 0.6],
+      [24 * BAR, 0.6],
+    ]);
+    expect(lanes.pan).toBe(early);
+    expect(lanes.send).toEqual([]);
+  });
+
+  it('keeps the section sounding as it did when it is duplicated, and the copy sounds the same', () => {
+    // Up from bar 3 to bar 7, down to bar 11; the verse is bars 5–8.
+    const lane = [
+      { tick: 2 * BAR, value: 0.2 },
+      { tick: 6 * BAR, value: 1 },
+      { tick: 10 * BAR, value: 0.2 },
+    ];
+    // A lane with a point on the verse's first tick, and one that only
+    // starts inside it.
+    const onEdge = [
+      { tick: 4 * BAR, value: 0.5 },
+      { tick: 5 * BAR, value: 0.1 },
+      { tick: 12 * BAR, value: 0.8 },
+    ];
+    const inside = [{ tick: 6 * BAR, value: 0.7 }];
+    const s = snapshot({
+      tracks: [
+        midiTrack('keys', [], { volume: lane, pan: onEdge, cut: inside }),
+      ],
+      masterAutomation: { volume: lane },
+      sections: [
+        sec('i', 'intro', 'Intro', 0, 4 * BAR),
+        sec('v', 'verse', 'Verse', 4 * BAR, 8 * BAR),
+        sec('c', 'chorus', 'Chorus', 8 * BAR, 12 * BAR),
+      ],
+    });
+    const next = applied(s, duplicate(s, 'v', counter().mint));
+    const lanes = trackIn(next, 'keys').automation!;
+    const L = 4 * BAR;
+    for (const [before, after] of [
+      [lane, lanes.volume],
+      [onEdge, lanes.pan],
+      [inside, lanes.cut],
+      [lane, next.masterAutomation.volume],
+    ]) {
+      // Everything up to the verse's end, as it was (bar 8 was 0.8, not 1).
+      expect(heard(after, 0, 8 * BAR)).toEqual(same(heard(before, 0, 8 * BAR)));
+      // The copy plays the verse again, from its first value to its last.
+      expect(heard(after, 8 * BAR, 8 * BAR + L)).toEqual(
+        same(heard(before, 4 * BAR, 8 * BAR)),
+      );
+      // The chorus and after, as they were, a verse later.
+      expect(heard(after, 8 * BAR + L, 20 * BAR + L)).toEqual(
+        same(heard(before, 8 * BAR, 20 * BAR)),
+      );
+      // Sorted, one point per tick.
+      const ticks = (after ?? []).map((p) => p.tick);
+      expect(ticks).toEqual([...new Set(ticks)].sort((a, b) => a - b));
+    }
+    expect(sampleAutomation(lanes.volume, 7 * BAR)).toBeCloseTo(0.8);
+    expect(sampleAutomation(lanes.volume, 8 * BAR)).toBeCloseTo(0.6);
+  });
+
+  it('adds no points to a flat lane when a section is duplicated', () => {
+    const flat = [
+      { tick: 0, value: 0.6 },
+      { tick: 4 * BAR, value: 0.6 },
+      { tick: 20 * BAR, value: 0.6 },
+    ];
+    const s = snapshot({
+      tracks: [midiTrack('keys', [], { volume: flat })],
+      sections: [sec('v', 'verse', 'Verse', 4 * BAR, 8 * BAR)],
+    });
+    const next = applied(s, duplicate(s, 'v', counter().mint));
+    expect(points(trackIn(next, 'keys').automation?.volume)).toEqual([
+      [0, 0.6],
+      [4 * BAR, 0.6],
+      [8 * BAR, 0.6],
+      [24 * BAR, 0.6],
+    ]);
+  });
+});
+
+describe('a sustain pedal held over the insert point', () => {
+  const cc = (tick: number, value: number, channel = 0) => ({
+    tick,
+    controller: 64,
+    value,
+    channel,
+  });
+  /** Piano over bars 8–9 (the verse ends at bar 9), the pedal down at the cut. */
+  const piano = (ccEvents: MidiClip['ccEvents']): MidiClip => ({
+    id: 'piano',
+    startTick: 0,
+    events: [
+      { ...n('a', 60, 7 * BAR), durationTicks: BAR - 30 },
+      { ...n('b', 65, 8 * BAR), durationTicks: BAR },
+    ],
+    ccEvents,
+  });
+  const pianoSong = (clip: MidiClip) =>
+    snapshot({
+      tracks: [midiTrack('keys', [clip])],
+      sections: [
+        sec('v', 'verse', 'Verse', 0, 8 * BAR),
+        sec('c', 'chorus', 'Chorus', 8 * BAR, 16 * BAR),
+      ],
+    });
+  const halvesAfter = (clip: MidiClip) => {
+    const s = pianoSong(clip);
+    const next = applied(
+      s,
+      insertSection(
+        s,
+        'v',
+        'after',
+        { type: 'bridge', label: 'Bridge' },
+        counter().mint,
+      ),
+    );
+    const clips = trackIn(next, 'keys').midiClips;
+    return {
+      left: clips.find((c) => c.id === 'piano')!,
+      right: clips.find((c) => c.id !== 'piano')!,
+    };
+  };
+
+  it('is lifted at the cut, so the new bars are silent, and pressed again where the music goes on', () => {
+    const { left, right } = halvesAfter(
+      piano([
+        cc(7 * BAR + 20, 127),
+        cc(8 * BAR + 40, 0),
+        cc(8 * BAR + 60, 127),
+      ]),
+    );
+    // The lift goes a tick before the cut, so a press on the cut's tick
+    // always comes after it.
+    expect(left.ccEvents).toEqual([cc(7 * BAR + 20, 127), cc(8 * BAR - 1, 0)]);
+    expect(right.startTick).toBe(16 * BAR);
+    expect(right.ccEvents).toEqual([cc(0, 127), cc(40, 0), cc(60, 127)]);
+  });
+
+  it('is lifted on each channel where it is down, and nowhere else', () => {
+    const { left } = halvesAfter(
+      piano([cc(BAR, 127, 0), cc(2 * BAR, 0, 0), cc(3 * BAR, 100, 1)]),
+    );
+    expect(left.ccEvents).toEqual([
+      cc(BAR, 127, 0),
+      cc(2 * BAR, 0, 0),
+      cc(3 * BAR, 100, 1),
+      cc(8 * BAR - 1, 0, 1),
+    ]);
+  });
+
+  it('is lifted after a press on the tick before the cut', () => {
+    const { left } = halvesAfter(piano([cc(8 * BAR - 1, 127)]));
+    expect(left.ccEvents).toEqual([cc(8 * BAR - 1, 127), cc(8 * BAR, 0)]);
+  });
+
+  it('leaves a clip whose pedal is up at the cut as the scissors cut it', () => {
+    const clip = piano([cc(BAR, 127), cc(2 * BAR, 0)]);
+    const { left } = halvesAfter(clip);
+    expect(left.ccEvents).toEqual(
+      splitMidiClip(clip, 8 * BAR, 'x')![0].ccEvents,
+    );
+  });
+
+  it('is pressed at the start of a duplicated section when it was down there, and lifted at its end when it was down there', () => {
+    // The pedal goes down in bar 4 and stays down over the whole verse
+    // (bars 5–8) and into the chorus.
+    const clip: MidiClip = {
+      id: 'piano',
+      startTick: 0,
+      events: [n('a', 60, 3 * BAR), n('b', 64, 5 * BAR), n('c', 67, 9 * BAR)],
+      ccEvents: [cc(3 * BAR, 127)],
+    };
+    const s = snapshot({
+      tracks: [midiTrack('keys', [clip])],
+      sections: [
+        sec('v', 'verse', 'Verse', 4 * BAR, 8 * BAR),
+        sec('c', 'chorus', 'Chorus', 8 * BAR, 12 * BAR),
+      ],
+    });
+    const next = applied(s, duplicate(s, 'v', counter().mint));
+    const clips = trackIn(next, 'keys').midiClips;
+    const left = clips.find((c) => c.id === 'piano')!;
+    const copy = clips.find((c) => c.startTick === 8 * BAR)!;
+    const right = clips.find((c) => c.startTick === 12 * BAR)!;
+    // The verse lets go of its pedal as it ends; the copy presses it on its
+    // first tick, as the verse had it, and lets go as the verse did; the
+    // chorus presses it again.
+    expect(left.ccEvents).toEqual([cc(3 * BAR, 127), cc(8 * BAR - 1, 0)]);
+    expect(copy.ccEvents).toEqual([cc(0, 127), cc(4 * BAR - 1, 0)]);
+    expect(right.ccEvents).toEqual([cc(0, 127)]);
+  });
+});
+
+describe("a sized clip's box across the insert point", () => {
+  /** A 16-bar pad sized past its notes, which end in bar 10. */
+  const pad: MidiClip = {
+    id: 'pad',
+    startTick: 0,
+    durationTicks: 16 * BAR,
+    events: [
+      { ...n('p1', 60, 7 * BAR + 960), durationTicks: BAR },
+      n('p2', 64, 9 * BAR),
+    ],
+  };
+  const padSong = () =>
+    snapshot({
+      tracks: [midiTrack('keys', [pad])],
+      sections: [
+        sec('v', 'verse', 'Verse', 4 * BAR, 8 * BAR),
+        sec('c', 'chorus', 'Chorus', 8 * BAR, 16 * BAR),
+      ],
+    });
+
+  it('keeps the box: the left half to the cut, the right half the rest', () => {
+    const s = padSong();
+    const next = applied(
+      s,
+      insertSection(
+        s,
+        'v',
+        'after',
+        { type: 'bridge', label: 'Bridge' },
+        counter().mint,
+      ),
+    );
+    const clips = trackIn(next, 'keys').midiClips;
+    const right = clips.find((c) => c.id !== 'pad')!;
+    expect(midiIn(next, 'keys', 'pad')?.durationTicks).toBe(8 * BAR);
+    expect(right).toMatchObject({
+      startTick: 16 * BAR,
+      durationTicks: 8 * BAR,
+    });
+  });
+
+  it('leaves an unsized clip unsized, as the scissors do', () => {
+    const loose: MidiClip = { ...pad, durationTicks: undefined };
+    const s = snapshot({
+      ...padSong(),
+      tracks: [midiTrack('keys', [loose])],
+    });
+    const next = applied(s, insertTime(s, 8 * BAR, 8 * BAR, counter().mint));
+    for (const c of trackIn(next, 'keys').midiClips) {
+      expect(c.durationTicks).toBeUndefined();
+    }
+  });
+
+  it("copies the section's whole length when a sized clip is duplicated", () => {
+    // The verse is bars 5–8 of a pad whose last note in it starts in bar 8;
+    // a pad with nothing after bar 6 in the verse still gives a 4-bar copy.
+    const quiet: MidiClip = {
+      ...pad,
+      events: [n('q1', 60, 4 * BAR), n('q2', 64, 12 * BAR)],
+    };
+    const s = snapshot({
+      ...padSong(),
+      tracks: [midiTrack('keys', [quiet])],
+    });
+    const next = applied(s, duplicate(s, 'v', counter().mint));
+    const copy = trackIn(next, 'keys').midiClips.find(
+      (c) => c.startTick === 8 * BAR,
+    );
+    expect(copy).toMatchObject({ durationTicks: 4 * BAR });
+    expect(songNotes(copy!)).toEqual(['60@15360']);
+  });
+});
+
+describe("the Lead Sheet's rows when sections go in", () => {
+  /** Four rows of four bars, a section on each. */
+  const rowSong = () =>
+    snapshot({
+      sections: [
+        sec('a', 'intro', 'A', 0, 4 * BAR),
+        sec('b', 'verse', 'B', 4 * BAR, 8 * BAR),
+        sec('c', 'chorus', 'C', 8 * BAR, 12 * BAR),
+        sec('d', 'outro', 'D', 12 * BAR, 16 * BAR),
+      ],
+      measureRowSizes: [4, 4, 4, 4],
+    });
+
+  it('puts an inserted section in rows of its own, the size of the row there', () => {
+    const s = rowSong();
+    const next = applied(
+      s,
+      insertSection(
+        s,
+        'b',
+        'after',
+        { type: 'bridge', label: 'Bridge' },
+        counter().mint,
+      ),
+    );
+    expect(next.measureRowSizes).toEqual([4, 4, 4, 4, 4, 4]);
+  });
+
+  it('puts a duplicated section in a row of its own', () => {
+    const s = rowSong();
+    const next = applied(s, duplicate(s, 'b', counter().mint));
+    expect(next.measureRowSizes).toEqual([4, 4, 4, 4, 4]);
+  });
+
+  it('gives the last new row what is left over', () => {
+    const s = rowSong();
+    const next = applied(s, insertTime(s, 8 * BAR, 6 * BAR, counter().mint));
+    expect(next.measureRowSizes).toEqual([4, 4, 4, 2, 4, 4]);
+  });
+
+  it('widens the row when the bars go in inside it', () => {
+    const s = rowSong();
+    const next = applied(s, insertTime(s, 6 * BAR, 8 * BAR, counter().mint));
+    expect(next.measureRowSizes).toEqual([4, 12, 4, 4]);
+  });
+});
+
+describe('chords hidden on a Score part', () => {
+  it("hides a cut chord's right part on the parts that hid the chord", () => {
+    const s = snapshot({
+      tracks: [midiTrack('bass', []), midiTrack('keys', [])],
+      sections: [
+        sec('v', 'verse', 'Verse', 0, 4 * BAR),
+        sec('c', 'chorus', 'Chorus', 4 * BAR, 8 * BAR),
+      ],
+      chordRegions: [
+        chord('g', 2 * BAR, 6 * BAR, 'G'),
+        chord('d', 6 * BAR, 8 * BAR, 'D'),
+      ],
+      scoreChordHidden: ['bass:g', 'keys:d'],
+    });
+    const { mint, made } = counter();
+    const next = applied(
+      s,
+      insertSection(s, 'v', 'after', { type: 'bridge', label: 'Bridge' }, mint),
+    );
+    const [right] = added(s.chordRegions, next.chordRegions);
+    expect(made.region).toContain(right.id);
+    expect(sorted(next.scoreChordHidden)).toEqual(
+      sorted(['bass:g', 'keys:d', `bass:${right.id}`]),
+    );
+  });
+
+  it('hides each copy on the parts that hid its chord', () => {
+    const s = snapshot({
+      tracks: [midiTrack('bass', []), midiTrack('keys', [])],
+      sections: [sec('v', 'verse', 'Verse', 0, 4 * BAR)],
+      chordRegions: [
+        chord('c', 0, 2 * BAR, 'C'),
+        chord('f', 2 * BAR, 4 * BAR, 'F'),
+      ],
+      scoreChordHidden: ['bass:c', 'keys:c'],
+    });
+    const next = applied(s, duplicate(s, 'v', counter().mint));
+    const copyOfC = next.chordRegions.find(
+      (r) => r.startTick === 4 * BAR && r.name === 'C',
+    )!;
+    expect(sorted(next.scoreChordHidden)).toEqual(
+      sorted(['bass:c', 'keys:c', `bass:${copyOfC.id}`, `keys:${copyOfC.id}`]),
+    );
+  });
+
+  it('writes no hidden chords when none were hidden', () => {
+    const s = verseSong();
+    expect(
+      'scoreChordHidden' in duplicate(s, 'verse', counter().mint)!.patch,
+    ).toBe(false);
   });
 });

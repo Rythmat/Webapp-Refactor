@@ -261,7 +261,26 @@ function shiftRowSizes(
   if (count > 0) {
     const pos = at >= barCount ? slots.length : slotOfBar(slots, at);
     const inRest = pos >= 0 && pos < slots.length && slots[pos].realIndex < at;
-    if (!inRest) sizes[rowOf(Math.max(0, pos))] += count;
+    // Several bars that go in between two rows (the sections lane's Insert
+    // and Duplicate put in whole sections) come as rows of their own, the
+    // size of the row there, so the student's rows keep their shape; the
+    // last new row holds what is left over. One bar, + Measure's, joins
+    // the row it lands in, as it always has. A bar inside a multi-bar rest
+    // adds no slot.
+    const start = Math.max(0, pos);
+    let rowStart = 0;
+    let row = 0;
+    while (row < sizes.length && rowStart < start) rowStart += sizes[row++];
+    if (!inRest && count > 1 && rowStart === start) {
+      const size = Math.max(1, sizes[Math.min(row, sizes.length - 1)]);
+      const added: number[] = [];
+      for (let left = count; left > 0; left -= size) {
+        added.push(Math.min(size, left));
+      }
+      sizes.splice(row, 0, ...added);
+    } else if (!inRest) {
+      sizes[rowOf(start)] += count;
+    }
   } else {
     const end = at - count;
     // A slot goes when the bar it starts at is deleted (a rest that starts

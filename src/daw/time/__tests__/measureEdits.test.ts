@@ -256,3 +256,28 @@ it('leaves a melody a collaborator holds alone', () => {
   expect(patch.tracks).toBeUndefined();
   expect(patch.sections?.[0].startTick).toBe(BAR_68);
 });
+
+describe("the chart's rows when several bars go in", () => {
+  // Rows of three slots (bars 1, 2 and the rest at 3–4) and four (bars
+  // 5–8): bar 5 (index 4) starts the second row.
+  const rows = (at: number, count: number) =>
+    measureEditPatch(state(), at, count)!.measureRowSizes;
+
+  it('puts one bar, + Measure, in the row it lands in, as before', () => {
+    expect(rows(4, 1)).toEqual([3, 5]);
+    expect(rows(5, 1)).toEqual([3, 5]);
+    expect(rows(0, 1)).toEqual([4, 4]);
+  });
+
+  it('puts several bars between two rows in rows of their own, the last one holding what is left', () => {
+    expect(rows(4, 8)).toEqual([3, 4, 4, 4]);
+    expect(rows(4, 6)).toEqual([3, 4, 2, 4]);
+    expect(rows(0, 2)).toEqual([2, 3, 4]);
+  });
+
+  it('widens the row when several bars go in inside it', () => {
+    expect(rows(5, 6)).toEqual([3, 10]);
+    // Inside the rest, no slot is added.
+    expect(rows(3, 4)).toEqual([3, 4]);
+  });
+});

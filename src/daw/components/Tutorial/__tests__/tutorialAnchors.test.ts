@@ -222,14 +222,20 @@ interface TemplateSource {
 const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
   'add-track-': {
     file: 'shell/tracklist/AddTrackSheet.tsx',
-    // One card per template (trackTemplates.ts); the Synth card renders the
-    // exact id 'add-track-synth' instead (the ternary around the template).
-    suffixes: () =>
-      constValues(
+    // One tile per choice and per category with a second step
+    // (trackTemplates.ts); Import and the library chip are exact ids.
+    suffixes: () => [
+      ...constValues(
         'shell/tracklist/trackTemplates.ts',
-        'TRACK_TEMPLATES',
-        'instrument',
-      ).filter((instrument) => instrument !== 'oracle-synth'),
+        'TRACK_CHOICES',
+        'anchor',
+      ),
+      ...constValues(
+        'shell/tracklist/trackTemplates.ts',
+        'TRACK_CATEGORIES',
+        'anchor',
+      ),
+    ],
   },
   'chanstrip-tab-': {
     file: 'shell/dock/Dock.tsx',

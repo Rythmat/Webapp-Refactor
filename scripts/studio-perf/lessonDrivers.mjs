@@ -112,15 +112,30 @@ function addChordsInPage(count) {
   }
 }
 
-/** + Add Track, then the card for one instrument. */
+/**
+ * The picker's category tile a card sits behind, for cards on its second
+ * step (AddTrackSheet.tsx, trackTemplates.ts); the others are on the first.
+ */
+const ADD_TRACK_CATEGORY = {
+  'add-track-drum-machine': 'add-track-cat-drums',
+};
+
+/** + Add Track, then (through its category) the card for one instrument. */
 function addTrack(cardId) {
   const [type, instrument, name] = ADD_TRACK_CARDS[cardId];
+  const categoryId = ADD_TRACK_CATEGORY[cardId];
   return {
     how: 'click',
-    describe: `click add-track-button, then ${cardId}`,
+    describe: categoryId
+      ? `click add-track-button, then ${categoryId}, then ${cardId}`
+      : `click add-track-button, then ${cardId}`,
     async run(ctx) {
       await ctx.clickAnchor('add-track-button');
-      // The spotlight follows into the menu (the step's first target id).
+      // The spotlight follows into the picker (the first target id shown).
+      if (categoryId) {
+        await ctx.measure(categoryId);
+        await ctx.clickAnchor(categoryId);
+      }
       await ctx.measure(cardId);
       await ctx.clickAnchor(cardId);
     },

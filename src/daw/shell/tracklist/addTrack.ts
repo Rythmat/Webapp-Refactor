@@ -1,14 +1,15 @@
 import { create } from 'zustand';
 import { useStore } from '@/daw/store';
 import type { ChannelStripTabId } from '@/daw/store/uiSlice';
-import type { TrackTemplate } from './trackTemplates';
+import type { TrackChoice } from './trackTemplates';
 
-// ── Adding a track (milestone 2.6) ─────────────────────────────────────────
+// ── Adding a track (milestones 2.6 and 2.14) ───────────────────────────────
 //
-// The Add-track sheet's open state, and the one way the sheet and the empty
-// project's tiles add a track: add it, select it, and open the dock on the
-// tab that plays it. A running lesson opens what its steps need itself, so
-// during one the dock is left as it is.
+// The Add-track picker's open state, and the one way the picker and the
+// empty project's tiles add a track: add it with the sound it is for,
+// select it, and open the dock on the tab that plays it (the drum grid's
+// Notes, the grooves, the instrument). A running lesson opens what its steps
+// need itself, so during one the dock is left as it is.
 
 interface AddTrackSheetState {
   open: boolean;
@@ -24,19 +25,21 @@ export const openAddTrackSheet = () =>
   useAddTrackSheet.getState().setOpen(true);
 
 /**
- * Adds a track of `template`'s kind, selects it and opens the dock on
- * `tab` (the instrument by default). Returns its id, or '' when the
- * project's track limit stopped it (addTrack says so).
+ * Adds the track `choice` makes (its instrument, name and starting sound),
+ * selects it and opens the dock on `tab` (the choice's own tab by
+ * default). Returns its id, or '' when the project's track limit stopped it
+ * (addTrack says so).
  */
 export function addTrackFrom(
-  template: TrackTemplate,
-  tab: ChannelStripTabId = 'controls',
+  choice: TrackChoice,
+  tab: ChannelStripTabId = choice.dockTab,
 ): string {
   const state = useStore.getState();
   const id = state.addTrack(
-    template.trackType,
-    template.instrument,
-    template.label,
+    choice.trackType,
+    choice.instrument,
+    choice.trackName,
+    choice.init,
   );
   if (!id) return '';
   state.setSelectedTrackId(id);

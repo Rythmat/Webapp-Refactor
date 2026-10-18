@@ -299,8 +299,12 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'add-drums',
       stage: 'STAGE 1 — SETUP',
       instruction:
-        'Every beat starts with drums. Click **+ Add Track** and pick **Drums**.',
-      target: ['add-track-drum-machine', 'add-track-button'],
+        'Every beat starts with drums. Click **+ Add track**, pick **Drums**, then **Drum grid**.',
+      target: [
+        'add-track-drum-machine',
+        'add-track-cat-drums',
+        'add-track-button',
+      ],
       requires: { view: 'arrange', libraryOpen: false },
       check: (s) => selectedTrack(s)?.instrument === 'drum-machine',
     },
@@ -537,8 +541,12 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'add-drums',
       stage: 'STAGE 1 — SETUP',
       instruction:
-        'The pump needs a pulse. Click **+ Add Track** and pick **Drums**.',
-      target: ['add-track-drum-machine', 'add-track-button'],
+        'The pump needs a pulse. Click **+ Add track**, pick **Drums**, then **Drum grid**.',
+      target: [
+        'add-track-drum-machine',
+        'add-track-cat-drums',
+        'add-track-button',
+      ],
       requires: { view: 'arrange', libraryOpen: false },
       check: (s) => s.tracks.some((t) => t.instrument === 'drum-machine'),
     },

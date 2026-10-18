@@ -4,18 +4,19 @@ import { cn } from '@/components/utilities';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { addTrackFrom, openAddTrackSheet } from './addTrack';
-import { templateOf } from './trackTemplates';
+import { choiceOf } from './trackTemplates';
 
-// ── An empty project's first steps (milestone 2.6) ─────────────────────────
+// ── An empty project's first steps (milestones 2.6 and 2.14) ───────────────
 //
 // A new project used to show an empty canvas and a 10 px 'Add Track' link
 // (ia-flows-25). The lanes now offer four ways in, worded as goals (the
 // plan's wording for Stage D, where an assignment shows its brief here
 // instead):
-// - Start with a beat: a Drums track, open on its pads;
-// - Play an instrument: a Keys track, with the computer keyboard playing it;
-// - Start from a genre: a Drums track, open on its genre grooves;
-// - Add a track: the Add-track sheet, for anything else.
+// - Start with a beat: the picker's Drum grid, open on the step sequencer
+//   (the drums' Notes tab);
+// - Play an instrument: its Piano, with the computer keyboard playing it;
+// - Start from a genre: its Grooves, open on the genre grooves;
+// - Add a track: the Add-track picker, for anything else.
 
 interface Tile {
   id: string;
@@ -32,16 +33,16 @@ const TILES: readonly Tile[] = [
     description: 'Program drums on the step sequencer',
     icon: <Drum />,
     run: () => {
-      addTrackFrom(templateOf('drums'), 'controls');
+      addTrackFrom(choiceOf('drum-grid'));
     },
   },
   {
     id: 'play',
     title: 'Play an instrument',
-    description: 'Keys you play from the computer keyboard',
+    description: 'A piano you play from the computer keyboard',
     icon: <Piano />,
     run: () => {
-      if (addTrackFrom(templateOf('keys'), 'controls')) {
+      if (addTrackFrom(choiceOf('piano'))) {
         useMusicalTypingStore.getState().setEnabled(true);
       }
     },
@@ -52,7 +53,7 @@ const TILES: readonly Tile[] = [
     description: 'Pick a hip hop, funk or rock groove',
     icon: <Disc3 />,
     run: () => {
-      addTrackFrom(templateOf('drums'), 'grooves');
+      addTrackFrom(choiceOf('grooves'));
     },
   },
   {

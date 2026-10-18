@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from '@testing-library/react';
 import {
   afterAll,
@@ -29,6 +30,8 @@ const h = vi.hoisted(() => ({
   premium: { isPremium: true, isLoading: false },
   navigate: (() => {}) as (to: string) => void,
   seeks: [] as number[],
+  /** What the app's name dialog answers: a name, or null for Cancel. */
+  typed: null as string | null,
 }));
 vi.mock('@/hooks/useIsPremium', () => ({ useIsPremium: () => h.premium }));
 vi.mock('react-router-dom', () => ({ useNavigate: () => h.navigate }));
@@ -36,6 +39,10 @@ vi.mock('@/daw/hooks/useTransport', () => ({
   seekTo: (tick: number) => {
     h.seeks.push(tick);
   },
+}));
+vi.mock('@/daw/ui/DialogHost', async (original) => ({
+  ...(await original<typeof import('@/daw/ui/DialogHost')>()),
+  promptDialog: async () => h.typed,
 }));
 
 import { ProfileRoutes } from '@/constants/routes';
@@ -211,14 +218,31 @@ describe('a right-click', () => {
     expect(h.navigate).not.toHaveBeenCalled();
   });
 
-  it('opens the ruler’s menu above the lanes', async () => {
+  it('opens the ruler’s menu above the lanes, and names the marker it adds', async () => {
+    h.typed = 'Bridge';
     render(<ScrolledTimeline />);
     fireEvent.contextMenu(canvas(), { clientX: emptyX, clientY: 20 });
     expect(
       await screen.findByRole('menu', { name: 'Ruler menu' }),
     ).toBeTruthy();
     fireEvent.click(screen.getByRole('menuitem', { name: 'Add marker here' }));
-    expect(s().markers.map((m) => m.tick)).toEqual([5 * 1920]);
+    await waitFor(() =>
+      expect(s().markers.map((m) => [m.tick, m.name])).toEqual([
+        [5 * 1920, 'Bridge'],
+      ]),
+    );
+    h.typed = null;
+  });
+
+  it('adds no marker when its name is cancelled', async () => {
+    h.typed = null;
+    render(<ScrolledTimeline />);
+    fireEvent.contextMenu(canvas(), { clientX: emptyX, clientY: 20 });
+    fireEvent.click(
+      await screen.findByRole('menuitem', { name: 'Add marker here' }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(s().markers).toEqual([]);
   });
 });
 

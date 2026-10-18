@@ -7,6 +7,7 @@ import {
   zoomTimelineOut,
 } from '@/daw/editor/viewport';
 import { openClipMenu } from '@/daw/shell/canvas/clipMenu/canvasMenuStore';
+import { addMarkerAtPlayhead } from '@/daw/shell/canvas/markerActions';
 import {
   copyClip,
   cutClip,
@@ -186,6 +187,10 @@ export function useArrangeKeymap(): void {
     'timeline.zoomIn': zoom(zoomTimelineIn),
     'timeline.zoomOut': zoom(zoomTimelineOut),
     'timeline.zoomToFit': zoom(fitTimeline),
+    'timeline.addMarker': (e) => {
+      if (!onTimeline(e)) return false;
+      void addMarkerAtPlayhead();
+    },
   };
   useKeymap(ARRANGE_SCOPE.id, handlers);
 }

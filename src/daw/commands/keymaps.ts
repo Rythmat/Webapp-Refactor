@@ -582,6 +582,17 @@ defineCommand({
   keys: ['Mod+Shift+KeyF'],
 });
 
+// + Marker left Create's toolbar when it folded away (milestone 2.13): the
+// ruler adds one where it is right- or double-clicked, and this adds one at
+// the playhead, also while playing (the palette, 2.15, lists it). M stays
+// the click.
+defineCommand({
+  id: 'timeline.addMarker',
+  scope: 'arrange',
+  label: 'Add a marker at the playhead',
+  keys: ['Alt+KeyM'],
+});
+
 // The Score's editor, which is also the lead sheet's once it has a melody.
 export const SCORE_SCOPE = defineScope({
   id: 'score',

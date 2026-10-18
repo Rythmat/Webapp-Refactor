@@ -45,6 +45,8 @@ import {
   isDrumTrack,
   setClipFade,
 } from '@/daw/shell/canvas/clipMenu/clipActions';
+import { addMarkerAt, renameMarker } from '@/daw/shell/canvas/markerActions';
+import { MARKER_FLAG_PX, MARKER_NAME_GAP_PX, markerAtX } from './markerHit';
 import {
   CLIP_HEADER_PX,
   clipZoneAt,
@@ -145,6 +147,9 @@ const RULER_ZOOM_DRAG_THRESHOLD = 3;
 // Horizontal pixels of movement before an empty-area press becomes a pan drag
 // rather than a seek click.
 const PAN_DRAG_THRESHOLD = 4;
+// Pixels a press on a marker may move and still be a click, which goes to
+// the marker (plan finding F8); further, it drags the marker.
+const MARKER_DRAG_SLOP_PX = 3;
 
 // ── MIME-type inference (for audio assets without a Content-Type header) ────
 
@@ -510,7 +515,15 @@ export function Timeline({ scrollRef }: TimelineProps) {
   const dragTickRef = useRef<number>(0);
   const dragEndTickRef = useRef<number>(0);
   const dragTrackRef = useRef<number>(0);
-  const markerDragRef = useRef<string | null>(null);
+  // A press on a marker (milestone 2.13, F8): where it started, and how far
+  // into the marker it took hold, so a drag moves the marker without a jump.
+  // It stays a click, which goes to the marker, until it moves.
+  const markerDragRef = useRef<{
+    id: string;
+    startX: number;
+    grabTicks: number;
+    moved: boolean;
+  } | null>(null);
   // Where the dragged marker is drawn: the drag writes the store once, on
   // release (milestone 1.9), so the draw reads its place from here meanwhile.
   const markerDragTickRef = useRef<number | null>(null);
@@ -1392,7 +1405,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
     }
 
     // ── Markers ─────────────────────────────────────────────────────
-    const dragId = markerDragRef.current;
+    const dragId = markerDragRef.current?.id;
     const dragTick = markerDragTickRef.current;
     const currentMarkers =
       dragId && dragTick !== null
@@ -1489,23 +1502,28 @@ export function Timeline({ scrollRef }: TimelineProps) {
 
     // Marker flags (top of the bar-number lane, under the loop strip). Their
     // names go first: a bar number they would cover is left out.
+    // Each is drawn while any of it shows, as markerHit finds it (F8).
     const flagY = rulerY + LOOP_STRIP_H;
     for (const marker of currentMarkers) {
       const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
-      if (mx < -60 || mx > cw + 10) continue;
+      const nameEnd =
+        mx + MARKER_NAME_GAP_PX + ctx.measureText(marker.name).width;
+      if (Math.max(nameEnd, mx + MARKER_FLAG_PX) < 0 || mx > cw + 10) {
+        continue;
+      }
 
       ctx.fillStyle = marker.color;
       ctx.beginPath();
       ctx.moveTo(mx, flagY + 2);
-      ctx.lineTo(mx + 7, flagY + 2);
-      ctx.lineTo(mx + 7, flagY + 12);
-      ctx.lineTo(mx + 3.5, flagY + 16);
+      ctx.lineTo(mx + MARKER_FLAG_PX, flagY + 2);
+      ctx.lineTo(mx + MARKER_FLAG_PX, flagY + 12);
+      ctx.lineTo(mx + MARKER_FLAG_PX / 2, flagY + 16);
       ctx.lineTo(mx, flagY + 12);
       ctx.closePath();
       ctx.fill();
 
-      ctx.fillText(marker.name, mx + 10, labelY);
-      taken.push([mx, mx + 10 + ctx.measureText(marker.name).width]);
+      ctx.fillText(marker.name, mx + MARKER_NAME_GAP_PX, labelY);
+      taken.push([mx, nameEnd]);
     }
 
     levels.forEach((level, depth) => {
@@ -1730,6 +1748,30 @@ export function Timeline({ scrollRef }: TimelineProps) {
     [scrollRef],
   );
 
+  // The marker drawn under canvas x in the ruler's bar-number lane (`localY`
+  // from the ruler's top), by its flag and its name as drawn: the press, the
+  // cursor, the double-click and the right-click all find it here (F8).
+  const markerUnder = useCallback((x: number, localY: number) => {
+    if (localY < LOOP_STRIP_H || localY >= RULER_HEIGHT) return null;
+    const state = useStore.getState();
+    const ctx = canvasRef.current?.getContext('2d');
+    const nameWidth = (name: string) => {
+      if (!ctx) return name.length * 6;
+      ctx.save();
+      ctx.font = RULER_FONT;
+      const width = ctx.measureText(name).width;
+      ctx.restore();
+      return width;
+    };
+    return markerAtX(
+      state.markers,
+      x,
+      state.timelineZoom,
+      state.timelineScrollLeft,
+      nameWidth,
+    );
+  }, []);
+
   // The playhead's grab handle, pinned to the foot of the bar ruler as it
   // mounts; the scroll listener above keeps it there. A stable callback, so
   // React doesn't detach and re-attach it, and re-measure, on every render.
@@ -1850,14 +1892,16 @@ export function Timeline({ scrollRef }: TimelineProps) {
       // or in the bar-number lane the playhead handle or a seek/zoom/loop-draw.
       if (y >= st && y < st + RULERS_HEIGHT) {
         const localY = y - st;
-        if (localY >= LOOP_STRIP_H && localY < LOOP_STRIP_H + 18) {
-          for (const marker of state.markers) {
-            const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
-            if (Math.abs(x - mx) < 10) {
-              markerDragRef.current = marker.id;
-              return;
-            }
-          }
+        const marker = markerUnder(x, localY);
+        if (marker) {
+          markerDragRef.current = {
+            id: marker.id,
+            startX: x,
+            grabTicks:
+              pixelToTick(x, currentZoom, currentScrollLeft) - marker.tick,
+            moved: false,
+          };
+          return;
         }
         const pressTick = pixelToTick(x, currentZoom, currentScrollLeft);
         rulerPressRef.current = {
@@ -2101,14 +2145,18 @@ export function Timeline({ scrollRef }: TimelineProps) {
         }
         return;
       }
+      // The ruler: a double-click on a marker renames it; anywhere else it
+      // adds one there, named in the app's dialog first (2.13).
       if (y >= st && y < st + RULER_HEIGHT) {
+        const marker = markerUnder(x, y - st);
+        if (marker) {
+          void renameMarker(marker.id);
+          return;
+        }
         const state = useStore.getState();
-        const currentZoom = state.timelineZoom;
-        const currentScrollLeft = state.timelineScrollLeft;
-        const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-        const snapped = snapTicks(rawTick, timelineSnapGrid(state));
-        const nextNum = state.markers.length + 1;
-        state.addMarker(snapped, `Marker ${nextNum}`);
+        void addMarkerAt(
+          pixelToTick(x, state.timelineZoom, state.timelineScrollLeft),
+        );
         return;
       }
       // The click before it has opened the clip's editor in the dock
@@ -2117,7 +2165,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
       const hit = hitTestClip(x, y);
       if (hit) openClipEditor(hit.trackId);
     },
-    [getCanvasCoords, getScrollTop, hitTestClip],
+    [getCanvasCoords, getScrollTop, hitTestClip, markerUnder],
   );
 
   // ── Context menu (right-click) ────────────────────────────────────
@@ -2144,11 +2192,8 @@ export function Timeline({ scrollRef }: TimelineProps) {
 
       let target: CanvasMenuTarget | null = null;
       if (y >= st && y < st + RULERS_HEIGHT) {
-        // A marker's flag or its name, else the ruler itself.
-        const marker = state.markers.find((m) => {
-          const mx = tickToPixel(m.tick, currentZoom, currentScrollLeft);
-          return x >= mx - 5 && x <= mx + 70;
-        });
+        // A marker's flag or its name as drawn, else the ruler itself.
+        const marker = markerUnder(x, y - st);
         target = marker
           ? { kind: 'marker', markerId: marker.id, tick: marker.tick }
           : { kind: 'ruler', tick };
@@ -2182,7 +2227,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
         playheadTick: getPlayheadTick(),
       });
     },
-    [getCanvasCoords, getScrollTop, hitTestClip],
+    [getCanvasCoords, getScrollTop, hitTestClip, markerUnder],
   );
 
   // ── Mouse move ─────────────────────────────────────────────────────
@@ -2272,12 +2317,18 @@ export function Timeline({ scrollRef }: TimelineProps) {
       // The shortest a trim can leave a clip: a grid step, or a tick.
       const currentSnapTicks = grid.enabled ? grid.step : 1;
 
-      // Marker drag
-      if (markerDragRef.current) {
-        const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-        const snapped = snapTicks(rawTick, grid);
-        markerDragTickRef.current = snapped;
-        canvas.style.cursor = 'col-resize';
+      // Marker drag: a click until it moves past the slop, then the marker
+      // follows the pointer from where it was taken hold of.
+      const markerDrag = markerDragRef.current;
+      if (markerDrag) {
+        if (!markerDrag.moved) {
+          if (Math.abs(x - markerDrag.startX) <= MARKER_DRAG_SLOP_PX) return;
+          markerDrag.moved = true;
+        }
+        const rawTick =
+          pixelToTick(x, currentZoom, currentScrollLeft) - markerDrag.grabTicks;
+        markerDragTickRef.current = snapTicks(Math.max(0, rawTick), grid);
+        canvas.style.cursor = 'grabbing';
         requestRedraw();
         return;
       }
@@ -2396,15 +2447,10 @@ export function Timeline({ scrollRef }: TimelineProps) {
       if (y >= st && y < st + RULERS_HEIGHT) {
         setHoverClip(null);
         const localY = y - st;
-        // Marker handles (flag + name label area)
-        if (localY >= LOOP_STRIP_H && localY < LOOP_STRIP_H + 20) {
-          for (const marker of state.markers) {
-            const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
-            if (x >= mx - 5 && x <= mx + 70) {
-              canvas.style.cursor = 'grab';
-              return;
-            }
-          }
+        // A marker's flag or name, as drawn (F8): it can be taken.
+        if (markerUnder(x, localY)) {
+          canvas.style.cursor = 'grab';
+          return;
         }
         // Top ruler: a grab hand on the playhead handle, resize arrows on a
         // loop edge, a pointing hand everywhere else (click to seek/toggle).
@@ -2534,13 +2580,17 @@ export function Timeline({ scrollRef }: TimelineProps) {
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
       return;
     }
-    if (markerDragRef.current) {
-      const id = markerDragRef.current;
+    const markerDrag = markerDragRef.current;
+    if (markerDrag) {
+      const { id } = markerDrag;
       const tick = markerDragTickRef.current;
       markerDragRef.current = null;
       markerDragTickRef.current = null;
       const marker = useStore.getState().markers.find((m) => m.id === id);
-      if (marker && tick !== null && tick !== marker.tick) {
+      if (marker && !markerDrag.moved) {
+        // A click on a marker goes to it (F8).
+        seekTo(marker.tick);
+      } else if (marker && tick !== null && tick !== marker.tick) {
         withTransaction('Move marker', () =>
           useStore.getState().updateMarker(id, { tick }),
         );

@@ -1,7 +1,6 @@
 import { isSectionType } from '@/daw/model/sections';
 import { useStore } from '@/daw/store';
 import { snapTicks, timelineSnapGrid } from '@/daw/time/timeModel';
-import { promptDialog } from '@/daw/ui/DialogHost';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import type { CanvasMenuTarget } from './canvasMenuStore';
 import {
@@ -30,33 +29,13 @@ import {
   openSongFormLesson,
   renameSection,
 } from '../sections/sectionActions';
+import { addMarkerAt, deleteMarker, renameMarker } from '../markerActions';
 
 // ── What a canvas menu item does (milestone 2.12) ──────────────────────────
 //
-// The ids clipMenuModel gives its items, each to its action. Clip actions
-// are clipActions' (one undo step each), a section's sectionActions'
-// (milestone 2.13); a marker's are here, moved from the Timeline's old menu.
-
-async function renameMarker(markerId: string): Promise<void> {
-  const marker = useStore.getState().markers.find((m) => m.id === markerId);
-  if (!marker) return;
-  const name = await promptDialog({
-    title: 'Rename marker',
-    label: 'Marker name',
-    defaultValue: marker.name,
-    confirmLabel: 'Rename',
-    validate: (value) => (value.trim() ? null : 'Type a name for it.'),
-  });
-  // The marker may have gone while the dialog was open.
-  if (name === null || !name.trim()) return;
-  if (!useStore.getState().markers.some((m) => m.id === markerId)) return;
-  useStore.getState().updateMarker(markerId, { name: name.trim() });
-}
-
-function addMarker(tick: number): void {
-  const state = useStore.getState();
-  state.addMarker(tick, `Marker ${state.markers.length + 1}`);
-}
+// The ids clipMenuModel gives its items, each to its action, one undo step
+// each: a clip's are clipActions', a section's sectionActions' and a
+// marker's markerActions' (milestone 2.13).
 
 /** A section menu's item: its verb, and the kind for the sub-menus. */
 function runSectionItem(sectionId: string, id: string): boolean {
@@ -105,14 +84,13 @@ export function runCanvasMenuItem(
 ): boolean {
   if (target.kind === 'marker') {
     if (id === 'renameMarker') void renameMarker(target.markerId);
-    else if (id === 'deleteMarker') {
-      useStore.getState().removeMarker(target.markerId);
-    } else return false;
+    else if (id === 'deleteMarker') deleteMarker(target.markerId);
+    else return false;
     return true;
   }
   if (target.kind === 'ruler') {
     if (id !== 'addMarker') return false;
-    addMarker(target.tick);
+    void addMarkerAt(target.tick);
     return true;
   }
   if (target.kind === 'section') return runSectionItem(target.sectionId, id);

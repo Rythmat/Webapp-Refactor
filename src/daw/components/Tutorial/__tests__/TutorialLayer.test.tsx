@@ -123,6 +123,47 @@ describe('TutorialLayer preconditions', () => {
     act(() => s().goToTutorialStep(EXPERIMENT));
     expect(s().channelStripTab).toBe('prism');
   });
+
+  it('opens a step’s track tab over the dock’s Master', () => {
+    act(() => {
+      s().startTutorial(LESSON);
+      s().setDockMaster(true);
+      s().goToTutorialStep(EXPERIMENT);
+    });
+    render(<TutorialLayer />);
+    expect(s().channelStripTab).toBe('prism');
+    expect(s().dockMaster).toBe(false);
+  });
+
+  it('opens the Mix view’s master rack for the R&B mastering step', () => {
+    const lesson = 'rnb-mix-and-polish';
+    const step = getTutorial(lesson)!.steps.findIndex(
+      (st) => st.id === 'mastering-fx',
+    );
+    act(() => {
+      s().startTutorial(lesson);
+      s().goToTutorialStep(step);
+    });
+    render(<TutorialLayer />);
+    expect(s().currentView).toBe('studio');
+    expect(s().mixRack).toEqual({ kind: 'master' });
+    expect(s().libraryOpen && s().inspectorPanel === 'fx').toBe(true);
+  });
+
+  it('opens the master rack again when the mastering step resumes after a reload', () => {
+    const lesson = 'rnb-mix-and-polish';
+    const step = getTutorial(lesson)!.steps.findIndex(
+      (st) => st.id === 'mastering-fx',
+    );
+    act(() => {
+      s().setCurrentView('studio');
+      s().setMixRack(null);
+      s().resumeTutorial(lesson, step);
+    });
+    render(<TutorialLayer />);
+    expect(s().tutorialStepPrepared).toBe(true);
+    expect(s().mixRack).toEqual({ kind: 'master' });
+  });
 });
 
 describe('TutorialLayer completion', () => {

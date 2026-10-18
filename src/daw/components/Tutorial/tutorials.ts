@@ -682,7 +682,8 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       stage: 'STAGE 4 — SENDS',
       instruction:
         'Click **Return A** in the mixer and shape its reverb until the space feels right.',
-      target: ['return-strip-A', 'mixer-section'],
+      // Return A's rack once it is open, else the strip that opens it.
+      target: ['return-fx-A', 'return-strip-A', 'mixer-section'],
       requires: { view: 'studio' },
       check: (s, armed) => {
         const now = s.returns.find((r) => r.id === 'A');
@@ -696,7 +697,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       instruction:
         'Add polish to the whole mix — click an effect in the **Effects** panel (try the Compressor) to add it to the master chain.',
       hint: 'The master’s rack is open under the mixer; its effects shape the whole song.',
-      target: ['fx-add-compressor', 'mastering-section'],
+      // The Effects panel's Compressor while the master's rack is open; the
+      // master's chain in the Mix view (which opens it) while it is shut.
+      target: ['fx-add-compressor', 'mastering-chain', 'mastering-section'],
       rack: 'master',
       requires: {
         view: 'studio',

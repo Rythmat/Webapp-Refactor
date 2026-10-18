@@ -4,16 +4,21 @@ interface SectionMarkerProps {
   label: string;
   x: number;
   y: number;
+  /** The real bar it marks, for the reload harness (data-measure). */
+  measureIdx?: number;
 }
 
 /**
  * Renders a rehearsal mark (e.g., "A", "B", "Intro", "Bridge") above a measure.
- * Displayed as a boxed label in standard lead sheet convention.
+ * Displayed as a boxed label in standard lead sheet convention. Since
+ * milestone 2.13 it marks one of the song's sections, the same the
+ * sections lane shows.
  */
 export const SectionMarker = memo(function SectionMarker({
   label,
   x,
   y,
+  measureIdx,
 }: SectionMarkerProps) {
   const padding = 4;
   const fontSize = 14;
@@ -21,7 +26,11 @@ export const SectionMarker = memo(function SectionMarker({
   const boxHeight = fontSize + padding * 2;
 
   return (
-    <g transform={`translate(${x}, ${y})`}>
+    <g
+      transform={`translate(${x}, ${y})`}
+      data-testid="section-marker"
+      data-measure={measureIdx}
+    >
       <rect
         x={0}
         y={-boxHeight}

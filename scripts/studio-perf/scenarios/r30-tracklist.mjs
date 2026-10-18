@@ -1,12 +1,15 @@
 /* eslint-env node */
 /**
- * R30 track list and Create canvas (milestones 2.6 and 2.7, fast), at
+ * R30 track list and Create canvas (milestones 2.6, 2.7 and 2.13, fast), at
  * 1366×655, 1440×787 and 1280×720, on a project of six tracks opened fresh:
  *
- * - canvasBars: the toolbar is 32 px, the ruler 32 and the chord lane 24
- *   (88 px over the lanes), and track rows are 64 px.
+ * - canvasBars: sections 24, ruler 32, chord 24 = 80 px over the lanes (the
+ *   sections row above the list, then the editing tools beside the ruler
+ *   and the chord lane's header); footer 24; track rows 64 px; and Create's
+ *   toolbar row is gone (2.13 folded it away).
  * - rowsAligned: each row's top is its lane's top (±1 px) with the list
- *   scrolled to the top, the middle and the bottom (timeline-12).
+ *   scrolled to the top, the middle and the bottom (timeline-12). The
+ *   canvas's own header (ruler and chord lane) is still 56 px.
  * - rowBudget: a Chromebook shows at least 4 whole rows with the dock open
  *   at its default height, and at least 6 with the dock closed (7 until the
  *   bottom rail took 44 px of the body, B4a; the owner's rails).
@@ -15,14 +18,20 @@
  * - addSheet: + Add track opens the sheet, its grid has no sideways
  *   overflow, and Escape closes it.
  * - canvasFloors: no text under the floor and no target under 24×24 in the
- *   toolbar, the track list, the footer and the sheet (designProbe.mjs).
+ *   track area's v2 parts and the sheet (designProbe.mjs).
  * - listQuiet: the track list makes no React commit in 3 s of playback.
+ * - rulerEnd: Snap and the Grid menu sit at the ruler's right end over the
+ *   canvas (inside ruler-end, in the canvas's right half and its 32 px
+ *   ruler band), visible and at least 24×24.
+ * - footerZoom: −, the zoom level, +, Fit and Follow sit in the footer, the
+ *   buttons among them at least 24×24.
  *
  * And once, at 1366×655:
  * - emptyTiles: a new project's lanes show the four first steps.
  * - followPages: playing a long song at zoom 3 turns the timeline by pages
  *   (a few scroll writes, not one a frame), and a sideways scroll stops it.
- * - markerAdded: + Marker adds a marker at the playhead, named in its dialog.
+ * - markerAdded: a right-click on the ruler's bar numbers, then "Add marker
+ *   here", adds a marker named in the app's dialog.
  * - bannerKept: a project with notes but no chords offers the analysis in
  *   the chord lane; Not now hides it, and it stays hidden after a reload.
  */
@@ -31,7 +40,7 @@ import { designProbe } from '../designProbe.mjs';
 export const flags = {
   canvasBars: {
     goal: true,
-    text: 'toolbar 32, ruler 32, chord lane 24 and 64 px rows',
+    text: 'sections 24, tools 32, chord lane 24, footer 24 and 64 px rows, with no toolbar row',
   },
   rowsAligned: {
     goal: true,
@@ -51,11 +60,19 @@ export const flags = {
   },
   canvasFloors: {
     goal: true,
-    text: 'no text under the floor and no target under 24×24 in the toolbar, track list, footer or sheet',
+    text: 'no text under the floor and no target under 24×24 in the track area’s v2 parts or the sheet',
   },
   listQuiet: {
     goal: true,
     text: 'the track list made no React commit in 3 s of playback',
+  },
+  rulerEnd: {
+    goal: true,
+    text: 'Snap and the Grid menu sat at the ruler’s right end, visible and at least 24×24',
+  },
+  footerZoom: {
+    goal: true,
+    text: 'zoom out, the zoom level, zoom in, Fit and Follow sat in the footer, the buttons at least 24×24',
   },
   emptyTiles: {
     goal: true,
@@ -67,7 +84,7 @@ export const flags = {
   },
   markerAdded: {
     goal: true,
-    text: '+ Marker added a named marker at the playhead',
+    text: 'a right-click on the ruler’s bar numbers, then Add marker here, added a marker named in its dialog',
   },
   bannerKept: {
     goal: true,
@@ -81,24 +98,38 @@ const VIEWPORTS = [
   { width: 1280, height: 720 },
 ];
 
+/**
+ * The canvas's own header, the ruler 32 and the chord lane 24: unchanged by
+ * 2.13, whose sections row sits above the scroller instead.
+ */
 const LANE_HEADER = 56;
 const ROW = 64;
 
-/** In-page: the canvas's bars, the rows and their lanes. */
+/** The footer's zoom and Follow controls, left to right (contract §4). */
+const FOOTER_CONTROLS = [
+  'zoom-out',
+  'zoom-level',
+  'zoom-in',
+  'zoom-fit',
+  'follow-toggle',
+];
+
+/** In-page: the bars around the lanes, the rows and their lanes. */
 function geometry() {
-  const box = (el) => {
-    const r = el?.getBoundingClientRect();
-    return r ? { top: r.top, height: r.height, width: r.width } : null;
+  const height = (testid) => {
+    const el = document.querySelector(`[data-testid="${testid}"]`);
+    return el ? el.getBoundingClientRect().height : null;
   };
   const scroller = document.querySelector('[data-testid="track-scroller"]');
   const canvas = scroller?.querySelector(':scope > div:nth-child(2) canvas');
   const canvasTop = canvas?.getBoundingClientRect().top ?? 0;
   const rows = [...document.querySelectorAll('[data-testid="track-row"]')];
   return {
-    toolbar: box(document.querySelector('[data-testid="create-toolbar"]'))
-      ?.height,
-    chordLane: box(document.querySelector('[data-testid="chord-lane-header"]'))
-      ?.height,
+    sectionsRow: height('sections-row'),
+    tools: height('timeline-tools'),
+    chordLane: height('chord-lane-header'),
+    footer: height('timeline-footer'),
+    toolbarGone: !document.querySelector('[data-testid="create-toolbar"]'),
     rowHeights: rows.map((r) => Math.round(r.getBoundingClientRect().height)),
     // Row top less its lane's top on the canvas (rows are 64 px apart).
     offsets: rows.map((r, i) =>
@@ -106,6 +137,65 @@ function geometry() {
     ),
     scrollerHeight: scroller?.clientHeight ?? 0,
     scrollMax: scroller ? scroller.scrollHeight - scroller.clientHeight : 0,
+  };
+}
+
+/**
+ * In-page: Snap and the Grid menu at the ruler's right end, and the zoom
+ * and Follow controls in the footer, each with its box, whether it is
+ * inside its frame, visible, and a button (the 24×24 floor's subject); and
+ * the canvas's box with the ruler band's top (the canvas draws the ruler
+ * at the lanes' scroll offset).
+ */
+function headerControls(footerIds) {
+  const scroller = document.querySelector('[data-testid="track-scroller"]');
+  const canvas = scroller?.querySelector(':scope > div:nth-child(2) canvas');
+  const end = document.querySelector('[data-testid="ruler-end"]');
+  const footer = document.querySelector('[data-testid="timeline-footer"]');
+  const BUTTON =
+    'button, a[href], input, select, [role="button"], [role="switch"], [role="checkbox"], [tabindex]:not([tabindex="-1"])';
+  const boxOf = (el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      bottom: r.bottom,
+      width: Math.round(r.width * 10) / 10,
+      height: Math.round(r.height * 10) / 10,
+    };
+  };
+  const control = (testid, frame) => {
+    const el = document.querySelector(`[data-testid="${testid}"]`);
+    if (!el) return null;
+    const box = boxOf(el);
+    const style = getComputedStyle(el);
+    return {
+      ...box,
+      inFrame: !!frame && frame.contains(el),
+      visible:
+        box.width > 1 &&
+        box.height > 1 &&
+        style.visibility !== 'hidden' &&
+        Number(style.opacity) > 0,
+      button: el.matches(BUTTON),
+    };
+  };
+  const c = canvas ? boxOf(canvas) : null;
+  return {
+    canvas: c,
+    rulerTop: c ? c.top + (scroller?.scrollTop ?? 0) : null,
+    rulerEnd: {
+      found: !!end,
+      snap: control('snap-toggle', end),
+      grid: control('grid-menu', end),
+    },
+    footer: {
+      box: footer ? boxOf(footer) : null,
+      controls: Object.fromEntries(
+        footerIds.map((id) => [id, control(id, footer)]),
+      ),
+    },
   };
 }
 
@@ -154,6 +244,9 @@ async function listAt(kit, run, viewport) {
       }
       await scrollList(page, 'top');
       const open = await page.evaluate(geometry);
+      // Snap and Grid at the ruler's end, zoom and Follow in the footer
+      // (2.13), with the list at its top.
+      const controls = await page.evaluate(headerControls, FOOTER_CONTROLS);
 
       // The dock closed (Enter on its edge), then open again.
       await page.focus('[data-testid="dock-resizer"]');
@@ -225,6 +318,7 @@ async function listAt(kit, run, viewport) {
       return {
         viewport,
         open,
+        controls,
         closed,
         aligned,
         selected,
@@ -239,13 +333,50 @@ async function listAt(kit, run, viewport) {
   );
 }
 
+/** Snap or Grid: in ruler-end, in the canvas's right half and ruler band. */
+function atRulerEnd(control, { canvas, rulerTop }) {
+  return (
+    !!control &&
+    !!canvas &&
+    control.inFrame &&
+    control.visible &&
+    control.width >= 24 &&
+    control.height >= 24 &&
+    control.left >= canvas.left + canvas.width / 2 &&
+    control.right <= canvas.right + 0.5 &&
+    control.top >= rulerTop - 0.5 &&
+    control.bottom <= rulerTop + 32 + 0.5
+  );
+}
+
+/** A zoom or Follow control: in the footer's box; a button is 24×24. */
+function inFooter(control, footerBox) {
+  return (
+    !!control &&
+    !!footerBox &&
+    control.inFrame &&
+    control.visible &&
+    control.left >= footerBox.left - 0.5 &&
+    control.right <= footerBox.right + 0.5 &&
+    control.top >= footerBox.top - 0.5 &&
+    control.bottom <= footerBox.bottom + 0.5 &&
+    (!control.button || (control.width >= 24 && control.height >= 24))
+  );
+}
+
 function judge(v) {
-  const near = (a, b, tol = 1) => Math.abs(a - b) <= tol;
+  const near = (a, b, tol = 1) =>
+    typeof a === 'number' && Math.abs(a - b) <= tol;
   const chromebook = v.viewport.width === 1366;
+  const { rulerEnd, footer } = v.controls;
   return {
     canvasBars:
-      near(v.open.toolbar, 32) &&
+      near(v.open.sectionsRow, 24) &&
+      near(v.open.tools, 32) &&
       near(v.open.chordLane, 24) &&
+      near(v.open.footer, 24) &&
+      v.open.toolbarGone &&
+      v.open.rowHeights.length > 0 &&
       v.open.rowHeights.every((h) => near(h, 64)),
     rowsAligned: v.aligned.every((offsets) =>
       offsets.every((o) => Math.abs(o) <= 1),
@@ -257,10 +388,53 @@ function judge(v) {
       v.sheet.open && !v.sheet.overflow && v.sheet.dialogFits && v.sheet.closed,
     canvasFloors: v.floors.length === 0,
     listQuiet: v.playingCommits === 0,
+    rulerEnd:
+      rulerEnd.found &&
+      atRulerEnd(rulerEnd.snap, v.controls) &&
+      atRulerEnd(rulerEnd.grid, v.controls),
+    footerZoom: FOOTER_CONTROLS.every((id) =>
+      inFooter(footer.controls[id], footer.box),
+    ),
   };
 }
 
-/** Once, at 1366×655: tiles, Follow, + Marker, the banner. */
+/**
+ * In-page: a point on the ruler's bar numbers, 14 to 32 px down the ruler
+ * (under its 14 px loop strip; the canvas draws the ruler at the lanes'
+ * scroll offset), in the canvas's left half (Snap and Grid hold its right
+ * end), clear of every marker's flag and name (the Timeline's right-click
+ * takes 5 px before a marker to 70 px after it as the marker) and of the
+ * playhead's handle; and how many markers there are. x is null when the
+ * canvas or a clear spot is missing.
+ */
+function rulerSpot() {
+  const s = window.__MA_STORE__.getState();
+  const scroller = document.querySelector('[data-testid="track-scroller"]');
+  const canvas = scroller?.querySelector(':scope > div:nth-child(2) canvas');
+  if (!canvas) return { x: null, y: null, markers: s.markers.length };
+  const box = canvas.getBoundingClientRect();
+  // timelineScale.ts: 40 px a beat at zoom 1, 480 ticks a beat.
+  const pxOf = (tick) =>
+    box.left + (tick / 480) * 40 * s.timelineZoom - s.timelineScrollLeft;
+  const playhead = pxOf(window.__MA_PLAYHEAD__?.tick?.() ?? s.position);
+  const clear = (x) =>
+    Math.abs(x - playhead) > 16 &&
+    s.markers.every((m) => x < pxOf(m.tick) - 5 || x > pxOf(m.tick) + 70);
+  let x = null;
+  for (let at = box.left + 40; at < box.left + box.width / 2; at += 10) {
+    if (clear(at)) {
+      x = at;
+      break;
+    }
+  }
+  return {
+    x,
+    y: box.top + scroller.scrollTop + 23,
+    markers: s.markers.length,
+  };
+}
+
+/** Once, at 1366×655: tiles, Follow, a marker from the ruler, the banner. */
 async function canvasOnce(kit, run) {
   const viewport = VIEWPORTS[0];
   const api = kit.createMockStudioApi({ mode: 'legacy' });
@@ -328,19 +502,57 @@ async function canvasOnce(kit, run) {
       await page.click('[data-testid="transport-play"]');
       await kit.sleep(300);
 
-      // + Marker at the playhead, named in its dialog.
-      const markersBefore = await page.evaluate(
-        () => window.__MA_STORE__.getState().markers.length,
-      );
-      await page.click('[data-testid="add-marker"]');
-      await kit.sleep(400);
-      // The name opens selected: typing replaces it.
-      await page.keyboard.type('Verse');
-      await page.keyboard.press('Enter');
-      await kit.sleep(400);
+      // A marker from the ruler's menu (2.13: + Marker went with the
+      // toolbar): a right-click on the bar numbers, Add marker here, and
+      // its name in the app's dialog.
+      const spot = await page.evaluate(rulerSpot);
+      const markersBefore = spot.markers;
+      let menuTarget = null;
+      let dialogShown = false;
+      if (spot.x !== null) {
+        await page.mouse.click(spot.x, spot.y, { button: 'right' });
+        await kit.sleep(400);
+        menuTarget = await page.evaluate(
+          () =>
+            document
+              .querySelector('[data-tutorial-id="clip-menu"]')
+              ?.getAttribute('data-menu-target') ?? null,
+        );
+        const item = page.locator(
+          '[data-tutorial-id="clip-menu"] [data-item="addMarker"]',
+        );
+        if (await item.count()) {
+          await item.first().click({ timeout: 5000 });
+          const field = page
+            .locator('[role="dialog"][data-state="open"] input')
+            .first();
+          dialogShown = await field
+            .waitFor({ state: 'visible', timeout: 5000 })
+            .then(
+              () => true,
+              () => false,
+            );
+          if (dialogShown) {
+            await field.fill('Verse');
+            await field.press('Enter');
+          }
+        }
+        await kit.sleep(400);
+        // Nothing left open for the banner below.
+        const stillOpen = page.locator(
+          '[data-tutorial-id="clip-menu"][data-state="open"]',
+        );
+        if (await stillOpen.count()) {
+          await page.keyboard.press('Escape');
+          await kit.sleep(200);
+        }
+      }
       const marker = await page.evaluate(() => {
         const s = window.__MA_STORE__.getState();
-        return { count: s.markers.length, last: s.markers.at(-1)?.name };
+        return {
+          count: s.markers.length,
+          named: s.markers.some((m) => m.name === 'Verse'),
+        };
       });
 
       // The banner: notes, no chords, offered; Not now; a reload.
@@ -378,7 +590,10 @@ async function canvasOnce(kit, run) {
         whilePlaying,
         afterWheel,
         later,
+        spot,
         markersBefore,
+        menuTarget,
+        dialogShown,
         marker,
         offered,
         afterReload,
@@ -386,6 +601,25 @@ async function canvasOnce(kit, run) {
     },
     api,
   );
+}
+
+/** A measured height for the report: rounded, or 'none' when missing. */
+const px = (value) =>
+  typeof value === 'number' ? `${Math.round(value)}` : 'none';
+
+/** headerControls' controls for the report: `name w×h`, and what is off. */
+function controlsText(group, names) {
+  return names
+    .map((name) => {
+      const c = group?.[name];
+      if (!c) return `${name} missing`;
+      const off = [
+        c.inFrame ? null : 'outside its frame',
+        c.visible ? null : 'hidden',
+      ].filter(Boolean);
+      return `${name} ${c.width}×${c.height}${off.length ? ` (${off.join(', ')})` : ''}`;
+    })
+    .join(', ');
 }
 
 async function tracklist(kit, run) {
@@ -401,8 +635,7 @@ async function tracklist(kit, run) {
     followPages:
       pages.length >= 1 && pages.length <= 6 && once.later === once.afterWheel,
     markerAdded:
-      once.marker.count === once.markersBefore + 1 &&
-      once.marker.last === 'Verse',
+      once.marker.count === once.markersBefore + 1 && once.marker.named,
     bannerKept:
       once.offered && !once.afterReload.banner && once.afterReload.dismissed,
   };
@@ -418,7 +651,9 @@ async function tracklist(kit, run) {
     checks: [
       ...at.map((v, i) => ({
         viewport: `${v.viewport.width}x${v.viewport.height}`,
-        bars: `toolbar ${v.open.toolbar}, chord lane ${v.open.chordLane}, rows ${[...new Set(v.open.rowHeights)].join('/')}`,
+        bars: `sections ${px(v.open.sectionsRow)}, tools ${px(v.open.tools)}, chord lane ${px(v.open.chordLane)}, footer ${px(v.open.footer)}, rows ${[...new Set(v.open.rowHeights)].join('/')}${v.open.toolbarGone ? '' : ', toolbar still there'}`,
+        rulerEnd: controlsText(v.controls.rulerEnd, ['snap', 'grid']),
+        footer: controlsText(v.controls.footer.controls, FOOTER_CONTROLS),
         offsets: v.aligned.map((o) => o.join(',')).join(' | '),
         rows: `${fullRows(v.open)} whole rows (dock open), ${fullRows(v.closed)} (dock closed)`,
         keys: `selected row ${v.selected}, focus in dock ${v.focusInDock}`,
@@ -439,7 +674,16 @@ async function tracklist(kit, run) {
         scrollWritesWhilePlaying: once.whilePlaying.map(Math.round),
         afterWheel: Math.round(once.afterWheel),
         sixSecondsLater: Math.round(once.later),
-        marker: once.marker,
+        marker: {
+          ...once.marker,
+          before: once.markersBefore,
+          menu: once.menuTarget,
+          dialog: once.dialogShown,
+          at:
+            once.spot.x === null
+              ? 'no clear spot on the ruler'
+              : `${Math.round(once.spot.x)},${Math.round(once.spot.y)}`,
+        },
         banner: { offered: once.offered, ...once.afterReload },
         failed: Object.entries(onceFlags)
           .filter(([, ok]) => !ok)
@@ -455,7 +699,7 @@ export const scenarios = (kit) => [
     key: '',
     id: 'R30-tracklist',
     title:
-      'The track list and Create canvas at 1366×655, 1440×787 and 1280×720: 64 px rows lined up with their lanes, the row budget, the list’s keys, the Add-track sheet, floors, no commits while playing; and once, the empty project, Follow, + Marker and the chord lane’s offer',
+      'The track list and Create canvas at 1366×655, 1440×787 and 1280×720: the 80 px lane header and 24 px footer, 64 px rows lined up with their lanes, the row budget, the list’s keys, the Add-track sheet, floors, no commits while playing, Snap and Grid at the ruler’s end, zoom and Follow in the footer; and once, the empty project, Follow, a marker from the ruler’s menu and the chord lane’s offer',
     run: (run) => tracklist(kit, run),
   },
 ];

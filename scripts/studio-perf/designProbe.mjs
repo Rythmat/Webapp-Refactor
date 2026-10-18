@@ -16,17 +16,36 @@
  * holds until its own milestone restyles it. The source-side ratchet is
  * src/daw/ui/__tests__/designGuard.test.ts.
  *
+ * By default an element is skipped when any ancestor is legacy, so a v2
+ * part inside the legacy main region (section[data-region="main"]: the
+ * Create toolbar, the track list, the footer, the Edit pill) is never
+ * probed. `{ root, subtree: true }` probes `root`'s matches as v2 parts
+ * whatever lies above them: inside each, the nearest [data-ds] decides
+ * (R32 uses it; R28–R31 pass a selector and see what they always did).
+ *
  * Both functions run in the page (page.evaluate(designProbe)), so they use
  * nothing from this module's scope.
  */
 
 /**
- * In-page: every floor broken inside `rootSelector`'s matches (all of the
- * v2 parts by default). Each finding names its kind, size and text.
+ * In-page: every floor broken inside the root selector's matches (all of
+ * the v2 parts by default). Takes the selector, or `{ root, subtree }` (see
+ * the header). Each finding names its kind, size and text.
  */
-export function designProbe(rootSelector = '[data-ds="v2"]') {
+export function designProbe(arg = '[data-ds="v2"]') {
+  const { root: rootSelector = '[data-ds="v2"]', subtree = false } =
+    typeof arg === 'string' ? { root: arg } : (arg ?? {});
   const roots = [...document.querySelectorAll(rootSelector)];
-  const legacy = (el) => el.closest('[data-ds="legacy"]') !== null;
+  const legacy = (el, root) => {
+    if (!subtree) return el.closest('[data-ds="legacy"]') !== null;
+    // The nearest mark at or above el, counted only inside the root.
+    const mark = el.closest('[data-ds]');
+    return (
+      mark !== null &&
+      root.contains(mark) &&
+      mark.getAttribute('data-ds') === 'legacy'
+    );
+  };
   const visible = (el) => {
     const rect = el.getBoundingClientRect();
     if (rect.width <= 1 || rect.height <= 1) return false;
@@ -47,7 +66,7 @@ export function designProbe(rootSelector = '[data-ds="v2"]') {
     for (const el of [root, ...root.querySelectorAll('*')]) {
       if (seen.has(el)) continue;
       seen.add(el);
-      if (legacy(el) || !visible(el)) continue;
+      if (legacy(el, root) || !visible(el)) continue;
 
       // Text: an element with text of its own.
       const ownText = [...el.childNodes]

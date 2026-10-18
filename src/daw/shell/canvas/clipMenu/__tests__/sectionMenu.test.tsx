@@ -664,6 +664,40 @@ describe('the menu drawn for a section', () => {
     await waitFor(() => expect(back).toHaveFocus());
   });
 
+  it('gives focus back without scrolling, and once that has gone, to what the opener names', async () => {
+    render(<CanvasMenu />);
+    const focus = vi.spyOn(back, 'focus');
+    await menuOn('verse');
+    fireEvent.keyDown(itemOf('renameSection')!, {
+      key: 'Escape',
+      code: 'Escape',
+    });
+    await waitFor(() => expect(back).toHaveFocus());
+    expect(focus).toHaveBeenLastCalledWith({ preventScroll: true });
+
+    // The section it was opened from goes while it is open.
+    const neighbour = document.createElement('button');
+    document.body.append(neighbour);
+    act(() =>
+      useCanvasMenuStore.getState().open({
+        target: target('verse'),
+        anchor: { x: 320, y: 40, width: 0, height: 20 },
+        source: 'key',
+        playheadTick: 0,
+        returnFocus: back,
+        returnFocusFallback: () => neighbour,
+      }),
+    );
+    await waitFor(() => expect(itemOf('renameSection')).toHaveFocus());
+    back.remove();
+    fireEvent.keyDown(itemOf('renameSection')!, {
+      key: 'Escape',
+      code: 'Escape',
+    });
+    await waitFor(() => expect(neighbour).toHaveFocus());
+    neighbour.remove();
+  });
+
   it('runs the item chosen on its section, closes, and gives focus back', async () => {
     render(<CanvasMenu />);
     await menuOn('verse', 'pointer');

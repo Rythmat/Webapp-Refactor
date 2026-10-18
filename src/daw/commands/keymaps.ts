@@ -87,6 +87,24 @@ defineCommand({
   keys: ['Escape'],
 });
 
+/**
+ * A section's edge being dragged in the sections lane (milestone 2.13):
+ * Escape puts it back. A dialog's level, bound only while the drag lasts,
+ * so the key does that and nothing else (it never reaches Stop).
+ */
+export const SECTION_DRAG_SCOPE = defineScope({
+  id: 'sectionDrag',
+  label: 'Resizing a section',
+  level: 'dialog',
+});
+
+defineCommand({
+  id: 'sectionDrag.cancel',
+  scope: 'sectionDrag',
+  label: 'Put the edge back',
+  keys: ['Escape'],
+});
+
 // ── Musical typing ───────────────────────────────────────────────────────
 
 export const TYPING_SCOPE = defineScope({

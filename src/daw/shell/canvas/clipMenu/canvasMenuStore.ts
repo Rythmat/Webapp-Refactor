@@ -44,6 +44,12 @@ export interface CanvasMenuRequest {
    * outside the canvas (a section in the sections lane); else the pill.
    */
   returnFocus?: HTMLElement | null;
+  /**
+   * Where focus goes instead of `returnFocus` once that has left the page
+   * (its section deleted from this menu, or while it was open): the
+   * section next to it in the sections lane.
+   */
+  returnFocusFallback?: () => HTMLElement | null;
 }
 
 interface CanvasMenuState {

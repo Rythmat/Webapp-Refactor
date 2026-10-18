@@ -87,6 +87,11 @@ export async function addNamedSection(): Promise<string | null> {
   );
 }
 
+/**
+ * Renames the section. A name that names a kind makes it that kind ("Verse 2"
+ * is a verse), as the Lead Sheet's rename does; any other name keeps its
+ * kind.
+ */
 export async function renameSection(id: string): Promise<void> {
   const section = findSection(id);
   if (!section) return;
@@ -94,8 +99,11 @@ export async function renameSection(id: string): Promise<void> {
   // The section may have gone while the dialog was open.
   if (label === null || label === findSection(id)?.label) return;
   if (!findSection(id)) return;
+  const type = sectionTypeOfLabel(label);
   withTransaction('Rename section', () =>
-    useStore.getState().updateSection(id, { label }),
+    useStore
+      .getState()
+      .updateSection(id, type === 'custom' ? { label } : { label, type }),
   );
 }
 

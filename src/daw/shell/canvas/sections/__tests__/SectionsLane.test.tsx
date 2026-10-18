@@ -7,6 +7,7 @@ import {
   renderHook,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { Profiler } from 'react';
 import {
@@ -51,6 +52,7 @@ vi.mock('@/daw/ui/DialogHost', async (original) => ({
 }));
 
 import { installKeyDispatcher } from '@/daw/commands/dispatcher';
+import { bindKeymap } from '@/daw/commands/registry';
 import {
   SECTION_TYPES,
   sectionTypeInfo,
@@ -717,10 +719,17 @@ describe('the lane’s keys, with focus on a section', () => {
     expect(s().sections[1]).toMatchObject({ type: 'verse', label: 'Verse 1' });
     expect(historyLabels()).toEqual(['Rename section']);
 
+    // A name that names a kind makes it that kind, as in the Lead Sheet...
     h.typed = 'Hook';
     press(block('verse'), { key: 'F2', code: 'F2' });
     await waitFor(() => expect(s().sections[1].label).toBe('Hook'));
-    expect(h.asked).toBe(2);
+    expect(s().sections[1].type).toBe('hook');
+    // ...and a name no kind has keeps the one it has.
+    h.typed = 'Big finish';
+    press(block('verse'), { key: 'n', code: 'KeyN' });
+    await waitFor(() => expect(s().sections[1].label).toBe('Big finish'));
+    expect(s().sections[1].type).toBe('hook');
+    expect(h.asked).toBe(3);
   });
 
   it('delete it with Delete or Backspace, keeping the clips, and move the focus on', async () => {
@@ -787,6 +796,341 @@ describe('the lane’s keys, with focus on a section', () => {
     expect(s().sections).toBe(SECTIONS);
     expect(historyLabels()).toEqual([]);
     expect(useCanvasMenuStore.getState().request).toBeNull();
+  });
+});
+
+// ── Review fixes (2.13): the lane stays in line with the ruler, the keys
+// stay in the lane, and a drag or a click on an edge does only what it says.
+
+/** A box on screen, for the elements jsdom lays out at 0. */
+const box = (left: number, width: number, top = 50, height = 24) =>
+  ({
+    left,
+    right: left + width,
+    top,
+    bottom: top + height,
+    width,
+    height,
+    x: left,
+    y: top,
+    toJSON: () => ({}),
+  }) as DOMRect;
+
+/**
+ * Every focus() while `run` runs: on what, with what options, and where the
+ * timeline was scrolled to at that moment.
+ */
+async function focusCalls(run: () => Promise<void> | void) {
+  const calls: Array<{
+    el: HTMLElement;
+    options: FocusOptions | undefined;
+    scrollLeft: number;
+  }> = [];
+  const original = HTMLElement.prototype.focus;
+  const spy = vi
+    .spyOn(HTMLElement.prototype, 'focus')
+    .mockImplementation(function (this: HTMLElement, options?: FocusOptions) {
+      calls.push({ el: this, options, scrollLeft: s().timelineScrollLeft });
+      original.call(this, options);
+    });
+  try {
+    await run();
+  } finally {
+    spy.mockRestore();
+  }
+  return calls;
+}
+
+describe('the lane stays in line with the ruler', () => {
+  const OUTRO: SongSection = {
+    id: 'outro',
+    type: 'outro',
+    label: 'Outro',
+    startTick: 40 * BAR,
+    endTick: 48 * BAR,
+  };
+  beforeEach(() => given([...SECTIONS, OUTRO]));
+
+  it('clips rather than scrolls, and draws a block’s focus ring inside it', () => {
+    render(<SectionsLane />);
+    const lane = screen.getByTestId('sections-lane');
+    // overflow: hidden is a scroll container a focus could scroll; clip isn't.
+    expect(lane).toHaveClass('overflow-clip');
+    expect(lane).not.toHaveClass('overflow-hidden');
+    expect(lane.firstElementChild).not.toHaveClass('overflow-hidden');
+    expect(block('verse')).toHaveClass('focus-visible:outline-offset-[-2px]');
+  });
+
+  it('scrolls the timeline to a section the keys go to first, then focuses it without scrolling', async () => {
+    render(<SectionsLane />);
+    act(() => block('chorus').focus());
+    // The outro starts at 3200 px, past the 1200 px lane.
+    const calls = await focusCalls(async () => {
+      press(block('chorus'), { key: 'End', code: 'End' });
+      await waitFor(() => expect(block('outro')).toHaveFocus());
+    });
+    expect(s().timelineScrollLeft).toBe(px(40 * BAR) - 32);
+    const onOutro = calls.filter((c) => c.el === block('outro'));
+    expect(onOutro).not.toHaveLength(0);
+    for (const call of onOutro) {
+      expect(call.options).toEqual({ preventScroll: true });
+      expect(call.scrollLeft).toBe(px(40 * BAR) - 32);
+    }
+    expect(screen.getByTestId('sections-lane').scrollLeft).toBe(0);
+  });
+
+  it('brings a block Tab lands on off screen into view through the timeline, and leaves one partly in view', () => {
+    render(<SectionsLane />);
+    act(() => s().setTimelineScrollLeft(2000));
+    // The intro (0 to 320 px) is wholly out of view: the timeline goes to it.
+    act(() => block('intro').focus());
+    expect(s().timelineScrollLeft).toBe(0);
+
+    // The verse (320 to 960 px) shows in part: a focus there never jumps.
+    act(() => s().setTimelineScrollLeft(400));
+    act(() => block('verse').focus());
+    expect(s().timelineScrollLeft).toBe(400);
+    expect(screen.getByTestId('sections-lane').scrollLeft).toBe(0);
+  });
+
+  it('zooms the timeline at the pointer with Ctrl or ⌘ and the wheel, not the page', () => {
+    render(<SectionsLane />);
+    const lane = screen.getByTestId('sections-lane');
+    // Not passive: the page's own zoom is kept away.
+    expect(
+      fireEvent.wheel(lane, { deltaY: -100, ctrlKey: true, clientX: 400 }),
+    ).toBe(false);
+    const zoomedIn = s().timelineZoom;
+    expect(zoomedIn).toBeGreaterThan(ZOOM);
+    expect(
+      fireEvent.wheel(lane, { deltaY: 100, metaKey: true, clientX: 400 }),
+    ).toBe(false);
+    expect(s().timelineZoom).toBeLessThan(zoomedIn);
+  });
+});
+
+describe('a section block, pressed and dragged', () => {
+  beforeEach(() => given(SECTIONS));
+
+  it('takes a Ctrl+click (a Mac’s right-click) as no click', () => {
+    render(<SectionsLane />);
+    const verse = block('verse');
+    fireEvent.pointerDown(verse, {
+      pointerId: 1,
+      button: 0,
+      ctrlKey: true,
+      clientX: 500,
+    });
+    fireEvent.pointerUp(verse, { pointerId: 1, button: 0, clientX: 500 });
+    expect(h.seeks).toEqual([]);
+  });
+
+  it('moves an edge as far as the pointer moves from where it was grabbed', () => {
+    render(<SectionsLane />);
+    const end = edgeOf('verse', 'end');
+    // Grabbed 7 px inside the end, moved 45 px: the end goes 45 px on (to
+    // 12.56 bars, so bar line 13), not to the pointer (12.48, so 12).
+    fireEvent.pointerDown(end, {
+      pointerId: 6,
+      button: 0,
+      clientX: px(12 * BAR) - 7,
+    });
+    fireEvent.pointerMove(end, { pointerId: 6, clientX: px(12 * BAR) + 38 });
+    expect(block('verse')).toHaveAccessibleName('Verse, bars 5 to 13');
+    fireEvent.pointerUp(end, { pointerId: 6, clientX: px(12 * BAR) + 38 });
+    expect(bars()).toEqual([
+      ['intro', 0, 4],
+      ['verse', 4, 13],
+      ['chorus', 13, 20],
+    ]);
+    expect(historyLabels()).toEqual(['Resize section']);
+  });
+
+  it('goes to the section on a click on an edge, resizing nothing, at the narrowest bars too', () => {
+    // 3/4 at the widest zoom: 12 px a bar, so a block is nearly all edge.
+    const bar = 1440;
+    useStore.setState({
+      timeSignatureNumerator: 3,
+      timeSignatureDenominator: 4,
+      timelineZoom: 0.1,
+    });
+    const list: SongSection[] = [
+      {
+        id: 'a',
+        type: 'verse',
+        label: 'Verse',
+        startTick: 0,
+        endTick: 8 * bar,
+      },
+    ];
+    given(list);
+    render(<SectionsLane />);
+    const end = edgeOf('a', 'end');
+    const x = tickToPixel(8 * bar, 0.1, 0) - 7;
+    fireEvent.pointerDown(end, { pointerId: 1, button: 0, clientX: x });
+    // A wobble within a click's 3 px moves nothing either.
+    fireEvent.pointerMove(end, { pointerId: 1, clientX: x + 2 });
+    expect(block('a')).toHaveAccessibleName('Verse, bars 1 to 8');
+    fireEvent.pointerUp(end, { pointerId: 1, clientX: x + 2 });
+    expect(s().sections).toBe(list);
+    expect(historyLabels()).toEqual([]);
+    expect(h.seeks).toEqual([0]);
+  });
+
+  it('puts an edge back on Escape and does nothing else: the music doesn’t stop', () => {
+    const stop = vi.fn();
+    const unbind = bindKeymap('global', {
+      current: { 'transport.stop': stop },
+    });
+    try {
+      render(<SectionsLane />);
+      const end = edgeOf('verse', 'end');
+      fireEvent.pointerDown(end, {
+        pointerId: 3,
+        button: 0,
+        clientX: px(12 * BAR) - 2,
+      });
+      fireEvent.pointerMove(end, { pointerId: 3, clientX: px(15 * BAR) });
+      fireEvent.keyDown(document.body, { key: 'Escape', code: 'Escape' });
+      expect(block('verse').style.width).toBe(
+        `${px(12 * BAR) - px(4 * BAR)}px`,
+      );
+      expect(stop).not.toHaveBeenCalled();
+      fireEvent.pointerUp(end, { pointerId: 3, clientX: px(15 * BAR) });
+      expect(s().sections).toBe(SECTIONS);
+
+      // With no drag, Escape is Stop again.
+      fireEvent.keyDown(document.body, { key: 'Escape', code: 'Escape' });
+      expect(stop).toHaveBeenCalledTimes(1);
+    } finally {
+      unbind();
+    }
+  });
+
+  it('hangs its tip from the name, so a focus or a long block never opens one over the toolbar', () => {
+    render(<SectionsLane />);
+    const verse = block('verse');
+    expect(verse).not.toHaveAttribute('data-state');
+    expect(within(verse).getByTestId('section-name')).toHaveAttribute(
+      'data-state',
+      'closed',
+    );
+    act(() => verse.focus());
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+});
+
+describe('the lane’s keys, kept in the lane', () => {
+  beforeEach(() => given(SECTIONS));
+
+  it('hang a key’s menu from the part of the block in view', () => {
+    render(<SectionsLane />);
+    const lane = screen.getByTestId('sections-lane');
+    vi.spyOn(lane, 'getBoundingClientRect').mockReturnValue(box(100, 600));
+    // A long verse scrolled half out of view on the left...
+    vi.spyOn(block('verse'), 'getBoundingClientRect').mockReturnValue(
+      box(-500, 2000),
+    );
+    act(() => block('verse').focus());
+    press(block('verse'), { key: 'Enter', code: 'Enter', altKey: true });
+    expect(useCanvasMenuStore.getState().request?.anchor).toEqual({
+      x: 100,
+      y: 50,
+      width: 0,
+      height: 24,
+    });
+    act(() => useCanvasMenuStore.getState().close());
+
+    // ...and a chorus starting past the right end.
+    vi.spyOn(block('chorus'), 'getBoundingClientRect').mockReturnValue(
+      box(900, 300),
+    );
+    act(() => block('chorus').focus());
+    press(block('chorus'), { key: 'F10', code: 'F10', shiftKey: true });
+    expect(useCanvasMenuStore.getState().request?.anchor).toEqual({
+      x: 692,
+      y: 50,
+      width: 0,
+      height: 24,
+    });
+  });
+
+  it('keep the browser’s own menu away from the menu key', () => {
+    render(<SectionsLane />);
+    act(() => block('verse').focus());
+    press(block('verse'), { key: 'ContextMenu', code: 'ContextMenu' });
+    expect(useCanvasMenuStore.getState().request?.source).toBe('key');
+    // The browser opens its menu on the key's release.
+    const native = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+    });
+    document.body.dispatchEvent(native);
+    expect(native.defaultPrevented).toBe(true);
+  });
+
+  it('give + Section the focus when the last section is deleted', async () => {
+    given([SECTIONS[0]]);
+    render(<SectionsLane />);
+    act(() => block('intro').focus());
+    press(block('intro'), { key: 'Delete', code: 'Delete' });
+    expect(s().sections).toEqual([]);
+    await waitFor(() =>
+      expect(screen.getByTestId('add-section')).toHaveFocus(),
+    );
+  });
+
+  it('keep the clip keys away from + Section; ←, Home and End go back to the sections', async () => {
+    useStore.setState({ currentView: 'arrange' });
+    const clipKey = vi.fn();
+    const unbind = bindKeymap('arrange', {
+      current: {
+        'clip.delete': clipKey,
+        'clip.nudgeLeft': clipKey,
+        'clip.nudgeRight': clipKey,
+      },
+    });
+    try {
+      render(<SectionsLane />);
+      const add = screen.getByTestId('add-section');
+      act(() => add.focus());
+      for (const key of ['Backspace', 'Delete', 'ArrowRight']) {
+        press(add, { key, code: key });
+      }
+      expect(add).toHaveFocus();
+      press(add, { key: 'ArrowLeft', code: 'ArrowLeft' });
+      await waitFor(() => expect(block('chorus')).toHaveFocus());
+      act(() => add.focus());
+      press(add, { key: 'Home', code: 'Home' });
+      await waitFor(() => expect(block('intro')).toHaveFocus());
+      expect(clipKey).not.toHaveBeenCalled();
+      expect(s().sections).toBe(SECTIONS);
+    } finally {
+      unbind();
+    }
+  });
+
+  it('leave the focus on the section + Section ▸ a kind added, not on + Section', async () => {
+    render(<SectionsLane />);
+    const add = screen.getByTestId('add-section');
+    act(() => add.focus());
+    press(add, { key: 'Enter', code: 'Enter' });
+    await screen.findByRole('menu', { name: 'Add a section' });
+    const focused: EventTarget[] = [];
+    const onFocusIn = (e: FocusEvent) => focused.push(e.target!);
+    document.addEventListener('focusin', onFocusIn);
+    try {
+      fireEvent.click(menuItem('add:bridge'));
+      await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+      const id = s().sections[3].id;
+      await waitFor(() => expect(block(id)).toHaveFocus());
+      // Long after the list has gone (its exit), focus is still there.
+      await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+      expect(block(id)).toHaveFocus();
+      expect(focused).not.toContain(add);
+    } finally {
+      document.removeEventListener('focusin', onFocusIn);
+    }
   });
 });
 

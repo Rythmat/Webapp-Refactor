@@ -1,5 +1,5 @@
 import { BookOpen, Pencil, Plus } from 'lucide-react';
-import { forwardRef, useState, type CSSProperties } from 'react';
+import { forwardRef, useRef, useState, type CSSProperties } from 'react';
 import { cn } from '@/components/utilities';
 import {
   SECTION_TYPES,
@@ -44,19 +44,30 @@ export const AddSectionMenu = forwardRef<
   AddSectionMenuProps
 >(function AddSectionMenu({ style, onAdded }, ref) {
   const [hint, setHint] = useState<SectionType | null>(null);
+  /** The section the list just added, which focus goes to as it closes. */
+  const added = useRef<string | null>(null);
   const item = (type: SectionType, name: string) => (
     <MenuItem
       key={type}
       data-item={`add:${type}`}
       onFocus={() => setHint(type)}
-      onSelect={() => onAdded?.(addSectionOfType(type))}
+      onSelect={() => {
+        const id = addSectionOfType(type);
+        added.current = id;
+        onAdded?.(id);
+      }}
     >
       {name}
     </MenuItem>
   );
   const info = hint ? sectionTypeInfo(hint) : null;
   return (
-    <Menu onOpenChange={(open) => !open && setHint(null)}>
+    <Menu
+      onOpenChange={(open) => {
+        if (open) added.current = null;
+        else setHint(null);
+      }}
+    >
       <MenuTrigger asChild>
         <Button
           ref={ref}
@@ -77,6 +88,15 @@ export const AddSectionMenu = forwardRef<
         data-testid="add-section-menu"
         aria-label="Add a section"
         className="max-h-[var(--radix-dropdown-menu-content-available-height)] w-64 overflow-y-auto"
+        onCloseAutoFocus={(e) => {
+          // After a kind is picked, focus stays on the new section rather
+          // than coming back here once the list has gone.
+          const id = added.current;
+          if (id === null) return;
+          added.current = null;
+          e.preventDefault();
+          onAdded?.(id);
+        }}
       >
         {COMMON.map((t) => item(t.type, t.name))}
         <MenuSeparator />

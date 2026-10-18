@@ -368,9 +368,17 @@ export function CanvasMenu() {
             // Back to what it was opened from (the pill, or a section in
             // the sections lane); never to the hidden trigger, which would
             // take the timeline's keys away.
+            // When that has gone (Delete section), to what the opener says
+            // is next to it, so the next key still lands there and not on
+            // the page. Neither scrolls: the opener places itself.
             e.preventDefault();
-            if (request.returnFocus) request.returnFocus.focus();
-            else if (request.source !== 'pointer') {
+            const back = request.returnFocus;
+            if (back) {
+              const to = back.isConnected
+                ? back
+                : (request.returnFocusFallback?.() ?? null);
+              to?.focus({ preventScroll: true });
+            } else if (request.source !== 'pointer') {
               useCanvasMenuStore.getState().pill?.focus();
             }
           }}

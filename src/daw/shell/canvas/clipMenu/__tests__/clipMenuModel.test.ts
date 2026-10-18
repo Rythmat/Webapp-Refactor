@@ -4,8 +4,9 @@ import type { AudioClip, MidiClip } from '@/daw/store/tracksSlice';
 import {
   canvasMenuModel,
   menuItemIds,
-  type MenuEntry,
+  type MenuItemModel,
   type MenuModel,
+  type SubMenuModel,
 } from '../clipMenuModel';
 
 // ── The one clip menu's items (milestone 2.12) ─────────────────────────────
@@ -59,8 +60,12 @@ const model = (
 const clip = (trackId: string, clipId: string) =>
   ({ kind: 'clip', trackId, clipId }) as const;
 
-function find(m: MenuModel, id: string): MenuEntry | undefined {
+function find(
+  m: MenuModel,
+  id: string,
+): MenuItemModel | SubMenuModel | undefined {
   for (const entry of m.flat()) {
+    if (entry.type === 'note') continue;
     if (entry.id === id) return entry;
     if (entry.type === 'sub') {
       const inner = entry.items.find((item) => item.id === id);
@@ -189,7 +194,9 @@ describe('a clip’s menu', () => {
     const m = model(clip(keys, 'keys-1'));
     const off = m
       .flat()
-      .filter((e) => e.disabled === 'Sam is editing this track')
+      .filter(
+        (e) => e.type !== 'note' && e.disabled === 'Sam is editing this track',
+      )
       .map((e) => e.id);
     expect(off).toEqual([
       'cut',

@@ -1,3 +1,4 @@
+import { isSectionType } from '@/daw/model/sections';
 import { useStore } from '@/daw/store';
 import { snapTicks, timelineSnapGrid } from '@/daw/time/timeModel';
 import { promptDialog } from '@/daw/ui/DialogHost';
@@ -20,12 +21,21 @@ import {
   toggleClipMute,
   transposeClip,
 } from './clipActions';
+import {
+  changeSectionType,
+  deleteSection,
+  duplicateSection,
+  insertSection,
+  loopSection,
+  openSongFormLesson,
+  renameSection,
+} from '../sections/sectionActions';
 
 // ── What a canvas menu item does (milestone 2.12) ──────────────────────────
 //
 // The ids clipMenuModel gives its items, each to its action. Clip actions
-// are clipActions' (one undo step each); a marker's are here, moved from the
-// Timeline's old menu.
+// are clipActions' (one undo step each), a section's sectionActions'
+// (milestone 2.13); a marker's are here, moved from the Timeline's old menu.
 
 async function renameMarker(markerId: string): Promise<void> {
   const marker = useStore.getState().markers.find((m) => m.id === markerId);
@@ -46,6 +56,42 @@ async function renameMarker(markerId: string): Promise<void> {
 function addMarker(tick: number): void {
   const state = useStore.getState();
   state.addMarker(tick, `Marker ${state.markers.length + 1}`);
+}
+
+/** A section menu's item: its verb, and the kind for the sub-menus. */
+function runSectionItem(sectionId: string, id: string): boolean {
+  const [verb, arg] = id.split(':');
+  switch (verb) {
+    case 'renameSection':
+      void renameSection(sectionId);
+      return true;
+    case 'sectionType':
+      if (!isSectionType(arg)) return false;
+      changeSectionType(sectionId, arg);
+      return true;
+    case 'duplicateSection':
+      return duplicateSection(sectionId);
+    case 'loopSection':
+      loopSection(sectionId);
+      return true;
+    case 'insertBefore':
+    case 'insertAfter':
+      if (!isSectionType(arg)) return false;
+      void insertSection(
+        sectionId,
+        verb === 'insertBefore' ? 'before' : 'after',
+        arg,
+      );
+      return true;
+    case 'deleteSection':
+      deleteSection(sectionId);
+      return true;
+    case 'learnSections':
+      openSongFormLesson();
+      return true;
+    default:
+      return false;
+  }
 }
 
 /**
@@ -69,6 +115,7 @@ export function runCanvasMenuItem(
     addMarker(target.tick);
     return true;
   }
+  if (target.kind === 'section') return runSectionItem(target.sectionId, id);
   if (target.kind === 'lane') {
     if (id === 'paste') {
       return pasteClipboard({

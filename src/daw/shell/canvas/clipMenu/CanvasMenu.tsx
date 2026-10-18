@@ -47,6 +47,7 @@ const TITLE: Record<CanvasMenuTarget['kind'], string> = {
   lane: 'Track lane',
   marker: 'Marker',
   ruler: 'Ruler',
+  section: 'Section',
 };
 
 /** A shortcut's label for a menu row, or undefined for none. */
@@ -180,6 +181,19 @@ function Entry({
   onRun: RunItem;
   onClose: () => void;
 }) {
+  if (entry.type === 'note') {
+    return (
+      <p
+        data-item={entry.id}
+        className={cn(
+          'max-w-64 px-2 pb-1 pt-1.5 text-daw-text-2',
+          TYPE_CLASS.label,
+        )}
+      >
+        {entry.label}
+      </p>
+    );
+  }
   if (entry.type === 'item') {
     if (entry.premium) return <PrismLocked onClose={onClose} />;
     return <Row item={entry} onRun={onRun} />;
@@ -230,6 +244,11 @@ export function CanvasMenu() {
   const clipboardAudioClip = useStore((s) => s.clipboardAudioClip);
   const markers = useStore((s) => s.markers);
   const timelineGridSize = useStore((s) => s.timelineGridSize);
+  const sections = useStore((s) => s.sections);
+  const loopEnabled = useStore((s) => s.loopEnabled);
+  const loopStart = useStore((s) => s.loopStart);
+  const loopEnd = useStore((s) => s.loopEnd);
+  const isRecording = useStore((s) => s.isRecording);
 
   const model = useMemo(
     () =>
@@ -242,6 +261,11 @@ export function CanvasMenu() {
               clipboardAudioClip,
               markers,
               timelineGridSize,
+              sections,
+              loopEnabled,
+              loopStart,
+              loopEnd,
+              isRecording,
             },
             request.target,
             { premium: isPremium, playheadTick: request.playheadTick },
@@ -255,6 +279,11 @@ export function CanvasMenu() {
       clipboardAudioClip,
       markers,
       timelineGridSize,
+      sections,
+      loopEnabled,
+      loopStart,
+      loopEnd,
+      isRecording,
       isPremium,
     ],
   );
@@ -336,10 +365,12 @@ export function CanvasMenu() {
           align={place.align}
           sideOffset={place.sideOffset}
           onCloseAutoFocus={(e) => {
-            // Back to the pill it was opened from; never to the hidden
-            // trigger, which would take the timeline's keys away.
+            // Back to what it was opened from (the pill, or a section in
+            // the sections lane); never to the hidden trigger, which would
+            // take the timeline's keys away.
             e.preventDefault();
-            if (request.source !== 'pointer') {
+            if (request.returnFocus) request.returnFocus.focus();
+            else if (request.source !== 'pointer') {
               useCanvasMenuStore.getState().pill?.focus();
             }
           }}

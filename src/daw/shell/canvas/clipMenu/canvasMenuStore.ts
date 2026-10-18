@@ -4,7 +4,8 @@ import { getPlayheadTick } from '@/daw/engine/playheadClock';
 // ── Which canvas menu is open (milestone 2.12) ─────────────────────────────
 //
 // One menu serves the whole Create canvas: a clip (right-click, its Edit
-// pill or a key), an empty lane, a marker and the ruler. Whoever opens it
+// pill or a key), an empty lane, a marker, the ruler and a song section
+// (milestone 2.13: a right-click or a key in the sections lane). Whoever opens it
 // says what it is for and where it hangs; CanvasMenu renders it. It lives
 // here, beside the editor's store rather than in it: a menu being open is
 // nothing a project holds, saves or undoes.
@@ -17,7 +18,8 @@ export type CanvasMenuTarget =
    *  new clip from the grid line before it, a paste to the nearest). */
   | { kind: 'lane'; trackId: string; tick: number }
   | { kind: 'marker'; markerId: string; tick: number }
-  | { kind: 'ruler'; tick: number };
+  | { kind: 'ruler'; tick: number }
+  | { kind: 'section'; sectionId: string; tick: number };
 
 /** Where the menu hangs, in viewport px: a point, or a box (the pill). */
 export interface CanvasMenuAnchor {
@@ -37,6 +39,11 @@ export interface CanvasMenuRequest {
   source: CanvasMenuSource;
   /** The playhead when it opened: whether Split at playhead can act. */
   playheadTick: number;
+  /**
+   * Where focus goes back to when it closes, for a menu opened from a key
+   * outside the canvas (a section in the sections lane); else the pill.
+   */
+  returnFocus?: HTMLElement | null;
 }
 
 interface CanvasMenuState {

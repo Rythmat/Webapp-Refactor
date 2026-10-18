@@ -1,4 +1,5 @@
 import { midiClipLength } from '@/daw/components/Timeline/midiClipCuts';
+import type { SongSection } from '@/daw/model/sections';
 import { useStore } from '@/daw/store';
 import type { Track } from '@/daw/store/tracksSlice';
 import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
@@ -31,15 +32,20 @@ const SONG_MIN_BARS = 8;
 const SONG_PAD_BARS = 4;
 
 /**
- * The timeline's length in ticks for these tracks: to the end of the last
- * clip (8 bars at least), plus four bars of room. What the scrollbar
- * scrolls over and what Fit fits.
+ * The timeline's length in ticks for these tracks and the song's sections:
+ * to the end of the last clip or section (8 bars at least), plus four bars
+ * of room. What the scrollbar scrolls over and what Fit fits, so a form laid
+ * out before anything is recorded fits too (milestone 2.13).
  */
 export function songLengthOf(
   tracks: readonly Pick<Track, 'midiClips' | 'audioClips'>[],
   barTicks: number,
+  sections: readonly Pick<SongSection, 'endTick'>[] = [],
 ): number {
   let maxTick = barTicks * SONG_MIN_BARS;
+  for (const section of sections) {
+    maxTick = Math.max(maxTick, section.endTick);
+  }
   for (const track of tracks) {
     for (const clip of track.midiClips) {
       maxTick = Math.max(maxTick, clip.startTick + midiClipLength(clip));
@@ -51,9 +57,10 @@ export function songLengthOf(
   return maxTick + barTicks * SONG_PAD_BARS;
 }
 
-/** The song's length in ticks, from the store's tracks (songLengthOf). */
+/** The song's length in ticks, from the store (songLengthOf). */
 export function songLengthTicks(barTicks: number): number {
-  return songLengthOf(useStore.getState().tracks, barTicks);
+  const s = useStore.getState();
+  return songLengthOf(s.tracks, barTicks, s.sections);
 }
 
 /**

@@ -645,9 +645,11 @@ export function Timeline({ scrollRef }: TimelineProps) {
     const ts = { numerator: tsNum, denominator: tsDen };
     return { enabled: snapEnabled, step: gridStepTicks(gridSize, ts), ts };
   }, [snapEnabled, gridSize, tsNum, tsDen]);
+  // The song's sections count toward its length (milestone 2.13).
+  const sections = useStore((s) => s.sections);
   const projectLengthTicks = useMemo(
-    () => songLengthOf(tracks, ticksPerBar(tsNum, tsDen)),
-    [tracks, tsNum, tsDen],
+    () => songLengthOf(tracks, ticksPerBar(tsNum, tsDen), sections),
+    [tracks, tsNum, tsDen, sections],
   );
 
   // ── Snap helper with current grid ──

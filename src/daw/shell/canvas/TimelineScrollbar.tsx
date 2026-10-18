@@ -23,6 +23,7 @@ export const TimelineScrollbar = memo(function TimelineScrollbar() {
   const scrollLeft = useStore((s) => s.timelineScrollLeft);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
+  const sections = useStore((s) => s.sections);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(0);
   const observer = useRef<ResizeObserver | null>(null);
@@ -40,6 +41,7 @@ export const TimelineScrollbar = memo(function TimelineScrollbar() {
   const song = songLengthOf(
     tracks,
     ticksPerBar({ numerator: tsNum, denominator: tsDen }),
+    sections,
   );
   const content = (song / TICKS_PER_BEAT) * pixelsPerBeat(zoom);
   const scrollable = width > 0 && content > width;

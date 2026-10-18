@@ -10,6 +10,11 @@ import { ChordLaneHeader } from '../canvas/ChordLaneHeader';
 import { RulerEndControls } from '../canvas/RulerEndControls';
 import { TimelineFooter } from '../canvas/TimelineFooter';
 import { TimelineTools } from '../canvas/TimelineTools';
+import {
+  CommentLaneSlot,
+  useCommentLaneShown,
+} from '../canvas/sections/CommentLaneSlot';
+import { SectionsLane } from '../canvas/sections/SectionsLane';
 import { AddTrackSheet } from './AddTrackSheet';
 import { openAddTrackSheet } from './addTrack';
 import { EmptyProjectTiles } from './EmptyProjectTiles';
@@ -18,6 +23,7 @@ import { TrackList } from './TrackList';
 
 // ── Create's track area (milestones 2.6, 2.7 and 2.13) ─────────────────────
 //
+//   (Comments)   │ the comment lane, only while Comments is open (4.3)   24
 //   + Add track  │ the sections lane                                     24
 //   V B C        │ the ruler: loop strip and bar numbers   [Snap][Grid]  32
 //   Chords · key │ the chord lane                                        24
@@ -37,8 +43,10 @@ import { TrackList } from './TrackList';
 export const TrackArea = memo(function TrackArea() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const empty = useStore((s) => s.tracks.length === 0);
+  const commentLane = useCommentLaneShown();
   return (
     <div data-testid="track-area" className="flex min-h-0 flex-1 flex-col">
+      <CommentLaneSlot shown={commentLane} />
       <SectionsRow />
       <div
         ref={scrollRef}
@@ -105,7 +113,7 @@ function SectionsRow() {
           Add track
         </Button>
       </div>
-      <div className="relative min-w-0" />
+      <SectionsLane />
     </div>
   );
 }

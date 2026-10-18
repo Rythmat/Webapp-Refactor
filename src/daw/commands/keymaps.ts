@@ -300,6 +300,88 @@ defineCommand({
   keys: ['KeyS'],
 });
 
+// The sections lane (milestone 2.13): with focus on a section, the arrows
+// move between sections, Enter goes to one, and its menu and edits are a
+// key away, as the track list's are. Musical typing, a level above, has the
+// letters while it is on.
+export const SECTIONS_SCOPE = defineScope({
+  id: 'sections',
+  label: 'Sections lane',
+  level: 'region',
+});
+
+defineCommand({
+  id: 'sections.previous',
+  scope: 'sections',
+  label: 'The section before',
+  keys: ['ArrowLeft'],
+  repeat: true,
+});
+defineCommand({
+  id: 'sections.next',
+  scope: 'sections',
+  label: 'The section after',
+  keys: ['ArrowRight'],
+  repeat: true,
+});
+defineCommand({
+  id: 'sections.first',
+  scope: 'sections',
+  label: 'The first section',
+  keys: ['Home'],
+});
+defineCommand({
+  id: 'sections.last',
+  scope: 'sections',
+  label: 'The last section',
+  keys: ['End'],
+});
+defineCommand({
+  id: 'sections.seek',
+  scope: 'sections',
+  label: 'Go to the section',
+  keys: ['Enter'],
+});
+defineCommand({
+  id: 'sections.longer',
+  scope: 'sections',
+  label: 'Make the section a bar longer',
+  keys: ['Shift+ArrowRight'],
+  repeat: true,
+});
+defineCommand({
+  id: 'sections.shorter',
+  scope: 'sections',
+  label: 'Make the section a bar shorter',
+  keys: ['Shift+ArrowLeft'],
+  repeat: true,
+});
+// N first: it is the one a Chromebook has, and the menu shows the first.
+defineCommand({
+  id: 'sections.rename',
+  scope: 'sections',
+  label: 'Rename the section',
+  keys: ['KeyN', 'F2'],
+});
+defineCommand({
+  id: 'sections.duplicate',
+  scope: 'sections',
+  label: 'Duplicate the section with its clips',
+  keys: ['Mod+KeyD'],
+});
+defineCommand({
+  id: 'sections.delete',
+  scope: 'sections',
+  label: 'Delete the section (its clips stay)',
+  keys: ['Delete', 'Backspace'],
+});
+defineCommand({
+  id: 'sections.menu',
+  scope: 'sections',
+  label: 'Open the section’s menu',
+  keys: ['Alt+Enter', 'Shift+F10', 'ContextMenu'],
+});
+
 // ── Views ────────────────────────────────────────────────────────────────
 
 export const PRACTICE_SCOPE = defineScope({

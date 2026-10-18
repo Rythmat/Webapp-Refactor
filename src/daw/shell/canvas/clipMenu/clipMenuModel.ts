@@ -1,5 +1,11 @@
+import {
+  SECTION_TYPES,
+  sectionTypeInfo,
+  type SongSection,
+} from '@/daw/model/sections';
 import type { AllSlices } from '@/daw/store';
 import type { Track } from '@/daw/store/tracksSlice';
+import { arrangementBlocker } from '@/daw/time/arrangementEdits';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import type { CanvasMenuTarget } from './canvasMenuStore';
 import {
@@ -24,8 +30,9 @@ import {
 //   Prism ▸ (Premium)
 //
 // What can't act now stays in its place, off, with the reason as its hint,
-// so the menu reads the same every time. An empty lane, a marker and the
-// ruler get their own short menus from the same renderer.
+// so the menu reads the same every time. An empty lane, a marker, the ruler
+// and a song section (milestone 2.13) get their own menus from the same
+// renderer.
 
 export interface MenuItemModel {
   type: 'item';
@@ -53,7 +60,14 @@ export interface SubMenuModel {
   items: MenuItemModel[];
 }
 
-export type MenuEntry = MenuItemModel | SubMenuModel;
+/** A line of text over the items: what a section is for. */
+export interface MenuNoteModel {
+  type: 'note';
+  id: string;
+  label: string;
+}
+
+export type MenuEntry = MenuItemModel | SubMenuModel | MenuNoteModel;
 
 /** Groups of entries, drawn with a separator between them. */
 export type MenuModel = MenuEntry[][];
@@ -65,7 +79,7 @@ export interface MenuContext {
   playheadTick: number;
 }
 
-type MenuState = Pick<
+export type MenuState = Pick<
   AllSlices,
   | 'tracks'
   | 'remoteUsers'
@@ -73,6 +87,11 @@ type MenuState = Pick<
   | 'clipboardAudioClip'
   | 'markers'
   | 'timelineGridSize'
+  | 'sections'
+  | 'loopEnabled'
+  | 'loopStart'
+  | 'loopEnd'
+  | 'isRecording'
 >;
 
 /** Why the clipboard's clip can't be pasted on `track`, or undefined. */
@@ -331,6 +350,102 @@ function laneMenu(
   ];
 }
 
+/** The kinds as a section's sub-menu lists them, the current one checked. */
+function sectionTypeItems(
+  prefix: string,
+  current?: SongSection['type'],
+): MenuItemModel[] {
+  return SECTION_TYPES.map((info) => ({
+    type: 'item',
+    id: `${prefix}:${info.type}`,
+    label: info.name,
+    ...(current !== undefined ? { checked: info.type === current } : {}),
+  }));
+}
+
+/**
+ * A song section's menu (milestone 2.13; Soundtrap's, anatomy §3, plus
+ * 29-D's Duplicate with its clips): what the section is for, Rename and
+ * Change type, Duplicate, Loop, Insert before or after, Delete, which keeps
+ * the clips, and where Learn explains song form.
+ */
+function sectionMenu(
+  state: MenuState,
+  target: Extract<CanvasMenuTarget, { kind: 'section' }>,
+): MenuModel {
+  const section = state.sections.find((s) => s.id === target.sectionId);
+  if (!section) return [];
+  const info = sectionTypeInfo(section.type);
+  // Duplicate and Insert move the whole song after the section.
+  const blocked = arrangementBlocker(state) ?? undefined;
+  const insert = (id: 'insertBefore' | 'insertAfter', label: string) =>
+    ({
+      type: 'sub',
+      id,
+      label,
+      disabled: blocked,
+      items: [
+        ...sectionTypeItems(id),
+        { type: 'item', id: `${id}:custom`, label: 'Custom name…' },
+      ],
+    }) satisfies SubMenuModel;
+  return [
+    [
+      {
+        type: 'note',
+        id: 'sectionPurpose',
+        label:
+          section.type === 'custom'
+            ? `${section.label}: ${info.purpose}`
+            : `${info.name}: ${info.purpose}`,
+      },
+    ],
+    [
+      {
+        type: 'item',
+        id: 'renameSection',
+        label: 'Rename…',
+        command: 'sections.rename',
+      },
+      {
+        type: 'sub',
+        id: 'sectionType',
+        label: 'Change type',
+        items: sectionTypeItems('sectionType', section.type),
+      },
+    ],
+    [
+      {
+        type: 'item',
+        id: 'duplicateSection',
+        label: 'Duplicate with its clips',
+        command: 'sections.duplicate',
+        disabled: blocked,
+      },
+      {
+        type: 'item',
+        id: 'loopSection',
+        label: 'Loop this section',
+        checked:
+          state.loopEnabled &&
+          state.loopStart === section.startTick &&
+          state.loopEnd === section.endTick,
+      },
+      insert('insertBefore', 'Insert before'),
+      insert('insertAfter', 'Insert after'),
+    ],
+    [
+      {
+        type: 'item',
+        id: 'deleteSection',
+        label: 'Delete section (keeps the clips)',
+        command: 'sections.delete',
+      },
+      { type: 'item', id: 'learnSections', label: 'About song sections' },
+    ],
+  ];
+}
+
 /** The menu for `target` now, or no groups when it has gone. */
 export function canvasMenuModel(
   state: MenuState,
@@ -357,6 +472,8 @@ export function canvasMenuModel(
       ];
     case 'ruler':
       return [[{ type: 'item', id: 'addMarker', label: 'Add marker here' }]];
+    case 'section':
+      return sectionMenu(state, target);
   }
 }
 
@@ -367,6 +484,8 @@ export function menuItemIds(model: MenuModel): string[] {
     .flatMap((entry) =>
       entry.type === 'sub'
         ? [entry.id, ...entry.items.map((i) => i.id)]
-        : [entry.id],
+        : entry.type === 'note'
+          ? []
+          : [entry.id],
     );
 }

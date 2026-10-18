@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
-import { commandsOf } from '@/daw/commands/registry';
+import { commandsOf, getCommand } from '@/daw/commands/registry';
 import { sortedScopes } from '@/daw/commands/scopeOrder';
 import { useStore } from '@/daw/store';
 import { ShortcutSheet, sheetSections } from '../ShortcutSheet';
@@ -52,7 +52,12 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  document.body.innerHTML = '';
 });
+
+/** The ids sheetSections keeps for `query`. */
+const idsFor = (query: string) =>
+  sheetSections(query).flatMap((s) => s.commands.map((c) => c.id));
 
 describe('ShortcutSheet', () => {
   it('lists every command with keys exactly once, by scope in the shared order', () => {
@@ -161,5 +166,116 @@ describe('ShortcutSheet', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Report a problem' }));
     expect(useShortcutSheetStore.getState().isOpen).toBe(false);
     expect(useReportProblemStore.getState().isOpen).toBe(true);
+  });
+
+  it('gives the palette the place it was opened from, not the sheet', () => {
+    const page = document.createElement('button');
+    page.textContent = 'A clip';
+    document.body.appendChild(page);
+    page.focus();
+    renderSheet();
+    fireEvent.click(screen.getByTestId('shortcut-sheet-palette'));
+    expect(usePaletteStore.getState().isOpen).toBe(true);
+    expect(usePaletteStore.getState().opener).toBe(page);
+  });
+
+  it('opens the palette on ⌘K, Ctrl+K and ⇧⌘P while it is open', () => {
+    for (const init of [
+      { code: 'KeyK', key: 'k', metaKey: true },
+      { code: 'KeyK', key: 'k', ctrlKey: true },
+      { code: 'KeyP', key: 'P', metaKey: true, shiftKey: true },
+    ]) {
+      useShortcutSheetStore.setState({ isOpen: true });
+      usePaletteStore.setState({ isOpen: false, opener: null });
+      renderSheet();
+      const search = screen.getByRole('textbox', { name: 'Search shortcuts' });
+      const event = fireEvent.keyDown(search, init);
+      expect(event).toBe(false); // default prevented
+      expect(usePaletteStore.getState().isOpen).toBe(true);
+      expect(useShortcutSheetStore.getState().isOpen).toBe(false);
+      cleanup();
+    }
+    // A plain K is the search field's.
+    usePaletteStore.setState({ isOpen: false });
+    renderSheet();
+    fireEvent.keyDown(
+      screen.getByRole('textbox', { name: 'Search shortcuts' }),
+      {
+        code: 'KeyK',
+        key: 'k',
+      },
+    );
+    expect(usePaletteStore.getState().isOpen).toBe(false);
+  });
+});
+
+describe('sheet search', () => {
+  it('matches a symbol only by the keys that are that symbol', () => {
+    const all = keyedCommandIds().length;
+    for (const symbol of ['?', '.', ',', '-', '/', '`', '=', ';', '[', '←']) {
+      const ids = idsFor(symbol);
+      expect(ids.length, symbol).toBeLessThan(all);
+    }
+    expect(idsFor('?')).toEqual(['help.shortcuts']);
+    expect(idsFor('`')).toContain('typing.on');
+    expect(idsFor('/')).toEqual([]);
+    // A typed '-' is the label's '−' (Minus), and the '-' character key.
+    const minus = sortedScopes()
+      .flatMap((s) => commandsOf(s.id))
+      .filter((c) => c.chords.some((ch) => ch.code === 'Minus'))
+      .map((c) => c.id);
+    expect(minus.length).toBeGreaterThan(0);
+    for (const id of minus) expect(idsFor('-')).toContain(id);
+    expect(idsFor('−')).toEqual(idsFor('-'));
+    // An arrow, by its symbol or its name.
+    expect(idsFor('←').length).toBeGreaterThan(0);
+    expect(idsFor('left')).toEqual(expect.arrayContaining(idsFor('←')));
+    expect(idsFor('arrow left')).toEqual(idsFor('←'));
+  });
+
+  it('knows the names students give keys', () => {
+    const withCode = (code: string, mods: { mod?: boolean } = {}) =>
+      sortedScopes()
+        .flatMap((s) => commandsOf(s.id))
+        .filter(
+          (c) =>
+            !c.hidden &&
+            c.chords.some(
+              (ch) => ch.code === code && ch.mod === (mods.mod ?? ch.mod),
+            ),
+        )
+        .map((c) => c.id);
+    for (const [query, code] of [
+      ['escape', 'Escape'],
+      ['esc', 'Escape'],
+      ['enter', 'Enter'],
+      ['return', 'Enter'],
+      ['space', 'Space'],
+      ['up', 'ArrowUp'],
+      ['down', 'ArrowDown'],
+      ['right', 'ArrowRight'],
+    ] as const) {
+      const expected = withCode(code);
+      expect(expected.length, query).toBeGreaterThan(0);
+      expect(idsFor(query), query).toEqual(expect.arrayContaining(expected));
+    }
+    // ⌘, cmd, command and ctrl are the one modifier; ⇧ is shift.
+    const undo = getCommand('edit.undo')!;
+    expect(undo.keys).toEqual(['Mod+KeyZ']);
+    for (const query of ['cmd z', 'command+z', 'ctrl z', '⌘Z', 'Ctrl+Z']) {
+      expect(idsFor(query), query).toContain('edit.undo');
+    }
+    for (const query of ['cmd shift z', '⇧⌘Z', 'ctrl+shift+z']) {
+      expect(idsFor(query), query).toContain('edit.redo');
+    }
+    expect(idsFor('option')).toEqual(idsFor('alt'));
+    expect(idsFor('alt').length).toBeGreaterThan(0);
+    // Space is not '⇧'.
+    expect(idsFor('shift')).not.toContain('transport.playPause');
+  });
+
+  it('finds commands by their keywords: click, help', () => {
+    expect(idsFor('click')).toContain('transport.metronome');
+    expect(idsFor('help')).toContain('help.shortcuts');
   });
 });

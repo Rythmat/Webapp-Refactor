@@ -3,7 +3,7 @@ import { userNamespace } from '@/daw/persistence/storageNamespace';
 import { isOpening, useSessionStore } from '@/daw/session/sessionStore';
 import { isApplePlatform } from '@/daw/shell/topbar/platformKeys';
 import { useStore } from '@/daw/store';
-import { showNotice } from '@/util/toast';
+import { dismissToast, showNotice } from '@/util/toast';
 import { useShortcutSheetStore } from './useShortcutSheetStore';
 
 // ── "Shortcuts changed", once per student (milestone 1.6) ──────────────────
@@ -13,6 +13,8 @@ import { useShortcutSheetStore } from './useShortcutSheetStore';
 // only once it is turned on. A student used to the old keys is told once,
 // with a way to the '?' sheet. Never during a lesson, whose coach card is
 // what the student should be reading; they are told the next time instead.
+// It goes as soon as the sheet opens (by its action, '?' or a menu): it
+// would cover the sheet's footer, and its action is done.
 
 const NOTICE_PREFIX = 'musicAtlas:daw:shortcutsNotice:';
 
@@ -42,12 +44,18 @@ function markSeen(userId: string | null): void {
 
 export function showShortcutsNotice(): void {
   const zoom = isApplePlatform() ? '⌘+ and ⌘−' : 'Ctrl+ and Ctrl−';
-  showNotice('Keyboard shortcuts now follow where you’re working', {
+  const id = showNotice('Keyboard shortcuts now follow where you’re working', {
     description: `Delete in the Score deletes notes, not your clips. ${zoom} zoom the page again. Press \` to play notes from your keyboard.`,
     action: {
       label: 'Show shortcuts',
       onClick: () => useShortcutSheetStore.getState().open(),
     },
+  });
+  // Shown once per student, so this one listener is all it ever adds.
+  const stop = useShortcutSheetStore.subscribe((sheet) => {
+    if (!sheet.isOpen) return;
+    stop();
+    dismissToast(id);
   });
 }
 

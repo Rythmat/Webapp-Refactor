@@ -884,6 +884,7 @@ defineCommand({
   scope: 'global',
   label: 'Metronome on / off',
   keys: ['KeyM'],
+  keywords: ['click'],
 });
 defineCommand({
   id: 'project.save',
@@ -936,6 +937,7 @@ defineCommand({
   scope: 'global',
   label: 'Keyboard shortcuts',
   keys: ['?'],
+  keywords: ['help'],
 });
 // The command palette (2.15). ⌘K, as in most editors; the Lead sheet keeps
 // ⌘K for a chord symbol while something on the chart is selected, so ⇧⌘P

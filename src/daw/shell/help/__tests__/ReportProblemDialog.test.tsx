@@ -118,17 +118,32 @@ describe('ReportProblemDialog', () => {
     expect(dialog.querySelector('a[href^="mailto:"]')).toBeNull();
   });
 
-  it('says when the copy fails', async () => {
+  it('says when the copy fails, and shows the report selected to copy by hand', async () => {
     writeText.mockRejectedValue(new Error('denied'));
     render(
       <ReportProblemDialog open onOpenChange={() => {}} source={SOURCE} />,
     );
+    expect(screen.queryByTestId('report-problem-fallback')).toBeNull();
+    fireEvent.change(screen.getByLabelText('What happened?'), {
+      target: { value: 'The fader stuck' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Copy report' }));
     await waitFor(() =>
       expect(notice).toHaveBeenCalledWith(
         expect.objectContaining({ variant: 'destructive' }),
       ),
     );
+    const fallback = (await screen.findByTestId(
+      'report-problem-fallback',
+    )) as HTMLTextAreaElement;
+    expect(fallback.readOnly).toBe(true);
+    expect(fallback.value).toBe(
+      formatReport('The fader stuck', reportDetails(SOURCE)),
+    );
+    expect(fallback).toHaveAccessibleName('The report, to copy yourself');
+    await waitFor(() => expect(document.activeElement).toBe(fallback));
+    expect(fallback.selectionStart).toBe(0);
+    expect(fallback.selectionEnd).toBe(fallback.value.length);
   });
 
   it('offers Email it when there is an address', () => {
@@ -181,5 +196,95 @@ describe('the way in', () => {
         screen.queryByRole('dialog', { name: 'Report a problem' }),
       ).toBeNull(),
     );
+  });
+
+  it('mounts the dialog only while open, so the details are read afresh', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    useStore.setState({ currentView: 'arrange' });
+    render(<ReportProblemHost />);
+    const openIt = async () => {
+      act(() => useReportProblemStore.getState().open());
+      await act(async () => {
+        vi.runAllTimers();
+      });
+      vi.useRealTimers();
+      const dialog = await screen.findByRole('dialog', {
+        name: 'Report a problem',
+      });
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      return dialog;
+    };
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(await openIt()).toHaveTextContent('Create');
+    // Closed, it is gone, not hidden.
+    act(() => useReportProblemStore.getState().close());
+    expect(screen.queryByTestId('report-problem-dialog')).toBeNull();
+    // The view changed while it was closed: opened again, it says so.
+    useStore.setState({ currentView: 'score' });
+    const again = await openIt();
+    expect(again).toHaveTextContent('Score');
+    expect(again).not.toHaveTextContent('Create');
+  });
+});
+
+describe('nothing goes over the network', () => {
+  it('neither fetch, XHR nor a beacon, from opening to copying and the mail link', async () => {
+    const fetchSpy = vi.fn();
+    const open = vi.spyOn(XMLHttpRequest.prototype, 'open');
+    const send = vi.spyOn(XMLHttpRequest.prototype, 'send');
+    const beacon = vi.fn(() => true);
+    vi.stubGlobal('fetch', fetchSpy);
+    Object.defineProperty(navigator, 'sendBeacon', {
+      value: beacon,
+      configurable: true,
+    });
+    try {
+      useStore.setState({ currentView: 'arrange' });
+      render(
+        <MemoryRouter>
+          <Menu open>
+            <MenuTrigger>More</MenuTrigger>
+            <MenuContent>
+              <HelpItems />
+            </MenuContent>
+          </Menu>
+          <ReportProblemHost />
+        </MemoryRouter>,
+      );
+      fireEvent.click(
+        screen.getByRole('menuitem', { name: /Report a problem…/ }),
+      );
+      await screen.findByRole('dialog', { name: 'Report a problem' });
+      fireEvent.change(screen.getByLabelText('What happened?'), {
+        target: { value: 'Silence' },
+      });
+      const copy = screen.getByRole('button', { name: 'Copy report' });
+      fireEvent.click(copy);
+      await waitFor(() => expect(writeText).toHaveBeenCalled());
+      writeText.mockRejectedValue(new Error('denied'));
+      fireEvent.click(copy);
+      await screen.findByTestId('report-problem-fallback');
+      cleanup();
+      // With an address, the link is a mailto: the student's mail app sends.
+      render(
+        <ReportProblemDialog
+          open
+          onOpenChange={() => {}}
+          source={SOURCE}
+          email="help@example.com"
+        />,
+      );
+      expect(
+        screen.getByRole('link', { name: 'Email it' }).getAttribute('href'),
+      ).toMatch(/^mailto:/);
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(open).not.toHaveBeenCalled();
+      expect(send).not.toHaveBeenCalled();
+      expect(beacon).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+      open.mockRestore();
+      send.mockRestore();
+    }
   });
 });

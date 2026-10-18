@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { chordAria, chordLabel, parseKeys } from '@/daw/commands/keys';
 import {
   getHint,
   hintText,
@@ -132,6 +133,19 @@ describe('resolveHint', () => {
     expect(resolveHint($('#o'))).toBe('Open');
   });
 
+  it("reads a list item or a row as a region: a track row's background says nothing", () => {
+    mount(`<ul><li aria-label="Bass"><span id="li"></span>
+             <button id="m" aria-label="Mute Bass"></button></li></ul>
+           <div role="listitem" aria-label="Keys"><span id="item"></span></div>
+           <div role="row" aria-label="Drums"><span id="row"></span></div>
+           <li data-hint="A track: click to select it"><span id="hinted"></span></li>`);
+    expect(resolveHint($('#li'))).toBe('');
+    expect(resolveHint($('#item'))).toBe('');
+    expect(resolveHint($('#row'))).toBe('');
+    expect(resolveHint($('#m'))).toBe('Mute Bass');
+    expect(resolveHint($('#hinted'))).toBe('A track: click to select it');
+  });
+
   it('says nothing for plain page, body or a non-element target', () => {
     mount(`<p id="p">text</p>`);
     expect(resolveHint($('#p'))).toBe('');
@@ -161,6 +175,21 @@ describe('keysLabel', () => {
     expect(keysLabel('Escape', true)).toBe('Esc');
     expect(keysLabel('r', true)).toBe('R');
     expect(keysLabel('Shift++', false)).toBe('Shift++');
+  });
+
+  it('says Return on a Mac and Enter elsewhere, and Menu for the menu key', () => {
+    expect(chordLabel(parseKeys('Enter'), true)).toBe('Return');
+    expect(chordLabel(parseKeys('Enter'), false)).toBe('Enter');
+    expect(chordLabel(parseKeys('Alt+Enter'), false)).toBe('Alt+Enter');
+    expect(chordLabel(parseKeys('Alt+Enter'), true)).toBe('⌥Return');
+    expect(chordLabel(parseKeys('ContextMenu'), false)).toBe('Menu');
+    expect(chordLabel(parseKeys('ContextMenu'), true)).toBe('Menu');
+    // aria-keyshortcuts takes the keys' own names on every platform.
+    expect(chordAria(parseKeys('Enter'), true)).toBe('Enter');
+    expect(chordAria(parseKeys('Escape'), false)).toBe('Escape');
+    expect(chordAria(parseKeys('ContextMenu'), false)).toBe('ContextMenu');
+    expect(keysLabel('Enter', false)).toBe('Enter');
+    expect(keysLabel('Enter', true)).toBe('Return');
   });
 
   it('takes the first of several, and drops what it cannot read', () => {
@@ -234,5 +263,49 @@ describe('listenForHints', () => {
     ]);
     add.mockRestore();
     remove.mockRestore();
+  });
+
+  it('reads a control again when it changes its own words under the pointer', async () => {
+    mount(
+      `<button id="play" aria-label="Play" aria-keyshortcuts="Space"><i id="icon"></i></button>
+       <div data-hint="Volume · How loud"><div role="slider" aria-label="Volume" id="fader"></div></div>`,
+    );
+    const stop = listenForHints();
+    pointerOver($('#icon'));
+    expect(getHint()).toBe('Play · Space');
+    // Play becomes Pause while the pointer rests on it.
+    $('#play').setAttribute('aria-label', 'Pause');
+    await Promise.resolve();
+    expect(getHint()).toBe('Pause · Space');
+    // A wrapper's data-hint is watched where it is.
+    pointerOver($('#fader'));
+    expect(getHint()).toBe('Volume · How loud');
+    $('#fader').parentElement!.setAttribute('data-hint', 'Volume · −6 dB');
+    await Promise.resolve();
+    expect(getHint()).toBe('Volume · −6 dB');
+    // The control left behind isn't watched any more.
+    $('#play').setAttribute('aria-label', 'Play');
+    await Promise.resolve();
+    expect(getHint()).toBe('Volume · −6 dB');
+    stop();
+  });
+
+  it('watches only the one element, for its words only', () => {
+    const observe = vi.spyOn(MutationObserver.prototype, 'observe');
+    mount(`<button id="b" aria-label="Loop"></button><p id="p">x</p>`);
+    const stop = listenForHints();
+    pointerOver($('#b'));
+    expect(observe).toHaveBeenCalledTimes(1);
+    const [target, options] = observe.mock.calls[0]!;
+    expect(target).toBe($('#b'));
+    expect(options).toEqual({
+      attributes: true,
+      attributeFilter: ['data-hint', 'aria-label', 'aria-keyshortcuts'],
+    });
+    // Nothing to say: nothing watched.
+    pointerOver($('#p'));
+    expect(observe).toHaveBeenCalledTimes(1);
+    stop();
+    observe.mockRestore();
   });
 });

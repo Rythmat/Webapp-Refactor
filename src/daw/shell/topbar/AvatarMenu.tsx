@@ -154,6 +154,7 @@ export const AvatarMenu = memo(function AvatarMenu({
             <MenuSubTrigger icon={<Music2 />}>Chord notation</MenuSubTrigger>
             <MenuSubContent>
               <MenuRadioGroup
+                aria-label="Chord notation"
                 value={notation.notation}
                 onValueChange={(value) =>
                   notation.setNotation(value as ChordNotation)

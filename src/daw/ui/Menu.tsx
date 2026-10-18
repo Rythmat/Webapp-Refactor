@@ -388,17 +388,34 @@ export const ContextMenuItem = forwardRef<
   ElementRef<typeof KitContextMenuItem>,
   ComponentPropsWithoutRef<typeof KitContextMenuItem> & ItemExtras
 >(function ContextMenuItem(
-  { icon, shortcut, danger, className, children, ...props },
+  { icon, shortcut, danger, description, className, children, ...props },
   ref,
 ) {
+  const { descriptionId, described } = useDescribed(
+    description,
+    children,
+    props,
+  );
   return (
     <KitContextMenuItem
       ref={ref}
       data-danger={danger || undefined}
-      className={cn(ITEM, TYPE_CLASS.body, danger && DANGER, className)}
+      className={cn(
+        ITEM,
+        TYPE_CLASS.body,
+        danger && DANGER,
+        description && DESCRIBED,
+        className,
+      )}
       {...props}
+      {...described}
     >
-      <ItemFace icon={icon} shortcut={shortcut}>
+      <ItemFace
+        icon={icon}
+        shortcut={shortcut}
+        description={description}
+        descriptionId={descriptionId}
+      >
         {children}
       </ItemFace>
     </KitContextMenuItem>

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import {
-  clampVelocity,
   DEFAULT_TYPING_OCTAVE,
   DEFAULT_TYPING_VELOCITY,
   MAX_TYPING_OCTAVE,
   MIN_TYPING_OCTAVE,
+  TYPING_VELOCITY_STEP,
 } from './musicalTypingMap';
 
 // ── Musical typing's switch, octave and velocity (milestone 1.6) ───────────
@@ -13,6 +13,29 @@ import {
 // the page is open; nothing about it is saved. It lives outside the editor
 // store: a key press that changes the octave is not an edit to the project,
 // and playing must never cost a store write.
+
+/**
+ * The velocities C and V step through: 20 apart from the default 100, with
+ * MIDI's ends, so stepping up to 127 and back down lands on 100 again.
+ */
+export const VELOCITY_LADDER: readonly number[] = [
+  1, 20, 40, 60, 80, 100, 120, 127,
+];
+
+/**
+ * `velocity` moved `by` (in TYPING_VELOCITY_STEPs, at least one) along the
+ * ladder; a velocity between rungs goes to the next rung that way.
+ */
+export function stepVelocity(velocity: number, by: number): number {
+  if (by === 0) return velocity;
+  const steps = Math.max(1, Math.round(Math.abs(by) / TYPING_VELOCITY_STEP));
+  const ahead =
+    by > 0
+      ? VELOCITY_LADDER.filter((v) => v > velocity)
+      : VELOCITY_LADDER.filter((v) => v < velocity).reverse();
+  if (ahead.length === 0) return velocity;
+  return ahead[Math.min(steps, ahead.length) - 1]!;
+}
 
 interface MusicalTypingState {
   enabled: boolean;
@@ -39,5 +62,5 @@ export const useMusicalTypingStore = create<MusicalTypingState>()((set) => ({
       ),
     })),
   shiftVelocity: (by) =>
-    set((s) => ({ velocity: clampVelocity(s.velocity + by) })),
+    set((s) => ({ velocity: stepVelocity(s.velocity, by) })),
 }));

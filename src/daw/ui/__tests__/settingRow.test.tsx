@@ -8,6 +8,10 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
   Menu,
   MenuCheckboxItem,
   MenuContent,
@@ -115,6 +119,9 @@ function SettingsMenu({ onPick }: { onPick?: (v: string) => void }) {
           Snap to grid
         </MenuCheckboxItem>
         <MenuItem onSelect={() => onPick?.('plain')}>Plain item</MenuItem>
+        {/* For typeahead: "Bar"'s line must not make it "Barlines". */}
+        <MenuItem description="Lines up on every bar">Bar</MenuItem>
+        <MenuItem>Barlines</MenuItem>
         <MenuItem
           description="Opens the settings"
           onSelect={() => onPick?.('settings')}
@@ -202,6 +209,26 @@ describe('menu descriptions', () => {
     );
   });
 
+  it("keep a described item's line out of typeahead", async () => {
+    render(<SettingsMenu />);
+    open();
+    const menu = screen.getByRole('menu');
+    const type = async (key: string) => {
+      fireEvent.keyDown(document.activeElement ?? menu, { key });
+      await act(() => new Promise((r) => setTimeout(r, 0)));
+    };
+    await type('b');
+    expect(document.activeElement).toBe(
+      screen.getByRole('menuitem', { name: 'Bar' }),
+    );
+    // "barl" is the start of Bar's label and line run together, but only
+    // of Barlines' label: the line isn't part of what typing finds.
+    for (const key of ['a', 'r', 'l']) await type(key);
+    expect(document.activeElement).toBe(
+      screen.getByRole('menuitem', { name: 'Barlines' }),
+    );
+  });
+
   it('keep Enter choosing a described item', () => {
     const picked: string[] = [];
     render(<SettingsMenu onPick={(v) => picked.push(v)} />);
@@ -210,5 +237,33 @@ describe('menu descriptions', () => {
     settings.focus();
     fireEvent.keyDown(settings, { key: 'Enter' });
     expect(picked).toEqual(['settings']);
+  });
+});
+
+describe('context menu descriptions', () => {
+  it('give a described context-menu item its line, as MenuItem does', () => {
+    render(
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div data-testid="area">Clip</div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem description="Makes a copy after it" shortcut="⌘D">
+            Duplicate
+          </ContextMenuItem>
+          <ContextMenuItem>Delete</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>,
+    );
+    fireEvent.contextMenu(screen.getByTestId('area'));
+    const duplicate = screen.getByRole('menuitem', { name: /^Duplicate/ });
+    expect(duplicate).toHaveAccessibleDescription('Makes a copy after it');
+    expect(
+      duplicate.querySelector('[data-menu-description]'),
+    ).toHaveTextContent('Makes a copy after it');
+    expect(duplicate.className).toMatch(/min-h-10/);
+    expect(duplicate).toHaveTextContent('⌘D');
+    const plain = screen.getByRole('menuitem', { name: 'Delete' });
+    expect(plain).not.toHaveAttribute('aria-describedby');
   });
 });

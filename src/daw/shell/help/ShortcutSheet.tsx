@@ -1,9 +1,15 @@
 import { Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { chordLabel, isCharacterKey } from '@/daw/commands/keys';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  chordLabel,
+  isCharacterKey,
+  matchesChord,
+  overlayAround,
+} from '@/daw/commands/keys';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import {
   commandsOf,
+  getCommand,
   type DeclaredCommand,
   type ScopeDef,
 } from '@/daw/commands/registry';
@@ -16,6 +22,7 @@ import { Kbd } from '@/daw/ui/Kbd';
 import { SettingRow } from '@/daw/ui/SettingRow';
 import { TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
+import { menuOpener } from '@/daw/ui/useReturnFocus';
 import { cn } from '@/components/utilities';
 import { matchScore } from './paletteModel';
 import { usePaletteStore } from './usePaletteStore';
@@ -36,6 +43,16 @@ import '@/daw/commands/keymaps';
 
 const PALETTE_KEYS = shortcutKeys('help.palette');
 
+/**
+ * Where the student was when the sheet opened: the palette it opens lists
+ * what works there and gives focus back there. From a menu, its trigger.
+ */
+function sheetOpener(): Element | null {
+  const active = document.activeElement;
+  if (!active || active === document.body) return null;
+  return menuOpener(active) ?? (overlayAround(active) ? null : active);
+}
+
 /** The keys of one row: 'Delete', 'Backspace'; a long run as one label. */
 function rowKeys(command: DeclaredCommand): string[] {
   if (command.keysLabel) return [command.keysLabel];
@@ -46,16 +63,85 @@ function isSingleKey(command: DeclaredCommand): boolean {
   return command.chords.some(isCharacterKey);
 }
 
-/** Lower case, spaces and '+' gone: how a typed key is compared. */
-function foldKey(text: string): string {
-  return text.toLowerCase().replace(/[\s+]+/g, '');
+/**
+ * What the student may call a key, in the sheet's own words: '⌘', 'cmd' and
+ * 'ctrl' are the one modifier (either works on either keyboard), 'return'
+ * is Enter, 'left' is ←, and a typed '-' is the label's '−'.
+ */
+const KEY_ALIASES: Readonly<Record<string, string>> = {
+  '⌘': 'mod',
+  cmd: 'mod',
+  command: 'mod',
+  meta: 'mod',
+  ctrl: 'mod',
+  control: 'mod',
+  '⌥': 'alt',
+  option: 'alt',
+  opt: 'alt',
+  '⇧': 'shift',
+  esc: 'escape',
+  return: 'enter',
+  '↵': 'enter',
+  '←': 'left',
+  '→': 'right',
+  '↑': 'up',
+  '↓': 'down',
+  spacebar: 'space',
+  del: 'delete',
+  contextmenu: 'menu',
+  '-': '−',
+};
+
+/** Words that only say what kind of key it is ('arrow left', 'the M key'). */
+const KEY_FILLER = new Set(['arrow', 'key']);
+
+/**
+ * A key label or a typed query as its keys: lower case, split at spaces and
+ * '+', a Mac's glued modifiers peeled off ('⇧⌘Z' → shift, mod, z), each
+ * named as KEY_ALIASES says; a run of digits ('1–9') is each digit.
+ */
+function keyTokens(text: string): string[] {
+  const tokens: string[] = [];
+  for (const chunk of text.toLowerCase().split(/[\s+]+/)) {
+    let rest = chunk;
+    while (rest.length > 1 && '⌘⌥⇧'.includes(rest[0]!)) {
+      tokens.push(KEY_ALIASES[rest[0]!]!);
+      rest = rest.slice(1);
+    }
+    if (!rest || KEY_FILLER.has(rest)) continue;
+    const range = /^(\d)[–-](\d)$/.exec(rest);
+    if (range) {
+      for (let d = Number(range[1]); d <= Number(range[2]); d += 1) {
+        tokens.push(String(d));
+      }
+      continue;
+    }
+    tokens.push(KEY_ALIASES[rest] ?? rest);
+  }
+  return tokens;
 }
 
-/** Whether `query` is one of the command's keys as the sheet shows it. */
+/**
+ * Whether `query` names one of the command's keys: every key the student
+ * typed is in it ('space', 'shift enter', '⌘Z', '?').
+ */
 function matchesKey(command: DeclaredCommand, query: string): boolean {
-  const typed = foldKey(query);
-  if (typed === '') return false;
-  return rowKeys(command).some((keys) => foldKey(keys) === typed);
+  const typed = keyTokens(query);
+  if (typed.length === 0) return false;
+  return rowKeys(command).some((keys) => {
+    const have = keyTokens(keys);
+    return typed.every((token) => have.includes(token));
+  });
+}
+
+/** Whether a query has any words to match (the palette's fold). */
+function hasWords(query: string): boolean {
+  return /[a-z0-9]/.test(
+    query
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, ''),
+  );
 }
 
 export interface SheetSection {
@@ -68,9 +154,11 @@ export interface SheetSection {
  * (scopeOrder.ts, as the palette), each with its commands that have keys, in
  * the order they were declared. A query keeps the commands whose label,
  * scope or keywords match it (the palette's matchScore) or whose key it is
- * ('L', 'space'); a scope left with none is left out.
+ * ('L', 'space', 'cmd z'); a scope left with none is left out. A query of
+ * symbols only ('?', '.', '-') has no words, so only its keys match.
  */
 export function sheetSections(query = ''): SheetSection[] {
+  const keysOnly = query.trim() !== '' && !hasWords(query);
   return sortedScopes()
     .map((scope) => ({
       scope,
@@ -79,7 +167,9 @@ export function sheetSections(query = ''): SheetSection[] {
         (c) =>
           !c.hidden &&
           c.keys.length > 0 &&
-          (matchScore(c, query) > 0 || matchesKey(c, query)),
+          (keysOnly
+            ? matchesKey(c, query)
+            : matchScore(c, query) > 0 || matchesKey(c, query)),
       ),
     }))
     .filter((section) => section.commands.length > 0);
@@ -145,13 +235,32 @@ export function ShortcutSheet({ open, onOpenChange }: ShortcutSheetProps) {
   const setTyping = useMusicalTypingStore((s) => s.setEnabled);
   const [query, setQuery] = useState('');
   const sections = useMemo(() => sheetSections(query), [query]);
+  // Read as it first renders, before the dialog takes focus.
+  const [opener] = useState(sheetOpener);
+  const [panel, setPanel] = useState<HTMLDivElement | null>(null);
 
-  // The sheet goes first, so focus is back on the page when the palette
-  // (or the report) takes it; the palette then lists what works there.
+  // The palette is given where the sheet was opened from: focus is still in
+  // the sheet when it opens, which would list only what works everywhere.
   const openPalette = () => {
     useShortcutSheetStore.getState().close();
-    usePaletteStore.getState().open();
+    usePaletteStore.getState().open(opener);
   };
+
+  // ⌘K (and ⇧⌘P), as the footer says: a dialog keeps the editor's keys
+  // from the page, so the sheet answers them itself.
+  useEffect(() => {
+    if (!panel) return;
+    const chords = getCommand('help.palette')?.chords ?? [];
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!chords.some((chord) => matchesChord(e, chord))) return;
+      e.preventDefault();
+      e.stopPropagation();
+      useShortcutSheetStore.getState().close();
+      usePaletteStore.getState().open(opener);
+    };
+    panel.addEventListener('keydown', onKeyDown);
+    return () => panel.removeEventListener('keydown', onKeyDown);
+  }, [panel, opener]);
   const openReport = () => {
     useShortcutSheetStore.getState().close();
     useReportProblemStore.getState().open();
@@ -168,6 +277,7 @@ export function ShortcutSheet({ open, onOpenChange }: ShortcutSheetProps) {
       title="Keyboard shortcuts"
       description="Keys work in the area you’re working in: Delete in the Score deletes notes, in Create it deletes the selected clip."
       data={{ 'data-testid': 'shortcut-sheet' }}
+      contentRef={setPanel}
       footer={
         <>
           <Button

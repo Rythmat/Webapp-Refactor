@@ -64,6 +64,7 @@ const REGION_ROLES = new Set([
   'group',
   'list',
   'listbox',
+  'listitem',
   'main',
   'menu',
   'menubar',
@@ -72,13 +73,18 @@ const REGION_ROLES = new Set([
   'presentation',
   'radiogroup',
   'region',
+  'row',
   'tablist',
   'tabpanel',
   'toolbar',
   'tree',
 ]);
 
-/** Elements that are a region by their tag ('Create' is the main section). */
+/**
+ * Elements that are a region by their tag ('Create' is the main section). A
+ * list item or a row is one too: a track row's background is the row, not
+ * something it does.
+ */
 const REGION_TAGS = new Set([
   'ASIDE',
   'DIALOG',
@@ -86,6 +92,7 @@ const REGION_TAGS = new Set([
   'FOOTER',
   'FORM',
   'HEADER',
+  'LI',
   'MAIN',
   'NAV',
   'OL',
@@ -128,38 +135,54 @@ const CONTROL_SELECTOR = [
 const WRAPPER_DEPTH = 3;
 
 /**
- * The `data-hint` of a wrapper around `el` that holds no control but `el`
- * (a Fader's or a Meter's root, given the hint through its props), or ''.
+ * A wrapper around `el` with a `data-hint` that holds no control but `el`
+ * (a Fader's or a Meter's root, given the hint through its props), or null.
  */
-function wrapperHint(el: Element): string {
+function hintWrapper(el: Element): Element | null {
   let wrapper = el.parentElement;
   for (let depth = 0; depth < WRAPPER_DEPTH && wrapper; depth += 1) {
     if (wrapper === wrapper.ownerDocument.body || isInteractive(wrapper)) {
-      return '';
+      return null;
     }
     const controls = wrapper.querySelectorAll(CONTROL_SELECTOR);
     if (controls.length > 1 || (controls.length === 1 && controls[0] !== el)) {
-      return '';
+      return null;
     }
-    const hint = wrapper.getAttribute('data-hint')?.trim();
-    if (hint) return hint;
+    if (wrapper.getAttribute('data-hint')?.trim()) return wrapper;
     wrapper = wrapper.parentElement;
   }
-  return '';
+  return null;
+}
+
+interface ResolvedHint {
+  text: string;
+  /** The element the words came from (null when there are none). */
+  source: Element | null;
+}
+
+const NO_HINT: ResolvedHint = { text: '', source: null };
+
+/** The words for an event on `target`, and the element they came from. */
+function resolveHintSource(target: EventTarget | null): ResolvedHint {
+  let el = target instanceof Element ? target : null;
+  if (el && isTextField(el)) return NO_HINT;
+  while (el && el !== el.ownerDocument.body) {
+    if (el.getAttribute('data-hint')?.trim()) {
+      return { text: ownHint(el), source: el };
+    }
+    const label = ownHint(el);
+    const wrapper = label || isInteractive(el) ? hintWrapper(el) : null;
+    if (wrapper) return { text: ownHint(wrapper), source: wrapper };
+    if (label) return { text: label, source: el };
+    if (isInteractive(el)) return NO_HINT;
+    el = el.parentElement;
+  }
+  return NO_HINT;
 }
 
 /** What the hint line says for an event that landed on `target`. */
 export function resolveHint(target: EventTarget | null): string {
-  let el = target instanceof Element ? target : null;
-  if (el && isTextField(el)) return '';
-  while (el && el !== el.ownerDocument.body) {
-    if (el.getAttribute('data-hint')?.trim()) return ownHint(el);
-    const label = ownHint(el);
-    if (label) return wrapperHint(el) || label;
-    if (isInteractive(el)) return wrapperHint(el);
-    el = el.parentElement;
-  }
-  return '';
+  return resolveHintSource(target).text;
 }
 
 /**
@@ -230,14 +253,39 @@ export function setHint(text: string): void {
   for (const listener of listeners) listener();
 }
 
+/** The attributes the words are read from. */
+const HINT_ATTRIBUTES = ['data-hint', 'aria-label', 'aria-keyshortcuts'];
+
 /**
  * Starts the one delegated listener: a pointer coming over an element, or
  * the focus moving to one, sets the words; the pointer leaving the window
  * clears them. Returns the stop, which clears them too.
+ *
+ * A control that changes its own words under the pointer (Play becomes
+ * Pause) is read again: one MutationObserver watches the element the words
+ * came from, for those attributes only, so a meter or the playhead moving
+ * elsewhere never wakes it.
  */
 export function listenForHints(doc: Document = document): () => void {
-  const onEnter = (e: Event) => setHint(resolveHint(e.target));
-  const onLeave = () => setHint('');
+  let lastTarget: EventTarget | null = null;
+  const observer =
+    typeof MutationObserver === 'undefined'
+      ? null
+      : new MutationObserver(() => setHint(resolveHint(lastTarget)));
+  const show = (target: EventTarget | null) => {
+    lastTarget = target;
+    const { text, source } = resolveHintSource(target);
+    observer?.disconnect();
+    if (source) {
+      observer?.observe(source, {
+        attributes: true,
+        attributeFilter: HINT_ATTRIBUTES,
+      });
+    }
+    setHint(text);
+  };
+  const onEnter = (e: Event) => show(e.target);
+  const onLeave = () => show(null);
   const root = doc.documentElement;
   // Capture, so a handler that stops propagation can't hide a control.
   doc.addEventListener('pointerover', onEnter, true);
@@ -247,6 +295,8 @@ export function listenForHints(doc: Document = document): () => void {
     doc.removeEventListener('pointerover', onEnter, true);
     doc.removeEventListener('focusin', onEnter, true);
     root.removeEventListener('pointerleave', onLeave);
+    observer?.disconnect();
+    lastTarget = null;
     setHint('');
   };
 }

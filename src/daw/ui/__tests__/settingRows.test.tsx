@@ -103,6 +103,38 @@ function expectEverySettingExplained() {
   return { rows: rows.length, items: items.length };
 }
 
+/** Every control a student sets something with. */
+const SETTING_CONTROLS = [
+  'input:not([type=hidden])',
+  'select',
+  'textarea',
+  '[role=switch]',
+  '[role=slider]',
+  '[role=combobox]',
+  '[role=checkbox]',
+  '[role=radio]',
+  '[role=spinbutton]',
+  'button[aria-pressed]',
+].join(', ');
+
+/**
+ * Every control in `surface` sits in a setting row, so none is left without
+ * its line; returns how many there were, so an empty surface fails.
+ */
+function expectEveryControlInARow(surface: Element) {
+  const controls = [...surface.querySelectorAll(SETTING_CONTROLS)];
+  for (const control of controls) {
+    const name =
+      control.getAttribute('aria-label') ??
+      control.getAttribute('data-testid') ??
+      control.outerHTML.slice(0, 80);
+    expect(control.closest('[data-setting-row]'), `${name}: in a row`).not.toBe(
+      null,
+    );
+  }
+  return controls.length;
+}
+
 /** A copy line is one plain line: short, and no trailing full stop. */
 function expectShort(lines: string[]) {
   for (const line of lines) {
@@ -161,6 +193,9 @@ describe('every setting explains itself', () => {
     const { rows } = expectEverySettingExplained();
     // Input device and channels, output device, three facts, MIDI.
     expect(rows).toBe(7);
+    expect(
+      expectEveryControlInARow(screen.getByRole('dialog')),
+    ).toBeGreaterThanOrEqual(3);
     for (const name of [
       'Input device',
       'Input channels',
@@ -182,6 +217,9 @@ describe('every setting explains itself', () => {
     const { rows } = expectEverySettingExplained();
     // No channels row until an input is chosen; output says why it can't.
     expect(rows).toBe(6);
+    expect(
+      expectEveryControlInARow(screen.getByRole('dialog')),
+    ).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Choosing an output needs Chrome/)).toBeTruthy();
   });
 
@@ -192,6 +230,9 @@ describe('every setting explains itself', () => {
     });
     expect(screen.getByTestId('click-menu')).toBeInTheDocument();
     expect(expectEverySettingExplained().rows).toBe(3);
+    expect(
+      expectEveryControlInARow(screen.getByTestId('click-menu')),
+    ).toBeGreaterThanOrEqual(3);
   });
 
   it('in the Grid menu: grid, triplets, snap, chord labels, colour', () => {
@@ -242,6 +283,10 @@ describe('every setting explains itself', () => {
     fireEvent.keyDown(sub, { key: 'ArrowRight' });
     const { items } = expectEverySettingExplained();
     expect(items).toBe(3);
+    // The group of choices is named.
+    expect(
+      screen.getByRole('group', { name: 'Chord notation' }),
+    ).toContainElement(screen.getAllByRole('menuitemradio')[0]!);
   });
 
   it("in the '?' sheet's two switches", () => {

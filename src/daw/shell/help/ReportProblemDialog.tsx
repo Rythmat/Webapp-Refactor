@@ -1,6 +1,7 @@
 import { Copy, Mail } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { notice } from '@/daw/shell/notice';
+import { isApplePlatform } from '@/daw/shell/topbar/platformKeys';
 import { Button } from '@/daw/ui/Button';
 import { DawDialog } from '@/daw/ui/DawDialog';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
@@ -45,19 +46,32 @@ export function ReportProblemDialog({
   const fieldId = useId();
   const detailsId = useId();
   const report = formatReport(text, details);
+  // The clipboard refused: the whole report, selected, to copy by hand.
+  const [copyFailed, setCopyFailed] = useState(false);
+  const fallbackRef = useRef<HTMLTextAreaElement>(null);
+  const fallbackId = useId();
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(report);
+      setCopyFailed(false);
       notice({ title: 'Copied' });
     } catch {
+      setCopyFailed(true);
       notice({
         title: 'Couldn’t copy the report',
-        description: 'Select the text and copy it yourself.',
+        description: `It’s selected below: press ${isApplePlatform() ? '⌘C' : 'Ctrl+C'} to copy it.`,
         variant: 'destructive',
       });
     }
   };
+
+  useEffect(() => {
+    if (!copyFailed) return;
+    const field = fallbackRef.current;
+    field?.focus();
+    field?.select();
+  }, [copyFailed]);
 
   return (
     <DawDialog
@@ -132,6 +146,30 @@ export function ReportProblemDialog({
           </div>
         ))}
       </dl>
+      {copyFailed && (
+        <>
+          <label
+            htmlFor={fallbackId}
+            className={cn(TYPE_CLASS.label, 'mb-1 mt-4 block text-daw-text-2')}
+          >
+            The report, to copy yourself
+          </label>
+          <textarea
+            id={fallbackId}
+            ref={fallbackRef}
+            readOnly
+            rows={8}
+            value={report}
+            data-testid="report-problem-fallback"
+            onFocus={(e) => e.currentTarget.select()}
+            className={cn(
+              'block w-full resize-y rounded-[var(--daw-radius-sm)] border border-daw-outline bg-daw-surface-1 px-2 py-1.5 text-daw-text',
+              TYPE_CLASS.label,
+              FOCUS_RING,
+            )}
+          />
+        </>
+      )}
     </DawDialog>
   );
 }

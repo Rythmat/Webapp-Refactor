@@ -120,12 +120,20 @@ export const TopBar = memo(function TopBar() {
   );
 });
 
+/** The '⋯' menu's switches, each with its one line (2.11). */
+export const MORE_COPY = {
+  typing: 'Letter keys play notes on the selected track',
+  hoverHints: 'Say what each control does at the bottom',
+} as const;
+
 /**
- * '⋯': the computer keyboard's switch, the command palette, Help (shortcuts,
- * lessons) and Audio & MIDI settings.
+ * '⋯': the computer keyboard's switch, the hover hints' switch, the command
+ * palette, Help (shortcuts, lessons) and Audio & MIDI settings.
  */
 function MoreMenu() {
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
+  const hoverHints = useStore((s) => s.hoverHints);
+  const setHoverHints = useStore((s) => s.setHoverHints);
   const typing = useMusicalTypingStore((s) => s.enabled);
   const setTyping = useMusicalTypingStore((s) => s.setEnabled);
   return (
@@ -144,9 +152,18 @@ function MoreMenu() {
           checked={typing}
           onCheckedChange={setTyping}
           shortcut={TYPING_KEYS.label}
+          description={MORE_COPY.typing}
           data-testid="typing-menu-item"
         >
           Play notes from the computer keyboard
+        </MenuCheckboxItem>
+        <MenuCheckboxItem
+          checked={hoverHints}
+          onCheckedChange={setHoverHints}
+          description={MORE_COPY.hoverHints}
+          data-testid="hover-hints-menu-item"
+        >
+          Hover hints
         </MenuCheckboxItem>
         <MenuItem
           icon={<Search />}

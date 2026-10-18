@@ -18,13 +18,11 @@ import {
   Menu,
   MenuCheckboxItem,
   MenuContent,
-  MenuLabel,
   MenuRadioGroup,
   MenuRadioItem,
   MenuSeparator,
   MenuTrigger,
 } from '@/daw/ui/Menu';
-import { TYPE_CLASS } from '@/daw/ui/styles';
 import { TIP_GAP_PX, Tooltip } from '@/daw/ui/Tooltip';
 import { chordNotationLockTitle } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
@@ -38,7 +36,19 @@ import { useChordNotation } from '@/lib/chordNotation';
 // playhead (shell-18). Since Create's toolbar folded away (2.13, decision
 // 16) it sits at the ruler's right end, and it also holds the timeline's
 // two display choices: how the chord lane labels chords, and what colours
-// the clips.
+// the clips. Every setting carries a one-line explanation (2.11).
+
+/**
+ * Each setting's one line, for students (2.11): what it does, in plain
+ * words. Exported for the settings guard test.
+ */
+export const GRID_COPY = {
+  grid: 'Where clips and notes land when you move them',
+  triplets: 'Fit three notes where two would usually go',
+  snap: 'Clips, notes and the loop jump to grid lines',
+  chordLabels: 'How the chord lane names each chord',
+  clipColours: 'Track colours, or colours that follow the chords',
+} as const;
 
 export const GridMenu = memo(function GridMenu() {
   const size = useStore((s) => s.timelineGridSize);
@@ -100,10 +110,11 @@ export const GridMenu = memo(function GridMenu() {
         align="end"
         data-ds="v2"
         data-testid="grid-menu-content"
-        className="w-56"
+        className="w-80"
       >
-        <MenuLabel>Grid</MenuLabel>
         <MenuRadioGroup
+          label="Grid"
+          description={GRID_COPY.grid}
           value={base}
           onValueChange={(value) =>
             set(value as GridBase, triplets && value !== '1/1')
@@ -120,6 +131,7 @@ export const GridMenu = memo(function GridMenu() {
           checked={triplets}
           disabled={!triplet || !fitsMetre(triplet, metre)}
           onCheckedChange={(on) => set(base, on)}
+          description={GRID_COPY.triplets}
         >
           Triplets
         </MenuCheckboxItem>
@@ -127,6 +139,7 @@ export const GridMenu = memo(function GridMenu() {
           data-testid="grid-snap"
           checked={snap}
           onCheckedChange={() => useStore.getState().toggleTimelineSnap()}
+          description={GRID_COPY.snap}
         >
           Snap to grid
         </MenuCheckboxItem>
@@ -150,31 +163,27 @@ function ChordLabels() {
   const notation = useChordNotation();
   const locked = notation !== 'hybrid';
   return (
-    <>
-      <MenuLabel>Chord lane</MenuLabel>
-      {locked ? (
-        <p className={cn(TYPE_CLASS.label, 'px-2 pb-1 text-daw-text-3')}>
-          {chordNotationLockTitle(notation)}
-        </p>
-      ) : null}
-      <MenuRadioGroup
-        data-testid="chord-ruler-labels"
-        aria-label="Chord lane labels"
-        value={locked ? '' : showNotes ? 'notes' : 'numbers'}
-        onValueChange={(value) => {
-          if ((value === 'notes') !== useStore.getState().chordRulerShowNotes) {
-            useStore.getState().toggleChordRulerLabels();
-          }
-        }}
-      >
-        <MenuRadioItem value="numbers" disabled={locked}>
-          Degree numbers
-        </MenuRadioItem>
-        <MenuRadioItem value="notes" disabled={locked}>
-          Note names
-        </MenuRadioItem>
-      </MenuRadioGroup>
-    </>
+    <MenuRadioGroup
+      label="Chord lane"
+      description={
+        locked ? chordNotationLockTitle(notation) : GRID_COPY.chordLabels
+      }
+      data-testid="chord-ruler-labels"
+      aria-label="Chord lane labels"
+      value={locked ? '' : showNotes ? 'notes' : 'numbers'}
+      onValueChange={(value) => {
+        if ((value === 'notes') !== useStore.getState().chordRulerShowNotes) {
+          useStore.getState().toggleChordRulerLabels();
+        }
+      }}
+    >
+      <MenuRadioItem value="numbers" disabled={locked}>
+        Degree numbers
+      </MenuRadioItem>
+      <MenuRadioItem value="notes" disabled={locked}>
+        Note names
+      </MenuRadioItem>
+    </MenuRadioGroup>
   );
 }
 
@@ -182,21 +191,19 @@ function ChordLabels() {
 function ClipColours() {
   const mode = useStore((s) => s.clipColorMode);
   return (
-    <>
-      <MenuLabel>Colour clips by</MenuLabel>
-      <MenuRadioGroup
-        data-testid="clip-colour-mode"
-        aria-label="Colour clips by"
-        value={mode}
-        onValueChange={(value) =>
-          withTransaction('Colour clips', () =>
-            useStore.getState().setClipColorMode(value as 'track' | 'prism'),
-          )
-        }
-      >
-        <MenuRadioItem value="track">Track</MenuRadioItem>
-        <MenuRadioItem value="prism">Harmony</MenuRadioItem>
-      </MenuRadioGroup>
-    </>
+    <MenuRadioGroup
+      label="Colour clips by"
+      description={GRID_COPY.clipColours}
+      data-testid="clip-colour-mode"
+      value={mode}
+      onValueChange={(value) =>
+        withTransaction('Colour clips', () =>
+          useStore.getState().setClipColorMode(value as 'track' | 'prism'),
+        )
+      }
+    >
+      <MenuRadioItem value="track">Track</MenuRadioItem>
+      <MenuRadioItem value="prism">Harmony</MenuRadioItem>
+    </MenuRadioGroup>
   );
 }

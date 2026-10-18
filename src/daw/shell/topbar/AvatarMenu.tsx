@@ -46,7 +46,14 @@ import { Tooltip } from '@/daw/ui/Tooltip';
 // Notifications, the chord-notation switch (once it is on in Settings ▸
 // Look & Feel), the app's settings and Back to Studio. The stats come from
 // the same hook as the TopRail's (useTopRailStats). The practice screen's
-// header has it too.
+// header has it too. Each notation says how it writes chords (2.11).
+
+/** Each chord notation's one line, for students (2.11). */
+export const NOTATION_COPY: Record<ChordNotation, string> = {
+  hybrid: 'Scale numbers and chord type, like 2 min7',
+  jazz: 'Letter names with jazz symbols, like D−7 or G7',
+  roman: 'Roman numerals, like ii7 or V7',
+};
 
 export const AvatarMenu = memo(function AvatarMenu({
   className,
@@ -153,7 +160,11 @@ export const AvatarMenu = memo(function AvatarMenu({
                 }
               >
                 {CHORD_NOTATION_OPTIONS.map((option) => (
-                  <MenuRadioItem key={option.value} value={option.value}>
+                  <MenuRadioItem
+                    key={option.value}
+                    value={option.value}
+                    description={NOTATION_COPY[option.value]}
+                  >
                     {option.label}
                   </MenuRadioItem>
                 ))}

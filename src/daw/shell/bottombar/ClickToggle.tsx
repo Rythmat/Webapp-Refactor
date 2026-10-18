@@ -12,23 +12,23 @@ import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick, subscribePlayhead } from '@/daw/engine/playheadClock';
 import { useStore } from '@/daw/store';
 import { ticksPerBeat } from '@/daw/time/timeModel';
-import { cn } from '@/components/utilities';
 import { Fader } from '@/daw/ui/Fader';
 import { formatDb } from '@/daw/ui/format';
 import { IconButton } from '@/daw/ui/IconButton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/daw/ui/Popover';
 import { Segmented } from '@/daw/ui/Segmented';
-import { TYPE_CLASS } from '@/daw/ui/styles';
+import { SettingRow } from '@/daw/ui/SettingRow';
 import { Toggle } from '@/daw/ui/Toggle';
 
-// ── Click and its menu (milestones 2.5, 2.8) ───────────────────────────────
+// ── Click and its menu (milestones 2.5, 2.8, 2.11) ──────────────────────────
 //
 // The metronome as a toggle, with a caret for its menu (after Soundtrap's):
 // the click's sound, its volume and the count-in (off, one bar, two). The
 // sound and the volume are the student's (per-user prefs); a new choice
 // plays one click. The icon's two dots take turns on each beat while a
 // click is sounding; the playhead clock moves them by writing the dots'
-// opacity, so a beat re-renders nothing.
+// opacity, so a beat re-renders nothing. Each setting says what it does in
+// a line under its name (2.11).
 
 const METRONOME_KEYS = shortcutKeys('transport.metronome');
 
@@ -45,7 +45,14 @@ function hear(sound: ClickSound, db: number) {
   );
 }
 
-/** The menu's three settings. */
+/** Each setting's one line, for students (2.11). */
+export const CLICK_COPY = {
+  sound: 'What the click sounds like',
+  volume: 'How loud the click is next to your music',
+  countIn: 'Bars of clicks before playing or recording starts',
+} as const;
+
+/** The menu's three settings, each with its line (SettingRow). */
 function ClickSettings() {
   const sound = useStore((s) => s.metronomeSound);
   const volume = useStore((s) => s.metronomeVolume);
@@ -54,9 +61,8 @@ function ClickSettings() {
   const setVolume = useStore((s) => s.setMetronomeVolume);
   const setCountInBars = useStore((s) => s.setCountInBars);
   return (
-    <div className="flex w-56 flex-col gap-3" data-testid="click-menu">
-      <section className="flex flex-col gap-1.5">
-        <h3 className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}>Sound</h3>
+    <div className="flex w-64 flex-col gap-3" data-testid="click-menu">
+      <SettingRow layout="stacked" label="Sound" description={CLICK_COPY.sound}>
         <Segmented
           label="Click sound"
           options={CLICK_SOUNDS.map((c) => ({ value: c.id, label: c.label }))}
@@ -66,9 +72,12 @@ function ClickSettings() {
             hear(next, volume);
           }}
         />
-      </section>
-      <section className="flex flex-col gap-1.5">
-        <h3 className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}>Volume</h3>
+      </SettingRow>
+      <SettingRow
+        layout="stacked"
+        label="Volume"
+        description={CLICK_COPY.volume}
+      >
         <Fader
           label="Click volume"
           orientation="horizontal"
@@ -83,9 +92,12 @@ function ClickSettings() {
           onCommit={(db) => hear(sound, db)}
           hideLabel
         />
-      </section>
-      <section className="flex flex-col gap-1.5">
-        <h3 className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}>Count-in</h3>
+      </SettingRow>
+      <SettingRow
+        layout="stacked"
+        label="Count-in"
+        description={CLICK_COPY.countIn}
+      >
         <Segmented
           label="Count-in"
           options={COUNT_IN_CHOICES}
@@ -94,7 +106,7 @@ function ClickSettings() {
           }
           onValueChange={(next) => setCountInBars(Number(next))}
         />
-      </section>
+      </SettingRow>
     </div>
   );
 }

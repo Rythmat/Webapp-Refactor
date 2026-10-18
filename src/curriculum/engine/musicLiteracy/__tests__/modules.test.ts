@@ -1,14 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  LiteracyStep,
-  MusicLiteracyLesson,
+import {
+  lessonGateSection,
+  musicLiteracyBodySchema,
+  type LiteracyStep,
+  type MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '../__fixtures__/literacyFixture';
-import { PART2_FIXTURE } from '../__fixtures__/part2Fixture';
+import {
+  PART2_FIXTURE,
+  PART2_GATED_FIXTURE,
+  PART2_STEPS,
+} from '../__fixtures__/part2Fixture';
 import {
   DEFAULT_LESSON_GOAL,
   finishesModule,
+  isOptionalStep,
   lastEchoIndex,
+  lessonGate,
   lessonGoal,
   lessonModules,
   MODULE_GOALS,
@@ -22,9 +30,11 @@ import {
 } from '../modules';
 
 /**
- * A lesson's modules: its sections (Part 1, the whole lesson), each with its
- * round and goal, its own or the defaults; when one is passed; its round's
- * steps and their progress; and the lesson's one goal.
+ * A lesson's gate and modules: the gate, a first section of choose steps
+ * alone, which is no module; the other sections (Part 1, the whole lesson),
+ * each with its round and goal, its own or the defaults; when one is passed
+ * (a replay optional); its round's steps and their progress; and the
+ * lesson's one goal.
  *
  * The Part 2 fixture's steps, by module (a step with no section goes with
  * the section before it, the first ones with the section after them):
@@ -132,10 +142,90 @@ describe('a lesson’s modules', () => {
   });
 });
 
+describe('the gate', () => {
+  const gated = PART2_GATED_FIXTURE;
+
+  it('is a first section of choose-key and choose-mode steps alone', () => {
+    expect(lessonGateSection(gated.steps)).toEqual({
+      title: 'Choose a Color',
+      indices: [0, 1],
+    });
+    expect(lessonGate(gated)).toMatchObject({
+      title: 'Choose a Color',
+      steps: [{ tag: 'choose-key' }, { tag: 'choose-mode' }],
+      indices: [0, 1],
+    });
+    // The key alone is a gate too; a step with no section before the
+    // first one goes with it.
+    const keyOnly = {
+      ...gated,
+      steps: [gated.steps[0], ...gated.steps.slice(2)],
+    };
+    expect(lessonGate(keyOnly)?.indices).toEqual([0]);
+    const keyFirst = {
+      ...gated,
+      steps: [
+        PART2_STEPS.key,
+        { ...PART2_STEPS.mode, section: 'Choose a Color' },
+        ...gated.steps.slice(2),
+      ],
+    };
+    expect(lessonGate(keyFirst)?.indices).toEqual([0, 1]);
+  });
+
+  it('is none with anything else in the first section, or without sections', () => {
+    // The fixture's Choose a Color holds 1-3-5: a module, as before.
+    expect(lessonGate(PART2_FIXTURE)).toBeNull();
+    expect(lessonGate(LITERACY_FIXTURE)).toBeNull();
+    // Choose steps alone, later on: a module, not the gate.
+    const later = {
+      ...gated,
+      steps: [
+        { ...PART2_STEPS.triad, section: 'Create a Melody' },
+        { ...PART2_STEPS.mode, section: 'Major or minor' },
+        PART2_STEPS.ones,
+      ],
+    };
+    expect(lessonGate(later)).toBeNull();
+    // A lesson of nothing but choose steps has no gate to open.
+    const only = { ...gated, steps: gated.steps.slice(0, 2) };
+    expect(lessonGate(only)).toBeNull();
+  });
+
+  it('is left out of the modules: no round, no goal, no card', () => {
+    expect(titles(gated)).toEqual([
+      ['Create a Melody', ['one-three-five', 'one-seven-one']],
+      ['Chords', ['the-1-chord', 'choose-x', 'play-1-x', 'play-x-1']],
+      ['7th Chords', ['choose-four', 'hear-four']],
+    ]);
+    const modules = lessonModules(gated);
+    expect(moduleOfStep(modules, 0)).toBeUndefined();
+    expect(moduleOfStep(modules, 1)).toBeUndefined();
+    expect(moduleOfStep(modules, 2)?.title).toBe('Create a Melody');
+    // The lesson still opens on its one goal.
+    expect(lessonGoal(gated)).toBe(DEFAULT_LESSON_GOAL);
+  });
+
+  it('takes no module entry: the schema says it’s the gate', () => {
+    expect(musicLiteracyBodySchema.safeParse(gated).success).toBe(true);
+    const listed = musicLiteracyBodySchema.safeParse({
+      ...gated,
+      modules: [{ title: 'Choose a Color', round: 'none' }],
+    });
+    expect(listed.success).toBe(false);
+    expect(listed.error?.issues.map((i) => [i.path, i.message])).toEqual([
+      [
+        ['modules', 0, 'title'],
+        '"Choose a Color" is the gate, where students choose: it has no goal or round',
+      ],
+    ]);
+  });
+});
+
 describe('a module passed', () => {
   const [color, , chords] = lessonModules(PART2_FIXTURE);
 
-  it('needs every step done: echoes passed, choices made, replays heard', () => {
+  it('needs every step done: echoes passed, choices made; a replay is optional', () => {
     expect(moduleEchoPassed(color, {})).toBe(false);
     expect(moduleEchoPassed(color, passed('one-three-five'))).toBe(false);
     expect(
@@ -153,11 +243,34 @@ describe('a module passed', () => {
         'one-three-five:create': { passed: true },
       }),
     ).toBe(false);
+    // A replay never holds a module up: heard or not, the rest decides.
     const [, , , sevenths] = lessonModules(PART2_FIXTURE);
-    expect(moduleEchoPassed(sevenths, passed('choose-four'))).toBe(false);
+    expect(isOptionalStep(PART2_STEPS.replay)).toBe(true);
+    expect(isOptionalStep(PART2_STEPS.chooseFour)).toBe(false);
+    expect(moduleEchoPassed(sevenths, {})).toBe(false);
+    expect(moduleEchoPassed(sevenths, passed('choose-four'))).toBe(true);
     expect(moduleEchoPassed(sevenths, passed('choose-four', 'hear-four'))).toBe(
       true,
     );
+    // Nor its card: a module ending on a replay is finished by its last
+    // echo, the replay unheard.
+    const ending: MusicLiteracyLesson = {
+      ...PART2_FIXTURE,
+      steps: [
+        ...PART2_FIXTURE.steps.slice(0, 8),
+        { ...PART2_STEPS.replay, section: 'Chords', progression: 'one-x' },
+        ...PART2_FIXTURE.steps.slice(8, 9),
+      ],
+    };
+    const withReplay = lessonModules(ending)[2];
+    expect(withReplay.steps.map((s) => s.tag)).toContain('hear-four');
+    const rest = passed('the-1-chord', 'choose-x', 'play-1-x');
+    expect(
+      finishesModule(withReplay, 7, rest, {
+        ...rest,
+        ...passed('play-x-1'),
+      }),
+    ).toBe(true);
   });
 
   it('shows its card when its last echo finishes it, or is played again', () => {

@@ -1,19 +1,26 @@
 /**
- * A lesson's modules and their rounds.
+ * A lesson's gate, its modules and their rounds.
  *
- * A module is a section of the lesson ("Create a Melody"): its steps, the
- * goal said on its card, and its round, what a student may do once they
- * have passed it. A lesson with no sections is one module (Part 1).
+ * The gate (Part 2's "Choose a Color") is where the student chooses the key
+ * and major or minor, once, before anything else: the lesson's first
+ * section, when it holds only choose-key and choose-mode steps
+ * (`lessonGateSection`). It is not a module: no goal, no round, no card.
+ *
+ * A module is any other section of the lesson ("Create a Melody"): its
+ * steps, the goal said on its card, and its round, what a student may do
+ * once they have passed it. A lesson with no sections is one module
+ * (Part 1).
  *
  *   create     a second time through the module's echoes, each as its
  *              create pass: their own call, then their repeat of it.
  *   challenge  a second time through its melodies, each as the challenge:
  *              play ALL the notes along with Atlas.
- *   none       nothing more ("Choose a Color").
+ *   none       nothing more.
  *
  * The round is offered once every step of the module is passed (an echo
- * played back well enough, a choice made, a replay heard): the module's
- * card after its last echo, and its header in the step list after that.
+ * played back well enough, a choice made), a replay aside: it is optional,
+ * done once heard but never waited for. The module's card shows after its
+ * last echo, and its header in the step list offers the round after that.
  * A step that opts out (`passes: { create: false }`) is left out of the
  * round. Each round step's progress is kept under its pass key
  * (`<tag>:create`, `<tag>:challenge`), so the round's own progress is
@@ -23,6 +30,7 @@
 import {
   isChordFigure,
   isEchoStep,
+  lessonGateSection,
   moduleRound,
   stepModuleTitles,
   type LiteracyRound,
@@ -75,11 +83,36 @@ export type ModuleProgress = Readonly<
   Record<string, { passed: boolean } | undefined>
 >;
 
-/** The lesson's modules, in the order a student meets them. */
+/** The lesson's gate: where the student chooses the key and the mode. */
+export interface LiteracyGate {
+  /** Its section's title ("Choose a Color"). */
+  title: string;
+  /** Its steps, in order, and their places in the lesson. */
+  steps: LiteracyStep[];
+  indices: number[];
+}
+
+/** The lesson's gate, or null when it has none (Part 1 has none). */
+export function lessonGate(
+  lesson: Pick<MusicLiteracyLesson, 'steps'>,
+): LiteracyGate | null {
+  const gate = lessonGateSection(lesson.steps);
+  return gate
+    ? {
+        title: gate.title,
+        steps: gate.indices.map((i) => lesson.steps[i]),
+        indices: gate.indices,
+      }
+    : null;
+}
+
+/** The lesson's modules, in the order a student meets them; not the gate. */
 export function lessonModules(lesson: ModuleLesson): LiteracyModule[] {
   const titles = stepModuleTitles(lesson.steps);
+  const gate = lessonGateSection(lesson.steps);
   const groups = new Map<string | null, number[]>();
   titles.forEach((title, index) => {
+    if (gate && title === gate.title) return;
     const group = groups.get(title);
     if (group) group.push(index);
     else groups.set(title, [index]);
@@ -156,16 +189,25 @@ export function roundSteps(
 }
 
 /**
+ * A step nothing waits for: a replay, there to listen to. Heard, it is
+ * done; unheard, it holds up no module, card or round.
+ */
+export const isOptionalStep = (step: Pick<LiteracyStep, 'kind'>): boolean =>
+  step.kind === 'replay';
+
+/**
  * Whether the module is passed, so its round is open: every step of it
- * done as stepDone counts it, an echo's echo passed, a choice made, a
- * replay heard (each saved as a pass of the step's tag).
+ * done as stepDone counts it, an echo's echo passed, a choice made (each
+ * saved as a pass of the step's tag). A replay is optional: not needed.
  */
 export const moduleEchoPassed = (
   module: Pick<LiteracyModule, 'steps'>,
   progress: ModuleProgress,
 ): boolean =>
   module.steps.every(
-    (step) => progress[passProgressKey(step.tag, 'echo')]?.passed ?? false,
+    (step) =>
+      isOptionalStep(step) ||
+      (progress[passProgressKey(step.tag, 'echo')]?.passed ?? false),
   );
 
 /**

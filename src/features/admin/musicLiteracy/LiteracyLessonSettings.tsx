@@ -44,7 +44,7 @@ export const usesPart2 = (lesson: MusicLiteracyLesson) =>
 const KEY_CHOICE_HINT = {
   lesson: 'Everyone plays in the key set above.',
   student:
-    'Students pick a key and major or minor in Choose steps. The key above is the default, and what Play uses here.',
+    'Students pick a key and major or minor once, in the gate: a first section of Choose steps alone. The key above is the default, and what Play uses here.',
 };
 
 const NUMBERING_HINT = {
@@ -197,7 +197,8 @@ export const LiteracyLessonSettings: FC<{
           }
         />
         <p className="text-[11px] text-white/40">
-          One line students see before the first step: what they’ll make.
+          One line students see before the first step on their first visit (and
+          in About this step): what they’ll make.
         </p>
       </div>
     </div>

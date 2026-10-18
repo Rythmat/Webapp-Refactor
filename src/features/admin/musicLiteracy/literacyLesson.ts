@@ -2,8 +2,9 @@
  * The Music Literacy editor's edits to a lesson as a whole: its steps' tags,
  * adding (of any kind), duplicating, moving and removing steps, their
  * sections and the modules they are (each one's goal and round, kept in
- * step with its section's name), the lesson's default round and the passes
- * a step opts out of, a new lesson's id, the
+ * step with its section's name), the gate (where the key and mode are
+ * chosen, once) and a choose step that asks again outside it, the lesson's
+ * default round and the passes a step opts out of, a new lesson's id, the
  * schema's problems in a teacher's words, the body laid out as its file is,
  * key by key, and where the lesson goes (its Learn page, its download).
  *
@@ -14,6 +15,8 @@ import {
   defaultRound,
   isChordFigure,
   isEchoStep,
+  isGateStep,
+  lessonGateSection,
   musicLiteracyBodySchema,
   type LiteracyChordFigure,
   type LiteracyFigure,
@@ -309,19 +312,76 @@ export function patchStep<S extends LiteracyStep>(
 
 /**
  * The lesson without the module entries no step's section names any more
- * (its last step moved, deleted or renamed away), and with no `modules`
- * at all once none is left.
+ * (its last step moved, deleted or renamed away), nor the gate's (a section
+ * left with choose steps alone, first, is the gate: no goal, no round), and
+ * with no `modules` at all once none is left.
  */
 export function withModulesPruned(
   lesson: MusicLiteracyLesson,
 ): MusicLiteracyLesson {
   if (!lesson.modules) return lesson;
   const used = new Set(lesson.steps.flatMap((step) => step.section ?? []));
-  const modules = lesson.modules.filter((m) => used.has(m.title));
+  const gate = lessonGateSection(lesson.steps);
+  const modules = lesson.modules.filter(
+    (m) => used.has(m.title) && m.title !== gate?.title,
+  );
   if (modules.length === lesson.modules.length) return lesson;
   const out: MusicLiteracyLesson = { ...lesson, modules };
   if (!modules.length) delete out.modules;
   return out;
+}
+
+// ── The gate ───────────────────────────────────────────────────────────────
+
+/**
+ * Why a choose-key or choose-mode step is out of place, if it is: in a
+ * lesson whose key is the student's, the key and major or minor are chosen
+ * once, in the gate at its start (its first section, of choose steps
+ * alone). Null for any other step, and for one in the gate.
+ */
+export function chooseStepWarning(
+  lesson: Pick<MusicLiteracyLesson, 'keyChoice' | 'steps'>,
+  index: number,
+): string | null {
+  const step = lesson.steps[index];
+  if (!step || !isGateStep(step) || lesson.keyChoice !== 'student') return null;
+  const gate = lessonGateSection(lesson.steps);
+  if (gate?.indices.includes(index)) return null;
+  return gate
+    ? `Students choose the key and major/minor once, in “${gate.title}” at the start. This step asks again: move it there, or delete it.`
+    : 'Students choose the key and major/minor once, at the start: put the choose steps alone in the first section, and it becomes the gate.';
+}
+
+/**
+ * Where a choose-key or choose-mode step outside the gate goes into it: the
+ * key first in it, major or minor last (`to`, its index once moved, and the
+ * gate's section). Null without a gate, or for another step.
+ */
+export function gateSlot(
+  lesson: Pick<MusicLiteracyLesson, 'steps'>,
+  index: number,
+): { to: number; section: string } | null {
+  const step = lesson.steps[index];
+  const gate = lessonGateSection(lesson.steps);
+  if (!step || !gate || !isGateStep(step) || gate.indices.includes(index))
+    return null;
+  // The gate's first run of steps, from the lesson's first: the step,
+  // after it, leaves it where it is.
+  let last = 0;
+  while (gate.indices.includes(last + 1)) last++;
+  return {
+    to: step.kind === 'chooseKey' ? 0 : last + 1,
+    section: gate.title,
+  };
+}
+
+/** A choose step outside the gate moved into it (`gateSlot`). */
+export function moveIntoGate(
+  lesson: MusicLiteracyLesson,
+  index: number,
+): MusicLiteracyLesson {
+  const slot = gateSlot(lesson, index);
+  return slot ? moveStepTo(lesson, index, slot.to, slot.section) : lesson;
 }
 
 /** A module's own entry, by its section's title (undefined: none). */

@@ -15,7 +15,11 @@ import type {
   MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
-import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
+import {
+  PART2_FIXTURE,
+  PART2_GATED_FIXTURE,
+  PART2_STEPS,
+} from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
 import {
   DEFAULT_LESSON_GOAL,
   MODULE_GOALS,
@@ -178,7 +182,7 @@ describe('Add step', () => {
     expect(
       (
         screen.getByRole('menuitem', {
-          name: /Choose chords/,
+          name: /Choose a chord/,
         }) as HTMLButtonElement
       ).disabled,
     ).toBe(false);
@@ -547,6 +551,95 @@ describe('the choose steps', () => {
       radio('Who picks the key', 'Student').getAttribute('aria-checked'),
     ).toBe('true');
     expect(saveButton().disabled).toBe(true); // Nothing changed.
+  });
+});
+
+describe('the gate', () => {
+  const header = (title: string) =>
+    document.querySelector(`[data-section="${title}"] [data-gate-header]`);
+
+  it('heads the first section of choose steps alone as the gate, with no goal or round', () => {
+    mount(PART2_GATED_FIXTURE);
+    expect(header('Choose a Color')?.textContent).toBe(
+      'Gatethe student’s key and major/minor',
+    );
+    expect(
+      document.querySelector('[data-section="Choose a Color"] [data-gate-note]')
+        ?.textContent,
+    ).toContain('No goal or round');
+    // The modules have their settings; the gate none.
+    expect(
+      [...document.querySelectorAll('[data-module-settings]')].map((m) =>
+        m.getAttribute('data-module-settings'),
+      ),
+    ).toEqual(['Create a Melody', 'Chords', '7th Chords']);
+    expect(
+      screen.queryByRole('textbox', { name: 'Choose a Color goal' }),
+    ).toBeNull();
+    // Its choose steps are where they belong: no warning.
+    expect(row(0).textContent).not.toContain('outside the gate');
+    expect(document.querySelector('[data-choose-warning]')).toBeNull();
+    // A lesson whose first section holds an echo has no gate.
+    cleanup();
+    mount();
+    expect(header('Choose a Color')).toBeNull();
+    expect(
+      document.querySelector('[data-module-settings="Choose a Color"]'),
+    ).toBeTruthy();
+  });
+
+  it('warns at a choose step outside it, and moves it in', async () => {
+    const again: MusicLiteracyLesson = {
+      ...PART2_GATED_FIXTURE,
+      steps: [
+        ...PART2_GATED_FIXTURE.steps.slice(0, 1),
+        ...PART2_GATED_FIXTURE.steps.slice(2, 4),
+        { ...PART2_STEPS.mode, section: 'Chords' },
+        ...PART2_GATED_FIXTURE.steps.slice(4),
+      ],
+    };
+    mount(again);
+    // Step 4, major or minor, asks again in Chords.
+    expect(row(3).textContent).toContain('outside the gate');
+    const opened = openStep(3);
+    expect(row(3).querySelector('[data-choose-warning]')?.textContent).toBe(
+      'Students choose the key and major/minor once, in “Choose a Color” at the start. This step asks again: move it there, or delete it.',
+    );
+    fireEvent.click(
+      opened.getByRole('button', { name: 'Move it to the gate' }),
+    );
+    // Last in the gate, after the key, and still the step open.
+    const gate = document.querySelector('[data-section="Choose a Color"]')!;
+    expect(
+      [...gate.querySelectorAll<HTMLElement>('[data-step]')].map(
+        (r) => r.dataset.step,
+      ),
+    ).toEqual(['0', '1']);
+    expect(row(1).textContent).toContain('Major or minor?');
+    expect(
+      row(1)
+        .querySelector('button[aria-expanded]')
+        ?.getAttribute('aria-expanded'),
+    ).toBe('true');
+    expect(document.querySelector('[data-choose-warning]')).toBeNull();
+    const body = await saved();
+    expect(body.steps.slice(0, 3).map((st) => [st.tag, st.section])).toEqual([
+      ['choose-key', 'Choose a Color'],
+      ['choose-mode', 'Choose a Color'],
+      ['one-three-five', 'Create a Melody'],
+    ]);
+  });
+
+  it('says how to make one when the lesson has none', () => {
+    mount();
+    expect(row(2).textContent).toContain('not in a gate');
+    openStep(2);
+    expect(row(2).querySelector('[data-choose-warning]')?.textContent).toBe(
+      'Students choose the key and major/minor once, at the start: put the choose steps alone in the first section, and it becomes the gate.',
+    );
+    expect(
+      within(row(2)).queryByRole('button', { name: 'Move it to the gate' }),
+    ).toBeNull();
   });
 });
 

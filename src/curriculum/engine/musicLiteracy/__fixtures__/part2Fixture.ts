@@ -107,3 +107,31 @@ export const PART2_FIXTURE: MusicLiteracyLesson = {
 /** A step of the fixture by its tag. */
 export const part2Step = (tag: string): LiteracyStep =>
   PART2_FIXTURE.steps.find((step) => step.tag === tag)!;
+
+/**
+ * The same lesson opening on a gate, as the Part 2 seed does: the key, then
+ * major or minor, alone in "Choose a Color" (so it is the gate, not a
+ * module), and 1-3-5 moved to the start of Create a Melody. By section:
+ *
+ *   Choose a Color   choose-key, choose-mode                (the gate)
+ *   Create a Melody  one-three-five, one-seven-one
+ *   Chords           the-1-chord, choose-x, play-1-x, play-x-1
+ *   7th Chords       choose-four, hear-four
+ */
+export const PART2_GATED_FIXTURE: MusicLiteracyLesson = {
+  ...PART2_FIXTURE,
+  id: 'part-2-gated-fixture',
+  name: 'Part 2 gated fixture',
+  steps: [
+    { ...PART2_STEPS.key, section: 'Choose a Color' },
+    { ...PART2_STEPS.mode, section: 'Choose a Color' },
+    { ...PART2_STEPS.triad, section: 'Create a Melody' },
+    PART2_STEPS.neighbor,
+    PART2_STEPS.ones,
+    PART2_STEPS.chooseX,
+    PART2_STEPS.oneX,
+    PART2_STEPS.xOne,
+    PART2_STEPS.chooseFour,
+    PART2_STEPS.replay,
+  ],
+};

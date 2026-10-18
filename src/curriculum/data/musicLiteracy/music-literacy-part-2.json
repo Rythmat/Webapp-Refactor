@@ -17,10 +17,6 @@
   "goal": "Your goal: create a melody, a chord comping rhythm, or a chord progression with a rhythm, and play it the same way twice.",
   "modules": [
     {
-      "title": "Choose a Color",
-      "round": "none"
-    },
-    {
       "title": "Create a Melody",
       "goal": "Create a melody and play it the same way twice.",
       "round": "create"
@@ -53,8 +49,15 @@
       "direction": "Pick a color on the circle. Its note is your 1."
     },
     {
-      "tag": "rhythm-on-1",
+      "kind": "chooseMode",
+      "tag": "choose-major-or-minor",
       "section": "Choose a Color",
+      "title": "Major or minor?",
+      "direction": "Pick one. It sets your 3."
+    },
+    {
+      "tag": "rhythm-on-1",
+      "section": "Create a Melody",
       "title": "A rhythm on the 1",
       "direction": "Listen, then play it back.",
       "call": {
@@ -79,15 +82,8 @@
       }
     },
     {
-      "kind": "chooseMode",
-      "tag": "choose-major-or-minor",
-      "section": "Choose a Color",
-      "title": "Major or minor?",
-      "direction": "Pick one. It sets your 3."
-    },
-    {
       "tag": "play-1-3-1",
-      "section": "Choose a Color",
+      "section": "Create a Melody",
       "title": "1-3-1",
       "direction": "Listen, then play it back.",
       "call": {
@@ -113,7 +109,7 @@
     },
     {
       "tag": "rhythm-on-1-3",
-      "section": "Choose a Color",
+      "section": "Create a Melody",
       "title": "A rhythm on 1 and 3",
       "direction": "Listen, then play it back.",
       "call": {
@@ -154,7 +150,7 @@
     },
     {
       "tag": "add-the-5",
-      "section": "Choose a Color",
+      "section": "Create a Melody",
       "title": "Add the 5: 1-3-5",
       "direction": "Three notes make a triad.",
       "call": {
@@ -180,7 +176,7 @@
     },
     {
       "tag": "rhythm-on-1-3-5",
-      "section": "Choose a Color",
+      "section": "Create a Melody",
       "title": "A rhythm on 1-3-5",
       "direction": "Listen, then play it back.",
       "call": {
@@ -223,13 +219,6 @@
           }
         ]
       }
-    },
-    {
-      "kind": "chooseMode",
-      "tag": "melody-major-or-minor",
-      "section": "Create a Melody",
-      "title": "Major or minor?",
-      "direction": "Pick the color of your melody."
     },
     {
       "tag": "up-1-2-3",
@@ -1007,13 +996,6 @@
       }
     },
     {
-      "kind": "chooseMode",
-      "tag": "chords-major-or-minor",
-      "section": "Chords",
-      "title": "Major or minor?",
-      "direction": "Pick the color of your chords."
-    },
-    {
       "tag": "the-1-chord",
       "section": "Chords",
       "title": "The 1 chord",
@@ -1028,8 +1010,8 @@
       "kind": "chooseChords",
       "tag": "choose-your-x",
       "section": "Chords",
-      "title": "Choose your X",
-      "direction": "Pick a chord for X.",
+      "title": "Choose a Chord",
+      "direction": "Pick a chord.",
       "template": ["1", "X"],
       "distinct": 1,
       "harmony": "triads",
@@ -1203,8 +1185,8 @@
       "kind": "chooseChords",
       "tag": "choose-your-x-7ths",
       "section": "7th Chords",
-      "title": "Choose your X with 7ths",
-      "direction": "Pick a chord for X.",
+      "title": "Choose a Chord with 7ths",
+      "direction": "Pick a chord.",
       "template": ["1", "X"],
       "distinct": 1,
       "harmony": "sevenths",

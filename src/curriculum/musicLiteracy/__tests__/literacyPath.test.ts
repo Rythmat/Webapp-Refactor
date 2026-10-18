@@ -1,5 +1,6 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { roundsLine } from '@/components/learn/StartHere';
+import { roundsLine, stepsLine } from '@/components/learn/StartHere';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
@@ -244,6 +245,48 @@ describe('Part 2 on the path', () => {
     expect(state.status).toBe('done');
     expect(roundsLine(state)).toBe('2 of 3 create rounds');
     expect(roundsLine(literacyStopState(part2Stop, part2, {}))).toBeNull();
+  });
+
+  it('never waits for a replay: done, and Continue past it, without it', () => {
+    // Every step but the last, the replay, passed: done.
+    const heardNot = progressOf(part2Tags.filter((t) => t !== 'hear-four'));
+    const done = literacyStopState(part2Stop, part2, heardNot);
+    expect(done.status).toBe('done');
+    expect(done.next).toBeNull();
+    expect(done.steps.at(-1)).toBe('todo');
+    expect(stepsLine(done)).toBe(
+      `Done: ${part2.steps.length - 1} of ${part2.steps.length} steps`,
+    );
+    // Heard, it counts like any step.
+    const all = literacyStopState(part2Stop, part2, progressOf(part2Tags));
+    expect(stepsLine(all)).toBe(`All ${part2.steps.length} steps passed`);
+    // A replay before steps still to do: Continue goes past it.
+    const replayFirst: MusicLiteracyLesson = {
+      ...part2,
+      steps: [...part2.steps.slice(0, 8), part2.steps[9], part2.steps[8]],
+    };
+    const before = literacyStopState(
+      part2Stop,
+      replayFirst,
+      progressOf(part2Tags.slice(0, 8)),
+    );
+    expect(before.next).toEqual({ index: 9, title: 'Four chords' });
+  });
+});
+
+describe('the Part 2 seed on the path', () => {
+  const seed = JSON.parse(
+    readFileSync(
+      'src/curriculum/data/musicLiteracy/music-literacy-part-2.json',
+      'utf8',
+    ),
+  ) as MusicLiteracyLesson;
+
+  it('counts its four modules’ create rounds, the gate not among them', () => {
+    const state = literacyStopState(LITERACY_PATH[1], seed, {});
+    expect(state.rounds).toEqual({ done: 0, total: 4, kind: 'create' });
+    expect(state.next).toEqual({ index: 0, title: 'Choose your key' });
+    expect(state.steps).toHaveLength(seed.steps.length);
   });
 });
 

@@ -15,6 +15,7 @@ import {
   LITERACY_SCALE_DEGREES,
   LITERACY_TEMPLATE_BARS,
   LITERACY_TONICS,
+  lessonGateSection,
   literacyHarmonySchema,
   literacyModeSchema,
   type LiteracyChooseChordsStep,
@@ -284,12 +285,14 @@ export function dependsOnMode(
 
 /**
  * What a step needs chosen that isn't yet, each with the tag of the step
- * that chooses it (`at`: the nearest such step before it, else the first;
- * null when the lesson has none): send the student there first. Empty when
- * the step plays as the student will hear it. In a lesson whose key is the
- * student's, every step but the choose-key needs the key, and a step that
- * sounds different in major and minor (`dependsOnMode`) needs the mode; a
- * step playing a progression needs it saved.
+ * that chooses it (`at`): send the student there first. Empty when the
+ * step plays as the student will hear it. In a lesson whose key is the
+ * student's, every step but the choose-key needs the key. A lesson with a
+ * gate chooses the key and the mode there, once: every step after the gate
+ * needs both, and `at` is the gate's step. Without one, a step needs the
+ * mode when it sounds different in major and minor (`dependsOnMode`), and
+ * `at` is the nearest such step before it, else the first (null when the
+ * lesson has none). A step playing a progression needs it saved.
  */
 export function missingChoices(
   lesson: Pick<MusicLiteracyLesson, 'keyChoice' | 'numbering'> & {
@@ -300,8 +303,12 @@ export function missingChoices(
 ): MissingChoice[] {
   const missing: MissingChoice[] = [];
   const here = lesson.steps.findIndex((s) => s.tag === step.tag);
+  const gate = lessonGateSection(lesson.steps);
+  const gateSteps = gate ? gate.indices.map((i) => lesson.steps[i]) : [];
+  const pastGate = gate !== null && !gate.indices.includes(here);
   const tagOf = (kind: LiteracyStep['kind']) =>
     (
+      gateSteps.find((s) => s.kind === kind) ??
       lesson.steps
         .slice(0, Math.max(0, here))
         .reverse()
@@ -312,7 +319,7 @@ export function missingChoices(
     if (!choices?.tonic) {
       missing.push({ choice: 'key', at: tagOf('chooseKey') });
     }
-    if (!choices?.mode && dependsOnMode(lesson, step)) {
+    if (!choices?.mode && (pastGate || dependsOnMode(lesson, step))) {
       missing.push({ choice: 'mode', at: tagOf('chooseMode') });
     }
   }

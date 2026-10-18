@@ -34,6 +34,7 @@ import {
   midiToPitchName,
 } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import {
+  chooserOf,
   keyFor,
   missingChoices,
   progressionFor,
@@ -83,6 +84,7 @@ import {
 } from '@/curriculum/engine/musicLiteracy/literacy';
 import {
   finishesModule,
+  lessonGate,
   lessonGoal,
   lessonModules,
   moduleEchoPassed,
@@ -239,13 +241,17 @@ import { useLiteracyProgress, withTry } from './useLiteracyProgress';
 //
 // In a round the pager counts the round's steps, under a banner naming it
 // with the module's goal; its last step goes on to the next module. Part 2
-// opens on the lesson's one goal, before its first step.
+// opens on the lesson's one goal, before its first step, on a student's
+// first visit only (no progress yet); About this step says it again.
 //
 // PART 2 (a lesson whose key is the student's)
-// The choose steps pick the key on the circle, major or minor, and the
-// chords of a progression; their choices are kept beside the progress
-// (useLiteracyChoices.ts). A step that needs a choice not yet made waits
-// with a link to the step that makes it. A chord echo plays its voiced
+// The gate ("Choose a Color", modules.ts lessonGate) comes first: the key
+// on the circle, then major or minor, chosen once for the whole lesson. It
+// is no module: no card, no round, its header in the step list a plain
+// one. Then the modules; a choose-chords step picks a progression's
+// chords. The choices are kept beside the progress (useLiteracyChoices.ts).
+// A step that needs a choice not yet made waits with a link to the step
+// that makes it (the gate's, for the key and the mode). A chord echo plays its voiced
 // chords in their rhythm, the hub naming each bar's chord; a replay plays
 // the student's progression as triads, then with 7ths, to listen to.
 // When a step counts as done is one rule, in stepDone.ts.
@@ -356,7 +362,9 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const kind = stepKind(step);
 
   // The modules, and the round being played, if one is (a module's index).
+  // The gate, where the key and mode are chosen, is none of them.
   const modules = useMemo(() => lessonModules(lesson), [lesson]);
+  const gateOfLesson = useMemo(() => lessonGate(lesson), [lesson]);
   const whole = modules.length === 1;
   const [round, setRound] = useState<number | null>(null);
   const roundModule = round === null ? null : (modules[round] ?? null);
@@ -375,11 +383,15 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     inRound && roundModule ? (modulePass(roundModule) ?? 'echo') : 'echo';
   /** A module just passed: its card shows in the result's place. */
   const [moduleDone, setModuleDone] = useState<number | null>(null);
-  // The lesson's one goal (Part 2's), before its first step: on opening it
-  // at the start, not at a step Start Here's Continue names.
+  // The lesson's one goal (Part 2's), before its first step: on a first
+  // visit (nothing saved yet), opening it at the start, not at a step
+  // Start Here's Continue names. A second run goes straight in.
   const goal = useMemo(() => lessonGoal(lesson), [lesson]);
   const [intro, setIntro] = useState(
-    () => goal !== null && !params.get('step'),
+    () =>
+      goal !== null &&
+      !params.get('step') &&
+      Object.keys(progress).length === 0,
   );
   const notes = useMemo(
     () => stepNotes(lesson, step, choices),
@@ -1786,8 +1798,8 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       kind === 'chooseMode' ||
       kind === 'chooseChords'
     ) {
-      // Chosen here, or already (the mode is asked each section): Next
-      // is the way on, and counts the step done.
+      // Chosen here, or on an earlier visit: Next is the way on, and
+      // counts the step done.
       const chosen =
         !gate &&
         (step.kind === 'chooseKey'
@@ -1940,8 +1952,12 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     return {
       code: String(i + 1),
       title: s.title,
-      // The step list groups by module (Part 2's sections), else the lesson.
-      subsection: moduleOfStep(modules, i)?.title ?? lesson.name,
+      // The step list groups by module (Part 2's sections), else the lesson;
+      // the gate's steps under its own title, a header with no round.
+      subsection:
+        moduleOfStep(modules, i)?.title ??
+        (gateOfLesson?.indices.includes(i) ? gateOfLesson.title : null) ??
+        lesson.name,
       status: literacyStepDone(s, progress)
         ? 'passed'
         : literacyStepTried(s, progress)
@@ -1983,8 +1999,10 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       chords: [],
       // Beginners meet "C Major" and "C Minor", not the modes' names.
       key: key && { ...key, title: keyName },
+      // The lesson's goal, which opens only a first visit: here always.
+      goal,
     };
-  }, [step, notes.key.tonic, mode, keyName]);
+  }, [step, notes.key.tonic, mode, keyName, goal]);
 
   /** The keys, as tall as `maxHeight` allows at their real proportions. */
   const keyboardOf = (maxHeight: number) => (
@@ -2034,6 +2052,11 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         <ChoiceGate
           key={`gate-${stacked}`}
           missing={gate}
+          chords={
+            gate.choice === 'progression'
+              ? chooserOf(lesson, gate.name)?.distinct
+              : undefined
+          }
           onGo={target >= 0 ? () => goToStep(target) : null}
         />
       );

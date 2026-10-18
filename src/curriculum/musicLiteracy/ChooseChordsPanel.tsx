@@ -25,13 +25,14 @@ import { useElementSize } from '@/hooks/useElementSize';
 import { keyName } from './ChooseKeyPanel';
 import { inkOn, KeyRing, ringPosition, type RingSlice } from './KeyRing';
 
-// ── Choose your chords ─────────────────────────────────────────────────────
-// A choose-chords step: the template as bars (| 1 | X | X | X |), and the
-// palette as the six slices around the key on the circle, each named the
-// hybrid way ("4 maj", "♭6 maj7"). A tap on a slice fills the next X (or
-// the X tapped last) and plays that chord. What's still wrong is said under
-// the bars (chords.ts progressionProblems); Hear it plays the progression,
-// and Save keeps it for the steps that play it.
+// ── Choose a Chord ─────────────────────────────────────────────────────────
+// A choose-chords step, headed "Choose a Chord" ("Choose 2 Chords"): the
+// template as bars (| 1 | X | X | X |, each X a chord the student picks),
+// and the palette as the six slices around the key on the circle, each
+// named the hybrid way ("4 maj", "♭6 maj7"). A tap on a slice fills the
+// next X (or the X tapped last) and plays that chord. What's still wrong is
+// said under the bars (chords.ts progressionProblems); Hear it plays the
+// progression, and Save keeps it for the steps that play it.
 
 /** A palette chord, where it sits on the ring and in what color. */
 interface PaletteChord extends LiteracyChord {
@@ -73,6 +74,12 @@ function initialPicks(
 
 const same = (a: readonly unknown[], b: readonly unknown[]) =>
   a.length === b.length && a.every((v, i) => v === b[i]);
+
+/** The chooser's heading: "Choose a Chord", "Choose 2 Chords". */
+export const chooserHeading = (
+  step: Pick<LiteracyChooseChordsStep, 'distinct'>,
+) =>
+  step.distinct === 1 ? 'Choose a Chord' : `Choose ${step.distinct} Chords`;
 
 export interface ChooseChordsPanelProps {
   step: LiteracyChooseChordsStep;
@@ -183,10 +190,12 @@ export function ChooseChordsPanel({
   ].sort((a, b) => around(a) - around(b));
 
   const activeBar = active === null ? null : slots[active];
+  const heading = chooserHeading(step);
+  const one = step.distinct === 1;
 
   return (
     <section
-      aria-label="Choose your chords"
+      aria-label={heading}
       data-literacy-choose="chords"
       className={cn(
         'grid min-h-0 gap-6 rounded-xl border border-white/[0.08] bg-white/[0.03] p-6 max-[639px]:p-4',
@@ -251,7 +260,7 @@ export function ChooseChordsPanel({
       >
         <div className="flex flex-col gap-1.5">
           <h2 className="text-[28px] font-normal leading-9 text-[#e8e8f0] max-[639px]:text-2xl">
-            Choose your chords
+            {heading}
           </h2>
           {step.direction && (
             <p className="text-[15px] leading-6 text-white/55">
@@ -361,7 +370,7 @@ export function ChooseChordsPanel({
               className="flex items-center gap-2 text-[15px] text-[#e8e8f0]"
             >
               <Check className="size-4 text-success-base" />
-              Saved. The next steps play your chords.
+              Saved. The next steps play {one ? 'this chord' : 'these chords'}.
             </p>
           ) : (
             <p className="text-[15px] text-[#e8e8f0]">
@@ -392,6 +401,8 @@ export function ChooseChordsPanel({
                 <Check className="size-4" />
                 Saved
               </>
+            ) : one ? (
+              'Save my chord'
             ) : (
               'Save my chords'
             )}

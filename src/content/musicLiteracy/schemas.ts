@@ -28,15 +28,18 @@ import { SLUG_PATTERN } from '@/content/graph/ids';
  *
  *   keyChoice  'student': the student picks the key (a choose-key step) and
  *              the mode (a choose-mode step); `key` is then the default and
- *              the editor's preview key.
+ *              the editor's preview key. Choose steps alone in the first
+ *              section make it the lesson's gate (`lessonGateSection`):
+ *              chosen once there, the key and mode hold for every step
+ *              after, and the gate is not a module.
  *   numbering  'scale': '3' is the 3rd of the mode, so minor's 3, 6 and 7
  *              are ♭3, ♭6 and ♭7 (natural minor). Left out, 'chromatic':
  *              '3' is always the major 3rd, as Part 1 writes it.
- *   modules    the lesson's sections as modules, each by its section's
- *              title, with a goal and the round a student is offered once
- *              they pass it: 'create' (their own call, played twice),
- *              'challenge' (play ALL the notes) or 'none'. A lesson with no
- *              sections is one module (Part 1).
+ *   modules    the lesson's sections as modules (all but the gate), each
+ *              by its section's title, with a goal and the round a student
+ *              is offered once they pass it: 'create' (their own call,
+ *              played twice), 'challenge' (play ALL the notes) or 'none'. A
+ *              lesson with no sections is one module (Part 1).
  *   goal       the lesson's one directive, shown at its start.
  *   passes     the round of a module that names none: the create round
  *              when `create` is on, else the challenge when `challenge` is
@@ -418,8 +421,10 @@ export const musicLiteracyBodySchema = z
     /** Each step's module, by its title. */
     const moduleTitles = stepModuleTitles(body.steps);
 
-    // A module is a section: listed once, by a title its steps use.
+    // A module is a section: listed once, by a title its steps use. The
+    // gate is not one.
     const sections = new Set(body.steps.flatMap((step) => step.section ?? []));
+    const gate = lessonGateSection(body.steps);
     const listed = new Set<string>();
     body.modules?.forEach((module, m) => {
       const at: Path = ['modules', m, 'title'];
@@ -427,6 +432,12 @@ export const musicLiteracyBodySchema = z
         issue(ctx, at, `Module "${module.title}" is listed twice`);
       else if (!sections.has(module.title))
         issue(ctx, at, `No steps are in a section called "${module.title}"`);
+      else if (module.title === gate?.title)
+        issue(
+          ctx,
+          at,
+          `"${module.title}" is the gate, where students choose: it has no goal or round`,
+        );
       listed.add(module.title);
     });
 
@@ -709,6 +720,34 @@ export function stepModuleTitles(
   }
   const first = titles.find((title) => title !== null) ?? null;
   return titles.map((title) => title ?? first);
+}
+
+/** A gate's kind of step: it chooses the key, or major or minor. */
+export const isGateStep = (step: Pick<LiteracyStep, 'kind'>): boolean =>
+  step.kind === 'chooseKey' || step.kind === 'chooseMode';
+
+/** The lesson's gate: its section's title and its steps' places. */
+export interface LiteracyGateSection {
+  title: string;
+  indices: number[];
+}
+
+/**
+ * The lesson's gate: its first section, when every step in it chooses the
+ * key or major or minor, and other steps follow it. The student makes those
+ * choices there, once, and every step after plays in them. A gate is not a
+ * module: no goal, no round, no card. Null when the lesson has none (no
+ * sections, as Part 1; a first section with any other step in it).
+ */
+export function lessonGateSection(
+  steps: readonly Pick<LiteracyStep, 'kind' | 'section'>[],
+): LiteracyGateSection | null {
+  const titles = stepModuleTitles(steps);
+  const title = titles[0];
+  if (title === null || title === undefined) return null;
+  const indices = titles.flatMap((t, i) => (t === title ? [i] : []));
+  if (indices.length === steps.length) return null;
+  return indices.every((i) => isGateStep(steps[i])) ? { title, indices } : null;
 }
 
 /**

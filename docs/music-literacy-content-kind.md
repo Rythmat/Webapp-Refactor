@@ -59,7 +59,7 @@ types; `int` is an integer.
 | `numbering`     | `chromatic` \| `scale`    | no       | Part 2. How degrees read; left out, `chromatic` (Part 1). Below, **Part 2**.                                         |
 | `passes`        | `{ challenge?, create? }` | no       | The default round of a module that names none; left out, the challenge (Part 1's). Below, **Modules**.               |
 | `goal`          | string                    | no       | Part 2. The lesson's one directive, shown before its first step. Not empty. Below, **Modules**.                      |
-| `modules`       | module[]                  | no       | Part 2. Its sections' goals and rounds, each by its section's title. Below, **Modules**.                             |
+| `modules`       | module[]                  | no       | Part 2. Its sections' goals and rounds (the gate has none), each by its section's title. Below, **Modules**.         |
 | `tempo`         | number > 0                | yes      | Quarter-note bpm.                                                                                                    |
 | `timeSignature` | [int, int]                | yes      | Both ≥ 1.                                                                                                            |
 | `countInBars`   | int 0–2                   | yes      |                                                                                                                      |
@@ -149,10 +149,10 @@ rules and messages are below.
 
 "Part 2 · Choose a color" (the Start Here path's second stop): the
 student picks a key center on the circle of fifths and major or minor,
-then plays melodies and chord progressions in it, module by module: each
-module's steps as Atlas's calls, echoed, then once the module is passed, a
-second time through as calls of their own (the module's create round). The
-seed is
+once, at the gate that opens the lesson, then plays melodies and chord
+progressions in it, module by module: each module's steps as Atlas's
+calls, echoed, then once the module is passed, a second time through as
+calls of their own (the module's create round). The seed is
 `src/curriculum/data/musicLiteracy/music-literacy-part-2.json`, live: the
 Learn player plays every kind below (`src/curriculum/musicLiteracy/`, with
 the step-done rule in `stepDone.ts`). Every field below is optional or a new kind,
@@ -163,10 +163,35 @@ so a Part 1 file means exactly what it did: no kind is an echo, no
 ### The lesson's key, the student's choice
 
 `"keyChoice": "student"` makes the key the student's: a `chooseKey` step
-picks the tonic and a `chooseMode` step the mode (Part 2 asks for the mode
-again as its melodies and its chords begin). Until they choose, and in the editor's
-preview, the lesson plays in `key`. A choose step in a lesson whose key is
-its own is refused.
+picks the tonic and a `chooseMode` step the mode, once, in the lesson's
+gate (below), and every step after plays in them. Until they choose, and
+in the editor's preview, the lesson plays in `key`. A choose step in a
+lesson whose key is its own is refused.
+
+### The gate
+
+The owner: "Choose a Color is just choosing a key center as the first step
+of creating a melody and then chord progressions. It's a gate, not a
+module." And: "We should stay in the same key center and maj/min choice
+throughout."
+
+**The rule.** A lesson's **first section is its gate when every step in
+it is a `chooseKey` or `chooseMode` step**, and other steps follow it
+(`lessonGateSection` in `schemas.ts`). Nothing marks it: a lesson's
+author makes one by putting the choose steps, alone, first. Without one
+(no sections, as Part 1; a first section with any other step in it) the
+lesson has none and reads as it always has.
+
+- **Not a module.** No goal, no round, no "Module done!" card, and no
+  entry in `modules` (one is refused, below). The player's intro and
+  Start Here count the modules after it.
+- **Chosen once.** Every step after the gate needs the key and the mode,
+  whatever it plays: a student who skipped the gate is sent back to it
+  (`missingChoices`, `choices.ts`). Without a gate, a step needs the mode
+  only when it sounds different in major and minor.
+- **Asked once.** A `chooseKey` or `chooseMode` step outside the gate is
+  allowed, but the editor warns that it asks again and offers to move it
+  in (Part 2's seed has none).
 
 The register stays the series': the 1 sits F♯3–F4, melodies run from the
 low 5 to the 5 above, and chords are voiced in root position with every
@@ -192,10 +217,10 @@ and `tempo` (the tempo whatever it plays runs at).
 | Kind           | Fields                                                                              | What the student does                                                                            |
 | -------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `echo`         | `words?`, `call`, `response?`, `passes?`, `passMark?` (above)                       | Plays Atlas's call back; in its module's create round, a call of their own, then repeats it.     |
-| `chooseKey`    | none                                                                                | Picks the tonic on the circle of fifths, in the key colors ("choose a color").                   |
-| `chooseMode`   | none                                                                                | Picks major or minor.                                                                            |
+| `chooseKey`    | none                                                                                | Picks the tonic on the circle of fifths, in the key colors ("choose a color"). In the gate.      |
+| `chooseMode`   | none                                                                                | Picks major or minor. In the gate.                                                               |
 | `chooseChords` | `template` (`1`/`X` bars, 1–8), `distinct` (int ≥ 1), `harmony`, `saveAs` (a tag)   | Fills the X bars from the mode's palette with `distinct` different chords; saved under `saveAs`. |
-| `replay`       | `progression` (a saved name), `harmonies?` (left out: triads, then 7ths), `rhythm?` | Listens: Atlas plays their progression once in each harmony. Nothing is graded.                  |
+| `replay`       | `progression` (a saved name), `harmonies?` (left out: triads, then 7ths), `rhythm?` | Listens: Atlas plays their progression once in each harmony. Nothing is graded; optional.        |
 
 ```json
 {
@@ -214,6 +239,23 @@ and `tempo` (the tempo whatever it plays runs at).
   "section": "Choose a Color",
   "title": "Major or minor?",
   "direction": "Pick one. It sets your 3."
+}
+```
+
+A choose-chords step with one X is "Choose a Chord", told "Pick a chord.":
+the X is plainly the student's choice, so no title says "your X".
+
+```json
+{
+  "kind": "chooseChords",
+  "tag": "choose-your-x",
+  "section": "Chords",
+  "title": "Choose a Chord",
+  "direction": "Pick a chord.",
+  "template": ["1", "X"],
+  "distinct": 1,
+  "harmony": "triads",
+  "saveAs": "one-and-x"
 }
 ```
 
@@ -246,7 +288,7 @@ A melodic echo is Part 1's shape, with no words:
 ```json
 {
   "tag": "play-1-3-1",
-  "section": "Choose a Color",
+  "section": "Create a Melody",
   "title": "1-3-1",
   "direction": "Listen, then play it back.",
   "call": {
@@ -380,23 +422,29 @@ call. The teacher's turn is graded, so a wrong key there shows gray.
 ### Modules
 
 A lesson is a run of **modules**: each section is one (Part 2's "Create a
-Melody", "Chords"…), and a lesson with no sections is one module, the
-whole lesson (Part 1). A step with no section, in a lesson that has them,
-goes with the section of the step before it (the first steps, with the
-section after them).
+Melody", "Chords"…), but the gate, and a lesson with no sections is one
+module, the whole lesson (Part 1). A step with no section, in a lesson
+that has them, goes with the section of the step before it (the first
+steps, with the section after them).
 
 Each module has a **goal**, said on its card, and a **round**: what the
 student is offered once they **pass the module**, meaning every step of it
 is done as `stepDone.ts` counts a step (an echo played back well enough, a
-choice made, a replay heard).
+choice made), a replay aside.
+
+**Replays are optional** (the owner: "Replays are optional, absolutely").
+A replay heard to the end is done, and its step shows the check, but
+nothing waits for it: not its module's pass, card or round, not the
+lesson's "done" on Start Here, not Continue, which goes past it.
 
 | Round       | What the student does                                                                                               |
 | ----------- | ------------------------------------------------------------------------------------------------------------------- |
 | `create`    | Goes through the module's echoes again, each as its create pass: their own call, then their repeat of it (Part 2).  |
 | `challenge` | Goes through the module's melodies again, each as the challenge: play ALL the notes along with Atlas, just for fun. |
-| `none`      | Nothing more ("Choose a Color").                                                                                    |
+| `none`      | Nothing more.                                                                                                       |
 
-The lesson's `modules` set them, one entry a section, matched by title:
+The lesson's `modules` set them, one entry a section (never the gate),
+matched by title:
 
 | Field   | Type                              | Required | Notes                                                                                                                                             |
 | ------- | --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -420,12 +468,15 @@ create a melody, a chord comping rhythm, or a chord progression with a
 rhythm, and play it the same way twice." A lesson without one (Part 1)
 shows none.
 
-Part 2's seed:
+Part 2's seed opens on the gate, "Choose a Color" (Choose your key, then
+Major or minor?), then its four modules: Create a Melody (22 steps, from
+the rhythm on the 1, 1-3-1, the rhythm on 1 and 3, Add the 5: 1-3-5 and
+the rhythm on 1-3-5, then up 1-2-3 onward), Chords (4), Progressions (11)
+and 7th Chords (16), 55 steps in all. Its `modules`:
 
 ```json
 "goal": "Your goal: create a melody, a chord comping rhythm, or a chord progression with a rhythm, and play it the same way twice.",
 "modules": [
-  { "title": "Choose a Color", "round": "none" },
   {
     "title": "Create a Melody",
     "goal": "Create a melody and play it the same way twice.",
@@ -452,7 +503,13 @@ Part 2's seed:
 **In the player** (`src/curriculum/musicLiteracy/`):
 
 - Part 2 opens on the lesson's goal, a card before Choose your key, with
-  its modules in order (not when Start Here's Continue opens a step).
+  its modules in order, the gate not among them: on a student's first
+  visit only (no progress saved yet; not when Start Here's Continue opens
+  a step). A second run goes straight in. About this step says the goal
+  again, on every step.
+- The gate opens the lesson: the key on the circle, then major or minor,
+  under "Choose a Color" in the step list, a header with no round. No
+  card follows it: its Next goes on to Create a Melody's first step.
 - Every step is played as its echo; no step offers more after its result.
 - Passing a module's last echo (once the rest is passed) shows the
   module's card in the result's place: "Module done! Now go again and
@@ -467,7 +524,9 @@ Part 2's seed:
 - Once a module is passed, its header in the step list offers its round
   ("Create your own ›", ✓ once every round step has passed).
 - Start Here and the Home card still count the steps (their echoes), and
-  mark the rounds done: "1 of 4 create rounds", "Challenge done".
+  mark the rounds done: "1 of 4 create rounds", "Challenge done". A
+  replay not heard holds nothing up: the stop is done without it ("Done:
+  54 of 55 steps").
 
 A round's progress is its steps' pass keys (`<tag>:create`,
 `<tag>:challenge`): nothing is keyed by a module's title, which can be
@@ -529,7 +588,8 @@ its bars out`.
 - Create bars only in a create round, not opted out: `Create-pass bars on
 a step without a create pass`.
 - A module listed once, by a section its steps use: `Module "…" is listed
-twice`, `No steps are in a section called "…"`.
+twice`, `No steps are in a section called "…"`; never the gate: `"…" is
+the gate, where students choose: it has no goal or round`.
 
 ### Where the code is
 
@@ -540,7 +600,7 @@ twice`, `No steps are in a section called "…"`.
 | Chords, palette, voicing, progressions              | `chords.ts`                                    |
 | The student's choices                               | `choices.ts`                                   |
 | Which passes a step has                             | `passes.ts`                                    |
-| Modules: their rounds, goals, round steps, progress | `modules.ts` (and `schemas.ts`'s `stepRound`)  |
+| The gate; modules, their rounds, goals and progress | `modules.ts` (and `schemas.ts`'s `stepRound`)  |
 | Grading: the echo, the challenge                    | `grading.ts`                                   |
 | Grading a chord echo                                | `chordGrading.ts`                              |
 | The create pass                                     | `createPass.ts`                                |
@@ -557,7 +617,9 @@ twice`, `No steps are in a section called "…"`.
 The mock's is in `src/features/admin/content/mock/mockKinds.ts`
 (`templateFor`, from `src/content/musicLiteracy/template.ts`): a draft in C
 major at 80 with a one-bar count-in, and one step whose line is four quarter
-notes on the 1 and whose call is three, with an empty name to fill in.
+notes on the 1 and whose call is three, with an empty name to fill in. The
+editor's Add step makes the other kinds from the same file: a choose-chords
+step, "Choose a Chord", is told "Pick a chord." on `| 1 | X |`.
 
 ## What the API needs
 
@@ -585,11 +647,14 @@ notes on the 1 and whose call is three, with an empty name to fill in.
   control sets a pickup: its chips sit before a double bar (‖) and count
   the pickup bar's beats ("4", "4&"). Each section's header holds its
   module's Goal and Round (Create, Challenge or None, each said in a
-  line), and renaming a section takes its module along; the lesson's
-  settings hold its Goal and its default Round (for Part 1, the lesson's
-  round). A step's In the round setting leaves it out. Its
-  `records/music_literacy[/:id]` URLs redirect there, and a lesson's Learn
-  page in the console offers Edit lesson.
+  line), but the gate's, which says "Gate · the student's key and
+  major/minor" and has neither; a choose-key or choose-mode step outside
+  it is marked "outside the gate", with Move it to the gate. Renaming a
+  section takes its module along; the lesson's settings hold its Goal and
+  its default Round (for Part 1, the lesson's round). A step's In the
+  round setting leaves it out. Its `records/music_literacy[/:id]` URLs
+  redirect there, and a lesson's Learn page in the console offers Edit
+  lesson.
 - **Saving.** Through the content API when `/capabilities` serves the kind;
   repo mode (`VITE_CONTENT_REPO=1`) does today
   (`src/scripts/repoContent/sources/instrumentContent.ts`, one file per

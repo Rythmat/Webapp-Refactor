@@ -10,14 +10,20 @@ import {
   LITERACY_FIXTURE,
   type LiteracyFixtureStep,
 } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
-import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
+import {
+  PART2_FIXTURE,
+  PART2_GATED_FIXTURE,
+  PART2_STEPS,
+} from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
 import { repoPrettierOptions } from '@/scripts/repoContent/tsWrite';
 import { choiceOf, STEP_CHOICES } from '../literacyKinds';
 import {
   addStep,
   addStepOfChoice,
   canonicalLesson,
+  chooseStepWarning,
   duplicateStep,
+  gateSlot,
   indexAfterMove,
   issueItems,
   issuesAt,
@@ -29,6 +35,7 @@ import {
   lessonPass,
   lessonRound,
   moduleEntry,
+  moveIntoGate,
   moveStep,
   moveStepTo,
   removeStep,
@@ -410,15 +417,15 @@ describe('a step of each kind (Add step’s menu)', () => {
     );
     const [first, second] = twice.steps.slice(-2);
     expect(first.kind === 'chooseChords' && first.saveAs).toBe(
-      'choose-your-chords',
+      'choose-a-chord',
     );
     expect(second.kind === 'chooseChords' && second.saveAs).toBe(
-      'choose-your-chords-2',
+      'choose-a-chord-2',
     );
     const replay = addStepOfChoice(twice, 'replay');
     expect(replay.steps.at(-1)).toMatchObject({
       kind: 'replay',
-      progression: 'choose-your-chords-2',
+      progression: 'choose-a-chord-2',
     });
     // Before any choose-chords step: one to name, which the schema flags.
     const early = addStepOfChoice(PART2_FIXTURE, 'replay', 1);
@@ -651,6 +658,84 @@ describe('modules', () => {
         path: ['modules', 2, 'title'],
         where: 'Module “Warm-up”',
         message: 'No steps are in a section called "Warm-up"',
+      },
+    ]);
+  });
+});
+
+describe('the gate', () => {
+  const gated = PART2_GATED_FIXTURE;
+  /** The gate with major or minor asked again, in Chords, at step 6. */
+  const again: MusicLiteracyLesson = {
+    ...gated,
+    steps: [
+      ...gated.steps.slice(0, 5),
+      { ...PART2_STEPS.mode, tag: 'mode-again', section: 'Chords' },
+      ...gated.steps.slice(5),
+    ],
+  };
+
+  it('warns at a choose step outside it, never at one in it', () => {
+    expect(chooseStepWarning(gated, 0)).toBeNull();
+    expect(chooseStepWarning(gated, 1)).toBeNull();
+    expect(chooseStepWarning(gated, 2)).toBeNull(); // 1-3-5
+    expect(chooseStepWarning(again, 5)).toMatch(
+      /once, in “Choose a Color” at the start\. This step asks again/,
+    );
+    // No gate: how to make one. A lesson that picks the key: the schema's.
+    expect(chooseStepWarning(PART2_FIXTURE, 2)).toMatch(
+      /put the choose steps alone in the first section/,
+    );
+    expect(chooseStepWarning({ ...gated, keyChoice: undefined }, 0)).toBeNull();
+  });
+
+  it('moves one in: the key first, major or minor last', () => {
+    expect(gateSlot(again, 5)).toEqual({ to: 2, section: 'Choose a Color' });
+    const moved = moveIntoGate(again, 5);
+    expect(moved.steps.slice(0, 3).map((st) => [st.tag, st.section])).toEqual([
+      ['choose-key', 'Choose a Color'],
+      ['choose-mode', 'Choose a Color'],
+      ['mode-again', 'Choose a Color'],
+    ]);
+    const key = {
+      ...again,
+      steps: [
+        ...again.steps.slice(0, 5),
+        { ...PART2_STEPS.key, tag: 'key-again', section: 'Chords' },
+        ...again.steps.slice(6),
+      ],
+    };
+    expect(gateSlot(key, 5)?.to).toBe(0);
+    expect(moveIntoGate(key, 5).steps[0].tag).toBe('key-again');
+    // Nothing to move: in the gate already, another kind, or no gate.
+    expect(gateSlot(again, 1)).toBeNull();
+    expect(gateSlot(again, 2)).toBeNull();
+    expect(gateSlot(PART2_FIXTURE, 2)).toBeNull();
+    expect(moveIntoGate(PART2_FIXTURE, 2)).toBe(PART2_FIXTURE);
+  });
+
+  it('drops a module entry its section has become the gate', () => {
+    // Choose a Color's last echo goes, and it is the gate: its entry goes.
+    const lesson: MusicLiteracyLesson = {
+      ...PART2_FIXTURE,
+      steps: PART2_FIXTURE.steps.map((st, i) =>
+        i < 3 ? { ...st, section: 'Choose a Color' } : st,
+      ),
+      modules: [
+        { title: 'Choose a Color', round: 'none' },
+        { title: 'Chords', goal: 'Comp it.' },
+      ],
+    };
+    const gone = removeStep(lesson, 1);
+    expect(gone.modules).toEqual([{ title: 'Chords', goal: 'Comp it.' }]);
+    expect(lessonIssues(gone)).toEqual([]);
+    // Left in, the schema names it.
+    expect(lessonIssues({ ...gone, modules: lesson.modules })).toEqual([
+      {
+        path: ['modules', 0, 'title'],
+        where: 'Module “Choose a Color”',
+        message:
+          '"Choose a Color" is the gate, where students choose: it has no goal or round',
       },
     ]);
   });

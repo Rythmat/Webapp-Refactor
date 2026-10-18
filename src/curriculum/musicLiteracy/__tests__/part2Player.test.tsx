@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 /**
  * Part 2 in the player, as a student meets it: the lesson's goal before its
- * first step; choosing a key on the circle and major or minor, choosing
+ * first step, on a first visit only (About this step keeps it); the gate,
+ * where the key and major or minor are chosen once, with no module card;
+ * choosing a key on the circle and major or minor, choosing
  * chords from the palette (the problems, Hear it, Save) with the choices
  * kept on the device; a step waiting for a choice with its link; a chord
  * echo graded; the replay; and the modules: no offer after a step, the
@@ -27,7 +29,10 @@ import type {
   LiteracyStep,
   MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
-import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
+import {
+  PART2_FIXTURE,
+  PART2_GATED_FIXTURE,
+} from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
 import {
   choicesStorageKey,
   emptyChoices,
@@ -226,6 +231,94 @@ describe('the lesson’s goal', () => {
     renderPlayer('one-three-five');
     expect(document.querySelector('[data-literacy-intro]')).toBeNull();
     expect(title()).toBe('1-3-5');
+  });
+});
+
+describe('the gate', () => {
+  /** The fixture opening on a gate, under the same storage keys. */
+  const gated: MusicLiteracyLesson = { ...PART2_GATED_FIXTURE, id: lesson.id };
+  const crumb = () =>
+    document.querySelector('[data-crumb-subsection]')?.textContent;
+
+  it('opens a first run on the goal, then the gate: the key, major or minor, then Create a Melody', async () => {
+    renderPlayer(undefined, gated);
+    const intro = document.querySelector('[data-literacy-intro]')!;
+    expect(intro).toBeTruthy();
+    // The modules: the gate is none of them.
+    expect(
+      [...intro.querySelectorAll('[data-intro-module]')].map((m) =>
+        m.getAttribute('data-intro-module'),
+      ),
+    ).toEqual(['Create a Melody', 'Chords', '7th Chords']);
+    await press('Let’s go');
+    expect(title()).toBe('Choose your key');
+    expect(crumb()).toBe('Choose a Color');
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('radio', { name: 'E♭ Major' }));
+    });
+    await press('Next');
+    expect(title()).toBe('Major or minor?');
+    await act(async () => {
+      fireEvent.click(screen.getByRole('radio', { name: /E♭ Minor/ }));
+    });
+    expect(savedChoices()).toMatchObject({ tonic: 'Eb', mode: 'minor' });
+    // The gate done: no module card, no round, just on.
+    expect(document.querySelector('[data-literacy-module-done]')).toBeNull();
+    expect(screen.queryByRole('button', { name: /Create your own/ })).toBe(
+      null,
+    );
+    await press('Next');
+    expect(title()).toBe('1-3-5');
+    expect(crumb()).toBe('Create a Melody');
+    // In the gate's key and mode, with nothing more to choose.
+    expect(
+      document.querySelector('[data-literacy-key]')?.textContent,
+    ).toContain('E♭ Minor');
+    expect(document.querySelector('[data-literacy-gate]')).toBeNull();
+  });
+
+  it('skips the goal on a second run, and keeps it in About this step', async () => {
+    saveChoices(cMajor);
+    passed('choose-key');
+    renderPlayer(undefined, gated);
+    expect(document.querySelector('[data-literacy-intro]')).toBeNull();
+    expect(title()).toBe('Choose your key');
+    await act(async () => {
+      fireEvent.click(document.querySelector('[data-guitar-about]')!);
+    });
+    expect(document.querySelector('[data-about-goal]')?.textContent).toContain(
+      DEFAULT_LESSON_GOAL,
+    );
+  });
+
+  it('sends a student who skipped it back, for major or minor too', async () => {
+    saveChoices(withTonic(emptyChoices(), 'D'));
+    renderPlayer('one-three-five', gated);
+    expect(
+      screen.getByRole('heading', { name: 'First, choose major or minor' }),
+    ).toBeTruthy();
+    await press('Choose major or minor');
+    expect(title()).toBe('Major or minor?');
+    expect(crumb()).toBe('Choose a Color');
+  });
+
+  it('heads the step list with no round, the modules after it', async () => {
+    saveChoices(cMajor);
+    passed('choose-key', 'choose-mode');
+    renderPlayer('one-three-five', gated);
+    const list = await openStepList();
+    expect([...list.querySelectorAll('h3')].map((h) => h.textContent)).toEqual([
+      'Choose a Color',
+      'Create a Melody',
+      'Chords',
+      '7th Chords',
+    ]);
+    // Its steps are done, and its header offers nothing.
+    expect(
+      screen.getByRole('button', { name: '1: Choose your key: passed' }),
+    ).toBeTruthy();
+    expect(list.querySelector('[data-group-action]')).toBeNull();
   });
 });
 
@@ -456,14 +549,33 @@ describe('a step that needs a choice', () => {
     saveChoices(cMajor);
     renderPlayer('hear-four');
     expect(
-      screen.getByRole('heading', { name: 'First, choose your chords' }),
+      screen.getByRole('heading', { name: 'First, choose the chords' }),
     ).toBeTruthy();
     await act(async () => {
       fireEvent.click(
-        screen.getByRole('button', { name: 'Choose your chords' }),
+        screen.getByRole('button', { name: 'Choose the chords' }),
       );
     });
     expect(title()).toBe('Four chords');
+
+    // A progression of one chosen chord: "a chord".
+    cleanup();
+    saveChoices(cMajor);
+    renderPlayer('play-1-x');
+    expect(
+      screen.getByRole('heading', { name: 'First, choose a chord' }),
+    ).toBeTruthy();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Choose a chord' }));
+    });
+    expect(title()).toBe('Choose your X');
+    // The chooser says so too.
+    expect(
+      screen.getByRole('heading', { name: 'Choose a Chord' }),
+    ).toBeTruthy();
+    expect(document.querySelector('[data-literacy-save]')?.textContent).toBe(
+      'Save my chord',
+    );
   });
 });
 

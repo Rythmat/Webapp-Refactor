@@ -1079,7 +1079,10 @@ export const ReplayBody: FC<BodyProps<LiteracyReplayStep>> = ({
 
 // ── The choose steps ───────────────────────────────────────────────────────
 
-/** What a choose-key or choose-mode student sees, and a fix when it's lost. */
+/**
+ * What a choose-key or choose-mode student sees, and a fix when it's lost.
+ * (Outside the gate, its row warns that it asks again: LiteracyStepList.)
+ */
 export const ChooseBody: FC<
   BodyProps<LiteracyChooseKeyStep | LiteracyChooseModeStep>
 > = ({ lesson, step, issues, onLesson }) => {
@@ -1090,7 +1093,7 @@ export const ChooseBody: FC<
       hint={
         step.kind === 'chooseKey'
           ? 'The circle of fifths in the key colors. They tap a color, and its note is their 1 from here on.'
-          : 'Two buttons, Major and Minor. Their pick sets their 3, 6 and 7, and their chords, for the steps after it.'
+          : 'Two buttons, Major and Minor. Their pick sets their 3, 6 and 7, and their chords, for every step after it.'
       }
     >
       {step.kind === 'chooseKey' ? (

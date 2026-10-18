@@ -7,7 +7,7 @@ import {
 // ── First, choose ──────────────────────────────────────────────────────────
 // A Part 2 step that plays in the student's key, mode or chords waits until
 // they've chosen them (choices.ts missingChoices): one friendly line and a
-// link to the step that chooses.
+// link to the step that chooses (the gate's, for the key and the mode).
 
 /** The circle's twelve colors, as a little wheel. */
 const WHEEL = `conic-gradient(from -15deg, ${circleOfFifths('major')
@@ -29,23 +29,38 @@ const COPY: Record<
     go: 'Choose major or minor',
   },
   progression: {
-    heading: 'First, choose your chords',
+    heading: 'First, choose the chords',
     line: 'This step plays the chords you pick.',
-    go: 'Choose your chords',
+    go: 'Choose the chords',
   },
 };
 
-/** The words for a missing choice: the gate's heading and its link. */
-export const gateCopy = (missing: MissingChoice) => COPY[missing.choice];
+/** A progression of one chosen chord: "a chord", not "the chords". */
+const ONE_CHORD = {
+  heading: 'First, choose a chord',
+  line: 'This step plays the chord you pick.',
+  go: 'Choose a chord',
+};
+
+/**
+ * The words for a missing choice: its heading and its link. A progression
+ * says "a chord" when its step picks just one (`chords`, its distinct count).
+ */
+export const gateCopy = (missing: MissingChoice, chords?: number) =>
+  missing.choice === 'progression' && chords === 1
+    ? ONE_CHORD
+    : COPY[missing.choice];
 
 export interface ChoiceGateProps {
   missing: MissingChoice;
+  /** How many different chords the progression's step picks, if known. */
+  chords?: number;
   /** Open the step that makes the choice; null when the lesson has none. */
   onGo: (() => void) | null;
 }
 
-export function ChoiceGate({ missing, onGo }: ChoiceGateProps) {
-  const copy = COPY[missing.choice];
+export function ChoiceGate({ missing, chords, onGo }: ChoiceGateProps) {
+  const copy = gateCopy(missing, chords);
   return (
     <section
       aria-label={copy.heading}

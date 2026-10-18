@@ -1,8 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { KEY_OF_COLORS } from '@/constants/theme';
-import type { LiteracyChooseChordsStep } from '@/content/musicLiteracy/schemas';
+import type {
+  LiteracyChooseChordsStep,
+  LiteracyStep,
+  MusicLiteracyLesson,
+} from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '../__fixtures__/literacyFixture';
-import { PART2_FIXTURE, part2Step } from '../__fixtures__/part2Fixture';
+import {
+  PART2_FIXTURE,
+  PART2_GATED_FIXTURE,
+  PART2_STEPS,
+  part2Step,
+} from '../__fixtures__/part2Fixture';
 import {
   LITERACY_CHOICES_VERSION,
   choicesStorageKey,
@@ -211,6 +220,60 @@ describe('what a step still needs', () => {
     expect(missingChoices(lesson, part2Step('hear-four'), all)).toEqual([
       { choice: 'progression', name: 'four', at: 'choose-four' },
     ]);
+  });
+
+  it('with a gate, sends a student who skipped it back there, for both', () => {
+    // A melody on the 1 alone sounds the same in major and minor; past the
+    // gate it still waits for the mode, chosen once for every step.
+    const ones: LiteracyStep = {
+      tag: 'ones',
+      section: 'Create a Melody',
+      title: 'Ones',
+      call: {
+        bars: 1,
+        notes: [{ tick: 0, duration: 480, degree: '1' }],
+      },
+    };
+    const gated: MusicLiteracyLesson = {
+      ...PART2_GATED_FIXTURE,
+      steps: [
+        ...PART2_GATED_FIXTURE.steps.slice(0, 2),
+        ones,
+        ...PART2_GATED_FIXTURE.steps.slice(2),
+      ],
+    };
+    const keyed = withTonic(emptyChoices(), 'D');
+    expect(missingChoices(gated, ones, emptyChoices())).toEqual([
+      { choice: 'key', at: 'choose-key' },
+      { choice: 'mode', at: 'choose-mode' },
+    ]);
+    expect(missingChoices(gated, ones, keyed)).toEqual([
+      { choice: 'mode', at: 'choose-mode' },
+    ]);
+    expect(missingChoices(gated, ones, withMode(keyed, 'minor'))).toEqual([]);
+    // Without a gate it plays in either.
+    const ungated = {
+      ...PART2_FIXTURE,
+      steps: [...PART2_FIXTURE.steps, ones],
+    };
+    expect(missingChoices(ungated, ones, keyed)).toEqual([]);
+    // In the gate: the key first, then major or minor.
+    expect(missingChoices(gated, gated.steps[0], emptyChoices())).toEqual([]);
+    expect(missingChoices(gated, gated.steps[1], emptyChoices())).toEqual([
+      { choice: 'key', at: 'choose-key' },
+    ]);
+    // A step asking again later never takes the gate's place.
+    const again: MusicLiteracyLesson = {
+      ...gated,
+      steps: [
+        ...gated.steps,
+        { ...PART2_STEPS.mode, tag: 'mode-again', section: '7th Chords' },
+        { ...ones, tag: 'ones-again', section: '7th Chords' },
+      ],
+    };
+    expect(
+      missingChoices(again, again.steps.at(-1)!, keyed).map((m) => m.at),
+    ).toEqual(['choose-mode']);
   });
 
   it('needs nothing in Part 1', () => {

@@ -13,7 +13,11 @@ import { pitchClassOf } from '@/curriculum/engine/musicLiteracy/pitch';
 import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { colorForKeyMode } from '@/lib/modeColorShift';
-import { literacyStepDone, literacyStepTried } from './stepDone';
+import {
+  literacyStepDone,
+  literacyStepRequired,
+  literacyStepTried,
+} from './stepDone';
 import { readLiteracyChoices } from './useLiteracyChoices';
 import {
   readLiteracyProgress,
@@ -96,8 +100,9 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
 /**
  * soon     not open yet
  * new      open, nothing tried
- * started  a step tried, not every step passed
- * done     every step done (stepDone.ts; a stop with no lesson never is)
+ * started  a step tried, not every required step done
+ * done     every step done but those nothing waits for, a replay
+ *          (stepDone.ts; a stop with no lesson never is)
  */
 export type LiteracyStopStatus = 'soon' | 'new' | 'started' | 'done';
 
@@ -133,7 +138,7 @@ export interface LiteracyStopState {
   /** A lesson stop's steps, in order; empty for any other stop. */
   steps: readonly LiteracyStepMark[];
   passed: number;
-  /** The first step not yet passed: where Continue opens. */
+  /** The first step not yet passed, a replay aside: where Continue opens. */
   next: { index: number; title: string } | null;
   /** Its module rounds; null for a stop without a lesson, or none. */
   rounds: LiteracyStopRounds | null;
@@ -206,7 +211,10 @@ export function literacyStopState(
           : 'todo',
   );
   const passed = steps.filter((mark) => mark === 'passed').length;
-  const nextIndex = steps.findIndex((mark) => mark !== 'passed');
+  // A replay is there to listen to: nothing waits for it.
+  const nextIndex = steps.findIndex(
+    (mark, i) => mark !== 'passed' && literacyStepRequired(lesson.steps[i]),
+  );
   const status: LiteracyStopStatus =
     nextIndex === -1
       ? 'done'

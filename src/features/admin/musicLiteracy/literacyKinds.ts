@@ -72,7 +72,7 @@ export const STEP_CHOICES: readonly StepChoiceInfo[] = [
     name: 'Choose a key',
     short: 'Choose a key',
     description:
-      'The student picks a color on the circle of fifths. Its note is their 1.',
+      'The student picks a color on the circle of fifths, once, in the gate at the start. Its note is their 1.',
     title: 'Choose your key',
     studentKeyOnly: true,
   },
@@ -82,19 +82,20 @@ export const STEP_CHOICES: readonly StepChoiceInfo[] = [
     kind: 'chooseMode',
     name: 'Choose major or minor',
     short: 'Major or minor',
-    description: 'The student picks major or minor for the steps after it.',
+    description:
+      'The student picks major or minor, once, in the gate at the start.',
     title: 'Major or minor?',
     studentKeyOnly: true,
   },
   {
     choice: 'chooseChords',
-    directionHint: 'Fill the X bars with chords you like.',
+    directionHint: 'Pick a chord.',
     kind: 'chooseChords',
-    name: 'Choose chords',
-    short: 'Choose chords',
+    name: 'Choose a chord',
+    short: 'Choose a chord',
     description:
-      'The student fills the X bars with chords. Later steps play what they saved.',
-    title: 'Choose your chords',
+      'The student picks a chord for each X bar. Later steps play what they saved.',
+    title: 'Choose a Chord',
   },
   {
     choice: 'replay',

@@ -65,7 +65,7 @@ export function blankStepOfKind(
         kind,
         tag,
         title,
-        direction: 'Pick a chord for X.',
+        direction: 'Pick a chord.',
         template: ['1', 'X'],
         distinct: 1,
         harmony: 'triads',

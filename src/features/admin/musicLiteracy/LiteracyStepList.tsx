@@ -18,10 +18,12 @@ import {
   type FC,
   type ReactNode,
 } from 'react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/components/utilities';
 import {
   isChordEcho,
   isMelodicEcho,
+  lessonGateSection,
   type LiteracyStep,
   type MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
@@ -29,6 +31,7 @@ import { chordLabel } from '@/curriculum/engine/musicLiteracy/chords';
 import { lessonSections } from '@/curriculum/engine/musicLiteracy/literacy';
 import { IconButton, InlineText } from '../content/visual/Editable';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
+import { ConsoleCallout } from '../ui/ConsoleCallout';
 import { CONSOLE_PANEL } from '../ui/styles';
 import { ModuleSettings } from './LiteracyModuleFields';
 import { barsText } from './literacyChords';
@@ -41,7 +44,9 @@ import {
 } from './literacyKinds';
 import {
   addStepOfChoice,
+  chooseStepWarning,
   duplicateStep,
+  gateSlot,
   indexAfterMove,
   moveStepTo,
   renameSection,
@@ -54,7 +59,10 @@ import { useStepDrag } from './useStepDrag';
 /**
  * The lesson's steps, in order, under their sections' headers (when it has
  * sections: Part 1 has none, and lists as it always has). A section is a
- * module: its header holds the module's goal and round. A section folds
+ * module: its header holds the module's goal and round. The gate, a first
+ * section of choose steps alone, is none: its header says it's the gate,
+ * with no goal or round, and a choose-key or choose-mode step outside it
+ * warns that it asks again (with a way into the gate). A section folds
  * away and is renamed from its header (its module keeps up), and takes a
  * new step of any kind at its end. A step is moved by its arrows or
  * dragged by its grip, within its section or into another: at a section's
@@ -120,6 +128,7 @@ export const LiteracyStepList: FC<{
   const sections = lessonSections(lesson);
   const grouped = lesson.steps.some((step) => step.section);
   const count = lesson.steps.length;
+  const gate = lessonGateSection(lesson.steps);
 
   const moveTo = (from: number, to: number, section: string | undefined) => {
     set((l) => moveStepTo(l, from, to, section));
@@ -159,6 +168,7 @@ export const LiteracyStepList: FC<{
         const key = sectionKey(section.title);
         const folded = grouped && collapsed.has(key);
         const end = section.steps.at(-1)! + 1;
+        const isGate = gate !== null && section.title === gate.title;
         return (
           <div
             key={`${g}:${section.title ?? ''}`}
@@ -177,6 +187,7 @@ export const LiteracyStepList: FC<{
               <SectionHeader
                 title={section.title}
                 count={section.steps.length}
+                gate={isGate}
                 folded={folded}
                 issues={section.steps.reduce(
                   (n, i) => n + stepIssues(issues, i).length,
@@ -187,7 +198,15 @@ export const LiteracyStepList: FC<{
                   set((l) => renameSection(l, section.steps, name))
                 }
                 module={
-                  section.title ? (
+                  isGate ? (
+                    <p
+                      data-gate-note
+                      className="pb-1 pl-7 text-[11px] text-white/40"
+                    >
+                      Students choose here once, before the modules, and every
+                      step after plays in it. No goal or round.
+                    </p>
+                  ) : section.title ? (
                     <ModuleSettings
                       lesson={lesson}
                       title={section.title}
@@ -208,6 +227,7 @@ export const LiteracyStepList: FC<{
             {!folded &&
               section.steps.map((index) => {
                 const step = lesson.steps[index];
+                const slot = gateSlot(lesson, index);
                 return (
                   <Fragment key={index}>
                     {drag.mark?.group === g && drag.mark.before === index && (
@@ -219,6 +239,10 @@ export const LiteracyStepList: FC<{
                       index={index}
                       count={count}
                       issues={stepIssues(issues, index)}
+                      warning={chooseStepWarning(lesson, index)}
+                      onIntoGate={
+                        slot ? () => moveTo(index, slot.to, slot.section) : null
+                      }
                       open={expanded === index}
                       playing={playingStep === index}
                       dragging={drag.dragging === index}
@@ -269,11 +293,13 @@ const DropLine: FC = () => (
 
 /**
  * A section's header: fold it, rename it, add a step at its end, and under
- * them its module's goal and round.
+ * them its module's goal and round; the gate's says it's the gate.
  */
 const SectionHeader: FC<{
   title: string | null;
   count: number;
+  /** The lesson's gate, not a module. */
+  gate: boolean;
   folded: boolean;
   issues: number;
   onToggle: () => void;
@@ -283,6 +309,7 @@ const SectionHeader: FC<{
 }> = ({
   title,
   count,
+  gate,
   folded,
   issues,
   onToggle,
@@ -315,6 +342,17 @@ const SectionHeader: FC<{
           title ? 'text-white' : 'italic text-white/40',
         )}
       />
+      {gate && (
+        <span
+          data-gate-header
+          className="flex min-w-0 items-center gap-1.5 text-xs text-white/55"
+        >
+          <ConsoleBadge tone="info" className="shrink-0">
+            Gate
+          </ConsoleBadge>
+          <span className="truncate">the student’s key and major/minor</span>
+        </span>
+      )}
       <span className="text-xs tabular-nums text-white/35">
         {count} step{count === 1 ? '' : 's'}
       </span>
@@ -336,6 +374,10 @@ const StepRow: FC<{
   index: number;
   count: number;
   issues: readonly LessonIssue[];
+  /** A choose step outside the gate: it asks again. */
+  warning: string | null;
+  /** Move it into the gate; null when there is none to move it to. */
+  onIntoGate: (() => void) | null;
   open: boolean;
   playing: boolean;
   dragging: boolean;
@@ -352,6 +394,8 @@ const StepRow: FC<{
   step,
   index,
   issues,
+  warning,
+  onIntoGate,
   open,
   playing,
   dragging,
@@ -422,6 +466,11 @@ const StepRow: FC<{
               own response
             </ConsoleBadge>
           )}
+          {warning && (
+            <ConsoleBadge tone="warning" className="shrink-0">
+              {onIntoGate ? 'outside the gate' : 'not in a gate'}
+            </ConsoleBadge>
+          )}
           {issues.length > 0 && (
             <ConsoleBadge tone="danger" className="shrink-0">
               {issues.length} to fix
@@ -470,6 +519,23 @@ const StepRow: FC<{
           </IconButton>
         </div>
       </div>
+      {open && warning && (
+        <div className="px-4 pb-3">
+          <ConsoleCallout tone="warning" title="Chosen once, in the gate">
+            <p data-choose-warning>{warning}</p>
+            {onIntoGate && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-2"
+                onClick={onIntoGate}
+              >
+                Move it to the gate
+              </Button>
+            )}
+          </ConsoleCallout>
+        </div>
+      )}
       {open && children}
     </div>
   );

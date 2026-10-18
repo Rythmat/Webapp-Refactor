@@ -42,10 +42,16 @@ export function stopAction(state: LiteracyStopState): string {
       : 'Start';
 }
 
-/** "3 of 7 steps", "7 steps", "All 7 steps passed". */
+/**
+ * "3 of 7 steps", "7 steps", "All 7 steps passed"; done with a replay
+ * (optional) not heard, "Done: 6 of 7 steps".
+ */
 export function stepsLine(state: LiteracyStopState): string {
   const total = state.steps.length;
-  if (state.status === 'done') return `All ${total} steps passed`;
+  if (state.status === 'done')
+    return state.passed === total
+      ? `All ${total} steps passed`
+      : `Done: ${state.passed} of ${total} steps`;
   if (state.status === 'new') return `${total} steps`;
   return `${state.passed} of ${total} steps`;
 }
@@ -97,7 +103,7 @@ export const RoundsMark = ({
   );
 };
 
-/** More steps than this, and the pips are dots: Part 2's 57 fit a card. */
+/** More steps than this, and the pips are dots: Part 2's 55 fit a card. */
 const DENSE_PIPS = 20;
 
 /** The lesson's steps as a row of pips: passed, tried, still to do. */

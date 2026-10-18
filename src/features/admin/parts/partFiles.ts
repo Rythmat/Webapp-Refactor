@@ -27,16 +27,16 @@ export function downloadPartJson(part: InstrumentPart) {
 export function downloadPartMidi(part: InstrumentPart) {
   const channel = part.instrument === 'drums' ? 9 : 0;
   const blob = exportMidiFile(
-    new Map([
-      [
+    [
+      {
         channel,
-        {
+        sequence: {
           ticksPerQuarterNote: 480,
           trackName: part.name,
           events: toMidiEvents(part.notes).map((e) => ({ ...e, channel })),
         },
-      ],
-    ]),
+      },
+    ],
     part.tempo,
   );
   downloadMidiBlob(blob, `${part.id}.mid`);

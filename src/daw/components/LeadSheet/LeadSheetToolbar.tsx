@@ -13,9 +13,8 @@ import {
   GitMerge,
 } from 'lucide-react';
 import { useLeadSheetSections, useStore } from '@/daw/store';
-import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
-import { chartExtraBars } from '@/daw/time/measureEdits';
-import { timeSignatureOf } from '@/daw/time/timeModel';
+import { buildLeadSheetExport, MUSICXML_TYPE } from '@/daw/midi/scoreExport';
+import { downloadFile } from '@/daw/utils/exportFiles';
 import { withTransaction } from '@/daw/store/history';
 import type { LeadSheetChordFormat } from '@/daw/store/uiSlice';
 import type { ChordRecordMode } from '@/daw/store/prismSlice';
@@ -42,14 +41,10 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const chordNotation = useChordNotation();
   const formatLocked = chordNotation !== 'hybrid';
   const chordRegions = useStore((s) => s.chordRegions);
-  const bpm = useStore((s) => s.bpm);
-  const rootNote = useStore((s) => s.rootNote);
-  const mode = useStore((s) => s.mode);
   const insertMeasures = useStore((s) => s.insertMeasures);
   const deleteMeasures = useStore((s) => s.deleteMeasures);
   const showRepeats = useStore((s) => s.leadSheetShowRepeats);
   const setShowRepeats = useStore((s) => s.setLeadSheetShowRepeats);
-  const projectName = useStore((s) => s.projectName);
   // The song's sections, as marks on the bars they start at (milestone 2.13).
   const sections = useLeadSheetSections();
   const markSectionAtBar = useStore((s) => s.markSectionAtBar);
@@ -64,23 +59,12 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const melodyTrackId = useStore((s) => s.leadSheetMelodyTrackId);
   const tracks = useStore((s) => s.tracks);
 
+  // The same file as the Export dialog's lead sheet (scoreExport.ts).
   const handleExportMusicXml = useCallback(() => {
-    if (chordRegions.length === 0) return;
-    const state = useStore.getState();
-    downloadLeadSheet(chordRegions, {
-      title: projectName,
-      bpm,
-      rootNote,
-      mode,
-      // Written in the project's metre, not 4/4 (ia-flows-34).
-      timeSignature: timeSignatureOf(state),
-      extraBars: chartExtraBars(
-        state.leadSheetBars,
-        state.sections,
-        timeSignatureOf(state),
-      ),
-    });
-  }, [chordRegions, bpm, rootNote, mode, projectName]);
+    const file = buildLeadSheetExport(useStore.getState());
+    if (!file) return;
+    downloadFile(new Blob([file.xml], { type: MUSICXML_TYPE }), file.filename);
+  }, []);
 
   const handleExportPdf = useCallback(() => {
     window.print();

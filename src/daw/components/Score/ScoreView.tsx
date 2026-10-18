@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
-import { leadSheetSectionsOf, useStore } from '@/daw/store';
+import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { ComposerLine } from '../LeadSheet/ComposerLine';
 import '../LeadSheet/leadsheet-print.css';
@@ -12,8 +12,8 @@ import { ScorePartsPanel } from './ScorePartsPanel';
 import { buildScoreParts, isNotatable, ScorePartsCache } from './scoreParts';
 import { spellingMap } from './noteEditor';
 import { useScoreEditing } from './useScoreEditing';
-import { breaksFromRowSizes } from './roadmap';
-import { downloadScoreXml } from '@/daw/midi/ScoreMusicXmlExport';
+import { buildFullScoreXml, MUSICXML_TYPE } from '@/daw/midi/scoreExport';
+import { downloadFile } from '@/daw/utils/exportFiles';
 import { inches } from '@/lib/notation/pageLayout';
 
 // ── Score ──────────────────────────────────────────────────────────────────
@@ -86,52 +86,14 @@ export function ScoreView() {
   const editing = useScoreEditing({ parts, scoreParts });
   const { selection } = editing;
 
-  // Exports: MusicXML of every part, and printing the engraved pages.
+  // Exports: MusicXML of every part, and printing the engraved pages. The
+  // file is the Export dialog's full score, built from the store at the
+  // click (scoreExport.ts).
   const exportMusicXml = useCallback(() => {
-    const s = useStore.getState();
-    const articulations = new Map<string, string[]>();
-    for (const entry of s.scoreArticulations) {
-      const cut = entry.lastIndexOf('|');
-      const id = entry.slice(0, cut);
-      articulations.set(id, [
-        ...(articulations.get(id) ?? []),
-        entry.slice(cut + 1),
-      ]);
-    }
-    const measureCount = Math.max(
-      0,
-      ...scoreParts.map((p) => p.score.measures.length),
-    );
-    downloadScoreXml(
-      scoreParts.map(({ id, name, score }) => ({
-        id,
-        name,
-        score,
-        drums: score.staves.includes('percussion'),
-      })),
-      {
-        title: projectName,
-        // Read here rather than subscribed to: the composer line under the
-        // title redraws itself, so an edit to it doesn't redraw the Score.
-        composer: s.composerName || undefined,
-        bpm,
-        chordRegions: s.chordRegions,
-        chordPartIds: new Set(s.scoreChordTracks),
-        articulations,
-        slurs: s.scoreSlurs.map((pair) => {
-          const cut = pair.indexOf('|');
-          return [pair.slice(0, cut), pair.slice(cut + 1)] as const;
-        }),
-        sections: leadSheetSectionsOf(s),
-        repeats: s.leadSheetRepeats,
-        systemStarts: breaksFromRowSizes(
-          s.measureRowSizes,
-          s.measuresPerLine || 4,
-          measureCount,
-        ),
-      },
-    );
-  }, [bpm, projectName, scoreParts]);
+    const file = buildFullScoreXml(useStore.getState());
+    if (!file) return;
+    downloadFile(new Blob([file.xml], { type: MUSICXML_TYPE }), file.filename);
+  }, []);
 
   const skipped = tracks.filter(
     (t) =>

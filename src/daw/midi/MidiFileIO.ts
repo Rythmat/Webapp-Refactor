@@ -1,6 +1,7 @@
 import { Midi } from '@tonejs/midi';
 import MidiWriter from 'midi-writer-js';
 import type { MidiNoteEvent, MidiSequence } from '@prism/engine';
+import { downloadFile } from '@/daw/utils/exportFiles';
 
 const NOTE_NAMES = [
   'C',
@@ -51,23 +52,32 @@ export function importMidiFile(arrayBuffer: ArrayBuffer): MidiSequence[] {
   return sequences;
 }
 
+/** One MIDI track of a file: its notes and the channel they play on. */
+export interface MidiChannelSequence {
+  /** 1–16, as midi-writer-js numbers them (10 is General MIDI's drums). */
+  channel: number;
+  sequence: MidiSequence;
+}
+
 /**
  * Export multiple MidiSequences as a standard .mid file Blob.
  * Uses midi-writer-js for encoding.
  *
- * @param sequences - Map from channel number to MidiSequence
+ * @param tracks - One MIDI track each, in order. Two may share a channel:
+ *   each still gets its own MIDI track (it used to be a Map keyed by
+ *   channel, where the second of two tracks on one channel was lost).
  * @param bpm - Tempo in beats per minute
  * @param timeSignature - The metre to write, [numerator, denominator]; a
  *   file without one is read as 4/4 by every other program (ia-flows-34)
  */
 export function exportMidiFile(
-  sequences: Map<number, MidiSequence>,
+  tracks: readonly MidiChannelSequence[],
   bpm: number,
   timeSignature?: [number, number],
 ): Blob {
-  const tracks: MidiWriter.Track[] = [];
+  const written: MidiWriter.Track[] = [];
 
-  for (const [channel, seq] of sequences) {
+  for (const { channel, sequence: seq } of tracks) {
     const track = new MidiWriter.Track();
     track.setTempo(bpm, 0);
     if (timeSignature) {
@@ -92,10 +102,10 @@ export function exportMidiFile(
       );
     }
 
-    tracks.push(track);
+    written.push(track);
   }
 
-  const writer = new MidiWriter.Writer(tracks);
+  const writer = new MidiWriter.Writer(written);
   return new Blob([writer.buildFile() as unknown as BlobPart], {
     type: 'audio/midi',
   });
@@ -105,10 +115,5 @@ export function exportMidiFile(
  * Convenience: trigger a browser download of an exported MIDI Blob.
  */
 export function downloadMidiBlob(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadFile(blob, filename);
 }

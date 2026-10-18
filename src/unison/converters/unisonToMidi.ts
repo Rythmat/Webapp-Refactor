@@ -4,23 +4,26 @@
  * Uses the existing exportMidiFile() from MidiFileIO.ts.
  */
 
-import { exportMidiFile } from '@/daw/midi/MidiFileIO';
-import type { MidiNoteEvent, MidiSequence } from '@/daw/prism-engine/types';
+import {
+  exportMidiFile,
+  type MidiChannelSequence,
+} from '@/daw/midi/MidiFileIO';
+import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { UnisonDocument } from '../types/schema';
 
 /**
  * Convert a UnisonDocument into a MIDI Blob for download.
  *
- * `exportMidiFile` keys sequences by MIDI channel — so two UnisonTracks
- * with the same `track.channel` would silently collide, dropping the
- * second. The dispatcher's arranged docs use distinct channels (chords=1,
- * bass=2, melody=4, drums=10), but anything layered on top of an
- * already-populated doc can collide. We resolve collisions here by
- * bumping the requested channel to the next free 1..16 slot, preserving
- * every track at the cost of slightly nudged channel assignments.
+ * Each UnisonTrack gets its own MIDI track. Two UnisonTracks with the
+ * same `track.channel` would play on one channel (`exportMidiFile` used to
+ * key sequences by channel and drop the second; it now takes a list). The
+ * dispatcher's arranged docs use distinct channels (chords=1, bass=2,
+ * melody=4, drums=10), but anything layered on top of an already-populated
+ * doc can collide. We still bump the requested channel to the next free
+ * 1..16 slot, so each track keeps a channel of its own where one is free.
  */
 export function unisonToMidi(doc: UnisonDocument): Blob {
-  const sequences = new Map<number, MidiSequence>();
+  const sequences: MidiChannelSequence[] = [];
   const used = new Set<number>();
 
   for (let i = 0; i < doc.tracks.length; i++) {
@@ -37,10 +40,13 @@ export function unisonToMidi(doc: UnisonDocument): Blob {
       channel: ev.channel,
     }));
 
-    sequences.set(channel, {
-      ticksPerQuarterNote: doc.metadata.ticksPerQuarterNote,
-      trackName: track.name,
-      events,
+    sequences.push({
+      channel,
+      sequence: {
+        ticksPerQuarterNote: doc.metadata.ticksPerQuarterNote,
+        trackName: track.name,
+        events,
+      },
     });
   }
 

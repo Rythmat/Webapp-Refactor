@@ -25,7 +25,10 @@ const h = vi.hoisted(() => ({
   me: undefined as
     | { nickname: string; username: string | null; fullName: string | null }
     | undefined,
-  downloadScoreXml: vi.fn(),
+  buildScoreXml: vi.fn<
+    (parts: unknown, options: { composer?: string }) => string
+  >(() => '<score-partwise/>'),
+  downloadFile: vi.fn(),
 }));
 
 vi.mock('@/hooks/data/auth/useMe', () => ({
@@ -40,9 +43,14 @@ vi.mock('@/components/notation/StaffView', () => ({
 vi.mock('@/daw/components/LeadSheet/LeadSheetToolbar', () => ({
   LeadSheetToolbar: () => null,
 }));
-// The Score's MusicXML button hands its file to this; nothing downloads here.
+// The Score's MusicXML button builds its file with this (through
+// scoreExport.ts) and hands it to downloadFile; nothing downloads here.
 vi.mock('@/daw/midi/ScoreMusicXmlExport', () => ({
-  downloadScoreXml: h.downloadScoreXml,
+  buildScoreXml: h.buildScoreXml,
+}));
+vi.mock('@/daw/utils/exportFiles', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/daw/utils/exportFiles')>()),
+  downloadFile: h.downloadFile,
 }));
 
 import { DOC_KEYS } from '@/daw/persistence/projectDocument/fields';
@@ -72,7 +80,8 @@ const fromCollaborator = (composerName: string) =>
 
 beforeEach(() => {
   h.me = { nickname: 'Ada', username: 'ada', fullName: 'Ada Lovelace' };
-  h.downloadScoreXml.mockClear();
+  h.buildScoreXml.mockClear();
+  h.downloadFile.mockClear();
   useStore.setState(useStore.getInitialState(), true);
 
   // A template-like project: a melody to notate and a chord to chart.
@@ -290,8 +299,8 @@ describe("the Score's MusicXML export", () => {
     act(() => st().setComposerName('Carole King'));
     fireEvent.click(screen.getByRole('button', { name: 'MusicXML' }));
 
-    expect(h.downloadScoreXml).toHaveBeenCalledTimes(1);
-    expect(h.downloadScoreXml.mock.lastCall?.[1]).toMatchObject({
+    expect(h.downloadFile).toHaveBeenCalledTimes(1);
+    expect(h.buildScoreXml.mock.lastCall?.[1]).toMatchObject({
       composer: 'Carole King',
     });
   });
@@ -300,7 +309,7 @@ describe("the Score's MusicXML export", () => {
     render(<ScoreView />);
     fireEvent.click(screen.getByRole('button', { name: 'MusicXML' }));
 
-    expect(h.downloadScoreXml).toHaveBeenCalledTimes(1);
-    expect(h.downloadScoreXml.mock.lastCall?.[1].composer).toBeUndefined();
+    expect(h.downloadFile).toHaveBeenCalledTimes(1);
+    expect(h.buildScoreXml.mock.lastCall?.[1]?.composer).toBeUndefined();
   });
 });

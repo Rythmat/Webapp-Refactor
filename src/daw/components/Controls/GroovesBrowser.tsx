@@ -18,6 +18,7 @@ import {
   type GrooveItem,
 } from '@/daw/data/groovesLibrary';
 import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
+import { grooveFavouriteId } from '@/daw/shell/inspector/browser/favourites';
 import { useStore } from '@/daw/store';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
@@ -82,8 +83,18 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
   const [sortBy, setSortBy] = useState<SortMode>('newest');
   const [shuffleSeed, setShuffleSeed] = useState(0);
 
-  // Saved
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  // Saved: the student's ♡, kept with their Library favourites (2.14).
+  const favourites = useStore((s) => s.libraryFavourites);
+  const toggleFavourite = useStore((s) => s.toggleLibraryFavourite);
+  const savedIds = useMemo(
+    () =>
+      new Set(
+        favourites
+          .filter((id) => id.startsWith('groove:'))
+          .map((id) => id.slice('groove:'.length)),
+      ),
+    [favourites],
+  );
 
   // Preview
   const [previewId, setPreviewId] = useState<string | null>(null);
@@ -131,14 +142,10 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
   // ── Toggle helpers ───────────────────────────────────────────────────
 
-  const toggleSaved = useCallback((id: string) => {
-    setSavedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
+  const toggleSaved = useCallback(
+    (id: string) => toggleFavourite(grooveFavouriteId(id)),
+    [toggleFavourite],
+  );
 
   // ── Stop preview ───────────────────────────────────────────────────
 
@@ -695,11 +702,13 @@ function GrooveRow({
         {/* Heart / save */}
         <button
           onClick={onToggleSaved}
+          aria-pressed={isSaved}
+          aria-label={`Favourite ${groove.name}`}
           className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
           style={{
             background: 'none',
             border: 'none',
-            color: isSaved ? '#ef4444' : 'var(--daw-text-3)',
+            color: isSaved ? 'var(--daw-text)' : 'var(--daw-text-3)',
             opacity: isSaved ? 1 : undefined,
           }}
         >

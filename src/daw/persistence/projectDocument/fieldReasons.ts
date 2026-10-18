@@ -137,6 +137,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   inspectorOpenByView: LAYOUT,
   inspectorWidth: LAYOUT,
   inspectorPanel: LAYOUT,
+  libraryFavourites:
+    'The items the student marked ♡ in the Library: their own on every project, kept per user by prefsStore (milestone 2.14).',
   dockHeights: LAYOUT,
   readoutMode: LAYOUT,
   activeTool: 'The editing tool: every project opens with the cursor.',

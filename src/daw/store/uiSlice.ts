@@ -7,6 +7,7 @@ import { clampZoom, fitZoom, zoomAround } from '@/daw/editor/zoom';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
 import type { SectionMark } from '@/daw/model/sections';
 import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
+import { toggledFavourites } from '@/daw/shell/inspector/browser/favourites';
 import {
   clampInspectorPx,
   DOCK_MAX_FRAC,
@@ -249,6 +250,13 @@ export interface UiSlice {
   /** Shows `panel` and opens the Inspector for now (an analysis, a lesson). */
   showInspectorPanel: (panel: InspectorPanelId) => void;
   setInspectorWidth: (px: number) => void;
+  /**
+   * Per-user: the Library items the student marked ♡ (2.14), by item id,
+   * sorted (shell/inspector/browser/favourites.ts).
+   */
+  libraryFavourites: string[];
+  /** ♡ on a Library row or a groove: marks the item, or unmarks it. */
+  toggleLibraryFavourite: (id: string) => void;
 
   // ── The effects library and the dock's chain (milestone 2.8) ──
   /**
@@ -557,6 +565,11 @@ export const createUiSlice: StateCreator<
   },
   showInspectorPanel: (panel) =>
     set({ inspectorPanel: panel, libraryOpen: true }),
+  libraryFavourites: [],
+  toggleLibraryFavourite: (id) =>
+    set((s) => ({
+      libraryFavourites: toggledFavourites(s.libraryFavourites, id),
+    })),
 
   fxLibraryReturn: null,
   openEffectsLibrary: () => {

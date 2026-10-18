@@ -6,6 +6,7 @@ import {
 } from '@/daw/persistence/projectDocument/fields';
 import { isClickSound, isClickVolume } from '@/daw/audio/clickSounds';
 import { userNamespace } from '@/daw/persistence/storageNamespace';
+import { isLibraryFavourites } from '@/daw/shell/inspector/browser/favourites';
 import { useStore, type AllSlices } from '@/daw/store';
 import {
   isDockHeights,
@@ -91,6 +92,7 @@ const IS_VALID: {
   inspectorOpenByView: isInspectorOpenByView,
   inspectorWidth: isInspectorWidth,
   inspectorPanel: isInspectorPanel,
+  libraryFavourites: isLibraryFavourites,
   dockHeights: isDockHeights,
   readoutMode: isReadoutMode,
 };

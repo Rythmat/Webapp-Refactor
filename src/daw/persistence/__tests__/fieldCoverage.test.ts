@@ -740,6 +740,8 @@ describe('decision D5', () => {
         'inspectorWidth',
         // The side rail's panel (B4a).
         'inspectorPanel',
+        // The Library's ♡ (milestone 2.14).
+        'libraryFavourites',
         'dockHeights',
         'readoutMode',
         'inputDeviceId',

@@ -710,6 +710,12 @@ export async function fingerprintPage() {
       readout: s.readoutMode,
     },
   );
+  // The Library's ♡ (milestone 2.14): a per-user pref, sorted ids.
+  put(
+    'view.libraryFavourites',
+    ['store.libraryFavourites'],
+    [...(s.libraryFavourites ?? [])].sort(),
+  );
   put(
     'view.selectedTrack',
     ['store.selectedTrackId'],

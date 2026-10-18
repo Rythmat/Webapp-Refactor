@@ -57,6 +57,10 @@ const CHOSEN = {
   inspectorOpenByView: { arrange: false, score: true },
   inspectorWidth: 280,
   inspectorPanel: 'lessons',
+  libraryFavourites: [
+    'groove:groove-hiphop-1',
+    'part:pop-l1-d1-2-lh-bass-rh-chords',
+  ] as string[],
   dockHeights: { fx: 0.5, 'piano-roll': 0.6 },
   readoutMode: 'time',
 } as const;
@@ -211,6 +215,8 @@ describe('reading what is stored', () => {
         timelineGridSize: 'toString',
         timelineTripletMode: 1,
         chordRulerShowNotes: true,
+        // Not an item id, and out of order.
+        libraryFavourites: ['sample', 'part:b', 'part:a'],
         aLaterPref: 3,
       },
     });

@@ -365,6 +365,8 @@ const STORE_SPECS = {
   inspectorOpenByView: pref('view', () => ({})),
   inspectorWidth: pref('view', 300),
   inspectorPanel: pref('view', 'insight'),
+  // The Library's ♡ (milestone 2.14): per user, never per project.
+  libraryFavourites: pref('view', () => []),
   dockHeights: pref('view', () => ({})),
   readoutMode: pref('view', 'bars'),
   activeTool: session('view', 'cursor', 'project'),

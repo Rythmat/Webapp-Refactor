@@ -109,6 +109,10 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   // The Click menu's sound and volume (milestone 2.8).
   act().setMetronomeSound('hihat');
   act().setMetronomeVolume(-16);
+  // The Library's ♡ (milestone 2.14): a groove and a part, as the dock's
+  // Grooves tab and the Library mark them.
+  act().toggleLibraryFavourite('groove:groove-hiphop-1');
+  act().toggleLibraryFavourite('part:pop-l1-d1-2-lh-bass-rh-chords');
   act().setCountInBars(2);
   act().setPosition(960);
   act().setLastSeekPosition(960);

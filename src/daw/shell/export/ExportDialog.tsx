@@ -178,8 +178,36 @@ export function ExportDialog({
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
   const stopper = useRef<AbortController | null>(null);
+  // While it renders, focus is on Stop (stems) or the progress line: the
+  // run button turns off, and focus on <body> would let Space and the
+  // editor's keys reach the song behind the dialog.
+  const stopRef = useRef<HTMLButtonElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  // Focus starts on Audio | Notation, the dialog's first choice.
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const initialFocus = useMemo(
+    () => ({
+      get current() {
+        return (
+          tabsRef.current?.querySelector<HTMLElement>(
+            'button[data-state="checked"]',
+          ) ?? null
+        );
+      },
+    }),
+    [],
+  );
   const [stopping, setStopping] = useState(false);
   const opusSupported = isOpusEncodingSupported();
+
+  const showsProgress = progress !== null;
+  useEffect(() => {
+    if (!busy) return;
+    const frame = requestAnimationFrame(() =>
+      (stopRef.current ?? statusRef.current)?.focus(),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [busy, showsProgress]);
 
   // Prefill the bars with the whole song each time it opens.
   useEffect(() => {
@@ -354,11 +382,20 @@ export function ExportDialog({
   const handleAudio = async () => {
     setBusy(true);
     try {
-      const { blob, filename } = await runAudio();
+      const result = await runAudio();
+      const { blob, filename } = result;
       downloadAudioBlob(blob, filename);
       // Session-only: the lesson engine watches for a finished bounce.
       useStore.getState().markAudioExported();
-      notice({ title: `Exported ${filename}` });
+      const skipped = (result as { skipped?: string[] }).skipped ?? [];
+      notice({
+        title: `Exported ${filename}`,
+        // A track deleted (by a collaborator) before its turn.
+        description:
+          skipped.length > 0
+            ? `Left out, deleted while exporting: ${skipped.join(', ')}`
+            : undefined,
+      });
       onOpenChange(false);
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
@@ -468,6 +505,7 @@ export function ExportDialog({
       onOpenChange={(o) => !busy && onOpenChange(o)}
       // Nothing closes it while it renders (Stop ends stems early).
       closable={!busy}
+      initialFocus={initialFocus}
       size="md"
       // Its top stays put as the sides and choices change its height (the
       // tallest choice is centred), so the switch never jumps under the
@@ -484,6 +522,7 @@ export function ExportDialog({
         <>
           {busy && whatNow === 'stems' && tab === 'audio' ? (
             <Button
+              ref={stopRef}
               data-testid="export-stop"
               disabled={stopping}
               onClick={() => {
@@ -526,23 +565,24 @@ export function ExportDialog({
         </>
       }
     >
-      <div className="flex flex-col gap-4 pb-1">
-        <Segmented
-          label="Export as"
-          testId="export-tab"
-          options={[
-            { value: 'audio', label: 'Audio', testId: 'export-tab-audio' },
-            {
-              value: 'notation',
-              label: 'Notation',
-              testId: 'export-tab-notation',
-            },
-          ]}
-          value={tab}
-          onValueChange={(next: ExportTab) => setTab(next)}
-          disabled={busy}
-          className="self-start"
-        />
+      <div className="flex flex-col gap-3 pb-1">
+        <div ref={tabsRef} className="self-start">
+          <Segmented
+            label="Export as"
+            testId="export-tab"
+            options={[
+              { value: 'audio', label: 'Audio', testId: 'export-tab-audio' },
+              {
+                value: 'notation',
+                label: 'Notation',
+                testId: 'export-tab-notation',
+              },
+            ]}
+            value={tab}
+            onValueChange={(next: ExportTab) => setTab(next)}
+            disabled={busy}
+          />
+        </div>
 
         {/* What */}
         <div className="flex flex-col gap-2">
@@ -763,12 +803,21 @@ export function ExportDialog({
           </div>
         ) : null}
 
-        {!busy && blocked && (tracks.length > 0 || leadSheet) ? (
+        {/* Why it can't go, unless the bars already say so under them. */}
+        {!busy &&
+        blocked &&
+        blocked !== customError &&
+        (tracks.length > 0 || leadSheet) ? (
           <Hint>{blocked}.</Hint>
         ) : null}
 
         {busy && progress ? (
-          <div className="flex flex-col gap-2" role="status">
+          <div
+            ref={statusRef}
+            tabIndex={-1}
+            className="flex flex-col gap-2 outline-none"
+            role="status"
+          >
             <div className="flex items-center gap-2">
               <Loader2
                 aria-hidden

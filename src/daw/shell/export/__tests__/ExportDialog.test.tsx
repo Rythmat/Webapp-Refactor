@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from '@testing-library/react';
 import {
@@ -768,5 +769,121 @@ describe('warnings', () => {
     render(<ExportDialogHost />);
     open({ trackId: keys });
     expect(screen.queryByText(/General MIDI \(SoundFont\)/)).toBeNull();
+  });
+});
+
+describe('focus in the Export dialog', () => {
+  it('starts on the chosen side of Audio | Notation', async () => {
+    addTrack('Keys');
+    render(<ExportDialogHost />);
+    open();
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByTestId('export-tab-audio'),
+      ),
+    );
+    cancel();
+
+    open({ tab: 'notation' });
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByTestId('export-tab-notation'),
+      ),
+    );
+  });
+
+  it('moves to Stop while stems render, off the button that turned off', async () => {
+    addTrack('Keys');
+    addTrack('Bass');
+    h.exportStems.mockReturnValue(new Promise(() => {}));
+    render(<ExportDialogHost />);
+    open();
+    pick('What to export', 'Each track');
+    audioRun().focus();
+    act(() => {
+      fireEvent.click(audioRun());
+    });
+    await waitFor(() =>
+      expect(document.activeElement).toBe(screen.getByTestId('export-stop')),
+    );
+  });
+
+  it('moves to the progress while the song renders', async () => {
+    addTrack('Keys');
+    h.exportProjectAudio.mockReturnValue(new Promise(() => {}));
+    render(<ExportDialogHost />);
+    open();
+    audioRun().focus();
+    act(() => {
+      fireEvent.click(audioRun());
+    });
+    await waitFor(() =>
+      expect(document.activeElement).toBe(screen.getByRole('status')),
+    );
+    expect(document.activeElement).not.toBe(document.body);
+  });
+});
+
+describe('the bars’ error', () => {
+  it('is said once, under the bars', () => {
+    addTrack('Keys');
+    render(<ExportDialogHost />);
+    open();
+    pick('Range', 'Bars');
+    fireEvent.change(screen.getByLabelText('Start bar'), {
+      target: { value: '4' },
+    });
+    fireEvent.change(screen.getByLabelText('End bar'), {
+      target: { value: '2' },
+    });
+    expect(
+      screen.getAllByText(/The end bar must be the start bar or after it/),
+    ).toHaveLength(1);
+    expect(audioRun()).toHaveAttribute(
+      'title',
+      'The end bar must be the start bar or after it.',
+    );
+  });
+});
+
+describe('stems with a track deleted on the way', () => {
+  it('names the track left out', async () => {
+    addTrack('Keys');
+    addTrack('Bass');
+    h.exportStems.mockResolvedValue({
+      blob: new Blob(['PK']),
+      filename: 'song-stems.zip',
+      count: 1,
+      skipped: ['Bass'],
+    });
+    render(<ExportDialogHost />);
+    open();
+    pick('What to export', 'Each track');
+
+    await run(audioRun());
+    expect(h.downloadAudioBlob).toHaveBeenCalledWith(
+      expect.any(Blob),
+      'song-stems.zip',
+    );
+    expect(h.notice).toHaveBeenCalledTimes(1);
+    const [said] = h.notice.mock.calls[0];
+    expect(said.title).toBe('Exported song-stems.zip');
+    expect(said.description).toMatch(/Bass/);
+  });
+
+  it('says nothing more when every track made it', async () => {
+    addTrack('Keys');
+    h.exportStems.mockResolvedValue({
+      blob: new Blob(['PK']),
+      filename: 'song-stems.zip',
+      count: 1,
+      skipped: [],
+    });
+    render(<ExportDialogHost />);
+    open();
+    pick('What to export', 'Each track');
+
+    await run(audioRun());
+    expect(h.notice.mock.calls[0][0].description).toBeUndefined();
   });
 });

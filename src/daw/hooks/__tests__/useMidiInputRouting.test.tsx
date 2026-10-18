@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 
 type Handlers = {
+  onNoteOn?: (note: number, velocity: number, timestamp: number) => void;
+  onNoteOff?: (note: number, timestamp: number) => void;
   onCC?: (cc: number, value: number) => void;
   onPitchBend?: (value: number) => void;
 };
@@ -12,11 +14,13 @@ vi.mock('@/daw/midi/MidiDeviceManager', () => ({
   midiDeviceManager: {
     subscribeToInput: (
       _id: string,
-      _on: unknown,
-      _off: unknown,
+      onNoteOn: Handlers['onNoteOn'],
+      onNoteOff: Handlers['onNoteOff'],
       onCC: Handlers['onCC'],
       onPitchBend: Handlers['onPitchBend'],
     ) => {
+      handlers.onNoteOn = onNoteOn;
+      handlers.onNoteOff = onNoteOff;
       handlers.onCC = onCC;
       handlers.onPitchBend = onPitchBend;
       return () => {};
@@ -34,11 +38,19 @@ import { setActiveSynthTrack } from '@/daw/oracle-synth/synthTrackState';
 // A hardware controller's wheels must reach the instrument the keyboard is
 // playing — the selected track when nothing is monitored.
 describe('useMidiInputRouting — wheels and controllers', () => {
-  const engine = { cc: vi.fn(), pitchBend: vi.fn() };
+  const engine = {
+    cc: vi.fn(),
+    pitchBend: vi.fn(),
+    noteOn: vi.fn(),
+    noteOff: vi.fn(),
+    getInstrument: () => ({}),
+  };
 
   beforeEach(() => {
     engine.cc.mockClear();
     engine.pitchBend.mockClear();
+    engine.noteOn.mockClear();
+    engine.noteOff.mockClear();
     trackEngineRegistry.set('t1', { trackEngine: engine } as never);
     useStore.setState({
       tracks: [],
@@ -76,5 +88,18 @@ describe('useMidiInputRouting — wheels and controllers', () => {
     renderHook(() => useMidiInputRouting());
     handlers.onCC?.(64, 127);
     expect(engine.cc).not.toHaveBeenCalled();
+  });
+
+  // The pedal held these notes; unsubscribed, no pedal-up would ever reach
+  // them, so they rang on (engine-hooks-10).
+  it('lets go of the notes the pedal holds when it unmounts', () => {
+    const { unmount } = renderHook(() => useMidiInputRouting());
+    handlers.onCC?.(64, 127);
+    handlers.onNoteOn?.(60, 100, 0);
+    handlers.onNoteOff?.(60, 1);
+    expect(engine.noteOff).not.toHaveBeenCalled();
+
+    unmount();
+    expect(engine.noteOff).toHaveBeenCalledWith(60);
   });
 });

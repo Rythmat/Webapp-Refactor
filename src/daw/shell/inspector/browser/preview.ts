@@ -52,7 +52,14 @@ interface Voice {
   gain: GainNode;
 }
 
-interface PreviewNote {
+/** What a preview's notes are played on: a kept voice's instrument, or one
+ *  the caller owns (the dock's Grooves preview plays on its own track). */
+export type PreviewInstrument = Pick<
+  InstrumentAdapter,
+  'noteOn' | 'noteOff' | 'allNotesOff'
+>;
+
+export interface PreviewNote {
   note: number;
   velocity: number;
   /** Seconds from the preview's start. */
@@ -68,7 +75,14 @@ let token = 0;
 let release = 0;
 let loop: ReturnType<typeof setInterval> | null = null;
 let ending: ReturnType<typeof setTimeout> | null = null;
-let sounding: { voice: Voice; held: Map<number, number> } | null = null;
+let sounding: {
+  instrument: PreviewInstrument;
+  /** The kept voice playing, if it is one (never let go while it plays). */
+  voice: Voice | null;
+  /** The voice's own level, faded on a stop; none on a caller's instrument. */
+  gain: GainNode | null;
+  held: Map<number, number>;
+} | null = null;
 
 /** A short fade on a stop, so drums and long tails go quiet at once. */
 const STOP_FADE_S = 0.02;
@@ -84,17 +98,19 @@ export function stopPreview(): void {
   loop = null;
   ending = null;
   if (sounding) {
-    const { voice, held } = sounding;
+    const { instrument, gain, held } = sounding;
     const ctx = audioEngine.getContext();
     // Every note started or booked lets go now (a sampler forgets a note
     // once its release is booked, so allNotesOff alone misses some), and
-    // the voice's own level fades out under what still rings (a drum's
-    // one-shots ignore allNotesOff).
-    for (const note of held.keys())
-      voice.adapter.noteOff(note, ctx.currentTime);
-    voice.adapter.allNotesOff();
-    voice.gain.gain.cancelScheduledValues(ctx.currentTime);
-    voice.gain.gain.setTargetAtTime(0, ctx.currentTime, STOP_FADE_S);
+    // the voice's own level fades out under what still rings. On a caller's
+    // instrument there is no level of the preview's own: allNotesOff fades
+    // a drum kit's one-shots out itself.
+    for (const note of held.keys()) instrument.noteOff(note, ctx.currentTime);
+    instrument.allNotesOff();
+    if (gain) {
+      gain.gain.cancelScheduledValues(ctx.currentTime);
+      gain.gain.setTargetAtTime(0, ctx.currentTime, STOP_FADE_S);
+    }
   }
   sounding = null;
   if (useBrowserStore.getState().preview) {
@@ -233,7 +249,8 @@ async function loadVoice(
   return voice;
 }
 
-const fromEvents = (
+/** A clip's events as preview notes, at `bpm`. */
+export const fromEvents = (
   events: readonly MidiNoteEvent[],
   bpm: number,
 ): PreviewNote[] => {
@@ -368,9 +385,57 @@ export async function startPreview(
   }
   setState(item.id, 'playing');
   const ctx = audioEngine.getContext();
-  const t0 = ctx.currentTime + 0.05;
   voice.gain.gain.cancelScheduledValues(ctx.currentTime);
   voice.gain.gain.setValueAtTime(PREVIEW_GAIN, ctx.currentTime);
+  playNotes(voice.adapter, voice, notes, stale);
+}
+
+/**
+ * Plays `notes` on an instrument the caller owns, under `id` in the preview
+ * state (stopping any other preview). The dock's Grooves preview plays a
+ * groove on its own track's kit this way. `stopPreview` stops it, as it
+ * stops a Library preview.
+ */
+export async function startNotesPreview(
+  id: string,
+  instrument: PreviewInstrument,
+  loadNotes: () => Promise<PreviewNote[]>,
+): Promise<void> {
+  stopPreview();
+  const mine = token;
+  setState(id, 'loading');
+  const stale = () => mine !== token;
+  let notes: PreviewNote[];
+  try {
+    if (!(await audioReady()) || stale()) {
+      if (!stale()) stopPreview();
+      return;
+    }
+    notes = await loadNotes();
+  } catch (err) {
+    console.warn('[preview] notes did not load', err);
+    if (!stale()) stopPreview();
+    return;
+  }
+  if (stale()) return;
+  if (notes.length === 0) {
+    stopPreview();
+    return;
+  }
+  setState(id, 'playing');
+  playNotes(instrument, null, notes, stale);
+}
+
+/** Books `notes` on the audio clock as they come within reach, and stops
+ *  the preview after the last one. */
+function playNotes(
+  instrument: PreviewInstrument,
+  voice: Voice | null,
+  notes: PreviewNote[],
+  stale: () => boolean,
+): void {
+  const ctx = audioEngine.getContext();
+  const t0 = ctx.currentTime + 0.05;
   // Each note's start and end are booked as each comes within reach, as the
   // song's MIDI scheduler books them: an instrument may act on a release at
   // once, whatever time it names (an Oracle voice, an arpeggio).
@@ -383,17 +448,17 @@ export async function startPreview(
     .sort((a, b) => a.at - b.at || Number(a.on) - Number(b.on));
   // Notes started and not yet released, by pitch: how many.
   const held = new Map<number, number>();
-  sounding = { voice, held };
+  sounding = { instrument, voice, gain: voice?.gain ?? null, held };
   let next = 0;
   const book = () => {
     const horizon = ctx.currentTime + AHEAD_S;
     while (next < queue.length && t0 + queue[next].at <= horizon) {
       const { at, on, note } = queue[next++];
       if (on) {
-        voice.adapter.noteOn(note.note, note.velocity, t0 + at);
+        instrument.noteOn(note.note, note.velocity, t0 + at);
         held.set(note.note, (held.get(note.note) ?? 0) + 1);
       } else {
-        voice.adapter.noteOff(note.note, t0 + at);
+        instrument.noteOff(note.note, t0 + at);
         const left = (held.get(note.note) ?? 1) - 1;
         if (left > 0) held.set(note.note, left);
         else held.delete(note.note);

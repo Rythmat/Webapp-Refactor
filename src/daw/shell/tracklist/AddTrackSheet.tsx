@@ -141,10 +141,10 @@ const onlyChoice = (category: TrackCategory): TrackChoice | null =>
  * lazy body has rendered. The dialog gives focus back to its opener as it
  * goes, a moment after it unmounts (it closes at once since its exit fade
  * went, 2.11), so the search keeps being given focus for a few frames after
- * it first gets it; it gives up after about three seconds (the Library's
- * chunk may load).
+ * it first gets it; it gives up after about fifteen seconds (the Library's
+ * chunk may still be loading on a slow Chromebook).
  */
-function focusLibrarySearch(framesLeft = 180, wasClosed = false, held = 0) {
+function focusLibrarySearch(framesLeft = 900, wasClosed = false, held = 0) {
   requestAnimationFrame(() => {
     const closed = !document.querySelector('[data-testid="add-track-sheet"]');
     const search = document.querySelector<HTMLElement>(

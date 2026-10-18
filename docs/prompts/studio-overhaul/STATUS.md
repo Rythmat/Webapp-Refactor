@@ -970,3 +970,80 @@ Prompt 15a. Decision 16, ST1 and ST2; 3.1's shared context menu and 3.3's clip n
   4. **One swallowed click:** a click made a few milliseconds after closing the Invite dialog with Escape was swallowed once while that dialog animated out. A click at a normal pace worked. It is pre-existing, for the Stage B exit's "no click swallowed" guard to check.
   5. **Still to come:** Reverse (it needs a reversed buffer) and the loop strip (it needs a repeat model, 3.3); a key for audio clips; Add comment (4.3).
 - **Next:** 15b (B6: 2.13 lanes and sections).
+
+## B6 — 2.13 lanes above the ruler and song sections (2026-10-17)
+
+Prompt 15b. Decision 16 (ST4); 29-D §4.4 and SD7 moved into Stage B.
+
+- **Branch:** `aaron`, from `f242d3d9` (B5's entry). Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Commits:**
+  - `4c550c08` one section model, the document-field routine, song boots (schema 7, collab 3);
+  - `37123e9f` Create's toolbar row folds away (header, ruler end, footer, Grid menu);
+  - `3c85deae` the sections lane, its menu and keys, Duplicate and Insert (`time/arrangementEdits.ts`);
+  - `689c4dce` markers (F8): one hit test, click goes, drag by name, rename and add in the dialog, Alt+M;
+  - `a3306086` studio:check: R30 updated, R32 new, designProbe's subtree mode;
+  - review fixes: `3b33fce7` Lead Sheet and Score, `27597c1f` saving (fingerprint after the schema change), `88123b8e` shared sessions, `86abfd8f` sections in the Lead Sheet and drafts, `4bfab7df` Duplicate and Insert, `43b28052` the lane, `49f1cb0e` markers, `5cfcb1ce` Create's header, `c26a5d59` studio:check;
+  - this entry.
+  - Each commit typechecks alone (checked on `git archive` exports).
+- **Pushed:** to `origin/aaron` with this entry (`f242d3d9..` this commit), from this checkout.
+- **What changed:**
+  - **One section model** (`src/daw/model/sections.ts`, `store/sectionsSlice.ts`): `sections: {id, type, label, startTick, endTick}[]`, in song ticks, in order and never overlapping.
+    - **Vocabulary:** UNISON's `SectionType` plus tag, hook, breakdown, build-up and drop (a shared UNISON type; its converters now read numbered names, "Verse 2" is a verse). Each kind has a one-line purpose.
+    - **New sections** are 8 bars, after the last one, on a bar line, as neutral blocks.
+    - **The Lead Sheet and the Score** read the sections as marks (`useLeadSheetSections`); their + Section, − Section, rename, paste and rehearsal-mark toggle write the sections. The chart runs as far as the sections do. Bar edits (+ Measure, − Measure) move sections with their bars.
+    - **Song boots** lay out the chart's form: each section starts where the chart's run starts (hey_ya's metre changes included), typed from its name.
+  - **The document-field routine:**
+    - Draft schema 7, compat 3: `data.sections`, plus the marks they imply in the marks' old place (`notation.leadSheetSections`), so a build from before 2.13 still shows them after a rollback. A draft or cloud copy without sections reads them back from those marks, with ids from the bar. New `v7-all-fields` and `cloud-2.13` fixtures; v6 and cloud-2.12 kept and still open whole.
+    - Cloud document schema 7 (the contract doc says so) and the dashboard's.
+    - Collab: an array of Y.Maps of their own, diffed by id, read in order by every peer; the lead sheet's old `sections` key is neither written nor read. `COLLAB_DOC_SCHEMA_VERSION` is 3. Undo: the array is in collab undo's scope ('Edit sections').
+    - The registry: `sections` (doc, cloud 'document', shared, undone) and `SECTION_FIELDS`; the save status fingerprints them; Save's toast calls them song sections.
+  - **Create's toolbar row folded away** (decision 16):
+    - **+ Add track** (same `add-track-button` anchor) at the top left of the header, in the sections lane's row; **Pointer, Draw, Cut** beside the ruler.
+    - **Snap and Grid** over the ruler's right end; the Grid menu also holds the chord lane's labels and what colours the clips (Track | Harmony).
+    - **Zoom −, the level, +, Fit and Follow** at the footer's right end, beside the scrollbar; the footer is 24 px.
+    - **Lane header:** sections 24 + ruler 32 + chord lane 24 = 80 px (was 88). The lanes keep their height (4 whole rows with the dock open on a Chromebook).
+  - **The sections lane** (`shell/canvas/sections/`):
+    - - Section after the last section (the lane's left end with none), kept in view; it lists the 14 kinds, Custom name… and About song sections, with the kind under the pointer explained on the list's last line.
+    - A click goes to a section's start; dragging an edge resizes it on bar lines, an edge two sections share moving both, 1 bar at least, one undo step.
+    - One menu (the canvas's one menu, a right-click or Alt+Return): what the kind is for, Rename…, Change type ▸, Duplicate with its clips, Loop this section, Insert before ▸, Insert after ▸, Delete section (keeps the clips), About song sections.
+    - Keys with focus on a section (one Tab stop): ←/→, Home/End, Enter goes there, ⇧→/⇧← a bar longer or shorter, N or F2 renames, ⌘D duplicates, Delete or Backspace deletes, Alt+Return or ⇧F10 opens the menu.
+    - Duplicate and Insert move the whole song after the section (`time/arrangementEdits.ts`): clips straddling the point are cut there (Score marks follow), chords too; markers, sections, automation, the loop and the chart's bar marks move. Duplicate copies the section's notes and controllers (new note ids), windows of audio (sharing the take), chords, automation and the Score marks of copied notes. One undo step each; refused while recording or while a collaborator holds a track.
+    - Fit and the scrollbar count the sections in the song's length.
+    - The comment lane's slot (24 px, above the sections) shows while a Comments panel is open; 4.3 adds the panel and fills it.
+  - **Markers** (plan finding F8): one hit test over the flag and name as drawn (`Timeline/markerHit.ts`) for the press, the cursor, the double-click and the right-click; a click on a marker goes to it; a drag takes it where it was grabbed (no jump); a double-click renames it in the app's dialog; a double-click elsewhere on the ruler, Add marker here and Alt+M (registry `timeline.addMarker`, for 2.15's palette) ask for the name first and add it as one undo step; Cancel adds none.
+- **Review:** six adversarial reviewers (persistence, collab, arrangement edits, lane UI and a11y, Lead Sheet parity, markers and harness) plus the UI test writer; every finding was reproduced with a throwaway test first, and every fix landed with a test that fails without it. The ones that mattered:
+  - **Shared sessions:** Duplicate and Insert wrote with the store's raw setState and never reached the room (the partner kept the old song, and the next remote edit undid it locally); they now go through a store action, one room undo step. Peers could drift apart after concurrent edits because sections normalized on read were never written back; the diff now compares with the doc, a repeated id is read once, and crossed edges keep the section.
+  - **Saving:** renaming the doc key changed every document's fingerprint, so after the deploy every saved project would have said "Saved in this browser" once and cached drafts would have read as work; a draft from another schema now has its stored fingerprints read in this build's terms.
+  - **The lane:** focusing a block scrolled the lane itself (blocks off their bars until a reload); focus fell to the page after a menu Delete, and the next key moved the selected clip; Escape during a drag also stopped playback; menus could open off-screen.
+  - **Music:** Insert stretched automation ramps before the point, a held pedal rang through inserted bars, sized clips lost their size, Lead Sheet rows swelled to 12 bars, hidden chord symbols came back.
+  - **Lead Sheet:** removing a mark left a gap the sheet can't show (and shrank Proud Mary's chart), marks ended at the chord chart instead of the last clip, a mark on the closing barline added a bar, Send to set list dropped the bars past the last chord.
+  - **Rollback:** the marks mirror now carries each section's id, kind and ends, so 2.13 → 2.12 → 2.13 keeps gaps, kinds and lengths (2.12 keeps such fields as they are; checked on a 2.12 archive).
+  - **Harness:** R30's floor probes couldn't fail inside the legacy main region; now subtree mode (no failures found).
+- **Verification:**
+  - **vitest:** 16,388 pass, 10 fail, all inherited (the six song-data suites on the stale local `_generated_index.ts`, lineage calibration, the landing's songDemoChart, designGuard's PianoRoll smallText 8 > 6, apiContract manifest ×2, writeVocabulary, repoStore.noop ×2, vocabularySource); the Atlas EraRail suite and the song-link session tests failed only under the tier's load and pass alone.
+  - **Lint:** `npm run lint` clean (prettier, eslint, `tsc -b`); every commit typechecks alone on a `git archive` export.
+  - **studio:check full tier** (`par-check.sh`, HEAD archive on 5271, `--prev-base` the 1.3 build on 5264): round trips 0 fields lost; R1, R6 and R12:fileNew (laptop: "timed out waiting for the synth panel bridge") and R12:draft (Chromebook: an audio take's digest) failed only beside five other browsers and pass alone; R14/R15 old builds ok; perf and the golden trace (15/15) ok; golden renders ok; lessons 74/78 on both profiles (the 4 known); bundle: boot chunk 116.6 kB gzip (budget 150), the every-page FAIL inherited; R28–R32 "no baseline, 0 new". R30's 13 flags and R32's 15 pass at 1366×655, 1440×787 and 1280×720.
+  - **Collab, mixed versions** (wrangler on 1999, `VITE_PARTYKIT_HOST=localhost:1999`): a 2.12 client (collab 2) joining a 2.13 server gets "Update Music Atlas to join this session"; a 2.13 client on a 2.12 server gets "The session server is being updated". Two 2.13 windows: sections added, resized, renamed, deleted and undone reach the partner; Duplicate with its clips and its Undo reach the partner (the review's main finding, checked on the HEAD build).
+  - **Chrome** (HEAD build and the fixes' tree): the header, ruler end and footer; + Section's list and hint; add, click-seek, shared-edge drag and undo, menu, Loop, Duplicate, Insert after, keys, Change type; adding a second section keeps the blocks on their bars (lane scroll 0) and focus on the new block; Delete from the menu gives focus to the section before; the Lead Sheet shows the same sections; `?song=stay` lays out 18 sections; markers (add with a name, click to go, drag by name, rename, Alt+M, Cancel). Console: only the known StrictMode warning.
+- **Owner sign-offs:**
+  1. **+ Section** sits just after the last section (the lane's left end when there are none, as plan.md's 2.13 note says) and stays in view; the prompt's "left end" read as its short form.
+  2. **Vocabulary and order:** Intro, Verse, Pre-chorus, Chorus, Bridge, Outro, then Solo, Interlude, Breakdown, Build-up, Drop, Hook, Tag, Coda, then Custom name…; no automatic numbering for new sections ("Verse", not "Verse 2"); song boots keep their charts' numbered names; an instrumental verse stays a verse.
+  3. **The lane's Delete leaves the bars unnamed** (a gap you can see in the lane); the Lead Sheet's − Section (a mark is a point) hands the bars to the section before, as before 2.13, and removes only the section its mark shows.
+  4. **Insert before/after adds 8 empty bars** there and moves the rest of the song later; **Duplicate** inserts the section's length after it and copies what plays in it. Both refuse while recording or while a collaborator holds a track. The loop moves with the music, and an Undo of the edit leaves it where it moved (the loop region is each student's own and outside undo).
+  5. **Edges:** a shared edge moves both sections; a free edge stops at its neighbour; 1 bar at least; always on bar lines, whatever the grid.
+  6. **The Lead Sheet keeps its free-text + Section;** the kind follows the name ("Pre-Chorus" is a pre-chorus, "A" is custom); renaming keeps the kind unless the new name names one, in the lane and on the sheet alike.
+  7. **Change type** renames a section still named after its kind ("Verse" → "Chorus"), and keeps a name the student gave it.
+  8. **Header placements:** + Add track at the top left (where the toolbar had it), the tools beside the ruler, Snap and Grid over the ruler's right end, zoom and Follow at the footer's right end.
+  9. **Markers:** Alt+M adds one at the playhead; every way of adding one asks for its name first (B3's "+ Marker asks for a name"), and Cancel now adds none.
+  10. **The Lead Sheet's chart runs as far as the sections do,** so every section the lane has shows on the sheet.
+  11. **The comment lane's slot** is code only, wired to a Comments panel 4.3 adds.
+- **Open issues:**
+  - **Undo leaves the loop moved** after Duplicate or Insert (the loop is per-student, outside undo); and in a room the partner's loop, the Lead Sheet's bar-indexed settings (rests, fermatas, row sizes, Score breaks and spellings) don't travel yet, an older gap + Measure shares (collab finding 5).
+  - **designProbe's default mode is blind inside the legacy main region** (data-ds="legacy"): R30 and R32 now use subtree mode; R28, R29 and R31 still use the default and may hide floors. For the Stage B exit (16).
+  - **The HMR dev hazard:** editing store modules while a dev page is open re-runs the store and empties the open project (seen twice on dev servers). Dev-only; test on archives or with HMR off.
+  - Moving a section with its clips waits for 3.1; no playhead line in the sections lane; "Suggest sections" not built; the comment lane's slot is code only (4.3).
+  - Fit is limited by the zoom floor on long songs; the scrollbar's hit area is still 12 px in the 24 px footer; Snap and Grid over the ruler's last ~100 px hide the playhead's top there; + Section clamped to the right end can cover the last section's end edge.
+  - Pre-existing: the scissors leave a Score mark orphaned on a cut note in some cases, and drop a sized clip's size (the arrangement path keeps it); UNISON's 6/8 ticksPerMeasure and deriveFormLabel; a right-click on the chord lane opens the Ruler menu.
+  - Hey Ya!'s Lead Sheet marks now sit on the 4/4 bar holding each section's first chord (bars 5, 11, 16…), not 6, 12, 18: the true bars.
+  - `swallowNativeMenu` is copied into the lane; exporting it from clipCommands would remove the copy.
+- **Next:** 15c (B7: 2.14 browser and add-track picker).

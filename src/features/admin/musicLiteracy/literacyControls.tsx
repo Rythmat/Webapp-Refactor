@@ -4,6 +4,7 @@ import type { FC, ReactNode } from 'react';
 import { cn } from '@/components/utilities';
 import {
   LITERACY_DEGREES,
+  LITERACY_SCALE_DEGREES,
   type LiteracyDegree,
 } from '@/content/musicLiteracy/schemas';
 import {
@@ -170,39 +171,66 @@ const OCTAVE_GROUPS: { octave: number; label: string; mark: string }[] = [
 export const pitchLabel = (degree: LiteracyDegree, octave: number) =>
   `${degreeLabel(degree)}${OCTAVE_GROUPS.find((g) => g.octave === octave)?.mark ?? ''}`;
 
+/** What a degree picker says it is, by the lesson's numbering. */
+const DEGREE_TITLE = {
+  chromatic: 'The note, as a degree of the key (↑ an octave up, ↓ down)',
+  scale:
+    'The note, 1–7 of the student’s major or minor: in minor, 3, 6 and 7 are ♭3, ♭6 and ♭7 (↑ an octave up, ↓ down)',
+};
+
 /**
  * Which note: the twelve degrees around the lesson's 1, then the same an
  * octave up and down (two octaves only when a note is already there).
+ * Under scale numbering (`scale`), the plain 1–7 only, which follow major
+ * or minor; a sharp or flat already there stays listed, to be changed.
  */
 export const DegreeSelect: FC<{
   degree: LiteracyDegree;
   octave: number;
   onChange: (degree: LiteracyDegree, octave: number) => void;
   label: string;
-}> = ({ degree, octave, onChange, label }) => (
-  <select
-    aria-label={label}
-    title="The note, as a degree of the key (↑ an octave up, ↓ down)"
-    value={`${degree}|${octave}`}
-    onChange={(e) => {
-      const [d, o] = e.target.value.split('|');
-      onChange(d as LiteracyDegree, Number(o));
-    }}
-    className={cn(control, 'w-full font-medium tabular-nums')}
-  >
-    {OCTAVE_GROUPS.filter(
-      (group) => Math.abs(group.octave) < 2 || group.octave === octave,
-    ).map((group) => (
-      <optgroup key={group.octave} label={group.label}>
-        {LITERACY_DEGREES.map((d) => (
-          <option key={d} value={`${d}|${group.octave}`}>
-            {pitchLabel(d, group.octave)}
-          </option>
-        ))}
-      </optgroup>
-    ))}
-  </select>
-);
+  scale?: boolean;
+  invalid?: boolean;
+}> = ({ degree, octave, onChange, label, scale, invalid }) => {
+  const degrees: readonly LiteracyDegree[] = scale
+    ? LITERACY_SCALE_DEGREES
+    : LITERACY_DEGREES;
+  return (
+    <select
+      aria-label={label}
+      aria-invalid={invalid || undefined}
+      title={DEGREE_TITLE[scale ? 'scale' : 'chromatic']}
+      value={`${degree}|${octave}`}
+      onChange={(e) => {
+        const [d, o] = e.target.value.split('|');
+        onChange(d as LiteracyDegree, Number(o));
+      }}
+      className={cn(
+        control,
+        'w-full font-medium tabular-nums',
+        invalid && 'border-red-400/60 text-red-200',
+      )}
+    >
+      {OCTAVE_GROUPS.filter(
+        (group) => Math.abs(group.octave) < 2 || group.octave === octave,
+      ).map((group) => (
+        <optgroup key={group.octave} label={group.label}>
+          {(group.octave === octave && !degrees.includes(degree)
+            ? LITERACY_DEGREES.filter(
+                (d) => degrees.includes(d) || d === degree,
+              )
+            : degrees
+          ).map((d) => (
+            <option key={d} value={`${d}|${group.octave}`}>
+              {pitchLabel(d, group.octave)}
+              {!degrees.includes(d) && ' (use 1–7)'}
+            </option>
+          ))}
+        </optgroup>
+      ))}
+    </select>
+  );
+};
 
 /** How long: the eight lengths a teacher writes, and any other a note has. */
 export const LengthSelect: FC<{

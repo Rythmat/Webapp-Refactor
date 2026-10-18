@@ -12,17 +12,31 @@ import {
 } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
 import { repoPrettierOptions } from '@/scripts/repoContent/tsWrite';
+import { choiceOf, STEP_CHOICES } from '../literacyKinds';
 import {
   addStep,
+  addStepOfChoice,
   canonicalLesson,
   duplicateStep,
+  indexAfterMove,
+  issueItems,
+  issuesAt,
+  issuesOutside,
+  issueWhere,
   kebab,
   lessonIdFor,
   lessonIssues,
+  lessonPass,
   moveStep,
+  moveStepTo,
   removeStep,
+  renameSection,
   renameStep,
+  sectionNames,
   stepIssues,
+  stepMove,
+  withLessonPass,
+  withStepPass,
 } from '../literacyLesson';
 
 /**
@@ -341,5 +355,236 @@ describe('ids', () => {
       'literacy-fixture-part-1-2',
     );
     expect(lessonIdFor('???', [])).toBe('music-literacy');
+  });
+});
+
+describe('a step of each kind (Add step’s menu)', () => {
+  it('adds every kind, each a step the schema accepts once its lesson can have it', () => {
+    let lesson: MusicLiteracyLesson = PART2_FIXTURE;
+    for (const { choice } of STEP_CHOICES) {
+      lesson = addStepOfChoice(lesson, choice);
+      const added = lesson.steps.at(-1)!;
+      expect(choiceOf(added), choice).toBe(choice);
+      // In the last step's section, laid out as the file has it.
+      expect(added.section).toBe('7th Chords');
+      expect(canonicalLesson(lesson).steps.at(-1)).toEqual(added);
+    }
+    expect(lessonIssues(lesson)).toEqual([]);
+    expect(new Set(tags(lesson)).size).toBe(lesson.steps.length);
+  });
+
+  it('gives a Part 2 melody no words, and a Part 1 melody the template’s', () => {
+    const part2 = addStepOfChoice(PART2_FIXTURE, 'melody');
+    expect(part2.steps.at(-1)).not.toHaveProperty('words');
+    const part1 = addStepOfChoice(PART_1, 'melody');
+    expect(part1.steps.at(-1)).toMatchObject({
+      tag: 'step-8',
+      title: 'Step 8',
+      words: { bars: 1 },
+    });
+    expect(part1.steps.at(-1)).not.toHaveProperty('section');
+    expect(lessonIssues(part1)).toEqual([]);
+  });
+
+  it('puts a step where it is asked, in the section asked, or none', () => {
+    const at = addStepOfChoice(PART2_FIXTURE, 'chords', 2, 'Choose a Color');
+    expect(at.steps[2]).toMatchObject({
+      section: 'Choose a Color',
+      title: 'Play the chords',
+      call: { chords: ['1', '1'], rhythm: [480, 480, 960], harmony: 'triads' },
+    });
+    expect(at.steps).toHaveLength(PART2_FIXTURE.steps.length + 1);
+    const none = addStepOfChoice(PART2_FIXTURE, 'chords', 3, null);
+    expect(none.steps[3]).not.toHaveProperty('section');
+  });
+
+  it('saves a new choose-chords step under a free name, and replays the last saved before it', () => {
+    const twice = addStepOfChoice(
+      addStepOfChoice(PART2_FIXTURE, 'chooseChords'),
+      'chooseChords',
+    );
+    const [first, second] = twice.steps.slice(-2);
+    expect(first.kind === 'chooseChords' && first.saveAs).toBe(
+      'choose-your-chords',
+    );
+    expect(second.kind === 'chooseChords' && second.saveAs).toBe(
+      'choose-your-chords-2',
+    );
+    const replay = addStepOfChoice(twice, 'replay');
+    expect(replay.steps.at(-1)).toMatchObject({
+      kind: 'replay',
+      progression: 'choose-your-chords-2',
+    });
+    // Before any choose-chords step: one to name, which the schema flags.
+    const early = addStepOfChoice(PART2_FIXTURE, 'replay', 1);
+    expect(early.steps[1]).toMatchObject({ progression: 'my-progression' });
+    expect(lessonIssues(early).map((i) => i.where)).toEqual([
+      'Step 2 · saved progression',
+    ]);
+  });
+});
+
+describe('sections', () => {
+  const sections = (lesson: MusicLiteracyLesson) =>
+    lesson.steps.map((step) => step.section ?? null);
+
+  it('moves a step within its section, and over a section’s edge into the next', () => {
+    // Step 6 (play-1-x) is in Chords, between two others of it.
+    expect(stepMove(PART2_FIXTURE, 6, -1)).toEqual({
+      to: 5,
+      section: 'Chords',
+    });
+    // Step 4 (the-1-chord) is the first of Chords: up takes it into the
+    // section above, where it is.
+    expect(stepMove(PART2_FIXTURE, 4, -1)).toEqual({
+      to: 4,
+      section: 'Create a Melody',
+    });
+    const up = moveStep(PART2_FIXTURE, 4, -1);
+    expect(tags(up)).toEqual(tags(PART2_FIXTURE));
+    expect(sections(up).slice(3, 6)).toEqual([
+      'Create a Melody',
+      'Create a Melody',
+      'Chords',
+    ]);
+    // Steps with none are a section of their own.
+    expect(stepMove(PART2_FIXTURE, 1, -1)).toEqual({
+      to: 1,
+      section: undefined,
+    });
+    expect(moveStep(PART2_FIXTURE, 1, -1).steps[1]).not.toHaveProperty(
+      'section',
+    );
+    expect(stepMove(PART2_FIXTURE, 0, -1)).toBeNull();
+    expect(stepMove(PART2_FIXTURE, PART2_FIXTURE.steps.length - 1, 1)).toBe(
+      null,
+    );
+  });
+
+  it('drops a step anywhere, in any section', () => {
+    const moved = moveStepTo(PART2_FIXTURE, 1, 6, 'Chords');
+    expect(tags(moved).slice(0, 7)).toEqual([
+      'choose-key',
+      'choose-mode',
+      'one-seven-one',
+      'the-1-chord',
+      'choose-x',
+      'play-1-x',
+      'one-three-five',
+    ]);
+    expect(moved.steps[6].section).toBe('Chords');
+    expect(moveStepTo(PART2_FIXTURE, 3, 3, 'Create a Melody')).toBe(
+      PART2_FIXTURE,
+    );
+    expect(indexAfterMove(1, 1, 6)).toBe(6);
+    expect(indexAfterMove(4, 1, 6)).toBe(3);
+    expect(indexAfterMove(4, 6, 1)).toBe(5);
+    expect(indexAfterMove(8, 1, 6)).toBe(8);
+  });
+
+  it('lists its sections once each, and renames one run of steps', () => {
+    expect(sectionNames(PART2_FIXTURE)).toEqual([
+      'Choose a Color',
+      'Create a Melody',
+      'Chords',
+      '7th Chords',
+    ]);
+    const renamed = renameSection(PART2_FIXTURE, [4, 5, 6, 7], 'Chord Calls');
+    expect(sections(renamed).slice(4, 9)).toEqual([
+      'Chord Calls',
+      'Chord Calls',
+      'Chord Calls',
+      'Chord Calls',
+      '7th Chords',
+    ]);
+    // An empty name takes the steps out of any section.
+    expect(renameSection(PART2_FIXTURE, [1], ' ').steps[1]).not.toHaveProperty(
+      'section',
+    );
+  });
+});
+
+describe('passes', () => {
+  it('leaves a pass at its default out of the file, so Part 1 gains nothing', () => {
+    expect(lessonPass(PART_1, 'challenge')).toBe(true);
+    expect(lessonPass(PART_1, 'create')).toBe(false);
+    const off = withLessonPass(PART_1, 'challenge', false);
+    expect(off.passes).toEqual({ challenge: false });
+    const back = withLessonPass(off, 'challenge', true);
+    expect(back).not.toHaveProperty('passes');
+    expect(canonicalLesson(back)).toEqual(canonicalLesson(PART_1));
+    expect(withLessonPass(PART2_FIXTURE, 'create', false).passes).toEqual({
+      challenge: false,
+    });
+  });
+
+  it('sets a step’s own pass, or gives it back to the lesson', () => {
+    const on = withStepPass(undefined, 'challenge', true);
+    expect(on).toEqual({ challenge: true });
+    expect(withStepPass(on, 'createBars', 2)).toEqual({
+      challenge: true,
+      createBars: 2,
+    });
+    expect(withStepPass(on, 'challenge', undefined)).toBeUndefined();
+  });
+});
+
+describe('where Part 2’s problems are', () => {
+  it('names a chord call’s, a template’s and a pass’s fields', () => {
+    expect(issueWhere(['steps', 4, 'call', 'chords', 1])).toBe(
+      'Step 5 · chords, bar 2',
+    );
+    expect(issueWhere(['steps', 4, 'call', 'chords'])).toBe('Step 5 · chords');
+    expect(issueWhere(['steps', 4, 'call', 'rhythm'])).toBe('Step 5 · rhythm');
+    expect(issueWhere(['steps', 6, 'call', 'progression'])).toBe(
+      'Step 7 · saved progression',
+    );
+    expect(issueWhere(['steps', 9, 'progression'])).toBe(
+      'Step 10 · saved progression',
+    );
+    expect(issueWhere(['steps', 5, 'template'])).toBe('Step 6 · template');
+    expect(issueWhere(['steps', 5, 'distinct'])).toBe(
+      'Step 6 · different chords',
+    );
+    expect(issueWhere(['steps', 5, 'saveAs'])).toBe('Step 6 · saved as');
+    expect(issueWhere(['steps', 1, 'passes', 'createBars'])).toBe(
+      'Step 2 · create-pass bars',
+    );
+    expect(issueWhere(['steps', 0, 'kind'])).toBe('Step 1');
+    expect(issueWhere(['steps', 1, 'call', 'notes', 2, 'degree'])).toBe(
+      'Step 2 · call, note 3',
+    );
+  });
+
+  it('finds a field’s problems, the items they name, and what no field claims', () => {
+    const broken: MusicLiteracyLesson = {
+      ...PART2_FIXTURE,
+      keyChoice: undefined,
+      steps: PART2_FIXTURE.steps.map((step) =>
+        step.tag === 'the-1-chord' && 'call' in step
+          ? {
+              ...step,
+              call: {
+                chords: ['7', '1'],
+                rhythm: [960, 1920],
+                harmony: 'triads',
+              },
+            }
+          : step,
+      ),
+    };
+    const issues = stepIssues(lessonIssues(broken), 4);
+    expect(issuesAt(issues, ['call', 'rhythm']).map((i) => i.message)).toEqual([
+      'A chord rhythm runs past its bar',
+    ]);
+    expect(issueItems(issues, ['call', 'chords'])).toEqual(new Set([0]));
+    expect(issuesAt(issues, ['call'], true)).toEqual([]);
+    expect(issuesOutside(issues, [['call']])).toEqual([]);
+    // The choose steps of a lesson whose key is its own: at the step.
+    expect(
+      stepIssues(lessonIssues(broken), 0).map((i) => [i.where, i.message]),
+    ).toEqual([
+      ['Step 1', 'Only a lesson whose key is the student’s choice asks for it'],
+    ]);
   });
 });

@@ -57,7 +57,11 @@ export const FigureEditor: FC<{
   lit?: number | null;
   /** "Step 3 call", for the controls' names. */
   label: string;
-}> = ({ figure, timeSignature, onChange, lit, label }) => {
+  /** Scale numbering: the degree pickers offer 1–7, as the mode reads them. */
+  scale?: boolean;
+  /** Notes the schema refuses, by their index among the notes. */
+  invalid?: ReadonlySet<number>;
+}> = ({ figure, timeSignature, onChange, lit, label, scale, invalid }) => {
   const stored = useMemo(() => figureChips(figure.notes), [figure.notes]);
   // Rests after the last note, kept until a note follows them.
   const [waiting, setWaiting] = useState<FigureChip[]>([]);
@@ -102,9 +106,8 @@ export const FigureEditor: FC<{
 
   // The preview lights a note by its index among the notes.
   let noteIndex = -1;
-  const litChip = chips.map((c) =>
-    c.kind === 'note' ? ++noteIndex === lit : false,
-  );
+  const notePlace = chips.map((c) => (c.kind === 'note' ? ++noteIndex : -1));
+  const litChip = notePlace.map((n) => n >= 0 && n === lit);
 
   const over = overrun(figure.notes, figure.bars, timeSignature);
   const end = starts.length ? starts.at(-1)! + chips.at(-1)!.duration : 0;
@@ -131,7 +134,9 @@ export const FigureEditor: FC<{
                   ? 'border-dashed border-white/15 bg-transparent'
                   : litChip[i]
                     ? 'border-sky-300/70 bg-sky-300/15'
-                    : 'border-white/[0.08] bg-white/[0.03]',
+                    : invalid?.has(notePlace[i])
+                      ? 'border-red-400/50 bg-red-400/[0.06]'
+                      : 'border-white/[0.08] bg-white/[0.03]',
                 i >= stored.length && 'opacity-60',
                 reorder.dragging === i && 'opacity-40',
               )}
@@ -166,6 +171,8 @@ export const FigureEditor: FC<{
                   degree={c.degree}
                   octave={c.octave}
                   label={`${name}: which note`}
+                  scale={scale}
+                  invalid={invalid?.has(notePlace[i])}
                   onChange={(degree, octave) => patch(i, { degree, octave })}
                 />
               ) : (

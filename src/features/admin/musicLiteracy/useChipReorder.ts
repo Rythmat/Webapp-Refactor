@@ -69,8 +69,8 @@ function pageColour(): string {
     : colour;
 }
 
-/** A copy of the item to carry under the pointer. */
-function ghostOf(item: HTMLElement, box: DOMRect): HTMLElement {
+/** A copy of the item to carry under the pointer (useStepDrag's too). */
+export function ghostOf(item: HTMLElement, box: DOMRect): HTMLElement {
   const ghost = item.cloneNode(true) as HTMLElement;
   // A select's value is a property, not markup: copy what it shows.
   const from = item.querySelectorAll('select');

@@ -100,6 +100,9 @@ describe('the steps', () => {
   it('adds a step at the end and opens it', () => {
     mount();
     fireEvent.click(screen.getByRole('button', { name: 'Add step' }));
+    fireEvent.click(
+      screen.getByRole('menuitem', { name: /Call and response \(melody\)/ }),
+    );
     expect(titles()).toHaveLength(PART_1.steps.length + 1);
     expect(titles().at(-1)).toBe('Step 8');
     expect(

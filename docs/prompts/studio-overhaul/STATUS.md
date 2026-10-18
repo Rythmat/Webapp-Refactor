@@ -1047,3 +1047,79 @@ Prompt 15b. Decision 16 (ST4); 29-D §4.4 and SD7 moved into Stage B.
   - Hey Ya!'s Lead Sheet marks now sit on the 4/4 bar holding each section's first chord (bars 5, 11, 16…), not 6, 12, 18: the true bars.
   - `swallowNativeMenu` is copied into the lane; exporting it from clipCommands would remove the copy.
 - **Next:** 15c (B7: 2.14 browser and add-track picker).
+
+## B7 — 2.14 the browser and the two-step add-track picker (2026-10-17)
+
+Prompt 15c. Decision 16 (ST5, ST12); 3.8's browser shell with F10 and F11 pulled forward.
+
+- **Branch:** `aaron`, from `e3f050b1` (B6's entry). Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Commits:**
+  - `653f4530` a track made for a sound starts on it (`addTrack`'s `init`);
+  - `3350c641` F10: the three dead MIDI-effect placeholders go;
+  - `00d4fd48` ♡ favourites as a per-user pref (`libraryFavourites`), the dock's Grooves heart included;
+  - `438d43eb` the two-step add-track picker;
+  - `2fc8c8fa` the Library as a browser;
+  - `de860205` F11: drops on the timeline;
+  - `453774e4` refusals are heard (the editor's toasts were silent; see below);
+  - `eef0c6ee`, `1669b5bb` review fixes;
+  - `d3e67c0d` studio:check: R33;
+  - this entry.
+  - Each commit typechecks alone (checked on `git archive` exports).
+- **Pushed:** `origin/aaron` `e3f050b1..` this entry (11 commits), pushed from this checkout with the hook.
+- **What changed:**
+  - **The Library is the browser** (`src/daw/shell/inspector/browser/`, its own chunk), after Soundtrap's Sound library in our look:
+    - one search; ♡, Instrument, Genre and Type filters whose choices show how many items each leaves (each counted without itself); up to six tag chips from what is listed; Clear;
+    - sections Parts · 75, Grooves · 29, Kits · 14, Presets · 114 (the Studio's 22 sounds, Oracle's 10 factory patches, the SERUM pack's 82 listed from its manifest, the student's own), Templates · 4;
+    - rows ▶ · name over what it is · ♡ · +. A part's row says the key it lands in, the tempo it was played at, its bars (and 3/4) and its chords as Roman numerals ("C · 120 BPM · 5 bars · I–V–vi–IV"); a groove its tempo, bars and genre, from the designed groove that plays; a kit or a sound what it is; a template its tempo and tracks, and its name opens it as a new project (refused in a shared session, as before);
+    - **Fits your song** on top while nothing narrows the list: what the song lacks in the order drums, bass, chords (up to 3, then 2), ranked by tempo, key fit, level and ♡, with a line such as "A minor · 120 BPM · no bass yet".
+  - **+** makes a new track holding the item at bar 1, as one undo step: named after it, on its sound and role (a part's clip moved into the song's key, swing in its ticks; a groove's clip and kit; a kit or a sound as the instrument), selected, the dock on Notes (parts, grooves) or Instrument. The key and tempo rules:
+    - **key:** a part moves by the move that puts the most of its key's scale on the song's (tonic first, then the smaller move), so a D dorian vamp stays D dorian in C major and parts written together move together; a song with no key and no notes takes the first part's key and says so; a song with notes but no key moves parts into the key read from them, without writing it;
+    - **tempo:** a groove at another tempo asks in the panel (Change to N BPM · Keep · Cancel), the change and the add one step; parts follow the song's tempo.
+  - **▶** previews one item at a time on an instrument of its own, notes booked on the audio clock as they come due, straight to the output (around master and mastering, like the click): a part in the key it would land in at its own tempo, a groove at its tempo on its kit, a kit a bar of beat, a sound a phrase in the song's key. ■, another ▶, Play, Record, an add, closing the panel and a new session stop it.
+  - **F11, drops:** a row dragged onto a melodic lane (a groove onto a drum lane) lands on that track at the bar under the pointer, keeping the track's sound; elsewhere (the ruler, under the last track, an empty project's tiles) it makes a new track holding it at that bar. Same rules as +. A dragover the timeline can't take is refused; a dropped .mid goes through Import MIDI file… (one step). The never-written drag kinds (instrument, track template, drum sample, MIDI loop by URL) are gone.
+  - **F10:** Arpeggiator, Chord and Scale left the effects lists.
+  - **Favourites:** `libraryFavourites`, a per-user pref (sorted item ids, prefsStore validator, registry, fingerprint and kitchen sink). The dock's Grooves heart is the same pref.
+  - **The add-track picker,** two steps:
+    - Keys (Piano · Electric piano · Organ), Drums (Drum grid → Notes · Grooves → the Grooves tab), Bass (the playable bass guitar, new to the picker), Synth, Instruments, Sampler, Voice, Guitar & bass amp (Guitar · Bass); each with an About line; a kind with one engine adds at once;
+    - under the tiles: Import MIDI file… and Browse the library (shows the Library, focus in its search);
+    - every lesson anchor kept; new `add-track-cat-*`, `-electric-piano`, `-grooves`, `-bass-electric`, `-browser`. Hip Hop's and House's first steps say "pick Drums, then Drum grid", the spotlight following the category to the choice.
+  - **Refusals are heard:** the editor's toasts went to an old toast store nothing draws, so the track limit, "Sam is editing this track", the clip and sections menus' refusals and "Track taken" were silent. They now go through `shell/notice.ts` on the app's Sonner toaster.
+- **Review:** an adversarial review of the feature commits, split six ways (musical correctness, store writes, preview audio, UI and a11y, catalog and integration, tests and harness), each finding verified. Fixed in `eef0c6ee`, `1669b5bb` and `453774e4`, each with a test:
+  - **high:** the move into the song's key read the notes, so parts of one key landed in different keys (now the keys); a preview booked each release with its start, so a synth chord played one note and an arpeggio preset nearly nothing (now booked as they come due, stop releases and fades);
+  - a tempo question left open could add into a project opened later; a lane deleted while it waited; a SERUM patch added while the pack loaded played the default (the pack load is shared; a missing patch adds nothing and says so); a groove listed before its designed metadata took the catalog's tempo and kit; a key lock left on with no key blocked the first part's key; voice loads leaked or evicted the playing voice; a failed load left a spinner; notes past a part's last bar; swing on the played tick; Escape ran the editor's Stop under the panel (the panel now takes no Escape); focus lost after the question or a clear; the ♡ filter unnamed; an unavailable + looked available; no status for a search; every row re-rendered on any tempo or role change; the picker flashed step 1 as it closed; chips and template names under 24 px wide;
+  - tests that couldn't fail, and R33 judges weaker than their text (now: a part that needs a move, the toast judged, stops timed under 400 ms, focus judged).
+- **Verification:**
+  - **lint:** whole tree clean (eslint and prettier). **typecheck:** clean at every commit (`git archive` exports).
+  - **vitest:** 3180 passed, 10 failed, 1 expected fail, 28 skipped (3219); the 10 failing files are B6's inherited set, unchanged (designGuard PianoRoll smallText, song-data, song-link session, content/scripts, EraRail flaky).
+  - **studio:check, full tier (par-check.sh, HMR off, 5281; the committed build `d3e67c0d` from a `git archive` on 5282):**
+    - unit: as above;
+    - round trips: chromebook 103/103 ok; laptop 100/103 with R1, R6 and R12:fileNew timing out on the synth panel bridge under load, each ok re-run alone (B6's known load flakes); R28–R33 ok at both sizes (no baseline, 0 new); old-tab round trips 8/8 ok;
+    - lessons: 74/78 at chromebook and small, only the 4 known failures; 12/12 complete; 4/4 gated; the two drum lessons with the new picker step 24/24;
+    - golden: same; golden-trace: all 15 checks pass;
+    - bundle: DawApp 114.9 kB gzip (B6 116.6 kB; budget 150), the every-page FAIL inherited from the main merge;
+    - perf: as B6 (idle 0 store writes/s; view switches, drags, scroll and score edits within B6's spread; autosave's `slotCommitsOk` "no" as in B6).
+  - **R33** (13 flags × 1366×655, 1440×787, 1280×720, both profiles): all pass.
+  - No Y.Doc or document-shape change, so no mixed-version collab check.
+  - **Browser (Chrome, my HMR-off server on 5281):** the panel at 300 and 240 px; search, filters, chips; Fits your song empty, after a groove and in A minor; + on a groove (no question at 120), a C dorian bass (filled the key), a 60 BPM groove (the question; Change and one ⌘Z undid tempo and track); a bass part dragged below the drums landed on a new track at bar 3 and the 60 BPM groove dragged onto the drum lane asked, Keep added it at bar 2 with focus back on its +; ▶ on a part and on Oracle PAD played and ended, Play stopped one; the track limit's notice showed and + looked off; ♡ and the tracks survived a reload; a template opened with Restore; the picker's two steps and back; the console showed only the known StrictMode warning.
+- **Owner sign-offs:**
+  1. **Rows:** kits and sounds say what they are (they play in any key and tempo); templates show tempo and tracks and open (no ▶ or +); numerals are Roman whatever the chord-notation setting.
+  2. **The key move:** by the keys, not the notes (a C dorian bass line in C major lands in D dorian; an A dorian boom-bap bass moves up a fourth to D dorian even though its notes already fit C major).
+  3. **Keys and tempo:** the first part fills an empty key (and clears a stale lock); grooves ask about tempo (the button is "Keep N BPM", not "Add anyway"); parts never change the tempo; a 3/4 part or groove keeps its own length in a 4/4 song (its row says 3/4).
+  4. **After +:** the dock opens on Notes for parts and grooves, Instrument for kits and sounds; a drop on a fitting lane keeps that track's sound.
+  5. **Previews** go around the master and mastering, like the click; each plays at its own tempo (3.8 adds "at song tempo").
+  6. **Favourites** are per student per computer and shared with the dock's Grooves heart (now white when on, not red).
+  7. **Fits your song:** drums → bass → chords, 3 then 2; nothing for melody (no melody parts exist).
+  8. **The 22 Studio sounds** are listed as presets (dock-instruments-16), beyond the plan's list; lesson grooves, bass lines and bands are not (3.8).
+  9. **The picker:** the 8 kinds and their step 2s; the Bass tile is the playable bass and recording a bass moved under the amp; track names follow the choice ("Piano", not "Keys"); Drum grid and "Start with a beat" open Notes (the step sequencer they promise); Escape closes on either step; the lessons' new copy.
+  10. **Escape** in the Library keeps the editor's meaning; ■ and Play stop a preview.
+  11. **Notices:** the editor's refusals and the Library's notices on Sonner (they were silent).
+  12. `addTrack`'s ignored colour argument became `init`.
+- **Open issues:**
+  1. **Data:** groove-latin-2's catalog tempo says 90; the designed groove that plays is 3/4 at 120 (the Library shows 120, the dock's Grooves list 90). Part names are lesson-ish ("Funk L1 · D46 D2: …", duplicates); "Abfunk9"/"Afunk9" show as ♭Ifunk9–Ifunk9; 32 parts end with a landing bar (5 bars for a 4-bar progression).
+  2. A drop shows no hint of where it will land (a lane and bar ghost); drag stays the second way in.
+  3. Keyboard: the list is one Tab stop per button (about 700); arrow-key navigation is 3.15's.
+  4. First use loads heavy assets: the SERUM pack (1.7 MB, 82 files), the GM SoundFont (30 MB), the natural kit (19.5 MB): 1.12c.
+  5. Oracle patches added by the browser live in the synth cache: not undone, not synced to collaborators (1.13b).
+  6. A 3/4 item in a 4/4 song isn't fitted to the song's bars; "Fits your song" doesn't weigh metre.
+  7. The old `@/hooks/use-toast` store is now unused in the editor; anything else that sends to it is still silent.
+- **Next:** 15d (B8: 2.15 commands and output).

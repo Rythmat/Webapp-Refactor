@@ -20,6 +20,7 @@ import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
 import { meterSource } from '@/daw/engine/meterBus';
 import { useTrackVolumeControl } from '@/daw/hooks/useMixControls';
 import { openTrackInDock } from '@/daw/shell/dock/dockSelection';
+import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore, useTrack, type Track } from '@/daw/store';
 import { contrastRatio, onColor } from '@/daw/ui/color';
 import { COLOR } from '@/daw/ui/tokens';
@@ -175,6 +176,10 @@ const TrackRowBody = memo(function TrackRowBody({
             label={`Open ${track.name}’s instrument`}
             icon={<Icon />}
             size="sm"
+            data-hint={hintText(
+              `Open ${track.name}’s instrument`,
+              'Show its sound in the dock',
+            )}
             data-testid="track-instrument-button"
             data-meaning="track-colour"
             className="shrink-0 rounded-full"
@@ -211,6 +216,12 @@ const TrackRowBody = memo(function TrackRowBody({
               tabIndex={tabStop ? 0 : -1}
               aria-pressed={isSelected}
               aria-label={`${track.name}, track ${index + 1}`}
+              data-hint={hintText(
+                track.name,
+                locked
+                  ? 'Select this track'
+                  : 'Select this track; double-click to rename it',
+              )}
               className={cn(
                 'h-6 min-w-0 flex-1 truncate rounded-[var(--daw-radius-sm)] px-1 text-left font-bold text-daw-text',
                 TYPE_CLASS.label,
@@ -237,6 +248,10 @@ const TrackRowBody = memo(function TrackRowBody({
                 icon={<MoreHorizontal />}
                 size="sm"
                 data-tutorial-id={menuAnchor ? 'track-menu-button' : undefined}
+                data-hint={hintText(
+                  `More for ${track.name}`,
+                  'Rename, colour, duplicate, export or delete it',
+                )}
                 data-testid="track-menu-button"
                 onClick={(e) => e.stopPropagation()}
               />
@@ -288,6 +303,7 @@ const TrackRowBody = memo(function TrackRowBody({
         >
           <Toggle
             label={`Mute ${track.name}`}
+            data-hint={hintText(`Mute ${track.name}`, 'Silence this track')}
             size="sm"
             pressed={track.mute}
             onPressedChange={() => useStore.getState().toggleMute(track.id)}
@@ -296,6 +312,10 @@ const TrackRowBody = memo(function TrackRowBody({
           </Toggle>
           <Toggle
             label={`Solo ${track.name}`}
+            data-hint={hintText(
+              `Solo ${track.name}`,
+              'Hear only this track and other soloed ones',
+            )}
             size="sm"
             pressed={track.solo}
             onPressedChange={() => useStore.getState().toggleSolo(track.id)}
@@ -308,6 +328,10 @@ const TrackRowBody = memo(function TrackRowBody({
             <>
               <Toggle
                 label={`Arm ${track.name} to record`}
+                data-hint={hintText(
+                  `Arm ${track.name} to record`,
+                  'Record onto this track when you press Record',
+                )}
                 tone="record"
                 size="sm"
                 icon={
@@ -344,6 +368,10 @@ function RowVolume({ track, dimmed }: { track: Track; dimmed: boolean }) {
     >
       <Fader
         label={`Volume of ${track.name}`}
+        data-hint={hintText(
+          `Volume of ${track.name}`,
+          'How loud this track is; double-click to reset',
+        )}
         orientation="horizontal"
         length={FADER_PX}
         min={0}
@@ -359,6 +387,10 @@ function RowVolume({ track, dimmed }: { track: Track; dimmed: boolean }) {
       />
       <Meter
         label={`${track.name} level`}
+        data-hint={hintText(
+          `${track.name} level`,
+          'How loud it plays; click to clear the red light',
+        )}
         source={source.current}
         orientation="horizontal"
         length={FADER_PX}

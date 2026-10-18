@@ -1,5 +1,6 @@
 import { memo, useEffect } from 'react';
 import { useStore, type ViewType } from '@/daw/store';
+import { hintText } from '@/daw/shell/help/hintSource';
 import { preloadView } from '@/daw/shell/lazyParts';
 import { Tab, TabList, Tabs } from '@/daw/ui/Tabs';
 
@@ -21,6 +22,14 @@ export const VIEWS: { id: ViewType; label: string }[] = [
 
 /** The Score tab's layout: the one last shown (this session). */
 let lastScoreLayout: ViewType = 'score';
+
+/** What each view is for, for the hint line (2.11). */
+const VIEW_PURPOSE: Partial<Record<ViewType, string>> = {
+  arrange: 'Build the song from tracks and clips',
+  studio: 'Balance the tracks’ volume, pan and effects',
+  score: 'Read and write the song as sheet music',
+  practice: 'Back to your practice track',
+};
 
 /** The view a tab opens: the Score tab, its last layout. */
 const layoutOf = (tab: ViewType): ViewType =>
@@ -65,6 +74,7 @@ export const ViewTabs = memo(function ViewTabs({
             key={v.id}
             value={v.id}
             data-tutorial-id={`view-switch-${v.id}`}
+            data-hint={hintText(v.label, VIEW_PURPOSE[v.id])}
             aria-controls={MAIN_REGION}
             // Each view but Create is its own chunk (1.12a): fetched on a
             // pointer over or a focus, so a click usually finds it there.

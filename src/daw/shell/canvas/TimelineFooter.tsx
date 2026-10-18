@@ -2,6 +2,7 @@ import { Maximize2, Minus, MoveRight, Plus } from 'lucide-react';
 import { memo } from 'react';
 import { cn } from '@/components/utilities';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
+import { hintText } from '@/daw/shell/help/hintSource';
 import {
   fitTimeline,
   zoomTimelineIn,
@@ -60,6 +61,11 @@ function ZoomControls() {
         shortcut={ZOOM_OUT_KEYS.label}
         size="sm"
         tooltipSide="top"
+        data-hint={hintText(
+          'Zoom out',
+          'See more of the song at once',
+          ZOOM_OUT_KEYS.label,
+        )}
         data-testid="zoom-out"
         onClick={zoomTimelineOut}
       />
@@ -70,6 +76,10 @@ function ZoomControls() {
             'w-10 text-center tabular-nums text-daw-text-2',
           )}
           data-testid="zoom-level"
+          data-hint={hintText(
+            'Timeline zoom',
+            'How far the timeline is zoomed in',
+          )}
         >
           {zoomPercent(zoom)}
         </span>
@@ -80,6 +90,11 @@ function ZoomControls() {
         shortcut={ZOOM_IN_KEYS.label}
         size="sm"
         tooltipSide="top"
+        data-hint={hintText(
+          'Zoom in',
+          'See the timeline in more detail',
+          ZOOM_IN_KEYS.label,
+        )}
         data-testid="zoom-in"
         onClick={zoomTimelineIn}
       />
@@ -89,6 +104,11 @@ function ZoomControls() {
         shortcut={FIT_KEYS.label}
         size="sm"
         tooltipSide="top"
+        data-hint={hintText(
+          'Fit the song',
+          'Zoom so the whole song fits the window',
+          FIT_KEYS.label,
+        )}
         data-testid="zoom-fit"
         onClick={fitTimeline}
       />
@@ -105,6 +125,10 @@ function FollowToggle() {
       size="sm"
       pressed={follow}
       onPressedChange={(on) => useStore.getState().setFollowPlayhead(on)}
+      data-hint={hintText(
+        'Follow the playhead',
+        'Scroll along with the playhead as the song plays',
+      )}
       data-testid="follow-toggle"
     />
   );

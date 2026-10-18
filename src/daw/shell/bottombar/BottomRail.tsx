@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
+import { HintLine } from '@/daw/shell/help/HintLine';
 import { MasterRow } from './MasterRow';
 import { SongControls } from './SongControls';
 import { TransportControls } from './TransportControls';
@@ -13,6 +14,8 @@ import { TransportControls } from './TransportControls';
 // The top bar keeps the project, the views, Share and the account. The
 // transport stays centred in the window whatever the sides hold; below
 // SHORT_KEY_PX of width the key drops its mode word ('C', not 'C major').
+// The Master zone's free width after Master holds the hover hint line
+// (2.11): what the control under the pointer does; it hides when narrow.
 
 const SHORT_KEY_PX = 1100;
 
@@ -37,9 +40,10 @@ export const BottomRail = memo(function BottomRail({
         role="group"
         aria-label="Master"
         data-zone="master"
-        className="flex min-w-0 items-center justify-self-start"
+        className="flex min-w-0 items-center gap-3 justify-self-stretch"
       >
         <MasterRow />
+        <HintLine />
       </div>
       <div
         role="group"

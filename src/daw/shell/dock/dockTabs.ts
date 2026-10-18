@@ -36,6 +36,27 @@ export const DOCK_TABS: readonly DockTab[] = [
   { id: 'fx', label: 'Effects' },
 ];
 
+/**
+ * What each tab is for, in a student's words, for the hint line (2.11). On
+ * drums Notes is the drum grid.
+ */
+export function dockTabPurpose(id: ChannelStripTabId, kind: DockKind): string {
+  switch (id) {
+    case 'controls':
+      return 'Play and shape this track’s sound';
+    case 'grooves':
+      return 'Pick a ready-made drum beat for this track';
+    case 'prism':
+      return 'Build a chord progression from the song’s key';
+    case 'piano-roll':
+      return kind === 'drums'
+        ? 'Draw the beat on the drum grid'
+        : 'Draw and edit this track’s notes';
+    case 'fx':
+      return 'Add and adjust this track’s effects';
+  }
+}
+
 /** One entry per tab: a tab missing here, or one too many, fails to compile. */
 const TABS: Record<ChannelStripTabId, true> = {
   controls: true,

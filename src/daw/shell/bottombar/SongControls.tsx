@@ -1,6 +1,7 @@
 import { Lock } from 'lucide-react';
 import { memo, useState } from 'react';
 import { cn } from '@/components/utilities';
+import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
 import { Popover, PopoverContent, PopoverTrigger } from '@/daw/ui/Popover';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
@@ -55,6 +56,10 @@ function KeyButton({ short }: { short: boolean }) {
             type="button"
             data-testid="key-button"
             aria-label={`Key: ${full}${locked ? ', locked' : ''}`}
+            data-hint={hintText(
+              `Key: ${full}`,
+              'Choose the scale the song is in',
+            )}
             className={cn(
               RAIL_BUTTON,
               'border',
@@ -102,6 +107,10 @@ function MetreButton() {
             type="button"
             data-testid="metre-button"
             aria-label={`Time signature: ${numerator}/${denominator}`}
+            data-hint={hintText(
+              `Time signature: ${numerator}/${denominator}`,
+              'Choose how many beats make a bar',
+            )}
             className={RAIL_BUTTON}
           >
             {numerator}/{denominator}

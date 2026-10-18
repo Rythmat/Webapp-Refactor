@@ -3,6 +3,7 @@ import { memo, useRef } from 'react';
 import { AutomationLaneEditor } from '@/daw/components/Timeline/AutomationLaneEditor';
 import { Timeline } from '@/daw/components/Timeline/Timeline';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
+import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
 import { ChordAnalysisBanner } from '../canvas/ChordAnalysisBanner';
@@ -106,6 +107,10 @@ function SectionsRow() {
           variant="ghost"
           data-tutorial-id="add-track-button"
           data-testid="add-track-button"
+          data-hint={hintText(
+            'Add track',
+            'Choose an instrument, drums or audio for a new track',
+          )}
           className="w-full justify-start"
           onClick={openAddTrackSheet}
         >

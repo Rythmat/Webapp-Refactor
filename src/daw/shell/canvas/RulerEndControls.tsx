@@ -1,5 +1,6 @@
 import { Magnet } from 'lucide-react';
 import { memo } from 'react';
+import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
 import { Toggle } from '@/daw/ui/Toggle';
 import { RULER_PX } from '../tracklist/rowLayout';
@@ -45,6 +46,10 @@ function SnapToggle() {
       onPressedChange={() => useStore.getState().toggleTimelineSnap()}
       size="sm"
       tooltipSide="left"
+      data-hint={hintText(
+        'Snap to grid',
+        'Line clips up with the grid as you drag them',
+      )}
       data-testid="snap-toggle"
     />
   );

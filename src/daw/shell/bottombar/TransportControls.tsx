@@ -17,6 +17,7 @@ import {
   rewindBar,
 } from '@/daw/commands/transportSkip';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
+import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
 import { Toggle } from '@/daw/ui/Toggle';
@@ -106,6 +107,13 @@ export const TransportControls = memo(function TransportControls({
         shortcut={KEYS.playPause.label}
         aria-keyshortcuts={KEYS.playPause.aria}
         tooltipSide="top"
+        data-hint={hintText(
+          isPlaying ? 'Pause' : 'Play',
+          isPlaying
+            ? 'Stop playing and stay here'
+            : 'Play the song from the playhead',
+          KEYS.playPause.label,
+        )}
         data-testid="transport-play"
         data-playing={isPlaying || undefined}
         onClick={handlePlayPause}
@@ -127,6 +135,13 @@ export const TransportControls = memo(function TransportControls({
         aria-keyshortcuts={KEYS.record.aria}
         aria-pressed={isRecording}
         tooltipSide="top"
+        data-hint={hintText(
+          isRecording ? 'Recording' : 'Record',
+          isRecording
+            ? 'Stop recording'
+            : 'Record what you play, from the playhead',
+          KEYS.record.label,
+        )}
         data-testid="transport-record"
         data-state={recordState}
         className={cn(
@@ -143,6 +158,11 @@ export const TransportControls = memo(function TransportControls({
         shortcut={KEYS.toStart.label}
         aria-keyshortcuts={KEYS.toStart.aria}
         tooltipSide="top"
+        data-hint={hintText(
+          'Go to start',
+          'Move the playhead back to the beginning',
+          KEYS.toStart.label,
+        )}
         data-testid="transport-to-start"
         onClick={goToStart}
       />
@@ -152,6 +172,11 @@ export const TransportControls = memo(function TransportControls({
         shortcut={KEYS.rewind.label}
         aria-keyshortcuts={KEYS.rewind.aria}
         tooltipSide="top"
+        data-hint={hintText(
+          'Rewind one bar',
+          'Step back a bar; hold to keep going',
+          KEYS.rewind.label,
+        )}
         data-testid="transport-rewind"
         {...rewind}
       />
@@ -161,6 +186,11 @@ export const TransportControls = memo(function TransportControls({
         shortcut={KEYS.fastForward.label}
         aria-keyshortcuts={KEYS.fastForward.aria}
         tooltipSide="top"
+        data-hint={hintText(
+          'Fast-forward one bar',
+          'Step on a bar; hold to keep going',
+          KEYS.fastForward.label,
+        )}
         data-testid="transport-fast-forward"
         {...fastForward}
       />
@@ -173,6 +203,11 @@ export const TransportControls = memo(function TransportControls({
         onPressedChange={() => toggleLoop()}
         shortcut={KEYS.loop.label}
         aria-keyshortcuts={KEYS.loop.aria}
+        data-hint={hintText(
+          'Loop',
+          'Play the loop range over and over',
+          KEYS.loop.label,
+        )}
         data-testid="transport-loop"
       />
       <ClickToggle />

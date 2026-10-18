@@ -59,6 +59,10 @@ export interface TooltipProps {
  * When the tip only repeats the control's name (an icon button's label),
  * that would read the name twice ('Undo, button, Undo'), so the tip then
  * describes only its shortcut, or nothing.
+ *
+ * The trigger also carries the tip as `data-hint` (with ' · ' and the
+ * shortcut), which the bottom rail's hint line reads (shell/help/hintSource.ts),
+ * so a tip is written once. A `data-hint` on the child itself wins.
  */
 export function Tooltip({
   content,
@@ -73,10 +77,17 @@ export function Tooltip({
 
   const name = (children.props as { 'aria-label'?: unknown })['aria-label'];
   const repeatsName = typeof content === 'string' && content === name;
+  const hint =
+    typeof content === 'string' && content.trim()
+      ? shortcut
+        ? `${content} · ${shortcut}`
+        : content
+      : undefined;
   const tip = (
     <KitTooltip>
       <TooltipTrigger
         asChild
+        data-hint={hint}
         {...(repeatsName && !shortcut ? { 'aria-describedby': undefined } : {})}
       >
         {children}

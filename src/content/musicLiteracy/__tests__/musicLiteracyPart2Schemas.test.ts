@@ -332,11 +332,34 @@ describe('the passes', () => {
     expect(bars(undefined, { createBars: 2 })).toEqual([
       'Create-pass bars on a step without a create pass',
     ]);
-    expect(bars(undefined, { create: true, createBars: 2 })).toEqual([]);
+    // A step opts out of its module's round, never into another.
+    expect(bars(undefined, { create: true, createBars: 2 })).toEqual([
+      'Create-pass bars on a step without a create pass',
+    ]);
     expect(bars({ create: true }, { create: false, createBars: 2 })).toEqual([
       'Create-pass bars on a step without a create pass',
     ]);
-    expect(bars(undefined, { createBars: 9, create: true }).length).toBe(1);
+    expect(bars({ create: true }, { createBars: 9 }).length).toBe(1);
+  });
+
+  it('sets create-pass bars where the step’s module creates, whatever the lesson’s default', () => {
+    const body = withSteps(
+      replaceStep('one-three-five', {
+        ...PART2_STEPS.triad,
+        passes: { createBars: 2 },
+      } as LiteracyStep),
+      {
+        passes: undefined,
+        modules: [{ title: 'Choose a Color', round: 'create' }],
+      },
+    );
+    expect(messages(body)).toEqual([]);
+    expect(
+      messages({
+        ...body,
+        modules: [{ title: 'Choose a Color', round: 'none' }],
+      }),
+    ).toEqual(['Create-pass bars on a step without a create pass']);
   });
 
   it('keeps Part 1 valid with none: the lesson field is optional', () => {
@@ -353,6 +376,58 @@ describe('the passes', () => {
         passes: { createBars: 2 },
       }).success,
     ).toBe(false);
+  });
+});
+
+describe('modules and the goal', () => {
+  const modules = [
+    { title: 'Choose a Color', round: 'none' },
+    {
+      title: 'Create a Melody',
+      goal: 'Create a melody and play it the same way twice.',
+      round: 'create',
+    },
+    { title: 'Chords' },
+  ] as const;
+
+  it('takes the lesson’s goal and its sections’ modules, each by title', () => {
+    const body = { ...lesson(), goal: 'Make it twice.', modules };
+    expect(messages(body)).toEqual([]);
+    expect(musicLiteracyBodySchema.parse(body)).toEqual(body);
+  });
+
+  it('refuses a module listed twice, or one no step’s section names', () => {
+    const issues = (list: unknown) => {
+      const result = musicLiteracyBodySchema.safeParse({
+        ...lesson(),
+        modules: list,
+      });
+      return result.success
+        ? []
+        : result.error.issues.map((i) => [i.path.join('.'), i.message]);
+    };
+    expect(issues([...modules, { title: 'Chords', round: 'none' }])).toEqual([
+      ['modules.3.title', 'Module "Chords" is listed twice'],
+    ]);
+    expect(issues([{ title: 'Create a Chord Progression' }])).toEqual([
+      [
+        'modules.0.title',
+        'No steps are in a section called "Create a Chord Progression"',
+      ],
+    ]);
+    expect(issues([{ title: '' }])[0][0]).toBe('modules.0.title');
+    expect(issues([{ title: 'Chords', round: 'sometimes' }])).toHaveLength(1);
+    expect(issues([{ title: 'Chords', colour: 'red' }])).toHaveLength(1);
+    expect(messages({ ...lesson(), goal: '' }).length).toBe(1);
+  });
+
+  it('gives a module with no sections nothing to name: Part 1 takes none', () => {
+    expect('modules' in LITERACY_FIXTURE).toBe(false);
+    expect(
+      messages({ ...LITERACY_FIXTURE, modules: [{ title: 'Part 1' }] }),
+    ).toEqual(['No steps are in a section called "Part 1"']);
+    // A goal it may have: shown at its start.
+    expect(messages({ ...LITERACY_FIXTURE, goal: 'Echo me.' })).toEqual([]);
   });
 });
 

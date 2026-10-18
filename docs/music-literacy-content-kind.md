@@ -57,7 +57,9 @@ types; `int` is an integer.
 | `key`           | `{ tonic, mode }`         | yes      | `tonic` one of `C Db D Eb E F F# Gb G Ab A Bb B`; `mode` `major` \| `minor`. Every note is a degree of this key.     |
 | `keyChoice`     | `lesson` \| `student`     | no       | Part 2. `student`: the student picks the key and mode, and `key` is the default and preview key. Left out, `lesson`. |
 | `numbering`     | `chromatic` \| `scale`    | no       | Part 2. How degrees read; left out, `chromatic` (Part 1). Below, **Part 2**.                                         |
-| `passes`        | `{ challenge?, create? }` | no       | The passes its echo steps offer beyond the echo; left out, the challenge on and the create pass off. Below.          |
+| `passes`        | `{ challenge?, create? }` | no       | The default round of a module that names none; left out, the challenge (Part 1's). Below, **Modules**.               |
+| `goal`          | string                    | no       | Part 2. The lesson's one directive, shown before its first step. Not empty. Below, **Modules**.                      |
+| `modules`       | module[]                  | no       | Part 2. Its sections' goals and rounds, each by its section's title. Below, **Modules**.                             |
 | `tempo`         | number > 0                | yes      | Quarter-note bpm.                                                                                                    |
 | `timeSignature` | [int, int]                | yes      | Both ≥ 1.                                                                                                            |
 | `countInBars`   | int 0–2                   | yes      |                                                                                                                      |
@@ -78,7 +80,7 @@ default: a step with no `kind` is one. Part 2's other kinds are below.
 | `words`     | words                                  | no       | The line the teacher sings, below. Left out (Part 2), none: the call comes in after the count-in.      |
 | `call`      | figure \| chord figure                 | yes      | What the teacher plays: notes, or (Part 2) chords.                                                     |
 | `response`  | figure                                 | no       | What the student plays back. Left out, the student echoes the call. Never with a chord call.           |
-| `passes`    | `{ challenge?, create?, createBars? }` | no       | This step's passes, over the lesson's. Below.                                                          |
+| `passes`    | `{ challenge?, create?, createBars? }` | no       | `false` leaves it out of its module's round; `createBars` sets its create pass's length. Below.        |
 | `tempo`     | number > 0                             | no       | Overrides the lesson's.                                                                                |
 | `passMark`  | number 0–100                           | no       | Percent needed to pass; left out, the house mark.                                                      |
 
@@ -147,20 +149,22 @@ rules and messages are below.
 
 "Part 2 · Choose a color" (the Start Here path's second stop): the
 student picks a key center on the circle of fifths and major or minor,
-then plays melodies and chord progressions in it, each step twice: Atlas's
-call echoed, then a call of their own. The seed is
+then plays melodies and chord progressions in it, module by module: each
+module's steps as Atlas's calls, echoed, then once the module is passed, a
+second time through as calls of their own (the module's create round). The
+seed is
 `src/curriculum/data/musicLiteracy/music-literacy-part-2.json`, live: the
 Learn player plays every kind below (`src/curriculum/musicLiteracy/`, with
 the step-done rule in `stepDone.ts`). Every field below is optional or a new kind,
 so a Part 1 file means exactly what it did: no kind is an echo, no
-`numbering` is chromatic, no `passes` is the challenge on and the create
-pass off.
+`numbering` is chromatic, no sections make the lesson one module, and no
+`passes` makes its round the challenge.
 
 ### The lesson's key, the student's choice
 
 `"keyChoice": "student"` makes the key the student's: a `chooseKey` step
 picks the tonic and a `chooseMode` step the mode (Part 2 asks for the mode
-at the start of each section). Until they choose, and in the editor's
+again as its melodies and its chords begin). Until they choose, and in the editor's
 preview, the lesson plays in `key`. A choose step in a lesson whose key is
 its own is refused.
 
@@ -187,7 +191,7 @@ and `tempo` (the tempo whatever it plays runs at).
 
 | Kind           | Fields                                                                              | What the student does                                                                            |
 | -------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `echo`         | `words?`, `call`, `response?`, `passes?`, `passMark?` (above)                       | Plays Atlas's call back (Pass 1), then, with the create pass, a call of their own (Pass 2).      |
+| `echo`         | `words?`, `call`, `response?`, `passes?`, `passMark?` (above)                       | Plays Atlas's call back; in its module's create round, a call of their own, then repeats it.     |
 | `chooseKey`    | none                                                                                | Picks the tonic on the circle of fifths, in the key colors ("choose a color").                   |
 | `chooseMode`   | none                                                                                | Picks major or minor.                                                                            |
 | `chooseChords` | `template` (`1`/`X` bars, 1–8), `distinct` (int ≥ 1), `harmony`, `saveAs` (a tag)   | Fills the X bars from the mode's palette with `distinct` different chords; saved under `saveAs`. |
@@ -217,7 +221,7 @@ and `tempo` (the tempo whatever it plays runs at).
 {
   "kind": "chooseChords",
   "tag": "choose-1-x-x-x",
-  "section": "Create a Chord Progression",
+  "section": "Progressions",
   "title": "Add a 3rd chord: | 1 | X | X | X |",
   "direction": "Fill the X bars with two different chords.",
   "template": ["1", "X", "X", "X"],
@@ -277,7 +281,7 @@ taking its X from one:
 ```json
 {
   "tag": "the-1-chord",
-  "section": "Create a Chord Progression",
+  "section": "Chords",
   "title": "The 1 chord",
   "direction": "Play the 1 chord in this rhythm: short, short, long.",
   "call": {
@@ -291,7 +295,7 @@ taking its X from one:
 ```json
 {
   "tag": "play-1-x",
-  "section": "Create a Chord Progression",
+  "section": "Chords",
   "title": "Play | 1 | X |",
   "call": {
     "progression": "one-and-x",
@@ -333,15 +337,17 @@ The palette an X is picked from is the mode's chords but the 1: major
 
 ### The passes
 
-| Pass      | Who has it                                                                  | What happens                                                                                                                                                                                  |
-| --------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| echo      | every echo step                                                             | Pass 1: Atlas calls, the student plays it back exactly. A chord call repeats one rhythm a bar, and the student echoes those chords in it.                                                     |
-| challenge | melodic echoes, on by default (Part 1 without a field); Part 2 turns it off | "Want a challenge just for fun? Go again and play ALL the notes!" The same run; the student plays every note along with Atlas (the words, the call), then the response. Every note is graded. |
-| create    | off by default; Part 2 turns it on lesson-wide                              | Pass 2, "Now Create Your Own Rhythms!": count-in, then the student's own call, then their repeat of it, on one pulse.                                                                         |
+| Pass      | Who has it                                                  | What happens                                                                                                                                                   |
+| --------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| echo      | every echo step                                             | The module's first time through: Atlas calls, the student plays it back exactly. A chord call repeats one rhythm a bar, and the student echoes those chords.   |
+| challenge | the melodic echoes of a module whose round it is (Part 1's) | "Go again and play ALL the notes!" The same run; the student plays every note along with Atlas (the words, the call), then the response. Every note is graded. |
+| create    | the echoes of a module whose round it is (Part 2's)         | "Now go again and create your own": count-in, then the student's own call, then their repeat of it, on one pulse.                                              |
 
-The lesson's `passes` set the defaults; a step's `passes` override them
-(`createBars`: the create pass's call in bars, left out the call's; a
-melody only, since a chord call's create pass lasts its chords). The
+Which round a step is in is its module's (below). A step's `passes` opts
+it out: `"create": false` (or `"challenge": false`) leaves it out of its
+module's round; a `true` adds nothing, the module picks the round.
+`createBars` is the create pass's call in bars, left out the call's; a
+melody only, since a chord call's create pass lasts its chords. The
 student's progress for the echo stays under the step's tag, as Part 1's
 always has; the others go under `<tag>:challenge` and `<tag>:create`.
 
@@ -370,6 +376,103 @@ response is a target, scored by the same maths and pass rule. Each
 segment pairs only the notes played from an eighth before it starts to an
 eighth before the next does, so a note in the words never answers the
 call. The teacher's turn is graded, so a wrong key there shows gray.
+
+### Modules
+
+A lesson is a run of **modules**: each section is one (Part 2's "Create a
+Melody", "Chords"…), and a lesson with no sections is one module, the
+whole lesson (Part 1). A step with no section, in a lesson that has them,
+goes with the section of the step before it (the first steps, with the
+section after them).
+
+Each module has a **goal**, said on its card, and a **round**: what the
+student is offered once they **pass the module**, meaning every step of it
+is done as `stepDone.ts` counts a step (an echo played back well enough, a
+choice made, a replay heard).
+
+| Round       | What the student does                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------------- |
+| `create`    | Goes through the module's echoes again, each as its create pass: their own call, then their repeat of it (Part 2).  |
+| `challenge` | Goes through the module's melodies again, each as the challenge: play ALL the notes along with Atlas, just for fun. |
+| `none`      | Nothing more ("Choose a Color").                                                                                    |
+
+The lesson's `modules` set them, one entry a section, matched by title:
+
+| Field   | Type                              | Required | Notes                                                                                                                                             |
+| ------- | --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title` | string                            | yes      | The section it is: its steps' `section`. Not empty.                                                                                               |
+| `goal`  | string                            | no       | What to make. Left out, the round's default, by what its steps play (below).                                                                      |
+| `round` | `create` \| `challenge` \| `none` | no       | Left out, the lesson's default: `create` when `passes.create` is on, else `challenge` when `passes.challenge` is (on when left out), else `none`. |
+
+A section without an entry takes both defaults. The default goals:
+
+| Round and what it plays                    | Goal                                                                     |
+| ------------------------------------------ | ------------------------------------------------------------------------ |
+| create, melodies                           | Create a melody and play it the same way twice.                          |
+| create, chord calls of one or two bars     | Create a chord comping rhythm and play it the same way twice.            |
+| create, a chord call of three bars or more | Create a chord progression with a rhythm and play it the same way twice. |
+| challenge                                  | Play ALL the notes!                                                      |
+| none, or a round with no step to play      | none                                                                     |
+
+The lesson's `goal` is its **one directive**, shown before its first step.
+Left out, a lesson with a create round shows the default: "Your goal:
+create a melody, a chord comping rhythm, or a chord progression with a
+rhythm, and play it the same way twice." A lesson without one (Part 1)
+shows none.
+
+Part 2's seed:
+
+```json
+"goal": "Your goal: create a melody, a chord comping rhythm, or a chord progression with a rhythm, and play it the same way twice.",
+"modules": [
+  { "title": "Choose a Color", "round": "none" },
+  {
+    "title": "Create a Melody",
+    "goal": "Create a melody and play it the same way twice.",
+    "round": "create"
+  },
+  {
+    "title": "Chords",
+    "goal": "Create a chord comping rhythm and play it the same way twice.",
+    "round": "create"
+  },
+  {
+    "title": "Progressions",
+    "goal": "Create a chord progression with a rhythm and play it the same way twice.",
+    "round": "create"
+  },
+  {
+    "title": "7th Chords",
+    "goal": "Create a chord progression with 7th chords and a rhythm, and play it the same way twice.",
+    "round": "create"
+  }
+]
+```
+
+**In the player** (`src/curriculum/musicLiteracy/`):
+
+- Part 2 opens on the lesson's goal, a card before Choose your key, with
+  its modules in order (not when Start Here's Continue opens a step).
+- Every step is played as its echo; no step offers more after its result.
+- Passing a module's last echo (once the rest is passed) shows the
+  module's card in the result's place: "Module done! Now go again and
+  create your own." with its goal, Create your own, and Next module. Part
+  1's: "Part 1 done! Want a challenge just for fun? Go again and play ALL
+  the notes!" A module with no round to play shows no card.
+- The round goes through the module's round steps again, from the first
+  not yet passed, under a banner naming the round, the module and its
+  goal; the pager counts the round's steps and its list is theirs. Its
+  last step goes on to the next module (or, the lesson's last, back to the
+  path). Leave round goes back to the step as its echo.
+- Once a module is passed, its header in the step list offers its round
+  ("Create your own ›", ✓ once every round step has passed).
+- Start Here and the Home card still count the steps (their echoes), and
+  mark the rounds done: "1 of 4 create rounds", "Challenge done".
+
+A round's progress is its steps' pass keys (`<tag>:create`,
+`<tag>:challenge`): nothing is keyed by a module's title, which can be
+renamed. A round is done when every one of them has passed
+(`modules.ts`: `roundProgressKeys`, `roundMark`).
 
 ### The student's choices
 
@@ -423,22 +526,25 @@ chord is diminished in major: use another`.
 is: leave the response out`, `The challenge pass is for melodies, not
 chord calls`, `A chord call’s create pass lasts its chords’ bars: leave
 its bars out`.
-- Create bars only with a create pass: `Create-pass bars on a step without
-a create pass`.
+- Create bars only in a create round, not opted out: `Create-pass bars on
+a step without a create pass`.
+- A module listed once, by a section its steps use: `Module "…" is listed
+twice`, `No steps are in a section called "…"`.
 
 ### Where the code is
 
-| What                                               | Where (`src/curriculum/engine/musicLiteracy/`) |
-| -------------------------------------------------- | ---------------------------------------------- |
-| Pitches, modal numbering                           | `pitch.ts` (re-exported by `literacy.ts`)      |
-| Timelines, notes, chord figures, replays, sections | `literacy.ts`                                  |
-| Chords, palette, voicing, progressions             | `chords.ts`                                    |
-| The student's choices                              | `choices.ts`                                   |
-| Which passes a step has                            | `passes.ts`                                    |
-| Grading: the echo, the challenge                   | `grading.ts`                                   |
-| Grading a chord echo                               | `chordGrading.ts`                              |
-| The create pass                                    | `createPass.ts`                                |
-| Run cues (challenge hints, the create run)         | `run.ts`                                       |
+| What                                                | Where (`src/curriculum/engine/musicLiteracy/`) |
+| --------------------------------------------------- | ---------------------------------------------- |
+| Pitches, modal numbering                            | `pitch.ts` (re-exported by `literacy.ts`)      |
+| Timelines, notes, chord figures, replays, sections  | `literacy.ts`                                  |
+| Chords, palette, voicing, progressions              | `chords.ts`                                    |
+| The student's choices                               | `choices.ts`                                   |
+| Which passes a step has                             | `passes.ts`                                    |
+| Modules: their rounds, goals, round steps, progress | `modules.ts` (and `schemas.ts`'s `stepRound`)  |
+| Grading: the echo, the challenge                    | `grading.ts`                                   |
+| Grading a chord echo                                | `chordGrading.ts`                              |
+| The create pass                                     | `createPass.ts`                                |
+| Run cues (challenge hints, the create run)          | `run.ts`                                       |
 
 ### List projection (`/items`)
 
@@ -477,7 +583,11 @@ notes on the 1 and whose call is three, with an empty name to fill in.
   status, and each step's words, call and response as chips of notes and
   rests, or in the Parts editor's piano roll and staff. The words' Pickup
   control sets a pickup: its chips sit before a double bar (‖) and count
-  the pickup bar's beats ("4", "4&"). Its
+  the pickup bar's beats ("4", "4&"). Each section's header holds its
+  module's Goal and Round (Create, Challenge or None, each said in a
+  line), and renaming a section takes its module along; the lesson's
+  settings hold its Goal and its default Round (for Part 1, the lesson's
+  round). A step's In the round setting leaves it out. Its
   `records/music_literacy[/:id]` URLs redirect there, and a lesson's Learn
   page in the console offers Edit lesson.
 - **Saving.** Through the content API when `/capabilities` serves the kind;

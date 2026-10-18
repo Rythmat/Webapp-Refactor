@@ -1,7 +1,9 @@
 /**
  * The Music Literacy editor's edits to a lesson as a whole: its steps' tags,
  * adding (of any kind), duplicating, moving and removing steps, their
- * sections, the passes the lesson and a step offer, a new lesson's id, the
+ * sections and the modules they are (each one's goal and round, kept in
+ * step with its section's name), the lesson's default round and the passes
+ * a step opts out of, a new lesson's id, the
  * schema's problems in a teacher's words, the body laid out as its file is,
  * key by key, and where the lesson goes (its Learn page, its download).
  *
@@ -9,13 +11,16 @@
  */
 
 import {
+  defaultRound,
   isChordFigure,
   isEchoStep,
   musicLiteracyBodySchema,
   type LiteracyChordFigure,
   type LiteracyFigure,
   type LiteracyLessonPasses,
+  type LiteracyModuleEntry,
   type LiteracyNote,
+  type LiteracyRound,
   type LiteracyStep,
   type LiteracyStepPasses,
   type LiteracyWord,
@@ -232,7 +237,7 @@ export function moveStepTo(
   if (to === from && moved === step) return lesson;
   const steps = lesson.steps.filter((_, i) => i !== from);
   steps.splice(Math.max(0, Math.min(to, steps.length)), 0, moved);
-  return { ...lesson, steps };
+  return withModulesPruned({ ...lesson, steps });
 }
 
 /** Where an index lands when the step at `from` moves to `to`. */
@@ -248,25 +253,41 @@ export const sectionNames = (lesson: Pick<MusicLiteracyLesson, 'steps'>) => [
   ...new Set(lesson.steps.flatMap((step) => step.section ?? [])),
 ];
 
-/** A run of steps (a section's, by index) given a new label, or none. */
+/**
+ * A run of steps (a section's, by index) given a new label, or none. The
+ * section's module goes with it: its goal and round under the new name
+ * (copied, when other steps keep the old one; the new name's own entry,
+ * if it has one, wins).
+ */
 export function renameSection(
   lesson: MusicLiteracyLesson,
   indices: readonly number[],
   name: string,
 ): MusicLiteracyLesson {
-  return {
-    ...lesson,
-    steps: lesson.steps.map((step, i) =>
-      indices.includes(i) ? withSection(step, name) : step,
-    ),
-  };
+  const steps = lesson.steps.map((step, i) =>
+    indices.includes(i) ? withSection(step, name) : step,
+  );
+  const from = indices.length ? lesson.steps[indices[0]]?.section : undefined;
+  const to = name.trim();
+  const entry = from && lesson.modules?.find((m) => m.title === from);
+  let modules = lesson.modules;
+  if (entry && to && to !== from && !modules?.some((m) => m.title === to)) {
+    const kept = steps.some((step) => step.section === from);
+    modules = kept
+      ? [...(modules ?? []), { ...entry, title: to }]
+      : modules?.map((m) => (m === entry ? { ...m, title: to } : m));
+  }
+  return withModulesPruned({ ...lesson, steps, modules });
 }
 
 export function removeStep(
   lesson: MusicLiteracyLesson,
   index: number,
 ): MusicLiteracyLesson {
-  return { ...lesson, steps: lesson.steps.filter((_, i) => i !== index) };
+  return withModulesPruned({
+    ...lesson,
+    steps: lesson.steps.filter((_, i) => i !== index),
+  });
 }
 
 /** A change to one step: fields of its own kind (the editor's to keep so). */
@@ -275,12 +296,92 @@ export function patchStep<S extends LiteracyStep>(
   index: number,
   patch: Partial<S>,
 ): MusicLiteracyLesson {
-  return {
+  const next = {
     ...lesson,
     steps: lesson.steps.map((step, i) =>
       i === index ? ({ ...step, ...patch } as LiteracyStep) : step,
     ),
   };
+  return 'section' in patch ? withModulesPruned(next) : next;
+}
+
+// ── Modules ────────────────────────────────────────────────────────────────
+
+/**
+ * The lesson without the module entries no step's section names any more
+ * (its last step moved, deleted or renamed away), and with no `modules`
+ * at all once none is left.
+ */
+export function withModulesPruned(
+  lesson: MusicLiteracyLesson,
+): MusicLiteracyLesson {
+  if (!lesson.modules) return lesson;
+  const used = new Set(lesson.steps.flatMap((step) => step.section ?? []));
+  const modules = lesson.modules.filter((m) => used.has(m.title));
+  if (modules.length === lesson.modules.length) return lesson;
+  const out: MusicLiteracyLesson = { ...lesson, modules };
+  if (!modules.length) delete out.modules;
+  return out;
+}
+
+/** A module's own entry, by its section's title (undefined: none). */
+export const moduleEntry = (
+  lesson: Pick<MusicLiteracyLesson, 'modules'>,
+  title: string,
+) => lesson.modules?.find((m) => m.title === title);
+
+/**
+ * A module's goal or round set, or (undefined) given back to the default.
+ * An entry left with nothing but its title is dropped.
+ */
+export function withModule(
+  lesson: MusicLiteracyLesson,
+  title: string,
+  patch: { goal?: string; round?: LiteracyRound },
+): MusicLiteracyLesson {
+  const before = moduleEntry(lesson, title);
+  const entry: LiteracyModuleEntry = { ...before, title };
+  for (const key of ['goal', 'round'] as const) {
+    if (!(key in patch)) continue;
+    const value = patch[key];
+    if (value === undefined || value === '') delete entry[key];
+    else (entry as Record<string, string>)[key] = value;
+  }
+  const empty = entry.goal === undefined && entry.round === undefined;
+  const others = (lesson.modules ?? []).filter((m) => m.title !== title);
+  let modules: LiteracyModuleEntry[];
+  if (empty) modules = others;
+  else if (before)
+    modules = (lesson.modules ?? []).map((m) => (m === before ? entry : m));
+  else {
+    // A new entry where its section is: in the order the steps have them.
+    const order = sectionNames(lesson);
+    modules = [...others, entry].sort(
+      (a, b) => order.indexOf(a.title) - order.indexOf(b.title),
+    );
+  }
+  const out: MusicLiteracyLesson = { ...lesson, modules };
+  if (!modules.length) delete out.modules;
+  return out;
+}
+
+/** The lesson's default round: a module's when it picks none. */
+export const lessonRound = (
+  lesson: Pick<MusicLiteracyLesson, 'passes'>,
+): LiteracyRound => defaultRound(lesson.passes);
+
+/**
+ * The lesson's default round set, in its `passes`, changing no more of
+ * them than it must: Create turns `create` on; Challenge turns `create`
+ * off and the challenge on; None turns both off. Defaults are left out.
+ */
+export function withLessonRound(
+  lesson: MusicLiteracyLesson,
+  round: LiteracyRound,
+): MusicLiteracyLesson {
+  if (round === 'create') return withLessonPass(lesson, 'create', true);
+  const off = withLessonPass(lesson, 'create', false);
+  return withLessonPass(off, 'challenge', round === 'challenge');
 }
 
 // ── Passes ─────────────────────────────────────────────────────────────────
@@ -362,6 +463,9 @@ const FIELD_NAME: Record<string, string> = {
   keyChoice: 'key choice',
   numbering: 'numbering',
   passes: 'passes',
+  goal: 'goal',
+  modules: 'modules',
+  round: 'round',
   template: 'template',
   distinct: 'different chords',
   harmony: 'harmony',
@@ -458,11 +562,20 @@ function plainMessage(issue: {
 export function lessonIssues(lesson: unknown): LessonIssue[] {
   const result = musicLiteracyBodySchema.safeParse(lesson);
   if (result.success) return [];
-  return result.error.issues.map((issue) => ({
-    path: issue.path,
-    where: issueWhere(issue.path),
-    message: plainMessage(issue as Parameters<typeof plainMessage>[0]),
-  }));
+  const modules = (lesson as Partial<MusicLiteracyLesson>).modules;
+  return result.error.issues.map((issue) => {
+    const [field, m] = issue.path;
+    const module =
+      field === 'modules' && typeof m === 'number' ? modules?.[m] : undefined;
+    return {
+      path: issue.path,
+      // A module's problem names it: “Module “Chords””.
+      where: module?.title
+        ? `Module “${module.title}”`
+        : issueWhere(issue.path),
+      message: plainMessage(issue as Parameters<typeof plainMessage>[0]),
+    };
+  });
 }
 
 /** The problems inside one step. */
@@ -574,12 +687,23 @@ export function canonicalLesson(
     ...(lesson.keyChoice ? { keyChoice: lesson.keyChoice } : {}),
     ...(lesson.numbering ? { numbering: lesson.numbering } : {}),
     ...(lessonPasses ? { passes: lessonPasses } : {}),
+    ...(has(lesson.goal) ? { goal: lesson.goal } : {}),
+    ...(lesson.modules?.length
+      ? { modules: lesson.modules.map(canonicalModule) }
+      : {}),
     tempo: lesson.tempo,
     timeSignature: [lesson.timeSignature[0], lesson.timeSignature[1]],
     countInBars: lesson.countInBars,
     steps: lesson.steps.map(canonicalStep),
   };
 }
+
+/** A module's entry: its title, then its goal and round when it has them. */
+const canonicalModule = (module: LiteracyModuleEntry): LiteracyModuleEntry => ({
+  title: module.title,
+  ...(has(module.goal) ? { goal: module.goal } : {}),
+  ...(module.round ? { round: module.round } : {}),
+});
 
 /**
  * A step with its keys in the schema's order: the kind first (an echo, the

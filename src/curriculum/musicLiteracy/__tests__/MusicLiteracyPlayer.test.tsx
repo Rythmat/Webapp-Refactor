@@ -478,8 +478,11 @@ describe('a step whose words have a pickup', () => {
   // "When I play in a Key…" with "When I" on 4 and its "and", in the
   // count-in bar, over the drums.
   const root = lesson.steps.find((s) => s.tag === 'root-is-1')!;
+  // One step, so passing it finishes the lesson: no round, so its result
+  // shows rather than the module's card.
   const pickupLesson = {
     ...lesson,
+    passes: { challenge: false },
     steps: [
       {
         ...root,

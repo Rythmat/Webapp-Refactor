@@ -78,6 +78,17 @@ export interface NavStep {
   passes?: readonly { label: string; status: GuitarStepStatus }[];
 }
 
+/**
+ * A button on a step list group's header, beside its name (Music
+ * Literacy's "Create your own ▸", once the module is passed).
+ */
+export interface NavGroupAction {
+  label: string;
+  /** Its own mark: passed once what it opens is done. */
+  status?: GuitarStepStatus;
+  onPick: () => void;
+}
+
 export interface StepNavModel {
   sections: NavSection[];
   onSection: (id: ActivitySectionId) => void;
@@ -85,6 +96,8 @@ export interface StepNavModel {
   index: number;
   /** Stops anything sounding and opens that step at its preview. */
   goToStep: (index: number) => void;
+  /** A group's header button, by its subsection; left out, none. */
+  groupAction?: (subsection: string) => NavGroupAction | null;
   /** The ♪ Practice Track button, exactly as today; null when not offered. */
   practiceTrack: { onOpen: () => void } | null;
   /** Beside ♪ Practice Track: piano's roll / notation / falling switch. */

@@ -1,11 +1,13 @@
 // @vitest-environment jsdom
 /**
- * Part 1's challenge, as a student meets it: after a step's result, the
- * offer ("Want a challenge just for fun? Go again and play ALL the
- * notes!"), the same run with PLAY ALONG over the teacher's turn, every
- * note graded, each segment's score, and its own best, kept apart from the
- * step's so it never holds up the lesson. The transport is faked as in the
- * Part 1 player test.
+ * Part 1's challenge round, as a student meets it: never after a step's
+ * result, but once Part 1 is done ("Part 1 done! Want a challenge just for
+ * fun? Go again and play ALL the notes!"), a second time through its
+ * steps, each the same run with PLAY ALONG over the teacher's turn, every
+ * note graded, each segment's score, and its own best, kept apart from
+ * the step's so it never holds up the lesson. Then from the step list's
+ * header, any time after. The transport is faked as in the Part 1 player
+ * test.
  */
 
 import {
@@ -81,6 +83,13 @@ const PROGRESS = `music_literacy_progress_${lesson.id}`;
 const progress = () => JSON.parse(localStorage.getItem(PROGRESS) ?? '{}');
 const headline = () =>
   document.querySelector('[data-literacy-turn]')?.textContent;
+const bar = () => document.querySelector('[data-guitar-bar]')!;
+const primary = () => bar().querySelector('[data-primary]')?.textContent;
+const counter = () =>
+  document
+    .querySelector('[data-guitar-step-count]')
+    ?.getAttribute('aria-label');
+const title = () => document.querySelector('[data-guitar-title]')?.textContent;
 
 let fedTo = -1;
 function feedTo(tick: number) {
@@ -114,7 +123,21 @@ const codeFor = (midi: number) => {
   return letter === ';' ? 'Semicolon' : `Key${letter}`;
 };
 
-/** The echo, answered right: three Cs in the answer's bar. */
+/** Every step but the first passed, as if played earlier. */
+function passTheRest() {
+  localStorage.setItem(
+    PROGRESS,
+    JSON.stringify(
+      Object.fromEntries(
+        lesson.steps
+          .slice(1)
+          .map((s) => [s.tag, { best: 90, passed: true, attempts: 1 }]),
+      ),
+    ),
+  );
+}
+
+/** Step 1's echo, answered right: three Cs in the answer's bar. */
 async function passTheEcho() {
   render(
     <MemoryRouter initialEntries={[`/curriculum/music-literacy/${lesson.id}`]}>
@@ -125,7 +148,14 @@ async function passTheEcho() {
   feedTo(7680);
   for (const tick of [7680, 8160, 8640]) typeAt('KeyA', tick);
   feedTo(9600);
-  expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
+}
+
+/** Part 1 done (its last step to pass, step 1), into its challenge round. */
+async function intoTheRound() {
+  passTheRest();
+  await passTheEcho();
+  await press(/Play ALL the notes/);
+  expect(title()).toBe(step.title);
 }
 
 beforeEach(() => {
@@ -137,24 +167,60 @@ beforeEach(() => {
 });
 afterEach(() => cleanup());
 
-describe('the challenge', () => {
-  it('is offered after a step’s result, just for fun', async () => {
+describe('the challenge round', () => {
+  it('is not offered after a step’s result', async () => {
     await passTheEcho();
+    expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
+    expect(document.querySelector('[data-literacy-offer]')).toBeNull();
+    expect(document.querySelector('[data-literacy-passes]')).toBeNull();
+    expect(screen.queryByRole('button', { name: /Play ALL the notes/ })).toBe(
+      null,
+    );
+    expect(primary()).toBe('Next');
+  });
+
+  it('is offered once Part 1 is done, just for fun', async () => {
+    passTheRest();
+    await passTheEcho();
+    const card = document.querySelector('[data-literacy-module-done]')!;
+    expect(card.getAttribute('data-round')).toBe('challenge');
+    expect(screen.getByRole('heading', { name: 'Part 1 done!' })).toBeTruthy();
     expect(
-      document.querySelector('[data-literacy-offer="challenge"]')?.textContent,
+      card.querySelector('[data-literacy-offer="challenge"]')?.textContent,
     ).toBe('Want a challenge just for fun? Go again and play ALL the notes!');
-    // Next stays the way on: the challenge never holds the lesson up.
+    expect(card.textContent).toContain('A note called C · 100% · Passed');
+    expect(card.textContent).toContain('Challenge round: 7 steps');
+    // The round first; Finish beside it, back to the path.
+    expect(primary()).toContain('Play ALL the notes');
+    expect(screen.getByRole('button', { name: 'Finish' })).toBeTruthy();
+  });
+
+  it('goes through Part 1 again under its banner, counting its own steps', async () => {
+    await intoTheRound();
+    const banner = document.querySelector('[data-literacy-round-banner]')!;
+    expect(banner.getAttribute('data-literacy-round-banner')).toBe('challenge');
+    expect(banner.textContent).toContain('Challenge round');
+    expect(banner.textContent).toContain('Play ALL the notes!');
+    expect(counter()).toBe('Step 1 of 7');
     expect(
-      document.querySelector('[data-guitar-bar] [data-primary]')?.textContent,
-    ).toBe('Next');
-    expect(
-      screen.getByRole('button', { name: /Take the Challenge/ }),
-    ).toBeTruthy();
+      document.querySelector('[data-literacy-run-lead]')?.textContent,
+    ).toBe('Play ALL the notes, along with Atlas');
+    expect(primary()).toBe('Play');
+    // Its step list is the round's.
+    await act(async () => {
+      fireEvent.click(document.querySelector('[data-guitar-step-count]')!);
+    });
+    const list = document.querySelector('[data-guitar-step-list]')!;
+    expect([...list.querySelectorAll('h3')].map((h) => h.textContent)).toEqual([
+      'Challenge round',
+    ]);
+    expect(list.querySelectorAll('li')).toHaveLength(7);
+    expect(document.querySelector('[data-group-action]')).toBeNull();
   });
 
   it('says PLAY ALONG over the teacher’s turn, grades every note, and shows each segment', async () => {
-    await passTheEcho();
-    await press(/Take the Challenge/);
+    await intoTheRound();
+    await press('Play');
     expect(run.starts).toBe(2);
     const cues = run.cues as RunCue[];
     expect(
@@ -203,11 +269,16 @@ describe('the challenge', () => {
       best: 100,
       attempts: 1,
     });
+    // Next is the round's next step.
+    expect(primary()).toBe('Next');
+    await press(/^Next$/);
+    expect(counter()).toBe('Step 2 of 7');
+    expect(title()).toBe(lesson.steps[1].title);
   });
 
   it('keeps its best, and a miss never touches the step’s pass', async () => {
-    await passTheEcho();
-    await press(/Take the Challenge/);
+    await intoTheRound();
+    await press('Play');
     // Only the answer: the words and the call missed.
     feedTo(7680);
     for (const tick of [7680, 8160, 8640]) typeAt('KeyA', tick);
@@ -236,8 +307,8 @@ describe('the challenge', () => {
   });
 
   it('marks a wrong key gray in the teacher’s turn, where the plain echo never does', async () => {
-    await passTheEcho();
-    await press(/Take the Challenge/);
+    await intoTheRound();
+    await press('Play');
     feedTo(1920 + 480);
     run.tick = 1920 + 480;
     act(() => {
@@ -250,5 +321,56 @@ describe('the challenge', () => {
     act(() => {
       fireEvent.keyUp(window, { code: 'KeyD' });
     });
+  });
+
+  it('ends with Finish on its last step, and is left from its banner', async () => {
+    await intoTheRound();
+    // The pager, to the round's last step.
+    for (let i = 0; i < 6; i++) {
+      fireEvent.click(screen.getByRole('button', { name: 'Next step' }));
+    }
+    expect(counter()).toBe('Step 7 of 7');
+    await press('Play');
+    feedTo(13440);
+    expect(screen.getByRole('button', { name: 'Finish' })).toBeTruthy();
+    // Leave the round: the same step, as its echo, in the whole lesson.
+    await press(/Leave round/);
+    expect(document.querySelector('[data-literacy-round-banner]')).toBeNull();
+    expect(counter()).toMatch(/^Step 7 of 7/);
+    expect(screen.getByRole('button', { name: 'Practice' })).toBeTruthy();
+  });
+
+  it('stays open from the step list’s header once Part 1 is done', async () => {
+    passTheRest();
+    localStorage.setItem(
+      PROGRESS,
+      JSON.stringify({
+        ...progress(),
+        'note-called-c': { best: 90, passed: true, attempts: 1 },
+        // Part of the round played before.
+        'note-called-c:challenge': { best: 80, passed: true, attempts: 1 },
+      }),
+    );
+    render(
+      <MemoryRouter
+        initialEntries={[`/curriculum/music-literacy/${lesson.id}`]}
+      >
+        <MusicLiteracyPlayer lesson={lesson} />
+      </MemoryRouter>,
+    );
+    await act(async () => {
+      fireEvent.click(document.querySelector('[data-guitar-step-count]')!);
+    });
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole('button', {
+          name: `Play ALL the notes: ${lesson.name}`,
+        }),
+      );
+    });
+    // From its first step not yet passed.
+    expect(counter()).toBe('Step 2 of 7');
+    expect(title()).toBe(lesson.steps[1].title);
+    expect(document.querySelector('[data-literacy-round-banner]')).toBeTruthy();
   });
 });

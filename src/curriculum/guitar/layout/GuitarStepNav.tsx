@@ -167,6 +167,21 @@ export function GuitarStepNav({ nav, keyColor }: GuitarStepNavProps) {
                       // step dots did.
                       goToStep(i);
                     }}
+                    groupAction={
+                      nav.groupAction &&
+                      ((subsection) => {
+                        const action = nav.groupAction?.(subsection);
+                        return action
+                          ? {
+                              ...action,
+                              onPick: () => {
+                                setListOpen(false);
+                                action.onPick();
+                              },
+                            }
+                          : null;
+                      })
+                    }
                   />
                 </Popover.Content>
               </Popover.Portal>

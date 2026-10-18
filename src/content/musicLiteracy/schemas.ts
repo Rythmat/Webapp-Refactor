@@ -32,10 +32,16 @@ import { SLUG_PATTERN } from '@/content/graph/ids';
  *   numbering  'scale': '3' is the 3rd of the mode, so minor's 3, 6 and 7
  *              are ♭3, ♭6 and ♭7 (natural minor). Left out, 'chromatic':
  *              '3' is always the major 3rd, as Part 1 writes it.
- *   passes     which passes a lesson's echo steps offer beyond the echo:
- *              the challenge (play every note along with Atlas) and the
- *              create pass ("Now Create Your Own Rhythms!"). A step's own
- *              `passes` overrides them.
+ *   modules    the lesson's sections as modules, each by its section's
+ *              title, with a goal and the round a student is offered once
+ *              they pass it: 'create' (their own call, played twice),
+ *              'challenge' (play ALL the notes) or 'none'. A lesson with no
+ *              sections is one module (Part 1).
+ *   goal       the lesson's one directive, shown at its start.
+ *   passes     the round of a module that names none: the create round
+ *              when `create` is on, else the challenge when `challenge` is
+ *              (on by default: Part 1), else none. A step's own `passes`
+ *              opts it out of its module's round.
  *   step kinds `kind` picks one: 'echo' (call and response, the default, so
  *              Part 1's steps need none), 'chooseKey', 'chooseMode',
  *              'chooseChords' and 'replay'. An echo's call may be a chord
@@ -223,8 +229,8 @@ export const literacyWordsSchema = z
   .strict();
 
 /**
- * The passes a lesson's echo steps offer beyond Pass 1 (the echo). Left
- * out, the challenge is on and the create pass off: Part 1.
+ * The lesson's default round, for a module that names none (`modules`).
+ * Left out, the challenge is on and the create pass off: Part 1's.
  */
 export const literacyLessonPassesSchema = z
   .object({
@@ -235,18 +241,49 @@ export const literacyLessonPassesSchema = z
      */
     challenge: z.boolean().optional(),
     /**
-     * Pass 2, "Now Create Your Own Rhythms!": the student plays their own
-     * call on the step's material, then repeats it exactly.
+     * "Now go again and create your own": the student plays their own call
+     * on the step's material, then repeats it exactly. On, it is the round
+     * (over the challenge).
      */
     create: z.boolean().optional(),
   })
   .strict();
 
-/** A step's own passes, over the lesson's. */
+/**
+ * A step's own passes: `false` leaves it out of its module's round (a
+ * `true` adds nothing: the module picks the round).
+ */
 export const literacyStepPassesSchema = literacyLessonPassesSchema
   .extend({
     /** The create pass's call, in bars (left out: the call's). Melodies only. */
     createBars: int.min(1).max(8).optional(),
+  })
+  .strict();
+
+/**
+ * What a student may do once they pass a module, going through its steps
+ * a second time:
+ *
+ *   create     each step's create pass: their own call on the step's notes
+ *              or chords, then their repeat of it (Part 2).
+ *   challenge  each melody's challenge: play ALL the notes along with
+ *              Atlas (Part 1, "just for fun").
+ *   none       nothing more.
+ */
+export const LITERACY_ROUNDS = ['create', 'challenge', 'none'] as const;
+
+/**
+ * A module: the steps of one section (by its title), with its goal and its
+ * round. Every field but the title may be left out: the goal then follows
+ * the round and what the steps play, the round the lesson's `passes`.
+ */
+export const literacyModuleSchema = z
+  .object({
+    /** The section it is: the `section` of its steps. */
+    title: z.string().min(1),
+    /** What to make, said on the module's card ("Create a melody…"). */
+    goal: z.string().min(1).optional(),
+    round: z.enum(LITERACY_ROUNDS).optional(),
   })
   .strict();
 
@@ -358,6 +395,10 @@ export const musicLiteracyBodySchema = z
     /** How degrees read (left out: chromatic, Part 1's). */
     numbering: z.enum(LITERACY_NUMBERINGS).optional(),
     passes: literacyLessonPassesSchema.optional(),
+    /** The lesson's one directive, shown at its start. */
+    goal: z.string().min(1).optional(),
+    /** Its sections' goals and rounds, each by its title. */
+    modules: z.array(literacyModuleSchema).optional(),
     tempo: z.number().positive(),
     timeSignature: z.tuple([int.min(1), int.min(1)]),
     countInBars: int.min(0).max(2),
@@ -374,6 +415,20 @@ export const musicLiteracyBodySchema = z
     const tags = new Set<string>();
     /** Progressions saved so far, by name: how many different X's each has. */
     const saved = new Map<string, { distinct: number }>();
+    /** Each step's module, by its title. */
+    const moduleTitles = stepModuleTitles(body.steps);
+
+    // A module is a section: listed once, by a title its steps use.
+    const sections = new Set(body.steps.flatMap((step) => step.section ?? []));
+    const listed = new Set<string>();
+    body.modules?.forEach((module, m) => {
+      const at: Path = ['modules', m, 'title'];
+      if (listed.has(module.title))
+        issue(ctx, at, `Module "${module.title}" is listed twice`);
+      else if (!sections.has(module.title))
+        issue(ctx, at, `No steps are in a section called "${module.title}"`);
+      listed.add(module.title);
+    });
 
     const knownProgression = (name: string, path: Path) => {
       const progression = saved.get(name);
@@ -462,7 +517,10 @@ export const musicLiteracyBodySchema = z
           );
       });
 
-      const create = step.passes?.create ?? body.passes?.create ?? false;
+      // A create pass: the step is in a create round, and not opted out.
+      const create =
+        moduleRound(body, moduleTitles[s]) === 'create' &&
+        step.passes?.create !== false;
       if (step.passes?.createBars !== undefined && !create)
         issue(
           ctx,
@@ -580,6 +638,8 @@ export type LiteracyCall = z.infer<typeof literacyCallSchema>;
 export type LiteracyWords = z.infer<typeof literacyWordsSchema>;
 export type LiteracyLessonPasses = z.infer<typeof literacyLessonPassesSchema>;
 export type LiteracyStepPasses = z.infer<typeof literacyStepPassesSchema>;
+export type LiteracyRound = (typeof LITERACY_ROUNDS)[number];
+export type LiteracyModuleEntry = z.infer<typeof literacyModuleSchema>;
 export type LiteracyEchoStep = z.infer<typeof literacyEchoStepSchema>;
 export type LiteracyChooseKeyStep = z.infer<typeof literacyChooseKeyStepSchema>;
 export type LiteracyChooseModeStep = z.infer<
@@ -629,3 +689,62 @@ export const isChordEcho = (
   step: LiteracyStep,
 ): step is LiteracyChordEchoStep =>
   isEchoStep(step) && isChordFigure(step.call);
+
+// ── Modules and their rounds ───────────────────────────────────────────────
+// (Function declarations: the body's refinement above reads them.)
+
+/**
+ * Each step's module, by title: its section; a step with none takes the
+ * section of the step before it (the first steps, of the step after them).
+ * Null throughout when no step has a section: the lesson is one module.
+ */
+export function stepModuleTitles(
+  steps: readonly Pick<LiteracyStep, 'section'>[],
+): (string | null)[] {
+  const titles: (string | null)[] = [];
+  let last: string | null = null;
+  for (const step of steps) {
+    last = step.section ?? last;
+    titles.push(last);
+  }
+  const first = titles.find((title) => title !== null) ?? null;
+  return titles.map((title) => title ?? first);
+}
+
+/**
+ * The round of a module that names none, from the lesson's `passes`: the
+ * create round when it is on, else the challenge when that is (on by
+ * default, Part 1's), else none.
+ */
+export function defaultRound(
+  passes: LiteracyLessonPasses | undefined,
+): LiteracyRound {
+  if (passes?.create) return 'create';
+  return (passes?.challenge ?? true) ? 'challenge' : 'none';
+}
+
+/** A module's round, by its title (null: the lesson with no sections). */
+export function moduleRound(
+  lesson: Pick<MusicLiteracyLesson, 'passes' | 'modules'>,
+  title: string | null,
+): LiteracyRound {
+  const own =
+    title === null
+      ? undefined
+      : lesson.modules?.find((module) => module.title === title)?.round;
+  return own ?? defaultRound(lesson.passes);
+}
+
+/**
+ * The round of the module a step is in. A step not in the lesson (a copy
+ * being edited) goes by its own section.
+ */
+export function stepRound(
+  lesson: Pick<MusicLiteracyLesson, 'passes' | 'modules' | 'steps'>,
+  step: LiteracyStep,
+): LiteracyRound {
+  const index = lesson.steps.indexOf(step);
+  const title =
+    index >= 0 ? stepModuleTitles(lesson.steps)[index] : (step.section ?? null);
+  return moduleRound(lesson, title);
+}

@@ -27,6 +27,8 @@ import {
   lessonIdFor,
   lessonIssues,
   lessonPass,
+  lessonRound,
+  moduleEntry,
   moveStep,
   moveStepTo,
   removeStep,
@@ -36,6 +38,9 @@ import {
   stepIssues,
   stepMove,
   withLessonPass,
+  withLessonRound,
+  withModule,
+  withModulesPruned,
   withStepPass,
 } from '../literacyLesson';
 
@@ -526,6 +531,128 @@ describe('passes', () => {
       createBars: 2,
     });
     expect(withStepPass(on, 'challenge', undefined)).toBeUndefined();
+  });
+});
+
+describe('modules', () => {
+  const MODULES: MusicLiteracyLesson['modules'] = [
+    { title: 'Create a Melody', round: 'none' },
+    { title: 'Chords', goal: 'Comp it.', round: 'create' },
+  ];
+  const lesson: MusicLiteracyLesson = { ...PART2_FIXTURE, modules: MODULES };
+
+  it('sets a module’s goal and round, in its section’s place, dropping one left empty', () => {
+    const one = withModule(PART2_FIXTURE, 'Chords', { round: 'challenge' });
+    expect(one.modules).toEqual([{ title: 'Chords', round: 'challenge' }]);
+    const two = withModule(one, 'Choose a Color', { goal: 'Pick one.' });
+    expect(two.modules?.map((m) => m.title)).toEqual([
+      'Choose a Color',
+      'Chords',
+    ]);
+    // Back to the defaults: no entry, then no modules at all.
+    const back = withModule(
+      withModule(two, 'Chords', { round: undefined }),
+      'Choose a Color',
+      {
+        goal: '',
+      },
+    );
+    expect(back).not.toHaveProperty('modules');
+    expect(moduleEntry(lesson, 'Chords')).toEqual(MODULES[1]);
+    expect(withModule(lesson, 'Chords', { goal: undefined }).modules).toEqual([
+      MODULES[0],
+      { title: 'Chords', round: 'create' },
+    ]);
+  });
+
+  it('keeps a module with its section when it is renamed', () => {
+    const renamed = renameSection(lesson, [4, 5, 6, 7], 'Comping');
+    expect(renamed.modules).toEqual([
+      MODULES[0],
+      { title: 'Comping', goal: 'Comp it.', round: 'create' },
+    ]);
+    // Part of a section renamed: its module copied for the new one.
+    const part = renameSection(lesson, [6, 7], 'More chords');
+    expect(part.modules).toEqual([
+      ...MODULES,
+      { title: 'More chords', goal: 'Comp it.', round: 'create' },
+    ]);
+    // Renamed into a section that has a module of its own: that one stays.
+    const into = renameSection(lesson, [4, 5, 6, 7], 'Create a Melody');
+    expect(into.modules).toEqual([MODULES[0]]);
+    // Out of any section: the module goes.
+    expect(renameSection(lesson, [3], ' ').modules).toEqual([MODULES[1]]);
+  });
+
+  it('lets a module go with its section’s last step', () => {
+    expect(removeStep(lesson, 3).modules).toEqual([MODULES[1]]);
+    expect(moveStepTo(lesson, 3, 3, 'Choose a Color').modules).toEqual([
+      MODULES[1],
+    ]);
+    expect(withModulesPruned(lesson)).toBe(lesson);
+    expect(
+      withModulesPruned({ ...lesson, modules: [{ title: 'Gone' }] }),
+    ).not.toHaveProperty('modules');
+  });
+
+  it('sets the lesson’s default round in its passes, as little as it must', () => {
+    expect(lessonRound(PART_1)).toBe('challenge');
+    expect(lessonRound(PART2_FIXTURE)).toBe('create');
+    const none = withLessonRound(PART_1, 'none');
+    expect(none.passes).toEqual({ challenge: false });
+    expect(lessonRound(none)).toBe('none');
+    expect(withLessonRound(none, 'challenge')).not.toHaveProperty('passes');
+    expect(withLessonRound(PART_1, 'create').passes).toEqual({ create: true });
+    // Part 2's: the challenge kept off under the create round.
+    expect(withLessonRound(PART2_FIXTURE, 'challenge')).not.toHaveProperty(
+      'passes',
+    );
+    expect(withLessonRound(PART2_FIXTURE, 'none').passes).toEqual({
+      challenge: false,
+    });
+  });
+
+  it('lays out the goal and the modules after the passes, each module title first', () => {
+    const out = canonicalLesson({
+      ...lesson,
+      modules: [{ round: 'none', title: 'Create a Melody' } as never],
+      goal: 'Make it twice.',
+    });
+    expect(Object.keys(out)).toEqual([
+      'id',
+      'name',
+      'status',
+      'part',
+      'key',
+      'keyChoice',
+      'numbering',
+      'passes',
+      'goal',
+      'modules',
+      'tempo',
+      'timeSignature',
+      'countInBars',
+      'steps',
+    ]);
+    expect(Object.keys(out.modules![0])).toEqual(['title', 'round']);
+    expect(
+      canonicalLesson({ ...lesson, goal: '', modules: [] }),
+    ).not.toHaveProperty('goal');
+    expect(canonicalLesson({ ...lesson, modules: [] })).not.toHaveProperty(
+      'modules',
+    );
+  });
+
+  it('names a module’s problem by its title', () => {
+    expect(
+      lessonIssues({ ...lesson, modules: [...MODULES, { title: 'Warm-up' }] }),
+    ).toEqual([
+      {
+        path: ['modules', 2, 'title'],
+        where: 'Module “Warm-up”',
+        message: 'No steps are in a section called "Warm-up"',
+      },
+    ]);
   });
 });
 

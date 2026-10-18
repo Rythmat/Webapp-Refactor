@@ -1,11 +1,4 @@
-import {
-  Headphones,
-  Keyboard,
-  Play,
-  Sparkles,
-  Square,
-  Trophy,
-} from 'lucide-react';
+import { Headphones, Keyboard, Play, Square } from 'lucide-react';
 import {
   useCallback,
   useEffect,
@@ -24,7 +17,6 @@ import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
 import { cn } from '@/components/utilities';
 import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import {
-  isEchoStep,
   stepKind,
   type LiteracyChooseChordsStep,
   type LiteracyMode,
@@ -90,7 +82,18 @@ import {
   type TimedNote,
 } from '@/curriculum/engine/musicLiteracy/literacy';
 import {
-  passOrder,
+  finishesModule,
+  lessonGoal,
+  lessonModules,
+  moduleEchoPassed,
+  moduleOfStep,
+  modulePass,
+  roundMark,
+  roundStart,
+  roundSteps,
+  type LiteracyModule,
+} from '@/curriculum/engine/musicLiteracy/modules';
+import {
   passProgressKey,
   stepPasses,
   type LiteracyPass,
@@ -123,6 +126,7 @@ import {
 import type {
   BarState,
   GuitarStepStatus,
+  NavGroupAction,
   NavStep,
   ResultModel,
 } from '@/curriculum/guitar/layout/types';
@@ -146,8 +150,14 @@ import {
 import { ChordBars, type ChordBarRow } from './ChordBars';
 import { CreateResultPanel } from './CreateResultPanel';
 import { LiteracyCallPanel } from './LiteracyCallPanel';
+import {
+  LessonIntroCard,
+  ModuleDoneCard,
+  ROUND_COPY,
+  RoundBanner,
+  RoundIcon,
+} from './ModuleCards';
 import { MusicLiteracyLayout } from './MusicLiteracyLayout';
-import { PassTabs } from './PassTabs';
 import { createComparison } from './createComparison';
 import { drumsForGroove } from './literacyGrooves';
 import { LITERACY_KEY_RANGE, literacyKeyRange } from './literacyKeyRange';
@@ -171,12 +181,12 @@ import {
   startLiteracyRun,
   stopLiteracyRun,
 } from './literacyRun';
-import { literacyStepDone, literacyStepTried, stepPassMarks } from './stepDone';
+import { literacyStepDone, literacyStepTried } from './stepDone';
 import { createHubHeadline, hubHeadline, replayHubHeadline } from './turnCues';
 import { typingLetterFor, typingOctaveLabel } from './typingKeys';
 import { useLiteracyChoices } from './useLiteracyChoices';
 import { useLiteracyInput, type LiteracyNoteOn } from './useLiteracyInput';
-import { useLiteracyProgress } from './useLiteracyProgress';
+import { useLiteracyProgress, withTry } from './useLiteracyProgress';
 
 // ── The Music Literacy player ──────────────────────────────────────────────
 // Simon says, in time. One step is one continuous pulse: a count-in bar, the
@@ -210,17 +220,26 @@ import { useLiteracyProgress } from './useLiteracyProgress';
 // copy: its keys light shiny over the words' plain light, and the roll marks
 // its bars "Copy this".
 //
-// THE PASSES (engine/musicLiteracy/passes.ts)
-// After an echo's result the student may go again:
+// MODULES AND THEIR ROUNDS (engine/musicLiteracy/modules.ts)
+// A lesson is a run of modules, its sections (Part 1 is one). Each step is
+// played as its echo first. Passing a module's last echo shows the module's
+// card in the result's place, offering its round: the module's steps again,
+// each as its round's pass. Once passed, the round stays open from the
+// module's header in the step list.
 //
-//   challenge  Part 1: "Want a challenge just for fun? Go again and play ALL
-//              the notes!" The same run, PLAY ALONG over the teacher's turn,
-//              every note graded, each segment's score shown. Its best is
-//              kept apart (`<tag>:challenge`) and never holds up the lesson.
-//   create     Part 2's Pass 2, "Now Create Your Own Rhythms!": count-in,
-//              the student's own call on the step's notes (the keys lit
-//              softly), transcribed to 16ths at its end and shown on the roll
-//              and staff, then their repeat of it, graded against it.
+//   create     Part 2: "Module done! Now go again and create your own." Each
+//              step's create pass: count-in, the student's own call on the
+//              step's notes (the keys lit softly), transcribed to 16ths at
+//              its end and shown on the roll and staff, then their repeat of
+//              it, graded against it (`<tag>:create`).
+//   challenge  Part 1: "Part 1 done! Want a challenge just for fun? Go again
+//              and play ALL the notes!" The same run, PLAY ALONG over the
+//              teacher's turn, every note graded, each segment's score
+//              shown (`<tag>:challenge`). It never holds up the lesson.
+//
+// In a round the pager counts the round's steps, under a banner naming it
+// with the module's goal; its last step goes on to the next module. Part 2
+// opens on the lesson's one goal, before its first step.
 //
 // PART 2 (a lesson whose key is the student's)
 // The choose steps pick the key on the circle, major or minor, and the
@@ -299,12 +318,6 @@ const CHORD_RUN_LEAD: Record<RunMode, string> = {
   play: 'Play the chords back when it’s your turn',
 };
 
-/** The copy offering each pass after an echo's result. */
-const OFFER_COPY = {
-  challenge: 'Want a challenge just for fun? Go again and play ALL the notes!',
-  create: 'Now Create Your Own Rhythms!',
-} as const;
-
 export interface MusicLiteracyPlayerProps {
   lesson: MusicLiteracyLesson;
 }
@@ -341,6 +354,33 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   );
   const step = lesson.steps[Math.min(stepIndex, lesson.steps.length - 1)];
   const kind = stepKind(step);
+
+  // The modules, and the round being played, if one is (a module's index).
+  const modules = useMemo(() => lessonModules(lesson), [lesson]);
+  const whole = modules.length === 1;
+  const [round, setRound] = useState<number | null>(null);
+  const roundModule = round === null ? null : (modules[round] ?? null);
+  /** Each module's round steps, by their places in the lesson. */
+  const roundIndices = useMemo(
+    () =>
+      modules.map((m) =>
+        roundSteps(m, lesson).map((s) => lesson.steps.indexOf(s)),
+      ),
+    [modules, lesson],
+  );
+  const inRound =
+    round !== null && (roundIndices[round] ?? []).includes(stepIndex);
+  /** The pass this step is played as: its round's, or the echo. */
+  const activePass: LiteracyPass =
+    inRound && roundModule ? (modulePass(roundModule) ?? 'echo') : 'echo';
+  /** A module just passed: its card shows in the result's place. */
+  const [moduleDone, setModuleDone] = useState<number | null>(null);
+  // The lesson's one goal (Part 2's), before its first step: on opening it
+  // at the start, not at a step Start Here's Continue names.
+  const goal = useMemo(() => lessonGoal(lesson), [lesson]);
+  const [intro, setIntro] = useState(
+    () => goal !== null && !params.get('step'),
+  );
   const notes = useMemo(
     () => stepNotes(lesson, step, choices),
     [lesson, step, choices],
@@ -379,19 +419,18 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const ownTempo = step.tempo ?? lesson.tempo;
   const [tempo, setTempo] = useState(ownTempo);
   const [tempoFor, setTempoFor] = useState(step.tag);
-  // The pass shown: Pass 1, the echo, on opening any step.
-  const [pass, setPass] = useState<LiteracyPass>('echo');
   if (tempoFor !== step.tag) {
     setTempoFor(step.tag);
     setTempo(ownTempo);
-    setPass('echo');
   }
-  const onCreate = pass === 'create' && create !== null;
+  const onCreate = activePass === 'create' && create !== null;
   /** The timeline the screen draws: the step's, or its create pass's. */
   const timeline = onCreate ? create.timeline : notes.timeline;
 
   const [status, setStatus] = useState<Status>('preview');
   const [runMode, setRunMode] = useState<RunMode | null>(null);
+  /** What the run under way is for: a pass, or hearing a choice. */
+  const [runFor, setRunFor] = useState<RunKind | null>(null);
   /** The transport is under way (the playhead may follow it). */
   const [live, setLive] = useState(false);
   const [view, setView] = useState<RunView>(IDLE_RUN_VIEW);
@@ -421,7 +460,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     notes,
     keyColor,
     tonic,
-    pass: (onCreate ? 'create' : pass) as LiteracyPass,
+    pass: activePass,
     create,
     transcription,
   });
@@ -429,7 +468,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     notes,
     keyColor,
     tonic,
-    pass: onCreate ? 'create' : pass,
+    pass: onCreate ? 'create' : activePass === 'create' ? 'echo' : activePass,
     create,
     transcription,
   };
@@ -551,10 +590,32 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       ) {
         reportCompletion();
       }
+      // An echo that finishes its module brings the module's card, when
+      // it has a round to offer.
+      if (next.pass === 'echo' && next.result.passed) {
+        const done = moduleOfStep(modules, run.stepIndex);
+        const at = done ? modules.indexOf(done) : -1;
+        const before = progressRef.current;
+        const after = withTry(before, run.tag, next.result.percent, true);
+        if (
+          done &&
+          (roundIndices[at]?.length ?? 0) > 0 &&
+          finishesModule(done, run.stepIndex, before, after)
+        ) {
+          setModuleDone(at);
+        }
+      }
       setOutcome(next);
       setStatus('result');
     },
-    [endRun, lesson.steps.length, record, reportCompletion],
+    [
+      endRun,
+      lesson.steps.length,
+      modules,
+      record,
+      reportCompletion,
+      roundIndices,
+    ],
   );
 
   /**
@@ -627,10 +688,12 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       playedRef.current = [];
       setPlayed([]);
       setOutcome(null);
+      setModuleDone(null);
       setTranscription(null);
       setHearing(null);
       setView(IDLE_RUN_VIEW);
       setRunMode(mode);
+      setRunFor(runKind);
       setStatus('running');
       setRunId((n) => n + 1);
 
@@ -734,6 +797,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       };
       runRef.current = run;
       setHearing(what);
+      setRunFor('hear');
       setView(IDLE_RUN_VIEW);
       void startLiteracyRun({
         cues,
@@ -760,8 +824,6 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     setRunMode(null);
     setHearing(null);
     setView(IDLE_RUN_VIEW);
-    // A challenge stopped part-way goes back to the step's own pass.
-    setPass((p) => (p === 'challenge' ? 'echo' : p));
   }, [endRun]);
 
   // Choosing a groove stops a run (as a new tempo does) and plays a bar of
@@ -798,46 +860,67 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     [beatsPerBar, setGrooveId, stopRun, tempo, timeline.barTicks],
   );
 
-  const goToStep = useCallback(
-    (index: number) => {
+  /** Open a step at its preview, in a module's round or out of any. */
+  const openStep = useCallback(
+    (index: number, inModuleRound: number | null) => {
       endRun();
       setStepIndex(Math.max(0, Math.min(lesson.steps.length - 1, index)));
+      setRound(inModuleRound);
       setStatus('preview');
       setRunMode(null);
       setView(IDLE_RUN_VIEW);
       setOutcome(null);
+      setModuleDone(null);
       setTranscription(null);
       setHearing(null);
-      setPass('echo');
+      setIntro(false);
       playedRef.current = [];
       setPlayed([]);
     },
     [endRun, lesson.steps.length],
   );
 
-  /** Show another pass of this step, at its preview. */
-  const choosePass = useCallback(
-    (next: LiteracyPass) => {
-      endRun();
-      setPass(next);
-      setStatus('preview');
-      setRunMode(null);
-      setView(IDLE_RUN_VIEW);
-      setOutcome(null);
-      setTranscription(null);
-      playedRef.current = [];
-      setPlayed([]);
-    },
-    [endRun],
+  /** Another step: in the round still when it is one of the round's. */
+  const goToStep = useCallback(
+    (index: number) =>
+      openStep(
+        index,
+        round !== null && (roundIndices[round] ?? []).includes(index)
+          ? round
+          : null,
+      ),
+    [openStep, round, roundIndices],
   );
 
-  /** Go straight into a pass's graded run (the result's offers). */
-  const playPass = useCallback(
-    (next: LiteracyPass) => {
-      setPass(next);
-      startRun('play', next);
+  /** A module's round, from its first step not yet passed. */
+  const startRound = useCallback(
+    (at: number) => {
+      const target = modules[at];
+      const start = target && roundStart(target, lesson, progressRef.current);
+      if (start === undefined) return;
+      openStep(start, at);
     },
-    [startRun],
+    [lesson, modules, openStep],
+  );
+
+  /** Out of the round, on the same step. */
+  const leaveRound = useCallback(
+    () => openStep(stepIndex, null),
+    [openStep, stepIndex],
+  );
+
+  /** The module after this one: its first step, or the path after the last. */
+  const toNextModule = useCallback(
+    (from: LiteracyModule | null | undefined) => {
+      const following = from ? modules[modules.indexOf(from) + 1] : undefined;
+      if (following) {
+        openStep(following.indices[0], null);
+        return;
+      }
+      endRun();
+      navigate(startHereRoute());
+    },
+    [endRun, modules, navigate, openStep],
   );
 
   // Leaving the lesson stops everything it started.
@@ -850,15 +933,45 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     [],
   );
 
-  const isLastStep = stepIndex === lesson.steps.length - 1;
+  // In a round, Next is the round's next step, and after its last, the
+  // next module; out of one, the lesson's next step.
+  const roundOrder =
+    inRound && round !== null ? (roundIndices[round] ?? []) : [];
+  const lastInRound =
+    inRound && roundOrder.indexOf(stepIndex) === roundOrder.length - 1;
+  const isLastStep = inRound
+    ? lastInRound && round === modules.length - 1
+    : stepIndex === lesson.steps.length - 1;
   const next = useCallback(() => {
-    if (isLastStep) {
+    if (inRound && round !== null) {
+      const steps = roundIndices[round] ?? [];
+      const at = steps.indexOf(stepIndex);
+      if (at >= 0 && at < steps.length - 1) {
+        openStep(steps[at + 1], round);
+        return;
+      }
+      toNextModule(modules[round]);
+      return;
+    }
+    if (stepIndex === lesson.steps.length - 1) {
       endRun();
       navigate(startHereRoute());
       return;
     }
     goToStep(stepIndex + 1);
-  }, [endRun, goToStep, isLastStep, navigate, stepIndex]);
+  }, [
+    endRun,
+    goToStep,
+    inRound,
+    lesson.steps.length,
+    modules,
+    navigate,
+    openStep,
+    round,
+    roundIndices,
+    stepIndex,
+    toNextModule,
+  ]);
 
   // ── The student's notes, from every source ──
 
@@ -1005,9 +1118,18 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const countIn = timeline.countIn.length;
   const bar = timeline.barTicks;
   const isReplay = kind === 'replay';
-  const challenge = pass === 'challenge';
+  /** The pass the screen shows: the run's, or out of one, the step's. */
+  const shownPass: LiteracyPass = onCreate
+    ? 'create'
+    : activePass === 'challenge'
+      ? 'challenge'
+      : 'echo';
+  /** The challenge's words in the hub: its run, or its preview. */
+  const challenge = running
+    ? runFor === 'challenge'
+    : shownPass === 'challenge';
   /** The run under way is this screen's graded or played run. */
-  const runKind: RunKind | null = running ? (onCreate ? 'create' : pass) : null;
+  const runKind: RunKind | null = running ? runFor : null;
 
   const wordsColor = useMemo(() => mutedColor(keyColor), [keyColor]);
   const chordLabels = useMemo(
@@ -1266,7 +1388,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
           answeredNotes.has(note) ||
           (!outcome &&
             isRightKey(note.midi, note.onset, {
-              pass: onCreate ? 'create' : pass,
+              pass: running && runFor && runFor !== 'hear' ? runFor : shownPass,
               notes,
               create: onCreate ? create : null,
               transcription,
@@ -1278,7 +1400,9 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       answeredNotes,
       outcome,
       onCreate,
-      pass,
+      running,
+      runFor,
+      shownPass,
       notes,
       create,
       transcription,
@@ -1525,6 +1649,14 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
 
   const passedNow = outcome?.result.passed ?? false;
 
+  // Next's name: the round's last step goes on to the next module.
+  const nextLabel = lastInRound
+    ? isLastStep
+      ? 'Finish'
+      : 'Next module'
+    : isLastStep
+      ? 'Finish'
+      : 'Next';
   const resultModel: ResultModel | null =
     outcome && outcome.pass !== 'create'
       ? {
@@ -1542,12 +1674,17 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
           onCountItMyself: () => {},
           retry: () => startRun('play', outcome.pass),
           next,
-          nextLabel: isLastStep ? 'Finish' : 'Next',
+          nextLabel,
         }
       : null;
 
-  const nextLabel = isLastStep ? 'Finish' : 'Next';
-  const stepPassMarksNow = stepPassMarks(lesson, step, progress);
+  /** The module whose card shows, and the round it offers. */
+  const doneModule = moduleDone === null ? null : (modules[moduleDone] ?? null);
+  const donePass = doneModule ? modulePass(doneModule) : null;
+  const doneRound =
+    donePass === 'create' || donePass === 'challenge' ? donePass : null;
+  const lastModule =
+    doneModule !== null && modules.indexOf(doneModule) === modules.length - 1;
 
   const zones = ((): Zones => {
     const corner = (
@@ -1559,84 +1696,53 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         Pass = {passMark}% · timing {TIMING_FLOOR}%
       </span>
     );
+    if (intro) {
+      return {
+        lead: null,
+        meta: null,
+        actions: <Primary onClick={() => setIntro(false)}>Let’s go</Primary>,
+      };
+    }
+    if (status === 'result' && outcome && doneModule && doneRound) {
+      // The module's card: its round first, the next module beside it.
+      return {
+        lead: null,
+        meta: null,
+        actions: (
+          <>
+            <Secondary onClick={() => toNextModule(doneModule)}>
+              {lastModule ? 'Finish' : 'Next module'}
+            </Secondary>
+            <Primary
+              onClick={() => moduleDone !== null && startRound(moduleDone)}
+            >
+              <RoundIcon round={doneRound} />
+              {ROUND_COPY[doneRound].start}
+            </Primary>
+          </>
+        ),
+      };
+    }
     if (status === 'result' && outcome) {
       const emptyCall =
         outcome.pass === 'create' && outcome.result.kind === 'empty';
-      const retry = () =>
-        startRun('play', outcome.pass === 'create' ? 'create' : outcome.pass);
-      const retryButton = passedNow ? (
-        <Secondary onClick={retry}>Try Again</Secondary>
-      ) : (
-        <Primary onClick={retry}>Try Again</Primary>
-      );
-      // After the echo, the passes it offers, each with its own copy.
-      const offerCreate = outcome.pass === 'echo' && passes.create !== null;
-      const offerChallenge = outcome.pass === 'echo' && passes.challenge;
-      const forward =
-        passedNow && !offerCreate ? (
-          <Primary onClick={next}>{nextLabel}</Primary>
-        ) : (
-          <Secondary onClick={next}>{nextLabel}</Secondary>
-        );
-      const createButton = offerCreate ? (
-        passedNow ? (
-          <Primary onClick={() => playPass('create')}>
-            <Sparkles />
-            Create Your Own
-          </Primary>
-        ) : (
-          <Secondary onClick={() => playPass('create')}>
-            <Sparkles />
-            Create Your Own
-          </Secondary>
-        )
-      ) : null;
-      const challengeButton = offerChallenge ? (
-        <Secondary onClick={() => playPass('challenge')}>
-          <Trophy />
-          Take the Challenge
-        </Secondary>
-      ) : null;
-      const lead = offerCreate ? (
-        <p
-          data-literacy-offer="create"
-          className="text-[17px] font-medium text-[#e8e8f0]"
-        >
-          {OFFER_COPY.create}
-        </p>
-      ) : offerChallenge ? (
-        <p
-          data-literacy-offer="challenge"
-          className="text-[15px] text-[#e8e8f0]"
-        >
-          {OFFER_COPY.challenge}
-        </p>
-      ) : null;
+      const retry = () => startRun('play', outcome.pass);
+      // The primary sits last: Next after a pass, Try Again after a miss.
       return {
-        lead,
+        lead: null,
         meta: null,
-        // The primary sits last: the next pass or Next after a pass, Try
-        // Again after a miss.
-        actions: emptyCall ? (
-          <>
-            <Secondary onClick={next}>{nextLabel}</Secondary>
-            <Primary onClick={retry}>Try Again</Primary>
-          </>
-        ) : passedNow ? (
-          <>
-            {retryButton}
-            {challengeButton}
-            {offerCreate ? forward : null}
-            {createButton ?? forward}
-          </>
-        ) : (
-          <>
-            {forward}
-            {challengeButton}
-            {createButton}
-            {retryButton}
-          </>
-        ),
+        actions:
+          passedNow && !emptyCall ? (
+            <>
+              <Secondary onClick={retry}>Try Again</Secondary>
+              <Primary onClick={next}>{nextLabel}</Primary>
+            </>
+          ) : (
+            <>
+              <Secondary onClick={next}>{nextLabel}</Secondary>
+              <Primary onClick={retry}>Try Again</Primary>
+            </>
+          ),
       };
     }
     if (running && runMode) {
@@ -1747,20 +1853,44 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         ),
       };
     }
+    if (shownPass === 'challenge') {
+      // The challenge round: hear the step again, or play ALL of it.
+      return {
+        lead: (
+          <p data-literacy-run-lead className="text-[15px] text-[#e8e8f0]">
+            Play ALL the notes, along with Atlas
+          </p>
+        ),
+        meta: null,
+        corner,
+        actions: (
+          <>
+            <Secondary onClick={() => startRun('listen', 'echo')}>
+              <Headphones />
+              Listen
+            </Secondary>
+            <Primary onClick={() => startRun('play', 'challenge')}>
+              <Play />
+              Play
+            </Primary>
+          </>
+        ),
+      };
+    }
     return {
       lead: null,
       meta: null,
       corner,
       actions: (
         <>
-          <Secondary onClick={() => startRun('listen', pass)}>
+          <Secondary onClick={() => startRun('listen', 'echo')}>
             <Headphones />
             Listen
           </Secondary>
-          <Secondary onClick={() => startRun('practice', pass)}>
+          <Secondary onClick={() => startRun('practice', 'echo')}>
             Practice
           </Secondary>
-          <Primary onClick={() => startRun('play', pass)}>
+          <Primary onClick={() => startRun('play', 'echo')}>
             <Play />
             Play
           </Primary>
@@ -1771,36 +1901,76 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
 
   // ── The chrome ──
 
-  const navSteps: NavStep[] = lesson.steps.map((s, i) => {
-    const marks = stepPassMarks(lesson, s, progress);
-    const status: GuitarStepStatus = literacyStepDone(s, progress)
+  /** A pass's mark in the step list's words. */
+  const statusOf = (key: string): GuitarStepStatus =>
+    progress[key]?.passed
       ? 'passed'
-      : literacyStepTried(s, progress)
+      : progress[key] !== undefined
         ? 'attempted'
         : 'todo';
+
+  // The pager and the step list: the lesson's steps, grouped by module, or
+  // in a round, the round's steps alone, each by its round's mark.
+  const roundPassNow = roundModule ? modulePass(roundModule) : null;
+  const roundKind =
+    roundPassNow === 'create' || roundPassNow === 'challenge'
+      ? roundPassNow
+      : null;
+  const roundName = roundKind ? ROUND_COPY[roundKind].name : null;
+  /** The modules with a round to play: the intro marks them. */
+  const withRound = new Set(
+    modules
+      .filter((_, i) => (roundIndices[i]?.length ?? 0) > 0)
+      .map((m) => m.title),
+  );
+  const navIndices: readonly number[] =
+    inRound && round !== null
+      ? (roundIndices[round] ?? [])
+      : lesson.steps.map((_, i) => i);
+  const navSteps: NavStep[] = navIndices.map((i, n) => {
+    const s = lesson.steps[i];
+    if (inRound && roundModule && roundKind && roundName) {
+      return {
+        code: String(n + 1),
+        title: s.title,
+        subsection: whole ? roundName : `${roundModule.title} · ${roundName}`,
+        status: statusOf(passProgressKey(s.tag, roundKind)),
+      };
+    }
     return {
       code: String(i + 1),
       title: s.title,
-      // The step list groups by section (Part 2), else the lesson.
-      subsection: s.section ?? lesson.name,
-      status,
-      ...(marks.create
-        ? {
-            passes: [
-              {
-                label: 'Create',
-                status:
-                  marks.create === 'passed'
-                    ? ('passed' as const)
-                    : marks.create === 'tried'
-                      ? ('attempted' as const)
-                      : ('todo' as const),
-              },
-            ],
-          }
-        : {}),
+      // The step list groups by module (Part 2's sections), else the lesson.
+      subsection: moduleOfStep(modules, i)?.title ?? lesson.name,
+      status: literacyStepDone(s, progress)
+        ? 'passed'
+        : literacyStepTried(s, progress)
+          ? 'attempted'
+          : 'todo',
     };
   });
+
+  /** A passed module's header in the step list opens its round again. */
+  const groupAction = (subsection: string): NavGroupAction | null => {
+    if (inRound) return null;
+    const at = modules.findIndex((m) => m.title === subsection);
+    const target = modules[at];
+    const pass = target ? modulePass(target) : null;
+    if (
+      !target ||
+      (pass !== 'create' && pass !== 'challenge') ||
+      (roundIndices[at]?.length ?? 0) === 0 ||
+      !moduleEchoPassed(target, progress)
+    ) {
+      return null;
+    }
+    return {
+      label: ROUND_COPY[pass].start,
+      status:
+        roundMark(target, lesson, progress) === 'passed' ? 'passed' : 'todo',
+      onPick: () => startRound(at),
+    };
+  };
 
   const about = useMemo(() => {
     const key = describeKey(
@@ -1815,18 +1985,6 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       key: key && { ...key, title: keyName },
     };
   }, [step, notes.key.tonic, mode, keyName]);
-
-  const passTabs =
-    isEchoStep(step) && passes.create && !gate ? (
-      <PassTabs
-        tabs={passOrder(passes)
-          .filter((p) => p !== 'challenge')
-          .map((p) => ({ pass: p, mark: stepPassMarksNow[p] ?? 'todo' }))}
-        current={onCreate ? 'create' : 'echo'}
-        onPick={choosePass}
-        disabled={running}
-      />
-    ) : null;
 
   /** The keys, as tall as `maxHeight` allows at their real proportions. */
   const keyboardOf = (maxHeight: number) => (
@@ -1856,6 +2014,19 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
 
   // Part 2's full-width screens: the choices, and a step waiting for one.
   const fullScreen = (stacked: boolean): ReactNode => {
+    if (intro && goal) {
+      return (
+        <LessonIntroCard
+          key={`intro-${stacked}`}
+          lessonName={lesson.name}
+          goal={goal}
+          modules={modules}
+          withRound={withRound}
+          keyColor={keyColor}
+          stacked={stacked}
+        />
+      );
+    }
     if (gate) {
       const at = gate.at;
       const target = at ? lesson.steps.findIndex((s) => s.tag === at) : -1;
@@ -1925,6 +2096,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     return null;
   };
   const hasFull =
+    intro ||
     gate !== null ||
     kind === 'chooseKey' ||
     kind === 'chooseMode' ||
@@ -1932,6 +2104,22 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
 
   const resultSlot = (() => {
     if (!outcome || status !== 'result') return null;
+    if (doneModule && doneRound && moduleDone !== null) {
+      return (
+        <ModuleDoneCard
+          module={doneModule}
+          round={doneRound}
+          whole={whole ? { part: lesson.part } : null}
+          last={
+            outcome.pass === 'echo'
+              ? { title: step.title, percent: outcome.result.percent }
+              : null
+          }
+          steps={roundIndices[moduleDone]?.length ?? 0}
+          keyColor={keyColor}
+        />
+      );
+    }
     if (outcome.pass === 'create') {
       if (outcome.result.kind === 'empty') {
         return (
@@ -1982,13 +2170,15 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     return panel;
   })();
 
-  const announcement = resultModel
-    ? resultSummary(resultModel, passMark)
-    : outcome?.pass === 'create'
-      ? outcome.result.kind === 'empty'
-        ? outcome.result.feedbackText
-        : `${outcome.result.result.percent}%. ${outcome.result.passed ? 'Passed' : `Not yet: ${passMark}% passes`}.`
-      : '';
+  const announcement = doneModule
+    ? `${whole ? `Part ${lesson.part} done!` : 'Module done!'} ${doneRound ? ROUND_COPY[doneRound].offer : ''}`
+    : resultModel
+      ? resultSummary(resultModel, passMark)
+      : outcome?.pass === 'create'
+        ? outcome.result.kind === 'empty'
+          ? outcome.result.feedbackText
+          : `${outcome.result.result.percent}%. ${outcome.result.passed ? 'Passed' : `Not yet: ${passMark}% passes`}.`
+        : '';
 
   return (
     <MusicLiteracyLayout
@@ -2009,23 +2199,38 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         ],
         keyLabel: noKeyYet ? 'Your key' : keyName,
         keyColor,
-        subsection: step.section ?? '',
-        activity: step.title,
+        // In a round, its module (Part 1's, the round's name).
+        subsection:
+          inRound && roundModule && roundName
+            ? whole
+              ? roundName
+              : roundModule.title
+            : (step.section ?? ''),
+        // Before the first step, the lesson's welcome.
+        activity: intro ? `Welcome to Part ${lesson.part}` : step.title,
       }}
       nav={{
         sections: [],
         onSection: () => {},
         steps: navSteps,
-        index: stepIndex,
-        goToStep,
+        index: Math.max(0, navIndices.indexOf(stepIndex)),
+        goToStep: (n) => goToStep(navIndices[n] ?? stepIndex),
+        groupAction,
         practiceTrack: null,
-        extra: (
-          <>
-            {passTabs}
-            {!hasFull && <SavedRollViewSwitch />}
-          </>
-        ),
+        extra: !hasFull ? <SavedRollViewSwitch /> : undefined,
       }}
+      banner={
+        inRound && roundModule && roundKind ? (
+          <RoundBanner
+            module={roundModule}
+            round={roundKind}
+            whole={whole}
+            keyColor={keyColor}
+            onLeave={leaveRound}
+            disabled={running}
+          />
+        ) : undefined
+      }
       bar={{
         state: barState,
         run: NO_RUN_MODEL,
@@ -2078,7 +2283,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
                   keyColor={keyColor}
                   compact={stacked}
                 />
-              ) : notes.words.length === 0 && step.direction ? (
+              ) : notes.words.length === 0 && step.direction && !onCreate ? (
                 // A Part 2 melody has no words: what to do, under the circle.
                 <p
                   data-literacy-direction
@@ -2097,7 +2302,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         rollRef,
         roll: (
           <GenrePianoRoll
-            key={`roll-${step.tag}-${pass}-${runId}`}
+            key={`roll-${step.tag}-${shownPass}-${runId}`}
             instrument="piano"
             showViewToggle={false}
             events={events}

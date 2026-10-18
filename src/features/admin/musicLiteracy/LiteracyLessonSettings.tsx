@@ -5,15 +5,28 @@ import {
   isMelodicEcho,
   type MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
+import {
+  DEFAULT_LESSON_GOAL,
+  lessonGoal,
+  lessonModules,
+  roundSteps,
+} from '@/curriculum/engine/musicLiteracy/modules';
 import { CONSOLE_LABEL } from '../ui/styles';
+import {
+  emptyRoundWarning,
+  GoalField,
+  RoundChoice,
+} from './LiteracyModuleFields';
 import { Choice } from './literacyFields';
-import { lessonPass, withLessonPass, type PassName } from './literacyLesson';
+import { lessonRound, withLessonRound } from './literacyLesson';
 
 /**
  * The lesson's Part 2 settings: who picks the key, how its numbers read,
- * and the passes its call-and-response steps offer. A lesson that uses
- * none of Part 2 (Part 1) shows them folded into one line, so it looks as
- * it always has.
+ * the goal it opens on, and its round: what students are offered once they
+ * pass a module, unless the module (its section's header) picks its own. A
+ * lesson without sections is one module, and this is its round. A lesson
+ * that uses none of Part 2 (Part 1) shows them folded into one line, so it
+ * looks as it always has.
  */
 
 type Edit = (lesson: MusicLiteracyLesson) => MusicLiteracyLesson;
@@ -24,6 +37,8 @@ export const usesPart2 = (lesson: MusicLiteracyLesson) =>
   lesson.keyChoice !== undefined ||
   lesson.numbering !== undefined ||
   lesson.passes !== undefined ||
+  lesson.goal !== undefined ||
+  lesson.modules !== undefined ||
   lesson.steps.some((step) => !isMelodicEcho(step) || step.section);
 
 const KEY_CHOICE_HINT = {
@@ -39,18 +54,11 @@ const NUMBERING_HINT = {
     'Write plain 1–7: they follow the student’s major or minor, so in minor 3, 6 and 7 are ♭3, ♭6 and ♭7.',
 };
 
-const PASSES: { pass: PassName; name: string; hint: string }[] = [
-  {
-    pass: 'challenge',
-    name: 'Challenge',
-    hint: '“Want a challenge just for fun? Go again and play ALL the notes!” Melodies only.',
-  },
-  {
-    pass: 'create',
-    name: 'Create',
-    hint: '“Now Create Your Own Rhythms!” Students play a call of their own on the step’s notes or chords, then repeat it.',
-  },
-];
+const ROUND_NAME = {
+  create: 'create round',
+  challenge: 'challenge',
+  none: 'no round',
+} as const;
 
 export const LiteracyLessonSettings: FC<{
   lesson: MusicLiteracyLesson;
@@ -59,6 +67,11 @@ export const LiteracyLessonSettings: FC<{
   const [open, setOpen] = useState(() => usesPart2(lesson));
   const keyChoice = lesson.keyChoice ?? 'lesson';
   const numbering = lesson.numbering ?? 'chromatic';
+  const round = lessonRound(lesson);
+  // Without sections the lesson is one module: this is its round.
+  const sectioned = lesson.steps.some((step) => step.section);
+  const modules = lessonModules(lesson);
+  const shownGoal = lessonGoal({ ...lesson, goal: undefined });
 
   if (!open)
     return (
@@ -69,13 +82,10 @@ export const LiteracyLessonSettings: FC<{
         className="col-span-2 flex items-center gap-1.5 text-left text-xs text-white/40 transition-colors hover:text-white md:col-span-4"
       >
         <ChevronRight className="size-3.5" />
-        More settings: who picks the key, numbers, passes
+        More settings: who picks the key, numbers, goal, round
         <span className="text-white/30">
-          (the lesson’s key · as written ·{' '}
-          {PASSES.filter((p) => lessonPass(lesson, p.pass))
-            .map((p) => p.name.toLowerCase())
-            .join(' and ') || 'no extra'}{' '}
-          pass)
+          (the lesson’s key · as written · {lesson.goal ? 'a goal' : 'no goal'}{' '}
+          · {ROUND_NAME[round]})
         </span>
       </button>
     );
@@ -141,26 +151,53 @@ export const LiteracyLessonSettings: FC<{
       </div>
 
       <div className="flex min-w-0 flex-col gap-1.5" data-field="passes">
-        <span className={CONSOLE_LABEL}>Passes, after the echo</span>
-        {PASSES.map(({ pass, name, hint }) => (
-          <label key={pass} className="flex items-start gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={lessonPass(lesson, pass)}
-              onChange={(e) =>
-                set((l) => withLessonPass(l, pass, e.target.checked))
-              }
-              aria-label={`${name} pass`}
-              className="mt-1 accent-white"
-            />
-            <span className="flex flex-col">
-              <span className="text-white/85">{name}</span>
-              <span className="text-xs text-white/40">{hint}</span>
-            </span>
-          </label>
-        ))}
+        <span className={CONSOLE_LABEL}>
+          {sectioned ? 'Round, after each module' : 'Round, at the end'}
+        </span>
+        <RoundChoice
+          label="Lesson round"
+          value={round}
+          onChange={(next) => set((l) => withLessonRound(l, next))}
+          warning={
+            sectioned
+              ? null
+              : emptyRoundWarning(
+                  round,
+                  modules[0] ? roundSteps(modules[0], lesson).length : 0,
+                )
+          }
+        />
         <p className="text-[11px] text-white/30">
-          Every call-and-response step, unless it says otherwise.
+          {sectioned
+            ? 'For a section that doesn’t pick its own, on its header.'
+            : 'The whole lesson is one module: this follows its last step.'}
+        </p>
+      </div>
+
+      <div
+        className="flex min-w-0 flex-col gap-1.5 md:col-span-3"
+        data-field="goal"
+      >
+        <span className={CONSOLE_LABEL}>Goal</span>
+        <GoalField
+          label="Lesson goal"
+          value={lesson.goal}
+          placeholder={
+            shownGoal
+              ? `${DEFAULT_LESSON_GOAL} (the default)`
+              : 'None: no goal card at the start'
+          }
+          onChange={(goal) =>
+            set((l) => {
+              const next = { ...l };
+              if (goal) next.goal = goal;
+              else delete next.goal;
+              return next;
+            })
+          }
+        />
+        <p className="text-[11px] text-white/40">
+          One line students see before the first step: what they’ll make.
         </p>
       </div>
     </div>

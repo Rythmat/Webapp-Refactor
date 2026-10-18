@@ -30,6 +30,7 @@ import { lessonSections } from '@/curriculum/engine/musicLiteracy/literacy';
 import { IconButton, InlineText } from '../content/visual/Editable';
 import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { CONSOLE_PANEL } from '../ui/styles';
+import { ModuleSettings } from './LiteracyModuleFields';
 import { barsText } from './literacyChords';
 import { pitchLabel } from './literacyControls';
 import {
@@ -52,11 +53,13 @@ import { useStepDrag } from './useStepDrag';
 
 /**
  * The lesson's steps, in order, under their sections' headers (when it has
- * sections: Part 1 has none, and lists as it always has). A section folds
- * away and is renamed from its header, and takes a new step of any kind at
- * its end. A step is moved by its arrows or dragged by its grip, within its
- * section or into another: at a section's edge an arrow takes it over the
- * line, into the section beyond (`stepMove`).
+ * sections: Part 1 has none, and lists as it always has). A section is a
+ * module: its header holds the module's goal and round. A section folds
+ * away and is renamed from its header (its module keeps up), and takes a
+ * new step of any kind at its end. A step is moved by its arrows or
+ * dragged by its grip, within its section or into another: at a section's
+ * edge an arrow takes it over the line, into the section beyond
+ * (`stepMove`).
  */
 
 type Edit = (lesson: MusicLiteracyLesson) => MusicLiteracyLesson;
@@ -183,6 +186,15 @@ export const LiteracyStepList: FC<{
                 onRename={(name) =>
                   set((l) => renameSection(l, section.steps, name))
                 }
+                module={
+                  section.title ? (
+                    <ModuleSettings
+                      lesson={lesson}
+                      title={section.title}
+                      set={set}
+                    />
+                  ) : null
+                }
                 addMenu={
                   <AddStepMenu
                     lesson={lesson}
@@ -255,7 +267,10 @@ const DropLine: FC = () => (
   />
 );
 
-/** A section's header: fold it, rename it, add a step at its end. */
+/**
+ * A section's header: fold it, rename it, add a step at its end, and under
+ * them its module's goal and round.
+ */
 const SectionHeader: FC<{
   title: string | null;
   count: number;
@@ -263,41 +278,54 @@ const SectionHeader: FC<{
   issues: number;
   onToggle: () => void;
   onRename: (name: string) => void;
+  module: ReactNode;
   addMenu: ReactNode;
-}> = ({ title, count, folded, issues, onToggle, onRename, addMenu }) => (
-  <div className="mt-3 flex items-center gap-2 border-b border-white/[0.08] pb-1.5 first:mt-0">
-    <button
-      type="button"
-      aria-expanded={!folded}
-      aria-label={`${folded ? 'Show' : 'Hide'} the steps in ${title ?? 'no section'}`}
-      onClick={onToggle}
-      className="rounded p-0.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white"
-    >
-      {folded ? (
-        <ChevronRight className="size-4" />
-      ) : (
-        <ChevronDown className="size-4" />
+}> = ({
+  title,
+  count,
+  folded,
+  issues,
+  onToggle,
+  onRename,
+  module,
+  addMenu,
+}) => (
+  <div className="mt-3 flex flex-col gap-2 border-b border-white/[0.08] pb-2 first:mt-0">
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        aria-expanded={!folded}
+        aria-label={`${folded ? 'Show' : 'Hide'} the steps in ${title ?? 'no section'}`}
+        onClick={onToggle}
+        className="rounded p-0.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white"
+      >
+        {folded ? (
+          <ChevronRight className="size-4" />
+        ) : (
+          <ChevronDown className="size-4" />
+        )}
+      </button>
+      <InlineText
+        value={title ?? ''}
+        onChange={onRename}
+        placeholder="No section (click to name)"
+        ariaLabel={`Section name, ${title ?? 'no section'}`}
+        className={cn(
+          'text-sm font-semibold tracking-[0.01em]',
+          title ? 'text-white' : 'italic text-white/40',
+        )}
+      />
+      <span className="text-xs tabular-nums text-white/35">
+        {count} step{count === 1 ? '' : 's'}
+      </span>
+      {issues > 0 && (
+        <ConsoleBadge tone="danger" className="shrink-0">
+          {issues} to fix
+        </ConsoleBadge>
       )}
-    </button>
-    <InlineText
-      value={title ?? ''}
-      onChange={onRename}
-      placeholder="No section (click to name)"
-      ariaLabel={`Section name, ${title ?? 'no section'}`}
-      className={cn(
-        'text-sm font-semibold tracking-[0.01em]',
-        title ? 'text-white' : 'italic text-white/40',
-      )}
-    />
-    <span className="text-xs tabular-nums text-white/35">
-      {count} step{count === 1 ? '' : 's'}
-    </span>
-    {issues > 0 && (
-      <ConsoleBadge tone="danger" className="shrink-0">
-        {issues} to fix
-      </ConsoleBadge>
-    )}
-    <div className="ml-auto">{addMenu}</div>
+      <div className="ml-auto">{addMenu}</div>
+    </div>
+    {module}
   </div>
 );
 

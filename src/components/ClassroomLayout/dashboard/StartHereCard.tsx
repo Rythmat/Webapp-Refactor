@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   KeyCircle,
   keyTint,
+  RoundsMark,
   StepPips,
   stepsLine,
   StopActionLink,
@@ -68,6 +69,7 @@ export const StartHereCard = () => {
                   </span>
                 )}
               </span>
+              <RoundsMark state={current} />
             </div>
           </div>
         </div>

@@ -54,6 +54,8 @@ export interface MusicLiteracyLayoutProps {
   groove: LiteracyGrooveSettingsProps;
   /** Said once when a result arrives. */
   announcement: string;
+  /** Over the step pager: a module's round, while the student plays it. */
+  banner?: ReactNode;
   slots: {
     /**
      * In place of both panels (Part 2's choose steps, and a step waiting
@@ -82,6 +84,7 @@ export function MusicLiteracyLayout({
   tempo,
   groove,
   announcement,
+  banner,
   slots,
 }: MusicLiteracyLayoutProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -117,6 +120,7 @@ export function MusicLiteracyLayout({
             settingsOpen={settingsOpen}
             onOpenSettings={() => setSettingsOpen((open) => !open)}
           />
+          {banner}
           <GuitarStepNav nav={nav} keyColor={header.keyColor} />
 
           {/* The panels stay mounted (and measured) under a full-width

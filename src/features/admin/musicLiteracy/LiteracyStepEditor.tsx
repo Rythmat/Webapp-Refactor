@@ -25,6 +25,8 @@ import {
   type LiteracyReplayStep,
   type LiteracyStep,
   type MusicLiteracyLesson,
+  stepModuleTitles,
+  stepRound,
 } from '@/content/musicLiteracy/schemas';
 import { blankLiteracyStep } from '@/content/musicLiteracy/template';
 import { callBars } from '@/curriculum/engine/musicLiteracy/literacy';
@@ -48,18 +50,12 @@ import { FigureEditor } from './FigureEditor';
 import { usesPart2 } from './LiteracyLessonSettings';
 import { WordsEditor } from './WordsEditor';
 import { control } from './literacyControls';
-import {
-  FieldIssues,
-  PassChoice,
-  SectionPicker,
-  StepPart,
-} from './literacyFields';
+import { Choice, FieldIssues, SectionPicker, StepPart } from './literacyFields';
 import { choiceInfo, choiceOf } from './literacyKinds';
 import {
   issueItems,
   issuesAt,
   issuesOutside,
-  lessonPass,
   sectionNames,
   tonicLabel,
   withStepPass,
@@ -500,12 +496,12 @@ const MelodyBody: FC<{
   );
 };
 
-// ── An echo's passes ───────────────────────────────────────────────────────
+// ── An echo's place in its module's round ──────────────────────────────────
 
 /**
- * The passes an echo offers past the echo itself: each as the lesson has
- * it, or on or off for this step; a melody's create pass may run a
- * different number of bars from its call.
+ * Whether the echo is played again in its module's round (the module's
+ * header picks the round): in it, the default, or left out; and how long a
+ * melody's own call is in a create round.
  */
 const PassFields: FC<{
   lesson: MusicLiteracyLesson;
@@ -515,13 +511,26 @@ const PassFields: FC<{
   onChange: (patch: Partial<LiteracyEchoStep>) => void;
 }> = ({ lesson, step, name, issues, onChange }) => {
   const chords = isChordEcho(step);
-  const create = step.passes?.create ?? lessonPass(lesson, 'create');
+  const round = stepRound(lesson, step);
+  const index = lesson.steps.indexOf(step);
+  const module =
+    (index >= 0 ? stepModuleTitles(lesson.steps)[index] : step.section) ??
+    'the lesson';
   const bars = callBars(lesson, step.call);
   const createBars = step.passes?.createBars;
+  const pass = round === 'none' ? null : round;
+  // A chord call sits out a challenge: it's for melodies.
+  const sitsOut = pass === 'challenge' && chords;
+  const included = pass !== null && !sitsOut && step.passes?.[pass] !== false;
+  const roundName = pass === 'create' ? 'create round' : 'challenge round';
   return (
     <StepPart
-      title="Passes"
-      hint="Pass 1, the echo, always comes first. The others follow the lesson’s settings unless this step says otherwise."
+      title="In the round"
+      hint={
+        pass === null
+          ? `${module === 'the lesson' ? 'The lesson' : `“${module}”`} has no round: set one on its header.`
+          : `Once students pass “${module}”, its ${roundName} goes through its steps again.`
+      }
       field="passes"
       issues={
         chords
@@ -529,66 +538,82 @@ const PassFields: FC<{
           : issuesAt(issues, ['passes'], true)
       }
     >
-      <div className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-3">
-        {!chords && (
-          <PassChoice
-            name="Challenge"
-            hint="“Want a challenge just for fun? Go again and play ALL the notes!”"
-            label={`${name} challenge pass`}
-            value={step.passes?.challenge}
-            lesson={lessonPass(lesson, 'challenge')}
-            issues={issuesAt(issues, ['passes', 'challenge'])}
-            onChange={(value) =>
-              onChange({
-                passes: withStepPass(step.passes, 'challenge', value),
-              })
-            }
-          />
-        )}
-        <PassChoice
-          name="Create"
-          hint="“Now Create Your Own Rhythms!” The student plays a call of their own, then repeats it."
-          label={`${name} create pass`}
-          value={step.passes?.create}
-          lesson={lessonPass(lesson, 'create')}
-          issues={chords ? undefined : issuesAt(issues, ['passes', 'create'])}
-          onChange={(value) =>
-            onChange({ passes: withStepPass(step.passes, 'create', value) })
-          }
-        />
-        {!chords && (create || createBars !== undefined) && (
-          <div className="flex min-w-0 flex-col gap-1">
-            <div className={CONSOLE_LABEL}>Create pass lasts</div>
-            <select
-              aria-label={`${name} create pass bars`}
-              value={createBars ?? ''}
-              onChange={(e) =>
-                onChange({
-                  passes: withStepPass(
-                    step.passes,
-                    'createBars',
-                    e.target.value ? Number(e.target.value) : undefined,
-                  ),
-                })
-              }
-              className={cn(control, 'w-fit py-1 text-sm')}
-            >
-              <option value="">
-                As long as the call ({bars} bar{bars === 1 ? '' : 's'})
-              </option>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                <option key={n} value={n}>
-                  {n} bar{n === 1 ? '' : 's'}
-                </option>
-              ))}
-            </select>
-            <p className="text-[11px] text-white/35">
-              How long the student’s own call is, and their repeat of it.
+      {pass !== null && (
+        <div className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-3">
+          {sitsOut ? (
+            <p className="text-xs text-white/40 md:col-span-3">
+              A chord call sits out the challenge round: it’s for melodies.
             </p>
-            <FieldIssues issues={issuesAt(issues, ['passes', 'createBars'])} />
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="flex min-w-0 flex-col gap-1">
+              <div className={CONSOLE_LABEL}>
+                {pass === 'create' ? 'Create round' : 'Challenge round'}
+              </div>
+              <Choice
+                label={`${name} in the ${roundName}`}
+                value={included ? 'in' : 'out'}
+                onChange={(value) =>
+                  onChange({
+                    passes: withStepPass(
+                      step.passes,
+                      pass,
+                      value === 'in' ? undefined : false,
+                    ),
+                  })
+                }
+                options={[
+                  { value: 'in', label: 'In it' },
+                  { value: 'out', label: 'Skip this step' },
+                ]}
+              />
+              <p className="text-[11px] text-white/35">
+                {pass === 'create'
+                  ? 'The student plays a call of their own on this step’s notes or chords, then repeats it.'
+                  : 'The student plays ALL the notes along with Atlas.'}
+              </p>
+              <FieldIssues issues={issuesAt(issues, ['passes', pass])} />
+            </div>
+          )}
+          {!chords &&
+            ((pass === 'create' && included) || createBars !== undefined) && (
+              <div className="flex min-w-0 flex-col gap-1">
+                <div className={CONSOLE_LABEL}>Their call lasts</div>
+                <select
+                  aria-label={`${name} create pass bars`}
+                  value={createBars ?? ''}
+                  onChange={(e) =>
+                    onChange({
+                      passes: withStepPass(
+                        step.passes,
+                        'createBars',
+                        e.target.value ? Number(e.target.value) : undefined,
+                      ),
+                    })
+                  }
+                  className={cn(control, 'w-fit py-1 text-sm')}
+                >
+                  <option value="">
+                    As long as the call ({bars} bar{bars === 1 ? '' : 's'})
+                  </option>
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                    <option key={n} value={n}>
+                      {n} bar{n === 1 ? '' : 's'}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-white/35">
+                  How long the student’s own call is, and their repeat of it.
+                </p>
+                <FieldIssues
+                  issues={issuesAt(issues, ['passes', 'createBars'])}
+                />
+              </div>
+            )}
+        </div>
+      )}
+      {pass === null && createBars !== undefined && (
+        <FieldIssues issues={issuesAt(issues, ['passes', 'createBars'])} />
+      )}
     </StepPart>
   );
 };

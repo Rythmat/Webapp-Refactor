@@ -1,7 +1,7 @@
-import { Check, Hand } from 'lucide-react';
+import { Check, ChevronRight, Hand } from 'lucide-react';
 import { useId } from 'react';
 import { cn } from '@/components/utilities';
-import type { GuitarStepStatus, NavStep } from './types';
+import type { GuitarStepStatus, NavGroupAction, NavStep } from './types';
 
 // ── Step list ──────────────────────────────────────────────────────────────
 // Every step of the section, grouped by subsection, opened from the pager's
@@ -93,22 +93,49 @@ export interface GuitarStepListProps {
   steps: readonly NavStep[];
   index: number;
   onPick: (index: number) => void;
+  /** A group's header button, by its subsection (StepNavModel's). */
+  groupAction?: ((subsection: string) => NavGroupAction | null) | null;
 }
 
-export function GuitarStepList({ steps, index, onPick }: GuitarStepListProps) {
+export function GuitarStepList({
+  steps,
+  index,
+  onPick,
+  groupAction,
+}: GuitarStepListProps) {
   const baseId = useId();
   return (
     <div data-guitar-step-list className="flex flex-col gap-1">
       {groupBySubsection(steps).map((group, g) => {
         const headingId = `${baseId}-${g}`;
+        const action = groupAction?.(group.subsection) ?? null;
         return (
           <section key={headingId} aria-labelledby={headingId}>
-            <h3
-              id={headingId}
-              className="px-2 pb-1 pt-2 text-xs font-normal uppercase tracking-[0.14em] text-white/45"
-            >
-              {group.subsection}
-            </h3>
+            <div className="flex items-end gap-2 px-2 pb-1 pt-2">
+              <h3
+                id={headingId}
+                className="min-w-0 flex-1 text-xs font-normal uppercase tracking-[0.14em] text-white/45"
+              >
+                {group.subsection}
+              </h3>
+              {action && (
+                <button
+                  type="button"
+                  data-group-action={group.subsection}
+                  data-group-action-status={action.status ?? 'todo'}
+                  aria-label={`${action.label}: ${group.subsection}${STATUS_WORDS[action.status ?? 'todo']}`}
+                  onClick={action.onPick}
+                  className="-my-1 inline-flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs font-normal text-[#e8e8f0] ring-1 ring-inset ring-white/15 transition-colors duration-150 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-white/60 max-[639px]:h-9"
+                >
+                  {action.label}
+                  {action.status === 'passed' ? (
+                    <StepStatusMark status="passed" className="size-3.5" />
+                  ) : (
+                    <ChevronRight aria-hidden className="size-3.5" />
+                  )}
+                </button>
+              )}
+            </div>
             <ul className="flex flex-col">
               {group.rows.map(({ step, index: i }) => (
                 <li key={i}>

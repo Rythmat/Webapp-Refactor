@@ -11,8 +11,8 @@ import type { LessonIssue } from './literacyLesson';
 /**
  * The step editors' shared parts: a titled part of a step, the schema's
  * problems where they belong (`FieldIssues`), a row of pills to pick one
- * of (`Choice`), a pass that follows the lesson or says on or off, and the
- * step's section, picked from the lesson's or a new one.
+ * of (`Choice`), and the step's section, picked from the lesson's or a new
+ * one.
  */
 
 /** A part of a step: its title, a line on what it is, its tools. */
@@ -129,50 +129,6 @@ export const HarmonyChoice: FC<{
     ]}
   />
 );
-
-type PassSetting = 'lesson' | 'on' | 'off';
-
-/**
- * A pass on one step: as the lesson has it (and what that is), or on or
- * off for this step alone.
- */
-export const PassChoice: FC<{
-  name: string;
-  hint: string;
-  /** The step's own setting; undefined follows the lesson. */
-  value: boolean | undefined;
-  /** What the lesson offers. */
-  lesson: boolean;
-  onChange: (value: boolean | undefined) => void;
-  label: string;
-  issues?: readonly LessonIssue[];
-}> = ({ name, hint, value, lesson, onChange, label, issues }) => {
-  const setting: PassSetting =
-    value === undefined ? 'lesson' : value ? 'on' : 'off';
-  return (
-    <div className="flex min-w-0 flex-col gap-1">
-      <div className={CONSOLE_LABEL}>{name}</div>
-      <Choice<PassSetting>
-        label={label}
-        value={setting}
-        onChange={(next) =>
-          onChange(next === 'lesson' ? undefined : next === 'on')
-        }
-        options={[
-          {
-            value: 'lesson',
-            label: `Lesson’s (${lesson ? 'on' : 'off'})`,
-            title: 'Whatever the lesson’s settings say',
-          },
-          { value: 'on', label: 'On' },
-          { value: 'off', label: 'Off' },
-        ]}
-      />
-      <p className="text-[11px] text-white/35">{hint}</p>
-      {issues && <FieldIssues issues={issues} />}
-    </div>
-  );
-};
 
 const NEW_SECTION = '\u0000new';
 const NO_SECTION = '';

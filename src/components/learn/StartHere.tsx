@@ -1,4 +1,4 @@
-import { Check, Play, RotateCcw } from 'lucide-react';
+import { Check, Play, RotateCcw, Sparkles, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CircleOfFifthsSvg } from '@/components/common/CircleOfFifthsSvg';
 import { cn } from '@/components/utilities';
@@ -50,6 +50,56 @@ export function stepsLine(state: LiteracyStopState): string {
   return `${state.passed} of ${total} steps`;
 }
 
+/**
+ * The module rounds done, once any is: "Challenge done", "1 of 4 create
+ * rounds". Null before then.
+ */
+export function roundsLine(state: LiteracyStopState): string | null {
+  const rounds = state.rounds;
+  if (!rounds || rounds.done === 0) return null;
+  const noun =
+    rounds.kind === 'challenge'
+      ? ['Challenge', 'challenges']
+      : rounds.kind === 'create'
+        ? ['Create round', 'create rounds']
+        : ['Round', 'rounds'];
+  return rounds.total === 1
+    ? `${noun[0]} done`
+    : `${rounds.done} of ${rounds.total} ${noun[1]}`;
+}
+
+/** The rounds' mark: the round's icon in the key's color, and its line. */
+export const RoundsMark = ({
+  state,
+  className,
+}: {
+  state: LiteracyStopState;
+  className?: string;
+}) => {
+  const line = roundsLine(state);
+  if (!line) return null;
+  const Icon = state.rounds?.kind === 'challenge' ? Trophy : Sparkles;
+  return (
+    <span
+      data-path-rounds={`${state.rounds?.done}/${state.rounds?.total}`}
+      className={cn(
+        'inline-flex shrink-0 items-center gap-1.5 text-sm text-white/60',
+        className,
+      )}
+    >
+      <Icon
+        aria-hidden
+        className="h-3.5 w-3.5"
+        style={{ color: state.key?.color }}
+      />
+      {line}
+    </span>
+  );
+};
+
+/** More steps than this, and the pips are dots: Part 2's 57 fit a card. */
+const DENSE_PIPS = 20;
+
 /** The lesson's steps as a row of pips: passed, tried, still to do. */
 export const StepPips = ({
   state,
@@ -59,17 +109,25 @@ export const StepPips = ({
   className?: string;
 }) => {
   const color = state.key?.color ?? '#e8e8f0';
+  const dense = state.steps.length > DENSE_PIPS;
   return (
     <span
       role="img"
       aria-label={`${state.passed} of ${state.steps.length} steps passed`}
-      className={cn('flex items-center gap-1', className)}
+      className={cn(
+        'flex items-center',
+        dense ? 'gap-[3px]' : 'gap-1',
+        className,
+      )}
     >
       {state.steps.map((mark, i) => (
         <span
           key={i}
           data-step-mark={mark}
-          className="h-1.5 w-5 rounded-full md:w-6"
+          className={cn(
+            'h-1.5 rounded-full',
+            dense ? 'w-1.5 md:w-2' : 'w-5 md:w-6',
+          )}
           style={{
             backgroundColor:
               mark === 'passed'
@@ -321,6 +379,7 @@ const OpenStop = ({
               </span>
             )}
           </span>
+          <RoundsMark state={state} className="sm:ml-auto" />
         </div>
       )}
     </div>

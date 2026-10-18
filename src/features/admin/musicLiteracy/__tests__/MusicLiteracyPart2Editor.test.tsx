@@ -16,6 +16,10 @@ import type {
 } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
+import {
+  DEFAULT_LESSON_GOAL,
+  MODULE_GOALS,
+} from '@/curriculum/engine/musicLiteracy/modules';
 import { MusicLiteracyEditor } from '../MusicLiteracyEditor';
 import { choiceOf, STEP_CHOICES } from '../literacyKinds';
 import { canonicalLesson, lessonIssues } from '../literacyLesson';
@@ -409,7 +413,7 @@ describe('a replay', () => {
 });
 
 describe('a melody', () => {
-  it('offers 1–7 only under scale numbering, takes words and gives them back, and sets its passes', async () => {
+  it('offers 1–7 only under scale numbering, takes words and gives them back, and sets its create round’s bars', async () => {
     mount();
     const s = openStep(1);
     const picker = select('Step 2 call note 1: which note');
@@ -428,7 +432,13 @@ describe('a melody', () => {
     expect(
       s.queryByRole('textbox', { name: 'Step 2 words, as sung' }),
     ).toBeNull();
-    fireEvent.click(radio('Step 2 challenge pass', 'On'));
+    // In its module's create round, by default; no challenge to set.
+    expect(
+      radio('Step 2 in the create round', 'In it').getAttribute('aria-checked'),
+    ).toBe('true');
+    expect(
+      screen.queryByRole('radiogroup', { name: /Step 2 challenge/ }),
+    ).toBeNull();
     fireEvent.change(select('Step 2 create pass bars'), {
       target: { value: '2' },
     });
@@ -438,8 +448,41 @@ describe('a melody', () => {
       section: 'Choose a Color',
       title: '1-3-5',
       call: (PART2_FIXTURE.steps[1] as LiteracyMelodicEchoStep).call,
-      passes: { challenge: true, createBars: 2 },
+      passes: { createBars: 2 },
     });
+  });
+
+  it('leaves a step out of its module’s round, and puts it back', async () => {
+    mount();
+    openStep(3);
+    expect(field(3, 'passes').textContent).toContain(
+      'Once students pass “Create a Melody”, its create round goes through its steps again.',
+    );
+    fireEvent.click(radio('Step 4 in the create round', 'Skip this step'));
+    // Out of the round: no bars to set.
+    expect(
+      screen.queryByRole('combobox', { name: 'Step 4 create pass bars' }),
+    ).toBeNull();
+    const body = await saved();
+    expect(body.steps[3]).toMatchObject({ passes: { create: false } });
+    fireEvent.click(radio('Step 4 in the create round', 'In it'));
+    expect(saveButton().textContent).toBe('Save');
+  });
+
+  it('says so when its module has no round', () => {
+    mount({
+      ...PART2_FIXTURE,
+      modules: [{ title: 'Create a Melody', round: 'none' }],
+    });
+    openStep(3);
+    expect(field(3, 'passes').textContent).toContain(
+      '“Create a Melody” has no round: set one on its header.',
+    );
+    expect(
+      screen.queryByRole('radiogroup', {
+        name: 'Step 4 in the create round',
+      }),
+    ).toBeNull();
   });
 
   it('flags a flat under scale numbering on its note', () => {
@@ -508,18 +551,52 @@ describe('the choose steps', () => {
 });
 
 describe('the lesson’s settings', () => {
-  it('sets the numbers and the lesson-wide passes', async () => {
+  it('sets the numbers, the default round and the goal', async () => {
     mount();
     expect(
       radio('Numbers', 'Follow major/minor').getAttribute('aria-checked'),
     ).toBe('true');
     fireEvent.click(radio('Numbers', 'As written'));
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Create pass' }));
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Challenge pass' }));
+    expect(radio('Lesson round', 'Create').getAttribute('aria-checked')).toBe(
+      'true',
+    );
+    expect(
+      document.querySelector('[data-field="passes"]')?.textContent,
+    ).toContain('Round, after each module');
+    // The goal: the default shown until one is written.
+    const goal = screen.getByRole('textbox', {
+      name: 'Lesson goal',
+    }) as HTMLInputElement;
+    expect(goal.value).toBe('');
+    expect(goal.placeholder).toContain(DEFAULT_LESSON_GOAL);
+    fireEvent.click(radio('Lesson round', 'Challenge'));
+    fireEvent.change(goal, {
+      target: { value: 'Make it, then play it twice.' },
+    });
+    fireEvent.blur(goal);
     const body = await saved();
     expect(body).not.toHaveProperty('numbering');
-    // Challenge on and create off are the defaults: no passes at all.
+    // The challenge is the default round: no passes at all.
     expect(body).not.toHaveProperty('passes');
+    expect(body.goal).toBe('Make it, then play it twice.');
+    // In the file, after the passes it would have and before the tempo.
+    expect(Object.keys(body).indexOf('goal')).toBe(
+      Object.keys(body).indexOf('tempo') - 1,
+    );
+  });
+
+  it('turns the round off, and the create round back on', async () => {
+    mount();
+    fireEvent.click(radio('Lesson round', 'None'));
+    expect(
+      document.querySelector('[data-field="passes"]')?.textContent,
+    ).toContain('Nothing more: students go on.');
+    let body = await saved();
+    expect(body.passes).toEqual({ challenge: false });
+    store.save.mockClear();
+    fireEvent.click(radio('Lesson round', 'Create'));
+    body = await saved();
+    expect(body.passes).toEqual({ challenge: false, create: true });
   });
 
   it('keeps them folded away for a Part 1 lesson', () => {
@@ -531,9 +608,18 @@ describe('the lesson’s settings', () => {
     expect(
       radio('Who picks the key', 'Lesson').getAttribute('aria-checked'),
     ).toBe('true');
+    // One module, the whole lesson: its round, the challenge.
     expect(
-      screen.getByRole('checkbox', { name: 'Challenge pass' }),
-    ).toHaveProperty('checked', true);
+      radio('Lesson round', 'Challenge').getAttribute('aria-checked'),
+    ).toBe('true');
+    expect(
+      document.querySelector('[data-field="passes"]')?.textContent,
+    ).toContain('Round, at the end');
+    // No goal: no card at its start.
+    expect(
+      (screen.getByRole('textbox', { name: 'Lesson goal' }) as HTMLInputElement)
+        .placeholder,
+    ).toBe('None: no goal card at the start');
     // No sections in Part 1: no headers.
     expect(
       screen.queryByRole('button', { name: /^Hide the steps/ }),
@@ -655,6 +741,98 @@ describe('sections', () => {
       '7th Chords',
       '7th Chords',
     ]);
+  });
+
+  it('sets each module’s goal and round on its section’s header', async () => {
+    mount();
+    const settings = (title: string) =>
+      document.querySelector(`[data-module-settings="${title}"]`)!;
+    // Every titled section has them; the steps with none, no header of their own.
+    expect(
+      [...document.querySelectorAll('[data-module-settings]')].map((m) =>
+        m.getAttribute('data-module-settings'),
+      ),
+    ).toEqual(['Choose a Color', 'Create a Melody', 'Chords', '7th Chords']);
+    // The lesson's default round, and the default goal for what it plays.
+    expect(radio('Chords round', 'Create').getAttribute('aria-checked')).toBe(
+      'true',
+    );
+    const goal = screen.getByRole('textbox', {
+      name: 'Chords goal',
+    }) as HTMLInputElement;
+    expect(goal.placeholder).toBe(`${MODULE_GOALS.comping} (the default)`);
+    // 7th Chords has no echo: nothing to create on.
+    expect(settings('7th Chords').textContent).toContain(
+      'No call-and-response steps here yet',
+    );
+
+    fireEvent.click(radio('Choose a Color round', 'None'));
+    expect(settings('Choose a Color').textContent).toContain(
+      'Nothing more: students go on.',
+    );
+    fireEvent.change(goal, {
+      target: { value: 'Comp on your chords, twice.' },
+    });
+    fireEvent.keyDown(goal, { key: 'Enter' });
+    fireEvent.click(radio('Create a Melody round', 'Challenge'));
+    expect(settings('Create a Melody').textContent).toContain(
+      'playing ALL the notes along with Atlas',
+    );
+    const body = await saved();
+    // In the order of their sections.
+    expect(body.modules).toEqual([
+      { title: 'Choose a Color', round: 'none' },
+      { title: 'Create a Melody', round: 'challenge' },
+      { title: 'Chords', goal: 'Comp on your chords, twice.' },
+    ]);
+  });
+
+  it('keeps a module with its section when the section is renamed, and lets one go with its last step', async () => {
+    mount({
+      ...PART2_FIXTURE,
+      modules: [
+        { title: 'Chords', goal: 'Comp it.', round: 'create' },
+        { title: 'Create a Melody', round: 'none' },
+      ],
+    });
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Section name, Chords — click to edit',
+      }),
+    );
+    const name = screen.getByRole('textbox', { name: 'Section name, Chords' });
+    fireEvent.change(name, { target: { value: 'Comping' } });
+    fireEvent.blur(name);
+    expect(
+      (
+        screen.getByRole('textbox', {
+          name: 'Comping goal',
+        }) as HTMLInputElement
+      ).value,
+    ).toBe('Comp it.');
+    // Create a Melody's one step moved into Choose a Color: its module goes.
+    openStep(3);
+    fireEvent.change(select('Step 4 section'), {
+      target: { value: 'Choose a Color' },
+    });
+    const body = await saved();
+    expect(body.modules).toEqual([
+      { title: 'Comping', goal: 'Comp it.', round: 'create' },
+    ]);
+  });
+
+  it('names a module’s problem by its title', () => {
+    mount({
+      ...PART2_FIXTURE,
+      modules: [{ title: 'Warm-up' }],
+    });
+    // Listed above, and under the lesson's settings.
+    expect(
+      screen.getAllByText(
+        'Module “Warm-up”: No steps are in a section called "Warm-up"',
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(saveButton().disabled).toBe(true);
   });
 
   it('drops a dragged step in the gap under the pointer, a folded section’s at its end', () => {

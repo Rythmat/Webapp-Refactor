@@ -1,13 +1,16 @@
 // @vitest-environment jsdom
 /**
- * Part 2 in the player, as a student meets it: choosing a key on the circle
- * and major or minor, choosing chords from the palette (the problems, Hear
- * it, Save) with the choices kept on the device; a step waiting for a choice
- * with its link; a chord echo graded; the replay; and Pass 2, the create
- * pass, from the call to its transcription, the repeat and the result, and
- * an empty call. The transport is faked (literacyRun.ts) as in the Part 1
- * player test: the test hands over each cue and says where a key lands.
- * The lesson is the frozen Part 2 fixture, not the live seed.
+ * Part 2 in the player, as a student meets it: the lesson's goal before its
+ * first step; choosing a key on the circle and major or minor, choosing
+ * chords from the palette (the problems, Hear it, Save) with the choices
+ * kept on the device; a step waiting for a choice with its link; a chord
+ * echo graded; the replay; and the modules: no offer after a step, the
+ * module's card once its last echo passes, and its create round, from the
+ * call to its transcription, the repeat and the result, an empty call, the
+ * round's banner and pager, and the round reopened from the module's
+ * header. The transport is faked (literacyRun.ts) as in the Part 1 player
+ * test: the test hands over each cue and says where a key lands. The
+ * lesson is the frozen Part 2 fixture, not the live seed.
  */
 
 import {
@@ -34,6 +37,10 @@ import {
   type LiteracyChoices,
 } from '@/curriculum/engine/musicLiteracy/choices';
 import { EMPTY_CALL_FEEDBACK } from '@/curriculum/engine/musicLiteracy/createPass';
+import {
+  DEFAULT_LESSON_GOAL,
+  MODULE_GOALS,
+} from '@/curriculum/engine/musicLiteracy/modules';
 import type { RunCue } from '@/curriculum/engine/musicLiteracy/run';
 
 const input = vi.hoisted(() => ({
@@ -121,6 +128,31 @@ const title = () => document.querySelector('[data-guitar-title]')?.textContent;
 const headline = () =>
   document.querySelector('[data-literacy-turn]')?.textContent;
 const bar = () => document.querySelector('[data-guitar-bar]')!;
+const primary = () => bar().querySelector('[data-primary]')?.textContent;
+const counter = () =>
+  document
+    .querySelector('[data-guitar-step-count]')
+    ?.getAttribute('aria-label');
+const banner = () => document.querySelector('[data-literacy-round-banner]');
+
+/** Steps saved as passed (choices made, echoes played back). */
+const passed = (...tags: string[]) =>
+  localStorage.setItem(
+    PROGRESS,
+    JSON.stringify({
+      ...progress(),
+      ...Object.fromEntries(
+        tags.map((tag) => [tag, { best: 90, passed: true, attempts: 1 }]),
+      ),
+    }),
+  );
+
+async function openStepList() {
+  await act(async () => {
+    fireEvent.click(document.querySelector('[data-guitar-step-count]')!);
+  });
+  return document.querySelector('[data-guitar-step-list]')!;
+}
 
 /** The run's cues up to `tick`, each handed over once. */
 let fedTo = -1;
@@ -165,9 +197,41 @@ beforeEach(() => {
 });
 afterEach(() => cleanup());
 
+describe('the lesson’s goal', () => {
+  it('opens Part 2 on its one goal, before choosing the key', async () => {
+    renderPlayer();
+    const intro = document.querySelector('[data-literacy-intro]')!;
+    expect(
+      screen.getByRole('heading', { name: DEFAULT_LESSON_GOAL }),
+    ).toBeTruthy();
+    expect(title()).toBe('Welcome to Part 2');
+    // Its modules, in order, those with a round marked.
+    expect(
+      [...intro.querySelectorAll('[data-intro-module]')].map((m) =>
+        m.getAttribute('data-intro-module'),
+      ),
+    ).toEqual(['Choose a Color', 'Create a Melody', 'Chords', '7th Chords']);
+    expect(intro.textContent).toContain('Then go again and create your own.');
+    expect(primary()).toBe('Let’s go');
+    await press('Let’s go');
+    expect(document.querySelector('[data-literacy-intro]')).toBeNull();
+    expect(title()).toBe('Choose your key');
+  });
+
+  it('says its own goal, and not when Start Here’s Continue opens a step', () => {
+    renderPlayer(undefined, { ...lesson, goal: 'Make it, twice.' });
+    expect(screen.getByRole('heading', { name: 'Make it, twice.' }));
+    cleanup();
+    saveChoices(cMajor);
+    renderPlayer('one-three-five');
+    expect(document.querySelector('[data-literacy-intro]')).toBeNull();
+    expect(title()).toBe('1-3-5');
+  });
+});
+
 describe('choosing a color', () => {
   it('picks the key on the circle, names it, plays it and remembers it', async () => {
-    renderPlayer();
+    renderPlayer('choose-key');
     expect(title()).toBe('Choose your key');
     expect(screen.getByRole('heading', { name: 'Choose your color' }));
     // Nothing chosen yet: Next isn't the way on.
@@ -202,7 +266,7 @@ describe('choosing a color', () => {
 
     // Kept on the device: a new visit opens on the same key.
     cleanup();
-    renderPlayer();
+    renderPlayer('choose-key');
     expect(
       screen
         .getByRole('radio', { name: 'E♭ Major' })
@@ -362,6 +426,7 @@ describe('choosing chords', () => {
 describe('a step that needs a choice', () => {
   it('waits for the key with a link to choose it', async () => {
     renderPlayer('one-three-five');
+    expect(document.querySelector('[data-literacy-intro]')).toBeNull();
     expect(
       screen.getByRole('heading', { name: 'First, choose your color' }),
     ).toBeTruthy();
@@ -518,38 +583,81 @@ describe('the replay', () => {
   });
 });
 
-describe('Pass 2, the create pass', () => {
-  /** Pass 1 of 1-3-5 played right, in C major. */
-  async function passTheEcho() {
-    saveChoices(cMajor);
-    renderPlayer('one-three-five');
+describe('the modules', () => {
+  /** 1-3-5's echo played right, in C major. */
+  async function playTheEcho() {
     await press('Play');
     feedTo(3840);
     typeAt('KeyA', 3840);
     typeAt('KeyD', 4320);
     typeAt('KeyG', 4800);
     feedTo(5760);
-    expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
   }
 
-  it('is offered after the echo: “Now Create Your Own Rhythms!”', async () => {
-    await passTheEcho();
-    expect(
-      document.querySelector('[data-literacy-offer="create"]')?.textContent,
-    ).toBe('Now Create Your Own Rhythms!');
-    expect(bar().querySelector('[data-primary]')?.textContent).toContain(
-      'Create Your Own',
+  /** Choose a Color's last step to pass, 1-3-5, played right: its card. */
+  async function finishChooseAColor() {
+    saveChoices(cMajor);
+    passed('choose-key', 'choose-mode');
+    renderPlayer('one-three-five');
+    await playTheEcho();
+  }
+
+  it('offers nothing more after a step that doesn’t finish its module', async () => {
+    saveChoices(cMajor);
+    renderPlayer('one-three-five');
+    // No pass tabs: a step is played as its echo.
+    expect(document.querySelector('[data-literacy-passes]')).toBeNull();
+    await playTheEcho();
+    expect(screen.getByRole('heading', { name: '100%' })).toBeTruthy();
+    expect(document.querySelector('[data-literacy-offer]')).toBeNull();
+    expect(document.querySelector('[data-literacy-module-done]')).toBeNull();
+    expect(screen.queryByRole('button', { name: /Create your own/i })).toBe(
+      null,
     );
+    expect(primary()).toBe('Next');
   });
 
-  it('runs the student’s call, transcribes it, lights it for the repeat, and grades the repeat against it', async () => {
-    await passTheEcho();
-    await press(/Create Your Own/);
+  it('shows the module’s card once its last echo passes: done, and create your own', async () => {
+    await finishChooseAColor();
+    const card = document.querySelector('[data-literacy-module-done]')!;
+    expect(card.getAttribute('data-literacy-module-done')).toBe(
+      'Choose a Color',
+    );
+    expect(screen.getByRole('heading', { name: 'Module done!' })).toBeTruthy();
+    expect(card.querySelector('[data-literacy-offer]')?.textContent).toBe(
+      'Now go again and create your own.',
+    );
+    // The module's goal, said again.
+    expect(card.querySelector('[data-literacy-goal]')?.textContent).toBe(
+      MODULE_GOALS.melody,
+    );
+    expect(card.textContent).toContain('1-3-5 · 100% · Passed');
+    expect(primary()).toContain('Create your own');
+    expect(screen.getByRole('button', { name: 'Next module' })).toBeTruthy();
     expect(
-      screen
-        .getByRole('button', { name: /^Pass 2: Create/ })
-        .getAttribute('aria-pressed'),
-    ).toBe('true');
+      document.querySelector('[data-literacy-announcer]')?.textContent,
+    ).toBe('Module done! Now go again and create your own.');
+
+    // Next module: the next module's first step, out of any round.
+    await press('Next module');
+    expect(title()).toBe('1-7-1');
+    expect(banner()).toBeNull();
+  });
+
+  it('runs the create round: the student’s call, transcribed, lit for the repeat, and the repeat graded against it', async () => {
+    await finishChooseAColor();
+    await press(/Create your own/);
+    // The round's banner, its goal, and its own pager.
+    expect(banner()?.textContent).toContain('Create round');
+    expect(banner()?.textContent).toContain('Choose a Color');
+    expect(banner()?.textContent).toContain(MODULE_GOALS.melody);
+    // A round of one step: nothing to page.
+    expect(counter()).toBeUndefined();
+    expect(title()).toBe('1-3-5');
+    expect(
+      document.querySelector('[data-literacy-run-lead]')?.textContent,
+    ).toContain('Play your own rhythm');
+    await press('Play');
     // No Atlas notes: the call is the student's.
     expect((run.cues as RunCue[]).some((c) => c.kind === 'note')).toBe(false);
     feedTo(0);
@@ -629,9 +737,10 @@ describe('Pass 2, the create pass', () => {
     });
   });
 
-  it('passes a clean repeat and checks Pass 2', async () => {
-    await passTheEcho();
-    await press(/Create Your Own/);
+  it('passes a clean repeat, marks the round’s step, and goes on to the next module after the round’s last', async () => {
+    await finishChooseAColor();
+    await press(/Create your own/);
+    await press('Play');
     const call: [string, number][] = [
       ['KeyA', 0],
       ['KeyD', 480],
@@ -648,24 +757,22 @@ describe('Pass 2, the create pass', () => {
       best: 100,
       passed: true,
     });
-    expect(
-      screen.getByRole('button', { name: 'Pass 2: Create, passed' }),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole('button', { name: 'Pass 1: Echo, passed' }),
-    ).toBeTruthy();
+    // The round's only step: on to the next module.
+    expect(primary()).toBe('Next module');
+    await press('Next module');
+    expect(title()).toBe('1-7-1');
+    expect(banner()).toBeNull();
   });
 
   it('says to try again after an empty call, and records nothing', async () => {
-    await passTheEcho();
-    await press(/Create Your Own/);
+    await finishChooseAColor();
+    await press(/Create your own/);
+    await press('Play');
     feedTo(3840);
     expect(
       document.querySelector('[data-literacy-empty-call]')?.textContent,
     ).toContain(EMPTY_CALL_FEEDBACK);
-    expect(bar().querySelector('[data-primary]')?.textContent).toBe(
-      'Try Again',
-    );
+    expect(primary()).toBe('Try Again');
     expect(progress()['one-three-five:create']).toBeUndefined();
 
     await press('Try Again');
@@ -673,12 +780,33 @@ describe('Pass 2, the create pass', () => {
     expect(headline()).toBe('Your rhythm');
   });
 
-  it('can be opened from its tab, on a chord call too', async () => {
-    saveChoices(cMajor);
+  it('reopens a passed module’s round from its header in the step list, on a chord call too', async () => {
+    saveChoices(
+      withProgression(cMajor, 'one-x', {
+        template: ['1', 'X'],
+        chords: ['1', '4'],
+        harmony: 'triads',
+        tonic: 'C',
+        mode: 'major',
+      }),
+    );
+    passed('the-1-chord', 'choose-x', 'play-1-x', 'play-x-1');
     renderPlayer('the-1-chord');
+    const list = await openStepList();
+    // Only the passed module offers its round.
+    expect(
+      [...list.querySelectorAll('[data-group-action]')].map((b) =>
+        b.getAttribute('aria-label'),
+      ),
+    ).toEqual(['Create your own: Chords']);
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /^Pass 2: Create/ }));
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Create your own: Chords' }),
+      );
     });
+    expect(counter()).toBe('Step 1 of 3');
+    expect(title()).toBe('The 1 chord');
+    expect(banner()?.textContent).toContain(MODULE_GOALS.comping);
     expect(
       document.querySelector('[data-literacy-run-lead]')?.textContent,
     ).toContain('Play your own rhythm');
@@ -703,37 +831,60 @@ describe('Pass 2, the create pass', () => {
     expect(
       [...document.querySelectorAll('[data-timing]')].map((m) => m.textContent),
     ).toEqual(['✓1 majon time', '✓1 majon time', '✓4 majon time']);
+
+    // Next: the round's next step; the round's step list.
+    await press(/^Next$/);
+    expect(counter()).toBe('Step 2 of 3');
+    expect(title()).toBe('Play 1 X');
+    const roundList = await openStepList();
+    expect(
+      [...roundList.querySelectorAll('h3')].map((h) => h.textContent),
+    ).toEqual(['Chords · Create round']);
+    expect(
+      screen.getByRole('button', { name: '1: The 1 chord: passed' }),
+    ).toBeTruthy();
+  });
+
+  it('is left from its banner, back on the same step as its echo', async () => {
+    await finishChooseAColor();
+    await press(/Create your own/);
+    await press(/Leave round/);
+    expect(banner()).toBeNull();
+    expect(title()).toBe('1-3-5');
+    expect(counter()).toMatch(/^Step 2 of 10/);
+    expect(screen.getByRole('button', { name: 'Practice' })).toBeTruthy();
   });
 });
 
 describe('the step list', () => {
-  it('groups the steps by section, with Pass 2’s check beside the step’s', async () => {
+  it('groups the steps by module, a passed module’s header offering its round', async () => {
     saveChoices(cMajor);
+    passed('choose-key', 'one-three-five', 'choose-mode');
     localStorage.setItem(
       PROGRESS,
       JSON.stringify({
-        'one-three-five': { best: 90, passed: true, attempts: 1 },
+        ...progress(),
         'one-three-five:create': { best: 80, passed: true, attempts: 1 },
       }),
     );
     renderPlayer('one-three-five');
-    await act(async () => {
-      fireEvent.click(document.querySelector('[data-guitar-step-count]')!);
-    });
-    const list = document.querySelector('[data-guitar-step-list]')!;
+    const list = await openStepList();
     expect([...list.querySelectorAll('h3')].map((h) => h.textContent)).toEqual([
-      'Part 2 fixture',
       'Choose a Color',
-      'Part 2 fixture',
       'Create a Melody',
       'Chords',
       '7th Chords',
     ]);
+    // A step shows its echo's mark alone; the round's is on the header.
     expect(
-      screen.getByRole('button', {
-        name: '2: 1-3-5: passed; Create: passed',
-      }),
+      screen.getByRole('button', { name: '2: 1-3-5: passed' }),
     ).toBeTruthy();
+    expect(list.querySelector('[data-pass-mark]')).toBeNull();
+    const action = list.querySelector('[data-group-action]')!;
+    expect(action.getAttribute('aria-label')).toBe(
+      'Create your own: Choose a Color: passed',
+    );
+    expect(action.getAttribute('data-group-action-status')).toBe('passed');
   });
 });
 

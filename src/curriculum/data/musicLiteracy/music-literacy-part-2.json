@@ -14,6 +14,33 @@
     "challenge": false,
     "create": true
   },
+  "goal": "Your goal: create a melody, a chord comping rhythm, or a chord progression with a rhythm, and play it the same way twice.",
+  "modules": [
+    {
+      "title": "Choose a Color",
+      "round": "none"
+    },
+    {
+      "title": "Create a Melody",
+      "goal": "Create a melody and play it the same way twice.",
+      "round": "create"
+    },
+    {
+      "title": "Chords",
+      "goal": "Create a chord comping rhythm and play it the same way twice.",
+      "round": "create"
+    },
+    {
+      "title": "Progressions",
+      "goal": "Create a chord progression with a rhythm and play it the same way twice.",
+      "round": "create"
+    },
+    {
+      "title": "7th Chords",
+      "goal": "Create a chord progression with 7th chords and a rhythm, and play it the same way twice.",
+      "round": "create"
+    }
+  ],
   "tempo": 80,
   "timeSignature": [4, 4],
   "countInBars": 1,
@@ -982,13 +1009,13 @@
     {
       "kind": "chooseMode",
       "tag": "chords-major-or-minor",
-      "section": "Create a Chord Progression",
+      "section": "Chords",
       "title": "Major or minor?",
       "direction": "Pick the color of your chords."
     },
     {
       "tag": "the-1-chord",
-      "section": "Create a Chord Progression",
+      "section": "Chords",
       "title": "The 1 chord",
       "direction": "Play the 1 chord in this rhythm: short, short, long.",
       "call": {
@@ -1000,7 +1027,7 @@
     {
       "kind": "chooseChords",
       "tag": "choose-your-x",
-      "section": "Create a Chord Progression",
+      "section": "Chords",
       "title": "Choose your X",
       "direction": "Pick a chord for X.",
       "template": ["1", "X"],
@@ -1010,7 +1037,7 @@
     },
     {
       "tag": "play-1-x",
-      "section": "Create a Chord Progression",
+      "section": "Chords",
       "title": "Play | 1 | X |",
       "direction": "Listen, then play it back.",
       "call": {
@@ -1021,7 +1048,7 @@
     },
     {
       "tag": "play-x-1",
-      "section": "Create a Chord Progression",
+      "section": "Chords",
       "title": "Play | X | 1 |",
       "direction": "Now X comes first.",
       "call": {
@@ -1033,7 +1060,7 @@
     },
     {
       "tag": "play-1-1-x-x",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Play | 1 | 1 | X | X |",
       "direction": "Four bars: two on each chord.",
       "call": {
@@ -1046,7 +1073,7 @@
     {
       "kind": "chooseChords",
       "tag": "choose-1-x-x-x",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Add a 3rd chord: | 1 | X | X | X |",
       "direction": "Fill the X bars with two different chords.",
       "template": ["1", "X", "X", "X"],
@@ -1056,7 +1083,7 @@
     },
     {
       "tag": "play-1-x-x-x",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Play | 1 | X | X | X |",
       "direction": "Listen, then play it back.",
       "call": {
@@ -1068,7 +1095,7 @@
     {
       "kind": "chooseChords",
       "tag": "choose-x-x-x-1",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Choose | X | X | X | 1 |",
       "direction": "Fill the X bars with two different chords.",
       "template": ["X", "X", "X", "1"],
@@ -1078,7 +1105,7 @@
     },
     {
       "tag": "play-x-x-x-1",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Play | X | X | X | 1 |",
       "direction": "Listen, then play it back.",
       "call": {
@@ -1090,7 +1117,7 @@
     {
       "kind": "chooseChords",
       "tag": "choose-x-1-x-x",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Choose | X | 1 | X | X |",
       "direction": "Fill the X bars with two different chords.",
       "template": ["X", "1", "X", "X"],
@@ -1100,7 +1127,7 @@
     },
     {
       "tag": "play-x-1-x-x",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Play | X | 1 | X | X |",
       "direction": "Listen, then play it back.",
       "call": {
@@ -1112,7 +1139,7 @@
     {
       "kind": "chooseChords",
       "tag": "choose-x-x-1-x",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Choose | X | X | 1 | X |",
       "direction": "Fill the X bars with two different chords.",
       "template": ["X", "X", "1", "X"],
@@ -1122,7 +1149,7 @@
     },
     {
       "tag": "play-x-x-1-x",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Play | X | X | 1 | X |",
       "direction": "Listen, then play it back.",
       "call": {
@@ -1134,7 +1161,7 @@
     {
       "kind": "chooseChords",
       "tag": "choose-x-x-x-x",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Add a 4th chord: | X | X | X | X |",
       "direction": "Four different chords.",
       "template": ["X", "X", "X", "X"],
@@ -1144,7 +1171,7 @@
     },
     {
       "tag": "play-x-x-x-x",
-      "section": "Create a Chord Progression",
+      "section": "Progressions",
       "title": "Play | X | X | X | X |",
       "direction": "Listen, then play it back.",
       "call": {

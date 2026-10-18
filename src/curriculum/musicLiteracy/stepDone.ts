@@ -1,11 +1,9 @@
-import type {
-  LiteracyStep,
-  MusicLiteracyLesson,
-} from '@/content/musicLiteracy/schemas';
+import type { LiteracyStep } from '@/content/musicLiteracy/schemas';
 import {
   passProgressKey,
   stepPasses,
   type LiteracyPass,
+  type PassesLesson,
 } from '@/curriculum/engine/musicLiteracy/passes';
 import type {
   LiteracyProgress,
@@ -18,14 +16,16 @@ import type {
 //
 // THE RULE IS NOT DECIDED YET (the product owner is to choose). For now:
 //
-//   echo         done once its echo (Pass 1) has passed. Its create pass
-//                (Pass 2) shows as a second check but isn't needed; the
-//                challenge never counts.
+//   echo         done once its echo has passed. Its module's round (the
+//                create pass, the challenge) isn't needed: a round is
+//                offered once the module is done, and has its own marks.
 //   choose step  done once its choice is made: the player saves that as a
 //                pass of the step's tag.
 //   replay       done once heard to the end, saved the same way.
 //
-// To require the create pass too, add it here; nothing else changes.
+// A module is passed when every step of it is done (modules.ts
+// moduleEchoPassed reads the same saved passes). To require the create
+// pass too, add it here; Start Here and the Home card follow.
 
 /** A pass's saved progress (undefined: never tried). */
 export const passProgress = (
@@ -57,11 +57,11 @@ const markOf = (saved: LiteracyStepProgress | undefined): PassMark =>
   saved?.passed ? 'passed' : saved ? 'tried' : 'todo';
 
 /**
- * How each of a step's passes stands, for its checks: the echo always, the
- * create pass and the challenge when the step has them.
+ * How each of a step's passes stands: the echo always, the create pass
+ * and the challenge when its module's round has them.
  */
 export function stepPassMarks(
-  lesson: Pick<MusicLiteracyLesson, 'passes' | 'steps'>,
+  lesson: PassesLesson,
   step: LiteracyStep,
   progress: LiteracyProgress,
 ): Partial<Record<LiteracyPass, PassMark>> & { echo: PassMark } {

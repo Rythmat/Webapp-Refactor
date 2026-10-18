@@ -5,6 +5,10 @@ import {
   keyFor,
   type LiteracyChoices,
 } from '@/curriculum/engine/musicLiteracy/choices';
+import {
+  lessonModules,
+  roundMark,
+} from '@/curriculum/engine/musicLiteracy/modules';
 import { pitchClassOf } from '@/curriculum/engine/musicLiteracy/pitch';
 import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
@@ -100,6 +104,17 @@ export type LiteracyStopStatus = 'soon' | 'new' | 'started' | 'done';
 /** How each of a lesson's steps stands, in order. */
 export type LiteracyStepMark = 'passed' | 'tried' | 'todo';
 
+/**
+ * A lesson's module rounds: how many there are to play, how many are done
+ * (every round step passed), and what kind they are.
+ */
+export interface LiteracyStopRounds {
+  done: number;
+  total: number;
+  /** 'create', 'challenge', or both kinds. */
+  kind: 'create' | 'challenge' | 'mixed';
+}
+
 /** A lesson's key, as the circle of fifths draws it. */
 export interface LiteracyStopKey {
   /** The 1's pitch class (C = 0), and its name ("C", "E♭"). */
@@ -120,6 +135,8 @@ export interface LiteracyStopState {
   passed: number;
   /** The first step not yet passed: where Continue opens. */
   next: { index: number; title: string } | null;
+  /** Its module rounds; null for a stop without a lesson, or none. */
+  rounds: LiteracyStopRounds | null;
   /** Where Start / Continue goes; null while the stop is coming soon. */
   to: string | null;
   /**
@@ -162,6 +179,7 @@ export function literacyStopState(
       steps: [],
       passed: 0,
       next: null,
+      rounds: null,
       to: null,
       key,
     };
@@ -173,6 +191,7 @@ export function literacyStopState(
       steps: [],
       passed: 0,
       next: null,
+      rounds: null,
       to: stop.route ?? null,
       key,
     };
@@ -205,11 +224,35 @@ export function literacyStopState(
       nextIndex === -1
         ? null
         : { index: nextIndex, title: lesson.steps[nextIndex].title },
+    rounds: roundsOf(lesson, progress),
     to: CurriculumRoutes.musicLiteracyLesson(
       { id: lesson.id },
       at === null ? undefined : { step: lesson.steps[at].tag },
     ),
     key,
+  };
+}
+
+/** A lesson's module rounds, as its saved progress has them. */
+function roundsOf(
+  lesson: MusicLiteracyLesson,
+  progress: LiteracyProgress,
+): LiteracyStopRounds | null {
+  const played = lessonModules(lesson).flatMap((module) => {
+    const mark = roundMark(module, lesson, progress);
+    return mark === null ? [] : [{ round: module.round, mark }];
+  });
+  if (played.length === 0) return null;
+  const kinds = new Set(played.map((p) => p.round));
+  return {
+    done: played.filter((p) => p.mark === 'passed').length,
+    total: played.length,
+    kind:
+      kinds.size > 1
+        ? 'mixed'
+        : kinds.has('challenge')
+          ? 'challenge'
+          : 'create',
   };
 }
 

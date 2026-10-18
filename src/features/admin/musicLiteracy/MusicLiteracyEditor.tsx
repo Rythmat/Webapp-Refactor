@@ -56,8 +56,9 @@ import { useStepPreview } from './useStepPreview';
 
 /**
  * One Music Literacy lesson: its key, tempo and place in the series, who
- * picks the key, how its numbers read and the passes it offers, and its
- * steps under their sections, each opened to edit what its kind has (a
+ * picks the key, how its numbers read, its goal and default round, and its
+ * steps under their sections (each a module, with its goal and round on
+ * its header), each opened to edit what its kind has (a
  * melody's words, call and response, a chord call, a choose step, a
  * replay) — a melody's also in the Parts editor's piano roll and staff
  * (`?roll=<step>:<segment>`, the same page, so the draft and its history
@@ -559,7 +560,7 @@ const LessonPane: FC<PaneProps> = ({
         <h2 className={CONSOLE_LABEL}>Steps</h2>
         <span className="text-xs text-white/40">
           {part2
-            ? 'Each step in turn, grouped by section. Open one to edit it; drag it by its grip, or use its arrows, to move it, into another section too.'
+            ? 'Each step in turn, grouped by section. A section is a module: its header sets the goal and the round students get once they pass it. Open a step to edit it; drag it by its grip, or use its arrows, to move it, into another section too.'
             : 'Each step: the teacher sings the words and plays the call; the student plays the response back.'}
         </span>
       </div>

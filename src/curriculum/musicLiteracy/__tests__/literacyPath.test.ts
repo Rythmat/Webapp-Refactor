@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { roundsLine } from '@/components/learn/StartHere';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
 import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
@@ -223,6 +224,46 @@ describe('Part 2 on the path', () => {
     expect(
       literacyStopState(part2Stop, part2, progressOf(part2Tags)).status,
     ).toBe('done');
+  });
+
+  it('counts the module rounds done apart from the steps', () => {
+    // Three modules have a create round (7th Chords has no echo to play).
+    expect(literacyStopState(part2Stop, part2, {}).rounds).toEqual({
+      done: 0,
+      total: 3,
+      kind: 'create',
+    });
+    const progress = progressOf([
+      ...part2Tags,
+      'one-three-five:create',
+      'one-seven-one:create',
+    ]);
+    const state = literacyStopState(part2Stop, part2, progress);
+    expect(state.rounds).toEqual({ done: 2, total: 3, kind: 'create' });
+    // The rounds never hold the stop up: its steps are what's done.
+    expect(state.status).toBe('done');
+    expect(roundsLine(state)).toBe('2 of 3 create rounds');
+    expect(roundsLine(literacyStopState(part2Stop, part2, {}))).toBeNull();
+  });
+});
+
+describe('Part 1’s challenge round on the path', () => {
+  it('marks it once played through, and never holds the stop up', () => {
+    const state = literacyStopState(part1, lesson, progressOf(tags));
+    expect(state.status).toBe('done');
+    expect(state.rounds).toEqual({ done: 0, total: 1, kind: 'challenge' });
+    expect(roundsLine(state)).toBeNull();
+    const all = literacyStopState(
+      part1,
+      lesson,
+      progressOf([...tags, ...tags.map((t) => `${t}:challenge`)]),
+    );
+    expect(all.rounds).toEqual({ done: 1, total: 1, kind: 'challenge' });
+    expect(roundsLine(all)).toBe('Challenge done');
+    // A stop without a lesson has none.
+    expect(literacyStopState(LITERACY_PATH[2], undefined, {}).rounds).toBe(
+      null,
+    );
   });
 });
 

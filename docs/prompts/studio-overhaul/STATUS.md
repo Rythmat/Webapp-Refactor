@@ -1193,3 +1193,148 @@ Prompt 15d. Decision 16 (ST9–ST11); 3.14's export dialog pulled forward.
   7. `downloadScoreXml` and `downloadLeadSheet` have no callers left; `useToolbarOverflow.test` samples 3 widths for 4 fold levels.
   8. Freeze (1.12b), Merge, MP3 and Flat.io/Noteflight are not built.
 - **Next:** prompt 16 (2.10 Mix view, 2.11 Help and the Stage B exit). 2.11's '?' sheet reads `commands/scopeOrder.ts` and the registry as the palette does.
+
+## B9 — 2.10 Mix view, 2.11 help, and the Stage B exit (2026-10-18)
+
+Prompt 16. Decision 16; plan 2.10, 2.11 and the Stage B exit criteria. The exit report is `docs/studio-perf/stage-b-exit.md`.
+
+- **Branch:** `aaron`, from `1ffd816f` (B8's entry). Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Owner decision (2026-10-18):** Mix strips are 96 px wide and fill the height, as the plan's "≥240 px" and the archived 2.10 design meant (tall). The prompt's "at least 240 px wide" was a slip for tall.
+- **Commits:**
+  - `27f67d98` store keys: the Mix rack and Mute All's memory (session), the hover-hints pref (per user); no schema bump;
+  - `26e1067b` a one-line explanation under every setting (Mozart AI's pattern);
+  - `cc4e6dc9` the hover hint line;
+  - `d0ea45ea` the Mix view, the master column, the RackDock and one FxRack (fx-mixer-04, ia-flows-12, fx-mixer-14, ia-flows-35, design-system-15, fx-mixer-12, design-system-16);
+  - `ec9b1811` the '?' sheet, Report a problem, the typing chip (shell-33, score-31);
+  - review fixes: `1c6f3fe9` overlays close at once (guard e), `fa55e53f` the Mix view and its rack, `9c922611` the R&B lesson's Mix steps, `1c484546` help, `ce64132b` and `2ab1072d` the picker's focus;
+  - `2b5dca4a` studio:check: R35 (Mix) and R36 (the exit);
+  - `505a6f5a` the Stage B exit report and the audit ledger;
+  - this entry.
+  - Each commit typechecks alone (`git archive` exports).
+- **Pushed:** to `origin/aaron` (`1ffd816f..` this entry), from this checkout with the hook.
+- **What changed:**
+  - **Mix view** (`shell/mix/`, on the design system, replacing `components/Studio/StudioView.tsx`):
+    - Strips, 96 px wide, fill the height. Each has its name over a 4 px edge in its colour, up to three effects with their power dots, then +N; Send A and B and pan as knobs; M and S; a fader beside its meter, with the value in dB.
+    - Return A and B follow, with their effects and fader; they have no meter (there is no return tap yet).
+    - A 240 px master column: the master fader and its peak (the same parts as the dock's Master), Bypass, Mute All, the master chain and a spectrum. The spectrum gives way to the fader when the column is short.
+    - The selected track's strip scrolls into view.
+  - **One effects rack:** FxRack serves a track, a return or the master. The dock's Effects tab, the dock's Master and the Mix RackDock all show it. The RackDock sits in the dock's slot under the strips, stopping at the Inspector:
+    - a share of the body (0.36), shut to its bar by default;
+    - never past the body less 300 px, so the strips keep a fader;
+    - the chain listed beside the effect's controls, so the knobs show at 1366×655;
+    - Escape shuts it, with focus moved in when a strip, the master column or the bottom rail's Master opened it.
+  - **The Effects library is the only list that adds effects** (the old per-rack lists and FxBrowser are gone). It fills the rack in front of the student: in Mix, the open rack (a return's and the master's included), else the selected track's. The bottom rail's Master opens the master's rack in Mix.
+  - **Mute All** is a real toggle: a second press unmutes exactly what it muted, in one store write.
+  - **The '?' sheet** reads the registry in `scopeOrder.ts`'s order, as the ⌘K palette does (key-less commands stay the palette's):
+    - search by label, group, keywords or key names (Esc, Enter, cmd, shift, arrows), and a symbol finds its key;
+    - two columns from 1280 px;
+    - its switches are setting rows;
+    - ⌘K, or "Search every command", opens the palette for where the student was;
+    - "Report a problem…" (also in Help) copies the build, browser, view, track count and window size with what happened; nothing is sent.
+  - **The typing chip** reads "Typing · C4 · vel 100":
+    - its own × turns it off, and focus goes to '⋯';
+    - a screen reader hears on, off, the octave and the velocity;
+    - velocity steps a fixed ladder (1, 20 … 120, 127).
+  - **Setting rows:** every setting in Audio & MIDI, the Click menu, the Grid menu, '⋯' and the avatar menu's chord notation has a one-line explanation, wired as its description. A guard test fails on a setting without one.
+  - **Hover hints:** the free space after Master in the bottom rail says what the control under the pointer or focus does, and its key ("Loop · Play the loop range over and over · L").
+    - The words come from the control's `data-hint`, else its Tooltip, else its name.
+    - It costs nothing while the song plays.
+    - It hides below 160 px of room, and '⋯' ▸ Hover hints turns it off (per student).
+  - **Overlays close at once:** while a modal menu or dialog faded out, Radix kept the page from taking clicks, so a click within about 150 ms of Escape was lost (R36 found it on seven overlays at every size). Menus, popovers and dialogs now fade in only.
+  - **Keys:** off a Mac, Enter reads Enter (Return on a Mac), and the menu key reads Menu.
+- **Review:** six adversarial reviewers (Mix correctness, layout and guards, lessons, help, design and tests, harness), each finding reproduced first. Fixed in the review commits, each with a test:
+  - **High:** a resumed R&B mastering step added the Compressor to the Synth (the rack isn't saved); the rack's knobs sat in a 41 px scroll box at 1366×655; seven overlays swallowed the click after Escape.
+  - **Medium:**
+    - a deleted track's rack jammed the library and the rack button;
+    - R&B's add-reverb could fill the master chain if Master was in the dock;
+    - Escape didn't shut a rack opened from a strip;
+    - the rack could take the strips' faders;
+    - the master fader fell to its floor with a rack open;
+    - Mute All wrote once a track;
+    - the sheet's palette lost the student's place;
+    - a symbol search matched every row;
+    - ⌘K did nothing in the sheet;
+    - the typing chip dropped focus;
+    - the R&B return step's ring stayed on the strip.
+  - **Low:** a stale hint after Play → Pause; the report's copy-failure path; the chip's name (WCAG 2.5.3); a nameless remove-effect ×; clipped focus rings; the coach card's 22 px Quit (now 24); a collaborator's track in the library; tests weaker than their names.
+- **Verification:**
+  - **lint:** whole tree clean (`npx yarn lint`: prettier, eslint 0 warnings, `tsc -b`).
+  - **typecheck:** every commit, from its own `git archive`.
+  - **vitest** (src/daw): 5,084 passed. The failures are the inherited set: designGuard's PianoRoll smallText (8 > 6); the song-link session suites (contentBoots, intents, openSession, on the local `_generated_index.ts` and under load); editorRoute (under load).
+  - **studio:check full tier** (my copy of par-check, with R35 and R36 in S3 and a laptop lessons job; `git archive` of `ce64132b` on 5291, R33 again on `2ab1072d`; the 1.3 build on 5264):
+    - round trips: 0 fields lost on both profiles, R14/R15 against the 1.3 build 8/8, R28–R36 "no baseline, 0 new". Beside five other browsers R1, R6, R12 (draft, fileNew, project, song), R21 and R22 failed or timed out, and passed alone.
+    - R33's `pickerSteps` failed on a cold server: the picker's "Open the browser" gave up waiting for the Library's chunk after 3 s. Fixed in `ce64132b` and `2ab1072d` (it now waits 15 s); it passes on a cold archive server.
+    - **R35** (9 flags × 3 sizes × 2 profiles) and **R36** (13 flags × 3 sizes × 2 profiles, 24 screenshots): all pass. R36's `noSwallowedClick` failed before `1c6f3fe9` and passes after it.
+    - lessons: chromebook 74/78, small 74/78 (73 under load; R&B's bounce timed out, 11/11 alone), laptop 76/78; only Indie's known steps fail; 12/12 complete; 4/4 Premium gated, at each size;
+    - golden renders 10/10 identical at 44.1 and 48 kHz; golden trace 15/15;
+    - bundle: DawApp 120.8 kB gzip (B8 117.4; budget 150); the every-page FAIL inherited;
+    - perf against Stage A: all hold except a note drag's second store write (a UI key since B4, see the exit report).
+  - **Browser:**
+    - Chrome on my HMR-off server (5290) and the committed build (5291):
+      - the Mix view: strips, the master rack from the bottom rail, Add effect → the library's "Adding to Master" → Compressor, Return A's rack, a strip's insert list;
+      - Create's dock Effects tab and Master on the shared rack;
+      - Report a problem;
+      - '?' and a "click" search finding the metronome;
+      - the typing chip on and off with its ×;
+      - Audio & MIDI → Escape → one click on Loop toggled it.
+      - Console: no errors.
+    - Headless checks at the exact sizes came from the agents and reviewers (screenshots in the scratchpad).
+  - **Collab:** no Y.Doc shape change and no new document field; Mix writes through the existing actions. No mixed-version check needed.
+- **Stage B exit** (`docs/studio-perf/stage-b-exit.md`): every measurable criterion is met at 1366×655, 1440×787 and 1280×720:
+  - budgets and screenshots;
+  - the design floor;
+  - every overlay opaque;
+  - the lessons on three viewports;
+  - decision 16's five guards;
+  - ST15;
+  - the Stage A numbers.
+  - Two inherited misses: the bundle's "editor core off other pages" (since B1's main merge) and a note drag's second write (since B4).
+  - **Pending, the owner's:**
+    - a real Chromebook run;
+    - a teacher spot-check;
+    - the walk-through with a live collab join;
+    - the colour sign-offs;
+    - the deploys (web app, then `collab:deploy`; the music-atlas-api `document` field);
+    - the B1–B9 sign-offs.
+- **Audit ledger** (`reference/phase-map.json`): 300 fixed, 53 partly fixed, 269 open (Stage A: 255 / 50 / 317). Criticals unchanged (22 / 0 / 3, all Stage C engine work).
+- **Owner sign-offs:**
+  1. **Mix:**
+     - the strip anatomy, with sends and pan on one row ("A / B / PAN" captions);
+     - returns without a meter;
+     - the spectrum showing only 100 / 1k / 10k, and hiding while the column is short;
+     - the selected strip's highlight.
+  2. **Mute All** is a toggle that remembers what it muted; it isn't undone (mute is per student, never undone).
+  3. **The rack:** shut by default; capped at the body less 300 px; the chain listed beside the controls in Mix (the dock keeps its blocks); focus moves into it when it opens from Mix.
+  4. **Overlays close at once** (no fade out), for decision 16's guard e. This changes 2.4's motion rule for exits.
+  5. **Setting lines:** the copy (in `AUDIO_MIDI_COPY`, `CLICK_COPY`, `GRID_COPY`, `MORE_COPY`, `NOTATION_COPY`).
+     - "Input channels in use" renamed.
+     - The Grid menu's lines sit under each group, not each choice.
+     - The Grid menu (320 px) and Click popover (256 px) are wider.
+  6. **Hover hints:**
+     - in the Master zone of the bottom rail, hidden under 160 px of room, on by default;
+     - region names say nothing;
+     - the purpose copy on the transport, song, views, track list, dock, timeline edges and Mix (listed in the hint agent's report, `hintText` calls).
+  7. **The '?' sheet:**
+     - the search placeholder;
+     - key search matching a row with any of the typed keys;
+     - on a Mac "ctrl" finds ⌘ shortcuts.
+  8. **The typing chip** shows the velocity, its × sits beside the words, and the velocity ladder is 1, 20 … 120, 127.
+  9. **Report a problem:**
+     - its copy;
+     - Copy only: there is no support address in the app, and `REPORT_EMAIL` turns on an "Email it" link;
+     - where reports should go.
+  10. **Keys:** Enter reads "Enter" off a Mac.
+  11. **R&B copy:** the mastering step says "click an effect in the **Effects** panel"; the send hint says "The A and B knobs on each strip feed the return buses".
+  12. **Colours** (Stage B review, the exit report's proposal): collaborator presence colours (red, amber and cyan clash with meaning; they change on every rejoin) and the lesson confetti (`#facc15`, not key colours).
+  13. **Accept the Stage B exit** with the pending items above, and go on to 1.2b (prompt 17).
+- **Open issues:**
+  1. **Three rows with Notes or Prism open** (owner question): at their default 0.40 share, 3 whole track rows show at 1366×655; the guard's 4 rows hold with Instrument or Effects (0.36). Either 0.36 for both, or accept 3 for the two editors.
+  2. **The coach card covers the rack's close chevron** (owner question) and the Effects rows below Compressor during R&B's mastering step on a Chromebook; the control the step asks for stays clear. 1.2b redoes the card's docking.
+  3. **The rack's effect controls are the legacy components** (7–10 px text, 20–22 px targets, a green ON pill), as in Create's dock, until Stage C restyles them. They sit in a `data-ds="legacy"` body.
+  4. **Inherited:**
+     - the bundle's every-page budget (since B1);
+     - a note drag's second store write (`dockNoteSelection`, since B4);
+     - designGuard's PianoRoll budget.
+  5. **Harness:** R12:draft lost 3 keys on the chromebook profile beside five other browsers and passed alone. Under load: R1, R6, R12:fileNew/project/song, R21 and R22 (timeouts); passed alone.
+  6. Return chains aren't on the meter bus; the Mix Spectrum's labels are 100 / 1k / 10k only; design-system-12's JS hover remains in legacy regions.
+- **Next:** 1.2b, Production Lessons v2 (prompt 17), after the owner's Stage B review.

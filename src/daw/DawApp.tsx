@@ -54,6 +54,7 @@ import { OpeningHost } from '@/daw/shell/opening/OpeningHost';
 import { CommandPaletteHost } from '@/daw/shell/help/CommandPaletteHost';
 import { ExportDialogHost } from '@/daw/shell/export/ExportDialogHost';
 import { ShortcutSheetHost } from '@/daw/shell/help/ShortcutSheetHost';
+import { ReportProblemHost } from '@/daw/shell/help/ReportProblemHost';
 import { ProjectsDialogHost } from '@/daw/shell/projects/ProjectsDialogHost';
 import { SaveConflictDialog } from '@/daw/shell/topbar/SaveConflictDialog';
 import { DialogHost } from '@/daw/ui/DialogHost';
@@ -341,6 +342,7 @@ function DawAppInner() {
       <KickedModal />
       <ProjectsDialogHost />
       <ShortcutSheetHost userId={userId} ownerKnown={ownerKnown} />
+      <ReportProblemHost />
       <CommandPaletteHost />
       <ExportDialogHost />
       <SaveConflictDialog />

@@ -48,8 +48,9 @@
 // with `onlyTrackId`) bypasses every insert effect, drops the sends (and with
 // them the returns) and the mastering; the fader, pan and their automation
 // stay, so the track sits at its level in the mix. An Oracle synth's own
-// effects are part of the instrument and stay too. `mastering: false` wires
-// the master gain (and its automation) straight to the destination. With none
+// effects are part of the instrument and stay too. `mastering: false` keeps
+// the master gain (and its automation) and its chain with every slot off, so
+// a file without the mastering lines up with one with it. With none
 // of these the graph is built exactly as before, so the goldens are unchanged.
 
 import * as Tone from 'tone';
@@ -138,9 +139,11 @@ export interface RenderOptions {
    *  even when muted or outside the solo. */
   onlyTrackId?: string;
   /** With `onlyTrackId` only: no insert effects, no sends (so no returns) and
-   *  no mastering. The fader, pan and their automation stay. */
+   *  no mastering (as `mastering: false`). The fader, pan and their automation
+   *  stay. */
   dry?: boolean;
-  /** The mastering chain on the master bus (default true). */
+  /** The mastering on the master bus (default true). Off, its chain stays
+   *  with every slot switched off, for its latency. */
   mastering?: boolean;
 }
 
@@ -292,7 +295,7 @@ export async function renderProject(
           ...(dry ? [] : renderedTracks.map((track) => track.effects)),
         ]);
 
-        // Master → mastering chain (unless left out) → offline destination.
+        // Master → mastering chain → offline destination.
         const master = ctx.createGain();
         master.gain.value = masterVolume;
         // Master volume automation rides over the fader value, as in playback.
@@ -302,15 +305,16 @@ export async function renderProject(
           startTick,
           bpm,
         );
-        if (withMastering) {
-          const mastering = new EffectChain(ctx);
-          disposables.push(mastering);
-          mastering.update(masteringEffects);
-          master.connect(mastering.getInputNode());
-          mastering.getOutputNode().connect(ctx.destination);
-        } else {
-          master.connect(ctx.destination);
-        }
+        // Left out, the mastering chain is still built with every slot off:
+        // its filters, compressor and shapers delay the signal by a few
+        // milliseconds even then, so the file lines up with a mastered one.
+        const mastering = new EffectChain(ctx);
+        disposables.push(mastering);
+        mastering.update(
+          withMastering ? masteringEffects : allSlotsOff(masteringEffects),
+        );
+        master.connect(mastering.getInputNode());
+        mastering.getOutputNode().connect(ctx.destination);
 
         // Return buses: each EffectChain → returnGain → master.
         const returnInputs = new Map<string, AudioNode>();

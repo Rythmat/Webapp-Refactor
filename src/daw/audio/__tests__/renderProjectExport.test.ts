@@ -394,9 +394,10 @@ describe('renderProject', () => {
 });
 
 // ── Render options (milestone 2.15) ────────────────────────────────────────
-// Mastering can be left out; one track renders alone (a one-track export or
-// a stem), even when muted; and dry renders it without its effects, sends or
-// mastering, at its fader and pan.
+// Mastering can be left out (its chain stays, every slot off, so the file
+// keeps the mastered one's latency); one track renders alone (a one-track
+// export or a stem), even when muted; and dry renders it without its effects,
+// sends or mastering, at its fader and pan.
 
 describe('renderProject options (2.15)', () => {
   const playable = () => ({
@@ -404,22 +405,38 @@ describe('renderProject options (2.15)', () => {
     dispose() {},
   });
 
+  // Each track tells itself apart: its own instrument, fader, pan and lanes.
+  const looks: Record<
+    string,
+    { instrument: string; volume: number; pan: number }
+  > = {
+    keys: { instrument: 'piano-sampler', volume: 0.3, pan: -0.6 },
+    bass: { instrument: 'bass-synth', volume: 0.6, pan: -0.4 },
+    drums: { instrument: 'drum-machine', volume: 0.9, pan: 0.5 },
+  };
+
   /** A track with a reverb on, a send to A, and fader, pan, send and effect
    *  lanes. */
   const busyTrack = (id: string, extra: Record<string, unknown> = {}) => ({
     ...track(id),
-    volume: 0.6,
-    pan: -0.4,
+    ...looks[id],
     effects: effectsWith(true),
     sends: { A: 0.5 },
     automation: {
-      volume: [{ tick: 0, value: 0.5 }],
-      pan: [{ tick: 0, value: 0.2 }],
+      volume: [{ tick: 0, value: looks[id].volume }],
+      pan: [{ tick: 0, value: looks[id].pan }],
       'send.A': [{ tick: 0, value: 0.3 }],
       'effect.reverb.wet': [{ tick: 0, value: 0.9 }],
     },
     ...extra,
   });
+
+  const returnEffects = () =>
+    (store.state.returns as Array<{ effects: TrackEffectState }>)[0].effects;
+
+  /** Whether every slot of `effects` is switched off. */
+  const allOff = (effects: TrackEffectState | undefined) =>
+    Object.values(effects ?? {}).every((slot) => slot.enabled === false);
 
   it('renders every track that plays, with its sends, by default', async () => {
     store.state.tracks = [
@@ -428,7 +445,7 @@ describe('renderProject options (2.15)', () => {
       busyTrack('drums'),
     ];
     await renderProject();
-    expect(engines.built).toHaveLength(2);
+    expect(engines.built.map((b) => b.volume)).toEqual([0.3, 0.9]);
     for (const built of engines.built) {
       expect(built.sends).toEqual([['A', 0.5]]);
       expect(built.effects?.reverb.enabled).toBe(true);
@@ -436,21 +453,27 @@ describe('renderProject options (2.15)', () => {
     // The mastering chain, then the return's.
     expect(chains.updates).toEqual([
       [store.state.masteringEffects],
-      [(store.state.returns as Array<{ effects: unknown }>)[0].effects],
+      [returnEffects()],
     ]);
   });
 
-  it('builds no mastering chain with mastering off', async () => {
+  it('keeps the mastering chain, every slot off, with mastering off', async () => {
     await renderProject({ mastering: false });
-    expect(chains.updates).toEqual([
-      [(store.state.returns as Array<{ effects: unknown }>)[0].effects],
-    ]);
-    // The master gain goes straight to the destination.
+    // Built first as ever, so the master never skips its latency.
+    expect(chains.updates).toHaveLength(2);
+    const [[mastering], [ret]] = chains.updates;
+    expect(allOff(mastering)).toBe(true);
+    expect(ret).toBe(returnEffects());
+    // The master gain feeds that chain, not the destination.
     const [master] = tone.state.gains;
-    expect(master.connectedTo).toEqual([tone.state.offlineRaw.destination]);
+    expect(master.connectedTo).toHaveLength(1);
+    expect(master.connectedTo).not.toContain(tone.state.offlineRaw.destination);
+    // The stored mastering is left as it was.
+    const stored = store.state.masteringEffects as TrackEffectState;
+    expect(stored.compressor.enabled).toBe(true);
   });
 
-  it('renders one track alone, even a muted one', async () => {
+  it('renders the asked-for track alone, even a muted one', async () => {
     instruments.createInstrument.mockImplementation(playable);
     store.state.tracks = [
       busyTrack('keys'),
@@ -460,10 +483,17 @@ describe('renderProject options (2.15)', () => {
     await renderProject({ onlyTrackId: 'bass' });
     expect(engines.built).toHaveLength(1);
     expect(instruments.createInstrument).toHaveBeenCalledTimes(1);
-    expect(engines.built[0].volume).toBe(0.6);
+    expect(instruments.createInstrument.mock.calls[0][0]).toBe('bass-synth');
+    expect(engines.built[0]).toMatchObject({ volume: 0.6, pan: -0.4 });
+    expect(automation.trackLanes).toEqual([
+      expect.objectContaining({ volume: [{ tick: 0, value: 0.6 }] }),
+    ]);
     // Its send still reaches the return, and the mastering stays.
     expect(engines.built[0].sends).toEqual([['A', 0.5]]);
-    expect(chains.updates).toHaveLength(2);
+    expect(chains.updates).toEqual([
+      [store.state.masteringEffects],
+      [returnEffects()],
+    ]);
   });
 
   it('refuses a track that is not in the song', async () => {
@@ -475,23 +505,28 @@ describe('renderProject options (2.15)', () => {
 
   it('renders a dry track with no effect, send, return or mastering', async () => {
     instruments.createInstrument.mockImplementation(playable);
-    store.state.tracks = [busyTrack('keys'), busyTrack('bass')];
+    store.state.tracks = [
+      busyTrack('keys'),
+      busyTrack('bass'),
+      busyTrack('drums'),
+    ];
     await renderProject({ onlyTrackId: 'bass', dry: true });
 
     expect(engines.built).toHaveLength(1);
+    expect(instruments.createInstrument).toHaveBeenCalledTimes(1);
+    expect(instruments.createInstrument.mock.calls[0][0]).toBe('bass-synth');
     const [built] = engines.built;
-    for (const slot of Object.values(built.effects ?? {})) {
-      expect(slot.enabled).toBe(false);
-    }
+    expect(allOff(built.effects)).toBe(true);
     expect(built.sends).toEqual([]);
-    expect(chains.updates).toEqual([]);
+    // Only the mastering chain, every slot off; no return.
+    expect(chains.updates).toHaveLength(1);
+    expect(allOff(chains.updates[0][0])).toBe(true);
     // No reverb is built, so no IR is prepared.
     expect(ir.ensureProcessedIr).not.toHaveBeenCalled();
     // The fader and pan stay, with their lanes; the others go.
-    expect(built.volume).toBe(0.6);
-    expect(built.pan).toBe(-0.4);
+    expect(built).toMatchObject({ volume: 0.6, pan: -0.4 });
     expect(automation.trackLanes).toEqual([
-      { volume: [{ tick: 0, value: 0.5 }], pan: [{ tick: 0, value: 0.2 }] },
+      { volume: [{ tick: 0, value: 0.6 }], pan: [{ tick: 0, value: -0.4 }] },
     ]);
     // The store's track keeps its effects.
     const stored = (
@@ -505,6 +540,9 @@ describe('renderProject options (2.15)', () => {
     await renderProject({ dry: true });
     expect(engines.built[0].effects?.reverb.enabled).toBe(true);
     expect(engines.built[0].sends).toEqual([['A', 0.5]]);
-    expect(chains.updates).toHaveLength(2);
+    expect(chains.updates).toEqual([
+      [store.state.masteringEffects],
+      [returnEffects()],
+    ]);
   });
 });

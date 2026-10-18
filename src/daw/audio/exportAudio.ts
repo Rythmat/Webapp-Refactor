@@ -25,7 +25,7 @@ import { renderProject, type RenderRange } from './renderProject';
 import { isTrackAudible } from './trackAudibility';
 import { audioBufferToWav } from '@/lib/studio-assets/encode-wav';
 import { audioBufferToOpusWebm } from '@/lib/studio-assets/encode-opus';
-import { zipStore, type ZipEntry } from '@/lib/studio-assets/zip-store';
+import { crc32, ZipWriter } from '@/lib/studio-assets/zip-store';
 import { useStore } from '@/daw/store';
 import type { Track } from '@/daw/store/tracksSlice';
 import { downloadFile, fileSlug, songSlug } from '@/daw/utils/exportFiles';
@@ -161,46 +161,67 @@ export function stemTracks(state = useStore.getState()): Track[] {
   );
 }
 
-/** Each stem's name in the zip: '01-bass.wav', '02-keys.wav'; a second
- *  track whose name slugs the same becomes '03-bass-2.wav'. */
-function stemEntryNames(tracks: readonly Track[], ext: string): string[] {
+/** Names the stems in the zip as they are written: '01-bass.wav',
+ *  '02-keys.wav'; a later track whose name slugs the same gets '-2'
+ *  ('03-bass-2.wav'). */
+function stemNamer(total: number, ext: string): (trackName: string) => string {
   const used = new Set<string>();
-  const width = Math.max(2, String(tracks.length).length);
-  return tracks.map((track, i) => {
-    const base = fileSlug(track.name, 'track');
+  const width = Math.max(2, String(total).length);
+  return (trackName) => {
+    const base = fileSlug(trackName, 'track');
     let slug = base;
     for (let n = 2; used.has(slug); n++) slug = `${base}-${n}`;
     used.add(slug);
-    return `${String(i + 1).padStart(width, '0')}-${slug}.${ext}`;
-  });
+    return `${String(used.size).padStart(width, '0')}-${slug}.${ext}`;
+  };
 }
 
 function throwIfStopped(signal?: AbortSignal): void {
   if (signal?.aborted) throw new DOMException('Stopped', 'AbortError');
 }
 
+export interface StemsExportResult extends AudioExportResult {
+  /** The number of stems in the zip. */
+  count: number;
+  /** The names of the tracks deleted (by a collaborator) before their turn
+   *  came, so they're not in the zip. */
+  skipped: string[];
+}
+
 /**
  * Render each track that plays in the mix alone, in turn, encode it, and zip
  * the files into one download. `signal` stops it between tracks (a render
  * under way can't be cut short: it holds Tone's global context), throwing an
- * AbortError.
+ * AbortError. A track deleted before its turn is skipped and named in
+ * `skipped`; the others still make the zip.
+ *
+ * Each stem is kept as a Blob once encoded (its CRC taken from the bytes
+ * first), and the zip is a Blob of those parts, so the export holds no more
+ * than one stem's bytes at a time and the browser may keep the rest on disk.
  */
 export async function exportStems(
   opts: StemsExportOptions,
   onProgress?: (p: StemProgress) => void,
   signal?: AbortSignal,
-): Promise<AudioExportResult & { count: number }> {
+): Promise<StemsExportResult> {
   const state = useStore.getState();
   const tracks = stemTracks(state);
   if (tracks.length === 0) {
     throw new Error('No track plays anything to export');
   }
-  const names = stemEntryNames(tracks, FORMAT_EXT[opts.format]);
-  const files: ZipEntry[] = [];
   const total = tracks.length;
+  const nameStem = stemNamer(total, FORMAT_EXT[opts.format]);
+  const zip = new ZipWriter();
+  const skipped: string[] = [];
 
-  for (const [index, track] of tracks.entries()) {
+  for (const [index, listed] of tracks.entries()) {
     throwIfStopped(signal);
+    // Read again: a collaborator may have deleted (or renamed) it meanwhile.
+    const track = useStore.getState().tracks.find((t) => t.id === listed.id);
+    if (!track) {
+      skipped.push(listed.name);
+      continue;
+    }
     const trackName = track.name;
     onProgress?.({ index, total, trackName, stage: 'render' });
     const buffer = await renderProject({
@@ -210,15 +231,21 @@ export async function exportStems(
     });
     onProgress?.({ index, total, trackName, stage: 'encode' });
     const bytes = await encodeAudio(buffer, opts.format, opts.bitDepth);
-    files.push({ name: names[index], data: new Uint8Array(bytes) });
+    zip.add({
+      name: nameStem(trackName),
+      data: new Blob([bytes], { type: FORMAT_MIME[opts.format] }),
+      crc: crc32(new Uint8Array(bytes)),
+      size: bytes.byteLength,
+    });
   }
 
   throwIfStopped(signal);
   const suffix = rangeSuffix(opts.range, opts.rangeLabel);
   return {
-    blob: zipStore(files),
+    blob: zip.finish(),
     filename: `${songSlug(state.projectName)}${suffix}-stems.zip`,
-    count: files.length,
+    count: zip.count,
+    skipped,
   };
 }
 

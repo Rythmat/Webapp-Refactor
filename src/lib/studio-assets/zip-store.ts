@@ -8,10 +8,22 @@
 // purpose bit 11), so a track named in any language keeps its name. There is
 // no ZIP64: an archive past 4 GiB or 65535 entries is refused, far beyond
 // any classroom song.
+//
+// The archive is a Blob of parts: each entry's data goes in as it came (a
+// Blob is referenced, not copied), so a stems export never holds every stem
+// in one buffer and the browser can keep large parts on disk. ZipWriter
+// takes entries one at a time and checks the limits as they arrive, so an
+// export that would overflow stops at once rather than after the last render.
 
 export interface ZipEntry {
   name: string;
-  data: Uint8Array;
+  /** The entry's bytes. A Blob's CRC-32 must be given (it can't be read
+   *  synchronously): compute it from the bytes before wrapping them. */
+  data: Uint8Array | Blob;
+  /** CRC-32 of the data; computed for a Uint8Array when left out. */
+  crc?: number;
+  /** Byte length of the data; checked against it when given. */
+  size?: number;
 }
 
 const LOCAL_HEADER = 0x04034b50;
@@ -73,40 +85,61 @@ function dosDateTime(date: Date): { time: number; date: number } {
 }
 
 /**
- * The `files` as one store-only ZIP archive, every entry stamped with `date`.
- * Throws when the archive would need ZIP64 (over 65535 entries or 4 GiB).
+ * Builds a store-only ZIP archive one entry at a time, every entry stamped
+ * with `date`. `add` throws as soon as the archive would need ZIP64 (over
+ * 65535 entries or 4 GiB); `finish` returns the archive.
  */
-export function zipStore(
-  files: readonly ZipEntry[],
-  date: Date = new Date(),
-): Blob {
-  if (files.length > MAX_ENTRIES) {
-    throw new Error('Too many files for one ZIP archive');
+export class ZipWriter {
+  private readonly stamp: { time: number; date: number };
+  private readonly encoder = new TextEncoder();
+  private readonly parts: Array<Uint8Array | Blob> = [];
+  private readonly central: Uint8Array[] = [];
+  // Bytes of local headers and data so far: where the next entry starts.
+  private offset = 0;
+  private centralSize = 0;
+
+  constructor(date: Date = new Date()) {
+    this.stamp = dosDateTime(date);
   }
-  const encoder = new TextEncoder();
-  const names = files.map((file) => encoder.encode(file.name));
-  let total = END_RECORD_SIZE;
-  files.forEach((file, i) => {
-    total +=
+
+  /** The number of entries added so far. */
+  get count(): number {
+    return this.central.length;
+  }
+
+  add(entry: ZipEntry): void {
+    const { data } = entry;
+    let size: number;
+    let crc: number;
+    if (data instanceof Uint8Array) {
+      size = data.length;
+      crc = entry.crc ?? crc32(data);
+    } else {
+      if (entry.crc === undefined) {
+        throw new Error(`${entry.name} needs its CRC-32 to go in a ZIP`);
+      }
+      size = data.size;
+      crc = entry.crc;
+    }
+    if (entry.size !== undefined && entry.size !== size) {
+      throw new Error(`The size given for ${entry.name} is not its own`);
+    }
+    if (this.central.length >= MAX_ENTRIES) {
+      throw new Error('Too many files for one ZIP archive');
+    }
+    const name = this.encoder.encode(entry.name);
+    const total =
+      this.offset +
+      this.centralSize +
       LOCAL_HEADER_SIZE +
       CENTRAL_HEADER_SIZE +
-      2 * names[i].length +
-      file.data.length;
-  });
-  if (total > MAX_BYTES) {
-    throw new Error('The files are too large for one ZIP archive');
-  }
-
-  const stamp = dosDateTime(date);
-  const parts: Uint8Array[] = [];
-  const central: Uint8Array[] = [];
-  let offset = 0;
-  let centralSize = 0;
-
-  files.forEach((file, i) => {
-    const name = names[i];
-    const crc = crc32(file.data);
-    const size = file.data.length;
+      2 * name.length +
+      size +
+      END_RECORD_SIZE;
+    if (total > MAX_BYTES) {
+      throw new Error('The files are too large for one ZIP archive');
+    }
+    const stamp = this.stamp;
 
     const local = new Uint8Array(LOCAL_HEADER_SIZE + name.length);
     const lv = new DataView(local.buffer);
@@ -123,8 +156,8 @@ export function zipStore(
     lv.setUint16(28, 0, true); // extra field length
     local.set(name, LOCAL_HEADER_SIZE);
 
-    const entry = new Uint8Array(CENTRAL_HEADER_SIZE + name.length);
-    const cv = new DataView(entry.buffer);
+    const record = new Uint8Array(CENTRAL_HEADER_SIZE + name.length);
+    const cv = new DataView(record.buffer);
     cv.setUint32(0, CENTRAL_HEADER, true);
     cv.setUint16(4, ZIP_VERSION, true); // made by (MS-DOS attributes)
     cv.setUint16(6, ZIP_VERSION, true); // needed to extract
@@ -138,26 +171,41 @@ export function zipStore(
     cv.setUint16(28, name.length, true);
     // Extra field, comment, disk number, internal and external attributes
     // (30–41) stay zero.
-    cv.setUint32(42, offset, true); // where the local header starts
-    entry.set(name, CENTRAL_HEADER_SIZE);
+    cv.setUint32(42, this.offset, true); // where the local header starts
+    record.set(name, CENTRAL_HEADER_SIZE);
 
-    parts.push(local, file.data);
-    central.push(entry);
-    offset += local.length + size;
-    centralSize += entry.length;
-  });
+    this.parts.push(local, data);
+    this.central.push(record);
+    this.offset += local.length + size;
+    this.centralSize += record.length;
+  }
 
-  const end = new Uint8Array(END_RECORD_SIZE);
-  const ev = new DataView(end.buffer);
-  ev.setUint32(0, END_RECORD, true);
-  // Disk numbers (4–7) stay zero: one archive, one disk.
-  ev.setUint16(8, files.length, true); // entries on this disk
-  ev.setUint16(10, files.length, true); // entries in all
-  ev.setUint32(12, centralSize, true);
-  ev.setUint32(16, offset, true); // where the central directory starts
-  ev.setUint16(20, 0, true); // comment length
+  /** The archive: the entries, the central directory and the end record. */
+  finish(): Blob {
+    const end = new Uint8Array(END_RECORD_SIZE);
+    const ev = new DataView(end.buffer);
+    ev.setUint32(0, END_RECORD, true);
+    // Disk numbers (4–7) stay zero: one archive, one disk.
+    ev.setUint16(8, this.count, true); // entries on this disk
+    ev.setUint16(10, this.count, true); // entries in all
+    ev.setUint32(12, this.centralSize, true);
+    ev.setUint32(16, this.offset, true); // where the central directory starts
+    ev.setUint16(20, 0, true); // comment length
+    return new Blob([...this.parts, ...this.central, end] as BlobPart[], {
+      type: 'application/zip',
+    });
+  }
+}
 
-  return new Blob([...parts, ...central, end] as BlobPart[], {
-    type: 'application/zip',
-  });
+/**
+ * The `files` as one store-only ZIP archive, every entry stamped with `date`.
+ * Throws when the archive would need ZIP64 (over 65535 entries or 4 GiB).
+ */
+export function zipStore(
+  files: readonly ZipEntry[],
+  date: Date = new Date(),
+): Blob {
+  const writer = new ZipWriter(date);
+  for (const file of files) writer.add(file);
+  return writer.finish();
 }

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ZipEntry } from '@/lib/studio-assets/zip-store';
+import { crc32, type ZipEntry } from '@/lib/studio-assets/zip-store';
 import {
   exportProjectAudio,
   exportStems,
@@ -13,10 +13,15 @@ import type { RenderOptions } from '../renderProject';
 // order, and zips the files under numbered, slugged names; Stop ends it
 // between tracks. A one-track export is named after the song and the track.
 
-const render = vi.hoisted(() => ({ calls: [] as RenderOptions[] }));
+const render = vi.hoisted(() => ({
+  calls: [] as RenderOptions[],
+  // Runs as each render starts: a collaborator's edit meanwhile.
+  meanwhile: null as ((opts: RenderOptions) => void) | null,
+}));
 vi.mock('../renderProject', () => ({
   renderProject: async (opts: RenderOptions) => {
     render.calls.push(opts);
+    render.meanwhile?.(opts);
     return { renderedTrack: opts.onlyTrackId ?? 'mix' };
   },
 }));
@@ -32,17 +37,22 @@ vi.mock('@/lib/studio-assets/encode-opus', () => ({
   audioBufferToOpusWebm: async (buffer: unknown) => encodeAs(buffer),
 }));
 
-const zip = vi.hoisted(() => ({ entries: [] as ZipEntry[] }));
+// The entries the zip took as they came, and whether it was finished.
+const zip = vi.hoisted(() => ({ entries: [] as ZipEntry[], finished: 0 }));
 vi.mock('@/lib/studio-assets/zip-store', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('@/lib/studio-assets/zip-store')>();
-  return {
-    ...actual,
-    zipStore: (files: ZipEntry[]) => {
-      zip.entries = [...files];
-      return actual.zipStore(files);
-    },
-  };
+  class RecordingWriter extends actual.ZipWriter {
+    add(entry: ZipEntry) {
+      super.add(entry);
+      zip.entries.push(entry);
+    }
+    finish() {
+      zip.finished++;
+      return super.finish();
+    }
+  }
+  return { ...actual, ZipWriter: RecordingWriter };
 });
 
 const store = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
@@ -74,11 +84,13 @@ function track(
   };
 }
 
-const text = (data: Uint8Array) => new TextDecoder().decode(data);
+const bytes = (text: string) => new TextEncoder().encode(text);
 
 beforeEach(() => {
   render.calls.length = 0;
+  render.meanwhile = null;
   zip.entries = [];
+  zip.finished = 0;
   store.state = {
     projectName: 'Late Night Song',
     tracks: [
@@ -147,12 +159,48 @@ describe('exportStems', () => {
       '03-bass-2.wav',
       '04-bass-2-2.wav',
     ]);
-    expect(zip.entries.map((e) => text(e.data))).toEqual([
+    expect(result.skipped).toEqual([]);
+    // Each stem is kept as a Blob, with the CRC of its bytes.
+    const stems = zip.entries.map((e) => e.data as Blob);
+    expect(stems.every((data) => data instanceof Blob)).toBe(true);
+    expect(await Promise.all(stems.map((data) => data.text()))).toEqual([
       't1',
       't2',
       't3',
       't4',
     ]);
+    expect(zip.entries.map((e) => e.crc)).toEqual(
+      ['t1', 't2', 't3', 't4'].map((id) => crc32(bytes(id))),
+    );
+    expect(zip.finished).toBe(1);
+  });
+
+  it('skips a track deleted before its turn and names it', async () => {
+    const progress: StemProgress[] = [];
+    // While Lead Vox renders, a collaborator deletes the third track.
+    render.meanwhile = (opts) => {
+      if (opts.onlyTrackId !== 't2') return;
+      const tracks = store.state.tracks as Array<{ id: string }>;
+      store.state = {
+        ...store.state,
+        tracks: tracks.filter((t) => t.id !== 't3'),
+      };
+    };
+    const result = await exportStems({ format: 'wav', range: 'project' }, (p) =>
+      progress.push(p),
+    );
+    expect(render.calls.map((c) => c.onlyTrackId)).toEqual(['t1', 't2', 't4']);
+    expect(result.count).toBe(3);
+    expect(result.skipped).toEqual(['Bass']);
+    // The zip is numbered as written.
+    expect(zip.entries.map((e) => e.name)).toEqual([
+      '01-bass.wav',
+      '02-lead-vox.wav',
+      '03-bass-2.wav',
+    ]);
+    expect(
+      progress.filter((p) => p.stage === 'render').map((p) => p.index),
+    ).toEqual([0, 1, 3]);
   });
 
   it('names the zip and its entries after the range and format', async () => {
@@ -191,7 +239,7 @@ describe('exportStems', () => {
     );
     await expect(run).rejects.toMatchObject({ name: 'AbortError' });
     expect(render.calls.map((c) => c.onlyTrackId)).toEqual(['t1', 't2']);
-    expect(zip.entries).toEqual([]);
+    expect(zip.finished).toBe(0);
   });
 
   it('stops before zipping when stopped during the last stem', async () => {
@@ -205,7 +253,7 @@ describe('exportStems', () => {
     );
     await expect(run).rejects.toThrow(DOMException);
     expect(render.calls).toHaveLength(4);
-    expect(zip.entries).toEqual([]);
+    expect(zip.finished).toBe(0);
   });
 
   it('renders nothing when already stopped', async () => {

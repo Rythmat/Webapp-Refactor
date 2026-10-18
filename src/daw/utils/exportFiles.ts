@@ -5,14 +5,19 @@
 // downloads folder sorts a song's files together: 'my-song.wav',
 // 'my-song-bass.mid', 'my-song-stems.zip'. Pure but for the download.
 
-/** `text` as a file name's part: lower case, dashes, nothing else. */
+/**
+ * `text` as a file name's part: lower case, with each run of anything but
+ * letters, digits and combining marks (spaces, punctuation, the characters
+ * file systems reject) made one dash. Letters of any script stay, so
+ * 'キーボード' stays 'キーボード' and 'Café' becomes 'café'; an ASCII name
+ * slugs as it always has ('Rock & Roll!' → 'rock-roll'). NFKC folds
+ * full-width and other compatibility forms first ('ＡＢＣ' → 'abc').
+ */
 export function fileSlug(text: string, fallback: string): string {
   const slug = text
-    .trim()
+    .normalize('NFKC')
     .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/[^\p{L}\p{M}\p{N}]+/gu, '-')
     .replace(/^-+|-+$/g, '');
   return slug || fallback;
 }

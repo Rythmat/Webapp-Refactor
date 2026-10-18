@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { crc32, zipStore } from '../zip-store';
+import { crc32, zipStore, ZipWriter } from '../zip-store';
 
 // ── Store-only ZIP writer (milestone 2.15) ─────────────────────────────────
 // The stems export's archive, read back here with a small reader of our own:
@@ -145,5 +145,61 @@ describe('zipStore', () => {
       data: new Uint8Array(0),
     }));
     expect(() => zipStore(many, date)).toThrow(/Too many files/);
+  });
+});
+
+describe('ZipWriter', () => {
+  const date = new Date(2026, 9, 17, 14, 35, 42);
+
+  it('takes Blob entries with their CRC, referenced rather than copied', async () => {
+    const take = bytes('a stem kept as a Blob');
+    const writer = new ZipWriter(date);
+    writer.add({ name: '01-bass.wav', data: bytes('bytes in memory') });
+    writer.add({
+      name: '02-keys.wav',
+      data: new Blob([take]),
+      crc: crc32(take),
+      size: take.length,
+    });
+    expect(writer.count).toBe(2);
+    const { entries } = readZip(await writer.finish().arrayBuffer());
+    expect(entries.map((e) => text(e.data))).toEqual([
+      'bytes in memory',
+      'a stem kept as a Blob',
+    ]);
+    expect(entries[1].crc).toBe(crc32(take));
+  });
+
+  it('refuses a Blob without its CRC, or a size that is not its own', () => {
+    const writer = new ZipWriter(date);
+    expect(() =>
+      writer.add({ name: 'a.wav', data: new Blob([bytes('abc')]) }),
+    ).toThrow(/CRC-32/);
+    expect(() =>
+      writer.add({ name: 'b.wav', data: bytes('abc'), size: 4 }),
+    ).toThrow(/size/);
+    expect(writer.count).toBe(0);
+  });
+
+  it('refuses the entry that would pass 4 GiB as it arrives', () => {
+    // A Blob that says it is nearly 4 GiB, without holding it.
+    const huge = new Blob([]);
+    Object.defineProperty(huge, 'size', { value: 0xffffff80 });
+    const writer = new ZipWriter(date);
+    writer.add({ name: 'small.wav', data: bytes('small') });
+    expect(() => writer.add({ name: 'huge.wav', data: huge, crc: 0 })).toThrow(
+      /too large/,
+    );
+    expect(writer.count).toBe(1);
+  });
+
+  it('refuses the 65536th entry as it arrives', () => {
+    const writer = new ZipWriter(date);
+    for (let i = 0; i < 65535; i++) {
+      writer.add({ name: `${i}`, data: new Uint8Array(0) });
+    }
+    expect(() =>
+      writer.add({ name: 'one-more', data: new Uint8Array(0) }),
+    ).toThrow(/Too many files/);
   });
 });

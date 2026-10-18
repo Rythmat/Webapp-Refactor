@@ -47,11 +47,9 @@ vi.mock('@/daw/ui/DialogHost', async (original) => ({
     return h.typed;
   },
 }));
-vi.mock('@/hooks/use-toast', async (original) => ({
-  ...(await original<Record<string, unknown>>()),
-  toast: (t: { title?: string; description?: string }) => {
+vi.mock('@/daw/shell/notice', () => ({
+  notice: (t: { title?: string; description?: string }) => {
     h.toasts.push(t);
-    return { id: '', dismiss() {}, update() {} };
   },
 }));
 vi.mock('@/daw/audio/AudioBufferStore', async (original) => ({

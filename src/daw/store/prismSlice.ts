@@ -33,7 +33,7 @@ import {
   toSongTick,
   type TimeSignature,
 } from '@/daw/time/timeModel';
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import {
   StrumMode,
@@ -1825,7 +1825,7 @@ export const createPrismSlice: StateCreator<
     if (id) {
       for (const u of get().remoteUsers.values()) {
         if (u.selectedTrackId === id) {
-          toast({
+          notice({
             title: 'Track locked',
             description: `${u.userName} is editing this track`,
             variant: 'destructive',

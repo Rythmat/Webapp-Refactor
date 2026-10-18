@@ -18,7 +18,7 @@ vi.mock('@/daw/shell/inspector/browser/addItem', () => ({
 vi.mock('@/daw/midi/importMidiToTracks', () => ({
   importMidiToTracks: h.importMidi,
 }));
-vi.mock('@/hooks/use-toast', () => ({ toast: h.toast }));
+vi.mock('@/daw/shell/notice', () => ({ notice: h.toast }));
 
 import { DRAG_MIME } from '@/daw/data/libraryItems';
 import {

@@ -46,7 +46,7 @@ import {
   type ChatMessage,
 } from './types';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 import { studioRealtime, isStudioMessage } from './studioRealtime';
 
 // ── Context ─────────────────────────────────────────────────────────────
@@ -639,7 +639,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
           for (const [clientId, u] of remoteUsers) {
             if (u.selectedTrackId === mySelected && clientId < myId) {
               useStore.getState().setSelectedTrackId(null);
-              toast({
+              notice({
                 title: 'Track taken',
                 description: `${u.userName} selected this track first`,
                 variant: 'destructive',

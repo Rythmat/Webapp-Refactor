@@ -22,7 +22,7 @@ import {
 } from '@/daw/audio/automation';
 import type { SamplerSampleRef } from '@/daw/instruments/samplerChops';
 import type { OrganState } from '@/daw/instruments/TonewheelOrganEngine';
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 
 // The store's index creates this slice as it loads, so nothing imported
 // here may load the store: not '@/daw/store' and not initialState.ts, which
@@ -424,7 +424,7 @@ export const createTracksSlice: StateCreator<
     // path — menus, Cmd+N, drag-drop, file import — is covered.
     const limitMessage = getTrackLimitMessage(get().tracks, type);
     if (limitMessage) {
-      toast({
+      notice({
         title: 'Track limit reached',
         description: limitMessage,
         variant: 'destructive',
@@ -655,7 +655,7 @@ export const createTracksSlice: StateCreator<
         (u) => u.selectedTrackId === id,
       );
       if (holder) {
-        toast({
+        notice({
           title: 'Track locked',
           description: `${holder.userName} is editing this track`,
           variant: 'destructive',
@@ -665,7 +665,7 @@ export const createTracksSlice: StateCreator<
     }
     const kind = midi ? 'midi' : 'audio';
     if (to.type !== kind) {
-      toast({
+      notice({
         title: "Can't move the clip there",
         description:
           kind === 'midi'

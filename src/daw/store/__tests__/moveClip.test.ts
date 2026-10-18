@@ -11,8 +11,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const toasts = vi.hoisted(() => [] as Array<{ title?: string }>);
-vi.mock('@/hooks/use-toast', () => ({
-  toast: (t: { title?: string }) => {
+vi.mock('@/daw/shell/notice', () => ({
+  notice: (t: { title?: string }) => {
     toasts.push(t);
   },
 }));

@@ -21,7 +21,7 @@ import {
 import { promptDialog } from '@/daw/ui/DialogHost';
 import { quantizeEvents, type AllGridSize } from '@/daw/utils/quantize';
 import { resolveTrackRole } from '@/daw/utils/trackRole';
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 
 // ── What the clip menu does (milestone 2.12) ───────────────────────────────
 //
@@ -107,7 +107,7 @@ export function trackHolder(
 function refusedByLock(trackId: string): boolean {
   const holder = trackHolder(useStore.getState(), trackId);
   if (holder === null) return false;
-  toast({
+  notice({
     title: 'Track locked',
     description: `${holder} is editing this track`,
     variant: 'destructive',
@@ -169,7 +169,7 @@ export function deleteClipStep(ref: ClipRef): boolean {
 
 /** Says so when a clip can't go on the track it was pasted to. */
 function wrongTrack(kind: 'midi' | 'audio'): void {
-  toast({
+  notice({
     title: "Can't paste the clip there",
     description:
       kind === 'midi'
@@ -312,7 +312,7 @@ export function splitClipAtPlayhead(ref: ClipRef): boolean {
   if (refusedByLock(ref.trackId)) return true;
   const tick = Math.round(getPlayheadTick());
   if (!playheadInside(found, tick)) {
-    toast({
+    notice({
       title: 'Move the playhead into the clip',
       description: 'A clip splits where the playhead is.',
     });
@@ -406,7 +406,7 @@ export function transposeClip(ref: ClipRef, semitones: number): boolean {
   const low = Math.min(...notes) + semitones;
   const high = Math.max(...notes) + semitones;
   if (low < 0 || high > 127) {
-    toast({
+    notice({
       title: 'Too far to move',
       description: 'Some notes would go off the end of the keyboard.',
     });

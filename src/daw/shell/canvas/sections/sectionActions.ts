@@ -21,7 +21,7 @@ import {
 } from '@/daw/time/arrangementEdits';
 import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import { promptDialog } from '@/daw/ui/DialogHost';
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 
 // ── What the sections lane does (milestone 2.13) ───────────────────────────
 //
@@ -202,7 +202,7 @@ function applyEdit(label: string, edit: ArrangementEdit | null): boolean {
 function refused(): boolean {
   const reason = arrangementRefusal();
   if (reason === null) return false;
-  toast({
+  notice({
     title: 'Not now',
     description: reason,
     variant: 'destructive',

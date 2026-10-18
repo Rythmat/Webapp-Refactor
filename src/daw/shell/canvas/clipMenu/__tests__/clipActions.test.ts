@@ -17,11 +17,9 @@ vi.mock('@/daw/engine/playheadClock', () => ({
 vi.mock('@/daw/ui/DialogHost', () => ({
   promptDialog: () => Promise.resolve(h.prompt),
 }));
-vi.mock('@/hooks/use-toast', async (importOriginal) => ({
-  ...(await importOriginal<Record<string, unknown>>()),
-  toast: (t: { title?: string; description?: string }) => {
+vi.mock('@/daw/shell/notice', () => ({
+  notice: (t: { title?: string; description?: string }) => {
     h.toasts.push(t);
-    return { id: '', dismiss() {}, update() {} };
   },
 }));
 vi.mock('@/daw/audio/AudioBufferStore', async (importOriginal) => ({

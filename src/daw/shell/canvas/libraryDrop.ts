@@ -1,4 +1,4 @@
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
 import { importMidiToTracks } from '@/daw/midi/importMidiToTracks';
 
@@ -68,7 +68,7 @@ export async function dropOnTimeline(
     await importMidiToTracks(await file.arrayBuffer());
   } catch (err) {
     console.warn('[timeline] MIDI file drop failed', err);
-    toast({
+    notice({
       title: 'That MIDI file couldn’t be read',
       description: file.name,
       variant: 'destructive',

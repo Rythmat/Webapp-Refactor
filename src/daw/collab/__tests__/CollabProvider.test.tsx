@@ -167,7 +167,7 @@ vi.mock('@/components/utils/toast', () => ({
   showSuccess: vi.fn(),
   showWarning: vi.fn(),
 }));
-vi.mock('@/hooks/use-toast', () => ({ toast: vi.fn() }));
+vi.mock('@/daw/shell/notice', () => ({ notice: vi.fn() }));
 
 import { useStore } from '@/daw/store';
 import { CollabProvider, useCollab } from '../CollabProvider';

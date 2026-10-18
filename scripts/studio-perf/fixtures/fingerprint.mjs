@@ -692,6 +692,8 @@ export async function fingerprintPage() {
     ['store.singleKeyShortcuts'],
     s.singleKeyShortcuts,
   );
+  // The bottom rail's hover hint line, the student's switch (milestone 2.11).
+  put('view.hoverHints', ['store.hoverHints'], s.hoverHints);
   // The shell's layout, the student's own (milestone 2.4).
   put(
     'view.layout',

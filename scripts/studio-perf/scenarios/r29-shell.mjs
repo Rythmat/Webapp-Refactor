@@ -16,7 +16,9 @@
  *   bars: 204 px on a Chromebook, within 2 px), the Inspector starts closed
  *   below 1440 px and open from it, and the timeline is at least 1,100 px
  *   wide on a Chromebook (the plan's 1,120 less part of the side rail's 48,
- *   owner's rails, 2026-10-16).
+ *   owner's rails, 2026-10-16): the shared regionBudget (designProbe.mjs)
+ *   with the dock at 0.36 and the Inspector's default, its dock, Inspector
+ *   default and timeline rules.
  * - inspectorOnce: the Inspector keeps its mount across Create → Mix →
  *   Score → Lead sheet → Create.
  * - layoutRestored: a dock made taller with the keyboard comes back that
@@ -43,7 +45,7 @@
  *   opens the Effects library; a pick fills it and arms the next; the
  *   armed slot's × stops and shuts the Inspector.
  */
-import { designProbe } from '../designProbe.mjs';
+import { designProbe, regionBudget } from '../designProbe.mjs';
 
 export const flags = {
   focusMode: {
@@ -170,6 +172,10 @@ async function shellAt(kit, run, viewport) {
       await kit.settle(page, 'R29 open');
       await kit.sleep(500);
       const opened = await page.evaluate(frame);
+      const budget = await regionBudget(page, {
+        dockFrac: 0.36,
+        inspectorDefault: true,
+      });
       const floors = [];
       for (const region of ['top', 'bottom', 'rail'])
         floors.push(
@@ -226,6 +232,7 @@ async function shellAt(kit, run, viewport) {
       return {
         viewport,
         opened,
+        budget,
         floors,
         ids,
         playingCommits:
@@ -418,7 +425,6 @@ async function dockChecks(page, kit, viewport) {
 function judge(v) {
   const { width, height } = v.viewport;
   const o = v.opened;
-  const body = height - 44 - 44;
   const near = (a, b, tol = 2) => Math.abs(a - b) <= tol;
   const zonesOk =
     o.zones.every((z) => !z.clipped && z.right <= width) &&
@@ -440,7 +446,7 @@ function judge(v) {
     near(o.side.right, width, 0) &&
     near(o.side.y, 44, 0) &&
     near(o.side.y + o.side.h, height - 44, 0);
-  const canvas = (o.main?.w ?? 0) - 200;
+  const b = v.budget.checks;
   return {
     focusMode:
       !!o.root &&
@@ -450,11 +456,7 @@ function judge(v) {
       v.dashboardTopRail,
     topBar: !!o.bar && near(o.bar.h, 44, 0) && zonesOk,
     rails: railsOk,
-    regionBudget:
-      !!o.dock &&
-      near(o.dock.h, Math.round(body * 0.36)) &&
-      o.libraryOpen === width >= 1440 &&
-      (width !== 1366 || canvas >= 1100),
+    regionBudget: b.dock && b.inspectorDefault && b.timeline,
     inspectorOnce: v.ids.every((id) => id !== null && id === v.ids[0]),
     layoutRestored: v.resized > (o.dock?.h ?? 0) && near(v.reloaded, v.resized),
     topBarFloors: v.floors.length === 0,
@@ -520,6 +522,7 @@ async function shell(kit, run) {
         v.opened.main &&
         `${Math.round(v.opened.main.w)}×${Math.round(v.opened.main.h)}`,
       dock: v.opened.dock?.h,
+      timeline: `${Math.round(v.budget.canvas)} px (≥ ${Math.round(v.budget.timelineMin)})`,
       inspectorOpen: v.opened.libraryOpen,
       inspectorMounts: [...new Set(v.ids)],
       playingCommits: v.playingCommits,

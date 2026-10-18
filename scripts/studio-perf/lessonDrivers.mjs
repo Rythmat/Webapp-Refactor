@@ -763,20 +763,27 @@ const lengthenReturnReverb = (ctx, returnId) =>
   );
 
 /**
- * Click "Return X" on its strip, which opens its FX rack, then turn a knob.
- * The label, not the strip's middle: the strip's fader area stops the click
- * from selecting the return.
+ * Click "Return X · <effect>" on its strip in the Mix view (2.10), which
+ * opens that return's rack in the RackDock under the strips (return-fx-X),
+ * then turn a knob there. The name button, not the strip's middle: the
+ * fader takes a click on its own.
  */
 function tweakReturn(returnId) {
   return {
     how: 'click',
-    describe: `click the "Return ${returnId}" label in return-strip-${returnId}, then its reverb decay (a knob drag)`,
+    describe: `click the name of return-strip-${returnId}, which opens return-fx-${returnId} in the RackDock, then its reverb decay (a knob drag)`,
     related: ['ia-flows-12', 'fx-mixer-04'],
     async run(ctx) {
-      const label = ctx.page
-        .locator(`${anchor(`return-strip-${returnId}`)} span`)
-        .first();
-      await ctx.click(label, `"Return ${returnId}" label`);
+      const name = ctx.page.locator(
+        `${anchor(`return-strip-${returnId}`)} [data-testid="return-strip-name"]`,
+      );
+      await ctx.click(name, `"Return ${returnId}" name`);
+      await ctx.waitFor(
+        `the RackDock to show Return ${returnId}`,
+        (id) =>
+          !!document.querySelector(`[data-tutorial-id="return-fx-${id}"]`),
+        returnId,
+      );
       await ctx.measure(`return-fx-${returnId}`);
       await lengthenReturnReverb(ctx, returnId);
     },
@@ -784,11 +791,15 @@ function tweakReturn(returnId) {
   };
 }
 
-/** A row of the mastering rack's FX list (its fx-add-* rows say rack "master"). */
+/**
+ * A row of the side rail's Effects panel while the Mix view's master rack is
+ * open (2.10: the step's requires open both; its fx-add-* rows say rack
+ * "master").
+ */
 function addMasteringFx(type) {
   return {
     how: 'click',
-    describe: `click fx-add-${type} in mastering-section`,
+    describe: `click fx-add-${type} (rack master) in the Effects panel, the master rack open in the RackDock`,
     related: ['fx-mixer-19'],
     run: (ctx) =>
       ctx.clickAnchor(`fx-add-${type}`, `fx-add-${type}`, { rack: 'master' }),

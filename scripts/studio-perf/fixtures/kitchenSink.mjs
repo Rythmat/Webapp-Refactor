@@ -611,6 +611,8 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setFollowPlayhead(false);
   act().dismissChordAnalysis();
   act().setSingleKeyShortcuts(false);
+  // The bottom rail's hover hints (milestone 2.11): on by default.
+  act().setHoverHints(false);
   // The shell's layout prefs (milestone 2.4).
   const layout = await devModule('/src/daw/shell/layout/layoutModel.ts');
   const freshOpen = layout.defaultInspectorOpen('arrange', window.innerWidth);

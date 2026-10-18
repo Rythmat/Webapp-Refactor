@@ -13,7 +13,8 @@
  *                               the editor's core off other pages)
  *   npm run studio:check:full   the round-trips on both profiles (laptop
  *                               and chromebook, the Stage A exit) and the
- *                               lessons also at 1280×720 (small), and adds
+ *                               lessons also at 1280×720 (small) and
+ *                               1440×787 (laptop, the Stage B exit), and adds
  *                               the perf scenarios (chromebook and laptop)
  *                               and the golden renders and timing traces
  *   npm run studio:baseline     the full tier, written to
@@ -223,13 +224,11 @@ const UNIT_TESTS = [
   'src/daw/components/LeadSheet/__tests__/chordSymbolEntry.test.tsx',
   'src/daw/components/LeadSheet/__tests__/leadSheetClipboard.test.ts',
   'src/daw/components/LeadSheet/__tests__/leadSheetClipboardKeeps.test.ts',
-  // Milestone 1.17a: controls that say what they do. The master's readouts
-  // and Bypass, the FX lists (click-only, the cap, a chosen effect, the
-  // synth's preset effects), the filter, de-esser, Grooves, presets and
+  // Milestone 1.17a: controls that say what they do (the master's readouts
+  // and Bypass and the FX lists moved to the Mix view's tests, 2.10): the
+  // synth's preset effects, the filter, de-esser, Grooves, presets and
   // instrument views, Pitch Correction's Smooth, the sampler's trim, and
   // Insight's played chord.
-  'src/daw/components/Studio/__tests__/masterHonesty.test.tsx',
-  'src/daw/components/Effects/__tests__/fxBrowser.test.tsx',
   'src/daw/components/Effects/__tests__/deEsserKnobs.test.tsx',
   'src/daw/oracle-synth/components/fx/FXSlot.test.tsx',
   'src/daw/components/Controls/__tests__/oracleFilterModule.test.tsx',
@@ -267,6 +266,22 @@ const UNIT_TESTS = [
   'src/daw/shell/song/__tests__/tapTempo.test.ts',
   'src/layouts/DashboardLayout/__tests__/ClassroomDashboard.focusMode.test.tsx',
   'src/daw/persistence/__tests__/prefsStore.test.ts',
+  // Milestones 2.10 and 2.11: the Mix view (strips, the master column with
+  // the honesty checks moved from StudioView, Mute All, the one effects
+  // rack), the '?' sheet, Report a problem, the hover hint line, the
+  // computer-keyboard chip, and a line under every setting.
+  'src/daw/shell/mix/__tests__/MixView.test.tsx',
+  'src/daw/shell/mix/__tests__/MixStrip.test.tsx',
+  'src/daw/shell/mix/__tests__/MasterColumn.test.tsx',
+  'src/daw/shell/mix/__tests__/rack.test.tsx',
+  'src/daw/shell/mix/__tests__/muteAll.test.ts',
+  'src/daw/shell/help/__tests__/ShortcutSheet.test.tsx',
+  'src/daw/shell/help/__tests__/ReportProblemDialog.test.tsx',
+  'src/daw/shell/help/__tests__/HintLine.test.tsx',
+  'src/daw/shell/help/__tests__/hintSource.test.ts',
+  'src/daw/shell/topbar/__tests__/MusicalTypingChip.test.tsx',
+  'src/daw/ui/__tests__/settingRow.test.tsx',
+  'src/daw/ui/__tests__/settingRows.test.tsx',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */
@@ -291,8 +306,9 @@ const SUITES = [
     name: 'lessons',
     script: 'lessons.mjs',
     // Milestone 1.4's chip and Undo/Redo sit in the top rail: the lessons'
-    // anchors are also checked in the smallest window the layout keeps.
-    args: [full ? '--profile=chromebook,small' : '--profile=chromebook'],
+    // anchors are also checked in the smallest window the layout keeps, and
+    // (the Stage B exit, all three viewports) on the laptop.
+    args: [full ? '--profile=chromebook,small,laptop' : '--profile=chromebook'],
   },
   ...(full
     ? [

@@ -1,19 +1,5 @@
 /* eslint-disable react/jsx-sort-props */
-import {
-  ArrowLeft,
-  ChevronDown,
-  ChevronRight,
-  ChevronUp,
-  Copy,
-  Download,
-  ExternalLink,
-  Loader2,
-  Play,
-  Plus,
-  Save,
-  Square,
-  Trash2,
-} from 'lucide-react';
+import { ArrowLeft, Download, ExternalLink, Loader2, Save } from 'lucide-react';
 import {
   useCallback,
   useEffect,
@@ -22,24 +8,21 @@ import {
   useRef,
   useState,
   type FC,
-  type ReactNode,
 } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
 import {
   LITERACY_TONICS,
   isMelodicEcho,
-  stepKind,
   type LiteracyStep,
   type LiteracyTonic,
   type MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
+import { lessonSections } from '@/curriculum/engine/musicLiteracy/literacy';
 import { useUnsavedChanges } from '../content/mirror/UnsavedChangesGuard';
 import {
   DetailCell,
-  IconButton,
   InlineNumber,
   InlineSelect,
   InlineText,
@@ -51,17 +34,16 @@ import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
 import { UndoRedo } from '../ui/UndoRedo';
 import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../ui/styles';
+import { LiteracyLessonSettings, usesPart2 } from './LiteracyLessonSettings';
 import { LiteracyRoll } from './LiteracyRoll';
 import { LiteracyStepEditor } from './LiteracyStepEditor';
-import { pitchLabel } from './literacyControls';
+import { LiteracyStepList } from './LiteracyStepList';
+import { chooserStandIn } from './literacyChords';
 import {
-  addStep,
   canonicalLesson,
   downloadLesson,
-  duplicateStep,
   learnHrefFor,
   lessonIssues,
-  moveStep,
   patchStep,
   removeStep,
   renameStep,
@@ -73,12 +55,15 @@ import type { Segment } from './literacyPart';
 import { useStepPreview } from './useStepPreview';
 
 /**
- * One Music Literacy lesson: its key, tempo and place in the series, and its
- * steps, each opened to edit its words, call and response — or opened in
- * the Parts editor's piano roll and staff (`?roll=<step>:<segment>`, the
- * same page, so the draft and its history carry on). Saved only when the
- * body schema accepts it, laid out as its file is (canonicalLesson), through
- * the content system or the dev server (instrumentStore.ts).
+ * One Music Literacy lesson: its key, tempo and place in the series, who
+ * picks the key, how its numbers read and the passes it offers, and its
+ * steps under their sections, each opened to edit what its kind has (a
+ * melody's words, call and response, a chord call, a choose step, a
+ * replay) — a melody's also in the Parts editor's piano roll and staff
+ * (`?roll=<step>:<segment>`, the same page, so the draft and its history
+ * carry on). Saved only when the body schema accepts it, laid out as its
+ * file is (canonicalLesson), through the content system or the dev server
+ * (instrumentStore.ts).
  */
 
 const SEGMENTS: readonly Segment[] = ['words', 'call', 'response'];
@@ -101,6 +86,17 @@ const TONIC_OPTIONS = LITERACY_TONICS.map((tonic) => ({
 
 const TIME_OPTIONS = ['2/4', '3/4', '4/4', '6/8'];
 
+/** Objects' keys in order, so a field taken out and put back is no change. */
+const sortedKeys = (_key: string, value: unknown) =>
+  value && typeof value === 'object' && !Array.isArray(value)
+    ? Object.fromEntries(
+        Object.entries(value).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)),
+      )
+    : value;
+
+const sameLesson = (a: MusicLiteracyLesson, b: MusicLiteracyLesson) =>
+  JSON.stringify(a, sortedKeys) === JSON.stringify(b, sortedKeys);
+
 export const MusicLiteracyEditor: FC<{ lesson: MusicLiteracyLesson }> = ({
   lesson: initial,
 }) => {
@@ -108,6 +104,7 @@ export const MusicLiteracyEditor: FC<{ lesson: MusicLiteracyLesson }> = ({
   const draft = history.value;
   const [saved, setSaved] = useState(initial);
   const [expanded, setExpanded] = useState<number | null>(0);
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -117,10 +114,7 @@ export const MusicLiteracyEditor: FC<{ lesson: MusicLiteracyLesson }> = ({
   const canSave = store.canSave('music_literacy');
 
   const issues = useMemo(() => lessonIssues(draft), [draft]);
-  const dirty = useMemo(
-    () => JSON.stringify(draft) !== JSON.stringify(saved),
-    [draft, saved],
-  );
+  const dirty = useMemo(() => !sameLesson(draft, saved), [draft, saved]);
   // Leaving the page with unsaved edits asks first; the roll is this page.
   useUnsavedChanges(dirty);
 
@@ -191,6 +185,8 @@ export const MusicLiteracyEditor: FC<{ lesson: MusicLiteracyLesson }> = ({
       savedTags={savedTags}
       expanded={expanded}
       setExpanded={setExpanded}
+      collapsed={collapsed}
+      setCollapsed={setCollapsed}
       fromRoll={fromRoll}
     />
   );
@@ -216,6 +212,8 @@ interface PaneProps {
   setExpanded: (
     next: number | null | ((prev: number | null) => number | null),
   ) => void;
+  collapsed: ReadonlySet<string>;
+  setCollapsed: (next: Set<string>) => void;
   fromRoll: { current: number | null };
 }
 
@@ -237,6 +235,8 @@ const LessonPane: FC<PaneProps> = ({
   savedTags,
   expanded,
   setExpanded,
+  collapsed,
+  setCollapsed,
   fromRoll,
 }) => {
   const [, setSearch] = useSearchParams();
@@ -280,10 +280,36 @@ const LessonPane: FC<PaneProps> = ({
     setSearch({ roll: `${step}:${segment}` });
   };
 
-  const play = (index: number) =>
-    void preview.play(draft, index).catch((err: unknown) => {
+  const play = (index: number, standIn?: LiteracyStep) => {
+    const step = draft.steps[index];
+    const playAs =
+      standIn ??
+      (step?.kind === 'chooseChords' ? chooserStandIn(draft, step) : undefined);
+    void preview.play(draft, index, playAs).catch((err: unknown) => {
       window.alert(err instanceof Error ? err.message : String(err));
     });
+  };
+
+  /** A problem's step opened (its section unfolded) and in view. */
+  const showIssue = (issue: LessonIssue) => {
+    if (issue.path[0] !== 'steps' || typeof issue.path[1] !== 'number') return;
+    const index = issue.path[1];
+    const section = lessonSections(draft).find((s) => s.steps.includes(index));
+    const key = `section:${section?.title ?? ''}`;
+    if (collapsed.has(key)) {
+      const next = new Set(collapsed);
+      next.delete(key);
+      setCollapsed(next);
+    }
+    setExpanded(index);
+    requestAnimationFrame(() =>
+      document
+        .querySelector(`[data-step="${index}"]`)
+        ?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }),
+    );
+  };
+  const part2 = usesPart2(draft);
+  const studentKey = draft.keyChoice === 'student';
 
   const [beats, unit] = draft.timeSignature;
 
@@ -361,7 +387,21 @@ const LessonPane: FC<PaneProps> = ({
           <ul className="list-disc pl-4">
             {issues.slice(0, 8).map((issue, i) => (
               <li key={i}>
-                {issue.where}: {issue.message}
+                {issue.path[0] === 'steps' &&
+                typeof issue.path[1] === 'number' ? (
+                  <button
+                    type="button"
+                    onClick={() => showIssue(issue)}
+                    className="text-left underline-offset-2 hover:text-white hover:underline"
+                    title="Open the step"
+                  >
+                    {issue.where}: {issue.message}
+                  </button>
+                ) : (
+                  <>
+                    {issue.where}: {issue.message}
+                  </>
+                )}
               </li>
             ))}
             {issues.length > 8 && <li>and {issues.length - 8} more</li>}
@@ -438,7 +478,7 @@ const LessonPane: FC<PaneProps> = ({
             ariaLabel="Order"
           />
         </DetailCell>
-        <DetailCell label="Key">
+        <DetailCell label={studentKey ? 'Key · default and preview' : 'Key'}>
           <span className="inline-flex items-center gap-1">
             <InlineSelect
               value={draft.key.tonic}
@@ -506,6 +546,7 @@ const LessonPane: FC<PaneProps> = ({
             className="text-sm"
           />
         </DetailCell>
+        <LiteracyLessonSettings lesson={draft} set={set} />
         {lessonLevel.length > 0 && (
           <p className="col-span-2 text-sm text-red-300 md:col-span-4">
             {lessonLevel.map((i) => `${i.where}: ${i.message}`).join(' · ')}
@@ -517,218 +558,64 @@ const LessonPane: FC<PaneProps> = ({
       <div className="flex items-baseline gap-3">
         <h2 className={CONSOLE_LABEL}>Steps</h2>
         <span className="text-xs text-white/40">
-          Each step: the teacher sings the words and plays the call; the student
-          plays the response back.
+          {part2
+            ? 'Each step in turn, grouped by section. Open one to edit it; drag it by its grip, or use its arrows, to move it, into another section too.'
+            : 'Each step: the teacher sings the words and plays the call; the student plays the response back.'}
         </span>
       </div>
-      <div className="flex flex-col gap-2">
-        {draft.steps.map((step, index) => (
-          <StepRow
-            key={index}
-            step={step}
-            index={index}
-            count={draft.steps.length}
-            issues={stepIssues(issues, index)}
-            open={expanded === index}
-            playing={preview.playingStep === index}
-            onToggle={() => setExpanded(expanded === index ? null : index)}
-            onPlay={() =>
-              preview.playingStep === index ? preview.stop() : play(index)
-            }
-            onMove={(delta) => {
-              set((lesson) => moveStep(lesson, index, delta));
-              setExpanded((open) =>
-                open === index
-                  ? index + delta
-                  : open === index + delta
-                    ? index
-                    : open,
-              );
-            }}
-            onDuplicate={() => {
-              set((lesson) => duplicateStep(lesson, index));
-              setExpanded(index + 1);
-            }}
-            onDelete={() => {
-              if (
-                !window.confirm(
-                  `Delete step ${index + 1}, “${step.title}”? Students’ progress on it goes with it.`,
-                )
-              )
-                return;
-              preview.stop();
-              set((lesson) => removeStep(lesson, index));
-              setExpanded(null);
-            }}
-          >
-            {!isMelodicEcho(step) ? (
-              <div className="border-t border-white/[0.06] px-4 pb-5 pt-4">
-                <ConsoleCallout tone="info">
-                  A Part 2 step ({stepKind(step)}
-                  {stepKind(step) === 'echo' ? ', a chord call' : ''}). Its
-                  editor is on its way; until then, edit it in the lesson’s
-                  file.
-                </ConsoleCallout>
-              </div>
-            ) : (
-              <LiteracyStepEditor
-                lesson={draft}
-                step={step}
-                index={index}
-                issues={stepIssues(issues, index)}
-                tagFixed={savedTags.has(step.tag)}
-                onChange={(next) =>
-                  set((lesson) => patchStep(lesson, index, next))
-                }
-                onRename={(title) =>
-                  set((lesson) => renameStep(lesson, index, title, savedTags))
-                }
-                onRoll={(segment) => openRoll(index, segment)}
-                preview={{
-                  playing: preview.playingStep === index,
-                  loading: preview.loading,
-                  lit: preview.lit?.step === index ? preview.lit : null,
-                  play: () => play(index),
-                  stop: preview.stop,
-                }}
-                learnHref={learnHref}
-              />
-            )}
-          </StepRow>
-        ))}
-
-        <button
-          type="button"
-          className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-white/15 py-3 text-sm text-white/45 transition-colors hover:border-white/30 hover:bg-white/[0.04] hover:text-white"
-          onClick={() => {
-            const index = draft.steps.length;
-            set((lesson) => addStep(lesson));
-            setExpanded(index);
-          }}
-        >
-          <Plus className="size-4" />
-          Add step
-        </button>
-      </div>
-    </div>
-  );
-};
-
-/** A step's row: what it is at a glance, its tools, and the step opened. */
-const StepRow: FC<{
-  step: LiteracyStep;
-  index: number;
-  count: number;
-  issues: readonly LessonIssue[];
-  open: boolean;
-  playing: boolean;
-  onToggle: () => void;
-  onPlay: () => void;
-  onMove: (delta: number) => void;
-  onDuplicate: () => void;
-  onDelete: () => void;
-  children: ReactNode;
-}> = ({
-  step,
-  index,
-  count,
-  issues,
-  open,
-  playing,
-  onToggle,
-  onPlay,
-  onMove,
-  onDuplicate,
-  onDelete,
-  children,
-}) => {
-  const n = index + 1;
-  const call = isMelodicEcho(step)
-    ? step.call.notes
-        .map((note) => pitchLabel(note.degree, note.octave ?? 0))
-        .join(' ')
-    : stepKind(step);
-  const ownResponse = isMelodicEcho(step) && step.response !== undefined;
-  return (
-    <div
-      data-step={index}
-      className={cn(
-        'overflow-hidden scroll-mt-4',
-        CONSOLE_PANEL,
-        issues.length > 0 && 'border-red-400/30',
-      )}
-    >
-      <div className="flex items-center gap-3 px-3 py-2">
-        <button
-          type="button"
-          aria-expanded={open}
-          className="flex min-w-0 flex-1 items-center gap-3 text-left"
-          onClick={onToggle}
-        >
-          {open ? (
-            <ChevronDown className="size-4 shrink-0 text-white/40" />
-          ) : (
-            <ChevronRight className="size-4 shrink-0 text-white/40" />
-          )}
-          <span className="w-6 shrink-0 text-xs tabular-nums text-white/30">
-            {n}
-          </span>
-          <span className="min-w-0 flex-1 truncate text-sm text-white/85">
-            {step.title || 'Untitled step'}
-          </span>
-          <span
-            className="hidden shrink-0 tabular-nums text-xs text-white/40 sm:inline"
-            title="The call"
-          >
-            {call || '—'}
-          </span>
-          {ownResponse && (
-            <ConsoleBadge tone="muted" className="shrink-0">
-              own response
-            </ConsoleBadge>
-          )}
-          {issues.length > 0 && (
-            <ConsoleBadge tone="danger" className="shrink-0">
-              {issues.length} to fix
-            </ConsoleBadge>
-          )}
-        </button>
-
-        <div className="flex shrink-0 items-center gap-0.5">
-          <IconButton
-            label={playing ? `Stop step ${n}` : `Play step ${n}`}
-            active={playing}
-            onClick={onPlay}
-          >
-            {playing ? (
-              <Square className="size-3.5" />
-            ) : (
-              <Play className="size-3.5" />
-            )}
-          </IconButton>
-          <IconButton
-            label={`Move step ${n} up`}
-            disabled={index === 0}
-            onClick={() => onMove(-1)}
-          >
-            <ChevronUp className="size-3.5" />
-          </IconButton>
-          <IconButton
-            label={`Move step ${n} down`}
-            disabled={index === count - 1}
-            onClick={() => onMove(1)}
-          >
-            <ChevronDown className="size-3.5" />
-          </IconButton>
-          <IconButton label={`Duplicate step ${n}`} onClick={onDuplicate}>
-            <Copy className="size-3.5" />
-          </IconButton>
-          <IconButton label={`Delete step ${n}`} danger onClick={onDelete}>
-            <Trash2 className="size-3.5" />
-          </IconButton>
-        </div>
-      </div>
-      {open && children}
+      <LiteracyStepList
+        lesson={draft}
+        issues={issues}
+        set={set}
+        expanded={expanded}
+        setExpanded={setExpanded}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+        playingStep={preview.playingStep}
+        onPlay={(index) => play(index)}
+        onStop={preview.stop}
+        onDelete={(index) => {
+          const step = draft.steps[index];
+          if (
+            !window.confirm(
+              `Delete step ${index + 1}, “${step.title}”? Students’ progress on it goes with it.`,
+            )
+          )
+            return;
+          preview.stop();
+          set((lesson) => removeStep(lesson, index));
+          setExpanded(null);
+        }}
+      >
+        {(index) => {
+          const step = draft.steps[index];
+          return (
+            <LiteracyStepEditor
+              lesson={draft}
+              step={step}
+              index={index}
+              issues={stepIssues(issues, index)}
+              tagFixed={savedTags.has(step.tag)}
+              onChange={(next) =>
+                set((lesson) => patchStep(lesson, index, next))
+              }
+              onLesson={set}
+              onRename={(title) =>
+                set((lesson) => renameStep(lesson, index, title, savedTags))
+              }
+              onRoll={(segment) => openRoll(index, segment)}
+              preview={{
+                playing: preview.playingStep === index,
+                loading: preview.loading,
+                lit: preview.lit?.step === index ? preview.lit : null,
+                play: (standIn) => play(index, standIn),
+                stop: preview.stop,
+              }}
+              learnHref={learnHref}
+            />
+          );
+        }}
+      </LiteracyStepList>
     </div>
   );
 };

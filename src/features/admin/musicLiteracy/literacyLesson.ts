@@ -1,6 +1,7 @@
 /**
  * The Music Literacy editor's edits to a lesson as a whole: its steps' tags,
- * adding, duplicating, moving and removing steps, a new lesson's id, the
+ * adding (of any kind), duplicating, moving and removing steps, their
+ * sections, the passes the lesson and a step offer, a new lesson's id, the
  * schema's problems in a teacher's words, the body laid out as its file is,
  * key by key, and where the lesson goes (its Learn page, its download).
  *
@@ -9,6 +10,7 @@
 
 import {
   isChordFigure,
+  isEchoStep,
   musicLiteracyBodySchema,
   type LiteracyChordFigure,
   type LiteracyFigure,
@@ -20,8 +22,8 @@ import {
   type LiteracyWords,
   type MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
-import { blankLiteracyStep } from '@/content/musicLiteracy/template';
 import { MIRROR_BASE } from '../content/mirror/mirrorPaths';
+import { choiceInfo, newStepOfChoice, type StepChoice } from './literacyKinds';
 
 // ── Tags and ids ───────────────────────────────────────────────────────────
 
@@ -96,16 +98,56 @@ export function renameStep(
   };
 }
 
-export function addStep(lesson: MusicLiteracyLesson): MusicLiteracyLesson {
-  const title = `Step ${lesson.steps.length + 1}`;
+/** Whether the lesson's melodies have words: a new one follows them. */
+const usesWords = (lesson: MusicLiteracyLesson) =>
+  lesson.steps.some((step) => isEchoStep(step) && step.words) ||
+  !lesson.steps.some(isEchoStep);
+
+/**
+ * A new step of a kind (Add step's menu), put in at `at` (left out: the
+ * end) in `section` (left out: the section of the step before it). A
+ * melody has words when the lesson's do; a choose-chords step saves under
+ * a name of its own; a replay plays the last progression saved before it.
+ */
+export function addStepOfChoice(
+  lesson: MusicLiteracyLesson,
+  choice: StepChoice,
+  at = lesson.steps.length,
+  section?: string | null,
+): MusicLiteracyLesson {
+  const title = choiceInfo(choice).title ?? `Step ${lesson.steps.length + 1}`;
+  const tag = tagFor(title, lesson.steps);
+  const before = lesson.steps.slice(0, at);
+  const lastSaved = before
+    .filter((step) => step.kind === 'chooseChords')
+    .at(-1);
+  let step = newStepOfChoice(choice, tag, title, {
+    words: usesWords(lesson),
+    progression:
+      lastSaved?.kind === 'chooseChords' ? lastSaved.saveAs : undefined,
+  });
+  if (step.kind === 'chooseChords') {
+    const names = new Set(
+      lesson.steps.flatMap((s) =>
+        s.kind === 'chooseChords' ? [s.saveAs] : [],
+      ),
+    );
+    step = { ...step, saveAs: unique(step.saveAs, names) };
+  }
+  const label = section === undefined ? before.at(-1)?.section : section;
   return {
     ...lesson,
     steps: [
-      ...lesson.steps,
-      blankLiteracyStep(tagFor(title, lesson.steps), title),
+      ...before,
+      withSection(step, label ?? undefined),
+      ...lesson.steps.slice(at),
     ],
   };
 }
+
+/** A new melody at the end: Part 1's Add step. */
+export const addStep = (lesson: MusicLiteracyLesson) =>
+  addStepOfChoice(lesson, 'melody');
 
 /** A copy of a step right after it, under a title and tag of its own. */
 export function duplicateStep(
@@ -129,16 +171,95 @@ export function duplicateStep(
   };
 }
 
+/** A step in a section, or in none (`section` left out or empty). */
+export function withSection<S extends LiteracyStep>(
+  step: S,
+  section: string | undefined,
+): S {
+  const next = { ...step };
+  if (section?.trim()) next.section = section.trim();
+  else delete next.section;
+  return next;
+}
+
+const sameSection = (a: LiteracyStep, b: LiteracyStep) =>
+  (a.section ?? null) === (b.section ?? null);
+
+/**
+ * Where a step goes moved one place up (-1) or down (1): past its
+ * neighbor, in its own section; across a section's edge, into the next
+ * section, staying where it is in the list (so the first step of a
+ * section moved up becomes the last of the one above). Null at either end.
+ */
+export function stepMove(
+  lesson: Pick<MusicLiteracyLesson, 'steps'>,
+  index: number,
+  delta: number,
+): { to: number; section: string | undefined } | null {
+  const step = lesson.steps[index];
+  const neighbor = lesson.steps[index + delta];
+  if (!step || !neighbor) return null;
+  return sameSection(step, neighbor)
+    ? { to: index + delta, section: step.section }
+    : { to: index, section: neighbor.section };
+}
+
 export function moveStep(
   lesson: MusicLiteracyLesson,
   index: number,
   delta: number,
 ): MusicLiteracyLesson {
-  const target = index + delta;
-  if (target < 0 || target >= lesson.steps.length) return lesson;
-  const steps = [...lesson.steps];
-  [steps[index], steps[target]] = [steps[target], steps[index]];
+  const move = stepMove(lesson, index, delta);
+  if (!move) return lesson;
+  return moveStepTo(lesson, index, move.to, move.section);
+}
+
+/**
+ * A step taken out and put back in at `to` (its index once moved), in
+ * `section`: a drag's drop, or a move.
+ */
+export function moveStepTo(
+  lesson: MusicLiteracyLesson,
+  from: number,
+  to: number,
+  section: string | undefined,
+): MusicLiteracyLesson {
+  const step = lesson.steps[from];
+  if (!step) return lesson;
+  const moved = sameSection(step, { ...step, section })
+    ? step
+    : withSection(step, section);
+  if (to === from && moved === step) return lesson;
+  const steps = lesson.steps.filter((_, i) => i !== from);
+  steps.splice(Math.max(0, Math.min(to, steps.length)), 0, moved);
   return { ...lesson, steps };
+}
+
+/** Where an index lands when the step at `from` moves to `to`. */
+export function indexAfterMove(index: number, from: number, to: number) {
+  if (index === from) return to;
+  if (from < index && index <= to) return index - 1;
+  if (to <= index && index < from) return index + 1;
+  return index;
+}
+
+/** The lesson's section labels, each once, in order. */
+export const sectionNames = (lesson: Pick<MusicLiteracyLesson, 'steps'>) => [
+  ...new Set(lesson.steps.flatMap((step) => step.section ?? [])),
+];
+
+/** A run of steps (a section's, by index) given a new label, or none. */
+export function renameSection(
+  lesson: MusicLiteracyLesson,
+  indices: readonly number[],
+  name: string,
+): MusicLiteracyLesson {
+  return {
+    ...lesson,
+    steps: lesson.steps.map((step, i) =>
+      indices.includes(i) ? withSection(step, name) : step,
+    ),
+  };
 }
 
 export function removeStep(
@@ -160,6 +281,55 @@ export function patchStep<S extends LiteracyStep>(
       i === index ? ({ ...step, ...patch } as LiteracyStep) : step,
     ),
   };
+}
+
+// ── Passes ─────────────────────────────────────────────────────────────────
+
+/**
+ * What a lesson's echo steps offer when it says nothing: the challenge on
+ * and the create pass off, Part 1's.
+ */
+export const LESSON_PASS_DEFAULTS = { challenge: true, create: false } as const;
+
+export type PassName = keyof typeof LESSON_PASS_DEFAULTS;
+
+/**
+ * The lesson's passes with one turned on or off; a pass at its default is
+ * left out, so a Part 1 file that never turned one gains nothing.
+ */
+export function withLessonPass(
+  lesson: MusicLiteracyLesson,
+  pass: PassName,
+  on: boolean,
+): MusicLiteracyLesson {
+  const next: LiteracyLessonPasses = { ...lesson.passes };
+  if (on === LESSON_PASS_DEFAULTS[pass]) delete next[pass];
+  else next[pass] = on;
+  const out = { ...lesson };
+  if (Object.keys(next).length) out.passes = next;
+  else delete out.passes;
+  return out;
+}
+
+/** Whether the lesson offers a pass, its default when it says nothing. */
+export const lessonPass = (
+  lesson: Pick<MusicLiteracyLesson, 'passes'>,
+  pass: PassName,
+): boolean => lesson.passes?.[pass] ?? LESSON_PASS_DEFAULTS[pass];
+
+/**
+ * A step's own passes with one set (true, false) or back to the lesson's
+ * (undefined); undefined when it sets none.
+ */
+export function withStepPass<K extends keyof LiteracyStepPasses>(
+  passes: LiteracyStepPasses | undefined,
+  pass: K,
+  value: LiteracyStepPasses[K] | undefined,
+): LiteracyStepPasses | undefined {
+  const next: LiteracyStepPasses = { ...passes };
+  if (value === undefined) delete next[pass];
+  else next[pass] = value;
+  return Object.keys(next).length ? next : undefined;
 }
 
 // ── Problems ───────────────────────────────────────────────────────────────
@@ -202,6 +372,20 @@ const FIELD_NAME: Record<string, string> = {
   chords: 'chords',
 };
 
+/** A Part 2 field's name where it is: a chord call's, a pass's. */
+const PART_2_WHERE: Record<string, string> = {
+  'call.chords': 'chords',
+  'call.rhythm': 'rhythm',
+  'call.progression': 'saved progression',
+  'call.harmony': 'harmony',
+  'passes.challenge': 'challenge pass',
+  'passes.create': 'create pass',
+  'passes.createBars': 'create-pass bars',
+  // A choose step where the lesson doesn't ask: the step itself.
+  kind: '',
+  progression: 'saved progression',
+};
+
 /** Where a problem is, as the editor names its parts. */
 export function issueWhere(path: readonly (string | number)[]): string {
   if (path[0] !== 'steps') {
@@ -211,7 +395,21 @@ export function issueWhere(path: readonly (string | number)[]): string {
   if (path.length < 2) return 'Steps';
   const parts: string[] = [`Step ${Number(path[1]) + 1}`];
   const [, , segment, inner, n] = path;
-  if (segment === 'words' || segment === 'call' || segment === 'response') {
+  const part2 =
+    PART_2_WHERE[
+      inner === undefined ? String(segment) : `${String(segment)}.${inner}`
+    ];
+  if (part2 !== undefined) {
+    // A chord call's bar: which one, counted from 1.
+    if (part2)
+      parts.push(typeof n === 'number' ? `${part2}, bar ${n + 1}` : part2);
+  } else if (segment === 'template' && typeof inner === 'number') {
+    parts.push(`template, bar ${inner + 1}`);
+  } else if (
+    segment === 'words' ||
+    segment === 'call' ||
+    segment === 'response'
+  ) {
     const noun = segment === 'words' ? 'syllable' : 'note';
     parts.push(
       inner === 'notes' && typeof n === 'number'
@@ -272,6 +470,45 @@ export const stepIssues = (issues: readonly LessonIssue[], index: number) =>
   issues.filter(
     (issue) => issue.path[0] === 'steps' && issue.path[1] === index,
   );
+
+/** A path inside a step, from its fields: `['call', 'rhythm']`. */
+export type StepField = readonly (string | number)[];
+
+const inField = (issue: LessonIssue, field: StepField) =>
+  field.every((part, k) => issue.path[2 + k] === part);
+
+/**
+ * A step's problems with one of its fields (`stepIssues` first): those at
+ * it or inside it, or (`exact`) at it alone.
+ */
+export const issuesAt = (
+  issues: readonly LessonIssue[],
+  field: StepField,
+  exact = false,
+) =>
+  issues.filter(
+    (issue) =>
+      inField(issue, field) &&
+      (!exact || issue.path.length === 2 + field.length),
+  );
+
+/** The items a field's problems name: a segment's notes, a call's bars. */
+export const issueItems = (
+  issues: readonly LessonIssue[],
+  field: StepField,
+): Set<number> =>
+  new Set(
+    issuesAt(issues, field).flatMap((issue) => {
+      const item = issue.path[2 + field.length];
+      return typeof item === 'number' ? [item] : [];
+    }),
+  );
+
+/** A step's problems with none of these fields: what's left to list. */
+export const issuesOutside = (
+  issues: readonly LessonIssue[],
+  fields: readonly StepField[],
+) => issues.filter((issue) => !fields.some((field) => inField(issue, field)));
 
 // ── The file's layout ──────────────────────────────────────────────────────
 

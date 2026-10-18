@@ -60,7 +60,11 @@ export const WordsEditor: FC<{
   /** The syllable sounding in the preview, by its index. */
   lit?: number | null;
   stepLabel: string;
-}> = ({ words, timeSignature, onChange, lit, stepLabel }) => {
+  /** Scale numbering: the degree pickers offer 1–7, as the mode reads them. */
+  scale?: boolean;
+  /** Syllables the schema refuses, by index. */
+  invalid?: ReadonlySet<number>;
+}> = ({ words, timeSignature, onChange, lit, stepLabel, scale, invalid }) => {
   const pickup = words.pickup ?? 0;
   const line = useMemo(
     () => wordsLine(words.notes, pickup),
@@ -172,7 +176,9 @@ export const WordsEditor: FC<{
                     CHIP,
                     lit === i
                       ? 'border-sky-300/70 bg-sky-300/15'
-                      : 'border-white/[0.08] bg-white/[0.03]',
+                      : invalid?.has(i)
+                        ? 'border-red-400/50 bg-red-400/[0.06]'
+                        : 'border-white/[0.08] bg-white/[0.03]',
                   )}
                 >
                   <ChipHandle
@@ -191,6 +197,8 @@ export const WordsEditor: FC<{
                     degree={s.degree}
                     octave={s.octave}
                     label={`${stepLabel} note for ${name}`}
+                    scale={scale}
+                    invalid={invalid?.has(i)}
                     onChange={(degree, octave) => patch(i, { degree, octave })}
                   />
                   <LengthSelect

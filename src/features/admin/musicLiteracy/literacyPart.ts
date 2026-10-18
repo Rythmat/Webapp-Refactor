@@ -3,7 +3,8 @@
  * instrumental part, for the Parts editor's piano roll and staff, and back.
  * The notes are scale degrees of the lesson's key, so they go out as pitches
  * of its 1 (`tonicMidi`) and come back as degrees of that same 1, whatever
- * key the roll is told the part is in.
+ * key the roll is told the part is in, read the lesson's way: under scale
+ * numbering (Part 2) a 3 goes out as the mode's 3rd and comes back a 3.
  *
  * Words with a pickup go out a bar longer: the roll's bar 1 is the pickup
  * bar, the end of the count-in, with the pickup at its end, and the words'
@@ -23,10 +24,10 @@ import {
 } from '@/content/musicLiteracy/schemas';
 import {
   barTicks,
-  degreeOfMidi,
-  noteMidi,
+  notePitch,
   pickupOf,
   tonicMidi,
+  writtenDegree,
 } from '@/curriculum/engine/musicLiteracy/literacy';
 import type { InstrumentPart, PartNote } from '@/curriculum/engine/parts/part';
 
@@ -104,7 +105,7 @@ export function segmentPart(
         (note): PartNote => ({
           tick: note.tick + offset,
           duration: note.duration,
-          midi: noteMidi(note, tonic),
+          midi: notePitch(note, lesson.key, lesson.numbering),
           velocity: VELOCITY,
         }),
       ),
@@ -127,7 +128,7 @@ function partNotes(
     .map((note) => ({
       tick: Math.max(0, Math.round(note.tick)) - offset,
       duration: Math.max(1, Math.round(note.duration)),
-      ...degreeOfMidi(note.midi, tonic),
+      ...writtenDegree(note.midi - tonic, lesson.key.mode, lesson.numbering),
     }));
 }
 

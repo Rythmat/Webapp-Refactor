@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { usePaletteStore } from '@/daw/shell/help/usePaletteStore';
 import { useShortcutSheetStore } from '@/daw/shell/help/useShortcutSheetStore';
+import { openExport } from '@/daw/shell/export/exportDialogStore';
 import { openAddTrackSheet } from '@/daw/shell/tracklist/addTrack';
 import { useStore } from '@/daw/store';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
@@ -76,6 +77,7 @@ export const GLOBAL_HANDLERS: KeymapHandlers = {
   'help.shortcuts': () => useShortcutSheetStore.getState().open(),
   'help.palette': () => usePaletteStore.getState().open(),
   'track.add': openAddTrackSheet,
+  'project.export': () => openExport(),
   'view.create': () => useStore.getState().setCurrentView('arrange'),
   'view.mix': () => useStore.getState().setCurrentView('studio'),
   'view.score': () => useStore.getState().setCurrentView('score'),

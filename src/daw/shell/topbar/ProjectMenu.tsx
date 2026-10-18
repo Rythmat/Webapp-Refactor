@@ -29,7 +29,6 @@ import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { importMidiToTracks } from '@/daw/midi/importMidiToTracks';
 import { useStore } from '@/daw/store';
-import { timeSignatureOf } from '@/daw/time/timeModel';
 import { openSession } from '@/daw/session/openSession';
 import { getSessionDeps } from '@/daw/session/sessionDeps';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
@@ -37,11 +36,7 @@ import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogSt
 import { studioProjectsApi } from '@/lib/studio-projects/api';
 import type { AssetStamp } from '@/lib/studio-assets/upload-pending';
 import { showError, showSuccess } from '@/components/utils/toast';
-import { ExportAudioDialogPart } from '@/daw/shell/lazyParts';
-import {
-  DEFAULT_EXPORT_CHOICES,
-  type ExportChoices,
-} from '@/daw/components/Transport/exportChoices';
+import { openExport } from '@/daw/shell/export/exportDialogStore';
 import { buttonVariants } from '@/daw/ui/Button';
 import { confirmDialog, promptDialog } from '@/daw/ui/DialogHost';
 import {
@@ -59,6 +54,8 @@ import { TYPE_CLASS } from '@/daw/ui/styles';
 // New, Open…, Save and Save as…, Import, Export, the analysis, and Delete
 // on its own at the bottom in red. It keeps the File menu's lesson anchors:
 // 'file-menu' on the trigger and 'file-export-audio' on Export ▸ Audio….
+// Export's Audio… and Notation… open the one Export dialog (2.15) on that
+// side, as the top bar's Export pill does; MIDI file downloads at once (⇧⌘E).
 // Export's items sit in a labelled group rather than a submenu, so a lesson
 // step's click and the keyboard reach them in one move. The '?' menu holds
 // Keyboard shortcuts now.
@@ -122,11 +119,6 @@ export function ProjectMenu() {
   const exportMidiKeys = shortcutKeys('project.exportMidi').label;
 
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const [exportAudioOpen, setExportAudioOpen] = useState(false);
-  const [exportChoices, setExportChoices] = useState<ExportChoices>(
-    DEFAULT_EXPORT_CHOICES,
-  );
 
   // ── Project management ──
 
@@ -238,25 +230,6 @@ export function ProjectMenu() {
     [],
   );
 
-  const handleExportLeadSheet = useCallback(async () => {
-    const state = useStore.getState();
-    if (state.chordRegions.length === 0) return;
-    // The MusicXML writer loads with the first export.
-    const { downloadLeadSheet } = await import('@/daw/midi/MusicXmlExport');
-    downloadLeadSheet(
-      state.chordRegions,
-      {
-        title: state.projectName,
-        bpm: state.bpm,
-        rootNote: state.rootNote,
-        mode: state.mode,
-        timeSignature: timeSignatureOf(state),
-        extraBars: state.leadSheetBars,
-      },
-      `${state.projectName}.musicxml`,
-    );
-  }, []);
-
   const handleExportUnison = useCallback(() => {
     useStore.getState().exportUnisonJSON();
   }, []);
@@ -326,19 +299,22 @@ export function ProjectMenu() {
           <MenuItem
             data-tutorial-id="file-export-audio"
             icon={<AudioWaveform />}
-            onSelect={() => setExportAudioOpen(true)}
+            onSelect={() => openExport({ tab: 'audio' })}
           >
             Audio…
+          </MenuItem>
+          <MenuItem
+            icon={<Music />}
+            onSelect={() => openExport({ tab: 'notation' })}
+          >
+            Notation (MIDI, MusicXML)…
           </MenuItem>
           <MenuItem
             icon={<FileDown />}
             shortcut={exportMidiKeys}
             onSelect={() => void exportProjectMidi()}
           >
-            MIDI
-          </MenuItem>
-          <MenuItem icon={<Music />} onSelect={handleExportLeadSheet}>
-            Lead sheet (MusicXML)
+            MIDI file
           </MenuItem>
           <MenuSeparator />
           <MenuItem
@@ -362,19 +338,6 @@ export function ProjectMenu() {
           </MenuItem>
         </MenuContent>
       </Menu>
-
-      {/* Mounted only while open: it subscribes to the whole track list, so
-          an always-mounted dialog re-rendered the top bar on every track
-          edit (shell-17). The student's format, bit depth and range live
-          here instead, so they carry over to the next export. */}
-      {exportAudioOpen && (
-        <ExportAudioDialogPart
-          open
-          onOpenChange={setExportAudioOpen}
-          choices={exportChoices}
-          onChoicesChange={setExportChoices}
-        />
-      )}
     </>
   );
 }

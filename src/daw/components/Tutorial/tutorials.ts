@@ -710,9 +710,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'bounce-mixdown',
       stage: 'STAGE 6 — BOUNCE',
       instruction:
-        'Ship it — open **Project → Export → Audio…**, pick a format, and hit **Export** to bounce your finished track.',
+        'Ship it: click **Export** at the top right, pick a format, and hit **Export** to bounce your finished track.',
       hint: 'The whole mix renders offline: instruments, FX, sends and mastering.',
-      target: ['export-audio-run', 'file-menu'],
+      target: ['export-audio-run', 'export-pill'],
       // Fires when a fresh export completes during this step (the session-only
       // timestamp advances). Guards against a stale value from an earlier bounce.
       check: (s, armed) =>

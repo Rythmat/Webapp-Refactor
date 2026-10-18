@@ -1,0 +1,773 @@
+import { AlertTriangle, Download, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  downloadAudioBlob,
+  exportProjectAudio,
+  exportStems,
+  stemTracks,
+  type AudioExportFormat,
+  type ExportProgress,
+  type StemProgress,
+  type WavBitDepth,
+} from '@/daw/audio/exportAudio';
+import { projectEndTick } from '@/daw/audio/renderProject';
+import { exportProjectMidi } from '@/daw/commands/projectCommands';
+import { FX_LABEL } from '@/daw/data/libraryItems';
+import { notice } from '@/daw/shell/notice';
+import { useStore, type Track } from '@/daw/store';
+import { Button } from '@/daw/ui/Button';
+import { DawDialog } from '@/daw/ui/DawDialog';
+import { Segmented } from '@/daw/ui/Segmented';
+import { Select } from '@/daw/ui/Select';
+import { TYPE_CLASS } from '@/daw/ui/styles';
+import { downloadFile } from '@/daw/utils/exportFiles';
+import { ticksPerBar } from '@/daw/utils/timelineScale';
+import { isOpusEncodingSupported } from '@/lib/studio-assets/encode-opus';
+import {
+  useExportDialogStore,
+  type ExportChoices,
+  type ExportTab,
+  type ExportWhat,
+  type NotationFormat,
+  type RangeChoice,
+} from './exportDialogStore';
+
+// ── Export (milestone 2.15; ST11, shell-23, shell-34, audio-core-20) ───────
+//
+// One dialog for every way out of the editor, opened from the top bar's
+// white Export pill, Project ▾, a track's menu and the command palette.
+// Audio | Notation on top (Soundtrap's Audio | Note), then what to export:
+// the whole song, each track as its own file (stems, in one zip), or one
+// track. Audio is WAV (16 or 24-bit) or Opus, the whole song, the loop or a
+// run of bars, with the master chain on or off; one track can leave its
+// effects out. Notation is a MIDI file or MusicXML (the lead sheet's chords,
+// the full score, or one track's part).
+//
+// The offline render's real gaps stay in view until 1.11 closes them:
+// SoundFont tracks are silent, amp and vocal tracks are dry, and the ducker
+// and the gate don't run. Stems render one after another; Stop stops after
+// the track being rendered (a render can't be abandoned half-way). Mounted
+// only while open (shell-17), with the choices in exportDialogStore.
+
+const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
+  { id: 'wav', label: 'WAV', hint: 'Uncompressed: the best quality' },
+  { id: 'opus', label: 'Opus', hint: 'Compressed: a small file' },
+];
+const BIT_DEPTHS: WavBitDepth[] = [16, 24];
+
+/** Instruments the offline render can't play yet (renderProject's notes). */
+const SILENT_OFFLINE = new Set(['soundfont']);
+const DRY_OFFLINE = new Set(['guitar-fx', 'bass-fx', 'vocal-fx']);
+
+/** A typed bar number, or null when it isn't a whole number ≥ 1. */
+function parseBar(text: string): number | null {
+  const n = Number(text.trim());
+  return Number.isInteger(n) && n >= 1 ? n : null;
+}
+
+/** Seconds → m:ss. */
+function formatDuration(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = Math.round(sec % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+/** Whether a track holds notes the notation files can write. */
+function hasNotes(track: Track): boolean {
+  return track.midiClips.some((c) => !c.muted && c.events.length > 0);
+}
+
+/** Whether a track holds anything a render would play. */
+function hasContent(track: Track): boolean {
+  return hasNotes(track) || track.audioClips.some((c) => !c.muted);
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span className={`${TYPE_CLASS.micro} text-daw-text-3`}>{children}</span>
+  );
+}
+
+function Hint({
+  children,
+  alert = false,
+}: {
+  children: React.ReactNode;
+  alert?: boolean;
+}) {
+  return (
+    <span
+      className={`${TYPE_CLASS.label} ${alert ? 'text-daw-danger-text' : 'text-daw-text-3'}`}
+      role={alert ? 'alert' : undefined}
+    >
+      {children}
+    </span>
+  );
+}
+
+function BarInput({
+  label,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <label className="flex flex-1 flex-col gap-1">
+      <span className={`${TYPE_CLASS.label} text-daw-text-3`}>{label}</span>
+      <input
+        type="number"
+        inputMode="numeric"
+        min={1}
+        step={1}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className={`h-7 w-full rounded-[var(--daw-radius-sm)] border border-daw-outline bg-transparent px-2.5 text-daw-text outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-daw-focus ${TYPE_CLASS.body}`}
+      />
+    </label>
+  );
+}
+
+type Progress =
+  | { kind: 'mix'; p: ExportProgress }
+  | { kind: 'stems'; p: StemProgress };
+
+export function ExportDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const tab = useExportDialogStore((s) => s.tab);
+  const setTab = useExportDialogStore((s) => s.setTab);
+  const choices = useExportDialogStore((s) => s.choices);
+  const setChoices = useExportDialogStore((s) => s.setChoices);
+  const set = useCallback(
+    (patch: Partial<ExportChoices>) => setChoices(patch),
+    [setChoices],
+  );
+
+  const tracks = useStore((s) => s.tracks);
+  const loopEnabled = useStore((s) => s.loopEnabled);
+  const bpm = useStore((s) => s.bpm);
+  const masteringChain = useStore((s) => s.masteringFxChain);
+  const barTicks = useStore((s) =>
+    ticksPerBar(s.timeSignatureNumerator, s.timeSignatureDenominator),
+  );
+
+  const { format, bitDepth, range, mastering, what, trackId, dry, notation } =
+    choices;
+  const track = tracks.find((t) => t.id === trackId) ?? null;
+  // Stems are an audio idea: a MIDI file already keeps each track apart.
+  const whatNow: ExportWhat =
+    tab === 'notation' && what === 'stems' ? 'song' : what;
+
+  const [startBarText, setStartBarText] = useState('1');
+  const [endBarText, setEndBarText] = useState('1');
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<Progress | null>(null);
+  const stopper = useRef<AbortController | null>(null);
+  const [stopping, setStopping] = useState(false);
+  const opusSupported = isOpusEncodingSupported();
+
+  // Prefill the bars with the whole song each time it opens.
+  useEffect(() => {
+    if (!open) return;
+    const lastBar = Math.max(
+      1,
+      Math.ceil(projectEndTick(useStore.getState()) / barTicks),
+    );
+    setStartBarText('1');
+    setEndBarText(String(lastBar));
+  }, [open, barTicks]);
+
+  // With the loop off, its range falls back to the whole song.
+  useEffect(() => {
+    if (!loopEnabled && range === 'loop') set({ range: 'project' });
+  }, [loopEnabled, range, set]);
+
+  // A chosen track that has gone (deleted, an Undo) leaves One track.
+  useEffect(() => {
+    if (what === 'track' && !track) set({ what: 'song', trackId: null });
+  }, [what, track, set]);
+
+  const startBar = parseBar(startBarText);
+  const endBar = parseBar(endBarText);
+  const customValid =
+    startBar !== null && endBar !== null && endBar >= startBar;
+  const customError =
+    range !== 'custom' || customValid
+      ? null
+      : startBar === null || endBar === null
+        ? 'Bars are whole numbers from 1.'
+        : 'The end bar must be the start bar or after it.';
+  const customSeconds = customValid
+    ? ((endBar - startBar + 1) * barTicks * 60) / bpm / 480
+    : 0;
+
+  const stems = useMemo(
+    () => (whatNow === 'stems' ? stemTracks(useStore.getState()) : []),
+    // The track list is what stemTracks reads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [whatNow, tracks],
+  );
+
+  // What the file leaves out, said before it is made.
+  const audible = (t: Track) =>
+    whatNow === 'track' ? t.id === trackId : !t.mute && hasContent(t);
+  const warnings: string[] = [];
+  if (tab === 'audio') {
+    const silent = tracks.filter(
+      (t) => audible(t) && SILENT_OFFLINE.has(t.instrument),
+    ).length;
+    const dryAmp = tracks.filter(
+      (t) =>
+        audible(t) && DRY_OFFLINE.has(t.instrument) && t.audioClips.length > 0,
+    ).length;
+    if (silent > 0) {
+      warnings.push(
+        `${silent === 1 ? 'A General MIDI (SoundFont) track is' : `${silent} General MIDI (SoundFont) tracks are`} silent in an export for now.`,
+      );
+    }
+    if (dryAmp > 0) {
+      warnings.push(
+        `${dryAmp === 1 ? 'A guitar, bass or vocal track exports' : `${dryAmp} guitar, bass or vocal tracks export`} without its amp and pedals for now.`,
+      );
+    }
+    if (whatNow === 'stems' && mastering && masteringChain.length > 0) {
+      warnings.push(
+        'With mastering on, each stem goes through the master chain alone, so the stems won’t add up exactly to the song.',
+      );
+    }
+  }
+
+  const trackOptions = tracks.map((t) => ({
+    value: t.id,
+    label: t.name,
+    disabled: tab === 'notation' ? !hasNotes(t) : !hasContent(t),
+  }));
+
+  // Why the run button is off, if it is.
+  let blocked: string | null = null;
+  if (tracks.length === 0) blocked = 'Add a track first';
+  else if (tab === 'audio' && customError) blocked = customError;
+  else if (whatNow === 'track' && !track) blocked = 'Choose a track';
+  else if (
+    whatNow === 'track' &&
+    track &&
+    tab === 'notation' &&
+    !hasNotes(track)
+  )
+    blocked = `${track.name} has no notes to write down`;
+  else if (
+    whatNow === 'track' &&
+    track &&
+    tab === 'audio' &&
+    !hasContent(track)
+  )
+    blocked = `${track.name} has nothing to play`;
+  else if (whatNow === 'stems' && stems.length === 0)
+    blocked = 'No track plays anything yet';
+  else if (
+    whatNow === 'song' &&
+    !tracks.some((t) =>
+      tab === 'notation' ? hasNotes(t) : !t.mute && hasContent(t),
+    )
+  )
+    blocked =
+      tab === 'notation'
+        ? 'There are no notes to write down yet'
+        : 'No track plays anything yet';
+
+  const renderRange = () => {
+    const custom = range === 'custom' && startBar !== null && endBar !== null;
+    return {
+      // Bars are inclusive: bars 5–12 run from the top of bar 5 to the end
+      // of bar 12.
+      range: custom
+        ? { startTick: (startBar - 1) * barTicks, endTick: endBar * barTicks }
+        : range === 'loop'
+          ? ('loop' as const)
+          : ('project' as const),
+      rangeLabel: custom
+        ? startBar === endBar
+          ? `bar-${startBar}`
+          : `bars-${startBar}-${endBar}`
+        : undefined,
+    };
+  };
+
+  const runAudio = async () => {
+    const effectiveFormat =
+      format === 'opus' && !opusSupported ? 'wav' : format;
+    const base = {
+      format: effectiveFormat,
+      bitDepth,
+      mastering,
+      ...renderRange(),
+    };
+    if (whatNow === 'stems') {
+      const controller = new AbortController();
+      stopper.current = controller;
+      setProgress({
+        kind: 'stems',
+        p: {
+          index: 0,
+          total: stems.length,
+          trackName: stems[0]?.name ?? '',
+          stage: 'render',
+        },
+      });
+      return exportStems(
+        base,
+        (p) => setProgress({ kind: 'stems', p }),
+        controller.signal,
+      );
+    }
+    setProgress({ kind: 'mix', p: { stage: 'render', pct: 0 } });
+    return exportProjectAudio(
+      whatNow === 'track' && trackId
+        ? { ...base, trackId, dry, mastering: dry ? false : mastering }
+        : base,
+      (p) => setProgress({ kind: 'mix', p }),
+    );
+  };
+
+  const handleAudio = async () => {
+    setBusy(true);
+    try {
+      const { blob, filename } = await runAudio();
+      downloadAudioBlob(blob, filename);
+      // Session-only: the lesson engine watches for a finished bounce.
+      useStore.getState().markAudioExported();
+      notice({ title: `Exported ${filename}` });
+      onOpenChange(false);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        notice({ title: 'Export stopped', description: 'No file was made.' });
+      } else {
+        console.error('[Export] audio export failed', err);
+        notice({
+          title: 'The export didn’t finish',
+          description: err instanceof Error ? err.message : undefined,
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      stopper.current = null;
+      setStopping(false);
+      setBusy(false);
+      setProgress(null);
+    }
+  };
+
+  const handleNotation = async () => {
+    setBusy(true);
+    try {
+      const state = useStore.getState();
+      const one = whatNow === 'track' && trackId ? [trackId] : undefined;
+      if (notation === 'midi' || (one && notation === 'leadsheet')) {
+        if (!(await exportProjectMidi({ trackIds: one }))) {
+          notice({ title: 'There are no notes to write to a MIDI file' });
+          return;
+        }
+      } else {
+        // The notation writers load with the first export.
+        const { buildFullScoreXml, buildLeadSheetExport } = await import(
+          '@/daw/midi/scoreExport'
+        );
+        const file =
+          notation === 'leadsheet'
+            ? buildLeadSheetExport(state)
+            : buildFullScoreXml(state, { trackIds: one });
+        if (!file) {
+          notice({
+            title:
+              notation === 'leadsheet'
+                ? 'The song has no chord symbols to write yet'
+                : 'There are no notes to write down',
+          });
+          return;
+        }
+        downloadFile(
+          new Blob([file.xml], {
+            type: 'application/vnd.recordare.musicxml+xml',
+          }),
+          file.filename,
+        );
+      }
+      notice({ title: 'Exported' });
+      onOpenChange(false);
+    } catch (err) {
+      console.error('[Export] notation export failed', err);
+      notice({
+        title: 'The export didn’t finish',
+        description: err instanceof Error ? err.message : undefined,
+        variant: 'destructive',
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const notationOptions: { value: NotationFormat; label: string }[] =
+    whatNow === 'track'
+      ? [
+          { value: 'midi', label: 'MIDI file' },
+          { value: 'score', label: 'MusicXML: its part' },
+        ]
+      : [
+          { value: 'midi', label: 'MIDI file' },
+          { value: 'leadsheet', label: 'MusicXML: lead sheet' },
+          { value: 'score', label: 'MusicXML: full score' },
+        ];
+  const notationNow: NotationFormat =
+    whatNow === 'track' && notation === 'leadsheet' ? 'midi' : notation;
+
+  let progressLabel = '';
+  let barPct = 0;
+  if (progress?.kind === 'mix') {
+    progressLabel =
+      progress.p.stage === 'render'
+        ? 'Rendering…'
+        : `Encoding${progress.p.pct > 0 ? ` ${Math.round(progress.p.pct * 100)}%` : '…'}`;
+    // The render has no progress of its own: a modest fill, not 0.
+    barPct = progress.p.stage === 'render' ? 30 : 40 + progress.p.pct * 60;
+  } else if (progress?.kind === 'stems') {
+    const { index, total, trackName, stage } = progress.p;
+    progressLabel = `${stopping ? 'Stopping after ' : ''}Track ${index + 1} of ${total} · ${trackName}${stopping ? '' : stage === 'encode' ? ' · encoding' : ''}`;
+    barPct = ((index + (stage === 'encode' ? 0.8 : 0.2)) / total) * 100;
+  }
+
+  const masteringNames = masteringChain.map((fx) => FX_LABEL[fx] ?? fx);
+
+  return (
+    <DawDialog
+      open={open}
+      onOpenChange={(o) => !busy && onOpenChange(o)}
+      // Nothing closes it while it renders (Stop ends stems early).
+      closable={!busy}
+      size="md"
+      // Its top stays put as the sides and choices change its height (the
+      // tallest choice is centred), so the switch never jumps under the
+      // pointer.
+      className="top-[max(24px,calc(50dvh-310px))] translate-y-0"
+      data={{ 'data-tutorial-id': 'export-audio-dialog' }}
+      title="Export"
+      description={
+        tab === 'audio'
+          ? 'Your song as an audio file, rendered offline with its instruments, effects and sends.'
+          : 'Your notes as a MIDI file, or as music notation (MusicXML) for MuseScore, Finale or Sibelius.'
+      }
+      footer={
+        <>
+          {busy && whatNow === 'stems' && tab === 'audio' ? (
+            <Button
+              data-testid="export-stop"
+              disabled={stopping}
+              onClick={() => {
+                setStopping(true);
+                stopper.current?.abort();
+              }}
+            >
+              Stop
+            </Button>
+          ) : (
+            <Button onClick={() => onOpenChange(false)} disabled={busy}>
+              Cancel
+            </Button>
+          )}
+          {tab === 'audio' ? (
+            <Button
+              variant="primary"
+              data-tutorial-id="export-audio-run"
+              title={blocked ?? undefined}
+              onClick={() => void handleAudio()}
+              disabled={busy || blocked !== null}
+            >
+              <Download strokeWidth={2.5} />
+              {tracks.length === 0 ? 'Add a track first' : 'Export'}
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              data-testid="export-notation-run"
+              title={blocked ?? undefined}
+              onClick={() => void handleNotation()}
+              disabled={busy || blocked !== null}
+            >
+              <Download strokeWidth={2.5} />
+              {tracks.length === 0 ? 'Add a track first' : 'Export'}
+            </Button>
+          )}
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4 pb-1">
+        <Segmented
+          label="Export as"
+          testId="export-tab"
+          options={[
+            { value: 'audio', label: 'Audio', testId: 'export-tab-audio' },
+            {
+              value: 'notation',
+              label: 'Notation',
+              testId: 'export-tab-notation',
+            },
+          ]}
+          value={tab}
+          onValueChange={(next: ExportTab) => setTab(next)}
+          disabled={busy}
+          className="self-start"
+        />
+
+        {/* What */}
+        <div className="flex flex-col gap-2">
+          <FieldLabel>What</FieldLabel>
+          <div className="flex flex-wrap items-center gap-2">
+            <Segmented
+              label="What to export"
+              testId="export-what"
+              options={[
+                { value: 'song', label: 'Whole song' },
+                ...(tab === 'audio'
+                  ? [{ value: 'stems' as const, label: 'Each track' }]
+                  : []),
+                { value: 'track', label: 'One track' },
+              ]}
+              value={whatNow}
+              onValueChange={(next: ExportWhat) =>
+                set({
+                  what: next,
+                  trackId:
+                    next === 'track'
+                      ? (trackId ??
+                        useStore.getState().selectedTrackId ??
+                        tracks[0]?.id ??
+                        null)
+                      : trackId,
+                })
+              }
+              disabled={busy}
+            />
+            {whatNow === 'track' ? (
+              <Select
+                label="Track"
+                id="export-track-select"
+                options={trackOptions}
+                value={trackId ?? undefined}
+                onValueChange={(id) => set({ trackId: id })}
+                disabled={busy}
+                className="max-w-[200px]"
+              />
+            ) : null}
+          </div>
+          {whatNow === 'stems' ? (
+            <Hint>
+              {stems.length === 1
+                ? 'One file for the one track that plays, in a zip.'
+                : `${stems.length} files, one for each track that plays, in one zip.`}
+            </Hint>
+          ) : null}
+          {whatNow === 'track' && tab === 'audio' ? (
+            <Segmented
+              label="Effects"
+              testId="export-dry"
+              options={[
+                { value: 'wet', label: 'With its effects' },
+                { value: 'dry', label: 'No effects' },
+              ]}
+              value={dry ? 'dry' : 'wet'}
+              onValueChange={(next) => set({ dry: next === 'dry' })}
+              disabled={busy}
+              className="self-start"
+            />
+          ) : null}
+        </div>
+
+        {tab === 'audio' ? (
+          <>
+            <div className="flex flex-col gap-2">
+              <FieldLabel>Format</FieldLabel>
+              <div className="flex flex-wrap items-center gap-2">
+                <Segmented
+                  label="Format"
+                  options={FORMATS.map((f) => ({
+                    value: f.id,
+                    label: f.label,
+                    disabled: f.id === 'opus' && !opusSupported,
+                  }))}
+                  value={format}
+                  onValueChange={(next) => set({ format: next })}
+                  disabled={busy}
+                />
+                {format === 'wav' ? (
+                  <Segmented
+                    label="Bit depth"
+                    options={BIT_DEPTHS.map((b) => ({
+                      value: String(b),
+                      label: `${b}-bit`,
+                    }))}
+                    value={String(bitDepth)}
+                    onValueChange={(next) =>
+                      set({ bitDepth: Number(next) as WavBitDepth })
+                    }
+                    disabled={busy}
+                  />
+                ) : null}
+              </div>
+              <Hint>
+                {FORMATS.find((f) => f.id === format)?.hint}
+                {opusSupported ? '' : ' · Opus needs a newer browser'}
+              </Hint>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <FieldLabel>Range</FieldLabel>
+              <Segmented
+                label="Range"
+                options={[
+                  { value: 'project' as RangeChoice, label: 'Whole song' },
+                  {
+                    value: 'loop' as RangeChoice,
+                    label: loopEnabled ? 'Loop' : 'Loop (off)',
+                    disabled: !loopEnabled,
+                  },
+                  { value: 'custom' as RangeChoice, label: 'Bars' },
+                ]}
+                value={range}
+                onValueChange={(next) => set({ range: next })}
+                disabled={busy}
+                className="self-start"
+              />
+              {range === 'custom' ? (
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-end gap-2">
+                    <BarInput
+                      label="Start bar"
+                      value={startBarText}
+                      onChange={setStartBarText}
+                      disabled={busy}
+                    />
+                    <span
+                      className={`pb-1.5 ${TYPE_CLASS.body} text-daw-text-3`}
+                    >
+                      to
+                    </span>
+                    <BarInput
+                      label="End bar"
+                      value={endBarText}
+                      onChange={setEndBarText}
+                      disabled={busy}
+                    />
+                  </div>
+                  <Hint alert={customError !== null}>
+                    {customError ??
+                      `${endBar! - startBar! + 1} ${endBar === startBar ? 'bar' : 'bars'} · ${formatDuration(customSeconds)} (the end bar included)`}
+                  </Hint>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <FieldLabel>Mastering</FieldLabel>
+              <Segmented
+                label="Mastering"
+                testId="export-mastering"
+                options={[
+                  { value: 'on', label: 'On' },
+                  { value: 'off', label: 'Off' },
+                ]}
+                value={
+                  mastering &&
+                  masteringChain.length > 0 &&
+                  !(whatNow === 'track' && dry)
+                    ? 'on'
+                    : 'off'
+                }
+                onValueChange={(next) => set({ mastering: next === 'on' })}
+                disabled={
+                  busy ||
+                  masteringChain.length === 0 ||
+                  (whatNow === 'track' && dry)
+                }
+                className="self-start"
+              />
+              <Hint>
+                {whatNow === 'track' && dry
+                  ? 'A track without its effects leaves the master chain out too.'
+                  : masteringChain.length === 0
+                    ? 'The master chain is empty (Mix ▸ Master).'
+                    : `The master chain: ${masteringNames.join(', ')}.`}
+              </Hint>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <FieldLabel>Format</FieldLabel>
+            <Segmented
+              label="Notation format"
+              testId="export-notation-format"
+              options={notationOptions}
+              value={notationNow}
+              onValueChange={(next) => set({ notation: next })}
+              disabled={busy}
+              className="self-start"
+            />
+            <Hint>
+              {notationNow === 'midi'
+                ? 'Every note, one MIDI track per track; drums on channel 10.'
+                : notationNow === 'leadsheet'
+                  ? 'The chord symbols, bar by bar, with the song’s sections.'
+                  : 'Notes, rests, chords and marks as the Score shows them.'}
+            </Hint>
+          </div>
+        )}
+
+        {!busy && warnings.length > 0 ? (
+          <div className="flex gap-2 rounded-[var(--daw-radius-md)] bg-daw-warning-subtle p-3">
+            <AlertTriangle
+              aria-hidden
+              className="mt-0.5 size-3.5 shrink-0 text-daw-warning"
+            />
+            <div className="flex flex-col gap-1">
+              {warnings.map((w) => (
+                <span key={w} className={`${TYPE_CLASS.label} text-daw-text-2`}>
+                  {w}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {!busy && blocked && tracks.length > 0 ? <Hint>{blocked}.</Hint> : null}
+
+        {busy && progress ? (
+          <div className="flex flex-col gap-2" role="status">
+            <div className="flex items-center gap-2">
+              <Loader2
+                aria-hidden
+                className="size-3.5 animate-spin text-daw-text-3 motion-reduce:animate-none"
+              />
+              <span className={`${TYPE_CLASS.body} text-daw-text-3`}>
+                {progressLabel}
+              </span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-daw-meter-track">
+              <div
+                className="h-full rounded-full bg-daw-text transition-all duration-200"
+                style={{ width: `${barPct}%` }}
+              />
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </DawDialog>
+  );
+}

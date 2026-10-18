@@ -284,11 +284,9 @@ export const ChordAnalysisPromptPart = lazyPart(
   { name: 'chord analysis' },
 );
 
-export const ExportAudioDialogPart = lazyPart(
-  () =>
-    import('@/daw/components/Transport/ExportAudioDialog').then(
-      (m) => m.ExportAudioDialog,
-    ),
+/** The Export dialog (2.15): Audio | Notation. */
+export const ExportDialogPart = lazyPart(
+  () => import('@/daw/shell/export/ExportDialog').then((m) => m.ExportDialog),
   { name: 'Export dialog' },
 );
 

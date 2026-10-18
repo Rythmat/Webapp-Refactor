@@ -17,6 +17,7 @@ import {
 } from '@/daw/ui/Menu';
 import { AvatarMenu } from './AvatarMenu';
 import { BackToStudio } from './BackToStudio';
+import { ExportPill } from './ExportPill';
 import { HelpItems } from './HelpMenu';
 import { MusicalTypingChip } from './MusicalTypingChip';
 import { ProjectMenu } from './ProjectMenu';
@@ -33,8 +34,8 @@ import { folded, useToolbarOverflow } from './useToolbarOverflow';
 // - project: Back to Studio, the Project menu, the name, the save chip,
 //   Undo and Redo;
 // - views: the view tabs, centred;
-// - share: Share, the computer keyboard's chip while it is on, '⋯' and the
-//   avatar.
+// - share: Share, the computer keyboard's chip while it is on, '⋯', the
+//   white Export pill (2.15) and the avatar.
 // The owner found the bar too busy (2026-10-16), so it was trimmed and
 // quieted (2.7: Back, Forward and Stop left it; Help, Settings and the
 // keyboard's switch went into '⋯'; Share is an icon; the secondary buttons
@@ -108,6 +109,7 @@ export const TopBar = memo(function TopBar() {
           <SharePill iconOnly />
           <MusicalTypingChip />
           <MoreMenu />
+          <ExportPill iconOnly={folded(fold, 'export-icon')} />
           <AvatarMenu className="ml-1" />
         </div>
       </div>

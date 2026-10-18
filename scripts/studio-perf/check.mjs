@@ -251,7 +251,7 @@ const UNIT_TESTS = [
   'src/daw/__tests__/dawCss.test.ts',
   'src/daw/components/Timeline/__tests__/Timeline.redraw.test.tsx',
   'src/daw/ui/__tests__/dialogs.test.tsx',
-  'src/daw/components/Transport/__tests__/ExportAudioDialog.test.tsx',
+  'src/daw/shell/export/__tests__/ExportDialog.test.tsx',
   'src/daw/components/Transport/__tests__/SettingsModal.test.tsx',
   'src/daw/collab/__tests__/LeaveSavePrompt.test.tsx',
   // Milestones 2.4 and 2.5: the shell's regions and layout prefs, the

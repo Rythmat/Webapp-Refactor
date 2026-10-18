@@ -21,7 +21,8 @@ import {
 /**
  * The fold steps, in order; a step folds everything before it too. What
  * never goes into '⋯': Back, the Project menu, the name, the save chip,
- * Undo and Redo, the view tabs, Share and the avatar. (Help, Settings and
+ * Undo and Redo, the view tabs, Share, Export (its label folds, last) and
+ * the avatar. (Help, Settings and
  * the computer keyboard's switch live in '⋯' at every width since the bar
  * was trimmed, 2.7; the transport and the song moved to the bottom rail and
  * the Inspector's toggle to the side rail, B4a.)
@@ -31,6 +32,8 @@ export const FOLD_STEPS = [
   'name-narrow',
   /** The view tabs: tighter padding. */
   'tabs-tight',
+  /** The Export pill: its icon only (2.15). */
+  'export-icon',
 ] as const;
 
 export type FoldStep = (typeof FOLD_STEPS)[number];

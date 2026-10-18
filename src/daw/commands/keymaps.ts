@@ -939,6 +939,21 @@ defineCommand({
 });
 // Commands with no keys, for the palette: what the menus and buttons do.
 defineCommand({
+  id: 'project.export',
+  scope: 'global',
+  label: 'Export…',
+  keys: [],
+  keywords: [
+    'bounce',
+    'mixdown',
+    'stems',
+    'wav',
+    'midi',
+    'musicxml',
+    'download',
+  ],
+});
+defineCommand({
   id: 'track.add',
   scope: 'global',
   label: 'Add a track…',

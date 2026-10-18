@@ -12,6 +12,8 @@ export interface SegmentedOption<T extends string> {
   disabled?: boolean;
   /** A lesson anchor on the segment (its data-tutorial-id). */
   anchor?: string;
+  /** For a test or the harness (its data-testid). */
+  testId?: string;
 }
 
 export interface SegmentedProps<T extends string> {
@@ -29,6 +31,8 @@ export interface SegmentedProps<T extends string> {
   tooltipSide?: TooltipProps['side'];
   disabled?: boolean;
   className?: string;
+  /** For a test or the harness: the group's data-testid. */
+  testId?: string;
 }
 
 /**
@@ -47,6 +51,7 @@ export function Segmented<T extends string>({
   tooltipSide = 'top',
   disabled = false,
   className,
+  testId,
 }: SegmentedProps<T>) {
   const rootRef = useRef<HTMLDivElement>(null);
   const items = useRef(new Map<string, HTMLButtonElement>());
@@ -72,6 +77,7 @@ export function Segmented<T extends string>({
       onPointerEnter={beside ? measure : undefined}
       onFocus={beside ? measure : undefined}
       aria-label={label}
+      data-testid={testId}
       value={value}
       onValueChange={(next) => onValueChange(next as T)}
       disabled={disabled}
@@ -95,6 +101,7 @@ export function Segmented<T extends string>({
             value={option.value}
             disabled={option.disabled}
             data-tutorial-id={option.anchor}
+            data-testid={option.testId}
             aria-label={iconOnly ? option.label : undefined}
             className={cn(
               'inline-flex items-center justify-center gap-1.5 rounded-full font-bold text-daw-text-3',

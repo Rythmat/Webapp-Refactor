@@ -814,21 +814,20 @@ const TRIM_MASTER = {
 
 const EXPORT_AUDIO = {
   how: 'click',
-  describe:
-    'click file-menu (Project), file-export-audio, then export-audio-run',
+  describe: 'click export-pill (the top bar), then export-audio-run',
   related: ['practice-tutorial-20', 'audio-core-01'],
   // The offline render of the whole mix, on a throttled CPU.
   advanceTimeoutMs: 240_000,
   async run(ctx) {
-    await ctx.clickAnchor('file-menu');
-    await ctx.measure('file-export-audio');
-    await ctx.clickAnchor('file-export-audio', 'Export ▸ Audio…');
+    await ctx.measure('export-pill');
+    await ctx.clickAnchor('export-pill', 'Export');
     await ctx.measure('export-audio-run');
     await ctx.clickAnchor('export-audio-run', 'Export');
   },
-  // When the mouse cannot reach the menu item, the keyboard still can (the
-  // File menu is a Radix menu): focus the item, Enter, then Export. This
-  // way the bounce itself is still measured.
+  // The Project menu's Export ▸ Audio… opens the same dialog: when the pill
+  // can't be reached, the keyboard reaches the menu item (a Radix menu):
+  // focus it, Enter, then Export. This way the bounce itself is still
+  // measured.
   async fallback(ctx) {
     const item = ctx.page.locator(anchor('file-export-audio')).first();
     if (!(await item.isVisible())) await ctx.clickAnchor('file-menu');

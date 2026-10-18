@@ -52,6 +52,7 @@ import {
 import { StudioShell } from '@/daw/shell/StudioShell';
 import { OpeningHost } from '@/daw/shell/opening/OpeningHost';
 import { CommandPaletteHost } from '@/daw/shell/help/CommandPaletteHost';
+import { ExportDialogHost } from '@/daw/shell/export/ExportDialogHost';
 import { ShortcutSheetHost } from '@/daw/shell/help/ShortcutSheetHost';
 import { ProjectsDialogHost } from '@/daw/shell/projects/ProjectsDialogHost';
 import { SaveConflictDialog } from '@/daw/shell/topbar/SaveConflictDialog';
@@ -341,6 +342,7 @@ function DawAppInner() {
       <ProjectsDialogHost />
       <ShortcutSheetHost userId={userId} ownerKnown={ownerKnown} />
       <CommandPaletteHost />
+      <ExportDialogHost />
       <SaveConflictDialog />
       {/* confirmDialog() and promptDialog(): the editor's questions, one at a
           time (Delete project, Save a copy, marker and section names). */}

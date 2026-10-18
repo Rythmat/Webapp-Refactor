@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -13,7 +14,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // Three zones (project, views, share), the lesson anchors kept, '⋯', and
 // the fold: in a window too narrow for the zones, the bar takes every fold
 // step. The transport and the song are the bottom rail's, the Inspector's
-// toggle the side rail's (B4a).
+// toggle the side rail's (B4a). The white Export pill (2.15) sits between
+// '⋯' and the avatar, the bar's one primary button, and folds to its icon
+// last; '⋯' has Find a command, the palette.
 //
 // Run: npx vitest run src/daw/shell/topbar/__tests__/TopBar.test.tsx
 
@@ -40,8 +43,14 @@ vi.mock('@/daw/components/Prism/CircleOfFifths', () => ({
 vi.mock('@/daw/hooks/useTransport', () => ({ seekTo: vi.fn() }));
 
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
+import {
+  DEFAULT_EXPORT_CHOICES,
+  useExportDialogStore,
+} from '@/daw/shell/export/exportDialogStore';
+import { usePaletteStore } from '@/daw/shell/help/usePaletteStore';
 import { useStore } from '@/daw/store';
 import { TopBar } from '../TopBar';
+import { MAX_FOLD } from '../useToolbarOverflow';
 
 function renderBar() {
   return render(
@@ -54,6 +63,12 @@ function renderBar() {
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
   useMusicalTypingStore.setState({ enabled: false });
+  useExportDialogStore.setState({
+    isOpen: false,
+    tab: 'audio',
+    choices: DEFAULT_EXPORT_CHOICES,
+  });
+  usePaletteStore.setState({ isOpen: false, opener: null });
 });
 afterEach(() => {
   cleanup();
@@ -132,7 +147,7 @@ describe('the top bar', () => {
     expect(tabs[0]).toBe('Practice');
   });
 
-  it('folds when the window is too narrow', () => {
+  it('folds when the window is too narrow, Export to its icon last', () => {
     // A 600 px bar with zones that need 400 px each: every fold step.
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(
       function (this: HTMLElement) {
@@ -145,7 +160,60 @@ describe('the top bar', () => {
       },
     );
     renderBar();
-    expect(screen.getByTestId('top-bar')).toHaveAttribute('data-fold', '2');
+    // Three steps since 2.15: the name, the tabs, then Export's label.
+    expect(MAX_FOLD).toBe(3);
+    expect(screen.getByTestId('top-bar')).toHaveAttribute(
+      'data-fold',
+      String(MAX_FOLD),
+    );
+    const pill = screen.getByTestId('export-pill');
+    expect(pill).toHaveAccessibleName('Export');
+    expect(pill).not.toHaveTextContent('Export');
+    fireEvent.click(pill);
+    expect(useExportDialogStore.getState().isOpen).toBe(true);
+  });
+
+  it('has the white Export pill between ⋯ and the avatar', () => {
+    renderBar();
+    const share = screen.getByRole('group', { name: 'Share and account' });
+    const pill = within(share).getByTestId('export-pill');
+    expect(pill).toHaveTextContent('Export');
+    expect(pill).toHaveAttribute('data-tutorial-id', 'export-pill');
+    const after = (a: Element, b: Element) =>
+      Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(after(screen.getByTestId('top-bar-overflow'), pill)).toBe(true);
+    expect(after(pill, screen.getByTestId('avatar-menu'))).toBe(true);
+  });
+
+  it('has Export as its only primary button', () => {
+    renderBar();
+    const primaries = screen
+      .getByTestId('top-bar')
+      .querySelectorAll('[data-variant="primary"]');
+    expect(primaries).toHaveLength(1);
+    expect(primaries[0]).toBe(screen.getByTestId('export-pill'));
+  });
+
+  it('opens the Export dialog on Audio from the pill', () => {
+    useExportDialogStore.setState({ tab: 'notation' });
+    renderBar();
+    fireEvent.click(screen.getByTestId('export-pill'));
+    expect(useExportDialogStore.getState()).toMatchObject({
+      isOpen: true,
+      tab: 'audio',
+    });
+  });
+
+  it('opens the command palette from ⋯ ▸ Find a command', () => {
+    renderBar();
+    fireEvent.keyDown(screen.getByTestId('top-bar-overflow'), {
+      key: 'Enter',
+    });
+    const item = screen.getByTestId('palette-menu-item');
+    expect(item).toHaveTextContent('Find a command');
+    expect(usePaletteStore.getState().isOpen).toBe(false);
+    fireEvent.click(item);
+    expect(usePaletteStore.getState().isOpen).toBe(true);
   });
 
   it('shows the student in the account menu', () => {

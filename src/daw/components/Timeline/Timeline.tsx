@@ -28,8 +28,6 @@ import { seekTo } from '@/daw/hooks/useTransport';
 import { getPlayheadTick, usePlayheadEffect } from '@/daw/engine/playheadClock';
 import {
   getAudioBuffer,
-  setAudioBuffer,
-  setOriginalAudio,
   subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
 import { selectEffectiveKey } from '@/daw/harmony/effectiveKey';
@@ -98,11 +96,15 @@ import {
   barStartTick,
   gridStepTicks,
   snapTicks,
+  timeSignatureOf,
   timelineSnapGrid,
 } from '@/daw/time/timeModel';
-import type { MidiNoteEvent } from '@prism/engine';
 import type { ChordRegion } from '@/daw/store/prismSlice';
-import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
+import {
+  acceptsDrop,
+  dropOnTimeline,
+  onTimelineDragOver,
+} from '@/daw/shell/canvas/libraryDrop';
 import {
   DAW_PALETTE_EVENT,
   getDawPalette,
@@ -155,31 +157,6 @@ const PAN_DRAG_THRESHOLD = 4;
 // Pixels a press on a marker may move and still be a click, which goes to
 // the marker (plan finding F8); further, it drags the marker.
 const MARKER_DRAG_SLOP_PX = 3;
-
-// ── MIME-type inference (for audio assets without a Content-Type header) ────
-
-const AUDIO_EXTENSION_MIME: Record<string, string> = {
-  wav: 'audio/wav',
-  mp3: 'audio/mpeg',
-  ogg: 'audio/ogg',
-  oga: 'audio/ogg',
-  opus: 'audio/ogg',
-  webm: 'audio/webm',
-  flac: 'audio/flac',
-  m4a: 'audio/mp4',
-  aac: 'audio/aac',
-};
-
-function inferContentTypeFromUrl(url: string): string | null {
-  try {
-    const path = new URL(url, window.location.origin).pathname;
-    const ext = path.split('.').pop()?.toLowerCase();
-    if (!ext) return null;
-    return AUDIO_EXTENSION_MIME[ext] ?? null;
-  } catch {
-    return null;
-  }
-}
 
 // ── Audio tiles without their audio ─────────────────────────────────────
 
@@ -2889,148 +2866,35 @@ export function Timeline({ scrollRef }: TimelineProps) {
     return () => canvas.removeEventListener('wheel', handleWheel);
   }, [projectLengthTicks]);
 
-  // ── Drag-and-drop .mid files ─────────────────────────────────────────────
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  }, []);
-
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-
-    // ── Library item drops (instruments, templates, etc.) ───────────
-    const libraryData = e.dataTransfer.getData(DRAG_MIME);
-    if (libraryData) {
-      const payload: DragPayload = JSON.parse(libraryData);
-      const st = useStore.getState();
-      if (payload.kind === 'instrument') {
-        const id = st.addTrack(
-          'midi',
-          payload.instrumentType,
-          payload.instrumentType,
-        );
-        st.setSelectedTrackId(id);
-      } else if (payload.kind === 'template') {
-        const id = st.addTrack(
-          payload.trackType,
-          payload.instrument,
-          payload.name,
-        );
-        st.setSelectedTrackId(id);
-      } else if (payload.kind === 'drum-sample') {
-        try {
-          const resp = await fetch(payload.url);
-          if (!resp.ok)
-            throw new Error(`Failed to fetch sample: ${resp.status}`);
-          const arrayBuf = await resp.arrayBuffer();
-          // Clone the bytes before decodeAudioData — some browsers neuter the
-          // input. We need both: the decoded buffer for playback, and the
-          // original bytes for upload (already a compressed format on the
-          // server, so uploading as-is avoids a quality-losing re-encode).
-          const originalBytes = arrayBuf.slice(0);
-          const originalContentType =
-            resp.headers.get('content-type') ||
-            inferContentTypeFromUrl(payload.url) ||
-            'audio/wav';
-          const ctx = new AudioContext();
-          const audioBuf = await ctx.decodeAudioData(arrayBuf);
-          const trackId = st.addTrack('audio', 'none', payload.name);
-          st.setSelectedTrackId(trackId);
-          const clipId = `clip-sample-${crypto.randomUUID().slice(0, 8)}`;
-          const durationTicks = Math.round(
-            (audioBuf.duration / 60) * st.bpm * 480,
-          );
-          setAudioBuffer(clipId, audioBuf);
-          setOriginalAudio(clipId, originalBytes, originalContentType);
-          st.addAudioClip(trackId, {
-            id: clipId,
-            startTick: 0,
-            duration: durationTicks,
-            fadeInTicks: 0,
-            fadeOutTicks: 0,
-          });
-        } catch (err) {
-          console.error('Failed to load drum sample:', err);
-        }
-      } else if (payload.kind === 'midi-loop') {
-        try {
-          const resp = await fetch(payload.url);
-          if (!resp.ok)
-            throw new Error(`Failed to fetch MIDI loop: ${resp.status}`);
-          const arrayBuf = await resp.arrayBuffer();
-          // The MIDI reader loads with the first drop, not with the editor.
-          const { importMidiFile } = await import('@/daw/midi/MidiFileIO');
-          const sequences = importMidiFile(arrayBuf);
-          const OUR_PPQ = 480;
-          for (let i = 0; i < sequences.length; i++) {
-            const seq = sequences[i];
-            const ppq = seq.ticksPerQuarterNote;
-            const instrument = payload.instrument ?? 'soundfont';
-            const trackId = st.addTrack('midi', instrument, payload.name);
-            st.setSelectedTrackId(trackId);
-            const events: MidiNoteEvent[] = seq.events.map(
-              (ev: MidiNoteEvent) => ({
-                ...ev,
-                startTick:
-                  ppq === OUR_PPQ
-                    ? ev.startTick
-                    : Math.round((ev.startTick * OUR_PPQ) / ppq),
-                durationTicks:
-                  ppq === OUR_PPQ
-                    ? ev.durationTicks
-                    : Math.round((ev.durationTicks * OUR_PPQ) / ppq),
-              }),
-            );
-            st.addMidiClip(trackId, {
-              id: `clip-loop-${crypto.randomUUID().slice(0, 8)}`,
-              name: payload.name,
-              startTick: 0,
-              events,
-            });
-          }
-        } catch (err) {
-          console.error('Failed to load MIDI loop:', err);
-        }
-      }
-      return;
-    }
-
-    // ── .mid / .midi file drops ─────────────────────────────────────
-    const file = e.dataTransfer.files[0];
-    if (!file || (!file.name.endsWith('.mid') && !file.name.endsWith('.midi')))
-      return;
-
-    const OUR_PPQ = 480;
-    const arrayBuffer = await file.arrayBuffer();
-    const { importMidiFile } = await import('@/daw/midi/MidiFileIO');
-    const sequences = importMidiFile(arrayBuffer);
-    const state = useStore.getState();
-
-    for (let i = 0; i < sequences.length; i++) {
-      const seq = sequences[i];
-      const ppq = seq.ticksPerQuarterNote;
-      const trackId = state.addTrack('midi', 'oracle-synth', seq.trackName);
-
-      const events: MidiNoteEvent[] = seq.events.map((ev: MidiNoteEvent) => ({
-        ...ev,
-        startTick:
-          ppq === OUR_PPQ
-            ? ev.startTick
-            : Math.round((ev.startTick * OUR_PPQ) / ppq),
-        durationTicks:
-          ppq === OUR_PPQ
-            ? ev.durationTicks
-            : Math.round((ev.durationTicks * OUR_PPQ) / ppq),
-      }));
-
-      state.addMidiClip(trackId, {
-        id: `clip-drop-${crypto.randomUUID().slice(0, 8)}`,
-        name: seq.trackName,
-        startTick: 0,
-        events,
+  // ── Drops: a Library row or a .mid file (libraryDrop.ts, F11) ────────────
+  // A Library row lands at the bar under the pointer, on the lane's track
+  // when it fits there (the ruler and the space under the last track make
+  // a new track).
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      if (!acceptsDrop(e)) return;
+      const { x, y } = getCanvasCoords(e);
+      const st = getScrollTop();
+      const state = useStore.getState();
+      const pointerTick = Math.max(
+        0,
+        Math.round(
+          pixelToTick(x, state.timelineZoom, state.timelineScrollLeft),
+        ),
+      );
+      const track =
+        y >= st + RULERS_HEIGHT
+          ? state.tracks[
+              rowIndexAt(rowLayoutOf(state.tracks), y - RULERS_HEIGHT)
+            ]
+          : undefined;
+      void dropOnTimeline(e, {
+        trackId: track?.id ?? null,
+        tick: barStartTick(pointerTick, timeSignatureOf(state)),
       });
-    }
-  }, []);
+    },
+    [getCanvasCoords, getScrollTop],
+  );
 
   // ── Width ──────────────────────────────────────────────────────────
 
@@ -3125,7 +2989,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
           onDoubleClick={handleCanvasDoubleClick}
           onContextMenu={handleContextMenu}
           onMouseLeave={() => setHoverClip(null)}
-          onDragOver={handleDragOver}
+          onDragOver={onTimelineDragOver}
           onDrop={handleDrop}
         />
         {/* Chord ruler inline editor */}

@@ -3,6 +3,10 @@ import { memo, type ReactNode } from 'react';
 import { cn } from '@/components/utilities';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
+import {
+  dropOnTimeline,
+  onTimelineDragOver,
+} from '@/daw/shell/canvas/libraryDrop';
 import { addTrackFrom, openAddTrackSheet } from './addTrack';
 import { choiceOf } from './trackTemplates';
 
@@ -70,6 +74,10 @@ export const EmptyProjectTiles = memo(function EmptyProjectTiles() {
     <section
       data-ds="v2"
       data-testid="empty-project"
+      // It covers the canvas, so it takes the canvas's drops: a Library row
+      // makes a track at bar 1, a .mid file its tracks (F11).
+      onDragOver={onTimelineDragOver}
+      onDrop={(e) => void dropOnTimeline(e, { trackId: null, tick: 0 })}
       aria-label="Start your song"
       className="flex h-full flex-col items-center justify-center gap-3 px-6"
     >

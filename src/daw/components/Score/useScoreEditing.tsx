@@ -727,6 +727,9 @@ export function useScoreEditing({
           break;
         }
         case 'text.rehearsalMark': {
+          // No mark on the closing barline: it would start a section a bar
+          // past the song, which the Score doesn't draw there.
+          if (selected >= measureCount) break;
           const existing = sections.find((s) => s.measureIdx === selected);
           if (existing) removeSectionAtBar(selected);
           else markSectionAtBar(selected, nextSectionLabel(sections));
@@ -1452,10 +1455,14 @@ export function useScoreEditing({
       setRepeats(next);
       // A pasted name renames the section starting on this barline, or
       // starts one there; a barline without one leaves its bars unnamed.
-      if (clipboard.sectionLabel) {
-        markSectionAtBar(selected, clipboard.sectionLabel);
-      } else {
-        removeSectionAtBar(selected);
+      // The closing barline starts nothing: a section there would be a bar
+      // past the song.
+      if (selected < measureCount) {
+        if (clipboard.sectionLabel) {
+          markSectionAtBar(selected, clipboard.sectionLabel);
+        } else {
+          removeSectionAtBar(selected);
+        }
       }
       if (clipboard.systemBreak !== systemBreaks.has(selected)) {
         toggleSystemBreak(selected);
@@ -2027,8 +2034,12 @@ export function useScoreEditing({
                     defaultValue={section.label}
                     onBlur={(e) => {
                       const label = e.target.value.trim();
-                      // Renames the section starting on this barline.
-                      if (label) markSectionAtBar(section.measureIdx, label);
+                      // Renames the section starting on this barline. A name
+                      // left as it was is no edit: writing it again would
+                      // retype the section from its name and add an undo step.
+                      if (label && label !== section.label.trim()) {
+                        markSectionAtBar(section.measureIdx, label);
+                      }
                       setEditingSection(null);
                     }}
                     onKeyDown={(e) => {

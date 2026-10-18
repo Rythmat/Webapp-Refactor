@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
 import { useStore } from '@/daw/store';
+import { chartExtraBars } from '@/daw/time/measureEdits';
+import { timeSignatureOf } from '@/daw/time/timeModel';
 import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar } from '@/daw/utils/timelineScale';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
@@ -44,10 +46,20 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
   // rather than the 1920 a 4/4 default would impose.
   const ticksPerMeasure = ticksPerBar(numerator, denominator);
 
-  // The sheet is as long as the chart is: chords can run past the melody.
+  // Bars past the last chord: added ones, or as many as the song's sections
+  // cover, as the chord chart counts them (milestone 2.13).
+  const extraBars = useStore((s) =>
+    chartExtraBars(s.leadSheetBars, s.sections, timeSignatureOf(s)),
+  );
+  // The sheet is as long as the chart is: chords and sections can run past
+  // the melody.
   const measureCount = useMemo(
-    () => Math.max(1, regionToMeasures(chordRegions, ticksPerMeasure).length),
-    [chordRegions, ticksPerMeasure],
+    () =>
+      Math.max(
+        1,
+        regionToMeasures(chordRegions, ticksPerMeasure, extraBars).length,
+      ),
+    [chordRegions, ticksPerMeasure, extraBars],
   );
 
   const slashSet = useMemo(() => new Set(slashNotes), [slashNotes]);

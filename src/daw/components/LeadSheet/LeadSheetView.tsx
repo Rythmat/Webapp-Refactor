@@ -529,10 +529,14 @@ function LeadSheetChartView() {
         }
         // A pasted name renames the section starting on this barline, or
         // starts one there; a barline without one leaves its bars unnamed.
-        if (edit.sectionLabel) {
-          markSectionAtBar(edit.measureIndex, edit.sectionLabel);
-        } else {
-          removeSectionAtBar(edit.measureIndex);
+        // The closing barline starts nothing: a section there would be a bar
+        // past the song, and the chart would grow to draw it.
+        if (edit.measureIndex < measureCount) {
+          if (edit.sectionLabel) {
+            markSectionAtBar(edit.measureIndex, edit.sectionLabel);
+          } else {
+            removeSectionAtBar(edit.measureIndex);
+          }
         }
         if (edit.systemBreak) breaks.add(edit.measureIndex);
         else breaks.delete(edit.measureIndex);
@@ -654,6 +658,9 @@ function LeadSheetChartView() {
           toggleSystemBreak(barline);
           break;
         case 'text.rehearsalMark': {
+          // No mark on the closing barline: it would start a section a bar
+          // past the song, and the chart would grow to draw it.
+          if (barline >= measureCount) break;
           const existing = sections.find((s) => s.measureIdx === barline);
           if (existing) removeSectionAtBar(barline);
           else markSectionAtBar(barline, nextSectionLabel(sections));

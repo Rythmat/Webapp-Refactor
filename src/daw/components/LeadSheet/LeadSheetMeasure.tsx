@@ -215,7 +215,8 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
           label={section.label}
           x={2}
           y={CHORD_AREA_HEIGHT - 30}
-          measureIdx={measureIndex}
+          // The bar the section starts on, which a rest may come before.
+          measureIdx={section.measureIdx}
         />
       )}
 

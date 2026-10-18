@@ -2,6 +2,8 @@ import { ListMusic } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FC } from 'react';
 import { showSuccess } from '@/components/utils/toast';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
+import { chartExtraBars } from '@/daw/time/measureEdits';
+import { timeSignatureOf } from '@/daw/time/timeModel';
 import {
   leadSheetSectionsOf,
   useLeadSheetSections,
@@ -77,6 +79,11 @@ export function useStudioChartSource(): StudioChartSource {
   const measureRowSizes = useStore((s) => s.measureRowSizes);
   const measureRestMap = useStore((s) => s.measureRestMap);
   const measureFermatas = useStore((s) => s.measureFermatas);
+  // The chart runs as far as the sheet draws it: past the last chord to the
+  // bars added there or the end of the song's sections (milestone 2.13).
+  const leadSheetBars = useStore((s) =>
+    chartExtraBars(s.leadSheetBars, s.sections, timeSignatureOf(s)),
+  );
   const leadSheetSections = useLeadSheetSections();
   const leadSheetRepeats = useStore((s) => s.leadSheetRepeats);
   const tsNumerator = useStore((s) => s.timeSignatureNumerator);
@@ -93,6 +100,7 @@ export function useStudioChartSource(): StudioChartSource {
       measureRowSizes,
       measureRestMap,
       measureFermatas,
+      leadSheetBars,
       leadSheetSections,
       leadSheetRepeats,
       timeSignature: [tsNumerator, tsDenominator],
@@ -108,6 +116,7 @@ export function useStudioChartSource(): StudioChartSource {
       measureRowSizes,
       measureRestMap,
       measureFermatas,
+      leadSheetBars,
       leadSheetSections,
       leadSheetRepeats,
       tsNumerator,
@@ -291,6 +300,11 @@ export function chartSourceOf(state: AllSlices): StudioChartSource {
     measureRowSizes: state.measureRowSizes,
     measureRestMap: state.measureRestMap,
     measureFermatas: state.measureFermatas,
+    leadSheetBars: chartExtraBars(
+      state.leadSheetBars,
+      state.sections,
+      timeSignatureOf(state),
+    ),
     leadSheetSections: leadSheetSectionsOf(state),
     leadSheetRepeats: state.leadSheetRepeats,
     timeSignature: [

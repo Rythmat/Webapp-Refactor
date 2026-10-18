@@ -133,7 +133,7 @@ export const BrowserRow = memo(function BrowserRow({
             }}
             className={cn(
               TYPE_CLASS.body,
-              'min-h-6 self-start rounded-[var(--daw-radius-sm)] text-left font-bold',
+              'min-h-6 min-w-6 self-start rounded-[var(--daw-radius-sm)] text-left font-bold',
               inRoom
                 ? 'cursor-not-allowed text-daw-text-3 opacity-60'
                 : 'text-daw-text',

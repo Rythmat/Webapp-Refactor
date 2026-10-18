@@ -447,7 +447,10 @@ export const createTracksSlice: StateCreator<
     const track: Track = {
       id,
       ...initialTrackDefaults(instrument, name),
-      ...init,
+      // An undefined in init leaves the default (a guessed role) standing.
+      ...Object.fromEntries(
+        Object.entries(init ?? {}).filter(([, v]) => v !== undefined),
+      ),
       type,
       color: assignedColor,
     };

@@ -1,4 +1,15 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+// @vitest-environment jsdom
+import { File as NodeFile } from 'node:buffer';
+import { createElement } from 'react';
+import { Midi } from '@tonejs/midi';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Drops on the timeline (milestone 2.14, F11) ────────────────────────────
 // Nothing wrote the Library's drag data before 2.14, so no drop branch could
@@ -9,7 +20,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const h = vi.hoisted(() => ({
   drop: vi.fn(async () => true),
-  importMidi: vi.fn(async () => 1),
+  importMidi: vi.fn(async (_data: ArrayBuffer) => 1),
   toast: vi.fn(),
 }));
 vi.mock('@/daw/shell/inspector/browser/addItem', () => ({
@@ -21,11 +32,26 @@ vi.mock('@/daw/midi/importMidiToTracks', () => ({
 vi.mock('@/daw/shell/notice', () => ({ notice: h.toast }));
 
 import { DRAG_MIME } from '@/daw/data/libraryItems';
+import { useStore } from '@/daw/store';
+import {
+  historyLabels,
+  resetHistory,
+  startHistory,
+  undo,
+} from '@/daw/store/history';
+import { EmptyProjectTiles } from '@/daw/shell/tracklist/EmptyProjectTiles';
 import {
   acceptsDrop,
   dropOnTimeline,
   onTimelineDragOver,
 } from '../libraryDrop';
+
+/**
+ * A file as a drop carries it. jsdom's File can't be read (no
+ * arrayBuffer), so it is Node's.
+ */
+const file = (bits: BlobPart[], name: string) =>
+  new NodeFile(bits as never, name) as unknown as File;
 
 function dragEvent(data: Record<string, string>, files: File[] = []) {
   const types = [...Object.keys(data), ...(files.length ? ['Files'] : [])];
@@ -47,6 +73,8 @@ beforeEach(() => {
   h.importMidi.mockClear();
   h.toast.mockClear();
 });
+
+afterEach(cleanup);
 
 describe('a drop on the timeline', () => {
   it('takes a Library row and gives the browser its item, lane and bar', async () => {
@@ -74,17 +102,17 @@ describe('a drop on the timeline', () => {
   });
 
   it('imports a .mid file as Import MIDI file… does, and says so when it can’t', async () => {
-    const file = new File([new Uint8Array([1, 2])], 'Song.MID');
-    await dropOnTimeline(dragEvent({}, [file]), { trackId: null, tick: 0 });
+    const mid = file([new Uint8Array([1, 2])], 'Song.MID');
+    await dropOnTimeline(dragEvent({}, [mid]), { trackId: null, tick: 0 });
     expect(h.importMidi).toHaveBeenCalledTimes(1);
 
     h.importMidi.mockRejectedValueOnce(new Error('bad file'));
-    await dropOnTimeline(dragEvent({}, [file]), { trackId: null, tick: 0 });
+    await dropOnTimeline(dragEvent({}, [mid]), { trackId: null, tick: 0 });
     expect(h.toast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: 'destructive' }),
     );
 
-    await dropOnTimeline(dragEvent({}, [new File(['x'], 'notes.txt')]), {
+    await dropOnTimeline(dragEvent({}, [file(['x'], 'notes.txt')]), {
       trackId: null,
       tick: 0,
     });
@@ -99,5 +127,67 @@ describe('a drop on the timeline', () => {
     onTimelineDragOver(row);
     expect(row.preventDefault).toHaveBeenCalled();
     expect(row.dataTransfer.dropEffect).toBe('copy');
+  });
+
+  it('imports a real .mid file as one Import MIDI step, which one undo takes away', async () => {
+    const actual = await vi.importActual<
+      typeof import('@/daw/midi/importMidiToTracks')
+    >('@/daw/midi/importMidiToTracks');
+    h.importMidi.mockImplementationOnce(actual.importMidiToTracks);
+    useStore.setState(useStore.getInitialState(), true);
+    resetHistory();
+    const stop = startHistory();
+    try {
+      // A tiny two-track file at 480 PPQ.
+      const midi = new Midi();
+      const bass = midi.addTrack();
+      bass.name = 'Bass';
+      bass.addNote({ midi: 36, ticks: 0, durationTicks: 480, velocity: 0.8 });
+      const keys = midi.addTrack();
+      keys.name = 'Keys';
+      keys.addNote({ midi: 60, ticks: 0, durationTicks: 960, velocity: 0.8 });
+      keys.addNote({ midi: 64, ticks: 960, durationTicks: 960, velocity: 0.8 });
+      // Its bytes as a browser's File hands them over (under jsdom, Node's
+      // File gives @tonejs/midi a buffer it reads as empty).
+      const bytes = midi.toArray();
+      const mid = {
+        name: 'Song.mid',
+        arrayBuffer: async () => bytes.slice().buffer,
+      } as unknown as File;
+
+      await dropOnTimeline(dragEvent({}, [mid]), { trackId: null, tick: 0 });
+      const tracks = useStore.getState().tracks;
+      expect(tracks.map((t) => t.name)).toEqual(['Bass', 'Keys']);
+      expect(tracks.map((t) => t.midiClips[0].events.length)).toEqual([1, 2]);
+      expect(historyLabels()).toEqual(['Import MIDI']);
+
+      expect(undo()).toBe(true);
+      expect(useStore.getState().tracks).toEqual([]);
+    } finally {
+      stop();
+      resetHistory();
+    }
+  });
+});
+
+describe('an empty project’s first steps', () => {
+  it('take a Library row dropped on them as a new track at bar 1', async () => {
+    render(createElement(EmptyProjectTiles));
+    const tiles = screen.getByTestId('empty-project');
+    const payload = JSON.stringify({ kind: 'library-item', itemId: 'part:x' });
+    const dataTransfer = {
+      types: [DRAG_MIME],
+      files: [],
+      dropEffect: 'none',
+      getData: (type: string) => (type === DRAG_MIME ? payload : ''),
+    };
+    // dragover says it copies (the default is prevented).
+    expect(fireEvent.dragOver(tiles, { dataTransfer })).toBe(false);
+    expect(dataTransfer.dropEffect).toBe('copy');
+
+    fireEvent.drop(tiles, { dataTransfer });
+    await waitFor(() =>
+      expect(h.drop).toHaveBeenCalledWith('part:x', { trackId: null, tick: 0 }),
+    );
   });
 });

@@ -33,7 +33,7 @@ describe('addTrack with init', () => {
     expect(seen[0]).toMatchObject({ bassVoice: '808' });
   });
 
-  it('keeps its id, type and colour its own', () => {
+  it('keeps its id and type its own', () => {
     const id = s().addTrack('midi', 'drum-machine', 'Drums', {
       drumKit: '808',
     });
@@ -45,6 +45,13 @@ describe('addTrack with init', () => {
 
   it('without init, guesses the role from the name as before', () => {
     const id = s().addTrack('midi', 'piano-sampler', 'Bass keys');
+    expect(s().tracks.find((t) => t.id === id)!.trackRole).toBe('bass');
+  });
+
+  it('lets an undefined in init leave the default standing (the guessed role)', () => {
+    const id = s().addTrack('midi', 'piano-sampler', 'Bass keys', {
+      trackRole: undefined,
+    });
     expect(s().tracks.find((t) => t.id === id)!.trackRole).toBe('bass');
   });
 });

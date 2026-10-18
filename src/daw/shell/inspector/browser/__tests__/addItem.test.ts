@@ -184,6 +184,14 @@ describe('+ on a part', () => {
     // Moved into C major by the keys' move; whether its notes then sit on
     // the scale is what `fits` says.
     const move = moveForSong(BASS.part, { rootPc: 0, mode: 'ionian' });
+    // By hand: C dorian's scale is B♭ major's; up 2 it is D dorian, C
+    // major's scale exactly (the tonic's move, 0, leaves E♭ and B♭ off it).
+    expect(BASS.key).toEqual({ tonic: 0, mode: 'dorian' });
+    expect(move.shift).toBe(2);
+    // Its first note (C2) comes up a tone, in whatever octave keeps the
+    // bass in its register.
+    const firstNote = BASS.part.notes[0].midi;
+    expect((((clip.events[0].note - (firstNote + 2)) % 12) + 12) % 12).toBe(0);
     const want = preparedEvents(BASS.part, move.shift);
     expect(clip.events.map((e) => [e.note, e.startTick])).toEqual(
       want.map((e) => [e.note, e.startTick]),

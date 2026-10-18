@@ -16,8 +16,8 @@
  * around the master fader and the mastering chain, as the click does: the
  * master meter never shows it and an export never has it.
  *
- * It stops on ■, another ▶, Play or Record, an add, Escape in the panel, the
- * panel closing, and a new session. Instruments are kept for the last three
+ * It stops on ■, another ▶, Play or Record, an add, the panel closing, and
+ * a new session. (Escape keeps its editor meaning, Stop.) Instruments are kept for the last three
  * sounds and let go when the panel closes.
  */
 

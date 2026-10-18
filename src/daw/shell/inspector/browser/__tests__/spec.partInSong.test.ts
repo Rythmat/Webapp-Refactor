@@ -5,12 +5,15 @@
  * it.
  *
  * scaleFit weighs each note by duration times velocity and asks how much of
- * that weight sits on the song key's scale. moveForSong keeps the part's
- * tonic when the moved notes still fit (90 % or more); otherwise it takes the
- * shift in −6 … +5 that fits best, so a D dorian vamp dropped into C major
- * stays on the white keys instead of becoming C dorian. preparedEvents is
- * what a clip gets: the part moved with its register kept, its swing and its
- * played offsets baked into the ticks, nothing before tick 0, channel 0.
+ * that weight sits on the song key's scale. moveForSong reads the move from
+ * the two keys, never from the notes: of the shifts in −6 … +5 it takes the
+ * one that puts the most of the part's KEY scale on the song's scale, ties
+ * going to the tonic's move and then to the smaller |shift|. So a D dorian
+ * vamp dropped into C major stays D dorian (its scale is C major's) instead
+ * of becoming C dorian. `fits` then says whether the moved notes sit on the
+ * song's scale (90 % or more of their weight). preparedEvents is what a clip
+ * gets: the part moved with its register kept, its swing and its played
+ * offsets baked into the ticks, nothing before tick 0, channel 0.
  */
 import { describe, expect, it } from 'vitest';
 import { swingOnset } from '@/curriculum/engine/genreGeneration/swing';
@@ -145,12 +148,13 @@ describe('moveForSong', () => {
     });
   });
 
-  it('keeps D dorian on the white keys in a C major song (C dorian would not fit)', () => {
+  it('keeps D dorian on the white keys in a C major song (C dorian’s scale is off it)', () => {
     const p = part({
       key: { tonic: 2, mode: 'dorian' },
       notes: D_DORIAN_WHITE,
     });
-    // The tonic-keeping shift is −2, which would put E♭ and B♭ in the line.
+    // The tonic-keeping shift is −2: C dorian, whose E♭ and B♭ are off C
+    // major. D dorian's scale is C major's, all seven notes.
     expect(shiftBetween(2, 0)).toBe(-2);
     expect(scaleFit(shifted(D_DORIAN_WHITE, -2), C_IONIAN)).toBeLessThan(0.9);
     expect(moveForSong(p, C_IONIAN)).toEqual({
@@ -171,7 +175,7 @@ describe('moveForSong', () => {
     });
   });
 
-  it('moves a G major part up a fourth to C when that fits', () => {
+  it('moves a G major part up a fourth to C', () => {
     const p = part({ key: { tonic: 7, mode: 'ionian' }, notes: G_MAJOR_LINE });
     expect(moveForSong(p, C_IONIAN)).toEqual({
       shift: 5,
@@ -180,17 +184,17 @@ describe('moveForSong', () => {
     });
   });
 
-  it('takes the tonic shift whenever it fits, even when another shift fits as well', () => {
-    // A C major line into F major: the tonic shift +5 lands on F major
-    // exactly, so it is taken without looking at smaller shifts.
+  it('takes the tonic’s move when it puts the part’s scale on the song’s, whatever the notes', () => {
+    // A C major part into F major: the tonic's move +5 puts C major's scale
+    // on F major's exactly.
     const p = part({ key: { tonic: 0, mode: 'ionian' }, notes: C_MAJOR_LINE });
     expect(moveForSong(p, { rootPc: 5, mode: 'ionian' })).toEqual({
       shift: 5,
       key: { tonic: 5, mode: 'ionian' },
       fits: true,
     });
-    // A drone on the tonic: every shift that lands on the scale fits, and
-    // the tonic shift still wins over the smaller shift 0.
+    // A drone on the tonic: its notes would fit at the smaller shift 0 as
+    // well, but the move is read from its key (G major → C major is +5).
     const drone = part({
       key: { tonic: 7, mode: 'ionian' },
       notes: [note(55), note(67, 480)],
@@ -215,8 +219,9 @@ describe('moveForSong', () => {
     });
   });
 
-  it('a chromatic line fits nowhere: no move, fits false', () => {
-    // Every shift fits 7 of 12, so the smallest |shift| (0) wins.
+  it('moves a chromatic line by its key, and says its notes don’t fit', () => {
+    // D dorian's scale is C major's, so it stays (shift 0); its notes then
+    // sit 7 of 12 on the scale, under 90 %.
     const p = part({
       key: { tonic: 2, mode: 'dorian' },
       notes: line([60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]),
@@ -228,16 +233,34 @@ describe('moveForSong', () => {
     });
   });
 
-  it('when the tonic shift does not fit, takes the best-fitting shift', () => {
-    // Notes on D major (two sharps) written as an E dorian part; song C ionian.
-    // Tonic shift E→C is −4: D major down 4 is B♭ major — off C major.
-    // The best is −2 (C major exactly).
+  it('when the tonic’s move leaves the part’s scale off the song’s, takes the move that puts most of it on', () => {
+    // An E dorian part (its scale is D major's, two sharps); song C ionian.
+    // The tonic's move E→C is −4: C dorian, five of its seven notes on C
+    // major. −2 makes it D dorian, all seven (C major exactly).
     const dMajor = line([62, 64, 66, 67, 69, 71, 73]);
     const p = part({ key: { tonic: 4, mode: 'dorian' }, notes: dMajor });
     expect(shiftBetween(4, 0)).toBe(-4);
     expect(scaleFit(shifted(dMajor, -4), C_IONIAN)).toBeLessThan(0.9);
     expect(moveForSong(p, C_IONIAN)).toEqual({
       shift: -2,
+      key: { tonic: 2, mode: 'dorian' },
+      fits: true,
+    });
+  });
+
+  it('follows the part’s key, not its notes, when they disagree', () => {
+    // A C dorian part whose only notes are C2 and B♭2. Read from the notes,
+    // −1 (B and A) is the smallest move that puts both on C major; read from
+    // the key, +2 makes it D dorian, whose scale is C major's.
+    const p = part({
+      instrument: 'bass',
+      role: 'bassline',
+      key: { tonic: 0, mode: 'dorian' },
+      notes: [note(36, 0), note(46, 480)],
+    });
+    expect(scaleFit(shifted(p.notes, -1), C_IONIAN)).toBe(1);
+    expect(moveForSong(p, C_IONIAN)).toEqual({
+      shift: 2,
       key: { tonic: 2, mode: 'dorian' },
       fits: true,
     });

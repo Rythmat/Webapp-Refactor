@@ -256,8 +256,11 @@ describe('a preview', () => {
   });
 
   it('ends on its own after its last note', async () => {
+    // A kit's bar ends at 3 s (its crash), from a start 50 ms ahead.
     await startPreview(NATURAL, null, 120);
-    await play(4000);
+    await play(3000);
+    expect(state()).toEqual({ itemId: NATURAL.id, status: 'playing' });
+    await play(500);
     expect(state()).toBeNull();
   });
 
@@ -333,6 +336,19 @@ describe('a preview', () => {
     await play(3000);
     // A bass line on D: root, root, fifth, octave.
     expect(h.adapters[0].on.map((n) => n.note)).toEqual([38, 38, 45, 50]);
+  });
+
+  it('plays a sound’s arpeggio and chord on the song’s mode', async () => {
+    const brass = studioPresetItem(
+      PRESETS.find((p) => p.name === 'Brass Ensemble')!,
+    );
+    expect(brass.instrument).not.toBe('bass');
+    await startPreview(brass, { rootPc: 2, mode: 'dorian' }, 120);
+    await play(3000);
+    const notes = h.adapters[0].on.map((n) => n.note);
+    // D dorian's third is F (65), not F♯: D F A D, then D F A together.
+    expect(notes).toEqual([62, 65, 69, 74, 62, 65, 69]);
+    expect(notes).not.toContain(66);
   });
 });
 

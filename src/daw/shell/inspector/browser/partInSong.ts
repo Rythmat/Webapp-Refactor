@@ -2,13 +2,13 @@
  * partInSong.ts — a Library part as the song will play it (milestone 2.14).
  *
  * A part is written in a key of its own. Added to a song with a key, it
- * moves into that key: by the move that keeps its tonic on the song's when
- * its notes then sit on the song's scale (a G major riff in a C major song
- * plays in C), and otherwise by the nearest move whose notes fit best. So a
- * D dorian vamp lands as D dorian in a C major song (ii7–V7 there), not as
- * C dorian against the song's chord lane, and a major part in a minor song
- * lands on its relative major. The old Parts list moved every part tonic to
- * tonic, which put minor and modal parts in the song's parallel mode.
+ * moves into that key by the move that puts the most of its key's scale on
+ * the song's, the tonic's move first and then the smaller: a G major riff
+ * in a C major song plays in C, a D dorian vamp stays D dorian there (ii7–V7)
+ * rather than C dorian against the song's chord lane, a major part in a
+ * minor song lands on its relative major, and parts written together move
+ * together. The old Parts list moved every part tonic to tonic, which put
+ * minor and modal parts in the song's parallel mode.
  *
  * Its notes come as a clip's events: moved (transposePart keeps a bass or a
  * guitar in its register), with the part's swing and played feel in the

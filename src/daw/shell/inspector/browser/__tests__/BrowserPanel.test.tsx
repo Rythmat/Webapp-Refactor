@@ -53,6 +53,7 @@ vi.mock('@/daw/oracle-synth/store/presets/packLoader', async (orig) => ({
 import { listLiveParts } from '@/curriculum/engine/parts/registry';
 import { GROOVES } from '@/daw/data/groovesLibrary';
 import { DRUM_KIT_CONFIGS } from '@/daw/instruments/drumKits';
+import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore } from '@/daw/store';
 import { installDomShims } from '@/daw/ui/__tests__/dom';
 import { BrowserPanel } from '../BrowserPanel';
@@ -76,6 +77,16 @@ const rowsOf = (el: HTMLElement) => [
   ...el.querySelectorAll<HTMLElement>('li[data-testid="library-row"]'),
 ];
 const firstPart = () => rowsOf(section('part'))[0];
+/** How many items the sections list, all kinds together. */
+const listed = () =>
+  screen
+    .getAllByTestId('library-section')
+    .reduce(
+      (n, el) =>
+        n +
+        Number(el.querySelector('[data-count]')?.getAttribute('data-count')),
+      0,
+    );
 
 function type(text: string) {
   fireEvent.change(search(), { target: { value: text } });
@@ -199,12 +210,18 @@ describe('the Library panel', () => {
     render(<BrowserPanel />);
     const chips = screen.getAllByTestId('library-chip');
     expect(chips.length).toBeGreaterThan(0);
-    expect(chips.length).toBeLessThanOrEqual(8);
+    // Two rows at the Inspector's width.
+    expect(chips.length).toBeLessThanOrEqual(6);
     const chip = chips[0];
     const tag = chip.getAttribute('data-tag')!;
     expect(chip).toHaveAttribute('aria-pressed', 'false');
+    const before = listed();
     fireEvent.click(chip);
     expect(useBrowserStore.getState().query.tags).toEqual([tag]);
+    // The list really narrows, to something.
+    const after = listed();
+    expect(after).toBeGreaterThan(0);
+    expect(after).toBeLessThan(before);
     expect(
       screen
         .getAllByTestId('library-chip')
@@ -339,5 +356,44 @@ describe('the Library panel', () => {
     expect(useBrowserStore.getState().query).toEqual(EMPTY_QUERY);
     expect(screen.queryByTestId('library-empty')).toBeNull();
     expect(screen.getAllByTestId('library-section').length).toBe(5);
+  });
+
+  // Review fixes (2.14): a preview stops when the song records, the kept
+  // voices go with a new session, and a tempo question goes with the panel.
+  it('stops a preview when the song starts recording', () => {
+    render(<BrowserPanel />);
+    h.stopPreview.mockClear();
+    act(() => useStore.setState({ isRecording: true }));
+    expect(h.stopPreview).toHaveBeenCalled();
+  });
+
+  it('lets the kept voices go when a new session opens', () => {
+    render(<BrowserPanel />);
+    h.releasePreviewVoices.mockClear();
+    act(() => {
+      bumpSessionGeneration('test');
+    });
+    expect(h.releasePreviewVoices).toHaveBeenCalled();
+  });
+
+  it('cancels a waiting tempo question when the panel closes', () => {
+    const { unmount } = render(<BrowserPanel />);
+    const answer = vi.fn();
+    act(() =>
+      useBrowserStore.getState().ask({
+        itemId: 'groove:x',
+        name: 'Hip Hop 1',
+        itemBpm: 60,
+        songBpm: 120,
+        answer,
+      }),
+    );
+    expect(screen.getByTestId('library-tempo-question')).toBeInTheDocument();
+    h.releasePreviewVoices.mockClear();
+    unmount();
+    expect(answer).toHaveBeenCalledTimes(1);
+    expect(answer).toHaveBeenCalledWith(null);
+    expect(useBrowserStore.getState().question).toBeNull();
+    expect(h.releasePreviewVoices).toHaveBeenCalled();
   });
 });

@@ -1261,7 +1261,7 @@ Prompt 16. Decision 16; plan 2.10, 2.11 and the Stage B exit criteria. The exit 
   - **lint:** whole tree clean (`npx yarn lint`: prettier, eslint 0 warnings, `tsc -b`).
   - **typecheck:** every commit, from its own `git archive`.
   - **vitest** (src/daw): 5,084 passed. The failures are the inherited set: designGuard's PianoRoll smallText (8 > 6); the song-link session suites (contentBoots, intents, openSession, on the local `_generated_index.ts` and under load); editorRoute (under load).
-  - **studio:check full tier** (my copy of par-check, with R35 and R36 in S3 and a laptop lessons job; `git archive` of `ce64132b` on 5291, R33 again on `2ab1072d`; the 1.3 build on 5264):
+  - **studio:check full tier** (my copy of par-check, with R35 and R36 in S3 and a laptop lessons job; `git archive` of `2b5dca4a` on 5291 (the later `ce64132b` and `2ab1072d` change only the picker's focus and R35's check: R33 and R35 passed again on a cold `git archive` of `2ab1072d`); the 1.3 build on 5264):
     - round trips: 0 fields lost on both profiles, R14/R15 against the 1.3 build 8/8, R28–R36 "no baseline, 0 new". Beside five other browsers R1, R6, R12 (draft, fileNew, project, song), R21 and R22 failed or timed out, and passed alone.
     - R33's `pickerSteps` failed on a cold server: the picker's "Open the browser" gave up waiting for the Library's chunk after 3 s. Fixed in `ce64132b` and `2ab1072d` (it now waits 15 s); it passes on a cold archive server.
     - **R35** (9 flags × 3 sizes × 2 profiles) and **R36** (13 flags × 3 sizes × 2 profiles, 24 screenshots): all pass. R36's `noSwallowedClick` failed before `1c6f3fe9` and passes after it.

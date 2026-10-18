@@ -295,6 +295,58 @@ describe('CommandPalette', () => {
   });
 });
 
+// ── Closing at once (review fix) ──────────────────────────────────────────
+// While a modal fades out, Radix keeps it mounted and the page under it
+// takes no clicks, so a click just after Escape was lost: the panel and the
+// scrim go with no exit animation. jsdom runs no CSS, so Radix unmounts
+// either way here; the classes are what decide it in a browser.
+// tailwindcss-animate's utilities come after Tailwind's own in the CSS, so
+// a plain `data-[state=closed]:animate-none` loses to an `animate-out` the
+// kit's overlay already carries; only `!animate-none` beats it.
+
+/** Whether `el` would run an exit animation in the browser. */
+function animatesOut(el: Element): boolean {
+  const classes = new Set(el.className.split(/\s+/));
+  const exits =
+    classes.has('data-[state=closed]:animate-out') ||
+    [...classes].some((c) => c.startsWith('data-[state=closed]:fade-out'));
+  return exits && !classes.has('data-[state=closed]:!animate-none');
+}
+
+describe('CommandPalette closing', () => {
+  it('has no exit animation on its panel', () => {
+    renderPalette();
+    expect(animatesOut(screen.getByTestId('command-palette'))).toBe(false);
+  });
+
+  it('has no exit animation on its scrim', () => {
+    renderPalette();
+    const scrim = document.querySelector('.bg-daw-scrim');
+    expect(scrim).not.toBeNull();
+    expect(animatesOut(scrim!)).toBe(false);
+  });
+
+  it('is gone as soon as Escape closes it', () => {
+    const { input } = renderPalette();
+    act(() => {
+      fireEvent.keyDown(input, { key: 'Escape' });
+    });
+    expect(screen.queryByTestId('command-palette')).toBeNull();
+    expect(document.querySelector('.bg-daw-scrim')).toBeNull();
+  });
+
+  it('still runs a chosen command once it has gone', async () => {
+    const { input } = renderPalette();
+    fireEvent.change(input, { target: { value: 'loop' } });
+    await waitFor(() => expect(selectedId()).toBe('transport.loop'));
+    act(() => {
+      fireEvent.keyDown(input, { key: 'Enter' });
+    });
+    expect(screen.queryByTestId('command-palette')).toBeNull();
+    await waitFor(() => expect(loop).toHaveBeenCalledTimes(1));
+  });
+});
+
 describe('usePaletteStore', () => {
   it('remembers the focused element as the opener', () => {
     const button = document.createElement('button');

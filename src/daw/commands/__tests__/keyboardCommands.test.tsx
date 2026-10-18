@@ -52,6 +52,7 @@ import { useKeymap, type KeymapHandlers } from '../registry';
 import { useMusicalTyping } from '@/daw/hooks/useMusicalTyping';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { useShortcutSheetStore } from '@/daw/shell/help/useShortcutSheetStore';
+import { usePaletteStore } from '@/daw/shell/help/usePaletteStore';
 import { useRef, type ReactNode } from 'react';
 import {
   getAudioBuffer,
@@ -236,6 +237,7 @@ beforeEach(() => {
   vi.mocked(saveProject).mockClear();
   useMusicalTypingStore.setState({ enabled: false, octave: 4, velocity: 100 });
   useShortcutSheetStore.setState({ isOpen: false });
+  usePaletteStore.setState({ isOpen: false, opener: null });
 });
 
 afterEach(() => {
@@ -722,6 +724,107 @@ describe('the dispatcher: keys stay where the student is working', () => {
     renderEditor();
     press('Slash', { shiftKey: true, key: '?' });
     expect(useShortcutSheetStore.getState().isOpen).toBe(true);
+  });
+});
+
+// ── The command palette's keys (milestone 2.15) ────────────────────────────
+
+describe('the command palette’s keys', () => {
+  const paletteOpen = () => usePaletteStore.getState().isOpen;
+  const closePalette = () =>
+    usePaletteStore.setState({ isOpen: false, opener: null });
+
+  it('opens on ⌘K, Ctrl+K and ⇧⌘P', () => {
+    renderEditor();
+    for (const init of [
+      { metaKey: true, key: 'k' },
+      { ctrlKey: true, key: 'k' },
+      { metaKey: true, shiftKey: true, key: 'P' },
+      { ctrlKey: true, shiftKey: true, key: 'P' },
+    ]) {
+      const code = init.key === 'k' ? 'KeyK' : 'KeyP';
+      const event = press(code, init);
+      expect(paletteOpen()).toBe(true);
+      // Kept from the browser (Chrome's ⌘K focuses its search).
+      expect(event.defaultPrevented).toBe(true);
+      closePalette();
+    }
+  });
+
+  it('does not open on K or ⇧K alone, or ⌘P', () => {
+    renderEditor();
+    press('KeyK', { key: 'k' });
+    press('KeyK', { shiftKey: true, key: 'K' });
+    press('KeyP', { metaKey: true, key: 'p' });
+    expect(paletteOpen()).toBe(false);
+  });
+
+  it('remembers where focus was as the opener', () => {
+    renderEditor();
+    const knob = focusOn('<div tabindex="0">knob</div>', 'div');
+    press('KeyK', { metaKey: true, key: 'k' }, knob);
+    expect(usePaletteStore.getState().opener).toBe(knob);
+  });
+
+  it('does nothing on ⌘K inside a dialog or a menu', () => {
+    renderEditor();
+    const button = focusOn(
+      '<div role="dialog"><button>Cancel</button></div>',
+      'button',
+    );
+    const inDialog = press('KeyK', { metaKey: true, key: 'k' }, button);
+    expect(paletteOpen()).toBe(false);
+    expect(inDialog.defaultPrevented).toBe(false);
+
+    const item = focusOn(
+      '<div role="menu"><div role="menuitem" tabindex="-1">Export</div></div>',
+      '[role="menuitem"]',
+    );
+    press('KeyK', { metaKey: true, key: 'k' }, item);
+    press('KeyP', { metaKey: true, shiftKey: true, key: 'P' }, item);
+    expect(paletteOpen()).toBe(false);
+  });
+
+  it('opens on ⌘K in the lead sheet when nothing there is selected', () => {
+    reset('leadsheet');
+    // LeadSheetView's leadsheet.chord returns false with nothing selected.
+    const chord = vi.fn(() => false);
+    renderEditor(
+      <Bound
+        scope={LEAD_SHEET_SCOPE.id}
+        handlers={{ 'leadsheet.chord': chord }}
+      />,
+    );
+    const event = press('KeyK', { metaKey: true, key: 'k' });
+    expect(chord).toHaveBeenCalledTimes(1);
+    expect(paletteOpen()).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('leaves ⌘K to the lead sheet’s chord symbol with a beat selected, but ⇧⌘P still opens', () => {
+    reset('leadsheet');
+    const chord = vi.fn(() => true);
+    renderEditor(
+      <Bound
+        scope={LEAD_SHEET_SCOPE.id}
+        handlers={{ 'leadsheet.chord': chord }}
+      />,
+    );
+    const event = press('KeyK', { metaKey: true, key: 'k' });
+    expect(chord).toHaveBeenCalledTimes(1);
+    expect(paletteOpen()).toBe(false);
+    expect(event.defaultPrevented).toBe(true);
+
+    press('KeyP', { metaKey: true, shiftKey: true, key: 'P' });
+    expect(paletteOpen()).toBe(true);
+    expect(chord).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens from the practice screen too', () => {
+    reset('practice');
+    renderEditor(<Bound scope="practice" handlers={{}} />);
+    press('KeyK', { metaKey: true, key: 'k' });
+    expect(paletteOpen()).toBe(true);
   });
 });
 

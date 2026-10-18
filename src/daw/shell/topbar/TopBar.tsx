@@ -1,4 +1,4 @@
-import { MoreHorizontal, Settings2 } from 'lucide-react';
+import { MoreHorizontal, Search, Settings2 } from 'lucide-react';
 import { memo, useMemo, useRef } from 'react';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
@@ -6,6 +6,7 @@ import { IconButton } from '@/daw/ui/IconButton';
 import { QUIET } from '@/daw/ui/styles';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
+import { usePaletteStore } from '@/daw/shell/help/usePaletteStore';
 import {
   Menu,
   MenuCheckboxItem,
@@ -48,6 +49,7 @@ import { folded, useToolbarOverflow } from './useToolbarOverflow';
 const BAR_CHROME_PX = 4 + 4;
 
 const TYPING_KEYS = shortcutKeys('typing.on');
+const PALETTE_KEYS = shortcutKeys('help.palette');
 
 export const TopBar = memo(function TopBar() {
   useDevCommitCount('TopBar');
@@ -117,8 +119,8 @@ export const TopBar = memo(function TopBar() {
 });
 
 /**
- * '⋯': the computer keyboard's switch, Help (shortcuts, lessons) and Audio &
- * MIDI settings.
+ * '⋯': the computer keyboard's switch, the command palette, Help (shortcuts,
+ * lessons) and Audio & MIDI settings.
  */
 function MoreMenu() {
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
@@ -144,6 +146,14 @@ function MoreMenu() {
         >
           Play notes from the computer keyboard
         </MenuCheckboxItem>
+        <MenuItem
+          icon={<Search />}
+          shortcut={PALETTE_KEYS.label}
+          data-testid="palette-menu-item"
+          onSelect={() => usePaletteStore.getState().open()}
+        >
+          Find a command
+        </MenuItem>
         <MenuSeparator />
         <HelpItems />
         <MenuItem

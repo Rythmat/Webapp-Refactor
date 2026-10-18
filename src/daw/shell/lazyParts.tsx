@@ -303,6 +303,12 @@ export const ShortcutSheetPart = lazyPart(
   { name: 'shortcut sheet' },
 );
 
+/** The command palette (2.15): cmdk loads with it, on the first ⌘K. */
+export const CommandPalettePart = lazyPart(
+  () => import('@/daw/shell/help/CommandPalette').then((m) => m.CommandPalette),
+  { name: 'command palette' },
+);
+
 export const TutorialLayerPart = lazyPart(
   () =>
     import('@/daw/components/Tutorial/TutorialLayer').then(

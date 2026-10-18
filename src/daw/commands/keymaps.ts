@@ -43,6 +43,7 @@ defineCommand({
   label: 'Go to suggestion 1–9',
   keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
   keysLabel: '1–9',
+  palette: false,
 });
 defineCommand({
   id: 'prism.preview',
@@ -419,6 +420,7 @@ export const PRACTICE_SCOPE = defineScope({
     'transport.loop',
     'transport.stop',
     'help.shortcuts',
+    'help.palette',
     'typing.on',
   ],
 });
@@ -665,6 +667,7 @@ defineCommand({
   label: 'Note length: 32nd, 16th, eighth, quarter, half, whole',
   keys: ['2', '3', '4', '5', '6', '7'],
   keysLabel: '2–7',
+  palette: false,
 });
 defineCommand({
   id: 'score.articulation',
@@ -672,6 +675,7 @@ defineCommand({
   label: 'Staccato, accent, marcato, tenuto, fermata',
   keys: ['.', '>', '-', '_', ';'],
   keysLabel: '. > - _ ;',
+  palette: false,
 });
 defineCommand({
   id: 'score.slur',
@@ -922,6 +926,66 @@ defineCommand({
   scope: 'global',
   label: 'Keyboard shortcuts',
   keys: ['?'],
+});
+// The command palette (2.15). ⌘K, as in most editors; the Lead sheet keeps
+// ⌘K for a chord symbol while something on the chart is selected, so ⇧⌘P
+// opens the palette from anywhere.
+defineCommand({
+  id: 'help.palette',
+  scope: 'global',
+  label: 'Find a command',
+  keys: ['Mod+KeyK', 'Mod+Shift+KeyP'],
+  keywords: ['palette', 'search', 'commands'],
+});
+// Commands with no keys, for the palette: what the menus and buttons do.
+defineCommand({
+  id: 'track.add',
+  scope: 'global',
+  label: 'Add a track…',
+  keys: [],
+  keywords: ['new track', 'instrument'],
+});
+defineCommand({
+  id: 'view.create',
+  scope: 'global',
+  label: 'Go to Create',
+  keys: [],
+  keywords: ['timeline', 'arrange', 'view'],
+});
+defineCommand({
+  id: 'view.mix',
+  scope: 'global',
+  label: 'Go to Mix',
+  keys: [],
+  keywords: ['mixer', 'view'],
+});
+defineCommand({
+  id: 'view.score',
+  scope: 'global',
+  label: 'Go to the Score',
+  keys: [],
+  keywords: ['notation', 'lead sheet', 'view'],
+});
+defineCommand({
+  id: 'view.library',
+  scope: 'global',
+  label: 'Open the Library',
+  keys: [],
+  keywords: ['browser', 'parts', 'grooves', 'kits', 'presets', 'templates'],
+});
+defineCommand({
+  id: 'view.effects',
+  scope: 'global',
+  label: 'Open the Effects library',
+  keys: [],
+  keywords: ['fx', 'reverb', 'delay', 'eq'],
+});
+defineCommand({
+  id: 'view.settings',
+  scope: 'global',
+  label: 'Audio & MIDI settings',
+  keys: [],
+  keywords: ['microphone', 'output', 'device', 'latency'],
 });
 // Outside a text field these never reach the browser: ⌘A would select the
 // page's text and ⌘D open a bookmark dialog over the editor.

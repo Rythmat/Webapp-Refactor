@@ -1,11 +1,11 @@
 import { chordLabel, isCharacterKey } from '@/daw/commands/keys';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import {
-  allScopes,
   commandsOf,
   type DeclaredCommand,
   type ScopeDef,
 } from '@/daw/commands/registry';
+import { sortedScopes } from '@/daw/commands/scopeOrder';
 import { useStore } from '@/daw/store';
 import { DawDialog } from '@/daw/ui/DawDialog';
 import { Kbd } from '@/daw/ui/Kbd';
@@ -21,29 +21,6 @@ import '@/daw/commands/keymaps';
 // holds the two switches that change what keys do: single-key shortcuts
 // (WCAG 2.1.4) and the computer keyboard as a piano. Stage B (2.11) restyles
 // it in place and links it from the help menu; 3.14 adds remapping.
-
-/** The sheet's order: where the student is most of the time first. */
-const SCOPE_ORDER = [
-  'global',
-  'arrange',
-  'score',
-  'leadsheet',
-  'pianoRoll',
-  'drums',
-  'dock',
-  'typing',
-  'practice',
-  'prism',
-  'dockMax',
-];
-
-function sortedScopes(): ScopeDef[] {
-  const rank = (id: string) => {
-    const i = SCOPE_ORDER.indexOf(id);
-    return i === -1 ? SCOPE_ORDER.length : i;
-  };
-  return allScopes().sort((a, b) => rank(a.id) - rank(b.id));
-}
 
 /** The keys of one row: 'Delete', 'Backspace'; a long run as one label. */
 function rowKeys(command: DeclaredCommand): string[] {
@@ -62,7 +39,10 @@ function ScopeSection({
   scope: ScopeDef;
   singleKeysOff: boolean;
 }) {
-  const rows = commandsOf(scope.id).filter((c) => !c.hidden);
+  // A command without keys (Export…) is the palette's, not the sheet's.
+  const rows = commandsOf(scope.id).filter(
+    (c) => !c.hidden && c.keys.length > 0,
+  );
   if (rows.length === 0) return null;
   const headingId = `shortcut-scope-${scope.id}`;
   return (

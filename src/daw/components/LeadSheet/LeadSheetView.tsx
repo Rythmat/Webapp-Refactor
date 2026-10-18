@@ -683,7 +683,8 @@ function LeadSheetChartView() {
 
   // ── Keys (the leadsheet scope) ──────────────────────────────────────────
   // ⌘C / ⌘V always copy and paste, whatever is selected. ⌘K adds a chord
-  // symbol at the selection, as it does in MuseScore. Delete clears what is
+  // symbol at the selection, as it does in MuseScore; with nothing selected
+  // it opens the command palette (2.15). Delete clears what is
   // selected; Escape drops the selection; Return breaks the system. Delete
   // and Escape are always the chart's here, so neither ever reaches a clip
   // in Create or stops the music.
@@ -704,6 +705,9 @@ function LeadSheetChartView() {
       } else if (measuresPicked.length > 0) {
         const first = Math.min(...measuresPicked.map((m) => m.measureIndex));
         insertChordAt(first * ticksPerMeasure);
+      } else {
+        // Nothing on the chart to put it on: ⌘K is the command palette's.
+        return false;
       }
     },
     'leadsheet.escape': () => clearSelection(),

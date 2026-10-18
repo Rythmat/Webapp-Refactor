@@ -8,6 +8,7 @@ import {
   matchesChord,
   overlayAround,
 } from './keys';
+import { isApplePlatform } from '@/daw/shell/topbar/platformKeys';
 import { useMusicalTypingStore } from './musicalTypingStore';
 import {
   boundScopes,
@@ -66,7 +67,14 @@ function containsTarget(bound: BoundScope, target: Node | null): boolean {
 
 /** The scopes a key press tries, in order, each with what it may run. */
 export function candidateScopes(e: KeyboardEvent): Candidate[] {
-  const target = e.target instanceof Node ? e.target : null;
+  return candidatesFor(e.target instanceof Node ? e.target : null);
+}
+
+/**
+ * The scopes a key pressed with focus on `target` would try, in order, each
+ * with what it may run (the precedence walk, apart from the key).
+ */
+export function candidatesFor(target: Node | null): Candidate[] {
   const all = boundScopes().filter((b) => b.isActive());
   const out: Candidate[] = [];
   let allowed: ReadonlySet<string> | null = null;
@@ -86,7 +94,7 @@ export function candidateScopes(e: KeyboardEvent): Candidate[] {
   // inside the pop-out): only its own scopes answer, then what it lets
   // through. The floating overlays below wait, so Escape closes the
   // innermost thing first.
-  const overlay = overlayAround(e.target);
+  const overlay = overlayAround(target);
   if (overlay) {
     const inside = all
       .filter((b) => {
@@ -195,6 +203,96 @@ export function dispatchKey(e: KeyboardEvent): string | null {
     }
   }
   return null;
+}
+
+// ── Commands by name (the command palette, milestone 2.15) ─────────────────
+
+/** Whether `bound` may run `command` below the modal scopes before it. */
+function mayRun(
+  { bound, allowed }: Candidate,
+  command: DeclaredCommand,
+): boolean {
+  if (allowed && !allowed.has(command.id) && !allowed.has(command.scope)) {
+    return false;
+  }
+  return !!bound.handlers.current[command.id];
+}
+
+/** Levels the palette never offers: an overlay's own keys, the piano keys. */
+const NOT_IN_PALETTE: ReadonlySet<string> = new Set(['dialog', 'typing']);
+
+/**
+ * The commands that would answer with focus on `target` right now, in the
+ * precedence order, each once: what the palette lists. A command whose key
+ * a scope before it would take still runs by name, so it is listed too.
+ */
+export function availableCommands(target: Node | null): DeclaredCommand[] {
+  const seen = new Set<string>();
+  const out: DeclaredCommand[] = [];
+  for (const candidate of candidatesFor(target)) {
+    if (NOT_IN_PALETTE.has(candidate.bound.scope.level)) continue;
+    for (const command of commandsOf(candidate.bound.scope.id)) {
+      if (seen.has(command.id)) continue;
+      if (command.hidden || command.palette === false) continue;
+      if (!mayRun(candidate, command)) continue;
+      seen.add(command.id);
+      out.push(command);
+    }
+  }
+  return out;
+}
+
+/** The key a command's first chord presses, for a handler that reads it. */
+function eventFor(
+  command: DeclaredCommand,
+  target: Node | null,
+): KeyboardEvent {
+  const chord = command.chords[0];
+  const code = chord?.code ?? '';
+  const key = chord?.char
+    ? chord.char
+    : code.startsWith('Key')
+      ? code.slice(3).toLowerCase()
+      : code.startsWith('Digit')
+        ? code.slice(5)
+        : code === 'Space'
+          ? ' '
+          : code;
+  const apple = isApplePlatform();
+  const e = new KeyboardEvent('keydown', {
+    key,
+    code,
+    metaKey: !!chord?.mod && apple,
+    ctrlKey: !!chord?.mod && !apple,
+    shiftKey: !!chord?.shift,
+    altKey: !!chord?.alt,
+    bubbles: true,
+    cancelable: true,
+  });
+  // As if pressed where focus was, which is what the handlers look at.
+  Object.defineProperty(e, 'target', { value: target });
+  return e;
+}
+
+/**
+ * Runs `id` as its key would with focus on `target`: through the same scopes,
+ * in the same order, so a track list command acts on the row that had focus
+ * and a clip command on the selected clip. The single-key switch and musical
+ * typing don't hold it back: the student picked it by name. True when a
+ * handler took it, false when none would (nothing selected, another view).
+ */
+export function runCommand(id: string, target: Node | null): boolean {
+  if (isOpening()) return false;
+  for (const candidate of candidatesFor(target)) {
+    const command = commandsOf(candidate.bound.scope.id).find(
+      (c) => c.id === id,
+    );
+    if (!command || !mayRun(candidate, command)) continue;
+    const handler = candidate.bound.handlers.current[id];
+    if (handler(eventFor(command, target)) === false) continue;
+    return true;
+  }
+  return false;
 }
 
 let installs = 0;

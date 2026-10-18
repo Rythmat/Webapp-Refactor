@@ -335,7 +335,7 @@ function hiddenFollowing(
 }
 
 /** The store's note-keyed marks, as noteMarks.ts names them. */
-function noteMarksOf(state: ArrangementState): NoteKeyedMarks {
+export function noteMarksOf(state: ArrangementState): NoteKeyedMarks {
   return {
     articulations: state.scoreArticulations,
     slurs: state.scoreSlurs,
@@ -345,7 +345,7 @@ function noteMarksOf(state: ArrangementState): NoteKeyedMarks {
 }
 
 /** The marks that changed, as a store patch. */
-function marksPatch(
+export function marksPatch(
   before: NoteKeyedMarks,
   after: NoteKeyedMarks,
 ): ArrangementPatch {
@@ -367,7 +367,7 @@ function marksPatch(
  * The marks of notes that were copied, added for their copies (old key →
  * the copy's key). A slur is copied when both of its notes were.
  */
-function copyNoteMarks(
+export function copyNoteMarks(
   marks: NoteKeyedMarks,
   copies: ReadonlyMap<string, string>,
 ): NoteKeyedMarks {

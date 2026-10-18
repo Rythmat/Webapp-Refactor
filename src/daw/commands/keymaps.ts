@@ -306,6 +306,12 @@ defineCommand({
   keys: ['F2', 'KeyN'],
 });
 defineCommand({
+  id: 'tracks.duplicate',
+  scope: 'tracks',
+  label: 'Duplicate the track',
+  keys: ['Mod+KeyD'],
+});
+defineCommand({
   id: 'tracks.mute',
   scope: 'tracks',
   label: 'Mute the track',

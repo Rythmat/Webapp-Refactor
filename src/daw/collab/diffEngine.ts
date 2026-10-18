@@ -154,12 +154,25 @@ function diffTracks(
     }
   }
 
-  // Added tracks
-  for (const track of nextTracks) {
-    if (!prevIds.has(track.id)) {
-      yTracks.push([trackToYMap(track)]);
+  // Added tracks go in where they are in the list (milestone 2.15): right
+  // after the nearest track before them that the doc holds, or first when
+  // nothing is before them. A peer builds its list in the doc's order, so a
+  // duplicate pushed at the end would show last for a partner, and jump
+  // there here on the next remote edit. Several added at once keep their
+  // order: each one placed is there for the next to follow. The end is the
+  // last resort, for a track whose earlier tracks the doc doesn't hold.
+  nextTracks.forEach((track, index) => {
+    if (prevIds.has(track.id)) return;
+    let at = index === 0 ? 0 : yTracks.length;
+    for (let i = index - 1; i >= 0; i--) {
+      const held = findYMapIndex(yTracks, 'id', nextTracks[i].id);
+      if (held >= 0) {
+        at = held + 1;
+        break;
+      }
     }
-  }
+    yTracks.insert(at, [trackToYMap(track)]);
+  });
 
   // Modified tracks
   for (const nextTrack of nextTracks) {

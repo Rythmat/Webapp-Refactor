@@ -4,6 +4,7 @@ import { useKeymap, type KeymapHandlers } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { withTransaction } from '@/daw/store/history';
 import { isTrackLockedByRemote } from '@/daw/store/trackLock';
+import { duplicateTrack } from './duplicateTrack';
 import { requestTrackRename } from './useTrackRename';
 
 // ── The track list's keys (milestone 2.6, A11Y#3) ──────────────────────────
@@ -11,10 +12,11 @@ import { requestTrackRename } from './useTrackRename';
 // While focus is on a track's name (the row's selector): ↑ and ↓ select the
 // track above or below (Home and End, the first and last), ⌥↑ and ⌥↓ move
 // it, Enter opens it in the dock and puts focus there, F2 or N renames it, M
-// and S mute and solo it. They are the 'tracks' region scope (keymaps.ts),
-// so the shortcut sheet lists them and musical typing, when on, takes the
-// letters first. On the row's other controls (the fader's arrows, a
-// toggle's Enter) the keys stay theirs.
+// and S mute and solo it, and ⌘D duplicates it, focus going to the copy
+// (milestone 2.15). They are the 'tracks' region scope (keymaps.ts), so the
+// shortcut sheet lists them and musical typing, when on, takes the letters
+// first. On the row's other controls (the fader's arrows, a toggle's Enter)
+// the keys stay theirs.
 
 /** The track whose name has focus inside `list`, if one has. */
 function focusedTrackId(
@@ -102,6 +104,10 @@ export function useTrackListKeys(list: RefObject<HTMLElement>): void {
     'tracks.rename': onTrack((id) => {
       if (isTrackLockedByRemote(useStore.getState().remoteUsers, id)) return;
       requestTrackRename(id);
+    }),
+    'tracks.duplicate': onTrack((id) => {
+      const copy = duplicateTrack(id);
+      if (copy) focusTrackRow(copy);
     }),
     'tracks.mute': onTrack((id) => useStore.getState().toggleMute(id)),
     'tracks.solo': onTrack((id) => useStore.getState().toggleSolo(id)),

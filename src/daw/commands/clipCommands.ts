@@ -86,7 +86,7 @@ function canAddMarker(e: KeyboardEvent): boolean {
  * The menu key (Windows) also opens the browser's own context menu, on its
  * release: swallow that one, so ours stays on top.
  */
-function swallowNativeMenu(): void {
+export function swallowNativeMenu(): void {
   const stop = (event: Event) => event.preventDefault();
   window.addEventListener('contextmenu', stop, { capture: true, once: true });
   window.setTimeout(

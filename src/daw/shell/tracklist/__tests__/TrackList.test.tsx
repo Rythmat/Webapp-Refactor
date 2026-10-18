@@ -31,6 +31,8 @@ vi.mock('sonner', () => ({ toast: h.toast }));
 
 import { installKeyDispatcher } from '@/daw/commands/dispatcher';
 import { useStore } from '@/daw/store';
+import { contrastRatio } from '@/daw/ui/color';
+import { COLOR } from '@/daw/ui/tokens';
 import { resetHistory, startHistory } from '@/daw/store/history';
 import { TrackList } from '../TrackList';
 
@@ -164,6 +166,89 @@ describe('a track row’s instrument button', () => {
     );
     expect(s().selectedTrackId).toBe(s().tracks[3].id);
     expect(s().channelStripTab).toBe('fx');
+  });
+});
+
+describe('the instrument glyph’s colour', () => {
+  const ROW = COLOR['surface-1'].value;
+  const glyph = (name: string) =>
+    screen.getByRole('button', { name: `Open ${name}’s instrument` });
+
+  it('leaves a dark track colour out of an unselected row', () => {
+    // A wine red: under 3:1 on the row, so the glyph takes the row's text.
+    expect(contrastRatio('#450920', ROW)).toBeLessThan(3);
+    s().updateTrack(s().tracks[0].id, { color: '#450920' });
+    render(<TrackList />);
+    expect(glyph('Rhodes').style.color).toBe('');
+    expect(glyph('Rhodes').style.backgroundColor).toBe('');
+  });
+
+  it('keeps a light track colour on the glyph', () => {
+    expect(contrastRatio('#f5d76e', ROW)).toBeGreaterThanOrEqual(3);
+    s().updateTrack(s().tracks[0].id, { color: '#f5d76e' });
+    render(<TrackList />);
+    expect(glyph('Rhodes').style.color).toBe('rgb(245, 215, 110)');
+  });
+
+  it('fills the selected row’s button with the track colour, dark or not', () => {
+    s().updateTrack(s().tracks[0].id, { color: '#450920' });
+    s().setSelectedTrackId(s().tracks[0].id);
+    render(<TrackList />);
+    expect(glyph('Rhodes').style.backgroundColor).toBe('rgb(69, 9, 32)');
+    expect(glyph('Rhodes').style.color).not.toBe('');
+  });
+});
+
+describe('the track menu from the keys', () => {
+  const menuName = () =>
+    screen.queryByTestId('track-menu')?.getAttribute('aria-label') ?? null;
+
+  it('opens a track’s ⋯ menu with ⇧F10 on its name', () => {
+    render(<TrackList />);
+    selector('Drums').focus();
+    fireEvent.keyDown(selector('Drums'), {
+      key: 'F10',
+      code: 'F10',
+      shiftKey: true,
+    });
+    expect(menuName()).toBe('Drums menu');
+  });
+
+  it('opens it with ⌥Return too', () => {
+    render(<TrackList />);
+    selector('Vox').focus();
+    fireEvent.keyDown(selector('Vox'), {
+      key: 'Enter',
+      code: 'Enter',
+      altKey: true,
+    });
+    expect(menuName()).toBe('Vox menu');
+  });
+
+  it('opens it with the menu key, and keeps the browser’s menu shut', () => {
+    render(<TrackList />);
+    selector('Rhodes').focus();
+    fireEvent.keyDown(selector('Rhodes'), {
+      key: 'ContextMenu',
+      code: 'ContextMenu',
+    });
+    expect(menuName()).toBe('Rhodes menu');
+    // The key's own contextmenu event, as it comes up.
+    const native = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+    });
+    window.dispatchEvent(native);
+    expect(native.defaultPrevented).toBe(true);
+  });
+
+  it('does nothing on another of the row’s controls', () => {
+    render(<TrackList />);
+    const mute = screen.getByRole('button', { name: 'Mute Drums' });
+    mute.focus();
+    fireEvent.keyDown(mute, { key: 'F10', code: 'F10', shiftKey: true });
+    fireEvent.keyDown(mute, { key: 'ContextMenu', code: 'ContextMenu' });
+    expect(menuName()).toBeNull();
   });
 });
 

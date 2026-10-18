@@ -2,6 +2,7 @@ import { Circle, Ear, EarOff, MoreHorizontal } from 'lucide-react';
 import {
   memo,
   useCallback,
+  useEffect,
   useRef,
   useState,
   type MouseEvent,
@@ -20,7 +21,8 @@ import { meterSource } from '@/daw/engine/meterBus';
 import { useTrackVolumeControl } from '@/daw/hooks/useMixControls';
 import { openTrackInDock } from '@/daw/shell/dock/dockSelection';
 import { useStore, useTrack, type Track } from '@/daw/store';
-import { onColor } from '@/daw/ui/color';
+import { contrastRatio, onColor } from '@/daw/ui/color';
+import { COLOR } from '@/daw/ui/tokens';
 import { Fader } from '@/daw/ui/Fader';
 import { formatGain } from '@/daw/ui/format';
 import { IconButton } from '@/daw/ui/IconButton';
@@ -30,6 +32,7 @@ import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
 import { TRACK_ROW_PX } from './rowLayout';
 import { trackIcon } from './trackIcon';
+import { onTrackMenuRequest } from './trackMenuRequests';
 import { TrackMenuContent } from './TrackMenu';
 import { useTrackRename } from './useTrackRename';
 
@@ -97,6 +100,11 @@ const TrackRowBody = memo(function TrackRowBody({
     y: number;
   } | null>(null);
   const rename = useTrackRename(track);
+  // ⇧F10 and the menu key on the row's name (the list's tracks.menu).
+  useEffect(
+    () => onTrackMenuRequest(track.id, () => setMenuOpen(true)),
+    [track.id],
+  );
 
   const select = useCallback(() => {
     useStore.getState().setSelectedTrackId(track.id);
@@ -116,6 +124,9 @@ const TrackRowBody = memo(function TrackRowBody({
     [locked, select],
   );
   const Icon = trackIcon(track.instrument);
+  // A dark track colour can't be read as a glyph on the row: then it is
+  // drawn in the row's own text colour (3:1, WCAG's for graphics).
+  const glyphReads = contrastRatio(track.color, COLOR['surface-1'].value) >= 3;
 
   return (
     <li
@@ -170,7 +181,9 @@ const TrackRowBody = memo(function TrackRowBody({
             style={
               isSelected
                 ? { backgroundColor: track.color, color: onColor(track.color) }
-                : { color: track.color }
+                : glyphReads
+                  ? { color: track.color }
+                  : undefined
             }
             onClick={(e) => {
               e.stopPropagation();

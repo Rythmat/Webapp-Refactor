@@ -502,3 +502,64 @@ describe('a right-click on a row', () => {
     expect(screen.queryByTestId('track-menu')).toBeNull();
   });
 });
+
+describe('the menu opens on the name', () => {
+  /** Types `text` where focus is, a key at a time, then Return. */
+  function typeThenReturn(text: string) {
+    let typed = '';
+    for (const key of text) {
+      const el = document.activeElement as HTMLElement;
+      fireEvent.keyDown(el, { key });
+      // In the field the text was selected: what is typed replaces it.
+      if (el instanceof HTMLInputElement) {
+        typed += key;
+        fireEvent.change(el, { target: { value: typed } });
+      }
+    }
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'Enter' });
+  }
+
+  it('with focus in the field and its text selected', () => {
+    render(<TrackList />);
+    openMenu('Rhodes');
+    const field = nameField() as HTMLInputElement;
+    expect(document.activeElement).toBe(field);
+    expect(field.selectionStart).toBe(0);
+    expect(field.selectionEnd).toBe('Rhodes'.length);
+  });
+
+  it('so typing a name and Return renames, and duplicates nothing', () => {
+    render(<TrackList />);
+    openMenu('Rhodes');
+    // A D on the menu itself jumped to Duplicate track, and Return ran it.
+    typeThenReturn('Drums');
+    expect(names()).toEqual(['Drums', 'Drums', 'Vox']);
+    expect(undoLabel()).toBe('Rename track');
+  });
+
+  it('on a held track, with focus on the first item it can use', () => {
+    heldBySam(rhodes);
+    render(<TrackList />);
+    const menu = openMenu('Rhodes');
+    expect(document.activeElement).not.toBe(nameField());
+    expect(menu.contains(document.activeElement)).toBe(true);
+  });
+
+  it('↑ on the first item goes back up to the name', () => {
+    render(<TrackList />);
+    const menu = openMenu('Rhodes');
+    const colour = itemNamed(menu, 'Colour');
+    colour.focus();
+    fireEvent.keyDown(colour, { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(nameField());
+  });
+
+  it('↑ further down stays in the menu’s items', () => {
+    render(<TrackList />);
+    const menu = openMenu('Rhodes');
+    const role = itemNamed(menu, 'Role for chord analysis');
+    role.focus();
+    fireEvent.keyDown(role, { key: 'ArrowUp' });
+    expect(document.activeElement).not.toBe(nameField());
+  });
+});

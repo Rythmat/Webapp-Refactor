@@ -102,6 +102,18 @@ function NameField({ track, locked }: { track: Track; locked: boolean }) {
   // A click outside closes the menu without the field ever losing focus
   // first: what was typed is kept as it goes.
   const trackId = track.id;
+  // The menu opens with the name selected here, ready to type over: typed
+  // letters rename rather than jump to an item (Radix's typeahead ran
+  // "Duplicate track" on a D and Return). This runs before the menu's own
+  // focus, which then leaves focus where it is. Off on a held track, where
+  // the first item takes focus as usual.
+  useEffect(() => {
+    if (locked) return;
+    input.current?.focus();
+    input.current?.select();
+    // Only as the menu opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     const field = input.current;
     return () => {
@@ -207,6 +219,19 @@ export function TrackMenuContent({
       className="w-60"
       onClick={(e) => e.stopPropagation()}
       onCloseAutoFocus={onCloseAutoFocus}
+      onKeyDown={(e) => {
+        // ↑ from the first item goes back up to the name.
+        if (e.key !== 'ArrowUp' || locked) return;
+        const menu = e.currentTarget;
+        const first = menu.querySelector(
+          '[role="menuitem"]:not([data-disabled])',
+        );
+        if (e.target !== first) return;
+        e.preventDefault();
+        menu
+          .querySelector<HTMLInputElement>('[data-testid="track-menu-name"]')
+          ?.focus();
+      }}
       onEscapeKeyDown={(e) => {
         // Escape in the name field: the name stays as it was (NameField).
         const field = e.target;

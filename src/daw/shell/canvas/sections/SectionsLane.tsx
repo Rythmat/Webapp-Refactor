@@ -9,6 +9,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 import { cn } from '@/components/utilities';
+import { swallowNativeMenu } from '@/daw/commands/clipCommands';
 import { SECTION_DRAG_SCOPE, SECTIONS_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap, type KeymapHandlers } from '@/daw/commands/registry';
 import { pauseFollow } from '@/daw/editor/follow';
@@ -88,20 +89,6 @@ function sectionIdOf(
 /** Focus that scrolls nothing: the timeline's scroll places the lane. */
 function focusInPlace(el: HTMLElement | null | undefined): void {
   el?.focus({ preventScroll: true });
-}
-
-/**
- * The menu key (Windows) also opens the browser's own menu, on its release:
- * swallow that one, so ours stays on top. The same as clip.menu's in
- * clipCommands.ts, which doesn't export it.
- */
-function swallowNativeMenu(): void {
-  const stop = (event: Event) => event.preventDefault();
-  window.addEventListener('contextmenu', stop, { capture: true, once: true });
-  window.setTimeout(
-    () => window.removeEventListener('contextmenu', stop, { capture: true }),
-    1000,
-  );
 }
 
 export const SectionsLane = memo(function SectionsLane() {

@@ -1,10 +1,12 @@
 import type { RefObject } from 'react';
+import { swallowNativeMenu } from '@/daw/commands/clipCommands';
 import { TRACKS_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap, type KeymapHandlers } from '@/daw/commands/registry';
 import { useStore } from '@/daw/store';
 import { withTransaction } from '@/daw/store/history';
 import { isTrackLockedByRemote } from '@/daw/store/trackLock';
 import { duplicateTrack } from './duplicateTrack';
+import { requestTrackMenu } from './trackMenuRequests';
 import { requestTrackRename } from './useTrackRename';
 
 // ── The track list's keys (milestone 2.6, A11Y#3) ──────────────────────────
@@ -109,6 +111,12 @@ export function useTrackListKeys(list: RefObject<HTMLElement>): void {
       const copy = duplicateTrack(id);
       if (copy) focusTrackRow(copy);
     }),
+    'tracks.menu': (e) => {
+      const id = current(e);
+      if (!id) return false;
+      if (e.code === 'ContextMenu') swallowNativeMenu();
+      requestTrackMenu(id);
+    },
     'tracks.mute': onTrack((id) => useStore.getState().toggleMute(id)),
     'tracks.solo': onTrack((id) => useStore.getState().toggleSolo(id)),
   };

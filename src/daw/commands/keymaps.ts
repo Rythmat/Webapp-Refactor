@@ -314,6 +314,12 @@ defineCommand({
   keys: ['Mod+KeyD'],
 });
 defineCommand({
+  id: 'tracks.menu',
+  scope: 'tracks',
+  label: 'Open the track’s menu',
+  keys: ['Alt+Enter', 'Shift+F10', 'ContextMenu'],
+});
+defineCommand({
   id: 'tracks.mute',
   scope: 'tracks',
   label: 'Mute the track',

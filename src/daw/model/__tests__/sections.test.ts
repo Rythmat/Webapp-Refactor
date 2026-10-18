@@ -5,6 +5,7 @@ import {
   DEFAULT_SECTION_BARS,
   SECTION_TYPES,
   appendSection,
+  clipsEndBar,
   isSectionType,
   markSectionAtBar,
   marksOfSections,
@@ -77,6 +78,8 @@ describe('section types', () => {
     ['Instrumental', 'interlude'],
     ['Middle 8', 'bridge'],
     ['Middle eight', 'bridge'],
+    ['Middle 8 2', 'bridge'],
+    ['Middle eight 2', 'bridge'],
     ['Hook', 'hook'],
     ['Drop', 'drop'],
     ['Breakdown', 'breakdown'],
@@ -633,9 +636,34 @@ describe('removeSectionAtBar', () => {
     bars('c', 8, 12, 'chorus', 'Chorus'),
   ];
 
-  it('removes the section that starts on the bar and leaves its bars unlabelled', () => {
+  it('removes the section that starts on the bar and gives its bars to the section before', () => {
     expect(removeSectionAtBar(list, 4, FOUR)).toEqual([
+      bars('a', 0, 8, 'intro', 'Intro'),
+      bars('c', 8, 12, 'chorus', 'Chorus'),
+    ]);
+    // The last one: the song keeps its length.
+    expect(removeSectionAtBar(list, 8, FOUR)).toEqual([
       bars('a', 0, 4, 'intro', 'Intro'),
+      bars('b', 4, 12),
+    ]);
+  });
+
+  it('undoes a mark added inside a section, leaving the sheet as it was', () => {
+    const verse = [bars('v', 0, 8), bars('c', 8, 16, 'chorus', 'Chorus')];
+    const marked = markSectionAtBar(verse, 4, 'A', FOUR, 16, 'new');
+    expect(removeSectionAtBar(marked, 4, FOUR)).toEqual(verse);
+    expect(marksOfSections(removeSectionAtBar(marked, 4, FOUR), FOUR)).toEqual(
+      marksOfSections(verse, FOUR),
+    );
+  });
+
+  it('leaves the bars unnamed when the section before ends earlier, or there is none', () => {
+    const gap = [bars('a', 0, 2, 'intro', 'Intro'), bars('b', 4, 8)];
+    expect(removeSectionAtBar(gap, 4, FOUR)).toEqual([
+      bars('a', 0, 2, 'intro', 'Intro'),
+    ]);
+    expect(removeSectionAtBar(list, 0, FOUR)).toEqual([
+      bars('b', 4, 8),
       bars('c', 8, 12, 'chorus', 'Chorus'),
     ]);
   });
@@ -646,8 +674,20 @@ describe('removeSectionAtBar', () => {
       section('b', 4 * BAR + 300, 8 * BAR),
     ];
     expect(removeSectionAtBar(offBeat, 4, FOUR)).toEqual([
-      section('a', 0, 4 * BAR + 300),
+      section('a', 0, 8 * BAR),
     ]);
+  });
+
+  it('removes only the section the mark shows when two start in one bar', () => {
+    // After a change to 6/4, sections a and b (a 4/4 bar each) both start
+    // in bar 1; the mark shows a, the first.
+    const SIX: TimeSignature = { numerator: 6, denominator: 4 };
+    const two = [
+      section('a', 0, BAR, 'custom', 'A'),
+      section('b', BAR, 2 * BAR, 'custom', 'B'),
+      section('c', 2 * BAR, 6 * BAR, 'custom', 'C'),
+    ];
+    expect(removeSectionAtBar(two, 0, SIX)).toEqual(two.slice(1));
   });
 
   it('returns the same list when no section starts on the bar', () => {
@@ -658,10 +698,59 @@ describe('removeSectionAtBar', () => {
   it("counts bars in the project's metre", () => {
     const waltz = [section('a', 0, 4 * BAR3), section('b', 4 * BAR3, 8 * BAR3)];
     expect(removeSectionAtBar(waltz, 4, THREE)).toEqual([
-      section('a', 0, 4 * BAR3),
+      section('a', 0, 8 * BAR3),
     ]);
     // In 4/4, tick 5,760 is in bar 3, not bar 4.
     expect(removeSectionAtBar(waltz, 4, FOUR)).toBe(waltz);
+  });
+});
+
+describe('clipsEndBar', () => {
+  const note = (startTick: number, durationTicks: number) => ({
+    startTick,
+    durationTicks,
+  });
+
+  it('is the bar the last clip ends in, a part bar counted whole', () => {
+    expect(
+      clipsEndBar(
+        [
+          {
+            midiClips: [
+              { startTick: 0, durationTicks: 8 * BAR, events: [] },
+              // No length: to its last note's end.
+              { startTick: 8 * BAR, events: [note(0, 300), note(BAR, 10)] },
+            ],
+            audioClips: [],
+          },
+          {
+            midiClips: [],
+            audioClips: [{ startTick: 2 * BAR, duration: 6 * BAR }],
+          },
+        ],
+        FOUR,
+      ),
+    ).toBe(10);
+    expect(
+      clipsEndBar(
+        [{ midiClips: [], audioClips: [{ startTick: 0, duration: 9 * BAR }] }],
+        FOUR,
+      ),
+    ).toBe(9);
+  });
+
+  it("counts bars in the project's metre", () => {
+    const track = {
+      midiClips: [{ startTick: 0, durationTicks: 6 * BAR3, events: [] }],
+      audioClips: [],
+    };
+    expect(clipsEndBar([track], THREE)).toBe(6);
+    expect(clipsEndBar([track], FOUR)).toBe(5);
+  });
+
+  it('is 0 without clips', () => {
+    expect(clipsEndBar([], FOUR)).toBe(0);
+    expect(clipsEndBar([{ midiClips: [], audioClips: [] }], FOUR)).toBe(0);
   });
 });
 

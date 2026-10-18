@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand';
 import {
   appendSection,
+  clipsEndBar,
   markSectionAtBar as markAtBar,
   marksOfSections,
   normalizeSections,
@@ -32,7 +33,10 @@ export interface SectionsSlice {
   removeSection: (id: string) => void;
   /** The Lead Sheet's "+ Section", rename and paste at a bar. */
   markSectionAtBar: (measureIdx: number, label: string) => void;
-  /** The Lead Sheet's "− Section" at a bar. */
+  /**
+   * The Lead Sheet's "− Section" at a bar: its bars go to the section before
+   * when the two meet (removeSectionAtBar).
+   */
   removeSectionAtBar: (measureIdx: number) => void;
   /**
    * Writes a whole-song edit (time/arrangementEdits.ts: Duplicate and
@@ -99,13 +103,14 @@ export const createSectionsSlice: StateCreator<
   markSectionAtBar: (measureIdx, label) =>
     set((s) => {
       const ts = timeSignatureOf(s);
-      const sections = markAtBar(
-        s.sections,
-        measureIdx,
-        label,
-        ts,
+      // A mark after the last section runs to the end of the song: the
+      // chord chart's, or the last clip's when the song runs on past its
+      // chords (a melody with no chords, a Score's rehearsal marks).
+      const endBar = Math.max(
         chartBarCount(s.chordRegions, s.leadSheetBars, ts, s.sections),
+        clipsEndBar(s.tracks, ts),
       );
+      const sections = markAtBar(s.sections, measureIdx, label, ts, endBar);
       return sections === s.sections ? s : { sections };
     }),
 

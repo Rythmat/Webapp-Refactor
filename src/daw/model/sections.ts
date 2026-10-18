@@ -233,11 +233,16 @@ const LABEL_TYPES: Readonly<Record<string, SectionType>> = {
  */
 export function sectionTypeOfLabel(label: string): SectionType {
   const lower = label.trim().toLowerCase();
-  const whole = lower.replace(/[^a-z0-9]/g, '');
-  const named = LABEL_TYPES[whole];
+  const named = LABEL_TYPES[lower.replace(/[^a-z0-9]/g, '')];
   if (named) return named;
-  const unnumbered = lower.replace(/\s*\d+$/, '').replace(/[^a-z]/g, '');
-  return LABEL_TYPES[unnumbered] ?? 'custom';
+  // Without its number, whole first ('Middle 8 2' is a Middle 8), then
+  // letters only ('Verse 2a').
+  const unnumbered = lower.replace(/\s*\d+$/, '');
+  return (
+    LABEL_TYPES[unnumbered.replace(/[^a-z0-9]/g, '')] ??
+    LABEL_TYPES[unnumbered.replace(/[^a-z]/g, '')] ??
+    'custom'
+  );
 }
 
 /** A new section's id. */
@@ -526,9 +531,11 @@ export function markSectionAtBar(
 }
 
 /**
- * The Lead Sheet's "− Section" at bar `bar`: the section starting in that
- * bar goes, and its bars stay, unnamed. The same array when none starts
- * there.
+ * The Lead Sheet's "− Section" at bar `bar`: the section its mark shows (the
+ * first to start in that bar) goes, and its bars go to the section before
+ * when that one ends where it started, as a removed mark's bars did before
+ * the sections lane; with nothing right before it, they stay, unnamed. The
+ * same array when none starts there.
  */
 export function removeSectionAtBar(
   list: readonly SongSection[],
@@ -536,8 +543,56 @@ export function removeSectionAtBar(
   ts: TimeSignature,
 ): SongSection[] {
   const tpb = ticksPerBar(ts);
-  const out = list.filter((s) => Math.floor(s.startTick / tpb) !== bar);
-  return out.length === list.length ? (list as SongSection[]) : out;
+  const sorted = normalizeSections(list);
+  const index = sorted.findIndex((s) => Math.floor(s.startTick / tpb) === bar);
+  if (index < 0) return list as SongSection[];
+  const removed = sorted[index];
+  const out = [...sorted];
+  out.splice(index, 1);
+  const previous = sorted[index - 1] as SongSection | undefined;
+  if (previous && previous.endTick === removed.startTick) {
+    out[index - 1] = { ...previous, endTick: removed.endTick };
+  }
+  return out;
+}
+
+/** A track's clips, as much of them as the song's length needs. */
+export interface SongClips {
+  midiClips: readonly {
+    startTick: number;
+    durationTicks?: number;
+    events: readonly { startTick: number; durationTicks: number }[];
+  }[];
+  audioClips: readonly { startTick: number; duration: number }[];
+}
+
+/**
+ * The bar the song's last clip ends in, a part bar counted whole: 0 with no
+ * clips. A MIDI clip without a length runs to its last note's end, as the
+ * Timeline draws it. Marking a section past the chord chart runs it to here
+ * at least, so a melody-only song's sections reach its end.
+ */
+export function clipsEndBar(
+  tracks: readonly SongClips[],
+  ts: TimeSignature,
+): number {
+  let end = 0;
+  for (const track of tracks) {
+    for (const clip of track.midiClips) {
+      let length = clip.durationTicks ?? 0;
+      if (!length) {
+        for (const e of clip.events) {
+          length = Math.max(length, e.startTick + e.durationTicks);
+        }
+      }
+      end = Math.max(end, clip.startTick + length);
+    }
+    for (const clip of track.audioClips) {
+      end = Math.max(end, clip.startTick + clip.duration);
+    }
+  }
+  const bars = Math.ceil(end / ticksPerBar(ts));
+  return Number.isFinite(bars) && bars > 0 ? bars : 0;
 }
 
 /**

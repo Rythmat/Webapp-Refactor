@@ -2873,11 +2873,20 @@
       "leadSheetSections": [
         {
           "measureIdx": 1,
-          "label": "Intro"
+          "label": "Intro",
+          "id": "section-intro001",
+          "type": "intro",
+          "startTick": 1440,
+          "endTick": 7200,
+          "joined": true
         },
         {
           "measureIdx": 5,
-          "label": "Chorus 1"
+          "label": "Chorus 1",
+          "id": "section-chorus01",
+          "type": "chorus",
+          "startTick": 7200,
+          "endTick": 18720
         }
       ]
     },

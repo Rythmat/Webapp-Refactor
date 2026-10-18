@@ -664,9 +664,25 @@ describe('migrating', () => {
   });
 
   it('keeps the Lead Sheet marks a v7 draft implies where older builds read them', () => {
+    // Each carries its section, which a build from before 2.13 keeps.
     expect(ALL_FIELDS.data.notation.leadSheetSections).toEqual([
-      { measureIdx: 1, label: 'Intro' },
-      { measureIdx: 5, label: 'Chorus 1' },
+      {
+        measureIdx: 1,
+        label: 'Intro',
+        id: 'section-intro001',
+        type: 'intro',
+        startTick: 1440,
+        endTick: 7200,
+        joined: true,
+      },
+      {
+        measureIdx: 5,
+        label: 'Chorus 1',
+        id: 'section-chorus01',
+        type: 'chorus',
+        startTick: 7200,
+        endTick: 18720,
+      },
     ]);
     // A v7 draft's own sections win over those marks.
     const { project } = decode(ALL_FIELDS);

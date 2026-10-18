@@ -12,7 +12,8 @@
  * settings). Schema 4 was 1.10's (leadSheetBars, a chord region's
  * sourceClipId), 5 is 2.7's (the view's chordAnalysisDismissed), 6 is
  * 2.12's (a clip's muted, an audio clip's name), 7 is 2.13's (the song's
- * sections; the Lead Sheet's marks stay where they were, as their copy).
+ * sections; the Lead Sheet's marks stay where they were, as their copy,
+ * each carrying its section for the way back from a rollback).
  *
  * An array's entries share one path (`[]`). The instrument and effect blobs
  * inside it are their owners' (each loads older versions of itself, and the
@@ -161,8 +162,13 @@ const DRAFT_PATHS = [
   'data.notation.leadSheetRepeats[].startMeasure',
   'data.notation.leadSheetSections',
   'data.notation.leadSheetSections[]',
+  'data.notation.leadSheetSections[].endTick',
+  'data.notation.leadSheetSections[].id',
+  'data.notation.leadSheetSections[].joined',
   'data.notation.leadSheetSections[].label',
   'data.notation.leadSheetSections[].measureIdx',
+  'data.notation.leadSheetSections[].startTick',
+  'data.notation.leadSheetSections[].type',
   'data.notation.leadSheetShowMelody',
   'data.notation.leadSheetShowRepeats',
   'data.notation.marks',

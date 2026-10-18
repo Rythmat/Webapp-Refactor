@@ -16,12 +16,15 @@ import {
 } from '@/daw/instruments/samplerChops';
 import { ensureProjectNoteIds, isNoteId } from '@/daw/model/noteIds';
 import {
+  clipsEndBar,
   isSectionType,
-  marksOfSections,
   normalizeSections,
   sectionName,
+  sectionTypeOfLabel,
   sectionsFromMarks,
   type SectionMark,
+  type SectionType,
+  type SongClips,
   type SongSection,
 } from '@/daw/model/sections';
 import type { SynthTrackState } from '@/daw/oracle-synth/synthPatchKeys';
@@ -40,7 +43,11 @@ import type {
 import type { LeadSheetChordFormat, ViewType } from '@/daw/store/uiSlice';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { chartBarCount } from '@/daw/time/measureEdits';
-import { timeSignatureOf } from '@/daw/time/timeModel';
+import {
+  ticksPerBar,
+  timeSignatureOf,
+  type TimeSignature,
+} from '@/daw/time/timeModel';
 import type { CloudDocument } from './cloudDocument';
 import { planCloudTrackIds, rewriteTrackRefs } from './cloudIds';
 import { keyColourFor, nextChordsFor } from './derived';
@@ -95,8 +102,10 @@ import {
 // Lead Sheet's bar marks were their own key until then: a v7 draft writes the
 // marks its sections imply in that old place (notation.leadSheetSections),
 // so a build from before 2.13 still shows them after a rollback, and a draft
-// without sections (any older one) reads them back from there. Only adds, so
-// compat 3 still.
+// without sections (any older one) reads them back from there. Each of those
+// marks also carries its section's id, kind and span (DraftSectionMark),
+// which a build from before 2.13 keeps as it is, so rolling back and forward
+// again brings the sections back as they were. Only adds, so compat 3 still.
 //
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
@@ -416,7 +425,7 @@ export interface DraftData extends DraftSection<'data'> {
      * The Lead Sheet's bar marks: its own key before 2.13, now the marks the
      * sections imply, for builds that predate them (see the top).
      */
-    leadSheetSections?: SectionMark[];
+    leadSheetSections?: DraftSectionMark[];
   };
   view?: DraftSection<'view'>;
 }
@@ -570,6 +579,127 @@ function encodeTrack(track: Track, patchOf: SynthPatchOf): DraftTrack {
   return out as unknown as DraftTrack;
 }
 
+// ── The Lead Sheet's marks, for builds from before 2.13 ─────────────────────
+
+/**
+ * A Lead Sheet mark as a draft writes it: the bar and name a build from
+ * before 2.13 reads, and the section it stands for, which such a build keeps
+ * untouched on the marks it loads. `joined` says the next section started
+ * where this one ended.
+ */
+export interface DraftSectionMark extends SectionMark {
+  id?: string;
+  type?: SectionType;
+  startTick?: number;
+  endTick?: number;
+  joined?: true;
+}
+
+/**
+ * The marks `list` implies (marksOfSections: the first section to start in
+ * each bar, at that bar), each carrying its section.
+ */
+function draftMarksOf(
+  list: readonly SongSection[],
+  ts: TimeSignature,
+): DraftSectionMark[] {
+  const bar = ticksPerBar(ts);
+  const sorted = normalizeSections(list);
+  const marks: DraftSectionMark[] = [];
+  const seen = new Set<number>();
+  sorted.forEach((section, i) => {
+    const measureIdx = Math.floor(section.startTick / bar);
+    if (seen.has(measureIdx)) return;
+    seen.add(measureIdx);
+    const mark: DraftSectionMark = {
+      measureIdx,
+      label: section.label,
+      id: section.id,
+      type: section.type,
+      startTick: section.startTick,
+      endTick: section.endTick,
+    };
+    if (sorted[i + 1]?.startTick === section.endTick) mark.joined = true;
+    marks.push(mark);
+  });
+  return marks;
+}
+
+/**
+ * Sections read back from Lead Sheet marks (draftMarksOf's, or a mark an
+ * older build wrote), in order, one per bar, the first written winning.
+ *
+ * A mark whose section still starts in its bar takes that section's id and
+ * start, and its end, cut short where the next mark starts. When the section
+ * met the next one and the next mark now starts later, an older build
+ * removed the section between, which gives its bars to this one, so it runs
+ * on to the next mark (to the end of the song after the last, never
+ * shorter than it was). A mark's kind follows its name when the name gives
+ * one, else the section's, else custom. A mark without its section (one an
+ * older build added or renamed, or moved with the bars) runs to the next
+ * mark, the last to `endBar` (sectionsFromMarks).
+ */
+function sectionsFromDraftMarks(
+  marks: readonly DraftSectionMark[],
+  ts: TimeSignature,
+  endBar: number,
+): SongSection[] {
+  const bar = ticksPerBar(ts);
+  // Today's reading, and the mark each section came from: the first one
+  // written with a name in its bar, as sectionsFromMarks picks.
+  const plain = sectionsFromMarks(marks, ts, endBar);
+  const markAt = new Map<number, DraftSectionMark>();
+  for (const mark of marks) {
+    if (!isString(mark.label) || mark.label.trim() === '') continue;
+    if (!markAt.has(mark.measureIdx)) markAt.set(mark.measureIdx, mark);
+  }
+  const placed = plain.map((section) => {
+    const mark = markAt.get(section.startTick / bar);
+    const start = mark?.startTick;
+    // The section the mark carries, while it still starts in the mark's bar.
+    const saved =
+      mark !== undefined &&
+      isFiniteNumber(start) &&
+      start >= 0 &&
+      Math.floor(start / bar) === mark.measureIdx
+        ? mark
+        : undefined;
+    return {
+      section,
+      mark,
+      saved,
+      startTick: saved ? (start as number) : section.startTick,
+    };
+  });
+
+  const ids = new Set<string>();
+  const out = placed.map(({ section, mark, saved, startTick }, i) => {
+    const next = placed[i + 1] as (typeof placed)[number] | undefined;
+    let endTick = next ? next.startTick : section.endTick;
+    const savedEnd = saved?.endTick;
+    if (saved && isFiniteNumber(savedEnd) && savedEnd > startTick) {
+      if (saved.joined === true) {
+        endTick = next ? next.startTick : Math.max(savedEnd, section.endTick);
+      } else {
+        endTick = next ? Math.min(savedEnd, next.startTick) : savedEnd;
+      }
+    }
+    const labelType = sectionTypeOfLabel(section.label);
+    const type: SectionType =
+      labelType !== 'custom'
+        ? labelType
+        : isSectionType(mark?.type)
+          ? mark.type
+          : 'custom';
+    let id =
+      saved && isString(saved.id) && saved.id !== '' ? saved.id : section.id;
+    if (ids.has(id)) id = `${id}-${i}`;
+    ids.add(id);
+    return { id, type, label: section.label, startTick, endTick };
+  });
+  return normalizeSections(out);
+}
+
 // ── Encode ─────────────────────────────────────────────────────────────────
 
 /** A project as the codec reads it: the registry's local keys. */
@@ -614,7 +744,7 @@ export function encodeSession(
   }
   sections.notation.marks = encodeNoteMarks(marksOf(project), tracks).marks;
   // Builds from before 2.13 read the Lead Sheet's marks from here.
-  sections.notation.leadSheetSections = marksOfSections(
+  sections.notation.leadSheetSections = draftMarksOf(
     project.sections,
     timeSignatureOf(project),
   );
@@ -795,7 +925,7 @@ const TEXT_MARK = recordWhere<ScoreTextMark>(
 );
 
 /** A Lead Sheet bar mark, as drafts before 2.13 hold them. */
-const SECTION_MARK = recordWhere<SectionMark>(
+const SECTION_MARK = recordWhere<DraftSectionMark>(
   (r) => Number.isInteger(r.measureIdx) && isString(r.label),
 );
 
@@ -864,12 +994,15 @@ const SONG_SECTIONS: Check<SongSection[]> = (raw, repairs) => {
 
 /**
  * Sections read back from the Lead Sheet's marks, for a draft without
- * sections (one from before 2.13): each mark runs to the next, the last to
- * the end of the chart (sectionsFromMarks).
+ * readable sections (one from before 2.13): sectionsFromDraftMarks, a mark
+ * without its section running on to the end of the song after the last
+ * one. The song ends where the chord chart does, or where its last clip
+ * does when that is later (a melody with no chords).
  */
 function sectionsFromLeadSheet(
   raw: unknown,
   project: Record<string, unknown>,
+  tracks: readonly SongClips[],
   repairs: Repairs,
 ): SongSection[] {
   if (raw === undefined) return [];
@@ -884,15 +1017,15 @@ function sectionsFromLeadSheet(
       'timeSignatureNumerator' | 'timeSignatureDenominator'
     >,
   );
-  return sectionsFromMarks(
-    marks,
-    ts,
+  const endBar = Math.max(
     chartBarCount(
       project.chordRegions as ChordRegion[],
       project.leadSheetBars as number | null,
       ts,
     ),
+    clipsEndBar(tracks, ts),
   );
+  return sectionsFromDraftMarks(marks, ts, endBar);
 }
 const REPEAT = recordWhere<AllSlices['leadSheetRepeats'][number]>(
   (r) => Number.isInteger(r.startMeasure) && Number.isInteger(r.endMeasure),
@@ -1627,22 +1760,6 @@ export function decodeSession(
       repairs,
     );
   }
-  // A draft from before 2.13 has no sections, only the Lead Sheet's marks;
-  // so has a cloud copy merged from an older document (cloudDocument.ts
-  // reads it as this schema). The sections come back from the marks.
-  if (sections.data.sections === undefined) {
-    project.sections = readOnItsOwn(
-      () =>
-        sectionsFromLeadSheet(
-          sections.notation.leadSheetSections,
-          project,
-          repairs,
-        ),
-      () => [],
-      repairs,
-    );
-  }
-
   // The tracks have no default to fall back on: one that can't be read
   // throws, and the draft is kept aside whole (see the top of this file).
   const decoded = decodeTracks(data.tracks, repairs, trackIds);
@@ -1664,6 +1781,32 @@ export function decodeSession(
   );
   Object.assign(project, linked);
   const tracks = linked.tracks;
+
+  // A draft from before 2.13 has no sections, only the Lead Sheet's marks;
+  // so has a cloud copy merged from an older document (cloudDocument.ts
+  // reads it as this schema). The sections come back from the marks, as
+  // they do when the draft's sections can't be read at all (not a list, or
+  // none of its entries usable; already counted as repairs), since the
+  // marks written beside them hold the same form.
+  const savedSections = sections.data.sections;
+  if (
+    savedSections === undefined ||
+    !Array.isArray(savedSections) ||
+    (savedSections.length > 0 &&
+      (project.sections as SongSection[]).length === 0)
+  ) {
+    project.sections = readOnItsOwn(
+      () =>
+        sectionsFromLeadSheet(
+          sections.notation.leadSheetSections,
+          project,
+          tracks,
+          repairs,
+        ),
+      () => [],
+      repairs,
+    );
+  }
 
   Object.assign(
     project,

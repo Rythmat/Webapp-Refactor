@@ -1,6 +1,8 @@
 import { useStore, type AllSlices } from '@/daw/store';
 import type { CloudWriteMode } from '@/daw/persistence/SessionSerializer';
+import { SESSION_SCHEMA_VERSION } from '@/daw/persistence/projectDocument/codec';
 import {
+  baselineDocFingerprint,
   cloudSaveGaps,
   documentFingerprint,
   useSaveStatusStore,
@@ -9,7 +11,11 @@ import {
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
 import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
 import { cloudDocumentFieldSupported } from '@/lib/studio-projects/cloudDocumentSupport';
-import type { DraftCloudRecord } from '@/lib/studio-projects/drafts/types';
+import { fingerprintInSchema } from '@/lib/studio-projects/drafts/predicates';
+import type {
+  DraftCloudRecord,
+  DraftMeta,
+} from '@/lib/studio-projects/drafts/types';
 import { serverTimeIso } from '@/lib/studio-projects/projectsClient';
 import type { LastSaved } from './cloudSaveStore';
 
@@ -239,16 +245,28 @@ export function cloudOpenedRecord(project: {
  * The record a draft remembers of its last save, for the session it opens
  * as: null when the draft has none, or when it names another project than
  * the one the session is linked to. version -1: only the fingerprint can
- * say whether the document still matches.
+ * say whether the document still matches. `opened` is the draft's meta:
+ * one an older schema wrote has its saved fingerprint read in this build's
+ * terms (fingerprintInSchema), against the baseline the open marked, as
+ * beginDraft reads the draft's own copy of the record.
  */
 export function lastSavedFromDraft(
   cloud: DraftCloudRecord | undefined,
   projectId: string | null,
+  opened?: Pick<DraftMeta, 'schema' | 'docFingerprint'>,
 ): LastSaved | null {
   if (!cloud || !projectId || cloud.projectId !== projectId) return null;
+  const fingerprint = opened
+    ? fingerprintInSchema(
+        cloud.savedFingerprint,
+        opened,
+        SESSION_SCHEMA_VERSION,
+        baselineDocFingerprint(),
+      )
+    : cloud.savedFingerprint;
   return {
     projectId,
-    fingerprint: cloud.savedFingerprint,
+    fingerprint: fingerprint ?? cloud.savedFingerprint,
     version: -1,
     complete: cloud.savedComplete,
     updatedAt: cloud.updatedAt,

@@ -10,6 +10,7 @@ import { SYNTH_STATE_KEYS } from '@/daw/oracle-synth/synthPatchKeys';
 import { VIEW_KEYS } from '@/daw/persistence/projectDocument/fields';
 import {
   attachDocumentObserver,
+  baselineDocFingerprint,
   noteSynthPatchChange,
   useSaveStatusStore,
 } from '@/daw/persistence/saveStatusStore';
@@ -48,6 +49,7 @@ import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
 import {
   draftHasWork,
   draftIsCloudEqual,
+  fingerprintInSchema,
 } from '@/lib/studio-projects/drafts/predicates';
 import {
   DraftStorageError,
@@ -462,6 +464,32 @@ function carryOf(meta: DraftMeta): Carry {
   if (meta.forkedFrom !== undefined) carry.forkedFrom = meta.forkedFrom;
   if (meta.claimedFrom !== undefined) carry.claimedFrom = meta.claimedFrom;
   return carry;
+}
+
+/**
+ * The carry of a draft adopted from another schema, its stored fingerprints
+ * as this build fingerprints the same content (fingerprintInSchema): the
+ * open marked the content it loaded as the baseline before begin, so an
+ * edit made since stays unsaved. Without it, every draft an older build
+ * wrote would read as changed: its template, song and cloud-equal caches as
+ * work, never pruned.
+ */
+function carryInSchema(carry: Carry, opened: DraftMeta): void {
+  const fresh = baselineDocFingerprint();
+  const inSchema = (fingerprint: string | null) =>
+    fingerprintInSchema(fingerprint, opened, SESSION_SCHEMA_VERSION, fresh);
+  // A partly written record may have no baseline: nothing to carry over.
+  const stored = carry.baseline as DraftBaseline | undefined;
+  if (stored) {
+    const baseline = inSchema(stored.fingerprint);
+    if (baseline !== stored.fingerprint)
+      carry.baseline = { ...stored, fingerprint: baseline };
+  }
+  if (carry.cloud) {
+    const saved = inSchema(carry.cloud.savedFingerprint);
+    if (saved !== null && saved !== carry.cloud.savedFingerprint)
+      carry.cloud = { ...carry.cloud, savedFingerprint: saved };
+  }
 }
 
 /** The last cloud save of this session's project, as a draft cloud record. */
@@ -1830,6 +1858,8 @@ export async function beginDraft(
     // Open again, it is the session's own draft once more.
     live.carry.origin = 'session';
     delete live.carry.keptAt;
+    // Written in an older schema: its fingerprints in this build's terms.
+    carryInSchema(live.carry, prepared.meta);
     if (prepared.fromMirror) {
       // The record holds older content than memory: nothing is committed
       // yet, and the mirror stays until a write covers it.

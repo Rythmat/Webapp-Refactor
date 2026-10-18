@@ -1,8 +1,8 @@
 import * as RadioGroup from '@radix-ui/react-radio-group';
-import { type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { cn } from '@/components/utilities';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from './styles';
-import { Tooltip } from './Tooltip';
+import { TIP_GAP_PX, Tooltip, type TooltipProps } from './Tooltip';
 
 export interface SegmentedOption<T extends string> {
   value: T;
@@ -22,6 +22,11 @@ export interface SegmentedProps<T extends string> {
   onValueChange(value: T): void;
   /** Show icons only (each option's label becomes its name and tooltip). */
   iconOnly?: boolean;
+  /**
+   * Where an icon's tooltip opens (above by default). To the right or the
+   * left it opens past the group's end, clear of the other segments.
+   */
+  tooltipSide?: TooltipProps['side'];
   disabled?: boolean;
   className?: string;
 }
@@ -39,11 +44,33 @@ export function Segmented<T extends string>({
   value,
   onValueChange,
   iconOnly = false,
+  tooltipSide = 'top',
   disabled = false,
   className,
 }: SegmentedProps<T>) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const items = useRef(new Map<string, HTMLButtonElement>());
+  // A tip beside the group opens past its end: each segment's distance to
+  // that end, measured as the pointer or the focus comes in, before a tip
+  // opens.
+  const beside = tooltipSide === 'right' || tooltipSide === 'left';
+  const [past, setPast] = useState<Record<string, number>>({});
+  const measure = () => {
+    const root = rootRef.current?.getBoundingClientRect();
+    if (!beside || !root) return;
+    const next: Record<string, number> = {};
+    for (const [value, el] of items.current) {
+      const box = el.getBoundingClientRect();
+      next[value] =
+        tooltipSide === 'right' ? root.right - box.right : box.left - root.left;
+    }
+    setPast(next);
+  };
   return (
     <RadioGroup.Root
+      ref={rootRef}
+      onPointerEnter={beside ? measure : undefined}
+      onFocus={beside ? measure : undefined}
       aria-label={label}
       value={value}
       onValueChange={(next) => onValueChange(next as T)}
@@ -61,6 +88,10 @@ export function Segmented<T extends string>({
         const item = (
           <RadioGroup.Item
             key={option.value}
+            ref={(el) => {
+              if (el) items.current.set(option.value, el);
+              else items.current.delete(option.value);
+            }}
             value={option.value}
             disabled={option.disabled}
             data-tutorial-id={option.anchor}
@@ -81,7 +112,12 @@ export function Segmented<T extends string>({
           </RadioGroup.Item>
         );
         return iconOnly ? (
-          <Tooltip key={option.value} content={option.label}>
+          <Tooltip
+            key={option.value}
+            content={option.label}
+            side={tooltipSide}
+            sideOffset={TIP_GAP_PX + (past[option.value] ?? 0)}
+          >
             {item}
           </Tooltip>
         ) : (

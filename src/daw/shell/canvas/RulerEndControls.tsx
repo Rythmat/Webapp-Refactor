@@ -10,7 +10,9 @@ import { GridMenu } from './GridMenu';
 // Where Soundtrap keeps them (anatomy §3, decision 16): over the ruler's
 // right end, which stays at the top of the lanes as they scroll. The ruler
 // is drawn on the timeline's canvas, so these float over it in a sticky
-// layer of no height of their own.
+// layer of no height of their own. Their tips open to the left, over the
+// ruler they sit on: above they covered + Section at the sections lane's
+// right end, below the side rail's buttons.
 
 const CONTROL_PX = 24;
 
@@ -42,6 +44,7 @@ function SnapToggle() {
       pressed={snap}
       onPressedChange={() => useStore.getState().toggleTimelineSnap()}
       size="sm"
+      tooltipSide="left"
       data-testid="snap-toggle"
     />
   );

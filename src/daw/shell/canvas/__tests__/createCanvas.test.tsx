@@ -6,7 +6,15 @@ import {
   render,
   screen,
 } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 // ── Create's canvas: the header's controls and the chord lane (2.7, 2.13) ──
 // Snap never moves the playhead (shell-18); the grid and the tool are
@@ -15,7 +23,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // Premium and targets a track that can hold chords (ia-flows-26). Since
 // Create's toolbar folded away (2.13, decision 16) the tools sit beside the
 // ruler, Snap and Grid at its right end, zoom and Follow in the footer, and
-// + Add track over the track list.
+// + Add track over the track list. Their tips open where they cover no
+// control, and the Grid menu's radio groups say what they choose.
 
 const h = vi.hoisted(() => ({
   premium: { isPremium: true, isLoading: false },
@@ -25,6 +34,11 @@ vi.mock('@/hooks/useIsPremium', () => ({ useIsPremium: () => h.premium }));
 vi.mock('react-router-dom', () => ({ useNavigate: () => h.navigate }));
 
 import { useStore } from '@/daw/store';
+import { installDomShims } from '@/daw/ui/__tests__/dom';
+import {
+  setChordNotation,
+  setChordNotationSwitcherEnabled,
+} from '@/lib/chordNotation';
 import { ChordAnalysisBanner } from '../ChordAnalysisBanner';
 import { ChordLaneHeader, suggestTarget } from '../ChordLaneHeader';
 import { GridMenu } from '../GridMenu';
@@ -33,6 +47,10 @@ import { TimelineFooter } from '../TimelineFooter';
 import { TimelineTools } from '../TimelineTools';
 
 const s = () => useStore.getState();
+/** The tip on screen (Radix's hidden copy, role="tooltip", sits inside). */
+const shownTip = () => screen.getByRole('tooltip').parentElement!;
+
+beforeAll(installDomShims);
 
 beforeEach(() => {
   useStore.setState({
@@ -53,7 +71,11 @@ beforeEach(() => {
   h.premium = { isPremium: true, isLoading: false };
   h.navigate.mockClear();
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  setChordNotationSwitcherEnabled(false);
+  setChordNotation('hybrid');
+});
 
 describe('the header’s controls', () => {
   it('turns snap off and on without moving the playhead (shell-18)', () => {
@@ -105,6 +127,67 @@ describe('the header’s controls', () => {
     const end = screen.getByRole('group', { name: 'Grid and snap' });
     expect(end).toContainElement(screen.getByTestId('snap-toggle'));
     expect(end).toContainElement(screen.getByTestId('grid-menu'));
+  });
+});
+
+describe('the header’s tips', () => {
+  // Above, the tools' tips covered + Add track and Snap's covered + Section
+  // at the sections lane's right end; below, Grid's covered the side rail.
+  // Radix keeps a tip open while the pointer is over it, so a click meant
+  // for what it covered landed on the tip.
+  it('open the tools’ to the right, past the group', () => {
+    render(<TimelineTools />);
+    act(() => screen.getByRole('radio', { name: 'Pointer (V)' }).focus());
+    expect(shownTip()).toHaveTextContent('Pointer (V)');
+    expect(shownTip()).toHaveAttribute('data-side', 'right');
+  });
+
+  it('open Snap’s and Grid’s to the left, over the ruler', () => {
+    render(<RulerEndControls />);
+    act(() => screen.getByTestId('snap-toggle').focus());
+    expect(shownTip()).toHaveTextContent('Snap to grid');
+    expect(shownTip()).toHaveAttribute('data-side', 'left');
+    act(() => screen.getByTestId('grid-menu').focus());
+    expect(shownTip()).toHaveTextContent('Grid, snap and display');
+    expect(shownTip()).toHaveAttribute('data-side', 'left');
+  });
+});
+
+describe('the Grid menu’s display choices', () => {
+  const open = () =>
+    fireEvent.keyDown(screen.getByTestId('grid-menu'), { key: 'Enter' });
+  const checked = (name: string) =>
+    screen.getByRole('menuitemradio', { name }).getAttribute('aria-checked');
+
+  it('names its radio groups', () => {
+    render(<GridMenu />);
+    open();
+    expect(
+      screen.getByRole('group', { name: 'Chord lane labels' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('group', { name: 'Colour clips by' }),
+    ).toBeInTheDocument();
+  });
+
+  it('checks the hybrid labels choice, and neither under Jazz notation', () => {
+    useStore.setState({ chordRulerShowNotes: true });
+    const { unmount } = render(<GridMenu />);
+    open();
+    expect(checked('Note names')).toBe('true');
+    expect(checked('Degree numbers')).toBe('false');
+    unmount();
+
+    setChordNotationSwitcherEnabled(true);
+    setChordNotation('jazz');
+    render(<GridMenu />);
+    open();
+    // The lane draws jazz symbols, not the note names the choice keeps.
+    expect(checked('Note names')).toBe('false');
+    expect(checked('Degree numbers')).toBe('false');
+    expect(
+      screen.getByRole('menuitemradio', { name: 'Note names' }),
+    ).toHaveAttribute('aria-disabled', 'true');
   });
 });
 

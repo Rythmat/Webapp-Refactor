@@ -1,5 +1,5 @@
 import { ChevronDown, Grid3x3 } from 'lucide-react';
-import { memo } from 'react';
+import { memo, useState, type SyntheticEvent } from 'react';
 import { cn } from '@/components/utilities';
 import {
   baseOf,
@@ -25,7 +25,7 @@ import {
   MenuTrigger,
 } from '@/daw/ui/Menu';
 import { TYPE_CLASS } from '@/daw/ui/styles';
-import { Tooltip } from '@/daw/ui/Tooltip';
+import { TIP_GAP_PX, Tooltip } from '@/daw/ui/Tooltip';
 import { chordNotationLockTitle } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 
@@ -50,6 +50,18 @@ export const GridMenu = memo(function GridMenu() {
   const triplets = isTriplet(size);
   const triplet = tripletOf(base);
   const label = gridLabel(size, metre);
+  // The tip opens to the left past Snap, over the ruler: the trigger's
+  // distance from the ruler end's start, measured as the pointer or the
+  // focus comes in, before the tip opens.
+  const [tipOffset, setTipOffset] = useState(TIP_GAP_PX);
+  const measureTip = (e: SyntheticEvent<HTMLElement>) => {
+    const group = e.currentTarget.closest('[data-testid="ruler-end"]');
+    if (!group) return;
+    const past =
+      e.currentTarget.getBoundingClientRect().left -
+      group.getBoundingClientRect().left;
+    setTipOffset(TIP_GAP_PX + Math.max(0, past));
+  };
 
   const set = (nextBase: GridBase, nextTriplets: boolean) => {
     const next = gridChoice(nextBase, nextTriplets);
@@ -62,9 +74,15 @@ export const GridMenu = memo(function GridMenu() {
 
   return (
     <Menu>
-      <Tooltip content="Grid, snap and display" side="bottom">
+      <Tooltip
+        content="Grid, snap and display"
+        side="left"
+        sideOffset={tipOffset}
+      >
         <MenuTrigger
           data-testid="grid-menu"
+          onPointerEnter={measureTip}
+          onFocus={measureTip}
           aria-label={`Grid: ${label}${snap ? '' : ', snap off'}`}
           className={cn(
             buttonVariants({ variant: 'ghost', size: 'sm' }),
@@ -123,7 +141,9 @@ export const GridMenu = memo(function GridMenu() {
 
 /**
  * How the chord lane labels chords: degree numbers or note names. Jazz and
- * Roman notation decide it themselves; the choice applies to hybrid only.
+ * Roman notation decide it themselves; the choice applies to hybrid only, so
+ * under them neither is checked (the lane draws neither the way the hybrid
+ * choice would).
  */
 function ChordLabels() {
   const showNotes = useStore((s) => s.chordRulerShowNotes);
@@ -139,7 +159,8 @@ function ChordLabels() {
       ) : null}
       <MenuRadioGroup
         data-testid="chord-ruler-labels"
-        value={showNotes ? 'notes' : 'numbers'}
+        aria-label="Chord lane labels"
+        value={locked ? '' : showNotes ? 'notes' : 'numbers'}
         onValueChange={(value) => {
           if ((value === 'notes') !== useStore.getState().chordRulerShowNotes) {
             useStore.getState().toggleChordRulerLabels();
@@ -165,6 +186,7 @@ function ClipColours() {
       <MenuLabel>Colour clips by</MenuLabel>
       <MenuRadioGroup
         data-testid="clip-colour-mode"
+        aria-label="Colour clips by"
         value={mode}
         onValueChange={(value) =>
           withTransaction('Colour clips', () =>

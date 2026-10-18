@@ -10,7 +10,9 @@ import { RULER_PX } from '../tracklist/rowLayout';
 // Pointer (V), Draw (B) and Cut (C), in the header's left cell beside the
 // ruler, over the track list: Create's toolbar row folded away (decision
 // 16) and its controls went where they belong. The keys are the timeline's
-// (keymaps.ts); these are the same choice, visible.
+// (keymaps.ts); these are the same choice, visible. Their tips open to the
+// right, past the group, where the column is empty: above they covered
+// + Add track, below the chord lane's key.
 
 const TOOLS: readonly { value: ToolType; label: string; icon: JSX.Element }[] =
   [
@@ -30,6 +32,7 @@ export const TimelineTools = memo(function TimelineTools() {
       <Segmented
         label="Editing tool"
         iconOnly
+        tooltipSide="right"
         options={TOOLS}
         // 'layout' (key 4) has no button; the pointer stands for it.
         value={tool === 'layout' ? 'cursor' : tool}

@@ -101,12 +101,12 @@ export class TrackEngine {
     this.instrument?.pitchBend?.(value, time);
   }
 
-  allNotesOff(): void {
-    this.instrument?.allNotesOff();
+  allNotesOff(time?: number): void {
+    this.instrument?.allNotesOff(time);
   }
 
-  panic(): void {
-    this.instrument?.panic();
+  panic(time?: number): void {
+    this.instrument?.panic(time);
   }
 
   /** Sets a parameter: at once, or gliding for a change heard while it

@@ -38,11 +38,18 @@ export interface InstrumentAdapter {
    */
   pitchBend?(value: number, time?: number): void;
 
-  /** Release all currently sounding notes (with envelope release). */
-  allNotesOff(): void;
+  /**
+   * Release all currently sounding notes (with envelope release).
+   * @param time - Optional audio context time the release starts at; omitted
+   *   means now. A loop or stop passes the boundary's time.
+   */
+  allNotesOff(time?: number): void;
 
-  /** Immediately silence all notes (no release envelope). */
-  panic(): void;
+  /**
+   * Silence all notes at once (no release envelope, at most a click-free fade).
+   * @param time - Optional audio context time; omitted means now.
+   */
+  panic(time?: number): void;
 
   /** Tear down the instrument and release all audio resources. */
   dispose(): void;

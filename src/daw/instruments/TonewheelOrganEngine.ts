@@ -117,6 +117,24 @@ interface Voice {
   age: number;
 }
 
+/** Takes a released voice's nodes out of the graph. */
+function disconnectVoice(voice: Voice): void {
+  const nodes: AudioNode[] = [
+    ...voice.oscillators,
+    ...voice.drawbarGains,
+    voice.mixer,
+  ];
+  if (voice.percOsc) nodes.push(voice.percOsc);
+  if (voice.percGain) nodes.push(voice.percGain);
+  for (const node of nodes) {
+    try {
+      node.disconnect();
+    } catch {
+      /* already disconnected */
+    }
+  }
+}
+
 // ── Vibrato depth config ─────────────────────────────────────────────────
 
 const VIBRATO_DEPTH: Record<string, number> = {
@@ -387,16 +405,16 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     this.releaseVoice(this.voices[idx], t);
   }
 
-  allNotesOff(): void {
-    const t = this.ctx?.currentTime ?? 0;
+  allNotesOff(time?: number): void {
+    const t = time ?? this.ctx?.currentTime ?? 0;
     for (const voice of [...this.voices]) {
       this.releaseVoice(voice, t, 0.02);
     }
     this.activeNoteCount = 0;
   }
 
-  panic(): void {
-    const t = this.ctx?.currentTime ?? 0;
+  panic(time?: number): void {
+    const t = time ?? this.ctx?.currentTime ?? 0;
     for (const voice of [...this.voices]) {
       this.releaseVoice(voice, t, 0);
     }
@@ -683,88 +701,34 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     if (idx === -1) return;
     this.voices.splice(idx, 1);
 
+    // A fade glides the voice out from `time`; no fade cuts it at `time`.
+    // Either way the nodes come apart when the sources have actually ended
+    // (on the audio clock), never on a wall-clock timer that can fire before
+    // a scheduled release, or during an offline render.
+    let stopTime = time;
     if (fadeTime > 0) {
       voice.mixer.gain.setTargetAtTime(0, time, fadeTime);
-      const stopTime = time + fadeTime * 5;
-      for (const osc of voice.oscillators) osc.stop(stopTime);
-      if (voice.percOsc)
-        try {
-          voice.percOsc.stop(stopTime);
-        } catch {
-          /* ok */
-        }
-
-      setTimeout(
-        () => {
-          for (const osc of voice.oscillators) {
-            try {
-              osc.disconnect();
-            } catch {
-              /* */
-            }
-          }
-          for (const g of voice.drawbarGains) {
-            try {
-              g.disconnect();
-            } catch {
-              /* */
-            }
-          }
-          if (voice.percOsc)
-            try {
-              voice.percOsc.disconnect();
-            } catch {
-              /* */
-            }
-          if (voice.percGain)
-            try {
-              voice.percGain.disconnect();
-            } catch {
-              /* */
-            }
-          try {
-            voice.mixer.disconnect();
-          } catch {
-            /* */
-          }
-        },
-        (fadeTime * 5 + 0.05) * 1000,
-      );
+      stopTime = time + fadeTime * 5;
     } else {
-      for (const osc of voice.oscillators) {
-        try {
-          osc.stop(time);
-          osc.disconnect();
-        } catch {
-          /* */
-        }
-      }
-      for (const g of voice.drawbarGains) {
-        try {
-          g.disconnect();
-        } catch {
-          /* */
-        }
-      }
-      if (voice.percOsc)
-        try {
-          voice.percOsc.stop(time);
-          voice.percOsc.disconnect();
-        } catch {
-          /* */
-        }
-      if (voice.percGain)
-        try {
-          voice.percGain.disconnect();
-        } catch {
-          /* */
-        }
+      voice.mixer.gain.setValueAtTime(0, time);
+    }
+    for (const osc of voice.oscillators) {
       try {
-        voice.mixer.disconnect();
+        osc.stop(stopTime);
       } catch {
         /* */
       }
     }
+    if (voice.percOsc)
+      try {
+        voice.percOsc.stop(stopTime);
+      } catch {
+        /* ok */
+      }
+
+    const last = voice.oscillators[voice.oscillators.length - 1];
+    if (last) last.onended = () => disconnectVoice(voice);
+    else disconnectVoice(voice);
   }
 
   // ── Private: Key Click buffer (Phase 3) ────────────────────────────

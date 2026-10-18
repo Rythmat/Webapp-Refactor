@@ -249,7 +249,7 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     ],
   },
   'fx-add-': {
-    file: 'components/Effects/FxBrowser.tsx',
+    file: 'shell/inspector/panels/FxBody.tsx',
     suffixes: () => AUDIO_EFFECTS,
   },
   'fx-slot-': {
@@ -257,15 +257,15 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     suffixes: () => AUDIO_EFFECTS,
   },
   'mixer-sends-': {
-    file: 'components/Studio/StudioView.tsx',
+    file: 'shell/mix/MixStrip.tsx',
     suffixes: () => RETURN_IDS,
   },
   'return-strip-': {
-    file: 'components/Studio/StudioView.tsx',
+    file: 'shell/mix/ReturnStrip.tsx',
     suffixes: () => RETURN_IDS,
   },
   'return-fx-': {
-    file: 'components/Studio/StudioView.tsx',
+    file: 'shell/mix/RackDock.tsx',
     suffixes: () => RETURN_IDS,
   },
   'sampler-mode-': {

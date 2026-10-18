@@ -6,7 +6,6 @@ import {
   ANCHOR_FRAME_TASK,
   type Rect,
   currentAnchorId,
-  rackOfFxTrack,
   registerAnchor,
   resolveAnchor,
   subscribeAnchorRect,
@@ -18,6 +17,7 @@ import {
   settleMutations,
   stubFrames,
 } from './anchorTestUtils';
+import { anchorRackOf } from '@/daw/store/effectRack';
 
 // ── The tutorial anchor registry (practice-tutorial-16, ia-flows-29) ───────
 // One shared way to find and measure what a lesson step points at, without a
@@ -198,11 +198,11 @@ describe('ANCHOR_ALIASES', () => {
   });
 });
 
-describe('rackOfFxTrack', () => {
-  it('names the rack from the track id FxBrowser adds to', () => {
-    expect(rackOfFxTrack('master')).toBe('master');
-    expect(rackOfFxTrack('return-A')).toBe('return:A');
-    expect(rackOfFxTrack('track-123')).toBe('track');
+describe('anchorRackOf', () => {
+  it('names the rack an effects library row adds to', () => {
+    expect(anchorRackOf({ kind: 'master' })).toBe('master');
+    expect(anchorRackOf({ kind: 'return', id: 'A' })).toBe('return:A');
+    expect(anchorRackOf({ kind: 'track', id: 'track-123' })).toBe('track');
   });
 });
 

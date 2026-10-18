@@ -35,7 +35,7 @@ export const LeadSheetViewPart = lazyPart(
 );
 
 export const StudioViewPart = lazyPart(
-  () => import('@/daw/components/Studio/StudioView').then((m) => m.StudioView),
+  () => import('@/daw/shell/mix/MixView').then((m) => m.MixView),
   { name: 'Mix view', fallback: view('Loading the Mix view') },
 );
 
@@ -73,8 +73,7 @@ export function preloadView(id: ViewType): void {
 const dock = (label: string) => <PartPlaceholder label={label} />;
 
 export const EffectsPanelPart = lazyPart(
-  () =>
-    import('@/daw/components/Effects/EffectsPanel').then((m) => m.EffectsPanel),
+  () => import('@/daw/shell/dock/DockEffects').then((m) => m.DockEffects),
   { name: 'FX panel', fallback: dock('Loading FX') },
 );
 

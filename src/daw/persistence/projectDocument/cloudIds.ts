@@ -59,7 +59,7 @@ const MINT_ATTEMPTS = 16;
 /**
  * Whether `value` is an id the editor gives something that isn't a track, in
  * keys it shares with track ids: the FX racks of the Master and the return
- * buses ('master', `return-${busId}`; FxBrowser.tsx and EffectsPanel.tsx hide
+ * buses ('master', `return-${busId}`; the Effects library and EffectsPanel.tsx hide
  * the ducker there and stop its meter) and the Master's automation lane
  * (MASTER_AUTOMATION_ID, a key in the AutomationScheduler's per-track maps
  * and a value of automationOpenTrackId).

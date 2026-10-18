@@ -33,6 +33,7 @@ import {
 } from './lazyParts';
 import { BottomRail } from './bottombar/BottomRail';
 import { Dock } from './dock/Dock';
+import { RackDock } from './mix/RackDock';
 import { InspectorPanel } from './inspector/InspectorPanel';
 import { SideRail } from './inspector/SideRail';
 import { TopBar } from './topbar/TopBar';
@@ -196,6 +197,21 @@ export const StudioShell = memo(function StudioShell({
             <Dock />
           </DevProfiler>
         </section>
+      ) : view === 'studio' && !practiceScreen ? (
+        // Mix's RackDock (2.10) takes the same slot: a share of the body,
+        // stopping at the Inspector.
+        <section
+          data-region="dock"
+          data-ds="v2"
+          aria-label="Effects rack"
+          className="relative min-h-0 min-w-0"
+          style={{ gridArea: 'dock' }}
+        >
+          <RackResizer rootRef={rootRef} />
+          <DevProfiler id="RackDock">
+            <RackDock />
+          </DevProfiler>
+        </section>
       ) : null}
 
       <div
@@ -276,6 +292,43 @@ function InspectorResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
       onDoubleClick={() => setWidth(INSPECTOR_DEFAULT_PX)}
       data-testid="inspector-resizer"
       className="left-0 z-[var(--daw-z-sticky)]"
+    />
+  );
+}
+
+/**
+ * The RackDock's top edge in Mix (2.10): as the dock's, for the 'rack' slot;
+ * nothing to drag while the rack is shut.
+ */
+function RackResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
+  const open = useStore((s) => s.mixRack !== null);
+  const heights = useStore((s) => s.dockHeights);
+  const setDockHeight = useStore((s) => s.setDockHeight);
+  const setMixRack = useStore((s) => s.setMixRack);
+  const bodyPx = useShellBodyPx(rootRef);
+  if (!open || bodyPx === 0) return null;
+  const value = dockPxFor('rack', heights, bodyPx);
+  const max = Math.max(DOCK_MIN_PX, Math.round(bodyPx * DOCK_MAX_FRAC));
+  return (
+    <Resizer
+      label="Resize the effects rack"
+      orientation="horizontal"
+      direction={-1}
+      value={value}
+      min={DOCK_MIN_PX}
+      max={max}
+      constrain={(px) => snapDockPx(px, bodyPx)}
+      onPreview={(px) =>
+        rootRef.current?.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`)
+      }
+      onCommit={(px) => setDockHeight('rack', px / bodyPx)}
+      onDoubleClick={() => {
+        const tall = Math.abs(value - bodyPx * DOCK_TALL_FRAC) < 2;
+        setDockHeight('rack', tall ? DOCK_DEFAULT_FRAC.rack : DOCK_TALL_FRAC);
+      }}
+      onToggle={() => setMixRack(null)}
+      data-testid="rack-resizer"
+      className="top-0 z-[var(--daw-z-sticky)]"
     />
   );
 }

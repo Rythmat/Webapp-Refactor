@@ -85,13 +85,15 @@ export function useShellGeometry(rootRef: RefObject<HTMLElement>): void {
       const s = useStore.getState();
       const body = bodyPxOf(root);
       if (body > 0) {
-        const px = s.dockMaximized
-          ? body
-          : dockPxFor(
-              dockSlotOf(s.channelStripTab, s.dockMaster),
-              s.dockHeights,
-              body,
-            );
+        // Mix's RackDock (2.10) has a height of its own in the same slot.
+        const slot =
+          s.currentView === 'studio'
+            ? 'rack'
+            : dockSlotOf(s.channelStripTab, s.dockMaster);
+        const px =
+          s.dockMaximized && slot !== 'rack'
+            ? body
+            : dockPxFor(slot, s.dockHeights, body);
         root.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`);
       }
       root.style.setProperty(INSPECTOR_WIDTH_VAR, `${s.inspectorWidth}px`);
@@ -107,6 +109,7 @@ export function useShellGeometry(rootRef: RefObject<HTMLElement>): void {
           s.inspectorWidth,
           s.dockMaster,
           s.dockMaximized,
+          s.currentView,
         ] as const,
       apply,
       { equalityFn: (a, b) => a.every((v, i) => v === b[i]) },

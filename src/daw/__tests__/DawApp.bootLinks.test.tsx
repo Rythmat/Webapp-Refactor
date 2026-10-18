@@ -138,8 +138,8 @@ vi.mock('@/daw/components/Score/ScoreView', () => ({ ScoreView: h.nothing }));
 vi.mock('@/daw/components/Practice/PracticeTrackView', () => ({
   PracticeTrackView: () => <div data-testid="practice-view" />,
 }));
-vi.mock('@/daw/components/Studio/StudioView', () => ({
-  StudioView: h.nothing,
+vi.mock('@/daw/shell/mix/MixView', () => ({
+  MixView: h.nothing,
 }));
 vi.mock('@/daw/shell/tracklist/TrackArea', () => ({
   TrackArea: () => <div data-testid="timeline" />,

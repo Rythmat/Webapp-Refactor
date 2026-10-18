@@ -25,6 +25,7 @@ import {
   preloadDockTab,
   preloadInstrumentViews,
 } from '@/daw/shell/lazyParts';
+import { hintText } from '@/daw/shell/help/hintSource';
 import { DOCK_TAB_BAR_PX } from '@/daw/shell/layout/layoutModel';
 import { useStore, type Track } from '@/daw/store';
 import type { ChannelStripTabId } from '@/daw/store/uiSlice';
@@ -33,10 +34,11 @@ import { Button } from '@/daw/ui/Button';
 import { IconButton } from '@/daw/ui/IconButton';
 import { Segmented } from '@/daw/ui/Segmented';
 import { Tab, TabList, Tabs } from '@/daw/ui/Tabs';
-import { Toggle } from '@/daw/ui/Toggle';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 import { useIsPremium } from '@/hooks/useIsPremium';
+import { MasterBypass } from '@/daw/shell/mix/master/MasterBypass';
 import {
+  dockTabPurpose,
   dockKindOf,
   isChannelStripTabId,
   tabFor,
@@ -278,7 +280,7 @@ function DockHeader({
       </div>
 
       <div className="flex min-w-0 items-center gap-1 justify-self-end">
-        {master ? <MasterBypass /> : null}
+        {master ? <MasterBypass testId="dock-master-bypass" /> : null}
         {open && !master && kind === 'melodic' && activeTab === 'piano-roll' ? (
           <AnalyzeNotes />
         ) : null}
@@ -290,6 +292,13 @@ function DockHeader({
             size="sm"
             tooltipSide="top"
             aria-pressed={maximized}
+            data-hint={hintText(
+              maximized ? 'Restore the dock' : 'Maximize the dock',
+              maximized
+                ? 'Give the timeline its room back'
+                : 'Give the dock the whole editor’s height',
+              maximized ? MAX_KEYS.label : undefined,
+            )}
             data-testid="dock-maximize"
             onClick={onToggleMaximized}
           />
@@ -299,6 +308,12 @@ function DockHeader({
           icon={open ? <ChevronDown /> : <ChevronUp />}
           size="sm"
           tooltipSide="top"
+          data-hint={hintText(
+            open ? 'Close the dock' : 'Open the dock',
+            open
+              ? 'Hide the panel under the timeline'
+              : 'Show the selected track’s panel under the timeline',
+          )}
           data-testid="dock-toggle"
           onClick={() => (open ? onClose() : setActiveTab(openingTab(kind)))}
         />
@@ -398,6 +413,7 @@ function DockTabs({
             value={tab.id}
             data-tutorial-id={`chanstrip-tab-${tab.id}`}
             data-testid={`dock-tab-${tab.id}`}
+            data-hint={hintText(tab.label, dockTabPurpose(tab.id, kind))}
             onPointerEnter={() => preload(tab.id)}
             onFocus={() => preload(tab.id)}
             // A press on the open tab shuts the dock, as the old tabs did.
@@ -421,23 +437,6 @@ function DockTabs({
         ))}
       </TabList>
     </Tabs>
-  );
-}
-
-/** Master's Bypass: hear the mix without mastering (exports keep it). */
-function MasterBypass() {
-  const bypass = useStore((s) => s.masteringBypass);
-  const toggle = useStore((s) => s.toggleMasteringBypass);
-  return (
-    <Toggle
-      label="Bypass mastering: hear the mix without it (exports keep it)"
-      size="sm"
-      pressed={bypass}
-      onPressedChange={toggle}
-      data-testid="dock-master-bypass"
-    >
-      Bypass
-    </Toggle>
   );
 }
 

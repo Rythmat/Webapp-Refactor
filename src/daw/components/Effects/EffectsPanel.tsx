@@ -32,9 +32,7 @@ import {
   ControlGestureContext,
   useContinuousControl,
 } from '@/daw/hooks/useContinuousControl';
-import { previewTrack } from '@/daw/engine/trackReconciler';
 import { COLOR } from '@/daw/ui/tokens';
-import { AddEffectSlot } from '@/daw/shell/dock/AddEffectSlot';
 
 export { FxBlockIcon };
 
@@ -48,84 +46,6 @@ export const HAS_VIZ = new Set<EffectSlotType>([
   'reverb',
   'delay',
 ]);
-
-// ── EffectsPanel (top-level) ────────────────────────────────────────────
-//
-// The dock's Effects tab: the selected track's chain, then the Add effect
-// slot, and the controls of the effect picked in the chain (dockEffect in
-// the store, so the side rail's library can show one). Effects are added
-// from the library only (milestone 2.8): Add effect arms the slot and opens
-// it, and each pick there lands here.
-
-export function EffectsPanel() {
-  const selectedTrackId = useStore((s) => s.selectedTrackId);
-  const track = useStore((s) => s.tracks.find((t) => t.id === selectedTrackId));
-  const updateTrackEffects = useStore((s) => s.updateTrackEffects);
-  const removeActiveEffect = useStore((s) => s.removeActiveEffect);
-  const selectedEffect = useStore((s) => s.dockEffect);
-  const setSelectedEffect = useStore((s) => s.setDockEffect);
-  const roomy = useStore((s) => s.dockMaximized);
-
-  useShownEffect(track?.activeEffects, selectedEffect, setSelectedEffect);
-
-  return (
-    <div className="flex h-full overflow-hidden">
-      {track ? (
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <FxChainRow
-            activeEffects={track.activeEffects}
-            effects={track.effects}
-            selectedEffect={selectedEffect}
-            onSelect={setSelectedEffect}
-            onToggle={(slot) => {
-              const key = slot === 'de-esser' ? 'de-esser' : slot;
-              const current = track.effects[key as keyof TrackEffectState] as {
-                enabled: boolean;
-              };
-              updateTrackEffects(track.id, {
-                [key]: {
-                  ...track.effects[key as keyof TrackEffectState],
-                  enabled: !current.enabled,
-                },
-              });
-            }}
-            addSlot={<AddEffectSlot count={track.activeEffects.length} />}
-          />
-          {selectedEffect && track.activeEffects.includes(selectedEffect) ? (
-            <FxControlsPanel
-              trackId={track.id}
-              selectedEffect={selectedEffect}
-              effects={track.effects}
-              onUpdate={updateTrackEffects}
-              onPreview={(effects) => previewTrack(track.id, { effects })}
-              onRemove={(slot) => {
-                removeActiveEffect(track.id, slot);
-              }}
-              roomy={roomy}
-              meterTarget={track.id}
-            />
-          ) : (
-            <div
-              className="flex flex-1 items-center justify-center text-[12px]"
-              style={{ color: 'var(--daw-text-3)' }}
-            >
-              {track.activeEffects.length === 0
-                ? 'Add effect opens the effects library'
-                : 'Select an effect to change it'}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div
-          className="flex flex-1 items-center justify-center p-4 text-xs"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          Select a track to edit effects
-        </div>
-      )}
-    </div>
-  );
-}
 
 /**
  * Keeps the shown effect one of the chain's: the first when none is picked

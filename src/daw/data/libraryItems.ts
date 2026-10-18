@@ -28,9 +28,9 @@ export interface LibraryItem {
 }
 
 // ── FX-specific derived lookups ───────────────────────────────────────────
-// Used by EffectsPanel and FxBrowser for quick lookups by EffectSlotType.
+// Used by EffectsPanel and the Effects library for quick lookups by EffectSlotType.
 
-/** FX catalog: the audio effects a rack can add (FxBrowser, EffectsPanel). */
+/** FX catalog: the audio effects a rack can add (the Effects library, EffectsPanel). */
 export const FX_CATALOG: LibraryItem[] = [
   // Audio Effects
   {

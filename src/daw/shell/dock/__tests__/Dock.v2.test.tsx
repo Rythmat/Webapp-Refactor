@@ -46,8 +46,8 @@ vi.mock('@/daw/components/Controls/DrumMachineView', () => ({
 vi.mock('@/daw/components/Controls/TrackControlsPanel', () => ({
   TrackControlsPanel: stub('instrument'),
 }));
-vi.mock('@/daw/components/Effects/EffectsPanel', () => ({
-  EffectsPanel: stub('effects'),
+vi.mock('@/daw/shell/dock/DockEffects', () => ({
+  DockEffects: stub('effects'),
 }));
 vi.mock('@/daw/components/Prism/PrismPanel', () => ({
   PrismPanel: stub('prism'),

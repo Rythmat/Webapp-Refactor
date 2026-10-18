@@ -2,6 +2,7 @@ import type { AllSlices } from '@/daw/store';
 import type { ViewType, ChannelStripTabId } from '@/daw/store/uiSlice';
 import type { SynthStore } from '@/daw/oracle-synth/store';
 import type { AnchorRack } from './anchorRegistry';
+import type { RackTarget } from '@/daw/store/effectRack';
 import { GENRE_MAP } from '@prism/engine';
 import {
   TUTORIAL_CATALOG,
@@ -44,6 +45,8 @@ export interface StepRequires {
    * has none of its own.
    */
   effectsLibrary?: boolean;
+  /** Open the Mix view's RackDock on this rack (milestone 2.10). */
+  mixRack?: RackTarget;
 }
 
 /**
@@ -664,7 +667,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       stage: 'STAGE 4 — SENDS',
       instruction:
         'Share one reverb across the mix — raise **Send A** (Reverb) on a track past **25%**.',
-      hint: 'The A/B knobs under each strip’s pan feed the return buses.',
+      hint: 'The A and B knobs on each strip feed the return buses.',
       target: ['mixer-sends-A', 'mixer-section'],
       requires: { view: 'studio' },
       check: (s, armed) =>
@@ -691,10 +694,15 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'mastering-fx',
       stage: 'STAGE 5 — MASTER',
       instruction:
-        'Add polish to the whole mix — in **Mastering**, click an effect in the **FX** list (try the Compressor) to add it to the master chain.',
+        'Add polish to the whole mix — click an effect in the **Effects** panel (try the Compressor) to add it to the master chain.',
+      hint: 'The master’s rack is open under the mixer; its effects shape the whole song.',
       target: ['fx-add-compressor', 'mastering-section'],
       rack: 'master',
-      requires: { view: 'studio' },
+      requires: {
+        view: 'studio',
+        mixRack: { kind: 'master' },
+        effectsLibrary: true,
+      },
       check: (s, armed) =>
         s.masteringFxChain.length > armed.masteringFxChain.length,
     },

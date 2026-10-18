@@ -82,9 +82,6 @@
     "smallText": 8,
     "zIndex": 4
   },
-  "src/daw/components/Effects/FxBrowser.tsx": {
-    "smallText": 1
-  },
   "src/daw/components/Effects/FxMeter.tsx": {
     "rgb": 2,
     "smallText": 1
@@ -201,11 +198,6 @@
     "hex": 1,
     "rgb": 1,
     "zIndex": 5
-  },
-  "src/daw/components/Studio/StudioView.tsx": {
-    "hex": 3,
-    "rgb": 27,
-    "smallText": 11
   },
   "src/daw/components/Timeline/AutomationLaneEditor.tsx": {
     "hex": 3,

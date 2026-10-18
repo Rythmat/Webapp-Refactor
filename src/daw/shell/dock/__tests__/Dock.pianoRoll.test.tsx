@@ -36,8 +36,8 @@ vi.mock('@/daw/components/PianoRoll/PianoRoll', () => ({
 vi.mock('@/daw/components/Controls/TrackControlsPanel', () => ({
   TrackControlsPanel: () => null,
 }));
-vi.mock('@/daw/components/Effects/EffectsPanel', () => ({
-  EffectsPanel: () => null,
+vi.mock('@/daw/shell/dock/DockEffects', () => ({
+  DockEffects: () => null,
 }));
 vi.mock('@/daw/components/Prism/PrismPanel', () => ({
   PrismPanel: () => null,

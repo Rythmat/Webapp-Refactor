@@ -45,7 +45,7 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('StudioShell', () => {
-  it('keeps one Inspector across every view, and the dock in Create only', () => {
+  it('keeps one Inspector across every view, the dock in Create and the rack in Mix', () => {
     render(<StudioShell isReady onInit={() => {}} />);
     const mountId = q('[data-region="inspector"]')?.getAttribute(
       'data-mount-id',
@@ -62,8 +62,14 @@ describe('StudioShell', () => {
       seen.push([
         view,
         q('[data-region="inspector"]')?.getAttribute('data-mount-id'),
-        q('[data-region="dock"]') !== null,
+        q('[data-region="dock"]') !== null &&
+          q('[data-testid="rack-dock"]') === null,
       ]);
+      if (view === 'studio') {
+        expect(
+          q('[data-region="dock"] [data-testid="rack-dock"]'),
+        ).not.toBeNull();
+      }
     }
     expect(seen).toEqual([
       ['studio', mountId, false],

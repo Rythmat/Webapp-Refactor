@@ -8,6 +8,7 @@ import {
 } from '@/daw/collab/studioListenStore';
 import { meterSource } from '@/daw/engine/meterBus';
 import { useMasterVolumeControl } from '@/daw/hooks/useMixControls';
+import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
 import { Fader } from '@/daw/ui/Fader';
 import { formatGain } from '@/daw/ui/format';
@@ -19,8 +20,9 @@ import { Toggle } from '@/daw/ui/Toggle';
 //
 // The whole mix's volume and level, and its volume automation lane. The
 // Master button opens Master in the dock's slot (2.9, after Soundtrap's
-// Master ▾): its gain, the master chain and the output, from any view, in
-// Create; the Mix view keeps the full mixer. It sat under the track list
+// Master ▾): its gain, the master chain and the output, in Create, from
+// any view but Mix, where it opens the master's rack under the mixer
+// (2.10). It sat under the track list
 // until the bottom rail (owner, 2026-10-16), where it shows in every view.
 // It is everyone's in a session, so it is never locked; with collaborators
 // in the room it also switches between hearing all of them and only the
@@ -30,7 +32,13 @@ export const MasterRow = memo(function MasterRow() {
   const volume = useMasterVolumeControl();
   const source = useRef(meterSource('master'));
   const fxCount = useStore((s) => s.masteringFxChain.length);
-  const inDock = useStore((s) => s.dockMaster && s.currentView === 'arrange');
+  // Open where the student is: the dock's Master in Create, the master's
+  // rack under the mixer in Mix (2.10).
+  const inDock = useStore(
+    (s) =>
+      (s.dockMaster && s.currentView === 'arrange') ||
+      (s.currentView === 'studio' && s.mixRack?.kind === 'master'),
+  );
   const automationOpen = useStore(
     (s) => s.automationOpenTrackId === MASTER_AUTOMATION_ID,
   );
@@ -49,9 +57,19 @@ export const MasterRow = memo(function MasterRow() {
             ? `Master (${fxCount} effect${fxCount > 1 ? 's' : ''}): show it in the dock`
             : 'Master: show it in the dock'
         }
+        data-hint={hintText(
+          'Master',
+          inDock
+            ? 'Give the dock back to the selected track'
+            : 'Show the whole mix’s volume and effects in the dock',
+        )}
         data-testid="master-open"
         onClick={() => {
           const s = useStore.getState();
+          if (s.currentView === 'studio') {
+            s.setMixRack(inDock ? null : { kind: 'master' });
+            return;
+          }
           if (inDock) {
             // Back to the selected track, or shut if Master opened the dock.
             s.setDockMaster(false);
@@ -86,6 +104,10 @@ export const MasterRow = memo(function MasterRow() {
             rail (it stood 48 px, and the shell scrolled by the difference). */}
         <Meter
           label="Master level"
+          data-hint={hintText(
+            'Master level',
+            'How loud the whole mix is; click to clear the red light',
+          )}
           source={source.current}
           orientation="horizontal"
           length={faderPx}
@@ -94,6 +116,10 @@ export const MasterRow = memo(function MasterRow() {
         />
         <Fader
           label="Master volume"
+          data-hint={hintText(
+            'Master volume',
+            'The volume of the whole mix; double-click to reset',
+          )}
           orientation="horizontal"
           length={faderPx}
           min={0}
@@ -111,6 +137,10 @@ export const MasterRow = memo(function MasterRow() {
       <div className="flex items-center">
         <Toggle
           label="Master volume automation"
+          data-hint={hintText(
+            'Master volume automation',
+            'Draw how the whole mix’s volume changes over time',
+          )}
           icon={<Activity />}
           size="sm"
           pressed={automationOpen}

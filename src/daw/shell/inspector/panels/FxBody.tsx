@@ -5,7 +5,9 @@ import { FxBlockIcon } from '@/daw/components/Effects/FxBlockIcon';
 import { EFFECT_ABOUT, EFFECT_CATEGORIES } from '@/daw/data/effectCategories';
 import { FX_LABEL } from '@/daw/data/libraryItems';
 import { useStore } from '@/daw/store';
-import { MAX_RACK_EFFECTS } from '@/daw/store/effectRack';
+import { anchorRackOf, MAX_RACK_EFFECTS } from '@/daw/store/effectRack';
+import { rackTakes, useRack } from '@/daw/shell/mix/rackAdapters';
+import { useRackTarget } from '@/daw/shell/mix/rackTarget';
 import { EmptyState } from '@/daw/ui/EmptyState';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 
@@ -18,26 +20,18 @@ import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 // the next, so the student can keep adding; the armed slot's × stops
 // (uiSlice: openEffectsLibrary, cancelEffectsLibrary). A pick switches the
 // dock to its Effects tab in Create; an effect already in the chain shows
-// its controls there instead. While the dock shows Master (2.9), the
-// library fills the master chain instead. This is the only list that adds
-// effects to a track, so its rows carry the fx-add-* lesson anchors,
-// stamped with the rack they add to (the Mix view's racks keep their own
-// lists).
-
-/** The sidechain keys off another track: a track's rack only. */
-const TRACK_ONLY: readonly EffectSlotType[] = ['ducker'];
+// its controls there instead. It fills the rack in front of the student
+// (shell/mix/rackTarget.ts): in Create the dock's Master when it shows (2.9)
+// or the selected track's chain; in Mix the rack the RackDock shows (2.10),
+// a return's or the master's included, or else the selected track's. This
+// is the only list that adds effects, so its rows carry the fx-add-* lesson
+// anchors, stamped with the rack they add to.
 
 export function FxBody() {
-  const toMaster = useStore((s) => s.dockMaster && s.currentView === 'arrange');
-  const trackId = useStore((s) => s.selectedTrackId);
-  const track = useStore((s) =>
-    s.selectedTrackId === null
-      ? null
-      : (s.tracks.find((t) => t.id === s.selectedTrackId) ?? null),
-  );
-  const masterChain = useStore((s) => s.masteringFxChain);
+  const target = useRackTarget();
+  const rack = useRack(target);
 
-  if (!toMaster && (!track || !trackId)) {
+  if (!target || !rack) {
     return (
       <EmptyState
         title="Pick a track"
@@ -46,24 +40,23 @@ export function FxBody() {
     );
   }
 
-  const chain = toMaster ? masterChain : (track?.activeEffects ?? []);
+  const chain = rack.chain;
   const full = chain.length >= MAX_RACK_EFFECTS;
-  const rack = toMaster ? 'master' : 'track';
+  const anchorRack = anchorRackOf(target);
 
   const pick = (type: EffectSlotType) => {
-    const s = useStore.getState();
     if (!chain.includes(type)) {
       if (full) return;
-      if (toMaster) s.addMasteringFx(type);
-      else if (trackId) s.addActiveEffect(trackId, type);
+      rack.add(type);
     }
+    const s = useStore.getState();
     s.setDockEffect(type);
-    if (
-      !toMaster &&
-      s.currentView === 'arrange' &&
-      s.channelStripTab !== 'fx'
-    ) {
+    if (target.kind !== 'track') return;
+    // Show the rack the pick went into.
+    if (s.currentView === 'arrange' && s.channelStripTab !== 'fx') {
       s.setChannelStripTab('fx');
+    } else if (s.currentView === 'studio' && !s.mixRack) {
+      s.setMixRack(target);
     }
   };
 
@@ -74,10 +67,7 @@ export function FxBody() {
           className={cn(TYPE_CLASS.body, 'truncate text-daw-text-2')}
           data-testid="effects-library-target"
         >
-          Adding to{' '}
-          <span className="font-bold text-daw-text">
-            {toMaster ? 'Master' : track?.name}
-          </span>
+          Adding to <span className="font-bold text-daw-text">{rack.name}</span>
         </span>
         {/* Always on the page: a screen reader announces a status as its
             text changes. */}
@@ -112,7 +102,7 @@ export function FxBody() {
             </p>
             <ul aria-label={category.label}>
               {category.effects
-                .filter((type) => !(toMaster && TRACK_ONLY.includes(type)))
+                .filter((type) => rackTakes(target, type))
                 .map((type) => {
                   const on = chain.includes(type);
                   const disabled = full && !on;
@@ -122,7 +112,7 @@ export function FxBody() {
                       <button
                         type="button"
                         data-tutorial-id={`fx-add-${type}`}
-                        data-tutorial-target={rack}
+                        data-tutorial-target={anchorRack}
                         data-testid={`inspector-fx-${type}`}
                         aria-disabled={disabled || undefined}
                         aria-label={

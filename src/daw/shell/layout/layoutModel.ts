@@ -33,8 +33,11 @@ export const DOCK_TALL_FRAC = 0.6;
 /** One arrow-key step of a resizer. */
 export const RESIZE_STEP_PX = 16;
 
-/** What fills the dock's slot: one of its tabs, or Master (2.9). */
-export type DockSlotId = ChannelStripTabId | 'master';
+/**
+ * What fills the dock's slot: one of its tabs or Master (2.9) in Create, the
+ * RackDock in Mix (2.10).
+ */
+export type DockSlotId = ChannelStripTabId | 'master' | 'rack';
 
 /**
  * Each tab's default height, as a share of the body (window height less the
@@ -48,6 +51,7 @@ export const DOCK_DEFAULT_FRAC: Readonly<Record<DockSlotId, number>> = {
   prism: 0.4,
   'piano-roll': 0.4,
   master: 0.36,
+  rack: 0.36,
 };
 
 /**

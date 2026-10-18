@@ -214,6 +214,17 @@ export interface Track {
   trackRole: DawTrackRole;
 }
 
+/**
+ * What a new track can be made with besides its instrument (addTrack): the
+ * sound it is for and its role, set before its first engine is built.
+ */
+export type TrackInit = Partial<
+  Pick<
+    Track,
+    'bassVoice' | 'gmProgram' | 'drumKit' | 'presetName' | 'trackRole'
+  >
+>;
+
 // ── Note ids ────────────────────────────────────────────────────────────
 // Every note in the store has an id of its own (model/noteIds.ts). The
 // actions that write notes make sure of it, so a note made anywhere (drawn,
@@ -278,13 +289,16 @@ export interface TracksSlice {
   /**
    * Adds a track and returns its id, or returns `''` (and shows a toast)
    * without creating anything when a project track limit would be exceeded.
+   * `init` is the sound the track is made for (its bass voice, General MIDI
+   * program, drum kit, preset name) and its role: they are on the track from
+   * its first write, so its first engine is already the right one.
    * @see getTrackLimitMessage
    */
   addTrack: (
     type: TrackType,
     instrument: InstrumentType,
     name: string,
-    color?: string,
+    init?: TrackInit,
   ) => string;
   removeTrack: (id: string) => void;
   updateTrack: (id: string, updates: Partial<Track>) => void;
@@ -404,7 +418,7 @@ export const createTracksSlice: StateCreator<
   nextColorIndex: 0,
 
   // ── Actions ──
-  addTrack: (type, instrument, name) => {
+  addTrack: (type, instrument, name, init) => {
     // Enforce per-project track limits. Returns '' (no track created) and
     // notifies the user when adding would exceed a cap, so every creation
     // path — menus, Cmd+N, drag-drop, file import — is covered.
@@ -433,6 +447,7 @@ export const createTracksSlice: StateCreator<
     const track: Track = {
       id,
       ...initialTrackDefaults(instrument, name),
+      ...init,
       type,
       color: assignedColor,
     };

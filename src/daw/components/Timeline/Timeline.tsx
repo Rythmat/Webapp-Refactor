@@ -2934,7 +2934,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
             'audio/wav';
           const ctx = new AudioContext();
           const audioBuf = await ctx.decodeAudioData(arrayBuf);
-          const trackId = st.addTrack('audio', 'none', payload.name, '#f59e0b');
+          const trackId = st.addTrack('audio', 'none', payload.name);
           st.setSelectedTrackId(trackId);
           const clipId = `clip-sample-${crypto.randomUUID().slice(0, 8)}`;
           const durationTicks = Math.round(
@@ -2966,13 +2966,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
             const seq = sequences[i];
             const ppq = seq.ticksPerQuarterNote;
             const instrument = payload.instrument ?? 'soundfont';
-            const color = instrument === 'drum-machine' ? '#f59e0b' : '#8b5cf6';
-            const trackId = st.addTrack(
-              'midi',
-              instrument,
-              payload.name,
-              color,
-            );
+            const trackId = st.addTrack('midi', instrument, payload.name);
             st.setSelectedTrackId(trackId);
             const events: MidiNoteEvent[] = seq.events.map(
               (ev: MidiNoteEvent) => ({
@@ -3011,27 +3005,11 @@ export function Timeline({ scrollRef }: TimelineProps) {
     const { importMidiFile } = await import('@/daw/midi/MidiFileIO');
     const sequences = importMidiFile(arrayBuffer);
     const state = useStore.getState();
-    const COLORS = [
-      '#8b5cf6',
-      '#a855f7',
-      '#f59e0b',
-      '#f97316',
-      '#22c55e',
-      '#3b82f6',
-      '#ef4444',
-      '#06b6d4',
-    ];
 
     for (let i = 0; i < sequences.length; i++) {
       const seq = sequences[i];
       const ppq = seq.ticksPerQuarterNote;
-      const color = COLORS[i % COLORS.length];
-      const trackId = state.addTrack(
-        'midi',
-        'oracle-synth',
-        seq.trackName,
-        color,
-      );
+      const trackId = state.addTrack('midi', 'oracle-synth', seq.trackName);
 
       const events: MidiNoteEvent[] = seq.events.map((ev: MidiNoteEvent) => ({
         ...ev,

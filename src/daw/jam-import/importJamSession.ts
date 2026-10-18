@@ -46,12 +46,9 @@ export function applyJamSession(session: JamSession): number {
   const quantize = (tick: number) =>
     Math.max(0, Math.round(tick / GRID_TICKS) * GRID_TICKS);
 
-  const nameFor = (userId: string): { userName: string; color: string } => {
+  const nameFor = (userId: string): { userName: string } => {
     const p = session.participants.find((x) => x.userId === userId);
-    return {
-      userName: p?.userName || 'Player',
-      color: p?.color || '#8b5cf6',
-    };
+    return { userName: p?.userName || 'Player' };
   };
 
   const buildEvents = (
@@ -98,15 +95,17 @@ export function applyJamSession(session: JamSession): number {
 
   for (const groupNotes of byUserInstrument.values()) {
     const { userId, gmProgram } = groupNotes[0];
-    const { userName, color } = nameFor(userId);
+    const { userName } = nameFor(userId);
     const soundName = GM_PROGRAMS.find((p) => p.number === gmProgram)?.name;
     const trackName = soundName
       ? `${userName} — ${soundName} (Jam)`
       : `${userName} (Jam)`;
-    const trackId = store.addTrack('midi', 'soundfont', trackName, color);
+    // The player's GM sound comes with the track, so the studio track sounds
+    // like the jam from its first note.
+    const trackId = store.addTrack('midi', 'soundfont', trackName, {
+      gmProgram,
+    });
     if (!trackId) continue; // track cap reached (addTrack toasts)
-    // Carry the player's GM sound across so the studio track sounds like the jam.
-    store.updateTrack(trackId, { gmProgram });
     const { events, lengthTicks } = buildEvents(groupNotes);
     const clip: MidiClip = {
       id: crypto.randomUUID(),
@@ -127,8 +126,7 @@ export function applyJamSession(session: JamSession): number {
   // than one player at the same instant isn't doubled.
   const drumNotes = session.notes.filter((n) => n.instrument === 'drums');
   if (drumNotes.length > 0) {
-    const { color } = nameFor(session.localUserId);
-    const trackId = store.addTrack('midi', 'drum-machine', 'Jam Drums', color);
+    const trackId = store.addTrack('midi', 'drum-machine', 'Jam Drums');
     if (trackId) {
       const { events } = buildEvents(drumNotes);
       const seen = new Set<string>();

@@ -27,7 +27,7 @@ import { type PlayedKeys, toPlayedNotes } from '@/learn/keyboard/playedKeys';
 // fills the width and mirrors the player's keyboard (see
 // lessonKeyboardRange.ts for the rules). A surface can instead ask for a
 // fixed set of keys at real proportions (`range` and `natural`: Music
-// Literacy's 25 keys, C4–C6 for most steps).
+// Literacy's 25 keys, C3–C5).
 
 /**
  * Where the player's hardware is sitting right now. In memory only, shared

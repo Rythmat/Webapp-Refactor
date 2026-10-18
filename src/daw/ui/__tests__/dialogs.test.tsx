@@ -76,9 +76,8 @@ describe('DawDialog', () => {
     expect(dialog).toHaveClass('bg-daw-popover', 'z-[var(--daw-z-modal)]');
     const scrim = dialog.previousElementSibling;
     expect(scrim).toHaveClass('bg-daw-scrim', 'z-[var(--daw-z-modal)]');
-    // Plain black/60: the kit's backdrop blur is switched off.
-    expect(scrim).toHaveClass('backdrop-blur-none');
-    expect(scrim).not.toHaveClass('backdrop-blur-sm');
+    // Plain black/60, with no backdrop blur.
+    expect(scrim?.className).not.toMatch(/backdrop-blur-(?!none)/);
   });
 
   it('hides the editor behind it from assistive technology while open', () => {

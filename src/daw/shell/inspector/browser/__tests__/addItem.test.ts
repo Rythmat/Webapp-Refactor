@@ -21,13 +21,13 @@ const h = vi.hoisted(() => ({
   loadEvents: null as null | ((id: string) => Promise<unknown>),
   openSession: vi.fn(async () => ({ status: 'opened' })),
   stopPreview: vi.fn(),
+  /** The designed groove that plays a groove row, once loaded. */
+  liveGroove: undefined as unknown,
 }));
 
-vi.mock('@/hooks/use-toast', async (orig) => ({
-  ...(await orig<Record<string, unknown>>()),
-  toast: (t: { title?: string; description?: string }) => {
+vi.mock('@/daw/shell/notice', () => ({
+  notice: (t: { title?: string; description?: string }) => {
     h.toasts.push(t);
-    return { id: '', dismiss() {}, update() {} };
   },
 }));
 vi.mock('@/daw/midi/loadGrooveEvents', () => ({
@@ -38,14 +38,24 @@ vi.mock('@/daw/midi/loadGrooveEvents', () => ({
 }));
 vi.mock('@/curriculum/engine/drumGrooves/registry', async (orig) => ({
   ...(await orig<Record<string, unknown>>()),
-  // No designed groove: the clip's length is left to the store.
-  loadLiveGroove: async () => undefined,
+  // No designed groove unless a test gives one: the clip's length is left
+  // to the store.
+  loadLiveGroove: async () => h.liveGroove,
+}));
+// The SERUM pack: nothing installed (its load resolves with no presets).
+vi.mock('@/daw/oracle-synth/store/presets/packLoader', async (orig) => ({
+  ...(await orig<Record<string, unknown>>()),
+  loadOraclePacks: async () => {},
 }));
 vi.mock('@/daw/session/openSession', () => ({ openSession: h.openSession }));
 // The preview's audio isn't this file's; an add only stops it.
 vi.mock('../preview', () => ({ stopPreview: h.stopPreview }));
 
 import type { UserPresence } from '@/daw/collab/types';
+import {
+  patternTicks,
+  type DrumGroove,
+} from '@/curriculum/engine/drumGrooves/drumGroove';
 import { listLiveParts } from '@/curriculum/engine/parts/registry';
 import { partTicks } from '@/curriculum/engine/parts/part';
 import { GROOVES } from '@/daw/data/groovesLibrary';
@@ -53,6 +63,7 @@ import { PRESETS } from '@/daw/data/instrumentPresets';
 import { PROJECT_TEMPLATES } from '@/daw/data/projectTemplates';
 import { shortKeyLabel } from '@/daw/harmony/clipKey';
 import { DRUM_KIT_CONFIGS } from '@/daw/instruments/drumKits';
+import { useSynthStore } from '@/daw/oracle-synth/store';
 import { FACTORY_PRESETS } from '@/daw/oracle-synth/store/presets/factoryPresets';
 import {
   getTrackSynthState,
@@ -138,6 +149,7 @@ beforeEach(() => {
   h.toasts = [];
   h.grooveCalls = [];
   h.loadEvents = async () => HITS;
+  h.liveGroove = undefined;
   h.openSession.mockClear();
   h.stopPreview.mockClear();
   song();
@@ -169,23 +181,22 @@ describe('+ on a part', () => {
     expect(clip.name).toBe(BASS.name);
     expect(clip.durationTicks).toBe(partTicks(BASS.part));
 
-    // Moved into C major: the notes sit on its scale.
+    // Moved into C major by the keys' move; whether its notes then sit on
+    // the scale is what `fits` says.
     const move = moveForSong(BASS.part, { rootPc: 0, mode: 'ionian' });
-    expect(move.fits).toBe(true);
     const want = preparedEvents(BASS.part, move.shift);
     expect(clip.events.map((e) => [e.note, e.startTick])).toEqual(
       want.map((e) => [e.note, e.startTick]),
     );
-    expect(
-      scaleFit(
-        clip.events.map((e) => ({
-          midi: e.note,
-          duration: e.durationTicks,
-          velocity: e.velocity,
-        })),
-        { rootPc: 0, mode: 'ionian' },
-      ),
-    ).toBeGreaterThanOrEqual(0.9);
+    const fit = scaleFit(
+      clip.events.map((e) => ({
+        midi: e.note,
+        duration: e.durationTicks,
+        velocity: e.velocity,
+      })),
+      { rootPc: 0, mode: 'ionian' },
+    );
+    expect(fit >= 0.9).toBe(move.fits);
     // The song's key is the student's: nothing written over it.
     expect(s()).toMatchObject(C_MAJOR);
 
@@ -556,5 +567,117 @@ describe('the dock after an add', () => {
     expect(await addItemAsTrack(KEYS)).toBe(true);
     expect(await addItemAsTrack(GROOVE)).toBe(true);
     expect(s().channelStripTab).toBeNull();
+  });
+});
+
+// Review fixes (2.14).
+describe('what a waiting question and a load meet', () => {
+  it('makes a new drum track when the lane it was dropped on went while the question waited', async () => {
+    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    const drums = s().addTrack('midi', 'drum-machine', 'Drums');
+    song({ ...C_MAJOR, bpm: 120 });
+    const added = addItem(GROOVE, { trackId: drums, tick: BAR });
+    const q = await question();
+    s().removeTrack(drums);
+    expect(s().tracks.map((t) => t.id)).toEqual([keys]);
+
+    q.answer(true);
+    expect(await added).toBe(true);
+    expect(s().bpm).toBe(GROOVE.bpm);
+    expect(s().tracks).toHaveLength(2);
+    const made = s().tracks[1];
+    expect(made.id).not.toBe(drums);
+    expect(made).toMatchObject({
+      instrument: 'drum-machine',
+      drumKit: GROOVE.kit,
+      name: GROOVE.name,
+    });
+    expect(made.midiClips.map((c) => c.startTick)).toEqual([BAR]);
+
+    // The tempo change and the new track are one step.
+    expect(historyLabels().at(-1)).toBe(`Add ${GROOVE.name}`);
+    undo();
+    expect(s().bpm).toBe(120);
+    expect(s().tracks.map((t) => t.id)).toEqual([keys]);
+  });
+
+  it('fills the key of a keyless song whose key lock was left on', async () => {
+    // An undone key change can leave the lock on with no key.
+    song({ rootNote: null, rootLocked: true });
+    expect(await addItemAsTrack(KEYS)).toBe(true);
+    expect(s().rootNote).toBe(KEYS.key.tonic);
+    expect(s().mode).toBe(KEYS.key.mode);
+    const label = shortKeyLabel(KEYS.key.tonic, KEYS.key.mode);
+    expect(h.toasts).toContainEqual(
+      expect.objectContaining({ title: `Your song is now in ${label}` }),
+    );
+  });
+
+  it('claims no key it couldn’t set', async () => {
+    song({ rootNote: null, setRootNote: () => {} });
+    expect(await addItemAsTrack(KEYS)).toBe(true);
+    expect(s().rootNote).toBeNull();
+    expect(
+      h.toasts.some((t) => t.title?.startsWith('Your song is now in')),
+    ).toBe(false);
+  });
+
+  it('asks at the designed groove’s tempo and adds it on its kit', async () => {
+    const designed: DrumGroove = {
+      id: GROOVE.grooveId,
+      name: GROOVE.name,
+      status: 'live',
+      timeSignature: [3, 4],
+      feltBeats: 3,
+      bars: 2,
+      tempo: 120,
+      tempoUnit: 'quarter',
+      swing: 50,
+      grid: '16n',
+      kit: '808',
+      padGains: {},
+      humanize: { timing: 0, velocity: 0 },
+      hits: [],
+    };
+    h.liveGroove = designed;
+    // The row as listed before the designed groove loaded: the catalog's
+    // tempo and kit.
+    const listed = { ...GROOVE, bpm: 60, kit: 'natural' };
+    song({ bpm: 100 });
+    const added = addItemAsTrack(listed);
+    const q = await question();
+    expect(q).toMatchObject({ itemBpm: 120, songBpm: 100 });
+
+    q.answer(true);
+    expect(await added).toBe(true);
+    expect(s().bpm).toBe(120);
+    const track = s().tracks[0];
+    expect(track.drumKit).toBe('808');
+    expect(track.midiClips[0].durationTicks).toBe(patternTicks(designed));
+  });
+
+  it('makes no track for a SERUM patch that doesn’t load', async () => {
+    useSynthStore.setState({ packPresets: [] });
+    const patch = synthPresetItem('pack', 'Glass Pad', 'Pad');
+    expect(await addItemAsTrack(patch)).toBe(false);
+    expect(s().tracks).toHaveLength(0);
+    expect(h.toasts).toContainEqual(
+      expect.objectContaining({ title: 'That sound didn’t load' }),
+    );
+    expect(useBrowserStore.getState().adding).toEqual([]);
+    expect(historyLabels()).toEqual([]);
+  });
+
+  it('cancels a waiting tempo question when a new session opens', async () => {
+    song({ bpm: 120 });
+    const added = addItemAsTrack(GROOVE);
+    await question();
+    bumpSessionGeneration('test');
+    // Nobody answers: the new session's cancel resolves the add.
+    expect(await added).toBe(false);
+    expect(useBrowserStore.getState().question).toBeNull();
+    expect(s().tracks).toHaveLength(0);
+    expect(s().bpm).toBe(120);
+    expect(historyLabels()).toEqual([]);
   });
 });

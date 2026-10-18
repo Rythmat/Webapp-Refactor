@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { cn } from '@/components/utilities';
-import { shortKeyLabel } from '@/daw/harmony/clipKey';
+import { keyText } from '@/daw/shell/song/keyPopover';
 import { onSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore } from '@/daw/store';
 import { getTrackLimitMessage } from '@/daw/store/tracksSlice';
@@ -9,6 +9,7 @@ import { EmptyState } from '@/daw/ui/EmptyState';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 import { BrowserChips, BrowserFilters, BrowserSearch } from './BrowserFilters';
 import { BrowserRow } from './BrowserRow';
+import { focusSearch } from './focus';
 import { useBrowserStore } from './browserStore';
 import { metaOf, TYPES, TYPE_LABEL, type BrowserItem } from './items';
 import { moveForSong } from './partInSong';
@@ -50,7 +51,7 @@ const ROLE_WORD: Record<SongRole, string> = {
 
 function reasonOf(ctx: SongContext, missing: SongRole[]): string {
   const key = ctx.key
-    ? shortKeyLabel(ctx.key.rootPc, ctx.key.mode)
+    ? keyText({ rootNote: ctx.key.rootPc, mode: ctx.key.mode })
     : 'No key yet';
   const lack = missing.length
     ? `no ${ROLE_WORD[missing[0]]} yet`
@@ -72,6 +73,10 @@ export function BrowserPanel() {
   // re-render the list.
   const ctxKey = useStore((s) => JSON.stringify(songContextOf(s)));
   const ctx = useMemo(() => JSON.parse(ctxKey) as SongContext, [ctxKey]);
+  // The key alone, so a tempo or a role change doesn't re-render every row.
+  const keyId = ctx.key ? `${ctx.key.rootPc}:${ctx.key.mode}` : '';
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const songKey = useMemo(() => ctx.key, [keyId]);
 
   // A preview stops when the song plays or records, when the session
   // changes, and when the panel goes.
@@ -82,20 +87,18 @@ export function BrowserPanel() {
         if (on) stopPreview();
       },
     );
-    // A new session also takes down a tempo question: its groove was for
-    // the song before.
-    const stopOnSession = onSessionGeneration(() => {
+    // (browserStore cancels a waiting tempo question itself.)
+    const stopOnSession = onSessionGeneration(() => releasePreviewVoices());
+    return () => {
+      stopOnPlay();
+      stopOnSession();
       releasePreviewVoices();
+      // A question left open goes with the panel: its add is cancelled.
       const { question, dismissQuestion } = useBrowserStore.getState();
       if (question) {
         dismissQuestion();
         question.answer(null);
       }
-    });
-    return () => {
-      stopOnPlay();
-      stopOnSession();
-      releasePreviewVoices();
     };
   }, []);
 
@@ -103,9 +106,9 @@ export function BrowserPanel() {
     (item: BrowserItem) => {
       const now = useBrowserStore.getState().preview;
       if (now?.itemId === item.id) stopPreview();
-      else void startPreview(item, ctx.key, useStore.getState().bpm);
+      else void startPreview(item, songKey, useStore.getState().bpm);
     },
-    [ctx.key],
+    [songKey],
   );
 
   // Parts with whether they fit the song once moved, for the picks.
@@ -113,10 +116,10 @@ export function BrowserPanel() {
     () =>
       items.map((item) =>
         item.type === 'part'
-          ? { ...item, keyFits: moveForSong(item.part, ctx.key).fits }
+          ? { ...item, keyFits: moveForSong(item.part, songKey).fits }
           : item,
       ),
-    [items, ctx.key],
+    [items, songKey],
   );
   const matched = useMemo(
     () => matchItems(fitted, query, favourites),
@@ -138,7 +141,7 @@ export function BrowserPanel() {
 
   const metaFor = (item: BrowserItem) =>
     item.type === 'part'
-      ? metaOf(item, moveForSong(item.part, ctx.key).key)
+      ? metaOf(item, moveForSong(item.part, songKey).key)
       : metaOf(item);
 
   const row = (item: BrowserItem) => (
@@ -159,14 +162,12 @@ export function BrowserPanel() {
     <div
       data-testid="library-browser"
       className="relative flex min-h-0 flex-1 flex-col"
-      onKeyDown={(e) => {
-        if (e.key === 'Escape' && useBrowserStore.getState().preview) {
-          e.stopPropagation();
-          stopPreview();
-        }
-      }}
     >
       <div className="flex shrink-0 flex-col gap-2 border-b border-daw-hairline p-2">
+        {/* What a search or a filter leaves, for a screen reader. */}
+        <p role="status" className="sr-only">
+          {isEmptyQuery(query) ? '' : `${matched.length} items`}
+        </p>
         <BrowserSearch />
         <BrowserFilters
           query={query}
@@ -203,12 +204,23 @@ export function BrowserPanel() {
         {matched.length === 0 ? (
           <EmptyState
             data-testid="library-empty"
-            title="Nothing matches"
-            description="Try fewer words, or clear the filters."
+            title={
+              query.favouritesOnly && favouritesList.length === 0
+                ? 'No favourites yet'
+                : 'Nothing matches'
+            }
+            description={
+              query.favouritesOnly && favouritesList.length === 0
+                ? 'Tap ♡ on a row to keep it here.'
+                : 'Try fewer words, or clear the filters.'
+            }
             actions={
               <Button
                 size="sm"
-                onClick={() => useBrowserStore.getState().clearQuery()}
+                onClick={() => {
+                  useBrowserStore.getState().clearQuery();
+                  focusSearch();
+                }}
               >
                 Clear
               </Button>

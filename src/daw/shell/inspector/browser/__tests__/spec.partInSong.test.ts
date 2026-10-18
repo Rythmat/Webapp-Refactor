@@ -16,6 +16,7 @@ import { describe, expect, it } from 'vitest';
 import { swingOnset } from '@/curriculum/engine/genreGeneration/swing';
 import {
   blankPart,
+  partTicks,
   playedTick,
   shiftBetween,
   transposePart,
@@ -256,18 +257,15 @@ describe('moveForSong', () => {
         });
         const fit = scaleFit(shifted(p.notes, moved.shift), song);
         expect(moved.fits).toBe(fit >= 0.9);
-        const tonicShift = shiftBetween(p.key.tonic, song.rootPc);
-        const tonicFit = scaleFit(shifted(p.notes, tonicShift), song);
-        if (tonicFit >= 0.9) {
-          expect(moved.shift).toBe(tonicShift);
-        } else {
-          // No shift in range fits better than the one taken.
-          for (let s = -6; s <= 5; s++) {
-            expect(scaleFit(shifted(p.notes, s), song)).toBeLessThanOrEqual(
-              fit + 1e-9,
-            );
-          }
+        // The move is read from the keys (review M1): a part in the song's
+        // mode moves tonic to tonic, and a part already in the song's key
+        // stays put.
+        if (p.key.mode === song.mode) {
+          expect(moved.shift).toBe(shiftBetween(p.key.tonic, song.rootPc));
         }
+        expect(
+          moveForSong(p, { rootPc: p.key.tonic, mode: p.key.mode }).shift,
+        ).toBe(0);
       }
     }
   });
@@ -424,25 +422,26 @@ describe('preparedEvents', () => {
     expect(ticks.every((t) => t >= 0)).toBe(true);
   });
 
-  it('every live part, moved into C major, gives one well-formed event per note', () => {
+  it('every live part, moved into C major, gives a well-formed event per note inside its bars', () => {
     for (const p of listLiveParts()) {
       const { shift } = moveForSong(p, C_IONIAN);
       const events = preparedEvents(p, shift);
-      expect(events).toHaveLength(p.notes.length);
+      const end = partTicks(p);
+      // A note written past the part's last bar is left out (review M4).
+      const inside = transposePart(p, p.key.tonic + shift).notes.filter(
+        (n) => swingOnset(n.tick, p.swing) + (n.offset ?? 0) < end,
+      );
+      expect(events).toHaveLength(inside.length);
       for (const e of events) {
         expect(e.channel).toBe(0);
         expect(e.startTick).toBeGreaterThanOrEqual(0);
         expect(Number.isInteger(e.startTick)).toBe(true);
+        expect(e.startTick + e.durationTicks).toBeLessThanOrEqual(end);
         expect(e.note).toBeGreaterThanOrEqual(0);
         expect(e.note).toBeLessThanOrEqual(127);
       }
-      // The moved notes are transposePart's, pitch for pitch.
-      const expected =
-        p.instrument === 'drums'
-          ? p.notes.map((n) => n.midi)
-          : transposePart(p, p.key.tonic + shift).notes.map((n) => n.midi);
       expect(events.map((e) => e.note).sort((a, b) => a - b)).toEqual(
-        [...expected].sort((a, b) => a - b),
+        inside.map((n) => n.midi).sort((a, b) => a - b),
       );
     }
   });

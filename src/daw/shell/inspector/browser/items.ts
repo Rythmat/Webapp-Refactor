@@ -478,6 +478,10 @@ export function metaOf(item: BrowserItem, key?: PartKey): string {
         shortKeyLabel(k.tonic, k.mode),
         `${item.bpm} BPM`,
         plural(item.bars ?? 0, 'bar'),
+        item.timeSignature &&
+        !(item.timeSignature[0] === 4 && item.timeSignature[1] === 4)
+          ? `${item.timeSignature[0]}/${item.timeSignature[1]}`
+          : null,
         item.chords,
       ]
         .filter(Boolean)

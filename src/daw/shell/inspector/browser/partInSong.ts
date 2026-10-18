@@ -19,6 +19,7 @@
 
 import { ALL_MODES, type MidiNoteEvent } from '@prism/engine';
 import {
+  partTicks,
   playedTick,
   shiftBetween,
   transposePart,
@@ -76,10 +77,23 @@ export interface PartMove {
 
 const moves = new WeakMap<InstrumentPart, Map<string, PartMove>>();
 
+/** The pitch classes of `key`'s scale. */
+function scaleOf(key: SongKey): Set<number> | null {
+  const intervals = ALL_MODES[key.mode];
+  return intervals
+    ? new Set(intervals.map((i: number) => pc(i + key.rootPc)))
+    : null;
+}
+
 /**
- * How `part` moves into `song` (none without a song key): the tonic's move
- * when it fits, else the best-fitting move, ties to the smaller move and then
- * to the tonic's. Cached per part and key.
+ * How `part` moves into `song` (none without a song key), read from the two
+ * keys, never from the notes (a sparse bass line fits almost any move, and
+ * parts written together must move together): the move that puts the most
+ * of the part's scale on the song's, ties to the tonic's move and then the
+ * smaller. A part already in the song's key stays; one in the song's mode
+ * moves tonic to tonic; a D dorian part in C major stays D dorian. `fits`
+ * says whether its notes then sit on the song's scale. Cached per part and
+ * key.
  */
 export function moveForSong(
   part: InstrumentPart,
@@ -91,26 +105,37 @@ export function moveForSong(
   if (kept) return kept;
 
   const tonicShift = shiftBetween(part.key.tonic, song.rootPc);
+  const songScale = scaleOf(song);
+  const shared = (s: number) => {
+    const own = scaleOf({
+      rootPc: pc(part.key.tonic + s),
+      mode: part.key.mode,
+    });
+    if (!own || !songScale) return 0;
+    let n = 0;
+    for (const p of own) if (songScale.has(p)) n++;
+    return n;
+  };
+  // The tonic's move first, then the smaller moves: the first best wins.
+  const order = [
+    tonicShift,
+    ...[-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
+      .filter((s) => s !== tonicShift)
+      .sort((a, b) => Math.abs(a) - Math.abs(b) || b - a),
+  ];
   let shift = tonicShift;
-  let fit = fitAt(part.notes, tonicShift, song);
-  if (fit < SONG_SCALE_FIT) {
-    for (let s = -6; s <= 5; s++) {
-      const f = fitAt(part.notes, s, song);
-      const better =
-        f > fit + 1e-9 ||
-        (Math.abs(f - fit) <= 1e-9 &&
-          (Math.abs(s) < Math.abs(shift) ||
-            (Math.abs(s) === Math.abs(shift) && s === tonicShift)));
-      if (better) {
-        fit = f;
-        shift = s;
-      }
+  let best = -1;
+  for (const s of order) {
+    const n = shared(s);
+    if (n > best) {
+      best = n;
+      shift = s;
     }
   }
   const move: PartMove = {
     shift,
     key: { tonic: pc(part.key.tonic + shift), mode: part.key.mode },
-    fits: fit >= SONG_SCALE_FIT,
+    fits: fitAt(part.notes, shift, song) >= SONG_SCALE_FIT,
   };
   const forPart = moves.get(part) ?? new Map<string, PartMove>();
   forPart.set(cacheKey, move);
@@ -129,11 +154,23 @@ export function preparedEvents(
 ): MidiNoteEvent[] {
   const moved =
     shift === 0 ? part : transposePart(part, pc(part.key.tonic + shift));
-  return moved.notes.map((n) => ({
-    note: n.midi,
-    velocity: n.velocity,
-    startTick: Math.max(0, swingOnset(playedTick(n), part.swing)),
-    durationTicks: n.duration,
-    channel: 0,
-  }));
+  // The written tick swings, then the played feel goes on top; nothing
+  // sounds past the part's last bar (a few parts hold a stray note there).
+  const end = partTicks(part);
+  return moved.notes.flatMap((n) => {
+    const startTick = Math.max(
+      0,
+      swingOnset(n.tick, part.swing) + (playedTick(n) - n.tick),
+    );
+    if (startTick >= end) return [];
+    return [
+      {
+        note: n.midi,
+        velocity: n.velocity,
+        startTick,
+        durationTicks: Math.max(1, Math.min(n.duration, end - startTick)),
+        channel: 0,
+      },
+    ];
+  });
 }

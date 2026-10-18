@@ -10,6 +10,7 @@ import {
   MenuTrigger,
 } from '@/daw/ui/Menu';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
+import { focusSearch } from './focus';
 import { useBrowserStore } from './browserStore';
 import {
   GENRES,
@@ -23,7 +24,7 @@ import { isEmptyQuery, type BrowserQuery, type Facet } from './query';
 // ── The Library's search, filters and tag chips (milestone 2.14) ───────────
 //
 // One search; ♡ and three filter menus, Instrument, Genre and Type, whose
-// choices each say how many items they would leave; Clear; then up to eight
+// choices each say how many items they would leave; Clear; then up to six
 // tag chips from what is listed. An active filter shows its value on the
 // white/10 fill, with a check in its menu (not colour alone).
 
@@ -85,7 +86,10 @@ export function BrowserSearch() {
           icon={<X />}
           size="sm"
           data-testid="library-search-clear"
-          onClick={() => setQuery({ text: '' })}
+          onClick={() => {
+            setQuery({ text: '' });
+            focusSearch();
+          }}
         />
       ) : null}
     </label>
@@ -111,6 +115,7 @@ export function BrowserFilters({
         data-testid="library-filter-favourites"
         aria-pressed={query.favouritesOnly}
         title="Show only your favourites"
+        aria-label={`Favourites only, ${favouriteCount}`}
         className={cn(query.favouritesOnly && 'bg-daw-hover')}
         onClick={() => setQuery({ favouritesOnly: !query.favouritesOnly })}
       >
@@ -171,12 +176,15 @@ export function BrowserFilters({
           </Menu>
         );
       })}
-      {isEmptyQuery({ ...query, text: '' }) ? null : (
+      {isEmptyQuery(query) ? null : (
         <Button
           size="sm"
           variant="quiet"
           data-testid="library-filter-clear"
-          onClick={() => clearQuery()}
+          onClick={() => {
+            clearQuery();
+            focusSearch();
+          }}
         >
           Clear
         </Button>
@@ -220,7 +228,7 @@ export function BrowserChips({
             }
             className={cn(
               TYPE_CLASS.label,
-              'inline-flex h-6 items-center rounded-full px-2.5',
+              'inline-flex h-6 min-w-6 items-center justify-center rounded-full px-2.5',
               on
                 ? 'bg-daw-hover font-bold text-daw-text underline underline-offset-2'
                 : 'bg-daw-chip text-daw-text-2 hover:text-daw-text',

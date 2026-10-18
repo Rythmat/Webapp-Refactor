@@ -4,7 +4,7 @@
  * and three filter menus whose choices say how many items each leaves, tag
  * chips, "Fits your song" while nothing narrows the list, and a section per
  * kind with its count. ♡ keeps an item in the student's prefs, + adds it,
- * Escape stops a preview, a row drags the Library's payload, and a search
+ * Escape keeps its editor meaning, a row drags the Library's payload, and a search
  * that finds nothing offers Clear. (A template's click is pinned in
  * libraryBody.templateClick.test.tsx.)
  */
@@ -293,19 +293,15 @@ describe('the Library panel', () => {
     expect(h.stopPreview).toHaveBeenCalled();
   });
 
-  it('stops a playing preview on Escape', () => {
+  // Escape stays the editor's (Stop, closing what is open): the key
+  // dispatcher takes it before the panel would, so the panel takes none
+  // (review U1). ■, another ▶ and Play stop a preview.
+  it('takes no Escape of its own', () => {
     render(<BrowserPanel />);
     const id = firstPart().getAttribute('data-item-id')!;
     act(() =>
       useBrowserStore.getState().setPreview({ itemId: id, status: 'playing' }),
     );
-    h.stopPreview.mockClear();
-    fireEvent.keyDown(search(), { key: 'Escape' });
-    expect(h.stopPreview).toHaveBeenCalledTimes(1);
-  });
-
-  it('leaves Escape alone with nothing playing', () => {
-    render(<BrowserPanel />);
     h.stopPreview.mockClear();
     fireEvent.keyDown(search(), { key: 'Escape' });
     expect(h.stopPreview).not.toHaveBeenCalled();

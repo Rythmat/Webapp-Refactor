@@ -18,7 +18,7 @@
  * groove's notes, a SERUM patch) is dropped if the session changed meanwhile.
  */
 
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 import { partTicks } from '@/curriculum/engine/parts/part';
 import { patternTicks } from '@/curriculum/engine/drumGrooves/drumGroove';
 import { loadLiveGroove } from '@/curriculum/engine/drumGrooves/registry';
@@ -147,7 +147,7 @@ const tabFor = (item: BrowserItem): ChannelStripTabId =>
 function refusedAtLimit(): boolean {
   const message = getTrackLimitMessage(useStore.getState().tracks, 'midi');
   if (!message) return false;
-  toast({
+  notice({
     title: 'Track limit reached',
     description: message,
     variant: 'destructive',
@@ -158,7 +158,7 @@ function refusedAtLimit(): boolean {
 function refusedByLock(trackId: string): boolean {
   const holder = trackHolder(useStore.getState(), trackId);
   if (holder === null) return false;
-  toast({
+  notice({
     title: 'Track locked',
     description: `${holder} is editing this track`,
     variant: 'destructive',
@@ -196,13 +196,19 @@ export async function addItem(
   let events: MidiClip['events'] | null = null;
   let durationTicks: number | undefined;
   let synthPatch: PresetData | undefined;
+  // What is added: a groove as the designed groove that plays it (its tempo
+  // and kit), even when the row was listed before that loaded.
+  let adding: Exclude<BrowserItem, { type: 'template' }> = item;
   try {
     if (item.type === 'groove') {
       events = await loadGrooveEvents(item.grooveId);
       const designed = await loadLiveGroove(item.grooveId);
       durationTicks = designed ? patternTicks(designed) : undefined;
+      if (designed) {
+        adding = { ...item, bpm: designed.tempo, kit: designed.kit };
+      }
       if (!events) {
-        toast({
+        notice({
           title: 'That groove didn’t load',
           description: 'Check the connection and try again.',
           variant: 'destructive',
@@ -214,6 +220,14 @@ export async function addItem(
       item.instrumentType === 'oracle-synth'
     ) {
       synthPatch = await presetData(item);
+      if (!synthPatch) {
+        notice({
+          title: 'That sound didn’t load',
+          description: 'Check the connection and try again.',
+          variant: 'destructive',
+        });
+        return false;
+      }
     }
   } finally {
     busy(item.id, false);
@@ -226,7 +240,7 @@ export async function addItem(
   const commit = (changeTempo: boolean) =>
     getSessionGeneration() === generation &&
     commitAdd(
-      item,
+      adding,
       target,
       onto,
       { events, durationTicks, synthPatch },
@@ -234,8 +248,12 @@ export async function addItem(
     );
 
   const songBpm = useStore.getState().bpm;
-  if (item.type === 'groove' && item.bpm !== null && item.bpm !== songBpm) {
-    const itemBpm = item.bpm;
+  if (
+    adding.type === 'groove' &&
+    adding.bpm !== null &&
+    adding.bpm !== songBpm
+  ) {
+    const itemBpm = adding.bpm;
     return new Promise<boolean>((resolve) => {
       useBrowserStore.getState().ask({
         itemId: item.id,
@@ -259,10 +277,16 @@ interface Loaded {
 function commitAdd(
   item: Exclude<BrowserItem, { type: 'template' }>,
   target: DropTarget,
-  onto: Track | null,
+  dropLane: Track | null,
   loaded: Loaded,
   changeTempo: boolean,
 ): boolean {
+  // The lane as it is now: the question may have waited while the track
+  // was deleted or changed, and then the item makes a track of its own.
+  const now = dropLane
+    ? useStore.getState().tracks.find((t) => t.id === dropLane.id)
+    : undefined;
+  const onto = now && fitsLane(item, now) ? now : null;
   // Checked again: the question may have waited while tracks were added.
   if (onto ? refusedByLock(onto.id) : refusedAtLimit()) return false;
   let keyFilled: string | null = null;
@@ -275,10 +299,14 @@ function commitAdd(
     if (item.type === 'part') {
       const ctx = songContextOf(s);
       if (!ctx.key) {
-        // The song's first key: the part's own (1.16a).
+        // The song's first key: the part's own (1.16a). A lock left on with
+        // no key (an undone key change) would refuse it.
+        if (s.rootLocked) s.toggleRootLock();
         s.setMode(item.key.mode);
         s.setRootNote(item.key.tonic);
-        keyFilled = shortKeyLabel(item.key.tonic, item.key.mode);
+        if (useStore.getState().rootNote === item.key.tonic) {
+          keyFilled = shortKeyLabel(item.key.tonic, item.key.mode);
+        }
       }
       const move = moveForSong(item.part, ctx.key);
       clip = {
@@ -328,7 +356,7 @@ function commitAdd(
     return true;
   });
   if (added && keyFilled) {
-    toast({
+    notice({
       title: `Your song is now in ${keyFilled}`,
       description: `${item.name} set the song's key: it had none.`,
     });

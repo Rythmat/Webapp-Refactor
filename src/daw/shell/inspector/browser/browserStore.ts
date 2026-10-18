@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { onSessionGeneration } from '@/daw/session/sessionGeneration';
 import type { BrowserItem } from './items';
 import { EMPTY_QUERY, type BrowserQuery } from './query';
 
@@ -75,3 +76,13 @@ export const useBrowserStore = create<BrowserState>()((set, get) => ({
         : s.adding.filter((id) => id !== itemId),
     })),
 }));
+
+// A new session (a project opened, a template, a lesson) cancels a tempo
+// question still waiting, wherever it was asked: its groove was for the
+// song before.
+onSessionGeneration(() => {
+  const { question, dismissQuestion } = useBrowserStore.getState();
+  if (!question) return;
+  dismissQuestion();
+  question.answer(null);
+});

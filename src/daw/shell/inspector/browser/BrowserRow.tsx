@@ -102,12 +102,8 @@ export const BrowserRow = memo(function BrowserRow({
           noTooltip
           data-testid="library-preview"
           data-state={preview ?? 'idle'}
-          aria-pressed={preview === 'playing'}
-          label={
-            preview
-              ? `Stop the preview of ${item.name}`
-              : `Preview ${item.name}`
-          }
+          aria-pressed={preview !== null}
+          label={`Preview ${item.name}`}
           title={preview ? 'Stop' : 'Preview'}
           icon={
             preview === 'loading' ? (
@@ -138,7 +134,9 @@ export const BrowserRow = memo(function BrowserRow({
             className={cn(
               TYPE_CLASS.body,
               'min-h-6 self-start rounded-[var(--daw-radius-sm)] text-left font-bold',
-              inRoom ? 'cursor-default text-daw-text-3' : 'text-daw-text',
+              inRoom
+                ? 'cursor-not-allowed text-daw-text-3 opacity-60'
+                : 'text-daw-text',
               FOCUS_RING,
             )}
           >
@@ -176,6 +174,7 @@ export const BrowserRow = memo(function BrowserRow({
           noTooltip
           data-testid="library-add"
           aria-disabled={addBlocked !== null || busy || undefined}
+          className="aria-disabled:cursor-not-allowed aria-disabled:opacity-40"
           label={`Add ${item.name} on a new track`}
           title={addBlocked ?? 'New track, at bar 1'}
           icon={

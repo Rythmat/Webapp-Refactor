@@ -21,6 +21,7 @@ const PACK_BASE = '/daw-assets/oracle-packs/serum2/';
 
 let loadAttempted = false;
 let manifestRequest: Promise<PackManifest | null> | null = null;
+let loading: Promise<void> | null = null;
 
 /**
  * The pack's manifest (20 kB): its presets' names and categories, which the
@@ -42,7 +43,14 @@ export function fetchPackManifest(): Promise<PackManifest | null> {
  * registers wavetable URLs (large wavs, lazy-fetched on first use).
  * Silent no-op when no pack is installed (404). Idempotent.
  */
-export async function loadOraclePacks(): Promise<void> {
+export function loadOraclePacks(): Promise<void> {
+  // A second caller waits for the load already running (the Library reads
+  // the pack's presets once it resolves).
+  loading ??= loadPacks();
+  return loading;
+}
+
+async function loadPacks(): Promise<void> {
   if (loadAttempted) return;
   loadAttempted = true;
 
@@ -82,4 +90,5 @@ export async function loadOraclePacks(): Promise<void> {
 export function resetPackLoaderForTests(): void {
   loadAttempted = false;
   manifestRequest = null;
+  loading = null;
 }

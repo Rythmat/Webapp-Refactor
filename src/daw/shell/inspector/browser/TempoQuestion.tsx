@@ -20,6 +20,16 @@ export function TempoQuestion() {
   const answer = (changeTempo: boolean | null) => {
     useBrowserStore.getState().dismissQuestion();
     question.answer(changeTempo);
+    // The question took focus; it goes back to the row's + (or the search).
+    requestAnimationFrame(() => {
+      const add = document.querySelector<HTMLElement>(
+        `[data-item-id="${CSS.escape(question.itemId)}"] [data-testid="library-add"]`,
+      );
+      (
+        add ??
+        document.querySelector<HTMLElement>('[data-testid="library-search"]')
+      )?.focus();
+    });
   };
   return (
     <div

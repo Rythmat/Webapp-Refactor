@@ -27,6 +27,7 @@ import type { InstrumentAdapter } from '@/daw/instruments/InstrumentAdapter';
 import { createInstrument } from '@/daw/instruments/instrumentFactory';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import { createSoundInstrument } from '@/daw/instruments/soundString';
+import { loadLiveGroove } from '@/curriculum/engine/drumGrooves/registry';
 import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
 import {
   applySynthStateToEngine,
@@ -60,10 +61,17 @@ interface PreviewNote {
 }
 
 const voices = new Map<string, Voice>();
+/** Loads in flight, by voice key: two rows of one sound share one load. */
+const loading = new Map<string, Promise<Voice | null>>();
 let token = 0;
+/** Bumped when the kept voices are let go: a load finishing after it is too. */
+let release = 0;
 let loop: ReturnType<typeof setInterval> | null = null;
 let ending: ReturnType<typeof setTimeout> | null = null;
-let sounding: InstrumentAdapter | null = null;
+let sounding: { voice: Voice; held: Map<number, number> } | null = null;
+
+/** A short fade on a stop, so drums and long tails go quiet at once. */
+const STOP_FADE_S = 0.02;
 
 const setState = (itemId: string, status: 'loading' | 'playing') =>
   useBrowserStore.getState().setPreview({ itemId, status });
@@ -75,7 +83,19 @@ export function stopPreview(): void {
   if (ending) clearTimeout(ending);
   loop = null;
   ending = null;
-  sounding?.allNotesOff();
+  if (sounding) {
+    const { voice, held } = sounding;
+    const ctx = audioEngine.getContext();
+    // Every note started or booked lets go now (a sampler forgets a note
+    // once its release is booked, so allNotesOff alone misses some), and
+    // the voice's own level fades out under what still rings (a drum's
+    // one-shots ignore allNotesOff).
+    for (const note of held.keys())
+      voice.adapter.noteOff(note, ctx.currentTime);
+    voice.adapter.allNotesOff();
+    voice.gain.gain.cancelScheduledValues(ctx.currentTime);
+    voice.gain.gain.setTargetAtTime(0, ctx.currentTime, STOP_FADE_S);
+  }
   sounding = null;
   if (useBrowserStore.getState().preview) {
     useBrowserStore.getState().setPreview(null);
@@ -85,8 +105,10 @@ export function stopPreview(): void {
 /** Stops and lets every kept instrument go (the panel closed). */
 export function releasePreviewVoices(): void {
   stopPreview();
+  release++;
   for (const voice of voices.values()) disposeVoice(voice);
   voices.clear();
+  loading.clear();
 }
 
 function disposeVoice(voice: Voice): void {
@@ -141,15 +163,30 @@ function makeAdapter(item: BrowserItem): InstrumentAdapter | null {
   }
 }
 
-async function voiceFor(item: BrowserItem, bpm: number): Promise<Voice | null> {
+function voiceFor(item: BrowserItem, bpm: number): Promise<Voice | null> {
   const key = voiceKey(item);
   const kept = voices.get(key);
   if (kept) {
     // Most recent last.
     voices.delete(key);
     voices.set(key, kept);
-    return kept;
+    return Promise.resolve(kept);
   }
+  const inFlight = loading.get(key);
+  if (inFlight) return inFlight;
+  const load = loadVoice(item, bpm, key).finally(() => {
+    if (loading.get(key) === load) loading.delete(key);
+  });
+  loading.set(key, load);
+  return load;
+}
+
+async function loadVoice(
+  item: BrowserItem,
+  bpm: number,
+  key: string,
+): Promise<Voice | null> {
+  const releaseAtStart = release;
   const adapter = makeAdapter(item);
   if (!adapter) return null;
   const ctx = audioEngine.getContext();
@@ -166,15 +203,31 @@ async function voiceFor(item: BrowserItem, bpm: number): Promise<Voice | null> {
   if (item.type === 'preset' && adapter instanceof OracleSynthAdapter) {
     const data = await presetData(item);
     const engine = adapter.getEngine();
-    if (data && engine) {
-      applySynthStateToEngine(engine, synthTrackStateFromPreset(data, bpm));
+    if (!data || !engine) {
+      // Not the patch the row names: kept, it would play the default.
+      disposeVoice({ adapter, gain });
+      return null;
     }
+    const state = synthTrackStateFromPreset(data, bpm);
+    applySynthStateToEngine(engine, state);
+    // A SERUM patch's wavetables load on first use: wait for them, or the
+    // first notes play the stand-in waveform.
+    await engine
+      .ensureWavetables(state.oscillators.map((o) => o.wavetable))
+      .catch(() => {});
   }
   const voice = { adapter, gain };
+  if (release !== releaseAtStart) {
+    // The panel closed (or a session opened) while this loaded.
+    disposeVoice(voice);
+    return null;
+  }
   voices.set(key, voice);
-  while (voices.size > KEPT_VOICES) {
-    const [oldest, old] = voices.entries().next().value as [string, Voice];
-    voices.delete(oldest);
+  for (const [oldKey, old] of voices) {
+    if (voices.size <= KEPT_VOICES) break;
+    // Never the voice sounding now.
+    if (old === sounding?.voice || oldKey === key) continue;
+    voices.delete(oldKey);
     disposeVoice(old);
   }
   return voice;
@@ -259,8 +312,15 @@ async function notesFor(
       return fromEvents(preparedEvents(item.part, move.shift), item.part.tempo);
     }
     case 'groove': {
-      const events = await loadGrooveEvents(item.grooveId);
-      return events ? fromEvents(events, item.bpm ?? 100) : [];
+      // At the designed groove's tempo, which is what plays (the row may
+      // have been listed before it loaded).
+      const [events, designed] = await Promise.all([
+        loadGrooveEvents(item.grooveId),
+        loadLiveGroove(item.grooveId),
+      ]);
+      return events
+        ? fromEvents(events, designed?.tempo ?? item.bpm ?? 100)
+        : [];
     }
     case 'kit':
       return kitBeat();
@@ -285,36 +345,64 @@ export async function startPreview(
   const mine = token;
   setState(item.id, 'loading');
   const stale = () => mine !== token;
-  if (!(await audioReady()) || stale()) {
+  let voice: Voice | null;
+  let notes: PreviewNote[];
+  try {
+    if (!(await audioReady()) || stale()) {
+      if (!stale()) stopPreview();
+      return;
+    }
+    [voice, notes] = await Promise.all([
+      voiceFor(item, bpm),
+      notesFor(item, song),
+    ]);
+  } catch (err) {
+    console.warn('[library] preview did not load', err);
     if (!stale()) stopPreview();
     return;
   }
-  const [voice, notes] = await Promise.all([
-    voiceFor(item, bpm),
-    notesFor(item, song),
-  ]);
   if (stale()) return;
   if (!voice || notes.length === 0) {
     stopPreview();
     return;
   }
   setState(item.id, 'playing');
-  sounding = voice.adapter;
   const ctx = audioEngine.getContext();
   const t0 = ctx.currentTime + 0.05;
-  const queue = [...notes].sort((a, b) => a.at - b.at);
+  voice.gain.gain.cancelScheduledValues(ctx.currentTime);
+  voice.gain.gain.setValueAtTime(PREVIEW_GAIN, ctx.currentTime);
+  // Each note's start and end are booked as each comes within reach, as the
+  // song's MIDI scheduler books them: an instrument may act on a release at
+  // once, whatever time it names (an Oracle voice, an arpeggio).
+  type Booking = { at: number; on: boolean; note: PreviewNote };
+  const queue: Booking[] = notes
+    .flatMap((n) => [
+      { at: n.at, on: true, note: n },
+      { at: n.at + n.length, on: false, note: n },
+    ])
+    .sort((a, b) => a.at - b.at || Number(a.on) - Number(b.on));
+  // Notes started and not yet released, by pitch: how many.
+  const held = new Map<number, number>();
+  sounding = { voice, held };
   let next = 0;
   const book = () => {
     const horizon = ctx.currentTime + AHEAD_S;
     while (next < queue.length && t0 + queue[next].at <= horizon) {
-      const n = queue[next++];
-      voice.adapter.noteOn(n.note, n.velocity, t0 + n.at);
-      voice.adapter.noteOff(n.note, t0 + n.at + n.length);
+      const { at, on, note } = queue[next++];
+      if (on) {
+        voice.adapter.noteOn(note.note, note.velocity, t0 + at);
+        held.set(note.note, (held.get(note.note) ?? 0) + 1);
+      } else {
+        voice.adapter.noteOff(note.note, t0 + at);
+        const left = (held.get(note.note) ?? 1) - 1;
+        if (left > 0) held.set(note.note, left);
+        else held.delete(note.note);
+      }
     }
   };
   book();
   loop = setInterval(book, TICK_MS);
-  const end = Math.max(...queue.map((n) => n.at + n.length));
+  const end = Math.max(...notes.map((n) => n.at + n.length));
   ending = setTimeout(
     () => {
       if (!stale()) stopPreview();

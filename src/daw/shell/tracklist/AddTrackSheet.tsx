@@ -140,9 +140,9 @@ const onlyChoice = (category: TrackCategory): TrackChoice | null =>
  * Focuses the Library's search once the picker has closed and the panel's
  * lazy body has rendered. The dialog gives focus back to its opener as it
  * goes (after its exit animation), so waiting a frame past that keeps the
- * search from losing it again; it gives up after about a second.
+ * search from losing it again; it gives up after about three seconds (the Library's chunk may load).
  */
-function focusLibrarySearch(framesLeft = 60, wasClosed = false) {
+function focusLibrarySearch(framesLeft = 180, wasClosed = false) {
   requestAnimationFrame(() => {
     const closed = !document.querySelector('[data-testid="add-track-sheet"]');
     const search = document.querySelector<HTMLElement>(
@@ -161,8 +161,13 @@ export function AddTrackSheet() {
   const setOpen = useAddTrackSheet((s) => s.setOpen);
   // The category whose choices show, or null for the categories.
   const [step, setStep] = useState<TrackCategoryId | null>(null);
-  // Closing, however it happens, starts the next open on the categories.
-  if (!open && step !== null) setStep(null);
+  // Each open starts on the categories. Reset as it opens, not as it
+  // closes, so the dialog fading out keeps showing the step it was on.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open && step !== null) setStep(null);
+  }
 
   const first = useRef<HTMLButtonElement>(null);
   const body = useRef<HTMLDivElement>(null);

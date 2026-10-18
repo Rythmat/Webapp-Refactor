@@ -1,11 +1,7 @@
 /* eslint-disable tailwindcss/classnames-order */
 /* eslint-disable tailwindcss/enforces-shorthand */
 import { useCallback, useMemo } from 'react';
-import {
-  FX_CATALOG,
-  type LibraryCategory,
-  type LibraryItem,
-} from '@/daw/data/libraryItems';
+import { FX_CATALOG, type LibraryItem } from '@/daw/data/libraryItems';
 import type { EffectSlotType } from '@/daw/audio/EffectChain';
 import { FxBlockIcon } from './FxBlockIcon';
 import {
@@ -26,7 +22,12 @@ interface FxBrowserProps {
   onAddEffect: (trackId: string, effectType: EffectSlotType) => void;
   /** Shows the controls of an effect already in the chain. */
   onSelectEffect?: (effectType: EffectSlotType) => void;
-  hideMidi?: boolean;
+}
+
+/** One row of the list: a catalog entry and the effect it adds. */
+interface FxEntry {
+  item: LibraryItem;
+  effectType: EffectSlotType;
 }
 
 export function FxBrowser({
@@ -34,7 +35,6 @@ export function FxBrowser({
   activeEffects,
   onAddEffect,
   onSelectEffect,
-  hideMidi,
 }: FxBrowserProps) {
   const atMax = activeEffects.length >= MAX_EFFECTS;
   // The sidechain ducker keys off another TRACK; only per-track racks get a
@@ -45,22 +45,16 @@ export function FxBrowser({
   // tells a lesson's spotlight which rack each row is in.
   const rack = rackOfFxTrack(trackId);
 
-  const categories = useMemo(() => {
-    const map = new Map<LibraryCategory, LibraryItem[]>();
+  const effects = useMemo(() => {
+    const list: FxEntry[] = [];
     for (const item of FX_CATALOG) {
-      if (hideMidi && item.category === 'MIDI Effects') continue;
-      if (
-        isBusRack &&
-        item.dragPayload.kind === 'audio-effect' &&
-        item.dragPayload.effectType === 'ducker'
-      )
-        continue;
-      const list = map.get(item.category) ?? [];
-      list.push(item);
-      map.set(item.category, list);
+      if (item.dragPayload.kind !== 'audio-effect') continue;
+      const { effectType } = item.dragPayload;
+      if (isBusRack && effectType === 'ducker') continue;
+      list.push({ item, effectType });
     }
-    return Array.from(map.entries());
-  }, [hideMidi, isBusRack]);
+    return list;
+  }, [isBusRack]);
 
   return (
     <div
@@ -102,36 +96,24 @@ export function FxBrowser({
         )}
       </div>
       <div className="flex-1 overflow-y-auto">
-        {categories.map(([category, items], ci) => (
-          <div key={category}>
-            {ci > 0 && (
-              <div
-                className="mx-3"
-                style={{ borderTop: '1px solid var(--daw-hairline)' }}
-              />
-            )}
-            <div
-              className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--daw-text-3)' }}
-            >
-              {category === 'Audio Effects' ? 'Audio' : 'MIDI'}
-            </div>
-            {items.map((item) => (
-              <FxRow
-                key={item.id}
-                item={item}
-                trackId={trackId}
-                rack={rack}
-                isActive={
-                  item.dragPayload.kind === 'audio-effect' &&
-                  activeEffects.includes(item.dragPayload.effectType)
-                }
-                atMax={atMax}
-                onAddEffect={onAddEffect}
-                onSelectEffect={onSelectEffect}
-              />
-            ))}
-          </div>
+        <div
+          className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--daw-text-3)' }}
+        >
+          Audio
+        </div>
+        {effects.map(({ item, effectType }) => (
+          <FxRow
+            key={item.id}
+            item={item}
+            effectType={effectType}
+            trackId={trackId}
+            rack={rack}
+            isActive={activeEffects.includes(effectType)}
+            atMax={atMax}
+            onAddEffect={onAddEffect}
+            onSelectEffect={onSelectEffect}
+          />
         ))}
       </div>
     </div>
@@ -140,6 +122,7 @@ export function FxBrowser({
 
 function FxRow({
   item,
+  effectType,
   trackId,
   rack,
   isActive,
@@ -148,6 +131,7 @@ function FxRow({
   onSelectEffect,
 }: {
   item: LibraryItem;
+  effectType: EffectSlotType;
   trackId: string;
   rack: AnchorRack;
   isActive: boolean;
@@ -155,34 +139,21 @@ function FxRow({
   onAddEffect: (trackId: string, effectType: EffectSlotType) => void;
   onSelectEffect?: (effectType: EffectSlotType) => void;
 }) {
-  const disabled = item.disabled || (atMax && !isActive);
+  const disabled = atMax && !isActive;
 
   // Clicking adds the effect, or shows the controls of one already in the
   // chain. Rows aren't draggable: no rack, track header or the timeline
   // accepts a dropped effect, so a drag only ever bounced back.
   const handleClick = useCallback(() => {
-    if (disabled || item.dragPayload.kind !== 'audio-effect') return;
-    if (isActive) onSelectEffect?.(item.dragPayload.effectType);
-    else onAddEffect(trackId, item.dragPayload.effectType);
-  }, [
-    disabled,
-    isActive,
-    item.dragPayload,
-    trackId,
-    onAddEffect,
-    onSelectEffect,
-  ]);
+    if (disabled) return;
+    if (isActive) onSelectEffect?.(effectType);
+    else onAddEffect(trackId, effectType);
+  }, [disabled, isActive, effectType, trackId, onAddEffect, onSelectEffect]);
 
   return (
     <button
-      data-tutorial-id={
-        item.dragPayload.kind === 'audio-effect'
-          ? `fx-add-${item.dragPayload.effectType}`
-          : undefined
-      }
-      data-tutorial-target={
-        item.dragPayload.kind === 'audio-effect' ? rack : undefined
-      }
+      data-tutorial-id={`fx-add-${effectType}`}
+      data-tutorial-target={rack}
       onClick={handleClick}
       className="flex items-center gap-2 w-full text-left px-3 py-1.5 cursor-pointer hover:bg-white/10"
       style={{
@@ -192,20 +163,11 @@ function FxRow({
         cursor: disabled ? 'default' : 'pointer',
       }}
     >
-      {item.dragPayload.kind === 'audio-effect' ? (
-        <FxBlockIcon
-          type={item.dragPayload.effectType}
-          size={14}
-          color={isActive ? COLOR.accent.value : item.color}
-        />
-      ) : (
-        <div
-          className="w-2 h-2 rounded-full shrink-0"
-          style={{
-            backgroundColor: isActive ? COLOR.accent.value : item.color,
-          }}
-        />
-      )}
+      <FxBlockIcon
+        type={effectType}
+        size={14}
+        color={isActive ? COLOR.accent.value : item.color}
+      />
       <span
         className="text-[11px]"
         style={{
@@ -214,14 +176,6 @@ function FxRow({
       >
         {item.label}
       </span>
-      {item.disabled && (
-        <span
-          className="ml-auto text-[8px] uppercase font-medium"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
-          Soon
-        </span>
-      )}
     </button>
   );
 }

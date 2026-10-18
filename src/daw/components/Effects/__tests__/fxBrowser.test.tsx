@@ -25,7 +25,6 @@ function renderBrowser(activeEffects: EffectSlotType[]) {
       trackId="keys"
       activeEffects={activeEffects}
       onAddEffect={onAddEffect}
-      hideMidi
     />,
   );
   return onAddEffect;
@@ -53,7 +52,7 @@ describe('FxBrowser', () => {
     // A status that arrives holding its text is often not announced; this
     // one is there from the start and its text changes.
     const four: EffectSlotType[] = ['eq', 'compressor', 'reverb', 'delay'];
-    const props = { trackId: 'keys', onAddEffect: vi.fn(), hideMidi: true };
+    const props = { trackId: 'keys', onAddEffect: vi.fn() };
     const { rerender } = render(<FxBrowser {...props} activeEffects={four} />);
     const status = screen.getByRole('status');
     expect(status).toBeEmptyDOMElement();
@@ -102,7 +101,6 @@ describe('FxBrowser', () => {
         activeEffects={full}
         onAddEffect={onAddEffect}
         onSelectEffect={onSelectEffect}
-        hideMidi
       />,
     );
 
@@ -123,5 +121,14 @@ describe('FxBrowser', () => {
     ] as const) {
       expect(row(type)).toBeInTheDocument();
     }
+  });
+
+  it('lists audio effects only, with no MIDI-effect placeholders', () => {
+    // Arpeggiator, Chord and Scale were greyed "Soon" rows that did nothing.
+    renderBrowser([]);
+    for (const label of ['Arpeggiator', 'Chord', 'Scale'])
+      expect(screen.queryByText(label)).toBeNull();
+    expect(screen.queryByText('MIDI')).toBeNull();
+    expect(screen.queryByText('Soon')).toBeNull();
   });
 });

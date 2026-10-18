@@ -370,7 +370,6 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
           activeEffects={fxChain}
           onAddEffect={wrappedAdd}
           onSelectEffect={setSelectedEffect}
-          hideMidi
         />
 
         {/* Right: chain + controls */}
@@ -1110,7 +1109,6 @@ function ReturnFxRack({ returnId }: { returnId: string }) {
           activeEffects={fxChain}
           onAddEffect={wrappedAdd}
           onSelectEffect={setSelectedEffect}
-          hideMidi
         />
         <div className="flex flex-1 flex-col overflow-hidden">
           <FxChainRow

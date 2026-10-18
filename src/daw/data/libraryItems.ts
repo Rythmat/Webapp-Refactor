@@ -4,7 +4,7 @@ import { COLOR } from '@/daw/ui/tokens';
 
 // ── Library Categories ──────────────────────────────────────────────────
 
-export type LibraryCategory = 'Audio Effects' | 'MIDI Effects' | 'Templates';
+export type LibraryCategory = 'Audio Effects' | 'Templates';
 
 export const LIBRARY_CATEGORIES: LibraryCategory[] = ['Templates'];
 
@@ -13,7 +13,6 @@ export const LIBRARY_CATEGORIES: LibraryCategory[] = ['Templates'];
 export type DragPayload =
   | { kind: 'audio-effect'; effectType: EffectSlotType }
   | { kind: 'instrument'; instrumentType: InstrumentType }
-  | { kind: 'midi-effect'; effectId: string }
   | {
       kind: 'template';
       trackType: TrackType;
@@ -91,7 +90,7 @@ export function searchLibraryItems(query: string): LibraryItem[] {
 // ── FX-specific derived lookups ───────────────────────────────────────────
 // Used by EffectsPanel and FxBrowser for quick lookups by EffectSlotType.
 
-/** FX catalog — used by FxBrowser and EffectsPanel */
+/** FX catalog: the audio effects a rack can add (FxBrowser, EffectsPanel). */
 export const FX_CATALOG: LibraryItem[] = [
   // Audio Effects
   {
@@ -173,34 +172,6 @@ export const FX_CATALOG: LibraryItem[] = [
     icon: 'Activity',
     color: COLOR.accent.value,
     dragPayload: { kind: 'audio-effect', effectType: 'ducker' },
-  },
-  // MIDI Effects
-  {
-    id: 'midi-arp',
-    label: 'Arpeggiator',
-    category: 'MIDI Effects',
-    icon: 'Zap',
-    color: '#6b6b80',
-    dragPayload: { kind: 'midi-effect', effectId: 'arpeggiator' },
-    disabled: true,
-  },
-  {
-    id: 'midi-chord',
-    label: 'Chord',
-    category: 'MIDI Effects',
-    icon: 'Layers',
-    color: '#6b6b80',
-    dragPayload: { kind: 'midi-effect', effectId: 'chord' },
-    disabled: true,
-  },
-  {
-    id: 'midi-scale',
-    label: 'Scale',
-    category: 'MIDI Effects',
-    icon: 'TrendingUp',
-    color: '#6b6b80',
-    dragPayload: { kind: 'midi-effect', effectId: 'scale' },
-    disabled: true,
   },
 ];
 

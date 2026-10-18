@@ -87,7 +87,7 @@
     "zIndex": 4
   },
   "src/daw/components/Effects/FxBrowser.tsx": {
-    "smallText": 2
+    "smallText": 1
   },
   "src/daw/components/Effects/FxMeter.tsx": {
     "rgb": 2,
@@ -244,7 +244,7 @@
     "hex": 4
   },
   "src/daw/data/libraryItems.ts": {
-    "hex": 7
+    "hex": 4
   },
   "src/daw/data/projectTemplates.ts": {
     "hex": 23

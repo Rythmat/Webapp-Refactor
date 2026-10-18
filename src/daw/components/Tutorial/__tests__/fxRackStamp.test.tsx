@@ -32,7 +32,6 @@ describe('FxBrowser rack stamp', () => {
           trackId={trackId}
           activeEffects={[]}
           onAddEffect={() => {}}
-          hideMidi
         />,
       );
     }

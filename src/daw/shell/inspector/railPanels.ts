@@ -1,6 +1,6 @@
 import {
   GraduationCap,
-  LayoutTemplate,
+  Library,
   Lightbulb,
   MessageSquare,
   Sparkles,
@@ -33,8 +33,8 @@ export const RAIL_PANELS: readonly RailPanel[] = [
   {
     id: 'library',
     title: 'Library',
-    hint: 'Library: templates, and parts for the selected track',
-    icon: LayoutTemplate,
+    hint: 'Library: parts, grooves, drum kits, sounds and templates',
+    icon: Library,
   },
   {
     id: 'fx',

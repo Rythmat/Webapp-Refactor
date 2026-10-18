@@ -9,7 +9,7 @@ import { registerPackTables } from '../../audio/wavetableImport';
 import { useSynthStore } from '../index';
 import type { PresetData } from './PresetData';
 
-interface PackManifest {
+export interface PackManifest {
   packId: string;
   displayName: string;
   version: number;
@@ -20,6 +20,22 @@ interface PackManifest {
 const PACK_BASE = '/daw-assets/oracle-packs/serum2/';
 
 let loadAttempted = false;
+let manifestRequest: Promise<PackManifest | null> | null = null;
+
+/**
+ * The pack's manifest (20 kB): its presets' names and categories, which the
+ * Library lists before any preset is fetched. Null when no pack is installed
+ * or it can't be read. Fetched once; a failure is asked again next time.
+ */
+export function fetchPackManifest(): Promise<PackManifest | null> {
+  manifestRequest ??= fetch(`${PACK_BASE}manifest.json`)
+    .then((res) => (res.ok ? (res.json() as Promise<PackManifest>) : null))
+    .catch(() => {
+      manifestRequest = null;
+      return null;
+    });
+  return manifestRequest;
+}
 
 /**
  * Fetches the pack manifest + preset data (small JSONs, eager) and
@@ -31,9 +47,8 @@ export async function loadOraclePacks(): Promise<void> {
   loadAttempted = true;
 
   try {
-    const res = await fetch(`${PACK_BASE}manifest.json`);
-    if (!res.ok) return; // no pack installed
-    const manifest = (await res.json()) as PackManifest;
+    const manifest = await fetchPackManifest();
+    if (!manifest) return; // no pack installed
 
     registerPackTables(
       manifest.wavetables.map((w) => ({
@@ -66,4 +81,5 @@ export async function loadOraclePacks(): Promise<void> {
 /** Test hook: allows re-attempting a load after a mocked failure. */
 export function resetPackLoaderForTests(): void {
   loadAttempted = false;
+  manifestRequest = null;
 }

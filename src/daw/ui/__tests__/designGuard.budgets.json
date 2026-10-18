@@ -42,10 +42,6 @@
   "src/daw/components/Controls/OrganView.tsx": {
     "hex": 16
   },
-  "src/daw/components/Controls/PartsBrowser.tsx": {
-    "rgb": 1,
-    "smallText": 5
-  },
   "src/daw/components/Controls/PitchMeter.tsx": {
     "hex": 3,
     "rgb": 7,
@@ -241,9 +237,6 @@
     "hex": 25
   },
   "src/daw/data/demoProjects.ts": {
-    "hex": 4
-  },
-  "src/daw/data/libraryItems.ts": {
     "hex": 4
   },
   "src/daw/data/projectTemplates.ts": {

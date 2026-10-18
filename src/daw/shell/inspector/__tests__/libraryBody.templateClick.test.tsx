@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * A template clicked in the Library panel (the side rail's, B4a) replaces the project, as the
+ * A template clicked in the Library (the side rail's browser, 2.14) replaces the project, as the
  * dashboard's template tile does (decision D10). Since milestone 1.4 it opens
  * through openSession, the one way every session opens: the work it replaces
  * is kept first as a device draft, with a Restore; a take still recording is
@@ -30,13 +30,13 @@ const h = vi.hoisted(() => ({
 vi.mock('@/daw/session/openSession', () => ({ openSession: h.openSession }));
 
 import { useStore } from '@/daw/store';
-import { LibraryBody } from '../panels/LibraryBody';
+import { BrowserPanel } from '../browser/BrowserPanel';
 
 /** Click the Pop template, as the student does. */
 async function clickPopTemplate(): Promise<void> {
-  render(<LibraryBody />);
+  render(<BrowserPanel />);
   await act(async () => {
-    fireEvent.click(screen.getByText('Pop'));
+    fireEvent.click(popRow());
   });
 }
 
@@ -88,13 +88,13 @@ describe('a Library template click', () => {
 
   it('is on again once the room is left', async () => {
     useStore.setState({ roomId: 'room-1', collabRole: 'editor' });
-    render(<LibraryBody />);
+    render(<BrowserPanel />);
     expect(popRow()).toHaveAttribute('aria-disabled', 'true');
 
     act(() => useStore.getState()._clearCollab());
     expect(popRow()).not.toHaveAttribute('aria-disabled');
     await act(async () => {
-      fireEvent.click(screen.getByText('Pop'));
+      fireEvent.click(popRow());
     });
     expect(h.openSession).toHaveBeenCalledTimes(1);
   });

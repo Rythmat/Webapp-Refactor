@@ -4,14 +4,15 @@ import { COLOR } from '@/daw/ui/tokens';
 
 // ── Library Categories ──────────────────────────────────────────────────
 
-export type LibraryCategory = 'Audio Effects' | 'Templates';
-
-export const LIBRARY_CATEGORIES: LibraryCategory[] = ['Templates'];
+export type LibraryCategory = 'Audio Effects';
 
 // ── Drag Payload ────────────────────────────────────────────────────────
 
 export type DragPayload =
+  /** An effect in an FX list (what a click adds; never dragged). */
   | { kind: 'audio-effect'; effectType: EffectSlotType }
+  /** A Library row (milestone 2.14): its item id (shell/inspector/browser). */
+  | { kind: 'library-item'; itemId: string }
   | { kind: 'instrument'; instrumentType: InstrumentType }
   | {
       kind: 'template';
@@ -19,7 +20,6 @@ export type DragPayload =
       instrument: InstrumentType;
       name: string;
     }
-  | { kind: 'project-template'; templateId: string }
   | { kind: 'drum-sample'; url: string; name: string }
   | {
       kind: 'midi-loop';
@@ -30,6 +30,9 @@ export type DragPayload =
       instrument?: InstrumentType;
     };
 
+/** The data type a drag from the Library carries. */
+export const DRAG_MIME = 'application/x-prism-library';
+
 // ── Library Item ────────────────────────────────────────────────────────
 
 export interface LibraryItem {
@@ -39,52 +42,6 @@ export interface LibraryItem {
   icon: string;
   color: string;
   dragPayload: DragPayload;
-  disabled?: boolean;
-}
-
-// ── Catalog ─────────────────────────────────────────────────────────────
-
-export const LIBRARY_ITEMS: LibraryItem[] = [
-  // Project Templates
-  {
-    id: 'project-rock',
-    label: 'Rock',
-    category: 'Templates',
-    icon: 'Flame',
-    color: '#f94144',
-    dragPayload: { kind: 'project-template', templateId: 'project-rock' },
-  },
-  {
-    id: 'project-rnb',
-    label: 'R&B',
-    category: 'Templates',
-    icon: 'Music',
-    color: '#8b5cf6',
-    dragPayload: { kind: 'project-template', templateId: 'project-rnb' },
-  },
-  {
-    id: 'project-pop',
-    label: 'Pop',
-    category: 'Templates',
-    icon: 'Sparkles',
-    color: '#f9c74f',
-    dragPayload: { kind: 'project-template', templateId: 'project-pop' },
-  },
-  {
-    id: 'project-indie',
-    label: 'Indie',
-    category: 'Templates',
-    icon: 'AudioWaveform',
-    color: '#43aa8b',
-    dragPayload: { kind: 'project-template', templateId: 'project-indie' },
-  },
-];
-
-export const DRAG_MIME = 'application/x-prism-library';
-
-export function searchLibraryItems(query: string): LibraryItem[] {
-  const lower = query.toLowerCase();
-  return LIBRARY_ITEMS.filter((i) => i.label.toLowerCase().includes(lower));
 }
 
 // ── FX-specific derived lookups ───────────────────────────────────────────

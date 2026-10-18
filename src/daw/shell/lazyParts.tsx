@@ -86,12 +86,13 @@ export const GroovesBrowserPart = lazyPart(
   { name: 'Grooves browser', fallback: dock('Loading Grooves') },
 );
 
-export const PartsBrowserPart = lazyPart(
+/** The side rail's Library: the browser (milestone 2.14). */
+export const BrowserPart = lazyPart(
   () =>
-    import('@/daw/components/Controls/PartsBrowser').then(
-      (m) => m.PartsBrowser,
+    import('@/daw/shell/inspector/browser/BrowserPanel').then(
+      (m) => m.BrowserPanel,
     ),
-  { name: 'Parts browser', fallback: dock('Loading Parts') },
+  { name: 'Library', fallback: dock('Loading the Library') },
 );
 
 export const PrismPanelPart = lazyPart(

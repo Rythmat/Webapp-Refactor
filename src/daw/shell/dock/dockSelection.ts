@@ -27,3 +27,25 @@ export function openClipEditor(trackId: string): void {
   if (after.dockMaster) after.setDockMaster(false);
   after.setChannelStripTab(editorTabFor(dockKindOf(track)));
 }
+
+/**
+ * The track row's instrument button (2.15): selects the track and opens the
+ * dock on what plays it (Instrument; the chain for an audio track), with
+ * focus in the dock, as Enter on the row does. Unlike a clip's click it
+ * works during a lesson too: it is the student's own choice. False when a
+ * collaborator holds the track.
+ */
+export function openTrackInDock(trackId: string): boolean {
+  const s = useStore.getState();
+  if (s.selectedTrackId !== trackId) s.setSelectedTrackId(trackId);
+  const after = useStore.getState();
+  if (after.selectedTrackId !== trackId) return false;
+  const track = after.tracks.find((t) => t.id === trackId);
+  if (!track) return false;
+  if (after.dockMaster) after.setDockMaster(false);
+  after.setChannelStripTab(dockKindOf(track) === 'audio' ? 'fx' : 'controls');
+  requestAnimationFrame(() =>
+    document.querySelector<HTMLElement>('[data-dock-content]')?.focus(),
+  );
+  return true;
+}

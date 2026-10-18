@@ -21,7 +21,10 @@ import {
 // ── The track list (milestone 2.6) ─────────────────────────────────────────
 // 64 px rows with M, S, Arm and the fader named in full and showing their
 // state as pressed (timeline-21); the keyboard moves the selection (A11Y#3),
-// mutes, solos, renames and reorders; the ⋯ menu deletes with Undo.
+// mutes, solos, renames and reorders; the ⋯ menu deletes with Undo. Since
+// 2.15 the row's instrument button opens the track in the dock, and the
+// selected row has an edge in its track's colour. (The ⋯ menu itself, and
+// the right-click that opens it: TrackMenu.test.tsx.)
 
 const h = vi.hoisted(() => ({ toast: vi.fn() }));
 vi.mock('sonner', () => ({ toast: h.toast }));
@@ -121,6 +124,68 @@ describe('a track row', () => {
     );
     expect(anchors).toHaveLength(1);
     expect(anchors[0]).toHaveAccessibleName('More for Vox');
+  });
+});
+
+describe('a track row’s instrument button', () => {
+  it('shows the track’s instrument', () => {
+    render(<TrackList />);
+    const [keys, drums, vox] = screen.getAllByTestId('track-instrument-button');
+    expect(keys).toHaveAccessibleName('Open Rhodes’s instrument');
+    expect(keys.querySelector('svg.lucide-piano')).not.toBeNull();
+    expect(drums.querySelector('svg.lucide-drum')).not.toBeNull();
+    expect(vox.querySelector('svg.lucide-mic')).not.toBeNull();
+  });
+
+  it('selects the track and opens its instrument in the dock, focus there', () => {
+    useStore.setState({ channelStripTab: null, dockMaster: false });
+    const dock = document.createElement('div');
+    dock.tabIndex = -1;
+    dock.setAttribute('data-dock-content', '');
+    document.body.append(dock);
+    render(<TrackList />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Open Drums’s instrument' }),
+    );
+    expect(s().selectedTrackId).toBe(s().tracks[1].id);
+    expect(s().channelStripTab).toBe('controls');
+    expect(document.activeElement).toBe(dock);
+    dock.remove();
+  });
+
+  it('opens an audio track’s effects', () => {
+    useStore.setState({ channelStripTab: null });
+    s().addTrack('audio', 'none', 'Take');
+    s().setSelectedTrackId(null);
+    render(<TrackList />);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Open Take’s instrument' }),
+    );
+    expect(s().selectedTrackId).toBe(s().tracks[3].id);
+    expect(s().channelStripTab).toBe('fx');
+  });
+});
+
+describe('the selected row', () => {
+  it('has an edge in its track’s colour; the others don’t', () => {
+    s().setSelectedTrackId(s().tracks[1].id);
+    render(<TrackList />);
+    const rows = screen.getAllByTestId('track-row');
+    expect(within(rows[0]).queryByTestId('track-selected-edge')).toBeNull();
+    expect(within(rows[2]).queryByTestId('track-selected-edge')).toBeNull();
+    const edge = within(rows[1]).getByTestId('track-selected-edge');
+    const probe = document.createElement('span');
+    probe.style.backgroundColor = s().tracks[1].color;
+    expect(edge.style.backgroundColor).toBe(probe.style.backgroundColor);
+    expect(rows[1]).toHaveAttribute('aria-current', 'true');
+
+    // The edge follows the selection.
+    fireEvent.click(selector('Rhodes'));
+    expect(
+      within(rows[0]).getByTestId('track-selected-edge'),
+    ).toBeInTheDocument();
+    expect(within(rows[1]).queryByTestId('track-selected-edge')).toBeNull();
   });
 });
 

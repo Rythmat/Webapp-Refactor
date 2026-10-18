@@ -3,6 +3,7 @@ import { usePaletteStore } from '@/daw/shell/help/usePaletteStore';
 import { useShortcutSheetStore } from '@/daw/shell/help/useShortcutSheetStore';
 import { openExport } from '@/daw/shell/export/exportDialogStore';
 import { openAddTrackSheet } from '@/daw/shell/tracklist/addTrack';
+import { duplicateTrack } from '@/daw/shell/tracklist/duplicateTrack';
 import { useStore } from '@/daw/store';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
 import { useKeyDispatcher } from './dispatcher';
@@ -77,6 +78,11 @@ export const GLOBAL_HANDLERS: KeymapHandlers = {
   'help.shortcuts': () => useShortcutSheetStore.getState().open(),
   'help.palette': () => usePaletteStore.getState().open(),
   'track.add': openAddTrackSheet,
+  'track.duplicate': () => {
+    const id = useStore.getState().selectedTrackId;
+    if (!id) return false;
+    duplicateTrack(id);
+  },
   'project.export': () => openExport(),
   'view.create': () => useStore.getState().setCurrentView('arrange'),
   'view.mix': () => useStore.getState().setCurrentView('studio'),

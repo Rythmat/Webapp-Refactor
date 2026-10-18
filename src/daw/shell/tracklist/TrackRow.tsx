@@ -1,5 +1,12 @@
 import { Circle, Ear, EarOff, MoreHorizontal } from 'lucide-react';
-import { memo, useCallback, useRef, useState, type PointerEvent } from 'react';
+import {
+  memo,
+  useCallback,
+  useRef,
+  useState,
+  type MouseEvent,
+  type PointerEvent,
+} from 'react';
 import { cn } from '@/components/utilities';
 import { useTrackPresence } from '@/daw/collab/presence';
 import {
@@ -11,7 +18,9 @@ import {
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
 import { meterSource } from '@/daw/engine/meterBus';
 import { useTrackVolumeControl } from '@/daw/hooks/useMixControls';
+import { openTrackInDock } from '@/daw/shell/dock/dockSelection';
 import { useStore, useTrack, type Track } from '@/daw/store';
+import { onColor } from '@/daw/ui/color';
 import { Fader } from '@/daw/ui/Fader';
 import { formatGain } from '@/daw/ui/format';
 import { IconButton } from '@/daw/ui/IconButton';
@@ -20,16 +29,23 @@ import { Menu, MenuTrigger } from '@/daw/ui/Menu';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { Toggle } from '@/daw/ui/Toggle';
 import { TRACK_ROW_PX } from './rowLayout';
+import { trackIcon } from './trackIcon';
 import { TrackMenuContent } from './TrackMenu';
 import { useTrackRename } from './useTrackRename';
 
 // ── A track row (milestone 2.6) ────────────────────────────────────────────
 //
 // 64 px, two lines (ia-flows-36, timeline-21):
-//   colour · name · collaborators · ⋯
+//   grip · instrument · name · collaborators · ⋯
 //   M · S · Arm · volume over its meter
-// Everything else (rename, colour, role, monitor, test sound, automation,
-// release, delete) is in the ⋯ menu. Every control is named in full
+// Everything else (the name, colour, role, duplicate, monitor, test sound,
+// automation, export, release, delete) is in the ⋯ menu, which a right-click
+// on the row opens too, at the pointer (2.15). The instrument button opens
+// the track's instrument in the dock, as Soundtrap's row does (ST10). The
+// selected row has a 4 px edge in its track colour and its instrument on a
+// track-colour fill; the others show their colour in the instrument's glyph
+// (colour is the track's meaning here, and selection also reads as the
+// lighter row and aria-current). Every control is named in full
 // ('Mute Rhodes'), shows its state by more than colour (pressed, filled),
 // and is at least 24×24. A muted row dims.
 //
@@ -75,11 +91,31 @@ const TrackRowBody = memo(function TrackRowBody({
   const lockOwner = useTrackPresence(track.id)[0] ?? null;
   const locked = lockOwner !== null;
   const [menuOpen, setMenuOpen] = useState(false);
+  // A right-click's menu, at the pointer.
+  const [pointerMenu, setPointerMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const rename = useTrackRename(track);
 
   const select = useCallback(() => {
     useStore.getState().setSelectedTrackId(track.id);
   }, [track.id]);
+
+  // A right-click selects the track (as Soundtrap's does; a collaborator's
+  // track stays theirs) and opens its menu where the pointer is. The name's
+  // field, while renaming, keeps the browser's own menu.
+  const onContextMenu = useCallback(
+    (e: MouseEvent<HTMLLIElement>) => {
+      if (e.target instanceof HTMLInputElement) return;
+      e.preventDefault();
+      if (!locked) select();
+      setMenuOpen(false);
+      setPointerMenu({ x: e.clientX, y: e.clientY });
+    },
+    [locked, select],
+  );
+  const Icon = trackIcon(track.instrument);
 
   return (
     <li
@@ -96,23 +132,51 @@ const TrackRowBody = memo(function TrackRowBody({
       )}
       style={{ height: TRACK_ROW_PX }}
       onClick={select}
+      onContextMenu={onContextMenu}
     >
-      {/* The colour bar, which is also the grip that reorders the row. */}
+      {/* The grip that reorders the row, with the track's colour at its
+          edge: a hairline, and the full 4 px edge on the selected row. */}
       <div
         aria-hidden
         data-testid="track-grip"
         className="flex w-3 shrink-0 cursor-grab touch-none justify-start active:cursor-grabbing"
         onPointerDown={(e) => onGripDown(e, track.id)}
       >
-        <span
-          className="h-full w-1"
-          style={{ backgroundColor: track.color }}
-          data-meaning="track-colour"
-        />
+        {isSelected ? (
+          <span
+            data-testid="track-selected-edge"
+            className="h-full w-1"
+            style={{ backgroundColor: track.color }}
+            data-meaning="track-colour"
+          />
+        ) : (
+          <span
+            className="h-full w-0.5 opacity-60"
+            style={{ backgroundColor: track.color }}
+            data-meaning="track-colour"
+          />
+        )}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-1 pr-1">
         <div className="flex h-7 min-w-0 items-center gap-1">
+          <IconButton
+            label={`Open ${track.name}’s instrument`}
+            icon={<Icon />}
+            size="sm"
+            data-testid="track-instrument-button"
+            data-meaning="track-colour"
+            className="shrink-0 rounded-full"
+            style={
+              isSelected
+                ? { backgroundColor: track.color, color: onColor(track.color) }
+                : { color: track.color }
+            }
+            onClick={(e) => {
+              e.stopPropagation();
+              openTrackInDock(track.id);
+            }}
+          />
           {rename.editing ? (
             <input
               ref={rename.inputRef}
@@ -169,11 +233,41 @@ const TrackRowBody = memo(function TrackRowBody({
                 track={track}
                 locked={locked}
                 isSelected={isSelected}
-                onRename={rename.startFromMenu}
-                onCloseAutoFocus={rename.menuCloseAutoFocus}
               />
             ) : null}
           </Menu>
+          {pointerMenu ? (
+            <Menu
+              open
+              onOpenChange={(open) => {
+                if (!open) setPointerMenu(null);
+              }}
+            >
+              <MenuTrigger asChild>
+                <span
+                  aria-hidden
+                  tabIndex={-1}
+                  className="pointer-events-none fixed"
+                  style={{ left: pointerMenu.x, top: pointerMenu.y }}
+                />
+              </MenuTrigger>
+              <TrackMenuContent
+                track={track}
+                locked={locked}
+                isSelected={isSelected}
+                side="bottom"
+                // Back to the row's name, never to the hidden trigger.
+                onCloseAutoFocus={(e) => {
+                  e.preventDefault();
+                  document
+                    .querySelector<HTMLElement>(
+                      `[data-track-id="${track.id}"] [data-track-selector]`,
+                    )
+                    ?.focus({ preventScroll: true });
+                }}
+              />
+            </Menu>
+          ) : null}
         </div>
         <div
           className="flex h-7 items-center gap-0.5"

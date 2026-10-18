@@ -6,14 +6,26 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { useStore, type Track } from '@/daw/store';
+import { withTransaction } from '@/daw/store/history';
 
 // ── Renaming a track in its row (milestone 2.6) ─────────────────────────────
 //
-// The name turns into a field: from a double-click on it, F2 or N with focus
-// on it, or Rename in the ⋯ menu. Enter or leaving the field keeps the new
-// name (an empty one changes nothing), Escape keeps the old one.
+// The name turns into a field: from a double-click on it, or F2 or N with
+// focus on it. Enter or leaving the field keeps the new name (an empty one
+// changes nothing), Escape keeps the old one. The ⋯ menu has its own name
+// field at its top (2.15, TrackMenu), which renames the same way.
 
 const renameRequests = new EventTarget();
+
+/** Renames the track as one undo step; an empty or unchanged name does nothing. */
+export function renameTrack(trackId: string, name: string): void {
+  const value = name.trim();
+  const track = useStore.getState().tracks.find((t) => t.id === trackId);
+  if (!track || !value || value === track.name) return;
+  withTransaction('Rename track', () =>
+    useStore.getState().updateTrack(trackId, { name: value }),
+  );
+}
 
 /** Asks the row of `trackId` to show its name field (the list's F2 / N). */
 export function requestTrackRename(trackId: string): void {
@@ -24,10 +36,6 @@ export interface TrackRename {
   editing: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
   start(): void;
-  /** Start from the ⋯ menu, which would otherwise take focus back. */
-  startFromMenu(): void;
-  /** The menu's close: keeps focus in the field when Rename was chosen. */
-  menuCloseAutoFocus(event: Event): void;
   commit(): void;
   onKeyDown(event: KeyboardEvent<HTMLInputElement>): void;
 }
@@ -35,7 +43,6 @@ export interface TrackRename {
 export function useTrackRename(track: Pick<Track, 'id' | 'name'>): TrackRename {
   const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const fromMenu = useRef(false);
 
   useEffect(() => {
     if (!editing) return;
@@ -50,12 +57,9 @@ export function useTrackRename(track: Pick<Track, 'id' | 'name'>): TrackRename {
   }, [track.id]);
 
   const commit = useCallback(() => {
-    const value = inputRef.current?.value.trim();
-    if (value && value !== track.name) {
-      useStore.getState().updateTrack(track.id, { name: value });
-    }
+    renameTrack(track.id, inputRef.current?.value ?? '');
     setEditing(false);
-  }, [track.id, track.name]);
+  }, [track.id]);
 
   const finishAndRefocus = useCallback(
     (keep: boolean) => {
@@ -77,15 +81,6 @@ export function useTrackRename(track: Pick<Track, 'id' | 'name'>): TrackRename {
     editing,
     inputRef,
     start: () => setEditing(true),
-    startFromMenu: () => {
-      fromMenu.current = true;
-      setEditing(true);
-    },
-    menuCloseAutoFocus: (event) => {
-      if (!fromMenu.current) return;
-      fromMenu.current = false;
-      event.preventDefault();
-    },
     commit,
     onKeyDown: (e) => {
       // The field's keys are its own: no shortcut sees them.

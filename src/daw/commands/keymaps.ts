@@ -954,6 +954,13 @@ defineCommand({
   ],
 });
 defineCommand({
+  id: 'track.duplicate',
+  scope: 'global',
+  label: 'Duplicate the selected track',
+  keys: [],
+  keywords: ['copy'],
+});
+defineCommand({
   id: 'track.add',
   scope: 'global',
   label: 'Add a track…',

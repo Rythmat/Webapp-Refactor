@@ -148,6 +148,13 @@ describe('a Mix strip’s drags', () => {
   });
 });
 
+/** An element's width in px: its inline width, else its w-N class (N × 4). */
+function crossWidth(el: HTMLElement): number {
+  if (el.style.width) return parseFloat(el.style.width);
+  const match = /(?:^|\s)w-(\d+(?:\.\d+)?)(?:\s|$)/.exec(el.className);
+  return match ? parseFloat(match[1]) * 4 : 0;
+}
+
 describe('a Mix strip’s toggles', () => {
   it('M and S mute and solo the track, pressed while on', () => {
     render(<MixStrip trackId={ids[0]} />);
@@ -173,10 +180,22 @@ describe('a Mix strip’s toggles', () => {
       expect(toggle.className).toMatch(/\bh-6\b/);
       expect(toggle.className).toMatch(/\bmin-w-6\b/);
     }
-    for (const knob of within(strip).getAllByRole('slider')) {
-      const size = parseFloat(knob.style.width || knob.style.height || '0');
-      // Knobs are 28 px across; the fader's track is 24 px wide (w-6).
-      expect(size >= 24 || knob.className.includes('w-6')).toBe(true);
+    const sliders = within(strip).getAllByRole('slider');
+    const faders = sliders.filter(
+      (el) => el.getAttribute('aria-orientation') === 'vertical',
+    );
+    expect(faders).toHaveLength(1);
+    for (const slider of sliders) {
+      if (faders.includes(slider)) {
+        // The vertical fader's length is its height; its width (the
+        // target across) is a Tailwind class, w-6 = 24 px.
+        expect(crossWidth(slider)).toBeGreaterThanOrEqual(24);
+        expect(parseFloat(slider.style.height)).toBeGreaterThanOrEqual(24);
+      } else {
+        // Knobs are a square 28 px across.
+        expect(parseFloat(slider.style.width)).toBeGreaterThanOrEqual(24);
+        expect(parseFloat(slider.style.height)).toBeGreaterThanOrEqual(24);
+      }
     }
   });
 });
@@ -202,6 +221,40 @@ describe('re-renders', () => {
     act(() => s().updateTrack(ids[0], { volume: 0.5, pan: 0.2 }));
     act(() => s().setSend(ids[0], 'A', 0.4));
     expect(renders.a).toBeGreaterThan(before.a);
+    expect(renders.b).toBe(before.b);
+  });
+
+  it('an edit to a return (its fader, its effects) re-renders no strip', () => {
+    // The Sends selector reads only the returns' ids and labels; these
+    // edits rebuild the returns array and the edited return's object.
+    const renders: Record<string, number> = {};
+    const count = (id: string) => () => {
+      renders[id] = (renders[id] ?? 0) + 1;
+    };
+    render(
+      <>
+        <Profiler id="a" onRender={count('a')}>
+          <MixStrip trackId={ids[0]} />
+        </Profiler>
+        <Profiler id="b" onRender={count('b')}>
+          <MixStrip trackId={ids[1]} />
+        </Profiler>
+      </>,
+    );
+    const before = { ...renders };
+    const returnsBefore = s().returns;
+    act(() => s().setReturnVolume('A', 0.3));
+    const effects = s().returns.find((r) => r.id === 'A')!.effects;
+    const slot = Object.keys(effects)[0] as keyof typeof effects;
+    act(() =>
+      s().updateReturnEffects('A', {
+        [slot]: { ...effects[slot], enabled: !effects[slot].enabled },
+      }),
+    );
+    // The edits landed (so a re-render had a reason to happen).
+    expect(s().returns).not.toBe(returnsBefore);
+    expect(s().returns.find((r) => r.id === 'A')!.volume).toBe(0.3);
+    expect(renders.a).toBe(before.a);
     expect(renders.b).toBe(before.b);
   });
 });

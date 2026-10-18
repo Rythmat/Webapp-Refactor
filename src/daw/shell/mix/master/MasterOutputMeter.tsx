@@ -12,7 +12,7 @@ export function MasterOutputMeter({ length }: { length: number }) {
   const output = useRef(meterSource('master'));
   return (
     <Meter
-      label="Master output peak"
+      label="Master output"
       source={output.current}
       orientation="vertical"
       length={length}

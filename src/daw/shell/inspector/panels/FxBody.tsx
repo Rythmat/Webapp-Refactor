@@ -5,9 +5,10 @@ import { FxBlockIcon } from '@/daw/components/Effects/FxBlockIcon';
 import { EFFECT_ABOUT, EFFECT_CATEGORIES } from '@/daw/data/effectCategories';
 import { FX_LABEL } from '@/daw/data/libraryItems';
 import { useStore } from '@/daw/store';
+import { isTrackLockedByRemote } from '@/daw/store/trackLock';
 import { anchorRackOf, MAX_RACK_EFFECTS } from '@/daw/store/effectRack';
 import { rackTakes, useRack } from '@/daw/shell/mix/rackAdapters';
-import { useRackTarget } from '@/daw/shell/mix/rackTarget';
+import { createShows, useRackTarget } from '@/daw/shell/mix/rackTarget';
 import { EmptyState } from '@/daw/ui/EmptyState';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 
@@ -30,6 +31,12 @@ import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 export function FxBody() {
   const target = useRackTarget();
   const rack = useRack(target);
+  // A track a collaborator holds is read-only for everyone else (trackLock).
+  const held = useStore(
+    (s) =>
+      target?.kind === 'track' &&
+      isTrackLockedByRemote(s.remoteUsers, target.id),
+  );
 
   if (!target || !rack) {
     return (
@@ -45,18 +52,24 @@ export function FxBody() {
   const anchorRack = anchorRackOf(target);
 
   const pick = (type: EffectSlotType) => {
+    if (held) return;
     if (!chain.includes(type)) {
       if (full) return;
       rack.add(type);
     }
     const s = useStore.getState();
-    s.setDockEffect(type);
-    if (target.kind !== 'track') return;
-    // Show the rack the pick went into.
-    if (s.currentView === 'arrange' && s.channelStripTab !== 'fx') {
+    // Show the pick in the rack it went into, in one write.
+    const showRack =
+      target.kind === 'track' && s.currentView === 'studio' && !s.mixRack;
+    useStore.setState(
+      showRack ? { dockEffect: type, mixRack: target } : { dockEffect: type },
+    );
+    if (
+      target.kind === 'track' &&
+      createShows(s) &&
+      s.channelStripTab !== 'fx'
+    ) {
       s.setChannelStripTab('fx');
-    } else if (s.currentView === 'studio' && !s.mixRack) {
-      s.setMixRack(target);
     }
   };
 
@@ -76,9 +89,11 @@ export function FxBody() {
           className={cn(TYPE_CLASS.label, 'tabular-nums text-daw-text-3')}
           data-testid="effects-library-slot"
         >
-          {full
-            ? `The chain is full: ${MAX_RACK_EFFECTS} of ${MAX_RACK_EFFECTS}. Remove one to add another.`
-            : `Pick an effect for slot ${chain.length + 1} of ${MAX_RACK_EFFECTS}`}
+          {held
+            ? `A collaborator is working on ${rack.name}: its effects can't change now.`
+            : full
+              ? `The chain is full: ${MAX_RACK_EFFECTS} of ${MAX_RACK_EFFECTS}. Remove one to add another.`
+              : `Pick an effect for slot ${chain.length + 1} of ${MAX_RACK_EFFECTS}`}
         </span>
       </div>
       <div
@@ -105,7 +120,7 @@ export function FxBody() {
                 .filter((type) => rackTakes(target, type))
                 .map((type) => {
                   const on = chain.includes(type);
-                  const disabled = full && !on;
+                  const disabled = held || (full && !on);
                   const label = FX_LABEL[type] ?? type;
                   return (
                     <li key={type}>

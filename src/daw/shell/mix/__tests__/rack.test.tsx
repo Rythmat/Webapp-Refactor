@@ -21,6 +21,8 @@ import { FxBody } from '@/daw/shell/inspector/panels/FxBody';
 import { FxRack } from '../FxRack';
 import { RackDock } from '../RackDock';
 import { openRack, rackTargetOf } from '../rackTarget';
+import { installKeyDispatcher } from '@/daw/commands/dispatcher';
+import { rackMaxPx } from '@/daw/shell/layout/layoutModel';
 
 const s = () => useStore.getState();
 
@@ -56,10 +58,32 @@ describe('which rack the library fills', () => {
     expect(rackTargetOf(s())).toEqual({ kind: 'return', id: 'B' });
   });
 
-  it('takes nothing for a rack whose track is gone', () => {
+  it('falls back to the selected track when the open rack’s track is gone', () => {
     s().setCurrentView('studio');
     s().setMixRack({ kind: 'track', id: 'gone' });
+    expect(rackTargetOf(s())).toEqual({ kind: 'track', id: synth });
+    s().setSelectedTrackId(null);
     expect(rackTargetOf(s())).toBeNull();
+  });
+
+  it('counts the practice view before its session as Create', () => {
+    s().setCurrentView('practice');
+    s().setDockMaster(true);
+    expect(rackTargetOf(s())).toEqual({ kind: 'master' });
+  });
+
+  it('adds nothing to a track a collaborator holds', () => {
+    s().setCurrentView('studio');
+    useStore.setState({
+      remoteUsers: new Map([[7, { selectedTrackId: synth } as never]]) as never,
+    });
+    render(<FxBody />);
+    fireEvent.click(screen.getByTestId('inspector-fx-eq'));
+    expect(s().tracks[0].activeEffects).not.toContain('eq');
+    expect(s().mixRack).toBeNull();
+    expect(screen.getByTestId('effects-library-slot').textContent).toContain(
+      'collaborator',
+    );
   });
 
   it('adds to a return’s rack in Mix, without the sidechain', () => {
@@ -147,22 +171,99 @@ describe('the RackDock', () => {
     expect(screen.getByTestId('rack-dock').dataset.open).toBe('true');
     act(() => s().removeTrack(synth));
     expect(screen.getByTestId('rack-dock').dataset.open).toBeUndefined();
+    // Its open button still opens a rack: the master's, with no track left.
+    fireEvent.click(screen.getByTestId('rack-dock-toggle'));
+    expect(s().mixRack).toEqual({ kind: 'master' });
+  });
+
+  it('shows each rack the effect the student left it on', () => {
+    s().addActiveEffect(synth, 'eq');
+    s().addActiveEffect(synth, 'reverb');
+    s().addMasteringFx('compressor');
+    const track = { kind: 'track', id: synth } as const;
+    const { rerender } = render(<FxRack target={track} />);
+    act(() => s().setDockEffect('reverb'));
+    rerender(<FxRack target={{ kind: 'master' }} />);
+    expect(s().dockEffect).toBe('compressor');
+    rerender(<FxRack target={track} />);
+    expect(s().dockEffect).toBe('reverb');
   });
 });
 
 describe('FxRack', () => {
-  it('reads and writes each kind of rack in its own slice', () => {
-    s().addMasteringFx('compressor');
+  // Each kind of rack writes its own slice and only it: a power switch in
+  // the side layout's chain list turns the effect off where it lives.
+  const effectOf = (
+    kind: 'track' | 'return' | 'master',
+  ): { enabled: boolean } =>
+    (kind === 'track'
+      ? s().tracks[0].effects
+      : kind === 'return'
+        ? s().returns.find((r) => r.id === 'A')!.effects
+        : s().masteringEffects
+    ).eq as { enabled: boolean };
+
+  it.each([
+    ['track' as const, () => ({ kind: 'track' as const, id: synth })],
+    ['return' as const, () => ({ kind: 'return' as const, id: 'A' as const })],
+    ['master' as const, () => ({ kind: 'master' as const })],
+  ])('switches an effect off in the %s rack and nowhere else', (kind, t) => {
     s().addActiveEffect(synth, 'eq');
-    const { rerender } = render(<FxRack target={{ kind: 'master' }} />);
-    expect(screen.getByTestId('fx-rack').dataset.rack).toBe('master');
+    s().addReturnFx('A', 'eq');
+    s().addMasteringFx('eq');
+    const before = {
+      track: effectOf('track').enabled,
+      return: effectOf('return').enabled,
+      master: effectOf('master').enabled,
+    };
+    render(<FxRack target={t()} layout="side" />);
+    fireEvent.click(screen.getByRole('button', { name: 'EQ on' }));
+    for (const k of ['track', 'return', 'master'] as const) {
+      expect(effectOf(k).enabled, k).toBe(k === kind ? !before[k] : before[k]);
+    }
+  });
+
+  it('lists the chain beside the controls in the side layout', () => {
+    s().addMasteringFx('compressor');
+    render(<FxRack target={{ kind: 'master' }} layout="side" />);
+    expect(screen.getByTestId('fx-rack').dataset.layout).toBe('side');
     expect(screen.getByText('1 of 5')).toBeTruthy();
+    // Its Add effect arms the library, as the dock's slot does.
+    fireEvent.click(screen.getByTestId('fx-add-slot'));
+    expect(s().libraryOpen && s().inspectorPanel === 'fx').toBe(true);
+  });
+});
 
-    rerender(<FxRack target={{ kind: 'track', id: synth }} />);
-    expect(screen.getByTestId('fx-rack').dataset.rack).toBe('track');
+describe('the RackDock’s keys and focus', () => {
+  it('shuts on Escape, with focus moved into it when a strip opened it', () => {
+    s().setCurrentView('studio');
+    const opener = document.createElement('button');
+    const mix = document.createElement('div');
+    mix.dataset.testid = 'mix-view';
+    mix.appendChild(opener);
+    document.body.appendChild(mix);
+    const keys = installKeyDispatcher();
+    render(<RackDock />);
+    opener.focus();
+    act(() => openRack({ kind: 'return', id: 'A' }));
+    const body = screen.getByTestId('rack-dock-body');
+    expect(document.activeElement).toBe(body);
+    fireEvent.keyDown(body, { key: 'Escape', code: 'Escape' });
+    expect(s().mixRack).toBeNull();
+    keys();
+    mix.remove();
+  });
+});
 
-    rerender(<FxRack target={{ kind: 'return', id: 'B' }} />);
-    expect(screen.getByTestId('fx-rack').dataset.rack).toBe('return:B');
+describe('the RackDock’s height', () => {
+  it('never takes the strips’ faders: a cap of the body less 300 px', () => {
+    // 1366×655: a 567 px body.
+    expect(rackMaxPx(567)).toBe(267);
+    // 1440×787: the 85% share is the tighter one only on tall windows.
+    expect(rackMaxPx(699)).toBe(399);
+    expect(rackMaxPx(2000)).toBe(1700);
+    // Never under the dock's own floor.
+    expect(rackMaxPx(300)).toBe(120);
   });
 });
 

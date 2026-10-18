@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { cn } from '@/components/utilities';
 import { hintText } from '@/daw/shell/help/hintSource';
 import { useStore } from '@/daw/store';
@@ -18,8 +18,9 @@ import { MIN_FADER_PX, useFaderLength } from './useFaderLength';
 // beside its output peak (the same parts as the dock's Master), filling
 // what the column has left; then Bypass and Mute All; then Mastering: the
 // master chain's names with their power dots (a click opens the master
-// rack in the RackDock) and the spectrum of the output. Gain Match stays
-// hidden until it does something.
+// rack in the RackDock) and the spectrum of the output, which makes way for
+// the fader when the column is short (a rack open on a Chromebook). Gain
+// Match stays hidden until it does something.
 
 export const MASTER_COLUMN_PX = 240;
 
@@ -27,13 +28,22 @@ export const MASTER_COLUMN_PX = 240;
 const UNDER_PX = 36;
 /** The micro heading's line. */
 const HEADING_PX = 14;
+/**
+ * Below this column height the spectrum makes way for the master fader:
+ * at 1366×655 with a rack open, the fader would be at its 80 px floor and
+ * the spectrum cut off.
+ */
+const SPECTRUM_MIN_COLUMN_PX = 460;
 
 export function MasterColumn({ isReady }: { isReady: boolean }) {
   const box = useRef<HTMLDivElement>(null);
-  const length = useFaderLength(box, { reserve: UNDER_PX });
+  const length = useFaderLength(box, { reserve: UNDER_PX + 4 });
+  const column = useRef<HTMLElement>(null);
+  const roomy = useTallEnough(column, SPECTRUM_MIN_COLUMN_PX);
 
   return (
     <aside
+      ref={column}
       data-testid="master-column"
       aria-label="Master"
       className="flex min-h-0 shrink-0 flex-col gap-2 overflow-y-auto border-l border-daw-hairline bg-daw-surface-1 px-3 pb-3 pt-2"
@@ -51,7 +61,7 @@ export function MasterColumn({ isReady }: { isReady: boolean }) {
         </h3>
         <div
           ref={box}
-          className="flex min-h-0 flex-1 items-start justify-center gap-4 overflow-hidden"
+          className="flex min-h-0 flex-1 items-start justify-center gap-4 overflow-hidden pt-1"
         >
           <MasterGainFader length={length} />
           <MasterOutputMeter length={length} />
@@ -69,11 +79,31 @@ export function MasterColumn({ isReady }: { isReady: boolean }) {
         className="flex shrink-0 flex-col gap-1 border-t border-daw-hairline pt-2"
       >
         <h3 className={cn(TYPE_CLASS.micro, 'text-daw-text-3')}>Mastering</h3>
-        <InsertList target={{ kind: 'master' }} owner="Master" />
-        <Spectrum isReady={isReady} />
+        {/* The R&B lesson's way back to the master's rack when it is shut. */}
+        <div data-tutorial-id="mastering-chain">
+          <InsertList target={{ kind: 'master' }} owner="Master" />
+        </div>
+        {roomy ? <Spectrum isReady={isReady} /> : null}
       </section>
     </aside>
   );
+}
+
+/** Whether the element is at least `px` tall, as it resizes. */
+function useTallEnough(ref: RefObject<HTMLElement>, px: number): boolean {
+  const [tall, setTall] = useState(true);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    // Not laid out yet (0): as tall as it needs.
+    const measure = () =>
+      setTall(el.clientHeight === 0 || el.clientHeight >= px);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, px]);
+  return tall;
 }
 
 /** Mutes every track, and again unmutes the ones it muted (muteAll.ts). */

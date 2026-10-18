@@ -9,6 +9,7 @@ import {
 import { meterSource } from '@/daw/engine/meterBus';
 import { useMasterVolumeControl } from '@/daw/hooks/useMixControls';
 import { hintText } from '@/daw/shell/help/hintSource';
+import { createShows } from '@/daw/shell/mix/rackTarget';
 import { useStore } from '@/daw/store';
 import { Fader } from '@/daw/ui/Fader';
 import { formatGain } from '@/daw/ui/format';
@@ -36,7 +37,7 @@ export const MasterRow = memo(function MasterRow() {
   // rack under the mixer in Mix (2.10).
   const inDock = useStore(
     (s) =>
-      (s.dockMaster && s.currentView === 'arrange') ||
+      (s.dockMaster && createShows(s)) ||
       (s.currentView === 'studio' && s.mixRack?.kind === 'master'),
   );
   const automationOpen = useStore(
@@ -76,7 +77,7 @@ export const MasterRow = memo(function MasterRow() {
             return;
           }
           // The dock is Create's.
-          if (s.currentView !== 'arrange') s.setCurrentView('arrange');
+          if (!createShows(s)) s.setCurrentView('arrange');
           s.setDockMaster(true);
         }}
         className={cn(

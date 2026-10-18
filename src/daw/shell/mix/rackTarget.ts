@@ -7,50 +7,68 @@ import type { RackTarget } from '@/daw/store/effectRack';
 // The side rail's Effects library is the only list that adds effects
 // (2.8). It fills the rack in front of the student: in Create, the dock's
 // Master when it shows, else the selected track's chain; in Mix, the rack
-// the RackDock shows, else the selected track's.
+// the RackDock shows, else the selected track's. A rack whose track was
+// deleted counts as none.
 
 type RackState = Pick<
   AllSlices,
-  'currentView' | 'dockMaster' | 'mixRack' | 'selectedTrackId' | 'tracks'
+  | 'currentView'
+  | 'practiceSession'
+  | 'dockMaster'
+  | 'mixRack'
+  | 'selectedTrackId'
+  | 'tracks'
 >;
+
+/**
+ * Whether Create's timeline and dock show: Create itself, or the practice
+ * view before its session exists (StudioShell shows Create's then).
+ */
+export function createShows(
+  s: Pick<AllSlices, 'currentView' | 'practiceSession'>,
+): boolean {
+  return (
+    s.currentView === 'arrange' ||
+    (s.currentView === 'practice' && s.practiceSession === null)
+  );
+}
+
+const hasTrack = (s: Pick<AllSlices, 'tracks'>, id: string | null) =>
+  id !== null && s.tracks.some((t) => t.id === id);
+
+/** The Mix view's open rack, or null when it is shut or its track is gone. */
+export function liveMixRack(
+  s: Pick<AllSlices, 'mixRack' | 'tracks'>,
+): RackTarget | null {
+  const rack = s.mixRack;
+  if (!rack) return null;
+  return rack.kind === 'track' && !hasTrack(s, rack.id) ? null : rack;
+}
 
 /** The rack the library adds to now, or null when there is none. */
 export function rackTargetOf(s: RackState): RackTarget | null {
-  if (s.currentView === 'arrange' && s.dockMaster) return { kind: 'master' };
-  if (s.currentView === 'studio' && s.mixRack) {
-    // A rack whose track has gone shows nothing and takes nothing.
-    if (
-      s.mixRack.kind === 'track' &&
-      !s.tracks.some((t) => t.id === (s.mixRack as { id: string }).id)
-    ) {
-      return null;
-    }
-    return s.mixRack;
+  if (createShows(s) && s.dockMaster) return MASTER;
+  if (s.currentView === 'studio') {
+    const rack = liveMixRack(s);
+    if (rack) return rack;
   }
-  const id = s.selectedTrackId;
-  return id !== null && s.tracks.some((t) => t.id === id)
-    ? { kind: 'track', id }
+  return hasTrack(s, s.selectedTrackId)
+    ? { kind: 'track', id: s.selectedTrackId as string }
     : null;
 }
 
 /** The library's rack, as a hook (a new object only when it changes). */
 export function useRackTarget(): RackTarget | null {
-  const view = useStore((s) => s.currentView);
-  const master = useStore((s) => s.dockMaster);
-  const mixRack = useStore((s) => s.mixRack);
-  const selected = useStore((s) => s.selectedTrackId);
-  const exists = useStore((s) => {
-    const id =
-      s.currentView === 'studio' && s.mixRack?.kind === 'track'
-        ? s.mixRack.id
-        : s.selectedTrackId;
-    return id !== null && s.tracks.some((t) => t.id === id);
+  const kind = useStore((s) => rackTargetOf(s)?.kind ?? null);
+  const id = useStore((s) => {
+    const rack = rackTargetOf(s);
+    return rack && rack.kind !== 'master' ? rack.id : null;
   });
-  if (view === 'arrange' && master) return MASTER;
-  if (view === 'studio' && mixRack) {
-    return mixRack.kind === 'track' && !exists ? null : mixRack;
-  }
-  return selected !== null && exists ? { kind: 'track', id: selected } : null;
+  if (kind === null) return null;
+  if (kind === 'master') return MASTER;
+  return kind === 'return'
+    ? { kind, id: id as 'A' | 'B' }
+    : { kind, id: id as string };
 }
 
 const MASTER: RackTarget = { kind: 'master' };
@@ -58,13 +76,15 @@ const MASTER: RackTarget = { kind: 'master' };
 /**
  * Opens the Mix view's RackDock on `target`, showing `effect` when given (a
  * click on that effect's name in a strip). A track's rack selects the track
- * too, so the dock and the library agree on it in every view.
+ * too, so the dock and the library agree on it in every view (refused for a
+ * track a collaborator holds, as any selection is).
  */
 export function openRack(target: RackTarget, effect?: EffectSlotType): void {
   const s = useStore.getState();
   if (target.kind === 'track' && s.selectedTrackId !== target.id) {
     s.setSelectedTrackId(target.id);
   }
-  s.setMixRack(target);
-  if (effect) s.setDockEffect(effect);
+  useStore.setState(
+    effect ? { mixRack: target, dockEffect: effect } : { mixRack: target },
+  );
 }

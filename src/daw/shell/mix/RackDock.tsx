@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { memo, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { cn } from '@/components/utilities';
 import { DOCK_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
@@ -49,13 +49,32 @@ export const RackDock = memo(function RackDock() {
       last.current?.kind === 'track'
         ? s.tracks.some((t) => t.id === (last.current as { id: string }).id)
         : true;
+    const selected = s.selectedTrackId;
     if (last.current && lastTrack) openRack(last.current);
-    else if (s.selectedTrackId) {
-      openRack({ kind: 'track', id: s.selectedTrackId });
+    else if (selected && s.tracks.some((t) => t.id === selected)) {
+      openRack({ kind: 'track', id: selected });
     } else openRack({ kind: 'master' });
   };
 
   const returnId = target?.kind === 'return' ? target.id : null;
+  const openKey =
+    open && target
+      ? `${target.kind}:${target.kind === 'master' ? '' : target.id}`
+      : null;
+
+  // Opened from a strip, the master column or the bottom rail's Master,
+  // focus moves into the rack, so Escape (the dock's key) shuts it and Tab
+  // reaches its controls. A pick in the Effects library keeps its focus.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!openKey) return;
+    const active = document.activeElement;
+    if (
+      active?.closest('[data-testid="mix-view"], [data-testid="master-row"]')
+    ) {
+      bodyRef.current?.focus({ preventScroll: true });
+    }
+  }, [openKey]);
 
   return (
     <div
@@ -99,6 +118,7 @@ export const RackDock = memo(function RackDock() {
       {open && target ? (
         <div
           key={`${target.kind}:${returnId ?? (target.kind === 'track' ? target.id : '')}`}
+          ref={bodyRef}
           data-testid="rack-dock-body"
           data-tutorial-id={returnId ? `return-fx-${returnId}` : undefined}
           // The chain's blocks and controls are the legacy components until
@@ -110,7 +130,7 @@ export const RackDock = memo(function RackDock() {
             height: `calc(var(--daw-dock-h, ${RACK_FALLBACK_PX}px) - ${DOCK_TAB_BAR_PX + 1}px)`,
           }}
         >
-          <FxRack target={target} />
+          <FxRack target={target} layout="side" />
         </div>
       ) : null}
     </div>

@@ -34,6 +34,20 @@ export const DOCK_TALL_FRAC = 0.6;
 export const RESIZE_STEP_PX = 16;
 
 /**
+ * The Mix view's strips keep at least this much of the body under an open
+ * RackDock: their name, effects, knobs, M/S and a 100 px fader.
+ */
+export const MIX_STRIPS_MIN_PX = 300;
+
+/** The RackDock's tallest, in a body `bodyPx` high (2.10). */
+export function rackMaxPx(bodyPx: number): number {
+  return Math.max(
+    DOCK_MIN_PX,
+    Math.min(Math.round(bodyPx * DOCK_MAX_FRAC), bodyPx - MIX_STRIPS_MIN_PX),
+  );
+}
+
+/**
  * What fills the dock's slot: one of its tabs or Master (2.9) in Create, the
  * RackDock in Mix (2.10).
  */

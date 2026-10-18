@@ -5,6 +5,7 @@ import {
   DOCK_DEFAULT_FRAC,
   dockFracFor,
   dockHeightPx,
+  rackMaxPx,
   BOTTOM_RAIL_PX,
   TOP_BAR_PX,
   type DockHeights,
@@ -91,9 +92,11 @@ export function useShellGeometry(rootRef: RefObject<HTMLElement>): void {
             ? 'rack'
             : dockSlotOf(s.channelStripTab, s.dockMaster);
         const px =
-          s.dockMaximized && slot !== 'rack'
-            ? body
-            : dockPxFor(slot, s.dockHeights, body);
+          slot === 'rack'
+            ? Math.min(dockPxFor(slot, s.dockHeights, body), rackMaxPx(body))
+            : s.dockMaximized
+              ? body
+              : dockPxFor(slot, s.dockHeights, body);
         root.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`);
       }
       root.style.setProperty(INSPECTOR_WIDTH_VAR, `${s.inspectorWidth}px`);

@@ -11,6 +11,7 @@ import {
   INSPECTOR_DEFAULT_PX,
   INSPECTOR_MAX_PX,
   INSPECTOR_MIN_PX,
+  rackMaxPx,
   BOTTOM_RAIL_PX,
   SIDE_RAIL_PX,
   snapDockPx,
@@ -34,6 +35,7 @@ import {
 import { BottomRail } from './bottombar/BottomRail';
 import { Dock } from './dock/Dock';
 import { RackDock } from './mix/RackDock';
+import { liveMixRack } from './mix/rackTarget';
 import { InspectorPanel } from './inspector/InspectorPanel';
 import { SideRail } from './inspector/SideRail';
 import { TopBar } from './topbar/TopBar';
@@ -301,14 +303,16 @@ function InspectorResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
  * nothing to drag while the rack is shut.
  */
 function RackResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
-  const open = useStore((s) => s.mixRack !== null);
+  // Shut as the RackDock is: no rack, or its track deleted.
+  const open = useStore((s) => liveMixRack(s) !== null);
   const heights = useStore((s) => s.dockHeights);
   const setDockHeight = useStore((s) => s.setDockHeight);
   const setMixRack = useStore((s) => s.setMixRack);
   const bodyPx = useShellBodyPx(rootRef);
   if (!open || bodyPx === 0) return null;
-  const value = dockPxFor('rack', heights, bodyPx);
-  const max = Math.max(DOCK_MIN_PX, Math.round(bodyPx * DOCK_MAX_FRAC));
+  // Never so tall that the strips lose their faders (MIX_STRIPS_MIN_PX).
+  const max = rackMaxPx(bodyPx);
+  const value = Math.min(dockPxFor('rack', heights, bodyPx), max);
   return (
     <Resizer
       label="Resize the effects rack"
@@ -317,14 +321,16 @@ function RackResizer({ rootRef }: { rootRef: RefObject<HTMLDivElement> }) {
       value={value}
       min={DOCK_MIN_PX}
       max={max}
-      constrain={(px) => snapDockPx(px, bodyPx)}
+      constrain={(px) => Math.min(snapDockPx(px, bodyPx), max)}
       onPreview={(px) =>
         rootRef.current?.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`)
       }
       onCommit={(px) => setDockHeight('rack', px / bodyPx)}
       onDoubleClick={() => {
-        const tall = Math.abs(value - bodyPx * DOCK_TALL_FRAC) < 2;
-        setDockHeight('rack', tall ? DOCK_DEFAULT_FRAC.rack : DOCK_TALL_FRAC);
+        // Between the default and as tall as the strips allow.
+        const tallPx = Math.min(Math.round(bodyPx * DOCK_TALL_FRAC), max);
+        const tall = Math.abs(value - tallPx) < 2;
+        setDockHeight('rack', tall ? DOCK_DEFAULT_FRAC.rack : tallPx / bodyPx);
       }}
       onToggle={() => setMixRack(null)}
       data-testid="rack-resizer"

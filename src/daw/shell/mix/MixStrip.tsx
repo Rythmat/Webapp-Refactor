@@ -150,10 +150,7 @@ export function StripHeader({
         type="button"
         aria-pressed={selected}
         aria-label={`${track.name}: select the track`}
-        data-hint={hintText(
-          track.name,
-          'Select this track to edit it in Create',
-        )}
+        data-hint={hintText(track.name, 'Select this track')}
         data-testid="mix-strip-name"
         onClick={() => useStore.getState().setSelectedTrackId(track.id)}
         className={cn(
@@ -282,14 +279,14 @@ function Pan({ track, disabled }: { track: Track; disabled: boolean }) {
 function Volume({ track, disabled }: { track: Track; disabled: boolean }) {
   const volume = useTrackVolumeControl(track);
   const box = useRef<HTMLDivElement>(null);
-  const length = useFaderLength(box, { reserve: VALUE_PX + 4 });
+  const length = useFaderLength(box, { reserve: VALUE_PX + 8 });
   const source = useRef(meterSource(`track:${track.id}`));
   return (
     <div
       ref={box}
       data-testid="mix-strip-fader"
       className={cn(
-        'flex min-h-[100px] flex-1 flex-col items-center gap-1 overflow-hidden',
+        'flex min-h-[100px] flex-1 flex-col items-center gap-1 overflow-hidden pt-1',
         track.mute && 'opacity-45',
       )}
     >

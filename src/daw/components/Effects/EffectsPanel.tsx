@@ -368,8 +368,10 @@ export function FxControlsPanel({
             </button>
           ) : null}
           <button
+            type="button"
+            aria-label={`Remove ${FX_LABEL[selectedEffect] ?? selectedEffect}`}
             onClick={() => onRemove(selectedEffect)}
-            className="cursor-pointer rounded-md p-1"
+            className="flex size-6 cursor-pointer items-center justify-center rounded-md"
             style={{
               color: 'var(--daw-text-3)',
               background: 'none',

@@ -102,12 +102,12 @@ export const ReturnStrip = memo(function ReturnStrip({
 function ReturnVolume({ ret, name }: { ret: ReturnBus; name: string }) {
   const volume = useReturnVolumeControl(ret);
   const box = useRef<HTMLDivElement>(null);
-  const length = useFaderLength(box, { reserve: VALUE_PX + 4 });
+  const length = useFaderLength(box, { reserve: VALUE_PX + 8 });
   return (
     <div
       ref={box}
       data-testid="return-strip-fader"
-      className="flex min-h-[100px] flex-1 cursor-default flex-col items-center gap-1 overflow-hidden"
+      className="flex min-h-[100px] flex-1 cursor-default flex-col items-center gap-1 overflow-hidden pt-1"
       // The fader moves the level; it never opens the rack.
       onClick={(e) => e.stopPropagation()}
     >

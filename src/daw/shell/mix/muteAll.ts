@@ -33,10 +33,9 @@ export function toggleMuteAll(): void {
     const kept = (s.muteAllSet ?? []).filter((id) =>
       tracks.some((t) => t.id === id && t.mute),
     );
-    withTransaction('Mute all', () => {
-      for (const id of muting) s.toggleMute(id);
-      s.setMuteAllSet([...kept, ...muting]);
-    });
+    withTransaction('Mute all', () =>
+      setMutes(new Set(muting), true, [...kept, ...muting]),
+    );
     return;
   }
 
@@ -45,8 +44,22 @@ export function toggleMuteAll(): void {
   // Nothing of its own left to unmute (the tracks it muted were deleted):
   // the press still does what it says.
   const unmuting = mine.length > 0 ? mine : tracks.map((t) => t.id);
-  withTransaction('Unmute all', () => {
-    for (const id of unmuting) s.toggleMute(id);
-    s.setMuteAllSet(null);
-  });
+  withTransaction('Unmute all', () => setMutes(new Set(unmuting), false, null));
+}
+
+/**
+ * Sets `ids`' mute to `mute` and Mute All's memory in one store write, so
+ * the engine, autosave and the room see the press once, not once a track.
+ */
+function setMutes(
+  ids: ReadonlySet<string>,
+  mute: boolean,
+  remembered: string[] | null,
+): void {
+  useStore.setState((state) => ({
+    tracks: state.tracks.map((t) =>
+      ids.has(t.id) && t.mute !== mute ? { ...t, mute } : t,
+    ),
+    muteAllSet: remembered,
+  }));
 }

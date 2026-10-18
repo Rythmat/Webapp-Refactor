@@ -34,6 +34,18 @@ afterEach(() => {
 });
 
 describe('toggleMuteAll', () => {
+  it('writes the store once a press, not once a track', () => {
+    let writes = 0;
+    const stop = useStore.subscribe(() => {
+      writes += 1;
+    });
+    toggleMuteAll();
+    expect(writes).toBe(1);
+    toggleMuteAll();
+    expect(writes).toBe(2);
+    stop();
+  });
+
   it('mutes every playing track and remembers which', () => {
     s().toggleMute(ids[1]);
     toggleMuteAll();

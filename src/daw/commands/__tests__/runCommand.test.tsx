@@ -9,6 +9,7 @@ import {
   PRACTICE_SCOPE,
   PRISM_SCOPE,
   SCORE_SCOPE,
+  ARRANGE_SCOPE,
   TRACKS_SCOPE,
   TYPING_SCOPE,
 } from '../keymaps';
@@ -416,24 +417,59 @@ describe('availableCommands', () => {
     expect(ids(null)).toEqual(['score.tie', 'transport.loop']);
   });
 
-  it('skips the dialog and typing levels, but keeps their narrowing', () => {
+  it('skips the dialog level and the piano keys, but keeps their narrowing', () => {
     useMusicalTypingStore.setState({ enabled: true });
     bind(TYPING_SCOPE.id, { 'typing.note': vi.fn(), 'typing.off': vi.fn() });
     bind(GLOBAL_SCOPE.id, {
       'transport.loop': vi.fn(),
       'edit.undo': vi.fn(),
+      'typing.on': vi.fn(),
     });
-    expect(ids(null)).toEqual(['transport.loop', 'edit.undo']);
+    // While the keyboard plays notes: its Off, not On; never the notes.
+    expect(ids(null)).toEqual(['typing.off', 'transport.loop', 'edit.undo']);
 
     bind(PRISM_SCOPE.id, { 'prism.reroll': vi.fn(), 'prism.pick': vi.fn() });
     expect(ids(null)).toEqual(['edit.undo']);
   });
 
+  it('runs a view or global command from a row as if from the page', () => {
+    // Opened from a track's row, a clip command still acts on the clip: its
+    // handler sees the page, not the row it would refuse (onTimeline).
+    view('arrange');
+    const row = document.createElement('div');
+    document.body.appendChild(row);
+    const seen: (EventTarget | null)[] = [];
+    bind(ARRANGE_SCOPE.id, {
+      'clip.duplicate': (e) => {
+        seen.push(e.target);
+      },
+    });
+    bind(
+      TRACKS_SCOPE.id,
+      { 'tracks.mute': (e) => void seen.push(e.target) },
+      row,
+    );
+    expect(runCommand('clip.duplicate', row)).toBe(true);
+    expect(runCommand('tracks.mute', row)).toBe(true);
+    expect(seen).toEqual([document.body, row]);
+    row.remove();
+  });
+
+  it('leaves out the selected track’s Duplicate while the focused row’s is listed', () => {
+    const row = document.createElement('div');
+    document.body.appendChild(row);
+    bind(TRACKS_SCOPE.id, { 'tracks.duplicate': vi.fn() }, row);
+    bind(GLOBAL_SCOPE.id, { 'track.duplicate': vi.fn() });
+    expect(ids(row)).toEqual(['tracks.duplicate']);
+    expect(ids(null)).toEqual(['track.duplicate']);
+    row.remove();
+  });
+
   it('skips a scope bound without handlers', () => {
     view('score');
     bind(SCORE_SCOPE.id, {});
-    bind(GLOBAL_SCOPE.id, { 'help.palette': vi.fn() });
-    expect(ids(null)).toEqual(['help.palette']);
+    bind(GLOBAL_SCOPE.id, { 'view.mix': vi.fn() });
+    expect(ids(null)).toEqual(['view.mix']);
   });
 
   it('lists only what Practice lets through', () => {
@@ -444,10 +480,7 @@ describe('availableCommands', () => {
       'transport.metronome': vi.fn(),
       'transport.loop': vi.fn(),
     });
-    expect(ids(null)).toEqual([
-      'practice.playPause',
-      'transport.loop',
-      'help.palette',
-    ]);
+    // The palette itself is never in its own list.
+    expect(ids(null)).toEqual(['practice.playPause', 'transport.loop']);
   });
 });

@@ -110,7 +110,9 @@ export function CommandPalette({
       <DialogPortal>
         <DialogOverlay
           className={cn(
-            'z-[var(--daw-z-modal)] bg-daw-scrim backdrop-blur-none',
+            // Closing, it no longer takes clicks: a click just after Escape
+            // lands on the editor (decision 16's guard).
+            'z-[var(--daw-z-modal)] bg-daw-scrim backdrop-blur-none data-[state=closed]:pointer-events-none',
             OVERLAY_MOTION.fast,
           )}
         />
@@ -119,7 +121,7 @@ export function CommandPalette({
           data-testid="command-palette"
           className={cn(
             'fixed left-1/2 top-[14vh] z-[var(--daw-z-modal)] flex max-h-[min(64vh,460px)] w-[min(560px,calc(100vw-32px))] -translate-x-1/2 flex-col overflow-hidden rounded-[var(--daw-radius-lg)] border border-daw-hairline bg-daw-popover text-daw-text shadow-2xl shadow-black/60 outline-none',
-            'data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:pointer-events-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
             OVERLAY_MOTION.fast,
             TYPE_CLASS.body,
           )}

@@ -120,6 +120,7 @@ defineCommand({
   label: 'Play notes (W E T Y U O P are the black keys)',
   keys: TYPING_NOTE_CODES,
   keysLabel: 'A – ;',
+  palette: false,
 });
 defineCommand({
   id: 'typing.octaveDown',
@@ -560,6 +561,9 @@ defineCommand({
   scope: 'arrange',
   label: 'Stop and deselect',
   keys: ['Escape'],
+  // It always lets Escape fall through to Stop, so by name it would
+  // only say it did nothing.
+  palette: false,
 });
 // V, B and C, as the Create toolbar shows them (plan default); the digits
 // still work.
@@ -935,7 +939,11 @@ defineCommand({
   scope: 'global',
   label: 'Find a command',
   keys: ['Mod+KeyK', 'Mod+Shift+KeyP'],
-  keywords: ['palette', 'search', 'commands'],
+  // From a text field too (the project's name): Ctrl+K would otherwise
+  // jump to the browser's address bar on a Chromebook.
+  allowInEditable: true,
+  // Not in its own list: picking it would only open it again.
+  palette: false,
 });
 // Commands with no keys, for the palette: what the menus and buttons do.
 defineCommand({

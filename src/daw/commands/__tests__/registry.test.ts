@@ -90,7 +90,8 @@ describe('the command registry', () => {
         .filter((c) => c.allowInEditable)
         .map((c) => c.id),
     );
-    expect(editable).toEqual(['project.save']);
+    // And the palette's keys, which open it from the project's name too.
+    expect(editable).toEqual(['project.save', 'help.palette']);
   });
 
   it('names every pass-through it allows', () => {

@@ -85,12 +85,30 @@ describe('paletteGroups', () => {
       cmd('view.effects'),
       cmd('view.mix'),
       cmd('track.add'),
-      cmd('help.palette'),
+      cmd('project.export'),
     ];
     expect(ids(commands, 'fx')).toEqual(['view.effects']);
     expect(ids(commands, 'mixer')).toEqual(['view.mix']);
     expect(ids(commands, 'instrument')).toEqual(['track.add']);
-    expect(ids(commands, 'search')).toEqual(['help.palette']);
+    expect(ids(commands, 'bounce')).toEqual(['project.export']);
+  });
+
+  it('shows a key only on the first command that takes it here', () => {
+    // Opened from a track row: the row's ⌘D duplicates the track, so the
+    // clip's Duplicate further down shows no ⌘D (it wouldn't run it).
+    const groups = paletteGroups(
+      [cmd('tracks.duplicate'), cmd('clip.duplicate'), cmd('transport.loop')],
+      '',
+      true,
+    );
+    const keys = Object.fromEntries(
+      groups.flatMap((g) => g.rows).map((r) => [r.id, r.keys]),
+    );
+    expect(keys).toEqual({
+      'tracks.duplicate': '⌘D',
+      'clip.duplicate': null,
+      'transport.loop': 'L',
+    });
   });
 
   it('finds a command by its scope’s heading', () => {

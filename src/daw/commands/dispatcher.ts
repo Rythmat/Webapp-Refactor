@@ -218,8 +218,17 @@ function mayRun(
   return !!bound.handlers.current[command.id];
 }
 
-/** Levels the palette never offers: an overlay's own keys, the piano keys. */
-const NOT_IN_PALETTE: ReadonlySet<string> = new Set(['dialog', 'typing']);
+/** The level the palette never offers: an overlay's own keys. */
+const NOT_IN_PALETTE: ReadonlySet<string> = new Set(['dialog']);
+
+/**
+ * A command left out while another one listed does the same thing where the
+ * palette was opened: the focused row's Duplicate, the keyboard's Off.
+ */
+const SAME_AS: Readonly<Record<string, string>> = {
+  'track.duplicate': 'tracks.duplicate',
+  'typing.on': 'typing.off',
+};
 
 /**
  * The commands that would answer with focus on `target` right now, in the
@@ -239,7 +248,7 @@ export function availableCommands(target: Node | null): DeclaredCommand[] {
       out.push(command);
     }
   }
-  return out;
+  return out.filter((command) => !seen.has(SAME_AS[command.id] ?? ''));
 }
 
 /** The key a command's first chord presses, for a handler that reads it. */
@@ -269,9 +278,18 @@ function eventFor(
     bubbles: true,
     cancelable: true,
   });
-  // As if pressed where focus was, which is what the handlers look at.
   Object.defineProperty(e, 'target', { value: target });
   return e;
+}
+
+/**
+ * Where a command run by name is pressed: a region's commands where focus
+ * was (the track row the palette was opened from), everything else on the
+ * page, as if from the editor at large: a clip command opened from a track's
+ * row still acts on the selected clip (its keys stand aside on the list).
+ */
+function targetFor(level: string, opener: Node | null): Node | null {
+  return level === 'region' || level === 'dialog' ? opener : document.body;
 }
 
 /**
@@ -289,7 +307,8 @@ export function runCommand(id: string, target: Node | null): boolean {
     );
     if (!command || !mayRun(candidate, command)) continue;
     const handler = candidate.bound.handlers.current[id];
-    if (handler(eventFor(command, target)) === false) continue;
+    const at = targetFor(candidate.bound.scope.level, target);
+    if (handler(eventFor(command, at)) === false) continue;
     return true;
   }
   return false;

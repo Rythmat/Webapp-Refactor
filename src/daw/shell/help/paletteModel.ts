@@ -91,6 +91,16 @@ export function paletteGroups(
     list.push({ command, score });
     byScope.set(command.scope, list);
   }
+  // A key a command listed before it takes here (the focused row's ⌘D
+  // over the clip's) isn't shown on the later one: it wouldn't run it.
+  const taken = new Set<string>();
+  const shownKeys = new Map<string, boolean>();
+  for (const command of commands) {
+    const chord = command.chords[0];
+    const id = chord ? chordLabel(chord, false) : '';
+    shownKeys.set(command.id, !!chord && !taken.has(id));
+    for (const c of command.chords) taken.add(chordLabel(c, false));
+  }
   const searching = fold(query) !== '';
   return [...byScope.entries()]
     .sort(([a], [b]) => scopeRank(a) - scopeRank(b))
@@ -100,7 +110,12 @@ export function paletteGroups(
       rows: (searching
         ? [...list].sort((a, b) => b.score - a.score)
         : list
-      ).map(({ command }) => paletteRow(command, apple)),
+      ).map(({ command }) => {
+        const row = paletteRow(command, apple);
+        return shownKeys.get(command.id) === false
+          ? { ...row, keys: null }
+          : row;
+      }),
     }));
 }
 

@@ -18,10 +18,11 @@
  *
  * By default an element is skipped when any ancestor is legacy, so a v2
  * part inside the legacy main region (section[data-region="main"]: the
- * Create toolbar, the track list, the footer, the Edit pill) is never
+ * track area's tools, sections row and footer, the Edit pill) is never
  * probed. `{ root, subtree: true }` probes `root`'s matches as v2 parts
  * whatever lies above them: inside each, the nearest [data-ds] decides
- * (R32 uses it; R28–R31 pass a selector and see what they always did).
+ * (R30 and R32 use it for the track area; R28, R29 and R31 pass a selector and
+ * see what they always did).
  *
  * Both functions run in the page (page.evaluate(designProbe)), so they use
  * nothing from this module's scope.

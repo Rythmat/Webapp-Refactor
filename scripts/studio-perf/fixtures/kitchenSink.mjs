@@ -513,8 +513,13 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setMeasureFermatas([3]);
   // Song sections (milestone 2.13), which the Lead Sheet shows as its marks:
   // every field off the registry's default (type 'custom', label '', ticks
-  // 0), on the bar lines of the sink's 6/8 (1440 ticks a bar) and over its
+  // 0), on the bar lines of the sink's 6/8 (1440 ticks a bar) and in its
   // 12-bar chart, so the marks fall on bars 1 and 3 where 'A' and 'B' were.
+  // A draft without data.sections is rebuilt from those marks (the codec's
+  // fallback), which takes each type from its label and runs the last
+  // section to the chart's end: a bridge labelled 'Verse 1' that ends at
+  // bar 10 comes back as a verse to bar 12, so a dropped data.sections
+  // shows as wrong values, not only as re-minted ids.
   act().setSections([
     {
       id: 'kitchen-section-intro',
@@ -525,10 +530,10 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     },
     {
       id: 'kitchen-section-verse',
-      type: 'verse',
+      type: 'bridge',
       label: 'Verse 1',
       startTick: 2 * 1440,
-      endTick: 12 * 1440,
+      endTick: 10 * 1440,
     },
   ]);
   act().setLeadSheetRepeats([{ startMeasure: 0, endMeasure: 1 }]);

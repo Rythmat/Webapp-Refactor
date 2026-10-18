@@ -2,9 +2,9 @@
 /**
  * R32 song sections (milestone 2.13, fast), at 1366×655, 1440×787 and
  * 1280×720. Each size opens a fresh project with one MIDI track holding a
- * clip in bars 3–4 and one in bars 11–12, its chart 40 bars long (the Lead
- * Sheet shows only its chart's bars), zoomed so 34 bars fit the timeline,
- * and runs the whole story with the pointer and the keys:
+ * clip in bars 3–4 and one in bars 11–12 and no chords, so the Lead Sheet's
+ * chart runs as far as the sections do (seedSong), zoomed so 34 bars fit
+ * the timeline, and runs the whole story with the pointer and the keys:
  *
  * - laneHeader80: the sections row 24 + the tools 32 + the chord lane's
  *   header 24 make 80 px (±2) from the row's top to the first track row,
@@ -12,6 +12,9 @@
  * - addSection: + Section's menu lists the 14 types in order, then Custom
  *   name, inside the window; Verse lands on bars 1–8 and Chorus on 9–16,
  *   each a block named "<label>, bars a to b".
+ * - addButtonPlace: + Section sits at the lane's start while the lane is
+ *   empty and just after the last block once there are sections (4 px on,
+ *   SectionsLane's ADD_GAP_PX, ±2), at least 24×24 both times.
  * - clickSeeks: a click in the middle of the Chorus seeks to its start.
  * - edgeResize: dragging the Verse's end edge a bar right moves the edge it
  *   shares with the Chorus: Verse 1–9, Chorus 10–16, on bar lines; one Undo
@@ -52,6 +55,10 @@ export const flags = {
   laneHeader80: {
     goal: true,
     text: 'the sections row, the tools and the chord lane’s header made 80 px over the lanes, the sections lane at the row’s top',
+  },
+  addButtonPlace: {
+    goal: true,
+    text: '+ Section sat at the empty lane’s start, then just after the last section, at least 24×24',
   },
   addSection: {
     goal: true,
@@ -314,6 +321,8 @@ function addButtonNow() {
   ].map((b) => b.getBoundingClientRect().right);
   return {
     left: Math.round(r.left),
+    width: Math.round(r.width * 10) / 10,
+    height: Math.round(r.height * 10) / 10,
     size: `${Math.round(r.width)}×${Math.round(r.height)}`,
     laneLeft: lane ? Math.round(lane.getBoundingClientRect().left) : null,
     lastBlockRight: rights.length ? Math.round(Math.max(...rights)) : null,
@@ -861,6 +870,23 @@ function judgeAdd(a, same) {
   );
 }
 
+/** + Section at the empty lane's start, then 4 px after the last block. */
+function judgeAddButton(a) {
+  if (!ok(a)) return false;
+  const big = (b) => !!b && b.width >= 24 && b.height >= 24;
+  const empty = a.buttonEmpty;
+  const after = a.buttonAfter;
+  return (
+    big(empty) &&
+    big(after) &&
+    empty.laneLeft !== null &&
+    empty.lastBlockRight === null &&
+    Math.abs(empty.left - empty.laneLeft) <= 1 &&
+    after.lastBlockRight !== null &&
+    Math.abs(after.left - (after.lastBlockRight + 4)) <= 2
+  );
+}
+
 function judgeEdge(e, same) {
   if (!ok(e) || e.before.length !== 2) return false;
   const [verse, chorus] = e.before;
@@ -1008,6 +1034,7 @@ function judge(v, same) {
   const probes = [v.add?.menuFloors, v.add?.rowFloors, v.menu?.floors];
   return {
     laneHeader80: header,
+    addButtonPlace: judgeAddButton(v.add),
     addSection: judgeAdd(v.add, same),
     customName:
       ok(v.custom) &&
@@ -1177,7 +1204,7 @@ export const scenarios = (kit) => [
     key: '',
     id: 'R32-sections',
     title:
-      'Song sections at 1366×655, 1440×787 and 1280×720: the 80 px lane header, + Section with every type and a custom name, a click seeks, a shared edge drags on bar lines, the section menu (loop, duplicate with its clips, insert after, delete keeps the clips), the keys, the Lead sheet shows the same sections, a reload keeps them, and the floors',
+      'Song sections at 1366×655, 1440×787 and 1280×720: the 80 px lane header, + Section where it belongs and with every type and a custom name, a click seeks, a shared edge drags on bar lines, the section menu (loop, duplicate with its clips, insert after, delete keeps the clips), the keys, the Lead sheet shows the same sections, a reload keeps them, and the floors',
     run: (run) => sections(kit, run),
   },
 ];

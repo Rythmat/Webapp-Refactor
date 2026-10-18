@@ -1,4 +1,6 @@
+import { RULER_PX } from '@/daw/shell/tracklist/rowLayout';
 import type { Marker } from '@/daw/store/markersSlice';
+import { PLAYHEAD_HANDLE_H, PLAYHEAD_HIT_PX } from '@/daw/utils/rulerLoop';
 import { tickToPixel } from '@/daw/utils/timelineScale';
 
 // ── Where a marker is on the ruler (milestone 2.13, plan finding F8) ───────
@@ -38,4 +40,24 @@ export function markerAtX(
     if (x >= mx - SLACK_PX && x <= end + SLACK_PX) return marker;
   }
   return null;
+}
+
+/**
+ * Whether a press at canvas x `x`, `localY` px under the ruler's top, is on
+ * the playhead's grab handle: in the handle's rows at the foot of the
+ * ruler, within its hit width of the playhead's x. The handle takes the
+ * press before a marker there: a click on a marker puts the playhead on its
+ * flag, and a drag from the handle must then move the playhead, not the
+ * marker.
+ */
+export function onPlayheadHandle(
+  x: number,
+  localY: number,
+  playheadX: number,
+): boolean {
+  return (
+    localY >= RULER_PX - PLAYHEAD_HANDLE_H &&
+    localY < RULER_PX &&
+    Math.abs(x - playheadX) <= PLAYHEAD_HIT_PX
+  );
 }

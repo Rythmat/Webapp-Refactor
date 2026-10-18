@@ -32,6 +32,19 @@ async function askName(
 }
 
 /**
+ * The next default name: 'Marker N', N one past the largest among the names
+ * of that form, so a delete never brings back a name still in use.
+ */
+export function nextMarkerName(markers: readonly { name: string }[]): string {
+  let largest = 0;
+  for (const { name } of markers) {
+    const match = /^Marker (\d+)$/.exec(name);
+    if (match) largest = Math.max(largest, Number(match[1]));
+  }
+  return `Marker ${largest + 1}`;
+}
+
+/**
  * Adds a marker at song tick `tick` (snapped to the grid), once the student
  * has named it ('Marker N' unless they type another). Its id, or null.
  */
@@ -40,7 +53,7 @@ export async function addMarkerAt(tick: number): Promise<string | null> {
   const at = snapTicks(tick, timelineSnapGrid(state));
   const name = await askName(
     'Add a marker',
-    `Marker ${state.markers.length + 1}`,
+    nextMarkerName(state.markers),
     'Add',
   );
   if (name === null) return null;

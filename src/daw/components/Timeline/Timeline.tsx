@@ -46,7 +46,12 @@ import {
   setClipFade,
 } from '@/daw/shell/canvas/clipMenu/clipActions';
 import { addMarkerAt, renameMarker } from '@/daw/shell/canvas/markerActions';
-import { MARKER_FLAG_PX, MARKER_NAME_GAP_PX, markerAtX } from './markerHit';
+import {
+  MARKER_FLAG_PX,
+  MARKER_NAME_GAP_PX,
+  markerAtX,
+  onPlayheadHandle,
+} from './markerHit';
 import {
   CLIP_HEADER_PX,
   clipZoneAt,
@@ -1887,12 +1892,21 @@ export function Timeline({ scrollRef }: TimelineProps) {
         return;
       }
 
-      // Top ruler (the chord ruler below it is handled above): marker flags
-      // first, then whatever the press lands on — the loop in the top strip,
-      // or in the bar-number lane the playhead handle or a seek/zoom/loop-draw.
+      // Top ruler (the chord ruler below it is handled above): the playhead's
+      // handle first, then marker flags, then whatever the press lands on —
+      // the loop in the top strip, or in the bar-number lane the playhead or
+      // a seek/zoom/loop-draw. A click on a marker puts the playhead on its
+      // flag, so the handle must win there or it could never be dragged off.
       if (y >= st && y < st + RULERS_HEIGHT) {
         const localY = y - st;
-        const marker = markerUnder(x, localY);
+        const playheadX = tickToPixel(
+          getPlayheadTick(),
+          currentZoom,
+          currentScrollLeft,
+        );
+        const marker = onPlayheadHandle(x, localY, playheadX)
+          ? null
+          : markerUnder(x, localY);
         if (marker) {
           markerDragRef.current = {
             id: marker.id,
@@ -1911,7 +1925,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
             tickToPixel(state.loopStart, currentZoom, currentScrollLeft),
             tickToPixel(state.loopEnd, currentZoom, currentScrollLeft),
             LOOP_STRIP_H,
-            tickToPixel(getPlayheadTick(), currentZoom, currentScrollLeft),
+            playheadX,
           ),
           mode: null,
           startX: x,
@@ -2110,7 +2124,8 @@ export function Timeline({ scrollRef }: TimelineProps) {
     [getCanvasCoords, getScrollTop, hitTestClip, zoneAt, doSnap, tsNum, tsDen],
   );
 
-  // Double-click: ruler → add marker, clip → its editor in the dock
+  // Double-click: bar numbers → add or rename a marker, clip → its editor
+  // in the dock
   const handleCanvasDoubleClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { x, y } = getCanvasCoords(e);
@@ -2145,8 +2160,11 @@ export function Timeline({ scrollRef }: TimelineProps) {
         }
         return;
       }
-      // The ruler: a double-click on a marker renames it; anywhere else it
-      // adds one there, named in the app's dialog first (2.13).
+      // The loop strip: each of the double-click's clicks has toggled the
+      // loop already, and that is all it does there.
+      if (y >= st && y < st + LOOP_STRIP_H) return;
+      // The bar numbers: a double-click on a marker renames it; anywhere
+      // else it adds one there, named in the app's dialog first (2.13).
       if (y >= st && y < st + RULER_HEIGHT) {
         const marker = markerUnder(x, y - st);
         if (marker) {
@@ -2447,8 +2465,14 @@ export function Timeline({ scrollRef }: TimelineProps) {
       if (y >= st && y < st + RULERS_HEIGHT) {
         setHoverClip(null);
         const localY = y - st;
-        // A marker's flag or name, as drawn (F8): it can be taken.
-        if (markerUnder(x, localY)) {
+        const playheadX = tickToPixel(
+          getPlayheadTick(),
+          currentZoom,
+          currentScrollLeft,
+        );
+        // A marker's flag or name, as drawn (F8): it can be taken, unless
+        // the playhead's handle is over it (the press takes the handle).
+        if (!onPlayheadHandle(x, localY, playheadX) && markerUnder(x, localY)) {
           canvas.style.cursor = 'grab';
           return;
         }
@@ -2461,7 +2485,7 @@ export function Timeline({ scrollRef }: TimelineProps) {
             tickToPixel(state.loopStart, currentZoom, currentScrollLeft),
             tickToPixel(state.loopEnd, currentZoom, currentScrollLeft),
             LOOP_STRIP_H,
-            tickToPixel(getPlayheadTick(), currentZoom, currentScrollLeft),
+            playheadX,
           );
           canvas.style.cursor =
             target === 'playhead'

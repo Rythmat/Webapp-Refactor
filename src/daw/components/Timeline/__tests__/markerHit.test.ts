@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { Marker } from '@/daw/store/markersSlice';
 import { tickToPixel } from '@/daw/utils/timelineScale';
-import { MARKER_FLAG_PX, MARKER_NAME_GAP_PX, markerAtX } from '../markerHit';
+import { RULER_PX } from '@/daw/shell/tracklist/rowLayout';
+import { PLAYHEAD_HANDLE_H, PLAYHEAD_HIT_PX } from '@/daw/utils/rulerLoop';
+import {
+  MARKER_FLAG_PX,
+  MARKER_NAME_GAP_PX,
+  markerAtX,
+  onPlayheadHandle,
+} from '../markerHit';
 
 // ── Where a marker is on the ruler (milestone 2.13, plan finding F8) ───────
 // One hit test over what is drawn: the flag at the marker's tick and its
@@ -133,5 +140,23 @@ describe('markerAtX', () => {
     expect(at(0, [intro], 1, 180)).toBe('intro');
     expect(at(62 + SLACK, [intro], 1, 180)).toBe('intro');
     expect(at(62 + SLACK + 1, [intro], 1, 180)).toBeNull();
+  });
+});
+
+describe('onPlayheadHandle', () => {
+  // The handle's rows: 23 to 31 px under the ruler's top, the foot of the
+  // bar numbers; its hit width: 6 px either side of the playhead.
+  const top = RULER_PX - PLAYHEAD_HANDLE_H;
+  it('is the handle’s rows at the foot of the ruler', () => {
+    expect(onPlayheadHandle(160, top, 160)).toBe(true);
+    expect(onPlayheadHandle(160, RULER_PX - 1, 160)).toBe(true);
+    expect(onPlayheadHandle(160, top - 1, 160)).toBe(false);
+    expect(onPlayheadHandle(160, RULER_PX, 160)).toBe(false);
+  });
+
+  it('is within its hit width of the playhead', () => {
+    expect(onPlayheadHandle(160 + PLAYHEAD_HIT_PX, top, 160)).toBe(true);
+    expect(onPlayheadHandle(160 - PLAYHEAD_HIT_PX, top, 160)).toBe(true);
+    expect(onPlayheadHandle(160 + PLAYHEAD_HIT_PX + 1, top, 160)).toBe(false);
   });
 });

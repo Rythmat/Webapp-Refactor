@@ -69,6 +69,20 @@ function onTimeline(e: KeyboardEvent): boolean {
 }
 
 /**
+ * Whether Alt+M adds a marker: in Create with the timeline in sight, and not
+ * pressed in a form control (a dialog or a menu keeps its keys to itself in
+ * the dispatcher). It acts at the playhead, not on what has focus, so a
+ * focused section block, track row or other widget doesn't stop it, as
+ * onTimeline would.
+ */
+function canAddMarker(e: KeyboardEvent): boolean {
+  const { currentView, dockMaximized } = useStore.getState();
+  return (
+    currentView === 'arrange' && !dockMaximized && !isFormControl(e.target)
+  );
+}
+
+/**
  * The menu key (Windows) also opens the browser's own context menu, on its
  * release: swallow that one, so ours stays on top.
  */
@@ -188,7 +202,7 @@ export function useArrangeKeymap(): void {
     'timeline.zoomOut': zoom(zoomTimelineOut),
     'timeline.zoomToFit': zoom(fitTimeline),
     'timeline.addMarker': (e) => {
-      if (!onTimeline(e)) return false;
+      if (!canAddMarker(e)) return false;
       void addMarkerAtPlayhead();
     },
   };

@@ -24,8 +24,10 @@ import {
 // from where it was taken hold of, on the grid, as one undo step; the
 // cursor shows a grab hand over exactly the flag and the name; a right-click
 // on the name opens the marker's menu, elsewhere the ruler's; a double-click
-// renames it, elsewhere adds one there, named in the app's dialog first, as
-// Alt+M does at the playhead. A press on the name used to seek instead. Run:
+// renames it, elsewhere in the bar numbers adds one there, named in the
+// app's dialog first, as Alt+M does at the playhead. A press on the name
+// used to seek instead. The playhead's handle takes a press before a marker
+// under it. Run:
 // npx vitest run src/daw/components/Timeline/__tests__/Timeline.markers.test.tsx
 
 const h = vi.hoisted(() => ({
@@ -67,6 +69,7 @@ import {
   startPlayheadRun,
 } from '@/daw/engine/playheadClock';
 import { useCanvasMenuStore } from '@/daw/shell/canvas/clipMenu/canvasMenuStore';
+import { SectionsLane } from '@/daw/shell/canvas/sections/SectionsLane';
 import { RULER_PX } from '@/daw/shell/tracklist/rowLayout';
 import { useStore } from '@/daw/store';
 import {
@@ -77,15 +80,18 @@ import {
 } from '@/daw/store/history';
 import { DialogHost, type PromptOptions } from '@/daw/ui/DialogHost';
 import { installDomShims } from '@/daw/ui/__tests__/dom';
-import { LOOP_STRIP_H } from '@/daw/utils/rulerLoop';
+import { LOOP_STRIP_H, PLAYHEAD_HANDLE_H } from '@/daw/utils/rulerLoop';
 import { pixelToTick, tickToPixel } from '@/daw/utils/timelineScale';
 import { ScrolledTimeline } from './scrolledTimeline';
 
 const s = () => useStore.getState();
 const VIEWPORT = 1200;
-/** What measureText answers here, as markerUnder's fallback does: 6 px a
- *  character. */
+/** What measureText answers here in the ruler's 11 px font: 6 px a
+ *  character, as markerUnder's fallback does. It scales with the font, so a
+ *  name measured in another (the canvas's default is 10 px) comes out
+ *  narrower and a hit edge moves. */
 const CHAR_PX = 6;
+const RULER_FONT_PX = 11;
 
 /** Text the canvas drew, where. */
 const drawn: Array<{ text: string; x: number; y: number }> = [];
@@ -97,7 +103,11 @@ function recordingContext() {
     get(target, prop) {
       if (prop in target) return target[prop];
       if (prop === 'measureText') {
-        return (text: string) => ({ width: text.length * CHAR_PX });
+        return (text: string) => {
+          const font = String(target.font ?? '10px sans-serif');
+          const px = parseFloat(font);
+          return { width: (text.length * CHAR_PX * px) / RULER_FONT_PX };
+        };
       }
       if (prop === 'fillText') {
         return (text: string, x: number, y: number) => {
@@ -421,6 +431,43 @@ describe('a drag on a marker', () => {
   });
 });
 
+describe('the playhead’s handle over a marker', () => {
+  /** In the handle's rows, at the foot of the ruler. */
+  const HANDLE_Y = RULER_PX - 4;
+  /** Just above them, still in the bar numbers. */
+  const ABOVE_HANDLE_Y = RULER_PX - PLAYHEAD_HANDLE_H - 1;
+  const dragAt = (from: number, to: number, y: number) => {
+    press(from, y);
+    move(from + 40, y);
+    move(to, y);
+    release(to, y);
+  };
+
+  it('takes a drag from the handle: the playhead moves, not the marker', () => {
+    render(<ScrolledTimeline />);
+    // As after a click on the marker: the playhead sits on its flag.
+    act(() => s().setPosition(CHORUS_TICK));
+    expect(HANDLE_Y).toBeGreaterThanOrEqual(RULER_PX - PLAYHEAD_HANDLE_H);
+    dragAt(FLAG_X + 1, FLAG_X + 81, HANDLE_Y);
+    expect(chorus().tick).toBe(CHORUS_TICK);
+    // x 241 is tick 2892, on the quarter grid 2880.
+    expect(h.seeks.at(-1)).toBe(CHORUS_TICK + 960);
+    expect(historyLabels()).toEqual([]);
+  });
+
+  it('leaves the marker to a press above the handle’s rows, or on its name', () => {
+    render(<ScrolledTimeline />);
+    act(() => s().setPosition(CHORUS_TICK));
+    dragAt(FLAG_X + 1, FLAG_X + 161, ABOVE_HANDLE_Y);
+    expect(chorus().tick).toBe(CHORUS_TICK + 1920);
+    act(() => s().setPosition(CHORUS_TICK + 1920));
+    // The name, 40 px from the playhead, in the handle's rows.
+    dragAt(FLAG_X + 200, FLAG_X + 40, HANDLE_Y);
+    expect(chorus().tick).toBe(CHORUS_TICK);
+    expect(h.seeks).toEqual([]);
+  });
+});
+
 describe('the cursor', () => {
   it('shows a grab hand over exactly the flag and the name, as drawn', () => {
     render(<ScrolledTimeline />);
@@ -435,6 +482,15 @@ describe('the cursor', () => {
     expect(cursorAt(FLAG_X - 4)).toBe('pointer');
     expect(cursorAt(end + 4)).toBe('pointer');
     expect(cursorAt(FLAG_X + 70)).toBe('pointer');
+  });
+
+  it('measures a name in the ruler’s font', () => {
+    render(<ScrolledTimeline />);
+    // In the canvas's default 10 px font 'Chorus' would end 3 px sooner, and
+    // 2 px past its slack end would be bare ruler.
+    expect(cursorAt(NAME_END + 2)).toBe('grab');
+    click(NAME_END + 2);
+    expect(h.seeks).toEqual([CHORUS_TICK]);
   });
 
   it('shows it in the bar-number lane only', () => {
@@ -523,11 +579,12 @@ describe('a double-click', () => {
     expect(pixelToTick(BARE_X, 1, 0)).toBe(6300);
     doubleClick(BARE_X);
     await waitFor(() => expect(s().markers).toHaveLength(2));
+    // 'Chorus' is no 'Marker N', so the default is the first of them.
     expect(h.prompts).toMatchObject([
       {
         title: 'Add a marker',
         label: 'Marker name',
-        defaultValue: 'Marker 2',
+        defaultValue: 'Marker 1',
         confirmLabel: 'Add',
       },
     ]);
@@ -550,6 +607,27 @@ describe('a double-click', () => {
     expect(historyLabels()).toEqual([]);
   });
 
+  it('names it one past the largest “Marker N”, after a delete too', async () => {
+    s().addMarker(0, 'Marker 2');
+    s().addMarker(3840, 'Marker 3');
+    s().removeMarker(chorusId);
+    render(<ScrolledTimeline />);
+    doubleClick(BARE_X);
+    await settle();
+    // Two markers left: their count + 1 named a third 'Marker 3'.
+    expect(h.prompts.at(-1)?.defaultValue).toBe('Marker 4');
+  });
+
+  it('in the loop strip only toggles the loop, adding no marker', async () => {
+    render(<ScrolledTimeline />);
+    doubleClick(BARE_X, LOOP_STRIP_H - 4);
+    await settle();
+    // Each click toggled it: on, then off.
+    expect(s().loopEnabled).toBe(false);
+    expect(h.prompts).toEqual([]);
+    expect(s().markers.map((m) => m.name)).toEqual(['Chorus']);
+  });
+
   it('keeps “Marker N” on Enter in the app’s dialog', async () => {
     h.realDialog = true;
     render(
@@ -563,13 +641,13 @@ describe('a double-click', () => {
       name: 'Marker name',
     })) as HTMLInputElement;
     expect(screen.getByRole('dialog', { name: 'Add a marker' })).toBeTruthy();
-    expect(field.value).toBe('Marker 2');
+    expect(field.value).toBe('Marker 1');
     // Enter in the one field submits its form.
     fireEvent.submit(field.closest('form')!);
     await waitFor(() => expect(s().markers).toHaveLength(2));
     expect(s().markers.at(-1)).toMatchObject({
       tick: BARE_TICK,
-      name: 'Marker 2',
+      name: 'Marker 1',
     });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
@@ -607,7 +685,7 @@ describe('Alt+M', () => {
     pressKey(ALT_M);
     await waitFor(() => expect(s().markers).toHaveLength(2));
     expect(h.prompts).toMatchObject([
-      { title: 'Add a marker', defaultValue: 'Marker 2', confirmLabel: 'Add' },
+      { title: 'Add a marker', defaultValue: 'Marker 1', confirmLabel: 'Add' },
     ]);
     expect(s().markers.at(-1)).toMatchObject({ tick: 2400, name: 'Drop' });
     expect(historyLabels()).toEqual(['Add marker']);
@@ -626,12 +704,12 @@ describe('Alt+M', () => {
     const field = (await screen.findByRole('textbox', {
       name: 'Marker name',
     })) as HTMLInputElement;
-    expect(field.value).toBe('Marker 2');
+    expect(field.value).toBe('Marker 1');
     fireEvent.submit(field.closest('form')!);
     await waitFor(() => expect(s().markers).toHaveLength(2));
     expect(s().markers.at(-1)).toMatchObject({
       tick: 4 * 1920,
-      name: 'Marker 2',
+      name: 'Marker 1',
     });
   });
 
@@ -673,6 +751,61 @@ describe('Alt+M', () => {
     render(<ScrolledTimeline />);
     pressKey({ code: 'KeyM', key: 'm' });
     act(() => useStore.setState({ currentView: 'score' }));
+    pressKey(ALT_M);
+    await settle();
+    expect(h.prompts).toEqual([]);
+    expect(s().markers).toHaveLength(1);
+  });
+  it('works while a section block has focus', async () => {
+    h.typed = 'Drop';
+    s().addSection({ type: 'verse', label: 'Verse' });
+    render(
+      <>
+        <SectionsLane />
+        <ScrolledTimeline />
+      </>,
+    );
+    const block = document.querySelector<HTMLElement>(
+      '[data-testid="section-block"]',
+    )!;
+    act(() => block.focus());
+    expect(document.activeElement).toBe(block);
+    act(() => {
+      block.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          ...ALT_M,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    });
+    await waitFor(() => expect(s().markers).toHaveLength(2));
+    expect(s().markers.at(-1)).toMatchObject({ tick: 0, name: 'Drop' });
+  });
+
+  it('does nothing in a form control, in a menu or under a maximized dock', async () => {
+    render(
+      <>
+        <ScrolledTimeline />
+        <input aria-label="Name" />
+        <input type="checkbox" aria-label="Loop" />
+        <div role="menu" tabIndex={0} aria-label="Menu" />
+      </>,
+    );
+    const altM = (target: Element) =>
+      act(() => {
+        target.dispatchEvent(
+          new KeyboardEvent('keydown', {
+            ...ALT_M,
+            bubbles: true,
+            cancelable: true,
+          }),
+        );
+      });
+    altM(screen.getByRole('textbox', { name: 'Name' }));
+    altM(screen.getByRole('checkbox', { name: 'Loop' }));
+    altM(screen.getByRole('menu', { name: 'Menu' }));
+    act(() => useStore.setState({ dockMaximized: true }));
     pressKey(ALT_M);
     await settle();
     expect(h.prompts).toEqual([]);

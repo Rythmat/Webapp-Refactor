@@ -186,7 +186,8 @@ export const literacyFigureSchema = z
  * the same rhythm. The chords are `chords`, a bar each, or the progression
  * the student saved under `progression`; `chords` with an X takes the X
  * from that progression (one whose X's are all one chord). Root position,
- * every root in D3–C♯4, in the student's key and mode.
+ * in the student's key and mode, voiced together in the treble staff
+ * (engine/musicLiteracy/chords.ts `voiceChords`).
  */
 export const literacyChordFigureSchema = z
   .object({

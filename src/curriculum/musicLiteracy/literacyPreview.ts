@@ -19,7 +19,8 @@ import type { RunCue } from '@/curriculum/engine/musicLiteracy/run';
 // chord progression, a chord each half bar. Pure cues for the run's
 // transport (literacyRun.ts), drawn on the keys as they sound; no count-in,
 // nothing graded. A key's 1, 3 and 5 sit where its melodies will, in the
-// treble staff (register.ts); a progression is voiced as its chords are.
+// treble staff (register.ts); a progression is voiced as the steps that
+// play it will voice it (chords.ts `voicedProgression`).
 
 /** A preview's chord lasts a half note: four chords in two bars. */
 export const PREVIEW_CHORD_TICKS = 960;
@@ -66,7 +67,7 @@ const TRIAD: readonly WrittenNote[] = [
 
 /**
  * A key in a mode, heard: 1, 3 and 5 in eighths, then the three together,
- * placed as a melody (the lowest octave in C4–A5).
+ * placed as a melody (the fewest ledger lines, in C4–A5).
  */
 export function keyPreviewNotes(
   key: LiteracyKey,

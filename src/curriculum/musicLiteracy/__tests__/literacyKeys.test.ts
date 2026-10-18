@@ -54,17 +54,18 @@ describe('a key pressed', () => {
     const notes = stepNotes(PART2_FIXTURE, step('one-three-five'), cMajor);
     const create = createPass(PART2_FIXTURE, step('one-three-five'), cMajor)!;
     const ctx = { pass: 'create' as const, notes, create, transcription: null };
-    expect(isRightKey(62, 500, ctx)).toBe(true); // the count-in
-    expect(isRightKey(64, 2000, ctx)).toBe(true); // a 3: one of 1, 3, 5
-    expect(isRightKey(62, 2000, ctx)).toBe(false); // a 2: not
+    // 1-3-5 in C sits on C5 E5 G5.
+    expect(isRightKey(74, 500, ctx)).toBe(true); // the count-in
+    expect(isRightKey(76, 2000, ctx)).toBe(true); // a 3: one of 1, 3, 5
+    expect(isRightKey(74, 2000, ctx)).toBe(false); // a 2: not
     // Their call: 1 then 5. The repeat wants the 5 on beat 2.
     const transcription = transcribeCall(create, [
-      { midi: 60, onset: 1920, duration: 200 },
-      { midi: 67, onset: 2400, duration: 200 },
+      { midi: 72, onset: 1920, duration: 200 },
+      { midi: 79, onset: 2400, duration: 200 },
     ]);
     const repeat = { ...ctx, transcription };
-    expect(isRightKey(67, 4320, repeat)).toBe(true);
-    expect(isRightKey(64, 4320, repeat)).toBe(false);
+    expect(isRightKey(79, 4320, repeat)).toBe(true);
+    expect(isRightKey(76, 4320, repeat)).toBe(false);
   });
 });
 

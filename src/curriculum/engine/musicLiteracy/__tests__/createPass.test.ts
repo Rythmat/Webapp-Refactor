@@ -5,7 +5,7 @@ import type {
 } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '../__fixtures__/literacyFixture';
 import { PART2_FIXTURE, part2Step } from '../__fixtures__/part2Fixture';
-import { emptyChoices, withMode, withTonic } from '../choices';
+import { emptyChoices, withMode, withProgression, withTonic } from '../choices';
 import {
   CREATE_GRID_TICKS,
   EMPTY_CALL_FEEDBACK,
@@ -88,9 +88,9 @@ describe('the create pass', () => {
     expect(melody.material).toMatchObject({ kind: 'notes' });
     const midis = (p: CreatePass) =>
       p.material.kind === 'notes' ? p.material.notes.map((n) => n.midi) : [];
-    expect(midis(melody)).toEqual([60, 64, 67]);
+    expect(midis(melody)).toEqual([72, 76, 79]);
     const minor = pass('one-three-five', withMode(cMajor, 'minor'));
-    expect(midis(minor)).toEqual([60, 63, 67]);
+    expect(midis(minor)).toEqual([72, 75, 79]);
     expect(
       minor.material.kind === 'notes' &&
         minor.material.notes.map((n) => [n.written.degree, n.degree]),
@@ -129,12 +129,43 @@ describe('the create pass', () => {
       ['7', -1],
       ['1', undefined],
     ]);
-    // A chord call's material keeps the chords' register.
-    const chords = pass('the-1-chord');
-    expect(chords.tonic).toBe(60);
-    expect(
-      chords.material.kind === 'chords' && chords.material.chords[0].midis,
-    ).toEqual([60, 64, 67]);
+  });
+
+  it('takes a chord call’s material bar by bar, voiced as the step plays it', () => {
+    const bars = (p: CreatePass) =>
+      p.material.kind === 'chords' ? p.material.chords.map((c) => c.midis) : [];
+    const played = (tag: string, choices = cMajor) => {
+      const { chords } = stepNotes(lesson, part2Step(tag), choices);
+      return [...new Set(chords!.call.map((a) => a.chord))].map((c) => c.midis);
+    };
+    // 1 4 in C: C4 E4 G4, then up a 4th to F4 A4 C5.
+    const ones = pass('the-1-chord');
+    expect(bars(ones)).toEqual([
+      [60, 64, 67],
+      [65, 69, 72],
+    ]);
+    expect(bars(ones)).toEqual(played('the-1-chord'));
+    // The student's 1 6: C5 E5 G5, then down a minor 3rd to A4 C5 E5.
+    const choices = withProgression(cMajor, 'one-x', {
+      template: ['1', 'X'],
+      chords: ['1', '6'],
+      harmony: 'triads',
+      tonic: 'C',
+      mode: 'major',
+    });
+    const oneX = pass('play-1-x', choices);
+    expect(bars(oneX)).toEqual([
+      [72, 76, 79],
+      [69, 72, 76],
+    ]);
+    expect(bars(oneX)).toEqual(played('play-1-x', choices));
+    // X 1 in 7ths: A4 C5 E5 G5, then up to C5 E5 G5 B5.
+    expect(bars(pass('play-x-1', choices))).toEqual([
+      [69, 72, 76, 79],
+      [72, 76, 79, 83],
+    ]);
+    // Its notes are read from the series' 1, as the step's are.
+    expect(ones.tonic).toBe(60);
   });
 
   it('isn’t there where the step has none: Part 1, a choose step', () => {
@@ -156,10 +187,10 @@ describe('quantizing the call', () => {
 
   it('transcribes a melody onto the 16th grid, in the format’s own notes', () => {
     const played = [
-      note(60, CALL - 40, 430), // just early: on the downbeat
-      note(64, CALL + 470, 200),
-      note(64, CALL + 735, 190),
-      note(67, CALL + 965, 1200), // held past the call: up to its end
+      note(72, CALL - 40, 430), // just early: on the downbeat
+      note(76, CALL + 470, 200),
+      note(76, CALL + 735, 190),
+      note(79, CALL + 965, 1200), // held past the call: up to its end
     ];
     const t = transcribeCall(melody, played);
     expect(t.empty).toBe(false);
@@ -175,18 +206,18 @@ describe('quantizing the call', () => {
     });
     expect(t.used).toHaveLength(4);
     expect(t.targets.map((n) => [n.midi, n.onset])).toEqual([
-      [60, REPEAT],
-      [64, REPEAT + 480],
-      [64, REPEAT + 720],
-      [67, REPEAT + 960],
+      [72, REPEAT],
+      [76, REPEAT + 480],
+      [76, REPEAT + 720],
+      [79, REPEAT + 960],
     ]);
   });
 
   it('keeps a note no longer than the next one starts, a 16th at least', () => {
     const t = transcribeCall(melody, [
-      note(60, CALL, 900), // legato into the 3
-      note(64, CALL + 480, 10),
-      note(64, CALL + 482, 10), // the same key, the same 16th: one note
+      note(72, CALL, 900), // legato into the 3
+      note(76, CALL + 480, 10),
+      note(76, CALL + 482, 10), // the same key, the same 16th: one note
     ]);
     expect(t.figure?.notes).toEqual([
       { tick: 0, duration: 480, degree: '1' },
@@ -196,16 +227,16 @@ describe('quantizing the call', () => {
 
   it('writes the call the lesson’s way: in minor, ♭3 is "3"', () => {
     const minor = pass('one-three-five', withMode(cMajor, 'minor'));
-    const t = transcribeCall(minor, [note(63, CALL), note(67, CALL + 480)]);
+    const t = transcribeCall(minor, [note(75, CALL), note(79, CALL + 480)]);
     expect(t.figure?.notes.map((n) => n.degree)).toEqual(['3', '5']);
     expect(t.targets.map((n) => n.degree)).toEqual(['b3', '5']);
   });
 
   it('leaves out and flags a note off the material', () => {
     const t = transcribeCall(melody, [
-      note(60, CALL),
-      note(62, CALL + 480),
-      note(65, CALL + 960),
+      note(72, CALL),
+      note(74, CALL + 480),
+      note(77, CALL + 960),
     ]);
     expect(t.figure?.notes.map((n) => n.degree)).toEqual(['1']);
     expect(t.flags.map((f) => [f.reason, f.tick, f.message])).toEqual([
@@ -226,21 +257,21 @@ describe('quantizing the call', () => {
 
   it('leaves the count-in and the repeat out of the call', () => {
     const t = transcribeCall(melody, [
-      note(60, 960), // noodling in the count-in
-      note(64, CALL + 480),
-      note(67, REPEAT - 50), // the repeat's first note, a touch early
+      note(72, 960), // noodling in the count-in
+      note(76, CALL + 480),
+      note(79, REPEAT - 50), // the repeat's first note, a touch early
     ]);
     expect(t.figure?.notes.map((n) => n.tick)).toEqual([480]);
-    expect(t.used.map((n) => n.midi)).toEqual([64]);
+    expect(t.used.map((n) => n.midi)).toEqual([76]);
   });
 
   it('calls a call with nothing of the material empty: try again', () => {
     expect(transcribeCall(melody, []).empty).toBe(true);
-    const off = transcribeCall(melody, [note(62, CALL)]);
+    const off = transcribeCall(melody, [note(74, CALL)]);
     expect(off.empty).toBe(true);
     expect(off.figure).toBeNull();
     expect(off.flags).toHaveLength(1);
-    expect(grade(melody, [note(62, CALL)])).toEqual({
+    expect(grade(melody, [note(74, CALL)])).toEqual({
       kind: 'empty',
       passed: false,
       feedbackText: EMPTY_CALL_FEEDBACK,
@@ -317,9 +348,9 @@ describe('transcribing chords', () => {
 
 describe('grading the repeat', () => {
   const call = [
-    note(60, CALL),
-    note(64, CALL + 240),
-    note(67, CALL + 960, 900),
+    note(72, CALL),
+    note(76, CALL + 240),
+    note(79, CALL + 960, 900),
   ];
 
   it('passes the call repeated exactly, right after it', () => {
@@ -336,9 +367,9 @@ describe('grading the repeat', () => {
 
   it('fails a repeat in another rhythm, by the same pass rule', () => {
     const other = [
-      note(60, REPEAT),
-      note(64, REPEAT + 960),
-      note(67, REPEAT + 1440),
+      note(72, REPEAT),
+      note(76, REPEAT + 960),
+      note(79, REPEAT + 1440),
     ];
     const result = grade(melody, [...call, ...other]);
     expect(result.passed).toBe(false);
@@ -350,7 +381,7 @@ describe('grading the repeat', () => {
     const result = grade(melody, call);
     expect(result.passed).toBe(false);
     expect(result.kind === 'notes' && result.result.missedNotes).toEqual([
-      60, 64, 67,
+      72, 76, 79,
     ]);
   });
 
@@ -378,14 +409,14 @@ describe('grading the repeat', () => {
 
   it('lights the call’s own notes right in the repeat, through the existing check', () => {
     const t = transcribeCall(melody, call);
-    expect(isRightNote(64, REPEAT + 240, t.targets, melody.timeline)).toBe(
+    expect(isRightNote(76, REPEAT + 240, t.targets, melody.timeline)).toBe(
       true,
     );
-    expect(isRightNote(60, REPEAT + 240, t.targets, melody.timeline)).toBe(
+    expect(isRightNote(72, REPEAT + 240, t.targets, melody.timeline)).toBe(
       false,
     );
     // The student's call is theirs: never wrong while they make it.
-    expect(isRightNote(62, CALL + 100, t.targets, melody.timeline)).toBe(true);
+    expect(isRightNote(74, CALL + 100, t.targets, melody.timeline)).toBe(true);
   });
 });
 
@@ -428,39 +459,39 @@ describe('the create pass’s run', () => {
 
 describe('the call’s last eighth', () => {
   const timing = { tempo: 80, passMark: LITERACY_PASS_MARK };
-  // 1-3-5 in C: the student's call is C on 1, E on 2, G on 3.
-  const call = [note(60, CALL), note(64, CALL + 480), note(67, CALL + 960)];
+  // 1-3-5 in C, on C5: the student's call is C on 1, E on 2, G on 3.
+  const call = [note(72, CALL), note(76, CALL + 480), note(79, CALL + 960)];
 
   it('reads a repeat’s downbeat played a little early as the repeat’s', () => {
     // The repeat's first C comes 140 ticks early, inside the call's last eighth.
     const played = [
       ...call,
-      note(60, REPEAT - 140),
-      note(64, REPEAT + 480),
-      note(67, REPEAT + 960),
+      note(72, REPEAT - 140),
+      note(76, REPEAT + 480),
+      note(79, REPEAT + 960),
     ];
     const plain = grade(melody, played);
     expect(plain.kind).toBe('notes');
     if (plain.kind === 'notes') expect(plain.passed).toBe(false);
 
     const best = bestCreateReading(melody, played, timing);
-    expect(best.transcription.targets.map((t) => t.midi)).toEqual([60, 64, 67]);
+    expect(best.transcription.targets.map((t) => t.midi)).toEqual([72, 76, 79]);
     expect(best.result.passed).toBe(true);
   });
 
   it('keeps a note meant for the call’s last "and" in the call', () => {
     // The call ends on the "and" of 4, and the repeat plays it there too.
-    const syncopated = [...call, note(64, REPEAT - 240, 200)];
+    const syncopated = [...call, note(76, REPEAT - 240, 200)];
     const played = callAndRepeat(syncopated);
     const best = bestCreateReading(melody, played, timing);
     expect(best.transcription.targets.map((t) => t.midi)).toEqual([
-      60, 64, 67, 64,
+      72, 76, 79, 76,
     ]);
     expect(best.result.passed).toBe(true);
   });
 
   it('reads it as the call when nothing in the repeat says otherwise', () => {
-    const played = [...call, note(64, REPEAT - 240, 200)];
+    const played = [...call, note(76, REPEAT - 240, 200)];
     const best = bestCreateReading(melody, played, timing);
     expect(best.transcription.targets).toHaveLength(4);
   });

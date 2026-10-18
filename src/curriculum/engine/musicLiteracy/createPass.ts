@@ -9,7 +9,9 @@
  * A melody's material is the pitches its answer uses: on 1-3-5, just 1, 3
  * and 5, in the octaves the step plays them (the step's melody placed in
  * the treble staff, literacy.ts `melodyTonic`). A chord call's is each
- * bar's chord: in bar 2 the student plays bar 2's chord, any rhythm.
+ * bar's chord, voiced as the step plays it (its figure's chords together,
+ * chords.ts `voiceChords`): in bar 2 the student plays bar 2's chord, any
+ * rhythm.
  *
  * TRANSCRIPTION (after the call's last bar)
  * Their call is quantized to the 16th grid: an onset rounds to the nearest

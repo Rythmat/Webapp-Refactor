@@ -5,10 +5,11 @@
 // is the white keys from C (A = C), the row above it the black keys, matched
 // by where the key sits (e.code). Z and X move it down and up an octave
 // between the two the on-screen keyboard shows (`typingOctavesFor`), so
-// every key of its two octaves can be reached: a melody's C4–C6 with A = C4
-// or C5, a chord step's C3–C5 with A = C3 or C4. Each step starts on the
-// octave that reaches the most of its notes: A = C4 (the 1 of a lesson in
-// C) for Part 1.
+// every key of its two octaves can be reached: C4–C6 (most steps, melodies
+// and chords alike) with A = C4 or C5, C3–C5 with A = C3 or C4, and a
+// widened keyboard by as many as it spans. Each step starts on the octave
+// that reaches the most of its notes, wherever they were placed: A = C4
+// (the 1 of a lesson in C) for Part 1.
 
 import {
   TYPING_NOTES,

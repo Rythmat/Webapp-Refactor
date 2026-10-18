@@ -7,6 +7,8 @@ import {
   PART2_FIXTURE,
   part2Step,
 } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
+import { voicedProgression } from '@/curriculum/engine/musicLiteracy/chords';
+import { stepNotes } from '@/curriculum/engine/musicLiteracy/literacy';
 import {
   addTemplateBar,
   barsText,
@@ -184,5 +186,20 @@ describe('saved progressions', () => {
       rhythm: [1920],
       harmony: 'sevenths',
     });
+  });
+
+  it('voices its sample as the player does, the chords together', () => {
+    const four = part2Step('choose-four') as LiteracyChooseChordsStep;
+    const standIn = chooserStandIn(PART2_FIXTURE, four);
+    const { chords } = stepNotes(PART2_FIXTURE, standIn);
+    // F4 G4 A4 D5 in 7ths: no root more than a 4th from the last.
+    expect(chords!.call.map((a) => a.chord.root)).toEqual([65, 67, 69, 74]);
+    expect(chords!.call.map((a) => a.chord.midis)).toEqual(
+      voicedProgression(
+        PART2_FIXTURE.key,
+        ['4', '5', '6', '2'],
+        'sevenths',
+      ).map((c) => c.midis),
+    );
   });
 });

@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { voicedChord } from '@/curriculum/engine/musicLiteracy/chords';
+import { voicedProgression } from '@/curriculum/engine/musicLiteracy/chords';
 import { tonicMidi } from '@/curriculum/engine/musicLiteracy/pitch';
 import { keyPreviewNotes, progressionPreview } from '../literacyPreview';
 
 /**
  * Hearing a choice: a key's 1, 3 and 5 sit where its melodies will, in the
- * treble staff; a progression is voiced as its chords always are.
+ * treble staff with the fewest ledger lines; a progression is voiced as the
+ * steps that play it will voice it.
  */
 
 const pitches = (tonic: 'C' | 'G' | 'A' | 'B' | 'F#', minor = false) =>
@@ -14,8 +15,9 @@ const pitches = (tonic: 'C' | 'G' | 'A' | 'B' | 'F#', minor = false) =>
     .map((n) => n.midi);
 
 describe('hearing a key', () => {
-  it('plays its 1, 3 and 5 from the lowest 1 that keeps them in the staff', () => {
-    expect(pitches('C')).toEqual([60, 64, 67]);
+  it('plays its 1, 3 and 5 where they need the fewest ledger lines, in the staff', () => {
+    // C5 E5 G5: middle C would need a line.
+    expect(pitches('C')).toEqual([72, 76, 79]);
     expect(pitches('G')).toEqual([67, 71, 74]);
     expect(pitches('A', true)).toEqual([69, 72, 76]);
     expect(pitches('B')).toEqual([71, 75, 78]);
@@ -33,12 +35,11 @@ describe('hearing a key', () => {
 });
 
 describe('hearing a progression', () => {
-  it('voices its chords as the lesson plays them, roots in D3–C♯4', () => {
+  it('voices its chords as the lesson plays them, together', () => {
     const key = { tonic: 'G', mode: 'major' } as const;
-    const chords = (['1', '4'] as const).map(
-      (degree) => voicedChord(key, degree, 'triads')!,
-    );
+    // G4 B4 D5, then up a 4th to C5 E5 G5: both in the staff.
+    const chords = voicedProgression(key, ['1', '4'], 'triads');
     const { notes } = progressionPreview(chords, tonicMidi('G'));
-    expect(notes.slice(0, 3).map((n) => n.midi)).toEqual([55, 59, 62]);
+    expect(notes.map((n) => n.midi)).toEqual([67, 71, 74, 72, 76, 79]);
   });
 });

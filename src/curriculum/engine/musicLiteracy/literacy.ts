@@ -15,9 +15,11 @@
  * its call, with no response. The choose steps have nothing to lay out.
  *
  * A melody sits in the treble staff (register.ts `placeMelody`): a step's
- * words, call and response are placed together, the 1 in the lowest octave
- * that keeps every note in C4–A5. Chords keep the series' register, every
- * root in D3–C♯4 (chords.ts).
+ * words, call and response are placed together, the 1 in the octave with
+ * the fewest ledger lines that keeps every note in C4–A5 (a lesson whose
+ * key is its own, Part 1, the lowest such octave: middle C). Chords are
+ * voiced in the treble staff too, a figure's together, the fewest ledger
+ * lines with no root moving past a 4th (chords.ts `voiceChords`).
  */
 
 import {
@@ -44,14 +46,24 @@ import {
   progressionNameOf,
   type LiteracyChoices,
 } from './choices';
-import { sampleProgression, voicedChord, type VoicedChord } from './chords';
+import {
+  sampleProgression,
+  voicedPasses,
+  voicedProgression,
+  type VoicedChord,
+} from './chords';
 import {
   degreeOfMidi,
   modalDegree,
   tonicMidi,
   type LiteracyKey,
 } from './pitch';
-import { pitchFrom, placeMelody, type WrittenNote } from './register';
+import {
+  melodyRuleFor,
+  pitchFrom,
+  placeMelody,
+  type WrittenNote,
+} from './register';
 
 export { LITERACY_TPQ };
 export {
@@ -71,8 +83,10 @@ export {
 export {
   MELODY_HIGHEST_MIDI,
   MELODY_LOWEST_MIDI,
+  melodyRuleFor,
   placeMelody,
   type MelodyPlacement,
+  type MelodyRule,
   type WrittenNote,
 } from './register';
 
@@ -249,7 +263,10 @@ export interface ResolvedChordFigure {
   rhythm: readonly number[];
   /** Each bar's chord root, as a degree of the key's mode. */
   degrees: LiteracyScaleDegree[];
-  /** Each bar's chord, voiced in D3–C♯4. */
+  /**
+   * Each bar's chord, voiced with the rest of the figure (chords.ts
+   * `voiceChords`): the fewest ledger lines, no root moving past a 4th.
+   */
   chords: VoicedChord[];
   /**
    * The progression it plays isn't chosen yet, so common chords stand in
@@ -258,18 +275,17 @@ export interface ResolvedChordFigure {
   sample: boolean;
 }
 
+type FigureLesson = Pick<MusicLiteracyLesson, 'key' | 'keyChoice' | 'steps'>;
+
 /**
- * A chord figure's chords, in the key it plays in: its own chords, the
+ * A chord figure's degrees, in the key it plays in: its own chords, the
  * saved progression's, or (the progression not chosen yet) a sample.
  */
-export function resolveChordFigure(
-  lesson: Pick<MusicLiteracyLesson, 'key' | 'keyChoice' | 'steps'>,
-  figure: Pick<
-    LiteracyChordFigure,
-    'chords' | 'progression' | 'rhythm' | 'harmony'
-  >,
+function figureDegrees(
+  lesson: FigureLesson,
+  figure: Pick<LiteracyChordFigure, 'chords' | 'progression'>,
   choices?: LiteracyChoices | null,
-): ResolvedChordFigure {
+): { key: LiteracyKey; degrees: LiteracyScaleDegree[]; sample: boolean } {
   const name = figure.progression;
   const saved = name ? progressionFor(lesson, choices, name) : undefined;
   const key = saved
@@ -289,37 +305,61 @@ export function resolveChordFigure(
   const degrees: LiteracyScaleDegree[] = figure.chords
     ? figure.chords.map((bar) => (bar === 'X' ? x : bar))
     : (progression ?? ['1']);
-  const one = voicedChord(key, '1', figure.harmony)!;
+  return { key, degrees, sample: !!name && !saved };
+}
+
+/**
+ * A chord figure's chords, in the key it plays in: its own chords, the
+ * saved progression's, or (the progression not chosen yet) a sample, voiced
+ * together.
+ */
+export function resolveChordFigure(
+  lesson: FigureLesson,
+  figure: Pick<
+    LiteracyChordFigure,
+    'chords' | 'progression' | 'rhythm' | 'harmony'
+  >,
+  choices?: LiteracyChoices | null,
+): ResolvedChordFigure {
+  const { key, degrees, sample } = figureDegrees(lesson, figure, choices);
   return {
     key,
     harmony: figure.harmony,
     rhythm: figure.rhythm,
     degrees,
-    // A chord the mode leaves out (the schema keeps them out) plays the 1.
-    chords: degrees.map(
-      (degree) => voicedChord(key, degree, figure.harmony) ?? one,
-    ),
-    sample: !!name && !saved,
+    chords: voicedProgression(key, degrees, figure.harmony),
+    sample,
   };
 }
 
-/** A replay's passes: the progression once in each harmony, in order. */
+/**
+ * A replay's passes: the progression once in each harmony, in order, voiced
+ * as one figure (its 7ths go on from where its triads end).
+ */
 export function resolveReplay(
-  lesson: Pick<
-    MusicLiteracyLesson,
-    'key' | 'keyChoice' | 'steps' | 'timeSignature'
-  >,
+  lesson: FigureLesson & Pick<MusicLiteracyLesson, 'timeSignature'>,
   step: LiteracyReplayStep,
   choices?: LiteracyChoices | null,
 ): ResolvedChordFigure[] {
   const rhythm = step.rhythm ?? [barTicks(lesson.timeSignature)];
-  return replayHarmonies(step).map((harmony) =>
-    resolveChordFigure(
-      lesson,
-      { progression: step.progression, rhythm, harmony },
-      choices,
-    ),
+  const harmonies = replayHarmonies(step);
+  const { key, degrees, sample } = figureDegrees(
+    lesson,
+    { progression: step.progression },
+    choices,
   );
+  const voiced = voicedPasses(
+    key,
+    harmonies.map((harmony) => ({ degrees, harmony })),
+  );
+  return harmonies.map((harmony, p) => ({
+    key,
+    harmony,
+    rhythm,
+    degrees: [...degrees],
+    chords: voiced[p],
+    sample,
+  }));
 }
 
 /**
@@ -384,9 +424,10 @@ export function melodyOf(step: LiteracyStep): WrittenNote[] {
 
 /**
  * The MIDI of a step's 1, as its melody is placed: in the treble staff
- * (register.ts), in the key it plays in (the student's, given `choices`,
- * else the lesson's). A step with no melody keeps the series' 1, F♯3–F4,
- * which its chords are voiced around.
+ * (register.ts, by the lesson's rule, `melodyRuleFor`), in the key it plays
+ * in (the student's, given `choices`, else the lesson's). A step with no
+ * melody keeps the series' 1, F♯3–F4 (pitch.ts `tonicMidi`): what its
+ * chords' notes are read as degrees of.
  */
 export function melodyTonic(
   lesson: Pick<
@@ -399,7 +440,12 @@ export function melodyTonic(
   const key = stepKey(lesson, step, choices);
   const melody = melodyOf(step);
   return melody.length
-    ? placeMelody(key, melody, lesson.numbering ?? 'chromatic').tonic
+    ? placeMelody(
+        key,
+        melody,
+        lesson.numbering ?? 'chromatic',
+        melodyRuleFor(lesson),
+      ).tonic
     : tonicMidi(key.tonic);
 }
 
@@ -408,7 +454,7 @@ export interface StepNotes {
   timeline: StepTimeline;
   /**
    * The 1's pitch: where the step's melody puts it (`melodyTonic`), or for
-   * a chord step the series' 1 its chords are voiced around.
+   * a chord step the series' 1, which its chords' notes are read from.
    */
   tonic: number;
   key: LiteracyKey;

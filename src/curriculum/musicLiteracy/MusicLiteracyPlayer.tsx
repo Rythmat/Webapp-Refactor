@@ -48,7 +48,7 @@ import {
   gradeChordResponse,
   type LiteracyChordResult,
 } from '@/curriculum/engine/musicLiteracy/chordGrading';
-import { voicedChord } from '@/curriculum/engine/musicLiteracy/chords';
+import { voicedProgression } from '@/curriculum/engine/musicLiteracy/chords';
 import {
   createPass,
   bestCreateReading,
@@ -166,10 +166,9 @@ import { MusicLiteracyLayout } from './MusicLiteracyLayout';
 import { createComparison } from './createComparison';
 import { drumsForGroove } from './literacyGrooves';
 import {
-  CHORD_KEY_RANGE,
-  MELODY_KEY_RANGE,
+  LOWER_KEY_RANGE,
+  UPPER_KEY_RANGE,
   literacyKeyRange,
-  type LiteracyKeyboardKind,
 } from './literacyKeyRange';
 import {
   attackAt,
@@ -217,12 +216,13 @@ import { useLiteracyProgress, withTry } from './useLiteracyProgress';
 // on-screen keys or the letter keys (useLiteracyInput.ts), are stamped on
 // the same clock and graded in the response bars (grading.ts).
 //
-// A melody sits in the treble staff (engine/musicLiteracy/register.ts), so
-// its keyboard is C4–C6 and the staff writes it in the treble clef; a chord
-// step keeps the chords' register on C3–C5 (literacyKeyRange.ts). The letter
-// keys move between the keyboard's two octaves, starting on the one with
-// most of the step's notes. Titles, headings and buttons are in Title Case;
-// what the student is told, in sentences.
+// Melodies and chords sit in the treble staff, with the fewest ledger lines
+// (engine/musicLiteracy/register.ts; chords.ts, where no chord's root is
+// more than a 4th from the last), and the staff writes them in the treble
+// clef. The keyboard is the two octaves holding the step's notes, C4–C6 for
+// most (literacyKeyRange.ts), and the letter keys move between them,
+// starting on the one with most of the step's notes. Titles, headings and
+// buttons are in Title Case; what the student is told, in sentences.
 //
 // With a drum groove chosen (Settings → Play along, literacyGrooves.ts) every
 // run plays over it: the count-in clicks, the drums come in with the words
@@ -275,7 +275,7 @@ import { useLiteracyProgress, withTry } from './useLiteracyProgress';
 // the student's progression as triads, then with 7ths, to listen to.
 // When a step counts as done is one rule, in stepDone.ts.
 
-export { CHORD_KEY_RANGE, MELODY_KEY_RANGE };
+export { LOWER_KEY_RANGE, UPPER_KEY_RANGE };
 
 /** White-key length ÷ width: a real key is about 6.4, this a touch shorter. */
 const KEY_ASPECT = 6;
@@ -441,14 +441,9 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     }
     return midis;
   }, [notes, create]);
-  // A melody's two octaves, C4–C6 (a key is heard as one), or a chord
-  // step's, C3–C5; widened for any note past them.
-  const keyboardKind: LiteracyKeyboardKind =
-    chordSteps || step.kind === 'chooseChords' ? 'chords' : 'melody';
-  const keyRange = useMemo(
-    () => literacyKeyRange(targetMidis, keyboardKind),
-    [targetMidis, keyboardKind],
-  );
+  // The two octaves holding them, C4–C6 for most (a key is heard there
+  // too); widened for any note past them.
+  const keyRange = useMemo(() => literacyKeyRange(targetMidis), [targetMidis]);
   /** The letter keys' octaves: the keyboard's two, from the step's notes. */
   const typingOctaves = useMemo(
     () => typingOctavesFor(keyRange, targetMidis),
@@ -1149,9 +1144,8 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const hearChords = useCallback(
     (degrees: LiteracyScaleDegree[], what: 'chord' | 'progression') => {
       if (step.kind !== 'chooseChords') return;
-      const voiced = degrees
-        .map((d) => voicedChord(chooserKey, d, step.harmony))
-        .filter((c): c is NonNullable<typeof c> => c !== null);
+      // As the steps that play them will: voiced together, or one alone.
+      const voiced = voicedProgression(chooserKey, degrees, step.harmony);
       hear(progressionPreview(voiced, tonic).cues, what);
     },
     [chooserKey, hear, step, tonic],

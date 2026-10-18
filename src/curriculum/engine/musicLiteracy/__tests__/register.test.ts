@@ -19,6 +19,8 @@ import {
   MELODY_HIGHEST_MIDI,
   MELODY_LOWEST_MIDI,
   ledgerLinesOf,
+  measureMelody,
+  melodyRuleFor,
   placeMelody,
   pitchFrom,
   spelledNote,
@@ -31,9 +33,9 @@ import {
 /**
  * Where a melody sits: in the treble staff, with as few ledger lines as it
  * can. A step's words, call and response are placed together, the 1 in the
- * lowest octave that keeps every note in C4–A5; failing that, the fewest
- * ledger lines, then nearest the staff's middle line. Chords keep their
- * register.
+ * octave with the fewest ledger lines that keeps every note in C4–A5 (when
+ * one can), the lower on a tie. A lesson whose key is its own (Part 1, in
+ * C) keeps the lowest such octave, so its C is middle C.
  */
 
 const n = (degree: WrittenNote['degree'], octave?: number): WrittenNote =>
@@ -115,6 +117,9 @@ describe('ledger lines on the treble staff', () => {
 describe('a melody in the treble staff', () => {
   it('leaves Part 1 where it was: in C, middle C its lowest note', () => {
     const lesson = LITERACY_FIXTURE;
+    // Its key is its own, so its rule is the lowest octave from middle C.
+    expect(melodyRuleFor(lesson)).toBe('lowestFromMiddleC');
+    expect(melodyRuleFor(PART2_FIXTURE)).toBe('fewestLedgerLines');
     for (const step of lesson.steps) {
       expect(melodyTonic(lesson, step), step.tag).toBe(60);
       const notes = stepNotes(lesson, step);
@@ -132,8 +137,48 @@ describe('a melody in the treble staff', () => {
         (x) => x.midi,
       );
       expect(Math.min(...midis), step.tag).toBe(60);
-      expect(placeMelody(lesson.key, melodyOf(step)).ledgerLines).toBe(1);
+      const melody = melodyOf(step);
+      expect(
+        placeMelody(lesson.key, melody, 'chromatic', 'lowestFromMiddleC')
+          .ledgerLines,
+      ).toBe(1);
+      // By the fewest ledger lines it would go up to C5: the exception is
+      // what keeps "a note called C" on middle C.
+      expect(placeMelody(lesson.key, melody).tonic, step.tag).toBe(72);
     }
+  });
+
+  it('puts G major’s Neighbors of 5 on C5–E5, no ledger line, not C4–E4', () => {
+    // 5-4-6-5 in G: D4 C4 E4 D4 needs middle C's line; D5 C5 E5 D5 none.
+    expect(placed(FIVE_FOUR_SIX_FIVE, 'G')).toEqual([74, 72, 76, 74]);
+    expect(placeMelody(keyOf('G'), FIVE_FOUR_SIX_FIVE, 'scale')).toEqual({
+      tonic: 67,
+      lowest: 72,
+      highest: 76,
+      ledgerLines: 0,
+      fits: true,
+    });
+    // The lowest octave that fits, the rule before, was C4–E4.
+    expect(
+      placeMelody(keyOf('G'), FIVE_FOUR_SIX_FIVE, 'scale', 'lowestFromMiddleC'),
+    ).toMatchObject({ tonic: 55, lowest: 60, ledgerLines: 1 });
+    // What the player plays, and the create pass's notes with it.
+    const step: LiteracyMelodicEchoStep = {
+      tag: 'neighbors-of-5',
+      title: 'Neighbors of 5',
+      call: {
+        bars: 1,
+        notes: FIVE_FOUR_SIX_FIVE.map((note, i) => ({
+          ...note,
+          tick: 480 * i,
+          duration: 480,
+        })),
+      },
+    };
+    const lesson = { ...PART2_FIXTURE, steps: [...PART2_FIXTURE.steps, step] };
+    const notes = stepNotes(lesson, step, inKey('G'));
+    expect(notes.call.map((x) => x.midi)).toEqual([74, 72, 76, 74]);
+    expect(notes.response.map((x) => x.midi)).toEqual([74, 72, 76, 74]);
   });
 
   it('places Part 2’s figures in G, C, F♯ and D♭, major and minor', () => {
@@ -141,12 +186,13 @@ describe('a melody in the treble staff', () => {
       // key        1-3-5          1-7-1 (its 7 below)
       ['G', 'major', [67, 71, 74], [67, 66, 67]],
       ['G', 'minor', [67, 70, 74], [67, 65, 67]],
-      ['C', 'major', [60, 64, 67], [72, 71, 72]],
-      ['C', 'minor', [60, 63, 67], [72, 70, 72]],
+      // C4 needs a ledger line, C5 none: up an octave.
+      ['C', 'major', [72, 76, 79], [72, 71, 72]],
+      ['C', 'minor', [72, 75, 79], [72, 70, 72]],
       ['F#', 'major', [66, 70, 73], [66, 65, 66]],
       ['F#', 'minor', [66, 69, 73], [66, 64, 66]],
-      ['Db', 'major', [61, 65, 68], [61, 60, 61]],
-      // D♭ minor's ♭7 below is C♭4, under middle C: up an octave.
+      // D♭4 is written on D4, under the staff; its 7 below is middle C.
+      ['Db', 'major', [61, 65, 68], [73, 72, 73]],
       ['Db', 'minor', [61, 64, 68], [73, 71, 73]],
     ];
     for (const [tonic, mode, triad, neighbor] of table) {
@@ -164,6 +210,20 @@ describe('a melody in the treble staff', () => {
       stepNotes(PART2_FIXTURE, step, inKey('G')).call.map((x) => x.midi),
     ).toEqual([67, 71, 74]);
     expect(stepNotes(PART2_FIXTURE, step, inKey('G')).tonic).toBe(67);
+    expect(stepNotes(PART2_FIXTURE, step, inKey('C')).tonic).toBe(72);
+  });
+
+  it('takes the lower octave when two need as few ledger lines', () => {
+    // G major's 5-6-7-1: D4–G4 and D5–G5 both sit in the staff.
+    expect(placed(LOW_FIVE_UP, 'G')).toEqual([62, 64, 66, 67]);
+    for (const one of [67, 79])
+      expect(
+        measureMelody(keyOf('G'), LOW_FIVE_UP, one, 'scale'),
+      ).toMatchObject({ ledgerLines: 0, fits: true });
+    // A major's 5-4-6-5, E4 D4 F♯4 E4, and the same an octave up.
+    expect(placed(FIVE_FOUR_SIX_FIVE, 'A')).toEqual([64, 62, 66, 64]);
+    // 5-6-5 in C: G4 A4 G4 beats G5 A5 G5, whose A5 needs a line.
+    expect(placed(FIVE_SIX_FIVE, 'C')).toEqual([67, 69, 67]);
   });
 
   it('lifts the low-5 figures into the staff', () => {
@@ -172,49 +232,46 @@ describe('a melody in the treble staff', () => {
     expect(LOW_FIVE_UP.map((note) => notePitch(note, keyOf('C')))).toEqual([
       55, 57, 59, 60,
     ]);
-    // F major's low 5 is middle C itself: C4 D4 E4 F4.
-    expect(placed(LOW_FIVE_UP, 'F')).toEqual([60, 62, 64, 65]);
-    // G major's is D4, in the staff.
-    expect(placed(LOW_FIVE_UP, 'G')).toEqual([62, 64, 66, 67]);
+    // F major's low 5 is middle C: C5 D5 E5 F5 needs no line.
+    expect(placed(LOW_FIVE_UP, 'F')).toEqual([72, 74, 76, 77]);
     // E minor's B3 is under middle C: B4 to E5.
     expect(placed(DOWN_TO_LOW_FIVE, 'E', 'minor')).toEqual([
       76, 74, 72, 71, 72, 74, 76,
     ]);
-    for (const mode of ['major', 'minor'] as const)
-      for (const tonic of CIRCLE_OF_FIFTHS)
-        for (const figure of [LOW_FIVE_UP, DOWN_TO_LOW_FIVE]) {
-          const at = placeMelody(keyOf(tonic, mode), figure, 'scale');
-          expect(at.fits, `${tonic} ${mode}`).toBe(true);
-          expect(at.ledgerLines, `${tonic} ${mode}`).toBeLessThanOrEqual(1);
-        }
   });
 
-  it('keeps the upper 5’s neighbors in the staff, in every key', () => {
-    expect(placed(FIVE_SIX_FIVE, 'C')).toEqual([67, 69, 67]);
-    // E major's B3 would be under middle C: B4 C♯5 B4.
-    expect(placed(FIVE_SIX_FIVE, 'E')).toEqual([71, 73, 71]);
-    // A major's 4 is D4: the lowest that fits.
-    expect(placed(FIVE_FOUR_SIX_FIVE, 'A')).toEqual([64, 62, 66, 64]);
+  it('keeps every Part 2 melody in the staff with no ledger line, in all 24 keys', () => {
+    const figures = [
+      TRIAD,
+      NEIGHBOR,
+      LOW_FIVE_UP,
+      DOWN_TO_LOW_FIVE,
+      FIVE_SIX_FIVE,
+      FIVE_FOUR_SIX_FIVE,
+    ];
     for (const mode of ['major', 'minor'] as const)
       for (const tonic of CIRCLE_OF_FIFTHS)
-        for (const figure of [FIVE_SIX_FIVE, FIVE_FOUR_SIX_FIVE]) {
+        for (const figure of figures) {
           const at = placeMelody(keyOf(tonic, mode), figure, 'scale');
-          expect(at.fits, `${tonic} ${mode}`).toBe(true);
+          const where = `${figure.map((x) => x.degree).join('-')} in ${tonic} ${mode}`;
+          expect(at.fits, where).toBe(true);
+          expect(at.ledgerLines, where).toBe(0);
           expect(at.lowest).toBeGreaterThanOrEqual(MELODY_LOWEST_MIDI);
           expect(at.highest).toBeLessThanOrEqual(MELODY_HIGHEST_MIDI);
         }
   });
 
   it('places the words, call and response together, so a step never jumps an octave', () => {
-    // The call alone would sit on C4; the response's 7 below takes both to C5.
+    // In C the call alone would sit on G4–A4; the response's 7 below, B3,
+    // is under middle C, so both go up: the call's A5 takes a ledger line.
     const step: LiteracyMelodicEchoStep = {
       tag: 'together',
       title: 'Together',
       call: {
         bars: 1,
         notes: [
-          { tick: 0, duration: 480, degree: '1' },
-          { tick: 480, duration: 480, degree: '3' },
+          { tick: 0, duration: 480, degree: '5' },
+          { tick: 480, duration: 480, degree: '6' },
           { tick: 960, duration: 480, degree: '5' },
         ],
       },
@@ -228,13 +285,14 @@ describe('a melody in the treble staff', () => {
       },
     };
     const lesson = { ...PART2_FIXTURE, steps: [...PART2_FIXTURE.steps, step] };
+    expect(placed(step.call.notes, 'C')).toEqual([67, 69, 67]);
     const notes = stepNotes(lesson, step, inKey('C'));
-    expect(notes.call.map((x) => x.midi)).toEqual([72, 76, 79]);
+    expect(notes.call.map((x) => x.midi)).toEqual([79, 81, 79]);
     expect(notes.response.map((x) => x.midi)).toEqual([72, 71, 72]);
     expect(notes.tonic).toBe(72);
   });
 
-  it('takes the fewest ledger lines, then the staff’s middle, for a figure too wide to fit', () => {
+  it('takes the fewest ledger lines, then the lower, for a figure too wide to fit', () => {
     // C: G3 to G5 (2 lines, under the staff) beats G4 to G6 (4 above).
     const inC = placeMelody(keyOf('C'), FIVE_TO_FIVE, 'scale');
     expect(inC).toEqual({
@@ -244,13 +302,16 @@ describe('a melody in the treble staff', () => {
       ledgerLines: 2,
       fits: false,
     });
-    // A: E3–E5 and E4–E6 need 3 each; E4–E6 is nearer the middle line.
+    // A: E3–E5 and E4–E6 need 3 each: the lower.
     expect(placeMelody(keyOf('A'), FIVE_TO_FIVE, 'scale')).toMatchObject({
-      tonic: 69,
+      tonic: 57,
       ledgerLines: 3,
       fits: false,
     });
-    // B: F♯3–F♯5 is the nearer, so the lower.
+    // Part 1's rule, as it was: the one nearer the staff's middle line.
+    expect(
+      placeMelody(keyOf('A'), FIVE_TO_FIVE, 'scale', 'lowestFromMiddleC'),
+    ).toMatchObject({ tonic: 69, ledgerLines: 3 });
     expect(placeMelody(keyOf('B'), FIVE_TO_FIVE, 'scale')).toMatchObject({
       tonic: 59,
       ledgerLines: 3,
@@ -260,7 +321,7 @@ describe('a melody in the treble staff', () => {
     expect(placeMelody(keyOf('G'), wide, 'scale').tonic).toBe(55);
   });
 
-  it('places nothing but melodies: a chord step keeps the series’ 1 and its voicing', () => {
+  it('places nothing but melodies: a chord step keeps the series’ 1', () => {
     const chord = part2Step('the-1-chord');
     for (const tonic of CIRCLE_OF_FIFTHS) {
       expect(melodyTonic(PART2_FIXTURE, chord, inKey(tonic))).toBe(
@@ -268,11 +329,6 @@ describe('a melody in the treble staff', () => {
       );
       const notes = stepNotes(PART2_FIXTURE, chord, inKey(tonic));
       expect(notes.tonic).toBe(tonicMidi(tonic));
-      for (const attack of notes.chords!.call) {
-        const root = attack.chord.midis[0];
-        expect(root).toBeGreaterThanOrEqual(50);
-        expect(root).toBeLessThanOrEqual(61);
-      }
     }
     expect(melodyOf(part2Step('choose-key'))).toEqual([]);
   });

@@ -414,13 +414,13 @@ describe('choosing a color', () => {
     expect(savedChoices()).toMatchObject({ tonic: 'C', mode: 'minor' });
     expect(minor.getAttribute('aria-checked')).toBe('true');
     expect(progress()['choose-mode']).toMatchObject({ passed: true });
-    // Minor's 1, ♭3 and 5 heard.
+    // Minor's 1, ♭3 and 5 heard, where its melodies sit: C5 E♭5 G5.
     expect(
       (run.cues as RunCue[])
         .filter((c) => c.kind === 'note')
         .map((c) => c.kind === 'note' && c.midi)
         .slice(0, 3),
-    ).toEqual([60, 63, 67]);
+    ).toEqual([72, 75, 79]);
   });
 
   it('shows a minor key in its relative major’s color, on the step’s circle', async () => {
@@ -472,12 +472,12 @@ describe('choosing chords', () => {
       fireEvent.click(screen.getByRole('button', { name: '4 maj' }));
     });
     expect(bars()).toEqual(['Bar 11 maj', 'Bar 24 maj']);
-    // The chord was heard as it was picked: F major, F3–C4.
+    // The chord was heard as it was picked: F major, F4–C5, in the staff.
     expect(
       (run.cues as RunCue[])
         .filter((c) => c.kind === 'note')
         .map((c) => c.kind === 'note' && c.midi),
-    ).toEqual([53, 57, 60]);
+    ).toEqual([65, 69, 72]);
     expect(document.querySelector('[data-literacy-problems]')).toBeNull();
 
     // Hear it: the whole progression, a chord each half bar.
@@ -486,6 +486,10 @@ describe('choosing chords', () => {
     });
     const heard = (run.cues as RunCue[]).filter((c) => c.kind === 'note');
     expect(heard.map((c) => c.tick)).toEqual([0, 0, 0, 960, 960, 960]);
+    // Voiced together, as the steps will play it: C4 E4 G4, up to F4 A4 C5.
+    expect(heard.map((c) => c.kind === 'note' && c.midi)).toEqual([
+      60, 64, 67, 65, 69, 72,
+    ]);
 
     await act(async () => {
       fireEvent.click(save());
@@ -629,7 +633,7 @@ describe('a chord echo', () => {
     ).toEqual(['1 maj', '4 maj']);
 
     await press('Play');
-    // The call: C major, then F major, voiced D3–C♯4 roots.
+    // The call: C major on C4, then F major up a 4th.
     const calls = (run.cues as RunCue[]).filter(
       (c) => c.kind === 'note' && c.segment === 'call',
     );
@@ -828,9 +832,9 @@ describe('the modules', () => {
         .filter((c) => c.kind === 'note')
         .map((c) => c.kind === 'note' && [c.tick, c.midi, c.sound]),
     ).toEqual([
-      [3840, 60, false],
-      [4080, 64, false],
-      [4800, 67, false],
+      [3840, 72, false],
+      [4080, 76, false],
+      [4800, 79, false],
     ]);
 
     feedTo(4320);
@@ -1060,24 +1064,30 @@ describe('the keyboard', () => {
     return key ? keys.indexOf(key) : -1;
   };
 
-  it('shows a melody on C4–C6, in the treble staff’s register, and chords on C3–C5', () => {
+  it('shows the two octaves holding the step’s notes: C4–C6 for most, melodies and chords alike', () => {
     saveChoices(cMajor);
     renderPlayer('five-six-five', withStep);
     expect(whiteKeys()).toBe(15);
     // G4, the 5, is the fifth white key from C4.
     expect(whiteKeyOf('5')).toBe(4);
     cleanup();
-    // F major's 5-6-5 is placed as low as fits: C4, D4, C4, its 6 the
-    // second white key.
+    // F major's 5-6-5 is placed with the fewest ledger lines: C5, D5, C5,
+    // its 6 the ninth white key.
     saveChoices(withMode(withTonic(emptyChoices(), 'F'), 'major'));
     renderPlayer('five-six-five', withStep);
     expect(whiteKeys()).toBe(15);
-    expect(whiteKeyOf('6')).toBe(1);
+    expect(whiteKeyOf('6')).toBe(8);
     cleanup();
-    // A chord step keeps C3–C5: the 1 chord's C4 is the eighth white key.
+    // C's 1 chord, C4 E4 G4, then F4 A4 C5: C4–C6, its C4 the first key.
     saveChoices(cMajor);
     renderPlayer('the-1-chord', withStep);
     expect(whiteKeys()).toBe(15);
-    expect(whiteKeyOf('1')).toBe(7);
+    expect(whiteKeyOf('1')).toBe(0);
+    cleanup();
+    // B's, B3 D♯4 F♯4, then E4 G♯4 B4: all on C3–C5, B3 its seventh key.
+    saveChoices(withMode(withTonic(emptyChoices(), 'B'), 'major'));
+    renderPlayer('the-1-chord', withStep);
+    expect(whiteKeys()).toBe(15);
+    expect(whiteKeyOf('1')).toBe(6);
   });
 });

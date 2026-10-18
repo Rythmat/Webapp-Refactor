@@ -196,30 +196,69 @@ lesson has none and reads as it always has.
 ### The register
 
 The owner: "For melodies, we should be entirely in the treble clef staff
-as much as possible ... Just middle C as the lowest note ideally."
+as much as possible ... Just middle C as the lowest note ideally." Then:
+"yes let's use the lowest number of ledger lines as default", and for
+chords: "Just optimize for the fewest ledger lines ... with the exception
+that we never want to jump further than a 4th in any direction. So never
+jump down from a 6 chord to a 1 chord (like Amin down to Cmaj — no, just go
+up to C from Amin, or vice versa. A couple ledger lines are ok in these
+instances)."
 
-- **A melody sits in the treble staff** (`register.ts`, `placeMelody`). A
-  step's words, call and response (and so its create pass's notes) are
-  placed together, so a step never jumps an octave within itself: the 1
-  goes in the lowest octave where every note is in C4–A5 (MIDI 60–81). If
-  none fits, the octave needing the fewest ledger lines wins, then the one
-  nearest the staff's middle line (B4), then the lower.
 - **Ledger lines** are counted by where each note is written on the treble
   staff, spelled the key's way (a degree's letter is the 1's letter plus
   the degree, so D♭'s 1 is a D): D4 and G5 need none; C4, B3, A5 and B5
-  one; A3, G3, C6 and D6 two; and so on. A placement needs its lowest
-  note's lines below the staff plus its highest note's above.
-- Part 1, in C, does not move: its 1 is middle C, its lowest note. In Part
-  2 every melodic step fits C4–A5 in all 24 keys; the only ledger line
-  left is middle C's (C4 or C♯4).
-- **Chords keep the series' register**: voiced in root position with every
-  root in D3–C♯4 (MIDI 50–61), around a 1 in F♯3–F4 (`pitch.ts`
-  `tonicMidi`).
-- The player's keyboard shows two octaves where the step is: C4–C6 for a
-  melody (and the choose steps, whose key is heard as 1, 3 and 5 in the
-  treble staff), C3–C5 for chords, widened for a note past them. The staff
-  writes melodies in the treble clef. The console's Play step and its piano
-  roll open a step where the player plays it.
+  one; A3, G3, C6 and D6 two; and so on. A set of notes (a melody, a chord)
+  needs its lowest note's lines below the staff plus its highest note's
+  above (`register.ts`).
+- **A melody sits in the treble staff** (`register.ts`, `placeMelody`). A
+  step's words, call and response (and so its create pass's notes) are
+  placed together, so a step never jumps an octave within itself: the 1
+  goes in the octave needing the fewest ledger lines with every note in
+  C4–A5 (MIDI 60–81), when any octave can; on a tie, the lower. In C,
+  1-3-5 is C5–G5 (no line), not C4–G4 (middle C's); G major's Neighbors of
+  5 (5-4-6-5) is D5 C5 E5 D5, not D4 C4 E4 D4. In Part 2 every melodic step
+  needs no ledger line in any of the 24 keys.
+- **Part 1 keeps middle C** (`melodyRuleFor`): a lesson whose key is its
+  own, not the student's (`keyChoice` left out, Part 1 in C), keeps the
+  rule it was written to, the 1 in the lowest octave that keeps every note
+  in C4–A5 (failing that, the fewest ledger lines, then nearest the
+  staff's middle line). Part 1 begins with "a note called C", and that C is
+  middle C: its 1 stays there, its lowest note, though C5 would need no
+  line.
+- **Chords are voiced in the treble staff too** (`chords.ts`,
+  `voiceChords`), in root position (triads and 7ths as written). The chords
+  a step plays in order are voiced together: a progression's bars, a
+  replay's triads and then its 7ths, a create pass's chords bar by bar. Each
+  chord's octave is chosen so that no root moves more than a perfect 4th
+  (5 semitones), up or down, to the next; every note stays in C3–C6 as near
+  as the 4ths allow; and the ledger lines, summed over the chords, are as
+  few as they can be; then the least root movement, then the lowest. It is
+  solved exactly, chord by chord over the octaves (dynamic programming).
+  Any two of the chords are within a 4th one way (only a tritone isn't,
+  and of two chords a tritone apart one is always the diminished chord,
+  left out), so as each root has one way to the next, the rule picks where
+  the figure starts: in C,
+  `| 6 | 1 |` is A4 C5 E5 up to C5 E5 G5, never down a 6th, and
+  `| 1 | 4 | 5 | 1 |` is C4 E4 G4, F4 A4 C5, G4 B4 D5, C5 E5 G5.
+- **Where a replay starts over**, from its triads into its 7ths, it starts
+  a new phrase, as a song does going back to its top: the 4th holds within
+  each pass, and the 7ths take their own fewest ledger lines, staying
+  within a 4th of the triads' last chord only when that costs no lines. So
+  a progression that climbs as it goes round (4 5 6 2) sits on F4 both
+  times rather than being pushed down to F3. A chord alone (the chooser
+  playing one as it's picked)
+  takes the fewest ledger lines, then the lower. Chords are graded by pitch
+  class, so the octaves are only what is shown and played.
+- **The same functions everywhere**: the player's echo, create pass,
+  replay and the chooser's previews; the console's Play step and its sample
+  previews; the piano roll's parts (`literacyPart.ts`, `melodyTonic`).
+- **The player's keyboard** is the two octaves from a C that hold the
+  step's notes: C4–C6 for most steps, melodies and chords alike (and the
+  choose steps, whose key is heard as 1, 3 and 5 in the staff), C3–C5 for a
+  step whose notes all sit lower, the nearer one widened just enough for a
+  note past both (`literacyKeyRange.ts`). The letter keys move between its
+  octaves and start on the one reaching most of the step's notes. The staff
+  writes everything in the treble clef.
 
 ### Numbering
 

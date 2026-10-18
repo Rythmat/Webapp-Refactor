@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { KEY_OF_COLORS } from '@/constants/theme';
+import type { LiteracyReplayStep } from '@/content/musicLiteracy/schemas';
 import { PART2_FIXTURE, part2Step } from '../__fixtures__/part2Fixture';
 import {
   emptyChoices,
@@ -11,6 +12,7 @@ import {
 import {
   lessonSections,
   resolveChordFigure,
+  resolveReplay,
   stepKey,
   stepNotes,
   stepTimeline,
@@ -49,8 +51,9 @@ const saved = (choices: LiteracyChoices) =>
 describe('a melody in the student’s key', () => {
   it('plays 1-3-5 in their key and mode, the 3 flat in minor', () => {
     const triad = part2Step('one-three-five');
+    // C5, E5 and G5: middle C would need a ledger line.
     const major = stepNotes(lesson, triad, inKey('C', 'major'));
-    expect(major.call.map((n) => n.midi)).toEqual([60, 64, 67]);
+    expect(major.call.map((n) => n.midi)).toEqual([72, 76, 79]);
     // In the treble staff: A4, C5 and E5, not A3 below it.
     const minor = stepNotes(lesson, triad, inKey('A', 'minor'));
     expect(minor.call.map((n) => n.midi)).toEqual([69, 72, 76]);
@@ -59,7 +62,7 @@ describe('a melody in the student’s key', () => {
     expect(minor.key).toEqual({ tonic: 'A', mode: 'minor' });
     // No choices yet: the lesson's key, C major.
     expect(stepNotes(lesson, triad).call.map((n) => n.midi)).toEqual([
-      60, 64, 67,
+      72, 76, 79,
     ]);
   });
 
@@ -72,7 +75,8 @@ describe('a melody in the student’s key', () => {
     expect(
       stepNotes(lesson, neighbor, inKey('C', 'minor')).call.map((n) => n.midi),
     ).toEqual([72, 70, 72]);
-    // In E♭ its 7 is D4, in the staff already.
+    // In E♭ its 7 is D4, in the staff already: E♭4 and E♭5 need none, so
+    // the lower.
     expect(
       stepNotes(lesson, neighbor, inKey('Eb', 'major')).call.map((n) => n.midi),
     ).toEqual([63, 62, 63]);
@@ -131,8 +135,10 @@ describe('a chord figure on the timeline', () => {
       [4320, 480, 1, '4 maj'],
       [4800, 960, 1, '4 maj'],
     ]);
+    // C4 E4 G4, then up a 4th to F4 A4 C5: C5 to start would take F5's A5
+    // and C6, and F4 under C5 is down a 5th.
     expect(call[0].chord.midis).toEqual([60, 64, 67]);
-    expect(call[3].chord.midis).toEqual([53, 57, 60]);
+    expect(call[3].chord.midis).toEqual([65, 69, 72]);
     // The student echoes it in the two bars after.
     expect(response.map((a) => a.onset)).toEqual(
       call.map((a) => a.onset + 3840),
@@ -161,7 +167,9 @@ describe('a chord figure on the timeline', () => {
       '1 min',
       '4 min',
     ]);
-    expect(call[0].chord.midis).toEqual([57, 60, 64]);
+    // A4 C5 E5, then D5 F5 A5: no ledger line but the A5's.
+    expect(call[0].chord.midis).toEqual([69, 72, 76]);
+    expect(call[3].chord.midis).toEqual([74, 77, 81]);
   });
 
   it('plays a saved progression in the key it was made in', () => {
@@ -195,7 +203,9 @@ describe('a chord figure on the timeline', () => {
     );
     expect(figure.degrees).toEqual(['6', '1']);
     expect(figure.chords.map((c) => c.label)).toEqual(['6 min7', '1 maj7']);
-    expect(figure.chords[0].midis).toEqual([57, 60, 64, 67]);
+    // A4 C5 E5 G5, then up a minor 3rd to C5 E5 G5 B5: never down a 6th.
+    expect(figure.chords[0].midis).toEqual([69, 72, 76, 79]);
+    expect(figure.chords[1].midis).toEqual([72, 76, 79, 83]);
   });
 
   it('stands in common chords, and says so, before the student chooses', () => {
@@ -239,6 +249,40 @@ describe('a replay', () => {
     expect(notes.response).toEqual([]);
     expect(notes.timeline.response.length).toBe(0);
     expect(notes.timeline.total).toBe(1920 + 8 * 1920);
+  });
+
+  it('voices its triads and then its 7ths as one figure, no root past a 4th', () => {
+    const replay = part2Step('hear-four') as LiteracyReplayStep;
+    const choices = saved(inKey('C', 'major'));
+    const passes = resolveReplay(lesson, replay, choices);
+    expect(passes.map((p) => p.harmony)).toEqual(['triads', 'sevenths']);
+    // 6 4 5 3 comes round where it began: A4 F4 G4 E4, twice, in the staff.
+    expect(passes.map((p) => p.chords.map((c) => c.root))).toEqual([
+      [69, 65, 67, 64],
+      [69, 65, 67, 64],
+    ]);
+    const roots = passes.flatMap((p) => p.chords.map((c) => c.root));
+    expect(roots.slice(1).map((r, i) => r - roots[i])).toEqual([
+      -4, 2, -3, 5, -4, 2, -3,
+    ]);
+    // What the step plays, bar by bar.
+    expect(
+      stepNotes(lesson, replay, choices).chords!.call.map((a) => a.chord.root),
+    ).toEqual(roots);
+  });
+
+  it('starts its 7ths over as a new phrase when the progression climbs going round', () => {
+    // Before the student chooses, the sample 4 5 6 2: F G A D. Both passes
+    // sit on F4 in the staff; the 7ths start over rather than pushing the
+    // triads down to F3 to come round within a 4th.
+    const replay = part2Step('hear-four') as LiteracyReplayStep;
+    const passes = resolveReplay(lesson, replay, inKey('C', 'major'));
+    expect(passes.every((p) => p.sample)).toBe(true);
+    expect(passes[0].degrees).toEqual(['4', '5', '6', '2']);
+    expect(passes.map((p) => p.chords.map((c) => c.root))).toEqual([
+      [65, 67, 69, 74],
+      [65, 67, 69, 74],
+    ]);
   });
 
   it('has nothing to lay out for a choose step', () => {

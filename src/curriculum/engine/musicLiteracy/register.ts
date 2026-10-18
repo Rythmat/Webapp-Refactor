@@ -1,17 +1,24 @@
 /**
  * Where a melody sits: in the treble staff, with as few ledger lines as it
  * can. The owner: "For melodies, we should be entirely in the treble clef
- * staff as much as possible ... Just middle C as the lowest note ideally."
- * Chords keep the series' register (pitch.ts `tonicMidi`, chords.ts).
+ * staff as much as possible ... Just middle C as the lowest note ideally",
+ * and then: "yes let's use the lowest number of ledger lines as default."
+ * Chords are voiced the same way, a progression at a time (chords.ts).
  *
  * THE RULE (`placeMelody`)
  * A step's melody (its words, call and response, and so its create pass's
- * notes) is placed as one, so a step never jumps an octave within itself:
+ * notes) is placed as one, so a step never jumps an octave within itself.
+ * The octave of the key's 1 is the one needing the fewest ledger lines,
+ * keeping every note in C4–A5 (middle C up to the A above the staff, MIDI
+ * 60–81) when any octave can; on a tie, the lower.
  *
- *   1. the octave of the key's 1 is the lowest where every note is in
- *      C4–A5 (middle C up to the A above the staff, MIDI 60–81);
- *   2. if none fits, the one needing the fewest ledger lines, then the one
- *      nearest the staff's middle line (B4), then the lower.
+ * THE EXCEPTION (`melodyRuleFor`)
+ * A lesson whose key is its own, not the student's (Part 1, in C), keeps
+ * the rule it was written to: the 1 in the lowest octave where every note
+ * is in C4–A5 (failing that, the fewest ledger lines, then nearest the
+ * staff's middle line, B4, then the lower). Part 1 begins with "a note
+ * called C", and that C is middle C: its 1 stays there, its lowest note,
+ * though C5 would need no ledger line.
  *
  * Ledger lines are counted by where each note is written on the treble
  * staff, spelled the key's way (a degree's letter is the 1's letter plus
@@ -26,6 +33,7 @@ import type {
   LiteracyDegree,
   LiteracyNote,
   LiteracyNumbering,
+  MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
 import {
   DEGREE_SEMITONES,
@@ -177,27 +185,61 @@ export function measureMelody(
 }
 
 /**
- * Where a melody goes in a key (see THE RULE above): `notes` are all the
- * step's written notes, its words, call and response together. With none,
- * the 1 alone is placed: C4–B4.
+ * How a lesson's melodies are placed (see THE RULE and THE EXCEPTION
+ * above): the fewest ledger lines, or, for a lesson whose key is its own,
+ * the lowest octave from middle C.
  */
-export function placeMelody(
-  key: LiteracyKey,
-  notes: readonly WrittenNote[],
-  numbering: LiteracyNumbering = 'chromatic',
-): MelodyPlacement {
-  const pc = pitchClassOf(key.tonic);
-  const options = TONIC_OCTAVES.map((octave) =>
-    measureMelody(key, notes, 12 * (octave + 1) + pc, numbering),
-  );
-  const best =
+export type MelodyRule = 'fewestLedgerLines' | 'lowestFromMiddleC';
+
+/** The rule a lesson's melodies are placed by. */
+export const melodyRuleFor = (
+  lesson: Partial<Pick<MusicLiteracyLesson, 'keyChoice'>>,
+): MelodyRule =>
+  lesson.keyChoice === 'student' ? 'fewestLedgerLines' : 'lowestFromMiddleC';
+
+type Measured = ReturnType<typeof measureMelody>;
+
+/** THE RULE: in C4–A5 if any octave can be, the fewest ledger lines, the lower. */
+function fewestLedgerLines(options: readonly Measured[]): Measured {
+  const fitting = options.filter((option) => option.fits);
+  return [...(fitting.length ? fitting : options)].sort(
+    (a, b) => a.ledgerLines - b.ledgerLines || a.tonic - b.tonic,
+  )[0];
+}
+
+/** THE EXCEPTION: the lowest octave in C4–A5, else the fewest ledger lines. */
+function lowestFromMiddleC(options: readonly Measured[]): Measured {
+  return (
     options.find((option) => option.fits) ??
     [...options].sort(
       (a, b) =>
         a.ledgerLines - b.ledgerLines ||
         a.middle - b.middle ||
         a.tonic - b.tonic,
-    )[0];
+    )[0]
+  );
+}
+
+/**
+ * Where a melody goes in a key: `notes` are all the step's written notes,
+ * its words, call and response together, placed by `rule` (THE RULE above,
+ * unless the lesson's key is its own: `melodyRuleFor`). With none, the 1
+ * alone is placed.
+ */
+export function placeMelody(
+  key: LiteracyKey,
+  notes: readonly WrittenNote[],
+  numbering: LiteracyNumbering = 'chromatic',
+  rule: MelodyRule = 'fewestLedgerLines',
+): MelodyPlacement {
+  const pc = pitchClassOf(key.tonic);
+  const options = TONIC_OCTAVES.map((octave) =>
+    measureMelody(key, notes, 12 * (octave + 1) + pc, numbering),
+  );
+  const best =
+    rule === 'fewestLedgerLines'
+      ? fewestLedgerLines(options)
+      : lowestFromMiddleC(options);
   return {
     tonic: best.tonic,
     lowest: best.lowest,

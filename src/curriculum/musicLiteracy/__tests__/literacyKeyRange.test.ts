@@ -18,16 +18,16 @@ import {
 } from '@/curriculum/engine/musicLiteracy/choices';
 import { stepNotes } from '@/curriculum/engine/musicLiteracy/literacy';
 import {
-  CHORD_KEY_RANGE,
-  literacyBaseRange,
+  LOWER_KEY_RANGE,
+  UPPER_KEY_RANGE,
   literacyKeyRange,
-  MELODY_KEY_RANGE,
 } from '../literacyKeyRange';
 
 /**
- * The lesson keyboard: two octaves, 25 keys, where the step's notes are. A
- * melody sits in the treble staff, so C4–C6; chords keep their register,
- * C3–C5. Either widens just enough (to a white key) for a note past it.
+ * The lesson keyboard: two octaves, 25 keys from a C, where the step's
+ * notes are placed. Melodies and chords sit in the treble staff, so most
+ * steps show C4–C6; notes all lower show C3–C5; notes past either widen the
+ * nearer just enough (to a white key).
  */
 
 const fiveSixFive: LiteracyStep = {
@@ -50,26 +50,30 @@ const lesson: MusicLiteracyLesson = {
 const inKey = (tonic: LiteracyTonic, mode: 'major' | 'minor') =>
   withMode(withTonic(emptyChoices(), tonic), mode);
 
-const rangeOf = (
+const midisOf = (
   step: LiteracyStep,
   tonic: LiteracyTonic,
   mode: 'major' | 'minor' = 'major',
 ) => {
   const notes = stepNotes(lesson, step, inKey(tonic, mode));
-  return literacyKeyRange(
-    [...notes.words, ...notes.call, ...notes.response].map((n) => n.midi),
-    notes.chords ? 'chords' : 'melody',
-  );
+  return [...notes.words, ...notes.call, ...notes.response].map((n) => n.midi);
 };
+const rangeOf = (
+  step: LiteracyStep,
+  tonic: LiteracyTonic,
+  mode: 'major' | 'minor' = 'major',
+) => literacyKeyRange(midisOf(step, tonic, mode));
 
 describe('the lesson keyboard', () => {
-  it('is two octaves: C4–C6 for a melody, C3–C5 for chords', () => {
-    expect(MELODY_KEY_RANGE).toEqual({ low: 60, high: 84 });
-    expect(CHORD_KEY_RANGE).toEqual({ low: 48, high: 72 });
-    expect(literacyBaseRange('melody')).toBe(MELODY_KEY_RANGE);
-    expect(literacyBaseRange('chords')).toBe(CHORD_KEY_RANGE);
-    expect(literacyKeyRange([60, 72, 84])).toBe(MELODY_KEY_RANGE);
-    expect(literacyKeyRange([48, 60, 72], 'chords')).toBe(CHORD_KEY_RANGE);
+  it('is two octaves from a C: C4–C6 for most, C3–C5 for notes all lower', () => {
+    expect(UPPER_KEY_RANGE).toEqual({ low: 60, high: 84 });
+    expect(LOWER_KEY_RANGE).toEqual({ low: 48, high: 72 });
+    expect(literacyKeyRange([])).toBe(UPPER_KEY_RANGE);
+    expect(literacyKeyRange([60, 72, 84])).toBe(UPPER_KEY_RANGE);
+    // In both: the upper.
+    expect(literacyKeyRange([60, 64, 67])).toBe(UPPER_KEY_RANGE);
+    expect(literacyKeyRange([48, 60, 72])).toBe(LOWER_KEY_RANGE);
+    expect(literacyKeyRange([58, 70])).toBe(LOWER_KEY_RANGE);
   });
 
   it('shows every melody of every key on C4–C6, the 6 above the upper 5 too', () => {
@@ -80,26 +84,48 @@ describe('the lesson keyboard', () => {
       for (const tonic of CIRCLE_OF_FIFTHS)
         for (const step of melodies)
           expect(rangeOf(step, tonic, mode), `${step.tag} in ${tonic}`).toBe(
-            MELODY_KEY_RANGE,
+            UPPER_KEY_RANGE,
           );
     // The figure is placed, not its 1: B major's 5-6-5 is F♯4–G♯4.
     const inB = stepNotes(lesson, fiveSixFive, inKey('B', 'major'));
     expect(inB.call.map((n) => n.midi)).toEqual([66, 68, 66]);
   });
 
-  it('shows the chords on C3–C5, as they always were', () => {
-    for (const tonic of CIRCLE_OF_FIFTHS)
-      expect(rangeOf(part2Step('the-1-chord'), tonic), tonic).toBe(
-        CHORD_KEY_RANGE,
-      );
+  it('follows a chord step’s chords to where they are voiced', () => {
+    const chordSteps = lesson.steps.filter(
+      (step) => isEchoStep(step) && !isMelodicEcho(step),
+    );
+    for (const mode of ['major', 'minor'] as const)
+      for (const tonic of CIRCLE_OF_FIFTHS)
+        for (const step of chordSteps) {
+          const midis = midisOf(step, tonic, mode);
+          const range = rangeOf(step, tonic, mode);
+          const where = `${step.tag} in ${tonic} ${mode}`;
+          // Every note on it, on one of the two octaves when they hold it.
+          expect(Math.min(...midis), where).toBeGreaterThanOrEqual(range.low);
+          expect(Math.max(...midis), where).toBeLessThanOrEqual(range.high);
+          const holds = (r: typeof range) =>
+            Math.min(...midis) >= r.low && Math.max(...midis) <= r.high;
+          if (holds(UPPER_KEY_RANGE))
+            expect(range, where).toBe(UPPER_KEY_RANGE);
+          else if (holds(LOWER_KEY_RANGE))
+            expect(range, where).toBe(LOWER_KEY_RANGE);
+        }
+    // C's 1 4: C4 E4 G4, then F4 A4 C5, on C4–C6.
+    expect(rangeOf(part2Step('the-1-chord'), 'C')).toBe(UPPER_KEY_RANGE);
+    // B's: B3 D♯4 F♯4, then E4 G♯4 B4, all on C3–C5.
+    expect(midisOf(part2Step('the-1-chord'), 'B').slice(0, 3)).toEqual([
+      59, 63, 66,
+    ]);
+    expect(rangeOf(part2Step('the-1-chord'), 'B')).toBe(LOWER_KEY_RANGE);
   });
 
-  it('widens just enough for a note past its two octaves, ending on a white key', () => {
+  it('widens the nearer two octaves just enough for a note past them, ending on a white key', () => {
     expect(literacyKeyRange([60, 86])).toEqual({ low: 60, high: 86 });
-    expect(literacyKeyRange([58, 70])).toEqual({ low: 57, high: 84 });
-    expect(literacyKeyRange([46, 60], 'chords')).toEqual({
-      low: 45,
-      high: 72,
-    });
+    // B3 to G5: C4–C6 and a key below it.
+    expect(literacyKeyRange([59, 64, 79])).toEqual({ low: 59, high: 84 });
+    // B♭3 to C♯6: down to A3, up to D6.
+    expect(literacyKeyRange([58, 85])).toEqual({ low: 57, high: 86 });
+    expect(literacyKeyRange([46, 60])).toEqual({ low: 45, high: 72 });
   });
 });

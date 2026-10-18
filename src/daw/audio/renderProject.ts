@@ -39,9 +39,22 @@
 //     for now these tracks export the raw recorded signal, not the amped tone.
 //   • Automation of gate/ducker params — those are JS poll-loops absent from the
 //     offline render (only the direct-AudioParam automatable set is covered).
+//
+// ── One track alone, dry, unmastered (milestone 2.15) ─────────────────────
+// A one-track export or a stem renders a single track (`onlyTrackId`): the
+// others are left out of the graph, not muted, so each costs one track's
+// load. It is rendered even when muted or outside the solo, since the student
+// asked for it by name. Its sends still reach the return buses. `dry` (only
+// with `onlyTrackId`) bypasses every insert effect, drops the sends (and with
+// them the returns) and the mastering; the fader, pan and their automation
+// stay, so the track sits at its level in the mix. An Oracle synth's own
+// effects are part of the instrument and stay too. `mastering: false` wires
+// the master gain (and its automation) straight to the destination. With none
+// of these the graph is built exactly as before, so the goldens are unchanged.
 
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
+import type { AutomationLanes } from './automation';
 import { audioEngine } from './AudioEngine';
 import { EffectChain, type TrackEffectState } from './EffectChain';
 import { ensureProcessedIr } from './reverbIR';
@@ -121,6 +134,38 @@ export type RenderRange =
 export interface RenderOptions {
   range?: RenderRange;
   sampleRate?: number;
+  /** Render this track alone; the others are left out of the graph. It plays
+   *  even when muted or outside the solo. */
+  onlyTrackId?: string;
+  /** With `onlyTrackId` only: no insert effects, no sends (so no returns) and
+   *  no mastering. The fader, pan and their automation stay. */
+  dry?: boolean;
+  /** The mastering chain on the master bus (default true). */
+  mastering?: boolean;
+}
+
+/** `effects` with every slot switched off, so the track's chain passes the
+ *  signal through untouched (EffectChain.update bypasses or flattens a slot
+ *  that isn't enabled, where a never-updated chain would still cut and
+ *  compress with its defaults). */
+function allSlotsOff(effects: TrackEffectState): TrackEffectState {
+  const off = structuredClone(effects) as unknown as Record<
+    string,
+    { enabled: boolean }
+  >;
+  for (const slot of Object.values(off)) slot.enabled = false;
+  return off as unknown as TrackEffectState;
+}
+
+/** The fader and pan lanes of `lanes`: a dry render rides no send or effect. */
+function faderLanes(
+  lanes: AutomationLanes | undefined,
+): AutomationLanes | undefined {
+  if (!lanes) return lanes;
+  const kept: AutomationLanes = {};
+  if (lanes.volume) kept.volume = lanes.volume;
+  if (lanes.pan) kept.pan = lanes.pan;
+  return kept;
 }
 
 /** Compute the render window [startTick, endTick) for the chosen range. */
@@ -187,6 +232,22 @@ export async function renderProject(
     masterAutomation,
   } = state;
   const range: RenderRange = opts.range ?? 'project';
+  // The tracks in the graph: one asked for by name, or every one that plays
+  // in the mix (the same mute/solo rule as live playback, usePlaybackEngine,
+  // so a bounce is WYSIWYG vs. Play, including while soloing).
+  const only =
+    opts.onlyTrackId === undefined
+      ? undefined
+      : tracks.find((t) => t.id === opts.onlyTrackId);
+  if (opts.onlyTrackId !== undefined && !only) {
+    throw new Error('That track is no longer in the song');
+  }
+  const renderedTracks = only
+    ? [only]
+    : tracks.filter((track) => isTrackAudible(track, tracks));
+  const dry = Boolean(only && opts.dry);
+  const withMastering = !dry && (opts.mastering ?? true);
+  const withReturns = !dry;
   // The rate Play runs at (within 44.1–48 kHz), so the file is what the
   // student heard; the reverb IRs are decoded for whatever rate it is.
   const sampleRate = opts.sampleRate ?? exportSampleRate(liveSampleRate());
@@ -224,15 +285,14 @@ export async function renderProject(
         // context.
         const ctx = offlineCtx.rawContext as unknown as AudioContext;
 
+        // Only the chains this render builds.
         await prepareReverbIrs(ctx, [
-          masteringEffects,
-          ...returns.map((ret) => ret.effects),
-          ...tracks
-            .filter((track) => isTrackAudible(track, tracks))
-            .map((track) => track.effects),
+          ...(withMastering ? [masteringEffects] : []),
+          ...(withReturns ? returns.map((ret) => ret.effects) : []),
+          ...(dry ? [] : renderedTracks.map((track) => track.effects)),
         ]);
 
-        // Master → mastering chain → offline destination.
+        // Master → mastering chain (unless left out) → offline destination.
         const master = ctx.createGain();
         master.gain.value = masterVolume;
         // Master volume automation rides over the fader value, as in playback.
@@ -242,15 +302,19 @@ export async function renderProject(
           startTick,
           bpm,
         );
-        const mastering = new EffectChain(ctx);
-        disposables.push(mastering);
-        mastering.update(masteringEffects);
-        master.connect(mastering.getInputNode());
-        mastering.getOutputNode().connect(ctx.destination);
+        if (withMastering) {
+          const mastering = new EffectChain(ctx);
+          disposables.push(mastering);
+          mastering.update(masteringEffects);
+          master.connect(mastering.getInputNode());
+          mastering.getOutputNode().connect(ctx.destination);
+        } else {
+          master.connect(ctx.destination);
+        }
 
         // Return buses: each EffectChain → returnGain → master.
         const returnInputs = new Map<string, AudioNode>();
-        for (const ret of returns) {
+        for (const ret of withReturns ? returns : []) {
           const chain = new EffectChain(ctx);
           disposables.push(chain);
           chain.update(ret.effects);
@@ -263,23 +327,25 @@ export async function renderProject(
 
         const inits: Array<Promise<void>> = [];
 
-        for (const track of tracks) {
-          // Same mute/solo rule as live playback (usePlaybackEngine), so a
-          // bounce is WYSIWYG vs. Play — including while soloing.
-          if (!isTrackAudible(track, tracks)) continue;
-
+        for (const track of renderedTracks) {
           const te = new TrackEngine(ctx, master);
           disposables.push(te);
           te.setVolume(track.volume);
           te.setPan(track.pan);
-          te.updateEffects(track.effects);
+          te.updateEffects(dry ? allSlotsOff(track.effects) : track.effects);
+          // A dry render built no returns, so it sets no sends.
           for (const [id, input] of returnInputs) {
             te.setSend(id, track.sends?.[id] ?? 0, input);
           }
           // Parameter automation: schedule absolute-time ramps on the (now
           // wired) volume/pan/send/FX params, shifted to the render window
           // origin.
-          applyOfflineAutomation(te, track.automation, startTick, bpm);
+          applyOfflineAutomation(
+            te,
+            dry ? faderLanes(track.automation) : track.automation,
+            startTick,
+            bpm,
+          );
 
           // Instrument: init async (samplers/soundfont load samples), then
           // apply per-track state and schedule its MIDI once ready.

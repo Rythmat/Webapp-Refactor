@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
+import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
+import {
+  emptyChoices,
+  withMode,
+  withTonic,
+} from '@/curriculum/engine/musicLiteracy/choices';
+import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
   currentStop,
   LITERACY_PATH,
@@ -12,8 +19,8 @@ import { withTry, type LiteracyProgress } from '../useLiteracyProgress';
 
 /**
  * The Music Literacy path: five stops across Learn, the Studio and the
- * Arcade, Part 1 the only one open, and each stop's state from the progress
- * this device has saved for its lesson.
+ * Arcade, Parts 1 and 2 open, and each stop's state from the progress (and,
+ * for Part 2, the key) this device has saved for its lesson.
  */
 
 /** The test fixture, as the lesson Part 1's stop opens. */
@@ -39,12 +46,13 @@ describe('the Music Literacy path', () => {
   it('runs Part 1, Part 2, the band, Studio basics, then Echo', () => {
     expect(LITERACY_PATH.map((s) => [s.title, s.module, s.live])).toEqual([
       ['Part 1 · Call and response', 'Learn', true],
-      ['Part 2 · Choose a color', 'Learn', false],
+      ['Part 2 · Choose a color', 'Learn', true],
       ['Hear it with your band', 'Studio', false],
       ['Studio basics', 'Studio', false],
       ['Echo', 'Arcade', false],
     ]);
     expect(part1.lessonId).toBe('music-literacy-part-1');
+    expect(LITERACY_PATH[1].lessonId).toBe('music-literacy-part-2');
     expect(startHereRoute()).toBe('/learn?tab=StartHere');
   });
 
@@ -149,6 +157,75 @@ describe('the Music Literacy path', () => {
   });
 });
 
+describe('Part 2 on the path', () => {
+  const part2Stop = LITERACY_PATH[1];
+  const part2: MusicLiteracyLesson = {
+    ...PART2_FIXTURE,
+    id: 'music-literacy-part-2',
+    status: 'live',
+  };
+  const part2Tags = part2.steps.map((s) => s.tag);
+
+  it('opens Part 2 once its lesson is published', () => {
+    const state = literacyStopState(part2Stop, part2, {});
+    expect(state).toMatchObject({
+      status: 'new',
+      next: { index: 0, title: 'Choose your key' },
+      to: '/curriculum/music-literacy/music-literacy-part-2',
+      key: { tonic: 'C', mode: 'major', name: 'C Major' },
+    });
+    expect(state.steps).toHaveLength(part2.steps.length);
+    // A draft stays to come.
+    expect(literacyStopState(part2Stop, undefined, {}).status).toBe('soon');
+  });
+
+  it('wears the key the student chose, a minor key in its relative major’s color', () => {
+    const choices = withMode(withTonic(emptyChoices(), 'Eb'), 'minor');
+    const state = literacyStopState(part2Stop, part2, {}, choices);
+    expect(state.key).toEqual({
+      pitch: 3,
+      tonic: 'E♭',
+      mode: 'minor',
+      name: 'E♭ Minor',
+      color: colorForKeyMode('Eb', 'aeolian'),
+    });
+    const read: string[] = [];
+    literacyPath(
+      (id) => (id === part2.id ? part2 : undefined),
+      () => ({}),
+      (id) => {
+        read.push(id);
+        return choices;
+      },
+    );
+    expect(read).toEqual(['music-literacy-part-2']);
+  });
+
+  it('counts a choose step done once chosen, and an echo once its echo passes', () => {
+    // The key chosen and 1-3-5's echo passed; its create pass alone isn't.
+    let progress = progressOf(['choose-key', 'one-three-five']);
+    progress = {
+      ...progress,
+      'one-seven-one:create': { best: 90, passed: true, attempts: 1 },
+    };
+    const state = literacyStopState(part2Stop, part2, progress);
+    expect(state.passed).toBe(2);
+    expect(state.steps.slice(0, 4)).toEqual([
+      'passed',
+      'passed',
+      'todo',
+      'todo',
+    ]);
+    expect(state.next).toEqual({ index: 2, title: 'Major or minor?' });
+    expect(state.to).toBe(
+      '/curriculum/music-literacy/music-literacy-part-2?step=choose-mode',
+    );
+    expect(
+      literacyStopState(part2Stop, part2, progressOf(part2Tags)).status,
+    ).toBe('done');
+  });
+});
+
 describe('where a student stands', () => {
   const draft = {
     ...lesson,
@@ -167,7 +244,7 @@ describe('where a student stands', () => {
 
   it('stays on the last open stop once it is done, with the next to come', () => {
     const states = literacyPath(
-      () => lesson,
+      (id) => (id === lesson.id ? lesson : undefined),
       () => progressOf(tags),
     );
     const { current, upNext } = currentStop(states);

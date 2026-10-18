@@ -65,6 +65,7 @@ vi.mock('@/curriculum/musicLiteracy/literacyRun', () => ({
     run.starts += 1;
     return true;
   },
+  addLiteracyRunCues: () => {},
   stopLiteracyRun: () => {},
   previewLiteracyGroove: async () => {},
 }));

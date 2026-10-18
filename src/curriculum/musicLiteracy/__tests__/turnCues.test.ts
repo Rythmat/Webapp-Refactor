@@ -5,14 +5,29 @@ import type {
   MusicLiteracyLesson,
 } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
+import { PART2_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/part2Fixture';
+import {
+  emptyChoices,
+  withMode,
+  withProgression,
+  withTonic,
+} from '@/curriculum/engine/musicLiteracy/choices';
+import { createPass } from '@/curriculum/engine/musicLiteracy/createPass';
 import { stepTimeline } from '@/curriculum/engine/musicLiteracy/literacy';
 import {
   applyCue,
+  createRunCues,
   IDLE_RUN_VIEW,
   runCues,
   type RunMode,
 } from '@/curriculum/engine/musicLiteracy/run';
-import { hubHeadline, turnCueAt, turnCueSpans } from '../turnCues';
+import {
+  createHubHeadline,
+  hubHeadline,
+  replayHubHeadline,
+  turnCueAt,
+  turnCueSpans,
+} from '../turnCues';
 
 const lesson = LITERACY_FIXTURE;
 const stepOf = (tag: string) => lesson.steps.find((s) => s.tag === tag)!;
@@ -206,5 +221,84 @@ describe('the turn cues', () => {
         expect(beats.has(span.start + span.length)).toBe(true);
       }
     }
+  });
+});
+
+describe('the challenge’s cues', () => {
+  it('say PLAY ALONG where LISTEN was, then GET READY and GO! as ever', () => {
+    const step = stepOf('note-called-c');
+    const timeline = stepTimeline(lesson, step);
+    const said = runCues(lesson, step, 'play', {
+      metronome: true,
+      challenge: true,
+    })
+      .filter((c) => c.kind === 'beat')
+      .map(
+        (c) =>
+          hubHeadline(timeline, c.tick, 4, 'play', { challenge: true }).text,
+      );
+    expect(said).toEqual([
+      ...times('Play Along', 12),
+      ...times('Get Ready', 3),
+      'Go!',
+      'Go!',
+      ...times('Your turn', 3),
+    ]);
+  });
+});
+
+describe('the create pass’s cues', () => {
+  const choices = withMode(withTonic(emptyChoices(), 'C'), 'major');
+  const step = PART2_FIXTURE.steps.find((s) => s.tag === 'one-three-five')!;
+  const pass = createPass(PART2_FIXTURE, step, choices)!;
+
+  it('count in with GET READY, then YOUR CALL, GO! one beat before the repeat, then REPEAT IT', () => {
+    const said = createRunCues(PART2_FIXTURE, pass, { metronome: true })
+      .filter((c) => c.kind === 'beat')
+      .map((c) => createHubHeadline(pass.timeline, c.tick, 4, true).text);
+    expect(said).toEqual([
+      ...times('Get Ready', 4),
+      ...times('Your Call', 3),
+      'Go!',
+      'Go!',
+      ...times('Repeat It', 3),
+    ]);
+  });
+
+  it('say what the pass is out of a run', () => {
+    expect(createHubHeadline(pass.timeline, -1, 4, false)).toEqual({
+      kind: 'idle',
+      text: 'Your rhythm',
+    });
+  });
+});
+
+describe('the replay’s cues', () => {
+  it('count in with LISTEN, then say which harmony plays', () => {
+    const choices = withProgression(
+      withMode(withTonic(emptyChoices(), 'C'), 'major'),
+      'four',
+      {
+        template: ['X', 'X', 'X', 'X'],
+        chords: ['4', '5', '6', '2'],
+        harmony: 'sevenths',
+        tonic: 'C',
+        mode: 'major',
+      },
+    );
+    const step = PART2_FIXTURE.steps.find((s) => s.tag === 'hear-four')!;
+    const timeline = stepTimeline(PART2_FIXTURE, step);
+    const harmonies = ['triads', 'sevenths'] as const;
+    const said = runCues(PART2_FIXTURE, step, 'listen', {
+      metronome: false,
+      choices,
+    })
+      .filter((c) => c.kind === 'beat' && c.downbeat)
+      .map((c) => replayHubHeadline(timeline, c.tick, harmonies, true).text);
+    expect(said).toEqual([
+      'Listen',
+      ...times('Triads', 4),
+      ...times('With 7ths', 4),
+    ]);
   });
 });

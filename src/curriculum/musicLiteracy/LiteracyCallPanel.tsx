@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties } from 'react';
+import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { CircleOfFifthsSvg } from '@/components/common/CircleOfFifthsSvg';
 import { cn } from '@/components/utilities';
 import {
@@ -73,6 +73,16 @@ export interface LiteracyCallPanelProps {
   headline: HubHeadline;
   /** The circle sits beside the words (a short, wide box) rather than above. */
   compact?: boolean;
+  /**
+   * What the hub shows under the headline instead of the call's degrees:
+   * a chord step's chord ("4 maj", lit while it sounds), or a list of
+   * degrees of the player's own (a create pass's notes, lit as played).
+   */
+  hubContent?:
+    | { kind: 'chord'; label: string; lit: boolean }
+    | { kind: 'degrees'; items: readonly { label: string; lit: boolean }[] };
+  /** Under the circle in place of the words (a chord step's bars). */
+  below?: ReactNode;
 }
 
 export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
@@ -150,7 +160,7 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
         <div className="flex min-w-0 items-center gap-6 max-[639px]:flex-col max-[639px]:gap-3">
           {circle}
           <div ref={wordsRef} className="min-w-0 flex-1">
-            <WordsLine {...props} />
+            {props.below ?? <WordsLine {...props} />}
           </div>
         </div>
       ) : (
@@ -161,7 +171,7 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
           >
             {circle}
             <div ref={wordsRef} className="w-full">
-              <WordsLine {...props} />
+              {props.below ?? <WordsLine {...props} />}
             </div>
           </div>
         </div>
@@ -180,6 +190,9 @@ const CUE_SIZE: Readonly<Record<TurnCue, number>> = {
   listen: 0.19,
   getReady: 0.135,
   go: 0.27,
+  playAlong: 0.125,
+  yourCall: 0.135,
+  repeatIt: 0.135,
 };
 
 /** The headline's height, as a share of the diameter: room for Go!. */
@@ -198,8 +211,12 @@ function cueColors(cue: TurnCue, keyColor: string) {
         glow: 'rgb(255 255 255 / 0.28)',
         glowSize: '5px',
       };
-    // The call's color: the degrees lighting under it are the targets.
+    // The call's color: the degrees lighting under it are the targets. The
+    // challenge's Play Along and the create pass's own cues light the same.
     case 'getReady':
+    case 'playAlong':
+    case 'yourCall':
+    case 'repeatIt':
       return {
         base: mix(78, 'white'),
         shine: mix(20, 'white'),
@@ -294,20 +311,30 @@ function Hub({
   keyColor,
   beatsPerBar,
   size,
+  hubContent,
 }: LiteracyCallPanelProps & { size: number }) {
   // The hole in the ring is 38% of the circle (CircleOfFifthsSvg).
   const diameter = size * 0.36;
   const figure = view.phase === 'response' ? response : call;
   const lit = view.hub;
-  const digits = Math.max(1, figure.length);
+  // The degrees shown: the call's (or the answer's), or the player's own.
+  const items =
+    hubContent?.kind === 'degrees'
+      ? hubContent.items
+      : figure.map((note, i) => ({
+          label: degreeLabel(note.degree),
+          lit:
+            lit !== null &&
+            lit.index === i &&
+            lit.segment === (view.phase === 'response' ? 'response' : 'call'),
+        }));
+  const digits = Math.max(1, items.length);
   const degreeSize = Math.max(
     14,
     Math.min(34, diameter / (digits * 1.25 + 0.6)),
   );
   // From GET READY to GO! the degrees are what to copy: brought forward.
-  const copying =
-    headline.kind === 'cue' &&
-    (headline.cue === 'getReady' || headline.cue === 'go');
+  const copying = headline.kind === 'cue' && headline.cue !== 'listen';
   const waiting = copying ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.4)';
 
   return (
@@ -319,43 +346,57 @@ function Hub({
       style={{ width: diameter, height: diameter }}
     >
       <Headline headline={headline} keyColor={keyColor} diameter={diameter} />
-      <p
-        aria-label={`Scale degrees ${figure.map((n) => degreeLabel(n.degree)).join(' ')}`}
-        data-literacy-degrees
-        className="flex items-baseline justify-center gap-[0.18em] font-semibold leading-none tabular-nums"
-        style={{ fontSize: degreeSize }}
-      >
-        {figure.map((note, i) => {
-          const on =
-            lit !== null &&
-            lit.index === i &&
-            lit.segment === (view.phase === 'response' ? 'response' : 'call');
-          return (
-            <span key={i} className="flex items-baseline gap-[0.18em]">
-              {i > 0 && (
-                <span aria-hidden className="text-[0.5em] text-white/25">
-                  ·
+      {hubContent?.kind === 'chord' ? (
+        <p
+          aria-label={`Chord ${hubContent.label}`}
+          data-literacy-hub-chord
+          data-chord-lit={hubContent.lit || undefined}
+          className="whitespace-nowrap font-semibold leading-none transition-[color,text-shadow] duration-75"
+          style={{
+            fontSize: Math.max(14, Math.min(30, diameter * 0.16)),
+            ...(hubContent.lit
+              ? { color: keyColor, textShadow: `0 0 14px ${keyColor}` }
+              : { color: running ? waiting : '#e8e8f0' }),
+          }}
+        >
+          {hubContent.label}
+        </p>
+      ) : (
+        <p
+          aria-label={`Scale degrees ${items.map((item) => item.label).join(' ')}`}
+          data-literacy-degrees
+          className="flex items-baseline justify-center gap-[0.18em] font-semibold leading-none tabular-nums"
+          style={{ fontSize: degreeSize }}
+        >
+          {items.map((item, i) => {
+            const on = item.lit;
+            return (
+              <span key={i} className="flex items-baseline gap-[0.18em]">
+                {i > 0 && (
+                  <span aria-hidden className="text-[0.5em] text-white/25">
+                    ·
+                  </span>
+                )}
+                <span
+                  data-degree-lit={on || undefined}
+                  className="transition-[color,text-shadow,transform] duration-75"
+                  style={
+                    on
+                      ? {
+                          color: keyColor,
+                          textShadow: `0 0 14px ${keyColor}`,
+                          transform: 'scale(1.15)',
+                        }
+                      : { color: running ? waiting : '#e8e8f0' }
+                  }
+                >
+                  {item.label}
                 </span>
-              )}
-              <span
-                data-degree-lit={on || undefined}
-                className="transition-[color,text-shadow,transform] duration-75"
-                style={
-                  on
-                    ? {
-                        color: keyColor,
-                        textShadow: `0 0 14px ${keyColor}`,
-                        transform: 'scale(1.15)',
-                      }
-                    : { color: running ? waiting : '#e8e8f0' }
-                }
-              >
-                {degreeLabel(note.degree)}
               </span>
-            </span>
-          );
-        })}
-      </p>
+            );
+          })}
+        </p>
+      )}
       <div
         aria-hidden
         data-literacy-beats

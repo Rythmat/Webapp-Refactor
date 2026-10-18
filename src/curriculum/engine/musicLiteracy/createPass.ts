@@ -24,6 +24,13 @@
  * Graded against the transcription, placed on the repeat's bars, by the
  * existing graders (grading.ts, chordGrading.ts), with the same pass rule.
  * The notes the call took are never answers.
+ *
+ * THE BOUNDARY (bestCreateReading)
+ * A note in the call's last eighth is either the call's last note or the
+ * repeat's first, played a little early: the commonest slip there is. Which
+ * one the student meant shows in the repeat, so both readings are graded
+ * and the better kept: a note meant for the call comes back at the end of
+ * the repeat too, and an early downbeat lines up with the repeat's first.
  */
 
 import {
@@ -43,7 +50,12 @@ import {
   type LiteracyChordResult,
 } from './chordGrading';
 import type { VoicedChord } from './chords';
-import { gradeResponse, type LiteracyResult, type PlayedNote } from './grading';
+import {
+  gradeResponse,
+  RESPONSE_EARLY_TICKS,
+  type LiteracyResult,
+  type PlayedNote,
+} from './grading';
 import {
   barTicks,
   resolveChordFigure,
@@ -247,10 +259,17 @@ const pitchClass = (midi: number) => ((midi % 12) + 12) % 12;
 export function transcribeCall(
   pass: CreatePass,
   played: readonly PlayedNote[],
+  {
+    early = false,
+  }: {
+    /** Read notes in the call's last eighth as the repeat's, played early. */
+    early?: boolean;
+  } = {},
 ): Transcription {
   const { timeline, material } = pass;
   const grid = CREATE_GRID_TICKS;
   const inCall = played
+    .filter((note) => !(early && inBoundary(note, timeline)))
     .map((note) => ({ note, tick: callTick(note, timeline) }))
     .filter((n): n is { note: PlayedNote; tick: number } => n.tick !== null);
   const used = inCall.map((n) => n.note);
@@ -391,6 +410,37 @@ export function transcribeCall(
       chord,
     })),
   };
+}
+
+/** A note in the call's last eighth, before the repeat's downbeat. */
+function inBoundary(note: PlayedNote, timeline: StepTimeline): boolean {
+  const downbeat = timeline.response.start;
+  return note.onset >= downbeat - RESPONSE_EARLY_TICKS && note.onset < downbeat;
+}
+
+/**
+ * The call transcribed and the repeat graded, reading any note in the
+ * call's last eighth whichever way fits the repeat better (see THE
+ * BOUNDARY above). Run it once the repeat is over; the transcription shown
+ * during the repeat is `transcribeCall`'s, which can't know yet.
+ */
+export function bestCreateReading(
+  pass: CreatePass,
+  played: readonly PlayedNote[],
+  timing: { tempo: number; passMark: number },
+): { transcription: Transcription; result: CreateResult } {
+  const asCall = transcribeCall(pass, played);
+  const asCallResult = gradeCreateRepeat(pass, asCall, played, timing);
+  const boundary = asCall.used.some((note) => inBoundary(note, pass.timeline));
+  if (!boundary) return { transcription: asCall, result: asCallResult };
+  const asEarly = transcribeCall(pass, played, { early: true });
+  if (asEarly.empty) return { transcription: asCall, result: asCallResult };
+  const asEarlyResult = gradeCreateRepeat(pass, asEarly, played, timing);
+  const score = (r: CreateResult) =>
+    r.kind === 'empty' ? -1 : r.result.percent;
+  return score(asEarlyResult) > score(asCallResult)
+    ? { transcription: asEarly, result: asEarlyResult }
+    : { transcription: asCall, result: asCallResult };
 }
 
 /** What the repeat came to. */

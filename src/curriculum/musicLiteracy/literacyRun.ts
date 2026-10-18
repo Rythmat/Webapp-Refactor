@@ -39,6 +39,18 @@ let part: Tone.Part<RunCue & { time: number }> | null = null;
 let watchdog: ReturnType<typeof setTimeout> | null = null;
 /** Bumped by every start and stop: a cue from an older run is never drawn. */
 let generation = 0;
+/** The run under way: seconds per tick, and what draws its cues. */
+let running: {
+  spt: number;
+  run: number;
+  draw: (cue: RunCue) => void;
+} | null = null;
+
+/**
+ * A cue added to a run this close to the transport's scheduling horizon
+ * (seconds) might never fire: it's drawn at once instead.
+ */
+const ADD_MARGIN_SEC = 0.05;
 
 function disposePart(): void {
   if (!part) return;
@@ -56,6 +68,7 @@ function disposePart(): void {
 /** Stop the run: the transport, its part and anything it was going to draw. */
 export function stopLiteracyRun(): void {
   generation += 1;
+  running = null;
   if (watchdog !== null) clearTimeout(watchdog);
   watchdog = null;
   disposePart();
@@ -122,6 +135,7 @@ export async function startLiteracyRun({
     cues.map((cue) => ({ ...cue, time: cue.tick * spt })),
   );
   part.start(0);
+  running = { spt, run, draw };
   literacyClock.start();
 
   const end = cues.find((cue) => cue.kind === 'end');
@@ -136,6 +150,23 @@ export async function startLiteracyRun({
 
   await literacyClock.wait();
   return run === generation;
+}
+
+/**
+ * Add cues to the run under way, as if it had them from the start: the
+ * create pass lights the student's own call on the keys during their repeat
+ * (run.ts repeatLightCues) once it's transcribed. A cue already due, or too
+ * near to schedule, is drawn at once. Nothing happens with no run going.
+ */
+export function addLiteracyRunCues(cues: readonly RunCue[]): void {
+  if (!part || !running || running.run !== generation) return;
+  const { spt, draw } = running;
+  const horizon = Tone.getTransport().seconds + ADD_MARGIN_SEC;
+  for (const cue of cues) {
+    const time = cue.tick * spt;
+    if (time <= horizon) draw(cue);
+    else part.add({ ...cue, time });
+  }
 }
 
 /**

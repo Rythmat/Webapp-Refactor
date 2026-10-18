@@ -25,9 +25,9 @@ API needs** below.
 
 ## The kind
 
-| Kind             | What it is                                                             | Identity | Slug pattern               | Bundle           | Authoritative | In the repo today           |
-| ---------------- | ---------------------------------------------------------------------- | -------- | -------------------------- | ---------------- | ------------- | --------------------------- |
-| `music_literacy` | One Music Literacy lesson (Part 1, Part 2…): a key, a tempo, its steps | `id`     | `^[a-z0-9]+(-[a-z0-9]+)*$` | `music-literacy` | yes           | 2 (Part 1; Part 2, a draft) |
+| Kind             | What it is                                                             | Identity | Slug pattern               | Bundle           | Authoritative | In the repo today     |
+| ---------------- | ---------------------------------------------------------------------- | -------- | -------------------------- | ---------------- | ------------- | --------------------- |
+| `music_literacy` | One Music Literacy lesson (Part 1, Part 2…): a key, a tempo, its steps | `id`     | `^[a-z0-9]+(-[a-z0-9]+)*$` | `music-literacy` | yes           | 2 (Part 1 and Part 2) |
 
 The slug pattern is the part's kebab pattern, the one the body holds `id`
 to; the kind borrows it without being a graph entity.
@@ -149,8 +149,9 @@ rules and messages are below.
 student picks a key center on the circle of fifths and major or minor,
 then plays melodies and chord progressions in it, each step twice: Atlas's
 call echoed, then a call of their own. The seed is
-`src/curriculum/data/musicLiteracy/music-literacy-part-2.json`, a **draft**
-until the player supports it. Every field below is optional or a new kind,
+`src/curriculum/data/musicLiteracy/music-literacy-part-2.json`, live: the
+Learn player plays every kind below (`src/curriculum/musicLiteracy/`, with
+the step-done rule in `stepDone.ts`). Every field below is optional or a new kind,
 so a Part 1 file means exactly what it did: no kind is an echo, no
 `numbering` is chromatic, no `passes` is the challenge on and the create
 pass off.

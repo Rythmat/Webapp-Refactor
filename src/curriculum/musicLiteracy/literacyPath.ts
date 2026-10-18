@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
+import {
+  keyFor,
+  type LiteracyChoices,
+} from '@/curriculum/engine/musicLiteracy/choices';
+import { pitchClassOf } from '@/curriculum/engine/musicLiteracy/pitch';
 import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
-import { tonicPitchClass } from '@/curriculum/engine/musicLiteracy/stepColor';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { colorForKeyMode } from '@/lib/modeColorShift';
+import { literacyStepDone, literacyStepTried } from './stepDone';
+import { readLiteracyChoices } from './useLiteracyChoices';
 import {
   readLiteracyProgress,
   type LiteracyProgress,
@@ -56,7 +62,8 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
     title: 'Part 2 · Choose a color',
     module: 'Learn',
     description: 'Melodies and chord progressions in a key you pick.',
-    live: false,
+    live: true,
+    lessonId: 'music-literacy-part-2',
   },
   {
     id: 'hear-it-with-your-band',
@@ -86,7 +93,7 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
  * soon     not open yet
  * new      open, nothing tried
  * started  a step tried, not every step passed
- * done     every step passed (a stop with no lesson is never done)
+ * done     every step done (stepDone.ts; a stop with no lesson never is)
  */
 export type LiteracyStopStatus = 'soon' | 'new' | 'started' | 'done';
 
@@ -115,15 +122,21 @@ export interface LiteracyStopState {
   next: { index: number; title: string } | null;
   /** Where Start / Continue goes; null while the stop is coming soon. */
   to: string | null;
-  /** The lesson's key (Part 1 is in C: red); null without a lesson. */
+  /**
+   * The lesson's key (Part 1 is in C: red), or the one the student chose
+   * (Part 2); null without a lesson.
+   */
   key: LiteracyStopKey | null;
 }
 
-function keyOf(lesson: MusicLiteracyLesson): LiteracyStopKey {
-  const { tonic, mode } = lesson.key;
+function keyOf(
+  lesson: MusicLiteracyLesson,
+  choices: LiteracyChoices | null,
+): LiteracyStopKey {
+  const { tonic, mode } = keyFor(lesson, choices);
   const shown = displayAccidentals(tonic);
   return {
-    pitch: tonicPitchClass(lesson),
+    pitch: pitchClassOf(tonic),
     tonic: shown,
     mode,
     name: `${shown} ${mode === 'minor' ? 'Minor' : 'Major'}`,
@@ -131,13 +144,17 @@ function keyOf(lesson: MusicLiteracyLesson): LiteracyStopKey {
   };
 }
 
-/** One stop, from its lesson (if published) and the progress saved for it. */
+/**
+ * One stop, from its lesson (if published), the progress saved for it and,
+ * for a lesson whose key is the student's, what they chose.
+ */
 export function literacyStopState(
   stop: LiteracyPathStop,
   lesson: MusicLiteracyLesson | undefined,
   progress: LiteracyProgress,
+  choices: LiteracyChoices | null = null,
 ): LiteracyStopState {
-  const key = lesson ? keyOf(lesson) : null;
+  const key = lesson ? keyOf(lesson, choices) : null;
   if (!stop.live || (stop.lessonId && !lesson)) {
     return {
       stop,
@@ -161,10 +178,14 @@ export function literacyStopState(
     };
   }
 
-  const steps = lesson.steps.map((step): LiteracyStepMark => {
-    const saved = progress[step.tag];
-    return saved?.passed ? 'passed' : saved ? 'tried' : 'todo';
-  });
+  const steps = lesson.steps.map(
+    (step): LiteracyStepMark =>
+      literacyStepDone(step, progress)
+        ? 'passed'
+        : literacyStepTried(step, progress)
+          ? 'tried'
+          : 'todo',
+  );
   const passed = steps.filter((mark) => mark === 'passed').length;
   const nextIndex = steps.findIndex((mark) => mark !== 'passed');
   const status: LiteracyStopStatus =
@@ -192,12 +213,13 @@ export function literacyStopState(
   };
 }
 
-/** Every stop, as this device's saved progress has it. */
+/** Every stop, as this device's saved progress (and choices) have it. */
 export function literacyPath(
   findLesson: (
     id: string,
   ) => MusicLiteracyLesson | undefined = getLiveMusicLiteracy,
   readProgress: (lessonId: string) => LiteracyProgress = readLiteracyProgress,
+  readChoices: (lessonId: string) => LiteracyChoices = readLiteracyChoices,
 ): LiteracyStopState[] {
   return LITERACY_PATH.map((stop) => {
     const lesson = stop.lessonId ? findLesson(stop.lessonId) : undefined;
@@ -205,6 +227,7 @@ export function literacyPath(
       stop,
       lesson,
       lesson ? readProgress(lesson.id) : {},
+      lesson?.keyChoice === 'student' ? readChoices(lesson.id) : null,
     );
   });
 }

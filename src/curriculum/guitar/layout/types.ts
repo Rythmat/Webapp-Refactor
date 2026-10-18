@@ -71,6 +71,11 @@ export interface NavStep {
   /** "A1: Major Scale" — the step list groups by this. */
   subsection: string;
   status: GuitarStepStatus;
+  /**
+   * More passes of the step, each with its own mark after the step's
+   * (Music Literacy's "Create" pass). Shown once tried; left out, none.
+   */
+  passes?: readonly { label: string; status: GuitarStepStatus }[];
 }
 
 export interface StepNavModel {

@@ -224,6 +224,20 @@ function buildLaneList(
     .filter((value): value is number => typeof value === 'number');
 
   if (midiValues.length === 0) {
+    // Nothing to draw yet (Music Literacy's create pass, before the
+    // student's call is transcribed): the lanes it was given, if any.
+    if (
+      !noteOnlyLanes &&
+      midiRangeMin !== undefined &&
+      midiRangeMax !== undefined &&
+      midiRangeMin <= midiRangeMax
+    ) {
+      const lanes: string[] = [];
+      for (let midi = midiRangeMax; midi >= midiRangeMin; midi--) {
+        lanes.push(midiToNoteName(midi, keyRoot, noteSpelling));
+      }
+      return lanes;
+    }
     return ['C4'];
   }
 

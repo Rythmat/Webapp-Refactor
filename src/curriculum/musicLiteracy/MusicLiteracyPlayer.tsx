@@ -1,5 +1,19 @@
-import { Headphones, Keyboard, Play, Square } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Headphones,
+  Keyboard,
+  Play,
+  Sparkles,
+  Square,
+  Trophy,
+} from 'lucide-react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   releaseAllPianoNotes,
@@ -7,8 +21,17 @@ import {
   triggerPianoRelease,
 } from '@/audio/pianoSampler';
 import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
+import { cn } from '@/components/utilities';
 import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
-import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
+import {
+  isEchoStep,
+  stepKind,
+  type LiteracyChooseChordsStep,
+  type LiteracyMode,
+  type LiteracyScaleDegree,
+  type LiteracyTonic,
+  type MusicLiteracyLesson,
+} from '@/content/musicLiteracy/schemas';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import GenrePianoRoll, {
   type NoteEvent,
@@ -19,24 +42,65 @@ import {
   midiToPitchName,
 } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import {
+  keyFor,
+  missingChoices,
+  progressionFor,
+  withMode,
+  withProgression,
+  withTonic,
+  type LiteracyChoices,
+  type SavedProgression,
+} from '@/curriculum/engine/musicLiteracy/choices';
+import {
+  gradeChordResponse,
+  type LiteracyChordResult,
+} from '@/curriculum/engine/musicLiteracy/chordGrading';
+import { voicedChord } from '@/curriculum/engine/musicLiteracy/chords';
+import {
+  createPass,
+  bestCreateReading,
+  gradeCreateRepeat,
+  transcribeCall,
+  type CreatePass,
+  type CreateResult,
+  type Transcription,
+} from '@/curriculum/engine/musicLiteracy/createPass';
+import {
+  challengeTargets,
+  gradeChallenge,
   gradeResponse,
   inResponse,
-  isRightNote,
   pairResponse,
   passMarkOf,
+  RESPONSE_EARLY_TICKS,
   TIMING_FLOOR,
+  type LiteracyChallengeResult,
   type LiteracyResult,
   type PlayedNote,
 } from '@/curriculum/engine/musicLiteracy/grading';
 import {
   degreeLabel,
+  degreeOfMidi,
+  replayHarmonies,
+  resolveReplay,
   secondsPerTick,
   stepNotes,
+  type StepNotes,
+  type StepTimeline,
+  type TimedNote,
 } from '@/curriculum/engine/musicLiteracy/literacy';
 import {
+  passOrder,
+  passProgressKey,
+  stepPasses,
+  type LiteracyPass,
+} from '@/curriculum/engine/musicLiteracy/passes';
+import {
   applyCue,
+  createRunCues,
   groovePreviewCues,
   IDLE_RUN_VIEW,
+  repeatLightCues,
   runCues,
   type RunCue,
   type RunMode,
@@ -58,6 +122,7 @@ import {
 } from '@/curriculum/guitar/layout/GuitarResultPanel';
 import type {
   BarState,
+  GuitarStepStatus,
   NavStep,
   ResultModel,
 } from '@/curriculum/guitar/layout/types';
@@ -69,20 +134,47 @@ import { useDrumGrooveSettings } from '@/learn/audio/useDrumGrooveSettings';
 import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
 import { LearnInputProvider } from '@/learn/context/LearnInputContext';
-import type { KeyRange } from '@/learn/keyboard/lessonKeyboardRange';
 import { describeKey } from '@/lib/learn/keyDescription';
+import { ChallengeSegments } from './ChallengeSegments';
+import { ChoiceGate } from './ChoiceGate';
+import { ChooseChordsPanel } from './ChooseChordsPanel';
+import {
+  ChooseKeyPanel,
+  ChooseModePanel,
+  keyName as nameOfKey,
+} from './ChooseKeyPanel';
+import { ChordBars, type ChordBarRow } from './ChordBars';
+import { CreateResultPanel } from './CreateResultPanel';
 import { LiteracyCallPanel } from './LiteracyCallPanel';
 import { MusicLiteracyLayout } from './MusicLiteracyLayout';
+import { PassTabs } from './PassTabs';
+import { createComparison } from './createComparison';
 import { drumsForGroove } from './literacyGrooves';
+import { LITERACY_KEY_RANGE, literacyKeyRange } from './literacyKeyRange';
+import {
+  attackAt,
+  chordLabelsByBar,
+  isRightKey,
+  pitchClass,
+} from './literacyKeys';
 import { startHereRoute } from './literacyPath';
 import {
+  keyPreviewNotes,
+  PREVIEW_CHORD_TICKS,
+  previewCues,
+  progressionPreview,
+} from './literacyPreview';
+import {
+  addLiteracyRunCues,
   literacyClock,
   previewLiteracyGroove,
   startLiteracyRun,
   stopLiteracyRun,
 } from './literacyRun';
-import { hubHeadline } from './turnCues';
+import { literacyStepDone, literacyStepTried, stepPassMarks } from './stepDone';
+import { createHubHeadline, hubHeadline, replayHubHeadline } from './turnCues';
 import { typingLetterFor, typingOctaveLabel } from './typingKeys';
+import { useLiteracyChoices } from './useLiteracyChoices';
 import { useLiteracyInput, type LiteracyNoteOn } from './useLiteracyInput';
 import { useLiteracyProgress } from './useLiteracyProgress';
 
@@ -117,9 +209,29 @@ import { useLiteracyProgress } from './useLiteracyProgress';
 // the student's turn, and then YOUR TURN (turnCues.ts). The call is what to
 // copy: its keys light shiny over the words' plain light, and the roll marks
 // its bars "Copy this".
+//
+// THE PASSES (engine/musicLiteracy/passes.ts)
+// After an echo's result the student may go again:
+//
+//   challenge  Part 1: "Want a challenge just for fun? Go again and play ALL
+//              the notes!" The same run, PLAY ALONG over the teacher's turn,
+//              every note graded, each segment's score shown. Its best is
+//              kept apart (`<tag>:challenge`) and never holds up the lesson.
+//   create     Part 2's Pass 2, "Now Create Your Own Rhythms!": count-in,
+//              the student's own call on the step's notes (the keys lit
+//              softly), transcribed to 16ths at its end and shown on the roll
+//              and staff, then their repeat of it, graded against it.
+//
+// PART 2 (a lesson whose key is the student's)
+// The choose steps pick the key on the circle, major or minor, and the
+// chords of a progression; their choices are kept beside the progress
+// (useLiteracyChoices.ts). A step that needs a choice not yet made waits
+// with a link to the step that makes it. A chord echo plays its voiced
+// chords in their rhythm, the hub naming each bar's chord; a replay plays
+// the student's progression as triads, then with 7ths, to listen to.
+// When a step counts as done is one rule, in stepDone.ts.
 
-/** The keyboard: exactly 25 keys, C3–C5 (the series' register, literacy.ts). */
-export const LITERACY_KEY_RANGE: KeyRange = { low: 48, high: 72 };
+export { LITERACY_KEY_RANGE };
 
 /** White-key length ÷ width: a real key is about 6.4, this a touch shorter. */
 const KEY_ASPECT = 6;
@@ -128,26 +240,70 @@ const KEY_ASPECT = 6;
 const KEYBOARD_MIN_HEIGHT = 110;
 const KEYBOARD_MAX_HEIGHT = 190;
 
+/** The chord chooser's keys, which light the chords as they're heard. */
+const CHOOSER_KEYBOARD_HEIGHT = 130;
+
 /** The roll's timeline header (GenrePianoRoll draws it 40px tall). */
 const ROLL_HEADER = 40;
 
+/** The house wrong-key gray, for a key held that isn't the step's. */
+const NEUTRAL_KEY_COLOR = '#e8e8f0';
+
 type Status = 'preview' | 'running' | 'result';
 
+/** What a run is for: one of the step's passes, or hearing a choice. */
+type RunKind = LiteracyPass | 'hear';
+
 interface Run {
+  kind: RunKind;
   mode: RunMode;
   stepIndex: number;
-  notes: ReturnType<typeof stepNotes>;
+  notes: StepNotes;
+  /** The run's own timeline: the step's, or its create pass's. */
+  timeline: StepTimeline;
+  create: CreatePass | null;
+  /** The create pass's call, once its bars are over. */
+  transcription: Transcription | null;
   tempo: number;
   passMark: number;
   tag: string;
   finished: boolean;
 }
 
+/** What a graded run came to. */
+type Outcome =
+  | { pass: 'echo'; kind: 'notes'; result: LiteracyResult }
+  | { pass: 'echo'; kind: 'chords'; result: LiteracyChordResult }
+  | {
+      pass: 'challenge';
+      result: LiteracyChallengeResult;
+      bestBefore: number | null;
+    }
+  | {
+      pass: 'create';
+      result: CreateResult;
+      transcription: Transcription;
+      create: CreatePass;
+      played: PlayedNote[];
+    };
+
 const RUN_LEAD: Record<RunMode, string> = {
   listen: 'Listen: the whole step, the answer too',
   practice: 'Practice: play the lit keys back, not scored',
   play: 'Play the call back when it’s your turn',
 };
+
+const CHORD_RUN_LEAD: Record<RunMode, string> = {
+  listen: 'Listen: the chords, then the answer',
+  practice: 'Practice: play the lit chords back, not scored',
+  play: 'Play the chords back when it’s your turn',
+};
+
+/** The copy offering each pass after an echo's result. */
+const OFFER_COPY = {
+  challenge: 'Want a challenge just for fun? Go again and play ALL the notes!',
+  create: 'Now Create Your Own Rhythms!',
+} as const;
 
 export interface MusicLiteracyPlayerProps {
   lesson: MusicLiteracyLesson;
@@ -168,6 +324,12 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const { grooveId, click: grooveClick, setGrooveId } = useDrumGrooveSettings();
   const { reportCompletion } = useMspModuleCompletion();
   const { progress, record } = useLiteracyProgress(lesson.id);
+  const studentKey = lesson.keyChoice === 'student';
+  const { choices: savedChoices, update: updateChoices } = useLiteracyChoices(
+    lesson.id,
+  );
+  /** The student's choices, in a lesson that asks for them. */
+  const choices: LiteracyChoices | null = studentKey ? savedChoices : null;
 
   // `?step=<tag>` opens on that step: Start Here's Continue.
   const [params] = useSearchParams();
@@ -178,13 +340,31 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     ),
   );
   const step = lesson.steps[Math.min(stepIndex, lesson.steps.length - 1)];
-  const notes = useMemo(() => stepNotes(lesson, step), [lesson, step]);
-  const { timeline, tonic } = notes;
-  const mode = stepMode(lesson, step);
-  const keyColor = stepKeyColor(lesson, step);
-  const tonicPc = tonicPitchClass(lesson);
-  const tonicName = displayAccidentals(lesson.key.tonic);
-  const keyName = `${tonicName} ${mode === 'minor' ? 'Minor' : 'Major'}`;
+  const kind = stepKind(step);
+  const notes = useMemo(
+    () => stepNotes(lesson, step, choices),
+    [lesson, step, choices],
+  );
+  const chordSteps = notes.chords !== null;
+  const passes = useMemo(() => stepPasses(lesson, step), [lesson, step]);
+  const create = useMemo(
+    () => (passes.create ? createPass(lesson, step, choices) : null),
+    [passes.create, lesson, step, choices],
+  );
+  const missing = useMemo(
+    () => (studentKey ? missingChoices(lesson, step, choices) : []),
+    [studentKey, lesson, step, choices],
+  );
+  const gate = missing[0] ?? null;
+
+  const mode = stepMode(lesson, step, choices);
+  const keyColorOfStep = stepKeyColor(lesson, step, choices);
+  // Before a Part 2 student picks a key, the screen wears no key's color.
+  const noKeyYet = studentKey && !choices?.tonic;
+  const keyColor = noKeyYet ? NEUTRAL_KEY_COLOR : keyColorOfStep;
+  const tonicPc = tonicPitchClass(lesson, step, choices);
+  const { tonic } = notes;
+  const keyName = nameOfKey(notes.key.tonic, mode);
   const colorOf =
     mode === 'minor'
       ? displayAccidentals(MIDI_ROOT_TO_KEY[(tonicPc + 3) % 12])
@@ -199,10 +379,16 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const ownTempo = step.tempo ?? lesson.tempo;
   const [tempo, setTempo] = useState(ownTempo);
   const [tempoFor, setTempoFor] = useState(step.tag);
+  // The pass shown: Pass 1, the echo, on opening any step.
+  const [pass, setPass] = useState<LiteracyPass>('echo');
   if (tempoFor !== step.tag) {
     setTempoFor(step.tag);
     setTempo(ownTempo);
+    setPass('echo');
   }
+  const onCreate = pass === 'create' && create !== null;
+  /** The timeline the screen draws: the step's, or its create pass's. */
+  const timeline = onCreate ? create.timeline : notes.timeline;
 
   const [status, setStatus] = useState<Status>('preview');
   const [runMode, setRunMode] = useState<RunMode | null>(null);
@@ -210,7 +396,15 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const [live, setLive] = useState(false);
   const [view, setView] = useState<RunView>(IDLE_RUN_VIEW);
   const [played, setPlayed] = useState<readonly PlayedNote[]>([]);
-  const [result, setResult] = useState<LiteracyResult | null>(null);
+  const [outcome, setOutcome] = useState<Outcome | null>(null);
+  /** The create pass's call, transcribed at its end (shown in the repeat). */
+  const [transcription, setTranscription] = useState<Transcription | null>(
+    null,
+  );
+  /** What a choose step is playing to be heard, if anything. */
+  const [hearing, setHearing] = useState<
+    'key' | 'chord' | 'progression' | null
+  >(null);
   const [held, setHeld] = useState<ReadonlyMap<number, string | null>>(
     () => new Map(),
   );
@@ -220,8 +414,25 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const runRef = useRef<Run | null>(null);
   const playedRef = useRef<PlayedNote[]>([]);
   const liveRef = useRef(false);
-  const latest = useRef({ notes, keyColor, tonic });
-  latest.current = { notes, keyColor, tonic };
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
+
+  const latest = useRef({
+    notes,
+    keyColor,
+    tonic,
+    pass: (onCreate ? 'create' : pass) as LiteracyPass,
+    create,
+    transcription,
+  });
+  latest.current = {
+    notes,
+    keyColor,
+    tonic,
+    pass: onCreate ? 'create' : pass,
+    create,
+    transcription,
+  };
 
   // ── The run ──
 
@@ -238,55 +449,175 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       run.finished = true;
       endRun();
       setView((v) => ({ ...v, hub: null, lit: [], ended: true }));
+      if (run.kind === 'hear') {
+        setHearing(null);
+        setView(IDLE_RUN_VIEW);
+        return;
+      }
       if (run.mode !== 'play') {
+        // A replay heard to the end is done: there's nothing to grade.
+        if (run.notes.timeline.response.length === 0 && run.mode === 'listen') {
+          record(run.tag, 100, true);
+        }
         setStatus('preview');
         setRunMode(null);
         return;
       }
-      const graded = gradeResponse(run.notes.response, playedRef.current, {
-        timeline: run.notes.timeline,
-        tempo: run.tempo,
-        passMark: run.passMark,
-        call: run.notes.call,
-      });
-      if (import.meta.env.DEV) {
-        // For tuning the grading by ear: how far off each answer was.
-        console.debug(
-          '[MusicLiteracy] graded',
-          JSON.stringify({
-            percent: graded.percent,
-            pitch: graded.pitchAccuracy,
-            timing: graded.timingAccuracy,
-            offsetsMs: graded.outcomes?.map((o) =>
-              o.timingDevTicks === undefined
-                ? null
-                : Math.round(
-                    o.timingDevTicks * secondsPerTick(run.tempo) * 1000,
-                  ),
-            ),
-            extras: graded.extras.length,
-          }),
+      const all = playedRef.current;
+      const timing = { tempo: run.tempo, passMark: run.passMark };
+      let next: Outcome;
+      if (run.kind === 'create' && run.create) {
+        // The call once more, with every note it heard, read whichever way
+        // fits the repeat (a repeat's first note may come a little early).
+        const { transcription: heard, result: graded } = bestCreateReading(
+          run.create,
+          all,
+          timing,
         );
+        if (graded.kind !== 'empty') {
+          record(
+            passProgressKey(run.tag, 'create'),
+            graded.result.percent,
+            graded.passed,
+          );
+        }
+        setTranscription(heard);
+        next = {
+          pass: 'create',
+          result: graded,
+          transcription: heard,
+          create: run.create,
+          played: [...all],
+        };
+      } else if (run.kind === 'challenge') {
+        const graded = gradeChallenge(challengeTargets(run.notes), all, {
+          timeline: run.notes.timeline,
+          ...timing,
+        });
+        const before =
+          progressRef.current[passProgressKey(run.tag, 'challenge')];
+        record(
+          passProgressKey(run.tag, 'challenge'),
+          graded.percent,
+          graded.passed,
+        );
+        next = {
+          pass: 'challenge',
+          result: graded,
+          bestBefore: before ? before.best : null,
+        };
+      } else if (run.notes.chords) {
+        const graded = gradeChordResponse(run.notes.chords.response, all, {
+          timeline: run.notes.timeline,
+          ...timing,
+          call: run.notes.chords.call,
+        });
+        record(run.tag, graded.percent, graded.passed);
+        next = { pass: 'echo', kind: 'chords', result: graded };
+      } else {
+        const graded = gradeResponse(run.notes.response, all, {
+          timeline: run.notes.timeline,
+          ...timing,
+          call: run.notes.call,
+        });
+        if (import.meta.env.DEV) {
+          // For tuning the grading by ear: how far off each answer was.
+          console.debug(
+            '[MusicLiteracy] graded',
+            JSON.stringify({
+              percent: graded.percent,
+              pitch: graded.pitchAccuracy,
+              timing: graded.timingAccuracy,
+              offsetsMs: graded.outcomes?.map((o) =>
+                o.timingDevTicks === undefined
+                  ? null
+                  : Math.round(
+                      o.timingDevTicks * secondsPerTick(run.tempo) * 1000,
+                    ),
+              ),
+              extras: graded.extras.length,
+            }),
+          );
+        }
+        record(run.tag, graded.percent, graded.passed);
+        next = { pass: 'echo', kind: 'notes', result: graded };
       }
-      record(run.tag, graded.percent, graded.passed);
-      // The classroom hears when the last step is passed (a no-op unless the
-      // lesson was opened from a classroom slide).
-      if (graded.passed && run.stepIndex === lesson.steps.length - 1) {
+      // The classroom hears when the last step's echo is passed (a no-op
+      // unless the lesson was opened from a classroom slide).
+      if (
+        next.pass === 'echo' &&
+        next.result.passed &&
+        run.stepIndex === lesson.steps.length - 1
+      ) {
         reportCompletion();
       }
-      setResult(graded);
+      setOutcome(next);
       setStatus('result');
     },
     [endRun, lesson.steps.length, record, reportCompletion],
   );
 
+  /**
+   * The create pass's call is over: transcribe it, show it, light its keys
+   * for the repeat. An empty call stops the run: try again.
+   */
+  const onCallOver = useCallback(
+    (run: Run) => {
+      if (!run.create || run.transcription) return;
+      const heard = transcribeCall(run.create, playedRef.current);
+      run.transcription = heard;
+      setTranscription(heard);
+      if (heard.empty) {
+        endRun();
+        run.finished = true;
+        setView(IDLE_RUN_VIEW);
+        setOutcome({
+          pass: 'create',
+          result: gradeCreateRepeat(run.create, heard, playedRef.current, {
+            tempo: run.tempo,
+            passMark: run.passMark,
+          }),
+          transcription: heard,
+          create: run.create,
+          played: [...playedRef.current],
+        });
+        setStatus('result');
+        return;
+      }
+      if (run.create.material.kind === 'notes') {
+        addLiteracyRunCues(repeatLightCues(heard.targets));
+      } else {
+        addLiteracyRunCues(
+          repeatLightCues(
+            heard.attacks.flatMap((attack) =>
+              attack.chord.midis.map((midi, i) => ({
+                midi,
+                onset: attack.onset,
+                duration: attack.duration,
+                degree: '1' as const,
+                index: attack.index * 8 + i,
+              })),
+            ),
+          ),
+        );
+      }
+    },
+    [endRun],
+  );
+
   const startRun = useCallback(
-    (mode: RunMode) => {
+    (mode: RunMode, runKind: LiteracyPass) => {
       endRun();
+      const forCreate = runKind === 'create' && create !== null;
+      const runTimeline = forCreate ? create.timeline : notes.timeline;
       const run: Run = {
+        kind: runKind,
         mode,
         stepIndex,
         notes,
+        timeline: runTimeline,
+        create: forCreate ? create : null,
+        transcription: null,
         tempo,
         passMark,
         tag: step.tag,
@@ -295,7 +626,9 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       runRef.current = run;
       playedRef.current = [];
       setPlayed([]);
-      setResult(null);
+      setOutcome(null);
+      setTranscription(null);
+      setHearing(null);
       setView(IDLE_RUN_VIEW);
       setRunMode(mode);
       setStatus('running');
@@ -305,28 +638,43 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       const onCue = (cue: RunCue) => {
         if (runRef.current !== run) return;
         setView((v) => applyCue(v, cue, wordCount));
+        if (
+          forCreate &&
+          cue.kind === 'beat' &&
+          cue.tick === runTimeline.response.start
+        ) {
+          onCallOver(run);
+        }
         if (cue.kind === 'end') finishRun(run);
       };
       // The groove's drums first (a Studio groove or a code groove loads
       // now); one that's gone, or won't load, leaves the click alone.
+      const from = forCreate ? runTimeline.call.start : runTimeline.words.start;
       const begin = async () => {
         const drums =
           groove === null
             ? null
             : await drumsForGroove(
                 groove,
-                (timeline.total - timeline.words.start) / timeline.barTicks,
+                (runTimeline.total - from) / runTimeline.barTicks,
               ).catch((error: unknown) => {
                 console.warn('[MusicLiteracy] the groove did not load', error);
                 return null;
               });
         if (runRef.current !== run) return false;
+        // Over the drums the click stops after the count-in, unless asked for.
+        const options = {
+          metronome: drums ? grooveClick : metronomeEnabled,
+          groove: drums?.groove,
+        };
         return startLiteracyRun({
-          cues: runCues(lesson, step, mode, {
-            // Over the drums the click stops after the count-in, unless asked for.
-            metronome: drums ? grooveClick : metronomeEnabled,
-            groove: drums?.groove,
-          }),
+          cues: forCreate
+            ? createRunCues(lesson, create, options)
+            : runCues(lesson, step, mode, {
+                ...options,
+                choices,
+                challenge: runKind === 'challenge',
+              }),
           tempo,
           onCue,
           kit: drums?.kit,
@@ -350,6 +698,8 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       );
     },
     [
+      choices,
+      create,
       endRun,
       finishRun,
       groove,
@@ -357,19 +707,61 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       lesson,
       metronomeEnabled,
       notes,
+      onCallOver,
       passMark,
       step,
       stepIndex,
       tempo,
-      timeline,
     ],
+  );
+
+  /** Play something to hear a choice: no count-in, nothing graded. */
+  const hear = useCallback(
+    (cues: RunCue[], what: 'key' | 'chord' | 'progression') => {
+      endRun();
+      const run: Run = {
+        kind: 'hear',
+        mode: 'listen',
+        stepIndex,
+        notes,
+        timeline: notes.timeline,
+        create: null,
+        transcription: null,
+        tempo,
+        passMark,
+        tag: step.tag,
+        finished: false,
+      };
+      runRef.current = run;
+      setHearing(what);
+      setView(IDLE_RUN_VIEW);
+      void startLiteracyRun({
+        cues,
+        tempo,
+        onCue: (cue) => {
+          if (runRef.current !== run) return;
+          setView((v) => applyCue(v, cue, 0));
+          if (cue.kind === 'end') finishRun(run);
+        },
+      }).catch((error: unknown) => {
+        console.warn('[MusicLiteracy] could not play it', error);
+        if (runRef.current === run) {
+          endRun();
+          setHearing(null);
+        }
+      });
+    },
+    [endRun, finishRun, notes, passMark, step.tag, stepIndex, tempo],
   );
 
   const stopRun = useCallback(() => {
     endRun();
     setStatus('preview');
     setRunMode(null);
+    setHearing(null);
     setView(IDLE_RUN_VIEW);
+    // A challenge stopped part-way goes back to the step's own pass.
+    setPass((p) => (p === 'challenge' ? 'echo' : p));
   }, [endRun]);
 
   // Choosing a groove stops a run (as a new tempo does) and plays a bar of
@@ -413,11 +805,39 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       setStatus('preview');
       setRunMode(null);
       setView(IDLE_RUN_VIEW);
-      setResult(null);
+      setOutcome(null);
+      setTranscription(null);
+      setHearing(null);
+      setPass('echo');
       playedRef.current = [];
       setPlayed([]);
     },
     [endRun, lesson.steps.length],
+  );
+
+  /** Show another pass of this step, at its preview. */
+  const choosePass = useCallback(
+    (next: LiteracyPass) => {
+      endRun();
+      setPass(next);
+      setStatus('preview');
+      setRunMode(null);
+      setView(IDLE_RUN_VIEW);
+      setOutcome(null);
+      setTranscription(null);
+      playedRef.current = [];
+      setPlayed([]);
+    },
+    [endRun],
+  );
+
+  /** Go straight into a pass's graded run (the result's offers). */
+  const playPass = useCallback(
+    (next: LiteracyPass) => {
+      setPass(next);
+      startRun('play', next);
+    },
+    [startRun],
   );
 
   // Leaving the lesson stops everything it started.
@@ -443,15 +863,22 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   // ── The student's notes, from every source ──
 
   const noteOn = useCallback(({ midi, velocity, perfMs }: LiteracyNoteOn) => {
-    const { notes: current, keyColor: color, tonic: one } = latest.current;
-    void triggerPianoAttack(midiToPitchName(midi, one), velocity);
+    const current = latest.current;
+    void triggerPianoAttack(midiToPitchName(midi, current.tonic), velocity);
     const run = runRef.current;
+    const graded = run && run.kind !== 'hear' ? run : null;
     const tick =
-      run && liveRef.current ? literacyClock.soundingTicks(perfMs) : null;
-    const figure = run?.notes ?? current;
-    const right = isRightNote(midi, tick, figure.response, figure.timeline);
-    setHeld((prev) => new Map(prev).set(midi, right ? color : null));
-    if (run && tick !== null) {
+      graded && liveRef.current ? literacyClock.soundingTicks(perfMs) : null;
+    // A key is judged by the run's pass, or out of one, the pass shown.
+    const right = isRightKey(midi, tick, {
+      pass: graded ? (graded.kind as LiteracyPass) : current.pass,
+      notes: graded?.notes ?? current.notes,
+      create:
+        graded?.create ?? (current.pass === 'create' ? current.create : null),
+      transcription: graded?.transcription ?? current.transcription,
+    });
+    setHeld((prev) => new Map(prev).set(midi, right ? current.keyColor : null));
+    if (graded && tick !== null) {
       playedRef.current = [
         ...playedRef.current,
         { midi, onset: tick, duration: 0 },
@@ -469,7 +896,8 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         nextHeld.delete(midi);
         return nextHeld;
       });
-      if (!runRef.current || !liveRef.current) return;
+      const run = runRef.current;
+      if (!run || run.kind === 'hear' || !liveRef.current) return;
       const tick = literacyClock.soundingTicks(perfMs);
       if (tick === null) return;
       const list = playedRef.current;
@@ -494,6 +922,78 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     onNoteOff: noteOff,
   });
 
+  // ── The choose steps ──
+
+  const markDone = useCallback(
+    (tag: string) => {
+      if (!progressRef.current[tag]?.passed) record(tag, 100, true);
+    },
+    [record],
+  );
+
+  const hearKey = useCallback(
+    (tonicName: LiteracyTonic, keyMode: LiteracyMode) =>
+      hear(
+        previewCues(keyPreviewNotes({ tonic: tonicName, mode: keyMode })),
+        'key',
+      ),
+    [hear],
+  );
+
+  const chooseTonic = useCallback(
+    (picked: LiteracyTonic) => {
+      updateChoices((c) => withTonic(c, picked));
+      markDone(step.tag);
+      hearKey(picked, choices?.mode ?? lesson.key.mode);
+    },
+    [
+      choices?.mode,
+      hearKey,
+      lesson.key.mode,
+      markDone,
+      step.tag,
+      updateChoices,
+    ],
+  );
+
+  const chooseMode = useCallback(
+    (picked: LiteracyMode) => {
+      updateChoices((c) => withMode(c, picked));
+      markDone(step.tag);
+      hearKey(choices?.tonic ?? lesson.key.tonic, picked);
+    },
+    [
+      choices?.tonic,
+      hearKey,
+      lesson.key.tonic,
+      markDone,
+      step.tag,
+      updateChoices,
+    ],
+  );
+
+  const chooserKey = keyFor(lesson, choices);
+  const hearChords = useCallback(
+    (degrees: LiteracyScaleDegree[], what: 'chord' | 'progression') => {
+      if (step.kind !== 'chooseChords') return;
+      const voiced = degrees
+        .map((d) => voicedChord(chooserKey, d, step.harmony))
+        .filter((c): c is NonNullable<typeof c> => c !== null);
+      hear(progressionPreview(voiced, tonic).cues, what);
+    },
+    [chooserKey, hear, step, tonic],
+  );
+
+  const saveChords = useCallback(
+    (progression: SavedProgression) => {
+      if (step.kind !== 'chooseChords') return;
+      const name = step.saveAs;
+      updateChoices((c) => withProgression(c, name, progression));
+      markDone(step.tag);
+    },
+    [markDone, step, updateChoices],
+  );
+
   // ── The response panel: the roll and the keyboard ──
 
   const rollRef = useRef<HTMLDivElement>(null);
@@ -504,28 +1004,120 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   const running = status === 'running';
   const countIn = timeline.countIn.length;
   const bar = timeline.barTicks;
+  const isReplay = kind === 'replay';
+  const challenge = pass === 'challenge';
+  /** The run under way is this screen's graded or played run. */
+  const runKind: RunKind | null = running ? (onCreate ? 'create' : pass) : null;
 
   const wordsColor = useMemo(() => mutedColor(keyColor), [keyColor]);
-  // The call is the figure to copy: marked so over its bars.
-  const rollBands = useMemo<RollBand[]>(
-    () => [
+  const chordLabels = useMemo(
+    () => chordLabelsByBar(notes.chords?.call ?? []),
+    [notes.chords],
+  );
+  const replayPasses = useMemo(
+    () => (step.kind === 'replay' ? resolveReplay(lesson, step, choices) : []),
+    [lesson, step, choices],
+  );
+
+  // The call is the figure to copy: marked so over its bars (a chord call,
+  // each bar by its chord); a create pass marks the student's call and
+  // their repeat.
+  const rollBands = useMemo<RollBand[]>(() => {
+    const at = (tick: number) => tick - countIn;
+    if (onCreate) {
+      return [
+        {
+          startTick: at(timeline.call.start),
+          endTick: at(timeline.call.start + timeline.call.length),
+          label: 'Your call',
+          color: keyColor,
+        },
+        {
+          startTick: at(timeline.response.start),
+          endTick: at(timeline.response.start + timeline.response.length),
+          label: 'Repeat it',
+          color: wordsColor,
+        },
+      ];
+    }
+    if (isReplay) {
+      const once = replayPasses[0]?.chords.length ?? 1;
+      return replayPasses.flatMap((p, i) =>
+        p.chords.map((chord, b) => ({
+          startTick: at(timeline.call.start + (i * once + b) * bar),
+          endTick: at(timeline.call.start + (i * once + b + 1) * bar),
+          label: chord.label,
+          color: keyColor,
+        })),
+      );
+    }
+    if (chordSteps) {
+      return chordLabels.map((label, b) => ({
+        startTick: at(timeline.call.start + b * bar),
+        endTick: at(timeline.call.start + (b + 1) * bar),
+        label,
+        color: keyColor,
+      }));
+    }
+    return [
       {
-        startTick: timeline.call.start - countIn,
-        endTick: timeline.call.start + timeline.call.length - countIn,
+        startTick: at(timeline.call.start),
+        endTick: at(timeline.call.start + timeline.call.length),
         label: 'Copy this',
         color: keyColor,
       },
-    ],
-    [timeline.call, countIn, keyColor],
-  );
+    ];
+  }, [
+    onCreate,
+    isReplay,
+    chordSteps,
+    replayPasses,
+    chordLabels,
+    timeline,
+    countIn,
+    bar,
+    keyColor,
+    wordsColor,
+  ]);
+
+  /** The create pass's call and repeat, once transcribed, on its timeline. */
+  const createNotes = useMemo(() => {
+    if (!onCreate || !transcription || transcription.empty) {
+      return { call: [] as TimedNote[], response: [] as TimedNote[] };
+    }
+    const shift = timeline.response.start - timeline.call.start;
+    const response: TimedNote[] =
+      create.material.kind === 'notes'
+        ? transcription.targets
+        : transcription.attacks.flatMap((attack) =>
+            attack.chord.midis.map((midi) => ({
+              midi,
+              onset: attack.onset,
+              duration: attack.duration,
+              degree: degreeOfMidi(midi, tonic).degree,
+              index: 0,
+            })),
+          );
+    const indexed = response.map((n, index) => ({ ...n, index }));
+    return {
+      call: indexed.map((n) => ({ ...n, onset: n.onset - shift })),
+      response: indexed,
+    };
+  }, [onCreate, transcription, create, timeline, tonic]);
+
   const segments = useMemo(
     () =>
-      [
-        ['words', notes.words],
-        ['call', notes.call],
-        ['response', notes.response],
-      ] as const,
-    [notes],
+      onCreate
+        ? ([
+            ['call', createNotes.call],
+            ['response', createNotes.response],
+          ] as const)
+        : ([
+            ['words', notes.words],
+            ['call', notes.call],
+            ['response', notes.response],
+          ] as const),
+    [onCreate, createNotes, notes],
   );
   const events = useMemo<NoteEvent[]>(
     () =>
@@ -542,13 +1134,43 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       ),
     [segments, tonic, countIn, wordsColor, keyColor],
   );
+
+  /** Every pitch the step asks for: the keyboard shows them all. */
+  const targetMidis = useMemo(() => {
+    const midis = new Set<number>();
+    for (const n of [...notes.words, ...notes.call, ...notes.response]) {
+      midis.add(n.midi);
+    }
+    if (create?.material.kind === 'notes') {
+      for (const m of create.material.notes) midis.add(m.midi);
+    } else if (create) {
+      for (const c of create.material.chords)
+        for (const m of c.midis) midis.add(m);
+    }
+    return midis;
+  }, [notes, create]);
+  const keyRange = useMemo(() => literacyKeyRange(targetMidis), [targetMidis]);
+
+  const createMaterialMidis = useMemo(() => {
+    if (!create) return [];
+    return create.material.kind === 'notes'
+      ? create.material.notes.map((m) => m.midi)
+      : create.material.chords.flatMap((c) => [...c.midis]);
+  }, [create]);
+
   const rollRange = useMemo(() => {
-    const midis = events.map((e) => e.midi!);
+    const midis = [
+      ...events.map((e) => e.midi!),
+      ...(onCreate
+        ? [...createMaterialMidis, ...played.map((p) => p.midi)]
+        : []),
+    ];
+    if (midis.length === 0) return { min: 58, max: 66 };
     const low = Math.min(...midis);
     const high = Math.max(...midis);
     const pad = Math.max(2, Math.ceil((7 - (high - low)) / 2));
     return { min: low - pad, max: high + pad };
-  }, [events]);
+  }, [events, onCreate, createMaterialMidis, played]);
 
   // The roll draws one count-in bar before its tick 0, wherever the
   // transport's zero is: hand it the transport moved by the difference.
@@ -557,17 +1179,50 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     return ticks === null ? null : ticks - countIn + bar;
   }, [countIn, bar]);
 
+  /** The notes the student answers, and what they've played for them. */
+  const answerTargets = onCreate ? createNotes.response : notes.response;
+  const answerPlayed = useMemo(() => {
+    if (!onCreate || !transcription) return played;
+    const used = new Set(transcription.used);
+    return played.filter((n) => !used.has(n));
+  }, [onCreate, transcription, played]);
+
   // Live pairs while the student answers (Play); the result's once graded.
+  const echoResult =
+    outcome?.pass === 'echo' && outcome.kind === 'notes'
+      ? outcome.result
+      : null;
   const pairs = useMemo(() => {
-    if (result) return result.pairs;
+    if (echoResult) return echoResult.pairs;
+    if (chordSteps && !onCreate) {
+      // A chord's note is answered by its pitch class, near its attack.
+      const answers = inResponse(answerPlayed, timeline);
+      return answerTargets.map(
+        (target) =>
+          answers.find(
+            (n) =>
+              pitchClass(n.midi) === pitchClass(target.midi) &&
+              Math.abs(n.onset - target.onset) <= RESPONSE_EARLY_TICKS,
+          ) ?? null,
+      );
+    }
     return pairResponse(
-      notes.response,
-      inResponse(played, timeline, {
-        call: notes.call,
-        response: notes.response,
+      answerTargets,
+      inResponse(answerPlayed, timeline, {
+        call: onCreate ? createNotes.call : notes.call,
+        response: answerTargets,
       }),
     ).pairs;
-  }, [result, notes.call, notes.response, played, timeline]);
+  }, [
+    echoResult,
+    chordSteps,
+    onCreate,
+    answerPlayed,
+    timeline,
+    answerTargets,
+    createNotes.call,
+    notes.call,
+  ]);
 
   const performanceMeta = useMemo(() => {
     if (!running) return undefined;
@@ -609,27 +1264,79 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         duration: note.duration,
         correct:
           answeredNotes.has(note) ||
-          (!result &&
-            isRightNote(note.midi, note.onset, notes.response, timeline)),
+          (!outcome &&
+            isRightKey(note.midi, note.onset, {
+              pass: onCreate ? 'create' : pass,
+              notes,
+              create: onCreate ? create : null,
+              transcription,
+            })),
       })),
-    [played, countIn, answeredNotes, result, notes.response, timeline],
+    [
+      played,
+      countIn,
+      answeredNotes,
+      outcome,
+      onCreate,
+      pass,
+      notes,
+      create,
+      transcription,
+    ],
   );
 
   const figureMidis = useMemo(
-    () => new Set([...notes.call, ...notes.response].map((n) => n.midi)),
-    [notes],
+    () =>
+      new Set(
+        onCreate
+          ? createMaterialMidis
+          : [...notes.call, ...notes.response].map((n) => n.midi),
+      ),
+    [onCreate, createMaterialMidis, notes],
   );
-  const hintNotes = useMemo(
-    () => new Map(notes.response.map((n) => [n.midi, keyColor] as const)),
-    [notes.response, keyColor],
-  );
+
+  /** The create pass's bar now: the call's, then the repeat's. */
+  const createBar = useMemo(() => {
+    if (!onCreate || create.material.kind !== 'chords') return null;
+    const tick = running ? view.tick : -1;
+    const from =
+      tick >= timeline.response.start
+        ? timeline.response.start
+        : timeline.call.start;
+    return Math.max(
+      0,
+      Math.min(
+        create.material.chords.length - 1,
+        Math.floor((tick - from) / bar),
+      ),
+    );
+  }, [onCreate, create, running, view.tick, timeline, bar]);
+
+  // The keys to play, lit softly: the answer's; in a create pass's call, the
+  // step's notes (a chord call: the bar's chord).
+  const hintNotes = useMemo(() => {
+    if (onCreate) {
+      const midis =
+        create.material.kind === 'notes'
+          ? create.material.notes.map((m) => m.midi)
+          : [...create.material.chords[createBar ?? 0].midis];
+      return new Map(midis.map((m) => [m, keyColor] as const));
+    }
+    const list = notes.response.length ? notes.response : notes.call;
+    return new Map(list.map((n) => [n.midi, keyColor] as const));
+  }, [onCreate, create, createBar, notes, keyColor]);
   const keyLabels = useMemo(() => {
     const labels = new Map<number, string>();
     for (const n of [...notes.call, ...notes.response]) {
       labels.set(n.midi, degreeLabel(n.degree));
     }
+    if (create?.material.kind === 'notes') {
+      for (const m of create.material.notes) {
+        labels.set(m.midi, degreeLabel(m.degree));
+      }
+    }
     return labels;
-  }, [notes]);
+  }, [notes, create]);
   // The call's keys as they sound: shiny, as the student's own right notes
   // are, over the plain light of the words. A key the student holds is
   // drawn as theirs.
@@ -640,12 +1347,12 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         n.onset <= view.tick &&
         view.tick < n.onset + n.duration,
     );
-    if (sounding.length === 0) return held;
+    if (sounding.length === 0 || onCreate) return held;
     return new Map([
       ...sounding.map((n) => [n.midi, keyColor] as const),
       ...held,
     ]);
-  }, [notes.call, view.lit, view.tick, held, keyColor]);
+  }, [notes.call, view.lit, view.tick, held, keyColor, onCreate]);
   const playingNotes = useMemo<PlaybackEvent[]>(
     () =>
       view.lit.map((midi) => ({
@@ -665,21 +1372,148 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     Math.min(KEYBOARD_MAX_HEIGHT, Math.round(responseBox.height * 0.34)),
   );
 
-  const answerLetters = notes.response
+  const answerLetters = (onCreate ? [] : notes.response)
     .map((n) => typingLetterFor(n.midi, typingOctave) ?? '–')
     .join(' · ');
 
   // ── The hub: what to do now ──
 
-  const headline = hubHeadline(
+  const headline = onCreate
+    ? createHubHeadline(
+        timeline,
+        running ? view.tick : -1,
+        beatsPerBar,
+        running,
+      )
+    : isReplay
+      ? replayHubHeadline(
+          timeline,
+          running ? view.tick : -1,
+          step.kind === 'replay' ? replayHarmonies(step) : [],
+          running,
+        )
+      : hubHeadline(
+          timeline,
+          running ? view.tick : -1,
+          beatsPerBar,
+          running ? runMode : null,
+          { challenge },
+        );
+
+  // A chord step's hub names the chord now; a create pass's, its notes.
+  const hubContent = useMemo(():
+    | { kind: 'chord'; label: string; lit: boolean }
+    | { kind: 'degrees'; items: { label: string; lit: boolean }[] }
+    | undefined => {
+    if (onCreate) {
+      if (create.material.kind === 'notes') {
+        const on = new Set([...view.lit, ...held.keys()]);
+        return {
+          kind: 'degrees',
+          items: create.material.notes.map((m) => ({
+            label: degreeLabel(m.degree),
+            lit: running && on.has(m.midi),
+          })),
+        };
+      }
+      const chord = create.material.chords[createBar ?? 0];
+      return {
+        kind: 'chord',
+        label: chord.label,
+        lit:
+          running &&
+          chord.midis.some((m) => view.lit.includes(m) || held.has(m)),
+      };
+    }
+    if (!notes.chords) return undefined;
+    const attacks =
+      running &&
+      view.tick >= timeline.response.start &&
+      notes.chords.response.length
+        ? notes.chords.response
+        : notes.chords.call;
+    const now = running ? attackAt(attacks, view.tick) : null;
+    const chord = now?.attack.chord ?? notes.chords.call[0]?.chord;
+    return {
+      kind: 'chord',
+      label: chord?.label ?? '',
+      lit:
+        !!now?.sounding &&
+        now.attack.chord.midis.some((m) => view.lit.includes(m)),
+    };
+  }, [
+    onCreate,
+    create,
+    createBar,
+    view.lit,
+    view.tick,
+    held,
+    running,
+    notes.chords,
     timeline,
-    running ? view.tick : -1,
-    beatsPerBar,
-    running ? runMode : null,
-  );
+  ]);
+
+  // Under the circle: a chord step's bars, the one playing lit.
+  const chordRows = useMemo((): ChordBarRow[] | null => {
+    if (onCreate) {
+      if (create.material.kind !== 'chords') return null;
+      return [
+        {
+          bars: create.material.chords.map((chord, b) => ({
+            label: chord.label,
+            lit: running && view.tick >= timeline.call.start && createBar === b,
+          })),
+        },
+      ];
+    }
+    if (isReplay) {
+      const once = (replayPasses[0]?.chords.length ?? 1) * bar;
+      const now =
+        running && view.tick >= timeline.call.start
+          ? view.tick - timeline.call.start
+          : -1;
+      const row = now >= 0 ? Math.floor(now / once) : -1;
+      const at = now >= 0 ? Math.floor((now % once) / bar) : -1;
+      return replayPasses.map((p, r) => ({
+        label: p.harmony === 'sevenths' ? '7ths' : 'Triads',
+        bars: p.chords.map((chord, b) => ({
+          label: chord.label,
+          lit: r === row && b === at,
+        })),
+      }));
+    }
+    if (!notes.chords) return null;
+    const inResponseBars = running && view.tick >= timeline.response.start;
+    const attacks = inResponseBars ? notes.chords.response : notes.chords.call;
+    const now =
+      running && view.tick >= timeline.call.start
+        ? attackAt(attacks, view.tick)
+        : null;
+    return [
+      {
+        bars: chordLabels.map((label, b) => ({
+          label,
+          lit: now?.attack.bar === b,
+        })),
+      },
+    ];
+  }, [
+    onCreate,
+    create,
+    running,
+    view.tick,
+    timeline,
+    createBar,
+    isReplay,
+    replayPasses,
+    bar,
+    notes.chords,
+    chordLabels,
+  ]);
 
   // ── The bar ──
 
+  const graded = outcome !== null;
   const barState: BarState =
     status === 'result'
       ? 'result'
@@ -689,22 +1523,31 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
           : 'practice'
         : 'preview';
 
-  const resultModel: ResultModel | null = result
-    ? {
-        result,
-        stepKind: 'notes',
-        headingOverride: null,
-        feedback: result.feedbackText,
-        suggestion: null,
-        onSuggestion: () => {},
-        hasMistakes: false,
-        canCountItMyself: false,
-        onCountItMyself: () => {},
-        retry: () => startRun('play'),
-        next,
-        nextLabel: isLastStep ? 'Finish' : 'Next',
-      }
-    : null;
+  const passedNow = outcome?.result.passed ?? false;
+
+  const resultModel: ResultModel | null =
+    outcome && outcome.pass !== 'create'
+      ? {
+          result: outcome.result,
+          stepKind:
+            outcome.pass === 'echo' && outcome.kind === 'chords'
+              ? 'chords'
+              : 'notes',
+          headingOverride: null,
+          feedback: outcome.result.feedbackText,
+          suggestion: null,
+          onSuggestion: () => {},
+          hasMistakes: false,
+          canCountItMyself: false,
+          onCountItMyself: () => {},
+          retry: () => startRun('play', outcome.pass),
+          next,
+          nextLabel: isLastStep ? 'Finish' : 'Next',
+        }
+      : null;
+
+  const nextLabel = isLastStep ? 'Finish' : 'Next';
+  const stepPassMarksNow = stepPassMarks(lesson, step, progress);
 
   const zones = ((): Zones => {
     const corner = (
@@ -716,43 +1559,104 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         Pass = {passMark}% · timing {TIMING_FLOOR}%
       </span>
     );
-    if (status === 'result' && resultModel) {
-      const retry = resultModel.result.passed ? (
-        <Secondary onClick={resultModel.retry}>Try Again</Secondary>
+    if (status === 'result' && outcome) {
+      const emptyCall =
+        outcome.pass === 'create' && outcome.result.kind === 'empty';
+      const retry = () =>
+        startRun('play', outcome.pass === 'create' ? 'create' : outcome.pass);
+      const retryButton = passedNow ? (
+        <Secondary onClick={retry}>Try Again</Secondary>
       ) : (
-        <Primary onClick={resultModel.retry}>Try Again</Primary>
+        <Primary onClick={retry}>Try Again</Primary>
       );
-      const forward = resultModel.result.passed ? (
-        <Primary onClick={next}>{resultModel.nextLabel}</Primary>
-      ) : (
-        <Secondary onClick={next}>{resultModel.nextLabel}</Secondary>
-      );
+      // After the echo, the passes it offers, each with its own copy.
+      const offerCreate = outcome.pass === 'echo' && passes.create !== null;
+      const offerChallenge = outcome.pass === 'echo' && passes.challenge;
+      const forward =
+        passedNow && !offerCreate ? (
+          <Primary onClick={next}>{nextLabel}</Primary>
+        ) : (
+          <Secondary onClick={next}>{nextLabel}</Secondary>
+        );
+      const createButton = offerCreate ? (
+        passedNow ? (
+          <Primary onClick={() => playPass('create')}>
+            <Sparkles />
+            Create Your Own
+          </Primary>
+        ) : (
+          <Secondary onClick={() => playPass('create')}>
+            <Sparkles />
+            Create Your Own
+          </Secondary>
+        )
+      ) : null;
+      const challengeButton = offerChallenge ? (
+        <Secondary onClick={() => playPass('challenge')}>
+          <Trophy />
+          Take the Challenge
+        </Secondary>
+      ) : null;
+      const lead = offerCreate ? (
+        <p
+          data-literacy-offer="create"
+          className="text-[17px] font-medium text-[#e8e8f0]"
+        >
+          {OFFER_COPY.create}
+        </p>
+      ) : offerChallenge ? (
+        <p
+          data-literacy-offer="challenge"
+          className="text-[15px] text-[#e8e8f0]"
+        >
+          {OFFER_COPY.challenge}
+        </p>
+      ) : null;
       return {
-        lead: null,
+        lead,
         meta: null,
-        // The primary sits last: Next after a pass, Try Again after a miss.
-        actions: resultModel.result.passed ? (
+        // The primary sits last: the next pass or Next after a pass, Try
+        // Again after a miss.
+        actions: emptyCall ? (
           <>
-            {retry}
-            {forward}
+            <Secondary onClick={next}>{nextLabel}</Secondary>
+            <Primary onClick={retry}>Try Again</Primary>
+          </>
+        ) : passedNow ? (
+          <>
+            {retryButton}
+            {challengeButton}
+            {offerCreate ? forward : null}
+            {createButton ?? forward}
           </>
         ) : (
           <>
             {forward}
-            {retry}
+            {challengeButton}
+            {createButton}
+            {retryButton}
           </>
         ),
       };
     }
     if (running && runMode) {
+      const leadText = !live
+        ? groove !== null
+          ? 'Getting the drums ready…'
+          : 'Getting the piano ready…'
+        : onCreate
+          ? 'Play your own rhythm, then repeat it'
+          : challenge
+            ? 'Play ALL the notes, along with Atlas'
+            : isReplay
+              ? 'Listen: your chords, then with their 7ths'
+              : chordSteps
+                ? CHORD_RUN_LEAD[runMode]
+                : RUN_LEAD[runMode];
       return {
         lead: (
           <p data-literacy-run-lead className="text-[15px] text-[#e8e8f0]">
-            {live
-              ? RUN_LEAD[runMode]
-              : groove !== null
-                ? 'Getting the drums ready…'
-                : 'Getting the piano ready…'}
+            {leadText}
           </p>
         ),
         meta: (
@@ -760,11 +1664,85 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             {tempo} bpm
           </span>
         ),
-        corner,
+        corner: runMode === 'play' ? corner : undefined,
         actions: (
           <Primary onClick={stopRun}>
             <Square />
             Stop
+          </Primary>
+        ),
+      };
+    }
+    // The choose steps, and a step waiting for a choice: Next.
+    if (
+      gate ||
+      kind === 'chooseKey' ||
+      kind === 'chooseMode' ||
+      kind === 'chooseChords'
+    ) {
+      // Chosen here, or already (the mode is asked each section): Next
+      // is the way on, and counts the step done.
+      const chosen =
+        !gate &&
+        (step.kind === 'chooseKey'
+          ? !!choices?.tonic
+          : step.kind === 'chooseMode'
+            ? !!choices?.mode
+            : step.kind === 'chooseChords'
+              ? !!progressionFor(lesson, choices, step.saveAs)
+              : false);
+      const done = chosen || (!gate && literacyStepDone(step, progress));
+      const onward = () => {
+        if (chosen) markDone(step.tag);
+        next();
+      };
+      return {
+        lead: null,
+        meta: null,
+        actions: done ? (
+          <Primary onClick={onward}>{nextLabel}</Primary>
+        ) : (
+          <Secondary onClick={next}>{nextLabel}</Secondary>
+        ),
+      };
+    }
+    if (isReplay) {
+      const heard = literacyStepDone(step, progress);
+      return {
+        lead: null,
+        meta: null,
+        actions: heard ? (
+          <>
+            <Secondary onClick={() => startRun('listen', 'echo')}>
+              <Headphones />
+              Listen
+            </Secondary>
+            <Primary onClick={next}>{nextLabel}</Primary>
+          </>
+        ) : (
+          <>
+            <Secondary onClick={next}>{nextLabel}</Secondary>
+            <Primary onClick={() => startRun('listen', 'echo')}>
+              <Headphones />
+              Listen
+            </Primary>
+          </>
+        ),
+      };
+    }
+    if (onCreate) {
+      return {
+        lead: (
+          <p data-literacy-run-lead className="text-[15px] text-[#e8e8f0]">
+            Play your own rhythm on the lit keys. Then repeat it.
+          </p>
+        ),
+        meta: null,
+        corner,
+        actions: (
+          <Primary onClick={() => startRun('play', 'create')}>
+            <Play />
+            Play
           </Primary>
         ),
       };
@@ -775,12 +1753,14 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       corner,
       actions: (
         <>
-          <Secondary onClick={() => startRun('listen')}>
+          <Secondary onClick={() => startRun('listen', pass)}>
             <Headphones />
             Listen
           </Secondary>
-          <Secondary onClick={() => startRun('practice')}>Practice</Secondary>
-          <Primary onClick={() => startRun('play')}>
+          <Secondary onClick={() => startRun('practice', pass)}>
+            Practice
+          </Secondary>
+          <Primary onClick={() => startRun('play', pass)}>
             <Play />
             Play
           </Primary>
@@ -792,18 +1772,39 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
   // ── The chrome ──
 
   const navSteps: NavStep[] = lesson.steps.map((s, i) => {
-    const saved = progress[s.tag];
+    const marks = stepPassMarks(lesson, s, progress);
+    const status: GuitarStepStatus = literacyStepDone(s, progress)
+      ? 'passed'
+      : literacyStepTried(s, progress)
+        ? 'attempted'
+        : 'todo';
     return {
       code: String(i + 1),
       title: s.title,
-      subsection: lesson.name,
-      status: saved?.passed ? 'passed' : saved ? 'attempted' : 'todo',
+      // The step list groups by section (Part 2), else the lesson.
+      subsection: s.section ?? lesson.name,
+      status,
+      ...(marks.create
+        ? {
+            passes: [
+              {
+                label: 'Create',
+                status:
+                  marks.create === 'passed'
+                    ? ('passed' as const)
+                    : marks.create === 'tried'
+                      ? ('attempted' as const)
+                      : ('todo' as const),
+              },
+            ],
+          }
+        : {}),
     };
   });
 
   const about = useMemo(() => {
     const key = describeKey(
-      lesson.key.tonic,
+      notes.key.tonic,
       mode === 'minor' ? 'aeolian' : 'ionian',
     );
     return {
@@ -813,7 +1814,181 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
       // Beginners meet "C Major" and "C Minor", not the modes' names.
       key: key && { ...key, title: keyName },
     };
-  }, [step, lesson.key.tonic, mode, keyName]);
+  }, [step, notes.key.tonic, mode, keyName]);
+
+  const passTabs =
+    isEchoStep(step) && passes.create && !gate ? (
+      <PassTabs
+        tabs={passOrder(passes)
+          .filter((p) => p !== 'challenge')
+          .map((p) => ({ pass: p, mark: stepPassMarksNow[p] ?? 'todo' }))}
+        current={onCreate ? 'create' : 'echo'}
+        onPick={choosePass}
+        disabled={running}
+      />
+    ) : null;
+
+  /** The keys, as tall as `maxHeight` allows at their real proportions. */
+  const keyboardOf = (maxHeight: number) => (
+    <>
+      <LessonKeyboard
+        range={keyRange}
+        natural={{ aspect: KEY_ASPECT, maxHeight }}
+        activeWhiteKeyColor={keyColor}
+        activeBlackKeyColor={keyColor}
+        hintNotes={kind === 'echo' || isReplay ? hintNotes : undefined}
+        keyLabels={keyLabels}
+        playingNotes={playingNotes}
+        playedKeys={keysShown}
+        enableClick={false}
+        useContextNotes={false}
+        onKeyPointerDown={onKeyPointerDown}
+      />
+      {kind === 'echo' && (
+        <TypingHint
+          octave={typingOctave}
+          answer={onCreate || chordSteps ? null : answerLetters}
+        />
+      )}
+    </>
+  );
+  const keyboard = keyboardOf(keyboardMax);
+
+  // Part 2's full-width screens: the choices, and a step waiting for one.
+  const fullScreen = (stacked: boolean): ReactNode => {
+    if (gate) {
+      const at = gate.at;
+      const target = at ? lesson.steps.findIndex((s) => s.tag === at) : -1;
+      return (
+        <ChoiceGate
+          key={`gate-${stacked}`}
+          missing={gate}
+          onGo={target >= 0 ? () => goToStep(target) : null}
+        />
+      );
+    }
+    if (step.kind === 'chooseKey') {
+      return (
+        <ChooseKeyPanel
+          heading="Choose your color"
+          direction={step.direction}
+          tonic={choices?.tonic ?? null}
+          mode={choices?.mode ?? lesson.key.mode}
+          onChoose={chooseTonic}
+          onHear={() =>
+            choices?.tonic &&
+            hearKey(choices.tonic, choices.mode ?? lesson.key.mode)
+          }
+          stacked={stacked}
+        />
+      );
+    }
+    if (step.kind === 'chooseMode') {
+      return (
+        <ChooseModePanel
+          heading="Choose major or minor"
+          direction={step.direction}
+          tonic={choices?.tonic ?? lesson.key.tonic}
+          mode={choices?.mode ?? null}
+          onChoose={chooseMode}
+          stacked={stacked}
+        />
+      );
+    }
+    if (step.kind === 'chooseChords') {
+      const chooser = step as LiteracyChooseChordsStep;
+      const saved = progressionFor(lesson, choices, chooser.saveAs);
+      return (
+        <ChooseChordsPanel
+          key={`${chooser.tag}-${chooserKey.tonic}-${chooserKey.mode}`}
+          step={chooser}
+          key_={chooserKey}
+          keyColor={keyColor}
+          saved={saved}
+          playingBar={
+            hearing === 'progression' && view.tick >= 0 && view.lit.length
+              ? Math.floor(view.tick / PREVIEW_CHORD_TICKS)
+              : null
+          }
+          onHearChord={(degree) => hearChords([degree], 'chord')}
+          onHear={(degrees) => hearChords(degrees, 'progression')}
+          onSave={saveChords}
+          keyboard={
+            <div data-literacy-keyboard className="pt-2">
+              {keyboardOf(CHOOSER_KEYBOARD_HEIGHT)}
+            </div>
+          }
+          stacked={stacked}
+        />
+      );
+    }
+    return null;
+  };
+  const hasFull =
+    gate !== null ||
+    kind === 'chooseKey' ||
+    kind === 'chooseMode' ||
+    kind === 'chooseChords';
+
+  const resultSlot = (() => {
+    if (!outcome || status !== 'result') return null;
+    if (outcome.pass === 'create') {
+      if (outcome.result.kind === 'empty') {
+        return (
+          <section
+            data-guitar-result
+            data-literacy-empty-call
+            data-passed={false}
+            className="my-auto flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-[#151518] p-5"
+          >
+            <h2 className="text-2xl font-normal leading-8 text-[#e8e8f0]">
+              Try again
+            </h2>
+            <p className="text-[15px] leading-6 text-white/55">
+              {outcome.result.feedbackText}
+            </p>
+          </section>
+        );
+      }
+      return (
+        <CreateResultPanelSlot
+          outcome={outcome}
+          passMark={passMark}
+          keyColor={keyColor}
+          tonic={tonic}
+          beatsPerBar={beatsPerBar}
+          timeSignature={lesson.timeSignature}
+        />
+      );
+    }
+    const panel = resultModel ? (
+      <GuitarResultPanel result={resultModel} passMarkPct={passMark} />
+    ) : null;
+    if (outcome.pass === 'challenge') {
+      return (
+        <div className="my-auto flex max-h-full min-h-0 flex-col gap-3 overflow-y-auto">
+          {panel}
+          <ChallengeSegments
+            segments={outcome.result.segments}
+            best={
+              outcome.bestBefore === null
+                ? null
+                : Math.max(outcome.bestBefore, outcome.result.percent)
+            }
+          />
+        </div>
+      );
+    }
+    return panel;
+  })();
+
+  const announcement = resultModel
+    ? resultSummary(resultModel, passMark)
+    : outcome?.pass === 'create'
+      ? outcome.result.kind === 'empty'
+        ? outcome.result.feedbackText
+        : `${outcome.result.result.percent}%. ${outcome.result.passed ? 'Passed' : `Not yet: ${passMark}% passes`}.`
+      : '';
 
   return (
     <MusicLiteracyLayout
@@ -832,9 +2007,9 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             onClick: () => navigate(CurriculumRoutes.musicLiteracy()),
           },
         ],
-        keyLabel: keyName,
+        keyLabel: noKeyYet ? 'Your key' : keyName,
         keyColor,
-        subsection: '',
+        subsection: step.section ?? '',
         activity: step.title,
       }}
       nav={{
@@ -844,7 +2019,12 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         index: stepIndex,
         goToStep,
         practiceTrack: null,
-        extra: <SavedRollViewSwitch />,
+        extra: (
+          <>
+            {passTabs}
+            {!hasFull && <SavedRollViewSwitch />}
+          </>
+        ),
       }}
       bar={{
         state: barState,
@@ -868,8 +2048,9 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         },
       }}
       groove={{ onChoose: chooseGroove, fits: grooveFits }}
-      announcement={resultModel ? resultSummary(resultModel, passMark) : ''}
+      announcement={graded ? announcement : ''}
       slots={{
+        full: hasFull ? fullScreen : null,
         call: (stacked) => (
           <LiteracyCallPanel
             // Its two shapes measure different boxes: a new shape, a new panel.
@@ -889,13 +2070,34 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             running={running}
             headline={headline}
             compact={stacked}
+            hubContent={hubContent}
+            below={
+              chordRows ? (
+                <ChordBars
+                  rows={chordRows}
+                  keyColor={keyColor}
+                  compact={stacked}
+                />
+              ) : notes.words.length === 0 && step.direction ? (
+                // A Part 2 melody has no words: what to do, under the circle.
+                <p
+                  data-literacy-direction
+                  className={cn(
+                    'text-[15px] leading-6 text-white/55',
+                    stacked ? 'text-left' : 'text-center',
+                  )}
+                >
+                  {step.direction}
+                </p>
+              ) : undefined
+            }
           />
         ),
         responseRef,
         rollRef,
         roll: (
           <GenrePianoRoll
-            key={`roll-${step.tag}-${runId}`}
+            key={`roll-${step.tag}-${pass}-${runId}`}
             instrument="piano"
             showViewToggle={false}
             events={events}
@@ -905,11 +2107,11 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             timeSignature={lesson.timeSignature}
             pickupTicks={timeline.pickup.length}
             staves="treble"
-            subdivision={running ? 2 : 1}
+            subdivision={running ? (onCreate ? 4 : 2) : 1}
             rowHeight={rowHeight}
             midiRangeMin={rollRange.min}
             midiRangeMax={rollRange.max}
-            inTime={running}
+            inTime={running && runKind !== null}
             playSpeed={tempo}
             isPlaying={running && live}
             onPlayingChange={() => {}}
@@ -924,29 +2126,60 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
             bands={rollBands}
           />
         ),
-        result: resultModel ? (
-          <GuitarResultPanel result={resultModel} passMarkPct={passMark} />
-        ) : null,
-        keyboard: (
-          <>
-            <LessonKeyboard
-              range={LITERACY_KEY_RANGE}
-              natural={{ aspect: KEY_ASPECT, maxHeight: keyboardMax }}
-              activeWhiteKeyColor={keyColor}
-              activeBlackKeyColor={keyColor}
-              hintNotes={hintNotes}
-              keyLabels={keyLabels}
-              playingNotes={playingNotes}
-              playedKeys={keysShown}
-              enableClick={false}
-              useContextNotes={false}
-              onKeyPointerDown={onKeyPointerDown}
-            />
-            <TypingHint octave={typingOctave} answer={answerLetters} />
-          </>
-        ),
+        result: resultSlot,
+        keyboard: step.kind === 'chooseChords' && !gate ? null : keyboard,
       }}
     />
+  );
+}
+
+/** Pass 2's result: the call and the repeat, side by side. */
+function CreateResultPanelSlot({
+  outcome,
+  passMark,
+  keyColor,
+  tonic,
+  beatsPerBar,
+  timeSignature,
+}: {
+  outcome: Extract<Outcome, { pass: 'create' }>;
+  passMark: number;
+  keyColor: string;
+  tonic: number;
+  beatsPerBar: number;
+  timeSignature: [number, number];
+}) {
+  const graded = outcome.result;
+  const comparison = useMemo(
+    () =>
+      graded.kind === 'empty'
+        ? null
+        : createComparison(
+            outcome.create,
+            outcome.transcription,
+            graded,
+            outcome.played,
+          ),
+    [graded, outcome],
+  );
+  const ref = useRef<HTMLDivElement>(null);
+  const box = useElementSize(ref);
+  if (graded.kind === 'empty' || !comparison) return null;
+  return (
+    <div ref={ref} className="flex min-h-0 min-w-0 flex-col">
+      <CreateResultPanel
+        percent={graded.result.percent}
+        passed={graded.passed}
+        passMark={passMark}
+        feedback={graded.result.feedbackText}
+        comparison={comparison}
+        keyColor={keyColor}
+        tonic={tonic}
+        beatsPerBar={beatsPerBar}
+        timeSignature={timeSignature}
+        stacked={box.width > 0 && box.width < 560}
+      />
+    </div>
   );
 }
 
@@ -976,7 +2209,14 @@ function mutedColor(hex: string): string {
   return `#${mix((n >> 16) & 255)}${mix((n >> 8) & 255)}${mix(n & 255)}`;
 }
 
-function TypingHint({ octave, answer }: { octave: number; answer: string }) {
+function TypingHint({
+  octave,
+  answer,
+}: {
+  octave: number;
+  /** The answer's letters; null when there's none to give (a create pass). */
+  answer: string | null;
+}) {
   const key = (text: string) => (
     <kbd className="rounded border border-white/15 bg-white/[0.06] px-1 font-sans text-[11px] leading-4 text-[#e8e8f0]">
       {text}
@@ -1000,9 +2240,11 @@ function TypingHint({ octave, answer }: { octave: number; answer: string }) {
         {key('Z')}
         {key('X')} octave · {typingOctaveLabel(octave)}
       </span>
-      <span data-literacy-answer-letters className="whitespace-nowrap">
-        Answer: <span className="text-[#e8e8f0]">{answer}</span>
-      </span>
+      {answer !== null && answer !== '' && (
+        <span data-literacy-answer-letters className="whitespace-nowrap">
+          Answer: <span className="text-[#e8e8f0]">{answer}</span>
+        </span>
+      )}
     </p>
   );
 }

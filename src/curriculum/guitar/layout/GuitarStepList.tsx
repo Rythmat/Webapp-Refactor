@@ -18,9 +18,19 @@ const STATUS_WORDS: Record<GuitarStepStatus, string> = {
   todo: '',
 };
 
-/** "A1.1: Major Scale Ascending (Out of Time): counted by you". */
+/** A step's further passes worth a mark: those tried. */
+const markedPasses = (step: NavStep) =>
+  (step.passes ?? []).filter((pass) => pass.status !== 'todo');
+
+/**
+ * "A1.1: Major Scale Ascending (Out of Time): counted by you", and any
+ * further pass tried: "…: passed; Create: attempted".
+ */
 export function stepAccessibleName(step: NavStep): string {
-  return `${step.code}: ${step.title}${STATUS_WORDS[step.status]}`;
+  const passes = markedPasses(step)
+    .map((pass) => `; ${pass.label}${STATUS_WORDS[pass.status]}`)
+    .join('');
+  return `${step.code}: ${step.title}${STATUS_WORDS[step.status]}${passes}`;
 }
 
 export function StepStatusMark({
@@ -130,6 +140,23 @@ export function GuitarStepList({ steps, index, onPick }: GuitarStepListProps) {
                       {step.code}
                     </span>
                     <span className="min-w-0 flex-1">{step.title}</span>
+                    {markedPasses(step).map((pass) => (
+                      <span
+                        key={pass.label}
+                        aria-hidden
+                        data-pass-mark={pass.label}
+                        data-pass-status={pass.status}
+                        className="inline-flex shrink-0 items-center gap-1 text-[11px] text-white/45"
+                      >
+                        {pass.label}
+                        <StepStatusMark
+                          status={pass.status}
+                          className={
+                            pass.status === 'attempted' ? undefined : 'size-3.5'
+                          }
+                        />
+                      </span>
+                    ))}
                     <span className="flex w-4 shrink-0 justify-center">
                       <StepStatusMark status={step.status} />
                     </span>

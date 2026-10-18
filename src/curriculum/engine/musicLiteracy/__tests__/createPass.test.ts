@@ -6,6 +6,7 @@ import { emptyChoices, withMode, withTonic } from '../choices';
 import {
   CREATE_GRID_TICKS,
   EMPTY_CALL_FEEDBACK,
+  bestCreateReading,
   createPass,
   gradeCreateRepeat,
   quantizeTick,
@@ -386,5 +387,52 @@ describe('the create pass’s run', () => {
     expect(drums[0]).toBe(1920);
     expect(drums.filter((t) => t === 5760)).toHaveLength(2); // kick + crash
     expect(cues.at(-1)).toEqual({ kind: 'end', tick: 5760 + 960 });
+  });
+});
+
+describe('the call’s last eighth', () => {
+  const timing = { tempo: 80, passMark: LITERACY_PASS_MARK };
+  // 1-3-5 in C: the student's call is C on 1, E on 2, G on 3.
+  const call = [note(60, CALL), note(64, CALL + 480), note(67, CALL + 960)];
+
+  it('reads a repeat’s downbeat played a little early as the repeat’s', () => {
+    // The repeat's first C comes 140 ticks early, inside the call's last eighth.
+    const played = [
+      ...call,
+      note(60, REPEAT - 140),
+      note(64, REPEAT + 480),
+      note(67, REPEAT + 960),
+    ];
+    const plain = grade(melody, played);
+    expect(plain.kind).toBe('notes');
+    if (plain.kind === 'notes') expect(plain.passed).toBe(false);
+
+    const best = bestCreateReading(melody, played, timing);
+    expect(best.transcription.targets.map((t) => t.midi)).toEqual([60, 64, 67]);
+    expect(best.result.passed).toBe(true);
+  });
+
+  it('keeps a note meant for the call’s last "and" in the call', () => {
+    // The call ends on the "and" of 4, and the repeat plays it there too.
+    const syncopated = [...call, note(64, REPEAT - 240, 200)];
+    const played = callAndRepeat(syncopated);
+    const best = bestCreateReading(melody, played, timing);
+    expect(best.transcription.targets.map((t) => t.midi)).toEqual([
+      60, 64, 67, 64,
+    ]);
+    expect(best.result.passed).toBe(true);
+  });
+
+  it('reads it as the call when nothing in the repeat says otherwise', () => {
+    const played = [...call, note(64, REPEAT - 240, 200)];
+    const best = bestCreateReading(melody, played, timing);
+    expect(best.transcription.targets).toHaveLength(4);
+  });
+
+  it('leaves a call with nothing in its last eighth alone', () => {
+    const played = callAndRepeat(call);
+    const best = bestCreateReading(melody, played, timing);
+    expect(best.transcription).toEqual(transcribeCall(melody, played));
+    expect(best.result.passed).toBe(true);
   });
 });

@@ -14,20 +14,42 @@
 // a groove changes none of it: everything here is read off the step's
 // timeline (literacy.ts stepTimeline), on its beats, so a cue changes on the
 // beat cue that is drawn when it's heard, as the pulse dots do.
+//
+// Part 1's challenge ("play ALL the notes") says PLAY ALONG where LISTEN
+// was, then GET READY and GO! as ever. Part 2's create pass (the student's
+// own call, then their repeat of it) has cues of its own:
+//
+//   Get Ready  the count-in
+//   Your Call  their own call's bars
+//   Go!        its last beat and the repeat's first, as above
+//   Repeat It  the rest of the repeat
+//
+// A replay (the student's chords played back) counts in with LISTEN, then
+// says which harmony is playing: TRIADS, then WITH 7THS.
 
+import type { LiteracyHarmony } from '@/content/musicLiteracy/schemas';
 import type {
   Span,
   StepTimeline,
 } from '@/curriculum/engine/musicLiteracy/literacy';
 import type { RunMode } from '@/curriculum/engine/musicLiteracy/run';
 
-export type TurnCue = 'listen' | 'getReady' | 'go';
+export type TurnCue =
+  | 'listen'
+  | 'getReady'
+  | 'go'
+  | 'playAlong'
+  | 'yourCall'
+  | 'repeatIt';
 
 /** The words a child reads. */
 export const TURN_CUE_TEXT: Readonly<Record<TurnCue, string>> = {
   listen: 'Listen',
   getReady: 'Get Ready',
   go: 'Go!',
+  playAlong: 'Play Along',
+  yourCall: 'Your Call',
+  repeatIt: 'Repeat It',
 };
 
 /** A beat, as the run counts it: the bar over the meter's top number. */
@@ -42,7 +64,7 @@ const beatTicksOf = (timeline: StepTimeline, beatsPerBar: number) =>
 export function turnCueSpans(
   timeline: StepTimeline,
   beatsPerBar: number,
-): Record<TurnCue, Span> {
+): Record<'listen' | 'getReady' | 'go', Span> {
   const beat = beatTicksOf(timeline, beatsPerBar);
   const turn = timeline.response.start;
   const go = Math.max(timeline.call.start, turn - beat);
@@ -75,20 +97,93 @@ export type HubHeadline =
   | { kind: 'cue'; cue: TurnCue; text: string }
   | { kind: 'turn'; text: string };
 
+const cueHeadline = (cue: TurnCue): HubHeadline => ({
+  kind: 'cue',
+  cue,
+  text: TURN_CUE_TEXT[cue],
+});
+
 /**
  * The hub's headline at `tick` (the last cue drawn; -1 before the first):
  * a cue, else whose turn it is, else, out of a run or before its first
- * click, what its degrees are.
+ * click, `idle` ("The call"). In the challenge the teacher's turn says PLAY
+ * ALONG instead of LISTEN.
  */
 export function hubHeadline(
   timeline: StepTimeline,
   tick: number,
   beatsPerBar: number,
   run: RunMode | null,
+  {
+    challenge = false,
+    idle = 'The call',
+  }: { challenge?: boolean; idle?: string } = {},
 ): HubHeadline {
-  if (run === null || tick < 0) return { kind: 'idle', text: 'The call' };
+  if (run === null || tick < 0) return { kind: 'idle', text: idle };
   const cue = turnCueAt(timeline, tick, beatsPerBar);
-  if (cue) return { kind: 'cue', cue, text: TURN_CUE_TEXT[cue] };
+  if (cue) {
+    return cueHeadline(challenge && cue === 'listen' ? 'playAlong' : cue);
+  }
   // Past Go!: the answer's bars, and a groove's final downbeat after them.
   return { kind: 'turn', text: run === 'listen' ? 'Like this' : 'Your turn' };
+}
+
+/**
+ * The create pass's cue at `tick` (its timeline's `call` is the student's
+ * call, `response` their repeat): Get Ready over the count-in, Your Call
+ * over the call, Go! on its last beat and the repeat's first, then Repeat
+ * It to the end (a groove's final downbeat too). Null before the run.
+ */
+export function createCueAt(
+  timeline: StepTimeline,
+  tick: number,
+  beatsPerBar: number,
+): TurnCue | null {
+  if (tick < 0) return null;
+  const { go } = turnCueSpans(timeline, beatsPerBar);
+  if (tick < timeline.call.start) return 'getReady';
+  if (tick < go.start) return 'yourCall';
+  if (tick < go.start + go.length) return 'go';
+  return 'repeatIt';
+}
+
+/** The hub's headline in a create run: its cue, or out of one, `idle`. */
+export function createHubHeadline(
+  timeline: StepTimeline,
+  tick: number,
+  beatsPerBar: number,
+  running: boolean,
+  idle = 'Your rhythm',
+): HubHeadline {
+  const cue = running ? createCueAt(timeline, tick, beatsPerBar) : null;
+  return cue ? cueHeadline(cue) : { kind: 'idle', text: idle };
+}
+
+/** What each of a replay's passes is called in the hub. */
+export const HARMONY_HEADLINE: Readonly<Record<LiteracyHarmony, string>> = {
+  triads: 'Triads',
+  sevenths: 'With 7ths',
+};
+
+/**
+ * A replay's headline: LISTEN through the count-in, then the harmony of the
+ * pass playing (`harmonies` in order, each as long as the others).
+ */
+export function replayHubHeadline(
+  timeline: StepTimeline,
+  tick: number,
+  harmonies: readonly LiteracyHarmony[],
+  running: boolean,
+): HubHeadline {
+  if (!running || tick < 0) return { kind: 'idle', text: 'Your chords' };
+  if (tick < timeline.call.start) return cueHeadline('listen');
+  const once = timeline.call.length / Math.max(1, harmonies.length);
+  const pass = Math.max(
+    0,
+    Math.min(
+      harmonies.length - 1,
+      Math.floor((tick - timeline.call.start) / Math.max(1, once)),
+    ),
+  );
+  return { kind: 'turn', text: HARMONY_HEADLINE[harmonies[pass]] };
 }

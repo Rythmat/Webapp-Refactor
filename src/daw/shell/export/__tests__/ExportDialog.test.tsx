@@ -61,6 +61,7 @@ vi.mock('@/lib/studio-assets/encode-opus', () => ({
 }));
 vi.mock('@/daw/commands/projectCommands', () => ({
   exportProjectMidi: h.exportProjectMidi,
+  planProjectMidi: () => ({ filename: 'night-drive.mid' }),
 }));
 vi.mock('@/daw/midi/scoreExport', () => ({
   buildFullScoreXml: h.buildFullScoreXml,
@@ -519,6 +520,36 @@ describe('an audio export', () => {
   });
 });
 
+describe('a song where nothing plays', () => {
+  it('still exports, saying the file will be silent (a lesson bounces what is there)', () => {
+    addTrack('Synth', 'piano-sampler', false);
+    render(<ExportDialogHost />);
+    open();
+    expect(audioRun()).toBeEnabled();
+    expect(dialog()).toHaveTextContent('so the file will be silent');
+  });
+
+  it('counts a soloed empty track as what plays, as Play does', () => {
+    addTrack('Keys');
+    const empty = addTrack('Empty', 'piano-sampler', false);
+    act(() => s().toggleSolo(empty));
+    render(<ExportDialogHost />);
+    open();
+    expect(dialog()).toHaveTextContent('so the file will be silent');
+  });
+});
+
+/** The song has chord symbols (what the lead sheet writes). */
+function withChords() {
+  useStore.setState({
+    chordRegions: [
+      { id: 'r1' } as unknown as ReturnType<
+        typeof useStore.getState
+      >['chordRegions'][number],
+    ],
+  });
+}
+
 describe('a notation export', () => {
   it('writes the song’s MIDI file', async () => {
     addTrack('Keys');
@@ -527,7 +558,9 @@ describe('a notation export', () => {
 
     await run(notationRun());
     expect(h.exportProjectMidi).toHaveBeenCalledWith({ trackIds: undefined });
-    expect(h.notice).toHaveBeenCalledWith({ title: 'Exported' });
+    expect(h.notice).toHaveBeenCalledWith({
+      title: 'Exported night-drive.mid',
+    });
     expect(dialogState().isOpen).toBe(false);
   });
 
@@ -551,12 +584,15 @@ describe('a notation export', () => {
     expect(h.notice).toHaveBeenCalledWith({
       title: 'There are no notes to write to a MIDI file',
     });
-    expect(h.notice).not.toHaveBeenCalledWith({ title: 'Exported' });
+    expect(h.notice).not.toHaveBeenCalledWith({
+      title: 'Exported night-drive.mid',
+    });
     expect(dialogState().isOpen).toBe(true);
   });
 
   it('writes the lead sheet as MusicXML', async () => {
     addTrack('Keys');
+    withChords();
     h.buildLeadSheetExport.mockReturnValue({
       xml: '<score-partwise/>',
       filename: 'night-drive-lead-sheet.musicxml',
@@ -575,8 +611,22 @@ describe('a notation export', () => {
     expect(dialogState().isOpen).toBe(false);
   });
 
+  it('offers no lead sheet without chord symbols, and needs no track for one', () => {
+    render(<ExportDialogHost />);
+    open({ tab: 'notation', notation: 'leadsheet' });
+    expect(notationRun()).toBeDisabled();
+    expect(notationRun()).toHaveAttribute(
+      'title',
+      'The song has no chord symbols yet',
+    );
+    // Chords typed into the Lead sheet, and no track at all: it can go.
+    act(() => withChords());
+    expect(notationRun()).toBeEnabled();
+  });
+
   it('says the song has no chords when the lead sheet would be empty', async () => {
     addTrack('Keys');
+    withChords();
     h.buildLeadSheetExport.mockReturnValue(null);
     render(<ExportDialogHost />);
     open({ tab: 'notation', notation: 'leadsheet' });

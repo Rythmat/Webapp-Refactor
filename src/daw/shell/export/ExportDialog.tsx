@@ -11,7 +11,11 @@ import {
   type WavBitDepth,
 } from '@/daw/audio/exportAudio';
 import { projectEndTick } from '@/daw/audio/renderProject';
-import { exportProjectMidi } from '@/daw/commands/projectCommands';
+import { isTrackAudible } from '@/daw/audio/trackAudibility';
+import {
+  exportProjectMidi,
+  planProjectMidi,
+} from '@/daw/commands/projectCommands';
 import { FX_LABEL } from '@/daw/data/libraryItems';
 import { notice } from '@/daw/shell/notice';
 import { useStore, type Track } from '@/daw/store';
@@ -157,6 +161,7 @@ export function ExportDialog({
   const loopEnabled = useStore((s) => s.loopEnabled);
   const bpm = useStore((s) => s.bpm);
   const masteringChain = useStore((s) => s.masteringFxChain);
+  const chordCount = useStore((s) => s.chordRegions.length);
   const barTicks = useStore((s) =>
     ticksPerBar(s.timeSignatureNumerator, s.timeSignatureDenominator),
   );
@@ -218,9 +223,13 @@ export function ExportDialog({
     [whatNow, tracks],
   );
 
-  // What the file leaves out, said before it is made.
+  // What the file leaves out, said before it is made. Mute and solo as
+  // Play has them, which is what the render does.
   const audible = (t: Track) =>
-    whatNow === 'track' ? t.id === trackId : !t.mute && hasContent(t);
+    whatNow === 'track'
+      ? t.id === trackId
+      : isTrackAudible(t, tracks) && hasContent(t);
+  const songPlays = tracks.some(audible);
   const warnings: string[] = [];
   if (tab === 'audio') {
     const silent = tracks.filter(
@@ -240,6 +249,12 @@ export function ExportDialog({
         `${dryAmp === 1 ? 'A guitar, bass or vocal track exports' : `${dryAmp} guitar, bass or vocal tracks export`} without its amp and pedals for now.`,
       );
     }
+    if (whatNow === 'song' && tracks.length > 0 && !songPlays) {
+      // Not a refusal: a lesson's last step may bounce whatever is there.
+      warnings.push(
+        'Nothing plays in the song yet (or what plays is muted), so the file will be silent.',
+      );
+    }
     if (whatNow === 'stems' && mastering && masteringChain.length > 0) {
       warnings.push(
         'With mastering on, each stem goes through the master chain alone, so the stems won’t add up exactly to the song.',
@@ -254,8 +269,13 @@ export function ExportDialog({
   }));
 
   // Why the run button is off, if it is.
+  const leadSheet =
+    tab === 'notation' && whatNow === 'song' && notation === 'leadsheet';
   let blocked: string | null = null;
-  if (tracks.length === 0) blocked = 'Add a track first';
+  if (leadSheet) {
+    // The lead sheet is the chord symbols: it needs no track.
+    if (chordCount === 0) blocked = 'The song has no chord symbols yet';
+  } else if (tracks.length === 0) blocked = 'Add a track first';
   else if (tab === 'audio' && customError) blocked = customError;
   else if (whatNow === 'track' && !track) blocked = 'Choose a track';
   else if (
@@ -274,16 +294,8 @@ export function ExportDialog({
     blocked = `${track.name} has nothing to play`;
   else if (whatNow === 'stems' && stems.length === 0)
     blocked = 'No track plays anything yet';
-  else if (
-    whatNow === 'song' &&
-    !tracks.some((t) =>
-      tab === 'notation' ? hasNotes(t) : !t.mute && hasContent(t),
-    )
-  )
-    blocked =
-      tab === 'notation'
-        ? 'There are no notes to write down yet'
-        : 'No track plays anything yet';
+  else if (whatNow === 'song' && tab === 'notation' && !tracks.some(hasNotes))
+    blocked = 'There are no notes to write down yet';
 
   const renderRange = () => {
     const custom = range === 'custom' && startBar !== null && endBar !== null;
@@ -372,7 +384,9 @@ export function ExportDialog({
     try {
       const state = useStore.getState();
       const one = whatNow === 'track' && trackId ? [trackId] : undefined;
+      let filename = '';
       if (notation === 'midi' || (one && notation === 'leadsheet')) {
+        filename = planProjectMidi(state, { trackIds: one })?.filename ?? '';
         if (!(await exportProjectMidi({ trackIds: one }))) {
           notice({ title: 'There are no notes to write to a MIDI file' });
           return;
@@ -401,8 +415,9 @@ export function ExportDialog({
           }),
           file.filename,
         );
+        filename = file.filename;
       }
-      notice({ title: 'Exported' });
+      notice({ title: filename ? `Exported ${filename}` : 'Exported' });
       onOpenChange(false);
     } catch (err) {
       console.error('[Export] notation export failed', err);
@@ -503,7 +518,9 @@ export function ExportDialog({
               disabled={busy || blocked !== null}
             >
               <Download strokeWidth={2.5} />
-              {tracks.length === 0 ? 'Add a track first' : 'Export'}
+              {tracks.length === 0 && !leadSheet
+                ? 'Add a track first'
+                : 'Export'}
             </Button>
           )}
         </>
@@ -746,7 +763,9 @@ export function ExportDialog({
           </div>
         ) : null}
 
-        {!busy && blocked && tracks.length > 0 ? <Hint>{blocked}.</Hint> : null}
+        {!busy && blocked && (tracks.length > 0 || leadSheet) ? (
+          <Hint>{blocked}.</Hint>
+        ) : null}
 
         {busy && progress ? (
           <div className="flex flex-col gap-2" role="status">

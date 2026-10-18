@@ -19,7 +19,8 @@
  *   canvas paints more while playing than idle.
  * - rackShare: the RackDock opens at round(body × 0.36) (±2); dragged
  *   taller by its edge, it keeps that share of the body after the window
- *   is made 90 px shorter.
+ *   is made 90 px shorter, never past the cap that leaves the strips
+ *   300 px.
  * - rackTargets: a strip's insert list opens that track's rack; Return A's
  *   name opens its rack (return-fx-A); the master's chain summary opens the
  *   master rack; and the side rail's Effects panel adds to the rack that is
@@ -420,10 +421,17 @@ async function mixAt(kit, run, viewport) {
           s.setMixRack(null);
         });
         await kit.sleep(400);
+        // A share of the new body, within the rack's cap: the strips keep
+        // 300 px (layoutModel's rackMaxPx).
+        const newBody = shorter - 88;
+        const cap = Math.max(
+          120,
+          Math.min(Math.round(newBody * 0.85), newBody - 300),
+        );
         const wantResized =
           frac === null
             ? null
-            : Math.max(120, Math.round((shorter - 88) * frac));
+            : Math.min(cap, Math.max(120, Math.round(newBody * frac)));
         return {
           atDefault,
           want: Math.round(body * 0.36),

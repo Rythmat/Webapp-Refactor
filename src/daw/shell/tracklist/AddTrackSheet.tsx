@@ -139,20 +139,24 @@ const onlyChoice = (category: TrackCategory): TrackChoice | null =>
 /**
  * Focuses the Library's search once the picker has closed and the panel's
  * lazy body has rendered. The dialog gives focus back to its opener as it
- * goes (after its exit animation), so waiting a frame past that keeps the
- * search from losing it again; it gives up after about three seconds (the Library's chunk may load).
+ * goes, a moment after it unmounts (it closes at once since its exit fade
+ * went, 2.11), so the search keeps being given focus for a few frames after
+ * it first gets it; it gives up after about three seconds (the Library's
+ * chunk may load).
  */
-function focusLibrarySearch(framesLeft = 180, wasClosed = false) {
+function focusLibrarySearch(framesLeft = 180, wasClosed = false, held = 0) {
   requestAnimationFrame(() => {
     const closed = !document.querySelector('[data-testid="add-track-sheet"]');
     const search = document.querySelector<HTMLElement>(
       '[data-testid="library-search"]',
     );
     if (closed && wasClosed && search) {
-      search.focus();
+      if (document.activeElement !== search) search.focus();
+      // Held for a few frames: the dialog's focus return comes after.
+      if (held < 6) focusLibrarySearch(framesLeft - 1, true, held + 1);
       return;
     }
-    if (framesLeft > 0) focusLibrarySearch(framesLeft - 1, closed);
+    if (framesLeft > 0) focusLibrarySearch(framesLeft - 1, closed, held);
   });
 }
 

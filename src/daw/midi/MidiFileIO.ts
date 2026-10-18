@@ -1,27 +1,6 @@
 import { Midi } from '@tonejs/midi';
-import MidiWriter from 'midi-writer-js';
 import type { MidiNoteEvent, MidiSequence } from '@prism/engine';
 import { downloadFile } from '@/daw/utils/exportFiles';
-
-const NOTE_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
-
-function midiToNoteName(midi: number): string {
-  const octave = Math.floor(midi / 12) - 1;
-  return `${NOTE_NAMES[midi % 12]}${octave}`;
-}
 
 /**
  * Import a .mid file and convert to an array of MidiSequence objects (one per track).
@@ -54,19 +33,26 @@ export function importMidiFile(arrayBuffer: ArrayBuffer): MidiSequence[] {
 
 /** One MIDI track of a file: its notes and the channel they play on. */
 export interface MidiChannelSequence {
-  /** 1–16, as midi-writer-js numbers them (10 is General MIDI's drums). */
+  /** 1–16, as musicians number them (10 is General MIDI's drums). */
   channel: number;
   sequence: MidiSequence;
 }
 
+/** The file's resolution, which is also the editor's (ticks per quarter). */
+export const MIDI_FILE_PPQ = 480;
+
 /**
- * Export multiple MidiSequences as a standard .mid file Blob.
- * Uses midi-writer-js for encoding.
+ * Export multiple MidiSequences as a standard .mid file Blob, written with
+ * @tonejs/midi at 480 ticks per quarter (milestone 2.15). The writer used
+ * before (midi-writer-js) stamped its own 128 ppq on ticks counted at 480,
+ * so every file played 3.75 times too slow, and it read velocities as
+ * 1–100 (64 came out as 81).
  *
  * @param tracks - One MIDI track each, in order. Two may share a channel:
  *   each still gets its own MIDI track (it used to be a Map keyed by
  *   channel, where the second of two tracks on one channel was lost).
- * @param bpm - Tempo in beats per minute
+ *   Each sequence's ticks are rescaled from its ticksPerQuarterNote.
+ * @param bpm - Tempo in beats per minute, at the start of the file
  * @param timeSignature - The metre to write, [numerator, denominator]; a
  *   file without one is read as 4/4 by every other program (ia-flows-34)
  */
@@ -75,40 +61,37 @@ export function exportMidiFile(
   bpm: number,
   timeSignature?: [number, number],
 ): Blob {
-  const written: MidiWriter.Track[] = [];
+  const midi = new Midi();
+  midi.header.setTempo(bpm);
+  if (timeSignature) {
+    midi.header.timeSignatures.push({
+      ticks: 0,
+      timeSignature: [timeSignature[0], timeSignature[1]],
+    });
+  }
+  midi.header.update();
 
-  for (const { channel, sequence: seq } of tracks) {
-    const track = new MidiWriter.Track();
-    track.setTempo(bpm, 0);
-    if (timeSignature) {
-      track.setTimeSignature(timeSignature[0], timeSignature[1]);
+  for (const { channel, sequence } of tracks) {
+    const track = midi.addTrack();
+    track.name = sequence.trackName ?? '';
+    // The file counts channels from 0; we count them from 1.
+    track.channel = Math.min(15, Math.max(0, channel - 1));
+    const scale =
+      MIDI_FILE_PPQ / (sequence.ticksPerQuarterNote || MIDI_FILE_PPQ);
+    for (const event of sequence.events) {
+      const velocity = Math.min(127, Math.max(1, Math.round(event.velocity)));
+      track.addNote({
+        midi: event.note,
+        ticks: Math.max(0, Math.round(event.startTick * scale)),
+        durationTicks: Math.max(0, Math.round(event.durationTicks * scale)),
+        // The encoder writes floor(velocity × 127); the half step keeps
+        // floating-point error from writing 63 for 64.
+        velocity: (velocity + 0.5) / 127,
+      });
     }
-    if (seq.trackName) {
-      track.addTrackName(seq.trackName);
-    }
-
-    // Sort events by start tick for correct delta-time encoding
-    const sorted = [...seq.events].sort((a, b) => a.startTick - b.startTick);
-
-    for (const event of sorted) {
-      track.addEvent(
-        new MidiWriter.NoteEvent({
-          pitch: midiToNoteName(event.note) as 'C4',
-          velocity: event.velocity,
-          startTick: event.startTick,
-          duration: `T${event.durationTicks}`,
-          channel: channel,
-        }),
-      );
-    }
-
-    written.push(track);
   }
 
-  const writer = new MidiWriter.Writer(written);
-  return new Blob([writer.buildFile() as unknown as BlobPart], {
-    type: 'audio/midi',
-  });
+  return new Blob([midi.toArray() as BlobPart], { type: 'audio/midi' });
 }
 
 /**

@@ -173,8 +173,9 @@ export type LeadSheetExportState = Pick<
  * The lead sheet (the chord chart) as MusicXML, as the lead sheet draws it:
  * in the project's metre (not 4/4, ia-flows-34) and as long as its chart
  * (the bars added past the last chord, or the song's sections where they run
- * on: chartExtraBars). Named 'my-song-lead-sheet.musicxml'. Null when the
- * song has no chords.
+ * on: chartExtraBars), with the song's sections as rehearsal marks, as the
+ * Score's export writes them. Named 'my-song-lead-sheet.musicxml'. Null when
+ * the song has no chords.
  */
 export function buildLeadSheetExport(
   state: LeadSheetExportState,
@@ -192,6 +193,7 @@ export function buildLeadSheetExport(
       state.sections,
       timeSignature,
     ),
+    sections: leadSheetSectionsOf(state),
   });
   return {
     xml,

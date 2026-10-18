@@ -19,7 +19,8 @@ import { buildFullScoreXml, buildLeadSheetExport } from '../scoreExport';
 // The full score is the file the Score page's button wrote before the move
 // (built here the old way, as ScoreView did, and compared whole), a chosen
 // track gives its part alone, and the lead sheet is the toolbar's file
-// (chartExtraBars, the project's metre). Run:
+// (chartExtraBars, the project's metre) plus the song's sections as
+// rehearsal marks, which the toolbar's file left out. Run:
 // npx vitest run src/daw/midi/__tests__/scoreExport.test.ts
 
 const BAR = 1920;
@@ -310,10 +311,20 @@ describe('buildLeadSheetExport', () => {
       ),
     });
 
+  /** The rehearsal marks the toolbar's file didn't have, taken out. */
+  const withoutMarks = (xml: string) =>
+    xml.replace(
+      /\n {6}<direction placement="above">\n {8}<direction-type>\n {10}<rehearsal>[^<]*<\/rehearsal>\n {8}<\/direction-type>\n {6}<\/direction>/g,
+      '',
+    );
+
   it("writes the toolbar's chart, as long as the song's sections run", () => {
     const state = fixture();
     const file = buildLeadSheetExport(state)!;
-    expect(file.xml).toBe(toolbarXml(state));
+    // The toolbar's file, deliberately no longer byte-equal: the sections
+    // are written as rehearsal marks, and nothing else differs.
+    expect(file.xml).not.toBe(toolbarXml(state));
+    expect(withoutMarks(file.xml)).toBe(toolbarXml(state));
     expect(file.filename).toBe('night-drive-lead-sheet.musicxml');
     // Six bars: the Chorus runs to bar 6, past the last chord (bar 2).
     expect(count(file.xml, '<measure ')).toBe(6);
@@ -327,6 +338,39 @@ describe('buildLeadSheetExport', () => {
       extraBars: state.leadSheetBars,
     });
     expect(count(old, '<measure ')).toBeLessThan(6);
+  });
+
+  it("marks each section at the bar it starts, as the Score's export does", () => {
+    const xml = buildLeadSheetExport(
+      fixture({
+        sections: [
+          ...fixture().sections,
+          {
+            id: 's3',
+            type: 'bridge',
+            label: 'Bridge & Out',
+            startTick: BAR * 6,
+            endTick: BAR * 7,
+          },
+        ] as AllSlices['sections'],
+      }),
+    )!.xml;
+    const measures = xml.split('<measure ').slice(1);
+    const marks = measures.map(
+      (m) => /<rehearsal>([^<]*)<\/rehearsal>/.exec(m)?.[1] ?? null,
+    );
+    expect(marks).toEqual([
+      'Verse',
+      null,
+      'Chorus',
+      null,
+      null,
+      null,
+      'Bridge &amp; Out',
+    ]);
+    // The same marks the full score carries.
+    const score = buildFullScoreXml(fixture())!.xml;
+    expect(count(score, '<rehearsal>')).toBe(2);
   });
 
   it('keeps added bars and the metre', () => {

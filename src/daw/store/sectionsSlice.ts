@@ -10,6 +10,7 @@ import {
   type SectionType,
   type SongSection,
 } from '@/daw/model/sections';
+import type { ArrangementPatch } from '@/daw/time/arrangementEdits';
 import { chartBarCount } from '@/daw/time/measureEdits';
 import { timeSignatureOf } from '@/daw/time/timeModel';
 import type { AllSlices } from './index';
@@ -33,6 +34,14 @@ export interface SectionsSlice {
   markSectionAtBar: (measureIdx: number, label: string) => void;
   /** The Lead Sheet's "− Section" at a bar. */
   removeSectionAtBar: (measureIdx: number) => void;
+  /**
+   * Writes a whole-song edit (time/arrangementEdits.ts: Duplicate and
+   * Insert section) in one write. It goes through the slice's `set`, so a
+   * shared session gets it as one update and one undo step, as it does
+   * every other slice action; the store's raw setState would skip the
+   * room.
+   */
+  applyArrangementPatch: (patch: ArrangementPatch) => void;
 }
 
 export const createSectionsSlice: StateCreator<
@@ -105,6 +114,8 @@ export const createSectionsSlice: StateCreator<
       const sections = removeAtBar(s.sections, measureIdx, timeSignatureOf(s));
       return sections === s.sections ? s : { sections };
     }),
+
+  applyArrangementPatch: (patch) => set(patch),
 });
 
 // ── The Lead Sheet's view ────────────────────────────────────────────────

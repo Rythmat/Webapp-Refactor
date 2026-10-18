@@ -21,6 +21,7 @@ import {
   sectionName,
   type SongSection,
 } from '@/daw/model/sections';
+import { ticksPerBar } from '@/daw/time/timeModel';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
 import type { ChatMessage } from './types';
 
@@ -440,17 +441,41 @@ export function yMapToSection(m: Y.Map<unknown>): SongSection {
 
 /**
  * The doc's sections as the store keeps them: in order and never
- * overlapping. Two collaborators can add one at the same end at once; every
- * peer reads the doc the same way (normalizeSections is deterministic), and
- * the next edit writes the order back.
+ * overlapping. Every peer reads the doc the same way (normalizeSections is
+ * deterministic), and the next edit writes that reading back (diffSections
+ * compares with the doc), so the peers can't drift apart:
+ * - Two collaborators adding a section at the same end at once: the later
+ *   one (by start, then id) moves after the other.
+ * - An id the doc holds twice (both students undid the same deletion) is
+ *   read once, its first copy.
+ * - A section whose ends crossed (two students dragged its two edges toward
+ *   each other at once) is kept with its ends swapped, or a bar long when
+ *   they met, rather than dropped (and then deleted by the next edit).
  */
 export function sectionsFromDoc(doc: Y.Doc): SongSection[] {
-  return normalizeSections(
-    getYSections(doc)
-      .toArray()
-      .map(yMapToSection)
-      .filter((section) => section.id !== ''),
-  );
+  const transport = getYTransport(doc);
+  const numerator = Number(transport.get('timeSignatureNumerator'));
+  const denominator = Number(transport.get('timeSignatureDenominator'));
+  const bar = ticksPerBar({
+    numerator: numerator > 0 ? numerator : 4,
+    denominator: denominator > 0 ? denominator : 4,
+  });
+  const seen = new Set<string>();
+  const sections: SongSection[] = [];
+  for (const m of getYSections(doc).toArray()) {
+    const section = yMapToSection(m);
+    if (section.id === '' || seen.has(section.id)) continue;
+    seen.add(section.id);
+    const { startTick, endTick } = section;
+    if (endTick < startTick) {
+      sections.push({ ...section, startTick: endTick, endTick: startTick });
+    } else if (endTick === startTick) {
+      sections.push({ ...section, endTick: startTick + bar });
+    } else {
+      sections.push(section);
+    }
+  }
+  return normalizeSections(sections);
 }
 
 // ── Hydrate: populate Y.Doc from Zustand state ─────────────────────────

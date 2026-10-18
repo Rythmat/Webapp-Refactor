@@ -177,10 +177,15 @@ export function arrangementRefusal(): string | null {
   return arrangementBlocker(useStore.getState());
 }
 
-/** Writes an arrangement edit as one undo step, then shares its audio. */
+/**
+ * Writes an arrangement edit as one undo step, through the store's action
+ * (so a shared session gets it too), then shares its audio.
+ */
 function applyEdit(label: string, edit: ArrangementEdit | null): boolean {
   if (!edit) return false;
-  withTransaction(label, () => useStore.setState(edit.patch));
+  withTransaction(label, () =>
+    useStore.getState().applyArrangementPatch(edit.patch),
+  );
   for (const { from, to } of edit.sharedAudio) shareClipAudio(from, to);
   return true;
 }

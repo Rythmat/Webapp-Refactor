@@ -26,6 +26,7 @@ import {
   chordRegionToYMap,
   markerToYMap,
   sectionToYMap,
+  yMapToSection,
 } from './YjsDocManager';
 // ── Helpers ─────────────────────────────────────────────────────────────
 
@@ -110,7 +111,7 @@ export function diffAndApply(
 
   // ── Song sections ──
   if (prev.sections !== next.sections) {
-    diffSections(doc, prev.sections, next.sections);
+    diffSections(doc, next.sections);
   }
 
   // ── Mastering ──
@@ -470,41 +471,47 @@ function diffMarkers(
 
 // ── Song sections diff (milestone 2.13) ─────────────────────────────────
 
-/** Keyed by id, as the markers are: a removal, an addition, the fields that changed. */
-function diffSections(
-  doc: Y.Doc,
-  prevSections: SongSection[],
-  nextSections: SongSection[],
-): void {
+/**
+ * Writes the store's sections over the doc's, keyed by id as the markers
+ * are: a section the store no longer has goes, a new one is added, and each
+ * field the doc holds differently is set. It compares with the doc, not with
+ * the store's last state: every peer reads the doc in order and without
+ * overlaps (sectionsFromDoc), so where that reading moved a section (two
+ * added at the same end at once, an undo bringing one back over bars a
+ * partner gave another), this writes it back and every peer keeps the same
+ * song form. A second copy of an id goes too (sectionsFromDoc reads the
+ * first).
+ */
+function diffSections(doc: Y.Doc, nextSections: SongSection[]): void {
   const ySections = getYSections(doc);
-  const prevById = new Map(prevSections.map((s) => [s.id, s]));
-  const nextIds = new Set(nextSections.map((s) => s.id));
-
-  for (let i = ySections.length - 1; i >= 0; i--) {
+  const wanted = new Set(nextSections.map((s) => s.id));
+  const held = new Map<string, Y.Map<unknown>>();
+  for (let i = 0; i < ySections.length; ) {
     const ys = ySections.get(i) as Y.Map<unknown>;
-    if (!nextIds.has(ys.get('id') as string)) ySections.delete(i, 1);
+    const id = String(ys.get('id') ?? '');
+    if (!wanted.has(id) || held.has(id)) {
+      ySections.delete(i, 1);
+      continue;
+    }
+    held.set(id, ys);
+    i++;
   }
 
   for (const next of nextSections) {
-    const prev = prevById.get(next.id);
-    if (!prev) {
-      // Not in the doc yet (a peer's own copy may already hold it: an undo
-      // that brings back a section a collaborator also restored).
-      if (!findYMap(ySections, 'id', next.id)) {
-        ySections.push([sectionToYMap(next)]);
-      }
-      continue;
-    }
-    if (prev === next) continue;
-    const ys = findYMap(ySections, 'id', next.id);
+    const ys = held.get(next.id);
     if (!ys) {
       ySections.push([sectionToYMap(next)]);
       continue;
     }
-    if (prev.type !== next.type) ys.set('type', next.type);
-    if (prev.label !== next.label) ys.set('label', next.label);
-    if (prev.startTick !== next.startTick) ys.set('startTick', next.startTick);
-    if (prev.endTick !== next.endTick) ys.set('endTick', next.endTick);
+    // Read as the store reads it (a type this build doesn't know is custom,
+    // a missing name the type's), so only real differences are written.
+    const stored = yMapToSection(ys);
+    if (stored.type !== next.type) ys.set('type', next.type);
+    if (stored.label !== next.label) ys.set('label', next.label);
+    if (ys.get('startTick') !== next.startTick) {
+      ys.set('startTick', next.startTick);
+    }
+    if (ys.get('endTick') !== next.endTick) ys.set('endTick', next.endTick);
   }
 }
 

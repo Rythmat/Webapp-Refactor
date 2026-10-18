@@ -36,14 +36,15 @@ export function splitMidiClipAt(
     );
   if (!landed) return null;
 
-  // The chords read from the clip that start in the right half go with it.
-  const { chordRegions } = useStore.getState();
+  // The chords read from the clip that start in the right half go with it,
+  // written through the store's action so a shared session gets it too.
+  const { chordRegions, applyArrangementPatch } = useStore.getState();
   if (
     chordRegions.some(
       (r) => r.sourceClipId === clip.id && r.startTick >= splitTick,
     )
   ) {
-    useStore.setState({
+    applyArrangementPatch({
       chordRegions: chordRegions.map((r) =>
         r.sourceClipId === clip.id && r.startTick >= splitTick
           ? { ...r, sourceClipId: rightId }

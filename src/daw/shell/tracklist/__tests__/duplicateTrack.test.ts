@@ -5,20 +5,69 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Duplicate track, in the store (milestone 2.15) ─────────────────────────
 // The copy goes in as one undo step, its audio clips play the source's
-// audio, it gets its own copy of the Oracle synth patch, and it is selected.
+// audio, its Chops sample an id (and, before upload, audio) of its own, it
+// gets its own copy of the Oracle synth patch, and it is selected.
 // It is refused, with a notice, at the track limit and while recording.
 // ⌘D on a track's row in the list does it and moves focus to the copy.
 
 const h = vi.hoisted(() => ({
   notice: vi.fn(),
-  share: vi.fn((_from: string, _to: string) => true),
+  share: vi.fn((_from: string, _to: string) => {}),
 }));
 vi.mock('@/daw/shell/notice', () => ({ notice: h.notice }));
-vi.mock('@/daw/audio/AudioBufferStore', async (importOriginal) => ({
-  ...(await importOriginal<object>()),
-  shareClipAudio: h.share,
-}));
+vi.mock('@/daw/audio/AudioBufferStore', async (importOriginal) => {
+  const real =
+    await importOriginal<typeof import('@/daw/audio/AudioBufferStore')>();
+  return {
+    ...real,
+    // Heard, and done: the sample tests read the real links.
+    shareClipAudio: (from: string, to: string) => {
+      h.share(from, to);
+      return real.shareClipAudio(from, to);
+    },
+  };
+});
 
+/** Web Audio's AudioBuffer, as far as a copy of one needs it. */
+class FakeAudioBuffer {
+  readonly length: number;
+  readonly numberOfChannels: number;
+  readonly sampleRate: number;
+  private readonly data: Float32Array[];
+  constructor(o: {
+    length: number;
+    numberOfChannels: number;
+    sampleRate: number;
+  }) {
+    this.length = o.length;
+    this.numberOfChannels = o.numberOfChannels;
+    this.sampleRate = o.sampleRate;
+    this.data = Array.from(
+      { length: o.numberOfChannels },
+      () => new Float32Array(o.length),
+    );
+  }
+  getChannelData(c: number): Float32Array {
+    return this.data[c];
+  }
+  copyToChannel(from: Float32Array, c: number): void {
+    this.data[c].set(from);
+  }
+}
+vi.stubGlobal('AudioBuffer', FakeAudioBuffer);
+
+import {
+  getAudioBuffer,
+  getOriginalAudio,
+  removeAudioBuffer,
+  setAudioBuffer,
+  setOriginalAudio,
+} from '@/daw/audio/AudioBufferStore';
+import { adoptAssetId, assetOf } from '@/daw/audio/assets/assetStore';
+import {
+  samplerBufferKey,
+  type SamplerSampleRef,
+} from '@/daw/instruments/samplerChops';
 import { noteKey } from '@/daw/model/noteKeys';
 import {
   defaultSynthTrackState,
@@ -217,6 +266,82 @@ function Rows() {
     ),
   );
 }
+
+describe('a Chops sample’s copy', () => {
+  /** A Chops track holding a sample, with its audio in the store. */
+  function chops(sample: Partial<SamplerSampleRef> = {}) {
+    const id = useStore.getState().addTrack('midi', 'sampler', 'Chops');
+    const ref: SamplerSampleRef = {
+      sampleId: 'smp-source',
+      assetId: null,
+      rootNote: 'C4',
+      attack: 0.005,
+      release: 0.25,
+      name: 'vox.wav',
+      ...sample,
+    };
+    useStore.getState().setSamplerSample(id, ref);
+    const buffer = new FakeAudioBuffer({
+      length: 4,
+      numberOfChannels: 1,
+      sampleRate: 48000,
+    }) as unknown as AudioBuffer;
+    buffer.getChannelData(0).set([0.1, 0.2, 0.3, 0.4]);
+    const key = samplerBufferKey(ref.sampleId);
+    setAudioBuffer(key, buffer);
+    setOriginalAudio(key, new Uint8Array([1, 2, 3]).buffer, 'audio/wav');
+    return { id, key, buffer };
+  }
+  const sampleOf = (id: string) =>
+    tracks().find((t) => t.id === id)!.samplerSample!;
+
+  it('keeps the source playing when the copy loads another sample', () => {
+    const { id, key, buffer } = chops();
+    const copy = duplicateTrack(id);
+    const copyKey = samplerBufferKey(sampleOf(copy).sampleId);
+    expect(copyKey).not.toBe(key);
+    expect(getAudioBuffer(copyKey)?.getChannelData(0)).toEqual(
+      buffer.getChannelData(0),
+    );
+
+    // What SamplerChopsView does to the sample it replaces.
+    removeAudioBuffer(copyKey);
+    expect(getAudioBuffer(key)).toBe(buffer);
+    expect(getOriginalAudio(key)?.bytes.byteLength).toBe(3);
+  });
+
+  it('gives a sample not uploaded yet audio of its own, so Save stamps the copy alone', () => {
+    const { id, key } = chops();
+    const copy = duplicateTrack(id);
+    const copyKey = samplerBufferKey(sampleOf(copy).sampleId);
+    expect(sampleOf(copy).assetId).toBeNull();
+    expect(assetOf(copyKey)).not.toBe(assetOf(key));
+    expect(getOriginalAudio(copyKey)).toEqual({
+      bytes: new Uint8Array([1, 2, 3]).buffer,
+      contentType: 'audio/wav',
+    });
+
+    // The upload's stamp on the copy (upload-pending.ts) leaves the source's
+    // asset as it was.
+    adoptAssetId(copyKey, 'asset-copy');
+    expect(assetOf(key)?.assetId).toBeNull();
+  });
+
+  it('plays an uploaded sample’s asset, keeping its assetId', () => {
+    const { id, key, buffer } = chops({
+      sampleId: 'smp-cloud',
+      assetId: 'asset-1',
+    });
+    adoptAssetId(key, 'asset-1');
+    const copy = duplicateTrack(id);
+    const copyKey = samplerBufferKey(sampleOf(copy).sampleId);
+    expect(sampleOf(copy).assetId).toBe('asset-1');
+    expect(assetOf(copyKey)).toBe(assetOf(key));
+
+    removeAudioBuffer(copyKey);
+    expect(getAudioBuffer(key)).toBe(buffer);
+  });
+});
 
 describe('⌘D on a track’s row', () => {
   it('duplicates the focused row’s track and moves focus to the copy', () => {

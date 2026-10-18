@@ -6,14 +6,15 @@
 // without anyone remembering to. What each person keeps for themself (armed,
 // monitoring, inputs) and what no save keeps start as on a new track.
 //
-// Every clip and every note gets an id of its own, and the Score's marks on
-// the notes (articulations, slurs, spellings, slash notes) are copied onto
-// the copy's notes. What points at the source by id stays on the source: the
+// Every clip, every note and a Chops sample get an id of their own, and the
+// Score's marks on the notes (articulations, slurs, spellings, slash notes)
+// are copied onto the copy's notes. What points at the source by id stays on the source: the
 // Score's chord parts, chords read from its clips, the lead sheet's melody.
 //
 // Pure: the caller writes the patch in one store write, as one undo step,
-// then lets each new audio clip play its source's audio (sharedAudio) and
-// copies the Oracle synth patch, which lives outside the store.
+// then lets each new audio clip, and the sample, play its source's audio
+// (sharedAudio, sampleAudio) and copies the Oracle synth patch, which lives
+// outside the store.
 
 import {
   TRACK_DOC_FIELDS,
@@ -21,6 +22,7 @@ import {
   trackFieldDefault,
   type TrackDefaultContext,
 } from '@/daw/persistence/projectDocument/fields';
+import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { noteKey } from '@/daw/model/noteKeys';
 import type { AudioClip, MidiClip, Track } from '@/daw/store/tracksSlice';
 import {
@@ -32,11 +34,24 @@ import {
 } from './arrangementEdits';
 
 /**
- * A new id of each kind Duplicate needs. A section edit's Mint (which has no
- * track ids) can't stand in for it, but this one can stand in for a Mint's
- * clip and note ids.
+ * A new id of each kind Duplicate needs ('sample': a Chops sample's
+ * sampleId). A section edit's Mint (which has no track or sample ids) can't
+ * stand in for it, but this one can stand in for a Mint's clip and note ids.
  */
-export type TrackMint = (kind: 'track' | 'clip' | 'note') => string;
+export type TrackMint = (kind: 'track' | 'clip' | 'note' | 'sample') => string;
+
+/** What duplicateTrackEdit makes. */
+export interface TrackDuplicate {
+  edit: ArrangementEdit;
+  newTrackId: string;
+  /**
+   * The Chops sample's audio, by AudioBufferStore key (samplerBufferKey):
+   * the copy's sample has an id of its own, so loading another sample on
+   * one track, which lets go of the old sample's key, never silences the
+   * other. Null when the track has no sample.
+   */
+  sampleAudio: { from: string; to: string } | null;
+}
 
 /** The keys the copy gets its own of, rather than the source's. */
 const OWN_KEYS: ReadonlySet<keyof Track> = new Set([
@@ -44,6 +59,7 @@ const OWN_KEYS: ReadonlySet<keyof Track> = new Set([
   'name',
   'midiClips',
   'audioClips',
+  'samplerSample',
 ]);
 
 /** The document's track fields the copy takes from the source as they are. */
@@ -51,14 +67,20 @@ const COPIED_KEYS: ReadonlySet<keyof Track> = new Set(
   TRACK_DOC_FIELDS.filter((key) => !OWN_KEYS.has(key)),
 );
 
+/** A copy's name: its base, and its number when it has one. */
+const COPY_NAME = /^(.*\S) copy(?: (\d+))?$/;
+
 /**
  * The copy's name: "<name> copy", or "<name> copy 2", 3… when a track
- * already has it.
+ * already has it. A copy of a copy is numbered from the same base:
+ * "Bass copy" gives "Bass copy 2", and "Bass copy 2" the next free number,
+ * rather than "Bass copy copy".
  */
 export function copyName(name: string, tracks: readonly Track[]): string {
   const taken = new Set(tracks.map((t) => t.name));
-  const first = `${name} copy`;
-  if (!taken.has(first)) return first;
+  const copied = COPY_NAME.exec(name);
+  const first = `${copied ? copied[1] : name} copy`;
+  if (!copied && !taken.has(first)) return first;
   let n = 2;
   while (taken.has(`${first} ${n}`)) n += 1;
   return `${first} ${n}`;
@@ -73,7 +95,7 @@ export function duplicateTrackEdit(
   state: ArrangementState,
   trackId: string,
   mint: TrackMint,
-): { edit: ArrangementEdit; newTrackId: string } | null {
+): TrackDuplicate | null {
   const index = state.tracks.findIndex((t) => t.id === trackId);
   if (index < 0) return null;
   const source = state.tracks[index];
@@ -101,6 +123,20 @@ export function duplicateTrackEdit(
     sharedAudio.push({ from: clip.id, to: id });
     return { ...structuredClone(clip), id };
   });
+  // The sample keeps everything but its id: its cloud asset or bundled URL
+  // too, so the copy plays (and saves) the same audio.
+  const sample = source.samplerSample;
+  const samplerSample = sample && {
+    ...structuredClone(sample),
+    sampleId: mint('sample'),
+  };
+  const sampleAudio =
+    sample && samplerSample
+      ? {
+          from: samplerBufferKey(sample.sampleId),
+          to: samplerBufferKey(samplerSample.sampleId),
+        }
+      : null;
 
   // In the registry's order, so the copy holds its keys in the order a new
   // track does. An optional field the source has none of stays absent, as
@@ -112,6 +148,7 @@ export function duplicateTrackEdit(
     else if (key === 'name') value = name;
     else if (key === 'midiClips') value = midiClips;
     else if (key === 'audioClips') value = audioClips;
+    else if (key === 'samplerSample') value = samplerSample;
     else if (COPIED_KEYS.has(key)) value = structuredClone(source[key]);
     else value = trackFieldDefault(key, ctx);
     if (value !== undefined) copy[key] = value;
@@ -129,5 +166,6 @@ export function duplicateTrackEdit(
       sharedAudio,
     },
     newTrackId,
+    sampleAudio,
   };
 }

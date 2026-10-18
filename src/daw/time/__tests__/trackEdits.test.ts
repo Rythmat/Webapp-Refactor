@@ -195,7 +195,13 @@ function run(s = state()) {
 
 const KEYS = Object.keys(TRACK_FIELDS) as (keyof Track)[];
 /** Fields the copy has its own of: compared on their own below. */
-const OWN = new Set<keyof Track>(['id', 'name', 'midiClips', 'audioClips']);
+const OWN = new Set<keyof Track>([
+  'id',
+  'name',
+  'midiClips',
+  'audioClips',
+  'samplerSample',
+]);
 
 describe('duplicateTrackEdit', () => {
   it('has a fixture that sets every field away from its default', () => {
@@ -288,6 +294,29 @@ describe('duplicateTrackEdit', () => {
     expect(edit.sharedAudio).toEqual([{ from: 'a1', to: 'clip-new-3' }]);
   });
 
+  it('gives the Chops sample an id of its own, and says whose audio it plays', () => {
+    // Loading another sample on one track lets go of the old sample's key:
+    // with one id between them, the other track would go silent.
+    const { copy, sampleAudio } = run();
+    expect(copy.samplerSample).toEqual({
+      ...full.samplerSample,
+      sampleId: 'sample-new-1',
+    });
+    expect(copy.samplerSample).not.toBe(full.samplerSample);
+    expect(sampleAudio).toEqual({
+      from: 'sampler:smp',
+      to: 'sampler:sample-new-1',
+    });
+  });
+
+  it('has no sample audio to copy for a track without a sample', () => {
+    const plain: Track = { ...other('src', 'Keys') };
+    delete plain.samplerSample;
+    const { copy, sampleAudio } = run(state({ tracks: [plain] }));
+    expect(copy).not.toHaveProperty('samplerSample');
+    expect(sampleAudio).toBeNull();
+  });
+
   it('names the copy, numbering it when the name is taken', () => {
     expect(run().copy.name).toBe('Lead copy');
     const s = state();
@@ -300,6 +329,19 @@ describe('duplicateTrackEdit', () => {
     });
     expect(run(taken).copy.name).toBe('Lead copy 3');
     expect(copyName('Bass', [other('x', 'Bass copy 2')])).toBe('Bass copy');
+  });
+
+  it('numbers a copy of a copy from the same base', () => {
+    const bass = other('b', 'Bass');
+    const copy1 = other('b1', 'Bass copy');
+    const copy2 = other('b2', 'Bass copy 2');
+    expect(copyName('Bass copy', [bass, copy1])).toBe('Bass copy 2');
+    expect(copyName('Bass copy 2', [bass, copy1, copy2])).toBe('Bass copy 3');
+    expect(copyName('Bass copy', [bass, copy1, copy2])).toBe('Bass copy 3');
+    expect(copyName('Bass', [bass, copy1, copy2])).toBe('Bass copy 3');
+    // Only the end of the name counts.
+    expect(copyName('copy', [])).toBe('copy copy');
+    expect(copyName('Bass copy 2 mix', [])).toBe('Bass copy 2 mix copy');
   });
 
   it('puts the copy right after the source and leaves the rest as they were', () => {

@@ -1123,3 +1123,73 @@ Prompt 15c. Decision 16 (ST5, ST12); 3.8's browser shell with F10 and F11 pulled
   6. A 3/4 item in a 4/4 song isn't fitted to the song's bars; "Fits your song" doesn't weigh metre.
   7. The old `@/hooks/use-toast` store is now unused in the editor; anything else that sends to it is still silent.
 - **Next:** 15d (B8: 2.15 commands and output).
+
+## B8 — 2.15 commands and output: the command palette, Export, the track menu (2026-10-18)
+
+Prompt 15d. Decision 16 (ST9–ST11); 3.14's export dialog pulled forward.
+
+- **Branch:** `aaron`, from `bc8a170d` (B7's entry). Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Commits:**
+  - `18632206` render options: one track alone, no effects, mastering off; stems in one zip (a store-only ZIP writer, no new dependency);
+  - `4516e32f` notation: MIDI named after the song, drums on channel 10; the full score, lead sheet and one track's part as MusicXML from anywhere (`midi/scoreExport.ts`);
+  - `784054ac` Duplicate track (B3 open issue 1), and an added track keeps its place in a room (`diffTracks`);
+  - `ad14d89e` the ⌘K command palette;
+  - `6b9e302d` the Export pill and the one Export dialog (Audio | Notation);
+  - `9134733e` the track menu and row;
+  - `35c51870` studio:check: R34;
+  - review fixes: `8f92bfc8` the palette's lists and keys, `4ba78b7e` the dialog's rules, `e4cb0683` audio export, `940f9459` notation export, `3d92f75c` Duplicate, `8914bfe9` the palette's close, `e12ab74e` the track menu, `4e06d1c7` the dialog's focus, `f5e39224` studio:check;
+  - this entry.
+  - Each commit typechecks alone (checked on `git archive` exports).
+- **Pushed:** to `origin/aaron` (`bc8a170d..` this entry), from this checkout with the hook.
+- **What changed:**
+  - **The command palette** (`shell/help/CommandPalette.tsx`, its own chunk, loaded while the editor is idle): ⌘K / Ctrl+K, or ⇧⌘P from anywhere. It lists the commands that work where it was opened, from the 1.6 registry, grouped by scope in the '?' sheet's order (one `commands/scopeOrder.ts`, which now includes the track list and sections lanes), each with its shortcut (Soundtrap's has none); a key taken by a command listed earlier isn't shown on a later one. Search by label, keywords ("bounce", "stems") and scope. A pick closes it and runs the command as its key would (`dispatcher.runCommand`): a region's command where focus was (the track row it was opened from), anything else on the page, so the keyboard precedence holds; one with nothing to act on says so. Key-less commands joined the registry for it (Export…, Add a track…, Duplicate the selected track, Go to Create/Mix/Score, Open the Library, Open the Effects library, Audio & MIDI settings); the '?' sheet lists only commands with keys. '⋯' ▸ Find a command opens it too.
+    - **⌘K in the Lead sheet** still adds a chord symbol while something on the chart is selected; with nothing selected it opens the palette. The registry test now names that one shadowing on purpose.
+  - **Export:**
+    - **The pill** is the top bar's one white pill, between '⋯' and the avatar; it folds to its icon last (no fold at 1280, 1366 or 1440, typing chip and a 5-person room included).
+    - **One dialog** (`shell/export/`, replacing `components/Transport/ExportAudioDialog.tsx`), Audio | Notation, then what: Whole song · Each track (stems, audio only) · One track (a track menu). Audio: WAV 16/24-bit or Opus; the song, the loop or bars; mastering on or off (off when the master chain is empty); for one track, with or without its effects. Notation: MIDI file, MusicXML lead sheet (chords, with the song's sections as rehearsal marks), full score, or one track's part.
+    - **Stems** render one track at a time (the others left out of the graph, not muted), each the song's length, into one `<song>-stems.zip` (`01-bass.wav`…); "Track 3 of 7 · Bass" while it runs; Stop ends after the track being rendered; a track deleted meanwhile is skipped and named.
+    - **Honesty:** SoundFont tracks silent, amp and vocal tracks dry, and stems through the master chain one by one say so before the export; a song where nothing plays still exports, saying the file will be silent (the R&B lesson's last step may bounce whatever is there).
+    - **Names:** `<song>.wav`, `<song>-<track>[-dry].wav`, `<song>.mid` (was `prism-session.mid`), `<song>-lead-sheet.musicxml`, `<song>-score.musicxml`; letters of any script kept.
+    - **Entry points:** the pill, Project ▾ ▸ Audio… / Notation (MIDI, MusicXML)… (MIDI file still downloads at once, ⇧⌘E), Export track ▸, the palette. The R&B lesson's bounce step points at the pill (`export-pill`); its check is unchanged.
+  - **MIDI files were 3.75× too slow everywhere** (pre-existing, found in review): midi-writer-js stamped 128 ticks a beat on notes written at 480, and read velocities on a 1–100 scale. `exportMidiFile` now writes with @tonejs/midi (already a dependency); midi-writer-js is unused. Drums go on channel 10, other tracks 1–16 without it. The admin Parts Library's MIDI download used channels 0 and 9; now 1 and 10.
+  - **Track menu:** a name field at the top (Mozart AI's), with focus and the name selected as it opens: Enter, leaving it or closing the menu renames (one undo step, only if typed), Escape keeps the name. Duplicate track (⌘D on a track's name). Export track ▸ WAV · WAV (no effects) · MIDI file · MusicXML, each opening the dialog with the track chosen. A right-click on a row selects it and opens the menu at the pointer; ⇧F10, ⌥Return or the menu key on a track's name open it too. The Rename item went (the field, F2/N and the double-click remain).
+  - **Duplicate:** the copy holds every saved track field the registry lists (so a later field is copied without anyone remembering), with new ids for the track, its clips and notes; audio clips share their take; a Chops sample gets its own id (an unsaved one its own bytes); the Oracle patch is cloned; the Score marks of its notes are copied. "<name> copy" (then "copy 2"), same colour, right after the source, one undo step, refused at the track limit and while recording. In a room an added track used to land last for the partner and jump back; `diffTracks` now places it where it is.
+  - **Track row:** the selected row has a 4 px edge in its track colour (the others a 2 px dim one); an instrument button (the picker's glyph, in the track colour, or the row's text colour when the colour is too dark to read) selects the track and opens Instrument, or the chain for audio, with focus in the dock.
+- **Review:** six adversarial reviewers (keys, audio render, notation, Duplicate and collab, UI in a real browser, tests and harness), each finding reproduced first; fixed in the nine review commits, each with a test that fails without it. The ones that mattered:
+  - **high:** every MIDI file played 3.75× slow (above); the track menu opened on the menu, so typing a name ran items ("Drums" and Return made a copy); the R&B lesson's Bounce could never pass for a student who added a Synth without notes (the new dialog refused an empty song);
+  - a click right after closing the palette was lost (its fade kept the page from taking clicks; the first fix lost to Radix's inline style); from a track row the palette's clip commands all said "nothing to do"; the first ⌘K on a Chromebook let the next letters reach the shortcuts (Loop turned on); mastering off was 9 ms early against mastered files; stems held every file twice in memory; a duplicated Chops track shared the source's sample, so changing it silenced the original; focus fell to the page while exporting (Space played the song behind the dialog); a lead sheet of chords needed notes; solo was ignored by the dialog's checks; a dark track's instrument glyph was invisible;
+  - tests and R34 flags weaker than their text (renders of the wrong track passed; "differs" compared bytes).
+- **Verification:**
+  - **lint:** whole tree clean (`npx yarn lint`: prettier, eslint 0 warnings, `tsc -b`). **typecheck:** clean at every commit (`git archive` exports).
+  - **vitest** (the full tier's unit run): 3238 passed, 10 failed, 1 expected fail, 28 skipped; the 10 failing files are B7's inherited set, unchanged (designGuard's PianoRoll smallText, the song-data and song-link session suites, editorRoute and ProjectsDialog under load, the content/admin set). The new and changed suites: 2.15's palette, registry, dispatcher, export dialog, render, stems, zip, MIDI, MusicXML, Duplicate, collab order, track menu and row tests all pass.
+  - **studio:check, full tier** (`par-check.sh` on a `git archive` of `f5e39224` on 5283, `--prev-base` the 1.3 build on 5264):
+    - round trips: laptop 102/104 and chromebook 103/104 in the parallel run; R1 and R6 (laptop, "timed out waiting for the synth panel bridge") and R12:jam (chromebook) failed only beside five other browsers and pass alone, so 104/104 on both; R28–R34 "no baseline, 0 new" at both sizes; old-build round trips (R14, R15) 8/8 ok;
+    - **R34** (16 flags × 1366×655, 1440×787, 1280×720, both profiles): all pass;
+    - lessons: 74/78 at chromebook and small, only the 4 known failures; 12/12 complete; 4/4 gated; the R&B Bounce step passes through the Export pill;
+    - golden renders 44.1 and 48 kHz: same (the default render path is unchanged); golden trace: all checks pass;
+    - bundle: DawApp 117.4 kB gzip (B7 114.9; budget 150), the palette, the Export dialog, the zip writer and the MusicXML writers in chunks of their own; the every-page FAIL inherited from the main merge;
+    - perf: as B7 (idle 0 writes; autosave's `slotCommitsOk` "no" as before).
+  - **Collab, mixed versions** (wrangler on 1999, `VITE_PARTYKIT_HOST=localhost:1999`, `f5e39224` on 5285 and the 2.14 build `bc8a170d` on 5286): two 2.15 windows: Duplicate of a middle track shows right after its source in both, with its clips and notes, and one ⌘Z removes it in both; a 2.15 window duplicating with a 2.14 partner: the partner shows the copy in place, and its own added track lands last without moving the copy; a 2.14 window adding a track and a 2.15 partner duplicating: same orders in both. No collab errors in any console. No Y.Doc shape change, so no version bump.
+  - **Browser (Chrome, my HMR-off server on 5282 and the committed build on 5283):** ⌘K in Create (search "dupl" → Duplicate the selected track → one ⌘Z), in the Lead sheet with nothing selected; Loop run from the palette; a click just after Escape lands; the right-click menu (rename with typing, Escape keeps the name, focus back on the row); ⇧F10 on a track's name; the track menu typing "Drum loop" + Return renamed it with no copy made; the Export pill and dialog (Audio, Notation, One track, the anchored top, focus on Audio); Export track ▸ WAV (no effects) opened One track · Bass · No effects with mastering off; the instrument button opened Synth's Instrument with focus in the dock; the selected row's edge and filled icon. Console: only the known third-party StrictMode warning. File downloads were checked by R34 (WAV, zip, MIDI, MusicXML parsed), not in Chrome.
+- **Owner sign-offs:**
+  1. **Keys:** ⌘K / Ctrl+K opens the palette, ⇧⌘P is its second key; in the Lead sheet ⌘K stays "Add a chord symbol" while the chart has a selection. The palette lists only what works where it was opened (not every command, greyed).
+  2. **The pill's place:** between '⋯' and the avatar, folding to its icon last.
+  3. **Stems:** only the tracks that play in the mix (mute and solo as Play has them), each through the master chain alone when mastering is on (the dialog says they won't add up exactly), in one zip.
+  4. **"No effects"** leaves out the track's insert effects, sends and mastering; its fader, pan and their automation stay (so its level matches the song). An Oracle patch's own effects are part of its sound and stay.
+  5. **Export track ▸** opens the dialog with the track chosen rather than downloading at once; ⇧⌘E and Project ▾ ▸ MIDI file still download at once.
+  6. **A silent song exports** (with a warning), as before; a lesson's bounce counts any audio export, a stem or one track included.
+  7. **MIDI channels:** drums 10, others 1–16 in track order without 10, shared past 15 tracks; file names `<song>.mid` etc. (the Score's MusicXML was `<Title>.musicxml`, the lead sheet's `prism-lead-sheet.musicxml`).
+  8. **Duplicate:** "<name> copy", the same colour, mute and solo as the source, right after it.
+  9. **The Rename item** gave way to the name field; Escape in it keeps the old name and closes the menu.
+  10. **The selected edge:** 4 px in the track colour on the selected row, a dim 2 px line on the others; the instrument glyph carries the colour.
+  11. **The R&B lesson's copy:** "click **Export** at the top right".
+- **Open issues:**
+  1. **Render gaps** stay (1.11): SoundFont tracks silent, amp/vocal tracks dry, no ducker or gate; a single render can't be stopped half-way; each stem re-loads its samples (audio-core-20's preload).
+  2. **Oracle patches** of a copy are not undone or shared in a room (1.13b); in a room an undone copy's Score spellings stay in the local store (spellings aren't in the room yet).
+  3. **Reordering** an existing track still isn't shared in a room (pre-existing); only an added track's place now is.
+  4. **MIDI** carries no program changes or tempo map; the Parts Library's download writes no time signature.
+  5. The palette's region commands from a row's other controls (its Mute, its fader) are listed but answer only from the name; the sections lane's "+ Section" button lists section commands that do nothing.
+  6. File names don't shorten long names or avoid Windows' reserved ones ("CON").
+  7. `downloadScoreXml` and `downloadLeadSheet` have no callers left; `useToolbarOverflow.test` samples 3 widths for 4 fold levels.
+  8. Freeze (1.12b), Merge, MP3 and Flat.io/Noteflight are not built.
+- **Next:** prompt 16 (2.10 Mix view, 2.11 Help and the Stage B exit). 2.11's '?' sheet reads `commands/scopeOrder.ts` and the registry as the palette does.

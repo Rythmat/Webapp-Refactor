@@ -341,6 +341,10 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
               </Popover.Portal>
             </Popover.Root>
             <input
+              // Uncontrolled while the student types; a name changed from
+              // outside (a new instrument's, an undo, a collaborator's)
+              // starts it over with that name.
+              key={track.name}
               ref={nameRef}
               data-tutorial-id={`track-name-${index}`}
               aria-label="Track name"

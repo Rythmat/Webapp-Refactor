@@ -58,11 +58,13 @@
  * the envelope (`version`, `schema`, `compat`) and `data`, so the extra key
  * is ignored there. The metronome is the student's pref since 1.3, which a
  * v3 draft doesn't hold: a fixture keeps it at transport.metronomeEnabled,
- * where v2 did, and loadFixture sets it. The five: demo-sunset-keys
+ * where v2 did, and loadFixture sets it. The six: demo-sunset-keys
  * (the first demo as it opens: CDN Rhodes samples, GM bass, drums),
  * loop-range (a loop-region export), trimmed-audio (clip offsetSeconds,
- * gain and fades), oracle-two-notes and metronome-countin (the trace
- * session). The demo's Rhodes samples come from gleitz.github.io, so that
+ * gain and fades), oracle-two-notes, metronome-countin (the trace
+ * session) and dynamics (a gate and a sidechain ducker, measured on the
+ * render and on the exported file: a probe with `on: 'export'` reads the
+ * file). The demo's Rhodes samples come from gleitz.github.io, so that
  * case needs the network.
  *
  * Render mode. Each fixture and rate gets a fresh page whose AudioContext
@@ -80,7 +82,12 @@
  *   - export: exportProjectAudio({ format: 'wav', range }), exactly what
  *     File > Export Audio calls (it passes no sample rate). The WAV file it
  *     returns is decoded here and measured like a render, and checked
- *     against the render at the same rate.
+ *     against the render at the same rate;
+ *   - cancel (loop-range only, CANCEL_FIXTURE): the same export aborted
+ *     through its signal once its progress passes half-way. It must stop
+ *     with an AbortError, make no file, give Tone its live context back and
+ *     leave Play moving the playhead; any other outcome is a difference,
+ *     whatever the golden holds.
  *
  * It also measures how late one EffectChain with every effect off passes an
  * impulse, which explains the offset every onset in the goldens carries.
@@ -231,6 +238,17 @@ const beeps = (seconds) => ({
   amplitude: 0.5,
 });
 
+/** The fixture whose render case also cancels an export half-way. */
+const CANCEL_FIXTURE = 'loop-range';
+/** What a cancelled export must do, whatever the golden says. */
+const CANCEL_EXPECTED = {
+  status: 'aborted',
+  errorName: 'AbortError',
+  filesMade: 0,
+  toneContextRestored: true,
+  playheadMovesAfter: true,
+};
+
 const FIXTURES = [
   {
     name: 'demo-sunset-keys',
@@ -365,6 +383,145 @@ const FIXTURES = [
           b: [4.52, 4.58],
         },
       ],
+    },
+  },
+  {
+    // Two halves that never overlap, so each is measured on the full mix
+    // (the export has no stems, and a stem leaves the ducker's key out).
+    name: 'dynamics',
+    project: { bpm: 120 },
+    tracks: [
+      {
+        id: 'trk-gated',
+        name: 'Gated',
+        type: 'audio',
+        instrument: 'none',
+        effects: {
+          gate: {
+            enabled: true,
+            threshold: -30,
+            // Closed, the floor sits below a 16-bit file's last bit, so the
+            // export holds the same silence as the render.
+            range: 80,
+            hold: 0.01,
+            attack: 0.001,
+            release: 0.05,
+          },
+        },
+        audio: [
+          {
+            id: 'clip-gated',
+            startTick: 0,
+            duration: 2 * BAR,
+            fadeInTicks: 0,
+            fadeOutTicks: 0,
+            offsetSeconds: 0,
+            gain: 1,
+          },
+        ],
+      },
+      {
+        // The ducker's key: kicks every half bar, turned far down so the
+        // kick itself barely reaches the mix while its key still does.
+        id: 'trk-kick',
+        name: 'Kick',
+        type: 'midi',
+        instrument: 'drum-machine',
+        fields: { drumKit: '808', volume: 0.02 },
+        midi: [
+          {
+            id: 'clip-kick',
+            startTick: 2 * BAR,
+            notes: [0, 1, 2, 3].map((k) => [36, k * 2 * BEAT, 120, 120]),
+          },
+        ],
+      },
+      {
+        id: 'trk-pad',
+        name: 'Pad',
+        type: 'audio',
+        instrument: 'none',
+        effects: {
+          ducker: {
+            enabled: true,
+            keyTrackId: 'trk-kick',
+            // The kick's tail at this volume stays above -55 dB for most
+            // of a second: -40 dB lets the duck release before the next.
+            threshold: -40,
+            amount: 0.6,
+            attack: 0.005,
+            release: 0.1,
+          },
+        },
+        audio: [
+          {
+            id: 'clip-pad',
+            startTick: 2 * BAR,
+            duration: 2 * BAR,
+            fadeInTicks: 0,
+            fadeOutTicks: 0,
+            offsetSeconds: 0,
+            gain: 1,
+          },
+        ],
+      },
+    ],
+    golden: {
+      about:
+        'Gate and ducker in the bounce, 120 BPM. Bars 1-2 (0-4 s): a beep train (beep k at k x 0.5 s, 0.1 s long) over a quiet 150 Hz floor (-43 dB) with the gate on (threshold -30 dB, range 80 dB), so it closes between beeps. Bars 3-4 (4-8 s): a steady 440 Hz pad ducked (threshold -40 dB, amount 0.6, about -8 dB) by a kick on every other beat (4, 5, 6, 7 s) whose own track is at volume 0.02. Measured on the full mix, in the render and the export.',
+      range: 'project',
+      stems: true,
+      audio: {
+        'clip-gated': {
+          ...beeps(4),
+          stepHz: 0,
+          floorAmplitude: 0.01,
+          floorHz: 150,
+        },
+        'clip-pad': {
+          kind: 'beeps',
+          seconds: 4,
+          every: 4,
+          beepSeconds: 4,
+          baseHz: 440,
+          stepHz: 0,
+          amplitude: 0.5,
+        },
+      },
+      probes: ['render', 'export'].flatMap((x) => {
+        const on = x === 'export' ? { on: 'export' } : {};
+        const where = x === 'export' ? ' (export)' : '';
+        return [
+          {
+            label: `gate: a beep minus the floor after it, beep 3 at 1.0 s (about 34 dB with the gate open, far more when it closes)${where}`,
+            kind: 'levelDiff',
+            a: [1.02, 1.08],
+            b: [1.3, 1.45],
+            ...on,
+          },
+          {
+            label: `gate: level of the floor between beeps 3 and 4 (about -43 dB when the gate is open)${where}`,
+            kind: 'levelAt',
+            from: 1.3,
+            to: 1.45,
+            ...on,
+          },
+          {
+            label: `ducker: the pad just after the kick at 5 s minus the pad recovered before the next (about -8 dB at amount 0.6, 0 without the duck)${where}`,
+            kind: 'levelDiff',
+            a: [5.03, 5.1],
+            b: [5.7, 5.95],
+            ...on,
+          },
+          {
+            label: `ducker: the same after the kick at 6 s${where}`,
+            kind: 'levelDiff',
+            a: [6.03, 6.1],
+            b: [6.7, 6.95],
+            ...on,
+          },
+        ];
+      }),
     },
   },
   {
@@ -784,6 +941,15 @@ function installPageHelpers() {
           spec.amplitude * env * Math.sin((2 * Math.PI * hz * i) / sampleRate);
       }
     }
+    // An optional quiet tone under the whole train (a noise floor between
+    // the beeps, for a gate to close on).
+    if (spec.floorAmplitude) {
+      for (let i = 0; i < length; i++) {
+        data[i] +=
+          spec.floorAmplitude *
+          Math.sin((2 * Math.PI * spec.floorHz * i) / sampleRate);
+      }
+    }
     return buffer;
   };
 
@@ -832,6 +998,23 @@ function installPageHelpers() {
         const tempId = s().addTrack(track.type, track.instrument, track.name);
         // Stable ids keep the fixture readable and its clips addressable.
         s().updateTrack(tempId, { id: track.id, ...(track.fields ?? {}) });
+        // Effect slots switched on, each over the track's own defaults, and
+        // in the rack as the Effects panel adds them.
+        for (const slot of Object.keys(track.effects ?? {})) {
+          s().addActiveEffect(track.id, slot);
+        }
+        if (track.effects) {
+          const current = s().tracks.find((t) => t.id === track.id).effects;
+          s().updateTrackEffects(
+            track.id,
+            Object.fromEntries(
+              Object.entries(track.effects).map(([slot, params]) => [
+                slot,
+                { ...current[slot], ...params },
+              ]),
+            ),
+          );
+        }
         for (const clip of track.midi ?? []) {
           s().addMidiClip(track.id, {
             id: clip.id,
@@ -1149,6 +1332,69 @@ function installPageHelpers() {
     } finally {
       limit.clear();
     }
+  }
+
+  /**
+   * File > Export Audio cancelled half-way: the export is aborted (its
+   * signal) once its progress passes `abortAt`. Says how it ended, how many
+   * object URLs (files to download) were made meanwhile, and whether Tone's
+   * global context is the live one again.
+   */
+  async function cancelledExport({ range, timeoutMs, abortAt = 0.5 }) {
+    const { exportProjectAudio } = await app('/src/daw/audio/exportAudio.ts');
+    const Tone = await tone();
+    const live = engine().getContext();
+    const controller = new AbortController();
+    let abortedAt = null;
+    let filesMade = 0;
+    const createObjectURL = URL.createObjectURL;
+    URL.createObjectURL = function (...args) {
+      filesMade++;
+      return createObjectURL.apply(this, args);
+    };
+    const started = performance.now();
+    const limit = deadline(timeoutMs);
+    let outcome;
+    try {
+      const result = await Promise.race([
+        exportProjectAudio(
+          { format: 'wav', range, bitDepth: 16 },
+          (p) => {
+            // The first report (null: the render can't say yet) is not
+            // half-way; a numeric one past `abortAt` is.
+            if (abortedAt !== null || p.fraction === null) return;
+            if (p.fraction >= abortAt) {
+              abortedAt = { stage: p.stage, fraction: p.fraction };
+              controller.abort();
+            }
+          },
+          controller.signal,
+        ),
+        limit.promise,
+      ]);
+      if (result?.blob) filesMade++;
+      outcome = { status: 'finished' };
+    } catch (err) {
+      let status = 'error';
+      if (err?.name === 'Timeout') status = 'timeout';
+      if (err?.name === 'AbortError') status = 'aborted';
+      outcome = { status, error: errorInfo(err) };
+    } finally {
+      limit.clear();
+    }
+    // Anything the cancelled export still had queued lands now.
+    await sleep(300);
+    URL.createObjectURL = createObjectURL;
+    if (abortedAt) {
+      abortedAt.fraction = Math.round(abortedAt.fraction * 100) / 100;
+    }
+    return {
+      ...outcome,
+      abortedAt,
+      filesMade,
+      toneContextRestored: Tone.getContext().rawContext === live,
+      wallMs: Math.round(performance.now() - started),
+    };
   }
 
   /**
@@ -1564,6 +1810,7 @@ function installPageHelpers() {
     render,
     chainLatency,
     exportWav,
+    cancelledExport,
     playheadMoves,
     installTraceWrappers,
     runTracePlan,
@@ -1878,13 +2125,19 @@ const nearestValue = (list, value) =>
     null,
   );
 
-/** The fixture's `probes`, measured on the render (or a stem). */
-function measureProbes(probes, render, stems) {
+/**
+ * The fixture's `probes`, measured on the render, a stem (`stem`) or the
+ * exported file (`on: 'export'`).
+ */
+function measureProbes(probes, render, stems, exported) {
   return (probes ?? []).map((probe) => {
-    const source = probe.stem ? stems?.[probe.stem] : render;
+    let source = render;
+    if (probe.stem) source = stems?.[probe.stem];
+    else if (probe.on === 'export') source = exported;
     const features = source?.features;
     const out = { label: probe.label, kind: probe.kind };
     if (probe.stem) out.stem = probe.stem;
+    if (probe.on) out.on = probe.on;
     if (!features) return { ...out, observed: null, note: 'no audio' };
     if (probe.kind === 'onsetNear') {
       // No onset at all says nothing about where this one is: null, so a fix
@@ -1983,6 +2236,12 @@ function describeFacts(result) {
   } else if (exported.playheadMovesAfter === null) {
     facts.push(
       `Play after the export was not measured: ${AUDIO_CLOCK_STOPPED}`,
+    );
+  }
+  const cancelled = result.cancelledExport;
+  if (cancelled) {
+    facts.push(
+      `an export cancelled at ${cancelled.abortedAt ? `${cancelled.abortedAt.stage} ${cancelled.abortedAt.fraction}` : 'no point (no progress came)'} ${cancelled.status === 'aborted' ? 'stops with an AbortError' : `ends ${cancelled.status}${cancelled.error ? ` (${cancelled.error.name})` : ''}`}, makes ${cancelled.filesMade} file(s), ${cancelled.toneContextRestored ? 'gives' : 'does NOT give'} Tone its live context back, and Play ${cancelled.playheadMovesAfter === null ? 'was not measured' : cancelled.playheadMovesAfter ? 'still moves the playhead' : 'no longer moves the playhead'} after it`,
     );
   }
   for (const [name, stem] of Object.entries(stems ?? {})) {
@@ -2294,6 +2553,21 @@ function compareCase(golden, actual) {
       actual: Boolean(a.features),
       note: 'missing',
     });
+  }
+  // A cancelled export is held to what it must do, not to the golden.
+  if (actual.cancelledExport) {
+    const c = actual.cancelledExport;
+    const seen = { ...c, errorName: c.error?.name ?? null };
+    for (const [key, want] of Object.entries(CANCEL_EXPECTED)) {
+      if (key === 'playheadMovesAfter' && seen[key] === null) continue;
+      if (seen[key] !== want) {
+        diffs.push({
+          at: `cancelledExport.${key}`,
+          golden: want,
+          actual: seen[key],
+        });
+      }
+    }
   }
   // The live instruments the case ran with: a CDN outage or a new init
   // failure shows here by name, not only as audio differences.
@@ -2613,7 +2887,20 @@ async function renderCase(browser, base, fixture, rate, options) {
     exported.playheadMovesAfter = liveClock.runs
       ? await page.evaluate(() => window.__golden.playheadMoves())
       : null;
-    const probes = measureProbes(golden.probes, render, stems);
+    // One fixture also cancels an export half-way: it must stop with an
+    // AbortError, make no file, give Tone its live context back and leave
+    // Play working.
+    let cancelledExport;
+    if (fixture.name === CANCEL_FIXTURE) {
+      cancelledExport = await page.evaluate(
+        (args) => window.__golden.cancelledExport(args),
+        { range, timeoutMs: RENDER_TIMEOUT_MS },
+      );
+      cancelledExport.playheadMovesAfter = liveClock.runs
+        ? await page.evaluate(() => window.__golden.playheadMoves())
+        : null;
+    }
+    const probes = measureProbes(golden.probes, render, stems, exported);
     const result = {
       fixture: fixture.name,
       rate,
@@ -2624,6 +2911,7 @@ async function renderCase(browser, base, fixture, rate, options) {
       render,
       stems,
       exported,
+      ...(cancelledExport ? { cancelledExport } : {}),
       probes,
       timingDependentInstruments: [
         ...new Set(
@@ -2707,6 +2995,9 @@ function goldenOf(result) {
         )
       : undefined,
     export: strip(result.exported),
+    ...(result.cancelledExport
+      ? { cancelledExport: strip(result.cancelledExport) }
+      : {}),
     probes: result.probes,
     instrumentsReady: result.env.ready.complete,
     instruments: result.env.ready.instruments,
@@ -2914,6 +3205,12 @@ function summariseCase(result) {
   }
   parts.push(exportText);
   if (!e.toneContextRestored) parts.push('Tone context left offline');
+  const c = result.cancelledExport;
+  if (c) {
+    parts.push(
+      `cancel at ${c.abortedAt?.fraction ?? '?'}: ${c.status === 'aborted' ? 'AbortError' : c.status}, ${c.filesMade} files, context ${c.toneContextRestored ? 'restored' : 'NOT restored'}, Play ${c.playheadMovesAfter ? 'moves' : c.playheadMovesAfter === null ? 'not measured' : 'BROKEN'}`,
+    );
+  }
   return parts.join('; ');
 }
 

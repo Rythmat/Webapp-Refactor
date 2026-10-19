@@ -4,8 +4,9 @@ import { breaksFromRowSizes } from '@/daw/components/Score/roadmap';
 import type { AllSlices } from '@/daw/store';
 import { leadSheetSectionsOf } from '@/daw/store/sectionsSlice';
 import { chartExtraBars } from '@/daw/time/measureEdits';
-import { timeSignatureOf } from '@/daw/time/timeModel';
+import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import { fileSlug, songSlug } from '@/daw/utils/exportFiles';
+import { regionToMeasures } from './leadSheetUtils';
 import { buildLeadSheetXml } from './MusicXmlExport';
 import { buildScoreXml } from './ScoreMusicXmlExport';
 
@@ -45,6 +46,9 @@ export type FullScoreState = Pick<
   | 'leadSheetRepeats'
   | 'measureRowSizes'
   | 'measuresPerLine'
+  | 'scoreSystemBreaks'
+  | 'scoreSystemRuns'
+  | 'scorePageBreaks'
 >;
 
 /** Articulation kinds by note id, from the Score's 'id|kind' entries. */
@@ -83,17 +87,50 @@ export function buildFullScoreXml(
   state: FullScoreState,
   opts: { trackIds?: readonly string[] } = {},
 ): NotationFile | null {
+  const xml = scoreXml(state, opts);
+  if (xml === null) return null;
+  const song = songSlug(state.projectName);
+  const one =
+    opts.trackIds?.length === 1
+      ? state.tracks.find((t) => t.id === opts.trackIds![0])
+      : undefined;
+  return {
+    xml,
+    filename: one
+      ? `${song}-${fileSlug(one.name, 'track')}.musicxml`
+      : `${song}-score.musicxml`,
+  };
+}
+
+/**
+ * The Score's MusicXML (buildFullScoreXml) without its name. A lead sheet's
+ * melody (`melody`) is one part that always carries the chord symbols, as
+ * the sheet always shows them, and runs at least `minMeasures` bars.
+ */
+function scoreXml(
+  state: FullScoreState,
+  opts: {
+    trackIds?: readonly string[];
+    melody?: boolean;
+    minMeasures?: number;
+  },
+): string | null {
   const timeSignature: [number, number] = [
     state.timeSignatureNumerator,
     state.timeSignatureDenominator,
   ];
   const all = buildScoreParts({
-    tracks: state.tracks,
+    tracks: opts.melody
+      ? state.tracks.filter((t) => opts.trackIds?.includes(t.id))
+      : state.tracks,
     rootNote: state.rootNote,
     mode: state.mode,
     timeSignature,
     slashNotes: new Set(state.scoreSlashNotes),
     spellings: spellingMap(state.scoreSpellings),
+    ...(opts.minMeasures !== undefined
+      ? { minMeasures: opts.minMeasures }
+      : {}),
   });
   const only = opts.trackIds ? new Set(opts.trackIds) : null;
   const parts = only ? all.filter((p) => only.has(p.id)) : all;
@@ -101,7 +138,9 @@ export function buildFullScoreXml(
 
   let chordPartIds: ReadonlySet<string> = new Set(state.scoreChordTracks);
   let chordRegions = state.chordRegions;
-  if (only) {
+  if (opts.melody) {
+    chordPartIds = new Set(parts.map((p) => p.id));
+  } else if (only) {
     const carriers =
       chordPartIds.size > 0
         ? chordPartIds
@@ -115,7 +154,7 @@ export function buildFullScoreXml(
 
   // Every part shares the song's bars, so any part's count is the score's.
   const measureCount = Math.max(0, ...all.map((p) => p.score.measures.length));
-  const xml = buildScoreXml(
+  return buildScoreXml(
     parts.map(({ id, name, score }) => ({
       id,
       name,
@@ -135,25 +174,38 @@ export function buildFullScoreXml(
       }),
       sections: leadSheetSectionsOf(state),
       repeats: state.leadSheetRepeats,
-      systemStarts: breaksFromRowSizes(
-        state.measureRowSizes,
-        state.measuresPerLine || 4,
-        measureCount,
+      systemStarts: systemStartsOf(state, measureCount),
+      pageStarts: new Set(
+        state.scorePageBreaks.filter((bar) => bar > 0 && bar < measureCount),
       ),
     },
   );
+}
 
-  const song = songSlug(state.projectName);
-  const one =
-    opts.trackIds?.length === 1
-      ? state.tracks.find((t) => t.id === opts.trackIds![0])
-      : undefined;
-  return {
-    xml,
-    filename: one
-      ? `${song}-${fileSlug(one.name, 'track')}.musicxml`
-      : `${song}-score.musicxml`,
-  };
+/**
+ * The bars that start a system on the Score page: an imported chart's row
+ * sizes, the breaks set in the Score, and each system made by hand (its
+ * first bar, and the bar after it), as useScoreEditing's systemMarks has
+ * them (score-13). The bars a full line wraps at are left to the reader's
+ * own page width.
+ */
+function systemStartsOf(
+  state: FullScoreState,
+  measureCount: number,
+): Set<number> {
+  const starts = new Set(
+    breaksFromRowSizes(
+      state.measureRowSizes,
+      state.measuresPerLine || 4,
+      measureCount,
+    ),
+  );
+  for (const bar of state.scoreSystemBreaks) starts.add(bar);
+  for (const [start, count] of state.scoreSystemRuns) {
+    starts.add(start);
+    starts.add(start + count);
+  }
+  return new Set([...starts].filter((bar) => bar > 0 && bar < measureCount));
 }
 
 export type LeadSheetExportState = Pick<
@@ -195,6 +247,40 @@ export function buildLeadSheetExport(
     ),
     sections: leadSheetSectionsOf(state),
   });
+  return {
+    xml,
+    filename: `${songSlug(state.projectName)}-lead-sheet.musicxml`,
+  };
+}
+
+export type LeadSheetMelodyExportState = FullScoreState &
+  Pick<AllSlices, 'leadSheetBars'>;
+
+/**
+ * The lead sheet with its melody shown, as MusicXML (leadsheet-10): the
+ * melody track's notes as one part, the song's chord symbols over it, in
+ * the project's key and metre, with the sections, repeats and system breaks
+ * the Score writes, and as many bars as the chart has (the sheet runs as
+ * long as its chords and sections do, past the melody). Named like the
+ * chord chart's file ('my-song-lead-sheet.musicxml'), since it is the same
+ * sheet. Null when the track has no notes, where the sheet shows none.
+ */
+export function buildLeadSheetMelodyExport(
+  state: LeadSheetMelodyExportState,
+  melodyTrackId: string,
+): NotationFile | null {
+  const timeSignature = timeSignatureOf(state);
+  const chartBars = regionToMeasures(
+    state.chordRegions,
+    ticksPerBar(timeSignature),
+    chartExtraBars(state.leadSheetBars, state.sections, timeSignature),
+  ).length;
+  const xml = scoreXml(state, {
+    trackIds: [melodyTrackId],
+    melody: true,
+    minMeasures: Math.max(1, chartBars),
+  });
+  if (xml === null) return null;
   return {
     xml,
     filename: `${songSlug(state.projectName)}-lead-sheet.musicxml`,

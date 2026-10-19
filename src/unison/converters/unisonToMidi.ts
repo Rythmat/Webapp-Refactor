@@ -50,7 +50,15 @@ export function unisonToMidi(doc: UnisonDocument): Blob {
     });
   }
 
-  return exportMidiFile(sequences, doc.rhythm.bpm);
+  // The metre goes in the file (1.11 e2): without one every other program
+  // reads it as 4/4. A document without a metre writes none.
+  const { timeSignatureNumerator: num, timeSignatureDenominator: den } =
+    doc.rhythm;
+  return exportMidiFile(
+    sequences,
+    doc.rhythm.bpm,
+    num && den ? [num, den] : undefined,
+  );
 }
 
 /**

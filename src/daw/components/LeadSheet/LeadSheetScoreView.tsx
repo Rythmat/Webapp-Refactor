@@ -129,12 +129,15 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
   ]);
 
   return (
+    // score-print-root: the sheet prints its engraved pages as the Score
+    // does, on the borderless @page score they are drawn for, not under the
+    // chord chart's 0.75 in margins (leadsheet-11).
     <div
-      className="leadsheet-container flex flex-1 overflow-hidden"
+      className="leadsheet-container score-print-root flex flex-1 overflow-hidden"
       data-score-selection={`${selection.notes.size}n ${selection.cells.size}m ${selection.barline ?? '-'}b ${selection.chords.size}c ${selection.rests.size}r ${selection.marks.size}k`}
     >
       <div
-        className="leadsheet-palette flex w-[216px] shrink-0 flex-col overflow-hidden"
+        className="leadsheet-palette score-no-print flex w-[216px] shrink-0 flex-col overflow-hidden"
         style={{ borderRight: '1px solid var(--daw-hairline)' }}
       >
         <ScorePalettes {...editing.palette} notes={editing.editor} />
@@ -146,24 +149,26 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
           className="leadsheet-scroll flex-1 overflow-y-auto"
           style={{ padding: '32px 48px' }}
         >
-          <h1
-            className="leadsheet-title mb-1 text-center text-xl font-bold"
-            style={{ color: 'var(--daw-text)' }}
-          >
-            {projectName}
-          </h1>
+          <div className="score-print-title">
+            <h1
+              className="leadsheet-title mb-1 text-center text-xl font-bold"
+              style={{ color: 'var(--daw-text)' }}
+            >
+              {projectName}
+            </h1>
 
-          <ComposerLine />
+            <ComposerLine />
 
-          <div
-            className="leadsheet-subtitle mb-6 flex justify-center gap-4 text-xs"
-            style={{ color: 'var(--daw-text-3)' }}
-          >
-            {keyDisplay && <span>Key: {keyDisplay}</span>}
-            <span>Tempo: {bpm} BPM</span>
-            <span>
-              Time: {numerator}/{denominator}
-            </span>
+            <div
+              className="leadsheet-subtitle mb-6 flex justify-center gap-4 text-xs"
+              style={{ color: 'var(--daw-text-3)' }}
+            >
+              {keyDisplay && <span>Key: {keyDisplay}</span>}
+              <span>Tempo: {bpm} BPM</span>
+              <span>
+                Time: {numerator}/{denominator}
+              </span>
+            </div>
           </div>
 
           {parts.length === 0 ? (

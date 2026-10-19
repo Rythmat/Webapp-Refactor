@@ -13,7 +13,11 @@ import {
   GitMerge,
 } from 'lucide-react';
 import { useLeadSheetSections, useStore } from '@/daw/store';
-import { buildLeadSheetExport, MUSICXML_TYPE } from '@/daw/midi/scoreExport';
+import {
+  buildLeadSheetExport,
+  buildLeadSheetMelodyExport,
+  MUSICXML_TYPE,
+} from '@/daw/midi/scoreExport';
 import { downloadFile } from '@/daw/utils/exportFiles';
 import { withTransaction } from '@/daw/store/history';
 import type { LeadSheetChordFormat } from '@/daw/store/uiSlice';
@@ -59,13 +63,6 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const melodyTrackId = useStore((s) => s.leadSheetMelodyTrackId);
   const tracks = useStore((s) => s.tracks);
 
-  // The same file as the Export dialog's lead sheet (scoreExport.ts).
-  const handleExportMusicXml = useCallback(() => {
-    const file = buildLeadSheetExport(useStore.getState());
-    if (!file) return;
-    downloadFile(new Blob([file.xml], { type: MUSICXML_TYPE }), file.filename);
-  }, []);
-
   const handleExportPdf = useCallback(() => {
     window.print();
   }, []);
@@ -80,6 +77,18 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
     () => (showMelody ? pickMelodyTrack(tracks, melodyTrackId) : null),
     [showMelody, tracks, melodyTrackId],
   );
+  // The sheet as it is shown (scoreExport.ts): with a melody, the melody
+  // under its chords (leadsheet-10); otherwise the chord chart, the same file
+  // as the Export dialog's lead sheet.
+  const handleExportMusicXml = useCallback(() => {
+    const state = useStore.getState();
+    const file =
+      (melodyTrack && buildLeadSheetMelodyExport(state, melodyTrack.id)) ||
+      buildLeadSheetExport(state);
+    if (!file) return;
+    downloadFile(new Blob([file.xml], { type: MUSICXML_TYPE }), file.filename);
+  }, [melodyTrack]);
+
   const toggleMelody = useCallback(() => {
     setShowMelody(!showMelody);
   }, [showMelody, setShowMelody]);

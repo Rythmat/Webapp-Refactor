@@ -22,12 +22,12 @@ import {
 } from '@/daw/commands/cloudSaveStore';
 import {
   analyzeProject,
-  exportProjectMidi,
+  exportProjectMidiOrSay,
 } from '@/daw/commands/projectCommands';
 import { saveProject } from '@/daw/commands/saveProject';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { samplerBufferKey } from '@/daw/instruments/samplerChops';
-import { importMidiToTracks } from '@/daw/midi/importMidiToTracks';
+import { importMidiFileOrSay } from '@/daw/midi/importMidiToTracks';
 import { useStore } from '@/daw/store';
 import { openSession } from '@/daw/session/openSession';
 import { getSessionDeps } from '@/daw/session/sessionDeps';
@@ -220,12 +220,14 @@ export function ProjectMenu() {
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
+      const input = e.target;
+      const file = input.files?.[0];
+      // Cleared first, so choosing the same file again (after a bad one)
+      // still fires (shell-26).
+      input.value = '';
       if (!file) return;
-
-      await importMidiToTracks(await file.arrayBuffer());
-
-      e.target.value = '';
+      // A file that isn't MIDI is caught there and said in a notice.
+      await importMidiFileOrSay(file);
     },
     [],
   );
@@ -312,7 +314,7 @@ export function ProjectMenu() {
           <MenuItem
             icon={<FileDown />}
             shortcut={exportMidiKeys}
-            onSelect={() => void exportProjectMidi()}
+            onSelect={() => void exportProjectMidiOrSay()}
           >
             MIDI file
           </MenuItem>

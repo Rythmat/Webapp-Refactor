@@ -183,4 +183,27 @@ describe('unisonToMidi', () => {
       new Midi(await unisonToMidi(doc).arrayBuffer()).header.tempos[0].bpm,
     ).toBeCloseTo(90, 3);
   });
+
+  it('writes the time signature (1.11 e2)', async () => {
+    const doc = {
+      metadata: { ticksPerQuarterNote: 480 },
+      rhythm: {
+        bpm: 120,
+        timeSignatureNumerator: 3,
+        timeSignatureDenominator: 4,
+      },
+      tracks: [
+        {
+          id: 'm',
+          name: 'Melody',
+          channel: 1,
+          events: [
+            { pitch: 72, velocity: 64, startTick: 0, durationTicks: 480 },
+          ],
+        },
+      ],
+    } as unknown as UnisonDocument;
+    const midi = new Midi(await unisonToMidi(doc).arrayBuffer());
+    expect(midi.header.timeSignatures[0].timeSignature).toEqual([3, 4]);
+  });
 });

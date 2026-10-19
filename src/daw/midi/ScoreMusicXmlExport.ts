@@ -39,6 +39,8 @@ export interface ScoreXmlOptions {
   repeats?: readonly LeadSheetRepeat[];
   /** Measure indexes (0-based) that start a new system. */
   systemStarts?: ReadonlySet<number>;
+  /** Measure indexes (0-based) that start a new page (and so a system). */
+  pageStarts?: ReadonlySet<number>;
 }
 
 const TYPE: Record<NoteValue, string> = {
@@ -93,13 +95,25 @@ export function buildScoreXml(
     sections = [],
     repeats = [],
     systemStarts = new Set(),
+    pageStarts = new Set(),
   } = options;
   const chordParts =
     options.chordPartIds && options.chordPartIds.size > 0
       ? options.chordPartIds
       : new Set(parts.slice(0, 1).map((p) => p.id));
-  const slurStarts = new Map(slurs.map(([from], i) => [from, i + 1]));
-  const slurEnds = new Map(slurs.map(([, to], i) => [to, i + 1]));
+  // Every end of every slur, by its note: two slurs may share a note.
+  const slurEndsAt = new Map<string, SlurEnd[]>();
+  slurs.forEach(([from, to], slur) => {
+    for (const end of [
+      { slur, noteId: from, type: 'start' as const },
+      { slur, noteId: to, type: 'stop' as const },
+    ]) {
+      slurEndsAt.set(end.noteId, [
+        ...(slurEndsAt.get(end.noteId) ?? []),
+        { slur, type: end.type },
+      ]);
+    }
+  });
   const repeatStarts = new Set(repeats.map((r) => r.startMeasure));
   const repeatEnds = new Set(repeats.map((r) => r.endMeasure));
   const sectionAt = new Map(sections.map((s) => [s.measureIdx, s.label]));
@@ -124,10 +138,14 @@ export function buildScoreXml(
   parts.forEach((part, partIndex) => {
     const { score } = part;
     const top = partIndex === 0;
+    // Slur numbers are a part's own, so each part starts with all 16 free.
+    const slurNumbers = new SlurNumbers();
     out.push(`  <part id="P${partIndex + 1}">`);
     score.measures.forEach((measure, m) => {
       out.push(`    <measure number="${measure.number}">`);
-      if (top && m > 0 && systemStarts.has(m)) {
+      if (top && m > 0 && pageStarts.has(m)) {
+        out.push('      <print new-page="yes"/>');
+      } else if (top && m > 0 && systemStarts.has(m)) {
         out.push('      <print new-system="yes"/>');
       }
       if (repeatStarts.has(m)) {
@@ -189,8 +207,8 @@ export function buildScoreXml(
                   item.tupletStart !== undefined &&
                   voice.items[i + 1]?.tupletStart !== item.tupletStart,
                 articulations,
-                slurStarts,
-                slurEnds,
+                slurEndsAt,
+                slurNumbers,
               }),
             );
           });
@@ -258,8 +276,50 @@ interface ItemContext {
   tupletStart: boolean;
   tupletStop: boolean;
   articulations: ReadonlyMap<string, readonly string[]>;
-  slurStarts: ReadonlyMap<string, number>;
-  slurEnds: ReadonlyMap<string, number>;
+  slurEndsAt: ReadonlyMap<string, readonly SlurEnd[]>;
+  slurNumbers: SlurNumbers;
+}
+
+/** One end of a slur (its index in the options' list) on a note. */
+interface SlurEnd {
+  slur: number;
+  type: 'start' | 'stop';
+}
+
+/** MusicXML numbers overlapping slurs 1–16 (its number-level type). */
+const SLUR_NUMBERS = 16;
+
+/**
+ * Slur numbers from a pool of 1–16 (leadsheet-33): a slur takes the lowest
+ * free number at whichever end is written first and gives it back at the
+ * other, so a long piece reuses them; numbering by the slur's index ran past
+ * 16 in any song with more than sixteen slurs. A seventeenth slur open at
+ * once has no number left and is left out, rather than written invalid.
+ */
+class SlurNumbers {
+  private readonly open = new Map<number, number>();
+  private readonly used = new Set<number>();
+
+  /** The number for this end of `slur`, and whether it is the last end. */
+  take(slur: number): { number: number; closes: boolean } | null {
+    const number = this.open.get(slur);
+    if (number !== undefined) return { number, closes: true };
+    for (let n = 1; n <= SLUR_NUMBERS; n++) {
+      if (this.used.has(n)) continue;
+      this.used.add(n);
+      this.open.set(slur, n);
+      return { number: n, closes: false };
+    }
+    return null;
+  }
+
+  /** Gives `slur`'s number back to the pool. */
+  release(slur: number): void {
+    const number = this.open.get(slur);
+    if (number === undefined) return;
+    this.open.delete(slur);
+    this.used.delete(number);
+  }
 }
 
 function itemXml(item: NotationItem, ctx: ItemContext): string {
@@ -293,7 +353,7 @@ function itemXml(item: NotationItem, ctx: ItemContext): string {
         item.tieFromPrev ? '<tied type="stop"/>' : '',
         item.tieToNext ? '<tied type="start"/>' : '',
         i === 0 ? tupletNotations(ctx) : '',
-        slurTags(key, ctx),
+        slurTags(key, item, ctx),
         i === 0 ? marksXml(kinds) : '',
       ].join('');
       return [
@@ -340,13 +400,35 @@ function tupletNotations(ctx: ItemContext): string {
   );
 }
 
-function slurTags(key: NotationKey, ctx: ItemContext): string {
-  const start = ctx.slurStarts.get(key.noteId);
-  const stop = ctx.slurEnds.get(key.noteId);
-  return (
-    (start ? `<slur type="start" number="${start}"/>` : '') +
-    (stop ? `<slur type="stop" number="${stop}"/>` : '')
-  );
+function slurTags(
+  key: NotationKey,
+  item: NotationItem,
+  ctx: ItemContext,
+): string {
+  const ends = ctx.slurEndsAt.get(key.noteId) ?? [];
+  // A note tied over a barline is written as several tied pieces with one
+  // id: its slur starts on the first piece and stops on the last.
+  const wanted = {
+    start: !item.tieFromPrev,
+    stop: !item.tieToNext,
+  };
+  // Starts are written before stops, as before. Numbers are given back only
+  // after the whole note, so a slur ending here and one starting here never
+  // share a number on the same note.
+  const tags: string[] = [];
+  const closed: number[] = [];
+  for (const type of ['start', 'stop'] as const) {
+    if (!wanted[type]) continue;
+    for (const end of ends) {
+      if (end.type !== type) continue;
+      const taken = ctx.slurNumbers.take(end.slur);
+      if (!taken) continue;
+      if (taken.closes) closed.push(end.slur);
+      tags.push(`<slur type="${type}" number="${taken.number}"/>`);
+    }
+  }
+  for (const slur of closed) ctx.slurNumbers.release(slur);
+  return tags.join('');
 }
 
 function marksXml(kinds: readonly string[]): string {

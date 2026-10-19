@@ -9,7 +9,7 @@ import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
 import { useKeyDispatcher } from './dispatcher';
 import { GLOBAL_SCOPE } from './keymaps';
 import { useMusicalTypingStore } from './musicalTypingStore';
-import { analyzeProject, exportProjectMidi } from './projectCommands';
+import { analyzeProject, exportProjectMidiOrSay } from './projectCommands';
 import { bindKeymap, type KeymapHandlers } from './registry';
 import { requestRecord } from './requestRecord';
 import {
@@ -70,7 +70,7 @@ export const GLOBAL_HANDLERS: KeymapHandlers = {
   'edit.undo': () => undoOrRedo(false),
   'edit.redo': () => undoOrRedo(true),
   'project.exportMidi': () => {
-    void exportProjectMidi();
+    void exportProjectMidiOrSay();
   },
   'project.analyze': analyzeProject,
   'view.inspector': () => useStore.getState().toggleLibrary(),

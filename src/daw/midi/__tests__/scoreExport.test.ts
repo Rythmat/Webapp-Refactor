@@ -13,7 +13,11 @@ import { chartExtraBars } from '@/daw/time/measureEdits';
 import { timeSignatureOf } from '@/daw/time/timeModel';
 import { buildLeadSheetXml } from '../MusicXmlExport';
 import { buildScoreXml } from '../ScoreMusicXmlExport';
-import { buildFullScoreXml, buildLeadSheetExport } from '../scoreExport';
+import {
+  buildFullScoreXml,
+  buildLeadSheetExport,
+  buildLeadSheetMelodyExport,
+} from '../scoreExport';
 
 // ── Notation exports (milestone 2.15) ──────────────────────────────────────
 // The full score is the file the Score page's button wrote before the move
@@ -390,5 +394,66 @@ describe('buildLeadSheetExport', () => {
     expect(buildLeadSheetExport(fixture({ projectName: '' }))!.filename).toBe(
       'mixdown-lead-sheet.musicxml',
     );
+  });
+});
+
+// ── The lead sheet with its melody, and the Score's breaks (1.11 e2) ───────
+// In melody mode the toolbar used to write the chord chart (chords over
+// slash rests) and leave the melody out (leadsheet-10). The Score's own
+// system and page breaks weren't written (score-13).
+
+describe('buildLeadSheetMelodyExport', () => {
+  it('writes the melody as one part under the chords, as long as the chart', () => {
+    const file = buildLeadSheetMelodyExport(fixture(), 'lead')!;
+    expect(file.filename).toBe('night-drive-lead-sheet.musicxml');
+    expect(count(file.xml, '<score-part ')).toBe(1);
+    expect(file.xml).toContain('<part-name>Lead</part-name>');
+    // The melody's notes, not slash rests: C5 on the downbeat.
+    expect(file.xml).toContain(
+      '<pitch><step>C</step><octave>5</octave></pitch>',
+    );
+    // The chords stand over it even though no Score part was chosen for them.
+    expect(count(file.xml, '<harmony')).toBe(2);
+    // Six bars, as the chart runs (the Chorus ends at bar 6).
+    expect(count(file.xml, '<measure ')).toBe(6);
+    expect(file.xml).toContain('<rehearsal>Verse</rehearsal>');
+    expect(file.xml).toContain('<beats>4</beats>');
+  });
+
+  it("is in the project's metre and key", () => {
+    const xml = buildLeadSheetMelodyExport(
+      fixture({
+        timeSignatureNumerator: 3,
+        timeSignatureDenominator: 4,
+        rootNote: 7,
+      }),
+      'lead',
+    )!.xml;
+    expect(xml).toContain('<time><beats>3</beats><beat-type>4</beat-type>');
+    expect(xml).toContain('<key><fifths>1</fifths></key>');
+  });
+
+  it('is null for a track without notes', () => {
+    expect(buildLeadSheetMelodyExport(fixture(), 'empty')).toBeNull();
+    expect(buildLeadSheetMelodyExport(fixture(), 'nope')).toBeNull();
+  });
+});
+
+describe("buildFullScoreXml's breaks", () => {
+  it("writes the Score's system breaks, made systems and page breaks", () => {
+    const xml = buildFullScoreXml(
+      fixture({
+        measureRowSizes: null,
+        measuresPerLine: 99,
+        scoreSystemBreaks: [1],
+        scoreSystemRuns: [[2, 1]],
+        scorePageBreaks: [3],
+      }),
+    )!.xml;
+    const top = xml.split('<part id=')[1];
+    const printOf = (m: string) =>
+      /<print new-(system|page)="yes"\/>/.exec(m)?.[1] ?? null;
+    const marks = top.split('<measure ').slice(1).map(printOf);
+    expect(marks.slice(0, 4)).toEqual([null, 'system', 'system', 'page']);
   });
 });

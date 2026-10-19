@@ -1,6 +1,8 @@
-import type { MidiChannelSequence } from '@/daw/midi/MidiFileIO';
+import type { MidiChannelSequence, MidiKey } from '@/daw/midi/MidiFileIO';
+import { notice } from '@/daw/shell/notice';
 import { isDrumTrack } from '@/daw/shell/canvas/clipMenu/clipActions';
 import { useStore, type AllSlices } from '@/daw/store';
+import type { Track } from '@/daw/store/tracksSlice';
 import { toSongTick } from '@/daw/time/timeModel';
 import { downloadFile, fileSlug, songSlug } from '@/daw/utils/exportFiles';
 
@@ -26,7 +28,10 @@ export type ProjectMidiState = Pick<
   | 'bpm'
   | 'timeSignatureNumerator'
   | 'timeSignatureDenominator'
->;
+> &
+  // The key is written when the song has one (1.11 e2); a state without it
+  // writes no key signature.
+  Partial<Pick<AllSlices, 'rootNote' | 'mode'>>;
 
 export interface ProjectMidiOptions {
   /** Only these tracks (in the project's order); every track without it. */
@@ -39,6 +44,44 @@ export interface ProjectMidiPlan {
   filename: string;
   bpm: number;
   timeSignature: [number, number];
+  /** The song's key, or null when it has none. */
+  key: MidiKey | null;
+}
+
+/** General MIDI programs (0-based) of the bass voices. */
+const BASS_VOICE_PROGRAMS = {
+  finger: 33, // Electric Bass (finger)
+  fretless: 35, // Fretless Bass
+  upright: 32, // Acoustic Bass
+  '808': 38, // Synth Bass 1
+} as const;
+
+/**
+ * The General MIDI program (0-based) nearest the track's instrument, where
+ * one is plain; undefined for a sound with no GM match (the Oracle synth, the
+ * Chops sampler), which the file leaves at program 0 as it always has. A
+ * SoundFont track plays a GM program already, so the file names that one.
+ */
+export function gmProgramOf(track: Track): number | undefined {
+  switch (track.instrument) {
+    case 'soundfont':
+      return track.gmProgram ?? 0;
+    case 'piano-sampler':
+      return 0; // Acoustic Grand Piano
+    case 'electric-piano':
+      return 4; // Electric Piano 1
+    case 'bass-electric':
+      return BASS_VOICE_PROGRAMS[track.bassVoice ?? 'finger'];
+    case 'cello':
+      return 42; // Cello
+    case 'organ':
+    case 'tonewheel-organ':
+      return 16; // Drawbar Organ
+    case 'drum-machine':
+      return 0; // Standard kit (channel 10)
+    default:
+      return undefined;
+  }
 }
 
 /**
@@ -80,16 +123,31 @@ export function planProjectMidi(
         })),
       );
     if (events.length === 0) continue;
-    const channel = isDrumTrack(track)
+    // The sustain pedal (and any other CC a clip holds) goes with the notes.
+    const ccEvents = track.midiClips
+      .filter((clip) => !clip.muted)
+      .flatMap((clip) =>
+        (clip.ccEvents ?? []).map((cc) => ({
+          ...cc,
+          tick: toSongTick(clip, cc.tick),
+        })),
+      );
+    const drums = isDrumTrack(track);
+    const channel = drums
       ? MIDI_DRUM_CHANNEL
       : MELODIC_CHANNELS[melodic++ % MELODIC_CHANNELS.length];
+    // A kit by role on a melodic instrument still plays channel 10, where
+    // a GM player takes the program as a kit number: the standard one.
+    const program = drums ? 0 : gmProgramOf(track);
     tracks.push({
       channel,
       sequence: {
         ticksPerQuarterNote: OUR_PPQ,
         trackName: track.name,
         events,
+        ...(ccEvents.length > 0 ? { ccEvents } : {}),
       },
+      ...(program !== undefined ? { program } : {}),
     });
   }
   if (tracks.length === 0) return null;
@@ -109,6 +167,10 @@ export function planProjectMidi(
       state.timeSignatureNumerator,
       state.timeSignatureDenominator,
     ],
+    key:
+      state.rootNote === null || state.rootNote === undefined
+        ? null
+        : { rootNote: state.rootNote, mode: state.mode ?? 'ionian' },
   };
 }
 
@@ -126,7 +188,7 @@ export async function buildProjectMidi(
   if (!plan) return null;
   const { exportMidiFile } = await import('@/daw/midi/MidiFileIO');
   return {
-    blob: exportMidiFile(plan.tracks, plan.bpm, plan.timeSignature),
+    blob: exportMidiFile(plan.tracks, plan.bpm, plan.timeSignature, plan.key),
     filename: plan.filename,
   };
 }
@@ -143,6 +205,23 @@ export async function exportProjectMidi(
   if (!file) return false;
   downloadFile(file.blob, file.filename);
   return true;
+}
+
+/** What the menu and ⇧⌘E say when the song has no notes to write. */
+export const NO_MIDI_NOTES_NOTICE =
+  'There are no notes to write to a MIDI file';
+
+/**
+ * exportProjectMidi for Project ▸ MIDI file and ⇧⌘E: when there is nothing
+ * to write it says so, as the Export dialog does, rather than doing nothing
+ * (ia-flows-11).
+ */
+export async function exportProjectMidiOrSay(
+  opts: ProjectMidiOptions = {},
+): Promise<boolean> {
+  const written = await exportProjectMidi(opts);
+  if (!written) notice({ title: NO_MIDI_NOTES_NOTICE });
+  return written;
 }
 
 /** Analyzes the song and its chords, and opens the panel that shows them. */

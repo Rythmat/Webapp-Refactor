@@ -39,7 +39,7 @@ const h = vi.hoisted(() => ({
   showSuccess: vi.fn(),
   confirmDialog: vi.fn(async () => false),
   promptDialog: vi.fn(async (): Promise<string | null> => null),
-  exportProjectMidi: vi.fn(async () => true),
+  exportProjectMidiOrSay: vi.fn(async () => true),
 }));
 
 vi.mock('@/contexts/AuthContext/hooks/useAuthToken', () => ({
@@ -61,7 +61,7 @@ vi.mock('@/daw/ui/DialogHost', () => ({
 }));
 vi.mock('@/daw/commands/projectCommands', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/daw/commands/projectCommands')>()),
-  exportProjectMidi: h.exportProjectMidi,
+  exportProjectMidiOrSay: h.exportProjectMidiOrSay,
 }));
 
 import { setAudioBuffer } from '@/daw/audio/AudioBufferStore';
@@ -388,7 +388,7 @@ describe('Project ▸ Export', () => {
       isOpen: true,
       tab: 'notation',
     });
-    expect(h.exportProjectMidi).not.toHaveBeenCalled();
+    expect(h.exportProjectMidiOrSay).not.toHaveBeenCalled();
   });
 
   it('downloads the MIDI file at once, with no dialog', async () => {
@@ -396,7 +396,7 @@ describe('Project ▸ Export', () => {
     openMenu();
     // Not Import ▸ MIDI file…
     await choose(/^MIDI file(?!…)/);
-    expect(h.exportProjectMidi).toHaveBeenCalledTimes(1);
+    expect(h.exportProjectMidiOrSay).toHaveBeenCalledTimes(1);
     expect(useExportDialogStore.getState().isOpen).toBe(false);
   });
 

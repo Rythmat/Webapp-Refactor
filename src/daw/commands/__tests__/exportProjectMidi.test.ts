@@ -11,12 +11,20 @@ import type { MidiChannelSequence } from '@/daw/midi/MidiFileIO';
 
 const h = vi.hoisted(() => ({
   exported: null as MidiChannelSequence[] | null,
+  writerArgs: null as unknown[] | null,
   downloads: [] as string[],
+  notices: [] as string[],
 }));
 vi.mock('@/daw/midi/MidiFileIO', () => ({
-  exportMidiFile: (tracks: MidiChannelSequence[]) => {
+  exportMidiFile: (tracks: MidiChannelSequence[], ...rest: unknown[]) => {
     h.exported = tracks;
+    h.writerArgs = rest;
     return new Blob(['MThd']);
+  },
+}));
+vi.mock('@/daw/shell/notice', () => ({
+  notice: ({ title }: { title: string }) => {
+    h.notices.push(title);
   },
 }));
 vi.mock('@/daw/utils/exportFiles', async (importOriginal) => ({
@@ -28,10 +36,13 @@ vi.mock('@/daw/utils/exportFiles', async (importOriginal) => ({
 
 import { useStore } from '@/daw/store';
 import type { MidiClip, Track } from '@/daw/store/tracksSlice';
+import { Midi } from '@tonejs/midi';
 import {
   buildProjectMidi,
   exportProjectMidi,
+  exportProjectMidiOrSay,
   MIDI_DRUM_CHANNEL,
+  NO_MIDI_NOTES_NOTICE,
   planProjectMidi,
   type ProjectMidiState,
 } from '../projectCommands';
@@ -72,7 +83,9 @@ const bareState = (tracks: Track[]): ProjectMidiState => ({
 beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
   h.exported = null;
+  h.writerArgs = null;
   h.downloads = [];
+  h.notices = [];
 });
 
 describe('exportProjectMidi', () => {
@@ -247,5 +260,173 @@ describe('planProjectMidi', () => {
     expect(read[0].events[0].channel).toBe(10);
     expect(read.slice(1).map((t) => t.events[0].channel)).not.toContain(10);
     expect(read[16].events[0].channel).toBe(1);
+  });
+});
+
+// ── The file keeps the key, the metre and the sounds (1.11 e2) ─────────────
+// Written with the real writer and read back with @tonejs/midi, as another
+// program would read it: 480 ppq, clips at their places, the metre and the
+// key signature, drums on channel 10, a General MIDI program per track and
+// the sustain pedal. Project ▸ MIDI file and ⇧⌘E say when there's nothing
+// to write, as the Export dialog does (ia-flows-11).
+
+describe('the MIDI file, read back', () => {
+  const real = () =>
+    vi.importActual<typeof import('@/daw/midi/MidiFileIO')>(
+      '@/daw/midi/MidiFileIO',
+    );
+  const writeAndRead = async (state: ProjectMidiState) => {
+    const { exportMidiFile } = await real();
+    const plan = planProjectMidi(state)!;
+    const blob = exportMidiFile(
+      plan.tracks,
+      plan.bpm,
+      plan.timeSignature,
+      plan.key,
+    );
+    return new Midi(await blob.arrayBuffer());
+  };
+
+  it('keeps ppq, clip places, metre, key, drums on 10 and the programs', async () => {
+    s().setBpm(92);
+    s().setTimeSignature(6, 8);
+    s().setRootNote(2); // D
+    s().setMode('ionian');
+    const keys = s().addTrack('midi', 'electric-piano', 'Keys');
+    const drums = s().addTrack('midi', 'drum-machine', 'Beat');
+    const bass = s().addTrack('midi', 'bass-electric', 'Bass', {
+      bassVoice: 'fretless',
+    });
+    const synth = s().addTrack('midi', 'oracle-synth', 'Lead');
+    // A clip at bar 3 (6/8: 1440 ticks a bar) with a note 240 ticks in.
+    s().addMidiClip(keys, {
+      id: 'k',
+      startTick: 2880,
+      events: [note(62, 240)],
+      ccEvents: [
+        { tick: 0, controller: 64, value: 127, channel: 0 },
+        { tick: 480, controller: 64, value: 0, channel: 0 },
+      ],
+    } as MidiClip);
+    s().addMidiClip(drums, {
+      id: 'd',
+      startTick: 0,
+      events: [note(36)],
+    } as MidiClip);
+    s().addMidiClip(bass, {
+      id: 'b',
+      startTick: 1440,
+      events: [note(38)],
+    } as MidiClip);
+    s().addMidiClip(synth, {
+      id: 's',
+      startTick: 0,
+      events: [note(74)],
+    } as MidiClip);
+
+    const midi = await writeAndRead(s());
+
+    expect(midi.header.ppq).toBe(480);
+    expect(midi.header.tempos[0].bpm).toBeCloseTo(92, 3);
+    expect(midi.header.timeSignatures[0].timeSignature).toEqual([6, 8]);
+    // D major: two sharps, which @tonejs/midi names by its major key.
+    expect(midi.header.keySignatures).toEqual([
+      { ticks: 0, key: 'D', scale: 'major' },
+    ]);
+    const [k, d, b, l] = midi.tracks;
+    expect(k.notes[0].ticks).toBe(2880 + 240);
+    expect(b.notes[0].ticks).toBe(1440);
+    expect(d.channel).toBe(9);
+    expect(d.instrument.percussion).toBe(true);
+    expect([k.channel, b.channel, l.channel]).toEqual([0, 1, 2]);
+    // Electric Piano 1, Fretless Bass; the Oracle synth has no GM match.
+    expect(k.instrument.number).toBe(4);
+    expect(b.instrument.number).toBe(35);
+    expect(l.instrument.number).toBe(0);
+    // The sustain pedal, in song time.
+    expect(
+      k.controlChanges[64].map((cc) => [cc.ticks, Math.round(cc.value * 127)]),
+    ).toEqual([
+      [2880, 127],
+      [2880 + 480, 0],
+    ]);
+  });
+
+  it('writes a minor-third mode as minor with its parent signature', async () => {
+    s().setRootNote(9); // A
+    s().setMode('aeolian');
+    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addMidiClip(keys, {
+      id: 'k',
+      startTick: 0,
+      events: [note(57)],
+    } as MidiClip);
+    expect((await writeAndRead(s())).header.keySignatures[0]).toMatchObject({
+      key: 'C',
+      scale: 'minor',
+    });
+
+    // E♭ dorian takes D♭ major's five flats.
+    s().setRootNote(3);
+    s().setMode('dorian');
+    expect((await writeAndRead(s())).header.keySignatures[0]).toMatchObject({
+      key: 'Db',
+      scale: 'minor',
+    });
+  });
+
+  it('writes no key signature for a song without a key', async () => {
+    s().setRootNote(null);
+    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addMidiClip(keys, {
+      id: 'k',
+      startTick: 0,
+      events: [note(60)],
+    } as MidiClip);
+    expect((await writeAndRead(s())).header.keySignatures).toEqual([]);
+    expect(planProjectMidi(bareState([bareTrack('a')]))!.key).toBeNull();
+  });
+
+  it('hands the key to the writer from buildProjectMidi', async () => {
+    s().setRootNote(5);
+    s().setMode('ionian');
+    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addMidiClip(keys, {
+      id: 'k',
+      startTick: 0,
+      events: [note(60)],
+    } as MidiClip);
+    await buildProjectMidi(s());
+    expect(h.writerArgs).toEqual([
+      s().bpm,
+      [4, 4],
+      { rootNote: 5, mode: 'ionian' },
+    ]);
+  });
+});
+
+describe('exportProjectMidiOrSay', () => {
+  it('says there is nothing to write, and writes nothing', async () => {
+    expect(await exportProjectMidiOrSay()).toBe(false);
+    expect(h.notices).toEqual([NO_MIDI_NOTES_NOTICE]);
+    expect(h.downloads).toEqual([]);
+  });
+
+  it('says nothing when it writes a file', async () => {
+    const keys = s().addTrack('midi', 'piano-sampler', 'Keys');
+    s().addMidiClip(keys, {
+      id: 'k',
+      startTick: 0,
+      events: [note(60)],
+    } as MidiClip);
+    expect(await exportProjectMidiOrSay()).toBe(true);
+    expect(h.notices).toEqual([]);
+    expect(h.downloads).toHaveLength(1);
+  });
+
+  it('is what ⇧⌘E runs', async () => {
+    const { GLOBAL_HANDLERS } = await import('../globalCommands');
+    await GLOBAL_HANDLERS['project.exportMidi']?.({} as KeyboardEvent);
+    await vi.waitFor(() => expect(h.notices).toEqual([NO_MIDI_NOTES_NOTICE]));
   });
 });

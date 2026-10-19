@@ -1116,7 +1116,31 @@ export function driverFor(lessonId, stepId) {
  * (Milestone 1.2 took off the free student's Prism steps, ia-flows-14 and
  * prism-ui-23: the four Prism lessons are gated for a free student now.)
  */
+/**
+ * Studio Basics was written for the shell before Stage B; its nine lessons
+ * are rewritten for the Stage B shell in a phase of their own, and until
+ * then these steps can't be done as written (docs/studio-tutorial-anchors.md
+ * has where each control went).
+ */
+const SB = 'Stage B (Studio Basics rewrite phase)';
+
 export const KNOWN_FAILURES = {
+  '*/*/studio-basics-your-tracks/change-instrument': `${SB}: the row's instrument button opens the dock's Instrument tab, not the picker; the picker is ⋯ ▸ Instrument… or the dock's instrument button (dock-instrument)`,
+  '*/*/studio-basics-your-tracks/monitor': `${SB}: a track row has no MON button; Monitor input is in its ⋯ menu (track-menu-monitor)`,
+  '*/*/studio-basics-add-a-track/new-sound': `${SB}: as your-tracks/change-instrument, the row's instrument button opens the dock, not the picker`,
+  '*/*/studio-basics-add-a-track/monitor': `${SB}: no MON button on the row (track-menu-monitor)`,
+  '*/*/studio-basics-record/choose-track': `${SB}: the coach card sits over the top row's Arm at 1366×655 (the 64 px rows moved the targets)`,
+  '*/*/studio-basics-record/monitor': `${SB}: no MON button on the row (track-menu-monitor)`,
+  '*/*/studio-basics-record/play-notes': `${SB}: the Typing pill shows only while Typing is on; it is turned on from ⋯ (top-bar-more-typing) or the backquote key`,
+  '*/*/studio-basics-record/stop': `${SB}: the bottom rail has no Stop button (Play pauses, Esc stops)`,
+  '*/*/studio-basics-record/wrap-up': `${SB}: its driver turns Typing off on the pill play-notes never showed`,
+  '*/*/studio-basics-piano-roll/open': `${SB}: the Piano Roll is the dock's Notes tab (setEditingClip and the window are gone; during a lesson a clip's click keeps the dock's tab)`,
+  '*/*/studio-basics-piano-roll/add-note': `${SB}: the roll's tools are in the dock's Notes tab, which open no longer opens`,
+  '*/*/studio-basics-piano-roll/move-note': `${SB}: as add-note (the dock's Notes tab)`,
+  '*/*/studio-basics-piano-roll/resize-note': `${SB}: as add-note (the dock's Notes tab)`,
+  '*/*/studio-basics-piano-roll/delete-note': `${SB}: as add-note (the dock's Notes tab)`,
+  '*/*/studio-basics-lead-sheet/open-lead-sheet': `${SB}: the Lead sheet is a layout of the Score page (its switch shows on the Score page only, not from Create)`,
+  '*/*/studio-basics-save-and-export/export-musicxml': `${SB}: Project ▾ ▸ Notation… opens the Export dialog on its last format (MIDI by default); MusicXML: lead sheet must be chosen there before Export`,
   '*/*/indie-movement-and-dynamics/open-automation':
     'new: ?tutorial= boots an empty session and no step adds a track, so there is no track menu to open',
   'chromebook|small/*/indie-movement-and-dynamics/draw-volume':

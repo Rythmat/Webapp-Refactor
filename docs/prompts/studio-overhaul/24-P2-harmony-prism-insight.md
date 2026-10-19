@@ -42,3 +42,5 @@ You are continuing the **Music Atlas Studio editor overhaul** (the DAW under `sr
 ## Goal (plan polish track)
 
 3.2: harmony colours at render; a "Colour clips by: Track | Harmony" toggle (clipColorMode is already a project field); one notation-label module. 3.7: Preview then Keep with ghost takes; Prism in Key / Progression / Feel zones; Suggest Chords as a mode; re-word the Prism steps of the v2 lessons once for the new zones. 3.8: Insight and Browser content.
+
+**Changed by decision 16 (2026-10-16):** 2.14 already built the browser: Parts, Grooves, one-shots, presets and templates, with key, tempo and length on every row and a "Fits your song" block. 3.8 deepens it: the key filter, preview at song tempo, and Insight content.

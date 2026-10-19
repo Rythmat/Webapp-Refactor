@@ -42,3 +42,5 @@ You are continuing the **Music Atlas Studio editor overhaul** (the DAW under `sr
 ## Goal (plan 1.12b, 1.12c, owner decision 11)
 
 1.12b: InstrumentHost lifecycle and status; a "Loading sounds 3/5" pill; Play waits up to ~3 s and is never silent; Retry recovers a failed load; a shared SampleCache. 1.12c: self-host all samples, slim the default drum kit (~19.5 MB → ~2 MB), a lighter GM bank (curated subset or SF3; the demo bass moves to the self-hosted electric bass). The placeholder reverb IRs STAY. Golden-render diffs plus a teacher release note.
+
+**Added by decision 16 (2026-10-16):** Freeze track and Freeze all tracks, which free up CPU on Chromebooks. They come from the Soundtrap review's ST10 and need this milestone's instrument lifecycle. Add them to the 2.15 track menu.

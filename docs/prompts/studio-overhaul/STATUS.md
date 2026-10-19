@@ -622,6 +622,44 @@ Each prompt appends an entry: milestone, commits, pushed or not, verification nu
   - **The dock opens on the new track's Instrument tab** after an add, except during a lesson.
   - **Top bar trim:** Stop is gone from the bar (Esc), Back/Forward became Home/End, and the keyboard's switch moved into '⋯'.
 
+## Plan change — Stage B finishes as the Soundtrap layout (2026-10-16)
+
+- **What:** the owner reviewed the measured Soundtrap anatomy (`reference/soundtrap-editor-anatomy.md`; Mozart AI in `reference/mozart-ai-studio-anatomy.md`) and asked to prioritise it: "Update the prompts to have this research be the next phase of the studio overhaul plan."
+  - It becomes the rest of Stage B, as decision 16 in `reference/plan.md`.
+  - Proposals ST1–ST12 and ST15 ship as 2.8 and 2.9 (re-scoped) plus 2.12–2.15, before 2.10, 2.11 and the Stage B exit.
+- **Owner answers (2026-10-16):**
+  - dock tabs per track type, with Effects last;
+  - Create's toolbar row folds away, so the sections lane costs no height;
+  - Master opens in the dock;
+  - Go to start, Rewind, Fast-forward and a metronome menu in the bottom rail;
+  - an Export pill in the top bar;
+  - a ⌘K palette.
+- **Run order now:**
+  1. 15, B4: 2.8 rails + Inspector, 2.9 dock v2. The rails were already started in the checkout.
+  2. 15a, B5: 2.12 clips.
+  3. 15b, B6: 2.13 lanes + song sections (4.4 moved in).
+  4. 15c, B7: 2.14 browser + add-track picker.
+  5. 15d, B8: 2.15 palette, Export, track menu.
+  6. 16, B9: 2.10 Mix, 2.11 help, Stage B exit.
+  7. 17, 1.2b: unchanged.
+- **Moved forward:**
+  - 3.1's shared context menus and 3.3's clip names and menus → 2.12;
+  - 4.4 → 2.13, with SD7 as recommended;
+  - 3.8's Browser shell and items, with F10 and F11 → 2.14;
+  - 3.14's export dialog → 2.15;
+  - F8 → 2.13.
+- **Not in this phase:**
+  - Freeze → 1.12b (C2);
+  - private solo/mute in collab rooms → 1.14 (C4);
+  - version history from the save chip → stays with Versions (deferred; needs an API).
+- **Files:**
+  - `reference/plan.md`, plus the live copy `~/.claude/plans/encapsulated-noodling-blum.md`;
+  - the README run order;
+  - prompts 15 and 16 rewritten, new prompts 15a–15d, notes in 19, 21, 23, 24, 27 and `29-D-teaching-features.md`;
+  - this entry.
+- **Code:** none changed. The rails work-in-progress in the checkout (bottom rail, side rail, Inspector panels; another session's, uncommitted) is untouched. Prompt 15 now treats it as its starting point.
+- **Pushed:** no; these docs are uncommitted.
+
 ## Owner request — B4a: the side rail and the bottom rail (2026-10-16)
 
 After a Soundtrap review (screenshots and notes in `~/Desktop/References/soundtrap-2026-10-16/`), the owner moved the transport to a bottom rail and gave the Inspector a side rail of icons. Not one of the numbered prompts: it lands between B3 and prompt 15 (B4).
@@ -726,6 +764,55 @@ The owner asked to combine the Score and Lead sheet tabs and to put the notes, r
     - A selected note took Half, Accent and Sharp from the palettes, with the cells lit.
     - The layout switch and the Score tab worked both ways; the melody lead sheet shows the note palettes; the toolbar wraps at 1,042 px.
 - **Open:** the palettes panel is still the legacy look (data-ds legacy); its v2 restyle is Stage C's (3.x). The page header's other controls (parts count, Print, MusicXML) are unchanged.
+
+## Plan change — Production Lessons take Ableton's lesson patterns (2026-10-16, proposed)
+
+- **What:** the owner asked for a review of Ableton's lesson sites to improve the Production Lessons.
+  - **The sites:** Ableton Learn (learn.ableton.com: the Beats course, the "What is Learn?" tour, the Playground) and Learning Synths (learningsynths.ableton.com).
+  - **How it was reviewed:** hands-on in Chrome, signed out. Nothing was shared or downloaded.
+  - **Write-up:** `reference/ableton-lessons-review.md`, with proposals AB1–AB13. It's proposed as decision 17 in `reference/plan.md`.
+- **The owner's direction (2026-10-16):**
+  - docs now, build after Stage B;
+  - the genre lessons, plus a Beats course and a Sound-design course; no Mixing course;
+  - everything inside the editor, with no separate lesson pages;
+  - gating stays "detect the action, Skip after 20 s".
+- **Where it lands:**
+  - **17, 1.2b:** Amendment A (`reference/lessons-v2.md` §8, AB1–AB8):
+    - the `listen`, `compare`, `tap` and `quiz` step kinds. `compare` plays B through the no-write preview path (`previewTrack` / `endTrackPreview`).
+    - a glossary;
+    - model answers, as one labelled undo step;
+    - a closing Practice stage;
+    - `startFrom` (a template or a demo, inside the tutorial seed);
+    - courses with Resume and Next lesson;
+    - a free "Building blocks" opener (Midnight Groove, unedited) as "Start here".
+    - The vertical slice for sign-off becomes Building blocks + Hip Hop.
+  - **17a, new (L1):** the Beats course, four lessons, after 17.
+  - **25a, new (L2):** the Sound-design course, five lessons, plus four recipes and Match it, after 25 (3.11's synth Play page) and 18 (1.11's graph builder, for the single-patch render).
+  - **3.11:** AB13, three teaching visuals in the shared synth UI, and the synth section anchors.
+- **Rule change:** from 17 on, "the 8 Production lessons must keep passing" means every lesson in the catalog. Noted in decision 17, the README and prompt 17.
+- **Size:** 1.2b grows from ~3–4 to ~4.5–5.5 developer-weeks. L1 adds ~1.5–2, L2 ~2–2.5 and AB13 ~0.5.
+- **Checked in the code while planning** (the review's §8 lists the paths):
+  - a previewed mute isn't heard, so `compare` uses volume;
+  - every demo gets its drums from `drumGrooveId`, so Midnight Groove already has four layers;
+  - the progress store's user switch resets only `completedAt`, so `inProgress` needs the same reset;
+  - the curriculum's genre `tempoRange` strings are placeholders, so 17a gets a curated `genreTempos.ts`;
+  - the Grooves library has no Pop, Jazz, House or Afrobeat grooves;
+  - the drum editor has no swing;
+  - `renderProject` renders only the live project.
+- **Owner sign-offs:**
+  - AB1–AB13;
+  - decision 17;
+  - §12 of the review: the tap tolerance, the opener's demo, the recipe format, both courses free, and AB13 in 3.11.
+- **Files:**
+  - `reference/ableton-lessons-review.md` (new);
+  - `reference/lessons-v2.md` (a header note and §8);
+  - `reference/plan.md`: decision 17, the 1.2b section, L1, the polish-track notes and the detail index. The live copy `~/.claude/plans/encapsulated-noodling-blum.md` was synced.
+  - `17-1.2b-production-lessons-v2.md` (reading list, lesson rule, goal);
+  - new `17a-L1-beats-course.md` and `25a-L2-sound-design-course.md`;
+  - the README (rows 17a and 25a, a note, a reference entry);
+  - this entry.
+- **Code:** none changed. The B4a work in the checkout (another session's, uncommitted, including `tutorials.ts` and the side rail's Lessons panel) is untouched.
+- **Pushed:** no; these docs are uncommitted.
 
 ## B4 — 2.8 rails and Inspector, 2.9 editor dock v2 (2026-10-16)
 

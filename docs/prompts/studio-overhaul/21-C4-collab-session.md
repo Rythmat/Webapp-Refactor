@@ -42,3 +42,5 @@ You are continuing the **Music Atlas Studio editor overhaul** (the DAW under `sr
 ## Goal (plan 1.14)
 
 Collab session state machine (`idle|connecting|live|reconnecting|ended`); host grace on the server; registry-driven sync (the 1.3 registry's `collab` flags); remote edits touch only what changed; locks only while someone is editing; leaving restores the pre-session kept draft or opens the saved copy; the in-editor Join keeps the student's project; JamRoomProvider gets the token/version treatment. Bump COLLAB_DOC_SCHEMA_VERSION; run mixed-version collab (old client vs new server and the reverse). Never run `npm run partykit:deploy` — that's the owner's step, outside school hours.
+
+**Added by decision 16 (2026-10-16):** a Private Solo/Mute switch over the track column, from the Soundtrap review's ST13. It makes Mute and Solo per student instead of room-wide, and answers the open 1.2 sign-off on Bypass per user versus room-wide.

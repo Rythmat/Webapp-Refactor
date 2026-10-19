@@ -114,7 +114,7 @@ My recommendation comes first in each; each needs a yes or a change.
   - No "anyone with the link" access to student work. Link sharing (play-only and template links) waits for your call on public links.
 - **SD5 Chord keys are free** for every student. Prism stays Premium. Soundtrap charges for its chord tools.
 - **SD6 No video calls in Studio**, because of minors, school bandwidth and Chromebook CPU. Revisit for teacher-led sessions only.
-- **SD7 Sections.**
+- **SD7 Sections.** Taken as recommended by decision 16 (2026-10-16), because 4.4 now ships in Stage B as 2.13.
   - One model serves both the Timeline and the Lead Sheet.
   - The vocabulary is UNISON's `SectionType` plus tag, hook, breakdown, build-up and drop. That's a change to a shared UNISON type.
   - Sections are neutral blocks, since colour is only for meaning (decision 3).
@@ -134,10 +134,10 @@ My recommendation comes first in each; each needs a yes or a change.
 | 4.0 | Teaching API contract and mock | nothing (docs and mock; best before Stage B)     | 1 wk + API     |
 | 4.1 | Read-only review               | 4.0, 2.5                                         | 1–1.5 wk       |
 | 4.2 | Studio assignments             | 4.0, 4.1, 2.3, Teacher Office P6 (P7 for scores) | 2–3 wk + API   |
-| 4.3 | Timeline comments              | 4.0, 4.1, 2.8                                    | 2 wk + API     |
-| 4.4 | Song sections                  | 2.7, 3.3 (built inside 3.3 or right after it)    | 1.5–2 wk       |
+| 4.3 | Timeline comments              | 4.0, 4.1, 2.8, 2.13 (the comment lane's slot)    | 2 wk + API     |
+| 4.4 | Song sections                  | **moved into Stage B as 2.13** (decision 16)     | 1.5–2 wk       |
 | 4.5 | Chord keys                     | 1.16a, 2.11                                      | 1.5 wk         |
-| 4.6 | Change key, move clips         | 1.16a, 2.5                                       | 1–1.5 wk       |
+| 4.6 | Change key, move clips         | 1.16a, 2.5, 2.12 (Transpose, clip key)           | 1–1.5 wk       |
 | 4.7 | Genre starters                 | 1.2b, 2.6 (4.4 helps)                            | 1 wk + content |
 
 Total: about 11–14 developer-weeks in the plan's traditional estimates, plus music-atlas-api work and starter content.
@@ -193,7 +193,7 @@ Total: about 11–14 developer-weeks in the plan's traditional estimates, plus m
 
 **4.3 Timeline comments**
 
-- **Pins** are a DOM layer over the ruler, placed with `src/daw/components/Timeline/timelineGeometry.ts` (1.8), so 3.3's renderer split doesn't have to carry them.
+- **Pins** sit in the comment lane that 2.13 leaves above the sections lane (decision 16). The lane shows while the Comments panel is open, as in Soundtrap. Pins are placed with `src/daw/components/Timeline/timelineGeometry.ts` (1.8), so 3.3's renderer split doesn't have to carry them.
   - A pin on a clip moves with the clip: its anchor is the clip plus an offset.
   - If the clip is deleted, the pin falls back to its bar.
 - **Creating a comment:** "Add comment" in the clip and ruler menus, plus a registry command with no single-letter key. V, B and C are tools, and C changes velocity while typing.
@@ -205,6 +205,8 @@ Total: about 11–14 developer-weeks in the plan's traditional estimates, plus m
 - **plan.md:** its Deferred list loses "timeline comments".
 
 **4.4 Song sections**
+
+_Moved into Stage B as **2.13** by decision 16 (2026-10-16). This note is 2.13's spec. One change: "+ Section" sits at the left end of the sections lane, which takes the row of Create's folded toolbar._
 
 - **One section model (SD7):** a document field `sections: {id, type, label, startTick, endTick}[]`, placed end to end with no overlaps.
   - The Lead Sheet's bar-indexed `leadSheetSections` (`src/daw/store/uiSlice.ts:125-128`) migrates into it and reads it through the time model. 3.10 keeps one owner.
@@ -256,11 +258,11 @@ Total: about 11–14 developer-weeks in the plan's traditional estimates, plus m
   - The choices are Move, Keep, or per clip, and the result is one 'Change key' undo step.
   - Drum tracks never move (`trackRole`).
 - **Each clip takes the nearest move** (up to 6 semitones either way), using `transposePart` (`src/curriculum/engine/parts/part.ts:273`). The chord lane follows, as `setRootNote` already re-derives it.
-- **The clip menu** gains Transpose…, by semitones and octaves with the interval named, and Match song key.
+- **The clip menu** gains Transpose…, by semitones and octaves with the interval named, and Match song key. Transpose ships earlier, in 2.12's clip menu (decision 16); 4.6 adds Match song key.
 - **An empty key** is filled by the first item with a key (1.16a).
   - Library items show their key and tempo.
   - The unused `midi-loop` drag payload's key and BPM (`src/daw/data/libraryItems.ts:12-31`) get used.
-- **Pitched clips show their key** in the clip header, as Soundtrap's do ("Guitar Pattern 4 · F♯m"), so a key mismatch is visible before anything plays.
+- **Pitched clips show their key** in the clip header, as Soundtrap's do ("Guitar Pattern 4 · F♯m"), so a key mismatch is visible before anything plays. This ships in 2.12's clip chrome (decision 16).
 - **Interval names** link to Learn → Theory.
 - **Audio clips don't move** (SD8). They don't follow tempo changes either; that's plan finding F7, owned by 1.11.
 
@@ -284,11 +286,11 @@ Stage B leaves room for Stage D; Stage D builds into Stage B's files later.
   - The four empty-project tiles use goal wording, as Soundation does: Start with a beat (Grooves), Play an instrument (musical typing), Start from a genre (4.7), Add a track.
   - An assignment copy shows its brief instead of the tiles.
   - `AddTrackMenu`'s "Import" makes a MIDI track without opening a file (`src/daw/components/Mixer/AddTrackMenu.tsx`). Relabel it, or open Import MIDI.
-- **2.7:** the toolbar's "+ Marker" leaves room for "+ Section" (4.4).
-- **2.8:** the Inspector's tab strip has room for Comments (4.3).
-- **3.3:** builds the Sections lane with 4.4.
+- **2.7:** ~~the toolbar's "+ Marker" leaves room for "+ Section" (4.4).~~ Superseded by decision 16: the toolbar row folds away in 2.13, and "+ Section" sits in the sections lane.
+- **2.8:** the side rail has room for a Comments panel (4.3), and 2.13 leaves a comment lane slot above the sections.
+- **3.3:** ~~builds the Sections lane with 4.4.~~ 2.13 builds it (decision 16); 3.3 carries it through the Timeline split.
 - **3.6:** adds a "Duck to kick" one-click setting for the existing Sidechain, which picks the drum track with sensible amounts, plus a tempo-synced pump. The ducker stays missing from export until 1.11.
-- **3.8:** Browser items show key, tempo and genre, with a key filter and "preview at song tempo". Each effect category gets a one-line purpose.
+- **3.8:** Browser items show key, tempo and genre, with a key filter and "preview at song tempo". Each effect category gets a one-line purpose. Decision 16 brings the browser and the per-row key, tempo and length into 2.14, and the category purposes into 2.8. 3.8 adds the key filter and preview at song tempo.
 - **3.13:** no video calls (SD6). Remote cursors are optional here: their presence fields exist but are always `null` (`src/daw/collab/CollabProvider.tsx:572-584`).
 
 ## For the Teacher Office program (not built here)

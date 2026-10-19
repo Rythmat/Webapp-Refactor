@@ -40,6 +40,7 @@ export const MusicalTypingChip = memo(function MusicalTypingChip({
         onPressedChange={setEnabled}
         aria-keyshortcuts={TOGGLE_KEYS.aria}
         data-testid="musical-typing-chip"
+        data-tutorial-id="musical-typing"
         className="shrink-0 rounded-full"
       >
         {enabled

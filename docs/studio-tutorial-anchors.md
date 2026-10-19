@@ -94,6 +94,7 @@ A track picked from the Instruments picker is added at the bottom (index = the o
 | `transport-back`   | Back to the previous marker or the start                                                                        |
 | `transport-loop`   | Loop on or off                                                                                                  |
 | `metronome-toggle` | Click (metronome) on or off                                                                                     |
+| `musical-typing`   | Typing: the computer keyboard plays notes (A S D F G … are C D E F G …) while it is on                          |
 | `count-in-menu`    | The count-in caret beside Click                                                                                 |
 | `count-in-0`       | Count-in menu: No count-in                                                                                      |
 | `count-in-1`       | Count-in menu: Count in 1 bar                                                                                   |

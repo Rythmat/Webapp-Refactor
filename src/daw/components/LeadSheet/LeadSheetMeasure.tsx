@@ -241,7 +241,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
         </g>
       ) : (
         <>
-          {measure.chords.map((chord) => {
+          {measure.chords.map((chord, chordIndex) => {
             const beatPos = chord.beatOffsetTicks / ticksPerBeat;
             const cx = (beatPos / beatsPerMeasure) * width + 4;
             const chordY = CHORD_AREA_HEIGHT - 8;
@@ -257,6 +257,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
             return (
               <ChordSymbol
                 key={chord.regionId}
+                data-tutorial-id={`leadsheet-chord-${measureIndex}-${chordIndex}`}
                 noteName={chord.noteName}
                 degreeName={chord.name}
                 degreeKey={chord.degreeKey}

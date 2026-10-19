@@ -44,7 +44,11 @@ export function CountInItems() {
         onValueChange={(value) => setCountInBars(Number(value))}
       >
         {COUNT_IN_CHOICES.map((choice) => (
-          <MenuRadioItem key={choice.value} value={choice.value}>
+          <MenuRadioItem
+            key={choice.value}
+            value={choice.value}
+            data-tutorial-id={`count-in-${choice.value}`}
+          >
             {choice.label}
           </MenuRadioItem>
         ))}
@@ -153,6 +157,7 @@ export const ClickToggle = memo(function ClickToggle({
         shortcut={METRONOME_KEYS.label}
         aria-keyshortcuts={METRONOME_KEYS.aria}
         data-testid="click-toggle"
+        data-tutorial-id="metronome-toggle"
         className={countInFolded ? undefined : 'rounded-r-none'}
       />
       {countInFolded ? null : (
@@ -164,6 +169,7 @@ export const ClickToggle = memo(function ClickToggle({
               size="md"
               tooltipSide="bottom"
               data-testid="count-in-menu"
+              data-tutorial-id="count-in-menu"
               data-count-in={countInBars}
               className="w-6 rounded-l-none [&_svg]:size-3.5"
             />

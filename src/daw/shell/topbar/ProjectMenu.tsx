@@ -22,13 +22,13 @@ import {
 } from '@/daw/commands/cloudSaveStore';
 import {
   analyzeProject,
+  exportLeadSheetMusicXml,
   exportProjectMidi,
 } from '@/daw/commands/projectCommands';
 import { saveProject } from '@/daw/commands/saveProject';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
-import { timeSignatureOf } from '@/daw/time/timeModel';
 import { openSession } from '@/daw/session/openSession';
 import { getSessionDeps } from '@/daw/session/sessionDeps';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
@@ -275,25 +275,6 @@ export function ProjectMenu() {
     [],
   );
 
-  const handleExportLeadSheet = useCallback(async () => {
-    const state = useStore.getState();
-    if (state.chordRegions.length === 0) return;
-    // The MusicXML writer loads with the first export.
-    const { downloadLeadSheet } = await import('@/daw/midi/MusicXmlExport');
-    downloadLeadSheet(
-      state.chordRegions,
-      {
-        title: state.projectName,
-        bpm: state.bpm,
-        rootNote: state.rootNote,
-        mode: state.mode,
-        timeSignature: timeSignatureOf(state),
-        extraBars: state.leadSheetBars,
-      },
-      `${state.projectName}.musicxml`,
-    );
-  }, []);
-
   const handleExportUnison = useCallback(() => {
     useStore.getState().exportUnisonJSON();
   }, []);
@@ -340,6 +321,7 @@ export function ProjectMenu() {
           </MenuItem>
           <MenuSeparator />
           <MenuItem
+            data-tutorial-id="file-save"
             icon={<Save />}
             shortcut={saveKeys}
             onSelect={handleSave}
@@ -348,6 +330,7 @@ export function ProjectMenu() {
             {saving ? 'Saving…' : 'Save'}
           </MenuItem>
           <MenuItem
+            data-tutorial-id="file-save-as"
             icon={<SaveAll />}
             onSelect={() => void handleSaveAs()}
             disabled={saving}
@@ -368,17 +351,23 @@ export function ProjectMenu() {
             Audio…
           </MenuItem>
           <MenuItem
+            data-tutorial-id="file-export-midi"
             icon={<FileDown />}
             shortcut={exportMidiKeys}
             onSelect={() => void exportProjectMidi()}
           >
             MIDI
           </MenuItem>
-          <MenuItem icon={<Music />} onSelect={handleExportLeadSheet}>
+          <MenuItem
+            data-tutorial-id="file-export-musicxml"
+            icon={<Music />}
+            onSelect={() => void exportLeadSheetMusicXml()}
+          >
             Lead sheet (MusicXML)
           </MenuItem>
           <MenuSeparator />
           <MenuItem
+            data-tutorial-id="file-analyze"
             icon={<Sparkles />}
             shortcut={analyzeKeys}
             onSelect={analyzeProject}

@@ -222,6 +222,8 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   recordingLimitModalOpen: 'A notice about a take in the previous project.',
   lastAudioExportAt:
     'When this project was last exported. A lesson detects an export by it, so a new project starts without one.',
+  doneMoments:
+    'How many saves, exports and prints the student has finished on this page, for a lesson step to notice; they are things the student did, not part of any project, so a load leaves them and they only ever count up.',
   leadSheetSelectedChordIdx: SELECTION,
   selectedChordIds: SELECTION,
   selectedNotes: SELECTION,

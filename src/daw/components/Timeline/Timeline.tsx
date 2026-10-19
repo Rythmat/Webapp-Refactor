@@ -13,7 +13,17 @@ import { ProfileRoutes } from '@/constants/routes';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import { PremiumBadge } from '@/daw/ui/PremiumBadge';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
-import { useArrangeKeymap } from '@/daw/commands/clipCommands';
+import {
+  copySelectedClip,
+  deleteSelectedClip,
+  duplicateSelectedClip,
+  hasClipToPaste,
+  pasteClipsAt,
+  pasteClipsAtPlayhead,
+  useArrangeKeymap,
+} from '@/daw/commands/clipCommands';
+import { shortcutKeys } from '@/daw/commands/shortcuts';
+import { Kbd } from '@/daw/ui/Kbd';
 import { withTransaction } from '@/daw/store/history';
 import { useStore } from '@/daw/store';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
@@ -84,6 +94,7 @@ import type { Track } from '@/daw/store/tracksSlice';
 import { DAW_PALETTE_EVENT, getDawPalette } from '@/daw/ui/tokens';
 import { promptDialog } from '@/daw/ui/DialogHost';
 import { sameTimelineGeometry, timelineNeedsRedraw } from './timelineGeometry';
+import { TimelineAnchors, type TimelineGeometry } from './TimelineAnchors';
 import {
   clipAudioStatus,
   retryClipAudio,
@@ -96,6 +107,12 @@ const RULER_HEIGHT = 42; // px for top ruler: loop strip (LOOP_STRIP_H) + bar nu
 const CHORD_RULER_HEIGHT = 20; // px for chord name ruler
 const RULERS_HEIGHT = RULER_HEIGHT + CHORD_RULER_HEIGHT; // total header height
 const TIME_RULER_HEIGHT = 22; // px for time ruler at bottom
+/** Where the lesson anchors over the canvas go (TimelineAnchors). */
+const ANCHOR_GEOMETRY: TimelineGeometry = {
+  trackHeight: TRACK_HEIGHT,
+  rulerHeight: RULER_HEIGHT,
+  chordRulerHeight: CHORD_RULER_HEIGHT,
+};
 const H_SCROLLBAR_H = 12; // px for the always-shown scrollbar (h-3) below it
 const RESIZE_EDGE_PX = 6; // px threshold for resize handle
 const PROJECT_MIN_BARS = 8; // minimum visible project length
@@ -472,6 +489,81 @@ const TimelinePlayhead = memo(function TimelinePlayhead({
 // Prism is part of Premium and stays locked in lessons (owner decision 8).
 // A free student sees the item locked, as Prism's dock tab is
 // (LockedFeatureOverlay), and is offered the plans instead of the modal.
+/** The clip menu's shortcuts, as the student's keyboard writes them. */
+const CLIP_KEYS = {
+  duplicate: shortcutKeys('clip.duplicate').label,
+  copy: shortcutKeys('clip.copy').label,
+  paste: shortcutKeys('clip.paste').label,
+};
+
+const CTX_ITEM =
+  'flex w-full cursor-pointer items-center gap-3 px-3 py-1.5 text-left text-xs hover:bg-white/5 focus-visible:bg-white/5 focus-visible:outline-none disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent';
+
+/** One item of the timeline's right-click menu, with its shortcut. */
+function CtxItem({
+  'data-tutorial-id': anchor,
+  shortcut,
+  danger,
+  disabled,
+  onClick,
+  children,
+}: {
+  /** The lesson anchor, written at the call so the inventory finds it. */
+  'data-tutorial-id'?: string;
+  shortcut?: string;
+  danger?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  children: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      data-tutorial-id={anchor}
+      className={CTX_ITEM}
+      style={{ color: danger ? 'var(--daw-danger-text)' : 'var(--daw-text)' }}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      <span className="flex-1">{children}</span>
+      {shortcut ? <Kbd aria-hidden>{shortcut}</Kbd> : null}
+    </button>
+  );
+}
+
+/**
+ * The right-click menu's keys: it takes focus as it opens, so the arrows
+ * move between its items, Escape closes it, and Tab leaves it.
+ */
+function focusFirstItem(menu: HTMLDivElement | null): void {
+  menu
+    ?.querySelector<HTMLButtonElement>('button:not(:disabled)')
+    ?.focus({ preventScroll: true });
+}
+
+function moveInMenu(
+  event: React.KeyboardEvent<HTMLDivElement>,
+  close: () => void,
+): void {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    event.stopPropagation();
+    close();
+    return;
+  }
+  if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+  const items = Array.from(
+    event.currentTarget.querySelectorAll<HTMLButtonElement>(
+      'button:not(:disabled)',
+    ),
+  );
+  const at = items.indexOf(document.activeElement as HTMLButtonElement);
+  event.preventDefault();
+  const step = event.key === 'ArrowDown' ? 1 : -1;
+  items[(at + step + items.length) % items.length]?.focus();
+}
+
 function PrismSuggestItem({
   onSuggest,
   onClose,
@@ -591,6 +683,8 @@ export function Timeline() {
     tick: number;
     audioClipId?: string;
     audioTrackId?: string;
+    midiClipId?: string;
+    midiTrackId?: string;
     blankTrackId?: string;
   } | null>(null);
 
@@ -1702,6 +1796,13 @@ export function Timeline() {
     return el?.scrollTop ?? 0;
   }, []);
 
+  /** The overflow-auto div in TimelineWithHeaders the lanes scroll in. */
+  const getScrollParent = useCallback(
+    () =>
+      canvasRef.current?.parentElement?.parentElement?.parentElement ?? null,
+    [],
+  );
+
   // The playhead's grab handle, pinned to the foot of the bar ruler as it
   // mounts; the scroll listener above keeps it there. A stable callback, so
   // React doesn't detach and re-attach it, and re-measure, on every render.
@@ -2047,6 +2148,19 @@ export function Timeline() {
             });
             return;
           }
+          // A note clip: selected, so the menu's commands (and their keys)
+          // act on it.
+          e.preventDefault();
+          state.setSelectedClip(hit.clipId, hit.trackId);
+          setCtxMenu({
+            x: e.clientX,
+            y: e.clientY,
+            markerId: null,
+            tick: 0,
+            midiClipId: hit.clipId,
+            midiTrackId: hit.trackId,
+          });
+          return;
         }
 
         // Blank track region — offer Prism suggestion
@@ -2094,6 +2208,34 @@ export function Timeline() {
     },
     [getCanvasCoords, getScrollTop, hitTestClip],
   );
+
+  // ── Note clip menu handlers: the clip keys' own commands ──
+
+  const runOnMenuClip = useCallback(
+    (command: () => unknown) => {
+      if (!ctxMenu?.midiClipId || !ctxMenu.midiTrackId) return;
+      // The right-click selected it; make sure it still is.
+      useStore
+        .getState()
+        .setSelectedClip(ctxMenu.midiClipId, ctxMenu.midiTrackId);
+      command();
+      setCtxMenu(null);
+    },
+    [ctxMenu],
+  );
+
+  const handleCtxOpenPianoRoll = useCallback(() => {
+    if (!ctxMenu?.midiClipId || !ctxMenu.midiTrackId) return;
+    // As a double-click opens it.
+    useStore.getState().setEditingClip(ctxMenu.midiClipId, ctxMenu.midiTrackId);
+    setCtxMenu(null);
+  }, [ctxMenu]);
+
+  const handleCtxPasteHere = useCallback(() => {
+    if (!ctxMenu?.blankTrackId) return;
+    pasteClipsAt(ctxMenu.blankTrackId, ctxMenu.tick);
+    setCtxMenu(null);
+  }, [ctxMenu]);
 
   const handlePrismSuggest = useCallback(() => {
     if (!ctxMenu?.blankTrackId) return;
@@ -3013,6 +3155,11 @@ export function Timeline() {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         />
+        <TimelineAnchors
+          geometry={ANCHOR_GEOMETRY}
+          width={viewportWidth}
+          scrollParent={getScrollParent}
+        />
         {/* Chord ruler inline editor */}
         {editingChord && (
           <>
@@ -3098,6 +3245,23 @@ export function Timeline() {
             }}
           />
           <div
+            ref={focusFirstItem}
+            role="menu"
+            aria-label={
+              ctxMenu.midiClipId || ctxMenu.audioClipId
+                ? 'Clip'
+                : ctxMenu.blankTrackId
+                  ? 'Track lane'
+                  : 'Ruler'
+            }
+            data-tutorial-id={
+              ctxMenu.midiClipId || ctxMenu.audioClipId
+                ? 'clip-menu'
+                : ctxMenu.blankTrackId
+                  ? 'lane-menu'
+                  : 'ruler-menu'
+            }
+            onKeyDown={(e) => moveInMenu(e, () => setCtxMenu(null))}
             className="fixed z-50 rounded-md py-1 shadow-lg"
             style={{
               left: ctxMenu.x,
@@ -3107,7 +3271,61 @@ export function Timeline() {
               minWidth: 140,
             }}
           >
-            {ctxMenu.audioClipId ? (
+            {ctxMenu.midiClipId ? (
+              <>
+                <CtxItem
+                  data-tutorial-id="clip-menu-duplicate"
+                  shortcut={CLIP_KEYS.duplicate}
+                  onClick={() => runOnMenuClip(duplicateSelectedClip)}
+                >
+                  Duplicate
+                </CtxItem>
+                <CtxItem
+                  data-tutorial-id="clip-menu-copy"
+                  shortcut={CLIP_KEYS.copy}
+                  onClick={() => runOnMenuClip(copySelectedClip)}
+                >
+                  Copy
+                </CtxItem>
+                <CtxItem
+                  data-tutorial-id="clip-menu-paste"
+                  shortcut={CLIP_KEYS.paste}
+                  disabled={!hasClipToPaste()}
+                  onClick={() => runOnMenuClip(pasteClipsAtPlayhead)}
+                >
+                  Paste at Playhead
+                </CtxItem>
+                <div
+                  role="separator"
+                  style={{
+                    height: 1,
+                    backgroundColor: 'var(--daw-hairline)',
+                    margin: '2px 0',
+                  }}
+                />
+                <CtxItem
+                  data-tutorial-id="clip-menu-open-piano-roll"
+                  onClick={handleCtxOpenPianoRoll}
+                >
+                  Open in Piano Roll
+                </CtxItem>
+                <div
+                  role="separator"
+                  style={{
+                    height: 1,
+                    backgroundColor: 'var(--daw-hairline)',
+                    margin: '2px 0',
+                  }}
+                />
+                <CtxItem
+                  data-tutorial-id="clip-menu-delete"
+                  danger
+                  onClick={() => runOnMenuClip(deleteSelectedClip)}
+                >
+                  Delete
+                </CtxItem>
+              </>
+            ) : ctxMenu.audioClipId ? (
               <>
                 <button
                   className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
@@ -3154,6 +3372,7 @@ export function Timeline() {
                   Split at Playhead
                 </button>
                 <button
+                  data-tutorial-id="clip-menu-duplicate"
                   className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
                   style={{ color: 'var(--daw-text)' }}
                   onClick={handleCtxDuplicate}
@@ -3168,6 +3387,7 @@ export function Timeline() {
                   }}
                 />
                 <button
+                  data-tutorial-id="clip-menu-delete"
                   className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"
                   style={{ color: '#ef4444' }}
                   onClick={handleCtxDeleteClip}
@@ -3193,10 +3413,20 @@ export function Timeline() {
                 </button>
               </>
             ) : ctxMenu.blankTrackId ? (
-              <PrismSuggestItem
-                onSuggest={handlePrismSuggest}
-                onClose={closeCtxMenu}
-              />
+              <>
+                {hasClipToPaste() ? (
+                  <CtxItem
+                    data-tutorial-id="lane-menu-paste"
+                    onClick={handleCtxPasteHere}
+                  >
+                    Paste Here
+                  </CtxItem>
+                ) : null}
+                <PrismSuggestItem
+                  onSuggest={handlePrismSuggest}
+                  onClose={closeCtxMenu}
+                />
+              </>
             ) : (
               <button
                 className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"

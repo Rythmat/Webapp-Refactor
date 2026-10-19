@@ -3,11 +3,14 @@ import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { Track } from '@/daw/store/tracksSlice';
 import {
   chordSelectionSnapshot,
+  hasWholeTrack,
   nextChordSelection,
   noteSelectionKey,
   noteSelectionSnapshot,
   notesInMarquee,
   resolveNoteSelection,
+  toggleTrackNotes,
+  trackNoteSelection,
 } from './insightSelection';
 
 const BAR = 1920;
@@ -269,5 +272,55 @@ describe('note selection', () => {
     expect(noteSelectionKey(session([moved]).tracks, selection)).not.toBe(
       before,
     );
+  });
+});
+
+describe('whole tracks (Insight’s track picks)', () => {
+  const note = (startTick: number) => ({
+    note: 60,
+    velocity: 90,
+    startTick,
+    durationTicks: 240,
+    channel: 0,
+  });
+  const keys = {
+    id: 'keys',
+    midiClips: [
+      { id: 'k1', startTick: 0, events: [note(0), note(480)] },
+      { id: 'empty', startTick: BAR, events: [] },
+      { id: 'k2', startTick: 2 * BAR, events: [note(0)] },
+    ],
+  };
+  const bass = {
+    id: 'bass',
+    midiClips: [{ id: 'b1', startTick: 0, events: [note(0)] }],
+  };
+
+  it('selects every note of every clip with notes', () => {
+    expect(trackNoteSelection(keys)).toEqual([
+      { trackId: 'keys', clipId: 'k1', noteIndices: [0, 1] },
+      { trackId: 'keys', clipId: 'k2', noteIndices: [0] },
+    ]);
+  });
+
+  it('adds a track, keeps the other’s, and takes it out again', () => {
+    const one = toggleTrackNotes(keys, []);
+    expect(hasWholeTrack(keys, one)).toBe(true);
+    const both = toggleTrackNotes(bass, one);
+    expect(hasWholeTrack(keys, both)).toBe(true);
+    expect(hasWholeTrack(bass, both)).toBe(true);
+    const back = toggleTrackNotes(keys, both);
+    expect(hasWholeTrack(keys, back)).toBe(false);
+    expect(back).toEqual(trackNoteSelection(bass));
+  });
+
+  it('completes a track only partly selected, rather than clearing it', () => {
+    const partial = [{ trackId: 'keys', clipId: 'k1', noteIndices: [1] }];
+    expect(hasWholeTrack(keys, partial)).toBe(false);
+    expect(hasWholeTrack(keys, toggleTrackNotes(keys, partial))).toBe(true);
+  });
+
+  it('never counts a track without notes as whole', () => {
+    expect(hasWholeTrack({ id: 'x', midiClips: [] }, [])).toBe(false);
   });
 });

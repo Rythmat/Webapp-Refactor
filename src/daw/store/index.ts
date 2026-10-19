@@ -12,6 +12,10 @@ import { createReturnsSlice, type ReturnsSlice } from './returnsSlice';
 import { createMarkersSlice, type MarkersSlice } from './markersSlice';
 import { createAudioIOSlice, type AudioIOSlice } from './audioIOSlice';
 import {
+  createDoneMomentsSlice,
+  type DoneMomentsSlice,
+} from './doneMomentsSlice';
+import {
   createPrismSuggestionSlice,
   type PrismSuggestionSlice,
 } from './prismSuggestionSlice';
@@ -39,6 +43,7 @@ export type AllSlices = TransportSlice &
   ReturnsSlice &
   MarkersSlice &
   AudioIOSlice &
+  DoneMomentsSlice &
   PrismSuggestionSlice &
   UnisonSlice &
   MusicIntelligenceSlice &
@@ -58,6 +63,7 @@ export const useStore = create<AllSlices>()(
       ...createReturnsSlice(set, get, api),
       ...createMarkersSlice(set, get, api),
       ...createAudioIOSlice(set, get, api),
+      ...createDoneMomentsSlice(set, get, api),
       ...createPrismSuggestionSlice(set, get, api),
       ...createUnisonSlice(set, get, api),
       ...createMusicIntelligenceSlice(set, get, api),
@@ -121,6 +127,11 @@ export type { MasteringSlice } from './masteringSlice';
 export type { ReturnsSlice, ReturnBus } from './returnsSlice';
 export type { MarkersSlice, Marker } from './markersSlice';
 export type { AudioIOSlice } from './audioIOSlice';
+export type {
+  DoneMoment,
+  DoneMoments,
+  DoneMomentsSlice,
+} from './doneMomentsSlice';
 export type { PrismSuggestionSlice } from './prismSuggestionSlice';
 export type { UnisonSlice } from './unisonSlice';
 export type { MusicIntelligenceSlice } from './musicIntelligenceSlice';

@@ -24,6 +24,7 @@ import {
   keyContext,
   plural,
 } from './insightNotation';
+import { TrackNotePicks } from './TrackNotePicks';
 import { UnisonSections } from './UnisonSections';
 
 const sectionStyle = { borderColor: 'var(--daw-hairline)' };
@@ -104,13 +105,17 @@ export function SelectionAnalysis() {
     );
     if (!hasNotes) return null;
     return (
-      <div
-        className="border-b px-3 py-2 text-[9px] leading-relaxed"
-        style={{ ...sectionStyle, ...labelStyle }}
-      >
-        To analyze part of the song, click chords in the chord lane (Shift-click
-        a run, ⌘-click to add one), or ⌘-drag across clips to select notes.
-      </div>
+      <>
+        <TrackNotePicks />
+        <div
+          className="border-b px-3 py-2 text-[9px] leading-relaxed"
+          style={{ ...sectionStyle, ...labelStyle }}
+        >
+          To analyze part of the song, click chords in the chord lane
+          (Shift-click a run, ⌘-click to add one), or ⌘-drag across clips to
+          select notes.
+        </div>
+      </>
     );
   }
 
@@ -123,104 +128,113 @@ export function SelectionAnalysis() {
       : keyContext(doc?.analysis.key.rootPc, doc?.analysis.key.mode);
 
   return (
-    <div
-      data-testid="insight-selection"
-      className="flex flex-col"
-      style={{ boxShadow: 'inset 2px 0 0 var(--daw-accent)' }}
-    >
+    <>
+      <TrackNotePicks />
       <div
-        className="flex flex-col gap-1.5 border-b px-3 py-2.5"
-        style={sectionStyle}
+        data-testid="insight-selection"
+        data-tutorial-id="insight-selection"
+        className="flex flex-col"
+        style={{ boxShadow: 'inset 2px 0 0 var(--daw-accent)' }}
       >
-        <div className="flex items-center gap-1.5">
-          <span
-            className="text-[10px] font-medium uppercase tracking-wider"
-            style={{ color: 'var(--daw-accent)' }}
-          >
-            Selection
-          </span>
-          <span className="text-[9px]" style={labelStyle}>
-            {plural(count, unit)}
-          </span>
-          <button
-            type="button"
-            onClick={() =>
-              kind === 'notes' ? setSelectedNotes([]) : setSelectedChordIds([])
-            }
-            className="ml-auto flex items-center gap-0.5 text-[9px] font-medium"
-            style={{
-              ...labelStyle,
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-            }}
-          >
-            <X size={10} strokeWidth={2} />
-            Clear
-          </button>
+        <div
+          className="flex flex-col gap-1.5 border-b px-3 py-2.5"
+          style={sectionStyle}
+        >
+          <div className="flex items-center gap-1.5">
+            <span
+              className="text-[10px] font-medium uppercase tracking-wider"
+              style={{ color: 'var(--daw-accent)' }}
+            >
+              Selection
+            </span>
+            <span className="text-[9px]" style={labelStyle}>
+              {plural(count, unit)}
+            </span>
+            <button
+              type="button"
+              data-tutorial-id="insight-clear"
+              onClick={() =>
+                kind === 'notes'
+                  ? setSelectedNotes([])
+                  : setSelectedChordIds([])
+              }
+              className="ml-auto flex items-center gap-0.5 text-[9px] font-medium"
+              style={{
+                ...labelStyle,
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+              }}
+            >
+              <X size={10} strokeWidth={2} />
+              Clear
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {kind === 'chords'
+              ? selectedChords.map((r) => (
+                  <Chip key={r.id} rgb={r.color}>
+                    {chordLabelSymbol(r.noteName, notation, chipContext)}
+                  </Chip>
+                ))
+              : pickedNotes.map(({ track, events }) => (
+                  <Chip key={track.id} css={track.color}>
+                    {`${track.name} · ${plural(events.length, 'note')}`}
+                  </Chip>
+                ))}
+          </div>
+          {!doc && (
+            <button
+              type="button"
+              data-tutorial-id="insight-analyze"
+              onClick={() =>
+                kind === 'notes'
+                  ? analyzeNoteSelection(selectedNotes)
+                  : analyzeChordSelection(selectedChords.map((r) => r.id))
+              }
+              className="flex items-center justify-center gap-1 rounded py-1 text-[10px] font-semibold"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                color: 'var(--daw-accent)',
+                cursor: 'pointer',
+              }}
+            >
+              <Sparkles size={10} strokeWidth={2} />
+              Analyze {plural(count, unit)}
+            </button>
+          )}
         </div>
-        <div className="flex flex-wrap gap-1">
-          {kind === 'chords'
-            ? selectedChords.map((r) => (
-                <Chip key={r.id} rgb={r.color}>
-                  {chordLabelSymbol(r.noteName, notation, chipContext)}
-                </Chip>
-              ))
-            : pickedNotes.map(({ track, events }) => (
-                <Chip key={track.id} css={track.color}>
-                  {`${track.name} · ${plural(events.length, 'note')}`}
-                </Chip>
-              ))}
-        </div>
-        {!doc && (
-          <button
-            type="button"
-            onClick={() =>
-              kind === 'notes'
-                ? analyzeNoteSelection(selectedNotes)
-                : analyzeChordSelection(selectedChords.map((r) => r.id))
-            }
-            className="flex items-center justify-center gap-1 rounded py-1 text-[10px] font-semibold"
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.4)',
-              color: 'var(--daw-accent)',
-              cursor: 'pointer',
-            }}
-          >
-            <Sparkles size={10} strokeWidth={2} />
-            Analyze {plural(count, unit)}
-          </button>
+
+        {doc && (
+          <>
+            <HarmonySummary doc={doc} notation={notation} />
+            <VoiceLeading doc={doc} notation={notation} />
+            {cards.map((chord) => (
+              <ChordCard
+                key={chord.degreeName}
+                chord={chord}
+                keyLetter={displayAccidentals(doc.analysis.key.rootName)}
+                rootNote={doc.analysis.key.rootPc}
+                mode={doc.analysis.key.mode}
+                expanded={expandedCards.has(chord.degreeName)}
+                onToggleExpand={() =>
+                  setExpandedCards((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(chord.degreeName))
+                      next.delete(chord.degreeName);
+                    else next.add(chord.degreeName);
+                    return next;
+                  })
+                }
+              />
+            ))}
+            <UnisonSections unisonDoc={doc} harmonyOnly />
+          </>
         )}
       </div>
-
-      {doc && (
-        <>
-          <HarmonySummary doc={doc} notation={notation} />
-          <VoiceLeading doc={doc} notation={notation} />
-          {cards.map((chord) => (
-            <ChordCard
-              key={chord.degreeName}
-              chord={chord}
-              keyLetter={displayAccidentals(doc.analysis.key.rootName)}
-              rootNote={doc.analysis.key.rootPc}
-              mode={doc.analysis.key.mode}
-              expanded={expandedCards.has(chord.degreeName)}
-              onToggleExpand={() =>
-                setExpandedCards((prev) => {
-                  const next = new Set(prev);
-                  if (next.has(chord.degreeName)) next.delete(chord.degreeName);
-                  else next.add(chord.degreeName);
-                  return next;
-                })
-              }
-            />
-          ))}
-          <UnisonSections unisonDoc={doc} harmonyOnly />
-        </>
-      )}
-    </div>
+    </>
   );
 }
 

@@ -134,6 +134,14 @@ describe('ExportAudioDialog choices', () => {
 
     expect(await reopenAndExport()).toMatchObject({ range: 'project' });
   });
+
+  it('counts a finished export as a done moment for the lessons', async () => {
+    const before = useStore.getState().doneMoments.exportAudio;
+    render(<FileMenuExport />);
+    await reopenAndExport();
+    expect(useStore.getState().doneMoments.exportAudio).toBe(before + 1);
+    expect(useStore.getState().lastAudioExportAt).not.toBeNull();
+  });
 });
 
 // ── What the dialog warns about ─────────────────────────────────────────────

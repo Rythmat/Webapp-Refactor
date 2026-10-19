@@ -1,11 +1,14 @@
 import { useStore } from '@/daw/store';
-import { toSongTick } from '@/daw/time/timeModel';
+import { timeSignatureOf, toSongTick } from '@/daw/time/timeModel';
 import type { MidiSequence } from '@prism/engine';
 
 // ── File ▸ Export MIDI and File ▸ Analyze, from the menu and the keys ──────
 //
 // One command each, so ⌘E and ⇧⌘U do exactly what the menu items do (the key
-// used to skip Analyze's chord step and number the tracks differently).
+// used to skip Analyze's chord step and number the tracks differently). The
+// lead sheet's MusicXML and the sheets' printing are here too, so the Project
+// menu and the views' own buttons share them and their done moments
+// (doneMomentsSlice.ts).
 
 const OUR_PPQ = 480;
 
@@ -42,12 +45,50 @@ export function exportProjectMidi(): Promise<void> {
     state.timeSignatureDenominator,
   ];
   return import('@/daw/midi/MidiFileIO').then(
-    ({ downloadMidiBlob, exportMidiFile }) =>
+    ({ downloadMidiBlob, exportMidiFile }) => {
       downloadMidiBlob(
         exportMidiFile(sequences, state.bpm, metre),
         'prism-session.mid',
-      ),
+      );
+      useStore.getState().markDone('exportMidi');
+    },
   );
+}
+
+/**
+ * Downloads the lead sheet's chords as MusicXML, from the Project menu and
+ * the Lead Sheet's own button alike, in the project's metre with the bars
+ * the sheet adds past its last chord. Nothing happens while the sheet has no
+ * chords. The writer loads with the first export.
+ */
+export async function exportLeadSheetMusicXml(): Promise<void> {
+  const state = useStore.getState();
+  if (state.chordRegions.length === 0) return;
+  const { downloadLeadSheet } = await import('@/daw/midi/MusicXmlExport');
+  downloadLeadSheet(
+    state.chordRegions,
+    {
+      title: state.projectName,
+      bpm: state.bpm,
+      rootNote: state.rootNote,
+      mode: state.mode,
+      // Written in the project's metre, not 4/4 (ia-flows-34).
+      timeSignature: timeSignatureOf(state),
+      extraBars: state.leadSheetBars,
+    },
+    `${state.projectName}.musicxml`,
+  );
+  useStore.getState().markDone('exportMusicXml');
+}
+
+/**
+ * Opens the browser's print dialog for the Score or the Lead Sheet, whichever
+ * is showing (each prints through leadsheet-print.css), and counts it as the
+ * done moment a lesson's Print step watches for.
+ */
+export function printSheet(moment: 'printScore' | 'printLeadSheet'): void {
+  useStore.getState().markDone(moment);
+  window.print();
 }
 
 /** Analyzes the song and its chords, and opens the panel that shows them. */

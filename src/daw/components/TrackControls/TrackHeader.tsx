@@ -17,8 +17,36 @@ import {
   Ear,
   EarOff,
   Activity,
+  ChevronDown,
+  Copy,
+  Music,
+  Trash2,
 } from 'lucide-react';
 import { useStore, useTrack, type Track } from '@/daw/store';
+import {
+  duplicateTrack,
+  setTrackInstrument,
+} from '@/daw/commands/trackCommands';
+import {
+  hasInstrumentPicker,
+  instrumentLabel,
+  pickerFamilies,
+  simpleInstrumentOf,
+  type SimpleInstrument,
+} from '@/daw/instruments/simpleInstruments';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/daw/ui/Menu';
+import {
+  Popover as PickerPopover,
+  PopoverContent as PickerPopoverContent,
+  PopoverTrigger as PickerPopoverTrigger,
+} from '@/daw/ui/Popover';
+import { InstrumentPicker } from './InstrumentPicker';
 import {
   useListenMode,
   useStudioListenStore,
@@ -64,12 +92,19 @@ export const TrackHeader = memo(function TrackHeader({
   return track ? <TrackHeaderRow track={track} index={index} /> : null;
 });
 
+/** Keeps a press or click inside a portalled panel off the row behind it:
+ *  the row selects on click, and its Reorder item drags on pointer down. */
+const keepInPanel = (e: { stopPropagation(): void }) => e.stopPropagation();
+
 const TrackHeaderRow = memo(function TrackHeaderRow({
   track,
-  index: _index,
+  index,
 }: TrackHeaderRowProps) {
   const nameRef = useRef<HTMLInputElement>(null);
   const [colorOpen, setColorOpen] = useState(false);
+  const [instrumentOpen, setInstrumentOpen] = useState(false);
+  // Release frees a collaborator's lock, so it shows only in a room.
+  const inRoom = useStore((s) => s.roomId !== null);
 
   const updateTrack = useStore((s) => s.updateTrack);
   const toggleMute = useStore((s) => s.toggleMute);
@@ -133,6 +168,19 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
     setSelectedTrackId(track.id);
   }, [track.id, setSelectedTrackId]);
 
+  // The simple instrument picker (MIDI tracks): the instrument button below
+  // and the right-click menu's Change Instrument… open it.
+  const canPickInstrument = hasInstrumentPicker(track);
+  const currentInstrument = simpleInstrumentOf(track);
+  const instrumentName = instrumentLabel(track);
+  const handlePickInstrument = useCallback(
+    (item: SimpleInstrument) => {
+      setTrackInstrument(track.id, item.id);
+      setInstrumentOpen(false);
+    },
+    [track.id],
+  );
+
   const handleTestSound = useCallback(
     (e: MouseEvent) => {
       e.stopPropagation();
@@ -158,385 +206,511 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
   );
 
   return (
-    <motion.div
-      onClick={handleSelect}
-      whileHover={{
-        backgroundColor: isSelected
-          ? 'var(--daw-hover)'
-          : 'var(--daw-surface-2)',
-      }}
-      className="group relative flex cursor-pointer flex-col justify-between border-b px-3 py-2"
-      style={{
-        height: 80,
-        backgroundColor: isSelected
-          ? 'var(--daw-surface-2)'
-          : 'var(--daw-surface-1)',
-        borderColor: 'var(--daw-hairline)',
-        borderLeft: `3px solid ${track.color}`,
-      }}
-    >
-      {/* Selection highlight overlay — pointer-events-none so it never shifts
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <motion.div
+          data-tutorial-id={`track-header-${index}`}
+          onClick={handleSelect}
+          whileHover={{
+            backgroundColor: isSelected
+              ? 'var(--daw-hover)'
+              : 'var(--daw-surface-2)',
+          }}
+          className="group relative flex cursor-pointer flex-col justify-between border-b px-3 py-2"
+          style={{
+            height: 80,
+            backgroundColor: isSelected
+              ? 'var(--daw-surface-2)'
+              : 'var(--daw-surface-1)',
+            borderColor: 'var(--daw-hairline)',
+            borderLeft: `3px solid ${track.color}`,
+          }}
+        >
+          {/* Selection highlight overlay — pointer-events-none so it never shifts
           layout or steals clicks. A track locked by a remote collaborator is
           bordered in that user's colour; your own selection gets a white
           border. */}
-      {lockOwner ? (
-        <motion.div
-          className="pointer-events-none absolute inset-0 z-20"
-          style={{
-            border: `2px solid ${lockOwner.color}`,
-            borderRadius: 4,
-          }}
-          animate={
-            pulsing
-              ? {
-                  boxShadow: [
-                    `0 0 4px ${lockOwner.color}, inset 0 0 3px ${lockOwner.color}`,
-                    `0 0 16px ${lockOwner.color}, inset 0 0 9px ${lockOwner.color}`,
-                    `0 0 4px ${lockOwner.color}, inset 0 0 3px ${lockOwner.color}`,
-                  ],
-                }
-              : {
-                  boxShadow: `0 0 6px ${lockOwner.color}, inset 0 0 4px ${lockOwner.color}`,
-                }
-          }
-          transition={
-            pulsing
-              ? { duration: 0.7, repeat: Infinity, ease: 'easeInOut' }
-              : { duration: 0.2 }
-          }
-        />
-      ) : (
-        isSelected && (
-          <div
-            className="pointer-events-none absolute inset-0 z-20"
-            style={{ border: '2px solid #fff', borderRadius: 4 }}
-          />
-        )
-      )}
-
-      {/* Delete button — top-right corner (hidden while remote-locked) */}
-      {!lockedByRemote && (
-        <motion.button
-          onClick={(e) => {
-            e.stopPropagation();
-            removeTrack(track.id);
-          }}
-          whileTap={{ scale: 0.85 }}
-          className="absolute right-1.5 top-1.5 z-10 flex size-4 cursor-pointer items-center justify-center rounded opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-400 group-hover:opacity-100"
-          style={{
-            color: 'var(--daw-text-3)',
-            background: 'none',
-            border: 'none',
-          }}
-          title="Delete Track"
-        >
-          <X size={10} strokeWidth={2.5} />
-        </motion.button>
-      )}
-
-      {/* Row 1: Colored dot (color picker trigger) + uppercase name */}
-      <div className="flex min-w-0 items-center gap-1.5" style={lockedStyle}>
-        <Popover.Root open={colorOpen} onOpenChange={setColorOpen}>
-          <Popover.Trigger asChild>
-            <button
-              onClick={(e) => e.stopPropagation()}
-              className="size-3 shrink-0 cursor-pointer rounded-full transition-transform hover:scale-125"
+          {lockOwner ? (
+            <motion.div
+              className="pointer-events-none absolute inset-0 z-20"
               style={{
-                backgroundColor: track.color,
-                border: 'none',
-                padding: 0,
+                border: `2px solid ${lockOwner.color}`,
+                borderRadius: 4,
               }}
-              title="Change track color"
+              animate={
+                pulsing
+                  ? {
+                      boxShadow: [
+                        `0 0 4px ${lockOwner.color}, inset 0 0 3px ${lockOwner.color}`,
+                        `0 0 16px ${lockOwner.color}, inset 0 0 9px ${lockOwner.color}`,
+                        `0 0 4px ${lockOwner.color}, inset 0 0 3px ${lockOwner.color}`,
+                      ],
+                    }
+                  : {
+                      boxShadow: `0 0 6px ${lockOwner.color}, inset 0 0 4px ${lockOwner.color}`,
+                    }
+              }
+              transition={
+                pulsing
+                  ? { duration: 0.7, repeat: Infinity, ease: 'easeInOut' }
+                  : { duration: 0.2 }
+              }
             />
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              data-testid="track-colour-popover"
-              className="z-50 rounded-lg p-2 shadow-lg"
-              style={{
-                backgroundColor: 'var(--daw-popover)',
-                border: '1px solid var(--daw-hairline)',
-              }}
-              sideOffset={6}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="grid grid-cols-5 gap-1">
-                {TRACK_PALETTES.map((color) => (
-                  <button
-                    key={color}
-                    data-meaning="track-colour"
-                    onClick={() => {
-                      updateTrack(track.id, { color });
-                      setColorOpen(false);
-                    }}
-                    className="size-5 cursor-pointer rounded-full transition-transform hover:scale-125"
-                    style={{
-                      backgroundColor: color,
-                      border:
-                        color === track.color
-                          ? '2px solid var(--daw-text)'
-                          : '2px solid transparent',
-                      padding: 0,
-                    }}
-                    title={color}
-                  />
-                ))}
-              </div>
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
-        <input
-          ref={nameRef}
-          defaultValue={track.name}
-          onBlur={handleNameBlur}
-          onKeyDown={handleNameKeyDown}
-          className="min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none"
-          style={{ color: 'var(--daw-text)' }}
-          spellCheck={false}
-        />
-        <PresenceTrackDots trackId={track.id} />
-        <select
-          value={track.trackRole}
-          onChange={handleRoleChange}
-          onClick={(e) => e.stopPropagation()}
-          className="shrink-0 cursor-pointer rounded border-none bg-transparent text-[9px] uppercase tracking-wide outline-none"
-          style={{
-            color: 'var(--daw-text-3)',
-            padding: '0 2px',
-          }}
-          title="Track role for chord analysis"
-        >
-          <option value="auto">Auto</option>
-          <option value="chords">Chords</option>
-          <option value="melody">Melody</option>
-          <option value="bass">Bass</option>
-          <option value="drums">Drums</option>
-        </select>
-      </div>
-
-      {/* Row 2: Monitor toggle + Test Sound — OR, when another collaborator is
-          driving this track, the local Mute/Listen control for their live
-          signal. The control stays interactive despite the remote lock. */}
-      {lockedByRemote ? (
-        <div className="flex items-center gap-1">
-          <motion.button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleTrackAudible(track.id);
-            }}
-            whileTap={{ scale: 0.9 }}
-            className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors"
-            style={{
-              color: remoteAudible
-                ? (lockOwner?.color ?? 'var(--daw-text)')
-                : 'var(--daw-text-3)',
-              border: `1px solid ${
-                remoteAudible
-                  ? (lockOwner?.color ?? 'var(--daw-hairline)')
-                  : 'var(--daw-hairline)'
-              }`,
-              background: 'none',
-            }}
-            title={
-              listenMode === 'all'
-                ? remoteAudible
-                  ? `Mute ${lockOwner?.userName ?? 'this user'}'s live audio`
-                  : `Unmute ${lockOwner?.userName ?? 'this user'}'s live audio`
-                : remoteAudible
-                  ? `Stop listening to ${lockOwner?.userName ?? 'this user'}`
-                  : `Listen to ${lockOwner?.userName ?? 'this user'}`
-            }
-          >
-            {remoteAudible ? (
-              <Ear size={10} strokeWidth={2} />
-            ) : (
-              <EarOff size={10} strokeWidth={2} />
-            )}
-            {listenMode === 'all'
-              ? remoteAudible
-                ? 'Mute'
-                : 'Unmute'
-              : remoteAudible
-                ? 'Unlisten'
-                : 'Listen'}
-          </motion.button>
-        </div>
-      ) : (
-        <div className="flex items-center gap-1" style={lockedStyle}>
-          <motion.button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleMonitoring(track.id);
-            }}
-            whileTap={{ scale: 0.85 }}
-            className="flex w-fit items-center gap-1 rounded px-1.5 py-0.5 transition-colors"
-            style={{
-              backgroundColor: track.monitoring ? track.color : 'transparent',
-              color: track.monitoring ? '#fff' : 'var(--daw-text-3)',
-              border: `1px solid ${track.monitoring ? track.color : 'var(--daw-hairline)'}`,
-            }}
-            title="Monitor"
-          >
-            <Headphones size={10} strokeWidth={2} />
-            <span className="text-[9px] font-medium">MON</span>
-          </motion.button>
-          {track.type === 'midi' && (
-            <motion.button
-              onClick={handleTestSound}
-              whileTap={{ scale: 0.85 }}
-              className="flex size-5 items-center justify-center rounded transition-colors"
-              style={{
-                color: 'var(--daw-text-3)',
-                background: 'none',
-                border: 'none',
-              }}
-              title="Test Sound (plays C4)"
-            >
-              <Volume2 size={10} strokeWidth={2} />
-            </motion.button>
+          ) : (
+            isSelected && (
+              <div
+                data-tutorial-id="selected-track-header"
+                className="pointer-events-none absolute inset-0 z-20"
+                style={{ border: '2px solid #fff', borderRadius: 4 }}
+              />
+            )
           )}
 
-          {/* Release — deselect your own track (frees the lock for others) */}
-          {isSelected && (
+          {/* Delete button — top-right corner (hidden while remote-locked) */}
+          {!lockedByRemote && (
             <motion.button
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedTrackId(null);
+                removeTrack(track.id);
               }}
-              whileTap={{ scale: 0.9 }}
-              className="ml-auto flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors hover:bg-white/10"
+              whileTap={{ scale: 0.85 }}
+              className="absolute right-1.5 top-1.5 z-10 flex size-4 cursor-pointer items-center justify-center rounded opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-400 group-hover:opacity-100"
               style={{
                 color: 'var(--daw-text-3)',
-                border: '1px solid var(--daw-hairline)',
                 background: 'none',
+                border: 'none',
               }}
-              title="Release this track so others can select it"
+              title="Delete Track"
             >
-              Release
+              <X size={10} strokeWidth={2.5} />
             </motion.button>
           )}
-        </div>
-      )}
 
-      {/* Row 3: M / S buttons + level meter. M/S are per-user-local settings,
+          {/* Row 1: Colored dot (color picker trigger) + uppercase name */}
+          <div
+            className="flex min-w-0 items-center gap-1.5"
+            style={lockedStyle}
+          >
+            <Popover.Root open={colorOpen} onOpenChange={setColorOpen}>
+              <Popover.Trigger asChild>
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="size-3 shrink-0 cursor-pointer rounded-full transition-transform hover:scale-125"
+                  style={{
+                    backgroundColor: track.color,
+                    border: 'none',
+                    padding: 0,
+                  }}
+                  title="Change track color"
+                />
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Content
+                  data-testid="track-colour-popover"
+                  className="z-50 rounded-lg p-2 shadow-lg"
+                  style={{
+                    backgroundColor: 'var(--daw-popover)',
+                    border: '1px solid var(--daw-hairline)',
+                  }}
+                  sideOffset={6}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="grid grid-cols-5 gap-1">
+                    {TRACK_PALETTES.map((color) => (
+                      <button
+                        key={color}
+                        data-meaning="track-colour"
+                        onClick={() => {
+                          updateTrack(track.id, { color });
+                          setColorOpen(false);
+                        }}
+                        className="size-5 cursor-pointer rounded-full transition-transform hover:scale-125"
+                        style={{
+                          backgroundColor: color,
+                          border:
+                            color === track.color
+                              ? '2px solid var(--daw-text)'
+                              : '2px solid transparent',
+                          padding: 0,
+                        }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                </Popover.Content>
+              </Popover.Portal>
+            </Popover.Root>
+            <input
+              ref={nameRef}
+              data-tutorial-id={`track-name-${index}`}
+              aria-label="Track name"
+              defaultValue={track.name}
+              onBlur={handleNameBlur}
+              onKeyDown={handleNameKeyDown}
+              className="min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none"
+              style={{ color: 'var(--daw-text)' }}
+              spellCheck={false}
+            />
+            <PresenceTrackDots trackId={track.id} />
+            <select
+              value={track.trackRole}
+              onChange={handleRoleChange}
+              onClick={(e) => e.stopPropagation()}
+              className="shrink-0 cursor-pointer rounded border-none bg-transparent text-[9px] uppercase tracking-wide outline-none"
+              style={{
+                color: 'var(--daw-text-3)',
+                padding: '0 2px',
+              }}
+              title="Track role for chord analysis"
+            >
+              <option value="auto">Auto</option>
+              <option value="chords">Chords</option>
+              <option value="melody">Melody</option>
+              <option value="bass">Bass</option>
+              <option value="drums">Drums</option>
+            </select>
+          </div>
+
+          {/* Row 2: Monitor toggle + Test Sound — OR, when another collaborator is
+          driving this track, the local Mute/Listen control for their live
+          signal. The control stays interactive despite the remote lock. */}
+          {lockedByRemote ? (
+            <div className="flex items-center gap-1">
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleTrackAudible(track.id);
+                }}
+                whileTap={{ scale: 0.9 }}
+                className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors"
+                style={{
+                  color: remoteAudible
+                    ? (lockOwner?.color ?? 'var(--daw-text)')
+                    : 'var(--daw-text-3)',
+                  border: `1px solid ${
+                    remoteAudible
+                      ? (lockOwner?.color ?? 'var(--daw-hairline)')
+                      : 'var(--daw-hairline)'
+                  }`,
+                  background: 'none',
+                }}
+                title={
+                  listenMode === 'all'
+                    ? remoteAudible
+                      ? `Mute ${lockOwner?.userName ?? 'this user'}'s live audio`
+                      : `Unmute ${lockOwner?.userName ?? 'this user'}'s live audio`
+                    : remoteAudible
+                      ? `Stop listening to ${lockOwner?.userName ?? 'this user'}`
+                      : `Listen to ${lockOwner?.userName ?? 'this user'}`
+                }
+              >
+                {remoteAudible ? (
+                  <Ear size={10} strokeWidth={2} />
+                ) : (
+                  <EarOff size={10} strokeWidth={2} />
+                )}
+                {listenMode === 'all'
+                  ? remoteAudible
+                    ? 'Mute'
+                    : 'Unmute'
+                  : remoteAudible
+                    ? 'Unlisten'
+                    : 'Listen'}
+              </motion.button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1" style={lockedStyle}>
+              <motion.button
+                data-tutorial-id={`track-monitor-${index}`}
+                aria-pressed={track.monitoring}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMonitoring(track.id);
+                }}
+                whileTap={{ scale: 0.85 }}
+                className="flex w-fit items-center gap-1 rounded px-1.5 py-0.5 transition-colors"
+                style={{
+                  backgroundColor: track.monitoring
+                    ? track.color
+                    : 'transparent',
+                  color: track.monitoring ? '#fff' : 'var(--daw-text-3)',
+                  border: `1px solid ${track.monitoring ? track.color : 'var(--daw-hairline)'}`,
+                }}
+                title="Monitor"
+              >
+                <Headphones size={10} strokeWidth={2} />
+                <span className="text-[9px] font-medium">MON</span>
+              </motion.button>
+              {canPickInstrument ? (
+                <PickerPopover
+                  open={instrumentOpen}
+                  onOpenChange={setInstrumentOpen}
+                >
+                  <PickerPopoverTrigger asChild>
+                    <button
+                      type="button"
+                      data-tutorial-id={`track-instrument-${index}`}
+                      aria-haspopup="dialog"
+                      aria-label={`Instrument: ${instrumentName}. Change the instrument`}
+                      title="Change the instrument"
+                      className="flex h-5 min-w-0 flex-1 cursor-pointer items-center gap-1 rounded border border-daw-hairline px-1 text-left text-[11px] text-daw-text-2 transition-colors hover:bg-daw-hover hover:text-daw-text focus-visible:border-daw-focus focus-visible:outline-none"
+                    >
+                      <span className="min-w-0 flex-1 truncate">
+                        {instrumentName}
+                      </span>
+                      <ChevronDown
+                        aria-hidden
+                        size={11}
+                        strokeWidth={2}
+                        className="shrink-0"
+                      />
+                    </button>
+                  </PickerPopoverTrigger>
+                  <PickerPopoverContent
+                    align="start"
+                    sideOffset={6}
+                    aria-label={`Instrument for ${track.name}`}
+                    className="w-[400px] max-w-[calc(100vw-16px)] p-2"
+                    onClick={keepInPanel}
+                    onPointerDown={keepInPanel}
+                    onOpenAutoFocus={(event) => {
+                      // Start on the instrument playing now, else the first.
+                      const panel = event.currentTarget as HTMLElement | null;
+                      const target =
+                        panel?.querySelector<HTMLElement>(
+                          'button[aria-current="true"]',
+                        ) ?? panel?.querySelector<HTMLElement>('[role="tab"]');
+                      if (target) {
+                        event.preventDefault();
+                        target.focus();
+                      }
+                    }}
+                  >
+                    <InstrumentPicker
+                      families={pickerFamilies(track)}
+                      currentId={currentInstrument?.id}
+                      onPick={handlePickInstrument}
+                      title="Instrument"
+                      description={`What ${track.name} plays. Its notes, mix and effects stay.`}
+                    />
+                  </PickerPopoverContent>
+                </PickerPopover>
+              ) : (
+                <span
+                  data-tutorial-id={`track-instrument-${index}`}
+                  className="min-w-0 flex-1 truncate px-1 text-[11px] text-daw-text-3"
+                  title="An audio track records sound; it has no instrument to change"
+                >
+                  {instrumentName}
+                </span>
+              )}
+              {track.type === 'midi' && (
+                <motion.button
+                  onClick={handleTestSound}
+                  whileTap={{ scale: 0.85 }}
+                  className="flex size-5 items-center justify-center rounded transition-colors"
+                  style={{
+                    color: 'var(--daw-text-3)',
+                    background: 'none',
+                    border: 'none',
+                  }}
+                  title="Test Sound (plays C4)"
+                >
+                  <Volume2 size={10} strokeWidth={2} />
+                </motion.button>
+              )}
+
+              {/* Release — deselect your own track (frees the lock for others,
+              so only in a room) */}
+              {isSelected && inRoom && (
+                <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedTrackId(null);
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                  className="ml-auto flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors hover:bg-white/10"
+                  style={{
+                    color: 'var(--daw-text-3)',
+                    border: '1px solid var(--daw-hairline)',
+                    background: 'none',
+                  }}
+                  title="Release this track so others can select it"
+                >
+                  Release
+                </motion.button>
+              )}
+            </div>
+          )}
+
+          {/* Row 3: M / S buttons + level meter. M/S are per-user-local settings,
           so they stay interactive even when the track is remote-locked; the
           remaining controls (record-arm, volume) keep the lock. */}
-      <div className="flex items-center gap-1">
-        <motion.button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleMute(track.id);
-          }}
-          whileTap={{ scale: 0.85 }}
-          className="flex size-5 items-center justify-center rounded text-[10px] font-bold transition-colors"
-          style={{
-            backgroundColor: track.mute ? 'var(--daw-record)' : 'transparent',
-            color: track.mute ? '#fff' : 'var(--daw-text-3)',
-            border: `1px solid ${track.mute ? 'var(--daw-record)' : 'var(--daw-hairline)'}`,
-          }}
-          title="Mute"
-        >
-          M
-        </motion.button>
-        <motion.button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleSolo(track.id);
-          }}
-          whileTap={{ scale: 0.85 }}
-          className="flex size-5 items-center justify-center rounded text-[10px] font-bold transition-colors"
-          style={{
-            backgroundColor: track.solo
-              ? 'var(--daw-meter-hot)'
-              : 'transparent',
-            color: track.solo ? '#000' : 'var(--daw-text-3)',
-            border: `1px solid ${track.solo ? 'var(--daw-meter-hot)' : 'var(--daw-hairline)'}`,
-          }}
-          title="Solo"
-        >
-          S
-        </motion.button>
-        <motion.button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleRecordArm(track.id);
-          }}
-          whileTap={{ scale: 0.85 }}
-          className="flex size-5 items-center justify-center rounded-full transition-colors"
-          style={{
-            backgroundColor: track.recordArmed
-              ? `${track.color}26`
-              : 'transparent',
-            color: track.recordArmed ? track.color : 'var(--daw-text-3)',
-            border: `1px solid ${track.recordArmed ? track.color : 'var(--daw-hairline)'}`,
-            ...lockedStyle,
-          }}
-          title="Record Arm"
-        >
-          <Circle
-            size={8}
-            fill={track.recordArmed ? 'currentColor' : 'none'}
-            strokeWidth={track.recordArmed ? 0 : 2}
-          />
-        </motion.button>
-        <motion.button
-          data-tutorial-id="automation-toggle"
-          onClick={(e) => {
-            e.stopPropagation();
-            setAutomationOpen(automationOpen ? null : track.id);
-          }}
-          whileTap={{ scale: 0.85 }}
-          className="flex size-5 items-center justify-center rounded transition-colors"
-          style={{
-            backgroundColor: automationOpen
-              ? 'var(--daw-selected)'
-              : 'transparent',
-            color: automationOpen ? 'var(--daw-text)' : 'var(--daw-text-3)',
-            border: `1px solid ${automationOpen ? 'var(--daw-outline)' : 'var(--daw-hairline)'}`,
-          }}
-          title="Automation"
-        >
-          <Activity size={11} strokeWidth={2} />
-        </motion.button>
+          <div className="flex items-center gap-1">
+            <motion.button
+              data-tutorial-id={`track-mute-${index}`}
+              aria-pressed={track.mute}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleMute(track.id);
+              }}
+              whileTap={{ scale: 0.85 }}
+              className="flex size-5 items-center justify-center rounded text-[10px] font-bold transition-colors"
+              style={{
+                backgroundColor: track.mute
+                  ? 'var(--daw-record)'
+                  : 'transparent',
+                color: track.mute ? '#fff' : 'var(--daw-text-3)',
+                border: `1px solid ${track.mute ? 'var(--daw-record)' : 'var(--daw-hairline)'}`,
+              }}
+              title="Mute"
+            >
+              M
+            </motion.button>
+            <motion.button
+              data-tutorial-id={`track-solo-${index}`}
+              aria-pressed={track.solo}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleSolo(track.id);
+              }}
+              whileTap={{ scale: 0.85 }}
+              className="flex size-5 items-center justify-center rounded text-[10px] font-bold transition-colors"
+              style={{
+                backgroundColor: track.solo
+                  ? 'var(--daw-meter-hot)'
+                  : 'transparent',
+                color: track.solo ? '#000' : 'var(--daw-text-3)',
+                border: `1px solid ${track.solo ? 'var(--daw-meter-hot)' : 'var(--daw-hairline)'}`,
+              }}
+              title="Solo"
+            >
+              S
+            </motion.button>
+            <motion.button
+              data-tutorial-id={`track-arm-${index}`}
+              aria-pressed={track.recordArmed}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleRecordArm(track.id);
+              }}
+              whileTap={{ scale: 0.85 }}
+              className="flex size-5 items-center justify-center rounded-full transition-colors"
+              style={{
+                backgroundColor: track.recordArmed
+                  ? `${track.color}26`
+                  : 'transparent',
+                color: track.recordArmed ? track.color : 'var(--daw-text-3)',
+                border: `1px solid ${track.recordArmed ? track.color : 'var(--daw-hairline)'}`,
+                ...lockedStyle,
+              }}
+              title="Record Arm"
+            >
+              <Circle
+                size={8}
+                fill={track.recordArmed ? 'currentColor' : 'none'}
+                strokeWidth={track.recordArmed ? 0 : 2}
+              />
+            </motion.button>
+            <motion.button
+              data-tutorial-id="automation-toggle"
+              onClick={(e) => {
+                e.stopPropagation();
+                setAutomationOpen(automationOpen ? null : track.id);
+              }}
+              whileTap={{ scale: 0.85 }}
+              className="flex size-5 items-center justify-center rounded transition-colors"
+              style={{
+                backgroundColor: automationOpen
+                  ? 'var(--daw-selected)'
+                  : 'transparent',
+                color: automationOpen ? 'var(--daw-text)' : 'var(--daw-text-3)',
+                border: `1px solid ${automationOpen ? 'var(--daw-outline)' : 'var(--daw-hairline)'}`,
+              }}
+              title="Automation"
+            >
+              <Activity size={11} strokeWidth={2} />
+            </motion.button>
 
-        {/* Live level meter + volume slider. Volume syncs to collaborators, so
+            {/* Live level meter + volume slider. Volume syncs to collaborators, so
             it stays lock-protected. */}
-        <Slider.Root
-          className="relative ml-1 flex h-3 flex-1 cursor-pointer touch-none select-none items-center"
-          style={lockedStyle}
-          min={0}
-          max={100}
-          step={1}
-          value={[Math.round(volume.value * 100)]}
-          onValueChange={([v]) => volume.change(v / 100)}
-          {...sliderGestureProps(volume)}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Slider.Track
-            className="relative h-1.5 w-full overflow-hidden rounded-full"
-            style={{ backgroundColor: 'var(--daw-hairline)' }}
-          >
-            {/* Painted from the meter bus by key, which finds this track's
+            <Slider.Root
+              data-tutorial-id={`track-volume-${index}`}
+              className="relative ml-1 flex h-3 flex-1 cursor-pointer touch-none select-none items-center"
+              style={lockedStyle}
+              min={0}
+              max={100}
+              step={1}
+              value={[Math.round(volume.value * 100)]}
+              onValueChange={([v]) => volume.change(v / 100)}
+              {...sliderGestureProps(volume)}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Slider.Track
+                className="relative h-1.5 w-full overflow-hidden rounded-full"
+                style={{ backgroundColor: 'var(--daw-hairline)' }}
+              >
+                {/* Painted from the meter bus by key, which finds this track's
                 engine again after a rebuild: the header never re-renders
                 for the level. */}
-            <LiveLevelFill meterKey={`track:${track.id}`} />
-            <Slider.Range
-              className="absolute h-full rounded-full"
-              style={{ backgroundColor: 'transparent' }}
+                <LiveLevelFill meterKey={`track:${track.id}`} />
+                <Slider.Range
+                  className="absolute h-full rounded-full"
+                  style={{ backgroundColor: 'transparent' }}
+                />
+              </Slider.Track>
+              <Slider.Thumb
+                className="block h-3 w-1.5 rounded-sm shadow-sm focus:outline-none"
+                style={{ backgroundColor: 'var(--daw-text-3)' }}
+                aria-label="Volume"
+              />
+            </Slider.Root>
+            <FixedDigits
+              text={formatGain(volume.value, { unit: '' })}
+              className="ml-0.5 w-8 shrink-0 text-right text-[9px]"
+              style={{ color: 'var(--daw-text-3)' }}
             />
-          </Slider.Track>
-          <Slider.Thumb
-            className="block h-3 w-1.5 rounded-sm shadow-sm focus:outline-none"
-            style={{ backgroundColor: 'var(--daw-text-3)' }}
-            aria-label="Volume"
-          />
-        </Slider.Root>
-        <FixedDigits
-          text={formatGain(volume.value, { unit: '' })}
-          className="ml-0.5 w-8 shrink-0 text-right text-[9px]"
-          style={{ color: 'var(--daw-text-3)' }}
-        />
-      </div>
-    </motion.div>
+          </div>
+        </motion.div>
+      </ContextMenuTrigger>
+      {/* Right-click: the track's own menu. */}
+      <ContextMenuContent
+        aria-label={`${track.name} track`}
+        onClick={keepInPanel}
+        onPointerDown={keepInPanel}
+      >
+        {canPickInstrument && !lockedByRemote ? (
+          <ContextMenuItem
+            data-tutorial-id="track-menu-change-instrument"
+            icon={<Music />}
+            // After the menu has closed and handed focus back, or the
+            // picker would close again as focus left it.
+            onSelect={() => setTimeout(() => setInstrumentOpen(true), 0)}
+          >
+            Change Instrument…
+          </ContextMenuItem>
+        ) : null}
+        <ContextMenuItem
+          data-tutorial-id="track-menu-duplicate"
+          icon={<Copy />}
+          onSelect={() => duplicateTrack(track.id)}
+        >
+          Duplicate Track
+        </ContextMenuItem>
+        {lockedByRemote ? null : (
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuItem
+              data-tutorial-id="track-menu-delete"
+              icon={<Trash2 />}
+              danger
+              onSelect={() => removeTrack(track.id)}
+            >
+              Delete Track
+            </ContextMenuItem>
+          </>
+        )}
+      </ContextMenuContent>
+    </ContextMenu>
   );
 });

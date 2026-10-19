@@ -110,6 +110,7 @@ export function LibraryPanel() {
             style={{ height: 28, borderColor: 'var(--daw-hairline)' }}
           >
             <button
+              data-tutorial-id="insight-tab"
               onClick={() => setActiveTab('insight')}
               className="flex items-center gap-1 px-3 h-full cursor-pointer"
               style={{
@@ -138,6 +139,7 @@ export function LibraryPanel() {
               </span>
             </button>
             <button
+              data-tutorial-id="library-tab"
               onClick={() => setActiveTab('library')}
               className="flex items-center gap-1 px-3 h-full cursor-pointer"
               style={{

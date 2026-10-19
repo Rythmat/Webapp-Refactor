@@ -458,6 +458,8 @@ function succeed(entry: SaveEntry, done: CloudSaveDone): void {
     error: null,
     savedCount: state.savedCount + 1,
   }));
+  // A lesson's Save step watches the editor's store, not this one.
+  useStore.getState().markDone('save');
 
   const suffix = caveat(done);
   if (done.recreated) {

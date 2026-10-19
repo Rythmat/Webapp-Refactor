@@ -138,6 +138,7 @@ export const TransportControls = memo(function TransportControls({
         icon={<SkipBack fill="currentColor" strokeWidth={0} />}
         tooltipSide="bottom"
         data-testid="transport-back"
+        data-tutorial-id="transport-back"
         onClick={handleBack}
       />
       <IconButton
@@ -154,6 +155,7 @@ export const TransportControls = memo(function TransportControls({
         aria-keyshortcuts={KEYS.stop.aria}
         tooltipSide="bottom"
         data-testid="transport-stop"
+        data-tutorial-id="transport-stop"
         className="[&_svg]:size-3"
         onClick={handleStop}
         onDoubleClick={handleStopToZero}
@@ -173,6 +175,7 @@ export const TransportControls = memo(function TransportControls({
         aria-keyshortcuts={KEYS.playPause.aria}
         tooltipSide="bottom"
         data-testid="transport-play"
+        data-tutorial-id="transport-play"
         data-playing={isPlaying || undefined}
         onClick={handlePlayPause}
       />
@@ -194,6 +197,7 @@ export const TransportControls = memo(function TransportControls({
         aria-pressed={isRecording}
         tooltipSide="bottom"
         data-testid="transport-record"
+        data-tutorial-id="transport-record"
         data-state={recordState}
         className={cn(
           '[&_svg]:size-3',
@@ -213,6 +217,7 @@ export const TransportControls = memo(function TransportControls({
         shortcut={KEYS.loop.label}
         aria-keyshortcuts={KEYS.loop.aria}
         data-testid="transport-loop"
+        data-tutorial-id="transport-loop"
       />
       <ClickToggle countInFolded={countInFolded} />
     </div>

@@ -13,8 +13,10 @@ import {
   GitMerge,
 } from 'lucide-react';
 import { useStore } from '@/daw/store';
-import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
-import { timeSignatureOf } from '@/daw/time/timeModel';
+import {
+  exportLeadSheetMusicXml,
+  printSheet,
+} from '@/daw/commands/projectCommands';
 import { withTransaction } from '@/daw/store/history';
 import type { LeadSheetChordFormat } from '@/daw/store/uiSlice';
 import type { ChordRecordMode } from '@/daw/store/prismSlice';
@@ -41,14 +43,10 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const chordNotation = useChordNotation();
   const formatLocked = chordNotation !== 'hybrid';
   const chordRegions = useStore((s) => s.chordRegions);
-  const bpm = useStore((s) => s.bpm);
-  const rootNote = useStore((s) => s.rootNote);
-  const mode = useStore((s) => s.mode);
   const insertMeasures = useStore((s) => s.insertMeasures);
   const deleteMeasures = useStore((s) => s.deleteMeasures);
   const showRepeats = useStore((s) => s.leadSheetShowRepeats);
   const setShowRepeats = useStore((s) => s.setLeadSheetShowRepeats);
-  const projectName = useStore((s) => s.projectName);
   const sections = useStore((s) => s.leadSheetSections);
   const addSection = useStore((s) => s.addLeadSheetSection);
   const removeSection = useStore((s) => s.removeLeadSheetSection);
@@ -62,22 +60,13 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const melodyTrackIds = useStore((s) => s.leadSheetMelodyTrackIds);
   const tracks = useStore((s) => s.tracks);
 
+  // The Project menu's export and print, with their done moments.
   const handleExportMusicXml = useCallback(() => {
-    if (chordRegions.length === 0) return;
-    const state = useStore.getState();
-    downloadLeadSheet(chordRegions, {
-      title: projectName,
-      bpm,
-      rootNote,
-      mode,
-      // Written in the project's metre, not 4/4 (ia-flows-34).
-      timeSignature: timeSignatureOf(state),
-      extraBars: state.leadSheetBars,
-    });
-  }, [chordRegions, bpm, rootNote, mode, projectName]);
+    void exportLeadSheetMusicXml();
+  }, []);
 
   const handleExportPdf = useCallback(() => {
-    window.print();
+    printSheet('printLeadSheet');
   }, []);
 
   const toggleRepeats = useCallback(() => {
@@ -230,6 +219,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
           picker beside it says which */}
       <div className="flex items-center">
         <button
+          data-tutorial-id="leadsheet-melody-toggle"
           className={btnClass}
           style={{
             ...btnStyle,
@@ -259,6 +249,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
       {/* Measure operations */}
       <button
+        data-tutorial-id="leadsheet-add-measure"
         className={btnClass}
         style={btnStyle}
         onClick={handleInsertMeasure}
@@ -367,6 +358,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
       {/* Export buttons */}
       <button
+        data-tutorial-id="leadsheet-export-musicxml"
         className={btnClass}
         style={{
           ...btnStyle,
@@ -381,6 +373,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
       </button>
 
       <button
+        data-tutorial-id="leadsheet-print"
         className={btnClass}
         style={btnStyle}
         onClick={handleExportPdf}

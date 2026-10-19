@@ -3,6 +3,10 @@ import { getTutorial } from '@/daw/components/Tutorial/tutorials';
 import { getDemoProject } from '@/daw/data/demoProjects';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
 import { readPendingJam } from '@/daw/jam-import/importJamSession';
+import {
+  BAND_REF_KEYS,
+  bandRefFromParams,
+} from '@/features/practiceTracks/genre/bandPracticeRef';
 import { isScaleLesson } from '@/lib/learn/scaleLessons';
 import { isDiatonicMode } from '@prism/engine';
 import type { OpenError, OpenIntent } from './types';
@@ -54,6 +58,8 @@ export const BOOT_KEYS: readonly string[] = Object.freeze([
   'practiceGenre',
   'practiceLevel',
   'practiceSection',
+  // A band's track (bandPracticeRef.ts).
+  ...Object.values(BAND_REF_KEYS),
   'practiceMode',
   'practiceRoot',
   'practiceOpen',
@@ -149,11 +155,13 @@ export function parseBootIntent(params: URLSearchParams): ParsedBoot {
   if (genre) {
     const level = Number(get('practiceLevel'));
     const section = get('practiceSection') as ActivitySectionId | null;
+    const band = bandRefFromParams(get);
     return parsed({
       kind: 'practiceGenre',
       genre,
       level: Number.isFinite(level) && level > 0 ? level : 1,
       section: section && SECTIONS.includes(section) ? section : 'A',
+      ...(band ? { band } : {}),
     });
   }
 

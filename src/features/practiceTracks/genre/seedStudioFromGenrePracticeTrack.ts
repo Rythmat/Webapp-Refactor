@@ -114,11 +114,14 @@ function studentTrackName(
 export function applyGenrePracticeTrack(
   track: GenrePracticeTrackResult,
   genreLabel: string,
+  /** The project's name, when not the lesson's ("Funk L2 — Melody …"). */
+  projectName?: string,
 ): string {
   const store = useStore.getState();
 
   store.setProjectName(
-    `${genreLabel} L${track.level} — ${track.sectionName} Practice Track`,
+    projectName ??
+      `${genreLabel} L${track.level} — ${track.sectionName} Practice Track`,
   );
   store.setRootNote(track.keyRootPc);
   store.setMode(track.mode);
@@ -165,32 +168,62 @@ export function applyGenrePracticeTrack(
   return studentTrackId;
 }
 
+/** The backing tracks' names, as `buildGenrePracticeTrack` names its clips. */
+const PART_NAMES: Record<keyof typeof BACKING_INSTRUMENTS, string> = {
+  drums: 'Drums',
+  bass: 'Bass',
+  chords: 'Chords',
+};
+
 /**
  * The groove toggle (D-088): the backing of an open Practice Track swapped for
  * a rebuilt one — another style's drums, bass and comping, another
  * progression, and its meter — leaving the student's track and take alone.
  * The backing tracks are found by the names `applyGenrePracticeTrack` gave
  * them; one the student has since deleted stays deleted.
+ *
+ * On a band's track (`band: true`, Hear It with Your Band) one style can
+ * cover a part the last left to the lesson, or the other way round (Funk
+ * Band 1's Pocket comps on a keyboard of its own, its Deep Groove on the
+ * lesson's chords): a part the new style doesn't play falls silent rather
+ * than play the old progression on, and a part it plays with no track yet
+ * gets one. `tempo` moves to the new track's tempo (a band's style plays at
+ * its own).
  */
 export function swapGenrePracticeBacking(
   track: GenrePracticeTrackResult,
+  { tempo = false, band = false }: { tempo?: boolean; band?: boolean } = {},
 ): void {
   const store = useStore.getState();
   // A style in another key (Latin L1's Mariachi, G major) brings it along.
   store.setRootNote(track.keyRootPc);
   store.setMode(track.mode);
+  if (tempo) store.setBpm(track.bpm);
   store.setTimeSignature(...(track.timeSignature ?? [4, 4]));
   store.setChordRegions(track.chordRegions);
   for (const [part, instrument] of Object.entries(BACKING_INSTRUMENTS)) {
-    const clip = track.clips[part as keyof typeof BACKING_INSTRUMENTS];
-    if (!clip) continue;
+    const key = part as keyof typeof BACKING_INSTRUMENTS;
+    const clip = track.clips[key];
+    const name = clip?.name ?? PART_NAMES[key];
     const target = useStore
       .getState()
       .tracks.find(
-        (t) =>
-          t.instrument === instrument && t.name === clip.name && !t.recordArmed,
+        (t) => t.instrument === instrument && t.name === name && !t.recordArmed,
       );
-    if (!target) continue;
+    if (!clip) {
+      if (band && target)
+        for (const old of target.midiClips)
+          store.removeMidiClip(target.id, old.id);
+      continue;
+    }
+    if (!target) {
+      if (!band) continue;
+      const trackId = store.addTrack('midi', instrument, name);
+      store.addMidiClip(trackId, clip);
+      applyLessonSound(trackId, instrument, track);
+      store.updateTrack(trackId, { recordArmed: false, monitoring: false });
+      continue;
+    }
     for (const old of target.midiClips) store.removeMidiClip(target.id, old.id);
     store.addMidiClip(target.id, clip);
     if (instrument === 'drum-machine')

@@ -4,6 +4,7 @@ import type {
   PracticeLevel,
   PracticeOpenTrack,
 } from '@/features/practiceTracks/generatePracticeTrack';
+import type { BandPracticeRef } from '@/features/practiceTracks/genre/bandPracticeRef';
 import type {
   DraftBaseline,
   DraftBody,
@@ -84,6 +85,12 @@ export type OpenIntent =
       genre: string;
       level: number;
       section: ActivitySectionId;
+      /**
+       * A Band playing a student's chart (Music Literacy's Hear It with
+       * Your Band): the link names the band, its style and the chart, so a
+       * refresh or a shared link builds it again.
+       */
+      band?: BandPracticeRef;
     }
   | { kind: 'jam' }
   | {

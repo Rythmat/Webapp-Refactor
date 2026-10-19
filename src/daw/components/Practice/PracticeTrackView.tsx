@@ -113,6 +113,11 @@ const GUITAR_PERFORMANCE_VIEWS = [
   { id: 'chords', label: 'Chords' },
   { id: 'scales', label: 'Melody' },
 ] as const;
+/**
+ * A band playing the student's chart (Hear It with Your Band): the chord
+ * tones to play along with first, then the scale to make a melody from.
+ */
+const BAND_VIEWS = GUITAR_PERFORMANCE_VIEWS;
 
 export function PracticeTrackView({
   session,
@@ -159,6 +164,8 @@ export function PracticeTrackView({
   const genre = session.kind === 'genre' ? session : null;
   /** A guitar lesson's track: the fretboard in place of the keyboard. */
   const guitar = genre?.guitar ?? null;
+  /** A Band playing the student's own chart (Music Literacy Part 3). */
+  const band = genre?.literacy ?? null;
 
   // The groove toggle (D-088): another style's drums, bass and comping, or
   // another of the level's progressions, swapped in under the student.
@@ -246,20 +253,23 @@ export function PracticeTrackView({
    * bass note and the scales; a Performance track, whose two hands cover all
    * three parts, between bass, chords and the melody's scales.
    */
-  const views = twoHands
-    ? guitar
-      ? GUITAR_PERFORMANCE_VIEWS
-      : PERFORMANCE_VIEWS
-    : genre?.studentParts[0] === 'bass'
-      ? BASS_TRACK_VIEWS
-      : null;
-  const defaultView: KeyboardView = twoHands
-    ? 'chords'
-    : genre?.studentParts[0] === 'bass'
-      ? 'bass'
-      : (genre ? genre.studentParts[0] === 'chords' : !playsMelody)
-        ? 'chords'
-        : 'scales';
+  const views = band
+    ? BAND_VIEWS
+    : twoHands
+      ? guitar
+        ? GUITAR_PERFORMANCE_VIEWS
+        : PERFORMANCE_VIEWS
+      : genre?.studentParts[0] === 'bass'
+        ? BASS_TRACK_VIEWS
+        : null;
+  const defaultView: KeyboardView =
+    twoHands || band
+      ? 'chords'
+      : genre?.studentParts[0] === 'bass'
+        ? 'bass'
+        : (genre ? genre.studentParts[0] === 'chords' : !playsMelody)
+          ? 'chords'
+          : 'scales';
   const picked = practiceKeyboard?.view ?? null;
   const view: KeyboardView =
     picked !== null &&
@@ -274,6 +284,11 @@ export function PracticeTrackView({
         ? `Improvise melodies using the ${activeScale ? `${keyLabel} ${activeScale.title}` : keyName(tonic, mode)} scale`
         : 'Play these chords over the track';
     }
+    if (band) {
+      return view === 'chords'
+        ? 'Play the chord tones with your band'
+        : `Make up a melody using the ${keyLabel} ${activeScale?.title ?? ''} scale`;
+    }
     if (twoHands) return 'Play the full part over bass and drums';
     switch (genre.studentParts[0]) {
       case 'melody':
@@ -283,7 +298,17 @@ export function PracticeTrackView({
       default:
         return 'Play bass lines over the chords and drums';
     }
-  }, [genre, playsMelody, twoHands, activeScale, keyLabel, tonic, mode]);
+  }, [
+    genre,
+    band,
+    view,
+    playsMelody,
+    twoHands,
+    activeScale,
+    keyLabel,
+    tonic,
+    mode,
+  ]);
 
   /**
    * One turn of the progression. A genre loop is sixteen bars of a shorter
@@ -431,7 +456,8 @@ export function PracticeTrackView({
   // improvising makes it context, and it sits small under the keyboard. Either
   // way it is below the transport — the keyboard's place on this screen never
   // moves, because the keys are what a player always has to be able to see.
-  const chartLarge = genre ? !playsMelody || twoHands : !playsMelody;
+  // A band's chart is the student's own progression: it reads big.
+  const chartLarge = genre ? !playsMelody || twoHands || !!band : !playsMelody;
 
   const takeNotes = (studentTrack?.midiClips ?? []).reduce(
     (count, clip) => count + clip.events.length,
@@ -546,14 +572,16 @@ export function PracticeTrackView({
         </label>
         {genre?.styles && genre.styles.length > 1 && (
           <label className="flex items-center gap-2 text-sm">
-            <span style={{ color: 'var(--daw-text-3)' }}>Groove</span>
+            <span style={{ color: 'var(--daw-text-3)' }}>
+              {band ? 'Style' : 'Groove'}
+            </span>
             <select
               value={genre.styleId ?? ''}
               disabled={switching || isRecording}
               onChange={(e) => void switchTrack({ styleId: e.target.value })}
               className="rounded-full bg-transparent px-3 py-2"
               style={{ border: '1px solid var(--daw-hairline)' }}
-              aria-label="Groove"
+              aria-label={band ? 'Style' : 'Groove'}
             >
               {genre.styles.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -578,19 +606,23 @@ export function PracticeTrackView({
             >
               {genre.progressions.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {[
-                    p.styleName,
-                    p.chords
-                      .map((chord) =>
-                        formatLessonChord(chord, chordNotation, {
-                          keyRootPc: rootNote,
-                          mode,
-                        }),
-                      )
-                      .join(' – '),
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
+                  {/* The student's own progressions read as Part 2 named
+                      their chords: "1 min – 4 min – 5 min – ♭6 maj". */}
+                  {band
+                    ? p.label
+                    : [
+                        p.styleName,
+                        p.chords
+                          .map((chord) =>
+                            formatLessonChord(chord, chordNotation, {
+                              keyRootPc: rootNote,
+                              mode,
+                            }),
+                          )
+                          .join(' – '),
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
                 </option>
               ))}
             </select>
@@ -696,6 +728,7 @@ export function PracticeTrackView({
       <PracticeHeader
         projectName={displayAccidentals(projectName)}
         onBack={backToLesson}
+        backLabel={band ? 'Back to Your Band' : undefined}
         onTakeToStudio={() => setCurrentView('arrange')}
       />
 
@@ -704,7 +737,11 @@ export function PracticeTrackView({
           <h2 className="text-xl font-semibold sm:text-2xl md:text-3xl">
             {task}
           </h2>
-          {genre ? (
+          {band ? (
+            <p className="mt-1 text-sm" style={{ color: 'var(--daw-text-3)' }}>
+              {band.bandName} · {band.styleName} · {band.keyName}
+            </p>
+          ) : genre ? (
             <p className="mt-1 text-sm" style={{ color: 'var(--daw-text-3)' }}>
               {genre.genreLabel} Level {genre.level} · {genre.sectionName}
             </p>

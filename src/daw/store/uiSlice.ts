@@ -128,6 +128,39 @@ export interface GenrePracticeSession {
    * shapes on a fretboard in place of the keyboard. Absent on piano.
    */
   guitar?: GuitarPracticeInfo;
+  /**
+   * Music Literacy's Hear It with Your Band: a Band playing the student's
+   * own chart. Its styles are the band's, its progressions the student's,
+   * and switching keeps the band (bandPracticeTrack.ts). Absent on a
+   * lesson's own Practice Track.
+   */
+  literacy?: LiteracyBandPractice;
+}
+
+/** A chart as Music Literacy saves it (chart.ts LiteracyChart). */
+export interface LiteracyPracticeChart {
+  /** Scale degrees of the mode, one a bar: ['1', '4', '5', '6']. */
+  chords: string[];
+  harmony: 'triads' | 'sevenths';
+  /** The 1, as Part 2 spells it: 'D', 'Bb'. */
+  tonic: string;
+  mode: 'major' | 'minor';
+}
+
+/** The band and the chart a Hear It with Your Band session plays. */
+export interface LiteracyBandPractice {
+  band: string;
+  /** 'Latin Band 1'. */
+  bandName: string;
+  /** The band's variation playing (its style is `styleId`). */
+  variation: string;
+  /** The style without its level: 'Cumbia'. */
+  styleName: string;
+  chart: LiteracyPracticeChart;
+  /** 'D Minor'. */
+  keyName: string;
+  /** The student's charts, by the id the progression switch gives them. */
+  charts: { id: string; chart: LiteracyPracticeChart }[];
 }
 
 /**

@@ -844,11 +844,12 @@ async function preparePracticeGenre(
   ctx: PrepareContext,
 ): Promise<PreparedOpen> {
   const { genre, level, section } = intent;
+  const band = intent.band ?? null;
   let resolved;
   try {
     // Peeks at the lesson's hand-off box; it is taken once ready.
     resolved = await raceSignal(
-      resolvePracticeTrack(genre, level, section),
+      resolvePracticeTrack(genre, level, section, { band }),
       ctx.signal,
     );
   } catch (err) {
@@ -870,6 +871,7 @@ async function preparePracticeGenre(
       const studentTrackId = applyGenrePracticeTrack(
         practice.track,
         practice.genreLabel,
+        practice.projectName,
       );
       const store = useStore.getState();
       store.setPracticeSession({
@@ -877,6 +879,7 @@ async function preparePracticeGenre(
           practice.track,
           practice.genreLabel,
           practice.returnTo,
+          practice.literacy,
         ),
         studentTrackId,
       });
@@ -889,7 +892,7 @@ async function preparePracticeGenre(
     },
     afterReady: ({ stillCurrent }) => {
       if (!stillCurrent()) return;
-      takePracticeTrack(genre, level, section);
+      takePracticeTrack(genre, level, section, band);
     },
   });
 }

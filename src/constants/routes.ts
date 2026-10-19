@@ -993,6 +993,15 @@ export const CurriculumRoutes = {
     prefix: curriculumPrefix,
   }),
 
+  /**
+   * Part 3, Hear It with Your Band: a Band plays the student's progression
+   * in the Studio. A static segment, so it ranks above a lesson's ':id'.
+   */
+  musicLiteracyBand: createRouteDefinition(
+    '/music-literacy/hear-it-with-your-band',
+    { prefix: curriculumPrefix },
+  ),
+
   /** A lesson; `?step=<tag>` opens it on that step (Continue). */
   musicLiteracyLesson: createRouteDefinition<{ id: string }, { step?: string }>(
     '/music-literacy/:id',

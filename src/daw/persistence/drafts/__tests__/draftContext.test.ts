@@ -454,6 +454,39 @@ describe('practiceSessionOf', () => {
     }
   });
 
+  it('keeps a band playing the student’s chart, and refuses a broken one', () => {
+    const chart = {
+      chords: ['1', '4', '5', '6'],
+      harmony: 'triads' as const,
+      tonic: 'D',
+      mode: 'minor' as const,
+    };
+    const literacy = {
+      band: 'latin-band-1',
+      bandName: 'Latin Band 1',
+      variation: 'l1-cumbia',
+      styleName: 'Cumbia',
+      chart,
+      keyName: 'D Minor',
+      charts: [{ id: 'D.minor.triads.1-4-5-6', chart }],
+    };
+    const value = {
+      ...genre(),
+      returnTo: '/curriculum/music-literacy/hear-it-with-your-band',
+      literacy,
+    };
+    expect(practiceSessionOf(value, tracks(['t-student']))).toEqual(value);
+    expect(
+      practiceSessionOf(
+        { ...value, literacy: { ...literacy, chart: { ...chart, mode: 'x' } } },
+        [],
+      ),
+    ).toBeNull();
+    expect(
+      practiceSessionOf({ ...value, literacy: { band: 'latin-band-1' } }, []),
+    ).toBeNull();
+  });
+
   it('refuses any other shape', () => {
     expect(practiceSessionOf(null, [])).toBeNull();
     expect(practiceSessionOf({ kind: 'theory' }, [])).toBeNull();

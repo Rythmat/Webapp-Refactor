@@ -44,11 +44,11 @@ describe('Start Here’s Studio Basics stop', () => {
   it('is open, lesson 1 in the Studio its way in', () => {
     const card = renderPath();
     expect(stop().getAttribute('data-path-status')).toBe('new');
-    expect(card.getByText('Studio Basics')).toBeTruthy();
+    expect(card.getByText('Learn Studio Basics')).toBeTruthy();
     expect(card.getByText(/^Studio$/)).toBeTruthy();
     expect(
       card
-        .getByRole('link', { name: 'Start Studio Basics' })
+        .getByRole('link', { name: 'Start Learn Studio Basics' })
         .getAttribute('href'),
     ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
     expect(card.getByRole('img', { name: '0 of 9 lessons done' })).toBeTruthy();
@@ -65,7 +65,7 @@ describe('Start Here’s Studio Basics stop', () => {
     expect(card.getByText(/Next: The Piano Roll/)).toBeTruthy();
     expect(
       card
-        .getByRole('link', { name: 'Continue Studio Basics' })
+        .getByRole('link', { name: 'Continue Learn Studio Basics' })
         .getAttribute('href'),
     ).toBe('/studio/editor?tutorial=studio-basics-piano-roll');
     const marks = Array.from(
@@ -87,7 +87,7 @@ describe('Start Here’s Studio Basics stop', () => {
     expect(card.getByText('All 9 lessons done')).toBeTruthy();
     expect(
       card
-        .getByRole('link', { name: 'Play again Studio Basics' })
+        .getByRole('link', { name: 'Play again Learn Studio Basics' })
         .getAttribute('href'),
     ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
   });

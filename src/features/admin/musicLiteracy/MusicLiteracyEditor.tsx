@@ -418,7 +418,7 @@ const LessonPane: FC<PaneProps> = ({
           <InlineText
             value={draft.name}
             onChange={(name) => patch({ name })}
-            placeholder="Music Literacy · Part 2"
+            placeholder="Melodies and Chords"
             ariaLabel="Lesson name"
             className="text-base font-medium tracking-[-0.01em] text-white"
           />

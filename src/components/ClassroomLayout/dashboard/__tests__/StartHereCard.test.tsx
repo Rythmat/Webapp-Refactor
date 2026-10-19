@@ -61,12 +61,10 @@ describe('Home’s Start here card', () => {
 
   it('starts Part 1 when nothing is tried yet', () => {
     const card = renderCard();
-    expect(card.getByText('Part 1 · Call and Response')).toBeTruthy();
+    expect(card.getByText('Rhythm and Harmony')).toBeTruthy();
     expect(card.getByText(/^7 steps/)).toBeTruthy();
     expect(
-      hrefOf(
-        card.getByRole('link', { name: 'Start Part 1 · Call and Response' }),
-      ),
+      hrefOf(card.getByRole('link', { name: 'Start Rhythm and Harmony' })),
     ).toBe('/curriculum/music-literacy/music-literacy-part-1');
     expect(card.queryByRole('link', { name: /^Continue/ })).toBeNull();
   });
@@ -78,24 +76,20 @@ describe('Home’s Start here card', () => {
     expect(card.getByText(/Next: Add the 3: Major/)).toBeTruthy();
     expect(card.getByRole('img', { name: '2 of 7 steps passed' })).toBeTruthy();
     expect(
-      hrefOf(
-        card.getByRole('link', { name: 'Continue Part 1 · Call and Response' }),
-      ),
+      hrefOf(card.getByRole('link', { name: 'Continue Rhythm and Harmony' })),
     ).toBe('/curriculum/music-literacy/music-literacy-part-1?step=add-the-3');
   });
 
   it('goes on to the band once Part 1 is done (Part 2 unpublished here)', () => {
     saveProgress(tags);
     const card = renderCard();
-    expect(card.getByText('Hear It with Your Band')).toBeTruthy();
-    // A stop with a route has no steps to count: its line says what it is.
+    expect(card.getByText('Practice with a Band')).toBeTruthy();
+    // A stop with a route has no steps to count, and no subtitle: its
+    // title says what it is.
     expect(card.queryByText(/steps/)).toBeNull();
     expect(card.queryByRole('img', { name: /steps passed/ })).toBeNull();
     expect(
-      card.getByText('Your chord progression, played by a Band.'),
-    ).toBeTruthy();
-    expect(
-      hrefOf(card.getByRole('link', { name: 'Start Hear It with Your Band' })),
+      hrefOf(card.getByRole('link', { name: 'Start Practice with a Band' })),
     ).toBe('/curriculum/music-literacy/hear-it-with-your-band');
   });
 
@@ -103,11 +97,11 @@ describe('Home’s Start here card', () => {
     saveProgress(tags);
     localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
     const card = renderCard();
-    expect(card.getByText('Studio Basics')).toBeTruthy();
+    expect(card.getByText('Learn Studio Basics')).toBeTruthy();
     expect(card.getByText(/^9 lessons/)).toBeTruthy();
     expect(card.getByRole('img', { name: '0 of 9 lessons done' })).toBeTruthy();
     expect(
-      hrefOf(card.getByRole('link', { name: 'Start Studio Basics' })),
+      hrefOf(card.getByRole('link', { name: 'Start Learn Studio Basics' })),
     ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
   });
 
@@ -126,7 +120,7 @@ describe('Home’s Start here card', () => {
     expect(card.getByText(/2 of 9 lessons/)).toBeTruthy();
     expect(card.getByText(/Next: Record/)).toBeTruthy();
     expect(
-      hrefOf(card.getByRole('link', { name: 'Continue Studio Basics' })),
+      hrefOf(card.getByRole('link', { name: 'Continue Learn Studio Basics' })),
     ).toBe('/studio/editor?tutorial=studio-basics-record');
   });
 
@@ -142,9 +136,13 @@ describe('Home’s Start here card', () => {
     });
     const card = renderCard();
     expect(card.getByText(/^All 9 lessons done/)).toBeTruthy();
-    expect(card.getByText(/Up next: Echo, coming soon/)).toBeTruthy();
     expect(
-      hrefOf(card.getByRole('link', { name: 'Play again Studio Basics' })),
+      card.getByText(/Up next: Play Echo in the Arcade, coming soon/),
+    ).toBeTruthy();
+    expect(
+      hrefOf(
+        card.getByRole('link', { name: 'Play again Learn Studio Basics' }),
+      ),
     ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
   });
 

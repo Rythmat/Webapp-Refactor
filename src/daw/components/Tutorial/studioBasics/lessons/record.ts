@@ -53,7 +53,7 @@ export const recordSteps: TutorialStep[] = [
     id: 'count-in',
     stage: STAGE,
     instruction:
-      'Open the count-in menu (the arrow beside **Click**) and choose **Count in 1 bar**.',
+      'Open the count-in menu (the arrow beside **Click**, or **⋯** in a small window) and choose **Count in 1 bar**.',
     hint: 'You hear one bar of clicks, then the take begins. **No count-in** starts right away.',
     // In a narrow window the choices move into the top bar's ⋯ menu.
     target: ['count-in-1', 'count-in-menu', 'top-bar-more'],

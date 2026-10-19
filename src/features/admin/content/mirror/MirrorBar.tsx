@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AdminRoutes } from '@/constants/routes';
+import { AdminRoutes, CurriculumRoutes } from '@/constants/routes';
 import { artistSlug } from '@/content/graph/slugs';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
@@ -89,6 +89,10 @@ const isStartHere = (appPath: string, search: URLSearchParams) =>
 function contextActions(appPath: string, search: URLSearchParams): Action[] {
   if (isStartHere(appPath, search)) {
     return [{ label: 'Edit Music Literacy', to: AdminRoutes.musicLiteracy() }];
+  }
+  // Part 3 is no lesson: its bands are the back office's.
+  if (appPath === CurriculumRoutes.musicLiteracyBand()) {
+    return [{ label: 'Edit Bands', to: AdminRoutes.bands() }];
   }
   // Before the courses: `music-literacy` would read as a course's genre.
   const literacy = MUSIC_LITERACY_PAGE.exec(appPath);

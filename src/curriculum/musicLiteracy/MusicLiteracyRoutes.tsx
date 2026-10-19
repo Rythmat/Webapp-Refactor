@@ -9,6 +9,7 @@ import {
   listMusicLiteracy,
 } from '@/curriculum/engine/musicLiteracy/registry';
 import { isConsoleRole } from '@/features/admin/consoleRoles';
+import { HearItWithYourBand } from './HearItWithYourBand';
 import { MusicLiteracyPlayer } from './MusicLiteracyPlayer';
 import { startHereRoute } from './literacyPath';
 
@@ -17,6 +18,10 @@ import { startHereRoute } from './literacyPath';
 //                                   or the list once there are more
 // /curriculum/music-literacy/:id    a lesson, in the player (`?step=<tag>`
 //                                   opens it on that step)
+// /curriculum/music-literacy/hear-it-with-your-band
+//                                   Part 3: a Band plays the student's
+//                                   progression in the Studio (a static
+//                                   segment, so no lesson id takes it)
 //
 // Free (no RequirePremium): the series is Learn → Start Here. Students see
 // published lessons only. A console role sees drafts too: they reach the app
@@ -108,3 +113,6 @@ export const MusicLiteracyLessonRoute = () => {
   // A new lesson starts the player afresh.
   return <MusicLiteracyPlayer key={lesson.id} lesson={lesson} />;
 };
+
+/** Part 3 · Hear It with Your Band: free, as the series is. */
+export const MusicLiteracyBandRoute = () => <HearItWithYourBand />;

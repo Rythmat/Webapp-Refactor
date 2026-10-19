@@ -25,6 +25,7 @@ import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { buildAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/appliedTheoryFundamentals';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import {
+  MusicLiteracyBandRoute,
   MusicLiteracyIndexRoute,
   MusicLiteracyLessonRoute,
 } from '@/curriculum/musicLiteracy/MusicLiteracyRoutes';
@@ -179,6 +180,11 @@ export function curriculumPages() {
       {
         path: CurriculumRoutes.musicLiteracy.definition,
         element: <MusicLiteracyIndexRoute />,
+      },
+      // Part 3, before a lesson's ':id' (a static segment ranks first anyway).
+      {
+        path: CurriculumRoutes.musicLiteracyBand.definition,
+        element: <MusicLiteracyBandRoute />,
       },
       {
         path: CurriculumRoutes.musicLiteracyLesson.definition,

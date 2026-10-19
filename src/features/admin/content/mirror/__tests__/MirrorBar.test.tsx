@@ -180,6 +180,16 @@ describe('the bar’s way into the Table', () => {
     ).toBe('/console/music-literacy');
   });
 
+  it('edits the Bands from Part 3, Hear It with Your Band, not a lesson', () => {
+    renderAt(
+      '/console/content/curriculum/music-literacy/hear-it-with-your-band',
+    );
+    expect(
+      screen.getByRole('link', { name: 'Edit Bands' }).getAttribute('href'),
+    ).toBe('/console/bands');
+    expect(screen.queryByRole('link', { name: 'Edit lesson' })).toBeNull();
+  });
+
   it('edits Music Literacy from Learn → Start Here, its path', () => {
     renderAt('/console/content/learn?tab=StartHere');
     expect(

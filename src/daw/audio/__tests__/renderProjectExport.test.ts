@@ -78,6 +78,9 @@ vi.mock('../EffectChain', async (importOriginal) => ({
     constructor() {
       chains.updates.push(this.updates);
     }
+    whenDynamicsReady() {
+      return Promise.resolve();
+    }
     update(state: TrackEffectState) {
       if (chains.failUpdate) throw new Error('NotSupportedError');
       this.updates.push(state);
@@ -113,6 +116,13 @@ vi.mock('../TrackEngine', () => ({
     }
     setPan(pan: number) {
       this.built.pan = pan;
+    }
+    whenDynamicsReady() {
+      return Promise.resolve();
+    }
+    setKeySourceResolver() {}
+    getAnalyserNode() {
+      return null;
     }
     updateEffects(effects: TrackEffectState) {
       this.built.effects = effects;

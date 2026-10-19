@@ -100,6 +100,9 @@ const chains = vi.hoisted(() => ({ disposed: 0 }));
 vi.mock('../EffectChain', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../EffectChain')>()),
   EffectChain: class {
+    whenDynamicsReady() {
+      return Promise.resolve();
+    }
     update() {}
     getInputNode() {
       return { connect() {} };
@@ -117,6 +120,13 @@ vi.mock('../TrackEngine', () => ({
   TrackEngine: class {
     setVolume() {}
     setPan() {}
+    whenDynamicsReady() {
+      return Promise.resolve();
+    }
+    setKeySourceResolver() {}
+    getAnalyserNode() {
+      return null;
+    }
     updateEffects() {}
     setSend() {}
     setInstrument() {}

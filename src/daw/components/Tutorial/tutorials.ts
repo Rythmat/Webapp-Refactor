@@ -43,7 +43,11 @@ export type {
 export interface StepRequires {
   view?: ViewType;
   libraryOpen?: boolean;
-  channelStripTab?: ChannelStripTabId;
+  /**
+   * The dock's tab to show, or null to shut the dock (the timeline and the
+   * track list then take its room).
+   */
+  channelStripTab?: ChannelStripTabId | null;
   /**
    * Clear the global clip selection so the piano roll opens in blank mode on
    * the SELECTED track (it otherwise edits the selected clip regardless of

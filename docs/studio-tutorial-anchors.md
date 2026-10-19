@@ -2,7 +2,7 @@
 
 The controls a Studio Basics lesson step can point at, by their `data-tutorial-id`, in the Stage B shell (the side rail, the bottom rail, one 64 px track row with its ⋯ menu, the dock under the timeline, the one Score page, the Export pill). A step's `target` names one or more of these; the first one on screen wins (`src/daw/components/Tutorial/anchorRegistry.ts`). Ids are stable kebab-case. If one has to change, add the old id to `ANCHOR_ALIASES` (the ids Stage B moved are listed at the end).
 
-The nine Studio Basics lessons were written for the shell before Stage B and are rewritten for it in a phase of their own. Until then some of their steps describe controls that moved; the anchors below are where those controls are now.
+The nine Studio Basics lessons are written for this shell (rewritten after the Stage B merge, 2026-10-19).
 
 How to read the ids:
 
@@ -157,6 +157,7 @@ The Piano Roll is the dock's Notes tab on a melodic track (the drum grid on drum
 | `chanstrip-tab-piano-roll` | The dock's Notes tab                                         |
 | `dock-body`                | The dock's body: the Notes tab's piano roll                  |
 | `dock-toggle`              | Close (or open) the dock                                     |
+| `dock-maximize`            | Maximize (or restore) the dock, over the timeline            |
 | `dock-analyze-notes`       | Analyze N notes, in the dock header while notes are selected |
 | `piano-roll-tool-select`   | Select tool (V)                                              |
 | `piano-roll-tool-draw`     | Draw tool (D): click the grid to add a note, drag to size it |
@@ -266,4 +267,4 @@ A step, slide or saved lesson that still names one of these old ids resolves to 
 - `piano-roll-modal` → `dock-body`, `piano-roll-analyze` → `dock-analyze-notes`, `piano-roll-close` → `dock-toggle` (the dock's Notes tab)
 - `file-export-musicxml` → `file-export-notation` (the Export dialog's Notation side)
 
-Gone with no place in Stage B: `transport-stop` (no Stop button), `track-monitor-{i}` (Monitor input is `track-menu-monitor`), `clip-menu-open-piano-roll` (a click on a clip opens Notes) and `song-chip` (the bottom rail shows the key, tempo and metre). The anchor inventory test lists the Studio Basics steps that still name them as known missing until the lessons are rewritten.
+Gone with no place in Stage B: `transport-stop` (no Stop button), `track-monitor-{i}` (Monitor input is `track-menu-monitor`), `clip-menu-open-piano-roll` (a click on a clip opens Notes) and `song-chip` (the bottom rail shows the key, tempo and meter). The anchor inventory test lists the Studio Basics steps that still name them as known missing until the lessons are rewritten (lessons 1 to 5 name none: Record stops a take with Pause, and Monitor input is taught in the ⋯ menu).

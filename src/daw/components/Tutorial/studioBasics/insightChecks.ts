@@ -24,7 +24,7 @@ export const pickableTracks = (s: AllSlices): number =>
       t.midiClips.some((c) => c.events.length > 0),
   ).length;
 
-/** The Inspector is open on Insight (the side rail's Insight panel). */
+/** The Inspector is open on Insight (the side rail's light bulb). */
 export const insightOpen: StepCheck = (s) =>
   s.libraryOpen && s.inspectorPanel === 'insight';
 

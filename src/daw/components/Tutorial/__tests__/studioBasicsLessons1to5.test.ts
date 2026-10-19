@@ -83,16 +83,18 @@ const lastIndex = () => s().tracks.length - 1;
 
 /** Anchors whose click changes nothing in the song: menus, pickers, tools. */
 const UI_ONLY = [
-  /^track-instrument-\d+$/,
+  /^dock-instrument$/,
   /^instrument-picker$/,
   /^instrument-family-/,
   /^instrument-/,
   /^add-track-(button|soundfont|menu)$/,
+  /^track-menu-(button|monitor|change-instrument)$/,
   /^count-in-(menu|0|1|2)$/,
   /^top-bar-more$/,
   /^piano-roll-tool-/,
-  /^piano-roll-(grid|keys|select-all|modal)$/,
-  /^insight-(tab|tracks|selection|analyze)$/,
+  /^piano-roll-(grid|keys|select-all)$/,
+  /^dock-body$/,
+  /^insight-(tracks|selection|analyze)$/,
   /^selected-track-header$/,
 ];
 
@@ -105,11 +107,16 @@ function present(id: string): boolean {
     return !!s().tracks[Number(clip[1])]?.midiClips[Number(clip[2])];
   }
   if (id.startsWith('piano-roll-')) return pianoRollOpen(s(), s());
+  if (id === 'musical-typing') return useMusicalTypingStore.getState().enabled;
+  // The dock's body and its Maximize show while it is open.
+  if (id === 'dock-body' || id === 'dock-maximize') {
+    return s().channelStripTab !== null;
+  }
   return true;
 }
 
-/** What a click (or double-click) on `id` does in the store. */
-function clickOn(id: string, action: 'click' | 'doubleClick'): void {
+/** What a click (or double-click: the same here) on `id` does in the store. */
+function clickOn(id: string): void {
   const n = (re: RegExp) => Number(id.match(re)?.[1]);
   if (/^track-(name|header)-\d+$/.test(id)) {
     s().setSelectedTrackId(trackAt(n(/(\d+)$/)).id);
@@ -119,15 +126,23 @@ function clickOn(id: string, action: 'click' | 'doubleClick'): void {
     s().toggleSolo(trackAt(n(/(\d+)$/)).id);
   } else if (/^track-arm-\d+$/.test(id)) {
     s().toggleRecordArm(trackAt(n(/(\d+)$/)).id);
-  } else if (/^track-monitor-\d+$/.test(id)) {
-    s().toggleMonitoring(trackAt(n(/(\d+)$/)).id);
   } else if (id === 'metronome-toggle') {
     s().toggleMetronome();
   } else if (id === 'inspector-toggle' || id === 'rail-insight') {
     // Stage B: the side rail's Insight button (inspector-toggle's alias).
     s().toggleInspectorPanel('insight');
-  } else if (id === 'musical-typing') {
+  } else if (id === 'musical-typing' || id === 'top-bar-more-typing') {
+    // The Typing pill, and the top bar ⋯ menu's switch.
     useMusicalTypingStore.getState().toggle();
+  } else if (id === 'chanstrip-tab-piano-roll') {
+    // A click on the open tab shuts the dock (Dock.tsx).
+    s().setChannelStripTab(
+      s().channelStripTab === 'piano-roll' ? null : 'piano-roll',
+    );
+  } else if (id === 'dock-maximize') {
+    s().setDockMaximized(!s().dockMaximized);
+  } else if (id === 'dock-toggle') {
+    closeNotes();
   } else if (/^insight-track-\d+$/.test(id)) {
     const track = trackAt(n(/(\d+)$/));
     s().setSelectedNotes(toggleTrackNotes(track, s().selectedNotes));
@@ -135,25 +150,17 @@ function clickOn(id: string, action: 'click' | 'doubleClick'): void {
     const [, t, c] = id.match(/^timeline-clip-(\d+)-(\d+)$/)!;
     const track = trackAt(Number(t));
     const clip = track.midiClips[Number(c)];
+    // It and its track are chosen; in a lesson the dock keeps its tab.
+    s().setSelectedTrackId(track.id);
     s().setSelectedClip(clip.id, track.id);
-    // Stage B: the clip's notes open in the dock's Notes tab.
-    if (action === 'doubleClick') openNotes(track.id);
-  } else if (id === 'piano-roll-close') {
-    closeNotes();
   } else if (!UI_ONLY.some((re) => re.test(id))) {
     throw new Error(`the test doesn't know what a click on ${id} does`);
   }
 }
 
-/** The dock's Notes tab on `trackId`: Stage B's Piano Roll. */
-function openNotes(trackId: string): void {
-  s().setSelectedTrackId(trackId);
-  s().setChannelStripTab('piano-roll');
-}
-
-/** Back to the dock's Instrument tab: the Piano Roll closed. */
+/** The dock shut (its arrow), which restores a maximized dock too. */
 function closeNotes(): void {
-  s().setChannelStripTab('controls');
+  s().setChannelStripTab(null);
 }
 
 /** Plays a demo's beats as the player would, through the store. */
@@ -166,7 +173,7 @@ async function playDemo(beats: readonly DemoBeat[]): Promise<void> {
       await action(s());
     } else if (action === 'click' || action === 'doubleClick') {
       // A pointer action on a target that isn't there is passed over.
-      if (id) clickOn(id, action);
+      if (id) clickOn(id);
     }
     // 'hover' and key presses (Esc in a menu or picker; A and S while
     // Typing is on, a note on and off) leave the song as it was.
@@ -193,6 +200,8 @@ const studio = () => {
     metronome: st.metronomeEnabled,
     countIn: st.countInBars,
     library: st.libraryOpen,
+    dockTab: st.channelStripTab,
+    maximized: st.dockMaximized,
     editing: pianoRollOpen(st, st),
     selectedNotes: st.selectedNotes,
     analysis: st.selectionAnalysis,
@@ -233,6 +242,7 @@ async function walk(
     if (r?.channelStripTab !== undefined) {
       s().setChannelStripTab(r.channelStripTab);
     }
+    if (r?.clearClipSelection) s().setSelectedClip(null, null);
     const before = studio();
     if (step.demo) await playDemo(step.demo);
     expect(studio(), `${id}/${step.id}: the demo restores the Studio`).toEqual(
@@ -261,6 +271,7 @@ const YOUR_TRACKS: Record<string, Move> = {
   solo: () => s().toggleSolo(trackAt(1).id),
   unsolo: () => s().toggleSolo(trackAt(1).id),
   arm: () => s().toggleRecordArm(trackAt(1).id),
+  // Monitor input, in the chosen row's ⋯ menu.
   monitor: () => s().toggleMonitoring(trackAt(1).id),
 };
 
@@ -279,7 +290,10 @@ const ADD_A_TRACK: Record<string, Move> = {
   monitor: () => s().toggleMonitoring(trackAt(lastIndex()).id),
 };
 
-/** The take a recording keeps on `trackId` (useMidiRecording's clip). */
+/**
+ * The take a recording keeps on `trackId` (useMidiRecording's clip), as the
+ * student's Pause ends it.
+ */
 const keepTake = (trackId: string) => {
   s().addMidiClip(trackId, {
     id: 'take-1',
@@ -288,7 +302,7 @@ const keepTake = (trackId: string) => {
       { note: 60, velocity: 100, startTick: 0, durationTicks: 240, channel: 0 },
     ],
   });
-  s().stop();
+  s().pause();
 };
 
 const RECORD: Record<string, Move> = {
@@ -303,7 +317,11 @@ const RECORD: Record<string, Move> = {
     s().toggleRecordArm(drums.id);
     s().toggleRecordArm(trackAt(0).id);
   },
-  monitor: () => s().toggleMonitoring(trackAt(3).id),
+  // Monitor input on the Drums, off on the Melody (on as it opens).
+  monitor: () => {
+    s().toggleMonitoring(trackAt(3).id);
+    s().toggleMonitoring(trackAt(0).id);
+  },
   'play-notes': () => s().hwNoteOn(60),
   record: () => s().record(),
   stop: () => keepTake(trackAt(3).id),
@@ -317,7 +335,14 @@ const editMelody = (edit: (events: MidiNoteEvent[]) => MidiNoteEvent[]) => {
 };
 
 const PIANO_ROLL: Record<string, Move> = {
-  open: () => openNotes(trackAt(0).id),
+  // A click on the Melody's clip chooses it and its track.
+  'choose-clip': () => {
+    const melody = trackAt(0);
+    s().setSelectedTrackId(melody.id);
+    s().setSelectedClip(melody.midiClips[0].id, melody.id);
+  },
+  'open-notes': () => s().setChannelStripTab('piano-roll'),
+  maximize: () => s().setDockMaximized(true),
   'add-note': () =>
     editMelody((events) => [
       ...events,
@@ -375,7 +400,7 @@ describe('Studio Basics 1 to 5 on the demo song', () => {
 
   it('Your Tracks: each demo restores the Studio, each move passes its step', async () => {
     await walk('studio-basics-your-tracks', YOUR_TRACKS);
-    // Arm and MON stay on for the Record lesson; M and S are back off.
+    // Arm and Monitor input stay on; M and S are back off.
     const chords = trackAt(1);
     expect([chords.mute, chords.solo]).toEqual([false, false]);
     expect([chords.recordArmed, chords.monitoring]).toEqual([true, true]);
@@ -391,11 +416,21 @@ describe('Studio Basics 1 to 5 on the demo song', () => {
   it('Record: the Click, the count-in, one armed track, a take kept', async () => {
     await walk('studio-basics-record', RECORD);
     expect(trackAt(3).midiClips.map((c) => c.id)).toContain('take-1');
+    // The lesson shut the dock as it began, so every row shows.
+    expect(s().channelStripTab).toBeNull();
+    expect(s().tracks.map((t) => [t.recordArmed, t.monitoring])).toEqual([
+      [false, false],
+      [false, false],
+      [false, false],
+      [true, true],
+    ]);
   });
 
-  it('The Piano Roll: open, add, move, stretch, delete, close', async () => {
+  it('The Piano Roll: choose, open, maximize, add, move, stretch, delete, close', async () => {
     await walk('studio-basics-piano-roll', PIANO_ROLL);
     expect(pianoRollOpen(s(), s())).toBe(false);
+    // Shutting the dock restores it from Maximize.
+    expect(s().dockMaximized).toBe(false);
   });
 
   it('Insight: the chords and bass tracks name 1 6 4 5', async () => {
@@ -416,23 +451,21 @@ describe('Studio Basics 1 to 5 on the demo song', () => {
   it('chains from lesson 1 to 5 on one song, as Next: does', async () => {
     await walk('studio-basics-your-tracks', YOUR_TRACKS);
     await walk('studio-basics-add-a-track', ADD_A_TRACK);
-    const record = { ...RECORD };
-    delete record.monitor;
-    await walk(
-      'studio-basics-record',
-      {
-        ...record,
-        // After Add a Track: the new track is selected, armed and
-        // monitored, under the armed Melody and Chords. Their arms go off.
-        'choose-track': () => {
-          s().toggleRecordArm(trackAt(0).id);
-          s().toggleRecordArm(trackAt(1).id);
-        },
-        stop: () => keepTake(trackAt(4).id),
+    await walk('studio-basics-record', {
+      ...RECORD,
+      // After Add a Track: the new track is chosen, armed and monitored,
+      // under the armed and monitored Melody and Chords. Their Arm and
+      // Monitor input go off.
+      'choose-track': () => {
+        s().toggleRecordArm(trackAt(0).id);
+        s().toggleRecordArm(trackAt(1).id);
       },
-      // Its MON is on already.
-      ['monitor'],
-    );
+      monitor: () => {
+        s().toggleMonitoring(trackAt(0).id);
+        s().toggleMonitoring(trackAt(1).id);
+      },
+      stop: () => keepTake(trackAt(4).id),
+    });
     expect(trackAt(4).midiClips.map((c) => c.id)).toEqual(['take-1']);
     await walk('studio-basics-piano-roll', PIANO_ROLL);
     await walk('studio-basics-insight', INSIGHT);
@@ -465,25 +498,78 @@ describe('the steps’ checks on other songs', () => {
     expect(pickBass(s(), armed)).toBe(true);
   });
 
+  it('take a switch that was on already once it goes off and on again', () => {
+    const arm = step('studio-basics-your-tracks', 'arm').check!;
+    // The Chords armed already, as on a second run of the course.
+    s().toggleRecordArm(trackAt(1).id);
+    const armed = s();
+    expect(arm(armed, armed)).toBe(false);
+    s().toggleRecordArm(trackAt(1).id);
+    expect(arm(s(), armed)).toBe(false);
+    s().toggleRecordArm(trackAt(1).id);
+    expect(arm(s(), armed)).toBe(true);
+  });
+
   it('don’t hold up an unmute when nothing was muted', () => {
     const unmute = step('studio-basics-your-tracks', 'unmute').check!;
     const armed = s();
     expect(unmute(armed, armed)).toBe(true);
   });
 
-  it('record on the selected track only when no armed track is above it', () => {
+  it('record on the chosen track only when no other track is armed', () => {
     const choose = step('studio-basics-record', 'choose-track').check!;
     const armed = s();
-    // Drums selected and armed, the Melody above it still armed: the take
-    // would go on the Melody.
+    // Drums chosen and armed, the Melody still armed: the take would go on
+    // the Melody.
     s().toggleRecordArm(trackAt(3).id);
     expect(choose(s(), armed)).toBe(false);
     s().toggleRecordArm(trackAt(0).id);
     expect(choose(s(), armed)).toBe(true);
-    // Choosing the armed Melody itself passes too.
+    // An armed track under the chosen one holds it up too.
+    s().setSelectedTrackId(trackAt(1).id);
+    s().toggleRecordArm(trackAt(1).id);
+    expect(choose(s(), armed)).toBe(false);
+    s().toggleRecordArm(trackAt(3).id);
+    expect(choose(s(), armed)).toBe(true);
+    // Choosing the armed Melody itself, alone, passes too.
+    s().toggleRecordArm(trackAt(1).id);
     s().toggleRecordArm(trackAt(0).id);
     s().setSelectedTrackId(trackAt(0).id);
     expect(choose(s(), armed)).toBe(true);
+  });
+
+  it('hear the live notes on the armed track only', () => {
+    const monitor = step('studio-basics-record', 'monitor').check!;
+    const armed = s();
+    // As the song opens, the Melody is armed and monitored, alone.
+    expect(monitor(armed, armed)).toBe(true);
+    s().toggleMonitoring(trackAt(1).id);
+    expect(monitor(s(), armed)).toBe(false);
+    s().toggleMonitoring(trackAt(1).id);
+    s().toggleMonitoring(trackAt(0).id);
+    expect(monitor(s(), armed)).toBe(false);
+    // Nothing armed: there is no track to hear.
+    s().toggleMonitoring(trackAt(0).id);
+    s().toggleRecordArm(trackAt(0).id);
+    expect(monitor(s(), armed)).toBe(false);
+  });
+
+  it('choose a clip with notes on a melodic track, a new choice', () => {
+    const choose = step('studio-basics-piano-roll', 'choose-clip').check!;
+    const pick = (i: number) => {
+      const t = trackAt(i);
+      s().setSelectedTrackId(t.id);
+      s().setSelectedClip(t.midiClips[0].id, t.id);
+    };
+    s().setSelectedClip(null, null);
+    const armed = s();
+    // The drums' clip opens in the drum grid, not the Piano Roll.
+    pick(3);
+    expect(choose(s(), armed)).toBe(false);
+    pick(2);
+    expect(choose(s(), armed)).toBe(true);
+    // The clip chosen when the turn began isn't a new choice.
+    expect(choose(s(), s())).toBe(false);
   });
 
   it('keep a take only once it has stopped, with notes in it', () => {
@@ -533,11 +619,13 @@ describe('the lessons’ targets and copy', () => {
     const lesson = getTutorial(id)!;
     const stage = lesson.title.charAt(0) + lesson.title.slice(1).toLowerCase();
     expect(lesson.steps.length).toBeGreaterThanOrEqual(5);
-    expect(lesson.steps.length).toBeLessThanOrEqual(10);
+    expect(lesson.steps.length).toBeLessThanOrEqual(9);
     for (const step of lesson.steps) {
       expect(step.stage, step.id).toBe(stage);
       const words = [step.instruction, step.hint ?? ''].join(' ');
       expect(words, step.id).not.toMatch(/\b(simply|just)\b|colour/i);
+      // Stage B's names: a row (not a header), no MON button, no Stop.
+      expect(words, step.id).not.toMatch(/\bheader\b|\bMON\b|\bStop\b/);
       for (const beat of step.demo ?? []) {
         const count = beat.caption.replace(/\*\*/g, '').split(/\s+/).length;
         expect(count, `${step.id}: ${beat.caption}`).toBeGreaterThanOrEqual(3);

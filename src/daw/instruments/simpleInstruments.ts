@@ -262,33 +262,6 @@ export function instrumentLabel(
   }
 }
 
-/** The family whose icon the header shows for a track. */
-export function instrumentFamilyOf(
-  track: SoundFields,
-): InstrumentFamilyId | null {
-  const item = simpleInstrumentOf(track);
-  if (item) return item.family;
-  if (track.instrument === 'drum-machine') return 'drums';
-  if (track.instrument === 'soundfont') {
-    const category = getGMProgram(track.gmProgram ?? 0)?.category;
-    const byCategory: Record<string, InstrumentFamilyId> = {
-      Piano: 'piano',
-      'Chromatic Perc': 'mallets',
-      Organ: 'organ',
-      Guitar: 'guitar',
-      Bass: 'bass',
-      Strings: 'strings',
-      Ensemble: 'strings',
-      Brass: 'brass',
-      Reed: 'woodwinds',
-      Pipe: 'woodwinds',
-      Ethnic: 'world',
-    };
-    return category ? (byCategory[category] ?? null) : null;
-  }
-  return null;
-}
-
 /**
  * The names the Studio gives a track for what it plays (the Add Track
  * cards, the New Track dialog), which a change of instrument replaces.

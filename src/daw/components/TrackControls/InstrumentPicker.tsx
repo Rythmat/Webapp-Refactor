@@ -194,7 +194,13 @@ export function InstrumentPicker({
             })}
           </TabList>
           {families.map((id) => (
-            <TabPanel key={id} value={id} className="min-w-0 flex-1">
+            // Its instruments take focus, not the panel: one Tab stop less.
+            <TabPanel
+              key={id}
+              value={id}
+              tabIndex={-1}
+              className="min-w-0 flex-1"
+            >
               <InstrumentList family={id} currentId={currentId} onPick={pick} />
             </TabPanel>
           ))}

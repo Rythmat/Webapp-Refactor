@@ -29,7 +29,6 @@ import {
 } from '@/daw/commands/trackCommands';
 import {
   hasInstrumentPicker,
-  instrumentFamilyOf,
   instrumentLabel,
   pickerFamilies,
   simpleInstrumentOf,
@@ -47,7 +46,7 @@ import {
   PopoverContent as PickerPopoverContent,
   PopoverTrigger as PickerPopoverTrigger,
 } from '@/daw/ui/Popover';
-import { FAMILY_ICONS, InstrumentPicker } from './InstrumentPicker';
+import { InstrumentPicker } from './InstrumentPicker';
 import {
   useListenMode,
   useStudioListenStore,
@@ -174,8 +173,6 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
   const canPickInstrument = hasInstrumentPicker(track);
   const currentInstrument = simpleInstrumentOf(track);
   const instrumentName = instrumentLabel(track);
-  const family = instrumentFamilyOf(track);
-  const InstrumentIcon = family ? FAMILY_ICONS[family] : Music;
   const handlePickInstrument = useCallback(
     (item: SimpleInstrument) => {
       setTrackInstrument(track.id, item.id);
@@ -456,14 +453,8 @@ const TrackHeaderRow = memo(function TrackHeaderRow({
                       aria-haspopup="dialog"
                       aria-label={`Instrument: ${instrumentName}. Change the instrument`}
                       title="Change the instrument"
-                      className="flex h-5 min-w-0 flex-1 cursor-pointer items-center gap-1 rounded border border-transparent px-1 text-left text-[11px] text-daw-text-2 transition-colors hover:border-daw-hairline hover:bg-daw-hover hover:text-daw-text focus-visible:border-daw-focus focus-visible:outline-none"
+                      className="flex h-5 min-w-0 flex-1 cursor-pointer items-center gap-1 rounded border border-daw-hairline px-1 text-left text-[11px] text-daw-text-2 transition-colors hover:bg-daw-hover hover:text-daw-text focus-visible:border-daw-focus focus-visible:outline-none"
                     >
-                      <InstrumentIcon
-                        aria-hidden
-                        size={11}
-                        strokeWidth={2}
-                        className="shrink-0"
-                      />
                       <span className="min-w-0 flex-1 truncate">
                         {instrumentName}
                       </span>

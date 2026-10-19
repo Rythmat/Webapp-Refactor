@@ -207,6 +207,7 @@ export const Dock = memo(function Dock() {
           key={master ? 'master' : `${kind}:${activeTab}`}
           // Where Enter on a track row puts focus (the track list's keys).
           data-dock-content
+          data-tutorial-id="dock-body"
           // The drums' kit is built on the design system; the other bodies
           // are the legacy components until Stage C.
           data-ds={
@@ -321,6 +322,7 @@ function DockHeader({
               : 'Show the selected track’s panel under the timeline',
           )}
           data-testid="dock-toggle"
+          data-tutorial-id="dock-toggle"
           onClick={() => (open ? onClose() : setActiveTab(openingTab(kind)))}
         />
       </div>
@@ -495,6 +497,7 @@ function AnalyzeNotes() {
       size="sm"
       onClick={analyze}
       data-testid="dock-analyze-notes"
+      data-tutorial-id="dock-analyze-notes"
     >
       <Sparkles aria-hidden />
       Analyze {count} note{count === 1 ? '' : 's'}

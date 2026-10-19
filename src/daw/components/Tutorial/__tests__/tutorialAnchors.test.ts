@@ -33,7 +33,11 @@ import { ANCHOR_ALIASES, currentAnchorId } from '../anchorRegistry';
  *   tab list, the FX catalog, the return buses, …), so `chanstrip-tab-prism`
  *   passes and a typo such as `chanstrip-tab-prsim` does not;
  * - a string literal passed to `useTutorialAnchor(…)` or `registerAnchor(…)`
- *   (anchorRegistry.ts) is an exact id too.
+ *   (anchorRegistry.ts) is an exact id too, and so is a
+ *   `'data-tutorial-id': '…'` handed on in an object (DawDialog's `data`);
+ * - a Segmented option's `anchor` (the control renders it as the segment's
+ *   `data-tutorial-id`) is an exact id, read from the option lists
+ *   SEGMENT_ANCHORS names.
  *
  * A step's id is looked up through ANCHOR_ALIASES (renamed anchors), and
  * each alias must point at an id the editor renders, from one it no longer
@@ -62,9 +66,28 @@ const EDITOR_ENTRY = join(DAW, 'DawApp.tsx');
 /**
  * Step target ids missing from the editor today, as
  * `'<lesson id>/<step id>/<target id>': '<audit finding id>: why'`.
- * Empty: every id the lessons use is rendered.
+ *
+ * Studio Basics was written for the shell before Stage B; its nine lessons
+ * are rewritten for the Stage B shell in a phase of their own. Until then
+ * the controls it names that Stage B has no place for are listed here (the
+ * moved ones resolve through ANCHOR_ALIASES or their new controls).
  */
-const KNOWN_MISSING: Readonly<Record<string, string>> = {};
+const STAGE_B_NO_MONITOR =
+  'Stage B: a track row has no MON button; Monitor input is in its ⋯ menu (track-menu-monitor). Studio Basics rewrite phase';
+const STAGE_B_NO_STOP =
+  'Stage B: the bottom rail has no Stop button (Play pauses, Esc stops). Studio Basics rewrite phase';
+
+const KNOWN_MISSING: Readonly<Record<string, string>> = {
+  'studio-basics-your-tracks/monitor/track-monitor-1': STAGE_B_NO_MONITOR,
+  ...Object.fromEntries(
+    Array.from({ length: MAX_TOTAL_TRACKS }, (_, i) => [
+      `studio-basics-add-a-track/monitor/track-monitor-${i}`,
+      STAGE_B_NO_MONITOR,
+    ]),
+  ),
+  'studio-basics-record/record/transport-stop': STAGE_B_NO_STOP,
+  'studio-basics-record/stop/transport-stop': STAGE_B_NO_STOP,
+};
 
 const SKIPPED_DIRS = new Set(['node_modules', '__tests__', '__mocks__']);
 
@@ -153,6 +176,15 @@ function collectAnchors(files: string[]): Anchors {
           collectValue(value.expression, path, anchors);
         }
       }
+      // An attribute handed on as an object ({ 'data-tutorial-id': … }), as
+      // DawDialog's `data` takes it.
+      if (
+        ts.isPropertyAssignment(node) &&
+        ts.isStringLiteral(node.name) &&
+        node.name.text === 'data-tutorial-id'
+      ) {
+        collectValue(node.initializer, path, anchors);
+      }
       ts.forEachChild(node, visit);
     };
     visit(source);
@@ -207,6 +239,48 @@ function constValues(file: string, name: string, prop: string): string[] {
   return values;
 }
 
+/**
+ * The option lists a Segmented control renders, each option's `anchor` as
+ * its segment's `data-tutorial-id` (ui/Segmented.tsx): file under src/daw
+ * and the list's const name.
+ */
+const SEGMENT_ANCHORS: readonly [file: string, list: string][] = [
+  ['shell/bottombar/ClickToggle.tsx', 'COUNT_IN_CHOICES'],
+  ['components/Score/ScoreLayoutSwitch.tsx', 'LAYOUTS'],
+];
+
+for (const [file, list] of SEGMENT_ANCHORS) {
+  for (const id of constValues(file, list, 'anchor')) {
+    add(ANCHORS.exact, id, join(DAW, file));
+  }
+}
+
+/**
+ * The `id` of every menu item (`{ type: 'item', id: '…' }`) written out in
+ * `file` under src/daw: the items a menu model builds.
+ */
+function menuItemIds(file: string): string[] {
+  const source = parse(join(DAW, file));
+  const ids: string[] = [];
+  const visit = (node: ts.Node) => {
+    if (ts.isObjectLiteralExpression(node)) {
+      let type: string | null = null;
+      let id: string | null = null;
+      for (const p of node.properties) {
+        if (!ts.isPropertyAssignment(p)) continue;
+        const value = unwrap(p.initializer);
+        if (!ts.isStringLiteralLike(value)) continue;
+        if (p.name.getText(source) === 'type') type = value.text;
+        if (p.name.getText(source) === 'id') id = value.text;
+      }
+      if (type === 'item' && id) ids.push(id);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return ids;
+}
+
 /** Effects the FX browser offers, and so the slots the effect rack can show. */
 const AUDIO_EFFECTS = FX_CATALOG.flatMap((item) =>
   item.dragPayload.kind === 'audio-effect' ? [item.dragPayload.effectType] : [],
@@ -226,12 +300,11 @@ const upTo = (n: number) => Array.from({ length: n }, (_, i) => String(i));
 const pairs = (a: string[], b: string[]) =>
   a.flatMap((x) => b.map((y) => `${x}-${y}`));
 
-/** The track header's per-track controls (TrackHeader.tsx), by track index. */
+/** A track row's per-track controls (TrackRow.tsx), by track index. */
 const TRACK_HEADER_TEMPLATES = Object.fromEntries(
   [
     'track-header-',
     'track-name-',
-    'track-monitor-',
     'track-instrument-',
     'track-mute-',
     'track-solo-',
@@ -240,7 +313,7 @@ const TRACK_HEADER_TEMPLATES = Object.fromEntries(
   ].map((prefix) => [
     prefix,
     {
-      file: 'components/TrackControls/TrackHeader.tsx',
+      file: 'shell/tracklist/TrackRow.tsx',
       suffixes: () => TRACK_INDEXES,
     },
   ]),
@@ -256,10 +329,14 @@ interface TemplateSource {
 /** The template anchors the lessons can use, by the text before `${`. */
 const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
   ...TRACK_HEADER_TEMPLATES,
-  'count-in-': {
-    file: 'shell/topbar/ClickToggle.tsx',
+  'rail-': {
+    file: 'shell/inspector/SideRail.tsx',
     suffixes: () =>
-      constValues('shell/topbar/ClickToggle.tsx', 'COUNT_IN_CHOICES', 'value'),
+      constValues('shell/inspector/railPanels.ts', 'RAIL_PANELS', 'id'),
+  },
+  'clip-menu-': {
+    file: 'shell/canvas/clipMenu/CanvasMenu.tsx',
+    suffixes: () => menuItemIds('shell/canvas/clipMenu/clipMenuModel.ts'),
   },
   'instrument-': {
     file: 'shell/tracklist/InstrumentPicker.tsx',

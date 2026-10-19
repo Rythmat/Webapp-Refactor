@@ -578,6 +578,7 @@ export function ExportDialog({
             <Button
               variant="primary"
               data-testid="export-notation-run"
+              data-tutorial-id="export-notation-run"
               title={blocked ?? undefined}
               onClick={() => void handleNotation()}
               disabled={busy || blocked !== null}

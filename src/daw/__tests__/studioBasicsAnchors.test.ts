@@ -42,6 +42,12 @@ function sources(dir: string, out: string[] = []): string[] {
   return out;
 }
 
+/** Files whose Segmented options carry lesson anchors (`anchor: '…'`). */
+const SEGMENT_FILES = [
+  join('shell', 'bottombar', 'ClickToggle.tsx'),
+  join('components', 'Score', 'ScoreLayoutSwitch.tsx'),
+];
+
 /** Every `data-tutorial-id` value under src/daw: exact ids and template heads. */
 function renderedAnchors(): { exact: Set<string>; heads: Set<string> } {
   const exact = new Set<string>();
@@ -83,6 +89,15 @@ function renderedAnchors(): { exact: Set<string>; heads: Set<string> } {
         ts.isPropertyAssignment(node) &&
         ts.isStringLiteral(node.name) &&
         node.name.text === 'data-tutorial-id'
+      ) {
+        collect(node.initializer);
+      }
+      // A Segmented option's anchor, which the control renders as its
+      // segment's data-tutorial-id (the count-in, the Score's layouts).
+      if (
+        SEGMENT_FILES.some((file) => path.endsWith(file)) &&
+        ts.isPropertyAssignment(node) &&
+        node.name.getText(source) === 'anchor'
       ) {
         collect(node.initializer);
       }

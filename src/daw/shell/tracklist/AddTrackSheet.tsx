@@ -270,6 +270,7 @@ export function AddTrackSheet() {
       initialFocus={first}
       data={{
         'data-testid': 'add-track-sheet',
+        'data-tutorial-id': 'add-track-menu',
         'data-step': step ?? 'categories',
       }}
     >

@@ -89,6 +89,11 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
             backgroundColor: 'var(--daw-surface-1)',
             borderColor: 'var(--daw-hairline)',
             scrollbarWidth: 'none',
+            // A header scrolled into view (a lesson points at it) stops clear
+            // of the rulers' spacer stuck over the column's top and the time
+            // ruler's over its foot, not under them.
+            scrollPaddingTop: RULER_HEIGHT + CHORD_RULER_HEIGHT,
+            scrollPaddingBottom: TIME_RULER_HEIGHT,
           }}
         >
           {/* Beside the rulers (sticky to match them): the timeline's

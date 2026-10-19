@@ -223,19 +223,24 @@ With Melody on, the sheet is engraved like the Score. Its chords are drawn there
 
 Export is the top bar's white pill, opening one dialog with Audio and Notation. Project ▾ has Audio… and Notation… (both open that dialog) and MIDI file (downloads at once, as ⇧⌘E does).
 
-| Id                     | Points at                                           |
-| ---------------------- | --------------------------------------------------- |
-| `file-menu`            | The Project menu                                    |
-| `file-save`            | Project menu: Save                                  |
-| `file-save-as`         | Project menu: Save as…                              |
-| `save-chip`            | The save status chip beside the project name        |
-| `export-pill`          | The Export pill at the top bar's right              |
-| `file-export-audio`    | Project menu: Export, Audio… (the dialog, on Audio) |
-| `file-export-notation` | Project menu: Export, Notation (MIDI, MusicXML)…    |
-| `file-export-midi`     | Project menu: Export, MIDI file                     |
-| `export-audio-dialog`  | The Export dialog                                   |
-| `export-audio-run`     | Its Export button on the Audio side                 |
-| `export-notation-run`  | Its Export button on the Notation side              |
+| Id                          | Points at                                                           |
+| --------------------------- | ------------------------------------------------------------------- |
+| `file-menu`                 | The Project menu                                                    |
+| `file-save`                 | Project menu: Save                                                  |
+| `file-save-as`              | Project menu: Save as…                                              |
+| `save-chip`                 | The save status chip beside the project name                        |
+| `export-pill`               | The Export pill at the top bar's right                              |
+| `file-export-audio`         | Project menu: Export, Audio… (the dialog, on Audio)                 |
+| `file-export-notation`      | Project menu: Export, Notation (MIDI, MusicXML)…                    |
+| `file-export-midi`          | Project menu: Export, MIDI file                                     |
+| `export-audio-dialog`       | The Export dialog                                                   |
+| `export-audio-run`          | Its Export button on the Audio side                                 |
+| `export-notation-midi`      | Notation side, Format: MIDI file                                    |
+| `export-notation-leadsheet` | Notation side, Format: MusicXML: lead sheet                         |
+| `export-notation-score`     | Notation side, Format: MusicXML: full score (one track's: its part) |
+| `export-notation-run`       | Its Export button on the Notation side                              |
+
+The dialog remembers the last format: Notation… opens on it (MIDI file at first), so a MusicXML step points at `export-notation-score` before Export. The Export pill opens the dialog on Audio.
 
 ## Done moments (what a Save, Export or Print step checks)
 

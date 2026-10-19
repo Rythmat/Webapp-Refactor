@@ -346,16 +346,31 @@ export const SCORE_TO_SAVE_DRIVERS = {
   'studio-basics-save-and-export': {
     save: projectMenu('file-save', 'save'),
     'export-midi': projectMenu('file-export-midi', 'exportMidi'),
-    'export-musicxml': projectMenu('file-export-musicxml', 'exportMusicXml'),
-    'export-audio': {
+    'export-musicxml': {
       how: 'click',
       describe:
-        'click file-menu (Project), file-export-audio, then export-audio-run',
+        'click file-menu (Project), file-export-notation, export-notation-score, then export-notation-run',
+      advanceTimeoutMs: 60_000,
+      async run(ctx) {
+        await ctx.clickAnchor('file-menu');
+        await ctx.clickAnchor(
+          'file-export-notation',
+          'Notation (MIDI, MusicXML)…',
+        );
+        await ctx.clickAnchor('export-notation-score', 'MusicXML: full score');
+        await ctx.clickAnchor('export-notation-run', 'Export');
+      },
+      fallback: storeSet('markDone(exportMusicXml)', () =>
+        window.__MA_STORE__.getState().markDone('exportMusicXml'),
+      ),
+    },
+    'export-audio': {
+      how: 'click',
+      describe: 'click export-pill (Export), then export-audio-run',
       // The offline render of the whole mix, on a throttled CPU.
       advanceTimeoutMs: 240_000,
       async run(ctx) {
-        await ctx.clickAnchor('file-menu');
-        await ctx.clickAnchor('file-export-audio', 'Export ▸ Audio…');
+        await ctx.clickAnchor('export-pill', 'the Export pill');
         await ctx.clickAnchor('export-audio-run', 'Export');
       },
       fallback: storeSet('markDone(exportAudio)', () =>

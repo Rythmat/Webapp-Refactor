@@ -4,9 +4,10 @@
  * is armed as the lesson layer arms it: it doesn't pass then, and it passes
  * once the thing really happened, through the editor's own save and exports:
  * Save with the cloud mocked (it refuses once, as the dev bypass's token on
- * the real API does, then takes it), MIDI with the download mocked. MusicXML
- * and audio are marked as their downloads mark them (the Score page's
- * buttons and the Export dialog).
+ * the real API does, then takes it), MIDI with the download mocked, MusicXML
+ * from the Export dialog's Notation side as Project ▾ ▸ Notation… opens it
+ * (the format picked there, then Export). Audio is marked as the dialog's
+ * Audio side marks it.
  *
  * Run: npx vitest run src/daw/components/Tutorial/studioBasics/__tests__/saveAndExport.test.ts
  */
@@ -32,6 +33,14 @@ vi.mock('@/daw/utils/exportFiles', async (importOriginal) => ({
   downloadFile: vi.fn(),
 }));
 
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  waitFor,
+} from '@testing-library/react';
+import { createElement } from 'react';
 import { whenSavesSettled } from '@/daw/commands/cloudSaveStore';
 import { exportProjectMidi } from '@/daw/commands/projectCommands';
 import { registerSaveAuth, saveProject } from '@/daw/commands/saveProject';
@@ -40,6 +49,13 @@ import {
   type StudioProjectDetail,
 } from '@/lib/studio-projects/api';
 import { StudioApiError } from '@/lib/studio-projects/studioApiError';
+import { ExportDialogHost } from '@/daw/shell/export/ExportDialogHost';
+import {
+  DEFAULT_EXPORT_CHOICES,
+  openExport,
+  useExportDialogStore,
+} from '@/daw/shell/export/exportDialogStore';
+import { downloadFile } from '@/daw/utils/exportFiles';
 import {
   arm,
   describeLessonConventions,
@@ -53,8 +69,27 @@ let unregister: () => void = () => {};
 beforeEach(openDemoSong);
 afterEach(() => {
   unregister();
+  cleanup();
+  useExportDialogStore.setState({
+    isOpen: false,
+    tab: 'audio',
+    choices: DEFAULT_EXPORT_CHOICES,
+  });
+  vi.mocked(downloadFile).mockClear();
   vi.restoreAllMocks();
 });
+
+const anchorEl = (id: string) =>
+  document.querySelector<HTMLElement>(`[data-tutorial-id="${id}"]`);
+
+/** The Export dialog, opened as Project ▾ ▸ Notation… opens it. */
+async function openNotation() {
+  act(() => openExport({ tab: 'notation' }));
+  // Its code loads with the first open (lazyParts).
+  await waitFor(() => expect(anchorEl('export-notation-run')).not.toBeNull(), {
+    timeout: 20_000,
+  });
+}
 
 describe('Save and Export', () => {
   it('save passes when the cloud takes the save, and not when it refuses it', async () => {
@@ -105,13 +140,40 @@ describe('Save and Export', () => {
     expect(passes()).toBe(true);
   });
 
-  it('export-musicxml passes once a MusicXML file is downloaded', async () => {
+  it('export-musicxml passes for MusicXML: full score from the Notation side, not its MIDI file', async () => {
+    render(createElement(ExportDialogHost));
     const { passes } = arm(SAVE, 'export-musicxml');
     expect(passes()).toBe(false);
-    await exportProjectMidi();
+
+    // Notation… opens on the format last used: a MIDI file at first.
+    const midiFiles = s().doneMoments.exportMidi;
+    await openNotation();
+    expect(anchorEl('export-notation-midi')).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+    await act(async () => {
+      fireEvent.click(anchorEl('export-notation-run')!);
+    });
+    await waitFor(() => expect(s().doneMoments.exportMidi).toBe(midiFiles + 1));
     expect(passes()).toBe(false);
-    // What a MusicXML download marks (ScoreView, LeadSheetToolbar and the
-    // Export dialog's Notation tab).
+
+    // Picked, then Export: the full score as MusicXML.
+    await openNotation();
+    fireEvent.click(anchorEl('export-notation-score')!);
+    expect(useExportDialogStore.getState().choices.notation).toBe('score');
+    await act(async () => {
+      fireEvent.click(anchorEl('export-notation-run')!);
+    });
+    await waitFor(() => expect(passes()).toBe(true));
+    const [, filename] = vi.mocked(downloadFile).mock.calls.at(-1)!;
+    expect(filename).toMatch(/\.musicxml$/);
+    expect(useExportDialogStore.getState().isOpen).toBe(false);
+  });
+
+  it('export-musicxml passes for any MusicXML download, the Score page’s too', () => {
+    const { passes } = arm(SAVE, 'export-musicxml');
+    // What the lead sheet's, the Score page's and the dialog's mark.
     s().markDone('exportMusicXml');
     expect(passes()).toBe(true);
   });

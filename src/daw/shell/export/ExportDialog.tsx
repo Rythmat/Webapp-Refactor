@@ -63,6 +63,41 @@ const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
 ];
 const BIT_DEPTHS: WavBitDepth[] = [16, 24];
 
+/**
+ * The Notation side's formats, for the whole song and for one track. Each
+ * segment carries a lesson anchor (export-notation-<format>), so Save and
+ * Export can point at the MusicXML one.
+ */
+const SONG_NOTATION_FORMATS: {
+  value: NotationFormat;
+  label: string;
+  anchor: string;
+}[] = [
+  { value: 'midi', label: 'MIDI file', anchor: 'export-notation-midi' },
+  {
+    value: 'leadsheet',
+    label: 'MusicXML: lead sheet',
+    anchor: 'export-notation-leadsheet',
+  },
+  {
+    value: 'score',
+    label: 'MusicXML: full score',
+    anchor: 'export-notation-score',
+  },
+];
+const TRACK_NOTATION_FORMATS: {
+  value: NotationFormat;
+  label: string;
+  anchor: string;
+}[] = [
+  { value: 'midi', label: 'MIDI file', anchor: 'export-notation-midi' },
+  {
+    value: 'score',
+    label: 'MusicXML: its part',
+    anchor: 'export-notation-score',
+  },
+];
+
 const AMP_TRACKS = new Set(['guitar-fx', 'bass-fx']);
 
 /** Whether the amp a guitar or bass track plays through names a model this
@@ -490,17 +525,8 @@ export function ExportDialog({
     }
   };
 
-  const notationOptions: { value: NotationFormat; label: string }[] =
-    whatNow === 'track'
-      ? [
-          { value: 'midi', label: 'MIDI file' },
-          { value: 'score', label: 'MusicXML: its part' },
-        ]
-      : [
-          { value: 'midi', label: 'MIDI file' },
-          { value: 'leadsheet', label: 'MusicXML: lead sheet' },
-          { value: 'score', label: 'MusicXML: full score' },
-        ];
+  const notationOptions =
+    whatNow === 'track' ? TRACK_NOTATION_FORMATS : SONG_NOTATION_FORMATS;
   const notationNow: NotationFormat =
     whatNow === 'track' && notation === 'leadsheet' ? 'midi' : notation;
 

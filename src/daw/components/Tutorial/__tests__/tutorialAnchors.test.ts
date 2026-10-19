@@ -247,6 +247,8 @@ function constValues(file: string, name: string, prop: string): string[] {
 const SEGMENT_ANCHORS: readonly [file: string, list: string][] = [
   ['shell/bottombar/ClickToggle.tsx', 'COUNT_IN_CHOICES'],
   ['components/Score/ScoreLayoutSwitch.tsx', 'LAYOUTS'],
+  ['shell/export/ExportDialog.tsx', 'SONG_NOTATION_FORMATS'],
+  ['shell/export/ExportDialog.tsx', 'TRACK_NOTATION_FORMATS'],
 ];
 
 for (const [file, list] of SEGMENT_ANCHORS) {

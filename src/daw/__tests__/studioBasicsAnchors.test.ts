@@ -46,6 +46,7 @@ function sources(dir: string, out: string[] = []): string[] {
 const SEGMENT_FILES = [
   join('shell', 'bottombar', 'ClickToggle.tsx'),
   join('components', 'Score', 'ScoreLayoutSwitch.tsx'),
+  join('shell', 'export', 'ExportDialog.tsx'),
 ];
 
 /** Every `data-tutorial-id` value under src/daw: exact ids and template heads. */

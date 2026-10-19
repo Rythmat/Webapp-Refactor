@@ -211,7 +211,7 @@ export interface BuiltBandTrack {
   literacy: LiteracyBandPractice;
   /** The genre, as the Studio names the track's origin: 'Latin'. */
   genreLabel: string;
-  /** 'Hear It with Your Band · Latin Band 1'. */
+  /** 'Practice with a Band · Latin Band 1'. */
   projectName: string;
   /** What the link to it says (bandPracticeRef.ts). */
   ref: BandPracticeRef;
@@ -294,7 +294,7 @@ export async function buildBandPracticeTrack(
       charts: charts.map((c) => ({ id: c.id, chart: plainChart(c.chart) })),
     },
     genreLabel: genreLabelOf(style.styleId),
-    projectName: `Hear It with Your Band · ${band.name}`,
+    projectName: `Practice with a Band · ${band.name}`,
     ref: bandRefFor(band.id, style.variation, chart),
     style,
   };

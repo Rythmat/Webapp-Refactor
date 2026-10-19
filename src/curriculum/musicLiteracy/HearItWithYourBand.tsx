@@ -285,7 +285,7 @@ export function HearItWithYourBand() {
           <span>Studio · Practice</span>
         </p>
         <h1 className="text-[32px] font-normal leading-10 text-[#e8e8f0] max-[639px]:text-[28px] max-[639px]:leading-9">
-          Hear It with Your Band
+          Practice with a Band
         </h1>
         <p className="max-w-[640px] text-[17px] leading-6 text-white/55">
           Pick a progression, a band and a style. The band plays your chords in
@@ -307,7 +307,7 @@ export function HearItWithYourBand() {
                 })}
                 className="text-[#e8e8f0] underline decoration-white/30 underline-offset-4 hover:decoration-white/70"
               >
-                Part 2 · Choose a Color
+                Melodies and Chords
               </Link>
               .
             </>

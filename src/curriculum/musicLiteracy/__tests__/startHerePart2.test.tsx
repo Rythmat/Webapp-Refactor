@@ -61,7 +61,7 @@ describe('Start Here with Part 2', () => {
     expect(stop('choose-a-color').getAttribute('data-path-status')).toBe('new');
     expect(
       card
-        .getByRole('link', { name: 'Start Part 2 · Choose a Color' })
+        .getByRole('link', { name: 'Start Melodies and Chords' })
         .getAttribute('href'),
     ).toBe('/curriculum/music-literacy/music-literacy-part-2');
     expect(card.getByText(`${part2.steps.length} steps`)).toBeTruthy();
@@ -93,7 +93,7 @@ describe('Start Here with Part 2', () => {
     expect(card.getByRole('img', { name: 'E♭ Minor' })).toBeTruthy();
     expect(
       card
-        .getByRole('link', { name: 'Continue Part 2 · Choose a Color' })
+        .getByRole('link', { name: 'Continue Melodies and Chords' })
         .getAttribute('href'),
     ).toBe(
       '/curriculum/music-literacy/music-literacy-part-2?step=one-three-five',

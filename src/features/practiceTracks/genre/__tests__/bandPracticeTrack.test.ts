@@ -360,7 +360,7 @@ describe('a band’s track over the student’s chart', () => {
       styleName: 'Cumbia',
       keyName: 'D Minor',
     });
-    expect(built.projectName).toBe('Hear It with Your Band · Latin Band 1');
+    expect(built.projectName).toBe('Practice with a Band · Latin Band 1');
     expect(built.genreLabel).toBe('Latin');
   });
 
@@ -413,7 +413,7 @@ describe('a band’s track over the student’s chart', () => {
       band: { ...ref, harmony: 'sevenths' },
     }))!;
     expect(rebuilt.track.chordCycle).toEqual(['Dm7', 'Gm7', 'Am7', 'Bbmaj7']);
-    expect(rebuilt.projectName).toBe('Hear It with Your Band · Latin Band 1');
+    expect(rebuilt.projectName).toBe('Practice with a Band · Latin Band 1');
     // A chart the link can't read plays the starter.
     const starter = (await resolvePracticeTrack('latin', 1, 'A', {
       band: { ...ref, chords: '1-x' },
@@ -462,7 +462,7 @@ describe('the Practice view’s switches on a band’s track', () => {
   it('opens with the band’s prompts and its styles and progressions', async () => {
     const session = await open();
     expect(useStore.getState().projectName).toBe(
-      'Hear It with Your Band · Funk Band 1',
+      'Practice with a Band · Funk Band 1',
     );
     expect(session.prompts[0]).toBe(
       'Listen first: your band plays your progression, over and over.',

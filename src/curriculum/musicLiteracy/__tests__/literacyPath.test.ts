@@ -51,11 +51,11 @@ function progressOf(
 describe('the Music Literacy path', () => {
   it('runs Part 1, Part 2, the band, Studio basics, then Echo', () => {
     expect(LITERACY_PATH.map((s) => [s.title, s.module, s.live])).toEqual([
-      ['Part 1 · Call and Response', 'Learn', true],
-      ['Part 2 · Choose a Color', 'Learn', true],
-      ['Hear It with Your Band', 'Studio', true],
-      ['Studio Basics', 'Studio', true],
-      ['Echo', 'Arcade', false],
+      ['Rhythm and Harmony', 'Learn', true],
+      ['Melodies and Chords', 'Learn', true],
+      ['Practice with a Band', 'Studio', true],
+      ['Learn Studio Basics', 'Studio', true],
+      ['Play Echo in the Arcade', 'Arcade', false],
     ]);
     expect(part1.lessonId).toBe('music-literacy-part-1');
     expect(LITERACY_PATH[1].lessonId).toBe('music-literacy-part-2');
@@ -354,7 +354,7 @@ describe('where a student stands', () => {
     const { current, upNext } = currentStop(states);
     expect(current?.stop.id).toBe('studio-basics');
     expect(current?.status).toBe('done');
-    expect(upNext?.stop.title).toBe('Echo');
+    expect(upNext?.stop.title).toBe('Play Echo in the Arcade');
     expect(upNext?.status).toBe('soon');
   });
 

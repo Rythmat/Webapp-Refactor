@@ -38,11 +38,11 @@ describe('Start Here’s band stop', () => {
   it('is open, its page the way in, in the starter’s C major', () => {
     const card = renderPath();
     expect(stop().getAttribute('data-path-status')).toBe('new');
-    expect(card.getByText('Hear It with Your Band')).toBeTruthy();
+    expect(card.getByText('Practice with a Band')).toBeTruthy();
     expect(card.getByText(/Studio · Practice/)).toBeTruthy();
     expect(
       card
-        .getByRole('link', { name: 'Start Hear It with Your Band' })
+        .getByRole('link', { name: 'Start Practice with a Band' })
         .getAttribute('href'),
     ).toBe('/curriculum/music-literacy/hear-it-with-your-band');
     expect(card.getByRole('img', { name: 'C Major' })).toBeTruthy();
@@ -76,7 +76,7 @@ describe('Start Here’s band stop', () => {
     expect(stop().getAttribute('data-path-status')).toBe('done');
     expect(
       card
-        .getByRole('link', { name: 'Play again Hear It with Your Band' })
+        .getByRole('link', { name: 'Play again Practice with a Band' })
         .getAttribute('href'),
     ).toBe('/curriculum/music-literacy/hear-it-with-your-band');
   });

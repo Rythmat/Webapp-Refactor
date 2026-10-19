@@ -86,11 +86,11 @@ afterEach(() => {
   takePracticeTrack('', 0, 'A');
 });
 
-describe('Hear It with Your Band', () => {
+describe('Practice with a Band', () => {
   it('heads the page, with the way back to Start Here', () => {
     renderPage();
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Hear It with Your Band' }),
+      screen.getByRole('heading', { level: 1, name: 'Practice with a Band' }),
     ).toBeTruthy();
     expect(
       screen.getByRole('link', { name: 'Start Here' }).getAttribute('href'),
@@ -126,7 +126,7 @@ describe('Hear It with Your Band', () => {
     expect(screen.getByText(/Nothing is saved yet/)).toBeTruthy();
     expect(
       screen
-        .getByRole('link', { name: 'Part 2 · Choose a Color' })
+        .getByRole('link', { name: 'Melodies and Chords' })
         .getAttribute('href'),
     ).toBe('/curriculum/music-literacy/music-literacy-part-2');
     const card = within(choice('progression:starter')!);

@@ -101,42 +101,38 @@ const COURSE_STOPS: Readonly<Record<string, TutorialCourseId>> = {
 export const LITERACY_PATH: readonly LiteracyPathStop[] = [
   {
     id: 'call-and-response',
-    title: 'Part 1 · Call and Response',
+    title: 'Rhythm and Harmony',
     module: 'Learn',
     live: true,
     lessonId: 'music-literacy-part-1',
   },
   {
     id: 'choose-a-color',
-    title: 'Part 2 · Choose a Color',
+    title: 'Melodies and Chords',
     module: 'Learn',
-    description: 'Melodies and chord progressions in a key you pick.',
     live: true,
     lessonId: 'music-literacy-part-2',
   },
   {
     id: BAND_STOP_ID,
-    title: 'Hear It with Your Band',
+    title: 'Practice with a Band',
     module: 'Studio',
     place: 'Practice',
-    description: 'Your chord progression, played by a Band.',
     live: true,
     route: CurriculumRoutes.musicLiteracyBand(),
   },
   {
     id: STUDIO_BASICS_STOP_ID,
-    title: 'Studio Basics',
+    title: 'Learn Studio Basics',
     module: 'Studio',
-    description: 'Nine guided tutorials around the Studio.',
     live: true,
     // Lesson 1; readRouteStop moves it on to the first lesson not finished.
     route: studioLessonRoute('studio-basics-your-tracks'),
   },
   {
     id: 'echo',
-    title: 'Echo',
+    title: 'Play Echo in the Arcade',
     module: 'Arcade',
-    description: 'A Call-and-Response music creation game.',
     live: false,
   },
 ];

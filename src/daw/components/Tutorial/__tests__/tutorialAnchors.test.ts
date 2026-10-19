@@ -350,6 +350,10 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     file: 'components/Timeline/TimelineAnchors.tsx',
     suffixes: () => TRACK_INDEXES,
   },
+  'timeline-lane-end-': {
+    file: 'components/Timeline/TimelineAnchors.tsx',
+    suffixes: () => TRACK_INDEXES,
+  },
   'timeline-clip-': {
     file: 'components/Timeline/TimelineAnchors.tsx',
     // A track's clips, in time order: a lesson's song has a handful.

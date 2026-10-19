@@ -5,7 +5,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 // ── Lesson anchors over the canvas (TimelineAnchors) ───────────────────────
 // Invisible, pointer-transparent boxes where the canvas draws each lane,
-// clip, the ruler, the loop strip and region and the chord lane, placed from
+// clip, each lane's end (just after its last clip), the ruler, the loop
+// strip and region and the chord lane, placed from
 // the track list's row layout and the canvas's clip geometry, so a lesson
 // step can point at what is only pixels.
 //
@@ -66,11 +67,11 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-function renderAnchors(scrollTop = 0) {
+function renderAnchors(scrollTop = 0, width = 2000) {
   const scroller = document.createElement('div');
   Object.defineProperty(scroller, 'scrollTop', { value: scrollTop });
   const scrollRef = { current: scroller } as RefObject<HTMLDivElement>;
-  render(<TimelineAnchors scrollRef={scrollRef} viewportWidth={2000} />);
+  render(<TimelineAnchors scrollRef={scrollRef} viewportWidth={width} />);
 }
 
 describe('the anchors over the canvas', () => {
@@ -101,6 +102,34 @@ describe('the anchors over the canvas', () => {
     expect(box('timeline-clip-selected')).toBeNull();
     act(() => s().setSelectedClip('verse', keys));
     expect(box('timeline-clip-selected')).toEqual(box('timeline-clip-0-0'));
+  });
+
+  it('box the stretch just after each lane’s last clip, half a beat wide', () => {
+    renderAnchors();
+    const ppb = pixelsPerBeat(1);
+    // Where a right-click opens Paste here on the bar line the clip ends on.
+    expect(box('timeline-lane-end-0')).toEqual({
+      left: 8 * ppb,
+      top: LANE_HEADER_PX + CLIP_INSET,
+      width: ppb / 2,
+      height: TRACK_ROW_PX - CLIP_INSET * 2,
+    });
+    // After a short clip as it is drawn, not its notes.
+    const hit = box('timeline-clip-1-0')!;
+    expect(box('timeline-lane-end-1')?.left).toBe(hit.left + hit.width);
+    // A lane with no clips has none.
+    act(() => {
+      s().addTrack('midi', 'piano-sampler', 'Empty');
+    });
+    expect(box('timeline-lane-2')).not.toBeNull();
+    expect(box('timeline-lane-end-2')).toBeNull();
+  });
+
+  it('box no lane end out of sight', () => {
+    // The window ends where the keys' clip does.
+    renderAnchors(0, 8 * pixelsPerBeat(1));
+    expect(box('timeline-lane-end-0')).toBeNull();
+    expect(box('timeline-lane-end-1')).not.toBeNull();
   });
 
   it('keep the rulers and the loop at the top of the scrolled lanes', () => {

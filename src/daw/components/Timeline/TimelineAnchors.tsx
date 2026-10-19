@@ -32,8 +32,9 @@ import {
 // The timeline draws its rulers, lanes and clips on a canvas, which a lesson
 // step cannot point at. These are boxes laid over it, invisible and
 // pointer-transparent, each with a `data-tutorial-id`, so a step can
-// spotlight a clip, a track's lane, the bar ruler, the loop strip, the loop
-// region or the chord lane. Clicks go straight through to the canvas.
+// spotlight a clip, a track's lane, the empty stretch just after a lane's
+// last clip, the bar ruler, the loop strip, the loop region or the chord
+// lane. Clicks go straight through to the canvas.
 //
 // They are placed as the Edit pill is (ClipEditPill), in the canvas's own
 // coordinates from the track list's row layout (rowLayout.ts) and the
@@ -55,6 +56,23 @@ interface ClipAnchor extends Rect {
   selected: boolean;
 }
 
+/** A track's clips as the canvas spans them: start, length, least width. */
+function clipSpans(track: Track) {
+  return track.type === 'audio'
+    ? track.audioClips.map((clip) => ({
+        id: clip.id,
+        start: clip.startTick,
+        length: clip.duration,
+        minWidth: 0,
+      }))
+    : track.midiClips.map((clip) => ({
+        id: clip.id,
+        start: clip.startTick,
+        length: midiClipLength(clip),
+        minWidth: MIN_MIDI_CLIP_PX,
+      }));
+}
+
 /** The clips in sight, boxed as the canvas draws them, by track and index. */
 function clipAnchors(
   tracks: readonly Track[],
@@ -66,20 +84,7 @@ function clipAnchors(
   const rows = rowLayoutOf(tracks);
   const ppb = pixelsPerBeat(zoom);
   return tracks.flatMap((track, t) => {
-    const clips =
-      track.type === 'audio'
-        ? track.audioClips.map((clip) => ({
-            id: clip.id,
-            start: clip.startTick,
-            length: clip.duration,
-            minWidth: 0,
-          }))
-        : track.midiClips.map((clip) => ({
-            id: clip.id,
-            start: clip.startTick,
-            length: midiClipLength(clip),
-            minWidth: MIN_MIDI_CLIP_PX,
-          }));
+    const clips = clipSpans(track);
     return clips.flatMap((clip, c) => {
       const left = tickToPixel(clip.start, zoom, scrollLeft);
       const w = Math.max((clip.length / TICKS_PER_BEAT) * ppb, clip.minWidth);
@@ -96,6 +101,48 @@ function clipAnchors(
         },
       ];
     });
+  });
+}
+
+interface LaneEndAnchor extends Rect {
+  track: number;
+}
+
+/**
+ * Each lane's empty stretch right after its last clip, half a beat wide,
+ * while in sight: where a right-click opens the lane's menu (Paste here) at
+ * the bar line the clip ends on, as the grid snaps it. A lane with no clips
+ * has none.
+ */
+function laneEndAnchors(
+  tracks: readonly Track[],
+  zoom: number,
+  scrollLeft: number,
+  width: number,
+): LaneEndAnchor[] {
+  const rows = rowLayoutOf(tracks);
+  const ppb = pixelsPerBeat(zoom);
+  const boxWidth = ppb / 2;
+  return tracks.flatMap((track, t) => {
+    const clips = clipSpans(track);
+    if (clips.length === 0) return [];
+    const right = Math.max(
+      ...clips.map(
+        (clip) =>
+          tickToPixel(clip.start, zoom, scrollLeft) +
+          Math.max((clip.length / TICKS_PER_BEAT) * ppb, clip.minWidth),
+      ),
+    );
+    if (right < 0 || right + boxWidth > width) return [];
+    return [
+      {
+        track: t,
+        left: right,
+        top: LANE_HEADER_PX + rows.tops[t] + CLIP_INSET,
+        width: boxWidth,
+        height: rows.heights[t] - CLIP_INSET * 2,
+      },
+    ];
   });
 }
 
@@ -155,6 +202,7 @@ export const TimelineAnchors = memo(function TimelineAnchors({
   const rows = rowLayoutOf(tracks);
   const clips = clipAnchors(tracks, selectedClipId, zoom, scrollLeft, width);
   const selected = clips.find((box) => box.selected);
+  const laneEnds = laneEndAnchors(tracks, zoom, scrollLeft, width);
   const loopLeft = Math.max(0, tickToPixel(loopStart, zoom, scrollLeft));
   const loopRight = Math.min(width, tickToPixel(loopEnd, zoom, scrollLeft));
 
@@ -181,6 +229,14 @@ export const TimelineAnchors = memo(function TimelineAnchors({
         <div
           key={`${box.track}:${box.clip}`}
           data-tutorial-id={`timeline-clip-${box.track}-${box.clip}`}
+          className={BOX}
+          style={place(box)}
+        />
+      ))}
+      {laneEnds.map((box) => (
+        <div
+          key={`end:${box.track}`}
+          data-tutorial-id={`timeline-lane-end-${box.track}`}
           className={BOX}
           style={place(box)}
         />

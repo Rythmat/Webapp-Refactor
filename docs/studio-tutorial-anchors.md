@@ -132,6 +132,7 @@ The canvas has one menu (`clip-menu`) for clips, lanes, markers, the ruler and s
 | Id                       | Points at                                                                                          |
 | ------------------------ | -------------------------------------------------------------------------------------------------- |
 | `timeline-lane-{i}`      | Track i's lane on the timeline. A right-click on an empty stretch opens `clip-menu` for the lane.  |
+| `timeline-lane-end-{i}`  | Track i's lane just after its last clip, half a beat wide (in view): Paste here lands on the bar   |
 | `timeline-clip-{i}-{c}`  | Clip c of track i (only while it is in view). A right-click opens `clip-menu`.                     |
 | `timeline-clip-selected` | The selected clip                                                                                  |
 | `clip-edit-pill`         | The selected clip's Edit pill, which opens its menu                                                |

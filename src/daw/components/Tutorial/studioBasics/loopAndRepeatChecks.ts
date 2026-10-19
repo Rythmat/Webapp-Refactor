@@ -2,8 +2,9 @@ import type { AllSlices } from '@/daw/store';
 import type { StepCheck } from '../tutorials';
 
 // ── The Loop and Repeat lesson's checks and anchors (Studio Basics 8) ──────
-// Changes against the Studio as the step armed: the loop's range, how many
-// clips the song has, how many tracks. A song may be the student's own, so
+// Changes against the Studio as the step armed: the loop's range, whether
+// the music played and stopped, what the clipboard holds, how many clips
+// the song has, how many tracks. A song may be the student's own, so
 // nothing asks for a track or a clip by name or place.
 
 /** Note clips and audio clips, on every track. */
@@ -13,16 +14,40 @@ export const clipCount = (s: AllSlices): number =>
     0,
   );
 
-/** A clip was added: a Duplicate, a Paste or a Paste Here. */
+/** A clip was added: a Duplicate, a Paste or a Paste here. */
 export const clipAdded: StepCheck = (s, armed) =>
   clipCount(s) > clipCount(armed);
+
+/** A clip went to the clipboard: the clip menu's Copy (or Cut), or ⌘C. */
+export const clipCopied: StepCheck = (s, armed) =>
+  (s.clipboardClips !== armed.clipboardClips && s.clipboardClips.length > 0) ||
+  (s.clipboardAudioClip !== armed.clipboardAudioClip &&
+    s.clipboardAudioClip !== null);
+
+/**
+ * The steps whose music has played since they armed (keyed by the armed
+ * snapshot, which "Show me again" takes anew).
+ */
+const heardPlaying = new WeakSet<AllSlices>();
+
+/**
+ * The music played and then stopped: Play, a listen, Play again (or Esc).
+ * A check sees every store change, so it notes the playing as it goes by.
+ */
+export const playedThenStopped: StepCheck = (s, armed) => {
+  if (s.isPlaying) {
+    heardPlaying.add(armed);
+    return false;
+  }
+  return heardPlaying.has(armed);
+};
 
 /** The loop covers other bars than it did, and still covers some. */
 export const loopMoved: StepCheck = (s, armed) =>
   s.loopEnd > s.loopStart &&
   (s.loopStart !== armed.loopStart || s.loopEnd !== armed.loopEnd);
 
-/** A track was added: Duplicate Track. */
+/** A track was added: Duplicate track. */
 export const trackAdded: StepCheck = (s, armed) =>
   s.tracks.length > armed.tracks.length;
 
@@ -50,6 +75,14 @@ export const SECOND_CLIPS = SECOND_FIRST.map((i) => `timeline-clip-${i}-0`);
 
 /** Each track's row on the timeline, the second track's first. */
 export const SECOND_LANES = SECOND_FIRST.map((i) => `timeline-lane-${i}`);
+
+/**
+ * The empty stretch right after each track's last clip, the second track's
+ * first: where a right-click opens Paste here at the next bar line.
+ */
+export const SECOND_LANE_ENDS = SECOND_FIRST.map(
+  (i) => `timeline-lane-end-${i}`,
+);
 
 /** Each track's header, the second track's first. */
 export const SECOND_HEADERS = SECOND_FIRST.map((i) => `track-header-${i}`);

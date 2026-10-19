@@ -281,14 +281,23 @@ export const SCORE_TO_SAVE_DRIVERS = {
       }),
     },
     'play-the-loop': {
-      ...click(
-        'transport-play',
-        storeSet('play()', () => window.__MA_STORE__.getState().play()),
-      ),
-      // Stop again, as the student would, so the next steps aren't measured
-      // during playback.
-      after: (ctx) =>
-        ctx.act('pause()', () => window.__MA_STORE__.getState().pause()),
+      how: 'click',
+      describe: 'click transport-play, listen, click transport-play again',
+      async run(ctx) {
+        await ctx.clickAnchor('transport-play', 'Play');
+        await ctx.waitFor(
+          'the music to play',
+          () => window.__MA_STORE__.getState().isPlaying,
+        );
+        await ctx.page.waitForTimeout(1200);
+        await ctx.clickAnchor('transport-play', 'Play again (pause)');
+      },
+      fallback: storeSet('play(), then pause()', async () => {
+        const s = window.__MA_STORE__.getState();
+        s.play();
+        await new Promise((r) => setTimeout(r, 300));
+        window.__MA_STORE__.getState().pause();
+      }),
     },
     // The bottom track's clip (the drums), which the step points at.
     'duplicate-a-clip': rightClickThen(
@@ -301,28 +310,28 @@ export const SCORE_TO_SAVE_DRIVERS = {
         [3, 7680],
       ),
     ),
-    'copy-and-paste': {
-      how: 'click',
-      describe:
-        'right-click timeline-clip-1-0, Copy; right-click right after it on its row, Paste Here',
-      async run(ctx) {
-        const clip = await boxOf(ctx, 'timeline-clip-1-0');
-        const y = clip.y + clip.height / 2;
-        await ctx.page.mouse.click(clip.x + clip.width / 2, y, {
-          button: 'right',
-        });
-        await ctx.clickAnchor('clip-menu-copy');
-        await ctx.page.mouse.click(clip.x + clip.width + 6, y, {
-          button: 'right',
-        });
-        await ctx.clickAnchor('lane-menu-paste');
-      },
-      fallback: storeSet(
+    // The second track's clip (the chords), which the step points at.
+    'copy-a-clip': rightClickThen(
+      'timeline-clip-1-0',
+      'clip-menu-copy',
+      'right-click timeline-clip-1-0, then clip-menu-copy',
+      storeSet('copy the chords’ clip', () => {
+        const s = window.__MA_STORE__.getState();
+        s.setClipboard([structuredClone(s.tracks[1].midiClips[0])]);
+      }),
+    ),
+    // Right after it on its own row, where the step points: Paste here
+    // lands on bar 5.
+    'paste-here': rightClickThen(
+      'timeline-lane-end-1',
+      'clip-menu-paste',
+      'right-click timeline-lane-end-1, then clip-menu-paste (Paste here)',
+      storeSet(
         'a copy of the chords’ clip at bar 5',
         addClipCopyInPage,
         [1, 7680],
       ),
-    },
+    ),
     'duplicate-a-track': rightClickThen(
       'track-header-1',
       'track-menu-duplicate',

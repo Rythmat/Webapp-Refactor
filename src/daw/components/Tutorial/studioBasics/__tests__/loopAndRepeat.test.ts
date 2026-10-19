@@ -18,12 +18,15 @@ import {
 import { duplicateTrack } from '@/daw/shell/tracklist/duplicateTrack';
 import { useStore } from '@/daw/store';
 import { MAX_TOTAL_TRACKS } from '@/daw/store/tracksSlice';
+import { snapTicks, timelineSnapGrid } from '@/daw/time/timeModel';
+import { TICKS_PER_BEAT } from '@/daw/utils/timelineScale';
 import { MOST_TRACKS } from '../loopAndRepeatChecks';
 import {
   arm,
   describeLessonConventions,
   openDemoSong,
   s,
+  stepOf,
   trackNamed,
 } from './scoreToSaveTestUtils';
 
@@ -64,12 +67,25 @@ describe('Loop and Repeat', () => {
     expect(passes()).toBe(true);
   });
 
-  it('play-the-loop passes once the music plays', () => {
-    const { passes } = arm(LOOP, 'play-the-loop');
+  it('play-the-loop passes once the music has played and stopped', () => {
+    let { passes } = arm(LOOP, 'play-the-loop');
     expect(passes()).toBe(false);
+    // Play: still going round, so not yet.
     useStore.setState({ isPlaying: true });
-    expect(passes()).toBe(true);
+    expect(passes()).toBe(false);
+    // Play again (a pause), or Esc: stopped.
     useStore.setState({ isPlaying: false });
+    expect(passes()).toBe(true);
+    // Armed anew (Show me again), the playing heard before doesn't count.
+    ({ passes } = arm(LOOP, 'play-the-loop'));
+    expect(passes()).toBe(false);
+    // Armed while it plays (Play pressed early): stopping is enough, as the
+    // lesson layer checks the step the moment it arms.
+    useStore.setState({ isPlaying: true });
+    ({ passes } = arm(LOOP, 'play-the-loop'));
+    expect(passes()).toBe(false);
+    useStore.setState({ isPlaying: false });
+    expect(passes()).toBe(true);
   });
 
   it('duplicate-a-clip passes for a duplicated clip: the drums, eight bars', () => {
@@ -86,11 +102,28 @@ describe('Loop and Repeat', () => {
     ]);
   });
 
-  it('copy-and-paste passes for a pasted clip, and not for the copy alone', () => {
-    const { passes } = arm(LOOP, 'copy-and-paste');
+  it('copy-a-clip passes once a clip is copied, and the song is the same', () => {
+    let { passes } = arm(LOOP, 'copy-a-clip');
+    expect(passes()).toBe(false);
     const chords = trackNamed('Chords');
-    s().setSelectedClip(chords.midiClips[0].id, chords.id);
+    // A duplicate adds a clip but copies nothing.
+    duplicateClip({ trackId: chords.id, clipId: chords.midiClips[0].id });
+    expect(passes()).toBe(false);
+    ({ passes } = arm(LOOP, 'copy-a-clip'));
+    const tracks = s().tracks;
     copyClip({ trackId: chords.id, clipId: chords.midiClips[0].id });
+    expect(passes()).toBe(true);
+    expect(s().tracks).toBe(tracks);
+    // The same clip copied again is still a copy made.
+    ({ passes } = arm(LOOP, 'copy-a-clip'));
+    copyClip({ trackId: chords.id, clipId: chords.midiClips[0].id });
+    expect(passes()).toBe(true);
+  });
+
+  it('paste-here passes for a pasted clip: the chords, at bar 5', () => {
+    const chords = trackNamed('Chords');
+    copyClip({ trackId: chords.id, clipId: chords.midiClips[0].id });
+    const { passes } = arm(LOOP, 'paste-here');
     expect(passes()).toBe(false);
     // Paste here, on its own row at bar 5 (the lane menu's).
     pasteClipboard({ trackId: chords.id, tick: 7680 });
@@ -98,6 +131,17 @@ describe('Loop and Repeat', () => {
     expect(trackNamed('Chords').midiClips.map((c) => c.startTick)).toEqual([
       0, 7680,
     ]);
+  });
+
+  it('paste-here points just after the clip, where Paste here lands on the bar', () => {
+    const step = stepOf(LOOP, 'paste-here');
+    expect(step.target?.[0]).toBe('timeline-lane-end-1');
+    expect(step.demo?.[0].target?.[0]).toBe('timeline-lane-end-1');
+    // The box is half a beat wide from the clip's end: a right-click at its
+    // center is a quarter beat in, which the timeline's grid (a beat)
+    // snaps back to the bar line.
+    const grid = timelineSnapGrid(s());
+    expect(snapTicks(7680 + TICKS_PER_BEAT / 4, grid)).toBe(7680);
   });
 
   it('duplicate-a-track passes for a duplicated track', () => {

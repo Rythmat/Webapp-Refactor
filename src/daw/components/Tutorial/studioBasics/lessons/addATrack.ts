@@ -68,6 +68,10 @@ export const addATrackSteps: TutorialStep[] = [
         action: 'click',
       },
       {
+        target: 'instrument-picker',
+        caption: 'Pick any sound from the list',
+      },
+      {
         // Pressed inside the picker: on the page, Esc is the Studio's
         // Stop, which keeps it from the picker.
         target: 'instrument-picker',

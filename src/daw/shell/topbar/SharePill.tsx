@@ -2,8 +2,8 @@
 // Out of a session: 'Share', a popover to start one (the white pill) or
 // join one with a code. In a session: the people in it (their initials in
 // their presence colours, a count and the connection's dot), a popover with
-// Invite, People, Chat and Leave. The People and Chat columns stay where
-// they were, beside the Inspector, until 2.8's Session tab.
+// Invite, People, Chat and Leave. People and Chat open the side rail's
+// panels of those names in the Inspector (B4a).
 //
 // The Share menu leaves room for Stage D's "Assign to a class…" (4.2).
 
@@ -62,10 +62,16 @@ export function SharePill({ iconOnly = false }: { iconOnly?: boolean }) {
   const roomError = useStore((s) => s.roomError);
   const setRoomError = useStore((s) => s._setRoomError);
   const setLeavePrompt = useStore((s) => s._setLeavePrompt);
-  const userListOpen = useStore((s) => s.userListOpen);
-  const chatPanelOpen = useStore((s) => s.chatPanelOpen);
-  const toggleUserList = useStore((s) => s.toggleUserList);
-  const toggleChatPanel = useStore((s) => s.toggleChatPanel);
+  // People and Chat are side rail panels since B4a; the pill opens them too.
+  const userListOpen = useStore(
+    (s) => s.libraryOpen && s.inspectorPanel === 'people',
+  );
+  const chatPanelOpen = useStore(
+    (s) => s.libraryOpen && s.inspectorPanel === 'chat',
+  );
+  const togglePanel = useStore((s) => s.toggleInspectorPanel);
+  const toggleUserList = () => togglePanel('people');
+  const toggleChatPanel = () => togglePanel('chat');
   const collaboratorCount = useCollaboratorCount();
   const remoteUsers = useRemoteUsers();
   const { createAndJoinRoom } = useCollab();

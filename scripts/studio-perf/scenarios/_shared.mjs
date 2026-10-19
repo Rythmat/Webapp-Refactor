@@ -553,8 +553,9 @@ export async function clickToastAction(page, match, action, timeout = 8000) {
 }
 
 /**
- * Closes the "Analyze chords?" prompt a project or jam open may offer
- * (offerChordAnalysis, a modal), as the student's "Not now" does.
+ * Closes the "Analyze chords?" dialog if it is open. Since milestone 2.7 an
+ * open only offers it in the chord lane's banner (offerChordAnalysis), which
+ * blocks nothing, so this is a guard for an older build's modal.
  */
 export const dismissChordPrompt = (page) =>
   page.evaluate(() => {
@@ -842,14 +843,15 @@ export async function openSongInStudio(
 
 /**
  * Opens the Projects dialog: File ▸ Open… when the editor shows its File
- * menu, else (the Practice screen has none) the dialog's own store.
+ * menu, else (the Practice screen hides the top bar, 2.4) the dialog's own
+ * store.
  */
 export async function openProjects(page, kit) {
   await dismissChordPrompt(page);
   const hasMenu = await page
     .locator('[data-tutorial-id="file-menu"]')
-    .count()
-    .catch(() => 0);
+    .isVisible()
+    .catch(() => false);
   if (hasMenu) return openProjectsFromMenu(page, kit);
   await page.evaluate(async (path) => {
     const { useProjectsDialogStore } = await window.__RT_DEV_MODULE__(path);

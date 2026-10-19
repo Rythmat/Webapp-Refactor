@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildScoreParts } from '@/daw/components/Score/scoreParts';
+import { noteKey } from '@/daw/model/noteKeys';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { Track } from '@/daw/store/tracksSlice';
 import { buildScoreXml } from '../ScoreMusicXmlExport';
@@ -164,5 +165,137 @@ describe('buildScoreXml', () => {
         }
       }
     }
+  });
+});
+
+// ── Slur numbers and layout marks (1.11 e2) ────────────────────────────────
+// MusicXML numbers slurs 1–16. They used to be numbered by their place in the
+// list, so a song with seventeen slurs wrote number="17", and two slurs on
+// one note shared a Map entry (leadsheet-33). Run:
+// npx vitest run src/daw/midi/__tests__/scoreMusicXml.test.ts
+
+describe('buildScoreXml slurs and marks', () => {
+  // Eight bars of eighth notes in 3/4: 48 notes, C to B and round again.
+  const PITCHES = [60, 62, 64, 65, 67, 69, 71];
+  const NOTE_COUNT = 48;
+  const EIGHTH = 240;
+  const melody = track(
+    'Mel',
+    'piano-sampler',
+    Array.from({ length: NOTE_COUNT }, (_, i) => [
+      PITCHES[i % PITCHES.length],
+      i * EIGHTH,
+      EIGHTH,
+    ]),
+  );
+  const [part] = buildScoreParts({
+    tracks: [melody],
+    rootNote: 0,
+    mode: 'ionian',
+    timeSignature: [3, 4],
+  });
+  const id = (i: number) =>
+    noteKey('Mel', 'Mel-c', i * EIGHTH, PITCHES[i % PITCHES.length]);
+  const write = (
+    slurs: (readonly [string, string])[],
+    more: Partial<Parameters<typeof buildScoreXml>[1]> = {},
+  ) =>
+    buildScoreXml(
+      [{ id: part.id, name: part.name, score: part.score, drums: false }],
+      { title: 'Slurs', bpm: 90, slurs, ...more },
+    );
+  const slurTags = (out: string) =>
+    [...out.matchAll(/<slur type="(start|stop)" number="(\d+)"\/>/g)].map(
+      ([, type, n]) => ({ type, number: Number(n) }),
+    );
+
+  it('reuses numbers 1–16 for twenty slurs one after another', () => {
+    const slurs = Array.from(
+      { length: 20 },
+      (_, i) => [id(i * 2), id(i * 2 + 1)] as const,
+    );
+    const tags = slurTags(write(slurs));
+
+    expect(tags).toHaveLength(40);
+    expect(Math.max(...tags.map((t) => t.number))).toBeLessThanOrEqual(16);
+    // Each slur opens and closes before the next: all of them are number 1.
+    expect(new Set(tags.map((t) => t.number))).toEqual(new Set([1]));
+  });
+
+  it('gives overlapping slurs, and two on one note, numbers of their own', () => {
+    const tags = slurTags(
+      write([
+        [id(0), id(5)],
+        [id(0), id(3)],
+        [id(2), id(8)],
+      ]),
+    );
+    // Written in note order: two starts at 0, one at 2, then the stops.
+    expect(tags).toEqual([
+      { type: 'start', number: 1 },
+      { type: 'start', number: 2 },
+      { type: 'start', number: 3 },
+      { type: 'stop', number: 2 },
+      { type: 'stop', number: 1 },
+      { type: 'stop', number: 3 },
+    ]);
+  });
+
+  it('never writes more than sixteen open at once', () => {
+    // Twenty slurs all open over the same stretch.
+    const slurs = Array.from(
+      { length: 20 },
+      (_, i) => [id(i), id(NOTE_COUNT - 1)] as const,
+    );
+    const tags = slurTags(write(slurs));
+    expect(tags.every((t) => t.number >= 1 && t.number <= 16)).toBe(true);
+    const starts = tags.filter((t) => t.type === 'start');
+    const stops = tags.filter((t) => t.type === 'stop');
+    expect(starts).toHaveLength(16);
+    expect(stops).toHaveLength(16);
+    expect(new Set(stops.map((t) => t.number)).size).toBe(16);
+  });
+
+  it('skips both ends of a slur left without a number, and leaks none', () => {
+    // Sixteen slurs open over notes 0–20; a seventeenth (16→30) gets no
+    // number. Its stop must not be written, nor take a number of its own.
+    const slurs: (readonly [string, string])[] = [
+      ...Array.from({ length: 16 }, (_, i) => [id(i), id(20)] as const),
+      [id(16), id(30)] as const,
+      // Opened after all sixteen close: it gets number 1 again.
+      [id(32), id(34)] as const,
+    ];
+    const tags = slurTags(write(slurs));
+    const starts = tags.filter((t) => t.type === 'start');
+    const stops = tags.filter((t) => t.type === 'stop');
+    expect(starts).toHaveLength(17);
+    expect(stops).toHaveLength(17);
+    expect(tags.slice(-2)).toEqual([
+      { type: 'start', number: 1 },
+      { type: 'stop', number: 1 },
+    ]);
+  });
+
+  it('writes the metre, and system and page breaks on the bars marked', () => {
+    const out = write([], {
+      systemStarts: new Set([2, 4]),
+      pageStarts: new Set([4, 6]),
+    });
+    expect(out).toContain('<time><beats>3</beats><beat-type>4</beat-type>');
+    const measures = out.split('<measure ').slice(1);
+    expect(measures).toHaveLength(8);
+    const printOf = (m: number) =>
+      /<print new-(system|page)="yes"\/>/.exec(measures[m])?.[1] ?? null;
+    expect(measures.map((_, m) => printOf(m))).toEqual([
+      null,
+      null,
+      'system',
+      null,
+      // A page break starts a system too: one print element, not two.
+      'page',
+      null,
+      'page',
+      null,
+    ]);
   });
 });

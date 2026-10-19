@@ -70,11 +70,13 @@ import {
 } from '@/daw/harmony/chordIdentity';
 import type { OrganState } from '@/daw/instruments/TonewheelOrganEngine';
 import type { SamplerSampleRef } from '@/daw/instruments/samplerChops';
+import { marksOfSections } from '@/daw/model/sections';
 import type * as SynthStoreModule from '@/daw/oracle-synth/store';
 import type * as SynthPatchModule from '@/daw/oracle-synth/synthTrackState';
 import type * as StoreModule from '@/daw/store';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { AudioClip, MidiClip, Track } from '@/daw/store/tracksSlice';
+import { timeSignatureOf } from '@/daw/time/timeModel';
 import type { DraftMeta } from '@/lib/studio-projects/drafts/types';
 import type * as Codec from '../SessionSerializer';
 
@@ -659,17 +661,24 @@ const probes = {
     write: (p) => st(p).setClipColorMode('prism'),
     check: (p) => expect(st(p).clipColorMode).toBe('prism'),
   },
-  leadSheetSections: {
-    write: (p) =>
-      st(p).setLeadSheetSections([
-        { measureIdx: 0, label: 'A' },
-        { measureIdx: 8, label: 'B' },
-      ]),
-    check: (p) =>
-      expect(st(p).leadSheetSections).toEqual([
-        { measureIdx: 0, label: 'A' },
-        { measureIdx: 8, label: 'B' },
-      ]),
+  // The song's sections (milestone 2.13), which the Lead Sheet reads too:
+  // two from the sections lane, the first renamed from the Lead Sheet.
+  sections: {
+    write: (p) => {
+      st(p).addSection({ type: 'verse', label: 'Verse' });
+      st(p).addSection({ type: 'chorus', label: 'Chorus' });
+      st(p).markSectionAtBar(0, 'Verse 1');
+    },
+    check: (p) => {
+      expect(st(p).sections.map(withoutId)).toEqual([
+        { type: 'verse', label: 'Verse 1', startTick: 0, endTick: 15360 },
+        { type: 'chorus', label: 'Chorus', startTick: 15360, endTick: 30720 },
+      ]);
+      expect(marksOfSections(st(p).sections, timeSignatureOf(st(p)))).toEqual([
+        { measureIdx: 0, label: 'Verse 1' },
+        { measureIdx: 8, label: 'Chorus' },
+      ]);
+    },
   },
   leadSheetRepeats: {
     write: (p) =>
@@ -1222,7 +1231,7 @@ describe('a browser refresh (local autosave) keeps', () => {
   it('clip colouring by harmony', kept(probes.clipColorMode));
   // state-reload-01 and leadsheet-03: fixed in 1.3 (the draft keeps the lead
   // sheet).
-  it('lead-sheet sections', kept(probes.leadSheetSections));
+  it('song sections (lane and Lead Sheet)', kept(probes.sections));
   it('lead-sheet repeats', kept(probes.leadSheetRepeats));
   it('lead-sheet row sizes', kept(probes.measureRowSizes));
   it('multi-bar rests', kept(probes.multiBarRests));
@@ -1299,7 +1308,7 @@ const LOCAL_ROWS: [string, Probe][] = [
   ['the chord lane', probes.chordLane],
   ['a chord identity', probes.chordIdentity],
   ['clip colouring by harmony', probes.clipColorMode],
-  ['lead-sheet sections', probes.leadSheetSections],
+  ['song sections (lane and Lead Sheet)', probes.sections],
   ['lead-sheet repeats', probes.leadSheetRepeats],
   ['lead-sheet row sizes', probes.measureRowSizes],
   ['multi-bar rests', probes.multiBarRests],
@@ -1456,7 +1465,7 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   it('the chord lane', kept(probes.chordLane));
   it('a chord identity', kept(probes.chordIdentity));
   it('clip colouring by harmony', kept(probes.clipColorMode));
-  it('lead-sheet sections', kept(probes.leadSheetSections));
+  it('song sections (lane and Lead Sheet)', kept(probes.sections));
   it('lead-sheet repeats', kept(probes.leadSheetRepeats));
   it('lead-sheet row sizes', kept(probes.measureRowSizes));
   it('multi-bar rests', kept(probes.multiBarRests));

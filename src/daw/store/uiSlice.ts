@@ -1,16 +1,23 @@
 import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
 import type { MidiClip, AudioClip } from './tracksSlice';
+import type { EffectSlotType } from '@/daw/audio/EffectChain';
+import type { RackTarget } from './effectRack';
 import type { AllGridSize } from '@/daw/utils/quantize';
+import { clampZoom, fitZoom, zoomAround } from '@/daw/editor/zoom';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
+import type { SectionMark } from '@/daw/model/sections';
 import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
+import { toggledFavourites } from '@/daw/shell/inspector/browser/favourites';
 import {
   clampInspectorPx,
   DOCK_MAX_FRAC,
   INSPECTOR_DEFAULT_PX,
   resolveInspectorOpen,
   type DockHeights,
+  type DockSlotId,
   type InspectorOpenByView,
+  type InspectorPanelId,
   type ReadoutMode,
 } from '@/daw/shell/layout/layoutModel';
 
@@ -190,32 +197,26 @@ export interface PracticeKeyboard {
   view: PracticeKeyboardView | null;
   scaleId: string | null;
 }
-/** Tabs of the bottom Channel Strip. Kept here (not in ChannelStrip.tsx) so
- *  the tutorial system can read/open a specific tab from the store. */
+/** The editor dock's tabs (shell/dock/dockTabs.ts). Kept here so the
+ *  tutorial system can read and open a tab from the store. */
 export type ChannelStripTabId =
   | 'controls'
   | 'fx'
   | 'prism'
   | 'piano-roll'
-  | 'grooves'
-  | 'parts';
+  | 'grooves';
 export type LeadSheetChordFormat = 'jazz' | 'hybrid' | 'numbers';
 
-export interface LeadSheetSection {
-  measureIdx: number;
-  label: string; // e.g. 'A', 'B', 'Intro', 'Bridge', 'Coda'
-}
+/**
+ * A song section as the Lead Sheet marks it: the bar it starts at and its
+ * name. The sections themselves live in the sections slice (milestone 2.13);
+ * the Lead Sheet reads them as these marks (leadSheetSectionsOf).
+ */
+export type LeadSheetSection = SectionMark;
 
 export interface LeadSheetRepeat {
   startMeasure: number;
   endMeasure: number;
-}
-
-const MIN_ZOOM = 0.1;
-const MAX_ZOOM = 10.0;
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, v));
 }
 
 export interface UiSlice {
@@ -236,8 +237,6 @@ export interface UiSlice {
   activeTool: ToolType;
   selectedClipId: string | null;
   selectedClipTrackId: string | null;
-  editingClipId: string | null;
-  editingClipTrackId: string | null;
   clipboardClips: MidiClip[];
   clipboardAudioClip: { clip: AudioClip; bufferId: string } | null;
 
@@ -247,10 +246,14 @@ export interface UiSlice {
   timelineGridSize: AllGridSize;
   timelineSnapEnabled: boolean;
   timelineTripletMode: boolean;
+  /**
+   * Whether the timeline follows the playhead by pages while playing
+   * (editor/follow). A per-user pref, on by default.
+   */
+  followPlayhead: boolean;
 
   setActiveTool: (tool: ToolType) => void;
   setSelectedClip: (clipId: string | null, trackId: string | null) => void;
-  setEditingClip: (clipId: string | null, trackId: string | null) => void;
   setClipboard: (clips: MidiClip[]) => void;
   setAudioClipboard: (clip: AudioClip, bufferId: string) => void;
 
@@ -260,6 +263,7 @@ export interface UiSlice {
   setTimelineGridSize: (size: AllGridSize) => void;
   toggleTimelineSnap: () => void;
   toggleTripletMode: () => void;
+  setFollowPlayhead: (on: boolean) => void;
   /** Zoom centered on cursor — keeps tick under anchorPx visually fixed. */
   zoomAtPoint: (delta: number, anchorPx: number) => void;
   /** Zoom to fit all content in the viewport. */
@@ -302,25 +306,83 @@ export interface UiSlice {
   inspectorOpenByView: InspectorOpenByView;
   /** Per-user: the Inspector column's width in px. */
   inspectorWidth: number;
+  /** Per-user: the side rail's panel the Inspector shows (B4a). */
+  inspectorPanel: InspectorPanelId;
+  /**
+   * A side rail icon: shows its panel, opening the Inspector (the student's
+   * choice for the view); on the panel already open, closes it.
+   */
+  toggleInspectorPanel: (panel: InspectorPanelId) => void;
+  /** Shows `panel` and opens the Inspector for now (an analysis, a lesson). */
+  showInspectorPanel: (panel: InspectorPanelId) => void;
   setInspectorWidth: (px: number) => void;
+  /**
+   * Per-user: the Library items the student marked ♡ (2.14), by item id,
+   * sorted (shell/inspector/browser/favourites.ts).
+   */
+  libraryFavourites: string[];
+  /** ♡ on a Library row or a groove: marks the item, or unmarks it. */
+  toggleLibraryFavourite: (id: string) => void;
+
+  // ── The effects library and the dock's chain (milestone 2.8) ──
+  /**
+   * The Effects panel and the dock's chain are one state, as in Soundtrap:
+   * while the panel shows, the next empty slot of the chain is armed, and
+   * each pick fills it and arms the next. What the armed slot's × goes back
+   * to: the panel that showed before (null: the Inspector was shut).
+   */
+  fxLibraryReturn: InspectorPanelId | null;
+  /** Add effect: shows the Effects panel (the student's choice) and arms. */
+  openEffectsLibrary: () => void;
+  /** The armed slot's ×: stops adding and puts the Inspector back. */
+  cancelEffectsLibrary: () => void;
+  /** The effect whose controls the dock's chain shows. */
+  dockEffect: EffectSlotType | null;
+  setDockEffect: (effect: EffectSlotType | null) => void;
+
   /** Per-user: the dock's height for each tab, as a share of the editor body. */
   dockHeights: DockHeights;
-  setDockHeight: (tab: ChannelStripTabId, frac: number) => void;
+  setDockHeight: (slot: DockSlotId, frac: number) => void;
   /** Per-user: the position readout in bars and beats, or minutes. */
   readoutMode: ReadoutMode;
   setReadoutMode: (mode: ReadoutMode) => void;
 
-  // ── Channel strip (bottom panel) active tab ──
-  // Lifted out of ChannelStrip's local state so tutorials can open a tab
-  // (e.g. Prism) programmatically. null = strip collapsed.
+  // ── The editor dock (milestone 2.9) ──
+  // The open tab, in the store so tutorials can open one (e.g. Prism).
+  // null: the dock is shut to its tab bar.
   channelStripTab: ChannelStripTabId | null;
   setChannelStripTab: (tab: ChannelStripTabId | null) => void;
+  /**
+   * The dock shows Master (gain, the master chain, the output) in its slot
+   * instead of the selected track; the bottom rail's Master opens it.
+   */
+  dockMaster: boolean;
+  setDockMaster: (open: boolean) => void;
+  /** The dock grown over the canvas (Maximize; Escape restores it). */
+  dockMaximized: boolean;
+  setDockMaximized: (on: boolean) => void;
+  /** Notes picked in the dock's piano roll, which Analyze sends to Insight. */
+  dockNoteSelection: ClipNoteSelection | null;
+  setDockNoteSelection: (selection: ClipNoteSelection | null) => void;
 
-  // ── Collab panels ──
-  userListOpen: boolean;
-  toggleUserList: () => void;
-  chatPanelOpen: boolean;
-  toggleChatPanel: () => void;
+  // ── The Mix view (milestone 2.10) ──
+  /**
+   * The rack the Mix view's RackDock shows: a track's chain, a return's or
+   * the master's (null: the rack is shut to its bar). The side rail's
+   * Effects library adds to it while Mix shows. Its shown effect is
+   * dockEffect, as in Create's dock: the two never show at once.
+   */
+  mixRack: RackTarget | null;
+  setMixRack: (rack: RackTarget | null) => void;
+  /**
+   * The tracks Mute All muted, so pressing it again unmutes those and no
+   * others (null: Mute All isn't on).
+   */
+  muteAllSet: string[] | null;
+  setMuteAllSet: (ids: string[] | null) => void;
+  /** Per-user: the bottom rail says what the control under the pointer does. */
+  hoverHints: boolean;
+  setHoverHints: (on: boolean) => void;
 
   // ── Clip color mode ──
   clipColorMode: 'track' | 'prism';
@@ -372,10 +434,6 @@ export interface UiSlice {
   setSelectedChordIds: (ids: string[]) => void;
   selectedNotes: ClipNoteSelection[];
   setSelectedNotes: (selection: ClipNoteSelection[]) => void;
-  leadSheetSections: LeadSheetSection[];
-  setLeadSheetSections: (sections: LeadSheetSection[]) => void;
-  addLeadSheetSection: (section: LeadSheetSection) => void;
-  removeLeadSheetSection: (measureIdx: number) => void;
   leadSheetRepeats: LeadSheetRepeat[];
   setLeadSheetRepeats: (repeats: LeadSheetRepeat[]) => void;
   addLeadSheetRepeat: (repeat: LeadSheetRepeat) => void;
@@ -453,6 +511,11 @@ export interface UiSlice {
   setScoreSlashNotes: (ids: string[]) => void;
 }
 
+/** The panel the Effects library goes back to: the one showing, if any. */
+function returnPanel(s: UiSlice): InspectorPanelId | null {
+  return s.libraryOpen && s.inspectorPanel !== 'fx' ? s.inspectorPanel : null;
+}
+
 export const createUiSlice: StateCreator<
   AllSlices,
   [['zustand/subscribeWithSelector', never]],
@@ -466,8 +529,6 @@ export const createUiSlice: StateCreator<
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,
-  editingClipId: null,
-  editingClipTrackId: null,
   clipboardClips: [],
   clipboardAudioClip: null,
 
@@ -477,6 +538,7 @@ export const createUiSlice: StateCreator<
   timelineGridSize: '1/4',
   timelineSnapEnabled: true,
   timelineTripletMode: false,
+  followPlayhead: true,
 
   setActiveTool: (tool) => set({ activeTool: tool }),
 
@@ -489,9 +551,6 @@ export const createUiSlice: StateCreator<
       parkedClipSelection: null,
     }),
 
-  setEditingClip: (clipId, trackId) =>
-    set({ editingClipId: clipId, editingClipTrackId: trackId }),
-
   setClipboard: (clips) => set({ clipboardClips: clips }),
 
   setAudioClipboard: (clip, bufferId) =>
@@ -499,8 +558,7 @@ export const createUiSlice: StateCreator<
 
   // ── Timeline actions ──
 
-  setTimelineZoom: (zoom) =>
-    set({ timelineZoom: clamp(zoom, MIN_ZOOM, MAX_ZOOM) }),
+  setTimelineZoom: (zoom) => set({ timelineZoom: clampZoom(zoom) }),
 
   setTimelineScrollLeft: (px) => set({ timelineScrollLeft: Math.max(0, px) }),
 
@@ -511,28 +569,23 @@ export const createUiSlice: StateCreator<
 
   toggleTripletMode: () =>
     set((s) => ({ timelineTripletMode: !s.timelineTripletMode })),
+  setFollowPlayhead: (on) => set({ followPlayhead: on }),
 
   zoomAtPoint: (delta, anchorPx) =>
     set((s) => {
-      const oldZoom = s.timelineZoom;
-      const newZoom = clamp(oldZoom * (1 + delta), MIN_ZOOM, MAX_ZOOM);
-      const ratio = newZoom / oldZoom;
-      const newScrollLeft =
-        anchorPx * ratio - anchorPx + s.timelineScrollLeft * ratio;
-      return {
-        timelineZoom: newZoom,
-        timelineScrollLeft: Math.max(0, newScrollLeft),
-      };
+      const next = zoomAround(
+        { zoom: s.timelineZoom, scrollLeft: s.timelineScrollLeft },
+        delta,
+        anchorPx - s.timelineScrollLeft,
+      );
+      return { timelineZoom: next.zoom, timelineScrollLeft: next.scrollLeft };
     }),
 
-  zoomToFit: (viewportWidth, projectLengthTicks) => {
-    const BASE_PPB = 40;
-    const neededZoom = (viewportWidth * 480) / (projectLengthTicks * BASE_PPB);
+  zoomToFit: (viewportWidth, projectLengthTicks) =>
     set({
-      timelineZoom: clamp(neededZoom, MIN_ZOOM, MAX_ZOOM),
+      timelineZoom: fitZoom(viewportWidth, projectLengthTicks),
       timelineScrollLeft: 0,
-    });
-  },
+    }),
 
   // ── View switcher ──
   currentView: 'arrange' as ViewType,
@@ -553,6 +606,8 @@ export const createUiSlice: StateCreator<
       // Lesson steps re-assert the view they are already on: not a switch,
       // so the Inspector stays as the step left it.
       if (view === s.currentView) return next;
+      // The dock is Create's: coming back finds it at its own height.
+      next.dockMaximized = false;
       // Each view opens the Inspector as the student last had it there
       // (2.4); switching no longer forces it open in Create (ia-flows-21).
       next.libraryOpen = resolveInspectorOpen(view, s.inspectorOpenByView);
@@ -605,6 +660,41 @@ export const createUiSlice: StateCreator<
   inspectorOpenByView: {},
   inspectorWidth: INSPECTOR_DEFAULT_PX,
   setInspectorWidth: (px) => set({ inspectorWidth: clampInspectorPx(px) }),
+  inspectorPanel: 'insight',
+  toggleInspectorPanel: (panel) => {
+    const s = get();
+    const open = !(s.libraryOpen && s.inspectorPanel === panel);
+    // The rail's Effects icon arms the chain too: its × goes back to the
+    // panel that showed before.
+    if (open && panel === 'fx') set({ fxLibraryReturn: returnPanel(s) });
+    set({ inspectorPanel: panel });
+    s.setInspectorOpenFor(s.currentView, open);
+  },
+  showInspectorPanel: (panel) =>
+    set({ inspectorPanel: panel, libraryOpen: true }),
+  libraryFavourites: [],
+  toggleLibraryFavourite: (id) =>
+    set((s) => ({
+      libraryFavourites: toggledFavourites(s.libraryFavourites, id),
+    })),
+
+  fxLibraryReturn: null,
+  openEffectsLibrary: () => {
+    const s = get();
+    if (!(s.libraryOpen && s.inspectorPanel === 'fx')) {
+      set({ fxLibraryReturn: returnPanel(s), inspectorPanel: 'fx' });
+    }
+    s.setInspectorOpenFor(s.currentView, true);
+  },
+  cancelEffectsLibrary: () => {
+    const s = get();
+    const back = s.fxLibraryReturn;
+    set({ fxLibraryReturn: null });
+    if (back) set({ inspectorPanel: back });
+    else s.setInspectorOpenFor(s.currentView, false);
+  },
+  dockEffect: null,
+  setDockEffect: (effect) => set({ dockEffect: effect }),
   dockHeights: {},
   setDockHeight: (tab, frac) =>
     set((s) => ({
@@ -616,15 +706,29 @@ export const createUiSlice: StateCreator<
   readoutMode: 'bars',
   setReadoutMode: (mode) => set({ readoutMode: mode }),
 
-  // ── Channel strip active tab ──
+  // ── The editor dock ──
   channelStripTab: null,
-  setChannelStripTab: (tab) => set({ channelStripTab: tab }),
+  // Shutting the dock shuts Master and a maximized dock with it.
+  setChannelStripTab: (tab) =>
+    set(
+      tab === null
+        ? { channelStripTab: null, dockMaster: false, dockMaximized: false }
+        : { channelStripTab: tab },
+    ),
+  dockMaster: false,
+  setDockMaster: (open) => set({ dockMaster: open }),
+  dockMaximized: false,
+  setDockMaximized: (on) => set({ dockMaximized: on }),
+  dockNoteSelection: null,
+  setDockNoteSelection: (selection) => set({ dockNoteSelection: selection }),
 
-  // ── Collab panels ──
-  userListOpen: false,
-  toggleUserList: () => set((s) => ({ userListOpen: !s.userListOpen })),
-  chatPanelOpen: false,
-  toggleChatPanel: () => set((s) => ({ chatPanelOpen: !s.chatPanelOpen })),
+  // ── The Mix view ──
+  mixRack: null,
+  setMixRack: (rack) => set({ mixRack: rack }),
+  muteAllSet: null,
+  setMuteAllSet: (ids) => set({ muteAllSet: ids }),
+  hoverHints: true,
+  setHoverHints: (on) => set({ hoverHints: on }),
 
   // ── Clip color mode ──
   clipColorMode: 'track',
@@ -679,23 +783,6 @@ export const createUiSlice: StateCreator<
         ? { selectedNotes: selection, selectedChordIds: [] }
         : { selectedNotes: selection },
     ),
-  leadSheetSections: [],
-  setLeadSheetSections: (sections) => set({ leadSheetSections: sections }),
-  addLeadSheetSection: (section) =>
-    set((s) => ({
-      leadSheetSections: [
-        ...s.leadSheetSections.filter(
-          (sec) => sec.measureIdx !== section.measureIdx,
-        ),
-        section,
-      ].sort((a, b) => a.measureIdx - b.measureIdx),
-    })),
-  removeLeadSheetSection: (measureIdx) =>
-    set((s) => ({
-      leadSheetSections: s.leadSheetSections.filter(
-        (sec) => sec.measureIdx !== measureIdx,
-      ),
-    })),
   leadSheetRepeats: [],
   setLeadSheetRepeats: (repeats) => set({ leadSheetRepeats: repeats }),
   addLeadSheetRepeat: (repeat) =>

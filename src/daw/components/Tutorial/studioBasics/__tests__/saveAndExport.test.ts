@@ -4,8 +4,9 @@
  * is armed as the lesson layer arms it: it doesn't pass then, and it passes
  * once the thing really happened, through the editor's own save and exports:
  * Save with the cloud mocked (it refuses once, as the dev bypass's token on
- * the real API does, then takes it), MIDI and MusicXML with the download
- * mocked.
+ * the real API does, then takes it), MIDI with the download mocked. MusicXML
+ * and audio are marked as their downloads mark them (the Score page's
+ * buttons and the Export dialog).
  *
  * Run: npx vitest run src/daw/components/Tutorial/studioBasics/__tests__/saveAndExport.test.ts
  */
@@ -25,17 +26,14 @@ vi.mock('@/components/utils/toast', () => ({
 }));
 vi.mock('@/daw/midi/MidiFileIO', () => ({
   exportMidiFile: () => new Blob(),
-  downloadMidiBlob: vi.fn(),
 }));
-vi.mock('@/daw/midi/MusicXmlExport', () => ({
-  downloadLeadSheet: vi.fn(),
+vi.mock('@/daw/utils/exportFiles', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/daw/utils/exportFiles')>()),
+  downloadFile: vi.fn(),
 }));
 
 import { whenSavesSettled } from '@/daw/commands/cloudSaveStore';
-import {
-  exportLeadSheetMusicXml,
-  exportProjectMidi,
-} from '@/daw/commands/projectCommands';
+import { exportProjectMidi } from '@/daw/commands/projectCommands';
 import { registerSaveAuth, saveProject } from '@/daw/commands/saveProject';
 import {
   studioProjectsApi,
@@ -112,7 +110,9 @@ describe('Save and Export', () => {
     expect(passes()).toBe(false);
     await exportProjectMidi();
     expect(passes()).toBe(false);
-    await exportLeadSheetMusicXml();
+    // What a MusicXML download marks (ScoreView, LeadSheetToolbar and the
+    // Export dialog's Notation tab).
+    s().markDone('exportMusicXml');
     expect(passes()).toBe(true);
   });
 

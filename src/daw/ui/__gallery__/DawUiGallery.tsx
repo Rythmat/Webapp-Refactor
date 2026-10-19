@@ -70,6 +70,7 @@ import { PromptDialog } from '../PromptDialog';
 import { Readout } from '../Readout';
 import { Segmented } from '../Segmented';
 import { Select } from '../Select';
+import { SettingRow } from '../SettingRow';
 import { TYPE_CLASS } from '../styles';
 import { Tab, TabList, TabPanel, Tabs } from '../Tabs';
 import { Toggle } from '../Toggle';
@@ -572,6 +573,67 @@ function Gallery() {
                 <ContextMenuItem danger>Delete clip</ContextMenuItem>
               </ContextMenuContent>
             </ContextMenu>
+          </Row>
+        </Section>
+
+        <Section title="Setting rows (a line under every setting)">
+          <div className="flex max-w-sm flex-col gap-3">
+            <SettingRow
+              label="Show grid"
+              description="Lines behind the clips at every beat"
+            >
+              {({ descriptionId }) => (
+                <Toggle
+                  label="Show grid"
+                  pressed={showGrid}
+                  onPressedChange={setShowGrid}
+                  aria-describedby={descriptionId}
+                >
+                  {showGrid ? 'On' : 'Off'}
+                </Toggle>
+              )}
+            </SettingRow>
+            <SettingRow
+              layout="stacked"
+              label="Follow"
+              description="How the view keeps up with the playhead"
+            >
+              <Segmented
+                label="Follow"
+                options={[
+                  { value: 'page', label: 'Page' },
+                  { value: 'smooth', label: 'Smooth' },
+                ]}
+                value={follow}
+                onValueChange={setFollow}
+              />
+            </SettingRow>
+          </div>
+          <Row>
+            <Menu>
+              <MenuTrigger asChild>
+                <Button>Settings menu</Button>
+              </MenuTrigger>
+              <MenuContent align="start" className="w-64">
+                <MenuCheckboxItem
+                  checked={showGrid}
+                  onCheckedChange={(v) => setShowGrid(v === true)}
+                  description="Lines behind the clips at every beat"
+                >
+                  Show grid
+                </MenuCheckboxItem>
+                <MenuSeparator />
+                <MenuRadioGroup
+                  label="Follow"
+                  description="How the view keeps up with the playhead"
+                  value={follow}
+                  onValueChange={setFollow}
+                >
+                  <MenuRadioItem value="page">Page</MenuRadioItem>
+                  <MenuRadioItem value="smooth">Smooth</MenuRadioItem>
+                </MenuRadioGroup>
+              </MenuContent>
+            </Menu>
           </Row>
         </Section>
 

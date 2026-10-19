@@ -40,6 +40,12 @@ let synthInitPromise: Promise<void> | null = null;
 const channelsInUse = new Set<number>();
 let nextChannel = 0;
 
+// MIDI channel-mode controllers.
+const CC_ALL_SOUND_OFF = 120 as const;
+const CC_RESET_CONTROLLERS = 121 as const;
+const CC_ALL_NOTES_OFF = 123 as const;
+const PITCH_WHEEL_CENTRE = 8192;
+
 /** Allocate a free MIDI channel, skipping channel 9 (GM drums). With all 15
  *  taken (16+ SoundFont tracks), channels are shared round-robin. */
 function allocateChannel(): number {
@@ -132,7 +138,9 @@ export class SoundFontAdapter implements InstrumentAdapter {
       this.connectedNode = nativeCtx.destination;
     }
 
-    // Set GM program for this channel
+    // A reused channel still carries the last track's controllers (a held
+    // pedal, a bend, modulation): reset them, then set this track's program.
+    sharedSynth!.controllerChange(this.channel, CC_RESET_CONTROLLERS, 0);
     sharedSynth!.programChange(this.channel, this.program);
   }
 
@@ -193,12 +201,30 @@ export class SoundFontAdapter implements InstrumentAdapter {
     );
   }
 
-  allNotesOff(): void {
-    if (sharedSynth) sharedSynth.controllerChange(this.channel, 123, 0);
+  allNotesOff(time?: number): void {
+    if (!sharedSynth) return;
+    sharedSynth.controllerChange(
+      this.channel,
+      CC_ALL_NOTES_OFF,
+      0,
+      time !== undefined ? { time } : undefined,
+    );
   }
 
-  panic(): void {
-    this.allNotesOff();
+  /** Silences the channel outright (no release tails) and puts its pedal,
+   *  bend and other controllers back to rest. */
+  panic(time?: number): void {
+    if (!sharedSynth) return;
+    const options = time !== undefined ? { time } : undefined;
+    sharedSynth.controllerChange(this.channel, CC_ALL_NOTES_OFF, 0, options);
+    sharedSynth.controllerChange(this.channel, CC_ALL_SOUND_OFF, 0, options);
+    sharedSynth.controllerChange(
+      this.channel,
+      CC_RESET_CONTROLLERS,
+      0,
+      options,
+    );
+    sharedSynth.pitchWheel(this.channel, PITCH_WHEEL_CENTRE, options);
   }
 
   dispose(): void {
@@ -220,6 +246,12 @@ export class SoundFontAdapter implements InstrumentAdapter {
     }
     this.connectedNode = null;
     if (this.hasChannel) {
+      // Hand the channel back at rest: controllers reset and the default
+      // program, so the next track to claim it starts clean.
+      if (sharedSynth && synthReady) {
+        sharedSynth.controllerChange(this.channel, CC_RESET_CONTROLLERS, 0);
+        sharedSynth.programChange(this.channel, 0);
+      }
       releaseChannel(this.channel);
       this.hasChannel = false;
     }

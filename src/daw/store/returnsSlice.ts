@@ -1,4 +1,5 @@
 import type { StateCreator } from 'zustand';
+import { MAX_RACK_EFFECTS } from './effectRack';
 import type { AllSlices } from './index';
 import {
   DEFAULT_EFFECTS,
@@ -53,8 +54,6 @@ export function defaultReturns(): ReturnBus[] {
   ];
 }
 
-const MAX_RETURN_FX = 5;
-
 export const createReturnsSlice: StateCreator<
   AllSlices,
   [['zustand/subscribeWithSelector', never]],
@@ -74,7 +73,10 @@ export const createReturnsSlice: StateCreator<
     set((s) => ({
       returns: s.returns.map((r) => {
         if (r.id !== id) return r;
-        if (r.fxChain.includes(effectType) || r.fxChain.length >= MAX_RETURN_FX)
+        if (
+          r.fxChain.includes(effectType) ||
+          r.fxChain.length >= MAX_RACK_EFFECTS
+        )
           return r;
         return {
           ...r,

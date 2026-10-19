@@ -105,7 +105,8 @@ export class Oscillator {
     this.unisonB.connectDetuneModSource(this.detuneModBus);
   }
 
-  start(): void {
+  /** Starts this note's unison oscillators at `time` (now when omitted). */
+  start(time?: number): void {
     if (this.isStarted) return;
     this.isStarted = true;
 
@@ -116,30 +117,54 @@ export class Oscillator {
     this.unisonA.setBlend(this.params.unisonBlend);
     this.unisonB.setBlend(this.params.unisonBlend);
 
-    this.unisonA.start();
-    this.unisonB.start();
+    this.unisonA.start(time);
+    this.unisonB.start(time);
 
     this.applyWavetablePosition();
   }
 
-  stop(): void {
-    if (!this.isStarted) return;
-    this.isStarted = false;
-    this.unisonA.stop();
-    this.unisonB.stop();
-    this.currentSlotA = -1;
-    this.currentSlotB = -1;
+  /**
+   * Stops the oscillators at `time` (now when omitted), or moves an earlier
+   * scheduled stop; `onEnded` runs once they have ended. Returns false when
+   * there was nothing to stop.
+   */
+  stop(time?: number, onEnded?: () => void): boolean {
+    if (this.isStarted) {
+      this.isStarted = false;
+      this.currentSlotA = -1;
+      this.currentSlotB = -1;
+    }
+    // A set already in its tail can still be moved earlier (a voice steal).
+    const running = this.unisonA.stop(time, onEnded);
+    this.unisonB.stop(time);
+    return running;
   }
 
-  setFrequency(midiNote: number, glideTime?: number): void {
-    this.currentNote = midiNote;
-    const baseFreq = midiToFrequency(midiNote);
+  private noteToFrequency(midiNote: number): number {
     const tuningOffset =
       this.params.octave * 12 + this.params.semitone + this.params.fine / 100;
-    const freq = baseFreq * Math.pow(2, tuningOffset / 12);
+    return midiToFrequency(midiNote) * Math.pow(2, tuningOffset / 12);
+  }
 
-    this.unisonA.setFrequency(freq, glideTime);
-    this.unisonB.setFrequency(freq, glideTime);
+  /**
+   * Sets the pitch at `time` (now when omitted). With a glide time and
+   * `fromNote`, it glides from that note's pitch starting at `time`.
+   */
+  setFrequency(
+    midiNote: number,
+    glideTime?: number,
+    time?: number,
+    fromNote?: number,
+  ): void {
+    this.currentNote = midiNote;
+    const freq = this.noteToFrequency(midiNote);
+    const fromFreq =
+      fromNote !== undefined && fromNote >= 0
+        ? this.noteToFrequency(fromNote)
+        : undefined;
+
+    this.unisonA.setFrequency(freq, glideTime, time, fromFreq);
+    this.unisonB.setFrequency(freq, glideTime, time, fromFreq);
   }
 
   setParams(params: Partial<OscillatorParams>): void {
@@ -365,9 +390,9 @@ export class Oscillator {
     return this.detuneModBus;
   }
 
-  setPitchBendCents(cents: number): void {
-    this.unisonA.setPitchBendCents(cents);
-    this.unisonB.setPitchBendCents(cents);
+  setPitchBendCents(cents: number, time?: number): void {
+    this.unisonA.setPitchBendCents(cents, time);
+    this.unisonB.setPitchBendCents(cents, time);
   }
 
   connectVibratoSource(source: AudioNode): void {

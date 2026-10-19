@@ -35,12 +35,8 @@ vi.mock('react-router-dom', () => ({ useNavigate: () => () => {} }));
 
 import { useStore } from '@/daw/store';
 import { tickToPixel } from '@/daw/utils/timelineScale';
-import {
-  RULER_HEIGHT,
-  CHORD_RULER_HEIGHT,
-  TRACK_HEIGHT,
-  Timeline,
-} from '../Timeline';
+import { LANE_HEADER_PX, TRACK_ROW_PX } from '@/daw/shell/tracklist/rowLayout';
+import { ScrolledTimeline } from './scrolledTimeline';
 
 const s = () => useStore.getState();
 const VIEWPORT = 1200;
@@ -152,19 +148,18 @@ const clipX = () =>
 describe('timeline redraws', () => {
   it('draws before the first paint', () => {
     addClip();
-    render(<Timeline />);
+    render(<ScrolledTimeline />);
     expect(draws()).toBe(1);
   });
 
-  it('a fader step, a rename or a mute neither redraws nor re-renders it', () => {
+  it('a fader step or a track mute neither redraws nor re-renders it', () => {
     const trackId = addClip();
-    render(<Timeline />);
+    render(<ScrolledTimeline />);
     const drawn = draws();
     const commits = h.commits;
 
     act(() => {
       s().updateTrack(trackId, { volume: 0.3 });
-      s().updateTrack(trackId, { name: 'Lead vocal' });
       s().updateTrack(trackId, { mute: true });
     });
     act(() => runFrames());
@@ -173,9 +168,27 @@ describe('timeline redraws', () => {
     expect(h.commits).toBe(commits);
   });
 
+  it('redraws a rename once: clip headers show their track’s name (2.12)', () => {
+    const trackId = addClip();
+    render(<ScrolledTimeline />);
+    const drawn = draws();
+
+    act(() => s().updateTrack(trackId, { name: 'Lead vocal' }));
+    act(() => runFrames());
+    expect(draws()).toBe(drawn + 1);
+
+    // A clip's own name and its mute are drawn too, each on its own.
+    act(() => s().updateAudioClip(trackId, 'clip', { name: 'Take 2' }));
+    act(() => runFrames());
+    expect(draws()).toBe(drawn + 2);
+    act(() => s().updateAudioClip(trackId, 'clip', { muted: true }));
+    act(() => runFrames());
+    expect(draws()).toBe(drawn + 3);
+  });
+
   it('draws the changes made in one frame once, on that frame', () => {
     const trackId = addClip();
-    render(<Timeline />);
+    render(<ScrolledTimeline />);
     const drawn = draws();
 
     act(() => {
@@ -191,7 +204,7 @@ describe('timeline redraws', () => {
 
   it('moves a dragged clip with the pointer while the transport plays, on and off the canvas', () => {
     addClip();
-    const { container } = render(<Timeline />);
+    const { container } = render(<ScrolledTimeline />);
     const canvas = container.querySelector('canvas')!;
     act(() => useStore.setState({ isPlaying: true }));
     expect(clipX()).toBeCloseTo(tickToPixel(0, ZOOM, 0));
@@ -200,7 +213,7 @@ describe('timeline redraws', () => {
     // (with snap off, a move still lands on a beat).
     const beat = tickToPixel(480, ZOOM, 0);
     const grabX = tickToPixel(1920 + 960, ZOOM, 0);
-    const y = RULER_HEIGHT + CHORD_RULER_HEIGHT + TRACK_HEIGHT / 2;
+    const y = LANE_HEADER_PX + TRACK_ROW_PX / 2;
     fireEvent.mouseDown(canvas, { clientX: grabX, clientY: y });
     fireEvent.mouseMove(canvas, { clientX: grabX + 3 * beat, clientY: y });
     act(() => runFrames());
@@ -224,7 +237,7 @@ describe('timeline redraws', () => {
     const read = vi.spyOn(window, 'getComputedStyle');
     const { container } = render(
       <div className="daw-root">
-        <Timeline />
+        <ScrolledTimeline />
       </div>,
     );
     const canvas = container.querySelector('canvas')!;
@@ -244,5 +257,64 @@ describe('timeline redraws', () => {
     });
     act(() => runFrames());
     expect(draws()).toBe(5);
+  });
+});
+
+describe('lanes on the track list’s rows (milestone 2.6)', () => {
+  it('moves a clip into the lane under the pointer, 64 px a row', () => {
+    addClip();
+    s().addTrack('audio', 'vocal-fx', 'Second');
+    s().addTrack('audio', 'vocal-fx', 'Third');
+    const { container } = render(<ScrolledTimeline />);
+    const canvas = container.querySelector('canvas')!;
+    const x = tickToPixel(960, ZOOM, 0);
+    fireEvent.mouseDown(canvas, {
+      clientX: x,
+      clientY: LANE_HEADER_PX + TRACK_ROW_PX / 2,
+    });
+    fireEvent.mouseMove(canvas, {
+      clientX: x,
+      clientY: LANE_HEADER_PX + 2 * TRACK_ROW_PX + 10,
+    });
+    fireEvent.mouseUp(window);
+    expect(s().tracks.map((t) => t.audioClips.length)).toEqual([0, 0, 1]);
+  });
+
+  it('draws a one-bar clip in the MIDI lane clicked with Draw, from the grid line before it', () => {
+    s().addTrack('midi', 'piano-sampler', 'Keys');
+    const synth = s().addTrack('midi', 'oracle-synth', 'Synth');
+    useStore.setState({
+      activeTool: 'pencil',
+      timelineSnapEnabled: true,
+      timelineGridSize: '1/4',
+    });
+    const { container } = render(<ScrolledTimeline />);
+    const canvas = container.querySelector('canvas')!;
+    fireEvent.mouseDown(canvas, {
+      // Bar 2, a little after its second beat.
+      clientX: tickToPixel(1920 + 480 + 100, ZOOM, 0),
+      clientY: LANE_HEADER_PX + TRACK_ROW_PX + 20,
+    });
+    const clip = s().tracks[1].midiClips[0];
+    expect(clip).toMatchObject({ startTick: 1920 + 480, durationTicks: 1920 });
+    expect(s().selectedTrackId).toBe(synth);
+    expect(s().selectedClipId).toBe(clip.id);
+    expect(s().channelStripTab).toBe('piano-roll');
+  });
+
+  it('never overprints the ruler’s labels (timeline-22)', () => {
+    addClip();
+    useStore.setState({ timelineZoom: 4 });
+    render(<ScrolledTimeline />);
+    const labels = lastDraw()
+      .filter((c) => c.name === 'fillText')
+      .map((c) => ({ text: c.args[0] as string, x: c.args[1] as number }))
+      .filter((l) => /^\d+(\.\d+)*$/.test(l.text))
+      .sort((a, b) => a.x - b.x);
+    expect(labels.length).toBeGreaterThan(4);
+    for (let i = 1; i < labels.length; i++) {
+      const prev = labels[i - 1];
+      expect(labels[i].x).toBeGreaterThanOrEqual(prev.x + prev.text.length * 6);
+    }
   });
 });

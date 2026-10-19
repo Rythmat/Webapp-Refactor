@@ -87,6 +87,42 @@ describe('leadSheetToUnison', () => {
     expect(doc.form!.sections[1].type).toBe('verse');
   });
 
+  it('reads a section name as the Studio does, number and all', () => {
+    // One mapper with the Studio's sections (sectionTypeOfLabel). A chart's
+    // 'Verse 1' used to fall through to 'custom'.
+    const doc = leadSheetToUnison({
+      chordRegions: sampleRegions(),
+      sections: [
+        { measureIdx: 0, label: 'Verse 1' },
+        { measureIdx: 1, label: 'Pre Chorus' },
+        { measureIdx: 2, label: 'Chorus 2' },
+        { measureIdx: 3, label: 'A' },
+      ],
+    });
+    expect(doc.form!.sections.map((s) => [s.label, s.type])).toEqual([
+      ['Verse 1', 'verse'],
+      ['Pre Chorus', 'pre-chorus'],
+      ['Chorus 2', 'chorus'],
+      // A rehearsal letter names no kind.
+      ['A', 'custom'],
+    ]);
+  });
+
+  it('knows the kinds pop and dance music add', () => {
+    const labels = ['Build-up', 'Drop', 'Breakdown', 'Hook', 'Tag'];
+    const doc = leadSheetToUnison({
+      chordRegions: sampleRegions(),
+      sections: labels.map((label, measureIdx) => ({ measureIdx, label })),
+    });
+    expect(doc.form!.sections.map((s) => s.type)).toEqual([
+      'build-up',
+      'drop',
+      'breakdown',
+      'hook',
+      'tag',
+    ]);
+  });
+
   it('builds form label from sections (AABA pattern)', () => {
     const doc = leadSheetToUnison({
       chordRegions: sampleRegions(),

@@ -19,7 +19,10 @@ function context(offline: boolean) {
     state: 'suspended',
     resume: vi.fn(() => Promise.resolve()),
     audioWorklet: { addModule: vi.fn(() => Promise.resolve()) },
-    ...(offline ? { startRendering: () => Promise.resolve() } : {}),
+    // An OfflineAudioContext has startRendering() and no close().
+    ...(offline
+      ? { startRendering: () => Promise.resolve() }
+      : { close: () => Promise.resolve() }),
   }) as AudioContext & {
     resume: ReturnType<typeof vi.fn>;
     audioWorklet: { addModule: ReturnType<typeof vi.fn> };

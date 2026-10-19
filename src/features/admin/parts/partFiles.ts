@@ -25,18 +25,21 @@ export function downloadPartJson(part: InstrumentPart) {
 }
 
 export function downloadPartMidi(part: InstrumentPart) {
-  const channel = part.instrument === 'drums' ? 9 : 0;
+  // Channels count from 1 here, as the MIDI writer counts them: a kit plays
+  // on General MIDI's drum channel, 10 (it was 9, a melodic channel, and the
+  // rest wrote 0, which isn't a channel at all).
+  const channel = part.instrument === 'drums' ? 10 : 1;
   const blob = exportMidiFile(
-    new Map([
-      [
+    [
+      {
         channel,
-        {
+        sequence: {
           ticksPerQuarterNote: 480,
           trackName: part.name,
           events: toMidiEvents(part.notes).map((e) => ({ ...e, channel })),
         },
-      ],
-    ]),
+      },
+    ],
     part.tempo,
   );
   downloadMidiBlob(blob, `${part.id}.mid`);

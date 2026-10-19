@@ -42,3 +42,10 @@ You are continuing the **Music Atlas Studio editor overhaul** (the DAW under `sr
 ## Goal (plan polish track)
 
 3.0: re-map the remaining audit findings to Stage B files in `phase-map.json`. 3.1: note ids and selection by id (1.3 gave every note an id), a pointer gesture controller, shared context menus, on 2.7's snap/zoom/follow. 3.3: split Timeline into model, renderer and interaction; clip names and menus; inline automation lanes. 3.4: piano roll and drum grid on the shared core; keyboard entry; quantize.
+
+**Changed by decision 16 (2026-10-16):** Stage B already built some of this.
+
+- 2.12 built the shared clip menu module, the Edit pill and the clip chrome (name and key header, trims, fades, loop strip).
+- 2.13 built the sections lane and the section model (4.4).
+
+  3.1 adopts the clip menu module rather than building another one. 3.3 keeps the model/renderer/interaction split and inline automation, and carries the lanes and clip chrome over.

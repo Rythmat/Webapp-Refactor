@@ -49,6 +49,8 @@ describe('chord symbols: analyze, then use', () => {
       rootNote: 0,
       mode: 'ionian',
       chordAnalysis: null,
+      chordAnalysisOffered: false,
+      chordAnalysisDismissed: false,
       chordAnalysisPromptOpen: false,
       unisonDoc: null,
     });
@@ -56,12 +58,28 @@ describe('chord symbols: analyze, then use', () => {
 
   it('offers analysis only for a project with chord notes and no chord symbols', () => {
     s().offerChordAnalysis();
-    expect(s().chordAnalysisPromptOpen).toBe(true);
-
-    s().closeChordAnalysisPrompt();
-    useStore.setState({ tracks: [bass] });
-    s().offerChordAnalysis();
+    // The chord lane's banner, not a dialog over the editor (insight-22).
+    expect(s().chordAnalysisOffered).toBe(true);
     expect(s().chordAnalysisPromptOpen).toBe(false);
+
+    useStore.setState({ chordAnalysisOffered: false, tracks: [bass] });
+    s().offerChordAnalysis();
+    expect(s().chordAnalysisOffered).toBe(false);
+  });
+
+  it('opens the dialog from the banner, and Not now keeps it away on this project', () => {
+    s().offerChordAnalysis();
+    s().openChordAnalysisPrompt();
+    expect(s().chordAnalysisPromptOpen).toBe(true);
+    expect(s().chordAnalysisOffered).toBe(false);
+    s().closeChordAnalysisPrompt();
+
+    s().offerChordAnalysis();
+    s().dismissChordAnalysis();
+    expect(s().chordAnalysisOffered).toBe(false);
+    expect(s().chordAnalysisDismissed).toBe(true);
+    s().offerChordAnalysis();
+    expect(s().chordAnalysisOffered).toBe(false);
   });
 
   it('analysis proposes chord symbols; the chord lane changes only when they’re used', () => {

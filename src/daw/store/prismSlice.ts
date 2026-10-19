@@ -33,7 +33,7 @@ import {
   toSongTick,
   type TimeSignature,
 } from '@/daw/time/timeModel';
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import {
   StrumMode,
@@ -837,6 +837,8 @@ function clipContent(clip: MidiClip): string {
     clip.startTick,
     clip.durationTicks ?? 0,
     clip.name ?? '',
+    // A take the student muted (2.12) was touched: kept, as a renamed one is.
+    clip.muted === true,
     clip.events.map((e) => [
       e.note,
       e.velocity,
@@ -1813,7 +1815,7 @@ export const createPrismSlice: StateCreator<
     if (id) {
       for (const u of get().remoteUsers.values()) {
         if (u.selectedTrackId === id) {
-          toast({
+          notice({
             title: 'Track locked',
             description: `${u.userName} is editing this track`,
             variant: 'destructive',

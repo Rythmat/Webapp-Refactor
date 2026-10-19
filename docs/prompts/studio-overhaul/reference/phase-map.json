@@ -315,8 +315,8 @@
     "severity": "high",
     "designMilestone": "1.2",
     "status": "fixed",
-    "closedBy": ["d8ed594c"],
-    "note": "Give portaled Studio dialogs the editor's tokens, and white-pill primaries."
+    "closedBy": ["d8ed594c", "9b11a9b8", "7ecbd973"],
+    "note": "Collab dialogs are opaque DawDialogs with white-pill primaries, painted from the one palette."
   },
   "collab-13": {
     "severity": "high",
@@ -344,8 +344,8 @@
     "severity": "high",
     "designMilestone": "1.2",
     "status": "fixed",
-    "closedBy": ["d8ed594c"],
-    "note": "Give portaled Studio dialogs the editor's tokens, and white-pill primaries."
+    "closedBy": ["d8ed594c", "9b11a9b8"],
+    "note": "Portaled dialogs and menus read one palette, the --daw-* tokens on :root, and the old token copies are gone."
   },
   "design-system-04": {
     "severity": "high",
@@ -469,7 +469,9 @@
   "fx-mixer-04": {
     "severity": "high",
     "designMilestone": "2.10",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["d0ea45ea", "fa55e53f"],
+    "note": "The Mix view is a mixer first: strips fill the height (314 px of fader at 1366×655, 139 px with a rack open), and a return opens its rack below without collapsing them."
   },
   "fx-mixer-05": {
     "severity": "high",
@@ -563,14 +565,16 @@
   "ia-flows-12": {
     "severity": "high",
     "designMilestone": "2.10",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["d0ea45ea", "fa55e53f"],
+    "note": "The Mix view has no fixed mastering block: the strips take the body, the master has its own 240 px column, and the rack never takes their faders."
   },
   "ia-flows-13": {
     "severity": "high",
     "designMilestone": "1.2",
     "status": "fixed",
-    "closedBy": ["d8ed594c"],
-    "note": "Give portaled Studio dialogs the editor's tokens, and white-pill primaries."
+    "closedBy": ["d8ed594c", "9b11a9b8"],
+    "note": "Popovers and dialogs portaled to <body> read the editor's colours from one palette on :root."
   },
   "ia-flows-14": {
     "severity": "high",
@@ -828,8 +832,8 @@
     "severity": "high",
     "designMilestone": "1.2",
     "status": "fixed",
-    "closedBy": ["d8ed594c"],
-    "note": "Give portaled Studio dialogs the editor's tokens, and white-pill primaries."
+    "closedBy": ["d8ed594c", "9b11a9b8"],
+    "note": "Portaled dialogs and popovers read the editor's colours from :root, with the four workarounds and useTheme deleted."
   },
   "shell-12": {
     "severity": "high",
@@ -1193,7 +1197,9 @@
   "audio-core-20": {
     "severity": "medium",
     "designMilestone": "1.11",
-    "status": "open"
+    "status": "partial",
+    "closedBy": ["18632206"],
+    "note": "Exports can leave mastering out, render one track with or without effects and zip stems; sample preload, tail sizing and a worker encode remain."
   },
   "audio-core-23": {
     "severity": "medium",
@@ -1342,7 +1348,9 @@
   "collab-25": {
     "severity": "medium",
     "designMilestone": "2.3",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["7ecbd973"],
+    "note": "Collab dialogs trap focus and close with Escape, Invite can copy its link, and the room's chat is a labelled log."
   },
   "collab-26": {
     "severity": "medium",
@@ -1353,8 +1361,8 @@
     "severity": "medium",
     "designMilestone": "1.2",
     "status": "partial",
-    "closedBy": ["d8ed594c", "de1691c3"],
-    "note": "Dialogs and Prism Create use the white pill; colour-filled labels (key button, MON, EQ bands, presence names) still need onColor."
+    "closedBy": ["d8ed594c", "de1691c3", "9b11a9b8", "7ecbd973"],
+    "note": "Teal and the amber Export are gone and every dialog's primary is the white pill; some colour-filled labels (MON, EQ bands) still need onColor."
   },
   "design-system-03": {
     "severity": "medium",
@@ -1366,7 +1374,9 @@
   "design-system-05": {
     "severity": "medium",
     "designMilestone": "2.1",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["9b11a9b8"],
+    "note": "One token source: tokens.ts generates the --daw-* sheet, canvases read getDawPalette(), and useTheme's inline copy is deleted."
   },
   "design-system-06": {
     "severity": "medium",
@@ -1378,7 +1388,9 @@
   "design-system-07": {
     "severity": "medium",
     "designMilestone": "2.7",
-    "status": "open"
+    "status": "partial",
+    "closedBy": ["af1618b8"],
+    "note": "Clips colour by Track or Harmony from a kept toggle instead of repainting tracks, and teal and amber primaries are gone; the track and presence palettes wait for the colour review."
   },
   "design-system-08": {
     "severity": "medium",
@@ -1410,12 +1422,16 @@
   "design-system-13": {
     "severity": "medium",
     "designMilestone": "2.2",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["7ecbd973"],
+    "note": "Every Studio overlay is a DawDialog that traps focus and closes with Escape, and Settings' pickers are keyboard Selects."
   },
   "design-system-14": {
     "severity": "medium",
     "designMilestone": "2.2",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["f2e3559f"],
+    "note": "Save As, Delete Project, section labels and marker names ask in the editor's own dialogs, and Delete sits apart in red."
   },
   "dock-instruments-04": {
     "severity": "medium",
@@ -1432,14 +1448,16 @@
   "dock-instruments-07": {
     "severity": "medium",
     "designMilestone": "1.11",
-    "status": "open"
+    "status": "partial",
+    "closedBy": ["2fc8c8fa"],
+    "note": "The Library's ▶ plays one item at a time on the audio clock and stops on Play; the dock's Grooves tab still previews on timers."
   },
   "dock-instruments-11": {
     "severity": "medium",
     "designMilestone": "1.17",
-    "status": "partial",
-    "closedBy": ["2119f230"],
-    "note": "Dead Grooves controls and empty genres removed; favourites still live in the tab's own state."
+    "status": "fixed",
+    "closedBy": ["2119f230", "00d4fd48"],
+    "note": "A groove's ♡ is the student's own favourite, kept through reloads and shared with the Library."
   },
   "dock-instruments-12": {
     "severity": "medium",
@@ -1461,12 +1479,16 @@
   "dock-instruments-15": {
     "severity": "medium",
     "designMilestone": "2.9",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["64f5c8b3"],
+    "note": "Pop-outs are gone: Maximize grows the dock over the canvas, so an instrument never mounts a second copy."
   },
   "dock-instruments-16": {
     "severity": "medium",
     "designMilestone": "2.8",
-    "status": "open"
+    "status": "partial",
+    "closedBy": ["2fc8c8fa"],
+    "note": "The Studio's sounds and presets are listed in the Library with ▶ preview and +; marking the current preset and arrow-key navigation remain."
   },
   "dock-instruments-17": {
     "severity": "medium",
@@ -1495,7 +1517,9 @@
   "dock-instruments-21": {
     "severity": "medium",
     "designMilestone": "2.9",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["64f5c8b3"],
+    "note": "PopOutOverlay is deleted; Maximize in the dock replaces it and Escape restores the dock."
   },
   "engine-hooks-02": {
     "severity": "medium",
@@ -1597,7 +1621,9 @@
   "engine-hooks-27": {
     "severity": "medium",
     "designMilestone": "1.13",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["dc6f3189"],
+    "note": "MIDI status says what is wrong (no keyboard, needs Chrome or Edge, blocked) in a neutral chip in Settings."
   },
   "engine-hooks-28": {
     "severity": "medium",
@@ -1649,12 +1675,16 @@
   "fx-mixer-11": {
     "severity": "medium",
     "designMilestone": "3.6",
-    "status": "open"
+    "status": "partial",
+    "closedBy": ["64f5c8b3"],
+    "note": "An effect's graph is a labelled Graph toggle under its knobs, also in Mix, and shows large when maximized; the graph-first EQ is 3.6's."
   },
   "fx-mixer-12": {
     "severity": "medium",
     "designMilestone": "2.10",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["d0ea45ea", "fa55e53f"],
+    "note": "Each strip lists its effects; a click opens that track's rack under the mixer, as the returns' and the master's open theirs."
   },
   "fx-mixer-13": {
     "severity": "medium",
@@ -1666,7 +1696,9 @@
   "fx-mixer-14": {
     "severity": "medium",
     "designMilestone": "2.10",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["d0ea45ea"],
+    "note": "Strips show the fader value in dB under the fader, one meter on the meter bus, sends named by their return; returns show no fake meter."
   },
   "fx-mixer-15": {
     "severity": "medium",
@@ -1689,8 +1721,8 @@
     "severity": "medium",
     "designMilestone": "1.17",
     "status": "fixed",
-    "closedBy": ["839bdeed", "f84af426", "4fd5132d"],
-    "note": "FX list is click-only with a visible 5-effect cap; clicking an effect already in the chain selects it."
+    "closedBy": ["839bdeed", "f84af426", "4fd5132d", "3e889b35"],
+    "note": "The 5-effect cap is enforced by the store for tracks, the master and the returns, and the effects library fills the dock's chain."
   },
   "fx-mixer-20": {
     "severity": "medium",
@@ -1734,7 +1766,9 @@
   "ia-flows-21": {
     "severity": "medium",
     "designMilestone": "2.4",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["0a75fa31"],
+    "note": "The Inspector and dock sizes follow each student per view, so a view switch no longer forces the Inspector open."
   },
   "ia-flows-22": {
     "severity": "medium",
@@ -1744,27 +1778,37 @@
   "ia-flows-23": {
     "severity": "medium",
     "designMilestone": "2.9",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["64f5c8b3"],
+    "note": "The dock's tabs follow the track type with Effects last, and Maximize replaces the pop-outs, so nothing mounts twice."
   },
   "ia-flows-24": {
     "severity": "medium",
     "designMilestone": "2.5",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["4b0d7365", "7cd85eee"],
+    "note": "The transport is one centred group in the bottom rail, the song's key, tempo and metre sit beside it, and nothing overflows at 1366 px."
   },
   "ia-flows-25": {
     "severity": "medium",
     "designMilestone": "2.6",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["b6d2d963", "438d43eb"],
+    "note": "An empty project offers four start tiles, and the picker leads with Keys, describes each kind and opens a real file picker."
   },
   "ia-flows-26": {
     "severity": "medium",
     "designMilestone": "2.5",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["af1618b8", "729762e1", "887be29c", "689c4dce"],
+    "note": "The key is set in one place, Suggest is a visible + in the chord lane, clips and markers have visible ways in, and Alt+M adds a named marker."
   },
   "ia-flows-27": {
     "severity": "medium",
     "designMilestone": "2.5",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["737e3288", "af1618b8"],
+    "note": "Follow pages the timeline during playback and pauses while the student scrolls."
   },
   "ia-flows-28": {
     "severity": "medium",
@@ -1803,7 +1847,9 @@
   "ia-flows-33": {
     "severity": "medium",
     "designMilestone": "2.2",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["f2e3559f", "7ecbd973"],
+    "note": "One DawDialog for every Studio question and dialog, with no native prompts left."
   },
   "ia-flows-34": {
     "severity": "medium",
@@ -1815,14 +1861,16 @@
   "ia-flows-35": {
     "severity": "medium",
     "designMilestone": "1.2",
-    "status": "partial",
-    "closedBy": ["8fd85c2f"],
-    "note": "Gain Match hidden and 'LUFS' relabelled 'Peak' (label part); Mute All as a toggle not cited."
+    "status": "fixed",
+    "closedBy": ["8fd85c2f", "d0ea45ea"],
+    "note": "Gain Match stays hidden, the meter says Peak, and Mute All is a real toggle that unmutes what it muted."
   },
   "ia-flows-36": {
     "severity": "medium",
     "designMilestone": "2.6",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["b6d2d963"],
+    "note": "Each track is one 64 px row with Mute, Solo, Arm and volume and a ⋯ menu for the rest; Release shows only in a session."
   },
   "insight-02": {
     "severity": "medium",
@@ -1834,8 +1882,8 @@
     "severity": "medium",
     "designMilestone": "1.8",
     "status": "fixed",
-    "closedBy": ["8e034eea"],
-    "note": "Open the side panel in one step instead of animating its width."
+    "closedBy": ["8e034eea", "4b0d7365"],
+    "note": "Panels change size in one step with a content fade, so nothing re-lays out the timeline every frame."
   },
   "insight-06": {
     "severity": "medium",
@@ -1915,7 +1963,9 @@
   "insight-18": {
     "severity": "medium",
     "designMilestone": "2.8",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["2fc8c8fa"],
+    "note": "The Library is a real browser of parts, grooves, kits, sounds and templates, with search, filters, preview and drag onto the timeline."
   },
   "insight-20": {
     "severity": "medium",
@@ -2239,7 +2289,9 @@
   "pianoroll-11": {
     "severity": "medium",
     "designMilestone": "2.9",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["64f5c8b3"],
+    "note": "One docked note editor opens from a clip click and maximizes in place; the modal piano roll is gone and the transport stays visible."
   },
   "pianoroll-12": {
     "severity": "medium",
@@ -2388,7 +2440,9 @@
   "practice-tutorial-19": {
     "severity": "medium",
     "designMilestone": "2.1",
-    "status": "open"
+    "status": "partial",
+    "closedBy": ["9b11a9b8"],
+    "note": "The coach card's primary is the white pill with dark text; its dialog role, live region and focus on start are still to do."
   },
   "practice-tutorial-20": {
     "severity": "medium",
@@ -2716,29 +2770,37 @@
   "shell-19": {
     "severity": "medium",
     "designMilestone": "2.5",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["4b0d7365", "7cd85eee"],
+    "note": "A calm 44 px top bar with the transport in a bottom rail, Go to start, Rewind and Fast-forward, and a fold instead of overflow."
   },
   "shell-20": {
     "severity": "medium",
     "designMilestone": "2.4",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["4b0d7365"],
+    "note": "The Inspector column is rendered once outside the view switch, so a view change remounts only the view."
   },
   "shell-21": {
     "severity": "medium",
     "designMilestone": "1.13",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["dc6f3189"],
+    "note": "Settings lists devices without asking for the microphone, its pickers work by keyboard, and the dead channel views are gone."
   },
   "shell-22": {
     "severity": "medium",
     "designMilestone": "1.4",
-    "status": "partial",
-    "closedBy": ["6fccb1e7"],
-    "note": "verified in code: Save As takes name and link only once saved; window.prompt and window.confirm remain until 2.3 (FileMenu.tsx:178, 210)."
+    "status": "fixed",
+    "closedBy": ["6fccb1e7", "f2e3559f"],
+    "note": "Save As keeps the project until it saves, and every question is the editor's own dialog instead of the browser's pop-ups."
   },
   "shell-23": {
     "severity": "medium",
     "designMilestone": "2.1",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["9b11a9b8", "d46e6c26", "7ecbd973", "6b9e302d"],
+    "note": "Teal is retired, toggles are white on white/10, and Export is the one white pill at the top right."
   },
   "shell-25": {
     "severity": "medium",
@@ -2766,19 +2828,23 @@
   "shell-29": {
     "severity": "medium",
     "designMilestone": "2.5",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["4b0d7365", "a8a93079"],
+    "note": "Focus mode: the editor takes the whole window, with the avatar menu in its top bar and an editor-shaped skeleton."
   },
   "shell-33": {
     "severity": "medium",
     "designMilestone": "1.6",
     "status": "fixed",
-    "closedBy": ["08bca9ab"],
-    "note": "Keys act only where the student is working, and the computer keyboard plays every instrument."
+    "closedBy": ["08bca9ab", "ec9b1811", "1c484546"],
+    "note": "Keys act only where the student is working; the '?' sheet and the ⌘K palette list them from one registry, searchable, and the typing chip shows its state."
   },
   "shell-36": {
     "severity": "medium",
     "designMilestone": "2.1",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["9b11a9b8"],
+    "note": "The editor's tokens alias the app's --ui-* values, dim text is readable (#8e8ea3) and the glass is gone."
   },
   "state-reload-08": {
     "severity": "medium",
@@ -3115,7 +3181,9 @@
   "timeline-09": {
     "severity": "medium",
     "designMilestone": "2.7",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["737e3288", "af1618b8"],
+    "note": "Follow turns the timeline a page at a time while playing and pauses while the student scrolls, drags or zooms."
   },
   "timeline-11": {
     "severity": "medium",
@@ -3127,7 +3195,9 @@
   "timeline-12": {
     "severity": "medium",
     "designMilestone": "2.6",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["af1618b8"],
+    "note": "Rows and lanes share one scroller laid out from one height array, so they can't drift apart."
   },
   "timeline-13": {
     "severity": "medium",
@@ -3137,14 +3207,16 @@
   "timeline-14": {
     "severity": "medium",
     "designMilestone": "1.10",
-    "status": "partial",
-    "closedBy": ["b8718b41"],
-    "note": "Every gesture snaps to one metre-aware grid and Snap off frees them all; no Grid menu yet, so grid sizes are unreachable (2.7)."
+    "status": "fixed",
+    "closedBy": ["b8718b41", "af1618b8"],
+    "note": "Every gesture snaps to one metre-aware grid, and the Grid menu offers Bar to 1/16 and triplets."
   },
   "timeline-15": {
     "severity": "medium",
     "designMilestone": "2.7",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["737e3288", "af1618b8", "37123e9f"],
+    "note": "Zoom keeps the music under the pointer, with visible −, level, + and Fit beside the scrollbar, and Fit uses the real width."
   },
   "timeline-16": {
     "severity": "medium",
@@ -3154,7 +3226,9 @@
   "timeline-17": {
     "severity": "medium",
     "designMilestone": "3.3",
-    "status": "open"
+    "status": "partial",
+    "closedBy": ["729762e1", "8b84002b", "887be29c"],
+    "note": "Clips have one menu (right-click, Edit pill or Alt+Return), a name and key header, fade handles and a marquee; keyboard clip navigation is 3.3's."
   },
   "timeline-18": {
     "severity": "medium",
@@ -3174,12 +3248,16 @@
   "timeline-21": {
     "severity": "medium",
     "designMilestone": "2.6",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["b6d2d963"],
+    "note": "Each track row's Mute, Solo and Arm are named in full, show as pressed and are reachable targets."
   },
   "timeline-22": {
     "severity": "medium",
     "designMilestone": "2.7",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["af1618b8"],
+    "note": "Ruler labels never overprint and are readable at 11 px; chord names are 12 px."
   },
   "timeline-23": {
     "severity": "medium",
@@ -3191,8 +3269,9 @@
   "timeline-24": {
     "severity": "medium",
     "designMilestone": "1.17",
-    "status": "open",
-    "note": "Not cited; 1.17a remainder or Stage B."
+    "status": "fixed",
+    "closedBy": ["b6d2d963"],
+    "note": "Track rows reorder by a grip on one row layout, without measuring every row on each edit or a blur behind them."
   },
   "timeline-25": {
     "severity": "medium",
@@ -3270,7 +3349,9 @@
   "bundle-load-19": {
     "severity": "low",
     "designMilestone": "2.1",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["9b11a9b8"],
+    "note": "useTheme and its inline tokens are deleted; the generated sheet is the only source."
   },
   "collab-27": {
     "severity": "low",
@@ -3304,21 +3385,23 @@
   "design-system-15": {
     "severity": "low",
     "designMilestone": "1.17",
-    "status": "partial",
-    "closedBy": ["6d6fd46f"],
-    "note": "One dB format for faders and levels; Mute All still only mutes and Test Sound still logs to the console."
+    "status": "fixed",
+    "closedBy": ["6d6fd46f", "d0ea45ea", "fa55e53f"],
+    "note": "Mute All is a toggle that writes once a press; the master fader and meter are one implementation in the dock and Mix."
   },
   "design-system-16": {
     "severity": "low",
     "designMilestone": "1.17",
     "status": "fixed",
-    "closedBy": ["9a39d80f"],
-    "note": "Delete dead Studio modules and wire the vocal Delay and Reverb pedals."
+    "closedBy": ["9a39d80f", "d0ea45ea"],
+    "note": "Delete dead Studio modules and wire the vocal Delay and Reverb pedals; the old Studio view and FxBrowser are gone too."
   },
   "design-system-17": {
     "severity": "low",
     "designMilestone": "2.1",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["d46e6c26"],
+    "note": "Spacing, size, radius and z-index scales live in the tokens, and a ratchet stops new literals in the rest of the editor."
   },
   "dock-instruments-22": {
     "severity": "low",
@@ -3355,7 +3438,9 @@
   "fx-mixer-24": {
     "severity": "low",
     "designMilestone": "2.6",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["b6d2d963", "438d43eb"],
+    "note": "Import MIDI file… opens the file picker, the picker wraps on narrow screens, and every kind has a line on what it's for."
   },
   "fx-mixer-25": {
     "severity": "low",
@@ -3405,8 +3490,9 @@
   "insight-22": {
     "severity": "low",
     "designMilestone": "1.16",
-    "status": "open",
-    "note": "Not cited by 1.16a; left for 1.16b or a later milestone."
+    "status": "partial",
+    "closedBy": ["737e3288", "af1618b8"],
+    "note": "The chord-analysis offer is a banner in the chord lane and Not now is kept with the project; the analysis still runs on the main thread."
   },
   "insight-23": {
     "severity": "low",
@@ -3569,8 +3655,8 @@
     "severity": "low",
     "designMilestone": "1.2",
     "status": "fixed",
-    "closedBy": ["d8ed594c"],
-    "note": "Give portaled Studio dialogs the editor's tokens, and white-pill primaries."
+    "closedBy": ["d8ed594c", "9b11a9b8"],
+    "note": "The tutorial portal reads the palette from :root, so nothing is copied."
   },
   "practice-tutorial-25": {
     "severity": "low",
@@ -3647,7 +3733,9 @@
   "score-31": {
     "severity": "low",
     "designMilestone": "2.2",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["1c484546"],
+    "note": "Shortcut labels come from the registry by platform (⌘Z on a Mac, Ctrl+Z elsewhere; Enter off a Mac)."
   },
   "shell-24": {
     "severity": "low",
@@ -3666,21 +3754,23 @@
   "shell-31": {
     "severity": "low",
     "designMilestone": "1.17",
-    "status": "partial",
-    "closedBy": ["9a39d80f"],
-    "note": "StatusBar, minimal-dock and demo deleted; useTheme/theme state and the duplicate token source remain."
+    "status": "fixed",
+    "closedBy": ["9a39d80f", "9b11a9b8"],
+    "note": "Dead shell code, useTheme and the duplicate token source are all deleted."
   },
   "shell-32": {
     "severity": "low",
     "designMilestone": "1.6",
     "status": "fixed",
-    "closedBy": ["08bca9ab"],
-    "note": "Keys act only where the student is working, and the computer keyboard plays every instrument."
+    "closedBy": ["08bca9ab", "737e3288"],
+    "note": "Fit reads the canvas's measured width instead of assuming 800 px."
   },
   "shell-34": {
     "severity": "low",
     "designMilestone": "1.11",
-    "status": "open"
+    "status": "partial",
+    "closedBy": ["6b9e302d"],
+    "note": "The new Export dialog shows stems as 'Track 3 of 7' and can stop between tracks; a single render still can't be stopped half-way."
   },
   "shell-35": {
     "severity": "low",
@@ -3749,12 +3839,16 @@
   "timeline-27": {
     "severity": "low",
     "designMilestone": "2.6",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["b6d2d963", "438d43eb"],
+    "note": "Add track is an accessible dialog that wraps: eight kinds with a line each, a second step where needed, and Import MIDI file…"
   },
   "timeline-28": {
     "severity": "low",
     "designMilestone": "2.7",
-    "status": "open"
+    "status": "fixed",
+    "closedBy": ["af1618b8"],
+    "note": "The playhead is white (red while recording), and the loop, marquee and triplet lines come from the palette."
   },
   "timeline-29": {
     "severity": "low",

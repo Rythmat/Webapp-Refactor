@@ -14,11 +14,19 @@ export class OracleSynthAdapter implements InstrumentAdapter {
   private engine: SynthEngine | null = null;
 
   async init(ctx: AudioContext, outputNode: AudioNode): Promise<void> {
-    this.engine = new SynthEngine();
-    await this.engine.init(ctx, { disableMidi: true });
+    const engine = new SynthEngine();
+    this.engine = engine;
+    await engine.init(ctx, { disableMidi: true });
+
+    // Disposed (track deleted, instrument switched, undo …) while init was
+    // waiting: release what the engine built and stop here.
+    if (this.engine !== engine) {
+      engine.releaseResources();
+      return;
+    }
 
     // Reroute: disconnect analyser from ctx.destination, connect to track output
-    const analyser = this.engine.getAnalyserNode();
+    const analyser = engine.getAnalyserNode();
     if (analyser) {
       try {
         analyser.disconnect(ctx.destination);
@@ -48,16 +56,27 @@ export class OracleSynthAdapter implements InstrumentAdapter {
     this.engine?.handleCC(controller, value / 127, time);
   }
 
-  pitchBend(value: number): void {
-    this.engine?.setPitchBend(value);
+  pitchBend(value: number, time?: number): void {
+    this.engine?.setPitchBend(value, time);
   }
 
-  allNotesOff(): void {
-    this.engine?.allNotesOff();
+  /** Releases every held note at `time` (an AudioContext time; now if omitted). */
+  allNotesOff(time?: number): void {
+    this.engine?.allNotesOff(time);
   }
 
-  panic(): void {
-    this.engine?.forceAllNotesOff();
+  /** Silences every voice with a short fade from `time` (now if omitted). */
+  panic(time?: number): void {
+    this.engine?.forceAllNotesOff(time);
+  }
+
+  /**
+   * Lines the Oracle's bar-shaped LFOs up with the song: at context time
+   * `time` the transport is at `beat` (quarter notes from the song start).
+   * For the playback scheduler to call on start, loop and seek.
+   */
+  alignToTransport(time: number, beat: number): void {
+    this.engine?.alignLFOs(time, beat);
   }
 
   /** Access the underlying SynthEngine for parameter control (presets, FX, etc.). */

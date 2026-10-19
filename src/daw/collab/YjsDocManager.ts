@@ -15,6 +15,13 @@ import type { AllSlices } from '@/daw/store/index';
 import type { Track, MidiClip, AudioClip } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { Marker } from '@/daw/store/markersSlice';
+import {
+  isSectionType,
+  normalizeSections,
+  sectionName,
+  type SongSection,
+} from '@/daw/model/sections';
+import { ticksPerBar } from '@/daw/time/timeModel';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
 import type { ChatMessage } from './types';
 
@@ -59,6 +66,11 @@ export function getYPrism(doc: Y.Doc): Y.Map<unknown> {
 
 export function getYMarkers(doc: Y.Doc): Y.Array<Y.Map<unknown>> {
   return doc.getArray('markers');
+}
+
+/** The song's sections (milestone 2.13), one Y.Map each. */
+export function getYSections(doc: Y.Doc): Y.Array<Y.Map<unknown>> {
+  return doc.getArray('sections');
 }
 
 export function getYMastering(doc: Y.Doc): Y.Map<unknown> {
@@ -126,6 +138,8 @@ export function midiClipToYMap(clip: MidiClip): Y.Map<unknown> {
     ccArr.push(clip.ccEvents.map(ccEventToYMap));
     m.set('ccEvents', ccArr);
   }
+  // Doc schema 2 (milestone 2.12): set only while the clip is muted.
+  if (clip.muted) m.set('muted', true);
   return m;
 }
 
@@ -142,6 +156,9 @@ export function audioClipToYMap(clip: AudioClip): Y.Map<unknown> {
   m.set('assetId', clip.assetId ?? null);
   m.set('offsetSeconds', clip.offsetSeconds ?? 0);
   m.set('gain', clip.gain ?? 1);
+  // Doc schema 2 (milestone 2.12): set only while the clip has them.
+  if (clip.name !== undefined) m.set('name', clip.name);
+  if (clip.muted) m.set('muted', true);
   return m;
 }
 
@@ -219,6 +236,16 @@ export function markerToYMap(marker: Marker): Y.Map<unknown> {
   return m;
 }
 
+export function sectionToYMap(section: SongSection): Y.Map<unknown> {
+  const m = new Y.Map<unknown>();
+  m.set('id', section.id);
+  m.set('type', section.type);
+  m.set('label', section.label);
+  m.set('startTick', section.startTick);
+  m.set('endTick', section.endTick);
+  return m;
+}
+
 // ── Conversion helpers: Yjs → Zustand ───────────────────────────────────
 
 /**
@@ -265,6 +292,7 @@ export function yMapToMidiClip(m: Y.Map<unknown>): MidiClip {
     durationTicks: (m.get('durationTicks') as number) || undefined,
     events: eventsArr ? eventsArr.toArray().map(yMapToMidiEvent) : [],
     ccEvents: ccArr ? ccArr.toArray().map(yMapToCCEvent) : undefined,
+    muted: m.get('muted') === true || undefined,
   };
 }
 
@@ -278,6 +306,9 @@ export function yMapToAudioClip(m: Y.Map<unknown>): AudioClip {
     assetId: (m.get('assetId') as string | null) ?? null,
     offsetSeconds: (m.get('offsetSeconds') as number | undefined) ?? 0,
     gain: (m.get('gain') as number | undefined) ?? 1,
+    name:
+      typeof m.get('name') === 'string' ? (m.get('name') as string) : undefined,
+    muted: m.get('muted') === true || undefined,
   };
 }
 
@@ -395,6 +426,61 @@ export function yMapToMarker(m: Y.Map<unknown>): Marker {
   };
 }
 
+/** A section from the doc; a type this build doesn't know reads as custom. */
+export function yMapToSection(m: Y.Map<unknown>): SongSection {
+  const type = isSectionType(m.get('type')) ? m.get('type') : 'custom';
+  const label = m.get('label');
+  return {
+    id: String(m.get('id') ?? ''),
+    type: type as SongSection['type'],
+    label:
+      typeof label === 'string'
+        ? label
+        : sectionName(type as SongSection['type']),
+    startTick: Number(m.get('startTick')),
+    endTick: Number(m.get('endTick')),
+  };
+}
+
+/**
+ * The doc's sections as the store keeps them: in order and never
+ * overlapping. Every peer reads the doc the same way (normalizeSections is
+ * deterministic), and the next edit writes that reading back (diffSections
+ * compares with the doc), so the peers can't drift apart:
+ * - Two collaborators adding a section at the same end at once: the later
+ *   one (by start, then id) moves after the other.
+ * - An id the doc holds twice (both students undid the same deletion) is
+ *   read once, its first copy.
+ * - A section whose ends crossed (two students dragged its two edges toward
+ *   each other at once) is kept with its ends swapped, or a bar long when
+ *   they met, rather than dropped (and then deleted by the next edit).
+ */
+export function sectionsFromDoc(doc: Y.Doc): SongSection[] {
+  const transport = getYTransport(doc);
+  const numerator = Number(transport.get('timeSignatureNumerator'));
+  const denominator = Number(transport.get('timeSignatureDenominator'));
+  const bar = ticksPerBar({
+    numerator: numerator > 0 ? numerator : 4,
+    denominator: denominator > 0 ? denominator : 4,
+  });
+  const seen = new Set<string>();
+  const sections: SongSection[] = [];
+  for (const m of getYSections(doc).toArray()) {
+    const section = yMapToSection(m);
+    if (section.id === '' || seen.has(section.id)) continue;
+    seen.add(section.id);
+    const { startTick, endTick } = section;
+    if (endTick < startTick) {
+      sections.push({ ...section, startTick: endTick, endTick: startTick });
+    } else if (endTick === startTick) {
+      sections.push({ ...section, endTick: startTick + bar });
+    } else {
+      sections.push(section);
+    }
+  }
+  return normalizeSections(sections);
+}
+
 // ── Hydrate: populate Y.Doc from Zustand state ─────────────────────────
 
 /**
@@ -459,6 +545,12 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     yMarkers.delete(0, yMarkers.length);
     yMarkers.push(state.markers.map(markerToYMap));
 
+    // Song sections (milestone 2.13). The lead sheet's own `sections` key,
+    // its bar marks before 2.13, is no longer written or read.
+    const ySections = getYSections(doc);
+    ySections.delete(0, ySections.length);
+    ySections.push(state.sections.map(sectionToYMap));
+
     // Mastering
     const mastering = getYMastering(doc);
     for (const [key, value] of Object.entries(LEGACY_MASTERING_MACROS)) {
@@ -473,7 +565,6 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
 
     // Lead sheet
     const leadSheet = getYLeadSheet(doc);
-    leadSheet.set('sections', JSON.stringify(state.leadSheetSections));
     leadSheet.set('repeats', JSON.stringify(state.leadSheetRepeats));
     leadSheet.set('chordFormat', state.leadSheetChordFormat);
     leadSheet.set('showRepeats', state.leadSheetShowRepeats);

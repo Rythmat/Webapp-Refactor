@@ -40,13 +40,13 @@ export class EightOhEightInstrument implements InstrumentAdapter {
     this.sounding = null;
   }
 
-  allNotesOff(): void {
-    this.voice?.synth.triggerRelease(Tone.immediate());
+  allNotesOff(time?: number): void {
+    this.voice?.synth.triggerRelease(time ?? Tone.immediate());
     this.sounding = null;
   }
 
-  panic(): void {
-    this.allNotesOff();
+  panic(time?: number): void {
+    this.allNotesOff(time);
   }
 
   dispose(): void {

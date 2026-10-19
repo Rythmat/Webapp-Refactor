@@ -32,17 +32,29 @@ export type TripletGridSize = keyof typeof TRIPLET_GRID_VALUES;
 export type AllGridSize = keyof typeof ALL_GRID_VALUES;
 
 // ── Quantize ──────────────────────────────────────────────────────────────
-// Snaps each event's startTick to the nearest grid position.
+// Snaps each event's startTick to the nearest grid position: the clip
+// menu's Quantize (milestone 2.12).
 
+/**
+ * Each note moved to start on the nearest grid line, its length and id
+ * kept. `toGrid` snaps a song tick (the time model's snapTicks, counted from
+ * the bar lines in the project's metre); `offsetTicks` is where the notes'
+ * tick 0 sits in the song, a clip's start, so a clip that starts off the
+ * grid still lands its notes on the song's grid. No note moves before the
+ * clip's start. Notes already on the grid are the same objects.
+ */
 export function quantizeEvents(
   events: MidiNoteEvent[],
-  gridSize: GridSize,
+  toGrid: (songTick: number) => number,
+  offsetTicks = 0,
 ): MidiNoteEvent[] {
-  const gridTicks = GRID_VALUES[gridSize];
-  return events.map((ev) => ({
-    ...ev,
-    startTick: Math.round(ev.startTick / gridTicks) * gridTicks,
-  }));
+  return events.map((ev) => {
+    const startTick = Math.max(
+      0,
+      toGrid(offsetTicks + ev.startTick) - offsetTicks,
+    );
+    return startTick === ev.startTick ? ev : { ...ev, startTick };
+  });
 }
 
 // Snap a single tick value to grid

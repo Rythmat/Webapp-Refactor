@@ -43,3 +43,36 @@ export function recordTargetTrackId(
     null
   );
 }
+
+/**
+ * Track ids live MIDI drives: the practice screen's track, else the
+ * monitored MIDI tracks, else the selected one.
+ */
+export function liveMidiTargetIds(
+  state: AllSlices = useStore.getState(),
+): string[] {
+  const practice = practiceLiveTrackId(state);
+  if (practice !== null) return [practice];
+  const monitored = state.tracks
+    .filter((t) => t.monitoring && t.type === 'midi')
+    .map((t) => t.id);
+  if (monitored.length > 0) return monitored;
+  return state.selectedTrackId ? [state.selectedTrackId] : [];
+}
+
+/**
+ * Whether every track live notes go to is a drum kit: the computer
+ * keyboard then plays the kit (DRUM_TYPING_OCTAVE), whatever its octave.
+ */
+export function liveTargetsAreDrums(
+  state: AllSlices = useStore.getState(),
+): boolean {
+  const ids = liveMidiTargetIds(state);
+  return (
+    ids.length > 0 &&
+    ids.every(
+      (id) =>
+        state.tracks.find((t) => t.id === id)?.instrument === 'drum-machine',
+    )
+  );
+}

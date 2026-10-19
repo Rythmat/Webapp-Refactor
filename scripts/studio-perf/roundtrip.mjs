@@ -1447,10 +1447,12 @@ async function clickFileItem(page, name) {
     await sleep(250);
     if (await page.locator('[role=menu][data-state=open]').count()) break;
   }
+  // Without regard to case: the items are in sentence case since 2.5
+  // ('Save as…').
   let item = page.locator('[role=menu][data-state=open] [role=menuitem]', {
-    hasText: new RegExp(`^\\s*${name}\\b`),
+    hasText: new RegExp(`^\\s*${name}\\b`, 'i'),
   });
-  // 'Save' would also find Save As….
+  // 'Save' would also find Save as… (hasNotText ignores case).
   if (name === 'Save') item = item.filter({ hasNotText: 'As' });
   await item.first().click();
 }
@@ -2279,20 +2281,19 @@ async function coldBaseline(run, intent) {
 async function openFromLibrary(page, label) {
   // The arrange view opens the panel as the student keeps it there (2.4);
   // the store says so before React has drawn it.
-  const open = await page.evaluate(() => {
+  // The side rail's Library icon shows the templates (B4a); on the panel
+  // already showing it would close it.
+  const showing = await page.evaluate(() => {
     const store = window.__MA_STORE__;
     store.getState().setCurrentView('arrange');
-    return store.getState().libraryOpen;
+    const s = store.getState();
+    return s.libraryOpen && s.inspectorPanel === 'library';
   });
-  if (!open) await page.click('[data-testid="inspector-toggle"]');
-  // The panel's tab is the one Library button with a label; the top bar's
-  // is an icon.
-  await page.locator('button:has-text("Library")').first().click();
+  if (!showing) await page.click('[data-testid="rail-library"]');
   await waitForQuiet(page);
   const replaced = await fingerprint(page);
-  // A template row is never dragged.
   await page
-    .locator('div[draggable="false"]', {
+    .locator('[data-testid^="library-project-"]', {
       hasText: new RegExp(`^\\s*${label}\\s*$`),
     })
     .first()
@@ -2419,10 +2420,26 @@ async function leakCheck(run, intent) {
     }
     const after = await settle(page, `after ${label}`);
     const got = await fingerprint(page);
+    // The Inspector opens as the student keeps it in the view showing
+    // (2.4): libraryOpen follows the carried prefs, not the cold boot's
+    // none, unless a lesson's step sets it.
+    const inspectorByPrefs = await page.evaluate(async (path) => {
+      const s = window.__MA_STORE__.getState();
+      if (s.activeTutorialId !== null) return null;
+      const { resolveInspectorOpen } = await window.__RT_DEV_MODULE__(path);
+      return resolveInspectorOpen(s.currentView, s.inspectorOpenByView);
+    }, '/src/daw/shell/layout/layoutModel.ts');
     const diffs = compareFingerprints(expected, got, {
       ...COMPARE.leak,
       ignore: [...volatile, ...ID_FIELDS],
-    });
+    }).filter(
+      (d) =>
+        !(
+          d.key === 'view.libraryOpen' &&
+          inspectorByPrefs !== null &&
+          sameValue(d.after, inspectorByPrefs)
+        ),
+    );
     for (const d of diffs) {
       // Carried over: the value is the previous project's.
       d.carriedOver = Boolean(
@@ -2431,14 +2448,14 @@ async function leakCheck(run, intent) {
       );
     }
     // The prefs are the student's, not the project's: the new project has
-    // the sink's.
-    const prefs = Object.keys(sink.fields).filter(
-      (key) => sink.fields[key].class === 'pref',
+    // the ones the replaced session had (the sink's, and a Library click's).
+    const prefs = Object.keys(replaced.fields).filter(
+      (key) => replaced.fields[key].class === 'pref',
     );
     const prefsLeft = prefs.filter(
       (key) =>
         !got.fields[key] ||
-        !sameValue(got.fields[key].value, sink.fields[key].value),
+        !sameValue(got.fields[key].value, replaced.fields[key].value),
     );
     // The replaced work: kept once, as the sink's own draft (E3: kept work
     // is the same record), holding the sink, and announced with a View.

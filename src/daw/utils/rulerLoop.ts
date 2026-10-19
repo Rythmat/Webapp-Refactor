@@ -11,15 +11,18 @@
 /** px strip along the top of a ruler that holds the loop region. */
 export const LOOP_STRIP_H = 14;
 
-// The playhead: a red line with a grab triangle at the foot of the ruler.
-export const PLAYHEAD_COLOR = '#ef4444';
+// The playhead: a white line (the palette's playhead colour, a CSS value)
+// with a grab triangle at the foot of the ruler. The timeline turns it record
+// red while recording (milestone 2.7).
+export const PLAYHEAD_COLOR = 'var(--daw-playhead)';
 export const PLAYHEAD_HANDLE_W = 12; // px
 export const PLAYHEAD_HANDLE_H = 9; // px
 
 /**
  * Draw the loop region in a ruler's loop strip — one look for the timeline and
- * the piano roll: light blue (the selection colour) while looping, gray while
- * off, with triangle handles at both ends. `top` is the strip's y.
+ * the piano roll: the selection colour while looping, a faint white while
+ * off (still in place), with triangle handles at both ends. `top` is the
+ * strip's y.
  */
 export function drawLoopRegion(
   ctx: CanvasRenderingContext2D,
@@ -31,15 +34,11 @@ export function drawLoopRegion(
 ): void {
   if (x2 <= x1) return;
   const h = LOOP_STRIP_H;
-  ctx.fillStyle = enabled
-    ? `rgba(${selectionRgb}, 0.25)`
-    : 'rgba(148, 163, 184, 0.14)';
+  ctx.fillStyle = `rgba(${selectionRgb}, ${enabled ? 0.25 : 0.1})`;
   ctx.fillRect(x1, top, x2 - x1, h);
 
   const handle = Math.min(8, (x2 - x1) / 2);
-  ctx.fillStyle = enabled
-    ? `rgb(${selectionRgb})`
-    : 'rgba(148, 163, 184, 0.55)';
+  ctx.fillStyle = `rgba(${selectionRgb}, ${enabled ? 1 : 0.4})`;
   ctx.beginPath();
   ctx.moveTo(x1, top);
   ctx.lineTo(x1 + handle, top);

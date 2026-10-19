@@ -52,6 +52,22 @@
         "color": "#ff8a3d"
       }
     ],
+    "sections": [
+      {
+        "id": "section-intro001",
+        "type": "intro",
+        "label": "Intro",
+        "startTick": 1440,
+        "endTick": 7200
+      },
+      {
+        "id": "section-chorus01",
+        "type": "chorus",
+        "label": "Chorus 1",
+        "startTick": 7200,
+        "endTick": 18720
+      }
+    ],
     "masterAutomation": {
       "volume": [
         {
@@ -555,7 +571,6 @@
               }
             ]
           },
-          "notationStaff": "treble",
           "sourceTrackId": "trk-keys"
         }
       },
@@ -729,7 +744,6 @@
               "release": 0.2
             }
           },
-          "notationStaff": "alto",
           "sourceTrackId": "trk-lead",
           "oracleSynth": {
             "oscillators": [
@@ -1626,7 +1640,8 @@
               "durations": [120, 120],
               "channels": [9, 9],
               "ids": ["DrumNote0001", "DrumNote0002"]
-            }
+            },
+            "muted": true
           }
         ],
         "audioClips": [],
@@ -1809,7 +1824,9 @@
             "fadeOutTicks": 240,
             "assetId": "asset-take-1",
             "offsetSeconds": 0.5,
-            "gain": 0.7
+            "gain": 0.7,
+            "name": "Solo take",
+            "muted": true
           }
         ],
         "trackRole": "auto",
@@ -2298,7 +2315,6 @@
             }
           },
           "bassVoice": "upright",
-          "notationStaff": "bass8vb",
           "sourceTrackId": "trk-bass"
         }
       },
@@ -2821,16 +2837,6 @@
       "measureFermatas": [15],
       "leadSheetBars": 24,
       "leadSheetChordFormat": "jazz",
-      "leadSheetSections": [
-        {
-          "measureIdx": 0,
-          "label": "A"
-        },
-        {
-          "measureIdx": 8,
-          "label": "B"
-        }
-      ],
       "leadSheetRepeats": [
         {
           "startMeasure": 0,
@@ -2839,7 +2845,7 @@
       ],
       "leadSheetShowRepeats": true,
       "leadSheetShowMelody": true,
-      "leadSheetMelodyTrackIds": ["trk-lead", "trk-keys"],
+      "leadSheetMelodyTrackId": "trk-lead",
       "scoreChordTracks": ["trk-keys"],
       "scoreChordHidden": ["trk-keys:chord-2"],
       "scoreSystemBreaks": [4],
@@ -2863,7 +2869,26 @@
         "slurs": ["KeysNote0001|KeysNote0002"],
         "spellings": ["KeysNote0002|F♭"],
         "slashNotes": ["KeysNote0003"]
-      }
+      },
+      "leadSheetSections": [
+        {
+          "measureIdx": 1,
+          "label": "Intro",
+          "id": "section-intro001",
+          "type": "intro",
+          "startTick": 1440,
+          "endTick": 7200,
+          "joined": true
+        },
+        {
+          "measureIdx": 5,
+          "label": "Chorus 1",
+          "id": "section-chorus01",
+          "type": "chorus",
+          "startTick": 7200,
+          "endTick": 18720
+        }
+      ]
     },
     "view": {
       "masteringBypass": true,
@@ -2874,7 +2899,8 @@
       "timelineScrollLeft": 300,
       "selectedTrackId": "trk-drums",
       "automationOpenTrackId": "trk-keys",
-      "automationParamId": "pan"
+      "automationParamId": "pan",
+      "chordAnalysisDismissed": true
     }
   }
 }

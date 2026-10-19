@@ -16,9 +16,9 @@
  * through installDevModules (fingerprint.mjs), which the page must run as an
  * init script. It edits through the stores' own actions wherever one exists
  * (tracksSlice, prismSlice, uiSlice, transportSlice, masteringSlice,
- * returnsSlice, markersSlice, tutorialSlice and the Oracle Synth store), so
- * it walks the same code a click would; the one raw setState
- * (measuresPerLine) is a field only seeders write that way.
+ * returnsSlice, markersSlice, sectionsSlice, tutorialSlice and the Oracle
+ * Synth store), so it walks the same code a click would; the one raw
+ * setState (measuresPerLine) is a field only seeders write that way.
  *
  * `assetId` is an audio asset the mock Studio API already holds
  * (mockStudioApi.mjs `seedAsset`). The guitar track gets a clip on it, which
@@ -42,8 +42,8 @@
  * Values are chosen so a reset is visible: each differs from the slice
  * default AND from what a load would re-derive (trackRole differs from
  * guessTrackRole, audioInputChannel from the guitar default {mono, 0}).
- * The fields of a track, a clip, a note, a controller event, a chord region
- * and a marker are held to the same rule across the project:
+ * The fields of a track, a clip, a note, a controller event, a chord region,
+ * a marker and a song section are held to the same rule across the project:
  * sinkFieldsAtDefault lists any that no entity sets, and roundtrip.mjs
  * refuses to run on such a sink.
  */
@@ -106,6 +106,13 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setLoopRange(1920, 9600);
   act().setLoopEnabled(true);
   act().toggleMetronome();
+  // The Click menu's sound and volume (milestone 2.8).
+  act().setMetronomeSound('hihat');
+  act().setMetronomeVolume(-16);
+  // The Library's ♡ (milestone 2.14): a groove and a part, as the dock's
+  // Grooves tab and the Library mark them.
+  act().toggleLibraryFavourite('groove:groove-hiphop-1');
+  act().toggleLibraryFavourite('part:pop-l1-d1-2-lh-bass-rh-chords');
   act().setCountInBars(2);
   act().setPosition(960);
   act().setLastSeekPosition(960);
@@ -291,6 +298,8 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     id: 'kitchen-clip-drums',
     name: 'Beat',
     startTick: 0,
+    // Muted from the clip menu (2.12): it must survive every round trip.
+    muted: true,
     events: [
       note(36, 0, 120, 110, 9),
       note(42, 240, 60, 70, 9),
@@ -348,6 +357,9 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     ),
     fadeInTicks: 0,
     fadeOutTicks: 0,
+    // Named and muted from the clip menu (2.12).
+    name: 'Vox chop take',
+    muted: true,
   });
 
   // A Chops sample dropped from a file: its decoded buffer and original
@@ -509,9 +521,30 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setMeasureRowSizes([2, 2, 1]);
   act().setMeasureRestMap({ 4: 2 });
   act().setMeasureFermatas([3]);
-  act().setLeadSheetSections([
-    { measureIdx: 0, label: 'A' },
-    { measureIdx: 2, label: 'B' },
+  // Song sections (milestone 2.13), which the Lead Sheet shows as its marks:
+  // every field off the registry's default (type 'custom', label '', ticks
+  // 0), on the bar lines of the sink's 6/8 (1440 ticks a bar) and in its
+  // 12-bar chart, so the marks fall on bars 1 and 3 where 'A' and 'B' were.
+  // A draft without data.sections is rebuilt from those marks (the codec's
+  // fallback), which takes each type from its label and runs the last
+  // section to the chart's end: a bridge labelled 'Verse 1' that ends at
+  // bar 10 comes back as a verse to bar 12, so a dropped data.sections
+  // shows as wrong values, not only as re-minted ids.
+  act().setSections([
+    {
+      id: 'kitchen-section-intro',
+      type: 'intro',
+      label: 'Intro',
+      startTick: 0,
+      endTick: 2 * 1440,
+    },
+    {
+      id: 'kitchen-section-verse',
+      type: 'bridge',
+      label: 'Verse 1',
+      startTick: 2 * 1440,
+      endTick: 10 * 1440,
+    },
   ]);
   act().setLeadSheetRepeats([{ startMeasure: 0, endMeasure: 1 }]);
   act().setLeadSheetChordFormat('jazz');
@@ -581,10 +614,24 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setTimelineGridSize('1/8');
   act().toggleTimelineSnap();
   act().toggleTripletMode();
+  act().setFollowPlayhead(false);
+  act().dismissChordAnalysis();
   act().setSingleKeyShortcuts(false);
+  // The bottom rail's hover hints (milestone 2.11): on by default.
+  act().setHoverHints(false);
   // The shell's layout prefs (milestone 2.4).
+  const layout = await devModule('/src/daw/shell/layout/layoutModel.ts');
+  const freshOpen = layout.defaultInspectorOpen('arrange', window.innerWidth);
   act().setInspectorOpenFor('score', true);
   act().setInspectorWidth(264);
+  // Library: R4's libraryTemplate opens a template from that panel, so
+  // its prefs check doesn't see the scenario's own rail click.
+  act().toggleInspectorPanel('library');
+  // That click also chose the Inspector open in Create, a pref that follows
+  // the student into the next project. Back at the window's default, a boot
+  // into Create opens as a fresh one does, and R4 sees the project's own
+  // libraryOpen if it is carried over.
+  act().setInspectorOpenFor('arrange', freshOpen);
   act().setDockHeight('fx', 0.5);
   act().setReadoutMode('time');
   act().setActiveTool('pencil');
@@ -592,9 +639,14 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setAutomationOpenTrackId(lead);
   act().setAutomationParamId('pan');
   act().setChannelStripTab('fx');
-  act().setLibraryOpen(false);
   act().setPosition(960);
   act().setCurrentView('leadsheet');
+  // The Inspector "for the moment" (as a lesson step sets it), the other
+  // way from a fresh project's: that opens in Create from 1440 px and is
+  // closed below (2.4), so a fixed value would be the default on one
+  // profile. After the view switch, which sets it from the per-view choice;
+  // the running lesson keeps it through a reload.
+  act().setLibraryOpen(!freshOpen);
   act().setSelectedClip(keysClip, keys);
   await sleep(50);
 
@@ -624,8 +676,9 @@ export async function applyKitchenSink({ assetId = null } = {}) {
 
 /**
  * Runs in the page, after applyKitchenSink: the fields of a track, a MIDI
- * clip, a note, a controller event, an audio clip, a chord region and a
- * marker (the registry's, src/daw/persistence/projectDocument/fields.ts)
+ * clip, a note, a controller event, an audio clip, a chord region, a marker
+ * and a song section (the registry's,
+ * src/daw/persistence/projectDocument/fields.ts)
  * that no such entity in the open project holds at other than its default,
  * as `track.volume`, `note.channel`. The fingerprint shows every one of them
  * however the registry grows, but a field the sink never sets could be lost
@@ -680,6 +733,7 @@ export async function sinkFieldsAtDefault() {
       ],
       ['region', registry.CHORD_REGION_FIELDS, s.chordRegions],
       ['marker', registry.MARKER_FIELDS, s.markers],
+      ['section', registry.SECTION_FIELDS, s.sections],
     ].map(([kind, specs, entities]) => [
       kind,
       Object.keys(specs),

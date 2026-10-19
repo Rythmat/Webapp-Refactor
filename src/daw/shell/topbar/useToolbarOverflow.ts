@@ -21,24 +21,19 @@ import {
 /**
  * The fold steps, in order; a step folds everything before it too. What
  * never goes into '⋯': Back, the Project menu, the name, the save chip,
- * Undo and Redo, the transport, the readout, Loop, Click, the view tabs,
- * the Inspector toggle, the computer keyboard's switch and the avatar.
+ * Undo and Redo, the view tabs, Share, Export (its label folds, last) and
+ * the avatar. (Help, Settings and
+ * the computer keyboard's switch live in '⋯' at every width since the bar
+ * was trimmed, 2.7; the transport and the song moved to the bottom rail and
+ * the Inspector's toggle to the side rail, B4a.)
  */
 export const FOLD_STEPS = [
-  /** The computer keyboard's switch, while off: its icon only. */
-  'typing-icon',
-  /** Share's label: an icon only. */
-  'share-icon',
-  /** '?' and Settings: into '⋯'. */
-  'help-settings',
-  /** The Song chip: 'C · 92' instead of 'C major · 4/4 · 92'. */
-  'song-short',
   /** The project name: 96 px instead of 140. */
   'name-narrow',
-  /** The count-in caret: into '⋯'. */
-  'count-in',
   /** The view tabs: tighter padding. */
   'tabs-tight',
+  /** The Export pill: its icon only (2.15). */
+  'export-icon',
 ] as const;
 
 export type FoldStep = (typeof FOLD_STEPS)[number];
@@ -60,24 +55,27 @@ export function folded(level: number, step: FoldStep): boolean {
 export function foldLevelFor(
   available: number,
   widths: ReadonlyArray<number | undefined>,
+  maxFold: number = MAX_FOLD,
 ): number {
-  for (let level = 0; level <= MAX_FOLD; level++) {
+  for (let level = 0; level <= maxFold; level++) {
     const width = widths[level];
     if (width === undefined || width <= available) return level;
   }
-  return MAX_FOLD;
+  return maxFold;
 }
 
 /**
  * The bar's fold level. `barRef` is the bar, whose inner width is what the
  * zones may take; `zoneRefs` are its zones, whose content widths (plus
  * `chromePx` of padding and the least room between them) are what they
- * need.
+ * need. `maxFold` is how many steps the bar has (the top bar's FOLD_STEPS
+ * by default; Create's toolbar has its own).
  */
 export function useToolbarOverflow(
   barRef: RefObject<HTMLElement>,
   zoneRefs: ReadonlyArray<RefObject<HTMLElement>>,
   chromePx: number,
+  maxFold: number = MAX_FOLD,
 ): number {
   const [level, setLevel] = useState(0);
   const levelRef = useRef(level);
@@ -102,9 +100,9 @@ export function useToolbarOverflow(
       widths.current = [];
     }
     widths.current[at] = needed;
-    const next = foldLevelFor(available, widths.current);
+    const next = foldLevelFor(available, widths.current, maxFold);
     if (next !== at) setLevel(next);
-  }, [barRef, chromePx, zoneRefs]);
+  }, [barRef, chromePx, zoneRefs, maxFold]);
 
   // After every render of the bar, before paint.
   useLayoutEffect(settle);

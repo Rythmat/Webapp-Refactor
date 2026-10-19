@@ -151,17 +151,22 @@ function scheduleClipCalls(file: string): Array<Record<string, string>> {
 const passesClip = (call: Record<string, string> | undefined) =>
   /^(clip|\{\s*\.\.\.clip,\s*startTick:[^,}]*,?\s*\})$/.test(call?.clip ?? '');
 
-/** usePlaybackEngine's call that starts clips from `fromTick`. */
-const engineCall = (fromTick: string) =>
-  scheduleClipCalls('daw/hooks/usePlaybackEngine.ts').filter(
+/** The legacy scheduler's call that starts clips from `fromTick`. */
+const legacyCall = (fromTick: string) =>
+  scheduleClipCalls('daw/engine/legacyPlayback.ts').filter(
     (options) => options.fromTick === fromTick,
   );
 
 describe('scheduleClip callers pass the clip', () => {
-  it('finds the bounce, Play and loop-lap calls', () => {
+  it('finds the bounce, the scheduler, the legacy Play and loop-lap calls', () => {
     expect(scheduleClipCalls('daw/audio/renderProject.ts')).toHaveLength(1);
-    expect(engineCall('currentTick')).toHaveLength(1);
-    expect(engineCall('loopStart')).toHaveLength(1);
+    // Play, loop laps, seeks and edits all start clips through one call
+    // (milestone 1.11).
+    expect(scheduleClipCalls('daw/engine/playbackScheduler.ts')).toHaveLength(
+      1,
+    );
+    expect(legacyCall('currentTick')).toHaveLength(1);
+    expect(legacyCall('loopStart')).toHaveLength(1);
   });
 
   it('the bounce (renderProject)', () => {
@@ -169,11 +174,23 @@ describe('scheduleClip callers pass the clip', () => {
     expect(passesClip(call)).toBe(true);
   });
 
-  it('Play, from the playhead (usePlaybackEngine)', () => {
-    expect(passesClip(engineCall('currentTick')[0])).toBe(true);
+  it('every start of the playback scheduler, at its time', () => {
+    const [call] = scheduleClipCalls('daw/engine/playbackScheduler.ts');
+    expect(passesClip(call)).toBe(true);
+    expect(call.at).toBe('at');
   });
 
-  it('loop laps, from the loop start (usePlaybackEngine)', () => {
-    expect(passesClip(engineCall('loopStart')[0])).toBe(true);
+  it('an unmuted clip restarted under the playhead (usePlaybackEngine)', () => {
+    const calls = scheduleClipCalls('daw/hooks/usePlaybackEngine.ts');
+    expect(calls).toHaveLength(1);
+    expect(passesClip(calls[0])).toBe(true);
+  });
+
+  it('legacy Play, from the playhead', () => {
+    expect(passesClip(legacyCall('currentTick')[0])).toBe(true);
+  });
+
+  it('legacy loop laps, from the loop start', () => {
+    expect(passesClip(legacyCall('loopStart')[0])).toBe(true);
   });
 });

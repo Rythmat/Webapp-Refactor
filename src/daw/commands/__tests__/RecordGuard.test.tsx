@@ -17,7 +17,7 @@ import {
   requestRecord,
 } from '../requestRecord';
 import { RecordGuard } from '@/daw/components/Transport/RecordGuard';
-import { TransportControls } from '@/daw/shell/topbar/TransportControls';
+import { TransportControls } from '@/daw/shell/bottombar/TransportControls';
 import { useStore } from '@/daw/store';
 
 const QUESTION = 'Overwrite existing recording?';

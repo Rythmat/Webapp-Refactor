@@ -31,6 +31,8 @@ export interface ToggleProps
   tone?: ToggleTone;
   size?: ToggleSize;
   shortcut?: string;
+  /** Where the icon's tooltip opens (above by default). */
+  tooltipSide?: 'top' | 'right' | 'bottom' | 'left';
 }
 
 const SIZE: Record<ToggleSize, string> = {
@@ -60,6 +62,7 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
       tone = 'neutral',
       size = 'md',
       shortcut,
+      tooltipSide,
       className,
       ...props
     },
@@ -93,6 +96,7 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
       <Tooltip
         content={label}
         shortcut={shortcut}
+        side={tooltipSide}
         disabled={!icon || !!children}
       >
         {toggle}

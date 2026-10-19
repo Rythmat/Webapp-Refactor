@@ -135,7 +135,13 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
         // The real bar: after a multi-bar rest it is ahead of the slot.
         const globalIdx = measure.index;
         const span = Math.max(1, measureRestMap?.[globalIdx] ?? 1);
-        const section = sections.find((s) => s.measureIdx === globalIdx);
+        // A section starting anywhere under a multi-bar rest is marked on
+        // the rest, as the set list places it (slotOfBar). The marks come in
+        // bar order, so with several under one rest the first is shown: one
+        // box stays readable where a row of them would overlap.
+        const section = sections.find(
+          (s) => s.measureIdx >= globalIdx && s.measureIdx < globalIdx + span,
+        );
         const isRepeatStart = repeats.some((r) => r.startMeasure === globalIdx);
         const isRepeatEnd = repeats.some(
           (r) => r.endMeasure >= globalIdx && r.endMeasure < globalIdx + span,

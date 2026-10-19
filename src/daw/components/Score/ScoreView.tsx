@@ -9,21 +9,23 @@ import {
   PRINT_TITLE_INSET,
   useLeadSheetPrint,
 } from '../LeadSheet/useLeadSheetPrint';
-import { NoteEditorBar } from './NoteEditorBar';
+import { ScoreLayoutSwitch } from './ScoreLayoutSwitch';
 import { ScorePalettes } from './ScorePalettes';
 import { ScorePartsPanel } from './ScorePartsPanel';
 import { buildScoreParts, isNotatable, ScorePartsCache } from './scoreParts';
 import { spellingMap } from './noteEditor';
 import { useScoreEditing } from './useScoreEditing';
-import { breaksFromRowSizes } from './roadmap';
-import { downloadScoreXml } from '@/daw/midi/ScoreMusicXmlExport';
+import { buildFullScoreXml, MUSICXML_TYPE } from '@/daw/midi/scoreExport';
+import { downloadFile } from '@/daw/utils/exportFiles';
 import { printSheet } from '@/daw/commands/projectCommands';
 
 // ── Score ──────────────────────────────────────────────────────────────────
 // Every track of the project notated and stacked, the way a conductor's score
 // is laid out: one part per track, shared barlines, the transport's playhead
 // running through all of them. The editing itself lives in useScoreEditing,
-// which the Lead Sheet uses too.
+// which the Lead Sheet uses too. The Score and the Lead sheet are one page
+// (one Score tab; ScoreLayoutSwitch picks the layout), and the note tools
+// are palettes beside the staff rather than a row above it.
 
 export function ScoreView() {
   // The score prints through the lead sheet's print rules (its named page).
@@ -96,53 +98,15 @@ export function ScoreView() {
   const editing = useScoreEditing({ parts, scoreParts });
   const { selection } = editing;
 
-  // Exports: MusicXML of every part, and printing the engraved pages.
+  // Exports: MusicXML of every part, and printing the engraved pages. The
+  // file is the Export dialog's full score, built from the store at the
+  // click (scoreExport.ts).
   const exportMusicXml = useCallback(() => {
-    const s = useStore.getState();
-    const articulations = new Map<string, string[]>();
-    for (const entry of s.scoreArticulations) {
-      const cut = entry.lastIndexOf('|');
-      const id = entry.slice(0, cut);
-      articulations.set(id, [
-        ...(articulations.get(id) ?? []),
-        entry.slice(cut + 1),
-      ]);
-    }
-    const measureCount = Math.max(
-      0,
-      ...scoreParts.map((p) => p.score.measures.length),
-    );
-    downloadScoreXml(
-      scoreParts.map(({ id, name, score }) => ({
-        id,
-        name,
-        score,
-        drums: score.staves.includes('percussion'),
-      })),
-      {
-        title: projectName,
-        // Read here rather than subscribed to: the composer line under the
-        // title redraws itself, so an edit to it doesn't redraw the Score.
-        composer: s.composerName || undefined,
-        bpm,
-        chordRegions: s.chordRegions,
-        chordPartIds: new Set(s.scoreChordTracks),
-        articulations,
-        slurs: s.scoreSlurs.map((pair) => {
-          const cut = pair.indexOf('|');
-          return [pair.slice(0, cut), pair.slice(cut + 1)] as const;
-        }),
-        sections: s.leadSheetSections,
-        repeats: s.leadSheetRepeats,
-        systemStarts: breaksFromRowSizes(
-          s.measureRowSizes,
-          s.measuresPerLine || 4,
-          measureCount,
-        ),
-      },
-    );
-    s.markDone('exportMusicXml');
-  }, [bpm, projectName, scoreParts]);
+    const file = buildFullScoreXml(useStore.getState());
+    if (!file) return;
+    downloadFile(new Blob([file.xml], { type: MUSICXML_TYPE }), file.filename);
+    useStore.getState().markDone('exportMusicXml');
+  }, []);
 
   const skipped = tracks.filter(
     (t) =>
@@ -158,7 +122,7 @@ export function ScoreView() {
         className="score-no-print flex w-[216px] shrink-0 flex-col overflow-hidden"
         style={{ borderRight: '1px solid var(--daw-hairline)' }}
       >
-        <ScorePalettes {...editing.palette} />
+        <ScorePalettes {...editing.palette} notes={editing.editor} />
         <ScorePartsPanel
           parts={editing.partRows}
           onSetStaff={editing.onSetStaff}
@@ -167,18 +131,15 @@ export function ScoreView() {
         />
       </div>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="score-no-print">
-          <NoteEditorBar {...editing.editor} />
-        </div>
         <div
           className="score-no-print flex shrink-0 items-center gap-3 px-3 text-xs"
           style={{
-            height: 36,
+            height: 40,
             borderBottom: '1px solid var(--daw-hairline)',
             color: 'var(--daw-text-3)',
           }}
         >
-          <span className="font-semibold uppercase tracking-wider">Score</span>
+          <ScoreLayoutSwitch />
           <span>
             {parts.length} {parts.length === 1 ? 'part' : 'parts'}
           </span>

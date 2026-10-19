@@ -1,5 +1,5 @@
 /* eslint-disable tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
-import { useState, useMemo, useCallback, useRef, useId } from 'react';
+import { useState, useMemo, useCallback, useEffect, useId } from 'react';
 import {
   Play,
   Square,
@@ -18,6 +18,13 @@ import {
   type GrooveItem,
 } from '@/daw/data/groovesLibrary';
 import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
+import { grooveFavouriteId } from '@/daw/shell/inspector/browser/favourites';
+import { useBrowserStore } from '@/daw/shell/inspector/browser/browserStore';
+import {
+  fromEvents,
+  startNotesPreview,
+  stopPreview as stopSharedPreview,
+} from '@/daw/shell/inspector/browser/preview';
 import { useStore } from '@/daw/store';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import { barStartTick, timeSignatureOf } from '@/daw/time/timeModel';
@@ -27,8 +34,15 @@ import { TYPE_CLASS } from '@/daw/ui/styles';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
-/** Studio's ticks per quarter note, the resolution loadGrooveEvents returns. */
-const OUR_PPQ = 480;
+/** The shared preview's id for a groove played from this tab. */
+const dockPreviewId = (trackId: string, grooveId: string) =>
+  `dock-groove:${trackId}:${grooveId}`;
+
+/** Whether the preview playing now is one of this tab's. */
+const isDockPreview = (trackId: string) =>
+  useBrowserStore
+    .getState()
+    .preview?.itemId.startsWith(`dock-groove:${trackId}:`) ?? false;
 
 const TAG_COLORS: Record<string, string> = {
   'Hip Hop': '#8b5cf6',
@@ -82,13 +96,28 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
   const [sortBy, setSortBy] = useState<SortMode>('newest');
   const [shuffleSeed, setShuffleSeed] = useState(0);
 
-  // Saved
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  // Saved: the student's ♡, kept with their Library favourites (2.14).
+  const favourites = useStore((s) => s.libraryFavourites);
+  const toggleFavourite = useStore((s) => s.toggleLibraryFavourite);
+  const savedIds = useMemo(
+    () =>
+      new Set(
+        favourites
+          .filter((id) => id.startsWith('groove:'))
+          .map((id) => id.slice('groove:'.length)),
+      ),
+    [favourites],
+  );
 
-  // Preview
+  // Preview: the Library's (shell/inspector/browser/preview.ts), played on
+  // this track's kit. Notes are booked on the audio clock, one preview at a
+  // time across the Library and this tab, and a stop fades the kit out.
   const [previewId, setPreviewId] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const previewTimeouts = useRef<number[]>([]);
+  const isPlaying = useBrowserStore(
+    (s) =>
+      previewId !== null &&
+      s.preview?.itemId === dockPreviewId(trackId, previewId),
+  );
 
   const addMidiClip = useStore((s) => s.addMidiClip);
   const setSelectedClip = useStore((s) => s.setSelectedClip);
@@ -131,66 +160,51 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
   // ── Toggle helpers ───────────────────────────────────────────────────
 
-  const toggleSaved = useCallback((id: string) => {
-    setSavedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
+  const toggleSaved = useCallback(
+    (id: string) => toggleFavourite(grooveFavouriteId(id)),
+    [toggleFavourite],
+  );
 
   // ── Stop preview ───────────────────────────────────────────────────
 
   const stopPreview = useCallback(() => {
-    for (const t of previewTimeouts.current) clearTimeout(t);
-    previewTimeouts.current = [];
-    setIsPlaying(false);
-  }, []);
+    if (isDockPreview(trackId)) stopSharedPreview();
+  }, [trackId]);
+
+  // A preview stops when the song plays or records, and when the tab goes.
+  useEffect(() => {
+    const stopOnPlay = useStore.subscribe(
+      (s) => s.isPlaying || s.isRecording,
+      (on) => {
+        if (on) stopPreview();
+      },
+    );
+    return () => {
+      stopOnPlay();
+      stopPreview();
+    };
+  }, [stopPreview]);
 
   // ── Audition groove through drum engine ────────────────────────────
 
   const playPreview = useCallback(
-    async (groove: GrooveItem) => {
-      stopPreview();
+    (groove: GrooveItem) => {
       setPreviewId(groove.id);
-      setIsPlaying(true);
-
       const entry = trackEngineRegistry.get(trackId);
       if (!entry) {
-        setIsPlaying(false);
+        stopPreview();
         return;
       }
-
       // The same fetch, parse and rescale as adding the groove (and as the
       // practice tracks and demos), so a preview plays what Add would add.
-      const events = await loadGrooveEvents(groove.id);
-      if (!events) {
-        setIsPlaying(false);
-        return;
-      }
-
-      const msPerTick = 60_000 / groove.bpm / OUR_PPQ;
-      const timeouts: number[] = [];
-      let endMs = 0;
-      for (const evt of events) {
-        const startMs = evt.startTick * msPerTick;
-        const stopMs = (evt.startTick + evt.durationTicks) * msPerTick;
-        endMs = Math.max(endMs, stopMs);
-        timeouts.push(
-          window.setTimeout(() => {
-            entry.trackEngine.noteOn(evt.note, evt.velocity);
-          }, startMs),
-        );
-        timeouts.push(
-          window.setTimeout(() => {
-            entry.trackEngine.noteOff(evt.note);
-          }, stopMs),
-        );
-      }
-      timeouts.push(window.setTimeout(() => setIsPlaying(false), endMs + 100));
-
-      previewTimeouts.current = timeouts;
+      void startNotesPreview(
+        dockPreviewId(trackId, groove.id),
+        entry.trackEngine,
+        async () => {
+          const events = await loadGrooveEvents(groove.id);
+          return events ? fromEvents(events, groove.bpm) : [];
+        },
+      );
     },
     [trackId, stopPreview],
   );
@@ -695,11 +709,13 @@ function GrooveRow({
         {/* Heart / save */}
         <button
           onClick={onToggleSaved}
+          aria-pressed={isSaved}
+          aria-label={`Favourite ${groove.name}`}
           className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
           style={{
             background: 'none',
             border: 'none',
-            color: isSaved ? '#ef4444' : 'var(--daw-text-3)',
+            color: isSaved ? 'var(--daw-text)' : 'var(--daw-text-3)',
             opacity: isSaved ? 1 : undefined,
           }}
         >

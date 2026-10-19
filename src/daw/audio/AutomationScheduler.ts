@@ -47,6 +47,7 @@ export class AutomationScheduler {
     lanes: AutomationLanes | undefined,
     currentTick: number,
     bpm: number,
+    at?: number,
   ): void {
     this.scheduleLanes(
       trackId,
@@ -54,12 +55,15 @@ export class AutomationScheduler {
       (paramId) => resolveAutomationTargets(paramId, te),
       currentTick,
       bpm,
+      at,
     );
   }
 
   /**
    * (Re)schedule any set of lanes under `key` (a track id, or the Master's
    * MASTER_AUTOMATION_ID), with `resolve` naming each lane's AudioParam(s).
+   * `at` is when the transport is at `currentTick` (a loop seam, a seek:
+   * milestone 1.11); without it, the scheduling time now.
    */
   scheduleLanes(
     key: string,
@@ -67,13 +71,14 @@ export class AutomationScheduler {
     resolve: AutomationResolver,
     currentTick: number,
     bpm: number,
+    at?: number,
   ): void {
     this.clearTrack(key);
     if (!lanes) return;
 
     const secPerTick = 60 / bpm / PPQ;
     const transport = Tone.getTransport();
-    const now = Tone.getContext().now();
+    const now = at ?? Tone.getContext().now();
     const ids: number[] = [];
     const params = new Set<AudioParam>();
 

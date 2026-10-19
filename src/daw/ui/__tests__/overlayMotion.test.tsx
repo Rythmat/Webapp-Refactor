@@ -151,11 +151,12 @@ describe('DawDialog', () => {
     expect(open.get('--tw-enter-translate-x')).toBe('-50%');
     expect(open.get('--tw-enter-translate-y')).toBe('-50%');
 
+    // It closes at once: while a modal fades out Radix keeps the page from
+    // taking clicks, and the first click after Escape was lost (decision
+    // 16's guard).
     panel.setAttribute('data-state', 'closed');
     const closing = await computed(panel);
-    expect(closing.get('animation-name')).toBe('exit');
-    expect(closing.get('--tw-exit-translate-x')).toBe('-50%');
-    expect(closing.get('--tw-exit-translate-y')).toBe('-50%');
+    expect(closing.get('animation-name') ?? 'none').toBe('none');
   }, 30_000);
 });
 
@@ -163,10 +164,13 @@ describe('DawDialog', () => {
 const OVERLAYS: Array<{
   name: string;
   step: 'fast' | 'base';
+  /** Gone at once on close (every one but the tooltip, which blocks nothing). */
+  closesAtOnce?: boolean;
   open(): Element;
 }> = [
   {
     name: 'a DawDialog',
+    closesAtOnce: true,
     step: 'base',
     open() {
       render(<DawDialog open title="Export audio" />);
@@ -175,6 +179,7 @@ const OVERLAYS: Array<{
   },
   {
     name: "a DawDialog's scrim",
+    closesAtOnce: true,
     step: 'base',
     open() {
       render(<DawDialog open title="Export audio" />);
@@ -183,6 +188,7 @@ const OVERLAYS: Array<{
   },
   {
     name: 'a Sheet',
+    closesAtOnce: true,
     step: 'base',
     open() {
       render(<Sheet open title="Add a track" />);
@@ -191,6 +197,7 @@ const OVERLAYS: Array<{
   },
   {
     name: 'a Menu',
+    closesAtOnce: true,
     step: 'fast',
     open() {
       render(
@@ -208,6 +215,7 @@ const OVERLAYS: Array<{
   },
   {
     name: 'a ContextMenu',
+    closesAtOnce: true,
     step: 'fast',
     open() {
       render(
@@ -224,6 +232,7 @@ const OVERLAYS: Array<{
   },
   {
     name: "a Select's list",
+    closesAtOnce: true,
     step: 'fast',
     open() {
       render(
@@ -242,6 +251,7 @@ const OVERLAYS: Array<{
   },
   {
     name: 'a Popover',
+    closesAtOnce: true,
     step: 'fast',
     open() {
       render(
@@ -271,15 +281,22 @@ const OVERLAYS: Array<{
   },
 ];
 
-describe.each(OVERLAYS)('$name', ({ step, open }) => {
-  it(`opens and closes at the ${step} motion step`, async () => {
+describe.each(OVERLAYS)('$name', ({ step, closesAtOnce, open }) => {
+  it(`opens at the ${step} motion step${closesAtOnce ? ' and closes at once' : ''}`, async () => {
     const element = open();
     const opening = await computed(element);
     expect(opening.get('animation-name')).toBe('enter');
     expect(opening.get('animation-duration')).toBe(`var(--daw-motion-${step})`);
 
+    // A menu, popover or dialog goes at once: while one fades out Radix
+    // keeps the page from taking clicks, so the first click after Escape
+    // was lost (decision 16's guard).
     element.setAttribute('data-state', 'closed');
     const closing = await computed(element);
+    if (closesAtOnce) {
+      expect(closing.get('animation-name') ?? 'none').toBe('none');
+      return;
+    }
     expect(closing.get('animation-name')).toBe('exit');
     expect(closing.get('animation-duration')).toBe(`var(--daw-motion-${step})`);
   }, 30_000);
@@ -291,6 +308,6 @@ describe.each(OVERLAYS)('$name', ({ step, open }) => {
 
     element.setAttribute('data-state', 'closed');
     const closing = await computed(element, { reducedMotion: true });
-    expect(closing.get('animation-name')).toBe('none');
+    expect(closing.get('animation-name') ?? 'none').toBe('none');
   }, 30_000);
 });

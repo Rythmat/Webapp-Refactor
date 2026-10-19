@@ -122,6 +122,9 @@ vi.mock('../OracleSynthInline', async () => ({
 vi.mock('../OracleSynthView', async () => ({
   OracleSynthView: views.stub(await import('react'), 'OracleSynthView'),
 }));
+vi.mock('@/daw/shell/dock/DrumPadsView', async () => ({
+  DrumPadsView: views.stub(await import('react'), 'DrumPadsView'),
+}));
 
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
@@ -132,7 +135,7 @@ import {
   type SessionData,
 } from '@/daw/persistence/SessionSerializer';
 import {
-  DrumMachineViewPart,
+  DrumPadsViewPart,
   GuitarBassViewPart,
   KeyboardViewPart,
   OracleSynthInlinePart,
@@ -293,7 +296,7 @@ beforeAll(async () => {
       OracleSynthInlinePart,
       OracleSynthViewPart,
       SoundFontViewPart,
-      DrumMachineViewPart,
+      DrumPadsViewPart,
       SamplerChopsViewPart,
       VocalViewPart,
     ].map((part) => part.preload()),
@@ -482,7 +485,7 @@ describe('every instrument view', () => {
   it.each([
     ['piano-sampler', 'KeyboardView'],
     ['tonewheel-organ', 'OrganView'],
-    ['drum-machine', 'DrumMachineView'],
+    ['drum-machine', 'DrumPadsView'],
     ['soundfont', 'SoundFontView'],
     ['sampler', 'SamplerChopsView'],
     ['oracle-synth', 'OracleSynthInline'],
@@ -508,7 +511,7 @@ describe('every instrument view', () => {
   it.each([
     ['piano-sampler', 'KeyboardView'],
     ['tonewheel-organ', 'OrganView'],
-    ['drum-machine', 'DrumMachineView'],
+    ['drum-machine', 'DrumPadsView'],
     ['soundfont', 'SoundFontView'],
     ['sampler', 'SamplerChopsView'],
     ['oracle-synth', 'OracleSynthInline'],
@@ -527,24 +530,17 @@ describe('every instrument view', () => {
     },
   );
 
-  it.each([
-    ['piano-sampler', 'KeyboardView', 'Piano Sampler'],
-    ['oracle-synth', 'OracleSynthView', 'Oracle Synth'],
-  ] as const)(
-    'in the %s pop-out mounts again for a load too',
-    (instrument, view, title) => {
-      openProject(instrument);
-      const draft = serializeSession();
-      render(<TrackControlsPanel />);
-      fireEvent.click(screen.getByTitle('Open in full screen'));
-      const mounted = views.mounts[view];
-      expect(mounted).toBeGreaterThanOrEqual(1);
+  // A maximized dock shows the Oracle synth's full panel, as its pop-out
+  // window did until milestone 2.9.
+  it('in a maximized dock, the oracle-synth’s full panel mounts again for a load too', () => {
+    openProject('oracle-synth');
+    const draft = serializeSession();
+    render(<TrackControlsPanel roomy />);
+    expect(views.mounts.OracleSynthView).toBe(1);
+    expect(views.mounts.OracleSynthInline).toBeUndefined();
 
-      load(draft);
+    load(draft);
 
-      expect(views.mounts[view]).toBe(mounted * 2);
-      // The pop-out stays open, over the project open now.
-      expect(screen.getByText(title)).toBeTruthy();
-    },
-  );
+    expect(views.mounts.OracleSynthView).toBe(2);
+  });
 });

@@ -176,6 +176,9 @@ export function useMidiInputRouting() {
       for (const unsub of unsubsRef.current) unsub();
       unsubsRef.current = [];
       sustainActive = false;
+      // Notes the pedal was holding would otherwise ring on: no pedal-up
+      // reaches them once the inputs are unsubscribed.
+      for (const note of sustainHeldNotes) releaseLiveNote(note);
       sustainHeldNotes.clear();
     };
   }, [inputs]);

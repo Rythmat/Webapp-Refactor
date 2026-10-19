@@ -9,7 +9,6 @@ import {
 import {
   DialogClose,
   DialogDescription,
-  DialogOverlay,
   DialogPortal,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -78,10 +77,10 @@ const DIALOG_SIZE: Record<DawDialogSize, string> = {
 
 const SHEET_SIDE: Record<SheetSide, string> = {
   right:
-    'inset-y-0 right-0 w-[min(420px,calc(100vw-32px))] rounded-l-[var(--daw-radius-lg)] border-l data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right',
-  left: 'inset-y-0 left-0 w-[min(420px,calc(100vw-32px))] rounded-r-[var(--daw-radius-lg)] border-r data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left',
+    'inset-y-0 right-0 w-[min(420px,calc(100vw-32px))] rounded-l-[var(--daw-radius-lg)] border-l data-[state=open]:slide-in-from-right',
+  left: 'inset-y-0 left-0 w-[min(420px,calc(100vw-32px))] rounded-r-[var(--daw-radius-lg)] border-r data-[state=open]:slide-in-from-left',
   bottom:
-    'inset-x-0 bottom-0 max-h-[85dvh] rounded-t-[var(--daw-radius-lg)] border-t data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom',
+    'inset-x-0 bottom-0 max-h-[85dvh] rounded-t-[var(--daw-radius-lg)] border-t data-[state=open]:slide-in-from-bottom',
 };
 
 /**
@@ -127,10 +126,14 @@ function OverlayFrame({
       )}
       <DialogPortal>
         {/* A plain black/60 scrim: no backdrop blur, which re-blurs the whole
-            window on every frame the meters or the playhead move under it. */}
-        <DialogOverlay
+            window on every frame the meters or the playhead move under it.
+            Radix's own overlay, not the kit's, and the frame fades in only:
+            while a modal fades out Radix keeps the page from taking clicks,
+            so the first click after Escape was lost (decision 16's guard;
+            the command palette's fix, 2.15). */}
+        <DialogPrimitive.Overlay
           className={cn(
-            'z-[var(--daw-z-modal)] bg-daw-scrim backdrop-blur-none',
+            'fixed inset-0 z-[var(--daw-z-modal)] bg-daw-scrim data-[state=open]:animate-in data-[state=open]:fade-in-0',
             OVERLAY_MOTION.base,
           )}
         />
@@ -160,7 +163,7 @@ function OverlayFrame({
           }}
           className={cn(
             'fixed z-[var(--daw-z-modal)] flex flex-col border-daw-hairline bg-daw-popover text-daw-text shadow-2xl shadow-black/60 outline-none',
-            'data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=open]:animate-in data-[state=open]:fade-in-0',
             OVERLAY_MOTION.base,
             TYPE_CLASS.body,
             panelClassName,
@@ -220,11 +223,11 @@ export function DawDialog({ size = 'md', ...props }: DawDialogProps) {
       {...props}
       panelClassName={cn(
         'left-1/2 top-1/2 max-h-[calc(100dvh-48px)] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--daw-radius-lg)] border',
-        // The open and close keyframes replace the whole transform, so they
-        // carry the -50% centring too; without it the panel opened from its
-        // corner at the middle of the window and slid into place.
-        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-        'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-1/2 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-1/2',
+        // The opening keyframes replace the whole transform, so they carry
+        // the -50% centring too; without it the panel opened from its corner
+        // at the middle of the window and slid into place. It closes at once.
+        'data-[state=open]:zoom-in-95',
+        'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-1/2',
         DIALOG_SIZE[size],
       )}
     />

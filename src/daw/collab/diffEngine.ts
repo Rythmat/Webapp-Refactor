@@ -8,6 +8,7 @@ import type { AllSlices } from '@/daw/store/index';
 import type { Track, MidiClip, AudioClip } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { Marker } from '@/daw/store/markersSlice';
+import type { SongSection } from '@/daw/model/sections';
 import {
   getYProject,
   getYTransport,
@@ -15,6 +16,7 @@ import {
   getYChordRegions,
   getYPrism,
   getYMarkers,
+  getYSections,
   getYMastering,
   getYLeadSheet,
   trackToYMap,
@@ -23,6 +25,8 @@ import {
   midiEventToYMap,
   chordRegionToYMap,
   markerToYMap,
+  sectionToYMap,
+  yMapToSection,
 } from './YjsDocManager';
 // ── Helpers ─────────────────────────────────────────────────────────────
 
@@ -106,6 +110,11 @@ export function diffAndApply(
     diffMarkers(doc, prev.markers, next.markers);
   }
 
+  // ── Song sections ──
+  if (prev.sections !== next.sections) {
+    diffSections(doc, next.sections);
+  }
+
   // ── Mastering ──
   diffMastering(doc, prev, next);
 
@@ -146,12 +155,25 @@ function diffTracks(
     }
   }
 
-  // Added tracks
-  for (const track of nextTracks) {
-    if (!prevIds.has(track.id)) {
-      yTracks.push([trackToYMap(track)]);
+  // Added tracks go in where they are in the list (milestone 2.15): right
+  // after the nearest track before them that the doc holds, or first when
+  // nothing is before them. A peer builds its list in the doc's order, so a
+  // duplicate pushed at the end would show last for a partner, and jump
+  // there here on the next remote edit. Several added at once keep their
+  // order: each one placed is there for the next to follow. The end is the
+  // last resort, for a track whose earlier tracks the doc doesn't hold.
+  nextTracks.forEach((track, index) => {
+    if (prevIds.has(track.id)) return;
+    let at = index === 0 ? 0 : yTracks.length;
+    for (let i = index - 1; i >= 0; i--) {
+      const held = findYMapIndex(yTracks, 'id', nextTracks[i].id);
+      if (held >= 0) {
+        at = held + 1;
+        break;
+      }
     }
-  }
+    yTracks.insert(at, [trackToYMap(track)]);
+  });
 
   // Modified tracks
   for (const nextTrack of nextTracks) {
@@ -275,6 +297,8 @@ function diffMidiClips(
       yClip.set('startTick', nextClip.startTick);
     if (prevClip.durationTicks !== nextClip.durationTicks)
       yClip.set('durationTicks', nextClip.durationTicks ?? 0);
+    if (!prevClip.muted !== !nextClip.muted)
+      setFlag(yClip, 'muted', nextClip.muted);
 
     // MIDI events — replace the entire events array when changed, since MIDI
     // edits replace the clip's whole events array in Zustand. Each note's
@@ -343,7 +367,19 @@ function diffAudioClips(
     if (prevClip.offsetSeconds !== nextClip.offsetSeconds)
       yClip.set('offsetSeconds', nextClip.offsetSeconds ?? 0);
     if (prevClip.gain !== nextClip.gain) yClip.set('gain', nextClip.gain ?? 1);
+    if (prevClip.name !== nextClip.name) {
+      if (nextClip.name === undefined) yClip.delete('name');
+      else yClip.set('name', nextClip.name);
+    }
+    if (!prevClip.muted !== !nextClip.muted)
+      setFlag(yClip, 'muted', nextClip.muted);
   }
+}
+
+/** A clip's flag in the doc: the key while it is on, no key while off. */
+function setFlag(yClip: Y.Map<unknown>, key: string, on: boolean | undefined) {
+  if (on) yClip.set(key, true);
+  else yClip.delete(key);
 }
 
 // ── Chord region diff ───────────────────────────────────────────────────
@@ -447,6 +483,52 @@ function diffMarkers(
   }
 }
 
+// ── Song sections diff (milestone 2.13) ─────────────────────────────────
+
+/**
+ * Writes the store's sections over the doc's, keyed by id as the markers
+ * are: a section the store no longer has goes, a new one is added, and each
+ * field the doc holds differently is set. It compares with the doc, not with
+ * the store's last state: every peer reads the doc in order and without
+ * overlaps (sectionsFromDoc), so where that reading moved a section (two
+ * added at the same end at once, an undo bringing one back over bars a
+ * partner gave another), this writes it back and every peer keeps the same
+ * song form. A second copy of an id goes too (sectionsFromDoc reads the
+ * first).
+ */
+function diffSections(doc: Y.Doc, nextSections: SongSection[]): void {
+  const ySections = getYSections(doc);
+  const wanted = new Set(nextSections.map((s) => s.id));
+  const held = new Map<string, Y.Map<unknown>>();
+  for (let i = 0; i < ySections.length; ) {
+    const ys = ySections.get(i) as Y.Map<unknown>;
+    const id = String(ys.get('id') ?? '');
+    if (!wanted.has(id) || held.has(id)) {
+      ySections.delete(i, 1);
+      continue;
+    }
+    held.set(id, ys);
+    i++;
+  }
+
+  for (const next of nextSections) {
+    const ys = held.get(next.id);
+    if (!ys) {
+      ySections.push([sectionToYMap(next)]);
+      continue;
+    }
+    // Read as the store reads it (a type this build doesn't know is custom,
+    // a missing name the type's), so only real differences are written.
+    const stored = yMapToSection(ys);
+    if (stored.type !== next.type) ys.set('type', next.type);
+    if (stored.label !== next.label) ys.set('label', next.label);
+    if (ys.get('startTick') !== next.startTick) {
+      ys.set('startTick', next.startTick);
+    }
+    if (ys.get('endTick') !== next.endTick) ys.set('endTick', next.endTick);
+  }
+}
+
 // ── Mastering diff ──────────────────────────────────────────────────────
 
 // The doc's eight retired macro keys (style, eq, dynamics, loudness,
@@ -474,8 +556,6 @@ function diffMastering(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
 
 function diffLeadSheet(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
   const yLS = getYLeadSheet(doc);
-  if (prev.leadSheetSections !== next.leadSheetSections)
-    yLS.set('sections', JSON.stringify(next.leadSheetSections));
   if (prev.leadSheetRepeats !== next.leadSheetRepeats)
     yLS.set('repeats', JSON.stringify(next.leadSheetRepeats));
   if (prev.leadSheetChordFormat !== next.leadSheetChordFormat)

@@ -143,6 +143,16 @@ describe('songToUnison with real Song fixture', () => {
     expect(doc.form!.sections.length).toBe(rolling_in_the_deep.sections.length);
   });
 
+  it('reads a numbered section as its kind: Verse 2 is a verse', () => {
+    // The chart numbers its sections; UNISON reads each name as the Studio
+    // does (sectionTypeOfLabel), so none of them falls through to 'custom'.
+    const doc = songToUnison(rolling_in_the_deep);
+    const kinds = doc.form!.sections.map((s) => [s.label, s.type]);
+    expect(kinds).toContainEqual(['Verse 2', 'verse']);
+    expect(kinds).toContainEqual(['Chorus 1', 'chorus']);
+    expect(kinds.filter(([, type]) => type === 'custom')).toEqual([]);
+  });
+
   it('emits a repeat marker for every section with repeatCount > 1', () => {
     const doc = songToUnison(rolling_in_the_deep);
     const repeatSections = rolling_in_the_deep.sections.filter(

@@ -31,9 +31,20 @@ const engine = vi.hoisted(() => ({
   registry: new Map<string, unknown>(),
   noteOn: vi.fn(),
   noteOff: vi.fn(),
+  allNotesOff: vi.fn(),
 }));
 vi.mock('@/daw/hooks/usePlaybackEngine', () => ({
   trackEngineRegistry: engine.registry,
+}));
+
+// The preview books its notes on the audio clock, which the test moves on.
+const clock = vi.hoisted(() => ({ ctx: { currentTime: 0 } }));
+vi.mock('@/daw/audio/AudioEngine', () => ({
+  audioEngine: {
+    getIsInitialized: () => true,
+    resumeIfNeeded: async () => {},
+    getContext: () => clock.ctx,
+  },
 }));
 
 import { useStore } from '@/daw/store';
@@ -57,6 +68,8 @@ beforeEach(() => {
   engine.registry.clear();
   engine.noteOn.mockClear();
   engine.noteOff.mockClear();
+  engine.allNotesOff.mockClear();
+  clock.ctx.currentTime = 0;
   useStore.setState({ tracks: [], bpm: groove.bpm });
   trackId = useStore.getState().addTrack('midi', 'drum-machine', 'Drums');
 });
@@ -65,6 +78,25 @@ afterEach(() => {
   cleanup();
   vi.useRealTimers();
 });
+
+/** Moves the audio clock and the timers on together. */
+async function play(ms: number) {
+  for (let t = 0; t < ms; t += 25) {
+    clock.ctx.currentTime += 0.025;
+    await act(() => vi.advanceTimersByTimeAsync(25));
+  }
+}
+
+function previewFirstGroove() {
+  engine.registry.set(trackId, {
+    trackEngine: {
+      noteOn: engine.noteOn,
+      noteOff: engine.noteOff,
+      allNotesOff: engine.allNotesOff,
+    },
+  });
+  return render(<GroovesBrowser trackId={trackId} />);
+}
 
 describe('GroovesBrowser loading', () => {
   it('adds the loaded groove as a clip on the track', async () => {
@@ -97,24 +129,54 @@ describe('GroovesBrowser loading', () => {
     expect(track.midiClips).toHaveLength(0);
   });
 
-  it('previews the loaded notes at the groove tempo', async () => {
+  it('previews the loaded notes at the groove tempo, on the audio clock', async () => {
     vi.useFakeTimers();
-    engine.registry.set(trackId, {
-      trackEngine: { noteOn: engine.noteOn, noteOff: engine.noteOff },
-    });
-    render(<GroovesBrowser trackId={trackId} />);
+    previewFirstGroove();
     await act(async () => {
       fireEvent.click(within(firstRow()).getAllByRole('button')[0]);
     });
+    await play(25);
     expect(loader.calls).toEqual([groove.id]);
 
-    const beatMs = 60_000 / groove.bpm;
-    act(() => vi.advanceTimersByTime(1));
-    expect(engine.noteOn).toHaveBeenCalledWith(36, 100);
-    expect(engine.noteOn).not.toHaveBeenCalledWith(38, 90);
+    // Booked a little ahead, each at its own time on the context clock
+    // (dock-instruments-07): not fired by wall-clock timers at "now".
+    const beat = 60 / groove.bpm;
+    expect(engine.noteOn).toHaveBeenCalledTimes(1);
+    const [note, velocity, start] = engine.noteOn.mock.calls[0];
+    expect([note, velocity]).toEqual([36, 100]);
+    expect(start).toBeGreaterThan(0);
 
-    act(() => vi.advanceTimersByTime(beatMs));
-    expect(engine.noteOn).toHaveBeenCalledWith(38, 90);
-    expect(engine.noteOff).toHaveBeenCalledWith(36);
+    await play(beat * 1000);
+    expect(engine.noteOn).toHaveBeenCalledWith(38, 90, start + beat);
+    expect(engine.noteOff).toHaveBeenCalledWith(36, start + beat / 4);
+  });
+
+  it('stops when the song starts playing', async () => {
+    vi.useFakeTimers();
+    previewFirstGroove();
+    await act(async () => {
+      fireEvent.click(within(firstRow()).getAllByRole('button')[0]);
+    });
+    await play(25);
+    expect(engine.noteOn).toHaveBeenCalledTimes(1);
+
+    act(() => useStore.setState({ isPlaying: true }));
+    expect(engine.allNotesOff).toHaveBeenCalled();
+    await play(2000);
+    expect(engine.noteOn).toHaveBeenCalledTimes(1);
+    act(() => useStore.setState({ isPlaying: false }));
+  });
+
+  it('stops when the tab goes', async () => {
+    vi.useFakeTimers();
+    const { unmount } = previewFirstGroove();
+    await act(async () => {
+      fireEvent.click(within(firstRow()).getAllByRole('button')[0]);
+    });
+    await play(25);
+    unmount();
+    expect(engine.allNotesOff).toHaveBeenCalled();
+    await play(2000);
+    expect(engine.noteOn).toHaveBeenCalledTimes(1);
   });
 });

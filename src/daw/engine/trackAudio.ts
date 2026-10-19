@@ -166,6 +166,7 @@ export function scheduleMasterAutomation(
   automationScheduler: AutomationScheduler,
   tick: number,
   bpm: number,
+  at?: number,
 ): void {
   const masterGain = audioEngine.getMasterGain();
   automationScheduler.scheduleLanes(
@@ -174,6 +175,7 @@ export function scheduleMasterAutomation(
     (paramId) => resolveMasterAutomationTargets(paramId, masterGain),
     tick,
     bpm,
+    at,
   );
 }
 

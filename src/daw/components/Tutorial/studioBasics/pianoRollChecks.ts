@@ -1,13 +1,15 @@
 import type { MidiNoteEvent } from '@prism/engine';
+import { dockKindOf } from '@/daw/shell/dock/dockTabs';
 import type { AllSlices } from '@/daw/store';
 import type { StepCheck } from '../tutorials';
 
 // ── Checks for the Piano Roll lesson ───────────────────────────────────────
 // The roll edits a clip's notes in the store, so each step's check reads
 // the notes of every clip: one more, one fewer, or one that moved or
-// changed length (every stored note has an id). Either roll counts, the
-// window a double-click opens or the dock's Piano Roll tab, and so does any
-// clip on any track.
+// changed length (every stored note has an id). Any clip on any track
+// counts. Since Stage B the Piano Roll is the dock's Notes tab on a melodic
+// track (the modal window is gone): it is open while the dock shows that
+// tab for the selected track.
 
 /** Every note in the song, on every instrument track. */
 const notesOf = (s: AllSlices): MidiNoteEvent[] =>
@@ -38,11 +40,18 @@ const someNoteChanged =
     });
   };
 
-/** A clip is open in the Piano Roll window. */
-export const pianoRollOpen: StepCheck = (s) => s.editingClipId !== null;
+/** The dock shows the Notes tab of a melodic track: the Piano Roll. */
+const notesTabShowing = (s: AllSlices): boolean => {
+  if (s.dockMaster || s.channelStripTab !== 'piano-roll') return false;
+  const track = s.tracks.find((t) => t.id === s.selectedTrackId);
+  return dockKindOf(track) === 'melodic';
+};
 
-/** The Piano Roll window is closed. */
-export const pianoRollClosed: StepCheck = (s) => s.editingClipId === null;
+/** The Piano Roll is open: the dock's Notes tab on a melodic track. */
+export const pianoRollOpen: StepCheck = (s) => notesTabShowing(s);
+
+/** The Piano Roll is closed: the dock shut or on another tab. */
+export const pianoRollClosed: StepCheck = (s) => !notesTabShowing(s);
 
 /** The song has more notes than when the turn began. */
 export const noteAdded: StepCheck = (s, armed) =>

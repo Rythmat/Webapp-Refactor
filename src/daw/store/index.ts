@@ -10,6 +10,11 @@ import { createUiSlice, type UiSlice } from './uiSlice';
 import { createMasteringSlice, type MasteringSlice } from './masteringSlice';
 import { createReturnsSlice, type ReturnsSlice } from './returnsSlice';
 import { createMarkersSlice, type MarkersSlice } from './markersSlice';
+import {
+  createSectionsSlice,
+  leadSheetSectionsOf,
+  type SectionsSlice,
+} from './sectionsSlice';
 import { createAudioIOSlice, type AudioIOSlice } from './audioIOSlice';
 import {
   createDoneMomentsSlice,
@@ -42,6 +47,7 @@ export type AllSlices = TransportSlice &
   MasteringSlice &
   ReturnsSlice &
   MarkersSlice &
+  SectionsSlice &
   AudioIOSlice &
   DoneMomentsSlice &
   PrismSuggestionSlice &
@@ -62,6 +68,7 @@ export const useStore = create<AllSlices>()(
       ...createMasteringSlice(set, get, api),
       ...createReturnsSlice(set, get, api),
       ...createMarkersSlice(set, get, api),
+      ...createSectionsSlice(set, get, api),
       ...createAudioIOSlice(set, get, api),
       ...createDoneMomentsSlice(set, get, api),
       ...createPrismSuggestionSlice(set, get, api),
@@ -88,6 +95,14 @@ export function useTrackIds() {
 /** Subscribe to track count only (for layout sizing). */
 export function useTrackCount() {
   return useStore((s) => s.tracks.length);
+}
+
+/**
+ * The song's sections as the Lead Sheet marks them (milestone 2.13): one
+ * array until the sections or the metre change.
+ */
+export function useLeadSheetSections() {
+  return useStore(leadSheetSectionsOf);
 }
 
 // ── Re-exports ──────────────────────────────────────────────────────────
@@ -126,6 +141,8 @@ export type {
 export type { MasteringSlice } from './masteringSlice';
 export type { ReturnsSlice, ReturnBus } from './returnsSlice';
 export type { MarkersSlice, Marker } from './markersSlice';
+export type { SectionsSlice } from './sectionsSlice';
+export { leadSheetSectionsOf } from './sectionsSlice';
 export type { AudioIOSlice } from './audioIOSlice';
 export type {
   DoneMoment,

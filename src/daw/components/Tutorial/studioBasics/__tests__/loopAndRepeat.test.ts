@@ -3,17 +3,19 @@
  * Studio Basics 8 · Loop and Repeat, on the course's song. Each step's check
  * is armed as the lesson layer arms it: it doesn't pass then, and it passes
  * once the student's move lands in the store, made with the editor's own
- * commands (Duplicate, Copy and Paste Here, Duplicate Track).
+ * commands: the clip menu's Duplicate, Copy and Paste here
+ * (shell/canvas/clipMenu/clipActions.ts) and the track menu's Duplicate
+ * track (shell/tracklist/duplicateTrack.ts).
  *
  * Run: npx vitest run src/daw/components/Tutorial/studioBasics/__tests__/loopAndRepeat.test.ts
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  copySelectedClip,
-  duplicateSelectedClip,
-  pasteClipsAt,
-} from '@/daw/commands/clipCommands';
-import { duplicateTrack } from '@/daw/commands/trackCommands';
+  copyClip,
+  duplicateClip,
+  pasteClipboard,
+} from '@/daw/shell/canvas/clipMenu/clipActions';
+import { duplicateTrack } from '@/daw/shell/tracklist/duplicateTrack';
 import { useStore } from '@/daw/store';
 import { MAX_TOTAL_TRACKS } from '@/daw/store/tracksSlice';
 import { MOST_TRACKS } from '../loopAndRepeatChecks';
@@ -77,7 +79,7 @@ describe('Loop and Repeat', () => {
     // The step points at the bottom track's clip, which a right-click selects.
     s().setSelectedClip(drums.midiClips[0].id, drums.id);
     expect(passes()).toBe(false);
-    duplicateSelectedClip();
+    duplicateClip({ trackId: drums.id, clipId: drums.midiClips[0].id });
     expect(passes()).toBe(true);
     expect(trackNamed('Drums').midiClips.map((c) => c.startTick)).toEqual([
       0, 7680,
@@ -88,10 +90,10 @@ describe('Loop and Repeat', () => {
     const { passes } = arm(LOOP, 'copy-and-paste');
     const chords = trackNamed('Chords');
     s().setSelectedClip(chords.midiClips[0].id, chords.id);
-    copySelectedClip();
+    copyClip({ trackId: chords.id, clipId: chords.midiClips[0].id });
     expect(passes()).toBe(false);
-    // Paste Here, on its own row at bar 5.
-    pasteClipsAt(chords.id, 7680);
+    // Paste here, on its own row at bar 5 (the lane menu's).
+    pasteClipboard({ trackId: chords.id, tick: 7680 });
     expect(passes()).toBe(true);
     expect(trackNamed('Chords').midiClips.map((c) => c.startTick)).toEqual([
       0, 7680,

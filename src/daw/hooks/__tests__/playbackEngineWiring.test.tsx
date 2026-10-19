@@ -32,6 +32,8 @@ vi.mock('@/daw/audio/AudioEngine', () => ({
   audioEngine: {
     getContext: () => engine.context,
     getMasterGain: () => engine.masterGain,
+    // The click goes straight to the output (milestone 2.8).
+    getOutput: () => ({}),
     updateMasteringEffects: engine.updateMasteringEffects,
     updateReturnEffects() {},
     setReturnVolume() {},
@@ -49,6 +51,7 @@ vi.mock('@/daw/audio/TrackEngine', () => ({
     updateEffects() {}
     setSend() {}
     setKeySourceResolver() {}
+    refreshDuckerKey() {}
     setInstrument() {}
     allNotesOff() {}
     panic() {}
@@ -61,13 +64,22 @@ vi.mock('@/daw/audio/TrackEngine', () => ({
 vi.mock('@/daw/audio/MidiScheduler', () => ({
   MidiScheduler: class {
     scheduleSequence() {}
+    setMutedClips() {}
     cancelAll() {}
+    releaseAll() {}
+    scheduledClipIds() {
+      return [];
+    }
   },
 }));
 vi.mock('@/daw/audio/AudioClipScheduler', () => ({
   AudioClipScheduler: class {
     scheduleClip() {}
+    setMutedClips() {
+      return [];
+    }
     cancelAll() {}
+    cancelClip() {}
   },
 }));
 vi.mock('@/daw/audio/AutomationScheduler', () => ({
@@ -81,6 +93,8 @@ vi.mock('@/daw/audio/AutomationScheduler', () => ({
 vi.mock('@/daw/audio/MetronomeEngine', () => ({
   MetronomeEngine: class {
     init() {}
+    setSound() {}
+    setVolume() {}
     setTimeSignature() {}
     setEnabled() {}
     start() {}
@@ -113,7 +127,14 @@ const takes = vi.hoisted(() => ({
   recorders: [] as Array<{
     isRecording(): boolean;
     stopRecording: ReturnType<typeof vi.fn>;
+    dispose: ReturnType<typeof vi.fn>;
   }>,
+  /** The next startRecording fails with this. */
+  startError: null as Error | null,
+  /** Where the next take lands, from its capture tap. */
+  placement: undefined as
+    | { startTick: number; offsetSeconds: number }
+    | undefined,
 }));
 vi.mock('@/daw/audio/AudioRecorder', () => ({
   AudioRecorder: class {
@@ -124,12 +145,17 @@ vi.mock('@/daw/audio/AudioRecorder', () => ({
         buffer: { duration: 2 } as AudioBuffer,
         originalBytes: new ArrayBuffer(8),
         originalContentType: 'audio/webm',
+        placement: takes.placement,
       };
+    });
+    dispose = vi.fn(() => {
+      this.recording = false;
     });
     constructor() {
       takes.recorders.push(this);
     }
     async startRecording() {
+      if (takes.startError) throw takes.startError;
       this.recording = true;
     }
     isRecording() {
@@ -138,6 +164,9 @@ vi.mock('@/daw/audio/AudioRecorder', () => ({
   },
 }));
 
+const notices = vi.hoisted(() => ({ notice: vi.fn() }));
+vi.mock('@/daw/shell/notice', () => notices);
+
 const mic = vi.hoisted(() => {
   const track = { stop: vi.fn() };
   return { track, stream: { getTracks: () => [track] } };
@@ -145,6 +174,7 @@ const mic = vi.hoisted(() => {
 const getUserMedia = vi.fn(async () => mic.stream);
 
 import { useStore } from '@/daw/store';
+import { onTakeCommitted } from '@/daw/audio/takeEvents';
 import { usePlaybackEngine } from '../usePlaybackEngine';
 
 /** Lets pending promises (instrument init, the mic, a take's decode) settle. */
@@ -166,6 +196,9 @@ beforeEach(() => {
   engine.updateMasteringEffects.mockReset();
   synth.apply.mockReset();
   takes.recorders.length = 0;
+  takes.startError = null;
+  takes.placement = undefined;
+  notices.notice.mockReset();
   mic.track.stop.mockReset();
   getUserMedia.mockClear();
   Object.defineProperty(navigator, 'mediaDevices', {
@@ -269,5 +302,74 @@ describe('a mic that arrives after Stop', () => {
     const [recorder] = takes.recorders;
     expect(recorder.isRecording()).toBe(false);
     expect(mic.track.stop).toHaveBeenCalled();
+  });
+});
+
+describe('a take placed where it was played (milestone 1.11 d)', () => {
+  it("lands at the recorder's placement, trimmed by its offset, and is announced once", async () => {
+    const id = armedMicTrack();
+    useStore.setState({ position: 960 });
+    takes.placement = { startTick: 1000, offsetSeconds: 0.5 };
+    const committed = vi.fn();
+    const stopListening = onTakeCommitted(committed);
+    renderHook(() => usePlaybackEngine(true, null));
+    act(() => useStore.setState({ isPlaying: true, isRecording: true }));
+    await settle();
+    act(() => useStore.setState({ isPlaying: false, isRecording: false }));
+    await settle();
+    stopListening();
+
+    const [clip] = s().tracks.find((t) => t.id === id)!.audioClips;
+    expect(clip.startTick).toBe(1000);
+    expect(clip.offsetSeconds).toBe(0.5);
+    // 1.5 s left at 120 bpm.
+    expect(clip.duration).toBe(1440);
+    expect(committed).toHaveBeenCalledTimes(1);
+    expect(committed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        trackId: id,
+        clipId: clip.id,
+        startTick: 1000,
+      }),
+    );
+  });
+});
+
+describe('a take that cannot record', () => {
+  it('a blocked microphone: the student is told, and no take starts', async () => {
+    getUserMedia.mockImplementationOnce(() =>
+      Promise.reject(new DOMException('denied', 'NotAllowedError')),
+    );
+    const id = armedMicTrack();
+    renderHook(() => usePlaybackEngine(true, null));
+    act(() => useStore.setState({ isPlaying: true, isRecording: true }));
+    await settle();
+    expect(notices.notice).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.stringMatching(/^Recording stopped: the microphone/),
+        variant: 'destructive',
+      }),
+    );
+    act(() => useStore.setState({ isPlaying: false, isRecording: false }));
+    await settle();
+    expect(s().tracks.find((t) => t.id === id)!.audioClips).toHaveLength(0);
+  });
+
+  it('a recorder that fails to start: the student is told, and the mic is let go', async () => {
+    takes.startError = new Error('NotSupportedError');
+    armedMicTrack();
+    renderHook(() => usePlaybackEngine(true, null));
+    act(() => useStore.setState({ isPlaying: true, isRecording: true }));
+    await settle();
+    const [recorder] = takes.recorders;
+    expect(recorder.dispose).toHaveBeenCalled();
+    expect(notices.notice).toHaveBeenCalledTimes(1);
+    expect(notices.notice.mock.lastCall![0].title).toMatch(
+      /^Recording stopped: the microphone/,
+    );
+    // Stop afterwards finishes nothing.
+    act(() => useStore.setState({ isPlaying: false, isRecording: false }));
+    await settle();
+    expect(recorder.stopRecording).not.toHaveBeenCalled();
   });
 });

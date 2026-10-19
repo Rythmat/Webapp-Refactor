@@ -87,6 +87,8 @@ export { Segmented } from './Segmented';
 export type { SegmentedOption, SegmentedProps } from './Segmented';
 export { Select } from './Select';
 export type { SelectOption, SelectOptionGroup, SelectProps } from './Select';
+export { SettingRow } from './SettingRow';
+export type { SettingRowIds, SettingRowProps } from './SettingRow';
 export type { SliderScale, ValueMapping } from './sliderMath';
 export { useSliderControl } from './useSliderControl';
 export type { SliderControlOptions } from './useSliderControl';

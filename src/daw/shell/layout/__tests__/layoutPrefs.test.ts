@@ -22,6 +22,7 @@ describe('the registry', () => {
     for (const key of [
       'inspectorOpenByView',
       'inspectorWidth',
+      'inspectorPanel',
       'dockHeights',
       'readoutMode',
     ] as const) {
@@ -76,7 +77,7 @@ describe('the Inspector', () => {
     s().setInspectorWidth(999);
     expect(s().inspectorWidth).toBe(420);
     s().setInspectorWidth(10);
-    expect(s().inspectorWidth).toBe(200);
+    expect(s().inspectorWidth).toBe(240);
   });
 });
 

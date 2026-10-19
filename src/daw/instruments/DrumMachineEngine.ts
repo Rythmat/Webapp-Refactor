@@ -62,6 +62,11 @@ interface PadChain {
   panner: Tone.Panner;
 }
 
+// A stop or loop chokes ringing one-shots with a fade this short: long enough
+// not to click, short enough to read as a cut.
+const CHOKE_FADE_S = 0.008;
+const PANIC_FADE_S = 0.005;
+
 // ── DrumMachineEngine ───────────────────────────────────────────────────
 
 /**
@@ -86,6 +91,9 @@ export class DrumMachineEngine implements InstrumentAdapter {
   private padChains = new Map<number, PadChain>();
   // Stored base volumes per pad (immune to velocity scaling)
   private padBaseVolume = new Map<number, number>();
+  // Per pad, the context time a choke's fade ends. A hit that lands inside
+  // the fade takes its velocity gain back from the fade.
+  private chokeEnds = new Map<number, number>();
 
   async init(_ctx: AudioContext, outputNode: AudioNode): Promise<void> {
     this.output = new Tone.Gain(1);
@@ -238,6 +246,13 @@ export class DrumMachineEngine implements InstrumentAdapter {
     // Apply velocity on the dedicated velocity gain node (pad volume stays untouched)
     const chain = this.padChains.get(canonical);
     if (chain) {
+      const chokeEnd = this.chokeEnds.get(canonical);
+      if (chokeEnd !== undefined && t < chokeEnd) {
+        // A hit inside a choke's fade (the downbeat after a loop) drops the
+        // rest of the fade; player.stop(t) below cuts the old hit.
+        chain.velGain.gain.cancelScheduledValues(t);
+        this.chokeEnds.delete(canonical);
+      }
       chain.velGain.gain.setValueAtTime(velGain, t);
     }
 
@@ -252,12 +267,26 @@ export class DrumMachineEngine implements InstrumentAdapter {
     // Drum sounds are one-shot; no sustained release needed
   }
 
-  allNotesOff(): void {
-    // Nothing to release for one-shot drum sounds
+  allNotesOff(time?: number): void {
+    this.choke(time ?? Tone.immediate(), CHOKE_FADE_S);
   }
 
-  panic(): void {
-    // Drums are one-shot; nothing to silence
+  panic(time?: number): void {
+    this.choke(time ?? Tone.immediate(), PANIC_FADE_S);
+  }
+
+  /** Fades every pad's ringing one-shot out from `t` and stops it at the end
+   *  of the fade. The next hit sets its velocity gain again. */
+  private choke(t: number, fade: number): void {
+    const end = t + fade;
+    for (const [padNote, player] of this.players) {
+      const chain = this.padChains.get(padNote);
+      if (!chain || !player.loaded) continue;
+      chain.velGain.gain.cancelAndHoldAtTime(t);
+      chain.velGain.gain.linearRampToValueAtTime(0, end);
+      player.stop(end);
+      this.chokeEnds.set(padNote, end);
+    }
   }
 
   dispose(): void {
@@ -272,6 +301,7 @@ export class DrumMachineEngine implements InstrumentAdapter {
       chain.panner.dispose();
     }
     this.padChains.clear();
+    this.chokeEnds.clear();
 
     this.output?.dispose();
     this.output = null;

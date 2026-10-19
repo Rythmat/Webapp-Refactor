@@ -26,6 +26,8 @@ vi.mock('@/daw/audio/AudioEngine', () => ({
       gain: { setTargetAtTime() {} },
       context: { currentTime: 0 },
     }),
+    // The click goes straight to the output (milestone 2.8).
+    getOutput: () => ({}),
     updateMasteringEffects() {},
     updateReturnEffects() {},
     setReturnVolume() {},
@@ -48,6 +50,7 @@ vi.mock('@/daw/audio/TrackEngine', () => ({
     updateEffects() {}
     setSend() {}
     setKeySourceResolver() {}
+    refreshDuckerKey() {}
     setInstrument(instrument: unknown) {
       this.instrument = instrument;
     }
@@ -64,13 +67,22 @@ vi.mock('@/daw/audio/TrackEngine', () => ({
 vi.mock('@/daw/audio/MidiScheduler', () => ({
   MidiScheduler: class {
     scheduleSequence() {}
+    setMutedClips() {}
     cancelAll() {}
+    releaseAll() {}
+    scheduledClipIds() {
+      return [];
+    }
   },
 }));
 vi.mock('@/daw/audio/AudioClipScheduler', () => ({
   AudioClipScheduler: class {
     scheduleClip() {}
+    setMutedClips() {
+      return [];
+    }
     cancelAll() {}
+    cancelClip() {}
   },
 }));
 vi.mock('@/daw/audio/AutomationScheduler', () => ({
@@ -86,6 +98,8 @@ vi.mock('@/daw/audio/AutomationScheduler', () => ({
 vi.mock('@/daw/audio/MetronomeEngine', () => ({
   MetronomeEngine: class {
     init() {}
+    setSound() {}
+    setVolume() {}
     setTimeSignature() {}
     setEnabled() {}
     start() {}

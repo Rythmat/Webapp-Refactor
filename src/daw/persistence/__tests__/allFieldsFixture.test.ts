@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * Writes fixtures/v7-all-fields/all-fields.json: a draft in today's format
+ * Writes fixtures/v8-all-fields/all-fields.json: a draft in today's format
  * (schema 7) holding a value other than its default for every local
  * registry field, which codecV3.test and draftShape.test read (see there for
  * what it must hold).
@@ -8,8 +8,8 @@
  * Skipped unless WRITE_FIXTURES=1. The fixture is the format, so rewrite it
  * only for a new registry field that needs a value in it, or with a
  * SESSION_SCHEMA_VERSION bump (keeping a copy of the old one for the
- * migration from it: fixtures/v3-all-fields to fixtures/v6-all-fields are
- * the v3 to v6 ones).
+ * migration from it: fixtures/v3-all-fields to v7-all-fields are the v3
+ * to v7 ones).
  *
  * Run: WRITE_FIXTURES=1 npx vitest run src/daw/persistence/__tests__/allFieldsFixture.test.ts
  */
@@ -32,7 +32,7 @@ import { migrateSession } from '../projectDocument/migrations';
 
 const FILE = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v7-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v8-all-fields/all-fields.json',
 );
 
 const effects = (patch: Record<string, unknown> = {}) =>
@@ -190,6 +190,7 @@ function allFieldsProject(): ProjectSnapshot {
           id: 'clip-beat',
           name: 'Beat',
           startTick: 0,
+          muted: true,
           events: [
             {
               id: 'DrumNote0001',
@@ -237,6 +238,8 @@ function allFieldsProject(): ProjectSnapshot {
           assetId: 'asset-take-1',
           offsetSeconds: 0.5,
           gain: 0.7,
+          name: 'Solo take',
+          muted: true,
         },
       ],
     }),
@@ -386,10 +389,6 @@ function allFieldsProject(): ProjectSnapshot {
     measureFermatas: [15],
     leadSheetBars: 24,
     leadSheetChordFormat: 'jazz',
-    leadSheetSections: [
-      { measureIdx: 0, label: 'A' },
-      { measureIdx: 8, label: 'B' },
-    ],
     leadSheetRepeats: [{ startMeasure: 0, endMeasure: 7 }],
     leadSheetShowRepeats: true,
     leadSheetShowMelody: true,
@@ -415,6 +414,23 @@ function allFieldsProject(): ProjectSnapshot {
       { id: 'marker-verse01', tick: 1920, name: 'Verse', color: '#8fd3ff' },
       { id: 'marker-chorus1', tick: 5760, name: 'Chorus', color: '#ff8a3d' },
     ],
+    // Bars of 6/8 are 1440 ticks: bars 2–5 and 6–13.
+    sections: [
+      {
+        id: 'section-intro001',
+        type: 'intro',
+        label: 'Intro',
+        startTick: 1440,
+        endTick: 7200,
+      },
+      {
+        id: 'section-chorus01',
+        type: 'chorus',
+        label: 'Chorus 1',
+        startTick: 7200,
+        endTick: 18720,
+      },
+    ],
     masterVolume: 0.55,
     masteringFxChain: ['compressor'],
     masteringEffects: effects({
@@ -432,6 +448,7 @@ function allFieldsProject(): ProjectSnapshot {
     selectedTrackId: 'trk-drums',
     automationOpenTrackId: 'trk-keys',
     automationParamId: 'pan',
+    chordAnalysisDismissed: true,
   };
 }
 

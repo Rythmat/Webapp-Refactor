@@ -53,6 +53,36 @@ export function draftIsCloudEqual(m: DraftMeta): boolean {
 }
 
 /**
+ * A fingerprint a draft stored (its baseline's, its cloud record's), as this
+ * build fingerprints the same content. The document fingerprint names every
+ * content key, so a schema that renames or adds one (2.13's
+ * leadSheetSections → sections) gives unchanged content another
+ * fingerprint. When the draft opened was written in another schema, a
+ * stored fingerprint equal to its docFingerprint names the very content it
+ * opened with, so it becomes `fresh`: that content, fingerprinted by this
+ * build. Any other fingerprint is kept as it is, so an edit the baseline or
+ * the cloud doesn't hold still reads as unsaved, and so does a fingerprint
+ * that is unknown (null) or a `fresh` that is. `schemaVersion` is
+ * SESSION_SCHEMA_VERSION, passed in so this module never loads the codec.
+ */
+export function fingerprintInSchema(
+  fingerprint: string | null,
+  opened: Pick<DraftMeta, 'schema' | 'docFingerprint'>,
+  schemaVersion: number,
+  fresh: string | null,
+): string | null {
+  if (
+    opened.schema === schemaVersion ||
+    !isHash(fresh) ||
+    !isHash(opened.docFingerprint) ||
+    fingerprint !== opened.docFingerprint
+  ) {
+    return fingerprint;
+  }
+  return fresh;
+}
+
+/**
  * hasContent, and neither pristine nor cloud-equal. A meta that doesn't say
  * (hasContent missing) may hold content, so it counts.
  */

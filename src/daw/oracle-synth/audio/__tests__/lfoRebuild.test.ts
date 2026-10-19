@@ -8,12 +8,17 @@ function fakeContext(): AudioContext {
     disconnect: vi.fn(),
     start: vi.fn(),
     stop: vi.fn(),
-    gain: { value: 1 },
+    gain: {
+      value: 1,
+      setValueAtTime: vi.fn(),
+      linearRampToValueAtTime: vi.fn(),
+    },
     playbackRate: { value: 1 },
     buffer: null,
     loop: false,
   });
   return {
+    currentTime: 0,
     createGain: node,
     createBufferSource: node,
   } as unknown as AudioContext;

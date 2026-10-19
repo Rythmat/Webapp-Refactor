@@ -45,6 +45,22 @@ export function typingNote(code: string, octave: number): number | null {
   return note >= 0 && note <= 127 ? note : null;
 }
 
+/**
+ * The octave a drum kit plays in (milestone 2.9): A is MIDI 36, the kick,
+ * as on a GM drum keyboard, with the snare on S and the hats on the black
+ * keys T, Y and U. Whatever octave the student has chosen, a drum track's
+ * keys play its kit, so the letters on its pads stay true.
+ */
+export const DRUM_TYPING_OCTAVE = 2;
+
+/** The key that plays `note` in `octave`, as printed on it ('A', ';'). */
+export function typingKeyFor(note: number, octave: number): string | null {
+  const offset = note - (octave + 1) * 12;
+  const code = TYPING_NOTE_CODES.find((c) => TYPING_NOTES[c] === offset);
+  if (!code) return null;
+  return code === 'Semicolon' ? ';' : code.replace(/^Key/, '');
+}
+
 /** C4, C-1: the name of the note the A key plays. */
 export function octaveLabel(octave: number): string {
   return `C${octave}`;

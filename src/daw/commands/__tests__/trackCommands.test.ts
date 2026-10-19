@@ -1,21 +1,20 @@
 /**
  * The simple instrument picker's catalog and the track commands behind it
  * (simpleInstruments.ts, trackCommands.ts): plain instruments only, a change
- * of instrument that keeps the music and the mix, an instrument track added
- * in one step, and Duplicate Track, each one undo step.
+ * of instrument that keeps the music and the mix, and an instrument track
+ * added in one step, each one undo step.
  *
  * Run: npx vitest run src/daw/commands/__tests__/trackCommands.test.ts
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const toasts = vi.hoisted(() => [] as Array<{ title?: string }>);
-vi.mock('@/hooks/use-toast', () => ({
-  toast: (t: { title?: string }) => {
+vi.mock('@/daw/shell/notice', () => ({
+  notice: (t: { title?: string }) => {
     toasts.push(t);
   },
 }));
 
-import { getAudioBuffer, setAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import {
   INSTRUMENT_FAMILIES,
   SIMPLE_INSTRUMENTS,
@@ -25,11 +24,6 @@ import {
   pickerFamilies,
   simpleInstrumentOf,
 } from '@/daw/instruments/simpleInstruments';
-import {
-  getTrackSynthState,
-  setTrackSynthState,
-  defaultSynthTrackState,
-} from '@/daw/oracle-synth/synthTrackState';
 import { MAX_TOTAL_TRACKS, useStore } from '@/daw/store';
 import {
   historyLabels,
@@ -37,11 +31,7 @@ import {
   startHistory,
   undo,
 } from '@/daw/store/history';
-import {
-  addInstrumentTrack,
-  duplicateTrack,
-  setTrackInstrument,
-} from '../trackCommands';
+import { addInstrumentTrack, setTrackInstrument } from '../trackCommands';
 
 const s = () => useStore.getState();
 const trackOf = (id: string) => s().tracks.find((t) => t.id === id)!;
@@ -265,88 +255,6 @@ describe('addInstrumentTrack', () => {
     for (let i = 0; i < MAX_TOTAL_TRACKS; i++) addInstrumentTrack('flute');
     expect(addInstrumentTrack('flute')).toBe('');
     expect(s().tracks).toHaveLength(MAX_TOTAL_TRACKS);
-    expect(toasts.at(-1)?.title).toBe('Track limit reached');
-  });
-});
-
-describe('duplicateTrack', () => {
-  it('puts a copy just below, selected, with the instrument, clips and mix', () => {
-    const id = rhodes();
-    const bass = s().addTrack('midi', 'soundfont', 'Bass');
-    s().updateTrack(id, { recordArmed: true, monitoring: true });
-    resetHistory();
-
-    const copyId = duplicateTrack(id);
-    expect(s().tracks.map((t) => t.id)).toEqual([id, copyId, bass]);
-    expect(s().selectedTrackId).toBe(copyId);
-    const source = trackOf(id);
-    const copy = trackOf(copyId);
-    expect(copy).toMatchObject({
-      name: 'Rhodes 2',
-      instrument: 'electric-piano',
-      volume: 0.42,
-      pan: -0.3,
-      mute: true,
-      activeEffects: ['reverb'],
-      recordArmed: false,
-      monitoring: false,
-    });
-    expect(copy.effects).toEqual(source.effects);
-    expect(copy.midiClips).toHaveLength(1);
-    expect(copy.midiClips[0].id).not.toBe(source.midiClips[0].id);
-    expect(copy.midiClips[0].events.map((e) => e.note)).toEqual([60, 64]);
-    // Notes of their own: no id is shared with the original.
-    const sourceIds = new Set(source.midiClips[0].events.map((e) => e.id));
-    for (const event of copy.midiClips[0].events) {
-      expect(event.id).toBeTruthy();
-      expect(sourceIds.has(event.id)).toBe(false);
-    }
-  });
-
-  it('is one undo step', () => {
-    const id = rhodes();
-    duplicateTrack(id);
-    expect(historyLabels()).toEqual(['Duplicate track']);
-    expect(undo()).toBe(true);
-    expect(s().tracks.map((t) => t.id)).toEqual([id]);
-  });
-
-  it('numbers copies on from the last one', () => {
-    const id = rhodes();
-    duplicateTrack(id);
-    const third = duplicateTrack(id);
-    expect(trackOf(third).name).toBe('Rhodes 3');
-  });
-
-  it('copies the audio its clips play, and the synth patch', () => {
-    const vox = s().addTrack('audio', 'vocal-fx', 'Vox');
-    s().addAudioClip(vox, {
-      id: 'take-1',
-      startTick: 0,
-      duration: 1920,
-      fadeInTicks: 0,
-      fadeOutTicks: 0,
-    });
-    const buffer = { length: 1 } as unknown as AudioBuffer;
-    setAudioBuffer('take-1', buffer);
-    const copy = duplicateTrack(vox);
-    const clip = trackOf(copy).audioClips[0];
-    expect(clip.id).not.toBe('take-1');
-    expect(getAudioBuffer(clip.id)).toBe(buffer);
-
-    const synth = s().addTrack('midi', 'oracle-synth', 'Lead');
-    const patch = { ...defaultSynthTrackState() };
-    setTrackSynthState(synth, patch);
-    const synthCopy = duplicateTrack(synth);
-    expect(getTrackSynthState(synthCopy)).toEqual(patch);
-    expect(getTrackSynthState(synthCopy)).not.toBe(patch);
-  });
-
-  it('copies nothing past the track limit', () => {
-    const id = rhodes();
-    for (let i = 1; i < MAX_TOTAL_TRACKS; i++) duplicateTrack(id);
-    expect(s().tracks).toHaveLength(MAX_TOTAL_TRACKS);
-    expect(duplicateTrack(id)).toBe('');
     expect(toasts.at(-1)?.title).toBe('Track limit reached');
   });
 });

@@ -47,7 +47,9 @@ const SOUND_BANK_TIMEOUT_MS = 30_000;
 export interface SoundFontTrackInput {
   id: string;
   gmProgram?: number;
-  midiClips: ReadonlyArray<Pick<MidiClip, 'startTick' | 'events' | 'ccEvents'>>;
+  midiClips: ReadonlyArray<
+    Pick<MidiClip, 'startTick' | 'events' | 'ccEvents' | 'muted'>
+  >;
 }
 
 /** The bounce's timeline: tick `startTick` is frame 0, and it ends at
@@ -109,6 +111,8 @@ export function planSoundFontTrack(
     [];
   const ccs: Array<{ tick: number; controller: number; value: number }> = [];
   for (const clip of track.midiClips) {
+    // A muted clip plays nothing, its notes or its pedal (milestone 2.12).
+    if (clip.muted) continue;
     const base = clip.startTick ?? 0;
     for (const e of clip.events) {
       const on = base + e.startTick;

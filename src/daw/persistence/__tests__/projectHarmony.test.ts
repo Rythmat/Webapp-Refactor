@@ -32,6 +32,8 @@ const previousProject = () =>
     selectedNotes: [{ trackId: 't', clipId: 'c', noteIndices: [0] }],
     leadSheetSelectedChordIdx: 'c1',
     mode: 'dorian',
+    chordAnalysisOffered: true,
+    chordAnalysisDismissed: true,
     chordAnalysisPromptOpen: true,
   });
 
@@ -45,6 +47,8 @@ const harmony = () => {
     selectedNotes: x.selectedNotes,
     leadSheetSelectedChordIdx: x.leadSheetSelectedChordIdx,
     mode: x.mode,
+    chordAnalysisOffered: x.chordAnalysisOffered,
+    chordAnalysisDismissed: x.chordAnalysisDismissed,
     chordAnalysisPromptOpen: x.chordAnalysisPromptOpen,
     selectionAnalysis: x.selectionAnalysis,
     chordAnalysis: x.chordAnalysis,
@@ -58,6 +62,8 @@ const clean = {
   selectedNotes: [],
   leadSheetSelectedChordIdx: null,
   mode: 'ionian',
+  chordAnalysisOffered: false,
+  chordAnalysisDismissed: false,
   chordAnalysisPromptOpen: false,
   selectionAnalysis: null,
   chordAnalysis: null,

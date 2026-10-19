@@ -9,6 +9,12 @@ import {
   notePlayheadSeek,
   startPlayheadRun,
 } from '@/daw/engine/playheadClock';
+import {
+  noteTransportStarted,
+  seekBeforeStart,
+  seekPlayback,
+  takePlannedTransportStart,
+} from '@/daw/engine/playbackScheduler';
 
 // ── seekTo ──────────────────────────────────────────────────────────────
 // Seek playhead to a specific tick position. Syncs Tone.Transport, the
@@ -25,7 +31,22 @@ export function previewTempo(bpm: number): void {
 
 export function seekTo(tick: number) {
   const t = Math.max(0, Math.round(tick));
-  Tone.getTransport().ticks = t;
+  const transport = Tone.getTransport();
+  // While playing, Tone moves the transport on its next tick and says when
+  // (a 'start' event from the ticks setter): the scheduler reschedules there
+  // (milestone 1.11), so old audio stops and the new position plays.
+  const jump: { at: number | null } = { at: null };
+  const onJump = (time: number) => {
+    jump.at = time;
+  };
+  transport.on('start', onJump);
+  try {
+    transport.ticks = t;
+  } finally {
+    transport.off('start', onJump);
+  }
+  if (jump.at !== null) seekPlayback(t, jump.at);
+  else seekBeforeStart(t);
   notePlayheadSeek(t);
   useStore.getState().setPosition(t);
   useStore.getState().setLastSeekPosition(t);
@@ -63,7 +84,9 @@ export function useTransport() {
   // Sync loop state → Tone.Transport
   useEffect(() => {
     const transport = Tone.getTransport();
-    transport.loop = loopEnabled;
+    // A loop that ends where it starts (or before) would spin on one tick:
+    // play straight through instead (engine-hooks-18).
+    transport.loop = loopEnabled && loopEnd > loopStart;
     transport.loopStart = `${loopStart}i`;
     transport.loopEnd = `${loopEnd}i`;
   }, [loopEnabled, loopStart, loopEnd]);
@@ -95,11 +118,15 @@ export function useTransport() {
       dropRepeatedTicks(transport);
       const from = useStore.getState().position;
       transport.ticks = from;
-      const at = Tone.now();
+      // After a count-in, exactly one beat after its last click; else now.
+      const now = Tone.now();
+      const at = takePlannedTransportStart(now) ?? now;
       startPlayheadRun(from, at);
       transport.start(at);
+      noteTransportStarted(at);
     } else {
       transport.pause();
+      noteTransportStarted(null);
       endPlayheadRun();
       // The pause or stop action parked the playhead in the store (pause
       // where it was heard, stop at the last seek): resume from there.

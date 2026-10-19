@@ -12,6 +12,7 @@ import { audioEngine } from '@/daw/audio/AudioEngine';
 import { Chip } from '@/daw/ui/Chip';
 import { DawDialog } from '@/daw/ui/DawDialog';
 import { Select } from '@/daw/ui/Select';
+import { SettingRow } from '@/daw/ui/SettingRow';
 import { TYPE_CLASS } from '@/daw/ui/styles';
 
 // ── Audio & MIDI settings (plan 2.3) ───────────────────────────────────────
@@ -22,8 +23,24 @@ import { TYPE_CLASS } from '@/daw/ui/styles';
 // browser hides device names (Chrome lists one unnamed default input), so the
 // list shows what it can and says that choosing an input asks for access. The
 // microphone is requested only when the student picks one (shell-21).
+//
+// Every row, the read-only facts too, says what it is in one line under its
+// name (SettingRow, milestone 2.11).
+
+/** Each row's one line, for students (2.11). */
+export const AUDIO_MIDI_COPY = {
+  inputDevice: 'The mic or interface the Studio records from',
+  inputChannels: 'How many inputs your device has. Auto usually works',
+  outputDevice: 'Where you hear the Studio: speakers or headphones',
+  sampleRate: 'Sound snapshots per second, set by your device',
+  latency: 'The delay between playing a note and hearing it',
+  inputChannelsInUse: 'How many channels the input is sending now',
+  midi: 'Plug in a MIDI keyboard to play instruments with it',
+} as const;
 
 const CHANNEL_COUNTS = [2, 4, 8, 16, 32];
+/** Device names can be long: the pickers stop here and cut them off. */
+const PICKER = 'max-w-52';
 const AUTO = 'auto';
 /** Chrome's unnamed default input, before the page may use the microphone. */
 const DEFAULT_INPUT = 'default';
@@ -90,19 +107,22 @@ function Note({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+/** A read-only fact: its name and line, the value at the right. */
+function Fact({
+  label,
+  description,
+  value,
+}: {
+  label: string;
+  description: string;
+  value: string;
+}) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className={TYPE_CLASS.label} style={{ color: 'var(--daw-text-3)' }}>
-        {label}
-      </span>
-      <span
-        className={`${TYPE_CLASS.body} tabular-nums`}
-        style={{ color: 'var(--daw-text)' }}
-      >
+    <SettingRow label={label} description={description}>
+      <span className={`${TYPE_CLASS.body} tabular-nums text-daw-text`}>
         {value}
       </span>
-    </div>
+    </SettingRow>
   );
 }
 
@@ -221,19 +241,26 @@ function SettingsBody() {
   return (
     <div className="flex flex-col gap-5 pb-3">
       <Section title="Input">
-        <Select
+        <SettingRow
           label="Input device"
-          options={inputChoices}
-          value={
-            inputDeviceId && inputChoices.some((o) => o.value === inputDeviceId)
-              ? inputDeviceId
-              : undefined
-          }
-          placeholder="Choose an input"
-          onValueChange={(id) => void handleSelectInput(id)}
-          disabled={probing}
-          id="settings-input-device"
-        />
+          description={AUDIO_MIDI_COPY.inputDevice}
+        >
+          <Select
+            label="Input device"
+            options={inputChoices}
+            value={
+              inputDeviceId &&
+              inputChoices.some((o) => o.value === inputDeviceId)
+                ? inputDeviceId
+                : undefined
+            }
+            placeholder="Choose an input"
+            onValueChange={(id) => void handleSelectInput(id)}
+            disabled={probing}
+            id="settings-input-device"
+            className={PICKER}
+          />
+        </SettingRow>
         {refused ? (
           <Note>
             The browser didn’t allow the microphone. Allow it from the icon in
@@ -246,78 +273,100 @@ function SettingsBody() {
           </Note>
         ) : null}
         {inputDeviceId && (
-          <Select
+          <SettingRow
             label="Input channels"
-            options={[
-              { value: AUTO, label: autoLabel },
-              ...CHANNEL_COUNTS.map((n) => ({
-                value: String(n),
-                label: `${n} channels`,
-              })),
-            ]}
-            value={
-              inputChannelCountOverride === null
-                ? AUTO
-                : String(inputChannelCountOverride)
-            }
-            onValueChange={(next) =>
-              setInputChannelCountOverride(next === AUTO ? null : Number(next))
-            }
-            disabled={probing}
-          />
+            description={AUDIO_MIDI_COPY.inputChannels}
+          >
+            <Select
+              label="Input channels"
+              options={[
+                { value: AUTO, label: autoLabel },
+                ...CHANNEL_COUNTS.map((n) => ({
+                  value: String(n),
+                  label: `${n} channels`,
+                })),
+              ]}
+              value={
+                inputChannelCountOverride === null
+                  ? AUTO
+                  : String(inputChannelCountOverride)
+              }
+              onValueChange={(next) =>
+                setInputChannelCountOverride(
+                  next === AUTO ? null : Number(next),
+                )
+              }
+              disabled={probing}
+              className={PICKER}
+            />
+          </SettingRow>
         )}
         {probing && <Note>Checking the input’s channels…</Note>}
       </Section>
 
       <Section title="Output">
-        {supportsOutput ? (
-          outputChoices.length > 0 ? (
+        {supportsOutput && outputChoices.length > 0 ? (
+          <SettingRow
+            label="Output device"
+            description={AUDIO_MIDI_COPY.outputDevice}
+          >
             <Select
               label="Output device"
               options={outputChoices}
               value={outputDeviceId ?? undefined}
               placeholder="System default"
               onValueChange={handleSelectOutput}
+              className={PICKER}
             />
-          ) : (
-            <Note>
-              Playing through the system’s default output. Other outputs are
-              listed once the microphone is allowed.
-            </Note>
-          )
+          </SettingRow>
         ) : (
-          <Note>Choosing an output needs Chrome or Edge.</Note>
+          <SettingRow
+            layout="stacked"
+            label="Output device"
+            description={AUDIO_MIDI_COPY.outputDevice}
+          >
+            <Note>
+              {supportsOutput
+                ? 'Playing through the system’s default output. Other outputs are listed once the microphone is allowed.'
+                : 'Choosing an output needs Chrome or Edge.'}
+            </Note>
+          </SettingRow>
         )}
       </Section>
 
       <Section title="Audio">
-        <div className="flex gap-6">
-          <Fact
-            label="Sample rate"
-            value={sampleRate > 0 ? `${sampleRate} Hz` : '—'}
-          />
-          <Fact
-            label="Latency"
-            value={latencyMs > 0 ? `${latencyMs.toFixed(1)} ms` : '—'}
-          />
-          <Fact
-            label="Input channels"
-            value={
-              inputDeviceChannelCount > 0 ? `${inputDeviceChannelCount}` : '—'
-            }
-          />
-        </div>
+        <Fact
+          label="Sample rate"
+          description={AUDIO_MIDI_COPY.sampleRate}
+          value={sampleRate > 0 ? `${sampleRate} Hz` : '—'}
+        />
+        <Fact
+          label="Latency"
+          description={AUDIO_MIDI_COPY.latency}
+          value={latencyMs > 0 ? `${latencyMs.toFixed(1)} ms` : '—'}
+        />
+        <Fact
+          label="Input channels in use"
+          description={AUDIO_MIDI_COPY.inputChannelsInUse}
+          value={
+            inputDeviceChannelCount > 0 ? `${inputDeviceChannelCount}` : '—'
+          }
+        />
       </Section>
 
       <Section title="MIDI">
-        <div>
+        <SettingRow
+          layout="stacked"
+          label="MIDI devices"
+          description={AUDIO_MIDI_COPY.midi}
+        >
           <Chip size="md" data-testid="midi-status" data-status={midiStatus}>
             {midiStatusText(
               midiStatus,
               midiInputs.map((d) => d.name),
             )}
           </Chip>
-        </div>
+        </SettingRow>
       </Section>
     </div>
   );

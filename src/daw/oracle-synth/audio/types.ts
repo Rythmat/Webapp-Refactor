@@ -199,6 +199,11 @@ export interface LFOParams {
   rateDivs: [QuarterRates, QuarterRates, QuarterRates, QuarterRates];
   rateModifiers: [RateModifier, RateModifier, RateModifier, RateModifier];
   smooths: [number, number, number, number]; // 0..1 per bar (0=triangle, 1=sine)
+  /**
+   * Not read by the engine. The LFO is always bar-locked: its 4-bar loop is
+   * anchored to the song position (LFO.alignToBeat), so there is no free-run
+   * mode to switch to. Kept so saved patches and presets still type-check.
+   */
   sync: boolean;
   bars: [LFONode[], LFONode[], LFONode[], LFONode[]];
 }

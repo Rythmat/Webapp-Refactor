@@ -21,6 +21,7 @@ import { idsOf } from '../anchorRegistry';
 import type { DemoBeat } from '../demo/demoTypes';
 import { getTutorial, type TutorialStep } from '../tutorials';
 import { bottomTrack, TRACK_SLOTS } from '../studioBasics/trackChecks';
+import { pianoRollOpen } from '../studioBasics/pianoRollChecks';
 
 /**
  * Studio Basics 1 to 5 on the course's demo song (Melody, Chords, Bass,
@@ -103,7 +104,7 @@ function present(id: string): boolean {
   if (clip) {
     return !!s().tracks[Number(clip[1])]?.midiClips[Number(clip[2])];
   }
-  if (id.startsWith('piano-roll-')) return s().editingClipId !== null;
+  if (id.startsWith('piano-roll-')) return pianoRollOpen(s(), s());
   return true;
 }
 
@@ -134,12 +135,24 @@ function clickOn(id: string, action: 'click' | 'doubleClick'): void {
     const track = trackAt(Number(t));
     const clip = track.midiClips[Number(c)];
     s().setSelectedClip(clip.id, track.id);
-    if (action === 'doubleClick') s().setEditingClip(clip.id, track.id);
+    // Stage B: the clip's notes open in the dock's Notes tab.
+    if (action === 'doubleClick') openNotes(track.id);
   } else if (id === 'piano-roll-close') {
-    s().setEditingClip(null, null);
+    closeNotes();
   } else if (!UI_ONLY.some((re) => re.test(id))) {
     throw new Error(`the test doesn't know what a click on ${id} does`);
   }
+}
+
+/** The dock's Notes tab on `trackId`: Stage B's Piano Roll. */
+function openNotes(trackId: string): void {
+  s().setSelectedTrackId(trackId);
+  s().setChannelStripTab('piano-roll');
+}
+
+/** Back to the dock's Instrument tab: the Piano Roll closed. */
+function closeNotes(): void {
+  s().setChannelStripTab('controls');
 }
 
 /** Plays a demo's beats as the player would, through the store. */
@@ -179,7 +192,7 @@ const studio = () => {
     metronome: st.metronomeEnabled,
     countIn: st.countInBars,
     library: st.libraryOpen,
-    editing: st.editingClipId,
+    editing: pianoRollOpen(st, st),
     selectedNotes: st.selectedNotes,
     analysis: st.selectionAnalysis,
     recording: st.isRecording || st.isCountingIn,
@@ -303,7 +316,7 @@ const editMelody = (edit: (events: MidiNoteEvent[]) => MidiNoteEvent[]) => {
 };
 
 const PIANO_ROLL: Record<string, Move> = {
-  open: () => s().setEditingClip(trackAt(0).midiClips[0].id, trackAt(0).id),
+  open: () => openNotes(trackAt(0).id),
   'add-note': () =>
     editMelody((events) => [
       ...events,
@@ -328,7 +341,7 @@ const PIANO_ROLL: Record<string, Move> = {
       ),
     ),
   'delete-note': () => editMelody((events) => events.slice(1)),
-  close: () => s().setEditingClip(null, null),
+  close: closeNotes,
 };
 
 const INSIGHT: Record<string, Move> = {
@@ -381,7 +394,7 @@ describe('Studio Basics 1 to 5 on the demo song', () => {
 
   it('The Piano Roll: open, add, move, stretch, delete, close', async () => {
     await walk('studio-basics-piano-roll', PIANO_ROLL);
-    expect(s().editingClipId).toBeNull();
+    expect(pianoRollOpen(s(), s())).toBe(false);
   });
 
   it('Insight: the chords and bass tracks name 1 6 4 5', async () => {

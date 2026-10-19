@@ -48,6 +48,15 @@ export const OVERLAY_MOTION = {
 /**
  * The surface every floating panel shares: menus, popovers, selects and
  * tooltips. Opaque (never glass), with a hairline and a soft shadow, above
- * dialogs in the stacking order.
+ * dialogs in the stacking order. It fades in and goes at once: while a
+ * modal menu fades out Radix keeps the page from taking clicks, so the
+ * first click after Escape was lost (decision 16's guard).
  */
-export const FLOATING_SURFACE = `z-[var(--daw-z-popover)] rounded-[var(--daw-radius-md)] border border-daw-hairline bg-daw-popover text-daw-text shadow-xl shadow-black/40 ${OVERLAY_MOTION.fast}`;
+export const FLOATING_SURFACE = `z-[var(--daw-z-popover)] rounded-[var(--daw-radius-md)] border border-daw-hairline bg-daw-popover text-daw-text shadow-xl shadow-black/40 data-[state=closed]:!animate-none ${OVERLAY_MOTION.fast}`;
+
+/**
+ * A secondary control in a busy bar: dimmer text until hovered or focused
+ * (the top bar's Back, Undo, Redo, '⋯'; milestone 2.7).
+ */
+export const QUIET =
+  'text-daw-text-3 hover:text-daw-text focus-visible:text-daw-text';

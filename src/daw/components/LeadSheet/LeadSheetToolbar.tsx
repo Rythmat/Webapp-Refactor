@@ -12,11 +12,14 @@ import {
   Lock,
   GitMerge,
 } from 'lucide-react';
-import { useStore } from '@/daw/store';
+import { useLeadSheetSections, useStore } from '@/daw/store';
+import { printSheet } from '@/daw/commands/projectCommands';
 import {
-  exportLeadSheetMusicXml,
-  printSheet,
-} from '@/daw/commands/projectCommands';
+  buildLeadSheetExport,
+  buildLeadSheetMelodyExport,
+  MUSICXML_TYPE,
+} from '@/daw/midi/scoreExport';
+import { downloadFile } from '@/daw/utils/exportFiles';
 import { withTransaction } from '@/daw/store/history';
 import type { LeadSheetChordFormat } from '@/daw/store/uiSlice';
 import type { ChordRecordMode } from '@/daw/store/prismSlice';
@@ -29,6 +32,7 @@ import { pickMelodyTracks } from './leadSheetMelody';
 import { MelodyTrackPicker } from './MelodyTrackPicker';
 import { SendToSetListButton } from './SendToSetList';
 import { promptDialog } from '@/daw/ui/DialogHost';
+import { ScoreLayoutSwitch } from '../Score/ScoreLayoutSwitch';
 
 interface LeadSheetToolbarProps {
   selectedMeasureIdx: number | null;
@@ -47,9 +51,10 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const deleteMeasures = useStore((s) => s.deleteMeasures);
   const showRepeats = useStore((s) => s.leadSheetShowRepeats);
   const setShowRepeats = useStore((s) => s.setLeadSheetShowRepeats);
-  const sections = useStore((s) => s.leadSheetSections);
-  const addSection = useStore((s) => s.addLeadSheetSection);
-  const removeSection = useStore((s) => s.removeLeadSheetSection);
+  // The song's sections, as marks on the bars they start at (milestone 2.13).
+  const sections = useLeadSheetSections();
+  const markSectionAtBar = useStore((s) => s.markSectionAtBar);
+  const removeSectionAtBar = useStore((s) => s.removeSectionAtBar);
   const repeats = useStore((s) => s.leadSheetRepeats);
   const addRepeat = useStore((s) => s.addLeadSheetRepeat);
   const removeRepeat = useStore((s) => s.removeLeadSheetRepeat);
@@ -60,11 +65,8 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const melodyTrackIds = useStore((s) => s.leadSheetMelodyTrackIds);
   const tracks = useStore((s) => s.tracks);
 
-  // The Project menu's export and print, with their done moments.
-  const handleExportMusicXml = useCallback(() => {
-    void exportLeadSheetMusicXml();
-  }, []);
-
+  // Printed from the Lead sheet layout: the lessons' Print-the-lead-sheet
+  // done moment.
   const handleExportPdf = useCallback(() => {
     printSheet('printLeadSheet');
   }, []);
@@ -83,6 +85,19 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
     () => melodyTracks.map((track) => track.id),
     [melodyTracks],
   );
+  // The sheet as it is shown (scoreExport.ts): with a melody, the melody
+  // under its chords (leadsheet-10); otherwise the chord chart, the same file
+  // as the Export dialog's lead sheet.
+  const handleExportMusicXml = useCallback(() => {
+    const state = useStore.getState();
+    const file =
+      (melodyIds.length > 0 && buildLeadSheetMelodyExport(state, melodyIds)) ||
+      buildLeadSheetExport(state);
+    if (!file) return;
+    downloadFile(new Blob([file.xml], { type: MUSICXML_TYPE }), file.filename);
+    useStore.getState().markDone('exportMusicXml');
+  }, [melodyIds]);
+
   const toggleMelody = useCallback(() => {
     setShowMelody(!showMelody);
   }, [showMelody, setShowMelody]);
@@ -138,13 +153,13 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
       validate: (value) => (value.trim() ? null : 'Type a label to add it.'),
     });
     if (!label || !label.trim()) return;
-    addSection({ measureIdx, label: label.trim() });
-  }, [selectedMeasureIdx, addSection]);
+    markSectionAtBar(measureIdx, label.trim());
+  }, [selectedMeasureIdx, markSectionAtBar]);
 
   const handleRemoveSection = useCallback(() => {
     if (selectedMeasureIdx === null) return;
-    removeSection(selectedMeasureIdx);
-  }, [selectedMeasureIdx, removeSection]);
+    removeSectionAtBar(selectedMeasureIdx);
+  }, [selectedMeasureIdx, removeSectionAtBar]);
 
   const handleAddRepeat = useCallback(() => {
     if (selectedMeasureIdx === null) return;
@@ -169,12 +184,22 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
   return (
     <div
-      className="leadsheet-toolbar flex items-center gap-1 border-b px-3 py-1.5"
+      // Wraps rather than running under the side rail: with the layout
+      // switch first it needs about 1,175 px, more than a Chromebook gives.
+      className="leadsheet-toolbar flex flex-wrap items-center gap-1 border-b px-3 py-1.5"
       style={{
         borderColor: 'rgba(255, 255, 255, 0.08)',
         backgroundColor: 'var(--daw-surface-1)',
       }}
     >
+      {/* The Score page's layouts (the Score and the Lead sheet are one page). */}
+      <ScoreLayoutSwitch />
+      <div
+        aria-hidden
+        className="mx-1 h-5 w-px shrink-0"
+        style={{ background: 'var(--daw-hairline)' }}
+      />
+
       {/* Chord format toggle (locked to the global notation in jazz / roman) */}
       {formatLocked ? (
         <button

@@ -1,22 +1,18 @@
-import { getAudioBuffer, setAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import {
   instrumentSettings,
   nameFollowsInstrument,
   simpleInstrument,
   trackSoundString,
 } from '@/daw/instruments/simpleInstruments';
-import {
-  getTrackSynthState,
-  setTrackSynthState,
-} from '@/daw/oracle-synth/synthTrackState';
 import { useStore } from '@/daw/store';
 import { withTransaction } from '@/daw/store/history';
 
-// ── Track commands: the instrument, a new instrument track, a copy ─────────
+// ── Track commands: the instrument, a new instrument track ─────────────────
 //
-// What the simple instrument picker and the track header's menu do, as
-// commands so the header, the Add Track menu, lessons and tests share them.
-// Each is one undo step with its own label, as the clip commands are.
+// What the simple instrument picker does, as commands so the track menu, the
+// dock, the Add-track picker, lessons and tests share them. Each is one undo
+// step with its own label, as the clip commands are. (Duplicate track is
+// shell/tracklist/duplicateTrack.ts.)
 
 /**
  * Puts the catalog instrument `instrumentId` (simpleInstruments.ts) on MIDI
@@ -70,32 +66,4 @@ export function addInstrumentTrack(instrumentId: string): string {
     s.setSelectedTrackId(id);
     return id;
   });
-}
-
-/**
- * Duplicates track `trackId` below itself and selects the copy (the store's
- * duplicateTrack), with what lives outside the store: the audio its clips
- * play, under the copies' clip ids, and its Oracle Synth patch, seeded before
- * the copy's engine is built so it starts on the same sound. One undo step.
- * Returns the copy's id, or `''` when there is none (a track limit).
- */
-export function duplicateTrack(trackId: string): string {
-  const source = useStore.getState().tracks.find((t) => t.id === trackId);
-  if (!source) return '';
-  const newId = crypto.randomUUID();
-  const patch = getTrackSynthState(trackId);
-  if (patch) setTrackSynthState(newId, structuredClone(patch));
-  const id = withTransaction('Duplicate track', () =>
-    useStore.getState().duplicateTrack(trackId, newId),
-  );
-  if (!id) return '';
-  const copy = useStore.getState().tracks.find((t) => t.id === id);
-  // The copies are in the original's order, so each takes its original's
-  // audio. A take whose audio is not in memory stays without it, as a
-  // duplicated clip does.
-  copy?.audioClips.forEach((clip, i) => {
-    const buffer = getAudioBuffer(source.audioClips[i]?.id ?? '');
-    if (buffer) setAudioBuffer(clip.id, buffer);
-  });
-  return id;
 }

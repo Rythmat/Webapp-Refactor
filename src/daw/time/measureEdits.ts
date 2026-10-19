@@ -1,8 +1,8 @@
 // ── Inserting and deleting bars ─────────────────────────────────────────────
 // The Lead Sheet's + Measure and − Measure, as one edit to everything that
-// sits on a bar: the chord lane, the roadmap (sections, repeats, rests,
-// fermatas, row sizes), the Score's layout marks and text, the markers, and
-// the melody's notes when the sheet shows them. They used to shift the chord
+// sits on a bar: the chord lane, the song's sections (milestone 2.13), the
+// roadmap (repeats, rests, fermatas, row sizes), the Score's layout marks
+// and text, the markers, and the melody's notes when the sheet shows them. They used to shift the chord
 // lane alone, by a 4/4 bar whatever the metre, so in 3/4 every later chord
 // slid off its downbeat and in any metre the section letters, rests and
 // fermatas stayed on their old bars (leadsheet-07, prism-ui-21,
@@ -15,6 +15,7 @@
 //
 // Pure: the slice applies the patch in one write, one undo step.
 
+import { shiftSectionsForBars, type SongSection } from '@/daw/model/sections';
 import type { AllSlices } from '@/daw/store';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { isTrackLockedByRemote } from '@/daw/store/trackLock';
@@ -37,15 +38,8 @@ export type MeasureEditState = Pick<
   AllSlices,
   | 'chordRegions'
   | 'leadSheetBars'
-  | 'leadSheetSections'
-  | 'leadSheetRepeats'
-  | 'measureRestMap'
-  | 'measureFermatas'
-  | 'measureRowSizes'
-  | 'scoreSystemBreaks'
-  | 'scorePageBreaks'
-  | 'scoreSystemRuns'
-  | 'scoreTextMarks'
+  | 'sections'
+  | ChartMarkKey
   | 'markers'
   | 'tracks'
   | 'remoteUsers'
@@ -59,35 +53,58 @@ export type MeasureEditPatch = Partial<
     AllSlices,
     | 'chordRegions'
     | 'leadSheetBars'
-    | 'leadSheetSections'
-    | 'leadSheetRepeats'
-    | 'measureRestMap'
-    | 'measureFermatas'
-    | 'measureRowSizes'
-    | 'scoreSystemBreaks'
-    | 'scorePageBreaks'
-    | 'scoreSystemRuns'
-    | 'scoreTextMarks'
+    | 'sections'
+    | ChartMarkKey
     | 'markers'
     | 'tracks'
   >
 >;
 
+/** The chart's marks kept by bar index, which a bar edit shifts. */
+export type ChartMarkKey =
+  | 'leadSheetRepeats'
+  | 'measureRestMap'
+  | 'measureFermatas'
+  | 'measureRowSizes'
+  | 'scoreSystemBreaks'
+  | 'scorePageBreaks'
+  | 'scoreSystemRuns'
+  | 'scoreTextMarks';
+
+/**
+ * The bars a chart shows past its last chord: those added there
+ * (leadSheetBars), or as many as the song's sections cover (milestone
+ * 2.13), so the Lead Sheet shows every section the sections lane has. Null
+ * when neither asks for any.
+ */
+export function chartExtraBars(
+  leadSheetBars: number | null,
+  sections: readonly Pick<SongSection, 'endTick'>[],
+  ts: TimeSignature,
+): number | null {
+  let end = 0;
+  for (const s of sections) end = Math.max(end, s.endTick);
+  const bars = Math.max(leadSheetBars ?? 0, Math.ceil(end / ticksPerBar(ts)));
+  return bars > 0 ? bars : null;
+}
+
 /**
  * How many bars the chart has: as many as its chords reach (at least a
- * blank sheet's four), or more when bars were added past the last chord.
+ * blank sheet's four), or more when bars were added past the last chord or
+ * the song's sections run on (chartExtraBars).
  */
 export function chartBarCount(
   regions: readonly Pick<ChordRegion, 'endTick'>[],
   leadSheetBars: number | null,
   ts: TimeSignature,
+  sections: readonly Pick<SongSection, 'endTick'>[] = [],
 ): number {
   let end = 0;
   for (const r of regions) end = Math.max(end, r.endTick);
   return Math.max(
     BLANK_CHART_BARS,
     Math.ceil(end / ticksPerBar(ts)),
-    leadSheetBars ?? 0,
+    chartExtraBars(leadSheetBars, sections, ts) ?? 0,
   );
 }
 
@@ -244,7 +261,26 @@ function shiftRowSizes(
   if (count > 0) {
     const pos = at >= barCount ? slots.length : slotOfBar(slots, at);
     const inRest = pos >= 0 && pos < slots.length && slots[pos].realIndex < at;
-    if (!inRest) sizes[rowOf(Math.max(0, pos))] += count;
+    // Several bars that go in between two rows (the sections lane's Insert
+    // and Duplicate put in whole sections) come as rows of their own, the
+    // size of the row there, so the student's rows keep their shape; the
+    // last new row holds what is left over. One bar, + Measure's, joins
+    // the row it lands in, as it always has. A bar inside a multi-bar rest
+    // adds no slot.
+    const start = Math.max(0, pos);
+    let rowStart = 0;
+    let row = 0;
+    while (row < sizes.length && rowStart < start) rowStart += sizes[row++];
+    if (!inRest && count > 1 && rowStart === start) {
+      const size = Math.max(1, sizes[Math.min(row, sizes.length - 1)]);
+      const added: number[] = [];
+      for (let left = count; left > 0; left -= size) {
+        added.push(Math.min(size, left));
+      }
+      sizes.splice(row, 0, ...added);
+    } else if (!inRest) {
+      sizes[rowOf(start)] += count;
+    }
   } else {
     const end = at - count;
     // A slot goes when the bar it starts at is deleted (a rest that starts
@@ -255,6 +291,54 @@ function shiftRowSizes(
     }
   }
   return sizes.filter((size) => size > 0);
+}
+
+/**
+ * The chart's bar-indexed marks after `count` bars are inserted before bar
+ * `at` (count > 0) or bars [at, at − count) are deleted (count < 0): the
+ * roadmap's repeats, rests and fermatas, the row sizes of a chart of
+ * `barCount` bars, and the Score's breaks, runs and text. Shared with the
+ * sections lane's Insert and Duplicate (arrangementEdits.ts).
+ */
+export function shiftChartMarks(
+  state: Pick<AllSlices, ChartMarkKey>,
+  at: number,
+  count: number,
+  barCount: number,
+): Pick<AllSlices, ChartMarkKey> {
+  const restMap: Record<number, number> = {};
+  for (const [key, bars] of Object.entries(state.measureRestMap ?? {})) {
+    const first = Number(key);
+    const span = shiftBarSpan(first, first + bars - 1, at, count);
+    if (span) restMap[span[0]] = span[1] - span[0] + 1;
+  }
+  return {
+    leadSheetRepeats: state.leadSheetRepeats.flatMap((r) => {
+      const span = shiftBarSpan(r.startMeasure, r.endMeasure, at, count);
+      return span ? [{ startMeasure: span[0], endMeasure: span[1] }] : [];
+    }),
+    measureRestMap: state.measureRestMap ? restMap : null,
+    measureFermatas: state.measureFermatas
+      ? shiftIndices(state.measureFermatas, at, count)
+      : null,
+    measureRowSizes: shiftRowSizes(
+      state.measureRowSizes,
+      state.measureRestMap,
+      barCount,
+      at,
+      count,
+    ),
+    scoreSystemBreaks: shiftIndices(state.scoreSystemBreaks, at, count),
+    scorePageBreaks: shiftIndices(state.scorePageBreaks, at, count),
+    scoreSystemRuns: state.scoreSystemRuns.flatMap(([start, bars]) => {
+      const span = shiftBarSpan(start, start + bars - 1, at, count);
+      return span ? [[span[0], span[1] - span[0] + 1] as [number, number]] : [];
+    }),
+    scoreTextMarks: state.scoreTextMarks.flatMap((m) => {
+      const measureIdx = shiftBarIndex(m.measureIdx, at, count);
+      return measureIdx === null ? [] : [{ ...m, measureIdx }];
+    }),
+  };
 }
 
 /**
@@ -273,7 +357,12 @@ export function measureEditPatch(
 ): MeasureEditPatch | null {
   const ts = timeSignatureOf(state);
   const bar = ticksPerBar(ts);
-  const barCount = chartBarCount(state.chordRegions, state.leadSheetBars, ts);
+  const barCount = chartBarCount(
+    state.chordRegions,
+    state.leadSheetBars,
+    ts,
+    state.sections,
+  );
   if (count === 0 || at < 0) return null;
   if (count < 0) {
     if (at >= barCount) return null;
@@ -305,45 +394,11 @@ export function measureEditPatch(
     })
     .filter((r) => r.startTick < r.endTick);
 
-  const restMap: Record<number, number> = {};
-  for (const [key, bars] of Object.entries(state.measureRestMap ?? {})) {
-    const first = Number(key);
-    const span = shiftBarSpan(first, first + bars - 1, at, count);
-    if (span) restMap[span[0]] = span[1] - span[0] + 1;
-  }
-
   const patch: MeasureEditPatch = {
     chordRegions,
     leadSheetBars: barCount + count,
-    leadSheetSections: state.leadSheetSections.flatMap((s) => {
-      const measureIdx = shiftBarIndex(s.measureIdx, at, count);
-      return measureIdx === null ? [] : [{ ...s, measureIdx }];
-    }),
-    leadSheetRepeats: state.leadSheetRepeats.flatMap((r) => {
-      const span = shiftBarSpan(r.startMeasure, r.endMeasure, at, count);
-      return span ? [{ startMeasure: span[0], endMeasure: span[1] }] : [];
-    }),
-    measureRestMap: state.measureRestMap ? restMap : null,
-    measureFermatas: state.measureFermatas
-      ? shiftIndices(state.measureFermatas, at, count)
-      : null,
-    measureRowSizes: shiftRowSizes(
-      state.measureRowSizes,
-      state.measureRestMap,
-      barCount,
-      at,
-      count,
-    ),
-    scoreSystemBreaks: shiftIndices(state.scoreSystemBreaks, at, count),
-    scorePageBreaks: shiftIndices(state.scorePageBreaks, at, count),
-    scoreSystemRuns: state.scoreSystemRuns.flatMap(([start, bars]) => {
-      const span = shiftBarSpan(start, start + bars - 1, at, count);
-      return span ? [[span[0], span[1] - span[0] + 1] as [number, number]] : [];
-    }),
-    scoreTextMarks: state.scoreTextMarks.flatMap((m) => {
-      const measureIdx = shiftBarIndex(m.measureIdx, at, count);
-      return measureIdx === null ? [] : [{ ...m, measureIdx }];
-    }),
+    sections: shiftSectionsForBars(state.sections, at, count, ts),
+    ...shiftChartMarks(state, at, count, barCount),
     markers: state.markers.map((m) => ({ ...m, tick: tick(m.tick) })),
   };
 

@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StudioRoutes } from '@/constants/routes';
 import { IconButton } from '@/daw/ui/IconButton';
+import { QUIET } from '@/daw/ui/styles';
 
 /**
  * Back to the Studio dashboard: focus mode's way out of the editor, where
@@ -18,6 +19,7 @@ export const BackToStudio = memo(function BackToStudio() {
       icon={<ArrowLeft />}
       tooltipSide="bottom"
       data-testid="back-to-studio"
+      className={QUIET}
       onClick={() => navigate(StudioRoutes.root())}
     />
   );

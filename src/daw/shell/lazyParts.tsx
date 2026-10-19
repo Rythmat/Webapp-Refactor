@@ -35,7 +35,7 @@ export const LeadSheetViewPart = lazyPart(
 );
 
 export const StudioViewPart = lazyPart(
-  () => import('@/daw/components/Studio/StudioView').then((m) => m.StudioView),
+  () => import('@/daw/shell/mix/MixView').then((m) => m.MixView),
   { name: 'Mix view', fallback: view('Loading the Mix view') },
 );
 
@@ -73,17 +73,8 @@ export function preloadView(id: ViewType): void {
 const dock = (label: string) => <PartPlaceholder label={label} />;
 
 export const EffectsPanelPart = lazyPart(
-  () =>
-    import('@/daw/components/Effects/EffectsPanel').then((m) => m.EffectsPanel),
+  () => import('@/daw/shell/dock/DockEffects').then((m) => m.DockEffects),
   { name: 'FX panel', fallback: dock('Loading FX') },
-);
-
-export const MasterFxPanelPart = lazyPart(
-  () =>
-    import('@/daw/components/Effects/MasterFxPanel').then(
-      (m) => m.MasterFxPanel,
-    ),
-  { name: 'Master effects', fallback: dock('Loading the Master effects') },
 );
 
 export const GroovesBrowserPart = lazyPart(
@@ -94,12 +85,13 @@ export const GroovesBrowserPart = lazyPart(
   { name: 'Grooves browser', fallback: dock('Loading Grooves') },
 );
 
-export const PartsBrowserPart = lazyPart(
+/** The side rail's Library: the browser (milestone 2.14). */
+export const BrowserPart = lazyPart(
   () =>
-    import('@/daw/components/Controls/PartsBrowser').then(
-      (m) => m.PartsBrowser,
+    import('@/daw/shell/inspector/browser/BrowserPanel').then(
+      (m) => m.BrowserPanel,
     ),
-  { name: 'Parts browser', fallback: dock('Loading Parts') },
+  { name: 'Library', fallback: dock('Loading the Library') },
 );
 
 export const PrismPanelPart = lazyPart(
@@ -115,7 +107,13 @@ export const ClipPianoRollPart = lazyPart(
   { name: 'piano roll', fallback: dock('Loading the piano roll') },
 );
 
-// The Controls tab's frame (TrackControlsPanel) is small and stays in the
+/** Master in the dock's slot (2.9): the mastering rack's parts. */
+export const DockMasterPart = lazyPart(
+  () => import('@/daw/shell/dock/DockMaster').then((m) => m.DockMaster),
+  { name: 'Master', fallback: dock('Loading Master') },
+);
+
+// The Instrument tab's frame (TrackControlsPanel) is small and stays in the
 // editor's chunk; the instrument view inside it loads (below), so opening
 // the tab is one fetch, not two in a row.
 const TAB_PARTS: Partial<
@@ -123,14 +121,23 @@ const TAB_PARTS: Partial<
 > = {
   fx: EffectsPanelPart,
   grooves: GroovesBrowserPart,
-  parts: PartsBrowserPart,
   prism: PrismPanelPart,
   'piano-roll': ClipPianoRollPart,
 };
 
-/** Fetch a dock tab's chunk ahead of opening it (a hover on the tab). */
-export function preloadDockTab(id: ChannelStripTabId): void {
-  TAB_PARTS[id]?.preload().catch(() => {});
+/**
+ * Fetch a dock tab's chunk ahead of opening it (a hover on the tab). Notes
+ * on drums is the drum grid.
+ */
+export function preloadDockTab(
+  id: ChannelStripTabId,
+  instrument?: string,
+): void {
+  const part =
+    id === 'piano-roll' && instrument === 'drum-machine'
+      ? DrumMachineViewPart
+      : TAB_PARTS[id];
+  part?.preload().catch(() => {});
 }
 
 // ── Instrument views (the Controls tab) ─────────────────────────────────────
@@ -187,7 +194,13 @@ export const DrumMachineViewPart = lazyPart(
     import('@/daw/components/Controls/DrumMachineView').then(
       (m) => m.DrumMachineView,
     ),
-  { name: 'drum machine', fallback: instrument() },
+  { name: 'drum grid', fallback: instrument() },
+);
+
+/** Drums' Instrument tab: the kit and its pads (2.9). */
+export const DrumPadsViewPart = lazyPart(
+  () => import('@/daw/shell/dock/DrumPadsView').then((m) => m.DrumPadsView),
+  { name: 'drum kit', fallback: instrument() },
 );
 
 export const SamplerChopsViewPart = lazyPart(
@@ -225,7 +238,7 @@ function instrumentPart(
     case 'soundfont':
       return SoundFontViewPart;
     case 'drum-machine':
-      return DrumMachineViewPart;
+      return DrumPadsViewPart;
     case 'sampler':
       return SamplerChopsViewPart;
     case 'vocal-fx':
@@ -263,14 +276,6 @@ export const PrismSuggestionModalPart = lazyPart(
   { name: 'Prism suggestion' },
 );
 
-export const PianoRollModalPart = lazyPart(
-  () =>
-    import('@/daw/components/PianoRoll/PianoRollModal').then(
-      (m) => m.PianoRollModal,
-    ),
-  { name: 'piano roll' },
-);
-
 export const ChordAnalysisPromptPart = lazyPart(
   () =>
     import('@/daw/components/Library/ChordAnalysisPrompt').then(
@@ -279,11 +284,9 @@ export const ChordAnalysisPromptPart = lazyPart(
   { name: 'chord analysis' },
 );
 
-export const ExportAudioDialogPart = lazyPart(
-  () =>
-    import('@/daw/components/Transport/ExportAudioDialog').then(
-      (m) => m.ExportAudioDialog,
-    ),
+/** The Export dialog (2.15): Audio | Notation. */
+export const ExportDialogPart = lazyPart(
+  () => import('@/daw/shell/export/ExportDialog').then((m) => m.ExportDialog),
   { name: 'Export dialog' },
 );
 
@@ -296,6 +299,12 @@ export const ProjectsDialogPart = lazyPart(
 export const ShortcutSheetPart = lazyPart(
   () => import('@/daw/shell/help/ShortcutSheet').then((m) => m.ShortcutSheet),
   { name: 'shortcut sheet' },
+);
+
+/** The command palette (2.15): cmdk loads with it, on the first ⌘K. */
+export const CommandPalettePart = lazyPart(
+  () => import('@/daw/shell/help/CommandPalette').then((m) => m.CommandPalette),
+  { name: 'command palette' },
 );
 
 export const TutorialLayerPart = lazyPart(
@@ -320,14 +329,6 @@ export function PrismSuggestionModalHost({
 }) {
   const opened = useOpenedOnce(useStore((s) => s.prismSuggestOpen));
   return opened ? <PrismSuggestionModalPart audioReady={audioReady} /> : null;
-}
-
-/** The full-size piano roll, mounted once a clip is first opened in it. */
-export function PianoRollModalHost() {
-  const opened = useOpenedOnce(
-    useStore((s) => s.editingClipId !== null && s.editingClipTrackId !== null),
-  );
-  return opened ? <PianoRollModalPart /> : null;
 }
 
 /** The offer to read a project's chords, mounted once first offered. */
@@ -366,6 +367,7 @@ export function preloadForLesson(
   instrumentIds: Iterable<string>,
 ): void {
   TutorialLayerPart.preload().catch(() => {});
+  const instruments = [...instrumentIds];
   for (const step of steps) {
     for (const beat of step.demo ?? []) {
       for (const id of [beat.target ?? []].flat()) {
@@ -375,7 +377,11 @@ export function preloadForLesson(
     }
     const { view: stepView, channelStripTab } = step.requires ?? {};
     if (stepView) preloadView(stepView);
-    if (channelStripTab === 'controls') preloadInstrumentViews(instrumentIds);
-    else if (channelStripTab) preloadDockTab(channelStripTab);
+    if (channelStripTab === 'controls') preloadInstrumentViews(instruments);
+    else if (channelStripTab === 'piano-roll') {
+      // Notes is the drum grid on drums.
+      preloadDockTab(channelStripTab);
+      for (const id of instruments) preloadDockTab(channelStripTab, id);
+    } else if (channelStripTab) preloadDockTab(channelStripTab);
   }
 }

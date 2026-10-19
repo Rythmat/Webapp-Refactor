@@ -2,11 +2,11 @@
 import { act, cleanup, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// ── The shell's regions (milestone 2.4) ────────────────────────────────────
+// ── The shell's regions (milestones 2.4, B4a) ──────────────────────────────
 // Laid out once, outside the view switch: the Inspector is mounted once
 // across Create → Mix → Score → Lead sheet → Create, the dock is Create's,
-// and the practice screen hides the top bar and the Inspector without
-// unmounting them.
+// the rails are every view's, and the practice screen hides the top bar,
+// the rails and the Inspector without unmounting them.
 //
 // Run: npx vitest run src/daw/shell/__tests__/StudioShell.test.tsx
 
@@ -17,21 +17,21 @@ const { stub } = vi.hoisted(() => ({
     },
 }));
 vi.mock('../topbar/TopBar', () => ({ TopBar: stub('top-bar') }));
-vi.mock('@/daw/components/Timeline/TimelineWithHeaders', () => ({
-  TimelineWithHeaders: stub('timeline'),
+vi.mock('../bottombar/BottomRail', () => ({ BottomRail: stub('bottom-rail') }));
+vi.mock('@/daw/shell/tracklist/TrackArea', () => ({
+  TrackArea: stub('timeline'),
 }));
-vi.mock('@/daw/components/ChannelStrip/ChannelStrip', () => ({
-  ChannelStrip: stub('channel-strip'),
+vi.mock('../dock/Dock', () => ({
+  Dock: stub('channel-strip'),
 }));
-vi.mock('@/daw/components/Library/LibraryPanel', () => ({
-  LibraryPanel: stub('library-panel'),
+vi.mock('@/daw/shell/inspector/InspectorPanel', () => ({
+  InspectorPanel: stub('library-panel'),
 }));
 vi.mock('../lazyParts', () => ({
   StudioViewPart: stub('mix-view'),
   ScoreViewPart: stub('score-view'),
   LeadSheetViewPart: stub('leadsheet-view'),
   PracticeTrackViewPart: stub('practice-view'),
-  PianoRollModalHost: () => null,
 }));
 
 import { useStore, type ViewType } from '@/daw/store';
@@ -45,7 +45,7 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('StudioShell', () => {
-  it('keeps one Inspector across every view, and the dock in Create only', () => {
+  it('keeps one Inspector across every view, the dock in Create and the rack in Mix', () => {
     render(<StudioShell isReady onInit={() => {}} />);
     const mountId = q('[data-region="inspector"]')?.getAttribute(
       'data-mount-id',
@@ -62,8 +62,14 @@ describe('StudioShell', () => {
       seen.push([
         view,
         q('[data-region="inspector"]')?.getAttribute('data-mount-id'),
-        q('[data-region="dock"]') !== null,
+        q('[data-region="dock"]') !== null &&
+          q('[data-testid="rack-dock"]') === null,
       ]);
+      if (view === 'studio') {
+        expect(
+          q('[data-region="dock"] [data-testid="rack-dock"]'),
+        ).not.toBeNull();
+      }
     }
     expect(seen).toEqual([
       ['studio', mountId, false],
@@ -72,6 +78,25 @@ describe('StudioShell', () => {
       ['arrange', mountId, true],
     ]);
     expect(q('[data-testid="timeline"]')).not.toBeNull();
+    expect(
+      q('[data-region="bottom"] [data-testid="bottom-rail"]'),
+    ).not.toBeNull();
+    expect(q('[data-region="rail"] [data-testid="side-rail"]')).not.toBeNull();
+  });
+
+  it('opens the panel a side rail icon names, and closes it on a second click', () => {
+    render(<StudioShell isReady onInit={() => {}} />);
+    act(() => useStore.getState().setInspectorOpenFor('arrange', false));
+    expect(q('[data-testid="library-panel"]')).toBeNull();
+    const fx = q('[data-testid="rail-fx"]') as HTMLButtonElement;
+    act(() => fx.click());
+    expect(useStore.getState().inspectorPanel).toBe('fx');
+    expect(q('[data-testid="library-panel"]')).not.toBeNull();
+    expect(fx).toHaveAttribute('aria-pressed', 'true');
+    expect(useStore.getState().inspectorOpenByView.arrange).toBe(true);
+    act(() => fx.click());
+    expect(q('[data-testid="library-panel"]')).toBeNull();
+    expect(fx).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('shows the view the student picked in the main region', () => {
@@ -95,6 +120,8 @@ describe('StudioShell', () => {
     expect(q('[data-testid="practice-view"]')).not.toBeNull();
     expect(q('[data-region="top"]')).toHaveAttribute('hidden');
     expect(q('[data-region="inspector"]')).toHaveAttribute('hidden');
+    expect(q('[data-region="rail"]')).toHaveAttribute('hidden');
+    expect(q('[data-region="bottom"]')).toHaveAttribute('hidden');
     expect(q('[data-region="inspector"]')?.getAttribute('data-mount-id')).toBe(
       mountId,
     );

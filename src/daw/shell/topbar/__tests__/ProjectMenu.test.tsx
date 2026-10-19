@@ -8,7 +8,9 @@
  * opens the Projects dialog. Both are off in a shared session (E15:
  * membership is the room id). Save and Save As go through saveProject, the
  * one save path; Delete keeps the session open as device-only work, its
- * cloud link let go in the store, the last save and the draft.
+ * cloud link let go in the store, the last save and the draft. Export's
+ * Audio… and Notation… open the one Export dialog on that side (2.15); MIDI
+ * file downloads at once.
  *
  * Run: npx vitest run src/daw/shell/topbar/__tests__/ProjectMenu.test.tsx
  */
@@ -37,6 +39,7 @@ const h = vi.hoisted(() => ({
   showSuccess: vi.fn(),
   confirmDialog: vi.fn(async () => false),
   promptDialog: vi.fn(async (): Promise<string | null> => null),
+  exportProjectMidiOrSay: vi.fn(async () => true),
 }));
 
 vi.mock('@/contexts/AuthContext/hooks/useAuthToken', () => ({
@@ -56,10 +59,9 @@ vi.mock('@/daw/ui/DialogHost', () => ({
   confirmDialog: h.confirmDialog,
   promptDialog: h.promptDialog,
 }));
-// The export dialog is mounted only while open; not under test.
-vi.mock('@/daw/components/Transport/ExportAudioDialog', () => ({
-  DEFAULT_EXPORT_CHOICES: {},
-  ExportAudioDialog: () => null,
+vi.mock('@/daw/commands/projectCommands', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/daw/commands/projectCommands')>()),
+  exportProjectMidiOrSay: h.exportProjectMidiOrSay,
 }));
 
 import { setAudioBuffer } from '@/daw/audio/AudioBufferStore';
@@ -69,6 +71,10 @@ import {
   registerSessionDeps,
   type SessionDeps,
 } from '@/daw/session/sessionDeps';
+import {
+  DEFAULT_EXPORT_CHOICES,
+  useExportDialogStore,
+} from '@/daw/shell/export/exportDialogStore';
 import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
 import { useStore } from '@/daw/store';
 import { ProjectMenu } from '../ProjectMenu';
@@ -98,6 +104,11 @@ beforeEach(() => {
   useStore.setState(useStore.getInitialState(), true);
   useProjectsDialogStore.setState({ open: false, focusDraftId: null });
   useCloudSaveStore.setState(useCloudSaveStore.getInitialState(), true);
+  useExportDialogStore.setState({
+    isOpen: false,
+    tab: 'audio',
+    choices: DEFAULT_EXPORT_CHOICES,
+  });
   for (const fn of Object.values(h)) fn.mockClear();
   // Unasked, a question is cancelled.
   h.confirmDialog.mockResolvedValue(false);
@@ -354,5 +365,44 @@ describe('lesson anchors', () => {
     expect(
       document.querySelector('[data-tutorial-id="file-export-audio"]'),
     ).not.toBeNull();
+  });
+});
+
+describe('Project ▸ Export', () => {
+  it('opens the Export dialog on Audio from Audio…', async () => {
+    useExportDialogStore.setState({ tab: 'notation' });
+    render(<ProjectMenu />);
+    openMenu();
+    await choose('Audio…');
+    expect(useExportDialogStore.getState()).toMatchObject({
+      isOpen: true,
+      tab: 'audio',
+    });
+  });
+
+  it('opens the Export dialog on Notation from Notation…', async () => {
+    render(<ProjectMenu />);
+    openMenu();
+    await choose('Notation (MIDI, MusicXML)…');
+    expect(useExportDialogStore.getState()).toMatchObject({
+      isOpen: true,
+      tab: 'notation',
+    });
+    expect(h.exportProjectMidiOrSay).not.toHaveBeenCalled();
+  });
+
+  it('downloads the MIDI file at once, with no dialog', async () => {
+    render(<ProjectMenu />);
+    openMenu();
+    // Not Import ▸ MIDI file…
+    await choose(/^MIDI file(?!…)/);
+    expect(h.exportProjectMidiOrSay).toHaveBeenCalledTimes(1);
+    expect(useExportDialogStore.getState().isOpen).toBe(false);
+  });
+
+  it('has no separate lead sheet item: Notation… holds it', () => {
+    render(<ProjectMenu />);
+    openMenu();
+    expect(screen.queryByRole('menuitem', { name: /Lead sheet/ })).toBeNull();
   });
 });

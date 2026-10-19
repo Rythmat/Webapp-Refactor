@@ -96,8 +96,8 @@ export class VocalFxAdapter implements InstrumentAdapter {
   // No-ops for audio input tracks (not MIDI-driven)
   noteOn(): void {}
   noteOff(): void {}
-  allNotesOff(): void {}
-  panic(): void {}
+  allNotesOff(_time?: number): void {}
+  panic(_time?: number): void {}
 
   getChordAnalyserNode(): AnalyserNode | null {
     return this.chordAnalyserNode;

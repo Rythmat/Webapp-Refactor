@@ -475,11 +475,16 @@ class PitchCorrectionProcessor extends AudioWorkletProcessor {
           this.formantFollow = data.formantFollow;
       } else if (data.type === 'bypass') {
         this.bypassed = data.value;
+      } else if (data.type === 'dispose') {
+        // The node was let go: stop processing.
+        this.disposed = true;
+        this.port.onmessage = null;
       }
     };
   }
 
   process(inputs, outputs) {
+    if (this.disposed) return false;
     const input = inputs[0];
     const output = outputs[0];
     if (!input || !input[0] || !output || !output[0]) return true;

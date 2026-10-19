@@ -27,7 +27,7 @@ vi.mock('react-router-dom', () => ({ useNavigate: () => () => {} }));
 
 import { setAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { useStore } from '@/daw/store';
-import { Timeline } from '../Timeline';
+import { ScrolledTimeline } from './scrolledTimeline';
 
 const s = () => useStore.getState();
 const VIEWPORT = 1200;
@@ -197,7 +197,7 @@ describe('audio clip waveforms', () => {
     // which the 1200 px view shows about 600.
     vi.stubGlobal('Worker', undefined);
     addTake('take', 25);
-    render(<Timeline />);
+    render(<ScrolledTimeline />);
 
     const curves = count('quadraticCurveTo');
     expect(curves).toBeGreaterThan(2 * 500);
@@ -210,7 +210,7 @@ describe('audio clip waveforms', () => {
     StandInWorker.made = [];
     vi.stubGlobal('Worker', StandInWorker);
     addTake('long-take', 40);
-    render(<Timeline />);
+    render(<ScrolledTimeline />);
 
     // The take is decoded and plays: it is not loading, only not drawn yet.
     expect(loadingLabels()).toBe(0);
@@ -234,7 +234,7 @@ describe('audio clip waveforms', () => {
   it('shows Loading… for a cloud clip whose audio has not arrived', () => {
     vi.stubGlobal('Worker', undefined);
     addClip('cloud-take', 40, 'asset-1');
-    render(<Timeline />);
+    render(<ScrolledTimeline />);
 
     expect(loadingLabels()).toBeGreaterThan(0);
     expect(flatLines()).toBe(0);

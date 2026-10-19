@@ -31,19 +31,24 @@ import { NOTE_EVENT_FIELDS } from './fields';
 //   region's sourceClipId. A v3 draft is a v4 draft without them (no bars
 //   past the last chord, no region tied to a clip), so nothing translates:
 //   the codec reads the missing fields as their defaults.
-// - v5: the Lead Sheet's melody is a list of tracks, a staff each
-//   (notation.leadSheetMelodyTrackIds), where v4 named one
+// - v5 (2.7 on): v4 plus the view's chordAnalysisDismissed. A v4 draft is a
+//   v5 draft whose student never said Not now to the chord lane's offer.
+// - v6 (2.12 on): v5 plus a clip's `muted` (MIDI and audio) and an audio
+//   clip's `name`. A v5 draft is a v6 draft with every clip playing and no
+//   audio clip named.
+// - v7 (2.13 on): v6 plus the song's `sections`, which take over from the
+//   Lead Sheet's bar marks (notation.leadSheetSections, still written as a
+//   copy for older builds). A v6 draft is a v7 draft whose sections are read
+//   from those marks: decodeSession does it, for any draft without sections,
+//   since a cloud copy merged from an older document carries none either.
+// - v8: the Lead Sheet's melody is a list of tracks, a staff each
+//   (notation.leadSheetMelodyTrackIds), where v7 named one
 //   (notation.leadSheetMelodyTrackId, or null for Auto). The one id becomes
-//   a list of it (v4ToV5Notation); a v4 build reading a v5 draft finds no
-//   id and shows Auto, so compat stays 3.
-// - v6: v5 plus the staff each part is set to in the Score (a track's
-//   settings.notationStaff). A v5 draft is a v6 draft with every part on
-//   Auto, so nothing translates, and a v5 build reading a v6 draft leaves
-//   the field out, so compat stays 3.
-// - v7: v6 with two more staves that field may hold, 'alto' and 'bass8vb'
-//   (the bass clef with an 8). A v6 draft is a v7 draft as it is, so nothing
-//   translates, and a v6 build reading a v7 draft shows such a part on Auto,
-//   so compat stays 3.
+//   a list of it (v7ToV8Notation); a v7 build reading a v8 draft finds no
+//   id and shows Auto. v8 also adds the staff each part is set to in the
+//   Score (a track's settings.notationStaff: treble, alto, bass, bass8vb or
+//   grand). A v7 draft is a v8 draft with every part on Auto, and a v7 build
+//   reading a v8 draft leaves the field out, so compat stays 3.
 // - Later schemas: a draft whose `compat` is 3 or lower only adds fields to
 //   v3, so it is read as this build's schema and the fields this build
 //   doesn't know are left out. `from` says it was newer, and the caller keeps a copy of it before
@@ -85,7 +90,8 @@ export interface LegacyPrefs {
 export type MigrationResult =
   | {
       ok: true;
-      /** The draft in this build's format: `version` 2, `schema` 7. */
+      /** The draft in this build's format: `version` 2, `schema`
+       *  SESSION_SCHEMA_VERSION. */
       session: StoredSession;
       /**
        * The format it was written in: 1, 2, 3, or a later schema read as 3.
@@ -164,7 +170,7 @@ export function migrateSession(input: unknown): MigrationResult {
     let data = sharedShape(parsed.data, repairs);
     let legacyPrefs: LegacyPrefs = {};
     if (from < 3) ({ data, legacyPrefs } = v2ToV3(data));
-    if (from < 5) data = v4ToV5(data, repairs);
+    if (from < 8) data = v7ToV8(data, repairs);
     return {
       ok: true,
       session: {
@@ -349,31 +355,31 @@ function v2ToV3(data: Record<string, unknown>): {
   };
 }
 
-// ── v4 → v5 ────────────────────────────────────────────────────────────────
+// ── v7 → v8 ────────────────────────────────────────────────────────────────
 
-/** Where a draft before schema 5 kept its one melody track. */
+/** Where a draft before schema 8 kept its one melody track. */
 const LEGACY_MELODY_KEY = 'leadSheetMelodyTrackId';
 
-/** v4 as v5: the notation section's melody track, as a list. */
-function v4ToV5(
+/** v7 as v8: the notation section's melody track, as a list. */
+function v7ToV8(
   data: Record<string, unknown>,
   repairs: { count: number },
 ): Record<string, unknown> {
   if (!isRecord(data.notation)) return data;
-  const notation = v4ToV5Notation(data.notation, repairs);
+  const notation = v7ToV8Notation(data.notation, repairs);
   return notation === data.notation ? data : { ...data, notation };
 }
 
 /**
- * A notation section from before schema 5 as v5 holds it: the one melody
+ * A notation section from before schema 8 as v8 holds it: the one melody
  * track it named (leadSheetMelodyTrackId) becomes a list of that track
  * (leadSheetMelodyTrackIds), and null, which was Auto, leaves the list out
  * so it loads as its default, empty, which is Auto too (so does an empty
  * id). A value that is no id at all is counted and dropped. A section holding no old id comes back
  * as itself. The cloud open runs a document's notation through it as well
- * (cloudDocument.ts), since a project saved before 5 opens through there.
+ * (cloudDocument.ts), since a project saved before 8 opens through there.
  */
-export function v4ToV5Notation(
+export function v7ToV8Notation(
   notation: Record<string, unknown>,
   repairs: { count: number } = { count: 0 },
 ): Record<string, unknown> {

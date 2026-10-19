@@ -205,6 +205,16 @@ export interface RealizeContext {
   timeSignature: TimeSignature;
   /** The genre it plays in: bass lines walk and approach by its rules. */
   genre?: string;
+  /**
+   * Captured parts follow this chart's chords ("Follows the chords",
+   * parts/followChords.ts) instead of playing as written, moved to the key.
+   * Set where the chart isn't the one they were captured over: Music
+   * Literacy's Hear It with Your Band plays the student's own progression.
+   * The key is the chart's (a Part key: tonic pitch class, Prism mode name):
+   * passing notes, and the colors a chord doesn't name (a 7th over a triad),
+   * come from its scale. Left out, parts play as written.
+   */
+  followChords?: { tonic: number; mode: string };
 }
 
 /** One layer's notes, with the layer they came from. */

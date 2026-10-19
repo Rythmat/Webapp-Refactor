@@ -16,7 +16,12 @@ import {
   pairedDrumNotes,
 } from '../lessonPairings/pairedBacking';
 import { barTicks } from '../meter';
-import { followChords, followsChords, keyShift } from '../parts/followChords';
+import {
+  followChords,
+  followsChords,
+  keyNotes,
+  keyShift,
+} from '../parts/followChords';
 import { partTicks, playedTick, type InstrumentPart } from '../parts/part';
 import {
   type BandLayer,
@@ -118,6 +123,8 @@ export function realizeLayer(
     }
     case 'bassLine': {
       const line = items.bassLine(source.id);
+      // Over a chart it wasn't written for, a line plays in the chart's key,
+      // as the parts beside it do.
       return line
         ? pairedBassNotes(
             line,
@@ -125,6 +132,7 @@ export function realizeLayer(
             ctx.bars,
             ctx.timeSignature,
             ctx.genre,
+            ctx.followChords && keyNotes(ctx.followChords),
           )
         : null;
     }

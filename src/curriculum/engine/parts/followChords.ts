@@ -200,8 +200,8 @@ const sameChord = (a: ChordSymbolTones, b: ChordSymbolTones) =>
 const sameSet = (a: ReadonlySet<number>, b: ReadonlySet<number>) =>
   a.size === b.size && [...a].every((x) => b.has(x));
 
-/** A key's notes as pitch classes. */
-function keyNotes(key: PartKey): number[] {
+/** A key's notes as pitch classes: a Part key (tonic, Prism mode). */
+export function keyNotes(key: PartKey): number[] {
   return (SCALES[key.mode] ?? SCALES.ionian).map((i) => mod12(key.tonic + i));
 }
 

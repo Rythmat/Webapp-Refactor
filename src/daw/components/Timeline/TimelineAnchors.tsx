@@ -1,6 +1,19 @@
-import { memo, useEffect, useState, type CSSProperties } from 'react';
+import {
+  memo,
+  useEffect,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from 'react';
 import { useShallow } from 'zustand/react/shallow';
+import {
+  CHORD_LANE_PX,
+  LANE_HEADER_PX,
+  RULER_PX,
+  rowLayoutOf,
+} from '@/daw/shell/tracklist/rowLayout';
 import { useStore, type AllSlices } from '@/daw/store';
+import type { Track } from '@/daw/store/tracksSlice';
 import { LOOP_STRIP_H } from '@/daw/utils/rulerLoop';
 import {
   TICKS_PER_BEAT,
@@ -8,6 +21,11 @@ import {
   tickToPixel,
 } from '@/daw/utils/timelineScale';
 import { midiClipLength } from './midiClipCuts';
+import {
+  CLIP_INSET,
+  MIN_MIDI_CLIP_PX,
+  useTimelineTracks,
+} from './timelineGeometry';
 
 // ── Lesson anchors over the timeline canvas ─────────────────────────────────
 //
@@ -17,15 +35,12 @@ import { midiClipLength } from './midiClipCuts';
 // spotlight a clip, a track's lane, the bar ruler, the loop strip, the loop
 // region or the chord lane. Clicks go straight through to the canvas.
 //
-// They follow the store, not the drawing: a clip is boxed where it sits, not
-// where a drag is taking it. The rulers stay at the top while the lanes
-// scroll, as the canvas draws them (the scroll container's scrollTop).
-
-export interface TimelineGeometry {
-  trackHeight: number;
-  rulerHeight: number;
-  chordRulerHeight: number;
-}
+// They are placed as the Edit pill is (ClipEditPill), in the canvas's own
+// coordinates from the track list's row layout (rowLayout.ts) and the
+// clip geometry the canvas draws with (timelineGeometry.ts), so they scroll
+// with the lanes; the rulers stay at the top of the lanes' scroller
+// (TrackArea), as the canvas draws them. They follow the store, not the
+// drawing: a clip is boxed where it sits, not where a drag is taking it.
 
 interface Rect {
   left: number;
@@ -34,22 +49,23 @@ interface Rect {
   height: number;
 }
 
-interface ClipBox extends Rect {
+interface ClipAnchor extends Rect {
   track: number;
   clip: number;
   selected: boolean;
 }
 
-/** The visible clips' boxes, in canvas space, as the canvas draws them. */
-function clipBoxes(
-  state: AllSlices,
-  geometry: TimelineGeometry,
+/** The clips in sight, boxed as the canvas draws them, by track and index. */
+function clipAnchors(
+  tracks: readonly Track[],
+  selectedClipId: string | null,
+  zoom: number,
+  scrollLeft: number,
   width: number,
-): ClipBox[] {
-  const { timelineZoom: zoom, timelineScrollLeft: scrollLeft } = state;
+): ClipAnchor[] {
+  const rows = rowLayoutOf(tracks);
   const ppb = pixelsPerBeat(zoom);
-  const rulers = geometry.rulerHeight + geometry.chordRulerHeight;
-  return state.tracks.flatMap((track, t) => {
+  return tracks.flatMap((track, t) => {
     const clips =
       track.type === 'audio'
         ? track.audioClips.map((clip) => ({
@@ -62,8 +78,7 @@ function clipBoxes(
             id: clip.id,
             start: clip.startTick,
             length: midiClipLength(clip),
-            // A note clip is never drawn under 20 px.
-            minWidth: 20,
+            minWidth: MIN_MIDI_CLIP_PX,
           }));
     return clips.flatMap((clip, c) => {
       const left = tickToPixel(clip.start, zoom, scrollLeft);
@@ -73,20 +88,19 @@ function clipBoxes(
         {
           track: t,
           clip: c,
-          selected: clip.id === state.selectedClipId,
+          selected: clip.id === selectedClipId,
           left,
-          top: rulers + t * geometry.trackHeight + 2,
+          top: LANE_HEADER_PX + rows.tops[t] + CLIP_INSET,
           width: w,
-          height: geometry.trackHeight - 4,
+          height: rows.heights[t] - CLIP_INSET * 2,
         },
       ];
     });
   });
 }
 
-/** What the boxes are drawn from: a re-render when any of it changes. */
+/** What the boxes are drawn from, besides the tracks' geometry. */
 const drawnFrom = (s: AllSlices) => [
-  s.tracks,
   s.timelineZoom,
   s.timelineScrollLeft,
   s.selectedClipId,
@@ -103,63 +117,63 @@ const place = ({ left, top, width, height }: Rect): CSSProperties => ({
 
 const BOX = 'pointer-events-none absolute';
 
-export const TimelineAnchors = memo(function TimelineAnchors({
-  geometry,
-  width,
-  scrollParent,
-}: {
-  geometry: TimelineGeometry;
-  /** The canvas's width in px. */
-  width: number;
-  /** The element the timeline scrolls in, vertically. */
-  scrollParent: () => HTMLElement | null;
-}) {
-  useStore(useShallow(drawnFrom));
-  const state = useStore.getState();
-  const [scrollTop, setScrollTop] = useState(0);
+export interface TimelineAnchorsProps {
+  /** The lanes' scroller (TrackArea), for its vertical scroll. */
+  scrollRef: RefObject<HTMLDivElement>;
+  /** The canvas's width, px. */
+  viewportWidth: number;
+}
 
+export const TimelineAnchors = memo(function TimelineAnchors({
+  scrollRef,
+  viewportWidth: width,
+}: TimelineAnchorsProps) {
+  const tracks = useTimelineTracks();
+  const [zoom, scrollLeft, selectedClipId, loopStart, loopEnd] = useStore(
+    useShallow(drawnFrom),
+  ) as [number, number, string | null, number, number];
+
+  // The rulers sit at the scroller's top, over the lanes.
+  const [scrollTop, setScrollTop] = useState(0);
   useEffect(() => {
-    const el = scrollParent();
+    const el = scrollRef.current;
     if (!el) return;
     let frame = 0;
-    const onScroll = () => {
+    const read = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => setScrollTop(el.scrollTop));
     };
     setScrollTop(el.scrollTop);
-    el.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener('scroll', read, { passive: true });
     return () => {
       cancelAnimationFrame(frame);
-      el.removeEventListener('scroll', onScroll);
+      el.removeEventListener('scroll', read);
     };
-  }, [scrollParent]);
+  }, [scrollRef]);
 
   if (width <= 0) return null;
-  const { trackHeight, rulerHeight, chordRulerHeight } = geometry;
-  const rulers = rulerHeight + chordRulerHeight;
-  const clips = clipBoxes(state, geometry, width);
+  const rows = rowLayoutOf(tracks);
+  const clips = clipAnchors(tracks, selectedClipId, zoom, scrollLeft, width);
   const selected = clips.find((box) => box.selected);
-  const loopLeft = Math.max(
-    0,
-    tickToPixel(state.loopStart, state.timelineZoom, state.timelineScrollLeft),
-  );
-  const loopRight = Math.min(
-    width,
-    tickToPixel(state.loopEnd, state.timelineZoom, state.timelineScrollLeft),
-  );
+  const loopLeft = Math.max(0, tickToPixel(loopStart, zoom, scrollLeft));
+  const loopRight = Math.min(width, tickToPixel(loopEnd, zoom, scrollLeft));
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
-      {state.tracks.map((track, t) => (
+    <div
+      aria-hidden
+      data-testid="timeline-anchors"
+      className="pointer-events-none absolute inset-0"
+    >
+      {tracks.map((track, t) => (
         <div
           key={track.id}
           data-tutorial-id={`timeline-lane-${t}`}
           className={BOX}
           style={place({
             left: 0,
-            top: rulers + t * trackHeight,
+            top: LANE_HEADER_PX + rows.tops[t],
             width,
-            height: trackHeight,
+            height: rows.heights[t],
           })}
         />
       ))}
@@ -181,7 +195,7 @@ export const TimelineAnchors = memo(function TimelineAnchors({
       <div
         data-tutorial-id="timeline-ruler"
         className={BOX}
-        style={place({ left: 0, top: scrollTop, width, height: rulerHeight })}
+        style={place({ left: 0, top: scrollTop, width, height: RULER_PX })}
       />
       <div
         data-tutorial-id="timeline-loop-strip"
@@ -205,9 +219,9 @@ export const TimelineAnchors = memo(function TimelineAnchors({
         className={BOX}
         style={place({
           left: 0,
-          top: scrollTop + rulerHeight,
+          top: scrollTop + RULER_PX,
           width,
-          height: chordRulerHeight,
+          height: CHORD_LANE_PX,
         })}
       />
     </div>

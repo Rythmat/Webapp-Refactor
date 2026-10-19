@@ -72,17 +72,32 @@ export type DemoRun = (store: AllSlices) => void | Promise<void>;
  *   (pointerdown, mousedown, pointerup, mouseup, click; twice and a dblclick
  *   for a double-click) at the element's center, since some Studio controls
  *   act on pointerdown and others on click;
+ * - 'contextMenu' opens its right-click menu: a contextmenu event at its
+ *   center and nothing else, since a right press on the timeline would also
+ *   move the playhead or start a drag;
  * - 'hover' moves the pointer over it (and off again when the cursor moves
  *   on), for a tooltip or a hover state;
  * - a DemoKeyPress presses a key;
  * - a DemoRun runs store actions.
+ *
+ * A pointer action lands on what a real pointer would hit there: the
+ * innermost element at the center inside the target, or, for a target that
+ * lets the pointer through (the boxes over the timeline's canvas), what is
+ * under it.
  */
 export type DemoAction =
   | 'click'
   | 'doubleClick'
+  | 'contextMenu'
   | 'hover'
   | DemoKeyPress
   | DemoRun;
+
+/**
+ * Marks the blocker a demo plays behind (DemoStage.tsx), which a pointer
+ * action looks past to find what is under a pointer-transparent target.
+ */
+export const DEMO_BLOCKER_ATTR = 'data-demo-blocker';
 
 /** One beat of a demo. */
 export interface DemoBeat {

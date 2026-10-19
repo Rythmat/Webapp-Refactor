@@ -4,6 +4,7 @@ import type { AllSlices } from '@/daw/store';
 import { DemoPlayer, codeOfKey, type DemoFrame } from '../demo/demoPlayer';
 import {
   AFTER_MS,
+  DEMO_BLOCKER_ATTR,
   GLIDE_MS,
   MISSING_TARGET_MS,
   readingMs,
@@ -199,6 +200,75 @@ describe('the demo player', () => {
     expect(seen[0].code).toBe('KeyS');
     expect(seen[0].metaKey || seen[0].ctrlKey).toBe(true);
     expect(document.activeElement).toBe(field);
+  });
+
+  it('opens a right-click menu with a contextmenu event alone', async () => {
+    const log: string[] = [];
+    const el = anchorEl('track-header', BOX);
+    record(el, 'h', log);
+    const menus: MouseEvent[] = [];
+    el.addEventListener('contextmenu', (e) => menus.push(e as MouseEvent));
+    const { p, frames } = player([
+      { target: 'track-header', caption: 'Its menu', action: 'contextMenu' },
+    ]);
+    await playToEnd(p);
+    expect(menus).toHaveLength(1);
+    expect(menus[0]).toMatchObject({
+      button: 2,
+      clientX: CENTER.x,
+      clientY: CENTER.y,
+    });
+    // No press first: on the timeline a right press moves the playhead.
+    expect(log).not.toContain('h:pointerdown');
+    expect(log).not.toContain('h:mousedown');
+    expect(log).not.toContain('h:click');
+    // The pointer is over it, and the press ripples.
+    expect(log).toContain('h:pointerover');
+    expect(frames.filter((f) => f.clickKey).length).toBe(1);
+  });
+
+  it('clicks what is under a target the pointer passes through, past the blocker', async () => {
+    // A timeline anchor: an invisible, pointer-transparent box over the
+    // canvas, which a real click there lands on.
+    const canvas = document.createElement('canvas');
+    document.body.appendChild(canvas);
+    const blocker = document.createElement('div');
+    blocker.setAttribute(DEMO_BLOCKER_ATTR, '');
+    document.body.appendChild(blocker);
+    const box = anchorEl('timeline-clip-0-0', BOX);
+    box.style.pointerEvents = 'none';
+    const field = anchorEl('a-field', { ...BOX, left: 500 });
+    const inner = document.createElement('span');
+    field.appendChild(inner);
+    // Under the box's center: the blocker, then the canvas (a box with
+    // pointer-events none isn't hit). Under the field: the blocker, its span.
+    Object.defineProperty(document, 'elementsFromPoint', {
+      configurable: true,
+      value: (x: number) =>
+        x === CENTER.x ? [blocker, canvas] : [blocker, inner, field],
+    });
+    const onCanvas: string[] = [];
+    for (const type of ['mousedown', 'click', 'contextmenu']) {
+      canvas.addEventListener(type, () => onCanvas.push(type));
+    }
+    const onBox = vi.fn();
+    box.addEventListener('click', onBox);
+    const onInner = vi.fn();
+    inner.addEventListener('click', onInner);
+    const { p } = player([
+      { target: 'timeline-clip-0-0', caption: 'Select it', action: 'click' },
+      { target: 'timeline-clip-0-0', caption: 'Menu', action: 'contextMenu' },
+      { target: 'a-field', caption: 'Inside', action: 'click' },
+    ]);
+    try {
+      await playToEnd(p);
+    } finally {
+      delete (document as { elementsFromPoint?: unknown }).elementsFromPoint;
+    }
+    expect(onCanvas).toEqual(['mousedown', 'click', 'contextmenu']);
+    expect(onBox).not.toHaveBeenCalled();
+    // An anchor with something of its own there is clicked there, as before.
+    expect(onInner).toHaveBeenCalledTimes(1);
   });
 
   it('names key codes as the editor’s shortcuts read them', () => {

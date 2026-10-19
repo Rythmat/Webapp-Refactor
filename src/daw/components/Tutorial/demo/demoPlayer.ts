@@ -8,6 +8,7 @@ import {
 } from '../anchorRegistry';
 import {
   AFTER_MS,
+  DEMO_BLOCKER_ATTR,
   FAST_BEAT_MS,
   FAST_TARGET_MS,
   GLIDE_MS,
@@ -77,7 +78,10 @@ const needsNoElement = (action: DemoAction | undefined): boolean =>
   (typeof action === 'object' && action.on !== 'element');
 
 const isPointerAction = (action: DemoAction | undefined) =>
-  action === 'click' || action === 'doubleClick' || action === 'hover';
+  action === 'click' ||
+  action === 'doubleClick' ||
+  action === 'contextMenu' ||
+  action === 'hover';
 
 export class DemoPlayer {
   private fast = false;
@@ -219,6 +223,10 @@ export class DemoPlayer {
             clickKey: `${index}:${this.clicks}`,
           });
         }
+        if (action === 'contextMenu') {
+          hit.dispatchEvent(mouse('contextmenu', point, { button: 2 }));
+          return;
+        }
         clickAt(hit, point, 1);
         if (action === 'doubleClick') {
           clickAt(hit, point, 2);
@@ -294,12 +302,20 @@ export class DemoPlayer {
 
 // ── Events ─────────────────────────────────────────────────────────────────
 
-/** The innermost element under `point` inside `anchor` (what a real click hits). */
+/**
+ * What a real click at `point` on `anchor` hits: the innermost element there
+ * inside the anchor. An anchor the pointer passes through (a box over the
+ * timeline's canvas) has nothing of its own there, so the click lands on what
+ * is under it, past the blocker the demo plays behind.
+ */
 function hitAt(anchor: Element, point: Point): Element {
-  if (typeof document.elementsFromPoint === 'function') {
-    for (const el of document.elementsFromPoint(point.x, point.y)) {
-      if (anchor.contains(el)) return el;
-    }
+  if (typeof document.elementsFromPoint !== 'function') return anchor;
+  const under = document.elementsFromPoint(point.x, point.y);
+  const inside = under.find((el) => anchor.contains(el));
+  if (inside) return inside;
+  if (getComputedStyle(anchor).pointerEvents === 'none') {
+    const below = under.find((el) => !el.closest(`[${DEMO_BLOCKER_ATTR}]`));
+    if (below) return below;
   }
   return anchor;
 }

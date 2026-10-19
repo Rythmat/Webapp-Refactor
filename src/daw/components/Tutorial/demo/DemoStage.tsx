@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRef } from 'react';
 import type { DemoFrame, Point } from './demoPlayer';
+import { DEMO_BLOCKER_ATTR } from './demoTypes';
 
 // ── The demo's stage ───────────────────────────────────────────────────────
 // What a "watch me" demo draws over the Studio: the landing tour's cursor
@@ -35,6 +36,7 @@ export function DemoBlocker() {
     <div
       aria-hidden
       data-testid="tutorial-demo-blocker"
+      {...{ [DEMO_BLOCKER_ATTR]: '' }}
       onContextMenu={(e) => e.preventDefault()}
       style={{
         position: 'fixed',

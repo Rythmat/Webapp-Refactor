@@ -301,7 +301,9 @@ describe('a course lesson’s end', () => {
   });
 
   it('ends the course on its last lesson: Back to the course or Done', () => {
-    act(() => s().resumeTutorial('studio-basics-save-and-export', 0));
+    // Its last step: the wrap-up card, which the student finishes.
+    const last = getTutorial('studio-basics-save-and-export')!.steps.length - 1;
+    act(() => s().resumeTutorial('studio-basics-save-and-export', last));
     render(<TutorialLayer />);
     fireEvent.click(within(card()).getByRole('button', { name: /Finish/ }));
     const end = screen.getByTestId('tutorial-end-card');

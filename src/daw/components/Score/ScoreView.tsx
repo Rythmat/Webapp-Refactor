@@ -203,6 +203,7 @@ export function ScoreView() {
           <div className="ml-auto flex items-center gap-2">
             <button
               type="button"
+              data-tutorial-id="score-print"
               onClick={() => {
                 // Selection highlights are editing state, not the music.
                 editing.staff.onBackgroundPointerDown();
@@ -217,6 +218,7 @@ export function ScoreView() {
             </button>
             <button
               type="button"
+              data-tutorial-id="score-export-musicxml"
               onClick={exportMusicXml}
               disabled={parts.length === 0}
               title="Download every part as MusicXML, for MuseScore, Finale, Sibelius or Dorico"
@@ -229,6 +231,7 @@ export function ScoreView() {
         </div>
 
         <div
+          data-tutorial-id="score-sheet"
           className="leadsheet-scroll flex-1 overflow-y-auto"
           style={{ padding: '32px 48px' }}
         >

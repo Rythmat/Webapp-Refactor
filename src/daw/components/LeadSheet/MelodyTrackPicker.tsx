@@ -145,6 +145,7 @@ export const MelodyTrackPicker = memo(function MelodyTrackPicker({
           }
           aria-label={`Choose the melody tracks (now ${label})`}
           data-testid="melody-track-picker"
+          data-tutorial-id="leadsheet-melody-picker"
           data-melody-auto={pick.auto || undefined}
         >
           {pick.tracks.slice(0, MAX_DOTS).map((track) => (
@@ -160,6 +161,7 @@ export const MelodyTrackPicker = memo(function MelodyTrackPicker({
         className="w-72 p-2"
         aria-label="Melody tracks"
         data-testid="melody-track-menu"
+        data-tutorial-id="leadsheet-melody-menu"
         ref={menuRef}
         onOpenAutoFocus={(event) => {
           const trackId = focusTrack.current;
@@ -179,7 +181,10 @@ export const MelodyTrackPicker = memo(function MelodyTrackPicker({
           Show on the lead sheet
         </div>
 
-        <label className="flex cursor-pointer items-start gap-2 rounded-[var(--daw-radius-sm)] px-2 py-1.5 hover:bg-daw-hover">
+        <label
+          data-tutorial-id="leadsheet-melody-auto"
+          className="flex cursor-pointer items-start gap-2 rounded-[var(--daw-radius-sm)] px-2 py-1.5 hover:bg-daw-hover"
+        >
           <input
             type="radio"
             name="melody-track-mode"
@@ -219,6 +224,8 @@ export const MelodyTrackPicker = memo(function MelodyTrackPicker({
                   <label
                     className="flex cursor-pointer items-center gap-2 rounded-[var(--daw-radius-sm)] px-2 py-1.5 hover:bg-daw-hover"
                     data-testid="melody-track-option"
+                    // By the track's place in the project, as its header's.
+                    data-tutorial-id={`leadsheet-melody-track-${tracks.indexOf(track)}`}
                   >
                     <input
                       type="checkbox"

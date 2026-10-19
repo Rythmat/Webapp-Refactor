@@ -321,6 +321,7 @@ export function ProjectMenu() {
           </MenuItem>
           <MenuSeparator />
           <MenuItem
+            data-tutorial-id="file-save"
             icon={<Save />}
             shortcut={saveKeys}
             onSelect={handleSave}
@@ -329,6 +330,7 @@ export function ProjectMenu() {
             {saving ? 'Saving…' : 'Save'}
           </MenuItem>
           <MenuItem
+            data-tutorial-id="file-save-as"
             icon={<SaveAll />}
             onSelect={() => void handleSaveAs()}
             disabled={saving}
@@ -349,6 +351,7 @@ export function ProjectMenu() {
             Audio…
           </MenuItem>
           <MenuItem
+            data-tutorial-id="file-export-midi"
             icon={<FileDown />}
             shortcut={exportMidiKeys}
             onSelect={() => void exportProjectMidi()}
@@ -356,6 +359,7 @@ export function ProjectMenu() {
             MIDI
           </MenuItem>
           <MenuItem
+            data-tutorial-id="file-export-musicxml"
             icon={<Music />}
             onSelect={() => void exportLeadSheetMusicXml()}
           >
@@ -363,6 +367,7 @@ export function ProjectMenu() {
           </MenuItem>
           <MenuSeparator />
           <MenuItem
+            data-tutorial-id="file-analyze"
             icon={<Sparkles />}
             shortcut={analyzeKeys}
             onSelect={analyzeProject}

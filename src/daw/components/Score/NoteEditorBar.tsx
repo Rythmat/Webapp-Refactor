@@ -206,6 +206,7 @@ export function NoteEditorBar({
       {onToggleNoteInput && (
         <div className="flex shrink-0 self-stretch py-1 pl-2">
           <button
+            data-tutorial-id="score-note-input"
             onClick={onToggleNoteInput}
             aria-pressed={noteInput}
             title={

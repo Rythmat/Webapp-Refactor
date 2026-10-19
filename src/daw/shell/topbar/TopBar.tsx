@@ -148,6 +148,7 @@ function OverflowMenu({ help, countIn }: { help: boolean; countIn: boolean }) {
           icon={<MoreHorizontal />}
           tooltipSide="bottom"
           data-testid="top-bar-overflow"
+          data-tutorial-id="top-bar-more"
         />
       </MenuTrigger>
       <MenuContent align="end" sideOffset={6}>

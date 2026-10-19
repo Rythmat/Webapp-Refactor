@@ -1924,6 +1924,8 @@ export function PianoRoll({
           ).map((t) => (
             <button
               key={t.id}
+              data-tutorial-id={`piano-roll-tool-${t.id}`}
+              aria-pressed={tool === t.id}
               onClick={() => {
                 setTool(t.id);
                 focusRoll();
@@ -1943,6 +1945,7 @@ export function PianoRoll({
 
         {/* The selection: everything at once, and away with it. */}
         <button
+          data-tutorial-id="piano-roll-select-all"
           onClick={selectAll}
           title="Select every note (⌘A) · Shift- or ⌘-drag boxes notes, even over notes"
           className="flex h-6 items-center rounded px-2 text-[10px] font-semibold text-white/40 transition-colors hover:bg-white/5 hover:text-white/60"
@@ -1951,6 +1954,7 @@ export function PianoRoll({
         </button>
         {selectedIndices.size > 0 && (
           <button
+            data-tutorial-id="piano-roll-delete"
             onClick={deleteSelected}
             title="Delete the selected notes (Delete)"
             className="flex h-6 items-center gap-1 rounded bg-rose-500/20 px-2 text-[10px] font-semibold text-rose-200 transition-colors hover:bg-rose-500/30"
@@ -1988,6 +1992,7 @@ export function PianoRoll({
         </label>
 
         <button
+          data-tutorial-id="piano-roll-quantize"
           onClick={handleQuantize}
           className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-xs transition-colors hover:bg-white/10"
           style={{ color: 'var(--daw-text)' }}
@@ -2098,6 +2103,7 @@ export function PianoRoll({
             >
               <canvas
                 ref={pianoCanvasRef}
+                data-tutorial-id="piano-roll-keys"
                 className="block"
                 style={{ cursor: 'pointer' }}
                 onMouseDown={handleKeysMouseDown}
@@ -2143,6 +2149,7 @@ export function PianoRoll({
             {/* Grid — scroll master */}
             <div
               ref={gridScrollRef}
+              data-tutorial-id="piano-roll-grid"
               className="relative flex-1 overflow-auto"
               onScroll={handleGridScroll}
               style={{ scrollbarWidth: 'thin' }}

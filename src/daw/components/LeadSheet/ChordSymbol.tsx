@@ -46,6 +46,8 @@ interface ChordSymbolProps {
   autoEdit?: boolean;
   /** Selection-aware click, so Shift and ⌘ reach the sheet's selection. */
   onSelectItem?: (item: LeadSheetItem, event: React.MouseEvent) => void;
+  /** The lesson anchor: `leadsheet-chord-<bar>-<nth chord in it>`. */
+  'data-tutorial-id'?: string;
 }
 
 /**
@@ -75,6 +77,7 @@ export const ChordSymbol = memo(function ChordSymbol({
   onDelete,
   autoEdit,
   onSelectItem,
+  'data-tutorial-id': tutorialId,
 }: ChordSymbolProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
@@ -255,6 +258,7 @@ export const ChordSymbol = memo(function ChordSymbol({
         <foreignObject x={x - 4} y={y - 20} width={120} height={24}>
           <input
             ref={inputRef}
+            data-tutorial-id="leadsheet-chord-input"
             value={editValue}
             placeholder="_"
             aria-label="Chord symbol"
@@ -295,6 +299,7 @@ export const ChordSymbol = memo(function ChordSymbol({
   return (
     <>
       <text
+        data-tutorial-id={tutorialId}
         x={x}
         y={y}
         fontSize={16}

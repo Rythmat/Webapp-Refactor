@@ -102,6 +102,7 @@ export function PianoRollModal() {
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70" />
         <Dialog.Content
           ref={contentRef}
+          data-tutorial-id="piano-roll-modal"
           className="fixed inset-x-[5%] bottom-[10%] top-[5%] z-50 flex flex-col overflow-hidden rounded-2xl outline-none"
           style={{
             backgroundColor: 'var(--daw-popover)',
@@ -136,6 +137,7 @@ export function PianoRollModal() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                data-tutorial-id="piano-roll-analyze"
                 onClick={handleAnalyzeSelection}
                 disabled={selectedNoteIndices.length === 0}
                 title={
@@ -158,6 +160,7 @@ export function PianoRollModal() {
               </button>
               <Dialog.Close asChild>
                 <button
+                  data-tutorial-id="piano-roll-close"
                   className="flex size-7 items-center justify-center rounded-full transition-colors hover:bg-white/10"
                   style={{ color: 'var(--daw-text-3)' }}
                   aria-label="Close"

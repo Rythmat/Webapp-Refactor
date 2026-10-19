@@ -22,6 +22,7 @@ export const InspectorToggle = memo(function InspectorToggle() {
       shortcut={INSPECTOR_KEYS.label}
       aria-keyshortcuts={INSPECTOR_KEYS.aria}
       data-testid="inspector-toggle"
+      data-tutorial-id="inspector-toggle"
     />
   );
 });

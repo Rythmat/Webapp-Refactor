@@ -94,6 +94,7 @@ import type { Track } from '@/daw/store/tracksSlice';
 import { DAW_PALETTE_EVENT, getDawPalette } from '@/daw/ui/tokens';
 import { promptDialog } from '@/daw/ui/DialogHost';
 import { sameTimelineGeometry, timelineNeedsRedraw } from './timelineGeometry';
+import { TimelineAnchors, type TimelineGeometry } from './TimelineAnchors';
 import {
   clipAudioStatus,
   retryClipAudio,
@@ -106,6 +107,12 @@ const RULER_HEIGHT = 42; // px for top ruler: loop strip (LOOP_STRIP_H) + bar nu
 const CHORD_RULER_HEIGHT = 20; // px for chord name ruler
 const RULERS_HEIGHT = RULER_HEIGHT + CHORD_RULER_HEIGHT; // total header height
 const TIME_RULER_HEIGHT = 22; // px for time ruler at bottom
+/** Where the lesson anchors over the canvas go (TimelineAnchors). */
+const ANCHOR_GEOMETRY: TimelineGeometry = {
+  trackHeight: TRACK_HEIGHT,
+  rulerHeight: RULER_HEIGHT,
+  chordRulerHeight: CHORD_RULER_HEIGHT,
+};
 const H_SCROLLBAR_H = 12; // px for the always-shown scrollbar (h-3) below it
 const RESIZE_EDGE_PX = 6; // px threshold for resize handle
 const PROJECT_MIN_BARS = 8; // minimum visible project length
@@ -494,14 +501,15 @@ const CTX_ITEM =
 
 /** One item of the timeline's right-click menu, with its shortcut. */
 function CtxItem({
-  anchor,
+  'data-tutorial-id': anchor,
   shortcut,
   danger,
   disabled,
   onClick,
   children,
 }: {
-  anchor?: string;
+  /** The lesson anchor, written at the call so the inventory finds it. */
+  'data-tutorial-id'?: string;
   shortcut?: string;
   danger?: boolean;
   disabled?: boolean;
@@ -1787,6 +1795,13 @@ export function Timeline() {
     const el = canvasRef.current?.parentElement?.parentElement?.parentElement;
     return el?.scrollTop ?? 0;
   }, []);
+
+  /** The overflow-auto div in TimelineWithHeaders the lanes scroll in. */
+  const getScrollParent = useCallback(
+    () =>
+      canvasRef.current?.parentElement?.parentElement?.parentElement ?? null,
+    [],
+  );
 
   // The playhead's grab handle, pinned to the foot of the bar ruler as it
   // mounts; the scroll listener above keeps it there. A stable callback, so
@@ -3140,6 +3155,11 @@ export function Timeline() {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         />
+        <TimelineAnchors
+          geometry={ANCHOR_GEOMETRY}
+          width={viewportWidth}
+          scrollParent={getScrollParent}
+        />
         {/* Chord ruler inline editor */}
         {editingChord && (
           <>
@@ -3254,21 +3274,21 @@ export function Timeline() {
             {ctxMenu.midiClipId ? (
               <>
                 <CtxItem
-                  anchor="clip-menu-duplicate"
+                  data-tutorial-id="clip-menu-duplicate"
                   shortcut={CLIP_KEYS.duplicate}
                   onClick={() => runOnMenuClip(duplicateSelectedClip)}
                 >
                   Duplicate
                 </CtxItem>
                 <CtxItem
-                  anchor="clip-menu-copy"
+                  data-tutorial-id="clip-menu-copy"
                   shortcut={CLIP_KEYS.copy}
                   onClick={() => runOnMenuClip(copySelectedClip)}
                 >
                   Copy
                 </CtxItem>
                 <CtxItem
-                  anchor="clip-menu-paste"
+                  data-tutorial-id="clip-menu-paste"
                   shortcut={CLIP_KEYS.paste}
                   disabled={!hasClipToPaste()}
                   onClick={() => runOnMenuClip(pasteClipsAtPlayhead)}
@@ -3284,7 +3304,7 @@ export function Timeline() {
                   }}
                 />
                 <CtxItem
-                  anchor="clip-menu-open-piano-roll"
+                  data-tutorial-id="clip-menu-open-piano-roll"
                   onClick={handleCtxOpenPianoRoll}
                 >
                   Open in Piano Roll
@@ -3298,7 +3318,7 @@ export function Timeline() {
                   }}
                 />
                 <CtxItem
-                  anchor="clip-menu-delete"
+                  data-tutorial-id="clip-menu-delete"
                   danger
                   onClick={() => runOnMenuClip(deleteSelectedClip)}
                 >
@@ -3396,7 +3416,7 @@ export function Timeline() {
               <>
                 {hasClipToPaste() ? (
                   <CtxItem
-                    anchor="lane-menu-paste"
+                    data-tutorial-id="lane-menu-paste"
                     onClick={handleCtxPasteHere}
                   >
                     Paste Here

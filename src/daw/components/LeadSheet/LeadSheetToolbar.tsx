@@ -219,6 +219,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
           picker beside it says which */}
       <div className="flex items-center">
         <button
+          data-tutorial-id="leadsheet-melody-toggle"
           className={btnClass}
           style={{
             ...btnStyle,
@@ -248,6 +249,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
       {/* Measure operations */}
       <button
+        data-tutorial-id="leadsheet-add-measure"
         className={btnClass}
         style={btnStyle}
         onClick={handleInsertMeasure}
@@ -356,6 +358,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 
       {/* Export buttons */}
       <button
+        data-tutorial-id="leadsheet-export-musicxml"
         className={btnClass}
         style={{
           ...btnStyle,
@@ -370,6 +373,7 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
       </button>
 
       <button
+        data-tutorial-id="leadsheet-print"
         className={btnClass}
         style={btnStyle}
         onClick={handleExportPdf}

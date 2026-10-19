@@ -64,7 +64,7 @@ describe('Arpeggiator on context time', () => {
     a.noteOn(60, 0.8, 10);
     a.noteOn(64, 0.8, 10);
     // Timers fire late and unevenly; the step times don't care.
-    for (const jump of [0.013, 0.07, 0.031, 0.09, 0.2]) {
+    for (const jump of [0.013, 0.03, 0.031, 0.035, 0.024, 0.03, 0.038, 0.03]) {
       now += jump;
       vi.advanceTimersByTime(25);
     }

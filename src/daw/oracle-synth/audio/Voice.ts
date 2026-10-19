@@ -68,6 +68,8 @@ export class Voice {
   endAt: number = -Infinity;
   /** Bumped on every fresh note, so a stale onended is ignored. */
   private generation: number = 0;
+  /** The sources started for the current note. */
+  private noteSources: Array<Oscillator | SubOscillator | NoiseGenerator> = [];
   /** What is scheduled on each envelope-driven param, for exact levels. */
   private segments = new Map<AudioParam, EnvelopeSegment>();
 
@@ -510,21 +512,28 @@ export class Voice {
   }
 
   private startActiveSources(time: number): void {
-    if (this.osc1Enabled) this.osc1.start(time);
-    if (this.osc2Enabled) this.osc2.start(time);
-    if (this.subEnabled) this.sub.start(time);
-    if (this.noiseEnabled) this.noise.start(time);
+    const started: Array<Oscillator | SubOscillator | NoiseGenerator> = [];
+    if (this.osc1Enabled) started.push(this.osc1);
+    if (this.osc2Enabled) started.push(this.osc2);
+    if (this.subEnabled) started.push(this.sub);
+    if (this.noiseEnabled) started.push(this.noise);
+    for (const source of started) source.start(time);
+    this.noteSources = started;
   }
 
   /**
-   * Stops every source at `time`. `onEnded` goes to the first source that
-   * had something to stop (they all stop together); with nothing running it
-   * runs right away.
+   * Stops every source at `time`. `onEnded` goes to the first source started
+   * for the current note that has something to stop (they all stop
+   * together), never to the old tail of a source switched off since; with
+   * nothing to wait for it runs right away.
    */
   private stopAllSources(time: number, onEnded?: () => void): void {
     let pending = onEnded;
     for (const source of [this.osc1, this.osc2, this.sub, this.noise]) {
-      if (source.stop(time, pending)) pending = undefined;
+      const ownsNote = this.noteSources.includes(source);
+      if (source.stop(time, ownsNote ? pending : undefined) && ownsNote) {
+        pending = undefined;
+      }
     }
     pending?.();
   }
@@ -659,8 +668,9 @@ export class Voice {
     }
   }
 
-  setSpreadPan(pan: number): void {
-    smoothParam(this.voicePanner.pan, pan, this.ctx);
+  /** Spread-pan slot position, from `time` (now when omitted). */
+  setSpreadPan(pan: number, time?: number): void {
+    smoothParam(this.voicePanner.pan, pan, this.ctx, 0.01, time);
   }
 
   connectOscAnalysers(osc1Dest: AudioNode, osc2Dest: AudioNode): void {

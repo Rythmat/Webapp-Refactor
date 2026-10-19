@@ -97,7 +97,11 @@ export class SynthEngine {
   /** True when init made the context (and so dispose may close it). */
   private ownsContext = false;
   /** Held keys and the path (raw voices or arp) that started each. */
-  private heldKeys = new Map<number, { velocity: number; path: KeyPath }>();
+  /** `time` is the key's booked note-on time (a hand-over never precedes it). */
+  private heldKeys = new Map<
+    number,
+    { velocity: number; path: KeyPath; time: number }
+  >();
 
   // Snapshot of the last-applied per-voice params. Voices are created lazily
   // on note-on, and param setters only reach voices that already exist — so a
@@ -293,6 +297,16 @@ export class SynthEngine {
       }
     };
 
+    // A MONO/LEGATO key change keeps the voice; a scale-quantized pitch
+    // route's curve is built from the voice's note, so it is rebuilt. (It is
+    // rebuilt when the call runs, not at the key's booked time: modulation
+    // routing is graph wiring, which can't be scheduled.)
+    this.voiceManager.onPitchChange = (voice) => {
+      if (this.modMatrix?.hasTransformRoutes()) {
+        this.modMatrix.connectVoice(voice);
+      }
+    };
+
     // Arpeggiator (routes through rawNoteOn/rawNoteOff, with step times
     // on this context's clock)
     this.arpeggiator = new Arpeggiator(
@@ -425,12 +439,13 @@ export class SynthEngine {
   noteOn(note: number, velocity: number, time?: number): void {
     // A key pressed again without a note-off first lets go of the old one.
     if (this.heldKeys.has(note)) this.noteOff(note, time);
+    const at = time ?? this.ctx?.currentTime ?? 0;
     if (this.arpParams?.enabled && this.arpeggiator) {
       this.arpeggiator.noteOn(note, velocity, time);
-      this.heldKeys.set(note, { velocity, path: 'arp' });
+      this.heldKeys.set(note, { velocity, path: 'arp', time: at });
     } else {
       this.rawNoteOn(note, velocity, time);
-      this.heldKeys.set(note, { velocity, path: 'raw' });
+      this.heldKeys.set(note, { velocity, path: 'raw', time: at });
     }
   }
 
@@ -572,19 +587,23 @@ export class SynthEngine {
     this.arpeggiator?.setParams(params);
     if (params.enabled === wasEnabled || !this.ctx) return;
 
+    // A key the sequencer booked ahead of the clock is handed over at its
+    // own time, never before it starts.
     const now = this.ctx.currentTime;
+    const keys = [...this.heldKeys].sort((a, b) => a[1].time - b[1].time);
     if (params.enabled) {
-      for (const [note, key] of this.heldKeys) {
+      for (const [note, key] of keys) {
         if (key.path !== 'raw') continue;
-        this.rawNoteOff(note, now);
-        this.arpeggiator?.noteOn(note, key.velocity, now);
+        const at = Math.max(now, key.time);
+        this.rawNoteOff(note, at);
+        this.arpeggiator?.noteOn(note, key.velocity, at);
         key.path = 'arp';
       }
     } else {
       this.arpeggiator?.allNotesOff(now);
-      for (const [note, key] of this.heldKeys) {
+      for (const [note, key] of keys) {
         if (key.path !== 'arp') continue;
-        this.rawNoteOn(note, key.velocity, now);
+        this.rawNoteOn(note, key.velocity, Math.max(now, key.time));
         key.path = 'raw';
       }
     }

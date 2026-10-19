@@ -41,6 +41,10 @@ export class VoiceManager {
    *  vibrato, analysers, and modulation-matrix teardown to every voice. */
   onVoiceCreated: ((voice: Voice) => void) | null = null;
 
+  /** Invoked when MONO/LEGATO moves the sounding voice to another key
+   *  without a fresh note (note-dependent modulation needs rebuilding). */
+  onPitchChange: ((voice: Voice) => void) | null = null;
+
   // Stored for lazy voice allocation
   private ctx: AudioContext;
   private wavetableBank: WavetableBank;
@@ -139,6 +143,7 @@ export class VoiceManager {
         sounding.retrigger(note, velocity, t, this.glideTime, from);
       }
       this.lastNote = note;
+      this.onPitchChange?.(sounding);
       return null;
     }
 
@@ -181,6 +186,7 @@ export class VoiceManager {
       voice.retrigger(top.note, top.velocity, t, this.glideTime, from);
     }
     this.lastNote = top.note;
+    this.onPitchChange?.(voice);
   }
 
   private allocateVoice(t: number): Voice | null {
@@ -194,7 +200,9 @@ export class VoiceManager {
     if (this.voices.length < this.maxVoices) {
       const voice = this.cleanVoice(t);
       this.voices.push(voice);
-      this.applySpread(); // give the freshly-added voice its spread-pan slot
+      // Give the freshly-added voice its spread-pan slot, from the note's
+      // time (an offline booking pass runs with the clock at 0).
+      this.applySpread(t);
       return voice;
     }
 
@@ -232,7 +240,7 @@ export class VoiceManager {
     const slot = this.voices.indexOf(victim);
     if (slot >= 0) {
       this.voices[slot] = fresh;
-      fresh.setSpreadPan(this.spreadPanFor(slot));
+      fresh.setSpreadPan(this.spreadPanFor(slot), t);
     }
     this.retired.push(victim);
     if (this.monoVoice === victim) this.monoVoice = null;
@@ -282,9 +290,9 @@ export class VoiceManager {
     return (t - 0.5) * 2 * this.spread; // -spread..+spread
   }
 
-  private applySpread(): void {
+  private applySpread(time?: number): void {
     for (let i = 0; i < this.voices.length; i++) {
-      this.voices[i].setSpreadPan(this.spreadPanFor(i));
+      this.voices[i].setSpreadPan(this.spreadPanFor(i), time);
     }
   }
 

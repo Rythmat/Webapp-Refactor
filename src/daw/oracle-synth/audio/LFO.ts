@@ -16,11 +16,15 @@ const REBUILD_FADE = 0.01;
 /** The waveform spans four 4/4 bars. */
 const LOOP_BEATS = 16;
 
+/** Phase difference (fraction of the loop) treated as already aligned. */
+const PHASE_EPSILON = 1e-4;
+
 interface LfoSource {
   node: AudioBufferSourceNode;
   gain: GainNode;
   startedAt: number;
-  fadesIn: boolean;
+  /** When it stops (Infinity while it is the running source). */
+  stopAt: number;
 }
 
 /**
@@ -40,7 +44,10 @@ interface LfoSource {
  */
 export class LFO {
   private ctx: AudioContext;
-  private source: LfoSource | null = null;
+  /** Every source not yet ended; the last one is the running one. */
+  private sources: LfoSource[] = [];
+  /** The built 4-bar buffer, reused when only the phase changes. */
+  private buffer: AudioBuffer | null = null;
   private output: GainNode;
 
   private bpm: number = 120;
@@ -71,16 +78,15 @@ export class LFO {
     this.isRunning = true;
     this.anchorTime = time ?? this.ctx.currentTime;
     this.anchorFrac = 0;
-    this.rebuild(this.anchorTime);
+    this.buffer = null;
+    this.restart(this.anchorTime);
   }
 
   stop(): void {
     if (!this.isRunning) return;
     this.isRunning = false;
-    if (this.source) {
-      this.endSource(this.source, this.ctx.currentTime, 0);
-      this.source = null;
-    }
+    const now = this.ctx.currentTime;
+    for (const source of this.sources) this.endSource(source, now, 0);
   }
 
   /**
@@ -90,9 +96,13 @@ export class LFO {
    */
   alignToBeat(when: number, beat: number): void {
     const frac = (((beat / LOOP_BEATS) % 1) + 1) % 1;
+    // Already there (a loop lap of a whole number of 4-bar loops, or a
+    // play from where the loop already is): nothing to restart.
+    const diff = Math.abs(this.phaseAt(when) - frac);
+    const aligned = Math.min(diff, 1 - diff) < PHASE_EPSILON;
     this.anchorTime = when;
     this.anchorFrac = frac;
-    if (this.isRunning) this.rebuild(when);
+    if (this.isRunning && !aligned) this.restart(when);
   }
 
   /** The loop position (0..1) at context time `t`. */
@@ -117,36 +127,37 @@ export class LFO {
     this.anchorFrac = this.phaseAt(now);
     this.anchorTime = now;
     this.bpm = next;
-    if (this.isRunning) this.rebuild(now);
+    this.buffer = null;
+    if (this.isRunning) this.restart(now);
   }
 
   setBars(bars: [LFONode[], LFONode[], LFONode[], LFONode[]]): void {
     this.bars = bars;
-    if (this.isRunning) this.rebuild(this.ctx.currentTime);
+    this.buffer = null;
+    if (this.isRunning) this.restart(this.ctx.currentTime);
   }
 
   setBarNodes(barIndex: number, nodes: LFONode[]): void {
     if (sameNodes(this.bars[barIndex], nodes)) return;
     // A copy, so a caller that edits its array in place still rebuilds.
     this.bars[barIndex] = nodes.map((n) => ({ ...n }));
-    if (this.isRunning) this.rebuild(this.ctx.currentTime);
+    this.buffer = null;
+    if (this.isRunning) this.restart(this.ctx.currentTime);
   }
 
   setBarSmooth(barIndex: number, smooth: number): void {
     if (this.smooths[barIndex] === smooth) return;
     this.smooths[barIndex] = smooth;
-    if (this.isRunning) this.rebuild(this.ctx.currentTime);
+    this.buffer = null;
+    if (this.isRunning) this.restart(this.ctx.currentTime);
   }
 
   getOutputNode(): GainNode {
     return this.output;
   }
 
-  /**
-   * Builds the buffer and starts it at `when`, at the loop position the
-   * anchor gives for that time. A source already running crossfades out.
-   */
-  private rebuild(when: number): void {
+  private getBuffer(): AudioBuffer {
+    if (this.buffer) return this.buffer;
     // Each bar = one musical bar duration (4 beats at current BPM)
     const barDuration = 240 / this.bpm;
     const barDurations: [number, number, number, number] = [
@@ -155,32 +166,40 @@ export class LFO {
       barDuration,
       barDuration,
     ];
-
     // Nodes directly define the full waveform shape (no tiling)
-    const buffer = LFOWaveformBuilder.buildBuffer(
+    this.buffer = LFOWaveformBuilder.buildBuffer(
       this.ctx,
       this.bars,
       barDurations,
       this.smooths,
     );
+    return this.buffer;
+  }
 
+  /**
+   * Starts a source at `when`, at the loop position the anchor gives for
+   * that time (the buffer is rebuilt only after an edit). Every earlier
+   * source still sounding at `when`, including one booked ahead by a play
+   * that hasn't started yet, crossfades out; one that would only start
+   * later is cancelled.
+   */
+  private restart(when: number): void {
     const node = this.ctx.createBufferSource();
-    node.buffer = buffer;
+    node.buffer = this.getBuffer();
     node.loop = true;
     node.playbackRate.value = 1; // Real-time; durations baked into buffer
     const gain = this.ctx.createGain();
     node.connect(gain);
     gain.connect(this.output);
 
-    const old = this.source;
-    // A source replaced in the same instant (a patch push rebuilds several
-    // times in a row) was never heard: it stops without a fade, and the new
-    // one takes over its fade-in, if it had one.
+    // Fade in only when something audible is being replaced; a patch push
+    // rebuilds several times in the same instant, and those never sound.
     let fadesIn = false;
-    if (old) {
-      const sameInstant = old.startedAt >= when;
-      fadesIn = sameInstant ? old.fadesIn : true;
-      this.endSource(old, when, sameInstant ? 0 : REBUILD_FADE);
+    for (const old of this.sources) {
+      if (old.stopAt <= when) continue;
+      const audible = old.startedAt < when;
+      if (audible) fadesIn = true;
+      this.endSource(old, when, audible ? REBUILD_FADE : 0);
     }
     if (fadesIn) {
       gain.gain.value = 0;
@@ -190,25 +209,30 @@ export class LFO {
       gain.gain.value = 1;
     }
     node.start(when, this.phaseAt(when) * this.loopSeconds());
-    this.source = { node, gain, startedAt: when, fadesIn };
+    this.sources.push({ node, gain, startedAt: when, stopAt: Infinity });
   }
 
   /** Fades a source out over `fade` from `when`, stops it, then unwires it. */
   private endSource(source: LfoSource, when: number, fade: number): void {
-    if (fade > 0) {
-      source.gain.gain.setValueAtTime(1, when);
-      source.gain.gain.linearRampToValueAtTime(0, when + fade);
-    }
-    source.node.onended = () => {
+    const end = Math.max(when, source.startedAt) + fade;
+    if (end >= source.stopAt) return;
+    source.stopAt = end;
+    const unwire = () => {
       source.node.disconnect();
       source.gain.disconnect();
+      this.sources = this.sources.filter((s) => s !== source);
     };
+    if (fade > 0) {
+      source.gain.gain.cancelScheduledValues(when);
+      source.gain.gain.setValueAtTime(1, when);
+      source.gain.gain.linearRampToValueAtTime(0, end);
+    }
+    source.node.onended = unwire;
     try {
-      source.node.stop(when + fade);
+      source.node.stop(end);
     } catch {
       // Already stopped
-      source.node.disconnect();
-      source.gain.disconnect();
+      unwire();
     }
   }
 }

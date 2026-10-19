@@ -330,7 +330,27 @@ export class Arpeggiator {
       this.stopPump();
       return;
     }
-    this.flush(this.clock.now() + PUMP_HORIZON);
+    const now = this.clock.now();
+    this.skipOverdue(now);
+    this.flush(now + PUMP_HORIZON);
+  }
+
+  /**
+   * After a timer stall (a background tab, a long task) the steps more than
+   * the pump horizon in the past are dropped rather than played late as a
+   * cluster: the grid resumes at the first step from `now - horizon` on, and
+   * the pattern moves on as if they had played. (A step only a few ms late,
+   * e.g. a key pressed between two wakes, still plays.)
+   */
+  private skipOverdue(now: number): void {
+    const from = now - PUMP_HORIZON;
+    if (this.nextStepAt === null || this.nextStepAt >= from) return;
+    const step = this.getStepSeconds();
+    const skipped = Math.ceil((from - this.nextStepAt) / step);
+    this.nextStepAt += skipped * step;
+    if (this.pattern.length > 0) {
+      this.patternIndex = (this.patternIndex + skipped) % this.pattern.length;
+    }
   }
 
   private stopPump(): void {

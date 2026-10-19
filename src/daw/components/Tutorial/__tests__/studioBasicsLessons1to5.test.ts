@@ -107,6 +107,7 @@ function present(id: string): boolean {
     return !!s().tracks[Number(clip[1])]?.midiClips[Number(clip[2])];
   }
   if (id.startsWith('piano-roll-')) return pianoRollOpen(s(), s());
+  if (id === 'musical-typing') return useMusicalTypingStore.getState().enabled;
   return true;
 }
 
@@ -128,7 +129,8 @@ function clickOn(id: string, action: 'click' | 'doubleClick'): void {
   } else if (id === 'inspector-toggle' || id === 'rail-insight') {
     // Stage B: the side rail's Insight button (inspector-toggle's alias).
     s().toggleInspectorPanel('insight');
-  } else if (id === 'musical-typing') {
+  } else if (id === 'musical-typing' || id === 'top-bar-more-typing') {
+    // The Typing pill, and the top bar ⋯ menu's switch.
     useMusicalTypingStore.getState().toggle();
   } else if (/^insight-track-\d+$/.test(id)) {
     const track = trackAt(n(/(\d+)$/));
@@ -282,7 +284,10 @@ const ADD_A_TRACK: Record<string, Move> = {
   monitor: () => s().toggleMonitoring(trackAt(lastIndex()).id),
 };
 
-/** The take a recording keeps on `trackId` (useMidiRecording's clip). */
+/**
+ * The take a recording keeps on `trackId` (useMidiRecording's clip), as the
+ * student's Pause ends it.
+ */
 const keepTake = (trackId: string) => {
   s().addMidiClip(trackId, {
     id: 'take-1',
@@ -291,7 +296,7 @@ const keepTake = (trackId: string) => {
       { note: 60, velocity: 100, startTick: 0, durationTicks: 240, channel: 0 },
     ],
   });
-  s().stop();
+  s().pause();
 };
 
 const RECORD: Record<string, Move> = {
@@ -306,7 +311,11 @@ const RECORD: Record<string, Move> = {
     s().toggleRecordArm(drums.id);
     s().toggleRecordArm(trackAt(0).id);
   },
-  monitor: () => s().toggleMonitoring(trackAt(3).id),
+  // Monitor input on the Drums, off on the Melody (on as it opens).
+  monitor: () => {
+    s().toggleMonitoring(trackAt(3).id);
+    s().toggleMonitoring(trackAt(0).id);
+  },
   'play-notes': () => s().hwNoteOn(60),
   record: () => s().record(),
   stop: () => keepTake(trackAt(3).id),
@@ -394,6 +403,14 @@ describe('Studio Basics 1 to 5 on the demo song', () => {
   it('Record: the Click, the count-in, one armed track, a take kept', async () => {
     await walk('studio-basics-record', RECORD);
     expect(trackAt(3).midiClips.map((c) => c.id)).toContain('take-1');
+    // The lesson shut the dock as it began, so every row shows.
+    expect(s().channelStripTab).toBeNull();
+    expect(s().tracks.map((t) => [t.recordArmed, t.monitoring])).toEqual([
+      [false, false],
+      [false, false],
+      [false, false],
+      [true, true],
+    ]);
   });
 
   it('The Piano Roll: open, add, move, stretch, delete, close', async () => {
@@ -419,23 +436,21 @@ describe('Studio Basics 1 to 5 on the demo song', () => {
   it('chains from lesson 1 to 5 on one song, as Next: does', async () => {
     await walk('studio-basics-your-tracks', YOUR_TRACKS);
     await walk('studio-basics-add-a-track', ADD_A_TRACK);
-    const record = { ...RECORD };
-    delete record.monitor;
-    await walk(
-      'studio-basics-record',
-      {
-        ...record,
-        // After Add a Track: the new track is selected, armed and
-        // monitored, under the armed Melody and Chords. Their arms go off.
-        'choose-track': () => {
-          s().toggleRecordArm(trackAt(0).id);
-          s().toggleRecordArm(trackAt(1).id);
-        },
-        stop: () => keepTake(trackAt(4).id),
+    await walk('studio-basics-record', {
+      ...RECORD,
+      // After Add a Track: the new track is chosen, armed and monitored,
+      // under the armed and monitored Melody and Chords. Their Arm and
+      // Monitor input go off.
+      'choose-track': () => {
+        s().toggleRecordArm(trackAt(0).id);
+        s().toggleRecordArm(trackAt(1).id);
       },
-      // Its MON is on already.
-      ['monitor'],
-    );
+      monitor: () => {
+        s().toggleMonitoring(trackAt(0).id);
+        s().toggleMonitoring(trackAt(1).id);
+      },
+      stop: () => keepTake(trackAt(4).id),
+    });
     expect(trackAt(4).midiClips.map((c) => c.id)).toEqual(['take-1']);
     await walk('studio-basics-piano-roll', PIANO_ROLL);
     await walk('studio-basics-insight', INSIGHT);
@@ -486,19 +501,42 @@ describe('the steps’ checks on other songs', () => {
     expect(unmute(armed, armed)).toBe(true);
   });
 
-  it('record on the selected track only when no armed track is above it', () => {
+  it('record on the chosen track only when no other track is armed', () => {
     const choose = step('studio-basics-record', 'choose-track').check!;
     const armed = s();
-    // Drums selected and armed, the Melody above it still armed: the take
-    // would go on the Melody.
+    // Drums chosen and armed, the Melody still armed: the take would go on
+    // the Melody.
     s().toggleRecordArm(trackAt(3).id);
     expect(choose(s(), armed)).toBe(false);
     s().toggleRecordArm(trackAt(0).id);
     expect(choose(s(), armed)).toBe(true);
-    // Choosing the armed Melody itself passes too.
+    // An armed track under the chosen one holds it up too.
+    s().setSelectedTrackId(trackAt(1).id);
+    s().toggleRecordArm(trackAt(1).id);
+    expect(choose(s(), armed)).toBe(false);
+    s().toggleRecordArm(trackAt(3).id);
+    expect(choose(s(), armed)).toBe(true);
+    // Choosing the armed Melody itself, alone, passes too.
+    s().toggleRecordArm(trackAt(1).id);
     s().toggleRecordArm(trackAt(0).id);
     s().setSelectedTrackId(trackAt(0).id);
     expect(choose(s(), armed)).toBe(true);
+  });
+
+  it('hear the live notes on the armed track only', () => {
+    const monitor = step('studio-basics-record', 'monitor').check!;
+    const armed = s();
+    // As the song opens, the Melody is armed and monitored, alone.
+    expect(monitor(armed, armed)).toBe(true);
+    s().toggleMonitoring(trackAt(1).id);
+    expect(monitor(s(), armed)).toBe(false);
+    s().toggleMonitoring(trackAt(1).id);
+    s().toggleMonitoring(trackAt(0).id);
+    expect(monitor(s(), armed)).toBe(false);
+    // Nothing armed: there is no track to hear.
+    s().toggleMonitoring(trackAt(0).id);
+    s().toggleRecordArm(trackAt(0).id);
+    expect(monitor(s(), armed)).toBe(false);
   });
 
   it('keep a take only once it has stopped, with notes in it', () => {

@@ -71,14 +71,9 @@ const EDITOR_ENTRY = join(DAW, 'DawApp.tsx');
  * are rewritten for the Stage B shell in a phase of their own. Until then
  * the controls it names that Stage B has no place for are listed here (the
  * moved ones resolve through ANCHOR_ALIASES or their new controls).
+ * Lessons 1 to 5 are rewritten and name none.
  */
-const STAGE_B_NO_STOP =
-  'Stage B: the bottom rail has no Stop button (Play pauses, Esc stops). Studio Basics rewrite phase';
-
-const KNOWN_MISSING: Readonly<Record<string, string>> = {
-  'studio-basics-record/record/transport-stop': STAGE_B_NO_STOP,
-  'studio-basics-record/stop/transport-stop': STAGE_B_NO_STOP,
-};
+const KNOWN_MISSING: Readonly<Record<string, string>> = {};
 
 const SKIPPED_DIRS = new Set(['node_modules', '__tests__', '__mocks__']);
 

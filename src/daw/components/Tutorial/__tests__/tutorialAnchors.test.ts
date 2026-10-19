@@ -9,7 +9,9 @@ import {
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import { FX_CATALOG } from '@/daw/data/libraryItems';
+import { SIMPLE_INSTRUMENTS } from '@/daw/instruments/simpleInstruments';
 import { defaultReturns } from '@/daw/store/returnsSlice';
+import { MAX_TOTAL_TRACKS } from '@/daw/store/tracksSlice';
 import { TUTORIALS } from '../tutorials';
 import { ANCHOR_ALIASES, currentAnchorId } from '../anchorRegistry';
 
@@ -212,6 +214,38 @@ const AUDIO_EFFECTS = FX_CATALOG.flatMap((item) =>
 
 const RETURN_IDS = defaultReturns().map((bus) => bus.id);
 
+/** A track's place, top track 0, as the per-track anchors number it. */
+const TRACK_INDEXES = Array.from({ length: MAX_TOTAL_TRACKS }, (_, i) =>
+  String(i),
+);
+
+/** The numbers 0 … n-1, as an id's suffix spells them. */
+const upTo = (n: number) => Array.from({ length: n }, (_, i) => String(i));
+
+/** Every `a-b` of two lists: a clip of a track, a chord of a bar. */
+const pairs = (a: string[], b: string[]) =>
+  a.flatMap((x) => b.map((y) => `${x}-${y}`));
+
+/** The track header's per-track controls (TrackHeader.tsx), by track index. */
+const TRACK_HEADER_TEMPLATES = Object.fromEntries(
+  [
+    'track-header-',
+    'track-name-',
+    'track-monitor-',
+    'track-instrument-',
+    'track-mute-',
+    'track-solo-',
+    'track-arm-',
+    'track-volume-',
+  ].map((prefix) => [
+    prefix,
+    {
+      file: 'components/TrackControls/TrackHeader.tsx',
+      suffixes: () => TRACK_INDEXES,
+    },
+  ]),
+);
+
 interface TemplateSource {
   /** The file under src/daw whose template renders these ids. */
   file: string;
@@ -221,6 +255,46 @@ interface TemplateSource {
 
 /** The template anchors the lessons can use, by the text before `${`. */
 const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
+  ...TRACK_HEADER_TEMPLATES,
+  'count-in-': {
+    file: 'shell/topbar/ClickToggle.tsx',
+    suffixes: () =>
+      constValues('shell/topbar/ClickToggle.tsx', 'COUNT_IN_CHOICES', 'value'),
+  },
+  'instrument-': {
+    file: 'components/TrackControls/InstrumentPicker.tsx',
+    suffixes: () => SIMPLE_INSTRUMENTS.map((item) => item.id),
+  },
+  'instrument-family-': {
+    file: 'components/TrackControls/InstrumentPicker.tsx',
+    suffixes: () => [...new Set(SIMPLE_INSTRUMENTS.map((item) => item.family))],
+  },
+  'timeline-lane-': {
+    file: 'components/Timeline/TimelineAnchors.tsx',
+    suffixes: () => TRACK_INDEXES,
+  },
+  'timeline-clip-': {
+    file: 'components/Timeline/TimelineAnchors.tsx',
+    // A track's clips, in time order: a lesson's song has a handful.
+    suffixes: () => pairs(TRACK_INDEXES, upTo(16)),
+  },
+  'insight-track-': {
+    file: 'components/Library/TrackNotePicks.tsx',
+    suffixes: () => TRACK_INDEXES,
+  },
+  'piano-roll-tool-': {
+    file: 'components/PianoRoll/PianoRoll.tsx',
+    suffixes: () => ['select', 'draw', 'erase'],
+  },
+  'leadsheet-melody-track-': {
+    file: 'components/LeadSheet/MelodyTrackPicker.tsx',
+    suffixes: () => TRACK_INDEXES,
+  },
+  'leadsheet-chord-': {
+    file: 'components/LeadSheet/LeadSheetMeasure.tsx',
+    // A bar's chords, by bar and place in it.
+    suffixes: () => pairs(upTo(64), upTo(4)),
+  },
   'add-track-': {
     file: 'components/Mixer/AddTrackMenu.tsx',
     // One card per template; the Synth card renders the exact id

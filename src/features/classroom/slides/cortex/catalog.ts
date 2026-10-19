@@ -80,7 +80,7 @@ export const tutorialInfo = (tutorial: {
   difficulty: string;
   steps: readonly {
     target?: string | readonly string[];
-    requires?: { channelStripTab?: string };
+    requires?: { channelStripTab?: string | null };
   }[];
 }): TutorialInfo => ({
   id: tutorial.id,

@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-// ── EffectChain as a composer of per-slot modules (milestone 1.11, c1) ─────
-// The chain wires its modules in one fixed order, with the EQ and the
-// compressor (and its crush) always in the path and every other slot on true
-// bypass, and adds no pass-through nodes of its own.
+// ── EffectChain as a composer of per-slot modules (milestone 1.11, c1–c2) ──
+// The chain wires its modules in one fixed order, every off slot on true
+// bypass, and adds no pass-through nodes of its own. Until they are first
+// used, the EQ's filters, the compressor and its crush are out of the path: a
+// fresh chain runs input → EQ makeup → gate → pad (the compressor's
+// look-ahead) → compressor makeup → … and nothing filters or shapes it.
 
 vi.mock('../../reverbIR', () => ({
   getProcessedIr: () => null,
@@ -15,6 +17,7 @@ import {
   EffectChain,
   type TrackEffectState,
 } from '../../EffectChain';
+import { generateCrushCurve } from '../effects/crushCurve';
 import { recordingContext, type RecNode } from './recordingContext';
 
 interface Internals {
@@ -26,7 +29,9 @@ interface Internals {
     preCompAnalyser: RecNode;
     compressor: RecNode;
     crushNode: RecNode;
+    pad: RecNode;
     makeupGain: RecNode;
+    latencySeconds: number;
     postCompAnalyser: RecNode;
   };
   presence: { filter: RecNode };
@@ -51,6 +56,7 @@ function build() {
     [m.compressor.preCompAnalyser, 'preTap'],
     [m.compressor.compressor, 'comp'],
     [m.compressor.crushNode, 'crush'],
+    [m.compressor.pad, 'pad'],
     [m.compressor.makeupGain, 'makeup'],
     [m.compressor.postCompAnalyser, 'postTap'],
     [m.presence.filter, 'presence'],
@@ -77,7 +83,29 @@ function build() {
     rec.edges
       .filter(([a, b]) => names.has(a) && names.has(b))
       .map(([a, b]) => `${names.get(a)}>${names.get(b)}`);
-  return { rec, chain, edges, nameEq };
+  /** Every node the input reaches, in the order they were found. */
+  const reachable = () => {
+    const seen: RecNode[] = [m.inputNode];
+    for (let i = 0; i < seen.length; i++) {
+      for (const to of rec.from(seen[i])) {
+        if (!seen.includes(to)) seen.push(to);
+      }
+    }
+    return seen;
+  };
+  return { rec, chain, m, edges, nameEq, reachable };
+}
+
+/** The defaults with the EQ, or the compressor, switched on or off. */
+function withEq(enabled: boolean): TrackEffectState {
+  const state = structuredClone(DEFAULT_EFFECTS);
+  state.eq.enabled = enabled;
+  return state;
+}
+function withComp(enabled: boolean, crush = 0): TrackEffectState {
+  const state = structuredClone(DEFAULT_EFFECTS);
+  state.compressor = { ...state.compressor, enabled, crush };
+  return state;
 }
 
 const eqPath = (n: number) => [
@@ -92,13 +120,12 @@ describe('EffectChain composes its modules', () => {
     chain.update(structuredClone(DEFAULT_EFFECTS));
     expect(edges().sort()).toEqual(
       [
-        ...eqPath(8),
+        'input>eqMakeup',
         'eqMakeup>gateTap',
         'eqMakeup>gate',
         'gate>preTap',
-        'gate>comp',
-        'comp>crush',
-        'crush>makeup',
+        'gate>pad',
+        'pad>makeup',
         'makeup>postTap',
         'makeup>deEsser',
         'deEsser>reverb',
@@ -171,12 +198,19 @@ describe('EffectChain composes its modules', () => {
 
   it('a 24 dB/oct cut adds its filter in place and touches nothing else', () => {
     const { rec, chain, edges, nameEq } = build();
-    chain.update(structuredClone(DEFAULT_EFFECTS));
+    // The EQ joins the path once it is on, and stays when it is off again.
+    chain.update(withEq(true));
+    chain.update(withEq(false));
+    expect(
+      edges()
+        .filter((e) => /^eq\d|^input>/.test(e))
+        .sort(),
+    ).toEqual(eqPath(8).sort());
     const isEqEdge = (e: string) => e.startsWith('input>') || /^eq\d/.test(e);
     const rest = edges().filter((e) => !isEqEdge(e));
     const oldLowCut = (chain as unknown as Internals).eq.filterGroups[0][0];
 
-    const steep = structuredClone(DEFAULT_EFFECTS);
+    const steep = withEq(false);
     steep.eq.bands[0] = { ...steep.eq.bands[0], slope: 24 };
     chain.update(steep);
     nameEq();
@@ -190,10 +224,101 @@ describe('EffectChain composes its modules', () => {
 
   it('adds no nodes beyond the effects themselves', () => {
     const { rec } = build();
-    // input + output, reverb 7, EQ 8 + makeup, gate 2, compressor 5, delay 5,
+    // input + output, reverb 7, EQ 8 + makeup, gate 2, compressor 6 (with
+    // the pad), delay 5,
     // presence 1, de-esser 5, saturator 5, multiband 1 + 3 bands (2+4+2
     // filters, comp, makeup, trim each) + sum, trim, wet, dry, ducker 1.
-    expect(rec.nodes).toHaveLength(2 + 7 + 9 + 2 + 5 + 5 + 1 + 5 + 5 + 22 + 1);
+    expect(rec.nodes).toHaveLength(2 + 7 + 9 + 2 + 6 + 5 + 1 + 5 + 5 + 22 + 1);
+  });
+
+  it('a fresh chain neither filters, compresses nor shapes the sound', () => {
+    const { chain, m, reachable } = build();
+    chain.update(structuredClone(DEFAULT_EFFECTS));
+    const path = reachable();
+    expect(path.slice(0, 5)).toEqual([
+      m.inputNode,
+      m.eq.output,
+      m.gate.analyser,
+      m.gate.output,
+      m.compressor.preCompAnalyser,
+    ]);
+    expect(path).toContain(m.compressor.pad);
+    expect(path).toContain(m.compressor.makeupGain);
+    expect(path).toContain(m.outputNode);
+    const kinds = path.map((n) => n.kind);
+    expect(kinds).not.toContain('biquad');
+    expect(kinds).not.toContain('compressor');
+    expect(kinds).not.toContain('waveshaper');
+    // The pad is the only delay: no other pass-through node holds sound back.
+    expect(path.filter((n) => n.kind === 'delay')).toEqual([m.compressor.pad]);
+    expect(m.compressor.pad.delayTime).toMatchObject({ value: 0.006 });
+  });
+
+  it("the compressor takes the pad's place once, and stays when off", () => {
+    const { chain, m, edges, reachable } = build();
+    chain.update(withComp(false));
+    chain.update(withComp(true));
+    expect(edges()).toContain('gate>comp');
+    expect(edges()).toContain('comp>makeup');
+    expect(edges().some((e) => e.includes('pad'))).toBe(false);
+    const onEdges = edges().sort();
+
+    chain.update(withComp(false));
+    expect(edges().sort()).toEqual(onEdges);
+    expect(reachable()).toContain(m.compressor.compressor);
+    expect(reachable()).not.toContain(m.compressor.pad);
+    const comp = m.compressor.compressor as unknown as {
+      threshold: { value: number; events: unknown[][] };
+      ratio: { value: number; events: unknown[][] };
+    };
+    const last = (p: { value: number; events: unknown[][] }) =>
+      p.events.length ? p.events[p.events.length - 1][1] : p.value;
+    expect(last(comp.threshold)).toBe(0);
+    expect(last(comp.ratio)).toBe(1);
+  });
+
+  it('the crush joins the path when first turned up, then holds a straight line', () => {
+    const { chain, m, edges } = build();
+    chain.update(withComp(true));
+    expect(edges()).not.toContain('comp>crush');
+    expect(m.compressor.crushNode.curve).toEqual(new Float32Array([-1, 1]));
+
+    chain.update(withComp(true, 0.5));
+    expect(edges()).toContain('comp>crush');
+    expect(edges()).toContain('crush>makeup');
+    expect(edges()).not.toContain('comp>makeup');
+    expect(m.compressor.crushNode.curve).toBe(generateCrushCurve(0.5));
+
+    chain.update(withComp(true, 0));
+    expect(edges()).toContain('comp>crush');
+    expect(edges()).toContain('crush>makeup');
+    expect(m.compressor.crushNode.curve).toEqual(new Float32Array([-1, 1]));
+  });
+
+  it("the EQ's filters join the path once, the first time it is on", () => {
+    const { rec: r, chain, edges } = build();
+    chain.update(withEq(false));
+    expect(edges()).toContain('input>eqMakeup');
+    expect(edges().some((e) => /eq\d/.test(e))).toBe(false);
+
+    chain.update(withEq(true));
+    const isEqEdge = (e: string) => /^eq\d|^input>/.test(e);
+    expect(edges().filter(isEqEdge).sort()).toEqual(eqPath(8).sort());
+    const connects = r.connects.length;
+    chain.update(withEq(false));
+    chain.update(withEq(true));
+    expect(edges().filter(isEqEdge).sort()).toEqual(eqPath(8).sort());
+    // Toggling again rewires nothing.
+    expect(r.connects.length).toBe(connects);
+  });
+
+  it('the compressor is as late (6 ms) whether it is on or off', () => {
+    const { chain, m } = build();
+    expect(m.compressor.latencySeconds).toBe(0.006);
+    chain.update(withComp(false));
+    expect(m.compressor.latencySeconds).toBe(0.006);
+    chain.update(withComp(true));
+    expect(m.compressor.latencySeconds).toBe(0.006);
   });
 
   it('routes automation to the slot that owns the parameter', () => {

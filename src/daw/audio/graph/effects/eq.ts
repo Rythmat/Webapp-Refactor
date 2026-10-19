@@ -1,7 +1,10 @@
 // ── EQ: 8-band parametric, each band 1–2 biquads (12 or 24 dB/oct) ─────────
-// Always in the path: an EQ that's off parks its cut filters at 1 Hz and
-// 22050 Hz and its other bands at 0 dB. The makeup gain is the module's
-// output node.
+// The filters join the path the first time the EQ is turned on (milestone
+// 1.11, audio-core-19): until then sound goes straight to the makeup gain, at
+// unity, and nothing filters it. Once in, they stay: an EQ turned off parks
+// its cut filters at 1 Hz and 22050 Hz (gliding there, so the A/B of
+// mastering Bypass never thumps) and its other bands at 0 dB. The makeup
+// gain is the module's output node.
 
 import type { AutomationTarget } from '../../automation';
 import type { EqBand, EqBandType, EqParams } from '../../EffectChain';
@@ -32,6 +35,7 @@ export class EqModule implements EffectModule<EqParams> {
   private readonly makeupGain: GainNode;
   private state: EqParams;
   private source: AudioNode | null = null;
+  private filtersInPath = false;
 
   constructor(
     private readonly ctx: AudioContext,
@@ -62,6 +66,10 @@ export class EqModule implements EffectModule<EqParams> {
   // output, so also the destination)
   wire(source: AudioNode): void {
     this.source = source;
+    if (!this.filtersInPath) {
+      source.connect(this.makeupGain);
+      return;
+    }
     const allFilters = this.filterGroups.flat();
     source.connect(allFilters[0]);
     for (let i = 0; i < allFilters.length - 1; i++) {
@@ -77,7 +85,7 @@ export class EqModule implements EffectModule<EqParams> {
 
   /** Rewires the filters after a band's slope changed its group's nodes. */
   private rewireFilters(oldHead: AudioNode): void {
-    if (!this.source) return;
+    if (!this.source || !this.filtersInPath) return;
     tryDisconnect(this.source, oldHead);
     this.filterGroups.forEach((group) => group.forEach((f) => f.disconnect()));
     this.wire(this.source);
@@ -146,6 +154,15 @@ export class EqModule implements EffectModule<EqParams> {
 
     if (needsRebuild) {
       this.rewireFilters(oldHead);
+    }
+
+    // Into the path for good, the first time the EQ is on.
+    if (eq.enabled && !this.filtersInPath) {
+      this.filtersInPath = true;
+      if (this.source) {
+        tryDisconnect(this.source, this.makeupGain);
+        this.wire(this.source);
+      }
     }
 
     // EQ makeup gain

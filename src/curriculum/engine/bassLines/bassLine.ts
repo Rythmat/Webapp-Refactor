@@ -388,26 +388,40 @@ export function chordDiatonic(
   keyScale: readonly number[],
   chord: Chord,
 ): Set<number> {
-  const set = new Set(keyScale);
-  if (chord.nc) return set;
+  if (chord.nc) return new Set(keyScale);
   const q = QUALITIES[chord.quality] ?? QUALITIES.maj;
+  return keyNotesUnder(
+    keyScale,
+    q.tones.map((t) => (chord.root + t) % 12),
+  );
+}
+
+/**
+ * The key's notes under a chord's tones (pitch classes), each tone outside
+ * the key taking the place of the key note it alters. The Walk rules read
+ * it through `chordDiatonic`; parts that follow the chords read it from a
+ * chord symbol's tones (parts/followChords.ts).
+ */
+export function keyNotesUnder(
+  keyScale: readonly number[],
+  tones: readonly number[],
+): Set<number> {
+  const set = new Set(keyScale);
   // Three chromatic notes in a row: the altered key note is still there.
   const runs = (x: Set<number>) =>
     [...x].filter((p) => x.has((p + 1) % 12) && x.has((p + 2) % 12)).length;
-  q.tones
-    .map((t) => (chord.root + t) % 12)
-    .forEach((tone) => {
-      if (set.has(tone)) return;
-      const below = new Set(set);
-      below.delete((tone + 11) % 12);
-      below.add(tone);
-      const above = new Set(set);
-      above.delete((tone + 1) % 12);
-      above.add(tone);
-      const next = runs(below) <= runs(above) ? below : above;
-      set.clear();
-      next.forEach((p) => set.add(p));
-    });
+  tones.forEach((tone) => {
+    if (set.has(tone)) return;
+    const below = new Set(set);
+    below.delete((tone + 11) % 12);
+    below.add(tone);
+    const above = new Set(set);
+    above.delete((tone + 1) % 12);
+    above.add(tone);
+    const next = runs(below) <= runs(above) ? below : above;
+    set.clear();
+    next.forEach((p) => set.add(p));
+  });
   return set;
 }
 

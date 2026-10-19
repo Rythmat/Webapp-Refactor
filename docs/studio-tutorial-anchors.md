@@ -257,4 +257,4 @@ A step, slide or saved lesson that still names one of these old ids resolves to 
 - `piano-roll-modal` → `dock-body`, `piano-roll-analyze` → `dock-analyze-notes`, `piano-roll-close` → `dock-toggle` (the dock's Notes tab)
 - `file-export-musicxml` → `file-export-notation` (the Export dialog's Notation side)
 
-Gone with no place in Stage B: `transport-stop` (no Stop button), `track-monitor-{i}` (Monitor input is `track-menu-monitor`), `clip-menu-open-piano-roll` (a click on a clip opens Notes) and `song-chip` (the bottom rail shows the key, tempo and metre). The anchor inventory test lists the Studio Basics steps that still name them as known missing until the lessons are rewritten.
+Gone with no place in Stage B: `transport-stop` (no Stop button), `track-monitor-{i}` (Monitor input is `track-menu-monitor`), `clip-menu-open-piano-roll` (a click on a clip opens Notes) and `song-chip` (the bottom rail shows the key, tempo and meter). The anchor inventory test lists the Studio Basics steps that still name them as known missing until the lessons are rewritten (lessons 1 to 5 name none: Record stops a take with Pause, and Monitor input is taught in the ⋯ menu).

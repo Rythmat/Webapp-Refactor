@@ -2,15 +2,16 @@
 /**
  * Step drivers for Studio Basics 1 to 5 (Your Tracks, Add a Track, Record,
  * The Piano Roll, Insight), in the shape lessonDrivers.mjs describes: what a
- * student does on each step's turn, through the real UI, with a fallback
- * through the store. lessonDrivers.mjs's driverFor reads these after its own
- * DRIVERS. They are written for the course's song ("Studio Basics Song":
- * Melody, Chords, Bass, Drums), which a cold start opens; the steps that
- * point at the bottom track or the selected one find it in the page.
+ * student does on each step's turn, through the real UI of the Stage B
+ * shell, with a fallback through the store. lessonDrivers.mjs's driverFor
+ * reads these after its own DRIVERS. They are written for the course's song
+ * ("Studio Basics Song": Melody, Chords, Bass, Drums), which a cold start
+ * opens; the steps that point at the bottom track or the chosen one find it
+ * in the page.
  *
  * The piano roll's drags (move a note, change its length) go through the
- * store, as the walkthrough does for every drag; the recording plays real
- * keys with Typing on.
+ * store, as the walkthrough does for every drag; a note is drawn with a
+ * real click, and the recording plays real keys with Typing on.
  */
 
 const anchor = (id) => `[data-tutorial-id="${id}"]`;
@@ -33,7 +34,7 @@ function click(id, fallback) {
   };
 }
 
-/** In the page: the place of the bottom track, or of the selected one. */
+/** In the page: the place of the bottom track, or of the chosen one. */
 const lastIndexInPage = () => window.__MA_STORE__.getState().tracks.length - 1;
 const selectedIndexInPage = () => {
   const s = window.__MA_STORE__.getState();
@@ -46,7 +47,7 @@ function toggleInPage([action, i]) {
   s[action](s.tracks[i].id);
 }
 
-/** A track switch (M, S, Arm, MON) on track `which` ('bottom' or an index). */
+/** A track switch (M, S, Arm) on track `which` ('bottom' or an index). */
 function trackSwitch(kind, action, which) {
   return {
     how: 'click',
@@ -71,27 +72,25 @@ function soundfontInPage([i, program]) {
   });
 }
 
-/** The instrument button of track `which`, a family, then an instrument. */
-function pickInstrument(which, family, id, program) {
+/**
+ * The chosen track's instrument from `opener` (the dock's instrument
+ * button, or the row's ⋯ ▸ Instrument…), then a family and an instrument.
+ */
+function pickInstrument(opener, family, id, program) {
+  const steps =
+    opener === 'dock'
+      ? ['dock-instrument']
+      : ['track-menu-button', 'track-menu-change-instrument'];
   return {
     how: 'click',
-    describe: `click track-instrument-${which}, instrument-family-${family}, instrument-${id}`,
+    describe: `click ${steps.join(', ')}, instrument-family-${family}, instrument-${id}`,
     async run(ctx) {
-      const i =
-        which === 'bottom'
-          ? await ctx.read(lastIndexInPage)
-          : which === 'selected'
-            ? await ctx.read(selectedIndexInPage)
-            : which;
-      await ctx.clickAnchor(`track-instrument-${i}`);
-      if (family) await ctx.clickAnchor(`instrument-family-${family}`);
+      for (const step of steps) await ctx.clickAnchor(step);
+      await ctx.clickAnchor(`instrument-family-${family}`);
       await ctx.clickAnchor(`instrument-${id}`);
     },
     async fallback(ctx) {
-      const i =
-        which === 'bottom'
-          ? await ctx.read(lastIndexInPage)
-          : await ctx.read(selectedIndexInPage);
+      const i = await ctx.read(selectedIndexInPage);
       await ctx.act(`track ${i} plays GM ${program}`, soundfontInPage, [
         i,
         program,
@@ -100,13 +99,56 @@ function pickInstrument(which, family, id, program) {
   };
 }
 
-/** In the page: a note edit on the open clip (or the first track's). */
-function editOpenClipInPage(kind) {
+/** Monitor input on the chosen track, from its row's ⋯ menu. */
+const MONITOR_CHOSEN = {
+  how: 'click',
+  describe: 'click track-menu-button, then track-menu-monitor',
+  async run(ctx) {
+    await ctx.clickAnchor('track-menu-button');
+    await ctx.clickAnchor('track-menu-monitor');
+  },
+  fallback: storeSet('Monitor input on the chosen track', () => {
+    const s = window.__MA_STORE__.getState();
+    const t = s.tracks.find((tr) => tr.id === s.selectedTrackId);
+    if (t && !t.monitoring) s.toggleMonitoring(t.id);
+  }),
+};
+
+/** Row `i`'s ⋯ button (only the chosen row's carries the anchor). */
+const rowMenuButton = (ctx, i) =>
+  ctx.page
+    .locator(`${anchor(`track-header-${i}`)} [data-testid="track-menu-button"]`)
+    .first();
+
+/** In the page: arm only the chosen track (others off). */
+function armOnlySelectedInPage() {
   const s = window.__MA_STORE__.getState();
-  const track =
-    s.tracks.find((t) => t.id === s.editingClipTrackId) ?? s.tracks[0];
+  for (const t of s.tracks) {
+    const want = t.id === s.selectedTrackId;
+    if (t.recordArmed !== want) s.toggleRecordArm(t.id);
+  }
+}
+
+/** In the page: Monitor input on the armed track only. */
+function monitorOnlyArmedInPage() {
+  const s = window.__MA_STORE__.getState();
+  const target = s.tracks.find((t) => t.recordArmed && t.type === 'midi');
+  for (const t of s.tracks) {
+    if (t.type !== 'midi') continue;
+    if (t.monitoring !== (t.id === target?.id)) s.toggleMonitoring(t.id);
+  }
+}
+
+/**
+ * In the page: a note edit on the clip Notes shows (the chosen track's
+ * chosen clip, else its first).
+ */
+function editShownClipInPage(kind) {
+  const s = window.__MA_STORE__.getState();
+  const track = s.tracks.find((t) => t.id === s.selectedTrackId);
   const clip =
-    track.midiClips.find((c) => c.id === s.editingClipId) ?? track.midiClips[0];
+    track.midiClips.find((c) => c.id === s.selectedClipId) ??
+    track.midiClips[0];
   const events = clip.events.map((e, i) => {
     if (i !== 0) return e;
     if (kind === 'move') return { ...e, startTick: e.startTick + 240 };
@@ -114,6 +156,15 @@ function editOpenClipInPage(kind) {
       return { ...e, durationTicks: e.durationTicks + 240 };
     return e;
   });
+  if (kind === 'add') {
+    events.push({
+      note: 40,
+      velocity: 100,
+      startTick: clip.startTick,
+      durationTicks: 480,
+      channel: 0,
+    });
+  }
   s.updateMidiClipEvents(
     track.id,
     clip.id,
@@ -125,17 +176,8 @@ function editNotes(kind, describe) {
   return {
     how: 'store',
     describe,
-    run: (ctx) => ctx.act(describe, editOpenClipInPage, kind),
+    run: (ctx) => ctx.act(describe, editShownClipInPage, kind),
   };
-}
-
-/** In the page: arm only the selected track (others off). */
-function armOnlySelectedInPage() {
-  const s = window.__MA_STORE__.getState();
-  for (const t of s.tracks) {
-    const want = t.id === s.selectedTrackId;
-    if (t.recordArmed !== want) s.toggleRecordArm(t.id);
-  }
 }
 
 /** In the page: add every note of track `i` to the note selection. */
@@ -161,13 +203,13 @@ export const TRACKS_TO_INSIGHT_DRIVERS = {
         s.setSelectedTrackId(s.tracks[1].id);
       }),
     ),
-    'change-instrument': pickInstrument('selected', 'brass', 'trumpet', 56),
+    'change-instrument': pickInstrument('dock', 'brass', 'trumpet', 56),
     mute: trackSwitch('mute', 'toggleMute', 1),
     unmute: trackSwitch('mute', 'toggleMute', 1),
     solo: trackSwitch('solo', 'toggleSolo', 1),
     unsolo: trackSwitch('solo', 'toggleSolo', 1),
     arm: trackSwitch('arm', 'toggleRecordArm', 1),
-    monitor: trackSwitch('monitor', 'toggleMonitoring', 1),
+    monitor: MONITOR_CHOSEN,
     'wrap-up': NEXT,
   },
   'studio-basics-add-a-track': {
@@ -188,13 +230,13 @@ export const TRACKS_TO_INSIGHT_DRIVERS = {
         s.setSelectedTrackId(id);
       }),
     },
-    'new-sound': pickInstrument('bottom', null, 'clarinet', 71),
+    'new-sound': pickInstrument('menu', 'woodwinds', 'clarinet', 71),
     mute: trackSwitch('mute', 'toggleMute', 'bottom'),
     unmute: trackSwitch('mute', 'toggleMute', 'bottom'),
     solo: trackSwitch('solo', 'toggleSolo', 'bottom'),
     unsolo: trackSwitch('solo', 'toggleSolo', 'bottom'),
     arm: trackSwitch('arm', 'toggleRecordArm', 'bottom'),
-    monitor: trackSwitch('monitor', 'toggleMonitoring', 'bottom'),
+    monitor: MONITOR_CHOSEN,
     'wrap-up': NEXT,
   },
   'studio-basics-record': {
@@ -212,15 +254,12 @@ export const TRACKS_TO_INSIGHT_DRIVERS = {
     ),
     'count-in': {
       how: 'click',
-      describe: 'click count-in-menu (or top-bar-more), then count-in-1',
+      describe: 'click count-in-menu, then count-in-1, then Escape',
       async run(ctx) {
-        const caret = ctx.page.locator(anchor('count-in-menu')).first();
-        if (await caret.isVisible().catch(() => false)) {
-          await ctx.clickAnchor('count-in-menu');
-        } else {
-          await ctx.clickAnchor('top-bar-more');
-        }
+        await ctx.clickAnchor('count-in-menu');
         await ctx.clickAnchor('count-in-1');
+        // The settings stay open on a choice; Esc closes them.
+        await ctx.press('Escape', 'Escape closes the Click settings');
       },
       fallback: storeSet('setCountInBars(1)', () =>
         window.__MA_STORE__.getState().setCountInBars(1),
@@ -229,8 +268,14 @@ export const TRACKS_TO_INSIGHT_DRIVERS = {
     'choose-track': {
       how: 'click',
       describe:
-        "click the selected track's track-arm-* if it is off, and every other armed track's",
+        "click track-name-1 if the drums are chosen, then the chosen track's track-arm-* if it is off, and every other armed track's",
       async run(ctx) {
+        const drums = await ctx.read(() => {
+          const s = window.__MA_STORE__.getState();
+          const t = s.tracks.find((tr) => tr.id === s.selectedTrackId);
+          return !t || t.instrument === 'drum-machine';
+        });
+        if (drums) await ctx.clickAnchor('track-name-1');
         const plan = await ctx.read(() => {
           const s = window.__MA_STORE__.getState();
           const sel = s.tracks.findIndex((t) => t.id === s.selectedTrackId);
@@ -240,30 +285,38 @@ export const TRACKS_TO_INSIGHT_DRIVERS = {
         });
         for (const i of plan) await ctx.clickAnchor(`track-arm-${i}`);
       },
-      fallback: storeSet('arm only the selected track', armOnlySelectedInPage),
+      fallback: storeSet('arm only the chosen track', armOnlySelectedInPage),
     },
     monitor: {
       how: 'click',
-      describe: "click the selected track's track-monitor-* (if it is off)",
+      describe:
+        "Monitor input from each row's ⋯ menu: on for the armed track, off for the others",
       async run(ctx) {
-        const [i, on] = await ctx.read(() => {
+        const plan = await ctx.read(() => {
           const s = window.__MA_STORE__.getState();
-          const i = s.tracks.findIndex((t) => t.id === s.selectedTrackId);
-          return [i, s.tracks[i]?.monitoring];
+          const rec = s.tracks.findIndex(
+            (t) => t.recordArmed && t.type === 'midi',
+          );
+          return s.tracks.flatMap((t, i) =>
+            t.type === 'midi' && t.monitoring !== (i === rec) ? [i] : [],
+          );
         });
-        if (!on) await ctx.clickAnchor(`track-monitor-${i}`);
+        for (const i of plan) {
+          await ctx.click(rowMenuButton(ctx, i), `track ${i}'s ⋯`);
+          await ctx.clickAnchor('track-menu-monitor');
+        }
       },
-      fallback: storeSet('MON on the selected track', () => {
-        const s = window.__MA_STORE__.getState();
-        const t = s.tracks.find((tr) => tr.id === s.selectedTrackId);
-        if (t && !t.monitoring) s.toggleMonitoring(t.id);
-      }),
+      fallback: storeSet(
+        'Monitor input on the armed track only',
+        monitorOnlyArmedInPage,
+      ),
     },
     'play-notes': {
       how: 'click',
-      describe: 'click musical-typing, then press A, S and D',
+      describe: 'click top-bar-more, top-bar-more-typing, then press A, S, D',
       async run(ctx) {
-        await ctx.clickAnchor('musical-typing');
+        await ctx.clickAnchor('top-bar-more');
+        await ctx.clickAnchor('top-bar-more-typing');
         for (const key of ['a', 's', 'd']) await ctx.press(key, key);
       },
       fallback: storeSet('hwNoteOn(60)', () =>
@@ -277,7 +330,7 @@ export const TRACKS_TO_INSIGHT_DRIVERS = {
     stop: {
       how: 'click',
       describe:
-        'once recording, press A S D F G (Typing is on), then click transport-stop',
+        'once recording, press A S D F G (Typing is on), then click transport-play (Pause)',
       advanceTimeoutMs: 20_000,
       async run(ctx) {
         await ctx.waitFor(
@@ -291,9 +344,9 @@ export const TRACKS_TO_INSIGHT_DRIVERS = {
           await ctx.page.waitForTimeout(200);
           await ctx.page.keyboard.up(key);
         }
-        await ctx.clickAnchor('transport-stop');
+        await ctx.clickAnchor('transport-play');
       },
-      fallback: storeSet('a take on the armed track, then stop()', () => {
+      fallback: storeSet('a take on the armed track, then pause()', () => {
         const s = window.__MA_STORE__.getState();
         const t = s.tracks.find((tr) => tr.recordArmed && tr.type === 'midi');
         if (t) {
@@ -311,85 +364,95 @@ export const TRACKS_TO_INSIGHT_DRIVERS = {
             ],
           });
         }
-        s.stop();
+        s.pause();
       }),
     },
     'wrap-up': {
       ...NEXT,
-      describe: "click musical-typing (Typing off), then the coach card's Next",
+      describe:
+        "click musical-typing (Typing off) if it shows, then the coach card's Next",
       async run(ctx) {
-        await ctx.clickAnchor('musical-typing');
+        const pill = ctx.page.locator(anchor('musical-typing')).first();
+        if (await pill.isVisible().catch(() => false)) {
+          await ctx.clickAnchor('musical-typing');
+        }
         await ctx.next();
       },
     },
   },
   'studio-basics-piano-roll': {
-    open: {
+    'choose-clip': {
       how: 'click',
-      describe: 'double-click the canvas at timeline-clip-1-0',
+      describe: 'click the canvas at timeline-clip-1-0',
       async run(ctx) {
         const box = await ctx.page
           .locator(anchor('timeline-clip-1-0'))
           .first()
           .boundingBox();
         if (!box) throw new Error('timeline-clip-1-0 has no box');
-        await ctx.page.mouse.dblclick(
-          box.x + box.width / 2,
+        await ctx.page.mouse.click(
+          box.x + box.width * 0.3,
           box.y + box.height / 2,
         );
       },
-      fallback: storeSet('setEditingClip(track 1, clip 0)', () => {
+      fallback: storeSet("choose track 1's first clip", () => {
         const s = window.__MA_STORE__.getState();
         const t = s.tracks[1];
-        s.setEditingClip(t.midiClips[0].id, t.id);
+        s.setSelectedTrackId(t.id);
+        s.setSelectedClip(t.midiClips[0].id, t.id);
       }),
     },
+    'open-notes': click(
+      'chanstrip-tab-piano-roll',
+      storeSet("setChannelStripTab('piano-roll')", () =>
+        window.__MA_STORE__.getState().setChannelStripTab('piano-roll'),
+      ),
+    ),
+    maximize: click(
+      'dock-maximize',
+      storeSet('setDockMaximized(true)', () =>
+        window.__MA_STORE__.getState().setDockMaximized(true),
+      ),
+    ),
     'add-note': {
       how: 'click',
-      describe: 'click piano-roll-tool-draw, then the grid near its top left',
+      describe:
+        'click piano-roll-tool-draw, then the grid near its bottom left (under the notes)',
       async run(ctx) {
         await ctx.clickAnchor('piano-roll-tool-draw');
-        const grid = await ctx.page
-          .locator(anchor('piano-roll-grid'))
-          .first()
-          .boundingBox();
-        await ctx.page.mouse.click(grid.x + 70, grid.y + 14);
+        const grid = ctx.page.locator(anchor('piano-roll-grid')).first();
+        const box = await grid.boundingBox();
+        if (!box) throw new Error('piano-roll-grid has no box');
+        // The grid scrolls its canvas: the spot is in the grid's own box.
+        await ctx.clickAt(
+          grid,
+          70 / box.width,
+          (box.height - 20) / box.height,
+          'an empty spot in the grid',
+        );
       },
-      fallback: storeSet('a note at the top of the open clip', () => {
-        const s = window.__MA_STORE__.getState();
-        const t = s.tracks.find((tr) => tr.id === s.editingClipTrackId);
-        const clip = t.midiClips.find((c) => c.id === s.editingClipId);
-        s.updateMidiClipEvents(t.id, clip.id, [
-          ...clip.events,
-          {
-            note: 96,
-            velocity: 100,
-            startTick: 0,
-            durationTicks: 480,
-            channel: 0,
-          },
-        ]);
-      }),
+      fallback: (ctx) =>
+        ctx.act('a note in the shown clip', editShownClipInPage, 'add'),
     },
-    'move-note': editNotes('move', "the open clip's first note an 8th later"),
+    'move-note': editNotes('move', "the shown clip's first note an 8th later"),
     'resize-note': editNotes(
       'resize',
-      "the open clip's first note an 8th longer",
+      "the shown clip's first note an 8th longer",
     ),
-    'delete-note': editNotes('delete', "the open clip's first note deleted"),
+    'delete-note': editNotes('delete', "the shown clip's first note deleted"),
     close: click(
-      'piano-roll-close',
-      storeSet('setEditingClip(null)', () =>
-        window.__MA_STORE__.getState().setEditingClip(null, null),
+      'dock-toggle',
+      storeSet('setChannelStripTab(null)', () =>
+        window.__MA_STORE__.getState().setChannelStripTab(null),
       ),
     ),
     'wrap-up': NEXT,
   },
   'studio-basics-insight': {
     'open-insight': click(
-      'inspector-toggle',
-      storeSet('setLibraryOpen(true)', () =>
-        window.__MA_STORE__.getState().setLibraryOpen(true),
+      'rail-insight',
+      storeSet("toggleInspectorPanel('insight')", () =>
+        window.__MA_STORE__.getState().toggleInspectorPanel('insight'),
       ),
     ),
     'pick-chords': click(

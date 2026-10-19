@@ -105,10 +105,10 @@ export const insightSteps: TutorialStep[] = [
     instruction:
       'Under **Harmony**, each chord has its number in the key. The Studio Basics song reads **1 maj → 6 min → 4 maj → 5 maj**.',
     hint: 'Under the numbers: the chord names and the key.',
-    target: 'insight-selection',
+    target: ['insight-harmony', 'insight-selection'],
     demo: [
       {
-        target: 'insight-selection',
+        target: ['insight-harmony', 'insight-selection'],
         caption: 'Your chords, by number in the key',
       },
     ],

@@ -77,6 +77,7 @@ import {
 } from '@/daw/shell/lazyParts';
 import { useStore } from '@/daw/store';
 import type { InstrumentType, TrackType } from '@/daw/store/tracksSlice';
+import { useInstrumentDialogStore } from '@/daw/shell/tracklist/instrumentDialogStore';
 import { Dock } from '../Dock';
 import { openClipEditor } from '../dockSelection';
 
@@ -113,6 +114,29 @@ function add(type: TrackType, instrument: InstrumentType, name: string) {
 /** The tab bar's labels, in order. */
 const tabLabels = () =>
   screen.queryAllByRole('tab').map((tab) => tab.textContent);
+
+describe('the instrument in the header', () => {
+  it('opens the Instrument dialog on a MIDI track', () => {
+    useInstrumentDialogStore.setState({ trackId: null });
+    const keys = add('midi', 'piano-sampler', 'Keys');
+    s().setSelectedTrackId(keys);
+    render(<Dock />);
+    const button = screen.getByTestId('dock-instrument-button');
+    expect(button).toHaveAttribute('data-tutorial-id', 'dock-instrument');
+    expect(button).toHaveTextContent('Grand Piano');
+    expect(button).toHaveAccessibleName(/Grand Piano/);
+    fireEvent.click(button);
+    expect(useInstrumentDialogStore.getState().trackId).toBe(keys);
+  });
+
+  it('names an audio track’s kind, with nothing to pick', () => {
+    const vox = add('audio', 'vocal-fx', 'Vox');
+    s().setSelectedTrackId(vox);
+    render(<Dock />);
+    expect(screen.queryByTestId('dock-instrument-button')).toBeNull();
+    expect(screen.getByTestId('dock-header')).toHaveTextContent('Voice');
+  });
+});
 
 describe('the tabs by track', () => {
   it('melodic: Instrument · Prism · Notes · Effects', () => {

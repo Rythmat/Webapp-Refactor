@@ -35,10 +35,13 @@ import { Tab, TabList, TabPanel, Tabs } from '@/daw/ui/Tabs';
 //
 // One way to choose what a track plays: the instrument families down the
 // left (arrow keys move between them), the family's instruments on the
-// right, the track's own marked with a tick. The track header opens it on
-// its instrument button and on its right-click menu, and the Add Track
-// menu's Instruments card opens it to add a track. It offers the plain
-// instruments of simpleInstruments.ts only: no Oracle Synth, no audio.
+// right, the track's own marked with a tick. It offers the plain instruments
+// of simpleInstruments.ts only: no Oracle Synth, no audio (the owner's "one
+// simpler instrument picker"). Three ways reach it: a track's ⋯ menu
+// (Instrument…) and the dock's instrument button open it in
+// InstrumentDialog to change that track's instrument, and the Add-track
+// picker's Instruments category shows it as its second step, to add a
+// track on the instrument chosen.
 
 export const FAMILY_ICONS: Readonly<Record<InstrumentFamilyId, LucideIcon>> = {
   piano: Piano,
@@ -61,8 +64,13 @@ export interface InstrumentPickerProps {
   /** The catalog id of the instrument playing now, ticked. */
   currentId?: string;
   onPick(item: SimpleInstrument): void;
-  /** The picker's heading: 'Instrument', 'Choose an Instrument'. */
-  title?: string;
+  /**
+   * The picker's own heading ('Instrument'), or null for none when the
+   * place it is shown in has one: then `labelledBy` names that heading.
+   */
+  title?: string | null;
+  /** The id of the heading that names the picker, with `title` null. */
+  labelledBy?: string;
   /** Where the heading's description goes, under it. */
   description?: string;
   className?: string;
@@ -134,6 +142,7 @@ export function InstrumentPicker({
   currentId,
   onPick,
   title = 'Instrument',
+  labelledBy,
   description,
   className,
 }: InstrumentPickerProps) {
@@ -148,19 +157,21 @@ export function InstrumentPicker({
     <div
       data-tutorial-id="instrument-picker"
       role="group"
-      aria-labelledby={headingId}
+      aria-labelledby={title === null ? labelledBy : headingId}
       className={cn('flex flex-col gap-2', className)}
     >
-      <div className="px-1">
-        <div id={headingId} className={cn(TYPE_CLASS.title, 'text-daw-text')}>
-          {title}
-        </div>
-        {description ? (
-          <div className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>
-            {description}
+      {title === null ? null : (
+        <div className="px-1">
+          <div id={headingId} className={cn(TYPE_CLASS.title, 'text-daw-text')}>
+            {title}
           </div>
-        ) : null}
-      </div>
+          {description ? (
+            <div className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>
+              {description}
+            </div>
+          ) : null}
+        </div>
+      )}
       {families.length === 1 ? (
         <InstrumentList
           family={families[0]}

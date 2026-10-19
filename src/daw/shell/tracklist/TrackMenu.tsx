@@ -1,6 +1,7 @@
 import {
   Copy,
   Download,
+  Music2,
   Palette,
   Tag,
   Trash2,
@@ -29,7 +30,9 @@ import {
 import { openExport } from '@/daw/shell/export/exportDialogStore';
 import { FOCUS_RING, TYPE_CLASS } from '@/daw/ui/styles';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
+import { hasInstrumentPicker } from '@/daw/instruments/simpleInstruments';
 import { duplicateTrack } from './duplicateTrack';
+import { openInstrumentDialog } from './instrumentDialogStore';
 import { focusTrackRow } from './useTrackListKeys';
 import { renameTrack } from './useTrackRename';
 
@@ -37,10 +40,11 @@ import { renameTrack } from './useTrackRename';
 //
 // What the old header packed into its 200×80 px, one item each: the name
 // (a field at the top to type over, Mozart AI's pattern, 2.15), colour, the
-// role chord analysis reads it as, Duplicate (2.15), monitoring, a test
-// note, the automation lane, Export track ▸ (2.15), releasing it to
-// collaborators (in a session), and delete, which can be undone from its
-// toast. The ⋯ button and a right-click on the row open it (TrackRow). On a
+// role chord analysis reads it as, the instrument (a MIDI track's: the
+// simple instrument picker, in InstrumentDialog), Duplicate (2.15),
+// monitoring, a test note, the automation lane, Export track ▸
+// (2.15), releasing it to collaborators (in a session), and delete, which
+// can be undone from its toast. The ⋯ button and a right-click on the row open it (TrackRow). On a
 // track a collaborator holds, everything that would change it is off;
 // Duplicate and Export, which leave it as it is, stay on.
 
@@ -298,9 +302,21 @@ export function TrackMenuContent({
           </MenuRadioGroup>
         </MenuSubContent>
       </MenuSub>
+      {hasInstrumentPicker(track) ? (
+        <MenuItem
+          icon={<Music2 />}
+          disabled={locked}
+          data-testid="track-menu-instrument"
+          data-tutorial-id="track-menu-change-instrument"
+          onSelect={() => openInstrumentDialog(track.id)}
+        >
+          Instrument…
+        </MenuItem>
+      ) : null}
       <MenuItem
         icon={<Copy />}
         data-testid="track-menu-duplicate"
+        data-tutorial-id="track-menu-duplicate"
         shortcut={DUPLICATE_KEYS.label}
         onSelect={() => duplicateFromMenu(track.id)}
       >
@@ -310,6 +326,7 @@ export function TrackMenuContent({
       <MenuCheckboxItem
         checked={track.monitoring}
         disabled={locked}
+        data-tutorial-id="track-menu-monitor"
         onCheckedChange={() => s().toggleMonitoring(track.id)}
       >
         Monitor input
@@ -400,6 +417,7 @@ export function TrackMenuContent({
         icon={<Trash2 />}
         danger
         disabled={locked}
+        data-tutorial-id="track-menu-delete"
         onSelect={() => deleteTrack(track)}
       >
         Delete track

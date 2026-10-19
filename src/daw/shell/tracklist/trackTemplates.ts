@@ -16,6 +16,11 @@ import type { ChannelStripTabId } from '@/daw/store/uiSlice';
 // Synth keeps 'synth'), and only a category with a second step has an anchor
 // of its own ('cat-keys', 'cat-drums', 'cat-amp'). A one-choice category's
 // tile carries its choice's anchor.
+//
+// Instruments is the beginner's plain way in: its second step is the simple
+// instrument picker (InstrumentPicker: families, then the instrument), as
+// the old Add Track menu's Instruments card was, so a new track starts on
+// the instrument chosen. Its tile keeps the 'soundfont' anchor.
 
 export type TrackChoiceId =
   | 'piano'
@@ -193,6 +198,11 @@ export interface TrackCategory {
   about: string;
   /** What it offers, in order: one adds at once, more open a second step. */
   choices: readonly TrackChoiceId[];
+  /**
+   * Its second step is the simple instrument picker instead of its choices
+   * (Instruments). Its choice is still what an empty project's tile adds.
+   */
+  picker?: true;
 }
 
 export const TRACK_CATEGORIES: readonly TrackCategory[] = [
@@ -227,6 +237,7 @@ export const TRACK_CATEGORIES: readonly TrackCategory[] = [
     label: 'Instruments',
     about: 'Strings, brass, guitars and more',
     choices: ['instruments'],
+    picker: true,
   },
   {
     id: 'sampler',

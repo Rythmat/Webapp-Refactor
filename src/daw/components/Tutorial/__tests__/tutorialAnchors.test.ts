@@ -262,11 +262,11 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
       constValues('shell/topbar/ClickToggle.tsx', 'COUNT_IN_CHOICES', 'value'),
   },
   'instrument-': {
-    file: 'components/TrackControls/InstrumentPicker.tsx',
+    file: 'shell/tracklist/InstrumentPicker.tsx',
     suffixes: () => SIMPLE_INSTRUMENTS.map((item) => item.id),
   },
   'instrument-family-': {
-    file: 'components/TrackControls/InstrumentPicker.tsx',
+    file: 'shell/tracklist/InstrumentPicker.tsx',
     suffixes: () => [...new Set(SIMPLE_INSTRUMENTS.map((item) => item.family))],
   },
   'timeline-lane-': {

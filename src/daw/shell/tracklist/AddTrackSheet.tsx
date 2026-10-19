@@ -16,8 +16,20 @@ import {
   SlidersHorizontal,
   Speaker,
 } from 'lucide-react';
-import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+  type Ref,
+} from 'react';
 import { cn } from '@/components/utilities';
+import { addInstrumentTrack } from '@/daw/commands/trackCommands';
+import {
+  pickerFamilies,
+  type SimpleInstrument,
+} from '@/daw/instruments/simpleInstruments';
 import { pickAndImportMidi } from '@/daw/midi/importMidiToTracks';
 import { useStore } from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
@@ -25,6 +37,7 @@ import { Chip } from '@/daw/ui/Chip';
 import { DawDialog } from '@/daw/ui/DawDialog';
 import { FOCUS_RING, TRANSITION, TYPE_CLASS } from '@/daw/ui/styles';
 import { addTrackFrom, useAddTrackSheet } from './addTrack';
+import { InstrumentPicker } from './InstrumentPicker';
 import {
   categoryOf,
   choiceOf,
@@ -42,7 +55,9 @@ import {
 // nothing runs off a Chromebook's screen (timeline-27, fx-mixer-24). A
 // category with one engine adds its track at once and closes; Keys, Drums
 // and the amp open a second step with their choices (Drums: Drum grid or
-// Grooves), and 'All tracks' goes back. Under the categories, a chip row
+// Grooves), Instruments the simple instrument picker (its families, then
+// the instrument: the beginner's plain way to a track on, say, a trumpet),
+// and 'All tracks' goes back. Under the categories, a chip row
 // holds Import MIDI file… (a Synth track per track of the file; it never
 // makes an empty track) and Browse the library (the Library panel, ready to
 // search).
@@ -175,13 +190,21 @@ export function AddTrackSheet() {
 
   const first = useRef<HTMLButtonElement>(null);
   const body = useRef<HTMLDivElement>(null);
-  // The tile (its data-pick) that takes focus once a step has rendered.
+  const headingId = useId();
+  // The tile (its data-pick) that takes focus once a step has rendered, or
+  // 'picker' for the instrument picker's open family.
   const focusNext = useRef<string | null>(null);
   useEffect(() => {
     const pick = focusNext.current;
     focusNext.current = null;
     if (!pick) return;
-    body.current?.querySelector<HTMLElement>(`[data-pick="${pick}"]`)?.focus();
+    body.current
+      ?.querySelector<HTMLElement>(
+        pick === 'picker'
+          ? '[role="tab"][data-state="active"]'
+          : `[data-pick="${pick}"]`,
+      )
+      ?.focus();
   }, [step]);
 
   const add = (choice: TrackChoice) => {
@@ -189,7 +212,22 @@ export function AddTrackSheet() {
     if (addTrackFrom(choice)) setOpen(false);
   };
 
+  // The picker's instrument, on a new track named after it, selected, with
+  // the dock on its Instrument tab (not during a lesson, as addTrackFrom).
+  const addInstrument = (item: SimpleInstrument) => {
+    // At the track limit addTrack says so, and the picker stays open.
+    if (!addInstrumentTrack(item.id)) return;
+    const s = useStore.getState();
+    if (s.activeTutorialId === null) s.setChannelStripTab('controls');
+    setOpen(false);
+  };
+
   const openCategory = (category: TrackCategory) => {
+    if (category.picker) {
+      focusNext.current = 'picker';
+      setStep(category.id);
+      return;
+    }
     const only = onlyChoice(category);
     if (only) {
       add(only);
@@ -244,6 +282,7 @@ export function AddTrackSheet() {
                 size="sm"
                 className="-ml-2.5"
                 data-testid="add-track-back"
+                data-tutorial-id="add-track-back"
                 aria-label="Back to all tracks"
                 onClick={back}
               >
@@ -251,7 +290,10 @@ export function AddTrackSheet() {
                 All tracks
               </Button>
               <div>
-                <h3 className={cn(TYPE_CLASS.title, 'text-daw-text')}>
+                <h3
+                  id={headingId}
+                  className={cn(TYPE_CLASS.title, 'text-daw-text')}
+                >
                   {category.label}
                 </h3>
                 <p className={cn(TYPE_CLASS.label, 'text-daw-text-3')}>
@@ -259,22 +301,33 @@ export function AddTrackSheet() {
                 </p>
               </div>
             </div>
-            <div className={GRID}>
-              {category.choices.map((id) => {
-                const choice = choiceOf(id);
-                return (
-                  <Tile
-                    key={id}
-                    anchor={choice.anchor}
-                    pick={`choice:${id}`}
-                    icon={CHOICE_ICON[id]}
-                    label={choice.label}
-                    about={choice.about}
-                    onClick={() => add(choice)}
-                  />
-                );
-              })}
-            </div>
+            {category.picker ? (
+              <div data-tutorial-id="add-track-instrument-picker">
+                <InstrumentPicker
+                  title={null}
+                  labelledBy={headingId}
+                  families={pickerFamilies(null)}
+                  onPick={addInstrument}
+                />
+              </div>
+            ) : (
+              <div className={GRID}>
+                {category.choices.map((id) => {
+                  const choice = choiceOf(id);
+                  return (
+                    <Tile
+                      key={id}
+                      anchor={choice.anchor}
+                      pick={`choice:${id}`}
+                      icon={CHOICE_ICON[id]}
+                      label={choice.label}
+                      about={choice.about}
+                      onClick={() => add(choice)}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </>
         ) : (
           <>

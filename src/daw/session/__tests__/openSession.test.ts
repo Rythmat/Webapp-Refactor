@@ -439,8 +439,8 @@ describe('a link that replaces the session', () => {
     );
     expect(outcome.status).toBe('ready');
     expect(s().activeTutorialId).toBe(lesson);
-    expect(trackNames()).toEqual(['Rhodes', 'Bass', 'Drums']);
-    expect(s().projectName).toBe('Sunset Keys');
+    expect(trackNames()).toEqual(['Melody', 'Chords', 'Bass', 'Drums']);
+    expect(s().projectName).toBe('Studio Basics Song');
     // The song and the lesson went in together: nothing to undo or save.
     expect(canUndo()).toBe(false);
     expect(isDocumentDirty()).toBe(false);

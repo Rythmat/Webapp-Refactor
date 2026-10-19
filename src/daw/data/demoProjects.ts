@@ -323,7 +323,9 @@ export const DEMO_PROJECTS: DemoProject[] = [
               // G: B A G–
               { note: 71, start: 3 * BAR, dur: 440 },
               { note: 69, start: 3 * BAR + 480, dur: 440 },
-              { note: 67, start: 3 * BAR + 960, dur: 900 },
+              // Rings to the bar line, so every clip is exactly 4 bars and a
+              // Duplicate lands on bar 5 (Loop and Repeat).
+              { note: 67, start: 3 * BAR + 960, dur: 960 },
             ]),
           ],
         }),

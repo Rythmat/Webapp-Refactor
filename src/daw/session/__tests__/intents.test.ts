@@ -257,10 +257,14 @@ describe('prepare changes nothing; apply writes the session', () => {
       reopenable: true,
     });
     apply(prepared);
-    // The course's own song is still to be written: Sunset Keys stands in.
-    expect(s().projectName).toBe('Sunset Keys');
+    expect(s().projectName).toBe('Studio Basics Song');
     expect(s().projectId).toBeNull();
-    expect(s().tracks.map((t) => t.name)).toEqual(['Rhodes', 'Bass', 'Drums']);
+    expect(s().tracks.map((t) => t.name)).toEqual([
+      'Melody',
+      'Chords',
+      'Bass',
+      'Drums',
+    ]);
     expect(s().activeTutorialId).toBe(lesson);
     expect(s().tutorialStepIndex).toBe(0);
   });

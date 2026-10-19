@@ -11,6 +11,7 @@ import {
   type WavBitDepth,
 } from '@/daw/audio/exportAudio';
 import { projectEndTick } from '@/daw/audio/renderProject';
+import { BUNDLED_MODELS } from '@/daw/audio/nam/NamModelStore';
 import { isTrackAudible } from '@/daw/audio/trackAudibility';
 import {
   exportProjectMidi,
@@ -48,7 +49,9 @@ import {
 // the full score, or one track's part).
 //
 // What the offline render still leaves out stays in view: SoundFont tracks
-// are silent and amp and vocal tracks are dry. While it exports, a bar shows
+// are silent, and an amp whose model this build doesn't have (one saved by a
+// newer client) exports without it. Guitar, bass and vocal tracks export
+// through their pedals (milestone 1.11). While it exports, a bar shows
 // how far it is ("Exporting… 42%"; indeterminate where the browser can't
 // say) and Cancel ends any export at once, stems included, with no file
 // (milestone 1.11). Closing the dialog while it exports cancels it too.
@@ -62,7 +65,18 @@ const BIT_DEPTHS: WavBitDepth[] = [16, 24];
 
 /** Instruments the offline render can't play yet (renderProject's notes). */
 const SILENT_OFFLINE = new Set(['soundfont']);
-const DRY_OFFLINE = new Set(['guitar-fx', 'bass-fx', 'vocal-fx']);
+const AMP_TRACKS = new Set(['guitar-fx', 'bass-fx']);
+
+/** Whether the amp a guitar or bass track plays through names a model this
+ *  build doesn't bundle: the export can't load it (pedalChainBuilder), so
+ *  that amp passes the signal through. */
+function ampModelLeftOut(t: Track): boolean {
+  if (!AMP_TRACKS.has(t.instrument) || t.audioClips.length === 0) return false;
+  // The first amp is the one that gets a model, live and in an export.
+  const amp = t.guitarChain?.find((b) => b.type === 'nam-amp');
+  if (!amp?.enabled || !amp.namModelId) return false;
+  return !BUNDLED_MODELS.some((m) => m.id === amp.namModelId);
+}
 
 /** A typed bar number, or null when it isn't a whole number ≥ 1. */
 function parseBar(text: string): number | null {
@@ -271,18 +285,16 @@ export function ExportDialog({
     const silent = tracks.filter(
       (t) => audible(t) && SILENT_OFFLINE.has(t.instrument),
     ).length;
-    const dryAmp = tracks.filter(
-      (t) =>
-        audible(t) && DRY_OFFLINE.has(t.instrument) && t.audioClips.length > 0,
-    ).length;
+    const ampLeftOut = tracks.filter((t) => audible(t) && ampModelLeftOut(t));
     if (silent > 0) {
       warnings.push(
         `${silent === 1 ? 'A General MIDI (SoundFont) track is' : `${silent} General MIDI (SoundFont) tracks are`} silent in an export for now.`,
       );
     }
-    if (dryAmp > 0) {
+    if (ampLeftOut.length > 0) {
+      const names = ampLeftOut.map((t) => t.name).join(', ');
       warnings.push(
-        `${dryAmp === 1 ? 'A guitar, bass or vocal track exports' : `${dryAmp} guitar, bass or vocal tracks export`} without its amp and pedals for now.`,
+        `${names}: the amp model isn’t one this Studio has, so ${ampLeftOut.length === 1 ? 'its amp is' : 'their amps are'} left out of the export (the other pedals still play).`,
       );
     }
     if (whatNow === 'song' && tracks.length > 0 && !songPlays) {

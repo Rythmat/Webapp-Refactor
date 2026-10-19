@@ -20,6 +20,12 @@
 //   • Parameter automation lanes (volume/pan/sends + rideable FX params) —
 //     scheduled as absolute-time AudioParam ramps (applyOfflineAutomation).
 //   • Master volume automation (Track automation's grammar, on the master gain).
+//   • Guitar, bass and vocal tracks (milestone 1.11): their recorded clips
+//     play through the pedal chain the store holds (Track.guitarChain /
+//     vocalChain), built by pedalChainBuilder with its NAM model and
+//     worklets loaded before the transport starts, as playback routes them
+//     through the adapter's chain (pedalInputOf). It stays in a dry render:
+//     like an Oracle synth's effects, the amp is the instrument's own sound.
 // Deliberately NOT covered (documented gaps — see notes):
 //   • Gate and ducker (milestone 1.11): an AudioWorklet, loaded on the
 //     offline context too, so the bounce gates and ducks as playback does.
@@ -31,11 +37,10 @@
 //     output into an offline graph. A correct offline bounce needs a per-render
 //     synth instance — a bigger refactor. Until then the export dialog WARNS when
 //     the project has soundfont tracks so the silence isn't a surprise.
-//   • Guitar/Bass/Vocal-FX tracks: their recorded DI clips bounce DRY. Live
-//     playback routes these through the adapter's amp/pedal/NAM chain
-//     (getNativePedalInputNode); replicating that offline needs the chain params
-//     applied to an offline adapter plus remote NAM model loading — deferred, so
-//     for now these tracks export the raw recorded signal, not the amped tone.
+//   • A guitar or bass track's amp model that can't be loaded (one this build
+//     doesn't bundle, or a failed fetch): that amp passes its clips through
+//     untouched and the rest of the pedals still play. The export dialog
+//     warns about an unknown model; a failed fetch is only logged.
 //   • Automation of gate/ducker params — those are JS poll-loops absent from the
 //     offline render (only the direct-AudioParam automatable set is covered).
 //
@@ -87,6 +92,10 @@ import { createInstrument, applyDrumPads } from '@/daw/hooks/usePlaybackEngine';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
 import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
+import {
+  buildPedalChain,
+  type StoredPedalBlock,
+} from './graph/pedalChainBuilder';
 import {
   getTrackSynthState,
   applySynthStateToEngine,
@@ -275,8 +284,10 @@ export async function renderProject(
   const secPerTick = 60 / bpm / PPQ;
   const duration = Math.max(0.5, (endTick - startTick) * secPerTick + tail);
 
-  // Everything the render builds is torn down afterwards (its gate and
-  // ducker worklet nodes included), so an export leaves nothing running.
+  // EffectChains/TrackEngines each start a gate + duck window.setInterval on
+  // construction. Nothing stops those wall-clock loops when the offline render
+  // ends, so collect every disposable and tear them all down afterwards — else
+  // each export leaks N timers polling a dead graph forever.
   const disposables: Array<{ dispose(): void }> = [];
   // Tone.Offline points Tone's global context (and with it the transport) at
   // the offline one, and only points it back when the callback succeeds. Keep
@@ -428,8 +439,29 @@ export async function renderProject(
             inits.push(ready);
           }
 
+          // A guitar, bass or vocal track's clips play through its pedals,
+          // as live playback routes them (pedalInputOf); the chain's models
+          // and worklets are waited for with the instruments.
+          const pedals = storedPedalChain(track);
+          let pedalInput: AudioNode | undefined;
+          if (pedals) {
+            const chain = buildPedalChain(ctx, pedals, { bpm });
+            disposables.push(chain);
+            chain.output.connect(te.getNativeInputNode());
+            // The chain's native nodes are invisible to the wrapper: a silent
+            // source through it keeps the track's input running (the
+            // adapter's activator does this live).
+            const hold = ctx.createConstantSource();
+            hold.offset.value = 0;
+            hold.connect(te.getInputNode());
+            hold.start();
+            disposables.push({ dispose: () => hold.disconnect() });
+            pedalInput = chain.input;
+            inits.push(chain.ready.then(() => {}));
+          }
+
           // Audio clips render regardless of instrument readiness.
-          scheduleTrackClips(track, te, bpm, startTick);
+          scheduleTrackClips(track, te, bpm, startTick, pedalInput);
         }
 
         // A ducker listens to its key track here as it does live; a key track
@@ -722,6 +754,7 @@ function scheduleTrackClips(
   te: TrackEngine,
   bpm: number,
   startTick: number,
+  pedalInput?: AudioNode,
 ): void {
   const scheduler = new AudioClipScheduler();
   for (const clip of track.audioClips) {
@@ -734,8 +767,23 @@ function scheduleTrackClips(
       trackEngine: te,
       fromTick: 0,
       bpm,
+      pedalInput,
     });
   }
+}
+
+/** The pedal chain a guitar, bass or vocal track holds, or null (none, or
+ *  an empty one: the clips then play straight into the track, as live). */
+function storedPedalChain(
+  track: ReturnType<typeof useStore.getState>['tracks'][number],
+): StoredPedalBlock[] | null {
+  const chain =
+    track.instrument === 'guitar-fx' || track.instrument === 'bass-fx'
+      ? track.guitarChain
+      : track.instrument === 'vocal-fx'
+        ? track.vocalChain
+        : undefined;
+  return chain && chain.length > 0 ? chain : null;
 }
 
 /** Apply a Chops sampler track's state to its offline engine (mirrors the live

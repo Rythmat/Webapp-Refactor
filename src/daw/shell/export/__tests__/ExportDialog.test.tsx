@@ -777,6 +777,54 @@ describe('warnings', () => {
     open({ trackId: keys });
     expect(screen.queryByText(/General MIDI \(SoundFont\)/)).toBeNull();
   });
+
+  /** A guitar (or vocal) track with one take and its stored pedals. */
+  function addAmpTrack(
+    name: string,
+    instrument: 'guitar-fx' | 'vocal-fx',
+    namModelId: string | null,
+  ): string {
+    const id = s().addTrack('audio', instrument, name);
+    s().addAudioClip(id, {
+      id: `${id}-take`,
+      startTick: 0,
+      duration: 1920,
+      fadeInTicks: 0,
+      fadeOutTicks: 0,
+    });
+    if (instrument === 'guitar-fx') {
+      s().setGuitarChain(id, [
+        { type: 'overdrive', enabled: true, params: {} },
+        { type: 'nam-amp', enabled: true, params: {}, namModelId },
+      ]);
+    } else {
+      s().setVocalChain(id, [
+        { type: 'pitch-correction', enabled: true, params: {} },
+      ]);
+    }
+    return id;
+  }
+
+  it('no longer says guitar and vocal tracks export dry (1.11)', () => {
+    addAmpTrack('Lead Gtr', 'guitar-fx', 'nam-crunch-plexi');
+    addAmpTrack('Vox', 'vocal-fx', null);
+    render(<ExportDialogHost />);
+    open();
+    expect(screen.queryByText(/amp and pedals/)).toBeNull();
+    expect(screen.queryByText(/amp model/)).toBeNull();
+  });
+
+  it('names a track whose amp model this build does not have', () => {
+    addAmpTrack('Lead Gtr', 'guitar-fx', 'nam-from-a-newer-client');
+    addAmpTrack('Rhythm Gtr', 'guitar-fx', 'nam-crunch-plexi');
+    render(<ExportDialogHost />);
+    open();
+    expect(
+      screen.getByText(
+        'Lead Gtr: the amp model isn’t one this Studio has, so its amp is left out of the export (the other pedals still play).',
+      ),
+    ).toBeInTheDocument();
+  });
 });
 
 describe('focus in the Export dialog', () => {

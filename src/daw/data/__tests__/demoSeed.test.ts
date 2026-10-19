@@ -230,12 +230,16 @@ describe('a lesson’s demo song', () => {
     );
   });
 
-  it('falls back to an existing demo until it does, without a word', async () => {
-    expect(getDemoProject('demo-studio-basics')).toBeUndefined();
-    expect(lessonSeedDemoId(LESSON)).toBe(FALLBACK_LESSON_SEED);
+  it('falls back to an existing demo while it is missing, without a word', () => {
+    expect(lessonSeedDemoId(LESSON, () => false)).toBe(FALLBACK_LESSON_SEED);
     expect(getDemoProject(FALLBACK_LESSON_SEED)).toBeDefined();
+  });
+
+  it('opens Studio Basics on its own song', async () => {
+    expect(getDemoProject('demo-studio-basics')).toBeDefined();
+    expect(lessonSeedDemoId(LESSON)).toBe('demo-studio-basics');
     const prepared = await prepareLessonSeed(LESSON);
-    expect(prepared?.demo.id).toBe(FALLBACK_LESSON_SEED);
+    expect(prepared?.demo.id).toBe('demo-studio-basics');
   });
 
   it('is none for a lesson outside a course, or an unknown one', async () => {

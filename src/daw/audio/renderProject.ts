@@ -377,6 +377,9 @@ export async function renderProject(
                   if (engine) {
                     applySynthStateToEngine(engine, patch, { projectBpm: bpm });
                   }
+                  // The LFOs keep the song's bars: the render's first moment
+                  // is the song at startTick (milestone 1.11).
+                  instrument.alignToTransport(0, startTick / PPQ);
                 } else if (instrument instanceof DrumMachineEngine) {
                   applyDrumPads(instrument, track);
                 } else if (instrument instanceof ChopsSampler) {

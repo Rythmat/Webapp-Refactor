@@ -78,6 +78,17 @@ export function transportStartedAt(): number | null {
   return startedAt;
 }
 
+/** Put every synth's tempo-locked LFOs where song tick `tick` falls, from
+ *  `time` (play, a loop lap, a seek). */
+function alignSynths(tick: number, time: number): void {
+  for (const [, audio] of trackEngineRegistry) {
+    const instrument = audio.instrument as {
+      alignToTransport?: (time: number, beat: number) => void;
+    } | null;
+    instrument?.alignToTransport?.(time, tick / 480);
+  }
+}
+
 // ── The editor's scheduler, for seeks ─────────────────────────────────────
 
 let activePlayback: PlaybackScheduler | null = null;
@@ -179,6 +190,7 @@ export class PlaybackScheduler {
       );
     }
     scheduleMasterAutomation(this.s.automation, fromTick, state.bpm, t0);
+    alignSynths(fromTick, t0);
     this.unsubscribe = useStore.subscribe((next, prev) => {
       if (next.tracks !== prev.tracks) this.syncEdits(next.tracks);
     });
@@ -229,6 +241,7 @@ export class PlaybackScheduler {
       );
     }
     scheduleMasterAutomation(this.s.automation, loopStart, state.bpm, time);
+    alignSynths(loopStart, time);
   }
 
   /**
@@ -257,6 +270,7 @@ export class PlaybackScheduler {
       );
     }
     scheduleMasterAutomation(this.s.automation, tick, state.bpm, time);
+    alignSynths(tick, time);
   }
 
   /** Clear every booking. With `time`, sounding clips fade out from then. */

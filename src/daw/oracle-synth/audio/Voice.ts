@@ -12,9 +12,17 @@ import { Oscillator } from './Oscillator';
 import { SubOscillator } from './SubOscillator';
 import { NoiseGenerator } from './NoiseGenerator';
 import { Filter } from './Filter';
-import { Envelope } from './Envelope';
+import {
+  Envelope,
+  EnvelopeSegment,
+  envelopeLevelAt,
+  fadeOutSegment,
+  holdSegment,
+} from './Envelope';
 import { WavetableBank } from './WavetableBank';
 import { ANTI_CLICK_TIME, smoothParam } from './constants';
+
+const SOURCE_IDS: SourceId[] = ['osc1', 'osc2', 'sub', 'noise'];
 
 const DEFAULT_ROUTING: RoutingConfig = {
   filterRouting: {
@@ -38,15 +46,30 @@ const DEFAULT_ROUTING: RoutingConfig = {
  * bypassBus ──────────→ postFilterBus
  *
  * postFilterBus → OutputGain → Panner → destination
+ *
+ * Timing: every note event takes a context time. Sources start at the note's
+ * time and stop at the end of the release (or a steal's short fade); the
+ * voice's state is computed from those times (stateAt), so a voice is
+ * 'releasing' only from its scheduled release and 'free' once its sources
+ * have stopped, which also works in an offline render, where every event is
+ * scheduled before any audio runs.
  */
 export type VoiceModSourceKind = 'velocity' | 'keytrack' | 'env1' | 'env2';
 
 export class Voice {
   readonly id: number;
-  state: VoiceState = 'free';
   currentNote: number = -1;
   currentVelocity: number = 0;
-  assignedAt: number = 0;
+  /** Context time of the current note's start (or its last retrigger). */
+  noteOnAt: number = -Infinity;
+  /** Context time the release (or a steal's fade) starts; Infinity while held. */
+  releaseAt: number = Infinity;
+  /** Context time the sources stop; the voice is free from then on. */
+  endAt: number = -Infinity;
+  /** Bumped on every fresh note, so a stale onended is ignored. */
+  private generation: number = 0;
+  /** What is scheduled on each envelope-driven param, for exact levels. */
+  private segments = new Map<AudioParam, EnvelopeSegment>();
 
   /** Invoked when the voice returns to 'free' — used by the modulation
    *  matrix to tear down this voice's connections. */
@@ -97,9 +120,6 @@ export class Voice {
 
   // Routing config
   private routingConfig: RoutingConfig = DEFAULT_ROUTING;
-
-  private releaseTimer: ReturnType<typeof setTimeout> | null = null;
-  private forceStopTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     ctx: AudioContext,
@@ -250,168 +270,263 @@ export class Voice {
     return null; // no envelope assigned
   }
 
+  /** The voice's state at context time `t` (now when omitted). */
+  stateAt(t?: number): VoiceState {
+    const at = t ?? this.ctx.currentTime;
+    // Reserved for a note that starts later than `at`.
+    if (this.noteOnAt > at && this.endAt > at) return 'active';
+    if (at >= this.endAt) return 'free';
+    if (at >= this.releaseAt) return 'releasing';
+    return 'active';
+  }
+
+  get state(): VoiceState {
+    return this.stateAt();
+  }
+
+  /**
+   * Starts a fresh note at `time` (now when omitted): new sources start at
+   * `time` and the envelopes trigger from their floor. With a glide time and
+   * `fromNote`, the pitch glides from that note starting at `time`.
+   */
   noteOn(
     note: number,
     velocity: number,
-    glideTime?: number,
     time?: number,
+    glideTime?: number,
+    fromNote?: number,
   ): void {
-    this.state = 'active';
+    const t = time ?? this.ctx.currentTime;
+    this.generation++;
     this.currentNote = note;
     this.currentVelocity = velocity;
-    this.assignedAt = Date.now();
+    this.noteOnAt = t;
+    this.releaseAt = Infinity;
+    this.endAt = Infinity;
 
-    if (this.releaseTimer) {
-      clearTimeout(this.releaseTimer);
-      this.releaseTimer = null;
-    }
-    if (this.forceStopTimer) {
-      clearTimeout(this.forceStopTimer);
-      this.forceStopTimer = null;
-    }
+    // Anything still current (a tail that ends by now) stops where this
+    // note starts; then the enabled sources start at the note's time.
+    this.stopAllSources(t);
+    this.startActiveSources(t);
 
-    // Stop and restart all sources
-    this.stopAllSources();
-    this.startActiveSources();
+    this.setNoteFrequency(note, t, glideTime, fromNote);
 
-    // Set frequencies
-    this.osc1.setFrequency(note, glideTime);
-    this.osc2.setFrequency(note, glideTime);
-    this.sub.setFrequency(note, glideTime);
-
-    // Trigger per-source envelopes
-    const allSourceIds: SourceId[] = ['osc1', 'osc2', 'sub', 'noise'];
-    for (const sourceId of allSourceIds) {
-      const envGain = this.getEnvGainForSource(sourceId);
+    for (const sourceId of SOURCE_IDS) {
+      const param = this.getEnvGainForSource(sourceId).gain;
       const envelope = this.getEnvelopeForSource(sourceId);
-
-      if (envelope) {
-        envelope.trigger(envGain.gain, velocity, this.ctx, time);
-      } else {
-        // No envelope — set gain to velocity directly
-        const now = time ?? this.ctx.currentTime;
-        envGain.gain.cancelScheduledValues(now);
-        envGain.gain.setValueAtTime(velocity, now);
-      }
+      this.segments.set(
+        param,
+        envelope
+          ? envelope.trigger(param, velocity, this.ctx, t)
+          : // No envelope — hold the gain at velocity
+            holdSegment(param, velocity, t),
+      );
     }
 
-    // Drive per-voice modulation sources
-    const startTime = time ?? this.ctx.currentTime;
-    this.velocitySource.offset.cancelScheduledValues(startTime);
-    this.velocitySource.offset.setValueAtTime(velocity, startTime);
-    this.keytrackSource.offset.cancelScheduledValues(startTime);
-    this.keytrackSource.offset.setValueAtTime(note / 127, startTime);
+    this.setNoteModSources(note, velocity, t);
     // Envelope contours at peak 1 (velocity is its own source)
-    this.ampEnvelope.trigger(this.env1ModSource.offset, 1, this.ctx, time);
-    this.modEnvelope.trigger(this.env2ModSource.offset, 1, this.ctx, time);
+    const env1 = this.env1ModSource.offset;
+    const env2 = this.env2ModSource.offset;
+    this.segments.set(env1, this.ampEnvelope.trigger(env1, 1, this.ctx, t));
+    this.segments.set(env2, this.modEnvelope.trigger(env2, 1, this.ctx, t));
   }
 
-  noteOff(time?: number): void {
-    if (this.state !== 'active') return;
-    this.state = 'releasing';
-
-    // Release per-source envelopes
-    const allSourceIds: SourceId[] = ['osc1', 'osc2', 'sub', 'noise'];
-    let maxRelease = 0;
-    let hasEnvelope = false;
-
-    for (const sourceId of allSourceIds) {
-      const envGain = this.getEnvGainForSource(sourceId);
+  /**
+   * Mono retrigger: the sounding sources keep running, the pitch moves (with
+   * glide when given) and the envelopes restart from the level they have at
+   * `time`, so there is no jump.
+   */
+  retrigger(
+    note: number,
+    velocity: number,
+    time: number,
+    glideTime?: number,
+    fromNote?: number,
+  ): void {
+    this.currentNote = note;
+    this.currentVelocity = velocity;
+    this.noteOnAt = time;
+    this.setNoteFrequency(note, time, glideTime, fromNote);
+    for (const sourceId of SOURCE_IDS) {
+      const param = this.getEnvGainForSource(sourceId).gain;
       const envelope = this.getEnvelopeForSource(sourceId);
-
-      if (envelope) {
-        envelope.release(envGain.gain, this.ctx, time);
-        maxRelease = Math.max(maxRelease, envelope.getReleaseTime());
-        hasEnvelope = true;
-      }
-      // Sources with no envelope keep their current gain (freed when voice stops)
+      const prev = this.segments.get(param) ?? null;
+      this.segments.set(
+        param,
+        envelope
+          ? envelope.trigger(param, velocity, this.ctx, time, prev)
+          : holdSegment(param, velocity, time),
+      );
     }
+    this.setNoteModSources(note, velocity, time);
+    const env1 = this.env1ModSource.offset;
+    const env2 = this.env2ModSource.offset;
+    this.segments.set(
+      env1,
+      this.ampEnvelope.trigger(
+        env1,
+        1,
+        this.ctx,
+        time,
+        this.segments.get(env1),
+      ),
+    );
+    this.segments.set(
+      env2,
+      this.modEnvelope.trigger(
+        env2,
+        1,
+        this.ctx,
+        time,
+        this.segments.get(env2),
+      ),
+    );
+  }
 
+  /** Legato: only the pitch (and key tracking) moves; envelopes keep going. */
+  glideTo(
+    note: number,
+    time: number,
+    glideTime?: number,
+    fromNote?: number,
+  ): void {
+    this.currentNote = note;
+    this.setNoteFrequency(note, time, glideTime, fromNote);
+    this.keytrackSource.offset.cancelScheduledValues(time);
+    this.keytrackSource.offset.setValueAtTime(note / 127, time);
+  }
+
+  /**
+   * Releases at `time` (now when omitted) from the level each envelope has
+   * at that time. The sources stop once the release has decayed (about six
+   * time constants), and the voice is free from then on.
+   */
+  noteOff(time?: number): void {
+    const t = time ?? this.ctx.currentTime;
+    if (this.releaseAt !== Infinity || this.endAt <= t) return;
+
+    let tail = 0;
+    let hasEnvelope = false;
+    for (const sourceId of SOURCE_IDS) {
+      const envelope = this.getEnvelopeForSource(sourceId);
+      if (!envelope) continue;
+      const param = this.getEnvGainForSource(sourceId).gain;
+      this.segments.set(
+        param,
+        envelope.release(param, this.ctx, t, this.segments.get(param)),
+      );
+      tail = Math.max(tail, envelope.getTailTime());
+      hasEnvelope = true;
+    }
     // If no envelopes are assigned at all, use a short fade-out
-    if (!hasEnvelope) {
-      maxRelease = ANTI_CLICK_TIME;
-      for (const sourceId of allSourceIds) {
-        const envGain = this.getEnvGainForSource(sourceId);
-        const now = time ?? this.ctx.currentTime;
-        envGain.gain.cancelScheduledValues(now);
-        envGain.gain.setValueAtTime(envGain.gain.value, now);
-        envGain.gain.linearRampToValueAtTime(0, now + ANTI_CLICK_TIME);
-      }
+    if (!hasEnvelope) tail = ANTI_CLICK_TIME;
+
+    // Sources with no envelope hold their gain until the end, then fade
+    // over the anti-click time so the stop doesn't click.
+    const fadeAt = t + tail - ANTI_CLICK_TIME;
+    for (const sourceId of SOURCE_IDS) {
+      if (this.getEnvelopeForSource(sourceId)) continue;
+      const param = this.getEnvGainForSource(sourceId).gain;
+      this.segments.set(
+        param,
+        fadeOutSegment(param, this.segments.get(param) ?? null, fadeAt),
+      );
     }
 
     // Release the per-voice envelope mod sources
-    this.ampEnvelope.release(this.env1ModSource.offset, this.ctx, time);
-    this.modEnvelope.release(this.env2ModSource.offset, this.ctx, time);
-
-    this.releaseTimer = setTimeout(
-      () => {
-        this.freeVoice();
-      },
-      maxRelease * 1000 + 100,
+    const env1 = this.env1ModSource.offset;
+    const env2 = this.env2ModSource.offset;
+    this.segments.set(
+      env1,
+      this.ampEnvelope.release(env1, this.ctx, t, this.segments.get(env1)),
     );
+    this.segments.set(
+      env2,
+      this.modEnvelope.release(env2, this.ctx, t, this.segments.get(env2)),
+    );
+
+    this.releaseAt = t;
+    this.endAt = t + tail;
+    this.stopAllSources(this.endAt, this.endCallback());
   }
 
-  forceStop(): void {
-    if (this.releaseTimer) {
-      clearTimeout(this.releaseTimer);
-      this.releaseTimer = null;
-    }
-    if (this.forceStopTimer) {
-      clearTimeout(this.forceStopTimer);
-      this.forceStopTimer = null;
-    }
-
-    // Force-stop all source envGains
-    const allEnvGains = [
-      this.osc1EnvGain,
-      this.osc2EnvGain,
-      this.subEnvGain,
-      this.noiseEnvGain,
+  /**
+   * Silences the voice with a short fade starting at `time` (now when
+   * omitted), from the level it has there; the sources stop when the fade
+   * ends. Used for steals and panic.
+   */
+  forceStop(time?: number): void {
+    const t = time ?? this.ctx.currentTime;
+    if (this.endAt <= t) return;
+    const params = [
+      ...SOURCE_IDS.map((id) => this.getEnvGainForSource(id).gain),
+      this.env1ModSource.offset,
+      this.env2ModSource.offset,
     ];
-    for (const envGain of allEnvGains) {
-      const now = this.ctx.currentTime;
-      envGain.gain.cancelScheduledValues(now);
-      envGain.gain.setValueAtTime(envGain.gain.value, now);
-      envGain.gain.linearRampToValueAtTime(0, now + ANTI_CLICK_TIME);
+    for (const param of params) {
+      this.segments.set(
+        param,
+        fadeOutSegment(param, this.segments.get(param) ?? null, t),
+      );
     }
-
-    // Silence the envelope mod sources
-    this.ampEnvelope.forceStop(this.env1ModSource.offset, this.ctx);
-    this.modEnvelope.forceStop(this.env2ModSource.offset, this.ctx);
-
-    this.forceStopTimer = setTimeout(
-      () => {
-        this.forceStopTimer = null;
-        this.stopAllSources();
-        this.state = 'free';
-        this.currentNote = -1;
-        this.onEnd?.();
-      },
-      ANTI_CLICK_TIME * 1000 + 10,
-    );
+    this.releaseAt = Math.min(this.releaseAt, t);
+    this.endAt = Math.min(this.endAt, t + ANTI_CLICK_TIME);
+    this.stopAllSources(this.endAt, this.endCallback());
   }
 
-  private freeVoice(): void {
-    this.stopAllSources();
-    this.state = 'free';
-    this.currentNote = -1;
-    this.currentVelocity = 0;
-    this.releaseTimer = null;
-    this.onEnd?.();
+  /** The level an envelope-driven gain has at `time` (for tests/meters). */
+  levelAt(sourceId: SourceId, time: number): number {
+    const seg = this.segments.get(this.getEnvGainForSource(sourceId).gain);
+    return seg ? envelopeLevelAt(seg, time) : 0;
   }
 
-  private startActiveSources(): void {
-    if (this.osc1Enabled) this.osc1.start();
-    if (this.osc2Enabled) this.osc2.start();
-    if (this.subEnabled) this.sub.start();
-    if (this.noiseEnabled) this.noise.start();
+  private setNoteFrequency(
+    note: number,
+    time: number,
+    glideTime?: number,
+    fromNote?: number,
+  ): void {
+    this.osc1.setFrequency(note, glideTime, time, fromNote);
+    this.osc2.setFrequency(note, glideTime, time, fromNote);
+    this.sub.setFrequency(note, glideTime, time, fromNote);
   }
 
-  private stopAllSources(): void {
-    this.osc1.stop();
-    this.osc2.stop();
-    this.sub.stop();
-    this.noise.stop();
+  private setNoteModSources(note: number, velocity: number, time: number) {
+    this.velocitySource.offset.cancelScheduledValues(time);
+    this.velocitySource.offset.setValueAtTime(velocity, time);
+    this.keytrackSource.offset.cancelScheduledValues(time);
+    this.keytrackSource.offset.setValueAtTime(note / 127, time);
+  }
+
+  /** onEnd for the current note, ignored if the voice has moved on. */
+  private endCallback(): () => void {
+    const generation = this.generation;
+    return () => {
+      if (this.generation !== generation) return;
+      this.currentNote = -1;
+      this.currentVelocity = 0;
+      this.onEnd?.();
+    };
+  }
+
+  private startActiveSources(time: number): void {
+    if (this.osc1Enabled) this.osc1.start(time);
+    if (this.osc2Enabled) this.osc2.start(time);
+    if (this.subEnabled) this.sub.start(time);
+    if (this.noiseEnabled) this.noise.start(time);
+  }
+
+  /**
+   * Stops every source at `time`. `onEnded` goes to the first source that
+   * had something to stop (they all stop together); with nothing running it
+   * runs right away.
+   */
+  private stopAllSources(time: number, onEnded?: () => void): void {
+    let pending = onEnded;
+    for (const source of [this.osc1, this.osc2, this.sub, this.noise]) {
+      if (source.stop(time, pending)) pending = undefined;
+    }
+    pending?.();
   }
 
   // --- Routing ---
@@ -465,16 +580,16 @@ export class Voice {
     }
   }
 
-  isActive(): boolean {
-    return this.state === 'active';
+  isActive(t?: number): boolean {
+    return this.stateAt(t) === 'active';
   }
 
-  isReleasing(): boolean {
-    return this.state === 'releasing';
+  isReleasing(t?: number): boolean {
+    return this.stateAt(t) === 'releasing';
   }
 
-  isFree(): boolean {
-    return this.state === 'free';
+  isFree(t?: number): boolean {
+    return this.stateAt(t) === 'free';
   }
 
   getFilter1(): Filter {
@@ -557,10 +672,10 @@ export class Voice {
     this.noise.connectToAnalyser(dest);
   }
 
-  setPitchBendCents(cents: number): void {
-    this.osc1.setPitchBendCents(cents);
-    this.osc2.setPitchBendCents(cents);
-    this.sub.setPitchBendCents(cents);
+  setPitchBendCents(cents: number, time?: number): void {
+    this.osc1.setPitchBendCents(cents, time);
+    this.osc2.setPitchBendCents(cents, time);
+    this.sub.setPitchBendCents(cents, time);
   }
 
   connectVibratoSource(source: AudioNode): void {

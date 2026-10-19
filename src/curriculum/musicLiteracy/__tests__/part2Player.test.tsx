@@ -625,12 +625,12 @@ describe('a chord echo', () => {
       ['1 maj', false],
       ['4 maj', false],
     ]);
-    // The roll marks each call bar by its chord.
+    // The roll marks each call bar by its chord, and the response.
     expect(
       [...document.querySelectorAll('[data-roll-band]')].map((b) =>
         b.getAttribute('data-roll-band'),
       ),
-    ).toEqual(['1 maj', '4 maj']);
+    ).toEqual(['1 maj', '4 maj', 'Response']);
 
     await press('Play');
     // The call: C major on C4, then F major up a 4th.

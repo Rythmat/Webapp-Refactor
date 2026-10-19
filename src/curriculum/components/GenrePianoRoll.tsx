@@ -22,6 +22,7 @@ import { LearnCascadeView } from './LearnCascadeView';
 import { LearnNotationView } from './LearnNotationView';
 import { LearnTabView } from './LearnTabView';
 import { advancePlayhead, initialClockState } from './playheadClock';
+import './rollBands.css';
 
 export type Midi = number; // 0..127
 
@@ -155,8 +156,8 @@ export interface PianoRollProps {
   /**
    * Stretches of the music marked for the student, in the events' ticks:
    * each a tint behind its bars and a label in the ruler over them (Music
-   * Literacy's "Copy this" over the call). The roll only; the staff and the
-   * falling notes leave them out.
+   * Literacy's "Call" and shining "Response"). The roll only; the staff and
+   * the falling notes leave them out.
    */
   bands?: readonly RollBand[];
 }
@@ -168,6 +169,12 @@ export interface RollBand {
   label: string;
   /** Its tint and its label's color. */
   color: string;
+  /**
+   * The student's to play: a brighter tint, and a band of light sweeps
+   * across it and its label now and then (rollBands.css). Still, without
+   * motion.
+   */
+  shine?: boolean;
 }
 
 // ===== Helpers =====
@@ -792,18 +799,24 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                     key={`band-${band.startTick}`}
                     aria-hidden="true"
                     data-roll-band={band.label}
-                    className="pointer-events-none absolute bottom-[3px] flex h-4 items-center overflow-hidden rounded-[3px]"
-                    style={{
-                      left: `${band.left}%`,
-                      width: `${band.width}%`,
-                      background: `color-mix(in srgb, ${band.color} 24%, rgb(25 25 25))`,
-                      boxShadow: `inset 0 1px 0 color-mix(in srgb, ${band.color} 55%, transparent)`,
-                    }}
+                    data-roll-band-shine={band.shine ? '' : undefined}
+                    className={`pointer-events-none absolute bottom-[3px] flex h-4 items-center overflow-hidden rounded-[3px]${band.shine ? ' roll-band-shine' : ''}`}
+                    style={
+                      {
+                        left: `${band.left}%`,
+                        width: `${band.width}%`,
+                        backgroundColor: `color-mix(in srgb, ${band.color} ${band.shine ? 38 : 24}%, rgb(25 25 25))`,
+                        boxShadow: `inset 0 1px 0 color-mix(in srgb, ${band.color} ${band.shine ? 80 : 55}%, transparent)`,
+                        '--band-shine': `color-mix(in srgb, ${band.color} 45%, white)`,
+                      } as React.CSSProperties
+                    }
                   >
                     <span
                       className="whitespace-nowrap px-1.5 text-[11px] font-semibold uppercase leading-none tracking-[0.12em]"
                       style={{
-                        color: `color-mix(in srgb, ${band.color} 55%, white)`,
+                        color: band.shine
+                          ? 'white'
+                          : `color-mix(in srgb, ${band.color} 55%, white)`,
                       }}
                     >
                       {band.label}
@@ -892,12 +905,15 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                 <div
                   key={`band-${band.startTick}`}
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0"
-                  style={{
-                    left: `${band.left}%`,
-                    width: `${band.width}%`,
-                    background: `color-mix(in srgb, ${band.color} 10%, transparent)`,
-                  }}
+                  className={`pointer-events-none absolute inset-y-0${band.shine ? ' roll-band-shine' : ''}`}
+                  style={
+                    {
+                      left: `${band.left}%`,
+                      width: `${band.width}%`,
+                      backgroundColor: `color-mix(in srgb, ${band.color} ${band.shine ? 18 : 10}%, transparent)`,
+                      '--band-shine': `color-mix(in srgb, ${band.color} 38%, transparent)`,
+                    } as React.CSSProperties
+                  }
                 />
               ))}
               {/* sub grid lines */}

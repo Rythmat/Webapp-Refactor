@@ -239,7 +239,7 @@ import { useLiteracyProgress, withTry } from './useLiteracyProgress';
 // the words, GET READY as the call starts, GO! on its last beat, one before
 // the student's turn, and then YOUR TURN (turnCues.ts). The call is what to
 // copy: its keys light shiny over the words' plain light, and the roll marks
-// its bars "Copy this".
+// its bars "Call" and the student's "Response", shining.
 //
 // MODULES AND THEIR ROUNDS (engine/musicLiteracy/modules.ts)
 // A lesson is a run of modules, its sections (Part 1 is one). Each step is
@@ -1195,11 +1195,19 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     [lesson, step, choices],
   );
 
-  // The call is the figure to copy: marked so over its bars (a chord call,
-  // each bar by its chord); a create pass marks the student's call and
-  // their repeat.
+  // The call is marked "Call" over its bars (a chord call, each bar by its
+  // chord), and the response "Response", shining: the student's to play. A
+  // create pass marks the student's own call; a challenge shines both, as
+  // the student plays both.
   const rollBands = useMemo<RollBand[]>(() => {
     const at = (tick: number) => tick - countIn;
+    const response: RollBand = {
+      startTick: at(timeline.response.start),
+      endTick: at(timeline.response.start + timeline.response.length),
+      label: 'Response',
+      color: keyColor,
+      shine: true,
+    };
     if (onCreate) {
       return [
         {
@@ -1208,12 +1216,7 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
           label: 'Your call',
           color: keyColor,
         },
-        {
-          startTick: at(timeline.response.start),
-          endTick: at(timeline.response.start + timeline.response.length),
-          label: 'Repeat it',
-          color: wordsColor,
-        },
+        response,
       ];
     }
     if (isReplay) {
@@ -1227,24 +1230,32 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
         })),
       );
     }
+    const challenge = activePass === 'challenge';
     if (chordSteps) {
-      return chordLabels.map((label, b) => ({
-        startTick: at(timeline.call.start + b * bar),
-        endTick: at(timeline.call.start + (b + 1) * bar),
-        label,
-        color: keyColor,
-      }));
+      return [
+        ...chordLabels.map((label, b) => ({
+          startTick: at(timeline.call.start + b * bar),
+          endTick: at(timeline.call.start + (b + 1) * bar),
+          label,
+          color: keyColor,
+          shine: challenge,
+        })),
+        response,
+      ];
     }
     return [
       {
         startTick: at(timeline.call.start),
         endTick: at(timeline.call.start + timeline.call.length),
-        label: 'Copy this',
+        label: 'Call',
         color: keyColor,
+        shine: challenge,
       },
+      response,
     ];
   }, [
     onCreate,
+    activePass,
     isReplay,
     chordSteps,
     replayPasses,
@@ -1253,7 +1264,6 @@ function MusicLiteracyPlayerInner({ lesson }: MusicLiteracyPlayerProps) {
     countIn,
     bar,
     keyColor,
-    wordsColor,
   ]);
 
   /** The create pass's call and repeat, once transcribed, on its timeline. */

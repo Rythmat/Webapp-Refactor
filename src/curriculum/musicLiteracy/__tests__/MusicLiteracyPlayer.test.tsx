@@ -323,14 +323,18 @@ describe('a Music Literacy step', () => {
     expect(lit[0].getAttribute('data-word-index')).toBe('5');
   });
 
-  it('says LISTEN, GET READY and GO! through a run, the call’s keys shiny and its bars marked “Copy this”', async () => {
+  it('says LISTEN, GET READY and GO! through a run, the call’s keys shiny and its bars marked “Call” and a shining “Response”', async () => {
     renderPlayer();
-    // Parked, the roll already marks the call's bar.
-    expect(
-      document
-        .querySelector('[data-roll-band]')
-        ?.getAttribute('data-roll-band'),
-    ).toBe('Copy this');
+    // Parked, the roll already marks the call's bar and the response's.
+    const bands = [...document.querySelectorAll('[data-roll-band]')];
+    expect(bands.map((b) => b.getAttribute('data-roll-band'))).toEqual([
+      'Call',
+      'Response',
+    ]);
+    expect(bands.map((b) => b.hasAttribute('data-roll-band-shine'))).toEqual([
+      false,
+      true,
+    ]);
     const cue = () => hub().getAttribute('data-cue');
     const shinyKeys = () =>
       document.querySelectorAll(

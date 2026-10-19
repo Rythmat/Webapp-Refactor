@@ -10,15 +10,17 @@ import type { AllSlices } from './index';
 // `save` counts a save to the student's account that the cloud accepted
 // (Project ▸ Save, ⌘S, Save As, the save chip's Retry); a save that failed,
 // or that another project opening cut short, counts nothing. `exportMidi`
-// counts a MIDI file of the project handed to the browser to download
-// (Project ▸ Export ▸ MIDI or ⌘E); a project with no notes downloads nothing
-// and counts nothing. `exportMusicXml` counts a MusicXML file downloaded from
-// the Project menu, the Lead Sheet or the Score. `exportAudio` counts a
-// mixdown rendered and downloaded from Export Audio (the moment
-// lastAudioExportAt marks too). `printScore` and `printLeadSheet` count the
-// browser's print dialog opened from the Score's Print / PDF button and the
-// Lead Sheet's PDF button; whether the student then prints or cancels is the
-// browser's to know. The counts belong to the page, not the project: they
+// counts a MIDI file handed to the browser to download (exportProjectMidi:
+// Project ▾ ▸ MIDI file, ⇧⌘E, the Export dialog's Notation tab, a track's
+// Export track ▸ MIDI file); a project with no notes downloads nothing and
+// counts nothing. `exportMusicXml` counts a MusicXML file downloaded from
+// the Export dialog's Notation tab or the Score page's own MusicXML button
+// (either layout). `exportAudio` counts an audio file rendered and
+// downloaded from the Export dialog: the song, the stems or one track (the
+// moment lastAudioExportAt marks too). `printScore` and `printLeadSheet`
+// count the browser's print dialog opened from the Score page, by the layout
+// printed: the Full score's Print / PDF or the Lead sheet's PDF; whether the
+// student then prints or cancels is the browser's to know. The counts belong to the page, not the project: they
 // start at 0, never go back (a new project or a load leaves them), and are
 // never saved, shared or undone (the registry's 'tutorial' session group).
 

@@ -505,6 +505,8 @@ describe('an audio export', () => {
     const { blob } = await h.exportProjectAudio.mock.results[0].value;
     expect(h.downloadAudioBlob).toHaveBeenCalledWith(blob, 'song.wav');
     expect(s().lastAudioExportAt).toEqual(expect.any(Number));
+    // A course lesson's Export Audio step (doneMomentsSlice.ts).
+    expect(s().doneMoments.exportAudio).toBe(1);
     expect(h.notice).toHaveBeenCalledWith({ title: 'Exported song.wav' });
     expect(dialogState().isOpen).toBe(false);
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -524,6 +526,7 @@ describe('an audio export', () => {
       variant: 'destructive',
     });
     expect(h.downloadAudioBlob).not.toHaveBeenCalled();
+    expect(s().doneMoments.exportAudio).toBe(0);
     expect(dialogState().isOpen).toBe(true);
   });
 });
@@ -616,6 +619,7 @@ describe('a notation export', () => {
     expect(filename).toBe('night-drive-lead-sheet.musicxml');
     expect(blob).toBeInstanceOf(Blob);
     expect((blob as Blob).type).toBe('application/vnd.recordare.musicxml+xml');
+    expect(s().doneMoments.exportMusicXml).toBe(1);
     expect(dialogState().isOpen).toBe(false);
   });
 
@@ -644,6 +648,7 @@ describe('a notation export', () => {
       title: 'The song has no chord symbols to write yet',
     });
     expect(h.downloadFile).not.toHaveBeenCalled();
+    expect(s().doneMoments.exportMusicXml).toBe(0);
     expect(dialogState().isOpen).toBe(true);
   });
 

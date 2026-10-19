@@ -398,8 +398,11 @@ export function ExportDialog({
       const result = await runAudio();
       const { blob, filename } = result;
       downloadAudioBlob(blob, filename);
-      // Session-only: the lesson engine watches for a finished bounce.
+      // Session-only: the lesson engine watches for a finished bounce, and
+      // a course lesson's Export Audio step for the done moment (a stem or
+      // one track's file counts, as the bounce does).
       useStore.getState().markAudioExported();
+      useStore.getState().markDone('exportAudio');
       const skipped = (result as { skipped?: string[] }).skipped ?? [];
       notice({
         title: `Exported ${filename}`,
@@ -468,6 +471,9 @@ export function ExportDialog({
           }),
           file.filename,
         );
+        // A lesson's MusicXML step watches for it (exportProjectMidi marks
+        // a MIDI file's own).
+        useStore.getState().markDone('exportMusicXml');
         filename = file.filename;
       }
       notice({ title: filename ? `Exported ${filename}` : 'Exported' });

@@ -543,7 +543,7 @@ export function ExportDialog({
       parts.push(`Track ${index + 1} of ${total} · ${trackName}`);
     }
     if (progress.p.stage === 'encode') parts.push('encoding');
-    progressLabel = stopping ? 'Cancelling…' : parts.join(' · ');
+    progressLabel = stopping ? 'Canceling…' : parts.join(' · ');
   }
 
   const masteringNames = masteringChain.map((fx) => FX_LABEL[fx] ?? fx);

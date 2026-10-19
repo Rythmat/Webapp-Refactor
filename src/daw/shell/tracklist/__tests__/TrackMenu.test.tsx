@@ -200,7 +200,7 @@ describe('the ⋯ menu’s items', () => {
         el.textContent?.replace(DUPLICATE_LABEL, '').trim(),
       ),
     ).toEqual([
-      'Colour',
+      'Color',
       'Role for chord analysis',
       'Instrument…',
       'Duplicate track',
@@ -340,7 +340,7 @@ describe('the name field', () => {
     openMenu('Rhodes');
     nameField().focus();
     fireEvent.keyDown(nameField(), { key: 'ArrowDown' });
-    expect(document.activeElement).toHaveTextContent('Colour');
+    expect(document.activeElement).toHaveTextContent('Color');
   });
 
   it('is off, with what would change the track, while a collaborator holds it', () => {
@@ -349,7 +349,7 @@ describe('the name field', () => {
     const menu = openMenu('Rhodes');
     expect(nameField()).toBeDisabled();
     for (const text of [
-      'Colour',
+      'Color',
       'Role for chord analysis',
       'Instrument…',
       'Monitor input',
@@ -570,7 +570,7 @@ describe('the menu opens on the name', () => {
   it('↑ on the first item goes back up to the name', () => {
     render(<TrackList />);
     const menu = openMenu('Rhodes');
-    const colour = itemNamed(menu, 'Colour');
+    const colour = itemNamed(menu, 'Color');
     colour.focus();
     fireEvent.keyDown(colour, { key: 'ArrowUp' });
     expect(document.activeElement).toBe(nameField());

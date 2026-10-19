@@ -25,7 +25,7 @@ describe('a groove’s heart', () => {
     const groove = GROOVES[0];
     const { unmount } = render(<GroovesBrowser trackId="drums" />);
     const heart = screen.getByRole('button', {
-      name: `Favourite ${groove.name}`,
+      name: `Favorite ${groove.name}`,
     });
     expect(heart).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(heart);
@@ -36,7 +36,7 @@ describe('a groove’s heart', () => {
 
     render(<GroovesBrowser trackId="drums" />);
     expect(
-      screen.getByRole('button', { name: `Favourite ${groove.name}` }),
+      screen.getByRole('button', { name: `Favorite ${groove.name}` }),
     ).toHaveAttribute('aria-pressed', 'true');
     // Saved lists it, and only it.
     fireEvent.click(screen.getByRole('button', { name: /Saved/ }));

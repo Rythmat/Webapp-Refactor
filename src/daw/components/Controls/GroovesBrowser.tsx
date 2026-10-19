@@ -710,7 +710,7 @@ function GrooveRow({
         <button
           onClick={onToggleSaved}
           aria-pressed={isSaved}
-          aria-label={`Favourite ${groove.name}`}
+          aria-label={`Favorite ${groove.name}`}
           className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
           style={{
             background: 'none',

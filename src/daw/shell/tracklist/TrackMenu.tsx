@@ -250,18 +250,18 @@ export function TrackMenuContent({
       <NameField track={track} locked={locked} />
       <MenuSub>
         <MenuSubTrigger icon={<Palette />} disabled={locked}>
-          Colour
+          Color
         </MenuSubTrigger>
         <MenuSubContent data-ds="v2" className="w-[188px] p-2">
           <div
             role="group"
-            aria-label="Track colour"
+            aria-label="Track color"
             className="grid grid-cols-5 gap-1.5"
           >
             {TRACK_PALETTES.map((color, i) => (
               <MenuItem
                 key={color}
-                aria-label={`Colour ${i + 1}${color === track.color ? ' (now)' : ''}`}
+                aria-label={`Color ${i + 1}${color === track.color ? ' (now)' : ''}`}
                 data-meaning="track-colour"
                 className={cn(
                   'size-7 min-h-0 justify-center rounded-full p-0',

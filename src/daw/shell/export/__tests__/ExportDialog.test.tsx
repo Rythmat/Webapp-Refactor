@@ -447,7 +447,7 @@ describe('stems', () => {
 
     fireEvent.click(screen.getByTestId('export-cancel'));
     expect(signal?.aborted).toBe(true);
-    expect(screen.getByRole('status')).toHaveTextContent('Cancelling…');
+    expect(screen.getByRole('status')).toHaveTextContent('Canceling…');
 
     await act(async () => {
       fail(new DOMException('Stopped', 'AbortError'));

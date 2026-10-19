@@ -265,7 +265,7 @@ const TrackRowBody = memo(function TrackRowBody({
                 data-tutorial-id={menuAnchor ? 'track-menu-button' : undefined}
                 data-hint={hintText(
                   `More for ${track.name}`,
-                  'Rename, colour, duplicate, export or delete it',
+                  'Rename, color, duplicate, export or delete it',
                 )}
                 data-testid="track-menu-button"
                 onClick={(e) => e.stopPropagation()}

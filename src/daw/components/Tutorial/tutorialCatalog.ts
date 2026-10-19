@@ -150,7 +150,7 @@ export const TUTORIAL_CATALOG = [
   {
     id: 'studio-basics-piano-roll',
     title: 'The Piano Roll',
-    subtitle: 'See every note, then move, stretch and draw your own.',
+    subtitle: 'Open a clip, then add, move, stretch and delete its notes.',
     difficulty: 'Beginner',
     estMinutes: 4,
     requiresPremium: false,

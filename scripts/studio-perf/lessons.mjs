@@ -114,6 +114,28 @@ import { startRecording, stopRecording } from './probes.mjs';
 
 /** tutorials.ts as the dev server serves it to the page. */
 const TUTORIALS_MODULE = '/src/daw/components/Tutorial/tutorials.ts';
+/** The anchor registry, for its ANCHOR_ALIASES (renamed anchors). */
+const ANCHORS_MODULE = '/src/daw/components/Tutorial/anchorRegistry.ts';
+
+/**
+ * The app's ANCHOR_ALIASES (old id → current id), read with the lessons. A
+ * step that names an old id is spotlit on the control that renders the new
+ * one (anchorRegistry's resolveAnchor), so the walkthrough looks for that
+ * one too, in the page (window.__MA_ANCHOR_ALIASES__) and in the drivers'
+ * clicks; the step's own id is what it reports.
+ */
+let anchorAliases = {};
+
+/** The id an anchor renders today, following anchorAliases. */
+function currentAnchor(id) {
+  const seen = new Set();
+  let current = id;
+  while (anchorAliases[current] && !seen.has(current)) {
+    seen.add(current);
+    current = anchorAliases[current];
+  }
+  return current;
+}
 
 /** The dev auth bypass module, at the URL the app imports it from. */
 const BYPASS_MODULE = '/src/auth/devBypass.ts';
@@ -204,10 +226,23 @@ function measureAnchor(ids, rack = null) {
     ].join('');
   };
   const inRack = rack ?? 'track';
-  const find = (id) =>
-    document.querySelectorAll(
+  // A renamed id resolves as the spotlight resolves it (ANCHOR_ALIASES).
+  const aliases = window.__MA_ANCHOR_ALIASES__ ?? {};
+  const current = (id) => {
+    const seen = new Set();
+    let at = id;
+    while (aliases[at] && !seen.has(at)) {
+      seen.add(at);
+      at = aliases[at];
+    }
+    return at;
+  };
+  const find = (stepId) => {
+    const id = current(stepId);
+    return document.querySelectorAll(
       `[data-tutorial-id="${id}"]:not([data-tutorial-target]), [data-tutorial-id="${id}"][data-tutorial-target="${inRack}"]`,
     );
+  };
   const vw = document.documentElement.clientWidth;
   const vh = document.documentElement.clientHeight;
   const state = window.__MA_STORE__?.getState();
@@ -715,6 +750,10 @@ async function readLessons(browser, base) {
   try {
     const page = await context.newPage();
     await page.goto(`${base}/@vite/client`, { waitUntil: 'domcontentloaded' });
+    anchorAliases = await page.evaluate(async (path) => {
+      const { ANCHOR_ALIASES } = await import(path);
+      return { ...(ANCHOR_ALIASES ?? {}) };
+    }, ANCHORS_MODULE);
     return await page.evaluate(async (path) => {
       const { TUTORIALS } = await import(path);
       const idsOf = (t) => (!t ? [] : Array.isArray(t) ? t : [t]);
@@ -951,12 +990,15 @@ function makeDriverContext(page, res, actionTimeout) {
   };
   // An anchor stamped with its rack (the FX list's fx-add-* rows) in `rack`
   // only, the track dock's by default; an older build stamps none.
-  const anchorLocator = (id, rack = 'track') =>
-    page
+  const anchorLocator = (stepId, rack = 'track') => {
+    // A renamed id clicks the control that renders the new one.
+    const id = currentAnchor(stepId);
+    return page
       .locator(
         `[data-tutorial-id="${id}"]:not([data-tutorial-target]), [data-tutorial-id="${id}"][data-tutorial-target="${rack}"]`,
       )
       .first();
+  };
   const ctx = {
     page,
     click: (locator, label) =>
@@ -1475,7 +1517,7 @@ async function runLesson(env) {
     await applyPersona(page, persona);
     // Both before the editor loads, so the trace sees its first step.
     await page.addInitScript({
-      content: `window.__MA_MEASURE_ANCHOR__ = ${measureAnchor};`,
+      content: `window.__MA_MEASURE_ANCHOR__ = ${measureAnchor}; window.__MA_ANCHOR_ALIASES__ = ${JSON.stringify(anchorAliases)};`,
     });
     await page.addInitScript(
       installLessonTrace,

@@ -181,7 +181,7 @@ export const TUTORIAL_CATALOG = [
     title: 'The Lead Sheet',
     subtitle: 'The chords over the melody, the way a band reads a song.',
     difficulty: 'Beginner',
-    estMinutes: 3,
+    estMinutes: 4,
     requiresPremium: false,
     course: 'studio-basics',
     courseOrder: 7,

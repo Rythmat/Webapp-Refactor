@@ -7,15 +7,17 @@ import {
 } from '../trackChecks';
 
 // ── Studio Basics 1 · Your Tracks ──────────────────────────────────────────
-// Each row of the track list is one track: click it to choose it, change
-// what it plays, and its switches: M (mute), S (solo), the Arm circle and
-// MON (monitor). The demos work on track 1, the second row, which every song
-// in the course has (the Studio Basics song's Chords, or a band song's next
-// part); the checks take the move on any track.
+// Each row of the track list is one track (Stage B's 64 px row: its name,
+// M, S and the Arm circle, with the rest in its ⋯ menu). Click a row's name
+// to choose the track; the dock under the timeline then shows it, with its
+// instrument as a button that opens the instrument picker. Monitor input is
+// in the row's ⋯ menu. The demos work on track 1, the second row, which
+// every song in the course has (the Studio Basics song's Chords, or a band
+// song's next part); the checks take the move on any track.
 //
 // Mute and solo are switched back off as their own steps, since a song left
-// muted or soloed plays wrong. Arm and MON stay on: they change nothing the
-// song plays, and the Record lesson picks the one track to record on.
+// muted or soloed plays wrong. Arm and Monitor input stay on: they change
+// nothing the song plays, and the Record lesson leaves them on one track.
 
 const STAGE = 'Your tracks';
 
@@ -24,21 +26,25 @@ export const yourTracksSteps: TutorialStep[] = [
     id: 'select-track',
     stage: STAGE,
     instruction:
-      'Click another track’s name to select it. The white ring moves to the track you pick.',
-    hint: 'The selected track is the one the Studio’s panels show and edit.',
-    target: 'track-header-1',
+      'Click another track’s name to choose it. Its row lights up, and the dock under the timeline shows it.',
+    hint: 'The track you choose is the one the dock shows and changes.',
+    target: 'track-name-1',
     requires: { view: 'arrange', libraryOpen: false },
     demo: [
-      { caption: 'Your tracks: what each row can do' },
+      { caption: 'Your tracks: what each row does' },
       {
-        // The name, not the row's middle: that is the instrument button.
+        // The name, not the row's left edge: that is the instrument button.
         target: 'track-name-0',
         caption: 'Each row is one track',
         action: 'click',
       },
       {
         target: 'selected-track-header',
-        caption: 'The white ring shows your track',
+        caption: 'The lit row is your track',
+      },
+      {
+        target: 'dock-instrument',
+        caption: 'The dock below shows it too',
       },
     ],
     check: selectedAnotherTrack,
@@ -47,13 +53,13 @@ export const yourTracksSteps: TutorialStep[] = [
     id: 'change-instrument',
     stage: STAGE,
     instruction:
-      'Give a track a new sound: click the instrument name on its row, then pick an instrument from the list.',
-    hint: 'The families are on the left. The track keeps its notes.',
-    target: ['instrument-picker', 'selected-track-header'],
+      'Give your track a new sound: click its instrument’s name in the dock, then pick one from the list.',
+    hint: 'The families are on the left. Your notes stay as they are. The row’s **⋯** menu has **Instrument…** too.',
+    target: ['instrument-picker', 'dock-instrument'],
     demo: [
       {
-        target: 'track-instrument-1',
-        caption: 'This button names the sound',
+        target: 'dock-instrument',
+        caption: 'This button names its sound',
         action: 'click',
       },
       {
@@ -133,13 +139,13 @@ export const yourTracksSteps: TutorialStep[] = [
     id: 'arm',
     stage: STAGE,
     instruction:
-      'Arm the highlighted track: click its circle. Arm gets a track ready to record.',
+      'Arm the highlighted track: click its circle. **Arm** gets a track ready to record.',
     hint: 'You’ll record in the Record lesson.',
     target: 'track-arm-1',
     demo: [
       {
         target: 'track-arm-1',
-        caption: 'Arm (the circle) gets it ready to record',
+        caption: '**Arm** gets it ready to record',
         action: 'click',
       },
       {
@@ -154,19 +160,27 @@ export const yourTracksSteps: TutorialStep[] = [
     id: 'monitor',
     stage: STAGE,
     instruction:
-      'Turn on **MON** (monitor) for that track, so you hear it as you play.',
-    hint: 'With **MON** on, the notes you play on a keyboard sound through this track.',
-    target: 'track-monitor-1',
+      'Open the **⋯** menu on the lit row and turn on **Monitor input**, so you hear that track as you play.',
+    hint: 'With **Monitor input** on, the notes you play on a keyboard sound through this track. A right-click on a row opens the same menu.',
+    // The menu's item once it is open, else the selected row's ⋯.
+    target: ['track-menu-monitor', 'track-menu-button'],
     demo: [
       {
-        target: 'track-monitor-1',
-        caption: '**MON** lets you hear yourself play',
+        target: 'track-menu-button',
+        caption: '**⋯** has more for this track',
         action: 'click',
       },
       {
-        target: 'track-monitor-1',
-        caption: 'Click again to turn it off',
-        action: 'click',
+        target: 'track-menu-monitor',
+        caption: '**Monitor input**: hear yourself play',
+        action: 'hover',
+      },
+      {
+        // Pressed inside the menu, which Esc closes (on the page, it is
+        // the Studio's Stop).
+        target: 'track-menu-monitor',
+        caption: '**Esc** closes the menu',
+        action: { key: 'Escape', on: 'element' },
       },
     ],
     check: switchedOn('monitoring'),
@@ -175,7 +189,7 @@ export const yourTracksSteps: TutorialStep[] = [
     id: 'wrap-up',
     stage: STAGE,
     instruction:
-      'You picked a track, changed its sound, and used **M**, **S**, the Arm circle and **MON**. Next: add a track of your own. Press **Finish**.',
+      'You chose a track, changed its sound, and used **M**, **S**, **Arm** and **Monitor input**. Next: add a track of your own. Press **Finish**.',
     target: 'add-track-button',
   },
 ];

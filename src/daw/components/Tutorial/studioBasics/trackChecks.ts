@@ -30,17 +30,48 @@ export const bottomTrack = (prefix: string): string[] =>
     (_, i) => `${prefix}${TRACK_SLOTS - 1 - i}`,
   );
 
-/** A track's switches in its header: M, S, the Arm circle and MON. */
+/**
+ * A track's switches: M, S and the Arm circle on its row, and Monitor input
+ * in its ⋯ menu.
+ */
 export type TrackSwitch = 'mute' | 'solo' | 'recordArmed' | 'monitoring';
 
 const before = (armed: AllSlices, track: Track): Track | undefined =>
   armed.tracks.find((t) => t.id === track.id);
 
-/** Some track's switch went from off to on since the turn began. */
+/**
+ * The tracks seen with a switch off during a turn, by the turn's `armed`
+ * snapshot (detection checks every change against the same one).
+ */
+const seenOff = new WeakMap<AllSlices, Map<TrackSwitch, Set<string>>>();
+
+const offDuring = (armed: AllSlices, flag: TrackSwitch): Set<string> => {
+  let byFlag = seenOff.get(armed);
+  if (!byFlag) seenOff.set(armed, (byFlag = new Map()));
+  let ids = byFlag.get(flag);
+  if (!ids) byFlag.set(flag, (ids = new Set()));
+  return ids;
+};
+
+/**
+ * Some track's switch was switched on since the turn began: it was off
+ * then, or it was on and has gone off and on again (a song where the
+ * highlighted track is armed already, as on a second run of the course).
+ */
 export const switchedOn =
   (flag: TrackSwitch): StepCheck =>
-  (s, armed) =>
-    s.tracks.some((t) => t[flag] && before(armed, t)?.[flag] === false);
+  (s, armed) => {
+    const off = offDuring(armed, flag);
+    return s.tracks.some((t) => {
+      const was = before(armed, t)?.[flag];
+      if (was === undefined) return false;
+      if (!t[flag]) {
+        off.add(t.id);
+        return false;
+      }
+      return was === false || off.has(t.id);
+    });
+  };
 
 /**
  * Some track's switch went from on to off since the turn began, or none was

@@ -83,11 +83,13 @@ const lastIndex = () => s().tracks.length - 1;
 
 /** Anchors whose click changes nothing in the song: menus, pickers, tools. */
 const UI_ONLY = [
+  /^dock-instrument$/,
   /^track-instrument-\d+$/,
   /^instrument-picker$/,
   /^instrument-family-/,
   /^instrument-/,
   /^add-track-(button|soundfont|menu)$/,
+  /^track-menu-(button|monitor|change-instrument)$/,
   /^count-in-(menu|0|1|2)$/,
   /^top-bar-more$/,
   /^piano-roll-tool-/,
@@ -261,6 +263,7 @@ const YOUR_TRACKS: Record<string, Move> = {
   solo: () => s().toggleSolo(trackAt(1).id),
   unsolo: () => s().toggleSolo(trackAt(1).id),
   arm: () => s().toggleRecordArm(trackAt(1).id),
+  // Monitor input, in the chosen row's ⋯ menu.
   monitor: () => s().toggleMonitoring(trackAt(1).id),
 };
 
@@ -375,7 +378,7 @@ describe('Studio Basics 1 to 5 on the demo song', () => {
 
   it('Your Tracks: each demo restores the Studio, each move passes its step', async () => {
     await walk('studio-basics-your-tracks', YOUR_TRACKS);
-    // Arm and MON stay on for the Record lesson; M and S are back off.
+    // Arm and Monitor input stay on; M and S are back off.
     const chords = trackAt(1);
     expect([chords.mute, chords.solo]).toEqual([false, false]);
     expect([chords.recordArmed, chords.monitoring]).toEqual([true, true]);
@@ -463,6 +466,18 @@ describe('the steps’ checks on other songs', () => {
     expect(select(armed, armed)).toBe(true);
     s().setSelectedNotes(toggleTrackNotes(only, s().selectedNotes));
     expect(pickBass(s(), armed)).toBe(true);
+  });
+
+  it('take a switch that was on already once it goes off and on again', () => {
+    const arm = step('studio-basics-your-tracks', 'arm').check!;
+    // The Chords armed already, as on a second run of the course.
+    s().toggleRecordArm(trackAt(1).id);
+    const armed = s();
+    expect(arm(armed, armed)).toBe(false);
+    s().toggleRecordArm(trackAt(1).id);
+    expect(arm(s(), armed)).toBe(false);
+    s().toggleRecordArm(trackAt(1).id);
+    expect(arm(s(), armed)).toBe(true);
   });
 
   it('don’t hold up an unmute when nothing was muted', () => {

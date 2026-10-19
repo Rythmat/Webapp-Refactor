@@ -78,7 +78,6 @@ const STAGE_B_NO_STOP =
   'Stage B: the bottom rail has no Stop button (Play pauses, Esc stops). Studio Basics rewrite phase';
 
 const KNOWN_MISSING: Readonly<Record<string, string>> = {
-  'studio-basics-your-tracks/monitor/track-monitor-1': STAGE_B_NO_MONITOR,
   ...Object.fromEntries(
     Array.from({ length: MAX_TOTAL_TRACKS }, (_, i) => [
       `studio-basics-add-a-track/monitor/track-monitor-${i}`,

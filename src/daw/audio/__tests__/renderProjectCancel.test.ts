@@ -54,6 +54,8 @@ const tone = vi.hoisted(() => {
     _nativeContext: native as unknown as Record<string, unknown>,
   };
   const transport = { PPQ: 0, bpm: { value: 0 }, starts: 0, start() {} };
+  /** Tone's JS clock pass: steps of half a second, a yield each. */
+  const clock = { steps: 0, onStep: null as null | ((step: number) => void) };
   transport.start = () => {
     transport.starts++;
   };
@@ -64,6 +66,7 @@ const tone = vi.hoisted(() => {
     suspend,
     raw,
     transport,
+    clock,
     module: {
       getContext: () => state.current,
       setContext: (context: unknown) => {
@@ -82,12 +85,21 @@ const tone = vi.hoisted(() => {
         native.length = Math.ceil(duration * rate);
         native.sampleRate = rate;
         const original = state.current;
-        const offline = { name: 'offline', rawContext: raw, currentTime: 0 };
+        const offline = {
+          name: 'offline',
+          rawContext: raw,
+          currentTime: 0,
+          _duration: duration,
+        };
         state.current = offline;
         await callback(offline);
         state.current = original;
-        offline.currentTime = duration;
-        await new Promise((r) => setTimeout(r, 0));
+        while (offline._duration - offline.currentTime >= 0) {
+          offline.currentTime += 0.5;
+          clock.steps++;
+          clock.onStep?.(clock.steps);
+          await new Promise((r) => setTimeout(r, 0));
+        }
         await native.startRendering();
         return { get: () => ({ sampleRate: rate, rendered: true }) };
       },
@@ -138,8 +150,11 @@ vi.mock('../TrackEngine', () => ({
     }
   },
 }));
+// A first IR fetch that never answers, when `stuck`.
+const ir = vi.hoisted(() => ({ stuck: false }));
 vi.mock('../reverbIR', () => ({
-  ensureProcessedIr: async () => null,
+  ensureProcessedIr: () =>
+    ir.stuck ? new Promise(() => {}) : Promise.resolve(null),
   getProcessedIr: () => null,
 }));
 vi.mock('../AudioEngine', () => ({
@@ -221,6 +236,9 @@ beforeEach(() => {
   tone.native.withSuspend = true;
   (tone.raw._nativeContext as Record<string, unknown>).suspend = tone.suspend;
   tone.transport.starts = 0;
+  tone.clock.steps = 0;
+  tone.clock.onStep = null;
+  ir.stuck = false;
   chains.disposed = 0;
   engines.disposed = 0;
   instruments.createInstrument.mockReset();
@@ -335,7 +353,12 @@ describe('Cancel', () => {
     const done = renderProject({ signal: controller.signal });
     // Cancelled once the graph is built, while Tone's clock runs over the
     // song (the live context is back by then).
-    for (let i = 0; i < 100 && tone.state.current !== tone.state.live; i++) {
+    for (
+      let i = 0;
+      i < 100 &&
+      (tone.transport.starts === 0 || tone.state.current !== tone.state.live);
+      i++
+    ) {
       await Promise.resolve();
     }
     expect(tone.state.current).toBe(tone.state.live);
@@ -343,5 +366,57 @@ describe('Cancel', () => {
     controller.abort();
     await expect(done).rejects.toMatchObject({ name: 'AbortError' });
     expect(tone.module.getContext()).toBe(tone.state.live);
+  });
+});
+
+describe('Cancel, review fixes', () => {
+  it('does not wait for a reverb IR that is still loading', async () => {
+    ir.stuck = true;
+    const fx = structuredClone(DEFAULT_EFFECTS);
+    fx.reverb = { ...fx.reverb, enabled: true };
+    store.state = { ...store.state, masteringEffects: fx };
+    const controller = new AbortController();
+    const done = renderProject({ signal: controller.signal });
+    await tick();
+    controller.abort();
+    await expect(done).rejects.toMatchObject({ name: 'AbortError' });
+    expect(tone.module.getContext()).toBe(tone.state.live);
+  });
+
+  it('a render started while another builds its graph hands Tone the live context back', async () => {
+    ir.stuck = true;
+    const fx = structuredClone(DEFAULT_EFFECTS);
+    fx.reverb = { ...fx.reverb, enabled: true };
+    store.state = { ...store.state, masteringEffects: fx };
+    const first = new AbortController();
+    const one = renderProject({ signal: first.signal });
+    await tick();
+    // The first holds Tone's global context while its IR loads.
+    expect(tone.module.getContext()).not.toBe(tone.state.live);
+    // The dialog closed (cancelling it) and a new export started at once.
+    ir.stuck = false;
+    store.state = {
+      ...store.state,
+      masteringEffects: structuredClone(DEFAULT_EFFECTS),
+    };
+    const two = renderProject();
+    first.abort();
+    await expect(one).rejects.toMatchObject({ name: 'AbortError' });
+    await expect(two).resolves.toMatchObject({ rendered: true });
+    expect(tone.module.getContext()).toBe(tone.state.live);
+  });
+
+  it('a cancel during the clock pass ends the pass', async () => {
+    const controller = new AbortController();
+    tone.clock.onStep = (step) => {
+      if (step === 2) controller.abort();
+    };
+    await expect(
+      renderProject({ signal: controller.signal }),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+    await tick();
+    await tick();
+    // 6 s of song is 13 steps; it stopped right after the cancel.
+    expect(tone.clock.steps).toBe(2);
   });
 });

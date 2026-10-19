@@ -136,6 +136,9 @@ async function renderAndEncode(
   throwIfStopped(signal);
   report?.('encode', RENDER_SHARE);
   const bytes = await encodeAudioBuffer(buffer, format, bitDepth ?? 16, signal);
+  // Cancelled while it was encoded (on the page, which can't be cut short):
+  // no file.
+  throwIfStopped(signal);
   report?.('encode', 1);
   return bytes;
 }

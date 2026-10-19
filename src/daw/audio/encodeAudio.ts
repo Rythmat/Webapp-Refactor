@@ -30,15 +30,20 @@ function abortError(): DOMException {
   return new DOMException('Stopped', 'AbortError');
 }
 
-/** The bytes the page itself writes for `buffer`. */
-function encodeOnPage(
+/** The bytes the page itself writes for `buffer`. It can't be cut short,
+ *  so a cancel meanwhile is heard as it ends: an AbortError, no bytes. */
+async function encodeOnPage(
   buffer: AudioBuffer,
   format: EncodeFormat,
   bitDepth: 16 | 24,
-): Promise<ArrayBuffer> | ArrayBuffer {
-  return format === 'wav'
-    ? audioBufferToWav(buffer, bitDepth)
-    : audioBufferToOpusWebm(buffer);
+  signal: AbortSignal | undefined,
+): Promise<ArrayBuffer> {
+  const bytes =
+    format === 'wav'
+      ? audioBufferToWav(buffer, bitDepth)
+      : await audioBufferToOpusWebm(buffer);
+  if (signal?.aborted) throw abortError();
+  return bytes;
 }
 
 function openWorker(): Worker | null {
@@ -67,10 +72,10 @@ export async function encodeAudioBuffer(
   // Without Opus on the page there is nothing to resample with: the page's
   // encoder says why.
   if (format === 'opus' && !isOpusEncodingSupported()) {
-    return encodeOnPage(buffer, format, bitDepth);
+    return encodeOnPage(buffer, format, bitDepth, signal);
   }
   const worker = openWorker();
-  if (!worker) return encodeOnPage(buffer, format, bitDepth);
+  if (!worker) return encodeOnPage(buffer, format, bitDepth, signal);
 
   let source = buffer;
   try {
@@ -138,9 +143,9 @@ export async function encodeAudioBuffer(
     },
   );
 
-  if (answer === 'page') return encodeOnPage(source, format, bitDepth);
+  if (answer === 'page') return encodeOnPage(source, format, bitDepth, signal);
   if ('bytes' in answer) return answer.bytes;
-  if (answer.unsupported) return encodeOnPage(source, format, bitDepth);
+  if (answer.unsupported) return encodeOnPage(source, format, bitDepth, signal);
   throw new Error(answer.error);
 }
 

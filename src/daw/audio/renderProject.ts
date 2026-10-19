@@ -242,6 +242,14 @@ export function projectEndTick(
   return endTick;
 }
 
+// Settles once every render started so far has handed Tone's global context
+// back (its graph is built, or it failed and was restored). A new render
+// waits for it before it takes the live context to hand back: one started
+// meanwhile (the dialog can close and reopen mid-export) would otherwise take
+// the offline context for the live one and leave Play on it (audio-core-01).
+let contextsBack: Promise<void> = Promise.resolve();
+let rendersHoldingContext = 0;
+
 /**
  * Render the project (or loop region) offline and return the mixed AudioBuffer.
  * Reconstructs the full graph on the offline context; reuses the live
@@ -294,7 +302,26 @@ export async function renderProject(
   // the live one to hand back after any failure: otherwise Play, the metronome
   // and every transport-scheduled clip stay bound to a dead context until a
   // reload (audio-core-01).
-  const live = Tone.getContext();
+  let live: ReturnType<typeof Tone.getContext> | null = null;
+  // This render's offline context, Tone's global while its graph is built.
+  let offline: unknown = null;
+  const waitFor = contextsBack;
+  const othersHolding = rendersHoldingContext > 0;
+  rendersHoldingContext++;
+  let handedBack = false;
+  let markHandedBack: () => void = () => {};
+  contextsBack = Promise.all([
+    waitFor,
+    new Promise<void>((resolve) => {
+      markHandedBack = resolve;
+    }),
+  ]).then(() => {});
+  const contextBack = () => {
+    if (handedBack) return;
+    handedBack = true;
+    rendersHoldingContext--;
+    markHandedBack();
+  };
   // Set once this call is over, so an instrument that loads after a timeout
   // is dropped instead of scheduling its notes.
   let settled = false;
@@ -309,8 +336,15 @@ export async function renderProject(
 
   try {
     throwIfAborted(signal);
+    if (othersHolding) {
+      await untilAborted(waitFor, signal);
+      // Tone.Offline points the global back just after a callback ends.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    live = Tone.getContext();
     const rendering = Tone.Offline(
       async (offlineCtx) => {
+        offline = offlineCtx;
         const transport = Tone.getTransport();
         // The offline clock can run a tick on a block edge twice (at 48 kHz,
         // 3 to 5 beats in 16), and every note, clip and CC on it with it.
@@ -322,12 +356,17 @@ export async function renderProject(
         // context.
         const ctx = offlineCtx.rawContext as unknown as AudioContext;
 
-        // Only the chains this render builds.
-        await prepareReverbIrs(ctx, [
-          ...(withMastering ? [masteringEffects] : []),
-          ...(withReturns ? returns.map((ret) => ret.effects) : []),
-          ...(dry ? [] : renderedTracks.map((track) => track.effects)),
-        ]);
+        // Only the chains this render builds. A first IR fetch can take
+        // seconds, so a cancel doesn't wait for it.
+        await untilAborted(
+          prepareReverbIrs(ctx, [
+            ...(withMastering ? [masteringEffects] : []),
+            ...(withReturns ? returns.map((ret) => ret.effects) : []),
+            ...(dry ? [] : renderedTracks.map((track) => track.effects)),
+          ]),
+          signal,
+        );
+        throwIfAborted(signal);
 
         // Master → mastering chain → offline destination.
         const master = ctx.createGain();
@@ -490,12 +529,18 @@ export async function renderProject(
         throwIfAborted(signal);
         transport.start(0);
         if (signal || onProgress) {
-          watch.current = watchRender(offlineCtx, ctx, duration, {
+          // Its clock (and Tone's private end of it) as watchRender reads it.
+          const clock = offlineCtx as unknown as Parameters<
+            typeof watchRender
+          >[0];
+          watch.current = watchRender(clock, ctx, duration, {
             signal,
             onProgress,
             stop,
           });
         }
+        // Tone.Offline points the global back as this returns.
+        contextBack();
       },
       duration,
       2,
@@ -511,7 +556,12 @@ export async function renderProject(
   } finally {
     settled = true;
     watch.current?.dispose();
-    if (Tone.getContext() !== live) Tone.setContext(live);
+    // Only while the global is still this render's: a later render may hold
+    // it by now.
+    if (live && offline !== null && Tone.getContext() === offline) {
+      Tone.setContext(live);
+    }
+    contextBack();
     // Tear down the graph so its gate/duck interval loops stop.
     for (const d of disposables) {
       try {
@@ -589,7 +639,7 @@ function suspendableContext(raw: unknown): SuspendableContext | null {
  * it does nothing, and the caller hears a cancel when the render ends.
  */
 function watchRender(
-  toneCtx: { currentTime: number },
+  toneCtx: { currentTime: number; _duration?: number },
   raw: unknown,
   duration: number,
   {
@@ -602,8 +652,21 @@ function watchRender(
     stop: (reason: unknown) => void;
   },
 ): { dispose(): void } {
+  // A cancel during Tone's clock pass ends the pass (Tone's private
+  // `_duration`, which its loop runs to), rather than run it over the whole
+  // song for a render nobody wants.
+  const endClock = () => {
+    if (typeof toneCtx._duration === 'number') toneCtx._duration = -1;
+  };
   const native = suspendableContext(raw);
-  if (!native) return { dispose() {} };
+  if (!native) {
+    signal?.addEventListener('abort', endClock, { once: true });
+    return {
+      dispose() {
+        signal?.removeEventListener('abort', endClock);
+      },
+    };
+  }
 
   let alive = true;
   let last = 0;
@@ -662,6 +725,7 @@ function watchRender(
   // Once rendering, a cancel ends the render at once where every point was
   // taken: the context pauses at the next one and is never resumed.
   const onAbort = () => {
+    if (!clockDone) endClock();
     if (everyPoint) stop(abortError());
   };
   signal?.addEventListener('abort', onAbort, { once: true });

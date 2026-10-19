@@ -17,6 +17,8 @@ const render = vi.hoisted(() => ({
   calls: [] as RenderOptions[],
   // Runs as each render starts: a collaborator's edit meanwhile.
   meanwhile: null as ((opts: RenderOptions) => void) | null,
+  // Runs as each file is encoded (on the page here: there is no Worker).
+  encoding: null as (() => void) | null,
 }));
 vi.mock('../renderProject', () => ({
   renderProject: async (opts: RenderOptions) => {
@@ -31,7 +33,10 @@ const encodeAs = (buffer: unknown) =>
   new TextEncoder().encode((buffer as { renderedTrack: string }).renderedTrack)
     .buffer;
 vi.mock('@/lib/studio-assets/encode-wav', () => ({
-  audioBufferToWav: (buffer: unknown) => encodeAs(buffer),
+  audioBufferToWav: (buffer: unknown) => {
+    render.encoding?.();
+    return encodeAs(buffer);
+  },
 }));
 vi.mock('@/lib/studio-assets/encode-opus', () => ({
   isOpusEncodingSupported: () => true,
@@ -90,6 +95,7 @@ const bytes = (text: string) => new TextEncoder().encode(text);
 beforeEach(() => {
   render.calls.length = 0;
   render.meanwhile = null;
+  render.encoding = null;
   zip.entries = [];
   zip.finished = 0;
   store.state = {
@@ -398,5 +404,28 @@ describe('progress and Cancel (milestone 1.11)', () => {
     await exportProjectAudio({ format: 'wav', range: 'project' });
     expect(render.calls[0]).not.toHaveProperty('signal');
     expect(render.calls[0]).not.toHaveProperty('onProgress');
+  });
+
+  it('a cancel while the page encodes makes no file (mix and stems)', async () => {
+    const mixStop = new AbortController();
+    render.encoding = () => mixStop.abort();
+    await expect(
+      exportProjectAudio(
+        { format: 'wav', range: 'project' },
+        undefined,
+        mixStop.signal,
+      ),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+
+    const stemsStop = new AbortController();
+    render.encoding = () => stemsStop.abort();
+    await expect(
+      exportStems(
+        { format: 'wav', range: 'project' },
+        undefined,
+        stemsStop.signal,
+      ),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+    expect(zip.entries).toHaveLength(0);
   });
 });

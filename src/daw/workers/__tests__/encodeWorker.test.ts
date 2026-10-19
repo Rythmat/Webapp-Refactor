@@ -25,6 +25,7 @@ const opus = vi.hoisted(() => ({
   resampledTo: null as number | null,
   pageCalls: [] as number[],
   workerCalls: [] as number[],
+  onPage: null as (() => void) | null,
 }));
 vi.mock('@/lib/studio-assets/encode-opus', () => ({
   isOpusEncodingSupported: () => true,
@@ -41,6 +42,7 @@ vi.mock('@/lib/studio-assets/encode-opus', () => ({
   },
   audioBufferToOpusWebm: async (buffer: AudioBuffer) => {
     opus.pageCalls.push(buffer.sampleRate);
+    opus.onPage?.();
     return new Uint8Array([1, 2, 3]).buffer;
   },
   pcmToOpusWebm: async (_channels: Float32Array[], sampleRate: number) => {
@@ -126,6 +128,7 @@ beforeEach(() => {
   opus.resampledTo = null;
   opus.pageCalls = [];
   opus.workerCalls = [];
+  opus.onPage = null;
   resetEncodeWorkerForTests();
   vi.stubGlobal('Worker', FakeWorker);
 });
@@ -200,6 +203,16 @@ describe('Cancel', () => {
     controller.abort();
     await expect(done).rejects.toMatchObject({ name: 'AbortError' });
     expect(FakeWorker.made[0].terminated).toBe(true);
+  });
+
+  it('on the page (no Worker), a cancel during the encode gives no bytes', async () => {
+    vi.stubGlobal('Worker', undefined);
+    const controller = new AbortController();
+    opus.onPage = () => controller.abort();
+    await expect(
+      encodeAudioBuffer(mix(), 'opus', 16, controller.signal),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+    expect(opus.pageCalls).toEqual([44100]);
   });
 
   it('starts nothing once already cancelled', async () => {

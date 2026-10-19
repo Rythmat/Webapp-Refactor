@@ -11,6 +11,81 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const reportCompletion = vi.hoisted(() => vi.fn());
+
+// The engine's sample lesson: Studio Basics' first lesson as the demo engine
+// was built (open Mix, back to Create, a demo of store actions), so these
+// tests hold the engine and not the lesson's copy, which is written apart.
+// It stands in for the course's first lesson, keeping its place and its
+// end card.
+const SAMPLE = vi.hoisted(() => ({
+  id: 'studio-basics-your-tracks',
+  steps: [
+    {
+      id: 'open-mix',
+      stage: 'Your tracks',
+      instruction: 'Open the **Mix** view.',
+      target: 'view-switch-studio',
+      requires: { view: 'arrange' as const, libraryOpen: false },
+      demo: [
+        {
+          target: 'view-switch-studio',
+          caption: 'Mix shows every track side by side',
+          action: 'click' as const,
+        },
+        {
+          target: 'mixer-section',
+          caption: 'Each strip is one track of the song',
+          action: 'hover' as const,
+        },
+        {
+          target: 'view-switch-arrange',
+          caption: 'Create is where you build the song',
+          action: 'click' as const,
+        },
+      ],
+      check: (st: { currentView: string }) => st.currentView === 'studio',
+    },
+    {
+      id: 'back-to-create',
+      stage: 'Your tracks',
+      instruction: 'Now go back to **Create**.',
+      target: 'view-switch-arrange',
+      check: (st: { currentView: string }) => st.currentView === 'arrange',
+    },
+    {
+      id: 'more-views',
+      stage: 'Your tracks',
+      instruction: 'Press **Finish** when you are ready.',
+      target: 'add-track-button',
+      demo: [
+        {
+          target: 'view-switch-score',
+          caption: 'Score shows the same song as sheet music',
+          action: (st: { setCurrentView(v: string): void }) =>
+            st.setCurrentView('score'),
+        },
+        {
+          target: 'view-switch-arrange',
+          caption: 'Create brings you back',
+          action: (st: { setCurrentView(v: string): void }) =>
+            st.setCurrentView('arrange'),
+        },
+      ],
+    },
+  ],
+}));
+vi.mock('../tutorials', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../tutorials')>();
+  return {
+    ...actual,
+    getTutorial: (id: string | null) => {
+      const lesson = actual.getTutorial(id);
+      return lesson && id === SAMPLE.id
+        ? ({ ...lesson, steps: SAMPLE.steps } as unknown as typeof lesson)
+        : lesson;
+    },
+  };
+});
 vi.mock('@/features/classroom/msp', async () => ({
   studioTutorialActivityRef: (
     await vi.importActual<typeof import('@/features/classroom/msp')>(
@@ -36,7 +111,7 @@ import { anchorEl, stubReducedMotion } from './anchorTestUtils';
 // Skip and Show me again; a course lesson's end card and Next; a step with
 // no demo as before.
 
-const LESSON = 'studio-basics-your-tracks';
+const LESSON = SAMPLE.id;
 const s = () => useStore.getState();
 const steps = () => getTutorial(LESSON)!.steps;
 
@@ -322,7 +397,8 @@ describe('a course lesson’s end', () => {
     function Where() {
       return <output aria-label="where">{useLocation().pathname}</output>;
     }
-    act(() => s().resumeTutorial('studio-basics-record', 0));
+    const last = getTutorial('studio-basics-record')!.steps.length - 1;
+    act(() => s().resumeTutorial('studio-basics-record', last));
     render(
       <MemoryRouter initialEntries={['/studio/editor']}>
         <Routes>

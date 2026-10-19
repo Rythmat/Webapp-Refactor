@@ -2,9 +2,11 @@ import type { StepCheck, TutorialStep } from '../../tutorials';
 import { doneMomentMoved } from '../saveAndExportChecks';
 
 // ── Studio Basics 7 · The Lead Sheet ───────────────────────────────────
-// The chords over the melody: open the Lead sheet, turn Melody on, pick the
-// tracks it shows, turn it off for the chord chart, change a chord symbol,
-// and print. Each demo leaves the sheet as it found it: Melody goes on and
+// The chords over the melody. The lead sheet is the Score page's other
+// layout, so the lesson opens the Score page, then switches it to Lead
+// sheet. There it turns Melody on, picks the tracks it shows, turns it off
+// for the chord chart, changes a chord symbol, and prints. Each demo leaves
+// the page as it found it: the layout switches and back, Melody goes on and
 // off again, the picker opens and closes, and the chord the demo opens for
 // editing is left with Esc.
 //
@@ -48,15 +50,51 @@ export const chordChanged: StepCheck = (s, armed) => {
 
 export const leadSheetSteps: TutorialStep[] = [
   {
-    id: 'open-lead-sheet',
+    id: 'open-score',
     stage: STAGE,
-    instruction: 'Click **Lead sheet** at the top to see your song’s chords.',
-    target: 'view-switch-leadsheet',
+    instruction:
+      'Click **Score** at the top. The lead sheet is on the same page.',
+    target: 'view-switch-score',
     requires: { view: 'arrange', libraryOpen: false },
     demo: [
       {
+        target: 'view-switch-score',
+        caption: 'Sheet music lives under **Score**',
+        action: 'click',
+      },
+      {
+        // Leaves the page on its Full score, which the Score tab then opens
+        // for the student: the switch to the lead sheet is the next step.
+        target: 'view-switch-fullscore',
+        caption: 'The page has a **Full score**',
+        action: 'click',
+      },
+      {
         target: 'view-switch-leadsheet',
-        caption: 'A **lead sheet** shows the chords to play',
+        caption: 'And a **Lead sheet**, beside it',
+        action: 'hover',
+      },
+      {
+        target: 'view-switch-arrange',
+        caption: '**Create** takes you back',
+        action: 'click',
+      },
+    ],
+    // Either layout: the Score tab opens the one last shown.
+    check: (s) => s.currentView === 'score' || s.currentView === 'leadsheet',
+  },
+  {
+    id: 'open-lead-sheet',
+    stage: STAGE,
+    instruction:
+      'Click **Lead sheet**, at the top left of the page, to see your song’s chords.',
+    hint: 'A lead sheet is what a band plays from: the chords, with the tune when you want it.',
+    target: 'view-switch-leadsheet',
+    requires: { view: 'score' },
+    demo: [
+      {
+        target: 'view-switch-leadsheet',
+        caption: 'A **lead sheet** shows the chords',
         action: 'click',
       },
       {
@@ -65,8 +103,8 @@ export const leadSheetSteps: TutorialStep[] = [
         action: 'hover',
       },
       {
-        target: 'view-switch-arrange',
-        caption: '**Create** takes you back',
+        target: 'view-switch-fullscore',
+        caption: '**Full score** goes back to every staff',
         action: 'click',
       },
     ],
@@ -76,7 +114,7 @@ export const leadSheetSteps: TutorialStep[] = [
     id: 'melody-on',
     stage: STAGE,
     instruction:
-      'Click **Melody** to write the tune on the staff, under the chords.',
+      'Click **Melody** to write the tune on a staff, under the chords.',
     hint: 'The staff is the five lines the notes sit on.',
     target: 'leadsheet-melody-toggle',
     requires: { view: 'leadsheet' },
@@ -152,7 +190,7 @@ export const leadSheetSteps: TutorialStep[] = [
     stage: STAGE,
     instruction:
       'Double-click a chord symbol, type a new chord (try **Dm** or **Fmaj7**), and press **Enter**.',
-    hint: 'A chord symbol is the chord’s name over a bar, like F for F major. No chord there? Double-click a beat to write one.',
+    hint: 'A chord symbol is the chord’s name over a bar, like F maj for F major. No chord there? Double-click a beat to write one.',
     target: [...A_CHORD, 'leadsheet-sheet'],
     requires: { view: 'leadsheet' },
     demo: [
@@ -183,7 +221,7 @@ export const leadSheetSteps: TutorialStep[] = [
     id: 'print',
     stage: STAGE,
     instruction:
-      'Click **PDF** to print the lead sheet, or save it as a PDF from the print window.',
+      'Click **PDF**, in the bar above the sheet, to print the lead sheet, or save it as a PDF from the print window.',
     target: 'leadsheet-print',
     requires: { view: 'leadsheet' },
     demo: [
@@ -204,7 +242,7 @@ export const leadSheetSteps: TutorialStep[] = [
     id: 'wrap-up',
     stage: STAGE,
     instruction:
-      'That’s the lead sheet: the chords a band reads, with the tune when you want it. Press **Finish** to go on to looping.',
+      'That’s the lead sheet: the chords a band reads, with the tune when you want it. **Full score** and **Lead sheet** switch the page between the two. Press **Finish** to go on to looping.',
     target: 'leadsheet-sheet',
   },
 ];

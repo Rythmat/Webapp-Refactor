@@ -41,8 +41,25 @@ describe('the course’s song, for the lead sheet', () => {
 });
 
 describe('The Lead Sheet', () => {
-  it('open-lead-sheet passes once the Lead sheet is open', () => {
+  it('open-score passes once the Score page shows, on either layout', () => {
+    let { passes } = arm(LEAD_SHEET, 'open-score');
+    expect(s().currentView).toBe('arrange');
+    expect(passes()).toBe(false);
+    s().setCurrentView('studio');
+    expect(passes()).toBe(false);
+    // The Score tab opens the layout last shown.
+    s().setCurrentView('score');
+    expect(passes()).toBe(true);
+    ({ passes } = arm(LEAD_SHEET, 'open-score'));
+    s().setCurrentView('leadsheet');
+    expect(passes()).toBe(true);
+  });
+
+  it('open-lead-sheet starts on the Full score and passes on the Lead sheet', () => {
+    // From Create, or from the Lead sheet the Score tab may have opened.
+    s().setCurrentView('leadsheet');
     const { passes } = arm(LEAD_SHEET, 'open-lead-sheet');
+    expect(s().currentView).toBe('score');
     expect(passes()).toBe(false);
     s().setCurrentView('leadsheet');
     expect(passes()).toBe(true);

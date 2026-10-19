@@ -1139,7 +1139,6 @@ export const KNOWN_FAILURES = {
   '*/*/studio-basics-piano-roll/move-note': `${SB}: as add-note (the dock's Notes tab)`,
   '*/*/studio-basics-piano-roll/resize-note': `${SB}: as add-note (the dock's Notes tab)`,
   '*/*/studio-basics-piano-roll/delete-note': `${SB}: as add-note (the dock's Notes tab)`,
-  '*/*/studio-basics-lead-sheet/open-lead-sheet': `${SB}: the Lead sheet is a layout of the Score page (its switch shows on the Score page only, not from Create)`,
   '*/*/studio-basics-save-and-export/export-musicxml': `${SB}: Project ▾ ▸ Notation… opens the Export dialog on its last format (MIDI by default); MusicXML: lead sheet must be chosen there before Export`,
   '*/*/indie-movement-and-dynamics/open-automation':
     'new: ?tutorial= boots an empty session and no step adds a track, so there is no track menu to open',

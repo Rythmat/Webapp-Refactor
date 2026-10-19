@@ -192,6 +192,12 @@ export const SCORE_TO_SAVE_DRIVERS = {
     'wrap-up': NEXT,
   },
   'studio-basics-lead-sheet': {
+    'open-score': click(
+      'view-switch-score',
+      storeSet('setCurrentView(score)', () =>
+        window.__MA_STORE__.getState().setCurrentView('score'),
+      ),
+    ),
     'open-lead-sheet': click(
       'view-switch-leadsheet',
       storeSet('setCurrentView(leadsheet)', () =>

@@ -429,6 +429,16 @@ function measureAnchor(ids, rack = null) {
     const grid = [1 / 6, 1 / 2, 5 / 6];
     const cover = new Map();
     let missed = 0;
+    // An anchor the pointer passes through (the selected track's ring, the
+    // boxes over the timeline's canvas) frames what is under it: a hit on
+    // that, inside the nearest ancestor that takes the pointer, is no cover.
+    let frame = null;
+    if (style.pointerEvents === 'none') {
+      frame = el.parentElement;
+      while (frame && getComputedStyle(frame).pointerEvents === 'none') {
+        frame = frame.parentElement;
+      }
+    }
     grid.forEach((fy, iy) =>
       grid.forEach((fx, ix) => {
         const hit = document.elementFromPoint(
@@ -436,6 +446,7 @@ function measureAnchor(ids, rack = null) {
           v.t + fy * (v.b - v.t),
         );
         if (hit && (hit === el || el.contains(hit))) return;
+        if (hit && frame?.contains(hit) && !card?.contains(hit)) return;
         missed += 1;
         if (ix === 1 && iy === 1) out.centreCovered = true;
         const who = !hit

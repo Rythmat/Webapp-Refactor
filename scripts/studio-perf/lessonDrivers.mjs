@@ -75,6 +75,7 @@
  */
 
 import { SCORE_TO_SAVE_DRIVERS } from './studioBasicsScoreToSaveDrivers.mjs';
+import { TRACKS_TO_INSIGHT_DRIVERS } from './studioBasicsTracksToInsightDrivers.mjs';
 
 const anchor = (id) => `[data-tutorial-id="${id}"]`;
 
@@ -1011,25 +1012,20 @@ export const DRIVERS = {
     'hear-it': PRESS_PLAY,
     'second-lane': drawLanePoints('pan', 2),
   },
-  // Studio Basics, stop 4 of Start Here. Your Tracks is the demo engine's
-  // sample; the other eight are one free-form card each until their steps
-  // are written, and a free-form step needs no driver (lessons.mjs presses
-  // Next). A step with a demo is driven on the student's turn, once its demo
-  // has played (lessons.mjs waitForTurn).
-  'studio-basics-your-tracks': {
-    'open-mix': switchView('studio'),
-    'back-to-create': switchView('arrange'),
-    'more-views': NEXT,
-  },
+  // Studio Basics, stop 4 of Start Here, keeps its drivers in two files of
+  // its own (driverFor, below). A step with a demo is driven on the
+  // student's turn, once its demo has played (lessons.mjs waitForTurn).
 };
 
 /**
  * The driver for one step, or null when the lessons have changed. Studio
- * Basics 6 to 9 keep theirs in studioBasicsScoreToSaveDrivers.mjs.
+ * Basics 1 to 5 keep theirs in studioBasicsTracksToInsightDrivers.mjs, 6 to
+ * 9 in studioBasicsScoreToSaveDrivers.mjs.
  */
 export function driverFor(lessonId, stepId) {
   return (
     DRIVERS[lessonId]?.[stepId] ??
+    TRACKS_TO_INSIGHT_DRIVERS[lessonId]?.[stepId] ??
     SCORE_TO_SAVE_DRIVERS[lessonId]?.[stepId] ??
     null
   );

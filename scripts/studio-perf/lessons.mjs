@@ -739,6 +739,46 @@ const tutorialState = (page) =>
     };
   });
 
+/** The longest a step's demo may play before the walkthrough skips it. */
+const DEMO_TIMEOUT = 60_000;
+
+/**
+ * A step with a demo (TutorialStep.demo) plays it as it arrives, and the
+ * student acts on their turn: the walkthrough watches it the same way, so
+ * its driver never meets the blocker over the Studio. A demo that doesn't
+ * end in DEMO_TIMEOUT is the step's problem, and Skip moves it on. Returns
+ * how long the step waited (0 for a step with no demo).
+ */
+async function waitForTurn(page, lessonId, index, res) {
+  const started = Date.now();
+  const turn = ({ id, i }) => {
+    const s = window.__MA_STORE__.getState();
+    return (
+      s.activeTutorialId !== id ||
+      s.tutorialStepIndex !== i ||
+      (s.tutorialStepPrepared && s.tutorialDemoPhase === 'turn')
+    );
+  };
+  try {
+    await page.waitForFunction(
+      turn,
+      { id: lessonId, i: index },
+      { timeout: DEMO_TIMEOUT, polling: 100 },
+    );
+  } catch {
+    res.problems.push(`its demo did not end in ${DEMO_TIMEOUT / 1000} s`);
+    await page
+      .getByTestId('tutorial-coach-card')
+      .getByRole('button', { name: /Skip/ })
+      .click()
+      .catch(() => {});
+    await page
+      .waitForFunction(turn, { id: lessonId, i: index }, { timeout: 5000 })
+      .catch(() => {});
+  }
+  return Date.now() - started;
+}
+
 /** True once the lesson has moved past step `index` (or ended). */
 async function waitForAdvance(page, lessonId, index, timeout) {
   try {
@@ -1163,6 +1203,7 @@ async function runStep(env, step, index) {
       { timeout: 20_000, polling: 100 },
     )
     .catch(() => {});
+  res.ms.demo = await waitForTurn(page, lesson.id, index, res);
   let state = await tutorialState(page);
   const driver = driverFor(lesson.id, step.id);
   res.driver = driver

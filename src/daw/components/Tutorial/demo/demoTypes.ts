@@ -20,6 +20,10 @@ import type { AnchorRack, Target } from '../anchorRegistry';
 //   break this: it runs the beats left at once, without the glide or the
 //   pauses, so a skipped demo ends where a watched one does. (Quitting the
 //   lesson mid-demo stops it where it is.)
+// - A demo's edits to the song go through the store as the student's do, so
+//   they enter Undo's history (a mute and its unmute are two steps there),
+//   even when the song ends as it began. Where the lesson allows, show what
+//   isn't the song itself: views, panels, menus, selections.
 // - Don't do the student's task for them. The check is armed only after the
 //   demo, against the Studio as the demo left it, so a demo that leaves the
 //   task done (a demo that leaves Mix open, for a step that asks to open

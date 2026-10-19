@@ -62,6 +62,11 @@ interface CoachCardProps {
   };
   /** A course lesson's place in its course: "Lesson 3 of 9". */
   lessonPlace?: string;
+  /**
+   * Room kept clear all around the target, past its own box: while a demo
+   * plays, its callout sits beside the cursor on the target.
+   */
+  clearance?: number;
 }
 
 const CARD_WIDTH = 380;
@@ -181,6 +186,7 @@ export function CoachCard({
   onQuit,
   demo,
   lessonPlace,
+  clearance = 0,
 }: CoachCardProps) {
   const done = status === 'done';
   const watching = demo?.phase === 'watch';
@@ -208,8 +214,16 @@ export function CoachCard({
   useEffect(() => {
     const recompute = () => {
       const box = cardRef.current?.getBoundingClientRect();
+      const r = targetRect.current;
       const next = computeCardPos(
-        targetRect.current,
+        r && clearance
+          ? {
+              top: r.top - clearance,
+              left: r.left - clearance,
+              width: r.width + clearance * 2,
+              height: r.height + clearance * 2,
+            }
+          : r,
         box?.width || CARD_WIDTH,
         box?.height || 220,
         window.innerWidth,
@@ -249,7 +263,7 @@ export function CoachCard({
     };
     // `key` is the value-stable form of `target` + `rack`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, clearance]);
 
   return (
     <motion.div

@@ -163,23 +163,33 @@ export function CourseEndCard({
       <div
         style={{
           display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
+          flexDirection: 'column',
           gap: 8,
           padding: '10px 16px 16px',
         }}
       >
         {next ? (
-          <button onClick={onNext} style={pill(true)}>
+          <button
+            onClick={onNext}
+            style={{ ...pill(true), justifyContent: 'center' }}
+          >
             Next: {next.title} <ArrowRight size={15} />
           </button>
         ) : null}
-        <button onClick={onBackToCourse} style={pill(!next)}>
-          Back to the course
-        </button>
-        <button onClick={onDone} style={pill(false)}>
-          Done
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={onBackToCourse}
+            style={{ ...pill(!next), flex: 1, justifyContent: 'center' }}
+          >
+            Back to the course
+          </button>
+          <button
+            onClick={onDone}
+            style={{ ...pill(false), flex: 1, justifyContent: 'center' }}
+          >
+            Done
+          </button>
+        </div>
       </div>
     </motion.section>
   );

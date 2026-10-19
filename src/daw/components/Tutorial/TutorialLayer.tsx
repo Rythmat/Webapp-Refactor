@@ -52,6 +52,9 @@ const PULSE_KEYFRAMES = `
 }
 `;
 
+/** Room the coach card leaves around a demo's target for its callout. */
+const DEMO_CALLOUT_ROOM = 72;
+
 const overlayStyle = {
   position: 'fixed',
   inset: 0,
@@ -274,6 +277,7 @@ export function TutorialLayer() {
         lessonPlace={
           place ? `Lesson ${place.number} of ${place.total}` : undefined
         }
+        clearance={watching ? DEMO_CALLOUT_ROOM : 0}
       />
       {watching && (
         <DemoStage frame={demo.frame} reducedMotion={reducedMotion} />

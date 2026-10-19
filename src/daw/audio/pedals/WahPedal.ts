@@ -2,17 +2,29 @@
 // Envelope-follower auto-wah with selectable filter type (LP/BP/HP),
 // envelope-modulated frequency and resonance, and wet/dry mix.
 //
-// The envelope follower runs on the editor's shared frame loop (engineClock)
-// while the pedal is on, and stops while it is bypassed or disposed.
+// The envelope follower runs on the audio thread: the dynamics worklet in
+// 'follower' mode turns the input's level into a 0–1 control signal, and two
+// gains scale it onto the filter's frequency and Q, which hold the base
+// values. Attack and decay are time constants in seconds, so the sweep is the
+// same at any frame rate (and keeps going through main-thread jank). While
+// the pedal is bypassed the follower hears nothing and rests at 0.
 
 import type { PedalProcessor } from './PedalProcessor';
-import { addFrameTask } from '@/daw/engine/engineClock';
+import {
+  createWorkletNode,
+  disposeWorkletNode,
+  DYNAMICS_PROCESSOR,
+  DYNAMICS_WORKLET_URL,
+  ensureWorklet,
+  supportsWorklets,
+} from '../graph/workletRegistry';
 
 const FILTER_TYPES: BiquadFilterType[] = ['lowpass', 'bandpass', 'highpass'];
 
 export class WahPedal implements PedalProcessor {
   readonly type = 'wah';
 
+  private ctx: BaseAudioContext;
   private inputNode: GainNode;
   private outputNode: GainNode;
   private bypassNode: GainNode;
@@ -20,30 +32,24 @@ export class WahPedal implements PedalProcessor {
   private dryGain: GainNode;
   private wetGain: GainNode;
   private levelGain: GainNode;
-  private analyser: AnalyserNode;
-  private analyserData: Float32Array;
+  // The envelope (0–1) scaled to Hz and to Q, summed into the filter's own
+  // frequency and Q (the base values).
+  private freqEnvGain: GainNode;
+  private resEnvGain: GainNode;
+  private follower: AudioWorkletNode | null = null;
   private enabled = true;
+  private disposed = false;
 
-  // Envelope follower state
+  // Follower settings, in the worklet's units
   private sensitivity = 5; // 0.1–10
-  private attackCoeff = 0.3; // per-frame smoothing coefficient
-  private decayCoeff = 0.05;
-  private baseFreq = 1000; // Hz
-  private freqEnvAmt = 2000; // Hz
-  private baseQ = 5;
-  private resEnvAmt = 0;
-  private envelope = 0; // current envelope value 0–1
-  private stopFollower: (() => void) | null = null;
+  private attackSec = 0.001 + 0.3 * 0.099; // 1–100 ms
+  private decaySec = 0.01 + 0.5 * 0.99; // 10–1000 ms
 
-  constructor(ctx: AudioContext) {
+  constructor(ctx: BaseAudioContext) {
+    this.ctx = ctx;
     this.inputNode = ctx.createGain();
     this.outputNode = ctx.createGain();
     this.bypassNode = ctx.createGain();
-
-    // Analyser for envelope follower (reads input RMS)
-    this.analyser = ctx.createAnalyser();
-    this.analyser.fftSize = 256;
-    this.analyserData = new Float32Array(this.analyser.fftSize);
 
     // Filter (switchable LP/BP/HP)
     this.filter = ctx.createBiquadFilter();
@@ -61,12 +67,16 @@ export class WahPedal implements PedalProcessor {
     this.levelGain = ctx.createGain();
     this.levelGain.gain.value = 0.7;
 
-    // Compute default attack/decay coefficients (~60fps)
-    this.attackCoeff = this.computeCoeff(0.001 + 0.3 * 0.099);
-    this.decayCoeff = this.computeCoeff(0.01 + 0.5 * 0.99);
+    // Envelope → filter: 2000 Hz and 0 Q of sweep by default
+    this.freqEnvGain = ctx.createGain();
+    this.freqEnvGain.gain.value = 2000;
+    this.resEnvGain = ctx.createGain();
+    this.resEnvGain.gain.value = 0;
+    this.freqEnvGain.connect(this.filter.frequency);
+    this.resEnvGain.connect(this.filter.Q);
 
     this.wireEnabled();
-    this.syncEnvelopeFollower();
+    this.loadFollower();
   }
 
   getInputNode(): AudioNode {
@@ -86,7 +96,6 @@ export class WahPedal implements PedalProcessor {
     this.wetGain.disconnect();
     this.levelGain.disconnect();
     this.wireEnabled();
-    this.syncEnvelopeFollower();
   }
 
   updateParams(params: Record<string, number>): void {
@@ -96,11 +105,11 @@ export class WahPedal implements PedalProcessor {
     }
     if (params.attack !== undefined) {
       // 0-1 → 1ms to 100ms
-      this.attackCoeff = this.computeCoeff(0.001 + params.attack * 0.099);
+      this.attackSec = 0.001 + params.attack * 0.099;
     }
     if (params.decay !== undefined) {
       // 0-1 → 10ms to 1000ms
-      this.decayCoeff = this.computeCoeff(0.01 + params.decay * 0.99);
+      this.decaySec = 0.01 + params.decay * 0.99;
     }
     if (params.filterType !== undefined) {
       const idx = Math.round(params.filterType);
@@ -108,91 +117,93 @@ export class WahPedal implements PedalProcessor {
     }
     if (params.frequency !== undefined) {
       // 0-1 → 100 to 5000 Hz (exponential)
-      this.baseFreq = 100 * Math.pow(50, params.frequency);
+      this.filter.frequency.value = 100 * Math.pow(50, params.frequency);
     }
     if (params.level !== undefined) {
       this.levelGain.gain.value = params.level;
     }
     if (params.freqEnvAmt !== undefined) {
       // 0-1 → 0 to 4000 Hz
-      this.freqEnvAmt = params.freqEnvAmt * 4000;
+      this.freqEnvGain.gain.value = params.freqEnvAmt * 4000;
     }
     if (params.resonance !== undefined) {
       // 0-1 → Q 0.5 to 20
-      this.baseQ = 0.5 + params.resonance * 19.5;
+      this.filter.Q.value = 0.5 + params.resonance * 19.5;
     }
     if (params.resEnvAmt !== undefined) {
       // 0-1 → 0 to 15 Q
-      this.resEnvAmt = params.resEnvAmt * 15;
+      this.resEnvGain.gain.value = params.resEnvAmt * 15;
     }
     if (params.mix !== undefined) {
       this.dryGain.gain.value = 1 - params.mix;
       this.wetGain.gain.value = params.mix;
     }
+    this.applyFollowerParams();
   }
 
   dispose(): void {
-    this.stopFollower?.();
-    this.stopFollower = null;
+    this.disposed = true;
+    if (this.follower) disposeWorkletNode(this.follower);
+    this.follower = null;
     this.inputNode.disconnect();
     this.outputNode.disconnect();
     this.bypassNode.disconnect();
-    this.analyser.disconnect();
     this.filter.disconnect();
     this.dryGain.disconnect();
     this.wetGain.disconnect();
     this.levelGain.disconnect();
+    this.freqEnvGain.disconnect();
+    this.resEnvGain.disconnect();
   }
 
   // ── Private ──────────────────────────────────────────────────────────
 
-  /** Compute per-frame smoothing coefficient from time constant in seconds (~60fps) */
-  private computeCoeff(timeSec: number): number {
-    const framesPerSec = 60;
-    return 1 - Math.exp(-1 / (timeSec * framesPerSec));
+  /** The follower's AudioParams (its 'release' is the wah's decay). */
+  private followerParams(): Record<string, number> {
+    return {
+      sensitivity: this.sensitivity,
+      attack: this.attackSec,
+      release: this.decaySec,
+    };
   }
 
-  /** Runs the envelope follower only while the pedal is on. */
-  private syncEnvelopeFollower(): void {
-    if (this.enabled && !this.stopFollower) {
-      this.stopFollower = addFrameTask(this.tick, { name: 'wah-envelope' });
-    } else if (!this.enabled && this.stopFollower) {
-      this.stopFollower();
-      this.stopFollower = null;
-      // Back on, the sweep starts from rest rather than a stale level.
-      this.envelope = 0;
-    }
+  // Loads the worklet and makes the follower; until then the filter sits at
+  // its base frequency and Q. A follower that arrives after dispose is let go.
+  private loadFollower(): void {
+    if (!supportsWorklets(this.ctx)) return;
+    ensureWorklet(this.ctx, DYNAMICS_WORKLET_URL)
+      .then(() => {
+        if (this.disposed) return;
+        const node = createWorkletNode(this.ctx, DYNAMICS_PROCESSOR, {
+          numberOfInputs: 1,
+          numberOfOutputs: 1,
+          outputChannelCount: [1],
+          processorOptions: { mode: 'follower' },
+          parameterData: this.followerParams(),
+        });
+        this.follower = node;
+        node.connect(this.freqEnvGain);
+        node.connect(this.resEnvGain);
+        if (this.enabled) this.inputNode.connect(node);
+      })
+      .catch((err: unknown) => {
+        console.warn('[Wah] envelope follower failed to load:', err);
+      });
   }
 
-  private tick = (): void => {
-    this.analyser.getFloatTimeDomainData(
-      this.analyserData as Float32Array<ArrayBuffer>,
-    );
-
-    // Compute RMS of input signal
-    let sum = 0;
-    for (let i = 0; i < this.analyserData.length; i++) {
-      sum += this.analyserData[i] ** 2;
+  private applyFollowerParams(): void {
+    const node = this.follower;
+    if (!node) return;
+    for (const [name, value] of Object.entries(this.followerParams())) {
+      const param = node.parameters.get(name);
+      if (param) param.setValueAtTime(value, this.ctx.currentTime);
     }
-    const rms = Math.sqrt(sum / this.analyserData.length);
-
-    // Map RMS through sensitivity to get target envelope level
-    const target = Math.min(1, rms * this.sensitivity * 10);
-
-    // Attack/decay smoothing
-    const coeff = target > this.envelope ? this.attackCoeff : this.decayCoeff;
-    this.envelope += (target - this.envelope) * coeff;
-
-    // Apply envelope to filter parameters
-    this.filter.frequency.value =
-      this.baseFreq + this.envelope * this.freqEnvAmt;
-    this.filter.Q.value = this.baseQ + this.envelope * this.resEnvAmt;
-  };
+  }
 
   private wireEnabled(): void {
     if (this.enabled) {
-      // Analyser taps input for envelope detection
-      this.inputNode.connect(this.analyser);
+      // The follower taps the input for envelope detection
+      if (this.follower) this.inputNode.connect(this.follower);
       // Dry path
       this.inputNode.connect(this.dryGain);
       this.dryGain.connect(this.levelGain);

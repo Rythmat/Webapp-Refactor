@@ -74,6 +74,9 @@ export class NamAmpPedal implements PedalProcessor {
   // NAM
   private namNode: NamWorkletNode | null = null;
   private namInitPromise: Promise<void> | null = null;
+  // Set by dispose(): a NAM node that finishes loading after it is let go
+  // instead of being wired in.
+  private disposed = false;
 
   private enabled = true;
   private mode: AmpSimMode = 'nam';
@@ -182,24 +185,39 @@ export class NamAmpPedal implements PedalProcessor {
     model: NamModelFile,
     gainCompensation?: number,
   ): Promise<void> {
+    if (this.disposed) return;
     if (!this.namNode) {
       if (!this.namInitPromise) {
         const node = new NamWorkletNode(this.ctx);
         this.namInitPromise = node
           .init()
           .then(() => {
+            if (this.disposed) {
+              node.dispose();
+              return;
+            }
             this.namNode = node;
           })
           .catch((err) => {
+            node.dispose();
             this.namInitPromise = null;
             throw err;
           });
       }
       await this.namInitPromise;
     }
-    await this.namNode!.loadModel(model);
-    this.namNode!.setInputLevel(this.inputLevelValue * 2);
-    this.namNode!.setOutputLevel(this.outputLevelValue * 2);
+    const nam = this.namNode;
+    if (this.disposed || !nam) return;
+    try {
+      await nam.loadModel(model);
+    } catch (err) {
+      // Disposing the pedal ends a load under way; that is no failure.
+      if (this.disposed) return;
+      throw err;
+    }
+    if (this.disposed) return;
+    nam.setInputLevel(this.inputLevelValue * 2);
+    nam.setOutputLevel(this.outputLevelValue * 2);
     this.modelGain.gain.value = gainCompensation ?? 1.0;
     if (this.mode === 'nam') {
       this.wireChain();
@@ -221,6 +239,7 @@ export class NamAmpPedal implements PedalProcessor {
   }
 
   dispose(): void {
+    this.disposed = true;
     this.namNode?.dispose();
     this.namNode = null;
     this.inputNode.disconnect();

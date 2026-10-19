@@ -3,7 +3,7 @@
 // destination. Each slot is a module in graph/effects/ that owns its nodes and
 // its bypass wiring; this class only composes them, in one fixed order:
 //
-//   input → EQ → EQ makeup → Gate (+ analyser tap) → Compressor → Crush →
+//   input → EQ → EQ makeup → Gate → Compressor → Crush →
 //   Makeup (+ pre/post meter taps) → Presence → De-esser → Reverb → Delay →
 //   Saturator → Multiband → Ducker → output
 //
@@ -111,8 +111,9 @@ export interface SaturatorParams {
 }
 
 // Sidechain ducker (kick → bass/pad pump). Web Audio has no keyed compressor,
-// so this is a JS envelope-follower: it polls the KEY track's analyser (resolved
-// by id via an injected callback) and ducks this track's output gain.
+// so this is the dynamics worklet: the KEY track's post-fader tap (resolved by
+// id via an injected callback) is its second input, and it ducks this track's
+// output gain.
 export interface DuckerParams {
   enabled: boolean;
   keyTrackId: string | null; // the sidechain key source (another track's id)
@@ -308,10 +309,27 @@ export class EffectChain {
     this.buildChain();
   }
 
-  /** Inject the callback that resolves a key track's analyser by id (from the
-   *  playback engine's track registry). */
+  /** Inject the callback that resolves a key track's post-fader tap by id
+   *  (from the playback engine's track registry); the tap is connected to the
+   *  ducker's key input. */
   setKeySourceResolver(fn: (trackId: string) => AnalyserNode | null): void {
     this.ducker.setKeySourceResolver(fn);
+  }
+
+  /** Re-resolves the ducker's key tap (the track engines were made again). */
+  refreshDuckerKey(): void {
+    this.ducker.refreshKey();
+  }
+
+  /**
+   * Resolves once a gate or ducker that is on is in the path: their worklet
+   * module loads when they are first switched on. An offline render awaits
+   * this after its last update, before it starts.
+   */
+  whenDynamicsReady(): Promise<void> {
+    return Promise.all([this.gate.whenReady(), this.ducker.whenReady()]).then(
+      () => undefined,
+    );
   }
 
   /** Current sidechain gain reduction in dB (≤ 0) for the GR meter. */
@@ -331,7 +349,7 @@ export class EffectChain {
    * Resolve an `effect.<slot>.<param>` automation lane to its ramp target(s).
    * Only continuous, offline-renderable AudioParams are exposed — the value maps
    * mirror `update()` exactly (wet/dry pairs, presence dB, saturator mix). Gate,
-   * ducker (JS poll-loops, absent from the bounce), curve regens and IR swaps are
+   * ducker (worklet parameters, made only once switched on), curve regens and IR swaps are
    * deliberately NOT rideable; unsupported combos return []. Keep in sync with
    * AUTOMATION_PARAMS in automationParams.ts.
    */
@@ -354,16 +372,6 @@ export class EffectChain {
 
   getGainReduction(): number {
     return this.compressor.getGainReduction(); // negative dB value
-  }
-
-  // ── Gate polling loop ──────────────────────────────────────────────────
-
-  startGateLoop(): void {
-    this.gate.startLoop();
-  }
-
-  stopGateLoop(): void {
-    this.gate.stopLoop();
   }
 
   // ── Test seams: the nodes the chain's tests inspect ─────────────────────
@@ -441,15 +449,9 @@ export class EffectChain {
     this.multiband.update(newState.multiband, moduleOpts);
     this.ducker.update(newState.ducker, moduleOpts);
     this.hasUpdated = true;
-    // The gate's and the ducker's polling loops run only while their slot is
-    // enabled (one per track + master + every return bus would be needless
-    // main-thread pressure).
-    this.gate.runLoop();
-    this.ducker.runLoop();
   }
 
   dispose(): void {
-    this.gate.stopLoop();
     this.inputNode.disconnect();
     this.outputNode.disconnect();
     for (const module of this.modules) module.dispose();

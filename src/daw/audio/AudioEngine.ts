@@ -33,7 +33,6 @@ export class AudioEngine {
     this.masteringChain = new EffectChain(this.ctx);
     this.masterGain.connect(this.masteringChain.getInputNode());
     this.masteringChain.getOutputNode().connect(this.ctx.destination);
-    this.masteringChain.startGateLoop();
 
     // Return buses: returnChain → returnGain → masterGain. Track sends feed
     // the chain input. Effect state + volume are applied from the store by
@@ -44,7 +43,6 @@ export class AudioEngine {
       gain.gain.value = 0.8;
       chain.getOutputNode().connect(gain);
       gain.connect(this.masterGain);
-      chain.startGateLoop();
       this.returnBuses.set(id, chain);
       this.returnGains.set(id, gain);
     }
@@ -227,12 +225,8 @@ export class AudioEngine {
       document.removeEventListener('visibilitychange', this.handleVisibility);
     }
     if (this.ctx) this.ctx.onstatechange = null;
-    this.masteringChain?.stopGateLoop();
     this.masteringChain?.dispose();
-    for (const chain of this.returnBuses.values()) {
-      chain.stopGateLoop();
-      chain.dispose();
-    }
+    for (const chain of this.returnBuses.values()) chain.dispose();
     for (const gain of this.returnGains.values()) gain.disconnect();
     this.returnBuses.clear();
     this.returnGains.clear();

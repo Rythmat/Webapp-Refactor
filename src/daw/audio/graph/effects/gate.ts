@@ -1,136 +1,99 @@
-// ── Gate: a JS-polled noise gate ────────────────────────────────────────────
-// A 256-sample analyser taps the gate's input; a 16 ms interval reads its
-// peak and opens or closes the gate gain (the module's output node). The
-// loop runs only while the gate is enabled. Not automatable and not in a
-// bounce's timeline (its clock is the page's, not the render's).
+// ── Gate: a noise gate on the audio thread ──────────────────────────────────
+// The gate is the dynamics worklet in 'gate' mode (worklets/
+// dynamics-processor.js): a sample-accurate peak detector and gain, the same
+// in a live chain and an offline render. Its node is made when the gate is
+// first switched on (the worklet module loads then, once per context) and
+// let go when it goes off, so an off gate is out of the path:
+//
+//   off, or still loading:  source → output
+//   on:                     source → gate worklet → output
+//
+// `output` is a unity gain the module owns, the boundary with the
+// compressor. Not automatable: the parameters follow update().
 
 import type { AutomationTarget } from '../../automation';
 import type { GateParams } from '../../EffectChain';
+import {
+  createWorkletNode,
+  disposeWorkletNode,
+  DYNAMICS_PROCESSOR,
+  DYNAMICS_WORKLET_URL,
+  ensureWorklet,
+  isWorkletReady,
+  supportsWorklets,
+} from '../workletRegistry';
+import { safeVal, setParam, tryDisconnect } from './params';
 import type { EffectModule, EffectUpdateOptions } from './types';
+
+/** The worklet's AudioParams, from the gate's state. */
+function gateParams(g: GateParams): Record<string, number> {
+  return {
+    threshold: safeVal(g.threshold, -40),
+    range: safeVal(g.range, 40),
+    hold: safeVal(g.hold, 0.01),
+    attack: safeVal(g.attack, 0.001),
+    release: safeVal(g.release, 0.1),
+  };
+}
 
 export class GateModule implements EffectModule<GateParams> {
   readonly input = null;
   readonly output: GainNode;
   readonly latencySeconds = 0;
-  private readonly analyser: AnalyserNode;
-  private readonly gateGain: GainNode;
   private state: GateParams;
-  private gateOpen = true;
-  private gateHoldRemaining = 0;
-  private gateIntervalId: number | null = null;
+  private node: AudioWorkletNode | null = null;
+  private loading: Promise<void> | null = null;
+  private source: AudioNode | null = null;
+  private reductionDb = 0;
+  private disposed = false;
 
   constructor(
-    private readonly ctx: AudioContext,
+    private readonly ctx: BaseAudioContext,
     initial: GateParams,
   ) {
     this.state = structuredClone(initial);
-    this.analyser = ctx.createAnalyser();
-    this.analyser.fftSize = 256;
-    this.analyser.smoothingTimeConstant = 0;
-    this.gateGain = ctx.createGain();
-    this.gateGain.gain.value = 1;
-    this.output = this.gateGain;
+    this.output = ctx.createGain();
+    this.output.gain.value = 1;
   }
 
-  // source → analyser (parallel tap for level detection) + gate gain (this
-  // module's output, so also the destination)
   wire(source: AudioNode): void {
-    source.connect(this.analyser);
-    source.connect(this.gateGain);
+    this.source = source;
+    if (this.node) {
+      source.connect(this.node);
+      this.node.connect(this.output);
+    } else {
+      source.connect(this.output);
+    }
   }
 
   unwire(): void {
-    this.analyser.disconnect();
-    this.gateGain.disconnect();
+    this.output.disconnect();
+    if (this.node) tryDisconnect(this.node);
   }
 
-  startLoop(): void {
-    if (this.gateIntervalId !== null) return;
-    const buffer = new Float32Array(this.analyser.fftSize);
-    const POLL_MS = 16; // ~60Hz
-
-    this.gateIntervalId = window.setInterval(() => {
-      if (!this.state.enabled) {
-        if (this.gateGain.gain.value !== 1) {
-          this.gateGain.gain.setTargetAtTime(1, this.ctx.currentTime, 0.005);
-        }
-        return;
-      }
-
-      this.analyser.getFloatTimeDomainData(buffer);
-
-      // Peak detection
-      let peak = 0;
-      for (let i = 0; i < buffer.length; i++) {
-        const abs = Math.abs(buffer[i]);
-        if (abs > peak) peak = abs;
-      }
-      const peakDb = 20 * Math.log10(peak + 1e-10);
-
-      const { threshold, range, hold, attack, release } = this.state;
-      const closedGain = Math.pow(10, -range / 20);
-      const now = this.ctx.currentTime;
-
-      if (peakDb >= threshold) {
-        // Signal above threshold — open gate
-        if (!this.gateOpen) {
-          this.gateGain.gain.cancelScheduledValues(now);
-          this.gateGain.gain.setTargetAtTime(
-            1,
-            now,
-            Math.max(0.001, attack / 3),
-          );
-          this.gateOpen = true;
-        }
-        this.gateHoldRemaining = hold;
-      } else if (this.gateHoldRemaining > 0) {
-        // In hold period
-        this.gateHoldRemaining -= POLL_MS / 1000;
-      } else {
-        // Below threshold, hold expired — close gate
-        if (this.gateOpen) {
-          this.gateGain.gain.cancelScheduledValues(now);
-          this.gateGain.gain.setTargetAtTime(
-            closedGain,
-            now,
-            Math.max(0.005, release / 3),
-          );
-          this.gateOpen = false;
-        }
-      }
-    }, POLL_MS);
-  }
-
-  stopLoop(): void {
-    if (this.gateIntervalId !== null) {
-      clearInterval(this.gateIntervalId);
-      this.gateIntervalId = null;
-    }
-  }
-
-  // The loop reads its parameters from `state`; update() only resets the gain
-  // when the gate goes off. The composer runs the loop's lifecycle after the
-  // whole chain has updated (see runLoop).
-  update(gate: GateParams, _opts: EffectUpdateOptions): void {
-    if (!gate.enabled && this.state.enabled) {
-      this.gateGain.gain.cancelScheduledValues(this.ctx.currentTime);
-      this.gateGain.gain.setTargetAtTime(1, this.ctx.currentTime, 0.005);
-      this.gateOpen = true;
-    }
+  update(gate: GateParams, opts: EffectUpdateOptions): void {
     this.state = structuredClone(gate);
+    if (!gate.enabled) {
+      this.release();
+      return;
+    }
+    if (this.node) {
+      this.applyParams(opts.glide);
+    } else if (isWorkletReady(this.ctx, DYNAMICS_WORKLET_URL)) {
+      this.attach();
+    } else {
+      this.load();
+    }
   }
 
-  /**
-   * Runs the 60 Hz polling interval ONLY while the gate is enabled. It's cheap
-   * per tick but there is one per track + master + every return bus, so
-   * leaving them all running is needless main-thread pressure.
-   */
-  runLoop(): void {
-    if (this.state.enabled) {
-      this.startLoop();
-    } else if (this.gateIntervalId !== null) {
-      this.stopLoop();
-    }
+  /** Resolves once a gate switched on is in the path (or failed to load). */
+  whenReady(): Promise<void> {
+    return this.loading ?? Promise.resolve();
+  }
+
+  /** The gate's current gain reduction in dB (≤ 0). */
+  getReduction(): number {
+    return this.reductionDb;
   }
 
   automationTargets(): AutomationTarget[] {
@@ -138,8 +101,65 @@ export class GateModule implements EffectModule<GateParams> {
   }
 
   dispose(): void {
-    this.stopLoop();
-    this.analyser.disconnect();
-    this.gateGain.disconnect();
+    this.disposed = true;
+    this.release();
+    this.output.disconnect();
+  }
+
+  // Loads the worklet module; until it is in, the sound passes unchanged.
+  private load(): void {
+    if (this.loading || !supportsWorklets(this.ctx)) return;
+    this.loading = ensureWorklet(this.ctx, DYNAMICS_WORKLET_URL)
+      .then(() => {
+        if (!this.disposed && this.state.enabled && !this.node) this.attach();
+      })
+      .catch((err: unknown) => {
+        console.warn('[Gate] dynamics worklet failed to load:', err);
+      })
+      .finally(() => {
+        this.loading = null;
+      });
+  }
+
+  // Makes the gate's node and puts it in the path.
+  private attach(): void {
+    const node = createWorkletNode(this.ctx, DYNAMICS_PROCESSOR, {
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
+      outputChannelCount: [2],
+      processorOptions: { mode: 'gate' },
+      parameterData: gateParams(this.state),
+    });
+    node.port.onmessage = (e: MessageEvent) => {
+      if (e.data?.type === 'gr') this.reductionDb = e.data.db;
+    };
+    this.node = node;
+    if (this.source) {
+      tryDisconnect(this.source, this.output);
+      this.source.connect(node);
+    }
+    node.connect(this.output);
+  }
+
+  // Takes the gate out of the path and lets its node go.
+  private release(): void {
+    const node = this.node;
+    if (!node) return;
+    this.node = null;
+    this.reductionDb = 0;
+    if (this.source) {
+      tryDisconnect(this.source, node);
+      this.source.connect(this.output);
+    }
+    disposeWorkletNode(node);
+  }
+
+  private applyParams(glide: boolean): void {
+    const node = this.node;
+    if (!node) return;
+    for (const [name, value] of Object.entries(gateParams(this.state))) {
+      const param = node.parameters.get(name);
+      if (param) setParam(this.ctx, param, value, glide);
+    }
   }
 }

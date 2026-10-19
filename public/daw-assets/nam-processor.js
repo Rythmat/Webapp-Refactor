@@ -479,6 +479,12 @@ class NamProcessor extends AudioWorkletProcessor {
       case 'bypass':
         this.bypassed = data.value;
         break;
+      case 'dispose':
+        // The node was let go: drop the model and stop processing.
+        this.disposed = true;
+        this.engine = null;
+        this.port.onmessage = null;
+        break;
     }
   }
 
@@ -518,6 +524,7 @@ class NamProcessor extends AudioWorkletProcessor {
   }
 
   process(inputs, outputs) {
+    if (this.disposed) return false;
     const input = inputs[0]?.[0];
     const output = outputs[0]?.[0];
     if (!input || !output) return true;

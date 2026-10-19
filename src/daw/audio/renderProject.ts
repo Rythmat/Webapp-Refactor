@@ -21,10 +21,9 @@
 //     scheduled as absolute-time AudioParam ramps (applyOfflineAutomation).
 //   • Master volume automation (Track automation's grammar, on the master gain).
 // Deliberately NOT covered (documented gaps — see notes):
-//   • Ducker (Phase 5) and Gate rely on a JS setInterval loop that does NOT run
-//     during an OfflineAudioContext render (offline renders faster than real
-//     time), so sidechain ducking + gating are absent from the bounce. The rest
-//     of each track's chain still renders.
+//   • Gate and ducker (milestone 1.11): an AudioWorklet, loaded on the
+//     offline context too, so the bounce gates and ducks as playback does.
+// Still NOT covered:
 //   • SoundFont / GM tracks render SILENT. SoundFontAdapter drives a
 //     module-level singleton spessasynth WorkletSynthesizer bound to the first
 //     context it sees; it also unwraps ctx._nativeContext (bypassing the
@@ -276,10 +275,8 @@ export async function renderProject(
   const secPerTick = 60 / bpm / PPQ;
   const duration = Math.max(0.5, (endTick - startTick) * secPerTick + tail);
 
-  // EffectChains/TrackEngines each start a gate + duck window.setInterval on
-  // construction. Nothing stops those wall-clock loops when the offline render
-  // ends, so collect every disposable and tear them all down afterwards — else
-  // each export leaks N timers polling a dead graph forever.
+  // Everything the render builds is torn down afterwards (its gate and
+  // ducker worklet nodes included), so an export leaves nothing running.
   const disposables: Array<{ dispose(): void }> = [];
   // Tone.Offline points Tone's global context (and with it the transport) at
   // the offline one, and only points it back when the callback succeeds. Keep
@@ -344,10 +341,12 @@ export async function renderProject(
 
         // Return buses: each EffectChain → returnGain → master.
         const returnInputs = new Map<string, AudioNode>();
+        const returnChains: EffectChain[] = [];
         for (const ret of withReturns ? returns : []) {
           const chain = new EffectChain(ctx);
           disposables.push(chain);
           chain.update(ret.effects);
+          returnChains.push(chain);
           const g = ctx.createGain();
           g.gain.value = ret.volume;
           chain.getOutputNode().connect(g);
@@ -356,10 +355,12 @@ export async function renderProject(
         }
 
         const inits: Array<Promise<void>> = [];
+        const engines = new Map<string, TrackEngine>();
 
         for (const track of renderedTracks) {
           const te = new TrackEngine(ctx, master);
           disposables.push(te);
+          engines.set(track.id, te);
           te.setVolume(track.volume);
           te.setPan(track.pan);
           te.updateEffects(dry ? allSlotsOff(track.effects) : track.effects);
@@ -431,9 +432,24 @@ export async function renderProject(
           scheduleTrackClips(track, te, bpm, startTick);
         }
 
+        // A ducker listens to its key track here as it does live; a key track
+        // left out of this render (one track alone) ducks nothing.
+        for (const [id, te] of engines) {
+          te.setKeySourceResolver((key) =>
+            key === id ? null : (engines.get(key)?.getAnalyserNode() ?? null),
+          );
+        }
+        // Gates and duckers run in an AudioWorklet loaded per context
+        // (milestone 1.11): wait for theirs before the transport starts.
+        const dynamics = Promise.all([
+          ...[...engines.values()].map((te) => te.whenDynamicsReady()),
+          mastering.whenDynamicsReady(),
+          ...returnChains.map((chain) => chain.whenDynamicsReady()),
+        ]);
+
         await untilAborted(
           withTimeout(
-            Promise.all(inits),
+            Promise.all([...inits, dynamics]),
             INSTRUMENT_LOAD_TIMEOUT_MS,
             'Export gave up waiting for instruments to load',
           ),

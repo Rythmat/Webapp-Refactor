@@ -24,7 +24,7 @@ interface Internals {
   inputNode: RecNode;
   outputNode: RecNode;
   eq: { filterGroups: RecNode[][]; output: RecNode };
-  gate: { analyser: RecNode; output: RecNode };
+  gate: { output: RecNode };
   compressor: {
     preCompAnalyser: RecNode;
     compressor: RecNode;
@@ -51,7 +51,6 @@ function build() {
     [m.inputNode, 'input'],
     [m.outputNode, 'output'],
     [m.eq.output, 'eqMakeup'],
-    [m.gate.analyser, 'gateTap'],
     [m.gate.output, 'gate'],
     [m.compressor.preCompAnalyser, 'preTap'],
     [m.compressor.compressor, 'comp'],
@@ -121,7 +120,6 @@ describe('EffectChain composes its modules', () => {
     expect(edges().sort()).toEqual(
       [
         'input>eqMakeup',
-        'eqMakeup>gateTap',
         'eqMakeup>gate',
         'gate>preTap',
         'gate>pad',
@@ -228,17 +226,16 @@ describe('EffectChain composes its modules', () => {
     // the pad), delay 5,
     // presence 1, de-esser 5, saturator 5, multiband 1 + 3 bands (2+4+2
     // filters, comp, makeup, trim each) + sum, trim, wet, dry, ducker 1.
-    expect(rec.nodes).toHaveLength(2 + 7 + 9 + 2 + 6 + 5 + 1 + 5 + 5 + 22 + 1);
+    expect(rec.nodes).toHaveLength(2 + 7 + 9 + 1 + 6 + 5 + 1 + 5 + 5 + 22 + 1);
   });
 
   it('a fresh chain neither filters, compresses nor shapes the sound', () => {
     const { chain, m, reachable } = build();
     chain.update(structuredClone(DEFAULT_EFFECTS));
     const path = reachable();
-    expect(path.slice(0, 5)).toEqual([
+    expect(path.slice(0, 4)).toEqual([
       m.inputNode,
       m.eq.output,
-      m.gate.analyser,
       m.gate.output,
       m.compressor.preCompAnalyser,
     ]);

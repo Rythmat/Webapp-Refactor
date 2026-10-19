@@ -3,6 +3,12 @@
 // Handles registration, parameter updates, and pitch info messaging.
 // Pattern mirrors NamWorkletNode.ts.
 
+import {
+  createWorkletNode,
+  disposeWorkletNode,
+  ensureWorklet,
+} from '../graph/workletRegistry';
+
 export interface PitchCorrectionParams {
   correction: number; // 0-100 (snap strength)
   speed: number; // 0-100 (0=slow/natural, 100=instant)
@@ -92,48 +98,41 @@ export const DEFAULT_PITCH_CORRECTION: PitchCorrectionParams = {
   formantFollow: 0,
 };
 
-// ── Module-level guard for AudioWorklet registration ──────────────────────
-
-let moduleLoaded = false;
-let modulePromise: Promise<void> | null = null;
-
-async function ensureModuleLoaded(ctx: AudioContext): Promise<void> {
-  if (moduleLoaded) return;
-  if (!modulePromise) {
-    modulePromise = ctx.audioWorklet
-      .addModule('/daw-assets/pitch-correction-processor.js')
-      .then(() => {
-        moduleLoaded = true;
-      })
-      .catch((err) => {
-        modulePromise = null; // allow retry
-        throw err;
-      });
-  }
-  await modulePromise;
-}
+// The processor is added to each context once, by the worklet registry.
+const PITCH_WORKLET_URL = '/daw-assets/pitch-correction-processor.js';
 
 // ── PitchCorrectionNode class ─────────────────────────────────────────────
 
 export class PitchCorrectionNode {
-  private ctx: AudioContext;
+  private ctx: BaseAudioContext;
   private node: AudioWorkletNode | null = null;
+  private disposed = false;
   private _ready = false;
   private _pitchInfo: PitchInfo = { detected: 0, corrected: 0 };
   private _onPitchUpdate: ((info: PitchInfo) => void) | null = null;
 
-  constructor(ctx: AudioContext) {
+  constructor(ctx: BaseAudioContext) {
     this.ctx = ctx;
   }
 
+  /**
+   * Loads the processor (once per context) and makes the node. Rejects if
+   * dispose() came first: the node that would have arrived late is never
+   * made.
+   */
   async init(): Promise<void> {
-    if (this.ctx.state === 'suspended') {
-      await this.ctx.resume();
+    // An offline context starts when it renders, not on resume().
+    const live = this.ctx as AudioContext;
+    if (this.ctx.state === 'suspended' && typeof live.close === 'function') {
+      await live.resume();
     }
 
-    await ensureModuleLoaded(this.ctx);
+    await ensureWorklet(this.ctx, PITCH_WORKLET_URL);
+    if (this.disposed) {
+      throw new Error('[PitchCorrection] node disposed during init');
+    }
 
-    this.node = new AudioWorkletNode(this.ctx, 'pitch-correction-processor', {
+    this.node = createWorkletNode(this.ctx, 'pitch-correction-processor', {
       numberOfInputs: 1,
       numberOfOutputs: 1,
       outputChannelCount: [1], // mono processing
@@ -182,8 +181,10 @@ export class PitchCorrectionNode {
     this._onPitchUpdate = cb;
   }
 
+  /** Tells the processor to stop (process() returns false) and lets go. */
   dispose(): void {
-    this.node?.disconnect();
+    this.disposed = true;
+    if (this.node) disposeWorkletNode(this.node);
     this.node = null;
     this._ready = false;
     this._onPitchUpdate = null;

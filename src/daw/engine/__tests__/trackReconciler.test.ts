@@ -9,7 +9,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const calls = vi.hoisted(() => ({
   log: [] as string[],
-  engines: [] as Array<{ id: number; disposed: boolean }>,
+  engines: [] as Array<{
+    id: number;
+    disposed: boolean;
+    resolver: ((id: string) => unknown) | null;
+  }>,
+  refreshes: [] as number[],
   returnIds: [] as string[],
 }));
 
@@ -45,7 +50,16 @@ vi.mock('@/daw/audio/TrackEngine', () => ({
     setSend(id: string, level: number) {
       calls.log.push(`${this.id}:send ${id} ${level}`);
     }
-    setKeySourceResolver() {}
+    resolver: ((id: string) => unknown) | null = null;
+    setKeySourceResolver(fn: (id: string) => unknown) {
+      this.resolver = fn;
+    }
+    refreshDuckerKey() {
+      calls.refreshes.push(this.id);
+    }
+    getAnalyserNode() {
+      return { tapOf: this.id };
+    }
     setInstrument() {}
     allNotesOff() {}
     dispose() {
@@ -77,6 +91,7 @@ import { useStore } from '@/daw/store';
 import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
 import type { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
 import {
+  duckerKeyLoops,
   endTrackPreview,
   previewTrack,
   startTrackReconciler,
@@ -105,6 +120,7 @@ let reconciler: TrackReconciler | null = null;
 beforeEach(() => {
   calls.log.length = 0;
   calls.engines.length = 0;
+  calls.refreshes.length = 0;
   automation.cleared.length = 0;
   automation.scheduled.length = 0;
   trackEngineRegistry.clear();
@@ -280,5 +296,54 @@ describe('previews', () => {
     previewTrack(id, { volume: 0.5 });
     expect(automation.cleared).toEqual([]);
     expect(calls.log).toContain('0:volume 0.5');
+  });
+});
+
+describe('the ducker key wiring', () => {
+  function duckBy(id: string, keyTrackId: string): void {
+    const track = s().tracks.find((t) => t.id === id)!;
+    s().updateTrack(id, {
+      effects: {
+        ...track.effects,
+        ducker: { ...track.effects.ducker, enabled: true, keyTrackId },
+      },
+    });
+  }
+
+  it("resolves another track's post-fader tap, never its own", () => {
+    const bass = s().addTrack('midi', 'piano-sampler', 'Bass');
+    const kick = s().addTrack('midi', 'piano-sampler', 'Kick');
+    start();
+    const [bassEngine] = calls.engines;
+    expect(bassEngine.resolver!(kick)).toEqual({ tapOf: 1 });
+    expect(bassEngine.resolver!(bass)).toBeNull();
+    expect(bassEngine.resolver!('missing')).toBeNull();
+  });
+
+  it('refuses a key whose own ducker chain leads back (a cycle)', () => {
+    const a = s().addTrack('midi', 'piano-sampler', 'A');
+    const b = s().addTrack('midi', 'piano-sampler', 'B');
+    const c = s().addTrack('midi', 'piano-sampler', 'C');
+    start();
+    duckBy(b, c);
+    duckBy(c, a);
+    // A keyed by B: B ducks by C, C by A — a loop back to A.
+    expect(calls.engines[0].resolver!(b)).toBeNull();
+    expect(duckerKeyLoops(a, b)).toBe(true);
+    // C keyed by A is fine while A ducks by nothing.
+    expect(duckerKeyLoops(c, a)).toBe(false);
+    expect(calls.engines[2].resolver!(a)).toEqual({ tapOf: 0 });
+  });
+
+  it('every ducker re-resolves its key when engines are made again', () => {
+    s().addTrack('midi', 'piano-sampler', 'Bass');
+    start();
+    expect(calls.refreshes).toEqual([0]);
+    calls.refreshes.length = 0;
+    s().addTrack('midi', 'piano-sampler', 'Kick');
+    expect(calls.refreshes.sort()).toEqual([0, 1]);
+    calls.refreshes.length = 0;
+    s().updateTrack(s().tracks[0].id, { volume: 0.3 });
+    expect(calls.refreshes).toEqual([]);
   });
 });

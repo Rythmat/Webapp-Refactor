@@ -16,8 +16,8 @@ export class TrackEngine {
   // sends and the meter together.
   private audibleGain: GainNode;
   private analyserNode: AnalyserNode;
-  // The meters' own tap (meterTap.ts); analyserNode stays short for the
-  // ducker key that reads it.
+  // The meters' own tap (meterTap.ts); analyserNode is the post-fader tap a
+  // ducker on another track takes as its key (it passes the sound through).
   private meterAnalyser: AnalyserNode;
   // Post-fader aux sends: pannerNode → sendGain → returnBus input, keyed by
   // return id. `bus` is remembered so a return recreated with a new input node
@@ -48,9 +48,6 @@ export class TrackEngine {
     // Parallel metering tap (dead-end branch — does not alter signal path)
     this.pannerNode.connect(this.analyserNode);
     this.pannerNode.connect(this.meterAnalyser);
-
-    // Start gate polling loop
-    this.effectChain.startGateLoop();
   }
 
   getInputNode(): AudioNode {
@@ -165,10 +162,20 @@ export class TrackEngine {
     return this.sends.get(returnId)?.gain.gain ?? null;
   }
 
-  /** Wire the ducker's key-source lookup (resolves a key track's analyser by
-   *  id). Injected by the playback engine from its track registry. */
+  /** Wire the ducker's key-source lookup (resolves a key track's post-fader
+   *  tap by id). Injected by the playback engine from its track registry. */
   setKeySourceResolver(fn: (trackId: string) => AnalyserNode | null): void {
     this.effectChain.setKeySourceResolver(fn);
+  }
+
+  /** Re-resolves the ducker's key tap, after track engines were made again. */
+  refreshDuckerKey(): void {
+    this.effectChain.refreshDuckerKey();
+  }
+
+  /** Resolves once an enabled gate or ducker is in the path (see EffectChain). */
+  whenDynamicsReady(): Promise<void> {
+    return this.effectChain.whenDynamicsReady();
   }
 
   /** Current sidechain gain reduction in dB (≤ 0) for the ducker GR meter. */

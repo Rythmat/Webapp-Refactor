@@ -27,8 +27,14 @@ import {
   lessonStylesForLevel,
 } from '@/curriculum/data/lessonStyles';
 import {
+  bandVariation,
+  type PlayableBand,
+} from '@/curriculum/engine/band/band';
+import { getLiveBand, LIVE_ITEMS } from '@/curriculum/engine/band/registry';
+import {
   buildBackingNotes,
   getGrooveForStyleRef,
+  resolveStepGrooveId,
   stepBassVoice,
   stepDrumKit,
   type BackingNote,
@@ -37,6 +43,7 @@ import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbo
 import { genreBassVoice } from '@/curriculum/engine/genreGeneration/genreBassVoices';
 import { resolveStepContent } from '@/curriculum/engine/genreGeneration/resolveStepContent';
 import { swingPercent } from '@/curriculum/engine/genreGeneration/swing';
+import { pairedBassVoice } from '@/curriculum/engine/lessonPairings/pairedBacking';
 import { pairingForStyle } from '@/curriculum/engine/lessonPairings/registry';
 import {
   barTicks as meterBarTicks,
@@ -62,7 +69,11 @@ import type { MidiClip, StudioBassVoice } from '@/daw/store/tracksSlice';
 import type { GuitarPracticeInfo } from '@/daw/store/uiSlice';
 import { formatChord, normalizeQuality, parseChord } from '@/lib/chordNotation';
 import { stylisticVoicings } from '../chordVoicings';
-import { flowPracticeScales, type PracticeScale } from './practiceScales';
+import {
+  flowPracticeScales,
+  keyPracticeScales,
+  type PracticeScale,
+} from './practiceScales';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -215,7 +226,55 @@ export interface GenrePracticeTrackOptions {
   styleId?: string;
   /** Chord symbols to loop instead of the section's. */
   chords?: string[];
+  /**
+   * A key to play in instead of the flow's (a student's own chart, Music
+   * Literacy's Hear It with Your Band): the tonic's pitch class, major or
+   * natural minor, and how the tonic is spelled ('Bb'; the circle of
+   * fifths' spelling when left out). It sets everything the flow's key
+   * would: the tonic in the octave the flow's own sits in, the Studio's key
+   * and mode, the chord lane's colors, and the scales lit, the key's own
+   * and its pentatonic.
+   */
+  key?: PracticeTrackKey;
+  /**
+   * A live band's variation to play, whatever the style's pairing says. Its
+   * groove brings its meter and kit, and the style's own steps (not the
+   * section's last, which in a level of several styles may be another
+   * style's) give the tempo, the swing and the register. A band that isn't
+   * live builds nothing.
+   */
+  band?: { id: string; variation: string };
+  /**
+   * With `key`: the band's captured parts follow the chords, in that key
+   * (band.ts RealizeContext.followChords), instead of playing as written.
+   */
+  followChords?: true;
 }
+
+/** A Practice Track's own key (`GenrePracticeTrackOptions.key`). */
+export interface PracticeTrackKey {
+  tonicPc: number;
+  mode: 'ionian' | 'aeolian';
+  label?: string;
+}
+
+/** Each pitch class as the circle of fifths spells a key on it. */
+const KEY_LABELS = [
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B',
+];
+
+const pitchClass = (n: number) => ((n % 12) + 12) % 12;
 
 // ── Content gate ─────────────────────────────────────────────────────────────
 
@@ -246,10 +305,17 @@ export function flowHasPracticeTracks(flow: ActivityFlowV2): boolean {
  * The step a section's Practice Track is built from: the last one that plays
  * over a backing, else the last with any content at all. The last is the right
  * one — it is the most developed thing the section taught, and the Practice
- * Track arrives immediately after it.
+ * Track arrives immediately after it. `styleRefs` narrows it to one style's
+ * steps (null when the section has none of them).
  */
-function sourceStep(section: ActivitySectionV2): ActivityStepV2 | null {
-  const withContent = section.steps.filter(stepHasContent);
+function sourceStep(
+  section: ActivitySectionV2,
+  styleRefs?: readonly string[],
+): ActivityStepV2 | null {
+  const withContent = section.steps.filter(
+    (step) =>
+      stepHasContent(step) && (!styleRefs || styleRefs.includes(step.styleRef)),
+  );
   if (withContent.length === 0) return null;
   const withBacking = withContent.filter(
     (step) => (step.backing_parts?.engine_generates?.length ?? 0) > 0,
@@ -299,6 +365,51 @@ function lessonSounds(
     genreBassVoice(flow.genre)?.id;
   return {
     drumKit: stepDrumKit(backingStep, styleRef, flow.genre, flow.level),
+    bassVoice: voice === 'electric' ? undefined : voice,
+  };
+}
+
+/** A band's first playing layer of a kind: its item's id. */
+const firstOf = (band: PlayableBand, kind: 'groove' | 'bassLine') =>
+  band.layers.find((l) => !l.muted && l.source.kind === kind)?.source.id;
+
+/** The band's drum groove, published: its meter and kit are the track's. */
+const bandGroove = (band: PlayableBand) => {
+  const id = firstOf(band, 'groove');
+  return id ? LIVE_ITEMS.groove(id) : undefined;
+};
+
+/**
+ * The kit and bass sound a band plays on: its groove's kit and its bass
+ * line's voice, else the step's own (the genre's bass), as lessonSounds
+ * reads them but with the band in the pairing's place.
+ */
+function bandSounds(
+  band: PlayableBand,
+  flow: ActivityFlowV2,
+  step: ActivityStepV2 | null,
+  backingStep: ActivityStepV2,
+  styleRef: string | undefined,
+): Pick<GenrePracticeTrackResult, 'drumKit' | 'bassVoice'> {
+  const lineId = firstOf(band, 'bassLine');
+  const line = lineId ? LIVE_ITEMS.bassLine(lineId) : undefined;
+  const voice =
+    (line
+      ? pairedBassVoice(line)
+      : (step ?? backingStep).backing_style?.bassVoice) ??
+    genreBassVoice(flow.genre)?.id;
+  return {
+    drumKit:
+      bandGroove(band)?.kit ??
+      backingStep.backing_style?.kit ??
+      LIVE_ITEMS.groove(
+        resolveStepGrooveId(
+          { ...backingStep, styleRef },
+          flow.genre,
+          flow.level,
+        ),
+      )?.kit ??
+      'natural',
     bassVoice: voice === 'electric' ? undefined : voice,
   };
 }
@@ -723,24 +834,105 @@ function toClip(
 // ── Entry point ──────────────────────────────────────────────────────────────
 
 /**
+ * What a Practice Track plays before a note is made: the section, the step
+ * it is built from, the style, the band (when the caller picks one), the
+ * meter and the tempo. The builder reads it, and so do the questions asked
+ * of a track before building one (`practiceTrackPlan`).
+ */
+interface TrackPlan {
+  section: ActivitySectionV2;
+  step: ActivityStepV2 | null;
+  style: ReturnType<typeof getLessonStyle>;
+  /** The band the caller picked, as its variation plays. */
+  band: PlayableBand | undefined;
+  timeSignature: [number, number];
+  bpm: number;
+}
+
+/** The band a caller picked, live and as its variation plays; null if not live. */
+function pickedBand(
+  picked: GenrePracticeTrackOptions['band'],
+): PlayableBand | null | undefined {
+  if (!picked) return undefined;
+  const band = getLiveBand(picked.id);
+  if (!band?.variations?.some((v) => v.id === picked.variation)) return null;
+  return bandVariation(band, picked.variation);
+}
+
+function planTrack(
+  flow: ActivityFlowV2,
+  sectionId: ActivitySectionId,
+  options: GenrePracticeTrackOptions,
+): TrackPlan | null {
+  const section = flow.sections.find((s) => s.id === sectionId);
+  if (!section || !sectionHasContent(section)) return null;
+  const band = pickedBand(options.band);
+  if (band === null) return null;
+
+  const sectionStep = sourceStep(section);
+  // The groove toggle (D-088): a level of several styles plays the chosen
+  // one's pairing, else the section's own style. A band plays its
+  // variation's style unless told another.
+  const styleId = options.styleId ?? band?.variation?.style;
+  const style =
+    (styleId ? getLessonStyle(styleId) : undefined) ??
+    lessonStyleFor(flow.genre, flow.level, sectionStep?.styleRef);
+  // A band plays from the style's own steps; the toggle keeps the section's.
+  const step =
+    (band && style?.styleRefs && sourceStep(section, style.styleRefs)) ||
+    sectionStep;
+
+  // The meter (D-085): a style's paired groove brings its own (a mariachi
+  // vals turns the track into 3/4), else the level's; a picked band's
+  // groove, or its variation's own meter, in the pairing's place.
+  const pairedDrums = band
+    ? undefined
+    : style
+      ? pairingForStyle(style)?.drums
+      : undefined;
+  const timeSignature: [number, number] =
+    (band
+      ? (bandGroove(band)?.timeSignature ?? band.variation?.timeSignature)
+      : pairedDrums?.timeSignature) ?? stepTimeSignature(step, flow);
+
+  const [tempoLow, tempoHigh] = flow.params.tempoRange;
+  const bpm =
+    options.bpm ??
+    flow.params.practiceTrack?.bpm ??
+    step?.tempo ??
+    Math.round((tempoLow + tempoHigh) / 2);
+  return { section, step, style, band, timeSignature, bpm };
+}
+
+/**
+ * What a Practice Track would play in, without building it: its meter and
+ * the tempo it opens at (the style's own lesson tempo, when a band plays).
+ * Null where `buildGenrePracticeTrack` would build nothing.
+ */
+export function practiceTrackPlan(
+  flow: ActivityFlowV2,
+  sectionId: ActivitySectionId,
+  options: GenrePracticeTrackOptions = {},
+): { timeSignature: [number, number]; bpm: number } | null {
+  const plan = planTrack(flow, sectionId, options);
+  return plan && { timeSignature: plan.timeSignature, bpm: plan.bpm };
+}
+
+/**
  * Build the Practice Track for one section of one genre level, or null when
- * that section has no authored content to practise over.
+ * that section has no authored content to practise over (or the band asked
+ * for isn't live).
  */
 export function buildGenrePracticeTrack(
   flow: ActivityFlowV2,
   sectionId: ActivitySectionId,
   options: GenrePracticeTrackOptions = {},
 ): GenrePracticeTrackResult | null {
-  const section = flow.sections.find((s) => s.id === sectionId);
-  if (!section || !sectionHasContent(section)) return null;
+  const plan = planTrack(flow, sectionId, options);
+  if (!plan) return null;
+  const { section, step, style, band, timeSignature, bpm } = plan;
 
-  const step = sourceStep(section);
-  // The groove toggle (D-088): a level of several styles plays the chosen
-  // one's pairing, else the section's own style.
   const levelStyles = lessonStylesForLevel(flow.genre, flow.level);
-  const style =
-    (options.styleId ? getLessonStyle(options.styleId) : undefined) ??
-    lessonStyleFor(flow.genre, flow.level, step?.styleRef);
   const styleRef = style?.styleRefs?.[0] ?? step?.styleRef ?? 'l1a';
   // The style's key: a level in two keys (Latin L1's Mariachi is in G major)
   // names it on that style's steps (stepKeyLabel), and the track follows.
@@ -750,9 +942,16 @@ export function buildGenrePracticeTrack(
         .flatMap((s) => s.steps)
         .find((s) => style.styleRefs!.includes(s.styleRef))) ||
     step;
-  const keyRootMidi = stepKeyRoot(flow, keyStep);
-  const keyLabel = stepKeyLabel(flow, keyStep);
-  const mode = stepMode(flow, keyStep);
+  // A key of the caller's own sits in the octave the flow's tonic does.
+  const flowRoot = stepKeyRoot(flow, keyStep);
+  const ownKey = options.key;
+  const keyRootMidi = ownKey
+    ? flowRoot - pitchClass(flowRoot) + pitchClass(ownKey.tonicPc)
+    : flowRoot;
+  const keyLabel = ownKey
+    ? (ownKey.label ?? KEY_LABELS[pitchClass(ownKey.tonicPc)])
+    : stepKeyLabel(flow, keyStep);
+  const mode = ownKey?.mode ?? stepMode(flow, keyStep);
   const loop = resolveLoop(flow, step, keyLabel, mode);
   const { grooveId } = loop;
   const chosenChords = options.chords?.filter(
@@ -760,12 +959,6 @@ export function buildGenrePracticeTrack(
   );
   const chords = chosenChords?.length ? chosenChords : loop.chords;
   const { engine, student } = SECTION_PARTS[sectionId];
-  // The meter (D-085): a style's paired groove brings its own (a mariachi
-  // vals turns the track into 3/4), else the level's. The loop is LOOP_BARS
-  // of its bars.
-  const pairedDrums = style ? pairingForStyle(style)?.drums : undefined;
-  const timeSignature: [number, number] =
-    pairedDrums?.timeSignature ?? stepTimeSignature(step, flow);
   const barLength = meterBarTicks(timeSignature);
   const loopTicks = LOOP_BARS * barLength;
   /**
@@ -781,13 +974,6 @@ export function buildGenrePracticeTrack(
    */
   const measured =
     (step?.targetNotes?.length ?? 0) > 0 ? [step!] : section.steps;
-
-  const [tempoLow, tempoHigh] = flow.params.tempoRange;
-  const bpm =
-    options.bpm ??
-    flow.params.practiceTrack?.bpm ??
-    step?.tempo ??
-    Math.round((tempoLow + tempoHigh) / 2);
 
   // A synthetic step, so the engine generates the parts this section's student
   // isn't playing, over the resolved loop. No target notes: the chord timeline
@@ -814,6 +1000,17 @@ export function buildGenrePracticeTrack(
       flow.params.practiceTrack?.swing ?? step?.swing ?? flow.params.swing,
     ),
     timeSignature,
+    {
+      ...(band ? { band } : {}),
+      ...(options.followChords && ownKey
+        ? {
+            followChords: {
+              tonic: pitchClass(ownKey.tonicPc),
+              mode: ownKey.mode,
+            },
+          }
+        : {}),
+    },
   );
 
   const clips: Partial<Record<EnginePart, MidiClip>> = {};
@@ -874,7 +1071,7 @@ export function buildGenrePracticeTrack(
     section: sectionId,
     sectionName: section.name,
     keyLabel,
-    keyRootPc: ((keyRootMidi % 12) + 12) % 12,
+    keyRootPc: pitchClass(keyRootMidi),
     mode,
     bpm,
     loopTicks,
@@ -886,7 +1083,9 @@ export function buildGenrePracticeTrack(
     studentParts: student,
     melodyFloor: melodyFloor(measured) ?? MELODY_FLOOR_FALLBACK,
     studentRange: studentRange(measured),
-    scales: flowPracticeScales(flow, style?.styleRefs),
+    scales: ownKey
+      ? keyPracticeScales(keyLabel, ownKey.mode)
+      : flowPracticeScales(flow, style?.styleRefs),
     voicingSets: sets,
     bassFloor: bassFloor(measured, sectionId),
     defaultVoicing: sets
@@ -921,7 +1120,9 @@ export function buildGenrePracticeTrack(
           ];
     })(),
     progressionId: chords.join(' '),
-    ...lessonSounds(flow, step, backingStep, styleRef),
+    ...(band
+      ? bandSounds(band, flow, step, backingStep, styleRef)
+      : lessonSounds(flow, step, backingStep, styleRef)),
     ...(flowInstrument(flow) === 'guitar'
       ? { guitar: guitarPracticeInfo(flow, section) }
       : {}),

@@ -14,7 +14,11 @@
  */
 
 import type { ActivityStepV2, BackingStyle } from '../../types/activity.v2';
-import type { BandInstrument } from '../band/band';
+import type {
+  BandInstrument,
+  PlayableBand,
+  RealizeContext,
+} from '../band/band';
 import { layerSound, realizeBand } from '../band/realize';
 import { LIVE_ITEMS } from '../band/registry';
 import { buildDesignedDrums } from '../drumGrooves/drumGroove';
@@ -82,6 +86,17 @@ const BACKING_PART: Record<BandInstrument, BackingNote['part']> = {
   strings: 'chords',
   horns: 'chords',
 };
+
+/**
+ * A backing whose caller picks the band (Music Literacy's Hear It with Your
+ * Band): `band` plays in place of the style's pairing, whatever the
+ * pairings say, and `followChords` is the chart's key, so captured parts
+ * follow its chords (band.ts RealizeContext). Left out, nothing changes.
+ */
+export interface BackingOptions {
+  band?: PlayableBand;
+  followChords?: NonNullable<RealizeContext['followChords']>;
+}
 
 /** A band layer's own instrument in the backing (`BackingNote.voice`). */
 export interface BackingVoice {
@@ -1401,6 +1416,9 @@ function doubledLeftHand(
  * 4/4 the genre code patterns, written as 4/4 bars, give way to the step's
  * designed groove or plain meter-true parts (meterBacking.ts); pairings still
  * win. Hip Hop is 4/4 only.
+ *
+ * `options` is for a caller that picks the band itself (`BackingOptions`);
+ * left out, the style's pairing decides, as it always has.
  */
 export function buildBackingNotes(
   step: ActivityStepV2,
@@ -1412,6 +1430,7 @@ export function buildBackingNotes(
   countInTicks = 0,
   swing = 50,
   timeSignature: TimeSignature = COMMON_TIME,
+  options: BackingOptions = {},
 ): BackingNote[] {
   const ts = genre === 'hip-hop' ? COMMON_TIME : timeSignature;
   const barLength = meterBarTicks(ts);
@@ -1429,7 +1448,9 @@ export function buildBackingNotes(
   const chordAt = (tick: number): ChordSymbolTones =>
     chordAtTick(timeline, tick) ?? tonic;
 
-  const pairing = pairingFor(genre, level, styleRef, placeOf(step));
+  // The band the caller picked, else the style's pairing's.
+  const band =
+    options.band ?? pairingFor(genre, level, styleRef, placeOf(step))?.band;
   // A back-office band (D-084, D-087) replaces the parts it covers: every
   // playing layer whose instrument is a part the engine plays for this step.
   // The first layer of a part, on its lesson sound at full level, plays on
@@ -1437,13 +1458,17 @@ export function buildBackingNotes(
   // second keyboard, a guitar, a synth, or one with a sound or level of its
   // own) carries its own voice.
   const withPairing = (notes: BackingNote[]): BackingNote[] => {
-    if (!pairing) return notes;
-    const realized = realizeBand(
-      pairing.band,
-      LIVE_ITEMS,
-      { chordAt, bars: BACKING_BARS, timeSignature: ts, genre },
-      { tonic: ((keyRoot % 12) + 12) % 12 },
-    );
+    if (!band) return notes;
+    const ctx: RealizeContext = {
+      chordAt,
+      bars: BACKING_BARS,
+      timeSignature: ts,
+      genre,
+      ...(options.followChords ? { followChords: options.followChords } : {}),
+    };
+    const realized = realizeBand(band, LIVE_ITEMS, ctx, {
+      tonic: ((keyRoot % 12) + 12) % 12,
+    });
     let out = notes;
     for (const part of ['drums', 'bass', 'chords'] as const) {
       if (!engineGenerates.includes(part)) continue;

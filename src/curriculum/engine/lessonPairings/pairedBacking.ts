@@ -72,6 +72,11 @@ export function pairedBassNotes(
   timeSignature: TimeSignature = [4, 4],
   /** Whose Walk and Approach rules it plays by (bassLine.ts). */
   genre?: string,
+  /**
+   * The chart's key as pitch classes, when it's known (a band following a
+   * student's chart): the line plays in it (`realizeLine`'s `keyScale`).
+   */
+  keyScale?: readonly number[],
 ): BackingNote[] {
   const barTicks = Math.round((timeSignature[0] * PPQ * 4) / timeSignature[1]);
   const slot = barTicks / SLOTS_PER_BAR;
@@ -80,7 +85,11 @@ export function pairedBassNotes(
       chordFromTones(chordAt(Math.round(b * barTicks + i * slot))),
     ),
   );
-  const realized = realizeLine(line, chart, { timeSignature, genre });
+  const realized = realizeLine(line, chart, {
+    timeSignature,
+    genre,
+    keyScale,
+  });
   return realized.notes.map((n) => ({
     note: n.midi,
     onset: Math.round(n.q * PPQ),

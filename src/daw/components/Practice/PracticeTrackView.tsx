@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { GraduationCap } from 'lucide-react';
 import { ALL_MODES, DEGREES, MODE_DISPLAY, noteNameInKey } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyName } from '@/daw/components/Library/chordInKey';
@@ -32,6 +33,7 @@ import { switchGenrePracticeTrack } from '@/features/practiceTracks/genre/openGe
 import { keyboardWindow } from '@/features/practiceTracks/genre/practiceKeyboard';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { PracticeHeader } from '@/daw/shell/topbar/PracticeHeader';
+import { startCourseInPlace } from '@/daw/components/Tutorial/startLessonInPlace';
 import { useContinuousControl } from '@/daw/hooks/useContinuousControl';
 import { previewTempo } from '@/daw/hooks/useTransport';
 import { GuitarPracticePanel } from '@/curriculum/components/guitar/GuitarPracticePanel';
@@ -754,6 +756,20 @@ export function PracticeTrackView({
         {keyboardPanel}
         {transport}
         {chart}
+
+        {band ? (
+          // Studio Basics on the student's own song: Create, with the
+          // course's first lesson running over it (no reset).
+          <button
+            type="button"
+            onClick={() => startCourseInPlace('studio-basics')}
+            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm transition-colors hover:bg-white/5"
+            style={{ border: '1px solid var(--daw-hairline)' }}
+          >
+            <GraduationCap aria-hidden className="size-4" />
+            Learn the Studio with this song
+          </button>
+        ) : null}
 
         {genre ? <PromptList prompts={genre.prompts} /> : null}
       </div>

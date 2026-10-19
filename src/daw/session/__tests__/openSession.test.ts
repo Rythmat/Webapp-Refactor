@@ -430,6 +430,30 @@ describe('a link that replaces the session', () => {
     expect(s().activeTutorialId).toBe(lesson.id);
   });
 
+  it('opens a course lesson on its demo song: one seeded open, one baseline', async () => {
+    await liveWork();
+    const lesson = 'studio-basics-your-tracks';
+    const outcome = await openSession(
+      { kind: 'tutorial', tutorialId: lesson },
+      { source: 'link' },
+    );
+    expect(outcome.status).toBe('ready');
+    expect(s().activeTutorialId).toBe(lesson);
+    expect(trackNames()).toEqual(['Rhodes', 'Bass', 'Drums']);
+    expect(s().projectName).toBe('Sunset Keys');
+    // The song and the lesson went in together: nothing to undo or save.
+    expect(canUndo()).toBe(false);
+    expect(isDocumentDirty()).toBe(false);
+    expect(env.drafts.begun.at(-1)?.[1]).toMatchObject({
+      source: 'tutorial',
+      ref: lesson,
+      reopenable: true,
+    });
+    expect(
+      env.drafts.log.filter((entry) => entry.startsWith('begin:')),
+    ).toHaveLength(1);
+  });
+
   it('builds a Theory practice track on its practice screen', async () => {
     const outcome = await openSession(
       {

@@ -4,7 +4,7 @@ import { transposeSong } from '@/curriculum/songLibrary/transpose';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { ensureSongContent } from '@/content/songStore';
 import { getTutorial } from '@/daw/components/Tutorial/tutorials';
-import { applyDemo, prepareDemo } from '@/daw/data/demoSeed';
+import { applyDemo, prepareDemo, prepareLessonSeed } from '@/daw/data/demoSeed';
 import { getDemoProject } from '@/daw/data/demoProjects';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
 import { seedTemplateSynthPatches } from '@/daw/data/templateSynthPatches';
@@ -471,16 +471,27 @@ export async function prepareIntent(
         baseline: { source: 'demo', ref: intent.demoId, reopenable: true },
       });
     }
-    case 'tutorial':
+    case 'tutorial': {
+      // A course lesson opens on its demo song (Studio Basics): fetched
+      // first, then the song and the lesson go in as one seed with one
+      // baseline, as a demo does. Any other lesson opens on a blank project.
+      const song = await raceSignal(
+        prepareLessonSeed(intent.tutorialId),
+        ctx.signal,
+      );
       return seeded(await claimNew(ctx), {
         name: getTutorial(intent.tutorialId)?.title ?? null,
-        apply: () => useStore.getState().startTutorial(intent.tutorialId),
+        apply: () => {
+          if (song) applyDemo(song);
+          useStore.getState().startTutorial(intent.tutorialId);
+        },
         baseline: {
           source: 'tutorial',
           ref: intent.tutorialId,
           reopenable: true,
         },
       });
+    }
     case 'song':
       return prepareSong(intent, ctx);
     case 'progression':

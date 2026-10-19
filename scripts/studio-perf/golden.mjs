@@ -3316,50 +3316,136 @@ function analyseTrace(raw, session) {
     };
   }
 
-  // Instrument adapters: the note times they are given, against the grid.
-  const expectedTicks = new Map();
-  for (const track of session.data.tracks) {
-    const ticks = [];
-    for (const clip of track.midiClips ?? []) {
-      let tick = clip.startTick;
-      for (const delta of clip.events.startTickDeltas) {
-        tick += delta;
-        ticks.push(tick);
-      }
-    }
-    expectedTicks.set(track.name, ticks);
-  }
-  // A note the plan moved is expected at its new tick too.
+  // Instrument adapters: every note-on matched to the note it plays. Each
+  // run (play, resume, loop lap, seek) should play every note of the session
+  // between its first tick and where it ends, at that run's grid time; a
+  // note-on is paired with the nearest such note of its track and pitch
+  // (one each, closest pairs first, within 250 ms). A note-on left over is
+  // extra (off the grid by more than that, or outside every run: booked
+  // after a pause, a stop or a seek), and a note left over is missing.
   const edits = (raw.steps ?? []).filter(
     (step) => step.do === 'editNote' && !step.error,
   );
-  for (const edit of edits) expectedTicks.get(edit.track)?.push(edit.toTick);
+  const sessionNotes = [];
+  for (const track of session.data.tracks) {
+    for (const clip of track.midiClips ?? []) {
+      if (clip.muted) continue;
+      let tick = clip.startTick;
+      clip.events.startTickDeltas.forEach((delta, index) => {
+        tick += delta;
+        sessionNotes.push({
+          track: track.name,
+          note: clip.events.notes[index],
+          tick,
+          index,
+        });
+      });
+    }
+  }
+  const expectedNotes = [];
+  for (const run of runs) {
+    const endTick = runEndTick(run);
+    if (!Number.isFinite(endTick)) continue;
+    const next = nextBoundary(run);
+    const runEnd = next?.t ?? Infinity;
+    // A pause, stop or seek is pressed a lookahead before it takes effect
+    // (Tone's transport acts at now + lookAhead). A note due between the
+    // press (heard at that moment) and the transport's own end time may be
+    // played or dropped: the student has already left that spot.
+    let pressed = runEnd;
+    if (next && next.kind !== 'loop') {
+      const press = marks
+        .filter((m) => m.label === next.cause && m.wall <= next.causeWall)
+        .at(-1);
+      if (press) pressed = Math.min(press.now, runEnd);
+    }
+    for (const n of sessionNotes) {
+      let ticks = [{ tick: n.tick, optional: false }];
+      const edit = edits.find(
+        (e) =>
+          e.track === n.track && e.index === n.index && e.fromTick === n.tick,
+      );
+      // A moved note: at its old tick on runs that ended before the edit, at
+      // its new one on runs that start after it (a lookahead's margin), and
+      // either (or neither) on the run it was moved in.
+      if (edit && runEnd > edit.now) {
+        ticks =
+          run.t > edit.now + 0.25
+            ? [{ tick: edit.toTick, optional: false }]
+            : [
+                { tick: n.tick, optional: true },
+                { tick: edit.toTick, optional: true },
+              ];
+      }
+      for (const { tick, optional } of ticks) {
+        if (tick < run.tick || tick >= endTick) continue;
+        const time = gridTime(run, tick);
+        expectedNotes.push({
+          track: n.track,
+          note: n.note,
+          tick,
+          time,
+          run: run.cause,
+          optional: optional || time >= pressed,
+        });
+      }
+    }
+  }
   const adapterCalls = events.filter((e) => e.type === 'adapter');
+  const noteOnCalls = adapterCalls.filter(
+    (c) => c.fn === 'noteOn' && c.time !== null,
+  );
+  const pairs = [];
+  for (const call of noteOnCalls) {
+    expectedNotes.forEach((x, k) => {
+      if (x.track !== call.track || x.note !== call.note) return;
+      const distance = Math.abs(call.time - x.time);
+      if (distance <= 0.25) pairs.push({ call, k, distance });
+    });
+  }
+  pairs.sort((a, b) => a.distance - b.distance);
+  const matchOf = new Map();
+  const taken = new Set();
+  for (const pair of pairs) {
+    if (matchOf.has(pair.call) || taken.has(pair.k)) continue;
+    matchOf.set(pair.call, expectedNotes[pair.k]);
+    taken.add(pair.k);
+  }
   const midi = {};
-  for (const call of adapterCalls) {
-    if (call.fn !== 'noteOn' || call.time === null) continue;
-    const entry = (midi[call.track] ??= {
-      instrument: call.instrument,
+  const midiOf = (track, instrument) =>
+    (midi[track] ??= {
+      instrument,
       noteOns: 0,
       errors: [],
       ahead: [],
       late: 0,
+      extra: [],
+      missing: [],
     });
+  for (const call of noteOnCalls) {
+    const entry = midiOf(call.track, call.instrument);
     entry.noteOns++;
-    // The tick only picks which note of the clip this is; the error is the
-    // note's audio time against the transport's own grid (its start or
-    // loop time plus the note's ticks), as for clips.
-    const expected = nearestValue(
-      expectedTicks.get(call.track) ?? [],
-      call.tick,
-    );
-    const run = runAt(call.time);
-    if (run && expected !== null) {
-      entry.errors.push(ms(call.time - gridTime(run, expected)));
+    const expected = matchOf.get(call);
+    if (expected) {
+      entry.errors.push(ms(call.time - expected.time));
+    } else {
+      entry.extra.push({
+        note: call.note,
+        time: round(call.time, 4),
+        tick: call.tick === null ? null : round(call.tick, 1),
+        outsideRuns: runAt(call.time) === null,
+      });
     }
     entry.ahead.push(ms(call.time - call.now));
     if (call.time < call.now) entry.late++;
   }
+  expectedNotes.forEach((x, k) => {
+    if (taken.has(k) || x.optional) return;
+    const entry = midi[x.track];
+    const missing = { note: x.note, tick: x.tick, run: x.run };
+    if (entry) entry.missing.push(missing);
+    else midiOf(x.track, null).missing.push(missing);
+  });
   const midiSummary = Object.fromEntries(
     Object.entries(midi).map(([track, m]) => [
       track,
@@ -3370,6 +3456,8 @@ function analyseTrace(raw, session) {
         minAheadMs: m.ahead.length ? Math.min(...m.ahead) : null,
         medianAheadMs: median(m.ahead),
         late: m.late,
+        extra: m.extra,
+        missing: m.missing,
       },
     ]),
   );
@@ -3529,6 +3617,67 @@ function analyseTrace(raw, session) {
           });
         }
       }
+      // Sources a note call started that never end on their own
+      // (oscillators, looping buffers). An instrument that gates its voices
+      // with envelopes (Oracle) runs them free on purpose: there, each note
+      // still sounding at the seek must get an envelope release or
+      // forceStop by the seek + fade, logged after the seek. Any other
+      // instrument's such source must be stopped (or ended) by then.
+      const gatedInstruments = new Set(
+        events
+          .filter((e) => e.type === 'gate' && e.call)
+          .map((e) => callBySeq.get(e.call)?.instrument)
+          .filter(Boolean),
+      );
+      const voices = events.filter(
+        (e) =>
+          e.type === 'src-start' &&
+          e.wall < before &&
+          e.loop !== false &&
+          e.call !== null &&
+          !gatedInstruments.has(callBySeq.get(e.call)?.instrument),
+      );
+      for (const e of voices) {
+        const end = stopOf(e.id);
+        if (end > limit) {
+          runningPast.push({
+            id: e.id,
+            source: `${e.scope ?? 'adapter'} ${e.node}`,
+            startMs: ms(Math.max(e.when, e.now) - b.t),
+            endMs: Number.isFinite(end) ? ms(end - b.t) : null,
+          });
+        }
+      }
+      const gatesOpen = [];
+      for (const instrument of gatedInstruments) {
+        const sounding = adapterCalls.filter((on) => {
+          if (on.fn !== 'noteOn' || on.instrument !== instrument) return false;
+          if (on.time === null || on.time >= limit || on.wall >= before) {
+            return false;
+          }
+          const off = adapterCalls.find(
+            (c) =>
+              c.fn === 'noteOff' &&
+              c.track === on.track &&
+              c.note === on.note &&
+              c.seq > on.seq &&
+              (c.time ?? c.now) >= on.time - 1e-4,
+          );
+          return !off || (off.time ?? off.now) > b.t;
+        });
+        if (!sounding.length) continue;
+        const closed = events.filter(
+          (e) =>
+            e.type === 'gate' &&
+            (e.fn === 'release' || e.fn === 'forceStop') &&
+            e.wall >= before &&
+            callBySeq.get(e.call)?.instrument === instrument &&
+            (e.time ?? e.now) <= limit,
+        ).length;
+        if (closed < sounding.length) {
+          gatesOpen.push({ instrument, sounding: sounding.length, closed });
+        }
+      }
       const noteOns = adapterCalls.filter(
         (c) =>
           c.fn === 'noteOn' &&
@@ -3564,8 +3713,9 @@ function analyseTrace(raw, session) {
       return {
         t: round(b.t, 4),
         tick: b.tick,
-        sourcesBefore: sources.length,
+        sourcesBefore: sources.length + voices.length,
         runningPast,
+        gatesOpen,
         notesBefore: noteOns.length,
         hanging,
         latestReleaseMs: latestRelease === null ? null : ms(latestRelease),
@@ -3886,27 +4036,50 @@ function traceChecks(result, session, setup) {
     );
   }
   for (const [track, m] of Object.entries(result.midi)) {
+    const outside = m.extra.filter((x) => x.outsideRuns).length;
+    const list = (items, fmt) =>
+      items.slice(0, 4).map(fmt).join(', ') +
+      (items.length > 4 ? ` +${items.length - 4}` : '');
     timing(
-      `${track} note-ons on the grid (±${tol} ms)`,
-      within(m.maxGridErrorMs),
-      `worst ${m.maxGridErrorMs} ms over ${m.noteOns} notes`,
+      `${track}: every note plays once, on the grid (±${tol} ms)`,
+      (m.noteOns === 0 || within(m.maxGridErrorMs)) &&
+        !m.extra.length &&
+        !m.missing.length,
+      [
+        `worst ${m.maxGridErrorMs} ms over ${m.noteOns} note-ons`,
+        m.extra.length
+          ? `${m.extra.length} extra (${outside} outside every run): ${list(m.extra, (x) => `${x.note}@${x.time}s`)}`
+          : null,
+        m.missing.length
+          ? `${m.missing.length} missing: ${list(m.missing, (x) => `${x.note}@${x.tick} on ${x.run}`)}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join('; '),
     );
   }
   if (kinds.has('seek')) {
     const fade = 12;
     const past = result.seeks.flatMap((s) => s.runningPast);
+    const open = result.seeks.flatMap((s) => s.gatesOpen);
     timing(
-      `seek: no source runs past the seek + ${fade} ms`,
-      result.seeks.length > 0 && !past.length,
-      past.length
-        ? `${past.length} running on: ${past
-            .slice(0, 6)
-            .map(
-              (p) =>
-                `${p.source} until ${p.endMs === null ? 'never' : `${p.endMs} ms`}`,
-            )
-            .join(', ')}`
-        : `${result.seeks.map((s) => s.sourcesBefore).join(', ')} sources before`,
+      `seek: nothing sounds past the seek + ${fade} ms (buffer sources and other instruments' oscillators stopped; Oracle voices, which run free, closed by their envelopes)`,
+      result.seeks.length > 0 && !past.length && !open.length,
+      [
+        past.length
+          ? `${past.length} running on: ${past
+              .slice(0, 6)
+              .map(
+                (p) =>
+                  `${p.source} until ${p.endMs === null ? 'never' : `${p.endMs} ms`}`,
+              )
+              .join(', ')}`
+          : `${result.seeks.map((s) => s.sourcesBefore).join(', ')} sources before`,
+        ...open.map(
+          (g) =>
+            `${g.instrument}: ${g.sounding} notes sounding, ${g.closed} envelopes closed`,
+        ),
+      ].join('; '),
     );
     const hanging = result.seeks.flatMap((s) => s.hanging);
     timing(

@@ -199,7 +199,7 @@ export const TUTORIAL_CATALOG = [
   {
     id: 'studio-basics-save-and-export',
     title: 'Save and Export',
-    subtitle: 'Keep your song, then share it as audio, MIDI or a printout.',
+    subtitle: 'Keep your song, then share it as MIDI, MusicXML or audio.',
     difficulty: 'Beginner',
     estMinutes: 3,
     requiresPremium: false,

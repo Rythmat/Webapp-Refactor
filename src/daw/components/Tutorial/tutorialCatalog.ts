@@ -191,7 +191,7 @@ export const TUTORIAL_CATALOG = [
     title: 'Loop and Repeat',
     subtitle: 'Loop a part to practice it, and repeat your best ideas.',
     difficulty: 'Beginner',
-    estMinutes: 3,
+    estMinutes: 4,
     requiresPremium: false,
     course: 'studio-basics',
     courseOrder: 8,

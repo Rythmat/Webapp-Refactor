@@ -2042,10 +2042,10 @@ const LOOSE = {
  * declared, not measured. Remove the entry once the bug is fixed, then
  * rewrite the goldens with --update.
  */
-const TIMING_DEPENDENT = {
-  'oracle-synth':
-    'synth-engine-01: Oracle voices are freed by wall-clock timers while the offline render runs faster than real time, so which notes sound, and where their releases are cut, depends on how fast the machine renders',
-};
+// Empty since milestone 1.11: the Oracle synth's voices are freed when their
+// sound ends (onended), not by wall-clock timers, so its renders repeat
+// (synth-engine-01).
+const TIMING_DEPENDENT = {};
 
 /** How strictly a render can be compared: 'strict', 'loose' or 'structure'. */
 const LEVELS = ['strict', 'loose', 'structure'];

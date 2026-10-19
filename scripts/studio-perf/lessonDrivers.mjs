@@ -74,6 +74,8 @@
  *   ctx.problem(text)                 the step cannot be done as written
  */
 
+import { SCORE_TO_SAVE_DRIVERS } from './studioBasicsScoreToSaveDrivers.mjs';
+
 const anchor = (id) => `[data-tutorial-id="${id}"]`;
 
 /** The chord buttons of Prism's Chord Selection card, in option order. */
@@ -1021,9 +1023,16 @@ export const DRIVERS = {
   },
 };
 
-/** The driver for one step, or null when the lessons have changed. */
+/**
+ * The driver for one step, or null when the lessons have changed. Studio
+ * Basics 6 to 9 keep theirs in studioBasicsScoreToSaveDrivers.mjs.
+ */
 export function driverFor(lessonId, stepId) {
-  return DRIVERS[lessonId]?.[stepId] ?? null;
+  return (
+    DRIVERS[lessonId]?.[stepId] ??
+    SCORE_TO_SAVE_DRIVERS[lessonId]?.[stepId] ??
+    null
+  );
 }
 
 // ── Known failures ────────────────────────────────────────────────────────

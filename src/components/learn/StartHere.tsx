@@ -44,12 +44,18 @@ export function stopAction(state: LiteracyStopState): string {
 
 /**
  * "3 of 7 steps", "7 steps", "All 7 steps passed"; done with a replay
- * (optional) not heard, "Done: 6 of 7 steps". A stop with no steps (a
- * route's) says "Done" once it is, else nothing.
+ * (optional) not heard, "Done: 6 of 7 steps". A course's stop counts its
+ * lessons: "9 lessons", "3 of 9 lessons", "All 9 lessons done". A stop with
+ * no steps (a route's) says "Done" once it is, else nothing.
  */
 export function stepsLine(state: LiteracyStopState): string | null {
   if (state.steps.length === 0) return state.status === 'done' ? 'Done' : null;
   const total = state.steps.length;
+  if (state.unit === 'lessons') {
+    if (state.status === 'done') return `All ${total} lessons done`;
+    if (state.status === 'new') return `${total} lessons`;
+    return `${state.passed} of ${total} lessons`;
+  }
   if (state.status === 'done')
     return state.passed === total
       ? `All ${total} steps passed`
@@ -108,7 +114,7 @@ export const RoundsMark = ({
 /** More steps than this, and the pips are dots: Part 2's 55 fit a card. */
 const DENSE_PIPS = 20;
 
-/** The lesson's steps as a row of pips: passed, tried, still to do. */
+/** The lesson's steps (a course's lessons) as a row of pips: passed, tried, still to do. */
 export const StepPips = ({
   state,
   className,
@@ -121,7 +127,11 @@ export const StepPips = ({
   return (
     <span
       role="img"
-      aria-label={`${state.passed} of ${state.steps.length} steps passed`}
+      aria-label={
+        state.unit === 'lessons'
+          ? `${state.passed} of ${state.steps.length} lessons done`
+          : `${state.passed} of ${state.steps.length} steps passed`
+      }
       className={cn(
         'flex items-center',
         dense ? 'gap-[3px]' : 'gap-1',

@@ -25,7 +25,8 @@ export const StartHereCard = () => {
   const { current, upNext } = currentStop(useLiteracyPath());
   if (!current?.to) return null;
   const { stop, key, status, next } = current;
-  // A stop with a route (Hear It with Your Band) has no steps to count.
+  // A stop with a route (Hear It with Your Band) has no steps to count; a
+  // course's (Studio Basics) counts its lessons.
   const hasSteps = current.steps.length > 0;
   const line = stepsLine(current);
 

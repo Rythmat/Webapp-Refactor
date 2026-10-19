@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StartHereCard } from '@/components/ClassroomLayout/dashboard/StartHereCard';
@@ -10,6 +10,8 @@ import {
   withTry,
   type LiteracyProgress,
 } from '@/curriculum/musicLiteracy/useLiteracyProgress';
+import { TUTORIAL_COURSES } from '@/daw/components/Tutorial/tutorialCatalog';
+import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 
 /**
  * Home's "Start here" card: the Music Literacy path's next stop, how far
@@ -51,7 +53,10 @@ function renderCard() {
 const hrefOf = (el: HTMLElement) => el.getAttribute('href');
 
 describe('Home’s Start here card', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    useTutorialProgressStore.setState({ completedAt: {} });
+  });
   afterEach(() => cleanup());
 
   it('starts Part 1 when nothing is tried yet', () => {
@@ -94,17 +99,53 @@ describe('Home’s Start here card', () => {
     ).toBe('/curriculum/music-literacy/hear-it-with-your-band');
   });
 
-  it('offers the band again once it is done, and says what comes next', () => {
+  it('goes on to Studio Basics once the band is done: lesson 1, on its song', () => {
     saveProgress(tags);
     localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
     const card = renderCard();
-    expect(card.getByText(/^Done/)).toBeTruthy();
-    expect(card.getByText(/Up next: Studio Basics, coming soon/)).toBeTruthy();
+    expect(card.getByText('Studio Basics')).toBeTruthy();
+    expect(card.getByText(/^9 lessons/)).toBeTruthy();
+    expect(card.getByRole('img', { name: '0 of 9 lessons done' })).toBeTruthy();
     expect(
-      hrefOf(
-        card.getByRole('link', { name: 'Play again Hear It with Your Band' }),
-      ),
-    ).toBe('/curriculum/music-literacy/hear-it-with-your-band');
+      hrefOf(card.getByRole('link', { name: 'Start Studio Basics' })),
+    ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
+  });
+
+  it('continues Studio Basics at the first lesson not finished', () => {
+    saveProgress(tags);
+    localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
+    act(() => {
+      useTutorialProgressStore.setState({
+        completedAt: {
+          'studio-basics-your-tracks': 1,
+          'studio-basics-add-a-track': 2,
+        },
+      });
+    });
+    const card = renderCard();
+    expect(card.getByText(/2 of 9 lessons/)).toBeTruthy();
+    expect(card.getByText(/Next: Record/)).toBeTruthy();
+    expect(
+      hrefOf(card.getByRole('link', { name: 'Continue Studio Basics' })),
+    ).toBe('/studio/editor?tutorial=studio-basics-record');
+  });
+
+  it('offers Studio Basics again once every lesson is done, and says what comes next', () => {
+    saveProgress(tags);
+    localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
+    act(() => {
+      useTutorialProgressStore.setState({
+        completedAt: Object.fromEntries(
+          TUTORIAL_COURSES[0].lessonIds.map((id) => [id, 1]),
+        ),
+      });
+    });
+    const card = renderCard();
+    expect(card.getByText(/^All 9 lessons done/)).toBeTruthy();
+    expect(card.getByText(/Up next: Echo, coming soon/)).toBeTruthy();
+    expect(
+      hrefOf(card.getByRole('link', { name: 'Play again Studio Basics' })),
+    ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
   });
 
   it('links to the whole path, Learn → Start Here', () => {

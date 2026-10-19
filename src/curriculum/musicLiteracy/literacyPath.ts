@@ -1,5 +1,9 @@
-import { useState } from 'react';
-import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
+import { useMemo } from 'react';
+import {
+  CurriculumRoutes,
+  LearnRoutes,
+  StudioRoutes,
+} from '@/constants/routes';
 import type {
   LiteracyMode,
   LiteracyTonic,
@@ -15,7 +19,15 @@ import {
 } from '@/curriculum/engine/musicLiteracy/modules';
 import { pitchClassOf } from '@/curriculum/engine/musicLiteracy/pitch';
 import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
+import {
+  courseLessons,
+  courseProgress,
+  getTutorialCourse,
+  type CompletedLessons,
+  type TutorialCourseId,
+} from '@/daw/components/Tutorial/tutorialCatalog';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
   openingBandProgression,
@@ -41,7 +53,10 @@ import {
 // named; a stop lights up by turning `live` on and naming its lesson (or,
 // outside Learn, its route). A stop with a route has no steps: it is done
 // once the student has done what it opens (stopDone.ts), and it wears the
-// key its page plays in.
+// key its page plays in. Studio Basics is a route stop over a course: it
+// opens the course's next lesson in the Studio (on the course's demo song),
+// counts the course's lessons as its steps, and is done once every lesson
+// is (useTutorialProgressStore).
 
 /** The Learn tab (`?tab=`) that draws the path. */
 export const START_HERE_TAB = 'StartHere';
@@ -71,6 +86,18 @@ export interface LiteracyPathStop {
 /** Part 3: a Band plays the student's progression in the Studio. */
 export const BAND_STOP_ID = 'hear-it-with-your-band';
 
+/** Stop 4: the Studio Basics course, nine guided Studio tutorials. */
+export const STUDIO_BASICS_STOP_ID = 'studio-basics';
+
+/** The editor link that opens Studio lesson `id` from a cold start. */
+const studioLessonRoute = (id: string) =>
+  `${StudioRoutes.editor()}?tutorial=${encodeURIComponent(id)}`;
+
+/** The route stops that run a course of Studio lessons. */
+const COURSE_STOPS: Readonly<Record<string, TutorialCourseId>> = {
+  [STUDIO_BASICS_STOP_ID]: 'studio-basics',
+};
+
 export const LITERACY_PATH: readonly LiteracyPathStop[] = [
   {
     id: 'call-and-response',
@@ -97,11 +124,13 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
     route: CurriculumRoutes.musicLiteracyBand(),
   },
   {
-    id: 'studio-basics',
+    id: STUDIO_BASICS_STOP_ID,
     title: 'Studio Basics',
     module: 'Studio',
     description: 'Nine guided tutorials around the Studio.',
-    live: false,
+    live: true,
+    // Lesson 1; readRouteStop moves it on to the first lesson not finished.
+    route: studioLessonRoute('studio-basics-your-tracks'),
   },
   {
     id: 'echo',
@@ -115,10 +144,11 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
 /**
  * soon     not open yet
  * new      open, nothing tried
- * started  a step tried, not every required step done
+ * started  a step tried, not every required step done (a course: a lesson
+ *          finished, not all)
  * done     every step done but those nothing waits for, a replay
  *          (stepDone.ts); a stop with a route, once what it opens is done
- *          (stopDone.ts)
+ *          (stopDone.ts; a course, once every lesson is)
  */
 export type LiteracyStopStatus = 'soon' | 'new' | 'started' | 'done';
 
@@ -151,8 +181,13 @@ export interface LiteracyStopKey {
 export interface LiteracyStopState {
   stop: LiteracyPathStop;
   status: LiteracyStopStatus;
-  /** A lesson stop's steps, in order; empty for any other stop. */
+  /**
+   * A lesson stop's steps, in order; a course stop's lessons ('passed' once
+   * finished); empty for any other stop.
+   */
   steps: readonly LiteracyStepMark[];
+  /** What `steps` counts: a lesson's steps (the default) or a course's lessons. */
+  unit?: 'lessons';
   passed: number;
   /** The first step not yet passed, a replay aside: where Continue opens. */
   next: { index: number; title: string } | null;
@@ -173,6 +208,14 @@ export interface RouteStopState {
   done: boolean;
   /** The key its page plays in, when it has one. */
   key: { tonic: LiteracyTonic; mode: LiteracyMode } | null;
+  /** Where it opens now, when that moves on (a course's next lesson). */
+  to?: string;
+  /** A course stop's lessons, in order: finished or not, and the next. */
+  lessons?: {
+    marks: readonly LiteracyStepMark[];
+    done: number;
+    next: { index: number; title: string } | null;
+  };
 }
 
 const keyOf = (
@@ -227,14 +270,20 @@ export function literacyStopState(
     };
   }
   if (!lesson) {
+    const lessons = route?.lessons;
     return {
       stop,
-      status: route?.done ? 'done' : 'new',
-      steps: [],
-      passed: 0,
-      next: null,
+      status: route?.done
+        ? 'done'
+        : lessons && lessons.done > 0
+          ? 'started'
+          : 'new',
+      steps: lessons?.marks ?? [],
+      ...(lessons ? { unit: 'lessons' as const } : {}),
+      passed: lessons?.done ?? 0,
+      next: route?.done ? null : (lessons?.next ?? null),
       rounds: null,
-      to: stop.route ?? null,
+      to: route?.to ?? stop.route ?? null,
       key,
     };
   }
@@ -304,13 +353,49 @@ function roundsOf(
 /**
  * A route stop as this device has it: done once its page has done its job
  * (stopDone.ts); the band's stop in the key of the progression its page
- * opens on (bandProgressions.ts).
+ * opens on (bandProgressions.ts). A course stop (Studio Basics) is done once
+ * every lesson is, from the student's lesson completions, and opens the
+ * first lesson not finished (lesson 1 again once they all are).
  */
-export function readRouteStop(stopId: string): RouteStopState {
+export function readRouteStop(
+  stopId: string,
+  completedAt: CompletedLessons = useTutorialProgressStore.getState()
+    .completedAt,
+): RouteStopState {
+  const courseId = COURSE_STOPS[stopId];
+  if (courseId) return courseStop(courseId, completedAt);
   const done = readStopDone(stopId);
   if (stopId !== BAND_STOP_ID) return { done, key: null };
   const { progression } = openingBandProgression(readBandProgressions());
   return { done, key: { tonic: progression.tonic, mode: progression.mode } };
+}
+
+/** A course's stop, from the student's completions. */
+export function courseStop(
+  courseId: TutorialCourseId,
+  completedAt: CompletedLessons,
+): RouteStopState {
+  const course = getTutorialCourse(courseId);
+  if (!course) return { done: false, key: null };
+  const lessons = courseLessons(course);
+  const progress = courseProgress(course, completedAt);
+  const marks = lessons.map(
+    (t): LiteracyStepMark => (completedAt[t.id] != null ? 'passed' : 'todo'),
+  );
+  const nextIndex = marks.indexOf('todo');
+  return {
+    done: progress.complete,
+    key: null,
+    to: studioLessonRoute(progress.next.id),
+    lessons: {
+      marks,
+      done: progress.done,
+      next:
+        nextIndex === -1
+          ? null
+          : { index: nextIndex, title: lessons[nextIndex].title },
+    },
+  };
 }
 
 /** Every stop, as this device's saved progress (and choices) have it. */
@@ -354,10 +439,18 @@ export function currentStop(states: readonly LiteracyStopState[]): {
 }
 
 /**
- * The path as this device has it. Read once when the page opens: progress
- * is saved as the lesson is played, and leaving the lesson remounts the path.
+ * The path as this device has it. Read when the page opens: progress is
+ * saved as the lesson is played, and leaving the lesson remounts the path.
+ * Read again when the student's Studio lesson completions change (they load
+ * once the student is known, which can be after the page opens).
  */
 export function useLiteracyPath(): readonly LiteracyStopState[] {
-  const [states] = useState(() => literacyPath());
-  return states;
+  const completedAt = useTutorialProgressStore((s) => s.completedAt);
+  return useMemo(
+    () =>
+      literacyPath(undefined, undefined, undefined, (stopId) =>
+        readRouteStop(stopId, completedAt),
+      ),
+    [completedAt],
+  );
 }

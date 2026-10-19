@@ -8,7 +8,7 @@
  *   song:<id>:lesson | song:<id>:chart
  *   learn:<mode>:<key>
  *   curriculum:<GENRE>:L<level>[:A|B|C|D]
- *   studio:template:<id> | studio:song:<id>
+ *   studio:template:<id> | studio:song:<id> | studio:tutorial:<id>
  *   globe:pathway:<id> | globe:event:<id>
  *   globe:region:<id> | globe:city:<id> | globe:era:<id>
  *
@@ -28,6 +28,7 @@ export type PickerKind =
   | 'curriculumActivity'
   | 'studioTemplate'
   | 'studioSong'
+  | 'studioTutorial'
   | 'globePathway'
   | 'globeEvent'
   | 'globeRegion'
@@ -64,6 +65,14 @@ export const curriculumRef = (
 /** `studio:template:<id>` → opens the Studio editor seeded with a project template. */
 export const studioTemplateRef = (templateId: string): string =>
   `studio:template:${templateId}`;
+
+/**
+ * `studio:tutorial:<id>` → opens the Studio editor with that lesson running
+ * (a Studio Basics lesson on its course's demo song). The same ref a lesson
+ * reports its completion under (msp/mspLaunchParams.ts).
+ */
+export const studioTutorialRef = (tutorialId: string): string =>
+  `studio:tutorial:${tutorialId}`;
 
 /** `studio:song:<id>` → opens the Studio editor seeded from a song's chart. */
 export const studioSongRef = (songId: string): string =>

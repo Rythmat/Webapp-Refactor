@@ -41,6 +41,14 @@ import { NOTE_EVENT_FIELDS } from './fields';
 //   copy for older builds). A v6 draft is a v7 draft whose sections are read
 //   from those marks: decodeSession does it, for any draft without sections,
 //   since a cloud copy merged from an older document carries none either.
+// - v8: the Lead Sheet's melody is a list of tracks, a staff each
+//   (notation.leadSheetMelodyTrackIds), where v7 named one
+//   (notation.leadSheetMelodyTrackId, or null for Auto). The one id becomes
+//   a list of it (v7ToV8Notation); a v7 build reading a v8 draft finds no
+//   id and shows Auto. v8 also adds the staff each part is set to in the
+//   Score (a track's settings.notationStaff: treble, alto, bass, bass8vb or
+//   grand). A v7 draft is a v8 draft with every part on Auto, and a v7 build
+//   reading a v8 draft leaves the field out, so compat stays 3.
 // - Later schemas: a draft whose `compat` is 3 or lower only adds fields to
 //   v3, so it is read as this build's schema and the fields this build
 //   doesn't know are left out. `from` says it was newer, and the caller keeps a copy of it before
@@ -162,6 +170,7 @@ export function migrateSession(input: unknown): MigrationResult {
     let data = sharedShape(parsed.data, repairs);
     let legacyPrefs: LegacyPrefs = {};
     if (from < 3) ({ data, legacyPrefs } = v2ToV3(data));
+    if (from < 8) data = v7ToV8(data, repairs);
     return {
       ok: true,
       session: {
@@ -344,4 +353,44 @@ function v2ToV3(data: Record<string, unknown>): {
     legacyPrefs:
       typeof metronome === 'boolean' ? { metronomeEnabled: metronome } : {},
   };
+}
+
+// ── v7 → v8 ────────────────────────────────────────────────────────────────
+
+/** Where a draft before schema 8 kept its one melody track. */
+const LEGACY_MELODY_KEY = 'leadSheetMelodyTrackId';
+
+/** v7 as v8: the notation section's melody track, as a list. */
+function v7ToV8(
+  data: Record<string, unknown>,
+  repairs: { count: number },
+): Record<string, unknown> {
+  if (!isRecord(data.notation)) return data;
+  const notation = v7ToV8Notation(data.notation, repairs);
+  return notation === data.notation ? data : { ...data, notation };
+}
+
+/**
+ * A notation section from before schema 8 as v8 holds it: the one melody
+ * track it named (leadSheetMelodyTrackId) becomes a list of that track
+ * (leadSheetMelodyTrackIds), and null, which was Auto, leaves the list out
+ * so it loads as its default, empty, which is Auto too (so does an empty
+ * id). A value that is no id at all is counted and dropped. A section holding no old id comes back
+ * as itself. The cloud open runs a document's notation through it as well
+ * (cloudDocument.ts), since a project saved before 8 opens through there.
+ */
+export function v7ToV8Notation(
+  notation: Record<string, unknown>,
+  repairs: { count: number } = { count: 0 },
+): Record<string, unknown> {
+  if (!(LEGACY_MELODY_KEY in notation)) return notation;
+  const { [LEGACY_MELODY_KEY]: legacy, ...rest } = notation;
+  if (rest.leadSheetMelodyTrackIds !== undefined) return rest;
+  if (typeof legacy === 'string') {
+    // An empty id picked nothing, as null did: Auto.
+    if (legacy !== '') rest.leadSheetMelodyTrackIds = [legacy];
+  } else if (legacy !== null && legacy !== undefined) {
+    repairs.count++;
+  }
+  return rest;
 }

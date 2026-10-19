@@ -672,6 +672,22 @@ defineCommand({
   repeat: true,
 });
 defineCommand({
+  id: 'score.noteInput',
+  scope: 'score',
+  label: 'Note input on / off: click a staff to add a note',
+  keys: ['KeyN'],
+});
+defineCommand({
+  id: 'score.noteName',
+  scope: 'score',
+  label: 'In note input, add that note (Shift adds it to the chord)',
+  keys: [
+    ...'ABCDEFG'.split('').map((letter) => `Key${letter}`),
+    ...'ABCDEFG'.split('').map((letter) => `Shift+Key${letter}`),
+  ],
+  keysLabel: 'A–G',
+});
+defineCommand({
   id: 'score.duration',
   scope: 'score',
   label: 'Note length: 32nd, 16th, eighth, quarter, half, whole',
@@ -756,7 +772,7 @@ defineCommand({
 defineCommand({
   id: 'score.escape',
   scope: 'score',
-  label: 'Clear the selection',
+  label: 'Leave note input, or clear the selection',
   keys: ['Escape'],
 });
 

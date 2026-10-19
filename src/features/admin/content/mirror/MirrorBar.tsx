@@ -66,11 +66,31 @@ const songSlugOf = (appPath: string): string | null => {
 };
 
 /**
+ * A Music Literacy page (`/curriculum/music-literacy[/:id…]`) and its
+ * lesson's id, which is kebab-case, so never needs decoding.
+ */
+const MUSIC_LITERACY_PAGE =
+  /^\/curriculum\/music-literacy(?:\/([a-z0-9-]+))?(?:\/|$)/;
+
+/**
  * What the page showing can be edited as, where it has no in-place editor
- * yet. A song page has one (Preview | Edit); a course and a globe event open
- * their editors; a song's globe event opens the song's page in Edit.
+ * yet. A song page has one (Preview | Edit); a course, a Music Literacy
+ * lesson and a globe event open their editors; a song's globe event opens
+ * the song's page in Edit.
  */
 function contextActions(appPath: string, search: URLSearchParams): Action[] {
+  // Before the courses: `music-literacy` would read as a course's genre.
+  const literacy = MUSIC_LITERACY_PAGE.exec(appPath);
+  if (literacy) {
+    return [
+      literacy[1]
+        ? {
+            label: 'Edit lesson',
+            to: AdminRoutes.musicLiteracyLesson({ id: literacy[1] }),
+          }
+        : { label: 'Edit lessons', to: AdminRoutes.musicLiteracy() },
+    ];
+  }
   const course = /^\/curriculum\/([^/]+)(?:\/(\d+))?/.exec(appPath);
   if (course) {
     return [
@@ -177,16 +197,18 @@ export const MirrorBar = () => {
   const inTable = appPath ? tableForAppPage(appPath, search) : null;
   const inTableHref = inTable ? tableHref(inTable.table, inTable.row) : null;
   // Page | Table: the same content as the page, or as rows — the course's
-  // lessons for the curriculum. A list under Other records keeps its way
-  // back to its page, and is the table itself. An item's full editor is
-  // neither: its Table is the item's row (`ItemRowLink`; the kind's table
-  // until the item has loaded, or for a new one), or for an other record its
-  // list under Other records.
+  // lessons for the curriculum, the Music Literacy lessons for theirs. A
+  // list under Other records keeps its way back to its page, and is the
+  // table itself. An item's full editor is neither: its Table is the item's
+  // row (`ItemRowLink`; the kind's table until the item has loaded, or for a
+  // new one), or for an other record its list under Other records.
   const tableLink =
     inTableHref ??
-    (appPath && isCurriculum(appPath)
-      ? AdminRoutes.contentKind({ kind: 'activity_flow' })
-      : null);
+    (appPath && MUSIC_LITERACY_PAGE.test(appPath)
+      ? AdminRoutes.musicLiteracy()
+      : appPath && isCurriculum(appPath)
+        ? AdminRoutes.contentKind({ kind: 'activity_flow' })
+        : null);
   const mirrorSegment = recordsKind ? segmentForKind(recordsKind) : null;
   // Own keys only, so a URL spelling `constructor` is not a kind.
   const kindTable =
@@ -365,6 +387,11 @@ export const MirrorBar = () => {
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to={AdminRoutes.chordComping()}>Chord Comping</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            {/* Learn's own series, edited on its own page. */}
+            <DropdownMenuItem asChild>
+              <Link to={AdminRoutes.musicLiteracy()}>Music Literacy</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -41,6 +41,13 @@
     display: none !important;
   }
 
+  /* The Score and the written-out lead sheet (Melody on) draw their chord
+     symbols and marks as text over the staves in the theme's ink, which is
+     light: on paper it is black, as the staves are. */
+  body.ma-print-leadsheet .score-print-root {
+    --daw-text: black;
+  }
+
   /* The palette lives inside .leadsheet-container, so the rule above that
      hides the DAW's chrome does not reach it. */
   body.ma-print-leadsheet .leadsheet-palette {

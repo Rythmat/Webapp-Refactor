@@ -6,6 +6,7 @@ import type {
   NoteValue,
   StaffId,
 } from '@/lib/notation/types';
+import { writtenOctaves } from '@/lib/notation/clefs';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { LeadSheetRepeat, LeadSheetSection } from '@/daw/store/uiSlice';
 import { harmonyXml } from './MusicXmlExport';
@@ -60,9 +61,22 @@ const ACCIDENTAL: Record<Accidental, string> = {
   '##': 'double-sharp',
 };
 
+/**
+ * Each staff's clef. The alto clef is a C clef on the middle line. The bass
+ * clef with a small 8 under it is an octave-transposing clef: its
+ * clef-octave-change says the notes sound an octave below the lines they sit
+ * on, and its notes' <pitch> is the pitch they sound (C2 drawn on the C3
+ * space), with no <transpose>. That is how MuseScore writes and reads an
+ * octave clef (its guitar's treble clef with an 8 too): it takes <pitch> as
+ * the sounding pitch and lets the clef draw it an octave up, where a
+ * <transpose> octave-change on top would draw it an octave too high again.
+ */
 const CLEF: Record<StaffId, string> = {
   treble: '<sign>G</sign><line>2</line>',
   bass: '<sign>F</sign><line>4</line>',
+  alto: '<sign>C</sign><line>3</line>',
+  bass8vb:
+    '<sign>F</sign><line>4</line><clef-octave-change>-1</clef-octave-change>',
   percussion: '<sign>percussion</sign>',
 };
 
@@ -191,6 +205,7 @@ export function buildScoreXml(
           wroteVoice = true;
           const voiceNumber = staffIndex * 2 + voice.index + 1;
           const staffNumber = score.staves.length > 1 ? staffIndex + 1 : null;
+          const octaves = writtenOctaves(staff);
           let written = 0;
           voice.items.forEach((item, i) => {
             written += item.durationTicks;
@@ -199,6 +214,7 @@ export function buildScoreXml(
                 voice: voiceNumber,
                 staff: staffNumber,
                 drums: part.drums,
+                octaves,
                 measureTicks,
                 tupletStart:
                   item.tupletStart !== undefined &&
@@ -272,6 +288,8 @@ interface ItemContext {
   voice: number;
   staff: number | null;
   drums: boolean;
+  /** Octaves the staff draws its notes above their pitch (clefs.ts). */
+  octaves: number;
   measureTicks: number;
   tupletStart: boolean;
   tupletStop: boolean;
@@ -367,7 +385,7 @@ function itemXml(item: NotationItem, ctx: ItemContext): string {
       return [
         '      <note>',
         i > 0 ? '<chord/>' : '',
-        pitchXml(key, ctx.drums),
+        pitchXml(key, ctx.drums, ctx.octaves),
         `<duration>${item.durationTicks}</duration>`,
         ties,
         voiceTag,
@@ -385,13 +403,14 @@ function itemXml(item: NotationItem, ctx: ItemContext): string {
     .join('\n');
 }
 
-function pitchXml(key: NotationKey, drums: boolean): string {
+/** A note's pitch as it sounds; an octave clef draws it where it is written. */
+function pitchXml(key: NotationKey, drums: boolean, octaves = 0): string {
   const step = key.letter.toUpperCase();
   if (drums) {
     return `<unpitched><display-step>${step}</display-step><display-octave>${key.octave}</display-octave></unpitched>`;
   }
   const alter = key.alteration ? `<alter>${key.alteration}</alter>` : '';
-  return `<pitch><step>${step}</step>${alter}<octave>${key.octave}</octave></pitch>`;
+  return `<pitch><step>${step}</step>${alter}<octave>${key.octave - octaves}</octave></pitch>`;
 }
 
 function noteheadXml(key: NotationKey): string {

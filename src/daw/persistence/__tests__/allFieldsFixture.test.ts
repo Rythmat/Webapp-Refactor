@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * Writes fixtures/v7-all-fields/all-fields.json: a draft in today's format
+ * Writes fixtures/v8-all-fields/all-fields.json: a draft in today's format
  * (schema 7) holding a value other than its default for every local
  * registry field, which codecV3.test and draftShape.test read (see there for
  * what it must hold).
@@ -8,8 +8,8 @@
  * Skipped unless WRITE_FIXTURES=1. The fixture is the format, so rewrite it
  * only for a new registry field that needs a value in it, or with a
  * SESSION_SCHEMA_VERSION bump (keeping a copy of the old one for the
- * migration from it: fixtures/v3-all-fields to v6-all-fields are the v3
- * to v6 ones).
+ * migration from it: fixtures/v3-all-fields to v7-all-fields are the v3
+ * to v7 ones).
  *
  * Run: WRITE_FIXTURES=1 npx vitest run src/daw/persistence/__tests__/allFieldsFixture.test.ts
  */
@@ -32,7 +32,7 @@ import { migrateSession } from '../projectDocument/migrations';
 
 const FILE = resolve(
   process.cwd(),
-  'src/daw/persistence/__tests__/fixtures/v7-all-fields/all-fields.json',
+  'src/daw/persistence/__tests__/fixtures/v8-all-fields/all-fields.json',
 );
 
 const effects = (patch: Record<string, unknown> = {}) =>
@@ -87,6 +87,8 @@ function allFieldsProject(): ProjectSnapshot {
       }),
       activeEffects: ['reverb', 'ducker'],
       presetName: 'Rhodes',
+      // A keyboard part set to one staff by hand (schema 6).
+      notationStaff: 'treble',
       sends: { A: 0.5, B: 0.2 },
       automation: {
         volume: [
@@ -143,6 +145,8 @@ function allFieldsProject(): ProjectSnapshot {
       recordArmed: true,
       monitoring: true,
       midiInputId: 'keyboard-1',
+      // A line written in alto clef by hand (schema 7).
+      notationStaff: 'alto',
       midiClips: [
         {
           id: 'clip-lead',
@@ -261,6 +265,8 @@ function allFieldsProject(): ProjectSnapshot {
       color: '#7fc783',
       bassVoice: 'upright',
       trackRole: 'bass',
+      // The bass clef with an 8, set by hand (schema 7).
+      notationStaff: 'bass8vb',
     }),
     track({
       id: 'trk-chops',
@@ -386,7 +392,8 @@ function allFieldsProject(): ProjectSnapshot {
     leadSheetRepeats: [{ startMeasure: 0, endMeasure: 7 }],
     leadSheetShowRepeats: true,
     leadSheetShowMelody: true,
-    leadSheetMelodyTrackId: 'trk-lead',
+    // Not in track order: the list keeps the order it was given.
+    leadSheetMelodyTrackIds: ['trk-lead', 'trk-keys'],
     scoreChordTracks: ['trk-keys'],
     scoreChordHidden: ['trk-keys:chord-2'],
     scoreArticulations: [

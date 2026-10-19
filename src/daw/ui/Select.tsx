@@ -35,6 +35,12 @@ export interface SelectProps {
   defaultValue?: string;
   onValueChange?(value: string): void;
   placeholder?: string;
+  /**
+   * What the closed field shows for the chosen option, when its label in the
+   * list says more than the field has room for. The option's own label by
+   * default.
+   */
+  valueLabel?: string;
   /** Control the list's open state (the gallery shows it open). */
   open?: boolean;
   onOpenChange?(open: boolean): void;
@@ -66,6 +72,7 @@ export function Select({
   defaultValue,
   onValueChange,
   placeholder,
+  valueLabel,
   open,
   onOpenChange,
   disabled,
@@ -106,7 +113,7 @@ export function Select({
           className,
         )}
       >
-        <SelectValue placeholder={placeholder} />
+        <SelectValue placeholder={placeholder}>{valueLabel}</SelectValue>
       </SelectTrigger>
       <SelectContent
         collisionPadding={8}

@@ -90,7 +90,15 @@ vi.mock('@/daw/hooks/usePitchInfo', () => ({
 const media = vi.hoisted(() => ({ getUserMedia: vi.fn() }));
 
 import { useStore } from '@/daw/store';
+import {
+  flushHistory,
+  historyLabels,
+  resetHistory,
+  startHistory,
+  undo,
+} from '@/daw/store/history';
 import type { AudioInputChannel } from '@/daw/store/tracksSlice';
+import { applyStoredPedalChain } from '@/daw/audio/applyPedalChain';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 import { GuitarBassView } from '../GuitarBassView';
@@ -637,5 +645,139 @@ describe('GuitarBassView on a real adapter', () => {
 
     expect(media.getUserMedia).toHaveBeenCalledTimes(2);
     expect(adapter.getPitchDetectSourceNode()).not.toBeNull();
+  });
+});
+
+// ── The chain the engine plays, and the open view ─────────────────────────
+// The engine applies a track's stored chain itself as soon as its adapter is
+// ready (trackReconciler, through applyPedalChain), so the views no longer
+// have to be opened for a saved tone to play. A view opening on that chain
+// changes nothing, and an undo while it is open reaches the view and the
+// sound alike, rather than being written back over by the next edit.
+
+/** The pedals on the board (each one can be dragged to another slot). */
+const pedalsOnBoard = (container: HTMLElement) =>
+  container.querySelectorAll('[draggable="true"]').length;
+
+describe('a view opening on the chain the engine applied', () => {
+  it('changes nothing in the guitar chain or its amp model', async () => {
+    nam.fetchBundledModel.mockResolvedValue({ name: 'AC15' });
+    const id = reloadedGuitarTrack();
+    const fake = fakeGuitarAdapter();
+    // What the engine does once the adapter is ready.
+    await applyStoredPedalChain(fake.adapter, trackById(id)!, 120);
+    expect(fake.loadNamModel).toHaveBeenCalledTimes(1);
+    engine.ready(id, fake.adapter);
+    vi.clearAllMocks();
+
+    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
+    await settle();
+
+    expect(fake.syncChain).not.toHaveBeenCalled();
+    expect(fake.loadNamModel).not.toHaveBeenCalled();
+    expect(fake.setAmpSimMode).not.toHaveBeenCalled();
+    expect(nam.fetchBundledModel).not.toHaveBeenCalled();
+  });
+
+  it('changes nothing in the vocal chain', async () => {
+    const id = reloadedVocalTrack();
+    const fake = fakeVocalAdapter();
+    await applyStoredPedalChain(fake.adapter, trackById(id)!, 120);
+    expect(fake.syncChain).toHaveBeenCalledTimes(1);
+    engine.ready(id, fake.adapter);
+    vi.clearAllMocks();
+
+    render(<VocalView trackId={id} />);
+    await settle();
+
+    expect(fake.syncChain).not.toHaveBeenCalled();
+    expect(fake.updateChainParams).not.toHaveBeenCalled();
+  });
+});
+
+describe('an undo while the view is open (live-input-08)', () => {
+  let stopHistory = () => {};
+  beforeEach(() => {
+    resetHistory();
+    stopHistory = startHistory();
+  });
+  afterEach(() => {
+    stopHistory();
+    resetHistory();
+  });
+
+  it('reaches the guitar view and its sound, and the next edit builds on it', async () => {
+    nam.fetchBundledModel.mockResolvedValue({ name: 'AC15' });
+    const id = reloadedGuitarTrack();
+    const fake = fakeGuitarAdapter();
+    engine.ready(id, fake.adapter);
+    const { container } = render(
+      <GuitarBassView trackId={id} instrument="guitar-fx" />,
+    );
+    await settle();
+    const pedals = pedalsOnBoard(container);
+    fireEvent.click(screen.getByRole('button', { name: 'Overdrive' }));
+    await settle();
+    expect(pedalsOnBoard(container)).toBe(pedals + 1);
+
+    act(() => {
+      undo();
+    });
+    await settle();
+
+    expect(trackById(id)?.guitarChain?.map((b) => b.type)).toEqual(['nam-amp']);
+    expect(pedalsOnBoard(container)).toBe(pedals);
+    expect(fake.syncChain).toHaveBeenLastCalledWith([
+      expect.objectContaining({ type: 'nam-amp', namModelId: 'nam-vox-ac15' }),
+    ]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Chorus' }));
+    await settle();
+    expect(trackById(id)?.guitarChain?.map((b) => b.type)).toEqual([
+      'chorus',
+      'nam-amp',
+    ]);
+  });
+
+  it("doesn't make the first amp model a new track gets an undo step", async () => {
+    nam.fetchBundledModel.mockResolvedValue({ name: 'Quartz' });
+    const id = useStore.getState().addTrack('audio', 'guitar-fx', 'Amp');
+    flushHistory();
+    const steps = historyLabels().length;
+    const fake = fakeGuitarAdapter();
+    render(<GuitarBassView trackId={id} instrument="guitar-fx" />);
+    act(() => engine.ready(id, fake.adapter));
+    await settle();
+
+    expect(trackById(id)?.guitarChain).toEqual([
+      expect.objectContaining({
+        type: 'nam-amp',
+        namModelId: 'nam-clean-twin',
+      }),
+    ]);
+    flushHistory();
+    expect(historyLabels()).toHaveLength(steps);
+  });
+
+  it('reaches the vocal view and its sound', async () => {
+    const id = reloadedVocalTrack();
+    const fake = fakeVocalAdapter();
+    engine.ready(id, fake.adapter);
+    const { container } = render(<VocalView trackId={id} />);
+    await settle();
+    fireEvent.click(screen.getByRole('button', { name: 'Chorus' }));
+    await settle();
+    expect(pedalsOnBoard(container)).toBe(2);
+
+    act(() => {
+      undo();
+    });
+    await settle();
+
+    expect(trackById(id)?.vocalChain?.map((b) => b.type)).toEqual(['reverb']);
+    expect(pedalsOnBoard(container)).toBe(1);
+    expect(fake.syncChain).toHaveBeenLastCalledWith([
+      expect.objectContaining({ type: 'reverb' }),
+    ]);
   });
 });

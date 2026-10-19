@@ -104,8 +104,9 @@ export function buildFullScoreXml(
 
 /**
  * The Score's MusicXML (buildFullScoreXml) without its name. A lead sheet's
- * melody (`melody`) is one part that always carries the chord symbols, as
- * the sheet always shows them, and runs at least `minMeasures` bars.
+ * melody (`melody`) is a part per melody track whose top one always carries
+ * the chord symbols, as the sheet always shows them over its top staff, and
+ * runs at least `minMeasures` bars.
  */
 function scoreXml(
   state: FullScoreState,
@@ -139,7 +140,7 @@ function scoreXml(
   let chordPartIds: ReadonlySet<string> = new Set(state.scoreChordTracks);
   let chordRegions = state.chordRegions;
   if (opts.melody) {
-    chordPartIds = new Set(parts.map((p) => p.id));
+    chordPartIds = new Set(parts.slice(0, 1).map((p) => p.id));
   } else if (only) {
     const carriers =
       chordPartIds.size > 0
@@ -257,17 +258,17 @@ export type LeadSheetMelodyExportState = FullScoreState &
   Pick<AllSlices, 'leadSheetBars'>;
 
 /**
- * The lead sheet with its melody shown, as MusicXML (leadsheet-10): the
- * melody track's notes as one part, the song's chord symbols over it, in
+ * The lead sheet with its melody shown, as MusicXML (leadsheet-10): each
+ * melody track's notes as a part, the song's chord symbols over the top one, in
  * the project's key and metre, with the sections, repeats and system breaks
  * the Score writes, and as many bars as the chart has (the sheet runs as
  * long as its chords and sections do, past the melody). Named like the
  * chord chart's file ('my-song-lead-sheet.musicxml'), since it is the same
- * sheet. Null when the track has no notes, where the sheet shows none.
+ * sheet. Null when the tracks have no notes, where the sheet shows none.
  */
 export function buildLeadSheetMelodyExport(
   state: LeadSheetMelodyExportState,
-  melodyTrackId: string,
+  melodyTrackIds: readonly string[],
 ): NotationFile | null {
   const timeSignature = timeSignatureOf(state);
   const chartBars = regionToMeasures(
@@ -276,7 +277,7 @@ export function buildLeadSheetMelodyExport(
     chartExtraBars(state.leadSheetBars, state.sections, timeSignature),
   ).length;
   const xml = scoreXml(state, {
-    trackIds: [melodyTrackId],
+    trackIds: melodyTrackIds,
     melody: true,
     minMeasures: Math.max(1, chartBars),
   });

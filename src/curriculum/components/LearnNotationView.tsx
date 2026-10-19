@@ -144,13 +144,23 @@ export function LearnNotationView({
     ? countOffBeatIndex(playheadTick, countInTicks, beatTicks, musicStartTick)
     : null;
 
-  // Header + the staff's pt-2 + the drawn systems + a little breathing room.
+  // Notes under the bottom staff — a bass line on ledger lines, a stem
+  // pointing down — are drawn past the staves' own height, so the box takes
+  // in the lowest of them too, or they're cut off at its edge. (`space` is
+  // half a staff space: a notehead's radius; a down stem reaches ~7 more.)
+  const inkBottom =
+    layout?.notes.reduce(
+      (lowest, note) =>
+        Math.max(lowest, note.y + note.space * (note.stem === 'down' ? 8 : 2)),
+      0,
+    ) ?? 0;
+  const drawnHeight = Math.max(layout?.contentHeight ?? 0, inkBottom);
+
+  // Header + the staff's pt-2 + the drawn music + a little breathing room.
   const huggedHeight = layout?.contentHeight
     ? Math.min(
         height,
-        Math.ceil(
-          (showHeader ? HEADER_HEIGHT : 0) + 8 + layout.contentHeight + 12,
-        ),
+        Math.ceil((showHeader ? HEADER_HEIGHT : 0) + 8 + drawnHeight + 12),
       )
     : height;
 

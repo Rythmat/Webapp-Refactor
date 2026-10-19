@@ -127,6 +127,7 @@ export function practiceSessionFor(
     styleId: track.styleId,
     progressions: track.progressions,
     progressionId: track.progressionId,
+    ...(track.guitar ? { guitar: track.guitar } : {}),
   };
 }
 

@@ -269,7 +269,8 @@ function DisplaySettings({
 
 // ── Sound ──────────────────────────────────────────────────────────────────
 
-function MetronomeRow() {
+/** Shared with piano's settings sheet. */
+export function MetronomeRow() {
   const { metronomeEnabled, setMetronomeEnabled } = usePracticeSettings();
   return (
     <SettingsSwitchRow
@@ -281,7 +282,7 @@ function MetronomeRow() {
   );
 }
 
-function VolumeRow() {
+export function VolumeRow() {
   const { volume, setVolume } = useLessonVolume();
   const percent = Math.round(volume * 100);
   return (
@@ -310,7 +311,7 @@ function VolumeRow() {
   );
 }
 
-function AudioTimingRow({
+export function AudioTimingRow({
   latencyMs,
   onOpen,
 }: {

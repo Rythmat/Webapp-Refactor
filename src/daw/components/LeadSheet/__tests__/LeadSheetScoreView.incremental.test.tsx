@@ -52,27 +52,27 @@ afterEach(cleanup);
 
 describe('LeadSheetScoreView', () => {
   it('engraves incrementally', () => {
-    render(<LeadSheetScoreView track={melody()} />);
+    render(<LeadSheetScoreView tracks={[melody()]} />);
     expect(h.staff!.incremental).toBe(true);
     expect(h.staff!.parts.map((p) => p.id)).toEqual([lead]);
   });
 
   it('hands the staff the same parts after a fader move', () => {
-    const view = render(<LeadSheetScoreView track={melody()} />);
+    const view = render(<LeadSheetScoreView tracks={[melody()]} />);
     const parts = h.staff!.parts;
     act(() => s().updateTrack(lead, { volume: 0.2 }));
-    view.rerender(<LeadSheetScoreView track={melody()} />);
+    view.rerender(<LeadSheetScoreView tracks={[melody()]} />);
     expect(melody().volume).toBe(0.2);
     expect(h.staff!.parts).toBe(parts);
   });
 
   it('rebuilds the part after a note edit', () => {
-    const view = render(<LeadSheetScoreView track={melody()} />);
+    const view = render(<LeadSheetScoreView tracks={[melody()]} />);
     const parts = h.staff!.parts;
     act(() =>
       s().updateMidiClipEvents(lead, 'lead-clip', [ev(72, 0), ev(76, 480)]),
     );
-    view.rerender(<LeadSheetScoreView track={melody()} />);
+    view.rerender(<LeadSheetScoreView tracks={[melody()]} />);
     expect(h.staff!.parts[0].score).not.toBe(parts[0].score);
   });
 });

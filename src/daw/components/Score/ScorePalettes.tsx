@@ -6,6 +6,7 @@ import {
   ChevronRight,
   CornerDownLeft,
   MoreHorizontal,
+  Pencil,
   Search,
   X,
 } from 'lucide-react';
@@ -328,6 +329,9 @@ export function ScorePalettes({
     setOpen(Object.fromEntries(all.map((p) => [p.id, value])));
 
   const hasNotes = notes?.hasNotes ?? false;
+  const noteInput = notes?.noteInput ?? false;
+  const lengthName = `${notes?.dotted ? 'dotted ' : ''}${notes?.inputDuration?.name.toLowerCase() ?? 'note'}`;
+  const inputLength = `${/^[aeiou]/.test(lengthName) ? 'an' : 'a'} ${lengthName}`;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -449,6 +453,10 @@ export function ScorePalettes({
         )}
       </div>
 
+      {notes?.onToggleNoteInput && (
+        <AddNotesButton on={noteInput} onClick={notes.onToggleNoteInput} />
+      )}
+
       <div className="flex-1 overflow-y-auto pb-3">
         {palettes.map((palette) => {
           const expanded = isOpen(palette.id) || query.trim().length > 0;
@@ -518,14 +526,52 @@ export function ScorePalettes({
           color: 'var(--daw-text-3)',
         }}
       >
-        {hasNotes
-          ? 'Numbers write into the live palette · . > - _ mark · S slurs'
-          : hasSelection
-            ? 'Click a cell to apply it. ↵ system break · ⌘M rehearsal mark · ⌫ clear'
-            : notes
-              ? 'Select a note or a barline in the score, then click a cell.'
-              : 'Select a barline in the score, then click a palette cell.'}
+        {noteInput
+          ? `Click a staff, or type A–G, to add ${inputLength}. Shift adds to a chord.`
+          : hasNotes
+            ? 'Numbers write into the live palette · . > - _ mark · S slurs'
+            : hasSelection
+              ? 'Click a cell to apply it. ↵ system break · ⌘M rehearsal mark · ⌫ clear'
+              : notes
+                ? 'Select a note or a barline in the score, then click a cell, or press Add notes.'
+                : 'Select a barline in the score, then click a palette cell.'}
       </div>
+    </div>
+  );
+}
+
+/** Note input, MuseScore's N: on, a click on a staff adds a note. */
+function AddNotesButton({ on, onClick }: { on: boolean; onClick: () => void }) {
+  return (
+    <div
+      className="shrink-0 px-2 py-2"
+      style={{ borderBottom: '1px solid var(--daw-hairline)' }}
+    >
+      <button
+        type="button"
+        onClick={onClick}
+        aria-pressed={on}
+        title={
+          on
+            ? 'Stop adding notes (N or Esc). Shift+click or Shift+A–G adds to a chord.'
+            : 'Add notes: click a staff to write one, or type A–G (N)'
+        }
+        className="flex h-8 w-full items-center gap-2 rounded border px-2 text-xs font-semibold transition-colors hover:bg-white/10"
+        style={{
+          borderColor: on ? 'var(--daw-text-2)' : 'var(--daw-hairline)',
+          background: on ? 'var(--daw-selected)' : 'var(--daw-surface-2)',
+          color: 'var(--daw-text)',
+        }}
+      >
+        <Pencil className="size-3.5" aria-hidden />
+        Add notes
+        <span
+          className="ml-auto font-normal"
+          style={{ color: 'var(--daw-text-3)' }}
+        >
+          {on ? 'On · Esc' : 'N'}
+        </span>
+      </button>
     </div>
   );
 }

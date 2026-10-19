@@ -160,6 +160,7 @@ export type TheoryNoteCondition =
   // key and step
   | 'always'
   | 'isFirstKey'
+  | 'notFirstKey'
   | 'notFirstKeyNoRespell'
   | 'isFlatSwitch'
   | 'modeSpelledLikeParent'

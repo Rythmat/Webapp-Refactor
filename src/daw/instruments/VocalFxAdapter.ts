@@ -264,6 +264,11 @@ export class VocalFxAdapter implements InstrumentAdapter {
     return this.pedalChain?.updateProcessorParams(blocks) ?? false;
   }
 
+  /** Resolves once every pedal in the chain can process (a bounce waits). */
+  whenChainReady(): Promise<void> {
+    return this.pedalChain?.whenReady() ?? Promise.resolve();
+  }
+
   /**
    * Create a MediaStream from the raw input (before pedal chain) for DRY recording.
    * Returns null when no input device is attached (channelGain not yet created),

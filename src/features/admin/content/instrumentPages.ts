@@ -2,11 +2,12 @@ import { AdminRoutes } from '@/constants/routes';
 import type { ContentKind } from '@/hooks/data/admin/useAdminContent';
 
 /**
- * The instrument content kinds whose editors are pages of their own: drum
- * grooves (the Drum Grooves designer) and parts (the Parts Library's piano
- * roll and staff editor). Their `records/:kind[/:id]` URLs hand over to
- * those pages, so there is one editor per kind. Feel profiles have no page
- * of their own and stay among the other records.
+ * The content kinds whose editors are pages of their own: drum grooves (the
+ * Drum Grooves designer), parts (the Parts Library's piano roll and staff
+ * editor) and Music Literacy lessons (the Music Literacy editor). Their
+ * `records/:kind[/:id]` URLs hand over to those pages, so there is one
+ * editor per kind. Feel profiles have no page of their own and stay among
+ * the other records.
  *
  * A file of its own, import-light, because the records routes load with the
  * console's eager code (eagerBoundary.test.ts).
@@ -19,6 +20,10 @@ export const INSTRUMENT_PAGES = {
   instrument_part: {
     list: () => AdminRoutes.parts(),
     item: (id: string) => AdminRoutes.part({ id }),
+  },
+  music_literacy: {
+    list: () => AdminRoutes.musicLiteracy(),
+    item: (id: string) => AdminRoutes.musicLiteracyLesson({ id }),
   },
 } as const satisfies Partial<
   Record<ContentKind, { list: () => string; item: (id: string) => string }>

@@ -7,28 +7,43 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { CurriculumRoutes } from '@/constants/routes';
+import { triggerPianoAttack, triggerPianoRelease } from '@/audio/pianoSampler';
+import { SavedRollViewSwitch } from '@/components/notation/RollViewToggle';
+import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import { usePlayNote } from '@/contexts/PianoContext';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import { loadPianoFundamentals } from '@/curriculum/data/activityFlows';
 import {
+  evaluateStep,
+  isStepNote,
   pitchClassName,
   noteName,
 } from '@/curriculum/engine/fundamentalsEvaluator';
 import { midiToPitchName } from '@/curriculum/engine/genreGeneration/resolveStepContent';
+import {
+  Primary,
+  Secondary,
+  type Zones,
+} from '@/curriculum/guitar/layout/GuitarActionBar';
+import type { BarState, NavStep } from '@/curriculum/guitar/layout/types';
 import { useFundamentalsFlow } from '@/curriculum/hooks/useFundamentalsFlow';
 import type {
   FundamentalsFlow,
   FundamentalsSection,
 } from '@/curriculum/types/fundamentals';
+import { useSettingsStore } from '@/features/settings/useSettingsStore';
+import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { LessonKeyboard } from '@/learn/components/LessonKeyboard';
-import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import {
   LearnInputProvider,
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
-import { HeaderBar } from '../ClassroomLayout/HeaderBar';
+import type { PlayedKeys } from '@/learn/keyboard/playedKeys';
+import {
+  TheoryLessonLayout,
+  TheoryResultPanel,
+} from '../Games/TheoryLessonLayout';
 import '@/components/learn/learn.css';
 
 // ---------------------------------------------------------------------------
@@ -77,6 +92,8 @@ function FundamentalsLessonContainerInner({
 }: FundamentalsLessonContainerProps) {
   const navigate = useNavigate();
   const playNote = usePlayNote();
+  // The settings sheet's audio timing (TheoryLessonLayout).
+  const outputLatencyMs = useSettingsStore((st) => st.outputLatencyMs);
   const [flow, setFlow] = useState<FundamentalsFlow | null>(null);
   const accentColor = '#7ecfcf';
 
@@ -113,6 +130,7 @@ function FundamentalsLessonContainerInner({
 
   const {
     subscribeNoteOn,
+    subscribeNoteOff,
     start: startInput,
     stop: stopInput,
   } = useLearnInputStable();
@@ -143,17 +161,51 @@ function FundamentalsLessonContainerInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStepIndex]);
 
-  // MIDI input handling — play sound and evaluate
+  // The keys held right now: the accent colour when the step asks for them,
+  // null when it doesn't (see playedKeys.ts).
+  const [playedKeys, setPlayedKeys] = useState<PlayedKeys>(() => new Map());
+
+  const handleNoteOff = useCallback((event: MidiNoteEvent) => {
+    // Only the sampler's own sound to stop — an acoustic piano stops itself
+    if (event.source !== 'audio') {
+      void triggerPianoRelease(midiToPitchName(event.number));
+    }
+    setPlayedKeys((prev) => {
+      const next = new Map(prev);
+      next.delete(event.number);
+      return next;
+    });
+  }, []);
+
+  // MIDI input handling — sound and light the key in every state, so the
+  // student hears and sees their keyboard before pressing start too; evaluate
+  // only once they have.
   const handleNoteOn = useCallback(
-    (event: { number: number; source?: 'midi' | 'audio' }) => {
-      if (activityState === 'preview') return;
+    (event: MidiNoteEvent) => {
+      if (event.velocity === 0) {
+        handleNoteOff(event);
+        return;
+      }
       // Only play sampler sound for MIDI input — acoustic piano already produces sound
       if (event.source !== 'audio') {
-        playNote(event.number);
+        void triggerPianoAttack(midiToPitchName(event.number), event.velocity);
       }
+      // A quiz is judged against the question on screen once it's running.
+      const quizExpected =
+        activityState !== 'preview' && quizState && !quizState.done
+          ? quizState.queue[quizState.currentIndex]
+          : undefined;
+      const right =
+        !!currentStep &&
+        isStepNote(currentStep.midiEval, event.number, quizExpected);
+      setPlayedKeys((prev) =>
+        new Map(prev).set(event.number, right ? accentColor : null),
+      );
+
+      if (activityState === 'preview') return;
       onNoteReceived(event.number, activityState === 'performance');
     },
-    [playNote, onNoteReceived, activityState],
+    [handleNoteOff, onNoteReceived, activityState, currentStep, quizState],
   );
 
   useEffect(() => {
@@ -162,8 +214,13 @@ function FundamentalsLessonContainerInner({
   }, [startInput, stopInput]);
 
   useEffect(() => {
-    return subscribeNoteOn(handleNoteOn);
-  }, [subscribeNoteOn, handleNoteOn]);
+    const unsubOn = subscribeNoteOn(handleNoteOn);
+    const unsubOff = subscribeNoteOff(handleNoteOff);
+    return () => {
+      unsubOn();
+      unsubOff();
+    };
+  }, [subscribeNoteOn, subscribeNoteOff, handleNoteOn, handleNoteOff]);
 
   // Keyboard click handler (fallback for users without MIDI controller)
   const handleKeyClick = useCallback(
@@ -258,6 +315,14 @@ function FundamentalsLessonContainerInner({
   );
   const canDemo = demoTargetMidis.length > 0;
 
+  // What practice lights: the next note of a sequence, the notes still to
+  // find, a chord whole. Before the first note, what the rule asks first.
+  const practiceDue = useMemo(() => {
+    const rule = currentStep?.midiEval;
+    if (!rule || rule.type === 'quiz') return new Set<number>();
+    return new Set((evalResult ?? evaluateStep(rule, [])).due ?? []);
+  }, [currentStep, evalResult]);
+
   // Every note the step could ask for, so the keyboard shows all of it: the
   // exact targets, or the ends of the zone a range step plays in.
   const keyboardTargets = useMemo(() => {
@@ -317,10 +382,14 @@ function FundamentalsLessonContainerInner({
     setIsPlayingDemo(true);
 
     const NOTE_GAP_MS = 500;
+    // Each key lit while it sounds; a chord's build up and stay together.
+    const isChord = currentStep?.midiEval.type === 'simultaneous';
     demoTargetMidis.forEach((midi, i) => {
       const t = setTimeout(() => {
         playNote(midi);
-        setDemoHighlightMidis((prev) => new Set(prev).add(midi));
+        setDemoHighlightMidis((prev) =>
+          isChord ? new Set(prev).add(midi) : new Set([midi]),
+        );
       }, i * NOTE_GAP_MS);
       demoTimeoutsRef.current.push(t);
     });
@@ -331,7 +400,7 @@ function FundamentalsLessonContainerInner({
       setDemoHighlightMidis(new Set());
     }, totalMs);
     demoTimeoutsRef.current.push(endTimeout);
-  }, [demoTargetMidis, playNote, stopDemo]);
+  }, [currentStep, demoTargetMidis, playNote, stopDemo]);
 
   const handleStartPractice = useCallback(() => {
     stopDemo();
@@ -398,552 +467,321 @@ function FundamentalsLessonContainerInner({
     );
   }
 
-  // Section complete screen
-  if (isSectionComplete) {
-    const sectionIdx = flow.sections.findIndex((s) => s.id === sectionId);
-    const nextSection = flow.sections[sectionIdx + 1] ?? null;
+  // ── The one-page screen (TheoryLessonLayout, as Theory's) ─────────────────
+  // No start card: a step waits in its preview with its notes lit, Demo /
+  // Practice / Play Now in the bar under the keyboard. A pass, the practice
+  // prompt, a missed quiz and the section's end take the activity's place,
+  // their buttons in the bar. The direction is in About this step.
 
-    return (
-      <div
-        className="learn-root flex min-h-screen w-full flex-col"
-        style={{
-          backgroundColor: 'var(--color-bg)',
-          color: 'var(--color-text)',
-        }}
-      >
-        <HeaderBar title="Piano Fundamentals" />
-        <div className="flex min-h-[60vh] items-center justify-center p-4">
-          <div
-            className="glass-panel w-full max-w-3xl rounded-2xl p-6"
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid var(--color-border)',
-              boxShadow: 'var(--glass-shadow)',
-            }}
-          >
-            <div className="flex flex-col items-center gap-2 text-center">
-              <h1
-                className="text-2xl font-semibold"
-                style={{ color: 'var(--color-text)' }}
+  const sectionIdx = flow.sections.findIndex((s) => s.id === sectionId);
+  const nextSection = flow.sections[sectionIdx + 1] ?? null;
+  const quizFailed =
+    activityState === 'performance' &&
+    currentStep?.midiEval.type === 'quiz' &&
+    !!quizState?.done &&
+    !isPassed;
+  const passMarkPct =
+    currentStep?.midiEval.type === 'quiz'
+      ? Math.round(
+          (currentStep.midiEval.passThreshold / currentStep.midiEval.count) *
+            100,
+        )
+      : 100;
+  const continueLabel =
+    currentStepIndex < totalSteps - 1 ? 'Continue' : 'Finish Section';
+
+  const backToPreview = () => {
+    stopDemo();
+    resetStep();
+    setActivityState('preview');
+  };
+
+  const navSteps: NavStep[] = section.steps.map((step, i) => ({
+    code: String(i + 1),
+    title: step.activity,
+    subsection: section.name,
+    status: completedSteps.has(i) ? 'passed' : 'todo',
+  }));
+
+  const result = isSectionComplete
+    ? {
+        heading: 'Section Complete!',
+        status: null,
+        lines: [`You completed “${section.name}”.`],
+      }
+    : isPassed && currentStep
+      ? {
+          heading: 'Great job!',
+          status: 'Passed',
+          lines: [
+            currentStep.successFeedback,
+            ...(evalResult?.progress ? [evalResult.progress] : []),
+          ],
+        }
+      : practiceComplete
+        ? {
+            heading: 'Nice practicing!',
+            status: null,
+            lines: ['Try it in Play Now to complete this step.'],
+          }
+        : quizFailed
+          ? {
+              heading: 'Not quite yet',
+              status: `Not yet · ${passMarkPct}% passes`,
+              lines: [evalResult?.progress ?? 'Not enough correct answers.'],
+            }
+          : null;
+
+  const barCustom: Zones | null = isSectionComplete
+    ? {
+        lead: null,
+        meta: null,
+        actions: (
+          <>
+            <Secondary onClick={handleBackToOverview}>
+              Back to Overview
+            </Secondary>
+            {nextSection && (
+              <Primary
+                onClick={() =>
+                  navigate(
+                    CurriculumRoutes.fundamentalsSection({
+                      sectionId: nextSection.id,
+                    }),
+                  )
+                }
               >
-                Section Complete!
-              </h1>
-              <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-                You completed &ldquo;{section.name}&rdquo;.
-              </p>
-            </div>
-            <div className="mt-6 grid gap-4">
-              {nextSection && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate(
-                      CurriculumRoutes.fundamentalsSection({
-                        sectionId: nextSection.id,
-                      }),
-                    )
-                  }
-                  className="glass-panel-sm rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    background: 'rgba(126, 207, 207, 0.12)',
-                    border: `1px solid ${accentColor}`,
-                    color: accentColor,
-                  }}
-                >
-                  Continue to: {nextSection.name}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={handleBackToOverview}
-                className="glass-panel-sm rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid var(--color-border)',
-                  color: 'var(--color-text)',
-                }}
-              >
-                Back to Overview
-              </button>
-            </div>
-          </div>
+                Continue to {nextSection.name}
+              </Primary>
+            )}
+          </>
+        ),
+      }
+    : isPassed
+      ? {
+          lead: null,
+          meta: null,
+          actions: (
+            <>
+              <Secondary onClick={backToPreview}>Restart</Secondary>
+              <Primary onClick={advance}>{continueLabel}</Primary>
+            </>
+          ),
+        }
+      : practiceComplete
+        ? {
+            lead: null,
+            meta: null,
+            actions: (
+              <>
+                <Secondary onClick={handleStartPractice}>
+                  Practice Again
+                </Secondary>
+                <Primary onClick={handleStartPerformance}>Play Now</Primary>
+              </>
+            ),
+          }
+        : quizFailed
+          ? {
+              lead: null,
+              meta: null,
+              actions: (
+                <Primary onClick={handleStartPerformance}>Try Again</Primary>
+              ),
+            }
+          : activityState === 'preview' && !canDemo
+            ? {
+                // Nothing to demo on a range or quiz step: no dead button.
+                lead: null,
+                meta: null,
+                actions: (
+                  <>
+                    <Secondary onClick={handleStartPractice}>
+                      Practice
+                    </Secondary>
+                    <Primary onClick={handleStartPerformance}>Play Now</Primary>
+                  </>
+                ),
+                corner: (
+                  <span className="whitespace-nowrap text-xs text-white/45">
+                    Pass = {passMarkPct}%
+                  </span>
+                ),
+              }
+            : null;
+
+  const barState: BarState = result
+    ? 'result'
+    : activityState === 'practice'
+      ? 'practice'
+      : activityState === 'performance'
+        ? 'performance'
+        : 'preview';
+
+  const content = (
+    <div className="flex flex-col gap-4">
+      {/* Quiz display */}
+      {quizDisplayNote && (
+        <div
+          className="flex flex-col items-center gap-2 self-center rounded-xl px-8 py-6"
+          style={{
+            background: 'rgba(126, 207, 207, 0.08)',
+            border: `1px solid ${accentColor}`,
+          }}
+        >
+          <span className="text-xs font-medium uppercase tracking-wider text-white/55">
+            Play this note
+          </span>
+          <span className="text-4xl font-bold" style={{ color: accentColor }}>
+            {quizDisplayNote}
+          </span>
+          {quizState && (
+            <span className="text-xs text-white/55">
+              {quizState.currentIndex + 1} of {quizState.queue.length}
+              {' — '}
+              {quizState.correct} correct
+            </span>
+          )}
         </div>
-      </div>
-    );
-  }
+      )}
 
-  // Main lesson UI
+      {/* Progress on the step, while it's being played */}
+      {evalResult && currentStep?.midiEval.type !== 'quiz' && (
+        <p className="text-center text-sm text-white/55">
+          {evalResult.progress}
+        </p>
+      )}
+
+      {/* Piano Roll — static preview of the step's target note(s).
+          Fundamentals has no timeline/tempo data, so this doesn't scroll
+          like genre lessons' roll; it just shows the shape of the target. */}
+      {pianoRollEvents.length > 0 && (
+        <div className="w-full" style={{ height: '180px', flexShrink: 0 }}>
+          <GenrePianoRoll
+            key={`fundamentals-roll-${currentStepIndex}`}
+            showViewToggle={false}
+            events={pianoRollEvents}
+            bars={pianoRollBars}
+            beatsPerBar={4}
+            subdivision={1}
+            rowHeight={140}
+            // The step's own notes and a few keys either side, so each lane
+            // is tall enough to read (the octaves the keyboard spans made
+            // them slivers).
+            midiRangeMin={
+              demoTargetMidis.length
+                ? Math.min(...demoTargetMidis) - 4
+                : startC * 12
+            }
+            midiRangeMax={
+              demoTargetMidis.length
+                ? Math.max(...demoTargetMidis) + 4
+                : (endC + 1) * 12 - 1
+            }
+            inTime={false}
+            isPlaying={false}
+            keyColor={accentColor}
+            targetMidiSet={new Set(demoTargetMidis)}
+          />
+        </div>
+      )}
+
+      <LessonKeyboard
+        minHeight={238}
+        targetMidis={keyboardTargets}
+        enableClick
+        enableMidiInterface={false}
+        onKeyClick={handleKeyClick}
+        playingNotes={
+          // Every target only while the step waits; then just the notes in
+          // sequence: the demo's as they sound, what's due next in practice,
+          // nothing in Play Now.
+          isPlayingDemo
+            ? highlightNotes.filter((n) => demoHighlightMidis.has(n.midi))
+            : activityState === 'practice'
+              ? highlightNotes.filter((n) => practiceDue.has(n.midi))
+              : activityState === 'performance'
+                ? []
+                : highlightNotes
+        }
+        playedKeys={playedKeys}
+        activeWhiteKeyColor={accentColor}
+        activeBlackKeyColor={accentColor}
+      />
+    </div>
+  );
+
   return (
     <div
       className="learn-root flex min-h-screen w-full flex-col"
-      style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
+      style={{ backgroundColor: '#101012', color: 'var(--color-text)' }}
     >
-      <HeaderBar title="Piano Fundamentals" />
-
-      {/* Info bar */}
-      <div
-        className="glass-panel-sm flex items-center justify-between px-4 py-3"
-        style={{
-          borderBottom: '1px solid var(--color-border)',
-          background: 'rgba(255,255,255,0.03)',
+      <TheoryLessonLayout
+        header={{
+          crumbs: [
+            { label: 'Piano Fundamentals', onClick: handleBackToOverview },
+          ],
+          keyLabel: section.name,
+          keyColor: accentColor,
+          subsection: '',
+          activity: currentStep?.activity ?? section.name,
         }}
-      >
-        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-          {section.name}
-        </div>
-        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-          Step {currentStepIndex + 1} of {totalSteps}
-        </div>
-      </div>
-
-      {/* Step progress dots */}
-      <div className="flex items-center gap-1.5 px-4 py-3">
-        {section.steps.map((step, i) => {
-          const isCompleted = completedSteps.has(i);
-          const isCurrent = i === currentStepIndex;
-
-          if (isCompleted) {
-            return (
-              <button
-                key={i}
-                type="button"
-                onClick={() => goToStep(i)}
-                aria-label={`Go to step ${i + 1} — completed`}
-                title={`${step.activity} ✓ Passed`}
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  border: `1.5px solid ${accentColor}`,
-                  background: `${accentColor}22`,
-                  color: accentColor,
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 0,
-                  flexShrink: 0,
-                  lineHeight: 1,
-                }}
-              >
-                &#10003;
-              </button>
-            );
-          }
-
-          return (
-            <button
-              key={i}
-              type="button"
-              onClick={() => goToStep(i)}
-              aria-label={`Go to step ${i + 1}`}
-              style={{
-                width: isCurrent ? '24px' : '16px',
-                height: '6px',
-                borderRadius: '3px',
-                border: 'none',
-                padding: 0,
-                cursor: 'pointer',
-                background: isCurrent ? accentColor : 'rgba(255,255,255,0.1)',
-                transition: 'all 0.2s',
-                flexShrink: 0,
-              }}
-            />
-          );
-        })}
-        <span
-          className="ml-2 text-xs"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
-          {currentStepIndex + 1}/{totalSteps}
-        </span>
-      </div>
-
-      {/* Main content area */}
-      <div className="flex flex-1 flex-col items-center gap-6 overflow-y-auto px-4 pb-8">
-        {/* Activity name */}
-        {currentStep && (
-          <h2
-            className="text-lg font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            {currentStep.activity}
-          </h2>
-        )}
-
-        {/* Direction card */}
-        {currentStep && (
-          <div
-            className="glass-panel-sm w-full max-w-2xl rounded-xl p-5"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: 'var(--color-text)' }}
-            >
-              {currentStep.direction}
-            </p>
-          </div>
-        )}
-
-        {/* Interactive area — preview modal overlays this until a mode is chosen */}
-        <div
-          className="flex w-full max-w-3xl flex-col items-center gap-6"
-          style={{ position: 'relative' }}
-        >
-          {/* Preview modal — Demo / Practice / Performance gate */}
-          {activityState === 'preview' && currentStep && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'rgba(17,17,17,0.88)',
-                borderRadius: '16px',
-                zIndex: 40,
-              }}
-            >
-              <div
-                style={{
-                  maxWidth: '420px',
-                  width: '100%',
-                  padding: '28px',
-                  borderRadius: '16px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid #444',
-                  textAlign: 'center',
-                }}
-              >
-                <h2
-                  style={{
-                    fontSize: '20px',
-                    fontWeight: 600,
-                    marginBottom: '10px',
-                    color: '#fff',
-                  }}
-                >
-                  Ready to start?
-                </h2>
-                <p
-                  style={{
-                    fontSize: '13px',
-                    color: '#aaa',
-                    marginBottom: '20px',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {currentStep.direction}
-                </p>
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '10px',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {canDemo && (
-                    <button
-                      type="button"
-                      onClick={() => void playDemo()}
-                      disabled={isPlayingDemo}
-                      style={{
-                        padding: '10px 18px',
-                        borderRadius: '24px',
-                        border: '1px solid #444',
-                        background: isPlayingDemo ? '#1a1a1a' : '#2a2a2a',
-                        color: isPlayingDemo ? '#666' : '#fff',
-                        fontSize: '13px',
-                        cursor: isPlayingDemo ? 'default' : 'pointer',
-                      }}
-                    >
-                      {isPlayingDemo ? '◼ Playing...' : '▶ Demo'}
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={handleStartPractice}
-                    style={{
-                      padding: '10px 20px',
-                      borderRadius: '24px',
-                      border: '1px solid #555',
-                      background: 'transparent',
-                      color: '#eee',
-                      fontSize: '13px',
-                      fontWeight: 500,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Practice
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleStartPerformance}
-                    style={{
-                      padding: '10px 20px',
-                      borderRadius: '24px',
-                      border: 'none',
-                      background: accentColor,
-                      color: '#111',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Play Now
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Quiz display */}
-          {quizDisplayNote && (
-            <div
-              className="flex flex-col items-center gap-2 rounded-xl px-8 py-6"
-              style={{
-                background: 'rgba(126, 207, 207, 0.08)',
-                border: `1px solid ${accentColor}`,
-              }}
-            >
-              <span
-                className="text-xs font-medium uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                Play this note
-              </span>
-              <span
-                className="text-4xl font-bold"
-                style={{ color: accentColor }}
-              >
-                {quizDisplayNote}
-              </span>
-              {quizState && (
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  {quizState.currentIndex + 1} of {quizState.queue.length}
-                  {' — '}
-                  {quizState.correct} correct
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Progress indicator */}
-          {evalResult && !isPassed && currentStep?.midiEval.type !== 'quiz' && (
-            <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-              {evalResult.progress}
-            </div>
-          )}
-
-          {/* Piano Roll — static preview of the step's target note(s).
-              Fundamentals has no timeline/tempo data, so this doesn't scroll
-              like genre lessons' roll; it just shows the shape of the target. */}
-          {pianoRollEvents.length > 0 && (
-            <div className="w-full" style={{ height: '140px', flexShrink: 0 }}>
-              <GenrePianoRoll
-                key={`fundamentals-roll-${currentStepIndex}`}
-                events={pianoRollEvents}
-                bars={pianoRollBars}
-                beatsPerBar={4}
-                subdivision={1}
-                rowHeight={140}
-                midiRangeMin={startC * 12}
-                midiRangeMax={(endC + 1) * 12 - 1}
-                inTime={false}
-                isPlaying={false}
-                keyColor={accentColor}
-                targetMidiSet={new Set(demoTargetMidis)}
-              />
-            </div>
-          )}
-
-          {/* Piano keyboard with volume dial alongside */}
-          <div
-            className="flex w-full items-stretch gap-3"
-            style={{ alignItems: 'stretch' }}
-          >
-            <div className="flex-1 min-w-0">
-              <LessonKeyboard
-                minHeight={238}
-                targetMidis={keyboardTargets}
-                enableClick
-                enableMidiInterface={false}
-                onKeyClick={handleKeyClick}
-                playingNotes={
-                  isPlayingDemo
-                    ? highlightNotes.filter((n) =>
-                        demoHighlightMidis.has(n.midi),
-                      )
-                    : activityState === 'performance'
-                      ? []
-                      : highlightNotes
-                }
-                activeWhiteKeyColor={accentColor}
-                activeBlackKeyColor={accentColor}
-              />
-            </div>
-            <LessonVolumeDial />
-          </div>
-        </div>
-
-        {/* Success overlay */}
-        {isPassed && currentStep && (
-          <div
-            className="glass-panel w-full max-w-2xl rounded-xl p-6"
-            style={{
-              background: 'rgba(74, 255, 74, 0.06)',
-              border: '1px solid rgba(74, 255, 74, 0.3)',
-            }}
-          >
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div
-                className="flex size-12 items-center justify-center rounded-full text-xl"
-                style={{
-                  background: 'rgba(74, 255, 74, 0.15)',
-                  color: '#4aff4a',
-                }}
-              >
-                &#10003;
-              </div>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: 'var(--color-text)' }}
-              >
-                {currentStep.successFeedback}
-              </p>
-              {evalResult && (
-                <p
-                  className="text-xs"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  {evalResult.progress}
-                </p>
-              )}
-              <button
-                type="button"
-                onClick={advance}
-                className="glass-panel-sm rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors duration-150"
-                style={{
-                  background: 'rgba(126, 207, 207, 0.15)',
-                  border: `1px solid ${accentColor}`,
-                  color: accentColor,
-                  cursor: 'pointer',
-                }}
-              >
-                {currentStepIndex < totalSteps - 1
-                  ? 'Continue'
-                  : 'Finish Section'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Practice attempt met the criteria — doesn't count until Play Now */}
-        {practiceComplete && (
-          <div
-            className="glass-panel w-full max-w-2xl rounded-xl p-6"
-            style={{
-              background: 'rgba(126, 207, 207, 0.06)',
-              border: `1px solid ${accentColor}`,
-            }}
-          >
-            <div className="flex flex-col items-center gap-4 text-center">
-              <p className="text-sm" style={{ color: 'var(--color-text)' }}>
-                Nice practicing! Try it in Play Now to complete this step.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={handleStartPractice}
-                  className="glass-panel-sm rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid var(--color-border)',
-                    color: 'var(--color-text)',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Practice Again
-                </button>
-                <button
-                  type="button"
-                  onClick={handleStartPerformance}
-                  className="glass-panel-sm rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    background: accentColor,
-                    border: `1px solid ${accentColor}`,
-                    color: '#111',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Play Now
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Retry for failed graded quiz */}
-        {activityState === 'performance' &&
-          currentStep?.midiEval.type === 'quiz' &&
-          quizState?.done &&
-          !isPassed && (
-            <div
-              className="glass-panel w-full max-w-2xl rounded-xl p-6"
-              style={{
-                background: 'rgba(255, 74, 74, 0.06)',
-                border: '1px solid rgba(255, 74, 74, 0.3)',
-              }}
-            >
-              <div className="flex flex-col items-center gap-4 text-center">
-                <p className="text-sm" style={{ color: 'var(--color-text)' }}>
-                  {evalResult?.progress ?? 'Not enough correct answers.'} Try
-                  again!
-                </p>
-                <button
-                  type="button"
-                  onClick={resetStep}
-                  className="glass-panel-sm rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors duration-150"
-                  style={{
-                    background: 'rgba(126, 207, 207, 0.15)',
-                    border: `1px solid ${accentColor}`,
-                    color: accentColor,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Retry
-                </button>
-              </div>
-            </div>
-          )}
-      </div>
-
-      {/* Bottom bar — back button */}
-      <div
-        className="flex items-center justify-between px-4 py-3"
-        style={{
-          borderTop: '1px solid var(--color-border)',
-          background: 'rgba(255,255,255,0.02)',
+        nav={{
+          sections: [],
+          onSection: () => {},
+          steps: navSteps,
+          index: currentStepIndex,
+          goToStep,
+          practiceTrack: null,
+          extra:
+            pianoRollEvents.length > 0 ? <SavedRollViewSwitch /> : undefined,
         }}
-      >
-        <button
-          type="button"
-          onClick={handleBackToOverview}
-          className="text-sm transition-colors duration-150"
-          style={{ color: 'var(--color-text-dim)', cursor: 'pointer' }}
-        >
-          &#8592; Back to Overview
-        </button>
-      </div>
+        content={content}
+        panel={result ? <TheoryResultPanel {...result} /> : null}
+        bar={{
+          state: barState,
+          run: {
+            state:
+              barState === 'practice' || barState === 'performance'
+                ? barState
+                : 'preview',
+            restartingPass: false,
+            instruction: currentStep?.direction ?? '',
+            listen: { mode: 'waitForMe', passMarkPct },
+            loading: false,
+            demo: {
+              playing: isPlayingDemo,
+              play: () => void playDemo(),
+              stop: stopDemo,
+            },
+            practise: handleStartPractice,
+            playNow: handleStartPerformance,
+            back: backToPreview,
+            stopTake: backToPreview,
+            hint: null,
+          },
+          tempo: null,
+          practice: { presets: [] },
+          result: null,
+          offer: null,
+          custom: barCustom,
+        }}
+        about={{
+          activity: currentStep?.activity ?? section.name,
+          instruction: currentStep?.direction ?? '',
+          chords: [],
+          key: null,
+        }}
+        audio={{
+          outputLatencyMs,
+          openAudioTiming: () => navigate(`${SettingsRoutes.root()}/audio`),
+        }}
+        announcement={
+          result
+            ? [result.heading, result.status].filter(Boolean).join('. ')
+            : ''
+        }
+      />
     </div>
   );
 }

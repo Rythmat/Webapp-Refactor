@@ -132,6 +132,12 @@ export interface PianoRollProps {
    */
   guitarViewToggle?: boolean;
   /**
+   * Piano: the roll / notation / falling-notes switch in the roll's corner
+   * (default). A lesson screen that shows the bigger switch in its nav row
+   * (SavedRollViewSwitch) passes false.
+   */
+  showViewToggle?: boolean;
+  /**
    * Guitar TAB, in time: the step is in its preview, so a TAB parked before
    * the music opens on bar 1 rather than on the empty count-in bar (a
    * phone's one-line TAB would show that bar alone). Off by default, and
@@ -325,6 +331,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   instrument = 'piano',
   tabOverlay,
   guitarViewToggle = true,
+  showViewToggle = true,
   tabOpensOnMusic = false,
 }) => {
   const laneList = buildLaneList(
@@ -475,7 +482,9 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   // Notation view: the lesson clock above keeps running; only the drawing changes.
   const [view, setView] = useRollView('learn');
   const [guitarView, setGuitarView] = useGuitarView();
-  const viewToggle = <RollViewToggle view={view} onChange={setView} cascade />;
+  const viewToggle = showViewToggle ? (
+    <RollViewToggle view={view} onChange={setView} cascade />
+  ) : null;
   const notationHeader = (
     <>
       {viewToggle}

@@ -173,7 +173,7 @@ describe('rewriteTrackRefs', () => {
       ],
       scoreChordTracks: ['old-lead', 'old-guitar'],
       scoreChordHidden: ['old-lead:cr-1', 'old-guitar:cr-2'],
-      leadSheetMelodyTrackId: 'old-lead',
+      leadSheetMelodyTrackIds: ['old-guitar', 'old-lead'],
       selectedTrackId: 'old-guitar',
       automationOpenTrackId: 'old-drums',
     };
@@ -185,7 +185,7 @@ describe('rewriteTrackRefs', () => {
       ],
       scoreChordTracks: ['lead', 'guitar'],
       scoreChordHidden: ['lead:cr-1', 'guitar:cr-2'],
-      leadSheetMelodyTrackId: 'lead',
+      leadSheetMelodyTrackIds: ['guitar', 'lead'],
       selectedTrackId: 'guitar',
       automationOpenTrackId: 'drums',
     });
@@ -222,7 +222,7 @@ describe('rewriteTrackRefs', () => {
       tracks: [ducked('gone')],
       scoreChordTracks: ['gone', 'old-lead'],
       scoreChordHidden: ['gone:cr-1', 'old-lead:cr-2', 'no-track', ':cr-3'],
-      leadSheetMelodyTrackId: 'gone',
+      leadSheetMelodyTrackIds: ['gone', 'old-lead'],
       selectedTrackId: 'gone',
       automationOpenTrackId: 'gone',
     };
@@ -231,7 +231,7 @@ describe('rewriteTrackRefs', () => {
       tracks: [ducked(null)],
       scoreChordTracks: ['lead'],
       scoreChordHidden: ['lead:cr-2'],
-      leadSheetMelodyTrackId: null,
+      leadSheetMelodyTrackIds: ['lead'],
       selectedTrackId: null,
       automationOpenTrackId: null,
     });
@@ -313,7 +313,7 @@ describe('rewriteTrackRefs', () => {
       ],
       scoreChordTracks: ['lead'],
       scoreChordHidden: ['lead:cr-1'],
-      leadSheetMelodyTrackId: 'lead',
+      leadSheetMelodyTrackIds: ['lead'],
       selectedTrackId: 'drums',
       automationOpenTrackId: 'lead',
     };

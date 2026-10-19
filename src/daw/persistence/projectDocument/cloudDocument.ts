@@ -17,6 +17,7 @@ import {
   type StoredSession,
 } from './codec';
 import { LOCAL_KEYS, STORE_FIELDS } from './fields';
+import { v7ToV8Notation } from './migrations';
 
 // ── The cloud document (milestone 1.5, owner decision 5) ───────────────────
 //
@@ -477,9 +478,21 @@ export function cloudProjectDraft(
     notation: {},
   };
   if (doc) {
+    // A document from before schema 8 names one melody track; the draft
+    // stamped below is this build's, so it is read as a list here rather
+    // than by migrateSession.
+    const docNotation =
+      isRecord(doc.notation) && (doc.schema as number) < 8
+        ? v7ToV8Notation(doc.notation)
+        : doc.notation;
     for (const key of CLOUD_DOCUMENT_KEYS) {
       const place = draftPlaceOf(key);
-      const from = place === 'data' ? doc : doc[place];
+      const from =
+        place === 'data'
+          ? doc
+          : place === 'notation'
+            ? docNotation
+            : doc[place];
       if (!isRecord(from) || from[key] === undefined) continue;
       if (found.stale && (COPIED_KEYS as readonly string[]).includes(key)) {
         continue;

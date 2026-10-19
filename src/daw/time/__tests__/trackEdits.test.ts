@@ -111,6 +111,7 @@ const full: Required<Track> = {
     ],
   },
   trackRole: 'melody',
+  notationStaff: 'alto',
 };
 
 const other = (id: string, name: string): Track => ({

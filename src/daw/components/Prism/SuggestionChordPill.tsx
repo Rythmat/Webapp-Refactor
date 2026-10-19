@@ -8,7 +8,7 @@
 import { memo } from 'react';
 import type { SuggestionChord } from '@/daw/prism-engine/engine/suggestionEngine';
 import { useStore } from '@/daw/store';
-import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { displayChordLabel } from '@/daw/utils/displayChordLabel';
 import { formatChord, parseChord, useChordNotation } from '@/lib/chordNotation';
 
 interface SuggestionChordPillProps {
@@ -34,7 +34,7 @@ export const SuggestionChordPill = memo(function SuggestionChordPill({
   const root = parseChord(chord.noteName)?.root;
   const label =
     notation === 'hybrid' || root === undefined
-      ? displayAccidentals(chord.noteName)
+      ? displayChordLabel(chord.noteName)
       : formatChord({ root, quality: chord.quality }, notation, {
           keyRootPc: rootNote ?? 0,
           mode,

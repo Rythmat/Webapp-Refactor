@@ -27,6 +27,7 @@ const ICONS: Readonly<Record<InstrumentType, LucideIcon>> = {
   'piano-sampler': Piano,
   'electric-piano': KeyboardMusic,
   'bass-electric': Guitar,
+  'guitar-acoustic': Guitar,
   cello: Music2,
   organ: SlidersHorizontal,
   'tonewheel-organ': SlidersHorizontal,

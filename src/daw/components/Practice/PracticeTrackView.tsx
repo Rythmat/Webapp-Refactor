@@ -18,6 +18,7 @@ import {
   displayAccidentals,
   displayDegree,
 } from '@/daw/utils/displayAccidentals';
+import { displayChordLabel } from '@/daw/utils/displayChordLabel';
 import { getScaleLesson, spellScaleLesson } from '@/lib/learn/scaleLessons';
 import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
 import { barTicks } from '@/curriculum/engine/meter';
@@ -33,11 +34,16 @@ import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { PracticeHeader } from '@/daw/shell/topbar/PracticeHeader';
 import { useContinuousControl } from '@/daw/hooks/useContinuousControl';
 import { previewTempo } from '@/daw/hooks/useTransport';
+import { GuitarPracticePanel } from '@/curriculum/components/guitar/GuitarPracticePanel';
 import { ChordChart } from './ChordChart';
 import { practiceStudentTrack } from './practiceStudentTrack';
 import { ScaleKeyboard, type KeyboardScale } from './ScaleKeyboard';
 import { SegmentedToggle } from './SegmentedToggle';
 import { COLOR } from '@/daw/ui/tokens';
+import { formatLessonChord } from '@/curriculum/notation/lessonChordSymbols';
+import { useChordNotation } from '@/lib/chordNotation';
+import { colorForKeyMode } from '@/lib/modeColorShift';
+import type { PrismModeSlug } from '@/hooks/data';
 
 /**
  * The screen a Practice Track opens on: one job — play over this — with the
@@ -68,6 +74,21 @@ interface PracticeTrackViewProps {
 }
 
 const ACCENT = COLOR.accent.value;
+/** Each pitch class as the key colours name it (modeColorShift). */
+const KEY_BY_PC = [
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B',
+];
 const TEMPO_MIN = 50;
 const TEMPO_MAX = 160;
 /** A Theory Practice Track always shows C3–B5; a genre one is sized to its part. */
@@ -87,6 +108,11 @@ const PERFORMANCE_VIEWS = [
   { id: 'chords', label: 'Chords' },
   { id: 'scales', label: 'Melody' },
 ] as const;
+/** A guitar track's two parts: the shapes and the scale (no bass view). */
+const GUITAR_PERFORMANCE_VIEWS = [
+  { id: 'chords', label: 'Chords' },
+  { id: 'scales', label: 'Melody' },
+] as const;
 
 export function PracticeTrackView({
   session,
@@ -101,6 +127,7 @@ export function PracticeTrackView({
   const projectName = useStore((s) => s.projectName);
   const rootNote = useStore((s) => s.rootNote) ?? 0;
   const mode = useStore((s) => s.mode);
+  const chordNotation = useChordNotation();
   const chordRegions = useStore((s) => s.chordRegions);
   const bpm = useStore((s) => s.bpm);
   // The tempo slider is heard as it moves and written once, on release.
@@ -130,6 +157,8 @@ export function PracticeTrackView({
   const pressKey = usePointerNotes();
 
   const genre = session.kind === 'genre' ? session : null;
+  /** A guitar lesson's track: the fretboard in place of the keyboard. */
+  const guitar = genre?.guitar ?? null;
 
   // The groove toggle (D-088): another style's drums, bass and comping, or
   // another of the level's progressions, swapped in under the student.
@@ -187,6 +216,12 @@ export function PracticeTrackView({
     scales.find((s) => s.id === practiceKeyboard?.scaleId) ?? scales[0];
 
   const keyboard = genre?.keyboard ?? THEORY_KEYBOARD;
+  // The key center's colour, as its lessons light their notes (a level's two
+  // keys are relatives, so they share one).
+  const keyColor = colorForKeyMode(
+    KEY_BY_PC[((rootNote % 12) + 12) % 12],
+    mode as PrismModeSlug,
+  );
   // A scale on its own tonic (Latin L1's G major in an E minor level) lights
   // from that tonic, the nearest one to where the level's is lit.
   const levelTonic = genre?.scaleTonic ?? practiceMelodyTonic(rootNote);
@@ -212,7 +247,9 @@ export function PracticeTrackView({
    * three parts, between bass, chords and the melody's scales.
    */
   const views = twoHands
-    ? PERFORMANCE_VIEWS
+    ? guitar
+      ? GUITAR_PERFORMANCE_VIEWS
+      : PERFORMANCE_VIEWS
     : genre?.studentParts[0] === 'bass'
       ? BASS_TRACK_VIEWS
       : null;
@@ -382,7 +419,7 @@ export function PracticeTrackView({
     const lowest = now.notes[0];
     return {
       id: now.region.id,
-      title: displayAccidentals(now.region.noteName),
+      title: displayChordLabel(now.region.noteName),
       tonic: lowest,
       intervals: now.notes.map((midi) => midi - lowest),
       degrees: now.degrees,
@@ -541,7 +578,19 @@ export function PracticeTrackView({
             >
               {genre.progressions.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.label}
+                  {[
+                    p.styleName,
+                    p.chords
+                      .map((chord) =>
+                        formatLessonChord(chord, chordNotation, {
+                          keyRootPc: rootNote,
+                          mode,
+                        }),
+                      )
+                      .join(' – '),
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
                 </option>
               ))}
             </select>
@@ -552,7 +601,9 @@ export function PracticeTrackView({
       <p className="text-sm" style={{ color: 'var(--daw-text-3)' }}>
         {takeNotes > 0 && !isRecording
           ? `Your take is on the ${studentTrackLabel} track. Take it to the Studio to hear or edit it.`
-          : `Play along on these keys, your computer keyboard or a MIDI keyboard; the ${view === 'bass' ? 'bass note is lit on the keyboard' : view === 'chords' ? 'chord to play is lit on the keyboard' : 'scale notes are lit on the keyboard'}.`}
+          : guitar
+            ? `Play along on your guitar; the ${view === 'scales' ? 'scale is lit on the fretboard' : 'chord to play is lit on the fretboard'}.`
+            : `Play along on these keys, your computer keyboard or a MIDI keyboard; the ${view === 'bass' ? 'bass note is lit on the keyboard' : view === 'chords' ? 'chord to play is lit on the keyboard' : 'scale notes are lit on the keyboard'}.`}
       </p>
     </>
   );
@@ -566,7 +617,18 @@ export function PracticeTrackView({
     />
   ) : null;
 
-  const keyboardPanel = chordNow ? (
+  const keyboardPanel = guitar ? (
+    <GuitarPracticePanel
+      keyCenter={guitar.keyCenter}
+      scalePosition={guitar.scalePosition}
+      shapeIds={guitar.shapeIds}
+      view={view === 'scales' ? 'scales' : 'chords'}
+      chordCycle={genre?.chordCycle ?? []}
+      chordIndex={heardIndex}
+      keyColor={keyColor}
+      controls={viewSwitch}
+    />
+  ) : chordNow ? (
     <ScaleKeyboard
       kind="chord"
       scales={[chordNow]}
@@ -575,6 +637,7 @@ export function PracticeTrackView({
       startC={chordKeyboard?.startC ?? keyboard.startC}
       endC={chordKeyboard?.endC ?? keyboard.endC}
       heldNotes={hwActiveNotes}
+      keyColor={keyColor}
       onKeyPointerDown={pressKey}
       fitWithin={rootRef}
       fitAnchor={chartRef}
@@ -601,6 +664,7 @@ export function PracticeTrackView({
       startC={keyboard.startC}
       endC={keyboard.endC}
       heldNotes={hwActiveNotes}
+      keyColor={keyColor}
       onKeyPointerDown={pressKey}
       fitWithin={rootRef}
       fitAnchor={chartRef}

@@ -116,6 +116,20 @@ const AdminBassLineEditPage = lazy(() =>
   ),
 );
 
+const AdminMusicLiteracyPage = lazy(() =>
+  import('./musicLiteracy/AdminMusicLiteracyPage').then(
+    ({ AdminMusicLiteracyPage }) => ({ default: AdminMusicLiteracyPage }),
+  ),
+);
+
+const AdminMusicLiteracyEditPage = lazy(() =>
+  import('./musicLiteracy/AdminMusicLiteracyEditPage').then(
+    ({ AdminMusicLiteracyEditPage }) => ({
+      default: AdminMusicLiteracyEditPage,
+    }),
+  ),
+);
+
 const AdminChordCompingsPage = lazy(() =>
   import('./chordComping/AdminChordCompingsPage').then(
     ({ AdminChordCompingsPage }) => ({ default: AdminChordCompingsPage }),
@@ -568,6 +582,16 @@ export const adminPages = () => {
                   {
                     path: AdminRoutes.part.definition,
                     element: <AdminPartEditPage />,
+                  },
+                  // Music Literacy, Learn's call-and-response series:
+                  // reached from the Records menu and a lesson's page.
+                  {
+                    path: AdminRoutes.musicLiteracy.definition,
+                    element: <AdminMusicLiteracyPage />,
+                  },
+                  {
+                    path: AdminRoutes.musicLiteracyLesson.definition,
+                    element: <AdminMusicLiteracyEditPage />,
                   },
                 ],
               },

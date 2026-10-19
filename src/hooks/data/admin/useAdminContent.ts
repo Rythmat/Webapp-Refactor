@@ -58,11 +58,19 @@ export type InstrumentContentKind =
   | 'instrument_part'
   | 'feel_profile';
 
+/**
+ * Music Literacy lessons (docs/music-literacy-content-kind.md): the
+ * call-and-response series the console's Music Literacy editor writes. Served
+ * by the dev repo content server now, like the instrument kinds.
+ */
+export type MusicLiteracyContentKind = 'music_literacy';
+
 export type ContentKind =
   | LegacyContentKind
   | RecordContentKind
   | VocabularyContentKind
-  | InstrumentContentKind;
+  | InstrumentContentKind
+  | MusicLiteracyContentKind;
 
 export type ContentStatus = 'draft' | 'published' | 'archived';
 

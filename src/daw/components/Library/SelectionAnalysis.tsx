@@ -3,6 +3,7 @@ import { Sparkles, X } from 'lucide-react';
 import { ionianToModeLabel } from '@prism/engine';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { displayChordLabel } from '@/daw/utils/displayChordLabel';
 import {
   chordSelectionKey,
   noteSelectionKey,
@@ -335,7 +336,7 @@ function HarmonySummary({
             ) : (
               <>
                 {chordTimeline
-                  .map((c) => displayAccidentals(c.noteName))
+                  .map((c) => displayChordLabel(c.noteName))
                   .join(' – ')}{' '}
                 · in {displayAccidentals(key.rootName)} {key.modeDisplay}
               </>
@@ -392,7 +393,7 @@ function VoiceLeading({
     doc.analysis.chordTimeline.map((c) => [
       c.id,
       notation === 'hybrid'
-        ? displayAccidentals(c.noteName)
+        ? displayChordLabel(c.noteName)
         : formatChord(analyzedChordSpec(c), notation, context),
     ]),
   );

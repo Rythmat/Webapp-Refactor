@@ -1,5 +1,6 @@
 import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { displayChordLabel } from '@/daw/utils/displayChordLabel';
 import {
   formatChord,
   formatChordLabel,
@@ -30,14 +31,17 @@ export const keyContext = (
 ): ChordContext => ({ keyRootPc: rootPc ?? null, mode: mode ?? null });
 
 /**
- * A letter chord label ("D min9", "C maj7/E") as a chip shows it: as today in
- * hybrid, the one symbol in jazz or Roman.
+ * A letter chord label ("D min9", "C maj7/E") as a chip shows it: hybrid with
+ * real signs ("A min7(♭5)"), the one symbol in jazz or Roman.
  */
 export const chordLabelSymbol = (
   label: string,
   notation: ChordNotation,
   context: ChordContext,
-) => displayAccidentals(formatChordLabel(label, notation, context));
+) =>
+  notation === 'hybrid'
+    ? displayChordLabel(label)
+    : displayAccidentals(formatChordLabel(label, notation, context));
 
 /**
  * An analyzed chord as a ChordSpec: its root pitch class and quality, spelled

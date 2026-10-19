@@ -315,7 +315,7 @@ const STORE_SPECS = {
   leadSheetRepeats: doc('notation', () => [], 'document', SHARED_UNDO),
   leadSheetShowRepeats: doc('notation', false, 'document', SHARED),
   leadSheetShowMelody: doc('notation', false, 'document', SHARED),
-  leadSheetMelodyTrackId: doc('notation', null, 'document', SHARED),
+  leadSheetMelodyTrackIds: doc('notation', () => [], 'document', SHARED),
   scoreChordTracks: doc('notation', () => [], 'document', SHARED_UNDO),
   scoreChordHidden: doc('notation', () => [], 'document', SHARED_UNDO),
   scoreArticulations: doc('notation', () => [], 'document', SHARED_UNDO),
@@ -371,6 +371,7 @@ const STORE_SPECS = {
   readoutMode: pref('view', 'bars'),
   hoverHints: pref('view', true),
   activeTool: session('view', 'cursor', 'project'),
+  scoreNoteInput: session('view', false, 'project'),
   selectedClipId: session('view', null, 'project'),
   selectedClipTrackId: session('view', null, 'project'),
   parkedClipSelection: session('view', null, 'project'),
@@ -638,6 +639,7 @@ export const TRACK_FIELDS: TrackFields = Object.freeze({
     'legacy',
     SHARED_UNDO,
   ),
+  notationStaff: trackDoc(undefined, 'legacy', SHARED_UNDO),
 } satisfies TrackFields);
 
 /**

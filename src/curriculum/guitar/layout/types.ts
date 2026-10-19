@@ -46,6 +46,8 @@ export interface HeaderModel {
   subsection: string;
   /** The step's full activity line: "A1.1: Major Scale Ascending (Out of Time)". */
   activity: string;
+  /** The step writes chord names: the Hybrid | Jazz switch goes by the title. */
+  chordNames?: boolean;
 }
 
 // ── Sections and steps ─────────────────────────────────────────────────────
@@ -80,6 +82,8 @@ export interface StepNavModel {
   goToStep: (index: number) => void;
   /** The ♪ Practice Track button, exactly as today; null when not offered. */
   practiceTrack: { onOpen: () => void } | null;
+  /** Beside ♪ Practice Track: piano's roll / notation / falling switch. */
+  extra?: ReactNode;
 }
 
 // ── Running the step ───────────────────────────────────────────────────────
@@ -115,7 +119,8 @@ export interface TempoModel {
   onChange: (bpm: number) => void;
   /** What is playing now (the speed trainer's tempo while it runs). */
   effectiveBpm: number;
-  trainer: SpeedTrainerControlProps;
+  /** The speed trainer; Theory's activities have none. */
+  trainer?: SpeedTrainerControlProps;
 }
 
 export interface PracticePreset {
@@ -125,8 +130,11 @@ export interface PracticePreset {
 }
 
 export interface PracticeModel {
-  loopStatus: GuitarLoopStatusProps;
-  notes: GuitarPracticeNotesProps;
+  /** Guitar: the bar loop on the TAB. Without it (piano) the bar keeps the
+   *  instruction in view while practising. */
+  loopStatus?: GuitarLoopStatusProps;
+  /** Guitar: the guide-off and hand-care notes. */
+  notes?: GuitarPracticeNotesProps;
   /** Music Map loop presets ("Loop one pass of the map", "Loop bars 1–2"…). */
   presets: PracticePreset[];
 }

@@ -754,27 +754,11 @@ describe('why Export is off', () => {
 });
 
 describe('warnings', () => {
-  it('says a SoundFont track is silent in an audio export', () => {
+  it("doesn't warn about SoundFont tracks: the export renders them", () => {
     addTrack('Keys');
     addTrack('GM Strings', 'soundfont');
     render(<ExportDialogHost />);
     open();
-    expect(
-      screen.getByText(
-        'A General MIDI (SoundFont) track is silent in an export for now.',
-      ),
-    ).toBeInTheDocument();
-
-    // Notation writes its notes all the same.
-    fireEvent.click(screen.getByTestId('export-tab-notation'));
-    expect(screen.queryByText(/General MIDI \(SoundFont\)/)).toBeNull();
-  });
-
-  it('leaves the SoundFont warning out for one other track', () => {
-    const keys = addTrack('Keys');
-    addTrack('GM Strings', 'soundfont');
-    render(<ExportDialogHost />);
-    open({ trackId: keys });
     expect(screen.queryByText(/General MIDI \(SoundFont\)/)).toBeNull();
   });
 

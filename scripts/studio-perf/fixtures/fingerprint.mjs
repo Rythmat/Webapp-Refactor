@@ -578,10 +578,11 @@ export async function fingerprintPage() {
   notation('leadSheetChordFormat', s.leadSheetChordFormat);
   notation('leadSheetShowRepeats', s.leadSheetShowRepeats);
   notation('leadSheetShowMelody', s.leadSheetShowMelody);
+  // The melody tracks: one id before schema 5, a list since.
   put(
     'notation.leadSheetMelodyTrack',
-    ['store.leadSheetMelodyTrackId'],
-    refTrack(s.leadSheetMelodyTrackId),
+    ['store.leadSheetMelodyTrackIds'],
+    s.leadSheetMelodyTrackIds.map(refTrack),
   );
   notation('scoreChordTracks', s.scoreChordTracks.map(refTrack));
   notation(

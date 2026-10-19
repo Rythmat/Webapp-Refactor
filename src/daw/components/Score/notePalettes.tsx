@@ -17,12 +17,22 @@ import {
 // Rhythmic each have a Write switch, and the live one is where a number key
 // writes; a click on one of their cells makes it live and applies the
 // length in the same tick. Undo and Redo left with the row: the top bar has
-// them.
+// them. Add notes (N, MuseScore's note input) sits above the palettes: on, a
+// click on a staff writes a note of the Notes palette's length.
 
 /** The note editor's state and actions (useScoreEditing's `editor`). */
 export interface NoteTools {
   /** Notes are selected; without any, the cells do nothing. */
   hasNotes: boolean;
+  /**
+   * Note input is on (MuseScore's N): a click on a staff writes a note. The
+   * Notes palette then picks the length the next note is written with,
+   * selection or not.
+   */
+  noteInput?: boolean;
+  onToggleNoteInput?: () => void;
+  /** The length note input writes. */
+  inputDuration?: DurationChoice;
   layer: NoteLayer;
   onLayer: (layer: NoteLayer) => void;
   /** The length of the selection, when they all share one. */
@@ -186,8 +196,12 @@ export function notePalettes(
   fontReady: boolean,
 ): ToolPalette[] {
   const { hasNotes, layer } = tools;
+  const noteInput = tools.noteInput ?? false;
   const lengths: ToolPalette[] = LAYERS.map(({ id, name, hotkey }) => {
     const live = layer === id;
+    // In note input the Notes palette sets the next note's length, so its
+    // cells work with nothing selected and show the length to be written.
+    const picksLength = noteInput && id === 'notes';
     const cells: PaletteCell[] = DURATIONS.map((choice) => ({
       key: `${id}-${choice.key}`,
       name: `${choice.name} ${name.toLowerCase()}`,
@@ -205,8 +219,10 @@ export function notePalettes(
         ) : (
           <SlashGlyph quarters={choice.quarters} />
         ),
-      live: hasNotes,
-      active: live && tools.currentDuration?.key === choice.key,
+      live: hasNotes || picksLength,
+      active: picksLength
+        ? tools.inputDuration?.key === choice.key
+        : live && tools.currentDuration?.key === choice.key,
       onClick: () => {
         tools.onLayer(id);
         tools.onDuration(choice, id);
@@ -222,7 +238,7 @@ export function notePalettes(
             .
           </span>
         ),
-        live: hasNotes,
+        live: hasNotes || noteInput,
         active: tools.dotted,
         onClick: () => {
           // The dot follows the live layer, so a slash stays a slash. Rests

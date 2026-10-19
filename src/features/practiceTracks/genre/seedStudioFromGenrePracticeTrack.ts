@@ -43,6 +43,12 @@ const STUDENT_INSTRUMENT: Record<StudentPart, InstrumentType> = {
 };
 
 /**
+ * A guitar lesson's student plays the sampled steel-string acoustic
+ * (GUITAR_ACOUSTIC_CONFIG), not the Rhodes; a bass part stays on the bass.
+ */
+const GUITAR_STUDENT_INSTRUMENT: InstrumentType = 'guitar-acoustic';
+
+/**
  * The lesson's kit and bass sound on a new track: the drums get the
  * play-along's kit (Hip Hop's 808 or house), a bass track its bass (Pop
  * Fretless, Funk and Hip Hop Finger electric, Hip Hop's 808 or Upright).
@@ -85,8 +91,13 @@ function addLayerTracks(track: GenrePracticeTrackResult): void {
 }
 
 /** What the student's track is called, by what the section asked them to play. */
-function studentTrackName(parts: StudentPart[], sectionName: string): string {
-  if (parts.length > 1) return `${sectionName} — Rhodes`;
+function studentTrackName(
+  parts: StudentPart[],
+  sectionName: string,
+  guitar: boolean,
+): string {
+  if (parts.length > 1)
+    return `${sectionName} — ${guitar ? 'Guitar' : 'Rhodes'}`;
   const part = parts[0];
   return part === 'melody' ? 'Melody' : part === 'chords' ? 'Chords' : 'Bass';
 }
@@ -128,12 +139,16 @@ export function applyGenrePracticeTrack(
 
   // The student's part: an empty track, which is the whole invitation.
   const studentPart = track.studentParts[0];
+  const onGuitar = !!track.guitar && studentPart !== 'bass';
+  const studentInstrument = onGuitar
+    ? GUITAR_STUDENT_INSTRUMENT
+    : STUDENT_INSTRUMENT[studentPart];
   const studentTrackId = store.addTrack(
     'midi',
-    STUDENT_INSTRUMENT[studentPart],
-    studentTrackName(track.studentParts, track.sectionName),
+    studentInstrument,
+    studentTrackName(track.studentParts, track.sectionName, !!track.guitar),
   );
-  applyLessonSound(studentTrackId, STUDENT_INSTRUMENT[studentPart], track);
+  applyLessonSound(studentTrackId, studentInstrument, track);
 
   store.setLoopRange(0, track.loopTicks);
   store.setLoopEnabled(true);

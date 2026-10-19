@@ -3,6 +3,7 @@ import {
   INSTRUMENT_BODY_SCHEMAS,
   isInstrumentContentKind,
 } from '@/content/instrument/schemas';
+import { musicLiteracyBodySchema } from '@/content/musicLiteracy/schemas';
 import { RECORD_SCHEMAS } from '@/content/vocabulary/schemas';
 import type { ValidationProblem } from '@/hooks/data/admin/useAdminContent';
 import {
@@ -62,6 +63,7 @@ const schemaFor = (
     return mode === 'repo' ? chordProgressionBodySchema : undefined;
   if (isVocabularyKind(kind)) return RECORD_SCHEMAS[kind];
   if (isInstrumentContentKind(kind)) return INSTRUMENT_BODY_SCHEMAS[kind];
+  if (kind === 'music_literacy') return musicLiteracyBodySchema;
   return (recordBodySchemas as Record<string, ZodTypeAny>)[kind];
 };
 

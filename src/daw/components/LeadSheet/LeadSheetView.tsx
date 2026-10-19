@@ -33,7 +33,7 @@ import {
   roadmapAt,
   type LeadSheetClipboard,
 } from './leadSheetClipboard';
-import { pickMelodyTrack } from './leadSheetMelody';
+import { pickMelodyTracks } from './leadSheetMelody';
 import {
   applyItemClick,
   clickKind,
@@ -53,20 +53,21 @@ const PENDING_CHORD = { id: 'pending-chord', name: '', noteName: '' } as const;
 const DEFAULT_MEASURES_PER_LINE = 4;
 
 /**
- * The lead sheet in one of its two forms. With a melody assigned it is a
- * one-part score, written and edited with the Score's own tools; without one
- * it is the chord chart, slashes and all.
+ * The lead sheet in one of its two forms. With Melody on it is a score of
+ * the melody tracks, a staff each, written and edited with the Score's own
+ * tools; with it off, or no track to read, it is the chord chart, slashes
+ * and all.
  */
 export function LeadSheetView() {
   const showMelody = useStore((s) => s.leadSheetShowMelody);
-  const melodyTrackId = useStore((s) => s.leadSheetMelodyTrackId);
+  const melodyTrackIds = useStore((s) => s.leadSheetMelodyTrackIds);
   const tracks = useStore((s) => s.tracks);
-  const melodyTrack = useMemo(
-    () => (showMelody ? pickMelodyTrack(tracks, melodyTrackId) : null),
-    [showMelody, tracks, melodyTrackId],
+  const melodyTracks = useMemo(
+    () => (showMelody ? pickMelodyTracks(tracks, melodyTrackIds).tracks : []),
+    [showMelody, tracks, melodyTrackIds],
   );
-  return melodyTrack ? (
-    <LeadSheetScoreView track={melodyTrack} />
+  return melodyTracks.length > 0 ? (
+    <LeadSheetScoreView tracks={melodyTracks} />
   ) : (
     <LeadSheetChartView />
   );

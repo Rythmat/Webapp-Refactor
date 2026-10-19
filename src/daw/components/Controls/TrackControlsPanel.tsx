@@ -64,6 +64,7 @@ function renderView(track: { id: string; instrument: string }) {
     case 'piano-sampler':
     case 'electric-piano':
     case 'bass-electric':
+    case 'guitar-acoustic':
     case 'cello':
     case 'organ':
       return <KeyboardViewPart trackId={track.id} />;

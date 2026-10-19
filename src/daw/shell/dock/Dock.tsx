@@ -75,6 +75,7 @@ const INSTRUMENT_LABEL: Partial<Record<Track['instrument'], string>> = {
   'piano-sampler': 'Keys',
   'electric-piano': 'E.Piano',
   'bass-electric': 'E.Bass',
+  'guitar-acoustic': 'A.Guitar',
   cello: 'Cello',
   organ: 'Organ',
   'tonewheel-organ': 'Organ',

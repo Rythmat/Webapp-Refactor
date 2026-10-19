@@ -37,6 +37,7 @@ import type {
   AudioClip,
   AudioInputChannel,
   MidiClip,
+  NotationStaffSetting,
   Track,
   TrackType,
 } from '@/daw/store/tracksSlice';
@@ -107,6 +108,14 @@ import {
 // which a build from before 2.13 keeps as it is, so rolling back and forward
 // again brings the sections back as they were. Only adds, so compat 3 still.
 //
+// v8 holds the Lead Sheet's melody tracks as a list where v7 held one id
+// (migrations.ts reads the one id as a list of it), and adds the staff a
+// part is written on in the Score, set by hand (a track's
+// settings.notationStaff; unset is Auto): treble, alto (the viola's C clef),
+// bass, bass8vb (the bass clef with a small 8 under it, a bass guitar's) or
+// grand. Its compat stays 3: an older build reading it shows the melody and
+// every part on Auto.
+//
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
 // know. A later schema that only adds fields keeps it at 3, so after a
@@ -138,15 +147,20 @@ export const SESSION_ENVELOPE_VERSION = 2;
  * The format inside the envelope (decision D1). A draft without `schema` is
  * v1 or v2, from before 1.3, and goes through migrations.ts first. Any change
  * to what a draft holds bumps it, with a migration and fixtures (draftShape
- * .test fails until then): 1.13b moving the Oracle patch, for one. 4 is
- * 1.10's (leadSheetBars, a region's sourceClipId); its bar indices keep
- * their meaning, every one a real bar of the song. 5 is 2.7's: the view's
- * chordAnalysisDismissed, the chord lane's Not now on this project. 6 is
- * 2.12's: `muted` on MIDI and audio clips and `name` on audio clips. 7 is
- * 2.13's: the song's `sections`, with the Lead Sheet's marks kept as a copy
- * (above).
+ * .test fails until then): 1.13b moving the Oracle patch, 1.16's per-project
+ * chord-prompt flag. 4 is 1.10's (leadSheetBars, a region's sourceClipId);
+ * its bar indices keep their meaning, every one a real bar of the song. 5
+ * is 2.7's: the view's chordAnalysisDismissed, the chord lane's Not now on
+ * this project. 6 is 2.12's: `muted` on MIDI and audio clips and `name` on
+ * audio clips. 7 is 2.13's: the song's `sections`, with the Lead Sheet's
+ * marks kept as a copy (above). 8 holds the Lead Sheet's melody tracks as a
+ * list (leadSheetMelodyTrackIds) where 7 held one id
+ * (leadSheetMelodyTrackId); migrations.ts reads the one id as a list of it.
+ * 8 also adds the staff a part is set to in the Score (a track's
+ * settings.notationStaff) and changes no meaning: a 7 draft is an 8 one with
+ * every part on Auto, and compat stays 3.
  */
-export const SESSION_SCHEMA_VERSION = 7;
+export const SESSION_SCHEMA_VERSION = 8;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -247,7 +261,7 @@ const DRAFT_LAYOUT = {
   leadSheetRepeats: 'notation',
   leadSheetShowRepeats: 'notation',
   leadSheetShowMelody: 'notation',
-  leadSheetMelodyTrackId: 'notation',
+  leadSheetMelodyTrackIds: 'notation',
   scoreChordTracks: 'notation',
   scoreChordHidden: 'notation',
   scoreArticulations: 'noteMarks',
@@ -492,6 +506,7 @@ const TRACK_PLACES = {
   sends: 'settings',
   automation: 'settings',
   trackRole: 'top',
+  notationStaff: 'settings',
 } as const satisfies { readonly [K in keyof Track]-?: TrackPlace };
 
 type TrackSettingsField = {
@@ -1234,7 +1249,7 @@ const KEY_CHECKS: { readonly [K in SectionKey]: Check<AllSlices[K]> } = {
   leadSheetRepeats: listOf(REPEAT),
   leadSheetShowRepeats: valid(isBoolean),
   leadSheetShowMelody: valid(isBoolean),
-  leadSheetMelodyTrackId: nullable(valid(isString)),
+  leadSheetMelodyTrackIds: STRINGS,
   scoreChordTracks: STRINGS,
   scoreChordHidden: STRINGS,
   scoreSystemBreaks: BAR_INDICES,
@@ -1308,6 +1323,19 @@ const TRACK_ROLE = memberOf<DawTrackRole>({
   auto: true,
 });
 
+/**
+ * A part's staff, set by hand in the Score (schema 6; alto and the bass
+ * clef with an 8, schema 7).
+ */
+const NOTATION_STAFF = memberOf<NotationStaffSetting>({
+  auto: true,
+  treble: true,
+  alto: true,
+  bass: true,
+  bass8vb: true,
+  grand: true,
+});
+
 const INPUT_CHANNEL: Check<AudioInputChannel> = (raw) => {
   if (!isRecord(raw)) return undefined;
   const channelOk = integerIn(0, 1024);
@@ -1340,6 +1368,7 @@ const SETTINGS_CHECKS: {
   presetName: valid(isString),
   sends: valid(isRecord),
   automation: AUTOMATION,
+  notationStaff: NOTATION_STAFF,
 };
 
 /**
@@ -1773,7 +1802,7 @@ export function decodeSession(
       tracks: withIds,
       scoreChordTracks: project.scoreChordTracks as string[],
       scoreChordHidden: project.scoreChordHidden as string[],
-      leadSheetMelodyTrackId: project.leadSheetMelodyTrackId as string | null,
+      leadSheetMelodyTrackIds: project.leadSheetMelodyTrackIds as string[],
       selectedTrackId: project.selectedTrackId as string | null,
       automationOpenTrackId: project.automationOpenTrackId as string | null,
     },

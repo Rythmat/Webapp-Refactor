@@ -48,10 +48,10 @@ import {
 // effects out. Notation is a MIDI file or MusicXML (the lead sheet's chords,
 // the full score, or one track's part).
 //
-// What the offline render still leaves out stays in view: SoundFont tracks
-// are silent, and an amp whose model this build doesn't have (one saved by a
-// newer client) exports without it. Guitar, bass and vocal tracks export
-// through their pedals (milestone 1.11). While it exports, a bar shows
+// What the offline render still leaves out stays in view: an amp whose model
+// this build doesn't have (one saved by a newer client) exports without it.
+// Guitar, bass and vocal tracks export through their pedals (milestone
+// 1.11), and SoundFont tracks are rendered for the export (soundFontRender). While it exports, a bar shows
 // how far it is ("Exporting… 42%"; indeterminate where the browser can't
 // say) and Cancel ends any export at once, stems included, with no file
 // (milestone 1.11). Closing the dialog while it exports cancels it too.
@@ -63,8 +63,6 @@ const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
 ];
 const BIT_DEPTHS: WavBitDepth[] = [16, 24];
 
-/** Instruments the offline render can't play yet (renderProject's notes). */
-const SILENT_OFFLINE = new Set(['soundfont']);
 const AMP_TRACKS = new Set(['guitar-fx', 'bass-fx']);
 
 /** Whether the amp a guitar or bass track plays through names a model this
@@ -282,15 +280,7 @@ export function ExportDialog({
   const songPlays = tracks.some(audible);
   const warnings: string[] = [];
   if (tab === 'audio') {
-    const silent = tracks.filter(
-      (t) => audible(t) && SILENT_OFFLINE.has(t.instrument),
-    ).length;
     const ampLeftOut = tracks.filter((t) => audible(t) && ampModelLeftOut(t));
-    if (silent > 0) {
-      warnings.push(
-        `${silent === 1 ? 'A General MIDI (SoundFont) track is' : `${silent} General MIDI (SoundFont) tracks are`} silent in an export for now.`,
-      );
-    }
     if (ampLeftOut.length > 0) {
       const names = ampLeftOut.map((t) => t.name).join(', ');
       warnings.push(

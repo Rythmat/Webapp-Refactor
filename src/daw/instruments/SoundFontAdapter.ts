@@ -5,6 +5,10 @@ import type { InstrumentAdapter } from './InstrumentAdapter';
 // Each track claims a MIDI channel (0-15, skipping 9 = drums).
 // ---------------------------------------------------------------------------
 
+/** The GM sound bank every SoundFont track plays, live and in a bounce
+ *  (soundFontRender). */
+export const SOUNDFONT_URL = '/daw-assets/GeneralUser_GS.sf2';
+
 type WorkletSynth = import('spessasynth_lib').WorkletSynthesizer;
 type MaybeNativeContext = AudioContext & { _nativeContext?: AudioContext };
 type MaybeNativeAudioNode = AudioNode & { _nativeAudioNode?: AudioNode };
@@ -84,10 +88,11 @@ export class SoundFontAdapter implements InstrumentAdapter {
     try {
       await this.attach(ctx, outputNode);
     } catch (err) {
-      // Hand the channel back. An export's offline graph is out of the live
-      // synth's reach, so every bounce fails here; keeping the channel would
-      // use one up per export until live tracks had to share channels, and
-      // tracks on one channel hear each other.
+      // Hand the channel back. A graph on another context is out of the live
+      // synth's reach, so an attach to one fails here (a bounce renders its
+      // SoundFont tracks itself, in soundFontRender); keeping the channel
+      // would use one up per failure until live tracks had to share
+      // channels, and tracks on one channel hear each other.
       this.release();
       throw err;
     }
@@ -307,7 +312,7 @@ async function initSharedSynth(ctx: AudioContext): Promise<void> {
   sharedSynth.setSystemParameter('effectsEnabled', false);
 
   const sfResponse = await withTimeout(
-    fetch('/daw-assets/GeneralUser_GS.sf2'),
+    fetch(SOUNDFONT_URL),
     30_000,
     'fetch SF2',
   );

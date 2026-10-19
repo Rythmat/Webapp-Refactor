@@ -181,6 +181,7 @@ export function trackToYMap(track: Track): Y.Map<unknown> {
   m.set('drumKit', track.drumKit ?? null);
   m.set('bassVoice', track.bassVoice ?? null);
   m.set('presetName', track.presetName ?? null);
+  m.set('notationStaff', track.notationStaff ?? null);
 
   // Effects — store as a JSON string for simplicity (deeply nested params).
   // Individual effect toggling is via activeEffects array.
@@ -352,6 +353,8 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     drumKit: (m.get('drumKit') as string | null) ?? undefined,
     bassVoice: (m.get('bassVoice') as Track['bassVoice'] | null) ?? undefined,
     presetName: (m.get('presetName') as string | null) ?? undefined,
+    notationStaff:
+      (m.get('notationStaff') as Track['notationStaff'] | null) ?? undefined,
     midiInputId: trackFieldDefault('midiInputId'),
     audioInputId: trackFieldDefault('audioInputId'),
     audioInputChannel: trackFieldDefault('audioInputChannel'),

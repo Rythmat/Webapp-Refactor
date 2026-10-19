@@ -67,6 +67,7 @@ const TRACK_SCALAR_KEYS: (keyof Track)[] = [
   'drumKit',
   'bassVoice',
   'presetName',
+  'notationStaff',
 ];
 
 // ── Main diff function ──────────────────────────────────────────────────

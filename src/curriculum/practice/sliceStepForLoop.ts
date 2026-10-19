@@ -1,5 +1,9 @@
 import { theoryString } from '@/curriculum/data/guitar/theoryNotes';
-import { placeLessonChords } from '@/curriculum/notation/lessonChordSymbols';
+import {
+  placeLessonChords,
+  type LessonChord,
+  type PlacementNote,
+} from '@/curriculum/notation/lessonChordSymbols';
 import type { ChordTarget } from '@/curriculum/types/activity.v2';
 
 /** Bars to loop: 0-based, both ends included. */
@@ -37,11 +41,18 @@ export interface SlicedStep<N> extends LoopRange {
   targetNotes: N[];
   chordTargets?: ChordTarget[];
   chordSymbols?: string[];
+  /** Those symbols where the lesson places them, re-based to the loop. */
+  chords?: LessonChord[];
   /** Bars in the slice, pad included. */
   bars: number;
 }
 
 const DEFAULT_TICKS_PER_BAR = 1920;
+
+const hasMidi = <T extends { onset: number; duration: number }>(
+  note: T,
+): note is T & Pick<PlacementNote, 'midi'> =>
+  typeof (note as { midi?: unknown }).midi === 'number';
 
 /** Bars the step's content fills; at least one. */
 export function stepBarCount(
@@ -108,24 +119,16 @@ export function sliceStepForLoop<N extends { onset: number; duration: number }>(
     }));
 
   // Placed over the whole step exactly as the lesson places them, so a step
-  // with more symbols than bars keeps the ones drawn over the loop.
-  const chordSymbols = content.chordSymbols
+  // with more symbols than bars keeps the ones drawn over the loop, each where
+  // it was: a chord on beat 3 stays on beat 3.
+  const chords = content.chordSymbols
     ? placeLessonChords(content.chordSymbols, {
         bars: stepBars,
         ticksPerBar,
-        onsets: [...new Set(content.targetNotes.map((n) => n.onset))].sort(
-          (a, b) => a - b,
-        ),
-        ...(content.targetNotes.length
-          ? {
-              contentEndTick: Math.max(
-                ...content.targetNotes.map((n) => n.onset + n.duration),
-              ),
-            }
-          : {}),
+        notes: content.targetNotes.filter(hasMidi),
       })
         .filter((chord) => inside(chord.startTick))
-        .map((chord) => chord.label)
+        .map((chord) => ({ ...chord, startTick: chord.startTick - start }))
     : undefined;
 
   return {
@@ -133,6 +136,8 @@ export function sliceStepForLoop<N extends { onset: number; duration: number }>(
     bars: range.endBar - range.startBar + 1,
     targetNotes,
     ...(chordTargets ? { chordTargets } : {}),
-    ...(chordSymbols ? { chordSymbols } : {}),
+    ...(chords
+      ? { chordSymbols: chords.map((chord) => chord.label), chords }
+      : {}),
   };
 }

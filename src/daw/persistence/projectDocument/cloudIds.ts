@@ -165,7 +165,7 @@ export interface TrackRefs
       AllSlices,
       | 'scoreChordTracks'
       | 'scoreChordHidden'
-      | 'leadSheetMelodyTrackId'
+      | 'leadSheetMelodyTrackIds'
       | 'selectedTrackId'
       | 'automationOpenTrackId'
     >
@@ -174,11 +174,7 @@ export interface TrackRefs
 }
 
 /** The project fields that hold a single track id, or null. */
-const SINGLE_REFS = [
-  'leadSheetMelodyTrackId',
-  'selectedTrackId',
-  'automationOpenTrackId',
-] as const;
+const SINGLE_REFS = ['selectedTrackId', 'automationOpenTrackId'] as const;
 
 /**
  * Point every field that names a track by id at the id its track loaded
@@ -187,7 +183,7 @@ const SINGLE_REFS = [
  *   Guitar/Bass-to-MIDI source (`audioMidiSource.sourceTrackId`);
  * - the Score parts that show chord symbols (`scoreChordTracks`) and the
  *   chords hidden from one part (`scoreChordHidden`, `trackId:regionId`);
- * - the lead sheet's melody track (`leadSheetMelodyTrackId`);
+ * - the lead sheet's melody tracks (`leadSheetMelodyTrackIds`);
  * - the selected track and the track whose automation lane is open
  *   (`selectedTrackId`, `automationOpenTrackId`), which only a local draft
  *   restores. MASTER_AUTOMATION_ID opens the Master's lane and stays.
@@ -195,11 +191,11 @@ const SINGLE_REFS = [
  * A reference to a track the payload doesn't hold is cleared where that
  * changes nothing anyone hears or sees: a ducker key becomes null (the
  * ducker stops ducking and shows None, as on every load before), so do the
- * melody, selected and open tracks, and a list entry is dropped. A MIDI
- * source stays as it is. There null means "use the first guitar or bass
- * track" (AudioMidiSourcePanel, useGuitarMidiDetection), while an id that
- * names no track means no source, so clearing it would start playing from
- * another track's input after a reload.
+ * selected and open tracks, and a list entry (a melody track among them) is
+ * dropped. A MIDI source stays as it is. There null means "use the first
+ * guitar or bass track" (AudioMidiSourcePanel, useGuitarMidiDetection),
+ * while an id that names no track means no source, so clearing it would
+ * start playing from another track's input after a reload.
  *
  * A local load, which keeps ids, can pass each track's id mapped to itself:
  * that clears only references to tracks that no longer exist. Apply it once,
@@ -230,6 +226,10 @@ export function rewriteTrackRefs<P extends TrackRefs>(
   if (input.scoreChordTracks) {
     const parts = rewriteList(input.scoreChordTracks, resolve);
     if (parts) patch.scoreChordTracks = parts;
+  }
+  if (input.leadSheetMelodyTrackIds) {
+    const melody = rewriteList(input.leadSheetMelodyTrackIds, resolve);
+    if (melody) patch.leadSheetMelodyTrackIds = melody;
   }
   if (input.scoreChordHidden) {
     const hidden = rewriteList(input.scoreChordHidden, (entry) => {

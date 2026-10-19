@@ -404,7 +404,7 @@ describe('buildLeadSheetExport', () => {
 
 describe('buildLeadSheetMelodyExport', () => {
   it('writes the melody as one part under the chords, as long as the chart', () => {
-    const file = buildLeadSheetMelodyExport(fixture(), 'lead')!;
+    const file = buildLeadSheetMelodyExport(fixture(), ['lead'])!;
     expect(file.filename).toBe('night-drive-lead-sheet.musicxml');
     expect(count(file.xml, '<score-part ')).toBe(1);
     expect(file.xml).toContain('<part-name>Lead</part-name>');
@@ -427,15 +427,15 @@ describe('buildLeadSheetMelodyExport', () => {
         timeSignatureDenominator: 4,
         rootNote: 7,
       }),
-      'lead',
+      ['lead'],
     )!.xml;
     expect(xml).toContain('<time><beats>3</beats><beat-type>4</beat-type>');
     expect(xml).toContain('<key><fifths>1</fifths></key>');
   });
 
   it('is null for a track without notes', () => {
-    expect(buildLeadSheetMelodyExport(fixture(), 'empty')).toBeNull();
-    expect(buildLeadSheetMelodyExport(fixture(), 'nope')).toBeNull();
+    expect(buildLeadSheetMelodyExport(fixture(), ['empty'])).toBeNull();
+    expect(buildLeadSheetMelodyExport(fixture(), ['nope'])).toBeNull();
   });
 });
 

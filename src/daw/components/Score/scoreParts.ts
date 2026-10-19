@@ -2,24 +2,21 @@ import { midiNameInKey, noteNameInKey } from '@prism/engine';
 import { parseNoteName } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { noteKey } from '@/daw/model/noteKeys';
 import type { Track } from '@/daw/store/tracksSlice';
-import { guessTrackRole } from '@/daw/utils/trackRole';
 import {
   buildScore,
   keyFifthsForTonic,
   type NotationNoteInput,
   type NotationScore,
 } from '@/lib/notation';
+import { partStaff, type PartStaff } from './partStaff';
 
 // ── Studio tracks → score parts ────────────────────────────────────────────
 // One part per MIDI track, all sharing the song's bars so every staff lines up.
-// Each track picks its own clef from the register it actually plays in.
+// Each part's staff comes from its instrument, or the part's own setting
+// (partStaff.ts), never from its notes: writing notes never changes it.
 
 export const TICKS_PER_QUARTER = 480;
 const MIN_MEASURES = 4;
-/** Wider than this, crossing middle C, needs both clefs. */
-const GRAND_STAFF_SPAN = 20;
-/** Below this average pitch a single-staff part reads better in bass clef. */
-const BASS_CLEF_MEAN = 58;
 
 export interface ScoreTrackPart {
   id: string;
@@ -35,24 +32,13 @@ export function isNotatable(track: Track): boolean {
 }
 
 /**
- * A kit, by its instrument or by the role the track was given — an imported
- * MIDI drum part has no drum-machine instrument but is still a kit.
+ * A part written on a drum staff: a kit, by its instrument or by the role
+ * the track was given (an imported MIDI drum part has no drum-machine
+ * instrument but is still a kit), or an instrument written there
+ * (partStaff.ts).
  */
 export function isDrumTrack(track: Track): boolean {
-  if (track.instrument === 'drum-machine') return true;
-  const role =
-    track.trackRole === 'auto' || track.trackRole === undefined
-      ? guessTrackRole(track.name, track.instrument)
-      : track.trackRole;
-  return role === 'drums';
-}
-
-function chooseStaves(midis: number[]): 'grand' | 'treble' | 'bass' {
-  const low = Math.min(...midis);
-  const high = Math.max(...midis);
-  const mean = midis.reduce((a, b) => a + b, 0) / midis.length;
-  if (high - low > GRAND_STAFF_SPAN && low < 60) return 'grand';
-  return mean < BASS_CLEF_MEAN ? 'bass' : 'treble';
+  return partStaff(track).staff === 'percussion';
 }
 
 export interface ScoreBuildOptions {
@@ -74,6 +60,21 @@ export interface ScoreBuildOptions {
    * (see ScorePartsCache). Without it every build starts from scratch.
    */
   cache?: ScorePartsCache;
+  /**
+   * Keep a pitched track that has no notes yet, as a part of empty bars:
+   * note input needs a staff to write on, and the lead sheet shows every
+   * melody track it was given. A kit stays out until it has hits.
+   */
+  includeEmpty?: boolean;
+}
+
+/** Whether a track is a part of the score: it has notes, or may get some. */
+function shown(
+  notes: NotationNoteInput[],
+  drums: boolean,
+  includeEmpty: boolean | undefined,
+): boolean {
+  return notes.length > 0 || (!!includeEmpty && !drums);
 }
 
 /** One track's notes, as the notation reads them. */
@@ -131,10 +132,10 @@ function keyFifthsOf(rootNote: number | null, mode: string) {
     : undefined;
 }
 
-/** One part's notation, `measures` bars long. */
+/** One part's notation on its staff, `measures` bars long. */
 function partScore(
   notes: NotationNoteInput[],
-  drums: boolean,
+  staff: PartStaff,
   timeSignature: [number, number],
   measures: number,
   keyFifths: number | undefined,
@@ -143,8 +144,8 @@ function partScore(
     ticksPerQuarter: TICKS_PER_QUARTER,
     timeSignature,
     minMeasures: measures,
-    staves: drums ? 'percussion' : chooseStaves(notes.map((n) => n.midi)),
-    ...(keyFifths !== undefined && !drums ? { keyFifths } : {}),
+    staves: staff,
+    ...(keyFifths !== undefined && staff !== 'percussion' ? { keyFifths } : {}),
   });
 }
 
@@ -160,15 +161,17 @@ function sharedMeasures(
 
 /**
  * A part per notatable track holding notes, plus the bar count they share.
- * Tracks with no notes are left out.
+ * Tracks with no notes are left out, unless `includeEmpty` keeps the
+ * pitched ones for note input.
  */
 export function buildScoreParts(options: ScoreBuildOptions): ScoreTrackPart[] {
   if (options.cache) return options.cache.build(options);
   const { tracks, rootNote, mode, timeSignature, minMeasures } = options;
 
   const perTrack = tracks.filter(isNotatable).map((track) => {
-    const drums = isDrumTrack(track);
-    return { track, drums, notes: trackNotes(track, drums, options) };
+    const { staff } = partStaff(track);
+    const drums = staff === 'percussion';
+    return { track, staff, drums, notes: trackNotes(track, drums, options) };
   });
 
   // Every part shares the song's bar count.
@@ -180,13 +183,13 @@ export function buildScoreParts(options: ScoreBuildOptions): ScoreTrackPart[] {
   const keyFifths = keyFifthsOf(rootNote, mode);
 
   return perTrack
-    .filter(({ notes }) => notes.length > 0)
-    .map(({ track, drums, notes }) => ({
+    .filter(({ drums, notes }) => shown(notes, drums, options.includeEmpty))
+    .map(({ track, staff, notes }) => ({
       id: track.id,
       name: track.name,
       color: track.color,
       noteCount: notes.length,
-      score: partScore(notes, drums, timeSignature, measures, keyFifths),
+      score: partScore(notes, staff, timeSignature, measures, keyFifths),
     }));
 }
 
@@ -208,8 +211,9 @@ function trackMarks(
 
 interface CachedTrack {
   midiClips: Track['midiClips'];
-  /** Everything else the notes were built from. */
+  /** Everything else the notes were built from, the part's staff first. */
   notesKey: string;
+  staff: PartStaff;
   notes: NotationNoteInput[];
   end: number;
   /** The metre, bar count and key the score was built for. */
@@ -222,7 +226,7 @@ interface CachedTrack {
  * Keeps each track's part between builds, so a Score edit rebuilds only the
  * tracks it touched instead of every part (finding score-06). A part is
  * reused while its track's midiClips array is the same object and nothing
- * else it reads has changed: whether it is a kit, the key, mode and metre,
+ * else it reads has changed: the staff it is written on, the key, mode and metre,
  * the bar count every part shares, and the track's own slash notes and
  * pinned spellings. That holds because the store replaces a track's clip
  * array whenever a clip changes; it never edits one in place.
@@ -242,9 +246,10 @@ export class ScorePartsCache {
     const present = new Set<string>();
     const perTrack = tracks.filter(isNotatable).map((track) => {
       present.add(track.id);
-      const drums = isDrumTrack(track);
+      const { staff } = partStaff(track);
+      const drums = staff === 'percussion';
       const notesKey = JSON.stringify([
-        drums,
+        staff,
         rootNote,
         mode,
         trackMarks(track.id, options),
@@ -259,6 +264,7 @@ export class ScorePartsCache {
         cached = {
           midiClips: track.midiClips,
           notesKey,
+          staff,
           notes,
           end: trackEnd(notes, drums),
         };
@@ -276,12 +282,14 @@ export class ScorePartsCache {
     const scoreKey = JSON.stringify([timeSignature, measures, keyFifths]);
 
     const parts = perTrack
-      .filter(({ cached }) => cached.notes.length > 0)
-      .map(({ track, drums, cached }) => {
+      .filter(({ drums, cached }) =>
+        shown(cached.notes, drums, options.includeEmpty),
+      )
+      .map(({ track, cached }) => {
         if (!cached.score || cached.scoreKey !== scoreKey) {
           cached.score = partScore(
             cached.notes,
-            drums,
+            cached.staff,
             timeSignature,
             measures,
             keyFifths,

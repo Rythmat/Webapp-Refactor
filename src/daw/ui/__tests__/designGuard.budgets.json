@@ -170,9 +170,6 @@
     "hex": 5,
     "rgb": 1
   },
-  "src/daw/components/Practice/ScaleKeyboard.tsx": {
-    "hex": 1
-  },
   "src/daw/components/Prism/ChordBuilder.tsx": {
     "smallText": 2
   },

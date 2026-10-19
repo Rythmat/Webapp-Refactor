@@ -310,6 +310,20 @@ function highlightMarkers(input: FretboardMarkerInput): FretMarker[] {
   return stepMarkers(input);
 }
 
+/**
+ * Every spot of a shape or scale position lit as a note to play, with no
+ * lesson running: a Practice Track's fretboard. Roots are marked.
+ */
+export function litMarkers(
+  positions: readonly FretPosition[],
+  rootPc: number,
+  keyRootPc: number,
+): FretMarker[] {
+  return positions.map((p) =>
+    marker(p, fretToMidi(p), 'target', rootPc, keyRootPc),
+  );
+}
+
 /** One marker per spot; where two meet, the stronger role wins. */
 export function fretboardMarkers(input: FretboardMarkerInput): FretMarker[] {
   const { context, keyRootPc } = input;

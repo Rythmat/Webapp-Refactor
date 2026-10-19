@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /**
- * The cloud copy of the all-fields project (fixtures/v7-all-fields), held
- * still as today's client writes it: fixtures/cloud-2.13 holds the server's
+ * The cloud copy of the all-fields project (fixtures/v8-all-fields), held
+ * still as today's client writes it: fixtures/cloud-schema-8 holds the server's
  * answer for a save in each mode, 'document' (the API's field) and
  * 'interim' (the first track's settings). Opening either must give back
  * every field the cloud keeps, exactly as the draft does; and today's
@@ -12,8 +12,11 @@
  * (schema 3, from fixtures/v3-all-fields), fixtures/cloud-1.10 milestone
  * 1.10's (schema 4, from fixtures/v4-all-fields), fixtures/cloud-2.7
  * milestone 2.7's (schema 5, from fixtures/v5-all-fields) and
- * fixtures/cloud-2.12 milestone 2.12's (schema 6, from fixtures/v6-all-fields);
- * all still open whole, their Lead Sheet marks read back as sections.
+ * fixtures/cloud-2.12 milestone 2.12's (schema 6, from fixtures/v6-all-fields)
+ * and fixtures/cloud-2.13 milestone 2.13's (schema 7, from
+ * fixtures/v7-all-fields); all still open whole, their Lead Sheet marks read
+ * back as sections and their one melody track as a list of it, every part's
+ * staff on Auto.
  *
  * Fixtures are written only with WRITE_FIXTURES=1.
  *
@@ -41,8 +44,11 @@ import {
 } from '../SessionSerializer';
 
 const DIR = resolve(process.cwd(), 'src/daw/persistence/__tests__/fixtures');
-const ALL_FIELDS = resolve(DIR, 'v7-all-fields/all-fields.json');
-const CLOUD = resolve(DIR, 'cloud-2.13');
+const ALL_FIELDS = resolve(DIR, 'v8-all-fields/all-fields.json');
+const CLOUD = resolve(DIR, 'cloud-schema-8');
+/** Milestone 2.13's saves (schema 7), of the v7 all-fields draft. */
+const ALL_FIELDS_V7 = resolve(DIR, 'v7-all-fields/all-fields.json');
+const CLOUD_V7 = resolve(DIR, 'cloud-2.13');
 /** Milestone 2.12's saves (schema 6), of the v6 all-fields draft. */
 const ALL_FIELDS_V6 = resolve(DIR, 'v6-all-fields/all-fields.json');
 const CLOUD_V6 = resolve(DIR, 'cloud-2.12');
@@ -175,6 +181,21 @@ describe.each(MODES)('a cloud copy saved in %s mode', (mode) => {
     });
     const again = JSON.parse(JSON.stringify(encodeCloudDocument(s())));
     expect(underived(again)).toEqual(underived(document));
+  });
+});
+
+describe.each(MODES)('a cloud copy milestone 2.13 saved in %s mode', (mode) => {
+  it('still opens with every field it kept, every staff on Auto', () => {
+    loadAllFields(ALL_FIELDS_V7);
+    const expected = cloudContent(s());
+    useStore.setState(useStore.getInitialState(), true);
+
+    const report = deserializeCloudProject(fixture(mode, CLOUD_V7));
+    expect(report).toMatchObject({ stale: false, newer: false });
+    expect(cloudContent(s())).toEqual(expected);
+    expect(s().tracks.every((t) => t.notationStaff === undefined)).toBe(true);
+    // Its one melody track, as a list.
+    expect(s().leadSheetMelodyTrackIds).toEqual(['trk-lead']);
   });
 });
 

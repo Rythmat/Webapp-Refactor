@@ -49,8 +49,11 @@ import {
   getChordColorFromNotes,
   getChordColor,
   noteNameInKey,
-  CHORDS,
+  chordReadings,
   detectChordWithInversion,
+  isRareQuality,
+  RARE_COST,
+  SLASH_COST,
   getModeOffset,
   ionianToModeLabel,
   resolveDegreeKey,
@@ -216,19 +219,19 @@ export interface PrismSlice {
   moveChordRegion: (id: string, newStartTick: number) => void;
   /**
    * Insert `count` bars before bar `at`, or delete `count` bars from it:
-   * the chords, the roadmap, the Score's marks, the markers and, given its
-   * id, the melody the sheet shows all move with the bars, in the project's
-   * metre (measureEdits.ts). One write, one undo step.
+   * the chords, the roadmap, the Score's marks, the markers and, given
+   * their ids, the melody tracks the sheet shows all move with the bars, in
+   * the project's metre (measureEdits.ts). One write, one undo step.
    */
   insertMeasures: (
     at: number,
     count?: number,
-    melodyTrackId?: string | null,
+    melodyTrackIds?: string | readonly string[] | null,
   ) => void;
   deleteMeasures: (
     at: number,
     count?: number,
-    melodyTrackId?: string | null,
+    melodyTrackIds?: string | readonly string[] | null,
   ) => void;
 
   /** Take a chord out of the lane: the notes it was read from are melody. */
@@ -1358,48 +1361,18 @@ export function deriveChordRegionsFromSession(
 // ── Phase 7C: Bass note enrichment ──────────────────────────────────────
 
 /**
- * The chord quality these pitch classes spell with `bassPc` as the root, or
- * null. Tries an exact match first, then one without the perfect fifth —
- * rootless voicings usually leave it out. Only chords of five or more notes
- * can match that way here, since voicing + bass is always at least four.
- */
-function qualityFromBassRoot(
-  bassPc: number,
-  voicingPcs: Set<number>,
-): string | null {
-  const intervals = new Set([
-    0,
-    ...[...voicingPcs].map((pc) => (pc - bassPc + 12) % 12),
-  ]);
-  const spells = (tones: Set<number>) =>
-    tones.size === intervals.size && [...tones].every((t) => intervals.has(t));
-  const qualities = Object.entries(CHORDS)
-    .filter(([quality]) => !quality.includes('/')) // voicing variants
-    .map(
-      ([quality, def]) =>
-        [quality, new Set(def.map((v) => ((v % 12) + 12) % 12))] as const,
-    );
-
-  for (const [quality, tones] of qualities) {
-    if (spells(tones)) return quality;
-  }
-  if (!intervals.has(7)) {
-    for (const [quality, tones] of qualities) {
-      if (!tones.has(7)) continue;
-      const withoutFifth = new Set(tones);
-      withoutFifth.delete(7);
-      if (spells(withoutFifth)) return quality;
-    }
-  }
-  return null;
-}
-
-/**
- * Enrich chord regions with bass note information. If the bass plays a
- * different pitch class than the chord root, the chord becomes a slash chord
- * (e.g., C maj → C maj/E for first inversion) — unless the bass isn't in the
- * voicing at all and names a chord from below, as it does under a rootless /
- * upper-structure voicing: F-A-C-E over D is D min9, not F maj7/D.
+ * Enrich chord regions with bass note information, naming each by musical
+ * Occam's razor (chordReadings): the simplest chord the voicing and its bass
+ * make together, or — when that's no simpler — the voicing's chord over the
+ * bass.
+ *
+ * - A bass in the voicing that isn't its root is an inversion: C maj/E.
+ * - A bass outside the voicing usually names the chord from below: F-A-C-E
+ *   over D is D min9, G♭-C-F over A♭ is A♭13 (1-3-♭7-13), not F maj7/D or
+ *   "F sus♭2/A♭". An upper structure that's simpler as a slash stays one:
+ *   F-A-C over G is F maj/G, not an add9 with its 9th in the bass.
+ * - A rare chord (sus♭2 and the like) is re-read with its bass whatever the
+ *   bass is: there is nearly always a common chord there instead.
  *
  * Either way the region now holds a different chord from the one its
  * identity describes, so the identity goes. Exported for its tests: the
@@ -1417,6 +1390,32 @@ export function enrichWithBass(
   const sorted = [...bassEvents].sort((a, b) => a.startTick - b.startTick);
   const keyPc = rootMidi % 12;
 
+  /** The region renamed as `quality` on `rootPc`, over the bass. */
+  const renamed = (
+    region: ChordRegion,
+    rootPc: number,
+    quality: string,
+    bassPc: number,
+  ) => {
+    const degreeKey = resolveDegreeKey(rootPc, quality, keyPc);
+    const chord = abbreviateSequence(
+      `${noteNameInKey(rootPc, keyPc, mode)} ${quality}`,
+    );
+    const noteName =
+      rootPc === bassPc
+        ? chord
+        : `${chord}/${noteNameInKey(bassPc, keyPc, mode)}`;
+    return withoutIdentity({
+      ...region,
+      noteName,
+      name: degreeKey ? abbreviateSequence(degreeKey) : noteName,
+      degreeKey,
+      color: degreeKey
+        ? getChordColor(degreeKey, rootMidi, mode)
+        : region.color,
+    });
+  };
+
   return regions.map((region) => {
     // Find bass notes within this region's time span
     const bassInRegion = sorted.filter(
@@ -1431,24 +1430,15 @@ export function enrichWithBass(
     const parsed = parseNoteNameChord(region.noteName);
     if (!parsed || parsed.rootPc === bassPc) return region;
 
-    // Bass outside the voicing: name the chord from the bass when it spells one
     const voicingPcs = new Set((region.midis ?? []).map((m) => m % 12));
-    if (voicingPcs.size > 0 && !voicingPcs.has(bassPc)) {
-      const quality = qualityFromBassRoot(bassPc, voicingPcs);
-      if (quality) {
-        const degreeKey = resolveDegreeKey(bassPc, quality, keyPc);
-        const noteName = abbreviateSequence(
-          `${noteNameInKey(bassPc, keyPc, mode)} ${quality}`,
-        );
-        return withoutIdentity({
-          ...region,
-          noteName,
-          name: degreeKey ? abbreviateSequence(degreeKey) : noteName,
-          degreeKey,
-          color: degreeKey
-            ? getChordColor(degreeKey, rootMidi, mode)
-            : region.color,
-        });
+    const rare = isRareQuality(parsed.quality);
+    if (voicingPcs.size > 0 && (rare || !voicingPcs.has(bassPc))) {
+      const [whole] = chordReadings(voicingPcs, bassPc);
+      // The voicing's chord over the bass: an inversion, or a slash chord.
+      const asIs =
+        (rare ? RARE_COST : 0) + (voicingPcs.has(bassPc) ? 1.5 : SLASH_COST);
+      if (whole && whole.score <= asIs) {
+        return renamed(region, whole.rootPc, whole.quality, bassPc);
       }
     }
 
@@ -2000,12 +1990,14 @@ export const createPrismSlice: StateCreator<
       return { chordRegions: respellLeadingChordRegions(sorted) };
     }),
 
-  insertMeasures: (at, count = 1, melodyTrackId) =>
-    set((s) => measureEditPatch(s, at, Math.max(1, count), melodyTrackId) ?? s),
-
-  deleteMeasures: (at, count = 1, melodyTrackId) =>
+  insertMeasures: (at, count = 1, melodyTrackIds) =>
     set(
-      (s) => measureEditPatch(s, at, -Math.max(1, count), melodyTrackId) ?? s,
+      (s) => measureEditPatch(s, at, Math.max(1, count), melodyTrackIds) ?? s,
+    ),
+
+  deleteMeasures: (at, count = 1, melodyTrackIds) =>
+    set(
+      (s) => measureEditPatch(s, at, -Math.max(1, count), melodyTrackIds) ?? s,
     ),
 
   // ── Actions — melody (Phase 10) ──

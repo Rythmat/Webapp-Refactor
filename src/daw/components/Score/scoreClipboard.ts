@@ -152,6 +152,28 @@ export interface ClipWrite {
 }
 
 /**
+ * The clip a note written at song tick `tick` goes into: the one covering
+ * the tick, else the last one starting before it. Null when the track has no
+ * clip at or before the tick, and the writer makes one. Paste and note input
+ * share this, so a note lands in the same clip whichever way it was written.
+ */
+export function clipAt(track: Track, tick: number): MidiClip | null {
+  const covering = track.midiClips.find(
+    (c) =>
+      tick >= c.startTick &&
+      tick <
+        c.startTick +
+          (c.durationTicks ??
+            Math.max(0, ...c.events.map((e) => e.startTick + e.durationTicks))),
+  );
+  if (covering) return covering;
+  const before = [...track.midiClips]
+    .filter((c) => c.startTick <= tick)
+    .sort((a, b) => b.startTick - a.startTick)[0];
+  return before ?? null;
+}
+
+/**
  * Paste `clipboard` so its top-left lands on `target`. Returns one write per
  * touched clip, the ids the pasted notes will have, and the ids of the notes
  * a measure paste cleared out of the way (their marks go with them). Pasted
@@ -183,21 +205,8 @@ export function pasteNotes(
     if (!track) return null;
     // The clip covering the tick, else the last one starting before it, else
     // a new clip from the paste target on (one per track).
-    const covering = track.midiClips.find(
-      (c) =>
-        tick >= c.startTick &&
-        tick <
-          c.startTick +
-            (c.durationTicks ??
-              Math.max(
-                0,
-                ...c.events.map((e) => e.startTick + e.durationTicks),
-              )),
-    );
-    const before = [...track.midiClips]
-      .filter((c) => c.startTick <= tick)
-      .sort((a, b) => b.startTick - a.startTick)[0];
-    if (covering ?? before) return covering ?? before;
+    const existing = clipAt(track, tick);
+    if (existing) return existing;
     let made = newClips.get(trackId);
     if (!made) {
       made = {

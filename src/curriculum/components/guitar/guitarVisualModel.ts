@@ -24,6 +24,7 @@ import type {
   GuitarCenterId,
   GuitarChordShape,
   GuitarScalePosition,
+  GuitarScaleSlot,
 } from '@/curriculum/data/guitar/types';
 import type {
   ActivityStepV2,
@@ -269,6 +270,25 @@ export function guitarVisualModel(
           }).popover.map(({ id, title, body }) => ({ id, title, body }))
         : [],
   };
+}
+
+/**
+ * The diagrams for a scale position or a set of chord shapes with no lesson
+ * step behind them (a guitar Practice Track): the model a step of that kind
+ * would get, a scale as Section A shows it, chords as Section B does.
+ */
+export function guitarPracticeModel(
+  keyCenter: GuitarCenterId,
+  shows: { scalePosition: GuitarScaleSlot } | { shapeIds: readonly string[] },
+): GuitarVisualModel {
+  const step = {
+    activity: 'scalePosition' in shows ? 'A1.1: Practice' : 'B1.1: Practice',
+    guitar:
+      'scalePosition' in shows
+        ? { keyCenter, scalePosition: shows.scalePosition }
+        : { keyCenter, shapeIds: [...shows.shapeIds] },
+  } as ActivityStepV2;
+  return guitarVisualModel(step, keyCenter);
 }
 
 /**

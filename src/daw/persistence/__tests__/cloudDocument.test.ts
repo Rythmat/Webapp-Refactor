@@ -304,7 +304,12 @@ describe('a cloud open reads the document', () => {
   it('reading a later schema that says this build may', () => {
     buildProject();
     const body = serializeSessionForCloud(undefined, 'document');
-    body.document = { ...body.document!, schema: 4, compat: 3, later: 1 };
+    body.document = {
+      ...body.document!,
+      schema: CLOUD_DOCUMENT_SCHEMA + 1,
+      compat: 3,
+      later: 1,
+    };
     const report = deserializeCloudProject(fromServer(body));
     expect(report).toMatchObject({ document: 'field', newer: false });
     expect(s().mode).toBe('dorian');

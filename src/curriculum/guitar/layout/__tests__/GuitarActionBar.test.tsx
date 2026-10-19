@@ -55,21 +55,17 @@ function setup(overrides: Partial<GuitarActionBarProps> = {}) {
 }
 
 describe('GuitarActionBar — preview', () => {
-  it('the instruction, how the step listens, Demo · Practice · Play Now', () => {
+  it('the instruction, the pass mark, Demo · Practice · Play Now', () => {
     const { props, buttons, primary, container } = setup();
     expect(
       screen.getByText(/Play the notes of the scale from lowest to highest/),
     ).toBeInTheDocument();
-    const mode = container.querySelector('[data-guitar-mode]')!;
-    expect(mode).toHaveAttribute('data-guitar-mode', 'waitForMe');
-    // The eye reads "Wait for me · 75%"; the words say what the 75% is.
-    expect(mode.textContent).toMatch(/Wait for me.*Pass mark 75%/);
-    expect(mode.textContent?.replace('Pass mark ', '')).toMatch(
-      /^Wait for me\s·\s75%$/,
-    );
-    // Words, not a pill: it isn't a button, so it isn't outlined like one.
-    expect(mode.className).not.toMatch(/(^| )(border|rounded-full)( |$)/);
-    expect(mode.className).toMatch(/(^| )text-white\/55( |$)/);
+    // "Pass = 75%": what passes, in plain words ("Wait for me" read as a
+    // puzzle), quiet text rather than a pill.
+    const pass = container.querySelector('[data-pass-mark]')!;
+    expect(pass.textContent).toBe('Pass = 75%');
+    expect(pass.className).not.toMatch(/(^| )(border|rounded-full)( |$)/);
+    expect(container.querySelector('[data-guitar-mode]')).toBeNull();
     expect(buttons()).toEqual(['Demo', 'Practice', 'Play Now']);
     expect(primary()).toEqual(['Play Now']);
     // Free-time steps have no tempo.
@@ -83,14 +79,14 @@ describe('GuitarActionBar — preview', () => {
     expect(props.run.playNow).toHaveBeenCalled();
   });
 
-  it('keep-time steps: the tempo stepper and "Keep time · 60%"', () => {
+  it('keep-time steps: the tempo stepper and "Pass = 60%"', () => {
     const tempo = makeTempo();
     const { container } = setup({
       tempo,
       run: makeRun({ listen: { mode: 'keepTime', passMarkPct: 60 } }),
     });
-    expect(container.querySelector('[data-guitar-mode]')!.textContent).toMatch(
-      /Keep time.*60%/,
+    expect(container.querySelector('[data-pass-mark]')!.textContent).toBe(
+      'Pass = 60%',
     );
     const value = screen.getByRole('spinbutton', { name: 'Tempo' });
     fireEvent.keyDown(value, { key: 'ArrowUp' });
@@ -223,8 +219,22 @@ describe('GuitarActionBar — practice', () => {
   });
 });
 
+describe('GuitarActionBar — centred (the lesson screens)', () => {
+  it('no instruction, the buttons in one row, the pass mark in the corner', () => {
+    const { buttons, container } = setup({ variant: 'centered' });
+    // The instruction is in About this step.
+    expect(
+      screen.queryByText(/Play the notes of the scale from lowest to highest/),
+    ).toBeNull();
+    expect(buttons()).toEqual(['Demo', 'Practice', 'Play Now']);
+    const corner = container.querySelector('[data-bar-corner]')!;
+    expect(corner.textContent).toBe('Pass = 75%');
+    expect(corner.className).toMatch(/(^| )absolute( |$)/);
+  });
+});
+
 describe('GuitarActionBar — performance', () => {
-  it('Listening · Keep time with a meter, the bpm read-only, and Stop', () => {
+  it('Listening with a meter, the bpm read-only, and Stop', () => {
     vi.useFakeTimers();
     const handle = fakeHandle('listening', { level: 0 });
     const run = makeRun({
@@ -239,7 +249,7 @@ describe('GuitarActionBar — performance', () => {
     });
     expect(
       container.querySelector('[data-guitar-listening]')!.textContent,
-    ).toMatch(/Listening · Keep time/);
+    ).toBe('Listening');
     const meter = screen.getByRole('meter', { name: 'Input level' });
     expect(meter).toHaveAttribute('aria-valuenow', '0');
     // The meter polls the live level (~15 Hz).
@@ -268,7 +278,7 @@ describe('GuitarActionBar — performance', () => {
       }),
     });
     expect(screen.queryByRole('meter')).toBeNull();
-    expect(screen.getByText(/Listening · Wait for me/)).toBeInTheDocument();
+    expect(screen.getByText('Listening')).toBeInTheDocument();
   });
 
   it('shows the missed-strum hint', () => {

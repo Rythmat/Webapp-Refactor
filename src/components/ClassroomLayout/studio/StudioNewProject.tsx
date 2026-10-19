@@ -28,7 +28,7 @@ const tileClass =
  * the codec, which the dashboard must not load; a test keeps them equal).
  * A draft written in a newer schema opens read-only, so it isn't offered.
  */
-export const DASHBOARD_SCHEMA_VERSION = 7;
+export const DASHBOARD_SCHEMA_VERSION = 8;
 
 /**
  * The pre-1.4 device-wide autosave (legacyImport's LEGACY_AUTOSAVE_KEY),

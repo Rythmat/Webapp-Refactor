@@ -149,7 +149,7 @@ describe('buildGenrePracticeTrack — chord regions', () => {
     expect(Object.fromEntries(labels)).toEqual({
       Am9: '1 min9',
       D13: '4 dom13',
-      'E7#5': '5 dom7(#5)',
+      'E7#5': '5 dom7(♯5)',
     });
   });
 

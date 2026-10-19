@@ -1711,7 +1711,7 @@ const funkL1SectionD: ActivitySectionV2 = {
         { midi: 65, onset: 1320, duration: 360, hand: 'rh' },
         { midi: 50, onset: 1920, duration: 120, hand: 'lh' },
         { midi: 53, onset: 1920, duration: 120, hand: 'lh' },
-        { midi: 60, onset: 1920, duration: 120, hand: 'lh' },
+        { midi: 59, onset: 1920, duration: 120, hand: 'lh' }, // B3: G7 shell, as directed
         { midi: 74, onset: 1920, duration: 120, hand: 'rh' },
       ],
     },
@@ -2671,7 +2671,7 @@ const funkL2SectionB: ActivitySectionV2 = {
         'Ab13 to G7alt to Cm9 to F13 — that is sophisticated Funk harmony.',
       contentGeneration:
         'GCM v8: FUNK L3 full progression. HKB v2: Ab13→G7alt→Cm9→F13. Ab13: rootless voicing. G7alt: rootless voicing. Cm9: rootless_b3_b7_9 [3,10,14] (Eb-Bb-D). F13: rootless_b7_3_13 [-2,4,9] (Eb-A-D). Voice leading: chromatic descent through the top voices. Register: C3-C5. Tempo: 95-108 BPM, one chord per bar.',
-      chordSymbols: ['Ab13', 'G7', 'Cm9', 'F13'],
+      chordSymbols: ['Ab13', 'G7alt', 'Cm9', 'F13'],
       targetNotes: [
         // Bar 1 — Ab13: Gb3+Bb3+C4+F4  [b7-9-3-13]
         { midi: 54, onset: 0, duration: 120 }, // Gb3

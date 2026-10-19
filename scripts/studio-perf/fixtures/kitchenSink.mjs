@@ -163,13 +163,19 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     trackRole: 'chords',
     midiInputId: 'kitchen-midi-in',
     presetName: 'Bright Grand',
+    // The Score writes it on one staff, set by hand (schema 6).
+    notationStaff: 'treble',
   });
   act().updateTrack(guitar, {
     audioInputId: 'kitchen-audio-in',
     audioInputChannel: { mode: 'stereo', left: 2, right: 3 },
   });
   act().updateTrack(vocals, { trackRole: 'melody' });
-  act().updateTrack(bass, { bassVoice: 'upright' });
+  act().updateTrack(bass, {
+    bassVoice: 'upright',
+    // The bass clef with an 8, set by hand (schema 7).
+    notationStaff: 'bass8vb',
+  });
   act().updateTrack(strings, { gmProgram: 48 });
   act().toggleSolo(keys);
   act().toggleMute(bass);
@@ -544,7 +550,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setLeadSheetChordFormat('jazz');
   act().setLeadSheetShowRepeats(true);
   act().setLeadSheetShowMelody(true);
-  act().setLeadSheetMelodyTrackId(lead);
+  act().setLeadSheetMelodyTrackIds([lead]);
   act().toggleScoreChordTrack(keys);
   act().setScoreChordHidden([`${keys}:${firstRegion}`]);
   act().setScoreArticulations([

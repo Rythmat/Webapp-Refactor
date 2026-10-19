@@ -440,7 +440,7 @@ export function CoachCard({
                 margin: '7px 0 0',
               }}
             >
-              {hint}
+              <Rich text={hint} />
             </p>
           )}
 

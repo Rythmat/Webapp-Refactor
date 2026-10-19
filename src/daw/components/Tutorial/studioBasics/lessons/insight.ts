@@ -7,11 +7,12 @@ import {
 } from '../insightChecks';
 
 // ── Studio Basics 5 · Insight ──────────────────────────────────────────────
-// Insight names the chords of the notes picked: open it (the Inspector),
-// pick the chords track and the bass track under Analyze Tracks, then
-// Analyze. On the Studio Basics song it reads 1 maj → 6 min → 4 maj →
-// 5 maj, the numbers of Music Literacy. The demos pick track 1 and take it
-// out again; the student picks by name, as a song's tracks are its own.
+// Insight names the chords of the notes picked: open it (the side rail's
+// light bulb, at the window's right), pick the chords track and the bass
+// track under Analyze Tracks, then Analyze. On the Studio Basics song it
+// reads 1 maj → 6 min → 4 maj → 5 maj, the numbers of Music Literacy. The
+// demos pick track 1 and take it out again; the student picks by name, as
+// a song's tracks are its own.
 
 const STAGE = 'Insight';
 
@@ -20,19 +21,19 @@ export const insightSteps: TutorialStep[] = [
     id: 'open-insight',
     stage: STAGE,
     instruction:
-      'Click the **Inspector** button at the top right to open Insight.',
-    target: 'inspector-toggle',
+      'Click **Insight** (the light bulb) in the side rail at the right to open it.',
+    target: 'rail-insight',
     requires: { view: 'arrange', libraryOpen: false },
     demo: [
       { caption: 'Insight names the chords in your song' },
       {
-        target: 'inspector-toggle',
-        caption: '**Inspector** opens Insight',
+        target: 'rail-insight',
+        caption: 'The light bulb opens **Insight**',
         action: 'click',
       },
-      { target: 'insight-tab', caption: 'Insight reads your notes' },
+      { target: 'insight-tracks', caption: 'Insight reads your notes' },
       {
-        target: 'inspector-toggle',
+        target: 'rail-insight',
         caption: 'Click again to close it',
         action: 'click',
       },
@@ -45,8 +46,8 @@ export const insightSteps: TutorialStep[] = [
     instruction:
       'Under **Analyze Tracks**, click the track that plays your chords.',
     hint: 'Each button picks every note of that track. Click again to take them out.',
-    // The Insight tab, if the Library tab is showing instead.
-    target: ['insight-tracks', 'insight-tab'],
+    // Insight's light bulb, if another panel shows instead.
+    target: ['insight-tracks', 'rail-insight'],
     demo: [
       {
         target: 'insight-tracks',
@@ -70,6 +71,7 @@ export const insightSteps: TutorialStep[] = [
     stage: STAGE,
     instruction:
       'Now click the bass track too. The bass plays each chord’s lowest note, which helps Insight name it.',
+    hint: 'Gave the bass a new sound in Your Tracks? Its button may have that sound’s name now.',
     target: 'insight-tracks',
     demo: [
       {
@@ -104,7 +106,7 @@ export const insightSteps: TutorialStep[] = [
     stage: STAGE,
     instruction:
       'Under **Harmony**, each chord has its number in the key. The Studio Basics song reads **1 maj → 6 min → 4 maj → 5 maj**.',
-    hint: 'Under the numbers: the chord names and the key.',
+    hint: 'Under the numbers: the chord names and the key. Changed the chords in the Piano Roll? Insight reads your version.',
     target: ['insight-harmony', 'insight-selection'],
     demo: [
       {

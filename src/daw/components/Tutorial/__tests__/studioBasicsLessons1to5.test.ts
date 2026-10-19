@@ -84,7 +84,6 @@ const lastIndex = () => s().tracks.length - 1;
 /** Anchors whose click changes nothing in the song: menus, pickers, tools. */
 const UI_ONLY = [
   /^dock-instrument$/,
-  /^track-instrument-\d+$/,
   /^instrument-picker$/,
   /^instrument-family-/,
   /^instrument-/,
@@ -95,7 +94,7 @@ const UI_ONLY = [
   /^piano-roll-tool-/,
   /^piano-roll-(grid|keys|select-all)$/,
   /^dock-body$/,
-  /^insight-(tab|tracks|selection|analyze)$/,
+  /^insight-(tracks|selection|analyze)$/,
   /^selected-track-header$/,
 ];
 
@@ -127,8 +126,6 @@ function clickOn(id: string): void {
     s().toggleSolo(trackAt(n(/(\d+)$/)).id);
   } else if (/^track-arm-\d+$/.test(id)) {
     s().toggleRecordArm(trackAt(n(/(\d+)$/)).id);
-  } else if (/^track-monitor-\d+$/.test(id)) {
-    s().toggleMonitoring(trackAt(n(/(\d+)$/)).id);
   } else if (id === 'metronome-toggle') {
     s().toggleMetronome();
   } else if (id === 'inspector-toggle' || id === 'rail-insight') {
@@ -622,11 +619,13 @@ describe('the lessons’ targets and copy', () => {
     const lesson = getTutorial(id)!;
     const stage = lesson.title.charAt(0) + lesson.title.slice(1).toLowerCase();
     expect(lesson.steps.length).toBeGreaterThanOrEqual(5);
-    expect(lesson.steps.length).toBeLessThanOrEqual(10);
+    expect(lesson.steps.length).toBeLessThanOrEqual(9);
     for (const step of lesson.steps) {
       expect(step.stage, step.id).toBe(stage);
       const words = [step.instruction, step.hint ?? ''].join(' ');
       expect(words, step.id).not.toMatch(/\b(simply|just)\b|colour/i);
+      // Stage B's names: a row (not a header), no MON button, no Stop.
+      expect(words, step.id).not.toMatch(/\bheader\b|\bMON\b|\bStop\b/);
       for (const beat of step.demo ?? []) {
         const count = beat.caption.replace(/\*\*/g, '').split(/\s+/).length;
         expect(count, `${step.id}: ${beat.caption}`).toBeGreaterThanOrEqual(3);

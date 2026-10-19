@@ -171,7 +171,7 @@ export const TUTORIAL_CATALOG = [
     title: 'The Score',
     subtitle: 'Your song as sheet music, ready to read and print.',
     difficulty: 'Beginner',
-    estMinutes: 3,
+    estMinutes: 4,
     requiresPremium: false,
     course: 'studio-basics',
     courseOrder: 6,

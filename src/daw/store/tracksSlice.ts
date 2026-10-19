@@ -283,6 +283,19 @@ function clipsWithNoteIds(clips: MidiClip[], taken: Set<string>): MidiClip[] {
   return out ?? clips;
 }
 
+/**
+ * The name for a copy of a track called `name`: the next number after it
+ * that no track has ('Rhodes' → 'Rhodes 2', 'Rhodes 2' → 'Rhodes 3').
+ */
+export function copyName(name: string, taken: readonly string[]): string {
+  const base = name.replace(/\s+\d+$/, '').trim() || name.trim() || 'Track';
+  const names = new Set(taken.map((n) => n.trim().toLowerCase()));
+  for (let n = 2; ; n++) {
+    const candidate = `${base} ${n}`;
+    if (!names.has(candidate.toLowerCase())) return candidate;
+  }
+}
+
 // ── Slice ───────────────────────────────────────────────────────────────
 
 export interface TracksSlice {
@@ -301,6 +314,18 @@ export interface TracksSlice {
     color?: string,
   ) => string;
   removeTrack: (id: string) => void;
+  /**
+   * Adds a copy of track `id` just below it and selects it: its instrument
+   * and sound settings, its clips (with clip and note ids of their own) and
+   * its mixer (volume, pan, mute, solo, effects, sends, automation). The copy
+   * is not armed or monitored, and is named after the original with the next
+   * free number ('Rhodes 2'). Returns the copy's id (`newId` when given), or
+   * `''` (and a toast) when a track limit would be exceeded or there is no
+   * such track. Audio the copy's clips play, and an Oracle Synth patch, live
+   * outside the store: duplicateTrack in commands/trackCommands.ts copies
+   * them too.
+   */
+  duplicateTrack: (id: string, newId?: string) => string;
   updateTrack: (id: string, updates: Partial<Track>) => void;
   toggleMute: (id: string) => void;
   toggleSolo: (id: string) => void;
@@ -463,6 +488,51 @@ export const createTracksSlice: StateCreator<
         tracks: state.tracks.filter((t) => t.id !== id),
       })),
     ),
+
+  duplicateTrack: (id, newId = crypto.randomUUID()) => {
+    const state = get();
+    const index = state.tracks.findIndex((t) => t.id === id);
+    if (index === -1) return '';
+    const source = state.tracks[index];
+    const limitMessage = getTrackLimitMessage(state.tracks, source.type);
+    if (limitMessage) {
+      toast({
+        title: 'Track limit reached',
+        description: limitMessage,
+        variant: 'destructive',
+      });
+      return '';
+    }
+    const copy: Track = {
+      ...structuredClone(source),
+      id: newId,
+      name: copyName(
+        source.name,
+        state.tracks.map((t) => t.name),
+      ),
+      recordArmed: false,
+      monitoring: false,
+      // The Guitar/Bass-to-MIDI binding is the original's, live, alone.
+      audioMidiSource: undefined,
+      // A copy's clips are clips of their own, and its notes notes of their
+      // own: the original's note ids are taken, so every copy gets a new one.
+      midiClips: clipsWithNoteIds(
+        source.midiClips.map((clip) => ({
+          ...structuredClone(clip),
+          id: `clip-dup-${crypto.randomUUID().slice(0, 8)}`,
+        })),
+        projectNoteIds(state.tracks),
+      ),
+      audioClips: source.audioClips.map((clip) => ({
+        ...structuredClone(clip),
+        id: `clip-dup-${crypto.randomUUID().slice(0, 8)}`,
+      })),
+    };
+    const tracks = [...state.tracks];
+    tracks.splice(index + 1, 0, copy);
+    set({ tracks, selectedTrackId: newId });
+    return newId;
+  },
 
   updateTrack: (id, updates) =>
     set(

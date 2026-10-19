@@ -21,6 +21,16 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
   const trackIds = useTrackIds();
   const reorderTrack = useStore((s) => s.reorderTrack);
   const [menuOpen, setMenuOpen] = useState(false);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  // The Add Track menu takes focus as it opens, so Escape and Tab work in
+  // it at once, and hands it back to its button as it closes.
+  const focusMenu = useCallback((el: HTMLDivElement | null) => {
+    el?.focus();
+  }, []);
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    addButtonRef.current?.focus();
+  }, []);
   const headersRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const syncing = useRef(false);
@@ -124,7 +134,10 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
 
           {/* Add Track button */}
           <button
+            ref={addButtonRef}
             data-tutorial-id="add-track-button"
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
             className="mx-3 my-2 flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-[10px] font-medium"
             style={{
@@ -164,10 +177,24 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
               <div
                 className="fixed inset-0 z-50 flex items-center justify-center"
                 style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenu}
               >
-                <div onClick={(e) => e.stopPropagation()}>
-                  <AddTrackMenu onClose={() => setMenuOpen(false)} />
+                <div
+                  ref={focusMenu}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Add Track"
+                  tabIndex={-1}
+                  data-tutorial-id="add-track-menu"
+                  className="outline-none"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => {
+                    if (e.key !== 'Escape') return;
+                    e.stopPropagation();
+                    closeMenu();
+                  }}
+                >
+                  <AddTrackMenu onClose={closeMenu} />
                 </div>
               </div>,
               document.body,

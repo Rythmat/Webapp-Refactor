@@ -5,7 +5,11 @@
  * student does on each step's turn, through the real UI, with a fallback
  * through the store. lessonDrivers.mjs's driverFor reads these after its own
  * DRIVERS. They are written for the course's song ("Studio Basics Song":
- * Melody, Chords, Bass, Drums, a chord a bar), which a cold start opens.
+ * Melody, Chords, Bass, Drums, a chord a bar), which a cold start opens, on
+ * the Stage B shell: one Score page with a Full score | Lead sheet switch,
+ * the canvas's one clip menu (Paste here on a lane's), the track row's ⋯
+ * menu (Duplicate track), the Export pill and the Export dialog's Notation
+ * side (its format picked, then Export).
  *
  * Print is stubbed in the page before a Print step's click, so no print
  * dialog blocks the run; the step checks the done moment the click counts.
@@ -75,6 +79,10 @@ function print(id, moment) {
   };
 }
 
+/** The view the store shows now. */
+const currentView = (ctx) =>
+  ctx.read(() => window.__MA_STORE__.getState().currentView);
+
 /** A Project menu item. */
 function projectMenu(id, moment) {
   return {
@@ -107,12 +115,21 @@ function addClipCopyInPage([t, at]) {
 
 export const SCORE_TO_SAVE_DRIVERS = {
   'studio-basics-score': {
-    'open-score': click(
-      'view-switch-score',
-      storeSet('setCurrentView(score)', () =>
+    'open-score': {
+      how: 'click',
+      describe:
+        'click view-switch-score, then view-switch-fullscore if the Lead sheet came up',
+      async run(ctx) {
+        await ctx.clickAnchor('view-switch-score');
+        // The Score tab opens the layout last shown.
+        if ((await currentView(ctx)) === 'leadsheet') {
+          await ctx.clickAnchor('view-switch-fullscore');
+        }
+      },
+      fallback: storeSet('setCurrentView(score)', () =>
         window.__MA_STORE__.getState().setCurrentView('score'),
       ),
-    ),
+    },
     'add-notes-on': click(
       'score-note-input',
       storeSet('setScoreNoteInput(true)', () =>

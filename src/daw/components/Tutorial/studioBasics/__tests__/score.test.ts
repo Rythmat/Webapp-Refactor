@@ -14,6 +14,7 @@ import {
   describeLessonConventions,
   openDemoSong,
   s,
+  stepOf,
   writeEvents,
 } from './scoreToSaveTestUtils';
 
@@ -42,14 +43,31 @@ describe('the course’s song, for the Score', () => {
 });
 
 describe('The Score', () => {
-  it('open-score passes once the Score is open', () => {
+  it('open-score passes once the Score page shows its Full score', () => {
     const { passes } = arm(SCORE, 'open-score');
     expect(s().currentView).toBe('arrange');
     expect(passes()).toBe(false);
+    // The Score tab opens the layout last shown: the lead sheet isn't it.
     s().setCurrentView('leadsheet');
     expect(passes()).toBe(false);
     s().setCurrentView('score');
     expect(passes()).toBe(true);
+  });
+
+  it('open-score points at the page’s Full score switch once it shows', () => {
+    const step = stepOf(SCORE, 'open-score');
+    // The switch is on screen only on the Score page; from Create the
+    // spotlight is the Score tab.
+    expect(step.target).toEqual(['view-switch-fullscore', 'view-switch-score']);
+    // Its demo leaves the Score tab on the Full score for the student.
+    const clicks = step
+      .demo!.filter((b) => b.action === 'click')
+      .map((b) => b.target);
+    expect(clicks).toEqual([
+      'view-switch-score',
+      'view-switch-fullscore',
+      'view-switch-arrange',
+    ]);
   });
 
   it('add-notes-on passes once Add notes is on', () => {

@@ -97,6 +97,11 @@ const DOING = [
   'file-export-midi',
   'file-export-musicxml',
   'export-audio-run',
+  'export-notation-run',
+  // A format the dialog would remember for the student's own export.
+  'export-notation-midi',
+  'export-notation-leadsheet',
+  'export-notation-score',
   'score-print',
   'score-export-musicxml',
   'leadsheet-print',
@@ -119,7 +124,24 @@ const TOGGLES = [
 ];
 
 /** What a click opens, for Esc to close: a menu, a dialog. */
-const OPENERS = ['file-menu', 'file-export-audio'];
+const OPENERS = [
+  'file-menu',
+  'file-export-audio',
+  'file-export-notation',
+  'export-pill',
+];
+
+/**
+ * The view a view switch shows: the top bar's tabs, and the Score page's
+ * Full score | Lead sheet switch. (The Score tab opens the layout last
+ * shown; a demo that ends on the Score page ends on one of its layouts.)
+ */
+const VIEW_OF: Readonly<Record<string, string>> = {
+  'view-switch-arrange': 'arrange',
+  'view-switch-studio': 'studio',
+  'view-switch-fullscore': 'score',
+  'view-switch-leadsheet': 'leadsheet',
+};
 
 const words = (text: string) =>
   text.replace(/\*\*/g, '').trim().split(/\s+/).length;
@@ -208,9 +230,11 @@ export function describeLessonConventions(lesson: string): void {
             targetsOf(b.target).some((id) => id.startsWith('view-switch-')),
         );
         if (views.length > 0) {
-          expect(targetsOf(views[views.length - 1].target)).toEqual([
-            `view-switch-${step.requires?.view}`,
-          ]);
+          const last = targetsOf(views[views.length - 1].target);
+          expect(last, step.id).toHaveLength(1);
+          expect(VIEW_OF[last[0]], `${step.id}: ${last[0]}`).toBe(
+            step.requires?.view,
+          );
         }
         // A menu, a dialog or an edit box it opens, Esc closes, after it.
         const opens = beats.flatMap((b, i) =>

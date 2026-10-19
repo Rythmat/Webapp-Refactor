@@ -3,11 +3,16 @@ import { doneMomentMoved } from '../saveAndExportChecks';
 import { noteAdded, noteChanged } from '../scoreChecks';
 
 // ── Studio Basics 6 · The Score ────────────────────────────────────────
-// The song as sheet music: open the Score, turn on Add notes, write a note
-// with a click on a staff, move it with the arrow keys, stop adding notes,
-// and print. Each demo leaves the Score as it found it: Add notes is turned
-// on and off again, and the note the student wrote is moved up a step and
-// back.
+// The song as sheet music: open the Score page on its Full score, turn on
+// Add notes (at the top of the palettes), write a note with a click on a
+// staff, move it with the arrow keys, stop adding notes, and print. Each
+// demo leaves the Score as it found it: Add notes is turned on and off
+// again, and the note the student wrote is moved up a step and back.
+//
+// The Score tab opens the layout last shown, which can be the Lead sheet.
+// The first demo clicks Full score on its way, so the student's own click
+// opens the Full score; if the Lead sheet comes up anyway, the step points
+// at the page's Full score switch until it is on.
 
 const STAGE = 'The score';
 
@@ -16,12 +21,20 @@ export const scoreSteps: TutorialStep[] = [
     id: 'open-score',
     stage: STAGE,
     instruction: 'Click **Score** at the top to see your song as sheet music.',
-    target: 'view-switch-score',
+    hint: 'If the lead sheet shows instead, click Full score at the top left of the page.',
+    // Full score first: it is on screen only when the Score page is, and
+    // then only the switch is left to click.
+    target: ['view-switch-fullscore', 'view-switch-score'],
     requires: { view: 'arrange', libraryOpen: false },
     demo: [
       {
         target: 'view-switch-score',
         caption: 'The **Score** is your song as sheet music',
+        action: 'click',
+      },
+      {
+        target: 'view-switch-fullscore',
+        caption: '**Full score** shows every track',
         action: 'click',
       },
       {
@@ -41,14 +54,15 @@ export const scoreSteps: TutorialStep[] = [
   {
     id: 'add-notes-on',
     stage: STAGE,
-    instruction: 'Turn on **Add notes**: click the pencil, or press **N**.',
+    instruction:
+      'Click **Add notes** at the top of the palettes, on the left, or press **N**.',
     hint: 'While it is on, a click on a staff (the five lines) writes a note.',
     target: 'score-note-input',
     requires: { view: 'score' },
     demo: [
       {
         target: 'score-note-input',
-        caption: 'The pencil turns on **Add notes**',
+        caption: '**Add notes** lets you write notes',
         action: 'click',
       },
       {
@@ -68,7 +82,7 @@ export const scoreSteps: TutorialStep[] = [
     id: 'add-a-note',
     stage: STAGE,
     instruction:
-      'With **Add notes** on, click a line or a space on any staff to add a note there.',
+      'With **Add notes** on, click a line or a space on any staff to write a note there.',
     hint: 'Higher up is a higher note. The ghost note shows which one before you click.',
     target: 'score-sheet',
     requires: { view: 'score' },
@@ -133,7 +147,7 @@ export const scoreSteps: TutorialStep[] = [
     id: 'print',
     stage: STAGE,
     instruction:
-      'Click **Print / PDF** to print your score, or save it as a PDF from the print window.',
+      'Click **Print / PDF** at the top right to print your score, or save it as a PDF from the print window.',
     target: 'score-print',
     requires: { view: 'score' },
     demo: [
@@ -153,7 +167,7 @@ export const scoreSteps: TutorialStep[] = [
     id: 'wrap-up',
     stage: STAGE,
     instruction:
-      'That’s the Score: add notes with the pencil, move them with the arrow keys, and print when it looks right. Press **Finish** to go on to the lead sheet.',
+      'That’s the Score: turn on **Add notes** to write notes, move them with the arrow keys, and print when it looks right. Press **Finish** to go on to the lead sheet.',
     target: 'view-switch-leadsheet',
   },
 ];

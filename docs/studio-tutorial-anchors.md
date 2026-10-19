@@ -19,6 +19,7 @@ How to read the ids:
 | `view-switch-arrange`   | The Create tab (tracks, timeline, the dock with the Piano Roll)                                |
 | `view-switch-studio`    | The Mix tab                                                                                    |
 | `view-switch-score`     | The Score tab: one page for the full score and the lead sheet, on the layout last shown        |
+| `view-switch-fullscore` | The Score page's Full score segment (its Full score \| Lead sheet switch, first in the header) |
 | `view-switch-leadsheet` | The Score page's Lead sheet segment (its Full score \| Lead sheet switch, first in the header) |
 
 ## Tracks (Lessons 1 and 2)
@@ -185,9 +186,12 @@ A step can check `selectedNotes` (one entry per clip) and `selectionAnalysis` (s
 
 ## Score (Lesson 6)
 
+The Score tab opens the layout last shown, which can be the Lead sheet: `view-switch-fullscore` switches the page to the Full score, and a step's `requires: { view: 'score' }` opens it there.
+
 | Id                      | Points at                                                                                                         |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `view-switch-score`     | The Score tab                                                                                                     |
+| `view-switch-fullscore` | The page's Full score segment                                                                                     |
 | `score-note-input`      | Add notes, at the top of the palettes (N). While it is on, a click on a staff, or a letter A to G, writes a note. |
 | `score-sheet`           | The engraved score                                                                                                |
 | `score-print`           | Print / PDF                                                                                                       |

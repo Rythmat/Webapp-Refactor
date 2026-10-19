@@ -241,7 +241,7 @@ export function TutorialLayer() {
     const lesson = place ? getTutorial(finishedId) : null;
     if (!place || !lesson) return null;
     return createPortal(
-      <div style={overlayStyle}>
+      <div style={overlayStyle} data-tutorial-layer="">
         {confetti}
         <FinishedLesson
           course={place.course}
@@ -271,7 +271,7 @@ export function TutorialLayer() {
   const spot = watching ? demo.spot : { target: step.target, rack: step.rack };
 
   return createPortal(
-    <div style={overlayStyle}>
+    <div style={overlayStyle} data-tutorial-layer="">
       {!reducedMotion && <style>{PULSE_KEYFRAMES}</style>}
       <Spotlight target={spot?.target} rack={spot?.rack} />
       {watching && <DemoBlocker />}

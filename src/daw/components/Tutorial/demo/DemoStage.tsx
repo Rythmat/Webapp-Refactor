@@ -101,6 +101,7 @@ export function DemoStage({
   return createPortal(
     <div
       aria-hidden
+      data-tutorial-layer=""
       data-testid="tutorial-demo-stage"
       style={{
         position: 'fixed',

@@ -93,7 +93,8 @@ const UI_ONLY = [
   /^count-in-(menu|0|1|2)$/,
   /^top-bar-more$/,
   /^piano-roll-tool-/,
-  /^piano-roll-(grid|keys|select-all|modal)$/,
+  /^piano-roll-(grid|keys|select-all)$/,
+  /^dock-body$/,
   /^insight-(tab|tracks|selection|analyze)$/,
   /^selected-track-header$/,
 ];
@@ -108,11 +109,15 @@ function present(id: string): boolean {
   }
   if (id.startsWith('piano-roll-')) return pianoRollOpen(s(), s());
   if (id === 'musical-typing') return useMusicalTypingStore.getState().enabled;
+  // The dock's body and its Maximize show while it is open.
+  if (id === 'dock-body' || id === 'dock-maximize') {
+    return s().channelStripTab !== null;
+  }
   return true;
 }
 
-/** What a click (or double-click) on `id` does in the store. */
-function clickOn(id: string, action: 'click' | 'doubleClick'): void {
+/** What a click (or double-click: the same here) on `id` does in the store. */
+function clickOn(id: string): void {
   const n = (re: RegExp) => Number(id.match(re)?.[1]);
   if (/^track-(name|header)-\d+$/.test(id)) {
     s().setSelectedTrackId(trackAt(n(/(\d+)$/)).id);
@@ -132,6 +137,15 @@ function clickOn(id: string, action: 'click' | 'doubleClick'): void {
   } else if (id === 'musical-typing' || id === 'top-bar-more-typing') {
     // The Typing pill, and the top bar ⋯ menu's switch.
     useMusicalTypingStore.getState().toggle();
+  } else if (id === 'chanstrip-tab-piano-roll') {
+    // A click on the open tab shuts the dock (Dock.tsx).
+    s().setChannelStripTab(
+      s().channelStripTab === 'piano-roll' ? null : 'piano-roll',
+    );
+  } else if (id === 'dock-maximize') {
+    s().setDockMaximized(!s().dockMaximized);
+  } else if (id === 'dock-toggle') {
+    closeNotes();
   } else if (/^insight-track-\d+$/.test(id)) {
     const track = trackAt(n(/(\d+)$/));
     s().setSelectedNotes(toggleTrackNotes(track, s().selectedNotes));
@@ -139,25 +153,17 @@ function clickOn(id: string, action: 'click' | 'doubleClick'): void {
     const [, t, c] = id.match(/^timeline-clip-(\d+)-(\d+)$/)!;
     const track = trackAt(Number(t));
     const clip = track.midiClips[Number(c)];
+    // It and its track are chosen; in a lesson the dock keeps its tab.
+    s().setSelectedTrackId(track.id);
     s().setSelectedClip(clip.id, track.id);
-    // Stage B: the clip's notes open in the dock's Notes tab.
-    if (action === 'doubleClick') openNotes(track.id);
-  } else if (id === 'piano-roll-close') {
-    closeNotes();
   } else if (!UI_ONLY.some((re) => re.test(id))) {
     throw new Error(`the test doesn't know what a click on ${id} does`);
   }
 }
 
-/** The dock's Notes tab on `trackId`: Stage B's Piano Roll. */
-function openNotes(trackId: string): void {
-  s().setSelectedTrackId(trackId);
-  s().setChannelStripTab('piano-roll');
-}
-
-/** Back to the dock's Instrument tab: the Piano Roll closed. */
+/** The dock shut (its arrow), which restores a maximized dock too. */
 function closeNotes(): void {
-  s().setChannelStripTab('controls');
+  s().setChannelStripTab(null);
 }
 
 /** Plays a demo's beats as the player would, through the store. */
@@ -170,7 +176,7 @@ async function playDemo(beats: readonly DemoBeat[]): Promise<void> {
       await action(s());
     } else if (action === 'click' || action === 'doubleClick') {
       // A pointer action on a target that isn't there is passed over.
-      if (id) clickOn(id, action);
+      if (id) clickOn(id);
     }
     // 'hover' and key presses (Esc in a menu or picker; A and S while
     // Typing is on, a note on and off) leave the song as it was.
@@ -197,6 +203,8 @@ const studio = () => {
     metronome: st.metronomeEnabled,
     countIn: st.countInBars,
     library: st.libraryOpen,
+    dockTab: st.channelStripTab,
+    maximized: st.dockMaximized,
     editing: pianoRollOpen(st, st),
     selectedNotes: st.selectedNotes,
     analysis: st.selectionAnalysis,
@@ -237,6 +245,7 @@ async function walk(
     if (r?.channelStripTab !== undefined) {
       s().setChannelStripTab(r.channelStripTab);
     }
+    if (r?.clearClipSelection) s().setSelectedClip(null, null);
     const before = studio();
     if (step.demo) await playDemo(step.demo);
     expect(studio(), `${id}/${step.id}: the demo restores the Studio`).toEqual(
@@ -329,7 +338,14 @@ const editMelody = (edit: (events: MidiNoteEvent[]) => MidiNoteEvent[]) => {
 };
 
 const PIANO_ROLL: Record<string, Move> = {
-  open: () => openNotes(trackAt(0).id),
+  // A click on the Melody's clip chooses it and its track.
+  'choose-clip': () => {
+    const melody = trackAt(0);
+    s().setSelectedTrackId(melody.id);
+    s().setSelectedClip(melody.midiClips[0].id, melody.id);
+  },
+  'open-notes': () => s().setChannelStripTab('piano-roll'),
+  maximize: () => s().setDockMaximized(true),
   'add-note': () =>
     editMelody((events) => [
       ...events,
@@ -413,9 +429,11 @@ describe('Studio Basics 1 to 5 on the demo song', () => {
     ]);
   });
 
-  it('The Piano Roll: open, add, move, stretch, delete, close', async () => {
+  it('The Piano Roll: choose, open, maximize, add, move, stretch, delete, close', async () => {
     await walk('studio-basics-piano-roll', PIANO_ROLL);
     expect(pianoRollOpen(s(), s())).toBe(false);
+    // Shutting the dock restores it from Maximize.
+    expect(s().dockMaximized).toBe(false);
   });
 
   it('Insight: the chords and bass tracks name 1 6 4 5', async () => {
@@ -537,6 +555,24 @@ describe('the steps’ checks on other songs', () => {
     s().toggleMonitoring(trackAt(0).id);
     s().toggleRecordArm(trackAt(0).id);
     expect(monitor(s(), armed)).toBe(false);
+  });
+
+  it('choose a clip with notes on a melodic track, a new choice', () => {
+    const choose = step('studio-basics-piano-roll', 'choose-clip').check!;
+    const pick = (i: number) => {
+      const t = trackAt(i);
+      s().setSelectedTrackId(t.id);
+      s().setSelectedClip(t.midiClips[0].id, t.id);
+    };
+    s().setSelectedClip(null, null);
+    const armed = s();
+    // The drums' clip opens in the drum grid, not the Piano Roll.
+    pick(3);
+    expect(choose(s(), armed)).toBe(false);
+    pick(2);
+    expect(choose(s(), armed)).toBe(true);
+    // The clip chosen when the turn began isn't a new choice.
+    expect(choose(s(), s())).toBe(false);
   });
 
   it('keep a take only once it has stopped, with notes in it', () => {

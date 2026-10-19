@@ -1,15 +1,21 @@
 import type { MidiNoteEvent } from '@prism/engine';
 import { dockKindOf } from '@/daw/shell/dock/dockTabs';
 import type { AllSlices } from '@/daw/store';
-import type { StepCheck } from '../tutorials';
+import type { ChannelStripTabId } from '@/daw/store/uiSlice';
+import type { DemoRun, StepCheck } from '../tutorials';
 
 // ── Checks for the Piano Roll lesson ───────────────────────────────────────
-// The roll edits a clip's notes in the store, so each step's check reads
-// the notes of every clip: one more, one fewer, or one that moved or
+// Since Stage B the Piano Roll is the dock's Notes tab on a melodic track
+// (the modal window is gone): it is open while the dock shows that tab for
+// the selected track, on the selected clip. Outside a lesson a click on a
+// clip opens Notes by itself; during a lesson the clip and its track are
+// chosen but the dock keeps its tab (shell/dock/dockSelection.ts, so a
+// lesson step's tab stays put), so the lesson opens Notes with its tab.
+//
+// The roll edits a clip's notes in the store, so each editing step's check
+// reads the notes of every clip: one more, one fewer, or one that moved or
 // changed length (every stored note has an id). Any clip on any track
-// counts. Since Stage B the Piano Roll is the dock's Notes tab on a melodic
-// track (the modal window is gone): it is open while the dock shows that
-// tab for the selected track.
+// counts.
 
 /** Every note in the song, on every instrument track. */
 const notesOf = (s: AllSlices): MidiNoteEvent[] =>
@@ -47,8 +53,32 @@ const notesTabShowing = (s: AllSlices): boolean => {
   return dockKindOf(track) === 'melodic';
 };
 
+/**
+ * A clip with notes on a melodic track has been chosen since the turn
+ * began (a click on it chooses it and its track). A drum clip doesn't
+ * count: its notes open in the drum grid.
+ */
+export const clipChosen: StepCheck = (s, armed) => {
+  if (s.selectedClipId === null || s.selectedClipId === armed.selectedClipId) {
+    return false;
+  }
+  const track = s.tracks.find((t) => t.id === s.selectedClipTrackId);
+  return (
+    !!track &&
+    track.id === s.selectedTrackId &&
+    dockKindOf(track) === 'melodic' &&
+    track.midiClips.some(
+      (c) => c.id === s.selectedClipId && c.events.length > 0,
+    )
+  );
+};
+
 /** The Piano Roll is open: the dock's Notes tab on a melodic track. */
 export const pianoRollOpen: StepCheck = (s) => notesTabShowing(s);
+
+/** The Piano Roll is open, maximized over the timeline. */
+export const pianoRollMaximized: StepCheck = (s) =>
+  notesTabShowing(s) && s.dockMaximized;
 
 /** The Piano Roll is closed: the dock shut or on another tab. */
 export const pianoRollClosed: StepCheck = (s) => !notesTabShowing(s);
@@ -70,3 +100,20 @@ export const noteMoved: StepCheck = someNoteChanged(
 export const noteResized: StepCheck = someNoteChanged(
   (now, was) => now.durationTicks !== was.durationTicks,
 );
+
+/**
+ * A demo that opens a dock tab puts back the one it found: `remember` (a
+ * run beat before the click) notes the tab, `restore` (the last beat)
+ * shows it again, the dock shut if it was.
+ */
+export function dockTabKeeper(): { remember: DemoRun; restore: DemoRun } {
+  let kept: ChannelStripTabId | null = null;
+  return {
+    remember: (s) => {
+      kept = s.channelStripTab;
+    },
+    restore: (s) => {
+      if (s.channelStripTab !== kept) s.setChannelStripTab(kept);
+    },
+  };
+}

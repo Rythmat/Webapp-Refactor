@@ -156,6 +156,12 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   tutorialStepCelebrate: STEP,
   tutorialStepPrepared:
     'Whether the running step’s preconditions are in place; a resumed lesson finds them in its draft’s view.',
+  tutorialDemoPhase:
+    'Whether the step’s demo is playing or it is the student’s turn; a resumed step is the student’s turn, with the demo a click away.',
+  tutorialDemoRun:
+    'How many times the step’s demo has started, so a replay starts it over.',
+  finishedTutorialId:
+    'The course lesson whose end card is showing: gone with the session, as the card is.',
 
   // ── analysis (the music-intelligence bus) ──
   detectedKeyRootPc: ANALYSIS,

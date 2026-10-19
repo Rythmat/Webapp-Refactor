@@ -342,13 +342,15 @@ export function ChordAnalysisPromptHost() {
  */
 export function TutorialLayerHost() {
   const activeId = useStore((s) => s.activeTutorialId);
+  // A course lesson's end card, once the lesson is over.
+  const finishedId = useStore((s) => s.finishedTutorialId);
   useEffect(() => {
     const tutorial = getTutorial(activeId);
     if (!tutorial) return;
     const instruments = useStore.getState().tracks.map((t) => t.instrument);
     preloadForLesson(tutorial.steps, instruments);
   }, [activeId]);
-  return activeId ? <TutorialLayerPart /> : null;
+  return activeId || finishedId ? <TutorialLayerPart /> : null;
 }
 
 // ── Lessons ─────────────────────────────────────────────────────────────────
@@ -356,7 +358,8 @@ export function TutorialLayerHost() {
 /**
  * Fetch what a lesson's steps open (their views and dock tabs, and the
  * Controls tab's view for each instrument in the project), so a step that
- * switches to one shows it at once rather than a placeholder.
+ * switches to one shows it at once rather than a placeholder. A demo that
+ * points at a view tab (view-switch-<view>) is taken to open that view.
  */
 export function preloadForLesson(
   steps: readonly TutorialStep[],
@@ -364,6 +367,12 @@ export function preloadForLesson(
 ): void {
   TutorialLayerPart.preload().catch(() => {});
   for (const step of steps) {
+    for (const beat of step.demo ?? []) {
+      for (const id of [beat.target ?? []].flat()) {
+        const view = /^view-switch-(\w+)$/.exec(id)?.[1];
+        if (view) preloadView(view as ViewType);
+      }
+    }
     const { view: stepView, channelStripTab } = step.requires ?? {};
     if (stepView) preloadView(stepView);
     if (channelStripTab === 'controls') preloadInstrumentViews(instrumentIds);

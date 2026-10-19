@@ -58,9 +58,9 @@ describe('the lesson catalog', () => {
 
   it('makes the four Prism lessons Premium and leaves the other four free', () => {
     const premium = (want: boolean) =>
-      TUTORIAL_CATALOG.filter((t) => t.requiresPremium === want).map(
-        (t) => t.id,
-      );
+      TUTORIAL_CATALOG.filter(
+        (t) => !('course' in t) && t.requiresPremium === want,
+      ).map((t) => t.id);
     expect(premium(true)).toEqual([
       'make-first-track',
       'jazz-color-your-chords',

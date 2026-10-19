@@ -373,6 +373,9 @@ const STORE_SPECS = {
   tutorialStepStatus: session('tutorial', 'waiting', 'project'),
   tutorialStepCelebrate: session('tutorial', true, 'project'),
   tutorialStepPrepared: session('tutorial', false, 'project'),
+  tutorialDemoPhase: session('tutorial', 'turn', 'project'),
+  tutorialDemoRun: session('tutorial', 0, 'project'),
+  finishedTutorialId: session('tutorial', null, 'project'),
 
   // ── analysis (the music-intelligence bus) ──
   detectedKeyRootPc: session('analysis', null, 'project'),

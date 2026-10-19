@@ -15,8 +15,9 @@ import { ANCHOR_ALIASES, currentAnchorId } from '../anchorRegistry';
 
 /**
  * Anchor inventory for the Studio lessons (milestone 1.0 baseline). Every id
- * a lesson step spotlights (`target` in tutorials.ts) must be rendered by the
- * editor as a `data-tutorial-id`, so a renamed or removed anchor fails here,
+ * a lesson step spotlights (`target` in tutorials.ts), and every id its demo's
+ * cursor goes to (`demo[].target`), must be rendered by the editor as a
+ * `data-tutorial-id`, so a renamed or removed anchor fails here,
  * without a browser, before a student meets a lesson that points at nothing.
  *
  * The test reads every source file under src/daw that is not a test, parses
@@ -426,7 +427,12 @@ describe('tutorial anchor inventory', () => {
   for (const lesson of TUTORIALS) {
     describe(lesson.id, () => {
       for (const step of lesson.steps) {
-        for (const id of targetsOf(step.target)) {
+        // The step's own target, and the ones its demo's cursor goes to.
+        const ids = new Set([
+          ...targetsOf(step.target),
+          ...(step.demo ?? []).flatMap((beat) => targetsOf(beat.target)),
+        ]);
+        for (const id of ids) {
           const key = `${lesson.id}/${step.id}/${id}`;
           const finding = KNOWN_MISSING[key];
           const test = finding ? it.fails : it;

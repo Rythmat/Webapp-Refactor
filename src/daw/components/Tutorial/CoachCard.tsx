@@ -20,6 +20,7 @@ import {
   idsOf,
   subscribeAnchorRect,
 } from './anchorRegistry';
+import { openOverlayRects, placeCard } from './cardPlacement';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 // ── CoachCard ───────────────────────────────────────────────────────────────
@@ -212,10 +213,32 @@ export function CoachCard({
   const targetRect = useRef<Rect | null>(null);
   const key = anchorKey(target, rack);
   useEffect(() => {
+    // An open overlay that grows or moves (a sheet sliding in, a menu's
+    // submenu) re-places the card too.
+    const overlayRo =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => recompute())
+        : null;
+    const watched = new Set<Element>();
+    const watchOverlays = () => {
+      if (!overlayRo) return;
+      watched.forEach((el) => {
+        if (el.isConnected) return;
+        overlayRo.unobserve(el);
+        watched.delete(el);
+      });
+      document
+        .querySelectorAll('[role="dialog"],[role="menu"],[role="listbox"]')
+        .forEach((el) => {
+          if (watched.has(el) || el.closest('[data-tutorial-layer]')) return;
+          watched.add(el);
+          overlayRo.observe(el);
+        });
+    };
     const recompute = () => {
       const box = cardRef.current?.getBoundingClientRect();
       const r = targetRect.current;
-      const next = computeCardPos(
+      const kept =
         r && clearance
           ? {
               top: r.top - clearance,
@@ -223,11 +246,17 @@ export function CoachCard({
               width: r.width + clearance * 2,
               height: r.height + clearance * 2,
             }
-          : r,
-        box?.width || CARD_WIDTH,
-        box?.height || 220,
-        window.innerWidth,
-        window.innerHeight,
+          : r;
+      const card = { w: box?.width || CARD_WIDTH, h: box?.height || 220 };
+      const view = { w: window.innerWidth, h: window.innerHeight };
+      const overlays = openOverlayRects(document, view);
+      watchOverlays();
+      const next = placeCard(
+        computeCardPos(kept, card.w, card.h, view.w, view.h),
+        card,
+        view,
+        kept,
+        overlays,
       );
       setPos((prev) =>
         Math.abs(prev.top - next.top) < 4 && Math.abs(prev.left - next.left) < 4
@@ -256,9 +285,32 @@ export function CoachCard({
         : null;
     if (card) ro?.observe(card);
     window.addEventListener('resize', recompute);
+    // Menus, sheets and dialogs open in portals on <body>: re-place when one
+    // comes or goes, on the next frame and again once its opening animation
+    // has settled.
+    let frame = 0;
+    let settle = 0;
+    const soon = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        recompute();
+      });
+      window.clearTimeout(settle);
+      settle = window.setTimeout(recompute, 320);
+    };
+    const mo =
+      typeof MutationObserver !== 'undefined'
+        ? new MutationObserver(soon)
+        : null;
+    mo?.observe(document.body, { childList: true });
     return () => {
       unsubscribe();
       ro?.disconnect();
+      mo?.disconnect();
+      overlayRo?.disconnect();
+      cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
       window.removeEventListener('resize', recompute);
     };
     // `key` is the value-stable form of `target` + `rack`.

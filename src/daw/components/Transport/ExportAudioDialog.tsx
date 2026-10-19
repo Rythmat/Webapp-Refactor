@@ -221,8 +221,9 @@ export function ExportAudioDialog({
         setProgress,
       );
       downloadAudioBlob(blob, filename);
-      // Session-only flag the tutorial engine watches for a completed bounce.
+      // Session-only marks the lessons watch for a completed bounce.
       useStore.getState().markAudioExported();
+      useStore.getState().markDone('exportAudio');
       showSuccess(`Exported ${filename}`);
       onOpenChange(false);
     } catch (err) {

@@ -1061,6 +1061,8 @@ describe('the classification, key by key', () => {
         'userListOpen',
         'chatPanelOpen',
         'settingsOpen',
+        // what the student has done on this page (doneMomentsSlice.ts)
+        'doneMoments',
         // the collaboration room
         'isCollabActive',
         'roomId',

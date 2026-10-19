@@ -17,6 +17,7 @@ import { spellingMap } from './noteEditor';
 import { useScoreEditing } from './useScoreEditing';
 import { breaksFromRowSizes } from './roadmap';
 import { downloadScoreXml } from '@/daw/midi/ScoreMusicXmlExport';
+import { printSheet } from '@/daw/commands/projectCommands';
 
 // ── Score ──────────────────────────────────────────────────────────────────
 // Every track of the project notated and stacked, the way a conductor's score
@@ -140,6 +141,7 @@ export function ScoreView() {
         ),
       },
     );
+    s.markDone('exportMusicXml');
   }, [bpm, projectName, scoreParts]);
 
   const skipped = tracks.filter(
@@ -204,7 +206,7 @@ export function ScoreView() {
               onClick={() => {
                 // Selection highlights are editing state, not the music.
                 editing.staff.onBackgroundPointerDown();
-                requestAnimationFrame(() => window.print());
+                requestAnimationFrame(() => printSheet('printScore'));
               }}
               disabled={parts.length === 0}
               title="Print the score, or save it as a PDF from the print dialog"

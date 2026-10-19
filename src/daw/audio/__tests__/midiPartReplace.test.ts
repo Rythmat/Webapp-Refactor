@@ -250,3 +250,43 @@ describe('EngineRef', () => {
     expect(b.log).toEqual(['B off 60 @2', 'B on 62 @2']);
   });
 });
+
+describe('after a seek or a seam', () => {
+  it('drops the old position’s events the transport still fires before the jump', () => {
+    const { engine, log } = fakeEngine('A');
+    const midi = new MidiScheduler();
+    midi.scheduleSequence(
+      seq([note(60, 0, 480), note(62, 480, 480)]),
+      engine,
+      0,
+      'c1',
+    );
+    // A seek at time 10: Tone moves the transport on its next tick, so a
+    // note of the old position booked for 9.98 can still come after it.
+    midi.releaseAll(10);
+    fire(0, 'on', 0, 9.98, 60);
+    fire(0, 'on', 480, 10, 62);
+    expect(log).toEqual(['A on 62 @10']);
+  });
+
+  it('keeps the pedal down across an edit that still holds it', () => {
+    const { engine, log } = fakeEngine('A');
+    const midi = new MidiScheduler();
+    const pedal = [{ tick: 0, controller: 64, value: 127 }];
+    midi.scheduleSequence(seq([note(60, 0, 960)], pedal), engine, 0, 'c1');
+    fire(0, 'cc', 0, 1, 64);
+    midi.replaceClip(
+      'c1',
+      seq([note(60, 0, 960), note(64, 960, 480)], pedal),
+      engine,
+      0,
+      'v2',
+      480,
+      2,
+    );
+    expect(log).toEqual(['A cc 64=127 @1']);
+    // Removing it later lifts the pedal the new part carried.
+    midi.removeClip('c1', 3);
+    expect(log).toContain('A cc 64=0 @3');
+  });
+});

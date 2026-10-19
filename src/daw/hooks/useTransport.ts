@@ -11,6 +11,7 @@ import {
 } from '@/daw/engine/playheadClock';
 import {
   noteTransportStarted,
+  seekBeforeStart,
   seekPlayback,
   takePlannedTransportStart,
 } from '@/daw/engine/playbackScheduler';
@@ -45,6 +46,7 @@ export function seekTo(tick: number) {
     transport.off('start', onJump);
   }
   if (jump.at !== null) seekPlayback(t, jump.at);
+  else seekBeforeStart(t);
   notePlayheadSeek(t);
   useStore.getState().setPosition(t);
   useStore.getState().setLastSeekPosition(t);

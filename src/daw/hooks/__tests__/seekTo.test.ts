@@ -79,11 +79,12 @@ vi.mock('@/daw/instruments/VocalFxAdapter', () => ({
 
 import { seekTo } from '../useTransport';
 import {
+  noteTransportStarted,
   setActivePlayback,
   type PlaybackScheduler,
 } from '@/daw/engine/playbackScheduler';
 
-const playback = { seek: vi.fn() };
+const playback = { seek: vi.fn(), isRunning: vi.fn(() => false) };
 
 beforeEach(() => {
   h.transport.state = 'stopped';
@@ -91,6 +92,8 @@ beforeEach(() => {
   h.transport._ticks = 0;
   h.listeners.clear();
   playback.seek.mockClear();
+  playback.isRunning.mockReturnValue(false);
+  noteTransportStarted(null);
   h.setPosition.mockClear();
   h.setLastSeekPosition.mockClear();
   h.notePlayheadSeek.mockClear();
@@ -128,6 +131,14 @@ describe('seekTo', () => {
     h.transport.state = 'paused';
     seekTo(960);
     expect(playback.seek).not.toHaveBeenCalled();
+  });
+
+  it('reschedules for the planned start when Play waits for the count-in', () => {
+    // Playing, the transport booked to start on the count-in's last beat.
+    playback.isRunning.mockReturnValue(true);
+    noteTransportStarted(30.5);
+    seekTo(960);
+    expect(playback.seek).toHaveBeenCalledWith(960, 30.5);
   });
 
   it('clamps a negative tick to 0', () => {

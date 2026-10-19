@@ -97,6 +97,17 @@ export function seekPlayback(tick: number, time: number): void {
   activePlayback?.seek(tick, time);
 }
 
+/**
+ * A seek between Play and the transport's planned start (the count-in's
+ * last beat): Tone emits no jump, the transport simply starts from the new
+ * tick, so reschedule for that start.
+ */
+export function seekBeforeStart(tick: number): void {
+  if (!activePlayback?.isRunning() || startedAt === null) return;
+  if (Tone.getTransport().state === 'started') return;
+  activePlayback.seek(tick, startedAt);
+}
+
 // ── Where audio clips play into ───────────────────────────────────────────
 
 /**
@@ -370,6 +381,16 @@ export class PlaybackScheduler {
 /** Fields of a clip that change nothing about what is scheduled. */
 const NOT_SCHEDULED = new Set(['muted', 'name']);
 
+/** What an audio clip field means when it's missing: a room's copy of a
+ *  clip spells these out, the store's may leave them out. */
+const FIELD_DEFAULTS: Record<string, unknown> = {
+  gain: 1,
+  offsetSeconds: 0,
+  fadeInTicks: 0,
+  fadeOutTicks: 0,
+  assetId: null,
+};
+
 /** Whether two versions of a clip schedule the same sound. */
 function sameSound(a: unknown, b: object): boolean {
   if (a === b) return true;
@@ -379,7 +400,32 @@ function sameSound(a: unknown, b: object): boolean {
   const keys = new Set([...Object.keys(x), ...Object.keys(y)]);
   for (const key of keys) {
     if (NOT_SCHEDULED.has(key)) continue;
-    if (x[key] !== y[key]) return false;
+    const xv = x[key] === undefined ? FIELD_DEFAULTS[key] : x[key];
+    const yv = y[key] === undefined ? FIELD_DEFAULTS[key] : y[key];
+    if (xv === yv) continue;
+    // A room rebuilds every clip from the shared document on each message,
+    // with new note arrays that hold the same notes: compare those by value.
+    if (!sameItems(xv, yv)) return false;
+  }
+  return true;
+}
+
+/** Two arrays of flat records (notes, controller events) that hold the same
+ *  values in the same order. */
+function sameItems(a: unknown, b: unknown): boolean {
+  if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) {
+    return false;
+  }
+  for (let i = 0; i < a.length; i++) {
+    const p = a[i] as Record<string, unknown> | null;
+    const q = b[i] as Record<string, unknown> | null;
+    if (p === q) continue;
+    if (!p || !q || typeof p !== 'object' || typeof q !== 'object') {
+      return false;
+    }
+    const keys = Object.keys(p);
+    if (keys.length !== Object.keys(q).length) return false;
+    for (const key of keys) if (p[key] !== q[key]) return false;
   }
   return true;
 }

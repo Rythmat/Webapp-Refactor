@@ -483,6 +483,16 @@ describe('edits during playback', () => {
     expect(s.audio.scheduleClip).not.toHaveBeenCalled();
   });
 
+  it('rebuilds nothing when a room hands back the same clips as new objects', () => {
+    // yjsToZustand rebuilds every track, clip and note array from the shared
+    // document on each remote message (a partner's fader, say).
+    setTracks(structuredClone(tracksNow()));
+    expect(s.midi.replaceClip).not.toHaveBeenCalled();
+    expect(s.midi.removeClip).not.toHaveBeenCalled();
+    expect(s.audio.cancelClip).not.toHaveBeenCalled();
+    expect(s.audio.scheduleClip).not.toHaveBeenCalled();
+  });
+
   it('ignores store changes after cancel()', () => {
     scheduler.cancel();
     s.midi.removeClip.mockClear();

@@ -23,6 +23,26 @@ interface ScheduledPart {
 /** The sustain pedal's controller. */
 const SUSTAIN_CC = 64;
 
+/** Events this close before a cutoff still count as at it. */
+const CUTOFF_EPSILON_S = 1e-6;
+
+/** Whether `ccEvents` leave the sustain pedal down at `tick`. */
+function pedalDownAt(
+  ccEvents: MidiSequence['ccEvents'],
+  offsetTicks: number,
+  tick: number,
+): boolean {
+  let down = false;
+  let last = -Infinity;
+  for (const cc of ccEvents ?? []) {
+    const at = cc.tick + offsetTicks;
+    if (cc.controller !== SUSTAIN_CC || at > tick || at < last) continue;
+    last = at;
+    down = cc.value >= 64;
+  }
+  return down;
+}
+
 export class MidiScheduler {
   private parts: ScheduledPart[] = [];
   /**
@@ -31,6 +51,12 @@ export class MidiScheduler {
    * heard at once, as a track's mute is.
    */
   private mutedClips: ReadonlySet<string> = new Set();
+  /**
+   * The time of the last seek or seam (releaseAll). Tone moves the transport
+   * on its next tick, so events of the old position up to the jump can still
+   * fire after it: they are dropped (milestone 1.11).
+   */
+  private cutoff = -Infinity;
 
   /**
    * Schedule a MidiSequence to play through a TrackEngine.
@@ -62,6 +88,7 @@ export class MidiScheduler {
     clipId: string | undefined,
     source: unknown,
     sounding: Map<number, number> = new Map(),
+    pedalDown = false,
   ): ScheduledPart {
     const engine =
       typeof trackEngine === 'function' ? trackEngine : () => trackEngine;
@@ -105,9 +132,10 @@ export class MidiScheduler {
       }
     }
 
-    const pedal = { down: false };
+    const pedal = { down: pedalDown };
     const muted = () => clipId !== undefined && this.mutedClips.has(clipId);
     const part = new Tone.Part((time, ev) => {
+      if (time < this.cutoff - CUTOFF_EPSILON_S) return;
       if (ev.type === 'on') {
         if (muted()) return;
         sounding.set(ev.note, (sounding.get(ev.note) ?? 0) + 1);
@@ -182,8 +210,10 @@ export class MidiScheduler {
         if (held.has(note)) carried.set(note, count);
         else old.engine()?.noteOff(note, time);
       }
-      if (old.pedal.down) old.engine()?.cc(SUSTAIN_CC, 0, time);
     }
+    // The pedal stays down if the new clip still holds it here.
+    const pedalDown = pedalDownAt(sequence.ccEvents, offsetTicks, tick);
+    if (old?.pedal.down && !pedalDown) old.engine()?.cc(SUSTAIN_CC, 0, time);
     const next = this.buildPart(
       sequence,
       trackEngine,
@@ -191,6 +221,7 @@ export class MidiScheduler {
       clipId,
       source,
       carried,
+      (old?.pedal.down ?? false) && pedalDown,
     );
     if (old) this.parts[at] = next;
     else this.parts.push(next);
@@ -215,6 +246,7 @@ export class MidiScheduler {
    * it never get their ends, and its pedal goes up at `time`.
    */
   releaseAll(time: number): void {
+    this.cutoff = time;
     for (const entry of this.parts) {
       entry.sounding.clear();
       if (entry.pedal.down) {
@@ -251,6 +283,7 @@ export class MidiScheduler {
   }
 
   cancelAll(): void {
+    this.cutoff = -Infinity;
     for (const { part } of this.parts) {
       part.stop(0);
       part.dispose();

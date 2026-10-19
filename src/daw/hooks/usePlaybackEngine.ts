@@ -455,7 +455,12 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     // count-in was armed by Record rather than Play).
     // With the start planned, the timer fires a little early, so a timer
     // that runs late (a busy Chromebook) can't push the downbeat back.
-    const early = isLegacyScheduler() ? 0 : COUNT_IN_TIMER_LEAD_S;
+    // Not for a recording yet: its take is placed from when the recorder
+    // starts, which the timer decides (until takes carry their capture time).
+    const early =
+      isLegacyScheduler() || useStore.getState().countInIsRecording
+        ? 0
+        : COUNT_IN_TIMER_LEAD_S;
     const timer = setTimeout(
       () => {
         useStore.getState()._startAfterCountIn();

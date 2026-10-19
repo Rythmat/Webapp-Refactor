@@ -116,7 +116,9 @@
  * the browser's own rate and again with the AudioContext forced to 48 kHz).
  * An init script patches start() and stop() of every source node type, so
  * each source the page starts is logged, with an id and the context clock
- * at the call, and the pitch params of every oscillator. Wrappers log Tone's
+ * at the call, where a buffer source would end on its own (its start plus
+ * its duration or the rest of its buffer) and when its 'ended' arrives,
+ * and the pitch params of every oscillator. Wrappers log Tone's
  * transport (start/pause/loop events and calls), the metronome and count-in
  * clicks (MembraneSynth), the instrument adapters' noteOn/noteOff/
  * allNotesOff/panic (found through usePlaybackEngine's trackEngineRegistry),
@@ -124,9 +126,11 @@
  * native call made inside an adapter call is tied to that call's note. Each
  * track's own meter is polled to show whether it is heard at all. The plan:
  * the playhead on beat 3 inside a trimmed take, a 1-bar count-in, play,
- * pause mid-beat, resume without count-in, loop laps until 12 s, stop. Each
- * transport boundary is labelled by the step that caused it (play, resume,
- * loop, pause, stop). The report gives, in ms against the beat grid (the
+ * pause mid-beat, resume without count-in, loop laps until 12 s, stop; a
+ * fixture's golden.trace.steps replaces it with its own list (play,
+ * untilTick, pause, wait, resume, seek, editNote, untilSeconds, stop; see
+ * runTracePlan). Each transport boundary is labelled by the step that
+ * caused it (play, resume, loop, seek, pause, stop). The report gives, in ms against the beat grid (the
  * transport's own start/loop times): clip start and buffer-offset error per
  * start (play, resume, loop lap, on the transport); where each clip's audio
  * really ends (its own end or a stop()) against the seam, pause or stop that
@@ -574,9 +578,26 @@ function installTraceProbes() {
       if (trace.recording && !(ctx instanceof OfflineAudioContext)) {
         const isBuffer = this instanceof AudioBufferSourceNode;
         const start = name === 'start';
+        const id = idOf(this);
+        const when = args[0] ?? 0;
+        const offset = start && isBuffer ? (args[1] ?? 0) : null;
+        const duration = start && isBuffer ? (args[2] ?? null) : null;
+        const bufferSec =
+          start && isBuffer ? (this.buffer?.duration ?? null) : null;
+        // Where a buffer source ends on its own, in context time: its start
+        // plus the duration it was given (or the rest of its buffer) at its
+        // playback rate. A looping source or an oscillator never ends on
+        // its own (null); only a stop() ends it.
+        let naturalEnd = null;
+        if (start && isBuffer && !this.loop) {
+          const rate = this.playbackRate?.value || 1;
+          const rest = Math.max(0, (bufferSec ?? 0) - (offset ?? 0));
+          const length = duration === null ? rest : Math.min(duration, rest);
+          naturalEnd = Math.max(when, ctx.currentTime) + length / rate;
+        }
         trace.events.push({
           type: start ? 'src-start' : 'src-stop',
-          id: idOf(this),
+          id,
           node: this.constructor.name,
           clipId: isBuffer
             ? (trace.clipBuffers.get(this.buffer) ?? null)
@@ -585,13 +606,32 @@ function installTraceProbes() {
             ? trace.scope[trace.scope.length - 1]
             : null,
           call: trace.call?.seq ?? null,
-          when: args[0] ?? 0,
-          offset: start && isBuffer ? (args[1] ?? 0) : null,
-          duration: start && isBuffer ? (args[2] ?? null) : null,
-          bufferSec: start && isBuffer ? (this.buffer?.duration ?? null) : null,
+          when,
+          offset,
+          duration,
+          bufferSec,
+          loop: start && isBuffer ? Boolean(this.loop) : null,
+          naturalEnd,
           now: ctx.currentTime,
           wall: performance.now(),
         });
+        // When the source really stopped sounding (its own end or a stop()),
+        // as the context clock read when 'ended' arrived.
+        if (start) {
+          this.addEventListener(
+            'ended',
+            () => {
+              if (!trace.recording) return;
+              trace.events.push({
+                type: 'src-ended',
+                id,
+                now: ctx.currentTime,
+                wall: performance.now(),
+              });
+            },
+            { once: true },
+          );
+        }
       }
       return original.apply(this, args);
     };
@@ -902,9 +942,9 @@ function installPageHelpers() {
 
   /**
    * Puts `tracks` in the store and waits until the live engine's track sync
-   * has applied them (each live TrackEngine got its mute/solo gate). The
-   * sync must not run while a render has Tone's global context swapped to
-   * its offline one, or it builds live nodes there.
+   * has applied them (each live TrackEngine whose mute/solo gate changes got
+   * its new gate). The sync must not run while a render has Tone's global
+   * context swapped to its offline one, or it builds live nodes there.
    */
   async function setTracksAndSync(tracks) {
     const { TrackEngine } = await app('/src/daw/audio/TrackEngine.ts');
@@ -912,6 +952,16 @@ function installPageHelpers() {
     const { trackEngineRegistry } = await app(
       '/src/daw/hooks/usePlaybackEngine.ts',
     );
+    // The reconciler sets a gate only when the track's audibility changes
+    // (since aaf8bf51), so only those gates are waited for: a track that
+    // stays audible, or silent, gets no call.
+    const before = store().getState().tracks;
+    const changing = tracks.filter((t) => {
+      const prev = before.find((p) => p.id === t.id);
+      return (
+        !prev || isTrackAudible(prev, before) !== isTrackAudible(t, tracks)
+      );
+    });
     const gates = new Map();
     const setAudible = TrackEngine.prototype.setAudible;
     TrackEngine.prototype.setAudible = function (audible) {
@@ -920,11 +970,12 @@ function installPageHelpers() {
     };
     try {
       store().setState({ tracks });
-      // The sync sets every track's gate in one pass, so once the last one
-      // is set the whole pass (volume, pan, effects, sends) has run.
+      // The sync sets every changed gate in one pass, so once the last one
+      // is set the whole pass (volume, pan, effects, sends) has run. It
+      // runs inside the store write, so this is usually true at once.
       const synced = await until(
         () =>
-          tracks.every((t) => {
+          changing.every((t) => {
             const live = trackEngineRegistry.get(t.id)?.trackEngine;
             return !live || gates.get(live) === isTrackAudible(t, tracks);
           }),
@@ -1175,6 +1226,8 @@ function installPageHelpers() {
           let time = null;
           if (fn === 'noteOn') time = args[2] ?? null;
           if (fn === 'noteOff') time = args[1] ?? null;
+          // allNotesOff(time?) and panic(time?): undefined means now.
+          if (fn === 'allNotesOff' || fn === 'panic') time = args[0] ?? null;
           const call = { seq: ++seq, fn, time };
           log({
             type: 'adapter',
@@ -1269,7 +1322,24 @@ function installPageHelpers() {
     );
   }
 
-  /** Count-in, play, pause, resume and loop laps, all logged. */
+  /**
+   * Count-in, play, pause, resume and loop laps, all logged. The plan's
+   * `steps` say what to do, in order; without them the fixed plan runs
+   * (see traceSteps). Steps:
+   *   { do: 'play' }            Play (with the plan's count-in, if any)
+   *   { do: 'untilTick', tick, laps? }  wait until the transport plays at
+   *                             or past `tick`, after `laps` loop events
+   *   { do: 'pause' }           Pause
+   *   { do: 'wait', ms }        wait
+   *   { do: 'resume' }          Play again, without count-in
+   *   { do: 'seek', tick }      seek while playing, as the ruler does
+   *   { do: 'editNote', track, index, toTick, clip? }  move note `index`
+   *                             of the track's MIDI clip (the first, or the
+   *                             one with id `clip`) to song tick `toTick`
+   *                             through the store, as the piano roll does
+   *   { do: 'untilSeconds', seconds }  wait until `seconds` after Play
+   *   { do: 'stop' }            Stop
+   */
   async function runTracePlan(plan) {
     const Tone = await tone();
     const transport = Tone.getTransport();
@@ -1283,13 +1353,23 @@ function installPageHelpers() {
         now: raw.currentTime,
         wall: performance.now(),
       });
-    s().setPosition(plan.playFromTick);
-    s().setLastSeekPosition(plan.playFromTick);
+    const steps = plan.steps ?? [
+      { do: 'play' },
+      { do: 'untilTick', tick: plan.pauseAtTick },
+      { do: 'pause' },
+      { do: 'wait', ms: plan.pauseMs },
+      { do: 'resume' },
+      { do: 'untilSeconds', seconds: plan.seconds },
+      { do: 'stop' },
+    ];
+    const playFromTick = plan.playFromTick ?? 0;
+    s().setPosition(playFromTick);
+    s().setLastSeekPosition(playFromTick);
     s().setCountInBars(plan.countInBars ?? 0);
     // Plain store writes; the transport takes the position when Play starts.
     await until(
       () =>
-        s().position === plan.playFromTick &&
+        s().position === playFromTick &&
         s().countInBars === (plan.countInBars ?? 0) &&
         !s().isPlaying,
       2000,
@@ -1298,41 +1378,111 @@ function installPageHelpers() {
     trace.events.length = 0;
     trace.recording = true;
     const liveTrackPeakDb = sampleTrackPeaks(() => !trace.recording);
-    const started = performance.now();
-    mark('play');
-    s().play();
-    const reachedPause = await until(
-      () =>
-        transport.state === 'started' && transport.ticks >= plan.pauseAtTick,
-      30_000,
-      5,
-    );
-    mark('pause');
-    s().pause();
-    await sleep(plan.pauseMs);
-    s().setCountInBars(0);
-    mark('resume');
-    s().play();
-    await sleep(Math.max(0, started + plan.seconds * 1000 - performance.now()));
-    mark('stop');
-    const stopAt = trace.events.length;
-    s().stop();
-    // Tone emits the pause a clock tick after the call; then keep recording
-    // 300 ms more, for the stops the voices' own timers make after a panic.
-    await until(
-      () =>
-        trace.events
-          .slice(stopAt)
-          .some((e) => e.type === 'transport' && e.name === 'pause'),
-      3000,
-      10,
-    );
-    await sleep(300);
+    let started = performance.now();
+    // What each step did, for the analysis (where it was reached, which
+    // note moved).
+    const done = [];
+    const loops = () =>
+      trace.events.filter((e) => e.type === 'transport' && e.name === 'loop')
+        .length;
+    const runStep = async (step) => {
+      switch (step.do) {
+        case 'play':
+          started = performance.now();
+          mark('play');
+          s().play();
+          return {};
+        case 'untilTick': {
+          const from = loops();
+          const reached = await until(
+            () =>
+              transport.state === 'started' &&
+              loops() - from >= (step.laps ?? 0) &&
+              transport.ticks >= step.tick,
+            30_000,
+            5,
+          );
+          return { reached, ticks: transport.ticks };
+        }
+        case 'pause':
+          mark('pause');
+          s().pause();
+          return {};
+        case 'wait':
+          await sleep(step.ms);
+          return {};
+        case 'resume':
+          s().setCountInBars(0);
+          mark('resume');
+          s().play();
+          return {};
+        case 'seek': {
+          const { seekTo } = await app('/src/daw/hooks/useTransport.ts');
+          const fromTicks = transport.ticks;
+          mark('seek');
+          seekTo(step.tick);
+          return { fromTicks };
+        }
+        case 'editNote': {
+          const track = s().tracks.find((t) => t.name === step.track);
+          const clip = step.clip
+            ? track?.midiClips.find((c) => c.id === step.clip)
+            : track?.midiClips[0];
+          const note = clip?.events[step.index];
+          if (!note) return { error: `no note ${step.index} on ${step.track}` };
+          const events = clip.events.map((e, i) =>
+            i === step.index
+              ? { ...e, startTick: step.toTick - clip.startTick }
+              : e,
+          );
+          const at = { now: raw.currentTime, wall: performance.now() };
+          trace.events.push({ type: 'edit', ...at, track: step.track });
+          s().updateMidiClipEvents(track.id, clip.id, events);
+          return {
+            ...at,
+            ticks: transport.ticks,
+            pitch: note.note,
+            fromTick: clip.startTick + note.startTick,
+          };
+        }
+        case 'untilSeconds':
+          await sleep(
+            Math.max(0, started + step.seconds * 1000 - performance.now()),
+          );
+          return {};
+        case 'stop': {
+          mark('stop');
+          const stopAt = trace.events.length;
+          s().stop();
+          // Tone emits the pause a clock tick after the call; then keep
+          // recording 300 ms more, for the stops the voices' own timers make
+          // after a panic.
+          await until(
+            () =>
+              trace.events
+                .slice(stopAt)
+                .some((e) => e.type === 'transport' && e.name === 'pause'),
+            3000,
+            10,
+          );
+          await sleep(300);
+          return {};
+        }
+        default:
+          return { error: `unknown step ${step.do}` };
+      }
+    };
+    for (const step of steps) {
+      done.push({ ...step, ...(await runStep(step)) });
+    }
     trace.recording = false;
     const ctx = Tone.getContext();
     const native = raw._nativeContext ?? raw;
     return {
-      reachedPause,
+      reachedPause: done
+        .filter((d) => d.do === 'untilTick')
+        .every((d) => d.reached),
+      steps: done,
       liveTrackPeakDb: await liveTrackPeakDb,
       info: {
         sampleRate: native.sampleRate,
@@ -2778,8 +2928,24 @@ function analyseTrace(raw, session) {
       const calls = pendingCalls[e.name];
       while (calls.length && e.wall - calls[0].wall > 250) calls.shift();
       const call = calls.shift() ?? null;
-      const mark = call ? markBefore(call.wall) : null;
-      const valid = e.name === 'start' ? ['play', 'resume'] : ['pause', 'stop'];
+      // A seek while playing restarts the transport from inside Tone (its
+      // ticks setter emits stop and start with no call), so an unmatched
+      // start right after a seek mark is that seek's.
+      const mark = markBefore(call?.wall ?? e.wall);
+      const valid =
+        e.name === 'start'
+          ? ['play', 'resume', 'seek']
+          : ['pause', 'stop', 'seek'];
+      if (!call && mark !== 'seek') {
+        boundaries.push({
+          kind: e.name,
+          cause: e.name,
+          t: e.time,
+          tick: Math.round(e.ticks),
+          causeWall: e.wall,
+        });
+        continue;
+      }
       boundaries.push({
         kind: e.name,
         cause: valid.includes(mark) ? mark : e.name,
@@ -2839,6 +3005,9 @@ function analyseTrace(raw, session) {
   for (const track of session.data.tracks) {
     for (const clip of track.audioClips ?? []) clips.set(clip.id, clip);
   }
+  const endedAt = new Map(
+    events.filter((e) => e.type === 'src-ended').map((e) => [e.id, e.now]),
+  );
   const clipSources = new Map();
   for (const e of events) {
     if (!e.clipId || !clips.has(e.clipId)) continue;
@@ -2854,7 +3023,7 @@ function analyseTrace(raw, session) {
     if (atOnce(e)) {
       // The app starts a clip under the playhead "now": from its play
       // effect (beside the transport start call) or its loop handler.
-      const near = causeOf(e.wall, ['play', 'resume', 'loop']);
+      const near = causeOf(e.wall, ['play', 'resume', 'loop', 'seek']);
       cause = near?.cause ?? 'unmatched';
       run = near?.run ?? null;
       tick = run ? run.tick : clip.startTick;
@@ -2890,6 +3059,8 @@ function analyseTrace(raw, session) {
       timeErrorMs: run ? ms(startAt - gridTime(run, tick)) : null,
       offsetErrorMs: ms((e.offset ?? 0) - expectedOffset),
       late: e.when > 0 && e.when < e.now,
+      naturalEnd: e.naturalEnd === undefined ? null : round(e.naturalEnd, 4),
+      endedAt: endedAt.has(e.id) ? round(endedAt.get(e.id), 4) : null,
       endedBy: stopAt < ownEnd ? 'stop()' : 'its own end',
       endCause,
       endErrorMs,
@@ -3198,6 +3369,7 @@ function analyseTrace(raw, session) {
   return {
     info,
     reachedPause: raw.reachedPause,
+    steps: raw.steps ?? [],
     transport: boundaries.map((b) => ({
       kind: b.kind,
       cause: b.cause,
@@ -3276,6 +3448,7 @@ function traceChecks(result, session, setup) {
   const check = (name, pass, detail = null) =>
     checks.push({ name, pass: Boolean(pass), detail });
   const plan = session.golden.trace;
+  const kinds = new Set(result.steps.map((step) => step.do));
   const causes = result.transport.map((b) => b.cause);
   const flow = causes.join(' → ') || 'none';
   const waiting = setup.ready.instruments.filter(
@@ -3286,22 +3459,36 @@ function traceChecks(result, session, setup) {
     setup.ready.complete,
     waiting.map((t) => `${t.name}: ${t.state}`).join(', ') || null,
   );
+  const unknown = result.steps.filter((step) => step.error);
   check(
-    'playhead reached the pause point',
+    'every plan step ran',
+    unknown.length === 0,
+    unknown.map((step) => step.error).join('; ') || null,
+  );
+  check(
+    'playhead reached every tick the plan waits for',
     result.reachedPause,
-    `tick ${plan.pauseAtTick}`,
+    result.steps
+      .filter((step) => step.do === 'untilTick')
+      .map((step) => `tick ${step.tick}${step.reached ? '' : ' (not reached)'}`)
+      .join(', ') || null,
   );
   check(
     'transport started for Play and for the resume',
-    causes.includes('play') && causes.includes('resume'),
+    causes.includes('play') &&
+      (!kinds.has('resume') || causes.includes('resume')),
     flow,
   );
   check('transport looped', causes.includes('loop'), flow);
   check(
     'transport paused for Pause and for Stop',
-    causes.includes('pause') && causes.includes('stop'),
+    (!kinds.has('pause') || causes.includes('pause')) &&
+      causes.includes('stop'),
     flow,
   );
+  if (kinds.has('seek')) {
+    check('transport restarted for the seek', causes.includes('seek'), flow);
+  }
   if (plan.countInBars) {
     const clicks = result.countIn?.clicks ?? 0;
     const expected = plan.countInBars * result.info.tsNum;

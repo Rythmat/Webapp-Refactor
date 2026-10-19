@@ -8,10 +8,12 @@ import {
 } from '../trackChecks';
 
 // ── Studio Basics 2 · Add a Track ──────────────────────────────────────────
-// A new track from + Add Track's Instruments card (the simple picker), then
-// Your Tracks again on it: its sound, M, S, Arm and MON. The new track goes
-// at the bottom and comes selected, so the steps after the first point at
-// the bottom row (bottomTrack); the checks take the move on any track.
+// A new track from + Add track's sheet, its Instruments category (the
+// simple instrument picker), then Your Tracks again on it: its sound (this
+// time from its ⋯ menu's Instrument…), M, S, Arm and Monitor input. The new
+// track goes at the bottom and comes chosen, so the steps after the first
+// point at the bottom row (bottomTrack) or at the chosen row's ⋯; the
+// checks take the move on any track.
 
 const STAGE = 'Add a track';
 
@@ -20,16 +22,16 @@ export const addATrackSteps: TutorialStep[] = [
     id: 'add-track',
     stage: STAGE,
     instruction:
-      'Click **Add Track**, choose **Instruments**, then pick a sound for your new track.',
-    hint: 'Your new track appears at the bottom, already selected.',
-    // The picker once it is open, the Instruments card, the button.
+      'Click **Add track**, choose **Instruments**, then pick a sound for your new part.',
+    hint: 'Your new track appears at the bottom, already chosen.',
+    // The picker once it is open, the Instruments tile, the button.
     target: ['instrument-picker', 'add-track-soundfont', 'add-track-button'],
     requires: { view: 'arrange', libraryOpen: false },
     demo: [
       { caption: 'Add a track for a new part' },
       {
         target: 'add-track-button',
-        caption: '**Add Track** shows the kinds of track',
+        caption: '**Add track** shows every kind',
         action: 'click',
       },
       {
@@ -42,7 +44,7 @@ export const addATrackSteps: TutorialStep[] = [
         caption: 'Pick one and your track appears',
       },
       {
-        // The menu closes on Esc pressed inside it.
+        // The sheet closes on Esc pressed inside it.
         target: 'add-track-menu',
         caption: '**Esc** closes it for now',
         action: { key: 'Escape', on: 'element' },
@@ -54,27 +56,32 @@ export const addATrackSteps: TutorialStep[] = [
     id: 'new-sound',
     stage: STAGE,
     instruction:
-      'Try another sound: click the instrument name on your new track, then pick a different one.',
-    hint: 'You can change a track’s sound any time. Its notes stay.',
-    target: ['instrument-picker', ...bottomTrack('track-instrument-')],
+      'Try another sound: open your new row’s **⋯** menu, choose **Instrument…**, then pick a different one.',
+    hint: 'The instrument button in the dock opens the same list. Your notes stay.',
+    // The picker, the menu's item, then the chosen row's ⋯.
+    target: [
+      'instrument-picker',
+      'track-menu-change-instrument',
+      'track-menu-button',
+    ],
     demo: [
       {
         target: 'selected-track-header',
-        caption: 'Your new track, already selected',
+        caption: 'Your new track, already chosen',
       },
       {
-        target: bottomTrack('track-instrument-'),
-        caption: 'Its sound can change any time',
+        target: 'track-menu-button',
+        caption: 'Its **⋯** menu has more',
         action: 'click',
       },
       {
-        target: 'instrument-picker',
-        caption: 'Pick any sound from the list',
+        target: 'track-menu-change-instrument',
+        caption: '**Instrument…** changes its sound',
+        action: 'hover',
       },
       {
-        // Pressed inside the picker: on the page, Esc is the Studio's
-        // Stop, which keeps it from the picker.
-        target: 'instrument-picker',
+        // Pressed inside the menu, which Esc closes.
+        target: 'track-menu-change-instrument',
         caption: '**Esc** closes it with no change',
         action: { key: 'Escape', on: 'element' },
       },
@@ -157,18 +164,24 @@ export const addATrackSteps: TutorialStep[] = [
   {
     id: 'monitor',
     stage: STAGE,
-    instruction: 'Turn on **MON**, so you hear the new sound as you play.',
-    target: bottomTrack('track-monitor-'),
+    instruction:
+      'Open your new row’s **⋯** menu and turn on **Monitor input**, so you hear the new sound as you play.',
+    target: ['track-menu-monitor', 'track-menu-button'],
     demo: [
       {
-        target: bottomTrack('track-monitor-'),
-        caption: '**MON**: hear it as you play',
+        target: 'track-menu-button',
+        caption: '**⋯** again, on your new row',
         action: 'click',
       },
       {
-        target: bottomTrack('track-monitor-'),
-        caption: 'Click again to turn it off',
-        action: 'click',
+        target: 'track-menu-monitor',
+        caption: '**Monitor input**: hear it as you play',
+        action: 'hover',
+      },
+      {
+        target: 'track-menu-monitor',
+        caption: '**Esc** closes the menu',
+        action: { key: 'Escape', on: 'element' },
       },
     ],
     check: switchedOn('monitoring'),

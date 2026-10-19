@@ -72,18 +72,10 @@ const EDITOR_ENTRY = join(DAW, 'DawApp.tsx');
  * the controls it names that Stage B has no place for are listed here (the
  * moved ones resolve through ANCHOR_ALIASES or their new controls).
  */
-const STAGE_B_NO_MONITOR =
-  'Stage B: a track row has no MON button; Monitor input is in its ⋯ menu (track-menu-monitor). Studio Basics rewrite phase';
 const STAGE_B_NO_STOP =
   'Stage B: the bottom rail has no Stop button (Play pauses, Esc stops). Studio Basics rewrite phase';
 
 const KNOWN_MISSING: Readonly<Record<string, string>> = {
-  ...Object.fromEntries(
-    Array.from({ length: MAX_TOTAL_TRACKS }, (_, i) => [
-      `studio-basics-add-a-track/monitor/track-monitor-${i}`,
-      STAGE_B_NO_MONITOR,
-    ]),
-  ),
   'studio-basics-record/record/transport-stop': STAGE_B_NO_STOP,
   'studio-basics-record/stop/transport-stop': STAGE_B_NO_STOP,
 };

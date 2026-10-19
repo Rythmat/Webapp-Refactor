@@ -52,6 +52,19 @@
 // the master gain (and its automation) and its chain with every slot off, so
 // a file without the mastering lines up with one with it. With none
 // of these the graph is built exactly as before, so the goldens are unchanged.
+//
+// ── Progress and Cancel (milestone 1.11) ──────────────────────────────────
+// `onProgress` hears how far the render is, from 0 to 1. Tone.Offline first
+// runs its transport clock over the whole song in JS (the first part of the
+// bar), then the OfflineAudioContext renders; the native context pauses at a
+// suspend() point every half second of the song to say where it is and is
+// resumed. Where suspend() isn't there, no progress is heard (the dialog's
+// bar is then indeterminate). `signal` cancels: while the graph is built it
+// throws at the next await; once rendering, the context is left paused at
+// its next point and the render rejects at once with an AbortError (without
+// suspend() it rejects when the render ends, before any file is made). Every
+// way out goes through the one finally that hands Tone its live context back
+// and disposes the graph. With neither option, nothing of this runs.
 
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
@@ -145,6 +158,10 @@ export interface RenderOptions {
   /** The mastering on the master bus (default true). Off, its chain stays
    *  with every slot switched off, for its latency. */
   mastering?: boolean;
+  /** Cancels the render: it rejects with an AbortError. */
+  signal?: AbortSignal;
+  /** How far the render is, 0..1; not called where the browser can't say. */
+  onProgress?: (fraction: number) => void;
 }
 
 /** `effects` with every slot switched off, so the track's chain passes the
@@ -273,9 +290,18 @@ export async function renderProject(
   // Set once this call is over, so an instrument that loads after a timeout
   // is dropped instead of scheduling its notes.
   let settled = false;
+  const { signal, onProgress } = opts;
+  // Rejects when a cancel stops the render part-way (see watchRender).
+  let stop: (reason: unknown) => void = () => {};
+  const stopped = new Promise<never>((_, reject) => {
+    stop = reject;
+  });
+  stopped.catch(() => {});
+  const watch: { current: { dispose(): void } | null } = { current: null };
 
   try {
-    const rendered = await Tone.Offline(
+    throwIfAborted(signal);
+    const rendering = Tone.Offline(
       async (offlineCtx) => {
         const transport = Tone.getTransport();
         // The offline clock can run a tick on a block edge twice (at 48 kHz,
@@ -405,20 +431,38 @@ export async function renderProject(
           scheduleTrackClips(track, te, bpm, startTick);
         }
 
-        await withTimeout(
-          Promise.all(inits),
-          INSTRUMENT_LOAD_TIMEOUT_MS,
-          'Export gave up waiting for instruments to load',
+        await untilAborted(
+          withTimeout(
+            Promise.all(inits),
+            INSTRUMENT_LOAD_TIMEOUT_MS,
+            'Export gave up waiting for instruments to load',
+          ),
+          signal,
         );
+        throwIfAborted(signal);
         transport.start(0);
+        if (signal || onProgress) {
+          watch.current = watchRender(offlineCtx, ctx, duration, {
+            signal,
+            onProgress,
+            stop,
+          });
+        }
       },
       duration,
       2,
       sampleRate,
     );
+    // Left behind by a cancel, it never ends (or ends unheard).
+    rendering.catch(() => {});
+    const rendered = await Promise.race([rendering, stopped]);
+    // Without suspend() a cancel can only be heard once the render is over.
+    throwIfAborted(signal);
+    onProgress?.(1);
     return rendered.get() as unknown as AudioBuffer;
   } finally {
     settled = true;
+    watch.current?.dispose();
     if (Tone.getContext() !== live) Tone.setContext(live);
     // Tear down the graph so its gate/duck interval loops stop.
     for (const d of disposables) {
@@ -429,6 +473,158 @@ export async function renderProject(
       }
     }
   }
+}
+
+function abortError(): DOMException {
+  return new DOMException('Stopped', 'AbortError');
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) throw abortError();
+}
+
+/** `promise`, or an AbortError as soon as `signal` aborts. */
+function untilAborted<T>(
+  promise: Promise<T>,
+  signal?: AbortSignal,
+): Promise<T> {
+  if (!signal) return promise;
+  let onAbort = () => {};
+  const aborted = new Promise<never>((_, reject) => {
+    onAbort = () => reject(abortError());
+    if (signal.aborted) onAbort();
+    else signal.addEventListener('abort', onAbort, { once: true });
+  });
+  return Promise.race([promise, aborted]).finally(() =>
+    signal.removeEventListener('abort', onAbort),
+  );
+}
+
+// The share of the bar for Tone's JS clock pass, before the native render.
+const CLOCK_SHARE = 0.15;
+// How often (in song time) the native render pauses to say where it is.
+const PROGRESS_STEP_SECONDS = 0.5;
+const RENDER_QUANTUM = 128;
+const CLOCK_POLL_MS = 100;
+
+/** The parts of a native OfflineAudioContext a progress watch uses. */
+interface SuspendableContext {
+  length: number;
+  sampleRate: number;
+  suspend(time: number): Promise<void>;
+  resume(): Promise<void>;
+}
+
+/** The browser's own OfflineAudioContext behind standardized-audio-context's
+ *  (the one with suspend()), or null where there is no suspend(). */
+function suspendableContext(raw: unknown): SuspendableContext | null {
+  const native = ((raw as { _nativeContext?: unknown })._nativeContext ??
+    raw) as Partial<SuspendableContext> & { startRendering?: unknown };
+  if (
+    typeof native?.suspend !== 'function' ||
+    typeof native.resume !== 'function' ||
+    typeof native.startRendering !== 'function' ||
+    typeof native.length !== 'number' ||
+    typeof native.sampleRate !== 'number'
+  ) {
+    return null;
+  }
+  return native as SuspendableContext;
+}
+
+/**
+ * Reports a render's progress and stops it on a cancel, from the end of the
+ * Tone.Offline callback (the graph is built, nothing has rendered). Tone's
+ * clock pass is read from the offline context's time; the native render from
+ * suspend() points, each resumed unless the render has been cancelled (it
+ * then stays paused there and `stop` rejects the render). Without suspend()
+ * it does nothing, and the caller hears a cancel when the render ends.
+ */
+function watchRender(
+  toneCtx: { currentTime: number },
+  raw: unknown,
+  duration: number,
+  {
+    signal,
+    onProgress,
+    stop,
+  }: {
+    signal?: AbortSignal;
+    onProgress?: (fraction: number) => void;
+    stop: (reason: unknown) => void;
+  },
+): { dispose(): void } {
+  const native = suspendableContext(raw);
+  if (!native) return { dispose() {} };
+
+  let alive = true;
+  let last = 0;
+  const report = (fraction: number) => {
+    if (!alive || !onProgress) return;
+    const f = Math.min(1, Math.max(0, fraction));
+    if (f <= last) return;
+    last = f;
+    onProgress(f);
+  };
+
+  // Every point is registered before the native render starts. One that is
+  // refused (a browser that can't pause there) leaves the cancel to the
+  // render's end, but the points it did take still report.
+  let everyPoint = true;
+  let clockDone = false;
+  const step =
+    Math.max(
+      1,
+      Math.round((PROGRESS_STEP_SECONDS * native.sampleRate) / RENDER_QUANTUM),
+    ) * RENDER_QUANTUM;
+  for (let frame = step; frame < native.length; frame += step) {
+    let paused: Promise<void>;
+    try {
+      paused = native.suspend(frame / native.sampleRate);
+    } catch {
+      everyPoint = false;
+      break;
+    }
+    paused.then(
+      () => {
+        clockDone = true;
+        if (signal?.aborted) {
+          // Left paused: nothing more renders.
+          stop(abortError());
+          return;
+        }
+        report(CLOCK_SHARE + ((1 - CLOCK_SHARE) * frame) / native.length);
+        // Cancelled as it heard this point: not resumed either.
+        if (signal?.aborted) return;
+        native.resume().catch(() => {});
+      },
+      () => {
+        everyPoint = false;
+      },
+    );
+  }
+
+  const clock = onProgress
+    ? setInterval(() => {
+        if (clockDone) return;
+        report((CLOCK_SHARE * toneCtx.currentTime) / duration);
+      }, CLOCK_POLL_MS)
+    : undefined;
+
+  // Once rendering, a cancel ends the render at once where every point was
+  // taken: the context pauses at the next one and is never resumed.
+  const onAbort = () => {
+    if (everyPoint) stop(abortError());
+  };
+  signal?.addEventListener('abort', onAbort, { once: true });
+
+  return {
+    dispose() {
+      alive = false;
+      if (clock !== undefined) clearInterval(clock);
+      signal?.removeEventListener('abort', onAbort);
+    },
+  };
 }
 
 /** The live engine's output rate (Tone's own context until the engine starts). */

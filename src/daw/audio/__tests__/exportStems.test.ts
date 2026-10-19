@@ -34,6 +34,7 @@ vi.mock('@/lib/studio-assets/encode-wav', () => ({
   audioBufferToWav: (buffer: unknown) => encodeAs(buffer),
 }));
 vi.mock('@/lib/studio-assets/encode-opus', () => ({
+  isOpusEncodingSupported: () => true,
   audioBufferToOpusWebm: async (buffer: unknown) => encodeAs(buffer),
 }));
 
@@ -220,11 +221,17 @@ describe('exportStems', () => {
     await exportStems({ format: 'wav', range: 'loop' }, (p) =>
       progress.push(p),
     );
+    // Each stem's own share (null until its render says) and the whole
+    // export's; this render reports nothing of its own.
+    const bass = { index: 0, total: 2, trackName: 'Bass' };
+    const keys = { index: 1, total: 2, trackName: 'Keys' };
     expect(progress).toEqual([
-      { index: 0, total: 2, trackName: 'Bass', stage: 'render' },
-      { index: 0, total: 2, trackName: 'Bass', stage: 'encode' },
-      { index: 1, total: 2, trackName: 'Keys', stage: 'render' },
-      { index: 1, total: 2, trackName: 'Keys', stage: 'encode' },
+      { ...bass, stage: 'render', fraction: null, overall: 0 },
+      { ...bass, stage: 'encode', fraction: 0.9, overall: 0.45 },
+      { ...bass, stage: 'encode', fraction: 1, overall: 0.5 },
+      { ...keys, stage: 'render', fraction: null, overall: 0.5 },
+      { ...keys, stage: 'encode', fraction: 0.9, overall: 0.95 },
+      { ...keys, stage: 'encode', fraction: 1, overall: 1 },
     ]);
   });
 
@@ -332,5 +339,64 @@ describe('exportProjectAudio', () => {
       exportProjectAudio({ format: 'wav', range: 'project', trackId: 'gone' }),
     ).rejects.toThrow(/no longer in the song/);
     expect(render.calls).toEqual([]);
+  });
+});
+
+describe('progress and Cancel (milestone 1.11)', () => {
+  it('passes the signal to each render, so a cancel ends the stem under way', async () => {
+    const stop = new AbortController();
+    render.meanwhile = (opts) => {
+      // Cancelled while the second stem renders.
+      if (opts.onlyTrackId === 't2') stop.abort();
+    };
+    const run = exportStems(
+      { format: 'wav', range: 'project' },
+      undefined,
+      stop.signal,
+    );
+    await expect(run).rejects.toMatchObject({ name: 'AbortError' });
+    expect(render.calls.map((c) => c.signal)).toEqual([
+      stop.signal,
+      stop.signal,
+    ]);
+    expect(zip.entries).toHaveLength(1);
+    expect(zip.finished).toBe(0);
+  });
+
+  it('a mix reports the render progress as 90% of the bar, then encoding', async () => {
+    render.meanwhile = (opts) => {
+      opts.onProgress?.(0.5);
+      opts.onProgress?.(1);
+    };
+    const seen: unknown[] = [];
+    await exportProjectAudio({ format: 'wav', range: 'project' }, (p) =>
+      seen.push(p),
+    );
+    expect(seen).toEqual([
+      { stage: 'render', fraction: null },
+      { stage: 'render', fraction: 0.45 },
+      { stage: 'render', fraction: 0.9 },
+      { stage: 'encode', fraction: 0.9 },
+      { stage: 'encode', fraction: 1 },
+    ]);
+  });
+
+  it('a mix or one track cancels with its signal, with no file', async () => {
+    const stop = new AbortController();
+    render.meanwhile = () => stop.abort();
+    await expect(
+      exportProjectAudio(
+        { format: 'wav', range: 'project', trackId: 't2' },
+        undefined,
+        stop.signal,
+      ),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+    expect(render.calls[0].signal).toBe(stop.signal);
+  });
+
+  it('asks the render for nothing more when nobody listens (the goldens)', async () => {
+    await exportProjectAudio({ format: 'wav', range: 'project' });
+    expect(render.calls[0]).not.toHaveProperty('signal');
+    expect(render.calls[0]).not.toHaveProperty('onProgress');
   });
 });

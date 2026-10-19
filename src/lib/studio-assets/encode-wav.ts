@@ -14,9 +14,25 @@ export function audioBufferToWav(
   buffer: AudioBuffer,
   bitDepth: 16 | 24 = 16,
 ): ArrayBuffer {
-  const numChannels = buffer.numberOfChannels;
-  const sampleRate = buffer.sampleRate;
-  const numFrames = buffer.length;
+  const channels: Float32Array[] = [];
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+    channels.push(buffer.getChannelData(ch));
+  }
+  return pcmToWav(channels, buffer.sampleRate, buffer.length, bitDepth);
+}
+
+/**
+ * The same WAV from the buffer's channels (one Float32Array each, `numFrames`
+ * long) and its rate. It needs no AudioBuffer, so the export's encode worker
+ * runs it on copies of the channels and writes the very same bytes.
+ */
+export function pcmToWav(
+  channels: Float32Array[],
+  sampleRate: number,
+  numFrames: number,
+  bitDepth: 16 | 24 = 16,
+): ArrayBuffer {
+  const numChannels = channels.length;
   const bytesPerSample = bitDepth === 24 ? 3 : 2;
   const blockAlign = numChannels * bytesPerSample;
   const byteRate = sampleRate * blockAlign;
@@ -46,11 +62,6 @@ export function audioBufferToWav(
   view.setUint32(40, dataSize, true);
 
   // Interleave channels and write signed PCM samples
-  const channels: Float32Array[] = [];
-  for (let ch = 0; ch < numChannels; ch++) {
-    channels.push(buffer.getChannelData(ch));
-  }
-
   let offset = headerSize;
   if (bitDepth === 24) {
     for (let i = 0; i < numFrames; i++) {

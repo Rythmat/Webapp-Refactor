@@ -47,11 +47,12 @@ import {
 // effects out. Notation is a MIDI file or MusicXML (the lead sheet's chords,
 // the full score, or one track's part).
 //
-// The offline render's real gaps stay in view until 1.11 closes them:
-// SoundFont tracks are silent, amp and vocal tracks are dry, and the ducker
-// and the gate don't run. Stems render one after another; Stop stops after
-// the track being rendered (a render can't be abandoned half-way). Mounted
-// only while open (shell-17), with the choices in exportDialogStore.
+// What the offline render still leaves out stays in view: SoundFont tracks
+// are silent and amp and vocal tracks are dry. While it exports, a bar shows
+// how far it is ("Exporting… 42%"; indeterminate where the browser can't
+// say) and Cancel ends any export at once, stems included, with no file
+// (milestone 1.11). Closing the dialog while it exports cancels it too.
+// Mounted only while open (shell-17), with the choices in exportDialogStore.
 
 const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
   { id: 'wav', label: 'WAV', hint: 'Uncompressed: the best quality' },
@@ -201,6 +202,13 @@ export function ExportDialog({
   const opusSupported = isOpusEncodingSupported();
 
   const showsProgress = progress !== null;
+  // An audio export is under way: it can be cancelled (notation is quick).
+  const exporting = busy && showsProgress;
+  const cancelExport = () => {
+    if (!stopper.current) return;
+    setStopping(true);
+    stopper.current.abort();
+  };
   useEffect(() => {
     if (!busy) return;
     const frame = requestAnimationFrame(() =>
@@ -352,9 +360,9 @@ export function ExportDialog({
       mastering,
       ...renderRange(),
     };
+    const controller = new AbortController();
+    stopper.current = controller;
     if (whatNow === 'stems') {
-      const controller = new AbortController();
-      stopper.current = controller;
       setProgress({
         kind: 'stems',
         p: {
@@ -362,6 +370,8 @@ export function ExportDialog({
           total: stems.length,
           trackName: stems[0]?.name ?? '',
           stage: 'render',
+          fraction: null,
+          overall: 0,
         },
       });
       return exportStems(
@@ -370,12 +380,13 @@ export function ExportDialog({
         controller.signal,
       );
     }
-    setProgress({ kind: 'mix', p: { stage: 'render', pct: 0 } });
+    setProgress({ kind: 'mix', p: { stage: 'render', fraction: null } });
     return exportProjectAudio(
       whatNow === 'track' && trackId
         ? { ...base, trackId, dry, mastering: dry ? false : mastering }
         : base,
       (p) => setProgress({ kind: 'mix', p }),
+      controller.signal,
     );
   };
 
@@ -399,7 +410,10 @@ export function ExportDialog({
       onOpenChange(false);
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
-        notice({ title: 'Export stopped', description: 'No file was made.' });
+        notice({
+          title: 'Export cancelled',
+          description: 'No file was made.',
+        });
       } else {
         console.error('[Export] audio export failed', err);
         notice({
@@ -482,19 +496,20 @@ export function ExportDialog({
   const notationNow: NotationFormat =
     whatNow === 'track' && notation === 'leadsheet' ? 'midi' : notation;
 
+  // The whole job's share done, or null for an indeterminate bar.
+  let barPct: number | null = null;
   let progressLabel = '';
-  let barPct = 0;
-  if (progress?.kind === 'mix') {
-    progressLabel =
-      progress.p.stage === 'render'
-        ? 'Rendering…'
-        : `Encoding${progress.p.pct > 0 ? ` ${Math.round(progress.p.pct * 100)}%` : '…'}`;
-    // The render has no progress of its own: a modest fill, not 0.
-    barPct = progress.p.stage === 'render' ? 30 : 40 + progress.p.pct * 60;
-  } else if (progress?.kind === 'stems') {
-    const { index, total, trackName, stage } = progress.p;
-    progressLabel = `${stopping ? 'Stopping after ' : ''}Track ${index + 1} of ${total} · ${trackName}${stopping ? '' : stage === 'encode' ? ' · encoding' : ''}`;
-    barPct = ((index + (stage === 'encode' ? 0.8 : 0.2)) / total) * 100;
+  if (progress) {
+    const whole =
+      progress.kind === 'mix' ? progress.p.fraction : progress.p.overall;
+    barPct = whole === null ? null : Math.round(whole * 100);
+    const parts = [`Exporting…${barPct === null ? '' : ` ${barPct}%`}`];
+    if (progress.kind === 'stems') {
+      const { index, total, trackName } = progress.p;
+      parts.push(`Track ${index + 1} of ${total} · ${trackName}`);
+    }
+    if (progress.p.stage === 'encode') parts.push('encoding');
+    progressLabel = stopping ? 'Cancelling…' : parts.join(' · ');
   }
 
   const masteringNames = masteringChain.map((fx) => FX_LABEL[fx] ?? fx);
@@ -502,9 +517,14 @@ export function ExportDialog({
   return (
     <DawDialog
       open={open}
-      onOpenChange={(o) => !busy && onOpenChange(o)}
-      // Nothing closes it while it renders (Stop ends stems early).
-      closable={!busy}
+      onOpenChange={(o) => {
+        // Closed while it exports: the export is cancelled, then it closes.
+        if (!o && exporting) cancelExport();
+        if (!busy || exporting) onOpenChange(o);
+      }}
+      // A notation file is written at once; an audio export can be
+      // cancelled, so it can close while that runs.
+      closable={!busy || exporting}
       initialFocus={initialFocus}
       size="md"
       // Its top stays put as the sides and choices change its height (the
@@ -520,17 +540,15 @@ export function ExportDialog({
       }
       footer={
         <>
-          {busy && whatNow === 'stems' && tab === 'audio' ? (
+          {exporting ? (
+            // Stays on (a second press does nothing), so focus stays here.
             <Button
               ref={stopRef}
-              data-testid="export-stop"
-              disabled={stopping}
-              onClick={() => {
-                setStopping(true);
-                stopper.current?.abort();
-              }}
+              data-testid="export-cancel"
+              aria-disabled={stopping || undefined}
+              onClick={cancelExport}
             >
-              Stop
+              Cancel
             </Button>
           ) : (
             <Button onClick={() => onOpenChange(false)} disabled={busy}>
@@ -827,11 +845,25 @@ export function ExportDialog({
                 {progressLabel}
               </span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-daw-meter-track">
-              <div
-                className="h-full rounded-full bg-daw-text transition-all duration-200"
-                style={{ width: `${barPct}%` }}
-              />
+            <div
+              role="progressbar"
+              aria-label="Export progress"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={barPct ?? undefined}
+              data-testid="export-progress"
+              data-indeterminate={barPct === null || undefined}
+              className="h-1.5 w-full overflow-hidden rounded-full bg-daw-meter-track"
+            >
+              {barPct === null ? (
+                // How far it is isn't known here: the whole bar breathes.
+                <div className="h-full w-full rounded-full bg-daw-text opacity-40 motion-safe:animate-pulse" />
+              ) : (
+                <div
+                  className="h-full rounded-full bg-daw-text transition-all duration-200"
+                  style={{ width: `${barPct}%` }}
+                />
+              )}
             </div>
           </div>
         ) : null}

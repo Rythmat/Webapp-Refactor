@@ -22,10 +22,11 @@ import {
 // One dialog, Audio | Notation, opened from the Export pill, Project ▾, a
 // track's menu and the palette. It is mounted only while open (shell-17), so
 // the student's choices live in exportDialogStore and the next export
-// starts from the last one's. Audio is the whole song, each track (stems,
-// with a Stop) or one track (with or without its effects); Notation is a
+// starts from the last one's. Audio is the whole song, each track (stems)
+// or one track (with or without its effects); Notation is a
 // MIDI file or MusicXML. What the file would leave out is said first, and
-// the run button says why it is off.
+// the run button says why it is off. An audio export shows how far it is
+// and can be cancelled, whatever its scope (milestone 1.11).
 //
 // Run: npx vitest run src/daw/shell/export/__tests__/ExportDialog.test.tsx
 
@@ -422,31 +423,37 @@ describe('stems', () => {
     // The first track, before the export says anything.
     expect(screen.getByRole('status')).toHaveTextContent('Track 1 of 3 · Keys');
 
+    const bass = { index: 1, total: 3, trackName: 'Bass' };
     act(() =>
-      report({ index: 1, total: 3, trackName: 'Bass', stage: 'render' }),
-    );
-    expect(screen.getByRole('status')).toHaveTextContent('Track 2 of 3 · Bass');
-    act(() =>
-      report({ index: 1, total: 3, trackName: 'Bass', stage: 'encode' }),
+      report({ ...bass, stage: 'render', fraction: 0.5, overall: 0.5 }),
     );
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Track 2 of 3 · Bass · encoding',
+      'Exporting… 50% · Track 2 of 3 · Bass',
     );
-    // Nothing else closes it while it renders.
-    expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull();
+    expect(screen.getByRole('progressbar')).toHaveAttribute(
+      'aria-valuenow',
+      '50',
+    );
+    act(() =>
+      report({ ...bass, stage: 'encode', fraction: 0.9, overall: 0.63 }),
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Exporting… 63% · Track 2 of 3 · Bass · encoding',
+    );
+    // The one Cancel is the export's.
+    expect(screen.getAllByRole('button', { name: 'Cancel' })).toEqual([
+      screen.getByTestId('export-cancel'),
+    ]);
 
-    fireEvent.click(screen.getByTestId('export-stop'));
+    fireEvent.click(screen.getByTestId('export-cancel'));
     expect(signal?.aborted).toBe(true);
-    expect(screen.getByTestId('export-stop')).toBeDisabled();
-    expect(screen.getByRole('status')).toHaveTextContent(
-      'Stopping after Track 2 of 3 · Bass',
-    );
+    expect(screen.getByRole('status')).toHaveTextContent('Cancelling…');
 
     await act(async () => {
       fail(new DOMException('Stopped', 'AbortError'));
     });
     expect(h.notice).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Export stopped' }),
+      expect.objectContaining({ title: 'Export cancelled' }),
     );
     expect(h.notice).not.toHaveBeenCalledWith(
       expect.objectContaining({ variant: 'destructive' }),
@@ -455,7 +462,7 @@ describe('stems', () => {
     // Stopped, the dialog stays open, ready to go again.
     expect(dialogState().isOpen).toBe(true);
     expect(dialog()).toBeInTheDocument();
-    expect(screen.queryByTestId('export-stop')).toBeNull();
+    expect(screen.queryByTestId('export-cancel')).toBeNull();
     expect(audioRun()).toBeEnabled();
   });
 
@@ -792,7 +799,7 @@ describe('focus in the Export dialog', () => {
     );
   });
 
-  it('moves to Stop while stems render, off the button that turned off', async () => {
+  it('moves to Cancel while stems render, off the button that turned off', async () => {
     addTrack('Keys');
     addTrack('Bass');
     h.exportStems.mockReturnValue(new Promise(() => {}));
@@ -804,11 +811,11 @@ describe('focus in the Export dialog', () => {
       fireEvent.click(audioRun());
     });
     await waitFor(() =>
-      expect(document.activeElement).toBe(screen.getByTestId('export-stop')),
+      expect(document.activeElement).toBe(screen.getByTestId('export-cancel')),
     );
   });
 
-  it('moves to the progress while the song renders', async () => {
+  it('moves to Cancel while the song renders', async () => {
     addTrack('Keys');
     h.exportProjectAudio.mockReturnValue(new Promise(() => {}));
     render(<ExportDialogHost />);
@@ -818,9 +825,12 @@ describe('focus in the Export dialog', () => {
       fireEvent.click(audioRun());
     });
     await waitFor(() =>
-      expect(document.activeElement).toBe(screen.getByRole('status')),
+      expect(document.activeElement).toBe(screen.getByTestId('export-cancel')),
     );
     expect(document.activeElement).not.toBe(document.body);
+    // Pressed, it stays where it is: focus doesn't fall to the page.
+    fireEvent.click(screen.getByTestId('export-cancel'));
+    expect(screen.getByTestId('export-cancel')).toBeEnabled();
   });
 });
 
@@ -885,5 +895,89 @@ describe('stems with a track deleted on the way', () => {
 
     await run(audioRun());
     expect(h.notice.mock.calls[0][0].description).toBeUndefined();
+  });
+});
+
+describe('progress and Cancel for every export (milestone 1.11)', () => {
+  /** Starts a song export that waits; returns its signal and controls. */
+  function startSong() {
+    let report: (p: unknown) => void = () => {};
+    let signal: AbortSignal | undefined;
+    let fail: (err: unknown) => void = () => {};
+    h.exportProjectAudio.mockImplementation(
+      (_opts: unknown, onProgress: typeof report, sig: AbortSignal) => {
+        report = onProgress;
+        signal = sig;
+        return new Promise((_resolve, reject) => {
+          fail = reject;
+          sig.addEventListener('abort', () =>
+            reject(new DOMException('Stopped', 'AbortError')),
+          );
+        });
+      },
+    );
+    act(() => {
+      fireEvent.click(audioRun());
+    });
+    return {
+      report: (p: unknown) => act(() => report(p)),
+      signal: () => signal,
+      fail: (err: unknown) => fail(err),
+    };
+  }
+
+  it('shows an indeterminate bar until the render says how far it is', () => {
+    addTrack('Keys');
+    render(<ExportDialogHost />);
+    open();
+    const job = startSong();
+    const bar = screen.getByRole('progressbar', { name: 'Export progress' });
+    expect(bar).toHaveAttribute('data-indeterminate', 'true');
+    expect(bar).not.toHaveAttribute('aria-valuenow');
+    expect(screen.getByRole('status')).toHaveTextContent(/^Exporting…$/);
+
+    job.report({ stage: 'render', fraction: 0.42 });
+    expect(screen.getByRole('status')).toHaveTextContent('Exporting… 42%');
+    expect(bar).toHaveAttribute('aria-valuenow', '42');
+    expect(bar).not.toHaveAttribute('data-indeterminate');
+    job.report({ stage: 'encode', fraction: 0.9 });
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Exporting… 90% · encoding',
+    );
+  });
+
+  it('cancels a one-track export, with no file, and stays open', async () => {
+    const keys = addTrack('Keys');
+    render(<ExportDialogHost />);
+    open({ trackId: keys });
+    const job = startSong();
+    expect(h.exportProjectAudio.mock.calls[0][0]).toMatchObject({
+      trackId: keys,
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('export-cancel'));
+    });
+    expect(job.signal()?.aborted).toBe(true);
+    expect(h.notice).toHaveBeenCalledWith({
+      title: 'Export cancelled',
+      description: 'No file was made.',
+    });
+    expect(h.downloadAudioBlob).not.toHaveBeenCalled();
+    expect(dialogState().isOpen).toBe(true);
+    expect(audioRun()).toBeEnabled();
+  });
+
+  it('can be closed while it exports: the export is cancelled, then it closes', async () => {
+    addTrack('Keys');
+    render(<ExportDialogHost />);
+    open();
+    const job = startSong();
+    await act(async () => {
+      fireEvent.keyDown(dialog(), { key: 'Escape' });
+    });
+    expect(job.signal()?.aborted).toBe(true);
+    expect(dialogState().isOpen).toBe(false);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(h.downloadAudioBlob).not.toHaveBeenCalled();
   });
 });

@@ -20,11 +20,19 @@
 // that plays in the mix alone, in turn, and zips the files (zip-store), so
 // the student gets one download. Each stem keeps the song's full length, so
 // the files line up when dropped into another DAW.
+//
+// ── Progress, Cancel and the encode worker (milestone 1.11) ───────────────
+// The song, one track and stems are one kind of job: each takes an
+// AbortSignal, which cancels the render under way (renderProject) or the
+// encoding (the worker is ended) with an AbortError and no file, and each
+// reports progress as a fraction of the whole job (null while the render
+// can't say, for an indeterminate bar); a stem's report also says how far
+// that stem is. Encoding runs in a worker (encodeAudio.ts), with the same
+// WAV bytes as before.
 
 import { renderProject, type RenderRange } from './renderProject';
 import { isTrackAudible } from './trackAudibility';
-import { audioBufferToWav } from '@/lib/studio-assets/encode-wav';
-import { audioBufferToOpusWebm } from '@/lib/studio-assets/encode-opus';
+import { encodeAudioBuffer } from './encodeAudio';
 import { crc32, ZipWriter } from '@/lib/studio-assets/zip-store';
 import { useStore } from '@/daw/store';
 import type { Track } from '@/daw/store/tracksSlice';
@@ -51,8 +59,9 @@ export interface AudioExportOptions {
 export interface ExportProgress {
   /** 'render' while the offline mixdown runs, 'encode' while encoding. */
   stage: 'render' | 'encode';
-  /** 0..1 within the current stage; render has no sub-progress (stays 0). */
-  pct: number;
+  /** The whole export, 0..1; null while the render can't say how far it
+   *  is (a browser without OfflineAudioContext.suspend). */
+  fraction: number | null;
 }
 
 export interface AudioExportResult {
@@ -67,6 +76,10 @@ export interface StemProgress {
   total: number;
   trackName: string;
   stage: 'render' | 'encode';
+  /** This stem, 0..1, or null while its render can't say. */
+  fraction: number | null;
+  /** The whole export, 0..1: the stems done and this one's share. */
+  overall: number;
 }
 
 export interface StemsExportOptions {
@@ -96,24 +109,46 @@ function rangeSuffix(range: RenderRange, rangeLabel?: string): string {
   return typeof range === 'object' && rangeLabel ? `-${rangeLabel}` : '';
 }
 
-/** `buffer` encoded in `format`. */
-async function encodeAudio(
-  buffer: AudioBuffer,
+// The share of a job's bar for its render; encoding takes the rest.
+const RENDER_SHARE = 0.9;
+
+/** One file of a job: rendered, then encoded. `report` hears this file's
+ *  stage and how far it is (0..1, null while the render can't say). */
+async function renderAndEncode(
+  render: Parameters<typeof renderProject>[0],
   format: AudioExportFormat,
-  bitDepth: WavBitDepth = 16,
+  bitDepth: WavBitDepth | undefined,
+  report:
+    | ((stage: 'render' | 'encode', fraction: number | null) => void)
+    | undefined,
+  signal: AbortSignal | undefined,
 ): Promise<ArrayBuffer> {
-  return format === 'wav'
-    ? audioBufferToWav(buffer, bitDepth)
-    : audioBufferToOpusWebm(buffer);
+  report?.('render', null);
+  const buffer = await renderProject({
+    ...render,
+    ...(signal ? { signal } : {}),
+    ...(report
+      ? {
+          onProgress: (f: number) => report('render', f * RENDER_SHARE),
+        }
+      : {}),
+  });
+  throwIfStopped(signal);
+  report?.('encode', RENDER_SHARE);
+  const bytes = await encodeAudioBuffer(buffer, format, bitDepth ?? 16, signal);
+  report?.('encode', 1);
+  return bytes;
 }
 
 /**
  * Render + encode the project (or one track of it) to a downloadable Blob.
  * `onProgress` fires with the render stage first, then the encode stage.
+ * `signal` cancels it with an AbortError.
  */
 export async function exportProjectAudio(
   opts: AudioExportOptions,
   onProgress?: (p: ExportProgress) => void,
+  signal?: AbortSignal,
 ): Promise<AudioExportResult> {
   const state = useStore.getState();
   let trackPart = '';
@@ -123,18 +158,20 @@ export async function exportProjectAudio(
     trackPart = `-${fileSlug(track.name, 'track')}${opts.dry ? '-dry' : ''}`;
   }
 
-  onProgress?.({ stage: 'render', pct: 0 });
-  const buffer = await renderProject({
-    range: opts.range,
-    mastering: opts.mastering,
-    onlyTrackId: opts.trackId,
-    dry: opts.dry,
-  });
-
-  onProgress?.({ stage: 'encode', pct: 0 });
-  const bytes = await encodeAudio(buffer, opts.format, opts.bitDepth);
+  throwIfStopped(signal);
+  const bytes = await renderAndEncode(
+    {
+      range: opts.range,
+      mastering: opts.mastering,
+      onlyTrackId: opts.trackId,
+      dry: opts.dry,
+    },
+    opts.format,
+    opts.bitDepth,
+    onProgress && ((stage, fraction) => onProgress({ stage, fraction })),
+    signal,
+  );
   const blob = new Blob([bytes], { type: FORMAT_MIME[opts.format] });
-  onProgress?.({ stage: 'encode', pct: 1 });
 
   const suffix = rangeSuffix(opts.range, opts.rangeLabel);
   const filename = `${songSlug(state.projectName)}${trackPart}${suffix}.${FORMAT_EXT[opts.format]}`;
@@ -190,9 +227,8 @@ export interface StemsExportResult extends AudioExportResult {
 
 /**
  * Render each track that plays in the mix alone, in turn, encode it, and zip
- * the files into one download. `signal` stops it between tracks (a render
- * under way can't be cut short: it holds Tone's global context), throwing an
- * AbortError. A track deleted before its turn is skipped and named in
+ * the files into one download. `signal` cancels it, the render or encoding
+ * under way included, throwing an AbortError. A track deleted before its turn is skipped and named in
  * `skipped`; the others still make the zip.
  *
  * Each stem is kept as a Blob once encoded (its CRC taken from the bytes
@@ -223,14 +259,26 @@ export async function exportStems(
       continue;
     }
     const trackName = track.name;
-    onProgress?.({ index, total, trackName, stage: 'render' });
-    const buffer = await renderProject({
-      range: opts.range,
-      onlyTrackId: track.id,
-      mastering: opts.mastering,
-    });
-    onProgress?.({ index, total, trackName, stage: 'encode' });
-    const bytes = await encodeAudio(buffer, opts.format, opts.bitDepth);
+    const bytes = await renderAndEncode(
+      {
+        range: opts.range,
+        onlyTrackId: track.id,
+        mastering: opts.mastering,
+      },
+      opts.format,
+      opts.bitDepth,
+      onProgress &&
+        ((stage, fraction) =>
+          onProgress({
+            index,
+            total,
+            trackName,
+            stage,
+            fraction,
+            overall: (index + (fraction ?? 0)) / total,
+          })),
+      signal,
+    );
     zip.add({
       name: nameStem(trackName),
       data: new Blob([bytes], { type: FORMAT_MIME[opts.format] }),

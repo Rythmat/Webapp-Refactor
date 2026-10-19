@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StartHereCard } from '@/components/ClassroomLayout/dashboard/StartHereCard';
 import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry';
+import { stopDoneKey } from '@/curriculum/musicLiteracy/stopDone';
 import {
   literacyProgressKey,
   withTry,
@@ -78,20 +79,32 @@ describe('Home’s Start here card', () => {
     ).toBe('/curriculum/music-literacy/music-literacy-part-1?step=add-the-3');
   });
 
-  it('offers Part 1 again once it is done, and says what comes next', () => {
+  it('goes on to the band once Part 1 is done (Part 2 unpublished here)', () => {
     saveProgress(tags);
     const card = renderCard();
-    expect(card.getByText(/All 7 steps passed/)).toBeTruthy();
+    expect(card.getByText('Hear It with Your Band')).toBeTruthy();
+    // A stop with a route has no steps to count: its line says what it is.
+    expect(card.queryByText(/steps/)).toBeNull();
+    expect(card.queryByRole('img', { name: /steps passed/ })).toBeNull();
     expect(
-      card.getByText(/Up next: Part 2 · Choose a Color, coming soon/),
+      card.getByText('Your chord progression, played by a Band.'),
     ).toBeTruthy();
     expect(
+      hrefOf(card.getByRole('link', { name: 'Start Hear It with Your Band' })),
+    ).toBe('/curriculum/music-literacy/hear-it-with-your-band');
+  });
+
+  it('offers the band again once it is done, and says what comes next', () => {
+    saveProgress(tags);
+    localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
+    const card = renderCard();
+    expect(card.getByText(/^Done/)).toBeTruthy();
+    expect(card.getByText(/Up next: Studio Basics, coming soon/)).toBeTruthy();
+    expect(
       hrefOf(
-        card.getByRole('link', {
-          name: 'Play again Part 1 · Call and Response',
-        }),
+        card.getByRole('link', { name: 'Play again Hear It with Your Band' }),
       ),
-    ).toBe('/curriculum/music-literacy/music-literacy-part-1');
+    ).toBe('/curriculum/music-literacy/hear-it-with-your-band');
   });
 
   it('links to the whole path, Learn → Start Here', () => {

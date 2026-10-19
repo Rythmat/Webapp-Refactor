@@ -44,9 +44,11 @@ export function stopAction(state: LiteracyStopState): string {
 
 /**
  * "3 of 7 steps", "7 steps", "All 7 steps passed"; done with a replay
- * (optional) not heard, "Done: 6 of 7 steps".
+ * (optional) not heard, "Done: 6 of 7 steps". A stop with no steps (a
+ * route's) says "Done" once it is, else nothing.
  */
-export function stepsLine(state: LiteracyStopState): string {
+export function stepsLine(state: LiteracyStopState): string | null {
+  if (state.steps.length === 0) return state.status === 'done' ? 'Done' : null;
   const total = state.steps.length;
   if (state.status === 'done')
     return state.passed === total

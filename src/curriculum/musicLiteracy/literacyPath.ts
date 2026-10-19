@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
-import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
+import type {
+  LiteracyMode,
+  LiteracyTonic,
+  MusicLiteracyLesson,
+} from '@/content/musicLiteracy/schemas';
 import {
   keyFor,
   type LiteracyChoices,
@@ -14,10 +18,15 @@ import { getLiveMusicLiteracy } from '@/curriculum/engine/musicLiteracy/registry
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
+  openingBandProgression,
+  readBandProgressions,
+} from './bandProgressions';
+import {
   literacyStepDone,
   literacyStepRequired,
   literacyStepTried,
 } from './stepDone';
+import { readStopDone } from './stopDone';
 import { readLiteracyChoices } from './useLiteracyChoices';
 import {
   readLiteracyProgress,
@@ -30,7 +39,9 @@ import {
 // them: Learn → Start Here draws the whole path, and Home's "Start here"
 // card points at its next stop. This list is the one place the stops are
 // named; a stop lights up by turning `live` on and naming its lesson (or,
-// outside Learn, its route).
+// outside Learn, its route). A stop with a route has no steps: it is done
+// once the student has done what it opens (stopDone.ts), and it wears the
+// key its page plays in.
 
 /** The Learn tab (`?tab=`) that draws the path. */
 export const START_HERE_TAB = 'StartHere';
@@ -57,6 +68,9 @@ export interface LiteracyPathStop {
   route?: string;
 }
 
+/** Part 3: a Band plays the student's progression in the Studio. */
+export const BAND_STOP_ID = 'hear-it-with-your-band';
+
 export const LITERACY_PATH: readonly LiteracyPathStop[] = [
   {
     id: 'call-and-response',
@@ -74,12 +88,13 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
     lessonId: 'music-literacy-part-2',
   },
   {
-    id: 'hear-it-with-your-band',
+    id: BAND_STOP_ID,
     title: 'Hear It with Your Band',
     module: 'Studio',
     place: 'Practice',
     description: 'Your chord progression, played by a Band.',
-    live: false,
+    live: true,
+    route: CurriculumRoutes.musicLiteracyBand(),
   },
   {
     id: 'studio-basics',
@@ -102,7 +117,8 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
  * new      open, nothing tried
  * started  a step tried, not every required step done
  * done     every step done but those nothing waits for, a replay
- *          (stepDone.ts; a stop with no lesson never is)
+ *          (stepDone.ts); a stop with a route, once what it opens is done
+ *          (stopDone.ts)
  */
 export type LiteracyStopStatus = 'soon' | 'new' | 'started' | 'done';
 
@@ -146,16 +162,31 @@ export interface LiteracyStopState {
   to: string | null;
   /**
    * The lesson's key (Part 1 is in C: red), or the one the student chose
-   * (Part 2); null without a lesson.
+   * (Part 2); a route stop's, the key its page plays in (the band: the
+   * progression it opens on); null otherwise.
    */
   key: LiteracyStopKey | null;
 }
 
-function keyOf(
+/** How a stop with a route stands on this device. */
+export interface RouteStopState {
+  done: boolean;
+  /** The key its page plays in, when it has one. */
+  key: { tonic: LiteracyTonic; mode: LiteracyMode } | null;
+}
+
+const keyOf = (
   lesson: MusicLiteracyLesson,
   choices: LiteracyChoices | null,
-): LiteracyStopKey {
-  const { tonic, mode } = keyFor(lesson, choices);
+): LiteracyStopKey => stopKeyOf(keyFor(lesson, choices));
+
+function stopKeyOf({
+  tonic,
+  mode,
+}: {
+  tonic: LiteracyTonic;
+  mode: LiteracyMode;
+}): LiteracyStopKey {
   const shown = displayAccidentals(tonic);
   return {
     pitch: pitchClassOf(tonic),
@@ -168,15 +199,21 @@ function keyOf(
 
 /**
  * One stop, from its lesson (if published), the progress saved for it and,
- * for a lesson whose key is the student's, what they chose.
+ * for a lesson whose key is the student's, what they chose; a stop with a
+ * route, from how it stands (`route`).
  */
 export function literacyStopState(
   stop: LiteracyPathStop,
   lesson: MusicLiteracyLesson | undefined,
   progress: LiteracyProgress,
   choices: LiteracyChoices | null = null,
+  route: RouteStopState | null = null,
 ): LiteracyStopState {
-  const key = lesson ? keyOf(lesson, choices) : null;
+  const key = lesson
+    ? keyOf(lesson, choices)
+    : route?.key
+      ? stopKeyOf(route.key)
+      : null;
   if (!stop.live || (stop.lessonId && !lesson)) {
     return {
       stop,
@@ -192,7 +229,7 @@ export function literacyStopState(
   if (!lesson) {
     return {
       stop,
-      status: 'new',
+      status: route?.done ? 'done' : 'new',
       steps: [],
       passed: 0,
       next: null,
@@ -264,6 +301,18 @@ function roundsOf(
   };
 }
 
+/**
+ * A route stop as this device has it: done once its page has done its job
+ * (stopDone.ts); the band's stop in the key of the progression its page
+ * opens on (bandProgressions.ts).
+ */
+export function readRouteStop(stopId: string): RouteStopState {
+  const done = readStopDone(stopId);
+  if (stopId !== BAND_STOP_ID) return { done, key: null };
+  const { progression } = openingBandProgression(readBandProgressions());
+  return { done, key: { tonic: progression.tonic, mode: progression.mode } };
+}
+
 /** Every stop, as this device's saved progress (and choices) have it. */
 export function literacyPath(
   findLesson: (
@@ -271,6 +320,7 @@ export function literacyPath(
   ) => MusicLiteracyLesson | undefined = getLiveMusicLiteracy,
   readProgress: (lessonId: string) => LiteracyProgress = readLiteracyProgress,
   readChoices: (lessonId: string) => LiteracyChoices = readLiteracyChoices,
+  readRoute: (stopId: string) => RouteStopState = readRouteStop,
 ): LiteracyStopState[] {
   return LITERACY_PATH.map((stop) => {
     const lesson = stop.lessonId ? findLesson(stop.lessonId) : undefined;
@@ -279,6 +329,7 @@ export function literacyPath(
       lesson,
       lesson ? readProgress(lesson.id) : {},
       lesson?.keyChoice === 'student' ? readChoices(lesson.id) : null,
+      !stop.lessonId && stop.route && stop.live ? readRoute(stop.id) : null,
     );
   });
 }

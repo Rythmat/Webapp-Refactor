@@ -49,12 +49,15 @@ describe('the Music Literacy path', () => {
     expect(LITERACY_PATH.map((s) => [s.title, s.module, s.live])).toEqual([
       ['Part 1 · Call and Response', 'Learn', true],
       ['Part 2 · Choose a Color', 'Learn', true],
-      ['Hear It with Your Band', 'Studio', false],
+      ['Hear It with Your Band', 'Studio', true],
       ['Studio Basics', 'Studio', false],
       ['Echo', 'Arcade', false],
     ]);
     expect(part1.lessonId).toBe('music-literacy-part-1');
     expect(LITERACY_PATH[1].lessonId).toBe('music-literacy-part-2');
+    expect(LITERACY_PATH[2].route).toBe(
+      '/curriculum/music-literacy/hear-it-with-your-band',
+    );
     expect(startHereRoute()).toBe('/learn?tab=StartHere');
   });
 
@@ -141,18 +144,26 @@ describe('the Music Literacy path', () => {
 
   it('reads each lesson stop’s progress by its lesson', () => {
     const read: string[] = [];
+    const routes: string[] = [];
     const states = literacyPath(
       (id) => (id === lesson.id ? lesson : undefined),
       (id) => {
         read.push(id);
         return progressOf(['note-called-c']);
       },
+      undefined,
+      (id) => {
+        routes.push(id);
+        return { done: false, key: null };
+      },
     );
     expect(read).toEqual(['music-literacy-part-1']);
+    // Only an open stop with a route is asked how it stands.
+    expect(routes).toEqual(['hear-it-with-your-band']);
     expect(states.map((s) => s.status)).toEqual([
       'started',
       'soon',
-      'soon',
+      'new',
       'soon',
       'soon',
     ]);
@@ -330,11 +341,27 @@ describe('where a student stands', () => {
     const states = literacyPath(
       (id) => (id === lesson.id ? lesson : undefined),
       () => progressOf(tags),
+      undefined,
+      () => ({ done: true, key: null }),
     );
     const { current, upNext } = currentStop(states);
+    expect(current?.stop.id).toBe('hear-it-with-your-band');
     expect(current?.status).toBe('done');
-    expect(upNext?.stop.title).toBe('Part 2 · Choose a Color');
+    expect(upNext?.stop.title).toBe('Studio Basics');
     expect(upNext?.status).toBe('soon');
+  });
+
+  it('goes on to the band once the lessons before it are done', () => {
+    const states = literacyPath(
+      (id) => (id === lesson.id ? lesson : undefined),
+      () => progressOf(tags),
+      undefined,
+      () => ({ done: false, key: null }),
+    );
+    const { current, upNext } = currentStop(states);
+    expect(current?.stop.id).toBe('hear-it-with-your-band');
+    expect(current?.status).toBe('new');
+    expect(upNext).toBeNull();
   });
 
   it('moves on when the next stop opens', () => {
@@ -353,10 +380,63 @@ describe('where a student stands', () => {
   });
 
   it('is nowhere while no stop is open', () => {
-    const states = literacyPath(
-      () => undefined,
-      () => ({}),
+    const states = LITERACY_PATH.map((stop) =>
+      literacyStopState({ ...stop, live: false }, undefined, {}),
     );
     expect(currentStop(states)).toEqual({ current: null, upNext: null });
+    // With no lesson published, the band still plays (a starter).
+    const band = currentStop(
+      literacyPath(
+        () => undefined,
+        () => ({}),
+        undefined,
+        () => ({ done: false, key: null }),
+      ),
+    );
+    expect(band.current?.stop.id).toBe('hear-it-with-your-band');
+  });
+});
+
+describe('Hear It with Your Band on the path', () => {
+  const band = LITERACY_PATH[2];
+
+  it('opens its page, new until the Studio has opened from it', () => {
+    expect(
+      literacyStopState(band, undefined, {}, null, { done: false, key: null }),
+    ).toMatchObject({
+      status: 'new',
+      to: '/curriculum/music-literacy/hear-it-with-your-band',
+      steps: [],
+      next: null,
+      rounds: null,
+      key: null,
+    });
+    const done = literacyStopState(band, undefined, {}, null, {
+      done: true,
+      key: null,
+    });
+    expect(done.status).toBe('done');
+    expect(stepsLine(done)).toBe('Done');
+    expect(stepsLine({ ...done, status: 'new' })).toBeNull();
+  });
+
+  it('wears the key of the progression its page opens on', () => {
+    const state = literacyStopState(band, undefined, {}, null, {
+      done: false,
+      key: { tonic: 'D', mode: 'minor' },
+    });
+    expect(state.key).toEqual({
+      pitch: 2,
+      tonic: 'D',
+      mode: 'minor',
+      name: 'D Minor',
+      color: colorForKeyMode('D', 'aeolian'),
+    });
+  });
+
+  it('is coming soon while it isn’t live', () => {
+    expect(
+      literacyStopState({ ...band, live: false }, undefined, {}).status,
+    ).toBe('soon');
   });
 });

@@ -25,6 +25,9 @@ export const StartHereCard = () => {
   const { current, upNext } = currentStop(useLiteracyPath());
   if (!current?.to) return null;
   const { stop, key, status, next } = current;
+  // A stop with a route (Hear It with Your Band) has no steps to count.
+  const hasSteps = current.steps.length > 0;
+  const line = stepsLine(current);
 
   const detail =
     status === 'started' && next
@@ -59,12 +62,12 @@ export const StartHereCard = () => {
               {stop.title}
             </div>
             <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-              <StepPips state={current} />
+              {hasSteps && <StepPips state={current} />}
               <span className="min-w-0 truncate text-sm text-white/60">
-                {stepsLine(current)}
+                {line}
                 {detail && (
                   <span className="text-white/45">
-                    {' · '}
+                    {line && ' · '}
                     {detail}
                   </span>
                 )}

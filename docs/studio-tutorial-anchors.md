@@ -158,6 +158,7 @@ Selecting notes across tracks used to need a ⌘-drag over the clips. Insight no
 | `insight-track-{i}` | Track i's button (`aria-pressed` when all its notes are selected). Drum tracks have none. |
 | `insight-selection` | The selection summary (shown once something is selected)                                  |
 | `insight-analyze`   | Analyze N notes (or chords)                                                               |
+| `insight-harmony`   | The analysis's Harmony: the chords by number in the key (1 maj → 6 min …), then by name   |
 | `insight-clear`     | Clear the selection                                                                       |
 | `file-analyze`      | Project menu: Analyze (the whole song)                                                    |
 

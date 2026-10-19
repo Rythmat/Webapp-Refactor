@@ -315,6 +315,7 @@ function HarmonySummary({
 
   return (
     <div
+      data-tutorial-id="insight-harmony"
       className="flex flex-col gap-1.5 border-b px-3 py-2.5"
       style={sectionStyle}
     >

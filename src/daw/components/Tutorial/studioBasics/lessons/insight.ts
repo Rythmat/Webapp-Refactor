@@ -85,7 +85,7 @@ export const insightSteps: TutorialStep[] = [
     stage: STAGE,
     instruction:
       'Click **Analyze** under the tracks you picked. It says how many notes it will read.',
-    hint: 'Not Analyze Chords, higher up: that one suggests chord names for the whole song.',
+    hint: 'Not **Analyze Chords**, higher up: that one suggests chord names for the whole song.',
     target: 'insight-analyze',
     demo: [
       {

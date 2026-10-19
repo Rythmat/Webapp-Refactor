@@ -155,7 +155,7 @@ export const yourTracksSteps: TutorialStep[] = [
     stage: STAGE,
     instruction:
       'Turn on **MON** (monitor) for that track, so you hear it as you play.',
-    hint: 'With MON on, the notes you play on a keyboard sound through this track.',
+    hint: 'With **MON** on, the notes you play on a keyboard sound through this track.',
     target: 'track-monitor-1',
     demo: [
       {

@@ -37,7 +37,7 @@ export const pianoRollSteps: TutorialStep[] = [
     id: 'open',
     stage: STAGE,
     instruction: 'Double-click a clip to open it in the Piano Roll.',
-    hint: 'Or right-click the clip and choose Open in Piano Roll.',
+    hint: 'Or right-click the clip and choose **Open in Piano Roll**.',
     target: ['piano-roll-modal', ...CLIP],
     requires: { view: 'arrange', libraryOpen: false },
     demo: [
@@ -128,7 +128,7 @@ export const pianoRollSteps: TutorialStep[] = [
     stage: STAGE,
     instruction:
       'Click a note to select it, then press the **Delete** key or the **Delete** button above the grid.',
-    hint: 'Made a mistake? Undo (⌘Z or Ctrl+Z) brings it back.',
+    hint: 'Made a mistake? **Undo** (⌘Z or Ctrl+Z) brings it back.',
     target: ROLL,
     demo: [
       {

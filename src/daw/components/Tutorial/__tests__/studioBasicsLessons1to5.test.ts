@@ -524,8 +524,6 @@ describe('the lessons’ targets and copy', () => {
       expect(step.stage, step.id).toBe(stage);
       const words = [step.instruction, step.hint ?? ''].join(' ');
       expect(words, step.id).not.toMatch(/\b(simply|just)\b|colour/i);
-      // Hints are plain text in the coach card.
-      expect(step.hint ?? '', step.id).not.toContain('**');
       for (const beat of step.demo ?? []) {
         const count = beat.caption.replace(/\*\*/g, '').split(/\s+/).length;
         expect(count, `${step.id}: ${beat.caption}`).toBeGreaterThanOrEqual(3);

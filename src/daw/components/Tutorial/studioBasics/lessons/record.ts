@@ -54,7 +54,7 @@ export const recordSteps: TutorialStep[] = [
     stage: STAGE,
     instruction:
       'Open the count-in menu (the arrow beside **Click**) and choose **Count in 1 bar**.',
-    hint: 'You hear one bar of clicks, then the take begins. No count-in starts right away.',
+    hint: 'You hear one bar of clicks, then the take begins. **No count-in** starts right away.',
     // In a narrow window the choices move into the top bar's ⋯ menu.
     target: ['count-in-1', 'count-in-menu', 'top-bar-more'],
     demo: [
@@ -109,7 +109,7 @@ export const recordSteps: TutorialStep[] = [
     id: 'monitor',
     stage: STAGE,
     instruction: 'Turn on **MON** on your track, so you hear it as you play.',
-    hint: 'Turn MON off on other tracks to hear only yours.',
+    hint: 'Turn **MON** off on other tracks to hear only yours.',
     target: 'selected-track-header',
     demo: [
       {
@@ -124,7 +124,7 @@ export const recordSteps: TutorialStep[] = [
     stage: STAGE,
     instruction:
       'Turn on **Typing**, then play a few notes on your computer keys: **A S D F G** play C D E F G. A MIDI keyboard works too.',
-    hint: 'While Typing is on, letter keys play notes instead of shortcuts, so use the buttons on screen.',
+    hint: 'While **Typing** is on, letter keys play notes instead of shortcuts, so use the buttons on screen.',
     target: 'musical-typing',
     demo: [
       {
@@ -159,7 +159,7 @@ export const recordSteps: TutorialStep[] = [
     id: 'stop',
     stage: STAGE,
     instruction: 'Play a few notes, then click **Stop** (the square).',
-    hint: 'Nothing recorded? Click Record and play again.',
+    hint: 'Nothing recorded? Click **Record** and play again.',
     target: 'transport-stop',
     check: takeKept,
   },

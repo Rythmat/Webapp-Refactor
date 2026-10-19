@@ -17,6 +17,10 @@ import { useKeymap, type KeymapHandlers } from './registry';
 // and only when the key wasn't pressed in a control or a widget with keys of
 // its own (a knob, the docked piano roll): its arrows and Delete aren't the
 // timeline's. A key they don't take goes on to the global scope.
+//
+// Copy, paste, duplicate and delete are exported as commands too, so a
+// clip's right-click menu does exactly what its keys do, as the same undo
+// step.
 
 /**
  * How far an arrow key nudges a clip: one step of the timeline's grid in the
@@ -75,13 +79,29 @@ function wrongTrack(kind: 'midi' | 'audio'): void {
   });
 }
 
+/** Whether there is a clip to paste. */
+export function hasClipToPaste(): boolean {
+  const { clipboardClips, clipboardAudioClip } = useStore.getState();
+  return clipboardClips.length > 0 || clipboardAudioClip !== null;
+}
+
 function pasteClips(): boolean {
   const state = useStore.getState();
-  const { clipboardClips, clipboardAudioClip } = state;
   // At the playhead where it is heard, also while playing (the store's
   // position is parked then). Whole ticks, as a seek leaves them.
-  const position = Math.round(getPlayheadTick());
-  const targetTrackId = state.selectedClipTrackId || state.tracks[0]?.id;
+  return pasteClipsOnto(
+    state.selectedClipTrackId || state.tracks[0]?.id,
+    Math.round(getPlayheadTick()),
+  );
+}
+
+/** Pastes the clipboard onto `targetTrackId` at `position`, selecting it. */
+function pasteClipsOnto(
+  targetTrackId: string | undefined,
+  position: number,
+): boolean {
+  const state = useStore.getState();
+  const { clipboardClips, clipboardAudioClip } = state;
   const target = state.tracks.find((t) => t.id === targetTrackId);
   if (clipboardAudioClip) {
     if (!targetTrackId) return true;
@@ -108,13 +128,17 @@ function pasteClips(): boolean {
     wrongTrack('midi');
     return true;
   }
+  let pastedId = '';
   for (const clip of clipboardClips) {
+    pastedId = `clip-paste-${crypto.randomUUID().slice(0, 8)}`;
     state.addMidiClip(targetTrackId, {
       ...structuredClone(clip),
-      id: `clip-paste-${crypto.randomUUID().slice(0, 8)}`,
+      id: pastedId,
       startTick: position,
     });
   }
+  // The pasted clip is selected, as a pasted audio clip and a duplicate are.
+  state.setSelectedClip(pastedId, targetTrackId);
   return true;
 }
 
@@ -156,6 +180,43 @@ function deleteClip(): boolean {
   else if (clip.audio) state.removeAudioClip(clip.trackId, clip.audio.id);
   state.setSelectedClip(null, null);
   return true;
+}
+
+/** Copies the selected clip (⌘C). Returns whether a clip was selected. */
+export function copySelectedClip(): boolean {
+  return copyClip();
+}
+
+/**
+ * Pastes at the playhead on the selected clip's track (⌘V), one undo step.
+ * Returns whether there was anything to paste.
+ */
+export function pasteClipsAtPlayhead(): boolean {
+  return withTransaction('Paste clip', pasteClips);
+}
+
+/**
+ * Pastes onto `trackId` at `tick` (a right-click on an empty stretch of a
+ * track), one undo step. A clip of the wrong kind for the track is refused
+ * with a toast, as ⌘V refuses it.
+ */
+export function pasteClipsAt(trackId: string, tick: number): boolean {
+  return withTransaction('Paste clip', () =>
+    pasteClipsOnto(trackId, Math.max(0, Math.round(tick))),
+  );
+}
+
+/**
+ * Duplicates the selected clip (⌘D): a copy right after it on its track,
+ * selected. One undo step.
+ */
+export function duplicateSelectedClip(): void {
+  withTransaction('Duplicate clip', duplicateClip);
+}
+
+/** Deletes the selected clip (Delete), one undo step. */
+export function deleteSelectedClip(): boolean {
+  return withTransaction('Delete clip', deleteClip);
 }
 
 function nudgeClip(direction: -1 | 1): boolean {
@@ -223,15 +284,13 @@ export function useArrangeKeymap(viewport: TimelineViewport): void {
     state.zoomAtPoint(factor, state.timelineScrollLeft + viewport.width() / 2);
   };
   const handlers: KeymapHandlers = {
-    'clip.copy': (e) => onTimeline(e) && copyClip(),
-    'clip.paste': (e) =>
-      onTimeline(e) && withTransaction('Paste clip', pasteClips),
+    'clip.copy': (e) => onTimeline(e) && copySelectedClip(),
+    'clip.paste': (e) => onTimeline(e) && pasteClipsAtPlayhead(),
     'clip.duplicate': (e) => {
       if (!onTimeline(e)) return false;
-      withTransaction('Duplicate clip', duplicateClip);
+      duplicateSelectedClip();
     },
-    'clip.delete': (e) =>
-      onTimeline(e) && withTransaction('Delete clip', deleteClip),
+    'clip.delete': (e) => onTimeline(e) && deleteSelectedClip(),
     'clip.nudgeLeft': (e) => onTimeline(e) && nudgeClip(-1),
     'clip.nudgeRight': (e) => onTimeline(e) && nudgeClip(1),
     'clip.selectFirst': (e) => {

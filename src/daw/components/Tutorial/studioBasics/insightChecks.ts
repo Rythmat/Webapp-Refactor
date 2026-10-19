@@ -24,8 +24,9 @@ export const pickableTracks = (s: AllSlices): number =>
       t.midiClips.some((c) => c.events.length > 0),
   ).length;
 
-/** The Inspector, Insight's column, is open. */
-export const insightOpen: StepCheck = (s) => s.libraryOpen;
+/** The Inspector is open on Insight (the side rail's Insight panel). */
+export const insightOpen: StepCheck = (s) =>
+  s.libraryOpen && s.inspectorPanel === 'insight';
 
 /** One more track is picked than when the turn began. */
 export const trackPicked: StepCheck = (s, armed) =>

@@ -123,8 +123,9 @@ function clickOn(id: string, action: 'click' | 'doubleClick'): void {
     s().toggleMonitoring(trackAt(n(/(\d+)$/)).id);
   } else if (id === 'metronome-toggle') {
     s().toggleMetronome();
-  } else if (id === 'inspector-toggle') {
-    s().toggleLibrary();
+  } else if (id === 'inspector-toggle' || id === 'rail-insight') {
+    // Stage B: the side rail's Insight button (inspector-toggle's alias).
+    s().toggleInspectorPanel('insight');
   } else if (id === 'musical-typing') {
     useMusicalTypingStore.getState().toggle();
   } else if (/^insight-track-\d+$/.test(id)) {
@@ -345,7 +346,7 @@ const PIANO_ROLL: Record<string, Move> = {
 };
 
 const INSIGHT: Record<string, Move> = {
-  'open-insight': () => s().toggleLibrary(),
+  'open-insight': () => s().toggleInspectorPanel('insight'),
   'pick-chords': () =>
     s().setSelectedNotes(toggleTrackNotes(trackAt(1), s().selectedNotes)),
   'pick-bass': () =>

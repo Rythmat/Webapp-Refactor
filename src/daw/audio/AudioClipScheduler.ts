@@ -32,6 +32,24 @@ export interface ScheduleClipOptions {
   pedalInput?: AudioNode;
   /** The clip's id, so muting the clip silences it (setMutedClips). */
   clipId?: string;
+  /**
+   * The audio-clock time the transport is at `fromTick` (milestone 1.11):
+   * the transport's start time on Play, the loop event's time on a lap, the
+   * seek's time. A clip the playhead is inside starts then, with its offset,
+   * on the beat with the MIDI and the click. Without it (the bounce) it
+   * starts at the context's current time, as before.
+   */
+  at?: number;
+}
+
+/** How long a source fades out when it is stopped before its end, so a
+ *  seek, a loop seam or Stop never clicks. */
+export const SOURCE_STOP_FADE_S = 0.005;
+
+/** A started source and the gain that fades it out when it is cut short. */
+interface ActiveSource {
+  source: AudioBufferSourceNode;
+  fader: GainNode;
 }
 
 // Nothing writes a clip gain yet, so clamp what saved or collab data carries
@@ -54,7 +72,10 @@ interface ClipEnvelope {
 
 export class AudioClipScheduler {
   private scheduledIds: number[] = [];
-  private activeSources: AudioBufferSourceNode[] = [];
+  /** Each clip's booked starts on the transport, so one clip can be
+   *  rescheduled on its own when it is edited during playback. */
+  private idsByClip = new Map<string, number[]>();
+  private activeSources: ActiveSource[] = [];
   /**
    * Clips muted from the clip menu (milestone 2.12): a scheduled start of
    * one is skipped when it comes, so a mute or an unmute during playback
@@ -62,7 +83,7 @@ export class AudioClipScheduler {
    * stops what is sounding.
    */
   private mutedClips: ReadonlySet<string> = new Set();
-  private sourcesByClip = new Map<string, Set<AudioBufferSourceNode>>();
+  private sourcesByClip = new Map<string, Set<ActiveSource>>();
   /**
    * A start that came while its clip was muted: when it was due (audio-clock
    * time) and how to make it. An unmute before that time comes (the
@@ -88,6 +109,7 @@ export class AudioClipScheduler {
     bpm,
     pedalInput,
     clipId,
+    at,
   }: ScheduleClipOptions): void {
     const startTick = clip.startTick;
     const clipEndTick = startTick + clip.duration;
@@ -134,6 +156,7 @@ export class AudioClipScheduler {
         playheadSeconds,
         playDuration,
         clipId,
+        at,
       );
     } else {
       // Clip is in the future — schedule via Transport
@@ -164,29 +187,29 @@ export class AudioClipScheduler {
         start(time);
       }, `${startTick}i`);
       this.scheduledIds.push(id);
+      if (clipId !== undefined) {
+        const ids = this.idsByClip.get(clipId) ?? [];
+        ids.push(id);
+        this.idsByClip.set(clipId, ids);
+      }
     }
   }
 
-  /** Stop all active sources and clear all scheduled events. */
-  cancelAll(): void {
+  /**
+   * Stop all active sources and clear all scheduled events. With `time`
+   * (milestone 1.11: the loop seam, a seek, Stop) the sources fade out over
+   * a few milliseconds from then, so what is booked before it still plays and
+   * nothing clicks; without it they stop at once, as before.
+   */
+  cancelAll(time?: number): void {
     const transport = Tone.getTransport();
     for (const id of this.scheduledIds) {
       transport.clear(id);
     }
     this.scheduledIds = [];
+    this.idsByClip.clear();
 
-    for (const source of this.activeSources) {
-      try {
-        source.stop();
-      } catch {
-        /* already stopped */
-      }
-      try {
-        source.disconnect();
-      } catch {
-        /* already disconnected */
-      }
-    }
+    for (const active of this.activeSources) stopActive(active, time);
     this.activeSources = [];
     this.sourcesByClip.clear();
     this.skippedStarts.clear();
@@ -211,6 +234,30 @@ export class AudioClipScheduler {
    * silent, live and in the bounce. A silent constant source connected
    * through the wrapper keeps it active, as SoundFontAdapter does.
    */
+  /**
+   * Stop one clip (milestone 1.11): its booked starts are cleared and what it
+   * has sounding fades out from `time`. Used when the clip is edited, moved
+   * or deleted during playback, before it is scheduled again.
+   */
+  cancelClip(clipId: string, time?: number): void {
+    const transport = Tone.getTransport();
+    for (const id of this.idsByClip.get(clipId) ?? []) {
+      transport.clear(id);
+      const at = this.scheduledIds.indexOf(id);
+      if (at >= 0) this.scheduledIds.splice(at, 1);
+    }
+    this.idsByClip.delete(clipId);
+    this.skippedStarts.delete(clipId);
+    const sources = this.sourcesByClip.get(clipId);
+    if (!sources) return;
+    for (const active of sources) {
+      stopActive(active, time);
+      const at = this.activeSources.indexOf(active);
+      if (at >= 0) this.activeSources.splice(at, 1);
+    }
+    this.sourcesByClip.delete(clipId);
+  }
+
   private holdTrackInput(trackEngine: TrackEngine): void {
     if (this.holds.has(trackEngine)) return;
     try {
@@ -242,12 +289,18 @@ export class AudioClipScheduler {
     ctx: BaseAudioContext;
     source: AudioBufferSourceNode;
     gainNode: GainNode | null;
+    fader: GainNode;
   } {
-    const dest = pedalInputNode ?? trackEngine.getNativeInputNode();
+    const target = pedalInputNode ?? trackEngine.getNativeInputNode();
     const ctx =
-      (dest.context as BaseAudioContext | undefined) ?? nativeToneContext();
+      (target.context as BaseAudioContext | undefined) ?? nativeToneContext();
     const source = ctx.createBufferSource();
     source.buffer = audioBuffer;
+    // Unity until the source is cut short, when it fades out (stopActive).
+    // A gain of exactly 1 passes the samples unchanged.
+    const fader = ctx.createGain();
+    fader.connect(target);
+    const dest: AudioNode = fader;
 
     // Upmix mono buffers to stereo so all downstream processing is stereo
     let sourceOut: AudioNode = source;
@@ -263,13 +316,13 @@ export class AudioClipScheduler {
     const { gain, fadeInSeconds, fadeOutSeconds } = envelope;
     if (gain === 1 && fadeInSeconds <= 0 && fadeOutSeconds <= 0) {
       sourceOut.connect(dest);
-      return { ctx, source, gainNode: null };
+      return { ctx, source, gainNode: null, fader };
     }
     const gainNode = ctx.createGain();
     gainNode.gain.value = gain;
     sourceOut.connect(gainNode);
     gainNode.connect(dest);
-    return { ctx, source, gainNode };
+    return { ctx, source, gainNode, fader };
   }
 
   /**
@@ -284,7 +337,7 @@ export class AudioClipScheduler {
     this.mutedClips = clipIds;
     for (const clipId of clipIds) {
       if (before.has(clipId)) continue;
-      for (const source of this.sourcesByClip.get(clipId) ?? []) {
+      for (const { source } of this.sourcesByClip.get(clipId) ?? []) {
         try {
           source.stop();
         } catch {
@@ -305,17 +358,22 @@ export class AudioClipScheduler {
   }
 
   /** Track a started source until it ends, so cancelAll can stop it. */
-  private track(source: AudioBufferSourceNode, clipId?: string): void {
-    this.activeSources.push(source);
+  private track(active: ActiveSource, clipId?: string): void {
+    this.activeSources.push(active);
     if (clipId !== undefined) {
       const sources = this.sourcesByClip.get(clipId) ?? new Set();
-      sources.add(source);
+      sources.add(active);
       this.sourcesByClip.set(clipId, sources);
     }
-    source.onended = () => {
-      const idx = this.activeSources.indexOf(source);
+    active.source.onended = () => {
+      const idx = this.activeSources.indexOf(active);
       if (idx >= 0) this.activeSources.splice(idx, 1);
-      if (clipId !== undefined) this.sourcesByClip.get(clipId)?.delete(source);
+      if (clipId !== undefined) this.sourcesByClip.get(clipId)?.delete(active);
+      try {
+        active.fader.disconnect();
+      } catch {
+        /* already disconnected */
+      }
     };
   }
 
@@ -331,7 +389,7 @@ export class AudioClipScheduler {
     clipId?: string,
   ): void {
     try {
-      const { source, gainNode } = this.buildSource(
+      const { source, gainNode, fader } = this.buildSource(
         audioBuffer,
         trackEngine,
         pedalInputNode,
@@ -357,13 +415,17 @@ export class AudioClipScheduler {
       } else {
         source.start(time, offsetSeconds);
       }
-      this.track(source, clipId);
+      this.track({ source, fader }, clipId);
     } catch (err) {
       console.error('[AudioClipScheduler] startSource failed:', err);
     }
   }
 
-  /** Start an AudioBufferSourceNode immediately (for mid-clip playback). */
+  /**
+   * Start an AudioBufferSourceNode part-way into its clip (the playhead is
+   * inside it): at `at` when the caller knows when the transport is at the
+   * playhead, else at once.
+   */
   private startSourceNow(
     audioBuffer: AudioBuffer,
     offsetSeconds: number,
@@ -373,15 +435,16 @@ export class AudioClipScheduler {
     currentOffsetSeconds = 0,
     playDuration = 0,
     clipId?: string,
+    at?: number,
   ): void {
     try {
-      const { ctx, source, gainNode } = this.buildSource(
+      const { ctx, source, gainNode, fader } = this.buildSource(
         audioBuffer,
         trackEngine,
         pedalInputNode,
         envelope,
       );
-      const now = ctx.currentTime;
+      const now = at ?? ctx.currentTime;
 
       if (gainNode) {
         const { gain, fadeInSeconds, fadeOutSeconds, clipDurationSeconds } =
@@ -423,9 +486,36 @@ export class AudioClipScheduler {
       } else {
         source.start(now, offsetSeconds);
       }
-      this.track(source, clipId);
+      this.track({ source, fader }, clipId);
     } catch (err) {
       console.error('[AudioClipScheduler] startSourceNow failed:', err);
+    }
+  }
+}
+
+/**
+ * Stop a source: at once without `time`, else with a short fade from `time`
+ * (never before the context's clock), and let it go once it has stopped.
+ */
+function stopActive({ source, fader }: ActiveSource, time?: number): void {
+  try {
+    if (time === undefined) {
+      source.stop();
+    } else {
+      const from = Math.max(time, fader.context.currentTime);
+      fader.gain.cancelScheduledValues(from);
+      fader.gain.setValueAtTime(1, from);
+      fader.gain.linearRampToValueAtTime(0, from + SOURCE_STOP_FADE_S);
+      source.stop(from + SOURCE_STOP_FADE_S);
+    }
+  } catch {
+    /* already stopped */
+  }
+  if (time === undefined) {
+    try {
+      source.disconnect();
+    } catch {
+      /* already disconnected */
     }
   }
 }

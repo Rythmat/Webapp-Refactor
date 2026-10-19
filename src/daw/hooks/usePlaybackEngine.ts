@@ -32,8 +32,20 @@ import {
   applyStaticTrackParams,
   scheduleMasterAutomation,
   trackEngineRegistry,
-  type TrackAudioState,
 } from '@/daw/engine/trackAudio';
+import {
+  PlaybackScheduler,
+  isLegacyScheduler,
+  pedalInputOf,
+  planTransportStart,
+  setActivePlayback,
+  transportStartedAt,
+  type PlaybackSchedulers,
+} from '@/daw/engine/playbackScheduler';
+import {
+  legacyHandleLoop,
+  legacyScheduleAll,
+} from '@/daw/engine/legacyPlayback';
 import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import {
@@ -57,23 +69,6 @@ export {
   trackEngineRegistry,
   type TrackAudioState,
 } from '@/daw/engine/trackAudio';
-
-/**
- * Where a track's audio clips play into: the pedal chain's native input on a
- * Guitar, Bass or Vocal track, so amp and pedal changes are heard in real
- * time during playback; else the track's own input (undefined).
- */
-function pedalInputOf(
-  instrument: TrackAudioState['instrument'],
-): AudioNode | undefined {
-  if (instrument instanceof GuitarFxAdapter) {
-    return instrument.getNativePedalInputNode() ?? undefined;
-  }
-  if (instrument instanceof VocalFxAdapter) {
-    return instrument.getNativePedalInputNode() ?? undefined;
-  }
-  return undefined;
-}
 
 // ── Hook ─────────────────────────────────────────────────────────────────
 // Manages the lifecycle of TrackEngine instances, instrument adapters,
@@ -184,6 +179,10 @@ function finishAudioTake(
     .finally(settleTake);
 }
 
+/** How much earlier than the count-in's end its timer says go, when the
+ *  transport's start time is planned (milestone 1.11). */
+const COUNT_IN_TIMER_LEAD_S = 0.15;
+
 export function usePlaybackEngine(isReady: boolean, token: string | null) {
   // Kept in a ref so the recording effect can read the latest token when a
   // recording stops without re-subscribing (and re-creating the recorder)
@@ -195,6 +194,18 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const schedulerRef = useRef(new MidiScheduler());
   const audioClipSchedulerRef = useRef(new AudioClipScheduler());
   const automationSchedulerRef = useRef(new AutomationScheduler());
+  const schedulersRef = useRef<PlaybackSchedulers>({
+    midi: schedulerRef.current,
+    audio: audioClipSchedulerRef.current,
+    automation: automationSchedulerRef.current,
+  });
+  // One owner of what plays while the transport runs (milestone 1.11), or
+  // the scheduler from before it behind the legacy flag, chosen on each Play.
+  const playbackRef = useRef<PlaybackScheduler | null>(null);
+  if (!playbackRef.current) {
+    playbackRef.current = new PlaybackScheduler(schedulersRef.current);
+  }
+  const legacyRef = useRef(false);
   const metronomeRef = useRef<MetronomeEngine | null>(null);
 
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
@@ -311,87 +322,47 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   useEffect(() => {
     if (!isReady) return;
 
-    const scheduler = schedulerRef.current;
-    const audioClipScheduler = audioClipSchedulerRef.current;
-    const automationScheduler = automationSchedulerRef.current;
+    const schedulers = schedulersRef.current;
+    const playback = playbackRef.current!;
     const audioMap = trackAudioRef.current;
 
-    // Always cancel previous schedule before re-scheduling
-    scheduler.cancelAll();
-    audioClipScheduler.cancelAll();
-    automationScheduler.cancelAll();
-
     if (isPlaying) {
-      // Read tracks from store snapshot (not from React closure) to avoid
-      // re-scheduling on every track property change (volume, pan, etc.)
-      const storeState = useStore.getState();
-      const currentTracks = storeState.tracks;
-      const currentTick = storeState.position;
-      const bpm = storeState.bpm;
-      // Muted clips are scheduled too, and start nothing while muted (the
-      // clip-mute effect below follows a change during playback).
-      const muted = mutedClipIds(currentTracks);
-      scheduler.setMutedClips(muted);
-      audioClipScheduler.setMutedClips(muted);
-
-      for (const track of currentTracks) {
-        // Muted and solo-excluded tracks are still scheduled: the TrackEngine's
-        // audible gate (set in the track sync above) silences them, so toggling
-        // mute/solo mid-playback takes effect immediately.
-        const state = audioMap.get(track.id);
-        if (!state) continue;
-
-        // Schedule MIDI clips
-        for (const clip of track.midiClips) {
-          scheduler.scheduleSequence(
-            {
-              ticksPerQuarterNote: 480,
-              trackName: track.name,
-              events: clip.events,
-              ccEvents: clip.ccEvents,
-            },
-            state.trackEngine,
-            clip.startTick,
-            clip.id,
-          );
-        }
-
-        // Schedule audio clips — route through pedal chain for Guitar/Bass/Vocal tracks
-        // so amp/pedal changes are heard in real time during playback
-        const pedalInput = pedalInputOf(state.instrument);
-        for (const clip of track.audioClips) {
-          const audioBuffer = getAudioBuffer(clip.id);
-          if (!audioBuffer) continue;
-          audioClipScheduler.scheduleClip({
-            buffer: audioBuffer,
-            clip,
-            trackEngine: state.trackEngine,
-            fromTick: currentTick,
-            bpm,
-            pedalInput,
-            clipId: clip.id,
-          });
-        }
-
-        // Ride this track's automation lanes (volume/pan/sends/FX) from the
-        // playhead. Runs after sends/effects are set so the params are wired.
-        automationScheduler.scheduleTrack(
-          track.id,
-          state.trackEngine,
-          track.automation,
-          currentTick,
-          bpm,
+      // Always cancel the previous schedule before scheduling again.
+      playback.cancel();
+      schedulers.midi.cancelAll();
+      schedulers.audio.cancelAll();
+      schedulers.automation.cancelAll();
+      // Muted and solo-excluded tracks are still scheduled: the TrackEngine's
+      // audible gate silences them, so toggling mute/solo mid-playback takes
+      // effect immediately. Muted clips are scheduled too, and start nothing
+      // while muted (the clip-mute effect below follows a change).
+      legacyRef.current = isLegacyScheduler();
+      if (legacyRef.current) {
+        legacyScheduleAll(schedulers);
+      } else {
+        const muted = mutedClipIds(useStore.getState().tracks);
+        schedulers.midi.setMutedClips(muted);
+        schedulers.audio.setMutedClips(muted);
+        playback.start(
+          useStore.getState().position,
+          transportStartedAt() ?? Tone.now(),
         );
       }
-
-      // Master bus automation (master volume).
-      scheduleMasterAutomation(automationScheduler, currentTick, bpm);
     } else {
-      // Immediately silence all notes, then hand automated params back to their
-      // static store values (fader/knob positions) so stopping resets the mix.
+      // Silence all notes, then hand automated params back to their static
+      // store values (fader/knob positions) so stopping resets the mix. The
+      // new scheduler ends them where the transport pauses, after anything
+      // it has already booked; the legacy one at once.
+      if (playback.isRunning()) {
+        playback.stop(Tone.now());
+      } else {
+        schedulers.midi.cancelAll();
+        schedulers.audio.cancelAll();
+        schedulers.automation.cancelAll();
+        for (const [, state] of audioMap) state.trackEngine.panic();
+      }
       const stopState = useStore.getState();
       for (const [trackId, state] of audioMap) {
-        state.trackEngine.panic();
         const track = stopState.tracks.find((t) => t.id === trackId);
         if (track) applyStaticTrackParams(state.trackEngine, track);
       }
@@ -399,6 +370,14 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, isPlaying]);
+
+  // Seeks while playing reach the scheduler (useTransport's seekTo).
+  useEffect(() => {
+    if (!isReady) return;
+    const playback = playbackRef.current!;
+    setActivePlayback(playback);
+    return () => setActivePlayback(null, playback);
+  }, [isReady]);
 
   // ── Metronome ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -467,13 +446,21 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       voice.trigger(clickPitch(i % num, num, den) === 'C5', time);
     }
 
+    // The transport starts exactly one beat after the last click (milestone
+    // 1.11): useTransport takes this time when the timer below says go.
+    if (!isLegacyScheduler())
+      planTransportStart(now + totalBeats * beatDuration);
+
     // After count-in completes, start the transport (and recording, if this
     // count-in was armed by Record rather than Play).
+    // With the start planned, the timer fires a little early, so a timer
+    // that runs late (a busy Chromebook) can't push the downbeat back.
+    const early = isLegacyScheduler() ? 0 : COUNT_IN_TIMER_LEAD_S;
     const timer = setTimeout(
       () => {
         useStore.getState()._startAfterCountIn();
       },
-      totalBeats * beatDuration * 1000,
+      Math.max(0, totalBeats * beatDuration - early) * 1000,
     );
     countInTimerRef.current = timer;
 
@@ -486,65 +473,25 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         countInVoiceRef.current.dispose();
         countInVoiceRef.current = null;
       }
+      // A count-in stopped before its end plans nothing.
+      if (!useStore.getState().isPlaying) planTransportStart(null);
     };
   }, [isReady, isCountingIn, countInBars]);
 
   // ── Silence held notes + restart audio clips at loop boundary ────────
   // Transport.schedule() at loopEnd never fires because Tone.js resets
   // ticks to loopStart BEFORE processing timeline events. Instead, use
-  // the Transport's "loop" event which fires reliably at the boundary.
+  // the Transport's "loop" event which fires reliably at the boundary, with
+  // the boundary's audio-clock time.
   useEffect(() => {
     if (!isReady || !isPlaying || !loopEnabled) return;
 
     const transport = Tone.getTransport();
-    const audioMap = trackAudioRef.current;
-    const audioClipScheduler = audioClipSchedulerRef.current;
-    const automationScheduler = automationSchedulerRef.current;
-
-    const handleLoop = () => {
-      // Silence held MIDI notes
-      for (const [, state] of audioMap) {
-        state.trackEngine.allNotesOff();
-      }
-
-      // Stop and re-schedule audio clips for the loop region
-      audioClipScheduler.cancelAll();
-      const storeSnap = useStore.getState();
-      const currentTracks = storeSnap.tracks;
-      const { start: loopStart, end: loopEnd } = getPlaybackLoop(storeSnap);
-      const bpm = storeSnap.bpm;
-      for (const track of currentTracks) {
-        const state = audioMap.get(track.id);
-        if (!state) continue;
-        const pedalInput = pedalInputOf(state.instrument);
-        for (const clip of track.audioClips) {
-          const audioBuffer = getAudioBuffer(clip.id);
-          if (!audioBuffer) continue;
-          const clipEnd = clip.startTick + clip.duration;
-          // Only schedule clips that overlap the loop region
-          if (clipEnd > loopStart && clip.startTick < loopEnd) {
-            audioClipScheduler.scheduleClip({
-              buffer: audioBuffer,
-              clip,
-              trackEngine: state.trackEngine,
-              fromTick: loopStart,
-              bpm,
-              pedalInput,
-              clipId: clip.id,
-            });
-          }
-        }
-        // Re-arm automation for the new lap (one-shot transport events don't
-        // re-fire after the loop reset), anchored at loopStart.
-        automationScheduler.scheduleTrack(
-          track.id,
-          state.trackEngine,
-          track.automation,
-          loopStart,
-          bpm,
-        );
-      }
-      scheduleMasterAutomation(automationScheduler, loopStart, bpm);
+    const schedulers = schedulersRef.current;
+    const playback = playbackRef.current!;
+    const handleLoop = (time: number) => {
+      if (legacyRef.current) legacyHandleLoop(schedulers);
+      else playback.onLoop(time);
     };
 
     transport.on('loop', handleLoop);
@@ -812,6 +759,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       }
       settleStart?.();
 
+      playbackRef.current?.cancel();
       schedulerRef.current.cancelAll();
       audioClipSchedulerRef.current.cancelAll();
       automationSchedulerRef.current.cancelAll();

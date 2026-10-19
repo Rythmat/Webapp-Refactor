@@ -65,6 +65,10 @@ vi.mock('@/daw/audio/MidiScheduler', () => ({
     scheduleSequence() {}
     setMutedClips() {}
     cancelAll() {}
+    releaseAll() {}
+    scheduledClipIds() {
+      return [];
+    }
   },
 }));
 vi.mock('@/daw/audio/AudioClipScheduler', () => ({
@@ -74,6 +78,7 @@ vi.mock('@/daw/audio/AudioClipScheduler', () => ({
       return [];
     }
     cancelAll() {}
+    cancelClip() {}
   },
 }));
 vi.mock('@/daw/audio/AutomationScheduler', () => ({

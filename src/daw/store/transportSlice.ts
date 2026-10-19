@@ -266,10 +266,13 @@ export const createTransportSlice: StateCreator<
           if (midiClip) {
             // The clip's box, its set length included, as the timeline
             // draws it.
+            // An empty clip has no length: keep the current range.
+            const length = midiClipLength(midiClip);
+            if (length <= 0) return { loopEnabled: true };
             return {
               loopEnabled: true,
               loopStart: midiClip.startTick,
-              loopEnd: midiClip.startTick + midiClipLength(midiClip),
+              loopEnd: midiClip.startTick + length,
             };
           }
         }
@@ -284,13 +287,21 @@ export const createTransportSlice: StateCreator<
   setEditorLoop: (loop) => set({ editorLoop: loop }),
 
   // No-op unless the editor loop exists (i.e. the piano roll editor is open).
+  // A range that ends where it starts, or before, is refused: the loop keeps
+  // its range (engine-hooks-18).
   updateEditorLoop: (patch) =>
-    set((state) =>
-      state.editorLoop ? { editorLoop: { ...state.editorLoop, ...patch } } : {},
-    ),
+    set((state) => {
+      if (!state.editorLoop) return {};
+      const next = { ...state.editorLoop, ...patch };
+      return next.end > next.start ? { editorLoop: next } : {};
+    }),
 
   setLoopRange: (start, end) =>
-    set({ loopStart: Math.max(0, start), loopEnd: Math.max(0, end) }),
+    set(() => {
+      const loopStart = Math.max(0, start);
+      const loopEnd = Math.max(0, end);
+      return loopEnd > loopStart ? { loopStart, loopEnd } : {};
+    }),
 
   setLiveRecording: (trackId, notes, startTick) =>
     set({

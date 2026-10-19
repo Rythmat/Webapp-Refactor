@@ -299,9 +299,16 @@ const SLUR_NUMBERS = 16;
 class SlurNumbers {
   private readonly open = new Map<number, number>();
   private readonly used = new Set<number>();
+  /** Slurs left out for want of a number: both their ends are skipped. */
+  private readonly dropped = new Set<number>();
 
   /** The number for this end of `slur`, and whether it is the last end. */
   take(slur: number): { number: number; closes: boolean } | null {
+    if (this.dropped.has(slur)) {
+      // Its other end: skipped too, so no stop is written without a start.
+      this.dropped.delete(slur);
+      return null;
+    }
     const number = this.open.get(slur);
     if (number !== undefined) return { number, closes: true };
     for (let n = 1; n <= SLUR_NUMBERS; n++) {
@@ -310,6 +317,7 @@ class SlurNumbers {
       this.open.set(slur, n);
       return { number: n, closes: false };
     }
+    this.dropped.add(slur);
     return null;
   }
 

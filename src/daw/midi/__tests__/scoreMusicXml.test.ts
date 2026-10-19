@@ -256,6 +256,26 @@ describe('buildScoreXml slurs and marks', () => {
     expect(new Set(stops.map((t) => t.number)).size).toBe(16);
   });
 
+  it('skips both ends of a slur left without a number, and leaks none', () => {
+    // Sixteen slurs open over notes 0–20; a seventeenth (16→30) gets no
+    // number. Its stop must not be written, nor take a number of its own.
+    const slurs: (readonly [string, string])[] = [
+      ...Array.from({ length: 16 }, (_, i) => [id(i), id(20)] as const),
+      [id(16), id(30)] as const,
+      // Opened after all sixteen close: it gets number 1 again.
+      [id(32), id(34)] as const,
+    ];
+    const tags = slurTags(write(slurs));
+    const starts = tags.filter((t) => t.type === 'start');
+    const stops = tags.filter((t) => t.type === 'stop');
+    expect(starts).toHaveLength(17);
+    expect(stops).toHaveLength(17);
+    expect(tags.slice(-2)).toEqual([
+      { type: 'start', number: 1 },
+      { type: 'stop', number: 1 },
+    ]);
+  });
+
   it('writes the metre, and system and page breaks on the bars marked', () => {
     const out = write([], {
       systemStarts: new Set([2, 4]),

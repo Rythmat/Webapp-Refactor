@@ -53,9 +53,12 @@ export async function importMidiToTracks(data: ArrayBuffer): Promise<number> {
   const before = useStore.getState();
   // A project with no clip anywhere hasn't been begun: it takes the file's
   // tempo and metre. Empty tracks don't count as a beginning.
-  const fresh = before.tracks.every(
-    (t) => t.midiClips.length === 0 && t.audioClips.length === 0,
-  );
+  // Sections count as a beginning too: they were laid out in the metre.
+  const fresh =
+    before.sections.length === 0 &&
+    before.tracks.every(
+      (t) => t.midiClips.length === 0 && t.audioClips.length === 0,
+    );
   const fileBpm = file.bpm === null ? null : roundBpm(file.bpm);
   const fileMetre = file.timeSignature;
 
@@ -64,10 +67,6 @@ export async function importMidiToTracks(data: ArrayBuffer): Promise<number> {
   const limit: { message: string | null } = { message: null };
   withTransaction('Import MIDI', () => {
     const state = useStore.getState();
-    if (fresh) {
-      if (fileBpm !== null) state.setBpm(fileBpm);
-      if (fileMetre) state.setTimeSignature(fileMetre[0], fileMetre[1]);
-    }
     for (const part of file.parts) {
       // Checked here rather than left to addTrack, which would say it
       // once and leave the rest unsaid.
@@ -99,12 +98,17 @@ export async function importMidiToTracks(data: ArrayBuffer): Promise<number> {
       });
       added++;
     }
+    // Only when something came in: a full project keeps its tempo.
+    if (fresh && added > 0) {
+      if (fileBpm !== null) state.setBpm(fileBpm);
+      if (fileMetre) state.setTimeSignature(fileMetre[0], fileMetre[1]);
+    }
   });
 
   // One notice for what the student may not expect.
   const lines: string[] = [];
   const after = useStore.getState();
-  if (fresh && (fileBpm !== null || fileMetre)) {
+  if (fresh && added > 0 && (fileBpm !== null || fileMetre)) {
     lines.push(
       `The project now uses the file's ${after.bpm} BPM in ${after.timeSignatureNumerator}/${after.timeSignatureDenominator}.`,
     );

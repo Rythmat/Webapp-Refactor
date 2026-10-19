@@ -188,6 +188,33 @@ describe('importMidiToTracks', () => {
     );
   });
 
+  it('keeps the metre of a song that has sections but no clips', async () => {
+    s().setTimeSignature(3, 4);
+    useStore.setState({
+      sections: [
+        { id: 'v', type: 'verse', label: 'Verse', startTick: 0, endTick: 1440 },
+      ] as ReturnType<typeof s>['sections'],
+    });
+    await importMidiToTracks(
+      midiFile([{ name: 'Lead' }], { bpm: 92, metre: [6, 8] }),
+    );
+    expect(s().timeSignatureNumerator).toBe(3);
+    expect(s().bpm).not.toBe(92);
+  });
+
+  it('keeps the tempo when the track limit lets nothing in', async () => {
+    for (let i = 0; i < MAX_TOTAL_TRACKS; i++) {
+      s().addTrack('midi', 'piano-sampler', `T${i}`);
+    }
+    const bpm = s().bpm;
+    const added = await importMidiToTracks(
+      midiFile([{ name: 'Lead' }], { bpm: 92, metre: [6, 8] }),
+    );
+    expect(added).toBe(0);
+    expect(s().bpm).toBe(bpm);
+    expect(s().timeSignatureNumerator).toBe(4);
+  });
+
   it('puts the sustain pedal in the clip, rescaled to 480 ppq', async () => {
     await importMidiToTracks(
       midiFile(

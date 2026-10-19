@@ -119,7 +119,8 @@ export const TUTORIAL_CATALOG = [
   {
     id: 'studio-basics-your-tracks',
     title: 'Your Tracks',
-    subtitle: 'Meet the tracks in a song and the views that show them.',
+    subtitle:
+      'Pick a track, change its sound, and use mute, solo, arm and monitor.',
     difficulty: 'Beginner',
     estMinutes: 3,
     requiresPremium: false,

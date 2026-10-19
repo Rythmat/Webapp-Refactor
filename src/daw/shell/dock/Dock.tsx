@@ -307,6 +307,7 @@ function DockHeader({
               maximized ? MAX_KEYS.label : undefined,
             )}
             data-testid="dock-maximize"
+            data-tutorial-id="dock-maximize"
             onClick={onToggleMaximized}
           />
         ) : null}

@@ -155,6 +155,7 @@ The Piano Roll is the dock's Notes tab on a melodic track (the drum grid on drum
 | `chanstrip-tab-piano-roll` | The dock's Notes tab                                         |
 | `dock-body`                | The dock's body: the Notes tab's piano roll                  |
 | `dock-toggle`              | Close (or open) the dock                                     |
+| `dock-maximize`            | Maximize (or restore) the dock, over the timeline            |
 | `dock-analyze-notes`       | Analyze N notes, in the dock header while notes are selected |
 | `piano-roll-tool-select`   | Select tool (V)                                              |
 | `piano-roll-tool-draw`     | Draw tool (D): click the grid to add a note, drag to size it |

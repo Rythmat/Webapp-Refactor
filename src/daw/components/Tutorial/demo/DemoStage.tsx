@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRef } from 'react';
+import { createPortal } from 'react-dom';
 import type { DemoFrame, Point } from './demoPlayer';
 import { DEMO_BLOCKER_ATTR } from './demoTypes';
 
@@ -11,6 +12,11 @@ import { DEMO_BLOCKER_ATTR } from './demoTypes';
 // plays. The cursor springs to each point and ripples on a click; under
 // reduced motion it jumps and doesn't ripple, and the callouts still show.
 // Both are decorative (aria-hidden): the coach card reads each caption out.
+//
+// The stage is portaled on its own, at the tutorial layer's z-index (80): the
+// lesson layer itself sits at the menus' 60, so its card never covers a menu
+// the student is using, but a demo's cursor and callout must show over the
+// menu the demo has just opened (the count-in menu, a clip's right-click).
 
 /** Callouts flip to the cursor's left past this share of the window's width. */
 const FLIP_X = 0.6;
@@ -92,7 +98,7 @@ export function DemoStage({
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1440;
   const vh = typeof window !== 'undefined' ? window.innerHeight : 900;
 
-  return (
+  return createPortal(
     <div
       aria-hidden
       data-testid="tutorial-demo-stage"
@@ -100,7 +106,7 @@ export function DemoStage({
         position: 'fixed',
         inset: 0,
         pointerEvents: 'none',
-        // Above the coach card, within the lesson layer.
+        // Above the coach card, and above menus and popovers.
         zIndex: 'var(--daw-z-tutorial)',
       }}
     >
@@ -183,7 +189,8 @@ export function DemoStage({
           reducedMotion={reducedMotion}
         />
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }
 

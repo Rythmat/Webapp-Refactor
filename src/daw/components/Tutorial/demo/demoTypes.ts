@@ -54,7 +54,9 @@ export interface DemoKeyPress {
   /**
    * Where the press goes: the document (the default: a shortcut, which the
    * editor's one keyboard listener answers) or the beat's target, focused
-   * first (a field, a focused control).
+   * first (a field, a focused control). An Escape that should close a menu
+   * or picker goes to an element inside it: on the document the editor takes
+   * it as Stop and deselect before the menu ever sees it.
    */
   on?: 'document' | 'element';
 }

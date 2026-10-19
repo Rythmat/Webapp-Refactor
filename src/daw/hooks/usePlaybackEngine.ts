@@ -12,6 +12,8 @@ import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import { MetronomeEngine, clickPitch } from '@/daw/audio/MetronomeEngine';
 import { createClickVoice, type ClickVoice } from '@/daw/audio/clickVoice';
 import { AudioRecorder } from '@/daw/audio/AudioRecorder';
+import { emitTakeCommitted } from '@/daw/audio/takeEvents';
+import { notice } from '@/daw/shell/notice';
 import {
   setAudioBuffer,
   setOriginalAudio,
@@ -48,6 +50,7 @@ import {
 } from '@/daw/engine/legacyPlayback';
 import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
+import { nativeContextOf } from '@/daw/audio/heardTime';
 import {
   startTrackReconciler,
   type TrackReconciler,
@@ -78,14 +81,21 @@ export {
 // created/destroyed. When playback starts, all MIDI clips are scheduled
 // through Tone.Transport.
 
+/** What a student sees when a take can't be recorded or kept. */
+function recordingFailedNotice(title: string, description: string): void {
+  notice({ title, description, variant: 'destructive' });
+}
+
 /**
  * Stop `recorder` and keep its take: a clip on the record-armed audio track
- * from `startTick`, replacing what the take rolled over, uploaded at once when
- * signed in. Runs when recording stops, and when the editor closes mid-take.
+ * where it was played (the recorder's placement, milestone 1.11 d; else
+ * `fallbackStartTick`, the playhead when recording began), replacing what the
+ * take rolled over, uploaded at once when signed in. Runs when recording
+ * stops, and when the editor closes mid-take.
  */
 function finishAudioTake(
   recorder: AudioRecorder,
-  startTick: number,
+  fallbackStartTick: number,
   tokenRef: { readonly current: string | null },
 ): void {
   const armedTrack = useStore
@@ -111,70 +121,97 @@ function finishAudioTake(
   const ctx = audioEngine.getContext();
   recorder
     .stopRecording(ctx)
-    .then(({ buffer: audioBuffer, originalBytes, originalContentType }) => {
-      const clipId = `clip-audio-${crypto.randomUUID().slice(0, 8)}`;
-      setAudioBuffer(clipId, audioBuffer);
-      // Stash the original Opus/WebM bytes so cloud save can upload them
-      // as-is instead of re-encoding to ~10x larger WAV.
-      setOriginalAudio(clipId, originalBytes, originalContentType);
-
-      // Convert duration in seconds to ticks
-      const bpm = useStore.getState().bpm;
-      const durationSeconds = audioBuffer.duration;
-      const durationTicks = Math.round((durationSeconds / 60) * bpm * 480);
-
-      if (trackId) {
-        useStore.getState().addAudioClip(trackId, {
-          id: clipId,
-          startTick,
-          duration: durationTicks,
-          fadeInTicks: 0,
-          fadeOutTicks: 0,
-        });
-
-        // Overwrite whatever the take rolled over: trim/remove existing
-        // audio clips on this track within the recorded span so only the
-        // overlapping region is replaced (non-overlapping audio survives).
-        const rawCtx = Tone.getContext().rawContext;
-        const nativeCtx: AudioContext =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
-        overwriteAudioRegion(
-          trackId,
-          startTick,
-          startTick + durationTicks,
-          nativeCtx,
-          bpm,
-          clipId,
+    .then(
+      ({
+        buffer: audioBuffer,
+        originalBytes,
+        originalContentType,
+        placement,
+      }) => {
+        const clipId = `clip-audio-${crypto.randomUUID().slice(0, 8)}`;
+        const startTick = placement?.startTick ?? fallbackStartTick;
+        // Audio before the take began (the decoded bytes start a little ahead
+        // of the tap, or before the song's start) is kept but trimmed off.
+        const offsetSeconds = Math.min(
+          placement?.offsetSeconds ?? 0,
+          Math.max(0, audioBuffer.duration - 0.01),
         );
+        setAudioBuffer(clipId, audioBuffer);
+        // Stash the original Opus/WebM bytes so cloud save can upload them
+        // as-is instead of re-encoding to ~10x larger WAV.
+        setOriginalAudio(clipId, originalBytes, originalContentType);
 
-        // Auto-rewind playhead to clip start so next play replays the recording
-        seekTo(startTick);
+        // Convert duration in seconds to ticks
+        const bpm = useStore.getState().bpm;
+        const durationSeconds = audioBuffer.duration - offsetSeconds;
+        const durationTicks = Math.round((durationSeconds / 60) * bpm * 480);
 
-        // Upload to GCS immediately so the bytes survive a page reload —
-        // the decoded buffer and original bytes live only in memory until
-        // now. Stamps the returned assetId onto the clip. Fire-and-forget:
-        // a failure leaves assetId=null so the next cloud Save retries.
-        const token = tokenRef.current;
-        if (token) {
-          void (async () => {
-            const { uploadRecordedClip } = await import(
-              '@/lib/studio-assets/upload-pending'
-            );
-            await uploadRecordedClip(token, trackId, clipId);
-          })().catch((err) => {
-            console.error('[recording] immediate upload failed', err);
-            // Fixed text: the error carries request details (method, path,
-            // status) that are not for students.
-            showError(
-              'Your recording is kept on this device. It will upload when you save.',
-            );
+        if (trackId) {
+          useStore.getState().addAudioClip(trackId, {
+            id: clipId,
+            startTick,
+            duration: durationTicks,
+            fadeInTicks: 0,
+            fadeOutTicks: 0,
+            ...(offsetSeconds > 0 ? { offsetSeconds } : {}),
           });
+
+          // Overwrite whatever the take rolled over: trim/remove existing
+          // audio clips on this track within the recorded span so only the
+          // overlapping region is replaced (non-overlapping audio survives).
+          const rawCtx = Tone.getContext().rawContext;
+          const nativeCtx: AudioContext =
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
+          overwriteAudioRegion(
+            trackId,
+            startTick,
+            startTick + durationTicks,
+            nativeCtx,
+            bpm,
+            clipId,
+          );
+
+          // The take is in the song (for 1.16b's listeners).
+          emitTakeCommitted({
+            trackId,
+            clipId,
+            startTick,
+            buffer: audioBuffer,
+          });
+
+          // Auto-rewind playhead to clip start so next play replays the recording
+          seekTo(startTick);
+
+          // Upload to GCS immediately so the bytes survive a page reload —
+          // the decoded buffer and original bytes live only in memory until
+          // now. Stamps the returned assetId onto the clip. Fire-and-forget:
+          // a failure leaves assetId=null so the next cloud Save retries.
+          const token = tokenRef.current;
+          if (token) {
+            void (async () => {
+              const { uploadRecordedClip } = await import(
+                '@/lib/studio-assets/upload-pending'
+              );
+              await uploadRecordedClip(token, trackId, clipId);
+            })().catch((err) => {
+              console.error('[recording] immediate upload failed', err);
+              // Fixed text: the error carries request details (method, path,
+              // status) that are not for students.
+              showError(
+                'Your recording is kept on this device. It will upload when you save.',
+              );
+            });
+          }
         }
-      }
-    })
+      },
+    )
     .catch((err) => {
       console.warn('Failed to stop audio recording:', err);
+      recordingFailedNotice(
+        "Recording stopped: the microphone's take couldn't be saved.",
+        'Press Record to try again.',
+      );
     })
     .finally(settleTake);
 }
@@ -455,12 +492,9 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     // count-in was armed by Record rather than Play).
     // With the start planned, the timer fires a little early, so a timer
     // that runs late (a busy Chromebook) can't push the downbeat back.
-    // Not for a recording yet: its take is placed from when the recorder
-    // starts, which the timer decides (until takes carry their capture time).
-    const early =
-      isLegacyScheduler() || useStore.getState().countInIsRecording
-        ? 0
-        : COUNT_IN_TIMER_LEAD_S;
+    // A take is placed from its capture time (takePlacement.ts), so a
+    // recorder that starts early is trimmed to the downbeat.
+    const early = isLegacyScheduler() ? 0 : COUNT_IN_TIMER_LEAD_S;
     const timer = setTimeout(
       () => {
         useStore.getState()._startAfterCountIn();
@@ -680,6 +714,58 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         }
       };
 
+      // The take couldn't start, or the recorder failed mid-take: the
+      // student is told, the take is dropped and the mic is let go (the
+      // recorder stops a stream it opened; an adapter's tap is the adapter's
+      // and is closed through it). Nothing happens for a take already gone.
+      const failTake = (err: unknown, title: string, description: string) => {
+        if (audioRecorderRef.current !== recorder) return;
+        console.warn('Audio recording failed:', err);
+        audioRecorderRef.current = null;
+        recorder.dispose();
+        adapter?.stopRecordingStream();
+        cleanupLiveRecordingArtifacts();
+        settleThisTake();
+        if (audioTakeSettleRef.current === settleThisTake) {
+          audioTakeSettleRef.current = null;
+        }
+        isActivelyRecordingRef.current = false;
+        recordingFailedNotice(title, description);
+      };
+      const recorderStopped = (err: Error) =>
+        failTake(
+          err,
+          'Recording stopped: the microphone stopped sending sound.',
+          "Check that it's plugged in, then press Record again.",
+        );
+
+      // Starts the take on `stream`; resolves once it is recording. A take
+      // stopped (or an editor closed) during the start is dropped, and its
+      // stream let go.
+      const startTake = async (stream: MediaStream, ownsStream: boolean) => {
+        const dropStale = () => {
+          recorder.dispose();
+          if (!ownsStream) adapter?.stopRecordingStream();
+        };
+        try {
+          await recorder.startRecording(stream, {
+            ownsStream,
+            onError: recorderStopped,
+            transportStart: transportStartedAt,
+            context: nativeContextOf(audioEngine.getContext()),
+          });
+        } catch (err) {
+          if (audioRecorderRef.current !== recorder) dropStale();
+          else recorderStopped(err as Error);
+          return;
+        }
+        if (audioRecorderRef.current !== recorder) {
+          dropStale();
+          return;
+        }
+        startLiveAnalyser(stream, recordArmedAudioTrack.id);
+      };
+
       // Tap the adapter's raw input when one is attached AND it has a live
       // input device. Without a device (e.g. armed but no mic selected in a
       // collab session), startRecordingStream() returns null and we fall back
@@ -687,8 +773,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       const adapterStream = adapter?.startRecordingStream() ?? null;
       if (adapterStream) {
         // Tap the pedal chain output (after amp model, before muteGain)
-        recorder.startRecording(adapterStream);
-        startLiveAnalyser(adapterStream, recordArmedAudioTrack.id);
+        void startTake(adapterStream, false);
       } else {
         const audioConstraints: MediaTrackConstraints = {
           echoCancellation: false,
@@ -704,22 +789,16 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
               stream.getTracks().forEach((track) => track.stop());
               return;
             }
-            recorder.startRecording(stream);
-            startLiveAnalyser(stream, recordArmedAudioTrack.id);
+            // The recorder opened this stream, so it stops it after the take.
+            return startTake(stream, true);
           })
-          .catch((err) => {
-            console.warn('Audio recording failed:', err);
-            audioRecorderRef.current = null;
-            settleThisTake();
-            if (audioTakeSettleRef.current === settleThisTake) {
-              audioTakeSettleRef.current = null;
-            }
-            isActivelyRecordingRef.current = false;
-            if (recordLimitTimerRef.current !== null) {
-              clearTimeout(recordLimitTimerRef.current);
-              recordLimitTimerRef.current = null;
-            }
-          });
+          .catch((err) =>
+            failTake(
+              err,
+              'Recording stopped: the microphone is blocked or in use.',
+              'Allow the microphone for this site in your browser, then press Record again.',
+            ),
+          );
       }
     } else {
       // Not in the recording state (stopped/paused, or never started). ALWAYS

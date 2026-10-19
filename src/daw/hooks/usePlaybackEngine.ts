@@ -10,7 +10,10 @@ import { AudioClipScheduler } from '@/daw/audio/AudioClipScheduler';
 import { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import { MetronomeEngine, clickPitch } from '@/daw/audio/MetronomeEngine';
+import { createClickVoice, type ClickVoice } from '@/daw/audio/clickVoice';
 import { AudioRecorder } from '@/daw/audio/AudioRecorder';
+import { emitTakeCommitted } from '@/daw/audio/takeEvents';
+import { notice } from '@/daw/shell/notice';
 import {
   setAudioBuffer,
   setOriginalAudio,
@@ -23,6 +26,7 @@ import {
   ticksToSeconds,
 } from '@/daw/audio/recordingLimit';
 import { overwriteAudioRegion } from '@/daw/audio/overwriteAudioRegion';
+import { mutedClipIds } from '@/daw/audio/trackAudibility';
 import { seekTo } from '@/daw/hooks/useTransport';
 import {
   applySamplerState,
@@ -31,8 +35,22 @@ import {
   scheduleMasterAutomation,
   trackEngineRegistry,
 } from '@/daw/engine/trackAudio';
+import {
+  PlaybackScheduler,
+  isLegacyScheduler,
+  pedalInputOf,
+  planTransportStart,
+  setActivePlayback,
+  transportStartedAt,
+  type PlaybackSchedulers,
+} from '@/daw/engine/playbackScheduler';
+import {
+  legacyHandleLoop,
+  legacyScheduleAll,
+} from '@/daw/engine/legacyPlayback';
 import { addFrameTask } from '@/daw/engine/engineClock';
 import { getPlayheadTick } from '@/daw/engine/playheadClock';
+import { nativeContextOf } from '@/daw/audio/heardTime';
 import {
   startTrackReconciler,
   type TrackReconciler,
@@ -63,14 +81,21 @@ export {
 // created/destroyed. When playback starts, all MIDI clips are scheduled
 // through Tone.Transport.
 
+/** What a student sees when a take can't be recorded or kept. */
+function recordingFailedNotice(title: string, description: string): void {
+  notice({ title, description, variant: 'destructive' });
+}
+
 /**
  * Stop `recorder` and keep its take: a clip on the record-armed audio track
- * from `startTick`, replacing what the take rolled over, uploaded at once when
- * signed in. Runs when recording stops, and when the editor closes mid-take.
+ * where it was played (the recorder's placement, milestone 1.11 d; else
+ * `fallbackStartTick`, the playhead when recording began), replacing what the
+ * take rolled over, uploaded at once when signed in. Runs when recording
+ * stops, and when the editor closes mid-take.
  */
 function finishAudioTake(
   recorder: AudioRecorder,
-  startTick: number,
+  fallbackStartTick: number,
   tokenRef: { readonly current: string | null },
 ): void {
   const armedTrack = useStore
@@ -96,73 +121,104 @@ function finishAudioTake(
   const ctx = audioEngine.getContext();
   recorder
     .stopRecording(ctx)
-    .then(({ buffer: audioBuffer, originalBytes, originalContentType }) => {
-      const clipId = `clip-audio-${crypto.randomUUID().slice(0, 8)}`;
-      setAudioBuffer(clipId, audioBuffer);
-      // Stash the original Opus/WebM bytes so cloud save can upload them
-      // as-is instead of re-encoding to ~10x larger WAV.
-      setOriginalAudio(clipId, originalBytes, originalContentType);
-
-      // Convert duration in seconds to ticks
-      const bpm = useStore.getState().bpm;
-      const durationSeconds = audioBuffer.duration;
-      const durationTicks = Math.round((durationSeconds / 60) * bpm * 480);
-
-      if (trackId) {
-        useStore.getState().addAudioClip(trackId, {
-          id: clipId,
-          startTick,
-          duration: durationTicks,
-          fadeInTicks: 0,
-          fadeOutTicks: 0,
-        });
-
-        // Overwrite whatever the take rolled over: trim/remove existing
-        // audio clips on this track within the recorded span so only the
-        // overlapping region is replaced (non-overlapping audio survives).
-        const rawCtx = Tone.getContext().rawContext;
-        const nativeCtx: AudioContext =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
-        overwriteAudioRegion(
-          trackId,
-          startTick,
-          startTick + durationTicks,
-          nativeCtx,
-          bpm,
-          clipId,
+    .then(
+      ({
+        buffer: audioBuffer,
+        originalBytes,
+        originalContentType,
+        placement,
+      }) => {
+        const clipId = `clip-audio-${crypto.randomUUID().slice(0, 8)}`;
+        const startTick = placement?.startTick ?? fallbackStartTick;
+        // Audio before the take began (the decoded bytes start a little ahead
+        // of the tap, or before the song's start) is kept but trimmed off.
+        const offsetSeconds = Math.min(
+          placement?.offsetSeconds ?? 0,
+          Math.max(0, audioBuffer.duration - 0.01),
         );
+        setAudioBuffer(clipId, audioBuffer);
+        // Stash the original Opus/WebM bytes so cloud save can upload them
+        // as-is instead of re-encoding to ~10x larger WAV.
+        setOriginalAudio(clipId, originalBytes, originalContentType);
 
-        // Auto-rewind playhead to clip start so next play replays the recording
-        seekTo(startTick);
+        // Convert duration in seconds to ticks
+        const bpm = useStore.getState().bpm;
+        const durationSeconds = audioBuffer.duration - offsetSeconds;
+        const durationTicks = Math.round((durationSeconds / 60) * bpm * 480);
 
-        // Upload to GCS immediately so the bytes survive a page reload —
-        // the decoded buffer and original bytes live only in memory until
-        // now. Stamps the returned assetId onto the clip. Fire-and-forget:
-        // a failure leaves assetId=null so the next cloud Save retries.
-        const token = tokenRef.current;
-        if (token) {
-          void (async () => {
-            const { uploadRecordedClip } = await import(
-              '@/lib/studio-assets/upload-pending'
-            );
-            await uploadRecordedClip(token, trackId, clipId);
-          })().catch((err) => {
-            console.error('[recording] immediate upload failed', err);
-            // Fixed text: the error carries request details (method, path,
-            // status) that are not for students.
-            showError(
-              'Your recording is kept on this device. It will upload when you save.',
-            );
+        if (trackId) {
+          useStore.getState().addAudioClip(trackId, {
+            id: clipId,
+            startTick,
+            duration: durationTicks,
+            fadeInTicks: 0,
+            fadeOutTicks: 0,
+            ...(offsetSeconds > 0 ? { offsetSeconds } : {}),
           });
+
+          // Overwrite whatever the take rolled over: trim/remove existing
+          // audio clips on this track within the recorded span so only the
+          // overlapping region is replaced (non-overlapping audio survives).
+          const rawCtx = Tone.getContext().rawContext;
+          const nativeCtx: AudioContext =
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
+          overwriteAudioRegion(
+            trackId,
+            startTick,
+            startTick + durationTicks,
+            nativeCtx,
+            bpm,
+            clipId,
+          );
+
+          // The take is in the song (for 1.16b's listeners).
+          emitTakeCommitted({
+            trackId,
+            clipId,
+            startTick,
+            buffer: audioBuffer,
+          });
+
+          // Auto-rewind playhead to clip start so next play replays the recording
+          seekTo(startTick);
+
+          // Upload to GCS immediately so the bytes survive a page reload —
+          // the decoded buffer and original bytes live only in memory until
+          // now. Stamps the returned assetId onto the clip. Fire-and-forget:
+          // a failure leaves assetId=null so the next cloud Save retries.
+          const token = tokenRef.current;
+          if (token) {
+            void (async () => {
+              const { uploadRecordedClip } = await import(
+                '@/lib/studio-assets/upload-pending'
+              );
+              await uploadRecordedClip(token, trackId, clipId);
+            })().catch((err) => {
+              console.error('[recording] immediate upload failed', err);
+              // Fixed text: the error carries request details (method, path,
+              // status) that are not for students.
+              showError(
+                'Your recording is kept on this device. It will upload when you save.',
+              );
+            });
+          }
         }
-      }
-    })
+      },
+    )
     .catch((err) => {
       console.warn('Failed to stop audio recording:', err);
+      recordingFailedNotice(
+        "Recording stopped: the microphone's take couldn't be saved.",
+        'Press Record to try again.',
+      );
     })
     .finally(settleTake);
 }
+
+/** How much earlier than the count-in's end its timer says go, when the
+ *  transport's start time is planned (milestone 1.11). */
+const COUNT_IN_TIMER_LEAD_S = 0.15;
 
 export function usePlaybackEngine(isReady: boolean, token: string | null) {
   // Kept in a ref so the recording effect can read the latest token when a
@@ -175,6 +231,18 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const schedulerRef = useRef(new MidiScheduler());
   const audioClipSchedulerRef = useRef(new AudioClipScheduler());
   const automationSchedulerRef = useRef(new AutomationScheduler());
+  const schedulersRef = useRef<PlaybackSchedulers>({
+    midi: schedulerRef.current,
+    audio: audioClipSchedulerRef.current,
+    automation: automationSchedulerRef.current,
+  });
+  // One owner of what plays while the transport runs (milestone 1.11), or
+  // the scheduler from before it behind the legacy flag, chosen on each Play.
+  const playbackRef = useRef<PlaybackScheduler | null>(null);
+  if (!playbackRef.current) {
+    playbackRef.current = new PlaybackScheduler(schedulersRef.current);
+  }
+  const legacyRef = useRef(false);
   const metronomeRef = useRef<MetronomeEngine | null>(null);
 
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
@@ -194,13 +262,15 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const liveAudioPeaksRef = useRef<number[]>([]);
 
   const countInTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const countInSynthRef = useRef<Tone.MembraneSynth | null>(null);
+  const countInVoiceRef = useRef<ClickVoice | null>(null);
 
   const isPlaying = useStore((s) => s.isPlaying);
   const isRecording = useStore((s) => s.isRecording);
   const isCountingIn = useStore((s) => s.isCountingIn);
   const countInBars = useStore((s) => s.countInBars);
   const metronomeEnabled = useStore((s) => s.metronomeEnabled);
+  const metronomeSound = useStore((s) => s.metronomeSound);
+  const metronomeVolume = useStore((s) => s.metronomeVolume);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
   // The piano roll editor's own loop while it's open, else the project loop.
@@ -289,89 +359,47 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   useEffect(() => {
     if (!isReady) return;
 
-    const scheduler = schedulerRef.current;
-    const audioClipScheduler = audioClipSchedulerRef.current;
-    const automationScheduler = automationSchedulerRef.current;
+    const schedulers = schedulersRef.current;
+    const playback = playbackRef.current!;
     const audioMap = trackAudioRef.current;
 
-    // Always cancel previous schedule before re-scheduling
-    scheduler.cancelAll();
-    audioClipScheduler.cancelAll();
-    automationScheduler.cancelAll();
-
     if (isPlaying) {
-      // Read tracks from store snapshot (not from React closure) to avoid
-      // re-scheduling on every track property change (volume, pan, etc.)
-      const storeState = useStore.getState();
-      const currentTracks = storeState.tracks;
-      const currentTick = storeState.position;
-      const bpm = storeState.bpm;
-
-      for (const track of currentTracks) {
-        // Muted and solo-excluded tracks are still scheduled: the TrackEngine's
-        // audible gate (set in the track sync above) silences them, so toggling
-        // mute/solo mid-playback takes effect immediately.
-        const state = audioMap.get(track.id);
-        if (!state) continue;
-
-        // Schedule MIDI clips
-        for (const clip of track.midiClips) {
-          scheduler.scheduleSequence(
-            {
-              ticksPerQuarterNote: 480,
-              trackName: track.name,
-              events: clip.events,
-              ccEvents: clip.ccEvents,
-            },
-            state.trackEngine,
-            clip.startTick,
-          );
-        }
-
-        // Schedule audio clips — route through pedal chain for Guitar/Bass/Vocal tracks
-        // so amp/pedal changes are heard in real time during playback
-        const pedalInput =
-          state.instrument instanceof GuitarFxAdapter
-            ? ((
-                state.instrument as GuitarFxAdapter
-              ).getNativePedalInputNode() ?? undefined)
-            : state.instrument instanceof VocalFxAdapter
-              ? ((
-                  state.instrument as VocalFxAdapter
-                ).getNativePedalInputNode() ?? undefined)
-              : undefined;
-        for (const clip of track.audioClips) {
-          const audioBuffer = getAudioBuffer(clip.id);
-          if (!audioBuffer) continue;
-          audioClipScheduler.scheduleClip({
-            buffer: audioBuffer,
-            clip,
-            trackEngine: state.trackEngine,
-            fromTick: currentTick,
-            bpm,
-            pedalInput,
-          });
-        }
-
-        // Ride this track's automation lanes (volume/pan/sends/FX) from the
-        // playhead. Runs after sends/effects are set so the params are wired.
-        automationScheduler.scheduleTrack(
-          track.id,
-          state.trackEngine,
-          track.automation,
-          currentTick,
-          bpm,
+      // Always cancel the previous schedule before scheduling again.
+      playback.cancel();
+      schedulers.midi.cancelAll();
+      schedulers.audio.cancelAll();
+      schedulers.automation.cancelAll();
+      // Muted and solo-excluded tracks are still scheduled: the TrackEngine's
+      // audible gate silences them, so toggling mute/solo mid-playback takes
+      // effect immediately. Muted clips are scheduled too, and start nothing
+      // while muted (the clip-mute effect below follows a change).
+      legacyRef.current = isLegacyScheduler();
+      if (legacyRef.current) {
+        legacyScheduleAll(schedulers);
+      } else {
+        const muted = mutedClipIds(useStore.getState().tracks);
+        schedulers.midi.setMutedClips(muted);
+        schedulers.audio.setMutedClips(muted);
+        playback.start(
+          useStore.getState().position,
+          transportStartedAt() ?? Tone.now(),
         );
       }
-
-      // Master bus automation (master volume).
-      scheduleMasterAutomation(automationScheduler, currentTick, bpm);
     } else {
-      // Immediately silence all notes, then hand automated params back to their
-      // static store values (fader/knob positions) so stopping resets the mix.
+      // Silence all notes, then hand automated params back to their static
+      // store values (fader/knob positions) so stopping resets the mix. The
+      // new scheduler ends them where the transport pauses, after anything
+      // it has already booked; the legacy one at once.
+      if (playback.isRunning()) {
+        playback.stop(Tone.now());
+      } else {
+        schedulers.midi.cancelAll();
+        schedulers.audio.cancelAll();
+        schedulers.automation.cancelAll();
+        for (const [, state] of audioMap) state.trackEngine.panic();
+      }
       const stopState = useStore.getState();
       for (const [trackId, state] of audioMap) {
-        state.trackEngine.panic();
         const track = stopState.tracks.find((t) => t.id === trackId);
         if (track) applyStaticTrackParams(state.trackEngine, track);
       }
@@ -380,16 +408,30 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, isPlaying]);
 
+  // Seeks while playing reach the scheduler (useTransport's seekTo).
+  useEffect(() => {
+    if (!isReady) return;
+    const playback = playbackRef.current!;
+    setActivePlayback(playback);
+    return () => setActivePlayback(null, playback);
+  }, [isReady]);
+
   // ── Metronome ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (!isReady) return;
 
     if (!metronomeRef.current) {
       metronomeRef.current = new MetronomeEngine();
-      metronomeRef.current.init(audioEngine.getMasterGain());
+      metronomeRef.current.init(
+        audioEngine.getOutput(),
+        metronomeSound,
+        metronomeVolume,
+      );
     }
 
     const metro = metronomeRef.current;
+    metro.setSound(metronomeSound);
+    metro.setVolume(metronomeVolume);
     metro.setTimeSignature(tsNum, tsDen);
     metro.setEnabled(metronomeEnabled);
 
@@ -398,7 +440,15 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     } else {
       metro.stop();
     }
-  }, [isReady, isPlaying, metronomeEnabled, tsNum, tsDen]);
+  }, [
+    isReady,
+    isPlaying,
+    metronomeEnabled,
+    metronomeSound,
+    metronomeVolume,
+    tsNum,
+    tsDen,
+  ]);
 
   // ── Count-in scheduling (audio-clock, transport stays paused) ────────
   useEffect(() => {
@@ -411,17 +461,15 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     // Beat duration based on denominator: eighth = half a quarter, half = two quarters
     const beatDuration = (60 / bpm) * (4 / den);
     const totalBeats = countInBars * num;
-    const masterGain = audioEngine.getMasterGain();
 
-    // Create a temporary synth for count-in clicks (same config as MetronomeEngine)
-    const synth = new Tone.MembraneSynth({
-      pitchDecay: 0.008,
-      octaves: 2,
-      envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.05 },
-    });
-    synth.connect(masterGain);
-    synth.volume.value = -10;
-    countInSynthRef.current = synth;
+    // A voice of its own for the count-in clicks, in the metronome's sound
+    // and volume, straight to the output as the metronome is.
+    const voice = createClickVoice(
+      storeSnap.metronomeSound,
+      audioEngine.getOutput(),
+      storeSnap.metronomeVolume,
+    );
+    countInVoiceRef.current = voice;
 
     // Schedule all clicks at audio-clock times (no Transport needed)
     const now = Tone.now();
@@ -432,16 +480,26 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     for (let i = 0; i < totalBeats; i++) {
       const time = now + i * beatDuration;
       // Same accents as the metronome (beat 1, compound sub-groups).
-      synth.triggerAttackRelease(clickPitch(i % num, num, den), '32n', time);
+      voice.trigger(clickPitch(i % num, num, den) === 'C5', time);
     }
+
+    // The transport starts exactly one beat after the last click (milestone
+    // 1.11): useTransport takes this time when the timer below says go.
+    if (!isLegacyScheduler())
+      planTransportStart(now + totalBeats * beatDuration);
 
     // After count-in completes, start the transport (and recording, if this
     // count-in was armed by Record rather than Play).
+    // With the start planned, the timer fires a little early, so a timer
+    // that runs late (a busy Chromebook) can't push the downbeat back.
+    // A take is placed from its capture time (takePlacement.ts), so a
+    // recorder that starts early is trimmed to the downbeat.
+    const early = isLegacyScheduler() ? 0 : COUNT_IN_TIMER_LEAD_S;
     const timer = setTimeout(
       () => {
         useStore.getState()._startAfterCountIn();
       },
-      totalBeats * beatDuration * 1000,
+      Math.max(0, totalBeats * beatDuration - early) * 1000,
     );
     countInTimerRef.current = timer;
 
@@ -450,77 +508,29 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         clearTimeout(countInTimerRef.current);
         countInTimerRef.current = null;
       }
-      if (countInSynthRef.current) {
-        countInSynthRef.current.dispose();
-        countInSynthRef.current = null;
+      if (countInVoiceRef.current) {
+        countInVoiceRef.current.dispose();
+        countInVoiceRef.current = null;
       }
+      // A count-in stopped before its end plans nothing.
+      if (!useStore.getState().isPlaying) planTransportStart(null);
     };
   }, [isReady, isCountingIn, countInBars]);
 
   // ── Silence held notes + restart audio clips at loop boundary ────────
   // Transport.schedule() at loopEnd never fires because Tone.js resets
   // ticks to loopStart BEFORE processing timeline events. Instead, use
-  // the Transport's "loop" event which fires reliably at the boundary.
+  // the Transport's "loop" event which fires reliably at the boundary, with
+  // the boundary's audio-clock time.
   useEffect(() => {
     if (!isReady || !isPlaying || !loopEnabled) return;
 
     const transport = Tone.getTransport();
-    const audioMap = trackAudioRef.current;
-    const audioClipScheduler = audioClipSchedulerRef.current;
-    const automationScheduler = automationSchedulerRef.current;
-
-    const handleLoop = () => {
-      // Silence held MIDI notes
-      for (const [, state] of audioMap) {
-        state.trackEngine.allNotesOff();
-      }
-
-      // Stop and re-schedule audio clips for the loop region
-      audioClipScheduler.cancelAll();
-      const storeSnap = useStore.getState();
-      const currentTracks = storeSnap.tracks;
-      const { start: loopStart, end: loopEnd } = getPlaybackLoop(storeSnap);
-      const bpm = storeSnap.bpm;
-      for (const track of currentTracks) {
-        const state = audioMap.get(track.id);
-        if (!state) continue;
-        const pedalInput =
-          state.instrument instanceof GuitarFxAdapter
-            ? ((
-                state.instrument as GuitarFxAdapter
-              ).getNativePedalInputNode() ?? undefined)
-            : state.instrument instanceof VocalFxAdapter
-              ? ((
-                  state.instrument as VocalFxAdapter
-                ).getNativePedalInputNode() ?? undefined)
-              : undefined;
-        for (const clip of track.audioClips) {
-          const audioBuffer = getAudioBuffer(clip.id);
-          if (!audioBuffer) continue;
-          const clipEnd = clip.startTick + clip.duration;
-          // Only schedule clips that overlap the loop region
-          if (clipEnd > loopStart && clip.startTick < loopEnd) {
-            audioClipScheduler.scheduleClip({
-              buffer: audioBuffer,
-              clip,
-              trackEngine: state.trackEngine,
-              fromTick: loopStart,
-              bpm,
-              pedalInput,
-            });
-          }
-        }
-        // Re-arm automation for the new lap (one-shot transport events don't
-        // re-fire after the loop reset), anchored at loopStart.
-        automationScheduler.scheduleTrack(
-          track.id,
-          state.trackEngine,
-          track.automation,
-          loopStart,
-          bpm,
-        );
-      }
-      scheduleMasterAutomation(automationScheduler, loopStart, bpm);
+    const schedulers = schedulersRef.current;
+    const playback = playbackRef.current!;
+    const handleLoop = (time: number) => {
+      if (legacyRef.current) legacyHandleLoop(schedulers);
+      else playback.onLoop(time);
     };
 
     transport.on('loop', handleLoop);
@@ -529,6 +539,54 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       transport.off('loop', handleLoop);
     };
   }, [isReady, isPlaying, loopEnabled]);
+
+  // ── A clip muted or unmuted during playback (milestone 2.12) ─────────
+  // The schedulers gate each start on the muted set, so nothing is
+  // rescheduled: a clip just muted stops sounding, its later notes and
+  // starts are skipped, and one just unmuted plays from its next note (an
+  // audio clip under the playhead starts there at once).
+  useEffect(() => {
+    if (!isReady || !isPlaying) return;
+    const scheduler = schedulerRef.current;
+    const audioClipScheduler = audioClipSchedulerRef.current;
+    const audioMap = trackAudioRef.current;
+    let key = [...mutedClipIds(useStore.getState().tracks)].sort().join('|');
+    return useStore.subscribe((state, prev) => {
+      if (state.tracks === prev.tracks) return;
+      const muted = mutedClipIds(state.tracks);
+      const next = [...muted].sort().join('|');
+      if (next === key) return;
+      key = next;
+      scheduler.setMutedClips(muted);
+      const unmuted = new Set(audioClipScheduler.setMutedClips(muted));
+      if (unmuted.size === 0) return;
+      // Where the transport is on the audio clock, as the clips started on
+      // the beat are: the playhead the student sees runs an output latency
+      // behind it, and a restart from there would play late.
+      const tick = Tone.getTransport().getTicksAtTime(
+        Tone.getContext().currentTime,
+      );
+      for (const track of state.tracks) {
+        const audio = audioMap.get(track.id);
+        if (!audio) continue;
+        for (const clip of track.audioClips) {
+          if (!unmuted.has(clip.id)) continue;
+          if (tick < clip.startTick) continue;
+          const buffer = getAudioBuffer(clip.id);
+          if (!buffer) continue;
+          audioClipScheduler.scheduleClip({
+            buffer,
+            clip,
+            trackEngine: audio.trackEngine,
+            fromTick: tick,
+            bpm: state.bpm,
+            pedalInput: pedalInputOf(audio.instrument),
+            clipId: clip.id,
+          });
+        }
+      }
+    });
+  }, [isReady, isPlaying]);
 
   // ── Audio recording (record-armed audio tracks) ─────────────────────
   useEffect(() => {
@@ -656,6 +714,58 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         }
       };
 
+      // The take couldn't start, or the recorder failed mid-take: the
+      // student is told, the take is dropped and the mic is let go (the
+      // recorder stops a stream it opened; an adapter's tap is the adapter's
+      // and is closed through it). Nothing happens for a take already gone.
+      const failTake = (err: unknown, title: string, description: string) => {
+        if (audioRecorderRef.current !== recorder) return;
+        console.warn('Audio recording failed:', err);
+        audioRecorderRef.current = null;
+        recorder.dispose();
+        adapter?.stopRecordingStream();
+        cleanupLiveRecordingArtifacts();
+        settleThisTake();
+        if (audioTakeSettleRef.current === settleThisTake) {
+          audioTakeSettleRef.current = null;
+        }
+        isActivelyRecordingRef.current = false;
+        recordingFailedNotice(title, description);
+      };
+      const recorderStopped = (err: Error) =>
+        failTake(
+          err,
+          'Recording stopped: the microphone stopped sending sound.',
+          "Check that it's plugged in, then press Record again.",
+        );
+
+      // Starts the take on `stream`; resolves once it is recording. A take
+      // stopped (or an editor closed) during the start is dropped, and its
+      // stream let go.
+      const startTake = async (stream: MediaStream, ownsStream: boolean) => {
+        const dropStale = () => {
+          recorder.dispose();
+          if (!ownsStream) adapter?.stopRecordingStream();
+        };
+        try {
+          await recorder.startRecording(stream, {
+            ownsStream,
+            onError: recorderStopped,
+            transportStart: transportStartedAt,
+            context: nativeContextOf(audioEngine.getContext()),
+          });
+        } catch (err) {
+          if (audioRecorderRef.current !== recorder) dropStale();
+          else recorderStopped(err as Error);
+          return;
+        }
+        if (audioRecorderRef.current !== recorder) {
+          dropStale();
+          return;
+        }
+        startLiveAnalyser(stream, recordArmedAudioTrack.id);
+      };
+
       // Tap the adapter's raw input when one is attached AND it has a live
       // input device. Without a device (e.g. armed but no mic selected in a
       // collab session), startRecordingStream() returns null and we fall back
@@ -663,8 +773,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       const adapterStream = adapter?.startRecordingStream() ?? null;
       if (adapterStream) {
         // Tap the pedal chain output (after amp model, before muteGain)
-        recorder.startRecording(adapterStream);
-        startLiveAnalyser(adapterStream, recordArmedAudioTrack.id);
+        void startTake(adapterStream, false);
       } else {
         const audioConstraints: MediaTrackConstraints = {
           echoCancellation: false,
@@ -680,22 +789,16 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
               stream.getTracks().forEach((track) => track.stop());
               return;
             }
-            recorder.startRecording(stream);
-            startLiveAnalyser(stream, recordArmedAudioTrack.id);
+            // The recorder opened this stream, so it stops it after the take.
+            return startTake(stream, true);
           })
-          .catch((err) => {
-            console.warn('Audio recording failed:', err);
-            audioRecorderRef.current = null;
-            settleThisTake();
-            if (audioTakeSettleRef.current === settleThisTake) {
-              audioTakeSettleRef.current = null;
-            }
-            isActivelyRecordingRef.current = false;
-            if (recordLimitTimerRef.current !== null) {
-              clearTimeout(recordLimitTimerRef.current);
-              recordLimitTimerRef.current = null;
-            }
-          });
+          .catch((err) =>
+            failTake(
+              err,
+              'Recording stopped: the microphone is blocked or in use.',
+              'Allow the microphone for this site in your browser, then press Record again.',
+            ),
+          );
       }
     } else {
       // Not in the recording state (stopped/paused, or never started). ALWAYS
@@ -740,6 +843,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       }
       settleStart?.();
 
+      playbackRef.current?.cancel();
       schedulerRef.current.cancelAll();
       audioClipSchedulerRef.current.cancelAll();
       automationSchedulerRef.current.cancelAll();

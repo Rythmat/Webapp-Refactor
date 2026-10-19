@@ -63,7 +63,7 @@ export function ChordAnalysisPrompt() {
   const tracks = useStore((s) => s.tracks);
   const analyzeChords = useStore((s) => s.analyzeChords);
   const applyChordSymbols = useStore((s) => s.applyChordSymbols);
-  const setLibraryOpen = useStore((s) => s.setLibraryOpen);
+  const showInspectorPanel = useStore((s) => s.showInspectorPanel);
 
   const [chooseTracks, setChooseTracks] = useState(false);
   const [chosen, setChosen] = useState<Set<string> | null>(null);
@@ -113,7 +113,7 @@ export function ChordAnalysisPrompt() {
   };
   const notNow = () => {
     // Keep what was found in view: Insight holds the analysis.
-    if (result) setLibraryOpen(true);
+    if (result) showInspectorPanel('insight');
     finish();
   };
 

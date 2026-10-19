@@ -1,7 +1,7 @@
-// ── The editor shell's geometry and layout prefs (milestone 2.4) ───────────
+// ── The editor shell's geometry and layout prefs (milestones 2.4, B4a) ─────
 //
-// The five regions (top bar, main, Inspector, dock) and the sizes the
-// student can change: the dock's height for each of its tabs, the Inspector
+// The regions (top bar, main, Inspector, side rail, dock, bottom rail) and
+// the sizes the student can change: the dock's height for each of its tabs, the Inspector
 // column's width, and whether the Inspector is open in each view. Those are
 // per-user prefs (the registry's 'pref' scope, kept by prefsStore under each
 // student's own key), so a shared Chromebook gives every student their own
@@ -14,6 +14,10 @@ import type { ChannelStripTabId, ViewType } from '@/daw/store/uiSlice';
 
 /** The editor's top bar (2.5). */
 export const TOP_BAR_PX = 44;
+/** The bottom rail: Master, the transport and the song (B4a). */
+export const BOTTOM_RAIL_PX = 44;
+/** The side rail of Inspector icons, at the right edge (B4a). */
+export const SIDE_RAIL_PX = 48;
 
 /** The dock's tab bar, always shown in Create. */
 export const DOCK_TAB_BAR_PX = 32;
@@ -30,23 +34,64 @@ export const DOCK_TALL_FRAC = 0.6;
 export const RESIZE_STEP_PX = 16;
 
 /**
- * Each tab's default height, as a share of the body (window height less the
- * top bar): 220 px on a Chromebook in focus mode (611 px of body), the
- * plan's pixel budget, and a little more for the two editors.
+ * The Mix view's strips keep at least this much of the body under an open
+ * RackDock: their name, effects, knobs, M/S and a 100 px fader.
  */
-export const DOCK_DEFAULT_FRAC: Readonly<Record<ChannelStripTabId, number>> = {
+export const MIX_STRIPS_MIN_PX = 300;
+
+/** The RackDock's tallest, in a body `bodyPx` high (2.10). */
+export function rackMaxPx(bodyPx: number): number {
+  return Math.max(
+    DOCK_MIN_PX,
+    Math.min(Math.round(bodyPx * DOCK_MAX_FRAC), bodyPx - MIX_STRIPS_MIN_PX),
+  );
+}
+
+/**
+ * What fills the dock's slot: one of its tabs or Master (2.9) in Create, the
+ * RackDock in Mix (2.10).
+ */
+export type DockSlotId = ChannelStripTabId | 'master' | 'rack';
+
+/**
+ * Each tab's default height, as a share of the body (window height less the
+ * top bar and the bottom rail): about 204 px on a Chromebook in focus mode
+ * (567 px of body), and a little more for the two editors.
+ */
+export const DOCK_DEFAULT_FRAC: Readonly<Record<DockSlotId, number>> = {
   controls: 0.36,
   fx: 0.36,
   grooves: 0.36,
-  parts: 0.36,
   prism: 0.4,
   'piano-roll': 0.4,
+  master: 0.36,
+  rack: 0.36,
 };
 
-/** The Inspector column (LibraryPanel until 2.8 replaces it). */
-export const INSPECTOR_MIN_PX = 200;
+/**
+ * Tabs the dock had once (Parts, until 2.9): a stored height for one is
+ * still a valid pref, and is never read.
+ */
+const FORMER_DOCK_TABS = ['parts'];
+
+/** The Inspector panel, beside the side rail. */
+export const INSPECTOR_MIN_PX = 240;
 export const INSPECTOR_MAX_PX = 420;
-export const INSPECTOR_DEFAULT_PX = 200;
+export const INSPECTOR_DEFAULT_PX = 300;
+
+/**
+ * The side rail's panels, top to bottom (owner's choice, 2026-10-16): one
+ * shows in the Inspector at a time.
+ */
+export const INSPECTOR_PANELS = [
+  'insight',
+  'library',
+  'fx',
+  'lessons',
+  'people',
+  'chat',
+] as const;
+export type InspectorPanelId = (typeof INSPECTOR_PANELS)[number];
 
 /**
  * Below this window width the Inspector starts closed, so the timeline keeps
@@ -54,7 +99,7 @@ export const INSPECTOR_DEFAULT_PX = 200;
  */
 export const INSPECTOR_PINNED_MIN_VIEWPORT = 1440;
 
-export type DockHeights = Partial<Record<ChannelStripTabId, number>>;
+export type DockHeights = Partial<Record<DockSlotId, number>>;
 export type InspectorOpenByView = Partial<Record<ViewType, boolean>>;
 /** The position readout: bars and beats, or minutes and seconds. */
 export type ReadoutMode = 'bars' | 'time';
@@ -63,10 +108,7 @@ const clamp = (v: number, min: number, max: number) =>
   Math.min(max, Math.max(min, v));
 
 /** The dock's share of the body for `tab`: the student's, else the default. */
-export function dockFracFor(
-  tab: ChannelStripTabId,
-  heights: DockHeights,
-): number {
+export function dockFracFor(tab: DockSlotId, heights: DockHeights): number {
   return heights[tab] ?? DOCK_DEFAULT_FRAC[tab];
 }
 
@@ -124,7 +166,10 @@ export function resolveInspectorOpen(
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-const DOCK_TABS = new Set<string>(Object.keys(DOCK_DEFAULT_FRAC));
+const DOCK_TABS = new Set<string>([
+  ...Object.keys(DOCK_DEFAULT_FRAC),
+  ...FORMER_DOCK_TABS,
+]);
 const VIEWS = new Set<string>([
   'arrange',
   'studio',
@@ -164,6 +209,13 @@ export function isInspectorWidth(value: unknown): value is number {
     Number.isFinite(value) &&
     value >= INSPECTOR_MIN_PX &&
     value <= INSPECTOR_MAX_PX
+  );
+}
+
+export function isInspectorPanel(value: unknown): value is InspectorPanelId {
+  return (
+    typeof value === 'string' &&
+    (INSPECTOR_PANELS as readonly string[]).includes(value)
   );
 }
 

@@ -167,7 +167,7 @@ vi.mock('@/components/utils/toast', () => ({
   showSuccess: vi.fn(),
   showWarning: vi.fn(),
 }));
-vi.mock('@/hooks/use-toast', () => ({ toast: vi.fn() }));
+vi.mock('@/daw/shell/notice', () => ({ notice: vi.fn() }));
 
 import { useStore } from '@/daw/store';
 import { CollabProvider, useCollab } from '../CollabProvider';
@@ -237,7 +237,7 @@ describe('connect params', () => {
     expect(provider.paramsLog[0]).toMatchObject({
       role: 'editor',
       token: 'tok-1',
-      [COLLAB_DOC_SCHEMA_PARAM]: '1',
+      [COLLAB_DOC_SCHEMA_PARAM]: String(COLLAB_DOC_SCHEMA_VERSION),
     });
 
     provider.open();

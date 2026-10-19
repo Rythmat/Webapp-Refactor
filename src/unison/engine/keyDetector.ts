@@ -80,10 +80,21 @@ function buildHistogram(events: MidiNoteEvent[]): Float64Array {
 
 // ── K-S Correlation ────────────────────────────────────────────────────────
 
-interface KeyCandidate {
+export interface KeyCandidate {
   rootPc: number;
   isMajor: boolean;
   correlation: number;
+}
+
+/**
+ * The 24 major and minor keys ranked by how well the notes' weighted
+ * pitch classes correlate with the Krumhansl-Kessler profiles, best first:
+ * detectKey's first step, without its mode refinement. A clip's key label
+ * reads this (src/daw/harmony/clipKey.ts).
+ */
+export function rankMajorMinorKeys(events: MidiNoteEvent[]): KeyCandidate[] {
+  if (events.length === 0) return [];
+  return correlateAllKeys(buildHistogram(events));
 }
 
 function correlateAllKeys(histogram: Float64Array): KeyCandidate[] {

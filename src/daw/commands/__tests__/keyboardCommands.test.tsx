@@ -39,10 +39,11 @@ vi.mock('@/daw/audio/AudioEngine', () => ({
 }));
 
 import { useArrangeKeymap } from '../clipCommands';
+import { publishTimelineWidth } from '@/daw/editor/viewport';
 import { useGlobalCommands } from '../globalCommands';
 import {
   LEAD_SHEET_SCOPE,
-  NOTE_EDITOR_SCOPE,
+  DOCK_SCOPE,
   PIANO_ROLL_SCOPE,
   SCORE_SCOPE,
 } from '../keymaps';
@@ -51,6 +52,7 @@ import { useKeymap, type KeymapHandlers } from '../registry';
 import { useMusicalTyping } from '@/daw/hooks/useMusicalTyping';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { useShortcutSheetStore } from '@/daw/shell/help/useShortcutSheetStore';
+import { usePaletteStore } from '@/daw/shell/help/usePaletteStore';
 import { useRef, type ReactNode } from 'react';
 import {
   getAudioBuffer,
@@ -235,6 +237,7 @@ beforeEach(() => {
   vi.mocked(saveProject).mockClear();
   useMusicalTypingStore.setState({ enabled: false, octave: 4, velocity: 100 });
   useShortcutSheetStore.setState({ isOpen: false });
+  usePaletteStore.setState({ isOpen: false, opener: null });
 });
 
 afterEach(() => {
@@ -255,7 +258,8 @@ function Editor({ children }: { children?: ReactNode }) {
 
 /** Create's keys, as the Timeline binds them while it is on screen. */
 function TimelineKeys() {
-  useArrangeKeymap({ width: () => 1200, ticksPerBar: () => 1920 });
+  publishTimelineWidth(1200);
+  useArrangeKeymap();
   return null;
 }
 
@@ -499,11 +503,10 @@ describe('the dispatcher: keys stay where the student is working', () => {
     expectNoStoreChange(() => press('KeyM', {}, option));
   });
 
-  it('keeps Space and undo in the modal piano roll, but not clip keys', () => {
-    useStore.setState({ editingClipId: 'clip-1', editingClipTrackId: 'keys' });
+  it('keeps Space and undo in the dock’s piano roll, but not clip keys', () => {
     const tool = vi.fn();
     renderEditor(
-      <Bound scope={NOTE_EDITOR_SCOPE.id} handlers={{}} role="dialog">
+      <Bound scope={DOCK_SCOPE.id} handlers={{}}>
         <Bound
           scope={PIANO_ROLL_SCOPE.id}
           handlers={{ 'pianoRoll.draw': tool }}
@@ -515,12 +518,12 @@ describe('the dispatcher: keys stay where the student is working', () => {
     const roll = screen.getByTestId('roll');
     roll.focus();
 
+    // The clip behind the dock stays put. (R and M are global keys, and
+    // work in the dock as anywhere.)
     expectNoStoreChange(() => {
       press('Delete', {}, roll);
       press('ArrowRight', {}, roll);
       press('KeyD', { metaKey: true }, roll);
-      press('KeyR', {}, roll);
-      press('KeyM', {}, roll);
     });
     expect(clip()?.startTick).toBe(1920);
 
@@ -533,9 +536,8 @@ describe('the dispatcher: keys stay where the student is working', () => {
   });
 
   it('never lets Cmd+D open the bookmark dialog over the editor', () => {
-    useStore.setState({ editingClipId: 'clip-1', editingClipTrackId: 'keys' });
     const { unmount } = renderEditor(
-      <Bound scope={NOTE_EDITOR_SCOPE.id} handlers={{}} role="dialog">
+      <Bound scope={DOCK_SCOPE.id} handlers={{}}>
         <div tabIndex={0} data-testid="roll" />
       </Bound>,
     );
@@ -552,6 +554,17 @@ describe('the dispatcher: keys stay where the student is working', () => {
     let inScore!: KeyboardEvent;
     expectNoStoreChange(() => {
       inScore = press('KeyD', { metaKey: true }, document.body);
+    });
+    expect(inScore.defaultPrevented).toBe(true);
+  });
+
+  it('never lets ⌘E send focus to the address bar where it splits nothing (2.12)', () => {
+    // ⌘E splits the selected clip in Create; in the Score it does nothing.
+    reset('score');
+    renderEditor();
+    let inScore!: KeyboardEvent;
+    expectNoStoreChange(() => {
+      inScore = press('KeyE', { metaKey: true }, document.body);
     });
     expect(inScore.defaultPrevented).toBe(true);
   });
@@ -711,6 +724,107 @@ describe('the dispatcher: keys stay where the student is working', () => {
     renderEditor();
     press('Slash', { shiftKey: true, key: '?' });
     expect(useShortcutSheetStore.getState().isOpen).toBe(true);
+  });
+});
+
+// ── The command palette's keys (milestone 2.15) ────────────────────────────
+
+describe('the command palette’s keys', () => {
+  const paletteOpen = () => usePaletteStore.getState().isOpen;
+  const closePalette = () =>
+    usePaletteStore.setState({ isOpen: false, opener: null });
+
+  it('opens on ⌘K, Ctrl+K and ⇧⌘P', () => {
+    renderEditor();
+    for (const init of [
+      { metaKey: true, key: 'k' },
+      { ctrlKey: true, key: 'k' },
+      { metaKey: true, shiftKey: true, key: 'P' },
+      { ctrlKey: true, shiftKey: true, key: 'P' },
+    ]) {
+      const code = init.key === 'k' ? 'KeyK' : 'KeyP';
+      const event = press(code, init);
+      expect(paletteOpen()).toBe(true);
+      // Kept from the browser (Chrome's ⌘K focuses its search).
+      expect(event.defaultPrevented).toBe(true);
+      closePalette();
+    }
+  });
+
+  it('does not open on K or ⇧K alone, or ⌘P', () => {
+    renderEditor();
+    press('KeyK', { key: 'k' });
+    press('KeyK', { shiftKey: true, key: 'K' });
+    press('KeyP', { metaKey: true, key: 'p' });
+    expect(paletteOpen()).toBe(false);
+  });
+
+  it('remembers where focus was as the opener', () => {
+    renderEditor();
+    const knob = focusOn('<div tabindex="0">knob</div>', 'div');
+    press('KeyK', { metaKey: true, key: 'k' }, knob);
+    expect(usePaletteStore.getState().opener).toBe(knob);
+  });
+
+  it('does nothing on ⌘K inside a dialog or a menu', () => {
+    renderEditor();
+    const button = focusOn(
+      '<div role="dialog"><button>Cancel</button></div>',
+      'button',
+    );
+    const inDialog = press('KeyK', { metaKey: true, key: 'k' }, button);
+    expect(paletteOpen()).toBe(false);
+    expect(inDialog.defaultPrevented).toBe(false);
+
+    const item = focusOn(
+      '<div role="menu"><div role="menuitem" tabindex="-1">Export</div></div>',
+      '[role="menuitem"]',
+    );
+    press('KeyK', { metaKey: true, key: 'k' }, item);
+    press('KeyP', { metaKey: true, shiftKey: true, key: 'P' }, item);
+    expect(paletteOpen()).toBe(false);
+  });
+
+  it('opens on ⌘K in the lead sheet when nothing there is selected', () => {
+    reset('leadsheet');
+    // LeadSheetView's leadsheet.chord returns false with nothing selected.
+    const chord = vi.fn(() => false);
+    renderEditor(
+      <Bound
+        scope={LEAD_SHEET_SCOPE.id}
+        handlers={{ 'leadsheet.chord': chord }}
+      />,
+    );
+    const event = press('KeyK', { metaKey: true, key: 'k' });
+    expect(chord).toHaveBeenCalledTimes(1);
+    expect(paletteOpen()).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('leaves ⌘K to the lead sheet’s chord symbol with a beat selected, but ⇧⌘P still opens', () => {
+    reset('leadsheet');
+    const chord = vi.fn(() => true);
+    renderEditor(
+      <Bound
+        scope={LEAD_SHEET_SCOPE.id}
+        handlers={{ 'leadsheet.chord': chord }}
+      />,
+    );
+    const event = press('KeyK', { metaKey: true, key: 'k' });
+    expect(chord).toHaveBeenCalledTimes(1);
+    expect(paletteOpen()).toBe(false);
+    expect(event.defaultPrevented).toBe(true);
+
+    press('KeyP', { metaKey: true, shiftKey: true, key: 'P' });
+    expect(paletteOpen()).toBe(true);
+    expect(chord).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens from the practice screen too', () => {
+    reset('practice');
+    renderEditor(<Bound scope="practice" handlers={{}} />);
+    press('KeyK', { metaKey: true, key: 'k' });
+    expect(paletteOpen()).toBe(true);
   });
 });
 
@@ -884,6 +998,27 @@ describe('musical typing', () => {
     press('Backquote', { key: '`' });
     expect(useMusicalTypingStore.getState().enabled).toBe(false);
     expect(engine.noteOff).toHaveBeenCalledWith(67);
+  });
+
+  it('plays a drum kit at its own octave: A the kick, whatever the octave', () => {
+    const kitEngine = { noteOn: vi.fn(), noteOff: vi.fn() };
+    const s = useStore.getState();
+    const kit = s.addTrack('midi', 'drum-machine', 'Kit');
+    useStore.setState({
+      tracks: useStore
+        .getState()
+        .tracks.map((t) => ({ ...t, monitoring: false })),
+    });
+    s.setSelectedTrackId(kit);
+    trackEngineRegistry.set(kit, { trackEngine: kitEngine } as never);
+    useMusicalTypingStore.setState({ enabled: true, octave: 5 });
+    renderEditor();
+    press('KeyA');
+    press('KeyS');
+    press('KeyT');
+    // The kick, the snare and the closed hi-hat (2.9's pad letters).
+    expect(kitEngine.noteOn.mock.calls.map((c) => c[0])).toEqual([36, 38, 42]);
+    trackEngineRegistry.delete(kit);
   });
 
   it('acts once while a key is held', () => {

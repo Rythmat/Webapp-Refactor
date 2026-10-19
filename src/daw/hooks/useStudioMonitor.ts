@@ -21,6 +21,22 @@ import {
 } from '@/daw/collab/studioListenStore';
 
 const MIDI_PULSE_MS = 260;
+
+/** The notes one remote user holds on one of their tracks. */
+interface RemoteHeld {
+  clientId: number;
+  trackId: string;
+  notes: Set<number>;
+}
+
+const heldKey = (clientId: number, trackId: string) => `${clientId}:${trackId}`;
+
+/** Stops a remote user's held notes on their track and forgets them. */
+function releaseHeld(held: RemoteHeld): void {
+  const engine = trackEngineRegistry.get(held.trackId)?.trackEngine;
+  if (engine) for (const note of held.notes) engine.noteOff(note);
+  held.notes.clear();
+}
 /** The activity pulse only needs to look alive, not follow every frame. */
 const ACTIVITY_FPS = 20;
 
@@ -33,8 +49,9 @@ export function useStudioMonitor(isReady: boolean, token: string | null) {
   tokenRef.current = token;
 
   const rtcRef = useRef<StudioRtcManager | null>(null);
-  // trackId → set of notes a remote user currently holds on that track.
-  const activeNotesRef = useRef<Map<string, Set<number>>>(new Map());
+  // clientId:trackId → the notes that remote user holds on that track. Keyed
+  // by sender too, so one peer's notes can be let go of when they leave.
+  const activeNotesRef = useRef<Map<string, RemoteHeld>>(new Map());
   // trackId → performance.now() of the last remote note (drives the MIDI pulse).
   const lastMidiRef = useRef<Map<string, number>>(new Map());
   // Latest clientId → trackId map (kept in a ref for the activity task).
@@ -48,28 +65,37 @@ export function useStudioMonitor(isReady: boolean, token: string | null) {
   // ── Live MIDI receive (independent of WebRTC support) ──────────────────
   useEffect(() => {
     if (!isReady) return;
-    return studioRealtime.subscribe((msg) => {
+    const active = activeNotesRef.current;
+    const unsubscribe = studioRealtime.subscribe((msg) => {
       if (msg.type !== 'studio:note') return;
       const engine = trackEngineRegistry.get(msg.trackId)?.trackEngine;
       if (!engine) return;
 
-      let held = activeNotesRef.current.get(msg.trackId);
+      const key = heldKey(msg.from, msg.trackId);
+      let held = active.get(key);
       if (!held) {
-        held = new Set();
-        activeNotesRef.current.set(msg.trackId, held);
+        held = { clientId: msg.from, trackId: msg.trackId, notes: new Set() };
+        active.set(key, held);
       }
 
       if (msg.action === 'on') {
-        held.add(msg.note);
+        held.notes.add(msg.note);
         lastMidiRef.current.set(msg.trackId, performance.now());
         if (getRemoteTrackAudible(msg.trackId)) {
           engine.noteOn(msg.note, msg.velocity);
         }
       } else {
-        held.delete(msg.note);
+        held.notes.delete(msg.note);
+        if (held.notes.size === 0) active.delete(key);
         engine.noteOff(msg.note);
       }
     });
+    return () => {
+      unsubscribe();
+      // Leaving the session: nothing will send these notes' note-offs now.
+      for (const held of active.values()) releaseHeld(held);
+      active.clear();
+    };
   }, [isReady]);
 
   // ── WebRTC mesh lifecycle ──────────────────────────────────────────────
@@ -98,6 +124,13 @@ export function useStudioMonitor(isReady: boolean, token: string | null) {
     }
     peerTrackRef.current = map;
 
+    // A peer who leaves with keys down sends no note-offs: let go of them.
+    for (const [key, held] of activeNotesRef.current) {
+      if (remoteUsers.has(held.clientId)) continue;
+      releaseHeld(held);
+      activeNotesRef.current.delete(key);
+    }
+
     const mgr = rtcRef.current;
     if (mgr) {
       mgr.syncPeers([...remoteUsers.keys()]);
@@ -116,11 +149,8 @@ export function useStudioMonitor(isReady: boolean, token: string | null) {
         mgr?.setPeerGain(clientId, audible ? 1 : 0);
         // Silence held remote notes on a track that just became inaudible.
         if (!audible) {
-          const held = activeNotesRef.current.get(trackId);
-          const engine = trackEngineRegistry.get(trackId)?.trackEngine;
-          if (held && engine) {
-            for (const note of held) engine.noteOff(note);
-            held.clear();
+          for (const held of activeNotesRef.current.values()) {
+            if (held.trackId === trackId) releaseHeld(held);
           }
         }
       }

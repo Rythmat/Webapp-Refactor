@@ -49,10 +49,25 @@ export interface ModSourceProvider {
   resolve: (ref: ModSourceRef, voice: Voice) => AudioNode | null;
 }
 
+/** An OfflineAudioContext (or a proxy of one) renders without a wall clock. */
+function isOfflineContext(ctx: BaseAudioContext): boolean {
+  return (
+    typeof (ctx as { startRendering?: unknown }).startRendering === 'function'
+  );
+}
+
+/** Which path started a held key, so its note-off goes the same way. */
+type KeyPath = 'raw' | 'arp';
+
 /**
  * Top-level audio engine facade.
  * Creates AudioContext (or accepts external one for DAW integration),
  * manages WavetableBank, VoiceManager, and all parameter routing.
+ *
+ * Every note call takes an optional context time; the voices, the
+ * arpeggiator and the release/fade logic all schedule from it, so the engine
+ * plays the same way live, ahead of time from the sequencer, and in an
+ * OfflineAudioContext.
  */
 export class SynthEngine {
   private ctx: AudioContext | null = null;
@@ -77,6 +92,16 @@ export class SynthEngine {
   private pitchBendRange: number = 200; // cents (2 semitones default)
   private currentPitchBend: number = 0; // -1..1
   private isInitialized = false;
+  /** Bumped by releaseResources, so an init still awaiting gives up. */
+  private initToken = 0;
+  /** True when init made the context (and so dispose may close it). */
+  private ownsContext = false;
+  /** Held keys and the path (raw voices or arp) that started each. */
+  /** `time` is the key's booked note-on time (a hand-over never precedes it). */
+  private heldKeys = new Map<
+    number,
+    { velocity: number; path: KeyPath; time: number }
+  >();
 
   // Snapshot of the last-applied per-voice params. Voices are created lazily
   // on note-on, and param setters only reach voices that already exist — so a
@@ -120,9 +145,16 @@ export class SynthEngine {
   ): Promise<void> {
     if (this.isInitialized) return;
 
-    this.ctx = externalCtx ?? new AudioContext();
-    if (this.ctx.state === 'suspended') {
-      await this.ctx.resume();
+    const token = ++this.initToken;
+    // An embedded engine never resumes the host's context: the host owns
+    // its state (and an offline context has no resume at all).
+    this.ownsContext = !externalCtx;
+    const ctx = externalCtx ?? new AudioContext();
+    this.ctx = ctx;
+    if (this.ownsContext && ctx.state === 'suspended') {
+      await ctx.resume();
+      // Disposed while waiting: build nothing.
+      if (token !== this.initToken) return;
     }
 
     // Master gain
@@ -265,11 +297,24 @@ export class SynthEngine {
       }
     };
 
-    // Arpeggiator (routes through rawNoteOn/rawNoteOff)
+    // A MONO/LEGATO key change keeps the voice; a scale-quantized pitch
+    // route's curve is built from the voice's note, so it is rebuilt. (It is
+    // rebuilt when the call runs, not at the key's booked time: modulation
+    // routing is graph wiring, which can't be scheduled.)
+    this.voiceManager.onPitchChange = (voice) => {
+      if (this.modMatrix?.hasTransformRoutes()) {
+        this.modMatrix.connectVoice(voice);
+      }
+    };
+
+    // Arpeggiator (routes through rawNoteOn/rawNoteOff, with step times
+    // on this context's clock)
     this.arpeggiator = new Arpeggiator(
-      (note, vel) => this.rawNoteOn(note, vel),
-      (note) => this.rawNoteOff(note),
+      (note, vel, time) => this.rawNoteOn(note, vel, time),
+      (note, time) => this.rawNoteOff(note, time),
+      { now: () => ctx.currentTime, live: !isOfflineContext(ctx) },
     );
+    if (this.arpParams) this.arpeggiator.setParams(this.arpParams);
 
     // MIDI handler — skip when embedded in a host DAW that handles MIDI routing
     if (!options?.disableMidi) {
@@ -286,7 +331,9 @@ export class SynthEngine {
 
   dispose(): void {
     this.releaseResources();
-    if (this.ctx && this.ctx.state !== 'closed') {
+    // Only a context this engine made is closed; a host's shared context
+    // (the DAW's, or an offline render's) is left alone.
+    if (this.ownsContext && this.ctx && this.ctx.state !== 'closed') {
       this.ctx.close();
     }
     this.ctx = null;
@@ -300,6 +347,8 @@ export class SynthEngine {
    * mod wheel, audio-mod osc) on every track deletion/instrument switch.
    */
   releaseResources(): void {
+    this.initToken++;
+    this.heldKeys.clear();
     this.midiHandler?.dispose();
     this.midiHandler = null;
     this.arpeggiator?.dispose();
@@ -388,30 +437,48 @@ export class SynthEngine {
   // --- Note I/O ---
 
   noteOn(note: number, velocity: number, time?: number): void {
+    // A key pressed again without a note-off first lets go of the old one.
+    if (this.heldKeys.has(note)) this.noteOff(note, time);
+    const at = time ?? this.ctx?.currentTime ?? 0;
     if (this.arpParams?.enabled && this.arpeggiator) {
-      this.arpeggiator.noteOn(note, velocity);
+      this.arpeggiator.noteOn(note, velocity, time);
+      this.heldKeys.set(note, { velocity, path: 'arp', time: at });
     } else {
       this.rawNoteOn(note, velocity, time);
+      this.heldKeys.set(note, { velocity, path: 'raw', time: at });
     }
   }
 
   noteOff(note: number, time?: number): void {
-    if (this.arpParams?.enabled && this.arpeggiator) {
-      this.arpeggiator.noteOff(note);
+    const held = this.heldKeys.get(note);
+    this.heldKeys.delete(note);
+    // The note-off goes to the path that started the key, even if the arp
+    // was switched since; an unknown key follows the current setting.
+    const path: KeyPath = held
+      ? held.path
+      : this.arpParams?.enabled
+        ? 'arp'
+        : 'raw';
+    if (path === 'arp') {
+      this.arpeggiator?.noteOff(note, time);
     } else {
       this.rawNoteOff(note, time);
     }
   }
 
-  allNotesOff(): void {
-    this.arpeggiator?.allNotesOff();
-    this.voiceManager?.allNotesOff();
+  /** Releases every held note at `time` (now when omitted). */
+  allNotesOff(time?: number): void {
+    this.heldKeys.clear();
+    this.arpeggiator?.allNotesOff(time);
+    this.voiceManager?.allNotesOff(time);
     this.scaleQuantizer.clear();
   }
 
-  forceAllNotesOff(): void {
-    this.arpeggiator?.allNotesOff();
-    this.voiceManager?.forceAllNotesOff();
+  /** Silences every voice with a short fade from `time` (now when omitted). */
+  forceAllNotesOff(time?: number): void {
+    this.heldKeys.clear();
+    this.arpeggiator?.allNotesOff(time);
+    this.voiceManager?.forceAllNotesOff(time);
     this.scaleQuantizer.clear();
   }
 
@@ -509,14 +576,53 @@ export class SynthEngine {
     this.arpeggiator?.setBPM(bpm);
   }
 
+  /**
+   * Arp settings. Switching the arp on or off while keys are held hands
+   * them over: on, the raw voices are released and the keys seed the arp;
+   * off, the arp stops and the keys still held play as plain notes.
+   */
   setArpParams(params: ArpParams): void {
+    const wasEnabled = this.arpParams?.enabled ?? false;
     this.arpParams = params;
     this.arpeggiator?.setParams(params);
+    if (params.enabled === wasEnabled || !this.ctx) return;
+
+    // A key the sequencer booked ahead of the clock is handed over at its
+    // own time, never before it starts.
+    const now = this.ctx.currentTime;
+    const keys = [...this.heldKeys].sort((a, b) => a[1].time - b[1].time);
+    if (params.enabled) {
+      for (const [note, key] of keys) {
+        if (key.path !== 'raw') continue;
+        const at = Math.max(now, key.time);
+        this.rawNoteOff(note, at);
+        this.arpeggiator?.noteOn(note, key.velocity, at);
+        key.path = 'arp';
+      }
+    } else {
+      this.arpeggiator?.allNotesOff(now);
+      for (const [note, key] of keys) {
+        if (key.path !== 'arp') continue;
+        this.rawNoteOn(note, key.velocity, Math.max(now, key.time));
+        key.path = 'raw';
+      }
+    }
   }
 
   /** Live chord pitch classes from the DAW's music-intelligence bus. */
   setArpChordContext(chordPcs: number[] | null): void {
     this.arpeggiator?.setChordContext(chordPcs);
+  }
+
+  /**
+   * Lines the LFOs' 4-bar loops up with the song: at context time `when`
+   * the song is at `beat` (quarter notes from its start). The host calls it
+   * on play, loop and seek.
+   */
+  alignLFOs(when: number, beat: number): void {
+    for (const lfo of this.lfos) {
+      lfo.alignToBeat(when, beat);
+    }
   }
 
   setLFONodes(lfoIndex: number, barIndex: number, nodes: LFONode[]): void {
@@ -634,11 +740,12 @@ export class SynthEngine {
     });
   }
 
-  setPitchBend(value: number): void {
+  /** Pitch-bend wheel (-1..1) at `time` (now when omitted). */
+  setPitchBend(value: number, time?: number): void {
     this.currentPitchBend = value;
     const cents = value * this.pitchBendRange;
     this.voiceManager?.updateAllVoices((voice) => {
-      voice.setPitchBendCents(cents);
+      voice.setPitchBendCents(cents, time);
     });
   }
 

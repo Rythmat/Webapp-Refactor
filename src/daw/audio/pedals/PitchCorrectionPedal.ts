@@ -19,6 +19,9 @@ export class PitchCorrectionPedal implements PedalProcessor {
   private _enabled = false;
   private _ready = false;
   private _initPromise: Promise<void> | null = null;
+  // Set by dispose(): a worklet node that finishes loading after it is let
+  // go instead of being wired in.
+  private disposed = false;
   private pendingParams: Record<string, number> = {};
 
   constructor(ctx: AudioContext) {
@@ -81,6 +84,7 @@ export class PitchCorrectionPedal implements PedalProcessor {
   }
 
   dispose(): void {
+    this.disposed = true;
     this.wireBypass();
     this.pitchNode?.dispose();
     this.pitchNode = null;
@@ -106,9 +110,14 @@ export class PitchCorrectionPedal implements PedalProcessor {
   // ── Private ────────────────────────────────────────────────────────────
 
   private async initWorklet(): Promise<void> {
+    const node = new PitchCorrectionNode(this.ctx);
+    this.pitchNode = node;
     try {
-      this.pitchNode = new PitchCorrectionNode(this.ctx);
-      await this.pitchNode.init();
+      await node.init();
+      if (this.disposed || this.pitchNode !== node) {
+        node.dispose();
+        return;
+      }
 
       // Apply any params that arrived before init completed
       if (Object.keys(this.pendingParams).length > 0) {
@@ -122,7 +131,10 @@ export class PitchCorrectionPedal implements PedalProcessor {
         this.wireWorklet();
       }
     } catch (err) {
+      node.dispose();
+      if (this.disposed) return;
       console.warn('[PitchCorrectionPedal] Worklet init failed:', err);
+      if (this.pitchNode === node) this.pitchNode = null;
       this._initPromise = null;
     }
   }

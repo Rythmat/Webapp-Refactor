@@ -234,6 +234,11 @@ export interface VoiceLeadingSummary {
 
 // ── Form Analysis (Phase 4) ────────────────────────────────────────────────
 
+/**
+ * A song section's kind. The Studio's song sections (milestone 2.13,
+ * src/daw/model/sections.ts) use the same vocabulary, with five more names
+ * from pop and dance music: tag, hook, breakdown, build-up and drop.
+ */
 export type SectionType =
   | 'intro'
   | 'verse'
@@ -244,6 +249,11 @@ export type SectionType =
   | 'solo'
   | 'interlude'
   | 'coda'
+  | 'tag'
+  | 'hook'
+  | 'breakdown'
+  | 'build-up'
+  | 'drop'
   | 'custom';
 
 export interface FormSection {

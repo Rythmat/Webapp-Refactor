@@ -1176,6 +1176,7 @@ async function failAfterSwitch(
         const record = lastSavedFromDraft(
           prepared.meta.cloud,
           useStore.getState().projectId,
+          prepared.meta,
         );
         if (record) setLastSaved(record);
       }

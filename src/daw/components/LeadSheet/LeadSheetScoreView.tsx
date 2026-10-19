@@ -2,11 +2,12 @@ import { useMemo, useState } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
 import { useStore } from '@/daw/store';
+import { chartExtraBars } from '@/daw/time/measureEdits';
+import { timeSignatureOf } from '@/daw/time/timeModel';
 import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar } from '@/daw/utils/timelineScale';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { Track } from '@/daw/store/tracksSlice';
-import { NoteEditorBar } from '../Score/NoteEditorBar';
 import { ScorePalettes } from '../Score/ScorePalettes';
 import { ScorePartsCache } from '../Score/scoreParts';
 import { useScoreEditing } from '../Score/useScoreEditing';
@@ -18,10 +19,10 @@ import { PRINT_TITLE_INSET, useLeadSheetPrint } from './useLeadSheetPrint';
 
 // ── The lead sheet, written out ────────────────────────────────────────────
 // With Melody on, the sheet is a score of its melody tracks: the same staff
-// renderer, the same palette, the same note editor the Score uses, with the
-// song's chord symbols standing over the top staff. There is one editor, so
-// a tie drawn here behaves exactly as it does there, and an edit lands on
-// the track its note belongs to, whichever staff it is on.
+// renderer and the same palettes (the note tools among them) the Score
+// uses, with the song's chord symbols standing over the top staff. There is
+// one editor, so a tie drawn here behaves exactly as it does there, and an
+// edit lands on the track its note belongs to, whichever staff it is on.
 
 interface LeadSheetScoreViewProps {
   /**
@@ -57,10 +58,20 @@ export function LeadSheetScoreView({ tracks }: LeadSheetScoreViewProps) {
   // rather than the 1920 a 4/4 default would impose.
   const ticksPerMeasure = ticksPerBar(numerator, denominator);
 
-  // The sheet is as long as the chart is: chords can run past the melody.
+  // Bars past the last chord: added ones, or as many as the song's sections
+  // cover, as the chord chart counts them (milestone 2.13).
+  const extraBars = useStore((s) =>
+    chartExtraBars(s.leadSheetBars, s.sections, timeSignatureOf(s)),
+  );
+  // The sheet is as long as the chart is: chords and sections can run past
+  // the melody.
   const measureCount = useMemo(
-    () => Math.max(1, regionToMeasures(chordRegions, ticksPerMeasure).length),
-    [chordRegions, ticksPerMeasure],
+    () =>
+      Math.max(
+        1,
+        regionToMeasures(chordRegions, ticksPerMeasure, extraBars).length,
+      ),
+    [chordRegions, ticksPerMeasure, extraBars],
   );
 
   const slashSet = useMemo(() => new Set(slashNotes), [slashNotes]);
@@ -134,6 +145,9 @@ export function LeadSheetScoreView({ tracks }: LeadSheetScoreViewProps) {
   ]);
 
   return (
+    // score-print-root: the sheet prints its engraved pages as the Score
+    // does, on the borderless @page score they are drawn for, not under the
+    // chord chart's 0.75 in margins (leadsheet-11).
     <div
       // It prints as the Score does, its engraved pages one to a sheet with
       // the title in the room StaffView keeps at the top of page 1.
@@ -141,17 +155,13 @@ export function LeadSheetScoreView({ tracks }: LeadSheetScoreViewProps) {
       data-score-selection={`${selection.notes.size}n ${selection.cells.size}m ${selection.barline ?? '-'}b ${selection.chords.size}c ${selection.rests.size}r ${selection.marks.size}k`}
     >
       <div
-        className="leadsheet-palette flex w-[216px] shrink-0 flex-col overflow-hidden"
+        className="leadsheet-palette score-no-print flex w-[216px] shrink-0 flex-col overflow-hidden"
         style={{ borderRight: '1px solid var(--daw-hairline)' }}
       >
-        <ScorePalettes {...editing.palette} />
+        <ScorePalettes {...editing.palette} notes={editing.editor} />
       </div>
       <div className="flex flex-1 flex-col overflow-hidden">
         <LeadSheetToolbar selectedMeasureIdx={selectedMeasureIdx} />
-        {/* A tool, not the music: it stays off the printed page. */}
-        <div className="score-no-print">
-          <NoteEditorBar {...editing.editor} />
-        </div>
 
         <div
           className="leadsheet-scroll flex-1 overflow-y-auto"

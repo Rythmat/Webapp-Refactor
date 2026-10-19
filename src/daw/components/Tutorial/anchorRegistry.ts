@@ -31,9 +31,10 @@ export interface Rect {
 }
 
 /**
- * Which effect rack an anchor belongs to. The FX list (FxBrowser) is mounted
- * once per rack (the track dock, mastering, each return, the master track's
- * panel) with the same `fx-add-*` ids, so each row says which rack it is in.
+ * Which effect rack an anchor belongs to. The side rail's Effects library
+ * adds to one rack at a time (a track's, the master's or a return's;
+ * shell/mix/rackTarget.ts) with the same `fx-add-*` ids, so each row says
+ * which rack it adds to.
  */
 export type AnchorRack = 'track' | 'master' | `return:${string}`;
 
@@ -74,15 +75,6 @@ export function currentAnchorId(id: string): string {
 
 export const idsOf = (target?: Target): string[] =>
   !target ? [] : Array.isArray(target) ? target : [target];
-
-/** The rack an FX list belongs to, from the track id it adds effects to. */
-export function rackOfFxTrack(trackId: string): AnchorRack {
-  if (trackId === 'master') return 'master';
-  if (trackId.startsWith('return-')) {
-    return `return:${trackId.slice('return-'.length)}`;
-  }
-  return 'track';
-}
 
 export const sameRect = (a: Rect | null, b: Rect | null) =>
   a === b ||

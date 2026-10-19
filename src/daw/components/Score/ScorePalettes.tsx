@@ -6,16 +6,28 @@ import {
   ChevronRight,
   CornerDownLeft,
   MoreHorizontal,
+  Pencil,
   Search,
   X,
 } from 'lucide-react';
 import { loadVexFlow } from '@/components/notation/StaffView';
+import {
+  chordSymbolCell,
+  notePalettes,
+  type NoteTools,
+  type PaletteCell,
+  type ToolPalette,
+} from './notePalettes';
 
 // ── Palettes ───────────────────────────────────────────────────────────────
 // The Score's editing tools, following MuseScore's Palettes panel: collapsible
-// palettes of cells, each cell a real music glyph drawn over a dummy staff.
-// Select something in the score, then single-click a cell to apply it — with
-// nothing selected a click does nothing, exactly as it does there.
+// palettes of cells, each cell a real music glyph, the marks drawn over a
+// dummy staff. Select something in the score, then single-click a cell to
+// apply it — with nothing selected a click does nothing, exactly as it does
+// there. Since the Score and the Lead sheet became one page (owner,
+// 2026-10-16) the note tools are palettes here too (notePalettes.tsx): Notes,
+// Rests, Rhythmic, Articulations and Accidentals, then Text (with the chord
+// symbol), Barlines and Layout.
 
 /** SMuFL codepoints, drawn in Bravura (the font VexFlow already loads). */
 const GLYPH = {
@@ -166,17 +178,99 @@ function CellStaff() {
 }
 
 export interface ScorePalettesProps {
-  /** What the score has selected; without one, a cell click does nothing. */
+  /** A barline is selected; without one, a mark cell does nothing. */
   hasSelection: boolean;
   onApply: (action: PaletteAction) => void;
+  /**
+   * The note tools, where there are notes to edit: the full score and the
+   * lead sheet's melody, not the chord chart.
+   */
+  notes?: NoteTools;
 }
 
-export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
+/** The mark palettes as cells: a click applies the action to the barline. */
+function markPalettes(
+  hasSelection: boolean,
+  onApply: (action: PaletteAction) => void,
+  fontReady: boolean,
+  notes: NoteTools | undefined,
+): ToolPalette[] {
+  return SCORE_PALETTES.map((palette) => {
+    const cells: PaletteCell[] = palette.items.map((item) => ({
+      key: item.action,
+      name: item.name,
+      title: item.name,
+      content: <MarkCell item={item} fontReady={fontReady} />,
+      live: hasSelection,
+      onClick: () => onApply(item.action),
+    }));
+    if (palette.id === 'text' && notes) cells.push(chordSymbolCell(notes));
+    return { id: palette.id, name: palette.name, staff: palette.staff, cells };
+  });
+}
+
+/** A mark's face: a glyph, words, a boxed mark or an icon. */
+function MarkCell({
+  item,
+  fontReady,
+}: {
+  item: PaletteItem;
+  fontReady: boolean;
+}) {
+  if (item.glyph) {
+    return (
+      <span
+        className="relative"
+        style={{
+          fontFamily: fontReady ? 'Bravura' : 'serif',
+          fontSize: STAFF_HEIGHT,
+          lineHeight: 1,
+          // The glyph's text box is taller than the cell; the click is the
+          // cell's (see notePalettes' Glyph).
+          pointerEvents: 'none',
+        }}
+      >
+        {item.glyph}
+      </span>
+    );
+  }
+  if (item.words) {
+    return (
+      <span
+        className="relative px-0.5 text-center text-[8px] font-semibold italic leading-tight"
+        style={{ marginBottom: STAFF_HEIGHT / 2 }}
+      >
+        {item.words}
+      </span>
+    );
+  }
+  if (item.boxed) {
+    return (
+      <span
+        className="relative rounded-[1px] border px-0.5 text-[10px] font-bold"
+        style={{
+          borderColor: 'currentColor',
+          marginBottom: STAFF_HEIGHT,
+          background: 'var(--daw-surface-2)',
+        }}
+      >
+        {item.boxed}
+      </span>
+    );
+  }
+  return <>{item.icon}</>;
+}
+
+export function ScorePalettes({
+  hasSelection,
+  onApply,
+  notes,
+}: ScorePalettesProps) {
   const [searching, setSearching] = useState(false);
   const [query, setQuery] = useState('');
-  const [open, setOpen] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(SCORE_PALETTES.map((p) => [p.id, true])),
-  );
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  // A palette is open until the student closes it.
+  const isOpen = (id: string) => open[id] !== false;
   const [menuOpen, setMenuOpen] = useState(false);
   const [singleClickOpens, setSingleClickOpens] = useState(true);
   const [oneAtATime, setOneAtATime] = useState(false);
@@ -198,24 +292,33 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
     if (searching) searchRef.current?.focus();
   }, [searching]);
 
+  const all = useMemo(
+    () => [
+      ...(notes ? notePalettes(notes, fontReady) : []),
+      ...markPalettes(hasSelection, onApply, fontReady, notes),
+    ],
+    [notes, fontReady, hasSelection, onApply],
+  );
   const palettes = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    if (!needle) return SCORE_PALETTES;
-    return SCORE_PALETTES.map((palette) => ({
-      ...palette,
-      items: palette.items.filter((item) =>
-        item.name.toLowerCase().includes(needle),
-      ),
-    })).filter((palette) => palette.items.length > 0);
-  }, [query]);
+    if (!needle) return all;
+    return all
+      .map((palette) => ({
+        ...palette,
+        cells: palette.cells.filter((cell) =>
+          cell.name.toLowerCase().includes(needle),
+        ),
+      }))
+      .filter((palette) => palette.cells.length > 0);
+  }, [all, query]);
 
   const togglePalette = (id: string) => {
     setOpen((current) =>
-      current[id]
+      isOpen(id)
         ? { ...current, [id]: false }
         : oneAtATime
           ? {
-              ...Object.fromEntries(SCORE_PALETTES.map((p) => [p.id, false])),
+              ...Object.fromEntries(all.map((p) => [p.id, false])),
               [id]: true,
             }
           : { ...current, [id]: true },
@@ -223,7 +326,12 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
   };
 
   const setAll = (value: boolean) =>
-    setOpen(Object.fromEntries(SCORE_PALETTES.map((p) => [p.id, value])));
+    setOpen(Object.fromEntries(all.map((p) => [p.id, value])));
+
+  const hasNotes = notes?.hasNotes ?? false;
+  const noteInput = notes?.noteInput ?? false;
+  const lengthName = `${notes?.dotted ? 'dotted ' : ''}${notes?.inputDuration?.name.toLowerCase() ?? 'note'}`;
+  const inputLength = `${/^[aeiou]/.test(lengthName) ? 'an' : 'a'} ${lengthName}`;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -345,81 +453,65 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
         )}
       </div>
 
+      {notes?.onToggleNoteInput && (
+        <AddNotesButton on={noteInput} onClick={notes.onToggleNoteInput} />
+      )}
+
       <div className="flex-1 overflow-y-auto pb-3">
         {palettes.map((palette) => {
-          const expanded = !!open[palette.id] || query.trim().length > 0;
+          const expanded = isOpen(palette.id) || query.trim().length > 0;
           return (
-            <div key={palette.id}>
-              <button
-                onClick={() => singleClickOpens && togglePalette(palette.id)}
-                onDoubleClick={() =>
-                  !singleClickOpens && togglePalette(palette.id)
-                }
-                className="flex w-full items-center gap-1 px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/5"
-                style={{ color: 'var(--daw-text)' }}
-                title={expanded ? 'Collapse' : 'Expand'}
-              >
-                {expanded ? (
-                  <ChevronDown className="size-3.5 opacity-60" />
-                ) : (
-                  <ChevronRight className="size-3.5 opacity-60" />
-                )}
-                {palette.name}
-              </button>
+            <div
+              key={palette.id}
+              data-palette={palette.id}
+              data-palette-name={palette.name}
+            >
+              <div className="flex items-center pr-2">
+                <button
+                  onClick={() => singleClickOpens && togglePalette(palette.id)}
+                  onDoubleClick={() =>
+                    !singleClickOpens && togglePalette(palette.id)
+                  }
+                  className="flex min-w-0 flex-1 items-center gap-1 px-2 py-1.5 text-left text-xs transition-colors hover:bg-white/5"
+                  style={{ color: 'var(--daw-text)' }}
+                  title={expanded ? 'Collapse' : 'Expand'}
+                  aria-expanded={expanded}
+                >
+                  {expanded ? (
+                    <ChevronDown className="size-3.5 opacity-60" />
+                  ) : (
+                    <ChevronRight className="size-3.5 opacity-60" />
+                  )}
+                  {palette.name}
+                </button>
+                {palette.write ? <WriteSwitch {...palette.write} /> : null}
+              </div>
               {expanded && (
                 <div className="grid grid-cols-4 gap-1 px-2 pb-2">
-                  {palette.items.map((item) => {
-                    const live = hasSelection;
-                    return (
-                      <button
-                        key={item.action}
-                        onClick={() => live && onApply(item.action)}
-                        title={item.name}
-                        className="relative flex aspect-square items-center justify-center overflow-hidden rounded border transition-colors hover:bg-white/10"
-                        style={{
-                          borderColor: 'var(--daw-hairline)',
-                          background: 'var(--daw-surface-2)',
-                          color: 'var(--daw-text)',
-                          opacity: live ? 1 : 0.55,
-                          cursor: live ? 'pointer' : 'default',
-                        }}
-                      >
-                        {palette.staff && <CellStaff />}
-                        {item.glyph ? (
-                          <span
-                            className="relative"
-                            style={{
-                              fontFamily: fontReady ? 'Bravura' : 'serif',
-                              fontSize: STAFF_HEIGHT,
-                              lineHeight: 1,
-                            }}
-                          >
-                            {item.glyph}
-                          </span>
-                        ) : item.words ? (
-                          <span
-                            className="relative px-0.5 text-center text-[8px] font-semibold italic leading-tight"
-                            style={{ marginBottom: STAFF_HEIGHT / 2 }}
-                          >
-                            {item.words}
-                          </span>
-                        ) : item.boxed ? (
-                          <span
-                            className="relative rounded-[1px] border px-0.5 text-[10px] font-bold"
-                            style={{
-                              borderColor: 'currentColor',
-                              marginBottom: STAFF_HEIGHT,
-                              background: 'var(--daw-surface-2)',
-                            }}
-                          >
-                            {item.boxed}
-                          </span>
-                        ) : (
-                          item.icon
-                        )}
-                      </button>
-                    );
-                  })}
+                  {palette.cells.map((cell) => (
+                    <button
+                      key={cell.key}
+                      onClick={() => cell.live && cell.onClick()}
+                      title={cell.title}
+                      aria-pressed={cell.active ?? undefined}
+                      aria-disabled={!cell.live || undefined}
+                      className="relative flex aspect-square items-center justify-center overflow-hidden rounded border transition-colors hover:bg-white/10"
+                      style={{
+                        borderColor: cell.active
+                          ? 'var(--daw-text-2)'
+                          : 'var(--daw-hairline)',
+                        background: cell.active
+                          ? 'var(--daw-selected)'
+                          : 'var(--daw-surface-2)',
+                        color: 'var(--daw-text)',
+                        opacity: cell.live ? 1 : 0.55,
+                        cursor: cell.live ? 'pointer' : 'default',
+                      }}
+                    >
+                      {palette.staff && <CellStaff />}
+                      {cell.content}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -434,10 +526,83 @@ export function ScorePalettes({ hasSelection, onApply }: ScorePalettesProps) {
           color: 'var(--daw-text-3)',
         }}
       >
-        {hasSelection
-          ? 'Click a cell to apply it. ↵ system break · ⌘M rehearsal mark · ⌫ clear'
-          : 'Select a barline in the score, then click a palette cell.'}
+        {noteInput
+          ? `Click a staff, or type A–G, to add ${inputLength}. Shift adds to a chord.`
+          : hasNotes
+            ? 'Numbers write into the live palette · . > - _ mark · S slurs'
+            : hasSelection
+              ? 'Click a cell to apply it. ↵ system break · ⌘M rehearsal mark · ⌫ clear'
+              : notes
+                ? 'Select a note or a barline in the score, then click a cell, or press Add notes.'
+                : 'Select a barline in the score, then click a palette cell.'}
       </div>
     </div>
   );
 }
+
+/** Note input, MuseScore's N: on, a click on a staff adds a note. */
+function AddNotesButton({ on, onClick }: { on: boolean; onClick: () => void }) {
+  return (
+    <div
+      className="shrink-0 px-2 py-2"
+      style={{ borderBottom: '1px solid var(--daw-hairline)' }}
+    >
+      <button
+        type="button"
+        onClick={onClick}
+        aria-pressed={on}
+        title={
+          on
+            ? 'Stop adding notes (N or Esc). Shift+click or Shift+A–G adds to a chord.'
+            : 'Add notes: click a staff to write one, or type A–G (N)'
+        }
+        className="flex h-8 w-full items-center gap-2 rounded border px-2 text-xs font-semibold transition-colors hover:bg-white/10"
+        style={{
+          borderColor: on ? 'var(--daw-text-2)' : 'var(--daw-hairline)',
+          background: on ? 'var(--daw-selected)' : 'var(--daw-surface-2)',
+          color: 'var(--daw-text)',
+        }}
+      >
+        <Pencil className="size-3.5" aria-hidden />
+        Add notes
+        <span
+          className="ml-auto font-normal"
+          style={{ color: 'var(--daw-text-3)' }}
+        >
+          {on ? 'On · Esc' : 'N'}
+        </span>
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Notes, Rests and Rhythmic's switch: the live one is where a number key
+ * writes (⌥N, ⌥R, ⌥H).
+ */
+function WriteSwitch({ label, on, onClick }: PaletteSwitchProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={on}
+      aria-label={label}
+      title={label}
+      className="flex h-6 shrink-0 items-center gap-1.5 rounded-full border px-2 text-xs transition-colors hover:bg-white/10"
+      style={{
+        borderColor: on ? 'var(--daw-text-2)' : 'var(--daw-hairline)',
+        background: on ? 'var(--daw-selected)' : 'transparent',
+        color: on ? 'var(--daw-text)' : 'var(--daw-text-3)',
+      }}
+    >
+      <span
+        aria-hidden
+        className="size-1.5 shrink-0 rounded-full"
+        style={{ background: on ? 'var(--daw-text)' : 'var(--daw-hairline)' }}
+      />
+      {on ? 'Writing' : 'Write'}
+    </button>
+  );
+}
+
+type PaletteSwitchProps = NonNullable<ToolPalette['write']>;

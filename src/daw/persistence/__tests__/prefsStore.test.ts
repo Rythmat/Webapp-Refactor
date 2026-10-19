@@ -45,16 +45,25 @@ const B = 'student-b';
 /** One valid value for every per-user pref, none of them the default. */
 const CHOSEN = {
   metronomeEnabled: true,
+  metronomeSound: 'hihat',
+  metronomeVolume: -16,
   countInBars: 2,
   timelineSnapEnabled: false,
   timelineGridSize: '1/8T',
   timelineTripletMode: true,
+  followPlayhead: false,
   chordRulerShowNotes: true,
   singleKeyShortcuts: false,
   inspectorOpenByView: { arrange: false, score: true },
   inspectorWidth: 280,
+  inspectorPanel: 'lessons',
+  libraryFavourites: [
+    'groove:groove-hiphop-1',
+    'part:pop-l1-d1-2-lh-bass-rh-chords',
+  ] as string[],
   dockHeights: { fx: 0.5, 'piano-roll': 0.6 },
   readoutMode: 'time',
+  hoverHints: false,
 } as const;
 
 const DEFAULTS = Object.fromEntries(
@@ -198,12 +207,17 @@ describe('reading what is stored', () => {
       v: 1,
       prefs: {
         metronomeEnabled: 'yes',
+        // Not one of the click's sounds, and louder than it goes.
+        metronomeSound: 'cowbell',
+        metronomeVolume: 12,
         countInBars: 5,
         timelineSnapEnabled: false,
         // On the prototype of the grid table, not one of its sizes.
         timelineGridSize: 'toString',
         timelineTripletMode: 1,
         chordRulerShowNotes: true,
+        // Not an item id, and out of order.
+        libraryFavourites: ['sample', 'part:b', 'part:a'],
         aLaterPref: 3,
       },
     });

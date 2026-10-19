@@ -1,4 +1,6 @@
 import * as Tone from 'tone';
+import { DEFAULT_CLICK_DB, type ClickSound } from './clickSounds';
+import { createClickVoice, type ClickVoice } from './clickVoice';
 
 /** Transport ticks per beat in `denominator` time: the note value the
  *  denominator names (2 = half, 4 = quarter, 8 = eighth, 16 = sixteenth), the
@@ -31,7 +33,10 @@ export function clickPitch(
 }
 
 export class MetronomeEngine {
-  private synth: Tone.MembraneSynth | null = null;
+  private voice: ClickVoice | null = null;
+  private destination: AudioNode | null = null;
+  private sound: ClickSound = 'click';
+  private volumeDb = DEFAULT_CLICK_DB;
   private loopId: number | null = null;
   // The transport the repeat lives on: Tone's global one is swapped for an
   // offline one while an export renders.
@@ -40,14 +45,32 @@ export class MetronomeEngine {
   private numerator = 4;
   private denominator = 4;
 
-  init(destination: AudioNode): void {
-    this.synth = new Tone.MembraneSynth({
-      pitchDecay: 0.008,
-      octaves: 2,
-      envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.05 },
-    });
-    this.synth.connect(destination);
-    this.synth.volume.value = -10; // quieter than instruments
+  /**
+   * `destination` is the output itself (clickVoice.ts): the click goes
+   * around the master fader and the mastering chain.
+   */
+  init(
+    destination: AudioNode,
+    sound: ClickSound = 'click',
+    volumeDb = DEFAULT_CLICK_DB,
+  ): void {
+    this.destination = destination;
+    this.sound = sound;
+    this.volumeDb = volumeDb;
+    this.voice = createClickVoice(sound, destination, volumeDb);
+  }
+
+  /** The student's click sound: the next click plays it. */
+  setSound(sound: ClickSound): void {
+    if (sound === this.sound || !this.destination) return;
+    this.sound = sound;
+    this.voice?.dispose();
+    this.voice = createClickVoice(sound, this.destination, this.volumeDb);
+  }
+
+  setVolume(db: number): void {
+    this.volumeDb = db;
+    this.voice?.setVolume(db);
   }
 
   setTimeSignature(numerator: number, denominator: number): void {
@@ -60,7 +83,7 @@ export class MetronomeEngine {
   }
 
   start(): void {
-    if (!this.synth || !this.enabled) return;
+    if (!this.voice || !this.enabled) return;
     this.stop(); // Clear any existing loop to prevent leaks on double-start
 
     const transport = Tone.getTransport();
@@ -79,9 +102,8 @@ export class MetronomeEngine {
           numerator,
           beatTicks,
         );
-        this.synth?.triggerAttackRelease(
-          clickPitch(beat, numerator, denominator),
-          '32n',
+        this.voice?.trigger(
+          clickPitch(beat, numerator, denominator) === 'C5',
           time,
         );
       },
@@ -109,6 +131,7 @@ export class MetronomeEngine {
 
   dispose(): void {
     this.stop();
-    this.synth?.dispose();
+    this.voice?.dispose();
+    this.voice = null;
   }
 }

@@ -569,3 +569,878 @@ Each prompt appends an entry: milestone, commits, pushed or not, verification nu
   - **Forward** (next marker or end) kept beside Back.
   - **The Typing chip shows only its icon while off** when the bar is narrower than about 1490 px (fold step 1).
   - **Collaborator faces in the Share pill use presence colours,** which the plan leaves to the Stage B colour review.
+
+## 14 — B3: 2.6 track list v2, 2.7 Create canvas (2026-10-16)
+
+- **Branch:** `aaron`, started at `5b2c0103` (B2) plus `aa689d62` (the owner's prompt note). Another session's untracked `src/daw/collab/server/.partykit/`, `src/scripts/enrichment/research/` and its `.gitignore` line left alone.
+- **Commits:**
+  - `737e3288` editor core and registry: `src/daw/editor/{zoom,viewport,snap,follow}`, the Follow pref, the chord lane's offer and Not now (draft **schema 5**, compat 3; v5 all-fields and `cloud-2.7` fixtures), V/B/C tools, the 'tracks' key scope, fingerprint and kitchen sink;
+  - `b6d2d963` track list (`src/daw/shell/tracklist/`): rows, ⋯ menu, Master row, keys, grip reorder, the Add-track sheet, empty-project tiles, one `importMidiToTracks`, Indie's step through the ⋯ menu, the old headers and pop-out deleted;
+  - `af1618b8` canvas: one scroller (TrackArea), the Timeline on the row layout, Create's toolbar, chord-lane header and banner, scrollbar in the footer, Follow, Draw, ruler/palette;
+  - `2731c65e` harness: R30, R28's popovers (track menu, Grid, chord-lane key), the perf fader probe and view region, the Indie driver and known list;
+  - `4cd659de` **the top bar trimmed and quieted** (owner request mid-run, below);
+  - this entry.
+- **Pushed:** yes, to `aaron` (fast-forward; `origin/aaron` had not moved).
+- **What changed:**
+  - **One scroller** for rows and lanes, placed from one height array (`shell/tracklist/rowLayout.ts`, 64 px rows; ready for inline automation). The Timeline takes the scroller as `scrollRef` (no parentElement chains). Above the lanes: toolbar 32, ruler 32 (loop strip 14 + bar numbers 18), chord lane 24. The m:ss row under the lanes is gone (the readout's time mode). Footer 40 px: Master row (volume, meter, automation, Effects → Mix) and the scrollbar.
+  - **Track row** 64 px: colour bar (= reorder grip), name (= selector; double-click/F2/N renames), presence dots, ⋯; M, S, Arm (record tone), Fader over a Meter (MeterBus). Remote-held tracks: outlined in the holder's colour, only M/S live, Listen toggle instead of Arm/fader. ⋯: Rename, Colour ▸, Role ▸, Monitor input, Test sound, Show automation (`automation-toggle`), Release (session only), Delete track (one undo step, Undo on the toast).
+  - **Keys (A11Y#3)**, region scope 'tracks' (on a row's name only): ↑ ↓ Home End (and ⌘↑ ⌘↓), ⌥↑ ⌥↓ (and ⌘⇧↑ ⌘⇧↓ for ChromeOS) move, Enter opens the dock with focus in it, F2/N rename, M/S mute/solo (ahead of the global M).
+  - **Add-track sheet** (DawDialog lg, wrapping grid): Keys, Synth, Organ, Instruments, Drums, Sampler, Voice, Guitar, Bass, Import MIDI file… (opens the picker; the Project menu's import is the same function). After an add the dock opens on the Instrument tab, except during a lesson.
+  - **Empty project:** Start with a beat (Drums, pads), Play an instrument (Keys, computer keyboard on), Start from a genre (Drums, Grooves), Add a track (the sheet).
+  - **Toolbar:** + Add track; Pointer/Draw/Cut; Snap; Grid menu (metre-aware choices and names, Triplets, Snap); zoom −/%/+/Fit; Follow; + Marker (at the playhead on the grid, named in a prompt); chord-lane labels; Colour: Track | Harmony (`clipColorMode`, one undo step). It folds (labels → icons, zoom level, Harmony toggle) instead of clipping. Room left for + Section.
+  - **Draw tool** now draws: a click in an empty MIDI lane makes a one-bar clip from the grid line before it, selects its track and opens the dock's note editor (drum grid for drums).
+  - **Chord lane header:** CHORDS · key chip (opens the Song popover; dashed with no key) · + (Prism suggestions after the last chord, Premium-locked). **Banner** in the lane: "This song has notes but no chord symbols. Analyze… · Not now"; Analyze opens the existing analysis dialog; Not now is kept in the draft.
+  - **Follow:** past 85% of the width (or off screen) the view turns a page; paused by wheel, pan, scrollbar, ruler zoom, clip drag and toolbar/key zoom until Play or Stop; one store write per page.
+  - **Zoom** is anchored (the old sum scaled the scroll too) and Fit uses the measured canvas width (`publishTimelineWidth`).
+  - **Ruler/canvas colours:** labels 11 px in ruler/dim text, never overprinting (markers first); chord names 12 px; playhead white (`--daw-playhead`, the piano roll's too), record red while recording; loop, marquee, triplet lines from the palette.
+- **Owner requests during the run (2026-10-16):**
+  - **"The top rail looks too busy" → trim and quiet both** (`4cd659de`): Back, Forward and Stop left the bar (Esc stops; new global Home/End = previous/next marker or the ends, `commands/transportSkip.ts`; the ruler seeks); Help, Audio & MIDI settings and the computer keyboard's switch live in one '⋯' (the typing chip shows only while on); Share is an icon; the save status lost its pill and the readout its box; Back to Studio, Undo, Redo and '⋯' are dimmer (`ui/styles` QUIET); hairlines divide the transport. The bar no longer folds at 1280/1366/1440 (fold kept for narrower windows: Song chip, name, count-in, tabs). The save chip keeps its wording ("Saved on this device" says the cloud copy lacks the work; the save checks and harness rely on it).
+  - **Soundtrap review** (side rail + bottom rail), screenshots in `~/Desktop/References/soundtrap-2026-10-16/` (35 + README). Owner decided: **the transport moves to a bottom rail**; a side rail drives the Inspector. Next work, not in this entry.
+  - **Combine Score and Lead sheet into one page** (one Score tab with a Full score | Lead sheet switch; notes, rests, rhythmic, articulations and accidentals into Palettes; the toolbar row above the staff removed). Queued after the rails.
+- **Verification:**
+  - `npm run lint` passes (prettier, eslint 0 warnings, `tsc -b`).
+  - `npx vitest run`: 15,893 pass; 13 fail in 17 files, none in this milestone's code: the inherited `designGuard` PianoRoll budget (B2's list), 8 suites that fail only on this checkout's stale gitignored `src/curriculum/data/songs/_generated_index.ts` (pass on a `git archive`), and 8 content/scripts files (atlas calibration, graph integrity budget, guitar theory notes, landing song chart, apiContract manifest ×2, writeVocabulary, repoStore ×2, vocabularySource) that fail identically on a `git archive` of `aa689d62` (before B3). New tests: editor (zoom anchor, Fit, grids per metre, Follow page turns/pause), row layout and reorder math, TrackList (ARIA, keys, Alt-move, F2/N rename, grip drop, delete + Undo), Add-track sheet and tiles, toolbar/chord lane/banner/Suggest, Timeline lanes on 64 px rows, Draw tool, labels never overprint; v5 draft + cloud-2.7 fixtures and a v4→v5 migration test.
+  - **`studio:check`** (fast, own server on 5263): round-trips 79/79 ok, 0 lost fields, 0 page errors; **R30 all 11 flags** (rows aligned to ±0 px at top/middle/bottom at all three sizes; Chromebook 4 whole rows with the dock open, 7 closed; laptop 5/9; 1280×720 4/8; Follow made 2 page turns in 9 s and held after a sideways scroll; banner stayed dismissed after reload); R28 8/8 at both sizes after it moved off the old colour popover; R26 and R29 all flags on the trimmed bar. Lessons at **all three sizes, both personas**: Chromebook 71/78, laptop 75/78, 1280×720 73/78, every failure on the known list, 12/12 complete, 4/4 Premium gated. **Bundle FAIL, inherited** (store, registry and save status on every page, as B1/B2); DawApp 102.0 kB gzip (+3.1 kB), budget 150.
+  - Browser (Chrome, own server): empty project tiles, Add-track sheet, track ⋯ menu and Colour swatches, chord-lane key chip and Song popover, Draw tool clip → dock piano roll, Indie's open-automation step through the ⋯ menu completing, the trimmed top bar; no console errors but the known third-party StrictMode warning. During the run the owner's server on 5179 briefly showed "The Studio couldn't load" while files were being swapped; a reload fixed it.
+- **Open issues:**
+  1. **Duplicate track** (design's ⋯ item) not built: copying Oracle patches, audio buffers and note ids needs its own care.
+  2. **Instrument-status ring** on the row waits for 1.13's instrument lifecycle.
+  3. The **Fader cap** (12 × 24 white) is heavy in a 64 px row; a slimmer row variant of the primitive is a 3.x polish.
+  4. **Lessons that boot empty** (Indie) still need a track the steps never add (known failure); the tiles now give the student a way in.
+  5. The coach card can cover the bottom of an open ⋯ menu (Delete) on Indie's step; docking is 1.2b's.
+  6. **Indie draw-volume is now known at 1280×720 too** (was Chromebook only): the toolbar and footer moved the automation lane up, and the 270 px coach card fits neither above nor below it, so it clamps over the lane's right end. Docking is 1.2b's.
+  7. Piano roll keeps V/D/E for its tools while the timeline uses V/B/C.
+  8. R26's typing-chip flag now measures the chip only while typing is on (it is gone when off).
+- **Owner sign-offs:**
+  - **Draft schema 5** for one view field (the per-project Not now); the cloud document's schema number follows (5), its content unchanged.
+  - **Follow lives in Create's toolbar**, not the top bar's centre: only the timeline follows, and the top bar's fold stays as measured in B2.
+  - **Tile wording** from the plan's Stage D note (Start with a beat, Play an instrument, Start from a genre, Add a track), not the archived design's four; "Play an instrument" turns musical typing on.
+  - **Suggest is an icon (+)** in the chord-lane header (name in the tooltip): "+ Suggest" doesn't fit 200 px beside CHORDS and the key.
+  - **Ruler order kept:** ruler on top, chord lane under it (next to the music); loop strip stays 14 px (the piano roll shares it).
+  - **+ Marker asks for a name** in a prompt (Enter keeps "Marker N"); inline rename on the canvas was not built.
+  - **Tools V/B/C** (plan default), digits kept.
+  - **The dock opens on the new track's Instrument tab** after an add, except during a lesson.
+  - **Top bar trim:** Stop is gone from the bar (Esc), Back/Forward became Home/End, and the keyboard's switch moved into '⋯'.
+
+## Plan change — Stage B finishes as the Soundtrap layout (2026-10-16)
+
+- **What:** the owner reviewed the measured Soundtrap anatomy (`reference/soundtrap-editor-anatomy.md`; Mozart AI in `reference/mozart-ai-studio-anatomy.md`) and asked to prioritise it: "Update the prompts to have this research be the next phase of the studio overhaul plan."
+  - It becomes the rest of Stage B, as decision 16 in `reference/plan.md`.
+  - Proposals ST1–ST12 and ST15 ship as 2.8 and 2.9 (re-scoped) plus 2.12–2.15, before 2.10, 2.11 and the Stage B exit.
+- **Owner answers (2026-10-16):**
+  - dock tabs per track type, with Effects last;
+  - Create's toolbar row folds away, so the sections lane costs no height;
+  - Master opens in the dock;
+  - Go to start, Rewind, Fast-forward and a metronome menu in the bottom rail;
+  - an Export pill in the top bar;
+  - a ⌘K palette.
+- **Run order now:**
+  1. 15, B4: 2.8 rails + Inspector, 2.9 dock v2. The rails were already started in the checkout.
+  2. 15a, B5: 2.12 clips.
+  3. 15b, B6: 2.13 lanes + song sections (4.4 moved in).
+  4. 15c, B7: 2.14 browser + add-track picker.
+  5. 15d, B8: 2.15 palette, Export, track menu.
+  6. 16, B9: 2.10 Mix, 2.11 help, Stage B exit.
+  7. 17, 1.2b: unchanged.
+- **Moved forward:**
+  - 3.1's shared context menus and 3.3's clip names and menus → 2.12;
+  - 4.4 → 2.13, with SD7 as recommended;
+  - 3.8's Browser shell and items, with F10 and F11 → 2.14;
+  - 3.14's export dialog → 2.15;
+  - F8 → 2.13.
+- **Not in this phase:**
+  - Freeze → 1.12b (C2);
+  - private solo/mute in collab rooms → 1.14 (C4);
+  - version history from the save chip → stays with Versions (deferred; needs an API).
+- **Files:**
+  - `reference/plan.md`, plus the live copy `~/.claude/plans/encapsulated-noodling-blum.md`;
+  - the README run order;
+  - prompts 15 and 16 rewritten, new prompts 15a–15d, notes in 19, 21, 23, 24, 27 and `29-D-teaching-features.md`;
+  - this entry.
+- **Code:** none changed. The rails work-in-progress in the checkout (bottom rail, side rail, Inspector panels; another session's, uncommitted) is untouched. Prompt 15 now treats it as its starting point.
+- **Pushed:** no; these docs are uncommitted.
+
+## Owner request — B4a: the side rail and the bottom rail (2026-10-16)
+
+After a Soundtrap review (screenshots and notes in `~/Desktop/References/soundtrap-2026-10-16/`), the owner moved the transport to a bottom rail and gave the Inspector a side rail of icons. Not one of the numbered prompts: it lands between B3 and prompt 15 (B4).
+
+- **Branch:** `aaron`, on `53a18377` (B3's entry). Another session's untracked `src/daw/collab/server/.partykit/`, `src/scripts/enrichment/research/` and its `.gitignore` line left alone.
+- **Commits:**
+  - `70c00d70` **the rails**: the layout, the store and registry, the Inspector's panels, the bottom rail, the top bar without the transport and the song;
+  - `bcde0043` **the Mix view fits under the bottom rail**;
+  - `a5fe1b14` **harness**: R29's rails and side panels, R28's song popovers, R30's row budget, the Library's rail in R4/R12, the kitchen sink, the lessons' known list;
+  - this entry.
+- **Pushed:** yes, to `aaron` (fast-forward), from a temporary worktree of HEAD: the pre-push lint sees another session's untracked files in this checkout.
+- **What changed:**
+  - **Shell grid** (StudioShell): `top top top` / `main inspector rail` / `dock inspector rail` / `bottom bottom bottom`. The Inspector runs from the top bar to the bottom rail, so the dock stops at it (as Soundtrap's library does). The practice screen hides the bars, both rails and the Inspector (still mounted).
+  - **Side rail** (`shell/inspector/SideRail.tsx`): a 48 px column of six icons, the owner's choice: Insight, Library, Effects, Lessons, People, Chat. The open one is a white tile; a second click closes the Inspector. I opens and closes it on the panel it last showed. Chat shows an unread count. It replaces the top bar's Inspector toggle and the session's People and Chat columns.
+  - **Inspector panel** (`shell/inspector/InspectorPanel.tsx`, 300 px by default, 240–420; widths saved under 240 fall back to the default): a header (name and ×) over one body.
+    - _Insight_ is the old panel's Insight tab; a piano-roll Analyze still brings it forward.
+    - _Library_ is the templates, with a search. It opens them through openSession as before, and is off in a shared session.
+    - _Effects_ adds an audio effect to the selected track and opens the dock's Effects tab on it (five per rack). Its rows carry test ids, not the dock's `fx-add-*` anchors, so a lesson's spotlight never lands here.
+    - _Lessons_ is the Production catalog. It opens a lesson through openSession (`kind: 'tutorial'`), so a free student gets the upgrade dialog; it marks the running and finished lessons and links to the Studio's Production tab.
+    - _People_ shows the connection, the room code (copy) and who is here; outside a session, "Start a session" opens the room and its invite.
+    - _Chat_ is the room's chat; showing it marks messages read.
+    - Store: `inspectorPanel` (a per-user **view pref**, in the registry and prefsStore with its validator), `toggleInspectorPanel`, `showInspectorPanel`. `userListOpen`, `chatPanelOpen` and their toggles are gone (session state, never saved). **No draft schema change.**
+  - **Bottom rail** (`shell/bottombar/`, 44 px, full width):
+    - _Left: Master_ — volume, level, its automation (which switches to Create, where the lane is) and Effects → Mix. It moved out of the track list, whose footer is now only the 16 px scrollbar.
+    - _Centre: the transport_, moved from the top bar and centred in the window: Play, Record, the readout, Loop, Click and its count-in.
+    - _Right: the song as three controls_ — Key (the circle of fifths in a popover; the key lock as before), Tempo (an inline field with Tap; `transport-bpm` is on it) and the time signature (a popover of the common metres and a custom one). Below 1100 px of rail the key drops its mode word.
+    - The chord lane's key chip opens the same Key popover (the circle only). The Song chip and its combined popover are gone.
+  - **Top bar:** Back, Project, the name, the save chip, Undo/Redo | the view tabs, centred | Share, the typing chip, '⋯', the avatar. Its fold has two steps left (name, tabs); it folds at none of the three sizes.
+  - **Mix view:** the mixer keeps its full height and the mastering section scrolls in what is left. On a Chromebook the two no longer fit under the rail. The faders, sends, return and master strip now show at every size, and the lessons' three known Mix failures pass.
+  - **Lessons:** Hip Hop's tempo step targets `transport-bpm` alone ("Set the **Tempo** at the bottom to **95 BPM or less**").
+- **Verification:**
+  - `npm run lint` passes (prettier, eslint 0 warnings, `tsc -b`).
+  - `npx vitest run`: 15,896 pass. 10 fail in 14 files, none in this work's code:
+    - the inherited `designGuard` PianoRoll budget;
+    - the suites that fail only on this checkout's stale `_generated_index.ts`, and the content/scripts files, the same as B3's list;
+    - `EraRail.test.tsx` (Atlas), which is flaky under the full suite's load: it passes on its own 3/3 and on a clean `git archive` of HEAD.
+    - The first run caught two problems, both fixed: `DawApp.bootLinks.test` now mocks the bottom rail (its master meter polled the mocked engine: 11 uncaught errors), and the deleted panels' design budgets are gone.
+  - **`studio:check`** (fast, on 5263): round-trips 79/79 ok, 0 lost fields, 0 page errors.
+    - The first run caught two problems, both fixed:
+      - R4's `libraryTemplate` prefs check saw the scenario's own rail click; the kitchen sink now leaves the Library panel showing.
+      - The Mix squeeze below.
+    - **R29: all 9 flags at all three sizes:**
+      - Top bar 44 px, fold 0.
+      - Bottom rail 44 px, its zones clear, the transport centred to the pixel (683/720/640).
+      - Side rail 48 × 567 on a Chromebook.
+      - Timeline 1,118 px on a Chromebook, under the new ≥ 1,100.
+      - Dock at 36% of the new body (205 px).
+      - Each of the six icons shows its panel, a second click closes it, I reopens it, and no panel has text under the floor or a target under 24 × 24.
+      - No commits from either bar during playback.
+    - R28 (Key and Metre popovers, the chord lane's key popover) and R30 pass.
+    - Lessons pass at all three sizes, both personas: Chromebook 74/78 (was 71), laptop 76/78 (was 75), 1280×720 74/78 (was 73). The only failures are Indie's known ones. All eleven R&B steps pass on a Chromebook, so the three fx-mixer-04 entries left the known list.
+    - Bundle FAIL, inherited (store, registry and save status on every page, as B1–B3); DawApp 103.4 kB gzip (+1.4 kB), budget 150.
+  - **Browser (Chrome, own server):**
+    - Each panel opened from the rail.
+    - Effects added Reverb to Drums and opened the dock's FX tab.
+    - Key picked G with the lock shown; Metre and Tempo (92) set.
+    - I toggled the Inspector.
+    - The Mix view kept both rails.
+    - No console errors but the known third-party StrictMode warning.
+- **Owner sign-offs:**
+  - **Row budget:** a Chromebook with the dock closed shows 6 whole rows, not 7. The bottom rail takes 44 px; dropping Master from the track footer gave 24 back. With the dock open it still shows 4.
+  - **Timeline width on a Chromebook:** ≥ 1,100 px, not the plan's 1,120. The side rail takes 48 px, and the Inspector, closed, no longer does.
+  - **Effects panel vs the dock:** the rail's Effects panel adds an effect; the dock still holds the chain and its controls. The Soundtrap-style chain of cards and the armed "Add effect" slot are the dock rebuild's (owner decision, below).
+- **The plan changed meanwhile** (another session's entry above, uncommitted when this landed):
+  - Prompt 15 (B4: 2.8 rails + Inspector, 2.9 dock v2) takes these rails as its starting point. They are committed and pushed here, so it starts from `a5fe1b14`.
+  - Its owner answers are not built yet; they are 15's: Go to start, Rewind, Fast-forward and a metronome menu in the bottom rail; Master opening in the dock; an Export pill; ⌘K.
+  - In this session the owner asked for the **Score + Lead sheet merge next**, then the dock.
+- **Owner requests during the run (2026-10-16):**
+  - A second Soundtrap pass on the **instrument drawer** (Instrument, Chords/Patterns, Piano Roll, Effects) and how Effects works with the side rail: 14 more screenshots (36–49) and measurements in the same folder's README. The owner decided:
+    - Soundtrap's four tabs: Instrument · Chords (Prism) or Patterns (drum grid + Grooves) · Piano Roll · Effects.
+    - Parts moves to the Library panel.
+    - Voice and guitar tracks get no tabs: an input row, then the chain.
+    - The Effects tab becomes a row of effect cards whose "Add effect" slot arms the side rail's Effects panel; each pick appends and re-arms, × cancels.
+    - Order: **the Score + Lead sheet merge first, then the dock.**
+- **Open issues:**
+  1. The Inspector's Effects list is flat (no categories, search or descriptions yet); the dock rebuild brings Soundtrap's library.
+  2. People and Chat show to everyone, with empty states outside a session; a classroom may want them hidden.
+  3. The Master group in the bottom rail is MasterRow as it was; Soundtrap's "Master ▾" drawer (gain, mastering styles) is not built.
+  4. Lessons don't open from the panel while a session is shared (as templates).
+
+## Owner request — one Score page (2026-10-16)
+
+The owner asked to combine the Score and Lead sheet tabs and to put the notes, rests, rhythmic, articulations and accidentals in the Palettes section. Their answers: one tab with two layouts, and the toolbar row above the staff removed. Done after the rails, as asked.
+
+- **Commits:** `c1a229e3` (the page, the palettes, tests) and this entry. **Pushed:** yes, to `aaron`.
+- **What changed:**
+  - **Tabs:** the top bar's tabs are Create · Mix · Score. The Score tab is on in either view and opens the layout last shown. The view ids stay `score` and `leadsheet`, so drafts, keymaps (the Score and Lead sheet scopes) and the harness are unchanged.
+  - **Switch:** a **Full score | Lead sheet** switch (`components/Score/ScoreLayoutSwitch.tsx`, the kit's Segmented) leads each layout's header. Its Lead sheet segment carries `view-switch-leadsheet`. The Lead sheet toolbar wraps on a narrow window (it needs about 1,175 px).
+  - **Palettes** (`components/Score/notePalettes.tsx`):
+    - Notes (with the dot), Rests and Rhythmic, each with a Write switch for the live layer (⌥N/⌥R/⌥H and the number keys as before);
+    - Articulations, with Tie and Slur;
+    - Accidentals;
+    - the chord symbol joins Text, above Barlines and Layout.
+    - A cell click makes its palette live and applies in the same tick (the old row's fix, kept). Active cells show what the selection has. The chord chart keeps only the mark palettes.
+  - The note editor row (`NoteEditorBar.tsx`) is deleted. Its Undo and Redo are the top bar's.
+- **Verification:**
+  - Lint clean (prettier, eslint 0 warnings, `tsc -b`).
+  - `npx vitest run src/daw`: 4,006 pass. The failures are the inherited PianoRoll design budget and three session suites that pass on their own (the song-link flake in big runs, noted at B2).
+  - New tests: the palettes (the old row's six cases, ported) and the tab and switch (`scoreLayout.test.tsx`).
+  - Round-trips: R26, R28 and R29 pass every flag; R29 reaches the Lead sheet through the page's switch.
+  - Browser (Chrome, own server):
+    - A selected note took Half, Accent and Sharp from the palettes, with the cells lit.
+    - The layout switch and the Score tab worked both ways; the melody lead sheet shows the note palettes; the toolbar wraps at 1,042 px.
+- **Open:** the palettes panel is still the legacy look (data-ds legacy); its v2 restyle is Stage C's (3.x). The page header's other controls (parts count, Print, MusicXML) are unchanged.
+
+## Plan change — Production Lessons take Ableton's lesson patterns (2026-10-16, proposed)
+
+- **What:** the owner asked for a review of Ableton's lesson sites to improve the Production Lessons.
+  - **The sites:** Ableton Learn (learn.ableton.com: the Beats course, the "What is Learn?" tour, the Playground) and Learning Synths (learningsynths.ableton.com).
+  - **How it was reviewed:** hands-on in Chrome, signed out. Nothing was shared or downloaded.
+  - **Write-up:** `reference/ableton-lessons-review.md`, with proposals AB1–AB13. It's proposed as decision 17 in `reference/plan.md`.
+- **The owner's direction (2026-10-16):**
+  - docs now, build after Stage B;
+  - the genre lessons, plus a Beats course and a Sound-design course; no Mixing course;
+  - everything inside the editor, with no separate lesson pages;
+  - gating stays "detect the action, Skip after 20 s".
+- **Where it lands:**
+  - **17, 1.2b:** Amendment A (`reference/lessons-v2.md` §8, AB1–AB8):
+    - the `listen`, `compare`, `tap` and `quiz` step kinds. `compare` plays B through the no-write preview path (`previewTrack` / `endTrackPreview`).
+    - a glossary;
+    - model answers, as one labelled undo step;
+    - a closing Practice stage;
+    - `startFrom` (a template or a demo, inside the tutorial seed);
+    - courses with Resume and Next lesson;
+    - a free "Building blocks" opener (Midnight Groove, unedited) as "Start here".
+    - The vertical slice for sign-off becomes Building blocks + Hip Hop.
+  - **17a, new (L1):** the Beats course, four lessons, after 17.
+  - **25a, new (L2):** the Sound-design course, five lessons, plus four recipes and Match it, after 25 (3.11's synth Play page) and 18 (1.11's graph builder, for the single-patch render).
+  - **3.11:** AB13, three teaching visuals in the shared synth UI, and the synth section anchors.
+- **Rule change:** from 17 on, "the 8 Production lessons must keep passing" means every lesson in the catalog. Noted in decision 17, the README and prompt 17.
+- **Size:** 1.2b grows from ~3–4 to ~4.5–5.5 developer-weeks. L1 adds ~1.5–2, L2 ~2–2.5 and AB13 ~0.5.
+- **Checked in the code while planning** (the review's §8 lists the paths):
+  - a previewed mute isn't heard, so `compare` uses volume;
+  - every demo gets its drums from `drumGrooveId`, so Midnight Groove already has four layers;
+  - the progress store's user switch resets only `completedAt`, so `inProgress` needs the same reset;
+  - the curriculum's genre `tempoRange` strings are placeholders, so 17a gets a curated `genreTempos.ts`;
+  - the Grooves library has no Pop, Jazz, House or Afrobeat grooves;
+  - the drum editor has no swing;
+  - `renderProject` renders only the live project.
+- **Owner sign-offs:**
+  - AB1–AB13;
+  - decision 17;
+  - §12 of the review: the tap tolerance, the opener's demo, the recipe format, both courses free, and AB13 in 3.11.
+- **Files:**
+  - `reference/ableton-lessons-review.md` (new);
+  - `reference/lessons-v2.md` (a header note and §8);
+  - `reference/plan.md`: decision 17, the 1.2b section, L1, the polish-track notes and the detail index. The live copy `~/.claude/plans/encapsulated-noodling-blum.md` was synced.
+  - `17-1.2b-production-lessons-v2.md` (reading list, lesson rule, goal);
+  - new `17a-L1-beats-course.md` and `25a-L2-sound-design-course.md`;
+  - the README (rows 17a and 25a, a note, a reference entry);
+  - this entry.
+- **Code:** none changed. The B4a work in the checkout (another session's, uncommitted, including `tutorials.ts` and the side rail's Lessons panel) is untouched.
+- **Pushed:** no; these docs are uncommitted.
+
+## B4 — 2.8 rails and Inspector, 2.9 editor dock v2 (2026-10-16)
+
+Prompt 15. The rails themselves (B4a) were already on `aaron`; this run finishes 2.8 and builds 2.9, both in one chat.
+
+- **Branch:** `aaron`, from `473089a0`. Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (decision 16's plan change, the Ableton review), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Commits:**
+  - `7cd85eee` **transport and Click menu** (2.8);
+  - `3e889b35` **the effects library and the dock's chain as one state** (2.8);
+  - `64f5c8b3` **the dock v2** (2.9);
+  - `dff262c1` **harness**: R29's dock checks, the click's prefs in the fingerprint and the kitchen sink, the engine tests' mocks;
+  - this entry.
+- **Pushed:** yes, to `aaron` (fast-forward), from a temporary worktree of HEAD: the pre-push lint sees another session's untracked files in this checkout.
+- **What changed (2.8):**
+  - **Bottom rail:**
+    - Go to start (⇧Home), and Rewind and Fast-forward (`,` and `.`, as in Logic), which step a bar and repeat while held. Rewind goes back a whole bar when the playhead is within half a beat of a bar line, so a press while playing never lands just behind the playhead.
+    - The Click caret opens a menu: the click's sound (Click, Tick, Hi-hat; a choice plays one click), its volume (−30 to 0 dB) and the count-in. Sound and volume are per-user prefs (`metronomeSound`, `metronomeVolume`).
+    - The click and the count-in now go straight to the output (`audio/clickVoice.ts`), around the master fader and the mastering chain, so mastering no longer colours them and the master meter no longer shows them; an export never had them.
+    - The countInFolded leftover and two stale header comments are gone.
+  - **Effects library and chain as one state:**
+    - The dock's Effects tab lost its own add list. After the last effect sits an **Add effect** card: a click opens the side rail's Effects library and arms it ("Pick from the library"). Each pick fills the slot and arms the next; the armed card's × stops and puts the Inspector back as it was (`fxLibraryReturn`). The rail's Effects icon is the same state: armed means the Effects panel is showing.
+    - A pick switches the dock to Effects and shows the new effect's controls (`dockEffect`); an effect already in the chain shows its controls instead.
+    - The library groups the ten effects in five categories, each with a one-line purpose ("Reverb: puts the sound in a room") and each effect with a line on what it does, in neutral colours (`data/effectCategories.ts`).
+    - One cap, `MAX_RACK_EFFECTS` (5), enforced by the store for tracks, the master and the returns; a track's own add never checked it (fx-mixer-19).
+    - The `fx-add-*` anchors moved with the list into the library (stamped with the rack it adds to). The five lesson steps that click one get a new step precondition, `effectsLibrary`, and say Effects rather than FX.
+- **What changed (2.9):** the dock moved to `src/daw/shell/dock/` (`git mv` of ChannelStrip).
+  - **Tabs by track type, Effects last:** Instrument · Prism · Notes · Effects (melodic), Instrument · Grooves · Notes · Effects (drums), no tab bar on audio (the chain) or live input (its pedals or voice chain, then the effects after them, behind a two-way switch). Labels changed (Controls → Instrument, Piano Roll → Notes, FX → Effects); the ids and the `chanstrip-tab-*` anchors did not.
+  - **Drums:** Notes is the drum grid; the Instrument tab is new, the kit and a pad per drum (play it, with its volume and pan; `DrumPadsView`). Hip Hop's four drum-grid steps now open Notes.
+  - **Parts** left the dock for a Templates | Parts switch in the Library panel, as they were, until 2.14.
+  - **Selection drives the dock:** a click on a clip selects its track and, on release, opens the clip's editor (Notes, the drum grid or the chain; `dockSelection.ts`); a double-click does the same instead of the modal. The dock follows the selected track, keeping the tab that applies (Prism and Grooves take each other's place). Notes always edits the track the dock shows (`editorTrackId` removed). During a lesson the dock keeps the step's tab.
+  - **Maximize** grows the dock over the canvas (kept mounted, inert) and Escape restores it. It replaced PianoRollModal (its Analyze in Insight moved to the dock's header) and the three PopOutOverlay openers (pianoroll-11, dock-instruments-15, -21). Maximized, the Oracle synth shows its full panel and effect graphs show large. An effect's graph is a labelled Graph toggle under its knobs, in the Mix view too (fx-mixer-11).
+  - **Keys:** Escape with focus in the dock shuts it, and the timeline's clip keys stay out of the dock (a `dock` region scope; the modal and pop-out scopes are gone, `dockMax` is new). Collaborators see "editing" while the dock is on Notes.
+  - **Master in the dock's slot:** the bottom rail's Master button (it replaced "Master effects: open the Mix view") shows the gain, the master chain with its own Add effect slot (the library then fills the master chain, without the Sidechain) and the output's peak (`DockMaster`, `dock-master` anchor). The Mix view stays; `mastering-section` and `master-strip` stay its anchors.
+  - **Height:** still a share of the body per tab, now with Master's own (0.36); a stored height for the old Parts tab is still a valid pref.
+  - **Found and fixed:** the bottom rail's Master fader and meter stood 48 px in the 44 px rail (since B4a), so the shell scrolled 4.5 px whenever something was scrolled into view.
+- **Verification:**
+  - **Lint:** prettier and eslint clean on every file this work touched; `tsc -b` clean. The whole-tree `npm run lint` stops only on another session's untracked `src/scripts/enrichment/research/` (12 prettier warnings, 1 eslint error).
+  - **`npx vitest run`:** 15,927 pass, 9 fail in 13 files, none in this work's code: the inherited `designGuard` PianoRoll budget and the content/scripts suites of B4a's list. New tests: `Dock.v2.test` (14), `effectsLibrary.test` (10), the transport's skip buttons, hold-to-repeat and Click menu, the prefs' validators.
+  - **`studio:check`** (fast, on 5263): round-trips laptop 79 ok (25 full-tier only), Chromebook 101 ok, 0 lost fields, 0 page errors. Lessons at all three sizes, both personas: Chromebook 74/78, laptop 76/78, 1280×720 74/78, only Indie's known failures; 4/4 Premium lessons gated. Bundle: DawApp 103.3 kB gzip (B4a 103.4), budget 150; the every-page FAIL is the inherited one.
+  - **R29:** all 13 flags at all three sizes, the four new ones included (dockTabs, dockMaster, dockMaximize, effectsArming). Maximize: 204 → 567 px on a Chromebook (the whole body) and back. R30's row budget (≥ 4 rows with the dock open at 1366×655) passes.
+  - **Golden (audio):** the metronome trace passes 15/15 checks at 44.1 and 48 kHz (clicks on the beat, 4/4 count-in clicks); the renders pass 10/10.
+  - **The click's level:** before, −10 dB into the master fader (0.8, −1.9 dB) and the mastering chain's crush stage (+2.4 dB at low level when off; audio-core-12, still open), about −9.6 dB at the output; now −10 dB, within half a dB.
+  - **Browser (Chrome, 5263, a 1042 × 1035 window; the exact sizes are R29's):**
+    - Drums: the Instrument tab's pads played (the meter moved); Notes is the drum grid, and two painted hits made a clip.
+    - Synth: the dock kept Notes and showed its piano roll. Before the fix it showed the drum grid of the drum clip still selected: found here.
+    - Effects: Add effect armed slot 1 and the library opened beside the dock, pushing it; Reverb then Delay filled slots 1 and 2 and armed 3; Graph showed Delay's graph; Maximize filled the body and Escape restored it; the armed slot's × shut the library.
+    - Master: gain at −1.9 dB, the chain and the peak; Add effect said "Adding to Master" without the Sidechain, and a Compressor went to the master chain only. A click on the drum clip then left Master for the drum grid.
+    - Vocal: no tabs, a Voice | Effects switch over the vocal chain.
+    - Click menu: Tick and a 1-bar count-in set, and Escape closed only the menu. Its volume readout ran out of the popover: fixed.
+    - Transport: Fast-forward twice to bar 3, Rewind to bar 2; with the click and the count-in, `.` while playing jumped a bar and Go to start went to bar 1.
+    - Library → Parts: a part (Am9 – D13, 34 notes) went onto the Synth at bar 1, and a reload brought the dock back on the Synth's Notes with it.
+    - Console: only the known third-party StrictMode warning.
+- **Owner sign-offs:**
+  1. **Tab names:** the plan's (Instrument · Prism or Grooves · Notes · Effects; the owner's answer recorded at 15:15), not the B4a note's Soundtrap names (Chords, Patterns, Piano Roll). The ids are the same, so a rename is one table in `shell/dock/dockTabs.ts`.
+  2. **Drums:** Notes is the drum grid and Instrument the new kit-and-pads view; Hip Hop's drum steps moved to Notes.
+  3. **Live-input tracks:** no tab bar, but a two-way switch (Pedals or Voice | Effects), because the engine has two chains in series; one chain is engine work.
+  4. **Keys:** Go to start ⇧Home; Rewind and Fast-forward `,` and `.` (the plan's proposal). They also work while the computer keyboard plays notes.
+  5. **The click:** three sounds (Click, Tick, Hi-hat), −30 to 0 dB, −10 dB by default, routed around mastering.
+  6. **Escape in the dock** shuts the dock rather than stopping playback, while focus is in it.
+  7. **A clip click** opens its editor on release, not on press, and not during a lesson.
+  8. **The Effects tab** keeps our chain row of 68 px blocks with the controls below, not Soundtrap's 174 × 251 cards with controls inside: they don't fit the Chromebook's 204 px dock.
+- **Open issues:**
+  1. The dock's tab bodies are still the legacy look (data-ds legacy): Stage C's.
+  2. The Mix view's mastering and return racks keep their own FxBrowser lists until 2.10's RackDock.
+  3. The Library's Parts section is the old PartsBrowser (legacy look, tight at 300 px) until 2.14.
+  4. The Export pill and ⌘K are 15d's (2.15), not this prompt's, although the B4a entry listed them under 15.
+- **Next:** 15a (B5: 2.12 clips).
+
+## Owner request — the drums' Instrument tab as a drum kit (2026-10-16)
+
+After B4, the owner sent a reference (`~/Desktop/References/drum instrument.png`, Soundtrap's drum Instrument tab): "This image shows what the drum instrument should look like."
+
+- **Commits:** `68784563` (the kit, the drum keys, tests, R29) and this entry. **Pushed:** yes, to `aaron`.
+- **What changed:**
+  - **The kit** (`shell/dock/DrumPadsView.tsx`, layout in `drumKitLayout.ts`): a top-down kit of round pads. The kick is in the middle; the snare and hi-hat sit to the left, two rack toms above, the floor tom to the right, and the crash and ride out wide. The sidestick and the open and pedal hats are badges on the rims of the drums they're played on.
+  - **Pads:** each shows the key that plays it. A click plays a pad and picks it. Pads light while they sound, whether from a click, the computer keyboard or a MIDI keyboard.
+  - **Our look, not Soundtrap's purple:** neutral rings, white key badges, a white ring on the picked pad.
+  - **Above the kit** (beside it when the dock is under 240 px, as on a Chromebook, so the kit keeps the height): the kit's menu with ‹ ›, the kit's volume and pan (the track's), the picked pad's volume and pan, and a Keys switch. The drum-kit-selector anchor stays on the kit menu.
+  - **The computer keyboard plays a kit at the kit's own octave** (`DRUM_TYPING_OCTAVE` = 2, whatever octave is set), so the letters on the pads are true: A kick, S snare, D sidestick, F floor tom, T Y U the hats, H and K the rack toms, O crash, P ride. This is a GM drum keyboard's layout. Before, A played C4, which no pad has. The typing chip says "Typing · Drums" then.
+- **Verification:**
+  - tsc and eslint clean on the changed files.
+  - Vitest: the dock and command suites 158 pass (new: `drumKit.test`, the drum octave in `keyboardCommands.test`). The design guard fails only on the inherited PianoRoll budget.
+  - R29: all 13 flags at all three sizes, with the kit now probed for the floors.
+  - The Hip Hop and House lessons on a Chromebook, both personas: 24/24 steps.
+  - Browser (Chrome, 5263):
+    - A click on the snare played it and moved the pad knobs to it.
+    - With Keys on, S played MIDI 38 and lit the snare.
+    - A short dock (204 px) moved the controls beside the kit; a tall one put them above.
+- **Owner sign-offs:**
+  1. The kit's keys follow the GM drum keyboard (above) rather than Soundtrap's letters (Soundtrap uses digits too, which our typing scope doesn't bind).
+  2. Soundtrap's Save Preset and Auto-quantize are not copied: no drum presets or input quantize exist to back them.
+- **Found (pre-existing, open):** inside the editor, a `border-daw-*` colour class loses to the editor's border reset (`daw.css`, `.daw-root *`) and to the dashboard's (`dashboard.css`, `.dashboard-root *`). Same specificity, loaded later. So the design system's outlines (Select, secondary Button and IconButton, Chip, the search fields) show as hairlines in the editor. The kit and the Add effect card use the important form for now. A proper fix touches the shared `dashboard.css` reset, so it waits for the owner.
+
+## B5 — 2.12 clips: one clip menu, the Edit pill, clip chrome (2026-10-17)
+
+Prompt 15a. Decision 16, ST1 and ST2; 3.1's shared context menu and 3.3's clip names and menus pulled forward.
+
+- **Branch:** `aaron`, from `2f76504f`. Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`. The research files were formatted (prettier, eslint --fix) with the owner's OK, so that the pre-push lint passes; nothing else in them changed.
+- **Commits:**
+  - `136f2a5d` **document fields:** `muted` on both clip types and `name` on audio clips, through drafts, the cloud document and collab;
+  - `bc9811e2` **scheduler:** a muted clip plays nothing, live or in an export;
+  - `729762e1` **the clip menu, the Edit pill and the keys** (timeline-17, ia-flows-26);
+  - `8b84002b` **clip chrome:** header with name and key, trim zones, fade handles, empty-canvas clicks (timeline-17);
+  - `9d389fb3` **harness:** R31-clips;
+  - `887be29c` **review fixes, the menu:** the Score's marks follow Transpose and Quantize; a collaborator's track refuses every action out loud; the menu's keys and ticks;
+  - `a872673c` **review fixes, muted clips:** the sustain pedal, skipped audio starts, MIDI export;
+  - `ca703a2b` **harness:** the Chromebook round trips run again (kitchen sink, R4's Inspector), R12's Save as… and practice screen, perf's timeline-scroll, stricter R31;
+  - this entry.
+  - Each commit typechecks and passes its suites alone (checked on `git archive` exports).
+- **Pushed:** yes, to `aaron` (fast-forward, `2f76504f..` this entry), from this checkout with the pre-push hook (owner rule: no clone, no worktree).
+- **What changed:**
+  - **One menu module, in its final home** (`src/daw/shell/canvas/clipMenu/`, for 3.1):
+    - `clipMenuModel` (items by clip type and context);
+    - `clipActions` (what each item does, shared with the timeline's keys);
+    - `CanvasMenu` (one renderer on the 2.2 Menu primitive);
+    - `ClipEditPill`;
+    - `canvasMenuStore` (which menu is open; a small store beside the editor's, since an open menu is nothing a project holds).
+  - **Three ways in, one implementation:**
+    - a right-click, which selects the clip but not its track, so the dock stays put, as in Soundtrap;
+    - the Edit pill, a 44×24 button at the selected clip's bottom left;
+    - a key, `clip.menu`.
+  - The menu hangs beside what opened it, so it slides up to fit: 373 px, inside the window at 1366×655.
+  - **The clip menu** is the same for every clip type. What can't act now stays in its place, off, with the reason as its hint.
+    - Cut · Copy · Paste · Delete · Duplicate │ Rename… · Split at playhead · Mute clip · Add comment (off until 4.3) │ Transpose ▸ · Quantize ▸ (MIDI) · Fade in / Fade out (audio) │ Prism ▸ (Premium).
+    - **Transpose:** steps of a half step and an octave. The menu stays open and names the move so far ("Up a minor 3rd (+3 semitones)"). Drums and audio show it off with the reason, and a move off the keyboard is refused.
+    - **Quantize:** the timeline's grid first, then 1/4–1/32 and the 1/8 and 1/16 triplets. It snaps on the song's grid from the bar lines (wiring `quantizeEvents`), moves starts only, and never moves a note before its clip's start.
+    - **The Score's marks follow both:** articulations, slurs, pinned spellings and slash notes move with their notes in the same undo step. They are keyed by where each note sits, so they would point at nothing after a move and the next save would drop them. `followNoteEdit` moved to `model/noteMarks.ts` for it.
+    - **Prism:** Suggest chords here (from the bar under the pointer) and Open Prism. A free student sees it locked, leading to the plans, as before.
+    - **A collaborator's track:** every item but Copy is off, with "Sam is editing this track" as the hint, and a key or a stale menu that still lands says so in a toast and changes nothing.
+  - **The other canvas menus come from the same renderer.** They replace the hand-built menu, which covered audio clips only (a MIDI clip got a lone "Prism — Suggest Chords").
+    - an empty lane: Paste here (the nearest grid line), Create clip (from the grid line before the click), Add comment, Prism;
+    - a marker: Rename, Delete;
+    - the ruler: Add marker here.
+  - **Clip chrome:**
+    - **Header:** 16 px in the track's colour, with the clip's name or its track's.
+    - **Key:** a pitched clip shows its key in bold (`harmony/clipKey.ts`):
+      - the song's key when ≥ 90 % of the notes' weight sits in its scale;
+      - else the best major or minor key, by UNISON's Krumhansl–Schmuckler step, now exported as `rankMajorMinorKeys`, when it correlates ≥ 0.5;
+      - else none. Drums show none.
+      - This delivers 4.6's "pitched clips show their key".
+    - **Muted:** the clip is dimmed, with a dashed edge and "Muted" in its header.
+    - **Trim zones and fade handles:** trim zones are 10 px (were 6) and show as grips on the clip in hand or under the pointer; a clip narrower than three zones keeps a body to grab. An audio clip shows a fade handle in each top corner, at its fade's end. A handle drag snaps to the grid, stays clear of the other fade, and is one undo step. A trim now keeps the fades inside the clip.
+    - **Redraws:** the redraw gate sees names, mutes, a track's name, role and instrument, and the detected key.
+  - **Pointer on empty canvas:** a click seeks there on the grid and deselects. A drag draws the marquee, which selects notes for Insight; it used to pan. The middle button pans.
+  - **The scheduler skips muted clips.** Starts are gated when they come, so a mute or an unmute while playing is heard at once, as a track's is:
+    - MIDI: a muted part starts nothing and sends no controllers. One just muted lets go of its sounding notes, and of its sustain pedal if it is down, where the transport is scheduling, so nothing it had booked rings on. A part now ends only notes it started.
+    - Audio: a muted clip's start is skipped and its sound stops. Unmuted before that start was due (the transport books starts a look-ahead early), it starts on the beat; unmuted later, it starts under the transport's position.
+    - **Both exports leave muted clips out:** the bounce and File ▸ Export MIDI hold what plays. The chord lane's analysis and the bounce's length still count them, as they count muted tracks.
+  - **New document fields:** `muted` (MIDI and audio clips) and `name` (audio clips). They are cloud 'document' fields in the registry.
+    - Draft schema 6, compat 3: new v6-all-fields fixture; v5 kept for the migration.
+    - Cloud document: a MIDI clip's mute rides in its clip part. A named or muted audio clip gets a part keyed by clip id, with the row it was written for (asset:start:length), so an older app's moved row doesn't take it. New cloud-2.12 fixtures; the contract doc says 6.
+    - Collab: the Y.Doc holds both on each clip, and the diff sends them. `COLLAB_DOC_SCHEMA_VERSION` is 2.
+    - The dashboard's schema is 6. The kitchen sink sets all three fields. Prism counts a muted take as touched, as a renamed one, so its next Create keeps the take instead of replacing it.
+- **Key clashes, settled in the registry:**
+
+  | Key                                 | Now                                                          | Before      |
+  | ----------------------------------- | ------------------------------------------------------------ | ----------- |
+  | ⌘E                                  | Split the selected clip at the playhead (Soundtrap, Ableton) | Export MIDI |
+  | ⌘E elsewhere (Score, dock, no clip) | nothing: kept from Chrome's address bar                      | Export MIDI |
+  | ⇧⌘E                                 | Export MIDI                                                  | —           |
+  | ⇧M                                  | Mute or unmute the selected clip                             | —           |
+  | M                                   | the click, unchanged                                         | the click   |
+  | ⌘X                                  | Cut the selected clip                                        | —           |
+  | N, F2                               | Rename the selected clip (as the track list's rename)        | —           |
+  | ⇧↑ / ⇧↓, ⇧⌘↑ / ⇧⌘↓                  | the selected clip's notes a half step / an octave            | —           |
+  | Alt+Return, Shift+F10, the menu key | the selected clip's menu, focus on its first item            | —           |
+
+  Soundtrap's ⌘M wasn't taken: on a Mac it minimizes the window. Alt+Return and N are the Chromebook-safe ones (no F keys, no menu key). A clip key pressed on a track row's button is the row's, not the clip's.
+
+- **Review:** an adversarial review of the five feature commits (one workflow: finders per dimension, each finding verified) confirmed 20 findings, 1 high. All are fixed in `887be29c` and `a872673c`, each with a test:
+  - **high:** Transpose and Quantize orphaned the clip's Score marks, which the next save dropped;
+  - Prism's next Create replaced a take the student had muted;
+  - holding Alt+Return cut the clip;
+  - a mute just before a note could leave it stuck, and a muted clip's controllers (the pedal, Oracle macros) still played;
+  - Export MIDI wrote muted clips;
+  - a locked track's keys gave no feedback (⌘X copied and kept the clip; paste and duplicate selected a clip that never landed);
+  - the lane's Create clip landed a grid step late, and a clip's Suggest chords ignored where it was clicked;
+  - audio clips 10 px wide or narrower couldn't be moved;
+  - the menu key also opened the browser's menu, a track row's keys acted on the clip, and ⌘E with no clip reached the address bar;
+  - an unmute near a clip's start left it silent for the pass, and a restart played late by the output latency;
+  - the marquee didn't pause follow, hover grips stayed under the ruler, and Rename showed only F2;
+  - three mute tests that couldn't fail, and R31 flags weaker than they claimed.
+  - Found while testing in the browser, also fixed: the menu opened again when the timeline came back.
+- **Inherited harness failures, fixed** (`ca703a2b`):
+  - **Every Chromebook round trip that applies the kitchen sink errored** ("leaves view.libraryOpen at the default") since 2.4's Inspector default (`0a75fa31`): a fresh project on a 1366 px window starts with the Inspector closed, and so did the sink. Reproduced on the B4 build `2f76504f`. The sink now sets it the other way from the window's default.
+  - Once they ran, **R4 called `view.libraryOpen` carried over** on a Chromebook: the sink's Library click had chosen the Inspector open in Create, a pref that rightly follows the student into the next project, while R4 expected a cold boot's closed Inspector. R4 now expects it where the carried prefs put it (unless a lesson's step sets it) and judges the prefs against the session the link replaced; the sink puts its Create choice back at the window's default, so a project's own value carried over still shows on every other link.
+  - **R12 sameIdReopen** (full tier) timed out since 2.3 and 2.5: the item is "Save as…" (`4b0d7365`) and asks in the editor's own dialog (`f2e3559f`).
+  - **R12 practiceMode and practiceGenre** (full tier) timed out since 2.4: the practice screen hides the top bar, and `openProjects` tested that the File menu existed rather than that it showed.
+  - **Perf's timeline-scroll** found no Timeline since 2.6 (`b6d2d963`): the track area's scroller scrolls up and down only, and the old lookup wanted `.overflow-auto`. It runs again.
+- **Verification:**
+  - **Lint:** prettier and eslint clean on every file this work touched; `tsc -p tsconfig.app.json` clean.
+  - **Vitest:**
+    - The suites this work touches pass: 125 files and 1,121 tests (Score, Timeline, hooks, store, audio, shell, commands, model, harmony).
+    - `887be29c` on its own (a `git archive` export): tsc clean, 21 files and 196 tests pass.
+    - New tests: `clipMenuModel`, `clipActions` (the marks following, the locked track), `clipMenu` (the menu key, a held Return, the track list), `clipChrome`, `clipKey`, `intervalName`, `clipMuteScheduling` (the pedal, release timing, skipped starts), `exportProjectMidi`, the bounce's muted audio, `clipMuteSync`, the schema-6 codec and cloud fixtures, and ⌘E in `keyboardCommands`.
+  - **Full tier**, on a `git archive` export of the final app tree, with the 1.3 build `e10ac4db` on 5264 as the previous build:
+    - **unit:** 3,195 pass. The one failure is the inherited PianoRoll budget.
+    - **round trips** (the final harness, in 6 parallel shards):
+      - 105 scenarios on each profile, all ok: 0 lost fields, 0 unowned losses, 0 page errors, every goal flag true.
+      - R14:real and R15 timed out booting the 1.3 build beside six other browsers, and passed when run alone on both profiles.
+      - R28–R31 have no known-loss baselines, as since B2.
+    - **lessons:** pass. 148/156 steps; the 8 failing are Indie's known open-automation and draw-volume steps, at both sizes and for both personas. 24/24 complete, and 8/8 Premium lessons gated for the free student.
+    - **perf, playback (Chromebook):** 0 store writes/s and 0.15 commits/s. 14 long tasks (790 ms) in 20 s: the known Oracle per-note cost, Stage C's.
+    - **perf, fader drag:** 1 write and 1 undo step per gesture.
+    - **perf, timeline-scroll** (after its fix): scroll draws p95 2.0 ms on a Chromebook and 0.7 ms on a laptop (1.8 measured 3.0 and 0.9), so the clip headers cost nothing measurable. Zoom draws p95 11.7 and 3.7 ms, frame p95 16.7 ms, no long tasks.
+    - **perf, idle:** 240 rAF/s, AppContext's known Globe warm-up.
+    - **golden:** 10/10 renders the same. **golden-trace:** 15/15 checks at 44.1 and 48 kHz. The 36 "live track sync" warnings were there before.
+    - **bundle:** DawApp 109.5 kB gzip (B4: 103.3; budget 150); the editor's boot closure is 332.5 kB in 111 chunks. The every-page FAIL is the inherited one.
+    - **R31**, with its stricter checks: all 6 flags at 1366×655, 1440×787 and 1280×720.
+  - **Mixed-version collab** (two builds and a local PartyKit):
+    - new ↔ new syncs mute, unmute and rename;
+    - an old tab against the new server is told to update;
+    - a new tab against an old server is told the server is being updated, and keeps its work;
+    - old ↔ old connects.
+  - **Browser (Chrome, own servers):**
+    - right-click, the pill and Alt+Return open the menu;
+    - the transpose label names each step;
+    - mute and unmute while playing are heard (meters);
+    - rename, ⌘E split, fades and their handles, and the trim clamp work, and all of it survives a reload;
+    - a click on empty canvas seeks and a drag draws the marquee;
+    - the lane, ruler and marker menus work.
+    - On the final build:
+      - Transpose ▸ Up an octave moved a staccato and a slur with their notes in the Score, and one ⌘Z brought both back;
+      - Suggest chords here, right-clicked at bar 3 of a clip that starts at bar 2, opened at bar 3;
+      - Create clip from a lane right-click at about tick 8520 started at 8160, the grid line before it;
+      - the console showed only the known third-party StrictMode warning.
+- **Owner sign-offs:**
+  1. **Keys:** the table above, especially ⌘E → split with Export MIDI on ⇧⌘E, and ⇧M rather than ⌘M.
+  2. **Empty canvas:** a drag draws the marquee (it used to pan); the middle button, the scrollbar and a sideways scroll pan.
+  3. **The clip's key:** the song's key when the clip fits it, so a riff on A–C–E in C major reads "C", not "Am"; otherwise major or minor only. Keys are spelled as the key chip spells them (D♭m, not C♯m).
+  4. **Transpose:** stay-open steps with the move named, not Soundtrap's slider with Apply.
+  5. **Quantize:** starts only, on the song's grid, never before the clip's start.
+  6. **A right-click** selects the clip but not its track or the dock.
+  7. **A clip's mute is part of the song:** shared in collab and saved. A track's M stays each person's own.
+  8. **Muted clips** are left out of both exports, MIDI included; the chord lane's analysis and the bounce's length still count them.
+  9. **Fade handles snap** to the grid. A trim shortens fades that no longer fit.
+  10. **The Edit pill** is a secondary pill on the popover surface, not a white primary.
+- **Open issues:**
+  1. **Deploy order:** ship the web app, then `npm run collab:deploy`. Doc schema 2: a tab from before this milestone is told to update; one after it, against an old server, is told the server is being updated.
+  2. **`.env.local` sets `VITE_PARTYKIT_HOST` to an empty string.** `CollabProvider` falls back to `localhost:1999` with `??`, which an empty string doesn't trigger, so local collab can't connect on a dev server that reads it. The mixed-version check ran with the variable set on the command line. The fix (`||`, or unsetting the line) is the owner's.
+  3. **Keyboard-only clip navigation** (Tab into the canvas, arrows between clips) stays with 3.3, so timeline-17 is partial; ia-flows-26 is partial too (the duplicated key setting is 2.5's). The audit ledger is left for the Stage B exit, as in B1–B4.
+  4. **One swallowed click:** a click made a few milliseconds after closing the Invite dialog with Escape was swallowed once while that dialog animated out. A click at a normal pace worked. It is pre-existing, for the Stage B exit's "no click swallowed" guard to check.
+  5. **Still to come:** Reverse (it needs a reversed buffer) and the loop strip (it needs a repeat model, 3.3); a key for audio clips; Add comment (4.3).
+- **Next:** 15b (B6: 2.13 lanes and sections).
+
+## B6 — 2.13 lanes above the ruler and song sections (2026-10-17)
+
+Prompt 15b. Decision 16 (ST4); 29-D §4.4 and SD7 moved into Stage B.
+
+- **Branch:** `aaron`, from `f242d3d9` (B5's entry). Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Commits:**
+  - `4c550c08` one section model, the document-field routine, song boots (schema 7, collab 3);
+  - `37123e9f` Create's toolbar row folds away (header, ruler end, footer, Grid menu);
+  - `3c85deae` the sections lane, its menu and keys, Duplicate and Insert (`time/arrangementEdits.ts`);
+  - `689c4dce` markers (F8): one hit test, click goes, drag by name, rename and add in the dialog, Alt+M;
+  - `a3306086` studio:check: R30 updated, R32 new, designProbe's subtree mode;
+  - review fixes: `3b33fce7` Lead Sheet and Score, `27597c1f` saving (fingerprint after the schema change), `88123b8e` shared sessions, `86abfd8f` sections in the Lead Sheet and drafts, `4bfab7df` Duplicate and Insert, `43b28052` the lane, `49f1cb0e` markers, `5cfcb1ce` Create's header, `c26a5d59` studio:check;
+  - this entry.
+  - Each commit typechecks alone (checked on `git archive` exports).
+- **Pushed:** to `origin/aaron` with this entry (`f242d3d9..` this commit), from this checkout.
+- **What changed:**
+  - **One section model** (`src/daw/model/sections.ts`, `store/sectionsSlice.ts`): `sections: {id, type, label, startTick, endTick}[]`, in song ticks, in order and never overlapping.
+    - **Vocabulary:** UNISON's `SectionType` plus tag, hook, breakdown, build-up and drop (a shared UNISON type; its converters now read numbered names, "Verse 2" is a verse). Each kind has a one-line purpose.
+    - **New sections** are 8 bars, after the last one, on a bar line, as neutral blocks.
+    - **The Lead Sheet and the Score** read the sections as marks (`useLeadSheetSections`); their + Section, − Section, rename, paste and rehearsal-mark toggle write the sections. The chart runs as far as the sections do. Bar edits (+ Measure, − Measure) move sections with their bars.
+    - **Song boots** lay out the chart's form: each section starts where the chart's run starts (hey_ya's metre changes included), typed from its name.
+  - **The document-field routine:**
+    - Draft schema 7, compat 3: `data.sections`, plus the marks they imply in the marks' old place (`notation.leadSheetSections`), so a build from before 2.13 still shows them after a rollback. A draft or cloud copy without sections reads them back from those marks, with ids from the bar. New `v7-all-fields` and `cloud-2.13` fixtures; v6 and cloud-2.12 kept and still open whole.
+    - Cloud document schema 7 (the contract doc says so) and the dashboard's.
+    - Collab: an array of Y.Maps of their own, diffed by id, read in order by every peer; the lead sheet's old `sections` key is neither written nor read. `COLLAB_DOC_SCHEMA_VERSION` is 3. Undo: the array is in collab undo's scope ('Edit sections').
+    - The registry: `sections` (doc, cloud 'document', shared, undone) and `SECTION_FIELDS`; the save status fingerprints them; Save's toast calls them song sections.
+  - **Create's toolbar row folded away** (decision 16):
+    - **+ Add track** (same `add-track-button` anchor) at the top left of the header, in the sections lane's row; **Pointer, Draw, Cut** beside the ruler.
+    - **Snap and Grid** over the ruler's right end; the Grid menu also holds the chord lane's labels and what colours the clips (Track | Harmony).
+    - **Zoom −, the level, +, Fit and Follow** at the footer's right end, beside the scrollbar; the footer is 24 px.
+    - **Lane header:** sections 24 + ruler 32 + chord lane 24 = 80 px (was 88). The lanes keep their height (4 whole rows with the dock open on a Chromebook).
+  - **The sections lane** (`shell/canvas/sections/`):
+    - - Section after the last section (the lane's left end with none), kept in view; it lists the 14 kinds, Custom name… and About song sections, with the kind under the pointer explained on the list's last line.
+    - A click goes to a section's start; dragging an edge resizes it on bar lines, an edge two sections share moving both, 1 bar at least, one undo step.
+    - One menu (the canvas's one menu, a right-click or Alt+Return): what the kind is for, Rename…, Change type ▸, Duplicate with its clips, Loop this section, Insert before ▸, Insert after ▸, Delete section (keeps the clips), About song sections.
+    - Keys with focus on a section (one Tab stop): ←/→, Home/End, Enter goes there, ⇧→/⇧← a bar longer or shorter, N or F2 renames, ⌘D duplicates, Delete or Backspace deletes, Alt+Return or ⇧F10 opens the menu.
+    - Duplicate and Insert move the whole song after the section (`time/arrangementEdits.ts`): clips straddling the point are cut there (Score marks follow), chords too; markers, sections, automation, the loop and the chart's bar marks move. Duplicate copies the section's notes and controllers (new note ids), windows of audio (sharing the take), chords, automation and the Score marks of copied notes. One undo step each; refused while recording or while a collaborator holds a track.
+    - Fit and the scrollbar count the sections in the song's length.
+    - The comment lane's slot (24 px, above the sections) shows while a Comments panel is open; 4.3 adds the panel and fills it.
+  - **Markers** (plan finding F8): one hit test over the flag and name as drawn (`Timeline/markerHit.ts`) for the press, the cursor, the double-click and the right-click; a click on a marker goes to it; a drag takes it where it was grabbed (no jump); a double-click renames it in the app's dialog; a double-click elsewhere on the ruler, Add marker here and Alt+M (registry `timeline.addMarker`, for 2.15's palette) ask for the name first and add it as one undo step; Cancel adds none.
+- **Review:** six adversarial reviewers (persistence, collab, arrangement edits, lane UI and a11y, Lead Sheet parity, markers and harness) plus the UI test writer; every finding was reproduced with a throwaway test first, and every fix landed with a test that fails without it. The ones that mattered:
+  - **Shared sessions:** Duplicate and Insert wrote with the store's raw setState and never reached the room (the partner kept the old song, and the next remote edit undid it locally); they now go through a store action, one room undo step. Peers could drift apart after concurrent edits because sections normalized on read were never written back; the diff now compares with the doc, a repeated id is read once, and crossed edges keep the section.
+  - **Saving:** renaming the doc key changed every document's fingerprint, so after the deploy every saved project would have said "Saved in this browser" once and cached drafts would have read as work; a draft from another schema now has its stored fingerprints read in this build's terms.
+  - **The lane:** focusing a block scrolled the lane itself (blocks off their bars until a reload); focus fell to the page after a menu Delete, and the next key moved the selected clip; Escape during a drag also stopped playback; menus could open off-screen.
+  - **Music:** Insert stretched automation ramps before the point, a held pedal rang through inserted bars, sized clips lost their size, Lead Sheet rows swelled to 12 bars, hidden chord symbols came back.
+  - **Lead Sheet:** removing a mark left a gap the sheet can't show (and shrank Proud Mary's chart), marks ended at the chord chart instead of the last clip, a mark on the closing barline added a bar, Send to set list dropped the bars past the last chord.
+  - **Rollback:** the marks mirror now carries each section's id, kind and ends, so 2.13 → 2.12 → 2.13 keeps gaps, kinds and lengths (2.12 keeps such fields as they are; checked on a 2.12 archive).
+  - **Harness:** R30's floor probes couldn't fail inside the legacy main region; now subtree mode (no failures found).
+- **Verification:**
+  - **vitest:** 16,388 pass, 10 fail, all inherited (the six song-data suites on the stale local `_generated_index.ts`, lineage calibration, the landing's songDemoChart, designGuard's PianoRoll smallText 8 > 6, apiContract manifest ×2, writeVocabulary, repoStore.noop ×2, vocabularySource); the Atlas EraRail suite and the song-link session tests failed only under the tier's load and pass alone.
+  - **Lint:** `npm run lint` clean (prettier, eslint, `tsc -b`); every commit typechecks alone on a `git archive` export.
+  - **studio:check full tier** (`par-check.sh`, HEAD archive on 5271, `--prev-base` the 1.3 build on 5264): round trips 0 fields lost; R1, R6 and R12:fileNew (laptop: "timed out waiting for the synth panel bridge") and R12:draft (Chromebook: an audio take's digest) failed only beside five other browsers and pass alone; R14/R15 old builds ok; perf and the golden trace (15/15) ok; golden renders ok; lessons 74/78 on both profiles (the 4 known); bundle: boot chunk 116.6 kB gzip (budget 150), the every-page FAIL inherited; R28–R32 "no baseline, 0 new". R30's 13 flags and R32's 15 pass at 1366×655, 1440×787 and 1280×720.
+  - **Collab, mixed versions** (wrangler on 1999, `VITE_PARTYKIT_HOST=localhost:1999`): a 2.12 client (collab 2) joining a 2.13 server gets "Update Music Atlas to join this session"; a 2.13 client on a 2.12 server gets "The session server is being updated". Two 2.13 windows: sections added, resized, renamed, deleted and undone reach the partner; Duplicate with its clips and its Undo reach the partner (the review's main finding, checked on the HEAD build).
+  - **Chrome** (HEAD build and the fixes' tree): the header, ruler end and footer; + Section's list and hint; add, click-seek, shared-edge drag and undo, menu, Loop, Duplicate, Insert after, keys, Change type; adding a second section keeps the blocks on their bars (lane scroll 0) and focus on the new block; Delete from the menu gives focus to the section before; the Lead Sheet shows the same sections; `?song=stay` lays out 18 sections; markers (add with a name, click to go, drag by name, rename, Alt+M, Cancel). Console: only the known StrictMode warning.
+- **Owner sign-offs:**
+  1. **+ Section** sits just after the last section (the lane's left end when there are none, as plan.md's 2.13 note says) and stays in view; the prompt's "left end" read as its short form.
+  2. **Vocabulary and order:** Intro, Verse, Pre-chorus, Chorus, Bridge, Outro, then Solo, Interlude, Breakdown, Build-up, Drop, Hook, Tag, Coda, then Custom name…; no automatic numbering for new sections ("Verse", not "Verse 2"); song boots keep their charts' numbered names; an instrumental verse stays a verse.
+  3. **The lane's Delete leaves the bars unnamed** (a gap you can see in the lane); the Lead Sheet's − Section (a mark is a point) hands the bars to the section before, as before 2.13, and removes only the section its mark shows.
+  4. **Insert before/after adds 8 empty bars** there and moves the rest of the song later; **Duplicate** inserts the section's length after it and copies what plays in it. Both refuse while recording or while a collaborator holds a track. The loop moves with the music, and an Undo of the edit leaves it where it moved (the loop region is each student's own and outside undo).
+  5. **Edges:** a shared edge moves both sections; a free edge stops at its neighbour; 1 bar at least; always on bar lines, whatever the grid.
+  6. **The Lead Sheet keeps its free-text + Section;** the kind follows the name ("Pre-Chorus" is a pre-chorus, "A" is custom); renaming keeps the kind unless the new name names one, in the lane and on the sheet alike.
+  7. **Change type** renames a section still named after its kind ("Verse" → "Chorus"), and keeps a name the student gave it.
+  8. **Header placements:** + Add track at the top left (where the toolbar had it), the tools beside the ruler, Snap and Grid over the ruler's right end, zoom and Follow at the footer's right end.
+  9. **Markers:** Alt+M adds one at the playhead; every way of adding one asks for its name first (B3's "+ Marker asks for a name"), and Cancel now adds none.
+  10. **The Lead Sheet's chart runs as far as the sections do,** so every section the lane has shows on the sheet.
+  11. **The comment lane's slot** is code only, wired to a Comments panel 4.3 adds.
+- **Open issues:**
+  - **Undo leaves the loop moved** after Duplicate or Insert (the loop is per-student, outside undo); and in a room the partner's loop, the Lead Sheet's bar-indexed settings (rests, fermatas, row sizes, Score breaks and spellings) don't travel yet, an older gap + Measure shares (collab finding 5).
+  - **designProbe's default mode is blind inside the legacy main region** (data-ds="legacy"): R30 and R32 now use subtree mode; R28, R29 and R31 still use the default and may hide floors. For the Stage B exit (16).
+  - **The HMR dev hazard:** editing store modules while a dev page is open re-runs the store and empties the open project (seen twice on dev servers). Dev-only; test on archives or with HMR off.
+  - Moving a section with its clips waits for 3.1; no playhead line in the sections lane; "Suggest sections" not built; the comment lane's slot is code only (4.3).
+  - Fit is limited by the zoom floor on long songs; the scrollbar's hit area is still 12 px in the 24 px footer; Snap and Grid over the ruler's last ~100 px hide the playhead's top there; + Section clamped to the right end can cover the last section's end edge.
+  - Pre-existing: the scissors leave a Score mark orphaned on a cut note in some cases, and drop a sized clip's size (the arrangement path keeps it); UNISON's 6/8 ticksPerMeasure and deriveFormLabel; a right-click on the chord lane opens the Ruler menu.
+  - Hey Ya!'s Lead Sheet marks now sit on the 4/4 bar holding each section's first chord (bars 5, 11, 16…), not 6, 12, 18: the true bars.
+  - `swallowNativeMenu` is copied into the lane; exporting it from clipCommands would remove the copy.
+- **Next:** 15c (B7: 2.14 browser and add-track picker).
+
+## B7 — 2.14 the browser and the two-step add-track picker (2026-10-17)
+
+Prompt 15c. Decision 16 (ST5, ST12); 3.8's browser shell with F10 and F11 pulled forward.
+
+- **Branch:** `aaron`, from `e3f050b1` (B6's entry). Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Commits:**
+  - `653f4530` a track made for a sound starts on it (`addTrack`'s `init`);
+  - `3350c641` F10: the three dead MIDI-effect placeholders go;
+  - `00d4fd48` ♡ favourites as a per-user pref (`libraryFavourites`), the dock's Grooves heart included;
+  - `438d43eb` the two-step add-track picker;
+  - `2fc8c8fa` the Library as a browser;
+  - `de860205` F11: drops on the timeline;
+  - `453774e4` refusals are heard (the editor's toasts were silent; see below);
+  - `eef0c6ee`, `1669b5bb` review fixes;
+  - `d3e67c0d` studio:check: R33;
+  - this entry.
+  - Each commit typechecks alone (checked on `git archive` exports).
+- **Pushed:** `origin/aaron` `e3f050b1..` this entry (11 commits), pushed from this checkout with the hook.
+- **What changed:**
+  - **The Library is the browser** (`src/daw/shell/inspector/browser/`, its own chunk), after Soundtrap's Sound library in our look:
+    - one search; ♡, Instrument, Genre and Type filters whose choices show how many items each leaves (each counted without itself); up to six tag chips from what is listed; Clear;
+    - sections Parts · 75, Grooves · 29, Kits · 14, Presets · 114 (the Studio's 22 sounds, Oracle's 10 factory patches, the SERUM pack's 82 listed from its manifest, the student's own), Templates · 4;
+    - rows ▶ · name over what it is · ♡ · +. A part's row says the key it lands in, the tempo it was played at, its bars (and 3/4) and its chords as Roman numerals ("C · 120 BPM · 5 bars · I–V–vi–IV"); a groove its tempo, bars and genre, from the designed groove that plays; a kit or a sound what it is; a template its tempo and tracks, and its name opens it as a new project (refused in a shared session, as before);
+    - **Fits your song** on top while nothing narrows the list: what the song lacks in the order drums, bass, chords (up to 3, then 2), ranked by tempo, key fit, level and ♡, with a line such as "A minor · 120 BPM · no bass yet".
+  - **+** makes a new track holding the item at bar 1, as one undo step: named after it, on its sound and role (a part's clip moved into the song's key, swing in its ticks; a groove's clip and kit; a kit or a sound as the instrument), selected, the dock on Notes (parts, grooves) or Instrument. The key and tempo rules:
+    - **key:** a part moves by the move that puts the most of its key's scale on the song's (tonic first, then the smaller move), so a D dorian vamp stays D dorian in C major and parts written together move together; a song with no key and no notes takes the first part's key and says so; a song with notes but no key moves parts into the key read from them, without writing it;
+    - **tempo:** a groove at another tempo asks in the panel (Change to N BPM · Keep · Cancel), the change and the add one step; parts follow the song's tempo.
+  - **▶** previews one item at a time on an instrument of its own, notes booked on the audio clock as they come due, straight to the output (around master and mastering, like the click): a part in the key it would land in at its own tempo, a groove at its tempo on its kit, a kit a bar of beat, a sound a phrase in the song's key. ■, another ▶, Play, Record, an add, closing the panel and a new session stop it.
+  - **F11, drops:** a row dragged onto a melodic lane (a groove onto a drum lane) lands on that track at the bar under the pointer, keeping the track's sound; elsewhere (the ruler, under the last track, an empty project's tiles) it makes a new track holding it at that bar. Same rules as +. A dragover the timeline can't take is refused; a dropped .mid goes through Import MIDI file… (one step). The never-written drag kinds (instrument, track template, drum sample, MIDI loop by URL) are gone.
+  - **F10:** Arpeggiator, Chord and Scale left the effects lists.
+  - **Favourites:** `libraryFavourites`, a per-user pref (sorted item ids, prefsStore validator, registry, fingerprint and kitchen sink). The dock's Grooves heart is the same pref.
+  - **The add-track picker,** two steps:
+    - Keys (Piano · Electric piano · Organ), Drums (Drum grid → Notes · Grooves → the Grooves tab), Bass (the playable bass guitar, new to the picker), Synth, Instruments, Sampler, Voice, Guitar & bass amp (Guitar · Bass); each with an About line; a kind with one engine adds at once;
+    - under the tiles: Import MIDI file… and Browse the library (shows the Library, focus in its search);
+    - every lesson anchor kept; new `add-track-cat-*`, `-electric-piano`, `-grooves`, `-bass-electric`, `-browser`. Hip Hop's and House's first steps say "pick Drums, then Drum grid", the spotlight following the category to the choice.
+  - **Refusals are heard:** the editor's toasts went to an old toast store nothing draws, so the track limit, "Sam is editing this track", the clip and sections menus' refusals and "Track taken" were silent. They now go through `shell/notice.ts` on the app's Sonner toaster.
+- **Review:** an adversarial review of the feature commits, split six ways (musical correctness, store writes, preview audio, UI and a11y, catalog and integration, tests and harness), each finding verified. Fixed in `eef0c6ee`, `1669b5bb` and `453774e4`, each with a test:
+  - **high:** the move into the song's key read the notes, so parts of one key landed in different keys (now the keys); a preview booked each release with its start, so a synth chord played one note and an arpeggio preset nearly nothing (now booked as they come due, stop releases and fades);
+  - a tempo question left open could add into a project opened later; a lane deleted while it waited; a SERUM patch added while the pack loaded played the default (the pack load is shared; a missing patch adds nothing and says so); a groove listed before its designed metadata took the catalog's tempo and kit; a key lock left on with no key blocked the first part's key; voice loads leaked or evicted the playing voice; a failed load left a spinner; notes past a part's last bar; swing on the played tick; Escape ran the editor's Stop under the panel (the panel now takes no Escape); focus lost after the question or a clear; the ♡ filter unnamed; an unavailable + looked available; no status for a search; every row re-rendered on any tempo or role change; the picker flashed step 1 as it closed; chips and template names under 24 px wide;
+  - tests that couldn't fail, and R33 judges weaker than their text (now: a part that needs a move, the toast judged, stops timed under 400 ms, focus judged).
+- **Verification:**
+  - **lint:** whole tree clean (eslint and prettier). **typecheck:** clean at every commit (`git archive` exports).
+  - **vitest:** 3180 passed, 10 failed, 1 expected fail, 28 skipped (3219); the 10 failing files are B6's inherited set, unchanged (designGuard PianoRoll smallText, song-data, song-link session, content/scripts, EraRail flaky).
+  - **studio:check, full tier (par-check.sh, HMR off, 5281; the committed build `d3e67c0d` from a `git archive` on 5282):**
+    - unit: as above;
+    - round trips: chromebook 103/103 ok; laptop 100/103 with R1, R6 and R12:fileNew timing out on the synth panel bridge under load, each ok re-run alone (B6's known load flakes); R28–R33 ok at both sizes (no baseline, 0 new); old-tab round trips 8/8 ok;
+    - lessons: 74/78 at chromebook and small, only the 4 known failures; 12/12 complete; 4/4 gated; the two drum lessons with the new picker step 24/24;
+    - golden: same; golden-trace: all 15 checks pass;
+    - bundle: DawApp 114.9 kB gzip (B6 116.6 kB; budget 150), the every-page FAIL inherited from the main merge;
+    - perf: as B6 (idle 0 store writes/s; view switches, drags, scroll and score edits within B6's spread; autosave's `slotCommitsOk` "no" as in B6).
+  - **R33** (13 flags × 1366×655, 1440×787, 1280×720, both profiles): all pass.
+  - No Y.Doc or document-shape change, so no mixed-version collab check.
+  - **Browser (Chrome, my HMR-off server on 5281):** the panel at 300 and 240 px; search, filters, chips; Fits your song empty, after a groove and in A minor; + on a groove (no question at 120), a C dorian bass (filled the key), a 60 BPM groove (the question; Change and one ⌘Z undid tempo and track); a bass part dragged below the drums landed on a new track at bar 3 and the 60 BPM groove dragged onto the drum lane asked, Keep added it at bar 2 with focus back on its +; ▶ on a part and on Oracle PAD played and ended, Play stopped one; the track limit's notice showed and + looked off; ♡ and the tracks survived a reload; a template opened with Restore; the picker's two steps and back; the console showed only the known StrictMode warning.
+- **Owner sign-offs:**
+  1. **Rows:** kits and sounds say what they are (they play in any key and tempo); templates show tempo and tracks and open (no ▶ or +); numerals are Roman whatever the chord-notation setting.
+  2. **The key move:** by the keys, not the notes (a C dorian bass line in C major lands in D dorian; an A dorian boom-bap bass moves up a fourth to D dorian even though its notes already fit C major).
+  3. **Keys and tempo:** the first part fills an empty key (and clears a stale lock); grooves ask about tempo (the button is "Keep N BPM", not "Add anyway"); parts never change the tempo; a 3/4 part or groove keeps its own length in a 4/4 song (its row says 3/4).
+  4. **After +:** the dock opens on Notes for parts and grooves, Instrument for kits and sounds; a drop on a fitting lane keeps that track's sound.
+  5. **Previews** go around the master and mastering, like the click; each plays at its own tempo (3.8 adds "at song tempo").
+  6. **Favourites** are per student per computer and shared with the dock's Grooves heart (now white when on, not red).
+  7. **Fits your song:** drums → bass → chords, 3 then 2; nothing for melody (no melody parts exist).
+  8. **The 22 Studio sounds** are listed as presets (dock-instruments-16), beyond the plan's list; lesson grooves, bass lines and bands are not (3.8).
+  9. **The picker:** the 8 kinds and their step 2s; the Bass tile is the playable bass and recording a bass moved under the amp; track names follow the choice ("Piano", not "Keys"); Drum grid and "Start with a beat" open Notes (the step sequencer they promise); Escape closes on either step; the lessons' new copy.
+  10. **Escape** in the Library keeps the editor's meaning; ■ and Play stop a preview.
+  11. **Notices:** the editor's refusals and the Library's notices on Sonner (they were silent).
+  12. `addTrack`'s ignored colour argument became `init`.
+- **Open issues:**
+  1. **Data:** groove-latin-2's catalog tempo says 90; the designed groove that plays is 3/4 at 120 (the Library shows 120, the dock's Grooves list 90). Part names are lesson-ish ("Funk L1 · D46 D2: …", duplicates); "Abfunk9"/"Afunk9" show as ♭Ifunk9–Ifunk9; 32 parts end with a landing bar (5 bars for a 4-bar progression).
+  2. A drop shows no hint of where it will land (a lane and bar ghost); drag stays the second way in.
+  3. Keyboard: the list is one Tab stop per button (about 700); arrow-key navigation is 3.15's.
+  4. First use loads heavy assets: the SERUM pack (1.7 MB, 82 files), the GM SoundFont (30 MB), the natural kit (19.5 MB): 1.12c.
+  5. Oracle patches added by the browser live in the synth cache: not undone, not synced to collaborators (1.13b).
+  6. A 3/4 item in a 4/4 song isn't fitted to the song's bars; "Fits your song" doesn't weigh metre.
+  7. The old `@/hooks/use-toast` store is now unused in the editor; anything else that sends to it is still silent.
+- **Next:** 15d (B8: 2.15 commands and output).
+
+## B8 — 2.15 commands and output: the command palette, Export, the track menu (2026-10-18)
+
+Prompt 15d. Decision 16 (ST9–ST11); 3.14's export dialog pulled forward.
+
+- **Branch:** `aaron`, from `bc8a170d` (B7's entry). Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Commits:**
+  - `18632206` render options: one track alone, no effects, mastering off; stems in one zip (a store-only ZIP writer, no new dependency);
+  - `4516e32f` notation: MIDI named after the song, drums on channel 10; the full score, lead sheet and one track's part as MusicXML from anywhere (`midi/scoreExport.ts`);
+  - `784054ac` Duplicate track (B3 open issue 1), and an added track keeps its place in a room (`diffTracks`);
+  - `ad14d89e` the ⌘K command palette;
+  - `6b9e302d` the Export pill and the one Export dialog (Audio | Notation);
+  - `9134733e` the track menu and row;
+  - `35c51870` studio:check: R34;
+  - review fixes: `8f92bfc8` the palette's lists and keys, `4ba78b7e` the dialog's rules, `e4cb0683` audio export, `940f9459` notation export, `3d92f75c` Duplicate, `8914bfe9` the palette's close, `e12ab74e` the track menu, `4e06d1c7` the dialog's focus, `f5e39224` studio:check;
+  - this entry.
+  - Each commit typechecks alone (checked on `git archive` exports).
+- **Pushed:** to `origin/aaron` (`bc8a170d..` this entry), from this checkout with the hook.
+- **What changed:**
+  - **The command palette** (`shell/help/CommandPalette.tsx`, its own chunk, loaded while the editor is idle): ⌘K / Ctrl+K, or ⇧⌘P from anywhere. It lists the commands that work where it was opened, from the 1.6 registry, grouped by scope in the '?' sheet's order (one `commands/scopeOrder.ts`, which now includes the track list and sections lanes), each with its shortcut (Soundtrap's has none); a key taken by a command listed earlier isn't shown on a later one. Search by label, keywords ("bounce", "stems") and scope. A pick closes it and runs the command as its key would (`dispatcher.runCommand`): a region's command where focus was (the track row it was opened from), anything else on the page, so the keyboard precedence holds; one with nothing to act on says so. Key-less commands joined the registry for it (Export…, Add a track…, Duplicate the selected track, Go to Create/Mix/Score, Open the Library, Open the Effects library, Audio & MIDI settings); the '?' sheet lists only commands with keys. '⋯' ▸ Find a command opens it too.
+    - **⌘K in the Lead sheet** still adds a chord symbol while something on the chart is selected; with nothing selected it opens the palette. The registry test now names that one shadowing on purpose.
+  - **Export:**
+    - **The pill** is the top bar's one white pill, between '⋯' and the avatar; it folds to its icon last (no fold at 1280, 1366 or 1440, typing chip and a 5-person room included).
+    - **One dialog** (`shell/export/`, replacing `components/Transport/ExportAudioDialog.tsx`), Audio | Notation, then what: Whole song · Each track (stems, audio only) · One track (a track menu). Audio: WAV 16/24-bit or Opus; the song, the loop or bars; mastering on or off (off when the master chain is empty); for one track, with or without its effects. Notation: MIDI file, MusicXML lead sheet (chords, with the song's sections as rehearsal marks), full score, or one track's part.
+    - **Stems** render one track at a time (the others left out of the graph, not muted), each the song's length, into one `<song>-stems.zip` (`01-bass.wav`…); "Track 3 of 7 · Bass" while it runs; Stop ends after the track being rendered; a track deleted meanwhile is skipped and named.
+    - **Honesty:** SoundFont tracks silent, amp and vocal tracks dry, and stems through the master chain one by one say so before the export; a song where nothing plays still exports, saying the file will be silent (the R&B lesson's last step may bounce whatever is there).
+    - **Names:** `<song>.wav`, `<song>-<track>[-dry].wav`, `<song>.mid` (was `prism-session.mid`), `<song>-lead-sheet.musicxml`, `<song>-score.musicxml`; letters of any script kept.
+    - **Entry points:** the pill, Project ▾ ▸ Audio… / Notation (MIDI, MusicXML)… (MIDI file still downloads at once, ⇧⌘E), Export track ▸, the palette. The R&B lesson's bounce step points at the pill (`export-pill`); its check is unchanged.
+  - **MIDI files were 3.75× too slow everywhere** (pre-existing, found in review): midi-writer-js stamped 128 ticks a beat on notes written at 480, and read velocities on a 1–100 scale. `exportMidiFile` now writes with @tonejs/midi (already a dependency); midi-writer-js is unused. Drums go on channel 10, other tracks 1–16 without it. The admin Parts Library's MIDI download used channels 0 and 9; now 1 and 10.
+  - **Track menu:** a name field at the top (Mozart AI's), with focus and the name selected as it opens: Enter, leaving it or closing the menu renames (one undo step, only if typed), Escape keeps the name. Duplicate track (⌘D on a track's name). Export track ▸ WAV · WAV (no effects) · MIDI file · MusicXML, each opening the dialog with the track chosen. A right-click on a row selects it and opens the menu at the pointer; ⇧F10, ⌥Return or the menu key on a track's name open it too. The Rename item went (the field, F2/N and the double-click remain).
+  - **Duplicate:** the copy holds every saved track field the registry lists (so a later field is copied without anyone remembering), with new ids for the track, its clips and notes; audio clips share their take; a Chops sample gets its own id (an unsaved one its own bytes); the Oracle patch is cloned; the Score marks of its notes are copied. "<name> copy" (then "copy 2"), same colour, right after the source, one undo step, refused at the track limit and while recording. In a room an added track used to land last for the partner and jump back; `diffTracks` now places it where it is.
+  - **Track row:** the selected row has a 4 px edge in its track colour (the others a 2 px dim one); an instrument button (the picker's glyph, in the track colour, or the row's text colour when the colour is too dark to read) selects the track and opens Instrument, or the chain for audio, with focus in the dock.
+- **Review:** six adversarial reviewers (keys, audio render, notation, Duplicate and collab, UI in a real browser, tests and harness), each finding reproduced first; fixed in the nine review commits, each with a test that fails without it. The ones that mattered:
+  - **high:** every MIDI file played 3.75× slow (above); the track menu opened on the menu, so typing a name ran items ("Drums" and Return made a copy); the R&B lesson's Bounce could never pass for a student who added a Synth without notes (the new dialog refused an empty song);
+  - a click right after closing the palette was lost (its fade kept the page from taking clicks; the first fix lost to Radix's inline style); from a track row the palette's clip commands all said "nothing to do"; the first ⌘K on a Chromebook let the next letters reach the shortcuts (Loop turned on); mastering off was 9 ms early against mastered files; stems held every file twice in memory; a duplicated Chops track shared the source's sample, so changing it silenced the original; focus fell to the page while exporting (Space played the song behind the dialog); a lead sheet of chords needed notes; solo was ignored by the dialog's checks; a dark track's instrument glyph was invisible;
+  - tests and R34 flags weaker than their text (renders of the wrong track passed; "differs" compared bytes).
+- **Verification:**
+  - **lint:** whole tree clean (`npx yarn lint`: prettier, eslint 0 warnings, `tsc -b`). **typecheck:** clean at every commit (`git archive` exports).
+  - **vitest** (the full tier's unit run): 3238 passed, 10 failed, 1 expected fail, 28 skipped; the 10 failing files are B7's inherited set, unchanged (designGuard's PianoRoll smallText, the song-data and song-link session suites, editorRoute and ProjectsDialog under load, the content/admin set). The new and changed suites: 2.15's palette, registry, dispatcher, export dialog, render, stems, zip, MIDI, MusicXML, Duplicate, collab order, track menu and row tests all pass.
+  - **studio:check, full tier** (`par-check.sh` on a `git archive` of `f5e39224` on 5283, `--prev-base` the 1.3 build on 5264):
+    - round trips: laptop 102/104 and chromebook 103/104 in the parallel run; R1 and R6 (laptop, "timed out waiting for the synth panel bridge") and R12:jam (chromebook) failed only beside five other browsers and pass alone, so 104/104 on both; R28–R34 "no baseline, 0 new" at both sizes; old-build round trips (R14, R15) 8/8 ok;
+    - **R34** (16 flags × 1366×655, 1440×787, 1280×720, both profiles): all pass;
+    - lessons: 74/78 at chromebook and small, only the 4 known failures; 12/12 complete; 4/4 gated; the R&B Bounce step passes through the Export pill;
+    - golden renders 44.1 and 48 kHz: same (the default render path is unchanged); golden trace: all checks pass;
+    - bundle: DawApp 117.4 kB gzip (B7 114.9; budget 150), the palette, the Export dialog, the zip writer and the MusicXML writers in chunks of their own; the every-page FAIL inherited from the main merge;
+    - perf: as B7 (idle 0 writes; autosave's `slotCommitsOk` "no" as before).
+  - **Collab, mixed versions** (wrangler on 1999, `VITE_PARTYKIT_HOST=localhost:1999`, `f5e39224` on 5285 and the 2.14 build `bc8a170d` on 5286): two 2.15 windows: Duplicate of a middle track shows right after its source in both, with its clips and notes, and one ⌘Z removes it in both; a 2.15 window duplicating with a 2.14 partner: the partner shows the copy in place, and its own added track lands last without moving the copy; a 2.14 window adding a track and a 2.15 partner duplicating: same orders in both. No collab errors in any console. No Y.Doc shape change, so no version bump.
+  - **Browser (Chrome, my HMR-off server on 5282 and the committed build on 5283):** ⌘K in Create (search "dupl" → Duplicate the selected track → one ⌘Z), in the Lead sheet with nothing selected; Loop run from the palette; a click just after Escape lands; the right-click menu (rename with typing, Escape keeps the name, focus back on the row); ⇧F10 on a track's name; the track menu typing "Drum loop" + Return renamed it with no copy made; the Export pill and dialog (Audio, Notation, One track, the anchored top, focus on Audio); Export track ▸ WAV (no effects) opened One track · Bass · No effects with mastering off; the instrument button opened Synth's Instrument with focus in the dock; the selected row's edge and filled icon. Console: only the known third-party StrictMode warning. File downloads were checked by R34 (WAV, zip, MIDI, MusicXML parsed), not in Chrome.
+- **Owner sign-offs:**
+  1. **Keys:** ⌘K / Ctrl+K opens the palette, ⇧⌘P is its second key; in the Lead sheet ⌘K stays "Add a chord symbol" while the chart has a selection. The palette lists only what works where it was opened (not every command, greyed).
+  2. **The pill's place:** between '⋯' and the avatar, folding to its icon last.
+  3. **Stems:** only the tracks that play in the mix (mute and solo as Play has them), each through the master chain alone when mastering is on (the dialog says they won't add up exactly), in one zip.
+  4. **"No effects"** leaves out the track's insert effects, sends and mastering; its fader, pan and their automation stay (so its level matches the song). An Oracle patch's own effects are part of its sound and stay.
+  5. **Export track ▸** opens the dialog with the track chosen rather than downloading at once; ⇧⌘E and Project ▾ ▸ MIDI file still download at once.
+  6. **A silent song exports** (with a warning), as before; a lesson's bounce counts any audio export, a stem or one track included.
+  7. **MIDI channels:** drums 10, others 1–16 in track order without 10, shared past 15 tracks; file names `<song>.mid` etc. (the Score's MusicXML was `<Title>.musicxml`, the lead sheet's `prism-lead-sheet.musicxml`).
+  8. **Duplicate:** "<name> copy", the same colour, mute and solo as the source, right after it.
+  9. **The Rename item** gave way to the name field; Escape in it keeps the old name and closes the menu.
+  10. **The selected edge:** 4 px in the track colour on the selected row, a dim 2 px line on the others; the instrument glyph carries the colour.
+  11. **The R&B lesson's copy:** "click **Export** at the top right".
+- **Open issues:**
+  1. **Render gaps** stay (1.11): SoundFont tracks silent, amp/vocal tracks dry, no ducker or gate; a single render can't be stopped half-way; each stem re-loads its samples (audio-core-20's preload).
+  2. **Oracle patches** of a copy are not undone or shared in a room (1.13b); in a room an undone copy's Score spellings stay in the local store (spellings aren't in the room yet).
+  3. **Reordering** an existing track still isn't shared in a room (pre-existing); only an added track's place now is.
+  4. **MIDI** carries no program changes or tempo map; the Parts Library's download writes no time signature.
+  5. The palette's region commands from a row's other controls (its Mute, its fader) are listed but answer only from the name; the sections lane's "+ Section" button lists section commands that do nothing.
+  6. File names don't shorten long names or avoid Windows' reserved ones ("CON").
+  7. `downloadScoreXml` and `downloadLeadSheet` have no callers left; `useToolbarOverflow.test` samples 3 widths for 4 fold levels.
+  8. Freeze (1.12b), Merge, MP3 and Flat.io/Noteflight are not built.
+- **Next:** prompt 16 (2.10 Mix view, 2.11 Help and the Stage B exit). 2.11's '?' sheet reads `commands/scopeOrder.ts` and the registry as the palette does.
+
+## B9 — 2.10 Mix view, 2.11 help, and the Stage B exit (2026-10-18)
+
+Prompt 16. Decision 16; plan 2.10, 2.11 and the Stage B exit criteria. The exit report is `docs/studio-perf/stage-b-exit.md`.
+
+- **Branch:** `aaron`, from `1ffd816f` (B8's entry). Other sessions' work is left alone: the uncommitted prompt-pack edits under `docs/prompts/studio-overhaul/` (this file's other new entries included), `.gitignore`, and the untracked `src/daw/collab/server/.partykit/` and `src/scripts/enrichment/research/`.
+- **Owner decision (2026-10-18):** Mix strips are 96 px wide and fill the height, as the plan's "≥240 px" and the archived 2.10 design meant (tall). The prompt's "at least 240 px wide" was a slip for tall.
+- **Commits:**
+  - `27f67d98` store keys: the Mix rack and Mute All's memory (session), the hover-hints pref (per user); no schema bump;
+  - `26e1067b` a one-line explanation under every setting (Mozart AI's pattern);
+  - `cc4e6dc9` the hover hint line;
+  - `d0ea45ea` the Mix view, the master column, the RackDock and one FxRack (fx-mixer-04, ia-flows-12, fx-mixer-14, ia-flows-35, design-system-15, fx-mixer-12, design-system-16);
+  - `ec9b1811` the '?' sheet, Report a problem, the typing chip (shell-33, score-31);
+  - review fixes: `1c6f3fe9` overlays close at once (guard e), `fa55e53f` the Mix view and its rack, `9c922611` the R&B lesson's Mix steps, `1c484546` help, `ce64132b` and `2ab1072d` the picker's focus;
+  - `2b5dca4a` studio:check: R35 (Mix) and R36 (the exit);
+  - `505a6f5a` the Stage B exit report and the audit ledger;
+  - this entry.
+  - Each commit typechecks alone (`git archive` exports).
+- **Pushed:** to `origin/aaron` (`1ffd816f..` this entry), from this checkout with the hook.
+- **What changed:**
+  - **Mix view** (`shell/mix/`, on the design system, replacing `components/Studio/StudioView.tsx`):
+    - Strips, 96 px wide, fill the height. Each has its name over a 4 px edge in its colour, up to three effects with their power dots, then +N; Send A and B and pan as knobs; M and S; a fader beside its meter, with the value in dB.
+    - Return A and B follow, with their effects and fader; they have no meter (there is no return tap yet).
+    - A 240 px master column: the master fader and its peak (the same parts as the dock's Master), Bypass, Mute All, the master chain and a spectrum. The spectrum gives way to the fader when the column is short.
+    - The selected track's strip scrolls into view.
+  - **One effects rack:** FxRack serves a track, a return or the master. The dock's Effects tab, the dock's Master and the Mix RackDock all show it. The RackDock sits in the dock's slot under the strips, stopping at the Inspector:
+    - a share of the body (0.36), shut to its bar by default;
+    - never past the body less 300 px, so the strips keep a fader;
+    - the chain listed beside the effect's controls, so the knobs show at 1366×655;
+    - Escape shuts it, with focus moved in when a strip, the master column or the bottom rail's Master opened it.
+  - **The Effects library is the only list that adds effects** (the old per-rack lists and FxBrowser are gone). It fills the rack in front of the student: in Mix, the open rack (a return's and the master's included), else the selected track's. The bottom rail's Master opens the master's rack in Mix.
+  - **Mute All** is a real toggle: a second press unmutes exactly what it muted, in one store write.
+  - **The '?' sheet** reads the registry in `scopeOrder.ts`'s order, as the ⌘K palette does (key-less commands stay the palette's):
+    - search by label, group, keywords or key names (Esc, Enter, cmd, shift, arrows), and a symbol finds its key;
+    - two columns from 1280 px;
+    - its switches are setting rows;
+    - ⌘K, or "Search every command", opens the palette for where the student was;
+    - "Report a problem…" (also in Help) copies the build, browser, view, track count and window size with what happened; nothing is sent.
+  - **The typing chip** reads "Typing · C4 · vel 100":
+    - its own × turns it off, and focus goes to '⋯';
+    - a screen reader hears on, off, the octave and the velocity;
+    - velocity steps a fixed ladder (1, 20 … 120, 127).
+  - **Setting rows:** every setting in Audio & MIDI, the Click menu, the Grid menu, '⋯' and the avatar menu's chord notation has a one-line explanation, wired as its description. A guard test fails on a setting without one.
+  - **Hover hints:** the free space after Master in the bottom rail says what the control under the pointer or focus does, and its key ("Loop · Play the loop range over and over · L").
+    - The words come from the control's `data-hint`, else its Tooltip, else its name.
+    - It costs nothing while the song plays.
+    - It hides below 160 px of room, and '⋯' ▸ Hover hints turns it off (per student).
+  - **Overlays close at once:** while a modal menu or dialog faded out, Radix kept the page from taking clicks, so a click within about 150 ms of Escape was lost (R36 found it on seven overlays at every size). Menus, popovers and dialogs now fade in only.
+  - **Keys:** off a Mac, Enter reads Enter (Return on a Mac), and the menu key reads Menu.
+- **Review:** six adversarial reviewers (Mix correctness, layout and guards, lessons, help, design and tests, harness), each finding reproduced first. Fixed in the review commits, each with a test:
+  - **High:** a resumed R&B mastering step added the Compressor to the Synth (the rack isn't saved); the rack's knobs sat in a 41 px scroll box at 1366×655; seven overlays swallowed the click after Escape.
+  - **Medium:**
+    - a deleted track's rack jammed the library and the rack button;
+    - R&B's add-reverb could fill the master chain if Master was in the dock;
+    - Escape didn't shut a rack opened from a strip;
+    - the rack could take the strips' faders;
+    - the master fader fell to its floor with a rack open;
+    - Mute All wrote once a track;
+    - the sheet's palette lost the student's place;
+    - a symbol search matched every row;
+    - ⌘K did nothing in the sheet;
+    - the typing chip dropped focus;
+    - the R&B return step's ring stayed on the strip.
+  - **Low:** a stale hint after Play → Pause; the report's copy-failure path; the chip's name (WCAG 2.5.3); a nameless remove-effect ×; clipped focus rings; the coach card's 22 px Quit (now 24); a collaborator's track in the library; tests weaker than their names.
+- **Verification:**
+  - **lint:** whole tree clean (`npx yarn lint`: prettier, eslint 0 warnings, `tsc -b`).
+  - **typecheck:** every commit, from its own `git archive`.
+  - **vitest** (src/daw): 5,084 passed. The failures are the inherited set: designGuard's PianoRoll smallText (8 > 6); the song-link session suites (contentBoots, intents, openSession, on the local `_generated_index.ts` and under load); editorRoute (under load).
+  - **studio:check full tier** (my copy of par-check, with R35 and R36 in S3 and a laptop lessons job; `git archive` of `2b5dca4a` on 5291 (the later `ce64132b` and `2ab1072d` change only the picker's focus and R35's check: R33 and R35 passed again on a cold `git archive` of `2ab1072d`); the 1.3 build on 5264):
+    - round trips: 0 fields lost on both profiles, R14/R15 against the 1.3 build 8/8, R28–R36 "no baseline, 0 new". Beside five other browsers R1, R6, R12 (draft, fileNew, project, song), R21 and R22 failed or timed out, and passed alone.
+    - R33's `pickerSteps` failed on a cold server: the picker's "Open the browser" gave up waiting for the Library's chunk after 3 s. Fixed in `ce64132b` and `2ab1072d` (it now waits 15 s); it passes on a cold archive server.
+    - **R35** (9 flags × 3 sizes × 2 profiles) and **R36** (13 flags × 3 sizes × 2 profiles, 24 screenshots): all pass. R36's `noSwallowedClick` failed before `1c6f3fe9` and passes after it.
+    - lessons: chromebook 74/78, small 74/78 (73 under load; R&B's bounce timed out, 11/11 alone), laptop 76/78; only Indie's known steps fail; 12/12 complete; 4/4 Premium gated, at each size;
+    - golden renders 10/10 identical at 44.1 and 48 kHz; golden trace 15/15;
+    - bundle: DawApp 120.8 kB gzip (B8 117.4; budget 150); the every-page FAIL inherited;
+    - perf against Stage A: all hold except a note drag's second store write (a UI key since B4, see the exit report).
+  - **Browser:**
+    - Chrome on my HMR-off server (5290) and the committed build (5291):
+      - the Mix view: strips, the master rack from the bottom rail, Add effect → the library's "Adding to Master" → Compressor, Return A's rack, a strip's insert list;
+      - Create's dock Effects tab and Master on the shared rack;
+      - Report a problem;
+      - '?' and a "click" search finding the metronome;
+      - the typing chip on and off with its ×;
+      - Audio & MIDI → Escape → one click on Loop toggled it.
+      - Console: no errors.
+    - Headless checks at the exact sizes came from the agents and reviewers (screenshots in the scratchpad).
+  - **Collab:** no Y.Doc shape change and no new document field; Mix writes through the existing actions. No mixed-version check needed.
+- **Stage B exit** (`docs/studio-perf/stage-b-exit.md`): every measurable criterion is met at 1366×655, 1440×787 and 1280×720:
+  - budgets and screenshots;
+  - the design floor;
+  - every overlay opaque;
+  - the lessons on three viewports;
+  - decision 16's five guards;
+  - ST15;
+  - the Stage A numbers.
+  - Two inherited misses: the bundle's "editor core off other pages" (since B1's main merge) and a note drag's second write (since B4).
+  - **Pending, the owner's:**
+    - a real Chromebook run;
+    - a teacher spot-check;
+    - the walk-through with a live collab join;
+    - the colour sign-offs;
+    - the deploys (web app, then `collab:deploy`; the music-atlas-api `document` field);
+    - the B1–B9 sign-offs.
+- **Audit ledger** (`reference/phase-map.json`): 300 fixed, 53 partly fixed, 269 open (Stage A: 255 / 50 / 317). Criticals unchanged (22 / 0 / 3, all Stage C engine work).
+- **Owner sign-offs:**
+  1. **Mix:**
+     - the strip anatomy, with sends and pan on one row ("A / B / PAN" captions);
+     - returns without a meter;
+     - the spectrum showing only 100 / 1k / 10k, and hiding while the column is short;
+     - the selected strip's highlight.
+  2. **Mute All** is a toggle that remembers what it muted; it isn't undone (mute is per student, never undone).
+  3. **The rack:** shut by default; capped at the body less 300 px; the chain listed beside the controls in Mix (the dock keeps its blocks); focus moves into it when it opens from Mix.
+  4. **Overlays close at once** (no fade out), for decision 16's guard e. This changes 2.4's motion rule for exits.
+  5. **Setting lines:** the copy (in `AUDIO_MIDI_COPY`, `CLICK_COPY`, `GRID_COPY`, `MORE_COPY`, `NOTATION_COPY`).
+     - "Input channels in use" renamed.
+     - The Grid menu's lines sit under each group, not each choice.
+     - The Grid menu (320 px) and Click popover (256 px) are wider.
+  6. **Hover hints:**
+     - in the Master zone of the bottom rail, hidden under 160 px of room, on by default;
+     - region names say nothing;
+     - the purpose copy on the transport, song, views, track list, dock, timeline edges and Mix (listed in the hint agent's report, `hintText` calls).
+  7. **The '?' sheet:**
+     - the search placeholder;
+     - key search matching a row with any of the typed keys;
+     - on a Mac "ctrl" finds ⌘ shortcuts.
+  8. **The typing chip** shows the velocity, its × sits beside the words, and the velocity ladder is 1, 20 … 120, 127.
+  9. **Report a problem:**
+     - its copy;
+     - Copy only: there is no support address in the app, and `REPORT_EMAIL` turns on an "Email it" link;
+     - where reports should go.
+  10. **Keys:** Enter reads "Enter" off a Mac.
+  11. **R&B copy:** the mastering step says "click an effect in the **Effects** panel"; the send hint says "The A and B knobs on each strip feed the return buses".
+  12. **Colours** (Stage B review, the exit report's proposal): collaborator presence colours (red, amber and cyan clash with meaning; they change on every rejoin) and the lesson confetti (`#facc15`, not key colours).
+  13. **Accept the Stage B exit** with the pending items above, and go on to 1.2b (prompt 17).
+- **Open issues:**
+  1. **Three rows with Notes or Prism open** (owner question): at their default 0.40 share, 3 whole track rows show at 1366×655; the guard's 4 rows hold with Instrument or Effects (0.36). Either 0.36 for both, or accept 3 for the two editors.
+  2. **The coach card covers the rack's close chevron** (owner question) and the Effects rows below Compressor during R&B's mastering step on a Chromebook; the control the step asks for stays clear. 1.2b redoes the card's docking.
+  3. **The rack's effect controls are the legacy components** (7–10 px text, 20–22 px targets, a green ON pill), as in Create's dock, until Stage C restyles them. They sit in a `data-ds="legacy"` body.
+  4. **Inherited:**
+     - the bundle's every-page budget (since B1);
+     - a note drag's second store write (`dockNoteSelection`, since B4);
+     - designGuard's PianoRoll budget.
+  5. **Harness:** R12:draft lost 3 keys on the chromebook profile beside five other browsers and passed alone. Under load: R1, R6, R12:fileNew/project/song, R21 and R22 (timeouts); passed alone.
+  6. Return chains aren't on the meter bus; the Mix Spectrum's labels are 100 / 1k / 10k only; design-system-12's JS hover remains in legacy regions.
+- **Next:** 1.2b, Production Lessons v2 (prompt 17), after the owner's Stage B review.
+
+## C1a — 1.11a one playback scheduler (2026-10-18)
+
+Prompt 18, part a of five (a–e push separately; the full entry comes with the last part).
+
+- **Branch:** `aaron`, from `eabb32c0` (the Stage B exit). Other sessions' work left alone (`docs/prompts/studio-overhaul/*`, `.gitignore`, the untracked `.partykit/` and `research/`). 1.11's later parts (b–e) sit uncommitted in the checkout while this part is pushed; every number below is from `git archive` exports of the commits.
+- **Commits:** `85e1d8b4` adapters take a time · `7380bad2` live MIDI note-offs and groove preview · `79ad9bbf` golden harness: no dead sync waits, source ends, plan steps · `d6daceb5` the PlaybackScheduler · `96043294` the trace is gated · review fixes `22e316dd` (playback) and `dc140b66` (trace checks) · this entry.
+- **What changed:**
+  - **One scheduler** (`engine/playbackScheduler.ts`) owns MIDI parts, audio clips and automation while the transport runs, and places every start at the audio-clock time the transport reaches it: Play (a clip the playhead is inside starts with the transport, not ~100 ms early), loop laps (the seam's own time, 5 ms fades, only clips crossing the loop restarted), seeks while playing (old audio fades, held notes end, clips under the new position start, automation re-anchored; events of the old position Tone still fires before the jump are dropped), edits while playing (a clip's part is rebuilt when its notes change, heard on the next pass; a clip moved to another track plays through it; deletions stop at once; a room's per-message rebuilds compare clips by value), Stop/pause (notes end after anything booked), the count-in (the transport starts exactly a beat after the last click). Zero-length loops are refused. The old scheduler stays behind `localStorage['ma:daw:legacyScheduler']='1'` (`engine/legacyPlayback.ts`).
+  - **Adapters:** `allNotesOff(time?)`/`panic(time?)` everywhere; samplers release and lift the pedal on the beat; the drum kit chokes ringing hits with an 8 ms fade (5 ms on panic); the organ frees voices on `onended`; GM panic sends CC120/121/123 and centres the wheel, and a GM channel starts clean.
+  - **Live MIDI:** a key's note-off goes to the tracks its note-on went to; a partner's held notes are released when they leave. **Grooves preview** plays through the Library's audio-clock preview and stops on Play/Record/close.
+- **Verification** (archive of `d6daceb5`, plus the fixes re-checked on an archive of `22e316dd`):
+  - **Trace (now pass/fail), 44.1 kHz default and 48 kHz, both profiles:** clip start and offset on play, resume, every lap and after the seek 0 ms; metronome 0 ms, no missed beats; count-in downbeat within ±2 ms (was +20–29 ms); after a seek nothing sounds past +12 ms and no note hangs (the take ran 1.4 s on and nothing restarted before); the edited note sounds at its new tick on the next pass (before: still at the old one). Legacy pass (`--legacy`) plays. On the build before, the gated checks fail as the audit said (clips 83–100 ms early).
+  - **Golden renders:** 10/10 the same at 44.1/48 kHz (the render path is unchanged); the 36 dead sync waits are gone (~6 min a run).
+  - **Full tier** (`par-check.sh` on `d6daceb5`, 5264 as the previous build): lessons 74/78 chromebook and small, 76/78 laptop (only Indie's known steps), 12/12 complete, 4/4 gated; round trips all ok except R1, R6, R12:fileNew ("synth panel bridge" under load), which pass alone on `22e316dd`; R28–R36 no baseline, 0 new; old builds R14/R15 ok; perf playback as before (0 writes/s, 0.15 commits/s, 14 long tasks/20 s on a Chromebook); bundle DawApp 121.7 kB gzip, the every-page FAIL inherited.
+  - **vitest:** the full unit run's 9 failing files are the inherited set (designGuard's PianoRoll budget, song-data and song-link session suites, editorRoute under load). New: playbackScheduler 24, midiPartReplace 11, seekTo 7, loopRange 13, adapterReleaseTimes, drumChoke, organRelease, liveNotes, useStudioMonitor, the rewritten clipWindowScheduling. Two adversarial reviews (timing/edits/adapters; tests/harness/collab) found 8 issues, all fixed with tests: room messages rebuilt every part, a pedal lifted on any edit, the seek window, a take after a count-in 150 ms late, a seek before the downbeat, two weak trace checks.
+  - **Chrome** (archive build): played the demo, sought by the ruler while playing (playhead and meters followed, no stray audio), changed a bass note while playing, Stop; the legacy flag plays. Console: only the known StrictMode warning.
+- **Owner sign-offs:** (1) the legacy flag stays until a production soak; (2) Stop now ends notes ~100 ms later (where the transport stops, after what it had booked) rather than at once, so nothing booked sounds after it; (3) the drum kit's choke on Stop/loop (8 ms fade) is new — hits used to ring through.
+- **Open:** a seek while the count-in still clicks is taken from the downbeat; metronome clicks in Tone's 100 ms before a seek can still sound (Tone's own repeat).

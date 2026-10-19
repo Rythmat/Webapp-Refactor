@@ -27,7 +27,7 @@ import { parseNoteId } from '@/daw/model/noteKeys';
 import { SCORE_SCOPE } from '@/daw/commands/keymaps';
 import { useKeymap } from '@/daw/commands/registry';
 import { showWarning } from '@/components/utils/toast';
-import { useStore } from '@/daw/store';
+import { useLeadSheetSections, useStore } from '@/daw/store';
 import { ticksPerBar, timeSignatureOf } from '@/daw/time/timeModel';
 import { studioPlayheadSource } from '@/daw/engine/studioPlayheadSource';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
@@ -236,9 +236,10 @@ export function useScoreEditing({
   const scoreSpellings = useStore((s) => s.scoreSpellings);
   const setScoreSpellings = useStore((s) => s.setScoreSpellings);
   const setMeasureRowSizes = useStore((s) => s.setMeasureRowSizes);
-  const sections = useStore((s) => s.leadSheetSections);
-  const addSection = useStore((s) => s.addLeadSheetSection);
-  const removeSection = useStore((s) => s.removeLeadSheetSection);
+  // The song's sections, as marks on the bars they start at (milestone 2.13).
+  const sections = useLeadSheetSections();
+  const markSectionAtBar = useStore((s) => s.markSectionAtBar);
+  const removeSectionAtBar = useStore((s) => s.removeSectionAtBar);
   const repeats = useStore((s) => s.leadSheetRepeats);
   const setRepeats = useStore((s) => s.setLeadSheetRepeats);
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
@@ -797,13 +798,12 @@ export function useScoreEditing({
           break;
         }
         case 'text.rehearsalMark': {
+          // No mark on the closing barline: it would start a section a bar
+          // past the song, which the Score doesn't draw there.
+          if (selected >= measureCount) break;
           const existing = sections.find((s) => s.measureIdx === selected);
-          if (existing) removeSection(selected);
-          else
-            addSection({
-              measureIdx: selected,
-              label: nextSectionLabel(sections),
-            });
+          if (existing) removeSectionAtBar(selected);
+          else markSectionAtBar(selected, nextSectionLabel(sections));
           break;
         }
       }
@@ -814,8 +814,8 @@ export function useScoreEditing({
       sections,
       measureCount,
       setRepeats,
-      addSection,
-      removeSection,
+      markSectionAtBar,
+      removeSectionAtBar,
       toggleSystemBreak,
       togglePageBreak,
       textMarks,
@@ -1561,9 +1561,16 @@ export function useScoreEditing({
       }
       if (clipboard.repeatEnd) next = withRepeatEnd(next, selected);
       setRepeats(next);
-      removeSection(selected);
-      if (clipboard.sectionLabel) {
-        addSection({ measureIdx: selected, label: clipboard.sectionLabel });
+      // A pasted name renames the section starting on this barline, or
+      // starts one there; a barline without one leaves its bars unnamed.
+      // The closing barline starts nothing: a section there would be a bar
+      // past the song.
+      if (selected < measureCount) {
+        if (clipboard.sectionLabel) {
+          markSectionAtBar(selected, clipboard.sectionLabel);
+        } else {
+          removeSectionAtBar(selected);
+        }
       }
       if (clipboard.systemBreak !== systemBreaks.has(selected)) {
         toggleSystemBreak(selected);
@@ -1638,8 +1645,8 @@ export function useScoreEditing({
     measureCount,
     repeats,
     setRepeats,
-    addSection,
-    removeSection,
+    markSectionAtBar,
+    removeSectionAtBar,
     systemBreaks,
     toggleSystemBreak,
     updateMidiClipEvents,
@@ -2031,7 +2038,7 @@ export function useScoreEditing({
         });
       } else if (targetBarline !== null) {
         setRepeats(withoutRepeatAt(repeats, targetBarline));
-        removeSection(targetBarline);
+        removeSectionAtBar(targetBarline);
       }
       if (selectedMarks.size > 0) deleteSelectedMarks();
       if (selectedChords.size > 0) hideSelectedChords();
@@ -2559,8 +2566,12 @@ export function useScoreEditing({
                     defaultValue={section.label}
                     onBlur={(e) => {
                       const label = e.target.value.trim();
-                      if (label)
-                        addSection({ measureIdx: section.measureIdx, label });
+                      // Renames the section starting on this barline. A name
+                      // left as it was is no edit: writing it again would
+                      // retype the section from its name and add an undo step.
+                      if (label && label !== section.label.trim()) {
+                        markSectionAtBar(section.measureIdx, label);
+                      }
                       setEditingSection(null);
                     }}
                     onKeyDown={(e) => {

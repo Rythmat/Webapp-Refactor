@@ -12,6 +12,7 @@ import {
   setTrackSynthState,
   synthTrackStateFromPreset,
 } from '@/daw/oracle-synth/synthTrackState';
+import type { PresetData } from '@/daw/oracle-synth/store/presets/PresetData';
 import type { Track } from '@/daw/store/tracksSlice';
 import type { DrumKitId } from './drumKits';
 import { getSampleInstrument } from './sampleInstruments';
@@ -32,26 +33,27 @@ export interface TrackSound {
   drumKit?: DrumKitId;
 }
 
-export function trackSound(
-  trackId: string,
-  sound: string,
-  bpm: number,
-): TrackSound {
+/**
+ * What a sound string makes a track: its settings and kit, and the synth
+ * patch it names, with nothing written anywhere. A new track takes them in
+ * the write that adds it (addTrack's init), so its first engine is right.
+ */
+export function soundSettings(sound: string): TrackSound & {
+  synthPatch?: PresetData;
+} {
   const parsed = parseSound(sound);
   if (parsed.sampleId !== undefined) {
     const family = getSampleInstrument(parsed.sampleId)?.family ?? 'keys';
-    return trackSound(
-      trackId,
-      SAMPLED_STAND_IN[family] ?? 'electric-piano',
-      bpm,
-    );
+    return soundSettings(SAMPLED_STAND_IN[family] ?? 'electric-piano');
   }
   const { type } = parsed;
   if (type === 'oracle-synth') {
     const preset = synthPreset(parsed.synthPatch);
     if (!preset) return { settings: { instrument: type } };
-    setTrackSynthState(trackId, synthTrackStateFromPreset(preset, bpm));
-    return { settings: { instrument: type, presetName: preset.name } };
+    return {
+      settings: { instrument: type, presetName: preset.name },
+      synthPatch: preset,
+    };
   }
   if (type === 'bass-electric')
     return { settings: { instrument: type, bassVoice: parsed.bassVoice } };
@@ -63,4 +65,16 @@ export function trackSound(
       drumKit: (parsed.drumKit ?? 'natural') as DrumKitId,
     };
   return { settings: { instrument: type } };
+}
+
+export function trackSound(
+  trackId: string,
+  sound: string,
+  bpm: number,
+): TrackSound {
+  const { synthPatch, ...made } = soundSettings(sound);
+  if (synthPatch) {
+    setTrackSynthState(trackId, synthTrackStateFromPreset(synthPatch, bpm));
+  }
+  return made;
 }

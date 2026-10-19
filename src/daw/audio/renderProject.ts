@@ -9,19 +9,8 @@
 // ── Render-parity checklist ───────────────────────────────────────────────
 // Covered (audible in the bounce):
 //   • Per-track instruments scheduling their MIDI clip events (MidiScheduler).
-//   • SoundFont / GM tracks. The live synth is a singleton AudioWorklet bound
-//     to the live context (SoundFontAdapter), out of the offline graph's
-//     reach, so each one's MIDI is rendered first on spessasynth_core's
-//     pure-JS synth, with the same sound bank and settings (soundFontRender),
-//     and that audio plays into the track's input where the live synth's
-//     channel would: FX, fader, pan, sends, automation and mute/solo apply.
-//     Notes from before the window that still sound in it ring in.
 //   • Audio clips from the AudioBufferStore, with offsetSeconds trim, fades and
 //     per-clip gain (AudioClipScheduler).
-//   • Guitar/Bass/Vocal-FX tracks: their recorded DI clips run through the
-//     track's stored amp/pedal chain, NAM amp model and pitch correction
-//     included, on the offline context (offlinePedalChain), as playback runs
-//     them through the adapter's chain (getNativePedalInputNode).
 //   • Per-track EffectChain (EQ/comp/reverb/delay/presence/de-esser/saturator/
 //     multiband), track volume + pan, mute/solo.
 //   • Post-fader aux sends → return buses (each its own EffectChain) → master.
@@ -31,19 +20,56 @@
 //   • Parameter automation lanes (volume/pan/sends + rideable FX params) —
 //     scheduled as absolute-time AudioParam ramps (applyOfflineAutomation).
 //   • Master volume automation (Track automation's grammar, on the master gain).
+//   • SoundFont / GM tracks: rendered before the mixdown by soundFontRender
+//     (the live synth is a singleton bound to the live context), while Tone's
+//     global context is still the live one; the offline graph plays their
+//     audio into each track's input, where the live synth's output arrives.
+//   • Guitar, bass and vocal tracks (milestone 1.11): their recorded clips
+//     play through the pedal chain the store holds (Track.guitarChain /
+//     vocalChain), built by pedalChainBuilder with its NAM model and
+//     worklets loaded before the transport starts, as playback routes them
+//     through the adapter's chain (pedalInputOf). It stays in a dry render:
+//     like an Oracle synth's effects, the amp is the instrument's own sound.
 // Deliberately NOT covered (documented gaps — see notes):
-//   • Ducker (Phase 5) and Gate rely on a JS setInterval loop that does NOT run
-//     during an OfflineAudioContext render (offline renders faster than real
-//     time), so sidechain ducking + gating are absent from the bounce. The rest
-//     of each track's chain still renders.
-//   • The wah pedal's envelope follower runs on the page's frame loop, which
-//     the offline render outruns, so a bounced wah is its filter at rest, no
-//     sweep (WahPedal). The export dialog warns when an audible track uses it.
+//   • Gate and ducker (milestone 1.11): an AudioWorklet, loaded on the
+//     offline context too, so the bounce gates and ducks as playback does.
+// Still NOT covered:
+//   • A guitar or bass track's amp model that can't be loaded (one this build
+//     doesn't bundle, or a failed fetch): that amp passes its clips through
+//     untouched and the rest of the pedals still play. The export dialog
+//     warns about an unknown model; a failed fetch is only logged.
 //   • Automation of gate/ducker params — those are JS poll-loops absent from the
 //     offline render (only the direct-AudioParam automatable set is covered).
+//
+// ── One track alone, dry, unmastered (milestone 2.15) ─────────────────────
+// A one-track export or a stem renders a single track (`onlyTrackId`): the
+// others are left out of the graph, not muted, so each costs one track's
+// load. It is rendered even when muted or outside the solo, since the student
+// asked for it by name. Its sends still reach the return buses. `dry` (only
+// with `onlyTrackId`) bypasses every insert effect, drops the sends (and with
+// them the returns) and the mastering; the fader, pan and their automation
+// stay, so the track sits at its level in the mix. An Oracle synth's own
+// effects are part of the instrument and stay too. `mastering: false` keeps
+// the master gain (and its automation) and its chain with every slot off, so
+// a file without the mastering lines up with one with it. With none
+// of these the graph is built exactly as before, so the goldens are unchanged.
+//
+// ── Progress and Cancel (milestone 1.11) ──────────────────────────────────
+// `onProgress` hears how far the render is, from 0 to 1. Tone.Offline first
+// runs its transport clock over the whole song in JS (the first part of the
+// bar), then the OfflineAudioContext renders; the native context pauses at a
+// suspend() point every half second of the song to say where it is and is
+// resumed. Where suspend() isn't there, no progress is heard (the dialog's
+// bar is then indeterminate). `signal` cancels: while the graph is built it
+// throws at the next await; once rendering, the context is left paused at
+// its next point and the render rejects at once with an AbortError (without
+// suspend() it rejects when the render ends, before any file is made). Every
+// way out goes through the one finally that hands Tone its live context back
+// and disposes the graph. With neither option, nothing of this runs.
 
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
+import type { AutomationLanes } from './automation';
 import { audioEngine } from './AudioEngine';
 import { EffectChain, type TrackEffectState } from './EffectChain';
 import { ensureProcessedIr } from './reverbIR';
@@ -53,11 +79,8 @@ import { MidiScheduler } from './MidiScheduler';
 import { AudioClipScheduler } from './AudioClipScheduler';
 import { dropRepeatedTicks } from './transportTicks';
 import { getAudioBuffer, sliceBuffer } from './AudioBufferStore';
-import { applyOfflinePedalChain } from './offlinePedalChain';
 import { renderSoundFontTracks, type RenderedSegment } from './soundFontRender';
 import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
-import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
-import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 import {
   applyOfflineAutomation,
   applyOfflineLanes,
@@ -67,6 +90,10 @@ import { createInstrument, applyDrumPads } from '@/daw/hooks/usePlaybackEngine';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
 import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
+import {
+  buildPedalChain,
+  type StoredPedalBlock,
+} from './graph/pedalChainBuilder';
 import {
   getTrackSynthState,
   applySynthStateToEngine,
@@ -87,11 +114,12 @@ const LOOP_TAIL_SECONDS = 1;
 // A bounce gives up on instruments that haven't loaded by then (e.g. a sample
 // CDN that never answers) rather than hang on "Rendering…" forever.
 const INSTRUMENT_LOAD_TIMEOUT_MS = 60_000;
+// The share of the progress bar for rendering SoundFont tracks, when there
+// are any; the mixdown has the rest.
+const SOUND_FONT_SHARE = 0.3;
 // Past this, a reverb whose real IR is still loading renders with the
 // synthetic one rather than hold the bounce up.
 const IR_PREPARE_TIMEOUT_MS = 10_000;
-// The mixdown reports its progress this many times as it renders.
-const MIXDOWN_PROGRESS_STEPS = 20;
 // A bounce renders at the device's rate, kept to the two standard ones: an
 // interface at 96 kHz would cost 2–4× the memory and CPU for nothing a
 // classroom export can use, and a headset in call mode (16 kHz) would lose
@@ -100,8 +128,8 @@ const MIN_EXPORT_RATE = 44_100;
 const MAX_EXPORT_RATE = 48_000;
 
 /**
- * Family-A instruments (OracleSynth/SynthEngine, tonewheel organ, guitar/vocal
- * FX) init with `if (ctx.state === 'suspended') await ctx.resume()`.
+ * Family-A instruments (OracleSynth/SynthEngine, tonewheel organ, soundfont,
+ * guitar/vocal FX) init with `if (ctx.state === 'suspended') await ctx.resume()`.
  * Under Tone.Offline the raw context is a standardized-audio-context
  * OfflineAudioContext: its state is 'suspended' AND it has no `resume()` method,
  * so that branch throws `resume is not a function` and the instrument renders
@@ -126,17 +154,47 @@ export type RenderRange =
   | 'loop'
   | { startTick: number; endTick: number };
 
-/** Where a render is, 0–1 through each stage: SoundFont tracks first (when
- *  the project has any), then the offline mixdown. */
-export interface RenderProgress {
-  stage: 'instruments' | 'mixdown';
-  pct: number;
-}
-
 export interface RenderOptions {
   range?: RenderRange;
   sampleRate?: number;
-  onProgress?: (p: RenderProgress) => void;
+  /** Render this track alone; the others are left out of the graph. It plays
+   *  even when muted or outside the solo. */
+  onlyTrackId?: string;
+  /** With `onlyTrackId` only: no insert effects, no sends (so no returns) and
+   *  no mastering (as `mastering: false`). The fader, pan and their automation
+   *  stay. */
+  dry?: boolean;
+  /** The mastering on the master bus (default true). Off, its chain stays
+   *  with every slot switched off, for its latency. */
+  mastering?: boolean;
+  /** Cancels the render: it rejects with an AbortError. */
+  signal?: AbortSignal;
+  /** How far the render is, 0..1; not called where the browser can't say. */
+  onProgress?: (fraction: number) => void;
+}
+
+/** `effects` with every slot switched off, so the track's chain passes the
+ *  signal through untouched (EffectChain.update bypasses or flattens a slot
+ *  that isn't enabled, where a never-updated chain would still cut and
+ *  compress with its defaults). */
+function allSlotsOff(effects: TrackEffectState): TrackEffectState {
+  const off = structuredClone(effects) as unknown as Record<
+    string,
+    { enabled: boolean }
+  >;
+  for (const slot of Object.values(off)) slot.enabled = false;
+  return off as unknown as TrackEffectState;
+}
+
+/** The fader and pan lanes of `lanes`: a dry render rides no send or effect. */
+function faderLanes(
+  lanes: AutomationLanes | undefined,
+): AutomationLanes | undefined {
+  if (!lanes) return lanes;
+  const kept: AutomationLanes = {};
+  if (lanes.volume) kept.volume = lanes.volume;
+  if (lanes.pan) kept.pan = lanes.pan;
+  return kept;
 }
 
 /** Compute the render window [startTick, endTick) for the chosen range. */
@@ -185,6 +243,14 @@ export function projectEndTick(
   return endTick;
 }
 
+// Settles once every render started so far has handed Tone's global context
+// back (its graph is built, or it failed and was restored). A new render
+// waits for it before it takes the live context to hand back: one started
+// meanwhile (the dialog can close and reopen mid-export) would otherwise take
+// the offline context for the live one and leave Play on it (audio-core-01).
+let contextsBack: Promise<void> = Promise.resolve();
+let rendersHoldingContext = 0;
+
 /**
  * Render the project (or loop region) offline and return the mixed AudioBuffer.
  * Reconstructs the full graph on the offline context; reuses the live
@@ -203,6 +269,22 @@ export async function renderProject(
     masterAutomation,
   } = state;
   const range: RenderRange = opts.range ?? 'project';
+  // The tracks in the graph: one asked for by name, or every one that plays
+  // in the mix (the same mute/solo rule as live playback, usePlaybackEngine,
+  // so a bounce is WYSIWYG vs. Play, including while soloing).
+  const only =
+    opts.onlyTrackId === undefined
+      ? undefined
+      : tracks.find((t) => t.id === opts.onlyTrackId);
+  if (opts.onlyTrackId !== undefined && !only) {
+    throw new Error('That track is no longer in the song');
+  }
+  const renderedTracks = only
+    ? [only]
+    : tracks.filter((track) => isTrackAudible(track, tracks));
+  const dry = Boolean(only && opts.dry);
+  const withMastering = !dry && (opts.mastering ?? true);
+  const withReturns = !dry;
   // The rate Play runs at (within 44.1–48 kHz), so the file is what the
   // student heard; the reverb IRs are decoded for whatever rate it is.
   const sampleRate = opts.sampleRate ?? exportSampleRate(liveSampleRate());
@@ -210,26 +292,6 @@ export async function renderProject(
   const { startTick, endTick, tail } = renderWindowTicks(state, range);
   const secPerTick = 60 / bpm / PPQ;
   const duration = Math.max(0.5, (endTick - startTick) * secPerTick + tail);
-
-  // SoundFont tracks render before the mixdown, while Tone's global context
-  // is still the live one; the offline graph then only plays their audio.
-  const soundFontTracks = tracks.filter(
-    (t) => t.instrument === 'soundfont' && isTrackAudible(t, tracks),
-  );
-  const soundFontAudio =
-    soundFontTracks.length > 0
-      ? await renderSoundFontTracks(
-          soundFontTracks,
-          {
-            startTick,
-            bpm,
-            sampleRate,
-            lengthFrames: Math.ceil(duration * sampleRate),
-          },
-          (pct) => opts.onProgress?.({ stage: 'instruments', pct }),
-        )
-      : new Map<string, RenderedSegment[]>();
-  opts.onProgress?.({ stage: 'mixdown', pct: 0 });
 
   // EffectChains/TrackEngines each start a gate + duck window.setInterval on
   // construction. Nothing stops those wall-clock loops when the offline render
@@ -241,14 +303,76 @@ export async function renderProject(
   // the live one to hand back after any failure: otherwise Play, the metronome
   // and every transport-scheduled clip stay bound to a dead context until a
   // reload (audio-core-01).
-  const live = Tone.getContext();
+  let live: ReturnType<typeof Tone.getContext> | null = null;
+  // This render's offline context, Tone's global while its graph is built.
+  let offline: unknown = null;
+  const waitFor = contextsBack;
+  const othersHolding = rendersHoldingContext > 0;
+  rendersHoldingContext++;
+  let handedBack = false;
+  let markHandedBack: () => void = () => {};
+  contextsBack = Promise.all([
+    waitFor,
+    new Promise<void>((resolve) => {
+      markHandedBack = resolve;
+    }),
+  ]).then(() => {});
+  const contextBack = () => {
+    if (handedBack) return;
+    handedBack = true;
+    rendersHoldingContext--;
+    markHandedBack();
+  };
   // Set once this call is over, so an instrument that loads after a timeout
   // is dropped instead of scheduling its notes.
   let settled = false;
+  const { signal, onProgress } = opts;
+  // Rejects when a cancel stops the render part-way (see watchRender).
+  let stop: (reason: unknown) => void = () => {};
+  const stopped = new Promise<never>((_, reject) => {
+    stop = reject;
+  });
+  stopped.catch(() => {});
+  const watch: { current: { dispose(): void } | null } = { current: null };
 
   try {
-    const rendered = await Tone.Offline(
+    throwIfAborted(signal);
+    if (othersHolding) {
+      await untilAborted(waitFor, signal);
+      // Tone.Offline points the global back just after a callback ends.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    // SoundFont tracks render first, on the live context (soundFontRender);
+    // the first share of the progress bar is theirs.
+    const soundFontTracks = renderedTracks.filter(
+      (t) => t.instrument === 'soundfont',
+    );
+    const soundFontShare = soundFontTracks.length > 0 ? SOUND_FONT_SHARE : 0;
+    const soundFontAudio =
+      soundFontTracks.length > 0
+        ? await untilAborted(
+            renderSoundFontTracks(
+              soundFontTracks,
+              {
+                startTick,
+                bpm,
+                sampleRate,
+                lengthFrames: Math.ceil(duration * sampleRate),
+              },
+              onProgress && ((pct) => onProgress(soundFontShare * pct)),
+            ),
+            signal,
+          )
+        : new Map<string, RenderedSegment[]>();
+    throwIfAborted(signal);
+    const mixdownProgress =
+      onProgress &&
+      ((fraction: number) =>
+        onProgress(soundFontShare + (1 - soundFontShare) * fraction));
+    live = Tone.getContext();
+    const rendering = Tone.Offline(
       async (offlineCtx) => {
+        offline = offlineCtx;
         const transport = Tone.getTransport();
         // The offline clock can run a tick on a block edge twice (at 48 kHz,
         // 3 to 5 beats in 16), and every note, clip and CC on it with it.
@@ -260,13 +384,17 @@ export async function renderProject(
         // context.
         const ctx = offlineCtx.rawContext as unknown as AudioContext;
 
-        await prepareReverbIrs(ctx, [
-          masteringEffects,
-          ...returns.map((ret) => ret.effects),
-          ...tracks
-            .filter((track) => isTrackAudible(track, tracks))
-            .map((track) => track.effects),
-        ]);
+        // Only the chains this render builds. A first IR fetch can take
+        // seconds, so a cancel doesn't wait for it.
+        await untilAborted(
+          prepareReverbIrs(ctx, [
+            ...(withMastering ? [masteringEffects] : []),
+            ...(withReturns ? returns.map((ret) => ret.effects) : []),
+            ...(dry ? [] : renderedTracks.map((track) => track.effects)),
+          ]),
+          signal,
+        );
+        throwIfAborted(signal);
 
         // Master → mastering chain → offline destination.
         const master = ctx.createGain();
@@ -278,18 +406,25 @@ export async function renderProject(
           startTick,
           bpm,
         );
+        // Left out, the mastering chain is still built with every slot off:
+        // its filters, compressor and shapers delay the signal by a few
+        // milliseconds even then, so the file lines up with a mastered one.
         const mastering = new EffectChain(ctx);
         disposables.push(mastering);
-        mastering.update(masteringEffects);
+        mastering.update(
+          withMastering ? masteringEffects : allSlotsOff(masteringEffects),
+        );
         master.connect(mastering.getInputNode());
         mastering.getOutputNode().connect(ctx.destination);
 
         // Return buses: each EffectChain → returnGain → master.
         const returnInputs = new Map<string, AudioNode>();
-        for (const ret of returns) {
+        const returnChains: EffectChain[] = [];
+        for (const ret of withReturns ? returns : []) {
           const chain = new EffectChain(ctx);
           disposables.push(chain);
           chain.update(ret.effects);
+          returnChains.push(chain);
           const g = ctx.createGain();
           g.gain.value = ret.volume;
           chain.getOutputNode().connect(g);
@@ -298,29 +433,35 @@ export async function renderProject(
         }
 
         const inits: Array<Promise<void>> = [];
+        const engines = new Map<string, TrackEngine>();
 
-        for (const track of tracks) {
-          // Same mute/solo rule as live playback (usePlaybackEngine), so a
-          // bounce is WYSIWYG vs. Play — including while soloing.
-          if (!isTrackAudible(track, tracks)) continue;
-
+        for (const track of renderedTracks) {
           const te = new TrackEngine(ctx, master);
           disposables.push(te);
+          engines.set(track.id, te);
           te.setVolume(track.volume);
           te.setPan(track.pan);
-          te.updateEffects(track.effects);
+          te.updateEffects(dry ? allSlotsOff(track.effects) : track.effects);
+          // A dry render built no returns, so it sets no sends.
           for (const [id, input] of returnInputs) {
             te.setSend(id, track.sends?.[id] ?? 0, input);
           }
           // Parameter automation: schedule absolute-time ramps on the (now
           // wired) volume/pan/send/FX params, shifted to the render window
           // origin.
-          applyOfflineAutomation(te, track.automation, startTick, bpm);
+          applyOfflineAutomation(
+            te,
+            dry ? faderLanes(track.automation) : track.automation,
+            startTick,
+            bpm,
+          );
 
           if (track.instrument === 'soundfont') {
             // Rendered before the mixdown (soundFontRender); taken from the
             // map as it's wired, so its chunks can go once copied.
-            playRenderedAudio(te, soundFontAudio.get(track.id), sampleRate);
+            disposables.push(
+              playRenderedAudio(te, soundFontAudio.get(track.id), sampleRate),
+            );
             soundFontAudio.delete(track.id);
             scheduleTrackClips(track, te, bpm, startTick);
             continue;
@@ -334,32 +475,10 @@ export async function renderProject(
             track.drumKit,
             track.bassVoice,
           );
-          // Guitar/Bass/Vocal: the recorded clips play through the amp and
-          // pedals, so they wait for the chain; the rest play straight in.
-          const pedalAdapter =
-            instrument instanceof GuitarFxAdapter ||
-            instrument instanceof VocalFxAdapter
-              ? instrument
-              : null;
           if (instrument) {
-            inits.push(
-              (async () => {
-                try {
-                  await instrument.init(
-                    asRunningContext(ctx),
-                    te.getInputNode(),
-                  );
-                } catch (err) {
-                  console.error(
-                    `[renderProject] instrument init failed for "${track.name}":`,
-                    err,
-                  );
-                  // No amp to play through: the takes still bounce, dry.
-                  if (pedalAdapter && !settled) {
-                    scheduleTrackClips(track, te, bpm, startTick);
-                  }
-                  return;
-                }
+            const ready = instrument
+              .init(asRunningContext(ctx), te.getInputNode())
+              .then(() => {
                 if (settled) {
                   instrument.dispose();
                   return;
@@ -374,6 +493,9 @@ export async function renderProject(
                   if (engine) {
                     applySynthStateToEngine(engine, patch, { projectBpm: bpm });
                   }
+                  // The LFOs keep the song's bars: the render's first moment
+                  // is the song at startTick (milestone 1.11).
+                  instrument.alignToTransport(0, startTick / PPQ);
                 } else if (instrument instanceof DrumMachineEngine) {
                   applyDrumPads(instrument, track);
                 } else if (instrument instanceof ChopsSampler) {
@@ -383,53 +505,102 @@ export async function renderProject(
                   track.organState
                 ) {
                   instrument.setState(track.organState);
-                } else if (pedalAdapter) {
-                  let pedalInput: AudioNode | undefined;
-                  try {
-                    await applyOfflinePedalChain(pedalAdapter, track, bpm);
-                    pedalInput =
-                      pedalAdapter.getNativePedalInputNode() ?? undefined;
-                  } catch (err) {
-                    console.error(
-                      `[renderProject] amp/pedal chain failed for "${track.name}"; its takes bounce dry:`,
-                      err,
-                    );
-                  }
-                  if (settled) return;
-                  scheduleTrackClips(track, te, bpm, startTick, pedalInput);
                 }
                 scheduleTrackMidi(track, te, startTick);
-              })().catch((err) => {
+              })
+              .catch((err) => {
                 console.error(
-                  `[renderProject] instrument setup failed for "${track.name}":`,
+                  `[renderProject] instrument init failed for "${track.name}":`,
                   err,
                 );
-              }),
-            );
+              });
+            inits.push(ready);
+          }
+
+          // A guitar, bass or vocal track's clips play through its pedals,
+          // as live playback routes them (pedalInputOf); the chain's models
+          // and worklets are waited for with the instruments.
+          const pedals = storedPedalChain(track);
+          let pedalInput: AudioNode | undefined;
+          if (pedals) {
+            const chain = buildPedalChain(ctx, pedals, { bpm });
+            disposables.push(chain);
+            chain.output.connect(te.getNativeInputNode());
+            // The chain's native nodes are invisible to the wrapper: a silent
+            // source through it keeps the track's input running (the
+            // adapter's activator does this live).
+            const hold = ctx.createConstantSource();
+            hold.offset.value = 0;
+            hold.connect(te.getInputNode());
+            hold.start();
+            disposables.push({ dispose: () => hold.disconnect() });
+            pedalInput = chain.input;
+            inits.push(chain.ready.then(() => {}));
           }
 
           // Audio clips render regardless of instrument readiness.
-          if (!pedalAdapter) scheduleTrackClips(track, te, bpm, startTick);
+          scheduleTrackClips(track, te, bpm, startTick, pedalInput);
         }
 
-        await withTimeout(
-          Promise.all(inits),
-          INSTRUMENT_LOAD_TIMEOUT_MS,
-          'Export gave up waiting for instruments to load',
+        // A ducker listens to its key track here as it does live; a key track
+        // left out of this render (one track alone) ducks nothing.
+        for (const [id, te] of engines) {
+          te.setKeySourceResolver((key) =>
+            key === id ? null : (engines.get(key)?.getAnalyserNode() ?? null),
+          );
+        }
+        // Gates and duckers run in an AudioWorklet loaded per context
+        // (milestone 1.11): wait for theirs before the transport starts.
+        const dynamics = Promise.all([
+          ...[...engines.values()].map((te) => te.whenDynamicsReady()),
+          mastering.whenDynamicsReady(),
+          ...returnChains.map((chain) => chain.whenDynamicsReady()),
+        ]);
+
+        await untilAborted(
+          withTimeout(
+            Promise.all([...inits, dynamics]),
+            INSTRUMENT_LOAD_TIMEOUT_MS,
+            'Export gave up waiting for instruments to load',
+          ),
+          signal,
         );
+        throwIfAborted(signal);
         transport.start(0);
-        reportMixdownProgress(ctx, duration, (pct) =>
-          opts.onProgress?.({ stage: 'mixdown', pct }),
-        );
+        if (signal || mixdownProgress) {
+          // Its clock (and Tone's private end of it) as watchRender reads it.
+          const clock = offlineCtx as unknown as Parameters<
+            typeof watchRender
+          >[0];
+          watch.current = watchRender(clock, ctx, duration, {
+            signal,
+            onProgress: mixdownProgress,
+            stop,
+          });
+        }
+        // Tone.Offline points the global back as this returns.
+        contextBack();
       },
       duration,
       2,
       sampleRate,
     );
+    // Left behind by a cancel, it never ends (or ends unheard).
+    rendering.catch(() => {});
+    const rendered = await Promise.race([rendering, stopped]);
+    // Without suspend() a cancel can only be heard once the render is over.
+    throwIfAborted(signal);
+    onProgress?.(1);
     return rendered.get() as unknown as AudioBuffer;
   } finally {
     settled = true;
-    if (Tone.getContext() !== live) Tone.setContext(live);
+    watch.current?.dispose();
+    // Only while the global is still this render's: a later render may hold
+    // it by now.
+    if (live && offline !== null && Tone.getContext() === offline) {
+      Tone.setContext(live);
+    }
+    contextBack();
     // Tear down the graph so its gate/duck interval loops stop.
     for (const d of disposables) {
       try {
@@ -441,36 +612,170 @@ export async function renderProject(
   }
 }
 
-/**
- * Report the mixdown's progress as it renders: the offline context pauses at
- * each step (suspend), reports, and carries on. A browser without offline
- * suspend renders without the steps.
- */
-function reportMixdownProgress(
-  ctx: AudioContext,
-  duration: number,
-  onProgress: (pct: number) => void,
-): void {
-  const native = (ctx as unknown as { _nativeContext?: OfflineAudioContext })
-    ._nativeContext;
-  if (typeof native?.suspend !== 'function') return;
-  for (let step = 1; step < MIXDOWN_PROGRESS_STEPS; step++) {
-    const pct = step / MIXDOWN_PROGRESS_STEPS;
-    native
-      .suspend(duration * pct)
-      .then(() => {
-        try {
-          onProgress(pct);
-        } finally {
-          // Resumed whatever happens: a suspended render never finishes.
-          void native.resume();
-        }
-      })
-      .catch(() => {
-        // Not a time it could pause at (past the end, or a render quantum
-        // already taken): that step goes unreported.
-      });
+function abortError(): DOMException {
+  return new DOMException('Stopped', 'AbortError');
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) throw abortError();
+}
+
+/** `promise`, or an AbortError as soon as `signal` aborts. */
+function untilAborted<T>(
+  promise: Promise<T>,
+  signal?: AbortSignal,
+): Promise<T> {
+  if (!signal) return promise;
+  let onAbort = () => {};
+  const aborted = new Promise<never>((_, reject) => {
+    onAbort = () => reject(abortError());
+    if (signal.aborted) onAbort();
+    else signal.addEventListener('abort', onAbort, { once: true });
+  });
+  return Promise.race([promise, aborted]).finally(() =>
+    signal.removeEventListener('abort', onAbort),
+  );
+}
+
+// The share of the bar for Tone's JS clock pass, before the native render.
+const CLOCK_SHARE = 0.15;
+// How often (in song time) the native render pauses to say where it is.
+const PROGRESS_STEP_SECONDS = 0.5;
+const RENDER_QUANTUM = 128;
+const CLOCK_POLL_MS = 100;
+
+/** The parts of a native OfflineAudioContext a progress watch uses. */
+interface SuspendableContext {
+  length: number;
+  sampleRate: number;
+  suspend(time: number): Promise<void>;
+  resume(): Promise<void>;
+}
+
+/** The browser's own OfflineAudioContext behind standardized-audio-context's
+ *  (the one with suspend()), or null where there is no suspend(). */
+function suspendableContext(raw: unknown): SuspendableContext | null {
+  const native = ((raw as { _nativeContext?: unknown })._nativeContext ??
+    raw) as Partial<SuspendableContext> & { startRendering?: unknown };
+  if (
+    typeof native?.suspend !== 'function' ||
+    typeof native.resume !== 'function' ||
+    typeof native.startRendering !== 'function' ||
+    typeof native.length !== 'number' ||
+    typeof native.sampleRate !== 'number'
+  ) {
+    return null;
   }
+  return native as SuspendableContext;
+}
+
+/**
+ * Reports a render's progress and stops it on a cancel, from the end of the
+ * Tone.Offline callback (the graph is built, nothing has rendered). Tone's
+ * clock pass is read from the offline context's time; the native render from
+ * suspend() points, each resumed unless the render has been cancelled (it
+ * then stays paused there and `stop` rejects the render). Without suspend()
+ * it does nothing, and the caller hears a cancel when the render ends.
+ */
+function watchRender(
+  toneCtx: { currentTime: number; _duration?: number },
+  raw: unknown,
+  duration: number,
+  {
+    signal,
+    onProgress,
+    stop,
+  }: {
+    signal?: AbortSignal;
+    onProgress?: (fraction: number) => void;
+    stop: (reason: unknown) => void;
+  },
+): { dispose(): void } {
+  // A cancel during Tone's clock pass ends the pass (Tone's private
+  // `_duration`, which its loop runs to), rather than run it over the whole
+  // song for a render nobody wants.
+  const endClock = () => {
+    if (typeof toneCtx._duration === 'number') toneCtx._duration = -1;
+  };
+  const native = suspendableContext(raw);
+  if (!native) {
+    signal?.addEventListener('abort', endClock, { once: true });
+    return {
+      dispose() {
+        signal?.removeEventListener('abort', endClock);
+      },
+    };
+  }
+
+  let alive = true;
+  let last = 0;
+  const report = (fraction: number) => {
+    if (!alive || !onProgress) return;
+    const f = Math.min(1, Math.max(0, fraction));
+    if (f <= last) return;
+    last = f;
+    onProgress(f);
+  };
+
+  // Every point is registered before the native render starts. One that is
+  // refused (a browser that can't pause there) leaves the cancel to the
+  // render's end, but the points it did take still report.
+  let everyPoint = true;
+  let clockDone = false;
+  const step =
+    Math.max(
+      1,
+      Math.round((PROGRESS_STEP_SECONDS * native.sampleRate) / RENDER_QUANTUM),
+    ) * RENDER_QUANTUM;
+  for (let frame = step; frame < native.length; frame += step) {
+    let paused: Promise<void>;
+    try {
+      paused = native.suspend(frame / native.sampleRate);
+    } catch {
+      everyPoint = false;
+      break;
+    }
+    paused.then(
+      () => {
+        clockDone = true;
+        if (signal?.aborted) {
+          // Left paused: nothing more renders.
+          stop(abortError());
+          return;
+        }
+        report(CLOCK_SHARE + ((1 - CLOCK_SHARE) * frame) / native.length);
+        // Cancelled as it heard this point: not resumed either.
+        if (signal?.aborted) return;
+        native.resume().catch(() => {});
+      },
+      () => {
+        everyPoint = false;
+      },
+    );
+  }
+
+  const clock = onProgress
+    ? setInterval(() => {
+        if (clockDone) return;
+        report((CLOCK_SHARE * toneCtx.currentTime) / duration);
+      }, CLOCK_POLL_MS)
+    : undefined;
+
+  // Once rendering, a cancel ends the render at once where every point was
+  // taken: the context pauses at the next one and is never resumed.
+  const onAbort = () => {
+    if (!clockDone) endClock();
+    if (everyPoint) stop(abortError());
+  };
+  signal?.addEventListener('abort', onAbort, { once: true });
+
+  return {
+    dispose() {
+      alive = false;
+      if (clock !== undefined) clearInterval(clock);
+      signal?.removeEventListener('abort', onAbort);
+    },
+  };
 }
 
 /** The live engine's output rate (Tone's own context until the engine starts). */
@@ -522,7 +827,8 @@ async function prepareReverbIrs(
 }
 
 /** Schedule a track's MIDI clips onto the (offline) transport via the shared
- *  MidiScheduler. Ticks are shifted so the render window starts at t=0. */
+ *  MidiScheduler. Ticks are shifted so the render window starts at t=0. A
+ *  muted clip (milestone 2.12) is left out, as playback leaves it silent. */
 function scheduleTrackMidi(
   track: ReturnType<typeof useStore.getState>['tracks'][number],
   te: TrackEngine,
@@ -530,7 +836,7 @@ function scheduleTrackMidi(
 ): void {
   const scheduler = new MidiScheduler();
   for (const clip of track.midiClips) {
-    if (clip.events.length === 0) continue;
+    if (clip.muted || clip.events.length === 0) continue;
     scheduler.scheduleSequence(
       {
         ticksPerQuarterNote: PPQ,
@@ -545,8 +851,7 @@ function scheduleTrackMidi(
 }
 
 /** Schedule a track's audio clips via the shared AudioClipScheduler (currentTick
- *  = 0 so every clip is scheduled ahead on the transport), through the
- *  track's amp/pedal chain when it has one (`pedalInput`), as playback does. */
+ *  = 0 so every clip is scheduled ahead on the transport). */
 function scheduleTrackClips(
   track: ReturnType<typeof useStore.getState>['tracks'][number],
   te: TrackEngine,
@@ -556,6 +861,7 @@ function scheduleTrackClips(
 ): void {
   const scheduler = new AudioClipScheduler();
   for (const clip of track.audioClips) {
+    if (clip.muted) continue;
     const buffer = getAudioBuffer(clip.id);
     if (!buffer) continue;
     scheduler.scheduleClip({
@@ -578,8 +884,8 @@ function playRenderedAudio(
   te: TrackEngine,
   segments: RenderedSegment[] | undefined,
   sampleRate: number,
-): void {
-  if (!segments || segments.length === 0) return;
+): { dispose(): void } {
+  if (!segments || segments.length === 0) return { dispose() {} };
   // The input is a standardized-audio-context wrapper, passive until
   // something connects through it: hold it open, as AudioClipScheduler and
   // the live adapter do, for the native sources to be heard.
@@ -590,6 +896,7 @@ function playRenderedAudio(
   hold.start();
   const native = te.getNativeInputNode();
   const nativeCtx = native.context as BaseAudioContext;
+  const sources: AudioBufferSourceNode[] = [];
   for (const segment of segments) {
     const buffer = nativeCtx.createBuffer(2, segment.length, sampleRate);
     let offset = 0;
@@ -602,7 +909,28 @@ function playRenderedAudio(
     source.buffer = buffer;
     source.connect(native);
     source.start(segment.startFrame / sampleRate);
+    sources.push(source);
   }
+  return {
+    dispose() {
+      hold.disconnect();
+      for (const source of sources) source.disconnect();
+    },
+  };
+}
+
+/** The pedal chain a guitar, bass or vocal track holds, or null (none, or
+ *  an empty one: the clips then play straight into the track, as live). */
+function storedPedalChain(
+  track: ReturnType<typeof useStore.getState>['tracks'][number],
+): StoredPedalBlock[] | null {
+  const chain =
+    track.instrument === 'guitar-fx' || track.instrument === 'bass-fx'
+      ? track.guitarChain
+      : track.instrument === 'vocal-fx'
+        ? track.vocalChain
+        : undefined;
+  return chain && chain.length > 0 ? chain : null;
 }
 
 /** Apply a Chops sampler track's state to its offline engine (mirrors the live

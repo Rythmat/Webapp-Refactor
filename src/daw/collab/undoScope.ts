@@ -39,12 +39,12 @@ export const COLLAB_UNDO_TYPES: {
   mode: ['map', 'prism'],
   chordRegions: ['array', 'chordRegions'],
   markers: ['array', 'markers'],
+  sections: ['array', 'sections'],
   masterVolume: ['map', 'mastering'],
   masteringFxChain: ['map', 'mastering'],
   masteringEffects: ['map', 'mastering'],
   masterAutomation: ['map', 'mastering'],
   returns: ['map', 'mastering'],
-  leadSheetSections: ['map', 'leadSheet'],
   leadSheetRepeats: ['map', 'leadSheet'],
   scoreChordTracks: ['map', 'leadSheet'],
   scoreChordHidden: ['map', 'leadSheet'],
@@ -94,6 +94,7 @@ export function collabLabelFor(names: readonly string[]): string {
   if (names.includes('transport')) return 'Change tempo';
   if (names.includes('chordRegions')) return 'Edit chords';
   if (names.includes('markers')) return 'Edit markers';
+  if (names.includes('sections')) return 'Edit sections';
   if (names.includes('mastering')) return 'Edit master';
   if (names.includes('leadSheet')) return 'Edit score';
   return 'Edit tracks';

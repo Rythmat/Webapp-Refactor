@@ -112,11 +112,15 @@ vi.mock('@/daw/hooks/usePlaybackEngine', () => ({
   usePlaybackEngine: h.noop,
 }));
 vi.mock('@/daw/hooks/useTransport', () => ({ useTransport: h.noop }));
-vi.mock('@/daw/components/ChannelStrip/ChannelStrip', () => ({
-  ChannelStrip: h.nothing,
+vi.mock('@/daw/shell/dock/Dock', () => ({
+  Dock: h.nothing,
 }));
-vi.mock('@/daw/components/Library/LibraryPanel', () => ({
-  LibraryPanel: h.nothing,
+vi.mock('@/daw/shell/inspector/InspectorPanel', () => ({
+  InspectorPanel: h.nothing,
+}));
+// The bottom rail's master meter polls the audio engine this file mocks.
+vi.mock('@/daw/shell/bottombar/BottomRail', () => ({
+  BottomRail: h.nothing,
 }));
 vi.mock('@/daw/components/PianoRoll/PianoRollModal', () => ({
   PianoRollModal: h.nothing,
@@ -134,11 +138,11 @@ vi.mock('@/daw/components/Score/ScoreView', () => ({ ScoreView: h.nothing }));
 vi.mock('@/daw/components/Practice/PracticeTrackView', () => ({
   PracticeTrackView: () => <div data-testid="practice-view" />,
 }));
-vi.mock('@/daw/components/Studio/StudioView', () => ({
-  StudioView: h.nothing,
+vi.mock('@/daw/shell/mix/MixView', () => ({
+  MixView: h.nothing,
 }));
-vi.mock('@/daw/components/Timeline/TimelineWithHeaders', () => ({
-  TimelineWithHeaders: () => <div data-testid="timeline" />,
+vi.mock('@/daw/shell/tracklist/TrackArea', () => ({
+  TrackArea: () => <div data-testid="timeline" />,
 }));
 vi.mock('@/daw/components/Prism/PrismSuggestionModal', () => ({
   PrismSuggestionModal: h.nothing,

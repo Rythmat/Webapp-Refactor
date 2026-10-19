@@ -1,5 +1,6 @@
 import * as Tone from 'tone';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
+import { ticksHeardAt } from './heardTime';
 
 interface RecordedNote {
   note: number;
@@ -19,14 +20,22 @@ export interface RecordingResult {
   ccEvents: MidiCCEvent[];
 }
 
+export interface MidiRecordingOptions {
+  /** When the transport starts, in context time (null when it isn't
+   *  running): a note heard before it lands on the start's tick. */
+  transportStart?: () => number | null;
+}
+
 export class MidiRecorder {
   private recording = false;
+  private transportStart: () => number | null = () => null;
   private activeNotes: Map<number, RecordedNote> = new Map();
   private completedNotes: RecordedNote[] = [];
   private ccEvents: RecordedCC[] = [];
 
-  startRecording(): void {
+  startRecording(options: MidiRecordingOptions = {}): void {
     this.recording = true;
+    this.transportStart = options.transportStart ?? (() => null);
     this.activeNotes.clear();
     this.completedNotes = [];
     this.ccEvents = [];
@@ -57,25 +66,14 @@ export class MidiRecorder {
     });
   }
 
-  /** Compute tick position compensated for Tone.js lookAhead and JS event loop delay. */
+  /**
+   * The tick the student was hearing when the event happened (milestone 1.11
+   * d): its timeStamp on the speakers' clock (heardTime), so a note lands on
+   * the beat it was played against. The same model as the punch-in tick
+   * (useMidiRecording), so the two agree.
+   */
   private compensatedTick(eventTimestamp?: number): number {
-    const transport = Tone.getTransport();
-    let tick = transport.ticks;
-
-    // Compensate for Tone.js lookAhead (transport.ticks is ahead of audible position)
-    const ticksPerMs = (transport.bpm.value * transport.PPQ) / 60000;
-    const lookAheadMs = Tone.getContext().lookAhead * 1000;
-    tick -= lookAheadMs * ticksPerMs;
-
-    // Compensate for JS event loop delay
-    if (eventTimestamp != null) {
-      const delayMs = performance.now() - eventTimestamp;
-      if (delayMs > 0) {
-        tick -= delayMs * ticksPerMs;
-      }
-    }
-
-    return Math.max(0, Math.round(tick));
+    return Math.round(ticksHeardAt(eventTimestamp, this.transportStart()));
   }
 
   stopRecording(): RecordingResult {

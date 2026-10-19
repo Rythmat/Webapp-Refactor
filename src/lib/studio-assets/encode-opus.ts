@@ -38,17 +38,53 @@ export async function audioBufferToOpusWebm(
   if (!isOpusEncodingSupported()) {
     throw new Error('WebCodecs AudioEncoder not available in this browser');
   }
+  const sourceBuffer = await opusReadyBuffer(buffer);
+  const channels: Float32Array[] = [];
+  for (let ch = 0; ch < sourceBuffer.numberOfChannels; ch++) {
+    channels.push(sourceBuffer.getChannelData(ch));
+  }
+  return pcmToOpusWebm(channels, sourceBuffer.sampleRate, sourceBuffer.length);
+}
 
-  const sourceBuffer = OPUS_SUPPORTED_SAMPLE_RATES.has(buffer.sampleRate)
+/** `buffer` at a rate the Opus encoder takes: itself, or resampled to 48 kHz.
+ *  It needs an OfflineAudioContext, so it runs on the page, not in a worker. */
+export async function opusReadyBuffer(
+  buffer: AudioBuffer,
+): Promise<AudioBuffer> {
+  return OPUS_SUPPORTED_SAMPLE_RATES.has(buffer.sampleRate)
     ? buffer
     : await resampleBuffer(buffer, OPUS_TARGET_SAMPLE_RATE);
+}
 
+/** Whether this scope (the page or a worker) has the WebCodecs encoder. */
+export function canEncodeOpusHere(): boolean {
+  return (
+    typeof globalThis.AudioEncoder !== 'undefined' &&
+    typeof globalThis.AudioData !== 'undefined'
+  );
+}
+
+/**
+ * The Opus-in-WebM bytes of `channels` (one Float32Array each, `numFrames`
+ * long) at `sampleRate`, which must be one the encoder takes (see
+ * opusReadyBuffer). It needs no AudioBuffer, so the export's encode worker
+ * runs it too.
+ */
+export async function pcmToOpusWebm(
+  channels: Float32Array[],
+  sampleRate: number,
+  numFrames: number,
+): Promise<ArrayBuffer> {
+  if (!canEncodeOpusHere()) {
+    throw new Error('WebCodecs AudioEncoder not available in this browser');
+  }
+  const numChannels = channels.length;
   const muxer = new Muxer({
     target: new ArrayBufferTarget(),
     audio: {
       codec: 'A_OPUS',
-      numberOfChannels: sourceBuffer.numberOfChannels,
-      sampleRate: sourceBuffer.sampleRate,
+      numberOfChannels: numChannels,
+      sampleRate,
     },
   });
 
@@ -70,24 +106,22 @@ export async function audioBufferToOpusWebm(
 
   encoder.configure({
     codec: 'opus',
-    sampleRate: sourceBuffer.sampleRate,
-    numberOfChannels: sourceBuffer.numberOfChannels,
+    sampleRate,
+    numberOfChannels: numChannels,
     bitrate: OPUS_BITRATE,
   });
 
   // AudioData wants a single planar Float32 buffer laid out as
-  // [ch0 samples..., ch1 samples..., ...]. Build it from the AudioBuffer's
-  // per-channel views.
-  const numFrames = sourceBuffer.length;
-  const numChannels = sourceBuffer.numberOfChannels;
+  // [ch0 samples..., ch1 samples..., ...]. Build it from the per-channel
+  // views.
   const planarData = new Float32Array(numFrames * numChannels);
   for (let ch = 0; ch < numChannels; ch++) {
-    planarData.set(sourceBuffer.getChannelData(ch), ch * numFrames);
+    planarData.set(channels[ch].subarray(0, numFrames), ch * numFrames);
   }
 
   const audioData = new AudioData({
     format: 'f32-planar',
-    sampleRate: sourceBuffer.sampleRate,
+    sampleRate,
     numberOfChannels: numChannels,
     numberOfFrames: numFrames,
     timestamp: 0,

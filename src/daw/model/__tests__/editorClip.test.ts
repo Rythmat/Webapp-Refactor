@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MidiClip } from '@/daw/store/tracksSlice';
-import {
-  clipAt,
-  editorTrackId,
-  resolveEditorClip,
-  type EditorClipState,
-} from '../editorClip';
+import { clipAt, resolveEditorClip, type EditorClipState } from '../editorClip';
 
 // ── Which clip a note editor edits ─────────────────────────────────────────
 // The selected clip on the track, then the clip under the (parked)
@@ -81,22 +76,5 @@ describe('clipAt', () => {
     };
     expect(clipAt([clip('a', 0), unsized], 2 * BAR + 10)?.id).toBe('u');
     expect(clipAt([clip('a', 0), unsized], 3 * BAR + 10)?.id).toBe('a');
-  });
-});
-
-describe('editorTrackId', () => {
-  it("is the selected MIDI clip's track, else the selected track", () => {
-    expect(
-      editorTrackId({
-        ...state({ selectedClipId: 'k', selectedClipTrackId: 'keys' }),
-        selectedTrackId: 'drums',
-      }),
-    ).toBe('keys');
-    expect(
-      editorTrackId({
-        ...state({ selectedClipId: 'gone', selectedClipTrackId: 'keys' }),
-        selectedTrackId: 'drums',
-      }),
-    ).toBe('drums');
   });
 });

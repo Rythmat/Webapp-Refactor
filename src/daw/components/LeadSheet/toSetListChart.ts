@@ -48,6 +48,7 @@ export interface StudioChartSource {
   measureFermatas: number[] | null;
   /** Bars added past the last chord; null or absent when none. */
   leadSheetBars?: number | null;
+  /** The song's sections as the Lead Sheet marks them (leadSheetSectionsOf). */
   leadSheetSections: LeadSheetSection[];
   leadSheetRepeats: LeadSheetRepeat[];
   timeSignature: [number, number];

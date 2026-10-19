@@ -229,7 +229,7 @@ describe('resetProjectState', () => {
         'remoteUsers',
         'inputs',
         'clipboardClips',
-        'userListOpen',
+        'settingsOpen',
       ]),
     );
     expect(kept.filter((key) => !Object.is(after[key], before[key]))).toEqual(

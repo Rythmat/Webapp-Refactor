@@ -70,3 +70,4 @@ docs/studio-perf/baselines/**/actual/
 # Claude's reference notes, reports and one-shot scripts: local only.
 # Every new reference .md and one-off script goes here (claude-ref/README.md).
 /claude-ref/
+src/scripts/enrichment/research/_work/

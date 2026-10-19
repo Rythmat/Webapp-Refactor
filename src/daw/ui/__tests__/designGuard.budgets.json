@@ -2,23 +2,6 @@
   "src/daw/collab/types.ts": {
     "hex": 8
   },
-  "src/daw/collab/ui/ChatPanel.tsx": {
-    "smallText": 6
-  },
-  "src/daw/collab/ui/PresenceTrackDots.tsx": {
-    "smallText": 1
-  },
-  "src/daw/collab/ui/UserList.tsx": {
-    "smallText": 6
-  },
-  "src/daw/components/ChannelStrip/ChannelStrip.tsx": {
-    "smallText": 3
-  },
-  "src/daw/components/ChannelStrip/PopOutOverlay.tsx": {
-    "hex": 2,
-    "rgb": 7,
-    "zIndex": 1
-  },
   "src/daw/components/Controls/AudioMidiSourcePanel.tsx": {
     "smallText": 1
   },
@@ -32,7 +15,7 @@
     "zIndex": 2
   },
   "src/daw/components/Controls/GroovesBrowser.tsx": {
-    "hex": 14,
+    "hex": 13,
     "rgb": 1,
     "smallText": 7
   },
@@ -59,10 +42,6 @@
   "src/daw/components/Controls/OrganView.tsx": {
     "hex": 16
   },
-  "src/daw/components/Controls/PartsBrowser.tsx": {
-    "rgb": 1,
-    "smallText": 5
-  },
   "src/daw/components/Controls/PitchMeter.tsx": {
     "hex": 3,
     "rgb": 7,
@@ -87,9 +66,6 @@
     "rgb": 1,
     "zIndex": 1
   },
-  "src/daw/components/Controls/TrackControlsPanel.tsx": {
-    "rgb": 3
-  },
   "src/daw/components/Controls/TunerDisplay.tsx": {
     "hex": 3,
     "smallText": 6
@@ -105,9 +81,6 @@
     "rgb": 8,
     "smallText": 8,
     "zIndex": 4
-  },
-  "src/daw/components/Effects/FxBrowser.tsx": {
-    "smallText": 2
   },
   "src/daw/components/Effects/FxMeter.tsx": {
     "rgb": 2,
@@ -168,10 +141,6 @@
     "rgb": 2,
     "smallText": 3
   },
-  "src/daw/components/Library/LibraryPanel.tsx": {
-    "rgb": 1,
-    "smallText": 6
-  },
   "src/daw/components/Library/SelectionAnalysis.tsx": {
     "hex": 2,
     "rgb": 4,
@@ -185,10 +154,6 @@
   "src/daw/components/MeshGradientBg.tsx": {
     "zIndex": 1
   },
-  "src/daw/components/Mixer/AddTrackMenu.tsx": {
-    "hex": 127,
-    "rgb": 2
-  },
   "src/daw/components/PianoRoll/ClipPianoRoll.tsx": {
     "hex": 1
   },
@@ -197,10 +162,6 @@
     "rgb": 9,
     "smallText": 6,
     "zIndex": 1
-  },
-  "src/daw/components/PianoRoll/PianoRollModal.tsx": {
-    "rgb": 3,
-    "zIndex": 2
   },
   "src/daw/components/Practice/ChordChart.tsx": {
     "rgb": 2
@@ -221,16 +182,10 @@
   "src/daw/components/Prism/ColorSpectrum.tsx": {
     "rgb": 2
   },
-  "src/daw/components/Prism/PrismPanel.tsx": {
-    "rgb": 3
-  },
   "src/daw/components/Prism/PrismStudio.tsx": {
     "hex": 3,
     "rgb": 2,
     "smallText": 2
-  },
-  "src/daw/components/Score/NoteEditorBar.tsx": {
-    "smallText": 8
   },
   "src/daw/components/Score/ScorePalettes.tsx": {
     "smallText": 3,
@@ -241,40 +196,14 @@
     "rgb": 1,
     "zIndex": 5
   },
-  "src/daw/components/Studio/StudioView.tsx": {
-    "hex": 3,
-    "rgb": 27,
-    "smallText": 11
-  },
   "src/daw/components/Timeline/AutomationLaneEditor.tsx": {
     "hex": 3,
     "rgb": 2,
     "smallText": 2
   },
   "src/daw/components/Timeline/Timeline.tsx": {
-    "hex": 14,
-    "rgb": 16,
-    "smallText": 5,
-    "zIndex": 6
-  },
-  "src/daw/components/Timeline/TimelineWithHeaders.tsx": {
     "rgb": 5,
-    "smallText": 1,
     "zIndex": 3
-  },
-  "src/daw/components/TrackControls/MasterTrackHeader.tsx": {
-    "hex": 1,
-    "smallText": 4,
-    "whileTap": 3
-  },
-  "src/daw/components/TrackControls/NewTrackModal.tsx": {
-    "hex": 126
-  },
-  "src/daw/components/TrackControls/TrackHeader.tsx": {
-    "hex": 4,
-    "smallText": 7,
-    "zIndex": 4,
-    "whileTap": 9
   },
   "src/daw/components/Tutorial/CoachCard.tsx": {
     "hex": 4,
@@ -299,17 +228,11 @@
   "src/daw/data/demoProjects.ts": {
     "hex": 4
   },
-  "src/daw/data/libraryItems.ts": {
-    "hex": 7
-  },
   "src/daw/data/projectTemplates.ts": {
     "hex": 23
   },
   "src/daw/harmony/ChordInputHint.tsx": {
     "zIndex": 1
-  },
-  "src/daw/jam-import/importJamSession.ts": {
-    "hex": 1
   },
   "src/daw/oracle-synth/components/arp/ArpPanel.module.css": {
     "hex": 3,
@@ -467,10 +390,6 @@
   },
   "src/daw/store/markersSlice.ts": {
     "hex": 1
-  },
-  "src/daw/utils/rulerLoop.ts": {
-    "hex": 1,
-    "rgb": 2
   },
   "src/daw/utils/timelineScale.ts": {
     "smallText": 7

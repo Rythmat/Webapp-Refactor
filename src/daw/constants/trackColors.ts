@@ -1,6 +1,6 @@
 // ── Track Color Palettes ────────────────────────────────────────────────
 // 25 curated colors across 4 palettes, used for auto-cycling new tracks
-// and the manual color-picker popover in TrackHeader.
+// and the Colour menu of a track row's ⋯ (shell/tracklist/TrackMenu).
 
 export const TRACK_PALETTES = [
   // Palette 1 — warm→cool spectrum

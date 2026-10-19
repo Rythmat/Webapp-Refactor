@@ -108,7 +108,6 @@ const nodes = (chain: EffectChain) =>
     reverbWetGain: Fake;
     reverbConvolver: Fake;
     crushNode: Fake;
-    stopGateLoop(): void;
   };
 
 function withReverb(wet: number, decay = 2): TrackEffectState {
@@ -119,7 +118,6 @@ function withReverb(wet: number, decay = 2): TrackEffectState {
 
 function chainWith(state: TrackEffectState): EffectChain {
   const chain = new EffectChain(ctx);
-  nodes(chain).stopGateLoop();
   chain.update(state);
   return chain;
 }
@@ -137,7 +135,6 @@ describe('EffectChain previews', () => {
 
   it("sets a new chain's first state at once, even asked to glide", () => {
     const chain = new EffectChain(ctx);
-    nodes(chain).stopGateLoop();
     chain.update(withReverb(0.4), { glide: true });
     expect(nodes(chain).reverbWetGain.gain.value).toBe(0.4);
   });

@@ -84,14 +84,44 @@ function buildPattern(
   }
 }
 
+/** How far ahead of the context clock the live pump schedules steps. */
+const PUMP_HORIZON = 0.04;
+/** How often the live pump wakes (ms). Only the horizon sets the timing. */
+const PUMP_INTERVAL_MS = 20;
+
+export interface ArpClock {
+  /** The context clock: steps are placed on it. */
+  now: () => number;
+  /**
+   * Whether a wall-clock pump may run. False for an offline render: there,
+   * every note event arrives before rendering starts, and the steps between
+   * two events are generated when the later event arrives.
+   */
+  live: boolean;
+}
+
+/**
+ * Arpeggiator on context time. Each step has an exact time: the first is
+ * the time of the key that started the arp, the next ones follow at the rate
+ * (from the BPM), and every output note carries its time. Steps are made
+ * lazily: an incoming event first emits every step before its own time (with
+ * the keys held until then), so a chord whose notes arrive one call at a time
+ * still starts as one chord. While keys are held live, a small pump keeps
+ * steps scheduled a little ahead of the clock.
+ */
 export class Arpeggiator {
   private heldNotes = new Map<number, number>(); // note → velocity
   private pattern: number[] = [];
   private patternIndex = 0;
-  private intervalId: ReturnType<typeof setInterval> | null = null;
   private currentNote: number | null = null;
+  /** When the sounding arp note started. */
+  private currentNoteAt = 0;
   private velocity = 0.8;
   private bpm = 120;
+  /** Time of the next step not yet emitted (null while stopped). */
+  private nextStepAt: number | null = null;
+  private pumpId: ReturnType<typeof setInterval> | null = null;
+  private pumpQueued = false;
   // 12-bit pitch-class mask of the live-detected chord (0 = no context)
   private chordMask = 0;
   private params: ArpParams = {
@@ -104,36 +134,40 @@ export class Arpeggiator {
   };
 
   constructor(
-    private outputNoteOn: (note: number, velocity: number) => void,
-    private outputNoteOff: (note: number) => void,
+    private outputNoteOn: (
+      note: number,
+      velocity: number,
+      time: number,
+    ) => void,
+    private outputNoteOff: (note: number, time: number) => void,
+    private clock: ArpClock = { now: () => 0, live: false },
   ) {}
 
+  /**
+   * Rate, style, range and chord settings. Whether the arp is on is the
+   * engine's business (it routes keys here or not), so `enabled` is only
+   * stored.
+   */
   setParams(params: ArpParams): void {
-    const wasEnabled = this.params.enabled;
+    this.flush(this.clock.now());
     this.params = params;
-
-    if (!params.enabled && wasEnabled) {
-      this.stopArp();
-      return;
-    }
-
-    if (params.enabled && this.heldNotes.size > 0) {
-      this.rebuildAndRestart();
+    if (this.heldNotes.size > 0) {
+      this.rebuildPattern();
+      if (this.patternIndex >= this.pattern.length) this.patternIndex = 0;
     }
   }
 
+  /** The step length changes from the next step on. */
   setBPM(bpm: number): void {
-    this.bpm = bpm;
-    if (this.intervalId !== null && this.params.enabled) {
-      this.restartTimer();
-    }
+    this.flush(this.clock.now());
+    this.bpm = Math.max(1, bpm);
   }
 
   /**
    * Live chord context from the DAW's music-intelligence bus. When
    * `chordAware` is on, held notes snap to these chord tones. The pattern
-   * is rebuilt in place (no timer restart) so the arp transitions smoothly
-   * as the progression moves.
+   * is rebuilt in place (the step grid keeps going) so the arp transitions
+   * smoothly as the progression moves.
    */
   setChordContext(chordPcs: number[] | null): void {
     this.chordMask =
@@ -141,11 +175,7 @@ export class Arpeggiator {
         ? chordPcs.reduce((mask, pc) => mask | (1 << ((pc % 12) + 12) % 12), 0)
         : 0;
 
-    if (
-      this.params.enabled &&
-      this.params.chordAware &&
-      this.heldNotes.size > 0
-    ) {
+    if (this.params.chordAware && this.heldNotes.size > 0) {
       this.rebuildPattern();
       if (this.patternIndex >= this.pattern.length) {
         this.patternIndex = 0;
@@ -153,21 +183,30 @@ export class Arpeggiator {
     }
   }
 
-  noteOn(note: number, velocity: number): void {
+  /** Holds `note` from `time` (the clock's now when omitted). */
+  noteOn(note: number, velocity: number, time?: number): void {
+    const t = time ?? this.clock.now();
+    this.flush(t);
     this.heldNotes.set(note, velocity);
     this.velocity = velocity;
-
-    if (this.params.enabled) {
-      this.rebuildAndRestart();
+    this.rebuildPattern();
+    if (this.nextStepAt === null) {
+      // The arp starts on this key's time.
+      this.patternIndex = 0;
+      this.nextStepAt = t;
     }
+    this.startPump();
   }
 
-  noteOff(note: number): void {
+  /** Lets go of `note` at `time`; the last key stops the arp there. */
+  noteOff(note: number, time?: number): void {
+    const t = time ?? this.clock.now();
+    this.flush(t);
     this.heldNotes.delete(note);
 
     if (this.heldNotes.size === 0) {
-      this.stopArp();
-    } else if (this.params.enabled) {
+      this.stopArp(t);
+    } else {
       this.rebuildPattern();
       // Clamp index if pattern shortened
       if (this.patternIndex >= this.pattern.length) {
@@ -176,21 +215,37 @@ export class Arpeggiator {
     }
   }
 
-  allNotesOff(): void {
+  /** Lets go of every key at `time` (now when omitted). */
+  allNotesOff(time?: number): void {
+    const t = time ?? this.clock.now();
+    this.flush(t);
     this.heldNotes.clear();
-    this.stopArp();
+    this.stopArp(t);
+  }
+
+  /** The keys the arp holds (note → velocity), e.g. to hand them back. */
+  getHeldNotes(): Map<number, number> {
+    return new Map(this.heldNotes);
   }
 
   dispose(): void {
     this.allNotesOff();
+    this.stopPump();
   }
 
-  private rebuildAndRestart(): void {
-    this.rebuildPattern();
-    this.patternIndex = 0;
-    this.restartTimer();
-    // Play first note immediately
-    this.tick();
+  /** Step length in seconds at the current BPM and rate. */
+  getStepSeconds(): number {
+    return (rateDivToBeats(this.params.rate) * 60) / this.bpm;
+  }
+
+  /** Emits every step that starts before `until`. */
+  private flush(until: number): void {
+    if (this.nextStepAt === null) return;
+    const step = this.getStepSeconds();
+    while (this.nextStepAt !== null && this.nextStepAt < until) {
+      this.tick(this.nextStepAt);
+      this.nextStepAt += step;
+    }
   }
 
   private rebuildPattern(): void {
@@ -220,46 +275,88 @@ export class Arpeggiator {
     );
   }
 
-  private getIntervalMs(): number {
-    const beats = rateDivToBeats(this.params.rate);
-    return (beats * 60000) / this.bpm;
-  }
-
-  private restartTimer(): void {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId);
-    }
-    const ms = this.getIntervalMs();
-    this.intervalId = setInterval(() => this.tick(), ms);
-  }
-
-  private tick(): void {
+  private tick(time: number): void {
     if (this.pattern.length === 0) return;
 
     // Turn off previous note
     if (this.currentNote !== null) {
-      this.outputNoteOff(this.currentNote);
+      this.outputNoteOff(this.currentNote, time);
       this.currentNote = null;
     }
 
     // Play next note in pattern
     const note = this.pattern[this.patternIndex % this.pattern.length];
-    this.outputNoteOn(note, this.velocity);
+    this.outputNoteOn(note, this.velocity, time);
     this.currentNote = note;
+    this.currentNoteAt = time;
 
     this.patternIndex = (this.patternIndex + 1) % this.pattern.length;
   }
 
-  private stopArp(): void {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
+  private stopArp(time: number): void {
+    this.nextStepAt = null;
     if (this.currentNote !== null) {
-      this.outputNoteOff(this.currentNote);
+      // A live stop can come before a step the pump already placed ahead;
+      // that note then ends where it starts (silent) rather than before.
+      this.outputNoteOff(this.currentNote, Math.max(time, this.currentNoteAt));
       this.currentNote = null;
     }
     this.patternIndex = 0;
     this.pattern = [];
+    this.stopPump();
+  }
+
+  /**
+   * Live only: keeps steps scheduled up to a little past the clock while
+   * keys are held. A microtask runs it right after the current call stack,
+   * so the notes of a chord played in one go all land in the first step.
+   */
+  private startPump(): void {
+    if (!this.clock.live) return;
+    if (!this.pumpQueued) {
+      this.pumpQueued = true;
+      queueMicrotask(() => {
+        this.pumpQueued = false;
+        this.pump();
+      });
+    }
+    if (this.pumpId === null) {
+      this.pumpId = setInterval(() => this.pump(), PUMP_INTERVAL_MS);
+    }
+  }
+
+  private pump(): void {
+    if (this.nextStepAt === null) {
+      this.stopPump();
+      return;
+    }
+    const now = this.clock.now();
+    this.skipOverdue(now);
+    this.flush(now + PUMP_HORIZON);
+  }
+
+  /**
+   * After a timer stall (a background tab, a long task) the steps more than
+   * the pump horizon in the past are dropped rather than played late as a
+   * cluster: the grid resumes at the first step from `now - horizon` on, and
+   * the pattern moves on as if they had played. (A step only a few ms late,
+   * e.g. a key pressed between two wakes, still plays.)
+   */
+  private skipOverdue(now: number): void {
+    const from = now - PUMP_HORIZON;
+    if (this.nextStepAt === null || this.nextStepAt >= from) return;
+    const step = this.getStepSeconds();
+    const skipped = Math.ceil((from - this.nextStepAt) / step);
+    this.nextStepAt += skipped * step;
+    if (this.pattern.length > 0) {
+      this.patternIndex = (this.patternIndex + skipped) % this.pattern.length;
+    }
+  }
+
+  private stopPump(): void {
+    if (this.pumpId !== null) {
+      clearInterval(this.pumpId);
+      this.pumpId = null;
+    }
   }
 }

@@ -79,7 +79,7 @@ const anchor = (id) => `[data-tutorial-id="${id}"]`;
 /** The chord buttons of Prism's Chord Selection card, in option order. */
 const CHORD_BUTTONS = `${anchor('prism-chord-selection')} .grid-cols-2 > button`;
 
-/** Instruments the + Add Track cards create (AddTrackMenu.tsx). */
+/** Instruments the Add-track sheet's cards create (AddTrackSheet.tsx). */
 const ADD_TRACK_CARDS = {
   'add-track-synth': ['midi', 'oracle-synth', 'Synth'],
   'add-track-drum-machine': ['midi', 'drum-machine', 'Drums'],
@@ -112,15 +112,30 @@ function addChordsInPage(count) {
   }
 }
 
-/** + Add Track, then the card for one instrument. */
+/**
+ * The picker's category tile a card sits behind, for cards on its second
+ * step (AddTrackSheet.tsx, trackTemplates.ts); the others are on the first.
+ */
+const ADD_TRACK_CATEGORY = {
+  'add-track-drum-machine': 'add-track-cat-drums',
+};
+
+/** + Add Track, then (through its category) the card for one instrument. */
 function addTrack(cardId) {
   const [type, instrument, name] = ADD_TRACK_CARDS[cardId];
+  const categoryId = ADD_TRACK_CATEGORY[cardId];
   return {
     how: 'click',
-    describe: `click add-track-button, then ${cardId}`,
+    describe: categoryId
+      ? `click add-track-button, then ${categoryId}, then ${cardId}`
+      : `click add-track-button, then ${cardId}`,
     async run(ctx) {
       await ctx.clickAnchor('add-track-button');
-      // The spotlight follows into the menu (the step's first target id).
+      // The spotlight follows into the picker (the first target id shown).
+      if (categoryId) {
+        await ctx.measure(categoryId);
+        await ctx.clickAnchor(categoryId);
+      }
       await ctx.measure(cardId);
       await ctx.clickAnchor(cardId);
     },
@@ -748,20 +763,27 @@ const lengthenReturnReverb = (ctx, returnId) =>
   );
 
 /**
- * Click "Return X" on its strip, which opens its FX rack, then turn a knob.
- * The label, not the strip's middle: the strip's fader area stops the click
- * from selecting the return.
+ * Click "Return X · <effect>" on its strip in the Mix view (2.10), which
+ * opens that return's rack in the RackDock under the strips (return-fx-X),
+ * then turn a knob there. The name button, not the strip's middle: the
+ * fader takes a click on its own.
  */
 function tweakReturn(returnId) {
   return {
     how: 'click',
-    describe: `click the "Return ${returnId}" label in return-strip-${returnId}, then its reverb decay (a knob drag)`,
+    describe: `click the name of return-strip-${returnId}, which opens return-fx-${returnId} in the RackDock, then its reverb decay (a knob drag)`,
     related: ['ia-flows-12', 'fx-mixer-04'],
     async run(ctx) {
-      const label = ctx.page
-        .locator(`${anchor(`return-strip-${returnId}`)} span`)
-        .first();
-      await ctx.click(label, `"Return ${returnId}" label`);
+      const name = ctx.page.locator(
+        `${anchor(`return-strip-${returnId}`)} [data-testid="return-strip-name"]`,
+      );
+      await ctx.click(name, `"Return ${returnId}" name`);
+      await ctx.waitFor(
+        `the RackDock to show Return ${returnId}`,
+        (id) =>
+          !!document.querySelector(`[data-tutorial-id="return-fx-${id}"]`),
+        returnId,
+      );
       await ctx.measure(`return-fx-${returnId}`);
       await lengthenReturnReverb(ctx, returnId);
     },
@@ -769,11 +791,15 @@ function tweakReturn(returnId) {
   };
 }
 
-/** A row of the mastering rack's FX list (its fx-add-* rows say rack "master"). */
+/**
+ * A row of the side rail's Effects panel while the Mix view's master rack is
+ * open (2.10: the step's requires open both; its fx-add-* rows say rack
+ * "master").
+ */
 function addMasteringFx(type) {
   return {
     how: 'click',
-    describe: `click fx-add-${type} in mastering-section`,
+    describe: `click fx-add-${type} (rack master) in the Effects panel, the master rack open in the RackDock`,
     related: ['fx-mixer-19'],
     run: (ctx) =>
       ctx.clickAnchor(`fx-add-${type}`, `fx-add-${type}`, { rack: 'master' }),
@@ -797,24 +823,64 @@ const TRIM_MASTER = {
     }),
 };
 
+/**
+ * Clicks the Export dialog's Export button. When it is there but off, the
+ * step fails with the reason the button gives (its title: "Add a track
+ * first", "No track plays anything yet"), not with a click's timeout.
+ */
+async function clickExportRun(ctx) {
+  // The dialog loads on first use: wait for the button before reading it.
+  await ctx.page
+    .locator(anchor('export-audio-run'))
+    .first()
+    .waitFor({ state: 'attached', timeout: 10_000 })
+    .catch(() => {});
+  const off = await ctx.read((sel) => {
+    const run = document.querySelector(sel);
+    return run && run.disabled
+      ? run.getAttribute('title') || '(no title)'
+      : null;
+  }, anchor('export-audio-run'));
+  if (off !== null) {
+    throw new Error(`export-audio-run is disabled: ${off}`);
+  }
+  await ctx.clickAnchor('export-audio-run', 'Export');
+}
+
+/** Escape until no dialog or menu is open (at most four times). */
+async function closeOverlays(ctx) {
+  for (let i = 0; i < 4; i++) {
+    const open = await ctx.read(
+      () =>
+        !!document.querySelector(
+          '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"], [role="menu"][data-state="open"]',
+        ),
+    );
+    if (!open) return;
+    await ctx.press('Escape', 'Escape (close what is open)');
+    await ctx.page.waitForTimeout(250);
+  }
+}
+
 const EXPORT_AUDIO = {
   how: 'click',
-  describe:
-    'click file-menu (Project), file-export-audio, then export-audio-run',
+  describe: 'click export-pill (the top bar), then export-audio-run',
   related: ['practice-tutorial-20', 'audio-core-01'],
   // The offline render of the whole mix, on a throttled CPU.
   advanceTimeoutMs: 240_000,
   async run(ctx) {
-    await ctx.clickAnchor('file-menu');
-    await ctx.measure('file-export-audio');
-    await ctx.clickAnchor('file-export-audio', 'Export ▸ Audio…');
+    await ctx.measure('export-pill');
+    await ctx.clickAnchor('export-pill', 'Export');
     await ctx.measure('export-audio-run');
-    await ctx.clickAnchor('export-audio-run', 'Export');
+    await clickExportRun(ctx);
   },
-  // When the mouse cannot reach the menu item, the keyboard still can (the
-  // File menu is a Radix menu): focus the item, Enter, then Export. This
-  // way the bounce itself is still measured.
+  // The Project menu's Export ▸ Audio… opens the same dialog: when the pill
+  // can't be reached, the keyboard reaches the menu item (a Radix menu):
+  // focus it, Enter, then Export. This way the bounce itself is still
+  // measured. Whatever the pill left open (the dialog itself) is closed
+  // first, or it would cover the Project menu.
   async fallback(ctx) {
+    await closeOverlays(ctx);
     const item = ctx.page.locator(anchor('file-export-audio')).first();
     if (!(await item.isVisible())) await ctx.clickAnchor('file-menu');
     await ctx.act(
@@ -823,27 +889,30 @@ const EXPORT_AUDIO = {
       anchor('file-export-audio'),
     );
     await ctx.press('Enter', 'Enter on Export Audio…');
-    await ctx.clickAnchor('export-audio-run', 'Export');
+    await clickExportRun(ctx);
   },
 };
 
-/** The automation button on the selected track's header. */
+/** Show automation, in the selected track's ⋯ menu (milestone 2.6). */
 const OPEN_AUTOMATION = {
   how: 'click',
-  describe: 'click automation-toggle on a track header',
+  describe: 'open track-menu-button, then click automation-toggle',
   async run(ctx) {
-    const buttons = await ctx.read(
+    const menus = await ctx.read(
       (sel) => document.querySelectorAll(sel).length,
-      anchor('automation-toggle'),
+      anchor('track-menu-button'),
     );
-    if (buttons === 0) {
+    if (menus === 0) {
       ctx.problem(
-        'The lesson opens in an empty session and its first step asks to pick a track, but there is no track and no step adds one, so there is no automation button',
+        'The lesson opens in an empty session and its first step asks to pick a track, but there is no track and no step adds one, so there is no track menu',
       );
       // What a student would do: add a track first.
       await ctx.clickAnchor('add-track-button');
       await ctx.clickAnchor('add-track-synth');
     }
+    await ctx.clickAnchor('track-menu-button');
+    // The spotlight follows into the menu (the step's first target id).
+    await ctx.measure('automation-toggle');
     await ctx.clickAnchor('automation-toggle');
   },
   fallback: (ctx) =>
@@ -957,7 +1026,8 @@ export const DRIVERS = {
   },
   'hiphop-build-the-beat': {
     'add-drums': addTrack('add-track-drum-machine'),
-    'open-sequencer': openedByStep('controls'),
+    // The drum grid is the drums' Notes tab since milestone 2.9.
+    'open-sequencer': openedByStep('piano-roll'),
     'swap-kit': pickKit('808'),
     'program-hits': PAINT_HITS,
     'slow-bpm': setBpm(90),
@@ -1032,16 +1102,10 @@ export function driverFor(lessonId, stepId) {
  * prism-ui-23: the four Prism lessons are gated for a free student now.)
  */
 export const KNOWN_FAILURES = {
-  'chromebook|small/*/rnb-mix-and-polish/use-send':
-    'ia-flows-12, fx-mixer-04: mixer-sends-A is cut off by the scrolling strips row (none of it shows at 1366×655, 31% at 1280×720)',
-  'chromebook|small/*/rnb-mix-and-polish/tweak-return':
-    'ia-flows-12, fx-mixer-04: return-strip-A is cut off by the scrolling strips row (none of it shows at 1366×655, where mastering-section also takes the click on its label; 75% at 1280×720)',
-  '*/*/rnb-mix-and-polish/master-volume':
-    'ia-flows-12, fx-mixer-04: master-strip is cut off by the scrolling strips row',
   '*/*/indie-movement-and-dynamics/open-automation':
-    'new: ?tutorial= boots an empty session and no step adds a track, so there is no automation button to click',
-  'chromebook/*/indie-movement-and-dynamics/draw-volume':
-    'new (nearest practice-tutorial-18): the coach card is clamped back over the wide automation lane',
+    'new: ?tutorial= boots an empty session and no step adds a track, so there is no track menu to open',
+  'chromebook|small/*/indie-movement-and-dynamics/draw-volume':
+    'new (nearest practice-tutorial-18): the coach card is clamped back over the wide automation lane (at 1280×720 too since 2.6/2.7 moved the lane up; card docking is 1.2b)',
 };
 
 /** The KNOWN_FAILURES pattern that lists `key`, or null. */

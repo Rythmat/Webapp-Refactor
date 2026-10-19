@@ -46,7 +46,7 @@ import {
   type ChatMessage,
 } from './types';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 import { studioRealtime, isStudioMessage } from './studioRealtime';
 
 // ── Context ─────────────────────────────────────────────────────────────
@@ -95,6 +95,22 @@ const CollabContext = createContext<CollabContextValue>({
   kickUser: () => {},
   awareness: null,
 });
+
+/**
+ * Whether this user is editing notes, for their presence ('editing'): the
+ * dock is open on Notes (milestone 2.9; it was the modal piano roll).
+ */
+function isEditingNotes(state: {
+  channelStripTab: string | null;
+  dockMaster: boolean;
+  currentView: string;
+}): boolean {
+  return (
+    state.currentView === 'arrange' &&
+    !state.dockMaster &&
+    state.channelStripTab === 'piano-roll'
+  );
+}
 
 export function useCollab() {
   return useContext(CollabContext);
@@ -579,7 +595,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
         cursorTick: null,
         cursorTrackIndex: null,
         pianoRollCursor: null,
-        activity: selection.editingClipId ? 'editing' : 'idle',
+        activity: isEditingNotes(selection) ? 'editing' : 'idle',
         lastActiveAt: Date.now(),
       } satisfies UserPresence);
 
@@ -623,7 +639,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
           for (const [clientId, u] of remoteUsers) {
             if (u.selectedTrackId === mySelected && clientId < myId) {
               useStore.getState().setSelectedTrackId(null);
-              toast({
+              notice({
                 title: 'Track taken',
                 description: `${u.userName} selected this track first`,
                 variant: 'destructive',
@@ -803,7 +819,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
         // exclusive lock and the rainbow-neon border key off of.
         selectedTrackId: state.selectedTrackId,
         selectedClipId: state.selectedClipId,
-        editingClipId: state.editingClipId,
+        editingNotes: isEditingNotes(state),
       }),
       (selection) => {
         const awareness = awarenessRef.current;
@@ -816,7 +832,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
           ...current,
           selectedTrackId: selection.selectedTrackId,
           selectedClipId: selection.selectedClipId,
-          activity: selection.editingClipId ? 'editing' : 'idle',
+          activity: selection.editingNotes ? 'editing' : 'idle',
         });
       },
       { equalityFn: shallow },

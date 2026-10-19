@@ -1,10 +1,26 @@
-import { getAudioBuffer, setAudioBuffer } from '@/daw/audio/AudioBufferStore';
-import { midiClipLength } from '@/daw/components/Timeline/midiClipCuts';
 import { useStore } from '@/daw/store';
 import { withTransaction } from '@/daw/store/history';
 import { ticksPerBeat, timelineSnapGrid } from '@/daw/time/timeModel';
-import { toast } from '@/hooks/use-toast';
-import { getPlayheadTick } from '@/daw/engine/playheadClock';
+import {
+  fitTimeline,
+  zoomTimelineIn,
+  zoomTimelineOut,
+} from '@/daw/editor/viewport';
+import { openClipMenu } from '@/daw/shell/canvas/clipMenu/canvasMenuStore';
+import { addMarkerAtPlayhead } from '@/daw/shell/canvas/markerActions';
+import {
+  copyClip,
+  cutClip,
+  deleteClipStep,
+  duplicateClip,
+  findClip,
+  pasteClipboard,
+  renameClip,
+  splitClipAtPlayhead,
+  toggleClipMute,
+  transposeClip,
+  type ClipRef,
+} from '@/daw/shell/canvas/clipMenu/clipActions';
 import type { ToolType } from '@/daw/store/uiSlice';
 import { isFormControl, isInKeyWidget } from './keys';
 import { ARRANGE_SCOPE } from './keymaps';
@@ -12,11 +28,14 @@ import { useKeymap, type KeymapHandlers } from './registry';
 
 // ── Create's timeline keys (milestone 1.6) ─────────────────────────────────
 //
-// Copy, paste, duplicate, delete and nudge the selected clip, pick a tool,
-// zoom. The Timeline binds them, so they answer only while it is on screen,
-// and only when the key wasn't pressed in a control or a widget with keys of
-// its own (a knob, the docked piano roll): its arrows and Delete aren't the
-// timeline's. A key they don't take goes on to the global scope.
+// Cut, copy, paste, duplicate, delete, rename, split, mute, transpose and
+// nudge the selected clip, open its menu, pick a tool, zoom. The Timeline
+// binds them, so they answer only while it is on screen, and only when the
+// key wasn't pressed in a control or a widget with keys of its own (a knob,
+// the docked piano roll): its arrows and Delete aren't the timeline's. A key
+// they don't take goes on to the global scope. What a clip key does is the
+// clip menu's own action (clipMenu/clipActions.ts, milestone 2.12), so the
+// key and the menu item can't drift apart.
 
 /**
  * How far an arrow key nudges a clip: one step of the timeline's grid in the
@@ -28,154 +47,89 @@ function nudgeTicks(): number {
   return grid.enabled ? grid.step : ticksPerBeat(grid.ts);
 }
 
-/** How much one ⌥= or ⌥− (or the tools strip's −/+) zooms. */
-export const ZOOM_STEP = 0.25;
-
+/**
+ * Whether a clip key acts on the timeline: in Create, with the timeline in
+ * sight (a maximized dock covers it), and not from a field, a widget or the
+ * track list. A key pressed on a row's button (M, S, a fader) is about that
+ * track: ⇧⌘↑ there must not move the selected clip, on another track, up
+ * an octave.
+ */
 function onTimeline(e: KeyboardEvent): boolean {
-  const { currentView, editingClipId } = useStore.getState();
+  const { currentView, dockMaximized } = useStore.getState();
   return (
     currentView === 'arrange' &&
-    editingClipId === null &&
+    !dockMaximized &&
     !isFormControl(e.target) &&
-    !isInKeyWidget(e.target)
+    !isInKeyWidget(e.target) &&
+    !(
+      e.target instanceof Element &&
+      e.target.closest('[data-testid="track-list"]')
+    )
   );
 }
 
-function selectedClip() {
-  const { tracks, selectedClipId, selectedClipTrackId } = useStore.getState();
+/**
+ * Whether Alt+M adds a marker: in Create with the timeline in sight, and not
+ * pressed in a form control (a dialog or a menu keeps its keys to itself in
+ * the dispatcher). It acts at the playhead, not on what has focus, so a
+ * focused section block, track row or other widget doesn't stop it, as
+ * onTimeline would.
+ */
+function canAddMarker(e: KeyboardEvent): boolean {
+  const { currentView, dockMaximized } = useStore.getState();
+  return (
+    currentView === 'arrange' && !dockMaximized && !isFormControl(e.target)
+  );
+}
+
+/**
+ * The menu key (Windows) also opens the browser's own context menu, on its
+ * release: swallow that one, so ours stays on top.
+ */
+export function swallowNativeMenu(): void {
+  const stop = (event: Event) => event.preventDefault();
+  window.addEventListener('contextmenu', stop, { capture: true, once: true });
+  window.setTimeout(
+    () => window.removeEventListener('contextmenu', stop, { capture: true }),
+    1000,
+  );
+}
+
+/** The selected clip, while it is still in the project. */
+function selected(): ClipRef | null {
+  const state = useStore.getState();
+  const { selectedClipId, selectedClipTrackId } = state;
   if (!selectedClipId || !selectedClipTrackId) return null;
-  const track = tracks.find((t) => t.id === selectedClipTrackId);
-  const midi = track?.midiClips.find((c) => c.id === selectedClipId);
-  const audio = midi
-    ? undefined
-    : track?.audioClips.find((c) => c.id === selectedClipId);
-  if (!midi && !audio) return null;
-  return { trackId: selectedClipTrackId, midi, audio };
+  const ref = { trackId: selectedClipTrackId, clipId: selectedClipId };
+  return findClip(state, ref) ? ref : null;
 }
 
-function copyClip(): boolean {
-  const clip = selectedClip();
-  if (!clip) return false;
-  const state = useStore.getState();
-  if (clip.midi) state.setClipboard([structuredClone(clip.midi)]);
-  else if (clip.audio) {
-    state.setAudioClipboard(structuredClone(clip.audio), clip.audio.id);
-  }
-  return true;
+/** A handler acting on the selected clip; without one the key goes on. */
+function withClip(act: (ref: ClipRef, e: KeyboardEvent) => boolean | void) {
+  return (e: KeyboardEvent) => {
+    if (!onTimeline(e)) return false;
+    const ref = selected();
+    if (!ref) return false;
+    return act(ref, e) !== false;
+  };
 }
 
-/** Says so when a clip can't go on the track it was pasted to. */
-function wrongTrack(kind: 'midi' | 'audio'): void {
-  toast({
-    title: "Can't paste the clip there",
-    description:
-      kind === 'midi'
-        ? 'MIDI clips go on MIDI tracks.'
-        : 'Audio clips go on audio tracks.',
-  });
-}
-
-function pasteClips(): boolean {
-  const state = useStore.getState();
-  const { clipboardClips, clipboardAudioClip } = state;
-  // At the playhead where it is heard, also while playing (the store's
-  // position is parked then). Whole ticks, as a seek leaves them.
-  const position = Math.round(getPlayheadTick());
-  const targetTrackId = state.selectedClipTrackId || state.tracks[0]?.id;
-  const target = state.tracks.find((t) => t.id === targetTrackId);
-  if (clipboardAudioClip) {
-    if (!targetTrackId) return true;
-    if (target?.type !== 'audio') {
-      wrongTrack('audio');
-      return true;
-    }
-    const srcBuffer = getAudioBuffer(clipboardAudioClip.bufferId);
-    if (srcBuffer) {
-      const newId = `clip-paste-${crypto.randomUUID().slice(0, 8)}`;
-      setAudioBuffer(newId, srcBuffer);
-      state.addAudioClip(targetTrackId, {
-        ...structuredClone(clipboardAudioClip.clip),
-        id: newId,
-        startTick: position,
-      });
-      state.setSelectedClip(newId, targetTrackId);
-    }
-    return true;
-  }
-  if (clipboardClips.length === 0) return false;
-  if (!targetTrackId) return true;
-  if (target?.type !== 'midi') {
-    wrongTrack('midi');
-    return true;
-  }
-  for (const clip of clipboardClips) {
-    state.addMidiClip(targetTrackId, {
-      ...structuredClone(clip),
-      id: `clip-paste-${crypto.randomUUID().slice(0, 8)}`,
-      startTick: position,
-    });
-  }
-  return true;
-}
-
-function duplicateClip(): void {
-  const clip = selectedClip();
-  if (!clip) return;
-  const state = useStore.getState();
-  const newId = `clip-dup-${crypto.randomUUID().slice(0, 8)}`;
-  if (clip.midi) {
-    // Events are clip-relative, so the copy goes right after the clip's own
-    // length, not after its song position.
-    state.addMidiClip(clip.trackId, {
-      ...structuredClone(clip.midi),
-      id: newId,
-      startTick: clip.midi.startTick + midiClipLength(clip.midi),
-    });
-    state.setSelectedClip(newId, clip.trackId);
-  } else if (clip.audio) {
-    const srcBuffer = getAudioBuffer(clip.audio.id);
-    if (!srcBuffer) return;
-    setAudioBuffer(newId, srcBuffer);
-    state.addAudioClip(clip.trackId, {
-      ...structuredClone(clip.audio),
-      id: newId,
-      startTick: clip.audio.startTick + clip.audio.duration,
-    });
-    state.setSelectedClip(newId, clip.trackId);
-  }
-}
-
-function deleteClip(): boolean {
-  const clip = selectedClip();
-  if (!clip) return false;
-  const state = useStore.getState();
-  if (clip.midi) state.removeMidiClip(clip.trackId, clip.midi.id);
-  // The take's audio stays in the AudioBufferStore: undo brings the clip
-  // back, and a take that was never uploaded could not play again otherwise
-  // (1.10 gives the audio a lifetime).
-  else if (clip.audio) state.removeAudioClip(clip.trackId, clip.audio.id);
-  state.setSelectedClip(null, null);
-  return true;
-}
-
-function nudgeClip(direction: -1 | 1): boolean {
-  const clip = selectedClip();
-  if (!clip) return false;
-  const moving = clip.midi ?? clip.audio;
-  if (!moving) return false;
+function nudgeClip(ref: ClipRef, direction: -1 | 1): void {
+  const found = findClip(useStore.getState(), ref);
+  const moving = found?.midi ?? found?.audio;
+  if (!moving) return;
   // As a drag moves it: one write, the clip's own chords along, refused on
   // a track a collaborator holds (moveClip).
   withTransaction('Move clip', () =>
     useStore
       .getState()
       .moveClip(
-        clip.trackId,
+        ref.trackId,
         moving.id,
-        clip.trackId,
+        ref.trackId,
         moving.startTick + direction * nudgeTicks(),
       ),
   );
-  return true;
 }
 
 /** Selects the first clip of the selected clip's track (or the first track). */
@@ -187,20 +141,6 @@ function selectFirstClip(): void {
   if (first) state.setSelectedClip(first.id, trackId);
 }
 
-/** The song's length in ticks, with room after the last clip. */
-export function songLengthTicks(ticksPerBar: number): number {
-  let maxTick = ticksPerBar * 8; // 8 bars minimum
-  for (const track of useStore.getState().tracks) {
-    for (const clip of track.midiClips) {
-      maxTick = Math.max(maxTick, clip.startTick + midiClipLength(clip));
-    }
-    for (const clip of track.audioClips) {
-      maxTick = Math.max(maxTick, clip.startTick + clip.duration);
-    }
-  }
-  return maxTick + ticksPerBar * 4; // 4 bars padding
-}
-
 function tool(next: ToolType) {
   return (e: KeyboardEvent) => {
     if (!onTimeline(e)) return false;
@@ -208,32 +148,43 @@ function tool(next: ToolType) {
   };
 }
 
-export interface TimelineViewport {
-  /** The timeline canvas's width in px, as the Timeline measures it. */
-  width: () => number;
-  ticksPerBar: () => number;
-}
-
 /** Binds Create's timeline keys while the Timeline is mounted. */
-export function useArrangeKeymap(viewport: TimelineViewport): void {
-  const zoomBy = (factor: number) => (e: KeyboardEvent) => {
+export function useArrangeKeymap(): void {
+  const zoom = (action: () => void) => (e: KeyboardEvent) => {
     if (!onTimeline(e)) return false;
-    const state = useStore.getState();
-    // Around the middle of what's on screen.
-    state.zoomAtPoint(factor, state.timelineScrollLeft + viewport.width() / 2);
+    action();
   };
   const handlers: KeymapHandlers = {
-    'clip.copy': (e) => onTimeline(e) && copyClip(),
-    'clip.paste': (e) =>
-      onTimeline(e) && withTransaction('Paste clip', pasteClips),
-    'clip.duplicate': (e) => {
-      if (!onTimeline(e)) return false;
-      withTransaction('Duplicate clip', duplicateClip);
-    },
-    'clip.delete': (e) =>
-      onTimeline(e) && withTransaction('Delete clip', deleteClip),
-    'clip.nudgeLeft': (e) => onTimeline(e) && nudgeClip(-1),
-    'clip.nudgeRight': (e) => onTimeline(e) && nudgeClip(1),
+    'clip.cut': withClip(cutClip),
+    'clip.copy': withClip(copyClip),
+    'clip.paste': (e) => onTimeline(e) && pasteClipboard(),
+    'clip.duplicate': withClip(duplicateClip),
+    'clip.delete': withClip(deleteClipStep),
+    'clip.rename': withClip((ref) => {
+      void renameClip(ref);
+    }),
+    'clip.split': withClip(splitClipAtPlayhead),
+    'clip.mute': withClip(toggleClipMute),
+    'clip.menu': withClip((ref, e) => {
+      if (e.code === 'ContextMenu') swallowNativeMenu();
+      return openClipMenu(ref, 'key');
+    }),
+    // Taken even when the notes can't move (drums, the keyboard's end), so
+    // ⇧↑ never scrolls the page instead.
+    'clip.transposeUp': withClip((ref) => {
+      transposeClip(ref, 1);
+    }),
+    'clip.transposeDown': withClip((ref) => {
+      transposeClip(ref, -1);
+    }),
+    'clip.octaveUp': withClip((ref) => {
+      transposeClip(ref, 12);
+    }),
+    'clip.octaveDown': withClip((ref) => {
+      transposeClip(ref, -12);
+    }),
+    'clip.nudgeLeft': withClip((ref) => nudgeClip(ref, -1)),
+    'clip.nudgeRight': withClip((ref) => nudgeClip(ref, 1)),
     'clip.selectFirst': (e) => {
       if (!onTimeline(e)) return false;
       selectFirstClip();
@@ -247,13 +198,12 @@ export function useArrangeKeymap(viewport: TimelineViewport): void {
     'tool.pencil': tool('pencil'),
     'tool.scissors': tool('scissors'),
     'tool.layout': tool('layout'),
-    'timeline.zoomIn': zoomBy(ZOOM_STEP),
-    'timeline.zoomOut': zoomBy(-ZOOM_STEP / (1 + ZOOM_STEP)),
-    'timeline.zoomToFit': (e) => {
-      if (!onTimeline(e)) return false;
-      useStore
-        .getState()
-        .zoomToFit(viewport.width(), songLengthTicks(viewport.ticksPerBar()));
+    'timeline.zoomIn': zoom(zoomTimelineIn),
+    'timeline.zoomOut': zoom(zoomTimelineOut),
+    'timeline.zoomToFit': zoom(fitTimeline),
+    'timeline.addMarker': (e) => {
+      if (!canAddMarker(e)) return false;
+      void addMarkerAtPlayhead();
     },
   };
   useKeymap(ARRANGE_SCOPE.id, handlers);

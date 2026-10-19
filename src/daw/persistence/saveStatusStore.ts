@@ -1,6 +1,7 @@
 import { create, type StoreApi, type UseBoundStore } from 'zustand';
 import { useStore, type AllSlices, type Track } from '@/daw/store';
 import { formerGenreStrumMode, genreStrum } from '@/daw/store/genreSettings';
+import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
 import {
   AUDIO_CLIP_FIELDS,
   CC_EVENT_FIELDS,
@@ -8,6 +9,7 @@ import {
   DOC_CONTENT_KEYS,
   DOC_KEYS,
   MARKER_FIELDS,
+  SECTION_FIELDS,
   MIDI_CLIP_FIELDS,
   NOTE_EVENT_FIELDS,
   RETURN_BUS_FIELDS,
@@ -333,6 +335,7 @@ const TRACK_SHAPE = shapeOf(TRACK_DOC_FIELDS, {
 const TOP_LIST_SHAPES: Readonly<Record<string, Shape>> = {
   chordRegions: shapeOf(Object.keys(CHORD_REGION_FIELDS)),
   markers: shapeOf(Object.keys(MARKER_FIELDS)),
+  sections: shapeOf(Object.keys(SECTION_FIELDS)),
   returns: shapeOf(Object.keys(RETURN_BUS_FIELDS)),
 };
 
@@ -729,6 +732,16 @@ export function markDocumentBaseline(opts: BaselineOptions = {}): void {
     savedComplete,
     savedInPart: snapshot !== undefined && !savedComplete,
   });
+}
+
+/**
+ * The baseline's fingerprint as drafts and saves record one
+ * (hashFingerprint), or null before the first baseline: the document as the
+ * last load, reset or save left it, whatever was edited since.
+ */
+export function baselineDocFingerprint(): string | null {
+  const marked = useSaveStatusStore.getState().baselineFingerprint;
+  return marked === null ? null : hashFingerprint(marked);
 }
 
 /**

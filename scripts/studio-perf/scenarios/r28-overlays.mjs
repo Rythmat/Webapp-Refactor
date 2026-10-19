@@ -12,8 +12,9 @@
  *   track's colour popover (still the old one).
  *
  * Flags:
- * - overlaysOpaque: each panel's background is at least 95 % opaque (the
- *   tokens reach <body>, design-system-01).
+ * - overlaysOpaque: each panel's background is at least 95 % opaque, with
+ *   no backdrop blur (the tokens reach <body>, design-system-01; the shared
+ *   overlayOpaque in designProbe.mjs, which R36 runs on every overlay).
  * - noTeal: no computed colour in any of them is the retired teal.
  * - primaryPills: each primary is the white pill, its text 4.5:1 or more.
  * - designFloors: inside the v2 parts (dialogs, and the shell on the page)
@@ -26,7 +27,7 @@
  *   answers false when it is cancelled.
  * - noNativeDialogs: no window.confirm, prompt or alert opened.
  */
-import { designProbe, overlayLook } from '../designProbe.mjs';
+import { designProbe, overlayLook, overlayOpaque } from '../designProbe.mjs';
 
 export const flags = {
   overlaysOpaque: {
@@ -148,10 +149,17 @@ const POPOVERS = [
     trigger: '[data-tutorial-id="file-menu"]',
     panel: '[role=menu][data-state=open]',
   },
+  // The song's controls are the bottom rail's since B4a.
   {
-    name: 'Song popover',
-    trigger: '[data-testid="song-chip"]',
-    panel: '[data-testid="song-popover"]',
+    name: 'Key popover',
+    trigger: '[data-testid="key-button"]',
+    panel: '[data-testid="key-popover"]',
+    v2: true,
+  },
+  {
+    name: 'Metre popover',
+    trigger: '[data-testid="metre-button"]',
+    panel: '[data-testid="metre-popover"]',
     v2: true,
   },
   {
@@ -165,10 +173,24 @@ const POPOVERS = [
     trigger: '[data-testid="avatar-menu"]',
     panel: '[role=menu][data-state=open]',
   },
+  // The track row's ⋯ menu holds its colours since milestone 2.6.
   {
-    name: 'Track colour popover',
-    trigger: '.daw-root button[title="Change track color"]',
-    panel: '[data-testid="track-colour-popover"]',
+    name: 'Track menu',
+    trigger: '[data-testid="track-menu-button"]',
+    panel: '[data-testid="track-menu"]',
+    v2: true,
+  },
+  {
+    name: 'Grid menu',
+    trigger: '[data-testid="grid-menu"]',
+    panel: '[role=menu][data-state=open]',
+    v2: true,
+  },
+  {
+    name: 'Chord lane key',
+    trigger: '[data-testid="chord-lane-key"]',
+    panel: '[data-testid="chord-lane-key-popover"]',
+    v2: true,
   },
 ];
 
@@ -185,6 +207,7 @@ async function checkDialog(kit, page, dialog) {
     await page.waitForSelector(V2_PANEL, { timeout: 10_000 });
     await kit.sleep(400);
     out.look = await page.evaluate(overlayLook, V2_PANEL);
+    out.opaque = await page.evaluate(overlayOpaque, V2_PANEL);
     out.floors = await page.evaluate(designProbe, V2_PANEL);
     out.focusStarts = await page.evaluate(focusInside, V2_PANEL);
     let trapped = true;
@@ -233,6 +256,7 @@ async function checkPopover(kit, page, popover) {
     await page.waitForSelector(popover.panel, { timeout: 5000 });
     await kit.sleep(300);
     out.look = await page.evaluate(overlayLook, popover.panel);
+    out.opaque = await page.evaluate(overlayOpaque, popover.panel);
     // A popover built on the primitives keeps the design floors too.
     out.floors = popover.v2
       ? await page.evaluate(designProbe, popover.panel)
@@ -324,6 +348,10 @@ async function overlays(kit, run) {
     ...dialogsAll.map((d) => d.look),
     ...at.flatMap((v) => v.popovers.map((p) => p.look)),
   ];
+  const opaques = [
+    ...dialogsAll.map((d) => d.opaque),
+    ...at.flatMap((v) => v.popovers.map((p) => p.opaque)),
+  ];
   const errors = [
     ...dialogsAll.filter((d) => d.error),
     ...at.flatMap((v) => v.popovers.filter((p) => p.error)),
@@ -333,7 +361,7 @@ async function overlays(kit, run) {
     extraLosses: [],
     flags: {
       overlaysOpaque:
-        errors.length === 0 && looks.every((l) => l && l.alpha >= 0.95),
+        errors.length === 0 && opaques.every((o) => o && o.opaque),
       noTeal: looks.every((l) => l && l.teals.length === 0),
       primaryPills: dialogsAll.every((d) =>
         (d.look?.primaries ?? []).every((p) => p.pill && p.contrast >= 4.5),
@@ -354,7 +382,8 @@ async function overlays(kit, run) {
       dialogs: v.dialogs.map((d) => ({
         name: d.name,
         ...(d.error ? { error: d.error } : {}),
-        alpha: d.look?.alpha,
+        alpha: d.opaque?.alpha,
+        ...(d.opaque?.blurs?.length ? { blurs: d.opaque.blurs } : {}),
         teals: d.look?.teals,
         primaries: d.look?.primaries?.map(
           (p) => `${p.text} ${p.contrast}:1${p.pill ? '' : ' not a pill'}`,
@@ -370,7 +399,8 @@ async function overlays(kit, run) {
       popovers: v.popovers.map((p) => ({
         name: p.name,
         ...(p.error ? { error: p.error } : {}),
-        alpha: p.look?.alpha,
+        alpha: p.opaque?.alpha,
+        ...(p.opaque?.blurs?.length ? { blurs: p.opaque.blurs } : {}),
         teals: p.look?.teals,
         ...(p.floors?.length ? { floors: p.floors } : {}),
       })),

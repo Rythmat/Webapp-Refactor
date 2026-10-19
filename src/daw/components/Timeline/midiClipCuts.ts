@@ -53,6 +53,40 @@ function controllersAt(
 }
 
 /**
+ * The part of `clip` that plays over song ticks [fromTick, toTick), as a
+ * clip of its own (the same id) starting where that part starts, or null
+ * when the range misses the clip. It is what two cuts at the range's edges
+ * leave between them (splitMidiClip): the notes that start inside it, one
+ * still sounding at its end cut short there, and the controllers in force
+ * at its start. Sized to the part (durationTicks), so a part that ends in
+ * silence keeps its length: the sections lane's Duplicate copies a
+ * section's clips this way (milestone 2.13).
+ */
+export function midiClipSection(
+  clip: MidiClip,
+  fromTick: number,
+  toTick: number,
+): MidiClip | null {
+  const clipEnd = clip.startTick + midiClipLength(clip);
+  const start = Math.max(fromTick, clip.startTick);
+  const end = Math.min(toTick, clipEnd);
+  if (end <= start) return null;
+  let part: MidiClip = clip;
+  if (start > clip.startTick) {
+    const halves = splitMidiClip(part, start, clip.id);
+    if (!halves) return null;
+    part = halves[1];
+  }
+  if (end < clipEnd) {
+    // No cut when the part's notes all end before `end` (a clip sized past
+    // them): there is nothing to cut short.
+    const halves = splitMidiClip(part, end, clip.id);
+    if (halves) part = halves[0];
+  }
+  return { ...part, id: clip.id, durationTicks: end - start };
+}
+
+/**
  * Cut `clip` in two at song tick `splitTick`, the way its edges trim: the
  * left half keeps the clip's id and the notes that start before the cut, a
  * note still sounding at the cut ending there; the right half takes `rightId`

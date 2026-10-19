@@ -1891,9 +1891,19 @@
     "trace": {
       "playFromTick": 960,
       "countInBars": 1,
-      "pauseAtTick": 2600,
-      "pauseMs": 600,
-      "seconds": 12
+      "steps": [
+        { "do": "play" },
+        { "do": "untilTick", "tick": 2600 },
+        { "do": "pause" },
+        { "do": "wait", "ms": 600 },
+        { "do": "resume" },
+        { "do": "untilTick", "tick": 2400, "laps": 1 },
+        { "do": "seek", "tick": 480 },
+        { "do": "wait", "ms": 600 },
+        { "do": "editNote", "track": "Lead", "index": 1, "toTick": 1440 },
+        { "do": "untilSeconds", "seconds": 16 },
+        { "do": "stop" }
+      ]
     }
   }
 }

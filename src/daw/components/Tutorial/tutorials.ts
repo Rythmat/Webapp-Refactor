@@ -2,6 +2,7 @@ import type { AllSlices } from '@/daw/store';
 import type { ViewType, ChannelStripTabId } from '@/daw/store/uiSlice';
 import type { SynthStore } from '@/daw/oracle-synth/store';
 import type { AnchorRack } from './anchorRegistry';
+import type { RackTarget } from '@/daw/store/effectRack';
 import { GENRE_MAP } from '@prism/engine';
 import {
   TUTORIAL_CATALOG,
@@ -38,6 +39,14 @@ export interface StepRequires {
   /** Force the automation lane's selected paramId so a lane-drawing step targets
    *  the parameter it teaches regardless of the prior selection. */
   automationParam?: string;
+  /**
+   * Show the side rail's Effects library, whose rows (the fx-add-* anchors)
+   * add effects to the selected track since milestone 2.8; the dock's chain
+   * has none of its own.
+   */
+  effectsLibrary?: boolean;
+  /** Open the Mix view's RackDock on this rack (milestone 2.10). */
+  mixRack?: RackTarget;
 }
 
 /**
@@ -293,8 +302,12 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'add-drums',
       stage: 'STAGE 1 — SETUP',
       instruction:
-        'Every beat starts with drums. Click **+ Add Track** and pick **Drums**.',
-      target: ['add-track-drum-machine', 'add-track-button'],
+        'Every beat starts with drums. Click **+ Add track**, pick **Drums**, then **Drum grid**.',
+      target: [
+        'add-track-drum-machine',
+        'add-track-cat-drums',
+        'add-track-button',
+      ],
       requires: { view: 'arrange', libraryOpen: false },
       check: (s) => selectedTrack(s)?.instrument === 'drum-machine',
     },
@@ -302,10 +315,11 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'open-sequencer',
       stage: 'STAGE 1 — SETUP',
       instruction:
-        "This is the **step sequencer** — we've opened it below. Each row is a drum, each column a step.",
-      target: 'chanstrip-tab-controls',
-      requires: { channelStripTab: 'controls' },
-      check: (s) => s.channelStripTab === 'controls',
+        "This is the **step sequencer** — we've opened it below, in **Notes**. Each row is a drum, each column a step.",
+      // The drum grid is the drums' Notes tab since milestone 2.9.
+      target: 'chanstrip-tab-piano-roll',
+      requires: { channelStripTab: 'piano-roll' },
+      check: (s) => s.channelStripTab === 'piano-roll',
     },
     {
       id: 'swap-kit',
@@ -314,7 +328,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
         'Hip hop lives on the **808**. Open the **kit menu** in the sequencer toolbar and switch to the **808** kit.',
       hint: 'The dropdown next to “Drums”, top-left of the sequencer.',
       target: 'drum-kit-selector',
-      requires: { channelStripTab: 'controls' },
+      requires: { channelStripTab: 'piano-roll' },
       check: (s) => selectedTrack(s)?.drumKit === '808',
     },
     {
@@ -324,7 +338,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
         'Paint your pattern — add at least **four hits** on the grid. Try kick on 1 and 3, snare on 2 and 4.',
       hint: 'Click cells to add hits; click again to remove.',
       target: 'drum-machine-view',
-      requires: { channelStripTab: 'controls' },
+      requires: { channelStripTab: 'piano-roll' },
       check: (s, armed) =>
         selectedTrackEvents(s) >= selectedTrackEvents(armed) + 4,
     },
@@ -332,9 +346,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'slow-bpm',
       stage: 'STAGE 4 — TEMPO',
       instruction:
-        'Hip hop breathes slower. Open the **Song** chip and set the **BPM** to **95 or less**.',
-      // The tempo once the Song popover is open, the chip until then.
-      target: ['transport-bpm', 'song-chip'],
+        'Hip hop breathes slower. Set the **Tempo** at the bottom to **95 BPM or less**.',
+      // The tempo field in the bottom rail (B4a).
+      target: 'transport-bpm',
       check: (s, armed) => s.bpm <= 95 && s.bpm !== armed.bpm,
     },
     {
@@ -354,7 +368,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       instruction:
         'Back in the sequencer, balance your kit — nudge any pad’s **volume or pan** fader.',
       target: 'drum-machine-view',
-      requires: { channelStripTab: 'controls' },
+      requires: { channelStripTab: 'piano-roll' },
       check: (s, armed) => {
         const now = selectedTrack(s);
         const before = armedSelectedTrack(s, armed);
@@ -393,7 +407,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'play-notes',
       stage: 'STAGE 3 — MELODY',
       instruction:
-        'Open the **piano roll** and draw at least **3 notes** — one sample, any pitch.',
+        'Open **Notes** (the piano roll) and draw at least **3 notes** — one sample, any pitch.',
       hint: 'Chords made from a single voice — that’s the vocal-chop trick.',
       target: ['chanstrip-tab-piano-roll'],
       // clearClipSelection: without it the piano roll would edit a
@@ -406,9 +420,10 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
     {
       id: 'space-it-out',
       stage: 'STAGE 4 — SPACE',
-      instruction: 'Give it air — open **FX** and add a **Delay**.',
+      instruction:
+        'Give it air — open **Effects** and pick a **Delay** in the effects library.',
       target: ['fx-add-delay', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) => selectedTrack(s)?.activeEffects.includes('delay') ?? false,
     },
   ],
@@ -488,9 +503,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'saturate',
       stage: 'STAGE 6 — GRIT',
       instruction:
-        'Finish with grit — open **FX** and add a **Saturator** to the synth.',
+        'Finish with grit — pick a **Saturator** for the synth in the effects library.',
       target: ['fx-add-saturator', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) =>
         selectedTrack(s)?.activeEffects.includes('saturator') ?? false,
     },
@@ -500,7 +515,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       instruction:
         'Glue it all together — add the **OTT** multiband compressor for that modern, in-your-face density.',
       target: ['fx-add-multiband', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) =>
         selectedTrack(s)?.activeEffects.includes('multiband') ?? false,
     },
@@ -529,8 +544,12 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'add-drums',
       stage: 'STAGE 1 — SETUP',
       instruction:
-        'The pump needs a pulse. Click **+ Add Track** and pick **Drums**.',
-      target: ['add-track-drum-machine', 'add-track-button'],
+        'The pump needs a pulse. Click **+ Add track**, pick **Drums**, then **Drum grid**.',
+      target: [
+        'add-track-drum-machine',
+        'add-track-cat-drums',
+        'add-track-button',
+      ],
       requires: { view: 'arrange', libraryOpen: false },
       check: (s) => s.tracks.some((t) => t.instrument === 'drum-machine'),
     },
@@ -546,9 +565,10 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
     {
       id: 'add-ducker',
       stage: 'STAGE 2 — SIDECHAIN',
-      instruction: 'On the synth, open **FX** and add a **Sidechain** ducker.',
+      instruction:
+        'On the synth, open **Effects** and pick the **Sidechain** ducker in the library.',
       target: ['fx-add-ducker', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) => selectedTrack(s)?.activeEffects.includes('ducker') ?? false,
     },
     {
@@ -602,9 +622,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'add-reverb',
       stage: 'STAGE 3 — SPACE',
       instruction:
-        'Give it room — open **FX** and add a **Reverb** to your track.',
+        'Give it room — open **Effects** and pick a **Reverb** for your track in the library.',
       target: ['fx-add-reverb', 'chanstrip-tab-fx'],
-      requires: { channelStripTab: 'fx' },
+      requires: { channelStripTab: 'fx', effectsLibrary: true },
       check: (s) => selectedTrack(s)?.activeEffects.includes('reverb') ?? false,
     },
     {
@@ -647,7 +667,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       stage: 'STAGE 4 — SENDS',
       instruction:
         'Share one reverb across the mix — raise **Send A** (Reverb) on a track past **25%**.',
-      hint: 'The A/B knobs under each strip’s pan feed the return buses.',
+      hint: 'The A and B knobs on each strip feed the return buses.',
       target: ['mixer-sends-A', 'mixer-section'],
       requires: { view: 'studio' },
       check: (s, armed) =>
@@ -662,7 +682,8 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       stage: 'STAGE 4 — SENDS',
       instruction:
         'Click **Return A** in the mixer and shape its reverb until the space feels right.',
-      target: ['return-strip-A', 'mixer-section'],
+      // Return A's rack once it is open, else the strip that opens it.
+      target: ['return-fx-A', 'return-strip-A', 'mixer-section'],
       requires: { view: 'studio' },
       check: (s, armed) => {
         const now = s.returns.find((r) => r.id === 'A');
@@ -674,10 +695,17 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'mastering-fx',
       stage: 'STAGE 5 — MASTER',
       instruction:
-        'Add polish to the whole mix — in **Mastering**, click an effect in the **FX** list (try the Compressor) to add it to the master chain.',
-      target: ['fx-add-compressor', 'mastering-section'],
+        'Add polish to the whole mix — click an effect in the **Effects** panel (try the Compressor) to add it to the master chain.',
+      hint: 'The master’s rack is open under the mixer; its effects shape the whole song.',
+      // The Effects panel's Compressor while the master's rack is open; the
+      // master's chain in the Mix view (which opens it) while it is shut.
+      target: ['fx-add-compressor', 'mastering-chain', 'mastering-section'],
       rack: 'master',
-      requires: { view: 'studio' },
+      requires: {
+        view: 'studio',
+        mixRack: { kind: 'master' },
+        effectsLibrary: true,
+      },
       check: (s, armed) =>
         s.masteringFxChain.length > armed.masteringFxChain.length,
     },
@@ -693,9 +721,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'bounce-mixdown',
       stage: 'STAGE 6 — BOUNCE',
       instruction:
-        'Ship it — open **Project → Export → Audio…**, pick a format, and hit **Export** to bounce your finished track.',
+        'Ship it: click **Export** at the top right, pick a format, and hit **Export** to bounce your finished track.',
       hint: 'The whole mix renders offline: instruments, FX, sends and mastering.',
-      target: ['export-audio-run', 'file-menu'],
+      target: ['export-audio-run', 'export-pill'],
       // Fires when a fresh export completes during this step (the session-only
       // timestamp advances). Guards against a stale value from an earlier bounce.
       check: (s, armed) =>
@@ -709,8 +737,9 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'open-automation',
       stage: 'STAGE 1 — OPEN',
       instruction:
-        'Pick a track and click its **automation** button in the track header to open its lane.',
-      target: 'automation-toggle',
+        "Open a track's **⋯** menu and choose **Show automation** to open its lane.",
+      // The menu item once the menu is open, the selected row's ⋯ until then.
+      target: ['automation-toggle', 'track-menu-button'],
       requires: { view: 'arrange', libraryOpen: false },
       check: (s) => s.automationOpenTrackId !== null,
     },

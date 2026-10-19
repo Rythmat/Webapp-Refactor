@@ -1,4 +1,5 @@
 import type { MidiCCEvent, MidiNoteEvent } from '@/daw/prism-engine/types';
+import type { SongSection } from '@/daw/model/sections';
 import type { Marker } from '@/daw/store/markersSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { ReturnBus } from '@/daw/store/returnsSlice';
@@ -26,6 +27,7 @@ type NestedReasons = {
   readonly AudioClip: Reasons<AudioClip>;
   readonly ChordRegion: Reasons<ChordRegion>;
   readonly Marker: Reasons<Marker>;
+  readonly Section: Reasons<SongSection>;
   readonly ReturnBus: Reasons<ReturnBus>;
 };
 type OracleNonPatchReasons = {
@@ -45,8 +47,6 @@ const LESSON =
   'The lesson running on this project: never in the body, but its draft’s meta keeps it (DraftContext, milestone 1.15), and reopening that draft resumes it.';
 const STEP = 'Whether the running lesson has seen its current step done.';
 const DEVICES = 'What this computer has connected: no part of a project.';
-const PANELS =
-  'Panel layout, which the Stage B shell keeps per user (milestones 2.4, 2.8).';
 const LAYOUT =
   'The editor’s layout, the student’s own on every project (milestone 2.4): kept per user by prefsStore, never in a project, so a new project or a restored draft leaves it as it is.';
 const COLLAB =
@@ -57,7 +57,6 @@ const BUILDER =
   'The Prism builder’s progression in progress: saved and shared, with its own Undo chord.';
 const COMPUTER_SETTING =
   'A setting of this computer rather than of a student, so it keeps its own storage key';
-const PIANO_ROLL_CLIP = 'The clip open in the piano roll editor.';
 
 /** Why each store key is classified as it is (STORE_FIELDS). */
 export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
@@ -112,11 +111,15 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
 
   // ── notation ──
   leadSheetMelodyTrackIds:
-    'The tracks the Lead Sheet writes as its melody, a staff each; empty is Auto. Shared and outside undo like its other display settings, as the single id it replaces was. Drafts and cloud documents before schema 5 held that one id (leadSheetMelodyTrackId), which loads as a list of it.',
+    'The tracks the Lead Sheet writes as its melody, a staff each; empty is Auto. Shared and outside undo like its other display settings, as the single id it replaces was. Drafts and cloud documents before schema 8 held that one id (leadSheetMelodyTrackId), which loads as a list of it.',
   scoreArticulations: NOTE_KEYED,
   scoreSlurs: NOTE_KEYED,
   scoreSpellings: NOTE_KEYED,
   scoreSlashNotes: NOTE_KEYED,
+
+  // ── song sections ──
+  sections:
+    'The song’s form (milestone 2.13): the sections lane and the Lead Sheet read this one list, which replaces the Lead Sheet’s own bar marks (leadSheetSections). Shared and undone as the arrangement is. A draft also writes the marks it implies in their old place (notation.leadSheetSections), so a build from before 2.13 still shows them after a rollback; one without sections reads them back from there.',
 
   // ── mixer ──
   masterAutomation:
@@ -135,8 +138,13 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
     'The Inspector as it is now, in the view showing. The draft keeps it, but the shell sets it from the student’s choice for that view (inspectorOpenByView) when a project opens or the view changes (milestone 2.4); a lesson step sets it for the moment only.',
   inspectorOpenByView: LAYOUT,
   inspectorWidth: LAYOUT,
+  inspectorPanel: LAYOUT,
+  libraryFavourites:
+    'The items the student marked ♡ in the Library: their own on every project, kept per user by prefsStore (milestone 2.14).',
   dockHeights: LAYOUT,
   readoutMode: LAYOUT,
+  hoverHints:
+    'Whether the bottom rail says what the control under the pointer does: the student’s own choice on every project, kept per user by prefsStore (milestone 2.11).',
   activeTool: 'The editing tool: every project opens with the cursor.',
   scoreNoteInput:
     'The Score’s note input mode, like the editing tool: every project opens selecting, not writing.',
@@ -175,8 +183,11 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   unisonError: ANALYSIS,
   selectionAnalysis: ANALYSIS,
   chordAnalysis: ANALYSIS,
-  chordAnalysisPromptOpen:
-    'Offered when a project opens with notes but no chord symbols.',
+  chordAnalysisOffered:
+    'Offered (the chord lane’s banner) when a project opens with notes but no chord symbols.',
+  chordAnalysisDismissed:
+    'The student’s Not now to that offer, on this project and this device (milestone 2.7, schema 5): the banner stays away when the draft reopens. Not in the cloud copy, so another device offers it once more.',
+  chordAnalysisPromptOpen: 'The analysis dialog, opened from the banner.',
 
   // ── suggest ──
   prismSuggestOpen: SUGGESTION,
@@ -204,13 +215,9 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   enabledStereoOutputs: DEVICES,
 
   // ── ui ──
-  editingClipId: PIANO_ROLL_CLIP,
-  editingClipTrackId: PIANO_ROLL_CLIP,
   clipboardClips: 'Copied clips: they paste into the next project too.',
   clipboardAudioClip:
     'A copied audio clip: it pastes into the next project too.',
-  userListOpen: PANELS,
-  chatPanelOpen: PANELS,
   settingsOpen:
     'Whether the Settings dialog is open. It sets up this computer’s audio inputs and outputs, not a project, so a load leaves it as it is.',
   recordingLimitModalOpen: 'A notice about a take in the previous project.',
@@ -219,6 +226,18 @@ export const STORE_FIELD_REASONS: StoreReasons = Object.freeze({
   leadSheetSelectedChordIdx: SELECTION,
   selectedChordIds: SELECTION,
   selectedNotes: SELECTION,
+  fxLibraryReturn:
+    'Where the armed effect slot’s × puts the Inspector back: a moment in this session, never saved (milestone 2.8).',
+  dockEffect: SELECTION,
+  dockMaster:
+    'Master shown in the dock’s slot: a moment of this session; a project opens with its tracks (milestone 2.9).',
+  dockNoteSelection: SELECTION,
+  mixRack:
+    'The rack the Mix view’s RackDock shows (milestone 2.10): every project opens with it shut.',
+  muteAllSet:
+    'The tracks Mute All muted, for its second press (milestone 2.10); the mutes themselves are the tracks’ own fields.',
+  dockMaximized:
+    'The dock grown over the canvas for a moment; a project opens with the canvas showing (milestone 2.9).',
 
   // ── collab ──
   isCollabActive: COLLAB,
@@ -263,7 +282,7 @@ export const TRACK_FIELD_REASONS: Reasons<Track> = Object.freeze({
   trackRole:
     'Guessed from the name and instrument; the student can pick another.',
   notationStaff:
-    'The staff the Score and Lead Sheet write the part on, set by hand (treble, alto, bass, bass8vb: the bass clef with an 8, grand); unset is Auto, which follows the instrument (Score/partStaff.ts), and a new instrument sets it back to unset. A setting of the music like the instrument, so it is shared, undone and saved with it, in the settings blob the cloud payload already carries. Drafts and cloud saves from before schema 6 hold none: every part reads Auto; alto and bass8vb came with schema 7, and a schema 6 build reads either as Auto.',
+    'The staff the Score and Lead Sheet write the part on, set by hand (treble, alto, bass, bass8vb: the bass clef with an 8, grand); unset is Auto, which follows the instrument (Score/partStaff.ts), and a new instrument sets it back to unset. A setting of the music like the instrument, so it is shared, undone and saved with it, in the settings blob the cloud payload already carries. Drafts and cloud saves from before schema 8 hold none: every part reads Auto.',
 } satisfies Reasons<Track>);
 
 const FROM_CLIP_START = 'From the start of the clip.';
@@ -273,6 +292,8 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
   MidiClip: {
     durationTicks:
       'Set when a clip is trimmed or drawn past its notes; without it a clip ends with its last note.',
+    muted:
+      'Mute clip in the clip menu (milestone 2.12): the scheduler and the export skip it. Shared in collab, as the arrangement is; only a track’s M is each person’s own. Absent (never false) while it plays.',
   },
   MidiNoteEvent: {
     id: 'Minted when a note is made. An older note without one gets a derived id (noteIds.ts) when it loads, or when a save settles the ids (ensureProjectNoteIds, deterministic); never minted on save. Collab carries it in the Y key _cid.',
@@ -286,6 +307,9 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
     duration: 'In ticks.',
     assetId:
       'Null until the audio is uploaded; a cloud save leaves such clips out.',
+    name: 'Rename in the clip menu (milestone 2.12). The cloud rows have no name for an audio clip, so it rides in the document, by the clip’s id.',
+    muted:
+      'Mute clip in the clip menu (milestone 2.12), as on a MIDI clip; in the document by the clip’s id, as its name is.',
   },
   ChordRegion: {
     degreeKey:
@@ -296,6 +320,14 @@ export const NESTED_FIELD_REASONS: NestedReasons = Object.freeze({
       'The clip a Prism take wrote the region from (milestone 1.10): moving that clip moves the region. Collab should share it (1.14); until then a peer’s copy has none, and moving the clip there leaves the lane alone.',
   },
   Marker: {},
+  Section: {
+    id: 'Minted when a section is added. One read back from an older draft’s Lead Sheet marks gets one from its bar (section-bar-<n>), the same every time.',
+    type: 'One of UNISON’s SectionType names (plus tag, hook, breakdown, build-up and drop); a name of the student’s own is custom.',
+    label:
+      'What the lane and the Lead Sheet show: the type’s name, a song chart’s own (“Verse 2”) or the student’s.',
+    endTick:
+      'Exclusive: the next section may start there. Sections never overlap.',
+  },
   ReturnBus: {
     id: 'Two fixed buses: A (Reverb) and B (Delay).',
   },

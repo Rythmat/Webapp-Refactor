@@ -42,3 +42,5 @@ You are continuing the **Music Atlas Studio editor overhaul** (the DAW under `sr
 ## Goal (plan polish track)
 
 3.12: Practice view polish (coach-card docking moved to 1.2b). 3.13: Session tab internals (people, chat, invite, leave) on the 1.14 state machine. 3.14: export, settings and import residue.
+
+**Changed by decision 16 (2026-10-16):** 2.15 already built the Export pill and the Audio | Notation dialog, so 3.14 keeps settings, the import residue and any export gaps the 1.11 render closes.

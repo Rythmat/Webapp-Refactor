@@ -14,10 +14,17 @@ import {
 
 type Ramp = [kind: string, value: number, time: number];
 
-/** A fake native context that logs the gain nodes and sources it makes. */
+/**
+ * A fake native context that logs the gain nodes and sources it makes. The
+ * first gain after each source is its stop fader (milestone 1.11), kept
+ * apart from the clip's own gain.
+ */
 function fakeContext(name: string) {
   const gains: Array<{ value: number; ramps: Ramp[] }> = [];
+  const faders: Array<{ value: number; ramps: Ramp[] }> = [];
   const starts: Array<{ when: number; offset: number; duration?: number }> = [];
+  const stops: number[] = [];
+  let nextIsFader = false;
   const ctx = {
     name,
     currentTime: 10,
@@ -25,6 +32,7 @@ function fakeContext(name: string) {
       const gain = {
         value: 1,
         ramps: [] as Ramp[],
+        cancelScheduledValues() {},
         setValueAtTime(v: number, t: number) {
           gain.ramps.push(['set', v, t]);
         },
@@ -32,20 +40,25 @@ function fakeContext(name: string) {
           gain.ramps.push(['ramp', v, t]);
         },
       };
-      gains.push(gain);
-      return { gain, connect() {}, disconnect() {} };
+      if (nextIsFader) faders.push(gain);
+      else gains.push(gain);
+      nextIsFader = false;
+      return { gain, connect() {}, disconnect() {}, context: ctx };
     },
-    createBufferSource: () => ({
-      buffer: null,
-      connect() {},
-      disconnect() {},
-      start: (when: number, offset: number, duration?: number) =>
-        starts.push({ when, offset, duration }),
-      stop() {},
-      onended: null,
-    }),
+    createBufferSource: () => {
+      nextIsFader = true;
+      return {
+        buffer: null,
+        connect() {},
+        disconnect() {},
+        start: (when: number, offset: number, duration?: number) =>
+          starts.push({ when, offset, duration }),
+        stop: (when?: number) => stops.push(when ?? -1),
+        onended: null,
+      };
+    },
   };
-  return { ctx, gains, starts };
+  return { ctx, gains, faders, starts, stops };
 }
 
 const { toneContext, transportJobs } = vi.hoisted(() => ({
@@ -106,6 +119,7 @@ function schedule(
   scheduler = new AudioClipScheduler(),
   trackEngine = engineOn(ctx),
   pedalInput?: AudioNode,
+  at?: number,
 ) {
   scheduler.scheduleClip({
     buffer,
@@ -114,6 +128,7 @@ function schedule(
     fromTick,
     bpm: BPM,
     pedalInput,
+    at,
   });
   for (const job of transportJobs.splice(0)) job(20);
 }
@@ -178,10 +193,12 @@ describe('clip gain', () => {
   });
 
   it('adds no gain node for a unity clip without fades', () => {
-    const { ctx, gains, starts } = fakeContext('track');
+    const { ctx, gains, faders, starts } = fakeContext('track');
     schedule({ startTick: SEC, duration: SEC }, 0, ctx);
     expect(starts).toHaveLength(1);
     expect(gains).toHaveLength(0);
+    // Only its stop fader, at unity until it is cut short.
+    expect(faders.map((f) => [f.value, f.ramps.length])).toEqual([[1, 0]]);
   });
 
   it('clamps stray values: unset or invalid is unity, at most +12 dB', () => {
@@ -245,5 +262,55 @@ describe('the track input while clips play', () => {
       pedal,
     );
     expect(wrapper.holds).toHaveLength(0);
+  });
+
+  it('starts a clip the playhead is inside at the given time (1.11)', () => {
+    const { ctx, starts } = fakeContext('track');
+    schedule(
+      { startTick: 0, duration: 4 * SEC, offsetSeconds: 1 },
+      2 * SEC,
+      ctx,
+      new AudioClipScheduler(),
+      engineOn(ctx),
+      undefined,
+      12.345,
+    );
+    expect(starts[0].when).toBe(12.345);
+    expect(starts[0].offset).toBeCloseTo(3);
+  });
+
+  it('fades a source out from the given time when cancelled (1.11)', () => {
+    const { ctx, faders, stops } = fakeContext('track');
+    const scheduler = new AudioClipScheduler();
+    schedule({ startTick: 0, duration: 4 * SEC }, SEC, ctx, scheduler);
+    scheduler.cancelAll(11);
+    expect(faders[0].ramps).toEqual([
+      ['set', 1, 11],
+      ['ramp', 0, 11.005],
+    ]);
+    expect(stops).toEqual([11.005]);
+  });
+
+  it('cancels one clip on its own (1.11)', () => {
+    const { ctx, stops } = fakeContext('track');
+    const scheduler = new AudioClipScheduler();
+    scheduler.scheduleClip({
+      buffer,
+      clip: { startTick: 0, duration: 4 * SEC },
+      trackEngine: engineOn(ctx),
+      fromTick: SEC,
+      bpm: BPM,
+      clipId: 'a',
+    });
+    scheduler.scheduleClip({
+      buffer,
+      clip: { startTick: 0, duration: 4 * SEC },
+      trackEngine: engineOn(ctx),
+      fromTick: SEC,
+      bpm: BPM,
+      clipId: 'b',
+    });
+    scheduler.cancelClip('a', 11);
+    expect(stops).toEqual([11.005]);
   });
 });

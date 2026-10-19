@@ -12,14 +12,27 @@ import { renderProject } from '../renderProject';
 
 const tone = vi.hoisted(() => {
   const live = { name: 'live', sampleRate: 48000 };
-  const offlineRaw: Record<string, unknown> = {
-    createGain: () => ({ gain: { value: 1 }, connect() {} }),
+  // What each gain made on the offline context connects to.
+  const gains: Array<{ connectedTo: unknown[] }> = [];
+  const offlineRaw = {
+    createGain: () => {
+      const gain = {
+        gain: { value: 1 },
+        connectedTo: [] as unknown[],
+        connect(target: unknown) {
+          gain.connectedTo.push(target);
+        },
+      };
+      gains.push(gain);
+      return gain;
+    },
     destination: { name: 'offline-destination' },
   };
   const transport = { PPQ: 0, bpm: { value: 0 }, start() {} };
   const state = {
     live,
     offlineRaw,
+    gains,
     current: live as unknown,
     rates: [] as number[],
   };
@@ -65,6 +78,9 @@ vi.mock('../EffectChain', async (importOriginal) => ({
     constructor() {
       chains.updates.push(this.updates);
     }
+    whenDynamicsReady() {
+      return Promise.resolve();
+    }
     update(state: TrackEffectState) {
       if (chains.failUpdate) throw new Error('NotSupportedError');
       this.updates.push(state);
@@ -81,6 +97,14 @@ vi.mock('../EffectChain', async (importOriginal) => ({
   },
 }));
 
+// What each TrackEngine the render built was given.
+interface BuiltTrack {
+  volume?: number;
+  pan?: number;
+  effects?: TrackEffectState;
+  sends: Array<[string, number]>;
+}
+const engines = vi.hoisted(() => ({ built: [] as BuiltTrack[] }));
 // The offline graph's native side, where a SoundFont track's rendered audio
 // plays: the buffers and sources made on it, and the holds that keep each
 // wrapped track input open.
@@ -119,32 +143,58 @@ const graph = vi.hoisted(() => {
       return buffer;
     },
     createBufferSource() {
-      const source = { buffer: null, connect: vi.fn(), start: vi.fn() };
+      const source = {
+        buffer: null,
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+        start: vi.fn(),
+      };
       made.sources.push(source);
       return source;
     },
   };
   const wrappedCtx = {
     createConstantSource() {
-      const hold = { offset: { value: 1 }, connect: vi.fn(), start: vi.fn() };
+      const hold = {
+        offset: { value: 1 },
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+        start: vi.fn(),
+      };
       made.holds.push(hold);
       return hold;
     },
   };
   return { made, nativeCtx, wrappedCtx };
 });
-
 vi.mock('../TrackEngine', () => ({
   TrackEngine: class {
+    private built: BuiltTrack = { sends: [] };
     input = { name: 'track-input', context: graph.wrappedCtx };
     nativeInput = { name: 'native-track-input', context: graph.nativeCtx };
     constructor() {
+      engines.built.push(this.built);
       graph.made.engines.push(this);
     }
-    setVolume() {}
-    setPan() {}
-    updateEffects() {}
-    setSend() {}
+    setVolume(volume: number) {
+      this.built.volume = volume;
+    }
+    setPan(pan: number) {
+      this.built.pan = pan;
+    }
+    whenDynamicsReady() {
+      return Promise.resolve();
+    }
+    setKeySourceResolver() {}
+    getAnalyserNode() {
+      return null;
+    }
+    updateEffects(effects: TrackEffectState) {
+      this.built.effects = effects;
+    }
+    setSend(id: string, amount: number) {
+      this.built.sends.push([id, amount]);
+    }
     setInstrument() {}
     getInputNode() {
       return this.input;
@@ -159,27 +209,6 @@ vi.mock('../TrackEngine', () => ({
 const soundFonts = vi.hoisted(() => ({ render: vi.fn() }));
 vi.mock('../soundFontRender', () => ({
   renderSoundFontTracks: soundFonts.render,
-}));
-
-const pedals = vi.hoisted(() => ({ apply: vi.fn(), log: [] as string[] }));
-vi.mock('../offlinePedalChain', () => ({
-  applyOfflinePedalChain: pedals.apply,
-}));
-
-const clips = vi.hoisted(() => ({
-  scheduled: [] as Array<{ clip: { id: string }; pedalInput?: unknown }>,
-}));
-vi.mock('../AudioClipScheduler', () => ({
-  AudioClipScheduler: class {
-    scheduleClip(opts: { clip: { id: string }; pedalInput?: unknown }) {
-      pedals.log.push('clip');
-      clips.scheduled.push(opts);
-    }
-  },
-}));
-vi.mock('../AudioBufferStore', () => ({
-  getAudioBuffer: () => ({ duration: 4 }),
-  sliceBuffer: () => null,
 }));
 
 const ir = vi.hoisted(() => ({ ensureProcessedIr: vi.fn() }));
@@ -210,8 +239,28 @@ vi.mock('../MidiScheduler', () => ({
     }
   },
 }));
+const audio = vi.hoisted(() => ({
+  scheduled: [] as string[],
+  buffers: new Set<string>(),
+}));
+vi.mock('../AudioClipScheduler', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  AudioClipScheduler: class {
+    scheduleClip({ clip }: { clip: { id?: string } }) {
+      audio.scheduled.push(clip.id ?? '');
+    }
+  },
+}));
+vi.mock('../AudioBufferStore', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  getAudioBuffer: (id: string) =>
+    audio.buffers.has(id) ? { duration: 4, numberOfChannels: 2 } : undefined,
+}));
+const automation = vi.hoisted(() => ({ trackLanes: [] as unknown[] }));
 vi.mock('../AutomationScheduler', () => ({
-  applyOfflineAutomation: () => {},
+  applyOfflineAutomation: (_te: unknown, lanes: unknown) => {
+    automation.trackLanes.push(lanes);
+  },
   applyOfflineLanes: () => {},
 }));
 vi.mock('@/daw/instruments/TonewheelOrganEngine', () => ({
@@ -225,28 +274,6 @@ vi.mock('@/daw/instruments/DrumMachineEngine', () => ({
 }));
 vi.mock('@/daw/instruments/ChopsSampler', () => ({
   ChopsSampler: class {},
-}));
-// The amp tracks' adapters: init, and the pedal-chain input playback joins.
-const amps = vi.hoisted(() => {
-  class Adapter {
-    pedalInput = { name: 'pedal-input' };
-    init = vi.fn(() => Promise.resolve());
-    getNativePedalInputNode() {
-      return this.pedalInput;
-    }
-    dispose() {}
-  }
-  return {
-    Adapter,
-    GuitarFxAdapter: class extends Adapter {},
-    VocalFxAdapter: class extends Adapter {},
-  };
-});
-vi.mock('@/daw/instruments/GuitarFxAdapter', () => ({
-  GuitarFxAdapter: amps.GuitarFxAdapter,
-}));
-vi.mock('@/daw/instruments/VocalFxAdapter', () => ({
-  VocalFxAdapter: amps.VocalFxAdapter,
 }));
 vi.mock('@/daw/oracle-synth/synthTrackState', () => ({
   getTrackSynthState: () => undefined,
@@ -283,26 +310,24 @@ const track = (id: string) => ({
 
 beforeEach(() => {
   device.rate = 48000;
-  delete tone.state.offlineRaw._nativeContext;
-  graph.made.engines.length = 0;
-  graph.made.buffers.length = 0;
-  graph.made.sources.length = 0;
-  graph.made.holds.length = 0;
-  soundFonts.render.mockReset();
-  soundFonts.render.mockResolvedValue(new Map());
-  pedals.apply.mockReset();
-  pedals.apply.mockImplementation(async () => {
-    pedals.log.push('chain');
-  });
-  pedals.log.length = 0;
-  clips.scheduled.length = 0;
   ticks.dropRepeatedTicks.mockReset();
   tone.state.current = tone.state.live;
   tone.state.rates.length = 0;
   chains.updates.length = 0;
   chains.disposed = 0;
   chains.failUpdate = false;
+  engines.built.length = 0;
+  graph.made.engines.length = 0;
+  graph.made.buffers.length = 0;
+  graph.made.sources.length = 0;
+  graph.made.holds.length = 0;
+  soundFonts.render.mockReset();
+  soundFonts.render.mockResolvedValue(new Map());
+  automation.trackLanes.length = 0;
+  tone.state.gains.length = 0;
   midi.scheduled = 0;
+  audio.scheduled.length = 0;
+  audio.buffers.clear();
   ir.ensureProcessedIr.mockReset();
   ir.ensureProcessedIr.mockResolvedValue(null);
   instruments.createInstrument.mockReset();
@@ -395,6 +420,52 @@ describe('renderProject', () => {
     expect(midi.scheduled).toBe(0);
   });
 
+  it('leaves a muted clip out of the export, as playback does (2.12)', async () => {
+    instruments.createInstrument.mockReturnValue({
+      init: () => Promise.resolve(),
+      dispose() {},
+    });
+    const note = {
+      note: 60,
+      velocity: 100,
+      startTick: 0,
+      durationTicks: 480,
+      channel: 0,
+    };
+    store.state.tracks = [
+      {
+        ...track('keys'),
+        midiClips: [
+          { id: 'heard', startTick: 0, events: [note] },
+          { id: 'muted', startTick: 1920, events: [note], muted: true },
+        ],
+      },
+    ];
+    await renderProject();
+    expect(midi.scheduled).toBe(1);
+  });
+
+  it('leaves a muted audio clip out of the export too (2.12)', async () => {
+    audio.buffers.add('take-1').add('take-2');
+    const take = (id: string, startTick: number, muted?: true) => ({
+      id,
+      startTick,
+      duration: 1920,
+      fadeInTicks: 0,
+      fadeOutTicks: 0,
+      muted,
+    });
+    store.state.tracks = [
+      {
+        ...track('vocal'),
+        instrument: 'vocal-fx',
+        audioClips: [take('take-1', 0), take('take-2', 1920, true)],
+      },
+    ];
+    await renderProject();
+    expect(audio.scheduled).toEqual(['take-1']);
+  });
+
   it('runs the stored mastering chain', async () => {
     await renderProject();
     const [mastering] = chains.updates;
@@ -411,10 +482,164 @@ describe('renderProject', () => {
   });
 });
 
-// ── Every sound in the bounce ──────────────────────────────────────────────
-// SoundFont/GM tracks bounced silent (the live synth is a worklet on the live
-// context), and Guitar/Bass/Vocal takes bounced dry (their amp and pedals
-// never reached the offline graph).
+// ── Render options (milestone 2.15) ────────────────────────────────────────
+// Mastering can be left out (its chain stays, every slot off, so the file
+// keeps the mastered one's latency); one track renders alone (a one-track
+// export or a stem), even when muted; and dry renders it without its effects,
+// sends or mastering, at its fader and pan.
+
+describe('renderProject options (2.15)', () => {
+  const playable = () => ({
+    init: () => Promise.resolve(),
+    dispose() {},
+  });
+
+  // Each track tells itself apart: its own instrument, fader, pan and lanes.
+  const looks: Record<
+    string,
+    { instrument: string; volume: number; pan: number }
+  > = {
+    keys: { instrument: 'piano-sampler', volume: 0.3, pan: -0.6 },
+    bass: { instrument: 'bass-synth', volume: 0.6, pan: -0.4 },
+    drums: { instrument: 'drum-machine', volume: 0.9, pan: 0.5 },
+  };
+
+  /** A track with a reverb on, a send to A, and fader, pan, send and effect
+   *  lanes. */
+  const busyTrack = (id: string, extra: Record<string, unknown> = {}) => ({
+    ...track(id),
+    ...looks[id],
+    effects: effectsWith(true),
+    sends: { A: 0.5 },
+    automation: {
+      volume: [{ tick: 0, value: looks[id].volume }],
+      pan: [{ tick: 0, value: looks[id].pan }],
+      'send.A': [{ tick: 0, value: 0.3 }],
+      'effect.reverb.wet': [{ tick: 0, value: 0.9 }],
+    },
+    ...extra,
+  });
+
+  const returnEffects = () =>
+    (store.state.returns as Array<{ effects: TrackEffectState }>)[0].effects;
+
+  /** Whether every slot of `effects` is switched off. */
+  const allOff = (effects: TrackEffectState | undefined) =>
+    Object.values(effects ?? {}).every((slot) => slot.enabled === false);
+
+  it('renders every track that plays, with its sends, by default', async () => {
+    store.state.tracks = [
+      busyTrack('keys'),
+      busyTrack('bass', { mute: true }),
+      busyTrack('drums'),
+    ];
+    await renderProject();
+    expect(engines.built.map((b) => b.volume)).toEqual([0.3, 0.9]);
+    for (const built of engines.built) {
+      expect(built.sends).toEqual([['A', 0.5]]);
+      expect(built.effects?.reverb.enabled).toBe(true);
+    }
+    // The mastering chain, then the return's.
+    expect(chains.updates).toEqual([
+      [store.state.masteringEffects],
+      [returnEffects()],
+    ]);
+  });
+
+  it('keeps the mastering chain, every slot off, with mastering off', async () => {
+    await renderProject({ mastering: false });
+    // Built first as ever, so the master never skips its latency.
+    expect(chains.updates).toHaveLength(2);
+    const [[mastering], [ret]] = chains.updates;
+    expect(allOff(mastering)).toBe(true);
+    expect(ret).toBe(returnEffects());
+    // The master gain feeds that chain, not the destination.
+    const [master] = tone.state.gains;
+    expect(master.connectedTo).toHaveLength(1);
+    expect(master.connectedTo).not.toContain(tone.state.offlineRaw.destination);
+    // The stored mastering is left as it was.
+    const stored = store.state.masteringEffects as TrackEffectState;
+    expect(stored.compressor.enabled).toBe(true);
+  });
+
+  it('renders the asked-for track alone, even a muted one', async () => {
+    instruments.createInstrument.mockImplementation(playable);
+    store.state.tracks = [
+      busyTrack('keys'),
+      busyTrack('bass', { mute: true }),
+      busyTrack('drums', { solo: true }),
+    ];
+    await renderProject({ onlyTrackId: 'bass' });
+    expect(engines.built).toHaveLength(1);
+    expect(instruments.createInstrument).toHaveBeenCalledTimes(1);
+    expect(instruments.createInstrument.mock.calls[0][0]).toBe('bass-synth');
+    expect(engines.built[0]).toMatchObject({ volume: 0.6, pan: -0.4 });
+    expect(automation.trackLanes).toEqual([
+      expect.objectContaining({ volume: [{ tick: 0, value: 0.6 }] }),
+    ]);
+    // Its send still reaches the return, and the mastering stays.
+    expect(engines.built[0].sends).toEqual([['A', 0.5]]);
+    expect(chains.updates).toEqual([
+      [store.state.masteringEffects],
+      [returnEffects()],
+    ]);
+  });
+
+  it('refuses a track that is not in the song', async () => {
+    await expect(renderProject({ onlyTrackId: 'gone' })).rejects.toThrow(
+      /no longer in the song/,
+    );
+    expect(tone.state.rates).toEqual([]);
+  });
+
+  it('renders a dry track with no effect, send, return or mastering', async () => {
+    instruments.createInstrument.mockImplementation(playable);
+    store.state.tracks = [
+      busyTrack('keys'),
+      busyTrack('bass'),
+      busyTrack('drums'),
+    ];
+    await renderProject({ onlyTrackId: 'bass', dry: true });
+
+    expect(engines.built).toHaveLength(1);
+    expect(instruments.createInstrument).toHaveBeenCalledTimes(1);
+    expect(instruments.createInstrument.mock.calls[0][0]).toBe('bass-synth');
+    const [built] = engines.built;
+    expect(allOff(built.effects)).toBe(true);
+    expect(built.sends).toEqual([]);
+    // Only the mastering chain, every slot off; no return.
+    expect(chains.updates).toHaveLength(1);
+    expect(allOff(chains.updates[0][0])).toBe(true);
+    // No reverb is built, so no IR is prepared.
+    expect(ir.ensureProcessedIr).not.toHaveBeenCalled();
+    // The fader and pan stay, with their lanes; the others go.
+    expect(built).toMatchObject({ volume: 0.6, pan: -0.4 });
+    expect(automation.trackLanes).toEqual([
+      { volume: [{ tick: 0, value: 0.6 }], pan: [{ tick: 0, value: -0.4 }] },
+    ]);
+    // The store's track keeps its effects.
+    const stored = (
+      store.state.tracks as Array<ReturnType<typeof busyTrack>>
+    )[1];
+    expect(stored.effects.reverb.enabled).toBe(true);
+  });
+
+  it('ignores dry without a track to render alone', async () => {
+    store.state.tracks = [busyTrack('keys')];
+    await renderProject({ dry: true });
+    expect(engines.built[0].effects?.reverb.enabled).toBe(true);
+    expect(engines.built[0].sends).toEqual([['A', 0.5]]);
+    expect(chains.updates).toEqual([
+      [store.state.masteringEffects],
+      [returnEffects()],
+    ]);
+  });
+});
+
+// ── SoundFont tracks ───────────────────────────────────────────────────────
+// The live synth is a worklet on the live context, out of the offline
+// graph's reach: SoundFont tracks render first (soundFontRender) and the
+// mixdown plays their audio into each track's input.
 
 /** One bar of 4/4 at 120 bpm: 2 s. */
 const BAR = 1920;
@@ -441,14 +666,6 @@ const soundFontTrack = (id: string, extra: Record<string, unknown> = {}) => ({
   ...extra,
 });
 
-const take = (id: string) => ({
-  id,
-  startTick: 0,
-  duration: BAR,
-  fadeInTicks: 0,
-  fadeOutTicks: 0,
-});
-
 describe('renderProject: SoundFont tracks', () => {
   it('renders them first, for the window and rate of the bounce', async () => {
     store.state.tracks = [
@@ -472,6 +689,16 @@ describe('renderProject: SoundFont tracks', () => {
     expect(
       instruments.createInstrument.mock.calls.map(([type]) => type),
     ).toEqual(['piano-sampler']);
+  });
+
+  it('renders only the asked-for track, even a muted one', async () => {
+    store.state.tracks = [
+      soundFontTrack('strings'),
+      soundFontTrack('muted', { mute: true }),
+    ];
+    await renderProject({ onlyTrackId: 'muted' });
+    const [rendered] = soundFonts.render.mock.calls[0];
+    expect(rendered.map((t: { id: string }) => t.id)).toEqual(['muted']);
   });
 
   it("plays each rendered segment into the track's input, at its frame", async () => {
@@ -514,7 +741,7 @@ describe('renderProject: SoundFont tracks', () => {
     expect(soundFonts.render).not.toHaveBeenCalled();
   });
 
-  it('reports the SoundFont stage, then the mixdown', async () => {
+  it('gives the SoundFont render the first part of the progress', async () => {
     store.state.tracks = [soundFontTrack('strings')];
     soundFonts.render.mockImplementation(
       async (_t: unknown, _w: unknown, onProgress: (pct: number) => void) => {
@@ -523,88 +750,8 @@ describe('renderProject: SoundFont tracks', () => {
         return new Map();
       },
     );
-    const progress: unknown[] = [];
-    await renderProject({ onProgress: (p) => progress.push(p) });
-    expect(progress).toEqual([
-      { stage: 'instruments', pct: 0.5 },
-      { stage: 'instruments', pct: 1 },
-      { stage: 'mixdown', pct: 0 },
-    ]);
-  });
-
-  it('reports the mixdown as it renders, pausing the render for it', async () => {
-    const suspend = vi.fn((_at: number) => Promise.resolve());
-    const resume = vi.fn(() => Promise.resolve());
-    tone.state.offlineRaw._nativeContext = { suspend, resume };
-    store.state.tracks = [track('keys')];
-    store.state.loopEnabled = true;
-    store.state.loopStart = 0;
-    store.state.loopEnd = BAR; // 2 s + the 1 s tail
-    const progress: Array<{ stage: string; pct: number }> = [];
-    await renderProject({
-      range: 'loop',
-      onProgress: (p) => progress.push(p),
-    });
-    await vi.waitFor(() => expect(resume).toHaveBeenCalledTimes(19));
-    const pauses = suspend.mock.calls.map(([at]) => at);
-    expect(pauses).toHaveLength(19);
-    pauses.forEach((at, i) => expect(at).toBeCloseTo((3 * (i + 1)) / 20));
-    const mixdown = progress.filter((p) => p.stage === 'mixdown');
-    expect(mixdown[mixdown.length - 1].pct).toBe(0.95);
-  });
-});
-
-describe('renderProject: Guitar/Bass/Vocal takes', () => {
-  it.each([
-    ['guitar-fx', amps.GuitarFxAdapter],
-    ['bass-fx', amps.GuitarFxAdapter],
-    ['vocal-fx', amps.VocalFxAdapter],
-  ])('runs a %s take through its stored chain', async (instrument, Adapter) => {
-    const adapter = new Adapter();
-    instruments.createInstrument.mockReturnValue(adapter);
-    const amped = { ...track('amped'), instrument, audioClips: [take('t1')] };
-    store.state.tracks = [amped];
-    await renderProject();
-
-    expect(pedals.apply).toHaveBeenCalledWith(adapter, amped, 120);
-    expect(clips.scheduled).toEqual([
-      expect.objectContaining({
-        clip: expect.objectContaining({ id: 't1' }),
-        pedalInput: adapter.pedalInput,
-      }),
-    ]);
-    // Scheduled once the chain is ready, not before.
-    expect(pedals.log).toEqual(['chain', 'clip']);
-  });
-
-  it('bounces the take dry when its chain fails to build', async () => {
-    instruments.createInstrument.mockReturnValue(new amps.GuitarFxAdapter());
-    pedals.apply.mockRejectedValue(new Error('no worklet'));
-    store.state.tracks = [
-      { ...track('gtr'), instrument: 'guitar-fx', audioClips: [take('t1')] },
-    ];
-    await renderProject();
-    expect(clips.scheduled).toHaveLength(1);
-    expect(clips.scheduled[0].pedalInput).toBeUndefined();
-  });
-
-  it('bounces the take dry when its adapter fails to start', async () => {
-    const adapter = new amps.GuitarFxAdapter();
-    adapter.init.mockRejectedValue(new Error('no context'));
-    instruments.createInstrument.mockReturnValue(adapter);
-    store.state.tracks = [
-      { ...track('gtr'), instrument: 'guitar-fx', audioClips: [take('t1')] },
-    ];
-    await renderProject();
-    expect(pedals.apply).not.toHaveBeenCalled();
-    expect(clips.scheduled).toHaveLength(1);
-    expect(clips.scheduled[0].pedalInput).toBeUndefined();
-  });
-
-  it("plays other tracks' clips straight into the track", async () => {
-    store.state.tracks = [{ ...track('drop'), audioClips: [take('t1')] }];
-    await renderProject();
-    expect(clips.scheduled).toHaveLength(1);
-    expect(clips.scheduled[0].pedalInput).toBeUndefined();
+    const progress: number[] = [];
+    await renderProject({ onProgress: (f) => progress.push(f) });
+    expect(progress).toEqual([0.15, 0.3, 1]);
   });
 });

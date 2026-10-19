@@ -2,7 +2,14 @@ import { ListMusic } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FC } from 'react';
 import { showSuccess } from '@/components/utils/toast';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
-import { useStore, type AllSlices } from '@/daw/store';
+import { chartExtraBars } from '@/daw/time/measureEdits';
+import { timeSignatureOf } from '@/daw/time/timeModel';
+import {
+  leadSheetSectionsOf,
+  useLeadSheetSections,
+  useStore,
+  type AllSlices,
+} from '@/daw/store';
 import { Button } from '@/daw/ui/Button';
 import { DawDialog } from '@/daw/ui/DawDialog';
 import { TYPE_CLASS } from '@/daw/ui/styles';
@@ -72,7 +79,12 @@ export function useStudioChartSource(): StudioChartSource {
   const measureRowSizes = useStore((s) => s.measureRowSizes);
   const measureRestMap = useStore((s) => s.measureRestMap);
   const measureFermatas = useStore((s) => s.measureFermatas);
-  const leadSheetSections = useStore((s) => s.leadSheetSections);
+  // The chart runs as far as the sheet draws it: past the last chord to the
+  // bars added there or the end of the song's sections (milestone 2.13).
+  const leadSheetBars = useStore((s) =>
+    chartExtraBars(s.leadSheetBars, s.sections, timeSignatureOf(s)),
+  );
+  const leadSheetSections = useLeadSheetSections();
   const leadSheetRepeats = useStore((s) => s.leadSheetRepeats);
   const tsNumerator = useStore((s) => s.timeSignatureNumerator);
   const tsDenominator = useStore((s) => s.timeSignatureDenominator);
@@ -88,6 +100,7 @@ export function useStudioChartSource(): StudioChartSource {
       measureRowSizes,
       measureRestMap,
       measureFermatas,
+      leadSheetBars,
       leadSheetSections,
       leadSheetRepeats,
       timeSignature: [tsNumerator, tsDenominator],
@@ -103,6 +116,7 @@ export function useStudioChartSource(): StudioChartSource {
       measureRowSizes,
       measureRestMap,
       measureFermatas,
+      leadSheetBars,
       leadSheetSections,
       leadSheetRepeats,
       tsNumerator,
@@ -286,7 +300,12 @@ export function chartSourceOf(state: AllSlices): StudioChartSource {
     measureRowSizes: state.measureRowSizes,
     measureRestMap: state.measureRestMap,
     measureFermatas: state.measureFermatas,
-    leadSheetSections: state.leadSheetSections,
+    leadSheetBars: chartExtraBars(
+      state.leadSheetBars,
+      state.sections,
+      timeSignatureOf(state),
+    ),
+    leadSheetSections: leadSheetSectionsOf(state),
     leadSheetRepeats: state.leadSheetRepeats,
     timeSignature: [
       state.timeSignatureNumerator,

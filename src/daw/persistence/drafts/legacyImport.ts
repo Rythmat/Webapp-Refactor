@@ -252,7 +252,7 @@ const differs = (value: unknown, fallback: unknown): boolean =>
 /**
  * Whether the data holds anything, read as widely as 1.3's isDocumentEmpty
  * (which can't run here without decoding into the store): tracks, chord
- * regions, markers, notation, a Prism progression, key or mode, a name or
+ * regions, markers, song sections, notation, a Prism progression, key or mode, a name or
  * composer, a tempo or metre, mastering, master automation. True when it
  * can't tell: an import wrongly called empty is pruned at once.
  */
@@ -261,6 +261,7 @@ function dataHasContent(data: Record<string, unknown>): boolean {
     if (!Array.isArray(data.tracks)) return true;
     if (data.tracks.length > 0) return true;
     if (nonEmpty(data.chordRegions) || nonEmpty(data.markers)) return true;
+    if (nonEmpty(data.sections)) return true;
     if (nonEmpty(data.masterAutomation)) return true;
     if (
       typeof data.projectName === 'string' &&

@@ -2,6 +2,12 @@ import type { StateCreator } from 'zustand';
 import type { MidiNoteEvent } from '@prism/engine';
 import type { AllSlices } from './index';
 import { midiClipLength } from '@/daw/time/timeModel';
+import {
+  DEFAULT_CLICK_DB,
+  MAX_CLICK_DB,
+  MIN_CLICK_DB,
+  type ClickSound,
+} from '@/daw/audio/clickSounds';
 
 // ── Transport Slice ─────────────────────────────────────────────────────
 // Controls playback state, tempo, position, metronome, and loop region.
@@ -49,6 +55,9 @@ export interface TransportSlice {
   position: number;
   lastSeekPosition: number; // last manually-placed playhead position
   metronomeEnabled: boolean;
+  /** The click's sound and its level in dB: per-user prefs (2.8). */
+  metronomeSound: ClickSound;
+  metronomeVolume: number;
   loopEnabled: boolean;
   loopStart: number; // tick
   loopEnd: number; // tick (default: 4 bars = 7680)
@@ -75,6 +84,8 @@ export interface TransportSlice {
   setPosition: (tick: number) => void;
   setLastSeekPosition: (tick: number) => void;
   toggleMetronome: () => void;
+  setMetronomeSound: (sound: ClickSound) => void;
+  setMetronomeVolume: (db: number) => void;
   toggleLoop: () => void;
   setLoopEnabled: (enabled: boolean) => void;
   setLoopRange: (start: number, end: number) => void;
@@ -124,6 +135,8 @@ export const createTransportSlice: StateCreator<
   position: 0,
   lastSeekPosition: 0,
   metronomeEnabled: false,
+  metronomeSound: 'click',
+  metronomeVolume: DEFAULT_CLICK_DB,
   loopEnabled: false,
   loopStart: 0,
   loopEnd: 7680, // 4 bars × 4 beats × 480 ticks
@@ -223,6 +236,13 @@ export const createTransportSlice: StateCreator<
   toggleMetronome: () =>
     set((state) => ({ metronomeEnabled: !state.metronomeEnabled })),
 
+  setMetronomeSound: (sound) => set({ metronomeSound: sound }),
+
+  setMetronomeVolume: (db) =>
+    set({
+      metronomeVolume: Math.min(MAX_CLICK_DB, Math.max(MIN_CLICK_DB, db)),
+    }),
+
   toggleLoop: () =>
     set((state) => {
       if (state.loopEnabled) return { loopEnabled: false };
@@ -246,10 +266,13 @@ export const createTransportSlice: StateCreator<
           if (midiClip) {
             // The clip's box, its set length included, as the timeline
             // draws it.
+            // An empty clip has no length: keep the current range.
+            const length = midiClipLength(midiClip);
+            if (length <= 0) return { loopEnabled: true };
             return {
               loopEnabled: true,
               loopStart: midiClip.startTick,
-              loopEnd: midiClip.startTick + midiClipLength(midiClip),
+              loopEnd: midiClip.startTick + length,
             };
           }
         }
@@ -264,13 +287,21 @@ export const createTransportSlice: StateCreator<
   setEditorLoop: (loop) => set({ editorLoop: loop }),
 
   // No-op unless the editor loop exists (i.e. the piano roll editor is open).
+  // A range that ends where it starts, or before, is refused: the loop keeps
+  // its range (engine-hooks-18).
   updateEditorLoop: (patch) =>
-    set((state) =>
-      state.editorLoop ? { editorLoop: { ...state.editorLoop, ...patch } } : {},
-    ),
+    set((state) => {
+      if (!state.editorLoop) return {};
+      const next = { ...state.editorLoop, ...patch };
+      return next.end > next.start ? { editorLoop: next } : {};
+    }),
 
   setLoopRange: (start, end) =>
-    set({ loopStart: Math.max(0, start), loopEnd: Math.max(0, end) }),
+    set(() => {
+      const loopStart = Math.max(0, start);
+      const loopEnd = Math.max(0, end);
+      return loopEnd > loopStart ? { loopStart, loopEnd } : {};
+    }),
 
   setLiveRecording: (trackId, notes, startTick) =>
     set({

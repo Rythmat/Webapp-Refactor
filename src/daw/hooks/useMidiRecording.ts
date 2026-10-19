@@ -2,7 +2,9 @@ import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 import { useStore, type AllSlices } from '@/daw/store';
 import { addFrameTask } from '@/daw/engine/engineClock';
-import { getPlayheadTick } from '@/daw/engine/playheadClock';
+import { getPlayheadTick, isPlayheadRunning } from '@/daw/engine/playheadClock';
+import { transportStartedAt } from '@/daw/engine/playbackScheduler';
+import { ticksHeardAt } from '@/daw/audio/heardTime';
 import { MidiRecorder } from '@/daw/audio/MidiRecorder';
 import { buildRecordedClip } from '@/daw/audio/recordedClip';
 import { beginTake } from '@/daw/session/takesInFlight';
@@ -45,13 +47,20 @@ export function useMidiRecording() {
       // A second startRecording() would drop the take in progress and
       // re-anchor it to wherever the playhead is now.
       if (recorderRef.current.isRecording()) return;
-      // Anchor to the playhead at punch-in — the same tick the audio recorder
-      // uses (usePlaybackEngine), so a simultaneous audio + MIDI take lines up.
-      // The live playhead: a punch-in while playing is past the store's
-      // parked position.
-      punchInTickRef.current = Math.round(getPlayheadTick());
+      // Anchor to the tick the student hears at punch-in. While playing that
+      // is the speakers' clock (heardTime), the same model the take's notes
+      // are placed by (MidiRecorder), so the front rest and the notes agree;
+      // a punch-in while playing is past the store's parked position.
+      // Stopped, it is the parked playhead.
+      punchInTickRef.current = Math.round(
+        isPlayheadRunning()
+          ? ticksHeardAt(undefined, transportStartedAt())
+          : getPlayheadTick(),
+      );
       targetRef.current = recordTargetTrackId();
-      recorderRef.current.startRecording();
+      recorderRef.current.startRecording({
+        transportStart: transportStartedAt,
+      });
       settleTakeRef.current?.();
       const recorder = recorderRef.current;
       settleTakeRef.current = beginTake('midi', {

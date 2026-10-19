@@ -5,8 +5,11 @@ import {
   DOCK_DEFAULT_FRAC,
   dockFracFor,
   dockHeightPx,
+  rackMaxPx,
+  BOTTOM_RAIL_PX,
   TOP_BAR_PX,
   type DockHeights,
+  type DockSlotId,
 } from './layoutModel';
 
 // ── The shell's sizes as CSS variables (milestone 2.4) ─────────────────────
@@ -15,27 +18,41 @@ import {
 // shell root: --daw-dock-h (tab bar included) and --daw-insp-w. A resize
 // drag writes them directly, so nothing re-renders while it moves; the
 // student's sizes (per-user prefs) and the window's height set them
-// otherwise, again without a React render of the shell.
+// otherwise, again without a React render of the shell. A maximized dock
+// (2.9) takes the whole body.
 
 export const DOCK_HEIGHT_VAR = '--daw-dock-h';
 export const INSPECTOR_WIDTH_VAR = '--daw-insp-w';
 
-/** The tab the dock sizes itself for: the open one, else Instrument. */
-const sizingTab = (tab: ChannelStripTabId | null): ChannelStripTabId =>
-  tab !== null && tab in DOCK_DEFAULT_FRAC ? tab : 'controls';
-
-/** The dock's height in px for the open tab, in a body `bodyPx` high. */
-export function dockPxFor(
+/**
+ * What the dock sizes itself for: Master when it shows, else the open tab,
+ * else Instrument.
+ */
+export function dockSlotOf(
   tab: ChannelStripTabId | null,
+  master = false,
+): DockSlotId {
+  if (master) return 'master';
+  return tab !== null && tab in DOCK_DEFAULT_FRAC ? tab : 'controls';
+}
+
+/** The dock's height in px for `slot`, in a body `bodyPx` high. */
+export function dockPxFor(
+  slot: DockSlotId,
   heights: DockHeights,
   bodyPx: number,
 ): number {
-  return dockHeightPx(dockFracFor(sizingTab(tab), heights), bodyPx);
+  return dockHeightPx(dockFracFor(slot, heights), bodyPx);
 }
 
-/** The shell's body: its height less the top bar, 0 before it is laid out. */
+/**
+ * The shell's body: its height less the top bar and the bottom rail, 0
+ * before it is laid out.
+ */
 export function bodyPxOf(root: HTMLElement | null): number {
-  return root ? Math.max(0, root.clientHeight - TOP_BAR_PX) : 0;
+  return root
+    ? Math.max(0, root.clientHeight - TOP_BAR_PX - BOTTOM_RAIL_PX)
+    : 0;
 }
 
 /**
@@ -69,10 +86,18 @@ export function useShellGeometry(rootRef: RefObject<HTMLElement>): void {
       const s = useStore.getState();
       const body = bodyPxOf(root);
       if (body > 0) {
-        root.style.setProperty(
-          DOCK_HEIGHT_VAR,
-          `${dockPxFor(s.channelStripTab, s.dockHeights, body)}px`,
-        );
+        // Mix's RackDock (2.10) has a height of its own in the same slot.
+        const slot =
+          s.currentView === 'studio'
+            ? 'rack'
+            : dockSlotOf(s.channelStripTab, s.dockMaster);
+        const px =
+          slot === 'rack'
+            ? Math.min(dockPxFor(slot, s.dockHeights, body), rackMaxPx(body))
+            : s.dockMaximized
+              ? body
+              : dockPxFor(slot, s.dockHeights, body);
+        root.style.setProperty(DOCK_HEIGHT_VAR, `${px}px`);
       }
       root.style.setProperty(INSPECTOR_WIDTH_VAR, `${s.inspectorWidth}px`);
     };
@@ -80,11 +105,17 @@ export function useShellGeometry(rootRef: RefObject<HTMLElement>): void {
     const observer = new ResizeObserver(apply);
     observer.observe(root);
     const unsubscribe = useStore.subscribe(
-      (s) => [s.channelStripTab, s.dockHeights, s.inspectorWidth] as const,
+      (s) =>
+        [
+          s.channelStripTab,
+          s.dockHeights,
+          s.inspectorWidth,
+          s.dockMaster,
+          s.dockMaximized,
+          s.currentView,
+        ] as const,
       apply,
-      {
-        equalityFn: (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2],
-      },
+      { equalityFn: (a, b) => a.every((v, i) => v === b[i]) },
     );
     return () => {
       observer.disconnect();

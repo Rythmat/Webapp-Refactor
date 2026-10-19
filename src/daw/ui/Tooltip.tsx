@@ -17,6 +17,8 @@ import { OVERLAY_MOTION, TYPE_CLASS } from './styles';
 /** A tip opens after this much hover; once one has shown, the next at once. */
 const DELAY_MS = 400;
 const SKIP_DELAY_MS = 300;
+/** The gap between a control and its tip. */
+export const TIP_GAP_PX = 6;
 
 const InGroup = createContext(false);
 
@@ -39,6 +41,8 @@ export interface TooltipProps {
   /** A shortcut shown after the tip. */
   shortcut?: string;
   side?: 'top' | 'right' | 'bottom' | 'left';
+  /** How far from the control the tip opens, in px (6 by default). */
+  sideOffset?: number;
   /** Render the child alone, without a tip. */
   disabled?: boolean;
   /** One element that takes a ref and pointer and focus handlers. */
@@ -55,11 +59,16 @@ export interface TooltipProps {
  * When the tip only repeats the control's name (an icon button's label),
  * that would read the name twice ('Undo, button, Undo'), so the tip then
  * describes only its shortcut, or nothing.
+ *
+ * The trigger also carries the tip as `data-hint` (with ' · ' and the
+ * shortcut), which the bottom rail's hint line reads (shell/help/hintSource.ts),
+ * so a tip is written once. A `data-hint` on the child itself wins.
  */
 export function Tooltip({
   content,
   shortcut,
   side = 'top',
+  sideOffset = TIP_GAP_PX,
   disabled = false,
   children,
 }: TooltipProps) {
@@ -68,17 +77,24 @@ export function Tooltip({
 
   const name = (children.props as { 'aria-label'?: unknown })['aria-label'];
   const repeatsName = typeof content === 'string' && content === name;
+  const hint =
+    typeof content === 'string' && content.trim()
+      ? shortcut
+        ? `${content} · ${shortcut}`
+        : content
+      : undefined;
   const tip = (
     <KitTooltip>
       <TooltipTrigger
         asChild
+        data-hint={hint}
         {...(repeatsName && !shortcut ? { 'aria-describedby': undefined } : {})}
       >
         {children}
       </TooltipTrigger>
       <TooltipContent
         side={side}
-        sideOffset={6}
+        sideOffset={sideOffset}
         collisionPadding={8}
         aria-label={
           repeatsName && shortcut ? `Shortcut ${shortcut}` : undefined

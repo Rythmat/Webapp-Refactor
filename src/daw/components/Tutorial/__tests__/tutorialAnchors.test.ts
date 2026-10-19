@@ -221,20 +221,25 @@ interface TemplateSource {
 /** The template anchors the lessons can use, by the text before `${`. */
 const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
   'add-track-': {
-    file: 'components/Mixer/AddTrackMenu.tsx',
-    // One card per template; the Synth card renders the exact id
-    // 'add-track-synth' instead (the ternary around the template).
-    suffixes: () =>
-      constValues(
-        'components/Mixer/AddTrackMenu.tsx',
-        'TRACK_TEMPLATES',
-        'instrument',
-      ).filter((instrument) => instrument !== 'oracle-synth'),
+    file: 'shell/tracklist/AddTrackSheet.tsx',
+    // One tile per choice and per category with a second step
+    // (trackTemplates.ts); Import and the library chip are exact ids.
+    suffixes: () => [
+      ...constValues(
+        'shell/tracklist/trackTemplates.ts',
+        'TRACK_CHOICES',
+        'anchor',
+      ),
+      ...constValues(
+        'shell/tracklist/trackTemplates.ts',
+        'TRACK_CATEGORIES',
+        'anchor',
+      ),
+    ],
   },
   'chanstrip-tab-': {
-    file: 'components/ChannelStrip/ChannelStrip.tsx',
-    suffixes: () =>
-      constValues('components/ChannelStrip/ChannelStrip.tsx', 'TABS', 'id'),
+    file: 'shell/dock/Dock.tsx',
+    suffixes: () => constValues('shell/dock/dockTabs.ts', 'DOCK_TABS', 'id'),
   },
   'view-switch-': {
     file: 'shell/topbar/ViewTabs.tsx',
@@ -244,7 +249,7 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     ],
   },
   'fx-add-': {
-    file: 'components/Effects/FxBrowser.tsx',
+    file: 'shell/inspector/panels/FxBody.tsx',
     suffixes: () => AUDIO_EFFECTS,
   },
   'fx-slot-': {
@@ -252,15 +257,15 @@ const TEMPLATE_SOURCES: Readonly<Record<string, TemplateSource>> = {
     suffixes: () => AUDIO_EFFECTS,
   },
   'mixer-sends-': {
-    file: 'components/Studio/StudioView.tsx',
+    file: 'shell/mix/MixStrip.tsx',
     suffixes: () => RETURN_IDS,
   },
   'return-strip-': {
-    file: 'components/Studio/StudioView.tsx',
+    file: 'shell/mix/ReturnStrip.tsx',
     suffixes: () => RETURN_IDS,
   },
   'return-fx-': {
-    file: 'components/Studio/StudioView.tsx',
+    file: 'shell/mix/RackDock.tsx',
     suffixes: () => RETURN_IDS,
   },
   'sampler-mode-': {

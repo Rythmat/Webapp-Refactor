@@ -75,7 +75,7 @@ describe('the scope', () => {
     );
   });
 
-  it('watches the tracks, chords, markers, mastering, lead sheet, key and tempo', () => {
+  it('watches the tracks, chords, markers, sections, mastering, lead sheet, key and tempo', () => {
     const fresh = new Y.Doc();
     const scope = collabUndoScope(fresh);
     const names = new Map<unknown, string>();
@@ -86,6 +86,7 @@ describe('the scope', () => {
       'markers',
       'mastering',
       'prism',
+      'sections',
       'tracks',
       'transport',
     ]);
@@ -119,9 +120,8 @@ describe('a gesture in a room', () => {
   });
 
   it('undoes a lead-sheet section and a mastering edit (collab-19)', () => {
-    withTransaction('Edit score', () =>
-      s().setLeadSheetSections([{ measureIdx: 0, label: 'A' }]),
-    );
+    withTransaction('Edit score', () => s().markSectionAtBar(0, 'A'));
+    expect(s().sections.map((x) => x.label)).toEqual(['A']);
     const wet = s().masteringEffects.reverb.wet;
     withTransaction('Change effect', () =>
       s().updateMasteringEffects({
@@ -131,7 +131,7 @@ describe('a gesture in a room', () => {
     smartUndo();
     expect(s().masteringEffects.reverb.wet).toBe(wet);
     smartUndo();
-    expect(s().leadSheetSections).toEqual([]);
+    expect(s().sections).toEqual([]);
   });
 });
 

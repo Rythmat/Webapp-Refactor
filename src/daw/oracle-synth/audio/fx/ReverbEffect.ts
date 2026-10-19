@@ -1,6 +1,7 @@
 import { FXProcessor } from './FXProcessor';
 import { ReverbParams } from '../types';
 import { smoothParam } from '../constants';
+import { seededRandom, seedFromString } from '../seededRandom';
 
 /**
  * Algorithmic reverb: a native ConvolverNode fed an impulse response
@@ -105,10 +106,13 @@ export class ReverbEffect extends FXProcessor {
       const power = 5 - (decayQ / ReverbEffect.DECAY_STEPS) * 4.6; // 5 .. 0.4
       const left = new Float32Array(len);
       const right = new Float32Array(len);
+      // Seeded from the cache key, so the same settings build the same IR
+      // in every session and an export renders the same samples each time.
+      const random = seededRandom(seedFromString(key));
       for (let i = 0; i < len; i++) {
         const env = Math.pow(1 - i / len, power);
-        left[i] = (Math.random() * 2 - 1) * env;
-        right[i] = (Math.random() * 2 - 1) * env;
+        left[i] = (random() * 2 - 1) * env;
+        right[i] = (random() * 2 - 1) * env;
       }
       data = [left, right];
       if (ReverbEffect.irCache.size >= ReverbEffect.IR_CACHE_MAX) {

@@ -211,7 +211,13 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
     <g transform={`translate(${x}, 0)`}>
       {/* Section marker above the chord area */}
       {section && (
-        <SectionMarker label={section.label} x={2} y={CHORD_AREA_HEIGHT - 30} />
+        <SectionMarker
+          label={section.label}
+          x={2}
+          y={CHORD_AREA_HEIGHT - 30}
+          // The bar the section starts on, which a rest may come before.
+          measureIdx={section.measureIdx}
+        />
       )}
 
       {/* Chord symbols or repeat sign (skip for multi-bar rests) */}

@@ -167,27 +167,15 @@ describe('studio room handshake', () => {
   });
 
   // Builds from before the handshake send no version; they lay the document
-  // out as schema 1. Once COLLAB_DOC_SCHEMA_VERSION moves past 1 they must be
-  // turned away like any other old build.
-  it.runIf(COLLAB_DOC_SCHEMA_VERSION === 1)(
-    'reads a socket that sends no version as schema 1',
-    async () => {
-      validateConnection.mockResolvedValue({ userId: 'u1', role: 'owner' });
-      const conn = await connect('studio-abc12345', { role: 'owner' });
+  // out as schema 1. Since COLLAB_DOC_SCHEMA_VERSION moved past 1 (2 in
+  // milestone 2.12, 3 in 2.13) they are turned away like any other old build.
+  it('turns away a socket that sends no version once the schema has moved on', async () => {
+    expect(COLLAB_DOC_SCHEMA_VERSION).toBeGreaterThan(1);
+    validateConnection.mockResolvedValue({ userId: 'u1', role: 'owner' });
+    const conn = await connect('studio-abc12345', { role: 'owner' });
 
-      expect(conn.closed).toBeNull();
-      expect(yjsOnConnect).toHaveBeenCalledTimes(1);
-    },
-  );
-  it.skipIf(COLLAB_DOC_SCHEMA_VERSION === 1)(
-    'turns away a socket that sends no version once the schema has moved on',
-    async () => {
-      validateConnection.mockResolvedValue({ userId: 'u1', role: 'owner' });
-      const conn = await connect('studio-abc12345', { role: 'owner' });
-
-      expect(conn.closed?.code).toBe(COLLAB_CLOSE.versionMismatch);
-    },
-  );
+    expect(conn.closed?.code).toBe(COLLAB_CLOSE.versionMismatch);
+  });
 });
 
 describe('jam room handshake', () => {

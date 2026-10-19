@@ -9,7 +9,7 @@ import { SoundFontAdapter } from '../SoundFontAdapter';
 
 type Call = [method: string, ...args: unknown[]];
 
-const synth = vi.hoisted(() => ({ calls: [] as Call[] }));
+const synth = vi.hoisted(() => ({ calls: [] as Call[], midi: [] as Call[] }));
 
 vi.mock('spessasynth_lib', () => ({
   WorkletSynthesizer: class {
@@ -34,8 +34,15 @@ vi.mock('spessasynth_lib', () => ({
     setSystemParameter(...args: unknown[]) {
       synth.calls.push(['setSystemParameter', ...args]);
     }
-    programChange() {}
-    controllerChange() {}
+    programChange(...args: unknown[]) {
+      synth.midi.push(['programChange', ...args]);
+    }
+    controllerChange(...args: unknown[]) {
+      synth.midi.push(['controllerChange', ...args]);
+    }
+    pitchWheel(...args: unknown[]) {
+      synth.midi.push(['pitchWheel', ...args]);
+    }
   },
 }));
 
@@ -76,6 +83,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   synth.calls.length = 0;
+  synth.midi.length = 0;
 });
 
 describe('SoundFontAdapter routing', () => {
@@ -149,5 +157,58 @@ describe('the shared synth', () => {
     await adapter.init(ctx, trackInput('lead'));
     expect(callsOf('setSystemParameter')).toEqual([['effectsEnabled', false]]);
     adapter.dispose();
+  });
+});
+
+// ── Channel-mode messages (instruments-12) ────────────────────────────────
+// allNotesOff and panic ran at "now" whatever time they were given; panic
+// left the pedal, bend and controllers where they were; and a reused channel
+// kept the last track's controllers.
+
+describe('SoundFontAdapter channel messages', () => {
+  it('allNotesOff sends CC123 at the time given', async () => {
+    const adapter = new SoundFontAdapter(0);
+    await adapter.init(ctx, trackInput('keys'));
+    const ch = adapter.getChannel();
+    synth.midi.length = 0;
+    adapter.allNotesOff(7.5);
+    adapter.allNotesOff();
+    expect(synth.midi).toEqual([
+      ['controllerChange', ch, 123, 0, { time: 7.5 }],
+      ['controllerChange', ch, 123, 0, undefined],
+    ]);
+    adapter.dispose();
+  });
+
+  it('panic silences the channel and puts its controllers at rest', async () => {
+    const adapter = new SoundFontAdapter(0);
+    await adapter.init(ctx, trackInput('keys'));
+    const ch = adapter.getChannel();
+    synth.midi.length = 0;
+    adapter.panic(3);
+    expect(synth.midi).toEqual([
+      ['controllerChange', ch, 123, 0, { time: 3 }],
+      ['controllerChange', ch, 120, 0, { time: 3 }],
+      ['controllerChange', ch, 121, 0, { time: 3 }],
+      ['pitchWheel', ch, 8192, { time: 3 }],
+    ]);
+    adapter.dispose();
+  });
+
+  it('a channel is reset when claimed and when handed back', async () => {
+    const adapter = new SoundFontAdapter(33);
+    await adapter.init(ctx, trackInput('bass'));
+    const ch = adapter.getChannel();
+    expect(synth.midi).toEqual([
+      ['controllerChange', ch, 121, 0],
+      ['programChange', ch, 33],
+    ]);
+    synth.midi.length = 0;
+    adapter.dispose();
+    expect(synth.midi).toEqual([
+      ['controllerChange', ch, 123, 0, undefined],
+      ['controllerChange', ch, 121, 0],
+      ['programChange', ch, 0],
+    ]);
   });
 });

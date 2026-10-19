@@ -5,6 +5,7 @@ import {
   draftIsPristine,
   draftIsReadOnly,
   draftTouchedAt,
+  fingerprintInSchema,
 } from '../predicates';
 import type { DraftMeta } from '../types';
 
@@ -140,6 +141,35 @@ describe('draftIsReadOnly', () => {
     expect(draftIsReadOnly(meta({ schema: 3 }), 3)).toBe(false);
     expect(draftIsReadOnly(meta({ schema: 2 }), 3)).toBe(false);
     expect(draftIsReadOnly(meta({ schema: 4 }), 3)).toBe(true);
+  });
+});
+
+describe('fingerprintInSchema', () => {
+  const OLD = 'h1:aaaaaaaaaaaaaaaa';
+  const FRESH = 'h1:cccccccccccccccc';
+  const opened = { schema: 6, docFingerprint: OLD };
+
+  it("gives an older schema's fingerprint of the opened content this build's", () => {
+    expect(fingerprintInSchema(OLD, opened, 7, FRESH)).toBe(FRESH);
+  });
+
+  it('keeps a fingerprint of other content (unsaved edits stay unsaved)', () => {
+    const other = 'h1:bbbbbbbbbbbbbbbb';
+    expect(fingerprintInSchema(other, opened, 7, FRESH)).toBe(other);
+    expect(fingerprintInSchema(null, opened, 7, FRESH)).toBeNull();
+  });
+
+  it("keeps everything this build's own schema wrote", () => {
+    expect(fingerprintInSchema(OLD, { ...opened, schema: 7 }, 7, FRESH)).toBe(
+      OLD,
+    );
+  });
+
+  it("keeps it when either side's fingerprint is unknown", () => {
+    expect(fingerprintInSchema(OLD, opened, 7, null)).toBe(OLD);
+    expect(
+      fingerprintInSchema(OLD, { schema: 6, docFingerprint: null }, 7, FRESH),
+    ).toBe(OLD);
   });
 });
 

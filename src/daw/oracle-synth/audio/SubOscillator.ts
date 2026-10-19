@@ -13,6 +13,9 @@ export class SubOscillator {
   private params: SubOscillatorParams;
   private currentNote: number = 60;
   private isStarted: boolean = false;
+  /** Context time the current oscillator stops at (Infinity while held). */
+  private stopAt: number = Infinity;
+  private onEnded: (() => void) | null = null;
   private vibratoSource: AudioNode | null = null;
   private pitchBendCents: number = 0;
 
@@ -44,65 +47,106 @@ export class SubOscillator {
     this.panNode.connect(destination);
   }
 
-  start(): void {
+  /** Starts a new oscillator at `time` (now when omitted). */
+  start(time?: number): void {
     if (this.isStarted) return;
+    const t = time ?? this.ctx.currentTime;
+    // A previous oscillator still in its tail stops where this one starts.
+    if (this.osc && this.stopAt > t) this.scheduleStop(this.osc, t);
     this.isStarted = true;
-    this.osc = this.ctx.createOscillator();
-    this.osc.type = this.params.waveform;
-    this.osc.connect(this.gainNode);
-    this.osc.detune.value = this.pitchBendCents;
+    const osc = this.ctx.createOscillator();
+    osc.type = this.params.waveform;
+    osc.frequency.value = this.noteFrequency(this.currentNote);
+    osc.connect(this.gainNode);
+    osc.detune.value = this.pitchBendCents;
     if (this.vibratoSource) {
-      this.vibratoSource.connect(this.osc.detune);
+      this.vibratoSource.connect(osc.detune);
     }
-    this.detuneModBus.connect(this.osc.detune);
-    this.osc.start();
-    this.updateFrequency();
+    this.detuneModBus.connect(osc.detune);
+    osc.onended = () => this.teardown(osc);
+    osc.start(t);
+    this.osc = osc;
+    this.stopAt = Infinity;
+    this.onEnded = null;
   }
 
-  stop(): void {
-    if (!this.isStarted) return;
+  /**
+   * Stops the oscillator at `time` (now when omitted), or moves an earlier
+   * scheduled stop. It stays the current oscillator until it ends, then
+   * onended disconnects it and calls `onEnded`. Returns false when there was
+   * nothing to stop.
+   */
+  stop(time?: number, onEnded?: () => void): boolean {
     this.isStarted = false;
-    if (this.osc) {
+    if (!this.osc) return false;
+    if (onEnded) this.onEnded = onEnded;
+    this.scheduleStop(this.osc, time ?? this.ctx.currentTime);
+    return true;
+  }
+
+  private scheduleStop(osc: OscillatorNode, time: number): void {
+    if (time >= this.stopAt) return;
+    this.stopAt = time;
+    try {
+      osc.stop(time);
+    } catch {
+      // Already stopped
+    }
+  }
+
+  private teardown(osc: OscillatorNode): void {
+    osc.onended = null;
+    osc.disconnect();
+    // Sever incoming edges into osc.detune so the persistent buses don't
+    // pin the ended oscillator (one leaked node per note otherwise)
+    try {
+      this.detuneModBus.disconnect(osc.detune);
+    } catch {
+      /* already disconnected */
+    }
+    if (this.vibratoSource) {
       try {
-        this.osc.stop();
-      } catch {
-        // Already stopped
-      }
-      this.osc.disconnect();
-      // Sever incoming edges into osc.detune so the persistent buses don't
-      // pin the destroyed oscillator (one leaked node per note otherwise)
-      try {
-        this.detuneModBus.disconnect(this.osc.detune);
+        this.vibratoSource.disconnect(osc.detune);
       } catch {
         /* already disconnected */
       }
-      if (this.vibratoSource) {
-        try {
-          this.vibratoSource.disconnect(this.osc.detune);
-        } catch {
-          /* already disconnected */
-        }
-      }
+    }
+    if (this.osc === osc) {
       this.osc = null;
+      const done = this.onEnded;
+      this.onEnded = null;
+      done?.();
     }
   }
 
-  setFrequency(midiNote: number, glideTime?: number): void {
+  private noteFrequency(midiNote: number): number {
+    const tuningOffset =
+      this.params.octave * 12 + this.params.semitone + this.params.fine / 100;
+    return midiToFrequency(midiNote) * Math.pow(2, tuningOffset / 12);
+  }
+
+  /**
+   * Sets the pitch at `time` (now when omitted); with a glide time and
+   * `fromNote` it glides from that note's pitch starting at `time`.
+   */
+  setFrequency(
+    midiNote: number,
+    glideTime?: number,
+    time?: number,
+    fromNote?: number,
+  ): void {
     this.currentNote = midiNote;
     if (!this.osc) return;
 
-    const tuningOffset =
-      this.params.octave * 12 + this.params.semitone + this.params.fine / 100;
-    const freq = midiToFrequency(midiNote) * Math.pow(2, tuningOffset / 12);
-
-    if (glideTime && glideTime > 0) {
-      this.osc.frequency.setTargetAtTime(
-        freq,
-        this.ctx.currentTime,
-        glideTime / 3,
-      );
+    const freq = this.noteFrequency(midiNote);
+    const t = time ?? this.ctx.currentTime;
+    const param = this.osc.frequency;
+    param.cancelScheduledValues(t);
+    if (glideTime && glideTime > 0 && fromNote !== undefined && fromNote >= 0) {
+      param.setValueAtTime(this.noteFrequency(fromNote), t);
+      param.setTargetAtTime(freq, t, glideTime / 3);
     } else {
-      this.osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      param.setValueAtTime(freq, t);
     }
   }
 
@@ -154,10 +198,14 @@ export class SubOscillator {
     return this.params.enabled;
   }
 
-  setPitchBendCents(cents: number): void {
+  setPitchBendCents(cents: number, time?: number): void {
     this.pitchBendCents = cents;
     if (this.osc) {
-      this.osc.detune.value = cents;
+      if (time === undefined) {
+        this.osc.detune.value = cents;
+      } else {
+        this.osc.detune.setValueAtTime(cents, time);
+      }
     }
   }
 

@@ -98,6 +98,11 @@ export class ModulationMatrix {
     }
   }
 
+  /** True when an enabled route has a note-dependent transform curve. */
+  hasTransformRoutes(): boolean {
+    return this.routes.some((r) => r.enabled && !!r.transform);
+  }
+
   /** Called when a voice is freed. Disconnects all routes from this voice. */
   disconnectVoice(voice: Voice): void {
     const remaining: ActiveConnection[] = [];

@@ -241,7 +241,7 @@ const VIEW_SWITCHES = [
   { view: 'score', region: 'ScoreView' },
   { view: 'leadsheet', region: 'LeadSheetView' },
   { view: 'studio', region: 'StudioView' },
-  { view: 'arrange', region: 'TimelineWithHeaders' },
+  { view: 'arrange', region: 'TrackArea' },
 ];
 
 /** A master peak at or above −60 dBFS counts as audible. */
@@ -857,41 +857,31 @@ function watchFirstAudio(audiblePeak) {
 }
 
 /**
- * The first track header's volume slider (Radix): where to press, and the
- * track whose volume it sets, matched by the name in that header.
+ * The first track row's volume fader (milestone 2.6's Fader, a
+ * role="slider" named "Volume of <track>"): where its cap is, the slider's
+ * box, and the track it sets, by the name in its label.
  */
 function findVolumeSlider() {
-  // MasterTrackHeader's slider is labelled "Master Volume", so this is the
-  // first track header's.
-  const thumb = document.querySelector('[role="slider"][aria-label="Volume"]');
-  if (!thumb) return null;
-  const box = thumb.getBoundingClientRect();
-  // Radix renders Root > (Track, a wrapper > the thumb): the root is the
-  // first ancestor much wider than the thumb.
-  let root = thumb.parentElement;
-  while (root && root.getBoundingClientRect().width < box.width * 3) {
-    root = root.parentElement;
-  }
-  if (!root) return null;
-  const rootBox = root.getBoundingClientRect();
-  // TrackHeader shows its track's name in a text input above the slider.
-  let header = root.parentElement;
-  while (header && !header.querySelector('input:not([type])')) {
-    header = header.parentElement;
-  }
-  const name = header?.querySelector('input:not([type])')?.value;
+  const slider = document.querySelector(
+    '[data-testid="track-row"] [role="slider"][aria-label^="Volume of "]',
+  );
+  if (!slider) return null;
+  const box = slider.getBoundingClientRect();
+  // The cap: the slider's last child, moved along it by the value.
+  const cap = slider.lastElementChild?.getBoundingClientRect() ?? box;
+  const name = slider.getAttribute('aria-label').slice('Volume of '.length);
   const tracks = window.__MA_STORE__.getState().tracks;
   const named = tracks.filter((track) => track.name === name);
   const track = named.length === 1 ? named[0] : tracks[0];
   return {
-    thumbX: box.left + box.width / 2,
+    thumbX: cap.left + cap.width / 2,
     y: box.top + box.height / 2,
-    left: rootBox.left,
-    width: rootBox.width,
+    left: box.left,
+    width: box.width,
     trackId: track?.id ?? null,
     track: track?.name ?? null,
     volume: track?.volume ?? null,
-    matchedBy: named.length === 1 ? 'the header name' : 'the first track',
+    matchedBy: named.length === 1 ? 'the row name' : 'the first track',
   };
 }
 
@@ -1689,7 +1679,7 @@ async function faderDrag({ browser, base, profile, windows }) {
       const slider = await page.evaluate(findVolumeSlider);
       if (!slider?.trackId) throw new Error('no track volume slider on screen');
       control ??= {
-        slider: 'first track header volume (Radix slider)',
+        slider: 'first track row volume (Fader)',
         widthPx: round(slider.width),
         trackId: slider.trackId,
         track: slider.track,
@@ -2394,7 +2384,8 @@ function percentiles(values, digits = 2) {
 
 /**
  * In-page: defines window.__maTimelineCanvas(), the arrange view's canvas
- * (the one in the track area's scroller), and starts counting the
+ * (the one in the track area's scroller, which since 2.6 scrolls up and
+ * down only: the Timeline scrolls sideways itself), and starts counting the
  * Timeline's draw measures for the rest of the page's life, so a run can
  * tell an editor that does not mark its draws (unmeasured) from a window in
  * which nothing drew (0).
@@ -2404,7 +2395,7 @@ function installTimelineHelpers(drawName) {
     [...document.querySelectorAll('canvas')].find(
       (canvas) =>
         canvas.parentElement?.classList.contains('overflow-x-hidden') &&
-        canvas.closest('.overflow-auto'),
+        canvas.closest('[data-testid="track-scroller"]'),
     ) ?? null;
   const seen = { count: 0 };
   window.__maTimelineDraws = seen;
@@ -2581,14 +2572,20 @@ async function waitForWaveforms(page, count, timeout = 60_000) {
   };
 }
 
-/** In-page: where to point the wheel, the middle of the visible track area. */
+/**
+ * In-page: where to point the wheel, the middle of the visible lanes (the
+ * scroller holds the track list too, left of the canvas).
+ */
 function timelinePoint() {
   const canvas = window.__maTimelineCanvas();
-  const scroller = canvas?.closest('.overflow-auto');
+  const scroller = canvas?.closest('[data-testid="track-scroller"]');
   if (!scroller) return { reason: 'no Timeline canvas' };
   const box = scroller.getBoundingClientRect();
+  const lanes = canvas.getBoundingClientRect();
+  const left = Math.max(box.left, lanes.left);
+  const right = Math.min(box.right, lanes.right);
   const point = {
-    x: Math.round(box.left + box.width / 2),
+    x: Math.round((left + right) / 2),
     y: Math.round(box.top + Math.min(box.height / 2, 200)),
   };
   if (document.elementFromPoint(point.x, point.y) !== canvas) {

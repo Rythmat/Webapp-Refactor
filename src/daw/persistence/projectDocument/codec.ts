@@ -3,7 +3,7 @@ import {
   type TrackEffectState,
 } from '@/daw/audio/EffectChain';
 import type { AutomationLanes, AutomationPoint } from '@/daw/audio/automation';
-import { isChannelStripTabId } from '@/daw/components/ChannelStrip/channelStripTabs';
+import { isChannelStripTabId } from '@/daw/shell/dock/dockTabs';
 import { ensureChordIdentities } from '@/daw/harmony/chordIdentity';
 import { keyFrameOf } from '@/daw/harmony/keyFrame';
 import {
@@ -15,6 +15,18 @@ import {
   type SamplerSampleRef,
 } from '@/daw/instruments/samplerChops';
 import { ensureProjectNoteIds, isNoteId } from '@/daw/model/noteIds';
+import {
+  clipsEndBar,
+  isSectionType,
+  normalizeSections,
+  sectionName,
+  sectionTypeOfLabel,
+  sectionsFromMarks,
+  type SectionMark,
+  type SectionType,
+  type SongClips,
+  type SongSection,
+} from '@/daw/model/sections';
 import type { SynthTrackState } from '@/daw/oracle-synth/synthPatchKeys';
 import type { MidiCCEvent, MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { AllSlices } from '@/daw/store';
@@ -31,6 +43,12 @@ import type {
 } from '@/daw/store/tracksSlice';
 import type { LeadSheetChordFormat, ViewType } from '@/daw/store/uiSlice';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
+import { chartBarCount } from '@/daw/time/measureEdits';
+import {
+  ticksPerBar,
+  timeSignatureOf,
+  type TimeSignature,
+} from '@/daw/time/timeModel';
 import type { CloudDocument } from './cloudDocument';
 import { planCloudTrackIds, rewriteTrackRefs } from './cloudIds';
 import { keyColourFor, nextChordsFor } from './derived';
@@ -39,6 +57,7 @@ import {
   LOCAL_KEYS,
   MARKER_FIELDS,
   NOTE_EVENT_FIELDS,
+  SECTION_FIELDS,
   TRACK_FIELDS,
   fieldDefault,
   trackFieldDefault,
@@ -75,18 +94,27 @@ import {
 // v4 (milestone 1.10) adds two fields and changes no meaning: the Lead
 // Sheet's length past its last chord (leadSheetBars) and the clip a chord
 // region was read from (sourceClipId), so the chord lane follows that clip
-// alone. Its compat stays 3.
+// alone. Its compat stays 3. v5 (milestone 2.7) adds one view field, the
+// student's Not now to the chord lane's analysis offer
+// (chordAnalysisDismissed); compat 3 still. v6 (milestone 2.12) adds a
+// clip's mute (both kinds) and an audio clip's own name, from the clip
+// menu; compat 3 still. v7 (milestone 2.13) adds the song's sections
+// (`sections`), the one list the sections lane and the Lead Sheet read. The
+// Lead Sheet's bar marks were their own key until then: a v7 draft writes the
+// marks its sections imply in that old place (notation.leadSheetSections),
+// so a build from before 2.13 still shows them after a rollback, and a draft
+// without sections (any older one) reads them back from there. Each of those
+// marks also carries its section's id, kind and span (DraftSectionMark),
+// which a build from before 2.13 keeps as it is, so rolling back and forward
+// again brings the sections back as they were. Only adds, so compat 3 still.
 //
-// v6 adds one field and changes no meaning: the staff a part is written on
-// in the Score, set by hand (a track's settings.notationStaff; unset is
-// Auto). Its compat stays 3, and an older build reading it shows every part
-// on Auto.
-//
-// v7 lets that field hold two more staves, and changes no meaning: 'alto'
-// (the viola's C clef) and 'bass8vb' (the bass clef with a small 8 under it,
-// a bass guitar's). A v6 build counts either as a value it can't read and
-// shows the part on Auto, so its compat stays 3; the bump has a v6 build see
-// the draft as newer rather than repair it.
+// v8 holds the Lead Sheet's melody tracks as a list where v7 held one id
+// (migrations.ts reads the one id as a list of it), and adds the staff a
+// part is written on in the Score, set by hand (a track's
+// settings.notationStaff; unset is Auto): treble, alto (the viola's C clef),
+// bass, bass8vb (the bass clef with a small 8 under it, a bass guitar's) or
+// grand. Its compat stays 3: an older build reading it shows the melody and
+// every part on Auto.
 //
 // A draft also says which builds after 1.3 may read it: `compat` is the
 // oldest schema that loads it correctly by ignoring the fields it doesn't
@@ -122,14 +150,17 @@ export const SESSION_ENVELOPE_VERSION = 2;
  * .test fails until then): 1.13b moving the Oracle patch, 1.16's per-project
  * chord-prompt flag. 4 is 1.10's (leadSheetBars, a region's sourceClipId);
  * its bar indices keep their meaning, every one a real bar of the song. 5
- * holds the Lead Sheet's melody tracks as a list (leadSheetMelodyTrackIds)
- * where 4 held one id (leadSheetMelodyTrackId); migrations.ts reads the one
- * id as a list of it. 6 adds the staff a part is set to in the Score (a
- * track's settings.notationStaff) and changes no meaning: a 5 draft is a 6
- * one with every part on Auto, and compat stays 3. 7 lets that staff be
- * 'alto' or 'bass8vb' too: a 6 draft is a 7 one as it is, and compat stays 3.
+ * is 2.7's: the view's chordAnalysisDismissed, the chord lane's Not now on
+ * this project. 6 is 2.12's: `muted` on MIDI and audio clips and `name` on
+ * audio clips. 7 is 2.13's: the song's `sections`, with the Lead Sheet's
+ * marks kept as a copy (above). 8 holds the Lead Sheet's melody tracks as a
+ * list (leadSheetMelodyTrackIds) where 7 held one id
+ * (leadSheetMelodyTrackId); migrations.ts reads the one id as a list of it.
+ * 8 also adds the staff a part is set to in the Score (a track's
+ * settings.notationStaff) and changes no meaning: a 7 draft is an 8 one with
+ * every part on Auto, and compat stays 3.
  */
-export const SESSION_SCHEMA_VERSION = 7;
+export const SESSION_SCHEMA_VERSION = 8;
 /**
  * The oldest schema whose builds may load a draft this build writes, by
  * ignoring the fields they don't know (written as `compat`). A schema bump
@@ -227,7 +258,6 @@ const DRAFT_LAYOUT = {
   measureFermatas: 'notation',
   leadSheetBars: 'notation',
   leadSheetChordFormat: 'notation',
-  leadSheetSections: 'notation',
   leadSheetRepeats: 'notation',
   leadSheetShowRepeats: 'notation',
   leadSheetShowMelody: 'notation',
@@ -244,6 +274,7 @@ const DRAFT_LAYOUT = {
   scoreTextMarks: 'notation',
 
   markers: 'data',
+  sections: 'data',
 
   masterVolume: 'mixer',
   masteringFxChain: 'mixer',
@@ -261,6 +292,7 @@ const DRAFT_LAYOUT = {
   selectedTrackId: 'view',
   automationOpenTrackId: 'view',
   automationParamId: 'view',
+  chordAnalysisDismissed: 'view',
 } as const satisfies { readonly [K in LocalKey]: DraftPlace };
 
 /** The store keys a draft holds: the registry's doc and view keys. */
@@ -335,9 +367,11 @@ export interface DraftMidiClip {
   durationTicks?: number;
   events: DraftNoteColumns;
   ccEvents?: DraftCcColumns;
+  /** v6: written only while the clip is muted. */
+  muted?: boolean;
 }
 
-/** An audio clip in the draft, as v2 wrote it. */
+/** An audio clip in the draft, as v2 wrote it, and v6's name and mute. */
 interface DraftAudioClip {
   id: string;
   startTick: number;
@@ -348,6 +382,8 @@ interface DraftAudioClip {
   assetId?: string | null;
   offsetSeconds?: number;
   gain?: number;
+  name?: string;
+  muted?: boolean;
 }
 
 /** A track in the draft: the Track's top-level fields and its settings. */
@@ -399,6 +435,11 @@ export interface DraftData extends DraftSection<'data'> {
   notation?: DraftSection<'notation'> & {
     /** The Score's note marks, keyed by note id (notationCodec). */
     marks?: PersistedNoteMarks;
+    /**
+     * The Lead Sheet's bar marks: its own key before 2.13, now the marks the
+     * sections imply, for builds that predate them (see the top).
+     */
+    leadSheetSections?: DraftSectionMark[];
   };
   view?: DraftSection<'view'>;
 }
@@ -521,6 +562,7 @@ function encodeMidiClip(clip: MidiClip): DraftMidiClip {
     durationTicks: clip.durationTicks,
     events: encodeNoteColumns(clip.events, true),
     ccEvents: clip.ccEvents && encodeCcColumns(clip.ccEvents),
+    muted: clip.muted,
   } satisfies Record<keyof MidiClip, unknown>;
 }
 
@@ -534,6 +576,8 @@ function encodeAudioClip(clip: AudioClip): DraftAudioClip {
     assetId: clip.assetId ?? null,
     offsetSeconds: clip.offsetSeconds,
     gain: clip.gain,
+    name: clip.name,
+    muted: clip.muted,
   } satisfies Record<keyof AudioClip, unknown>;
 }
 
@@ -548,6 +592,127 @@ function encodeTrack(track: Track, patchOf: SynthPatchOf): DraftTrack {
   }
   out.settings = trackSettings(track, patchOf);
   return out as unknown as DraftTrack;
+}
+
+// ── The Lead Sheet's marks, for builds from before 2.13 ─────────────────────
+
+/**
+ * A Lead Sheet mark as a draft writes it: the bar and name a build from
+ * before 2.13 reads, and the section it stands for, which such a build keeps
+ * untouched on the marks it loads. `joined` says the next section started
+ * where this one ended.
+ */
+export interface DraftSectionMark extends SectionMark {
+  id?: string;
+  type?: SectionType;
+  startTick?: number;
+  endTick?: number;
+  joined?: true;
+}
+
+/**
+ * The marks `list` implies (marksOfSections: the first section to start in
+ * each bar, at that bar), each carrying its section.
+ */
+function draftMarksOf(
+  list: readonly SongSection[],
+  ts: TimeSignature,
+): DraftSectionMark[] {
+  const bar = ticksPerBar(ts);
+  const sorted = normalizeSections(list);
+  const marks: DraftSectionMark[] = [];
+  const seen = new Set<number>();
+  sorted.forEach((section, i) => {
+    const measureIdx = Math.floor(section.startTick / bar);
+    if (seen.has(measureIdx)) return;
+    seen.add(measureIdx);
+    const mark: DraftSectionMark = {
+      measureIdx,
+      label: section.label,
+      id: section.id,
+      type: section.type,
+      startTick: section.startTick,
+      endTick: section.endTick,
+    };
+    if (sorted[i + 1]?.startTick === section.endTick) mark.joined = true;
+    marks.push(mark);
+  });
+  return marks;
+}
+
+/**
+ * Sections read back from Lead Sheet marks (draftMarksOf's, or a mark an
+ * older build wrote), in order, one per bar, the first written winning.
+ *
+ * A mark whose section still starts in its bar takes that section's id and
+ * start, and its end, cut short where the next mark starts. When the section
+ * met the next one and the next mark now starts later, an older build
+ * removed the section between, which gives its bars to this one, so it runs
+ * on to the next mark (to the end of the song after the last, never
+ * shorter than it was). A mark's kind follows its name when the name gives
+ * one, else the section's, else custom. A mark without its section (one an
+ * older build added or renamed, or moved with the bars) runs to the next
+ * mark, the last to `endBar` (sectionsFromMarks).
+ */
+function sectionsFromDraftMarks(
+  marks: readonly DraftSectionMark[],
+  ts: TimeSignature,
+  endBar: number,
+): SongSection[] {
+  const bar = ticksPerBar(ts);
+  // Today's reading, and the mark each section came from: the first one
+  // written with a name in its bar, as sectionsFromMarks picks.
+  const plain = sectionsFromMarks(marks, ts, endBar);
+  const markAt = new Map<number, DraftSectionMark>();
+  for (const mark of marks) {
+    if (!isString(mark.label) || mark.label.trim() === '') continue;
+    if (!markAt.has(mark.measureIdx)) markAt.set(mark.measureIdx, mark);
+  }
+  const placed = plain.map((section) => {
+    const mark = markAt.get(section.startTick / bar);
+    const start = mark?.startTick;
+    // The section the mark carries, while it still starts in the mark's bar.
+    const saved =
+      mark !== undefined &&
+      isFiniteNumber(start) &&
+      start >= 0 &&
+      Math.floor(start / bar) === mark.measureIdx
+        ? mark
+        : undefined;
+    return {
+      section,
+      mark,
+      saved,
+      startTick: saved ? (start as number) : section.startTick,
+    };
+  });
+
+  const ids = new Set<string>();
+  const out = placed.map(({ section, mark, saved, startTick }, i) => {
+    const next = placed[i + 1] as (typeof placed)[number] | undefined;
+    let endTick = next ? next.startTick : section.endTick;
+    const savedEnd = saved?.endTick;
+    if (saved && isFiniteNumber(savedEnd) && savedEnd > startTick) {
+      if (saved.joined === true) {
+        endTick = next ? next.startTick : Math.max(savedEnd, section.endTick);
+      } else {
+        endTick = next ? Math.min(savedEnd, next.startTick) : savedEnd;
+      }
+    }
+    const labelType = sectionTypeOfLabel(section.label);
+    const type: SectionType =
+      labelType !== 'custom'
+        ? labelType
+        : isSectionType(mark?.type)
+          ? mark.type
+          : 'custom';
+    let id =
+      saved && isString(saved.id) && saved.id !== '' ? saved.id : section.id;
+    if (ids.has(id)) id = `${id}-${i}`;
+    ids.add(id);
+    return { id, type, label: section.label, startTick, endTick };
+  });
+  return normalizeSections(out);
 }
 
 // ── Encode ─────────────────────────────────────────────────────────────────
@@ -593,6 +758,11 @@ export function encodeSession(
     sections[place][key] = project[key];
   }
   sections.notation.marks = encodeNoteMarks(marksOf(project), tracks).marks;
+  // Builds from before 2.13 read the Lead Sheet's marks from here.
+  sections.notation.leadSheetSections = draftMarksOf(
+    project.sections,
+    timeSignatureOf(project),
+  );
 
   return {
     version: SESSION_ENVELOPE_VERSION,
@@ -769,9 +939,109 @@ const TEXT_MARK = recordWhere<ScoreTextMark>(
     (r.text === undefined || isString(r.text)),
 );
 
-const SECTION = recordWhere<AllSlices['leadSheetSections'][number]>(
+/** A Lead Sheet bar mark, as drafts before 2.13 hold them. */
+const SECTION_MARK = recordWhere<DraftSectionMark>(
   (r) => Number.isInteger(r.measureIdx) && isString(r.label),
 );
+
+/**
+ * A song section with the registry's types (SECTION_FIELDS), and any field
+ * it doesn't list kept. One without an id gets one from where it starts, a
+ * type this build doesn't know is custom, and a missing name is its type's.
+ */
+const SONG_SECTION: Check<SongSection> = (raw, repairs) => {
+  if (!isRecord(raw)) return undefined;
+  const section: Record<string, unknown> = { ...raw };
+  const spec = SECTION_FIELDS;
+  repairField(
+    section,
+    'startTick',
+    isFiniteNumber,
+    repairs,
+    specDefault(spec.startTick),
+  );
+  repairField(
+    section,
+    'endTick',
+    isFiniteNumber,
+    repairs,
+    specDefault(spec.endTick),
+  );
+  if (!isString(section.id) || section.id === '') {
+    section.id = `section-at-${section.startTick as number}`;
+    repairs.count++;
+  }
+  repairField(section, 'type', isSectionType, repairs, specDefault(spec.type));
+  repairField(
+    section,
+    'label',
+    isString,
+    repairs,
+    sectionName(section.type as SongSection['type']),
+  );
+  return section as unknown as SongSection;
+};
+
+/**
+ * The sections, in order and never overlapping (normalizeSections: one with
+ * no length is dropped, an overlapping one moved after the one before it),
+ * each id once (a repeat, which only a damaged draft holds, gets its place
+ * added). Each change is counted.
+ */
+const SONG_SECTIONS: Check<SongSection[]> = (raw, repairs) => {
+  const list = listOf(SONG_SECTION)(raw, repairs);
+  if (list === undefined) return undefined;
+  const seen = new Set<string>();
+  const unique = list.map((section, i) => {
+    if (!seen.has(section.id)) {
+      seen.add(section.id);
+      return section;
+    }
+    repairs.count++;
+    const id = `${section.id}-${i}`;
+    seen.add(id);
+    return { ...section, id };
+  });
+  const normal = normalizeSections(unique);
+  if (normal !== unique) repairs.count++;
+  return normal;
+};
+
+/**
+ * Sections read back from the Lead Sheet's marks, for a draft without
+ * readable sections (one from before 2.13): sectionsFromDraftMarks, a mark
+ * without its section running on to the end of the song after the last
+ * one. The song ends where the chord chart does, or where its last clip
+ * does when that is later (a melody with no chords).
+ */
+function sectionsFromLeadSheet(
+  raw: unknown,
+  project: Record<string, unknown>,
+  tracks: readonly SongClips[],
+  repairs: Repairs,
+): SongSection[] {
+  if (raw === undefined) return [];
+  const marks = listOf(SECTION_MARK)(raw, repairs);
+  if (marks === undefined) {
+    repairs.count++;
+    return [];
+  }
+  const ts = timeSignatureOf(
+    project as Pick<
+      AllSlices,
+      'timeSignatureNumerator' | 'timeSignatureDenominator'
+    >,
+  );
+  const endBar = Math.max(
+    chartBarCount(
+      project.chordRegions as ChordRegion[],
+      project.leadSheetBars as number | null,
+      ts,
+    ),
+    clipsEndBar(tracks, ts),
+  );
+  return sectionsFromDraftMarks(marks, ts, endBar);
+}
 const REPEAT = recordWhere<AllSlices['leadSheetRepeats'][number]>(
   (r) => Number.isInteger(r.startMeasure) && Number.isInteger(r.endMeasure),
 );
@@ -976,7 +1246,6 @@ const KEY_CHECKS: { readonly [K in SectionKey]: Check<AllSlices[K]> } = {
     hybrid: true,
     numbers: true,
   }),
-  leadSheetSections: listOf(SECTION),
   leadSheetRepeats: listOf(REPEAT),
   leadSheetShowRepeats: valid(isBoolean),
   leadSheetShowMelody: valid(isBoolean),
@@ -989,6 +1258,7 @@ const KEY_CHECKS: { readonly [K in SectionKey]: Check<AllSlices[K]> } = {
   scoreTextMarks: listOf(TEXT_MARK),
 
   markers: listOf(MARKER),
+  sections: SONG_SECTIONS,
 
   masterVolume: valid(atLeast(0)),
   masteringFxChain: STRINGS as Check<AllSlices['masteringFxChain']>,
@@ -1009,6 +1279,7 @@ const KEY_CHECKS: { readonly [K in SectionKey]: Check<AllSlices[K]> } = {
   selectedTrackId: nullable(valid(isString)),
   automationOpenTrackId: nullable(valid(isString)),
   automationParamId: valid(isString),
+  chordAnalysisDismissed: valid(isBoolean),
 };
 
 /**
@@ -1274,6 +1545,8 @@ function decodeMidiClip(
   }
   const ccEvents = decodeCcColumns(raw.ccEvents, repairs);
   if (ccEvents) clip.ccEvents = ccEvents;
+  if (isBoolean(raw.muted)) clip.muted = raw.muted;
+  else if (raw.muted !== undefined) repairs.count++;
   return clip;
 }
 
@@ -1310,6 +1583,10 @@ function decodeAudioClip(
     if (isFiniteNumber(value)) clip[field] = value;
     else if (value !== undefined) repairs.count++;
   }
+  if (isString(raw.name)) clip.name = raw.name;
+  else if (raw.name !== undefined) repairs.count++;
+  if (isBoolean(raw.muted)) clip.muted = raw.muted;
+  else if (raw.muted !== undefined) repairs.count++;
   return clip;
 }
 
@@ -1512,7 +1789,6 @@ export function decodeSession(
       repairs,
     );
   }
-
   // The tracks have no default to fall back on: one that can't be read
   // throws, and the draft is kept aside whole (see the top of this file).
   const decoded = decodeTracks(data.tracks, repairs, trackIds);
@@ -1534,6 +1810,32 @@ export function decodeSession(
   );
   Object.assign(project, linked);
   const tracks = linked.tracks;
+
+  // A draft from before 2.13 has no sections, only the Lead Sheet's marks;
+  // so has a cloud copy merged from an older document (cloudDocument.ts
+  // reads it as this schema). The sections come back from the marks, as
+  // they do when the draft's sections can't be read at all (not a list, or
+  // none of its entries usable; already counted as repairs), since the
+  // marks written beside them hold the same form.
+  const savedSections = sections.data.sections;
+  if (
+    savedSections === undefined ||
+    !Array.isArray(savedSections) ||
+    (savedSections.length > 0 &&
+      (project.sections as SongSection[]).length === 0)
+  ) {
+    project.sections = readOnItsOwn(
+      () =>
+        sectionsFromLeadSheet(
+          sections.notation.leadSheetSections,
+          project,
+          tracks,
+          repairs,
+        ),
+      () => [],
+      repairs,
+    );
+  }
 
   Object.assign(
     project,

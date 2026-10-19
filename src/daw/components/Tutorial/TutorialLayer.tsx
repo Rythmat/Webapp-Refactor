@@ -91,7 +91,14 @@ export function TutorialLayer() {
     const r = step.requires;
     if (r?.view !== undefined) setCurrentView(r.view);
     if (r?.libraryOpen !== undefined) setLibraryOpen(r.libraryOpen);
-    if (r?.channelStripTab !== undefined) setChannelStripTab(r.channelStripTab);
+    if (r?.channelStripTab !== undefined) {
+      // A step that opens a track's tab means the track's dock, not Master
+      // (else its Effects library would fill the master chain).
+      useStore.getState().setDockMaster(false);
+      setChannelStripTab(r.channelStripTab);
+    }
+    if (r?.effectsLibrary) useStore.getState().showInspectorPanel('fx');
+    if (r?.mixRack) useStore.getState().setMixRack(r.mixRack);
     if (r?.automationParam !== undefined)
       setAutomationParamId(r.automationParam);
     if (r?.clearClipSelection) {
@@ -119,6 +126,26 @@ export function TutorialLayer() {
       }),
     [reportCompletion],
   );
+
+  // A step's session-only preconditions don't survive a reload, while the
+  // step resumes prepared (the draft keeps the rest of its view): the Mix
+  // view's rack opens again for the step that needs it, once as the step
+  // mounts (Escape can still shut it after).
+  const mixRackNeeded = step?.requires?.mixRack;
+  useEffect(() => {
+    if (!mixRackNeeded) return;
+    const live = useStore.getState();
+    if (
+      live.tutorialStepPrepared &&
+      live.currentView === 'studio' &&
+      live.mixRack === null
+    ) {
+      live.setMixRack(mixRackNeeded);
+      if (step?.requires?.effectsLibrary) live.showInspectorPanel('fx');
+    }
+    // Once per step.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, stepIndex]);
 
   // Detect the correct adjustment for validated steps.
   useTutorialDetection(step, !!tutorial && status === 'waiting', complete);

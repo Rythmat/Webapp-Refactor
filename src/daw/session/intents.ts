@@ -394,6 +394,7 @@ function fromDraft(
         : lastSavedFromDraft(
             prepared.meta.cloud,
             useStore.getState().projectId,
+            prepared.meta,
           ),
     collabWait: null,
     claimDevice: prepared.meta.userKey === DEVICE_USER_KEY,

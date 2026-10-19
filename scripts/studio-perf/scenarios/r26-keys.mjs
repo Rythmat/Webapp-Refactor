@@ -12,13 +12,15 @@
  * - recordGuardBothWays: R over an existing take asks first, from the key
  *   and from the Record button.
  * - sheetListsCommands: '?' opens the shortcut sheet listing the commands,
- *   every scope's heading among them, and Escape closes it without stopping
- *   anything.
+ *   every scope's heading among them and none of the palette's key-less
+ *   commands (Export…, Add a track…, Go to Mix, Open the Library), and
+ *   Escape closes it without stopping anything.
  * - pageZoomFree: ⌘/Ctrl with = and − reach the browser (not prevented) and
  *   leave the timeline's zoom; ⌥= zooms the timeline.
- * - typingChipFits: the computer-keyboard chip is in the TopRail at
- *   1366×655, 1440×787 and 1280×720, on and off: unclipped, at least 24 px
- *   high, Glacial at 12 px or more, no teal or brand yellow.
+ * - typingChipFits: while the computer keyboard is on, its chip is in the
+ *   top bar at 1366×655, 1440×787 and 1280×720: unclipped, at least 24 px
+ *   high, Glacial at 12 px or more, no teal or brand yellow; off, it is
+ *   gone (its switch is in '⋯' since 2.7).
  * - noticeOnce: a student new to 1.6 gets the "shortcuts changed" notice
  *   once, and not again after a reload.
  */
@@ -43,7 +45,7 @@ export const flags = {
   },
   sheetListsCommands: {
     goal: true,
-    text: '? opened the shortcut sheet with every scope’s commands',
+    text: '? opened the shortcut sheet with every scope’s commands and none of the key-less ones',
   },
   pageZoomFree: {
     goal: true,
@@ -212,8 +214,11 @@ async function keysIn(kit, run) {
         };
       });
     const before = await transport();
-    await page.click(`${SLOT} ${CHIP}`);
+    // ` turns it on (the chip shows only while it is on since 2.7; the
+    // top bar's '⋯' has the switch).
     await blur(page);
+    await page.keyboard.press('Backquote');
+    await kit.sleep(100);
     await page.keyboard.down('KeyL');
     await kit.sleep(100);
     const held = await transport();
@@ -223,8 +228,9 @@ async function keysIn(kit, run) {
     const playing = await transport();
     await page.keyboard.press('Backquote');
     await kit.sleep(100);
+    // Off: the chip leaves the bar.
     const chipOff = await page.evaluate(
-      (sel) => document.querySelector(sel)?.getAttribute('aria-pressed'),
+      (sel) => (document.querySelector(sel) ? 'shown' : 'gone'),
       `${SLOT} ${CHIP}`,
     );
     await page.keyboard.press('KeyL');
@@ -304,6 +310,15 @@ async function keysIn(kit, run) {
           'Octave up',
           'Single-key shortcuts',
         ].filter((t) => dialog.textContent.includes(t)),
+        // The palette's key-less commands (2.15) are not shortcuts: the
+        // sheet lists none of them.
+        keyless: [...dialog.querySelectorAll('li')]
+          .map((li) => li.textContent.trim())
+          .filter((text) =>
+            ['Export…', 'Add a track…', 'Go to Mix', 'Open the Library'].some(
+              (t) => text.includes(t),
+            ),
+          ),
       };
     });
     await page.keyboard.press('Escape');
@@ -350,23 +365,25 @@ async function keysIn(kit, run) {
     for (const viewport of VIEWPORTS) {
       await page.setViewportSize(viewport);
       await kit.sleep(300);
-      for (const on of [false, true]) {
-        const pressed = await page.evaluate(
-          (sel) => document.querySelector(sel)?.getAttribute('aria-pressed'),
-          `${SLOT} ${CHIP}`,
-        );
-        if ((pressed === 'true') !== on) await page.click(`${SLOT} ${CHIP}`);
-        await kit.sleep(150);
-        chips.push({
-          viewport: `${viewport.width}x${viewport.height}`,
-          on,
-          ...(await page.evaluate(measureTypingChip, {
-            slot: SLOT,
-            chip: CHIP,
-          })),
-        });
-      }
+      // On, the chip is measured; off, it is gone from the bar.
+      await blur(page);
+      await page.keyboard.press('Backquote');
+      await kit.sleep(150);
+      chips.push({
+        viewport: `${viewport.width}x${viewport.height}`,
+        on: true,
+        ...(await page.evaluate(measureTypingChip, { slot: SLOT, chip: CHIP })),
+      });
       await page.click(`${SLOT} ${CHIP}`);
+      await kit.sleep(150);
+      chips.push({
+        viewport: `${viewport.width}x${viewport.height}`,
+        on: false,
+        gone: await page.evaluate(
+          (sel) => !document.querySelector(sel),
+          `${SLOT} ${CHIP}`,
+        ),
+      });
     }
     checks.chips = chips;
     return checks;
@@ -399,7 +416,8 @@ async function keys(kit, run) {
   const k = await keysIn(kit, run);
   const notice = await noticeIn(kit, run);
   const t = k.typing;
-  const chipOk = (c) =>
+  const chipOk = (c) => (c.on === false ? c.gone === true : chipShown(c));
+  const chipShown = (c) =>
     c.onScreen &&
     !c.clipped &&
     c.height >= 24 &&
@@ -417,7 +435,7 @@ async function keys(kit, run) {
         t.held.lit.includes(74) &&
         t.playing.loop === t.before.loop &&
         t.playing.metronome === t.before.metronome &&
-        t.chipOff === 'false' &&
+        t.chipOff === 'gone' &&
         t.off.loop !== t.before.loop,
       recordGuardBothWays:
         k.guard.fromKey && k.guard.fromButton && !k.guard.recording,
@@ -425,6 +443,7 @@ async function keys(kit, run) {
         !!k.sheet &&
         k.sheet.rows >= 40 &&
         k.sheet.has.length === 6 &&
+        k.sheet.keyless.length === 0 &&
         k.sheetClosed,
       pageZoomFree:
         k.zoom.zoomAfterMod === k.zoom.zoomBefore &&

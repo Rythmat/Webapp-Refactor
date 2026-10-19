@@ -555,7 +555,6 @@
               }
             ]
           },
-          "notationStaff": "treble",
           "sourceTrackId": "trk-keys"
         }
       },
@@ -1625,7 +1624,8 @@
               "durations": [120, 120],
               "channels": [9, 9],
               "ids": ["DrumNote0001", "DrumNote0002"]
-            }
+            },
+            "muted": true
           }
         ],
         "audioClips": [],
@@ -1808,7 +1808,9 @@
             "fadeOutTicks": 240,
             "assetId": "asset-take-1",
             "offsetSeconds": 0.5,
-            "gain": 0.7
+            "gain": 0.7,
+            "name": "Solo take",
+            "muted": true
           }
         ],
         "trackRole": "auto",
@@ -2837,7 +2839,7 @@
       ],
       "leadSheetShowRepeats": true,
       "leadSheetShowMelody": true,
-      "leadSheetMelodyTrackIds": ["trk-lead", "trk-keys"],
+      "leadSheetMelodyTrackId": "trk-lead",
       "scoreChordTracks": ["trk-keys"],
       "scoreChordHidden": ["trk-keys:chord-2"],
       "scoreSystemBreaks": [4],
@@ -2872,7 +2874,8 @@
       "timelineScrollLeft": 300,
       "selectedTrackId": "trk-drums",
       "automationOpenTrackId": "trk-keys",
-      "automationParamId": "pan"
+      "automationParamId": "pan",
+      "chordAnalysisDismissed": true
     }
   }
 }

@@ -58,16 +58,27 @@ export interface UnisonSlice {
   // lane only takes them through applyChordSymbols — the user's "Use Chord
   // Symbols" — so it always holds chords the user accepted.
   chordAnalysis: ChordAnalysis | null;
-  // A just-opened project has notes but no chord symbols: ask whether to
-  // analyze them (ChordAnalysisPrompt).
+  // A just-opened project has notes but no chord symbols: the chord lane
+  // offers to analyze them (ChordAnalysisBanner), without blocking anything.
+  chordAnalysisOffered: boolean;
+  // The student said Not now to that offer on this project; its draft keeps
+  // it, so the banner doesn't come back on every open (insight-22).
+  chordAnalysisDismissed: boolean;
+  // The analysis dialog (ChordAnalysisPrompt), opened from the banner.
   chordAnalysisPromptOpen: boolean;
   /** Analyze these tracks (null: every track, by role) and keep the proposal. */
   analyzeChords: (trackIds?: string[] | null) => ChordAnalysis;
   proposeChordSymbols: (analysis: ChordAnalysis) => void;
   /** Put the proposed chord symbols in the chord lane. */
   applyChordSymbols: () => void;
-  /** Open the prompt when the project has chord notes but no chord symbols. */
+  /**
+   * Offer the analysis (the chord lane's banner) when the project has chord
+   * notes but no chord symbols, unless the student declined it here.
+   */
   offerChordAnalysis: () => void;
+  /** Not now: the banner goes, and stays gone on this project. */
+  dismissChordAnalysis: () => void;
+  openChordAnalysisPrompt: () => void;
   closeChordAnalysisPrompt: () => void;
   analyzeAudio: (
     audioBuffer: AudioBuffer,
@@ -113,6 +124,8 @@ export const createUnisonSlice: StateCreator<
   clearSelectionAnalysis: () => set({ selectionAnalysis: null }),
 
   chordAnalysis: null,
+  chordAnalysisOffered: false,
+  chordAnalysisDismissed: false,
   chordAnalysisPromptOpen: false,
 
   analyzeChords: (trackIds = null) => {
@@ -142,11 +155,21 @@ export const createUnisonSlice: StateCreator<
   },
 
   offerChordAnalysis: () => {
-    const { chordRegions, tracks } = get();
-    if (chordRegions.length === 0 && hasHarmonyNotes(tracks)) {
-      set({ chordAnalysisPromptOpen: true });
+    const { chordRegions, tracks, chordAnalysisDismissed } = get();
+    if (
+      !chordAnalysisDismissed &&
+      chordRegions.length === 0 &&
+      hasHarmonyNotes(tracks)
+    ) {
+      set({ chordAnalysisOffered: true });
     }
   },
+
+  dismissChordAnalysis: () =>
+    set({ chordAnalysisOffered: false, chordAnalysisDismissed: true }),
+
+  openChordAnalysisPrompt: () =>
+    set({ chordAnalysisOffered: false, chordAnalysisPromptOpen: true }),
 
   closeChordAnalysisPrompt: () => set({ chordAnalysisPromptOpen: false }),
 

@@ -274,12 +274,14 @@ export function startTrackReconciler(
     trackEngine.updateEffects(track.effects);
     applySends(trackEngine, track);
     if (playing) reassert(track, trackEngine);
-    // Ducker key source: resolve any OTHER track's analyser by id from the
-    // registry. Returns null for self (no feedback) or a missing key (fail
-    // silent), and re-resolves live so key deletion/creation is handled.
+    // Ducker key source: any OTHER track's post-fader tap, by id from the
+    // registry; the ducker connects it to its key input. Null for a missing
+    // key (fail silent) and for a key whose own ducker chain leads back here
+    // (the tap is a real audio edge now, and a loop of them would be a
+    // cycle). The reconcile pass refreshes every key once engines change.
     const ownId = track.id;
     trackEngine.setKeySourceResolver((keyId) =>
-      keyId === ownId
+      duckerKeyLoops(ownId, keyId)
         ? null
         : (getTrackAudioState(keyId)?.trackEngine.getAnalyserNode() ?? null),
     );
@@ -436,7 +438,13 @@ export function startTrackReconciler(
     // Readers that hold a track's engine (the meters, the instrument panels)
     // re-read on this. A load makes every engine again under the same track
     // ids, so a reader keyed on the id alone would keep the disposed engine.
-    if (enginesChanged) notifyEngineReady();
+    // The duckers re-resolve their key taps for the same reason.
+    if (enginesChanged) {
+      for (const state of trackEngineRegistry.values()) {
+        state.trackEngine.refreshDuckerKey();
+      }
+      notifyEngineReady();
+    }
   }
 
   function safeReconcile(): void {
@@ -546,6 +554,24 @@ function isPedalAdapter(
 /** Whether a track has any automation lane. */
 function hasLanes(track: Track): boolean {
   return Object.keys(track.automation ?? {}).length > 0;
+}
+
+/**
+ * Whether ducking track `ownId` by `keyId` would close a loop: the key is the
+ * track itself, or the key's ducker (and its key's, and so on) is keyed by it.
+ */
+export function duckerKeyLoops(ownId: string, keyId: string): boolean {
+  const tracks = useStore.getState().tracks;
+  const seen = new Set<string>();
+  let id: string | null = keyId;
+  while (id !== null && !seen.has(id)) {
+    if (id === ownId) return true;
+    seen.add(id);
+    const at: string = id;
+    const ducker = tracks.find((t) => t.id === at)?.effects?.ducker;
+    id = ducker?.enabled ? ducker.keyTrackId : null;
+  }
+  return false;
 }
 
 function currentTrack(id: string): Track | undefined {

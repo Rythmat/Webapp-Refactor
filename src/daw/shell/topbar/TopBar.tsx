@@ -1,10 +1,15 @@
-import { MoreHorizontal, Settings2 } from 'lucide-react';
+import { MoreHorizontal, Search, Settings2 } from 'lucide-react';
 import { memo, useMemo, useRef } from 'react';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
+import { QUIET } from '@/daw/ui/styles';
+import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
+import { shortcutKeys } from '@/daw/commands/shortcuts';
+import { usePaletteStore } from '@/daw/shell/help/usePaletteStore';
 import {
   Menu,
+  MenuCheckboxItem,
   MenuContent,
   MenuItem,
   MenuSeparator,
@@ -12,46 +17,42 @@ import {
 } from '@/daw/ui/Menu';
 import { AvatarMenu } from './AvatarMenu';
 import { BackToStudio } from './BackToStudio';
-import { CountInItems } from './ClickToggle';
-import { HelpItems, HelpMenu } from './HelpMenu';
-import { InspectorToggle } from './InspectorToggle';
+import { ExportPill } from './ExportPill';
+import { HelpItems } from './HelpMenu';
 import { MusicalTypingChip } from './MusicalTypingChip';
 import { ProjectMenu } from './ProjectMenu';
 import { ProjectName } from './ProjectName';
 import { SaveChipAnnouncer, SaveStatusChip } from './SaveStatusChip';
-import { SettingsButton } from './SettingsButton';
 import { SharePill } from './SharePill';
-import { SongChip } from './SongChip';
-import { TransportControls } from './TransportControls';
 import { UndoRedoButtons } from './UndoRedoButtons';
 import { ViewTabs } from './ViewTabs';
 import { folded, useToolbarOverflow } from './useToolbarOverflow';
 
-// ── The editor's top bar (milestone 2.5) ───────────────────────────────────
+// ── The editor's top bar (milestones 2.5, 2.7, B4a) ────────────────────────
 //
 // 44 px, three zones (shell-19, ia-flows-24):
 // - project: Back to Studio, the Project menu, the name, the save chip,
 //   Undo and Redo;
-// - transport: Back, Stop, Play, Record, the readout, Loop, Click;
-// - song and views: the Song chip, the view tabs, Share, the computer
-//   keyboard's switch, the Inspector toggle, Help, Settings and the avatar.
-// The transport sits centred in the room the other two leave. When the
-// zones don't fit, the bar folds (useToolbarOverflow) and the '⋯' menu
-// holds what it folded. Each control subscribes to its own state, so
-// playback and edits re-render none of the bar (the readout writes itself).
-// The left zone leaves room for Stage D's assignment strip and the
-// read-only review banner (4.1).
+// - views: the view tabs, centred;
+// - share: Share, the computer keyboard's chip while it is on, '⋯', the
+//   white Export pill (2.15) and the avatar.
+// The owner found the bar too busy (2026-10-16), so it was trimmed and
+// quieted (2.7: Back, Forward and Stop left it; Help, Settings and the
+// keyboard's switch went into '⋯'; Share is an icon; the secondary buttons
+// are dimmer), and then, after Soundtrap's, the transport and the song moved
+// to the bottom rail and the Inspector's toggle to the side rail (B4a).
+// When the zones don't fit, the bar folds (useToolbarOverflow). Each
+// control subscribes to its own state, so playback and edits re-render
+// none of the bar. The left zone leaves room for Stage D's assignment strip
+// and the read-only review banner (4.1).
 
-/** The least room either side of the transport (the grid's spacers). */
+/** The least room either side of the tabs (the grid's spacers). */
 const BAR_CHROME_PX = 4 + 4;
 
-export const TopBar = memo(function TopBar({
-  isReady,
-  onInit,
-}: {
-  isReady: boolean;
-  onInit(): void;
-}) {
+const TYPING_KEYS = shortcutKeys('typing.on');
+const PALETTE_KEYS = shortcutKeys('help.palette');
+
+export const TopBar = memo(function TopBar() {
   useDevCommitCount('TopBar');
   const barRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -61,10 +62,6 @@ export const TopBar = memo(function TopBar({
   const fold = useToolbarOverflow(barRef, zones, BAR_CHROME_PX);
   // Undo and Redo are off in the practice view, as Cmd+Z is.
   const practiceView = useStore((s) => s.currentView === 'practice');
-
-  const helpFolded = folded(fold, 'help-settings');
-  const countInFolded = folded(fold, 'count-in');
-  const anyFolded = helpFolded || countInFolded;
 
   return (
     <>
@@ -95,38 +92,24 @@ export const TopBar = memo(function TopBar({
         <div
           ref={centreRef}
           role="group"
-          aria-label="Transport"
-          data-zone="transport"
+          aria-label="Views"
+          data-zone="views"
           className="flex items-center"
         >
-          <TransportControls
-            isReady={isReady}
-            onInit={onInit}
-            countInFolded={countInFolded}
-          />
+          <ViewTabs tight={folded(fold, 'tabs-tight')} />
         </div>
         <span aria-hidden />
         <div
           ref={rightRef}
           role="group"
-          aria-label="Song and views"
-          data-zone="views"
+          aria-label="Share and account"
+          data-zone="share"
           className="flex items-center gap-1"
         >
-          <SongChip short={folded(fold, 'song-short')} />
-          <ViewTabs tight={folded(fold, 'tabs-tight')} />
-          <SharePill iconOnly={folded(fold, 'share-icon')} />
-          <MusicalTypingChip compact={folded(fold, 'typing-icon')} />
-          <InspectorToggle />
-          {helpFolded ? null : (
-            <>
-              <HelpMenu />
-              <SettingsButton />
-            </>
-          )}
-          {anyFolded ? (
-            <OverflowMenu help={helpFolded} countIn={countInFolded} />
-          ) : null}
+          <SharePill iconOnly />
+          <MusicalTypingChip />
+          <MoreMenu />
+          <ExportPill iconOnly={folded(fold, 'export-icon')} />
           <AvatarMenu className="ml-1" />
         </div>
       </div>
@@ -137,9 +120,22 @@ export const TopBar = memo(function TopBar({
   );
 });
 
-/** What the bar folded away: Help and Settings, the count-in. */
-function OverflowMenu({ help, countIn }: { help: boolean; countIn: boolean }) {
+/** The '⋯' menu's switches, each with its one line (2.11). */
+export const MORE_COPY = {
+  typing: 'Letter keys play notes on the selected track',
+  hoverHints: 'Say what each control does at the bottom',
+} as const;
+
+/**
+ * '⋯': the computer keyboard's switch, the hover hints' switch, the command
+ * palette, Help (shortcuts, lessons) and Audio & MIDI settings.
+ */
+function MoreMenu() {
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
+  const hoverHints = useStore((s) => s.hoverHints);
+  const setHoverHints = useStore((s) => s.setHoverHints);
+  const typing = useMusicalTypingStore((s) => s.enabled);
+  const setTyping = useMusicalTypingStore((s) => s.setEnabled);
   return (
     <Menu>
       <MenuTrigger asChild>
@@ -148,22 +144,44 @@ function OverflowMenu({ help, countIn }: { help: boolean; countIn: boolean }) {
           icon={<MoreHorizontal />}
           tooltipSide="bottom"
           data-testid="top-bar-overflow"
+          className={QUIET}
         />
       </MenuTrigger>
-      <MenuContent align="end" sideOffset={6}>
-        {countIn ? <CountInItems /> : null}
-        {countIn && help ? <MenuSeparator /> : null}
-        {help ? (
-          <>
-            <HelpItems />
-            <MenuItem
-              icon={<Settings2 />}
-              onSelect={() => setSettingsOpen(true)}
-            >
-              Audio & MIDI settings
-            </MenuItem>
-          </>
-        ) : null}
+      <MenuContent align="end" sideOffset={6} data-ds="v2">
+        <MenuCheckboxItem
+          checked={typing}
+          onCheckedChange={setTyping}
+          shortcut={TYPING_KEYS.label}
+          description={MORE_COPY.typing}
+          data-testid="typing-menu-item"
+        >
+          Play notes from the computer keyboard
+        </MenuCheckboxItem>
+        <MenuCheckboxItem
+          checked={hoverHints}
+          onCheckedChange={setHoverHints}
+          description={MORE_COPY.hoverHints}
+          data-testid="hover-hints-menu-item"
+        >
+          Hover hints
+        </MenuCheckboxItem>
+        <MenuItem
+          icon={<Search />}
+          shortcut={PALETTE_KEYS.label}
+          data-testid="palette-menu-item"
+          onSelect={() => usePaletteStore.getState().open()}
+        >
+          Find a command
+        </MenuItem>
+        <MenuSeparator />
+        <HelpItems />
+        <MenuItem
+          icon={<Settings2 />}
+          data-testid="settings-button"
+          onSelect={() => setSettingsOpen(true)}
+        >
+          Audio & MIDI settings
+        </MenuItem>
       </MenuContent>
     </Menu>
   );

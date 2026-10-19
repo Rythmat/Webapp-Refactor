@@ -56,21 +56,3 @@ export function resolveEditorClip(
   }
   return clipAt(track.midiClips, state.position) ?? track.midiClips[0];
 }
-
-/**
- * The track the dock's note editor works on: the selected clip's when a
- * MIDI clip is selected (a click on the timeline selects a clip, not its
- * track), else the selected track.
- */
-export function editorTrackId(
-  state: EditorClipState & { selectedTrackId: string | null },
-): string | null {
-  const { selectedClipId, selectedClipTrackId } = state;
-  if (selectedClipId && selectedClipTrackId) {
-    const track = state.tracks.find((t) => t.id === selectedClipTrackId);
-    if (track?.midiClips.some((c) => c.id === selectedClipId)) {
-      return selectedClipTrackId;
-    }
-  }
-  return state.selectedTrackId;
-}

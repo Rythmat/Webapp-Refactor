@@ -1,6 +1,6 @@
 // ── PresenceTrackDots ────────────────────────────────────────────────────
-// Renders small colored dots on a track header for each remote user who
-// has that track selected. Integrates into TrackHeader's row 1.
+// Renders small colored dots on a track row for each remote user who has
+// that track selected, beside the row's name (shell/tracklist/TrackRow).
 
 import { useTrackPresence } from '../presence';
 
@@ -23,10 +23,7 @@ export function PresenceTrackDots({ trackId }: PresenceTrackDotsProps) {
         />
       ))}
       {users.length > 4 && (
-        <span
-          className="text-[8px] font-medium"
-          style={{ color: 'var(--daw-text-3)' }}
-        >
+        <span className="text-[11px] font-medium text-daw-text-3">
           +{users.length - 4}
         </span>
       )}

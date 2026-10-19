@@ -9,6 +9,7 @@ import {
 } from '../keys';
 import '../keymaps';
 import { allScopes, commandsOf, type ScopeDef } from '../registry';
+import { SCOPE_ORDER, scopeRank, sortedScopes } from '../scopeOrder';
 
 /** A binding as one comparable string, modifiers and all. */
 function bindingKey(binding: string): string {
@@ -74,7 +75,10 @@ describe('the command registry', () => {
     for (const scope of allScopes()) {
       for (const command of commandsOf(scope.id)) {
         const keys = command.keys.map(bindingKey);
-        expect(keys.every((key) => /\bF\d+$/.test(key))).toBe(false);
+        // A command without keys (the palette's, 2.15) has no F key either.
+        if (keys.length > 0) {
+          expect(keys.every((key) => /\bF\d+$/.test(key))).toBe(false);
+        }
         if (keys.includes('Delete')) expect(keys).toContain('Backspace');
       }
     }
@@ -86,7 +90,8 @@ describe('the command registry', () => {
         .filter((c) => c.allowInEditable)
         .map((c) => c.id),
     );
-    expect(editable).toEqual(['project.save']);
+    // And the palette's keys, which open it from the project's name too.
+    expect(editable).toEqual(['project.save', 'help.palette']);
   });
 
   it('names every pass-through it allows', () => {
@@ -99,6 +104,98 @@ describe('the command registry', () => {
     for (const scope of allScopes()) {
       for (const id of scope.passThrough ?? []) expect(ids).toContain(id);
     }
+  });
+});
+
+describe('the command palette’s keys and commands (2.15)', () => {
+  const PALETTE_KEYS = ['Mod+KeyK', 'Mod+Shift+KeyP'];
+
+  it('opens the palette on ⌘K and ⇧⌘P, which aren’t the browser’s', () => {
+    const palette = commandsOf('global').find((c) => c.id === 'help.palette');
+    expect(palette?.keys.map(bindingKey)).toEqual(PALETTE_KEYS);
+    const reserved = new Set([
+      'Mod+Equal',
+      'Mod+Minus',
+      'Mod+Digit0',
+      'Mod+KeyN',
+      'Mod+KeyT',
+      'Mod+KeyW',
+      'Mod+KeyR',
+      'Mod+KeyL',
+    ]);
+    for (const key of PALETTE_KEYS) expect(reserved.has(key)).toBe(false);
+  });
+
+  it('leaves ⌘K and ⇧⌘P to the palette in every view, but the lead sheet’s chord', () => {
+    // leadsheet.chord answers ⌘K only with something selected, and returns
+    // false otherwise, so ⌘K falls through to the palette.
+    const others = allScopes()
+      .filter((scope) => scope.level === 'global' || scope.level === 'view')
+      .flatMap((scope) =>
+        commandsOf(scope.id).filter(
+          (c) =>
+            c.id !== 'help.palette' &&
+            c.keys.some((k) => PALETTE_KEYS.includes(bindingKey(k))),
+        ),
+      )
+      .map((c) => c.id);
+    expect(others).toEqual(['leadsheet.chord']);
+  });
+
+  it('gives every command the palette leaves out a key', () => {
+    const left = allScopes().flatMap((scope) =>
+      commandsOf(scope.id).filter((c) => c.palette === false),
+    );
+    expect(left.map((c) => c.id)).toEqual(
+      expect.arrayContaining([
+        'prism.pick',
+        'score.duration',
+        'score.articulation',
+      ]),
+    );
+    for (const command of left) expect(command.keys.length).toBeGreaterThan(0);
+  });
+
+  it('declares commands without keys only where the palette can reach them', () => {
+    const keyless = allScopes().flatMap((scope) =>
+      commandsOf(scope.id)
+        .filter((c) => c.keys.length === 0)
+        .map((c) => ({ command: c, scope })),
+    );
+    expect(keyless.map(({ command }) => command.id)).toEqual(
+      expect.arrayContaining([
+        'track.add',
+        'view.create',
+        'view.mix',
+        'view.score',
+        'view.library',
+        'view.effects',
+        'view.settings',
+      ]),
+    );
+    for (const { command, scope } of keyless) {
+      expect(['global', 'arrange']).toContain(scope.id);
+      expect(command.hidden).toBeFalsy();
+      expect(command.palette).not.toBe(false);
+    }
+  });
+
+  it('puts the track list’s Duplicate on ⌘D', () => {
+    const duplicate = commandsOf('tracks').find(
+      (c) => c.id === 'tracks.duplicate',
+    );
+    expect(duplicate?.keys.map(bindingKey)).toEqual(['Mod+KeyD']);
+  });
+
+  it('lists every declared scope in SCOPE_ORDER, once', () => {
+    const declared = allScopes().map((scope) => scope.id);
+    for (const id of declared) expect(SCOPE_ORDER).toContain(id);
+    expect(new Set(SCOPE_ORDER).size).toBe(SCOPE_ORDER.length);
+    expect(sortedScopes().map((scope) => scope.id)).toEqual(
+      SCOPE_ORDER.filter((id) => declared.includes(id)),
+    );
+    expect(scopeRank('global')).toBe(0);
+    expect(scopeRank('not-a-scope')).toBe(SCOPE_ORDER.length);
   });
 });
 

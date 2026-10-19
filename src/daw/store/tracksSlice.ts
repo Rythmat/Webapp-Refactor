@@ -1,4 +1,5 @@
 import type { StateCreator } from 'zustand';
+import { MAX_RACK_EFFECTS } from './effectRack';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
 import type { AllSlices } from './index';
 import { genreSettings } from './genreSettings';
@@ -22,7 +23,7 @@ import {
 } from '@/daw/audio/automation';
 import type { SamplerSampleRef } from '@/daw/instruments/samplerChops';
 import type { OrganState } from '@/daw/instruments/TonewheelOrganEngine';
-import { toast } from '@/hooks/use-toast';
+import { notice } from '@/daw/shell/notice';
 
 // The store's index creates this slice as it loads, so nothing imported
 // here may load the store: not '@/daw/store' and not initialState.ts, which
@@ -140,6 +141,9 @@ export interface MidiClip {
   durationTicks?: number;
   events: MidiNoteEvent[];
   ccEvents?: MidiCCEvent[];
+  /** Muted from the clip menu (milestone 2.12): it stays in place but plays
+   *  nothing. Absent when it plays. */
+  muted?: boolean;
 }
 
 /** Audio clip metadata (no AudioBuffer — not serializable). */
@@ -159,6 +163,11 @@ export interface AudioClip {
   offsetSeconds?: number;
   /** Per-clip gain multiplier; defaults to 1 (no change). */
   gain?: number;
+  /** Its own name (milestone 2.12); its header shows the track's without one. */
+  name?: string;
+  /** Muted from the clip menu (milestone 2.12): it stays in place but plays
+   *  nothing. Absent when it plays. */
+  muted?: boolean;
 }
 
 export interface Track {
@@ -228,6 +237,17 @@ export interface Track {
   notationStaff?: NotationStaffSetting;
 }
 
+/**
+ * What a new track can be made with besides its instrument (addTrack): the
+ * sound it is for and its role, set before its first engine is built.
+ */
+export type TrackInit = Partial<
+  Pick<
+    Track,
+    'bassVoice' | 'gmProgram' | 'drumKit' | 'presetName' | 'trackRole'
+  >
+>;
+
 // ── Note ids ────────────────────────────────────────────────────────────
 // Every note in the store has an id of its own (model/noteIds.ts). The
 // actions that write notes make sure of it, so a note made anywhere (drawn,
@@ -292,13 +312,16 @@ export interface TracksSlice {
   /**
    * Adds a track and returns its id, or returns `''` (and shows a toast)
    * without creating anything when a project track limit would be exceeded.
+   * `init` is the sound the track is made for (its bass voice, General MIDI
+   * program, drum kit, preset name) and its role: they are on the track from
+   * its first write, so its first engine is already the right one.
    * @see getTrackLimitMessage
    */
   addTrack: (
     type: TrackType,
     instrument: InstrumentType,
     name: string,
-    color?: string,
+    init?: TrackInit,
   ) => string;
   removeTrack: (id: string) => void;
   updateTrack: (id: string, updates: Partial<Track>) => void;
@@ -418,13 +441,13 @@ export const createTracksSlice: StateCreator<
   nextColorIndex: 0,
 
   // ── Actions ──
-  addTrack: (type, instrument, name) => {
+  addTrack: (type, instrument, name, init) => {
     // Enforce per-project track limits. Returns '' (no track created) and
     // notifies the user when adding would exceed a cap, so every creation
     // path — menus, Cmd+N, drag-drop, file import — is covered.
     const limitMessage = getTrackLimitMessage(get().tracks, type);
     if (limitMessage) {
-      toast({
+      notice({
         title: 'Track limit reached',
         description: limitMessage,
         variant: 'destructive',
@@ -447,6 +470,10 @@ export const createTracksSlice: StateCreator<
     const track: Track = {
       id,
       ...initialTrackDefaults(instrument, name),
+      // An undefined in init leaves the default (a guessed role) standing.
+      ...Object.fromEntries(
+        Object.entries(init ?? {}).filter(([, v]) => v !== undefined),
+      ),
       type,
       color: assignedColor,
     };
@@ -666,7 +693,7 @@ export const createTracksSlice: StateCreator<
         (u) => u.selectedTrackId === id,
       );
       if (holder) {
-        toast({
+        notice({
           title: 'Track locked',
           description: `${holder.userName} is editing this track`,
           variant: 'destructive',
@@ -676,7 +703,7 @@ export const createTracksSlice: StateCreator<
     }
     const kind = midi ? 'midi' : 'audio';
     if (to.type !== kind) {
-      toast({
+      notice({
         title: "Can't move the clip there",
         description:
           kind === 'midi'
@@ -749,7 +776,11 @@ export const createTracksSlice: StateCreator<
     set(
       guardTrack(trackId, (state) => ({
         tracks: state.tracks.map((t) => {
-          if (t.id !== trackId || t.activeEffects.includes(effectType))
+          if (
+            t.id !== trackId ||
+            t.activeEffects.includes(effectType) ||
+            t.activeEffects.length >= MAX_RACK_EFFECTS
+          )
             return t;
           return {
             ...t,

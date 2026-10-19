@@ -17,17 +17,21 @@ import {
   type StoredSession,
 } from './codec';
 import { LOCAL_KEYS, STORE_FIELDS } from './fields';
-import { v4ToV5Notation } from './migrations';
+import { v7ToV8Notation } from './migrations';
 
 // ── The cloud document (milestone 1.5, owner decision 5) ───────────────────
 //
 // What a cloud save carries beyond today's payload: everything of the
 // project the payload has no place for (the registry's cloud 'document'
 // fields: the metre, the loop range, the mode, the chord lane, the Prism
-// builder, the Score and Lead Sheet, markers, mastering, clip lengths,
-// controller data and note ids), plus copies of the two the payload carries
-// only in places music-atlas-api hasn't confirmed it keeps (the return
-// buses, and the Master automation on the first track's settings).
+// builder, the Score and Lead Sheet, markers, song sections, mastering,
+// clip lengths, controller data, note ids, clip mutes and audio clips'
+// names), plus copies of the two the payload carries only in places
+// music-atlas-api hasn't confirmed it keeps (the return buses, and the
+// Master automation on the first track's settings). Like the draft, it
+// writes the Lead Sheet's marks its sections imply in their old place, for
+// builds from before 2.13, and reads sections back from them when an older
+// document has none (codec.ts).
 //
 // It is codec v3 (codec.ts) cut down: the same sections, the same keys at
 // the same places, written by encodeSession, so it needs no format of its
@@ -35,7 +39,8 @@ import { v4ToV5Notation } from './migrations';
 // `documentSchema`; a schema bump bumps both. The per-clip parts are keyed by
 // clip id (unique in a project) and carry a checksum of the clip's notes as
 // the payload sent them, so a part is applied only to the notes it was
-// written for.
+// written for. An audio clip's part (milestone 2.12: its name and mute) says
+// which row it was written for (its asset, start and length) the same way.
 //
 // Where it travels (docs/studio-cloud-document-contract.md):
 // - the `document` field of a studio project, once music-atlas-api has it
@@ -86,6 +91,19 @@ export interface CloudClipPart {
   ccEvents?: DraftCcColumns;
   /** Each note's id, in the payload's column order. */
   ids?: string[];
+  /** Muted from the clip menu (milestone 2.12). */
+  muted?: boolean;
+}
+
+/**
+ * What the document keeps of one audio clip (milestone 2.12): what its row
+ * has no place for. Only a named or muted clip has one.
+ */
+export interface CloudAudioClipPart {
+  /** audioRowKey of the row it was written for. */
+  row: string;
+  name?: string;
+  muted?: boolean;
 }
 
 type Section = Record<string, unknown>;
@@ -108,6 +126,8 @@ export interface CloudDocument {
   mixer?: Section;
   notation?: Section;
   clips: Record<string, CloudClipPart>;
+  /** By audio clip id; absent while no audio clip is named or muted. */
+  audioClips?: Record<string, CloudAudioClipPart>;
   [key: string]: unknown;
 }
 
@@ -137,6 +157,16 @@ export function noteChecksum(events: unknown): string {
   return `${text.length.toString(36)}-${(hash >>> 0).toString(36)}`;
 }
 
+/**
+ * Which row an audio clip's part belongs to: its asset, start and length, as
+ * the payload carries them. A clip an older app moved, trimmed or swapped
+ * no longer matches, and its part is left out rather than put on it.
+ */
+export function audioRowKey(row: unknown): string {
+  const r = isRecord(row) ? row : {};
+  return `${String(r.assetId ?? '')}:${String(r.startTick ?? '')}:${String(r.duration ?? '')}`;
+}
+
 const noPatches = () => undefined;
 
 // ── Writing ────────────────────────────────────────────────────────────────
@@ -163,8 +193,12 @@ export function encodeCloudDocument(project: ProjectSnapshot): CloudDocument {
       section[key] = (data[place] as Section)[key];
     }
   }
-  const marks = (data.notation as Section | undefined)?.marks;
-  if (marks !== undefined) (doc.notation ??= {}).marks = marks;
+  const notation = data.notation as Section | undefined;
+  if (notation?.marks !== undefined)
+    (doc.notation ??= {}).marks = notation.marks;
+  if (notation?.leadSheetSections !== undefined) {
+    (doc.notation ??= {}).leadSheetSections = notation.leadSheetSections;
+  }
 
   for (const track of draft.data.tracks) {
     for (const clip of track.midiClips) {
@@ -175,7 +209,15 @@ export function encodeCloudDocument(project: ProjectSnapshot): CloudDocument {
       }
       if (clip.ccEvents !== undefined) part.ccEvents = clip.ccEvents;
       if (ids !== undefined && ids.length > 0) part.ids = ids;
+      if (clip.muted !== undefined) part.muted = clip.muted;
       doc.clips[clip.id] = part;
+    }
+    for (const clip of track.audioClips) {
+      if (clip.name === undefined && clip.muted === undefined) continue;
+      const part: CloudAudioClipPart = { row: audioRowKey(clip) };
+      if (clip.name !== undefined) part.name = clip.name;
+      if (clip.muted !== undefined) part.muted = clip.muted;
+      (doc.audioClips ??= {})[clip.id] = part;
     }
   }
   return doc;
@@ -368,6 +410,25 @@ export function cloudProjectDraft(
     if (part.ids !== undefined && isRecord(raw.events)) {
       clip.events = { ...raw.events, ids: part.ids };
     }
+    if (part.muted !== undefined) clip.muted = part.muted;
+    return clip;
+  };
+
+  const audioParts = doc && isRecord(doc.audioClips) ? doc.audioClips : {};
+  const audioClip = (raw: unknown, trackIndex: number, clipIndex: number) => {
+    if (!isRecord(raw)) return raw;
+    const clip: Record<string, unknown> = {
+      ...raw,
+      id: audioClipId(trackIndex, clipIndex),
+    };
+    const part = audioParts[clip.id as string];
+    if (!isRecord(part)) return clip;
+    if (part.row !== audioRowKey(raw)) {
+      partsSkipped++;
+      return clip;
+    }
+    if (part.name !== undefined) clip.name = part.name;
+    if (part.muted !== undefined) clip.muted = part.muted;
     return clip;
   };
 
@@ -399,8 +460,7 @@ export function cloudProjectDraft(
         midiClip,
       ) as DraftMidiClip[],
       audioClips: (Array.isArray(row.audioClips) ? row.audioClips : []).map(
-        (clip, c) =>
-          isRecord(clip) ? { ...clip, id: audioClipId(i, c) } : clip,
+        (clip, c) => audioClip(clip, i, c),
       ) as DraftTrack['audioClips'],
     } satisfies Omit<
       DraftTrack,
@@ -418,12 +478,12 @@ export function cloudProjectDraft(
     notation: {},
   };
   if (doc) {
-    // A document from before schema 5 names one melody track; the draft
+    // A document from before schema 8 names one melody track; the draft
     // stamped below is this build's, so it is read as a list here rather
     // than by migrateSession.
     const docNotation =
-      isRecord(doc.notation) && (doc.schema as number) < 5
-        ? v4ToV5Notation(doc.notation)
+      isRecord(doc.notation) && (doc.schema as number) < 8
+        ? v7ToV8Notation(doc.notation)
         : doc.notation;
     for (const key of CLOUD_DOCUMENT_KEYS) {
       const place = draftPlaceOf(key);
@@ -442,6 +502,11 @@ export function cloudProjectDraft(
     const notation = doc.notation;
     if (isRecord(notation) && notation.marks !== undefined) {
       sections.notation.marks = notation.marks;
+    }
+    // A document from before 2.13 has only these; decodeSession reads the
+    // sections back from them.
+    if (isRecord(notation) && notation.leadSheetSections !== undefined) {
+      sections.notation.leadSheetSections = notation.leadSheetSections;
     }
   }
   const prism = isRecord(project.prism) ? project.prism : {};

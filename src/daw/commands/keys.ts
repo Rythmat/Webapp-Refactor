@@ -74,7 +74,9 @@ export function isCharacterKey(chord: KeyChord): boolean {
 const CODE_LABEL: Record<string, string> = {
   Space: 'Space',
   Escape: 'Esc',
+  // Return on a Mac's key; elsewhere the key says Enter (keyLabel).
   Enter: 'Return',
+  ContextMenu: 'Menu',
   Delete: 'Delete',
   Backspace: 'Backspace',
   Tab: 'Tab',
@@ -91,9 +93,10 @@ const CODE_LABEL: Record<string, string> = {
   Comma: ',',
 };
 
-function keyLabel(chord: KeyChord): string {
+function keyLabel(chord: KeyChord, apple: boolean): string {
   if (chord.char !== null) return chord.char.toUpperCase();
   const code = chord.code ?? '';
+  if (code === 'Enter' && !apple) return 'Enter';
   if (CODE_LABEL[code]) return CODE_LABEL[code];
   const letter = /^Key([A-Z])$/.exec(code);
   if (letter) return letter[1];
@@ -110,7 +113,7 @@ export function chordLabel(
   chord: KeyChord,
   apple: boolean = isApplePlatform(),
 ): string {
-  const key = keyLabel(chord);
+  const key = keyLabel(chord, apple);
   if (apple) {
     return `${chord.alt ? '⌥' : ''}${chord.shift ? '⇧' : ''}${chord.mod ? '⌘' : ''}${key}`;
   }
@@ -122,6 +125,9 @@ export function chordLabel(
   return parts.join('+');
 }
 
+/** Keys aria-keyshortcuts names by their KeyboardEvent.key. */
+const ARIA_KEY_NAMES = new Set(['Escape', 'Enter', 'ContextMenu']);
+
 /** The aria-keyshortcuts value of a chord: 'Meta+Shift+Z', 'Alt+R'. */
 export function chordAria(
   chord: KeyChord,
@@ -131,7 +137,9 @@ export function chordAria(
   if (chord.mod) parts.push(apple ? 'Meta' : 'Control');
   if (chord.alt) parts.push('Alt');
   if (chord.shift) parts.push('Shift');
-  parts.push(keyLabel(chord).replace('Esc', 'Escape'));
+  // The key's own name where the label is a nickname (Esc, Return, Menu).
+  const code = chord.code ?? '';
+  parts.push(ARIA_KEY_NAMES.has(code) ? code : keyLabel(chord, apple));
   return parts.join('+');
 }
 

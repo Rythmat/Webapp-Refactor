@@ -23,7 +23,10 @@ import { parseKeys, type KeyChord } from './keys';
 //   the drum grid). It answers only while focus is inside it.
 // - view: the keys of the view on screen (Create's timeline, the Score).
 // - global: transport, save, undo, export, the sheet.
-// The declarations live in keymaps.ts.
+// The declarations live in keymaps.ts. A command with no keys is declared
+// too (Export…, Add a track…): the command palette (⌘K, 2.15) runs every
+// command by name through the same handlers (dispatcher.ts runCommand), and
+// the '?' sheet lists only the ones with keys.
 
 export type ScopeLevel = 'dialog' | 'typing' | 'region' | 'view' | 'global';
 
@@ -57,6 +60,13 @@ export interface CommandDef {
   repeat?: boolean;
   /** Left out of the sheet (a browser key the editor only keeps away). */
   hidden?: boolean;
+  /**
+   * False for a command that means nothing without its key (a note length
+   * typed as a digit), which the command palette (2.15) leaves out.
+   */
+  palette?: false;
+  /** Other words the palette finds it by ('bounce' for Export). */
+  keywords?: readonly string[];
 }
 
 export interface DeclaredCommand extends CommandDef {

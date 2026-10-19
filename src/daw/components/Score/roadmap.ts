@@ -2,9 +2,11 @@ import type { LeadSheetRepeat, LeadSheetSection } from '@/daw/store/uiSlice';
 
 // ── Roadmap edits ──────────────────────────────────────────────────────────
 // Section marks, repeats and system breaks belong to the song, not to one
-// view, so they live in the state the lead sheet already keeps and show up in
-// both. A barline is addressed by the measure it precedes: barline 2 is the
-// one between measures 1 and 2, and barline `measureCount` closes the piece.
+// view, so they show up in both: repeats and breaks in the state the lead
+// sheet already keeps, section marks read from the song's sections
+// (milestone 2.13). A barline is addressed by the measure it precedes:
+// barline 2 is the one between measures 1 and 2, and barline `measureCount`
+// closes the piece.
 
 /**
  * The next rehearsal letter, lettered as MuseScore does: A … Z, then the

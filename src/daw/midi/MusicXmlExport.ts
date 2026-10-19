@@ -22,6 +22,11 @@ export interface LeadSheetOptions {
   timeSignature: TimeSignature;
   /** Bars added past the last chord (leadSheetBars). */
   extraBars?: number | null;
+  /**
+   * The song's sections as rehearsal marks, by the bar (0-based) each one
+   * starts at: leadSheetSectionsOf, as the Score's export writes them.
+   */
+  sections?: readonly { measureIdx: number; label: string }[];
 }
 
 // ── Root → MusicXML fifths ───────────────────────────────────────────────
@@ -228,7 +233,9 @@ export function buildLeadSheetXml(
     mode,
     timeSignature,
     extraBars = null,
+    sections = [],
   } = options;
+  const sectionAt = new Map(sections.map((s) => [s.measureIdx, s.label]));
   const beatsPerMeasure = timeSignature.numerator;
   const beatType = timeSignature.denominator;
 
@@ -289,6 +296,17 @@ export function buildLeadSheetXml(
         `          <words>\u2669 = ${bpm}</words>`,
         '        </direction-type>',
         `        <sound tempo="${bpm}"/>`,
+        '      </direction>',
+      );
+    }
+
+    const section = sectionAt.get(measure.index);
+    if (section) {
+      lines.push(
+        '      <direction placement="above">',
+        '        <direction-type>',
+        `          <rehearsal>${esc(section)}</rehearsal>`,
+        '        </direction-type>',
         '      </direction>',
       );
     }

@@ -11,6 +11,7 @@ import {
 } from '@/daw/prism-engine/types';
 import type { AllSlices } from '@/daw/store';
 import type { Marker } from '@/daw/store/markersSlice';
+import type { SongSection } from '@/daw/model/sections';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { defaultReturns, type ReturnBus } from '@/daw/store/returnsSlice';
 import type {
@@ -122,6 +123,7 @@ export const FIELD_GROUPS = [
   'prism',
   'notation',
   'markers',
+  'sections',
   'mixer',
   'view',
   'context',
@@ -255,6 +257,8 @@ const STORE_SPECS = {
   position: view('transport', 0),
   loopEnabled: view('transport', false),
   metronomeEnabled: pref('transport', false),
+  metronomeSound: pref('transport', 'click'),
+  metronomeVolume: pref('transport', -10),
   countInBars: pref('transport', 0),
   isPlaying: session('transport', false, 'project'),
   isRecording: session('transport', false, 'project'),
@@ -308,7 +312,6 @@ const STORE_SPECS = {
   measureFermatas: doc('notation', null, 'document', SHARED_UNDO),
   leadSheetBars: doc('notation', null, 'document', SHARED_UNDO),
   leadSheetChordFormat: doc('notation', 'hybrid', 'document', SHARED),
-  leadSheetSections: doc('notation', () => [], 'document', SHARED_UNDO),
   leadSheetRepeats: doc('notation', () => [], 'document', SHARED_UNDO),
   leadSheetShowRepeats: doc('notation', false, 'document', SHARED),
   leadSheetShowMelody: doc('notation', false, 'document', SHARED),
@@ -326,6 +329,9 @@ const STORE_SPECS = {
 
   // ── markers ──
   markers: doc('markers', () => [], 'document', SHARED_UNDO),
+
+  // ── song sections (milestone 2.13) ──
+  sections: doc('sections', () => [], 'document', SHARED_UNDO),
 
   // ── mixer ──
   masterVolume: doc('mixer', 0.8, 'document', SHARED_UNDO),
@@ -353,12 +359,17 @@ const STORE_SPECS = {
   timelineGridSize: pref('view', '1/4'),
   timelineSnapEnabled: pref('view', true),
   timelineTripletMode: pref('view', false),
+  followPlayhead: pref('view', true),
   singleKeyShortcuts: pref('view', true),
   // The shell's layout (milestone 2.4): per user, never per project.
   inspectorOpenByView: pref('view', () => ({})),
-  inspectorWidth: pref('view', 200),
+  inspectorWidth: pref('view', 300),
+  inspectorPanel: pref('view', 'insight'),
+  // The Library's ♡ (milestone 2.14): per user, never per project.
+  libraryFavourites: pref('view', () => []),
   dockHeights: pref('view', () => ({})),
   readoutMode: pref('view', 'bars'),
+  hoverHints: pref('view', true),
   activeTool: session('view', 'cursor', 'project'),
   scoreNoteInput: session('view', false, 'project'),
   selectedClipId: session('view', null, 'project'),
@@ -390,6 +401,8 @@ const STORE_SPECS = {
   unisonError: session('unison', null, 'project'),
   selectionAnalysis: session('unison', null, 'project'),
   chordAnalysis: session('unison', null, 'project'),
+  chordAnalysisOffered: session('unison', false, 'project'),
+  chordAnalysisDismissed: view('unison', false),
   chordAnalysisPromptOpen: session('unison', false, 'project'),
 
   // ── suggest ──
@@ -418,18 +431,21 @@ const STORE_SPECS = {
   enabledStereoOutputs: session('devices', () => [], 'page'),
 
   // ── ui ──
-  editingClipId: session('ui', null, 'project'),
-  editingClipTrackId: session('ui', null, 'project'),
   clipboardClips: session('ui', () => [], 'page'),
   clipboardAudioClip: session('ui', null, 'page'),
-  userListOpen: session('ui', false, 'page'),
-  chatPanelOpen: session('ui', false, 'page'),
   settingsOpen: session('ui', false, 'page'),
   recordingLimitModalOpen: session('ui', false, 'project'),
   lastAudioExportAt: session('ui', null, 'project'),
   leadSheetSelectedChordIdx: session('ui', null, 'project'),
   selectedChordIds: session('ui', () => [], 'project'),
   selectedNotes: session('ui', () => [], 'project'),
+  fxLibraryReturn: session('ui', null, 'project'),
+  dockEffect: session('ui', null, 'project'),
+  dockMaster: session('ui', false, 'project'),
+  dockMaximized: session('ui', false, 'project'),
+  dockNoteSelection: session('ui', null, 'project'),
+  mixRack: session('ui', null, 'project'),
+  muteAllSet: session('ui', null, 'project'),
 
   // ── collab ──
   isCollabActive: session('collab', false, 'page'),
@@ -707,6 +723,7 @@ const nestedIn =
 const trackPart = nestedIn('tracks');
 const regionPart = nestedIn('harmony');
 const markerPart = nestedIn('markers');
+const sectionPart = nestedIn('sections');
 const busPart = nestedIn('mixer');
 
 type MidiClipFields = { [K in keyof MidiClip]-?: FieldSpec<MidiClip[K]> };
@@ -718,6 +735,7 @@ export const MIDI_CLIP_FIELDS: MidiClipFields = Object.freeze({
   durationTicks: trackPart(undefined, 'document'),
   events: trackPart(() => [], 'legacy'),
   ccEvents: trackPart(undefined, 'document'),
+  muted: trackPart(undefined, 'document'),
 } satisfies MidiClipFields);
 
 type NoteEventFields = {
@@ -753,6 +771,8 @@ export const AUDIO_CLIP_FIELDS: AudioClipFields = Object.freeze({
   assetId: trackPart<string | null | undefined>(null, 'legacy'),
   offsetSeconds: trackPart(0, 'legacy'),
   gain: trackPart(1, 'legacy'),
+  name: trackPart(undefined, 'document'),
+  muted: trackPart(undefined, 'document'),
 } satisfies AudioClipFields);
 
 type ChordRegionSpecs = {
@@ -785,6 +805,19 @@ export const MARKER_FIELDS: MarkerSpecs = Object.freeze({
   name: markerPart('', 'document'),
   color: markerPart('#e8e8f0', 'document'),
 } satisfies MarkerSpecs);
+
+type SectionSpecs = { [K in keyof SongSection]-?: FieldSpec<SongSection[K]> };
+
+export const SECTION_FIELDS: SectionSpecs = Object.freeze({
+  id: sectionPart(
+    () => `section-${crypto.randomUUID().slice(0, 8)}`,
+    'document',
+  ),
+  type: sectionPart<SongSection['type']>('custom', 'document'),
+  label: sectionPart('', 'document'),
+  startTick: sectionPart(0, 'document'),
+  endTick: sectionPart(0, 'document'),
+} satisfies SectionSpecs);
 
 type ReturnBusSpecs = { [K in keyof ReturnBus]-?: FieldSpec<ReturnBus[K]> };
 

@@ -15,9 +15,9 @@
  *       and the run exits 1: a golden must not record a network outage.
  *   node scripts/studio-perf/golden.mjs --reuse=… --trace [--update]
  *       Trace mode: plays a 12 s live loop in the editor and logs when every
- *       clip, click and note is scheduled (see "Trace mode" below). Timings
- *       are for reference only, but the run exits 1 when the trace itself is
- *       broken (its sanity checks fail). With --update it also keeps each
+ *       clip, click and note is scheduled (see "Trace mode" below). The run
+ *       exits 1 when the trace itself is broken (its sanity checks fail) or
+ *       playback is off the grid (its timing checks fail, ±2 ms). With --update it also keeps each
  *       measured trace, without its raw event log, as
  *       docs/studio-perf/goldens/trace-*.json: never compared, because live
  *       timings move a little run to run.
@@ -32,6 +32,7 @@
  *          as an offline render does not depend on it; trace: chromebook by
  *          default, a list or all runs each) --wav (render: also write each
  *          render, stem and export as a WAV in the run folder, to listen to)
+ *          --legacy (trace: run on the legacy scheduler, sanity checks only)
  *          --goldens=dir (where goldens are read, and written by --update)
  *          --fixtures-dir=dir (where fixtures are read, and written by
  *          --make-fixtures) --block=host,… (render: fail every request to
@@ -57,11 +58,13 @@
  * the envelope (`version`, `schema`, `compat`) and `data`, so the extra key
  * is ignored there. The metronome is the student's pref since 1.3, which a
  * v3 draft doesn't hold: a fixture keeps it at transport.metronomeEnabled,
- * where v2 did, and loadFixture sets it. The five: demo-sunset-keys
+ * where v2 did, and loadFixture sets it. The six: demo-sunset-keys
  * (the first demo as it opens: CDN Rhodes samples, GM bass, drums),
  * loop-range (a loop-region export), trimmed-audio (clip offsetSeconds,
- * gain and fades), oracle-two-notes and metronome-countin (the trace
- * session). The demo's Rhodes samples come from gleitz.github.io, so that
+ * gain and fades), oracle-two-notes, metronome-countin (the trace
+ * session) and dynamics (a gate and a sidechain ducker, measured on the
+ * render and on the exported file: a probe with `on: 'export'` reads the
+ * file). The demo's Rhodes samples come from gleitz.github.io, so that
  * case needs the network.
  *
  * Render mode. Each fixture and rate gets a fresh page whose AudioContext
@@ -79,7 +82,12 @@
  *   - export: exportProjectAudio({ format: 'wav', range }), exactly what
  *     File > Export Audio calls (it passes no sample rate). The WAV file it
  *     returns is decoded here and measured like a render, and checked
- *     against the render at the same rate.
+ *     against the render at the same rate;
+ *   - cancel (loop-range only, CANCEL_FIXTURE): the same export aborted
+ *     through its signal once its progress passes half-way. It must stop
+ *     with an AbortError, make no file, give Tone its live context back and
+ *     leave Play moving the playhead; any other outcome is a difference,
+ *     whatever the golden holds.
  *
  * It also measures how late one EffectChain with every effect off passes an
  * impulse, which explains the offset every onset in the goldens carries.
@@ -116,7 +124,9 @@
  * the browser's own rate and again with the AudioContext forced to 48 kHz).
  * An init script patches start() and stop() of every source node type, so
  * each source the page starts is logged, with an id and the context clock
- * at the call, and the pitch params of every oscillator. Wrappers log Tone's
+ * at the call, where a buffer source would end on its own (its start plus
+ * its duration or the rest of its buffer) and when its 'ended' arrives,
+ * and the pitch params of every oscillator. Wrappers log Tone's
  * transport (start/pause/loop events and calls), the metronome and count-in
  * clicks (MembraneSynth), the instrument adapters' noteOn/noteOff/
  * allNotesOff/panic (found through usePlaybackEngine's trackEngineRegistry),
@@ -124,9 +134,11 @@
  * native call made inside an adapter call is tied to that call's note. Each
  * track's own meter is polled to show whether it is heard at all. The plan:
  * the playhead on beat 3 inside a trimmed take, a 1-bar count-in, play,
- * pause mid-beat, resume without count-in, loop laps until 12 s, stop. Each
- * transport boundary is labelled by the step that caused it (play, resume,
- * loop, pause, stop). The report gives, in ms against the beat grid (the
+ * pause mid-beat, resume without count-in, loop laps until 12 s, stop; a
+ * fixture's golden.trace.steps replaces it with its own list (play,
+ * untilTick, pause, wait, resume, seek, editNote, untilSeconds, stop; see
+ * runTracePlan). Each transport boundary is labelled by the step that
+ * caused it (play, resume, loop, seek, pause, stop). The report gives, in ms against the beat grid (the
  * transport's own start/loop times): clip start and buffer-offset error per
  * start (play, resume, loop lap, on the transport); where each clip's audio
  * really ends (its own end or a stop()) against the seam, pause or stop that
@@ -144,9 +156,19 @@
  * metronome off the grid after pause/resume (audio-core-05), trimmed clips
  * restarting from the untrimmed start on loop laps (audio-core-03), notes
  * released early at the seam (instruments-18) and Oracle voices cut at
- * 'now' (synth-engine-02). Timings are reference only; sanity checks (the
- * plan ran, every clip and MIDI track played, count-in complete, every
- * instrument and envelope wrapped, no page errors) fail the run.
+ * 'now' (synth-engine-02). Sanity checks (the plan ran, every clip and MIDI
+ * track played, count-in complete, every instrument and envelope wrapped,
+ * no page errors) fail the run, and so do the timing checks, at ±2 ms
+ * against the grid: each clip's start time and buffer offset on play,
+ * resume, every loop lap and a seek (and one start per run); metronome
+ * clicks, with no missed beat; the count-in grid and the downbeat after it;
+ * every adapter note-on; after a `seek` step, no buffer source started
+ * before it still sounding 12 ms after the seek time and every note of the
+ * run it left released by then; after an `editNote` step, the moved note
+ * sounding on the next pass at its new tick and not at its old one. With
+ * --legacy the page boots on the old scheduler (localStorage
+ * 'ma:daw:legacyScheduler' = '1', set by an init script) and only the sanity
+ * checks gate: the legacy timings are the known-bad ones.
  */
 import {
   existsSync,
@@ -176,6 +198,8 @@ const DEFAULT_GOLDEN_DIR = join(ROOT, 'docs/studio-perf/goldens');
 const RENDER_RATES = [44100, 48000];
 const TRACE_RATES = ['default', 48000];
 const TRACE_FIXTURE = 'metronome-countin';
+/** How far (ms) a gated trace timing may sit off the grid. */
+const TRACE_TOLERANCE_MS = 2;
 const RENDER_TIMEOUT_MS = 120_000;
 const INSTRUMENT_TIMEOUT_MS = 90_000;
 
@@ -213,6 +237,17 @@ const beeps = (seconds) => ({
   stepHz: 100,
   amplitude: 0.5,
 });
+
+/** The fixture whose render case also cancels an export half-way. */
+const CANCEL_FIXTURE = 'loop-range';
+/** What a cancelled export must do, whatever the golden says. */
+const CANCEL_EXPECTED = {
+  status: 'aborted',
+  errorName: 'AbortError',
+  filesMade: 0,
+  toneContextRestored: true,
+  playheadMovesAfter: true,
+};
 
 const FIXTURES = [
   {
@@ -348,6 +383,145 @@ const FIXTURES = [
           b: [4.52, 4.58],
         },
       ],
+    },
+  },
+  {
+    // Two halves that never overlap, so each is measured on the full mix
+    // (the export has no stems, and a stem leaves the ducker's key out).
+    name: 'dynamics',
+    project: { bpm: 120 },
+    tracks: [
+      {
+        id: 'trk-gated',
+        name: 'Gated',
+        type: 'audio',
+        instrument: 'none',
+        effects: {
+          gate: {
+            enabled: true,
+            threshold: -30,
+            // Closed, the floor sits below a 16-bit file's last bit, so the
+            // export holds the same silence as the render.
+            range: 80,
+            hold: 0.01,
+            attack: 0.001,
+            release: 0.05,
+          },
+        },
+        audio: [
+          {
+            id: 'clip-gated',
+            startTick: 0,
+            duration: 2 * BAR,
+            fadeInTicks: 0,
+            fadeOutTicks: 0,
+            offsetSeconds: 0,
+            gain: 1,
+          },
+        ],
+      },
+      {
+        // The ducker's key: kicks every half bar, turned far down so the
+        // kick itself barely reaches the mix while its key still does.
+        id: 'trk-kick',
+        name: 'Kick',
+        type: 'midi',
+        instrument: 'drum-machine',
+        fields: { drumKit: '808', volume: 0.02 },
+        midi: [
+          {
+            id: 'clip-kick',
+            startTick: 2 * BAR,
+            notes: [0, 1, 2, 3].map((k) => [36, k * 2 * BEAT, 120, 120]),
+          },
+        ],
+      },
+      {
+        id: 'trk-pad',
+        name: 'Pad',
+        type: 'audio',
+        instrument: 'none',
+        effects: {
+          ducker: {
+            enabled: true,
+            keyTrackId: 'trk-kick',
+            // The kick's tail at this volume stays above -55 dB for most
+            // of a second: -40 dB lets the duck release before the next.
+            threshold: -40,
+            amount: 0.6,
+            attack: 0.005,
+            release: 0.1,
+          },
+        },
+        audio: [
+          {
+            id: 'clip-pad',
+            startTick: 2 * BAR,
+            duration: 2 * BAR,
+            fadeInTicks: 0,
+            fadeOutTicks: 0,
+            offsetSeconds: 0,
+            gain: 1,
+          },
+        ],
+      },
+    ],
+    golden: {
+      about:
+        'Gate and ducker in the bounce, 120 BPM. Bars 1-2 (0-4 s): a beep train (beep k at k x 0.5 s, 0.1 s long) over a quiet 150 Hz floor (-43 dB) with the gate on (threshold -30 dB, range 80 dB), so it closes between beeps. Bars 3-4 (4-8 s): a steady 440 Hz pad ducked (threshold -40 dB, amount 0.6, about -8 dB) by a kick on every other beat (4, 5, 6, 7 s) whose own track is at volume 0.02. Measured on the full mix, in the render and the export.',
+      range: 'project',
+      stems: true,
+      audio: {
+        'clip-gated': {
+          ...beeps(4),
+          stepHz: 0,
+          floorAmplitude: 0.01,
+          floorHz: 150,
+        },
+        'clip-pad': {
+          kind: 'beeps',
+          seconds: 4,
+          every: 4,
+          beepSeconds: 4,
+          baseHz: 440,
+          stepHz: 0,
+          amplitude: 0.5,
+        },
+      },
+      probes: ['render', 'export'].flatMap((x) => {
+        const on = x === 'export' ? { on: 'export' } : {};
+        const where = x === 'export' ? ' (export)' : '';
+        return [
+          {
+            label: `gate: a beep minus the floor after it, beep 3 at 1.0 s (about 34 dB with the gate open, far more when it closes)${where}`,
+            kind: 'levelDiff',
+            a: [1.02, 1.08],
+            b: [1.3, 1.45],
+            ...on,
+          },
+          {
+            label: `gate: level of the floor between beeps 3 and 4 (about -43 dB when the gate is open)${where}`,
+            kind: 'levelAt',
+            from: 1.3,
+            to: 1.45,
+            ...on,
+          },
+          {
+            label: `ducker: the pad just after the kick at 5 s minus the pad recovered before the next (about -8 dB at amount 0.6, 0 without the duck)${where}`,
+            kind: 'levelDiff',
+            a: [5.03, 5.1],
+            b: [5.7, 5.95],
+            ...on,
+          },
+          {
+            label: `ducker: the same after the kick at 6 s${where}`,
+            kind: 'levelDiff',
+            a: [6.03, 6.1],
+            b: [6.7, 6.95],
+            ...on,
+          },
+        ];
+      }),
     },
   },
   {
@@ -541,6 +715,10 @@ function installTraceProbes() {
     clipBuffers: new Map(),
     scope: [],
     call: null,
+    // The Tone buffer source whose start() is running, and the id of the
+    // native source each Tone source started (see installTraceWrappers).
+    toneOwner: null,
+    toneIds: new WeakMap(),
     // The live context's clock; the page helpers point it at Tone's context.
     now: () => null,
   };
@@ -574,9 +752,27 @@ function installTraceProbes() {
       if (trace.recording && !(ctx instanceof OfflineAudioContext)) {
         const isBuffer = this instanceof AudioBufferSourceNode;
         const start = name === 'start';
+        const id = idOf(this);
+        if (start && trace.toneOwner) trace.toneIds.set(trace.toneOwner, id);
+        const when = args[0] ?? 0;
+        const offset = start && isBuffer ? (args[1] ?? 0) : null;
+        const duration = start && isBuffer ? (args[2] ?? null) : null;
+        const bufferSec =
+          start && isBuffer ? (this.buffer?.duration ?? null) : null;
+        // Where a buffer source ends on its own, in context time: its start
+        // plus the duration it was given (or the rest of its buffer) at its
+        // playback rate. A looping source or an oscillator never ends on
+        // its own (null); only a stop() ends it.
+        let naturalEnd = null;
+        if (start && isBuffer && !this.loop) {
+          const rate = this.playbackRate?.value || 1;
+          const rest = Math.max(0, (bufferSec ?? 0) - (offset ?? 0));
+          const length = duration === null ? rest : Math.min(duration, rest);
+          naturalEnd = Math.max(when, ctx.currentTime) + length / rate;
+        }
         trace.events.push({
           type: start ? 'src-start' : 'src-stop',
-          id: idOf(this),
+          id,
           node: this.constructor.name,
           clipId: isBuffer
             ? (trace.clipBuffers.get(this.buffer) ?? null)
@@ -585,13 +781,32 @@ function installTraceProbes() {
             ? trace.scope[trace.scope.length - 1]
             : null,
           call: trace.call?.seq ?? null,
-          when: args[0] ?? 0,
-          offset: start && isBuffer ? (args[1] ?? 0) : null,
-          duration: start && isBuffer ? (args[2] ?? null) : null,
-          bufferSec: start && isBuffer ? (this.buffer?.duration ?? null) : null,
+          when,
+          offset,
+          duration,
+          bufferSec,
+          loop: start && isBuffer ? Boolean(this.loop) : null,
+          naturalEnd,
           now: ctx.currentTime,
           wall: performance.now(),
         });
+        // When the source really stopped sounding (its own end or a stop()),
+        // as the context clock read when 'ended' arrived.
+        if (start) {
+          this.addEventListener(
+            'ended',
+            () => {
+              if (!trace.recording) return;
+              trace.events.push({
+                type: 'src-ended',
+                id,
+                now: ctx.currentTime,
+                wall: performance.now(),
+              });
+            },
+            { once: true },
+          );
+        }
       }
       return original.apply(this, args);
     };
@@ -726,6 +941,15 @@ function installPageHelpers() {
           spec.amplitude * env * Math.sin((2 * Math.PI * hz * i) / sampleRate);
       }
     }
+    // An optional quiet tone under the whole train (a noise floor between
+    // the beeps, for a gate to close on).
+    if (spec.floorAmplitude) {
+      for (let i = 0; i < length; i++) {
+        data[i] +=
+          spec.floorAmplitude *
+          Math.sin((2 * Math.PI * spec.floorHz * i) / sampleRate);
+      }
+    }
     return buffer;
   };
 
@@ -774,6 +998,23 @@ function installPageHelpers() {
         const tempId = s().addTrack(track.type, track.instrument, track.name);
         // Stable ids keep the fixture readable and its clips addressable.
         s().updateTrack(tempId, { id: track.id, ...(track.fields ?? {}) });
+        // Effect slots switched on, each over the track's own defaults, and
+        // in the rack as the Effects panel adds them.
+        for (const slot of Object.keys(track.effects ?? {})) {
+          s().addActiveEffect(track.id, slot);
+        }
+        if (track.effects) {
+          const current = s().tracks.find((t) => t.id === track.id).effects;
+          s().updateTrackEffects(
+            track.id,
+            Object.fromEntries(
+              Object.entries(track.effects).map(([slot, params]) => [
+                slot,
+                { ...current[slot], ...params },
+              ]),
+            ),
+          );
+        }
         for (const clip of track.midi ?? []) {
           s().addMidiClip(track.id, {
             id: clip.id,
@@ -902,9 +1143,9 @@ function installPageHelpers() {
 
   /**
    * Puts `tracks` in the store and waits until the live engine's track sync
-   * has applied them (each live TrackEngine got its mute/solo gate). The
-   * sync must not run while a render has Tone's global context swapped to
-   * its offline one, or it builds live nodes there.
+   * has applied them (each live TrackEngine whose mute/solo gate changes got
+   * its new gate). The sync must not run while a render has Tone's global
+   * context swapped to its offline one, or it builds live nodes there.
    */
   async function setTracksAndSync(tracks) {
     const { TrackEngine } = await app('/src/daw/audio/TrackEngine.ts');
@@ -912,6 +1153,16 @@ function installPageHelpers() {
     const { trackEngineRegistry } = await app(
       '/src/daw/hooks/usePlaybackEngine.ts',
     );
+    // The reconciler sets a gate only when the track's audibility changes
+    // (since aaf8bf51), so only those gates are waited for: a track that
+    // stays audible, or silent, gets no call.
+    const before = store().getState().tracks;
+    const changing = tracks.filter((t) => {
+      const prev = before.find((p) => p.id === t.id);
+      return (
+        !prev || isTrackAudible(prev, before) !== isTrackAudible(t, tracks)
+      );
+    });
     const gates = new Map();
     const setAudible = TrackEngine.prototype.setAudible;
     TrackEngine.prototype.setAudible = function (audible) {
@@ -920,11 +1171,12 @@ function installPageHelpers() {
     };
     try {
       store().setState({ tracks });
-      // The sync sets every track's gate in one pass, so once the last one
-      // is set the whole pass (volume, pan, effects, sends) has run.
+      // The sync sets every changed gate in one pass, so once the last one
+      // is set the whole pass (volume, pan, effects, sends) has run. It
+      // runs inside the store write, so this is usually true at once.
       const synced = await until(
         () =>
-          tracks.every((t) => {
+          changing.every((t) => {
             const live = trackEngineRegistry.get(t.id)?.trackEngine;
             return !live || gates.get(live) === isTrackAudible(t, tracks);
           }),
@@ -1083,6 +1335,69 @@ function installPageHelpers() {
   }
 
   /**
+   * File > Export Audio cancelled half-way: the export is aborted (its
+   * signal) once its progress passes `abortAt`. Says how it ended, how many
+   * object URLs (files to download) were made meanwhile, and whether Tone's
+   * global context is the live one again.
+   */
+  async function cancelledExport({ range, timeoutMs, abortAt = 0.5 }) {
+    const { exportProjectAudio } = await app('/src/daw/audio/exportAudio.ts');
+    const Tone = await tone();
+    const live = engine().getContext();
+    const controller = new AbortController();
+    let abortedAt = null;
+    let filesMade = 0;
+    const createObjectURL = URL.createObjectURL;
+    URL.createObjectURL = function (...args) {
+      filesMade++;
+      return createObjectURL.apply(this, args);
+    };
+    const started = performance.now();
+    const limit = deadline(timeoutMs);
+    let outcome;
+    try {
+      const result = await Promise.race([
+        exportProjectAudio(
+          { format: 'wav', range, bitDepth: 16 },
+          (p) => {
+            // The first report (null: the render can't say yet) is not
+            // half-way; a numeric one past `abortAt` is.
+            if (abortedAt !== null || p.fraction === null) return;
+            if (p.fraction >= abortAt) {
+              abortedAt = { stage: p.stage, fraction: p.fraction };
+              controller.abort();
+            }
+          },
+          controller.signal,
+        ),
+        limit.promise,
+      ]);
+      if (result?.blob) filesMade++;
+      outcome = { status: 'finished' };
+    } catch (err) {
+      let status = 'error';
+      if (err?.name === 'Timeout') status = 'timeout';
+      if (err?.name === 'AbortError') status = 'aborted';
+      outcome = { status, error: errorInfo(err) };
+    } finally {
+      limit.clear();
+    }
+    // Anything the cancelled export still had queued lands now.
+    await sleep(300);
+    URL.createObjectURL = createObjectURL;
+    if (abortedAt) {
+      abortedAt.fraction = Math.round(abortedAt.fraction * 100) / 100;
+    }
+    return {
+      ...outcome,
+      abortedAt,
+      filesMade,
+      toneContextRestored: Tone.getContext().rawContext === live,
+      wallMs: Math.round(performance.now() - started),
+    };
+  }
+
+  /**
    * Wraps the transport, clicks, adapters, Oracle envelopes and clip cancels
    * for --trace, and says what it wrapped (the sanity checks need it).
    */
@@ -1175,6 +1490,8 @@ function installPageHelpers() {
           let time = null;
           if (fn === 'noteOn') time = args[2] ?? null;
           if (fn === 'noteOff') time = args[1] ?? null;
+          // allNotesOff(time?) and panic(time?): undefined means now.
+          if (fn === 'allNotesOff' || fn === 'panic') time = args[0] ?? null;
           const call = { seq: ++seq, fn, time };
           log({
             type: 'adapter',
@@ -1230,6 +1547,40 @@ function installPageHelpers() {
     const { AudioClipScheduler } = await app(
       '/src/daw/audio/AudioClipScheduler.ts',
     );
+    // Tone's one-shot sources (Tone.Player, the drum and sampler voices) stop
+    // by setting their own gain to 0 at the stop time (after a fade-out) and
+    // call the native stop() only later, from a context timeout, so the
+    // native stop is logged late. Their own stop time is logged here,
+    // against the native source they started.
+    const ToneSource = Tone.ToneBufferSource?.prototype;
+    if (ToneSource?.start && ToneSource._stopGain) {
+      const toneStart = ToneSource.start;
+      ToneSource.start = function (...args) {
+        const outer = trace.toneOwner;
+        trace.toneOwner = this;
+        try {
+          return toneStart.apply(this, args);
+        } finally {
+          trace.toneOwner = outer;
+        }
+      };
+      const stopGain = ToneSource._stopGain;
+      ToneSource._stopGain = function (time) {
+        const result = stopGain.call(this, time);
+        const id = trace.toneIds.get(this);
+        if (trace.recording && id !== undefined) {
+          const at = this.toSeconds(time);
+          trace.events.push({
+            type: 'tone-stop',
+            id,
+            when: at + this.toSeconds(this._fadeOut ?? 0),
+            now: raw.currentTime,
+            wall: performance.now(),
+          });
+        }
+        return result;
+      };
+    }
     const cancelAll = AudioClipScheduler.prototype.cancelAll;
     AudioClipScheduler.prototype.cancelAll = function (...args) {
       log({ type: 'clip-cancel' });
@@ -1269,7 +1620,24 @@ function installPageHelpers() {
     );
   }
 
-  /** Count-in, play, pause, resume and loop laps, all logged. */
+  /**
+   * Count-in, play, pause, resume and loop laps, all logged. The plan's
+   * `steps` say what to do, in order; without them the fixed plan runs
+   * (see traceSteps). Steps:
+   *   { do: 'play' }            Play (with the plan's count-in, if any)
+   *   { do: 'untilTick', tick, laps? }  wait until the transport plays at
+   *                             or past `tick`, after `laps` loop events
+   *   { do: 'pause' }           Pause
+   *   { do: 'wait', ms }        wait
+   *   { do: 'resume' }          Play again, without count-in
+   *   { do: 'seek', tick }      seek while playing, as the ruler does
+   *   { do: 'editNote', track, index, toTick, clip? }  move note `index`
+   *                             of the track's MIDI clip (the first, or the
+   *                             one with id `clip`) to song tick `toTick`
+   *                             through the store, as the piano roll does
+   *   { do: 'untilSeconds', seconds }  wait until `seconds` after Play
+   *   { do: 'stop' }            Stop
+   */
   async function runTracePlan(plan) {
     const Tone = await tone();
     const transport = Tone.getTransport();
@@ -1283,13 +1651,23 @@ function installPageHelpers() {
         now: raw.currentTime,
         wall: performance.now(),
       });
-    s().setPosition(plan.playFromTick);
-    s().setLastSeekPosition(plan.playFromTick);
+    const steps = plan.steps ?? [
+      { do: 'play' },
+      { do: 'untilTick', tick: plan.pauseAtTick },
+      { do: 'pause' },
+      { do: 'wait', ms: plan.pauseMs },
+      { do: 'resume' },
+      { do: 'untilSeconds', seconds: plan.seconds },
+      { do: 'stop' },
+    ];
+    const playFromTick = plan.playFromTick ?? 0;
+    s().setPosition(playFromTick);
+    s().setLastSeekPosition(playFromTick);
     s().setCountInBars(plan.countInBars ?? 0);
     // Plain store writes; the transport takes the position when Play starts.
     await until(
       () =>
-        s().position === plan.playFromTick &&
+        s().position === playFromTick &&
         s().countInBars === (plan.countInBars ?? 0) &&
         !s().isPlaying,
       2000,
@@ -1298,41 +1676,111 @@ function installPageHelpers() {
     trace.events.length = 0;
     trace.recording = true;
     const liveTrackPeakDb = sampleTrackPeaks(() => !trace.recording);
-    const started = performance.now();
-    mark('play');
-    s().play();
-    const reachedPause = await until(
-      () =>
-        transport.state === 'started' && transport.ticks >= plan.pauseAtTick,
-      30_000,
-      5,
-    );
-    mark('pause');
-    s().pause();
-    await sleep(plan.pauseMs);
-    s().setCountInBars(0);
-    mark('resume');
-    s().play();
-    await sleep(Math.max(0, started + plan.seconds * 1000 - performance.now()));
-    mark('stop');
-    const stopAt = trace.events.length;
-    s().stop();
-    // Tone emits the pause a clock tick after the call; then keep recording
-    // 300 ms more, for the stops the voices' own timers make after a panic.
-    await until(
-      () =>
-        trace.events
-          .slice(stopAt)
-          .some((e) => e.type === 'transport' && e.name === 'pause'),
-      3000,
-      10,
-    );
-    await sleep(300);
+    let started = performance.now();
+    // What each step did, for the analysis (where it was reached, which
+    // note moved).
+    const done = [];
+    const loops = () =>
+      trace.events.filter((e) => e.type === 'transport' && e.name === 'loop')
+        .length;
+    const runStep = async (step) => {
+      switch (step.do) {
+        case 'play':
+          started = performance.now();
+          mark('play');
+          s().play();
+          return {};
+        case 'untilTick': {
+          const from = loops();
+          const reached = await until(
+            () =>
+              transport.state === 'started' &&
+              loops() - from >= (step.laps ?? 0) &&
+              transport.ticks >= step.tick,
+            30_000,
+            5,
+          );
+          return { reached, ticks: transport.ticks };
+        }
+        case 'pause':
+          mark('pause');
+          s().pause();
+          return {};
+        case 'wait':
+          await sleep(step.ms);
+          return {};
+        case 'resume':
+          s().setCountInBars(0);
+          mark('resume');
+          s().play();
+          return {};
+        case 'seek': {
+          const { seekTo } = await app('/src/daw/hooks/useTransport.ts');
+          const fromTicks = transport.ticks;
+          mark('seek');
+          seekTo(step.tick);
+          return { fromTicks };
+        }
+        case 'editNote': {
+          const track = s().tracks.find((t) => t.name === step.track);
+          const clip = step.clip
+            ? track?.midiClips.find((c) => c.id === step.clip)
+            : track?.midiClips[0];
+          const note = clip?.events[step.index];
+          if (!note) return { error: `no note ${step.index} on ${step.track}` };
+          const events = clip.events.map((e, i) =>
+            i === step.index
+              ? { ...e, startTick: step.toTick - clip.startTick }
+              : e,
+          );
+          const at = { now: raw.currentTime, wall: performance.now() };
+          trace.events.push({ type: 'edit', ...at, track: step.track });
+          s().updateMidiClipEvents(track.id, clip.id, events);
+          return {
+            ...at,
+            ticks: transport.ticks,
+            pitch: note.note,
+            fromTick: clip.startTick + note.startTick,
+          };
+        }
+        case 'untilSeconds':
+          await sleep(
+            Math.max(0, started + step.seconds * 1000 - performance.now()),
+          );
+          return {};
+        case 'stop': {
+          mark('stop');
+          const stopAt = trace.events.length;
+          s().stop();
+          // Tone emits the pause a clock tick after the call; then keep
+          // recording 300 ms more, for the stops the voices' own timers make
+          // after a panic.
+          await until(
+            () =>
+              trace.events
+                .slice(stopAt)
+                .some((e) => e.type === 'transport' && e.name === 'pause'),
+            3000,
+            10,
+          );
+          await sleep(300);
+          return {};
+        }
+        default:
+          return { error: `unknown step ${step.do}` };
+      }
+    };
+    for (const step of steps) {
+      done.push({ ...step, ...(await runStep(step)) });
+    }
     trace.recording = false;
     const ctx = Tone.getContext();
     const native = raw._nativeContext ?? raw;
     return {
-      reachedPause,
+      reachedPause: done
+        .filter((d) => d.do === 'untilTick')
+        .every((d) => d.reached),
+      steps: done,
       liveTrackPeakDb: await liveTrackPeakDb,
       info: {
         sampleRate: native.sampleRate,
@@ -1362,6 +1810,7 @@ function installPageHelpers() {
     render,
     chainLatency,
     exportWav,
+    cancelledExport,
     playheadMoves,
     installTraceWrappers,
     runTracePlan,
@@ -1676,13 +2125,19 @@ const nearestValue = (list, value) =>
     null,
   );
 
-/** The fixture's `probes`, measured on the render (or a stem). */
-function measureProbes(probes, render, stems) {
+/**
+ * The fixture's `probes`, measured on the render, a stem (`stem`) or the
+ * exported file (`on: 'export'`).
+ */
+function measureProbes(probes, render, stems, exported) {
   return (probes ?? []).map((probe) => {
-    const source = probe.stem ? stems?.[probe.stem] : render;
+    let source = render;
+    if (probe.stem) source = stems?.[probe.stem];
+    else if (probe.on === 'export') source = exported;
     const features = source?.features;
     const out = { label: probe.label, kind: probe.kind };
     if (probe.stem) out.stem = probe.stem;
+    if (probe.on) out.on = probe.on;
     if (!features) return { ...out, observed: null, note: 'no audio' };
     if (probe.kind === 'onsetNear') {
       // No onset at all says nothing about where this one is: null, so a fix
@@ -1783,6 +2238,12 @@ function describeFacts(result) {
       `Play after the export was not measured: ${AUDIO_CLOCK_STOPPED}`,
     );
   }
+  const cancelled = result.cancelledExport;
+  if (cancelled) {
+    facts.push(
+      `an export cancelled at ${cancelled.abortedAt ? `${cancelled.abortedAt.stage} ${cancelled.abortedAt.fraction}` : 'no point (no progress came)'} ${cancelled.status === 'aborted' ? 'stops with an AbortError' : `ends ${cancelled.status}${cancelled.error ? ` (${cancelled.error.name})` : ''}`}, makes ${cancelled.filesMade} file(s), ${cancelled.toneContextRestored ? 'gives' : 'does NOT give'} Tone its live context back, and Play ${cancelled.playheadMovesAfter === null ? 'was not measured' : cancelled.playheadMovesAfter ? 'still moves the playhead' : 'no longer moves the playhead'} after it`,
+    );
+  }
   for (const [name, stem] of Object.entries(stems ?? {})) {
     if (stem.status === 'ok' && stem.features.silent) {
       facts.push(`stem "${name}" (${stem.instrument}) renders silent`);
@@ -1840,10 +2301,10 @@ const LOOSE = {
  * declared, not measured. Remove the entry once the bug is fixed, then
  * rewrite the goldens with --update.
  */
-const TIMING_DEPENDENT = {
-  'oracle-synth':
-    'synth-engine-01: Oracle voices are freed by wall-clock timers while the offline render runs faster than real time, so which notes sound, and where their releases are cut, depends on how fast the machine renders',
-};
+// Empty since milestone 1.11: the Oracle synth's voices are freed when their
+// sound ends (onended), not by wall-clock timers, so its renders repeat
+// (synth-engine-01).
+const TIMING_DEPENDENT = {};
 
 /** How strictly a render can be compared: 'strict', 'loose' or 'structure'. */
 const LEVELS = ['strict', 'loose', 'structure'];
@@ -2093,6 +2554,21 @@ function compareCase(golden, actual) {
       note: 'missing',
     });
   }
+  // A cancelled export is held to what it must do, not to the golden.
+  if (actual.cancelledExport) {
+    const c = actual.cancelledExport;
+    const seen = { ...c, errorName: c.error?.name ?? null };
+    for (const [key, want] of Object.entries(CANCEL_EXPECTED)) {
+      if (key === 'playheadMovesAfter' && seen[key] === null) continue;
+      if (seen[key] !== want) {
+        diffs.push({
+          at: `cancelledExport.${key}`,
+          golden: want,
+          actual: seen[key],
+        });
+      }
+    }
+  }
   // The live instruments the case ran with: a CDN outage or a new init
   // failure shows here by name, not only as audio differences.
   if (golden.instrumentsReady !== actual.instrumentsReady) {
@@ -2250,7 +2726,7 @@ async function editorPage(
   browser,
   base,
   profile,
-  { rate, trace = false, block = [] },
+  { rate, trace = false, legacy = false, block = [] },
 ) {
   const opened = await newPage(browser, profile, { probes: false });
   const { page } = opened;
@@ -2275,6 +2751,17 @@ async function editorPage(
   });
   if (rate) await page.addInitScript(forceSampleRate, rate);
   if (trace) await page.addInitScript(installTraceProbes);
+  if (legacy) {
+    // The old scheduler, chosen before the app boots (usePlaybackEngine
+    // reads the flag once).
+    await page.addInitScript(() => {
+      try {
+        localStorage.setItem('ma:daw:legacyScheduler', '1');
+      } catch {
+        /* storage blocked: the run's checks show the default scheduler */
+      }
+    });
+  }
   await page.addInitScript(installDevModules);
   await openEditor(page, base, '?new=1');
   await startAudio(page);
@@ -2400,7 +2887,20 @@ async function renderCase(browser, base, fixture, rate, options) {
     exported.playheadMovesAfter = liveClock.runs
       ? await page.evaluate(() => window.__golden.playheadMoves())
       : null;
-    const probes = measureProbes(golden.probes, render, stems);
+    // One fixture also cancels an export half-way: it must stop with an
+    // AbortError, make no file, give Tone its live context back and leave
+    // Play working.
+    let cancelledExport;
+    if (fixture.name === CANCEL_FIXTURE) {
+      cancelledExport = await page.evaluate(
+        (args) => window.__golden.cancelledExport(args),
+        { range, timeoutMs: RENDER_TIMEOUT_MS },
+      );
+      cancelledExport.playheadMovesAfter = liveClock.runs
+        ? await page.evaluate(() => window.__golden.playheadMoves())
+        : null;
+    }
+    const probes = measureProbes(golden.probes, render, stems, exported);
     const result = {
       fixture: fixture.name,
       rate,
@@ -2411,6 +2911,7 @@ async function renderCase(browser, base, fixture, rate, options) {
       render,
       stems,
       exported,
+      ...(cancelledExport ? { cancelledExport } : {}),
       probes,
       timingDependentInstruments: [
         ...new Set(
@@ -2494,6 +2995,9 @@ function goldenOf(result) {
         )
       : undefined,
     export: strip(result.exported),
+    ...(result.cancelledExport
+      ? { cancelledExport: strip(result.cancelledExport) }
+      : {}),
     probes: result.probes,
     instrumentsReady: result.env.ready.complete,
     instruments: result.env.ready.instruments,
@@ -2701,6 +3205,12 @@ function summariseCase(result) {
   }
   parts.push(exportText);
   if (!e.toneContextRestored) parts.push('Tone context left offline');
+  const c = result.cancelledExport;
+  if (c) {
+    parts.push(
+      `cancel at ${c.abortedAt?.fraction ?? '?'}: ${c.status === 'aborted' ? 'AbortError' : c.status}, ${c.filesMade} files, context ${c.toneContextRestored ? 'restored' : 'NOT restored'}, Play ${c.playheadMovesAfter ? 'moves' : c.playheadMovesAfter === null ? 'not measured' : 'BROKEN'}`,
+    );
+  }
   return parts.join('; ');
 }
 
@@ -2778,8 +3288,24 @@ function analyseTrace(raw, session) {
       const calls = pendingCalls[e.name];
       while (calls.length && e.wall - calls[0].wall > 250) calls.shift();
       const call = calls.shift() ?? null;
-      const mark = call ? markBefore(call.wall) : null;
-      const valid = e.name === 'start' ? ['play', 'resume'] : ['pause', 'stop'];
+      // A seek while playing restarts the transport from inside Tone (its
+      // ticks setter emits stop and start with no call), so an unmatched
+      // start right after a seek mark is that seek's.
+      const mark = markBefore(call?.wall ?? e.wall);
+      const valid =
+        e.name === 'start'
+          ? ['play', 'resume', 'seek']
+          : ['pause', 'stop', 'seek'];
+      if (!call && mark !== 'seek') {
+        boundaries.push({
+          kind: e.name,
+          cause: e.name,
+          t: e.time,
+          tick: Math.round(e.ticks),
+          causeWall: e.wall,
+        });
+        continue;
+      }
       boundaries.push({
         kind: e.name,
         cause: valid.includes(mark) ? mark : e.name,
@@ -2831,14 +3357,62 @@ function analyseTrace(raw, session) {
       wall,
       causes.filter((c) => kinds.includes(c.cause)),
     );
-  const ENDS = ['loop', 'pause', 'stop'];
+  const ENDS = ['loop', 'pause', 'stop', 'seek'];
   const endLabel = (cause) => (cause === 'loop' ? 'loopSeam' : cause);
+  const runs = boundaries.filter((b) => b.kind !== 'pause');
+  // How long a seek may take to silence what played before it (a fade).
+  const SEEK_FADE = 0.012;
+  // Where a run ends, in ticks: the loop end, where the transport was when
+  // paused, or where it was when a seek restarted it.
+  const runEndTick = (run) => {
+    const next = nextBoundary(run);
+    if (!next) return Infinity;
+    if (next.kind === 'loop') return info.loop.end;
+    if (next.kind === 'pause') return next.tick;
+    return run.tick + (next.t - run.t) / spt;
+  };
+  const placeOnRun = (clip, startAt) => {
+    let best = null;
+    for (const run of runs) {
+      const next = nextBoundary(run);
+      if (run.t > startAt + 0.25 || (next && next.t < startAt - 0.25)) {
+        continue;
+      }
+      const tick = Math.max(clip.startTick, run.tick);
+      const to = Math.min(clip.startTick + clip.duration, runEndTick(run));
+      if (tick >= to) continue;
+      const error = startAt - gridTime(run, tick);
+      if (!best || Math.abs(error) < Math.abs(best.error)) {
+        best = { run, tick, error };
+      }
+    }
+    return best;
+  };
 
   // Audio clips: every source started on a clip's buffer, and its stop.
   const clips = new Map();
   for (const track of session.data.tracks) {
     for (const clip of track.audioClips ?? []) clips.set(clip.id, clip);
   }
+  const endedAt = new Map(
+    events.filter((e) => e.type === 'src-ended').map((e) => [e.id, e.now]),
+  );
+  // When a source is silent, from its stops: the last native stop() (a
+  // later call replaces an earlier one), the last stop of the Tone source
+  // around it (its gain is 0 from then on, though the native stop comes
+  // later), and its 'ended', whichever is earliest. Infinity: never stopped.
+  const nativeStop = new Map();
+  const toneStop = new Map();
+  for (const e of events) {
+    if (e.type === 'src-stop') nativeStop.set(e.id, Math.max(e.when, e.now));
+    if (e.type === 'tone-stop') toneStop.set(e.id, Math.max(e.when, e.now));
+  }
+  const stopOf = (id) =>
+    Math.min(
+      nativeStop.get(id) ?? Infinity,
+      toneStop.get(id) ?? Infinity,
+      endedAt.get(id) ?? Infinity,
+    );
   const clipSources = new Map();
   for (const e of events) {
     if (!e.clipId || !clips.has(e.clipId)) continue;
@@ -2846,20 +3420,31 @@ function analyseTrace(raw, session) {
     if (e.type === 'src-start') clipSources.set(e.id, { start: e, stop: null });
     else if (e.type === 'src-stop' && source && !source.stop) source.stop = e;
   }
-  const clipStarts = [...clipSources.values()].map(({ start: e, stop }) => {
+  const clipStarts = [...clipSources.values()].map(({ start: e }) => {
     const clip = clips.get(e.clipId);
     let cause = 'scheduled';
     let run = runAt(e.when);
     let tick = clip.startTick;
+    const startAt = Math.max(e.when, e.now);
     if (atOnce(e)) {
       // The app starts a clip under the playhead "now": from its play
       // effect (beside the transport start call) or its loop handler.
-      const near = causeOf(e.wall, ['play', 'resume', 'loop']);
+      const near = causeOf(e.wall, ['play', 'resume', 'loop', 'seek']);
       cause = near?.cause ?? 'unmatched';
       run = near?.run ?? null;
       tick = run ? run.tick : clip.startTick;
+    } else {
+      // A start scheduled ahead belongs to the run (play, resume, loop lap,
+      // seek) whose grid it is nearest: the clip's start on it, or the run's
+      // first tick when the clip is already under way there. Runs that begin
+      // up to 250 ms after it count, so an early start is still placed.
+      const placed = placeOnRun(clip, startAt);
+      if (placed) {
+        run = placed.run;
+        tick = placed.tick;
+        cause = tick === run.tick ? run.cause : 'scheduled';
+      }
     }
-    const startAt = Math.max(e.when, e.now);
     const expectedOffset =
       (clip.offsetSeconds ?? 0) + (tick - clip.startTick) * spt;
     // Where its audio really ends: its own end (start plus the duration it
@@ -2867,7 +3452,7 @@ function analyseTrace(raw, session) {
     const ownEnd =
       startAt +
       (e.duration ?? Math.max(0, (e.bufferSec ?? 0) - (e.offset ?? 0)));
-    const stopAt = stop ? Math.max(stop.when, stop.now) : Infinity;
+    const stopAt = stopOf(e.id);
     // Where it should end: the clip's end on this run's grid, or the loop
     // seam, pause or stop that ends the run first.
     let endCause = null;
@@ -2887,14 +3472,40 @@ function analyseTrace(raw, session) {
       now: round(e.now, 4),
       offset: round(e.offset ?? 0, 4),
       expectedOffset: round(expectedOffset, 4),
+      runT: run ? round(run.t, 4) : null,
       timeErrorMs: run ? ms(startAt - gridTime(run, tick)) : null,
       offsetErrorMs: ms((e.offset ?? 0) - expectedOffset),
       late: e.when > 0 && e.when < e.now,
+      naturalEnd: e.naturalEnd === undefined ? null : round(e.naturalEnd, 4),
+      endedAt: endedAt.has(e.id) ? round(endedAt.get(e.id), 4) : null,
       endedBy: stopAt < ownEnd ? 'stop()' : 'its own end',
       endCause,
       endErrorMs,
     };
   });
+  // Every run (play, resume, loop lap, seek) a clip is heard in should start
+  // it once: its own start, or its first tick on the run.
+  const clipCoverage = [];
+  for (const run of runs) {
+    const endTick = runEndTick(run);
+    if (!Number.isFinite(endTick)) continue;
+    for (const clip of clips.values()) {
+      if (clip.muted) continue;
+      const from = Math.max(clip.startTick, run.tick);
+      const to = Math.min(clip.startTick + clip.duration, endTick);
+      if (to - from < 1) continue;
+      clipCoverage.push({
+        clip: clip.id,
+        run: run.cause,
+        runT: round(run.t, 4),
+        tick: round(from, 1),
+        starts: clipStarts.filter(
+          (c) => c.clip === clip.id && c.runT === round(run.t, 4),
+        ).length,
+      });
+    }
+  }
+
   // When the clip scheduler cancels (stops every playing clip at once),
   // against the boundary that should end them.
   const clipCancels = events
@@ -2931,14 +3542,19 @@ function analyseTrace(raw, session) {
     if (b.kind === 'pause') return;
     const next = boundaries[i + 1];
     if (!next) return;
-    // A lap ends at the loop end, or where the transport was when paused.
-    const endTick = next.kind === 'loop' ? info.loop.end : next.tick;
+    // A lap ends at the loop end, or where the transport was when paused or
+    // a seek moved it.
+    const endTick = runEndTick(b);
     const beats = [];
     for (
       let k = Math.ceil(b.tick / beatTicks) * beatTicks;
       k < endTick;
       k += beatTicks
     ) {
+      // A beat inside a seek's fade is cut by the seek, so not expected.
+      if (next.cause === 'seek' && gridTime(b, k) > next.t - SEEK_FADE) {
+        continue;
+      }
       beats.push(k);
     }
     const lapClicks = metronome.filter(
@@ -2997,45 +3613,136 @@ function analyseTrace(raw, session) {
     };
   }
 
-  // Instrument adapters: the note times they are given, against the grid.
-  const expectedTicks = new Map();
+  // Instrument adapters: every note-on matched to the note it plays. Each
+  // run (play, resume, loop lap, seek) should play every note of the session
+  // between its first tick and where it ends, at that run's grid time; a
+  // note-on is paired with the nearest such note of its track and pitch
+  // (one each, closest pairs first, within 250 ms). A note-on left over is
+  // extra (off the grid by more than that, or outside every run: booked
+  // after a pause, a stop or a seek), and a note left over is missing.
+  const edits = (raw.steps ?? []).filter(
+    (step) => step.do === 'editNote' && !step.error,
+  );
+  const sessionNotes = [];
   for (const track of session.data.tracks) {
-    const ticks = [];
     for (const clip of track.midiClips ?? []) {
+      if (clip.muted) continue;
       let tick = clip.startTick;
-      for (const delta of clip.events.startTickDeltas) {
+      clip.events.startTickDeltas.forEach((delta, index) => {
         tick += delta;
-        ticks.push(tick);
+        sessionNotes.push({
+          track: track.name,
+          note: clip.events.notes[index],
+          tick,
+          index,
+        });
+      });
+    }
+  }
+  const expectedNotes = [];
+  for (const run of runs) {
+    const endTick = runEndTick(run);
+    if (!Number.isFinite(endTick)) continue;
+    const next = nextBoundary(run);
+    const runEnd = next?.t ?? Infinity;
+    // A pause, stop or seek is pressed a lookahead before it takes effect
+    // (Tone's transport acts at now + lookAhead). A note due between the
+    // press (heard at that moment) and the transport's own end time may be
+    // played or dropped: the student has already left that spot.
+    let pressed = runEnd;
+    if (next && next.kind !== 'loop') {
+      const press = marks
+        .filter((m) => m.label === next.cause && m.wall <= next.causeWall)
+        .at(-1);
+      if (press) pressed = Math.min(press.now, runEnd);
+    }
+    for (const n of sessionNotes) {
+      let ticks = [{ tick: n.tick, optional: false }];
+      const edit = edits.find(
+        (e) =>
+          e.track === n.track && e.index === n.index && e.fromTick === n.tick,
+      );
+      // A moved note: at its old tick on runs that ended before the edit, at
+      // its new one on runs that start after it (a lookahead's margin), and
+      // either (or neither) on the run it was moved in.
+      if (edit && runEnd > edit.now) {
+        ticks =
+          run.t > edit.now + 0.25
+            ? [{ tick: edit.toTick, optional: false }]
+            : [
+                { tick: n.tick, optional: true },
+                { tick: edit.toTick, optional: true },
+              ];
+      }
+      for (const { tick, optional } of ticks) {
+        if (tick < run.tick || tick >= endTick) continue;
+        const time = gridTime(run, tick);
+        expectedNotes.push({
+          track: n.track,
+          note: n.note,
+          tick,
+          time,
+          run: run.cause,
+          optional: optional || time >= pressed,
+        });
       }
     }
-    expectedTicks.set(track.name, ticks);
   }
   const adapterCalls = events.filter((e) => e.type === 'adapter');
+  const noteOnCalls = adapterCalls.filter(
+    (c) => c.fn === 'noteOn' && c.time !== null,
+  );
+  const pairs = [];
+  for (const call of noteOnCalls) {
+    expectedNotes.forEach((x, k) => {
+      if (x.track !== call.track || x.note !== call.note) return;
+      const distance = Math.abs(call.time - x.time);
+      if (distance <= 0.25) pairs.push({ call, k, distance });
+    });
+  }
+  pairs.sort((a, b) => a.distance - b.distance);
+  const matchOf = new Map();
+  const taken = new Set();
+  for (const pair of pairs) {
+    if (matchOf.has(pair.call) || taken.has(pair.k)) continue;
+    matchOf.set(pair.call, expectedNotes[pair.k]);
+    taken.add(pair.k);
+  }
   const midi = {};
-  for (const call of adapterCalls) {
-    if (call.fn !== 'noteOn' || call.time === null) continue;
-    const entry = (midi[call.track] ??= {
-      instrument: call.instrument,
+  const midiOf = (track, instrument) =>
+    (midi[track] ??= {
+      instrument,
       noteOns: 0,
       errors: [],
       ahead: [],
       late: 0,
+      extra: [],
+      missing: [],
     });
+  for (const call of noteOnCalls) {
+    const entry = midiOf(call.track, call.instrument);
     entry.noteOns++;
-    // The tick only picks which note of the clip this is; the error is the
-    // note's audio time against the transport's own grid (its start or
-    // loop time plus the note's ticks), as for clips.
-    const expected = nearestValue(
-      expectedTicks.get(call.track) ?? [],
-      call.tick,
-    );
-    const run = runAt(call.time);
-    if (run && expected !== null) {
-      entry.errors.push(ms(call.time - gridTime(run, expected)));
+    const expected = matchOf.get(call);
+    if (expected) {
+      entry.errors.push(ms(call.time - expected.time));
+    } else {
+      entry.extra.push({
+        note: call.note,
+        time: round(call.time, 4),
+        tick: call.tick === null ? null : round(call.tick, 1),
+        outsideRuns: runAt(call.time) === null,
+      });
     }
     entry.ahead.push(ms(call.time - call.now));
     if (call.time < call.now) entry.late++;
   }
+  expectedNotes.forEach((x, k) => {
+    if (taken.has(k) || x.optional) return;
+    const entry = midi[x.track];
+    const missing = { note: x.note, tick: x.tick, run: x.run };
+    if (entry) entry.missing.push(missing);
+    else midiOf(x.track, null).missing.push(missing);
+  });
   const midiSummary = Object.fromEntries(
     Object.entries(midi).map(([track, m]) => [
       track,
@@ -3046,6 +3753,8 @@ function analyseTrace(raw, session) {
         minAheadMs: m.ahead.length ? Math.min(...m.ahead) : null,
         medianAheadMs: median(m.ahead),
         late: m.late,
+        extra: m.extra,
+        missing: m.missing,
       },
     ]),
   );
@@ -3171,6 +3880,188 @@ function analyseTrace(raw, session) {
     ]),
   );
 
+  // Seek while playing: every buffer source started before the seek (clip
+  // audio, drum hits, samples; looping sources are free-running and gated,
+  // so their notes are judged instead) must be silent by the seek time plus
+  // a 12 ms fade, by its own end or a stop(), and every note started in the
+  // run the seek leaves must be released by then (its noteOff, or an
+  // allNotesOff/panic at a time at or after the note).
+  const seeks = boundaries
+    .filter((b) => b.kind === 'start' && b.cause === 'seek')
+    .map((b) => {
+      const seekMark = marks
+        .filter((m) => m.label === 'seek' && m.wall <= b.causeWall)
+        .at(-1);
+      const before = seekMark?.wall ?? b.causeWall;
+      const limit = b.t + SEEK_FADE;
+      const left = runs.filter((r) => r.t < b.t - 1e-6).at(-1) ?? null;
+      const sources = events.filter(
+        (e) =>
+          e.type === 'src-start' &&
+          e.wall < before &&
+          e.loop === false &&
+          (e.clipId || e.call !== null),
+      );
+      const runningPast = [];
+      for (const e of sources) {
+        const end = Math.min(e.naturalEnd ?? Infinity, stopOf(e.id));
+        if (end > limit) {
+          runningPast.push({
+            id: e.id,
+            source: e.clipId ?? e.scope ?? e.node,
+            startMs: ms(Math.max(e.when, e.now) - b.t),
+            endMs: Number.isFinite(end) ? ms(end - b.t) : null,
+          });
+        }
+      }
+      // Sources a note call started that never end on their own
+      // (oscillators, looping buffers). An instrument that gates its voices
+      // with envelopes (Oracle) runs them free on purpose: there, each note
+      // still sounding at the seek must get an envelope release or
+      // forceStop by the seek + fade, logged after the seek. Any other
+      // instrument's such source must be stopped (or ended) by then.
+      const gatedInstruments = new Set(
+        events
+          .filter((e) => e.type === 'gate' && e.call)
+          .map((e) => callBySeq.get(e.call)?.instrument)
+          .filter(Boolean),
+      );
+      const voices = events.filter(
+        (e) =>
+          e.type === 'src-start' &&
+          e.wall < before &&
+          e.loop !== false &&
+          e.call !== null &&
+          !gatedInstruments.has(callBySeq.get(e.call)?.instrument),
+      );
+      for (const e of voices) {
+        const end = stopOf(e.id);
+        if (end > limit) {
+          runningPast.push({
+            id: e.id,
+            source: `${e.scope ?? 'adapter'} ${e.node}`,
+            startMs: ms(Math.max(e.when, e.now) - b.t),
+            endMs: Number.isFinite(end) ? ms(end - b.t) : null,
+          });
+        }
+      }
+      const gatesOpen = [];
+      for (const instrument of gatedInstruments) {
+        const sounding = adapterCalls.filter((on) => {
+          if (on.fn !== 'noteOn' || on.instrument !== instrument) return false;
+          if (on.time === null || on.time >= limit || on.wall >= before) {
+            return false;
+          }
+          const off = adapterCalls.find(
+            (c) =>
+              c.fn === 'noteOff' &&
+              c.track === on.track &&
+              c.note === on.note &&
+              c.seq > on.seq &&
+              (c.time ?? c.now) >= on.time - 1e-4,
+          );
+          return !off || (off.time ?? off.now) > b.t;
+        });
+        if (!sounding.length) continue;
+        const closed = events.filter(
+          (e) =>
+            e.type === 'gate' &&
+            (e.fn === 'release' || e.fn === 'forceStop') &&
+            e.wall >= before &&
+            callBySeq.get(e.call)?.instrument === instrument &&
+            (e.time ?? e.now) <= limit,
+        ).length;
+        if (closed < sounding.length) {
+          gatesOpen.push({ instrument, sounding: sounding.length, closed });
+        }
+      }
+      const noteOns = adapterCalls.filter(
+        (c) =>
+          c.fn === 'noteOn' &&
+          c.time !== null &&
+          c.wall < before &&
+          (!left || c.time >= left.t - 1e-6),
+      );
+      const hanging = [];
+      let latestRelease = null;
+      for (const on of noteOns) {
+        let release = Infinity;
+        for (const c of adapterCalls) {
+          if (c.track !== on.track || c.seq <= on.seq) continue;
+          const at = c.time ?? c.now;
+          const fits =
+            (c.fn === 'noteOff' && c.note === on.note) ||
+            c.fn === 'allNotesOff' ||
+            c.fn === 'panic';
+          if (fits && at >= on.time - 1e-4) release = Math.min(release, at);
+        }
+        if (Number.isFinite(release)) {
+          latestRelease = Math.max(latestRelease ?? -Infinity, release - b.t);
+        }
+        if (release > limit) {
+          hanging.push({
+            track: on.track,
+            note: on.note,
+            noteMs: ms(on.time - b.t),
+            releaseMs: Number.isFinite(release) ? ms(release - b.t) : null,
+          });
+        }
+      }
+      return {
+        t: round(b.t, 4),
+        tick: b.tick,
+        sourcesBefore: sources.length + voices.length,
+        runningPast,
+        gatesOpen,
+        notesBefore: noteOns.length,
+        hanging,
+        latestReleaseMs: latestRelease === null ? null : ms(latestRelease),
+      };
+    });
+
+  // Edit while playing: the moved note sounds on the next pass (the first
+  // loop lap whose loop event came after the edit) at its new tick, and no
+  // longer at its old one.
+  const noteEdits = edits.map((edit) => {
+    const pass =
+      boundaries.find((b) => b.kind === 'loop' && b.causeWall > edit.wall) ??
+      null;
+    const out = {
+      track: edit.track,
+      note: edit.pitch,
+      fromTick: edit.fromTick,
+      toTick: edit.toTick,
+      passT: pass ? round(pass.t, 4) : null,
+      reachable: false,
+      newErrorMs: null,
+      stillAtOldTick: false,
+    };
+    if (!pass) return out;
+    out.reachable = edit.toTick >= pass.tick && edit.toTick < runEndTick(pass);
+    const end = nextBoundary(pass)?.t ?? Infinity;
+    const ons = adapterCalls.filter(
+      (c) =>
+        c.fn === 'noteOn' &&
+        c.track === edit.track &&
+        c.note === edit.pitch &&
+        c.time !== null &&
+        c.time >= pass.t - 0.05 &&
+        c.time < end,
+    );
+    const expected = gridTime(pass, edit.toTick);
+    const nearest = ons.reduce(
+      (best, c) =>
+        !best || Math.abs(c.time - expected) < Math.abs(best.time - expected)
+          ? c
+          : best,
+      null,
+    );
+    out.newErrorMs = nearest ? ms(nearest.time - expected) : null;
+    const old = gridTime(pass, edit.fromTick);
+    out.stillAtOldTick = ons.some((c) => Math.abs(c.time - old) <= 0.025);
+    return out;
+  });
+
   // Every start(when) the audio thread got too late, and every "now" start.
   const category = (e) => (e.clipId ? 'clip' : (e.scope ?? `other:${e.node}`));
   const lateStarts = {};
@@ -3198,6 +4089,7 @@ function analyseTrace(raw, session) {
   return {
     info,
     reachedPause: raw.reachedPause,
+    steps: raw.steps ?? [],
     transport: boundaries.map((b) => ({
       kind: b.kind,
       cause: b.cause,
@@ -3255,6 +4147,9 @@ function analyseTrace(raw, session) {
       ),
     },
     clipStarts,
+    clipCoverage,
+    seeks,
+    noteEdits,
     clipCancels,
     metronome: { clicks: metronome, laps },
     countIn,
@@ -3267,15 +4162,24 @@ function analyseTrace(raw, session) {
 }
 
 /**
- * Whether the trace itself worked: the plan ran through and every probe saw
- * what the session must produce. Timings are not judged here (they are
- * reference only); a failed check means the measurement is broken.
+ * Whether the trace itself worked (sanity: the plan ran through and every
+ * probe saw what the session must produce; a failure means the measurement
+ * is broken) and whether playback kept to the grid (timing, ±2 ms; a
+ * failure means the scheduler is off).
  */
 function traceChecks(result, session, setup) {
   const checks = [];
-  const check = (name, pass, detail = null) =>
-    checks.push({ name, pass: Boolean(pass), detail });
+  const check = (name, pass, detail = null, kind = 'sanity') =>
+    checks.push({ name, pass: Boolean(pass), detail, kind });
+  // Timing checks hold the scheduler to the grid; a --legacy run records
+  // them without failing on them (the legacy timings are the known-bad
+  // ones).
+  const timing = (name, pass, detail = null) =>
+    check(name, pass, detail, 'timing');
+  const within = (value, tol = TRACE_TOLERANCE_MS) =>
+    value !== null && value !== undefined && Math.abs(value) <= tol;
   const plan = session.golden.trace;
+  const kinds = new Set(result.steps.map((step) => step.do));
   const causes = result.transport.map((b) => b.cause);
   const flow = causes.join(' → ') || 'none';
   const waiting = setup.ready.instruments.filter(
@@ -3286,22 +4190,36 @@ function traceChecks(result, session, setup) {
     setup.ready.complete,
     waiting.map((t) => `${t.name}: ${t.state}`).join(', ') || null,
   );
+  const unknown = result.steps.filter((step) => step.error);
   check(
-    'playhead reached the pause point',
+    'every plan step ran',
+    unknown.length === 0,
+    unknown.map((step) => step.error).join('; ') || null,
+  );
+  check(
+    'playhead reached every tick the plan waits for',
     result.reachedPause,
-    `tick ${plan.pauseAtTick}`,
+    result.steps
+      .filter((step) => step.do === 'untilTick')
+      .map((step) => `tick ${step.tick}${step.reached ? '' : ' (not reached)'}`)
+      .join(', ') || null,
   );
   check(
     'transport started for Play and for the resume',
-    causes.includes('play') && causes.includes('resume'),
+    causes.includes('play') &&
+      (!kinds.has('resume') || causes.includes('resume')),
     flow,
   );
   check('transport looped', causes.includes('loop'), flow);
   check(
     'transport paused for Pause and for Stop',
-    causes.includes('pause') && causes.includes('stop'),
+    (!kinds.has('pause') || causes.includes('pause')) &&
+      causes.includes('stop'),
     flow,
   );
+  if (kinds.has('seek')) {
+    check('transport restarted for the seek', causes.includes('seek'), flow);
+  }
   if (plan.countInBars) {
     const clicks = result.countIn?.clicks ?? 0;
     const expected = plan.countInBars * result.info.tsNum;
@@ -3356,6 +4274,142 @@ function traceChecks(result, session, setup) {
       `${calls} envelope calls; wrapped ${setup.envelopeFns.join(', ') || 'nothing'}`,
     );
   }
+
+  // ── Timing (gated, ±2 ms against the grid) ──
+  const tol = TRACE_TOLERANCE_MS;
+  if (result.clipStarts.length) {
+    const unplaced = result.clipStarts.filter((c) => c.timeErrorMs === null);
+    const byCause = {};
+    for (const c of result.clipStarts) {
+      if (c.timeErrorMs === null) continue;
+      byCause[c.cause] = maxAbs([byCause[c.cause] ?? null, c.timeErrorMs]);
+    }
+    timing(
+      `clip starts on the grid (±${tol} ms)`,
+      !unplaced.length && result.clipStarts.every((c) => within(c.timeErrorMs)),
+      `worst per cause ${JSON.stringify(byCause)}${unplaced.length ? `; ${unplaced.length} not on any run` : ''}`,
+    );
+    timing(
+      `clip buffer offsets (±${tol} ms)`,
+      result.clipStarts.every((c) => within(c.offsetErrorMs)),
+      `worst ${maxAbs(result.clipStarts.map((c) => c.offsetErrorMs))} ms`,
+    );
+    const missing = result.clipCoverage.filter((c) => c.starts !== 1);
+    timing(
+      'every clip starts once on each run (play, resume, loop lap, seek)',
+      !missing.length,
+      missing
+        .map((c) => `${c.clip} ${c.starts}× on ${c.run} @${c.runT}`)
+        .join(', ') || `${result.clipCoverage.length} runs`,
+    );
+  }
+  if (session.data.transport?.metronomeEnabled) {
+    const clicks = result.metronome.clicks;
+    timing(
+      `metronome clicks on the beat (±${tol} ms)`,
+      clicks.length > 0 && clicks.every((c) => within(c.errorMs)),
+      `worst ${maxAbs(clicks.map((c) => c.errorMs))} ms; median after resume ${result.summary.metronomeMedianErrorMs.resume} ms`,
+    );
+    const missed = result.metronome.laps.reduce(
+      (sum, l) => sum + l.missedBeats,
+      0,
+    );
+    timing(
+      'no missed metronome beats',
+      missed === 0,
+      `missed per lap [${result.summary.metronomeMissedBeatsPerLap.join(', ')}]`,
+    );
+  }
+  if (plan.countInBars && result.countIn) {
+    timing(
+      `count-in clicks on the grid (±${tol} ms)`,
+      within(result.countIn.maxGridErrorMs),
+      `worst ${result.countIn.maxGridErrorMs} ms`,
+    );
+    timing(
+      `downbeat after the count-in (±${tol} ms)`,
+      within(result.countIn.downbeatErrorMs),
+      `${result.countIn.downbeatErrorMs} ms`,
+    );
+  }
+  for (const [track, m] of Object.entries(result.midi)) {
+    const outside = m.extra.filter((x) => x.outsideRuns).length;
+    const list = (items, fmt) =>
+      items.slice(0, 4).map(fmt).join(', ') +
+      (items.length > 4 ? ` +${items.length - 4}` : '');
+    timing(
+      `${track}: every note plays once, on the grid (±${tol} ms)`,
+      (m.noteOns === 0 || within(m.maxGridErrorMs)) &&
+        !m.extra.length &&
+        !m.missing.length,
+      [
+        `worst ${m.maxGridErrorMs} ms over ${m.noteOns} note-ons`,
+        m.extra.length
+          ? `${m.extra.length} extra (${outside} outside every run): ${list(m.extra, (x) => `${x.note}@${x.time}s`)}`
+          : null,
+        m.missing.length
+          ? `${m.missing.length} missing: ${list(m.missing, (x) => `${x.note}@${x.tick} on ${x.run}`)}`
+          : null,
+      ]
+        .filter(Boolean)
+        .join('; '),
+    );
+  }
+  if (kinds.has('seek')) {
+    const fade = 12;
+    const past = result.seeks.flatMap((s) => s.runningPast);
+    const open = result.seeks.flatMap((s) => s.gatesOpen);
+    timing(
+      `seek: nothing sounds past the seek + ${fade} ms (buffer sources and other instruments' oscillators stopped; Oracle voices, which run free, closed by their envelopes)`,
+      result.seeks.length > 0 && !past.length && !open.length,
+      [
+        past.length
+          ? `${past.length} running on: ${past
+              .slice(0, 6)
+              .map(
+                (p) =>
+                  `${p.source} until ${p.endMs === null ? 'never' : `${p.endMs} ms`}`,
+              )
+              .join(', ')}`
+          : `${result.seeks.map((s) => s.sourcesBefore).join(', ')} sources before`,
+        ...open.map(
+          (g) =>
+            `${g.instrument}: ${g.sounding} notes sounding, ${g.closed} envelopes closed`,
+        ),
+      ].join('; '),
+    );
+    const hanging = result.seeks.flatMap((s) => s.hanging);
+    timing(
+      `seek: every earlier note released by the seek + ${fade} ms`,
+      result.seeks.length > 0 && !hanging.length,
+      hanging.length
+        ? `${hanging.length} held: ${hanging
+            .slice(0, 6)
+            .map(
+              (h) =>
+                `${h.track} ${h.note} until ${h.releaseMs === null ? 'never' : `${h.releaseMs} ms`}`,
+            )
+            .join(', ')}`
+        : `${result.seeks.map((s) => s.notesBefore).join(', ')} notes before; latest release ${result.seeks.map((s) => s.latestReleaseMs).join(', ')} ms`,
+    );
+  }
+  if (kinds.has('editNote')) {
+    const edits = result.noteEdits;
+    timing(
+      `edited note sounds on the next pass at its new tick (±${tol} ms)`,
+      edits.length > 0 &&
+        edits.every(
+          (e) => e.reachable && within(e.newErrorMs) && !e.stillAtOldTick,
+        ),
+      edits
+        .map(
+          (e) =>
+            `${e.track} ${e.note} ${e.fromTick}→${e.toTick}: ${e.passT === null ? 'no next pass' : `${e.newErrorMs} ms${e.stillAtOldTick ? ', still at the old tick' : ''}${e.reachable ? '' : ' (not reached)'}`}`,
+        )
+        .join('; ') || 'no edit ran',
+    );
+  }
+
   check(
     'no uncaught page errors',
     setup.pageErrors.length === 0,
@@ -3364,7 +4418,14 @@ function traceChecks(result, session, setup) {
   return checks;
 }
 
-async function traceCase(browser, base, fixture, profile, rateLabel) {
+async function traceCase(
+  browser,
+  base,
+  fixture,
+  profile,
+  rateLabel,
+  legacy = false,
+) {
   const golden = fixture.session.golden ?? {};
   if (!golden.trace)
     throw new Error(`fixture ${fixture.name} has no trace plan`);
@@ -3373,7 +4434,7 @@ async function traceCase(browser, base, fixture, profile, rateLabel) {
     browser,
     base,
     profile,
-    { rate, trace: true },
+    { rate, trace: true, legacy },
   );
   try {
     await page.evaluate(
@@ -3387,6 +4448,14 @@ async function traceCase(browser, base, fixture, profile, rateLabel) {
     const wrapped = await page.evaluate(() =>
       window.__golden.installTraceWrappers(),
     );
+    // Whether the page really booted with the legacy flag.
+    const legacyFlag = await page.evaluate(() => {
+      try {
+        return localStorage.getItem('ma:daw:legacyScheduler');
+      } catch {
+        return null;
+      }
+    });
     const loadBefore = loadavg()[0];
     const raw = await page.evaluate(
       (plan) => window.__golden.runTracePlan(plan),
@@ -3399,10 +4468,20 @@ async function traceCase(browser, base, fixture, profile, rateLabel) {
       ...wrapped,
       pageErrors,
     });
+    if (legacy) {
+      checks.push({
+        name: 'legacy scheduler flag set before boot',
+        pass: legacyFlag === '1',
+        detail: `ma:daw:legacyScheduler = ${legacyFlag}`,
+        kind: 'sanity',
+      });
+    }
     return {
       fixture: fixture.name,
       profile,
       rate: rateLabel,
+      legacy,
+      legacyFlag,
       plan: golden.trace,
       // Live timings depend on how busy the machine was: the 1-minute load
       // average before and after the run, against the number of cores.
@@ -3434,6 +4513,7 @@ async function runTrace({ base, browser, args, outDir }) {
   const profiles = profilesFrom(args, 'chromebook');
   const goldenDir = resolve(args.goldens ?? DEFAULT_GOLDEN_DIR);
   const update = args.update === 'true';
+  const legacy = args.legacy === 'true';
   // A trace is live playback: on a stopped clock nothing is scheduled.
   await requireAudioClock(browser);
   const summary = [];
@@ -3441,7 +4521,7 @@ async function runTrace({ base, browser, args, outDir }) {
   for (const fixture of fixtures) {
     for (const profile of profiles) {
       for (const rateLabel of rates.map(String)) {
-        const label = `${fixture.name}@${rateLabel}-${profile}`;
+        const label = `${fixture.name}@${rateLabel}-${profile}${legacy ? '-legacy' : ''}`;
         process.stdout.write(`trace ${label} … `);
         const result = await traceCase(
           browser,
@@ -3449,9 +4529,12 @@ async function runTrace({ base, browser, args, outDir }) {
           fixture,
           profile,
           rateLabel,
+          legacy,
         );
         const file = writeJson(outDir, `trace-${label}`, result);
-        const failedChecks = result.checks.filter((c) => !c.pass);
+        const failedChecks = result.checks.filter(
+          (c) => !c.pass && (c.kind === 'sanity' || !legacy),
+        );
         console.log(`${result.info.sampleRate} Hz → ${file}`);
         if (failedChecks.length) broken.push(label);
         if (update && !failedChecks.length) {
@@ -3487,7 +4570,7 @@ async function runTrace({ base, browser, args, outDir }) {
   console.log(`\nsummary: ${writeJson(outDir, 'trace-summary', summary)}`);
   if (broken.length) {
     console.log(
-      `trace sanity checks failed for ${broken.join(', ')}: the trace is not measuring what it should${update ? ' (not written to the goldens)' : ''}.`,
+      `trace checks failed for ${broken.join(', ')}: a sanity check means the trace is not measuring what it should, a timing check that playback is off the grid${update ? ' (not written to the goldens)' : ''}.`,
     );
     process.exitCode = 1;
   }
@@ -3496,11 +4579,19 @@ async function runTrace({ base, browser, args, outDir }) {
 function printTraceSummary(result) {
   const s = result.summary;
   const line = (text) => console.log(`    ${text}`);
-  const failed = result.checks.filter((c) => !c.pass);
+  const failed = result.checks.filter((c) => !c.pass && c.kind === 'sanity');
+  const late = result.checks.filter((c) => !c.pass && c.kind === 'timing');
+  const describe = (list) =>
+    list.map((c) => `${c.name}${c.detail ? ` (${c.detail})` : ''}`).join('; ');
   line(
     failed.length
-      ? `CHECKS FAILED: ${failed.map((c) => `${c.name}${c.detail ? ` (${c.detail})` : ''}`).join('; ')}`
-      : `checks: all ${result.checks.length} pass (plan ran: ${result.transport.map((b) => b.cause).join(' → ')}; reached the pause point: ${result.reachedPause})`,
+      ? `CHECKS FAILED: ${describe(failed)}`
+      : `sanity checks: all pass (plan ran: ${result.transport.map((b) => b.cause).join(' → ')}; reached every tick: ${result.reachedPause})`,
+  );
+  line(
+    late.length
+      ? `TIMING FAILED${result.legacy ? ' (legacy scheduler: recorded, not gated)' : ''}: ${describe(late)}`
+      : `timing checks: all ${result.checks.filter((c) => c.kind === 'timing').length} within ±${TRACE_TOLERANCE_MS} ms`,
   );
   line(
     `host load (1 min avg, before/after): ${result.host.loadAvg1m.join(' / ')} on ${result.host.cores} cores`,

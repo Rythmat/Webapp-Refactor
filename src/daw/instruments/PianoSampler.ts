@@ -86,27 +86,28 @@ export class PianoSampler implements InstrumentAdapter {
     this.sampler.triggerRelease(noteName, time ?? Tone.immediate());
   }
 
-  cc(controller: number, value: number): void {
+  cc(controller: number, value: number, time?: number): void {
     if (controller !== 64) return;
     if (value >= 64) {
       this.sustainActive = true;
     } else {
       this.sustainActive = false;
       for (const noteName of this.sustainedNotes) {
-        this.sampler?.triggerRelease(noteName);
+        // A clip's pedal-up releases on its beat; live (no time) as before.
+        this.sampler?.triggerRelease(noteName, time);
       }
       this.sustainedNotes.clear();
     }
   }
 
-  allNotesOff(): void {
+  allNotesOff(time?: number): void {
     this.sustainActive = false;
     this.sustainedNotes.clear();
-    this.sampler?.releaseAll();
+    this.sampler?.releaseAll(time);
   }
 
-  panic(): void {
-    this.allNotesOff();
+  panic(time?: number): void {
+    this.allNotesOff(time);
   }
 
   dispose(): void {

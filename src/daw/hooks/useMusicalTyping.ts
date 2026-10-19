@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { TYPING_SCOPE } from '@/daw/commands/keymaps';
 import {
+  DRUM_TYPING_OCTAVE,
   TYPING_VELOCITY_STEP,
   typingNote,
 } from '@/daw/commands/musicalTypingMap';
@@ -12,6 +13,7 @@ import {
   playLiveNote,
   releaseLiveNote,
 } from '@/daw/midi/liveNotes';
+import { liveTargetsAreDrums } from '@/daw/midi/liveTarget';
 
 // ── useMusicalTyping (milestone 1.6) ───────────────────────────────────────
 //
@@ -20,6 +22,9 @@ import {
 // scope: above every view and region, below dialogs, so while it is on A is
 // a C and not whatever A means where focus is, and the letter shortcuts
 // (M, L, R, the Score's) rest. Text fields keep their keys.
+//
+// On a drum track the keys play the kit whatever the octave: A is the kick,
+// S the snare, T, Y and U the hats (DRUM_TYPING_OCTAVE), as its pads say.
 //
 // Notes take the shared live-notes path, as a MIDI keyboard's do: they sound
 // on the monitored track (else the selected one), light the keys and
@@ -53,7 +58,11 @@ const handlers: { current: KeymapHandlers } = {
     'typing.note': (e) => {
       if (held.has(e.code)) return;
       const { octave, velocity } = useMusicalTypingStore.getState();
-      const note = typingNote(e.code, octave);
+      // A drum kit is played at its own octave: A is the kick (2.9).
+      const note = typingNote(
+        e.code,
+        liveTargetsAreDrums() ? DRUM_TYPING_OCTAVE : octave,
+      );
       if (note === null) return;
       // Another key may be holding the same note (after an octave change).
       for (const [code, playing] of held) {

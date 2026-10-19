@@ -2836,7 +2836,7 @@
       ],
       "leadSheetShowRepeats": true,
       "leadSheetShowMelody": true,
-      "leadSheetMelodyTrackIds": ["trk-lead", "trk-keys"],
+      "leadSheetMelodyTrackId": "trk-lead",
       "scoreChordTracks": ["trk-keys"],
       "scoreChordHidden": ["trk-keys:chord-2"],
       "scoreSystemBreaks": [4],
@@ -2871,7 +2871,8 @@
       "timelineScrollLeft": 300,
       "selectedTrackId": "trk-drums",
       "automationOpenTrackId": "trk-keys",
-      "automationParamId": "pan"
+      "automationParamId": "pan",
+      "chordAnalysisDismissed": true
     }
   }
 }

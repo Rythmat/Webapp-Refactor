@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useId } from 'react';
 import { setTrackInstrument } from '@/daw/commands/trackCommands';
 import {
   hasInstrumentPicker,
@@ -27,6 +27,12 @@ export function InstrumentDialogHost() {
     trackId ? s.tracks.find((t) => t.id === trackId) : undefined,
   );
   const headingId = useId();
+  // A track deleted (by a collaborator) while its dialog is open closes it,
+  // so an undo that brings it back doesn't open the dialog again.
+  const gone = trackId !== null && !track;
+  useEffect(() => {
+    if (gone) close();
+  }, [gone, close]);
   if (!track || !hasInstrumentPicker(track)) return null;
   return (
     <DawDialog

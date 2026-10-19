@@ -137,6 +137,8 @@ describe('the Instrument dialog', () => {
     expect(screen.getByRole('dialog')).toBeTruthy();
     act(() => s().removeTrack(rhodes));
     expect(screen.queryByRole('dialog')).toBeNull();
+    // Closed for good: an undo that brings the track back opens nothing.
+    expect(useInstrumentDialogStore.getState().trackId).toBeNull();
   });
 });
 

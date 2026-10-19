@@ -331,10 +331,12 @@ export const ChordSymbol = memo(function ChordSymbol({
         {!isSelected && displayText}
       </text>
 
-      {/* Context menu — rendered via portal to escape SVG */}
+      {/* Context menu — rendered via portal to escape SVG. A lesson's
+          coach card keeps clear of it (data-tutorial-avoid). */}
       {contextMenu &&
         createPortal(
           <div
+            data-tutorial-avoid=""
             style={{
               position: 'fixed',
               left: contextMenu.x,

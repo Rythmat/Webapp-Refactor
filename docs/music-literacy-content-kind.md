@@ -621,8 +621,8 @@ in localStorage now, the student's account later, as for progress):
 ```
 
 The 7ths section opens by replaying the student's progression from the
-chord section, and Studio's "Hear it with your band" stop will play it
-from the same object.
+chord section, and Part 3, Hear It with Your Band, plays it from the same
+object (below).
 
 ### Part 2's rules and messages
 
@@ -701,6 +701,132 @@ an the and but or nor for so yet at by in of on to up as with from (unless
 first, last or first after a colon), and the music as written ("1-2-3",
 "♭3", "7th", "4 maj"). A title the owner types is never rewritten.
 
+## Part 3 · Hear It with Your Band
+
+The Start Here path's third stop (Studio · Practice). A back-office Band
+plays the progression the student made in Part 2, in a style they pick,
+in the Studio's Practice view, where they play along and record. Free,
+like the rest of the series. It has no lesson file: the page and the
+Studio work from Part 2's saved choices and the Bands, so there is nothing
+new for the API to store yet.
+
+### The page
+
+`/curriculum/music-literacy/hear-it-with-your-band`
+(`CurriculumRoutes.musicLiteracyBand`,
+`src/curriculum/musicLiteracy/HearItWithYourBand.tsx`), a static segment,
+so it ranks above a lesson's `:id`. Top to bottom:
+
+- **Your Progression.** Every progression saved in Part 2, in the
+  lesson's order (`bandProgressions.ts`), the triads in one row and the
+  7ths in another: each a card of its chords (chips in the key's colors,
+  the hybrid name over the letter symbol) and its key ("D Minor"). One a
+  lesson edit no longer fits is left out (`progressionFor`). The page
+  opens on the last pick, else `four-chords`, else the most complete (the
+  most different chords, then the most bars, then the later). With
+  nothing saved, a starter, C major's 1 6 4 5, said in one line with a
+  link to Part 2.
+- **Choose a Band.** Every live band with a 4/4 style, in the library's
+  `order`, with its instruments. A draft (Jazz Band 1) never shows.
+- **Choose a Style.** The band's 4/4 styles by the lesson style's own
+  name ("The Pocket", "Cumbia"), each with its tempo.
+- **Hear It in the Studio** builds the track and opens it.
+
+The picks are remembered on the device (`music_literacy_band_picks`).
+
+### The chart
+
+`src/curriculum/engine/musicLiteracy/chart.ts`. A saved progression's
+degrees become chord symbols, one a bar, spelled the key's way: each root
+on its own letter, the 1's letter plus the degree. D minor's 1 4 5 6 is
+`Dm Gm Am Bb`, with 7ths `Dm7 Gm7 Am7 Bbmaj7`; C major's 1 6 4 5 is
+`C Am F G`. Triads are `''` and `m`, 7ths `maj7`, `m7` and `7`. A key far
+round the circle can need a double flat (D♭ minor's ♭6 is `Bbb`), which
+`chordSymbolTones` reads. The labels are the hybrid names, `1 min · 4 min
+· 5 min · ♭6 maj`, never Roman numerals.
+
+### The band and its styles
+
+`src/features/practiceTracks/genre/bandPracticeTrack.ts`. The track is
+the style's lesson level's Practice Track, Melody section, where the
+student plays over drums, bass and chords (`buildGenrePracticeTrack`),
+with the student's own in the lesson's place:
+
+- `key`: the chart's tonic, in the octave the flow's own sits in, major
+  (Ionian) or natural minor (Aeolian), everywhere the flow's key reached:
+  the Studio's key and mode, the chord lane's colors and hybrid names, and
+  the scales lit (the key's scale, then its pentatonic).
+- `band`: the band's variation, played whatever the style's pairing says,
+  so Hip Hop L2 and L3, which have no pairing file, still play their band.
+  Its groove brings the meter and the kit; the style's own steps give the
+  swing and the register. A member the variation gives nothing plays as
+  the lesson does.
+- `followChords`: the band's captured parts follow the chart's chords in
+  its key (`RealizeContext.followChords`, `band.ts`). Until that realiser
+  lands they play as written, moved to the key.
+
+Left out, each option changes nothing: every lesson's own Practice Track
+builds exactly as before.
+
+**Which styles.** A variation is offered when its meter (its own, else the
+band's) is 4/4, its track comes out in 4/4, and its lesson has a Melody
+section to build from. Today that is Latin Band 1's Reggaeton and Cumbia
+(not Mariachi, in 3/4, nor the L2 and L3 styles, whose lessons aren't
+written yet), and all three styles of Funk Band 1, Pop Band 1 and Hip Hop
+Band 1.
+
+**Tempo.** The variation's `tempo`, else the style's own lesson tempo
+(what the Practice Track picks from the style's own steps: Cumbia's 96,
+not the 126 of Latin L1's last Melody step, which is Mariachi's), else the
+band's `tempo`.
+
+### The hand-off
+
+As for a lesson's Practice Track (`openGenrePracticeTrack.ts`): the page
+builds the track, leaves it in the hand-off box, and opens the Studio on a
+URL that can also build it again, on a refresh or from a shared link
+(`bandPracticeRef.ts`):
+
+```
+/studio/editor?practiceGenre=latin&practiceLevel=1&practiceSection=A
+  &practiceBand=latin-band-1&practiceVariation=l1-cumbia
+  &practiceKey=D&practiceKeyMode=minor&practiceHarmony=triads
+  &practiceChords=1-4-5-6
+```
+
+The box matches on every one of them, so a box left for another chart is
+never played. A chart the link can't read plays the starter; a band or a
+style that isn't offered opens nothing ("That practice track could not be
+found."). The parameters are stripped once the track is open, as every
+boot key is, and the draft carries the session from there.
+
+The session (`GenrePracticeSession.literacy`) keeps the band, the style,
+the chart and all the student's charts, so the Practice view's switches
+stay in the band: **Style** (the band's 4/4 styles, each on its own
+level's flow, at its own tempo) and **Progression** (the student's
+progressions by their hybrid names, at the tempo playing). Switching keeps
+the band and the key; a progression saved in another key plays in its
+own. The keyboard shows **Chords** (the chord tones, numbered) or
+**Melody** (the scale), the prompts are the band's ("Listen first: your
+band plays your progression, over and over."), Back to Your Band returns
+to the page, and the project is "Hear It with Your Band · Latin Band 1".
+The student's own track is armed and monitored, ready to record, as on
+every Practice Track.
+
+### Start Here
+
+The path's stop 3 is live, its `route` the page. It has no steps: it is
+done once the student has opened the Studio from it (`stopDone.ts`), and
+it wears the key of the progression the page opens on. The Home card
+shows its description, or "Done" and what comes next.
+
+### Progress
+
+Part 2's choices, Part 3's picks and the stop's done flag are kept on the
+device for now. They move to the student's account with the rest of the
+series' progress (below): the choices with Part 2's, the stop's done with
+the path's.
+
 ## What the API needs
 
 1. **Register the kind** in `GET /capabilities`:
@@ -775,6 +901,9 @@ The plan:
   Merge with "best score wins, a pass is never taken back".
 - Start Here (`literacyPath.ts`) and the Home card read the same store, so
   they show the account's progress on any device.
+- Part 2's choices (the key and the saved progressions) and Part 3's done
+  flag (`music_literacy_stop_done_hear-it-with-your-band`) go with it, so
+  a band plays the student's progressions on any device.
 - Teachers see it with the rest of the classroom progress. The classroom
   completion report (`reportCompletion`) already fires on the last pass.
 

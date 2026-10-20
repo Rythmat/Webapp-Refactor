@@ -3,7 +3,8 @@
  * (docs/echo-game.md). Pure TypeScript, no React; the game's screens are
  * built on what this exports.
  *
- *   levels.ts    the Levels table: tiers, zero points, song lengths
+ *   levels.ts    the Levels table: tiers, zero points, song lengths, base tempos
+ *   tempo.ts     the tempo ramp, the boss's tempo, ticks and milliseconds
  *   contours.ts  the contour library and starter set, the zero point rule
  *   rhythm.ts    the rhythm flashcards, and calls' rhythms from them
  *   calls.ts     melody calls, chord calls, the Final Boss's four
@@ -46,6 +47,19 @@ export {
   type EchoTier,
   type EchoZeroPoint,
 } from './levels';
+export {
+  ECHO_TEMPO_PASSES,
+  ECHO_TEMPO_RISE,
+  ECHO_TEMPO_STEP,
+  clampEchoTempo,
+  echoBossTempo,
+  echoTempoRange,
+  msToTicks,
+  newEchoTempo,
+  nextEchoTempo,
+  ticksToMs,
+  type EchoTempo,
+} from './tempo';
 export { echoRandom, pickOne, type EchoRandom } from './random';
 export {
   CONTOUR_LIBRARY,

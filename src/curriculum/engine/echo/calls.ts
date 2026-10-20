@@ -33,6 +33,11 @@
  * Four calls, melody and chords by turns, from the level's contours and
  * chords, on the level's rhythms and Tier 4's, a Tier 4 card in each.
  *
+ * THE TEMPO
+ * A call carries the tempo it plays at (`tempo`): the one asked for (the
+ * game's now, tempo.ts), else its level's base. Its ticks don't change with
+ * it; grading.ts lays its run out at it.
+ *
  * Every tick here is from the call's own downbeat; grading.ts places a call
  * on its run's timeline. Pure, no React.
  */
@@ -106,6 +111,8 @@ interface CallBase {
   barTicks: number;
   /** The MIDI of the 1 its notes are read from. */
   tonic: number;
+  /** The tempo it plays at, BPM (THE TEMPO above). */
+  tempo: number;
 }
 
 export interface MelodyCall extends CallBase {
@@ -202,6 +209,8 @@ export interface MelodyCallOptions {
   boss?: boolean;
   /** Contour ids not to use, the last few played, while others remain. */
   exclude?: readonly string[];
+  /** The tempo it plays at; the level's base when left out. */
+  tempo?: number;
 }
 
 /** A two-bar melody call in a key (A MELODY CALL above). */
@@ -248,6 +257,7 @@ export function melodyCall(
     bars: CALL_BARS,
     barTicks: BAR_TICKS,
     tonic,
+    tempo: options.tempo ?? echoLevel(level).tempo,
     contour,
     zeroPoint,
     cards,
@@ -310,6 +320,8 @@ export interface ChordCallOptions {
   degrees?: readonly LiteracyScaleDegree[];
   /** One of the Final Boss's calls. */
   boss?: boolean;
+  /** The tempo it plays at; the level's base when left out. */
+  tempo?: number;
 }
 
 /** A two-bar chord call in a key (A CHORD CALL above). */
@@ -343,6 +355,7 @@ export function chordCall(
     bars: degrees.length,
     barTicks: BAR_TICKS,
     tonic,
+    tempo: options.tempo ?? echoLevel(level).tempo,
     degrees,
     labels: chords.map((chord) => chord.label),
     chords,
@@ -354,19 +367,22 @@ export function chordCall(
 
 /**
  * The Final Boss's four calls (THE BOSS above): melody, chords, melody,
- * chords, its two melodies on different contours.
+ * chords, its two melodies on different contours. `tempo`: the boss's
+ * (tempo.ts `echoBossTempo`), the level's base when left out.
  */
 export function bossCalls(
   level: EchoLevelNumber,
   key: LiteracyKey,
   rng: EchoRandom,
+  { tempo }: { tempo?: number } = {},
 ): [MelodyCall, ChordCall, MelodyCall, ChordCall] {
-  const first = melodyCall(level, key, rng, { boss: true });
-  const second = chordCall(level, key, rng, { boss: true });
+  const first = melodyCall(level, key, rng, { boss: true, tempo });
+  const second = chordCall(level, key, rng, { boss: true, tempo });
   const third = melodyCall(level, key, rng, {
     boss: true,
     exclude: [first.contour.id],
+    tempo,
   });
-  const fourth = chordCall(level, key, rng, { boss: true });
+  const fourth = chordCall(level, key, rng, { boss: true, tempo });
   return [first, second, third, fourth];
 }

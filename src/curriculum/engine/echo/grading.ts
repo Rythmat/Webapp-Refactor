@@ -11,6 +11,12 @@
  * The response is the call again on the response's bars: an echo. The pass
  * rule is the series': 70% overall, and timing at least 50%.
  *
+ * THE TEMPO
+ * A run is laid out at a tempo: the one asked for, else the call's, else
+ * its level's base. Ticks are a 480th of a quarter whatever the tempo, so
+ * the response window and pairing (an eighth early, a beat either side)
+ * follow it; the timing score is in time, and reads the run's tempo.
+ *
  * Played notes are in ticks from the run's first count-in click (or from
  * wherever the timeline starts: `start`, for the boss's calls played back
  * to back). Pure, no React.
@@ -38,7 +44,10 @@ import { echoLevel } from './levels';
 export type { PlayedNote };
 
 export interface EchoTimelineOptions {
-  /** Quarter notes a minute; the level's when left out. */
+  /**
+   * Quarter notes a minute: the game's tempo now (tempo.ts). The call's
+   * when left out, else its level's base.
+   */
   tempo?: number;
   /** Bars of count-in before the call; the level's (1) when left out. */
   countInBars?: number;
@@ -48,7 +57,7 @@ export interface EchoTimelineOptions {
 
 /** A call's run: count-in, the call, the response its length. */
 export function echoTimeline(
-  call: Pick<EchoCall, 'bars' | 'barTicks' | 'level'>,
+  call: Pick<EchoCall, 'bars' | 'barTicks' | 'level'> & { tempo?: number },
   { tempo, countInBars, start = 0 }: EchoTimelineOptions = {},
 ): StepTimeline {
   const level = echoLevel(call.level);
@@ -68,23 +77,25 @@ export function echoTimeline(
     // The run's end, as a tick (run.ts reads it so): past every earlier call.
     total: callStart + 2 * length,
     barTicks: bar,
-    tempo: tempo ?? level.tempo,
+    tempo: tempo ?? call.tempo ?? level.tempo,
   };
 }
 
 /**
  * The boss's four calls back to back: the first after a count-in, each of
- * the rest straight after the last one's response.
+ * the rest straight after the last one's response. One tempo for all four:
+ * the boss's (tempo.ts `echoBossTempo`), else the first call's.
  */
 export function bossTimelines(
   calls: readonly EchoCall[],
   { tempo, countInBars }: Omit<EchoTimelineOptions, 'start'> = {},
 ): StepTimeline[] {
   const timelines: StepTimeline[] = [];
+  const bpm = tempo ?? calls[0]?.tempo;
   let start = 0;
   calls.forEach((call, i) => {
     const timeline = echoTimeline(call, {
-      tempo,
+      tempo: bpm,
       countInBars: i === 0 ? countInBars : 0,
       start,
     });
@@ -130,7 +141,10 @@ export function chordEchoNotes(
 }
 
 export interface EchoGradeOptions extends EchoTimelineOptions {
-  /** The run the student played on; one is laid out when left out. */
+  /**
+   * The run the student played on; one is laid out when left out. Given,
+   * its tempo is the one graded at.
+   */
   timeline?: StepTimeline;
   /** The pass mark, in percent: the series' 70 when left out. */
   passMark?: number;

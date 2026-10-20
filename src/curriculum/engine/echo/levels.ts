@@ -9,6 +9,7 @@
  *   the boss       + Tier 4       + Tier 4      + Tier 4
  *   calls          2 bars         2 bars        2 bars
  *   the song       2 bars ×4      4 bars ×2     8 bars ×1
+ *   tempo          80             90            100   (+16 at most)
  *
  * A level adds to the one before: its calls draw on its own contours and
  * rhythms and every earlier level's. The song is always eight bars, a
@@ -55,8 +56,9 @@ export const BOSS_CALLS = 4;
 export const SONG_BARS = 8;
 
 /**
- * The tempo a level plays at, unless the game asks for another: Music
- * Literacy's 80.
+ * Level 1's base tempo, Music Literacy's 80. Each level has its own base
+ * (`EchoLevel.tempo`: 80, 90, 100), and a game's tempo climbs from it as
+ * the student does well (tempo.ts).
  */
 export const ECHO_TEMPO = 80;
 
@@ -72,6 +74,10 @@ export interface EchoLevel {
   phraseBars: 2 | 4 | 8;
   /** How many times the song plays its phrase. */
   repeats: 4 | 2 | 1;
+  /**
+   * Its base tempo, BPM: where a game starts, and the lowest it goes
+   * (80, 90, 100). A game climbs from it (tempo.ts `nextEchoTempo`).
+   */
   tempo: number;
   countInBars: number;
   /**
@@ -108,7 +114,7 @@ export const ECHO_LEVELS: Readonly<Record<EchoLevelNumber, EchoLevel>> = {
     callBars: CALL_BARS,
     phraseBars: 4,
     repeats: 2,
-    tempo: ECHO_TEMPO,
+    tempo: 90,
     countInBars: 1,
     melodyGrid: SIXTEENTH_TICKS,
     chordGrid: BAR_TICKS,
@@ -121,7 +127,7 @@ export const ECHO_LEVELS: Readonly<Record<EchoLevelNumber, EchoLevel>> = {
     callBars: CALL_BARS,
     phraseBars: 8,
     repeats: 1,
-    tempo: ECHO_TEMPO,
+    tempo: 100,
     countInBars: 1,
     melodyGrid: SIXTEENTH_TICKS,
     chordGrid: BAR_TICKS / 2,

@@ -30,11 +30,10 @@
  * One card a bar, struck on every beat of it, as Melodies and Chords'
  * progressions repeat one rhythm a bar. The first bar's card starts on its
  * beat (the first chord on beat 1), and the call's last beat is the
- * breath. Only cards a chord can be struck in: a note at least, and, the
- * card repeated, no two notes a 16th apart (a chord a 16th after another
- * can't be told from a ragged one, chordGrading.ts CHORD_CLUSTER_TICKS).
- * That leaves no Tier 2 card, and of Tier 4 only the 16th rest and dotted
- * eighth.
+ * breath. Any card a chord can be struck in: a note at least, and no more
+ * than four strikes a beat. Chords a 16th apart are heard as two (strikes.ts
+ * reads strikes with a spread that follows the tempo), so the 16ths (Tier
+ * 2) come in from Level 2, and the boss has all of Tier 4.
  *
  * Pure, no React.
  */
@@ -103,18 +102,18 @@ export const startsOnBeat = (card: Pick<RhythmCard, 'grid'>): boolean =>
 export const cardsOfTiers = (tiers: readonly EchoTier[]): RhythmCard[] =>
   RHYTHM_CARDS.filter((card) => tiers.includes(card.tier));
 
+/** The most chord strikes a beat: four 16ths. */
+export const MAX_CHORD_STRIKES_PER_BEAT = 4;
+
 /**
  * Whether a chord can be struck in a card on every beat: it has a note, and
- * no two notes, round the beat and into the next, are only a 16th apart.
+ * no more than four strikes a beat (every card with a note, the deck on a
+ * 16th grid). Two strikes a 16th apart are fine: strikes.ts hears them as
+ * two.
  */
 export function chordPlayable(card: Pick<RhythmCard, 'grid'>): boolean {
-  const onsets = [...card.grid].flatMap((cell, i) => (cell === 'X' ? [i] : []));
-  if (onsets.length === 0) return false;
-  const cells = card.grid.length;
-  return onsets.every((onset, i) => {
-    const next = i + 1 < onsets.length ? onsets[i + 1] : onsets[0] + cells;
-    return next - onset >= 2;
-  });
+  const strikes = cardNotes(card);
+  return strikes > 0 && strikes <= MAX_CHORD_STRIKES_PER_BEAT;
 }
 
 /** A note of a rhythm laid out over beats, in ticks from its first beat. */

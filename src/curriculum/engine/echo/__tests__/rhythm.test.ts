@@ -13,11 +13,13 @@ import {
 } from '../levels';
 import { echoRandom } from '../random';
 import {
+  MAX_CHORD_STRIKES_PER_BEAT,
   MAX_SILENT_BEATS,
   RHYTHM_CARDS,
   cardHits,
   cardNotes,
   chordPlayable,
+  cardsOfTiers,
   rhythmCard,
 } from '../rhythm';
 
@@ -74,10 +76,14 @@ describe('the deck', () => {
     expect(cardHits(rhythmCard(23)!)).toEqual([{ offset: 120, duration: 360 }]);
   });
 
-  it('strikes chords only in cards with no notes a 16th apart, repeated', () => {
-    expect(RHYTHM_CARDS.filter(chordPlayable).map((c) => c.id)).toEqual([
-      2, 3, 4, 5, 15, 16, 17, 18, 19, 23,
-    ]);
+  it('strikes chords in every card with a note: four strikes a beat at most', () => {
+    // Every card but the three all-rest ones (1, 6, 21).
+    expect(RHYTHM_CARDS.filter(chordPlayable).map((c) => c.id)).toEqual(
+      RHYTHM_CARDS.map((c) => c.id).filter((id) => ![1, 6, 21].includes(id)),
+    );
+    expect(MAX_CHORD_STRIKES_PER_BEAT).toBe(4);
+    expect(chordPlayable({ grid: 'XXXX' })).toBe(true);
+    expect(chordPlayable({ grid: '....' })).toBe(false);
   });
 });
 
@@ -177,12 +183,18 @@ describe('a chord call’s rhythm', () => {
         // Bar 1's card on all four beats, bar 2's on three.
         const perBar = call.cards.map(cardNotes);
         expect(call.attacks).toHaveLength(4 * perBar[0] + 3 * perBar[1]);
-        // A chord at most every eighth.
+        // A chord at most every 16th: four a beat at most.
         call.attacks.slice(1).forEach((attack, a) => {
           expect(attack.onset - call.attacks[a].onset).toBeGreaterThanOrEqual(
-            240,
+            120,
           );
         });
+        for (let beat = 0; beat < 8; beat++) {
+          const inBeat = call.attacks.filter(
+            (attack) => Math.floor(attack.onset / BEAT_TICKS) === beat,
+          );
+          expect(inBeat.length).toBeLessThanOrEqual(4);
+        }
         for (const card of call.cards) {
           expect(chordPlayable(card)).toBe(true);
           if (!call.boss) {
@@ -194,6 +206,31 @@ describe('a chord call’s rhythm', () => {
         }
       }
     }
+  });
+
+  it('plays 16ths from Level 2, and every Tier 4 card in the boss’s', () => {
+    const tiersAt = (level: EchoLevelNumber, boss: boolean) => {
+      const rng = echoRandom(`chord-tiers-${level}-${boss}`);
+      const ids = new Set<number>();
+      for (let i = 0; i < 300; i++) {
+        const call = chordCall(level, KEYS[i % KEYS.length], rng, { boss });
+        call.cards.forEach((card) => ids.add(card.id));
+      }
+      return ids;
+    };
+    const tier = (t: 1 | 2 | 3 | 4) => cardsOfTiers([t]).filter(chordPlayable);
+    // Level 1: quarters and eighths only.
+    expect(
+      [...tiersAt(1, false)].every((id) => rhythmCard(id)!.tier === 1),
+    ).toBe(true);
+    // Level 2 and 3: every 16th card (Tier 2), in chord calls too.
+    for (const level of [2, 3] as const) {
+      const ids = tiersAt(level, false);
+      for (const card of tier(2)) expect(ids).toContain(card.id);
+    }
+    // The boss: all four Tier 4 cards, the off-beat 16th-rest one in bar 2.
+    const boss = tiersAt(1, true);
+    for (const card of tier(4)) expect(boss).toContain(card.id);
   });
 
   it('puts Tier 4 in the boss’s calls only', () => {

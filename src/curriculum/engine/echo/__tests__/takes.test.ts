@@ -290,3 +290,68 @@ describe('Auto Fill Bars, on chords', () => {
     expect(offBeat.chords.map((c) => c.tick)).toEqual([0, 1080]);
   });
 });
+
+describe('a chords take’s strikes', () => {
+  const at = (tempo: number, played: PlayedNote[], level: 1 | 2 | 3 = 2) =>
+    processTake(played, { kind: 'chords', key: C_MAJOR, level, tempo });
+
+  it('is read at its tempo, the level’s base when left out', () => {
+    expect(chords([]).tempo).toBe(80);
+    expect(chords([], {}, 3).tempo).toBe(100);
+    expect(at(112, []).tempo).toBe(112);
+  });
+
+  it('hears chords a 16th apart as two, at 80, 100 and 116 BPM', () => {
+    for (const tempo of [80, 100, 116]) {
+      const take = at(tempo, [
+        ...strike([60, 64, 67], 0, 100),
+        ...strike([65, 69, 72], 120, 100),
+        ...strike([67, 71, 74], 240, 100),
+      ]);
+      expect(take.chords.map((c) => [c.degree, c.tick])).toEqual([
+        ['1', 0],
+        ['4', 120],
+        ['5', 240],
+      ]);
+      expect(take.flags).toEqual([]);
+    }
+  });
+
+  it('hears a slow roll as one chord, not two halves', () => {
+    // 40 ticks (63 ms) a note, 125 ms in all: past the spread at 80 BPM.
+    const take = at(80, [
+      note(60, 0, 400),
+      note(64, 40, 400),
+      note(67, 80, 400),
+    ]);
+    expect(take.chords.map((c) => [c.degree, c.tick])).toEqual([['1', 0]]);
+    expect(take.flags).toEqual([]);
+  });
+
+  it('hears the root and fifth held, the third struck again, as the chord again', () => {
+    const take = at(100, [
+      note(60, 0, 1900),
+      note(67, 10, 1900),
+      note(64, 5, 400),
+      note(64, 480, 400),
+      note(64, 960, 400),
+    ]);
+    expect(take.chords.map((c) => [c.degree, c.tick])).toEqual([
+      ['1', 0],
+      ['1', 480],
+      ['1', 960],
+    ]);
+    // The last lasts while the root and fifth are held.
+    expect(take.chords.at(-1)!.duration).toBe(1920 - 960);
+    expect(take.flags).toEqual([]);
+  });
+
+  it('flags a note struck again over held ones that make no chord with it', () => {
+    const take = at(100, [
+      ...strike([60, 64, 67], 0, 1900),
+      note(62, 480, 200), // a D over the held C chord
+    ]);
+    expect(take.chords.map((c) => c.degree)).toEqual(['1']);
+    expect(take.flags.map((f) => f.reason)).toEqual(['unrecognized']);
+  });
+});

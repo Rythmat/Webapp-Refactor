@@ -87,9 +87,11 @@ import { pickOne, type EchoRandom } from './random';
 import {
   cardHits,
   cardsOfTiers,
+  chordPlayable,
   chordRhythm,
   melodyRhythm,
   rhythmHits,
+  startsOnBeat,
   type RhythmCard,
   type RhythmPool,
 } from './rhythm';
@@ -318,6 +320,11 @@ export function chordAttacks(
 export interface ChordCallOptions {
   /** The two chords instead of ones chosen: degrees of the mode's six. */
   degrees?: readonly LiteracyScaleDegree[];
+  /**
+   * A card a bar instead of ones chosen (a preview, a test): cards a chord
+   * can be struck in, the first starting on its beat.
+   */
+  cards?: readonly RhythmCard[];
   /** One of the Final Boss's calls. */
   boss?: boolean;
   /** The tempo it plays at; the level's base when left out. */
@@ -342,9 +349,17 @@ export function chordCall(
     ? [...options.degrees]
     : chooseChordDegrees(level, key.mode, rng);
   const chords = voicedProgression(key, degrees);
-  const cards = chordRhythm(rhythmPool(level, boss), rng, {
-    bars: degrees.length,
-  });
+  if (
+    options.cards &&
+    (options.cards.length !== degrees.length ||
+      !options.cards.every(chordPlayable) ||
+      !startsOnBeat(options.cards[0]))
+  ) {
+    throw new Error('A chord call’s cards: one a bar, struck from beat 1');
+  }
+  const cards = options.cards
+    ? [...options.cards]
+    : chordRhythm(rhythmPool(level, boss), rng, { bars: degrees.length });
   const attacks = chordAttacks(chords, cards);
   const tonic = tonicMidi(key.tonic);
   return {

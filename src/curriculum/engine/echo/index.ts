@@ -8,6 +8,7 @@
  *   contours.ts  the contour library and starter set, the zero point rule
  *   rhythm.ts    the rhythm flashcards, and calls' rhythms from them
  *   calls.ts     melody calls, chord calls, the Final Boss's four
+ *   strikes.ts   played notes heard as chord strikes, at the tempo
  *   grading.ts   an echo graded by Music Literacy's graders
  *   stats.ts     a game's numbers: sections, streaks, the boss, XP
  *   takes.ts     Make Your Song's takes, and the scaffolding
@@ -82,6 +83,7 @@ export {
   type PositionSpan,
 } from './contours';
 export {
+  MAX_CHORD_STRIKES_PER_BEAT,
   QUARTER_REST,
   RHYTHM_CARDS,
   cardHits,
@@ -111,10 +113,20 @@ export {
   type MelodyCallOptions,
 } from './calls';
 export {
+  SLOW_ROLL_SHARE,
+  STRIKE_SPREAD_MS,
+  STRIKE_SPREAD_SHARE,
+  chordStrikes,
+  strikeSpreadTicks,
+  type ChordStrike,
+  type StrikeOptions,
+} from './strikes';
+export {
   bossTimelines,
   chordEchoNotes,
   echoTimeline,
   gradeChordEcho,
+  gradeChordStrikes,
   gradeEcho,
   gradeMelodyEcho,
   melodyEchoNotes,

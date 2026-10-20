@@ -1,0 +1,387 @@
+// @vitest-environment jsdom
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  echoRandom,
+  echoTimeline,
+  melodyCall,
+  melodyPads,
+  melodyEchoNotes,
+  chordCall,
+  chordEchoNotes,
+  bossCalls,
+  bossTimelines,
+  type MelodyCall,
+} from '@/curriculum/engine/echo';
+import type { RunGroove } from '@/curriculum/engine/musicLiteracy/run';
+import { easiestContours, roundCall } from '../echoCalls';
+import { echoHeadline } from '../echoCues';
+import { gradeRunCall } from '../echoOutcome';
+import {
+  ECHO_PROGRESS_KEY,
+  highScoreOf,
+  levelOpen,
+  nextLevelOf,
+  parseEchoProgress,
+  readEchoProgress,
+  recordSongFinished,
+  recordStreak,
+  rememberSetup,
+} from '../echoProgress';
+import { callIndexAt, echoRunCues, placeCall } from '../echoRunCues';
+import {
+  DEFAULT_ECHO_SETTINGS,
+  ECHO_SETTINGS_KEY,
+  getEchoSettings,
+  inputFor,
+  parseEchoSettings,
+  resetEchoSettingsCache,
+  updateEchoSettings,
+} from '../echoSettings';
+import {
+  ECHO_TEMPO_PASSES,
+  ECHO_TEMPO_RISE,
+  ECHO_TEMPO_STEP,
+  nextTempo,
+  startTempo,
+  tempoRange,
+} from '../echoTempo';
+
+/**
+ * Echo's play-screen parts that need no screen: the easier call after a
+ * miss, the tempo's climb, the device's progress and settings, a run's
+ * cues, the hub's words, and an echo described.
+ */
+
+const C = { tonic: 'C', mode: 'major' } as const;
+const D = { tonic: 'D', mode: 'major' } as const;
+
+describe('the easier call after a miss', () => {
+  it('is Level 1’s shortest contour on the 1, at any level', () => {
+    const ids = easiestContours().map((c) => c.id);
+    expect(ids.length).toBeGreaterThan(0);
+    expect(easiestContours().every((c) => c.noteCount === 3)).toBe(true);
+    for (const level of [1, 2, 3] as const) {
+      const call = roundCall('melodyEcho', level, C, echoRandom(level), {
+        easier: true,
+      }) as MelodyCall;
+      expect(call.level).toBe(level);
+      expect(ids).toContain(call.contour.id);
+      expect(call.zeroPoint).toBe(1);
+      // Level 1's rhythms: quarters and eighths only.
+      expect(call.cards.every((card) => card.tier === 1)).toBe(true);
+    }
+  });
+
+  it('lands on the level’s own pads, where the level’s 1 sits an octave away', () => {
+    // D major's 1 sits higher at Level 1 than at Level 2.
+    const pads = melodyPads(2, D).pads.map((p) => p.midi);
+    for (let i = 0; i < 20; i++) {
+      const call = roundCall('melodyEcho', 2, D, echoRandom(`d${i}`), {
+        easier: true,
+      });
+      expect(call.tonic).toBe(melodyPads(2, D).tonic);
+      for (const note of call.notes) expect(pads).toContain(note.midi);
+    }
+  });
+
+  it('avoids the contours just played while others remain', () => {
+    const [first, ...rest] = easiestContours().map((c) => c.id);
+    const call = roundCall('melodyEcho', 1, C, echoRandom(1), {
+      easier: true,
+      exclude: rest,
+    }) as MelodyCall;
+    expect(call.contour.id).toBe(first);
+  });
+
+  it('is the level’s own call when not easier', () => {
+    const call = roundCall('chordEcho', 3, C, echoRandom(4));
+    expect(call.kind).toBe('chords');
+    expect(call.level).toBe(3);
+  });
+});
+
+describe('the tempo', () => {
+  it('climbs a step every two good echoes, up to 16 over the level', () => {
+    expect([ECHO_TEMPO_STEP, ECHO_TEMPO_RISE, ECHO_TEMPO_PASSES]).toEqual([
+      4, 16, 2,
+    ]);
+    const { low, high } = tempoRange(1);
+    expect(high - low).toBe(16);
+    let tempo = startTempo(1);
+    expect(tempo.bpm).toBe(low);
+    const bpms: number[] = [];
+    for (let i = 0; i < 12; i++) {
+      tempo = nextTempo(tempo, 1, { passed: true });
+      bpms.push(tempo.bpm);
+    }
+    expect(bpms.slice(0, 4)).toEqual([low, low + 4, low + 4, low + 8]);
+    expect(Math.max(...bpms)).toBe(high);
+    expect(tempo.top).toBe(high);
+  });
+
+  it('eases a step after a miss, never under the level’s tempo', () => {
+    let tempo = startTempo(2);
+    tempo = nextTempo(tempo, 2, { passed: false });
+    expect(tempo.bpm).toBe(tempoRange(2).low);
+    tempo = nextTempo(tempo, 2, { passed: true });
+    tempo = nextTempo(tempo, 2, { passed: true });
+    tempo = nextTempo(tempo, 2, { passed: true });
+    // A miss also starts the count of good echoes over.
+    tempo = nextTempo(tempo, 2, { passed: false });
+    expect(tempo).toMatchObject({ bpm: tempoRange(2).low, passes: 0 });
+    expect(tempo.top).toBe(tempoRange(2).low + 4);
+  });
+});
+
+describe('progress on the device', () => {
+  beforeEach(() => localStorage.clear());
+  afterEach(() => vi.restoreAllMocks());
+
+  it('opens Level 1 alone, and the next level with each song finished', () => {
+    const fresh = readEchoProgress();
+    expect(fresh.unlocked).toBe(1);
+    expect(levelOpen(fresh, 1)).toBe(true);
+    expect(levelOpen(fresh, 2)).toBe(false);
+    expect(recordSongFinished(1).unlocked).toBe(2);
+    expect(levelOpen(readEchoProgress(), 2)).toBe(true);
+    expect(levelOpen(readEchoProgress(), 3)).toBe(false);
+    // An earlier level's song opens nothing new.
+    expect(recordSongFinished(1).unlocked).toBe(2);
+    expect(recordSongFinished(2).unlocked).toBe(3);
+    expect(recordSongFinished(3).unlocked).toBe(3);
+    expect(readEchoProgress().songs).toEqual({ 1: 2, 2: 1, 3: 1 });
+    expect(nextLevelOf(3)).toBeNull();
+  });
+
+  it('keeps the best streak per level as its High Score', () => {
+    expect(recordStreak(1, 4)).toBe(true);
+    expect(recordStreak(1, 3)).toBe(false);
+    expect(recordStreak(1, 4)).toBe(false);
+    expect(recordStreak(2, 2)).toBe(true);
+    expect(highScoreOf(readEchoProgress(), 1)).toBe(4);
+    expect(highScoreOf(readEchoProgress(), 2)).toBe(2);
+    expect(highScoreOf(readEchoProgress(), 3)).toBe(0);
+  });
+
+  it('remembers the game last set up', () => {
+    rememberSetup(2, { tonic: 'Eb', mode: 'minor' });
+    expect(readEchoProgress().last).toEqual({
+      level: 2,
+      key: { tonic: 'Eb', mode: 'minor' },
+    });
+  });
+
+  it('reads anything odd as a fresh start, and survives storage that throws', () => {
+    localStorage.setItem(ECHO_PROGRESS_KEY, '{not json');
+    expect(readEchoProgress().unlocked).toBe(1);
+    expect(
+      parseEchoProgress({
+        version: 1,
+        unlocked: 7,
+        highScores: { 1: -2, 2: 5 },
+      }),
+    ).toMatchObject({ unlocked: 1, highScores: { 2: 5 } });
+    expect(parseEchoProgress({ version: 9, unlocked: 3 }).unlocked).toBe(1);
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('private');
+    });
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('full');
+    });
+    expect(readEchoProgress().unlocked).toBe(1);
+    expect(() => recordSongFinished(1)).not.toThrow();
+    expect(() => recordStreak(1, 3)).not.toThrow();
+  });
+});
+
+describe('Game Settings on the device', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    resetEchoSettingsCache();
+  });
+  afterEach(() => vi.restoreAllMocks());
+
+  it('starts with the groove on, the scaffolding off, each level’s input', () => {
+    const settings = getEchoSettings();
+    expect(settings).toEqual(DEFAULT_ECHO_SETTINGS);
+    expect(settings.groove).toBe(true);
+    expect(Object.values(settings.scaffolding)).toEqual([false, false, false]);
+    expect(inputFor(settings, 1)).toBe('pads');
+    expect(inputFor(settings, 2)).toBe('keyboard');
+    expect(inputFor(settings, 3)).toBe('keyboard');
+  });
+
+  it('remembers a change, and an input picked holds at every level', () => {
+    updateEchoSettings({ input: 'pads', groove: false });
+    updateEchoSettings({ scaffolding: { autoFill: true } });
+    resetEchoSettingsCache();
+    const settings = getEchoSettings();
+    expect(settings.groove).toBe(false);
+    expect(settings.scaffolding).toEqual({
+      autoTune: false,
+      rootsOnly: false,
+      autoFill: true,
+    });
+    expect(inputFor(settings, 3)).toBe('pads');
+    expect(JSON.parse(localStorage.getItem(ECHO_SETTINGS_KEY)!).input).toBe(
+      'pads',
+    );
+  });
+
+  it('reads odd values as the defaults, and survives storage that throws', () => {
+    expect(parseEchoSettings({ input: 'drums', groove: 'yes' })).toEqual(
+      DEFAULT_ECHO_SETTINGS,
+    );
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('private');
+    });
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('full');
+    });
+    resetEchoSettingsCache();
+    expect(getEchoSettings()).toEqual(DEFAULT_ECHO_SETTINGS);
+    expect(() => updateEchoSettings({ groove: false })).not.toThrow();
+    expect(getEchoSettings().groove).toBe(false);
+  });
+});
+
+describe('a run’s cues', () => {
+  const GROOVE: RunGroove = {
+    loopTicks: 1920,
+    hits: [
+      { tick: 0, note: 36, velocity: 100 },
+      { tick: 960, note: 38, velocity: 100 },
+    ],
+  };
+
+  it('counts in, sounds and lights the call, and leaves the answer silent', () => {
+    const call = melodyCall(1, C, echoRandom('cues'));
+    const timeline = echoTimeline(call, { tempo: 88 });
+    const cues = echoRunCues([placeCall(call, timeline)], {
+      metronome: true,
+    });
+    const beats = cues.filter((c) => c.kind === 'beat');
+    expect(beats).toHaveLength(20);
+    expect(
+      beats.slice(0, 4).every((b) => b.phase === 'countIn' && b.click),
+    ).toBe(true);
+    expect(beats[4].phase).toBe('call');
+    expect(beats[12].phase).toBe('response');
+    const notes = cues.filter((c) => c.kind === 'note');
+    const { call: callNotes, response } = melodyEchoNotes(call, timeline);
+    expect(notes.filter((n) => n.segment === 'call')).toHaveLength(
+      callNotes.length,
+    );
+    expect(
+      notes
+        .filter((n) => n.segment === 'call')
+        .every((n) => n.sound && n.light),
+    ).toBe(true);
+    expect(
+      notes
+        .filter((n) => n.segment === 'response')
+        .every((n) => !n.sound && !n.light),
+    ).toBe(true);
+    expect(notes.filter((n) => n.segment === 'response')).toHaveLength(
+      response.length,
+    );
+    expect(cues.at(-1)).toEqual({ kind: 'end', tick: timeline.total });
+    // In order.
+    expect(cues.map((c) => c.tick)).toEqual(
+      [...cues.map((c) => c.tick)].sort((a, b) => a - b),
+    );
+  });
+
+  it('plays the drums from the call to a final downbeat', () => {
+    const call = chordCall(1, C, echoRandom('drums'));
+    const placed = placeCall(call, echoTimeline(call));
+    const cues = echoRunCues([placed], { metronome: false, groove: GROOVE });
+    const drums = cues.filter((c) => c.kind === 'drum');
+    expect(Math.min(...drums.map((d) => d.tick))).toBe(
+      placed.timeline.call.start,
+    );
+    const end = cues.at(-1)!;
+    expect(end.kind).toBe('end');
+    expect(end.tick).toBe(placed.timeline.total + 960);
+    // Past the count-in, no click over the drums.
+    expect(
+      cues.some(
+        (c) =>
+          c.kind === 'beat' && c.tick >= placed.timeline.call.start && c.click,
+      ),
+    ).toBe(false);
+    expect(placed.attacks.response).toEqual(
+      chordEchoNotes(call, placed.timeline).response,
+    );
+  });
+
+  it('gives each of the boss’s calls its own turns', () => {
+    const calls = bossCalls(1, C, echoRandom('boss'));
+    const timelines = bossTimelines(calls);
+    const placed = calls.map((c, i) => placeCall(c, timelines[i]));
+    const cues = echoRunCues(placed, { metronome: true });
+    const phaseAt = (tick: number) =>
+      cues.find((c) => c.kind === 'beat' && c.tick === tick)?.kind === 'beat'
+        ? (
+            cues.find((c) => c.kind === 'beat' && c.tick === tick) as {
+              phase: string;
+            }
+          ).phase
+        : null;
+    for (const t of timelines) {
+      expect(phaseAt(t.call.start)).toBe('call');
+      expect(phaseAt(t.response.start)).toBe('response');
+    }
+    expect(callIndexAt(placed, 0)).toBe(0);
+    expect(callIndexAt(placed, timelines[2].call.start)).toBe(2);
+    expect(callIndexAt(placed, 1e9)).toBe(3);
+  });
+});
+
+describe('what the hub says', () => {
+  const call = melodyCall(1, C, echoRandom('hub'));
+  const t = echoTimeline(call);
+  const text = (tick: number, running = true) =>
+    echoHeadline(t, tick, running, 'Melody Echo').text;
+
+  it('says Get Ready, Listen, Go! and Your Turn, in an echo’s order', () => {
+    expect(text(0)).toBe('Get Ready');
+    expect(text(t.call.start)).toBe('Listen');
+    expect(text(t.response.start - 480)).toBe('Go!');
+    expect(text(t.response.start)).toBe('Go!');
+    expect(text(t.response.start + 480)).toBe('Your Turn');
+    expect(text(0, false)).toBe('Melody Echo');
+  });
+});
+
+describe('an echo described', () => {
+  it('names what Atlas asked and what the student played, by degree', () => {
+    const call = melodyCall(1, C, echoRandom('describe'));
+    const placed = placeCall(call, echoTimeline(call));
+    const exact = placed.notes.response.map((n) => ({
+      midi: n.midi,
+      onset: n.onset,
+      duration: n.duration,
+    }));
+    const good = gradeRunCall(placed, exact);
+    expect(good.passed).toBe(true);
+    expect(good.played).toEqual(good.asked);
+    expect(good.asked).toEqual(call.notes.map((n) => n.label));
+    const none = gradeRunCall(placed, []);
+    expect(none).toMatchObject({ passed: false, played: [] });
+  });
+
+  it('names a chord echo’s chords, each bar once', () => {
+    const call = chordCall(1, C, echoRandom('describe-chords'));
+    const placed = placeCall(call, echoTimeline(call));
+    const exact = placed.notes.response.map((n) => ({
+      midi: n.midi,
+      onset: n.onset,
+      duration: n.duration,
+    }));
+    const result = gradeRunCall(placed, exact);
+    expect(result.passed).toBe(true);
+    expect(result.asked).toEqual(call.labels);
+    expect(result.played).toEqual(call.labels);
+  });
+});

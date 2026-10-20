@@ -11,6 +11,8 @@ import {
   melodyEchoNotes,
 } from '../grading';
 import { echoRandom } from '../random';
+import { rhythmCard } from '../rhythm';
+import { msToTicks } from '../tempo';
 
 /**
  * An echo graded by Music Literacy's graders on a run of count-in, call
@@ -164,5 +166,139 @@ describe('a chord echo', () => {
     const result = gradeChordEcho(call, thin);
     expect(result.passed).toBe(false);
     expect(result.attacks.every((a) => a.status === 'wrong')).toBe(true);
+  });
+});
+
+describe('a chord echo in 16ths', () => {
+  const SIXTEENTHS = rhythmCard(7)!; // four 16ths
+  const THREE = rhythmCard(11)!; // 16th, 16th, eighth
+
+  /** A call of 16th chords at a tempo, and its response played back. */
+  const sixteenths = (tempo: number, rollMs = 15, early = 0) => {
+    const call = chordCall(2, KEY, echoRandom('sixteenths'), {
+      degrees: ['1', '4'],
+      cards: [SIXTEENTHS, THREE],
+      tempo,
+    });
+    const timeline = echoTimeline(call);
+    const played = chordEchoNotes(call, timeline).response.flatMap(
+      (attack, a) =>
+        attack.chord.midis.map((midi, i) => ({
+          midi,
+          // Every other strike rushed by `early` ticks.
+          onset:
+            attack.onset - (a % 2 ? early : 0) + msToTicks(i * rollMs, tempo),
+          duration: 100,
+        })),
+    );
+    return { call, timeline, played };
+  };
+
+  it('hears every strike, a 16th apart, at 80, 100 and 116 BPM', () => {
+    for (const tempo of [80, 100, 116]) {
+      const { call, timeline, played } = sixteenths(tempo);
+      expect(timeline.tempo).toBe(tempo);
+      // Bar 1: four strikes a beat, four beats; bar 2: three, three beats.
+      expect(call.attacks).toHaveLength(4 * 4 + 3 * 3);
+      const result = gradeChordEcho(call, played);
+      expect(
+        result.attacks.every((a) => a.status === 'hit'),
+        `${tempo}`,
+      ).toBe(true);
+      expect(result.extraAttacks).toEqual([]);
+      expect(result.percent).toBe(100);
+      expect(result.passed).toBe(true);
+    }
+  });
+
+  it('keeps them two, every other one rushed, where 100 ticks would join them', () => {
+    for (const tempo of [80, 100, 116]) {
+      const { call, played } = sixteenths(tempo, 15, 40);
+      const result = gradeChordEcho(call, played);
+      expect(result.attacks.every((a) => a.status === 'hit')).toBe(true);
+      expect(result.extraAttacks).toEqual([]);
+      expect(result.passed).toBe(true);
+    }
+  });
+
+  it('hears a rolled chord (about 30 ms) as one', () => {
+    for (const tempo of [80, 100, 116]) {
+      const { call, played } = sixteenths(tempo, 15);
+      const result = gradeChordEcho(call, played);
+      expect(result.attacks.map((a) => a.struck?.notes.length)).toEqual(
+        call.attacks.map(() => 3),
+      );
+    }
+  });
+
+  it('keeps the pass rule: the right chords off the beat fail on timing', () => {
+    const call = chordCall(1, KEY, echoRandom('off-beat'), {
+      degrees: ['1', '5'],
+      cards: [rhythmCard(2)!, rhythmCard(2)!],
+      tempo: 116,
+    });
+    const played = chordEchoNotes(call, echoTimeline(call)).response.flatMap(
+      (attack) =>
+        attack.chord.midis.map((midi) => ({
+          midi,
+          onset: attack.onset + 100,
+          duration: 300,
+        })),
+    );
+    const result = gradeChordEcho(call, played);
+    expect(result.percent).toBeGreaterThanOrEqual(70);
+    expect(result.timingAccuracy).toBeLessThan(0.5);
+    expect(result.passed).toBe(false);
+  });
+});
+
+describe('a chord held, struck again', () => {
+  /** Quarter-note chords: the 1, then the 4. */
+  const quarters = () =>
+    chordCall(1, KEY, echoRandom('held'), {
+      degrees: ['1', '4'],
+      cards: [rhythmCard(2)!, rhythmCard(2)!],
+    });
+
+  it('passes the root and fifth held, the third struck again on each beat', () => {
+    const call = quarters();
+    const timeline = echoTimeline(call);
+    const response = chordEchoNotes(call, timeline).response;
+    const played = [0, 1].flatMap((bar) => {
+      const strikes = response.filter((attack) => attack.bar === bar);
+      const [root, third, fifth] = strikes[0].chord.midis;
+      const start = strikes[0].onset;
+      const length = strikes.length * 480 - 20;
+      return [
+        { midi: root, onset: start, duration: length },
+        { midi: fifth, onset: start + 10, duration: length },
+        ...strikes.map((attack) => ({
+          midi: third,
+          onset: attack.onset + 5,
+          duration: 400,
+        })),
+      ];
+    });
+    const result = gradeChordEcho(call, played);
+    expect(result.attacks.every((a) => a.status === 'hit')).toBe(true);
+    expect(result.passed).toBe(true);
+  });
+
+  it('costs a note held outside the chord once, where it was struck', () => {
+    const call = quarters();
+    const timeline = echoTimeline(call);
+    const response = chordEchoNotes(call, timeline).response;
+    const played = response.flatMap((attack) =>
+      attack.chord.midis.map((midi) => ({
+        midi,
+        onset: attack.onset,
+        duration: 400,
+      })),
+    );
+    // A stray key under the first chord, held to the end.
+    played.push({ midi: 63, onset: response[0].onset, duration: 0 });
+    const result = gradeChordEcho(call, played);
+    expect(result.extras.map((n) => n.midi)).toEqual([63]);
+    expect(result.attacks.every((a) => a.status === 'hit')).toBe(true);
   });
 });

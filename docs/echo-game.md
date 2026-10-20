@@ -15,6 +15,7 @@ Design shaped with the owner on 2026-10-20.
 2. **Melody Echo.** Atlas plays a 2-bar melody (the call) and the student echoes it (the response).
 3. **Chord Echo.** The same with chords.
 4. **The Final Boss.** Four calls back to back, alternating melody and chords, using the hardest rhythms (flashcard Tier 4).
+   - It plays at the highest tempo the student reached in the game.
    - The boss has a health bar that drops with each good echo.
    - Three good echoes of four win. Losing retries only the Boss, not the level.
    - The fight is won at the third good echo and lost at the second miss.
@@ -45,12 +46,22 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 | Rhythm flashcards | Tier 1                           | + Tier 2   | + Tier 3   |
 | Boss rhythms      | Tier 4                           | Tier 4     | Tier 4     |
 | Calls             | 2 bars                           | 2 bars     | 2 bars     |
+| Tempo             | 80 to 96                         | 90 to 106  | 100 to 116 |
 | The song          | 2-bar melody and progression, ×4 | 4 bars, ×2 | 8 bars, ×1 |
 
 - **Calls stay 2 bars long at every level**, so echoing stays doable.
 - **Songs grow by putting phrases together.** That teaches repetition and structure: question and answer at Level 2, and AABA-style choices at Level 3.
 - **Levels unlock in order.** Next Level! opens the following one.
-- **Tempo:** 80 at every level, Music Literacy's, unless the game asks for another.
+
+### Tempo
+
+- **Each level starts at its base:** 80, 90 and 100 (`echoLevel(level).tempo`).
+- **It climbs as the student does well** (`nextEchoTempo`, in `tempo.ts`):
+  - up 4 BPM after every 2 good echoes in a row;
+  - down 4 after a miss;
+  - never below the base, nor more than 16 above it.
+- It changes only between calls, never during one. A call carries its tempo, and its run and grading are laid out at it.
+- **The boss** plays all four calls at the highest tempo reached in the game (`echoBossTempo`). Its echoes don't move the ramp, so a retry plays at the same tempo.
 
 ## The calls
 
@@ -104,12 +115,19 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 - **Rhythm.** One flashcard rhythm per bar, repeated, as Melodies and Chords' chord progressions do.
   - The bar's card is struck on each of its beats.
   - The first bar's card starts on the beat, and the call's last beat is a breath, as in a melody call.
-  - Only cards a chord can be struck in: no two strikes a 16th apart, which the grader would hear as one ragged chord. That leaves no Tier 2 card, and of Tier 4 only the 16th rest and dotted eighth, which every boss chord call has in its second bar.
+  - Any card with a note: no more than 4 strikes a beat. Chords a 16th apart are heard as two (see Grading), so the 16ths (Tier 2) come in from Level 2, and the boss's chord calls have all of Tier 4.
 
 ### Grading
 
 - **Melody echoes** use Music Literacy's grading (`gradeResponse`): a pass is 70% overall with timing at least 50%.
-- **Chord echoes** use its chord grading (`gradeChordResponse`).
+- **Chord echoes** are graded as its chord grading grades them (`gradeChordResponse`: the same pairing, scores and pass rule), on the strikes Echo hears.
+- **Fast chord recognition** (`strikes.ts`). Played notes are grouped into chord strikes by onset:
+  - Notes within a short spread of a strike's first note are one strike: a rolled chord, uneven fingers.
+  - Notes further apart are separate strikes, even a 16th apart.
+  - The spread follows the tempo: the smaller of 60 ms and 40% of a 16th. That is 38 ticks at 80 BPM and 48 from 100 to 116, so a 16th (120 ticks) is always 2.5 spreads at least. (Music Literacy joins notes within 100 ticks, which would run 16th chords together.)
+  - A roll slower than the spread still makes one chord when its pieces only make a chord together, within three quarters of a 16th. A strike that is a chord on its own is never joined to another.
+  - A chord held while it is struck again is two strikes. A key pressed twice within the spread is one note. A key let go and pressed again later strikes again.
+  - Notes still held from an earlier strike can complete a chord: a root and fifth held, the third struck again, is the chord struck again. A held note outside the chord costs nothing.
 - A call's run is a bar of count-in, the call, then the response. The boss's four calls run back to back after one count-in.
 
 ## Input and views
@@ -133,12 +151,17 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 - Its length is the level's phrase: 2, 4 or 8 bars.
   - Notes outside the phrase are left out, and one ringing past its end stops there. So a take is always its phrase, with or without Auto Fill.
   - A melody note lasts no longer than the next one starts.
-- A chords take recognizes the key's six chords as the chord grader hears them: every note of the chord, in any octave or order. Of two (C E G A), it takes the one rooted on the lowest note. Anything else is left out, and the student is told.
+- A chords take hears its strikes as a chord echo does, at the take's tempo. It recognizes the key's six chords as the chord grader hears them: every note of the chord, in any octave or order. Of two (C E G A), it takes the one rooted on the lowest note. Anything else is left out, and the student is told.
 - The song repeats it to fill: ×4, ×2 or ×1.
-- **The band's chart** is a chord a bar: the chord sounding longest in the bar.
-  - At Level 3, a bar changing at its half bar gives the band its first chord.
-  - A bar with no chord keeps the last chord played.
+- **The band follows every chord change**, more than once a bar if the take does (`chordChanges`):
+  - with Auto Fill, on the bar lines (the half bars at Level 3);
+  - without it, where the take puts them, on its 16ths.
+  - A chord sounds until the next change, held or not. A chord struck again changes nothing.
+  - Each change has its degree, label and chord symbol in the student's key ("Bb", as `chordSymbolTones` reads it). `chordAtTick` finds the chord sounding at a tick.
   - Until there is a chords take, the band plays the 1 chord.
+- **The chart** is still a chord a bar, for whatever needs one: the chord sounding longest in the bar.
+  - A bar changing at its half bar gives its first chord.
+  - A bar with no change keeps the chord sounding into it.
 
 ### Scaffolding (Game Settings, all OFF by default)
 

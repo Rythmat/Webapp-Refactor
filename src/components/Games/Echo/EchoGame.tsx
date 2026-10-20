@@ -320,6 +320,9 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
                   keyChoice={key}
                   onNoteOn={(note) => handlers.noteOn(note.midi, note.velocity)}
                   onNoteOff={(note) => handlers.noteOff(note.midi)}
+                  // Make Your Song sounds each key on its track's own
+                  // instrument; the lesson piano would double it.
+                  sound={false}
                 />
               )}
               onSongFinished={onSongFinished}

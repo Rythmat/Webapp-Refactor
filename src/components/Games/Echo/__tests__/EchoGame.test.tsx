@@ -75,6 +75,9 @@ vi.mock('@/curriculum/musicLiteracy/literacyRun', () => ({
     run.stops += 1;
   },
 }));
+// Make Your Song as the stand-in this game was written against: the song
+// is tested in makeYourSong/__tests__.
+vi.mock('../makeYourSong/MakeYourSong', () => import('./MakeYourSongStandIn'));
 const xp = vi.hoisted(() => ({ mutateAsync: vi.fn(async () => {}) }));
 vi.mock('@/hooks/data/experience/useAwardExperience', () => ({
   useAwardArcadeExperience: () => xp,

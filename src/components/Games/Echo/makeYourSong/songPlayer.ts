@@ -169,10 +169,16 @@ function stop(): void {
   if (watchdog !== null) clearTimeout(watchdog);
   watchdog = null;
   disposePart();
-  clock.stop();
-  const transport = Tone.getTransport();
-  transport.cancel();
-  transport.position = 0;
+  // A stop runs in unmounts: where there's no Web Audio (a test's page),
+  // there's nothing to stop.
+  try {
+    clock.stop();
+    const transport = Tone.getTransport();
+    transport.cancel();
+    transport.position = 0;
+  } catch {
+    // Nothing was playing.
+  }
   for (const [key, voice] of ready)
     if (!key.startsWith(LIVE)) voice.adapter.allNotesOff();
 }

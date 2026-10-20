@@ -6,6 +6,7 @@
 
 import { Pencil, Play, Square, Trophy } from 'lucide-react';
 import { useEffect, useId, useRef } from 'react';
+import { scrollIntoViewGently } from './scrollIntoViewGently';
 
 export interface SongReadyPopupProps {
   listening: boolean;
@@ -24,12 +25,15 @@ export function SongReadyPopup({
 }: SongReadyPopupProps) {
   const titleId = useId();
   const first = useRef<HTMLButtonElement>(null);
+  const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    first.current?.focus();
+    scrollIntoViewGently(root.current);
+    first.current?.focus({ preventScroll: true });
   }, []);
 
   return (
     <div
+      ref={root}
       role="dialog"
       aria-modal="false"
       aria-labelledby={titleId}

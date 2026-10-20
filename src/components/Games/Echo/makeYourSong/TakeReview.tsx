@@ -7,7 +7,7 @@
 // another.
 
 import { Info, Play, Square } from 'lucide-react';
-import { useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { cn } from '@/components/utilities';
 import type { EchoTake, TakeFlagReason } from '@/curriculum/engine/echo';
 import { chordSymbol } from '@/curriculum/engine/musicLiteracy/chart';
@@ -19,6 +19,7 @@ import {
 } from '@/curriculum/engine/musicLiteracy/pitch';
 import { inkOn } from '@/curriculum/musicLiteracy/KeyRing';
 import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
+import { scrollIntoViewGently } from './scrollIntoViewGently';
 import { chordColors } from './songTracks';
 
 export interface TakeReviewProps {
@@ -64,6 +65,9 @@ export function TakeReview({
   onTryAgain,
 }: TakeReviewProps) {
   const headingId = useId();
+  const root = useRef<HTMLElement>(null);
+  // Shown below the tracks: brought into view, on a short window too.
+  useEffect(() => scrollIntoViewGently(root.current), []);
   const counts = new Map<TakeFlagReason, number>();
   for (const flag of take.flags)
     counts.set(flag.reason, (counts.get(flag.reason) ?? 0) + 1);
@@ -72,6 +76,7 @@ export function TakeReview({
 
   return (
     <section
+      ref={root}
       aria-labelledby={headingId}
       data-echo-review={take.kind}
       data-empty={take.empty || undefined}

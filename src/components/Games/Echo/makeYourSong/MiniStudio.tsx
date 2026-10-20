@@ -133,7 +133,12 @@ export function MiniStudio({
                 ) : null}
                 {row.name}
               </span>
-              <span className="text-xs leading-4 text-white/55">
+              <span
+                className={cn(
+                  'text-xs leading-4 text-white/55',
+                  !own && '[@media(max-height:760px)]:hidden',
+                )}
+              >
                 {own && row.clips.length === 0 ? 'No take yet' : row.role}
               </span>
             </>
@@ -146,7 +151,11 @@ export function MiniStudio({
               data-selected={picked || undefined}
               className={cn(
                 'flex border-b border-white/[0.06] last:border-b-0',
-                own ? 'h-[52px]' : 'h-9',
+                // Shorter on a short window (a laptop under the Arcade's
+                // header), so a take's review fits below the tracks.
+                own
+                  ? 'h-[52px] [@media(max-height:760px)]:h-11'
+                  : 'h-9 [@media(max-height:760px)]:h-7',
                 picked && 'bg-white/10',
               )}
             >

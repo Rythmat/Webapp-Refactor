@@ -19,6 +19,7 @@ import {
   saveKitFile,
   uploadSample,
 } from './devFiles';
+import { kitCopyName } from './kitCopy';
 
 const STOCK = ['natural', '808', 'house'];
 
@@ -132,6 +133,38 @@ export const KitPanel: FC<Props> = ({
     }
   };
 
+  // A kit already saved, opened with Edit this kit: Save kit changes it
+  // everywhere it plays; Save as new kit keeps it and saves the changes as a
+  // kit of their own (kitCopy.ts names it).
+  const editingSaved =
+    !!customKit && savedKits.some((k) => k.id === customKit.id);
+
+  const saveAsNewKit = async () => {
+    if (!customKit) return;
+    const { id, label } = kitCopyName(
+      customKit,
+      savedKits,
+      DRUM_KITS.map((k) => k.id),
+    );
+    setBusy(true);
+    try {
+      const file = {
+        ...customKit,
+        samples: { ...customKit.samples },
+        id,
+        label,
+      };
+      await saveKitFile(file);
+      setSavedKits((ks) => [...ks.filter((k) => k.id !== id), file]);
+      onCustomKit(file);
+      onKit(id);
+    } catch (err) {
+      onError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <section className={cn(CONSOLE_PANEL, 'p-4')}>
       <div className="flex flex-wrap items-center gap-3">
@@ -210,12 +243,32 @@ export const KitPanel: FC<Props> = ({
               >
                 Close
               </Button>
+              {editingSaved && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={saveAsNewKit}
+                  disabled={busy}
+                  title="Keep this kit as it is, and save your changes as a new kit"
+                >
+                  Save as new kit
+                </Button>
+              )}
               <Button size="sm" onClick={saveKit} disabled={busy}>
                 {busy && <Loader2 className="animate-spin" />}
                 Save kit
               </Button>
             </div>
           </div>
+          {editingSaved && (
+            <p className="text-xs text-muted-foreground">
+              <span className="font-medium text-white/70">Save kit</span>{' '}
+              changes this kit everywhere it plays.{' '}
+              <span className="font-medium text-white/70">Save as new kit</span>{' '}
+              keeps it as it is and saves your changes as a second kit, named as
+              you type it above (or &ldquo;copy&rdquo;).
+            </p>
+          )}
 
           {DRUM_PADS.map((pad) => {
             const url = customKit.samples[pad.note];

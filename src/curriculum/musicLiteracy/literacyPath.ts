@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
+import { readEchoProgress } from '@/components/Games/Echo/echoProgress';
 import {
   CurriculumRoutes,
+  GameRoutes,
   LearnRoutes,
   StudioRoutes,
 } from '@/constants/routes';
@@ -89,6 +91,12 @@ export const BAND_STOP_ID = 'hear-it-with-your-band';
 /** Stop 4: the Studio Basics course, nine guided Studio tutorials. */
 export const STUDIO_BASICS_STOP_ID = 'studio-basics';
 
+/**
+ * Stop 5: Echo, in the Arcade. Done once the student finishes their first
+ * song there (Make Your Song's Finish).
+ */
+export const ECHO_STOP_ID = 'echo';
+
 /** The editor link that opens Studio lesson `id` from a cold start. */
 const studioLessonRoute = (id: string) =>
   `${StudioRoutes.editor()}?tutorial=${encodeURIComponent(id)}`;
@@ -130,10 +138,11 @@ export const LITERACY_PATH: readonly LiteracyPathStop[] = [
     route: studioLessonRoute('studio-basics-your-tracks'),
   },
   {
-    id: 'echo',
+    id: ECHO_STOP_ID,
     title: 'Play Echo in the Arcade',
     module: 'Arcade',
-    live: false,
+    live: true,
+    route: GameRoutes.echo(),
   },
 ];
 
@@ -349,7 +358,8 @@ function roundsOf(
 /**
  * A route stop as this device has it: done once its page has done its job
  * (stopDone.ts); the band's stop in the key of the progression its page
- * opens on (bandProgressions.ts). A course stop (Studio Basics) is done once
+ * opens on (bandProgressions.ts), Echo's in the key last played there
+ * (echoProgress.ts). A course stop (Studio Basics) is done once
  * every lesson is, from the student's lesson completions, and opens the
  * first lesson not finished (lesson 1 again once they all are).
  */
@@ -361,6 +371,9 @@ export function readRouteStop(
   const courseId = COURSE_STOPS[stopId];
   if (courseId) return courseStop(courseId, completedAt);
   const done = readStopDone(stopId);
+  if (stopId === ECHO_STOP_ID) {
+    return { done, key: readEchoProgress().last?.key ?? null };
+  }
   if (stopId !== BAND_STOP_ID) return { done, key: null };
   const { progression } = openingBandProgression(readBandProgressions());
   return { done, key: { tonic: progression.tonic, mode: progression.mode } };

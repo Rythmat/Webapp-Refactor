@@ -124,7 +124,7 @@ describe('Home’s Start here card', () => {
     ).toBe('/studio/editor?tutorial=studio-basics-record');
   });
 
-  it('offers Studio Basics again once every lesson is done, and says what comes next', () => {
+  it('goes on to Echo in the Arcade once every Studio Basics lesson is done', () => {
     saveProgress(tags);
     localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
     act(() => {
@@ -135,15 +135,34 @@ describe('Home’s Start here card', () => {
       });
     });
     const card = renderCard();
-    expect(card.getByText(/^All 9 lessons done/)).toBeTruthy();
+    expect(card.getByText('Play Echo in the Arcade')).toBeTruthy();
+    // A stop with a route: no steps to count.
+    expect(card.queryByText(/steps|lessons/)).toBeNull();
+    expect(card.queryByText(/coming soon/)).toBeNull();
     expect(
-      card.getByText(/Up next: Play Echo in the Arcade, coming soon/),
-    ).toBeTruthy();
+      hrefOf(card.getByRole('link', { name: 'Start Play Echo in the Arcade' })),
+    ).toBe('/arcade/echo');
+  });
+
+  it('offers Echo again once a song is finished there, the last stop', () => {
+    saveProgress(tags);
+    localStorage.setItem(stopDoneKey('hear-it-with-your-band'), '1');
+    localStorage.setItem(stopDoneKey('echo'), '1');
+    act(() => {
+      useTutorialProgressStore.setState({
+        completedAt: Object.fromEntries(
+          TUTORIAL_COURSES[0].lessonIds.map((id) => [id, 1]),
+        ),
+      });
+    });
+    const card = renderCard();
+    expect(card.getByText('Play Echo in the Arcade')).toBeTruthy();
+    expect(card.queryByText(/Up next/)).toBeNull();
     expect(
       hrefOf(
-        card.getByRole('link', { name: 'Play again Learn Studio Basics' }),
+        card.getByRole('link', { name: 'Play again Play Echo in the Arcade' }),
       ),
-    ).toBe('/studio/editor?tutorial=studio-basics-your-tracks');
+    ).toBe('/arcade/echo');
   });
 
   it('links to the whole path, Learn → Start Here', () => {

@@ -812,6 +812,8 @@ export const GameRoutes = {
     prefix: gamesPrefix,
   }),
 
+  echo: createRouteDefinition('/echo', { prefix: gamesPrefix }),
+
   jamLobby: createRouteDefinition('/jam', { prefix: gamesPrefix }),
 
   jamLocal: createRouteDefinition('/jam/local', { prefix: gamesPrefix }),

@@ -1,0 +1,404 @@
+// @vitest-environment jsdom
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { RunCue } from '@/curriculum/engine/musicLiteracy/run';
+
+/**
+ * A whole game of Echo on screen, the transport faked (literacyRun.ts): the
+ * test hands the game each cue itself, says where on the run a key lands,
+ * and moves the clock on the game's own timers. Setup (levels in order,
+ * High Scores), Melody Echo and Chord Echo played on the pads with one
+ * miss (the streak goes out, the next call is easier), the Echo Boss lost
+ * and fought again, the gate's numbers and its XP awarded once, then Make
+ * Your Song's stand-in: Finish opens Level 2 and marks Start Here's Echo
+ * stop done. And Game Settings, remembered.
+ */
+
+const input = vi.hoisted(() => ({
+  stable: {
+    subscribeNoteOn: () => () => {},
+    subscribeNoteOff: () => () => {},
+    start: async () => {},
+    stop: () => {},
+  },
+}));
+vi.mock('@/learn/context/LearnInputContext', () => ({
+  LearnInputProvider: ({ children }: { children: ReactNode }) => children,
+  useLearnInputStable: () => input.stable,
+}));
+vi.mock('@/audio/pianoSampler', () => ({
+  startPianoSampler: async () => {},
+  triggerPianoAttack: async () => {},
+  triggerPianoRelease: async () => {},
+  releaseAllPianoNotes: async () => {},
+  setPianoSamplerVolume: () => {},
+}));
+
+/** The fake run: the latest start's cues and handler, and the clock's tick. */
+const run = vi.hoisted(() => ({
+  onCue: null as null | ((cue: unknown) => void),
+  cues: [] as unknown[],
+  tempo: 0,
+  starts: 0,
+  stops: 0,
+  tick: null as number | null,
+}));
+vi.mock('@/curriculum/musicLiteracy/literacyRun', () => ({
+  literacyClock: {
+    soundingTicks: () => run.tick,
+    playbackTicks: () => run.tick,
+  },
+  startLiteracyRun: async ({
+    onCue,
+    cues,
+    tempo,
+  }: {
+    onCue: (cue: unknown) => void;
+    cues: unknown[];
+    tempo: number;
+  }) => {
+    run.onCue = onCue;
+    run.cues = cues;
+    run.tempo = tempo;
+    run.starts += 1;
+    return true;
+  },
+  stopLiteracyRun: () => {
+    run.stops += 1;
+  },
+}));
+const xp = vi.hoisted(() => ({ mutateAsync: vi.fn(async () => {}) }));
+vi.mock('@/hooks/data/experience/useAwardExperience', () => ({
+  useAwardArcadeExperience: () => xp,
+}));
+
+const {
+  default: EchoGame,
+  BOSS_WON_MS,
+  INTRO_MS,
+  RESULT_MS,
+} = await import('../EchoGame');
+const { PAD_KEY_CODES } = await import('../input');
+const { ECHO_PROGRESS_KEY, readEchoProgress } = await import('../echoProgress');
+const { ECHO_SETTINGS_KEY, resetEchoSettingsCache } = await import(
+  '../echoSettings'
+);
+const { readStopDone } = await import('@/curriculum/musicLiteracy/stopDone');
+
+const flush = () =>
+  act(async () => {
+    for (let i = 0; i < 6; i++) await Promise.resolve();
+  });
+
+const wait = (ms: number) =>
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
+
+const stage = () => document.querySelector('[data-echo-targets]')!;
+const screenKind = () =>
+  document
+    .querySelector('[data-echo-screen]')
+    ?.getAttribute('data-echo-screen');
+const streak = () =>
+  Number(
+    document
+      .querySelector('[data-echo-streak]')
+      ?.getAttribute('data-echo-streak'),
+  );
+
+interface Target {
+  onset: number;
+  duration: number;
+  pad: number;
+}
+
+/**
+ * The run under way, played: each call's answer on its pads where `pass`
+ * says so (nothing where it doesn't), every cue handed over in order.
+ */
+async function playRun(pass: (call: number) => boolean) {
+  await flush();
+  const targets = JSON.parse(
+    stage().getAttribute('data-echo-targets')!,
+  ) as Target[][];
+  const presses = targets
+    .flatMap((list, call) => (pass(call) ? list : []))
+    .flatMap((t) => [
+      { tick: t.onset, code: PAD_KEY_CODES[t.pad], down: true },
+      {
+        tick: t.onset + Math.min(100, t.duration / 2),
+        code: PAD_KEY_CODES[t.pad],
+        down: false,
+      },
+    ])
+    .sort((a, b) => a.tick - b.tick);
+  const cues = run.cues as RunCue[];
+  const onCue = run.onCue!;
+  // Each cue and key in its own act, so the screen keeps up (the boss's
+  // pads change from melody to chords with its calls).
+  for (const cue of cues) {
+    while (presses.length && presses[0].tick <= cue.tick) {
+      const press = presses.shift()!;
+      run.tick = press.tick;
+      act(() => {
+        if (press.down) fireEvent.keyDown(window, { code: press.code });
+        else fireEvent.keyUp(window, { code: press.code });
+      });
+    }
+    run.tick = cue.tick;
+    if (cue.kind === 'drum') continue;
+    act(() => onCue(cue));
+  }
+}
+
+function renderGame() {
+  return render(
+    <MemoryRouter>
+      <EchoGame makeSeed={() => 'test-seed'} />
+    </MemoryRouter>,
+  );
+}
+
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  localStorage.clear();
+  localStorage.setItem(
+    ECHO_SETTINGS_KEY,
+    JSON.stringify({ input: 'pads', groove: false }),
+  );
+  resetEchoSettingsCache();
+  xp.mutateAsync.mockClear();
+  run.starts = 0;
+  run.stops = 0;
+});
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
+
+describe('a game of Echo', () => {
+  it('sets up a color, major or minor, and an open level', () => {
+    renderGame();
+    expect(screenKind()).toBe('setup');
+    expect(screen.getByRole('radio', { name: 'C Major' })).toBeTruthy();
+    const levels = [1, 2, 3].map(
+      (n) =>
+        document.querySelector(`[data-echo-level="${n}"]`) as HTMLButtonElement,
+    );
+    expect(levels.map((l) => l.disabled)).toEqual([false, true, true]);
+    expect(levels[1].hasAttribute('data-locked')).toBe(true);
+    fireEvent.click(screen.getByRole('radio', { name: 'D Major' }));
+    fireEvent.click(document.querySelector('[data-echo-mode="minor"]')!);
+    expect(document.querySelector('[data-echo-chosen-key]')?.textContent).toBe(
+      'D',
+    );
+    fireEvent.click(document.querySelector('[data-echo-start]')!);
+    expect(screenKind()).toBe('intro');
+    expect(readEchoProgress().last).toEqual({
+      level: 1,
+      key: { tonic: 'D', mode: 'minor' },
+    });
+  });
+
+  it('shows each level’s High Score, and opens a level once the one before is done', () => {
+    localStorage.setItem(
+      ECHO_PROGRESS_KEY,
+      JSON.stringify({
+        version: 1,
+        unlocked: 2,
+        highScores: { 1: 9 },
+        songs: {},
+        last: null,
+      }),
+    );
+    renderGame();
+    expect(
+      document.querySelector('[data-echo-level="1"] [data-echo-high-score]')
+        ?.textContent,
+    ).toMatch(/High Score 9/);
+    expect(
+      (document.querySelector('[data-echo-level="2"]') as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
+    expect(
+      (document.querySelector('[data-echo-level="3"]') as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+  });
+
+  it('plays the sections, the boss (lost, then won), the gate and the song', async () => {
+    renderGame();
+    fireEvent.click(document.querySelector('[data-echo-start]')!);
+    expect(screenKind()).toBe('intro');
+    await wait(INTRO_MS);
+    expect(screenKind()).toBe('round');
+
+    // ── Melody Echo: eight rounds, the third missed ──
+    for (let round = 0; round < 8; round++) {
+      const el = stage();
+      expect(el.getAttribute('data-echo-section')).toBe('melodyEcho');
+      expect(el.getAttribute('data-echo-round')).toBe(String(round));
+      // The round after the miss is an easier one, and says so.
+      expect(el.hasAttribute('data-echo-easier')).toBe(round === 3);
+      await playRun(() => round !== 2);
+      const result = document.querySelector('[data-echo-result]');
+      expect(result?.getAttribute('data-echo-result')).toBe(
+        round === 2 ? 'miss' : 'pass',
+      );
+      if (round === 1) expect(streak()).toBe(2);
+      if (round === 2) {
+        // The streak goes out; what Atlas asked, and nothing played.
+        expect(streak()).toBe(0);
+        expect(result?.textContent).toMatch(/no notes/);
+      }
+      await wait(RESULT_MS);
+    }
+
+    // ── Chord Echo: six rounds on the chord pads ──
+    expect(screenKind()).toBe('intro');
+    expect(
+      document.querySelector('[data-echo-section="chordEcho"]'),
+    ).toBeTruthy();
+    await wait(INTRO_MS);
+    for (let round = 0; round < 6; round++) {
+      expect(stage().getAttribute('data-echo-section')).toBe('chordEcho');
+      expect(
+        document.querySelectorAll('[data-echo-pads="chords"] [data-echo-pad]'),
+      ).toHaveLength(6);
+      await playRun(() => true);
+      expect(
+        document
+          .querySelector('[data-echo-result]')
+          ?.getAttribute('data-echo-result'),
+      ).toBe('pass');
+      // 5 good melody echoes after the miss, then the chords.
+      expect(streak()).toBe(6 + round);
+      await wait(RESULT_MS);
+    }
+
+    // ── The Echo Boss, lost at the second miss ──
+    expect(screenKind()).toBe('bossIntro');
+    expect(screen.getByText('The Echo Boss appears!')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Fight!/ }));
+    expect(screenKind()).toBe('boss');
+    // The boss plays at the game's top tempo.
+    await flush();
+    expect(run.tempo).toBe(96);
+    const health = () =>
+      document
+        .querySelector('[data-echo-boss-health]')
+        ?.getAttribute('data-echo-boss-health');
+    expect(health()).toBe('3');
+    const stopsBefore = run.stops;
+    await playRun((call) => call >= 2);
+    expect(
+      document
+        .querySelector('[data-echo-boss-outcome]')
+        ?.getAttribute('data-echo-boss-outcome'),
+    ).toBe('lost');
+    // The music stopped once the fight was lost.
+    expect(run.stops).toBeGreaterThan(stopsBefore);
+    expect(health()).toBe('3');
+
+    // ── Try the Boss again: won at the third good echo ──
+    const startsBefore = run.starts;
+    fireEvent.click(screen.getByRole('button', { name: 'Try the Boss again' }));
+    await flush();
+    expect(run.starts).toBe(startsBefore + 1);
+    expect(screenKind()).toBe('boss');
+    expect(health()).toBe('3');
+    await playRun(() => true);
+    expect(
+      document
+        .querySelector('[data-echo-boss-outcome]')
+        ?.getAttribute('data-echo-boss-outcome'),
+    ).toBe('won');
+    expect(health()).toBe('0');
+    expect(xp.mutateAsync).not.toHaveBeenCalled();
+    await wait(BOSS_WON_MS);
+
+    // ── The gate ──
+    expect(screenKind()).toBe('gate');
+    expect(screen.getByText('You beat the Echo Boss!')).toBeTruthy();
+    // 7 + 6 good echoes in the sections, 3 against the boss, the boss: 50.
+    expect(
+      document.querySelector('[data-echo-stat="xp"]')?.textContent,
+    ).toMatch(/\+210/);
+    expect(
+      document.querySelector('[data-echo-stat="best-streak"]')?.textContent,
+    ).toMatch(/11/);
+    expect(document.querySelector('[data-echo-new-high-score]')).toBeTruthy();
+    const percents = [
+      ...document.querySelectorAll('[data-echo-section-stat]'),
+    ].map((el) => [
+      el.getAttribute('data-echo-section-stat'),
+      el.querySelector('[data-echo-percent]')?.textContent,
+    ]);
+    expect(percents).toEqual([
+      ['melodyEcho', '88%'],
+      ['chordEcho', '100%'],
+      ['boss', '60%'],
+    ]);
+    // Arcade XP, awarded once.
+    expect(xp.mutateAsync).toHaveBeenCalledTimes(1);
+    expect(readEchoProgress().highScores[1]).toBe(11);
+
+    // ── Make Your Song ──
+    fireEvent.click(document.querySelector('[data-echo-make-your-song]')!);
+    vi.useRealTimers();
+    expect(await screen.findByText('Finish My Song')).toBeTruthy();
+    // The input the play screens hand over.
+    expect(
+      document.querySelectorAll('[data-make-your-song-stub] [data-echo-pad]'),
+    ).toHaveLength(8);
+    expect(readStopDone('echo')).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Finish My Song' }));
+    expect(readStopDone('echo')).toBe(true);
+    expect(readEchoProgress().unlocked).toBe(2);
+    expect(readEchoProgress().songs).toEqual({ 1: 1 });
+    expect(xp.mutateAsync).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Next Level!' }));
+    expect(screenKind()).toBe('intro');
+    expect(screen.getByText(/Level 2 · C Major/)).toBeTruthy();
+  });
+
+  it('pauses the music for Game Settings, and remembers what’s set there', async () => {
+    renderGame();
+    fireEvent.click(document.querySelector('[data-echo-start]')!);
+    await wait(INTRO_MS);
+    await flush();
+    expect(run.starts).toBe(1);
+    const stops = run.stops;
+    fireEvent.click(document.querySelector('[data-echo-settings-button]')!);
+    expect(run.stops).toBeGreaterThan(stops);
+    const sheet = document.querySelector(
+      '[data-guitar-sheet="echo-settings"]',
+    )!;
+    expect(sheet.textContent).toMatch(/Training wheels/);
+    fireEvent.click(screen.getByRole('radio', { name: 'Keyboard' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Auto-Tune Melody' }));
+    const saved = JSON.parse(localStorage.getItem(ECHO_SETTINGS_KEY)!);
+    expect(saved.input).toBe('keyboard');
+    expect(saved.scaffolding.autoTune).toBe(true);
+    expect(saved.scaffolding.rootsOnly).toBe(false);
+    fireEvent.keyDown(document.activeElement ?? document.body, {
+      key: 'Escape',
+    });
+    await flush();
+    // Paused until Resume: then the call again, from its count-in.
+    expect(document.querySelector('[data-echo-paused]')).toBeTruthy();
+    fireEvent.click(screen.getAllByRole('button', { name: 'Resume' })[0]);
+    await flush();
+    expect(run.starts).toBe(2);
+    expect(document.querySelector('[data-echo-input="keyboard"]')).toBeTruthy();
+  });
+});

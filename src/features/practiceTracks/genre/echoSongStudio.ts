@@ -74,6 +74,13 @@ import {
   type EchoSongRef,
 } from './echoSongRef';
 
+/**
+ * The student's tracks' instruments, in the game and the Studio alike: the
+ * Melody on the Studio's piano, the Chords on its Rhodes.
+ */
+export const ECHO_MELODY_INSTRUMENT = 'piano-sampler';
+export const ECHO_CHORDS_INSTRUMENT = 'electric-piano';
+
 // ── The band's tracks ───────────────────────────────────────────────────────
 
 /** One of the band's own tracks in the song. */

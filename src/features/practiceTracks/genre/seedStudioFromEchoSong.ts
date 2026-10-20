@@ -18,7 +18,11 @@ import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidental
 import { trackSound } from '@/daw/instruments/trackSound';
 import { useStore } from '@/daw/store';
 import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
-import type { EchoStudioSong } from './echoSongStudio';
+import {
+  ECHO_CHORDS_INSTRUMENT,
+  ECHO_MELODY_INSTRUMENT,
+  type EchoStudioSong,
+} from './echoSongStudio';
 
 /** The song's chords as the Studio's chord lane holds them. */
 export function echoChordRegions(song: EchoStudioSong): ChordRegion[] {
@@ -34,10 +38,6 @@ export function echoChordRegions(song: EchoStudioSong): ChordRegion[] {
     midis: chord.midis,
   }));
 }
-
-/** The student's tracks' instruments: the melody piano, the chords Rhodes. */
-export const ECHO_MELODY_INSTRUMENT = 'piano-sampler';
-export const ECHO_CHORDS_INSTRUMENT = 'electric-piano';
 
 /**
  * Apply a song to the project just reset. Resolves to the Melody track's

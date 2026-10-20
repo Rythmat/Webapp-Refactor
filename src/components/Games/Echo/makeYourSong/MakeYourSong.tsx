@@ -387,7 +387,7 @@ export function MakeYourSong({
     });
   };
 
-  const useTake = () => {
+  const keepTake = () => {
     songPlayer.stop();
     // The band already learned these chords for the review: it stays.
     if (review?.kind === 'chords' && reviewBand?.key === reviewWanted)
@@ -698,25 +698,25 @@ export function MakeYourSong({
                   Recording {TRACK_NAME[activity.track]}
                 </span>
               )}
+              <p
+                aria-live="polite"
+                data-echo-direction
+                className="min-w-[240px] flex-1 px-1 text-[15px] leading-5 text-white/70"
+              >
+                {direction}
+              </p>
               {complete && !flow.popup && studioFree(flow) && (
                 <button
                   type="button"
                   data-echo-finish-song
                   onClick={() => dispatch({ type: 'openPopup' })}
-                  className="ml-auto inline-flex h-9 items-center gap-2 rounded-full bg-white px-4 text-[13px] font-semibold text-[#101012] hover:bg-[#e6e6e8]"
+                  className="inline-flex h-9 items-center gap-2 rounded-full bg-white px-4 text-[13px] font-semibold text-[#101012] hover:bg-[#e6e6e8]"
                 >
                   <Trophy aria-hidden className="size-3.5" />
                   Finish My Song
                 </button>
               )}
             </div>
-            <p
-              aria-live="polite"
-              data-echo-direction
-              className="text-[15px] leading-6 text-white/70"
-            >
-              {direction}
-            </p>
 
             <MiniStudio
               rows={rows}
@@ -759,7 +759,7 @@ export function MakeYourSong({
                     songPlayer.stop();
                     dispatch({ type: 'reviewPlaying', playing: false });
                   }}
-                  onUse={useTake}
+                  onUse={keepTake}
                   onTryAgain={tryAgain}
                 />
               ) : (

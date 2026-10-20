@@ -50,8 +50,8 @@ const LEFT_OUT: Record<TakeFlagReason, (n: number) => string> = {
 };
 
 const LANE_MIN = 12;
-const LANE_MAX = 22;
-const ROLL_MAX = 176;
+const LANE_MAX = 18;
+const ROLL_MAX = 132;
 
 export function TakeReview({
   take,
@@ -75,7 +75,7 @@ export function TakeReview({
       aria-labelledby={headingId}
       data-echo-review={take.kind}
       data-empty={take.empty || undefined}
-      className="flex w-full max-w-[960px] flex-col gap-3 rounded-xl border border-white/[0.08] bg-[#151518] p-4"
+      className="flex w-full max-w-[960px] flex-col gap-2.5 rounded-xl border border-white/[0.08] bg-[#151518] px-4 py-3"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2
@@ -175,7 +175,7 @@ function ChordStrip({ take }: { take: Extract<EchoTake, { kind: 'chords' }> }) {
     <div
       role="img"
       aria-label={take.chords.map((c) => c.label).join(', ')}
-      className="relative h-16 overflow-hidden rounded-lg bg-white/[0.03]"
+      className="relative h-14 overflow-hidden rounded-lg bg-white/[0.03]"
     >
       {Array.from({ length: take.bars - 1 }, (_, bar) => (
         <div

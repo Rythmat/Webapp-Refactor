@@ -1,0 +1,206 @@
+{
+  "about": "ICP Studio's 25 one-beat rhythm flashcards (RHYTHM-FLASHCARDS.md, from the Sight Reading & Scales Workbook pp. 4 and 6). Each card is one quarter-note beat on a 16th grid, counted 1 e & a. grid: X a note starts, - it's held, . a rest. tokens: 4 quarter, 8 eighth, 8. dotted eighth, 16 sixteenth, r a rest. count: the syllables played, rests in parentheses.",
+  "source": "icp-studio/RHYTHM-FLASHCARDS.md",
+  "cards": [
+    {
+      "id": 1,
+      "tier": 1,
+      "grid": "....",
+      "name": "quarter rest",
+      "tokens": ["4r"],
+      "count": "(1)"
+    },
+    {
+      "id": 2,
+      "tier": 1,
+      "grid": "X---",
+      "name": "quarter",
+      "tokens": ["4"],
+      "count": "1"
+    },
+    {
+      "id": 3,
+      "tier": 1,
+      "grid": "X-X-",
+      "name": "eighth, eighth",
+      "tokens": ["8", "8"],
+      "count": "1 &"
+    },
+    {
+      "id": 4,
+      "tier": 1,
+      "grid": "X-..",
+      "name": "eighth, eighth rest",
+      "tokens": ["8", "8r"],
+      "count": "1 (&)"
+    },
+    {
+      "id": 5,
+      "tier": 1,
+      "grid": "..X-",
+      "name": "eighth rest, eighth",
+      "tokens": ["8r", "8"],
+      "count": "(1) &"
+    },
+    {
+      "id": 6,
+      "tier": 1,
+      "grid": "....",
+      "name": "eighth rest, eighth rest",
+      "tokens": ["8r", "8r"],
+      "count": "(1) (&)"
+    },
+    {
+      "id": 7,
+      "tier": 2,
+      "grid": "XXXX",
+      "name": "sixteenth, sixteenth, sixteenth, sixteenth",
+      "tokens": ["16", "16", "16", "16"],
+      "count": "1 e & a"
+    },
+    {
+      "id": 8,
+      "tier": 2,
+      "grid": "XX..",
+      "name": "sixteenth, sixteenth, eighth rest",
+      "tokens": ["16", "16", "8r"],
+      "count": "1 e (&)"
+    },
+    {
+      "id": 9,
+      "tier": 2,
+      "grid": "..XX",
+      "name": "eighth rest, sixteenth, sixteenth",
+      "tokens": ["8r", "16", "16"],
+      "count": "(1) & a"
+    },
+    {
+      "id": 10,
+      "tier": 2,
+      "grid": "X-XX",
+      "name": "eighth, sixteenth, sixteenth",
+      "tokens": ["8", "16", "16"],
+      "count": "1 & a"
+    },
+    {
+      "id": 11,
+      "tier": 2,
+      "grid": "XXX-",
+      "name": "sixteenth, sixteenth, eighth",
+      "tokens": ["16", "16", "8"],
+      "count": "1 e &"
+    },
+    {
+      "id": 12,
+      "tier": 3,
+      "grid": ".XX.",
+      "name": "sixteenth rest, sixteenth, sixteenth, sixteenth rest",
+      "tokens": ["16r", "16", "16", "16r"],
+      "count": "(1) e & (a)"
+    },
+    {
+      "id": 13,
+      "tier": 3,
+      "grid": "XXX.",
+      "name": "sixteenth, sixteenth, sixteenth, sixteenth rest",
+      "tokens": ["16", "16", "16", "16r"],
+      "count": "1 e & (a)"
+    },
+    {
+      "id": 14,
+      "tier": 3,
+      "grid": ".XXX",
+      "name": "sixteenth rest, sixteenth, sixteenth, sixteenth",
+      "tokens": ["16r", "16", "16", "16"],
+      "count": "(1) e & a"
+    },
+    {
+      "id": 15,
+      "tier": 3,
+      "grid": "X...",
+      "name": "sixteenth, sixteenth rest, eighth rest",
+      "tokens": ["16", "16r", "8r"],
+      "count": "1 (e) (&)"
+    },
+    {
+      "id": 16,
+      "tier": 3,
+      "grid": ".X..",
+      "name": "sixteenth rest, sixteenth, eighth rest",
+      "tokens": ["16r", "16", "8r"],
+      "count": "(1) e (&)"
+    },
+    {
+      "id": 17,
+      "tier": 3,
+      "grid": "..X.",
+      "name": "eighth rest, sixteenth, sixteenth rest",
+      "tokens": ["8r", "16", "16r"],
+      "count": "(1) & (a)"
+    },
+    {
+      "id": 18,
+      "tier": 3,
+      "grid": "...X",
+      "name": "sixteenth rest, sixteenth rest, sixteenth rest, sixteenth",
+      "tokens": ["16r", "16r", "16r", "16"],
+      "count": "(1) (e) (&) a"
+    },
+    {
+      "id": 19,
+      "tier": 3,
+      "grid": ".X.X",
+      "name": "sixteenth rest, sixteenth, sixteenth rest, sixteenth",
+      "tokens": ["16r", "16", "16r", "16"],
+      "count": "(1) e (&) a"
+    },
+    {
+      "id": 20,
+      "tier": 3,
+      "grid": "X..X",
+      "name": "sixteenth, sixteenth rest, sixteenth rest, sixteenth",
+      "tokens": ["16", "16r", "16r", "16"],
+      "count": "1 (e) (&) a"
+    },
+    {
+      "id": 21,
+      "tier": 3,
+      "grid": "....",
+      "name": "sixteenth rest, sixteenth rest, sixteenth rest, sixteenth rest",
+      "tokens": ["16r", "16r", "16r", "16r"],
+      "count": "(1) (e) (&) (a)"
+    },
+    {
+      "id": 22,
+      "tier": 4,
+      "grid": "XX-X",
+      "name": "sixteenth, eighth, sixteenth",
+      "tokens": ["16", "8", "16"],
+      "count": "1 e a"
+    },
+    {
+      "id": 23,
+      "tier": 4,
+      "grid": ".X--",
+      "name": "sixteenth rest, dotted eighth",
+      "tokens": ["16r", "8."],
+      "count": "(1) e"
+    },
+    {
+      "id": 24,
+      "tier": 4,
+      "grid": "X--X",
+      "name": "dotted eighth, sixteenth",
+      "tokens": ["8.", "16"],
+      "count": "1 a"
+    },
+    {
+      "id": 25,
+      "tier": 4,
+      "grid": "XX--",
+      "name": "sixteenth, dotted eighth",
+      "tokens": ["16", "8."],
+      "count": "1 e"
+    }
+  ]
+}

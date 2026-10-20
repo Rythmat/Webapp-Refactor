@@ -165,6 +165,8 @@ export function intentLabel(intent: OpenIntent, name?: string | null): string {
     case 'practiceMode':
     case 'practiceGenre':
       return 'Building your practice track…';
+    case 'echoSong':
+      return 'Opening your song…';
     case 'collab':
       if (intent.code === 'new') return 'Starting a session…';
       return intent.awaitHost
@@ -501,6 +503,8 @@ export async function prepareIntent(
       return preparePracticeMode(intent, ctx);
     case 'practiceGenre':
       return preparePracticeGenre(intent, ctx);
+    case 'echoSong':
+      return prepareEchoSong(intent, ctx);
     case 'jam': {
       const jam = readPendingJam();
       if (!jam) throw new OpenRefusal(notFoundError(NOT_FOUND_MESSAGES.jam));
@@ -905,6 +909,62 @@ async function preparePracticeGenre(
     afterReady: ({ stillCurrent }) => {
       if (!stillCurrent()) return;
       takePracticeTrack(genre, level, section, band);
+    },
+  });
+}
+
+/**
+ * A song made in Echo's Make Your Song: the game's hand-off box, or the song
+ * built again from the link (echoSongStudio.ts). Loaded here, not at the
+ * top: it reaches Echo's and Music Literacy's code, which the Studio's
+ * start never needs. The student's song is their own work, kept as a
+ * draft until it is saved (not a source that opens again as it was).
+ */
+async function prepareEchoSong(
+  intent: Extract<OpenIntent, { kind: 'echoSong' }>,
+  ctx: PrepareContext,
+): Promise<PreparedOpen> {
+  let loaded;
+  try {
+    const [studio, seed] = await raceSignal(
+      Promise.all([
+        import('@/features/practiceTracks/genre/echoSongStudio'),
+        import('@/features/practiceTracks/genre/seedStudioFromEchoSong'),
+      ]),
+      ctx.signal,
+    );
+    // Peeks at the game's hand-off box; it is taken once ready.
+    const song = await raceSignal(
+      studio.resolveEchoSong(intent.song),
+      ctx.signal,
+    );
+    loaded = { studio, seed, song };
+  } catch (err) {
+    throwIfAborted(ctx.signal);
+    console.error('The Echo song failed to build', err);
+    const error = openErrorFromFailure(err, 'song');
+    throw new OpenRefusal(
+      error.surface === 'panel'
+        ? error
+        : notFoundError(NOT_FOUND_MESSAGES.song),
+    );
+  }
+  const { studio, seed, song } = loaded;
+  if (!song) throw new OpenRefusal(notFoundError(NOT_FOUND_MESSAGES.song));
+  return seeded(await claimNew(ctx), {
+    name: song.name,
+    apply: () => {
+      seed.applyEchoSong(song);
+    },
+    savedComplete: false,
+    baseline: {
+      source: 'echoSong',
+      ref: `${song.ref.band}/${song.ref.variation}`,
+      reopenable: false,
+    },
+    afterReady: ({ stillCurrent }) => {
+      if (!stillCurrent()) return;
+      studio.takeEchoSong(intent.song);
     },
   });
 }

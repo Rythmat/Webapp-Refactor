@@ -5,6 +5,7 @@ import type {
   PracticeOpenTrack,
 } from '@/features/practiceTracks/generatePracticeTrack';
 import type { BandPracticeRef } from '@/features/practiceTracks/genre/bandPracticeRef';
+import type { EchoSongRef } from '@/features/practiceTracks/genre/echoSongRef';
 import type {
   DraftBaseline,
   DraftBody,
@@ -91,6 +92,16 @@ export type OpenIntent =
        * refresh or a shared link builds it again.
        */
       band?: BandPracticeRef;
+    }
+  | {
+      /**
+       * A song made in Echo's Make Your Song: the student's Melody and
+       * Chords over the band they chose, open on the Create view. The link
+       * names the band, the key, the tempo and both takes, so a refresh or
+       * a shared link builds it again (echoSongRef.ts).
+       */
+      kind: 'echoSong';
+      song: EchoSongRef;
     }
   | { kind: 'jam' }
   | {

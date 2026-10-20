@@ -7,6 +7,10 @@ import {
   BAND_REF_KEYS,
   bandRefFromParams,
 } from '@/features/practiceTracks/genre/bandPracticeRef';
+import {
+  ECHO_SONG_KEYS,
+  echoSongRefFromParams,
+} from '@/features/practiceTracks/genre/echoSongRef';
 import { isScaleLesson } from '@/lib/learn/scaleLessons';
 import { isDiatonicMode } from '@prism/engine';
 import type { OpenError, OpenIntent } from './types';
@@ -60,6 +64,8 @@ export const BOOT_KEYS: readonly string[] = Object.freeze([
   'practiceSection',
   // A band's track (bandPracticeRef.ts).
   ...Object.values(BAND_REF_KEYS),
+  // A song made in Echo (echoSongRef.ts).
+  ...Object.values(ECHO_SONG_KEYS),
   'practiceMode',
   'practiceRoot',
   'practiceOpen',
@@ -150,6 +156,9 @@ export function parseBootIntent(params: URLSearchParams): ParsedBoot {
       section: text('progressionSection'),
     });
   }
+
+  const echoSong = echoSongRefFromParams(get);
+  if (echoSong) return parsed({ kind: 'echoSong', song: echoSong });
 
   const genre = get('practiceGenre');
   if (genre) {

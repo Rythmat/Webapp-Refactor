@@ -190,6 +190,12 @@ const SignalFlowPage = lazy(() =>
   })),
 );
 
+const EchoPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ EchoPage }) => ({
+    default: EchoPage,
+  })),
+);
+
 const DawApp = lazy(() =>
   preloadDaw().then(({ DawApp }) => ({
     default: DawApp,
@@ -387,6 +393,11 @@ export const gamesPages = () => {
       {
         path: GameRoutes.harmonicStrings.definition,
         element: <HarmonicStringsPage />,
+      },
+      {
+        // Free: the last stop of Start Here.
+        path: GameRoutes.echo.definition,
+        element: <EchoPage />,
       },
       {
         path: GameRoutes.signalFlow.definition,

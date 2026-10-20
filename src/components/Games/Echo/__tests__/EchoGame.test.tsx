@@ -87,6 +87,7 @@ const {
   RESULT_MS,
 } = await import('../EchoGame');
 const { PAD_KEY_CODES } = await import('../input');
+const { TYPING_NOTES } = await import('@/daw/commands/musicalTypingMap');
 const { ECHO_PROGRESS_KEY, readEchoProgress } = await import('../echoProgress');
 const { ECHO_SETTINGS_KEY, resetEchoSettingsCache } = await import(
   '../echoSettings'
@@ -118,29 +119,50 @@ const streak = () =>
 interface Target {
   onset: number;
   duration: number;
+  midis: number[];
   pad: number;
 }
 
+/** A note's letter key with A on `octave`'s C, by its pitch class alone. */
+const typedCode = (midi: number, octave: number) => {
+  const offset = (((midi - (octave + 1) * 12) % 12) + 12) % 12;
+  return Object.keys(TYPING_NOTES).find(
+    (code) => TYPING_NOTES[code] === offset,
+  )!;
+};
+
 /**
- * The run under way, played: each call's answer on its pads where `pass`
- * says so (nothing where it doesn't), every cue handed over in order.
+ * The run under way, played: each call's answer where `pass` says so
+ * (nothing where it doesn't), on the pads or the letter keys, every cue
+ * handed over in order. On the letters a chord is played by pitch class,
+ * in whatever octave the keys are on: any voicing is the chord.
  */
-async function playRun(pass: (call: number) => boolean) {
+async function playRun(
+  pass: (call: number) => boolean,
+  by: 'pads' | 'letters' = 'pads',
+) {
   await flush();
   const targets = JSON.parse(
     stage().getAttribute('data-echo-targets')!,
   ) as Target[][];
+  const octave = Number(
+    document
+      .querySelector('[data-typing-octave]')
+      ?.getAttribute('data-typing-octave') ?? 4,
+  );
+  const codesOf = (t: Target) =>
+    by === 'pads'
+      ? [PAD_KEY_CODES[t.pad]]
+      : t.midis.map((m) => typedCode(m, octave));
   const presses = targets
     .flatMap((list, call) => (pass(call) ? list : []))
-    .flatMap((t) => [
-      { tick: t.onset, code: PAD_KEY_CODES[t.pad], down: true },
-      {
-        tick: t.onset + Math.min(100, t.duration / 2),
-        code: PAD_KEY_CODES[t.pad],
-        down: false,
-      },
-    ])
-    .sort((a, b) => a.tick - b.tick);
+    .flatMap((t) =>
+      codesOf(t).flatMap((code) => [
+        { tick: t.onset, code, down: true },
+        { tick: t.onset + Math.min(100, t.duration / 2), code, down: false },
+      ]),
+    )
+    .sort((a, b) => a.tick - b.tick || Number(a.down) - Number(b.down));
   const cues = run.cues as RunCue[];
   const onCue = run.onCue!;
   // Each cue and key in its own act, so the screen keeps up (the boss's
@@ -369,6 +391,36 @@ describe('a game of Echo', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Next Level!' }));
     expect(screenKind()).toBe('intro');
     expect(screen.getByText(/Level 2 · C Major/)).toBeTruthy();
+  });
+
+  it('hears a chord played on the keyboard, in any octave or order', async () => {
+    localStorage.setItem(
+      ECHO_SETTINGS_KEY,
+      JSON.stringify({ input: 'keyboard', groove: false }),
+    );
+    resetEchoSettingsCache();
+    renderGame();
+    fireEvent.click(document.querySelector('[data-echo-start]')!);
+    await wait(INTRO_MS);
+    // Melody Echo let go by, to get to the chords.
+    for (let round = 0; round < 8; round++) {
+      await playRun(() => false);
+      await wait(RESULT_MS);
+    }
+    await wait(INTRO_MS);
+    for (let round = 0; round < 3; round++) {
+      expect(stage().getAttribute('data-echo-section')).toBe('chordEcho');
+      expect(
+        document.querySelector('[data-echo-input="keyboard"]'),
+      ).toBeTruthy();
+      expect(document.querySelector('[data-echo-pads]')).toBeNull();
+      await playRun(() => true, 'letters');
+      const result = document.querySelector('[data-echo-result]');
+      expect(result?.getAttribute('data-echo-result')).toBe('pass');
+      // The chords named as the student played them.
+      expect(result?.textContent).toMatch(/You.*\d (maj|min)/);
+      await wait(RESULT_MS);
+    }
   });
 
   it('pauses the music for Game Settings, and remembers what’s set there', async () => {

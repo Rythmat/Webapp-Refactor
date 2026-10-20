@@ -2,6 +2,7 @@ import type { LiteracyScaleDegree } from '@/content/musicLiteracy/schemas';
 import {
   chordCall,
   contoursOfLevel,
+  echoLevel,
   echoTonic,
   melodyCall,
   pickOne,
@@ -43,6 +44,8 @@ export interface RoundCallOptions {
   easier?: boolean;
   /** Contour ids played lately, not to repeat while others remain. */
   exclude?: readonly string[];
+  /** The tempo it plays at (the game's now); the level's base when left out. */
+  tempo?: number;
 }
 
 /** An easier melody call at `level`: Level 1's, in the level's register. */
@@ -51,6 +54,7 @@ function easierMelody(
   key: LiteracyKey,
   rng: EchoRandom,
   exclude: readonly string[],
+  tempo: number,
 ): EchoCall {
   const pool = easiestContours();
   const fresh = pool.filter((c) => !exclude.includes(c.id));
@@ -58,6 +62,7 @@ function easierMelody(
   const call = melodyCall(1, key, rng, {
     contourId: contour.id,
     zeroPoint: 1,
+    tempo,
   });
   // A level's 1 can sit an octave from Level 1's (D and D♭ do): move the
   // call there, so it lands on the level's pads and keys.
@@ -76,18 +81,23 @@ export function roundCall(
   level: EchoLevelNumber,
   key: LiteracyKey,
   rng: EchoRandom,
-  { easier = false, exclude = [] }: RoundCallOptions = {},
+  {
+    easier = false,
+    exclude = [],
+    tempo = echoLevel(level).tempo,
+  }: RoundCallOptions = {},
 ): EchoCall {
   if (section === 'melodyEcho') {
     return easier
-      ? easierMelody(level, key, rng, exclude)
-      : melodyCall(level, key, rng, { exclude });
+      ? easierMelody(level, key, rng, exclude, tempo)
+      : melodyCall(level, key, rng, { exclude, tempo });
   }
-  if (!easier) return chordCall(level, key, rng);
+  if (!easier) return chordCall(level, key, rng, { tempo });
   // Level 1's rhythms; a chord call's register is the key's at any level.
   return {
     ...chordCall(1, key, rng, {
       degrees: ['1', pickOne(rng, EASY_CHORD_MOVES)],
+      tempo,
     }),
     level,
   };

@@ -227,6 +227,35 @@ describe('the tempo', () => {
     expect(flow.tempo.top).toBe(88);
   });
 
+  it('starts at each level’s base, and makes each call at the tempo of its moment', () => {
+    for (const [level, base] of [
+      [1, 80],
+      [2, 90],
+      [3, 100],
+    ] as const) {
+      const flow = step(begun(level), { type: 'go' });
+      expect(flow.screen.kind === 'round' && flow.screen.tempo).toBe(base);
+      expect(flow.screen.kind === 'round' && flow.screen.call.tempo).toBe(base);
+      expect(runCallsOf(flow)[0].timeline.tempo).toBe(base);
+    }
+  });
+
+  it('plays the boss at the highest tempo reached, its echoes leaving it be', () => {
+    let boss = step(playSections(begun()), { type: 'fight' });
+    const before = boss.tempo;
+    for (const passed of [true, false, false]) {
+      boss = step(boss, {
+        type: 'bossGraded',
+        index: boss.screen.kind === 'boss' ? boss.screen.at : -1,
+        outcome: outcome(passed),
+      });
+    }
+    expect(boss.stats.boss.outcome).toBe('lost');
+    expect(boss.tempo).toEqual(before);
+    boss = step(boss, { type: 'bossRetry' });
+    expect(boss.screen.kind === 'boss' && boss.screen.tempo).toBe(96);
+  });
+
   it('plays the boss at the highest tempo reached', () => {
     const flow = step(playSections(begun()), { type: 'fight' });
     expect(flow.screen.kind).toBe('boss');

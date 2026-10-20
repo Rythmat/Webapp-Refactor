@@ -1,18 +1,21 @@
 import {
   bossCalls,
   bossTimelines,
+  echoBossTempo,
   echoGameReducer,
   echoTimeline,
   echoRandom,
   newEchoGame,
+  newEchoTempo,
+  nextEchoTempo,
   type EchoCall,
   type EchoGameStats,
   type EchoLevelNumber,
+  type EchoTempo,
 } from '@/curriculum/engine/echo';
 import { roundCall, type EchoSectionName } from './echoCalls';
 import type { EchoKeyChoice } from './echoProgress';
 import { placeCall, type RunCall } from './echoRunCues';
-import { bossTempo, nextTempo, startTempo, type EchoTempo } from './echoTempo';
 
 // ── A game of Echo, screen by screen ───────────────────────────────────────
 // The play screens as one pure reducer, so the whole game can be walked in
@@ -31,8 +34,9 @@ import { bossTempo, nextTempo, startTempo, type EchoTempo } from './echoTempo';
 // (engine/echo/stats.ts echoGameReducer). Each call is made from the game's
 // seed and its number, so a seed replays the same game. After a miss the
 // next call is an easier one (echoCalls.ts). The tempo climbs with good
-// echoes and eases after a miss (echoTempo.ts): each call keeps the tempo
-// it was made at, and the boss plays at the highest the game reached.
+// echoes and eases after a miss (engine/echo/tempo.ts nextEchoTempo): each
+// call is made at the tempo of its moment and keeps it, and the boss plays
+// at the highest the game reached. The boss's echoes don't move the ramp.
 // `run` counts the runs asked for: the screen starts the transport each
 // time it moves.
 
@@ -154,7 +158,7 @@ export function newEchoFlow(
     key,
     seed: '',
     stats: newEchoGame(level),
-    tempo: startTempo(level),
+    tempo: newEchoTempo(level),
     pips: { melodyEcho: [], chordEcho: [] },
     easier: false,
     made: 0,
@@ -172,6 +176,7 @@ function playRound(
   const call = roundCall(section, flow.level, flow.key, random(flow), {
     easier: flow.easier,
     exclude: flow.recent,
+    tempo: flow.tempo.bpm,
   });
   return {
     ...flow,
@@ -180,7 +185,7 @@ function playRound(
       section,
       round,
       call,
-      tempo: flow.tempo.bpm,
+      tempo: call.tempo,
       easier: flow.easier,
       outcome: null,
     },
@@ -195,13 +200,14 @@ function playRound(
 
 /** The boss's screen with four fresh calls. */
 function fightBoss(flow: EchoFlow): EchoFlow {
-  const calls = bossCalls(flow.level, flow.key, random(flow));
+  const tempo = echoBossTempo(flow.tempo, flow.level);
+  const calls = bossCalls(flow.level, flow.key, random(flow), { tempo });
   return {
     ...flow,
     screen: {
       kind: 'boss',
       calls,
-      tempo: bossTempo(flow.tempo),
+      tempo,
       at: 0,
       outcomes: calls.map(() => null),
     },
@@ -254,7 +260,7 @@ export function echoFlowReducer(
           [screen.section]: [...flow.pips[screen.section], passed],
         },
         easier: !passed,
-        tempo: nextTempo(flow.tempo, flow.level, { passed }),
+        tempo: nextEchoTempo(flow.tempo, flow.level, { passed }),
       };
     }
 

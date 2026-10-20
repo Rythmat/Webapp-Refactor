@@ -8,6 +8,7 @@ import GenrePianoRoll, {
 import {
   BOSS_CALLS,
   chordPads,
+  echoTempoRange,
   melodyPads,
   type PlayedNote,
 } from '@/curriculum/engine/echo';
@@ -33,7 +34,6 @@ import {
 } from './echoFlow';
 import { callIndexAt, wholeTimeline, type RunCall } from './echoRunCues';
 import type { EchoInputMode } from './echoSettings';
-import { tempoRange } from './echoTempo';
 import { EchoInputSurface, type EchoNoteOff, type EchoNoteOn } from './input';
 import './echoGame.css';
 
@@ -177,7 +177,7 @@ export function EchoStage({
   );
 
   const kind = placed?.call.kind === 'chords' ? 'chords' : 'melody';
-  const range = tempoRange(level);
+  const range = echoTempoRange(level);
   const tempo = boss ? boss.tempo : (round?.tempo ?? flow.tempo.bpm);
 
   return (

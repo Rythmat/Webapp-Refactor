@@ -37,18 +37,10 @@ import {
   resetEchoSettingsCache,
   updateEchoSettings,
 } from '../echoSettings';
-import {
-  ECHO_TEMPO_PASSES,
-  ECHO_TEMPO_RISE,
-  ECHO_TEMPO_STEP,
-  nextTempo,
-  startTempo,
-  tempoRange,
-} from '../echoTempo';
 
 /**
  * Echo's play-screen parts that need no screen: the easier call after a
- * miss, the tempo's climb, the device's progress and settings, a run's
+ * miss, the device's progress and settings, a run's
  * cues, the hub's words, and an echo described.
  */
 
@@ -97,39 +89,6 @@ describe('the easier call after a miss', () => {
     const call = roundCall('chordEcho', 3, C, echoRandom(4));
     expect(call.kind).toBe('chords');
     expect(call.level).toBe(3);
-  });
-});
-
-describe('the tempo', () => {
-  it('climbs a step every two good echoes, up to 16 over the level', () => {
-    expect([ECHO_TEMPO_STEP, ECHO_TEMPO_RISE, ECHO_TEMPO_PASSES]).toEqual([
-      4, 16, 2,
-    ]);
-    const { low, high } = tempoRange(1);
-    expect(high - low).toBe(16);
-    let tempo = startTempo(1);
-    expect(tempo.bpm).toBe(low);
-    const bpms: number[] = [];
-    for (let i = 0; i < 12; i++) {
-      tempo = nextTempo(tempo, 1, { passed: true });
-      bpms.push(tempo.bpm);
-    }
-    expect(bpms.slice(0, 4)).toEqual([low, low + 4, low + 4, low + 8]);
-    expect(Math.max(...bpms)).toBe(high);
-    expect(tempo.top).toBe(high);
-  });
-
-  it('eases a step after a miss, never under the level’s tempo', () => {
-    let tempo = startTempo(2);
-    tempo = nextTempo(tempo, 2, { passed: false });
-    expect(tempo.bpm).toBe(tempoRange(2).low);
-    tempo = nextTempo(tempo, 2, { passed: true });
-    tempo = nextTempo(tempo, 2, { passed: true });
-    tempo = nextTempo(tempo, 2, { passed: true });
-    // A miss also starts the count of good echoes over.
-    tempo = nextTempo(tempo, 2, { passed: false });
-    expect(tempo).toMatchObject({ bpm: tempoRange(2).low, passes: 0 });
-    expect(tempo.top).toBe(tempoRange(2).low + 4);
   });
 });
 

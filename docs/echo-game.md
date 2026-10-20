@@ -155,7 +155,8 @@ What the screens do where the design left a choice (`src/components/Games/Echo/`
   - A melody call takes a three-note contour from Level 1's set (its shortest shapes: 1 2 3, 3 2 1, 1 2 1, 1 7 1), on the 1, in Level 1's rhythms. It's placed in the level's own register, so it lands on the level's pads.
   - A chord call goes home to the 1 chord and out to the 4 or the 5, in Level 1's rhythms.
   - Only the one call after a miss is easier: a good echo brings the level's own calls back. The Final Boss is never made easier.
-- **The tempo climbs.** A game starts at its level's tempo. It rises 4 BPM after every 2 good echoes in a row and falls 4 after a miss, from the level's tempo to 16 above it. It changes only between calls. The Boss plays at the highest tempo the game reached. A speed meter beside the streak shows the BPM and the climb.
+- **The tempo** follows the engine's ramp (Tempo, above): each call is made at the game's tempo of its moment, and the Boss's echoes leave the ramp alone. A speed meter beside the streak shows the BPM and the climb ("Faster! +4").
+- **Played chords** in a round's result are the strikes the grade heard (fast chord recognition), named in the key.
 - **The Boss ends when it's decided.** The fight stops at the third good echo (won) or the second miss (lost), without playing its last call. A loss offers **Try the Boss again**: four new calls, the Boss alone.
 - **The streak** runs across all three sections, and the best streak is the level's High Score, saved as soon as it's beaten.
 - **Pause.** The pause button, or opening Game Settings while the music plays, stops the run. Resume plays the same call again from its count-in; a paused Boss picks up at the call it was on.

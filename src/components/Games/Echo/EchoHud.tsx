@@ -1,7 +1,7 @@
 import { Flame } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/components/utilities';
-import { ECHO_TEMPO_STEP } from './echoTempo';
+import { ECHO_TEMPO_STEP } from '@/curriculum/engine/echo';
 import './echoGame.css';
 
 // ── The game's running numbers ─────────────────────────────────────────────

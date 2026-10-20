@@ -7,8 +7,10 @@
  * The song is Echo's (engine/echo/song.ts `assembleSong`): the two takes,
  * each repeated to fill eight bars. The band is the one the student chose,
  * built by Practice with a Band (bandPracticeTrack.ts) over the song's
- * chart, so its captured parts follow the student's chords. A band track is
- * sixteen bars; the song keeps the first eight (`echoBandParts`).
+ * chart, following the take's chords where they really change, half bars
+ * included (`songChordChanges`, the backing's `timedChords`): its drums,
+ * its bass and keys, and every captured part. A band track is sixteen
+ * bars; the song keeps the first eight (`echoBandParts`).
  *
  * THE HAND-OFF
  * As Practice with a Band does it (openGenrePracticeTrack.ts): the game
@@ -44,12 +46,17 @@ import {
   type MelodyTake,
   type TakeChord,
 } from '@/curriculum/engine/echo';
+import type { TimedChords } from '@/curriculum/engine/genreGeneration/chordTimeline';
 import {
   chartKeyName,
   chartPrismMode,
   chordSymbol,
 } from '@/curriculum/engine/musicLiteracy/chart';
-import { voicedProgression } from '@/curriculum/engine/musicLiteracy/chords';
+import {
+  progressionLabels,
+  voicedChord,
+  voicedProgression,
+} from '@/curriculum/engine/musicLiteracy/chords';
 import {
   pitchClassOf,
   type LiteracyKey,
@@ -212,22 +219,78 @@ function songClip(
   };
 }
 
+// ── The song's chord changes ───────────────────────────────────────────────
+
+/**
+ * One chord of the song where it really sounds, the shape the engine's
+ * `assembleSong` gives as `chordChanges`.
+ */
+export interface EchoChordChange {
+  tick: number;
+  duration: number;
+  degree: LiteracyScaleDegree;
+  /** "4 maj". */
+  label: string;
+  /** "F". */
+  symbol: string;
+}
+
+/**
+ * The song's chord changes, for the whole song: the engine's own
+ * (`chordChanges`) when it gives them; until then the chords take's chords
+ * as the song repeats them, held until the next; with no chords take, the
+ * chart, a chord a bar (the 1, as the band plays it before one exists).
+ */
+export function songChordChanges(song: EchoSong): EchoChordChange[] {
+  const given = (song as EchoSong & { chordChanges?: EchoChordChange[] })
+    .chordChanges;
+  if (given) return given;
+  if (song.chords.length) {
+    return song.chords.map((chord, i) => ({
+      tick: chord.tick,
+      duration:
+        (song.chords[i + 1]?.tick ?? song.length) - chord.tick ||
+        chord.duration,
+      degree: chord.degree,
+      label: chord.label,
+      symbol: chordSymbol(song.key, chord.degree),
+    }));
+  }
+  const labels = progressionLabels(song.chart.chords, song.key.mode);
+  return song.chart.chords.map((degree, bar) => ({
+    tick: bar * BAR_TICKS,
+    duration: BAR_TICKS,
+    degree,
+    label: labels[bar],
+    symbol: chordSymbol(song.key, degree),
+  }));
+}
+
+/** The changes as the band's backing takes them, over the song's length. */
+export const songTimedChords = (song: EchoSong): TimedChords => ({
+  changes: songChordChanges(song).map(({ tick, symbol }) => ({
+    tick,
+    symbol,
+  })),
+  length: song.length,
+});
+
 /** The song's chords as the lane shows them, a chord held on merged. */
 export function echoLane(song: EchoSong): EchoLaneChord[] {
   const lane: EchoLaneChord[] = [];
-  for (const chord of song.chords) {
+  for (const change of songChordChanges(song)) {
     const last = lane.at(-1);
-    const end = chord.tick + chord.duration;
-    if (last && last.label === chord.label && last.endTick === chord.tick) {
-      last.endTick = end;
+    const end = change.tick + change.duration;
+    if (last && last.label === change.label && last.endTick >= change.tick) {
+      last.endTick = Math.max(last.endTick, end);
       continue;
     }
     lane.push({
-      startTick: chord.tick,
+      startTick: change.tick,
       endTick: end,
-      label: chord.label,
-      symbol: chordSymbol(song.key, chord.degree),
-      midis: [...chord.chord.midis],
+      label: change.label,
+      symbol: change.symbol,
+      midis: [...(voicedChord(song.key, change.degree)?.midis ?? [])],
     });
   }
   return lane;
@@ -274,11 +337,10 @@ export interface EchoSongRequest {
   variation: string;
   bpm: number;
   /**
-   * The band the student heard, built over the song's chart: the Studio
-   * gets this very performance. Built again when it's for another chart or
-   * style.
+   * The band the student heard (`buildEchoBand`): the Studio gets this very
+   * performance. Built again when it plays another song's chords or style.
    */
-  built?: BuiltBandTrack | null;
+  heard?: EchoBand | null;
 }
 
 /** The ref a song's link carries. */
@@ -422,45 +484,70 @@ export function takeEchoSong(ref: EchoSongRef): EchoStudioSong | null {
 
 // ── Opening one ──────────────────────────────────────────────────────────────
 
-/** A built band plays the song's chart: its key, harmony and chords. */
-export const bandPlaysChart = (
-  built: Pick<BuiltBandTrack, 'literacy'>,
-  chart: EchoSong['chart'],
-): boolean => {
-  const own = built.literacy.chart;
-  return (
-    own.tonic === chart.tonic &&
-    own.mode === chart.mode &&
-    own.harmony === chart.harmony &&
-    own.chords.join('-') === chart.chords.join('-')
-  );
-};
+/** A band built over a song's chords, and what it was built over. */
+export interface EchoBand {
+  /** `echoBandKey`: the band, its style, the tempo and the chords. */
+  key: string;
+  built: BuiltBandTrack;
+}
 
-/** The band over a song's chart: the one given if it is that, else built. */
-async function bandFor(
+/**
+ * What a band over a song plays from: the band and style, the tempo, the
+ * key and every chord change. Two songs with one key play the same.
+ */
+export const echoBandKey = (
   song: EchoSong,
   band: string,
   variation: string,
-  given: BuiltBandTrack | null | undefined,
-  loadFlow: FlowLoader,
-): Promise<BuiltBandTrack | null> {
-  if (
-    given &&
-    given.literacy.band === band &&
-    given.literacy.variation === variation &&
-    bandPlaysChart(given, song.chart)
-  )
-    return given;
-  return buildBandPracticeTrack(
+): string =>
+  [
+    band,
+    variation,
+    song.tempo,
+    song.key.tonic,
+    song.key.mode,
+    songChordChanges(song)
+      .map((c) => `${c.symbol}@${c.tick}`)
+      .join(' '),
+  ].join('|');
+
+/**
+ * The band playing a song: its style over the song's chart (the key, a
+ * chord a bar for the loop), following the chords where they really
+ * change. Null when the band can't play (no longer live, a style it
+ * dropped).
+ */
+export async function buildEchoBand(
+  song: EchoSong,
+  band: string,
+  variation: string,
+  loadFlow: FlowLoader = loadV2Flow,
+): Promise<EchoBand | null> {
+  const built = await buildBandPracticeTrack(
     {
       band,
       variation,
       chart: song.chart,
       charts: [],
       bpm: song.tempo,
+      timedChords: songTimedChords(song),
     },
     loadFlow,
   );
+  return built ? { key: echoBandKey(song, band, variation), built } : null;
+}
+
+/** The band over a song: the one heard if it plays that, else built. */
+async function bandFor(
+  song: EchoSong,
+  band: string,
+  variation: string,
+  heard: EchoBand | null | undefined,
+  loadFlow: FlowLoader,
+): Promise<BuiltBandTrack | null> {
+  if (heard && heard.key === echoBandKey(song, band, variation))
+    return heard.built;
+  return (await buildEchoBand(song, band, variation, loadFlow))?.built ?? null;
 }
 
 /**
@@ -482,7 +569,7 @@ export async function openEchoSongInStudio(
     song,
     request.band,
     request.variation,
-    request.built,
+    request.heard,
     loadFlow,
   );
   if (!built) return null;

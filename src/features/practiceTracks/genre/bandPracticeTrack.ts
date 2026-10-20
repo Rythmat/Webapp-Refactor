@@ -37,6 +37,7 @@ import {
 } from '@/curriculum/engine/band/band';
 import { getLiveBand, listBands } from '@/curriculum/engine/band/registry';
 import { preloadStudioGroove } from '@/curriculum/engine/drumGrooves/registry';
+import type { TimedChords } from '@/curriculum/engine/genreGeneration/chordTimeline';
 import { isCommonTime, type TimeSignature } from '@/curriculum/engine/meter';
 import {
   chartId,
@@ -203,6 +204,13 @@ export interface BandTrackRequest {
   charts: readonly BandChart[];
   /** The tempo; the style's own when left out. */
   bpm?: number;
+  /**
+   * The chart's chords as they really change, when not a bar each (Echo's
+   * Make Your Song: a take changing at the half bar): the band follows
+   * them (buildGenrePracticeTrack `timedChords`). Left out, the band plays
+   * the chart a chord a bar.
+   */
+  timedChords?: TimedChords;
 }
 
 /** A built track, with what the Studio opens it with. */
@@ -263,6 +271,7 @@ export async function buildBandPracticeTrack(
     band: { id: band.id, variation: style.variation },
     followChords: true,
     bpm: request.bpm ?? style.bpm,
+    ...(request.timedChords ? { timedChords: request.timedChords } : {}),
   });
   if (!built) return null;
   const charts = request.charts.some((c) => c.id === chartId(chart))

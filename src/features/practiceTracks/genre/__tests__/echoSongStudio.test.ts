@@ -13,7 +13,10 @@ import { parseBootIntent } from '@/daw/session/parseBootIntent';
 import { useStore } from '@/daw/store';
 import { buildBandPracticeTrack } from '../bandPracticeTrack';
 import {
+  buildEchoBand,
   echoBandParts,
+  echoLane,
+  songChordChanges,
   echoSongOfRef,
   echoSongRefFor,
   echoSongUrl,
@@ -152,26 +155,66 @@ describe('the band’s tracks', () => {
   });
 });
 
+describe('chords that change at the half bar', () => {
+  it('reach the band where they change, and the chord lane', async () => {
+    // Level 3: 1 maj for half a bar, 4 maj for the other half, then 5 maj.
+    const chordTake = processTake(
+      [
+        ...[60, 64, 67].map((midi) => ({ midi, onset: 0, duration: 940 })),
+        ...[65, 69, 72].map((midi) => ({ midi, onset: 960, duration: 940 })),
+        ...[67, 71, 74].map((midi) => ({
+          midi,
+          onset: BAR_TICKS,
+          duration: 1900,
+        })),
+      ],
+      { kind: 'chords', key: C_MAJOR, level: 3 },
+    );
+    const song = assembleSong(3, C_MAJOR, chordTake, null, { tempo: 100 });
+    // The chart reads bar 1 as its first chord; the changes keep the half.
+    expect(song.chart.chords.slice(0, 2)).toEqual(['1', '5']);
+    expect(
+      songChordChanges(song)
+        .slice(0, 3)
+        .map((c) => [c.tick, c.label, c.symbol]),
+    ).toEqual([
+      [0, '1 maj', 'C'],
+      [960, '4 maj', 'F'],
+      [1920, '5 maj', 'G'],
+    ]);
+    expect(echoLane(song).map((c) => [c.startTick, c.label])).toEqual([
+      [0, '1 maj'],
+      [960, '4 maj'],
+      [1920, '5 maj'],
+    ]);
+    const band = (await buildEchoBand(song, 'pop-band-1', 'l1-singable'))!;
+    const bass = band.built.track.clips.bass!.events.filter(
+      (e) => e.startTick >= 960 && e.startTick < 1900,
+    );
+    expect(bass.length).toBeGreaterThan(0);
+    expect(bass.some((e) => e.note % 12 === 5)).toBe(true);
+    // Its lane in the band's own track changes at the half bar too.
+    expect(
+      band.built.track.chordRegions.slice(0, 3).map((r) => r.startTick),
+    ).toEqual([0, 960, 1920]);
+  });
+});
+
 describe('opening it in the Studio', () => {
   it('leaves the band the student heard in the box, and the link for it', async () => {
-    const song = assembleSong(1, C_MAJOR, takes().chordTake, null, {
+    const { chordTake, melodyTake } = takes();
+    const song = assembleSong(1, C_MAJOR, chordTake, melodyTake, {
       tempo: 96,
     });
-    const heard = (await buildBandPracticeTrack({
-      band: 'pop-band-1',
-      variation: 'l1-singable',
-      chart: song.chart,
-      charts: [],
-      bpm: 96,
-    }))!;
-    const url = await openEchoSongInStudio(request({ built: heard }));
+    const heard = (await buildEchoBand(song, 'pop-band-1', 'l1-singable'))!;
+    const url = await openEchoSongInStudio(request({ heard }));
     const ref = echoSongRefFor(request());
     expect(url).toBe(echoSongUrl(ref));
     const boxed = peekEchoSong(ref)!;
     expect(boxed.name).toBe('My Echo Song · Pop Band 1');
     // The very performance: the drums' notes are the heard track's.
     expect(boxed.band[0].clip.events).toEqual(
-      echoBandParts(heard, 8 * BAR_TICKS)[0].clip.events,
+      echoBandParts(heard.built, 8 * BAR_TICKS)[0].clip.events,
     );
     // Peeked, it stays; the open takes it.
     expect(await resolveEchoSong(ref)).toBe(boxed);
@@ -180,13 +223,12 @@ describe('opening it in the Studio', () => {
   });
 
   it('builds the band again when the one heard plays another chart', async () => {
-    const before = (await buildBandPracticeTrack({
-      band: 'pop-band-1',
-      variation: 'l1-singable',
-      chart: assembleSong(1, C_MAJOR, null, null).chart,
-      charts: [],
-    }))!;
-    await openEchoSongInStudio(request({ built: before }));
+    const before = (await buildEchoBand(
+      assembleSong(1, C_MAJOR, null, null, { tempo: 96 }),
+      'pop-band-1',
+      'l1-singable',
+    ))!;
+    await openEchoSongInStudio(request({ heard: before }));
     const boxed = peekEchoSong(echoSongRefFor(request()))!;
     // The bass follows the student's 1 maj, 6 min, not the 1 chord alone.
     const bass = (
@@ -197,7 +239,7 @@ describe('opening it in the Studio', () => {
           .find((p) => p.name === 'Bass')!
           .clip.events.map((e) => e.note % 12),
       );
-    expect(bass(echoBandParts(before, 8 * BAR_TICKS)).has(9)).toBe(false);
+    expect(bass(echoBandParts(before.built, 8 * BAR_TICKS)).has(9)).toBe(false);
     expect(bass(boxed.band).has(9)).toBe(true);
   });
 

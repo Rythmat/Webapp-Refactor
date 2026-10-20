@@ -10,6 +10,10 @@
  * A bass note under the chords (a moving bass line, a left-hand bass part)
  * names the chord's bass and outweighs the upper voices.
  * Steps whose targets are a single line (melody, bass) get one chord per bar.
+ *
+ * A caller that knows its own chord changes (Echo's Make Your Song: the
+ * student's chords take, changing at the half bar) gives them with their
+ * ticks instead (`timedChordTimeline`), and the backing follows them.
  */
 
 import { chordSymbolTones, type ChordSymbolTones } from './chordSymbolTones';
@@ -234,6 +238,58 @@ export function buildChordTimeline(
     return struck.map((chord, i) => (i === 0 ? { ...chord, tick: 0 } : chord));
   }
   return perBar(toChords(symbols), bars, barLength);
+}
+
+/** A chord change a caller times itself: where it starts, and its symbol. */
+export interface ChordChange {
+  tick: number;
+  symbol: string;
+}
+
+/**
+ * Chords a caller times itself: one pass of changes, in ticks from the
+ * downbeat, repeated every `length` ticks (a song's eight bars over a
+ * sixteen-bar backing).
+ */
+export interface TimedChords {
+  changes: readonly ChordChange[];
+  length: number;
+}
+
+/**
+ * A timeline from changes the caller timed, over `bars` bars: each pass of
+ * them repeated every `length` ticks, a symbol no chord can be read from
+ * left out (the chord before it plays on), a chord repeated where it
+ * already sounds left out, and the first sounding from the downbeat. Empty
+ * when no change can be read.
+ */
+export function timedChordTimeline(
+  timed: TimedChords,
+  bars: number,
+  barLength = BAR_TICKS,
+): TimedChord[] {
+  const total = bars * barLength;
+  const pass = [...timed.changes]
+    .filter((change) => change.tick >= 0 && change.tick < timed.length)
+    .sort((a, b) => a.tick - b.tick)
+    .flatMap((change) => {
+      const tones = chordSymbolTones(change.symbol);
+      return tones
+        ? [{ ...tones, symbol: change.symbol, tick: change.tick }]
+        : [];
+    });
+  if (pass.length === 0 || !(timed.length > 0)) return [];
+  const timeline: TimedChord[] = [];
+  for (let start = 0; start < total; start += timed.length) {
+    for (const chord of pass) {
+      const tick = start + chord.tick;
+      if (tick >= total) break;
+      const last = timeline[timeline.length - 1];
+      if (last?.symbol === chord.symbol) continue;
+      timeline.push({ ...chord, tick: last ? tick : 0 });
+    }
+  }
+  return timeline;
 }
 
 /** The chord sounding at `tick`, or null before the first one. */

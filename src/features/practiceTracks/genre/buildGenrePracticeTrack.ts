@@ -40,6 +40,10 @@ import {
   type BackingNote,
 } from '@/curriculum/engine/genreGeneration/backingPatterns';
 import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
+import {
+  timedChordTimeline,
+  type TimedChords,
+} from '@/curriculum/engine/genreGeneration/chordTimeline';
 import { genreBassVoice } from '@/curriculum/engine/genreGeneration/genreBassVoices';
 import { resolveStepContent } from '@/curriculum/engine/genreGeneration/resolveStepContent';
 import { swingPercent } from '@/curriculum/engine/genreGeneration/swing';
@@ -249,6 +253,14 @@ export interface GenrePracticeTrackOptions {
    * (band.ts RealizeContext.followChords), instead of playing as written.
    */
   followChords?: true;
+  /**
+   * Chord changes timed by the caller (Echo's Make Your Song: a take that
+   * changes at the half bar), repeated every `length` ticks: the drums,
+   * bass, chords and band layers play over them, and the chord lane shows
+   * them, instead of `chords` a bar each. `chords` still names the loop
+   * (its chord cycle and progression). Left out, nothing changes.
+   */
+  timedChords?: TimedChords;
 }
 
 /** A Practice Track's own key (`GenrePracticeTrackOptions.key`). */
@@ -581,6 +593,35 @@ function buildChordRegions(
     });
   }
   return regions;
+}
+
+/**
+ * The chord lane over chords the caller timed (`timedChords`): a region
+ * from each change to the next across the loop, named and colored as
+ * `buildChordRegions` names them. Null when no change can be read.
+ */
+function timedChordRegions(
+  timed: TimedChords,
+  keyRootMidi: number,
+  mode: string,
+  barLength = BAR_TICKS,
+): ChordRegion[] | null {
+  const timeline = timedChordTimeline(timed, LOOP_BARS, barLength);
+  if (!timeline.length) return null;
+  return timeline.map((chord, i) => {
+    const rootMidi =
+      keyRootMidi - 12 + ((chord.rootPc - (keyRootMidi % 12) + 12) % 12);
+    const midis = chord.intervals.map((interval) => rootMidi + interval);
+    return {
+      id: nextChordId(),
+      startTick: chord.tick,
+      endTick: timeline[i + 1]?.tick ?? LOOP_BARS * barLength,
+      name: degreeLabel(chord.symbol, keyRootMidi, mode),
+      noteName: formatAccidentalsForDisplay(chord.symbol),
+      color: getChordColorFromNotes(midis, keyRootMidi, mode),
+      midis,
+    };
+  });
 }
 
 // ── The student's own register ────────────────────────────────────────────────
@@ -1010,6 +1051,7 @@ export function buildGenrePracticeTrack(
             },
           }
         : {}),
+      ...(options.timedChords ? { timedChords: options.timedChords } : {}),
     },
   );
 
@@ -1077,7 +1119,10 @@ export function buildGenrePracticeTrack(
     loopTicks,
     timeSignature,
     chordCycle: chords,
-    chordRegions: buildChordRegions(chords, keyRootMidi, mode, barLength),
+    chordRegions: options.timedChords
+      ? (timedChordRegions(options.timedChords, keyRootMidi, mode, barLength) ??
+        buildChordRegions(chords, keyRootMidi, mode, barLength))
+      : buildChordRegions(chords, keyRootMidi, mode, barLength),
     clips,
     layerClips,
     studentParts: student,

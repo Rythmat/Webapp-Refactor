@@ -39,7 +39,9 @@ import type { ChordSymbolTones } from './chordSymbolTones';
 import {
   buildChordTimeline,
   chordAtTick,
+  timedChordTimeline,
   type TimedChord,
+  type TimedChords,
 } from './chordTimeline';
 import {
   buildHipHopBass,
@@ -91,11 +93,17 @@ const BACKING_PART: Record<BandInstrument, BackingNote['part']> = {
  * A backing whose caller picks the band (Music Literacy's Hear It with Your
  * Band): `band` plays in place of the style's pairing, whatever the
  * pairings say, and `followChords` is the chart's key, so captured parts
- * follow its chords (band.ts RealizeContext). Left out, nothing changes.
+ * follow its chords (band.ts RealizeContext). `timedChords` are chord
+ * changes the caller timed itself (Echo's Make Your Song: a take changing
+ * at the half bar): the chord timeline everything plays over, code-made
+ * bass and chords and the band's layers alike, in place of the step's
+ * symbols a bar each (chordTimeline.ts `timedChordTimeline`). Left out,
+ * nothing changes.
  */
 export interface BackingOptions {
   band?: PlayableBand;
   followChords?: NonNullable<RealizeContext['followChords']>;
+  timedChords?: TimedChords;
 }
 
 /** A band layer's own instrument in the backing (`BackingNote.voice`). */
@@ -920,6 +928,12 @@ function buildBassPattern(
   genre: string,
   chordAt: (tick: number) => ChordSymbolTones,
   timeline: readonly TimedChord[],
+  /**
+   * A pattern note landing on a mid-bar change plays the new chord's root,
+   * not its 5th or octave: chords the caller timed (`timedChords`), where
+   * a change on beat 3 is the music's, not an exercise's.
+   */
+  rootOnChange = false,
 ): BackingNote[] {
   const notes: BackingNote[] = [];
   const rootAt = (tick: number) => bassPC_toMidi(chordAt(tick).bassPc);
@@ -935,11 +949,14 @@ function buildBassPattern(
 
     // Each note takes the root of the chord sounding when it's played.
     const push = (
-      degree: BassDegree,
+      written: BassDegree,
       onset: number,
       dur: number,
       vel: number,
     ) => {
+      const onChange =
+        rootOnChange && changes.some((t) => Math.abs(o + onset - t) < 30);
+      const degree: BassDegree = onChange ? 'root' : written;
       const chord = chordAt(o + onset);
       const root = bassPC_toMidi(chord.bassPc);
       const note =
@@ -1438,12 +1455,17 @@ export function buildBackingNotes(
   const swung = (part: BackingNote[]) =>
     applySwing(part, swing_) as BackingNote[];
   const engineGenerates = step.backing_parts?.engine_generates ?? [];
-  const timeline = buildChordTimeline(
-    step.chordSymbols,
-    targetNotes,
-    BACKING_BARS,
-    barLength,
-  );
+  const timed = options.timedChords
+    ? timedChordTimeline(options.timedChords, BACKING_BARS, barLength)
+    : [];
+  const timeline = timed.length
+    ? timed
+    : buildChordTimeline(
+        step.chordSymbols,
+        targetNotes,
+        BACKING_BARS,
+        barLength,
+      );
   const tonic = tonicChord(keyRoot, genre);
   const chordAt = (tick: number): ChordSymbolTones =>
     chordAtTick(timeline, tick) ?? tonic;
@@ -1553,7 +1575,16 @@ export function buildBackingNotes(
     notes.push(
       // A doubled left hand comes from target notes that already swing.
       ...(doubledLeftHand(step, targetNotes) ??
-        swung(buildBassPattern(BACKING_BARS, level, genre, chordAt, timeline))),
+        swung(
+          buildBassPattern(
+            BACKING_BARS,
+            level,
+            genre,
+            chordAt,
+            timeline,
+            timed.length > 0,
+          ),
+        )),
     );
   }
   if (engineGenerates.includes('chords')) {

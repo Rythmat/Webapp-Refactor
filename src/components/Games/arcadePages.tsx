@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-sort-props */
-import { useCallback, useState } from 'react';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TubesCursor from '@/components/ui/tubes-cursor';
 import { GameRoutes } from '@/constants/routes';
@@ -21,6 +21,10 @@ import Chroma from './chroma';
 import { StreakTracker } from './scoring/StreakTracker';
 import { useArcadeStreakReward } from './scoring/useArcadeStreakReward';
 import '@/components/learn/learn.css';
+
+// Echo is its own chunk: its engine, contours and screens load only when
+// it opens.
+const EchoGame = lazy(() => import('./Echo/EchoGame'));
 
 // Full-bleed arcade shell: the game fills the whole window it's given so its
 // header bar spans the full width (matching Major Arcanum). Navigation back to
@@ -242,5 +246,17 @@ export function SignalFlowPage() {
     <GameShell>
       <SignalFlow onComplete={handleComplete} />
     </GameShell>
+  );
+}
+
+export function EchoPage() {
+  return (
+    <LearnInputProvider detectionMode="polyphonic" instrument="piano">
+      <GameShell>
+        <Suspense fallback={<div className="flex-1" />}>
+          <EchoGame />
+        </Suspense>
+      </GameShell>
+    </LearnInputProvider>
   );
 }

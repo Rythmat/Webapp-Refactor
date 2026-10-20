@@ -90,6 +90,12 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     route: 'chordConnection',
   },
   {
+    title: 'Echo',
+    category: 'Ear Training',
+    blurb: 'Echo Atlas’s tunes, beat the Echo Boss, then make your song.',
+    route: 'echo',
+  },
+  {
     title: 'Foli',
     category: 'Rhythm',
     blurb: 'Call-and-response percussion, one groove at a time.',
@@ -128,6 +134,7 @@ export const FEATURED_GAME: ArcadeGame =
 /** Routes of games available to free-tier users. */
 export const FREE_GAME_ROUTES = new Set<string>([
   'chroma',
+  'echo',
   'chordPress',
   'boardChoice',
   'chordConnection',

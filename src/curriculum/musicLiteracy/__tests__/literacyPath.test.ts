@@ -1,5 +1,7 @@
+// @vitest-environment jsdom
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { rememberSetup } from '@/components/Games/Echo/echoProgress';
 import { roundsLine, stepsLine } from '@/components/learn/StartHere';
 import type { MusicLiteracyLesson } from '@/content/musicLiteracy/schemas';
 import { LITERACY_FIXTURE } from '@/curriculum/engine/musicLiteracy/__fixtures__/literacyFixture';
@@ -19,11 +21,12 @@ import {
   readRouteStop,
   startHereRoute,
 } from '../literacyPath';
+import { markStopDone } from '../stopDone';
 import { withTry, type LiteracyProgress } from '../useLiteracyProgress';
 
 /**
  * The Music Literacy path: five stops across Learn, the Studio and the
- * Arcade, Parts 1 and 2, the band and Studio Basics open, and each stop's
+ * Arcade, every one open, and each stop's
  * state from the progress (and, for Part 2, the key) this device has saved
  * for its lesson; Studio Basics', from the student's Studio lesson
  * completions.
@@ -55,7 +58,7 @@ describe('the Music Literacy path', () => {
       ['Melodies and Chords', 'Learn', true],
       ['Practice with a Band', 'Studio', true],
       ['Learn Studio Basics', 'Studio', true],
-      ['Play Echo in the Arcade', 'Arcade', false],
+      ['Play Echo in the Arcade', 'Arcade', true],
     ]);
     expect(part1.lessonId).toBe('music-literacy-part-1');
     expect(LITERACY_PATH[1].lessonId).toBe('music-literacy-part-2');
@@ -65,6 +68,7 @@ describe('the Music Literacy path', () => {
     expect(LITERACY_PATH[3].route).toBe(
       '/studio/editor?tutorial=studio-basics-your-tracks',
     );
+    expect(LITERACY_PATH[4].route).toBe('/arcade/echo');
     expect(startHereRoute()).toBe('/learn?tab=StartHere');
   });
 
@@ -132,7 +136,9 @@ describe('the Music Literacy path', () => {
   });
 
   it('keeps a stop coming soon until it is live, and its lesson published', () => {
-    expect(literacyStopState(LITERACY_PATH[4], undefined, {})).toMatchObject({
+    expect(
+      literacyStopState({ ...LITERACY_PATH[4], live: false }, undefined, {}),
+    ).toMatchObject({
       status: 'soon',
       to: null,
       steps: [],
@@ -140,13 +146,10 @@ describe('the Music Literacy path', () => {
     // Live, but its lesson is a draft (or gone): still to come.
     expect(literacyStopState(part1, undefined, {}).status).toBe('soon');
     // Live with a route of its own (a Studio or Arcade stop).
-    expect(
-      literacyStopState(
-        { ...LITERACY_PATH[4], live: true, route: '/arcade/echo' },
-        undefined,
-        {},
-      ),
-    ).toMatchObject({ status: 'new', to: '/arcade/echo' });
+    expect(literacyStopState(LITERACY_PATH[4], undefined, {})).toMatchObject({
+      status: 'new',
+      to: '/arcade/echo',
+    });
   });
 
   it('reads each lesson stop’s progress by its lesson', () => {
@@ -166,13 +169,13 @@ describe('the Music Literacy path', () => {
     );
     expect(read).toEqual(['music-literacy-part-1']);
     // Only an open stop with a route is asked how it stands.
-    expect(routes).toEqual(['hear-it-with-your-band', 'studio-basics']);
+    expect(routes).toEqual(['hear-it-with-your-band', 'studio-basics', 'echo']);
     expect(states.map((s) => s.status)).toEqual([
       'started',
       'soon',
       'new',
       'new',
-      'soon',
+      'new',
     ]);
   });
 });
@@ -344,7 +347,21 @@ describe('where a student stands', () => {
     expect(upNext).toBeNull();
   });
 
-  it('stays on the last open stop once it is done, with the next to come', () => {
+  it('goes on to Echo once Studio Basics is done', () => {
+    const states = literacyPath(
+      (id) => (id === lesson.id ? lesson : undefined),
+      () => progressOf(tags),
+      undefined,
+      (id) => ({ done: id !== 'echo', key: null }),
+    );
+    const { current, upNext } = currentStop(states);
+    expect(current?.stop.id).toBe('echo');
+    expect(current?.status).toBe('new');
+    expect(current?.to).toBe('/arcade/echo');
+    expect(upNext).toBeNull();
+  });
+
+  it('stays on the last open stop once it is done', () => {
     const states = literacyPath(
       (id) => (id === lesson.id ? lesson : undefined),
       () => progressOf(tags),
@@ -352,10 +369,10 @@ describe('where a student stands', () => {
       () => ({ done: true, key: null }),
     );
     const { current, upNext } = currentStop(states);
-    expect(current?.stop.id).toBe('studio-basics');
+    expect(current?.stop.id).toBe('echo');
     expect(current?.status).toBe('done');
-    expect(upNext?.stop.title).toBe('Play Echo in the Arcade');
-    expect(upNext?.status).toBe('soon');
+    // Echo is the last stop: nothing after it.
+    expect(upNext).toBeNull();
   });
 
   it('goes on to the band once the lessons before it are done', () => {
@@ -445,6 +462,40 @@ describe('Hear It with Your Band on the path', () => {
     expect(
       literacyStopState({ ...band, live: false }, undefined, {}).status,
     ).toBe('soon');
+  });
+});
+
+describe('Echo on the path', () => {
+  const echo = LITERACY_PATH[4];
+
+  beforeEach(() => localStorage.clear());
+
+  it('opens the game, new until the student finishes a song there', () => {
+    expect(readRouteStop('echo')).toEqual({ done: false, key: null });
+    expect(
+      literacyStopState(echo, undefined, {}, null, readRouteStop('echo')),
+    ).toMatchObject({ status: 'new', to: '/arcade/echo', steps: [] });
+    // Make Your Song's Finish marks it (EchoGame.tsx).
+    markStopDone('echo');
+    expect(
+      literacyStopState(echo, undefined, {}, null, readRouteStop('echo')),
+    ).toMatchObject({ status: 'done', to: '/arcade/echo' });
+  });
+
+  it('wears the key last played there', () => {
+    rememberSetup(1, { tonic: 'A', mode: 'minor' });
+    const state = literacyStopState(
+      echo,
+      undefined,
+      {},
+      null,
+      readRouteStop('echo'),
+    );
+    expect(state.key).toMatchObject({
+      tonic: 'A',
+      mode: 'minor',
+      name: 'A Minor',
+    });
   });
 });
 

@@ -14,7 +14,7 @@ Design shaped with the owner on 2026-10-20.
 1. **Set up.** Pick a color (the key), major or minor, and a level.
 2. **Melody Echo.** Atlas plays a 2-bar melody (the call) and the student echoes it (the response).
 3. **Chord Echo.** The same with chords.
-4. **The Final Boss.** Four calls back to back, alternating melody and chords, using the hardest rhythms (flashcard Tier 4).
+4. **The Final Boss.** Four calls, a bar apart, alternating melody and chords, using the hardest rhythms (flashcard Tier 4). The circle becomes the boss (The Echo Boss's art, below).
    - It plays at the highest tempo the student reached in the game.
    - The boss has a health bar that drops with each good echo.
    - Three good echoes of four win. Losing retries only the Boss, not the level.
@@ -128,7 +128,7 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
   - A roll slower than the spread still makes one chord when its pieces only make a chord together, within three quarters of a 16th. A strike that is a chord on its own is never joined to another.
   - A chord held while it is struck again is two strikes. A key pressed twice within the spread is one note. A key let go and pressed again later strikes again.
   - Notes still held from an earlier strike can complete a chord: a root and fifth held, the third struck again, is the chord struck again. A held note outside the chord costs nothing.
-- A call's run is a bar of count-in, the call, then the response. The boss's four calls run back to back after one count-in.
+- A call's run is a bar of count-in, the call, then the response. The boss's four calls run one after another in one run, a bar apart: each later call's bar of count-in, the groove going on, so the boss can react (`bossRunTimelines`, `BOSS_GAP_BARS` in `echoFlow.ts`; the engine's `bossTimelines` still lays them back to back).
 
 ## Input and views
 
@@ -163,6 +163,36 @@ What the screens do where the design left a choice (`src/components/Games/Echo/`
 - **The drum groove** is the one the student picked for Music Literacy (Settings → Play along), or Pop 01. Over the drums the click stops after the count-in, as in a lesson.
 - **The gate** awards the existing Arcade XP once per game, and shows the XP the game earned (10 a good echo, 50 for the Boss).
 - **Finishing the song** (Make Your Song's Finish) completes the level: the next level opens, Start Here's Echo stop is done, and the song's 25 XP is counted.
+
+## The Echo Boss's art
+
+The owner's animations of the boss (2026-10-20), in `public/echo/boss/`. The play screens show them in `EchoBossArt.tsx`; the clips, stills and timings are in `bossArt.ts`.
+
+| Clip      | Length | When                                                            |
+| --------- | ------ | --------------------------------------------------------------- |
+| `emerge`  | 7 s    | The entrance: the circle becomes a vortex and the face emerges. |
+| `frown`   | 4 s    | A good echo: smile, frown, smile.                               |
+| `nod`     | 4 s    | A miss: two happy nods.                                         |
+| `loss`    | 6 s    | The student lost: the art spirals into a black hole.            |
+| `victory` | 8 s    | The student won: the boss goes and the ring shines.             |
+
+- **The files.** MP4, H.264, 640×640, 30 fps, silent, on #090b0f, faststart. Each has a WebP still framed as the videos are: the owner's face and vortex stills, and frames of the frown, the nod and the shining ring. A 128 px crop of the face is the HUD's avatar. 2.3 MB in all.
+- **Where.** From the entrance to the end of the fight, the call panel's circle is the boss: the art sits over the ring, its ring on the ring, at its size.
+  - `mix-blend-mode: lighten` drops the art's dark background on the panel.
+  - The hub's cues (GET READY, LISTEN, GO!, YOUR TURN), degrees and beats move to a bar under the art, so the face shows whole (`LiteracyCallPanel`'s `hubBelow`).
+- **The entrance.** "The Echo Boss Appears!" shows over the input. The clip's first frames are the plain circle, so the live ring cross-fades into it. The fight starts when it ends, or on **Fight!**.
+- **The fight.** Each echo is graded at the start of the bar after it, and the boss reacts there: a frown for a good echo, a nod for a miss.
+  - A reaction is sped up to fit the bar (90% of it, no faster than 2×): 1.48× at 80 BPM, 2× at 116.
+  - Between reactions, the boss rests on its face. Every clip but the loss and the victory starts and ends on it.
+  - The echo that decides the fight plays the loss or the victory instead.
+- **The loss** plays, then **Try the Boss again**. A new fight starts on the face.
+- **The victory** plays, the art fades back to the live ring, and the gate opens. The gate shows the shining ring.
+- **Continue** skips the loss or the victory.
+- **Loading.** The five videos are mounted, muted and inline with `preload="auto"` from Chord Echo's first round, so the entrance plays at once.
+- **Never stalled by a video.** A video that errors, is refused, or isn't playing within 2.5 s gives way to its still, held as long as the clip would run. One stuck part way is over 1.5 s past its length.
+- **Reduced motion.** No videos: each moment is its still, held a moment (the entrance 3.5 s, a reaction its bar, the loss and the victory 2.5 s).
+- **Other keys.** The art was drawn from C major's circle, with C highlighted at the top. The cross-fades at the start and the end hide the switch from the live ring. In between, the boss shows C's highlight in every key: the owner's call ("let it be the boss for now").
+- **In development**, `/arcade/echo?boss` goes from setup straight to the boss.
 
 ## Takes
 

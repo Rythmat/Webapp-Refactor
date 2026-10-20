@@ -85,6 +85,8 @@ import type { EchoInputHandlers, MakeYourSongProps } from './types';
 /** A take being recorded: its notes so far, and the keys still held. */
 interface Capture {
   track: SongTrack;
+  /** The tempo it's recorded at: fast chords are heard by it. */
+  tempo: number;
   open: Map<number, number>;
   notes: PlayedNote[];
 }
@@ -286,6 +288,7 @@ export function MakeYourSong({
         key,
         level,
         scaffolding,
+        tempo: taken.tempo,
       }),
     });
   }, [phraseTicks, key, level, scaffolding]);
@@ -293,7 +296,7 @@ export function MakeYourSong({
   const record = async () => {
     if (!audioReady || !studioFree(flow)) return;
     const track = flow.selected;
-    capture.current = { track, open: new Map(), notes: [] };
+    capture.current = { track, tempo: bpm, open: new Map(), notes: [] };
     dispatch({ type: 'countIn', beat: 0 });
     await songPlayer.play({
       tracks: recordingTracks(track, parts, flow.takes),

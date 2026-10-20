@@ -16,7 +16,7 @@ import {
   buildEchoBand,
   echoBandParts,
   echoLane,
-  songChordChanges,
+  songTimedChords,
   echoSongOfRef,
   echoSongRefFor,
   echoSongUrl,
@@ -174,9 +174,7 @@ describe('chords that change at the half bar', () => {
     // The chart reads bar 1 as its first chord; the changes keep the half.
     expect(song.chart.chords.slice(0, 2)).toEqual(['1', '5']);
     expect(
-      songChordChanges(song)
-        .slice(0, 3)
-        .map((c) => [c.tick, c.label, c.symbol]),
+      song.chordChanges.slice(0, 3).map((c) => [c.tick, c.label, c.symbol]),
     ).toEqual([
       [0, '1 maj', 'C'],
       [960, '4 maj', 'F'],
@@ -187,6 +185,11 @@ describe('chords that change at the half bar', () => {
       [960, '4 maj'],
       [1920, '5 maj'],
     ]);
+    // The band plays the engine's changes as they are.
+    expect(songTimedChords(song)).toEqual({
+      changes: song.chordChanges,
+      length: 8 * BAR_TICKS,
+    });
     const band = (await buildEchoBand(song, 'pop-band-1', 'l1-singable'))!;
     const bass = band.built.track.clips.bass!.events.filter(
       (e) => e.startTick >= 960 && e.startTick < 1900,

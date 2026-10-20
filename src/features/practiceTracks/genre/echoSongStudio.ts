@@ -8,7 +8,7 @@
  * each repeated to fill eight bars. The band is the one the student chose,
  * built by Practice with a Band (bandPracticeTrack.ts) over the song's
  * chart, following the take's chords where they really change, half bars
- * included (`songChordChanges`, the backing's `timedChords`): its drums,
+ * included (`EchoSong.chordChanges`, the backing's `timedChords`): its drums,
  * its bass and keys, and every captured part. A band track is sixteen
  * bars; the song keeps the first eight (`echoBandParts`).
  *
@@ -50,10 +50,8 @@ import type { TimedChords } from '@/curriculum/engine/genreGeneration/chordTimel
 import {
   chartKeyName,
   chartPrismMode,
-  chordSymbol,
 } from '@/curriculum/engine/musicLiteracy/chart';
 import {
-  progressionLabels,
   voicedChord,
   voicedProgression,
 } from '@/curriculum/engine/musicLiteracy/chords';
@@ -229,63 +227,19 @@ function songClip(
 // ── The song's chord changes ───────────────────────────────────────────────
 
 /**
- * One chord of the song where it really sounds, the shape the engine's
- * `assembleSong` gives as `chordChanges`.
+ * The song's chords as the band's backing takes them: every change the
+ * engine heard (`EchoSong.chordChanges`, from tick 0 to the song's end, a
+ * genre TimedChord each), over the song's length.
  */
-export interface EchoChordChange {
-  tick: number;
-  duration: number;
-  degree: LiteracyScaleDegree;
-  /** "4 maj". */
-  label: string;
-  /** "F". */
-  symbol: string;
-}
-
-/**
- * The song's chord changes, for the whole song: the engine's own
- * (`chordChanges`) when it gives them; until then the chords take's chords
- * as the song repeats them, held until the next; with no chords take, the
- * chart, a chord a bar (the 1, as the band plays it before one exists).
- */
-export function songChordChanges(song: EchoSong): EchoChordChange[] {
-  const given = (song as EchoSong & { chordChanges?: EchoChordChange[] })
-    .chordChanges;
-  if (given) return given;
-  if (song.chords.length) {
-    return song.chords.map((chord, i) => ({
-      tick: chord.tick,
-      duration:
-        (song.chords[i + 1]?.tick ?? song.length) - chord.tick ||
-        chord.duration,
-      degree: chord.degree,
-      label: chord.label,
-      symbol: chordSymbol(song.key, chord.degree),
-    }));
-  }
-  const labels = progressionLabels(song.chart.chords, song.key.mode);
-  return song.chart.chords.map((degree, bar) => ({
-    tick: bar * BAR_TICKS,
-    duration: BAR_TICKS,
-    degree,
-    label: labels[bar],
-    symbol: chordSymbol(song.key, degree),
-  }));
-}
-
-/** The changes as the band's backing takes them, over the song's length. */
 export const songTimedChords = (song: EchoSong): TimedChords => ({
-  changes: songChordChanges(song).map(({ tick, symbol }) => ({
-    tick,
-    symbol,
-  })),
+  changes: song.chordChanges,
   length: song.length,
 });
 
 /** The song's chords as the lane shows them, a chord held on merged. */
 export function echoLane(song: EchoSong): EchoLaneChord[] {
   const lane: EchoLaneChord[] = [];
-  for (const change of songChordChanges(song)) {
+  for (const change of song.chordChanges) {
     const last = lane.at(-1);
     const end = change.tick + change.duration;
     if (last && last.label === change.label && last.endTick >= change.tick) {
@@ -402,6 +356,7 @@ const SCALE_DEGREES: readonly string[] = ['1', '2', '3', '4', '5', '6', '7'];
 function chordTakeOf(
   key: LiteracyKey,
   level: EchoLevelNumber,
+  tempo: number,
   chords: readonly [LiteracyScaleDegree, number, number][],
 ): ChordTake {
   const bars = echoLevel(level).phraseBars;
@@ -426,6 +381,7 @@ function chordTakeOf(
     barTicks: BAR_TICKS,
     length: bars * BAR_TICKS,
     scaffolding: NO_SCAFFOLDING,
+    tempo,
     flags: [],
     empty: taken.length === 0,
     chords: taken,
@@ -452,7 +408,12 @@ export function echoSongOfRef(ref: EchoSongRef): EchoSong | null {
     return null;
   const echo = level as EchoLevelNumber;
   const chordTake = chords.length
-    ? chordTakeOf(key, echo, chords as [LiteracyScaleDegree, number, number][])
+    ? chordTakeOf(
+        key,
+        echo,
+        bpm,
+        chords as [LiteracyScaleDegree, number, number][],
+      )
     : null;
   // A take's notes are already on its grid: read again, they stay put.
   const melodyTake = melody.length
@@ -462,7 +423,7 @@ export function echoSongOfRef(ref: EchoSongRef): EchoSong | null {
           onset,
           duration,
         })),
-        { kind: 'melody', key, level: echo },
+        { kind: 'melody', key, level: echo, tempo: bpm },
       )
     : null;
   return assembleSong(echo, key, chordTake, melodyTake, { tempo: bpm });
@@ -513,9 +474,7 @@ export const echoBandKey = (
     song.tempo,
     song.key.tonic,
     song.key.mode,
-    songChordChanges(song)
-      .map((c) => `${c.symbol}@${c.tick}`)
-      .join(' '),
+    song.chordChanges.map((c) => `${c.symbol}@${c.tick}`).join(' '),
   ].join('|');
 
 /**

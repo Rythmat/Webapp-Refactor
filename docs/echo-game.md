@@ -17,6 +17,7 @@ Design shaped with the owner on 2026-10-20.
 4. **The Final Boss.** Four calls back to back, alternating melody and chords, using the hardest rhythms (flashcard Tier 4).
    - The boss has a health bar that drops with each good echo.
    - Three good echoes of four win. Losing retries only the Boss, not the level.
+   - The fight is won at the third good echo and lost at the second miss.
 5. **The gate.** "You beat the Echo Boss!" A celebration and a stats screen:
    - XP earned in the game;
    - the success rate for each section (Melody Echo, Chord Echo, Boss);
@@ -49,6 +50,7 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 - **Calls stay 2 bars long at every level**, so echoing stays doable.
 - **Songs grow by putting phrases together.** That teaches repetition and structure: question and answer at Level 2, and AABA-style choices at Level 3.
 - **Levels unlock in order.** Next Level! opens the following one.
+- **Tempo:** 80 at every level, Music Literacy's, unless the game asks for another.
 
 ## The calls
 
@@ -58,10 +60,17 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 
 - Echo uses a curated **starter set of about three dozen**, roughly 12 per level, favoring `common` shapes with a variety of motion: rising, falling, arches, valleys, repeated notes.
 - The set lives as app data and gets a back-office page later.
+  - It is `src/curriculum/data/echo/echoContours.json`, with its selection rules written in it.
+  - Level 1 takes Tier 1 `common`, Level 2 Tier 2 `common`, Level 3 Tier 3 (`uncommon`: the tier has no `common`). Each level has four of 3 notes, five of 4 and three of 5, and every motion.
+  - A contour's id is its values (`"0,-1,2"`), so re-importing the library keeps them (`scripts/echo/importContours.mjs`).
+- **The pad window.** Every call stays between the 5 below the 1 and the 7 above it: scale positions −3 to 6, ten pads.
+  - Each contour fits it at its level's zero points.
+  - An earlier level's contour goes only on the zero points that keep it inside (Level 1's 1 2 3 4 5 run never goes on the 5).
+  - A level's calls take one of its own contours half the time, an earlier level's the rest.
 - **The zero point shifts every value, negatives included.** A contour value is a scale position counted from the zero point. In C major, `[-1, 0, 1]` is B C D on 1, D E F on 3, and F G A on 5.
 - Zero points are only 1, 3 and 5 (scale positions 0, 2 and 4).
 - **A position resolves through the scale** as `scale[p mod n] + 12 × floor(p / n)` above the tonic, for a scale of `n` notes. So −1 is the 7th below and 7 is the octave.
-- **Register:** calls sit on the treble staff with the fewest ledger lines, following the Music Literacy register rule (`placeMelody`).
+- **Register:** calls sit on the treble staff with the fewest ledger lines, following the Music Literacy register rule (`placeMelody`). It places everything a level's calls reach in the key at once, so the 1 stays in one octave for the whole level and a pad always plays the pitch Atlas played.
 - With about 36 contours × 3 zero points × 24 keys, times the rhythms, there are thousands of distinct calls.
 
 **Rhythms.** Built one beat at a time from the 25 one-beat rhythm flashcards (source: ICP Studio's `RHYTHM-FLASHCARDS.md`; each card is a quarter-note beat on a 16th grid).
@@ -75,6 +84,11 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 
 - A melody call picks cards so its notes match the contour's note count.
 - **Musical rules:** the first note on beat 1, and a breath (at least a beat of rest) before the response.
+  - The call's last beat is a quarter rest, so nothing rings into the response.
+  - Its last note starts in bar 2, and no more than two silent beats come between notes.
+  - A silent beat is always the quarter rest: the three all-rest cards sound the same.
+  - Rhythms that hold together are likelier. Each silent beat between notes halves a rhythm's chance, and a note on bar 2's downbeat doubles it.
+  - Every boss call has a Tier 4 card.
 
 ### Chord calls
 
@@ -85,19 +99,27 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 
   No contours.
 
+- **Which two.** Two different chords, a bar each. At Level 1 the call starts on the 1 chord, home; from Level 2 it may start on any of the six.
 - **Voicing.** As in Music Literacy's Melodies and Chords: the fewest ledger lines, and roots never moving more than a 4th between chords (`voiceChords`).
 - **Rhythm.** One flashcard rhythm per bar, repeated, as Melodies and Chords' chord progressions do.
+  - The bar's card is struck on each of its beats.
+  - The first bar's card starts on the beat, and the call's last beat is a breath, as in a melody call.
+  - Only cards a chord can be struck in: no two strikes a 16th apart, which the grader would hear as one ragged chord. That leaves no Tier 2 card, and of Tier 4 only the 16th rest and dotted eighth, which every boss chord call has in its second bar.
 
 ### Grading
 
 - **Melody echoes** use Music Literacy's grading (`gradeResponse`): a pass is 70% overall with timing at least 50%.
 - **Chord echoes** use its chord grading (`gradeChordResponse`).
+- A call's run is a bar of count-in, the call, then the response. The boss's four calls run back to back after one count-in.
 
 ## Input and views
 
 - **Pads, the default at Level 1:**
   - **Melody pads** are the scale degrees the level's calls use, in the key's colors. They light as Atlas plays and as the student answers.
+    - Level 1 has eight, from the 5 below the 1 to the 5 above. From Level 2 there are ten, the whole pad window.
+    - Each pad wears its note's color on the circle in the key's mode, as Part 2's chooser colors a chord by its root. So the 1's pad is the key's own color.
   - **Chord pads** are the six diatonic chords. One tap plays the voiced chord.
+    - Each is voiced on its own (the fewest ledger lines) and colored by its root.
   - Touch first.
 - **Keyboard, the default from Level 2 and a switch at any level:**
   - an on-screen piano, the computer keys (Typing) or a MIDI keyboard;
@@ -109,17 +131,30 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
 
 - A take is quantized to 16th notes, as Music Literacy's create rounds are.
 - Its length is the level's phrase: 2, 4 or 8 bars.
+  - Notes outside the phrase are left out, and one ringing past its end stops there. So a take is always its phrase, with or without Auto Fill.
+  - A melody note lasts no longer than the next one starts.
+- A chords take recognizes the key's six chords as the chord grader hears them: every note of the chord, in any octave or order. Of two (C E G A), it takes the one rooted on the lowest note. Anything else is left out, and the student is told.
 - The song repeats it to fill: ×4, ×2 or ×1.
+- **The band's chart** is a chord a bar: the chord sounding longest in the bar.
+  - At Level 3, a bar changing at its half bar gives the band its first chord.
+  - A bar with no chord keeps the last chord played.
+  - Until there is a chords take, the band plays the 1 chord.
 
 ### Scaffolding (Game Settings, all OFF by default)
 
 These help a beginner who wants to create and have fun. They are off by default because they can encourage random button pressing, which is the opposite of learning.
 
 - **Auto-Tune Melody.** Played notes snap to the nearest note in the key.
+  - Every note outside a major or minor scale sits between two of its notes. It goes to the one in the key's 1 chord (1, 3 or 5), else the lower.
+  - In a chords take it tunes the notes before the chord is recognized.
 - **Roots Only Chords.** Play one note and get its diatonic chord. With Auto-Tune Melody also on, that root is auto-tuned first.
+  - The lowest note struck is the root.
+  - The 7 in major and the 2 in minor make no chord, since theirs is diminished.
 - **Auto Fill Bars.** Keeps a take "in the lines":
   - chord changes snap to the bar line (or the half bar at Level 3), and each chord lasts until the next one;
   - melody notes snap to the level's grid, and the take is trimmed or padded to the phrase length.
+  - A change played late still lands in its bar. One in the last quarter before a bar line lands on that line.
+  - The level's grid is an eighth at Level 1 and a 16th from Level 2.
 
 ## XP and High Scores: what the server needs (for Ryan)
 
@@ -129,6 +164,7 @@ Today the Arcade sends `POST /api/experience/arcade` with no body. The server aw
    - The events are `echo_round_passed`, `echo_boss_defeated` and `echo_song_finished`.
    - The server decides how much each is worth and keeps the daily cap.
    - Until then, the stats screen shows the XP earned in the game, and the existing award fires once per finished game.
+   - The stats screen counts 10 XP a good echo, 50 for beating the boss and 25 for finishing the song.
 2. **High Scores per account.** Somewhere to save and read a student's best streak (and the stats screen's numbers) per game and level, for example `GET/PUT /api/arcade/scores?game=echo&level=1`. Until then, High Scores are kept on the device.
 
 These sit beside the planned per-account Music Literacy progress (`docs/music-literacy-content-kind.md`).

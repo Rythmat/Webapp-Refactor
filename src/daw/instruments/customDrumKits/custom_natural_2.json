@@ -3,9 +3,9 @@
   "label": "Custom natural 2",
   "base": "natural",
   "samples": {
-    "38": "/daw-assets/samples/drums/uploads/muzsqwfi-snare---snares-on---4.mp3",
-    "40": "/daw-assets/samples/drums/uploads/muzqnsgw-xstick---snares-on---4.mp3",
-    "42": "/daw-assets/samples/drums/uploads/muzqoedb-hihat---closed---4.mp3",
-    "44": "/daw-assets/samples/drums/uploads/muzss6qa-hihat---foot-close---3.mp3"
+    "38": "/daw-assets/samples/drums/uploads/MA_snare_natural_4.mp3",
+    "40": "/daw-assets/samples/drums/uploads/MA_snare_crossstick_4.mp3",
+    "42": "/daw-assets/samples/drums/uploads/MA_hihat_closed_4.mp3",
+    "44": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_closed_3.mp3"
   }
 }

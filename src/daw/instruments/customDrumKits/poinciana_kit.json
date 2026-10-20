@@ -3,11 +3,11 @@
   "label": "Poinciana kit",
   "base": "natural",
   "samples": {
-    "36": "/daw-assets/samples/drums/uploads/mv02zysv-bop-kick---snares-off---3.mp3",
-    "38": "/daw-assets/samples/drums/uploads/mv030eu1-snare---snares-off---4.mp3",
-    "41": "/daw-assets/samples/drums/uploads/mv0318jx-floor-tom---snares-off---4.mp3",
-    "42": "/daw-assets/samples/drums/uploads/mv031usq-hihat---closed---2.mp3",
-    "44": "/daw-assets/samples/drums/uploads/muzss6qa-hihat---foot-close---3.mp3",
-    "51": "/daw-assets/samples/drums/uploads/mv03280v-flat-ride---2.mp3"
+    "36": "/daw-assets/samples/drums/uploads/MA_kick_bop_snares_off_3.mp3",
+    "38": "/daw-assets/samples/drums/uploads/MA_snare_snares_off_4.mp3",
+    "41": "/daw-assets/samples/drums/uploads/MA_floortom_snares_off_4.mp3",
+    "42": "/daw-assets/samples/drums/uploads/MA_hihat_closed_2.mp3",
+    "44": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_closed_3.mp3",
+    "51": "/daw-assets/samples/drums/uploads/MA_ride_flat_2.mp3"
   }
 }

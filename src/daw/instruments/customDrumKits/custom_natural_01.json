@@ -3,12 +3,12 @@
   "label": "Brushes natural kit",
   "base": "natural",
   "samples": {
-    "36": "/daw-assets/samples/drums/uploads/muzqmfmv-bop-kick---snares-on---2.mp3",
-    "38": "/daw-assets/samples/drums/uploads/muzq9cx7-brush-snare-hit.mp3",
-    "40": "/daw-assets/samples/drums/uploads/muzq9pyb-brush-snare-hit-loud.mp3",
-    "42": "/daw-assets/samples/drums/uploads/muzss6qa-hihat---foot-close---3.mp3",
-    "44": "/daw-assets/samples/drums/uploads/muzss6qa-hihat---foot-close---3.mp3",
-    "46": "/daw-assets/samples/drums/uploads/muzqc4c2-hihat---foot-open---2.mp3",
-    "49": "/daw-assets/samples/drums/uploads/muzqde4o-ride---crash---4.mp3"
+    "36": "/daw-assets/samples/drums/uploads/MA_kick_bop_snares_on_2.mp3",
+    "38": "/daw-assets/samples/drums/uploads/MA_snare_brush_hit.mp3",
+    "40": "/daw-assets/samples/drums/uploads/MA_snare_brush_hit_loud.mp3",
+    "42": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_closed_3.mp3",
+    "44": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_closed_3.mp3",
+    "46": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_open_2.mp3",
+    "49": "/daw-assets/samples/drums/uploads/MA_ride_crash_4.mp3"
   }
 }

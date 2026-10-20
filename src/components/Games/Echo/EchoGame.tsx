@@ -101,6 +101,8 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   /** The level's High Score when this game began: beaten, it's new. */
   const highScoreBefore = useRef(0);
+  /** Games begun: what the gate's XP and the song's finish happen once for. */
+  const game = useRef(0);
   const flowRef = useRef(flow);
   flowRef.current = flow;
 
@@ -119,6 +121,7 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
       void startPianoSampler().catch(() => {});
       setProgress(rememberSetup(nextLevel, nextKey));
       highScoreBefore.current = highScoreOf(readEchoProgress(), nextLevel);
+      game.current += 1;
       setPaused(false);
       dispatch({
         type: 'begin',
@@ -194,19 +197,19 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
 
   // ── The gate: the game's XP, awarded once ──
   const awardXP = useAwardArcadeExperience();
-  const awarded = useRef<string | null>(null);
+  const awarded = useRef(0);
   useEffect(() => {
-    if (screen.kind !== 'gate' || awarded.current === flow.seed) return;
-    awarded.current = flow.seed;
+    if (screen.kind !== 'gate' || awarded.current === game.current) return;
+    awarded.current = game.current;
     awardXP.mutateAsync().catch(() => {});
-  }, [screen.kind, flow.seed, awardXP]);
+  }, [screen.kind, awardXP]);
 
   // ── Make Your Song's way back ──
-  const finished = useRef<string | null>(null);
+  const finished = useRef(0);
   const onSongFinished = useCallback(() => {
     const now = flowRef.current;
-    if (finished.current === now.seed) return;
-    finished.current = now.seed;
+    if (finished.current === game.current) return;
+    finished.current = game.current;
     setProgress(recordSongFinished(now.level));
     markStopDone(ECHO_STOP_ID);
     dispatch({ type: 'songFinished' });

@@ -99,7 +99,7 @@ export function recordingTracks(
   takes: { chords: ChordTake | null; melody: MelodyTake | null },
 ): PlayerTrack[] {
   const tracks = bandTracks(
-    track === 'chords' ? band.filter((p) => p.id === 'drums') : band,
+    track === 'chords' ? band.filter((p) => p.part === 'drums') : band,
   );
   const other: SongTrack = track === 'chords' ? 'melody' : 'chords';
   const otherTake = takes[other];

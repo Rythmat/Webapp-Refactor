@@ -141,6 +141,12 @@ describe('the band’s tracks', () => {
       'Keys',
       'Guitar',
     ]);
+    expect(parts.map((p) => p.part)).toEqual([
+      'drums',
+      'bass',
+      'chords',
+      'chords',
+    ]);
     expect(parts[0].sound).toBe(`drum-machine:${built.track.drumKit}`);
     expect(parts[1].sound).toMatch(/^bass-electric/);
     expect(parts[3].sound).toBe('sample:acoustic-guitar');

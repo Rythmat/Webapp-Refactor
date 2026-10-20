@@ -87,6 +87,8 @@ export interface EchoBandPart {
   id: string;
   /** As a student names it: 'Drums', 'Bass', 'Keys', 'Guitar'. */
   name: string;
+  /** The lesson part it plays in. */
+  part: 'drums' | 'bass' | 'chords';
   /** What it plays on (daw/instruments/soundString.ts). */
   sound: string;
   /** 0–1. */
@@ -137,6 +139,7 @@ export function echoBandParts(
   const add = (
     id: string,
     name: string,
+    part: EchoBandPart['part'],
     sound: string,
     volume: number,
     clip: MidiClip | undefined,
@@ -145,22 +148,30 @@ export function echoBandParts(
     const own = named(name);
     const trimmed = trimClip(clip, length, own);
     if (trimmed.events.length === 0) return;
-    parts.push({ id, name: own, sound, volume, clip: trimmed });
+    parts.push({ id, name: own, part, sound, volume, clip: trimmed });
   };
-  add('drums', 'Drums', `drum-machine:${track.drumKit}`, 1, track.clips.drums);
+  add(
+    'drums',
+    'Drums',
+    'drums',
+    `drum-machine:${track.drumKit}`,
+    1,
+    track.clips.drums,
+  );
   add(
     'bass',
     'Bass',
+    'bass',
     track.bassVoice ? `bass-electric:${track.bassVoice}` : 'bass-electric',
     1,
     track.clips.bass,
   );
-  add('keys', 'Keys', 'electric-piano', 1, track.clips.chords);
+  add('keys', 'Keys', 'chords', 'electric-piano', 1, track.clips.chords);
   for (const layer of track.layerClips) {
     const instrument = members.find((m) => m.id === layer.layer)?.instrument;
     const label =
       BAND_INSTRUMENTS.find((i) => i.id === instrument)?.label ?? layer.name;
-    add(layer.layer, label, layer.sound, layer.volume, layer.clip);
+    add(layer.layer, label, layer.part, layer.sound, layer.volume, layer.clip);
   }
   return parts;
 }

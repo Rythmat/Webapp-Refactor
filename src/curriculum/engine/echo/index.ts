@@ -12,21 +12,25 @@
  *   grading.ts   an echo graded by Music Literacy's graders
  *   stats.ts     a game's numbers: sections, streaks, the boss, XP
  *   takes.ts     Make Your Song's takes, and the scaffolding
- *   song.ts      the song from its takes, and the Band's chart
+ *   song.ts      the song from its takes, its chord changes, the Band's chart
  *   pads.ts      the melody pads and the chord pads
  *   random.ts    the seeded random source every call is made with
  *
  * A game, in order:
  *
  *   const rng = echoRandom(seed);                      // or Math.random
- *   const call = melodyCall(level, key, rng);          // Atlas's call
- *   const timeline = echoTimeline(call);               // count-in, call, response
+ *   let tempo = newEchoTempo(level);                   // the level's base
+ *   const call = melodyCall(level, key, rng, { tempo: tempo.bpm }); // Atlas's call
+ *   const timeline = echoTimeline(call);               // count-in, call, response, at its tempo
  *   const result = gradeMelodyEcho(call, played, { timeline });
  *   stats = echoGameReducer(stats, { type: 'echo', section: 'melodyEcho', passed: result.passed });
- *   …chordCall / gradeChordEcho, then bossCalls / bossTimelines / gradeEcho…
- *   const chords = processTake(played, { kind: 'chords', key, level, scaffolding });
+ *   tempo = nextEchoTempo(tempo, level, { passed: result.passed });
+ *   …chordCall / gradeChordEcho, then bossCalls(level, key, rng,
+ *     { tempo: echoBossTempo(tempo, level) }) / bossTimelines / gradeEcho…
+ *   const chords = processTake(played, { kind: 'chords', key, level, scaffolding, tempo });
  *   const melody = processTake(played, { kind: 'melody', key, level, scaffolding });
- *   const song = assembleSong(level, key, chords, melody); // song.chart → the Band
+ *   const song = assembleSong(level, key, chords, melody);
+ *   // song.chordChanges (chordAtTick) → the Band; song.chart for a chord a bar
  */
 
 export {
@@ -172,9 +176,12 @@ export {
 } from './takes';
 export {
   assembleSong,
+  chordAtTick,
+  songChordChanges,
   takeBarDegrees,
   type EchoSong,
   type SongChord,
+  type SongChordChange,
   type SongNote,
 } from './song';
 export {

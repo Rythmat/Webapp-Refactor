@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { chordSymbolTones } from '../../genreGeneration/chordSymbolTones';
 import type { PlayedNote } from '../../musicLiteracy/grading';
 import {
   ECHO_LEVELS,
   ECHO_LEVEL_NUMBERS,
   type EchoLevelNumber,
 } from '../levels';
-import { assembleSong, takeBarDegrees } from '../song';
+import { assembleSong, chordAtTick, takeBarDegrees } from '../song';
 import { processTake } from '../takes';
 
 /**
@@ -105,5 +106,153 @@ describe('the song', () => {
       '5',
       '5',
     ]);
+  });
+});
+
+describe('the song’s chord changes', () => {
+  const chordsTake = (
+    level: EchoLevelNumber,
+    played: PlayedNote[],
+    autoFill = true,
+  ) =>
+    processTake(played, {
+      kind: 'chords',
+      key: KEY,
+      level,
+      scaffolding: { autoFill },
+    });
+  const changes = (song: ReturnType<typeof assembleSong>) =>
+    song.chordChanges.map((c) => [c.tick, c.degree, c.symbol]);
+  const G = [67, 71, 74];
+  const C = [60, 64, 67];
+  const D = [62, 66, 69];
+  const Em = [64, 67, 71];
+
+  it('changes at the half bar at Level 3: two changes in that bar', () => {
+    const take = chordsTake(3, [
+      ...strike(G, 0),
+      ...strike(D, 960),
+      ...strike(Em, 1920),
+      ...strike(C, 2880),
+    ]);
+    const song = assembleSong(3, KEY, take, null);
+    expect(changes(song)).toEqual([
+      [0, '1', 'G'],
+      [960, '5', 'D'],
+      [1920, '6', 'Em'],
+      [2880, '4', 'C'],
+    ]);
+    expect(song.chordChanges.filter((c) => c.bar === 0)).toHaveLength(2);
+    // The last change lasts to the song’s end.
+    expect(song.chordChanges.at(-1)!.duration).toBe(song.length - 2880);
+    // The chart: a bar’s longest, a tie the earlier.
+    expect(song.chart.chords.slice(0, 2)).toEqual(['1', '6']);
+  });
+
+  it('keeps one change a bar at Levels 1 and 2, played that way', () => {
+    for (const level of [1, 2] as const) {
+      const take = chordsTake(level, [...strike(G, 0), ...strike(C, 1920)]);
+      const song = assembleSong(level, KEY, take, null);
+      for (const change of song.chordChanges) {
+        expect(change.tick % 1920).toBe(0);
+      }
+      const bars = song.chordChanges.map((c) => c.bar);
+      expect(new Set(bars).size).toBe(bars.length);
+    }
+    // Level 1: G C, four times over.
+    const one = assembleSong(
+      1,
+      KEY,
+      chordsTake(1, [...strike(G, 0), ...strike(C, 1920)]),
+      null,
+    );
+    expect(changes(one).map(([tick]) => tick)).toEqual(
+      [0, 1, 2, 3, 4, 5, 6, 7].map((bar) => bar * 1920),
+    );
+    // Auto Fill at Level 2 puts a change in the bar on its bar line.
+    const two = chordsTake(2, [...strike(G, 0), ...strike(C, 960)]);
+    expect(changes(assembleSong(2, KEY, two, null)).slice(0, 2)).toEqual([
+      [0, '1', 'G'],
+      [1920, '4', 'C'],
+    ]);
+  });
+
+  it('follows the take where it changes without Auto Fill, on its 16ths', () => {
+    const take = chordsTake(
+      2,
+      [...strike(G, 0), ...strike(C, 1450), ...strike(G, 1920)],
+      false,
+    );
+    const song = assembleSong(2, KEY, take, null);
+    expect(changes(song).slice(0, 3)).toEqual([
+      [0, '1', 'G'],
+      [1440, '4', 'C'],
+      [1920, '1', 'G'],
+    ]);
+    // Two changes in bar 1; the chart gives it the G, sounding longest.
+    expect(song.chart.chords[0]).toBe('1');
+  });
+
+  it('makes a chord struck again, or running on over the repeat, one change', () => {
+    const take = chordsTake(
+      2,
+      [...strike(G, 0), ...strike(G, 480), ...strike(G, 1920)],
+      false,
+    );
+    const song = assembleSong(2, KEY, take, null);
+    expect(changes(song)).toEqual([[0, '1', 'G']]);
+    expect(song.chordChanges[0].duration).toBe(song.length);
+  });
+
+  it('sounds a chord until the next change, held or not', () => {
+    // A G let go on beat 2, a C on beat 4: the G sounds three beats.
+    const take = processTake(
+      [
+        ...G.map((midi) => ({ midi, onset: 0, duration: 400 })),
+        ...strike(C, 1440),
+      ],
+      { kind: 'chords', key: KEY, level: 2 },
+    );
+    const song = assembleSong(2, KEY, take, null);
+    expect(song.chordChanges[0]).toMatchObject({ tick: 0, duration: 1440 });
+    expect(song.phraseChart.chords[0]).toBe('1');
+  });
+
+  it('plays the 1 chord until there’s a chords take', () => {
+    const song = assembleSong(1, KEY, null, null);
+    expect(changes(song)).toEqual([[0, '1', 'G']]);
+    expect(song.chordChanges[0]).toMatchObject({
+      duration: song.length,
+      label: '1 maj',
+    });
+  });
+
+  it('spells its symbols the key’s way, as chordSymbolTones reads them', () => {
+    const key = { tonic: 'D', mode: 'minor' } as const;
+    const take = processTake(
+      [...strike([58, 62, 65], 0), ...strike([60, 64, 67], 1920)],
+      { kind: 'chords', key, level: 1 },
+    );
+    const song = assembleSong(1, key, take, null);
+    expect(
+      song.chordChanges.slice(0, 2).map((c) => [c.label, c.symbol]),
+    ).toEqual([
+      ['♭6 maj', 'Bb'],
+      ['♭7 maj', 'C'],
+    ]);
+    for (const change of song.chordChanges) {
+      expect(change).toMatchObject(chordSymbolTones(change.symbol)!);
+    }
+  });
+
+  it('finds the change sounding at a tick', () => {
+    const take = chordsTake(3, [...strike(G, 0), ...strike(D, 960)]);
+    const { chordChanges } = assembleSong(3, KEY, take, null);
+    expect(chordAtTick(chordChanges, 0)?.symbol).toBe('G');
+    expect(chordAtTick(chordChanges, 959)?.symbol).toBe('G');
+    expect(chordAtTick(chordChanges, 960)?.symbol).toBe('D');
+    expect(chordAtTick(chordChanges, 15000)?.symbol).toBe('D');
+    expect(chordAtTick(chordChanges, -10)?.symbol).toBe('G');
+    expect(chordAtTick([], 0)).toBeNull();
   });
 });

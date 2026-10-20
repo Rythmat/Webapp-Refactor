@@ -3,7 +3,7 @@
   "label": "Reggaeton 01",
   "base": "808",
   "samples": {
-    "36": "/daw-assets/samples/drums/uploads/MA_kick_attack_05.wav",
-    "38": "/daw-assets/samples/drums/uploads/MA_snare_dilla_015.wav"
+    "36": "/daw-assets/samples/drums/uploads/MA_kick_attack_05.mp3",
+    "38": "/daw-assets/samples/drums/uploads/MA_snare_dilla_015.mp3"
   }
 }

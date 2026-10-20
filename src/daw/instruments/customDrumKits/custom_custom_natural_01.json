@@ -3,14 +3,14 @@
   "label": "Tight kick custom_natural",
   "base": "natural",
   "samples": {
-    "36": "/daw-assets/samples/drums/uploads/MA_kick_dilla_019.wav",
-    "38": "/daw-assets/samples/drums/uploads/MA_snare_dilla_123.wav",
+    "36": "/daw-assets/samples/drums/uploads/MA_kick_dilla_019.mp3",
+    "38": "/daw-assets/samples/drums/uploads/MA_snare_dilla_123.mp3",
     "40": "/daw-assets/samples/drums/uploads/MA_snare_crossstick_4.mp3",
     "41": "/daw-assets/samples/drums/uploads/MA_floortom_snares_on_4.mp3",
     "42": "/daw-assets/samples/drums/uploads/MA_hihat_closed_4.mp3",
-    "44": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_closed_3.wav",
+    "44": "/daw-assets/samples/drums/uploads/MA_hihat_pedal_closed_3.mp3",
     "45": "/daw-assets/samples/drums/uploads/MA_racktom_snares_on_4.mp3",
-    "46": "/daw-assets/samples/drums/uploads/MA_hihat_open_3_4.wav",
+    "46": "/daw-assets/samples/drums/uploads/MA_hihat_open_3_4.mp3",
     "49": "/daw-assets/samples/drums/uploads/MA_ride_crash_4.mp3",
     "51": "/daw-assets/samples/drums/uploads/MA_ride_natural_5.mp3"
   }

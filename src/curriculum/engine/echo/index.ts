@@ -3,28 +3,34 @@
  * (docs/echo-game.md). Pure TypeScript, no React; the game's screens are
  * built on what this exports.
  *
- *   levels.ts    the Levels table: tiers, zero points, song lengths
+ *   levels.ts    the Levels table: tiers, zero points, song lengths, base tempos
+ *   tempo.ts     the tempo ramp, the boss's tempo, ticks and milliseconds
  *   contours.ts  the contour library and starter set, the zero point rule
  *   rhythm.ts    the rhythm flashcards, and calls' rhythms from them
  *   calls.ts     melody calls, chord calls, the Final Boss's four
+ *   strikes.ts   played notes heard as chord strikes, at the tempo
  *   grading.ts   an echo graded by Music Literacy's graders
  *   stats.ts     a game's numbers: sections, streaks, the boss, XP
  *   takes.ts     Make Your Song's takes, and the scaffolding
- *   song.ts      the song from its takes, and the Band's chart
+ *   song.ts      the song from its takes, its chord changes, the Band's chart
  *   pads.ts      the melody pads and the chord pads
  *   random.ts    the seeded random source every call is made with
  *
  * A game, in order:
  *
  *   const rng = echoRandom(seed);                      // or Math.random
- *   const call = melodyCall(level, key, rng);          // Atlas's call
- *   const timeline = echoTimeline(call);               // count-in, call, response
+ *   let tempo = newEchoTempo(level);                   // the level's base
+ *   const call = melodyCall(level, key, rng, { tempo: tempo.bpm }); // Atlas's call
+ *   const timeline = echoTimeline(call);               // count-in, call, response, at its tempo
  *   const result = gradeMelodyEcho(call, played, { timeline });
  *   stats = echoGameReducer(stats, { type: 'echo', section: 'melodyEcho', passed: result.passed });
- *   …chordCall / gradeChordEcho, then bossCalls / bossTimelines / gradeEcho…
- *   const chords = processTake(played, { kind: 'chords', key, level, scaffolding });
+ *   tempo = nextEchoTempo(tempo, level, { passed: result.passed });
+ *   …chordCall / gradeChordEcho, then bossCalls(level, key, rng,
+ *     { tempo: echoBossTempo(tempo, level) }) / bossTimelines / gradeEcho…
+ *   const chords = processTake(played, { kind: 'chords', key, level, scaffolding, tempo });
  *   const melody = processTake(played, { kind: 'melody', key, level, scaffolding });
- *   const song = assembleSong(level, key, chords, melody); // song.chart → the Band
+ *   const song = assembleSong(level, key, chords, melody);
+ *   // song.chordChanges (chordAtTick) → the Band; song.chart for a chord a bar
  */
 
 export {
@@ -46,6 +52,19 @@ export {
   type EchoTier,
   type EchoZeroPoint,
 } from './levels';
+export {
+  ECHO_TEMPO_PASSES,
+  ECHO_TEMPO_RISE,
+  ECHO_TEMPO_STEP,
+  clampEchoTempo,
+  echoBossTempo,
+  echoTempoRange,
+  msToTicks,
+  newEchoTempo,
+  nextEchoTempo,
+  ticksToMs,
+  type EchoTempo,
+} from './tempo';
 export { echoRandom, pickOne, type EchoRandom } from './random';
 export {
   CONTOUR_LIBRARY,
@@ -68,6 +87,7 @@ export {
   type PositionSpan,
 } from './contours';
 export {
+  MAX_CHORD_STRIKES_PER_BEAT,
   QUARTER_REST,
   RHYTHM_CARDS,
   cardHits,
@@ -97,10 +117,20 @@ export {
   type MelodyCallOptions,
 } from './calls';
 export {
+  SLOW_ROLL_SHARE,
+  STRIKE_SPREAD_MS,
+  STRIKE_SPREAD_SHARE,
+  chordStrikes,
+  strikeSpreadTicks,
+  type ChordStrike,
+  type StrikeOptions,
+} from './strikes';
+export {
   bossTimelines,
   chordEchoNotes,
   echoTimeline,
   gradeChordEcho,
+  gradeChordStrikes,
   gradeEcho,
   gradeMelodyEcho,
   melodyEchoNotes,
@@ -146,9 +176,12 @@ export {
 } from './takes';
 export {
   assembleSong,
+  chordAtTick,
+  songChordChanges,
   takeBarDegrees,
   type EchoSong,
   type SongChord,
+  type SongChordChange,
   type SongNote,
 } from './song';
 export {

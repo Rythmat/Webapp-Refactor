@@ -12,13 +12,17 @@
  * silence. A melody note lasts no longer than the next one starts.
  *
  * A CHORDS TAKE
- * Notes struck together are one chord (chordGrading.ts `clusterChords`).
- * A chord is recognized the way the chord grader hears a right one: every
- * note of one of the key's six chords, in any octave and order, extra notes
- * aside; where two could be (C E G A), the one whose root is the lowest
- * note. A strike that isn't one of the six is left out and flagged. The
- * take's chords are voiced together, as a progression (chords.ts
- * `voiceChords`), whatever voicing the student played.
+ * Notes struck together are one chord, as a chord echo hears them
+ * (strikes.ts `chordStrikes`, at the take's tempo): chords a 16th apart are
+ * two, a rolled one is one. A chord is recognized the way the chord grader
+ * hears a right one: every note of one of the key's six chords, in any
+ * octave and order, extra notes aside; where two could be (C E G A), the
+ * one whose root is the lowest note. Notes held from an earlier strike can
+ * complete it, when every note struck is a tone of the chord they make (a
+ * chord held, one of its notes struck again). A strike that isn't one of
+ * the six is left out and flagged. The take's chords are voiced together,
+ * as a progression (chords.ts `voiceChords`), whatever voicing the student
+ * played.
  *
  * THE SCAFFOLDING (Game Settings, all off unless turned on)
  *
@@ -52,7 +56,6 @@ import type {
   LiteracyDegree,
   LiteracyScaleDegree,
 } from '@/content/musicLiteracy/schemas';
-import { clusterChords } from '../musicLiteracy/chordGrading';
 import {
   diatonicChord,
   voicedProgression,
@@ -74,6 +77,7 @@ import {
   echoLevel,
   type EchoLevelNumber,
 } from './levels';
+import { chordStrikes } from './strikes';
 
 /** Game Settings' scaffolding for Make Your Song. */
 export interface EchoScaffolding {
@@ -101,6 +105,11 @@ export interface TakeOptions {
   scaffolding?: Partial<EchoScaffolding>;
   /** The take's downbeat, in `played`'s ticks: 0 when they're from it. */
   start?: number;
+  /**
+   * The tempo it was recorded at, BPM: how a chords take's strikes are
+   * heard (strikes.ts). The level's base when left out.
+   */
+  tempo?: number;
 }
 
 /** A note of a melody take. */
@@ -157,6 +166,8 @@ export interface TakeFlag {
 interface TakeBase {
   key: LiteracyKey;
   level: EchoLevelNumber;
+  /** The tempo it was recorded at, BPM. */
+  tempo: number;
   bars: number;
   barTicks: number;
   /** The take's length in ticks: its bars. */
@@ -218,6 +229,17 @@ export function rootChord(
   return echoChordDegrees(key.mode).includes(degree) ? degree : null;
 }
 
+/** A chord's tones, as semitones above the key's 1. */
+function chordTones(
+  key: LiteracyKey,
+  degree: LiteracyScaleDegree,
+): Set<number> {
+  const chord = diatonicChord(key.mode, degree)!;
+  return new Set(
+    chord.intervals.map((tone) => mod12(chord.rootSemitones + tone)),
+  );
+}
+
 /**
  * The key's chord a strike makes (A CHORDS TAKE above): every note of one
  * of the six, any octave and order; of two, the one rooted on the lowest
@@ -240,6 +262,32 @@ export function recognizeChord(
     (degree) => diatonicChord(key.mode, degree)!.rootSemitones === lowest,
   );
   return rooted ?? whole[0] ?? null;
+}
+
+/**
+ * The chord notes held from before complete, with the notes struck again
+ * (A CHORDS TAKE above): all its tones sounding, every note struck one of
+ * them. Of two, the one rooted on the lowest note sounding. Null for none.
+ */
+function completedChord(
+  struck: readonly number[],
+  held: readonly number[],
+  key: LiteracyKey,
+): LiteracyScaleDegree | null {
+  if (struck.length === 0 || held.length === 0) return null;
+  const sounding = new Set([...struck, ...held].map((m) => aboveOne(m, key)));
+  const fits = echoChordDegrees(key.mode).filter((degree) => {
+    const tones = chordTones(key, degree);
+    return (
+      [...tones].every((tone) => sounding.has(tone)) &&
+      struck.every((midi) => tones.has(aboveOne(midi, key)))
+    );
+  });
+  const lowest = aboveOne(Math.min(...struck, ...held), key);
+  const rooted = fits.find(
+    (degree) => diatonicChord(key.mode, degree)!.rootSemitones === lowest,
+  );
+  return rooted ?? fits[0] ?? null;
 }
 
 /** The scaffolding, every switch set. */
@@ -287,6 +335,7 @@ export function processTake(
   const base = {
     key: options.key,
     level: options.level,
+    tempo: options.tempo ?? level.tempo,
     bars,
     barTicks: BAR_TICKS,
     length: bars * BAR_TICKS,
@@ -372,13 +421,17 @@ function chordTake(
   base: Base,
   levelGrid: number,
 ): ChordTake {
-  const { key, length, scaffolding, bars } = base;
+  const { key, length, scaffolding, bars, tempo } = base;
   const flags: TakeFlag[] = [];
   const heard: Heard[] = [];
-  for (const strike of clusterChords(played)) {
-    const tuned = strike.notes.map((note) =>
-      scaffolding.autoTune ? snapToKey(note.midi, key) : note.midi,
-    );
+  const tune = (midi: number) =>
+    scaffolding.autoTune ? snapToKey(midi, key) : midi;
+  // What a slow roll must make to be joined: one of the six (any note, Roots Only).
+  const complete = (midis: readonly number[]) =>
+    scaffolding.rootsOnly || recognizeChord(midis.map(tune), key) !== null;
+  for (const strike of chordStrikes(played, { tempo, complete })) {
+    const tuned = strike.notes.map((note) => tune(note.midi));
+    let held: PlayedNote[] = [];
     let degree: LiteracyScaleDegree | null;
     if (scaffolding.rootsOnly) {
       const root = Math.min(...tuned);
@@ -398,6 +451,19 @@ function chordTake(
     } else {
       degree = recognizeChord(tuned, key);
       if (!degree) {
+        degree = completedChord(
+          tuned,
+          strike.held.map((note) => tune(note.midi)),
+          key,
+        );
+        if (degree) {
+          const tones = chordTones(key, degree);
+          held = strike.held.filter((note) =>
+            tones.has(aboveOne(tune(note.midi), key)),
+          );
+        }
+      }
+      if (!degree) {
         flags.push({
           reason: 'unrecognized',
           notes: strike.notes,
@@ -407,12 +473,14 @@ function chordTake(
         continue;
       }
     }
-    const ends = strike.notes.map((note) =>
+    // It lasts while its notes are held: those struck, and any held ones
+    // that completed it.
+    const heldEnds = held.map((note) =>
       note.duration > 0 ? note.onset + note.duration : Infinity,
     );
     heard.push({
       onset: strike.onset,
-      end: Math.max(...ends),
+      end: Math.max(strike.end, ...heldEnds),
       degree,
       struck: strike.notes,
     });

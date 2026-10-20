@@ -21,15 +21,13 @@ const marketingPrefix = '/features';
 /**
  * Public marketing pages (renders for logged-out and logged-in visitors). Module
  * pages live under `/features/*` because `/studio`, `/learn`, `/arcade`, `/atlas`
- * are taken by the authenticated app; `/blog` and `/for-teachers` are top-level.
+ * are taken by the authenticated app.
  */
 export const MarketingRoutes = {
   studio: createRouteDefinition('/studio', { prefix: marketingPrefix }),
   learn: createRouteDefinition('/learn', { prefix: marketingPrefix }),
   arcade: createRouteDefinition('/arcade', { prefix: marketingPrefix }),
   globe: createRouteDefinition('/globe', { prefix: marketingPrefix }),
-  blog: createRouteDefinition('/blog'),
-  teachers: createRouteDefinition('/for-teachers'),
 };
 
 const authPrefix = '/auth';

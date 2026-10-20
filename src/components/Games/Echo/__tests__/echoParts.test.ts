@@ -15,6 +15,7 @@ import {
 import type { RunGroove } from '@/curriculum/engine/musicLiteracy/run';
 import { easiestContours, roundCall } from '../echoCalls';
 import { echoHeadline } from '../echoCues';
+import { echoFlowReducer, newEchoFlow, runCallsOf } from '../echoFlow';
 import { gradeRunCall } from '../echoOutcome';
 import {
   ECHO_PROGRESS_KEY,
@@ -294,6 +295,67 @@ describe('a run’s cues', () => {
     expect(callIndexAt(placed, 0)).toBe(0);
     expect(callIndexAt(placed, timelines[2].call.start)).toBe(2);
     expect(callIndexAt(placed, 1e9)).toBe(3);
+  });
+});
+
+describe('the boss’s run', () => {
+  const bossFlow = () => {
+    let flow = echoFlowReducer(newEchoFlow(1, C), {
+      type: 'begin',
+      level: 1,
+      key: C,
+      seed: 'boss-run',
+      skipTo: 'boss',
+    });
+    flow = echoFlowReducer(flow, { type: 'fight' });
+    return flow;
+  };
+
+  it('counts each later call in over the bar the boss reacts in', () => {
+    const placed = runCallsOf(bossFlow());
+    const cues = echoRunCues(placed, { metronome: true });
+    const beats = cues.filter((c) => c.kind === 'beat');
+    for (let i = 1; i < placed.length; i++) {
+      const gap = placed[i - 1].timeline.total;
+      const inGap = beats.filter(
+        (b) => b.tick >= gap && b.tick < placed[i].timeline.call.start,
+      );
+      expect(inGap).toHaveLength(4);
+      expect(inGap.every((b) => b.phase === 'countIn')).toBe(true);
+      // The hub says GET READY there, and LISTEN as the call comes.
+      const own = placed[i].timeline;
+      expect(echoHeadline(own, gap, true, '').kind).toBe('cue');
+      expect((echoHeadline(own, gap, true, '') as { cue: string }).cue).toBe(
+        'getReady',
+      );
+      expect(
+        (echoHeadline(own, own.call.start, true, '') as { cue: string }).cue,
+      ).toBe('listen');
+      // No note sounds in the gap.
+      expect(
+        cues.some(
+          (c) => c.kind === 'note' && c.tick >= gap && c.tick < own.call.start,
+        ),
+      ).toBe(false);
+    }
+  });
+
+  it('grades each call’s echo on its own bars, the gaps between', () => {
+    const placed = runCallsOf(bossFlow());
+    // Every call echoed note for note, on its answer's ticks.
+    const played = placed.flatMap((c) =>
+      c.notes.response.map((n) => ({
+        midi: n.midi,
+        onset: n.onset,
+        duration: Math.max(60, n.duration - 30),
+      })),
+    );
+    for (const c of placed) {
+      expect(gradeRunCall(c, played).passed).toBe(true);
+    }
+    // Played a bar late (into the gap and the next call), it isn't.
+    const late = played.map((n) => ({ ...n, onset: n.onset + 1920 }));
+    expect(gradeRunCall(placed[0], late).passed).toBe(false);
   });
 });
 

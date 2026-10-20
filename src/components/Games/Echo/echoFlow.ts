@@ -1,6 +1,5 @@
 import {
   bossCalls,
-  bossTimelines,
   echoBossTempo,
   echoGameReducer,
   echoTimeline,
@@ -13,6 +12,7 @@ import {
   type EchoLevelNumber,
   type EchoTempo,
 } from '@/curriculum/engine/echo';
+import type { StepTimeline } from '@/curriculum/engine/musicLiteracy/literacy';
 import { roundCall, type EchoSectionName } from './echoCalls';
 import type { EchoKeyChoice } from './echoProgress';
 import { placeCall, type RunCall } from './echoRunCues';
@@ -24,9 +24,10 @@ import { placeCall, type RunCall } from './echoRunCues';
 //   setup      pick a color, major or minor, and a level
 //   intro      a section's title card: Melody Echo, then Chord Echo
 //   round      one call and its echo: playing, then its result, briefly
-//   bossIntro  "The Echo Boss appears!"
-//   boss       four calls back to back; won at the third good echo, lost
-//              at the second miss ("Try the Boss again" fights it afresh)
+//   bossIntro  "The Echo Boss Appears!": the boss emerges from the circle
+//   boss       four calls, a bar between them for the boss to react; won
+//              at the third good echo, lost at the second miss ("Try the
+//              Boss again" fights it afresh)
 //   gate       "You beat the Echo Boss!": the game's numbers
 //   song       Make Your Song (makeYourSong/MakeYourSong.tsx)
 //
@@ -122,6 +123,8 @@ export type EchoFlowEvent =
       level: EchoLevelNumber;
       key: EchoKeyChoice;
       seed: string;
+      /** Straight to the Echo Boss (a development shortcut: `?boss`). */
+      skipTo?: 'boss';
     }
   /** A section's title card is done: its first round. */
   | { type: 'go' }
@@ -235,7 +238,10 @@ export function echoFlowReducer(
       return {
         ...newEchoFlow(event.level, event.key),
         seed: event.seed,
-        screen: { kind: 'intro', section: 'melodyEcho' },
+        screen:
+          event.skipTo === 'boss'
+            ? { kind: 'bossIntro' }
+            : { kind: 'intro', section: 'melodyEcho' },
         run: flow.run,
       };
 
@@ -329,6 +335,35 @@ export function echoFlowReducer(
   }
 }
 
+/**
+ * Bars between the boss's calls: a good echo makes it frown, a miss makes
+ * it nod (bossArt.ts), and the groove goes on under it. Each later call's
+ * count-in, so the hub says GET READY there.
+ */
+export const BOSS_GAP_BARS = 1;
+
+/**
+ * The boss's calls one after another, at one tempo: the first after a
+ * count-in, each of the rest BOSS_GAP_BARS after the last one's response.
+ * (The engine's bossTimelines lays them back to back; the play screens
+ * leave the boss room to react.)
+ */
+export function bossRunTimelines(
+  calls: readonly EchoCall[],
+  tempo: number,
+): StepTimeline[] {
+  let start = 0;
+  return calls.map((call, i) => {
+    const timeline = echoTimeline(call, {
+      tempo,
+      countInBars: i === 0 ? undefined : BOSS_GAP_BARS,
+      start,
+    });
+    start = timeline.total;
+    return timeline;
+  });
+}
+
 /** A run belongs on screen now: a round not yet graded, or a boss fight on. */
 export const wantsRun = (flow: EchoFlow): boolean =>
   (flow.screen.kind === 'round' && !flow.screen.outcome) ||
@@ -352,7 +387,7 @@ export function runCallsOf(flow: EchoFlow): RunCall[] {
   if (screen.kind === 'boss') {
     const calls = screen.calls.slice(screen.at);
     if (calls.length === 0) return [];
-    const timelines = bossTimelines(calls, { tempo: screen.tempo });
+    const timelines = bossRunTimelines(calls, screen.tempo);
     return calls.map((call, i) => placeCall(call, timelines[i]));
   }
   return [];

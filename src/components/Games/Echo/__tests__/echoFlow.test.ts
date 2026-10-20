@@ -7,6 +7,7 @@ import {
 } from '@/curriculum/engine/echo';
 import { easiestContours } from '../echoCalls';
 import {
+  BOSS_GAP_BARS,
   CHORD_ECHO_ROUNDS,
   MELODY_ECHO_ROUNDS,
   echoFlowReducer,
@@ -274,7 +275,7 @@ describe('the Echo Boss', () => {
       outcome: outcome(passed),
     });
 
-  it('fights four calls, melody and chords by turns, back to back', () => {
+  it('fights four calls, melody and chords by turns, a bar apart', () => {
     const flow = atBoss();
     expect(flow.screen.kind).toBe('boss');
     const calls = runCallsOf(flow);
@@ -285,8 +286,38 @@ describe('the Echo Boss', () => {
       'melody',
       'chords',
     ]);
-    expect(calls[1].timeline.call.start).toBe(calls[0].timeline.total);
+    // Between calls, a bar for the boss to react: the next call's count-in.
+    for (let i = 1; i < calls.length; i++) {
+      const before = calls[i - 1].timeline;
+      const t = calls[i].timeline;
+      expect(t.countIn).toEqual({
+        start: before.total,
+        length: BOSS_GAP_BARS * t.barTicks,
+      });
+      expect(t.call.start).toBe(before.total + BOSS_GAP_BARS * t.barTicks);
+    }
+    expect(calls[0].timeline.countIn).toEqual({ start: 0, length: 1920 });
     expect(flow.stats.boss.health).toBe(3);
+  });
+
+  it('starts a resumed fight on its call, after a count-in', () => {
+    let flow = atBoss();
+    flow = bossEcho(flow, true);
+    const calls = runCallsOf(flow);
+    expect(calls).toHaveLength(BOSS_CALLS - 1);
+    expect(calls[0].timeline.countIn).toEqual({ start: 0, length: 1920 });
+  });
+
+  it('can go straight to the boss (the development shortcut)', () => {
+    const flow = step(newEchoFlow(), {
+      type: 'begin',
+      level: 1,
+      key: KEY,
+      seed: 'seed',
+      skipTo: 'boss',
+    });
+    expect(flow.screen.kind).toBe('bossIntro');
+    expect(step(flow, { type: 'fight' }).screen.kind).toBe('boss');
   });
 
   it('is beaten at the third good echo, then the gate, then the song', () => {

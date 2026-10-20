@@ -9,7 +9,7 @@ import './landing.css';
 
 /**
  * Page chrome shared by the landing (`/`) and every public marketing page
- * (`/features/*`, For Teachers, Blog). Scrolls the window (so the nav's glass
+ * (`/features/*`). Scrolls the window (so the nav's glass
  * state and scroll-linked motion work), and sits inside `.dashboard-root` so
  * it inherits the app's glass/grain/accent tokens, with `landing.css` layered
  * on top.

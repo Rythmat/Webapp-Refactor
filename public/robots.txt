@@ -12,8 +12,6 @@ User-agent: Googlebot
 Allow: /$
 Allow: /documents/
 Allow: /features/
-Allow: /blog
-Allow: /for-teachers
 Disallow: /home
 Disallow: /auth
 Disallow: /studio
@@ -35,8 +33,6 @@ User-agent: Bingbot
 Allow: /$
 Allow: /documents/
 Allow: /features/
-Allow: /blog
-Allow: /for-teachers
 Disallow: /home
 Disallow: /auth
 Disallow: /studio
@@ -58,8 +54,6 @@ User-agent: *
 Allow: /$
 Allow: /documents/
 Allow: /features/
-Allow: /blog
-Allow: /for-teachers
 Disallow: /home
 Disallow: /auth
 Disallow: /studio

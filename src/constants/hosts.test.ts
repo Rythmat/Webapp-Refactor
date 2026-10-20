@@ -40,21 +40,22 @@ describe('isMarketingPath', () => {
     '/',
     '/features/studio',
     '/features',
-    '/for-teachers',
-    '/blog',
-    '/blog/some-post',
     '/documents/privacy',
     '/documents/licensing',
   ])('serves %s on the marketing host', (path) => {
     expect(isMarketingPath(path)).toBe(true);
   });
 
-  it.each(['/auth/sign-in', '/home', '/studio', '/featuresX', '/blogger'])(
-    'hands %s off to the app host',
-    (path) => {
-      expect(isMarketingPath(path)).toBe(false);
-    },
-  );
+  it.each([
+    '/auth/sign-in',
+    '/home',
+    '/studio',
+    '/featuresX',
+    '/blog',
+    '/for-teachers',
+  ])('hands %s off to the app host', (path) => {
+    expect(isMarketingPath(path)).toBe(false);
+  });
 });
 
 describe('appHref', () => {

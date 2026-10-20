@@ -1,5 +1,21 @@
-import { Check, Pause, Play, RotateCcw, Sparkles } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Check,
+  ChevronRight,
+  Pause,
+  Play,
+  RotateCcw,
+  Sparkles,
+  Swords,
+} from 'lucide-react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import { cn } from '@/components/utilities';
 import GenrePianoRoll, {
   type NoteEvent,
@@ -7,7 +23,9 @@ import GenrePianoRoll, {
 } from '@/curriculum/components/GenrePianoRoll';
 import {
   BOSS_CALLS,
+  BOSS_GOOD_TO_WIN,
   chordPads,
+  echoBossTempo,
   echoTempoRange,
   melodyPads,
   type PlayedNote,
@@ -22,11 +40,14 @@ import { LiteracyCallPanel } from '@/curriculum/musicLiteracy/LiteracyCallPanel'
 import { attackAt } from '@/curriculum/musicLiteracy/literacyKeys';
 import { literacyClock } from '@/curriculum/musicLiteracy/literacyRun';
 import { useElementSize } from '@/hooks/useElementSize';
-import { BossHealthBar, EchoBossCharacter, type BossMood } from './EchoBoss';
+import { BossAvatar, BossCard, BossHealthBar } from './EchoBoss';
+import { EchoBossArt, useBossArt } from './EchoBossArt';
 import { SECTION_TITLE } from './EchoGate';
 import { RoundPips, SpeedMeter, StreakBadge } from './EchoHud';
+import { BOSS_VORTEX, barSeconds, reactionRate, reactionTo } from './bossArt';
 import { echoHeadline } from './echoCues';
 import {
+  BOSS_GAP_BARS,
   SECTION_ROUNDS,
   runCallsOf,
   type EchoFlow,
@@ -53,6 +74,24 @@ import './echoGame.css';
 // After a round its result shows briefly over the input: a good echo or a
 // miss, what Atlas asked and what the student played. A miss makes the
 // next call an easier one, and the strip says so.
+//
+// THE ECHO BOSS (bossArt.ts, EchoBossArt.tsx)
+// From the entrance to the end of the fight the circle is the boss: the
+// owner's animations, over the ring, its size and in its place, and the
+// hub's cues in a bar under it so the face shows whole.
+//
+//   entrance  the live ring cross-fades into the video (whose first frames
+//             are the plain circle), the face emerges, and the fight starts
+//             when it's done, or on Fight!
+//   fight     after each echo, in the bar before the next call (the groove
+//             going on): a good echo makes it frown, a miss makes it nod,
+//             sped up to fit; between, it rests on its face
+//   loss      it spirals into a black hole; then Try the Boss again
+//   victory   it goes, and the ring shines; the art fades back to the live
+//             ring, and the gate opens. Continue skips either
+//
+// The videos are mounted (and loading) from Chord Echo on, so the entrance
+// plays at once. Under reduced motion, stills stand in.
 
 export interface EchoStageRun {
   /** The run id its calls belong to (EchoFlow.run). */
@@ -71,7 +110,11 @@ export interface EchoStageProps {
   paused: boolean;
   onPause: () => void;
   onResume: () => void;
+  /** The entrance is over (or skipped): the fight. */
+  onFight: () => void;
   onBossRetry: () => void;
+  /** The beaten boss is gone: the gate. */
+  onBossWon: () => void;
   onNoteOn: (note: EchoNoteOn) => void;
   onNoteOff: (note: EchoNoteOff) => void;
 }
@@ -89,14 +132,70 @@ export function EchoStage({
   paused,
   onPause,
   onResume,
+  onFight,
   onBossRetry,
+  onBossWon,
   onNoteOn,
   onNoteOff,
 }: EchoStageProps) {
   const { screen, key, level } = flow;
   const boss = screen.kind === 'boss' ? screen : null;
   const round = screen.kind === 'round' ? screen : null;
+  const entrance = screen.kind === 'bossIntro';
+  const bossOn = entrance || boss !== null;
   const fight = flow.stats.boss.outcome;
+
+  // ── The Echo Boss's art ──
+  const reducedMotion = usePrefersReducedMotion();
+  const art = useBossArt(reducedMotion);
+  const { controls } = art;
+  /** Mounted from Chord Echo on: its videos load before the boss comes. */
+  const withArt = bossOn || round?.section === 'chordEcho';
+  const latest = useRef({ onFight, onBossWon });
+  latest.current = { onFight, onBossWon };
+  /** The loss has played: Try the Boss again. */
+  const [lossOver, setLossOver] = useState(false);
+
+  // The entrance; the fight starts when it's over.
+  useEffect(() => {
+    if (!entrance) return;
+    controls.play('emerge', { onEnd: () => latest.current.onFight() });
+  }, [entrance, controls]);
+
+  // A fight begins (after the entrance, or the boss fought again): the
+  // boss on its face, an entrance cut short stopped there.
+  const attempts = flow.stats.boss.attempts;
+  const fighting = boss !== null && fight === 'fighting';
+  useEffect(() => {
+    if (!fighting) return;
+    controls.rest();
+    setLossOver(false);
+  }, [fighting, attempts, controls]);
+
+  // Each echo graded: the boss reacts, or the fight's over.
+  const graded = boss ? boss.outcomes.filter(Boolean).length : 0;
+  const lastOutcome = boss?.outcomes[graded - 1] ?? null;
+  const bossTempo = boss?.tempo ?? 0;
+  const seen = useRef({ attempts, graded });
+  useEffect(() => {
+    const was = seen.current;
+    seen.current = { attempts, graded };
+    if (!lastOutcome || was.attempts !== attempts || graded <= was.graded) {
+      return;
+    }
+    if (fight === 'won') {
+      controls.play('victory', {
+        onEnd: () => controls.hide(() => latest.current.onBossWon()),
+      });
+    } else if (fight === 'lost') {
+      controls.play('loss', { onEnd: () => setLossOver(true) });
+    } else {
+      const clip = reactionTo(lastOutcome);
+      controls.play(clip, {
+        rate: reactionRate(clip, barSeconds(bossTempo) * BOSS_GAP_BARS),
+      });
+    }
+  }, [graded, attempts, lastOutcome, fight, bossTempo, controls]);
 
   // The run's own calls while it's this screen's; else the screen's.
   const fromScreen = useMemo(() => runCallsOf(flow), [flow]);
@@ -112,7 +211,7 @@ export function EchoStage({
   const chords = useMemo(() => chordPads(key), [key]);
 
   // ── The hub ──
-  const sectionTitle = boss
+  const sectionTitle = bossOn
     ? 'Echo Boss'
     : round
       ? SECTION_TITLE[round.section]
@@ -178,7 +277,11 @@ export function EchoStage({
 
   const kind = placed?.call.kind === 'chords' ? 'chords' : 'melody';
   const range = echoTempoRange(level);
-  const tempo = boss ? boss.tempo : (round?.tempo ?? flow.tempo.bpm);
+  const tempo = boss
+    ? boss.tempo
+    : entrance
+      ? echoBossTempo(flow.tempo, level)
+      : (round?.tempo ?? flow.tempo.bpm);
 
   return (
     <section
@@ -195,7 +298,7 @@ export function EchoStage({
       className="relative flex min-h-0 flex-1 flex-col gap-3 p-4 max-[639px]:p-3"
     >
       <div className="flex min-h-[44px] flex-wrap items-center gap-x-6 gap-y-2">
-        {boss ? (
+        {bossOn ? (
           <BossStrip flow={flow} keyColor={keyColor} />
         ) : round ? (
           <>
@@ -257,14 +360,32 @@ export function EchoStage({
           running={running}
           headline={headline}
           hubContent={chordNow?.hub}
+          art={
+            withArt ? (
+              <EchoBossArt art={art} reducedMotion={reducedMotion} />
+            ) : undefined
+          }
+          ringFaded={bossOn && art.state.up}
+          hubBelow={bossOn}
           below={
-            chordNow ? (
-              <ChordBars rows={[{ bars: chordNow.bars }]} keyColor={keyColor} />
-            ) : (
-              <p className="text-center text-[15px] leading-6 text-white/55">
-                Listen to Atlas, then play it back.
-              </p>
-            )
+            <div
+              className={cn(
+                // The boss's calls change from melody to chords: one
+                // height for both, so the art keeps its size.
+                bossOn && 'flex min-h-[44px] items-center justify-center',
+              )}
+            >
+              {chordNow ? (
+                <ChordBars
+                  rows={[{ bars: chordNow.bars }]}
+                  keyColor={keyColor}
+                />
+              ) : (
+                <p className="text-center text-[15px] leading-6 text-white/55">
+                  Listen to Atlas, then play it back.
+                </p>
+              )}
+            </div>
           }
         />
 
@@ -298,15 +419,67 @@ export function EchoStage({
           {round?.outcome && (
             <EchoResultCard outcome={round.outcome} keyColor={keyColor} />
           )}
+          {entrance && (
+            <BossCard
+              title="The Echo Boss Appears!"
+              line={`It plays ${BOSS_CALLS} calls in a row, with trickier rhythms. Echo ${BOSS_GOOD_TO_WIN} of them to win!`}
+              data={{ 'data-echo-boss-card': 'entrance' }}
+              action={
+                <BossButton keyColor={keyColor} onClick={onFight}>
+                  <Swords aria-hidden className="size-5" />
+                  Fight!
+                </BossButton>
+              }
+            />
+          )}
+          {boss && fight === 'won' && (
+            <BossCard
+              title="Boss Defeated!"
+              line="Three good echoes. Here comes the gate…"
+              data={{
+                'data-echo-boss-card': 'won',
+                'data-echo-boss-outcome': 'won',
+              }}
+              action={
+                <BossButton
+                  keyColor={keyColor}
+                  onClick={() => {
+                    controls.stop();
+                    onBossWon();
+                  }}
+                >
+                  Continue
+                  <ChevronRight aria-hidden className="size-5" />
+                </BossButton>
+              }
+            />
+          )}
+          {boss && fight === 'lost' && !lossOver && (
+            <BossCard
+              title="The Echo Boss Wins This Time!"
+              data={{
+                'data-echo-boss-card': 'lost',
+                'data-echo-boss-outcome': 'lost',
+              }}
+              action={
+                <BossButton
+                  keyColor={keyColor}
+                  onClick={() => {
+                    controls.stop();
+                    setLossOver(true);
+                  }}
+                >
+                  Continue
+                  <ChevronRight aria-hidden className="size-5" />
+                </BossButton>
+              }
+            />
+          )}
         </div>
       </div>
 
-      {boss && fight !== 'fighting' && (
-        <BossOutcome
-          won={fight === 'won'}
-          keyColor={keyColor}
-          onRetry={onBossRetry}
-        />
+      {boss && fight === 'lost' && lossOver && (
+        <BossOutcome keyColor={keyColor} onRetry={onBossRetry} />
       )}
       {paused && (
         <div
@@ -336,25 +509,30 @@ export function EchoStage({
 function BossStrip({ flow, keyColor }: { flow: EchoFlow; keyColor: string }) {
   const screen = flow.screen.kind === 'boss' ? flow.screen : null;
   const fight = flow.stats.boss;
-  const graded = screen ? screen.outcomes.filter(Boolean).length : 0;
-  const last = screen?.outcomes[graded - 1] ?? null;
+  const outcomes = screen?.outcomes ?? [];
+  const graded = outcomes.filter(Boolean).length;
+  const last = outcomes[graded - 1] ?? null;
   // A good echo lands a hit; a miss makes it giggle.
-  const [mood, setMood] = useState<BossMood>('idle');
+  const [shown, setShown] = useState(false);
   const seen = useRef(graded);
   useEffect(() => {
     if (graded === seen.current) return;
     seen.current = graded;
     if (!last) return;
-    setMood(last.passed ? 'hit' : 'cheer');
-    const timer = setTimeout(() => setMood('idle'), 900);
+    setShown(true);
+    const timer = setTimeout(() => setShown(false), 900);
     return () => clearTimeout(timer);
   }, [graded, last]);
-  if (!screen) return null;
   return (
     <div className="flex items-center gap-4">
       <div className="relative">
-        <EchoBossCharacter color={keyColor} mood={mood} size={64} />
-        {last && mood !== 'idle' && (
+        <BossAvatar
+          // A new hit shakes it again.
+          key={last?.passed && shown ? `hit-${graded}` : 'still'}
+          size={56}
+          className={cn(last?.passed && shown && 'echo-shake')}
+        />
+        {last && shown && (
           <span
             key={graded}
             aria-hidden
@@ -367,55 +545,71 @@ function BossStrip({ flow, keyColor }: { flow: EchoFlow; keyColor: string }) {
       </div>
       <BossHealthBar health={fight.health} color={keyColor} />
       <RoundPips
-        results={screen.outcomes
+        results={outcomes
           .filter((o): o is EchoOutcome => o !== null)
           .map((o) => o.passed)}
         total={BOSS_CALLS}
         keyColor={keyColor}
-        label={`Call ${Math.min(BOSS_CALLS, screen.at + 1)} of ${BOSS_CALLS}`}
+        label={`Call ${Math.min(BOSS_CALLS, (screen?.at ?? 0) + 1)} of ${BOSS_CALLS}`}
       />
     </div>
   );
 }
 
+/** A boss card's button, in the key's color. */
+function BossButton({
+  keyColor,
+  onClick,
+  children,
+}: {
+  keyColor: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mt-1 inline-flex h-12 items-center gap-2 rounded-full px-7 text-base font-semibold transition-transform hover:scale-105"
+      style={{ backgroundColor: keyColor, color: inkOn(keyColor) }}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** The fight lost, its art played out: Try the Boss again. */
 function BossOutcome({
-  won,
   keyColor,
   onRetry,
 }: {
-  won: boolean;
   keyColor: string;
   onRetry: () => void;
 }) {
   return (
     <div
-      data-echo-boss-outcome={won ? 'won' : 'lost'}
+      data-echo-boss-outcome="lost"
+      data-echo-boss-retry
       className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#101012]/85 p-6 text-center backdrop-blur-sm"
     >
-      <EchoBossCharacter
-        color={keyColor}
-        mood={won ? 'beaten' : 'cheer'}
-        size={150}
+      <img
+        src={BOSS_VORTEX}
+        alt=""
+        width={150}
+        height={150}
+        draggable={false}
+        className="echo-boss-blend size-[150px]"
       />
       <h2 className="echo-pop text-[clamp(26px,3vw,38px)] leading-tight text-[#e8e8f0]">
-        {won ? 'Boss defeated!' : 'The Echo Boss wins this time!'}
+        The Echo Boss Wins This Time!
       </h2>
       <p className="max-w-md text-[15px] leading-6 text-white/60">
-        {won
-          ? 'Three good echoes. Here comes the gate…'
-          : 'So close! Three good echoes win. You can do it.'}
+        So close! Three good echoes win. You can do it.
       </p>
-      {!won && (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-1 inline-flex h-12 items-center gap-2 rounded-full px-7 text-base font-semibold transition-transform hover:scale-105"
-          style={{ backgroundColor: keyColor, color: inkOn(keyColor) }}
-        >
-          <RotateCcw aria-hidden className="size-4" />
-          Try the Boss again
-        </button>
-      )}
+      <BossButton keyColor={keyColor} onClick={onRetry}>
+        <RotateCcw aria-hidden className="size-4" />
+        Try the Boss again
+      </BossButton>
     </div>
   );
 }

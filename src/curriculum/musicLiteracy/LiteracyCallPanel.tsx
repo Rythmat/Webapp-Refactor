@@ -83,6 +83,18 @@ export interface LiteracyCallPanelProps {
     | { kind: 'degrees'; items: readonly { label: string; lit: boolean }[] };
   /** Under the circle in place of the words (a chord step's bars). */
   below?: ReactNode;
+  /**
+   * Drawn over the circle, in its box (Echo's boss): absolutely placed,
+   * sized as it likes against the circle's box.
+   */
+  art?: ReactNode;
+  /** The ring faded out (cross-fading under `art`). */
+  ringFaded?: boolean;
+  /**
+   * The hub as a bar under the circle instead of in its middle, so what's
+   * drawn there (`art`) shows whole: the same cues, degrees and beats.
+   */
+  hubBelow?: boolean;
 }
 
 export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
@@ -138,15 +150,37 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
         marginBottom: -trim.bottom * size,
       }}
     >
-      <CircleOfFifthsSvg
-        selectedPitch={props.tonicPc}
-        selectedMode={props.mode}
-        size={size}
-        labelWeight={400}
-        ariaLabel={`${keyName}${colorOf ? `, in ${colorOf}’s color` : ''}`}
-      />
-      <Hub {...props} size={size} />
+      <div
+        data-literacy-ring={props.ringFaded ? 'faded' : undefined}
+        className="transition-opacity duration-700 ease-out motion-reduce:transition-none"
+        style={{ opacity: props.ringFaded ? 0 : 1 }}
+      >
+        <CircleOfFifthsSvg
+          selectedPitch={props.tonicPc}
+          selectedMode={props.mode}
+          size={size}
+          labelWeight={400}
+          ariaLabel={`${keyName}${colorOf ? `, in ${colorOf}’s color` : ''}`}
+        />
+      </div>
+      {props.art}
+      {!props.hubBelow && <Hub {...props} size={size} />}
     </div>
+  );
+  // The hub's bar under the circle: sized by the panel's width, which the
+  // circle's size doesn't change, so the two don't chase each other.
+  const hubBar = props.hubBelow ? (
+    <Hub
+      {...props}
+      size={Math.max(280, Math.min(400, area.width || 400))}
+      bar
+    />
+  ) : null;
+  const under = (
+    <>
+      {hubBar}
+      {props.below ?? <WordsLine {...props} />}
+    </>
   );
 
   return (
@@ -159,8 +193,11 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
       {compact ? (
         <div className="flex min-w-0 items-center gap-6 max-[639px]:flex-col max-[639px]:gap-3">
           {circle}
-          <div ref={wordsRef} className="min-w-0 flex-1">
-            {props.below ?? <WordsLine {...props} />}
+          <div
+            ref={wordsRef}
+            className={cn('min-w-0 flex-1', hubBar && 'flex flex-col gap-2')}
+          >
+            {under}
           </div>
         </div>
       ) : (
@@ -170,8 +207,11 @@ export function LiteracyCallPanel(props: LiteracyCallPanelProps) {
             style={{ gap: WORDS_GAP }}
           >
             {circle}
-            <div ref={wordsRef} className="w-full">
-              {props.below ?? <WordsLine {...props} />}
+            <div
+              ref={wordsRef}
+              className={cn('w-full', hubBar && 'flex flex-col gap-2')}
+            >
+              {under}
             </div>
           </div>
         </div>
@@ -312,7 +352,8 @@ function Hub({
   beatsPerBar,
   size,
   hubContent,
-}: LiteracyCallPanelProps & { size: number }) {
+  bar = false,
+}: LiteracyCallPanelProps & { size: number; bar?: boolean }) {
   // The hole in the ring is 38% of the circle (CircleOfFifthsSvg).
   const diameter = size * 0.36;
   const figure = view.phase === 'response' ? response : call;
@@ -339,13 +380,29 @@ function Hub({
 
   return (
     <div
-      data-literacy-hub
+      data-literacy-hub={bar ? 'bar' : true}
       data-turn={running ? (view.phase ?? 'idle') : 'idle'}
       data-cue={headline.kind === 'cue' ? headline.cue : undefined}
-      className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-[4%] rounded-full bg-[#101012] text-center"
-      style={{ width: diameter, height: diameter }}
+      className={
+        bar
+          ? // A bar: the headline (its box as wide as the hub, so the rest
+            // stays put as the cues change), the degrees, the beats.
+            'flex max-w-full items-center justify-center gap-[clamp(10px,2.5%,20px)] self-center rounded-full bg-[#101012] px-5 text-center'
+          : 'absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-[4%] rounded-full bg-[#101012] text-center'
+      }
+      style={bar ? undefined : { width: diameter, height: diameter }}
     >
-      <Headline headline={headline} keyColor={keyColor} diameter={diameter} />
+      {bar ? (
+        <div className="shrink-0" style={{ width: diameter }}>
+          <Headline
+            headline={headline}
+            keyColor={keyColor}
+            diameter={diameter}
+          />
+        </div>
+      ) : (
+        <Headline headline={headline} keyColor={keyColor} diameter={diameter} />
+      )}
       {hubContent?.kind === 'chord' ? (
         <p
           aria-label={`Chord ${hubContent.label}`}

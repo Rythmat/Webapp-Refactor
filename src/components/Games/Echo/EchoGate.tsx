@@ -5,12 +5,13 @@ import {
   type EchoGameStats,
   type EchoSection,
 } from '@/curriculum/engine/echo';
-import { EchoBossCharacter } from './EchoBoss';
+import { BOSS_VICTORY_STILL } from './bossArt';
 import './echoGame.css';
 
 // ── The gate: "You beat the Echo Boss!" ────────────────────────────────────
 // The celebration between the echoes and the song: confetti in the key's
-// colors (still under reduced motion), the beaten boss, and the game's
+// colors (still under reduced motion), the ring shining as the beaten
+// boss left it (bossArt.ts), and the game's
 // numbers from the engine (stats.ts echoGameSummary):
 //
 //   XP          earned in this game (10 a good echo, 50 for the boss)
@@ -87,7 +88,14 @@ export function EchoGate({
       </div>
 
       <div className="relative flex items-center gap-4">
-        <EchoBossCharacter color={keyColor} mood="cheer" size={92} />
+        <img
+          src={BOSS_VICTORY_STILL}
+          alt=""
+          width={104}
+          height={104}
+          draggable={false}
+          className="echo-boss-blend size-[104px] shrink-0"
+        />
         <div className="flex flex-col gap-1">
           <h2 className="echo-pop text-[clamp(26px,3.2vw,40px)] leading-tight text-[#e8e8f0]">
             You beat the Echo Boss!

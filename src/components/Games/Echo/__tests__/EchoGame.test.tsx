@@ -20,6 +20,13 @@ import type { RunCue } from '@/curriculum/engine/musicLiteracy/run';
  * and fought again, the gate's numbers and its XP awarded once, then Make
  * Your Song's stand-in: Finish opens Level 2 and marks Start Here's Echo
  * stop done. And Game Settings, remembered.
+ *
+ * The boss's art (EchoBossArt.tsx): jsdom plays no video, so play() is
+ * faked and the test fires the videos' events itself, or lets a video
+ * that never starts give way to its still. The entrance, a reaction after
+ * each echo (a frown for a good one, a nod for a miss, fit to the bar
+ * between calls), the loss and the victory, Fight! and Continue, and the
+ * stills under reduced motion.
  */
 
 const input = vi.hoisted(() => ({
@@ -83,12 +90,16 @@ vi.mock('@/hooks/data/experience/useAwardExperience', () => ({
   useAwardArcadeExperience: () => xp,
 }));
 
+const { default: EchoGame, INTRO_MS, RESULT_MS } = await import('../EchoGame');
 const {
-  default: EchoGame,
-  BOSS_WON_MS,
-  INTRO_MS,
-  RESULT_MS,
-} = await import('../EchoGame');
+  BOSS_FACE,
+  BOSS_VORTEX,
+  STILL_MS,
+  VIDEO_START_MS,
+  barSeconds,
+  reactionRate,
+} = await import('../bossArt');
+const { BOSS_GAP_BARS } = await import('../echoFlow');
 const { PAD_KEY_CODES } = await import('../input');
 const { TYPING_NOTES } = await import('@/daw/commands/musicalTypingMap');
 const { ECHO_PROGRESS_KEY, readEchoProgress } = await import('../echoProgress');
@@ -143,6 +154,8 @@ const typedCode = (midi: number, octave: number) => {
 async function playRun(
   pass: (call: number) => boolean,
   by: 'pads' | 'letters' = 'pads',
+  /** Only this stretch of the run's ticks: from, up to (not including). */
+  { from = -Infinity, until = Infinity } = {},
 ) {
   await flush();
   const targets = JSON.parse(
@@ -165,8 +178,11 @@ async function playRun(
         { tick: t.onset + Math.min(100, t.duration / 2), code, down: false },
       ]),
     )
+    .filter((p) => p.tick >= from && p.tick < until)
     .sort((a, b) => a.tick - b.tick || Number(a.down) - Number(b.down));
-  const cues = run.cues as RunCue[];
+  const cues = (run.cues as RunCue[]).filter(
+    (c) => c.tick >= from && c.tick < until,
+  );
   const onCue = run.onCue!;
   // Each cue and key in its own act, so the screen keeps up (the boss's
   // pads change from melody to chords with its calls).
@@ -193,8 +209,30 @@ function renderGame() {
   );
 }
 
+/** The boss's videos asked to play, in order: the clip, at its rate. */
+let plays: string[] = [];
+const art = () => document.querySelector('[data-echo-boss-art]');
+const artFront = () => art()?.getAttribute('data-echo-boss-front') ?? null;
+const artStill = () => art()?.getAttribute('data-echo-boss-still') ?? null;
+const video = (clip: string) =>
+  document.querySelector(`video[data-echo-boss-clip="${clip}"]`)!;
+/** A boss video plays to its end. */
+const playOut = (clip: string) =>
+  act(() => {
+    fireEvent.playing(video(clip));
+    fireEvent.ended(video(clip));
+  });
+
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+  plays = [];
+  vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(function (
+    this: HTMLMediaElement,
+  ) {
+    plays.push(`${this.dataset.echoBossClip}@${this.playbackRate.toFixed(2)}`);
+    return Promise.resolve();
+  });
+  vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
   localStorage.clear();
   localStorage.setItem(
     ECHO_SETTINGS_KEY,
@@ -207,6 +245,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.useRealTimers();
 });
 
@@ -310,29 +349,52 @@ describe('a game of Echo', () => {
       await wait(RESULT_MS);
     }
 
-    // ── The Echo Boss, lost at the second miss ──
+    // The boss's videos are loading since Chord Echo began.
+    expect(
+      document.querySelectorAll('video[data-echo-boss-clip]'),
+    ).toHaveLength(5);
+
+    // ── The Echo Boss: its entrance ──
     expect(screenKind()).toBe('bossIntro');
-    expect(screen.getByText('The Echo Boss appears!')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /Fight!/ }));
+    expect(screen.getByText('The Echo Boss Appears!')).toBeTruthy();
+    await flush();
+    expect(plays).toEqual(['emerge@1.00']);
+    // The fight starts when the boss has emerged.
+    await playOut('emerge');
     expect(screenKind()).toBe('boss');
+    expect(artFront()).toBe('emerge');
     // The boss plays at the game's top tempo.
     await flush();
     expect(run.tempo).toBe(96);
+    const reaction = (clip: 'frown' | 'nod') =>
+      `${clip}@${reactionRate(clip, barSeconds(96) * BOSS_GAP_BARS).toFixed(2)}`;
     const health = () =>
       document
         .querySelector('[data-echo-boss-health]')
         ?.getAttribute('data-echo-boss-health');
     expect(health()).toBe('3');
+
+    // ── Lost at the second miss: a nod, then the loss ──
     const stopsBefore = run.stops;
     await playRun((call) => call >= 2);
+    expect(plays.slice(1)).toEqual([reaction('nod'), 'loss@1.00']);
     expect(
       document
-        .querySelector('[data-echo-boss-outcome]')
-        ?.getAttribute('data-echo-boss-outcome'),
+        .querySelector('[data-echo-boss-card]')
+        ?.getAttribute('data-echo-boss-card'),
     ).toBe('lost');
     // The music stopped once the fight was lost.
     expect(run.stops).toBeGreaterThan(stopsBefore);
     expect(health()).toBe('3');
+    // Try the Boss again waits for the loss; its video never starts here,
+    // so its still (the black hole) stands in, a moment.
+    expect(
+      screen.queryByRole('button', { name: 'Try the Boss again' }),
+    ).toBeNull();
+    await wait(VIDEO_START_MS);
+    expect(artStill()).toBe(BOSS_VORTEX);
+    await wait(STILL_MS.loss);
+    expect(document.querySelector('[data-echo-boss-retry]')).toBeTruthy();
 
     // ── Try the Boss again: won at the third good echo ──
     const startsBefore = run.starts;
@@ -341,15 +403,26 @@ describe('a game of Echo', () => {
     expect(run.starts).toBe(startsBefore + 1);
     expect(screenKind()).toBe('boss');
     expect(health()).toBe('3');
+    // The boss is back, on its face.
+    expect(artFront()).toBeNull();
+    expect(artStill()).toBe(BOSS_FACE);
+    plays = [];
     await playRun(() => true);
+    // A frown at each good echo; the third wins.
+    expect(plays).toEqual([
+      reaction('frown'),
+      reaction('frown'),
+      'victory@1.00',
+    ]);
     expect(
       document
-        .querySelector('[data-echo-boss-outcome]')
+        .querySelector('[data-echo-boss-card]')
         ?.getAttribute('data-echo-boss-outcome'),
     ).toBe('won');
     expect(health()).toBe('0');
     expect(xp.mutateAsync).not.toHaveBeenCalled();
-    await wait(BOSS_WON_MS);
+    // Continue skips the victory: the gate.
+    fireEvent.click(screen.getByRole('button', { name: /Continue/ }));
 
     // ── The gate ──
     expect(screenKind()).toBe('gate');
@@ -455,5 +528,148 @@ describe('a game of Echo', () => {
     await flush();
     expect(run.starts).toBe(2);
     expect(document.querySelector('[data-echo-input="keyboard"]')).toBeTruthy();
+  });
+});
+
+describe('the Echo Boss’s art', () => {
+  // Straight to the boss: the development shortcut (EchoGame's `?boss`).
+  beforeEach(() => window.history.pushState({}, '', '/arcade/echo?boss'));
+  afterEach(() => {
+    window.history.pushState({}, '', '/');
+    vi.unstubAllGlobals();
+  });
+
+  const startAtBoss = () => {
+    renderGame();
+    fireEvent.click(document.querySelector('[data-echo-start]')!);
+    expect(screenKind()).toBe('bossIntro');
+  };
+  /** Where the run's first gap begins: the second call's count-in. */
+  const firstGap = () => {
+    const beats = (run.cues as RunCue[]).filter((c) => c.kind === 'beat');
+    const answer = beats.findIndex((b) => b.phase === 'response');
+    return beats.slice(answer).find((b) => b.phase === 'countIn')!.tick;
+  };
+
+  it('fights on Fight!, the entrance cut short at the face', async () => {
+    startAtBoss();
+    await flush();
+    expect(plays).toEqual(['emerge@1.00']);
+    act(() => {
+      fireEvent.playing(video('emerge'));
+    });
+    // The live ring fades as the art comes up.
+    expect(
+      document
+        .querySelector('[data-literacy-ring]')
+        ?.getAttribute('data-literacy-ring'),
+    ).toBe('faded');
+    fireEvent.click(screen.getByRole('button', { name: /Fight!/ }));
+    expect(screenKind()).toBe('boss');
+    expect(HTMLMediaElement.prototype.pause).toHaveBeenCalled();
+    expect(artFront()).toBeNull();
+    expect(artStill()).toBe(BOSS_FACE);
+    await flush();
+    expect(run.starts).toBe(1);
+    // A late end of the entrance starts nothing more.
+    act(() => {
+      fireEvent.ended(video('emerge'));
+    });
+    expect(screenKind()).toBe('boss');
+  });
+
+  it('leaves a bar between calls for the boss to react, and grades on', async () => {
+    startAtBoss();
+    await playOut('emerge');
+    await flush();
+    const gap = firstGap();
+    const bar = 1920;
+    // The first call's answer, played and graded at the gap's downbeat.
+    await playRun(() => true, 'pads', { until: gap + 1 });
+    const tempo = run.tempo;
+    expect(plays.at(-1)).toBe(
+      `frown@${reactionRate('frown', barSeconds(tempo)).toFixed(2)}`,
+    );
+    expect(
+      document
+        .querySelector('[data-echo-boss-health]')
+        ?.getAttribute('data-echo-boss-health'),
+    ).toBe('2');
+    // The bar is the next call's count-in: GET READY, the groove going on.
+    expect(
+      document
+        .querySelector('[data-literacy-hub="bar"]')
+        ?.getAttribute('data-cue'),
+    ).toBe('getReady');
+    const notes = (run.cues as RunCue[]).filter(
+      (c) => c.kind === 'note' && c.tick >= gap,
+    );
+    expect(Math.min(...notes.map((n) => n.tick))).toBeGreaterThanOrEqual(
+      gap + bar,
+    );
+    // The frown is over before the next call: then the face.
+    await playOut('frown');
+    // The next call, missed, then the third, good: a nod, then a frown.
+    await playRun((call) => call !== 1, 'pads', { from: gap + 1 });
+    expect(plays.slice(1)).toEqual([
+      `frown@${reactionRate('frown', barSeconds(tempo)).toFixed(2)}`,
+      `nod@${reactionRate('nod', barSeconds(tempo)).toFixed(2)}`,
+      `frown@${reactionRate('frown', barSeconds(tempo)).toFixed(2)}`,
+      'victory@1.00',
+    ]);
+    // Won at the fourth call; the victory plays out, the art fades back to
+    // the ring, and the gate opens.
+    await playOut('victory');
+    expect(art()?.getAttribute('data-echo-boss-art')).toBe('down');
+    expect(screenKind()).toBe('boss');
+    await wait(700);
+    expect(screenKind()).toBe('gate');
+  });
+
+  it('skips the loss on Continue', async () => {
+    startAtBoss();
+    await playOut('emerge');
+    await playRun(() => false);
+    expect(plays.at(-1)).toBe('loss@1.00');
+    expect(document.querySelector('[data-echo-boss-retry]')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /Continue/ }));
+    expect(document.querySelector('[data-echo-boss-retry]')).toBeTruthy();
+    // Its late end changes nothing.
+    act(() => {
+      fireEvent.ended(video('loss'));
+    });
+    expect(
+      screen.getAllByRole('button', { name: 'Try the Boss again' }),
+    ).toHaveLength(1);
+  });
+
+  it('shows stills under reduced motion, each a moment', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      (query: string) =>
+        ({
+          matches: query.includes('prefers-reduced-motion: reduce'),
+          media: query,
+          addEventListener: () => {},
+          removeEventListener: () => {},
+        }) as unknown as MediaQueryList,
+    );
+    startAtBoss();
+    expect(document.querySelectorAll('video')).toHaveLength(0);
+    // The entrance: the face, a moment, then the fight.
+    expect(artStill()).toBe(BOSS_FACE);
+    await wait(STILL_MS.emerge);
+    expect(screenKind()).toBe('boss');
+    await flush();
+    const gap = firstGap();
+    await playRun(() => true, 'pads', { until: gap + 1 });
+    expect(artStill()).toBe('/echo/boss/boss-frown.webp');
+    await wait((4 / reactionRate('frown', barSeconds(run.tempo))) * 1000);
+    expect(artStill()).toBe(BOSS_FACE);
+    await playRun(() => true, 'pads', { from: gap + 1 });
+    expect(artStill()).toBe('/echo/boss/boss-victory.webp');
+    await wait(STILL_MS.victory);
+    expect(screenKind()).toBe('gate');
+    expect(plays).toEqual([]);
   });
 });

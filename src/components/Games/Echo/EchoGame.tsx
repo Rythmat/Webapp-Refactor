@@ -18,7 +18,6 @@ import { ECHO_STOP_ID } from '@/curriculum/musicLiteracy/literacyPath';
 import { markStopDone } from '@/curriculum/musicLiteracy/stopDone';
 import { useAwardArcadeExperience } from '@/hooks/data/experience/useAwardExperience';
 import { ArcadeGameHeader } from '../ArcadeGameHeader';
-import { EchoBossIntro } from './EchoBoss';
 import { EchoGate, SECTION_TITLE } from './EchoGate';
 import { EchoSettingsSheet } from './EchoSettingsSheet';
 import { EchoSetup } from './EchoSetup';
@@ -56,7 +55,7 @@ import './echoGame.css';
 // This component holds the game together: the flow, the transport runs
 // (useEchoRun.ts: a run for each round, one for the boss's four calls),
 // the timers that move the game on (a section's title card, a round's
-// result, the beaten boss), the device's progress and settings, and the
+// result), the device's progress and settings, and the
 // Arcade's header with the streak and High Score. A pause (or Game
 // Settings, opened mid-game) stops the music; Resume plays the call again
 // from its count-in.
@@ -74,8 +73,6 @@ const MakeYourSong = lazy(() =>
 export const INTRO_MS = 2600;
 /** How long a round's result shows before the next call. */
 export const RESULT_MS = 2400;
-/** How long the beaten boss spins before the gate. */
-export const BOSS_WON_MS = 2800;
 
 const SECTION_LINE: Readonly<Record<EchoSectionName, string>> = {
   melodyEcho: `Atlas plays a tune. Play it back! ${MELODY_ECHO_ROUNDS} rounds.`,
@@ -128,6 +125,11 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
         level: nextLevel,
         key: nextKey,
         seed: makeSeed(),
+        // In development, `?boss` goes straight to the Echo Boss.
+        ...(import.meta.env.DEV &&
+        new URLSearchParams(window.location.search).has('boss')
+          ? { skipTo: 'boss' as const }
+          : {}),
       });
     },
     [makeSeed],
@@ -178,15 +180,13 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
     } else if (screen.kind === 'round' && screen.outcome) {
       wait = RESULT_MS;
       event = { type: 'next' };
-    } else if (screen.kind === 'boss' && flow.stats.boss.outcome === 'won') {
-      wait = BOSS_WON_MS;
-      event = { type: 'toGate' };
     }
+    // The boss's entrance and its end move on with its art (EchoStage).
     if (wait === null || !event) return;
     const next = event;
     const timer = setTimeout(() => dispatch(next), wait);
     return () => clearTimeout(timer);
-  }, [screen, halted, flow.stats.boss.outcome]);
+  }, [screen, halted]);
 
   // ── The High Score, kept as it's beaten ──
   const best = flow.stats.bestStreak;
@@ -276,7 +276,9 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
             onGo={() => dispatch({ type: 'go' })}
           />
         )}
-        {(screen.kind === 'round' || screen.kind === 'boss') && (
+        {(screen.kind === 'round' ||
+          screen.kind === 'bossIntro' ||
+          screen.kind === 'boss') && (
           <EchoStage
             flow={flow}
             input={input}
@@ -285,15 +287,11 @@ export default function EchoGame({ makeSeed = newSeed }: EchoGameProps) {
             paused={paused}
             onPause={() => setPaused(true)}
             onResume={() => setPaused(false)}
+            onFight={() => dispatch({ type: 'fight' })}
             onBossRetry={() => dispatch({ type: 'bossRetry' })}
+            onBossWon={() => dispatch({ type: 'toGate' })}
             onNoteOn={run.noteOn}
             onNoteOff={run.noteOff}
-          />
-        )}
-        {screen.kind === 'bossIntro' && (
-          <EchoBossIntro
-            color={keyColor}
-            onFight={() => dispatch({ type: 'fight' })}
           />
         )}
         {screen.kind === 'gate' && (

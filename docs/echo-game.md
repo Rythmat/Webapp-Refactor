@@ -127,6 +127,24 @@ Throughout the echo sections a **running streak** counts good echoes in a row. T
   - the Call band and the shining Response band, as in the Music Literacy player;
   - in chord sections, the student plays the chord and the game recognizes it.
 
+## The play screens
+
+What the screens do where the design left a choice (`src/components/Games/Echo/`).
+
+- **Rounds.** Melody Echo is 8 rounds and Chord Echo 6 (`MELODY_ECHO_ROUNDS`, `CHORD_ECHO_ROUNDS` in `echoFlow.ts`). Each round is a bar of count-in, Atlas's call, then the student's bars. Its result shows for a moment (a good echo or a miss, what Atlas played and what the student played), then the next call comes.
+- **The hub's cues, in an echo's order.** GET READY over the count-in, LISTEN over Atlas's call, GO! on its last beat and the answer's first, then YOUR TURN. A lesson says LISTEN first because it sings its words first; Echo has no words, and the call is the thing to hear.
+- **Forgiving: after a miss, the next call is easier.**
+  - A melody call takes a three-note contour from Level 1's set (its shortest shapes: 1 2 3, 3 2 1, 1 2 1, 1 7 1), on the 1, in Level 1's rhythms. It's placed in the level's own register, so it lands on the level's pads.
+  - A chord call goes home to the 1 chord and out to the 4 or the 5, in Level 1's rhythms.
+  - Only the one call after a miss is easier: a good echo brings the level's own calls back. The Final Boss is never made easier.
+- **The tempo climbs.** A game starts at its level's tempo. It rises 4 BPM after every 2 good echoes in a row and falls 4 after a miss, from the level's tempo to 16 above it. It changes only between calls. The Boss plays at the highest tempo the game reached. A speed meter beside the streak shows the BPM and the climb.
+- **The Boss ends when it's decided.** The fight stops at the third good echo (won) or the second miss (lost), without playing its last call. A loss offers **Try the Boss again**: four new calls, the Boss alone.
+- **The streak** runs across all three sections, and the best streak is the level's High Score, saved as soon as it's beaten.
+- **Pause.** The pause button, or opening Game Settings while the music plays, stops the run. Resume plays the same call again from its count-in; a paused Boss picks up at the call it was on.
+- **The drum groove** is the one the student picked for Music Literacy (Settings → Play along), or Pop 01. Over the drums the click stops after the count-in, as in a lesson.
+- **The gate** awards the existing Arcade XP once per game, and shows the XP the game earned (10 a good echo, 50 for the Boss).
+- **Finishing the song** (Make Your Song's Finish) completes the level: the next level opens, Start Here's Echo stop is done, and the song's 25 XP is counted.
+
 ## Takes
 
 - A take is quantized to 16th notes, as Music Literacy's create rounds are.

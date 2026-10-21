@@ -14,6 +14,8 @@
  *   takes.ts     Make Your Song's takes, and the scaffolding
  *   song.ts      the song from its takes, its chord changes, the Band's chart
  *   pads.ts      the melody pads and the chord pads
+ *   taught.ts    a teacher's call, from what they played (in class)
+ *   classGrading.ts  grading in class: quantized, notes and timing
  *   random.ts    the seeded random source every call is made with
  *
  * A game, in order:
@@ -192,3 +194,19 @@ export {
   type MelodyPad,
   type MelodyPads,
 } from './pads';
+export {
+  awaitsTeacher,
+  emptyTaughtCall,
+  taughtCall,
+  taughtChordCall,
+  taughtMelodyCall,
+  type TaughtCallOptions,
+  type TaughtKind,
+} from './taught';
+export {
+  callSubdivision,
+  gradeQuantizedEcho,
+  subdivisionOf,
+  type QuantizedEcho,
+  type QuantizedOptions,
+} from './classGrading';

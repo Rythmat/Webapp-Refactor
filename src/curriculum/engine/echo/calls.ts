@@ -108,8 +108,10 @@ export interface EchoNote extends TimedNote {
 interface CallBase {
   level: EchoLevelNumber;
   key: LiteracyKey;
-  /** One of the Final Boss's: on Tier 4 rhythms too. */
+  /** One of the Final Boss's: on the tier of rhythms above the level's. */
   boss: boolean;
+  /** Played by the teacher, not made by Atlas (taught.ts). */
+  taught?: boolean;
   bars: number;
   barTicks: number;
   /** The MIDI of the 1 its notes are read from. */

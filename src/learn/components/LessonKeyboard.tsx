@@ -10,6 +10,8 @@ import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { useMidiNoteListener } from '@/hooks/music/useMidiNoteListener';
+import { FingeringHands } from '@/learn/components/fingering/FingeringHands';
+import type { FingeringCursor } from '@/learn/fingering/handFrames';
 import {
   DEFAULT_LESSON_KEY_RANGE,
   followPlayedNote,
@@ -22,6 +24,7 @@ import {
 } from '@/learn/keyboard/lessonKeyboardRange';
 import { useLessonKeyboardStage } from '@/learn/keyboard/lessonKeyboardStage';
 import { type PlayedKeys, toPlayedNotes } from '@/learn/keyboard/playedKeys';
+import type { FingeringTimeline } from '@/lib/learn/pianoFingering';
 
 // The on-screen keyboard every Learn surface shows under the activity. It
 // fills the width and mirrors the player's keyboard (see
@@ -74,6 +77,15 @@ type LessonKeyboardProps = {
   natural?: { aspect: number; maxHeight: number };
   /** A word at the foot of a key (MIDI -> text): a scale degree. */
   keyLabels?: ReadonlyMap<number, string>;
+  /** The book's hands and finger numbers over the keys (FingeringHands).
+   *  Without it, or with both off, the keyboard is drawn as ever. */
+  fingering?: {
+    timeline: FingeringTimeline;
+    cursor: FingeringCursor;
+    hands: boolean;
+    numbers: boolean;
+    keyColor: string;
+  };
 };
 
 export function LessonKeyboard({
@@ -83,6 +95,7 @@ export function LessonKeyboard({
   playedKeys,
   range,
   natural,
+  fingering,
   ...keyboardProps
 }: LessonKeyboardProps) {
   const playedNotes = useMemo(
@@ -179,11 +192,17 @@ export function LessonKeyboard({
     [mapped, view, targetMidis, fixed],
   );
 
+  const showFingering = !!fingering && (fingering.hands || fingering.numbers);
+
   return (
     <div ref={setBoxEl} className="relative w-full">
       <div
         ref={setStageEl}
-        className={natural ? 'mx-auto' : undefined}
+        className={
+          [natural && 'mx-auto', showFingering && 'relative']
+            .filter(Boolean)
+            .join(' ') || undefined
+        }
         style={
           natural
             ? { width: naturalSize?.width ?? '100%', maxWidth: '100%' }
@@ -201,6 +220,17 @@ export function LessonKeyboard({
             ...(naturalSize ? { height: naturalSize.height } : {}),
           }}
         />
+        {showFingering && (
+          <FingeringHands
+            timeline={fingering.timeline}
+            cursor={fingering.cursor}
+            hands={fingering.hands}
+            numbers={fingering.numbers}
+            keyColor={fingering.keyColor}
+            range={shown}
+            stageEl={stageEl}
+          />
+        )}
       </div>
       {/* Under the keys, never over the music above them. */}
       {outOfRange && <OctaveNotice direction={outOfRange} />}

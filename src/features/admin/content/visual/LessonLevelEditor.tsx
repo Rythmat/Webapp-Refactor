@@ -7,10 +7,11 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { useState, type FC } from 'react';
+import { useCallback, useState, type FC } from 'react';
 import { SCALES } from '@/curriculum/engine/genreGeneration/scaleRegistry';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type { ActivityStepV2 } from '@/curriculum/types/activity.v2';
+import { stepFingerSuggestions } from '@/learn/fingering/stepFingering';
 import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../../ui/styles';
 import {
   DetailCell,
@@ -102,6 +103,11 @@ export const LessonLevelEditor: FC<{
   ) => void;
 }> = ({ flow, onChange, onEditNotes }) => {
   const sections = flow.sections ?? [];
+  // Each step's suggested fingers, worked out as the lesson does.
+  const fingering = useCallback(
+    (step: ActivityStepV2) => stepFingerSuggestions(flow, step),
+    [flow],
+  );
   const [activeId, setActiveId] = useState<ActivitySectionId>(
     sections[0]?.id ?? 'A',
   );
@@ -396,6 +402,7 @@ export const LessonLevelEditor: FC<{
                   {isOpen && (
                     <StepEditor
                       step={step}
+                      fingering={fingering}
                       onEditNotes={
                         onEditNotes
                           ? (hands) => onEditNotes(active.id, index, hands)

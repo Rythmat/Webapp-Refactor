@@ -229,6 +229,10 @@ export function buildDesignedDrums(
   if (loop <= 0) return notes;
   for (let start = 0; start < total; start += loop) {
     for (const hit of groove.hits) {
+      // A hit past the loop's end is one a shortened groove keeps for its
+      // designer (resizeLoop), not one it plays: tiled, it would sound over
+      // the next pass.
+      if (hit.tick >= loop) continue;
       const onset = Math.max(0, start + playedTick(hit));
       if (onset >= total) continue;
       notes.push({

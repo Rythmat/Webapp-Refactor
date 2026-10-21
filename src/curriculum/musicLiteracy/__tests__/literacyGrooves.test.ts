@@ -142,7 +142,6 @@ describe('the grooves on offer', () => {
     // Drafts, and the grooves in 3/4, 2/4 and 12/8, aren't offered.
     for (const id of [
       'groove_pop_02',
-      'afrobeat_1_fela',
       'jazz-waltz',
       'samba',
       'partido-alto',

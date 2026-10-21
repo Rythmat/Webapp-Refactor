@@ -201,6 +201,8 @@ export class NamAmpPedal implements PedalProcessor {
           .catch((err) => {
             node.dispose();
             this.namInitPromise = null;
+            // A pedal removed while its worklet loads: nothing failed.
+            if (this.disposed) return;
             throw err;
           });
       }

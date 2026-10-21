@@ -38,8 +38,9 @@
 //     doesn't bundle, or a failed fetch): that amp passes its clips through
 //     untouched and the rest of the pedals still play. The export dialog
 //     warns about an unknown model; a failed fetch is only logged.
-//   • Automation of gate/ducker params — those are JS poll-loops absent from the
-//     offline render (only the direct-AudioParam automatable set is covered).
+//   • Automation of gate/ducker params — they run in the dynamics worklet and
+//     follow the track's settings, not lanes (only the direct-AudioParam
+//     automatable set is covered).
 //
 // ── One track alone, dry, unmastered (milestone 2.15) ─────────────────────
 // A one-track export or a stem renders a single track (`onlyTrackId`): the
@@ -72,6 +73,7 @@ import { useStore } from '@/daw/store';
 import type { AutomationLanes } from './automation';
 import { audioEngine } from './AudioEngine';
 import { EffectChain, type TrackEffectState } from './EffectChain';
+import { duckerKeyLoops } from './graph/duckerKeys';
 import { ensureProcessedIr } from './reverbIR';
 import { TrackEngine } from './TrackEngine';
 import { isTrackAudible } from './trackAudibility';
@@ -293,10 +295,9 @@ export async function renderProject(
   const secPerTick = 60 / bpm / PPQ;
   const duration = Math.max(0.5, (endTick - startTick) * secPerTick + tail);
 
-  // EffectChains/TrackEngines each start a gate + duck window.setInterval on
-  // construction. Nothing stops those wall-clock loops when the offline render
-  // ends, so collect every disposable and tear them all down afterwards — else
-  // each export leaks N timers polling a dead graph forever.
+  // Every chain, engine and helper node made for the render, torn down after
+  // it: their worklet nodes (gate, ducker, pedals) are told to stop and the
+  // instruments let go of their voices and buffers.
   const disposables: Array<{ dispose(): void }> = [];
   // Tone.Offline points Tone's global context (and with it the transport) at
   // the offline one, and only points it back when the callback succeeds. Keep
@@ -543,10 +544,13 @@ export async function renderProject(
         }
 
         // A ducker listens to its key track here as it does live; a key track
-        // left out of this render (one track alone) ducks nothing.
+        // left out of this render (one track alone) ducks nothing, and a key
+        // that closes a loop of duckers (a cycle: silence) is refused.
         for (const [id, te] of engines) {
           te.setKeySourceResolver((key) =>
-            key === id ? null : (engines.get(key)?.getAnalyserNode() ?? null),
+            duckerKeyLoops(renderedTracks, id, key)
+              ? null
+              : (engines.get(key)?.getAnalyserNode() ?? null),
           );
         }
         // Gates and duckers run in an AudioWorklet loaded per context

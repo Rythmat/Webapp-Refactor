@@ -420,6 +420,25 @@ describe('the ducker key wiring', () => {
     s().updateTrack(s().tracks[0].id, { volume: 0.3 });
     expect(calls.refreshes).toEqual([]);
   });
+
+  it('every ducker re-resolves its key when any ducker changes', () => {
+    const a = s().addTrack('midi', 'piano-sampler', 'A');
+    const b = s().addTrack('midi', 'piano-sampler', 'B');
+    start();
+    duckBy(a, b);
+    duckBy(b, a); // refused: a loop
+    calls.refreshes.length = 0;
+    // A lets go of B, which breaks the loop: B's refused key is wired now.
+    const track = s().tracks.find((t) => t.id === a)!;
+    s().updateTrack(a, {
+      effects: {
+        ...track.effects,
+        ducker: { ...track.effects.ducker, enabled: false },
+      },
+    });
+    expect(calls.refreshes.sort()).toEqual([0, 1]);
+    expect(calls.engines[1].resolver!(a)).toEqual({ tapOf: 0 });
+  });
 });
 
 // ── Guitar/Bass/Vocal chains (live playback of a saved tone) ───────────────

@@ -7,8 +7,12 @@
 //   Makeup (+ pre/post meter taps) → Presence → De-esser → Reverb → Delay →
 //   Saturator → Multiband → Ducker → output
 //
-// The EQ and the compressor (with its crush) are always in the path; the
-// other slots bypass by rewiring when they're off.
+// Nothing colours a chain that hasn't used it. The EQ's filters join the
+// path when the EQ is first turned on and stay (neutral when off). Until the
+// compressor is first turned on, a delay as long as its look-ahead stands in
+// its place, so every chain is equally late; then it stays (neutral when
+// off). The crush is in the path only while it is above 0, the gate and the
+// ducker only while on, and the other slots bypass by rewiring when off.
 
 import type { AutomationTarget } from './automation';
 import { CompressorModule } from './graph/effects/compressor';

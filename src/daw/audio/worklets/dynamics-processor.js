@@ -270,4 +270,11 @@ class DynamicsProcessor extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor('ma-dynamics', DynamicsProcessor);
+// The module can reach one AudioWorkletGlobalScope twice (through Tone's
+// wrapper and on its native context); the second registration would throw
+// and fail that load, so the name already being there is fine.
+try {
+  registerProcessor('ma-dynamics', DynamicsProcessor);
+} catch (err) {
+  if (!err || err.name !== 'NotSupportedError') throw err;
+}

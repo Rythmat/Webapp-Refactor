@@ -120,4 +120,18 @@ describe('worklet nodes register per context and dispose', () => {
       );
     }
   });
+
+  it('removing a NAM pedal mid-init does not reject to the caller', async () => {
+    // The context goes away under the load (the track was deleted).
+    addModule = vi.fn(() => Promise.reject(new Error('context closed')));
+    const pedal = new NamAmpPedal(context());
+    const loading = pedal.loadNamModel({
+      architecture: 'Linear',
+      config: {},
+      weights: [],
+    } as never);
+    pedal.dispose();
+    await expect(loading).resolves.toBeUndefined();
+    expect(made).toHaveLength(0);
+  });
 });

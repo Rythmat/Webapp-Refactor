@@ -2,6 +2,7 @@ import * as Tone from 'tone';
 import { useStore, type Track } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { TrackEngine } from '@/daw/audio/TrackEngine';
+import { duckerKeyLoops as loops } from '@/daw/audio/graph/duckerKeys';
 import type { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
 import { applyStoredPedalChain } from '@/daw/audio/applyPedalChain';
 import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
@@ -398,6 +399,8 @@ export function startTrackReconciler(
     passTick = null;
     // Whether this pass made or let go of an engine (see the end).
     let enginesChanged = false;
+    // Whether any track's ducker settings changed (see the end).
+    let duckersChanged = false;
 
     const ids = audioEngine.getReturnIds().join('|');
     const sendsRewired = ids !== returnIds;
@@ -427,6 +430,9 @@ export function startTrackReconciler(
       }
       const state = trackEngineRegistry.get(track.id);
       if (state && prev) {
+        if (!sameValue(prev.track.effects?.ducker, track.effects?.ducker)) {
+          duckersChanged = true;
+        }
         update(state, prev, track, audible, sendsRewired, playing);
       } else {
         create(track, audible, generation, playing);
@@ -438,13 +444,15 @@ export function startTrackReconciler(
     // Readers that hold a track's engine (the meters, the instrument panels)
     // re-read on this. A load makes every engine again under the same track
     // ids, so a reader keyed on the id alone would keep the disposed engine.
-    // The duckers re-resolve their key taps for the same reason.
-    if (enginesChanged) {
+    // The duckers re-resolve their key taps for the same reason, and when
+    // any ducker changes: a key refused because it closed a loop is connected
+    // once another track's change breaks the loop.
+    if (enginesChanged || duckersChanged) {
       for (const state of trackEngineRegistry.values()) {
         state.trackEngine.refreshDuckerKey();
       }
-      notifyEngineReady();
     }
+    if (enginesChanged) notifyEngineReady();
   }
 
   function safeReconcile(): void {
@@ -556,22 +564,9 @@ function hasLanes(track: Track): boolean {
   return Object.keys(track.automation ?? {}).length > 0;
 }
 
-/**
- * Whether ducking track `ownId` by `keyId` would close a loop: the key is the
- * track itself, or the key's ducker (and its key's, and so on) is keyed by it.
- */
+/** Whether ducking `ownId` by `keyId` would close a loop (graph/duckerKeys). */
 export function duckerKeyLoops(ownId: string, keyId: string): boolean {
-  const tracks = useStore.getState().tracks;
-  const seen = new Set<string>();
-  let id: string | null = keyId;
-  while (id !== null && !seen.has(id)) {
-    if (id === ownId) return true;
-    seen.add(id);
-    const at: string = id;
-    const ducker = tracks.find((t) => t.id === at)?.effects?.ducker;
-    id = ducker?.enabled ? ducker.keyTrackId : null;
-  }
-  return false;
+  return loops(useStore.getState().tracks, ownId, keyId);
 }
 
 function currentTrack(id: string): Track | undefined {

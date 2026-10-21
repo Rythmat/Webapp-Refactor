@@ -135,8 +135,11 @@ const takes = vi.hoisted(() => ({
   placement: undefined as
     | { startTick: number; offsetSeconds: number }
     | undefined,
+  /** How early the next take's recorder started, without a placement. */
+  leadSeconds: 0,
 }));
 vi.mock('@/daw/audio/AudioRecorder', () => ({
+  prepareRecording() {},
   AudioRecorder: class {
     private recording = false;
     stopRecording = vi.fn(async () => {
@@ -146,6 +149,7 @@ vi.mock('@/daw/audio/AudioRecorder', () => ({
         originalBytes: new ArrayBuffer(8),
         originalContentType: 'audio/webm',
         placement: takes.placement,
+        leadSeconds: takes.leadSeconds,
       };
     });
     dispose = vi.fn(() => {
@@ -198,6 +202,7 @@ beforeEach(() => {
   takes.recorders.length = 0;
   takes.startError = null;
   takes.placement = undefined;
+  takes.leadSeconds = 0;
   notices.notice.mockReset();
   mic.track.stop.mockReset();
   getUserMedia.mockClear();
@@ -371,5 +376,21 @@ describe('a take that cannot record', () => {
     act(() => useStore.setState({ isPlaying: false, isRecording: false }));
     await settle();
     expect(recorder.stopRecording).not.toHaveBeenCalled();
+  });
+});
+
+describe('a take with no capture timing', () => {
+  it('sits where recording began, trimmed by how early its recorder started', async () => {
+    const id = armedMicTrack();
+    useStore.setState({ position: 960 });
+    takes.leadSeconds = 0.15;
+    renderHook(() => usePlaybackEngine(true, null));
+    act(() => useStore.setState({ isPlaying: true, isRecording: true }));
+    await settle();
+    act(() => useStore.setState({ isPlaying: false, isRecording: false }));
+    await settle();
+    const [clip] = s().tracks.find((t) => t.id === id)!.audioClips;
+    expect(clip.startTick).toBe(960);
+    expect(clip.offsetSeconds).toBe(0.15);
   });
 });

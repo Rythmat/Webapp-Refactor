@@ -11,7 +11,7 @@ import { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import { MetronomeEngine, clickPitch } from '@/daw/audio/MetronomeEngine';
 import { createClickVoice, type ClickVoice } from '@/daw/audio/clickVoice';
-import { AudioRecorder } from '@/daw/audio/AudioRecorder';
+import { AudioRecorder, prepareRecording } from '@/daw/audio/AudioRecorder';
 import { emitTakeCommitted } from '@/daw/audio/takeEvents';
 import { notice } from '@/daw/shell/notice';
 import {
@@ -127,13 +127,18 @@ function finishAudioTake(
         originalBytes,
         originalContentType,
         placement,
+        leadSeconds,
       }) => {
         const clipId = `clip-audio-${crypto.randomUUID().slice(0, 8)}`;
         const startTick = placement?.startTick ?? fallbackStartTick;
         // Audio before the take began (the decoded bytes start a little ahead
         // of the tap, or before the song's start) is kept but trimmed off.
+        // Without a placement the take sits at the playhead where recording
+        // began, which after a count-in is the downbeat, while the recorder
+        // started up to COUNT_IN_TIMER_LEAD_S before it: that lead is
+        // trimmed.
         const offsetSeconds = Math.min(
-          placement?.offsetSeconds ?? 0,
+          placement ? placement.offsetSeconds : leadSeconds,
           Math.max(0, audioBuffer.duration - 0.01),
         );
         setAudioBuffer(clipId, audioBuffer);
@@ -492,8 +497,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     // count-in was armed by Record rather than Play).
     // With the start planned, the timer fires a little early, so a timer
     // that runs late (a busy Chromebook) can't push the downbeat back.
-    // A take is placed from its capture time (takePlacement.ts), so a
-    // recorder that starts early is trimmed to the downbeat.
+    // A take is placed from its capture time (takePlacement.ts), and one
+    // without a capture time is trimmed by how early its recorder started
+    // (AudioRecorder's leadSeconds), so a recorder that starts early is
+    // trimmed to the downbeat either way.
     const early = isLegacyScheduler() ? 0 : COUNT_IN_TIMER_LEAD_S;
     const timer = setTimeout(
       () => {
@@ -591,6 +598,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   // ── Audio recording (record-armed audio tracks) ─────────────────────
   useEffect(() => {
     if (!isReady) return;
+
+    // The capture tap's module loads ahead of the first take, so the tap is
+    // listening before the recorder starts (AudioRecorder).
+    prepareRecording(nativeContextOf(audioEngine.getContext()));
 
     // Read when the take starts: the effect doesn't follow track edits, so
     // a collab sync or a clip added mid-take no longer re-runs it.
@@ -753,6 +764,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
             onError: recorderStopped,
             transportStart: transportStartedAt,
             context: nativeContextOf(audioEngine.getContext()),
+            // A guitar or vocal adapter's stream is made inside the context
+            // and reports no input latency, and the adapters don't expose
+            // their device's; such a take counts the output side only
+            // (takePlacement). Pass `inputLatency` here once they do.
           });
         } catch (err) {
           if (audioRecorderRef.current !== recorder) dropStale();

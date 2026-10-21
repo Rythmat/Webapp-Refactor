@@ -13,7 +13,7 @@ vi.mock('tone', () => ({
   }),
 }));
 
-import { AudioRecorder } from '../AudioRecorder';
+import { AudioRecorder, prepareRecording } from '../AudioRecorder';
 
 const RATE = 8000;
 
@@ -106,15 +106,18 @@ function fakeBuffer(data: Float32Array): AudioBuffer {
   } as unknown as AudioBuffer;
 }
 
-function context(decoded: Float32Array | Error, withWorklet = true) {
+function context(
+  decoded: Float32Array | Error,
+  withWorklet = true,
+  addModule: () => Promise<void> = () => Promise.resolve(),
+) {
   return {
     sampleRate: RATE,
+    currentTime: 10,
     baseLatency: 0.01,
     outputLatency: 0.04,
     destination: {},
-    audioWorklet: withWorklet
-      ? { addModule: vi.fn(() => Promise.resolve()) }
-      : undefined,
+    audioWorklet: withWorklet ? { addModule: vi.fn(addModule) } : undefined,
     createMediaStreamSource: () => ({ connect() {}, disconnect() {} }),
     decodeAudioData: vi.fn(async () => {
       if (decoded instanceof Error) throw decoded;
@@ -139,9 +142,12 @@ afterEach(() => {
 describe('a take placed by the capture tap', () => {
   it('lands at the tick heard at its first frame, lined up with the decoded audio', async () => {
     const source = noise(RATE * 4);
-    // The decoded audio starts 50 ms before the tap's first frame.
-    const lead = Math.round(0.05 * RATE);
-    const ctx = context(source);
+    // The decoded audio starts 30 ms after the tap's first frame.
+    const shift = Math.round(0.03 * RATE);
+    const ctx = context(source.slice(shift));
+    // The module is loaded ahead, so the tap starts first.
+    prepareRecording(ctx as unknown as BaseAudioContext);
+    await new Promise((resolve) => setTimeout(resolve, 0));
     const { stream } = micStream(0.02);
     const recorder = new AudioRecorder();
     await recorder.startRecording(stream, {
@@ -151,17 +157,49 @@ describe('a take placed by the capture tap', () => {
     });
     expect(recorder.isRecording()).toBe(true);
     const [tap] = FakeWorkletNode.instances;
-    // First frame at 12.06 s: heard 12.06 − 0.02 (input) − 0.04 (output).
-    tap.emit({ type: 'start', contextTime: 12.06 });
-    tap.emit({
-      type: 'pcm',
-      channels: [source.slice(lead, lead + RATE * 2.5)],
-    });
+    // First frame at 12.07 s: heard 12.07 − 0.02 (input) − 0.01 (base)
+    // − 0.04 (output) = 12 s, and the decoded audio starts 30 ms later.
+    tap.emit({ type: 'start', contextTime: 12.07 });
+    tap.emit({ type: 'pcm', channels: [source.slice(0, RATE * 2.5)] });
 
     const result = await recorder.stopRecording(ctx as unknown as AudioContext);
-    expect(result.placement?.startTick).toBe(1920);
-    expect(result.placement?.offsetSeconds).toBeCloseTo(0.05, 3);
+    expect(result.placement?.startTick).toBe(1949);
+    expect(result.placement?.offsetSeconds).toBe(0);
     expect(result.originalContentType).toBe('audio/webm;codecs=opus');
+  });
+
+  it('counts the base and output latency when the track gives none', async () => {
+    const source = noise(RATE * 4);
+    const ctx = context(source);
+    const { stream } = micStream();
+    const recorder = new AudioRecorder();
+    await recorder.startRecording(stream, {
+      context: ctx as unknown as BaseAudioContext,
+      transportStart: () => 10,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const [tap] = FakeWorkletNode.instances;
+    // 11.05 − 0.01 − 0.04 = 11 s: 960 ticks.
+    tap.emit({ type: 'start', contextTime: 11.05 });
+    tap.emit({ type: 'pcm', channels: [source.slice(0, RATE * 2.5)] });
+    const result = await recorder.stopRecording(ctx as unknown as AudioContext);
+    expect(result.placement?.startTick).toBe(960);
+  });
+
+  it('keeps a take stopped while the tap is still loading, trimmed to the start', async () => {
+    const ctx = context(noise(RATE), true, () => new Promise<void>(() => {}));
+    const { stream } = micStream();
+    const recorder = new AudioRecorder();
+    // The recorder started at context time 10; the transport at 10.1.
+    await recorder.startRecording(stream, {
+      context: ctx as unknown as BaseAudioContext,
+      transportStart: () => 10.1,
+    });
+    expect(recorder.isRecording()).toBe(true);
+    const result = await recorder.stopRecording(ctx as unknown as AudioContext);
+    expect(result.placement).toBeUndefined();
+    expect(result.leadSeconds).toBeCloseTo(0.1, 9);
+    expect(result.buffer.duration).toBe(1);
   });
 
   it('is placed by the caller where AudioWorklet is missing', async () => {

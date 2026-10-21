@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { bandVariation } from '@/curriculum/engine/band/band';
+import { getLiveBand, LIVE_ITEMS } from '@/curriculum/engine/band/registry';
 import { pairingsReady } from '@/curriculum/engine/lessonPairings/registry';
 import type { LiteracyChart } from '@/curriculum/engine/musicLiteracy/chart';
 import type { MidiClip } from '@/daw/store/tracksSlice';
@@ -69,7 +71,9 @@ const TONES: Record<string, number[]> = {
 
 const STYLES = [
   ['pop-band-1', 'l1-singable'], // a captured keys part, a bass line
-  ['pop-band-1', 'l2-craft'], // the lesson's own code-made bass and chords
+  ['pop-band-1', 'l2-craft'], // a dance-pop keys part, a bass line
+  ['funk-band-1', 'l3-deep-groove'], // the lesson's own code-made bass
+  ['hip-hop-band-1', 'l2-boom-bap'], // hip hop's own code-made chords
   ['latin-band-1', 'l1-cumbia'], // comping keys and guitar, a bass line
   ['funk-band-1', 'l1-pocket'], // a captured keys part following chords
   ['hip-hop-band-1', 'l1-trap'], // hip hop's own engine, a captured bass
@@ -91,6 +95,20 @@ async function build(
   vi.restoreAllMocks();
   return built!;
 }
+
+/**
+ * The band's layers that keep a hand in the key over another chart (a
+ * part's Stay in Key): that hand's notes stay put when the chords change.
+ */
+const staysInKey = (band: string, variation: string) =>
+  new Set(
+    bandVariation(getLiveBand(band)!, variation)
+      .layers.filter(
+        (l) =>
+          l.source.kind === 'part' && LIVE_ITEMS.part(l.source.id)?.stayInKey,
+      )
+      .map((l) => l.name),
+  );
 
 /** Every chord-playing clip of a track: its chords part and its layers'. */
 const chordClips = (built: BuiltBandTrack): MidiClip[] => [
@@ -153,18 +171,22 @@ describe('a band over timed chords', () => {
       const halfNotes = (clip: MidiClip) =>
         clip.events.filter((e) => e.startTick % 1920 >= 960).map((e) => e.note);
       const before = new Map(parts(whole).map(([n, c]) => [n, halfNotes(c)]));
+      const inKey = staysInKey(band, variation);
       for (const [name, clip] of parts(halves)) {
         const notes = halfNotes(clip);
-        if (notes.length === 0) continue;
+        if (notes.length === 0 || inKey.has(name)) continue;
         expect(notes, `${label} ${name}`).not.toEqual(before.get(name));
       }
     }
   });
 
   it('voices code-made and comped chords on each half bar’s own chord', async () => {
-    for (const [band, variation] of [
-      ['pop-band-1', 'l2-craft'],
-      ['latin-band-1', 'l1-cumbia'],
+    // Hip hop's code-made voicings add colors (a 9th over the 1): their
+    // half bars are held to the chord's root. Cumbia's comping plays plain
+    // triads: every note is the chord's.
+    for (const [band, variation, strict] of [
+      ['hip-hop-band-1', 'l2-boom-bap', false],
+      ['latin-band-1', 'l1-cumbia', true],
     ] as const) {
       const clips = chordClips(await build(band, variation, halfBars));
       for (let pass = 0; pass < 8; pass++) {
@@ -178,7 +200,9 @@ describe('a band over timed chords', () => {
           const heard = struck(clips, from + 30, from + 960 - 30);
           expect(heard.size, `${variation} ${from}`).toBeGreaterThan(0);
           expect(
-            [...heard].every((pc) => TONES[symbol].includes(pc)),
+            strict
+              ? [...heard].every((pc) => TONES[symbol].includes(pc))
+              : heard.has(TONES[symbol][0]),
             `${variation} ${symbol} at ${from}`,
           ).toBe(true);
         }
@@ -187,8 +211,8 @@ describe('a band over timed chords', () => {
   });
 
   it('puts the code-made bass on the new root where a chord changes', async () => {
-    const bass = (await build('pop-band-1', 'l2-craft', halfBars)).track.clips
-      .bass!;
+    const bass = (await build('funk-band-1', 'l3-deep-groove', halfBars)).track
+      .clips.bass!;
     for (const [tick, root] of [
       [960, 5],
       [2880, 7],

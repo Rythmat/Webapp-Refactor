@@ -197,7 +197,11 @@ describe('chords that change at the half bar', () => {
       length: 8 * BAR_TICKS,
     });
     const band = (await buildEchoBand(song, 'pop-band-1', 'l1-singable'))!;
-    const bass = band.built.track.clips.bass!.events.filter(
+    // The band's bass: its lesson part, or a layer on a sound of its own.
+    const bassClip =
+      band.built.track.clips.bass ??
+      band.built.track.layerClips.find((l) => l.part === 'bass')!.clip;
+    const bass = bassClip.events.filter(
       (e) => e.startTick >= 960 && e.startTick < 1900,
     );
     expect(bass.length).toBeGreaterThan(0);

@@ -17,10 +17,11 @@ export const ExportPill = memo(function ExportPill({
   const pill = (
     <Button
       variant="primary"
+      size="pill"
       data-testid="export-pill"
       data-tutorial-id="export-pill"
       aria-label={iconOnly ? 'Export' : undefined}
-      className={iconOnly ? 'w-7 px-0' : undefined}
+      className={iconOnly ? 'w-9 px-0' : undefined}
       onClick={() => openExport()}
     >
       <Download strokeWidth={2.5} />

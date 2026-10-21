@@ -57,7 +57,7 @@ const isGroup = (
 ): entry is SelectOptionGroup => 'options' in entry;
 
 const ITEM =
-  'h-7 rounded-[var(--daw-radius-sm)] py-0 pl-2 pr-8 text-daw-text focus:bg-daw-hover focus:text-daw-text data-[state=checked]:font-bold';
+  'h-10 rounded-none py-0 pl-4 pr-8 text-daw-text focus:bg-daw-menu-hover focus:text-daw-text data-[state=checked]:font-bold';
 
 /**
  * A pick-one list on the shared Radix kit: Enter, Space or the arrow keys

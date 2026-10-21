@@ -57,6 +57,28 @@ export const COLOR = colors({
   /** Behind a modal dialog. */
   scrim: own('rgba(0, 0, 0, 0.6)'),
 
+  // The floating frame (S0): controls sit in pills on the page, the timeline
+  // and its panels in one rounded stage card.
+  /** A pill on the page: the bars' control groups. */
+  pill: own('#141417'),
+  /** A pill's resting label and icons: white/50, 5.3:1 on the pill. */
+  'pill-text': own('rgba(255, 255, 255, 0.5)'),
+  /** A pressed toggle inside a pill: white/20. */
+  'pill-on': own('rgba(255, 255, 255, 0.2)'),
+  /**
+   * The track column, over the stage. Never an overlay's surface: overlays
+   * stay opaque.
+   */
+  column: own('rgba(20, 20, 22, 0.85)'),
+  /** A floating card's edge: white/10. */
+  edge: own('rgba(255, 255, 255, 0.1)'),
+  /** Menus and selects: a lighter, borderless card; text-3 is 4.8:1 on it. */
+  menu: own('#252529'),
+  /** A menu row under the pointer or the keyboard: white/6. */
+  'menu-hover': own('rgba(255, 255, 255, 0.06)'),
+  /** Popovers and tooltips: between the page and a menu. */
+  float: own('#1c1c1f'),
+
   // Lines.
   hairline: alias('border', '#232325'),
   /** A control's outline: white/15. */
@@ -152,6 +174,8 @@ export const TYPE = typeScale({
   },
   label: { size: 12, line: 16, weight: 400 },
   body: { size: 13, line: 18, weight: 400 },
+  /** Menu rows and tooltips: 14 px, regular. */
+  item: { size: 14, line: 20, weight: 400 },
   title: { size: 14, line: 20, weight: 700 },
   coach: { size: 15, line: 22, weight: 400 },
   heading: { size: 16, line: 22, weight: 700 },
@@ -172,6 +196,8 @@ export const SIZE = {
   'control-sm': 24,
   'control-lg': 32,
   play: 36,
+  /** A pill in the top and bottom bars, as tall as the transport's Play. */
+  pill: 36,
   'hit-min': 24,
   icon: 16,
   'icon-sm': 14,
@@ -189,8 +215,22 @@ export const SPACE = {
   '3xl': 32,
 } as const;
 
-/** Corner radii in px: controls, popovers and menus, dialogs, pills. */
-export const RADIUS = { sm: 4, md: 8, lg: 12, pill: 9999 } as const;
+/**
+ * Corner radii in px: controls, popovers and menus, dialogs and the stage
+ * card, pills; and the floating frame's own steps (S0): xs for small marks
+ * (the overview's window), card for panels inside the stage, xl and 2xl for
+ * floating cards.
+ */
+export const RADIUS = {
+  xs: 3,
+  sm: 4,
+  md: 8,
+  card: 10,
+  lg: 12,
+  xl: 16,
+  '2xl': 20,
+  pill: 9999,
+} as const;
 
 /**
  * The stacking order, lowest first. A popover or select opened from a
@@ -216,9 +256,19 @@ export const MOTION = { fast: 120, base: 180, slow: 240 } as const;
 
 export const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 
+/**
+ * Shadows. Use them as `[box-shadow:var(--daw-shadow-x)]`: Tailwind compiles
+ * `shadow-[var(…)]` to a shadow colour, not a shadow.
+ */
 export const SHADOW = {
   pop: '0 8px 24px rgba(0, 0, 0, 0.45)',
   modal: '0 16px 48px rgba(0, 0, 0, 0.55)',
+  /** A menu or tooltip lifting off the page. */
+  menu: '0 3px 5px rgba(0, 0, 0, 0.3)',
+  /** The track column's edge over the timeline. */
+  column: '0 0 20px rgba(0, 0, 0, 0.4)',
+  /** A card floating over the stage (the prompt bar, a coach card). */
+  float: '0 8px 28px rgba(0, 0, 0, 0.36)',
 } as const;
 
 const px = (n: number) => `${n}px`;

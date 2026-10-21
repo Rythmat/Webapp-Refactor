@@ -9,7 +9,7 @@ import { Tooltip } from '@/daw/ui/Tooltip';
 import { keyText, useKeyPopover } from '../song/keyPopover';
 import { KeyCircle, MetreChoices, TempoField } from '../song/SongParts';
 
-// ── The song, at the bottom rail's right (B4a) ─────────────────────────────
+// ── The song, in the top bar's right-hand pill (B4a; S0) ────────────────────
 //
 // Key, Tempo and Metre as three controls, as Soundtrap lays them out (owner,
 // 2026-10-16); they replaced the top bar's Song chip. Key and Metre open
@@ -18,7 +18,7 @@ import { KeyCircle, MetreChoices, TempoField } from '../song/SongParts';
 // colour.
 
 const RAIL_BUTTON = cn(
-  'inline-flex h-7 items-center gap-1.5 rounded-[var(--daw-radius-sm)] px-2 font-bold tabular-nums text-daw-text hover:bg-daw-hover [&_svg]:size-3.5',
+  'inline-flex h-8 items-center gap-1.5 rounded-[var(--daw-radius-md)] px-2.5 text-daw-pill-text hover:bg-daw-chip hover:text-daw-text [&_svg]:size-3.5',
   TYPE_CLASS.body,
   TRANSITION,
   FOCUS_RING,
@@ -50,7 +50,7 @@ function KeyButton({ short }: { short: boolean }) {
   const [open, onOpenChange] = useKeyPopover();
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
-      <Tooltip content="Key" side="top">
+      <Tooltip content="Key" side="bottom">
         <PopoverTrigger asChild>
           <button
             type="button"
@@ -82,7 +82,7 @@ function KeyButton({ short }: { short: boolean }) {
         </PopoverTrigger>
       </Tooltip>
       <PopoverContent
-        side="top"
+        side="bottom"
         align="end"
         sideOffset={8}
         data-testid="key-popover"
@@ -101,7 +101,7 @@ function MetreButton() {
   const [open, setOpen] = useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Tooltip content="Time signature" side="top">
+      <Tooltip content="Time signature" side="bottom">
         <PopoverTrigger asChild>
           <button
             type="button"
@@ -118,7 +118,7 @@ function MetreButton() {
         </PopoverTrigger>
       </Tooltip>
       <PopoverContent
-        side="top"
+        side="bottom"
         align="end"
         sideOffset={8}
         data-testid="metre-popover"

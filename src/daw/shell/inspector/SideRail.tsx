@@ -24,7 +24,7 @@ export const SideRail = memo(function SideRail() {
       aria-orientation="vertical"
       aria-label="Panels"
       data-testid="side-rail"
-      className="flex h-full flex-col items-center gap-1 border-l border-daw-hairline bg-daw-bg py-2"
+      className="flex h-full flex-col items-center gap-1 bg-daw-bg py-2"
     >
       {RAIL_PANELS.map((panel) => (
         <RailButton key={panel.id} panel={panel} />

@@ -196,27 +196,29 @@ export const ClickToggle = memo(function ClickToggle() {
     <div className="flex shrink-0 items-center">
       <Toggle
         label="Click"
+        tooltipSide="bottom"
         icon={<MetronomeIcon on={on} />}
         pressed={on}
         onPressedChange={() => toggle()}
         shortcut={METRONOME_KEYS.label}
         aria-keyshortcuts={METRONOME_KEYS.aria}
         data-testid="click-toggle"
-        className="rounded-r-none"
+        className="h-8 rounded-r-none rounded-l-[var(--daw-radius-md)]"
       />
       <Popover>
         <PopoverTrigger asChild>
           <IconButton
             label="Click settings: sound, volume and count-in"
             icon={<ChevronDown />}
+            variant="bare"
             size="md"
-            tooltipSide="top"
+            tooltipSide="bottom"
             data-testid="count-in-menu"
             data-count-in={countInBars}
-            className="w-6 rounded-l-none [&_svg]:size-3.5"
+            className="h-8 w-6 rounded-l-none [&_svg]:size-3.5"
           />
         </PopoverTrigger>
-        <PopoverContent side="top" align="end" sideOffset={8}>
+        <PopoverContent side="bottom" align="end" sideOffset={8}>
           <ClickSettings />
         </PopoverContent>
       </Popover>

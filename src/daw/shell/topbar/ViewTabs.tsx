@@ -1,3 +1,4 @@
+import { cn } from '@/components/utilities';
 import { memo, useEffect } from 'react';
 import { useStore, type ViewType } from '@/daw/store';
 import { hintText } from '@/daw/shell/help/hintSource';
@@ -46,12 +47,15 @@ export const PRACTICE_VIEW = { id: 'practice' as ViewType, label: 'Practice' };
 /** The shell's main region (StudioShell's MAIN_REGION_ID). */
 const MAIN_REGION = 'daw-main-region';
 
-export const ViewTabs = memo(function ViewTabs({
-  tight = false,
-}: {
-  /** The folded top bar's tighter padding. */
-  tight?: boolean;
-}) {
+/**
+ * The tabs as the bottom rail draws them (the floating frame, S0): 32 px
+ * pill segments, white/50 at rest, the open view's on white/20. The open
+ * view is marked by its fill and by aria-selected, not colour alone.
+ */
+const SEGMENT =
+  'h-8 rounded-full px-4 font-normal text-daw-pill-text hover:text-daw-text data-[state=active]:bg-daw-pill-on data-[state=active]:text-daw-text after:hidden';
+
+export const ViewTabs = memo(function ViewTabs() {
   const currentView = useStore((s) => s.currentView);
   const setCurrentView = useStore((s) => s.setCurrentView);
   useEffect(() => {
@@ -68,7 +72,7 @@ export const ViewTabs = memo(function ViewTabs({
       onValueChange={(view) => setCurrentView(layoutOf(view as ViewType))}
       activationMode="manual"
     >
-      <TabList aria-label="Views" className="gap-0.5">
+      <TabList aria-label="Views" className="h-auto gap-0.5 bg-transparent p-0">
         {views.map((v) => (
           <Tab
             key={v.id}
@@ -80,7 +84,7 @@ export const ViewTabs = memo(function ViewTabs({
             // pointer over or a focus, so a click usually finds it there.
             onPointerEnter={() => preloadView(layoutOf(v.id))}
             onFocus={() => preloadView(layoutOf(v.id))}
-            className={`shrink-0 whitespace-nowrap ${tight ? 'px-1.5' : 'px-2.5'}`}
+            className={cn('shrink-0 whitespace-nowrap', SEGMENT)}
           >
             {v.label}
           </Tab>

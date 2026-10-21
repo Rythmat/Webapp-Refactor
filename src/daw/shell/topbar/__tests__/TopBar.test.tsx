@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import {
-  act,
   cleanup,
   fireEvent,
   render,
@@ -76,25 +75,30 @@ afterEach(() => {
 });
 
 describe('the top bar', () => {
-  it('has the project, views and share zones, with the lesson anchors', () => {
+  it('has the project, transport and song-and-share zones, with the lesson anchors', () => {
     renderBar();
-    for (const name of ['Project', 'Views', 'Share and account']) {
+    for (const name of ['Project', 'Transport', 'Song, share and account']) {
       expect(screen.getByRole('group', { name })).toBeInTheDocument();
     }
-    for (const id of [
-      'file-menu',
-      'view-switch-arrange',
-      'view-switch-studio',
-      'view-switch-score',
+    // The floating frame (S0): each zone's controls sit in pills.
+    for (const name of [
+      'Project name and menu',
+      'Undo and redo',
+      'Transport controls',
+      'Position',
+      'Song',
+      'Share and more',
     ]) {
+      expect(screen.getByRole('group', { name })).toHaveClass('bg-daw-pill');
+    }
+    for (const id of ['file-menu', 'transport-bpm']) {
       expect(
         document.querySelector(`[data-tutorial-id="${id}"]`),
       ).not.toBeNull();
     }
-    expect(screen.getByRole('tab', { name: 'Mix' })).toBeInTheDocument();
-    // One Score tab for both layouts (2026-10-16): the Lead sheet's anchor
-    // is on the Score page's own switch.
-    expect(screen.queryByRole('tab', { name: 'Lead sheet' })).toBeNull();
+    expect(screen.getByTestId('transport-play')).toBeInTheDocument();
+    // The view tabs are the bottom rail's (2026-10-21).
+    expect(screen.queryByRole('tab', { name: 'Mix' })).toBeNull();
     // Trimmed (2.7): no Back, Forward or Stop; Help, Settings and the
     // computer keyboard's switch are in '⋯'; Share is an icon; the typing
     // chip shows only while typing is on.
@@ -105,8 +109,7 @@ describe('the top bar', () => {
       'settings-button',
       'help-menu',
       'musical-typing-chip',
-      // B4a: in the rails now.
-      'transport-play',
+      // B4a: the Song chip and the Inspector's toggle left the bar.
       'song-chip',
       'inspector-toggle',
     ]) {
@@ -138,15 +141,6 @@ describe('the top bar', () => {
     );
   });
 
-  it('adds Practice first while a practice session exists', () => {
-    act(() =>
-      useStore.setState({ practiceSession: { kind: 'theory' } as never }),
-    );
-    renderBar();
-    const tabs = screen.getAllByRole('tab').map((t) => t.textContent);
-    expect(tabs[0]).toBe('Practice');
-  });
-
   it('folds when the window is too narrow, Export to its icon last', () => {
     // A 600 px bar with zones that need 400 px each: every fold step.
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(
@@ -175,7 +169,9 @@ describe('the top bar', () => {
 
   it('has the white Export pill between ⋯ and the avatar', () => {
     renderBar();
-    const share = screen.getByRole('group', { name: 'Share and account' });
+    const share = screen.getByRole('group', {
+      name: 'Song, share and account',
+    });
     const pill = within(share).getByTestId('export-pill');
     expect(pill).toHaveTextContent('Export');
     expect(pill).toHaveAttribute('data-tutorial-id', 'export-pill');

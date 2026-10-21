@@ -40,7 +40,7 @@ describe('folded', () => {
   it('folds a step and every step before it', () => {
     expect(folded(0, 'name-narrow')).toBe(false);
     expect(folded(1, 'name-narrow')).toBe(true);
-    expect(folded(1, 'tabs-tight')).toBe(false);
+    expect(folded(1, 'key-short')).toBe(false);
     expect(folded(MAX_FOLD, FOLD_STEPS[MAX_FOLD - 1])).toBe(true);
   });
 });

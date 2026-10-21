@@ -242,7 +242,7 @@ describe('Select', () => {
     act(() => field.focus());
     fireEvent.keyDown(field, { key: 'Enter' });
     const list = await screen.findByRole('listbox');
-    expect(list).toHaveClass('bg-daw-popover');
+    expect(list).toHaveClass('bg-daw-menu');
     expect(screen.getAllByRole('option')).toHaveLength(3);
     expect(screen.getByRole('group')).toHaveTextContent('Triplets');
     fireEvent.keyDown(screen.getByRole('option', { name: '1/4 note' }), {
@@ -292,7 +292,7 @@ describe('Menu', () => {
     render(<ProjectMenu />);
     open();
     const menu = await screen.findByRole('menu');
-    expect(menu).toHaveClass('bg-daw-popover');
+    expect(menu).toHaveClass('bg-daw-menu');
     expect(screen.getByRole('menuitem', { name: /Save/ })).toHaveTextContent(
       '⌘S',
     );
@@ -361,9 +361,9 @@ describe('Popover', () => {
     const panel = await screen.findByRole('dialog', { name: 'Song settings' });
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
     expect(panel).toHaveClass(
-      'bg-daw-popover',
+      'bg-daw-float',
       'z-[var(--daw-z-popover)]',
-      'border-daw-hairline',
+      'rounded-[var(--daw-radius-xl)]',
     );
     fireEvent.keyDown(panel, { key: 'Escape' });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());

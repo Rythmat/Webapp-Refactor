@@ -1945,7 +1945,7 @@ export function PianoRoll({
         <button
           onClick={selectAll}
           title="Select every note (⌘A) · Shift- or ⌘-drag boxes notes, even over notes"
-          className="flex h-6 items-center rounded px-2 text-[10px] font-semibold text-white/40 transition-colors hover:bg-white/5 hover:text-white/60"
+          className="flex h-6 items-center rounded px-2 text-xs font-semibold text-white/40 transition-colors hover:bg-white/5 hover:text-white/60"
         >
           Select all
         </button>
@@ -1953,7 +1953,7 @@ export function PianoRoll({
           <button
             onClick={deleteSelected}
             title="Delete the selected notes (Delete)"
-            className="flex h-6 items-center gap-1 rounded bg-rose-500/20 px-2 text-[10px] font-semibold text-rose-200 transition-colors hover:bg-rose-500/30"
+            className="flex h-6 items-center gap-1 rounded bg-rose-500/20 px-2 text-xs font-semibold text-rose-200 transition-colors hover:bg-rose-500/30"
           >
             <Trash2 className="size-3.5" />
             Delete {selectedIndices.size}

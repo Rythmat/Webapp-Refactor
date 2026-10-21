@@ -3,7 +3,7 @@ import { memo, useMemo, useRef } from 'react';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { IconButton } from '@/daw/ui/IconButton';
-import { QUIET } from '@/daw/ui/styles';
+import { PillGroup } from '@/daw/ui/Pill';
 import { useMusicalTypingStore } from '@/daw/commands/musicalTypingStore';
 import { shortcutKeys } from '@/daw/commands/shortcuts';
 import { usePaletteStore } from '@/daw/shell/help/usePaletteStore';
@@ -24,35 +24,46 @@ import { ProjectMenu } from './ProjectMenu';
 import { ProjectName } from './ProjectName';
 import { SaveChipAnnouncer, SaveStatusChip } from './SaveStatusChip';
 import { SharePill } from './SharePill';
+import { SongControls } from '../bottombar/SongControls';
+import { TransportControls } from '../bottombar/TransportControls';
 import { UndoRedoButtons } from './UndoRedoButtons';
-import { ViewTabs } from './ViewTabs';
 import { folded, useToolbarOverflow } from './useToolbarOverflow';
 
-// ── The editor's top bar (milestones 2.5, 2.7, B4a) ────────────────────────
+// ── The editor's top bar (milestones 2.5, 2.7, B4a; the floating frame, S0) ─
 //
-// 44 px, three zones (shell-19, ia-flows-24):
-// - project: Back to Studio, the Project menu, the name, the save chip,
-//   Undo and Redo;
-// - views: the view tabs, centred;
-// - share: Share, the computer keyboard's chip while it is on, '⋯', the
-//   white Export pill (2.15) and the avatar.
-// The owner found the bar too busy (2026-10-16), so it was trimmed and
-// quieted (2.7: Back, Forward and Stop left it; Help, Settings and the
-// keyboard's switch went into '⋯'; Share is an icon; the secondary buttons
-// are dimmer), and then, after Soundtrap's, the transport and the song moved
-// to the bottom rail and the Inspector's toggle to the side rail (B4a).
+// 44 px, its controls in pills on the page, laid out as the floating frame
+// is (owner, 2026-10-21):
+// - project, at the left: Back, the Project menu, the name and the save
+//   chip in one pill; Undo and Redo in the next;
+// - transport, centred in the bar: Click, Go to start, Rewind, Record,
+//   Play, Fast-forward and Loop in one pill, the position in the next;
+// - song and share, at the right: Key, Tempo and Metre in one pill; Share,
+//   the computer keyboard's chip and '⋯' in the next; the white Export pill
+//   and the avatar.
+// The view tabs (Create, Mix, Score) moved to the bottom rail's centre.
 // When the zones don't fit, the bar folds (useToolbarOverflow). Each
 // control subscribes to its own state, so playback and edits re-render
 // none of the bar. The left zone leaves room for Stage D's assignment strip
 // and the read-only review banner (4.1).
 
-/** The least room either side of the tabs (the grid's spacers). */
+/** The least room either side of the transport (the grid's spacers). */
 const BAR_CHROME_PX = 4 + 4;
 
 const TYPING_KEYS = shortcutKeys('typing.on');
 const PALETTE_KEYS = shortcutKeys('help.palette');
 
-export const TopBar = memo(function TopBar() {
+export interface TopBarProps {
+  /** Whether the audio engine is up; the transport starts it if not. */
+  isReady?: boolean;
+  onInit?(): void;
+}
+
+const noop = () => {};
+
+export const TopBar = memo(function TopBar({
+  isReady = true,
+  onInit = noop,
+}: TopBarProps) {
   useDevCommitCount('TopBar');
   const barRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -69,7 +80,7 @@ export const TopBar = memo(function TopBar() {
         ref={barRef}
         data-testid="top-bar"
         data-fold={fold}
-        className="grid h-11 items-center overflow-hidden border-b border-daw-hairline bg-daw-bg px-2"
+        className="grid h-11 items-center overflow-hidden px-2"
         style={{
           gridTemplateColumns:
             'auto minmax(4px, 1fr) auto minmax(4px, 1fr) auto',
@@ -80,35 +91,46 @@ export const TopBar = memo(function TopBar() {
           role="group"
           aria-label="Project"
           data-zone="project"
-          className="flex items-center gap-1"
+          className="flex items-center gap-2"
         >
-          <BackToStudio />
-          <ProjectMenu />
-          <ProjectName narrow={folded(fold, 'name-narrow')} />
-          <SaveStatusChip announce={false} />
-          {practiceView ? null : <UndoRedoButtons />}
+          <PillGroup label="Project name and menu" className="pr-2">
+            <BackToStudio />
+            <ProjectMenu />
+            <ProjectName narrow={folded(fold, 'name-narrow')} />
+            <SaveStatusChip announce={false} />
+          </PillGroup>
+          {practiceView ? null : (
+            <PillGroup label="Undo and redo">
+              <UndoRedoButtons />
+            </PillGroup>
+          )}
         </div>
         <span aria-hidden />
         <div
           ref={centreRef}
           role="group"
-          aria-label="Views"
-          data-zone="views"
-          className="flex items-center"
+          aria-label="Transport"
+          data-zone="transport"
+          className="flex items-center gap-2"
         >
-          <ViewTabs tight={folded(fold, 'tabs-tight')} />
+          <TransportControls isReady={isReady} onInit={onInit} />
         </div>
         <span aria-hidden />
         <div
           ref={rightRef}
           role="group"
-          aria-label="Share and account"
+          aria-label="Song, share and account"
           data-zone="share"
-          className="flex items-center gap-1"
+          className="flex items-center gap-2"
         >
-          <SharePill iconOnly />
-          <MusicalTypingChip />
-          <MoreMenu />
+          <PillGroup label="Song" data-zone="song" className="px-1">
+            <SongControls short={folded(fold, 'key-short')} />
+          </PillGroup>
+          <PillGroup label="Share and more">
+            <SharePill iconOnly />
+            <MusicalTypingChip />
+            <MoreMenu />
+          </PillGroup>
           <ExportPill iconOnly={folded(fold, 'export-icon')} />
           <AvatarMenu className="ml-1" />
         </div>
@@ -142,9 +164,10 @@ function MoreMenu() {
         <IconButton
           label="More"
           icon={<MoreHorizontal />}
+          variant="bare"
+          size="lg"
           tooltipSide="bottom"
           data-testid="top-bar-overflow"
-          className={QUIET}
         />
       </MenuTrigger>
       <MenuContent align="end" sideOffset={6} data-ds="v2">

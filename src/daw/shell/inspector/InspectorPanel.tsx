@@ -35,7 +35,7 @@ export const InspectorPanel = memo(function InspectorPanel() {
     <div
       data-testid="inspector-panel"
       data-panel={panel}
-      className="flex min-h-0 flex-col overflow-hidden border-l border-daw-hairline bg-daw-surface-1 duration-daw-fast animate-in fade-in-0 motion-reduce:animate-none"
+      className="flex min-h-0 flex-col overflow-hidden rounded-[var(--daw-radius-lg)] bg-daw-surface-1 duration-daw-fast animate-in fade-in-0 motion-reduce:animate-none"
       style={{ width: 'var(--daw-insp-w, 300px)' }}
     >
       <div className="flex h-10 shrink-0 items-center gap-2 border-b border-daw-hairline pl-3 pr-1.5">

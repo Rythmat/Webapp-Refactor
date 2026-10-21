@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, type RefObject } from 'react';
 import { DevProfiler } from '@/daw/dev/DevProfiler';
+import { cn } from '@/components/utilities';
 import { useStore } from '@/daw/store';
 import { Resizer } from '@/daw/ui/Resizer';
 import {
@@ -47,9 +48,13 @@ import { TrackArea } from './tracklist/TrackArea';
 // view change remounts only what the main region shows:
 //
 //   top     top        top    the 44 px top bar
-//   main    inspector  rail   the view: Create's timeline, Mix, Score, Lead sheet
-//   dock    inspector  rail   Create's editor dock
+//   stage   inspector  rail   the stage card: the view (Create's timeline,
+//                             Mix, Score, Lead sheet) over Create's editor dock
 //   bottom  bottom     bottom the 44 px bottom rail: Master, transport, song
+//
+// The floating frame (S0): the bars' controls are pills on the page, and the
+// view and its dock share one rounded card with an 8 px gutter at each side
+// and none above or below, so the body is as tall as it was.
 //
 // The side rail (48 px of icons) picks what the Inspector beside it shows:
 // Insight, Library, Effects, Lessons, People, Chat (owner, 2026-10-16, after
@@ -113,13 +118,11 @@ export const StudioShell = memo(function StudioShell({
       className="relative grid min-h-0 w-full flex-1 overflow-hidden"
       style={{
         gridTemplateAreas: practiceScreen
-          ? '"main main main"'
-          : '"top top top" "main inspector rail" "dock inspector rail" "bottom bottom bottom"',
+          ? '"stage stage stage"'
+          : '"top top top" "stage inspector rail" "bottom bottom bottom"',
         gridTemplateRows: practiceScreen
           ? 'minmax(0, 1fr)'
-          : maximized
-            ? `${TOP_BAR_PX}px 0px minmax(0, 1fr) ${BOTTOM_RAIL_PX}px`
-            : `${TOP_BAR_PX}px minmax(0, 1fr) auto ${BOTTOM_RAIL_PX}px`,
+          : `${TOP_BAR_PX}px minmax(0, 1fr) ${BOTTOM_RAIL_PX}px`,
         gridTemplateColumns: practiceScreen
           ? 'minmax(0, 1fr) 0 0'
           : `minmax(0, 1fr) auto ${SIDE_RAIL_PX}px`,
@@ -133,45 +136,89 @@ export const StudioShell = memo(function StudioShell({
         hidden={practiceScreen}
       >
         <DevProfiler id="TopBar">
-          <TopBar />
+          <TopBar isReady={isReady} onInit={onInit} />
         </DevProfiler>
       </div>
 
-      <section
-        id={MAIN_REGION_ID}
-        data-region="main"
-        data-ds="legacy"
-        aria-label={MAIN_LABEL[practiceScreen ? 'practice' : view]}
-        className="flex min-h-0 min-w-0 flex-col overflow-hidden"
-        style={{ gridArea: 'main' }}
-        ref={mainRef}
-      >
-        {practiceScreen && practiceSession ? (
-          <DevProfiler id="PracticeTrackView">
-            <PracticeTrackViewPart
-              session={practiceSession}
-              isReady={isReady}
-              onInit={onInit}
-            />
-          </DevProfiler>
-        ) : create ? (
-          <DevProfiler id="TrackArea">
-            <TrackArea />
-          </DevProfiler>
-        ) : view === 'studio' ? (
-          <DevProfiler id="StudioView">
-            <StudioViewPart isReady={isReady} />
-          </DevProfiler>
-        ) : view === 'score' ? (
-          <DevProfiler id="ScoreView">
-            <ScoreViewPart />
-          </DevProfiler>
-        ) : (
-          <DevProfiler id="LeadSheetView">
-            <LeadSheetViewPart />
-          </DevProfiler>
+      <div
+        data-testid="stage-card"
+        className={cn(
+          'flex min-h-0 min-w-0 flex-col overflow-hidden',
+          // The practice screen is full-window: no card.
+          !practiceScreen &&
+            'mx-2 rounded-[var(--daw-radius-lg)] bg-daw-surface-1',
         )}
-      </section>
+        style={{ gridArea: 'stage' }}
+      >
+        <section
+          id={MAIN_REGION_ID}
+          data-region="main"
+          data-ds="legacy"
+          aria-label={MAIN_LABEL[practiceScreen ? 'practice' : view]}
+          className={cn(
+            'flex min-h-0 min-w-0 flex-col overflow-hidden',
+            // Under a maximized dock the view keeps its place at no height.
+            maximized ? 'h-0 flex-none' : 'flex-1',
+          )}
+          ref={mainRef}
+        >
+          {practiceScreen && practiceSession ? (
+            <DevProfiler id="PracticeTrackView">
+              <PracticeTrackViewPart
+                session={practiceSession}
+                isReady={isReady}
+                onInit={onInit}
+              />
+            </DevProfiler>
+          ) : create ? (
+            <DevProfiler id="TrackArea">
+              <TrackArea />
+            </DevProfiler>
+          ) : view === 'studio' ? (
+            <DevProfiler id="StudioView">
+              <StudioViewPart isReady={isReady} />
+            </DevProfiler>
+          ) : view === 'score' ? (
+            <DevProfiler id="ScoreView">
+              <ScoreViewPart />
+            </DevProfiler>
+          ) : (
+            <DevProfiler id="LeadSheetView">
+              <LeadSheetViewPart />
+            </DevProfiler>
+          )}
+        </section>
+        {create && !practiceScreen ? (
+          <section
+            data-region="dock"
+            data-ds="v2"
+            aria-label="Editor dock"
+            className={cn(
+              'relative min-h-0 min-w-0',
+              maximized ? 'flex-1' : 'shrink-0',
+            )}
+          >
+            {maximized ? null : <DockResizer rootRef={rootRef} />}
+            <DevProfiler id="Dock">
+              <Dock />
+            </DevProfiler>
+          </section>
+        ) : view === 'studio' && !practiceScreen ? (
+          // Mix's RackDock (2.10) takes the same slot: a share of the body,
+          // stopping at the Inspector.
+          <section
+            data-region="dock"
+            data-ds="v2"
+            aria-label="Effects rack"
+            className="relative min-h-0 min-w-0 shrink-0"
+          >
+            <RackResizer rootRef={rootRef} />
+            <DevProfiler id="RackDock">
+              <RackDock />
+            </DevProfiler>
+          </section>
+        ) : null}
+      </div>
 
       <InspectorRegion hidden={practiceScreen} rootRef={rootRef} />
 
@@ -186,36 +233,6 @@ export const StudioShell = memo(function StudioShell({
         <SideRail />
       </nav>
 
-      {create && !practiceScreen ? (
-        <section
-          data-region="dock"
-          data-ds="v2"
-          aria-label="Editor dock"
-          className="relative min-h-0 min-w-0"
-          style={{ gridArea: 'dock' }}
-        >
-          {maximized ? null : <DockResizer rootRef={rootRef} />}
-          <DevProfiler id="Dock">
-            <Dock />
-          </DevProfiler>
-        </section>
-      ) : view === 'studio' && !practiceScreen ? (
-        // Mix's RackDock (2.10) takes the same slot: a share of the body,
-        // stopping at the Inspector.
-        <section
-          data-region="dock"
-          data-ds="v2"
-          aria-label="Effects rack"
-          className="relative min-h-0 min-w-0"
-          style={{ gridArea: 'dock' }}
-        >
-          <RackResizer rootRef={rootRef} />
-          <DevProfiler id="RackDock">
-            <RackDock />
-          </DevProfiler>
-        </section>
-      ) : null}
-
       <div
         data-region="bottom"
         data-ds="v2"
@@ -224,7 +241,7 @@ export const StudioShell = memo(function StudioShell({
         hidden={practiceScreen}
       >
         <DevProfiler id="BottomRail">
-          <BottomRail isReady={isReady} onInit={onInit} />
+          <BottomRail />
         </DevProfiler>
       </div>
     </div>

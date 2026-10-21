@@ -38,29 +38,38 @@ import { FLOATING_SURFACE, TYPE_CLASS } from './styles';
  * Menus on the shared Radix kit: the drop-down Menu (a '⋯' button, the
  * Project menu) and its right-click twin, ContextMenu. Arrow keys move,
  * typing jumps, Enter chooses, Escape closes and focus returns to the
- * trigger. Items are 28 px with 13 px text and an optional shortcut; the
+ * trigger. Rows are 40 px, edge to edge, with 14 px text and an optional
+ * shortcut in quiet text; the
  * danger item is red text for actions that destroy work. A setting's item
  * takes a `description`: a second, quieter line saying what it does (the
- * item grows to 40 px and the line describes it to a screen reader).
+ * row grows to fit and the line describes it to a screen reader).
  */
 
-const SURFACE = cn(FLOATING_SURFACE, 'min-w-44 p-1');
+/**
+ * Rows are 40 px, so a long menu (Project) can outgrow a short window: it
+ * stops at the room Radix measures and scrolls.
+ */
+const SURFACE = cn(
+  FLOATING_SURFACE,
+  'min-w-52 overflow-y-auto overflow-x-hidden p-0',
+  'max-h-[var(--radix-dropdown-menu-content-available-height,var(--radix-context-menu-content-available-height,100vh))]',
+);
 
 const ITEM =
-  'h-7 gap-2 rounded-[var(--daw-radius-sm)] px-2 py-0 text-daw-text outline-none focus:bg-daw-hover focus:text-daw-text data-[state=open]:bg-daw-hover data-[disabled]:opacity-40 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-daw-text-2';
+  'h-10 gap-2 rounded-none px-4 py-0 text-daw-text outline-none focus:bg-daw-menu-hover focus:text-daw-text data-[state=open]:bg-daw-menu-hover data-[disabled]:opacity-40 [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-daw-text';
 
 const DANGER =
   'text-daw-danger-text focus:bg-daw-danger-subtle focus:text-daw-danger-text [&>svg]:text-daw-danger-text';
 
 /** An item with a description line grows to fit its two lines. */
-const DESCRIBED = 'h-auto min-h-10 py-1';
+const DESCRIBED = 'h-auto min-h-12 py-1.5';
 
 /** Check and radio items keep room on the left for their mark. */
-const INDENTED = 'pl-8';
+const INDENTED = 'pl-10';
 
-const LABEL = cn(TYPE_CLASS.micro, 'px-2 pb-1 pt-2 text-daw-text-3');
+const LABEL = cn(TYPE_CLASS.micro, 'px-4 pb-1 pt-3 text-daw-text-3');
 
-const SEPARATOR = '-mx-1 my-1 h-px bg-daw-hairline';
+const SEPARATOR = 'mx-0 my-1 h-px bg-daw-edge';
 
 interface ItemExtras {
   /** A leading icon, 16 px. */
@@ -135,7 +144,9 @@ function ItemFace({
       ) : (
         <span className="min-w-0 flex-1 truncate">{children}</span>
       )}
-      {shortcut && <Kbd className="ml-4">{shortcut}</Kbd>}
+      {shortcut && (
+        <Kbd className="ml-4 h-auto min-w-0 border-0 px-0">{shortcut}</Kbd>
+      )}
     </>
   );
 }
@@ -187,7 +198,7 @@ export const MenuRadioGroup = forwardRef<
         <p
           data-menu-description
           id={descriptionId}
-          className={cn(TYPE_CLASS.label, '-mt-0.5 px-2 pb-1 text-daw-text-3')}
+          className={cn(TYPE_CLASS.label, '-mt-0.5 px-4 pb-1 text-daw-text-3')}
         >
           {description}
         </p>
@@ -220,7 +231,7 @@ export const MenuItem = forwardRef<
       data-danger={danger || undefined}
       className={cn(
         ITEM,
-        TYPE_CLASS.body,
+        TYPE_CLASS.item,
         danger && DANGER,
         description && DESCRIBED,
         className,
@@ -259,7 +270,7 @@ export const MenuCheckboxItem = forwardRef<
       className={cn(
         ITEM,
         INDENTED,
-        TYPE_CLASS.body,
+        TYPE_CLASS.item,
         description && DESCRIBED,
         className,
       )}
@@ -293,7 +304,7 @@ export const MenuRadioItem = forwardRef<
       className={cn(
         ITEM,
         INDENTED,
-        TYPE_CLASS.body,
+        TYPE_CLASS.item,
         description && DESCRIBED,
         className,
       )}
@@ -341,7 +352,7 @@ export const MenuSubTrigger = forwardRef<
   return (
     <DropdownMenuSubTrigger
       ref={ref}
-      className={cn(ITEM, TYPE_CLASS.body, className)}
+      className={cn(ITEM, TYPE_CLASS.item, className)}
       {...props}
     >
       <ItemFace icon={icon}>{children}</ItemFace>
@@ -402,7 +413,7 @@ export const ContextMenuItem = forwardRef<
       data-danger={danger || undefined}
       className={cn(
         ITEM,
-        TYPE_CLASS.body,
+        TYPE_CLASS.item,
         danger && DANGER,
         description && DESCRIBED,
         className,
@@ -429,7 +440,7 @@ export const ContextMenuCheckboxItem = forwardRef<
   return (
     <KitContextMenuCheckboxItem
       ref={ref}
-      className={cn(ITEM, INDENTED, TYPE_CLASS.body, className)}
+      className={cn(ITEM, INDENTED, TYPE_CLASS.item, className)}
       {...props}
     />
   );

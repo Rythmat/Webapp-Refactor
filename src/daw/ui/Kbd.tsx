@@ -18,3 +18,20 @@ export function Kbd({ className, ...props }: HTMLAttributes<HTMLElement>) {
     />
   );
 }
+
+/**
+ * A key on a lighter cap, beside a menu row or in a Learn card ('A' for
+ * Add audio track, 'Shift T'): 24 px, white/10 edge on the chip fill.
+ * Hide it from screen readers when the row's shortcut already says it.
+ */
+export function Keycap({ className, ...props }: HTMLAttributes<HTMLElement>) {
+  return (
+    <Kbd
+      className={cn(
+        'h-6 min-w-6 rounded-[var(--daw-radius-xs)] border-daw-edge bg-daw-chip px-1.5 text-daw-text-2',
+        className,
+      )}
+      {...props}
+    />
+  );
+}

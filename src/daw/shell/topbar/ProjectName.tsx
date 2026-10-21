@@ -53,10 +53,10 @@ export const ProjectName = memo(function ProjectName({
         readOnly={!canEdit}
         spellCheck={false}
         className={cn(
-          'h-7 shrink-0 truncate rounded-[var(--daw-radius-sm)] border border-transparent bg-transparent px-1.5 font-bold text-daw-text',
+          'h-8 shrink-0 truncate rounded-[var(--daw-radius-md)] border border-transparent bg-transparent px-2 text-daw-text',
           narrow ? 'w-24' : 'w-[140px]',
           canEdit
-            ? 'hover:border-daw-hairline focus:border-daw-outline'
+            ? 'hover:bg-daw-chip focus:border-daw-outline'
             : 'cursor-default',
           TYPE_CLASS.body,
           TRANSITION,

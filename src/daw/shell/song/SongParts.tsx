@@ -175,7 +175,7 @@ export function TempoField() {
       aria-label="Tempo"
       className="flex items-center gap-1"
     >
-      <Tooltip content="Tempo in beats per minute" side="top">
+      <Tooltip content="Tempo in beats per minute" side="bottom">
         <label className="flex h-7 items-center gap-1 rounded-[var(--daw-radius-sm)] px-1 hover:bg-daw-hover">
           <input
             id="bpm-input"

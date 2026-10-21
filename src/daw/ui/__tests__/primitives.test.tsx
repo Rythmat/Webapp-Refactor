@@ -10,10 +10,12 @@ import { Redo2, Undo2 } from 'lucide-react';
 import { useState } from 'react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { Button } from '../Button';
-import { Chip } from '../Chip';
+import { Chip, ColorChip } from '../Chip';
 import { EmptyState } from '../EmptyState';
+import { FloatingCard } from '../FloatingCard';
 import { IconButton } from '../IconButton';
-import { Kbd } from '../Kbd';
+import { Kbd, Keycap } from '../Kbd';
+import { IconPill, Pill, PillGroup } from '../Pill';
 import { PremiumBadge } from '../PremiumBadge';
 import { Readout } from '../Readout';
 import { Toggle } from '../Toggle';
@@ -388,5 +390,84 @@ describe('EmptyState, Readout and Kbd', () => {
   it('shows a shortcut as a kbd element', () => {
     render(<Kbd>⌘Z</Kbd>);
     expect(screen.getByText('⌘Z').tagName).toBe('KBD');
+  });
+});
+
+// ── The floating frame's pieces (S0) ─────────────────────────────────────────
+
+describe('pills, floating cards, keycaps and colour chips', () => {
+  it('makes a Pill a 36 px button on the pill fill, and the white pill on request', () => {
+    render(
+      <>
+        <Pill>Library</Pill>
+        <Pill variant="primary">Learn</Pill>
+      </>,
+    );
+    const pill = screen.getByRole('button', { name: 'Library' });
+    expect(pill).toHaveClass('h-9', 'bg-daw-pill', 'text-daw-pill-text');
+    expect(pill).toHaveAttribute('data-variant', 'pill');
+    expect(pill).toHaveAttribute('type', 'button');
+    const white = screen.getByRole('button', { name: 'Learn' });
+    expect(white).toHaveClass('h-9', 'bg-daw-primary');
+    expect(white).toHaveAttribute('data-variant', 'primary');
+  });
+
+  it('names an IconPill by its label and draws it round at 36 px', () => {
+    render(<IconPill label="Zoom in" icon={<Redo2 />} />);
+    const button = screen.getByRole('button', { name: 'Zoom in' });
+    expect(button).toHaveClass('size-9', 'rounded-full', 'bg-daw-pill');
+  });
+
+  it('makes a PillGroup a named group that never clips a focus ring', () => {
+    render(
+      <PillGroup label="Undo and redo">
+        <IconButton label="Undo" icon={<Undo2 />} variant="bare" />
+      </PillGroup>,
+    );
+    const group = screen.getByRole('group', { name: 'Undo and redo' });
+    expect(group).toHaveClass('h-9', 'rounded-full', 'bg-daw-pill');
+    expect(group).not.toHaveClass('overflow-hidden');
+    expect(screen.getByRole('button', { name: 'Undo' })).toHaveAttribute(
+      'data-variant',
+      'bare',
+    );
+  });
+
+  it('keeps a FloatingCard opaque, edged and marked for the design probe', () => {
+    render(<FloatingCard data-testid="card">Hi</FloatingCard>);
+    const card = screen.getByTestId('card');
+    expect(card).toHaveAttribute('data-ds', 'v2');
+    expect(card).toHaveClass(
+      'bg-daw-popover',
+      'border-daw-edge',
+      'rounded-[var(--daw-radius-2xl)]',
+      '[box-shadow:var(--daw-shadow-float)]',
+    );
+    expect(card.className).not.toMatch(/backdrop-blur|bg-daw-column/);
+  });
+
+  it('draws a Keycap on a 24 px cap in the page font', () => {
+    render(<Keycap>A</Keycap>);
+    const cap = screen.getByText('A');
+    expect(cap.tagName).toBe('KBD');
+    expect(cap).toHaveClass('h-6', 'min-w-6', 'font-[inherit]');
+  });
+
+  it('tints a ColorChip with its colour, dark ink, and says what the colour means', () => {
+    render(
+      <ColorChip color="#e4c441" meaning="track-colour">
+        Bass
+      </ColorChip>,
+    );
+    const chip = screen.getByText('Bass');
+    expect(chip).toHaveAttribute('data-meaning', 'track-colour');
+    expect(chip).toHaveClass('h-6');
+    expect(chip.style.backgroundColor).toContain('color-mix');
+    expect(chip.style.color).toBe('var(--daw-on-primary)');
+  });
+
+  it('marks any chip with a colour as meaning, so the probe never reads it as an accent', () => {
+    render(<Chip color="#e4c441">Key</Chip>);
+    expect(screen.getByText('Key')).toHaveAttribute('data-meaning', 'colour');
   });
 });

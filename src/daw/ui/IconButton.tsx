@@ -22,6 +22,13 @@ const iconButtonVariants = cva(
         primary:
           'rounded-full bg-daw-primary text-daw-on-primary hover:bg-daw-primary-hover active:bg-daw-primary-active',
         danger: 'bg-daw-danger text-daw-on-danger hover:bg-daw-danger-hover',
+        /** A round pill of its own on the page. */
+        pill: 'rounded-full bg-daw-pill text-daw-pill-text hover:text-daw-text',
+        /**
+         * A control inside a PillGroup: no fill and white/50 until hovered,
+         * then a white/8 rounded square behind it.
+         */
+        bare: 'rounded-[var(--daw-radius-md)] bg-transparent text-daw-pill-text hover:bg-daw-chip hover:text-daw-text',
       },
       size: {
         sm: 'size-6 [&_svg]:size-3.5',
@@ -34,7 +41,13 @@ const iconButtonVariants = cva(
   },
 );
 
-export type IconButtonVariant = 'ghost' | 'secondary' | 'primary' | 'danger';
+export type IconButtonVariant =
+  | 'ghost'
+  | 'secondary'
+  | 'primary'
+  | 'danger'
+  | 'pill'
+  | 'bare';
 export type IconButtonSize = 'sm' | 'md' | 'lg' | 'play';
 
 export interface IconButtonProps

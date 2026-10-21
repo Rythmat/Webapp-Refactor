@@ -127,4 +127,20 @@ describe('StudioShell', () => {
     );
     expect(q('[data-region="dock"]')).toBeNull();
   });
+
+  it('holds the view and its dock in one stage card, and drops the card for the practice screen', () => {
+    render(<StudioShell isReady onInit={() => {}} />);
+    const card = q('[data-testid="stage-card"]');
+    expect(card).not.toBeNull();
+    expect(card?.querySelector('[data-region="main"]')).not.toBeNull();
+    expect(card?.querySelector('[data-region="dock"]')).not.toBeNull();
+    expect(card).toHaveClass('mx-2', 'rounded-[var(--daw-radius-lg)]');
+    act(() =>
+      useStore.setState({
+        currentView: 'practice',
+        practiceSession: { kind: 'theory' } as never,
+      }),
+    );
+    expect(q('[data-testid="stage-card"]')).not.toHaveClass('mx-2');
+  });
 });

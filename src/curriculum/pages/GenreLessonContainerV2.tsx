@@ -155,7 +155,7 @@ import type {
   StyleSubProfile,
 } from '../types/activity.v2';
 import { flowInstrument } from '../utils/flowInstrument';
-import { stepMode } from '../utils/flowKey';
+import { scaleColorMode, stepMode } from '../utils/flowKey';
 import { formatAccidentalsForDisplay } from '../utils/formatAccidentals';
 
 // The guitar input setup (tuner, checks) loads when first opened.
@@ -430,11 +430,19 @@ function GenreLessonContainerV2Inner({
   // flow names it (Latin L1's Mariachi steps: key 'G major').
   const ownKey = (currentStep as ActivityStepV2).key;
   const stepScaleId = (currentStep as ActivityStepV2).scaleId;
+  // A step in another scale than its level's is colored and spelled in it:
+  // Hip Hop L3 is in E Phrygian, and its E Dorian and E harmonic minor steps
+  // name their own.
+  const ownScaleId =
+    stepScaleId && stepScaleId !== flow.params.defaultScaleId
+      ? stepScaleId
+      : undefined;
   const keyName = (ownKey ?? flow.params.defaultKey).split(' ')[0];
   const keyRoot = useMemo(() => parseKeyRoot(keyName), [keyName]);
-  const keyModeSlug = ownKey
-    ? stepMode(flow, { key: ownKey, scaleId: stepScaleId })
-    : (SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? null);
+  const keyModeSlug =
+    ownKey || ownScaleId
+      ? stepMode(flow, { key: ownKey, scaleId: stepScaleId })
+      : (SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? null);
 
   // Chord symbols follow the chord notation setting; Roman numbers from the key.
   const chordNotation = useChordNotation();
@@ -452,14 +460,17 @@ function GenreLessonContainerV2Inner({
     // takes its own (ionian) colour, as on the key picker, and a mode its
     // mode's. Piano's 'major' scale id has no entry here and keeps its
     // existing fallback.
+    // A harmonic minor step takes the harmonic minor's own color.
     const modeSlug = isGuitar
       ? guitarScaleEntry(guitarCenter.mode).slug
-      : (keyModeSlug ?? 'dorian');
+      : ownScaleId
+        ? scaleColorMode(ownScaleId)
+        : (keyModeSlug ?? 'dorian');
     return colorForKeyMode(
       keyName,
       modeSlug as Parameters<typeof colorForKeyMode>[1],
     );
-  }, [keyName, keyModeSlug, isGuitar, guitarCenter]);
+  }, [keyName, keyModeSlug, ownScaleId, isGuitar, guitarCenter]);
 
   // Demo playback hook
   const { playDemo, stopDemo, demoHighlightMidis, isPlayingDemo } =
